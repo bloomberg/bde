@@ -141,6 +141,14 @@ struct TypeRep<TYPE&> {
         // 'TYPE' has a default constructor or not.
 };
 
+struct DummyType {
+};
+
+template <>
+struct TypeRep<void> {
+    static DummyType& rep();
+};
+
 }  // close package namespace
 
 #ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY

@@ -426,11 +426,6 @@ class basic_stringbuf
         // stream buffer was not opened for writing.
 
   public:
-    // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(
-                             basic_stringbuf,
-                             BloombergLP::bslalg::TypeTraitUsesBslmaAllocator);
-
     // CREATORS
     explicit
     basic_stringbuf(const allocator_type& allocator = allocator_type());
@@ -480,6 +475,23 @@ class basic_stringbuf
 typedef basic_stringbuf<char, char_traits<char>, allocator<char> >   stringbuf;
 typedef basic_stringbuf<wchar_t, char_traits<wchar_t>, allocator<wchar_t> >
                                                                     wstringbuf;
+
+}
+
+// TYPE TRAITS
+namespace BloombergLP {
+namespace bslma {
+
+template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+struct UsesBslmaAllocator<
+        bsl::basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR> >
+    : bsl::true_type
+{};
+
+}
+}
+
+namespace bsl {
 
                       // =========================
                       // struct StringBufContainer

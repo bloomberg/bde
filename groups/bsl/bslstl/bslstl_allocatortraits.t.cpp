@@ -2,14 +2,14 @@
 #include <bslstl_allocatortraits.h>
 
 #include <bslstl_allocator.h>
-#include <bslstl_traitsgroupstlsequencecontainer.h>
 
-#include <bslalg_typetraits.h>
 #include <bslma_testallocator.h>
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
+#include <bslma_usesbslmaallocator.h>
+#include <bslalg_typetraithasstliterators.h>       // for testing only
 #include <bslmf_issame.h>
-#include <bslmf_removecvq.h>
+#include <bslmf_removecv.h>
 #include <bsls_bsltestutil.h>
 #include <bsls_objectbuffer.h>
 #include <bsls_util.h>
@@ -129,10 +129,10 @@ void aSsErT(int c, const char *s, int i) {
 //-----------------------------------------------------------------------------
 
 // Short-cut assert macros
-#define ASSERT_ISSAME(t1,t2) ASSERT((bslmf::IsSame< t1,t2>::VALUE))
+#define ASSERT_ISSAME(t1,t2) ASSERT((bsl::is_same< t1,t2>::value))
 
 #define LOOP_ASSERT_ISSAME(I,t1,t2) \
-        LOOP_ASSERT(I, (bslmf::IsSame< t1,t2>::VALUE))
+        LOOP_ASSERT(I, (bsl::is_same< t1,t2>::value))
 
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
@@ -176,10 +176,6 @@ class NonBslmaAllocator
     typedef T&              reference;
     typedef const T&        const_reference;
     typedef T               value_type;
-
-    // A client that uses this allocator should not have the
-    // bslalg::TypeTraitUsesBslmaAllocator trait.  This is a stand-in trait.
-    typedef struct UsesNonBslma { } ClientTrait;
 
     template <class U>
     struct rebind
@@ -233,11 +229,11 @@ class BslmaAllocator
     // 'bslma::Allocator*'.
     bslma::Allocator *d_mechanism;
 
-    void doConstruct(T *p, const T& val, bslmf::MetaInt<0>) {
+    void doConstruct(T *p, const T& val, bsl::false_type) {
         ::new ((void*)p) T(val);
     }
 
-    void doConstruct(T *p, const T& val, bslmf::MetaInt<1>) {
+    void doConstruct(T *p, const T& val, bsl::true_type) {
         ::new ((void*)p) T(val, this->d_mechanism);
     }
 
@@ -257,9 +253,6 @@ class BslmaAllocator
         typedef BslmaAllocator<U> other;
     };
 
-    // A client that uses this allocator should have this trait
-    typedef bslalg::TypeTraitUsesBslmaAllocator ClientTrait;
-
     BslmaAllocator(bslma::Allocator *basicAlloc = 0)
         : d_mechanism(bslma::Default::allocator(basicAlloc)) { }
 
@@ -273,9 +266,7 @@ class BslmaAllocator
 
     void construct(T *p, const T& val)
     {
-        typedef
-        typename bslalg::HasTrait<T, bslalg::TypeTraitUsesBslmaAllocator>::Type
-                                                            UsesBslmaAllocator;
+        typedef typename bslma::UsesBslmaAllocator<T>::type UsesBslmaAllocator;
         doConstruct(p, val, UsesBslmaAllocator());
     }
     void destroy(T *p) { p->~T(); }
@@ -311,7 +302,7 @@ class FunkyPointer
   public:
     FunkyPointer() : d_imp(0) { }
     FunkyPointer(T* p, int) : d_imp(p) { }
-    FunkyPointer(const FunkyPointer<typename bslmf::RemoveCvq<T>::Type>& other)
+    FunkyPointer(const FunkyPointer<typename bsl::remove_cv<T>::type>& other)
         : d_imp(other.operator->()) { }
 
     // Construct from null pointer
@@ -346,11 +337,11 @@ class FunkyAllocator
     // 'bslma::Allocator*'.
     bslma::Allocator *d_mechanism;
 
-    void doConstruct(T *p, const T& val, bslmf::MetaInt<0>) {
+    void doConstruct(T *p, const T& val, bsl::false_type) {
         ::new ((void*)p) T(val);
     }
 
-    void doConstruct(T *p, const T& val, bslmf::MetaInt<1>) {
+    void doConstruct(T *p, const T& val, bsl::true_type) {
         ::new ((void*)p) T(val, this->d_mechanism);
     }
 
@@ -370,9 +361,6 @@ class FunkyAllocator
         typedef FunkyAllocator<U> other;
     };
 
-    // A client that uses this allocator should have this trait
-    typedef bslalg::TypeTraitUsesBslmaAllocator ClientTrait;
-
     FunkyAllocator(bslma::Allocator *basicAlloc = 0)
         : d_mechanism(bslma::Default::allocator(basicAlloc)) { }
 
@@ -386,9 +374,7 @@ class FunkyAllocator
 
     void construct(T *p, const T& val)
     {
-        typedef
-        typename bslalg::HasTrait<T, bslalg::TypeTraitUsesBslmaAllocator>::Type
-                                                            UsesBslmaAllocator;
+        typedef typename bslma::UsesBslmaAllocator<T>::Type UsesBslmaAllocator;
         doConstruct(p, val, UsesBslmaAllocator());
     }
     void destroy(T *p) { p->~T(); }
@@ -484,12 +470,6 @@ class AttribClass5Alloc
     ALLOC        d_allocator;
 
   public:
-    // Use the client trait exported by the allocator.  If the allocator uses
-    // the bslma model, then this type will be
-    // 'bslalg::TypeTraitUsesBslmaAllocator'
-    typedef typename ALLOC::ClientTrait UsesAllocTrait;
-    BSLALG_DECLARE_NESTED_TRAITS(AttribClass5Alloc, UsesAllocTrait);
-
     typedef ALLOC AllocatorType;
 
     explicit AttribClass5Alloc(const ALLOC& alloc = ALLOC())
@@ -508,7 +488,7 @@ class AttribClass5Alloc
         : d_attrib(a, b, c, d, e), d_allocator(alloc) { }
     AttribClass5Alloc(const AttribClass5Alloc& other)
         : d_attrib(other.d_attrib)
-        , d_allocator(bslmf::IsConvertible<bslma::Allocator*,ALLOC>::VALUE ?
+        , d_allocator(bsl::is_convertible<bslma::Allocator*,ALLOC>::value ?
                       ALLOC() : other.d_allocator)
         { }
     AttribClass5Alloc(const AttribClass5Alloc& other, const ALLOC& alloc)
@@ -525,6 +505,18 @@ class AttribClass5Alloc
     friend void operator&(AttribClass5Alloc&) { }
 };
 
+// Set the 'UsesBslmaAllocator' trait.  If the allocator uses the bslma model,
+// then this trait will be true.
+namespace BloombergLP {
+namespace bslma {
+    template <class ALLOC>
+    struct UsesBslmaAllocator<AttribClass5Alloc<ALLOC> > :
+        bsl::is_convertible<bslma::Allocator*, ALLOC>::type
+    {
+    };
+} // namespace bslma
+} // namespace BloombergLP
+
 class AttribClass5bslma
 {
     // This test class has up to 5 constructor arguments plus an (optional)
@@ -535,8 +527,8 @@ class AttribClass5bslma
     bslma::Allocator* d_allocator;
 
   public:
-    BSLALG_DECLARE_NESTED_TRAITS(AttribClass5bslma,
-                                 bslalg::TypeTraitUsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(AttribClass5bslma,
+                                   bslma::UsesBslmaAllocator);
 
     typedef bslma::Allocator* AllocatorType;
 
@@ -610,7 +602,6 @@ inline bool isMutable(const T& /* x */) { return false; }
 //..
     #include <bslstl_allocatortraits.h>
     #include <bslstl_allocator.h>
-    #include <bslstl_traitsgroupstlsequencecontainer.h>
 
     using namespace BloombergLP;
 
@@ -628,11 +619,6 @@ inline bool isMutable(const T& /* x */) { return false; }
         TYPE  *d_value_p;
 
       public:
-        // TRAITS
-        typedef bslstl::TraitsGroupStlSequenceContainer<TYPE,ALLOC> TypeTraits;
-        BSLALG_DECLARE_NESTED_TRAITS(MyContainer, TypeTraits);
-            // Declare nested type traits for this class.
-
         typedef TYPE  value_type;
         typedef ALLOC allocator_type;
         // etc.
@@ -652,6 +638,41 @@ inline bool isMutable(const T& /* x */) { return false; }
         const TYPE& front() const { return *d_value_p; }
         // etc.
     };
+//..
+// Next we define the type traits for 'MyContainer' so that it is recognized
+// as an STL *sequence* container:
+//: o Defines STL iterators
+//: o Is bitwise moveable if the allocator is bitwise moveable
+//: o Uses 'bslma' allocators if the 'ALLOC' template parameter
+//:   is convertible from 'bslma::Allocator*'.
+//..
+    namespace BloombergLP {
+    namespace bslalg {
+
+    template <typename TYPE, typename ALLOC>
+    struct HasStlIterators<MyContainer<TYPE, ALLOC> > : bsl::true_type
+    {};
+
+    } // namespace bslalg
+
+    namespace bslmf {
+
+    template <typename TYPE, typename ALLOC>
+    struct IsBitwiseMoveable<MyContainer<TYPE, ALLOC> >
+        : IsBitwiseMoveable<ALLOC>
+    {};
+
+    } // namespace bslmf
+
+    namespace bslma {
+
+    template <typename TYPE, typename ALLOC>
+    struct UsesBslmaAllocator<MyContainer<TYPE, ALLOC> >
+        : bsl::is_convertible<Allocator*, ALLOC>
+    {};
+
+    }  // namespace bslma
+    }  // namespace BloombergLP
 //..
 // Then we implement the constructors, which allocate memory and construct a
 // 'TYPE' object in the allocated memory.  Because the allocation and
@@ -770,15 +791,14 @@ inline bool isMutable(const T& /* x */) { return false; }
         // etc.
       public:
         // TRAITS
-        BSLALG_DECLARE_NESTED_TRAITS(MyType,
-                                     bslalg::TypeTraitUsesBslmaAllocator);
+        BSLMF_NESTED_TRAIT_DECLARATION(MyType, bslma::UsesBslmaAllocator);
 
         // CREATORS
         explicit MyType(bslma::Allocator* basicAlloc = 0)
            : d_allocator_p(bslma::Default::allocator(basicAlloc)) { /* ... */ }
-        MyType(const MyType& other)
+        MyType(const MyType&)
             : d_allocator_p(bslma::Default::allocator(0)) { /* ... */ }
-        MyType(const MyType& other, bslma::Allocator* basicAlloc)
+        MyType(const MyType&, bslma::Allocator* basicAlloc)
            : d_allocator_p(bslma::Default::allocator(basicAlloc)) { /* ... */ }
         // etc.
 
@@ -801,8 +821,8 @@ inline bool isMutable(const T& /* x */) { return false; }
     {
         bslma::TestAllocator testAlloc;
         MyContainer<MyType> C1(&testAlloc);
-        ASSERT((bslmf::IsSame<MyContainer<MyType>::allocator_type,
-                bsl::allocator<MyType> >::VALUE));
+        ASSERT((bsl::is_same<MyContainer<MyType>::allocator_type,
+                bsl::allocator<MyType> >::value));
         ASSERT(C1.get_allocator() == bsl::allocator<MyType>(&testAlloc));
         ASSERT(C1.front().allocator() == &testAlloc);
 
@@ -880,8 +900,8 @@ inline bool isMutable(const T& /* x */) { return false; }
     {
         typedef MyCpp03Allocator<MyType> MyTypeAlloc;
         MyContainer<MyType, MyTypeAlloc> C1(MyTypeAlloc(1));
-        ASSERT((bslmf::IsSame<MyContainer<MyType, MyTypeAlloc>::allocator_type,
-                              MyTypeAlloc>::VALUE));
+        ASSERT((bsl::is_same<MyContainer<MyType, MyTypeAlloc>::allocator_type,
+                              MyTypeAlloc>::value));
         ASSERT(C1.get_allocator() == MyTypeAlloc(1));
         ASSERT(C1.front().allocator() == bslma::Default::defaultAllocator());
 
@@ -1018,8 +1038,8 @@ void testAllocatorConformance(const char* allocName)
 
     a.destroy(bsls::Util::addressOf(*p));
     LOOP_ASSERT(allocName, AttribClass5::dtorCount() == dtorCountBefore + 1);
-    LOOP_ASSERT(allocName, 0xdeadbeaf == p->b());
-    LOOP_ASSERT(allocName, 0xdeadbeaf == cp->b());
+    LOOP_ASSERT(allocName, 0xdeadbeaf == (unsigned) p->b());
+    LOOP_ASSERT(allocName, 0xdeadbeaf == (unsigned) cp->b());
 
     a.deallocate(p, 1);
     LOOP_ASSERT(allocName, ta.numBytesInUse() == 0)
@@ -1153,7 +1173,7 @@ void testAttribClass<AttribClass5>(const char* className)
     };
     static const std::size_t NUM_DATA = sizeof(DATA) / sizeof(DATA[0]);
 
-    for (int i = 0; i < NUM_DATA; ++i) {
+    for (std::size_t i = 0; i < NUM_DATA; ++i) {
         const char        A = DATA[i].d_a;
         const int         B = DATA[i].d_b;
         const double      C = DATA[i].d_c;
@@ -1217,17 +1237,17 @@ void testNestedTypedefs(const char* allocName)
     // that cv-A is the same as B or cv-A is derived from B, which what we are
     // looking for.
     LOOP_ASSERT(allocName,
-                (bslmf::IsConvertible<
+                (bsl::is_convertible<
                  typename Traits::propagate_on_container_copy_assignment*,
-                 bslmf::MetaInt<0>* >::VALUE));
+                 bsl::false_type* >::value));
     LOOP_ASSERT(allocName,
-                (bslmf::IsConvertible<
+                (bsl::is_convertible<
                  typename Traits::propagate_on_container_move_assignment*,
-                 bslmf::MetaInt<0>* >::VALUE));
+                 bsl::false_type* >::value));
     LOOP_ASSERT(allocName,
-                (bslmf::IsConvertible<
+                (bsl::is_convertible<
                  typename Traits::propagate_on_container_swap*,
-                 bslmf::MetaInt<0>* >::VALUE));
+                 bsl::false_type* >::value));
 }
 
 template <template <class X> class ALLOC_TMPL, class T, class U>
@@ -1254,50 +1274,50 @@ void testRebind(const char* testName)
     typedef typename TraitsT::template rebind_traits<float> TraitsTReboundF;
 
     // Rebind from 'T' to 'U'
-    LOOP_ASSERT(testName, (bslmf::IsConvertible<
-                           AllocTReboundU*, AllocU*>::VALUE));
-    LOOP_ASSERT(testName, (bslmf::IsConvertible<
-                           TraitsTReboundU*, TraitsU*>::VALUE));
+    LOOP_ASSERT(testName, (bsl::is_convertible<
+                           AllocTReboundU*, AllocU*>::value));
+    LOOP_ASSERT(testName, (bsl::is_convertible<
+                           TraitsTReboundU*, TraitsU*>::value));
     LOOP_ASSERT_ISSAME(testName,
                        typename TraitsTReboundU::allocator_type, AllocU);
 
     // Rebind from 'U' to 'T'
     LOOP_ASSERT(testName,
-                (bslmf::IsConvertible<AllocUReboundT*, AllocT*>::VALUE));
+                (bsl::is_convertible<AllocUReboundT*, AllocT*>::value));
     LOOP_ASSERT(testName,
-                (bslmf::IsConvertible<TraitsUReboundT*, TraitsT*>::VALUE));
+                (bsl::is_convertible<TraitsUReboundT*, TraitsT*>::value));
     LOOP_ASSERT_ISSAME(testName,
                        typename TraitsUReboundT::allocator_type, AllocT);
 
     // Rebind from 'T' to 'T'
     LOOP_ASSERT(testName,
-                (bslmf::IsConvertible<AllocTReboundT*, AllocT*>::VALUE));
+                (bsl::is_convertible<AllocTReboundT*, AllocT*>::value));
     LOOP_ASSERT(testName,
-                (bslmf::IsConvertible<TraitsTReboundT*, TraitsT*>::VALUE));
+                (bsl::is_convertible<TraitsTReboundT*, TraitsT*>::value));
     LOOP_ASSERT_ISSAME(testName,
                        typename TraitsTReboundT::allocator_type, AllocT);
 
     // Multiple rebind
     LOOP_ASSERT(testName,
-                (bslmf::IsConvertible<
+                (bsl::is_convertible<
                    typename allocator_traits<AllocUReboundT>::
                                              template rebind_alloc<T>*,
-                 AllocT*>::VALUE));
+                 AllocT*>::value));
     LOOP_ASSERT(testName,
-                (bslmf::IsConvertible<
+                (bsl::is_convertible<
                    typename allocator_traits<AllocUReboundT>::
                                              template rebind_traits<T>*,
-                 TraitsT*>::VALUE));
+                 TraitsT*>::value));
     LOOP_ASSERT(testName,
-                (bslmf::IsConvertible<
+                (bsl::is_convertible<
                    typename allocator_traits<AllocUReboundT>::
                                              template rebind_alloc<U>*,
-                 AllocU*>::VALUE));
+                 AllocU*>::value));
     LOOP_ASSERT(testName,
-                (bslmf::IsConvertible<
+                (bsl::is_convertible<
                    typename allocator_traits<AllocUReboundT>::
                                              template rebind_traits<U>*,
-                 TraitsU*>::VALUE));
+                 TraitsU*>::value));
 }
 
 template <class ALLOC>
@@ -1431,7 +1451,7 @@ void testConstructDestroy(const char *allocname,
     };
     static const std::size_t NUM_DATA = sizeof(DATA) / sizeof(DATA[0]);
 
-    for (int i = 0; i < NUM_DATA; ++i) {
+    for (std::size_t i = 0; i < NUM_DATA; ++i) {
         const char        A = DATA[i].d_a;
         const int         B = DATA[i].d_b;
         const double      C = DATA[i].d_c;
@@ -1499,7 +1519,7 @@ void testConstructDestroy(const char *allocname,
             LOOP3_ASSERT(allocname,tname,i, C::ctorCount() == expCtorCount);
             LOOP3_ASSERT(allocname,tname,i, C::dtorCount() == ++expDtorCount);
             LOOP3_ASSERT(allocname,tname,i,
-                         0xdeadbeaf == objects[i].object().b());
+                         0xdeadbeaf == (unsigned) objects[i].object().b());
         }
     }
 }
@@ -1687,7 +1707,7 @@ int main(int argc, char *argv[])
         //:   expression of type 'T' will result in the copy constructor for
         //:   'T' being invoked to make a copy of 'v'.
         //: 3 If 'T' is a type which has the trait
-        //:   'bslalg::TypeTraitUsesBslmaAllocator', and 'ALLOC' is convertible
+        //:   'bslma::UsesBslmaAllocator', and 'ALLOC' is convertible
         //:   from 'bslma::Allocator*', then 'a' is passed as an additional
         //:   constructor argument to 'allocator_traits<ALLOC>::construct'.
         //: 4 Calling 'allocator_traits<ALLOC>::destroy(a, p)' invokes the
@@ -1703,7 +1723,7 @@ int main(int argc, char *argv[])
         //:   'testConstructDestruct' a boolean parameter, 'scoped', that the
         //:   caller sets to 'true' if 'ALLOC' is convertible from
         //:   'bslma::Allocator*' and 'T' has the trait
-        //:   'bslalg::TypeTraitUsesBslmaAllocator' (C1-C5)
+        //:   'bslma::UsesBslmaAllocator' (C1-C5)
         //: o Within 'testConstructDestruct', create an aligned buffer 'b' for
         //:   an object of type 'T'.  Create an allocator 'a' and call
         //:   'allocator_traits<ALLOC>::construct(a, &b, args)', where args is
@@ -1740,6 +1760,14 @@ int main(int argc, char *argv[])
         typedef AttribClass5Alloc<NonBslmaAllocator<int> > AC5AllocNonBslma;
         typedef AttribClass5Alloc<BslmaAllocator<int> >    AC5AllocBslma;
         typedef AttribClass5Alloc<FunkyAllocator<int> >    AC5AllocFunky;
+
+        ASSERT((!bsl::is_convertible<bslma::Allocator*, NonBslmaAllocator<int> >::value));
+        ASSERT((bsl::is_convertible<bslma::Allocator*, BslmaAllocator<int> >::value));
+        ASSERT((bsl::is_convertible<bslma::Allocator*, FunkyAllocator<int> >::value));
+
+        ASSERT(!bslma::UsesBslmaAllocator<AttribClass5Alloc<NonBslmaAllocator<int> > >::value);
+        ASSERT(bslma::UsesBslmaAllocator<AttribClass5Alloc<BslmaAllocator<int> > >::value);
+        ASSERT(bslma::UsesBslmaAllocator<AttribClass5Alloc<FunkyAllocator<int> > >::value);
 
         TEST_CONSTRUCT_DESTROY(NonBslmaAllocator<AttribClass5>,
                                AttribClass5, false);
@@ -1957,7 +1985,7 @@ int main(int argc, char *argv[])
         //: 4 The types 'propagate_on_container_copy_assignment'
         //:   'propagate_on_container_move_assignment'
         //:   'propagate_on_container_swap' are each derived from
-        //:   'bslmf::MetaInt<0>'.
+        //:   'bsl::false_type'.
         //: 5 Concerns 1-4 apply to any allocator type.
         //
         // Plan:
@@ -2068,7 +2096,7 @@ int main(int argc, char *argv[])
         //:   C++03 conformance of 'NonBslmaAllocator', 'BslmaAllocator', and
         //:   'FunkyAllocator'.  The test function simply and directly tests
         //:   each allocator requirement from C++03.  (C1-C12).
-        //: o Use 'bslmf::IsConvertible' to test that 'bslma::Allocator*' is
+        //: o Use 'bsl::is_convertible' to test that 'bslma::Allocator*' is
         //:   convertible to 'BslmaAllocator' and that it is NOT convertible
         //:   to 'NonBslmaAllocator' (C13).
         //: o Create a function template, 'testAttribClass' that tests an
@@ -2115,16 +2143,16 @@ int main(int argc, char *argv[])
         if (verbose)
             printf("Testing convertibility from 'bslma::Allocator*'\n");
 
-        ASSERT(  (bslmf::IsConvertible<bslma::Allocator*,
-                                       BslmaAllocator<int> >::VALUE));
-        ASSERT(  (bslmf::IsConvertible<bslma::Allocator*,
-                                       BslmaAllocator<AttribClass5> >::VALUE));
-        ASSERT(! (bslmf::IsConvertible<bslma::Allocator*,
-                                    NonBslmaAllocator<AttribClass5> >::VALUE));
-        ASSERT(  (bslmf::IsConvertible<bslma::Allocator*,
-                                       FunkyAllocator<int> >::VALUE));
-        ASSERT(  (bslmf::IsConvertible<bslma::Allocator*,
-                                       FunkyAllocator<AttribClass5> >::VALUE));
+        ASSERT(  (bsl::is_convertible<bslma::Allocator*,
+                                       BslmaAllocator<int> >::value));
+        ASSERT(  (bsl::is_convertible<bslma::Allocator*,
+                                       BslmaAllocator<AttribClass5> >::value));
+        ASSERT(! (bsl::is_convertible<bslma::Allocator*,
+                                    NonBslmaAllocator<AttribClass5> >::value));
+        ASSERT(  (bsl::is_convertible<bslma::Allocator*,
+                                       FunkyAllocator<int> >::value));
+        ASSERT(  (bsl::is_convertible<bslma::Allocator*,
+                                       FunkyAllocator<AttribClass5> >::value));
 
         testAttribClass<AttribClass5>("AttribClass5");
         testAttribClass<AttribClass5Alloc<NonBslmaAllocator<int> > >(
@@ -2184,7 +2212,7 @@ int main(int argc, char *argv[])
 
             // Test 'destroy'
             Traits::destroy(a1, p);
-            ASSERT(0xdeadbeaf == p->b());
+            ASSERT(0xdeadbeaf == (unsigned) p->b());
 
             // Test 'deallocate'
             Traits::deallocate(a1, p, 1);
@@ -2218,7 +2246,7 @@ int main(int argc, char *argv[])
 
             // Test 'destroy'
             Traits::destroy(a1, p);
-            ASSERT(0xdeadbeaf == p->b());
+            ASSERT(0xdeadbeaf == (unsigned) p->b());
 
             // Test 'deallocate'
             Traits::deallocate(a1, p, 1);

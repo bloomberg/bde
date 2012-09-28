@@ -4,6 +4,8 @@
 #include <bslma_testallocator.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_default.h>
+#include <bslma_usesbslmaallocator.h>
+#include <bslmf_isbitwisemoveable.h>
 
 #include <bsls_assert.h>
 #include <bsls_bsltestutil.h>
@@ -162,20 +164,18 @@ template <class TYPE>
 void printTypeTraits()
     // Prints the traits of the parameterized 'TYPE' to the console.
 {
-    if (bslmf::IsConvertible<bslalg_TypeTraits<TYPE>,
-        bslalg::TypeTraitUsesBslmaAllocator>::VALUE) {
-        printf("Type defines bslalg::TypeTraitUsesBslmaAllocator.\n");
+    if (bslma::UsesBslmaAllocator<TYPE>::value) {
+        printf("Type defines bslma::UsesBslmaAllocator.\n");
     }
     else {
-        printf("Type does not define bslalg::TypeTraitUsesBslmaAllocator.\n");
+        printf("Type does not define bslma::UsesBslmaAllocator.\n");
     }
 
-    if (bslmf::IsConvertible<bslalg_TypeTraits<TYPE>,
-        bslalg::TypeTraitBitwiseMoveable>::VALUE) {
-        printf("Type defines bslalg::TypeTraitBitwiseMoveable.\n");
+    if (bslmf::IsBitwiseMoveable<TYPE>::value) {
+        printf("Type defines bslmf::IsBitwiseMoveable.\n");
     }
     else {
-        printf("Type does not define bslalg::TypeTraitBitwiseMoveable.\n");
+        printf("Type does not define bslmf::IsBitwiseMoveable.\n");
     }
 }
 //..
@@ -213,8 +213,8 @@ int main(int argc, char *argv[]) {
 //..
 // Finally, we observe the console output:
 //..
-//  Type does not define bslalg::TypeTraitUsesBslmaAllocator.
-//  Type does not define bslalg::TypeTraitBitwiseMoveable.
+//  Type does not define bslma::UsesBslmaAllocator.
+//  Type does not define bslmf::IsBitwiseMoveable.
 //..
       } break;
       case 10: {

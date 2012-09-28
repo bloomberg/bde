@@ -182,14 +182,6 @@ BSL_OVERRIDES_STD mode"
 #include <bslstl_string.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_METAINT
-#include <bslmf_metaint.h>
-#endif
-
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 #endif
@@ -327,8 +319,8 @@ class bitset {
         // Clear the bits unused by the bitset in 'd_data', namely, bits
         // 'BITSETSIZE * BITSPERINT - 1' to N (where bit count starts at 0).
 
-    void clearUnusedBits(BloombergLP::bslmf::MetaInt<0>);
-    void clearUnusedBits(BloombergLP::bslmf::MetaInt<1>);
+    void clearUnusedBits(bsl::false_type);
+    void clearUnusedBits(bsl::true_type);
         // Implementations of 'clearUnusedBits', overloaded by whether there
         // are any unused bits.
 
@@ -674,18 +666,18 @@ void bitset<N>::clearUnusedBits()
 {
     enum { VALUE = N % BITSPERINT ? 1 : 0 };
 
-    clearUnusedBits(BloombergLP::bslmf::MetaInt<VALUE>());
+    clearUnusedBits(bsl::integral_constant<bool, VALUE>());
 }
 
 template <std::size_t N>
 inline
-void bitset<N>::clearUnusedBits(BloombergLP::bslmf::MetaInt<0>)
+void bitset<N>::clearUnusedBits(bsl::false_type)
 {
 }
 
 template <std::size_t N>
 inline
-void bitset<N>::clearUnusedBits(BloombergLP::bslmf::MetaInt<1>)
+void bitset<N>::clearUnusedBits(bsl::true_type)
 {
     const unsigned int offset = N % BITSPERINT;  // never 0
 

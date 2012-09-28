@@ -160,17 +160,12 @@ class basic_istringstream
 
   public:
     // TYPES
-    typedef CHAR_TYPE                      char_type;
-    typedef CHAR_TRAITS                    traits_type;
-    typedef ALLOCATOR                      allocator_type;
-    typedef typename traits_type::int_type int_type;
-    typedef typename traits_type::off_type off_type;
-    typedef typename traits_type::pos_type pos_type;
-
-    // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(
-                             basic_istringstream,
-                             BloombergLP::bslalg::TypeTraitUsesBslmaAllocator);
+    typedef CHAR_TYPE                       char_type;
+    typedef CHAR_TRAITS                     traits_type;
+    typedef ALLOCATOR                       allocator_type;
+    typedef typename traits_type::int_type  int_type;
+    typedef typename traits_type::off_type  off_type;
+    typedef typename traits_type::pos_type  pos_type;
 
     // CREATORS
     explicit
@@ -226,7 +221,24 @@ typedef basic_istringstream<char, char_traits<char>, allocator<char> >
 typedef basic_istringstream<wchar_t, char_traits<wchar_t>, allocator<wchar_t> >
                                                                 wistringstream;
 
-// ============================================================================
+}
+
+// TYPE TRAITS
+namespace BloombergLP {
+namespace bslma {
+
+template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+struct UsesBslmaAllocator<
+        bsl::basic_istringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR> >
+    : bsl::true_type
+{};
+
+}
+}
+
+namespace bsl {
+
+// ==========================================================================
 //                       TEMPLATE FUNCTION DEFINITIONS
 // ============================================================================
 

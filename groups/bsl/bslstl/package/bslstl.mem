@@ -29,9 +29,6 @@ bslstl_stringbuf
 bslstl_stringref
 bslstl_stringrefdata
 bslstl_stringstream
-bslstl_traitsgroupstlassociativecontainer
-bslstl_traitsgroupstlsequencecontainer
-bslstl_traitsgroupstlunorderedcontainer
 bslstl_treeiterator
 bslstl_treenode
 bslstl_treenodepool

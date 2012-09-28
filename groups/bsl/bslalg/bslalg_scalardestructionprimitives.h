@@ -24,7 +24,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  Trait                             Note
 //  -------------------------------   -------------------------------------
-//  bslalg::TypeTraitBitwiseCopyable  Expressed in English as "TYPE has the
+//  bsl::is_trivially_copyable        Expressed in English as "TYPE has the
 //                                    bit-wise copyable trait", or "TYPE is
 //                                    bit-wise copyable", this trait also
 //                                    implies that destructor calls can be
@@ -94,16 +94,16 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_HASTRAIT
-#include <bslalg_hastrait.h>
+#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
+#include <bslmf_integralconstant.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
+#ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
+#include <bslmf_istriviallycopyable.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_REMOVECVQ
-#include <bslmf_removecvq.h>
+#ifndef INCLUDED_BSLMF_REMOVECV
+#include <bslmf_removecv.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ASSERT
@@ -136,13 +136,13 @@ struct ScalarDestructionPrimitives {
   private:
     // PRIVATE CLASS METHODS
     template <typename TARGET_TYPE>
-    static void destroy(TARGET_TYPE *address, bslmf::MetaInt<1>);
+    static void destroy(TARGET_TYPE *address, bsl::true_type);
     template <typename TARGET_TYPE>
-    static void destroy(TARGET_TYPE *address, bslmf::MetaInt<0>);
+    static void destroy(TARGET_TYPE *address, bsl::false_type);
         // Destroy the object of the parameterized 'TARGET_TYPE' at the
         // specified 'address' if the second argument is of type
-        // 'bslmf::MetaInt<0>', and do nothing otherwise.  This method is a
-        // no-op if the second argument is of type 'bslmf::MetaInt<1>',
+        // 'bsl::false_type', and do nothing otherwise.  This method is a
+        // no-op if the second argument is of type 'bsl::true_type',
         // indicating that the object at 'address' is bit-wise copyable.  Note
         // that the second argument is for overload resolution only and its
         // value is ignored.
@@ -170,8 +170,8 @@ struct ScalarDestructionPrimitives {
 // PRIVATE CLASS METHODS
 template <typename TARGET_TYPE>
 inline
-void ScalarDestructionPrimitives::destroy(TARGET_TYPE *address,
-                                          bslmf::MetaInt<1>)
+void ScalarDestructionPrimitives::destroy(TARGET_TYPE       *address,
+                                          bsl::true_type)
 {
     // No-op.
 
@@ -193,8 +193,8 @@ namespace bslalg {
 
 template <typename TARGET_TYPE>
 inline
-void ScalarDestructionPrimitives::destroy(TARGET_TYPE *address,
-                                          bslmf::MetaInt<0>)
+void ScalarDestructionPrimitives::destroy(TARGET_TYPE       *address,
+                                          bsl::false_type)
 {
 #ifndef BSLS_PLATFORM_CMP_SUN
     address->~TARGET_TYPE();
@@ -202,8 +202,8 @@ void ScalarDestructionPrimitives::destroy(TARGET_TYPE *address,
     // Workaround for a bug in Sun's CC whereby destructors cannot be called on
     // 'const' objects of polymorphic types.
 
-    typedef bslmf::RemoveCvq<TARGET_TYPE>::Type NoCvqType;
-    const_cast<NoCvqType *>(address)->~NoCvqType();
+    typedef bsl::remove_cv<TARGET_TYPE>::type NoCvType;
+    const_cast<NoCvType *>(address)->~NoCvType();
 #endif
 }
 
@@ -222,9 +222,7 @@ void ScalarDestructionPrimitives::destroy(TARGET_TYPE *object)
 {
     BSLS_ASSERT_SAFE(object);
 
-    typedef typename HasTrait<TARGET_TYPE,
-                              TypeTraitBitwiseCopyable>::Type Trait;
-    destroy(object, Trait());
+    destroy(object, typename bsl::is_trivially_copyable<TARGET_TYPE>::type());
 }
 
 }  // close package namespace
