@@ -9,10 +9,8 @@
 using namespace bsl;
 using namespace BloombergLP;
 
-using std::cout;
-using std::cerr;
-using std::endl;
-using std::atoi;
+using std::printf;
+using std::fprintf;
 
 //=============================================================================
 //                                TEST PLAN
