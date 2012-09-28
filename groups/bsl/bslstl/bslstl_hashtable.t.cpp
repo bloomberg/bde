@@ -987,7 +987,6 @@ int TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::ggg(
 
     for (int i = 0; spec[i]; ++i) {
         if ('A' <= spec[i] && spec[i] <= 'Z') {
-//            object->insert(VALUES[spec[i] - 'A']);
             if (!insertElement(object, VALUES[spec[i] - 'A'])) {
                 if (verbose) {
                     printf("Error, spec string longer ('%d') than the"
@@ -1897,26 +1896,6 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
 
             // ----------------------------------------------------------------
 
-            if (veryVerbose) { printf("\n\tTesting 'removeAll'.\n"); }
-            {
-                const bsls::Types::Int64 BB = oa.numBlocksTotal();
-
-                mX.removeAll();
-
-                ASSERTV(LENGTH, CONFIG, 0 == X.size());
-                ASSERTV(LENGTH, CONFIG, bucketCount == X.numBuckets());
-                ASSERTV(LENGTH, CONFIG, 0 == X.elementListRoot());
-                ASSERTV(LENGTH, CONFIG, 1.0f == X.maxLoadFactor());
-                ASSERTV(LENGTH, CONFIG, 0.0f == X.loadFactor());
-                ASSERTV(LENGTH, CONFIG, 0 == X.countElementsInBucket(0));
-
-                const bsls::Types::Int64 AA = oa.numBlocksTotal();
-
-                ASSERTV(LENGTH, CONFIG, BB == AA);
-            }
-
-            // ----------------------------------------------------------------
-
             if (veryVerbose) { printf(
                                 "\n\tTesting 'insert' duplicated values.\n"); }
             {
@@ -2474,6 +2453,7 @@ int main(int argc, char *argv[])
                       testCase6,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
       } break;
+#endif
       case 5: {
         // --------------------------------------------------------------------
         // TESTING OUTPUT (<<) OPERATOR
@@ -2485,7 +2465,6 @@ int main(int argc, char *argv[])
         if (verbose)
                    printf("There is no output operator for this component.\n");
       } break;
-#endif
       case 4: {
         // --------------------------------------------------------------------
         // BASIC ACCESSORS
