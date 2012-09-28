@@ -31,14 +31,11 @@ BSLS_IDENT_RCSID(bslalg_hashutil_cpp,"$Id$ $CSID$")
 // though, so I let things be.
 //..
 
-namespace BloombergLP
-{
-
-namespace bslalg
-{
 // STATIC HELPER FUNCTIONS
 static
 unsigned int hash(const char *data, int length)
+    // That the memory starting at the specified 'data' of specified 'length'
+    // bytes in length.
 {
     BSLS_ASSERT(0 <= length);
     BSLS_ASSERT(data || 0 == length);
@@ -64,6 +61,11 @@ unsigned int hash(const char *data, int length)
 
 static
 unsigned int reverse_hash(const char *data, int length)
+    // That the memory starting at the specified 'data' of specified 'length'
+    // bytes in length.  Do the bytes in the reverse of the order that 'hash'
+    // would do them, so that this function, when called on a little-endian
+    // machine, will return the same value as 'hash' called on a big-endian
+    // machine.
 {
     BSLS_ASSERT(0 <= length);
     BSLS_ASSERT(data || 0 == length);
@@ -74,7 +76,7 @@ unsigned int reverse_hash(const char *data, int length)
     const Ub1 *k    = reinterpret_cast<const Ub1 *>(data);
     Ub4        hash = 0;
 
-    for (int i = length; i > 0; /* noop */) {
+    for (int i = length; i > 0; ) {
         hash += k[--i];
         hash += (hash << 10);
         hash ^= (hash >>  6);
@@ -87,70 +89,75 @@ unsigned int reverse_hash(const char *data, int length)
     return hash;
 }
 
+namespace BloombergLP {
+
+namespace bslalg {
+
+
                             // ---------------
                             // struct HashUtil
                             // ---------------
 
 // CLASS METHODS
 #ifdef BSLS_PLATFORM__IS_BIG_ENDIAN
-  #define HASH2(KEY)  hash((const char *)&KEY, sizeof KEY)
+  #define HASH2(KEY)  hash((const char *) &KEY, sizeof KEY)
 #else
-  #define HASH2(KEY)  reverse_hash((const char *)&KEY, sizeof KEY)
+  #define HASH2(KEY)  reverse_hash((const char *) &KEY, sizeof KEY)
 #endif
 
-unsigned int HashUtil::computeHash(char key)
+native_std::size_t HashUtil::computeHash(char key)
 {
     return HASH2(key);
 }
-unsigned int HashUtil::computeHash(signed char key)
+native_std::size_t HashUtil::computeHash(signed char key)
 {
     return HASH2(key);
 }
-unsigned int HashUtil::computeHash(unsigned char key)
+native_std::size_t HashUtil::computeHash(unsigned char key)
 {
     return HASH2(key);
 }
-unsigned int HashUtil::computeHash(short key)
+native_std::size_t HashUtil::computeHash(short key)
 {
     return HASH2(key);
 }
-unsigned int HashUtil::computeHash(unsigned short key)
+native_std::size_t HashUtil::computeHash(unsigned short key)
 {
     return HASH2(key);
 }
-unsigned int HashUtil::computeHash(int key)
+native_std::size_t HashUtil::computeHash(int key)
 {
     return HASH2(key);
 }
-unsigned int HashUtil::computeHash(unsigned int key)
+native_std::size_t HashUtil::computeHash(unsigned int key)
 {
     return HASH2(key);
 }
-unsigned int HashUtil::computeHash(long key)
+native_std::size_t HashUtil::computeHash(long key)
 {
     return HASH2(key);
 }
-unsigned int HashUtil::computeHash(unsigned long key)
+native_std::size_t HashUtil::computeHash(unsigned long key)
 {
     return HASH2(key);
 }
-unsigned int HashUtil::computeHash(long long key)
+native_std::size_t HashUtil::computeHash(long long key)
 {
     return HASH2(key);
 }
-unsigned int HashUtil::computeHash(unsigned long long key)
+native_std::size_t HashUtil::computeHash(unsigned long long key)
 {
     return HASH2(key);
 }
-unsigned int HashUtil::computeHash(float key)
+native_std::size_t HashUtil::computeHash(float key)
 {
     return HASH2(key);
 }
-unsigned int HashUtil::computeHash(double key)
+native_std::size_t HashUtil::computeHash(double key)
 {
     return HASH2(key);
 }
-unsigned int HashUtil::computeHash(const void *key)
+native_std::size_t HashUtil::computeHash(const void *key)
 {
     return HASH2(key);
 }
