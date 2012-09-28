@@ -50,6 +50,10 @@ BSLS_IDENT("$Id: $")
 
 namespace bsl {
 
+                         // ===================
+                         // struct remove_const
+                         // ===================
+
 template <typename TYPE>
 struct remove_const {
     // This 'struct' template implements the 'remove_const' meta-function
@@ -57,12 +61,18 @@ struct remove_const {
     // provides a 'typedef' 'type' that has the same type as the (template
     // parameter) 'TYPE' except that any top-level 'const'-qualifier has been
     // removed.  Note that this generic default template provides a 'type' that
-    // has the same type as 'TYPE' for when 'TYPE' is not 'const'-qualified.  A
+    // is an alias to 'TYPE' for when 'TYPE' is not 'const'-qualified.  A
     // template specialization is provided (below) that strips the
     // 'const'-qualifier for when 'TYPE' is 'const'-qualified.
 
     typedef TYPE type;
+        // This 'typedef' is an alias to the (template parameter) 'TYPE'.
+
 };
+
+                         // ===============================
+                         // struct remove_const<TYPE const>
+                         // ===============================
 
 template <typename TYPE>
 struct remove_const<TYPE const> {
@@ -70,6 +80,9 @@ struct remove_const<TYPE const> {
      // 'type' that has the 'const'-qualifier removed.
 
     typedef TYPE type;
+        // This 'typedef' to a type that is the same as the (template
+        // parameter) 'TYPE' except with any 'const'-qualifier removed.
+
 };
 
 }  // close namespace bsl

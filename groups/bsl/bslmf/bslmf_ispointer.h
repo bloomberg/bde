@@ -71,6 +71,7 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 namespace bslmf {
+
                          // ====================
                          // struct IsPointer_Imp
                          // ====================

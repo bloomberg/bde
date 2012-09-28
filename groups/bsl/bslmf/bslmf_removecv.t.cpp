@@ -9,11 +9,6 @@
 using namespace bsl;
 using namespace BloombergLP;
 
-using std::cout;
-using std::cerr;
-using std::endl;
-using std::atoi;
-
 //=============================================================================
 //                                TEST PLAN
 //-----------------------------------------------------------------------------
@@ -90,6 +85,48 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:
+      case 2: {
+        // --------------------------------------------------------------------
+        // USAGE EXAMPLE
+        //
+        // Concerns:
+        //: 1 The usage example provided in the component header file compiles,
+        //:   links, and runs as shown.
+        //
+        // Plan:
+        //: 1 Incorporate usage example from header into test driver, remove
+        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //:   (C-1)
+        //
+        // Testing:
+        //   USAGE EXAMPLE
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nUSAGE EXAMPLE\n"
+                            "\n=============\n");
+
+///Usage
+///-----
+// In this section we show intended use of this component.
+//
+///Example 1: Removing The CV-Qualifier of A Type
+/// - - - - - - - - - - - - - - - - - - - - - - -
+// Suppose that we want to strip the cv-qualifier from a particular type.
+//
+// First, we create two 'typedef's -- a cv-qualified type ('MyCvType') and the
+// same type without the cv-qualifier ('MyType'):
+//..
+        typedef int                MyType;
+        typedef const volatile int MyCvType;
+//..
+// Now, we strip the the cv-qualifier from 'MyCvType' using 'bsl::remove_cv'
+// and verify that the resulting type is the same as 'MyType':
+//..
+        ASSERT(true == (bsl::is_same<bsl::remove_cv<MyCvType>::type,
+                                                              MyType>::value));
+//..
+
+      } break;
       case 1: {
         // --------------------------------------------------------------------
         // 'bsl::remove_cv'
@@ -110,8 +147,8 @@ int main(int argc, char *argv[])
         //:   'T const volatile *'.
         //
         // Plan:
-        //   Verify that 'bsl::remove_cv::type' has the correct type for
-        //   each (template parameter) 'TYPE' in the concerns.
+        //   Verify that 'bsl::remove_cv' returns the correct value for each
+        //   concern.
         //
         // Testing:
         //   bsl::remove_cv
