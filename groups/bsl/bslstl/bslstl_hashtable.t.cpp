@@ -555,6 +555,12 @@ class TestEqualityComparator {
     {
     }
 
+    // MANIPULATORS
+    void setId(int value)
+    {
+        d_id = value;
+    }
+
     // ACCESSORS
     bool operator() (const TYPE& lhs, const TYPE& rhs) const
         // Increment a counter that records the number of times this method is
@@ -669,6 +675,12 @@ class TestHashFunctor {
 template <class KEY>
 class StatefulHash : bsl::hash<KEY> {
     typedef bsl::hash<KEY> Base;
+
+    template <class OTHER_KEY>
+    friend
+    bool operator==(const StatefulHash<OTHER_KEY>& lhs,
+                    const StatefulHash<OTHER_KEY>& rhs);
+
   private:
     // DATA
     native_std::size_t d_mixer;
@@ -679,14 +691,25 @@ class StatefulHash : bsl::hash<KEY> {
     {
     }
 
+    void setMixer(int value)
+    {
+        d_mixer = value;
+    }
+
     native_std::size_t operator()(const KEY& k) const
     {
         return Base::operator()(k) ^ d_mixer;
     }
 };
 
+template <class KEY>
+bool operator==(const StatefulHash<KEY>& lhs, const StatefulHash<KEY>& rhs)
+{
+    return lhs.d_mixer == rhs.d_mixer;
+}
+
 template <class KEY, class HASHER = ::bsl::hash<int> >
-class TestFacilityHasher : HASHER { // exploit empty base
+class TestFacilityHasher : public HASHER { // exploit empty base
     // This test class provides a mechanism that defines a function-call
     // operator that provides a hash code for objects of the parameterized
     // 'KEY'.  The function-call operator is implemented by calling the wrapper
@@ -708,6 +731,62 @@ class TestFacilityHasher : HASHER { // exploit empty base
     }
 };
 
+void setHasherState(bsl::hash<int> *hasher, int id)
+{
+    (void) hasher;
+    (void) id;
+}
+
+void setHasherState(StatefulHash<int> *hasher, int id)
+{
+    hasher->setMixer(id);
+}
+
+bool isEqualHasher(const bsl::hash<int>&, const bsl::hash<int>&)
+    // Provide an overloaded function to compare comparators.  Return 'true'
+    // because 'bsl::hash' is stateless.
+{
+    return true;
+}
+
+bool isEqualHasher(const StatefulHash<int>& lhs,
+                   const StatefulHash<int>& rhs)
+    // Provide an overloaded function to compare comparators.  Return 'true'
+    // because 'bsl::equal_to' is stateless.
+{
+    return lhs == rhs;
+}
+
+template <class KEY>
+void setComparatorState(bsl::equal_to<KEY> *comparator, int id)
+{
+    (void) comparator;
+    (void) id;
+}
+
+template <class KEY>
+void setComparatorState(TestEqualityComparator<KEY> *comparator, int id)
+{
+    comparator->setId(id);
+}
+
+
+template <class KEY>
+bool isEqualComparator(const bsl::equal_to<KEY>&, const bsl::equal_to<KEY>&)
+    // Provide an overloaded function to compare comparators.  Return 'true'
+    // because 'bsl::equal_to' is stateless.
+{
+    return true;
+}
+
+template <class KEY>
+bool isEqualComparator(const TestEqualityComparator<KEY>& lhs,
+                       const TestEqualityComparator<KEY>& rhs)
+    // Provide an overloaded function to compare comparators.  Return
+    // 'lhs == rhs'.
+{
+    return lhs == rhs;
+}
 
 // test support function
 template <class KEY_CONFIG, class HASH, class EQUAL, class ALLOC>
@@ -928,7 +1007,7 @@ template <class ELEMENT>
 struct TestDriver_StatefulConfiguation {
     typedef TestDriver< BasicKeyConfig<ELEMENT>
                       , TestFacilityHasher<ELEMENT, StatefulHash<int> >
-                      , ::bsl::equal_to<ELEMENT>
+                      , TestEqualityComparator<ELEMENT>
                       , ::bsl::allocator<ELEMENT>
                       > Type;
 
@@ -1026,21 +1105,28 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase4()
     // Plan:
     //: 1 For each set of 'SPEC' of different length:
     //:
-    //:   1 Default construct the object with various configuration:
+    //:   1 Value construct the object with various configuration:
     //:
     //:     1 Use the 'gg' function to populate the object based on the SPEC.
     //:
     //:     2 Verify the correct allocator is installed with the
     //:       'get_allocator' method.
     //:
-    //:     3 Verify the object contains the expected number of elements.
+    //:     3 Verify the object all attributes are as expected.
     //:
-    //:     4 Use 'cbegin' and 'cend' to iterate through all elements and
-    //:       verify the values are as expected.  (C-1..2, 4)
+    //:     4 Use 'verifyListContents' to validate the list rooted at
+    //:       'elementListRoot'.
     //:
-    //:     5 Monitor the memory allocated from both the default and object
+    //:     5 TBD: Use 'validateBucket to validate the buckets returned by
+    //:       'bucketAtIndex'.
+    //:
+    //:     6 Monitor the memory allocated from both the default and object
     //:       allocators before and after calling the accessor; verify that
     //:       there is no change in total memory allocation.  (C-3)
+    //:
+    //: 2 Verify that, in appropriate build modes, defensive checks are
+    //:   triggered for invalid attribute values, but not triggered for
+    //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).  (C-6)
     //
     // Testing:
     //*  allocator() const;
@@ -1055,18 +1141,20 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase4()
     // ------------------------------------------------------------------------
 
     static const struct {
-        int         d_line;                     // source line number
-        const char *d_spec;                     // specification string
-        const char *d_results;                  // expected results
+        int         d_line;           // source line number
+        const char *d_spec;           // specification string
+        float       d_maxLoadFactor;  // max load factor
+        size_t      d_numBuckets;     // number of buckets
+        const char *d_results;        // expected results
     } DATA[] = {
-        //line  spec      result
-        //----  --------  ------
-        { L_,   "",       ""      },
-        { L_,   "A",      "A"     },
-        { L_,   "AB",     "AB"    },
-        { L_,   "ABC",    "ABC"   },
-        { L_,   "ABCD",   "ABCD"  },
-        { L_,   "ABCDE",  "ABCDE" }
+        //line  spec                 result
+        //----  --------             ------
+        { L_,   "",       1.0,   1,  ""       },
+        { L_,   "A",      0.9,   2,  "A"      },
+        { L_,   "AB",     0.8,   3,  "AB"     },
+        { L_,   "ABC",    0.7,   5,  "ABC"    },
+        { L_,   "ABCD",   0.6,   8,  "ABCD"   },
+        { L_,   "ABCDE",  0.5,  13,  "ABCDE"  }
     };
     const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -1076,20 +1164,27 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase4()
                 "\nCreate objects with various allocator configurations.\n"); }
     {
         for (int ti = 0; ti < NUM_DATA; ++ti) {
-            const int         LINE   = DATA[ti].d_line;
-            const char *const SPEC   = DATA[ti].d_spec;
-            const int         LENGTH = strlen(DATA[ti].d_results);
+            const int         LINE            = DATA[ti].d_line;
+            const char *const SPEC            = DATA[ti].d_spec;
+            const int         LENGTH          = strlen(DATA[ti].d_results);
+            const float       MAX_LOAD_FACTOR = DATA[ti].d_maxLoadFactor;
+            const size_t      NUM_BUCKETS     = DATA[ti].d_numBuckets;
             const TestValues  EXP(DATA[ti].d_results);
+
+            HASHER hash;
+            setHasherState(&hash, ti);
+            COMPARATOR comp;
+            setComparatorState(&comp, ti);
 
             if (verbose) { P_(LINE) P_(LENGTH) P(SPEC); }
 
             for (char cfg = 'a'; cfg <= 'd'; ++cfg) {
                 const char CONFIG = cfg;
 
-                bslma::TestAllocator da("default",   veryVeryVeryVerbose);
-                bslma::TestAllocator fa("footprint", veryVeryVeryVerbose);
-                bslma::TestAllocator sa1("supplied1",  veryVeryVeryVerbose);
-                bslma::TestAllocator sa2("supplied2",  veryVeryVeryVerbose);
+                bslma::TestAllocator da("default",    veryVeryVeryVerbose);
+                bslma::TestAllocator fa("footprint",  veryVeryVeryVerbose);
+                bslma::TestAllocator sa1("supplied1", veryVeryVeryVerbose);
+                bslma::TestAllocator sa2("supplied2", veryVeryVeryVerbose);
 
                 bslma::DefaultAllocatorGuard dag(&da);
 
@@ -1098,19 +1193,22 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase4()
 
                 switch (CONFIG) {
                   case 'a': {
-                      objPtr = new (fa) Obj();
+                      objPtr = new (fa) Obj(hash, comp, NUM_BUCKETS);
                       objAllocatorPtr = &da;
                   } break;
                   case 'b': {
-                      objPtr = new (fa) Obj((bslma::Allocator *)0);
+                      objPtr = new (fa) Obj(hash,
+                                            comp,
+                                            NUM_BUCKETS,
+                                            (bslma::Allocator *)0);
                       objAllocatorPtr = &da;
                   } break;
                   case 'c': {
-                      objPtr = new (fa) Obj(&sa1);
+                      objPtr = new (fa) Obj(hash, comp, NUM_BUCKETS, &sa1);
                       objAllocatorPtr = &sa1;
                   } break;
                   case 'd': {
-                      objPtr = new (fa) Obj(&sa2);
+                      objPtr = new (fa) Obj(hash, comp, NUM_BUCKETS, &sa2);
                       objAllocatorPtr = &sa2;
                   } break;
                   default: {
@@ -1124,6 +1222,8 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase4()
                                          ? da
                                          : sa1;
 
+                mX.setMaxLoadFactor(MAX_LOAD_FACTOR);
+
                 // --------------------------------------------------------
 
                 // Verify basic accessor
@@ -1131,6 +1231,13 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase4()
                 bslma::TestAllocatorMonitor oam(&oa);
 
                 ASSERTV(LINE, SPEC, CONFIG, &oa == X.allocator());
+                ASSERTV(LINE, SPEC, CONFIG,
+                        isEqualComparator(comp, X.comparator()));
+                ASSERTV(LINE, SPEC, CONFIG,
+                        isEqualHasher(hash, X.hasher()));
+                ASSERTV(LINE, SPEC, CONFIG, NUM_BUCKETS <= X.numBuckets());
+                ASSERTV(LINE, SPEC, CONFIG,
+                        MAX_LOAD_FACTOR == X.maxLoadFactor());
                 ASSERTV(LINE, SPEC, CONFIG, LENGTH == (int)X.size());
 
                 ASSERT(0 == verifyListContents<KEY_CONFIG>(X.elementListRoot(),
@@ -1162,6 +1269,20 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase4()
                 ASSERTV(LINE, CONFIG, sa2.numBlocksInUse(),
                         0 == sa2.numBlocksInUse());
             }
+        }
+    }
+
+    if (verbose) printf("\nNegative Testing.\n");
+    {
+        bsls_AssertFailureHandlerGuard hG(bsls_AssertTest::failTestDriver);
+
+
+        if (veryVerbose) printf("\t'bucketAtIndex'\n");
+        {
+            Obj mX(HASHER(), COMPARATOR(), 1);  const Obj& X = mX;
+            int numBuckets = X.numBuckets();
+            ASSERT_SAFE_PASS(X.bucketAtIndex(numBuckets - 1));
+            ASSERT_SAFE_FAIL(X.bucketAtIndex(numBuckets));
         }
     }
 }
