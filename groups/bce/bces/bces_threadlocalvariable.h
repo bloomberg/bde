@@ -60,7 +60,7 @@ BDES_IDENT("$Id: $")
 // |  AIX     |  o A bug in the AIX compiler prevents compiling translation
 // |          |    units with more than 10 thread-local variables with debug
 // |          |    symbols.  This has been fixed in xlC8 (internal ticket
-// |          |    13819416), but has not yet been fixed for xlC10.
+// |          |    DRQS 13819416), but has not yet been fixed for xlC10.
 // |          |
 // |          |  o xlC8 does not support class scoped thread-local variables.
 // |----------+----------------------------------------------------------------
