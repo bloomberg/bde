@@ -71,6 +71,7 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 namespace bslmf {
+
                          // ====================
                          // struct IsPointer_Imp
                          // ====================
@@ -144,8 +145,9 @@ struct IsPointer : bsl::is_pointer<TYPE>::type {
 #ifdef bslmf_IsPointer
 #undef bslmf_IsPointer
 #endif
+
 #define bslmf_IsPointer bslmf::IsPointer
-    // This alias is defined for backward compatibility.
+    // This alias is defined for backward-compatibility.
 #endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 #endif

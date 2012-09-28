@@ -7,6 +7,7 @@ bslalg_bidirectionallink
 bslalg_bidirectionalnode
 bslalg_bidirectionallinklistutil
 bslalg_constructorproxy
+bslalg_containerbase
 bslalg_dequeimputil
 bslalg_dequeiterator
 bslalg_dequeprimitives
