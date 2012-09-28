@@ -1,10 +1,8 @@
 bslstl_allocator
-bslstl_allocatorproxy
 bslstl_allocatortraits
 bslstl_bidirectionaliterator
 bslstl_bidirectionalnodepool
 bslstl_bitset
-bslstl_containerbase
 bslstl_deque
 bslstl_equalto
 bslstl_forwarditerator
@@ -37,13 +35,9 @@ bslstl_stringbuf
 bslstl_stringref
 bslstl_stringrefdata
 bslstl_stringstream
-bslstl_traitsgroupstlassociativecontainer
-bslstl_traitsgroupstlsequencecontainer
-bslstl_traitsgroupstlunorderedcontainer
 bslstl_treeiterator
 bslstl_treenode
 bslstl_treenodepool
-bslstl_util
 bslstl_unorderedmap
 bslstl_unorderedmapkeyconfiguration
 bslstl_unorderedmultimap

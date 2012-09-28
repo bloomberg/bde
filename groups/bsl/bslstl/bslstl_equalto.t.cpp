@@ -2,7 +2,8 @@
 
 #include <bslstl_equalto.h>
 
-#include <bslalg_hastrait.h>
+//#include <bslalg_hastrait.h>
+//#include <bslalg_typetraits.h>
 
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
@@ -10,6 +11,9 @@
 #include <bslma_testallocatormonitor.h>
 
 #include <bslmf_issame.h>
+#include <bslmf_isbitwisemoveable.h>
+#include <bslmf_istriviallycopyable.h>
+#include <bslmf_istriviallydefaultconstructible.h>
 
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
@@ -216,12 +220,11 @@ int main(int argc, char *argv[])
 
         typedef int TYPE;
 
-        ASSERT((bslalg::HasTrait<equal_to<TYPE>,
-                                 bslalg::TypeTraitBitwiseMoveable>::VALUE));
-        ASSERT((bslalg::HasTrait<equal_to<TYPE>,
-                                 bslalg::TypeTraitBitwiseCopyable>::VALUE));
-        ASSERT((bslalg::HasTrait<equal_to<TYPE>,
-                       bslalg::TypeTraitHasTrivialDefaultConstructor>::VALUE));
+        ASSERT(bslmf::IsBitwiseMoveable<equal_to<TYPE> >::value);
+        ASSERT(bsl::is_trivially_copyable<equal_to<TYPE> >::value);
+        ASSERT(bsl::is_trivially_default_constructible<equal_to<TYPE>
+                                                                     >::value);
+
       } break;
       case 4: {
         // --------------------------------------------------------------------

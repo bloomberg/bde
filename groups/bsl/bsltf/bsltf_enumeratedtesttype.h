@@ -38,10 +38,6 @@ BSLS_IDENT("$Id: $")
 // assert(static_cast<int>(last) == 127);
 //..
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
 namespace BloombergLP {
 
 namespace bsltf {

@@ -42,8 +42,8 @@ BSL_OVERRIDES_STD mode"
 #include <bslstl_allocator.h>
 #endif
 
-#ifndef INCLUDED_BSLSTL_CONTAINERBASE
-#include <bslstl_containerbase.h>
+#ifndef INCLUDED_BSLALG_CONTAINERBASE
+#include <bslalg_containerbase.h>
 #endif
 
 #ifndef INCLUDED_BSLSTL_ITERATOR
@@ -52,10 +52,6 @@ BSL_OVERRIDES_STD mode"
 
 #ifndef INCLUDED_BSLSTL_STDEXCEPTUTIL
 #include <bslstl_stdexceptutil.h>
-#endif
-
-#ifndef INCLUDED_BSLSTL_UTIL
-#include <bslstl_util.h>
 #endif
 
 #ifndef INCLUDED_BSLALG_ARRAYDESTRUCTIONPRIMITIVES
@@ -82,20 +78,12 @@ BSL_OVERRIDES_STD mode"
 #include <bslalg_scalarprimitives.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BSLSTL_TRAITSGROUPSTLSEQUENCECONTAINER
-#include <bslstl_traitsgroupstlsequencecontainer.h>
+#ifndef INCLUDED_BSLALG_TYPETRAITHASSTLITERATORS
+#include <bslalg_typetraithasstliterators.h>
 #endif
 
 #ifndef INCLUDED_BSLMA_DEFAULT
 #include <bslma_default.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ANYTYPE
-#include <bslmf_anytype.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_ENABLEIF
@@ -108,6 +96,14 @@ BSL_OVERRIDES_STD mode"
 
 #ifndef INCLUDED_BSLMF_ISSAME
 #include <bslmf_issame.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_MATCHANYTYPE
+#include <bslmf_matchanytype.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_MATCHARITHMETICTYPE
+#include <bslmf_matcharithmetictype.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_NIL
@@ -338,7 +334,7 @@ class Vector_ImpBase {
 
 template <class VALUE_TYPE, class ALLOCATOR = bsl::allocator<VALUE_TYPE> >
 class Vector_Imp : public Vector_ImpBase<VALUE_TYPE>
-                 , private BloombergLP::bslstl::ContainerBase<ALLOCATOR> {
+                 , private BloombergLP::bslalg::ContainerBase<ALLOCATOR> {
     // This class template provides an STL-compliant 'vector' that conforms to
     // the 'bslma::Allocator' model.  For the requirements of a vector class,
     // consult the second revision of the "ISO/IEC 14882 Programming Language
@@ -384,7 +380,7 @@ class Vector_Imp : public Vector_ImpBase<VALUE_TYPE>
 
   private:
     // PRIVATE TYPES
-    typedef BloombergLP::bslstl::ContainerBase<ALLOCATOR> VectorContainerBase;
+    typedef BloombergLP::bslalg::ContainerBase<ALLOCATOR> VectorContainerBase;
         // Container base type, containing the allocator and applying
         // empty base class optimization (EBO) whenever appropriate.
 
@@ -418,19 +414,20 @@ class Vector_Imp : public Vector_ImpBase<VALUE_TYPE>
 
     // PRIVATE MANIPULATORS
     template <class INPUT_ITER>
-    void privateInsertDispatch(const_iterator                   position,
-                               INPUT_ITER                       count,
-                               INPUT_ITER                       value,
-                               BloombergLP::bslstl::UtilIterator,
-                               int);
+    void privateInsertDispatch(
+                              const_iterator                          position,
+                              INPUT_ITER                              count,
+                              INPUT_ITER                              value,
+                              BloombergLP::bslmf::MatchArithmeticType ,
+                              BloombergLP::bslmf::Nil                 );
         // Match integral type for 'INPUT_ITER'.
 
     template <class INPUT_ITER>
-    void privateInsertDispatch(const_iterator             position,
-                               INPUT_ITER                 first,
-                               INPUT_ITER                 last,
-                               BloombergLP::bslmf::AnyType,
-                               BloombergLP::bslmf::AnyType);
+    void privateInsertDispatch(const_iterator              position,
+                               INPUT_ITER                  first,
+                               INPUT_ITER                  last,
+                               BloombergLP::bslmf::MatchAnyType ,
+                               BloombergLP::bslmf::MatchAnyType );
         // Match non-integral type for 'INPUT_ITER'.
 
     template <class INPUT_ITER>
@@ -459,15 +456,6 @@ class Vector_Imp : public Vector_ImpBase<VALUE_TYPE>
         // undefined unless this vector is empty and has no capacity.
 
   public:
-    // TRAITS
-    typedef BloombergLP::
-
-    bslstl::TraitsGroupStlSequenceContainer<VALUE_TYPE,
-                                            ALLOCATOR> VectorTypeTraits;
-
-    BSLALG_DECLARE_NESTED_TRAITS(Vector_Imp, VectorTypeTraits);
-        // Declare nested type traits for this class.
-
     // CREATORS
 
                   // *** 23.2.5.1 construct/copy/destroy: ***
@@ -755,10 +743,6 @@ class vector : public Vector_Imp<VALUE_TYPE, ALLOCATOR>
     // PUBLIC TYPES
     typedef typename Base::size_type          size_type;
 
-    // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(vector,
-                                 BloombergLP::bslalg_TypeTraits<Base>);
-
   public:
     // 23.2.4.1 construct/copy/destroy:
 
@@ -874,9 +858,6 @@ class vector< VALUE_TYPE *, ALLOCATOR >
     typedef typename ALLOCATOR::const_pointer     const_pointer;
     typedef bsl::reverse_iterator<iterator>       reverse_iterator;
     typedef bsl::reverse_iterator<const_iterator> const_reverse_iterator;
-
-    BSLALG_DECLARE_NESTED_TRAITS(vector,
-                                 BloombergLP::bslalg_TypeTraits<Base>);
 
     // 23.2.4.1 construct/copy/destroy:
 
@@ -1043,6 +1024,49 @@ class vector< VALUE_TYPE *, ALLOCATOR >
         { return (VALUE_TYPE *const *)Base::data(); }
 };
 
+}  // namespace bsl
+
+// ============================================================================
+//                                TYPE TRAITS
+// ============================================================================
+
+// Type traits for STL *sequence* containers:
+//: o A sequence container defines STL iterators.
+//: o A sequence container is bitwise moveable if the allocator is bitwise
+//:     moveable.
+//: o A sequence container uses 'bslma' allocators if the parameterized
+//:     'ALLOCATOR' is convertible from 'bslma::Allocator*'.
+
+namespace BloombergLP {
+namespace bslalg {
+
+template <typename VALUE_TYPE, typename ALLOCATOR>
+struct HasStlIterators<bsl::vector<VALUE_TYPE, ALLOCATOR> > : bsl::true_type
+{};
+
+}
+
+namespace bslmf {
+
+template <typename VALUE_TYPE, typename ALLOCATOR>
+struct IsBitwiseMoveable<bsl::vector<VALUE_TYPE, ALLOCATOR> >
+    : IsBitwiseMoveable<ALLOCATOR>
+{};
+
+}
+
+namespace bslma {
+
+template <typename VALUE_TYPE, typename ALLOCATOR>
+struct UsesBslmaAllocator<bsl::vector<VALUE_TYPE, ALLOCATOR> >
+    : bsl::is_convertible<Allocator*, ALLOCATOR>::type
+{};
+
+}
+}  // namespace BloombergLP
+
+namespace bsl {
+
 // FREE OPERATORS
 template <class VALUE_TYPE, class ALLOCATOR>
 bool operator==(const vector<VALUE_TYPE *,ALLOCATOR>& lhs,
@@ -1073,7 +1097,7 @@ void swap(vector<VALUE_TYPE *, ALLOCATOR>& a,
           vector<VALUE_TYPE *, ALLOCATOR>& b);
 
              // ===========================================
-             // class vector<const VALUE_TYPE *, ALLCOATOR>
+             // class vector<const VALUE_TYPE *, ALLOCATOR>
              // ===========================================
 
 template <class VALUE_TYPE, class ALLOCATOR>
@@ -1106,9 +1130,6 @@ class vector< const VALUE_TYPE *, ALLOCATOR >
     typedef typename ALLOCATOR::const_pointer     const_pointer;
     typedef bsl::reverse_iterator<iterator>       reverse_iterator;
     typedef bsl::reverse_iterator<const_iterator> const_reverse_iterator;
-
-    BSLALG_DECLARE_NESTED_TRAITS(vector,
-                                 BloombergLP::bslalg_TypeTraits<Base>);
 
     // 23.2.4.1 construct/copy/destroy:
 
@@ -1327,9 +1348,9 @@ struct Vector_DeduceIteratorCategory<BSLSTL_ITERATOR, true> {
 
 template<class BSLSTL_ITERATOR>
 struct Vector_IsRandomAccessIterator :
-       BloombergLP::bslmf::IsSame<
-         typename Vector_DeduceIteratorCategory<BSLSTL_ITERATOR>::type,
-                                               bsl::random_access_iterator_tag>
+    bsl::is_same<
+        typename Vector_DeduceIteratorCategory<BSLSTL_ITERATOR>::type,
+                                         bsl::random_access_iterator_tag>::type
 {
 };
 
@@ -1339,13 +1360,13 @@ struct Vector_RangeCheck {
     // pair of iterators do *not* form a valid range.  This support is offered
     // only for random access iterators, and identifies only the case of two
     // valid iterators into the same range forming a "reverse" range.  Note
-    // that these two functions declared using 'bslmf::EnableIf' must be
+    // that these two functions declared using 'enable_if' must be
     // defined inline in the class definition due to a bug in the Microsoft
     // C++ compiler (see 'bslmf_enableif').
 
     template<class BSLSTL_ITERATOR>
     static
-    typename BloombergLP::bslmf::EnableIf<
+    typename bsl::enable_if<
            !Vector_IsRandomAccessIterator<BSLSTL_ITERATOR>::VALUE, bool>::type
     isInvalidRange(BSLSTL_ITERATOR, BSLSTL_ITERATOR)
         // Return 'false' as we know of no way to identify an input iterator
@@ -1356,7 +1377,7 @@ struct Vector_RangeCheck {
 
     template<class BSLSTL_ITERATOR>
     static
-    typename BloombergLP::bslmf::EnableIf<
+    typename bsl::enable_if<
            Vector_IsRandomAccessIterator<BSLSTL_ITERATOR>::VALUE, bool>::type
     isInvalidRange(BSLSTL_ITERATOR first, BSLSTL_ITERATOR last)
         // Return 'true' if 'first <= last', and 'false' otherwise.  Behavior
@@ -1664,11 +1685,11 @@ template <typename VALUE_TYPE, class ALLOCATOR>
 template <class INPUT_ITER>
 inline
 void Vector_Imp<VALUE_TYPE, ALLOCATOR>::privateInsertDispatch(
-                                     const_iterator                   position,
-                                     INPUT_ITER                       count,
-                                     INPUT_ITER                       value,
-                                     BloombergLP::bslstl::UtilIterator,
-                                     int)
+                              const_iterator                          position,
+                              INPUT_ITER                              count,
+                              INPUT_ITER                              value,
+                              BloombergLP::bslmf::MatchArithmeticType ,
+                              BloombergLP::bslmf::Nil                 )
 {
     // 'count' and 'value' are integral types that just happen to be the same.
     // They are not iterators, so we call 'insert(position, count, value)'.
@@ -1682,11 +1703,11 @@ template <typename VALUE_TYPE, class ALLOCATOR>
 template <class INPUT_ITER>
 inline
 void Vector_Imp<VALUE_TYPE, ALLOCATOR>::privateInsertDispatch(
-                                           const_iterator             position,
-                                           INPUT_ITER                 first,
-                                           INPUT_ITER                 last,
-                                           BloombergLP::bslmf::AnyType,
-                                           BloombergLP::bslmf::AnyType)
+                                          const_iterator              position,
+                                          INPUT_ITER                  first,
+                                          INPUT_ITER                  last,
+                                          BloombergLP::bslmf::MatchAnyType ,
+                                          BloombergLP::bslmf::MatchAnyType )
 {
     // Dispatch based on iterator category.
     BSLS_ASSERT_SAFE(!Vector_RangeCheck::isInvalidRange(first, last));
@@ -2234,13 +2255,18 @@ void Vector_Imp<VALUE_TYPE, ALLOCATOR>::insert(const_iterator position,
     // should call 'insert(position, first, last)', where 'first' is actually a
     // misnamed count, and 'last' is a misnamed value.  We can assume that any
     // fundamental type passed to this function is integral or else compilation
-    // errors will result.  The extra argument, 0, is to avoid an overloading
-    // ambiguity: In case 'first' is an integral type, it would be convertible
-    // both to 'bslstl::UtilIterator' and 'bslmf::AnyType'; but the 0 will be
-    // an exact match to 'int', so the overload with 'bslstl::UtilIterator'
-    // will be preferred.
+    // errors will result.  The extra argument, 'bslmf::Nil()', is to avoid an
+    // overloading ambiguity: In case 'first' is an integral type, it would be
+    // convertible both to 'bslmf::MatchArithmeticType' and
+    // 'bslmf::MatchAnyType'; but the 'bslmf::Nil()' will be an exact match to
+    // 'bslmf::Nil', so the overload with 'bslmf::MatchArithmeticType' will be
+    // preferred.
 
-    privateInsertDispatch(position, first, last, first, 0);
+    privateInsertDispatch(position,
+                          first,
+                          last,
+                          first,
+                          BloombergLP::bslmf::Nil());
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>

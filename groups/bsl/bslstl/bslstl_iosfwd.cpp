@@ -1,6 +1,9 @@
 // bslstl_iosfwd.cpp                                                  -*-C++-*-
 #include <bslstl_iosfwd.h>
 
+#include <bsls_ident.h>
+BSLS_IDENT("$Id$ $CSID$")
+
 // ---------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2010

@@ -419,7 +419,7 @@ class HashTable {
         // supplied, a default-constructed object of the (template parameter)
         // type 'ALLOCATOR' is used.  Use a default constructed object of the
         // (template parameter) type 'HASHER' and a default constructed
-        // object of the (template arameter) type 'COMPARATOR' to organize
+        // object of the (template parameter) type 'COMPARATOR' to organize
         // elements in the table.  If the 'ALLOCATOR' is 'bsl::allocator'
         // (the default), then 'allocator', if supplied, shall be convertible
         // to 'bslma::Allocator *'.  If the 'ALLOCATOR' is 'bsl::allocator' and
@@ -1039,38 +1039,43 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::ImplParameters::
 
 template <class ALLOCATOR>
 inline
-void HashTable_Util<ALLOCATOR>::initAnchor(bslalg::HashTableAnchor *anchor,
-                                           SizeType                size,
-                                           const ALLOCATOR&        allocator)
+void HashTable_Util<ALLOCATOR>::initAnchor(
+                                      bslalg::HashTableAnchor *anchor,
+                                      SizeType                 bucketArraySize,
+                                      const ALLOCATOR&         allocator)
 {
     BSLS_ASSERT_SAFE(anchor);
-    BSLS_ASSERT_SAFE(0 != size);
+    BSLS_ASSERT_SAFE(0 != bucketArraySize);
 
     ArrayAllocator reboundAllocator(allocator);
 
     bslalg::HashTableBucket *data =
-                        ArrayAllocatorTraits::allocate(reboundAllocator, size);
+             ArrayAllocatorTraits::allocate(reboundAllocator, bucketArraySize);
 
-    native_std::fill_n(data, size, bslalg::HashTableBucket());
+    native_std::fill_n(data, bucketArraySize, bslalg::HashTableBucket());
 
-    anchor->setBucketArrayAddressAndSize(data, size);
+    anchor->setBucketArrayAddressAndSize(data, bucketArraySize);
 }
 
 template <class ALLOCATOR>
 inline
 void HashTable_Util<ALLOCATOR>::destroyBucketArray(
-                                           bslalg::HashTableBucket  *data,
-                                           SizeType                  size,
-                                           const ALLOCATOR&          allocator)
+                                     bslalg::HashTableBucket  *data,
+                                     SizeType                  bucketArraySize,
+                                     const ALLOCATOR&          allocator)
 {
     BSLS_ASSERT_SAFE(data);
     BSLS_ASSERT_SAFE(
-          (1  < size && HashTable_ImpDetails::defaultBucketAddress() != data)
-       || (1 == size && HashTable_ImpDetails::defaultBucketAddress() == data));
+                  (1  < bucketArraySize
+                     && HashTable_ImpDetails::defaultBucketAddress() != data)
+               || (1 == bucketArraySize
+                     && HashTable_ImpDetails::defaultBucketAddress() == data));
 
     if (HashTable_ImpDetails::defaultBucketAddress() != data) {
         ArrayAllocator reboundAllocator(allocator);
-        ArrayAllocatorTraits::deallocate(reboundAllocator, data, size);
+        ArrayAllocatorTraits::deallocate(reboundAllocator,
+                                         data,
+                                         bucketArraySize);
     }
 }
 

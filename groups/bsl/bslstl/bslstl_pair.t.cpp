@@ -2,12 +2,11 @@
 
 #include <bslstl_pair.h>
 
-#include <bslalg_typetraits.h>
-#include <bslalg_typetraitbitwisecopyable.h>
-#include <bslalg_typetraitbitwisemoveable.h>
-#include <bslalg_typetraitbitwiseequalitycomparable.h>
-#include <bslalg_typetraithastrivialdefaultconstructor.h>
-#include <bslalg_typetraitusesbslmaallocator.h>
+#include <bslmf_istriviallycopyable.h>
+#include <bslmf_isbitwisemoveable.h>
+#include <bslmf_isbitwiseequalitycomparable.h>
+#include <bslmf_istriviallydefaultconstructible.h>
+#include <bslma_usesbslmaallocator.h>
 #include <bslma_allocator.h>
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
@@ -116,13 +115,6 @@ static int verbose = 0;
 static int veryVerbose = 0;
 // static int veryVeryVerbose = 0;
 
-// Abbreviations for long trait names
-typedef bslalg::TypeTraitBitwiseMoveable BitwiseMoveable;
-typedef bslalg::TypeTraitBitwiseCopyable BitwiseCopyable;
-typedef bslalg::TypeTraitHasTrivialDefaultConstructor TrivialConstructor;
-typedef bslalg::TypeTraitBitwiseEqualityComparable    BitwiseComparable;
-typedef bslalg::TypeTraitUsesBslmaAllocator UsesBslmaAllocator;
-
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
@@ -156,8 +148,7 @@ typedef bslalg::TypeTraitUsesBslmaAllocator UsesBslmaAllocator;
         char             *d_data;
 
       public:
-        BSLALG_DECLARE_NESTED_TRAITS(my_String,
-                                     bslalg::TypeTraitUsesBslmaAllocator);
+        BSLMF_NESTED_TRAIT_DECLARATION(my_String, bslma::UsesBslmaAllocator);
 
         explicit my_String(bslma::Allocator *alloc = 0);
             // Construct an empty string using the optionally-specified
@@ -447,50 +438,43 @@ const char *my_NoAllocString::c_str() const
     return d_data;
 }
 
-                             // =================
-                             // struct traits_...
-                             // =================
-struct traits_MoveAbandonBslma :
-    BitwiseMoveable,
-    UsesBslmaAllocator
-{
-};
-
-struct traits_CopyTrivial :
-    BitwiseCopyable,
-    TrivialConstructor
-{
-};
-
-struct traits_EqualityTrivial :
-    BitwiseCopyable,
-    TrivialConstructor,
-    BitwiseComparable
-{
-};
-
                            // =====================
                            // struct my_(Traits...)
                            // =====================
 
-struct my_MoveAbandonBslma
-{
-    BSLALG_DECLARE_NESTED_TRAITS(my_MoveAbandonBslma, traits_MoveAbandonBslma);
-};
+struct my_MoveAbandonBslma {};
 
-struct my_CopyTrivial
-{
-    BSLALG_DECLARE_NESTED_TRAITS(my_CopyTrivial, traits_CopyTrivial);
-};
+namespace BloombergLP {
+namespace bslmf {
+template <> struct IsBitwiseMoveable<my_MoveAbandonBslma> : bsl::true_type {};
+}
 
-struct my_EqualityTrivial
-{
-    BSLALG_DECLARE_NESTED_TRAITS(my_EqualityTrivial, traits_EqualityTrivial);
-};
+namespace bslma {
+template <> struct UsesBslmaAllocator<my_MoveAbandonBslma> : bsl::true_type {};
+}
+}
 
-struct my_NoTraits
-{
-};
+struct my_CopyTrivial {};
+
+namespace bsl {
+template <> struct is_trivially_copyable<my_CopyTrivial> : bsl::true_type {};
+template <> struct is_trivially_default_constructible<my_CopyTrivial> : bsl::true_type {};
+}
+
+struct my_EqualityTrivial {};
+
+namespace bsl {
+template <> struct is_trivially_copyable<my_EqualityTrivial> : bsl::true_type {};
+template <> struct is_trivially_default_constructible<my_EqualityTrivial> : bsl::true_type {};
+}
+
+namespace BloombergLP {
+namespace bslmf {
+template <> struct IsBitwiseEqualityComparable<my_EqualityTrivial> : bsl::true_type {};
+}
+}
+
+struct my_NoTraits {};
 
 //=============================================================================
 //                HELPER CLASSES AND FUNCTIONS FOR TESTING SWAP
@@ -792,11 +776,11 @@ int main(int argc, char *argv[])
         // - Verify that the resulting instantiation has the following traits
         //   only if and only if both types on which it is instantiated have
         //   those traits:
-        //   * bslalg::TypeTraitBitwiseMoveable
-        //   * bslalg::TypeTraitBitwiseCopyable (implies BitwiseMoveable)
-        //   * bslalg::TypeTraitTrivialConstructor
+        //   * bslmf::IsBitwiseMoveable
+        //   * bsl::is_trivially_copyable (implies IsBitwiseMoveable)
+        //   * bsl::is_trivially_default_constructible
         // - Verify that the resulting instantiation has the trait
-        //   'bslalg::TypeTraitUsesBslmaAllocator' if and only BOTH types have
+        //   'bslma::UsesBslmaAllocator' if and only BOTH types have
         //   this trait.
         //
         // Testing:
@@ -811,11 +795,12 @@ int main(int argc, char *argv[])
                         "bsl::pair<my_NoTraits, my_NoTraits>\n");
         }
         typedef bsl::pair<my_NoTraits, my_NoTraits> Pair0;
-        ASSERT(! (bslalg::HasTrait<Pair0, BitwiseMoveable>::VALUE));
-        ASSERT(! (bslalg::HasTrait<Pair0, BitwiseCopyable>::VALUE));
-        ASSERT(! (bslalg::HasTrait<Pair0, TrivialConstructor>::VALUE));
-        ASSERT(! (bslalg::HasTrait<Pair0, UsesBslmaAllocator>::VALUE));
-        ASSERT(! (bslalg::HasTrait<Pair0, BitwiseComparable>::VALUE));
+        ASSERT(! (bslmf::IsBitwiseMoveable<               Pair0>::value));
+        ASSERT(! (bsl::is_trivially_copyable<             Pair0>::value));
+        ASSERT(! (bsl::is_trivially_default_constructible<Pair0>::value));
+        ASSERT(! (bslma::UsesBslmaAllocator<              Pair0>::value));
+        ASSERT(! (bslmf::IsBitwiseEqualityComparable<     Pair0>::value));
+        ASSERT(  (bslmf::IsPair<                          Pair0>::value));
 
         if (verbose) {
             std::printf("Testing traits of "
@@ -823,143 +808,156 @@ int main(int argc, char *argv[])
                         "             my_MoveAbandonBslma>\n");
         }
         typedef bsl::pair<my_MoveAbandonBslma, my_MoveAbandonBslma> Pair1;
-        ASSERT(  (bslalg::HasTrait<Pair1, BitwiseMoveable>::VALUE));
-        ASSERT(! (bslalg::HasTrait<Pair1, BitwiseCopyable>::VALUE));
-        ASSERT(! (bslalg::HasTrait<Pair1, TrivialConstructor>::VALUE));
-        ASSERT(  (bslalg::HasTrait<Pair1, UsesBslmaAllocator>::VALUE));
-        ASSERT(! (bslalg::HasTrait<Pair1, BitwiseComparable>::VALUE));
+        ASSERT(  (bslmf::IsBitwiseMoveable<               Pair1>::value));
+        ASSERT(! (bsl::is_trivially_copyable<             Pair1>::value));
+        ASSERT(! (bsl::is_trivially_default_constructible<Pair1>::value));
+        ASSERT(  (bslma::UsesBslmaAllocator<              Pair1>::value));
+        ASSERT(! (bslmf::IsBitwiseEqualityComparable<     Pair1>::value));
+        ASSERT(  (bslmf::IsPair<                          Pair1>::value));
 
         if (verbose) {
             std::printf("Testing traits of "
                         "bsl::pair<my_CopyTrivial, my_CopyTrivial>\n");
         }
         typedef bsl::pair<my_CopyTrivial, my_CopyTrivial> Pair2;
-        ASSERT(  (bslalg::HasTrait<Pair2, BitwiseMoveable>::VALUE));
-        ASSERT(  (bslalg::HasTrait<Pair2, BitwiseCopyable>::VALUE));
-        ASSERT(  (bslalg::HasTrait<Pair2, TrivialConstructor>::VALUE));
-        ASSERT(! (bslalg::HasTrait<Pair2, UsesBslmaAllocator>::VALUE));
-        ASSERT(! (bslalg::HasTrait<Pair2, BitwiseComparable>::VALUE));
+        ASSERT(  (bslmf::IsBitwiseMoveable<               Pair2>::value));
+        ASSERT(  (bsl::is_trivially_copyable<             Pair2>::value));
+        ASSERT(  (bsl::is_trivially_default_constructible<Pair2>::value));
+        ASSERT(! (bslma::UsesBslmaAllocator<              Pair2>::value));
+        ASSERT(! (bslmf::IsBitwiseEqualityComparable<     Pair2>::value));
+        ASSERT(  (bslmf::IsPair<                          Pair2>::value));
 
         if (verbose) {
             std::printf("Testing traits of "
                         "bsl::pair<my_CopyTrivial, my_MoveAbandonBslma>\n");
         }
         typedef bsl::pair<my_CopyTrivial, my_MoveAbandonBslma> Pair3;
-        ASSERT(  (bslalg::HasTrait<Pair3, BitwiseMoveable>::VALUE));
-        ASSERT(! (bslalg::HasTrait<Pair3, BitwiseCopyable>::VALUE));
-        ASSERT(! (bslalg::HasTrait<Pair3, TrivialConstructor>::VALUE));
-        ASSERT(  (bslalg::HasTrait<Pair3, UsesBslmaAllocator>::VALUE));
-        ASSERT(! (bslalg::HasTrait<Pair3, BitwiseComparable>::VALUE));
+        ASSERT(  (bslmf::IsBitwiseMoveable<               Pair3>::value));
+        ASSERT(! (bsl::is_trivially_copyable<             Pair3>::value));
+        ASSERT(! (bsl::is_trivially_default_constructible<Pair3>::value));
+        ASSERT(  (bslma::UsesBslmaAllocator<              Pair3>::value));
+        ASSERT(! (bslmf::IsBitwiseEqualityComparable<     Pair3>::value));
+        ASSERT(  (bslmf::IsPair<                          Pair3>::value));
 
         if (verbose) {
             std::printf("Testing traits of "
                         "bsl::pair<my_MoveAbandonBslma, my_CopyTrivial>\n");
         }
         typedef bsl::pair<my_MoveAbandonBslma, my_CopyTrivial> Pair4;
-        ASSERT(  (bslalg::HasTrait<Pair4, BitwiseMoveable>::VALUE));
-        ASSERT(! (bslalg::HasTrait<Pair4, BitwiseCopyable>::VALUE));
-        ASSERT(! (bslalg::HasTrait<Pair4, TrivialConstructor>::VALUE));
-        ASSERT(  (bslalg::HasTrait<Pair4, UsesBslmaAllocator>::VALUE));
-        ASSERT(! (bslalg::HasTrait<Pair4, BitwiseComparable>::VALUE));
+        ASSERT(  (bslmf::IsBitwiseMoveable<               Pair4>::value));
+        ASSERT(! (bsl::is_trivially_copyable<             Pair4>::value));
+        ASSERT(! (bsl::is_trivially_default_constructible<Pair4>::value));
+        ASSERT(  (bslma::UsesBslmaAllocator<              Pair4>::value));
+        ASSERT(! (bslmf::IsBitwiseEqualityComparable<     Pair4>::value));
+        ASSERT(  (bslmf::IsPair<                          Pair4>::value));
 
         if (verbose) {
             std::printf("Testing traits of "
                         "bsl::pair<my_MoveAbandonBslma, my_NoTraits>\n");
         }
         typedef bsl::pair<my_MoveAbandonBslma, my_NoTraits> Pair5;
-        ASSERT(! (bslalg::HasTrait<Pair5, BitwiseMoveable>::VALUE));
-        ASSERT(! (bslalg::HasTrait<Pair5, BitwiseCopyable>::VALUE));
-        ASSERT(! (bslalg::HasTrait<Pair5, TrivialConstructor>::VALUE));
-        ASSERT(  (bslalg::HasTrait<Pair5, UsesBslmaAllocator>::VALUE));
-        ASSERT(! (bslalg::HasTrait<Pair5, BitwiseComparable>::VALUE));
+        ASSERT(! (bslmf::IsBitwiseMoveable<               Pair5>::value));
+        ASSERT(! (bsl::is_trivially_copyable<             Pair5>::value));
+        ASSERT(! (bsl::is_trivially_default_constructible<Pair5>::value));
+        ASSERT(  (bslma::UsesBslmaAllocator<              Pair5>::value));
+        ASSERT(! (bslmf::IsBitwiseEqualityComparable<     Pair5>::value));
+        ASSERT(  (bslmf::IsPair<                          Pair5>::value));
 
         if (verbose) {
             std::printf("Testing traits of "
                         "bsl::pair<my_CopyTrivial, my_NoTraits>\n");
         }
         typedef bsl::pair<my_CopyTrivial, my_NoTraits> Pair6;
-        ASSERT(! (bslalg::HasTrait<Pair6, BitwiseMoveable>::VALUE));
-        ASSERT(! (bslalg::HasTrait<Pair6, BitwiseCopyable>::VALUE));
-        ASSERT(! (bslalg::HasTrait<Pair6, TrivialConstructor>::VALUE));
-        ASSERT(! (bslalg::HasTrait<Pair6, UsesBslmaAllocator>::VALUE));
-        ASSERT(! (bslalg::HasTrait<Pair6, BitwiseComparable>::VALUE));
+        ASSERT(! (bslmf::IsBitwiseMoveable<               Pair6>::value));
+        ASSERT(! (bsl::is_trivially_copyable<             Pair6>::value));
+        ASSERT(! (bsl::is_trivially_default_constructible<Pair6>::value));
+        ASSERT(! (bslma::UsesBslmaAllocator<              Pair6>::value));
+        ASSERT(! (bslmf::IsBitwiseEqualityComparable<     Pair6>::value));
+        ASSERT(  (bslmf::IsPair<                          Pair6>::value));
 
         if (verbose) {
             std::printf("Testing traits of "
                         "bsl::pair<my_String, my_NoTraits>\n");
         }
         typedef bsl::pair<my_String, my_NoTraits> Pair7;
-        ASSERT(! (bslalg::HasTrait<Pair7, BitwiseMoveable>::VALUE));
-        ASSERT(! (bslalg::HasTrait<Pair7, BitwiseCopyable>::VALUE));
-        ASSERT(! (bslalg::HasTrait<Pair7, TrivialConstructor>::VALUE));
-        ASSERT(  (bslalg::HasTrait<Pair7, UsesBslmaAllocator>::VALUE));
-        ASSERT(! (bslalg::HasTrait<Pair7, BitwiseComparable>::VALUE));
+        ASSERT(! (bslmf::IsBitwiseMoveable<               Pair7>::value));
+        ASSERT(! (bsl::is_trivially_copyable<             Pair7>::value));
+        ASSERT(! (bsl::is_trivially_default_constructible<Pair7>::value));
+        ASSERT(  (bslma::UsesBslmaAllocator<              Pair7>::value));
+        ASSERT(! (bslmf::IsBitwiseEqualityComparable<     Pair7>::value));
+        ASSERT(  (bslmf::IsPair<                          Pair7>::value));
 
         if (verbose) {
             std::printf("Testing traits of "
                         "bsl::pair<my_MoveAbandonBslma, int>\n");
         }
         typedef bsl::pair<my_MoveAbandonBslma, int> Pair8;
-        ASSERT(  (bslalg::HasTrait<Pair8, BitwiseMoveable>::VALUE));
-        ASSERT(! (bslalg::HasTrait<Pair8, BitwiseCopyable>::VALUE));
-        ASSERT(! (bslalg::HasTrait<Pair8, TrivialConstructor>::VALUE));
-        ASSERT(  (bslalg::HasTrait<Pair8, UsesBslmaAllocator>::VALUE));
-        ASSERT(! (bslalg::HasTrait<Pair8, BitwiseComparable>::VALUE));
+        ASSERT(  (bslmf::IsBitwiseMoveable<               Pair8>::value));
+        ASSERT(! (bsl::is_trivially_copyable<             Pair8>::value));
+        ASSERT(! (bsl::is_trivially_default_constructible<Pair8>::value));
+        ASSERT(  (bslma::UsesBslmaAllocator<              Pair8>::value));
+        ASSERT(! (bslmf::IsBitwiseEqualityComparable<     Pair8>::value));
+        ASSERT(  (bslmf::IsPair<                          Pair8>::value));
 
         if (verbose) {
             std::printf("Testing traits of "
                         "bsl::pair<int, my_CopyTrivial>\n");
         }
         typedef bsl::pair<int, my_CopyTrivial> Pair9;
-        ASSERT(  (bslalg::HasTrait<Pair9, BitwiseMoveable>::VALUE));
-        ASSERT(  (bslalg::HasTrait<Pair9, BitwiseCopyable>::VALUE));
-        ASSERT(  (bslalg::HasTrait<Pair9, TrivialConstructor>::VALUE));
-        ASSERT(! (bslalg::HasTrait<Pair9, UsesBslmaAllocator>::VALUE));
-        ASSERT(! (bslalg::HasTrait<Pair9, BitwiseComparable>::VALUE));
+        ASSERT(  (bslmf::IsBitwiseMoveable<               Pair9>::value));
+        ASSERT(  (bsl::is_trivially_copyable<             Pair9>::value));
+        ASSERT(  (bsl::is_trivially_default_constructible<Pair9>::value));
+        ASSERT(! (bslma::UsesBslmaAllocator<              Pair9>::value));
+        ASSERT(! (bslmf::IsBitwiseEqualityComparable<     Pair9>::value));
+        ASSERT(  (bslmf::IsPair<                          Pair9>::value));
 
         if (verbose) {
             std::printf("Testing traits of "
                         "bsl::pair<my_String, my_MoveAbandonBslma>\n");
         }
         typedef bsl::pair<my_String, my_MoveAbandonBslma> Pair10;
-        ASSERT(! (bslalg::HasTrait<Pair10, BitwiseMoveable>::VALUE));
-        ASSERT(! (bslalg::HasTrait<Pair10, BitwiseCopyable>::VALUE));
-        ASSERT(! (bslalg::HasTrait<Pair10, TrivialConstructor>::VALUE));
-        ASSERT(  (bslalg::HasTrait<Pair10, UsesBslmaAllocator>::VALUE));
-        ASSERT(! (bslalg::HasTrait<Pair10, BitwiseComparable>::VALUE));
+        ASSERT(! (bslmf::IsBitwiseMoveable<               Pair10>::value));
+        ASSERT(! (bsl::is_trivially_copyable<             Pair10>::value));
+        ASSERT(! (bsl::is_trivially_default_constructible<Pair10>::value));
+        ASSERT(  (bslma::UsesBslmaAllocator<              Pair10>::value));
+        ASSERT(! (bslmf::IsBitwiseEqualityComparable<     Pair10>::value));
+        ASSERT(  (bslmf::IsPair<                          Pair10>::value));
 
         if (verbose) {
             std::printf("Testing traits of "
                         "bsl::pair<char, int>\n");
         }
         typedef bsl::pair<char, int> Pair11;
-        ASSERT(  (bslalg::HasTrait<Pair11, BitwiseMoveable>::VALUE));
-        ASSERT(  (bslalg::HasTrait<Pair11, BitwiseCopyable>::VALUE));
-        ASSERT(  (bslalg::HasTrait<Pair11, TrivialConstructor>::VALUE));
-        ASSERT(! (bslalg::HasTrait<Pair11, UsesBslmaAllocator>::VALUE));
-        ASSERT(! (bslalg::HasTrait<Pair11, BitwiseComparable>::VALUE));
+        ASSERT(  (bslmf::IsBitwiseMoveable<               Pair11>::value));
+        ASSERT(  (bsl::is_trivially_copyable<             Pair11>::value));
+        ASSERT(  (bsl::is_trivially_default_constructible<Pair11>::value));
+        ASSERT(! (bslma::UsesBslmaAllocator<              Pair11>::value));
+        ASSERT(! (bslmf::IsBitwiseEqualityComparable<     Pair11>::value));
+        ASSERT(  (bslmf::IsPair<                          Pair11>::value));
 
         if (verbose) {
             std::printf("Testing traits of "
                         "bsl::pair<int, char>\n");
         }
         typedef bsl::pair<int, char> Pair12;
-        ASSERT(  (bslalg::HasTrait<Pair12, BitwiseMoveable>::VALUE));
-        ASSERT(  (bslalg::HasTrait<Pair12, BitwiseCopyable>::VALUE));
-        ASSERT(  (bslalg::HasTrait<Pair12, TrivialConstructor>::VALUE));
-        ASSERT(! (bslalg::HasTrait<Pair12, UsesBslmaAllocator>::VALUE));
-        ASSERT(! (bslalg::HasTrait<Pair12, BitwiseComparable>::VALUE));
+        ASSERT(  (bslmf::IsBitwiseMoveable<               Pair12>::value));
+        ASSERT(  (bsl::is_trivially_copyable<             Pair12>::value));
+        ASSERT(  (bsl::is_trivially_default_constructible<Pair12>::value));
+        ASSERT(! (bslma::UsesBslmaAllocator<              Pair12>::value));
+        ASSERT(! (bslmf::IsBitwiseEqualityComparable<     Pair12>::value));
+        ASSERT(  (bslmf::IsPair<                          Pair12>::value));
 
         if (verbose) {
             std::printf("Testing traits of "
                         "bsl::pair<int, int>\n");
         }
         typedef bsl::pair<int, int> Pair13;
-        ASSERT(  (bslalg::HasTrait<Pair13, BitwiseMoveable>::VALUE));
-        ASSERT(  (bslalg::HasTrait<Pair13, BitwiseCopyable>::VALUE));
-        ASSERT(  (bslalg::HasTrait<Pair13, TrivialConstructor>::VALUE));
-        ASSERT(! (bslalg::HasTrait<Pair13, UsesBslmaAllocator>::VALUE));
-        ASSERT(  (bslalg::HasTrait<Pair13, BitwiseComparable>::VALUE));
+        ASSERT(  (bslmf::IsBitwiseMoveable<               Pair13>::value));
+        ASSERT(  (bsl::is_trivially_copyable<             Pair13>::value));
+        ASSERT(  (bsl::is_trivially_default_constructible<Pair13>::value));
+        ASSERT(! (bslma::UsesBslmaAllocator<              Pair13>::value));
+        ASSERT(  (bslmf::IsBitwiseEqualityComparable<     Pair13>::value));
+        ASSERT(  (bslmf::IsPair<                          Pair13>::value));
 
       } break;
 
@@ -972,9 +970,9 @@ int main(int argc, char *argv[])
         //    constructor with two arguments and copy constructor with no
         //    allocator.
         // 2. If and only if one or both members of the 'pair' have
-        //    the 'bslalg::TypeTraitUsesBslmaAllocator' trait, then the
+        //    the 'bslma::UsesBslmaAllocator' trait, then the
         //    'pair' also has that trait.
-        // 3. If 'pair' has the 'bslalg::TypeTraitUsesBslmaAllocator'
+        // 3. If 'pair' has the 'bslma::UsesBslmaAllocator'
         //    trait, then each constructor can be passed a 'bslma::Allocator'
         //    pointer and that pointer is passed through to the member(s) that
         //    take it.
@@ -1045,18 +1043,18 @@ int main(int argc, char *argv[])
         if (verbose) std::printf("testing bsl::pair<short, short>\n");
         {
             typedef bsl::pair<short, short> Obj;
-            ASSERT((bslmf::IsSame<short, Obj::first_type>::VALUE));
-            ASSERT((bslmf::IsSame<short, Obj::second_type>::VALUE));
+            ASSERT((bsl::is_same<short, Obj::first_type>::value));
+            ASSERT((bsl::is_same<short, Obj::second_type>::value));
 
             const short NULL_FIRST   = 0;
             const short NULL_SECOND  = 0;
             const short VALUE_FIRST  = 3;
             const short VALUE_SECOND = 4;
 
-            ASSERT(  (bslalg::HasTrait<Obj, BitwiseMoveable>::VALUE));
-            ASSERT(  (bslalg::HasTrait<Obj, BitwiseCopyable>::VALUE));
-            ASSERT(  (bslalg::HasTrait<Obj, TrivialConstructor>::VALUE));
-            ASSERT(! (bslalg::HasTrait<Obj, UsesBslmaAllocator>::VALUE));
+            ASSERT(  (bslmf::IsBitwiseMoveable<               Obj>::value));
+            ASSERT(  (bsl::is_trivially_copyable<             Obj>::value));
+            ASSERT(  (bsl::is_trivially_default_constructible<Obj>::value));
+            ASSERT(! (bslma::UsesBslmaAllocator<              Obj>::value));
 
             Obj p1; const Obj& P1 = p1;
             ASSERT(NULL_FIRST == P1.first && NULL_SECOND == P1.second);
@@ -1095,18 +1093,18 @@ int main(int argc, char *argv[])
         if (verbose) std::printf("testing bsl::pair<short, my_String>\n");
         {
             typedef bsl::pair<short, my_String> Obj;
-            ASSERT((bslmf::IsSame<short, Obj::first_type>::VALUE));
-            ASSERT((bslmf::IsSame<my_String, Obj::second_type>::VALUE));
+            ASSERT((bsl::is_same<short, Obj::first_type>::value));
+            ASSERT((bsl::is_same<my_String, Obj::second_type>::value));
 
             const short        NULL_FIRST   = 0;
             const char  *const NULL_SECOND  = "";
             const short        VALUE_FIRST  = 4;
             const char  *const VALUE_SECOND = "Hello";
 
-            ASSERT(! (bslalg::HasTrait<Obj, BitwiseMoveable>::VALUE));
-            ASSERT(! (bslalg::HasTrait<Obj, BitwiseCopyable>::VALUE));
-            ASSERT(! (bslalg::HasTrait<Obj, TrivialConstructor>::VALUE));
-            ASSERT(  (bslalg::HasTrait<Obj, UsesBslmaAllocator>::VALUE));
+            ASSERT(! (bslmf::IsBitwiseMoveable<               Obj>::value));
+            ASSERT(! (bsl::is_trivially_copyable<             Obj>::value));
+            ASSERT(! (bsl::is_trivially_default_constructible<Obj>::value));
+            ASSERT(  (bslma::UsesBslmaAllocator<              Obj>::value));
 
             Obj p1; const Obj& P1 = p1;
             ASSERT(NULL_FIRST == P1.first && NULL_SECOND == P1.second);
@@ -1171,18 +1169,18 @@ int main(int argc, char *argv[])
         }
         {
             typedef bsl::pair<short, my_NoAllocString> Obj;
-            ASSERT((bslmf::IsSame<short, Obj::first_type>::VALUE));
-            ASSERT((bslmf::IsSame<my_NoAllocString, Obj::second_type>::VALUE));
+            ASSERT((bsl::is_same<short, Obj::first_type>::value));
+            ASSERT((bsl::is_same<my_NoAllocString, Obj::second_type>::value));
 
             const short        NULL_FIRST   = 0;
             const char  *const NULL_SECOND  = "";
             const short        VALUE_FIRST  = 4;
             const char  *const VALUE_SECOND = "Hello";
 
-            ASSERT(! (bslalg::HasTrait<Obj, BitwiseMoveable>::VALUE));
-            ASSERT(! (bslalg::HasTrait<Obj, BitwiseCopyable>::VALUE));
-            ASSERT(! (bslalg::HasTrait<Obj, TrivialConstructor>::VALUE));
-            ASSERT(! (bslalg::HasTrait<Obj, UsesBslmaAllocator>::VALUE));
+            ASSERT(! (bslmf::IsBitwiseMoveable<               Obj>::value));
+            ASSERT(! (bsl::is_trivially_copyable<             Obj>::value));
+            ASSERT(! (bsl::is_trivially_default_constructible<Obj>::value));
+            ASSERT(! (bslma::UsesBslmaAllocator<              Obj>::value));
 
             Obj p1; const Obj& P1 = p1;
             ASSERT(NULL_FIRST == P1.first && NULL_SECOND == P1.second);
@@ -1225,18 +1223,18 @@ int main(int argc, char *argv[])
         if (verbose) std::printf("testing bsl::pair<my_String, short>\n");
         {
             typedef bsl::pair<my_String, short> Obj;
-            ASSERT((bslmf::IsSame<my_String, Obj::first_type>::VALUE));
-            ASSERT((bslmf::IsSame<short, Obj::second_type>::VALUE));
+            ASSERT((bsl::is_same<my_String, Obj::first_type>::value));
+            ASSERT((bsl::is_same<short, Obj::second_type>::value));
 
             const char  *const NULL_FIRST   = "";
             const short        NULL_SECOND  = 0;
             const char  *const VALUE_FIRST  = "Hello";
             const short        VALUE_SECOND = 4;
 
-            ASSERT(! (bslalg::HasTrait<Obj, BitwiseMoveable>::VALUE));
-            ASSERT(! (bslalg::HasTrait<Obj, BitwiseCopyable>::VALUE));
-            ASSERT(! (bslalg::HasTrait<Obj, TrivialConstructor>::VALUE));
-            ASSERT(  (bslalg::HasTrait<Obj, UsesBslmaAllocator>::VALUE));
+            ASSERT(! (bslmf::IsBitwiseMoveable<               Obj>::value));
+            ASSERT(! (bsl::is_trivially_copyable<             Obj>::value));
+            ASSERT(! (bsl::is_trivially_default_constructible<Obj>::value));
+            ASSERT(  (bslma::UsesBslmaAllocator<              Obj>::value));
 
             Obj p1; const Obj& P1 = p1;
             ASSERT(NULL_FIRST == P1.first && NULL_SECOND == P1.second);
@@ -1301,18 +1299,18 @@ int main(int argc, char *argv[])
         }
         {
             typedef bsl::pair<my_String, my_String> Obj;
-            ASSERT((bslmf::IsSame<my_String, Obj::first_type>::VALUE));
-            ASSERT((bslmf::IsSame<my_String, Obj::second_type>::VALUE));
+            ASSERT((bsl::is_same<my_String, Obj::first_type>::value));
+            ASSERT((bsl::is_same<my_String, Obj::second_type>::value));
 
             const char *const NULL_FIRST   = "";
             const char *const NULL_SECOND  = "";
             const char *const VALUE_FIRST  = "Hello";
             const char *const VALUE_SECOND = "Goodbye";
 
-            ASSERT(! (bslalg::HasTrait<Obj, BitwiseMoveable>::VALUE));
-            ASSERT(! (bslalg::HasTrait<Obj, BitwiseCopyable>::VALUE));
-            ASSERT(! (bslalg::HasTrait<Obj, TrivialConstructor>::VALUE));
-            ASSERT(  (bslalg::HasTrait<Obj, UsesBslmaAllocator>::VALUE));
+            ASSERT(! (bslmf::IsBitwiseMoveable<               Obj>::value));
+            ASSERT(! (bsl::is_trivially_copyable<             Obj>::value));
+            ASSERT(! (bsl::is_trivially_default_constructible<Obj>::value));
+            ASSERT(  (bslma::UsesBslmaAllocator<              Obj>::value));
 
             Obj p1; const Obj& P1 = p1;
             ASSERT(NULL_FIRST == P1.first && NULL_SECOND == P1.second);
@@ -1383,18 +1381,18 @@ int main(int argc, char *argv[])
         }
         {
             typedef bsl::pair<my_String, my_NoAllocString> Obj;
-            ASSERT((bslmf::IsSame<my_String, Obj::first_type>::VALUE));
-            ASSERT((bslmf::IsSame<my_NoAllocString, Obj::second_type>::VALUE));
+            ASSERT((bsl::is_same<my_String, Obj::first_type>::value));
+            ASSERT((bsl::is_same<my_NoAllocString, Obj::second_type>::value));
 
             const char  *const NULL_FIRST   = "";
             const char  *const NULL_SECOND  = "";
             const char  *const VALUE_FIRST  = "Hello";
             const char  *const VALUE_SECOND = "Goodbye";
 
-            ASSERT(! (bslalg::HasTrait<Obj, BitwiseMoveable>::VALUE));
-            ASSERT(! (bslalg::HasTrait<Obj, BitwiseCopyable>::VALUE));
-            ASSERT(! (bslalg::HasTrait<Obj, TrivialConstructor>::VALUE));
-            ASSERT(  (bslalg::HasTrait<Obj, UsesBslmaAllocator>::VALUE));
+            ASSERT(! (bslmf::IsBitwiseMoveable<               Obj>::value));
+            ASSERT(! (bsl::is_trivially_copyable<             Obj>::value));
+            ASSERT(! (bsl::is_trivially_default_constructible<Obj>::value));
+            ASSERT(  (bslma::UsesBslmaAllocator<              Obj>::value));
 
             Obj p1; const Obj& P1 = p1;
             ASSERT(NULL_FIRST == P1.first && NULL_SECOND == P1.second);
@@ -1459,18 +1457,18 @@ int main(int argc, char *argv[])
         }
         {
             typedef bsl::pair<my_NoAllocString, short> Obj;
-            ASSERT((bslmf::IsSame<my_NoAllocString, Obj::first_type>::VALUE));
-            ASSERT((bslmf::IsSame<short, Obj::second_type>::VALUE));
+            ASSERT((bsl::is_same<my_NoAllocString, Obj::first_type>::value));
+            ASSERT((bsl::is_same<short, Obj::second_type>::value));
 
             const char  *const NULL_FIRST   = "";
             const short        NULL_SECOND  = 0;
             const char  *const VALUE_FIRST  = "Hello";
             const short        VALUE_SECOND = 4;
 
-            ASSERT(! (bslalg::HasTrait<Obj, BitwiseMoveable>::VALUE));
-            ASSERT(! (bslalg::HasTrait<Obj, BitwiseCopyable>::VALUE));
-            ASSERT(! (bslalg::HasTrait<Obj, TrivialConstructor>::VALUE));
-            ASSERT(! (bslalg::HasTrait<Obj, UsesBslmaAllocator>::VALUE));
+            ASSERT(! (bslmf::IsBitwiseMoveable<               Obj>::value));
+            ASSERT(! (bsl::is_trivially_copyable<             Obj>::value));
+            ASSERT(! (bsl::is_trivially_default_constructible<Obj>::value));
+            ASSERT(! (bslma::UsesBslmaAllocator<              Obj>::value));
 
             Obj p1; const Obj& P1 = p1;
             ASSERT(NULL_FIRST == P1.first && NULL_SECOND == P1.second);
@@ -1515,18 +1513,18 @@ int main(int argc, char *argv[])
         }
         {
             typedef bsl::pair<my_NoAllocString, my_String> Obj;
-            ASSERT((bslmf::IsSame<my_NoAllocString, Obj::first_type>::VALUE));
-            ASSERT((bslmf::IsSame<my_String, Obj::second_type>::VALUE));
+            ASSERT((bsl::is_same<my_NoAllocString, Obj::first_type>::value));
+            ASSERT((bsl::is_same<my_String, Obj::second_type>::value));
 
             const char  *const NULL_FIRST   = "";
             const char  *const NULL_SECOND  = "";
             const char  *const VALUE_FIRST  = "Hello";
             const char  *const VALUE_SECOND = "Goodbye";
 
-            ASSERT(! (bslalg::HasTrait<Obj, BitwiseMoveable>::VALUE));
-            ASSERT(! (bslalg::HasTrait<Obj, BitwiseCopyable>::VALUE));
-            ASSERT(! (bslalg::HasTrait<Obj, TrivialConstructor>::VALUE));
-            ASSERT(  (bslalg::HasTrait<Obj, UsesBslmaAllocator>::VALUE));
+            ASSERT(! (bslmf::IsBitwiseMoveable<               Obj>::value));
+            ASSERT(! (bsl::is_trivially_copyable<             Obj>::value));
+            ASSERT(! (bsl::is_trivially_default_constructible<Obj>::value));
+            ASSERT(  (bslma::UsesBslmaAllocator<              Obj>::value));
 
             Obj p1; const Obj& P1 = p1;
             ASSERT(NULL_FIRST == P1.first && NULL_SECOND == P1.second);
@@ -1592,18 +1590,18 @@ int main(int argc, char *argv[])
         }
         {
             typedef bsl::pair<my_NoAllocString, my_NoAllocString> Obj;
-            ASSERT((bslmf::IsSame<my_NoAllocString, Obj::first_type>::VALUE));
-            ASSERT((bslmf::IsSame<my_NoAllocString, Obj::second_type>::VALUE));
+            ASSERT((bsl::is_same<my_NoAllocString, Obj::first_type>::value));
+            ASSERT((bsl::is_same<my_NoAllocString, Obj::second_type>::value));
 
             const char  *const NULL_FIRST   = "";
             const char  *const NULL_SECOND  = "";
             const char  *const VALUE_FIRST  = "Hello";
             const char  *const VALUE_SECOND = "Goodbye";
 
-            ASSERT(! (bslalg::HasTrait<Obj, BitwiseMoveable>::VALUE));
-            ASSERT(! (bslalg::HasTrait<Obj, BitwiseCopyable>::VALUE));
-            ASSERT(! (bslalg::HasTrait<Obj, TrivialConstructor>::VALUE));
-            ASSERT(! (bslalg::HasTrait<Obj, UsesBslmaAllocator>::VALUE));
+            ASSERT(! (bslmf::IsBitwiseMoveable<               Obj>::value));
+            ASSERT(! (bsl::is_trivially_copyable<             Obj>::value));
+            ASSERT(! (bsl::is_trivially_default_constructible<Obj>::value));
+            ASSERT(! (bslma::UsesBslmaAllocator<              Obj>::value));
 
             Obj p1; const Obj& P1 = p1;
             ASSERT(NULL_FIRST == P1.first && NULL_SECOND == P1.second);
@@ -1673,13 +1671,13 @@ int main(int argc, char *argv[])
 
         {
             typedef bsl::pair<my_String, short> Obj;
-            ASSERT((bslmf::IsSame<my_String, Obj::first_type>::VALUE));
-            ASSERT((bslmf::IsSame<short, Obj::second_type>::VALUE));
+            ASSERT((bsl::is_same<my_String, Obj::first_type>::value));
+            ASSERT((bsl::is_same<short, Obj::second_type>::value));
 
-            ASSERT(! (bslalg::HasTrait<Obj, BitwiseMoveable>::VALUE));
-            ASSERT(! (bslalg::HasTrait<Obj, BitwiseCopyable>::VALUE));
-            ASSERT(! (bslalg::HasTrait<Obj, TrivialConstructor>::VALUE));
-            ASSERT(  (bslalg::HasTrait<Obj, UsesBslmaAllocator>::VALUE));
+            ASSERT(! (bslmf::IsBitwiseMoveable<               Obj>::value));
+            ASSERT(! (bsl::is_trivially_copyable<             Obj>::value));
+            ASSERT(! (bsl::is_trivially_default_constructible<Obj>::value));
+            ASSERT(  (bslma::UsesBslmaAllocator<              Obj>::value));
 
             const my_String NULL_FIRST("");
             const short     NULL_SECOND  = 0;

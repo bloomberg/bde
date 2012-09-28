@@ -20,7 +20,6 @@ BDES_IDENT("$Id: $")
 //  bdealg_TypeTraitHasTrivialDefaultConstructor: has trivial default ctor
 //                          bdealg_TypeTraitPair: for 'bsl::pair'-like classes
 //            bdealg_TypeTraitUsesBdemaAllocator: uses 'bdema' allocators
-//                     bdealg_TypeTraitsGroupPod: POD trait
 //
 //                             bdealg_TypeTraits: default trait computation
 //
@@ -52,15 +51,6 @@ BDES_IDENT("$Id: $")
 //..
 //  Entity                                    Description
 //  ------                                    -----------
-//  bdealg_TypeTraitNil                       The nil trait.  Types with no
-//                                            other traits have the nil trait.
-//
-//  bdealg_TypeTraits<T>                      Traits for type 'T'.  The general
-//                                            definition computes the nested
-//                                            and implied traits.  A user can
-//                                            specialize it to a combination of
-//                                            one or more of the following:
-//
 //  bdealg_TypeTraitBitwiseMoveable          (See the corresponding class-level
 //  bdealg_TypeTraitBitwiseCopyable                             documentation.)
 //  bdealg_TypeTraitBitwiseEqualityComparable
@@ -79,12 +69,6 @@ BDES_IDENT("$Id: $")
 //                                            whether the parameterized 'TYPE'
 //                                            possesses the parameterized
 //                                            'TRAIT'.
-//
-//  bdealg_PassthroughTrait<TYPE, TRAIT>      This macro selects the
-//                                            parameterized 'TRAIT' if the
-//                                            parameterized 'TYPE' possesses
-//                                            it, and a distinct and otherwise
-//                                            unused trait otherwise.
 //
 //  bdealg_SelectTrait<T, TRAIT1, ...>        This meta-function selects the
 //                                            first trait possessed by the
@@ -370,20 +354,12 @@ BDES_IDENT("$Id: $")
 #include <bslalg_hastrait.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_PASSTHROUGHTRAIT
-#include <bslalg_passthroughtrait.h>
-#endif
-
 #ifndef INCLUDED_BSLALG_SELECTTRAIT
 #include <bslalg_selecttrait.h>
 #endif
 
 #ifndef INCLUDED_BSLALG_TYPETRAITS
 #include <bslalg_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITSGROUPPOD
-#include <bslalg_typetraitsgrouppod.h>
 #endif
 
 // The following were formerly guarded by 'BDE_DONT_ALLOW_TRANSITIVE_INCLUDES'.

@@ -240,10 +240,6 @@ BSL_OVERRIDES_STD mode"
 #include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLS_ASSERT
-#include <bsls_assert.h>
-#endif
-
 #ifndef INCLUDED_BSLSTL_ALLOCATOR
 #include <bslstl_allocator.h>  // Can probably escape with a fwd-decl, but not
 #endif                         // very user friendly
@@ -280,23 +276,42 @@ BSL_OVERRIDES_STD mode"
 #include <bslstl_pair.h>
 #endif
 
+#ifndef INCLUDED_BSLSTL_STDEXCEPTUTIL
+#include <bslstl_stdexceptutil.h> // required to implement 'at'
+#endif
+
 #ifndef INCLUDED_BSLSTL_UNORDEREDMAPKEYCONFIGURATION
 #include <bslstl_unorderedmapkeyconfiguration.h>
 #endif
 
-#ifndef INCLUDED_BSLSTL_STDEXCEPTUTIL
-#include <bslstl_stdexceptutil.h> // required to implement 'at'
+#ifndef INCLUDED_BSLALG_BIDIRECTIONALLINK
+#include <bslalg_bidirectionallink.h>
+#endif
+
+#ifndef INCLUDED_BSLALG_TYPETRAITHASSTLITERATORS
+#include <bslalg_typetraithasstliterators.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include <bslma_usesbslmaallocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
+#include <bslmf_isbitwisemoveable.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
+#endif
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include <bsls_assert.h>
 #endif
 
 #ifndef INCLUDED_CSTDDEF
 #include <cstddef>  // for 'std::size_t'
 #define INCLUDED_CSTDDEF
 #endif
-
-namespace BloombergLP
-{
-namespace bslalg { class BidirectionalLink; }
-}
 
 namespace bsl {
                         // =======================
@@ -366,6 +381,12 @@ class unordered_map {
                 const unordered_map<KEY2, VALUE2, HASH2, EQUAL2, ALLOCATOR2>&);
 
   public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(
+                    unordered_map,
+                    ::BloombergLP::bslmf::IsBitwiseMoveable,
+                    ::BloombergLP::bslmf::IsBitwiseMoveable<HashTable>::value);
+
     // PUBLIC TYPES
     typedef KEY                                        key_type;
     typedef VALUE                                      mapped_type;
@@ -769,9 +790,10 @@ class unordered_map {
 
     float max_load_factor() const;
         // Return the maximum load factor allowed for this container.  If
-        // 'load_factor' exceeds 'max_load_factor' an increase of the number of
-        // buckets and rehash of the elements of the container in the new array
-        // of buckets is required (see rehash).
+        // an insert operation would cause 'load_factor' to exceed
+        // the 'max_load_factor', that same insert operation will increase the
+        // number of buckets and rehash the elements of the container into
+        // those buckets the (see rehash).
 
 
 };
@@ -793,10 +815,10 @@ template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 bool operator==(const unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>& lhs,
                 const unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
-    // value, and 'false' otherwise.  Two 'unoredered_map' objects have the
-    // same value if they have the same number of key-value pairs, and each
-    // key-value pair that is contained in 'lhs' is also contained in the other
-    // object.  This method requires that the (template parameter)
+    // value, and 'false' otherwise.  Two 'unordered_map' objects have the
+    // same value if they have the same number of key-value pairs, and for each
+    // key-value pair that is contained in 'lhs' there is a pair value-key
+    // contained in 'rhs'.  This method requires that the (template parameter)
     // types 'KEY' and 'VALUE' both be "equality-comparable" (see {Requirements
     // on 'KEY' and 'VALUE'}).
 
@@ -808,17 +830,51 @@ bool operator!=(
     // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
     // same value, and 'false' otherwise.  Two 'unordered_map' objects do not
     // have the same value if they do not have the same number of key-value
-    // pairs, or some key-value pair that is contained in one of the objects is
-    // not also contained in the other object.  This method requires that the
-    // (template parameter) types 'KEY' and 'VALUE' both be
-    // "equality-comparable" (see {Requirements on 'KEY' and
-    // 'VALUE'}).
+    // pairs, or that for some key-value pair that is contained in 'lhs' there
+    // is not a key-value pair in 'rhs', and viceversa.  This method requires
+    // that the (template parameter) types 'KEY' and 'VALUE' both be
+    // "equality-comparable" (see {Requirements on 'KEY' and 'VALUE'}).
+
+}  // close namespace bsl
+
+// ============================================================================
+//                                TYPE TRAITS
+// ============================================================================
+
+// Type traits for STL *unordered* *associative* containers:
+//: o An unordered associative container defines STL iterators.
+//: o An unordered associative container is bitwise moveable if the both
+//:      functors and the allocator are bitwise moveable.
+//: o An unordered associative container uses 'bslma' allocators if the
+//:   parameterized 'ALLOCATOR' is convertible from 'bslma::Allocator*'.
+
+namespace BloombergLP {
+namespace bslalg {
+
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+struct HasStlIterators<bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR> >
+     : bsl::true_type
+{};
+
+}  // close namespace bslalg
+
+namespace bslma {
+
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
+struct UsesBslmaAllocator<bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOC> >
+     : bsl::is_convertible<Allocator*, ALLOC>::type
+{};
+
+}  // close namespace bslma
+
+}  // close namespace BloombergLP
 
 // ===========================================================================
 //                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
 // ===========================================================================
 
-
+namespace bsl
+{
                         //--------------------
                         // class unordered_map
                         //--------------------

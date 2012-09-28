@@ -298,13 +298,11 @@ BDES_IDENT("$Id: $")
 #define INCLUDED_SYS_EPOLL
 #endif
 
-namespace BloombergLP {
+namespace bsl {
+template <> struct is_trivially_copyable<epoll_event> : true_type {};
+}
 
-template <>
-struct bslalg_TypeTraits<struct ::epoll_event> :
-                                        public bslalg_TypeTraitBitwiseCopyable
-{
-};
+namespace BloombergLP {
 
 class bdet_TimeInterval;
 class bteso_TimeMetrics;

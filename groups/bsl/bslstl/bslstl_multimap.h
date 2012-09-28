@@ -92,7 +92,7 @@ BSLS_IDENT("$Id: $")
 // 'bslma::Allocator', a multimap supplies that allocator's address to the
 // constructors of contained objects of the (template parameter) types 'KEY'
 // and 'VALUE', if respectively, the types define the
-// 'bslalg::TypeTraitUsesBslmaAllocator' trait.
+// 'bslma::UsesBslmaAllocator' trait.
 //
 ///Operations
 ///----------
@@ -528,12 +528,9 @@ BSL_OVERRIDES_STD mode"
 #include <bslalg_rbtreeutil.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
 
-#ifndef INCLUDED_BSLSTL_TRAITSGROUPSTLASSOCIATIVECONTAINER
-#include <bslstl_traitsgroupstlassociativecontainer.h>
+#ifndef INCLUDED_BSLALG_TYPETRAITHASSTLITERATORS
+#include <bslalg_typetraithasstliterators.h>
 #endif
 
 #ifndef INCLUDED_FUNCTIONAL
@@ -707,11 +704,6 @@ class multimap {
     };
 
   public:
-    // TRAITS
-    typedef BloombergLP::bslstl::TraitsGroupStlAssociativeContainer<ALLOCATOR>
-                                                               TreeTypeTraits;
-    BSLALG_DECLARE_NESTED_TRAITS(multimap, TreeTypeTraits);
-
     // CREATORS
     explicit multimap(const COMPARATOR& comparator = COMPARATOR(),
                       const ALLOCATOR&  allocator  = ALLOCATOR())
@@ -748,13 +740,14 @@ class multimap {
     multimap(const multimap& original);
         // Construct a multimap having the same value as the specified
         // 'original'.  Use a copy of 'original.key_comp()' to order the
-        // key-value pairs contained in this multimap.  Use a
-        // default-constructed object of the (template parameter) type
-        // 'ALLOCATOR' to allocate memory.  If the template parameter
-        // 'ALLOCATOR' argument is of type 'bsl::allocator' (the default), the
-        // currently installed default allocator will be used to supply memory.
-        // This method requires that the (template parameter) types 'KEY' and
-        // 'VALUE' both be "copy-constructible" (see {Requirements on 'KEY' and
+        // key-value pairs contained in this multimap.  Use the allocator
+        // returned by 'bsl::allocator_traits<ALLOCATOR>::
+        // select_on_container_copy_construction(original.allocator())' to
+        // allocate memory.  If the (template parameter) type 'ALLOCATOR' is
+        // of type 'bsl::allocator' (the default), the currently installed
+        // default allocator will be used to supply memory.  This method
+        // requires that the (template parameter) types 'KEY' and 'VALUE'
+        // both be "copy-constructible" (see {Requirements on 'KEY' and
         // 'VALUE'}).
 
     multimap(const multimap& original, const ALLOCATOR& allocator);
@@ -1089,6 +1082,45 @@ class multimap {
     //  void insert(initializer_list<value_type>);
 };
 
+}  // namespace bsl
+
+// ============================================================================
+//                                TYPE TRAITS
+// ============================================================================
+
+// Type traits for STL *ordered* containers:
+//: o An ordered container defines STL iterators.
+//: o An ordered container uses 'bslma' allocators if the parameterized
+//:     'ALLOCATOR' is convertible from 'bslma::Allocator*'.
+
+namespace BloombergLP {
+namespace bslalg {
+
+template <typename KEY,
+          typename VALUE,
+          typename COMPARATOR,
+          typename ALLOCATOR>
+struct HasStlIterators<bsl::multimap<KEY, VALUE, COMPARATOR, ALLOCATOR> >
+    : bsl::true_type
+{};
+
+}
+
+namespace bslma {
+
+template <typename KEY,
+          typename VALUE,
+          typename COMPARATOR,
+          typename ALLOCATOR>
+struct UsesBslmaAllocator<bsl::multimap<KEY, VALUE, COMPARATOR, ALLOCATOR> >
+    : bsl::is_convertible<Allocator*, ALLOCATOR>
+{};
+
+}
+}  // namespace BloombergLP
+
+namespace bsl {
+
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 bool operator==(const multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>& lhs,
                 const multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>& rhs);
@@ -1298,7 +1330,9 @@ multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::multimap(
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 inline
 multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::multimap(const multimap& original)
-: d_compAndAlloc(original.comparator().keyComparator(), ALLOCATOR())
+: d_compAndAlloc(original.comparator().keyComparator(),
+                 AllocatorTraits::select_on_container_copy_construction(
+                                           original.nodeFactory().allocator()))
 , d_tree()
 {
     if (0 < original.size()) {

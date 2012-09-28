@@ -5,11 +5,11 @@
 
 #include <bsls_platform.h>
 
+#include <algorithm>
 #include <cstddef>     // offsetof() macro
 #include <cstdlib>     // atoi()
 #include <cstring>
 #include <iostream>
-#include <string>
 
 using namespace BloombergLP;
 using namespace std;
@@ -88,6 +88,8 @@ static void aSsErT(int c, const char *s, int i) {
 //=============================================================================
 //                             USAGE EXAMPLE
 //-----------------------------------------------------------------------------
+
+namespace {
 
 ///Usage
 ///-----
@@ -172,9 +174,116 @@ static void aSsErT(int c, const char *s, int i) {
 // with varied alignment requirements.  Consider that we want to construct an
 // object that stores the response of a floating-point operation.  If the
 // operation is successful, then the response object stores a 'double' result;
-// otherwise, it stores an error string.  Here is the definition for the
-// 'Response' class:
+// otherwise, it stores an error string of type 'string', which is based on the
+// standard type 'string' (see 'bslstl_string').  For the sake of brevity, the
+// implementation of 'string' is not explored here.  Here is the definition for
+// the 'Response' class:
 //..
+class string {
+
+    // DATA
+    char            *d_value_p;      // 0 terminated character array
+    int              d_size;         // length of d_value_p
+
+     // PRIVATE CLASS CONSTANTS
+    static const char *EMPTY_STRING;
+
+  public:
+    // CREATORS
+    explicit string()
+    : d_value_p(const_cast<char *>(EMPTY_STRING))
+    , d_size(0)
+    {
+    }
+
+    string(const char *value)
+    : d_value_p(const_cast<char *>(EMPTY_STRING))
+    , d_size(std::strlen(value))
+    {
+        if (d_size > 0) {
+            d_value_p = new char[d_size + 1];
+            std::memcpy(d_value_p, value, d_size + 1);
+        }
+    }
+
+    string(const string& original)
+    : d_value_p(const_cast<char *>(EMPTY_STRING))
+    , d_size(original.d_size)
+    {
+        if (d_size > 0) {
+            d_value_p = new char[d_size + 1];
+            std::memcpy(d_value_p, original.d_value_p, d_size + 1);
+        }
+    }
+
+    ~string()
+    {
+        if (d_size > 0) {
+            delete[] d_value_p;
+        }
+    }
+
+    // MANIPULATORS
+    string& operator=(const string& rhs) {
+        string temp(rhs);
+        temp.swap(*this);
+        return *this;
+    }
+
+    char &operator[](int index)
+    {
+        return d_value_p[index];
+    }
+
+    void swap(string& other)
+    {
+        std::swap(d_value_p, other.d_value_p);
+        std::swap(d_size, other.d_size);
+    }
+
+    // ACCESSORS
+    int size() const
+    {
+        return d_size;
+    }
+
+    bool empty() const
+    {
+        return 0 == d_size;
+    }
+
+    const char *c_str() const
+    {
+        return d_value_p;
+    }
+};
+
+inline
+bool operator==(const string& lhs, const string& rhs)
+{
+    return 0 == std::strcmp(lhs.c_str(), rhs.c_str());
+}
+
+inline
+bool operator!=(const string& lhs, const string& rhs)
+{
+    return !(lhs == rhs);
+}
+
+inline
+bool operator<(const string& lhs, const string& rhs)
+{
+    return std::strcmp(lhs.c_str(), rhs.c_str()) < 0;
+}
+
+inline
+bool operator>(const string& lhs, const string& rhs)
+{
+    return rhs < lhs;
+}
+
+const char *string::EMPTY_STRING = "";
+
     class Response {
 //..
 // To create a 'my_AlignedBuffer' object we must specify the alignment value
@@ -189,7 +298,7 @@ static void aSsErT(int c, const char *s, int i) {
       private:
         union {
             my_AlignedBuffer<double, MAX_ALIGNMENT>      d_result;
-            my_AlignedBuffer<std::string, MAX_ALIGNMENT> d_errorMessage;
+            my_AlignedBuffer<string, MAX_ALIGNMENT> d_errorMessage;
         };
 //..
 // The 'isError' flag indicates whether the response object stores valid data
@@ -204,7 +313,7 @@ static void aSsErT(int c, const char *s, int i) {
         Response(double result);
             // Create a response object that stores the specified 'result'.
 
-        Response(const std::string& errorMessage);
+        Response(const string& errorMessage);
             // Create a response object that stores the specified
             // 'errorMessage'.
 
@@ -219,7 +328,7 @@ static void aSsErT(int c, const char *s, int i) {
             // Update this object to store the specified 'result'.  After this
             // operation 'isError' returns 'false'.
 
-        void setErrorMessage(const std::string& errorMessage);
+        void setErrorMessage(const string& errorMessage);
             // Update this object to store the specified 'errorMessage'.  After
             // this operation 'isError' returns 'true'.
 //..
@@ -235,7 +344,7 @@ static void aSsErT(int c, const char *s, int i) {
             // Return the result value stored by this object.  The behavior is
             // undefined unless 'false == isError()'.
 
-        const std::string& errorMessage() const;
+        const string& errorMessage() const;
             // Return a reference to the non-modifiable error message stored by
             // this object.  The behavior is undefined unless
             // 'true == isError()'.
@@ -250,23 +359,23 @@ static void aSsErT(int c, const char *s, int i) {
 // supply an allocator to the string constructor, allowing the default
 // allocator to be used instead:
 //..
-    // CREATORS
+    // creators
     Response::Response(double result)
     {
         new (d_result.buffer()) double(result);
         d_isError = false;
     }
 
-    Response::Response(const std::string& errorMessage)
+    Response::Response(const string& errorMessage)
     {
-        new (d_errorMessage.buffer()) std::string(errorMessage);
+        new (d_errorMessage.buffer()) string(errorMessage);
         d_isError = true;
     }
 
     Response::~Response()
     {
         if (d_isError) {
-            typedef std::string Type;
+            typedef string Type;
             d_errorMessage.object().~Type();
         }
     }
@@ -278,20 +387,20 @@ static void aSsErT(int c, const char *s, int i) {
             d_result.object() = result;
         }
         else {
-            typedef std::string Type;
+            typedef string Type;
             d_errorMessage.object().~Type();
             new (d_result.buffer()) double(result);
             d_isError = false;
         }
     }
 
-    void Response::setErrorMessage(const std::string& errorMessage)
+    void Response::setErrorMessage(const string& errorMessage)
     {
         if (d_isError) {
             d_errorMessage.object() = errorMessage;
         }
         else {
-            new (d_errorMessage.buffer()) std::string(errorMessage);
+            new (d_errorMessage.buffer()) string(errorMessage);
             d_isError = true;
         }
     }
@@ -309,13 +418,15 @@ static void aSsErT(int c, const char *s, int i) {
         return d_result.object();
     }
 
-    const std::string& Response::errorMessage() const
+    const string& Response::errorMessage() const
     {
         ASSERT(d_isError);
 
         return d_errorMessage.object();
     }
 //..
+
+}  // close unnamed namespace
 
 //=============================================================================
 //                  CLASSES AND FUNCTIONS USED IN TESTS
