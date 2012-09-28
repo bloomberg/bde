@@ -163,6 +163,14 @@ BSLS_IDENT("$Id: $")
 #include <bslalg_swaputil.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include <bslma_usesbslmaallocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
+#include <bslmf_isbitwisemoveable.h>
+#endif
+
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 #endif
@@ -295,8 +303,10 @@ class HashTable {
         typedef BidirectionalNodePool<typename HashTableType::ValueType,
                                       NodeAllocator>               NodeFactory;
 
-        // DATA
-        NodeFactory  d_nodeFactory;
+        // PUBLIC DATA
+        NodeFactory  d_nodeFactory;    // nested 'struct's have public data by
+                                       // convention, but should always be
+                                       // accessed through the public methods.
 
         // CREATORS
         ImplParameters(const HASHER&     hash,
@@ -870,10 +880,52 @@ struct HashTable_Util {
                                    const ALLOCATOR&         allocator);
 };
 
+}  // close namespace bslstl
+
+// ============================================================================
+//                                TYPE TRAITS
+// ============================================================================
+
+// Type traits for HashTable:
+//: o A HashTable is bitwise moveable if the both functors and the allocator
+//:     are bitwise moveable.
+//: o A HashTable uses 'bslma' allocators if the parameterized 'ALLOCATOR' is
+//:     convertible from 'bslma::Allocator*'.
+
+namespace bslma
+{
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+struct UsesBslmaAllocator<bslstl::HashTable<KEY_CONFIG,
+                                            HASHER,
+                                            COMPARATOR,
+                                            ALLOCATOR> >
+: bsl::is_convertible<Allocator*, ALLOCATOR>::type
+{};
+
+}  // close namespace bslma
+
+namespace bslmf
+{
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+struct IsBitwiseMoveable<bslstl::HashTable<KEY_CONFIG,
+                                           HASHER,
+                                           COMPARATOR,
+                                           ALLOCATOR> >
+: bsl::integral_constant< bool, bslmf::IsBitwiseMoveable<HASHER>::value
+                             && bslmf::IsBitwiseMoveable<COMPARATOR>::value
+                             && bslmf::IsBitwiseMoveable<ALLOCATOR>::value>
+{};
+
+}
+
 // ============================================================================
 //                      TEMPLATE AND INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
+namespace bslstl
+{
                     // ---------------------------
                     // class HashTable_ListProctor
                     // ---------------------------
