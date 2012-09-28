@@ -67,7 +67,7 @@ namespace bslmf {
                          // struct AddConst_Imp
                          // ===================
 
-template <typename TYPE, bool ADD_CONST>
+template <class TYPE, bool ADD_CONST>
 struct AddConst_Imp {
     // This 'struct' template provides an alias 'Type' that add the
     // 'const'-qualifier to the (template parameter) 'TYPE' if the (template
@@ -84,7 +84,7 @@ struct AddConst_Imp {
                          // struct AddConst_Imp<TYPE, false>
                          // ================================
 
-template <typename TYPE>
+template <class TYPE>
 struct AddConst_Imp<TYPE, false> {
     // This partial specialization of 'AddConst_Imp' provides an alias 'Type'
     // that has the same type as 'TYPE' for when the (template parameter)
@@ -104,7 +104,7 @@ namespace bsl {
                          // struct add_const
                          // ================
 
-template <typename TYPE>
+template <class TYPE>
 struct add_const {
     // This 'struct' template implements the 'add_const' meta-function defined
     // in the C++11 standard [meta.trans.cv] to provide an alias 'type'.  If

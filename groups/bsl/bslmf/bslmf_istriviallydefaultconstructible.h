@@ -143,7 +143,7 @@ BSLS_IDENT("$Id: $")
 
 namespace bsl {
 
-template <typename TYPE>
+template <class TYPE>
 struct is_trivially_default_constructible;
 
 }  // close namespace bsl
@@ -151,7 +151,7 @@ struct is_trivially_default_constructible;
 namespace BloombergLP {
 namespace bslmf {
 
-template <typename TYPE>
+template <class TYPE>
 
                          // ==========================================
                          // struct IsTriviallyDefaultConstructible_Imp
@@ -181,7 +181,7 @@ namespace bsl {
                          // struct is_trivially_default_constructible
                          // =========================================
 
-template <typename TYPE>
+template <class TYPE>
 struct is_trivially_default_constructible
     : BloombergLP::bslmf::IsTriviallyDefaultConstructible_Imp<
                                               typename remove_cv<TYPE>::type> {
