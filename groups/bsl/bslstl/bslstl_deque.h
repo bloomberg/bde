@@ -213,12 +213,8 @@ BSL_OVERRIDES_STD mode"
 #include <bslalg_scalarprimitives.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BSLSTL_TRAITSGROUPSTLSEQUENCECONTAINER
-#include <bslstl_traitsgroupstlsequencecontainer.h>
+#ifndef INCLUDED_BSLALG_TYPETRAITHASSTLITERATORS
+#include <bslalg_typetraithasstliterators.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_ANYTYPE
@@ -564,10 +560,9 @@ class deque : public  Deque_Base<VALUE_TYPE>
   private:
     // ASSERTIONS
 
-    BSLMF_ASSERT((BloombergLP::bslmf::IsSame<reference,
-                                            typename Base::reference>::VALUE));
-    BSLMF_ASSERT((BloombergLP::bslmf::IsSame<const_reference,
-                                      typename Base::const_reference>::VALUE));
+    BSLMF_ASSERT((is_same<reference, typename Base::reference>::VALUE));
+    BSLMF_ASSERT((is_same<const_reference,
+                  typename Base::const_reference>::VALUE));
         // This need not necessarily be true as per the C++ standard, but is a
         // safe assumption for this implementation and allows to implement the
         // element access within the 'Base' type (that is parameterized by
@@ -693,13 +688,6 @@ class deque : public  Deque_Base<VALUE_TYPE>
     friend class Deque_Guard;
 
   public:
-    // TRAITS
-    typedef BloombergLP::bslstl::TraitsGroupStlSequenceContainer<
-                                                    VALUE_TYPE,
-                                                    ALLOCATOR> DequeTypeTraits;
-    BSLALG_DECLARE_NESTED_TRAITS(deque, DequeTypeTraits);
-        // Declare nested type traits for this class.
-
     // CREATORS
 
     // *** 23.2.1.1 construct/copy/destroy: ***
@@ -892,6 +880,49 @@ class deque : public  Deque_Base<VALUE_TYPE>
         // number of elements are guaranteed to raise a 'bsl::length_error'
         // exception.
 };
+
+}  // namespace bsl
+
+// ============================================================================
+//                                TYPE TRAITS
+// ============================================================================
+
+// Type traits for STL *sequence* containers:
+//: o A sequence container defines STL iterators.
+//: o A sequence container is bitwise moveable if the allocator is bitwise
+//:     moveable.
+//: o A sequence container uses 'bslma' allocators if the parameterized
+//:     'ALLOCATOR' is convertible from 'bslma::Allocator*'.
+
+namespace BloombergLP {
+namespace bslalg {
+
+template <typename VALUE_TYPE, typename ALLOCATOR>
+struct HasStlIterators<bsl::deque<VALUE_TYPE, ALLOCATOR> > : bsl::true_type
+{};
+
+}
+
+namespace bslmf {
+
+template <typename VALUE_TYPE, typename ALLOCATOR>
+struct IsBitwiseMoveable<bsl::deque<VALUE_TYPE, ALLOCATOR> >
+    : IsBitwiseMoveable<ALLOCATOR>
+{};
+
+}
+
+namespace bslma {
+
+template <typename VALUE_TYPE, typename ALLOCATOR>
+struct UsesBslmaAllocator<bsl::deque<VALUE_TYPE, ALLOCATOR> >
+    : bsl::is_convertible<Allocator*, ALLOCATOR>
+{};
+
+}
+}  // namespace BloombergLP
+
+namespace bsl {
 
 // FREE OPERATORS
 template <class VALUE_TYPE, class ALLOCATOR>

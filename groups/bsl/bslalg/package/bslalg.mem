@@ -6,7 +6,6 @@ bslalg_autoscalardestructor
 bslalg_bidirectionallink
 bslalg_bidirectionalnode
 bslalg_bidirectionallinklistutil
-bslalg_bitwiseeqpassthroughtrait
 bslalg_constructorproxy
 bslalg_dequeimputil
 bslalg_dequeiterator
@@ -17,7 +16,6 @@ bslalg_hashtablebucket
 bslalg_hashtableimputil
 bslalg_hashutil
 bslalg_hastrait
-bslalg_passthroughtrait
 bslalg_rangecompare
 bslalg_rbtreeanchor
 bslalg_rbtreenode
@@ -35,5 +33,4 @@ bslalg_typetraithastrivialdefaultconstructor
 bslalg_typetraitnil
 bslalg_typetraitpair
 bslalg_typetraits
-bslalg_typetraitsgrouppod
 bslalg_typetraitusesbslmaallocator

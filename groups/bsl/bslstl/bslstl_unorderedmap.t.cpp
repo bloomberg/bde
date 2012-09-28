@@ -2,6 +2,8 @@
 
 #include <bslstl_unorderedmap.h>
 
+#include <bslma_usesbslmaallocator.h>
+
 #include <algorithm>
 #include <climits>
 #include <cstdlib>

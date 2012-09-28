@@ -12,7 +12,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //   bsl::unordered_set : STL-compatible unordered set container
 //
-//@AUTHOR: Alisdair Meredith (ameredith1)
+//@AUTHOR: Alisdair Meredith (ameredith1) Stefano Pacifico (spacifico1)
 //
 //@SEE_ALSO: bsl+stdhdrs
 //
@@ -95,45 +95,45 @@ BSLS_IDENT("$Id: $")
 ///Operations
 ///----------
 // This section describes the run-time complexity of operations on instances
-// of 'map':
+// of 'unordered_set':
 //..
 //  Legend
 //  ------
-//  'K'             - parameterized 'KEY' type of the map
-//  'V'             - parameterized 'VALUE' type of the map
-//  'a', 'b'        - two distinct objects of type 'map<K, V>'
+//  'K'             - parameterized 'KEY' type of the unordered multiset
+//  'a', 'b'        - two distinct objects of type 'unordered_multiset<K>'
 //  'n', 'm'        - number of elements in 'a' and 'b' respectively
-//  'value_type'    - map<K, V>::value_type
+//  'value_type'    - unoredered_multiset<K>::value_type
 //  'c'             - comparator providing an ordering for objects of type 'K'
 //  'al             - an STL-style memory allocator
 //  'i1', 'i2'      - two iterators defining a sequence of 'value_type' objects
 //  'k'             - an object of type 'K'
-//  'v'             - an object of type 'V'
+//  'v'             - an object of type 'value_type'
 //  'p1', 'p2'      - two iterators belonging to 'a'
 //  distance(i1,i2) - the number of elements in the range [i1, i2)
+//  distance(p1,p2) - the number of elements in the range [p1, p2)
 //
 //  +----------------------------------------------------+--------------------+
 //  | Operation                                          | Complexity         |
 //  +====================================================+====================+
-//  | map<K, V> a;    (default construction)             | O[1]               |
-//  | map<K, V> a(al);                                   |                    |
-//  | map<K, V> a(c, al);                                |                    |
+//  | unordered_set<K> a;    (default construction)      | O[1]               |
+//  | unordered_set<K> a(al);                            |                    |
+//  | unordered_set<K> a(c, al);                         |                    |
 //  +----------------------------------------------------+--------------------+
-//  | map<K, V> a(b); (copy construction)                | Average: O[n]      |
-//  | map<K, V> a(b, al);                                | Worst:   O[n^2]    |
+//  | unordered_set<K> a(b); (copy construction)         | Average: O[n]      |
+//  | unordered_set<K> a(b, al);                         | Worst:   O[n^2]    |
 //  +----------------------------------------------------+--------------------+
-//  | map<K, V> a(n);                                    | O[n]               |
-//  | map<K, V> a(n, hf);                                |                    |
-//  | map<K, V> a(n, hf, eq);                            |                    |
-//  | map<K, V> a(n, hf, eq, al);                        |                    |
-//  +----------------------------------------------------+--------------------+
-//  | map<K, V> a(i1, i2);                               | Average: O[        |
-//  | map<K, V> a(i1, i2, n)                             |   distance(p1, p2)]|
-//  | map<K, V> a(i1, i2, n, hf);                        | Worst:   O[n^2]    |
-//  | map<K, V> a(i1, i2, n, hf, eq);                    |                    |
-//  | map<K, V> a(i1, i2, n, hf, eq, al);                |                    |
+//  | unordered_set<K> a(n);                             | O[n]               |
+//  | unordered_set<K> a(n, hf);                         |                    |
+//  | unordered_set<K> a(n, hf, eq);                     |                    |
+//  | unordered_set<K> a(n, hf, eq, al);                 |                    |
+//  +-------------------------------------------------+-----------------------+
+//  | unordered_set<K> a(i1, i2);                        | Average: O[        |
+//  | unordered_set<K> a(i1, i2, n)                      |   distance(i1, i2)]|
+//  | unordered_set<K> a(i1, i2, n, hf);                 | Worst:   O[n^2]    |
+//  | unordered_set<K> a(i1, i2, n, hf, eq);             |                    |
+//  | unordered_set<K> a(i1, i2, n, hf, eq, al);         |                    |
 //  |                                                    |                    |
-//  | a.~map<K, V>(); (destruction)                      | O[n]               |
+//  | a.~unordered_set<K>(); (destruction)               | O[n]               |
 //  +----------------------------------------------------+--------------------+
 //  | a = b;          (assignment)                       | Average: O[n]      |
 //  |                                                    | Worst:   O[n^2]    |
@@ -164,16 +164,16 @@ BSLS_IDENT("$Id: $")
 //  +----------------------------------------------------+--------------------+
 //  | a.at(k)                                            | O[n]               |
 //  +----------------------------------------------------+--------------------+
-//  | a.insert(value_type(k, v))                         | Average: O[1]      |
+//  | a.insert(v))                                       | Average: O[1]      |
 //  |                                                    | Worst:   O[n]      |
 //  +----------------------------------------------------+--------------------+
-//  | a.insert(p1, value_type(k, v))                     | Average: O[1]      |
+//  | a.insert(p1, v))                                   | Average: O[1]      |
 //  |                                                    | Worst:   O[n]      |
 //  +----------------------------------------------------+--------------------+
 //  | a.insert(i1, i2)                                   | Average O[         |
-//  |                                                    |   distance(p1, p2)]|
+//  |                                                    |   distance(i1, i2)]|
 //  |                                                    | Worst:  O[ n *     |
-//  |                                                    |   distance(p1, p2)]|
+//  |                                                    |   distance(i1, i2)]|
 //  +----------------------------------------------------+--------------------+
 //  | a.erase(p1)                                        | Average: O[1]      |
 //  |                                                    | Worst:   O[n]      |
@@ -217,7 +217,6 @@ BSLS_IDENT("$Id: $")
 //  | a.resize(k)                                        | Average: O[n]      |
 //  |                                                    | Worst:   O[n^2]    |
 //  +----------------------------------------------------+--------------------+
-//..
 //
 //..
 //
@@ -275,15 +274,30 @@ BSL_OVERRIDES_STD mode"
 #include <bslstl_unorderedsetkeyconfiguration.h>
 #endif
 
+#ifndef INCLUDED_BSLALG_BIDIRECTIONALLINK
+#include <bslalg_bidirectionallink.h>
+#endif
+
+#ifndef INCLUDED_BSLALG_TYPETRAITHASSTLITERATORS
+#include <bslalg_typetraithasstliterators.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include <bslma_usesbslmaallocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
+#include <bslmf_isbitwisemoveable.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
+#endif
+
 #ifndef INCLUDED_CSTDDEF
 #include <cstddef>  // for 'std::size_t'
 #define INCLUDED_CSTDDEF
 #endif
-
-namespace BloombergLP
-{
-namespace bslalg { class BidirectionalLink; }
-}
 
 namespace bsl {
 
@@ -339,6 +353,12 @@ class unordered_set
                                              ALLOC> Impl;
 
   public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(
+                         unordered_set,
+                         ::BloombergLP::bslmf::IsBitwiseMoveable,
+                         ::BloombergLP::bslmf::IsBitwiseMoveable<Impl>::value);
+
     typedef ::BloombergLP::bslstl::HashTableIterator<value_type,
                                                      difference_type> iterator;
     typedef iterator                                            const_iterator;
@@ -452,10 +472,46 @@ template <class KEY_TYPE, class HASH, class EQUAL, class ALLOC>
 bool operator!=(const unordered_set<KEY_TYPE, HASH, EQUAL, ALLOC>& lhs,
                 const unordered_set<KEY_TYPE, HASH, EQUAL, ALLOC>& rhs);
 
+}  // close namespace bsl
+
+// ============================================================================
+//                                TYPE TRAITS
+// ============================================================================
+
+// Type traits for STL *unordered* *associative* containers:
+//: o An unordered associative container defines STL iterators.
+//: o An unordered associative container is bitwise moveable if the both
+//:      functors and the allocator are bitwise moveable.
+//: o An unordered associative container uses 'bslma' allocators if the
+//:      parameterized 'ALLOCATOR' is convertible from 'bslma::Allocator*'.
+
+namespace BloombergLP {
+namespace bslalg {
+
+template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
+struct HasStlIterators<bsl::unordered_set<KEY, HASH, EQUAL, ALLOCATOR> >
+     : bsl::true_type
+{};
+
+}  // close namespace bslalg
+
+namespace bslma {
+
+template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
+struct UsesBslmaAllocator<bsl::unordered_set<KEY, HASH, EQUAL, ALLOCATOR> >
+     : bsl::is_convertible<Allocator*, ALLOCATOR>::type
+{};
+
+}  // close namespace bslma
+}  // close namespace BloombergLP
 
 // ===========================================================================
 //                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
 // ===========================================================================
+
+
+namespace bsl
+{
 
                         //--------------------
                         // class unordered_set
@@ -564,7 +620,7 @@ template <class KEY_TYPE,
 bool
 unordered_set<KEY_TYPE, HASH, EQUAL, ALLOC>::empty() const
 {
-    return d_impl.isEmpty();
+    return 0 == d_impl.size();
 }
 
 template <class KEY_TYPE,
@@ -662,7 +718,7 @@ unordered_set<KEY_TYPE, HASH, EQUAL, ALLOC>::insert(const value_type& obj)
     typedef bsl::pair<iterator, bool> ResultType;
 
     bool isInsertedFlag = false;
-    
+
     HashTableLink *result = d_impl.insertIfMissing(&isInsertedFlag, obj);
 
     return ResultType(iterator(result), isInsertedFlag);
@@ -744,12 +800,13 @@ erase(const_iterator first, const_iterator last)
 
     // 7 Most of the library's algorithmic templates that operate on data
     // structures have interfaces that use ranges.  A range is a pair of
-    // iterators that designate the beginning and end of the computation. A
-    // range [i,i) is an empty range; in general, a range [i,j) refers to the
-    // elements in the data structure starting with the element pointed to by i
-    // and up to but not including the element pointed to by j. Range [i,j) is
-    // valid if and only if j is reachable from i. The result of the
-    // application of functions in the library to invalid ranges is undefined.
+    // iterators that designate the beginning and end of the computation.  A
+    // range '[i,i)' is an empty range; in general, a range '[i,j)' refers to
+    // the elements in the data structure starting with the element pointed to
+    // by i and up to but not including the element pointed to by 'j'.  Range
+    // '[i,j)' is valid if and only if 'j' is reachable from 'i'.  The result
+    // of the application of functions in the library to invalid ranges is
+    // undefined.
 #if defined BDE_BUILD_TARGET_SAFE2
     // Check that 'first' and 'last' are valid iterators referring to this
     // container.
@@ -764,18 +821,6 @@ erase(const_iterator first, const_iterator last)
     }
 #endif
 
-    // more efficient to:
-    // 1. unlink a set of nodes
-    // 2. destroy their values
-    // 3. reclaim their memory
-    // merge steps 2/3 to avoid multiple list walks?
-    // tricky issue of fixing up bucket indices as well
-
-    // implementation must handle the case that 'last' is 'end()', which will
-    // be invalidated when the preceding element is erased.
-
-    // At a minimum this should be optimized to work with node pointers, rather
-    // than construct iterators on each iteration of the loop.
     while (first != last) {
         first = this->erase(first);
     }
@@ -1038,7 +1083,7 @@ typename unordered_set<KEY_TYPE, HASH, EQUAL, ALLOC>::const_local_iterator
 unordered_set<KEY_TYPE, HASH, EQUAL, ALLOC>::cend(size_type n) const
 {
     BSLS_ASSERT_SAFE(n < this->bucket_count());
-    // invoke end(n) ? 
+    // invoke end(n) ?
     return const_local_iterator(0, &d_impl.bucketAtIndex(n));
 }
 

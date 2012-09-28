@@ -12,7 +12,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslalg::RangeCompare: comparison algorithms for iterator ranges
 //
-//@SEE_ALSO: bslalg_typetraitbitwiseequalitycomparable
+//@SEE_ALSO: bslmf_isbitwiseequalitycomparable
 //
 //@AUTHOR: Pablo Halpern (phalpern), Herve Bronnimann (hbronnimann),
 //         Alexander Beels (abeels)
@@ -31,7 +31,7 @@ BSLS_IDENT("$Id: $")
 // 'bslalg::RangeCompare::equal' may perform a bit-wise comparison of the two
 // ranges when the following two criteria are met:
 //: o The input iterators are convertible to a pointer type.
-//: o The trait 'bslalg::TypeTraitBitwiseEqualityComparable' is declared for
+//: o The trait 'bslmf::IsBitwiseEqualityComparable' is declared for
 //:   the type of the objects in the ranges being compared.
 //
 // 'bslalg::RangeCompare::lexicographical' may perform a bit-wise comparison of
@@ -39,7 +39,7 @@ BSLS_IDENT("$Id: $")
 //: o The input iterators are convertible to pointers to a wide or unsigned
 //    character type.
 //
-// Note that a class having the 'bslalg::TypeTraitBitwiseEqualityComparable'
+// Note that a class having the 'bslmf::IsBitwiseEqualityComparable'
 // trait can be described as bit-wise comparable and should meet the following
 // criteria:
 //: o The values represented by two objects belonging to the class are the same
@@ -325,16 +325,12 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_SELECTTRAIT
-#include <bslalg_selecttrait.h>
+#ifndef INCLUDED_BSLMF_ANYTYPE
+#include <bslmf_anytype.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITBITWISEEQUALITYCOMPARABLE
-#include <bslalg_typetraitbitwiseequalitycomparable.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
+#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
+#include <bslmf_integralconstant.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_ANYTYPE
@@ -345,8 +341,8 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_isconvertible.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_METAINT
-#include <bslmf_metaint.h>
+#ifndef INCLUDED_BSLMF_ISBITWISEEQUALITYCOMPARABLE
+#include <bslmf_isbitwiseequalitycomparable.h>
 #endif
 
 #ifndef INCLUDED_CLIMITS
@@ -515,13 +511,13 @@ struct RangeCompare_Imp {
                       INPUT_ITER        end1,
                       INPUT_ITER        start2,
                       const VALUE_TYPE&,
-                      TypeTraitBitwiseEqualityComparable);
+                      bslmf::MetaInt<1>);
     template <typename INPUT_ITER, typename VALUE_TYPE>
     static bool equal(INPUT_ITER        start1,
                       INPUT_ITER        end1,
                       INPUT_ITER        start2,
                       const VALUE_TYPE&,
-                      bslmf::AnyType);
+                      bslmf::MetaInt<0>);
     template <typename INPUT_ITER, typename VALUE_TYPE>
     static bool equal(INPUT_ITER        start1,
                       INPUT_ITER        end1,
@@ -829,7 +825,7 @@ bool RangeCompare_Imp::equal(INPUT_ITER        start1,
                              INPUT_ITER        end1,
                              INPUT_ITER        start2,
                              const VALUE_TYPE&,
-                             TypeTraitBitwiseEqualityComparable)
+                             bslmf::MetaInt<1>)
 {
     // Note: We are forced to call a different function to resolve whether
     // 'INPUT_ITER' is convertible to 'const TARGET_TYPE *' or not, otherwise
@@ -851,7 +847,7 @@ bool RangeCompare_Imp::equal(INPUT_ITER        start1,
                              INPUT_ITER        end1,
                              INPUT_ITER        start2,
                              const VALUE_TYPE&,
-                             bslmf::AnyType)
+                             bslmf::MetaInt<0>)
 {
     for ( ; start1 != end1; ++start1, ++start2) {
         if (!(*start1 == *start2)) {
@@ -868,9 +864,8 @@ bool RangeCompare_Imp::equal(INPUT_ITER        start1,
                              INPUT_ITER        start2,
                              const VALUE_TYPE& value)
 {
-    typedef typename SelectTrait<VALUE_TYPE,
-                               TypeTraitBitwiseEqualityComparable>::Type Trait;
-
+    typedef bslmf::MetaInt<
+        bslmf::IsBitwiseEqualityComparable<VALUE_TYPE>::value> Trait;
     return equal(start1, end1, start2, value, Trait());
 }
 
@@ -901,7 +896,7 @@ bool RangeCompare_Imp::equalBitwiseEqualityComparable(INPUT_ITER        start1,
 {
     // We can't be as optimized as above.
 
-    return equal(start1, end1, start2, *start1, bslmf::AnyType(0));
+    return equal(start1, end1, start2, *start1, bslmf::MetaInt<0>());
 }
 
                      // *** lexicographical overloads: ***

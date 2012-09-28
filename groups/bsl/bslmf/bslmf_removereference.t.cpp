@@ -47,7 +47,7 @@ static void aSsErT(int c, const char *s, int i) {
 #define L_ __LINE__                           // current Line number
 #define T_() cout << '\t' << flush;           // Print tab w/o linefeed.
 
-#define ASSERT_SAME(X, Y) ASSERT((bslmf::IsSame<X, Y>::VALUE))
+#define ASSERT_SAME(X, Y) ASSERT((bslmf::IsSame<X, Y>::value))
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING

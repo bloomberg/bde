@@ -42,25 +42,89 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
-namespace BloombergLP {
-
-namespace bslmf {
+#ifndef INCLUDED_BSLS_COMPILERFEATURES
+#include <bsls_compilerfeatures.h>
+#endif
 
                          // ======================
                          // struct RemoveReference
                          // ======================
 
+#if !defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+
+namespace bsl {
+
 template <typename TYPE>
-struct RemoveReference {
+struct remove_reference
+{
+    typedef TYPE type;
+};
+
+template <typename TYPE>
+struct remove_reference<TYPE &>
+{
+    typedef TYPE type;
+};
+
+}
+
+#else  // !defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+
+namespace BloombergLP {
+namespace bslmf {
+
+template <typename TYPE>
+struct RemoveRvalueRef_Imp
+{
     typedef TYPE Type;
 };
 
 template <typename TYPE>
-struct RemoveReference<TYPE&> {
+struct RemoveRvalueRef_Imp<TYPE &&>
+{
     typedef TYPE Type;
+};
+
+template <typename TYPE>
+struct RemoveLvalueRef_Imp
+{
+    typedef TYPE Type;
+};
+
+template <typename TYPE>
+struct RemoveLvalueRef_Imp<TYPE &>
+{
+    typedef TYPE Type;
+};
+
+}
+}
+
+namespace bsl {
+
+template <typename TYPE>
+struct remove_reference
+{
+    typedef typename BloombergLP::bslmf::RemoveLvalueRef_Imp<
+                typename BloombergLP::bslmf::RemoveRvalueRef_Imp<TYPE>::Type
+            >::Type type;
+};
+
+}
+
+#endif
+
+namespace BloombergLP {
+namespace bslmf {
+
+template <typename TYPE>
+struct RemoveReference
+{
+    typedef typename bsl::remove_reference<TYPE>::type Type;
 };
 
 }  // close package namespace
+}  // close enterprise namespace
 
 #ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ===========================================================================
@@ -73,8 +137,6 @@ struct RemoveReference<TYPE&> {
 #define bslmf_RemoveReference bslmf::RemoveReference
     // This alias is defined for backward compatibility.
 #endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
-
-}  // close enterprise namespace
 
 #endif
 

@@ -32,6 +32,7 @@ BSLS_IDENT_RCSID(bslalg_hashutil_cpp,"$Id$ $CSID$")
 //..
 
 // STATIC HELPER FUNCTIONS
+#ifdef BSLS_PLATFORM__IS_BIG_ENDIAN
 static
 unsigned int hash(const char *data, int length)
     // That the memory starting at the specified 'data' of specified 'length'
@@ -58,7 +59,7 @@ unsigned int hash(const char *data, int length)
 
     return hash;
 }
-
+#else
 static
 unsigned int reverse_hash(const char *data, int length)
     // That the memory starting at the specified 'data' of specified 'length'
@@ -88,6 +89,7 @@ unsigned int reverse_hash(const char *data, int length)
 
     return hash;
 }
+#endif
 
 namespace BloombergLP {
 

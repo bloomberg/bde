@@ -17,6 +17,7 @@
 #include <bslalg_rangecompare.h>
 
 #include <bslmf_issame.h>
+#include <bslmf_haspointersemantics.h>
 
 #include <bsls_alignmentutil.h>
 #include <bsls_asserttest.h>
@@ -25,6 +26,7 @@
 #include <algorithm>
 #include <functional>
 #include <typeinfo>
+#include <cstdio>
 
 #include <cstdio>
 #include <cstdlib>
@@ -849,8 +851,7 @@ class TestDriver {
 
     static bool typeAlloc()
     {
-        return bslalg::HasTrait<value_type,
-                                bslalg::TypeTraitUsesBslmaAllocator>::VALUE;
+        return  bslma::UsesBslmaAllocator<value_type>::value;
     }
 
     static bool emptyWillAlloc()
@@ -858,7 +859,7 @@ class TestDriver {
         // Creating an empty 'deque' allocates memory, creating an empty
         // 'vector' does not.
 
-        return bslmf::IsSame<CONTAINER, deque<value_type> >::VALUE;
+        return bsl::is_same<CONTAINER, deque<value_type> >::value;
     }
 
   public:
@@ -1140,39 +1141,23 @@ void TestDriver<CONTAINER>::testCase11()
 
     // Verify set defines the expected traits.
 
-    enum { CONTAINER_USES_ALLOC = 
-                bslalg::HasTrait<CONTAINER,
-                                 bslalg::TypeTraitUsesBslmaAllocator>::VALUE };
+    enum { CONTAINER_USES_ALLOC =  bslma::UsesBslmaAllocator<CONTAINER>::value };
 
-    BSLMF_ASSERT(((int) CONTAINER_USES_ALLOC ==
-                bslalg::HasTrait<Obj,
-                                 bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
+    BSLMF_ASSERT(((int) CONTAINER_USES_ALLOC == bslma::UsesBslmaAllocator<Obj>::value));
 
     // Verify stack does not define other common traits.
 
-    BSLMF_ASSERT((0 ==
-                  bslalg::HasTrait<Obj,
-                                   bslalg::TypeTraitHasStlIterators>::VALUE));
+    BSLMF_ASSERT((0 == bslalg::HasStlIterators<Obj>::value));
 
-    BSLMF_ASSERT((0 ==
-                  bslalg::HasTrait<Obj,
-                                   bslalg::TypeTraitBitwiseCopyable>::VALUE));
+    BSLMF_ASSERT((0 == bsl::is_trivially_copyable<Obj>::value));
 
-    BSLMF_ASSERT((0 ==
-                  bslalg::HasTrait<Obj,
-                          bslalg::TypeTraitBitwiseEqualityComparable>::VALUE));
+    BSLMF_ASSERT((0 == bslmf::IsBitwiseEqualityComparable<Obj>::value));
 
-    BSLMF_ASSERT((0 ==
-                  bslalg::HasTrait<Obj,
-                                   bslalg::TypeTraitBitwiseMoveable>::VALUE));
+    BSLMF_ASSERT((0 == bslmf::IsBitwiseMoveable<Obj>::value));
 
-    BSLMF_ASSERT((0 ==
-                  bslalg::HasTrait<Obj,
-                                bslalg::TypeTraitHasPointerSemantics>::VALUE));
+    BSLMF_ASSERT((0 == bslmf::HasPointerSemantics<Obj>::value));
 
-    BSLMF_ASSERT((0 ==
-                  bslalg::HasTrait<Obj,
-                       bslalg::TypeTraitHasTrivialDefaultConstructor>::VALUE));
+    BSLMF_ASSERT((0 == bsl::is_trivially_default_constructible<Obj>::value));
 }
 
 template <class CONTAINER>
@@ -3446,7 +3431,7 @@ int main(int argc, char *argv[])
         typedef stack<int>                IStack;
         typedef stack<int, deque<int> >   IDStack;
 
-        BSLMF_ASSERT((bslmf::IsSame<IStack, IDStack>::VALUE));
+        BSLMF_ASSERT((bsl::is_same<IStack, IDStack>::value));
 
         // Verify that if a container is specified, the first template
         // argument is ignored.
@@ -3454,8 +3439,8 @@ int main(int argc, char *argv[])
         typedef stack<void,   vector<int> > VIVStack;
         typedef stack<double, vector<int> > DIVStack;
 
-        BSLMF_ASSERT((bslmf::IsSame<VIVStack::value_type, int>::VALUE));
-        BSLMF_ASSERT((bslmf::IsSame<DIVStack::value_type, int>::VALUE));
+        BSLMF_ASSERT((bsl::is_same<VIVStack::value_type, int>::value));
+        BSLMF_ASSERT((bsl::is_same<DIVStack::value_type, int>::value));
 
         VIVStack vivs;          const VIVStack& VIVS = vivs;
 
@@ -3504,30 +3489,24 @@ int main(int argc, char *argv[])
         typedef bsl::stack<int, NonAllocCont<int> > NonAllocStack;
 
         if (verbose) printf("NonAllocCont --------------------------------\n");
-        BSLMF_ASSERT((0 == bslalg::HasTrait<
-                                 NonAllocCont<int>,
-                                 bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
-        BSLMF_ASSERT((0 == bslalg::HasTrait<
-                                 NonAllocStack,
-                                 bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
+        BSLMF_ASSERT((0 == bslma::UsesBslmaAllocator<
+                                 NonAllocCont<int> >::value));
+        BSLMF_ASSERT((0 == bslma::UsesBslmaAllocator<
+                                 NonAllocStack>::value));
         TestDriver<NonAllocCont<int> >::testCase11();
 
         if (verbose) printf("deque ---------------------------------------\n");
-        BSLMF_ASSERT((0 == bslalg::HasTrait<
-                                 WeirdAllocDeque,
-                                 bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
-        BSLMF_ASSERT((0 == bslalg::HasTrait<
-                                 WeirdAllocDequeStack,
-                                 bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
+        BSLMF_ASSERT((0 == bslma::UsesBslmaAllocator<
+                                 WeirdAllocDeque>::value));
+        BSLMF_ASSERT((0 == bslma::UsesBslmaAllocator<
+                                 WeirdAllocDequeStack>::value));
         RUN_EACH_TYPE(TestDriver, testCase11, TEST_TYPES_REGULAR(deque));
 
         if (verbose) printf("vector --------------------------------------\n");
-        BSLMF_ASSERT((0 == bslalg::HasTrait<
-                                 WeirdAllocVector,
-                                 bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
-        BSLMF_ASSERT((0 == bslalg::HasTrait<
-                                 WeirdAllocVectorStack,
-                                 bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
+        BSLMF_ASSERT((0 == bslma::UsesBslmaAllocator<
+                                 WeirdAllocVector>::value));
+        BSLMF_ASSERT((0 == bslma::UsesBslmaAllocator<
+                                 WeirdAllocVectorStack>::value));
         RUN_EACH_TYPE(TestDriver, testCase11, TEST_TYPES_REGULAR(vector));
       } break;
       case 10: {

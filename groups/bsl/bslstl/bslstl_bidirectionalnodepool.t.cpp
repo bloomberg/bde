@@ -11,6 +11,7 @@
 #include <bslma_testallocatormonitor.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_default.h>
+#include <bslma_usesbslmaallocator.h>
 
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
@@ -49,7 +50,7 @@ using namespace bslstl;
 // MANIPULATORS
 // [ 4] AllocatorType& allocator();
 // [ 2] bslalg::BidirectionalLink *createNode();
-// [ 7] bslalg::BidirectionalLink *createNode(const bslalg::BidirectionalLink& original);
+// [ 7] bslalg::BidirectionalLink *createNode(constl BidirectionalLink&);
 // [ 7] bslalg::BidirectionalLink *createNode(const VALUE& value);
 // [ 5] void deleteNode(bslalg::BidirectionalLink *node);
 // [ 6] void reserveNodes(std::size_t numNodes);
@@ -149,7 +150,7 @@ bool expectToAllocate(int n)
 class AllocatingIntType {
     // DATA
     bslma::Allocator *d_allocator_p;
-    int             *d_value_p;
+    int              *d_value_p;
 
   private:
     // NOT IMPLEMENTED
@@ -182,6 +183,15 @@ class AllocatingIntType {
 
     const int& value() const { return *d_value_p; }
 };
+
+namespace BloombergLP {
+namespace bslma {
+
+template <>
+struct UsesBslmaAllocator<AllocatingIntType> : bsl::true_type {};
+
+}
+}
 
 //=============================================================================
 //                               TEST FACILITIES
@@ -564,17 +574,15 @@ void TestDriver<VALUE>::testCase7()
     //: 4 Verify all memory is released on destruction.  (C-4)
     //
     // Testing:
-    //   bslalg::BidirectionalLink *createNode(const bslalg::BidirectionalLink& original);
+    //   bslalg::BidirectionalLink *createNode(
+    //                              const bslalg::BidirectionalLink& original);
     //   bslalg::BidirectionalLink *createNode(const VALUE& value);
     // -----------------------------------------------------------------------
 
     if (verbose) printf("\nMANIPULATOR 'createNode'"
                         "\n========================\n");
 
-
-    const int TYPE_ALLOC = bslalg::HasTrait<
-                                    VALUE,
-                                    bslalg::TypeTraitUsesBslmaAllocator>::VALUE;
+    const bool TYPE_ALLOC = bslma::UsesBslmaAllocator<VALUE>::value;
 
     bslma::TestAllocator oa("object", veryVeryVeryVerbose);
 
@@ -691,9 +699,7 @@ void TestDriver<VALUE>::testCase6()
     if (verbose) printf("\nMANIPULATOR 'reserve'"
                         "\n======================\n");
 
-    const int TYPE_ALLOC = bslalg::HasTrait<
-                                    VALUE,
-                                    bslalg::TypeTraitUsesBslmaAllocator>::VALUE;
+    const bool TYPE_ALLOC = bslma::UsesBslmaAllocator<VALUE>::value;
 
     for (int ti = 1; ti < 8; ++ti) {
         for(int tj = 0; tj < 8; ++tj) {
@@ -790,9 +796,7 @@ void TestDriver<VALUE>::testCase5()
     if (verbose) printf("\nMANIPULATOR 'deleteNode'"
                         "\n========================");
 
-    const int TYPE_ALLOC = bslalg::HasTrait<
-                                    VALUE,
-                                    bslalg::TypeTraitUsesBslmaAllocator>::VALUE;
+    const int TYPE_ALLOC = bslma::UsesBslmaAllocator<VALUE>::value;
 
     struct {
         int         d_line;
@@ -904,7 +908,7 @@ void TestDriver<VALUE>::testCase4()
     // Plan:
     //: 1 For each allocator configuration:
     //:
-    //:   1 Create a 'bslstl_TreeNodePool' with an allocator.
+    //:   1 Create a 'bslstl::BidirectionalNodePool' with an allocator.
     //:
     //:   2 Use the basic accessor to verify the allocator is installed
     //:     properly.  (C-1..2)
@@ -1027,7 +1031,7 @@ void TestDriver<VALUE>::testCase2()
     //
     // Testing:
     //   explicit BidirectionalNodePool(const ALLOCATOR& allocator);
-    //   ~TreeNodePool();
+    //   ~BidirectionalNodePool();
     //   VALUE *createNode();
     // --------------------------------------------------------------------
 
@@ -1037,9 +1041,7 @@ void TestDriver<VALUE>::testCase2()
 
     if (verbose) printf("\nTesting with various allocator configurations.\n");
 
-    const int TYPE_ALLOC = bslalg::HasTrait<
-                                    VALUE,
-                                    bslalg::TypeTraitUsesBslmaAllocator>::VALUE;
+    const bool TYPE_ALLOC = bslma::UsesBslmaAllocator<VALUE>::value;
 
     for (char cfg = 'a'; cfg <= 'b'; ++cfg) {
 

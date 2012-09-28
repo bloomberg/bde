@@ -2,8 +2,6 @@
 
 #include <bslstl_allocator.h>
 
-#include <bslalg_typetraits.h>            // testing only
-#include <bslalg_hastrait.h>              // testing only
 #include <bslma_allocator.h>              // testing only
 #include <bslma_default.h>                // testing only
 #include <bslma_defaultallocatorguard.h>  // testing only
@@ -485,48 +483,48 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\tTesting 'pointer'.\n");
         {
-            ASSERT((bslmf::IsSame<AI::pointer, int*>::VALUE));
-            ASSERT((bslmf::IsSame<AF::pointer, float*>::VALUE));
-            ASSERT((bslmf::IsSame<AV::pointer, void*>::VALUE));
+            ASSERT((bsl::is_same<AI::pointer, int*>::value));
+            ASSERT((bsl::is_same<AF::pointer, float*>::value));
+            ASSERT((bsl::is_same<AV::pointer, void*>::value));
         }
 
         if (verbose) printf("\tTesting 'const_pointer'.\n");
         {
-            ASSERT((bslmf::IsSame<AI::const_pointer, const int*>::VALUE));
-            ASSERT((bslmf::IsSame<AF::const_pointer, const float*>::VALUE));
-            ASSERT((bslmf::IsSame<AV::const_pointer, const void*>::VALUE));
+            ASSERT((bsl::is_same<AI::const_pointer, const int*>::value));
+            ASSERT((bsl::is_same<AF::const_pointer, const float*>::value));
+            ASSERT((bsl::is_same<AV::const_pointer, const void*>::value));
         }
 
         if (verbose) printf("\tTesting 'reference'.\n");
         {
-            ASSERT((bslmf::IsSame<AI::reference, int&>::VALUE));
-            ASSERT((bslmf::IsSame<AF::reference, float&>::VALUE));
+            ASSERT((bsl::is_same<AI::reference, int&>::value));
+            ASSERT((bsl::is_same<AF::reference, float&>::value));
         }
 
         if (verbose) printf("\tTesting 'const_reference'.\n");
         {
-            ASSERT((bslmf::IsSame<AI::const_reference, const int&>::VALUE));
-            ASSERT((bslmf::IsSame<AF::const_reference, const float&>::VALUE));
+            ASSERT((bsl::is_same<AI::const_reference, const int&>::value));
+            ASSERT((bsl::is_same<AF::const_reference, const float&>::value));
         }
 
         if (verbose) printf("\tTesting 'value_type'.\n");
         {
-            ASSERT((bslmf::IsSame<AI::value_type, int>::VALUE));
-            ASSERT((bslmf::IsSame<AF::value_type, float>::VALUE));
-            ASSERT((bslmf::IsSame<AV::value_type, void>::VALUE));
+            ASSERT((bsl::is_same<AI::value_type, int>::value));
+            ASSERT((bsl::is_same<AF::value_type, float>::value));
+            ASSERT((bsl::is_same<AV::value_type, void>::value));
         }
 
         if (verbose) printf("\tTesting 'rebind'.\n");
         {
-            ASSERT((bslmf::IsSame<AI::rebind<int  >::other, AI>::VALUE));
-            ASSERT((bslmf::IsSame<AI::rebind<float>::other, AF>::VALUE));
-            ASSERT((bslmf::IsSame<AI::rebind<void >::other, AV>::VALUE));
-            ASSERT((bslmf::IsSame<AF::rebind<int  >::other, AI>::VALUE));
-            ASSERT((bslmf::IsSame<AF::rebind<float>::other, AF>::VALUE));
-            ASSERT((bslmf::IsSame<AF::rebind<void >::other, AV>::VALUE));
-            ASSERT((bslmf::IsSame<AV::rebind<int  >::other, AI>::VALUE));
-            ASSERT((bslmf::IsSame<AV::rebind<float>::other, AF>::VALUE));
-            ASSERT((bslmf::IsSame<AV::rebind<void >::other, AV>::VALUE));
+            ASSERT((bsl::is_same<AI::rebind<int  >::other, AI>::value));
+            ASSERT((bsl::is_same<AI::rebind<float>::other, AF>::value));
+            ASSERT((bsl::is_same<AI::rebind<void >::other, AV>::value));
+            ASSERT((bsl::is_same<AF::rebind<int  >::other, AI>::value));
+            ASSERT((bsl::is_same<AF::rebind<float>::other, AF>::value));
+            ASSERT((bsl::is_same<AF::rebind<void >::other, AV>::value));
+            ASSERT((bsl::is_same<AV::rebind<int  >::other, AI>::value));
+            ASSERT((bsl::is_same<AV::rebind<float>::other, AF>::value));
+            ASSERT((bsl::is_same<AV::rebind<void >::other, AV>::value));
         }
 
       } break;
@@ -727,10 +725,10 @@ int main(int argc, char *argv[])
         // Concerns:
         //   That an allocator has the proper traits defined.
         //
-        // Plan:  Since it does not matter what type 'bsl::allocator' is
-        // instantiated with, use 'int' and test for the traits using
-        // 'bslalg::HasTrait'.  Note that 'void' also needs to be tested since
-        // it is a specialization.
+        // Plan: Since it does not matter what type 'bsl::allocator' is
+        // instantiated with, use 'int' and test for each expected trait.
+        // Note that 'void' also needs to be tested since it is a
+        // specialization.
         //
         // Testing:
         //   bslalg::TypeTrait<bsl::allocator>
@@ -739,21 +737,15 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING TRAITS"
                             "\n==============");
 
-        ASSERT((bslalg::HasTrait<bsl::allocator<int>,
-                                 bslalg::TypeTraitBitwiseMoveable>::VALUE));
-        ASSERT((bslalg::HasTrait<bsl::allocator<int>,
-                                 bslalg::TypeTraitBitwiseCopyable>::VALUE));
-        ASSERT((bslalg::HasTrait<
-                          bsl::allocator<int>,
-                          bslalg::TypeTraitBitwiseEqualityComparable>::VALUE));
+        ASSERT((bslmf::IsBitwiseMoveable<bsl::allocator<int> >::value));
+        ASSERT((bsl::is_trivially_copyable<bsl::allocator<int> >::value));
+        ASSERT((bslmf::IsBitwiseEqualityComparable<
+                                                bsl::allocator<int> >::value));
 
-        ASSERT((bslalg::HasTrait<bsl::allocator<void>,
-                                 bslalg::TypeTraitBitwiseMoveable>::VALUE));
-        ASSERT((bslalg::HasTrait<bsl::allocator<void>,
-                                 bslalg::TypeTraitBitwiseCopyable>::VALUE));
-        ASSERT((bslalg::HasTrait<
-                          bsl::allocator<void>,
-                          bslalg::TypeTraitBitwiseEqualityComparable>::VALUE));
+        ASSERT((bslmf::IsBitwiseMoveable<bsl::allocator<void> >::value));
+        ASSERT((bsl::is_trivially_copyable<bsl::allocator<void> >::value));
+        ASSERT((bslmf::IsBitwiseEqualityComparable<
+                                                bsl::allocator<void> >::value));
 
       } break;
 

@@ -4,13 +4,7 @@
 
 #include <bslma_default.h>
 #include <bslma_testallocator.h>
-
-#include <algorithm>
-#include <climits>
-#include <cstdlib>
-#include <functional>
-#include <iostream>
-#include <sstream>
+#include <bslma_usesbslmaallocator.h>
 
 #include <bslalg_rangecompare.h>
 
@@ -29,6 +23,12 @@
 #include <bsltf_testvaluesarray.h>
 #include <bsltf_stdtestallocator.h>
 
+#include <algorithm>
+#include <climits>
+#include <cstdlib>
+#include <functional>
+#include <iostream>
+#include <sstream>
 
 // ============================================================================
 //                          ADL SWAP TEST HELPER
@@ -2078,8 +2078,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase7()
 
     const TestValues VALUES;
 
-    const int TYPE_ALLOC =
-             bslalg::HasTrait<KEY, bslalg::TypeTraitUsesBslmaAllocator>::VALUE;
+    const bool TYPE_ALLOC = bslma::UsesBslmaAllocator<KEY>::value;
 
     if (verbose)
         printf("\nTesting parameters: TYPE_ALLOC = %d.\n", TYPE_ALLOC);
@@ -2864,8 +2863,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase2()
     //   void clear();
     // ------------------------------------------------------------------------
 
-    const bool VALUE_TYPE_USES_ALLOC  =
-             bslalg::HasTrait<KEY, bslalg::TypeTraitUsesBslmaAllocator>::VALUE;
+    const bool VALUE_TYPE_USES_ALLOC = bslma::UsesBslmaAllocator<KEY>::value;
 
     if (verbose) { P(VALUE_TYPE_USES_ALLOC); }
 

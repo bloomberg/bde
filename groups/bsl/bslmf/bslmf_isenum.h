@@ -18,7 +18,7 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component defines a simple template structure used to
 // evaluate whether it's single type parameter is of enumeration type.
-// 'bslmf::IsEnum' defines a 'VALUE' enumerator that is initialized (at
+// 'bslmf::IsEnum' defines a 'value' enumerator that is initialized (at
 // compile-time) to 1 if the parameter is of enumeration type, and to 0
 // otherwise.
 //
@@ -29,19 +29,23 @@ BSLS_IDENT("$Id: $")
 //  enum Enum { MY_ENUMERATOR = 5 };
 //  class Class { Class(Enum); };
 //
-//  assert(1 == bslmf::IsEnum<Enum>::VALUE);
-//  assert(0 == bslmf::IsEnum<Class>::VALUE);
-//  assert(0 == bslmf::IsEnum<int>::VALUE);
-//  assert(0 == bslmf::IsEnum<int *>::VALUE);
+//  assert(1 == bslmf::IsEnum<Enum>::value);
+//  assert(0 == bslmf::IsEnum<Class>::value);
+//  assert(0 == bslmf::IsEnum<int>::value);
+//  assert(0 == bslmf::IsEnum<int *>::value);
 //..
 // Note that the 'bslmf::IsEnum' meta-function also evaluates to true (i.e., 1)
 // when applied to references to enumeration types:
 //..
-//  assert(1 == bslmf::IsEnum<const Enum&>::VALUE);
+//  assert(1 == bslmf::IsEnum<const Enum&>::value);
 //..
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
+#include <bslmf_integralconstant.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_ISCONVERTIBLE
@@ -50,6 +54,18 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLMF_ISFUNDAMENTAL
 #include <bslmf_isfundamental.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_REMOVECV
+#include <bslmf_removecv.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_REMOVEREFERENCE
+#include <bslmf_removereference.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISREFERENCE
+#include <bslmf_isreference.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_METAINT
@@ -100,20 +116,40 @@ struct IsEnum_AnyArithmeticType {
 
 template <class TYPE>
 struct IsEnum
-: MetaInt<!IsFundamental<TYPE>::VALUE
-         && IsConvertible<TYPE, IsEnum_AnyArithmeticType>::VALUE> {
+    : bsl::integral_constant<
+        bool,
+        !bsl::is_fundamental<typename bsl::remove_reference<
+                             typename bsl::remove_cv<TYPE>::type>::type>::value
+        && bsl::is_convertible<TYPE, IsEnum_AnyArithmeticType>::value>
     // This struct provides a meta-function that computes, at compile time,
-    // whether 'TYPE' is of enumeration type.  It derives from 'MetaInt<1>' if
-    // 'TYPE' is an enumeration type, or from 'MetaInt<0>' otherwise.
+    // whether 'TYPE' is of enumeration type.  It derives from 'bsl::true_type'
+    // if 'TYPE' is an enumeration type, or from 'bsl::false_type' otherwise.
     //
     // Enumeration types are the only user-defined types that have the
     // characteristics of a native arithmetic type (i.e., they can be promoted
     // to 'int' without invoking user-defined conversions).  This class takes
     // advantage if this property to distinguish 'enum' types from class types
     // that are convertible to 'int'.
+{
 };
 
 }  // close package namespace
+
+}  // close enterprise namespace
+
+namespace bsl {
+
+template <typename TYPE>
+struct is_enum
+    : integral_constant<
+        bool,
+        !is_fundamental<typename remove_cv<TYPE>::type>::value
+        && !is_reference<TYPE>::value
+        && is_convertible<TYPE,
+                          BloombergLP::bslmf::IsEnum_AnyArithmeticType>::value>
+{};
+
+}
 
 #ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ===========================================================================
@@ -127,13 +163,10 @@ struct IsEnum
     // This alias is defined for backward compatibility.
 #endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
-}  // close enterprise namespace
-
 #endif
 
 // ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2010
+// NOTICE: //      Copyright (C) Bloomberg L.P., 2010
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the

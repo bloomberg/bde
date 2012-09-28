@@ -107,6 +107,10 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_nil.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_CONDITIONAL
+#include <bslmf_conditional.h>
+#endif
+
 namespace BloombergLP {
 
 namespace bslmf {
@@ -119,16 +123,12 @@ template <int   CONDITION,
           class IF_TRUE_TYPE = Nil, class IF_FALSE_TYPE = Nil>
 struct If {
     // This meta-function selects 'IF_TRUE_TYPE' if 'CONDITION' is non-zero.
+    // and 'IF_FALSE_TYPE' otherwise.
 
-    typedef IF_TRUE_TYPE Type;
-};
-
-template <class IF_TRUE_TYPE, class IF_FALSE_TYPE>
-struct If<0, IF_TRUE_TYPE, IF_FALSE_TYPE> {
-    // This specialization of 'If' selects 'IF_FALSE_TYPE' if 'CONDITION' is
-    // zero.
-
-    typedef IF_FALSE_TYPE Type;
+    typedef typename bsl::conditional<CONDITION,
+                                      IF_TRUE_TYPE,
+                                      IF_FALSE_TYPE>::type
+            Type;
 };
 
 }  // close package namespace
@@ -151,7 +151,7 @@ struct If<0, IF_TRUE_TYPE, IF_FALSE_TYPE> {
 
 // ---------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2004
+//      Copyright (C) Bloomberg L.P., 2012
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the

@@ -38,8 +38,20 @@ BSL_OVERRIDES_STD mode"
 #include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
+#ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
+#include <bslmf_isbitwisemoveable.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
+#include <bslmf_istriviallycopyable.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISTRIVIALLYDEFAULTCONSTRUCTIBLE
+#include <bslmf_istriviallydefaultconstructible.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
 #endif
 
 namespace bsl
@@ -57,8 +69,7 @@ struct equal_to {
     // 'std::binary_function'.  Note that this class is an empty POD type.
 
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(equal_to,
-                                 ::BloombergLP::bslalg::TypeTraitsGroupPod);
+    BSLMF_NESTED_TRAIT_DECLARATION(equal_to, is_trivially_copyable);
 
     // STANDARD TYPEDEFS
     typedef VALUE_TYPE first_argument_type;
@@ -88,6 +99,46 @@ struct equal_to {
         // Return 'true' if the specified 'lhs' compares equal to the specified
         // 'rhs' using the equality-comparison operator, 'lhs == rhs'.
 };
+
+}  // namespace bsl
+
+// ============================================================================
+//                                TYPE TRAITS
+// ============================================================================
+
+// Type traits for STL *sequence* containers:
+//: o A sequence container defines STL iterators.
+//: o A sequence container is bitwise moveable if the allocator is bitwise
+//:     moveable.
+//: o A sequence container uses 'bslma' allocators if the parameterized
+//:     'ALLOCATOR' is convertible from 'bslma::Allocator*'.
+
+namespace bsl {
+
+template<class VALUE_TYPE>
+struct is_trivially_default_constructible<equal_to<VALUE_TYPE> >
+: bsl::true_type
+{};
+
+template<class VALUE_TYPE>
+struct is_trivially_copyable<equal_to<VALUE_TYPE> >
+: bsl::true_type
+{};
+
+}
+
+namespace BloombergLP {
+namespace bslmf {
+
+template<class VALUE_TYPE>
+struct IsBitwiseMoveable<bsl::equal_to<VALUE_TYPE> >
+: bsl::true_type
+{};
+
+}
+}  // namespace BloombergLP
+
+namespace bsl {
 
 // ============================================================================
 //                      INLINE FUNCTION DEFINITIONS

@@ -32,7 +32,183 @@ BSLS_IDENT("$Id: $")
 // basic exception guarantee.  There are similar concerns for the 'equal_to'
 // predicate.
 //
-//-----------------------------------------------------------------------------
+///Requirements on 'KEY'
+///--------------------- An 'unordered_multiset' instantiation is a fully
+//"Value-Semantic Type" (see {'bsldoc_glossary'}) only if the supplied
+//'KEY_TYPE' template parameters is fully value-semantic.  It is possible to
+//instantiate an 'unordered_multiset' with 'KEY_TYPE' parameter arguments that
+//do not provide a full set of value-semantic operations, but then some methods
+//of the container may not be instantiable.  The following terminology, adopted
+//from the C++11 standard, is used in the function documentation of
+//'unordered_multiset' to describe a function's requirements for the 'KEY'
+//template parameter.  These terms are also defined in section
+//[utility.arg.requirements] of the C++11 standard.  Note that, in the context
+//of an 'unordered_multiset' instantiation, the requirements apply specifically
+//to the 'unordered_multiset's entry type, 'value_type', which is an alias for
+//'KEY_TYPE'.
+//
+//: "default-constructible": The type provides an accessible default
+//:                          constructor.
+//:
+//: "copy-constructible": The type provides an accessible copy constructor.
+//:
+//: "equality-comparable": The type provides an equality-comparison operator
+//:     that defines an equivalence relationship and is both reflexive and
+//:     transitive.
+//
+///Memory Allocation
+///-----------------
+// The type supplied as a set's 'ALLOCATOR' template parameter determines how
+// that set will allocate memory.  The 'unordered_multiset' template supports
+// allocators meeting the requirements of the C++11 standard
+// [allocator.requirements], and in addition it supports scoped-allocators
+// derived from the 'bslma::Allocator' memory allocation protocol.  Clients
+// intending to use 'bslma' style allocators should use the template's default
+// 'ALLOCATOR' type: The default type for the 'ALLOCATOR' template parameter,
+// 'bsl::allocator', provides a C++11 standard-compatible adapter for a
+// 'bslma::Allocator' object.
+//
+///'bslma'-Style Allocators
+/// - - - - - - - - - - - -
+// If the parameterized 'ALLOCATOR' type of an 'unordered_multiset'
+// instantiation is 'bsl::allocator', then objects of that set type will
+// conform to the standard behavior of a 'bslma'-allocator-enabled type.  Such
+// a set accepts an optional 'bslma::Allocator' argument at construction.  If
+// the address of a 'bslma::Allocator' object is explicitly supplied at
+// construction, it will be used to supply memory for the 'unordered_multiset'
+// throughout its lifetime; otherwise, the 'unordered_multiset' will use the
+// default allocator installed at the time of the 'unordered_multiset's
+// construction (see 'bslma_default').  In addition to directly allocating
+// memory from the indicated 'bslma::Allocator', an 'unordered_multiset'
+// supplies that allocator's address to the constructors of contained objects
+// of the parameterized 'KEY' types with the
+// 'bslalg::TypeTraitUsesBslmaAllocator' trait.
+//
+///Operations
+///----------
+// This section describes the run-time complexity of operations on instances
+// of 'unordered_multiset':
+//..
+//  Legend
+//  ------
+//  'K'             - parameterized 'KEY' type of the unordered multiset
+//  'a', 'b'        - two distinct objects of type 'unordered_multiset<K>'
+//  'n', 'm'        - number of elements in 'a' and 'b' respectively
+//  'value_type'    - unoredered_multiset<K>::value_type
+//  'c'             - comparator providing an ordering for objects of type 'K'
+//  'al             - an STL-style memory allocator
+//  'i1', 'i2'      - two iterators defining a sequence of 'value_type' objects
+//  'k'             - an object of type 'K'
+//  'v'             - an object of type 'value_type'
+//  'p1', 'p2'      - two iterators belonging to 'a'
+//  distance(i1,i2) - the number of elements in the range [i1, i2)
+//  distance(p1,p2) - the number of elements in the range [p1, p2)
+//
+//  +----------------------------------------------------+--------------------+
+//  | Operation                                          | Complexity         |
+//  +====================================================+====================+
+//  | unordered_multiset<K> a; (default construction)    | O[1]               |
+//  | unordered_multiset<K> a(al);                       |                    |
+//  | unordered_multiset<K> a(c, al);                    |                    |
+//  +----------------------------------------------------+--------------------+
+//  | unordered_multiset<K> a(b); (copy construction)    | Average: O[n]      |
+//  | unordered_multiset<K> a(b, al);                    | Worst:   O[n^2]    |
+//  +----------------------------------------------------+--------------------+
+//  | unordered_multiset<K> a(n);                        | O[n]               |
+//  | unordered_multiset<K> a(n, hf);                    |                    |
+//  | unordered_multiset<K> a(n, hf, eq);                |                    |
+//  | unordered_multiset<K> a(n, hf, eq, al);            |                    |
+//  +----------------------------------------------------+--------------------+
+//  | unordered_multiset<K> a(i1, i2);                   | Average: O[        |
+//  | unordered_multiset<K> a(i1, i2, n)                 |   distance(i1, i2)]|
+//  | unordered_multiset<K> a(i1, i2, n, hf);            | Worst:   O[n^2]    |
+//  | unordered_multiset<K> a(i1, i2, n, hf, eq);        |                    |
+//  | unordered_multiset<K> a(i1, i2, n, hf, eq, al);    |                    |
+//  |                                                    |                    |
+//  | a.~unordered_multiset<K>(); (destruction)          | O[n]               |
+//  +----------------------------------------------------+--------------------+
+//  | a = b;          (assignment)                       | Average: O[n]      |
+//  |                                                    | Worst:   O[n^2]    |
+//  +----------------------------------------------------+--------------------+
+//  | a.begin(), a.end(), a.cbegin(), a.cend(),          | O[1]               |
+//  +----------------------------------------------------+--------------------+
+//  | a == b, a != b                                     | Best:  O[n]        |
+//  |                                                    | Worst: O[n^2]      |
+//  +----------------------------------------------------+--------------------+
+//  | a.swap(b), swap(a,b)                               | O[1] if 'a' and    |
+//  |                                                    | 'b' use the same   |
+//  |                                                    | allocator,         |
+//  |                                                    | O[n + m] otherwise |
+//  +----------------------------------------------------+--------------------+
+//  | a.key_eq()                                         | O[1]               |
+//  +----------------------------------------------------+--------------------+
+//  | a.hash_function()                                  | O[1]               |
+//  +----------------------------------------------------+--------------------+
+//  | a.size()                                           | O[1]               |
+//  +----------------------------------------------------+--------------------+
+//  | a.max_size()                                       | O[1]               |
+//  +----------------------------------------------------+--------------------+
+//  | a.empty()                                          | O[1]               |
+//  +----------------------------------------------------+--------------------+
+//  | get_allocator()                                    | O[1]               |
+//  +----------------------------------------------------+--------------------+
+//  | a[k]                                               | O[n]               |
+//  +----------------------------------------------------+--------------------+
+//  | a.at(k)                                            | O[n]               |
+//  +----------------------------------------------------+--------------------+
+//  | a.insert(value_type(k, v))                         | Average: O[1]      |
+//  |                                                    | Worst:   O[n]      |
+//  +----------------------------------------------------+--------------------+
+//  | a.insert(p1, value_type(k, v))                     | Average: O[1]      |
+//  |                                                    | Worst:   O[n]      |
+//  +----------------------------------------------------+--------------------+
+//  | a.insert(i1, i2)                                   | Average O[         |
+//  |                                                    |   distance(i1, i2)]|
+//  |                                                    | Worst:  O[ n *     |
+//  |                                                    |   distance(i1, i2)]|
+//  +----------------------------------------------------+--------------------+
+//  | a.erase(p1)                                        | Average: O[1]      |
+//  |                                                    | Worst:   O[n]      |
+//  +----------------------------------------------------+--------------------+
+//  | a.erase(k)                                         | Average: O[        |
+//  |                                                    |         a.count(k)]|
+//  |                                                    | Worst:   O[n]      |
+//  +----------------------------------------------------+--------------------+
+//  | a.erase(p1, p2)                                    | Average: O[        |
+//  |                                                    |   distance(p1, p2)]|
+//  |                                                    | Worst:   O[n]      |
+//  +----------------------------------------------------+--------------------+
+//  | a.clear()                                          | O[n]               |
+//  +----------------------------------------------------+--------------------+
+//  | a.find(k)                                          | Average: O[1]      |
+//  |                                                    | Worst:   O[n]      |
+//  +----------------------------------------------------+--------------------+
+//  | a.count(k)                                         | Average: O[1]      |
+//  |                                                    | Worst:   O[n]      |
+//  +----------------------------------------------------+--------------------+
+//  | a.equal_range(k)                                   | Average: O[        |
+//  |                                                    |         a.count(k)]|
+//  |                                                    | Worst:   O[n]      |
+//  +----------------------------------------------------+--------------------+
+//  | a.bucket_count()                                   | O[1]               |
+//  +----------------------------------------------------+--------------------+
+//  | a.max_bucket_count()                               | O[1]               |
+//  +----------------------------------------------------+--------------------+
+//  | a.bucket(k)                                        | O[1]               |
+//  +----------------------------------------------------+--------------------+
+//  | a.bucket_size(k)                                   | O[a.bucket_size(k)]|
+//  +----------------------------------------------------+--------------------+
+//  | a.load_factor()                                    | O[1]               |
+//  +----------------------------------------------------+--------------------+
+//  | a.max_load_factor()                                | O[1]               |
+//  | a.max_load_factor(z)                               | O[1]               |
+//  +----------------------------------------------------+--------------------+
+//  | a.rehash(k)                                        | Average: O[n]      |
+//  |                                                    | Worst:   O[n^2]    |
+//  +----------------------------------------------------+--------------------+
+//  | a.resize(k)                                        | Average: O[n]      |
+//  |                                                    | Worst:   O[n^2]    |
+//  +----------------------------------------------------+--------------------+
 //..
 //
 ///Usage
@@ -97,6 +273,22 @@ BSL_OVERRIDES_STD mode"
 #include <bslalg_bidirectionalnode.h>
 #endif
 
+#ifndef INCLUDED_BSLALG_TYPETRAITHASSTLITERATORS
+#include <bslalg_typetraithasstliterators.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include <bslma_usesbslmaallocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
+#include <bslmf_isbitwisemoveable.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
+#endif
+
 #ifndef INCLUDED_CSTDDEF
 #include <cstddef>  // for 'std::size_t'
 #define INCLUDED_CSTDDEF
@@ -106,11 +298,6 @@ BSL_OVERRIDES_STD mode"
 #include <iterator>  // for 'std::iterator_traits'
 #define INCLUDED_ITERATOR
 #endif
-
-namespace BloombergLP
-{
-namespace bslalg { class BidirectionalLink; }
-}
 
 namespace bsl {
 
@@ -143,14 +330,18 @@ class unordered_multiset
   private:
     typedef ::BloombergLP::bslalg::BidirectionalLink             HashTableLink;
 
-    typedef ::BloombergLP::bslstl::UnorderedSetKeyConfiguration<value_type> 
-                                                             ListConfiguration;
-    typedef ::BloombergLP::bslstl::HashTable<ListConfiguration,
-                                             HASH,
-                                             EQUAL,
-                                             ALLOC> Impl;
+    typedef ::BloombergLP::bslstl::UnorderedSetKeyConfiguration<value_type>
+                                                                    ListPolicy;
+    typedef ::BloombergLP::bslstl::HashTable<ListPolicy, HASH, EQUAL, ALLOC>
+                                                                          Impl;
 
   public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(
+                         unordered_multiset,
+                         ::BloombergLP::bslmf::IsBitwiseMoveable,
+                         ::BloombergLP::bslmf::IsBitwiseMoveable<Impl>::value);
+
     typedef ::BloombergLP::bslstl::HashTableIterator<value_type,
                                                      difference_type> iterator;
     typedef iterator                                            const_iterator;
@@ -266,10 +457,45 @@ template <class KEY_TYPE, class HASH, class EQUAL, class ALLOC>
 bool operator!=(const unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>& lhs,
                 const unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>& rhs);
 
+}  // close namespace bsl
+
+// ============================================================================
+//                                TYPE TRAITS
+// ============================================================================
+
+// Type traits for STL *unordered* *associative* containers:
+//: o An unordered associative container defines STL iterators.
+//: o An unordered associative container is bitwise moveable if the both
+//:      functors and the allocator are bitwise moveable.
+//: o An unordered associative container uses 'bslma' allocators if the
+//:      parameterized 'ALLOCATOR' is convertible from 'bslma::Allocator*'.
+
+namespace BloombergLP {
+namespace bslalg {
+
+template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
+struct HasStlIterators<bsl::unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR> >
+     : bsl::true_type
+{};
+
+}  // close namespace bslalg
+
+namespace bslma {
+
+template <class KEY, class HASH, class EQUAL, class ALLOC>
+struct UsesBslmaAllocator<bsl::unordered_multiset<KEY, HASH, EQUAL, ALLOC> >
+    : bsl::is_convertible<Allocator*, ALLOC>::type
+{};
+
+}  // close namespace bslma
+}  // close namespace BloombergLP
 
 // ===========================================================================
 //                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
 // ===========================================================================
+
+namespace bsl
+{
 
                         //-------------------------
                         // class unordered_multiset
@@ -381,7 +607,7 @@ template <class KEY_TYPE,
 bool
 unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::empty() const
 {
-    return d_impl.isEmpty();
+    return 0 == d_impl.size();
 }
 
 template <class KEY_TYPE,
@@ -474,7 +700,7 @@ inline
 typename unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::iterator
 unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::insert(const value_type& obj)
 {
-    return iterator(d_impl.insertContiguous(obj));
+    return iterator(d_impl.insert(obj));
 }
 
 template <class KEY_TYPE,
@@ -485,7 +711,7 @@ typename unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::iterator
 unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::
 insert(const_iterator hint, const value_type& obj)
 {
-    return iterator(d_impl.insertWithHint(obj, hint.node()));
+    return iterator(d_impl.insert(obj, hint.node()));
 }
 
 template <class KEY_TYPE,
@@ -526,20 +752,19 @@ template <class KEY_TYPE,
           class EQUAL,
           class ALLOC>
 typename unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::size_type
-unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::erase(const key_type& k)
+unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::erase(const key_type& key)
 {   // As an alternative implementation, the table could return an extracted
     // "slice" list from the underlying table, and now need merely:
     //   iterate each node, destroying the associated value
     //   reclaim each node (potentially returning to a node-pool)
     typedef ::BloombergLP::bslalg::BidirectionalNode<value_type> BNode;
 
-    if (HashTableLink *target = d_impl.find(k)) {
+    if (HashTableLink *target = d_impl.find(key)) {
         target = d_impl.remove(target);
         size_type result = 1;
         while (target && this->key_eq()(
-              k,
-              ListConfiguration::extractKey(
-                                     static_cast<BNode *>(target)->value()))) {
+              key,
+              ListPolicy::extractKey(static_cast<BNode *>(target)->value()))) {
             target = d_impl.remove(target);
             ++result;
         }
@@ -561,12 +786,13 @@ erase(const_iterator first, const_iterator last)
 
     // 7 Most of the library's algorithmic templates that operate on data
     // structures have interfaces that use ranges.  A range is a pair of
-    // iterators that designate the beginning and end of the computation. A
-    // range [i,i) is an empty range; in general, a range [i,j) refers to the
-    // elements in the data structure starting with the element pointed to by i
-    // and up to but not including the element pointed to by j. Range [i,j) is
-    // valid if and only if j is reachable from i. The result of the
-    // application of functions in the library to invalid ranges is undefined.
+    // iterators that designate the beginning and end of the computation.  A
+    // range '[i,i)' is an empty range; in general, a range '[i,j)' refers to
+    // the elements in the data structure starting with the element pointed to
+    // by 'i' and up to but not including the element pointed to by 'j'.  Range
+    // [i,j) is valid if and only if 'j' is reachable from 'i'.  The result of
+    // the application of functions in the library to invalid ranges is
+    // undefined.
 #if defined BDE_BUILD_TARGET_SAFE2
     // Check that 'first' and 'last' are valid iterators referring to this
     // container.
@@ -588,8 +814,8 @@ erase(const_iterator first, const_iterator last)
     // merge steps 2/3 to avoid multiple list walks?
     // tricky issue of fixing up bucket indices as well
 
-    // implementation must handle the case that 'last' is 'end()', which will
-    // be invalidated when the preceding element is erased.
+    // implementation must handle the case that 'last' is 'end', which will be
+    // invalidated when the preceding element is erased.
 
     while (first != last) {
         first = this->erase(first);
@@ -680,8 +906,7 @@ count(const key_type& k) const
          ++result, cursor = cursor->nextLink()) {
 
         BNode *cursorNode = static_cast<BNode *>(cursor);
-        if (!this->key_eq()(k, ListConfiguration::extractKey(
-                                                       cursorNode->value()))) {
+        if (!this->key_eq()(k, ListPolicy::extractKey(cursorNode->value()))) {
             break;
         }
     }

@@ -117,10 +117,9 @@ typename bslmf::EnableIf<!COND, int>::type testMutuallyExclusiveFunction()
 // method:
 //..
     template<class T>
-    struct HasMemberSwap {
+    struct HasMemberSwap : bsl::false_type {
         // This traits class indicates whether the specified template type
         // parameter 'T' has a public 'swap' method to exchange values.
-        static const bool VALUE = false;
     };
 //..
 // Now we can implement a generic 'Swap' function template that will invoke the
@@ -136,14 +135,14 @@ typename bslmf::EnableIf<!COND, int>::type testMutuallyExclusiveFunction()
 // will ever be present in an overload set.
 //..
     template<class T>
-    typename bslmf::EnableIf<HasMemberSwap<T>::VALUE>::type
+    typename bslmf::EnableIf<HasMemberSwap<T>::value>::type
     Swap(T& a, T& b)
     {
         a.swap(b);
     }
 
     template<class T>
-    typename bslmf::EnableIf< ! HasMemberSwap<T>::VALUE>::type
+    typename bslmf::EnableIf< ! HasMemberSwap<T>::value>::type
     Swap(T& a, T& b)
     {
         T temp(a);
@@ -191,8 +190,7 @@ typename bslmf::EnableIf<!COND, int>::type testMutuallyExclusiveFunction()
 // Then we specialize our 'HasMemberSwap' trait for this new container type.
 //..
     template<class T>
-    struct HasMemberSwap<MyContainer<T> > {
-        static const bool VALUE = true;
+    struct HasMemberSwap<MyContainer<T> > : bsl::true_type {
     };
 //..
 // Next we implement the methods of this class:
@@ -265,8 +263,8 @@ typename bslmf::EnableIf<!COND, int>::type testMutuallyExclusiveFunction()
 //
 //..
     template<class TO, class FROM>
-    typename bslmf::EnableIf<bslmf::IsPolymorphic<FROM>::VALUE &&
-                                               bslmf::IsPolymorphic<TO>::VALUE,
+    typename bslmf::EnableIf<bslmf::IsPolymorphic<FROM>::value &&
+                                               bslmf::IsPolymorphic<TO>::value,
                             TO>::type *
     smart_cast(FROM *from)
         // Returns a pointer to the specified 'TO' type if the specified 'from'
@@ -277,8 +275,8 @@ typename bslmf::EnableIf<!COND, int>::type testMutuallyExclusiveFunction()
     }
 
     template<class TO, class FROM>
-    typename bslmf::EnableIf<not(bslmf::IsPolymorphic<FROM>::VALUE &&
-                                              bslmf::IsPolymorphic<TO>::VALUE),
+    typename bslmf::EnableIf<not(bslmf::IsPolymorphic<FROM>::value &&
+                                              bslmf::IsPolymorphic<TO>::value),
                             TO>::type *
     smart_cast(FROM *from)
         // Return the specified 'from' pointer value cast as a pointer to type
@@ -376,7 +374,7 @@ typename bslmf::EnableIf<!COND, int>::type testMutuallyExclusiveFunction()
         template<typename FORWARD_ITERATOR>
         MyVector(FORWARD_ITERATOR first, FORWARD_ITERATOR last,
                     typename bslmf::EnableIf<
-                                 !bslmf::IsFundamental<FORWARD_ITERATOR>::VALUE
+                                 !bslmf::IsFundamental<FORWARD_ITERATOR>::value
                                                                  >::type * = 0)
             // Create a 'MyVector' object having the same sequence of values as
             // found in range described by the iterators '[first, last)'.
@@ -596,43 +594,43 @@ int main(int argc, char *argv[])
             {
                 const bool R =
                     bslmf::IsSame<bool,
-                                  bslmf::EnableIf<true, bool>::type >::VALUE;
+                                  bslmf::EnableIf<true, bool>::type >::value;
                 ASSERT(R);
             }
             {
                 const bool R =
                     bslmf::IsSame<int,
-                                  bslmf::EnableIf<true, int>::type >::VALUE;
+                                  bslmf::EnableIf<true, int>::type >::value;
                 ASSERT(R);
             }
             {
                 const bool R =
                     bslmf::IsSame<void *,
-                                  bslmf::EnableIf<true, void *>::type >::VALUE;
+                                  bslmf::EnableIf<true, void *>::type >::value;
                 ASSERT(R);
             }
             {
                 const bool R =
                     bslmf::IsSame<const void *,
-                            bslmf::EnableIf<true, const void *>::type >::VALUE;
+                            bslmf::EnableIf<true, const void *>::type >::value;
                 ASSERT(R);
             }
             {
                 const bool R =
                   bslmf::IsSame<const volatile void *,
-                   bslmf::EnableIf<true, const volatile void *>::type >::VALUE;
+                   bslmf::EnableIf<true, const volatile void *>::type >::value;
                 ASSERT(R);
             }
             {
                 const bool R =
                   bslmf::IsSame<DummyClass,
-                    bslmf::EnableIf<true, DummyClass>::type >::VALUE;
+                    bslmf::EnableIf<true, DummyClass>::type >::value;
                 ASSERT(R);
             }
             {
                 const bool R =
                   bslmf::IsSame<DummyClass&,
-                    bslmf::EnableIf<true, DummyClass&>::type >::VALUE;
+                    bslmf::EnableIf<true, DummyClass&>::type >::value;
                 ASSERT(R);
             }
         }

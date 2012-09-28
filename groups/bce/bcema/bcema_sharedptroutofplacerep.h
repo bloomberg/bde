@@ -395,12 +395,11 @@ class bcema_SharedPtrOutofplaceRep : public bcema_SharedPtrRep {
           // class bcema_SharedPtrOutofplaceRep_DeleterDiscriminator
           // =======================================================
 
-template <class DELETER>
-class bcema_SharedPtrOutofplaceRep_DeleterDiscriminator {
-    // This 'class' provides two meta-functions for determining the enumerated
-    // type and the C++ type of a deleter based on whether it is a pointer to a
-    // function, a pointer to a factory deleter, or an instance of a
-    // function-like deleter.
+template <class DELETER, bool IS_ALLOC_PTR>
+class bcema_SharedPtrOutofplaceRep_DeleterDiscriminator_Imp {
+    // This 'class' provides the implementation of the
+    // 'bcema_SharedPtrOutofplaceRep_DeleterDiscriminator' for the 'DELETER'
+    // template parameter type which is not 'bslma::Allocator *'.
 
     // PRIVATE TYPES
     enum {
@@ -412,9 +411,6 @@ class bcema_SharedPtrOutofplaceRep_DeleterDiscriminator {
 
         BCEMA_IS_PTR = bslmf_IsPointer<DELETER>::VALUE
                    && !bslmf_IsFunctionPointer<DELETER>::VALUE,
-
-        BCEMA_IS_ALLOC_PTR = bslmf_IsConvertible<DELETER,
-                                                 bslma_Allocator *>::VALUE
     };
 
     typedef bcema_SharedPtrOutofplaceRep_DeleterType DeleterType;
@@ -425,20 +421,62 @@ class bcema_SharedPtrOutofplaceRep_DeleterDiscriminator {
     // TYPES
     enum {
         // This enumeration contains the return value of the meta-function.
-
         VALUE = BCEMA_USES_ALLOC
                 ? DeleterType::BCEMA_FUNCTOR_WITH_ALLOC
                 : !BCEMA_IS_PTR
                   ? DeleterType::BCEMA_FUNCTOR_WITHOUT_ALLOC
-                  : BCEMA_IS_ALLOC_PTR
-                    ? DeleterType::BCEMA_ALLOCATOR_PTR
-                    : DeleterType::BCEMA_FACTORY_PTR
+                  : DeleterType::BCEMA_FACTORY_PTR
     };
 
-    typedef
-    typename bslmf_If<BCEMA_IS_ALLOC_PTR,
-                      bslma_Allocator *,
-                      DELETER>::Type Type;
+    typedef DELETER Type;
+        // 'Type' represents the type of the deleter used to destroy the shared
+        // object.
+};
+
+template <class DELETER>
+class bcema_SharedPtrOutofplaceRep_DeleterDiscriminator_Imp<DELETER, true> {
+    // This 'class' provides the implementation of the
+    // 'bcema_SharedPtrOutofplaceRep_DeleterDiscriminator' for the 'DELETER'
+    // template parameter type which is 'bslma::Allocator *'.
+
+    // PRIVATE TYPES
+    typedef bcema_SharedPtrOutofplaceRep_DeleterType DeleterType;
+        // 'DeleterType' is an alias for the 'struct' that defines the types of
+        // deleter used to destroy the shared object.
+
+  public:
+    // TYPES
+    enum {
+        // This enumeration contains the return value of the meta-function.
+        VALUE = DeleterType::BCEMA_ALLOCATOR_PTR
+    };
+
+    typedef bslma_Allocator *Type;
+        // 'Type' represents the type of the deleter used to destroy the shared
+        // object.
+};
+
+template <class DELETER>
+class bcema_SharedPtrOutofplaceRep_DeleterDiscriminator {
+    // This 'class' provides two meta-functions for determining the enumerated
+    // type and the C++ type of a deleter based on whether it is a pointer to a
+    // function, a pointer to a factory deleter, or an instance of a
+    // function-like deleter.
+
+    // PRIVATE TYPES
+    typedef bcema_SharedPtrOutofplaceRep_DeleterDiscriminator_Imp<
+                    DELETER,
+                    bslmf_IsConvertible<DELETER, bslma_Allocator *>::VALUE>
+        ImpType;
+
+  public:
+    // TYPES
+    enum {
+        // This enumeration contains the return value of the meta-function.
+        VALUE = ImpType::VALUE
+    };
+
+    typedef typename ImpType::Type Type;
         // 'Type' represents the type of the deleter used to destroy the shared
         // object.
 };
