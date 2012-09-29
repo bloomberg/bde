@@ -598,7 +598,8 @@ class unordered_multimap
     void max_load_factor(float newLoadFactor);
         // Set the maximum load factor of this container to the specified
         // 'newLoadFactor'.  This operation will not do an immediate rehash of
-        // the container, but may cause one to happen its next modification.
+        // the container, if that is wanted, it is recommended that this call
+        // be followed by a call to 'reserve'.
 
     void rehash(size_type numBuckets);
         // Change the size of the array of buckets maintained by this container
@@ -749,7 +750,7 @@ class unordered_multimap
         // number of buckets and rehash the elements of the container into
         // those buckets the (see rehash).  Note that it is possible for the
         // load factor of this container to exceed 'max_load_factor',
-        // especially immedially af 'load_factor(newLoadFactor)' is called.
+        // especially after 'max_load_factor(newLoadFactor)' is called.
 };
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
@@ -1166,8 +1167,13 @@ erase(const_iterator first, const_iterator last)
     // the application of functions in the library to invalid ranges is
     // undefined.
 #if defined BDE_BUILD_TARGET_SAFE2
+#if 0
+    // TBD: Here's the code that's here.  This is all wrong.  Both the loops
+    // are infinite and don't make sense.  Furthermore, is 'first == last'
+    // really the case we're worried about?
+
     // Check that 'first' and 'last' are valid iterators referring to this
-    // container.
+    // container. 
 
     if (first == last) {
         iterator it = this->begin();
@@ -1180,11 +1186,42 @@ erase(const_iterator first, const_iterator last)
     }
 #endif
 
+    // Alternative code:
+
+    if (first != last) {
+        iterator it         = this->begin();
+        const iterator end  = this->end();
+        for (; it != first; ++it) {
+            BSLS_ASSERT(last != it);
+            BSLS_ASSERT(end  != it);
+        }
+        for (; it != last; ++it) {
+            BSLS_ASSERT(end  != it);
+        }
+    }
+
+    // TBD: Alternate approach: traversing the length of iterators in the
+    // container is ridiculously expensive.  Wouldn't it be simpler to hash on
+    // 'first->first' and just traverse it's bucket looking for it, and do the
+    // ssme thing to 'last->first'?  It would still be very expensive to
+    // verify that 'first < last', though.
+    //
+    // The hash might throw, though, so I'm not sure we're allowed to do it
+    // in an 'erase'.
+
+    // Another alternate: I added 'BSLS_ASSERT_SAFE(end != first);' in the
+    // erasing loop below.
+#endif
+
+#if defined BDE_BUILD_TARGET_SAFE
+    const iterator end  = this->end();
+#endif
     while (first != last) {
+        BSLS_ASSERT_SAFE(end != first);
         first = this->erase(first);
     }
 
-    return iterator(first.node()); // convert from const_iterator
+    return iterator(first.node());          // convert from const_iterator
 }
 
 template <class KEY,
