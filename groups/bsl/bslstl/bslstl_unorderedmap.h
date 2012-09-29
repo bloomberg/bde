@@ -1448,10 +1448,18 @@ bsl::swap(bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>& x,
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+bool bsl::operator==(
+                  const unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>& lhs,
+                  const unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>& rhs)
+{
+    return lhs.d_impl == rhs.d_impl;
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 inline
 bool bsl::operator!=(
-      const bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>& lhs,
-      const bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>& rhs)
+             const bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>& lhs,
+             const bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>& rhs)
 {
     return !(lhs == rhs);
 }
