@@ -1771,11 +1771,11 @@ void
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::rehashForNumBuckets(
                                                         SizeType newNumBuckets)
 {
-    // compute a "good" number of buckets, e.g., pick a prime number
-    // from a sorted array of exponentially increasing primes.
-    newNumBuckets = HashTable_ImpDetails::nextPrime(newNumBuckets);
-
     if (newNumBuckets > this->numBuckets()) {
+        // compute a "good" number of buckets, e.g., pick a prime number
+        // from a sorted array of exponentially increasing primes.
+
+        newNumBuckets = HashTable_ImpDetails::nextPrime(newNumBuckets);
 
         // Now that 'anchor' is not default constructible, we take a copy of
         // the anchor in the table.  Would it be better for 'initAnchor' to
@@ -1923,10 +1923,11 @@ bool bslstl::operator==(
                                     ImpUtil::extractValue<KEY_CONFIG>(marker);
 
             if (cursor != marker) {  // skip on first pass only
+                // Check if the value at 'marker' has already be seen.
+
                 bslalg::BidirectionalLink *scanner = cursor;
                 while (scanner != marker &&
-                   ImpUtil::extractValue<KEY_CONFIG>(scanner) == valueAtMarker)
-                                                                              {
+                 ImpUtil::extractValue<KEY_CONFIG>(scanner) != valueAtMarker) {
                     scanner = scanner->nextLink();
                 }
                 if (scanner != marker) {
