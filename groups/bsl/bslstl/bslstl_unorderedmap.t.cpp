@@ -101,7 +101,8 @@ bool g_veryVeryVeryVerbose;
 bool g_veryVeryVeryVeryVerbose;
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
-void debugPrint(const bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOC>& s) {
+void debugPrint(const bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOC>& s)
+{
     if (s.empty()) {
         printf("<empty>");
     }
@@ -117,8 +118,10 @@ void debugPrint(const bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOC>& s) {
             printf("\nBucket [%d]: ", n);
             for (LCIter lci = s.cbegin(n); lci != s.cend(n); ++lci) {
                 printf("[%d, %d], ", lci->first, lci->second);
-//                bsls::BslTestUtil::callDebugprint(
-//           static_cast<char>(bsltf::TemplateTestFacility::getIdentifier(*lci)));
+
+//              bsls::BslTestUtil::callDebugprint(
+//                       static_cast<char>(
+//                          bsltf::TemplateTestFacility::getIdentifier(*lci)));
             }
             printf("\n");
         }
@@ -206,7 +209,9 @@ void testEmptyContainer(CONTAINER& x)
     ASSERT(0 == x.count(37));
     ASSERT(x.end() == x.find(26));
 
-    typename TestType::iterator it = x.erase(x.begin(), x.end());  // should not assert
+    // should not assert
+
+    typename TestType::iterator it = x.erase(x.begin(), x.end());
     ASSERT(x.end() == it);
 
     ASSERT(0 == x.erase(93));
@@ -258,14 +263,16 @@ void fillContainerWithData(CONTAINER& x,
     ASSERT(x.size() == initialSize + size);
 
     for (int i = 0; i != size; ++i) {
-        typename TestType::iterator it = x.find(keyForValue<CONTAINER>(data[i]));
+        typename TestType::iterator it =
+                                       x.find(keyForValue<CONTAINER>(data[i]));
         ASSERT(x.end() != it);
         ASSERT(*it == data[i]);
     }
 }
 
 template<typename CONTAINER>
-void validateIteration(CONTAINER &c) {
+void validateIteration(CONTAINER &c)
+{
     typedef typename CONTAINER::iterator       iterator;
     typedef typename CONTAINER::const_iterator const_iterator;
 

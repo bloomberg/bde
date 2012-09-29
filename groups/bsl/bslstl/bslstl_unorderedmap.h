@@ -371,10 +371,10 @@ class unordered_map {
         // in this container.
 
     // FRIEND
-    template <class KEY2, 
-              class VALUE2, 
-              class HASH2, 
-              class EQUAL2, 
+    template <class KEY2,
+              class VALUE2,
+              class HASH2,
+              class EQUAL2,
               class ALLOCATOR2>
     friend bool operator==(
                 const unordered_map<KEY2, VALUE2, HASH2, EQUAL2, ALLOCATOR2>&,
@@ -463,7 +463,7 @@ class unordered_map {
         // then 'allocator' shall be convertible to 'bslma::Allocator *'.
 
     template <class InputIterator>
-    unordered_map(InputIterator         first, 
+    unordered_map(InputIterator         first,
                   InputIterator         last,
                   size_type             initialNumBuckets = 0,
                   const hasher&         hash = hasher(),
@@ -502,10 +502,12 @@ class unordered_map {
         // Destroy this object.
 
     // MANIPULATORS
-    unordered_map& operator=(const unordered_map& rhs);
+    unordered_map& operator=(const unordered_map& other);
         // Assign to this object the value, hasher, and key-equality functor of
-        // the specified 'rhs' object, propagate to this object the allocator
-        // of 'rhs' if the 'ALLOCATOR' type has trait
+        // the specified 'other' object.
+        //
+        // Not done yet: TBD: propagate to this object the allocator of 'other'
+        // if the 'ALLOCATOR' type has trait
         // 'propagate_on_container_copy_assignment', and return a reference
         // providing modifiable access to this object.  This method requires
         // that the (template parameter types) 'KEY' and 'VALUE' both be
@@ -545,8 +547,8 @@ class unordered_map {
 
     local_iterator end(size_type index);
         // Return a local iterator providing modifiable access to the
-        // past-the-end element in the sequence of 'value_type' objects
-        // of the bucket having the specified 'index's , in the array of buckets
+        // past-the-end element in the sequence of 'value_type' objects of the
+        // bucket having the specified 'index's , in the array of buckets
         // maintained by this map.
 
     pair<iterator, bool> insert(const value_type& value);
@@ -618,7 +620,10 @@ class unordered_map {
     void swap(unordered_map& other);
         // Exchange the value of this object as well as its hasher and
         // key-equality functor with those of the specified 'other' object.
-        // Additionally if
+        // The behavior is undefined is unless this object was created with the
+        // same allocator as 'other'
+        //
+        // Not done yet: TBD: Additionally if
         // 'bslstl::AllocatorTraits<ALLOCATOR>::propagate_on_container_swap' is
         // 'true' then exchange the allocator of this object with that of the
         // 'other' object, and do not modify either allocator otherwise.  This
@@ -646,7 +651,7 @@ class unordered_map {
         // objects having 'key', then the two returned iterators will have the
         // same value.  Note that since a map maintains unique keys, the range
         // will contain at most one element.
-    
+
     void  max_load_factor(float newLoadFactor);
         // Set the maximum load factor of this container to the specified
         // 'newLoadFactor'.
@@ -697,8 +702,8 @@ class unordered_map {
 
     const_local_iterator end(size_type index) const;
         // Return a local iterator providing non-modifiable access to the
-        // past-the-end element (in the sequence of 'value_type' objects) of the
-        // bucket having the specified 'index' in the array of buckets
+        // past-the-end element (in the sequence of 'value_type' objects) of
+        // the bucket having the specified 'index' in the array of buckets
         // maintained by this map.
 
     const_local_iterator cbegin(size_type index) const;
@@ -908,10 +913,10 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::unordered_map(
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 inline
 unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::unordered_map(
-                                                    const unordered_map& other)
-: d_impl(other.d_impl,
+                                                 const unordered_map& original)
+: d_impl(original.d_impl,
          AllocatorTraits::select_on_container_copy_construction(
-                                                        other.get_allocator()))
+                                                     original.get_allocator()))
 {
 }
 
@@ -926,9 +931,9 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::unordered_map(
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 inline
 unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::unordered_map(
-                                               const unordered_map&  other,
+                                               const unordered_map&  original,
                                                const allocator_type& allocator)
-: d_impl(other.d_impl, allocator)
+: d_impl(original.d_impl, allocator)
 {
 }
 
@@ -1052,7 +1057,7 @@ typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator
 unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::insert(
                                                        const_iterator    hint,
                                                        const value_type& value)
-{   
+{
     // There is no realistic use-case for the 'hint' in an unordered_map of
     // unique values.  We could quickly test for a duplicate key, and have a
     // fast return path for when the method fails, but in the typical use case
@@ -1060,7 +1065,7 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::insert(
     // benefit.  In order to insert an element into a bucket, we need to walk
     // the whole bucket looking for duplicates, and the hint is no help in
     // finding the start of a bucket.
-   
+
     return this->insert(value);
 }
 
@@ -1090,6 +1095,7 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::erase(
                                                        const_iterator position)
 {
     BSLS_ASSERT(position != this->end());
+
     return iterator(d_impl.remove(position.node()));
 }
 
@@ -1100,10 +1106,10 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::erase(const key_type& key)
 {
     if (HashTableLink *target = d_impl.find(key)) {
         d_impl.remove(target);
-        return 1;
+        return 1;                                                     // RETURN
     }
     else {
-        return 0;
+        return 0;                                                     // RETURN
     }
 }
 
@@ -1113,9 +1119,14 @@ typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator
 unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::erase(
                                                          const_iterator first,
                                                          const_iterator last)
-{   
+{
 
 #if defined BDE_BUILD_TARGET_SAFE2
+#if 0
+    // TBD: Here's the code that's here.  This is all wrong.  Both the loops
+    // are infinite and don't make sense.  Furthermore, is 'first == last'
+    // really the case we're worried about?
+
     // Check that 'first' and 'last' are valid iterators referring to this
     // container.
 
@@ -1130,7 +1141,26 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::erase(
     }
 #endif
 
+    // Alternative code:
+
+    if (first != last) {
+        iterator it        = this->begin();
+        const iterator end = this->end();
+        for (; it != first; ++it) {
+            BSLS_ASSERT(last != it);
+            BSLS_ASSERT(end  != it);
+        }
+        for (; it != last; ++it) {
+            BSLS_ASSERT(end  != it);
+        }
+    }
+#endif
+
+#if defined BDE_BUILD_TARGET_SAFE
+    const iterator end = this->end();
+#endif
     while (first != last) {
+        BSLS_ASSERT_SAFE(end != first);
         first = this->erase(first);
     }
 
@@ -1150,8 +1180,8 @@ inline
 void
 unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::swap(unordered_map& other)
 {
-    // assert that allocators are compatible
-    // TBD
+    BSLS_ASSERT_SAFE(this->get_allocator() == other.get_allocator());
+
     d_impl.swap(other.d_impl);
 }
 
@@ -1301,6 +1331,7 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::bucket_size(
                                                          size_type index) const
 {
     BSLS_ASSERT_SAFE(index < this->bucket_count());
+
     return d_impl.countElementsInBucket(index);
 }
 
@@ -1320,6 +1351,7 @@ typename
 unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::begin(size_type index)
 {
     BSLS_ASSERT_SAFE(index < this->bucket_count());
+
     return local_iterator(&d_impl.bucketAtIndex(index));
 }
 
@@ -1330,6 +1362,7 @@ typename
 unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::begin(size_type index) const
 {
     BSLS_ASSERT_SAFE(index < this->bucket_count());
+
     return const_local_iterator(&d_impl.bucketAtIndex(index));
 }
 
@@ -1340,6 +1373,7 @@ typename
 unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::end(size_type index)
 {
     BSLS_ASSERT_SAFE(index < this->bucket_count());
+
     return local_iterator(0, &d_impl.bucketAtIndex(index));
 }
 
@@ -1350,6 +1384,7 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::const_local_iterator
 unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::end(size_type index) const
 {
     BSLS_ASSERT_SAFE(index < this->bucket_count());
+
     return const_local_iterator(0, &d_impl.bucketAtIndex(index));
 }
 
@@ -1361,6 +1396,7 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::cbegin(
                                                          size_type index) const
 {
     BSLS_ASSERT_SAFE(index < this->bucket_count());
+
     return const_local_iterator(&d_impl.bucketAtIndex(index));
 }
 
@@ -1371,6 +1407,7 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::const_local_iterator
 unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::cend(size_type index) const
 {
     BSLS_ASSERT_SAFE(index < this->bucket_count());
+
     return const_local_iterator(0, &d_impl.bucketAtIndex(index));
 }
 

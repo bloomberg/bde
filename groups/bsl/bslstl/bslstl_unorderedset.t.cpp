@@ -94,8 +94,10 @@ using std::endl;
 //
 // ----------------------------------------------------------------------------
 // [unord.set] construct/copy/destroy:
-// [  ] unordered_set(size_type n, const hasher& hf, const key_equal& eql, const allocator_type& a);
-// [  ] unordered_set(ITER first, ITER last, size_type n, const hasher& hf, const key_equal& eql, const allocator_type& a);
+// [  ] unordered_set(size_type n, const hasher& hf, const key_equal& eql,
+//                                                    const allocator_type& a);
+// [  ] unordered_set(ITER first, ITER last, size_type n, const hasher& hf,
+//                              const key_equal& eql, const allocator_type& a);
 // [  ] unordered_set(const unordered_set& original);
 // [  ] unordered_set(const A& allocator);
 // [  ] unordered_set(const unordered_set& original, const A& allocator);
@@ -138,8 +140,10 @@ using std::endl;
 // [  ] bsl::pair<iterator, iterator> equal_range(const key_type& key);
 // [  ] bsl::pair<const_iter, const_iter> equal_range(const key_type&) const;
 //
-// [  ] bool operator==(unordered_set<K, H, E, A>& a, unordered_set<K, H, E, A>& b);
-// [  ] bool operator!=(unordered_set<K, H, E, A>& a, unordered_set<K, H, E, A>& b);
+// [  ] bool operator==(unordered_set<K, H, E, A>& a,
+//                      unordered_set<K, H, E, A>& b);
+// [  ] bool operator!=(unordered_set<K, H, E, A>& a,
+//                      unordered_set<K, H, E, A>& b);
 //
 // bucket interface:
 // [  ] size_type bucket_count() const;
@@ -171,8 +175,10 @@ using std::endl;
 // [  ] USAGE EXAMPLE
 //
 // TEST APPARATUS: GENERATOR FUNCTIONS
-// [ 3] int ggg(unordered_set<T,H,E,A> *object, const char *spec, int verbose = 1);
-// [ 3] unordered_set<T,H,E,A>& gg(unordered_set<T,H,E,A> *object, const char *spec);
+// [ 3] int ggg(unordered_set<T,H,E,A> *object, const char *spec,
+//                                                            int verbose = 1);
+// [ 3] unordered_set<T,H,E,A>& gg(unordered_set<T,H,E,A> *object,
+//                                                           const char *spec);
 // [  ] unordered_set<T,H,E,A> g(const char *spec);
 //
 // [  ] CONCERN: The object is comppatible with STL allocator.
@@ -380,7 +386,9 @@ void testEmptyContainer(CONTAINER& x)
     ASSERT(0 == x.count(37));
     ASSERT(x.end() == x.find(26));
 
-    typename TestType::iterator it = x.erase(x.begin(), x.end());  // should not assert
+    // should not assert
+
+    typename TestType::iterator it = x.erase(x.begin(), x.end());
     ASSERT(x.end() == it);
 
     ASSERT(0 == x.erase(93));
@@ -432,17 +440,19 @@ void fillContainerWithData(CONTAINER& x,
     ASSERT(x.size() == initialSize + size);
 
     for (int i = 0; i != size; ++i) {
-        typename TestType::iterator it = x.find(keyForValue<CONTAINER>(data[i]));
+        typename TestType::iterator it =
+                                       x.find(keyForValue<CONTAINER>(data[i]));
         ASSERT(x.end() != it);
         ASSERT(data[i] == *it);
     }
 }
 
 template<typename CONTAINER>
-void validateIteration(CONTAINER &c) {
+void validateIteration(CONTAINER &c)
+{
     typedef typename CONTAINER::iterator       iterator;
     typedef typename CONTAINER::const_iterator const_iterator;
-    
+
     const int size = c.size();
 
     int counter = 0;
@@ -616,7 +626,7 @@ if (veryVerbose) cout << "-5-" << endl;
     key = keyForValue<CONTAINER>(*cIter);
     const_iterator next = cIter;
     while (key == keyForValue<CONTAINER>(*++next)) {
-        cIter = next; 
+        cIter = next;
     }
     key = keyForValue<CONTAINER>(*next);
     while (key == keyForValue<CONTAINER>(*++next)) {}
@@ -642,7 +652,7 @@ if (veryVerbose) cout << "-6-" << endl;
     key = keyForValue<CONTAINER>(*cIter);
     next = cIter;
     while (key == keyForValue<CONTAINER>(*++next)) {
-        cIter = next; 
+        cIter = next;
     }
     key = keyForValue<CONTAINER>(*next);
     while (key == keyForValue<CONTAINER>(*++next)) {}
@@ -710,7 +720,7 @@ void debugprint(const bsl::unordered_set<KEY, HASH, EQUAL, ALLOC>& s)
     fflush(stdout);
 }
 
-} // close namespace bsl
+}  // close namespace bsl
 
 namespace {
 
@@ -1034,8 +1044,8 @@ class TestDriver {
     typedef bsl::unordered_set<KEY, HASH, EQUAL, ALLOC> Obj;
         // Type under testing.
 
-//    typedef TestComparatorNonConst<KEY> NonConstComp;
-        // Comparator functor with a non-const function call operator.
+    // typedef TestComparatorNonConst<KEY> NonConstComp;
+    // Comparator functor with a non-const function call operator.
 
     typedef typename Obj::iterator                Iter;
     typedef typename Obj::const_iterator          CIter;
@@ -1191,7 +1201,8 @@ int TestDriver<KEY, HASH, EQUAL, ALLOC>::ggg(Obj        *object,
                                              const char *spec,
                                              int         verbose)
 {
-    bslma::DefaultAllocatorGuard guard(&bslma::NewDeleteAllocator::singleton());
+    bslma::DefaultAllocatorGuard
+                                guard(&bslma::NewDeleteAllocator::singleton());
     const TestValues VALUES;
 
     enum { SUCCESS = -1 };
@@ -1224,7 +1235,8 @@ TestDriver<KEY, HASH, EQUAL, ALLOC>::gg(Obj        *object,
 }
 
 template <class KEY, class HASH, class EQUAL, class ALLOC>
-bsl::unordered_set<KEY, HASH, EQUAL, ALLOC> TestDriver<KEY,HASH, EQUAL, ALLOC>::g(const char *spec)
+bsl::unordered_set<KEY, HASH, EQUAL, ALLOC>
+                        TestDriver<KEY,HASH, EQUAL, ALLOC>::g(const char *spec)
 {
     Obj object((bslma::Allocator *)0);
     return gg(&object, spec);
@@ -2190,7 +2202,8 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase7()
                     ASSERTV(SPEC,  B + 0 ==  A);
                 }
                 else {
-#elif 1  // In the meantime, we do expect one single extra allocation for the index array
+#elif 1  // In the meantime, we do expect one single extra allocation for the
+         // index array
                     const int TYPE_ALLOCS = TYPE_ALLOC * X.size();
                     ASSERTV(SPEC, BB + 1 + TYPE_ALLOCS == AA);
                     ASSERTV(SPEC,  B + 1 + TYPE_ALLOCS ==  A);
@@ -2817,12 +2830,12 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase2()
     //:
     //:   2 Using a loop-based approach, default-construct three distinct
     //:     objects, in turn, but configured differently: (a) without passing
-    //:     an allocator, (b) passing a null allocator address explicitly,
-    //:     and (c) passing the address of a test allocator distinct from the
-    //:     default.  For each of these three iterations:  (C-1..14)
+    //:     an allocator, (b) passing a null allocator address explicitly, and
+    //:     (c) passing the address of a test allocator distinct from the
+    //:     default.  For each of these three iterations: (C-1..14)
     //:
-    //:     1 Create three 'bslma::TestAllocator' objects, and install one as as
-    //:       the current default allocator (note that a ubiquitous test
+    //:     1 Create three 'bslma::TestAllocator' objects, and install one as
+    //:       as the current default allocator (note that a ubiquitous test
     //:       allocator is already installed as the global allocator).
     //:
     //:     2 Use the default constructor to dynamically create an object
@@ -2933,7 +2946,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase2()
 
             // If default constructed, only the the static bucket is present.
             // QOI test that exactly 1 bucket is present.
-    
+
             ASSERTV(LENGTH, CONFIG, X.bucket_count(), 1 == X.bucket_count());
 
             // ----------------------------------------------------------------
@@ -2988,7 +3001,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase2()
                     }
 #endif
 
-#if 0                    
+#if 0
                     // Verify no temporary memory is allocated from the object
                     // allocator.
                     // BROKEN TEST CONDITION
@@ -3048,8 +3061,10 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase2()
                        P(VALUES[tj]);
                     }
                     bsl::pair<Iter, bool> RESULT = mX.insert(VALUES[tj]);
-                    ASSERTV(LENGTH, tj, CONFIG, RESULT.second, false      == RESULT.second);
-                    ASSERTV(LENGTH, tj, CONFIG, *(RESULT.first), VALUES[tj] == *(RESULT.first));
+                    ASSERTV(LENGTH, tj, CONFIG, RESULT.second, false ==
+                                                                RESULT.second);
+                    ASSERTV(LENGTH, tj, CONFIG, *(RESULT.first), VALUES[tj] ==
+                                                              *(RESULT.first));
                 }
             }
 
@@ -3111,7 +3126,7 @@ int main(int argc, char *argv[])
     veryVerbose         = argc > 3;
     veryVeryVerbose     = argc > 4;
     veryVeryVeryVerbose = argc > 5;
-    
+
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     bslma::TestAllocator testAlloc("A");
@@ -3493,7 +3508,7 @@ int main(int argc, char *argv[])
 
         if (veryVerbose)
             printf("Assert swapped equality relationships, noting 'x != y'\n");
-        
+
         ASSERT(x == x);
         ASSERT(!(x != x));
         ASSERT(y != x);
@@ -3523,7 +3538,9 @@ int main(int argc, char *argv[])
         validateIteration(mY);
 
         if (veryVerbose) printf("Repopulate 'y' with test data\n");
-        //mY.reserve(MAX_SAMPLE);  // See if this fixes a bug, by deferring rehash
+        // mY.reserve(MAX_SAMPLE);  // See if this fixes a bug, by deferring
+        // rehash
+
         for (int i = 0; i != MAX_SAMPLE; ++i) {
             typedef bsl::pair<TestType::iterator, bool> InsertResult;
             InsertResult iterBool = mY.insert(dataSamples[i]);
@@ -3531,7 +3548,7 @@ int main(int argc, char *argv[])
             ASSERT(y.end() != iterBool.first);
             ASSERT(*iterBool.first == dataSamples[i]);
         }
-        
+
         if (veryVerbose) printf("Validate 'y' with the expected value\n");
 
         validateIteration(mY);

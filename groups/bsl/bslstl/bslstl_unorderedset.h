@@ -358,7 +358,7 @@ class unordered_set
                 const unordered_set<KEY2, HASH2, EQUAL2, ALLOCATOR2>&);
 
   public:
-    // types
+    // PUBLIC TYPES
     typedef KEY                                        key_type;
     typedef KEY                                        value_type;
     typedef HASH                                       hasher;
@@ -592,8 +592,10 @@ class unordered_set
 
     unordered_set& operator=(const unordered_set& rhs);
         // Assign to this object the value, hasher, and key-equality functor of
-        // the specified 'rhs' object, propagate to this object the allocator
-        // of 'rhs' if the 'ALLOCATOR' type has trait
+        // the specified 'rhs' object.
+        //
+        // Not done yet: TBD: propagate to this object the allocator of 'rhs'
+        // if the 'ALLOCATOR' type has trait
         // 'propagate_on_container_copy_assignment', and return a reference
         // providing modifiable access to this object.  This method requires
         // that the (template parameter) type 'KEY' be "copy-constructible"
@@ -653,8 +655,8 @@ class unordered_set
 
     const_local_iterator end(size_type index) const;
         // Return a local iterator providing non-modifiable access to the
-        // past-the-end element (in the sequence of 'value_type' objects) of the
-        // bucket having the specified 'index' in the array of buckets
+        // past-the-end element (in the sequence of 'value_type' objects) of
+        // the bucket having the specified 'index' in the array of buckets
         // maintained by this set.
 
     const_local_iterator cbegin(size_type index) const;
@@ -682,7 +684,7 @@ class unordered_set
         // Return the number of elements contained in the bucket at the
         // specified 'index' in the array of buckets maintained by this
         // container.
-    
+
     size_type count(const key_type& key) const;
         // Return the number of 'value_type' objects within this map having the
         // specified 'key'.  Note that since an unordered set maintains unique
@@ -739,7 +741,7 @@ class unordered_set
         // the 'max_load_factor', that same insert operation will increase the
         // number of buckets and rehash the elements of the container into
         // those buckets the (see rehash).
-    
+
     size_type max_size() const;
         // Return a theoretical upper bound on the largest number of elements
         // that this set could possibly hold.  Note that there is no guarantee
@@ -779,7 +781,11 @@ template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 void swap(unordered_set<KEY, HASH, EQUAL, ALLOCATOR>& x,
           unordered_set<KEY, HASH, EQUAL, ALLOCATOR>& y);
     // Swap both the value and the comparator of the specified 'a' object with
-    // the value and comparator of the specified 'b' object.  Additionally if
+    // the value and comparator of the specified 'b' object.  The behavior is
+    // undefined is unless this object was created with the same allocator as
+    // 'other'.
+    //
+    // Not done yet: TBD: Additionally if
     // 'bslstl::AllocatorTraits<ALLOCATOR>::propagate_on_container_swap' is
     // 'true' then exchange the allocator of 'a' with that of 'b', and do not
     // modify either allocator otherwise.  This method provides the no-throw
@@ -870,19 +876,19 @@ unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::unordered_set(
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 inline
 unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::unordered_set(
-                                               const unordered_set&  other,
+                                               const unordered_set&  original,
                                                const allocator_type& allocator)
-: d_impl(other.d_impl, allocator)
+: d_impl(original.d_impl, allocator)
 {
 }
 
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 inline
 unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::unordered_set(
-                                                    const unordered_set& other)
-: d_impl(other.d_impl,
+                                                 const unordered_set& original)
+: d_impl(original.d_impl,
          AllocatorTraits::select_on_container_copy_construction(
-                                                        other.get_allocator()))
+                                                     original.get_allocator()))
 {
 }
 
@@ -916,6 +922,7 @@ typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::local_iterator
 unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::begin(size_type index)
 {
     BSLS_ASSERT_SAFE(index < this->bucket_count());
+
     return local_iterator(&d_impl.bucketAtIndex(index));
 }
 
@@ -925,6 +932,7 @@ typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::local_iterator
 unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::end(size_type index)
 {
     BSLS_ASSERT_SAFE(index < this->bucket_count());
+
     return local_iterator(0, &d_impl.bucketAtIndex(index));
 }
 
@@ -945,11 +953,11 @@ unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::equal_range(const key_type& key)
 
     iterator first  = this->find(key);
     if (first == this->end()) {
-        return ResultType(first, first);
+        return ResultType(first, first);                              // RETURN
     }
     else {
         iterator next = first;
-        return ResultType(first, ++next);
+        return ResultType(first, ++next);                             // RETURN
     }
 }
 
@@ -959,6 +967,7 @@ typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::iterator
 unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::erase(const_iterator position)
 {
     BSLS_ASSERT(position != this->end());
+
     return iterator(d_impl.remove(position.node()));
 }
 
@@ -969,10 +978,10 @@ unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::erase(const key_type& key)
 {
     if (HashTableLink *target = d_impl.find(key)) {
         d_impl.remove(target);
-        return 1;
+        return 1;                                                     // RETURN
     }
     else {
-        return 0;
+        return 0;                                                     // RETURN
     }
 }
 
@@ -983,8 +992,14 @@ unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::erase(const_iterator first,
                                                   const_iterator last)
 {
 #if defined BDE_BUILD_TARGET_SAFE2
+#if 0
+    // TBD: Here's the code that's here.  This is all wrong.  Both the loops
+    // are infinite and don't make sense.  Furthermore, is 'first == last'
+    // really the case we're worried about?
+
     // Check that 'first' and 'last' are valid iterators referring to this
     // container.
+
     if (first == last) {
         iterator it = this->begin();
         while(it != first) {
@@ -996,11 +1011,42 @@ unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::erase(const_iterator first,
     }
 #endif
 
+    // Alternative code:
+
+    if (first != last) {
+        iterator it        = this->begin();
+        const iterator end = this->end();
+        for (; it != first; ++it) {
+            BSLS_ASSERT(last != it);
+            BSLS_ASSERT(end  != it);
+        }
+        for (; it != last; ++it) {
+            BSLS_ASSERT(end  != it);
+        }
+    }
+
+    // TBD: Alternate approach: traversing the length of iterators in the
+    // container is ridiculously expensive.  Wouldn't it be simpler to hash on
+    // 'first->first' and just traverse it's bucket looking for it, and do the
+    // ssme thing to 'last->first'?  It would still be very expensive to
+    // verify that 'first < last', though.
+    //
+    // The hash might throw, though, so I'm not sure we're allowed to do it
+    // in an 'erase'.
+
+    // Another alternate: I added 'BSLS_ASSERT_SAFE(end != first);' in the
+    // erasing loop below.
+#endif
+
+#if defined BDE_BUILD_TARGET_SAFE
+    const iterator end = this->end();
+#endif
     while (first != last) {
+        BSLS_ASSERT_SAFE(end != first);
         first = this->erase(first);
     }
 
-    return iterator(first.node()); // convert from const_iterator
+    return iterator(first.node());          // convert from const_iterator
 }
 
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
@@ -1055,12 +1101,14 @@ void unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::insert(INPUT_ITERATOR first,
 
     // This loop could be clean up with fewer temporaries, we are discarding a
     // 'pair' returned from each call to 'insert'.
+
     while (first != last) {
         this->insert(*first++);
     }
 }
 
-template <class KEY, class HASH, class EQUAL, class ALLOCATOR> inline
+template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
+inline
 void unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::max_load_factor(
                                                            float newLoadFactor)
 {
@@ -1073,7 +1121,8 @@ unordered_set<KEY, HASH, EQUAL, ALLOCATOR>&
 unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::operator=(
                                                     const unordered_set& other)
 {
-    // Actually, need to check propagate_on_copy_assign trait
+    // TBD: Actually, need to check propagate_on_copy_assign trait.
+
     unordered_set(other, get_allocator()).swap(*this);
     return *this;
 }
@@ -1097,6 +1146,8 @@ template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 inline
 void unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::swap(unordered_set& other)
 {
+    BSLS_ASSERT_SAFE(this->get_allocator() == other.get_allocator());
+
     d_impl.swap(other.d_impl);
 }
 
@@ -1123,6 +1174,7 @@ typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::const_local_iterator
 unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::begin(size_type index) const
 {
     BSLS_ASSERT_SAFE(index < this->bucket_count());
+
     return const_local_iterator(&d_impl.bucketAtIndex(index));
 }
 
@@ -1132,6 +1184,7 @@ typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::const_local_iterator
 unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::end(size_type index) const
 {
     BSLS_ASSERT_SAFE(index < this->bucket_count());
+
     return const_local_iterator(0, &d_impl.bucketAtIndex(index));
 }
 
@@ -1157,6 +1210,7 @@ typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::size_type
 unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::bucket(const key_type& key) const
 {
     BSLS_ASSERT_SAFE(this->bucket_count() > 0);
+
     return d_impl.bucketIndexForKey(key);
 }
 
@@ -1202,11 +1256,11 @@ unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::equal_range(
 
     const_iterator first = this->find(key);
     if (first == this->end()) {
-        return ResultType(first, first);
+        return ResultType(first, first);                              // RETURN
     }
     else {
         const_iterator next = first;
-        return ResultType(first, ++next);
+        return ResultType(first, ++next);                             // RETURN
     }
 }
 
@@ -1240,6 +1294,7 @@ typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::size_type
 unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::bucket_size(size_type index) const
 {
     BSLS_ASSERT_SAFE(index < this->bucket_count());
+
     return d_impl.countElementsInBucket(index);
 }
 
@@ -1250,6 +1305,7 @@ typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::const_local_iterator
 unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::cbegin(size_type index) const
 {
     BSLS_ASSERT_SAFE(index < this->bucket_count());
+
     return const_local_iterator(&d_impl.bucketAtIndex(index));
 }
 
@@ -1259,6 +1315,7 @@ typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::const_local_iterator
 unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::cend(size_type index) const
 {
     BSLS_ASSERT_SAFE(index < this->bucket_count());
+
     return const_local_iterator(0, &d_impl.bucketAtIndex(index));
 }
 
