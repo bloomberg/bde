@@ -481,7 +481,7 @@ class unordered_map {
         // supplied, a default-constructed object of type 'hasher' is used.
         // Optionally specify a key-equality functor 'keyEqual' used to verify
         // that two key values are the same.  If 'keyEqual' is not supplied, a
-        // default-constructed object of type 'key_equal' is used. Optionally
+        // default-constructed object of type 'key_equal' is used.  Optionally
         // specify an 'allocator' used to supply memory.  If 'allocator' is not
         // supplied, a default-constructed object of the (template parameter)
         // type 'allocator_type' is used.  If the 'allocator_type' is
@@ -958,12 +958,11 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::at(const key_type& key)
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 inline
-void
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::clear()
+typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator
+unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::begin()
 {
-    d_impl.removeAll();
+    return iterator(d_impl.elementListRoot());
 }
-
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 inline
@@ -975,36 +974,32 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::end()
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 inline
-typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::const_iterator
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::end() const
+typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::local_iterator
+unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::begin(size_type index)
 {
-    return const_iterator();
-}
+    BSLS_ASSERT_SAFE(index < this->bucket_count());
 
-
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
-inline
-typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::const_iterator
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::cbegin() const
-{
-    return const_iterator(d_impl.elementListRoot());
+    return local_iterator(&d_impl.bucketAtIndex(index));
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 inline
-typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::const_iterator
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::cend() const
+typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::local_iterator
+unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::end(size_type index)
 {
-    return const_iterator();
+    BSLS_ASSERT_SAFE(index < this->bucket_count());
+
+    return local_iterator(0, &d_impl.bucketAtIndex(index));
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 inline
-typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::begin()
+void
+unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::clear()
 {
-    return iterator(d_impl.elementListRoot());
+    d_impl.removeAll();
 }
+
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 inline
@@ -1058,6 +1053,14 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::erase(
     }
 
     return iterator(first.node()); // convert from const_iterator
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+inline
+typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator
+unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::find(const key_type& k)
+{
+    return iterator(d_impl.find(k));
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
@@ -1127,6 +1130,16 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::equal_range(
          : ResultType(iterator(0),     iterator(0));
 }
 
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+inline
+void
+unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::max_load_factor(
+                                                           float newLoadFactor)
+
+{
+    d_impl.maxLoadFactor(newLoadFactor);
+}
+
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 inline
@@ -1138,7 +1151,33 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::operator=(
     return *this;
 }
 
-// ACCESSORS
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+inline
+typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::mapped_type&
+unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::operator[](
+                                                           const key_type& key)
+{
+    HashTableLink *node = d_impl.insertIfMissing(key);
+    return static_cast<HashTableNode *>(node)->value().second;
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+inline
+void
+unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::rehash(
+                                                          size_type numBuckets)
+{
+    return d_impl.rehash(numBuckets);
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+inline
+void
+unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::reserve(
+                                                         size_type numElements)
+{
+    return d_impl.rehashForNumElements(numElements);
+}
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 inline
@@ -1150,48 +1189,129 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::swap(unordered_map& other)
     d_impl.swap(other.d_impl);
 }
 
+
+// ACCESSORS
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 inline
-typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::hasher
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::hash_function() const
+const typename
+unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::mapped_type&
+unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::at(
+                                                     const key_type& key) const
 {
-    return d_impl.hasher();
+    HashTableLink *target = d_impl.find(key);
+    if (!target ){
+        BloombergLP::bslstl::StdExceptUtil::throwOutOfRange(
+                        "unordered_map<...>::at(key_type): invalid key value");
+    }
+    return static_cast<HashTableNode *>(target)->value().second;
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 inline
-ALLOCATOR
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::get_allocator() const
+typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::const_iterator
+unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::begin() const
 {
-    return d_impl.allocator();
+    return const_iterator(d_impl.elementListRoot());
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 inline
-bool
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::empty() const
+typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::const_iterator
+unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::end() const
 {
-    return 0 == d_impl.size();
+    return const_iterator();
 }
-
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 inline
-typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::find(const key_type& k)
+typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::const_iterator
+unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::cbegin() const
 {
-    return iterator(d_impl.find(k));
+    return const_iterator(d_impl.elementListRoot());
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+inline
+typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::const_iterator
+unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::cend() const
+{
+    return const_iterator();
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 inline
 typename
-       unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::const_iterator
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::find(
+        unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::const_local_iterator
+unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::begin(size_type index) const
+{
+    BSLS_ASSERT_SAFE(index < this->bucket_count());
+
+    return const_local_iterator(&d_impl.bucketAtIndex(index));
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+inline
+typename
+unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::const_local_iterator
+unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::end(size_type index) const
+{
+    BSLS_ASSERT_SAFE(index < this->bucket_count());
+
+    return const_local_iterator(0, &d_impl.bucketAtIndex(index));
+}
+
+
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+inline
+typename
+unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::const_local_iterator
+unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::cbegin(
+                                                         size_type index) const
+{
+    BSLS_ASSERT_SAFE(index < this->bucket_count());
+
+    return const_local_iterator(&d_impl.bucketAtIndex(index));
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+inline
+typename
+unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::const_local_iterator
+unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::cend(size_type index) const
+{
+    BSLS_ASSERT_SAFE(index < this->bucket_count());
+
+    return const_local_iterator(0, &d_impl.bucketAtIndex(index));
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+inline
+typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::size_type
+unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::bucket(
                                                      const key_type& key) const
 {
-    return const_iterator(d_impl.find(key));
+    return d_impl.bucketIndexForKey(key);
 }
+
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+inline
+typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::size_type
+unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::bucket_count() const
+{
+    return d_impl.numBuckets();
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+inline
+typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::size_type
+unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::bucket_size(
+                                                         size_type index) const
+{
+    BSLS_ASSERT_SAFE(index < this->bucket_count());
+
+    return d_impl.countElementsInBucket(index);
+}
+
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 inline
@@ -1200,6 +1320,14 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::count(
                                                      const key_type& key) const
 {
     return d_impl.find(key) != 0;
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+inline
+bool
+unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::empty() const
+{
+    return 0 == d_impl.size();
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
@@ -1227,62 +1355,28 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::equal_range(
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 inline
-typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::mapped_type&
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::operator[](
-                                                           const key_type& key)
-{
-    HashTableLink *node = d_impl.insertIfMissing(key);
-    return static_cast<HashTableNode *>(node)->value().second;
-}
-
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
-inline
-const typename
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::mapped_type&
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::at(
+typename
+       unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::const_iterator
+unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::find(
                                                      const key_type& key) const
 {
-    HashTableLink *target = d_impl.find(key);
-    if (!target ){
-        BloombergLP::bslstl::StdExceptUtil::throwOutOfRange(
-                        "unordered_map<...>::at(key_type): invalid key value");
-    }
-    return static_cast<HashTableNode *>(target)->value().second;
+    return const_iterator(d_impl.find(key));
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 inline
-typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::size_type
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::bucket_count() const
+ALLOCATOR
+unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::get_allocator() const
 {
-    return d_impl.numBuckets();
+    return d_impl.allocator();
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 inline
-typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::size_type
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::bucket_size(
-                                                         size_type index) const
+typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::hasher
+unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::hash_function() const
 {
-    BSLS_ASSERT_SAFE(index < this->bucket_count());
-
-    return d_impl.countElementsInBucket(index);
-}
-
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
-inline
-typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::size_type
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::max_bucket_count() const
-{
-    return d_impl.maxNumOfBuckets();
-}
-
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
-inline
-typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::size_type
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::size() const
-{
-    return d_impl.size();
+    return d_impl.hasher();
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
@@ -1295,97 +1389,12 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::max_size() const
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 inline
-typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::const_iterator
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::begin() const
-{
-    return const_iterator(d_impl.elementListRoot());
-}
-
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
-inline
 typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::key_equal
 unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::key_eq() const
 {
     return d_impl.comparator();
 }
 
-
-
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
-inline
-typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::size_type
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::bucket(
-                                                     const key_type& key) const
-{
-    return d_impl.bucketIndexForKey(key);
-}
-
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
-inline
-typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::local_iterator
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::begin(size_type index)
-{
-    BSLS_ASSERT_SAFE(index < this->bucket_count());
-
-    return local_iterator(&d_impl.bucketAtIndex(index));
-}
-
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
-inline
-typename
-        unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::const_local_iterator
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::begin(size_type index) const
-{
-    BSLS_ASSERT_SAFE(index < this->bucket_count());
-
-    return const_local_iterator(&d_impl.bucketAtIndex(index));
-}
-
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
-inline
-typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::local_iterator
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::end(size_type index)
-{
-    BSLS_ASSERT_SAFE(index < this->bucket_count());
-
-    return local_iterator(0, &d_impl.bucketAtIndex(index));
-}
-
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
-inline
-typename
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::const_local_iterator
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::end(size_type index) const
-{
-    BSLS_ASSERT_SAFE(index < this->bucket_count());
-
-    return const_local_iterator(0, &d_impl.bucketAtIndex(index));
-}
-
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
-inline
-typename
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::const_local_iterator
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::cbegin(
-                                                         size_type index) const
-{
-    BSLS_ASSERT_SAFE(index < this->bucket_count());
-
-    return const_local_iterator(&d_impl.bucketAtIndex(index));
-}
-
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
-inline
-typename
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::const_local_iterator
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::cend(size_type index) const
-{
-    BSLS_ASSERT_SAFE(index < this->bucket_count());
-
-    return const_local_iterator(0, &d_impl.bucketAtIndex(index));
-}
-
-    // hash policy
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 inline
 float
@@ -1404,30 +1413,18 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::max_load_factor() const
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 inline
-void
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::max_load_factor(
-                                                           float newLoadFactor)
-
+typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::size_type
+unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::max_bucket_count() const
 {
-    d_impl.maxLoadFactor(newLoadFactor);
+    return d_impl.maxNumOfBuckets();
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 inline
-void
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::rehash(
-                                                          size_type numBuckets)
+typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::size_type
+unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::size() const
 {
-    return d_impl.rehash(numBuckets);
-}
-
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
-inline
-void
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::reserve(
-                                                         size_type numElements)
-{
-    return d_impl.rehashForNumElements(numElements);
+    return d_impl.size();
 }
 
 }  // close namespace bsl

@@ -495,8 +495,8 @@ class unordered_multimap
     iterator begin();
         // Return an iterator providing modifiable access to the first
         // 'value_type' object (in the sequence of 'value_type' objects)
-        // maintained by this unordered multi map, or the 'end' iterator if
-        // this unordered multi map is empty.
+        // maintained by this multi-map, or the 'end' iterator if
+        // this multi-map is empty.
 
     iterator end();
         // Return an iterator providing modifiable access to the past-the-end
@@ -507,31 +507,30 @@ class unordered_multimap
         // Return a local iterator providing modifiable access to the first
         // 'value_type' object in the sequence of 'value_type' objects
         // of the bucket having the specified 'index', in the array of buckets
-        // maintained by this unordered multi map, or the 'end(index)'
+        // maintained by this multi-map, or the 'end(index)'
         // otherwise.
 
     local_iterator end(size_type index);
         // Return a local iterator providing modifiable access to the
         // past-the-end element in the sequence of 'value_type' objects of the
         // bucket having the specified 'index's , in the array of buckets
-        // maintained by this unordered multi map.
+        // maintained by this multi-map.
 
     iterator insert(const value_type& value);
-        // Insert the specified 'value' into this unordered multi map, and
-        // return an iterator to the newly inserted element. 
-        // This method requires that the (template parameter) types 'KEY' and
-        // 'VALUE' types both be "copy-constructible" (see {Requirements on
-        // 'KEY' and 'VALUE'}).
+        // Insert the specified 'value' into this multi-map, and return an
+        // iterator to the newly inserted element.  This method requires that
+        // the (template parameter) types 'KEY' and 'VALUE' types both be
+        // "copy-constructible" (see {Requirements on 'KEY' and 'VALUE'}).
 
     iterator insert(const_iterator hint, const value_type& obj);
-        // Insert the specified 'value' into this unordered multi map (in
+        // Insert the specified 'value' into this multi-map (in
         // constant time if the specified 'hint' is a valid element in the
         // bucket to which 'value' belongs).  Return an iterator referring to
-        // the newly inserted 'value_type' object in this unordered multi map
-        // whose key is the same as that of 'value'.  If 'hint' is not a
-        // position in the bucket of the key of 'value', this operation
-        // will have worst case O[N] and average case constant time complexity,
-        // where 'N' is the size of this unordered multi map.  The behavior is
+        // the newly inserted 'value_type' object in this multi-map whose key
+        // is the same as that of 'value'.  If 'hint' is not a position in the
+        // bucket of the key of 'value', this operation will have worst case
+        // O[N] and average case constant time complexity, where 'N' is the
+        // size of this multi-map.  The behavior is
         // undefined unless 'hint' is a valid iterator into this unordered
         // multi map.  This method requires that the (template parameter) types
         // 'KEY' and 'VALUE' both be "copy-constructible" (see {Requirements on
@@ -539,7 +538,7 @@ class unordered_multimap
 
     template <class INPUT_ITERATOR>
     void insert(INPUT_ITERATOR first, INPUT_ITERATOR last);
-        // Insert into this unordered multi map the value of each 'value_type'
+        // Insert into this multi-map the value of each 'value_type'
         // object in the range starting at the specified 'first' iterator and
         // ending immediately before the specified 'last' iterator.  The
         // (template parameter) type 'INPUT_ITERATOR' shall meet the
@@ -550,13 +549,13 @@ class unordered_multimap
         // {Requirements on 'KEY' and 'VALUE'}).
 
     iterator erase(const_iterator position);
-        // Remove from this unordered multi map the 'value_type' object at the
+        // Remove from this multi-map the 'value_type' object at the
         // specified 'position', and return an iterator referring to the
         // element immediately following the removed element, or to the
         // past-the-end position if the removed element was the last element in
         // the sequence of elements maintained by this container.  The behavior
         // is undefined unless 'position' refers to a 'value_type' object in
-        // this unordered multi map.
+        // this multi-map.
 
     size_type erase(const key_type& key);
         // Remove from this container all objects whose keys match the
@@ -577,16 +576,14 @@ class unordered_multimap
         // future use.
 
     iterator find(const key_type& key);
-        // Return an iterator providing modifiable access to the 'value_type'
-        // object in this unordered multi map matching the specified 'key', if
-        // such an entry exists, and the past-the-end ('end') iterator
-        // otherwise.  If multiple objects in the container have key 'key',
-        // they are guaranteed to be adjacent to each other, and 'find' will
-        // return an iterator to the first in the sequence.
+        // Return an iterator providing modifiable access to the first
+        // 'value_type' object in the sequence of all the 'value_type' objects
+        // of this container matching the specified 'key', if they exist, and
+        // the past-the-end ('end') iterator otherwise.
 
     pair<iterator, iterator> equal_range(const key_type& key);
         // Return a pair of iterators providing modifiable access to the
-        // sequence of 'value_type' objects in this unordered multi map
+        // sequence of 'value_type' objects in this multi-map
         // matchinng the specified 'key', where the the first iterator is
         // positioned at the start of the sequence, and the second is
         // positioned one past the end of the sequence.  If this unordered
@@ -604,14 +601,14 @@ class unordered_multimap
         // to the specified 'numBuckets', and redistribute all the contained
         // elements into the new sequence of buckets, according to their hash
         // values.  Note that this operation has no effect if rehashing the
-        // elements into 'numBuckets' would cause this unordered multi map to
+        // elements into 'numBuckets' would cause this multi-map to
         // exceed its 'max_load_factor'.
 
     void reserve(size_type numElements);
-        // Increase the number of buckets of this unordered multi map to a
+        // Increase the number of buckets of this multi-map to a
         // quantity such that the ratio between the specified 'numElements' and
         // this quantity does not exceed 'max_load_factor'.
-    
+
     void swap(unordered_multimap& other);
         // Exchange the value of this object as well as its hasher and
         // key-equality functor with those of the specified 'other' object.
@@ -628,32 +625,29 @@ class unordered_multimap
     // ACCESSORS
     allocator_type get_allocator() const;
         // Return (a copy of) the allocator used for memory allocation by this
-        // multi  map.
+        // multi-map.
 
     const_iterator begin() const;
         // Return an iterator providing non-modifiable access to the first
         // 'value_type' object (in the sequence of 'value_type' objects)
-        // maintained by this unordered multi map, or the 'end' iterator if
-        // this multi map is empty.
+        // maintained by this multi-map, or the 'end' iterator if
+        // this multi-map is empty.
 
     const_iterator end() const;
         // Return an iterator providing non-modifiable access to the
         // past-the-end element (in the sequence of 'value_type' objects)
-        // maintained by this unordered multi map.
+        // maintained by this multi-map.
 
     const_iterator cbegin() const;
         // Return an iterator providing non-modifiable access to the first
         // 'value_type' object (in the sequence of 'value_type' objects)
-        // maintained by this unordered multi map, or the 'end' iterator if
-        // this container is empty.  Note that 'cbegin', unlike 'begin', always
-        // returns a 'const_iterator', even when the container is not const.
+        // maintained by this multi-map, or the 'end' iterator if
+        // this container is empty.
 
     const_iterator cend() const;
         // Return an iterator providing non-modifiable access to the
         // past-the-end element (in the sequence of 'value_type' objects)
-        // maintained by this container.  Note that 'cend', unlike 'end',
-        // always returns a 'const_iterator', even when the container is not
-        // const.
+        // maintained by this container.
 
     const_local_iterator begin(size_type index) const;
         // Return a local iterator providing non-modifiable access to the first
@@ -671,19 +665,14 @@ class unordered_multimap
         // Return a local iterator providing non-modifiable access to the first
         // 'value_type' object (in the sequence of 'value_type' objects) of the
         // bucket having the specified 'index' in the array of buckets
-        // maintained by this container, or the 'end(index)' otherwise.  Note
-        // that 'cbegin', unlike 'begin', always returns a
-        // 'const_local_iterator', never a 'local_iterator', even if the
-        // container is non-const.
+        // maintained by this container, or the 'end(index)' otherwise.
 
     const_local_iterator cend(size_type index) const;
         // Return a local iterator providing non-modifiable access to the
         // past-the-end element (in the sequence of 'value_type' objects) of
         // the bucket having the specified 'index' in the array of buckets
-        // maintained by this container.  Note that 'cend', unlike 'end',
-        // always returns a 'const_local_iterator', never a 'local_iterator',
-        // even if the container is non-const.
-    
+        // maintained by this container.
+
     size_type bucket(const key_type& key) const;
         // Return the index of the bucket, in the array of buckets of this
         // container, where values matching the specified 'key' would be
@@ -708,18 +697,10 @@ class unordered_multimap
         // Return the number of 'value_type' objects within this container
         // matching the specified 'key'.
 
-    const_iterator find(const key_type& key) const;
-        // Return an iterator providing non-modifiable access to the
-        // 'value_type' object in this container matching the specified 'key',
-        // if such an entry exists, and the past-the-end ('end') iterator
-        // otherwise.  If multiple elements match 'key', they are guaranteed to
-        // be adjacent to each other, and this function will return the first
-        // in the sequence.
-    
     bool empty() const;
         // Return 'true' if this container contains no elements, and 'false'
         // otherwise.
-    
+
     pair<const_iterator, const_iterator> equal_range(
                                                     const key_type& key) const;
         // Return a pair of iterators providing non-modifiable access to the
@@ -729,6 +710,15 @@ class unordered_multimap
         // the end of the sequence.  If this container contains no 'value_type'
         // objects matching 'key' then the two returned iterators will have the
         // same value.
+
+    const_iterator find(const key_type& key) const;
+        // Return an iterator providing non-modifiable access to the
+        // first 'value_type' object in the sequence of all the 'value_type'
+        // objects of this container matching the specified 'key', if they
+        // exist, and the past-the-end ('end') iterator otherwise.  If multiple
+        // elements match 'key', they are guaranteed to be adjacent to each
+        // other, and this function will return the first
+        // in the sequence.
 
     hasher hash_function() const;
         // Return (a copy of) the hash unary functor used by this container to
@@ -753,13 +743,13 @@ class unordered_multimap
         // those buckets the (see rehash).  Note that it is possible for the
         // load factor of this container to exceed 'max_load_factor',
         // especially after 'max_load_factor(newLoadFactor)' is called.
-    
+
     size_type max_size() const;
         // Return a theoretical upper bound on the largest number of elements
         // that this container could possibly hold.  Note that there is no
         // guarantee that the container can successfully grow to the returned
         // size, or even close to that size without running out of resources.
-    
+
     size_type size() const;
         // Return the number of elements in this container.
 };
