@@ -288,123 +288,6 @@ void debugprint(
 
 namespace {
 
-bool expectPoolToAllocate(int n)
-    // Return 'true' if the memory pool used by the container under test is
-    // expected to allocate memory on the inserting the specified 'n'th
-    // element, and 'false' otherwise.
-{
-    if (n > 32) {
-        return (0 == n % 32);                                         // RETURN
-    }
-    return (((n - 1) & n) == 0);  // Allocate when 'n' is a power of 2
-}
-
-struct BoolArray {
-    // This class holds a set of boolean flags...
-
-    explicit BoolArray(size_t n)
-    : d_data(new bool[n])
-    {
-        for (size_t i = 0; i != n; ++i) {
-            d_data[i] = false;
-        }
-    }
-
-    ~BoolArray()
-    {
-        delete[] d_data;
-    }
-
-    bool& operator[](size_t index) { return d_data[index]; }
-    bool *d_data;
-};
-
-
-template<class KEY_CONFIG, class COMPARATOR, class VALUES>
-int verifyListContents(Link              *containerList,
-                       const COMPARATOR&  compareKeys,
-                       const VALUES&      expectedValues,
-                       size_t             expectedSize)
-    // Verify the specified 'containerList' has the specified 'expectedSize'
-    // number of elements, and contains the same values as the array in the
-    // specified 'expectedValues', and that the elements in the list are
-    // arranged so that elements whose keys compare equal using the specified
-    // 'compareKeys' predicate are all arranged contiguously within the list.
-    // Return 0 if 'container' has the expected values, and a non-zero value
-    // otherwise.
-{
-    typedef typename KEY_CONFIG::KeyType   KeyType;
-    typedef typename KEY_CONFIG::ValueType ValueType;
-
-    // Check to avoid creating an array of length zero.
-    if (0 == containerList) {
-        ASSERTV(0 == expectedSize);
-        return 0;                                                     // RETURN
-    }
-
-    BoolArray foundValues(expectedSize);
-    size_t i = 0;
-    for (Link *cursor = containerList;
-         cursor;
-         cursor = cursor->nextLink(), ++i)
-    {
-        const ValueType& element = ImpUtil::extractValue<KEY_CONFIG>(cursor);
-        const int nextId = bsltf::TemplateTestFacility::getIdentifier(element);
-        size_t j = 0;
-        do {
-            if (bsltf::TemplateTestFacility::getIdentifier(expectedValues[j])
-                                                                   == nextId) {
-                ASSERTV(j, expectedValues[j], element, !foundValues[j]);
-                foundValues[j] = true;
-                break;
-            }
-        }
-        while (++j != expectedSize);
-    }
-    ASSERTV(expectedSize, i, expectedSize == i);
-    if (expectedSize != i) {
-        return -2;                                                    // RETURN
-    }
-
-    size_t missing = 0;
-    for (size_t j = 0; j != expectedSize; ++j) {
-        if (!foundValues[j]) {
-            ++missing;
-        }
-    }
-
-    if (missing > 0) {
-        return missing;                                               // RETURN
-    }
-
-    // All elements are present, check the contiguity requirement
-    // Note that this test is quadratic in the length of the list, although we
-    // will optimize for the case of duplicates actually occurring.
-    for (Link *cursor = containerList; cursor; cursor = cursor->nextLink()) {
-        const KeyType& key = ImpUtil::extractKey<KEY_CONFIG>(cursor);
-
-        Link *next = cursor->nextLink();
-        // Walk to end of key-equivalent sequence
-        while (next &&
-               compareKeys(key, ImpUtil::extractKey<KEY_CONFIG>(next))) {
-            cursor = next;
-            next   = next->nextLink();
-        }
-
-        // Check there are no more equivalent keys in the list
-        while (next &&
-               !compareKeys(key, ImpUtil::extractKey<KEY_CONFIG>(next))) {
-            next = next->nextLink();
-        }
-
-        if (0 != next) {
-            return -3; // code for discontiguous list                 // RETURN
-        }
-    }
-
-    return 0;  // 0 indicates a successful test!
-}
-
                             // ====================
                             // class ExceptionGuard
                             // ====================
@@ -739,7 +622,132 @@ bool isEqualComparator(const TestEqualityComparator<KEY>& lhs,
     return lhs == rhs;
 }
 
-// test support function
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+//                         test support functions
+
+bool expectPoolToAllocate(int n)
+    // Return 'true' if the memory pool used by the container under test is
+    // expected to allocate memory on the inserting the specified 'n'th
+    // element, and 'false' otherwise.
+{
+    if (n > 32) {
+        return (0 == n % 32);                                         // RETURN
+    }
+    return (((n - 1) & n) == 0);  // Allocate when 'n' is a power of 2
+}
+
+struct BoolArray {
+    // This class holds a set of boolean flags...
+
+    explicit BoolArray(size_t n)
+    : d_data(new bool[n])
+    {
+        for (size_t i = 0; i != n; ++i) {
+            d_data[i] = false;
+        }
+    }
+
+    ~BoolArray()
+    {
+        delete[] d_data;
+    }
+
+    bool& operator[](size_t index) { return d_data[index]; }
+    bool *d_data;
+};
+
+
+template<class KEY_CONFIG, class COMPARATOR, class VALUES>
+int verifyListContents(Link              *containerList,
+                       const COMPARATOR&  compareKeys,
+                       const VALUES&      expectedValues,
+                       size_t             expectedSize)
+    // NOTE: THIS TEST IS EXPENSIVE, WITH QUADRATIC COMPLEXITY ON LIST LENGTH
+    //                       DO NOT CALL IN A TIGHT LOOP
+    // Verify the specified 'containerList' has the specified 'expectedSize'
+    // number of elements, and contains the same values as the array in the
+    // specified 'expectedValues', and that the elements in the list are
+    // arranged so that elements whose keys compare equal using the specified
+    // 'compareKeys' predicate are all arranged contiguously within the list.
+    // Return 0 if 'container' has the expected values, and a non-zero value
+    // otherwise.
+{
+    typedef typename KEY_CONFIG::KeyType   KeyType;
+    typedef typename KEY_CONFIG::ValueType ValueType;
+
+    // Check to avoid creating an array of length zero.
+    if (0 == containerList) {
+        ASSERTV(0 == expectedSize);
+        return 0;                                                     // RETURN
+    }
+
+    BoolArray foundValues(expectedSize);
+    size_t i = 0;
+    for (Link *cursor = containerList;
+         cursor;
+         cursor = cursor->nextLink(), ++i)
+    {
+        const ValueType& element = ImpUtil::extractValue<KEY_CONFIG>(cursor);
+        const int nextId = bsltf::TemplateTestFacility::getIdentifier(element);
+        size_t j = 0;
+        do {
+            if (bsltf::TemplateTestFacility::getIdentifier(expectedValues[j])
+                                                                   == nextId) {
+                ASSERTV(j, expectedValues[j], element, !foundValues[j]);
+                foundValues[j] = true;
+                break;
+            }
+        }
+        while (++j != expectedSize);
+    }
+    ASSERTV(expectedSize, i, expectedSize == i);
+    if (expectedSize != i) {
+        return -2;                                                    // RETURN
+    }
+
+    size_t missing = 0;
+    for (size_t j = 0; j != expectedSize; ++j) {
+        if (!foundValues[j]) {
+            ++missing;
+        }
+    }
+
+    if (missing > 0) {
+        return missing;                                               // RETURN
+    }
+
+    // All elements are present, check the contiguity requirement
+    // Note that this test is quadratic in the length of the list, although we
+    // will optimize for the case of duplicates actually occurring.
+    for (Link *cursor = containerList; cursor; cursor = cursor->nextLink()) {
+        const KeyType& key = ImpUtil::extractKey<KEY_CONFIG>(cursor);
+
+        Link *next = cursor->nextLink();
+        // Walk to end of key-equivalent sequence
+        while (next &&
+               compareKeys(key, ImpUtil::extractKey<KEY_CONFIG>(next))) {
+            cursor = next;
+            next   = next->nextLink();
+        }
+
+        // Check there are no more equivalent keys in the list.
+        // Note that this test also serves to check there are no duplicates in
+        // the preceding part of the list, as this check would have failed
+        // earlier if that were the case.
+        while (next &&
+               !compareKeys(key, ImpUtil::extractKey<KEY_CONFIG>(next))) {
+            next = next->nextLink();
+        }
+
+        if (0 != next) {
+            return -3; // code for discontiguous list                 // RETURN
+        }
+    }
+
+    return 0;  // 0 indicates a successful test!
+}
+
 template <class KEY_CONFIG, class HASH, class EQUAL, class ALLOC>
 Link* insertElement(
                   bslstl::HashTable<KEY_CONFIG, HASH, EQUAL, ALLOC> *hashTable,
@@ -1552,6 +1560,11 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
 
     const TestValues VALUES;  // contains 52 distinct increasing values
 
+    // Probably want to pick these up as values from some injected policy, so
+    // that we can test with stateful variants
+    const HASHER     HASH    = HASHER();
+    const COMPARATOR COMPARE = COMPARATOR();
+
     const size_t MAX_LENGTH = 9;
 
     for (size_t ti = 0; ti < MAX_LENGTH; ++ti) {
@@ -1580,19 +1593,19 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
 
             switch (CONFIG) {
               case 'a': {
-                  objPtr = new (fa) Obj(HASHER(), COMPARATOR(), 3 * LENGTH);
+                  objPtr = new (fa) Obj(HASH, COMPARE, 3 * LENGTH);
                   objAllocatorPtr = &da;
               } break;
               case 'b': {
-                  objPtr = new (fa) Obj(HASHER(),
-                                        COMPARATOR(),
+                  objPtr = new (fa) Obj(HASH,
+                                        COMPARE,
                                         3 * LENGTH,
                                         (bslma::Allocator *)0);
                   objAllocatorPtr = &da;
               } break;
               case 'c': {
-                  objPtr = new (fa) Obj(HASHER(),
-                                        COMPARATOR(),
+                  objPtr = new (fa) Obj(HASH,
+                                        COMPARE,
                                         3 * LENGTH,
                                         &sa);
                   objAllocatorPtr = &sa;
@@ -1718,19 +1731,24 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
                     // We need to think carefully about how we allow for the
                     // allocation of the bucket-array
 
-                    ASSERTV(LENGTH, CONFIG, oa.numBlocksTotal(),
+                    ASSERTV(CONFIG, oa.numBlocksTotal(),
                                                            oa.numBlocksInUse(),
                             oa.numBlocksTotal() == oa.numBlocksInUse());
 
-                    ASSERTV(LENGTH, CONFIG,
+                    ASSERTV(CONFIG, LENGTH-1,
                             VALUES[LENGTH - 1] ==
                                       ImpUtil::extractKey<KEY_CONFIG>(RESULT));
 
                     guard.release();
                 } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
-                ASSERTV(LENGTH, CONFIG, LENGTH == X.size());
+                ASSERTV(CONFIG, LENGTH, X.size(),
+                        LENGTH == X.size());
 
+                ASSERT(0 == verifyListContents<KEY_CONFIG>(X.elementListRoot(),
+                                                           COMPARE,
+                                                           VALUES,
+                                                           LENGTH));
                 // check elements with equivalent keys are contiguous
                 // check expected elements are present in container, with
                 // expected number of duplicates
@@ -1766,7 +1784,6 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
 
                     ASSERTV(LENGTH, CONFIG, X.size() == i);
                 }
-
             }
 
             // ----------------------------------------------------------------
@@ -1891,7 +1908,6 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
 
                     ASSERTV(LENGTH, CONFIG, X.size() == i);
                 }
-
             }
 
             // ----------------------------------------------------------------
@@ -1901,6 +1917,8 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
             {
                 Link *ITER[MAX_LENGTH + 1];
 
+                // The first loop adds a duplicate in front of each already
+                // inserted element
                 for (size_t tj = 0; tj < LENGTH; ++tj) {
                     ITER[tj] = insertElement(&mX, VALUES[tj]);
                     ASSERT(0 != ITER[tj]);
@@ -1910,91 +1928,18 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
                 }
                 ITER[LENGTH] = 0;
 
-                ASSERTV(LENGTH, CONFIG, LENGTH == X.size());
-
-                for (size_t tj = 0; tj < LENGTH; ++tj) {
-                    Link *RESULT = insertElement(&mX, VALUES[tj]);
-                    ASSERT(0 != RESULT);
-                    ASSERTV(LENGTH, tj, CONFIG,
-                        VALUES[tj] == ImpUtil::extractKey<KEY_CONFIG>(RESULT));
-                    RESULT = RESULT->nextLink();
-//                    ASSERTV(LENGTH, tj, CONFIG, ITER[tj + 1] == RESULT);
-                }
-
                 ASSERTV(LENGTH, CONFIG, 2 * LENGTH == X.size());
 
+                // The second loop adds another duplicate in front of each
+                // the items from the previous loop, and not in the middle of
+                // any subranges.
                 for (size_t tj = 0; tj < LENGTH; ++tj) {
                     Link *RESULT = insertElement(&mX, VALUES[tj]);
                     ASSERT(0 != RESULT);
                     ASSERTV(LENGTH, tj, CONFIG,
                         VALUES[tj] == ImpUtil::extractKey<KEY_CONFIG>(RESULT));
-                    RESULT = RESULT->nextLink();
-//                    ASSERTV(LENGTH, tj, CONFIG, ITER[tj + 1] == RESULT);
-                }
-
-                ASSERTV(LENGTH, CONFIG, 3 * LENGTH == X.size());
-            }
-
-            // ----------------------------------------------------------------
-
-            const typename Obj::SizeType bucketCountWithDups = X.numBuckets();
-
-            if (veryVerbose) { printf("\n\tTesting 'removeAll'.\n"); }
-            {
-                const bsls::Types::Int64 BB = oa.numBlocksTotal();
-
-                mX.removeAll();
-
-                ASSERTV(LENGTH, CONFIG, 0 == X.size());
-                ASSERTV(LENGTH, CONFIG, bucketCountWithDups == X.numBuckets());
-                ASSERTV(LENGTH, CONFIG, 0 == X.elementListRoot());
-                ASSERTV(LENGTH, CONFIG, 1.0f == X.maxLoadFactor());
-                ASSERTV(LENGTH, CONFIG, 0.0f == X.loadFactor());
-                ASSERTV(LENGTH, CONFIG, 0 == X.countElementsInBucket(0));
-
-                const bsls::Types::Int64 AA = oa.numBlocksTotal();
-
-                ASSERTV(LENGTH, CONFIG, BB == AA);
-//                ASSERTV(LENGTH, CONFIG, B, A,
-//                        B - (int)LENGTH * TYPE_ALLOC == A);
-            }
-
-            // ----------------------------------------------------------------
-
-            if (veryVerbose) { printf(
-                                "\n\tRetesting 'insert' duplicated values.\n"); }
-            {
-                Link *ITER[MAX_LENGTH + 1];
-
-                for (size_t tj = 0; tj < LENGTH; ++tj) {
-                    ITER[tj] = insertElement(&mX, VALUES[tj]);
-                    ASSERT(0 != ITER[tj]);
                     ASSERTV(LENGTH, tj, CONFIG,
-                            VALUES[tj] ==
-                                    ImpUtil::extractKey<KEY_CONFIG>(ITER[tj]));
-                }
-                ITER[LENGTH] = 0;
-
-                ASSERTV(LENGTH, CONFIG, LENGTH == X.size());
-
-                for (size_t tj = 0; tj < LENGTH; ++tj) {
-                    Link *RESULT = insertElement(&mX, VALUES[tj]);
-                    ASSERT(0 != RESULT);
-                    ASSERTV(LENGTH, tj, CONFIG,
-                        VALUES[tj] == ImpUtil::extractKey<KEY_CONFIG>(RESULT));
-                    RESULT = RESULT->nextLink();
-//                    ASSERTV(LENGTH, tj, CONFIG, ITER[tj + 1] == RESULT);
-                }
-
-                ASSERTV(LENGTH, CONFIG, 2 * LENGTH == X.size());
-
-                for (size_t tj = 0; tj < LENGTH; ++tj) {
-                    Link *RESULT = insertElement(&mX, VALUES[tj]);
-                    ASSERT(0 != RESULT);
-                    ASSERTV(LENGTH, tj, CONFIG,
-                        VALUES[tj] == ImpUtil::extractKey<KEY_CONFIG>(RESULT));
-                    RESULT = RESULT->nextLink();
-//                    ASSERTV(LENGTH, tj, CONFIG, ITER[tj + 1] == RESULT);
+                            ITER[tj] == RESULT->nextLink());
                 }
 
                 ASSERTV(LENGTH, CONFIG, 3 * LENGTH == X.size());
