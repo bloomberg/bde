@@ -350,14 +350,12 @@ class unordered_set
 
     // FRIEND
     template <class KEY2,
-              class VALUE2,
               class HASH2,
               class EQUAL2,
               class ALLOCATOR2>
-    friend
-    bool operator==(
-                const unordered_set<KEY2, VALUE2, HASH2, EQUAL2, ALLOCATOR2>&,
-                const unordered_set<KEY2, VALUE2, HASH2, EQUAL2, ALLOCATOR2>&);
+    friend bool operator==(
+                const unordered_set<KEY2, HASH2, EQUAL2, ALLOCATOR2>&,
+                const unordered_set<KEY2, HASH2, EQUAL2, ALLOCATOR2>&);
 
   public:
     // types
@@ -441,9 +439,9 @@ class unordered_set
         // 'bsl::allocator' (the default), then 'allocator' shall be
         // convertible to 'bslma::Allocator *'.
 
-    template <class InputIterator>
-    unordered_set(InputIterator         first,
-                  InputIterator         last,
+    template <class INPUT_ITERATOR>
+    unordered_set(INPUT_ITERATOR         first,
+                  INPUT_ITERATOR         last,
                   size_type             initialNumBuckets = 0,
                   const hasher&         hash = hasher(),
                   const key_equal&      keyEqual = key_equal(),
@@ -550,33 +548,34 @@ class unordered_set
     pair<iterator, bool> insert(const value_type& value);
         // Insert the specified 'value' into this set if the key (the 'first'
         // element) of the 'value' does not already exist in this set;
-        // otherwise, if a 'value_type' object having the same key as 'value'
-        // already exists in this set, this method has no effect.  Return a
-        // pair whose 'first' member is an iterator referring to the (possibly
-        // newly inserted) 'value_type' object in this set whose key is the
-        // same as that of 'value', and whose 'second' member is 'true' if a
-        // new value was inserted, and 'false' if the value was already
-        // present.  This method requires that the (template parameter) type
-        // 'KEY' be "copy-constructible" (see {Requirements on 'KEY'}).
+        // otherwise, if a 'value_type' object having the same key (according
+        // to 'key_equal') as 'value' already exists in this set, this method
+        // has no effect.  Return a pair whose 'first' member is an iterator
+        // referring to the (possibly newly inserted) 'value_type' object in
+        // this set whose key is the same as that of 'value', and whose
+        // 'second' member is 'true' if a new value was inserted, and 'false'
+        // if the value was already present.  This method requires that the
+        // (template parameter) type 'KEY' be "copy-constructible" (see
+        // {Requirements on 'KEY'}).
 
     iterator insert(const_iterator hint, const value_type& value);
         // Insert the specified 'value' into this set (in constant
         // time if the specified 'hint' is a valid element in the bucket to
         // which 'value' belongs), if the key ('value' itself) of the 'value'
         // does not already exist in this set; otherwise, if a 'value_type'
-        // object having the same key as 'value' already exists in this set,
-        // this method has no effect.  Return an iterator referring to the
-        // (possibly newly inserted) 'value_type' object in this set whose key
-        // is the same as that of 'value'.  If 'hint' is not a valid immediate
-        // successor to the key of 'value', this operation will have worst case
-        // O[N] and average case constant time complexity, where 'N' is the
-        // size of this set.  The behavior is undefined unless 'hint' is a
-        // valid iterator into this unordered set.  This method requires that
-        // the (template parameter) type 'KEY' be "copy-constructible" (see
-        // {Requirements on 'KEY'}).
+        // object having the same key (according to 'key_equal') as 'value'
+        // already exists in this set, this method has no effect.  Return an
+        // iterator referring to the (possibly newly inserted) 'value_type'
+        // object in this set whose key is the same as that of 'value'.  If
+        // 'hint' is not a valid immediate successor to the key of 'value',
+        // this operation will have worst case O[N] and average case constant
+        // time complexity, where 'N' is the size of this set.  The behavior is
+        // undefined unless 'hint' is a valid iterator into this unordered set.
+        // This method requires that the (template parameter) type 'KEY' be
+        // "copy-constructible" (see {Requirements on 'KEY'}).
 
-    template <class InputIterator>
-    void insert(InputIterator first, InputIterator last);
+    template <class INPUT_ITERATOR>
+    void insert(INPUT_ITERATOR first, INPUT_ITERATOR last);
         // Insert into this set the value of each 'value_type' object in the
         // range starting at the specified 'first' iterator and ending
         // immediately before the specified 'last' iterator, whose key is not
@@ -586,7 +585,6 @@ class unordered_set
         // a type convertible to 'value_type'.  This method requires that
         // the (template parameter) type 'KEY' be "copy-constructible" (see
         // {Requirements on 'KEY'}).
-
 
     void  max_load_factor(float newLoadFactor);
         // Set the maximum load factor of this container to the specified
@@ -627,10 +625,6 @@ class unordered_set
         // 'propagate_on_container_swap' is 'true'.
 
     // ACCESSORS
-    allocator_type get_allocator() const;
-        // Return (a copy of) the allocator used for memory allocation by this
-        // set.
-
     const_iterator begin() const;
         // Return an iterator providing non-modifiable access to the first
         // 'value_type' object (in the sequence of 'value_type' objects)
@@ -688,6 +682,11 @@ class unordered_set
         // Return the number of elements contained in the bucket at the
         // specified 'index' in the array of buckets maintained by this
         // container.
+    
+    size_type count(const key_type& key) const;
+        // Return the number of 'value_type' objects within this map having the
+        // specified 'key'.  Note that since an unordered set maintains unique
+        // keys, the returned value will be either 0 or 1.
 
     bool empty() const;
         // Return 'true' if this set contains no elements, and 'false'
@@ -709,6 +708,10 @@ class unordered_set
         // 'value_type' object in this set having the specified 'key', if such
         // an entry exists, and the past-the-end ('end') iterator otherwise.
 
+    allocator_type get_allocator() const;
+        // Return (a copy of) the allocator used for memory allocation by this
+        // set.
+
     key_equal key_eq() const;
         // Return (a copy of) the key-equality binary functor that returns
         // 'true' if the value of two 'key_type' objects is the same, and
@@ -724,12 +727,6 @@ class unordered_set
         // the container is, and a higher load factor leads to an increased
         // number of collisions, thus resulting in a loss performance.
 
-    size_type max_size() const;
-        // Return a theoretical upper bound on the largest number of elements
-        // that this set could possibly hold.  Note that there is no guarantee
-        // that the set can successfully grow to the returned size, or even
-        // close to that size without running out of resources.
-
     size_type max_bucket_count() const;
         // Return a theoretical upper bound on the largest number of buckets
         // that this container could possibly manage.  Note that there is no
@@ -742,6 +739,12 @@ class unordered_set
         // the 'max_load_factor', that same insert operation will increase the
         // number of buckets and rehash the elements of the container into
         // those buckets the (see rehash).
+    
+    size_type max_size() const;
+        // Return a theoretical upper bound on the largest number of elements
+        // that this set could possibly hold.  Note that there is no guarantee
+        // that the set can successfully grow to the returned size, or even
+        // close to that size without running out of resources.
 
     size_type size() const;
         // Return the number of elements in this set.
@@ -765,11 +768,11 @@ bool operator!=(const unordered_set<KEY, HASH, EQUAL, ALLOCATOR>& lhs,
                 const unordered_set<KEY, HASH, EQUAL, ALLOCATOR>& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
     // same value, and 'false' otherwise.  Two 'unordered_set' objects do not
-    // have the same value if they do not have the same number of key-value
-    // pairs, or that for some key-value pair that is contained in 'lhs' there
-    // is not a key-value pair in 'rhs' having the same, and viceversa.  This
-    // method requires that the (template parameter) types 'KEY' and 'VALUE'
-    // both be "equality-comparable" (see {Requirements on 'KEY' and 'VALUE'}).
+    // have the same value if they do not have the same number of
+    // value-elements, or that for some value-element contained in 'lhs' there
+    // is not a value-element in 'rhs' having the same value, and viceversa.
+    // This method requires that the (template parameter) type 'KEY' and be
+    // "equality-comparable" (see {Requirements on 'KEY'}).
 
 
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
@@ -837,21 +840,21 @@ unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::unordered_set(
                                        const hasher&         hash,
                                        const key_equal&      keyEqual,
                                        const allocator_type& allocator)
-: d_impl(hasher, keyEqual, initialNumBuckets, allocator)
+: d_impl(hash, keyEqual, initialNumBuckets, allocator)
 {
 }
 
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
-template <class InputIterator>
+template <class INPUT_ITERATOR>
 inline
 unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::unordered_set(
-                                       InputIterator         first,
-                                       InputIterator         last,
+                                       INPUT_ITERATOR        first,
+                                       INPUT_ITERATOR        last,
                                        size_type             initialNumBuckets,
-                                       const hasher&         hasher,
+                                       const hasher&         hash,
                                        const key_equal&      keyEqual,
                                        const allocator_type& allocator)
-: d_impl(hasher, keyEqual, initialNumBuckets, allocator)
+: d_impl(hash, keyEqual, initialNumBuckets, allocator)
 {
     this->insert(first, last);
 }
@@ -912,7 +915,7 @@ inline
 typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::local_iterator
 unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::begin(size_type index)
 {
-    BSLS_ASSERT_SAFE(n < this->bucket_count());
+    BSLS_ASSERT_SAFE(index < this->bucket_count());
     return local_iterator(&d_impl.bucketAtIndex(index));
 }
 
@@ -921,7 +924,7 @@ inline
 typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::local_iterator
 unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::end(size_type index)
 {
-    BSLS_ASSERT_SAFE(n < this->bucket_count());
+    BSLS_ASSERT_SAFE(index < this->bucket_count());
     return local_iterator(0, &d_impl.bucketAtIndex(index));
 }
 
@@ -1040,10 +1043,10 @@ unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::insert(const_iterator    hint,
 }
 
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
-template <class InputIterator>
+template <class INPUT_ITERATOR>
 inline
-void unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::insert(InputIterator first,
-                                                        InputIterator last)
+void unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::insert(INPUT_ITERATOR first,
+                                                        INPUT_ITERATOR last)
 {
     if (size_t maxInsertions =
             ::BloombergLP::bslstl::IteratorUtil::insertDistance(first, last)) {
@@ -1119,7 +1122,7 @@ inline
 typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::const_local_iterator
 unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::begin(size_type index) const
 {
-    BSLS_ASSERT_SAFE(n < this->bucket_count());
+    BSLS_ASSERT_SAFE(index < this->bucket_count());
     return const_local_iterator(&d_impl.bucketAtIndex(index));
 }
 
@@ -1128,7 +1131,7 @@ inline
 typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::const_local_iterator
 unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::end(size_type index) const
 {
-    BSLS_ASSERT_SAFE(n < this->bucket_count());
+    BSLS_ASSERT_SAFE(index < this->bucket_count());
     return const_local_iterator(0, &d_impl.bucketAtIndex(index));
 }
 
@@ -1168,9 +1171,9 @@ unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::bucket_count() const
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 inline
 typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::size_type
-unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::count(const key_type& k) const
+unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::count(const key_type& key) const
 {
-    return 0 != d_impl.find(k);
+    return 0 != d_impl.find(key);
 }
 
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
@@ -1236,7 +1239,7 @@ inline
 typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::size_type
 unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::bucket_size(size_type index) const
 {
-    BSLS_ASSERT_SAFE(n < this->bucket_count());
+    BSLS_ASSERT_SAFE(index < this->bucket_count());
     return d_impl.countElementsInBucket(index);
 }
 
@@ -1246,7 +1249,7 @@ inline
 typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::const_local_iterator
 unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::cbegin(size_type index) const
 {
-    BSLS_ASSERT_SAFE(n < this->bucket_count());
+    BSLS_ASSERT_SAFE(index < this->bucket_count());
     return const_local_iterator(&d_impl.bucketAtIndex(index));
 }
 
@@ -1255,7 +1258,7 @@ inline
 typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::const_local_iterator
 unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::cend(size_type index) const
 {
-    BSLS_ASSERT_SAFE(n < this->bucket_count());
+    BSLS_ASSERT_SAFE(index < this->bucket_count());
     return const_local_iterator(0, &d_impl.bucketAtIndex(index));
 }
 

@@ -811,8 +811,8 @@ bool operator==(const unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>& lhs,
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 bool operator!=(
-          const unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>& lhs,
-          const unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>& rhs);
+                 const unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>& lhs,
+                 const unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
     // same value, and 'false' otherwise.  Two 'unordered_map' objects do not
     // have the same value if they do not have the same number of key-value

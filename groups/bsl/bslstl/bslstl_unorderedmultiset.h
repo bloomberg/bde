@@ -14,7 +14,7 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bsl+stdhdrs
 //
-//@AUTHOR: Alisdair Meredith (ameredith1) Stefano Pacifico (spacifico1)
+//@AUTHOR: Alisdair Meredith (ameredith1), Stefano Pacifico (spacifico1)
 //
 //@DESCRIPTION: This component provides an implementation of the container,
 // 'unordered_multiset', specified by the C++11 standard.
