@@ -163,6 +163,14 @@ BSLS_IDENT("$Id: $")
 #include <bslalg_swaputil.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include <bslma_usesbslmaallocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
+#include <bslmf_isbitwisemoveable.h>
+#endif
+
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 #endif
@@ -295,8 +303,10 @@ class HashTable {
         typedef BidirectionalNodePool<typename HashTableType::ValueType,
                                       NodeAllocator>               NodeFactory;
 
-        // DATA
-        NodeFactory  d_nodeFactory;
+        // PUBLIC DATA
+        NodeFactory  d_nodeFactory;    // nested 'struct's have public data by
+                                       // convention, but should always be
+                                       // accessed through the public methods.
 
         // CREATORS
         ImplParameters(const HASHER&     hash,
@@ -419,7 +429,7 @@ class HashTable {
         // supplied, a default-constructed object of the (template parameter)
         // type 'ALLOCATOR' is used.  Use a default constructed object of the
         // (template parameter) type 'HASHER' and a default constructed
-        // object of the (template arameter) type 'COMPARATOR' to organize
+        // object of the (template parameter) type 'COMPARATOR' to organize
         // elements in the table.  If the 'ALLOCATOR' is 'bsl::allocator'
         // (the default), then 'allocator', if supplied, shall be convertible
         // to 'bslma::Allocator *'.  If the 'ALLOCATOR' is 'bsl::allocator' and
@@ -562,12 +572,13 @@ class HashTable {
     void setMaxLoadFactor(float loadFactor);
         // Set the maximum load factor permitted by this hash table to the
         // specified 'loadFactor', where load factor is the statistical mean
-        // number of elements per bucket.  This hash table will rehash using a
-        // larger number of buckets if any insert operation (or this function
-        // call) would cause it to exceed the 'maxLoadFactor', and explicit
-        // calls to 'rehash' will have the number of buckets adjusted in a way
-        // that respects the 'maxLoadFactor'.  The behavior is undefined
-        // '0 < loadFactor'.
+        // number of elements per bucket.  This hash table will enforce the
+        // maximum load factor by rehashing into a larger array of buckets on
+        // any any insertion operation where a successful insertion would
+        // exceed the maximum load factor.  The maximum load factor may
+        // actually be less than the current load factor after calling this
+        // method, until the next insertion operation is called.  The behavior
+        // is undefined unless '0 < loadFactor'.
 
     void swap(HashTable& other);
         // Exchange the value of this object, its 'comparator' functor and its
@@ -627,8 +638,11 @@ class HashTable {
         // Return the maximum load factor permitted by this hash table object,
         // where the load factor is the statistical mean number of elements per
         // bucket.  Note that this hash table will enforce the maximum load
-        // factor by rehashing into a larger array of buckets if an insertion
-        // would cause the maximum load factor to be exceeded.
+        // factor by rehashing into a larger array of buckets on any any
+        // insertion operation where a successful insertion would exceed the
+        // maximum load factor.  The maximum load factor may actually be less
+        // than the current load factor if the maximum load factor has been
+        // reset, but no insert operations have yet occurred.
 
     bslalg::BidirectionalLink *elementListRoot() const;
         // Return the address of the first element in this hash table, or a
@@ -870,10 +884,52 @@ struct HashTable_Util {
                                    const ALLOCATOR&         allocator);
 };
 
+}  // close namespace bslstl
+
+// ============================================================================
+//                                TYPE TRAITS
+// ============================================================================
+
+// Type traits for HashTable:
+//: o A HashTable is bitwise moveable if the both functors and the allocator
+//:     are bitwise moveable.
+//: o A HashTable uses 'bslma' allocators if the parameterized 'ALLOCATOR' is
+//:     convertible from 'bslma::Allocator*'.
+
+namespace bslma
+{
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+struct UsesBslmaAllocator<bslstl::HashTable<KEY_CONFIG,
+                                            HASHER,
+                                            COMPARATOR,
+                                            ALLOCATOR> >
+: bsl::is_convertible<Allocator*, ALLOCATOR>::type
+{};
+
+}  // close namespace bslma
+
+namespace bslmf
+{
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+struct IsBitwiseMoveable<bslstl::HashTable<KEY_CONFIG,
+                                           HASHER,
+                                           COMPARATOR,
+                                           ALLOCATOR> >
+: bsl::integral_constant< bool, bslmf::IsBitwiseMoveable<HASHER>::value
+                             && bslmf::IsBitwiseMoveable<COMPARATOR>::value
+                             && bslmf::IsBitwiseMoveable<ALLOCATOR>::value>
+{};
+
+}
+
 // ============================================================================
 //                      TEMPLATE AND INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
+namespace bslstl
+{
                     // ---------------------------
                     // class HashTable_ListProctor
                     // ---------------------------
@@ -1039,38 +1095,43 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::ImplParameters::
 
 template <class ALLOCATOR>
 inline
-void HashTable_Util<ALLOCATOR>::initAnchor(bslalg::HashTableAnchor *anchor,
-                                           SizeType                size,
-                                           const ALLOCATOR&        allocator)
+void HashTable_Util<ALLOCATOR>::initAnchor(
+                                      bslalg::HashTableAnchor *anchor,
+                                      SizeType                 bucketArraySize,
+                                      const ALLOCATOR&         allocator)
 {
     BSLS_ASSERT_SAFE(anchor);
-    BSLS_ASSERT_SAFE(0 != size);
+    BSLS_ASSERT_SAFE(0 != bucketArraySize);
 
     ArrayAllocator reboundAllocator(allocator);
 
     bslalg::HashTableBucket *data =
-                        ArrayAllocatorTraits::allocate(reboundAllocator, size);
+             ArrayAllocatorTraits::allocate(reboundAllocator, bucketArraySize);
 
-    native_std::fill_n(data, size, bslalg::HashTableBucket());
+    native_std::fill_n(data, bucketArraySize, bslalg::HashTableBucket());
 
-    anchor->setBucketArrayAddressAndSize(data, size);
+    anchor->setBucketArrayAddressAndSize(data, bucketArraySize);
 }
 
 template <class ALLOCATOR>
 inline
 void HashTable_Util<ALLOCATOR>::destroyBucketArray(
-                                           bslalg::HashTableBucket  *data,
-                                           SizeType                  size,
-                                           const ALLOCATOR&          allocator)
+                                     bslalg::HashTableBucket  *data,
+                                     SizeType                  bucketArraySize,
+                                     const ALLOCATOR&          allocator)
 {
     BSLS_ASSERT_SAFE(data);
     BSLS_ASSERT_SAFE(
-          (1  < size && HashTable_ImpDetails::defaultBucketAddress() != data)
-       || (1 == size && HashTable_ImpDetails::defaultBucketAddress() == data));
+                  (1  < bucketArraySize
+                     && HashTable_ImpDetails::defaultBucketAddress() != data)
+               || (1 == bucketArraySize
+                     && HashTable_ImpDetails::defaultBucketAddress() == data));
 
     if (HashTable_ImpDetails::defaultBucketAddress() != data) {
         ArrayAllocator reboundAllocator(allocator);
-        ArrayAllocatorTraits::deallocate(reboundAllocator, data, size);
+        ArrayAllocatorTraits::deallocate(reboundAllocator,
+                                         data,
+                                         bucketArraySize);
     }
 }
 
@@ -1698,13 +1759,11 @@ inline
 void HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::setMaxLoadFactor(
                                                               float loadFactor)
 {
+    BSLS_ASSERT_SAFE(0.0f < loadFactor);
+
     d_maxLoadFactor = loadFactor;
     d_capacity = static_cast<native_std::size_t>(native_std::ceil(
                          static_cast<float>(this->numBuckets()) * loadFactor));
-
-    if (d_capacity < this->size()) {
-        this->rehashForNumElements(this->size());
-    }
 }
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>

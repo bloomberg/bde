@@ -7,7 +7,6 @@
 #include <bslstl_string.h>                 // for testing only
 #include <bslstl_vector.h>                 // for testing only
 
-#include <bslalg_typetraits.h>
 #include <bslma_allocator.h>
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>   // for testing only
@@ -651,8 +650,7 @@ class TestType {
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(TestType,
-                                 bslalg::TypeTraitUsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(TestType, bslma::UsesBslmaAllocator);
 
     // CREATORS
     explicit
@@ -1017,9 +1015,10 @@ class BitwiseMoveableTestType : public TestType {
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS2(BitwiseMoveableTestType,
-                                  bslalg::TypeTraitUsesBslmaAllocator,
-                                  bslalg::TypeTraitBitwiseMoveable);
+    BSLMF_NESTED_TRAIT_DECLARATION(BitwiseMoveableTestType,
+                                   bslma::UsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(BitwiseMoveableTestType,
+                                   bslmf::IsBitwiseMoveable);
 
     // CREATORS
     explicit
@@ -1052,8 +1051,10 @@ class BitwiseCopyableTestType : public SmallTestTypeNoAlloc {
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(BitwiseCopyableTestType,
-                                 bslalg::TypeTraitBitwiseCopyable);
+    BSLMF_NESTED_TRAIT_DECLARATION(BitwiseCopyableTestType,
+                                   bsl::is_trivially_copyable);
+    BSLMF_NESTED_TRAIT_DECLARATION(BitwiseCopyableTestType,
+                                   bslmf::IsBitwiseEqualityComparable);
 
     // CREATORS
     BitwiseCopyableTestType()
@@ -1222,10 +1223,6 @@ class LimitAllocator : public ALLOC {
     size_type d_limit;
 
   public:
-    // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(LimitAllocator,
-                                 BloombergLP::bslalg_TypeTraits<AllocBase>);
-
     // CREATORS
     LimitAllocator()
     : d_limit(-1) {}
@@ -1246,6 +1243,18 @@ class LimitAllocator : public ALLOC {
     // ACCESSORS
     size_type max_size() const { return d_limit; }
 };
+
+namespace BloombergLP {
+namespace bslmf {
+
+template <typename ALLOCATOR>
+struct IsBitwiseMoveable<LimitAllocator<ALLOCATOR> >
+    : IsBitwiseMoveable<ALLOCATOR>
+{};
+
+}
+
+}  // namespace BloombergLP
 
 //=============================================================================
 //                       TEST DRIVER TEMPLATE
@@ -4404,7 +4413,7 @@ void TestDriver<TYPE,ALLOC>::testCase16()
     //   reference (setting it to a default value, then back to its original
     //   value, and as a non-modifiable reference.
     //
-    //   For 4--6, use 'bslmf::IsSame' to assert the identity of iterator
+    //   For 4--6, use 'bsl::is_same' to assert the identity of iterator
     //   types.  Note that these concerns let us get away with other concerns
     //   such as testing that 'iter[i]' and 'iter + i' advance 'iter' by the
     //   correct number 'i' of positions, and other concern about traits,
@@ -4445,14 +4454,14 @@ void TestDriver<TYPE,ALLOC>::testCase16()
     if (verbose) printf("Testing 'iterator', 'begin', and 'end',"
                         " and 'const' variants.\n");
     {
-        ASSERT(1 == (bslmf::IsSame<iterator,
+        ASSERT(1 == (bsl::is_same<iterator,
                         bslstl::RandomAccessIterator<TYPE,
                             bslalg::DequeIterator<TYPE, BLOCK_LENGTH>
-                                                                  > >::VALUE));
-        ASSERT(1 == (bslmf::IsSame<const_iterator,
+                                                                  > >::value));
+        ASSERT(1 == (bsl::is_same<const_iterator,
                      bslstl::RandomAccessIterator<const TYPE,
                         bslalg::DequeIterator<TYPE, BLOCK_LENGTH>
-                                                                  > >::VALUE));
+                                                                  > >::value));
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int     LINE   = DATA[ti].d_lineNum;
@@ -4489,10 +4498,10 @@ void TestDriver<TYPE,ALLOC>::testCase16()
     if (verbose) printf("Testing 'reverse_iterator', 'rbegin', and 'rend',"
                         " and 'const' variants.\n");
     {
-        ASSERT(1 == (bslmf::IsSame<reverse_iterator,
-                                   bsl::reverse_iterator<iterator> >::VALUE));
-        ASSERT(1 == (bslmf::IsSame<const_reverse_iterator,
-                              bsl::reverse_iterator<const_iterator> >::VALUE));
+        ASSERT(1 == (bsl::is_same<reverse_iterator,
+                                   bsl::reverse_iterator<iterator> >::value));
+        ASSERT(1 == (bsl::is_same<const_reverse_iterator,
+                              bsl::reverse_iterator<const_iterator> >::value));
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int     LINE   = DATA[ti].d_lineNum;
@@ -4683,8 +4692,7 @@ void TestDriver<TYPE,ALLOC>::testCase14()
     const TYPE *const&  VALUES     = values;
     const int           NUM_VALUES = getValues(&values);
 
-    const int TYPE_ALLOC = bslalg::HasTrait<TYPE,
-                                   bslalg::TypeTraitUsesBslmaAllocator>::VALUE;
+    const int TYPE_ALLOC = bslma::UsesBslmaAllocator<TYPE>::value;
 
     static const size_t EXTEND[] = {
         0, 1, 2, 3, 4, 5, 7, 8, 9, 15, 16, 17
@@ -5790,7 +5798,7 @@ void TestDriver<TYPE,ALLOC>::testCase11()
     //   o That the 'computeNewCapacity' class method does not overflow
     //   o That creating an empty deque does not allocate
     //   o That the allocator is passed through to elements
-    //   o That the deque class has the 'bslalg::TypeTraitUsesBslmaAllocator'
+    //   o That the deque class has the 'bslma::UsesBslmaAllocator'
     //
     // Plan:
     //   We first verify that the 'bsl::deque' class has the traits, and
@@ -5819,10 +5827,9 @@ void TestDriver<TYPE,ALLOC>::testCase11()
     (void)NUM_VALUES;
 
     if (verbose)
-        printf("\nTesting 'bslalg::TypeTraitUsesBslmaAllocator'.\n");
+        printf("\nTesting 'bslma::UsesBslmaAllocator'.\n");
 
-    ASSERT((bslalg::HasTrait<Obj,
-                             bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
+    ASSERT((bslma::UsesBslmaAllocator<Obj>::value));
 
     if (verbose)
         printf("\nTesting that empty deque does allocate.\n");
@@ -5834,8 +5841,7 @@ void TestDriver<TYPE,ALLOC>::testCase11()
     if (verbose)
         printf("\nTesting passing allocator through to elements.\n");
 
-    ASSERT((bslalg::HasTrait<TYPE,
-                             bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
+    ASSERT((bslma::UsesBslmaAllocator<TYPE>::value));
     {
         Obj mX(1, VALUES[0], &testAllocator);  const Obj& X = mX;
         ASSERT(&testAllocator == X[0].allocator());
@@ -6303,11 +6309,9 @@ void TestDriver<TYPE,ALLOC>::testCase7()
     const TYPE *const&  VALUES     = values;
     const int           NUM_VALUES = getValues(&values);
 
-    const int TYPE_MOVE  = bslalg::HasTrait<TYPE,
-                                       bslalg::TypeTraitBitwiseMoveable>::VALUE
-                         ? 0 : 1;  // if moveable, moves do not count as allocs
-    const int TYPE_ALLOC = bslalg::HasTrait<TYPE,
-                                   bslalg::TypeTraitUsesBslmaAllocator>::VALUE;
+    // if moveable, moves do not count as allocs
+    const int TYPE_MOVE  = ! bslmf::IsBitwiseMoveable<TYPE>::value;
+    const int TYPE_ALLOC = bslma::UsesBslmaAllocator<TYPE>::value;
 
     if (verbose)
         printf("\nTesting parameters: TYPE_ALLOC = %d, TYPE_MOVE = %d.\n",
@@ -7268,11 +7272,9 @@ void TestDriver<TYPE,ALLOC>::testCase2()
     const TYPE *const&  VALUES     = values;
     const int           NUM_VALUES = getValues(&values);
 
-    const int TYPE_MOVE = bslalg::HasTrait<TYPE,
-                                       bslalg::TypeTraitBitwiseMoveable>::VALUE
-                            ? 0 : 1;
-    const int TYPE_ALLOC  = bslalg::HasTrait<TYPE,
-                                   bslalg::TypeTraitUsesBslmaAllocator>::VALUE;
+    // If bitwise moveable, then move does not count as an alloc
+    const int TYPE_MOVE = ! bslmf::IsBitwiseMoveable<TYPE>::value;
+    const int TYPE_ALLOC  = bslma::UsesBslmaAllocator<TYPE>::value;
 
     if (verbose)
         printf("\tTesting parameters: TYPE_ALLOC = %d, TYPE_MOVE = %d.\n",
@@ -7930,8 +7932,8 @@ int main(int argc, char *argv[])
 // Next, we observe that an iterator to a 'deque', unlike an iterator to a
 // 'vector', is not a pointer:
 //..
-        ASSERT(! (bslmf::IsSame<int *, It>::VALUE));
-        ASSERT(! bslmf::IsPointer<It>::VALUE);
+        ASSERT(! (bsl::is_same<int *, It>::value));
+        ASSERT(! bsl::is_pointer<It>::value);
 //..
 // Then, we create an allocator to use for the 'deque', and some test data to
 // load into it:
@@ -8061,7 +8063,7 @@ int main(int argc, char *argv[])
         }
         ASSERT(0 == *zeroIt);
 
-        ASSERT((bslmf::IsSame<int&, MyDeque::reference>::VALUE));
+        ASSERT((bsl::is_same<int&, MyDeque::reference>::value));
 
         MyDeque::reference zeroRef = *zeroIt;
 
@@ -8954,14 +8956,9 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\nAdditional tests: traits.\n");
 
-#ifndef BSLS_PLATFORM_CMP_MSVC  // Temporarily does not work
-        ASSERT(  (bslalg::HasTrait<bsl::deque<char>,
-                  bslalg::TypeTraitBitwiseMoveable>::VALUE));
-        ASSERT(  (bslalg::HasTrait<bsl::deque<T>,
-                  bslalg::TypeTraitBitwiseMoveable>::VALUE));
-        ASSERT(  (bslalg::HasTrait<bsl::deque<bsl::deque<int> >,
-                  bslalg::TypeTraitBitwiseMoveable>::VALUE));
-#endif
+        ASSERT(bslmf::IsBitwiseMoveable<bsl::deque<char> >::value);
+        ASSERT(bslmf::IsBitwiseMoveable<bsl::deque<T> >::value);
+        ASSERT(bslmf::IsBitwiseMoveable<bsl::deque<bsl::deque<int> > >::value);
 
       } break;
       case -1: {

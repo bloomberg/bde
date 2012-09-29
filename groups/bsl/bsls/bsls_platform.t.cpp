@@ -2,7 +2,7 @@
 
 #include <bsls_platform.h>
 
-#include <cstdio>     // 'atoi'
+#include <cstdio>      // 'printf'
 #include <cstdlib>     // 'atoi'
 #include <iostream>
 

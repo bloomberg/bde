@@ -128,6 +128,10 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_ADDLVALUEREFERENCE
+#include <bslmf_addlvaluereference.h>
+#endif
+
 namespace BloombergLP {
 
 namespace bslmf {
@@ -137,59 +141,17 @@ namespace bslmf {
                         // ===================
 
 
-template <class BSLMF_TYPE>
+template <class TYPE>
 struct AddReference {
     // This meta-function class defines a typedef, 'Type', that is an alias for
-    // a reference to the parameterized 'BSLMF_TYPE'.  References to
-    // cv-qualified 'void' will produce the original 'void' type and not a
-    // reference (see specializations below).  References-to-references
-    // "collapse" to produce an alias to the original reference type, which is
-    // the revised rule according to the C++11 standard.  Note that there is no
-    // requirement that the parameterized 'BSLMF_TYPE' be a complete type.
+    // a reference to the parameterized 'TYPE'.  References to cv-qualified
+    // 'void' will produce the original 'void' type and not a reference (see
+    // specializations below).  References-to-references "collapse" to produce
+    // an alias to the original reference type, which is the revised rule
+    // according to the C++11 standard.  Note that there is no requirement that
+    // the parameterized 'TYPE' be a complete type.
 
-    typedef BSLMF_TYPE& Type;
-        // Alias for a reference to the parameterized 'BSLMF_TYPE'
-};
-
-template <class BSLMF_TYPE>
-struct AddReference<BSLMF_TYPE &> {
-    // Specialization to ensure reference-to-reference collapses to a plain
-    // reference.
-
-    typedef BSLMF_TYPE& Type;
-};
-
-template <>
-struct AddReference<void> {
-    // This specialization of 'AddReference' for type 'void' is needed as the
-    // language does not support references to 'void'.
-
-    typedef void Type;
-};
-
-template <>
-struct AddReference<const void> {
-    // This specialization of 'AddReference' for type 'const void' is needed as
-    // the language does not support references to 'const void'.
-
-    typedef const void Type;
-};
-
-template <>
-struct AddReference<volatile void> {
-    // This specialization of 'AddReference' for type 'volatile void' is needed
-    // as the language does not support references to 'volatile void'.
-
-    typedef volatile void Type;
-};
-
-template <>
-struct AddReference<const volatile void> {
-    // This specialization of 'AddReference' for type 'const volatile void' is
-    // needed as the language does not support references to
-    // 'const volatile void'.
-
-    typedef const volatile void Type;
+    typedef typename bsl::add_lvalue_reference<TYPE>::type Type;
 };
 
 }  // close package namespace

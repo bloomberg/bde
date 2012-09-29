@@ -50,8 +50,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //                                            int       *begin,
 //                                            int        value,
 //                                            size_type  numElements,
-//                                            void      *allocator,
-//                                            bslalg::TypeTraitBitwiseCopyable)
+//                                            void      *allocator)
 //  {
 //      if (0 == value || -1 == value) {
 //          std::memset(begin, value, numElements * sizeof value);
@@ -106,15 +105,11 @@ BSLS_IDENT("$Id$ $CSID$")
 // 'bslmf::EnableIf' directly in the return type:
 //..
 //  template <class TARGET_TYPE, class ALLOCATOR>
-//  static typename bslmf::EnableIf<bslalg::HasTrait<
-//                                TARGET_TYPE,
-//                                bslalg::TypeTraitHasTrivialDefaultConstructor
-//                                        >::VALUE,
-//                                void>::Type
+//  static
+//  typename bsl::enable_if<bsl::is_trivially_copyable<TARGET_TYPE>::value>
+//      ::type
 //  defaultConstruct(TARGET_TYPE *begin, ...);
 //..
-// The 'bslmf_enableif' is currently not part of the bslmf package because it
-// does not work with SunPRO CC 5.5.
 
 #include <bslmf_assert.h>
 

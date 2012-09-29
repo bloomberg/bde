@@ -2,7 +2,9 @@
 
 #include <bslalg_rangecompare.h>
 
-#include <bslalg_typetraitusesbslmaallocator.h>             // for testing only
+#include <bslmf_isbitwiseequalitycomparable.h>          // for testing only
+#include <bslma_usesbslmaallocator.h>                   // for testing only
+#include <bslmf_nestedtraitdeclaration.h>               // for testing only
 
 #include <bslma_allocator.h>
 #include <bslma_default.h>
@@ -295,9 +297,8 @@ void ScalarPrimitives::copyConstruct(TARGET_TYPE               *address,
 {
     BSLS_ASSERT_SAFE(address);
 
-    typedef typename bslalg::HasTrait<TARGET_TYPE,
-                              bslalg::TypeTraitUsesBslmaAllocator>::Type Trait;
-
+    typedef bslmf::MetaInt<bslma::UsesBslmaAllocator<TARGET_TYPE>::value>
+        Trait;
     doCopyConstruct(address, original, allocator, Trait());
 }
 
@@ -622,8 +623,8 @@ class MyString {
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(MyString,
-                     BloombergLP::bslalg::TypeTraitUsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(MyString,
+                                   BloombergLP::bslma::UsesBslmaAllocator);
 
     // CREATORS
     explicit MyString(const char       *string,
@@ -776,8 +777,9 @@ class MyPoint {
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(MyPoint,
-                  BloombergLP::bslalg::TypeTraitBitwiseEqualityComparable);
+    BSLMF_NESTED_TRAIT_DECLARATION(
+            MyPoint,
+            BloombergLP::bslmf::IsBitwiseEqualityComparable);
 
     // CREATORS
     MyPoint(int x, int y);
@@ -984,6 +986,14 @@ class BitWiseNoOpEqual {
     char datum() const;
 };
 
+// TRAITS
+namespace BloombergLP {
+namespace bslmf {
+template <> struct IsBitwiseEqualityComparable<BitWiseNoOpEqual>
+    : bsl::true_type {};
+}
+}
+
 // CREATORS
 BitWiseNoOpEqual::BitWiseNoOpEqual(char value)
 : d_char(value)
@@ -1001,15 +1011,6 @@ bool operator<(const BitWiseNoOpEqual& lhs, const BitWiseNoOpEqual& rhs)
 {
     return lhs.datum() < rhs.datum();
 }
-
-// TRAITS
-namespace BloombergLP {
-
-template <>
-struct bslalg_TypeTraits<BitWiseNoOpEqual>
-: bslalg::TypeTraitBitwiseEqualityComparable { };
-
-}  // close enterprise namespace
 
                  // =========================================
                  // class CharEquivalentNonBitwiseWithOpEqual
@@ -1873,12 +1874,16 @@ void testGG(bool verbose, bool veryVerbose)
 //                  GLOBAL HELPER FUNCTIONS FOR CASE -1
 //-----------------------------------------------------------------------------
 
-struct TestPairType
-{
-    BSLALG_DECLARE_NESTED_TRAITS(TestPairType,
-                                 bslalg::TypeTraitBitwiseEqualityComparable);
+struct TestPairType {
     int first, second;
 };
+
+namespace BloombergLP {
+namespace bslmf {
+template <> struct IsBitwiseEqualityComparable<TestPairType>
+    : bsl::true_type {};
+}
+}
 
 bool operator==(const TestPairType& lhs, const TestPairType& rhs)
 {

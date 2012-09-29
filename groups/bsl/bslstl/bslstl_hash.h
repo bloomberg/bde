@@ -55,9 +55,18 @@ BSL_OVERRIDES_STD mode"
 #include <bslalg_hashutil.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
+#ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
+#include <bslmf_isbitwisemoveable.h>
 #endif
+
+#ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
+#include <bslmf_istriviallycopyable.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISTRIVIALLYDEFAULTCONSTRUCTIBLE
+#include <bslmf_istriviallydefaultconstructible.h>
+#endif
+
 
 #ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include <bsls_compilerfeatures.h>
@@ -74,12 +83,52 @@ namespace bsl {
                           // class bslstl::hash
                           // ==================
 
-template <class BSLSTL_KEY>
+template <class TYPE>
 struct hash;
     // Empty base class for hashing.  No general hash struct defined, each type
     // requires a specialization.  Leaving this struct declared but undefined
     // will generate error messages that are more clear when someone tries to
     // use a key that does not have a corresponding hash function.
+
+// ============================================================================
+//                                TYPE TRAITS
+// ============================================================================
+
+// Type traits for STL *sequence* containers:
+//: o A sequence container defines STL iterators.
+//: o A sequence container is bitwise moveable if the allocator is bitwise
+//:     moveable.
+//: o A sequence container uses 'bslma' allocators if the parameterized
+//:     'ALLOCATOR' is convertible from 'bslma::Allocator*'.
+
+template <class TYPE>
+struct is_trivially_default_constructible<hash<TYPE> >
+: bsl::true_type
+{};
+
+template <class TYPE>
+struct is_trivially_copyable<hash<TYPE> >
+: bsl::true_type
+{};
+
+}  // close namespace bsl
+
+namespace BloombergLP {
+namespace bslmf {
+
+template <class TYPE>
+struct IsBitwiseMoveable<bsl::hash<TYPE> >
+: bsl::true_type
+{};
+
+}
+}  // namespace BloombergLP
+
+namespace bsl {
+
+// ============================================================================
+//                  SPECIALIZATIONS FOR FUNDAMENTAL TYPES
+// ============================================================================
 
 template <class BSLSTL_KEY>
 struct hash<const BSLSTL_KEY> : hash<BSLSTL_KEY> {
@@ -90,10 +139,6 @@ struct hash<const BSLSTL_KEY> : hash<BSLSTL_KEY> {
 template <class TYPE>
 struct hash<TYPE *> {
     // Specialization of 'hash' for pointers.
-
-    // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(hash,
-                                 BloombergLP::bslalg::TypeTraitsGroupPod);
 
     // STANDARD TYPEDEFS
     typedef TYPE *argument_type;
@@ -125,10 +170,6 @@ template <>
 struct hash<bool> {
     // Specialization of 'hash' for 'bool' values.
 
-    // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(hash,
-                                 BloombergLP::bslalg::TypeTraitsGroupPod);
-
     // STANDARD TYPEDEFS
     typedef bool argument_type;
     typedef std::size_t result_type;
@@ -158,10 +199,6 @@ struct hash<bool> {
 template <>
 struct hash<char> {
     // Specialization of 'hash' for 'char' values.
-
-    // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(hash,
-                                 BloombergLP::bslalg::TypeTraitsGroupPod);
 
     // STANDARD TYPEDEFS
     typedef char argument_type;
@@ -193,10 +230,6 @@ template <>
 struct hash<signed char> {
     // Specialization of 'hash' for 'signed' 'char' values.
 
-    // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(hash,
-                                 BloombergLP::bslalg::TypeTraitsGroupPod);
-
     // STANDARD TYPEDEFS
     typedef signed char argument_type;
     typedef std::size_t result_type;
@@ -227,10 +260,6 @@ template <>
 struct hash<unsigned char> {
     // Specialization of 'hash' for 'unsigned' 'char' values.
 
-    // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(hash,
-                                 BloombergLP::bslalg::TypeTraitsGroupPod);
-
     // STANDARD TYPEDEFS
     typedef unsigned char argument_type;
     typedef std::size_t result_type;
@@ -260,10 +289,6 @@ struct hash<unsigned char> {
 template <>
 struct hash<wchar_t> {
     // Specialization of 'hash' for 'wchar_t' values.
-
-    // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(hash,
-                                 BloombergLP::bslalg::TypeTraitsGroupPod);
 
     // STANDARD TYPEDEFS
     typedef wchar_t argument_type;
@@ -296,10 +321,6 @@ template <>
 struct hash<char16_t> {
     // Specialization of 'hash' for 'char16_t' values.
 
-    // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(hash,
-                                 BloombergLP::bslalg::TypeTraitsGroupPod);
-
     // STANDARD TYPEDEFS
     typedef char16_t argument_type;
     typedef std::size_t result_type;
@@ -329,10 +350,6 @@ struct hash<char16_t> {
 template <>
 struct hash<char32_t> {
     // Specialization of 'hash' for 'char32_t' values.
-
-    // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(hash,
-                                 BloombergLP::bslalg::TypeTraitsGroupPod);
 
     // STANDARD TYPEDEFS
     typedef char32_t argument_type;
@@ -365,10 +382,6 @@ template <>
 struct hash<short> {
     // Specialization of 'hash' for 'short' values.
 
-    // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(hash,
-                                 BloombergLP::bslalg::TypeTraitsGroupPod);
-
     // STANDARD TYPEDEFS
     typedef short argument_type;
     typedef std::size_t result_type;
@@ -398,10 +411,6 @@ struct hash<short> {
 template <>
 struct hash<unsigned short> {
     // Specialization of 'hash' for 'unsigned' 'short' values.
-
-    // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(hash,
-                                 BloombergLP::bslalg::TypeTraitsGroupPod);
 
     // STANDARD TYPEDEFS
     typedef unsigned short argument_type;
@@ -433,10 +442,6 @@ template <>
 struct hash<int> {
     // Specialization of 'hash' for 'int' values.
 
-    // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(hash,
-                                 BloombergLP::bslalg::TypeTraitsGroupPod);
-
     // STANDARD TYPEDEFS
     typedef int argument_type;
     typedef std::size_t result_type;
@@ -466,10 +471,6 @@ struct hash<int> {
 template <>
 struct hash<unsigned int> {
     // Specialization of 'hash' for 'unsigned' 'int' values.
-
-    // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(hash,
-                                 BloombergLP::bslalg::TypeTraitsGroupPod);
 
     // STANDARD TYPEDEFS
     typedef unsigned int argument_type;
@@ -501,10 +502,6 @@ template <>
 struct hash<long> {
     // Specialization of 'hash' for 'long' values.
 
-    // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(hash,
-                                 BloombergLP::bslalg::TypeTraitsGroupPod);
-
     // STANDARD TYPEDEFS
     typedef long argument_type;
     typedef std::size_t result_type;
@@ -534,10 +531,6 @@ struct hash<long> {
 template <>
 struct hash<unsigned long> {
     // Specialization of 'hash' for 'unsigned' 'long' values.
-
-    // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(hash,
-                                 BloombergLP::bslalg::TypeTraitsGroupPod);
 
     // STANDARD TYPEDEFS
     typedef unsigned long argument_type;
@@ -569,10 +562,6 @@ template <>
 struct hash<long long> {
     // Specialization of 'hash' for 'long long' values.
 
-    // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(hash,
-                                 BloombergLP::bslalg::TypeTraitsGroupPod);
-
     // STANDARD TYPEDEFS
     typedef long long argument_type;
     typedef std::size_t result_type;
@@ -602,10 +591,6 @@ struct hash<long long> {
 template <>
 struct hash<unsigned long long> {
     // Specialization of 'hash' for 'unsigned' 'long long' values.
-
-    // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(hash,
-                                 BloombergLP::bslalg::TypeTraitsGroupPod);
 
     // STANDARD TYPEDEFS
     typedef unsigned long long argument_type;
@@ -637,10 +622,6 @@ template <>
 struct hash<float> {
     // Specialization of 'hash' for 'float' values.
 
-    // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(hash,
-                                 BloombergLP::bslalg::TypeTraitsGroupPod);
-
     // STANDARD TYPEDEFS
     typedef float argument_type;
     typedef std::size_t result_type;
@@ -671,10 +652,6 @@ template <>
 struct hash<double> {
     // Specialization of 'hash' for 'double' values.
 
-    // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(hash,
-                                 BloombergLP::bslalg::TypeTraitsGroupPod);
-
     // STANDARD TYPEDEFS
     typedef double argument_type;
     typedef std::size_t result_type;
@@ -704,10 +681,6 @@ struct hash<double> {
 template <>
 struct hash<long double> {
     // Specialization of 'hash' for 'long double' values.
-
-    // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(hash,
-                                 BloombergLP::bslalg::TypeTraitsGroupPod);
 
     // STANDARD TYPEDEFS
     typedef long double argument_type;

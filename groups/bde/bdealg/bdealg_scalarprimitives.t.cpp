@@ -185,10 +185,9 @@ class my_Class2 {
 
 // TRAITS
 namespace BloombergLP {
-
-template <>
-struct bslalg_TypeTraits<my_Class2> : bslalg_TypeTraitUsesBslmaAllocator { };
-
+    namespace bslma {
+        template <> struct UsesBslmaAllocator<my_Class2> : bsl::true_type { };
+    } // close bslma namespace
 }  // close BloombergLP namespace
 
                              // ===================
@@ -245,15 +244,13 @@ int my_ClassFussy::assignmentInvocations            = 0;
 int my_ClassFussy::destructorInvocations            = 0;
 
 // TRAITS
-namespace BloombergLP {
+namespace bsl {
+    template <>
+    struct is_trivially_default_constructible<my_ClassFussy> : true_type { };
 
-template <>
-struct bslalg_TypeTraits<my_ClassFussy>
-: bslalg_TypeTraitHasTrivialDefaultConstructor
-, bslalg_TypeTraitBitwiseCopyable
-{ };
-
-}  // close BloombergLP namespace
+    template <>
+    struct is_trivially_copyable<my_ClassFussy> : true_type { };
+}  // close bsl namespace
 
                                  // =========
                                  // my_Class4
@@ -268,7 +265,7 @@ class my_Class4 {
 
   public:
     // CREATORS
-    my_Class4(bslma_Allocator *a = 0) {
+    explicit my_Class4(bslma_Allocator *a = 0) {
         d_def.d_allocator_p = bslma_Default::allocator(a);
         d_def.d_data_p = (int*)(d_def.d_allocator_p)->allocate(sizeof(int));
         d_def.d_value = 0;
@@ -312,10 +309,9 @@ class my_Class4 {
 
 // TRAITS
 namespace BloombergLP {
-
-template <> struct bslalg_TypeTraits<my_Class4>
-    : bslalg_TypeTraitUsesBslmaAllocator { };
-
+    namespace bslma {
+        template <> struct UsesBslmaAllocator<my_Class4> : bsl::true_type { };
+    }  // Close bslma namespace
 }  // close BloombergLP namespace
 
                                  // =========
@@ -329,7 +325,7 @@ class my_Class5 : public my_Class4 {
 
   public:
     // CREATORS
-    my_Class5(bslma_Allocator *a = 0) : my_Class4(a) {}
+    explicit my_Class5(bslma_Allocator *a = 0) : my_Class4(a) {}
     my_Class5(int v, bslma_Allocator *a = 0)  : my_Class4(v, a) {}
     my_Class5(const my_Class4& rhs, bslma_Allocator *a = 0)
         : my_Class4(rhs, a) {}
@@ -339,11 +335,13 @@ class my_Class5 : public my_Class4 {
 
 // TRAITS
 namespace BloombergLP {
+    namespace bslma {
+        template <> struct UsesBslmaAllocator<my_Class5> : bsl::true_type { };
+    }  // close bslma namespace
 
-template <> struct bslalg_TypeTraits<my_Class5>
-    : bslalg_TypeTraitUsesBslmaAllocator
-    , bslalg_TypeTraitBitwiseMoveable { };
-
+    namespace bslmf {
+        template <> struct IsBitwiseMoveable<my_Class5> : bsl::true_type { };
+    }  // close bslmf namespace
 }  // close BloombergLP namespace
 
                              // =============
@@ -408,11 +406,10 @@ struct my_PairA {
 };
 
 namespace BloombergLP {
-
-template <typename T1, typename T2>
-struct  bslalg_TypeTraits<my_PairA<T1, T2> >
-    : bslalg_TypeTraitUsesBslmaAllocator { };
-
+    namespace bslma {
+        template <typename T1, typename T2>
+        struct UsesBslmaAllocator<my_PairA<T1, T2> > : bsl::true_type { };
+    }  // close bslma namespace
 }  // close BloombergLP namespace
 
                               // ===============
@@ -448,11 +445,10 @@ struct my_PairAA {
 };
 
 namespace BloombergLP {
-
-template <typename T1, typename T2>
-struct  bslalg_TypeTraits<my_PairAA<T1, T2> >
-    : bslalg_TypeTraitUsesBslmaAllocator { };
-
+    namespace bslma {
+        template <typename T1, typename T2>
+        struct UsesBslmaAllocator<my_PairAA<T1, T2> > : bsl::true_type { };
+    }  // close bslma namespace
 }  // close BloombergLP namespace
 
                               // ===============
@@ -492,12 +488,12 @@ struct my_PairBB {
 };
 
 namespace BloombergLP {
-
-template <typename T1, typename T2>
-struct  bslalg_TypeTraits<my_PairBB<T1, T2> >
-    : bslalg_TypeTraitPair {};
-
+    namespace bslmf {
+        template <typename T1, typename T2>
+        struct IsPair<my_PairBB<T1, T2> > : bsl::true_type { };
+    }  // close bslmf namespace
 }  // close BloombergLP namespace
+
 
                               // ===============
                               // macros TEST_OP*
@@ -743,12 +739,12 @@ class ConstructTestArgAlloc : public my_ClassDef {
 
 // TRAITS
 namespace BloombergLP {
-
-template <int ID>
-struct bslalg_TypeTraits<ConstructTestArgAlloc<ID> >
-    : bslalg_TypeTraitUsesBslmaAllocator { };
-
-}  // close namespace BloombergLP
+    namespace bslma {
+        template <int ID>
+        struct UsesBslmaAllocator<ConstructTestArgAlloc<ID> > :
+            bsl::true_type { };
+    }  // close bslma namespace
+}  // close BloombergLP namespace
 
 // CREATORS
 template <int ID>
@@ -900,12 +896,11 @@ class ConstructTestTypeAlloc {
 
 // TRAITS
 namespace BloombergLP {
-
-template <>
-struct bslalg_TypeTraits<ConstructTestTypeAlloc>
-    : bslalg_TypeTraitUsesBslmaAllocator { };
-
-}  // close namespace BloombergLP
+    namespace bslma {
+        template <>
+        struct UsesBslmaAllocator<ConstructTestTypeAlloc> : bsl::true_type { };
+    }  // close bslma namespace
+}  // close BloombergLP namespace
 
 // FREE OPERATORS
 bool operator==(const ConstructTestTypeAlloc& lhs,
