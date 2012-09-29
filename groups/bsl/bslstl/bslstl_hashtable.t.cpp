@@ -2741,7 +2741,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase4()
 
     if (verbose) printf("\nNegative Testing.\n");
     {
-        bsls_AssertFailureHandlerGuard hG(bsls_AssertTest::failTestDriver);
+        bsls::AssertFailureHandlerGuard hG(bsls::AssertTest::failTestDriver);
 
 
         if (veryVerbose) printf("\t'bucketAtIndex'\n");

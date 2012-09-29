@@ -558,8 +558,8 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    bslma_TestAllocator testAlloc("ta", veryVeryVeryVerbose);
-    bslma_Default::setDefaultAllocator(&testAlloc);
+    bslma::TestAllocator testAlloc("ta", veryVeryVeryVerbose);
+    bslma::Default::setDefaultAllocator(&testAlloc);
 
     switch (test) { case 0:
       case 1: {
