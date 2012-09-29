@@ -97,6 +97,7 @@ BSLS_IDENT("$Id: $")
 //  'V'             - parameterized 'VALUE' type of the unordered multi map
 //  'a', 'b'        - two distinct objects of type 'unordered_multimap<K, V>'
 //  'n', 'm'        - number of elements in 'a' and 'b' respectively
+//  'w'             - number of buckets of 'a'
 //  'value_type'    - unordered_multimap<K, V>::value_type
 //  'c'             - comparator providing an ordering for objects of type 'K'
 //  'al             - an STL-style memory allocator

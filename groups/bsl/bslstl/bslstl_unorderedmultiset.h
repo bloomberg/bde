@@ -43,11 +43,11 @@ BSLS_IDENT("$Id: $")
 // require (or are greatly simplified by) C++11 compiler support.
 //
 ///Requirements on 'KEY'
-///--------------------- 
+///---------------------
 // An 'unordered_multiset' instantiation is a fully "Value-Semantic Type" (see
-// {'bsldoc_glossary'}) only if the supplied 'KEY_TYPE' template parameters is
+// {'bsldoc_glossary'}) only if the supplied 'KEY' template parameters is
 // fully value-semantic.  It is possible to instantiate an 'unordered_multiset'
-// with 'KEY_TYPE' parameter arguments that do not provide a full set of
+// with 'KEY' parameter arguments that do not provide a full set of
 // value-semantic operations, but then some methods of the container may not be
 // instantiable.  The following terminology, adopted from the C++11 standard,
 // is used in the function documentation of 'unordered_multiset' to describe a
@@ -55,7 +55,7 @@ BSLS_IDENT("$Id: $")
 // also defined in section [utility.arg.requirements] of the C++11 standard.
 // Note that, in the context of an 'unordered_multiset' instantiation, the
 // requirements apply specifically to the 'unordered_multiset's entry type,
-// 'value_type', which is an alias for 'KEY_TYPE'.
+// 'value_type', which is an alias for 'KEY'.
 //
 //: "default-constructible": The type provides an accessible default
 //:                          constructor.
@@ -104,6 +104,7 @@ BSLS_IDENT("$Id: $")
 //  'K'             - parameterized 'KEY' type of the unordered multiset
 //  'a', 'b'        - two distinct objects of type 'unordered_multiset<K>'
 //  'n', 'm'        - number of elements in 'a' and 'b' respectively
+//  'w'             - number of buckets of 'a'
 //  'value_type'    - unoredered_multiset<K>::value_type
 //  'c'             - comparator providing an ordering for objects of type 'K'
 //  'al             - an STL-style memory allocator
@@ -119,22 +120,21 @@ BSLS_IDENT("$Id: $")
 //  +====================================================+====================+
 //  | unordered_multiset<K> a; (default construction)    | O[1]               |
 //  | unordered_multiset<K> a(al);                       |                    |
-//  | unordered_multiset<K> a(c, al);                    |                    |
 //  +----------------------------------------------------+--------------------+
 //  | unordered_multiset<K> a(b); (copy construction)    | Average: O[n]      |
 //  | unordered_multiset<K> a(b, al);                    | Worst:   O[n^2]    |
 //  +----------------------------------------------------+--------------------+
-//  | unordered_multiset<K> a(n);                        | O[n]               |
-//  | unordered_multiset<K> a(n, hf);                    |                    |
-//  | unordered_multiset<K> a(n, hf, eq);                |                    |
-//  | unordered_multiset<K> a(n, hf, eq, al);            |                    |
+//  | unordered_multiset<K> a(w);                        | O[n]               |
+//  | unordered_multiset<K> a(w, hf);                    |                    |
+//  | unordered_multiset<K> a(w, hf, eq);                |                    |
+//  | unordered_multiset<K> a(w, hf, eq, al);            |                    |
 //  +----------------------------------------------------+--------------------+
 //  | unordered_multiset<K> a(i1, i2);                   | Average: O[        |
-//  | unordered_multiset<K> a(i1, i2, n)                 |   distance(i1, i2)]|
-//  | unordered_multiset<K> a(i1, i2, n, hf);            | Worst:   O[n^2]    |
-//  | unordered_multiset<K> a(i1, i2, n, hf, eq);        |                    |
-//  | unordered_multiset<K> a(i1, i2, n, hf, eq, al);    |                    |
-//  |                                                    |                    |
+//  | unordered_multiset<K> a(i1, i2, w)                 |   distance(i1, i2)]|
+//  | unordered_multiset<K> a(i1, i2, w, hf);            | Worst:   O[n^2]    |
+//  | unordered_multiset<K> a(i1, i2, w, hf, eq);        |                    |
+//  | unordered_multiset<K> a(i1, i2, w, hf, eq, al);    |                    |
+//  +----------------------------------------------------+--------------------+
 //  | a.~unordered_multiset<K>(); (destruction)          | O[n]               |
 //  +----------------------------------------------------+--------------------+
 //  | a = b;          (assignment)                       | Average: O[n]      |
@@ -162,14 +162,10 @@ BSLS_IDENT("$Id: $")
 //  +----------------------------------------------------+--------------------+
 //  | get_allocator()                                    | O[1]               |
 //  +----------------------------------------------------+--------------------+
-//  | a[k]                                               | O[n]               |
-//  +----------------------------------------------------+--------------------+
-//  | a.at(k)                                            | O[n]               |
-//  +----------------------------------------------------+--------------------+
-//  | a.insert(value_type(k, v))                         | Average: O[1]      |
+//  | a.insert(v)                                        | Average: O[1]      |
 //  |                                                    | Worst:   O[n]      |
 //  +----------------------------------------------------+--------------------+
-//  | a.insert(p1, value_type(k, v))                     | Average: O[1]      |
+//  | a.insert(p1, v)                                    | Average: O[1]      |
 //  |                                                    | Worst:   O[n]      |
 //  +----------------------------------------------------+--------------------+
 //  | a.insert(i1, i2)                                   | Average O[         |
@@ -311,10 +307,10 @@ BSL_OVERRIDES_STD mode"
 
 namespace bsl {
 
-template <class KEY_TYPE,
-          class HASH  = bsl::hash<KEY_TYPE>,
-          class EQUAL = bsl::equal_to<KEY_TYPE>,
-          class ALLOC = bsl::allocator<KEY_TYPE> >
+template <class KEY,
+          class HASH  = bsl::hash<KEY>,
+          class EQUAL = bsl::equal_to<KEY>,
+          class ALLOC = bsl::allocator<KEY> >
 class unordered_multiset
 {
     typedef bsl::allocator_traits<ALLOC>                       AllocatorTraits;
@@ -323,8 +319,8 @@ class unordered_multiset
 
   public:
     // types
-    typedef KEY_TYPE key_type;
-    typedef KEY_TYPE value_type;
+    typedef KEY key_type;
+    typedef KEY value_type;
     typedef HASH     hasher;
     typedef EQUAL    key_equal;
     typedef ALLOC    allocator_type;
@@ -343,14 +339,14 @@ class unordered_multiset
     typedef ::BloombergLP::bslstl::UnorderedSetKeyConfiguration<value_type>
                                                                     ListPolicy;
     typedef ::BloombergLP::bslstl::HashTable<ListPolicy, HASH, EQUAL, ALLOC>
-                                                                          Impl;
+                                                                     HashTable;
 
   public:
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION_IF(
-                         unordered_multiset,
-                         ::BloombergLP::bslmf::IsBitwiseMoveable,
-                         ::BloombergLP::bslmf::IsBitwiseMoveable<Impl>::value);
+                    unordered_multiset,
+                    ::BloombergLP::bslmf::IsBitwiseMoveable,
+                    ::BloombergLP::bslmf::IsBitwiseMoveable<HashTable>::value);
 
     typedef ::BloombergLP::bslstl::HashTableIterator<value_type,
                                                      difference_type> iterator;
@@ -363,39 +359,42 @@ class unordered_multiset
 
   private:
     // DATA
-    Impl d_impl;
+    HashTable d_impl;
 
   public:
     // CREATORS
-    explicit unordered_multiset(size_type n = 0,
-                                const hasher& hf = hasher(),
-                                const key_equal& eql = key_equal(),
-                                const allocator_type& a = allocator_type());
+    explicit unordered_multiset(
+                           size_type             initialNumBuckets = 0,
+                           const hasher&         hash = hasher(),
+                           const key_equal&      keyEqual = key_equal(),
+                           const allocator_type& allocator = allocator_type());
 
-    template <class InputIterator>
-    unordered_multiset(InputIterator f, InputIterator l,
-                       size_type n = 0,
-                       const hasher& hf = hasher(),
-                       const key_equal& eql = key_equal(),
-                       const allocator_type& a = allocator_type());
+    template <class INPUT_ITERATOR>
+    unordered_multiset(INPUT_ITERATOR        first,
+                       INPUT_ITERATOR        last,
+                       size_type             initialNumBuckets = 0,
+                       const hasher&         hash = hasher(),
+                       const key_equal&      keyEqual = key_equal(),
+                       const allocator_type& allocator = allocator_type());
 
-    unordered_multiset(const unordered_multiset&);
+    unordered_multiset(const unordered_multiset& original);
 
-    explicit unordered_multiset(const allocator_type&);
+    explicit unordered_multiset(const allocator_type& allocator);
 
-    unordered_multiset(const unordered_multiset&, const allocator_type&);
+    unordered_multiset(const unordered_multiset& original,
+                       const allocator_type& allocator);
 
     ~unordered_multiset();
-    unordered_multiset& operator=(const unordered_multiset&);
+
+    // MANIPULATORS
+    unordered_multiset& operator=(const unordered_multiset& other);
 
     allocator_type get_allocator() const;
 
-    // size and capacity
     bool empty() const;
     size_type size() const;
     size_type max_size() const;
 
-    // iterators
     iterator begin();
     const_iterator begin() const;
     iterator end();
@@ -403,11 +402,10 @@ class unordered_multiset
     const_iterator cbegin() const;
     const_iterator cend() const;
 
-    // modifiers
     iterator insert(const value_type& obj);
     iterator insert(const_iterator hint, const value_type& obj);
-    template <class InputIterator>
-    void insert(InputIterator first, InputIterator last);
+    template <class INPUT_ITERATOR>
+    void insert(INPUT_ITERATOR first, INPUT_ITERATOR last);
 
     iterator erase(const_iterator position);
     size_type erase(const key_type& k);
@@ -417,11 +415,9 @@ class unordered_multiset
 
     void swap(unordered_multiset&);
 
-    // observers
     hasher hash_function() const;
     key_equal key_eq() const;
 
-    // lookup
     iterator find(const key_type& k);
     const_iterator find(const key_type& k) const;
 
@@ -430,7 +426,7 @@ class unordered_multiset
     pair<iterator, iterator> equal_range(const key_type& k);
     pair<const_iterator, const_iterator> equal_range(const key_type& k) const;
 
-    // bucket interface
+    // ACCESSORS
     size_type bucket_count() const;
     size_type max_bucket_count() const;
     size_type bucket_size(size_type n) const;
@@ -443,7 +439,6 @@ class unordered_multiset
     const_local_iterator cbegin(size_type n) const;
     const_local_iterator cend(size_type n) const;
 
-    // hash policy
     float load_factor() const;
     float max_load_factor() const;
     void max_load_factor(float z);
@@ -451,21 +446,28 @@ class unordered_multiset
     void reserve(size_type n);
 
 
-    friend // must be defined inline, as no syntax to declare out-of-line
-    bool operator==(const unordered_multiset& lhs,
-                    const unordered_multiset& rhs) {
-        return lhs.d_impl == rhs.d_impl;
-    }
+    // FRIEND
+    template <class KEY2,
+              class HASH2,
+              class EQUAL2,
+              class ALLOCATOR2>
+    friend bool operator==(
+                const unordered_set<KEY2, HASH2, EQUAL2, ALLOCATOR2>&,
+                const unordered_set<KEY2, HASH2, EQUAL2, ALLOCATOR2>&);
 
 };
 
-template <class KEY_TYPE, class HASH, class EQUAL, class ALLOC>
-void swap(unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>& x,
-          unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>& y);
+template <class KEY, class HASH, class EQUAL, class ALLOC>
+bool operator==(const unordered_multiset<KEY, HASH, EQUAL, ALLOC>& lhs,
+                const unordered_multiset<KEY, HASH, EQUAL, ALLOC>& rhs);
 
-template <class KEY_TYPE, class HASH, class EQUAL, class ALLOC>
-bool operator!=(const unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>& lhs,
-                const unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>& rhs);
+template <class KEY, class HASH, class EQUAL, class ALLOC>
+bool operator!=(const unordered_multiset<KEY, HASH, EQUAL, ALLOC>& lhs,
+                const unordered_multiset<KEY, HASH, EQUAL, ALLOC>& rhs);
+
+template <class KEY, class HASH, class EQUAL, class ALLOC>
+void swap(unordered_multiset<KEY, HASH, EQUAL, ALLOC>& x,
+          unordered_multiset<KEY, HASH, EQUAL, ALLOC>& y);
 
 }  // close namespace bsl
 
@@ -512,226 +514,169 @@ namespace bsl
                         //-------------------------
 
 // CREATORS
-template <class KEY_TYPE,
+template <class KEY,
           class HASH,
           class EQUAL,
           class ALLOC>
-unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::
-unordered_multiset(size_type        n,
-                   const hasher&    hf,
-                   const key_equal& eql,
-                   const allocator_type& a)
-: d_impl(hf, eql, n, a)
+unordered_multiset<KEY, HASH, EQUAL, ALLOC>::
+unordered_multiset(size_type        initialNumBuckets,
+                   const hasher&    hash,
+                   const key_equal& keyEqual,
+                   const allocator_type& allocator)
+: d_impl(hash, keyEqual, initialNumBuckets, allocator)
 {
 }
 
-template <class KEY_TYPE,
+template <class KEY,
           class HASH,
           class EQUAL,
           class ALLOC>
-template <class InputIterator>
-unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::
-unordered_multiset(InputIterator    first,
-                   InputIterator    last,
-                   size_type        n,
-                   const hasher&    hf,
-                   const key_equal& eql,
-                   const allocator_type& a)
-: d_impl(hf, eql, n, a)
-{   // Could pick initial number of buckets based on length of [first,last).
-    // Reduces number of rehashes, and no risk of unduly low load_factor on
-    // a multi-container.
+template <class INPUT_ITERATOR>
+unordered_multiset<KEY, HASH, EQUAL, ALLOC>::
+unordered_multiset(INPUT_ITERATOR        first,
+                   INPUT_ITERATOR        last,
+                   size_type             initialNumBuckets,
+                   const hasher&         hash,
+                   const key_equal&      keyEqual,
+                   const allocator_type& allocator)
+: d_impl(hash, keyEqual, initialNumBuckets, allocator)
+{
     this->insert(first, last);
 }
 
-template <class KEY_TYPE,
-          class HASH,
-          class EQUAL,
-          class ALLOC>
-unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::
-unordered_multiset(const allocator_type& a)
-: d_impl(HASH(), EQUAL(), 0, a)
+template <class KEY, class HASH, class EQUAL, class ALLOC>
+unordered_multiset<KEY, HASH, EQUAL, ALLOC>::unordered_multiset(
+                                               const allocator_type& allocator)
+: d_impl(HASH(), EQUAL(), 0, allocator)
 {
 }
 
-template <class KEY_TYPE,
-          class HASH,
-          class EQUAL,
-          class ALLOC>
-unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::
-unordered_multiset(const unordered_multiset& other, const allocator_type& a)
-: d_impl(other.d_impl, a)
+template <class KEY, class HASH, class EQUAL, class ALLOC>
+unordered_multiset<KEY, HASH, EQUAL, ALLOC>::
+unordered_multiset(const unordered_multiset& original, 
+                   const allocator_type&     allocator)
+: d_impl(original.d_impl, allocator)
 {
 }
 
-template <class KEY_TYPE,
-          class HASH,
-          class EQUAL,
-          class ALLOC>
-unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::
-unordered_multiset(const unordered_multiset& other)
-: d_impl(other.d_impl,
+template <class KEY, class HASH, class EQUAL, class ALLOC>
+unordered_multiset<KEY, HASH, EQUAL, ALLOC>::
+unordered_multiset(const unordered_multiset& original)
+: d_impl(original.d_impl,
          AllocatorTraits::select_on_container_copy_construction(
-                                                        other.get_allocator()))
+                                                     original.get_allocator()))
 {
 }
 
-template <class KEY_TYPE,
-          class HASH,
-          class EQUAL,
-          class ALLOC>
-unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::~unordered_multiset()
+template <class KEY, class HASH, class EQUAL, class ALLOC>
+unordered_multiset<KEY, HASH, EQUAL, ALLOC>::~unordered_multiset()
 {
     // All memory management is handled by the base 'd_impl' member.
 }
 
-template <class KEY_TYPE,
-          class HASH,
-          class EQUAL,
-          class ALLOC>
-unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>&
-unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::operator=(
-                                               const unordered_multiset& other)
+template <class KEY, class HASH, class EQUAL, class ALLOC>
+unordered_multiset<KEY, HASH, EQUAL, ALLOC>&
+unordered_multiset<KEY, HASH, EQUAL, ALLOC>::operator=(
+                                               const unordered_multiset& rhs)
 {
     // Actually, need to check propagate_on_copy_assign trait
-    unordered_multiset(other, get_allocator()).swap(*this);
+    unordered_multiset(rhs, get_allocator()).swap(*this);
     return *this;
 
 }
 
-template <class KEY_TYPE,
-          class HASH,
-          class EQUAL,
-          class ALLOC>
+template <class KEY, class HASH, class EQUAL, class ALLOC>
 ALLOC
-unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::get_allocator() const
+unordered_multiset<KEY, HASH, EQUAL, ALLOC>::get_allocator() const
 {
     return d_impl.allocator();
 }
 
-    // size and capacity
-template <class KEY_TYPE,
-          class HASH,
-          class EQUAL,
-          class ALLOC>
+template <class KEY, class HASH, class EQUAL, class ALLOC>
 bool
-unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::empty() const
+unordered_multiset<KEY, HASH, EQUAL, ALLOC>::empty() const
 {
     return 0 == d_impl.size();
 }
 
-template <class KEY_TYPE,
-          class HASH,
-          class EQUAL,
-          class ALLOC>
-typename unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::size_type
-unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::size() const
+template <class KEY, class HASH, class EQUAL, class ALLOC>
+typename unordered_multiset<KEY, HASH, EQUAL, ALLOC>::size_type
+unordered_multiset<KEY, HASH, EQUAL, ALLOC>::size() const
 {
     return d_impl.size();
 }
 
-template <class KEY_TYPE,
-          class HASH,
-          class EQUAL,
-          class ALLOC>
-typename unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::size_type
-unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::max_size() const
+template <class KEY, class HASH, class EQUAL, class ALLOC>
+typename unordered_multiset<KEY, HASH, EQUAL, ALLOC>::size_type
+unordered_multiset<KEY, HASH, EQUAL, ALLOC>::max_size() const
 {
     return d_impl.maxSize();
 }
 
-    // iterators
-template <class KEY_TYPE,
-          class HASH,
-          class EQUAL,
-          class ALLOC>
-typename unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::iterator
-unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::begin()
+template <class KEY, class HASH, class EQUAL, class ALLOC>
+typename unordered_multiset<KEY, HASH, EQUAL, ALLOC>::iterator
+unordered_multiset<KEY, HASH, EQUAL, ALLOC>::begin()
 {
     return iterator(d_impl.elementListRoot());
 }
 
-template <class KEY_TYPE,
-          class HASH,
-          class EQUAL,
-          class ALLOC>
-typename unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::const_iterator
-unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::begin() const
+template <class KEY, class HASH, class EQUAL, class ALLOC>
+typename unordered_multiset<KEY, HASH, EQUAL, ALLOC>::const_iterator
+unordered_multiset<KEY, HASH, EQUAL, ALLOC>::begin() const
 {
     return const_iterator(d_impl.elementListRoot());
 }
 
 
-template <class KEY_TYPE,
-          class HASH,
-          class EQUAL,
-          class ALLOC>
-typename unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::iterator
-unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::end()
+template <class KEY, class HASH, class EQUAL, class ALLOC>
+typename unordered_multiset<KEY, HASH, EQUAL, ALLOC>::iterator
+unordered_multiset<KEY, HASH, EQUAL, ALLOC>::end()
 {
     return iterator();
 }
 
-template <class KEY_TYPE,
-          class HASH,
-          class EQUAL,
-          class ALLOC>
-typename unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::const_iterator
-unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::end() const
+template <class KEY, class HASH, class EQUAL, class ALLOC>
+typename unordered_multiset<KEY, HASH, EQUAL, ALLOC>::const_iterator
+unordered_multiset<KEY, HASH, EQUAL, ALLOC>::end() const
 {
     return const_iterator();
 }
 
-template <class KEY_TYPE,
-          class HASH,
-          class EQUAL,
-          class ALLOC>
-typename unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::const_iterator
-unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::cbegin() const
+template <class KEY, class HASH, class EQUAL, class ALLOC>
+typename unordered_multiset<KEY, HASH, EQUAL, ALLOC>::const_iterator
+unordered_multiset<KEY, HASH, EQUAL, ALLOC>::cbegin() const
 {
     return const_iterator(d_impl.elementListRoot());
 }
 
-template <class KEY_TYPE,
-          class HASH,
-          class EQUAL,
-          class ALLOC>
-typename unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::const_iterator
-unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::cend() const
+template <class KEY, class HASH, class EQUAL, class ALLOC>
+typename unordered_multiset<KEY, HASH, EQUAL, ALLOC>::const_iterator
+unordered_multiset<KEY, HASH, EQUAL, ALLOC>::cend() const
 {
     return const_iterator();
 }
 
-template <class KEY_TYPE,
-          class HASH,
-          class EQUAL,
-          class ALLOC>
+template <class KEY, class HASH, class EQUAL, class ALLOC>
 inline
-typename unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::iterator
-unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::insert(const value_type& obj)
+typename unordered_multiset<KEY, HASH, EQUAL, ALLOC>::iterator
+unordered_multiset<KEY, HASH, EQUAL, ALLOC>::insert(const value_type& value)
 {
-    return iterator(d_impl.insert(obj));
+    return iterator(d_impl.insert(value));
 }
 
-template <class KEY_TYPE,
-          class HASH,
-          class EQUAL,
-          class ALLOC>
-typename unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::iterator
-unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::
-insert(const_iterator hint, const value_type& obj)
+template <class KEY, class HASH, class EQUAL, class ALLOC>
+typename unordered_multiset<KEY, HASH, EQUAL, ALLOC>::iterator
+unordered_multiset<KEY, HASH, EQUAL, ALLOC>::insert(const_iterator    hint, 
+                                                    const value_type& value)
 {
-    return iterator(d_impl.insert(obj, hint.node()));
+    return iterator(d_impl.insert(value, hint.node()));
 }
 
-template <class KEY_TYPE,
-          class HASH,
-          class EQUAL,
-          class ALLOC>
-template <class InputIterator>
+template <class KEY, class HASH, class EQUAL, class ALLOC>
+template <class INPUT_ITERATOR>
 void
-unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::
-insert(InputIterator first, InputIterator last)
+unordered_multiset<KEY, HASH, EQUAL, ALLOC>::insert(INPUT_ITERATOR first,  
+                                                    INPUT_ITERATOR last)
 {
     if (size_t maxInsertions =
             ::BloombergLP::bslstl::IteratorUtil::insertDistance(first, last)) {
@@ -745,28 +690,18 @@ insert(InputIterator first, InputIterator last)
     }
 }
 
-template <class KEY_TYPE,
-          class HASH,
-          class EQUAL,
-          class ALLOC>
-typename unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::iterator
-unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::erase(
-                                                       const_iterator position)
+template <class KEY, class HASH, class EQUAL, class ALLOC>
+typename unordered_multiset<KEY, HASH, EQUAL, ALLOC>::iterator
+unordered_multiset<KEY, HASH, EQUAL, ALLOC>::erase(const_iterator position)
 {
     BSLS_ASSERT(position != this->end());
     return iterator(d_impl.remove(position.node()));
 }
 
-template <class KEY_TYPE,
-          class HASH,
-          class EQUAL,
-          class ALLOC>
-typename unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::size_type
-unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::erase(const key_type& key)
-{   // As an alternative implementation, the table could return an extracted
-    // "slice" list from the underlying table, and now need merely:
-    //   iterate each node, destroying the associated value
-    //   reclaim each node (potentially returning to a node-pool)
+template <class KEY, class HASH, class EQUAL, class ALLOC>
+typename unordered_multiset<KEY, HASH, EQUAL, ALLOC>::size_type
+unordered_multiset<KEY, HASH, EQUAL, ALLOC>::erase(const key_type& key)
+{ 
     typedef ::BloombergLP::bslalg::BidirectionalNode<value_type> BNode;
 
     if (HashTableLink *target = d_impl.find(key)) {
@@ -778,31 +713,21 @@ unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::erase(const key_type& key)
             target = d_impl.remove(target);
             ++result;
         }
-        return result;
+        return result;                                                // RETURN
     }
-    else {
-        return 0;
-    }
+
+    return 0;
 }
 
-template <class KEY_TYPE,
+template <class KEY,
           class HASH,
           class EQUAL,
           class ALLOC>
-typename unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::iterator
-unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::
+typename unordered_multiset<KEY, HASH, EQUAL, ALLOC>::iterator
+unordered_multiset<KEY, HASH, EQUAL, ALLOC>::
 erase(const_iterator first, const_iterator last)
-{   // bad answer here, need to turn 'first' into a non-const iterator
-
-    // 7 Most of the library's algorithmic templates that operate on data
-    // structures have interfaces that use ranges.  A range is a pair of
-    // iterators that designate the beginning and end of the computation.  A
-    // range '[i,i)' is an empty range; in general, a range '[i,j)' refers to
-    // the elements in the data structure starting with the element pointed to
-    // by 'i' and up to but not including the element pointed to by 'j'.  Range
-    // [i,j) is valid if and only if 'j' is reachable from 'i'.  The result of
-    // the application of functions in the library to invalid ranges is
-    // undefined.
+{   
+    
 #if defined BDE_BUILD_TARGET_SAFE2
     // Check that 'first' and 'last' are valid iterators referring to this
     // container.
@@ -817,16 +742,6 @@ erase(const_iterator first, const_iterator last)
     }
 #endif
 
-    // more efficient to:
-    // 1. unlink a set of nodes
-    // 2. destroy their values
-    // 3. reclaim their memory
-    // merge steps 2/3 to avoid multiple list walks?
-    // tricky issue of fixing up bucket indices as well
-
-    // implementation must handle the case that 'last' is 'end', which will be
-    // invalidated when the preceding element is erased.
-
     while (first != last) {
         first = this->erase(first);
     }
@@ -834,78 +749,51 @@ erase(const_iterator first, const_iterator last)
     return iterator(first.node()); // convert from const_iterator
 }
 
-template <class KEY_TYPE,
-          class HASH,
-          class EQUAL,
-          class ALLOC>
+template <class KEY, class HASH, class EQUAL, class ALLOC>
 void
-unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::clear()
+unordered_multiset<KEY, HASH, EQUAL, ALLOC>::clear()
 {
     d_impl.removeAll();
 }
 
-template <class KEY_TYPE,
-          class HASH,
-          class EQUAL,
-          class ALLOC>
+template <class KEY, class HASH, class EQUAL, class ALLOC>
 void
-unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::
-swap(unordered_multiset& other)
+unordered_multiset<KEY, HASH, EQUAL, ALLOC>::swap(unordered_multiset& other)
 {
-    // assert that allocators are compatible
-    // TBD
     d_impl.swap(other.d_impl);
 }
 
-    // observers
-template <class KEY_TYPE,
-          class HASH,
-          class EQUAL,
-          class ALLOC>
-typename unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::hasher
-unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::hash_function() const
+template <class KEY, class HASH, class EQUAL, class ALLOC>
+typename unordered_multiset<KEY, HASH, EQUAL, ALLOC>::hasher
+unordered_multiset<KEY, HASH, EQUAL, ALLOC>::hash_function() const
 {
     return d_impl.hasher();
 }
 
-template <class KEY_TYPE,
-          class HASH,
-          class EQUAL,
-          class ALLOC>
-typename unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::key_equal
-unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::key_eq() const
+template <class KEY, class HASH, class EQUAL, class ALLOC>
+typename unordered_multiset<KEY, HASH, EQUAL, ALLOC>::key_equal
+unordered_multiset<KEY, HASH, EQUAL, ALLOC>::key_eq() const
 {
     return d_impl.comparator();
 }
 
-
-// lookup
-template <class KEY_TYPE,
-          class HASH,
-          class EQUAL,
-          class ALLOC>
-typename unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::iterator
-unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::find(const key_type& k)
+template <class KEY, class HASH, class EQUAL, class ALLOC>
+typename unordered_multiset<KEY, HASH, EQUAL, ALLOC>::iterator
+unordered_multiset<KEY, HASH, EQUAL, ALLOC>::find(const key_type& k)
 {
     return iterator(d_impl.find(k));
 }
 
-template <class KEY_TYPE,
-          class HASH,
-          class EQUAL,
-          class ALLOC>
-typename unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::const_iterator
-unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::find(const key_type& k) const
+template <class KEY, class HASH, class EQUAL, class ALLOC>
+typename unordered_multiset<KEY, HASH, EQUAL, ALLOC>::const_iterator
+unordered_multiset<KEY, HASH, EQUAL, ALLOC>::find(const key_type& k) const
 {
     return const_iterator(d_impl.find(k));
 }
 
-template <class KEY_TYPE,
-          class HASH,
-          class EQUAL,
-          class ALLOC>
-typename unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::size_type
-unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::
+template <class KEY, class HASH, class EQUAL, class ALLOC>
+typename unordered_multiset<KEY, HASH, EQUAL, ALLOC>::size_type
+unordered_multiset<KEY, HASH, EQUAL, ALLOC>::
 count(const key_type& k) const
 {
     typedef ::BloombergLP::bslalg::BidirectionalNode<value_type> BNode;
@@ -923,21 +811,11 @@ count(const key_type& k) const
     return result;
 }
 
-template <class KEY_TYPE,
-          class HASH,
-          class EQUAL,
-          class ALLOC>
+template <class KEY, class HASH, class EQUAL, class ALLOC>
 inline
-bsl::pair<typename unordered_multiset<KEY_TYPE,
-                                     HASH,
-                                     EQUAL,
-                                     ALLOC>::iterator,
-          typename unordered_multiset<KEY_TYPE,
-                                     HASH,
-                                     EQUAL,
-                                     ALLOC>::iterator>
-unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::
-equal_range(const key_type& k)
+bsl::pair<typename unordered_multiset<KEY, HASH, EQUAL, ALLOC>::iterator,
+          typename unordered_multiset<KEY, HASH, EQUAL, ALLOC>::iterator>
+unordered_multiset<KEY, HASH, EQUAL, ALLOC>::equal_range(const key_type& k)
 {
     HashTableLink *first;
     HashTableLink *last;
@@ -945,21 +823,12 @@ equal_range(const key_type& k)
     return bsl::pair<iterator, iterator>(iterator(first), iterator(last));
 }
 
-template <class KEY_TYPE,
-          class HASH,
-          class EQUAL,
-          class ALLOC>
+template <class KEY, class HASH, class EQUAL, class ALLOC>
 inline
-bsl::pair<typename unordered_multiset<KEY_TYPE,
-                                     HASH,
-                                     EQUAL,
-                                     ALLOC>::const_iterator,
-          typename unordered_multiset<KEY_TYPE,
-                                     HASH,
-                                     EQUAL,
-                                     ALLOC>::const_iterator>
-unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::
-equal_range(const key_type& k) const
+bsl::pair<typename unordered_multiset<KEY, HASH, EQUAL, ALLOC>::const_iterator,
+          typename unordered_multiset<KEY, HASH, EQUAL, ALLOC>::const_iterator>
+unordered_multiset<KEY, HASH, EQUAL, ALLOC>::equal_range(
+                                                       const key_type& k) const
 {
     HashTableLink *first;
     HashTableLink *last;
@@ -968,212 +837,162 @@ equal_range(const key_type& k) const
                                                      const_iterator(last));
 }
 
-    // bucket interface
-template <class KEY_TYPE,
-          class HASH,
-          class EQUAL,
-          class ALLOC>
+template <class KEY, class HASH, class EQUAL, class ALLOC>
 inline
-typename unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::size_type
-unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::bucket_count() const
+typename unordered_multiset<KEY, HASH, EQUAL, ALLOC>::size_type
+unordered_multiset<KEY, HASH, EQUAL, ALLOC>::bucket_count() const
 {
     return d_impl.numBuckets();
 }
 
-template <class KEY_TYPE,
-          class HASH,
-          class EQUAL,
-          class ALLOC>
+template <class KEY, class HASH, class EQUAL, class ALLOC>
 inline
-typename unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::size_type
-unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::max_bucket_count() const
+typename unordered_multiset<KEY, HASH, EQUAL, ALLOC>::size_type
+unordered_multiset<KEY, HASH, EQUAL, ALLOC>::max_bucket_count() const
 {
     return d_impl.maxNumOfBuckets();
 }
 
-template <class KEY_TYPE,
-          class HASH,
-          class EQUAL,
-          class ALLOC>
+template <class KEY, class HASH, class EQUAL, class ALLOC>
 inline
-typename unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::size_type
-unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::
-bucket_size(size_type n) const
+typename unordered_multiset<KEY, HASH, EQUAL, ALLOC>::size_type
+unordered_multiset<KEY, HASH, EQUAL, ALLOC>::
+bucket_size(size_type index) const
 {
-    BSLS_ASSERT_SAFE(n < this->bucket_count());
-    return d_impl.countElementsInBucket(n);
+    BSLS_ASSERT_SAFE(index < this->bucket_count());
+    return d_impl.countElementsInBucket(index);
 }
 
-template <class KEY_TYPE,
-          class HASH,
-          class EQUAL,
-          class ALLOC>
+template <class KEY, class HASH, class EQUAL, class ALLOC>
 inline
-typename unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::size_type
-unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::
-bucket(const key_type& k) const
+typename unordered_multiset<KEY, HASH, EQUAL, ALLOC>::size_type
+unordered_multiset<KEY, HASH, EQUAL, ALLOC>::bucket(const key_type& key) const
 {
-    return d_impl.bucketIndexForKey(k);
+    return d_impl.bucketIndexForKey(key);
 }
 
-template <class KEY_TYPE,
-          class HASH,
-          class EQUAL,
-          class ALLOC>
+template <class KEY, class HASH, class EQUAL, class ALLOC>
 inline
-typename unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::local_iterator
-unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::begin(size_type n)
+typename unordered_multiset<KEY, HASH, EQUAL, ALLOC>::local_iterator
+unordered_multiset<KEY, HASH, EQUAL, ALLOC>::begin(size_type index)
 {
-    BSLS_ASSERT_SAFE(n < this->bucket_count());
-    return local_iterator(&d_impl.bucketAtIndex(n));
+    BSLS_ASSERT_SAFE(index < this->bucket_count());
+    return local_iterator(&d_impl.bucketAtIndex(index));
 }
 
-template <class KEY_TYPE,
-          class HASH,
-          class EQUAL,
-          class ALLOC>
+template <class KEY, class HASH, class EQUAL, class ALLOC>
 inline
-typename unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::const_local_iterator
-unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::begin(size_type n) const
+typename unordered_multiset<KEY, HASH, EQUAL, ALLOC>::const_local_iterator
+unordered_multiset<KEY, HASH, EQUAL, ALLOC>::begin(size_type index) const
 {
-    BSLS_ASSERT_SAFE(n < this->bucket_count());
-    return const_local_iterator(&d_impl.bucketAtIndex(n));
+    BSLS_ASSERT_SAFE(index < this->bucket_count());
+    return const_local_iterator(&d_impl.bucketAtIndex(index));
 }
 
-template <class KEY_TYPE,
-          class HASH,
-          class EQUAL,
-          class ALLOC>
+template <class KEY, class HASH, class EQUAL, class ALLOC>
 inline
-typename unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::local_iterator
-unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::end(size_type n)
+typename unordered_multiset<KEY, HASH, EQUAL, ALLOC>::local_iterator
+unordered_multiset<KEY, HASH, EQUAL, ALLOC>::end(size_type index)
 {
-    BSLS_ASSERT_SAFE(n < this->bucket_count());
-    return local_iterator(0, &d_impl.bucketAtIndex(n));
+    BSLS_ASSERT_SAFE(index < this->bucket_count());
+    return local_iterator(0, &d_impl.bucketAtIndex(index));
 }
 
-template <class KEY_TYPE,
-          class HASH,
-          class EQUAL,
-          class ALLOC>
+template <class KEY, class HASH, class EQUAL, class ALLOC>
 inline
 typename
- unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::const_local_iterator
-unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::end(size_type n) const
+ unordered_multiset<KEY, HASH, EQUAL, ALLOC>::const_local_iterator
+unordered_multiset<KEY, HASH, EQUAL, ALLOC>::end(size_type index) const
 {
-    BSLS_ASSERT_SAFE(n < this->bucket_count());
-    return const_local_iterator(0, &d_impl.bucketAtIndex(n));
+    BSLS_ASSERT_SAFE(index < this->bucket_count());
+    return const_local_iterator(0, &d_impl.bucketAtIndex(index));
 }
 
-template <class KEY_TYPE,
-          class HASH,
-          class EQUAL,
-          class ALLOC>
+template <class KEY, class HASH, class EQUAL, class ALLOC>
 inline
 typename
- unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::const_local_iterator
-unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::cbegin(size_type n) const
+ unordered_multiset<KEY, HASH, EQUAL, ALLOC>::const_local_iterator
+unordered_multiset<KEY, HASH, EQUAL, ALLOC>::cbegin(size_type index) const
 {
-    BSLS_ASSERT_SAFE(n < this->bucket_count());
-    //SP: invoke begin(n)?
-    return const_local_iterator(&d_impl.bucketAtIndex(n));
+    BSLS_ASSERT_SAFE(index < this->bucket_count());
+    return const_local_iterator(&d_impl.bucketAtIndex(index));
 }
 
-template <class KEY_TYPE,
-          class HASH,
-          class EQUAL,
-          class ALLOC>
+template <class KEY, class HASH, class EQUAL, class ALLOC>
 inline
-typename unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::const_local_iterator
-unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::cend(size_type n) const
+typename unordered_multiset<KEY, HASH, EQUAL, ALLOC>::const_local_iterator
+unordered_multiset<KEY, HASH, EQUAL, ALLOC>::cend(size_type index) const
 {
-    BSLS_ASSERT_SAFE(n < this->bucket_count());
-    //SP: invoke end(n)?
-    return const_local_iterator(0, &d_impl.bucketAtIndex(n));
+    BSLS_ASSERT_SAFE(index < this->bucket_count());
+    return const_local_iterator(0, &d_impl.bucketAtIndex(index));
 }
 
-    // hash policy
-template <class KEY_TYPE,
-          class HASH,
-          class EQUAL,
-          class ALLOC>
+template <class KEY, class HASH, class EQUAL, class ALLOC>
 inline
-float unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::load_factor() const
+float unordered_multiset<KEY, HASH, EQUAL, ALLOC>::load_factor() const
 {
     return d_impl.loadFactor();
 }
 
-template <class KEY_TYPE,
-          class HASH,
-          class EQUAL,
-          class ALLOC>
+template <class KEY, class HASH, class EQUAL, class ALLOC>
 inline
-float unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::max_load_factor() const
+float unordered_multiset<KEY, HASH, EQUAL, ALLOC>::max_load_factor() const
 {
     return d_impl.maxLoadFactor();
 }
 
-template <class KEY_TYPE,
-          class HASH,
-          class EQUAL,
-          class ALLOC>
+template <class KEY, class HASH, class EQUAL, class ALLOC>
 inline
-void unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::max_load_factor(float z)
+void unordered_multiset<KEY, HASH, EQUAL, ALLOC>::max_load_factor(
+                                                           float newLoadFactor)
 {
-    d_impl.maxLoadFactor(z);
+    d_impl.maxLoadFactor(newLoadFactor);
 }
 
-template <class KEY_TYPE,
-          class HASH,
-          class EQUAL,
-          class ALLOC>
+template <class KEY, class HASH, class EQUAL, class ALLOC>
 inline
 void
-unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::rehash(size_type n)
+unordered_multiset<KEY, HASH, EQUAL, ALLOC>::rehash(size_type numBuckets)
 {
-    return d_impl.rehash(n);
+    return d_impl.rehash(numBuckets);
 }
 
-template <class KEY_TYPE,
-          class HASH,
-          class EQUAL,
-          class ALLOC>
+template <class KEY, class HASH, class EQUAL, class ALLOC>
 inline
 void
-unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>::reserve(size_type n)
+unordered_multiset<KEY, HASH, EQUAL, ALLOC>::reserve(size_type numElements)
 {
-    return d_impl.rehashForNumElements(n);
+    return d_impl.rehashForNumElements(numElements);
 }
 
 }  // close namespace bsl
 
-//----------------------------------------------------------------------------
-//                  free functions and operators
-//----------------------------------------------------------------------------
-
-template <class KEY_TYPE,
-          class HASH,
-          class EQUAL,
-          class ALLOC>
+// FREE FUNCTIONS
+template <class KEY, class HASH, class EQUAL, class ALLOC>
 inline
-void
-bsl::swap(bsl::unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>& x,
-          bsl::unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>& y)
+bool bsl::operator==(
+              const bsl::unordered_multiset<KEY, HASH, EQUAL, ALLOC>& lhs,
+              const bsl::unordered_multiset<KEY, HASH, EQUAL, ALLOC>& rhs)
 {
-    x.swap(y);
+    return lhs.d_impl == rhs.d_impl;
 }
 
-template <class KEY_TYPE,
-          class HASH,
-          class EQUAL,
-          class ALLOC>
+template <class KEY, class HASH, class EQUAL, class ALLOC>
 inline
-bool
-bsl::operator!=(
-              const bsl::unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>& lhs,
-              const bsl::unordered_multiset<KEY_TYPE, HASH, EQUAL, ALLOC>& rhs)
+bool bsl::operator!=(
+              const bsl::unordered_multiset<KEY, HASH, EQUAL, ALLOC>& lhs,
+              const bsl::unordered_multiset<KEY, HASH, EQUAL, ALLOC>& rhs)
 {
     return !(lhs == rhs);
+}
+
+template <class KEY, class HASH, class EQUAL, class ALLOC>
+inline
+void
+bsl::swap(bsl::unordered_multiset<KEY, HASH, EQUAL, ALLOC>& x,
+          bsl::unordered_multiset<KEY, HASH, EQUAL, ALLOC>& y)
+{
+    x.swap(y);
 }
 
 #endif
