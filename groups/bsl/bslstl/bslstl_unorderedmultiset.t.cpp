@@ -1842,8 +1842,8 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    bslma_TestAllocator testAlloc("A");
-    bslma_Default::setDefaultAllocator(&testAlloc);
+    bslma::TestAllocator testAlloc("A");
+    bslma::Default::setDefaultAllocator(&testAlloc);
 
     switch (test) { case 0:
       case 4: {

@@ -107,7 +107,7 @@ void time_computeHash(const TYPE&   key,
 {
     enum { ITERATIONS = 1000000 }; // 1M
     unsigned int value = 0;
-    bsls_Stopwatch timer;
+    bsls::Stopwatch timer;
     timer.start();
     for (int i = 0; i < ITERATIONS; ++i) {
         value += HashUtil::computeHash(key) % LENGTH;
