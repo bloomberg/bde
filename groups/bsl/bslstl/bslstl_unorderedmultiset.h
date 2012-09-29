@@ -16,36 +16,46 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Alisdair Meredith (ameredith1), Stefano Pacifico (spacifico1)
 //
-//@DESCRIPTION: This component provides an implementation of the container,
-// 'unordered_multiset', specified by the C++11 standard.
+//@DESCRIPTION: This component defines a single class template
+// 'unordered_multiset', implementing the standard container holding a
+// collection of multiple keys with no guarantees on ordering.
 //
-// This implementation will be the 'monkey-skin' approach that minimizes the
-// size of the nodes, by using the preceding element in the list when storing
-// references to nodes, e.g., in iterators or buckets.  The main container is
-// a singly-linked list, indexed by a vector of buckets.  The overhead is:
-//   o one pointer in each node
-//   o one pointer per bucket (no. buckets determined by max_load_factor)
-//   o one additional (empty) sentinel node
-// As we do not cache the hashed value, if any hash function throws we will
-// either do nothing and allow the exception to propagate, or, if some change
-// of state has already been made, clear the whole container to provide the
-// basic exception guarantee.  There are similar concerns for the 'equal_to'
-// predicate.
+// An instantiation of 'unordered_multiset' is an allocator-aware,
+// value-semantic type whose salient attributes are its size (number of keys)
+// and the set of keys the 'unordered_multiset' contains, without regard to
+// their order.  If 'unordered_multiset' is instantiated with a key type that
+// is not itself value-semantic, then it will not retain all of its
+// value-semantic qualities.  In particular, if the key type cannot be tested
+// for equality, then an 'unordered_multiset' containing that type cannot be
+// tested for equality.  It is even possible to instantiate
+// 'unordered_multiset' with a key type that does not have an accessible
+// copy-constructor, in which case the 'unordered_multiset' will not be
+// copyable.  Note that the equality operator 'operator==' for each element is
+// used to determine when two 'unordered_multiset' objects have the same value,
+// and not the equality comparator supplied at construction.
+//
+// An 'unordered_multiset' meets the requirements of an unordered associative
+// container with forward iterators in the C++11 standard [unord].  The
+// 'unordered_multiset' implemented here adheres to the C++11 standard, except
+// that it does not have interfaces that take rvalue references,
+// 'initializer_list', 'emplace', or operations taking a variadic number of
+// template parameters.  Note that excluded C++11 features are those that
+// require (or are greatly simplified by) C++11 compiler support.
 //
 ///Requirements on 'KEY'
-///--------------------- An 'unordered_multiset' instantiation is a fully
-//"Value-Semantic Type" (see {'bsldoc_glossary'}) only if the supplied
-//'KEY_TYPE' template parameters is fully value-semantic.  It is possible to
-//instantiate an 'unordered_multiset' with 'KEY_TYPE' parameter arguments that
-//do not provide a full set of value-semantic operations, but then some methods
-//of the container may not be instantiable.  The following terminology, adopted
-//from the C++11 standard, is used in the function documentation of
-//'unordered_multiset' to describe a function's requirements for the 'KEY'
-//template parameter.  These terms are also defined in section
-//[utility.arg.requirements] of the C++11 standard.  Note that, in the context
-//of an 'unordered_multiset' instantiation, the requirements apply specifically
-//to the 'unordered_multiset's entry type, 'value_type', which is an alias for
-//'KEY_TYPE'.
+///--------------------- 
+// An 'unordered_multiset' instantiation is a fully "Value-Semantic Type" (see
+// {'bsldoc_glossary'}) only if the supplied 'KEY_TYPE' template parameters is
+// fully value-semantic.  It is possible to instantiate an 'unordered_multiset'
+// with 'KEY_TYPE' parameter arguments that do not provide a full set of
+// value-semantic operations, but then some methods of the container may not be
+// instantiable.  The following terminology, adopted from the C++11 standard,
+// is used in the function documentation of 'unordered_multiset' to describe a
+// function's requirements for the 'KEY' template parameter.  These terms are
+// also defined in section [utility.arg.requirements] of the C++11 standard.
+// Note that, in the context of an 'unordered_multiset' instantiation, the
+// requirements apply specifically to the 'unordered_multiset's entry type,
+// 'value_type', which is an alias for 'KEY_TYPE'.
 //
 //: "default-constructible": The type provides an accessible default
 //:                          constructor.
