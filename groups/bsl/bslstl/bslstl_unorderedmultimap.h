@@ -375,16 +375,16 @@ class unordered_multimap
               class EQUAL2,
               class ALLOCATOR2>
     friend
-    bool bsl::operator==(const bsl::unordered_multimap<KEY2,
-                                                       VALUE2,
-                                                       HASH2,
-                                                       EQUAL2,
-                                                       ALLOCATOR2>& lhs,
-                         const bsl::unordered_multimap<KEY2,
-                                                       VALUE2,
-                                                       HASH2,
-                                                       EQUAL2,
-                                                       ALLOCATOR2>& rhs);
+    bool operator==(const unordered_multimap<KEY2,
+                                             VALUE2,
+                                             HASH2,
+                                             EQUAL2,
+                                             ALLOCATOR2>&,
+                    const unordered_multimap<KEY2,
+                                             VALUE2,
+                                             HASH2,
+                                             EQUAL2,
+                                             ALLOCATOR2>&);
 
   public:
     // CREATORS
@@ -474,8 +474,10 @@ class unordered_multimap
     // MANIPULATORS
     unordered_multimap& operator=(const unordered_multimap& other);
         // Assign to this object the value, hasher, and key-equality functor of
-        // the specified 'other' object, propagate to this object the allocator
-        // of 'other' if the 'ALLOCATOR' type has trait
+        // the specified 'other' object.
+        //
+        // Not done yet: TBD: propagate to this object the allocator of 'other'
+        // if the 'ALLOCATOR' type has trait
         // 'propagate_on_container_copy_assignment', and return a reference
         // providing modifiable access to this object.  This method requires
         // that the (template parameter types) 'KEY' and 'VALUE' both be
@@ -565,7 +567,8 @@ class unordered_multimap
     void swap(unordered_multimap& other);
         // Exchange the value of this object as well as its hasher and
         // key-equality functor with those of the specified 'other' object.
-        // Additionally if
+        //
+        // Not implemented yet: TBD: Additionally if
         // 'bslstl::AllocatorTraits<ALLOCATOR>::propagate_on_container_swap' is
         // 'true' then exchange the allocator of this object with that of the
         // 'other' object, and do not modify either allocator otherwise.  This
@@ -1174,7 +1177,7 @@ erase(const_iterator first, const_iterator last)
     // really the case we're worried about?
 
     // Check that 'first' and 'last' are valid iterators referring to this
-    // container. 
+    // container.
 
     if (first == last) {
         iterator it = this->begin();
@@ -1190,8 +1193,8 @@ erase(const_iterator first, const_iterator last)
     // Alternative code:
 
     if (first != last) {
-        iterator it         = this->begin();
-        const iterator end  = this->end();
+        iterator it        = this->begin();
+        const iterator end = this->end();
         for (; it != first; ++it) {
             BSLS_ASSERT(last != it);
             BSLS_ASSERT(end  != it);
@@ -1215,7 +1218,7 @@ erase(const_iterator first, const_iterator last)
 #endif
 
 #if defined BDE_BUILD_TARGET_SAFE
-    const iterator end  = this->end();
+    const iterator end = this->end();
 #endif
     while (first != last) {
         BSLS_ASSERT_SAFE(end != first);
