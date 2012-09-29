@@ -1,6 +1,12 @@
 // bslstl_hashtableiterator.t.cpp                                     -*-C++-*-
 #include <bslstl_hashtableiterator.h>
 
+#include <bslstl_allocator.h>
+#include <bslstl_bidirectionalnodepool.h>
+
+#include <bslma_testallocator.h>
+#include <bslma_sequentialallocator.h>
+
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
 
@@ -75,6 +81,66 @@ void aSsErT(bool b, const char *s, int i)
 #define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
 #define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
+//=============================================================================
+//             GLOBAL TYPEDEFS, FUNCTIONS AND VARIABLES FOR TESTING
+//-----------------------------------------------------------------------------
+
+typedef bslstl::HashTableIterator<int, bsl::allocator<int> > Obj;
+typedef bslalg::BidirectionalNode<int>                       Node;
+
+struct NodePool {
+  private:
+    // DATA
+    bslma::SequentialAllocator                               d_seqAlloc;
+    bslstl::BidirectionalNodePool<int, bsl::allocator<int> > d_subPool;
+
+  public:
+    // CREATORS
+    explicit
+    NodePool(bslma::Allocator *alloc)
+    : d_seqAlloc(alloc)
+    , d_subPool(&d_seqAlloc)
+    {}
+
+    // MANIPULATORS
+    Node *createNode(int value, Node *prev, Node *next)
+    {
+        Node *result = (Node *) d_subPool.createNode(value);
+        result->setPreviousLink(prev);
+        result->setNextLink(    next);
+
+        return result;
+    }
+};
+
+Node *makeSequence(NodePool *pool, int from, const int to, int by)
+{
+    Node *result = 0, *prev = 0;
+    for (int i = from; to != i; i += by) {
+        Node *current = pool->createNode(i, prev, 0);
+        if (0 == result) {
+            result = current;
+        }
+        else {
+            prev->setNextLink(current);
+        }
+        prev = current;
+    }
+
+    return result;
+}
+
+struct MyPair {
+    int d_first;
+    int d_second;
+
+    // CREATORS
+    MyPair() {}
+    MyPair(int first, int second) : d_first(first), d_second(second) {}
+};
+
+typedef bslstl::HashTableIterator<MyPair, bsl::allocator<int> > PairObj;
+typedef bslalg::BidirectionalNode<MyPair>                       PairNode;
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -89,6 +155,8 @@ int main(int argc, char *argv[])
     bool veryVeryVeryVerbose = argc > 5;
 
     printf("TEST " __FILE__ " CASE %d\n", test);
+
+    bslma::TestAllocator ta;
 
     switch (test) { case 0:
       case 1: {
@@ -110,6 +178,35 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nBREATHING TEST"
                             "\n==============\n");
 
+        {
+            NodePool pool(&ta);
+
+            Node *list = makeSequence(&pool, 0, 10, 1);
+
+            int i = 0;
+            for (Obj it(list); it.node(); ++it, ++i) {
+                ASSERT(i == *it);
+            }
+            ASSERT(10 == i);
+
+            i = 0;
+            for (Obj it(list); it.node(); ++i) {
+                ASSERT(i == *it++);
+            }
+            ASSERT(10 == i);
+        }
+
+        {
+            PairNode *pn = (PairNode *) ta.allocate(sizeof(PairNode));
+            pn->value() = MyPair(3, 5);
+
+            PairObj it(pn);
+
+            ASSERT(3 == it->d_first);
+            ASSERT(5 == it->d_second);
+
+            ta.deallocate(pn);
+        }
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
