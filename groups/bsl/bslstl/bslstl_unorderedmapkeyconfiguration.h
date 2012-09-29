@@ -28,7 +28,6 @@ BSLS_IDENT("$Id: $")
 // will abstract out the 'key type' portion of that object.  In the case of the
 // 'unordered_map' data structure, the 'value type' will be 'bsl::pair', and
 // the key type will 'bsl::pair::first_type'.
-//-----------------------------------------------------------------------------
 //
 ///Usage
 ///-----

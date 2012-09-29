@@ -14,7 +14,7 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslstl_unorderedmultimap, bslstl_unorderedmultiset
 //
-//@AUTHOR: Alisdair Meredith (ameredith1)
+//@AUTHOR: Alisdair Meredith (ameredith1), Stefano Pacifico (spacifico1)
 //
 //@DESCRIPTION: This component provides a common foundation to implement the
 // four 'unordered' containers specified by the C++11 standard.  It supplies
@@ -27,7 +27,7 @@ BSLS_IDENT("$Id: $")
 // references to nodes, e.g., in iterators or buckets.  The main container is
 // a singly-linked list, indexed by a vector of buckets.  The overhead is:
 //   o one pointer in each node
-//   o one pointer per bucket (no. buckets determined by max_load_factor)
+//   o one pointer per bucket (no.  buckets determined by max_load_factor)
 //   o one additional (empty) sentinel node
 // As we do not cache the hashed value, if any hash function throws we will
 // either do nothing and allow the exception to propagate, or, if some change
@@ -186,7 +186,7 @@ class HashTableBucketIterator
         // 'HashTableBucketIterator's are invalidated when the underlying hash
         // table is rehashed.
 
-    pointer   operator->() const;
+    pointer operator->() const;
         // Return the address of the value (of the parameterized 'VALUE_TYPE')
         // of the element at which this iterator is positioned.  The behavior
         // is undefined unless the iterator refers to a valid (not yet erased)

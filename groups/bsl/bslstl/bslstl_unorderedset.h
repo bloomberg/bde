@@ -12,9 +12,9 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //   bsl::unordered_set : STL-compatible unordered set container
 //
-//@AUTHOR: Alisdair Meredith (ameredith1) Stefano Pacifico (spacifico1)
-//
 //@SEE_ALSO: bsl+stdhdrs
+//
+//@AUTHOR: Alisdair Meredith (ameredith1) Stefano Pacifico (spacifico1)
 //
 //@DESCRIPTION: This component defines a single class template 'unordered_set',
 // implementing the standard container holding a collection of unique keys with
@@ -41,8 +41,7 @@ BSLS_IDENT("$Id: $")
 // Note that excluded C++11 features are those that require (or are greatly
 // simplified by) C++11 compiler support.
 //
-///
-//Requirements on 'KEY'
+///Requirements on 'KEY'
 ///---------------------
 // An 'unordered_set' instantiation is a fully "Value-Semantic Type" (see
 // {'bsldoc_glossary'}) only if the supplied 'KEY' template parameters is
@@ -440,8 +439,8 @@ class unordered_set
         // convertible to 'bslma::Allocator *'.
 
     template <class INPUT_ITERATOR>
-    unordered_set(INPUT_ITERATOR         first,
-                  INPUT_ITERATOR         last,
+    unordered_set(INPUT_ITERATOR        first,
+                  INPUT_ITERATOR        last,
                   size_type             initialNumBuckets = 0,
                   const hasher&         hash = hasher(),
                   const key_equal&      keyEqual = key_equal(),
@@ -453,7 +452,7 @@ class unordered_set
         // Optionally specify an 'initialNumBuckets' indicating the initial
         // size of the array of buckets of this container.  If
         // 'initialNumBuckets' is not supplied, an implementation defined value
-        // is used.  Optionally specify a 'hasher' used to generate hash values
+        // is used.  Optionally specify a 'hash' used to generate hash values
         // for the keys extracted from the values contained in this object.  If
         // 'hash' is not supplied, a default-constructed object of type
         // 'hasher' is used.  Optionally specify a key-equality functor
@@ -540,7 +539,7 @@ class unordered_set
         // 'end' iterator, and the 'first' position is at or before the 'last'
         // position in the ordered sequence provided by this container.
 
-    iterator find(const key_type& k);
+    iterator find(const key_type& key);
         // Return an iterator providing modifiable access to the 'value_type'
         // object in this set having the specified 'key', if such an entry
         // exists, and the past-the-end ('end') iterator otherwise.
@@ -592,10 +591,8 @@ class unordered_set
 
     unordered_set& operator=(const unordered_set& rhs);
         // Assign to this object the value, hasher, and key-equality functor of
-        // the specified 'rhs' object.
-        //
-        // Not done yet: TBD: propagate to this object the allocator of 'rhs'
-        // if the 'ALLOCATOR' type has trait
+        // the specified 'rhs' object, propagate to this object the
+        // allocator of 'rhs' if the 'ALLOCATOR' type has trait
         // 'propagate_on_container_copy_assignment', and return a reference
         // providing modifiable access to this object.  This method requires
         // that the (template parameter) type 'KEY' be "copy-constructible"
@@ -673,7 +670,7 @@ class unordered_set
 
     size_type bucket(const key_type& key) const;
         // Return the index of the bucket, in the array of buckets of this
-        // container, where values having the specified 'key' would bej
+        // container, where values having the specified 'key' would be
         // inserted.
 
     size_type bucket_count() const;
@@ -781,17 +778,13 @@ template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 void swap(unordered_set<KEY, HASH, EQUAL, ALLOCATOR>& x,
           unordered_set<KEY, HASH, EQUAL, ALLOCATOR>& y);
     // Swap both the value and the comparator of the specified 'a' object with
-    // the value and comparator of the specified 'b' object.  The behavior is
-    // undefined is unless this object was created with the same allocator as
-    // 'other'.
-    //
-    // Not done yet: TBD: Additionally if
+    // the value and comparator of the specified 'b' object.  Additionally if
     // 'bslstl::AllocatorTraits<ALLOCATOR>::propagate_on_container_swap' is
     // 'true' then exchange the allocator of 'a' with that of 'b', and do not
     // modify either allocator otherwise.  This method provides the no-throw
-    // exception-safety guarantee and guarantees O[1] complexity.  The
-    // behavior is undefined is unless either this object was created with the
-    // same allocator as 'other' or 'propagate_on_container_swap' is 'true'.
+    // exception-safety guarantee and guarantees O[1] complexity.  The behavior
+    // is undefined is unless either this object was created with the same
+    // allocator as 'other' or 'propagate_on_container_swap' is 'true'.
 
 }  // close namespace bsl
 
@@ -992,27 +985,6 @@ unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::erase(const_iterator first,
                                                   const_iterator last)
 {
 #if defined BDE_BUILD_TARGET_SAFE2
-#if 0
-    // TBD: Here's the code that's here.  This is all wrong.  Both the loops
-    // are infinite and don't make sense.  Furthermore, is 'first == last'
-    // really the case we're worried about?
-
-    // Check that 'first' and 'last' are valid iterators referring to this
-    // container.
-
-    if (first == last) {
-        iterator it = this->begin();
-        while(it != first) {
-            BSLS_ASSERT(it != this->end());
-        }
-        while(it != last) {
-            BSLS_ASSERT(it != this->end());
-        }
-    }
-#endif
-
-    // Alternative code:
-
     if (first != last) {
         iterator it        = this->begin();
         const iterator end = this->end();
@@ -1024,25 +996,9 @@ unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::erase(const_iterator first,
             BSLS_ASSERT(end  != it);
         }
     }
-
-    // TBD: Alternate approach: traversing the length of iterators in the
-    // container is ridiculously expensive.  Wouldn't it be simpler to hash on
-    // 'first->first' and just traverse it's bucket looking for it, and do the
-    // ssme thing to 'last->first'?  It would still be very expensive to
-    // verify that 'first < last', though.
-    //
-    // The hash might throw, though, so I'm not sure we're allowed to do it
-    // in an 'erase'.
-
-    // Another alternate: I added 'BSLS_ASSERT_SAFE(end != first);' in the
-    // erasing loop below.
 #endif
 
-#if defined BDE_BUILD_TARGET_SAFE
-    const iterator end = this->end();
-#endif
     while (first != last) {
-        BSLS_ASSERT_SAFE(end != first);
         first = this->erase(first);
     }
 
@@ -1099,7 +1055,7 @@ void unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::insert(INPUT_ITERATOR first,
         this->reserve(this->size() + maxInsertions);
     }
 
-    // This loop could be clean up with fewer temporaries, we are discarding a
+    // This loop could be improved with fewer temporaries, we are discarding a
     // 'pair' returned from each call to 'insert'.
 
     while (first != last) {
@@ -1121,8 +1077,6 @@ unordered_set<KEY, HASH, EQUAL, ALLOCATOR>&
 unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::operator=(
                                                     const unordered_set& other)
 {
-    // TBD: Actually, need to check propagate_on_copy_assign trait.
-
     unordered_set(other, get_allocator()).swap(*this);
     return *this;
 }

@@ -22,8 +22,6 @@ BSLS_IDENT("$Id: $")
 // case of the 'unordered_set' data structure, the 'key type' and the
 // 'value type' are one and the same, so the 'extractKey' transformation is a
 // trivial identity transformation.
-//-----------------------------------------------------------------------------
-//..
 //
 ///Usage
 ///-----

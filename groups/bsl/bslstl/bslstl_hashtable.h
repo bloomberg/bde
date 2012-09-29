@@ -1619,7 +1619,6 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::swap(HashTable& other)
     }
 }
 
-// observers
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 inline
 const HASHER&
@@ -1644,7 +1643,6 @@ ALLOCATOR HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::
     return d_parameters.nodeFactory().allocator();
 }
 
-// lookup
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 inline
 bslalg::BidirectionalLink *

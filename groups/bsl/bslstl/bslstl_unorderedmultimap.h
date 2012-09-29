@@ -16,21 +16,32 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Alisdair Meredith (ameredith1), Stefano Pacifico (spacifico1)
 //
-//@DESCRIPTION: This component provides an implementation of the container,
-// 'unordered_multimap', specified by the C++11 standard.
+//@DESCRIPTION: This component defines a single class template
+// 'unordered_multimap', implementing the standard container holding a
+// collection of (possibly repeated) keys, each mapped to an associated value
+// (with no guarantees on ordering).
 //
-// This implementation will be the 'monkey-skin' approach that minimizes the
-// size of the nodes, by using the preceding element in the list when storing
-// references to nodes, e.g., in iterators or buckets.  The main container is
-// a singly-linked list, indexed by a vector of buckets.  The overhead is:
-//   o one pointer in each node
-//   o one pointer per bucket (no. buckets determined by max_load_factor)
-//   o one additional (empty) sentinel node
-// As we do not cache the hashed value, if any hash function throws we will
-// either do nothing and allow the exception to propagate, or, if some change
-// of state has already been made, clear the whole container to provide the
-// basic exception guarantee.  There are similar concerns for the 'equal_to'
-// predicate.
+// An instantiation of 'unordered_multimap' is an allocator-aware,
+// value-semantic type whose salient attributes are its size (number of keys)
+// and the set of key-value pairs the 'unordered_multimap' contains, without
+// regard to their order.  If 'unordered_multimap' is instantiated with a key
+// type or mapped value-type that is not itself value-semantic, then it will
+// not retain all of its value-semantic qualities.  In particular, if the key
+// or value type cannot be tested for equality, then an 'unordered_multimap'
+// containing that type cannot be tested for equality.  It is even possible to
+// instantiate 'unordered_multimap' with type that do not have an accessible
+// copy-constructor, in which case the 'unordered_multimap' will not be
+// copyable.  Note that the equality operator for each key-value pair is used
+// to determine when two 'unordered_multimap' objects have the same value, and
+// not the instance of the 'EQUAL' template parameter supplied at construction.
+//
+// An 'unordered_multimap' meets the requirements of an unordered associative
+// container with forward iterators in the C++11 standard [unord].  The
+// 'unordered_multimap' implemented here adheres to the C++11 standard, except
+// that it does not have interfaces that take rvalue references,
+// 'initializer_list', 'emplace', or operations taking a variadic number of
+// template parameters.  Note that excluded C++11 features are those that
+// require (or are greatly simplified by) C++11 compiler support.
 //
 ///Requirements on 'KEY'
 ///---------------------
@@ -474,10 +485,8 @@ class unordered_multimap
     // MANIPULATORS
     unordered_multimap& operator=(const unordered_multimap& other);
         // Assign to this object the value, hasher, and key-equality functor of
-        // the specified 'other' object.
-        //
-        // Not done yet: TBD: propagate to this object the allocator of 'other'
-        // if the 'ALLOCATOR' type has trait
+        // the specified 'other' object, propagate to this object the allocator
+        // of 'other' if the 'ALLOCATOR' type has trait
         // 'propagate_on_container_copy_assignment', and return a reference
         // providing modifiable access to this object.  This method requires
         // that the (template parameter types) 'KEY' and 'VALUE' both be
@@ -509,9 +518,7 @@ class unordered_multimap
 
     iterator insert(const value_type& value);
         // Insert the specified 'value' into this unordered multi map, and
-        // return an iterator to the newly inserted element.  Whether an
-        // element whose 'key' member of 'value' already exists makes no
-        // difference, this function will add redundant elements if necessary.
+        // return an iterator to the newly inserted element. 
         // This method requires that the (template parameter) types 'KEY' and
         // 'VALUE' types both be "copy-constructible" (see {Requirements on
         // 'KEY' and 'VALUE'}).
@@ -521,14 +528,14 @@ class unordered_multimap
         // constant time if the specified 'hint' is a valid element in the
         // bucket to which 'value' belongs).  Return an iterator referring to
         // the newly inserted 'value_type' object in this unordered multi map
-        // whose key is the same as that of 'value'.  If 'hint' is not a valid
-        // immediate successor to the key of 'value', this operation will have
-        // worst case O[N] and average case constant time complexity, where 'N'
-        // is the size of this unordered multi map.  The behavior is undefined
-        // unless 'hint' is a valid iterator into this unordered multi map.
-        // This method requires that the (template parameter) types 'KEY' and
-        // 'VALUE' both be "copy-constructible" (see {Requirements on 'KEY' and
-        // 'VALUE'}).
+        // whose key is the same as that of 'value'.  If 'hint' is not a
+        // position in the bucket of the key of 'value', this operation
+        // will have worst case O[N] and average case constant time complexity,
+        // where 'N' is the size of this unordered multi map.  The behavior is
+        // undefined unless 'hint' is a valid iterator into this unordered
+        // multi map.  This method requires that the (template parameter) types
+        // 'KEY' and 'VALUE' both be "copy-constructible" (see {Requirements on
+        // 'KEY' and 'VALUE'}).
 
     template <class INPUT_ITERATOR>
     void insert(INPUT_ITERATOR first, INPUT_ITERATOR last);
@@ -563,19 +570,6 @@ class unordered_multimap
         // 'first' and 'last' either refer to elements in this container or are
         // the 'end' iterator, and the 'first' position is at or before the
         // 'last' position in the ordered sequence provided by this container.
-
-    void swap(unordered_multimap& other);
-        // Exchange the value of this object as well as its hasher and
-        // key-equality functor with those of the specified 'other' object.
-        //
-        // Not implemented yet: TBD: Additionally if
-        // 'bslstl::AllocatorTraits<ALLOCATOR>::propagate_on_container_swap' is
-        // 'true' then exchange the allocator of this object with that of the
-        // 'other' object, and do not modify either allocator otherwise.  This
-        // method provides the no-throw exception-safety guarantee and
-        // guarantees O[1] complexity.  The behavior is undefined is unless
-        // either this object was created with the same allocator as 'other' or
-        // 'propagate_on_container_swap' is 'true'.
 
     void clear();
         // Remove all entries from this container.  Note that the container is
@@ -617,6 +611,19 @@ class unordered_multimap
         // Increase the number of buckets of this unordered multi map to a
         // quantity such that the ratio between the specified 'numElements' and
         // this quantity does not exceed 'max_load_factor'.
+    
+    void swap(unordered_multimap& other);
+        // Exchange the value of this object as well as its hasher and
+        // key-equality functor with those of the specified 'other' object.
+        // Additionally if
+        // 'bslstl::AllocatorTraits<ALLOCATOR>::propagate_on_container_swap' is
+        // 'true' then exchange the allocator of this object with that of the
+        // 'other' object, and do not modify either allocator otherwise.  This
+        // method provides the no-throw exception-safety guarantee and
+        // guarantees O[1] complexity.  The behavior is undefined is unless
+        // either this object was created with the same allocator as 'other' or
+        // 'propagate_on_container_swap' is 'true'.
+
 
     // ACCESSORS
     allocator_type get_allocator() const;
@@ -676,50 +683,11 @@ class unordered_multimap
         // maintained by this container.  Note that 'cend', unlike 'end',
         // always returns a 'const_local_iterator', never a 'local_iterator',
         // even if the container is non-const.
-
-    bool empty() const;
-        // Return 'true' if this container contains no elements, and 'false'
-        // otherwise.
-
-    size_type size() const;
-        // Return the number of elements in this container.
-
-    size_type max_size() const;
-        // Return a theoretical upper bound on the largest number of elements
-        // that this container could possibly hold.  Note that there is no
-        // guarantee that the container can successfully grow to the returned
-        // size, or even close to that size without running out of resources.
-
-    hasher hash_function() const;
-        // Return (a copy of) the hash unary functor used by this container to
-        // generate a hash value (of type 'size_t') for a 'key_type' object.
-
-    key_equal key_eq() const;
-        // Return (a copy of) the key-equality binary functor that returns
-        // 'true' if the value of two 'key_type' objects is the same, and
-        // 'false' otherwise.
-
-    const_iterator find(const key_type& key) const;
-        // Return an iterator providing non-modifiable access to the
-        // 'value_type' object in this container matching the specified 'key',
-        // if such an entry exists, and the past-the-end ('end') iterator
-        // otherwise.  If multiple elements match 'key', they are guaranteed to
-        // be adjacent to each other, and this function will return the first
-        // in the sequence.
-
-    size_type count(const key_type& key) const;
-        // Return the number of 'value_type' objects within this container
-        // matching the specified 'key'.
-
-    pair<const_iterator, const_iterator> equal_range(
-                                                    const key_type& key) const;
-        // Return a pair of iterators providing non-modifiable access to the
-        // sequence of 'value_type' objects in this container matching the
-        // specified 'key', where the the first iterator is positioned at the
-        // start of the sequence and the second iterator is positioned one past
-        // the end of the sequence.  If this container contains no 'value_type'
-        // objects matching 'key' then the two returned iterators will have the
-        // same value.
+    
+    size_type bucket(const key_type& key) const;
+        // Return the index of the bucket, in the array of buckets of this
+        // container, where values matching the specified 'key' would be
+        // inserted.
 
     size_type bucket_count() const;
         // Return the number of buckets in the array of buckets maintained by
@@ -736,10 +704,40 @@ class unordered_multimap
         // specified 'index' in the array of buckets maintained by this
         // container.
 
-    size_type bucket(const key_type& key) const;
-        // Return the index of the bucket, in the array of buckets of this
-        // container, where values matching the specified 'key' would be
-        // inserted.
+    size_type count(const key_type& key) const;
+        // Return the number of 'value_type' objects within this container
+        // matching the specified 'key'.
+
+    const_iterator find(const key_type& key) const;
+        // Return an iterator providing non-modifiable access to the
+        // 'value_type' object in this container matching the specified 'key',
+        // if such an entry exists, and the past-the-end ('end') iterator
+        // otherwise.  If multiple elements match 'key', they are guaranteed to
+        // be adjacent to each other, and this function will return the first
+        // in the sequence.
+    
+    bool empty() const;
+        // Return 'true' if this container contains no elements, and 'false'
+        // otherwise.
+    
+    pair<const_iterator, const_iterator> equal_range(
+                                                    const key_type& key) const;
+        // Return a pair of iterators providing non-modifiable access to the
+        // sequence of 'value_type' objects in this container matching the
+        // specified 'key', where the the first iterator is positioned at the
+        // start of the sequence and the second iterator is positioned one past
+        // the end of the sequence.  If this container contains no 'value_type'
+        // objects matching 'key' then the two returned iterators will have the
+        // same value.
+
+    hasher hash_function() const;
+        // Return (a copy of) the hash unary functor used by this container to
+        // generate a hash value (of type 'size_t') for a 'key_type' object.
+
+    key_equal key_eq() const;
+        // Return (a copy of) the key-equality binary functor that returns
+        // 'true' if the value of two 'key_type' objects is the same, and
+        // 'false' otherwise.
 
     float load_factor() const;
         // Return the current ratio between the 'size' of this container and
@@ -755,6 +753,15 @@ class unordered_multimap
         // those buckets the (see rehash).  Note that it is possible for the
         // load factor of this container to exceed 'max_load_factor',
         // especially after 'max_load_factor(newLoadFactor)' is called.
+    
+    size_type max_size() const;
+        // Return a theoretical upper bound on the largest number of elements
+        // that this container could possibly hold.  Note that there is no
+        // guarantee that the container can successfully grow to the returned
+        // size, or even close to that size without running out of resources.
+    
+    size_type size() const;
+        // Return the number of elements in this container.
 };
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
@@ -872,244 +879,75 @@ unordered_multimap(INPUT_ITERATOR        first,
     this->insert(first, last);
 }
 
-template <class KEY,
-          class VALUE,
-          class HASH,
-          class EQUAL,
+template <class KEY, class VALUE, class HASH, class EQUAL,
           class ALLOCATOR>
-unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::
-unordered_multimap(const unordered_multimap& original)
+unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::unordered_multimap(
+                                            const unordered_multimap& original)
 : d_impl(original.d_impl,
          AllocatorTraits::select_on_container_copy_construction(
                                                      original.get_allocator()))
 {
 }
 
-template <class KEY,
-          class VALUE,
-          class HASH,
-          class EQUAL,
-          class ALLOCATOR>
-unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::
-unordered_multimap(const allocator_type& a)
-: d_impl(HASH(), EQUAL(), 0, a)
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::unordered_multimap(
+                                               const allocator_type& allocator)
+: d_impl(HASH(), EQUAL(), 0, allocator)
 {
 }
 
-template <class KEY,
-          class VALUE,
-          class HASH,
-          class EQUAL,
+template <class KEY, class VALUE, class HASH, class EQUAL,
           class ALLOCATOR>
-unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::
-unordered_multimap(const unordered_multimap& other, const allocator_type& a)
-: d_impl(other.d_impl, a)
+unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::unordered_multimap(
+                                           const unordered_multimap& original,
+                                           const allocator_type&     allocator)
+: d_impl(original.d_impl, allocator)
 {
 }
 
-template <class KEY,
-          class VALUE,
-          class HASH,
-          class EQUAL,
-          class ALLOCATOR>
-unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::
-~unordered_multimap()
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::~unordered_multimap()
 {
     // All memory management is handled by the base 'd_impl' member.
 }
 
-template <class KEY,
-          class VALUE,
-          class HASH,
-          class EQUAL,
-          class ALLOCATOR>
-unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>&
-unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::operator=(
-                                               const unordered_multimap& other)
-{
-    unordered_multimap(other, this->get_allocator()).swap(*this);
-    return *this;
-}
-
-template <class KEY,
-          class VALUE,
-          class HASH,
-          class EQUAL,
-          class ALLOCATOR>
-ALLOCATOR
-unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::get_allocator()
-                                                                          const
-{
-    return d_impl.allocator();
-}
-
-    // size and capacity
-template <class KEY,
-          class VALUE,
-          class HASH,
-          class EQUAL,
-          class ALLOCATOR>
-bool
-unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::empty() const
-{
-    return 0 == d_impl.size();
-}
-
-template <class KEY,
-          class VALUE,
-          class HASH,
-          class EQUAL,
-          class ALLOCATOR>
-typename
-unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::size_type
-unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::size() const
-{
-    return d_impl.size();
-}
-
-template <class KEY,
-          class VALUE,
-          class HASH,
-          class EQUAL,
-          class ALLOCATOR>
-typename
-       unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::size_type
-unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::max_size() const
-{
-    return d_impl.maxSize();
-}
-
-    // iterators
-template <class KEY,
-          class VALUE,
-          class HASH,
-          class EQUAL,
-          class ALLOCATOR>
-typename
-        unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator
-unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::begin()
-{
-    return iterator(d_impl.elementListRoot());
-}
-
-template <class KEY,
-          class VALUE,
-          class HASH,
-          class EQUAL,
-          class ALLOCATOR>
-typename
-  unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::const_iterator
-unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::begin() const
-{
-    return const_iterator(d_impl.elementListRoot());
-}
-
-
-template <class KEY,
-          class VALUE,
-          class HASH,
-          class EQUAL,
-          class ALLOCATOR>
-typename
-        unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator
-unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::end()
-{
-    return iterator();
-}
-
-template <class KEY,
-          class VALUE,
-          class HASH,
-          class EQUAL,
-          class ALLOCATOR>
-typename
-  unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::const_iterator
-unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::end() const
-{
-    return const_iterator();
-}
-
-template <class KEY,
-          class VALUE,
-          class HASH,
-          class EQUAL,
-          class ALLOCATOR>
-typename
-  unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::const_iterator
-unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::cbegin() const
-{
-    return const_iterator(d_impl.elementListRoot());
-}
-
-template <class KEY,
-          class VALUE,
-          class HASH,
-          class EQUAL,
-          class ALLOCATOR>
-typename
-  unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::const_iterator
-unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::cend() const
-{
-    return const_iterator();
-}
-
-template <class KEY,
-          class VALUE,
-          class HASH,
-          class EQUAL,
-          class ALLOCATOR>
+// MANIPULATORS
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 inline
-typename
-        unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator
-unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::insert(
-                                                       const value_type& value)
+typename unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::local_iterator
+unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::begin(size_type index)
 {
-    return iterator(d_impl.insert(value));
+    BSLS_ASSERT_SAFE(index < this->bucket_count());
+
+    return local_iterator(&d_impl.bucketAtIndex(index));
 }
 
-template <class KEY,
-          class VALUE,
-          class HASH,
-          class EQUAL,
-          class ALLOCATOR>
-typename
-        unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator
-unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::
-insert(const_iterator hint, const value_type& obj)
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+inline
+typename unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::local_iterator
+unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::end(size_type index)
 {
-    return iterator(d_impl.insert(obj, hint.node()));
+    BSLS_ASSERT_SAFE(index < this->bucket_count());
+
+    return local_iterator(0, &d_impl.bucketAtIndex(index));
 }
 
-template <class KEY,
-          class VALUE,
-          class HASH,
-          class EQUAL,
-          class ALLOCATOR>
-template <class INPUT_ITERATOR>
-void
-unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::
-insert(INPUT_ITERATOR first, INPUT_ITERATOR last)
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+void unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::clear()
 {
-    if (size_t maxInsertions =
-            ::BloombergLP::bslstl::IteratorUtil::insertDistance(first, last)) {
-        this->reserve(this->size() + maxInsertions);
-    }
-
-    // Typically will create an un-necessary temporary dereferencing each
-    // iterator and casting to a reference of 'const value_type&'.
-
-    while (first != last) {
-        this->insert(*first++);
-    }
+    d_impl.removeAll();
 }
 
-template <class KEY,
-          class VALUE,
-          class HASH,
-          class EQUAL,
-          class ALLOCATOR>
-typename
-        unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+typename unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator
+unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::find(
+                                                           const key_type& key)
+{
+    return iterator(d_impl.find(key));
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+typename unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator
 unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::erase(
                                                        const_iterator position)
 {
@@ -1118,13 +956,8 @@ unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::erase(
     return iterator(d_impl.remove(position.node()));
 }
 
-template <class KEY,
-          class VALUE,
-          class HASH,
-          class EQUAL,
-          class ALLOCATOR>
-typename
-       unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::size_type
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+typename unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::size_type
 unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::erase(
                                                            const key_type& key)
 {   // As an alternative implementation, the table could return an extracted
@@ -1150,48 +983,13 @@ unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::erase(
     }
 }
 
-template <class KEY,
-          class VALUE,
-          class HASH,
-          class EQUAL,
-          class ALLOCATOR>
-typename
-        unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator
-unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::
-erase(const_iterator first, const_iterator last)
-{   // bad answer here, need to turn 'first' into a non-const iterator
-
-    // 7 Most of the library's algorithmic templates that operate on data
-    // structures have interfaces that use ranges.  A range is a pair of
-    // iterators that designate the beginning and end of the computation. A
-    // range '[i,i)' is an empty range; in general, a range '[i,j)' refers to
-    // the elements in the data structure starting with the element pointed to
-    // by 'i' and up to but not including the element pointed to by 'j'. Range
-    // '[i,j)' is valid if and only if 'j' is reachable from 'i'. The result of
-    // the application of functions in the library to invalid ranges is
-    // undefined.
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+typename unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator
+unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::erase(
+                                                         const_iterator first,
+                                                         const_iterator last)
+{
 #if defined BDE_BUILD_TARGET_SAFE2
-#if 0
-    // TBD: Here's the code that's here.  This is all wrong.  Both the loops
-    // are infinite and don't make sense.  Furthermore, is 'first == last'
-    // really the case we're worried about?
-
-    // Check that 'first' and 'last' are valid iterators referring to this
-    // container.
-
-    if (first == last) {
-        iterator it = this->begin();
-        while(it != first) {
-            BSLS_ASSERT(it != this->end());
-        }
-        while(it != last) {
-            BSLS_ASSERT(it != this->end());
-        }
-    }
-#endif
-
-    // Alternative code:
-
     if (first != last) {
         iterator it        = this->begin();
         const iterator end = this->end();
@@ -1203,117 +1001,216 @@ erase(const_iterator first, const_iterator last)
             BSLS_ASSERT(end  != it);
         }
     }
-
-    // TBD: Alternate approach: traversing the length of iterators in the
-    // container is ridiculously expensive.  Wouldn't it be simpler to hash on
-    // 'first->first' and just traverse it's bucket looking for it, and do the
-    // ssme thing to 'last->first'?  It would still be very expensive to
-    // verify that 'first < last', though.
-    //
-    // The hash might throw, though, so I'm not sure we're allowed to do it
-    // in an 'erase'.
-
-    // Another alternate: I added 'BSLS_ASSERT_SAFE(end != first);' in the
-    // erasing loop below.
 #endif
 
-#if defined BDE_BUILD_TARGET_SAFE
-    const iterator end = this->end();
-#endif
     while (first != last) {
-        BSLS_ASSERT_SAFE(end != first);
         first = this->erase(first);
     }
 
     return iterator(first.node());          // convert from const_iterator
 }
 
-template <class KEY,
-          class VALUE,
-          class HASH,
-          class EQUAL,
-          class ALLOCATOR>
-void
-unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::clear()
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+inline
+typename unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator
+unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::insert(
+                                                       const value_type& value)
 {
-    d_impl.removeAll();
+    return iterator(d_impl.insert(value));
 }
 
-template <class KEY,
-          class VALUE,
-          class HASH,
-          class EQUAL,
-          class ALLOCATOR>
-void unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::
-                                                swap(unordered_multimap& other)
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+typename unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator
+unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::insert(
+                                                       const_iterator    hint,
+                                                       const value_type& value)
 {
-    // TBD: assert that allocators are compatible
+    return iterator(d_impl.insert(value, hint.node()));
+}
 
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class INPUT_ITERATOR>
+void unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::insert(
+                                                         INPUT_ITERATOR first,
+                                                         INPUT_ITERATOR last)
+{
+    if (size_t maxInsertions =
+            ::BloombergLP::bslstl::IteratorUtil::insertDistance(first, last)) {
+        this->reserve(this->size() + maxInsertions);
+    }
+
+    // Typically will create an un-necessary temporary dereferencing each
+    // iterator and casting to a reference of 'const value_type&'.
+
+    while (first != last) {
+        this->insert(*first++);
+    }
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+inline
+void unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::max_load_factor(
+                                                           float newLoadFactor)
+{
+    d_impl.maxLoadFactor(newLoadFactor);
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL,
+          class ALLOCATOR>
+unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>&
+unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::operator=(
+                                                 const unordered_multimap& rhs)
+{
+    unordered_multimap(rhs, this->get_allocator()).swap(*this);
+    return *this;
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+inline
+void unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::rehash(
+                                                          size_type numBuckets)
+{
+    return d_impl.rehash(numBuckets);
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+inline
+void unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::reserve(
+                                                         size_type numElements)
+{
+    return d_impl.rehashForNumElements(numElements);
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+void unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::swap(
+                                                     unordered_multimap& other)
+{
     d_impl.swap(other.d_impl);
 }
 
-    // observers
-template <class KEY,
-          class VALUE,
-          class HASH,
-          class EQUAL,
-          class ALLOCATOR>
-typename unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::hasher
-unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::
-hash_function() const
+// ACCESSORS
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+typename unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator
+unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::begin()
 {
-    return d_impl.hasher();
+    return iterator(d_impl.elementListRoot());
 }
 
-template <class KEY,
-          class VALUE,
-          class HASH,
-          class EQUAL,
-          class ALLOCATOR>
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+typename unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::const_iterator
+unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::begin() const
+{
+    return const_iterator(d_impl.elementListRoot());
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+typename unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator
+unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::end()
+{
+    return iterator();
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+typename unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::const_iterator
+unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::end() const
+{
+    return const_iterator();
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+typename unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::const_iterator
+unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::cbegin() const
+{
+    return const_iterator(d_impl.elementListRoot());
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+typename unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::const_iterator
+unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::cend() const
+{
+    return const_iterator();
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+inline
 typename unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::
-                                                                      key_equal
-unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::key_eq() const
+                                                           const_local_iterator
+unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::begin(
+                                                         size_type index) const
 {
-    return d_impl.comparator();
+    BSLS_ASSERT_SAFE(index < this->bucket_count());
+
+    return const_local_iterator(&d_impl.bucketAtIndex(index));
 }
 
-
-// lookup
-template <class KEY,
-          class VALUE,
-          class HASH,
-          class EQUAL,
-          class ALLOCATOR>
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+inline
 typename
-        unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator
-unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::
-find(const key_type& k)
+unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::const_local_iterator
+unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::end(
+                                                         size_type index) const
 {
-    return iterator(d_impl.find(k));
+    BSLS_ASSERT_SAFE(index < this->bucket_count());
+
+    return const_local_iterator(0, &d_impl.bucketAtIndex(index));
 }
 
-template <class KEY,
-          class VALUE,
-          class HASH,
-          class EQUAL,
-          class ALLOCATOR>
-typename unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::
-                                                                 const_iterator
-unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::
-find(const key_type& k) const
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+inline
+typename
+unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::const_local_iterator
+unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::cbegin(
+                                                         size_type index) const
 {
-    return const_iterator(d_impl.find(k));
+    BSLS_ASSERT_SAFE(index < this->bucket_count());
+
+    return const_local_iterator(&d_impl.bucketAtIndex(index));
 }
 
-template <class KEY,
-          class VALUE,
-          class HASH,
-          class EQUAL,
-          class ALLOCATOR>
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+inline
 typename unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::
-                                                                      size_type
-unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::
-count(const key_type& key) const
+                                                           const_local_iterator
+unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::cend(
+                                                         size_type index) const
+{
+    BSLS_ASSERT_SAFE(index < this->bucket_count());
+
+    return const_local_iterator(0, &d_impl.bucketAtIndex(index));
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+inline
+typename unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::size_type
+unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::bucket(
+                                                     const key_type& key) const
+{
+    return d_impl.bucketIndexForKey(key);
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+inline
+typename unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::size_type
+unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::bucket_count() const
+{
+    return d_impl.numBuckets();
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+inline
+typename unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::size_type
+unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::bucket_size(
+                                                         size_type index) const
+{
+    BSLS_ASSERT_SAFE(index < this->bucket_count());
+
+    return d_impl.countElementsInBucket(index);
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+typename unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>:: size_type
+unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::count(
+                                                     const key_type& key) const
 {
     typedef ::BloombergLP::bslalg::BidirectionalNode<value_type> BNode;
 
@@ -1332,37 +1229,72 @@ count(const key_type& key) const
     return  result;
 }
 
-template <class KEY,
-          class VALUE,
-          class HASH,
-          class EQUAL,
-          class ALLOCATOR>
-bsl::pair<typename unordered_multimap<KEY,
-                                      VALUE,
-                                      HASH,
-                                      EQUAL,
-                                      ALLOCATOR>::iterator,
-          typename unordered_multimap<KEY,
-                                      VALUE,
-                                      HASH,
-                                      EQUAL,
-                                      ALLOCATOR>::iterator>
-unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::
-equal_range(const key_type& k)
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+bool unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::empty() const
+{
+    return 0 == d_impl.size();
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+ALLOCATOR
+unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::get_allocator() const
+{
+    return d_impl.allocator();
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+typename unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::size_type
+unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::max_size() const
+{
+    return d_impl.maxSize();
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+typename unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::hasher
+unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::hash_function() const
+{
+    return d_impl.hasher();
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+typename unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::key_equal
+unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::key_eq() const
+{
+    return d_impl.comparator();
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+typename unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>:: const_iterator
+unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::find(
+                                                     const key_type& key) const
+{
+    return const_iterator(d_impl.find(key));
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+bsl::pair<
+     typename unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator,
+     typename unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator>
+unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::equal_range(
+                                                           const key_type& key)
 {
     typedef bsl::pair<iterator, iterator> ResultType;
 
     HashTableLink *first;
     HashTableLink *last;
-    d_impl.findRange(&first, &last, k);
+    d_impl.findRange(&first, &last, key);
     return ResultType(iterator(first), iterator(last));
 }
 
-template <class KEY,
-          class VALUE,
-          class HASH,
-          class EQUAL,
-          class ALLOCATOR>
+
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+typename unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::size_type
+unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::size() const
+{
+    return d_impl.size();
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 bsl::pair<typename unordered_multimap<KEY,
                                       VALUE,
                                       HASH,
@@ -1373,8 +1305,8 @@ bsl::pair<typename unordered_multimap<KEY,
                                       HASH,
                                       EQUAL,
                                       ALLOCATOR>::const_iterator>
-unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::
-equal_range(const key_type& key) const
+unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::equal_range(
+                                                     const key_type& key) const
 {
     typedef bsl::pair<const_iterator, const_iterator> ResultType;
 
@@ -1384,280 +1316,57 @@ equal_range(const key_type& key) const
     return ResultType(const_iterator(first), const_iterator(last));
 }
 
-    // bucket interface
-template <class KEY,
-          class VALUE,
-          class HASH,
-          class EQUAL,
-          class ALLOCATOR>
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 inline
-typename unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::
-                                                                      size_type
-unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::
-bucket_count() const
-{
-    return d_impl.numBuckets();
-}
-
-template <class KEY,
-          class VALUE,
-          class HASH,
-          class EQUAL,
-          class ALLOCATOR>
-inline
-typename unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::
-                                                                      size_type
-unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::
-max_bucket_count() const
-{
-    return d_impl.maxNumOfBuckets();
-}
-
-template <class KEY,
-          class VALUE,
-          class HASH,
-          class EQUAL,
-          class ALLOCATOR>
-inline
-typename unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::
-                                                                      size_type
-unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::
-bucket_size(size_type index) const
-{
-    BSLS_ASSERT_SAFE(index < this->bucket_count());
-
-    return d_impl.countElementsInBucket(index);
-}
-
-template <class KEY,
-          class VALUE,
-          class HASH,
-          class EQUAL,
-          class ALLOCATOR>
-inline
-typename unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::
-                                                                      size_type
-unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::
-bucket(const key_type& key) const
-{
-    return d_impl.bucketIndexForKey(key);
-}
-
-template <class KEY,
-          class VALUE,
-          class HASH,
-          class EQUAL,
-          class ALLOCATOR>
-inline
-typename unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::
-                                                                 local_iterator
-unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::
-begin(size_type index)
-{
-    BSLS_ASSERT_SAFE(index < this->bucket_count());
-
-    return local_iterator(&d_impl.bucketAtIndex(index));
-}
-
-template <class KEY,
-          class VALUE,
-          class HASH,
-          class EQUAL,
-          class ALLOCATOR>
-inline
-typename unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::
-                                                           const_local_iterator
-unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::
-begin(size_type index) const
-{
-    BSLS_ASSERT_SAFE(index < this->bucket_count());
-
-    return const_local_iterator(&d_impl.bucketAtIndex(index));
-}
-
-template <class KEY,
-          class VALUE,
-          class HASH,
-          class EQUAL,
-          class ALLOCATOR>
-inline
-typename unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::
-                                                                 local_iterator
-unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::end(size_type index)
-{
-    BSLS_ASSERT_SAFE(index < this->bucket_count());
-
-    return local_iterator(0, &d_impl.bucketAtIndex(index));
-}
-
-template <class KEY,
-          class VALUE,
-          class HASH,
-          class EQUAL,
-          class ALLOCATOR>
-inline
-typename
-unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::const_local_iterator
-unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::
-                                                     end(size_type index) const
-{
-    BSLS_ASSERT_SAFE(index < this->bucket_count());
-
-    return const_local_iterator(0, &d_impl.bucketAtIndex(index));
-}
-
-template <class KEY,
-          class VALUE,
-          class HASH,
-          class EQUAL,
-          class ALLOCATOR>
-inline
-typename
-unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::const_local_iterator
-unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::
-                                                  cbegin(size_type index) const
-{
-    BSLS_ASSERT_SAFE(index < this->bucket_count());
-
-    return const_local_iterator(&d_impl.bucketAtIndex(index));
-}
-
-template <class KEY,
-          class VALUE,
-          class HASH,
-          class EQUAL,
-          class ALLOCATOR>
-inline
-typename unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::
-                                                           const_local_iterator
-unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::
-                                                    cend(size_type index) const
-{
-    BSLS_ASSERT_SAFE(index < this->bucket_count());
-
-    return const_local_iterator(0, &d_impl.bucketAtIndex(index));
-}
-
-    // hash policy
-template <class KEY,
-          class VALUE,
-          class HASH,
-          class EQUAL,
-          class ALLOCATOR>
-inline
-float unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::
-load_factor() const
+float unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::load_factor()
+                                                                          const
 {
     return d_impl.loadFactor();
 }
 
-template <class KEY,
-          class VALUE,
-          class HASH,
-          class EQUAL,
-          class ALLOCATOR>
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 inline
-float unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::
-max_load_factor() const
+typename unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::size_type
+unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>:: max_bucket_count()
+                                                                          const
+{
+    return d_impl.maxNumOfBuckets();
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+inline
+float unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::max_load_factor()
+                                                                          const
 {
     return d_impl.maxLoadFactor();
 }
 
-template <class KEY,
-          class VALUE,
-          class HASH,
-          class EQUAL,
-          class ALLOCATOR>
-inline
-void unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::
-max_load_factor(float z)
-{
-    d_impl.maxLoadFactor(z);
-}
-
-template <class KEY,
-          class VALUE,
-          class HASH,
-          class EQUAL,
-          class ALLOCATOR>
-inline
-void
-unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::
-rehash(size_type numBuckets)
-{
-    return d_impl.rehash(numBuckets);
-}
-
-template <class KEY,
-          class VALUE,
-          class HASH,
-          class EQUAL,
-          class ALLOCATOR>
-inline
-void
-unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::
-reserve(size_type numElements)
-{
-    return d_impl.rehashForNumElements(numElements);
-}
-
 }  // close namespace bsl
 
-//----------------------------------------------------------------------------
-//                  free functions and operators
-//----------------------------------------------------------------------------
-
-template <class KEY,
-          class VALUE,
-          class HASH,
-          class EQUAL,
-          class ALLOCATOR>
-inline
-void
-bsl::swap(
-         bsl::unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>& x,
-         bsl::unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>& y)
-{
-    x.swap(y);
-}
-
-template <class KEY,
-          class VALUE,
-          class HASH,
-          class EQUAL,
-          class ALLOCATOR>
-inline
-bool bsl::operator==(const bsl::unordered_multimap<KEY,
-                                                   VALUE,
-                                                   HASH, EQUAL,
-                                                   ALLOCATOR>& lhs,
-                     const bsl::unordered_multimap<KEY,
-                                                   VALUE,
-                                                   HASH,
-                                                   EQUAL,
-                                                   ALLOCATOR>& rhs)
+// FREE FUNCTIONS
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+inline bool bsl::operator==(
+        const bsl::unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>& lhs,
+        const bsl::unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>& rhs)
 {
     return lhs.d_impl == rhs.d_impl;
 }
 
-template <class KEY,
-          class VALUE,
-          class HASH,
-          class EQUAL,
-          class ALLOCATOR>
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 inline
-bool
-bsl::operator!=(const bsl::unordered_multimap<KEY,
-                                              VALUE,
-                                              HASH, EQUAL,
-                                              ALLOCATOR>& lhs,
-                const bsl::unordered_multimap<KEY,
-                                              VALUE,
-                                              HASH,
-                                              EQUAL,
-                                              ALLOCATOR>& rhs)
+bool bsl::operator!=(
+        const bsl::unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>& lhs,
+        const bsl::unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>& rhs)
 {
     return !(lhs == rhs);
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+inline
+void bsl::swap( bsl::unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>& x,
+                bsl::unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>& y)
+{
+    x.swap(y);
 }
 
 #endif
