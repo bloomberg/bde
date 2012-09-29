@@ -376,8 +376,7 @@ class unordered_map {
               class HASH2, 
               class EQUAL2, 
               class ALLOCATOR2>
-    friend
-    bool operator==(
+    friend bool operator==(
                 const unordered_map<KEY2, VALUE2, HASH2, EQUAL2, ALLOCATOR2>&,
                 const unordered_map<KEY2, VALUE2, HASH2, EQUAL2, ALLOCATOR2>&);
 

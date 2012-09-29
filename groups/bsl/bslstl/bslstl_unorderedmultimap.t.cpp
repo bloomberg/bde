@@ -35,7 +35,7 @@ using std::endl;
 // MULTIMAP TEST SHOULD MAP *DIFFERENT* VALUES AGAINST DUPLICATE KEYS AND TEST
 // ACCORDINGLY.
 //-----------------------------------------------------------------------------
-// [ ] 
+// [ ]
 //-----------------------------------------------------------------------------
 // [1] BREATHING TEST
 // [ ] USAGE EXAMPLE
@@ -104,7 +104,8 @@ namespace bsl {
 
 // set-specific print function.
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
-void debugPrint(const bsl::unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOC>& s)
+void debugPrint(
+              const bsl::unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOC>& s)
 {
     if (s.empty()) {
         printf("<empty>");
@@ -120,9 +121,10 @@ void debugPrint(const bsl::unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOC>& s
             }
             printf("\nBucket [%d]: ", n);
             for (LCIter lci = s.cbegin(n); lci != s.cend(n); ++lci) {
-                printf("[%d, %d], ", lci->first, lci->second); 
-//                bsls::BslTestUtil::callDebugprint(
-//           static_cast<char>(bsltf::TemplateTestFacility::getIdentifier(*lci)));
+                printf("[%d, %d], ", lci->first, lci->second);
+                  //    bsls::BslTestUtil::callDebugprint(
+                  //        static_cast<char>(
+                  //        bsltf::TemplateTestFacility::getIdentifier(*lci)));
             }
             printf("\n");
         }
@@ -130,7 +132,7 @@ void debugPrint(const bsl::unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOC>& s
     fflush(stdout);
 }
 
-} // close namespace bsl
+}  // close namespace bsl
 
 bool g_verbose;
 bool g_veryVerbose;
@@ -212,7 +214,9 @@ void testEmptyContainer(CONTAINER& x)
     ASSERT(0 == x.count(37));
     ASSERT(x.end() == x.find(26));
 
-    typename TestType::iterator it = x.erase(x.begin(), x.end());  // should not assert
+    typename TestType::iterator it = x.erase(x.begin(), x.end());
+                                                          // should not assert
+
     ASSERT(x.end() == it);
 
     ASSERT(0 == x.erase(93));
@@ -238,7 +242,7 @@ void testContainerHasData(const CONTAINER& x,
         ASSERT(x.end() != it);
         ASSERT(*it == data[i]);
         LOOP2_ASSERT(keyForValue<CONTAINER>(data[i]),
-                     x.count(keyForValue<CONTAINER>(data[i])),  
+                     x.count(keyForValue<CONTAINER>(data[i])),
                      nCopies == x.count(keyForValue<CONTAINER>(data[i])));
 
         bsl::pair<TestIterator, TestIterator> range =
@@ -267,17 +271,19 @@ void fillContainerWithData(CONTAINER&                            x,
     ASSERT(x.size() == initialSize + size);
 
     for (size_t i = 0; i != size; ++i) {
-        typename TestType::iterator it = x.find(keyForValue<CONTAINER>(data[i]));
+        typename TestType::iterator it =
+                                       x.find(keyForValue<CONTAINER>(data[i]));
         ASSERT(x.end() != it);
         ASSERT(data[i] == *it);
     }
 }
 
 template<typename CONTAINER>
-void validateIteration(CONTAINER &c) {
+void validateIteration(CONTAINER &c)
+{
     typedef typename CONTAINER::iterator       iterator;
     typedef typename CONTAINER::const_iterator const_iterator;
-    
+
     const int size = c.size();
 
     int counter = 0;
@@ -446,7 +452,7 @@ void testErase(CONTAINER& mX)
     key = keyForValue<CONTAINER>(*cIter);
     const_iterator next = cIter;
     while (key == keyForValue<CONTAINER>(*++next)) {
-        cIter = next; 
+        cIter = next;
     }
     key = keyForValue<CONTAINER>(*next);
     while (key == keyForValue<CONTAINER>(*++next)) {}
@@ -471,7 +477,7 @@ void testErase(CONTAINER& mX)
     key = keyForValue<CONTAINER>(*cIter);
     next = cIter;
     while (key == keyForValue<CONTAINER>(*++next)) {
-        cIter = next; 
+        cIter = next;
     }
     key = keyForValue<CONTAINER>(*next);
     while (key == keyForValue<CONTAINER>(*++next)) {}
@@ -535,7 +541,7 @@ namespace {
             // return static_cast<std::size_t>(bdeu_HashUtil::hash1(value));
         }
     };
-}
+}  // close unnamed namespace
 
 int main(int argc, char *argv[])
 {
@@ -651,7 +657,7 @@ cout << "<<H>>" << endl;
         validateIteration(mX);
 cout << "<<I>>" << endl;
 
-        
+
         testContainerHasData(x, 2, dataSamples, MAX_SAMPLE);
 cout << "<<J>>" << endl;
 
