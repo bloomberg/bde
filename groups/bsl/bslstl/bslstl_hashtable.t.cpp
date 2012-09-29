@@ -2800,7 +2800,6 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase3()
     //*  bool isValidHashTable(Link *, const HashTableBucket&, int numBuckets);
     // ------------------------------------------------------------------------
 
-#if 0
     bslma::TestAllocator oa(veryVeryVerbose);
 
     const COMPARATOR EQUAL = COMPARATOR();
@@ -2918,7 +2917,6 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase3()
             ASSERTV(LINE, INDEX == RESULT);
         }
     }
-#endif
 }
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
