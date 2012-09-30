@@ -7,9 +7,10 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE:
+//@PURPOSE: Provide meta-function to test for nested trait.
 //
 //@CLASSES:
+//   bslmf::DetectNestedTrait: meta-function
 //
 //@SEE_ALSO:
 //

@@ -34,8 +34,6 @@ BSLS_IDENT("$Id: $")
 // of state has already been made, clear the whole container to provide the
 // basic exception guarantee.  There are similar concerns for the 'equal_to'
 // predicate.
-//-----------------------------------------------------------------------------
-//..
 //
 ///Usage
 ///-----

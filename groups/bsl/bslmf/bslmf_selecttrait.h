@@ -7,9 +7,10 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE:
+//@PURPOSE: Provide a meta-function for overload dispatch per trait.
 //
 //@CLASSES:
+//   bslmf::SelectTrait: meta-function
 //
 //@SEE_ALSO:
 //
@@ -38,7 +39,6 @@ BSLS_IDENT("$Id: $")
 // implementations, depending on the traits of the object being copied.  The
 // existing code looks like this:
 //..
-//..
 //  template <typename TARGET_TYPE>
 //  inline
 //  void
@@ -63,7 +63,6 @@ BSLS_IDENT("$Id: $")
 //      Imp::copyConstruct(address, original, allocator,
 //                         (bslmf::MetaInt<VALUE>*)0);
 //  }
-//..
 //..
 // We would like to replace the cumbersome chain of '?:' operations with a
 // clean mechanism for producing one of four different types based on the

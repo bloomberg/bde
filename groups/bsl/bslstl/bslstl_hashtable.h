@@ -490,10 +490,10 @@ class HashTable {
         // 'propagate_on_container_copy_assignment', and return a reference
         // providing modifiable access to this object.  This method requires
         // that the parameterized 'HASHER' and 'COMPARATOR' types be
-        // "copy-constructible" (see {Requirements on 'KEY'}).  The behavior is
-        // undefined unless this object's allocator and the allocator of 'rhs'
-        // have the same value, or the 'ALLOCATOR' type has the trait
-        // 'propagate_on_container_copy_assignment'.
+        // "copy-constructible" (see {Requirements on 'KEY_CONFIG'}).  The
+        // behavior is undefined unless this object's allocator and the
+        // allocator of 'rhs' have the same value, or the 'ALLOCATOR' type has
+        // the trait 'propagate_on_container_copy_assignment'.
 
     template <class SOURCE_TYPE>
     bslalg::BidirectionalLink *insert(const SOURCE_TYPE& value);

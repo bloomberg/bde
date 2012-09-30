@@ -228,7 +228,6 @@ BSLS_IDENT("$Id: $")
 ///Usage
 ///-----
 
-
 // Prevent 'bslstl' headers from being included directly in 'BSL_OVERRIDES_STD'
 // mode.  Doing so is unsupported, and is likely to cause compilation errors.
 #if defined(BSL_OVERRIDES_STD) && !defined(BSL_STDHDRS_PROLOGUE_IN_EFFECT)
@@ -589,8 +588,7 @@ class unordered_map {
         // defined in the C++11 standard [24.2.3] providing access to values of
         // a type convertible to 'value_type'.  This method requires that
         // the (template parameter) types 'KEY' and 'VALUE_TYPE' both be
-        // "copy-constructible" (see {Requirements on 'KEY' and
-        // 'VALUE_TYPE'}).
+        // "copy-constructible" (see {Requirements on 'KEY' and 'VALUE'}).
 
     iterator erase(const_iterator position);
         // Remove from this unordered map the 'value_type' object at the
@@ -807,8 +805,7 @@ bool operator==(const unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>& lhs,
     // key-value pair that is contained in 'lhs' there is a pair value-key
     // contained in 'rhs' having the same value, and vice-versa.  This method
     // requires that the (template parameter) types 'KEY' and 'VALUE' both be
-    // "equality-comparable" (see {Requirements
-    // on 'KEY' and 'VALUE'}).
+    // "equality-comparable" (see {Requirements on 'KEY' and 'VALUE'}).
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 bool operator!=(

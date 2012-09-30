@@ -60,7 +60,7 @@ BSLS_IDENT("$Id: $")
 //          printf("Type does not define bslmf::IsBitwiseMoveable.\n");
 //      }
 //  }
-// ..
+//..
 // Now, we invoke the 'printTypeTraits' function template using
 // 'BitwiseMoveableTestType' as the parameterized 'TYPE':
 //..
