@@ -81,6 +81,10 @@ BSL_OVERRIDES_STD mode"
 #include <bsls_nativestd.h>
 #endif
 
+#ifndef INCLUDED_BSLSTL_EQUALTO
+#include <bslstl_equalto.h>
+#endif
+
 #ifndef INCLUDED_FUNCTIONAL
 #include <functional>  // for 'std::unary_function'
 #define INCLUDED_FUNCTIONAL
@@ -299,7 +303,7 @@ struct ComparatorSelector
     // 'std::equal_to' functor.
 {
     // TYPES
-    typedef std::equal_to<HASH_KEY> Type;
+    typedef bsl::equal_to<HASH_KEY> Type;
 };
 
 template <>

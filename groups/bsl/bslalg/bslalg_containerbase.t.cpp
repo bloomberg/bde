@@ -584,7 +584,7 @@ int main(int argc, char *argv[])
         Obj mX(a);
 
         for (int i = 1; i <= 5; ++i) {
-            bslma_TestAllocatorMonitor tam(&ta);
+            bslma::TestAllocatorMonitor tam(&ta);
 
             Obj::pointer ptr = mX.allocate(i);
             ASSERTV(i, i * sizeof(TestType) == ta.numBytesInUse());

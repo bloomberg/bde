@@ -305,7 +305,9 @@ typedef bsltf::NonTypicalOverloadsTestType     TestValueType;
 namespace bsl {
 
 template <class FIRST, class SECOND>
-inline void debugprint(const bsl::pair<FIRST, SECOND>& p) {
+inline
+void debugprint(const bsl::pair<FIRST, SECOND>& p)
+{
     bsls::BslTestUtil::callDebugprint(p.first);
     bsls::BslTestUtil::callDebugprint(p.second);
 }
@@ -328,7 +330,7 @@ void debugprint(const bsl::map<KEY, VALUE, COMP, ALLOC>& s)
     fflush(stdout);
 }
 
-} // close namespace bsl
+}  // close namespace bsl
 
 bool expectToAllocate(int n)
     // Return 'true' if the container is expected to allocate memory on the
@@ -809,9 +811,9 @@ class TestDriver {
     // This templatized struct provide a namespace for testing the 'map'
     // container.  The parameterized 'KEY', 'COMP' and 'ALLOC' specifies the
     // value type, comparator type and allocator type respectively.  Each
-    // "testCase*" method test a specific aspect of 'map<KEY, VALUE, COMP, ALLOC>'.
-    // Every test cases should be invoked with various parameterized type to
-    // fully test the container.
+    // "testCase*" method test a specific aspect of
+    // 'map<KEY, VALUE, COMP, ALLOC>'.  Every test cases should be invoked with
+    // various parameterized type to fully test the container.
 
   private:
     // TYPES
@@ -984,7 +986,8 @@ int TestDriver<KEY, VALUE, COMP, ALLOC>::ggg(Obj        *object,
                                       const char *spec,
                                       int         verbose)
 {
-    bslma::DefaultAllocatorGuard guard(&bslma::NewDeleteAllocator::singleton());
+    bslma::DefaultAllocatorGuard guard(
+                                      &bslma::NewDeleteAllocator::singleton());
     const TestValues VALUES;
 
     enum { SUCCESS = -1 };
@@ -1455,7 +1458,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase24()
     //:
     //:   7 Verify that a default 'VALUE' is created.
     //:
-    //:   8 Verify smemory usgae is as expected.
+    //:   8 Verify memory usage is as expected.
     //
     // Testing:
     //   VALUE& operator[](const key_type& key);
@@ -2080,7 +2083,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase19()
     //:   supplied comparator.
     //:
     //: 3 'operator>', 'operator<=', and 'operator>=' are correctly tied to
-    //:   'operator<'.  i.e. For two maps, 'a' and 'b':
+    //:   'operator<'.  I.e., for two maps, 'a' and 'b':
     //:
     //:   1 '(a > b) == (b < a)'
     //:
@@ -3129,9 +3132,9 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase14()
         ASSERTV(1 == (bsl::is_same<typename Iter::reference,
                                    bsl::pair<const KEY, VALUE>&>::value));
         ASSERTV(1 == (bsl::is_same<typename CIter::pointer,
-                                   const bsl::pair<const KEY, VALUE>*>::value));
+                                  const bsl::pair<const KEY, VALUE>*>::value));
         ASSERTV(1 == (bsl::is_same<typename CIter::reference,
-                                   const bsl::pair<const KEY, VALUE>&>::value));
+                                  const bsl::pair<const KEY, VALUE>&>::value));
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int     LINE   = DATA[ti].d_lineNum;
@@ -3293,18 +3296,22 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase13()
                     const int idx = tj / 2;
                     ASSERTV(ti, tj, CITER[idx] == X.find(VALUES[tj].first));
                     ASSERTV(ti, tj, ITER[idx] == mX.find(VALUES[tj].first));
-                    ASSERTV(ti, tj, CITER[idx] == X.lower_bound(VALUES[tj].first));
-                    ASSERTV(ti, tj, ITER[idx] == mX.lower_bound(VALUES[tj].first));
+                    ASSERTV(ti, tj,
+                            CITER[idx] == X.lower_bound(VALUES[tj].first));
+                    ASSERTV(ti, tj,
+                            ITER[idx] == mX.lower_bound(VALUES[tj].first));
                     ASSERTV(ti, tj,
                             CITER[idx + 1] == X.upper_bound(VALUES[tj].first));
                     ASSERTV(ti, tj,
                             ITER[idx + 1] == mX.upper_bound(VALUES[tj].first));
 
-                    bsl::pair<CIter, CIter> R1 = X.equal_range(VALUES[tj].first);
+                    bsl::pair<CIter, CIter> R1 =
+                                               X.equal_range(VALUES[tj].first);
                     ASSERTV(ti, tj, CITER[idx] == R1.first);
                     ASSERTV(ti, tj, CITER[idx + 1] == R1.second);
 
-                    bsl::pair<Iter, Iter> R2 = mX.equal_range(VALUES[tj].first);
+                    bsl::pair<Iter, Iter> R2 =
+                                              mX.equal_range(VALUES[tj].first);
                     ASSERTV(ti, tj, ITER[idx] == R2.first);
                     ASSERTV(ti, tj, ITER[idx + 1] == R2.second);
 
@@ -3314,16 +3321,22 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase13()
                     const int idx = tj / 2;
                     ASSERTV(ti, tj, X.end() == X.find(VALUES[tj].first));
                     ASSERTV(ti, tj, mX.end() == mX.find(VALUES[tj].first));
-                    ASSERTV(ti, tj, CITER[idx] == X.lower_bound(VALUES[tj].first));
-                    ASSERTV(ti, tj, ITER[idx] == mX.lower_bound(VALUES[tj].first));
-                    ASSERTV(ti, tj, CITER[idx] == X.upper_bound(VALUES[tj].first));
-                    ASSERTV(ti, tj, ITER[idx] == mX.upper_bound(VALUES[tj].first));
+                    ASSERTV(ti, tj,
+                            CITER[idx] == X.lower_bound(VALUES[tj].first));
+                    ASSERTV(ti, tj,
+                            ITER[idx] == mX.lower_bound(VALUES[tj].first));
+                    ASSERTV(ti, tj,
+                            CITER[idx] == X.upper_bound(VALUES[tj].first));
+                    ASSERTV(ti, tj,
+                            ITER[idx] == mX.upper_bound(VALUES[tj].first));
 
-                    bsl::pair<CIter, CIter> R1 = X.equal_range(VALUES[tj].first);
+                    bsl::pair<CIter, CIter> R1 =
+                                               X.equal_range(VALUES[tj].first);
                     ASSERTV(ti, tj, CITER[idx] == R1.first);
                     ASSERTV(ti, tj, CITER[idx] == R1.second);
 
-                    bsl::pair<Iter, Iter> R2 = mX.equal_range(VALUES[tj].first);
+                    bsl::pair<Iter, Iter> R2 =
+                                              mX.equal_range(VALUES[tj].first);
                     ASSERTV(ti, tj, ITER[idx] == R2.first);
                     ASSERTV(ti, tj, ITER[idx] == R2.second);
 
@@ -3563,8 +3576,8 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase12()
                 ASSERTV(LINE, CONFIG, sa.numBlocksInUse(),
                         0 == sa.numBlocksInUse());
 
-            }  // end foreach configuration
-        }  // end foreach row
+            }  // end for each configuration
+        }  // end for each row
     }
     if (verbose) printf("\nTesting with injected exceptions.\n");
     {
@@ -3702,11 +3715,11 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase9_1()
     //   object of the class to any other object of the class when when
     //   allocator propagation is enabled.  This function implements the test
     //   plan which address C-12 from 'testCase9' and is implemented as a
-    //   separate function from 'testCase9', because at the time of writting,
+    //   separate function from 'testCase9', because at the time of writing,
     //   'AllocatorTraits' doesn't fully support allocator propagation, so some
     //   manual source code changes are needed to run this test.
     //
-    //   TODO: integerate this test function to 'testCase9' once
+    //   TODO: integrate this test function to 'testCase9' once
     //   'AllocatorTraits' fully support allocator propagation.
     //
     // Concerns:
@@ -4132,11 +4145,11 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase8_1()
     //   Ensure that the 'swap' functions properly swap the objects when
     //   allocator propagation is enabled.  This function implements the test
     //   plan which address C-6 from 'testCase8' and is implemented as a
-    //   separate function from 'testCase8', because at the time of writting,
+    //   separate function from 'testCase8', because at the time of writing,
     //   'AllocatorTraits' doesn't fully support allocator propagation, so some
     //   manual source code changes are needed to run this test.
     //
-    //   TODO: integerate this test function to 'testCase8' once
+    //   TODO: integrate this test function to 'testCase8' once
     //   'AllocatorTraits' fully support allocator propagation.
     //
     // Concerns:
@@ -4327,7 +4340,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase8()
     //:
     //:     5 Use the value constructor and 'oaz' to a create a modifiable
     //:       'Obj' 'mZ', having the value described by 'R2'; also use the copy
-    //:       constructor to create, using a "scractch" allocator, a const
+    //:       constructor to create, using a "scratch" allocator, a const
     //:       'Obj', 'ZZ', from 'Z'.
     //:
     //:     6 Use the member and free 'swap' functions to swap the values of
@@ -4336,7 +4349,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase8()
     //:       false_type) under the presence of exception; verify, after each
     //:       swap, that:  (C-1, 5, 7)
     //:
-    //:       1 If exception occured during the swap, both values are
+    //:       1 If exception occurred during the swap, both values are
     //:         unchanged.  (C-7)
     //
     //:       2 If no exception occurred, the values have been exchanged.
@@ -4818,7 +4831,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase7()
                 ASSERTV(SPEC, W == Y0);
                 ASSERTV(SPEC, W == X);
                 ASSERTV(SPEC, Y0.get_allocator() ==
-                                            bslma::Default::defaultAllocator());
+                                           bslma::Default::defaultAllocator());
 
                 delete pX;
                 ASSERTV(SPEC, W == Y0);
@@ -5505,7 +5518,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase2()
     //:     and (c) passing the address of a test allocator distinct from the
     //:     default.  For each of these three iterations:  (C-1..14)
     //:
-    //:     1 Create three 'bslma::TestAllocator' objects, and install one as as
+    //:     1 Create three 'bslma::TestAllocator' objects, and install one as
     //:       the current default allocator (note that a ubiquitous test
     //:       allocator is already installed as the global allocator).
     //:
@@ -6471,7 +6484,7 @@ TradeMatcher::BuyOrdersConstIterator TradeMatcher::endBuyOrders() const
 }
 //..
 
-} // close namespace UsageExample
+}  // close namespace UsageExample
 
 // ============================================================================
 //                            MAIN PROGRAM
@@ -6544,7 +6557,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING STANDARD INTERFACE COVERAGE
         // --------------------------------------------------------------------
-        // Test only 'int' and 'char' parameter types, becuase map's
+        // Test only 'int' and 'char' parameter types, because map's
         // 'operator<' and related operators only support parameterized types
         // that defines 'operator<'.
         RUN_EACH_TYPE(TestDriver, testCase26, int, char);

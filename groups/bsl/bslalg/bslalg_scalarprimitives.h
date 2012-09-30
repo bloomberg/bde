@@ -88,6 +88,18 @@ BSLS_IDENT("$Id: $")
 #include <bslma_allocator.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include <bslma_usesbslmaallocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
+#include <bslmf_isbitwisemoveable.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISPAIR
+#include <bslmf_ispair.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_ISSAME
 #include <bslmf_issame.h>
 #endif
@@ -96,11 +108,13 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_removecvq.h>
 #endif
 
-#include <bslmf_istriviallydefaultconstructible.h>
-#include <bslma_usesbslmaallocator.h>
+#ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
 #include <bslmf_istriviallycopyable.h>
-#include <bslmf_isbitwisemoveable.h>
-#include <bslmf_ispair.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISTRIVIALLYDEFAULTCONSTRUCTIBLE
+#include <bslmf_istriviallydefaultconstructible.h>
+#endif
 
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>

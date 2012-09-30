@@ -428,8 +428,8 @@ static int numDestructorCalls  = 0;
 // done next.  For brevity of the usage example, we do not show how customers
 // are track while or after their laundry is being done.
 //
-// In addtion, the laundry queue also provides the 'find' method, which returns
-// a 'bool' to indicate whether a given customer is still in the queue.
+// In addition, the laundry queue also provides the 'find' method, which
+// returns a 'bool' to indicate whether a given customer is still in the queue.
 //
 // First, we declare a class 'LaundryQueue' based on a deque, to store names of
 // customers at a drop-off laundry:
@@ -8122,7 +8122,7 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE 1
         //
         // Concern:
-        //   Demonsrate a context in which a 'deque' might be useful.
+        //   Demonstrate a context in which a 'deque' might be useful.
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nUsage Example 1\n"

@@ -199,7 +199,7 @@ BSLS_IDENT("$Id: $")
 ///Example 1: Creating a Shopping Cart
 ///- - - - - - - - - - - - - - - - - -
 // In this example, we will utilize 'bsl::multiset' to define a class
-// 'ShoppingCart', that charaterizes a simple online shopping cart with the
+// 'ShoppingCart', that characterizes a simple online shopping cart with the
 // ability to add, remove, and view items in the shopping cart.
 //
 // Note that this example uses a type 'string' that is based on the standard

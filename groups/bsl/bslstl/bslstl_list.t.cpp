@@ -620,7 +620,7 @@ namespace std {
             return a == b;
         }
     };
-}
+}  // close namespace std
 
                        // =====================
                        // class TestTypeNoAlloc
@@ -1023,7 +1023,7 @@ class InputSeqConstIterator {
     friend bool operator==(InputSeqConstIterator<T> a,
                            InputSeqConstIterator<T> b);
 
-public:
+  public:
     typedef std::input_iterator_tag                  iterator_category;
     typedef typename BaseIterTraits::value_type      value_type;
     typedef typename BaseIterTraits::difference_type difference_type;
@@ -1184,7 +1184,7 @@ struct IsBitwiseMoveable<LimitAllocator<ALLOCATOR> >
     : IsBitwiseMoveable<ALLOCATOR>
 {};
 
-}
+}  // close namespace bslmf
 
 namespace bslma {
 
@@ -1193,8 +1193,9 @@ struct UsesBslmaAllocator<LimitAllocator<ALLOCATOR> >
     : bsl::is_convertible<Allocator*, ALLOCATOR>
 {};
 
-}
-}  // namespace BloombergLP
+}  // close namespace bslma
+}  // close namespace BloombergLP
+
                               // ====================
                               // class PointerWrapper
                               // ====================
@@ -1336,7 +1337,7 @@ class Star
 
     int    d_brightness; // brightness on a scale of 0 to 100
 
-public:
+  public:
     // CREATORS
     Star()
         // Create a 'Star' object located at coordinates '(0, 0)' having
@@ -1380,7 +1381,7 @@ public:
     }
 
     int brightness() const
-        // Return the brightness of this 'Star' ojbect.
+        // Return the brightness of this 'Star' object.
     {
         return d_brightness;
     }
@@ -1713,7 +1714,7 @@ struct TestDriver {
         int* d_countPtr;         // Pointer to count of times invoked
         int* d_invocationLimit;  // Number of invocations before throwing
 
-    public:
+      public:
         GreaterThan(int *count = 0) : d_countPtr(count) {
             d_invocationLimit = 0;
         }
@@ -1879,7 +1880,8 @@ struct TestDriver {
 template <class TYPE, class ALLOC>
 int TestDriver<TYPE,ALLOC>::getValues(const TYPE **valuesPtr)
 {
-    bslma::DefaultAllocatorGuard guard(&bslma::NewDeleteAllocator::singleton());
+    bslma::DefaultAllocatorGuard guard(
+                                      &bslma::NewDeleteAllocator::singleton());
 
     static TYPE values[8]; // avoid DEFAULT_VALUE and UNINITIALIZED_VALUE
     values[0] = TYPE(VA);
@@ -1917,7 +1919,7 @@ int TestDriver<TYPE,ALLOC>::ggg(Obj           *object,
                 printf("Error, bad character ('%c') "
                        "in spec \"%s\" at position %d.\n", spec[i], spec, i);
             }
-            return i;  // Discontinue processing this spec.
+            return i;  // Discontinue processing this spec.           // RETURN
         }
    }
    return SUCCESS;
@@ -1998,11 +2000,11 @@ bool TestDriver<TYPE,ALLOC>::checkIntegrity(const Obj& object, int length)
         --it;
         --count;
         if (count < MAX_SAVE_ITERS && it != save_iters[count])
-            return false;
+            return false;                                             // RETURN
     }
 
     if (it != start || count != 0)
-        return false;
+        return false;                                                 // RETURN
 
     // If got here, then the only integrity test left is to verify that size()
     // returns the actual length of the list.
@@ -2451,16 +2453,16 @@ void TestDriver<TYPE,ALLOC>::testMerge()
         // that no element has a value less than the previous element.  Using
         // 6 of the possible 8 values for each element, there are a total of
         // 462 combinations.
-    public:
+      public:
         enum { MAX_SPEC_LEN = 5 };
-    private:
+      private:
         int  d_len;
         char d_spec[MAX_SPEC_LEN + 1];
         mutable char d_reverse_spec[MAX_SPEC_LEN + 1];
 
         enum { MAX_ELEMENT = 'F' };
 
-    public:
+      public:
         SortedSpecGen() : d_len(0) { d_spec[0] = '\0'; }
 
         // Return true if this object holds a valid spec
@@ -2484,7 +2486,7 @@ void TestDriver<TYPE,ALLOC>::testMerge()
                 if (MAX_SPEC_LEN < d_len) return *this;
                 memset(d_spec, 'A', d_len);
                 d_spec[d_len] = '\0';
-                return *this;
+                return *this;                                         // RETURN
             }
 
             // d_spec[i] < MAX_ELEMENT.  Increment the element at 'i' and fill
@@ -3562,7 +3564,8 @@ void TestDriver<TYPE,ALLOC>::testReverse()
 }
 
 template <class TYPE, class ALLOC>
-void TestDriver<TYPE,ALLOC>::testTypeTraits(bool uses_bslma, bool bitwise_moveable)
+void TestDriver<TYPE,ALLOC>::testTypeTraits(bool uses_bslma,
+                                            bool bitwise_moveable)
 {
     // --------------------------------------------------------------------
     // TESTING TYPE TRAITS
@@ -4382,7 +4385,7 @@ void TestDriver<TYPE,ALLOC>::testInsert()
 
     if (verbose) printf("\nTesting overloading disambiguation\n");
     {
-        // 'n' and 'v' are identical aritmetic types.  Make sure overload
+        // 'n' and 'v' are identical arithmetic types.  Make sure overload
         // resolution doesn't try to call the iterator-range 'insert'.
         {
             list<size_t, ALLOC> x;
@@ -8666,7 +8669,7 @@ int main(int argc, char *argv[])
     bslma::TestAllocator  globalAllocator("Global Allocator",
                                          veryVeryVeryVerbose);
     bslma::Allocator *originalGlobalAllocator =
-                           bslma::Default::setGlobalAllocator(&globalAllocator);
+                          bslma::Default::setGlobalAllocator(&globalAllocator);
     globalAllocator_p = &globalAllocator;
 
     setbuf(stdout, NULL);    // Use unbuffered output
@@ -8890,7 +8893,8 @@ int main(int argc, char *argv[])
         // TESTING TYPE TRAITS
         //
         // Concerns and plan:
-        //   See testTypeTraits for a list of specific concerns and a test plan.
+        //   See testTypeTraits for a list of specific concerns and a test
+        //   plan.
         //
         // Testing:
         //   bslalg::HasStlIterators
