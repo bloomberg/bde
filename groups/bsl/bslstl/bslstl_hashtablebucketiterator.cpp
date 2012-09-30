@@ -1,6 +1,9 @@
 // bslstl_hashtablebucketiterator.cpp                                 -*-C++-*-
 #include <bslstl_hashtablebucketiterator.h>
 
+#include <bslstl_allocator.h>              // for testing only
+#include <bslstl_bidirectionalnodepool.h>  // for testing only
+
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 

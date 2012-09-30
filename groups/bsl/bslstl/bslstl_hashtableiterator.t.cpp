@@ -10,6 +10,7 @@
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
 
+#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -85,8 +86,8 @@ void aSsErT(bool b, const char *s, int i)
 //             GLOBAL TYPEDEFS, FUNCTIONS AND VARIABLES FOR TESTING
 //-----------------------------------------------------------------------------
 
-typedef bslstl::HashTableIterator<int, bsl::allocator<int> > Obj;
-typedef bslalg::BidirectionalNode<int>                       Node;
+typedef bslstl::HashTableIterator<int, ptrdiff_t > Obj;
+typedef bslalg::BidirectionalNode<int>             Node;
 
 struct NodePool {
   private:
@@ -139,8 +140,8 @@ struct MyPair {
     MyPair(int first, int second) : d_first(first), d_second(second) {}
 };
 
-typedef bslstl::HashTableIterator<MyPair, bsl::allocator<int> > PairObj;
-typedef bslalg::BidirectionalNode<MyPair>                       PairNode;
+typedef bslstl::HashTableIterator<MyPair, ptrdiff_t > PairObj;
+typedef bslalg::BidirectionalNode<MyPair>             PairNode;
 
 //=============================================================================
 //                              MAIN PROGRAM
