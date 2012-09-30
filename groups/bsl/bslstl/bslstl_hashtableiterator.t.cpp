@@ -5,7 +5,6 @@
 #include <bslstl_bidirectionalnodepool.h>
 
 #include <bslma_testallocator.h>
-#include <bslma_sequentialallocator.h>
 
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
@@ -92,15 +91,13 @@ typedef bslalg::BidirectionalNode<int>             Node;
 struct NodePool {
   private:
     // DATA
-    bslma::SequentialAllocator                               d_seqAlloc;
     bslstl::BidirectionalNodePool<int, bsl::allocator<int> > d_subPool;
 
   public:
     // CREATORS
     explicit
-    NodePool(bslma::Allocator *alloc)
-    : d_seqAlloc(alloc)
-    , d_subPool(&d_seqAlloc)
+    NodePool(bslma::Allocator *allocator)
+    : d_subPool(allocator)
     {}
 
     // MANIPULATORS
