@@ -104,11 +104,11 @@ BSLS_IDENT("$Id: $")
 //: 4 The first and last links in each bucket in the bucket array refer to a
 //:   the first and last element in the doubly linked list having an adjusted
 //:   hash value equal to that buckets index.  If no values in the doubly
-//:   linked list have and adjust hash value equal to a bucket's index, then
+//:   linked list have an adjust hash value equal to a bucket's index, then
 //:   the addresses of the first and last links for that bucket are 0.
 //
 ///'KEY_CONFIG' Template Parameter
-///----------------------------------------------------------
+///-------------------------------
 // Several of the operations provided by 'HashTableImpUtil' are template
 // functions parametrized on the typename 'KEY_CONFIG'.
 //
@@ -126,8 +126,8 @@ BSLS_IDENT("$Id: $")
 //     // stored in the 'BidirectionalNode' elements of a hash table.
 //
 //  static const KeyType& extractKey(const ValueType& obj);
-//      // Return, deterministically, the 'KeyType' information associated with
-//      // the specified 'object'.
+//      // Return the 'KeyType' information associated with the specified
+//      // 'object'.
 //..
 //
 ///Usage
