@@ -65,7 +65,7 @@ using namespace bsl;
 // those that perform memory allocation must be tested for exception neutrality
 // via the 'bslma::TestAllocator' component.  After the mandatory sequence of
 // cases (1--10) for value-semantic types (cases 5 and 10 are not implemented,
-// as there is not output or streaming below stlport), we test each individual
+// as there is not output or streaming below bslstl), we test each individual
 // constructor, manipulator, and accessor in subsequent cases.  Move semantics
 // are tested within relevant test case (e.g., [12] for move constructor, and
 // [15] for 'push_back').
