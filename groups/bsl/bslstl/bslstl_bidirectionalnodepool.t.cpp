@@ -50,7 +50,7 @@ using namespace bslstl;
 // MANIPULATORS
 // [ 4] AllocatorType& allocator();
 // [ 2] bslalg::BidirectionalLink *createNode();
-// [ 7] bslalg::BidirectionalLink *createNode(constl BidirectionalLink&);
+// [ 7] bslalg::BidirectionalLink *createNode(const BidirectionalLink&);
 // [ 7] bslalg::BidirectionalLink *createNode(const VALUE& value);
 // [ 5] void deleteNode(bslalg::BidirectionalLink *node);
 // [ 6] void reserveNodes(std::size_t numNodes);
@@ -250,7 +250,7 @@ class Stack
 template <class VALUE>
 class TestDriver {
     // This templatized struct provide a namespace for testing the 'map'
-    // container.  The parameterized 'VALUE' specifies the value type forr this
+    // container.  The parameterized 'VALUE' specifies the value type for this
     // object.  Each "testCase*" method test a specific aspect of
     // 'SimplePool<VALUE>'.  Every test cases should be invoked with various
     // parameterized type to fully test the container.
@@ -386,7 +386,7 @@ void TestDriver<VALUE>::testCase8()
     // Plan:
     //: 1 Using a table-based approach:
     //:
-    //:   1 Create two objects of whick memory has been allocated and
+    //:   1 Create two objects of which memory has been allocated and
     //:     deallocated various number of times.
     //:
     //:   2 Swap the two objects, verify allocator is not changed.  (C-2)
@@ -1212,7 +1212,8 @@ int main(int argc, char *argv[])
             }
 
             typedef AllocatingIntType AllocType;
-            typedef BidirectionalNodePool<AllocType, bsl::allocator<AllocType> > Obj;
+            typedef BidirectionalNodePool<AllocType,
+                                          bsl::allocator<AllocType> > Obj;
             typedef bslalg::BidirectionalNode<AllocatingIntType> Node;
 
             bslma::TestAllocator da, ta;
@@ -1246,7 +1247,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == da.numBlocksInUse());
             ASSERT(1 == ta.numBlocksInUse());
         }
-       } break;
+      } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
         testStatus = -1;

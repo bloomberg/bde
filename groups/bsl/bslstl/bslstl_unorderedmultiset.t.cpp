@@ -52,11 +52,11 @@ using std::endl;
 //=============================================================================
 //                             TEST PLAN
 //-----------------------------------------------------------------------------
-// Intial breathing test iterates all operations with a single template
+// Initial breathing test iterates all operations with a single template
 // instantiation and test obvious boundary conditions and iterator stability
 // guarantees.
 //
-// MULTISET TEST SHOULD TEST DUPLICATE KEYS (by equavalence functor) WITH
+// MULTISET TEST SHOULD TEST DUPLICATE KEYS (by equivalence functor) WITH
 // DIFFERENT VALUES (by operator==).
 //
 // MEMORY CONSUMPTION TESTS ARE GENERALLY DISABLED, OTHER THAN LEAKS AT THE END
@@ -68,11 +68,11 @@ using std::endl;
 //    contained values correspond to inserted values, counting duplicates
 // ----------------------------------------------------------------------------
 // [unord.set] construct/copy/destroy:
-// [  ] unordered_multiset(size_type n, const hasher& hf, const key_equal& eql, const allocator_type& a);
-// [  ] unordered_multiset(ITER first, ITER last, size_type n, const hasher& hf, const key_equal& eql, const allocator_type& a);
+// [  ] unordered_multiset(size_type, hasher, key_equal, allocator);
+// [  ] unordered_multiset(ITER, ITER, size_type, hasher, key_equal, allocator)
 // [  ] unordered_multiset(const unordered_multiset& original);
 // [  ] unordered_multiset(const A& allocator);
-// [  ] unordered_multiset(const unordered_multiset& original, const A& allocator);
+// [  ] unordered_multiset(const u_multiset& original, const A& allocator);
 // [ 2] ~unordered_multiset();
 // [  ] unordered_multiset& operator=(const set& rhs);
 // [ 4] allocator_type get_allocator() const;
@@ -118,9 +118,6 @@ using std::endl;
 // [  ] bsl::pair<iterator, iterator> equal_range(const key_type& key);
 // [  ] bsl::pair<const_iter, const_iter> equal_range(const key_type&) const;
 //
-// [  ] bool operator==(u_multiset<K, H, E, A>& a, u_multiset<K, H, E, A>& b);
-// [  ] bool operator!=(u_multiset<K, H, E, A>& a, u_multiset<K, H, E, A>& b);
-//
 // bucket interface:
 // [  ] size_type bucket_count() const;
 // [  ] size_type max_bucket_count() const;
@@ -135,7 +132,9 @@ using std::endl;
 // [  ] void reserve(size_type n);
 //
 // specialized algorithms:
-// [  ] void swap(multiset<K, H, E, A>& a, multiset<K, H, E, A>& b);
+// [  ] bool operator==(u_multiset<K, H, E, A>& a, u_multiset<K, H, E, A>& b);
+// [  ] bool operator!=(u_multiset<K, H, E, A>& a, u_multiset<K, H, E, A>& b);
+// [  ] void swap(u_multiset<K, H, E, A>& a, u_multiset<K, H, E, A>& b);
 //
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
@@ -143,11 +142,11 @@ using std::endl;
 // [  ] USAGE EXAMPLE
 //
 // TEST APPARATUS: GENERATOR FUNCTIONS
-// [ 3] int ggg(unordered_multiset<T,H,E,A> *o, const char *s, int verbose = 1);
+// [ 3] int ggg(unordered_multiset<T,H,E,A> *o, const char *s, int verbose);
 // [ 3] unordered_multiset<T,H,E,A>& gg(u_multiset<T,H,E,A> *o, const char *s);
 // [  ] unordered_multiset<T,H,E,A> g(const char *spec);
 //
-// [  ] CONCERN: The object is comppatible with STL allocator.
+// [  ] CONCERN: The object is compatible with STL allocators.
 // [  ] CONCERN: The object has the necessary type traits
 // [  ] CONCERN: The type provides the full interface defined by the standard.
 
@@ -235,7 +234,7 @@ keyForValue(const typename CONTAINER::value_type v)
 template <class CONTAINER>
 void testConstEmptyContainer(const CONTAINER& x)
 {
-    typedef CONTAINER TestType;
+    typedef typename CONTAINER::const_iterator const_iterator;
 
     ASSERT(x.empty());
     ASSERT(0 == x.size());
@@ -254,9 +253,8 @@ void testConstEmptyContainer(const CONTAINER& x)
         ASSERT(x.cbegin(i) == x.cend(i));
     }
 
-    const bsl::pair<typename TestType::const_iterator,
-                    typename TestType::const_iterator>
-                                                  emptyRange(x.end(), x.end());
+    const bsl::pair<const_iterator, const_iterator> emptyRange(x.end(),
+                                                               x.end());
     ASSERT(x.equal_range(42) == emptyRange);
 
     ASSERT(0 == x.count(37));
@@ -269,7 +267,7 @@ void testConstEmptyContainer(const CONTAINER& x)
 template <class CONTAINER>
 void testEmptyContainer(CONTAINER& x)
 {
-    typedef CONTAINER TestType;
+    typedef typename CONTAINER::iterator iterator;
 
     ASSERT(x.empty());
     ASSERT(0 == x.size());
@@ -293,14 +291,13 @@ void testEmptyContainer(CONTAINER& x)
         ASSERT(x.cbegin(i) == x.cend(i));
     }
 
-    const bsl::pair<typename TestType::iterator, typename TestType::iterator>
-                                                  emptyRange(x.end(), x.end());
+    const bsl::pair<iterator, iterator> emptyRange(x.end(), x.end());
     ASSERT(x.equal_range(42) == emptyRange);
 
     ASSERT(0 == x.count(37));
     ASSERT(x.end() == x.find(26));
 
-    typename TestType::iterator it = x.erase(x.begin(), x.end());
+    iterator it = x.erase(x.begin(), x.end());
     ASSERT(x.end() == it);
 
     ASSERT(0 == x.erase(93));
@@ -315,8 +312,7 @@ void testContainerHasData(const CONTAINER& x,
                           const typename CONTAINER::value_type *data,
                           int              size)
 {
-    typedef CONTAINER TestType;
-    typedef typename TestType::const_iterator TestIterator;
+    typedef typename CONTAINER::const_iterator TestIterator;
 
     ASSERT(nCopies);
     ASSERT(x.size() == nCopies * size);
@@ -358,7 +354,7 @@ void fillContainerWithData(CONTAINER& x,
                            const typename CONTAINER::value_type *data,
                            int       size)
 {
-    typedef CONTAINER TestType;
+    typedef typename CONTAINER::iterator iterator;
 
     ASSERT(0 < size);
     const size_t nCopies = x.count(data[0]) + 1;
@@ -368,7 +364,7 @@ void fillContainerWithData(CONTAINER& x,
     ASSERT(x.size() == initialSize + size);
 
     for (int i = 0; i != size; ++i) {
-        typename TestType::iterator it = x.find(keyForValue<CONTAINER>(data[i]));
+        iterator it = x.find(keyForValue<CONTAINER>(data[i]));
         ASSERT(x.end() != it);
         ASSERT(data[i] == *it);
         LOOP3_ASSERT(i, nCopies, x.count(keyForValue<CONTAINER>(data[i])),
@@ -377,7 +373,8 @@ void fillContainerWithData(CONTAINER& x,
 }
 
 template<typename CONTAINER>
-void validateIteration(CONTAINER &c) {
+void validateIteration(CONTAINER &c)
+{
     typedef typename CONTAINER::iterator       iterator;
     typedef typename CONTAINER::const_iterator const_iterator;
 
@@ -639,7 +636,7 @@ void debugprint(const bsl::unordered_multiset<KEY, HASH, EQUAL, ALLOC>& s)
     fflush(stdout);
 }
 
-} // close namespace bsl
+}  // close namespace bsl
 
 namespace {
 
@@ -951,20 +948,17 @@ template <class KEY,
           class ALLOC = bsl::allocator<KEY> >
 class TestDriver {
     // This templatized struct provide a namespace for testing the
-    // 'unordered_multiset' container.  The parameterized 'KEY', 'COMP' and 'ALLOC'
-    // specifies the value type, comparator type and allocator type
-    // respectively.  Each "testCase*" method test a specific aspect of
-    // 'unordered_multiset<KEY, HASH, EQUAL, ALLOC>'.
-    // Every test cases should be invoked with various parameterized type to
-    // fully test the container.
+    // 'unordered_multiset' container.  The parameterized 'KEY', 'HASH',
+    // 'EQUAL' and 'ALLOC' specify the value type, the hash function type, the
+    // key-comparator type and allocator type respectively.  Each "testCase*"
+    // method tests a specific aspect of
+    // 'unordered_multiset<KEY, HASH, EQUAL, ALLOC>'.  Every test cases should
+    // be invoked with various parameterized types to fully test the container.
 
   private:
     // TYPES
     typedef bsl::unordered_multiset<KEY, HASH, EQUAL, ALLOC> Obj;
         // Type under testing.
-
-//    typedef TestComparatorNonConst<KEY> NonConstComp;
-        // Comparator functor with a non-const function call operator.
 
     typedef typename Obj::iterator                Iter;
     typedef typename Obj::const_iterator          CIter;
@@ -1120,7 +1114,8 @@ int TestDriver<KEY, HASH, EQUAL, ALLOC>::ggg(Obj        *object,
                                              const char *spec,
                                              int         verbose)
 {
-    bslma::DefaultAllocatorGuard guard(&bslma::NewDeleteAllocator::singleton());
+    bslma::DefaultAllocatorGuard guard(
+                                      &bslma::NewDeleteAllocator::singleton());
     const TestValues VALUES;
 
     enum { SUCCESS = -1 };
@@ -1350,8 +1345,8 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase3()
     //:     location of the first invalid value of the 'spec'.  (C-2)
     //
     // Testing:
-    //   unordered_multiset<K,H,E,A>& gg(unordered_multiset<K,H,E,A> *object, const char *spec);
-    //   int ggg(unordered_multiset<K,H,E,A> *object, const char *spec, int verbose = 1);
+    //   unordered_multiset<K,H,E,A>& gg(u_multiset<K,H,E,A> *, const char *);
+    //   int ggg(unordered_multiset<K,H,E,A> *, const char *spec, int verbose);
     // ------------------------------------------------------------------------
 
     bslma::TestAllocator oa(veryVeryVerbose);
@@ -1533,7 +1528,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase2()
     //:     and (c) passing the address of a test allocator distinct from the
     //:     default.  For each of these three iterations:  (C-1..14)
     //:
-    //:     1 Create three 'bslma::TestAllocator' objects, and install one as as
+    //:     1 Create three 'bslma::TestAllocator' objects, and install one as
     //:       the current default allocator (note that a ubiquitous test
     //:       allocator is already installed as the global allocator).
     //:
@@ -1577,7 +1572,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase2()
     //
     //
     // Testing:
-    //   default contruction (only)
+    //   default construction (only)
     //   unordered_multiset(const allocator_type&);  // bslma::Allocator* only
     //   ~unordered_multiset();
     //   iterator insert(const value_type& value);

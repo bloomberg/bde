@@ -1761,13 +1761,19 @@ int main(int argc, char *argv[])
         typedef AttribClass5Alloc<BslmaAllocator<int> >    AC5AllocBslma;
         typedef AttribClass5Alloc<FunkyAllocator<int> >    AC5AllocFunky;
 
-        ASSERT((!bsl::is_convertible<bslma::Allocator*, NonBslmaAllocator<int> >::value));
-        ASSERT((bsl::is_convertible<bslma::Allocator*, BslmaAllocator<int> >::value));
-        ASSERT((bsl::is_convertible<bslma::Allocator*, FunkyAllocator<int> >::value));
+        ASSERT((!bsl::is_convertible<bslma::Allocator*,
+                                     NonBslmaAllocator<int> >::value));
+        ASSERT((bsl::is_convertible<bslma::Allocator*,
+                                    BslmaAllocator<int> >::value));
+        ASSERT((bsl::is_convertible<bslma::Allocator*,
+                                    FunkyAllocator<int> >::value));
 
-        ASSERT(!bslma::UsesBslmaAllocator<AttribClass5Alloc<NonBslmaAllocator<int> > >::value);
-        ASSERT(bslma::UsesBslmaAllocator<AttribClass5Alloc<BslmaAllocator<int> > >::value);
-        ASSERT(bslma::UsesBslmaAllocator<AttribClass5Alloc<FunkyAllocator<int> > >::value);
+        ASSERT(!bslma::UsesBslmaAllocator<
+                          AttribClass5Alloc<NonBslmaAllocator<int> > >::value);
+        ASSERT(bslma::UsesBslmaAllocator<
+                             AttribClass5Alloc<BslmaAllocator<int> > >::value);
+        ASSERT(bslma::UsesBslmaAllocator<
+                             AttribClass5Alloc<FunkyAllocator<int> > >::value);
 
         TEST_CONSTRUCT_DESTROY(NonBslmaAllocator<AttribClass5>,
                                AttribClass5, false);

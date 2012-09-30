@@ -24,7 +24,7 @@ using std::endl;
 //=============================================================================
 //                             TEST PLAN
 //-----------------------------------------------------------------------------
-// Intial breathing test iterates all operations with a single template
+// Initial breathing test iterates all operations with a single template
 // instantiation and test obvious boundary conditions and iterator stability
 // guarantees.
 //-----------------------------------------------------------------------------
@@ -132,7 +132,7 @@ void debugPrint(const bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOC>& s)
 
 //=============================================================================
 //    FREE FUNCTIONS FOR REVISED TESTING SCHEME
-//    IMPLEMENTATION SHOULD BE (MOSTLY) CONTAINER INDEPENDANT
+//    IMPLEMENTATION SHOULD BE (MOSTLY) CONTAINER INDEPENDENT
 //=============================================================================
 
 template<class CONTAINER>

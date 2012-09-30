@@ -94,10 +94,8 @@ using std::endl;
 //
 // ----------------------------------------------------------------------------
 // [unord.set] construct/copy/destroy:
-// [  ] unordered_set(size_type n, const hasher& hf, const key_equal& eql,
-//                                                    const allocator_type& a);
-// [  ] unordered_set(ITER first, ITER last, size_type n, const hasher& hf,
-//                              const key_equal& eql, const allocator_type& a);
+// [  ] unordered_set(size_type, hasher, key_equal, allocator);
+// [  ] unordered_set(ITER, ITER, size_type, hasher, key_equal, allocator);
 // [  ] unordered_set(const unordered_set& original);
 // [  ] unordered_set(const A& allocator);
 // [  ] unordered_set(const unordered_set& original, const A& allocator);
@@ -140,11 +138,6 @@ using std::endl;
 // [  ] bsl::pair<iterator, iterator> equal_range(const key_type& key);
 // [  ] bsl::pair<const_iter, const_iter> equal_range(const key_type&) const;
 //
-// [  ] bool operator==(unordered_set<K, H, E, A>& a,
-//                      unordered_set<K, H, E, A>& b);
-// [  ] bool operator!=(unordered_set<K, H, E, A>& a,
-//                      unordered_set<K, H, E, A>& b);
-//
 // bucket interface:
 // [  ] size_type bucket_count() const;
 // [  ] size_type max_bucket_count() const;
@@ -167,6 +160,8 @@ using std::endl;
 // [  ] void reserve(size_type n);
 //
 // specialized algorithms:
+// [  ] bool operator==(unordered_set<K, H, E, A>, unordered_set<K, H, E, A>);
+// [  ] bool operator!=(unordered_set<K, H, E, A>, unordered_set<K, H, E, A>);
 // [  ] void swap(unordered_set<K, H, E, A>& a, unordered_set<K, H, E, A>& b);
 //
 // ----------------------------------------------------------------------------
@@ -175,13 +170,11 @@ using std::endl;
 // [  ] USAGE EXAMPLE
 //
 // TEST APPARATUS: GENERATOR FUNCTIONS
-// [ 3] int ggg(unordered_set<T,H,E,A> *object, const char *spec,
-//                                                            int verbose = 1);
-// [ 3] unordered_set<T,H,E,A>& gg(unordered_set<T,H,E,A> *object,
-//                                                           const char *spec);
-// [  ] unordered_set<T,H,E,A> g(const char *spec);
+// [ 3] int ggg(unordered_set<K,H,E,A> *object, const char *spec, int verbose);
+// [ 3] unordered_set<K,H,E,A>& gg(unordered_set<K,H,E,A> *, const char *spec);
+// [  ] unordered_set<K,H,E,A> g(const char *spec);
 //
-// [  ] CONCERN: The object is comppatible with STL allocator.
+// [  ] CONCERN: The object is compatible with STL allocators.
 // [  ] CONCERN: The object has the necessary type traits
 // [  ] CONCERN: The type provides the full interface defined by the standard.
 
@@ -1522,11 +1515,11 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase8_1()
     //   Ensure that the 'swap' functions properly swap the objects when
     //   allocator propagation is enabled.  This function implements the test
     //   plan which address C-6 from 'testCase8' and is implemented as a
-    //   separate function from 'testCase8', because at the time of writting,
+    //   separate function from 'testCase8', because at the time of writing,
     //   'AllocatorTraits' doesn't fully support allocator propagation, so some
     //   manual source code changes are needed to run this test.
     //
-    //   TODO: integerate this test function to 'testCase8' once
+    //   TODO: integrate this test function to 'testCase8' once
     //   'AllocatorTraits' fully support allocator propagation.
     //
     // Concerns:
@@ -1715,7 +1708,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase8()
     //:
     //:     5 Use the value constructor and 'oaz' to a create a modifiable
     //:       'Obj' 'mZ', having the value described by 'R2'; also use the copy
-    //:       constructor to create, using a "scractch" allocator, a const
+    //:       constructor to create, using a "scratch" allocator, a const
     //:       'Obj', 'ZZ', from 'Z'.
     //:
     //:     6 Use the member and free 'swap' functions to swap the values of
@@ -1724,7 +1717,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase8()
     //:       false_type) under the presence of exception; verify, after each
     //:       swap, that:  (C-1, 5, 7)
     //:
-    //:       1 If exception occured during the swap, both values are
+    //:       1 If exception occurred during the swap, both values are
     //:         unchanged.  (C-7)
     //
     //:       2 If no exception occurred, the values have been exchanged.
@@ -2869,7 +2862,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase2()
     //:       destroyed.  (C-8)
     //
     // Testing:
-    //   default contruction (only)
+    //   default construction (only)
     //   unordered_set(const allocator_type&);  // bslma::Allocator* only
     //   ~unordered_set();
     //   bsl::pair<iterator, bool> insert(const value_type& value);
@@ -3189,7 +3182,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING STANDARD INTERFACE COVERAGE
         // --------------------------------------------------------------------
-        // Test only 'int' and 'char' parameter types, becuase map's
+        // Test only 'int' and 'char' parameter types, because map's
         // 'operator<' and related operators only support parameterized types
         // that defines 'operator<'.
         RUN_EACH_TYPE(TestDriver, testCase24, int, char);

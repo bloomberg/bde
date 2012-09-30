@@ -101,7 +101,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  Legend
 //  ------
-//  'K'             - template parametere type 'KEY' of the unordered map
+//  'K'             - template parameter type 'KEY' of the unordered map
 //  'V'             - template parameter type 'VALUE' of the unordered map
 //  'a', 'b'        - two distinct objects of type 'unordered_map<K, V>'
 //  'n', 'm'        - number of elements in 'a' and 'b' respectively
@@ -327,7 +327,7 @@ template <
 class unordered_map {
     // This class template implements a value-semantic container type holding
     // an unordered set of unique key-value pairs having unique keys that
-    // provide a mappping from keys (of template parameter type 'KEY') to
+    // provide a mapping from keys (of template parameter type 'KEY') to
     // their associated values (of template parameter type 'VALUE').
     //
     // This class:
@@ -359,7 +359,7 @@ class unordered_map {
                                              HASH,
                                              EQUAL,
                                              ALLOCATOR> HashTable;
-        // This typedef is an alias for the template instantion of the
+        // This typedef is an alias for the template instantiation of the
         // underlying 'bslstl::HashTable' used to implement this container.
 
     typedef ::BloombergLP::bslalg::BidirectionalLink HashTableLink;
@@ -502,10 +502,10 @@ class unordered_map {
         // Destroy this object.
 
     // MANIPULATORS
-    unordered_map& operator=(const unordered_map& other);
+    unordered_map& operator=(const unordered_map& rhs);
         // Assign to this object the value, hasher, and key-equality functor of
-        // the specified 'other' object, propagate to this object the allocator
-        // of 'other' if the 'ALLOCATOR' type has trait
+        // the specified 'rhs' object, propagate to this object the allocator
+        // of 'rhs' if the 'ALLOCATOR' type has trait
         // 'propagate_on_container_copy_assignment', and return a reference
         // providing modifiable access to this object.  This method requires
         // that the (template parameter types) 'KEY' and 'VALUE' both be
@@ -562,7 +562,7 @@ class unordered_map {
         // 'KEY' and 'VALUE' types both be "copy-constructible" (see
         // {Requirements on 'KEY' and 'VALUE'}).
 
-    iterator insert(const_iterator hint, const value_type& obj);
+    iterator insert(const_iterator hint, const value_type& value);
         // Insert the specified 'value' into this map (in constant
         // time if the specified 'hint' is a valid element in the bucket to
         // which 'value' belongs), if the key (the 'first' element) of the
@@ -780,7 +780,7 @@ class unordered_map {
 
     size_type bucket(const key_type& key) const;
         // Return the index of the bucket, in the array of buckets of this
-        // container, where values having the specified 'key' would bej
+        // container, where values having the specified 'key' would be
         // inserted.
 
     float load_factor() const;
@@ -805,7 +805,7 @@ bool operator==(const unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>& lhs,
     // value, and 'false' otherwise.  Two 'unordered_map' objects have the
     // same value if they have the same number of key-value pairs, and for each
     // key-value pair that is contained in 'lhs' there is a pair value-key
-    // contained in 'rhs' having the same value, and viceversa.  This method
+    // contained in 'rhs' having the same value, and vice-versa.  This method
     // requires that the (template parameter) types 'KEY' and 'VALUE' both be
     // "equality-comparable" (see {Requirements
     // on 'KEY' and 'VALUE'}).
@@ -818,7 +818,7 @@ bool operator!=(
     // same value, and 'false' otherwise.  Two 'unordered_map' objects do not
     // have the same value if they do not have the same number of key-value
     // pairs, or that for some key-value pair that is contained in 'lhs' there
-    // is not a key-value pair in 'rhs' having the same value, and viceversa.
+    // is not a key-value pair in 'rhs' having the same value, and vice-versa.
     // This method requires that the (template parameter) types 'KEY' and
     // 'VALUE' both be "equality-comparable" (see {Requirements on 'KEY' and
     // 'VALUE'}).
@@ -943,6 +943,26 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::~unordered_map()
 // MANIPULATORS
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 inline
+unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>&
+unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::operator=(
+                                                    const unordered_map& rhs)
+{
+    unordered_map(rhs, this->get_allocator()).swap(*this);
+    return *this;
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+inline
+typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::mapped_type&
+unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::operator[](
+                                                           const key_type& key)
+{
+    HashTableLink *node = d_impl.insertIfMissing(key);
+    return static_cast<HashTableNode *>(node)->value().second;
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+inline
 typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::mapped_type&
 unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::at(const key_type& key)
 {
@@ -1029,8 +1049,7 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::erase(const key_type& key)
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 inline
 typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::erase(
-                                                         const_iterator first,
+unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::erase(const_iterator first,
                                                          const_iterator last)
 {
 
@@ -1058,9 +1077,9 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::erase(
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 inline
 typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::find(const key_type& k)
+unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::find(const key_type& key)
 {
-    return iterator(d_impl.find(k));
+    return iterator(d_impl.find(key));
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
@@ -1082,7 +1101,7 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::insert(
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator
 unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::insert(
-                                                       const_iterator    hint,
+                                                       const_iterator,
                                                        const value_type& value)
 {
     // There is no realistic use-case for the 'hint' in an unordered_map of
@@ -1140,32 +1159,10 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::max_load_factor(
     d_impl.maxLoadFactor(newLoadFactor);
 }
 
-
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
-inline
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>&
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::operator=(
-                                                    const unordered_map& other)
-{
-    unordered_map(other, this->get_allocator()).swap(*this);
-    return *this;
-}
-
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
-inline
-typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::mapped_type&
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::operator[](
-                                                           const key_type& key)
-{
-    HashTableLink *node = d_impl.insertIfMissing(key);
-    return static_cast<HashTableNode *>(node)->value().second;
-}
-
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 inline
 void
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::rehash(
-                                                          size_type numBuckets)
+unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::rehash(size_type numBuckets)
 {
     return d_impl.rehash(numBuckets);
 }
@@ -1451,10 +1448,10 @@ bool bsl::operator!=(
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 inline
 void
-bsl::swap(bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>& x,
-          bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>& y)
+bsl::swap(bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>& a,
+          bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>& b)
 {
-    x.swap(y);
+    a.swap(b);
 }
 
 

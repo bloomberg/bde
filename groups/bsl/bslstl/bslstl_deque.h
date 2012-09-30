@@ -64,8 +64,8 @@ BSLS_IDENT("$Id: $")
 // done next.  For brevity of the usage example, we do not show how customers
 // are track while or after their laundry is being done.
 //
-// In addtion, the laundry queue also provides the 'find' method, which returns
-// a 'bool' to indicate whether a given customer is still in the queue.
+// In addition, the laundry queue also provides the 'find' method, which
+// returns a 'bool' to indicate whether a given customer is still in the queue.
 //
 // First, we declare a class 'LaundryQueue' based on a deque, to store names of
 // customers at a drop-off laundry:

@@ -2,9 +2,6 @@
 
 #include <bslstl_equalto.h>
 
-//#include <bslalg_hastrait.h>
-//#include <bslalg_typetraits.h>
-
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
@@ -167,7 +164,7 @@ int main(int argc, char *argv[])
         //:   classes.
         //
         // Testing:
-        //   QoI: Support for empty base optiization
+        //   QoI: Support for empty base optimization
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING QoI: Is an empty type"
@@ -247,8 +244,8 @@ int main(int argc, char *argv[])
         //:   type using 'bslmf::IsSame'. (C-1..3)
         //
         // Testing:
-        //   typedef first_arguent_type
-        //   typedef second_arguent_type
+        //   typedef first_argument_type
+        //   typedef second_argument_type
         //   typedef result_type
         // --------------------------------------------------------------------
 

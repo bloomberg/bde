@@ -14,7 +14,7 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Alisdair Meredith (ameredit) Stefano Pacifico (spacifico1)
 //
-//@SEE_ALSO: bslstp_hashmap, bslstp_hashset
+//@SEE_ALSO: bslstl_unorderedmap, bslstl_unorderedset
 //
 //@DESCRIPTION: This component provides the C+11 standard binary comparison
 // functor, 'bsl::equal_to', that evaluates equality of two 'VALUE_TYPE'

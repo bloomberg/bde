@@ -348,6 +348,7 @@ class unordered_multimap
     typedef typename AllocatorTraits::const_pointer    const_pointer;
 
   private:
+    // PRIVATE TYPES
     typedef ::BloombergLP::bslalg::BidirectionalLink   HashTableLink;
 
     typedef ::BloombergLP::bslstl::UnorderedMapKeyConfiguration<value_type>
@@ -357,7 +358,7 @@ class unordered_multimap
                                              EQUAL,
                                              ALLOCATOR> Impl;
   public:
-    // TRAITS
+    // PUBLIC TYPES
     typedef ::BloombergLP::bslstl::HashTableIterator<value_type,
                                                      difference_type> iterator;
     typedef ::BloombergLP::bslstl::HashTableIterator<const value_type,
@@ -370,6 +371,7 @@ class unordered_multimap
                                                            difference_type>
                                                           const_local_iterator;
 
+    // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION_IF(
                          unordered_multimap,
                          ::BloombergLP::bslmf::IsBitwiseMoveable,
@@ -483,10 +485,10 @@ class unordered_multimap
         // Destroy this object.
 
     // MANIPULATORS
-    unordered_multimap& operator=(const unordered_multimap& other);
+    unordered_multimap& operator=(const unordered_multimap& rhs);
         // Assign to this object the value, hasher, and key-equality functor of
-        // the specified 'other' object, propagate to this object the allocator
-        // of 'other' if the 'ALLOCATOR' type has trait
+        // the specified 'rhs' object, propagate to this object the allocator
+        // of 'rhs' if the 'ALLOCATOR' type has trait
         // 'propagate_on_container_copy_assignment', and return a reference
         // providing modifiable access to this object.  This method requires
         // that the (template parameter types) 'KEY' and 'VALUE' both be
@@ -522,7 +524,7 @@ class unordered_multimap
         // the (template parameter) types 'KEY' and 'VALUE' types both be
         // "copy-constructible" (see {Requirements on 'KEY' and 'VALUE'}).
 
-    iterator insert(const_iterator hint, const value_type& obj);
+    iterator insert(const_iterator hint, const value_type& value);
         // Insert the specified 'value' into this multi-map (in
         // constant time if the specified 'hint' is a valid element in the
         // bucket to which 'value' belongs).  Return an iterator referring to
@@ -584,7 +586,7 @@ class unordered_multimap
     pair<iterator, iterator> equal_range(const key_type& key);
         // Return a pair of iterators providing modifiable access to the
         // sequence of 'value_type' objects in this multi-map
-        // matchinng the specified 'key', where the the first iterator is
+        // matching the specified 'key', where the the first iterator is
         // positioned at the start of the sequence, and the second is
         // positioned one past the end of the sequence.  If this unordered
         // multi map contains no 'value_type' objects matching 'key', then the
@@ -762,7 +764,7 @@ bool operator==(
     // value, and 'false' otherwise.  Two 'unordered_multimap' objects have the
     // same value if they have the same number of key-value pairs, and for each
     // key-value pair that is contained in 'lhs' there is a pair value-key
-    // contained in 'rhs' having the same value, and viceversa.  This method
+    // contained in 'rhs' having the same value, and vice-versa.  This method
     // requires that the (template parameter) types 'KEY' and 'VALUE' both be
     // "equality-comparable" (see {Requirements
     // on 'KEY' and 'VALUE'}).
@@ -775,7 +777,7 @@ bool operator!=(
     // same value, and 'false' otherwise.  Two 'unordered_multimap' objects do
     // not have the same value if they do not have the same number of key-value
     // pairs, or that for some key-value pair that is contained in 'lhs' there
-    // is not a key-value pair in 'rhs' having the same value, and viceversa.
+    // is not a key-value pair in 'rhs' having the same value, and vice-versa.
     // This method requires that the (template parameter) types 'KEY' and
     // 'VALUE' both be "equality-comparable" (see {Requirements on 'KEY' and
     // 'VALUE'}).
@@ -902,6 +904,16 @@ unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::~unordered_multimap()
 }
 
 // MANIPULATORS
+template <class KEY, class VALUE, class HASH, class EQUAL,
+          class ALLOCATOR>
+unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>&
+unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::operator=(
+                                                 const unordered_multimap& rhs)
+{
+    unordered_multimap(rhs, this->get_allocator()).swap(*this);
+    return *this;
+}
+
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 inline
 typename unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::local_iterator
@@ -1043,16 +1055,6 @@ void unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::max_load_factor(
                                                            float newLoadFactor)
 {
     d_impl.maxLoadFactor(newLoadFactor);
-}
-
-template <class KEY, class VALUE, class HASH, class EQUAL,
-          class ALLOCATOR>
-unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>&
-unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::operator=(
-                                                 const unordered_multimap& rhs)
-{
-    unordered_multimap(rhs, this->get_allocator()).swap(*this);
-    return *this;
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
@@ -1254,7 +1256,7 @@ unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::key_eq() const
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
-typename unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>:: const_iterator
+typename unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::const_iterator
 unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::find(
                                                      const key_type& key) const
 {
@@ -1335,7 +1337,8 @@ float unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::max_load_factor()
 
 // FREE FUNCTIONS
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
-inline bool bsl::operator==(
+inline
+bool bsl::operator==(
         const bsl::unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>& lhs,
         const bsl::unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>& rhs)
 {
@@ -1353,8 +1356,8 @@ bool bsl::operator!=(
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 inline
-void bsl::swap( bsl::unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>& x,
-                bsl::unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>& y)
+void bsl::swap(bsl::unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>& x,
+               bsl::unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>& y)
 {
     x.swap(y);
 }

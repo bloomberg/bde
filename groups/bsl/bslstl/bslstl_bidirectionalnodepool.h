@@ -45,7 +45,7 @@ BSLS_IDENT("$Id: $")
 #include <bslalg_bidirectionallink.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_BIDIRECTIONALLINKLISTNODE
+#ifndef INCLUDED_BSLALG_BIDIRECTIONALNODE
 #include <bslalg_bidirectionalnode.h>
 #endif
 
@@ -141,7 +141,7 @@ class BidirectionalNodePool {
         // behavior is undefined unless 'original' refers to a
         // 'bslalg::BidirectionalNode<VALUE>'.  Note that the 'next' and 'prev'
         // attributes of the returned node will be uninitialized.
-    
+
     void deleteNode(bslalg::BidirectionalLink *linkNode);
         // Destroy the 'VALUE' value of the specified 'node' and return the
         // memory footprint of 'node' to this pool for potential reuse.  The
@@ -156,7 +156,7 @@ class BidirectionalNodePool {
     void swap(BidirectionalNodePool& other);
         // Efficiently exchange the management of nodes of this object and
         // the specified 'other' object.  The behavior is undefined unless the
-        // underlying mechanisms of 'allocator()' unless 
+        // underlying mechanisms of 'allocator()' unless
         // 'allocator() == other.allocator()'.
 
     // ACCESSORS

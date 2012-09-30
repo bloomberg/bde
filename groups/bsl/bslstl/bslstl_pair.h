@@ -55,7 +55,7 @@ BSLS_IDENT("$Id: $")
 // 'T1' and 'T2' have that trait.  Supported traits are:
 //..
 //  bslmf::IsBitwiseMoveable
-//  bslmf::IsBitwiseEqualityComparible
+//  bslmf::IsBitwiseEqualityComparable
 //  bsl::is_trivially_copyable
 //  bsl::is_trivially_default_constructible
 //..
@@ -652,8 +652,8 @@ struct is_trivially_copyable<pair<T1, T2> >
 
 template <typename T1, typename T2>
 struct is_trivially_default_constructible<bsl::pair<T1, T2> >
-    : bsl::integral_constant<bool, is_trivially_default_constructible<T1>::value
-                                  && is_trivially_default_constructible<T2>::value>
+: bsl::integral_constant<bool, is_trivially_default_constructible<T1>::value
+                            && is_trivially_default_constructible<T2>::value>
 {};
 
 }
@@ -669,9 +669,10 @@ struct IsBitwiseMoveable<bsl::pair<T1, T2> >
 
 template <typename T1, typename T2>
 struct IsBitwiseEqualityComparable<bsl::pair<T1, T2> >
-    : bsl::integral_constant<bool, bslmf::IsBitwiseEqualityComparable<T1>::value
-                                  && bslmf::IsBitwiseEqualityComparable<T2>::value
-                                  && sizeof(T1) + sizeof(T2) == sizeof(bsl::Pair_Imp<T1, T2, 0, 0>)>
+: bsl::integral_constant<bool, bslmf::IsBitwiseEqualityComparable<T1>::value
+                            && bslmf::IsBitwiseEqualityComparable<T2>::value
+                            && sizeof(T1) + sizeof(T2) ==
+                                           sizeof(bsl::Pair_Imp<T1, T2, 0, 0>)>
 {};
 
 }  // bslmf

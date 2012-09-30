@@ -1115,7 +1115,7 @@ class basic_string
                                const_iterator first,
                                const_iterator last);
         // Insert into this object at the specified 'position' a string
-        // represenented by the specified 'first' and 'last' iterators using
+        // represented by the specified 'first' and 'last' iterators using
         // the 'privateInsertRaw' method for insertion.
 
     template <typename INPUT_ITER>
@@ -1123,7 +1123,7 @@ class basic_string
                                INPUT_ITER     first,
                                INPUT_ITER     last);
         // Insert into this object at the specified 'position' a string
-        // represenented by the specified 'first' and 'last' iterators.  Since
+        // represented by the specified 'first' and 'last' iterators.  Since
         // the parameterized 'INPUT_ITER' type can also resolve to an integral
         // type use the 'privateReplaceDispatch' to disambiguate between the
         // integral type and iterator types.

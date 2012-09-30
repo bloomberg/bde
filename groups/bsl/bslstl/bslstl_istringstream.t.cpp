@@ -368,7 +368,7 @@ int main(int argc, char *argv[])
         //: 1 Create 'istringstream' object with a default constructor.
         //: 2 Create 'istringstream' object with a constructor with allocator.
         //: 3 Create 'istringstream' object with a constructor with string.
-        //: 4 Exersice basic 'istringstream' input operations.
+        //: 4 Exercise basic 'istringstream' input operations.
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING ISTRINGSTREAM"

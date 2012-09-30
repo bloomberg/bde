@@ -479,6 +479,15 @@ class unordered_set
         // Destroy this object.
 
     // MANIPULATORS
+    unordered_set& operator=(const unordered_set& rhs);
+        // Assign to this object the value, hasher, and key-equality functor of
+        // the specified 'rhs' object, propagate to this object the
+        // allocator of 'rhs' if the 'ALLOCATOR' type has trait
+        // 'propagate_on_container_copy_assignment', and return a reference
+        // providing modifiable access to this object.  This method requires
+        // that the (template parameter) type 'KEY' be "copy-constructible"
+        // (see {Requirements on 'KEY'}).
+
     iterator begin();
         // Return an iterator providing modifiable access to the first
         // 'value_type' object (in the sequence of 'value_type' objects)
@@ -506,7 +515,7 @@ class unordered_set
         // empty after this call, but allocated memory may be retained for
         // future use.
 
-    pair<iterator, iterator> equal_range(const key_type& k);
+    pair<iterator, iterator> equal_range(const key_type& key);
         // Return a pair of iterators providing modifiable access to the
         // sequence of 'value_type' objects in this unordered set having the
         // specified 'key', where the the first iterator is positioned at the
@@ -588,15 +597,6 @@ class unordered_set
     void  max_load_factor(float newLoadFactor);
         // Set the maximum load factor of this container to the specified
         // 'newLoadFactor'.
-
-    unordered_set& operator=(const unordered_set& rhs);
-        // Assign to this object the value, hasher, and key-equality functor of
-        // the specified 'rhs' object, propagate to this object the
-        // allocator of 'rhs' if the 'ALLOCATOR' type has trait
-        // 'propagate_on_container_copy_assignment', and return a reference
-        // providing modifiable access to this object.  This method requires
-        // that the (template parameter) type 'KEY' be "copy-constructible"
-        // (see {Requirements on 'KEY'}).
 
     void rehash(size_type numBuckets);
         // Change the size of the array of buckets maintained by this container
@@ -757,7 +757,7 @@ bool operator==(const unordered_set<KEY, HASH, EQUAL, ALLOCATOR>& lhs,
     // value, and 'false' otherwise.  Two 'unordered_set' objects have the
     // same value if they have the same number of value-elements, and for each
     // value-element that is contained in 'lhs' there is a value-element
-    // contained in 'rhs' having the same value, and viceversa.  This method
+    // contained in 'rhs' having the same value, and vice-versa.  This method
     // requires that the (template parameter) type 'KEY' be
     // "equality-comparable" (see {Requirements on 'KEY'}).
 
@@ -769,7 +769,7 @@ bool operator!=(const unordered_set<KEY, HASH, EQUAL, ALLOCATOR>& lhs,
     // same value, and 'false' otherwise.  Two 'unordered_set' objects do not
     // have the same value if they do not have the same number of
     // value-elements, or that for some value-element contained in 'lhs' there
-    // is not a value-element in 'rhs' having the same value, and viceversa.
+    // is not a value-element in 'rhs' having the same value, and vice-versa.
     // This method requires that the (template parameter) type 'KEY' and be
     // "equality-comparable" (see {Requirements on 'KEY'}).
 
@@ -895,6 +895,15 @@ unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::~unordered_set()
 // MANIPULATORS
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 inline
+unordered_set<KEY, HASH, EQUAL, ALLOCATOR>&
+unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::operator=(const unordered_set& rhs)
+{
+    unordered_set(rhs, get_allocator()).swap(*this);
+    return *this;
+}
+
+template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
+inline
 typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::iterator
 unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::begin()
 {
@@ -1008,9 +1017,9 @@ unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::erase(const_iterator first,
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 inline
 typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::iterator
-unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::find(const key_type& k)
+unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::find(const key_type& key)
 {
-    return iterator(d_impl.find(k));
+    return iterator(d_impl.find(key));
 }
 
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
@@ -1030,7 +1039,7 @@ unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::insert(const value_type& value)
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 inline
 typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::iterator
-unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::insert(const_iterator    hint,
+unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::insert(const_iterator,
                                                    const value_type& value)
 {
     // There is no realistic use-case for the 'hint' in an unordered_set of
@@ -1069,16 +1078,6 @@ void unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::max_load_factor(
                                                            float newLoadFactor)
 {
     d_impl.maxLoadFactor(newLoadFactor);
-}
-
-template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
-inline
-unordered_set<KEY, HASH, EQUAL, ALLOCATOR>&
-unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::operator=(
-                                                    const unordered_set& other)
-{
-    unordered_set(other, get_allocator()).swap(*this);
-    return *this;
 }
 
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
@@ -1194,9 +1193,9 @@ bool unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::empty() const
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 inline
 typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::const_iterator
-unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::find(const key_type& k) const
+unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::find(const key_type& key) const
 {
-    return const_iterator(d_impl.find(k));
+    return const_iterator(d_impl.find(key));
 }
 
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>

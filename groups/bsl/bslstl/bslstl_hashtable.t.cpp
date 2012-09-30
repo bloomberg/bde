@@ -174,7 +174,7 @@ using namespace BloombergLP;
 //// specialized algorithms:
 //*[ 8] void swap(HashTable& a, HashTable& b);
 //
-// [ 2] insert (boostrap)
+// [ 2] insert (bootstrap)
 //
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
@@ -419,9 +419,9 @@ template <class TYPE, int GROUP_SIZE>
 class GroupedEqualityComparator {
     // This test class provides a mechanism that defines a function-call
     // operator that compares two objects of the parameterized 'TYPE', but in a
-    // way that multiple distinct value will compare equal with each other.  The
-    // function-call operator compares the integer returned by the class method
-    // 'TemplateTestFacility::getIdentifier' divided by the (template
+    // way that multiple distinct value will compare equal with each other.
+    // The function-call operator compares the integer returned by the class
+    // method 'TemplateTestFacility::getIdentifier' divided by the (template
     // parameter) GROUP_SIZE.
 
   public:
@@ -637,8 +637,8 @@ class StatefulHash : bsl::hash<KEY> {
 
     template <class OTHER_KEY>
     friend
-    bool operator==(const StatefulHash<OTHER_KEY>& lhs,
-                    const StatefulHash<OTHER_KEY>& rhs);
+    bool operator==(const StatefulHash<OTHER_KEY>&,
+                    const StatefulHash<OTHER_KEY>&);
 
   private:
     // DATA
@@ -883,9 +883,10 @@ Link* insertElement(
     // pointer value.
 {
     BSLS_ASSERT(hashTable);
+
     if ((hashTable->size() + 1.0) / hashTable->numBuckets()
         > hashTable->maxLoadFactor() ) {
-        return 0;
+        return 0;                                                     // RETURN
     }
     return hashTable->insert(value);
 }
@@ -1157,7 +1158,8 @@ int TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::ggg(
                                                            const char *spec,
                                                            int         verbose)
 {
-    bslma::DefaultAllocatorGuard guard(&bslma::NewDeleteAllocator::singleton());
+    bslma::DefaultAllocatorGuard guard(
+                                      &bslma::NewDeleteAllocator::singleton());
     const TestValues VALUES;
 
     enum { SUCCESS = -1 };
@@ -1219,7 +1221,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase12()
     //:
     //: 5 Any memory allocation is from the object allocator.
     //:
-    //: 6 'rehashForNumBuckets' provide strong exception guaruantee if the
+    //: 6 'rehashForNumBuckets' provide strong exception guarantee if the
     //:   hasher and comparator does not throw.
     //
     //*[13] rehashForNumBuckets(SizeType newNumBuckets);
@@ -1815,7 +1817,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase8()
     //:
     //:     5 Use the value constructor and 'oaz' to a create a modifiable
     //:       'Obj' 'mZ', having the value described by 'R2'; also use the copy
-    //:       constructor to create, using a "scractch" allocator, a const
+    //:       constructor to create, using a "scratch" allocator, a const
     //:       'Obj', 'ZZ', from 'Z'.
     //:
     //:     6 Use the member and free 'swap' functions to swap the values of
@@ -1824,7 +1826,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase8()
     //:       false_type) under the presence of exception; verify, after each
     //:       swap, that:  (C-1, 5, 7)
     //:
-    //:       1 If exception occured during the swap, both values are
+    //:       1 If exception occurred during the swap, both values are
     //:         unchanged.  (C-7)
     //
     //:       2 If no exception occurred, the values have been exchanged.
@@ -3009,7 +3011,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
     //:     and (c) passing the address of a test allocator distinct from the
     //:     default.  For each of these three iterations:  (C-1..14)
     //:
-    //:     1 Create three 'bslma::TestAllocator' objects, and install one as as
+    //:     1 Create three 'bslma::TestAllocator' objects, and install one as
     //:       the current default allocator (note that a ubiquitous test
     //:       allocator is already installed as the global allocator).
     //:
@@ -3532,7 +3534,8 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase1(
        bslma::TestAllocator objectAllocator1("objectAllocator1");
        bslma::TestAllocator objectAllocator2("objectAllocator2");
 
-       Obj o1(HASHER(), COMPARATOR(), 0, &objectAllocator1); const Obj& O1 = o1;
+       Obj o1(HASHER(), COMPARATOR(), 0, &objectAllocator1);
+       const Obj& O1 = o1;
        ASSERTV(&objectAllocator1 == O1.allocator().mechanism());
 
        for (size_t i = 0; i < numValues; ++i) {
@@ -3547,7 +3550,8 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase1(
        bslma::TestAllocator objectAllocator1("objectAllocator1");
        bslma::TestAllocator objectAllocator2("objectAllocator2");
 
-       Obj o1(HASHER(), COMPARATOR(), 0, &objectAllocator1); const Obj& O1 = o1;
+       Obj o1(HASHER(), COMPARATOR(), 0, &objectAllocator1);
+       const Obj& O1 = o1;
        ASSERTV(&objectAllocator1 == O1.allocator().mechanism());
 
        for (size_t i = 0; i < numValues; ++i) {
@@ -3565,7 +3569,8 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase1(
        bslma::TestAllocator objectAllocator2("objectAllocator2");
 
        if(veryVerbose) printf("Use a different allocator\n");
-       Obj o1(HASHER(), COMPARATOR(), 0, &objectAllocator1); const Obj& O1 = o1;
+       Obj o1(HASHER(), COMPARATOR(), 0, &objectAllocator1);
+       const Obj& O1 = o1;
        ASSERTV(&objectAllocator1 == O1.allocator().mechanism());
 
        for (size_t i = 0; i < numValues; ++i) {
@@ -3601,7 +3606,8 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase1(
        ASSERTV(0 <  objectAllocator1.numBytesInUse());
 
        if(veryVerbose) printf("Default construct O3 and swap with O1\n");
-       Obj o3(HASHER(), COMPARATOR(), 0, &objectAllocator1); const Obj& O3 = o3;
+       Obj o3(HASHER(), COMPARATOR(), 0, &objectAllocator1);
+       const Obj& O3 = o3;
        ASSERTV(&objectAllocator1 == O3.allocator().mechanism());
 
        ASSERTV(numValues == O1.size());
@@ -3687,7 +3693,8 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase1(
             ASSERTV(  X != Z);
             const Value& V = ImpUtil::extractValue<KEY_CONFIG>(
                                            z.insertIfMissing(testKeys[i]));
-            ASSERTV(Value(testKeys[i], typename KEY_CONFIG::MappedType()) == V);
+            ASSERTV(
+                   Value(testKeys[i], typename KEY_CONFIG::MappedType()) == V);
             //z[testKeys[i]] = testValues[i];
             //ASSERTV(testValues[i] == z[testKeys[i]]);
             //ASSERTV( (X == Z));

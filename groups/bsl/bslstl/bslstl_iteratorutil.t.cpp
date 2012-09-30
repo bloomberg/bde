@@ -81,10 +81,10 @@ void aSsErT(bool b, const char *s, int i)
 
 typedef IteratorUtil Obj;
 
-template<class CATEGORY, 
-         class VALUE, 
+template<class CATEGORY,
+         class VALUE,
          class DISTANCE = ptrdiff_t,
-         class POINTER = VALUE*, 
+         class POINTER = VALUE*,
          class REFERENCE = VALUE&>
 struct TestIterator {
     // PUBLIC TYPES
@@ -96,7 +96,7 @@ struct TestIterator {
 
     // DATA
     pointer d_ptr;  // address of the element referred to by 'this'
-    
+
     // MANIPULATORS
     TestIterator& operator++ ()
     {
@@ -112,10 +112,10 @@ struct TestIterator {
     }
 };
 
-template<class CATEGORY, 
-         class VALUE, 
-         class DISTANCE, 
-         class POINTER, 
+template<class CATEGORY,
+         class VALUE,
+         class DISTANCE,
+         class POINTER,
          class REFERENCE>
 bool operator==(
         const TestIterator<CATEGORY, VALUE, DISTANCE, POINTER, REFERENCE>& lhs,
@@ -124,10 +124,10 @@ bool operator==(
     return lhs.d_ptr == rhs.d_ptr;
 }
 
-template<class CATEGORY, 
-         class VALUE, 
-         class DISTANCE, 
-         class POINTER, 
+template<class CATEGORY,
+         class VALUE,
+         class DISTANCE,
+         class POINTER,
          class REFERENCE>
 bool operator!=(
         const TestIterator<CATEGORY, VALUE, DISTANCE, POINTER, REFERENCE>& lhs,
@@ -186,28 +186,28 @@ int main(int argc, char *argv[])
         {
             IntTestInputIterator a; const IntTestInputIterator& A = a;
             IntTestInputIterator b; const IntTestInputIterator& B = b;
-        
+
             const size_t DIST = Obj::insertDistance(A, B);
             ASSERTV(DIST, 0 == DIST);
         }
-        
+
         if (veryVerbose) printf("\n\t\t Test initialized input iterators\n");
         {
             IntTestInputIterator a; const IntTestInputIterator& A = a;
             IntTestInputIterator b; const IntTestInputIterator& B = b;
-        
+
             a.d_ptr = 0;
             b.d_ptr = 0;
-            
+
             const size_t DIST = Obj::insertDistance(A, B);
             ASSERTV(DIST, 0 == DIST);
             ASSERTV(A.d_ptr, 0 == A.d_ptr);
             ASSERTV(B.d_ptr, 0 == B.d_ptr);
-            
-            IntTestInputIterator::pointer DEADBEEF = 
+
+            IntTestInputIterator::pointer DEADBEEF =
                                     (IntTestInputIterator::pointer) 0xdeadbeef;
             b.d_ptr = DEADBEEF;
-            
+
             const size_t DIST2 = Obj::insertDistance(A, B);
             ASSERTV(DIST2, 0 == DIST2);
             ASSERTV(A.d_ptr,     0 == A.d_ptr);
@@ -218,37 +218,37 @@ int main(int argc, char *argv[])
         {
             IntTestForwardIterator a; const IntTestForwardIterator& A = a;
             IntTestForwardIterator b; const IntTestForwardIterator& B = b;
-        
+
             a.d_ptr = 0;
             b.d_ptr = 0;
-            
+
             size_t DIST = Obj::insertDistance(A, B);
             ASSERTV(DIST, 0 == DIST);
             ASSERTV(A.d_ptr, 0 == A.d_ptr);
             ASSERTV(B.d_ptr, 0 == B.d_ptr);
-            
+
             b++;
-           
+
             DIST = Obj::insertDistance(A, B);
             ASSERTV(DIST, 1 == DIST);
             ASSERTV(A.d_ptr, 0 == A.d_ptr);
             ASSERTV(B.d_ptr, A.d_ptr + 1 == B.d_ptr);
-            
-            a++; 
+
+            a++;
 
             DIST = Obj::insertDistance(A, B);
             ASSERTV(DIST, 0 == DIST);
             ASSERTV(A.d_ptr, B.d_ptr, B.d_ptr == A.d_ptr);
 
-            // Choose 0xdeadbeec instead of 0xdeadbeef because of alignement.
-            
-            IntTestInputIterator::pointer PTR = 
+            // Choose 0xdeadbeec instead of 0xdeadbeef because of alignment.
+
+            IntTestInputIterator::pointer PTR =
                                     (IntTestInputIterator::pointer) 0x10;
             a.d_ptr = 0;
             b.d_ptr = PTR;
-             
+
             const size_t EXP_DIST2 = 4;
-            
+
             const size_t DIST2 = Obj::insertDistance(A, B);
             ASSERTV(DIST2,   EXP_DIST2 == DIST2);
             ASSERTV(A.d_ptr,         0 == A.d_ptr);

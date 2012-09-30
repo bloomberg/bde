@@ -164,7 +164,7 @@ int main(int argc, char *argv[])
         //:   classes.
         //
         // Testing:
-        //   QoI: Support for empty base optiization
+        //   QoI: Support for empty base optimization
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING QoI: Is an empty type"
@@ -243,8 +243,8 @@ int main(int argc, char *argv[])
         //:   type using 'bslmf::IsSame'. (C-1..3)
         //
         // Testing:
-        //   typedef arguent_type
-        //   typedef second_arguent_type
+        //   typedef argument_type
+        //   typedef second_argument_type
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING STANDARD TYPEDEFS"

@@ -352,7 +352,7 @@ int main(int argc, char *argv[])
         //: 1 Create 'ostringstream' object with a default constructor.
         //: 2 Create 'ostringstream' object with a constructor with allocator.
         //: 3 Create 'ostringstream' object with a constructor with string.
-        //: 4 Exersice basic 'ostringstream' output operations.
+        //: 4 Exercise basic 'ostringstream' output operations.
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING OSTRINGSTREAM"

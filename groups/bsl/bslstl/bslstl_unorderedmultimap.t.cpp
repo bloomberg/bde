@@ -28,7 +28,7 @@ using std::endl;
 //=============================================================================
 //                             TEST PLAN
 //-----------------------------------------------------------------------------
-// Intial breathing test iterates all operations with a single template
+// Initial breathing test iterates all operations with a single template
 // instantiation and test obvious boundary conditions and iterator stability
 // guarantees.
 //

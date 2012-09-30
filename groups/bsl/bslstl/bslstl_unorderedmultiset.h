@@ -350,7 +350,7 @@ class unordered_multiset
                                              EQUAL,
                                              ALLOCATOR> HashTable;
         // This typedef is an alias for the template instantiation of the
-        // underlying 'bslstl::HashTable' used to implement this muli-set.
+        // underlying 'bslstl::HashTable' used to implement this multi-set.
 
     typedef ::BloombergLP::bslalg::BidirectionalLink HashTableLink;
         // This typedef is an alias for the type of links maintained by the
@@ -490,6 +490,15 @@ class unordered_multiset
         // Destroy this object.
 
     // MANIPULATORS
+    unordered_multiset& operator=(const unordered_multiset& rhs);
+        // Assign to this object the value, hasher, and key-equality functor of
+        // the specified 'rhs' object, propagate to this object the allocator
+        // of 'rhs' if the 'ALLOCATOR' type has trait
+        // 'propagate_on_container_copy_assignment', and return a reference
+        // providing modifiable access to this object.  This method requires
+        // that the (template parameter) type 'KEY' be "copy-constructible"
+        // (see {Requirements on 'KEY'}).
+
     iterator begin();
         // Return an iterator providing modifiable access to the first
         // 'value_type' object (in the sequence of 'value_type' objects)
@@ -518,7 +527,7 @@ class unordered_multiset
         // empty after this call, but allocated memory may be retained for
         // future use.
 
-    pair<iterator, iterator> equal_range(const key_type& k);
+    pair<iterator, iterator> equal_range(const key_type& key);
         // Return a pair of iterators providing modifiable access to the
         // sequence of 'value_type' objects in this multi-set having the
         // specified 'key', where the the first iterator is positioned at the
@@ -594,15 +603,6 @@ class unordered_multiset
     void  max_load_factor(float newLoadFactor);
         // Set the maximum load factor of this container to the specified
         // 'newLoadFactor'.
-
-    unordered_multiset& operator=(const unordered_multiset& rhs);
-        // Assign to this object the value, hasher, and key-equality functor of
-        // the specified 'rhs' object, propagate to this object the allocator
-        // of 'rhs' if the 'ALLOCATOR' type has trait
-        // 'propagate_on_container_copy_assignment', and return a reference
-        // providing modifiable access to this object.  This method requires
-        // that the (template parameter) type 'KEY' be "copy-constructible"
-        // (see {Requirements on 'KEY'}).
 
     void rehash(size_type numBuckets);
         // Change the size of the array of buckets maintained by this container
@@ -775,7 +775,7 @@ bool operator==(const unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>& lhs,
     // value, and 'false' otherwise.  Two 'unordered_multiset' objects have the
     // same value if they have the same number of value-elements, and for each
     // value-element that is contained in 'lhs' there is a value-element
-    // contained in 'rhs' having the same value, and viceversa.  This method
+    // contained in 'rhs' having the same value, and vice-versa.  This method
     // requires that the (template parameter) type 'KEY' be
     // "equality-comparable" (see {Requirements on 'KEY'}).
 
@@ -786,7 +786,7 @@ bool operator!=(const unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>& lhs,
     // same value, and 'false' otherwise.  Two 'unordered_multiset' objects do
     // not have the same value if they do not have the same number of
     // value-elements, or that for some value-element contained in 'lhs' there
-    // is not a value-element in 'rhs' having the same value, and viceversa.
+    // is not a value-element in 'rhs' having the same value, and vice-versa.
     // This method requires that the (template parameter) type 'KEY' and be
     // "equality-comparable" (see {Requirements on 'KEY'}).
 
@@ -830,7 +830,10 @@ struct HasStlIterators<bsl::unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR> >
 namespace bslma {
 
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
-struct UsesBslmaAllocator<bsl::unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR> >
+struct UsesBslmaAllocator<bsl::unordered_multiset<KEY,
+                                                  HASH,
+                                                  EQUAL,
+                                                  ALLOCATOR> >
     : bsl::is_convertible<Allocator*, ALLOCATOR>::type
 {};
 
@@ -962,6 +965,7 @@ typename unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::local_iterator
 unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::begin(size_type index)
 {
     BSLS_ASSERT_SAFE(index < this->bucket_count());
+
     return local_iterator(&d_impl.bucketAtIndex(index));
 }
 
@@ -971,6 +975,7 @@ typename unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::local_iterator
 unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::end(size_type index)
 {
     BSLS_ASSERT_SAFE(index < this->bucket_count());
+
     return local_iterator(0, &d_impl.bucketAtIndex(index));
 }
 
@@ -983,9 +988,9 @@ unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::clear()
 
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 typename unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::iterator
-unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::find(const key_type& k)
+unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::find(const key_type& key)
 {
-    return iterator(d_impl.find(k));
+    return iterator(d_impl.find(key));
 }
 
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
@@ -1027,6 +1032,7 @@ typename unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::iterator
 unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::erase(const_iterator position)
 {
     BSLS_ASSERT(position != this->end());
+
     return iterator(d_impl.remove(position.node()));
 }
 
@@ -1161,6 +1167,7 @@ typename unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::const_local_iterator
 unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::begin(size_type index) const
 {
     BSLS_ASSERT_SAFE(index < this->bucket_count());
+
     return const_local_iterator(&d_impl.bucketAtIndex(index));
 }
 
@@ -1171,6 +1178,7 @@ typename
 unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::end(size_type index) const
 {
     BSLS_ASSERT_SAFE(index < this->bucket_count());
+
     return const_local_iterator(0, &d_impl.bucketAtIndex(index));
 }
 
@@ -1182,6 +1190,7 @@ typename
 unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::cbegin(size_type index) const
 {
     BSLS_ASSERT_SAFE(index < this->bucket_count());
+
     return const_local_iterator(&d_impl.bucketAtIndex(index));
 }
 
@@ -1191,6 +1200,7 @@ typename unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::const_local_iterator
 unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::cend(size_type index) const
 {
     BSLS_ASSERT_SAFE(index < this->bucket_count());
+
     return const_local_iterator(0, &d_impl.bucketAtIndex(index));
 }
 
@@ -1218,6 +1228,7 @@ unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::bucket_size(
                                                          size_type index) const
 {
     BSLS_ASSERT_SAFE(index < this->bucket_count());
+
     return d_impl.countElementsInBucket(index);
 }
 
@@ -1245,9 +1256,10 @@ unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::count(
 
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 typename unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::const_iterator
-unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::find(const key_type& k) const
+unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::find(
+                                                     const key_type& key) const
 {
-    return const_iterator(d_impl.find(k));
+    return const_iterator(d_impl.find(key));
 }
 
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
