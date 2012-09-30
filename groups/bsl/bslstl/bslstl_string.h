@@ -574,8 +574,8 @@ BSL_OVERRIDES_STD mode"
 #include <bslstl_allocator.h>
 #endif
 
-#ifndef INCLUDED_BSLSTL_CONTAINERBASE
-#include <bslstl_containerbase.h>
+#ifndef INCLUDED_BSLALG_CONTAINERBASE
+#include <bslalg_containerbase.h>
 #endif
 
 #ifndef INCLUDED_BSLSTL_HASH
@@ -594,10 +594,6 @@ BSL_OVERRIDES_STD mode"
 #include <bslstl_stringrefdata.h>
 #endif
 
-#ifndef INCLUDED_BSLSTL_UTIL
-#include <bslstl_util.h>
-#endif
-
 #ifndef INCLUDED_BSLALG_SCALARPRIMITIVES
 #include <bslalg_scalarprimitives.h>
 #endif
@@ -610,16 +606,24 @@ BSL_OVERRIDES_STD mode"
 #include <bslmf_isbitwisemoveable.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_ANYTYPE
-#include <bslmf_anytype.h>
-#endif
-
 #ifndef INCLUDED_BSLMF_ASSERT
 #include <bslmf_assert.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_ISSAME
 #include <bslmf_issame.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_MATCHANYTYPE
+#include <bslmf_matchanytype.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_MATCHARITHMETICTYPE
+#include <bslmf_matcharithmetictype.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_NIL
+#include <bslmf_nil.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ALIGNEDBUFFER
@@ -973,7 +977,7 @@ template <typename CHAR_TYPE,
           typename ALLOCATOR = allocator<CHAR_TYPE> >
 class basic_string
     : private String_Imp<CHAR_TYPE, typename ALLOCATOR::size_type>
-    , public BloombergLP::bslstl::ContainerBase<ALLOCATOR>
+    , public BloombergLP::bslalg::ContainerBase<ALLOCATOR>
 {
     // This class template provides an STL-compliant 'string' that conforms to
     // the 'bslma::Allocator' model.  For the requirements of a string class,
@@ -1026,7 +1030,7 @@ class basic_string
 
   private:
     // PRIVATE TYPES
-    typedef String_Imp<CHAR_TYPE, typename ALLOCATOR::size_type>  Imp;
+    typedef String_Imp<CHAR_TYPE, typename ALLOCATOR::size_type> Imp;
 
     // PRIVATE MANIPULATORS
 
@@ -1161,24 +1165,24 @@ class basic_string
         // 'length() <= max_size() - numChars'.
 
     template <typename INPUT_ITER>
-    basic_string& privateReplaceDispatch(size_type  position,
-                                         size_type  numChars,
-                                         INPUT_ITER first,
-                                         INPUT_ITER last,
-                                         BloombergLP::bslstl::UtilIterator,
-                                         int);
-        // Invoke the 'replace' method that matches the integral type for
-        // 'INPUT_ITER'.
+    basic_string& privateReplaceDispatch(
+                              size_type                               position,
+                              size_type                               numChars,
+                              INPUT_ITER                              first,
+                              INPUT_ITER                              last,
+                              BloombergLP::bslmf::MatchArithmeticType ,
+                              BloombergLP::bslmf::Nil                 );
+        // Match integral type for 'INPUT_ITER'.
 
     template <typename INPUT_ITER>
-    basic_string& privateReplaceDispatch(size_type  position,
-                                         size_type  numChars,
-                                         INPUT_ITER first,
-                                         INPUT_ITER last,
-                                         BloombergLP::bslmf::AnyType,
-                                         BloombergLP::bslmf::AnyType);
-        // Invoke the 'replace' method that matches the non-integral type for
-        // 'INPUT_ITER'.
+    basic_string& privateReplaceDispatch(
+                                     size_type                        position,
+                                     size_type                        numChars,
+                                     INPUT_ITER                       first,
+                                     INPUT_ITER                       last,
+                                     BloombergLP::bslmf::MatchAnyType ,
+                                     BloombergLP::bslmf::MatchAnyType );
+        // Match non-integral type for 'INPUT_ITER'.
 
     template <typename INPUT_ITER>
     basic_string& privateReplace(size_type  position,
@@ -2626,7 +2630,8 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateAppendDispatch(
                                   begin,
                                   end,
                                   begin,
-                                  end);  // disambiguate overloads
+                                  BloombergLP::bslmf::Nil()); // disambiguate
+                                                              // overloads
 }
 
 template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
@@ -2745,7 +2750,8 @@ void basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateInitDispatch(
                            begin,
                            end,
                            begin,
-                           end);  // disambiguate overloads
+                           BloombergLP::bslmf::Nil());  // disambiguate
+                                                        // overloads
 }
 
 template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
@@ -2795,7 +2801,12 @@ void basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateInsertDispatch(
                                                        INPUT_ITER     last)
 {
     size_type pos = position - cbegin();
-    privateReplaceDispatch(pos, size_type(0), first, last, first, last);
+    privateReplaceDispatch(pos,
+                           size_type(0),
+                           first,
+                           last,
+                           first,
+                           BloombergLP::bslmf::Nil());
 }
 
 template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
@@ -3003,12 +3014,12 @@ template <typename INPUT_ITER>
 inline
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateReplaceDispatch(
-                                             size_type                position,
-                                             size_type                numChars,
-                                             INPUT_ITER               first,
-                                             INPUT_ITER               last,
-                                             BloombergLP::bslstl::UtilIterator,
-                                             int)
+                              size_type                               position,
+                              size_type                               numChars,
+                              INPUT_ITER                              first,
+                              INPUT_ITER                              last,
+                              BloombergLP::bslmf::MatchArithmeticType ,
+                              BloombergLP::bslmf::Nil                 )
 {
     return replace(position, numChars, (size_type)first, (CHAR_TYPE)last);
 }
@@ -3018,12 +3029,12 @@ template <typename INPUT_ITER>
 inline
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateReplaceDispatch(
-                                                   size_type  position,
-                                                   size_type  numChars,
-                                                   INPUT_ITER first,
-                                                   INPUT_ITER last,
-                                                   BloombergLP::bslmf::AnyType,
-                                                   BloombergLP::bslmf::AnyType)
+                                     size_type                        position,
+                                     size_type                        numChars,
+                                     INPUT_ITER                       first,
+                                     INPUT_ITER                       last,
+                                     BloombergLP::bslmf::MatchAnyType ,
+                                     BloombergLP::bslmf::MatchAnyType )
 {
     typename iterator_traits<INPUT_ITER>::iterator_category tag;
     return privateReplace(position, numChars, first, last, tag);
@@ -3251,7 +3262,7 @@ inline
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
                                                     const ALLOCATOR& allocator)
 : Imp()
-, BloombergLP::bslstl::ContainerBase<allocator_type>(allocator)
+, BloombergLP::bslalg::ContainerBase<allocator_type>(allocator)
 {
     CHAR_TRAITS::assign(*begin(), CHAR_TYPE());
 }
@@ -3260,7 +3271,7 @@ template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
                                                   const basic_string& original)
 : Imp(original)
-, BloombergLP::bslstl::ContainerBase<allocator_type>(ALLOCATOR())
+, BloombergLP::bslalg::ContainerBase<allocator_type>(ALLOCATOR())
 {
     if (!this->isShortString()) {
         // Copy long string to either short or long.
@@ -3273,7 +3284,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
                                                  const basic_string& original,
                                                  const ALLOCATOR&    allocator)
 : Imp(original)
-, BloombergLP::bslstl::ContainerBase<allocator_type>(allocator)
+, BloombergLP::bslalg::ContainerBase<allocator_type>(allocator)
 {
     if (!this->isShortString()) {
         // Copy long string to either short or long.
@@ -3288,7 +3299,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
                                                  size_type           numChars,
                                                  const ALLOCATOR&    allocator)
 : Imp()
-, BloombergLP::bslstl::ContainerBase<allocator_type>(allocator)
+, BloombergLP::bslalg::ContainerBase<allocator_type>(allocator)
 {
     assign(original, position, numChars);
 }
@@ -3298,7 +3309,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
                                              const CHAR_TYPE  *characterString,
                                              const ALLOCATOR&  allocator)
 : Imp()
-, BloombergLP::bslstl::ContainerBase<allocator_type>(allocator)
+, BloombergLP::bslalg::ContainerBase<allocator_type>(allocator)
 {
     BSLS_ASSERT_SAFE(characterString);
 
@@ -3311,7 +3322,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
                                              size_type         numChars,
                                              const ALLOCATOR&  allocator)
 : Imp()
-, BloombergLP::bslstl::ContainerBase<allocator_type>(allocator)
+, BloombergLP::bslalg::ContainerBase<allocator_type>(allocator)
 {
     BSLS_ASSERT_SAFE(characterString);
 
@@ -3324,7 +3335,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
                                                    CHAR_TYPE         character,
                                                    const ALLOCATOR&  allocator)
 : Imp()
-, BloombergLP::bslstl::ContainerBase<allocator_type>(allocator)
+, BloombergLP::bslalg::ContainerBase<allocator_type>(allocator)
 {
     assign(numChars, character);
 }
@@ -3337,7 +3348,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
                                                     INPUT_ITER       last,
                                                     const ALLOCATOR& allocator)
 : Imp()
-, BloombergLP::bslstl::ContainerBase<allocator_type>(allocator)
+, BloombergLP::bslalg::ContainerBase<allocator_type>(allocator)
 {
     privateInitDispatch(first, last);
 }
@@ -3348,7 +3359,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
        const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& original,
        const ALLOCATOR&                                              allocator)
 : Imp()
-, BloombergLP::bslstl::ContainerBase<allocator_type>(allocator)
+, BloombergLP::bslalg::ContainerBase<allocator_type>(allocator)
 {
     this->assign(original.data(), original.length());
 }
@@ -3359,7 +3370,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
                 const BloombergLP::bslstl::StringRefData<CHAR_TYPE>& strRef,
                 const ALLOCATOR&                                     allocator)
 : Imp()
-, BloombergLP::bslstl::ContainerBase<allocator_type>(allocator)
+, BloombergLP::bslalg::ContainerBase<allocator_type>(allocator)
 {
     assign(strRef.begin(), strRef.end());
 }
@@ -4457,7 +4468,7 @@ inline
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::allocator_type
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::get_allocator() const
 {
-    return BloombergLP::bslstl::ContainerBase<allocator_type>::allocator();
+    return BloombergLP::bslalg::ContainerBase<allocator_type>::allocator();
 }
 
 template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>

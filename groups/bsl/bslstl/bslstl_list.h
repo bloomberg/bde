@@ -2971,11 +2971,13 @@ const VALUE& list<VALUE, ALLOCATOR>::back() const
     return last->d_value;
 }
 
+}  // close namespace bsl
+
 // FREE OPERATORS
 template <class VALUE, class ALLOCATOR>
 inline
-bool operator==(const list<VALUE, ALLOCATOR>& lhs,
-                const list<VALUE, ALLOCATOR>& rhs)
+bool bsl::operator==(const list<VALUE, ALLOCATOR>& lhs,
+                     const list<VALUE, ALLOCATOR>& rhs)
 {
     return BloombergLP::bslalg::RangeCompare::equal(lhs.begin(),
                                                     lhs.end(),
@@ -2987,16 +2989,16 @@ bool operator==(const list<VALUE, ALLOCATOR>& lhs,
 
 template <class VALUE, class ALLOCATOR>
 inline
-bool operator!=(const list<VALUE, ALLOCATOR>& lhs,
-                const list<VALUE, ALLOCATOR>& rhs)
+bool bsl::operator!=(const list<VALUE, ALLOCATOR>& lhs,
+                     const list<VALUE, ALLOCATOR>& rhs)
 {
     return ! (lhs == rhs);
 }
 
 template <class VALUE, class ALLOCATOR>
 inline
-bool operator< (const list<VALUE, ALLOCATOR>& lhs,
-                const list<VALUE, ALLOCATOR>& rhs)
+bool bsl::operator< (const list<VALUE, ALLOCATOR>& lhs,
+                     const list<VALUE, ALLOCATOR>& rhs)
 {
     return 0 > BloombergLP::bslalg::RangeCompare::lexicographical(lhs.begin(),
                                                                   lhs.end(),
@@ -3008,24 +3010,24 @@ bool operator< (const list<VALUE, ALLOCATOR>& lhs,
 
 template <class VALUE, class ALLOCATOR>
 inline
-bool operator> (const list<VALUE, ALLOCATOR>& lhs,
-                const list<VALUE, ALLOCATOR>& rhs)
+bool bsl::operator> (const list<VALUE, ALLOCATOR>& lhs,
+                     const list<VALUE, ALLOCATOR>& rhs)
 {
     return rhs < lhs;
 }
 
 template <class VALUE, class ALLOCATOR>
 inline
-bool operator>=(const list<VALUE, ALLOCATOR>& lhs,
-                const list<VALUE, ALLOCATOR>& rhs)
+bool bsl::operator>=(const list<VALUE, ALLOCATOR>& lhs,
+                     const list<VALUE, ALLOCATOR>& rhs)
 {
     return ! (lhs < rhs);
 }
 
 template <class VALUE, class ALLOCATOR>
 inline
-bool operator<=(const list<VALUE, ALLOCATOR>& lhs,
-                const list<VALUE, ALLOCATOR>& rhs)
+bool bsl::operator<=(const list<VALUE, ALLOCATOR>& lhs,
+                     const list<VALUE, ALLOCATOR>& rhs)
 {
     return ! (rhs < lhs);
 }
@@ -3033,12 +3035,11 @@ bool operator<=(const list<VALUE, ALLOCATOR>& lhs,
 // specialized algorithms:
 template <class VALUE, class ALLOCATOR>
 inline
-void swap(list<VALUE, ALLOCATOR>& lhs, list<VALUE, ALLOCATOR>& rhs)
+void bsl::swap(list<VALUE, ALLOCATOR>& lhs, list<VALUE, ALLOCATOR>& rhs)
 {
     lhs.swap(rhs);
 }
 
-}  // close namespace bsl
 
 #endif
 

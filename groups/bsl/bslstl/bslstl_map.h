@@ -673,12 +673,14 @@ class map {
     map(const map& original);
         // Construct a map having the same value as the specified 'original'.
         // Use a copy of 'original.key_comp()' to order the key-value pairs
-        // contained in this map.  Use a default-constructed object of the
-        // (template parameter) type 'ALLOCATOR' to allocate memory.  If the
-        // type 'ALLOCATOR' is 'bsl::allocator' (the default), the currently
-        // installed default allocator will be used to supply memory.  This
-        // method requires that the (template parameter) type 'KEY' and 'VALUE'
-        // types both be "copy-constructible" (see {Requirements on 'KEY' and
+        // contained in this map.  Use the allocator returned by
+        // 'bsl::allocator_traits<ALLOCATOR>::
+        // select_on_container_copy_construction(original.allocator())' to
+        // allocate memory.  If the (template parameter) type 'ALLOCATOR' is
+        // of type 'bsl::allocator' (the default), the currently installed
+        // default allocator will be used to supply memory.  This method
+        // requires that the (template parameter) types 'KEY' and 'VALUE'
+        // both be "copy-constructible" (see {Requirements on 'KEY' and
         // 'VALUE'}).
 
     map(const map& original, const ALLOCATOR& allocator);
@@ -1268,7 +1270,9 @@ map<KEY, VALUE, COMPARATOR, ALLOCATOR>::map(const ALLOCATOR& allocator)
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 inline
 map<KEY, VALUE, COMPARATOR, ALLOCATOR>::map(const map& original)
-: d_compAndAlloc(original.comparator().keyComparator(), ALLOCATOR())
+: d_compAndAlloc(original.comparator().keyComparator(),
+                 AllocatorTraits::select_on_container_copy_construction(
+                                           original.nodeFactory().allocator()))
 , d_tree()
 {
     if (0 < original.size()) {
