@@ -28,12 +28,12 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_NIL
-#include <bslmf_nil.h>
-#endif
-
 #ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
 #include <bslmf_integralconstant.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_NIL
+#include <bslmf_nil.h>
 #endif
 
 namespace BloombergLP {

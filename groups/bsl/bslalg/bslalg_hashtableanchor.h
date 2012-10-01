@@ -249,13 +249,15 @@ HashTableAnchor& HashTableAnchor::operator=(const HashTableAnchor& rhs)
 }
 
 inline
-void HashTableAnchor::setBucketArrayAddressAndSize(HashTableBucket    *array,
-                                                   native_std::size_t  size)
+void HashTableAnchor::setBucketArrayAddressAndSize(
+                                        HashTableBucket    *bucketArrayAddress,
+                                        native_std::size_t  bucketArraySize)
 {
-    BSLS_ASSERT_SAFE((array && 0 < size) || (!array && !size));
+    BSLS_ASSERT_SAFE(( bucketArrayAddress && 0 < bucketArraySize)
+                  || (!bucketArrayAddress &&    !bucketArraySize));
 
-    d_bucketArrayAddress_p = array;
-    d_bucketArraySize      = size;
+    d_bucketArrayAddress_p = bucketArrayAddress;
+    d_bucketArraySize      = bucketArraySize;
 }
 
 inline

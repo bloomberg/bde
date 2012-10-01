@@ -681,12 +681,12 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_RBTREENODE
-#include <bslalg_rbtreenode.h>
-#endif
-
 #ifndef INCLUDED_BSLALG_RBTREEANCHOR
 #include <bslalg_rbtreeanchor.h>
+#endif
+
+#ifndef INCLUDED_BSLALG_RBTREENODE
+#include <bslalg_rbtreenode.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ASSERT
