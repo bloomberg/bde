@@ -65,18 +65,27 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bslmf {
 
+                         // ======================
+                         // struct AddVolatile_Imp
+                         // ======================
+
 template <typename TYPE, bool ADD_VOLATILE>
 struct AddVolatile_Imp {
-    // This 'struct' template provides an alias 'Type' that add the
-    // 'volatile'-qualifier to the (template parameter) 'TYPE' if the (template
-    // parameter) 'ADD_VOLATILE' is 'true'.  This generic default template adds
-    // the 'volatile'-qualifier to 'TYPE'.  A template specialization (below)
-    // does not modify 'TYPE'.
+    // This 'struct' template provides a 'typedef' 'Type' that is an alias to a
+    // the (template parameter) 'TYPE' with the top-level 'volatile'-qualifier
+    // added if the (template parameter) 'ADD_VOLATILE' is 'true'; otherwise,
+    // 'Type' is an alias to 'TYPE'.  This generic default template adds the
+    // 'volatile'-qualifier to 'TYPE'.  A template specialization (below) does
+    // not modify 'TYPE'.
 
     typedef TYPE volatile Type;
-        // This 'typedef' to a type that is the same as the (template
-        // parameter) 'TYPE' except with 'volatile'-qualifier added.
+        // This 'typedef' is an alias to a type that is the same as the
+        // (template parameter) 'TYPE' except with 'volatile'-qualifier added.
 };
+
+                         // ===================================
+                         // struct AddVolatile_Imp<TYPE, false>
+                         // ===================================
 
 template <typename TYPE>
 struct AddVolatile_Imp<TYPE, false> {
@@ -85,14 +94,17 @@ struct AddVolatile_Imp<TYPE, false> {
     // parameter) 'ADD_VOLATILE' is 'false'.
 
     typedef TYPE Type;
-        // This 'typedef' to a type that is the same as the (template
-        // parameter) 'TYPE' except with 'volatile'-qualifier added.
+        // This 'typedef' is an alias to the (template parameter) 'TYPE'.
 };
 
 }  // close package namespace
 }  // close enterprise namespace
 
 namespace bsl {
+
+                         // ===================
+                         // struct add_volatile
+                         // ===================
 
 template <typename TYPE>
 struct add_volatile {

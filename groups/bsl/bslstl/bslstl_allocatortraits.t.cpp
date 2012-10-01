@@ -9,7 +9,7 @@
 #include <bslma_usesbslmaallocator.h>
 #include <bslalg_typetraithasstliterators.h>       // for testing only
 #include <bslmf_issame.h>
-#include <bslmf_removecvq.h>
+#include <bslmf_removecv.h>
 #include <bsls_bsltestutil.h>
 #include <bsls_objectbuffer.h>
 #include <bsls_util.h>
@@ -129,10 +129,10 @@ void aSsErT(int c, const char *s, int i) {
 //-----------------------------------------------------------------------------
 
 // Short-cut assert macros
-#define ASSERT_ISSAME(t1,t2) ASSERT((bslmf::IsSame< t1,t2>::VALUE))
+#define ASSERT_ISSAME(t1,t2) ASSERT((bsl::is_same< t1,t2>::value))
 
 #define LOOP_ASSERT_ISSAME(I,t1,t2) \
-        LOOP_ASSERT(I, (bslmf::IsSame< t1,t2>::VALUE))
+        LOOP_ASSERT(I, (bsl::is_same< t1,t2>::value))
 
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
@@ -302,7 +302,7 @@ class FunkyPointer
   public:
     FunkyPointer() : d_imp(0) { }
     FunkyPointer(T* p, int) : d_imp(p) { }
-    FunkyPointer(const FunkyPointer<typename bslmf::RemoveCvq<T>::Type>& other)
+    FunkyPointer(const FunkyPointer<typename bsl::remove_cv<T>::type>& other)
         : d_imp(other.operator->()) { }
 
     // Construct from null pointer
@@ -488,7 +488,7 @@ class AttribClass5Alloc
         : d_attrib(a, b, c, d, e), d_allocator(alloc) { }
     AttribClass5Alloc(const AttribClass5Alloc& other)
         : d_attrib(other.d_attrib)
-        , d_allocator(bslmf::IsConvertible<bslma::Allocator*,ALLOC>::VALUE ?
+        , d_allocator(bsl::is_convertible<bslma::Allocator*,ALLOC>::value ?
                       ALLOC() : other.d_allocator)
         { }
     AttribClass5Alloc(const AttribClass5Alloc& other, const ALLOC& alloc)
@@ -821,8 +821,8 @@ inline bool isMutable(const T& /* x */) { return false; }
     {
         bslma::TestAllocator testAlloc;
         MyContainer<MyType> C1(&testAlloc);
-        ASSERT((bslmf::IsSame<MyContainer<MyType>::allocator_type,
-                bsl::allocator<MyType> >::VALUE));
+        ASSERT((bsl::is_same<MyContainer<MyType>::allocator_type,
+                bsl::allocator<MyType> >::value));
         ASSERT(C1.get_allocator() == bsl::allocator<MyType>(&testAlloc));
         ASSERT(C1.front().allocator() == &testAlloc);
 
@@ -900,8 +900,8 @@ inline bool isMutable(const T& /* x */) { return false; }
     {
         typedef MyCpp03Allocator<MyType> MyTypeAlloc;
         MyContainer<MyType, MyTypeAlloc> C1(MyTypeAlloc(1));
-        ASSERT((bslmf::IsSame<MyContainer<MyType, MyTypeAlloc>::allocator_type,
-                              MyTypeAlloc>::VALUE));
+        ASSERT((bsl::is_same<MyContainer<MyType, MyTypeAlloc>::allocator_type,
+                              MyTypeAlloc>::value));
         ASSERT(C1.get_allocator() == MyTypeAlloc(1));
         ASSERT(C1.front().allocator() == bslma::Default::defaultAllocator());
 
@@ -1237,17 +1237,17 @@ void testNestedTypedefs(const char* allocName)
     // that cv-A is the same as B or cv-A is derived from B, which what we are
     // looking for.
     LOOP_ASSERT(allocName,
-                (bslmf::IsConvertible<
+                (bsl::is_convertible<
                  typename Traits::propagate_on_container_copy_assignment*,
-                 bsl::false_type* >::VALUE));
+                 bsl::false_type* >::value));
     LOOP_ASSERT(allocName,
-                (bslmf::IsConvertible<
+                (bsl::is_convertible<
                  typename Traits::propagate_on_container_move_assignment*,
-                 bsl::false_type* >::VALUE));
+                 bsl::false_type* >::value));
     LOOP_ASSERT(allocName,
-                (bslmf::IsConvertible<
+                (bsl::is_convertible<
                  typename Traits::propagate_on_container_swap*,
-                 bsl::false_type* >::VALUE));
+                 bsl::false_type* >::value));
 }
 
 template <template <class X> class ALLOC_TMPL, class T, class U>
@@ -1274,50 +1274,50 @@ void testRebind(const char* testName)
     typedef typename TraitsT::template rebind_traits<float> TraitsTReboundF;
 
     // Rebind from 'T' to 'U'
-    LOOP_ASSERT(testName, (bslmf::IsConvertible<
-                           AllocTReboundU*, AllocU*>::VALUE));
-    LOOP_ASSERT(testName, (bslmf::IsConvertible<
-                           TraitsTReboundU*, TraitsU*>::VALUE));
+    LOOP_ASSERT(testName, (bsl::is_convertible<
+                           AllocTReboundU*, AllocU*>::value));
+    LOOP_ASSERT(testName, (bsl::is_convertible<
+                           TraitsTReboundU*, TraitsU*>::value));
     LOOP_ASSERT_ISSAME(testName,
                        typename TraitsTReboundU::allocator_type, AllocU);
 
     // Rebind from 'U' to 'T'
     LOOP_ASSERT(testName,
-                (bslmf::IsConvertible<AllocUReboundT*, AllocT*>::VALUE));
+                (bsl::is_convertible<AllocUReboundT*, AllocT*>::value));
     LOOP_ASSERT(testName,
-                (bslmf::IsConvertible<TraitsUReboundT*, TraitsT*>::VALUE));
+                (bsl::is_convertible<TraitsUReboundT*, TraitsT*>::value));
     LOOP_ASSERT_ISSAME(testName,
                        typename TraitsUReboundT::allocator_type, AllocT);
 
     // Rebind from 'T' to 'T'
     LOOP_ASSERT(testName,
-                (bslmf::IsConvertible<AllocTReboundT*, AllocT*>::VALUE));
+                (bsl::is_convertible<AllocTReboundT*, AllocT*>::value));
     LOOP_ASSERT(testName,
-                (bslmf::IsConvertible<TraitsTReboundT*, TraitsT*>::VALUE));
+                (bsl::is_convertible<TraitsTReboundT*, TraitsT*>::value));
     LOOP_ASSERT_ISSAME(testName,
                        typename TraitsTReboundT::allocator_type, AllocT);
 
     // Multiple rebind
     LOOP_ASSERT(testName,
-                (bslmf::IsConvertible<
+                (bsl::is_convertible<
                    typename allocator_traits<AllocUReboundT>::
                                              template rebind_alloc<T>*,
-                 AllocT*>::VALUE));
+                 AllocT*>::value));
     LOOP_ASSERT(testName,
-                (bslmf::IsConvertible<
+                (bsl::is_convertible<
                    typename allocator_traits<AllocUReboundT>::
                                              template rebind_traits<T>*,
-                 TraitsT*>::VALUE));
+                 TraitsT*>::value));
     LOOP_ASSERT(testName,
-                (bslmf::IsConvertible<
+                (bsl::is_convertible<
                    typename allocator_traits<AllocUReboundT>::
                                              template rebind_alloc<U>*,
-                 AllocU*>::VALUE));
+                 AllocU*>::value));
     LOOP_ASSERT(testName,
-                (bslmf::IsConvertible<
+                (bsl::is_convertible<
                    typename allocator_traits<AllocUReboundT>::
                                              template rebind_traits<U>*,
-                 TraitsU*>::VALUE));
+                 TraitsU*>::value));
 }
 
 template <class ALLOC>
@@ -2096,7 +2096,7 @@ int main(int argc, char *argv[])
         //:   C++03 conformance of 'NonBslmaAllocator', 'BslmaAllocator', and
         //:   'FunkyAllocator'.  The test function simply and directly tests
         //:   each allocator requirement from C++03.  (C1-C12).
-        //: o Use 'bslmf::IsConvertible' to test that 'bslma::Allocator*' is
+        //: o Use 'bsl::is_convertible' to test that 'bslma::Allocator*' is
         //:   convertible to 'BslmaAllocator' and that it is NOT convertible
         //:   to 'NonBslmaAllocator' (C13).
         //: o Create a function template, 'testAttribClass' that tests an
@@ -2143,16 +2143,16 @@ int main(int argc, char *argv[])
         if (verbose)
             printf("Testing convertibility from 'bslma::Allocator*'\n");
 
-        ASSERT(  (bslmf::IsConvertible<bslma::Allocator*,
-                                       BslmaAllocator<int> >::VALUE));
-        ASSERT(  (bslmf::IsConvertible<bslma::Allocator*,
-                                       BslmaAllocator<AttribClass5> >::VALUE));
-        ASSERT(! (bslmf::IsConvertible<bslma::Allocator*,
-                                    NonBslmaAllocator<AttribClass5> >::VALUE));
-        ASSERT(  (bslmf::IsConvertible<bslma::Allocator*,
-                                       FunkyAllocator<int> >::VALUE));
-        ASSERT(  (bslmf::IsConvertible<bslma::Allocator*,
-                                       FunkyAllocator<AttribClass5> >::VALUE));
+        ASSERT(  (bsl::is_convertible<bslma::Allocator*,
+                                       BslmaAllocator<int> >::value));
+        ASSERT(  (bsl::is_convertible<bslma::Allocator*,
+                                       BslmaAllocator<AttribClass5> >::value));
+        ASSERT(! (bsl::is_convertible<bslma::Allocator*,
+                                    NonBslmaAllocator<AttribClass5> >::value));
+        ASSERT(  (bsl::is_convertible<bslma::Allocator*,
+                                       FunkyAllocator<int> >::value));
+        ASSERT(  (bsl::is_convertible<bslma::Allocator*,
+                                       FunkyAllocator<AttribClass5> >::value));
 
         testAttribClass<AttribClass5>("AttribClass5");
         testAttribClass<AttribClass5Alloc<NonBslmaAllocator<int> > >(

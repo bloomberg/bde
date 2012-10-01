@@ -3,15 +3,14 @@
 
 #include <bsls_bsltestutil.h>
 
-#include <iostream>
+#include <cstdio>
 #include <cstdlib>
 
 using namespace bsl;
 using namespace BloombergLP;
 
-using std::cout;
-using std::cerr;
-using std::endl;
+using std::printf;
+using std::fprintf;
 using std::atoi;
 
 //=============================================================================
@@ -339,14 +338,13 @@ int main(int argc, char *argv[])
 
       } break;
       default: {
-        cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
+        fprintf(stderr, "Error, non-zero test status = %d.\n", testStatus);
         testStatus = -1;
       }
     }
 
     if (testStatus > 0) {
-        cerr << "Error, non-zero test status = "
-             << testStatus << "." << endl;
+        fprintf(stderr, "Error, non-zero test status = %d.\n", testStatus);
     }
 
     return testStatus;

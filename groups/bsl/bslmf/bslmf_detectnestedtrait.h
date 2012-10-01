@@ -20,8 +20,8 @@ BSLS_IDENT("$Id: $")
 ///Usage
 ///-----
 
-#ifndef INCLUDED_BSLMF_ANYTYPE
-#include <bslmf_anytype.h>
+#ifndef INCLUDED_BSLMF_MATCHANYTYPE
+#include <bslmf_matchanytype.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
@@ -52,7 +52,7 @@ class DetectNestedTrait_Imp {
         // Declared but not defined.  This overload is selected if called with
         // a type convertible to 'NestedTraitDeclaration<TYPE, TRAIT>'
 
-    static int check(AnyType, ...);
+    static int check(MatchAnyType, ...);
         // Declared but not defined.  This overload is selected if called with
         // a type not convertible to 'NestedTraitDeclaration<TYPE, TRAIT>'
 

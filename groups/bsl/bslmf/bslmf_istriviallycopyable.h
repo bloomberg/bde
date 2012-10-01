@@ -7,74 +7,91 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a primitive type trait for bit-wise copyable classes.
+//@PURPOSE: Provide a meta-function for determining trivially copyable types
 //
 //@CLASSES:
-//  bsl::is_trivially_copyable<TYPE>: bit-wise copyable trait metafunction
+//  bsl::is_trivially_copyable: type-traits meta-function
 //
 //@SEE_ALSO:
 //
 //@AUTHOR: Pablo Halpern (phalpern)
 //
-//@DESCRIPTION:This component provides a single trait metafunction,
-// 'bsl::is_trivially_copyable<TYPE>', which allows generic code to determine
-// whether 'TYPE' can be destructively moved using 'memcpy'.  Given a pointer,
-// 'p1', to an object of 'TYPE', and a pointer 'p2' of the same type pointing
-// to allocated but uninitialized storage, a destructive move from 'p1' to
-// 'p2' comprises the following pair of operations:
+//@DESCRIPTION: This component defines a meta-function,
+// 'bsl::is_trivially_copyable', which may be used to query whether a type is
+// trivially copyable as defined in section 3.9.3 of the C++11 standard
+// [basic.types].
+//
+// 'bsl::is_trivially_copyable' has the same syntax as the
+// 'is_trivially_copyable' template from the C++11 standard [meta.unary.prop].
+// However, unlike the template defined in the C++11 standard, which can
+// determine the correct value for all types without requiring specialization,
+// 'bsl::is_trivially_copyable' can only by default determine the value for the
+// following type categories:
 //..
-//  new ((void*) p2) TYPE(*p1);  // Or new ((void*) p2) TYPE(std::move(*p1));
-//  p1->~TYPE();
+//  Type Category        Is Trivially Copyable
+//  -------------        ---------------------
+//  reference types      false
+//  fundamental types    true
+//  enums                true
+//  pointers             true
+//  pointers to members  true
 //..
-// An object of a 'TYPE' is *bit-wise* *copyable*, if the above operation
-// can be replaced by the following operation without affecting correctness:
-//..
-//  std::memcpy(p2, p1, sizeof(TYPE));
-//..
-// If 'bsl::is_trivially_copyable<TYPE>::value' inherits from 'true_type' for a
-// given 'TYPE', then a generic algorithm can infer that 'TYPE' is bit-wise
-// Copyable.
+// For all other types, 'bsl::is_trivially_copyable' returns false, unless the
+// type is explicitly specified to be trivially copyable, which can be done in
+// 2 ways:
 //
-// This trait is used by various components for providing optimizations for
-// types that can be bit-wise moved.  The major benefit of this trait is not
-// for a single object but for an array of such types, as a loop of
-// Copy/destroy operations can be replaced by a single call to 'memcpy'.
-//
-// 'bsl::is_trivially_copyable<TYPE>' will inherit from 'true_type' if 'TYPE'
-// is a fundamental type, enumeration type, or pointer type.  Most user-defined
-// classes are are bit-wise copyable, but generic code must assume that an
-// arbrary 'TYPE' is not bitwise-copyable, as bit-wise moving a type that is
-// not bit-wise copyable is likely to result in a dangling pointer.  Thus, it
-// is necessary to explicitly associate the bit-wise copyable trait with a
-// class (via template specialization or by use of the
-// 'BSLMF_DECLARE_NESTED_TRAIT' macro) in order to generic algorithms to
-// recognize that class as bit-wise copyable.
-//
-///What classes are not bit-wise copyable?
-///---------------------------------------
-// A class that has any of the following attributes is !not! bit-wise
-// copyable:
-//
-//: o Its address is one of the salient attributes that comprise its value.
-//: o It contains a pointer that might (directly or indirectly) point to
-//:   itself or to one of its own members.  For example, a list implementation
-//:   that includes an embedded sentinal node such that the last node in the
-//:   list points back to the sentinal node within the list class object is
-//:   not bit-wise copyable.
-//: o Its constructor registers a pointer to itself in some static registry.
-//: o It contains a data member that is not bit-wise copyable.
-//
-// Because of the destructive nature of a bit-wise move (the original object
-// must be treated as uninitialized storage after the move), a class can be
-// bit-wise copyable but not also bit-wise copiable.  For example, a class
-// that contains a pointer to heap-allocated storage is generally bit-wise
-// copyable.  The moved object simply refers to the same storage as the
-// (defunct) original.  However a bit-wise copy of the same object would
-// incorrectly cause the original and the copy to share the same
-// heap-allocated storage.
+//:    1 Define a template specialization for 'bsl::is_trivially_copyable'
+//:      having the type as the template parameter that inherits directly from
+//:      'bsl::true_type'.
+//:
+//:    2 Use the 'BSLMF_NESTED_TRAIT_DECLARATION' macro to define
+//:      'bsl::is_trivially_copyable' as the trait in the class definition of
+//:      the type.
 //
 ///Usage
 ///-----
+// In this section we show intended use of this component.
+//
+///Example 1: Verify Whether Types are Trivially Copyable
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Suppose that we want to assert whether a type is trivially copyable.
+//
+// First, we define a set types to evaluate:
+//..
+//  typedef int MyFundamentalType;
+//  typedef int& MyFundamentalTypeReference;
+//
+//  class MyTriviallyCopyableType {
+//  };
+//
+//  struct MyNonTriviallyCopyableType {
+//      //...
+//  };
+//..
+// Then, since user-defined types can not be automatically evaluated by
+// 'is_trivially_copyable', we define a template specialization to specify that
+// 'MyTriviallyCopyableType' is trivially copyable:
+//..
+//  namespace bsl {
+//
+//  template <>
+//  struct is_trivially_copyable<MyTriviallyCopyableType> : bsl::true_type {
+//      // This template specialization for 'is_trivially_copyable' indicates
+//      // that 'MyTriviallyCopyableType' is a trivially copyable.
+//  };
+//
+//  }  // close namespace bsl
+//..
+// Now, we verify whether each type is trivially copyable using
+// 'bsl::is_trivially_copyable':
+//..
+//  assert(true == bsl::is_trivially_copyable<MyFundamentalType>::value);
+//  assert(false == bsl::is_trivially_copyable<
+//                                         MyFundamentalTypeReference>::value);
+//  assert(true == bsl::is_trivially_copyable<MyTriviallyCopyableType>::value);
+//  assert(false == bsl::is_trivially_copyable<
+//                                         MyNonTriviallyCopyableType>::value);
+//..
 
 #ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
 #include <bslmf_integralconstant.h>
@@ -113,41 +130,56 @@ namespace bsl {
 template <typename TYPE>
 struct is_trivially_copyable;
 
-}
+}  // close namespace bsl
 
 namespace BloombergLP {
 namespace bslmf {
 
+                         // ==============================
+                         // struct IsTriviallyCopyable_Imp
+                         // ==============================
+
 template <typename TYPE>
 struct IsTriviallyCopyable_Imp
     : bsl::integral_constant<
-             bool,
-             !bsl::is_reference<TYPE>::value
-             && (  IsFundamental<TYPE>::value
-                || IsEnum<TYPE>::value
-                || bsl::is_pointer<TYPE>::value
-                || bslmf::IsPointerToMember<TYPE>::value
-                || DetectNestedTrait<TYPE, bsl::is_trivially_copyable>::value)>
-{};
+          bool,
+          !bsl::is_reference<TYPE>::value
+          && (  IsFundamental<TYPE>::value
+             || IsEnum<TYPE>::value
+             || bsl::is_pointer<TYPE>::value
+             || bslmf::IsPointerToMember<TYPE>::value
+             || DetectNestedTrait<TYPE, bsl::is_trivially_copyable>::value)> {
+    // This 'struct' template implement a meta-function to determine whether
+    // the (non-cv-qualified) template parameter 'TYPE' is trivially copyable.
+};
 
 }  // close package namespace
 }  // close enterprise namespace
 
 namespace bsl {
 
+                         // ============================
+                         // struct is_trivially_copyable
+                         // ============================
+
 template <typename TYPE>
 struct is_trivially_copyable
-    : BloombergLP::bslmf::IsTriviallyCopyable_Imp<typename remove_cv<TYPE>::type>
-{
-    // Trait metafunction that determines whether the specified parameter
-    // 'TYPE' is bit-wise Copyable.  If 'is_trivially_copyable<TYPE>' is
-    // derived from 'true_type' then 'TYPE' is bit-wise Copyable.  Otherwise,
-    // bit-wise moveability cannot be inferred for 'TYPE'.  This trait can be
-    // associated with a bit-wise Copyable user-defined class by specializing
-    // this class or by using the 'BSLMF_DECLARE_NESTED_TRAIT' macro.
+: BloombergLP::bslmf::IsTriviallyCopyable_Imp<typename remove_cv<TYPE>::type> {
+    // This 'struct' template implements a meta-function to determine whether
+    // the (template parameter) 'TYPE' is trivially copyable.  This 'struct'
+    // derives from 'bsl::true_type', if the 'TYPE' is trivially copyable, and
+    // 'bsl::false_type' otherwise.  This meta-function has the same syntax as
+    // the 'is_trivially_copyable' meta-function defined in the C++11 standard
+    // [meta.unary.prop]; however, this meta-function can only automatically
+    // determine the value for the following types: reference types,
+    // fundamental types, enums, pointers to members, and types declared to
+    // have the 'bsl::is_trivially_copyable' trait using the
+    // 'BSLMF_NESTED_TRAIT_DECLARATION' macro (and the value for other types
+    // defaults to 'false').  To support other trivially copyable types, this
+    // template must be specialized to inherit from 'bsl::true_type' for them.
 };
 
-}
+}  // close namespace bsl
 
 #endif // ! defined(INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE)
 

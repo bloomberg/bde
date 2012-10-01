@@ -5,7 +5,6 @@
 #include <bslstl_allocator.h>
 #include <bslstl_forwarditerator.h>
 
-#include <bslalg_typetraits.h>
 #include <bslma_allocator.h>               // for testing only
 #include <bslma_default.h>                 // for testing only
 #include <bslma_defaultallocatorguard.h>   // for testing only
@@ -750,13 +749,6 @@ class LimitAllocator : public ALLOC {
     size_type d_limit;
 
   public:
-    // TRAITS
-    /*
-     * TODO:
-    BSLALG_DECLARE_NESTED_TRAITS(LimitAllocator,
-                                 BloombergLP::bslalg_TypeTraits<AllocBase>);
-    */
-
     // CREATORS
     LimitAllocator()
     : d_limit(-1) {}
@@ -4201,10 +4193,10 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20Range(const CONTAINER&)
     const int           NUM_VALUES = getValues(&values);
 
     const int INPUT_ITERATOR_TAG =
-        bslmf::IsSame<std::input_iterator_tag,
+        bsl::is_same<std::input_iterator_tag,
                        typename bsl::iterator_traits<
                          typename CONTAINER::const_iterator>::iterator_category
-                      >::VALUE;
+                      >::value;
 
     enum {
         REPLACE_STRING_MODE_FIRST        = 0,
@@ -6287,10 +6279,10 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18Range(const CONTAINER&)
     const int           NUM_VALUES = getValues(&values);
 
     const int INPUT_ITERATOR_TAG =
-        bslmf::IsSame<std::input_iterator_tag,
+        bsl::is_same<std::input_iterator_tag,
                      typename bsl::iterator_traits<
                       typename CONTAINER::const_iterator>::iterator_category
-                   >::VALUE;
+                   >::value;
 
     enum {
         INSERT_STRING_MODE_FIRST        = 0,
@@ -7273,10 +7265,10 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
     const int           NUM_VALUES = getValues(&values);
 
     const int INPUT_ITERATOR_TAG =
-        bslmf::IsSame<std::input_iterator_tag,
+        bsl::is_same<std::input_iterator_tag,
                       typename bsl::iterator_traits<
                          typename CONTAINER::const_iterator>::iterator_category
-                     >::VALUE;
+                     >::value;
 
     enum {
         APPEND_STRING_MODE_FIRST  = 0,
@@ -7947,7 +7939,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase16()
     //   reference (setting it to a default value, then back to its original
     //   value, and as a non-modifiable reference.
     //
-    // For 4--6, use 'bslmf::IsSame' to assert the identity of iterator types.
+    // For 4--6, use 'bsl::is_same' to assert the identity of iterator types.
     // Note that these concerns let us get away with other concerns such as
     // testing that 'iter[i]' and 'iter + i' advance 'iter' by the correct
     // number 'i' of positions, and other concern about traits, because
@@ -8801,10 +8793,10 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase13Range(const CONTAINER&)
     const int           NUM_VALUES = getValues(&values);
 
     const int INPUT_ITERATOR_TAG =
-        bslmf::IsSame<std::input_iterator_tag,
+        bsl::is_same<std::input_iterator_tag,
                       typename bsl::iterator_traits<
                          typename CONTAINER::const_iterator>::iterator_category
-                     >::VALUE;
+                     >::value;
 
     static const struct {
         int         d_lineNum;  // source line number
@@ -9653,10 +9645,10 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase12Range(const CONTAINER&)
     bslma::TestAllocator testAllocator(veryVeryVerbose);
 
     const int INPUT_ITERATOR_TAG =
-         bslmf::IsSame<std::input_iterator_tag,
+         bsl::is_same<std::input_iterator_tag,
                        typename bsl::iterator_traits<
                          typename CONTAINER::const_iterator>::iterator_category
-                      >::VALUE;
+                      >::value;
 
     static const struct {
         int         d_lineNum;          // source line number
@@ -9878,7 +9870,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase11()
     // Concerns:
     //   1) That creating an empty string does not allocate
     //   2) That the allocator is passed through to elements
-    //   3) That the string class has the 'bslalg::TypeTraitUsesBslmaAllocator'
+    //   3) That the string class has the 'bslma::UsesBslmaAllocator'
     //
     // Plan:
     //   We verify that the 'string' class has the traits, and
@@ -9905,10 +9897,9 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase11()
     (void)NUM_VALUES;
 
     if (verbose)
-        printf("\nTesting 'bslalg::TypeTraitUsesBslmaAllocator'.\n");
+        printf("\nTesting 'bslma::UsesBslmaAllocator'.\n");
 
-    ASSERT((bslalg::HasTrait<Obj,
-                             bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
+    ASSERT(( bslma::UsesBslmaAllocator<Obj>::value));
 
     if (verbose)
         printf("\nTesting that empty string does not allocate.\n");
@@ -14770,14 +14761,10 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\nAdditional tests: traits.\n");
 
-#ifndef BSLS_PLATFORM_CMP_MSVC  // Temporarily does not work
-        ASSERT(
-             (bslalg::HasTrait<bsl::basic_string<char,bsl::char_traits<char> >,
-                               bslalg::TypeTraitBitwiseMoveable>::VALUE));
-        ASSERT((bslalg::HasTrait<bsl::basic_string<wchar_t,
-                                              bsl::char_traits<wchar_t> >,
-                bslalg::TypeTraitBitwiseMoveable>::VALUE));
-#endif
+        ASSERT((bslmf::IsBitwiseMoveable<bsl::basic_string<char,
+                                         bsl::char_traits<char> > >::value));
+        ASSERT((bslmf::IsBitwiseMoveable<bsl::basic_string<wchar_t,
+                                        bsl::char_traits<wchar_t> > >::value));
 
         if (verbose) printf("\nStreaming test.\n");
 

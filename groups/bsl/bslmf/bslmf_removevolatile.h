@@ -52,6 +52,10 @@ BSLS_IDENT("$Id: $")
 
 namespace bsl {
 
+                         // ======================
+                         // struct remove_volatile
+                         // ======================
+
 template <typename TYPE>
 struct remove_volatile {
     // This 'struct' template implements the 'remove_volatile' meta-function
@@ -59,10 +63,9 @@ struct remove_volatile {
     // provides a 'typedef' 'type' that has the same type as the (template
     // parameter) 'TYPE' except that any top-level 'volatile'-qualifier has
     // been removed.  Note that this generic default template provides a 'type'
-    // that has the same type as 'TYPE' for when 'TYPE' is not
-    // 'volatile'-qualified.  A template specialization is provided (below)
-    // that strips the 'volatile'-qualifier for when 'TYPE' is
-    // 'volatile'-qualified.
+    // that is an alias to 'TYPE' for when 'TYPE' is not 'volatile'-qualified.
+    // A template specialization is provided (below) that strips the
+    // 'volatile'-qualifier for when 'TYPE' is 'volatile'-qualified.
 
     typedef TYPE type;
 };

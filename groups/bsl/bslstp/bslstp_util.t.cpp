@@ -1,7 +1,6 @@
-// bslstl_allocatorproxy.t.cpp                                        -*-C++-*-
+// bslstp_util.t.cpp                                                  -*-C++-*-
 
-#include <bslstl_allocatorproxy.h>
-#include <bslstl_allocator.h>
+#include <bslstp_util.h>
 
 #include <cstdio>
 #include <cstdlib>
@@ -58,11 +57,6 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
 //                  CLASSES FOR TESTING USAGE EXAMPLES
 //-----------------------------------------------------------------------------
 
-namespace BloombergLP {
-    // Force instantiation (and thus compilation) of proxy class
-    template class bslstl::AllocatorProxy<bsl::allocator<int> >;
-}
-
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -93,10 +87,6 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\nBREATHING TEST"
                             "\n==============\n");
-
-        // Does not actually do anything, but forces class instantiation.
-        bsl::allocator<int> a;
-        bslstl::AllocatorProxy<bsl::allocator<int> > theAllocatorProxy(a);
 
       } break;
 

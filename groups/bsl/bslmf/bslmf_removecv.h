@@ -58,6 +58,10 @@ BSLS_IDENT("$Id: $")
 
 namespace bsl {
 
+                         // ================
+                         // struct remove_cv
+                         // ================
+
 template <typename TYPE>
 struct remove_cv {
     // This 'struct' template implements the 'remove_cv' meta-function defined

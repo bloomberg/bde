@@ -3,7 +3,6 @@
 
 #include <bslstl_allocator.h>
 
-#include <bslalg_hastrait.h>
 #include <bslalg_rbtreenode.h>
 #include <bslalg_rbtreeanchor.h>
 #include <bslalg_rbtreeutil.h>
@@ -29,8 +28,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-
-#include <bslalg_typetraits.h>
 
 using namespace BloombergLP;
 using namespace std;
@@ -584,9 +581,8 @@ void TestDriver<VALUE>::testCase7()
                         "\n========================\n");
 
 
-    const int TYPE_ALLOC = bslalg::HasTrait<
-                                    VALUE,
-                                    bslalg::TypeTraitUsesBslmaAllocator>::VALUE;
+    const int TYPE_ALLOC = bslma::UsesBslmaAllocator<
+                                    VALUE>::value;
 
     bslma::TestAllocator oa("object", veryVeryVeryVerbose);
 
@@ -703,9 +699,8 @@ void TestDriver<VALUE>::testCase6()
     if (verbose) printf("\nMANIPULATOR 'reserve'"
                         "\n======================\n");
 
-    const int TYPE_ALLOC = bslalg::HasTrait<
-                                    VALUE,
-                                    bslalg::TypeTraitUsesBslmaAllocator>::VALUE;
+    const int TYPE_ALLOC = bslma::UsesBslmaAllocator<
+                                    VALUE>::value;
 
     for (int ti = 1; ti < 8; ++ti) {
         for(int tj = 0; tj < 8; ++tj) {
@@ -802,9 +797,8 @@ void TestDriver<VALUE>::testCase5()
     if (verbose) printf("\nMANIPULATOR 'deleteNode'"
                         "\n========================");
 
-    const int TYPE_ALLOC = bslalg::HasTrait<
-                                    VALUE,
-                                    bslalg::TypeTraitUsesBslmaAllocator>::VALUE;
+    const int TYPE_ALLOC = bslma::UsesBslmaAllocator<
+                                    VALUE>::value;
 
     struct {
         int         d_line;
@@ -1049,9 +1043,7 @@ void TestDriver<VALUE>::testCase2()
 
     if (verbose) printf("\nTesting with various allocator configurations.\n");
 
-    const int TYPE_ALLOC = bslalg::HasTrait<
-                                    VALUE,
-                                    bslalg::TypeTraitUsesBslmaAllocator>::VALUE;
+    const int TYPE_ALLOC = bslma::UsesBslmaAllocator<VALUE>::value;
 
     for (char cfg = 'a'; cfg <= 'b'; ++cfg) {
 

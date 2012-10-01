@@ -6,6 +6,7 @@
 #include <bsls_types.h>
 #include <bsls_bsltestutil.h>
 
+#include <cstdio>
 #include <cstdlib>     // atoi()
 #include <iostream>
 

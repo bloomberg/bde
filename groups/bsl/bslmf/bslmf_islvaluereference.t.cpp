@@ -4,10 +4,10 @@
 #include <bsls_bsltestutil.h>
 
 #include <iostream>
+#include <cstdio>
 #include <cstdlib>
 
 using namespace std;
-using namespace bsl;
 using namespace BloombergLP;
 
 //=============================================================================

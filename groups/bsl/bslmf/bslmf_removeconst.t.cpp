@@ -9,10 +9,9 @@
 using namespace bsl;
 using namespace BloombergLP;
 
-using std::cout;
-using std::cerr;
-using std::endl;
 using std::atoi;
+using std::printf;
+using std::fprintf;
 
 //=============================================================================
 //                                TEST PLAN
@@ -152,8 +151,8 @@ int main(int argc, char *argv[])
         //:   'T const *'.
         //
         // Plan:
-        //   Verify that 'bsl::remove_const::type' has the correct type for
-        //   each (template parameter) 'TYPE' in the concerns.
+        //   Verify that 'bsl::remove_const' returns the correct value for each
+        //   concern.
         //
         // Testing:
         //   bsl::remove_const

@@ -4413,7 +4413,7 @@ void TestDriver<TYPE,ALLOC>::testCase16()
     //   reference (setting it to a default value, then back to its original
     //   value, and as a non-modifiable reference.
     //
-    //   For 4--6, use 'bslmf::IsSame' to assert the identity of iterator
+    //   For 4--6, use 'bsl::is_same' to assert the identity of iterator
     //   types.  Note that these concerns let us get away with other concerns
     //   such as testing that 'iter[i]' and 'iter + i' advance 'iter' by the
     //   correct number 'i' of positions, and other concern about traits,
@@ -4454,14 +4454,14 @@ void TestDriver<TYPE,ALLOC>::testCase16()
     if (verbose) printf("Testing 'iterator', 'begin', and 'end',"
                         " and 'const' variants.\n");
     {
-        ASSERT(1 == (bslmf::IsSame<iterator,
+        ASSERT(1 == (bsl::is_same<iterator,
                         bslstl::RandomAccessIterator<TYPE,
                             bslalg::DequeIterator<TYPE, BLOCK_LENGTH>
-                                                                  > >::VALUE));
-        ASSERT(1 == (bslmf::IsSame<const_iterator,
+                                                                  > >::value));
+        ASSERT(1 == (bsl::is_same<const_iterator,
                      bslstl::RandomAccessIterator<const TYPE,
                         bslalg::DequeIterator<TYPE, BLOCK_LENGTH>
-                                                                  > >::VALUE));
+                                                                  > >::value));
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int     LINE   = DATA[ti].d_lineNum;
@@ -4498,10 +4498,10 @@ void TestDriver<TYPE,ALLOC>::testCase16()
     if (verbose) printf("Testing 'reverse_iterator', 'rbegin', and 'rend',"
                         " and 'const' variants.\n");
     {
-        ASSERT(1 == (bslmf::IsSame<reverse_iterator,
-                                   bsl::reverse_iterator<iterator> >::VALUE));
-        ASSERT(1 == (bslmf::IsSame<const_reverse_iterator,
-                              bsl::reverse_iterator<const_iterator> >::VALUE));
+        ASSERT(1 == (bsl::is_same<reverse_iterator,
+                                   bsl::reverse_iterator<iterator> >::value));
+        ASSERT(1 == (bsl::is_same<const_reverse_iterator,
+                              bsl::reverse_iterator<const_iterator> >::value));
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int     LINE   = DATA[ti].d_lineNum;
@@ -7932,8 +7932,8 @@ int main(int argc, char *argv[])
 // Next, we observe that an iterator to a 'deque', unlike an iterator to a
 // 'vector', is not a pointer:
 //..
-        ASSERT(! (bslmf::IsSame<int *, It>::VALUE));
-        ASSERT(! bslmf::IsPointer<It>::VALUE);
+        ASSERT(! (bsl::is_same<int *, It>::value));
+        ASSERT(! bsl::is_pointer<It>::value);
 //..
 // Then, we create an allocator to use for the 'deque', and some test data to
 // load into it:
@@ -8063,7 +8063,7 @@ int main(int argc, char *argv[])
         }
         ASSERT(0 == *zeroIt);
 
-        ASSERT((bslmf::IsSame<int&, MyDeque::reference>::VALUE));
+        ASSERT((bsl::is_same<int&, MyDeque::reference>::value));
 
         MyDeque::reference zeroRef = *zeroIt;
 

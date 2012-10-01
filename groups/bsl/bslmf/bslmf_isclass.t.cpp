@@ -5,8 +5,8 @@
 #include <bsls_platform.h>            // for testing only
 #include <bsls_bsltestutil.h>
 
+#include <cstdio>     // printf()
 #include <cstdlib>    // atoi()
-#include <iostream>
 
 using namespace BloombergLP;
 using namespace std;
@@ -322,9 +322,8 @@ int main(int argc, char *argv[])
         //   bsl::is_class::value
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "bsl::is_class" << endl
-                          << "=============" << endl;
+        if (verbose) printf("\nbsl::is_class\n"
+                              "=============\n");
 
         // C-1
         TYPE_ASSERT_CVQ_SUFFIX(bsl::is_class, void, false);
@@ -380,14 +379,13 @@ int main(int argc, char *argv[])
         TYPE_ASSERT_CVQ_PREFIX(bsl::is_class, void (int),  false);
       } break;
       default: {
-        cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
+        fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
         testStatus = -1;
       }
     }
 
     if (testStatus > 0) {
-        cerr << "Error, non-zero test status = "
-             << testStatus << "." << endl;
+        fprintf(stderr, "Error, non-zero test status = %d.\n", testStatus);
     }
     return testStatus;
 }
