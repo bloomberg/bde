@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Primitive algorithms that operate on single elements.
+//@PURPOSE: Provide primitive algorithms that operate on single elements.
 //
 //@CLASSES:
 //  bslalg::ScalarPrimitives: namespace for algorithms

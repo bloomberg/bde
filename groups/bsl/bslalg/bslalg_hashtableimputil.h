@@ -386,6 +386,7 @@ native_std::size_t HashTableImpUtil::computeBucketIndex(
                                                  native_std::size_t numBuckets)
 {
     BSLS_ASSERT_SAFE(0 != numBuckets);
+
     return hashCode % numBuckets;
 }
 
@@ -398,13 +399,13 @@ bool HashTableImpUtil::bucketContainsLink(const HashTableBucket&   bucket,
     BSLS_ASSERT_SAFE(!bucket.first() == !bucket.last());
 
     if(!bucket.first()) {
-        return false;
+        return false;                                                 // RETURN
     }
 
     const BidirectionalLink *cursor = bucket.first();
     while (bucket.last()->nextLink() != cursor) {
         if (cursor == linkAddress) {
-            return true;
+            return true;                                              // RETURN
         }
         cursor = cursor->nextLink();
     }
@@ -429,7 +430,9 @@ const typename KEY_CONFIG::KeyType& HashTableImpUtil::extractKey(
                                                  const BidirectionalLink *link)
 {
     BSLS_ASSERT_SAFE(link);
+
     typedef BidirectionalNode<typename KEY_CONFIG::ValueType> BNode;
+
     const BNode *node = static_cast<const BNode *>(link);
     return KEY_CONFIG::extractKey(node->value());
 }
@@ -457,7 +460,7 @@ BidirectionalLink *HashTableImpUtil::find(
     if (BidirectionalLink *cursor = bucket.first()) {
         for ( ; ; cursor = cursor->nextLink() ) {
             if (equalityFunctor(key, extractKey<KEY_CONFIG>(cursor))) {
-                return cursor;
+                return cursor;                                        // RETURN
             }
             if (cursor == bucket.last()) {
                 break;
@@ -535,7 +538,7 @@ bool HashTableImpUtil::isWellFormed(const HashTableAnchor& anchor)
         HashTableBucket& bucket = array[i];
 
         if (!bucket.first() != !bucket.last()) {  // 'first' XOR 'second
-            return false;
+            return false;                                             // RETURN
         }
 
         if (bucket.first()) {
@@ -555,15 +558,15 @@ bool HashTableImpUtil::isWellFormed(const HashTableAnchor& anchor)
                 if (!bucketContainsLink(array[index], cursor)) {
                     return false;                                     // RETURN
                 }
-            cursor = cursor->nextLink();
+                cursor = cursor->nextLink();
             }
         }
     }
     return true;
 }
 
-} // namespace BloombergLP::bslalg
-} // namespace BloombergLP
+}  // close namespace BloombergLP::bslalg
+}  // close namespace BloombergLP
 
 #endif
 

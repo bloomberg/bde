@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Encapsulate the array of buckets and list of values of a hash table
+//@PURPOSE: Provide a type holding the constituent parts of a hash table.
 //
 //@CLASSES:
 // bslalg::HashTableAnchor: (in-core) bucket-array and node list
@@ -293,7 +293,7 @@ HashTableBucket *HashTableAnchor::bucketArrayAddress() const
     return d_bucketArrayAddress_p;
 }
 
-} // end namespace bslalg
+}  // close namespace bslalg
 
 // FREE OPERATORS
 inline

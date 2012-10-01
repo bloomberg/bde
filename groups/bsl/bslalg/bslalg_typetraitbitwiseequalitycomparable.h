@@ -7,6 +7,35 @@
 #endif
 BSLS_IDENT("$Id: $")
 
+//@PURPOSE: Provide a primitive type trait for bit-wise eq.-comparable classes.
+//
+//@CLASSES:
+//  bslalg::TypeTraitBitwiseEqualityComparable: bit-wise eq.-comparable trait
+//
+//@SEE_ALSO: bslmf_typetraits
+//
+//@AUTHOR: Herve Bronnimann (hbronnim)
+//
+//@DESCRIPTION: This component provides a single traits class,
+// 'bslalg::TypeTraitBitwiseEqualityComparable'.  Two objects of a 'TYPE' that
+// has the bit-wise equality comparable trait can be compared either by
+// invoking the equality operator or by comparing the footprint (i.e., the
+// 'sizeof(TYPE)' bytes at the respective object addresses) using 'memcmp'.
+//
+// This component is used by various 'bslalg' components for providing
+// optimized primitives for types that have the bit-wise equality comparable
+// trait.  The major benefit of this trait is not for a single object but for
+// an array of such types, as a loop can be replaced by a single call to
+// 'memcmp'.
+//
+///What constitutes bit-wise equality comparability?
+///-------------------------------------------------
+// TBD: A short guide on when to attach this trait to a class should follow.
+//
+///Usage
+///-----
+// TBD
+
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
 #endif
@@ -37,8 +66,9 @@ struct TypeTraitBitwiseEqualityComparable {
     struct NestedTraitDeclaration :
         bslmf::NestedTraitDeclaration<TYPE, bslmf::IsBitwiseEqualityComparable>
     {
-        // This class template ties the 'bslalg::TypeTaitBitwiseEqualityComparable'
-        // trait tag to the 'bslmf::IsBitwiseEqualityCompareble' trait metafunction.
+        // This class template ties the
+        // 'bslalg::TypeTraitBitwiseEqualityComparable' trait tag to the
+        // 'bslmf::IsBitwiseEqualityComparable' trait metafunction.
     };
 
     template <class TYPE>
@@ -52,7 +82,8 @@ struct TypeTraitBitwiseEqualityComparable {
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
 
-typedef bslalg::TypeTraitBitwiseEqualityComparable bslalg_TypeTraitBitwiseEqualityComparable;
+typedef bslalg::TypeTraitBitwiseEqualityComparable
+                                     bslalg_TypeTraitBitwiseEqualityComparable;
     // This alias is defined for backward compatibility.
 #endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
