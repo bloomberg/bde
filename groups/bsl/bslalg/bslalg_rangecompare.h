@@ -329,12 +329,12 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_integralconstant.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_ISCONVERTIBLE
-#include <bslmf_isconvertible.h>
-#endif
-
 #ifndef INCLUDED_BSLMF_ISBITWISEEQUALITYCOMPARABLE
 #include <bslmf_isbitwiseequalitycomparable.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISCONVERTIBLE
+#include <bslmf_isconvertible.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_MATCHANYTYPE

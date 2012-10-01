@@ -30,12 +30,12 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
-#include <bslmf_nestedtraitdeclaration.h>
-#endif
-
 #ifndef INCLUDED_BSLMF_HASPOINTERSEMANTICS
 #include <bslmf_haspointersemantics.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
 #endif
 
 namespace BloombergLP {

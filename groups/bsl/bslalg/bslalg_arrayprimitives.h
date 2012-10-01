@@ -261,10 +261,6 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_METAINT
-#include <bslmf_metaint.h>
-#endif
-
 #ifndef INCLUDED_BSLALG_ARRAYDESTRUCTIONPRIMITIVES
 #include <bslalg_arraydestructionprimitives.h>
 #endif
@@ -335,6 +331,10 @@ BSLS_IDENT("$Id$ $CSID$")
 
 #ifndef INCLUDED_BSLMF_MATCHANYTYPE
 #include <bslmf_matchanytype.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_METAINT
+#include <bslmf_metaint.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_REMOVECVQ
