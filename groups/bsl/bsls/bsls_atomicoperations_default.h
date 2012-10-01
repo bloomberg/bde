@@ -69,7 +69,7 @@
 // 'getIntAcquire', whose implementation delegates to the platform-specific
 // implementation of another, (core) atomic operation, 'getInt':
 //..
-//  template <typename IMP>
+//  template <class IMP>
 //  struct AtomicsBase<IMP>
 //  {
 //      // static
@@ -244,7 +244,7 @@
 // This default implementation component provides only a declaration of a
 // generic atomic type traits class:
 //..
-//  template <typename IMP>
+//  template <class IMP>
 //  struct bsls::Atomic_TypeTraits;
 //..
 // Each platform-specific implementation has to provide its own specialization
@@ -296,10 +296,10 @@ namespace bsls {
                      // struct AtomicOperations_DefaultInt
                      // ==================================
 
-template <typename IMP>
+template <class IMP>
 struct Atomic_TypeTraits;
 
-template <typename IMP>
+template <class IMP>
 struct AtomicOperations_DefaultInt
     // This class provides default implementations of non-essential atomic
     // operations for the 32-bit integer type independent on any specific
@@ -383,7 +383,7 @@ struct AtomicOperations_DefaultInt
                     // struct AtomicOperations_DefaultInt64
                     // ====================================
 
-template <typename IMP>
+template <class IMP>
 struct AtomicOperations_DefaultInt64
     // This class provides default implementations of non-essential atomic
     // operations for the 64-bit integer type independent on any specific
@@ -486,7 +486,7 @@ struct AtomicOperations_DefaultInt64
                   // struct AtomicOperations_DefaultPointer32
                   // ========================================
 
-template <typename IMP>
+template <class IMP>
 struct AtomicOperations_DefaultPointer32
     // This class provides default implementations of non-essential atomic
     // operations for the 32-bit pointer type independent on any specific
@@ -563,7 +563,7 @@ struct AtomicOperations_DefaultPointer32
                   // struct AtomicOperations_DefaultPointer64
                   // ========================================
 
-template <typename IMP>
+template <class IMP>
 struct AtomicOperations_DefaultPointer64
     // This class provides default implementations of non-essential atomic
     // operations for the 64-bit pointer type independent on any specific
@@ -647,7 +647,7 @@ struct AtomicOperations_DefaultPointer64
                       // struct AtomicOperations_Default32
                       // =================================
 
-template <typename IMP>
+template <class IMP>
 struct AtomicOperations_Default32
 : AtomicOperations_DefaultInt<IMP>
 , AtomicOperations_DefaultInt64<IMP>
@@ -662,7 +662,7 @@ struct AtomicOperations_Default32
                       // struct AtomicOperations_Default64
                       // =================================
 
-template <typename IMP>
+template <class IMP>
 struct AtomicOperations_Default64
 : AtomicOperations_DefaultInt<IMP>
 , AtomicOperations_DefaultInt64<IMP>
@@ -682,7 +682,7 @@ struct AtomicOperations_Default64
                      // ----------------------------------
 
 // CLASS METHODS
-template <typename IMP>
+template <class IMP>
 inline
 void AtomicOperations_DefaultInt<IMP>::
     initInt(typename AtomicTypes::Int *atomicInt, int initialValue)
@@ -690,7 +690,7 @@ void AtomicOperations_DefaultInt<IMP>::
     atomicInt->d_value = initialValue;
 }
 
-template <typename IMP>
+template <class IMP>
 inline
 int AtomicOperations_DefaultInt<IMP>::
     getIntRelaxed(typename AtomicTypes::Int const *atomicInt)
@@ -698,7 +698,7 @@ int AtomicOperations_DefaultInt<IMP>::
     return atomicInt->d_value;
 }
 
-template <typename IMP>
+template <class IMP>
 inline
 int AtomicOperations_DefaultInt<IMP>::
     getIntAcquire(typename AtomicTypes::Int const *atomicInt)
@@ -706,7 +706,7 @@ int AtomicOperations_DefaultInt<IMP>::
     return IMP::getInt(atomicInt);
 }
 
-template <typename IMP>
+template <class IMP>
 inline
 void AtomicOperations_DefaultInt<IMP>::
     setIntRelaxed(typename AtomicTypes::Int *atomicInt, int value)
@@ -714,7 +714,7 @@ void AtomicOperations_DefaultInt<IMP>::
     atomicInt->d_value = value;
 }
 
-template <typename IMP>
+template <class IMP>
 inline
 void AtomicOperations_DefaultInt<IMP>::
     setIntRelease(typename AtomicTypes::Int *atomicInt, int value)
@@ -722,7 +722,7 @@ void AtomicOperations_DefaultInt<IMP>::
     IMP::setInt(atomicInt, value);
 }
 
-template <typename IMP>
+template <class IMP>
 inline
 int AtomicOperations_DefaultInt<IMP>::
     swapIntAcqRel(typename AtomicTypes::Int *atomicInt, int swapValue)
@@ -730,7 +730,7 @@ int AtomicOperations_DefaultInt<IMP>::
     return IMP::swapInt(atomicInt, swapValue);
 }
 
-template <typename IMP>
+template <class IMP>
 inline
 int AtomicOperations_DefaultInt<IMP>::
     testAndSwapIntAcqRel(typename AtomicTypes::Int *atomicInt,
@@ -740,7 +740,7 @@ int AtomicOperations_DefaultInt<IMP>::
     return IMP::testAndSwapInt(atomicInt, compareValue, swapValue);
 }
 
-template <typename IMP>
+template <class IMP>
 inline
 int AtomicOperations_DefaultInt<IMP>::
     addIntNvRelaxed(typename AtomicTypes::Int *atomicInt, int value)
@@ -748,7 +748,7 @@ int AtomicOperations_DefaultInt<IMP>::
     return IMP::addIntNvAcqRel(atomicInt, value);
 }
 
-template <typename IMP>
+template <class IMP>
 inline
 int AtomicOperations_DefaultInt<IMP>::
     addIntNvAcqRel(typename AtomicTypes::Int *atomicInt, int value)
@@ -756,7 +756,7 @@ int AtomicOperations_DefaultInt<IMP>::
     return IMP::addIntNv(atomicInt, value);
 }
 
-template <typename IMP>
+template <class IMP>
 inline
 void AtomicOperations_DefaultInt<IMP>::
     addInt(typename AtomicTypes::Int *atomicInt, int value)
@@ -764,7 +764,7 @@ void AtomicOperations_DefaultInt<IMP>::
     IMP::addIntNv(atomicInt, value);
 }
 
-template <typename IMP>
+template <class IMP>
 inline
 void AtomicOperations_DefaultInt<IMP>::
     addIntRelaxed(typename AtomicTypes::Int *atomicInt, int value)
@@ -772,7 +772,7 @@ void AtomicOperations_DefaultInt<IMP>::
     IMP::addIntNvRelaxed(atomicInt, value);
 }
 
-template <typename IMP>
+template <class IMP>
 inline
 void AtomicOperations_DefaultInt<IMP>::
     addIntAcqRel(typename AtomicTypes::Int *atomicInt, int value)
@@ -780,7 +780,7 @@ void AtomicOperations_DefaultInt<IMP>::
     IMP::addIntNvAcqRel(atomicInt, value);
 }
 
-template <typename IMP>
+template <class IMP>
 inline
 int AtomicOperations_DefaultInt<IMP>::
     incrementIntNv(typename AtomicTypes::Int *atomicInt)
@@ -788,7 +788,7 @@ int AtomicOperations_DefaultInt<IMP>::
     return IMP::addIntNv(atomicInt, 1);
 }
 
-template <typename IMP>
+template <class IMP>
 inline
 int AtomicOperations_DefaultInt<IMP>::
     incrementIntNvAcqRel(typename AtomicTypes::Int *atomicInt)
@@ -796,7 +796,7 @@ int AtomicOperations_DefaultInt<IMP>::
     return IMP::addIntNvAcqRel(atomicInt, 1);
 }
 
-template <typename IMP>
+template <class IMP>
 inline
 void AtomicOperations_DefaultInt<IMP>::
     incrementInt(typename AtomicTypes::Int *atomicInt)
@@ -804,7 +804,7 @@ void AtomicOperations_DefaultInt<IMP>::
     IMP::addInt(atomicInt, 1);
 }
 
-template <typename IMP>
+template <class IMP>
 inline
 void AtomicOperations_DefaultInt<IMP>::
     incrementIntAcqRel(typename AtomicTypes::Int *atomicInt)
@@ -812,7 +812,7 @@ void AtomicOperations_DefaultInt<IMP>::
     IMP::addIntAcqRel(atomicInt, 1);
 }
 
-template <typename IMP>
+template <class IMP>
 inline
 int AtomicOperations_DefaultInt<IMP>::
     decrementIntNv(typename AtomicTypes::Int *atomicInt)
@@ -820,7 +820,7 @@ int AtomicOperations_DefaultInt<IMP>::
     return IMP::addIntNv(atomicInt, -1);
 }
 
-template <typename IMP>
+template <class IMP>
 inline
 int AtomicOperations_DefaultInt<IMP>::
     decrementIntNvAcqRel(typename AtomicTypes::Int *atomicInt)
@@ -828,7 +828,7 @@ int AtomicOperations_DefaultInt<IMP>::
     return IMP::addIntNvAcqRel(atomicInt, -1);
 }
 
-template <typename IMP>
+template <class IMP>
 inline
 void AtomicOperations_DefaultInt<IMP>::
     decrementInt(typename AtomicTypes::Int *atomicInt)
@@ -836,7 +836,7 @@ void AtomicOperations_DefaultInt<IMP>::
     IMP::addInt(atomicInt, -1);
 }
 
-template <typename IMP>
+template <class IMP>
 inline
 void AtomicOperations_DefaultInt<IMP>::
     decrementIntAcqRel(typename AtomicTypes::Int *atomicInt)
@@ -849,7 +849,7 @@ void AtomicOperations_DefaultInt<IMP>::
                     // ------------------------------------
 
 // CLASS METHODS
-template <typename IMP>
+template <class IMP>
 inline
 void AtomicOperations_DefaultInt64<IMP>::
     initInt64(typename AtomicTypes::Int64  *atomicInt,
@@ -858,7 +858,7 @@ void AtomicOperations_DefaultInt64<IMP>::
     atomicInt->d_value = initialValue;
 }
 
-template <typename IMP>
+template <class IMP>
 inline
 Types::Int64 AtomicOperations_DefaultInt64<IMP>::
     getInt64Relaxed(typename AtomicTypes::Int64 const *atomicInt)
@@ -866,7 +866,7 @@ Types::Int64 AtomicOperations_DefaultInt64<IMP>::
     return atomicInt->d_value;
 }
 
-template <typename IMP>
+template <class IMP>
 inline
 Types::Int64 AtomicOperations_DefaultInt64<IMP>::
     getInt64Acquire(typename AtomicTypes::Int64 const *atomicInt)
@@ -874,7 +874,7 @@ Types::Int64 AtomicOperations_DefaultInt64<IMP>::
     return IMP::getInt64(atomicInt);
 }
 
-template <typename IMP>
+template <class IMP>
 inline
 void AtomicOperations_DefaultInt64<IMP>::
     setInt64Relaxed(typename AtomicTypes::Int64 *atomicInt,
@@ -883,7 +883,7 @@ void AtomicOperations_DefaultInt64<IMP>::
     atomicInt->d_value = value;
 }
 
-template <typename IMP>
+template <class IMP>
 inline
 void AtomicOperations_DefaultInt64<IMP>::
     setInt64Release(typename AtomicTypes::Int64 *atomicInt,
@@ -892,7 +892,7 @@ void AtomicOperations_DefaultInt64<IMP>::
     IMP::setInt64(atomicInt, value);
 }
 
-template <typename IMP>
+template <class IMP>
 inline
 Types::Int64 AtomicOperations_DefaultInt64<IMP>::
     swapInt64AcqRel(typename AtomicTypes::Int64 *atomicInt,
@@ -901,7 +901,7 @@ Types::Int64 AtomicOperations_DefaultInt64<IMP>::
     return IMP::swapInt64(atomicInt, swapValue);
 }
 
-template <typename IMP>
+template <class IMP>
 inline
 Types::Int64 AtomicOperations_DefaultInt64<IMP>::
     testAndSwapInt64AcqRel(typename AtomicTypes::Int64 *atomicInt,
@@ -911,7 +911,7 @@ Types::Int64 AtomicOperations_DefaultInt64<IMP>::
     return IMP::testAndSwapInt64(atomicInt, compareValue, swapValue);
 }
 
-template <typename IMP>
+template <class IMP>
 inline
 Types::Int64 AtomicOperations_DefaultInt64<IMP>::
     addInt64NvRelaxed(typename AtomicTypes::Int64 *atomicInt,
@@ -920,7 +920,7 @@ Types::Int64 AtomicOperations_DefaultInt64<IMP>::
     return IMP::addInt64NvAcqRel(atomicInt, value);
 }
 
-template <typename IMP>
+template <class IMP>
 inline
 Types::Int64 AtomicOperations_DefaultInt64<IMP>::
     addInt64NvAcqRel(typename AtomicTypes::Int64 *atomicInt,
@@ -929,7 +929,7 @@ Types::Int64 AtomicOperations_DefaultInt64<IMP>::
     return IMP::addInt64Nv(atomicInt, value);
 }
 
-template <typename IMP>
+template <class IMP>
 inline
 void AtomicOperations_DefaultInt64<IMP>::
     addInt64(typename AtomicTypes::Int64 *atomicInt,
@@ -938,7 +938,7 @@ void AtomicOperations_DefaultInt64<IMP>::
     IMP::addInt64Nv(atomicInt, value);
 }
 
-template <typename IMP>
+template <class IMP>
 inline
 void AtomicOperations_DefaultInt64<IMP>::
     addInt64Relaxed(typename AtomicTypes::Int64 *atomicInt,
@@ -947,7 +947,7 @@ void AtomicOperations_DefaultInt64<IMP>::
     IMP::addInt64NvRelaxed(atomicInt, value);
 }
 
-template <typename IMP>
+template <class IMP>
 inline
 void AtomicOperations_DefaultInt64<IMP>::
     addInt64AcqRel(typename AtomicTypes::Int64 *atomicInt,
@@ -956,7 +956,7 @@ void AtomicOperations_DefaultInt64<IMP>::
     IMP::addInt64NvAcqRel(atomicInt, value);
 }
 
-template <typename IMP>
+template <class IMP>
 inline
 void AtomicOperations_DefaultInt64<IMP>::
     incrementInt64(typename AtomicTypes::Int64 *atomicInt)
@@ -964,7 +964,7 @@ void AtomicOperations_DefaultInt64<IMP>::
     IMP::addInt64(atomicInt, 1);
 }
 
-template <typename IMP>
+template <class IMP>
 inline
 void AtomicOperations_DefaultInt64<IMP>::
     incrementInt64AcqRel(typename AtomicTypes::Int64 *atomicInt)
@@ -972,7 +972,7 @@ void AtomicOperations_DefaultInt64<IMP>::
     IMP::addInt64AcqRel(atomicInt, 1);
 }
 
-template <typename IMP>
+template <class IMP>
 inline
 Types::Int64 AtomicOperations_DefaultInt64<IMP>::
     incrementInt64Nv(typename AtomicTypes::Int64 *atomicInt)
@@ -980,7 +980,7 @@ Types::Int64 AtomicOperations_DefaultInt64<IMP>::
     return IMP::addInt64Nv(atomicInt, 1);
 }
 
-template <typename IMP>
+template <class IMP>
 inline
 Types::Int64 AtomicOperations_DefaultInt64<IMP>::
     incrementInt64NvAcqRel(typename AtomicTypes::Int64 *atomicInt)
@@ -988,7 +988,7 @@ Types::Int64 AtomicOperations_DefaultInt64<IMP>::
     return IMP::addInt64NvAcqRel(atomicInt, 1);
 }
 
-template <typename IMP>
+template <class IMP>
 inline
 void AtomicOperations_DefaultInt64<IMP>::
     decrementInt64(typename AtomicTypes::Int64 *atomicInt)
@@ -996,7 +996,7 @@ void AtomicOperations_DefaultInt64<IMP>::
     IMP::addInt64(atomicInt, -1);
 }
 
-template <typename IMP>
+template <class IMP>
 inline
 void AtomicOperations_DefaultInt64<IMP>::
     decrementInt64AcqRel(typename AtomicTypes::Int64 *atomicInt)
@@ -1004,7 +1004,7 @@ void AtomicOperations_DefaultInt64<IMP>::
     IMP::addInt64AcqRel(atomicInt, -1);
 }
 
-template <typename IMP>
+template <class IMP>
 inline
 Types::Int64 AtomicOperations_DefaultInt64<IMP>::
     decrementInt64Nv(typename AtomicTypes::Int64 *atomicInt)
@@ -1012,7 +1012,7 @@ Types::Int64 AtomicOperations_DefaultInt64<IMP>::
     return IMP::addInt64Nv(atomicInt, -1);
 }
 
-template <typename IMP>
+template <class IMP>
 inline
 Types::Int64 AtomicOperations_DefaultInt64<IMP>::
     decrementInt64NvAcqRel(typename AtomicTypes::Int64 *atomicInt)
@@ -1025,7 +1025,7 @@ Types::Int64 AtomicOperations_DefaultInt64<IMP>::
                   // ----------------------------------------
 
 // CLASS METHODS
-template <typename IMP>
+template <class IMP>
 inline
 void AtomicOperations_DefaultPointer32<IMP>::
     initPointer(typename AtomicTypes::Pointer *atomicPtr,
@@ -1034,7 +1034,7 @@ void AtomicOperations_DefaultPointer32<IMP>::
     atomicPtr->d_value = initialValue;
 }
 
-template <typename IMP>
+template <class IMP>
 inline
 const void *AtomicOperations_DefaultPointer32<IMP>::
     getPtr(typename AtomicTypes::Pointer const *atomicPtr)
@@ -1045,7 +1045,7 @@ const void *AtomicOperations_DefaultPointer32<IMP>::
                     atomicPtr)));
 }
 
-template <typename IMP>
+template <class IMP>
 inline
 const void *AtomicOperations_DefaultPointer32<IMP>::
     getPtrRelaxed(typename AtomicTypes::Pointer const *atomicPtr)
@@ -1056,7 +1056,7 @@ const void *AtomicOperations_DefaultPointer32<IMP>::
                     atomicPtr)));
 }
 
-template <typename IMP>
+template <class IMP>
 inline
 const void *AtomicOperations_DefaultPointer32<IMP>::
     getPtrAcquire(typename AtomicTypes::Pointer const *atomicPtr)
@@ -1067,7 +1067,7 @@ const void *AtomicOperations_DefaultPointer32<IMP>::
                     atomicPtr)));
 }
 
-template <typename IMP>
+template <class IMP>
 inline
 void AtomicOperations_DefaultPointer32<IMP>::
     setPtr(typename AtomicTypes::Pointer *atomicPtr,
@@ -1078,7 +1078,7 @@ void AtomicOperations_DefaultPointer32<IMP>::
         reinterpret_cast<Types::IntPtr>(value));
 }
 
-template <typename IMP>
+template <class IMP>
 inline
 void AtomicOperations_DefaultPointer32<IMP>::
     setPtrRelaxed(typename AtomicTypes::Pointer *atomicPtr,
@@ -1089,7 +1089,7 @@ void AtomicOperations_DefaultPointer32<IMP>::
         reinterpret_cast<Types::IntPtr>(value));
 }
 
-template <typename IMP>
+template <class IMP>
 inline
 void AtomicOperations_DefaultPointer32<IMP>::
     setPtrRelease(typename AtomicTypes::Pointer *atomicPtr,
@@ -1100,7 +1100,7 @@ void AtomicOperations_DefaultPointer32<IMP>::
         reinterpret_cast<Types::IntPtr>(value));
 }
 
-template <typename IMP>
+template <class IMP>
 inline
 void *AtomicOperations_DefaultPointer32<IMP>::
     swapPtr(typename AtomicTypes::Pointer *atomicPtr,
@@ -1112,7 +1112,7 @@ void *AtomicOperations_DefaultPointer32<IMP>::
                 reinterpret_cast<Types::IntPtr>(swapValue)));
 }
 
-template <typename IMP>
+template <class IMP>
 inline
 void *AtomicOperations_DefaultPointer32<IMP>::
     swapPtrAcqRel(typename AtomicTypes::Pointer *atomicPtr,
@@ -1124,7 +1124,7 @@ void *AtomicOperations_DefaultPointer32<IMP>::
                 reinterpret_cast<Types::IntPtr>(swapValue)));
 }
 
-template <typename IMP>
+template <class IMP>
 inline
 void *AtomicOperations_DefaultPointer32<IMP>::
     testAndSwapPtr(typename AtomicTypes::Pointer *atomicPtr,
@@ -1138,7 +1138,7 @@ void *AtomicOperations_DefaultPointer32<IMP>::
                 reinterpret_cast<Types::IntPtr>(swapValue)));
 }
 
-template <typename IMP>
+template <class IMP>
 inline
 void *AtomicOperations_DefaultPointer32<IMP>::
     testAndSwapPtrAcqRel(typename AtomicTypes::Pointer *atomicPtr,
@@ -1157,7 +1157,7 @@ void *AtomicOperations_DefaultPointer32<IMP>::
                   // ----------------------------------------
 
 // CLASS METHODS
-template <typename IMP>
+template <class IMP>
 inline
 void AtomicOperations_DefaultPointer64<IMP>::
     initPointer(typename AtomicTypes::Pointer *atomicPtr,
@@ -1166,7 +1166,7 @@ void AtomicOperations_DefaultPointer64<IMP>::
     atomicPtr->d_value = initialValue;
 }
 
-template <typename IMP>
+template <class IMP>
 inline
 const void *AtomicOperations_DefaultPointer64<IMP>::
     getPtr(typename AtomicTypes::Pointer const *atomicPtr)
@@ -1177,7 +1177,7 @@ const void *AtomicOperations_DefaultPointer64<IMP>::
                     atomicPtr)));
 }
 
-template <typename IMP>
+template <class IMP>
 inline
 const void *AtomicOperations_DefaultPointer64<IMP>::
     getPtrRelaxed(typename AtomicTypes::Pointer const *atomicPtr)
@@ -1188,7 +1188,7 @@ const void *AtomicOperations_DefaultPointer64<IMP>::
                     atomicPtr)));
 }
 
-template <typename IMP>
+template <class IMP>
 inline
 const void *AtomicOperations_DefaultPointer64<IMP>::
     getPtrAcquire(typename AtomicTypes::Pointer const *atomicPtr)
@@ -1199,7 +1199,7 @@ const void *AtomicOperations_DefaultPointer64<IMP>::
                     atomicPtr)));
 }
 
-template <typename IMP>
+template <class IMP>
 inline
 void AtomicOperations_DefaultPointer64<IMP>::
     setPtr(typename AtomicTypes::Pointer *atomicPtr,
@@ -1210,7 +1210,7 @@ void AtomicOperations_DefaultPointer64<IMP>::
         reinterpret_cast<Types::IntPtr>(value));
 }
 
-template <typename IMP>
+template <class IMP>
 inline
 void AtomicOperations_DefaultPointer64<IMP>::
     setPtrRelaxed(typename AtomicTypes::Pointer *atomicPtr,
@@ -1221,7 +1221,7 @@ void AtomicOperations_DefaultPointer64<IMP>::
         reinterpret_cast<Types::IntPtr>(value));
 }
 
-template <typename IMP>
+template <class IMP>
 inline
 void AtomicOperations_DefaultPointer64<IMP>::
     setPtrRelease(typename AtomicTypes::Pointer *atomicPtr,
@@ -1232,7 +1232,7 @@ void AtomicOperations_DefaultPointer64<IMP>::
         reinterpret_cast<Types::IntPtr>(value));
 }
 
-template <typename IMP>
+template <class IMP>
 inline
 void *AtomicOperations_DefaultPointer64<IMP>::
     swapPtr(typename AtomicTypes::Pointer *atomicPtr,
@@ -1244,7 +1244,7 @@ void *AtomicOperations_DefaultPointer64<IMP>::
                 reinterpret_cast<Types::IntPtr>(swapValue)));
 }
 
-template <typename IMP>
+template <class IMP>
 inline
 void *AtomicOperations_DefaultPointer64<IMP>::
     swapPtrAcqRel(typename AtomicTypes::Pointer *atomicPtr,
@@ -1256,7 +1256,7 @@ void *AtomicOperations_DefaultPointer64<IMP>::
                 reinterpret_cast<Types::IntPtr>(swapValue)));
 }
 
-template <typename IMP>
+template <class IMP>
 inline
 void *AtomicOperations_DefaultPointer64<IMP>::
     testAndSwapPtr(typename AtomicTypes::Pointer   *atomicPtr,
@@ -1270,7 +1270,7 @@ void *AtomicOperations_DefaultPointer64<IMP>::
                 reinterpret_cast<Types::IntPtr>(swapValue)));
 }
 
-template <typename IMP>
+template <class IMP>
 inline
 void *AtomicOperations_DefaultPointer64<IMP>::
     testAndSwapPtrAcqRel(typename AtomicTypes::Pointer *atomicPtr,

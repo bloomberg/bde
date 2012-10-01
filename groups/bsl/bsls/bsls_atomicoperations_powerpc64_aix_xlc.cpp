@@ -1,11 +1,11 @@
 // bsls_atomicoperations_powerpc64_aix_xlc.cpp                        -*-C++-*-
 
+#include <bsls_atomicoperations_powerpc64_aix_xlc.h>
+
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
 #include <bsls_types.h>
-
-#include <bsls_atomicoperations_powerpc64_aix_xlc.h>
 
 #if defined(BSLS_PLATFORM_CPU_POWERPC) && defined(BSLS_PLATFORM_CMP_IBM) \
     && defined(BSLS_PLATFORM_CPU_64_BIT)
