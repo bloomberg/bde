@@ -345,6 +345,45 @@
  allows concise tests of state change (or lack of change) in the test allocator
  provided at the monitor's construction.
 
+/Why Use Allocators?
+/-------------------
+ Allocators were originally introduced into STL to provide containers an
+ abstraction for the different pointer types on the Intel architecture (such as
+ near and far pointers).  After the C++ standard (section 20.1.5 of the 1998
+ standard) specified the requirements on an allocator type ('std::allocator')
+ that use was rendered obsolete.  But the standard also specified that all
+ standard containers be parameterized on an allocator type that provides users
+ greater control over the memory usage of individual objects and allows an
+ application to control from where that memory comes (for example: stack,
+ heap, shared memory etc) and how it is distributed.  By using allocators, an
+ application can ensure efficient memory usage by reducing the number of
+ distinct calls to global operators 'new' and 'delete' (and functions
+ 'std::malloc' and 'std::free').
+
+/Rationale for the BDE allocator model
+/-------------------------------------
+ Although C++ standard allocators ('std::allocator') provide users great
+ control on how containers can allocate memory having a templated allocator
+ argument introduces other problems.  Two containers instantiated with
+ different allocator types refer to different types making interoperability
+ between them difficult and limiting the allocator type to a per-class (as
+ opposed to a per-instance) basis.  The standard's requirement of a templated
+ allocator type is limited to containers and does not address other
+ user-defined types that allocate memory. Although users can augment their
+ types to take a templated allocator type such use is likely to be tedious and
+ to result in significant object code increase. Finally, the standard is
+ unclear with regards to the copy semantics of stateful allocators.
+
+ The BDE allocator model provides a solution to these issues.  BDE provides an
+ allocator protocol and concrete allocator implementations that can be passed
+ as constructor arguments (not as template parameters) to all objects that
+ allocate memory.  The type of an object is unaffected by the passed-in
+ allocator and the user has full control over the scope of an allocator
+ instance. As the model specifies a protocol it is easier to create concrete
+ implementations and use them.  The allocator model requires all elements (data
+ members) of a container (object) to use the same allocator as the container
+ (object). Also the allocator is not transferred on copy construction.
+
 /Allocators and Other Memory-Dispensing Mechanisms
 /-------------------------------------------------
  An allocator is a memory manager that derives from the 'bslma::Allocator'
@@ -395,16 +434,6 @@
  construction.  Support of this common protocol also facilitates grouping the
  memory used by an object into one allocator.
 
- A differentiating property among 'bslma' allocators is whether the allocator
- is a "managed" or "unmanaged" allocator.  Unmanaged allocators require every
- allocation to be matched by a deallocation, similar to 'malloc' and 'free',
- or 'new' and 'delete'.  They also allow for simultaneous deallocation of all
- memory with one call to 'release'.  This 'release' optimization can provide
- significant performance improvements if the only system resource held by an
- object (and all the objects it manages) is memory.  The 'bslma' package does
- not provide any concrete managed allocator implementations although such
- implementations may be provided in higher-level libraries.
-
  The BDE libraries use allocators with all classes requiring dynamic memory
  allocation, allowing clients to fine-tune memory-related performance
  characteristics by replacing the established defaults with client-chosen
@@ -414,10 +443,20 @@
  clients without special requirements need never concern themselves with
  allocators.
 
- Some other concerns regarding memory allocation are described next.  The
- discussion here broadens beyond allocators (strictly speaking, subtypes of
- 'bslma::Allocator') to include both allocators and the other memory managers,
- i.e., the memory pools.
+/'Allocator' and 'ManagedAllocator'
+/----------------------------------
+ A differentiating property among 'bslma' allocators is whether the allocator
+ is a "managed" or "unmanaged" allocator.  Unmanaged allocators, concrete
+ implementations of 'bslma::Allocator', require every allocation to be matched
+ by a deallocation, similar to 'malloc' and 'free', or 'new' and 'delete'.
+ Managed allocators, concrete implementations of 'bslma::ManagedAllocator',
+ in addition to implementing the 'bslma::Allocator' protocol, provide
+ simultaneous deallocation of all memory with one call to 'release'.  This
+ 'release' optimization can provide significant performance improvements if
+ the only system resource held by an object (and all the objects it manages)
+ is memory.  The 'bslma' package does not provide any concrete managed
+ allocator implementations although such implementations may be provided in
+ higher-level libraries.
 
 /Proctors and Guards
 /-------------------
