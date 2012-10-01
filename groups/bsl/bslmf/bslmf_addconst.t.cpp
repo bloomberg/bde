@@ -19,7 +19,7 @@ using std::fprintf;
 //                                Overview
 //                                --------
 // The component under test defines a meta-functions, 'bsl::add_const', that
-// adds a top-level 'const' qualifier to a template parameter type.  Thus, we
+// adds a top-level 'const'-qualifier to a template parameter type.  Thus, we
 // need to ensure that the values returned by the meta-function is correct for
 // each possible category of types.
 //
@@ -116,17 +116,17 @@ int main(int argc, char *argv[])
 ///-----
 // In this section we show intended use of this component.
 //
-///Example 1: Adding the 'const'-Qualifier to A Type
+///Example 1: Adding the 'const'-qualifier to A Type
 ///- - - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose that we want to add a 'const' qualifier to a particular type.
+// Suppose that we want to add a 'const'-qualifier to a particular type.
 //
 // First, we create two 'typedef's -- a 'const'-qualified type ('MyConstType')
-// and the same type without the 'const' qualifier ('MyType'):
+// and the same type without the 'const'-qualifier ('MyType'):
 //..
         typedef int       MyType;
         typedef const int MyConstType;
 //..
-// Now, we add a 'const' qualifier to 'MyType' using 'bsl::add_const' and
+// Now, we add a 'const'-qualifier to 'MyType' using 'bsl::add_const' and
 // verify that the resulting type is the same as 'MyConstType':
 //..
         ASSERT(true ==
@@ -141,10 +141,10 @@ int main(int argc, char *argv[])
         //   correct type for a variety of template parameter types.
         //
         // Concerns:
-        //: 1 'bsl::add_const' adds a top-level 'const' qualifier only to
+        //: 1 'bsl::add_const' adds a top-level 'const'-qualifier only to
         //:   regular types (primitive, pointers, and user-defined types).
         //:
-        //: 2 'bsl::add_const' does not add a 'const' qualifier to reference
+        //: 2 'bsl::add_const' does not add a 'const'-qualifier to reference
         //:   types, function types, or type that are already
         //:   'const'-qualified.
         //
