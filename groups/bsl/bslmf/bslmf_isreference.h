@@ -71,7 +71,13 @@ template <typename TYPE>
 struct is_reference : integral_constant<bool,
                                         is_lvalue_reference<TYPE>::value
                                         || is_rvalue_reference<TYPE>::value>
-{};
+{
+    // This 'struct' template implements the 'is_reference' meta-function
+    // defined in the C++11 standard [meta.unary.comp] to determine if the
+    // (template parameter) 'TYPE' is a (lvalue or rvalue) reference type.
+    // This 'struct' derives from 'bsl::true_type' if the 'TYPE' is a reference
+    // type, and 'bsl::false_type' otherwise.
+};
 
 }  // close namespace bsl
 
