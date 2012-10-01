@@ -21,8 +21,6 @@ BSLS_IDENT("$Id: $")
 // of a linked list of 'bslalg::BidirectionalLink' objects.  It contains
 // pointers to the first and last elements of the list segment in question, or
 // two null pointers for an empty list.
-//-----------------------------------------------------------------------------
-//..
 //
 ///Usage
 ///-----

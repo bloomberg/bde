@@ -30,8 +30,6 @@ BSLS_IDENT("$Id: $")
 // over the type of reference returned by the '', in order to
 // support constant iterators.  Finally, the parameterized 'DIFFERENCE_TYPE'
 // determines the (standard mandated) 'difference_type' for the iterator.
-//-----------------------------------------------------------------------------
-//..
 //
 ///Usage
 ///-----

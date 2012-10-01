@@ -49,8 +49,6 @@ BSLS_IDENT("$Id: $")
 // that may be constructed in-place, for example, by the appropriate
 // 'bsl::allocator_traits' methods.  While not strictly a POD, this class is a
 // *standard-layout* type according to the C++11 standard.
-///----------------------------------------------------------------------------
-//..
 //
 ///Usage
 ///-----

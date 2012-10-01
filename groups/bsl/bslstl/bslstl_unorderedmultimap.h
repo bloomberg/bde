@@ -43,8 +43,8 @@ BSLS_IDENT("$Id: $")
 // template parameters.  Note that excluded C++11 features are those that
 // require (or are greatly simplified by) C++11 compiler support.
 //
-///Requirements on 'KEY'
-///---------------------
+///Requirements on 'KEY' and 'VALUE'
+///---------------------------------
 // An 'unordered_multimap' instantiation is a fully "Value-Semantic Type" (see
 // {'bsldoc_glossary'}) only if the supplied 'KEY' and 'VALUE' template
 // parameters are fully value-semantic.  It is possible to instantiate an

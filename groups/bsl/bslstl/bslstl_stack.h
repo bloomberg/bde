@@ -208,46 +208,46 @@ BSLS_IDENT("$Id: $")
 //  ToDoList toDoList;
 //
 // Next, a few tasks are requested:
-//
+//..
 //  toDoList.enqueueTask("Change the car's oil.");
 //  toDoList.enqueueTask("Pay the bills.");
-//
+//..
 // Then, the husband watches the Yankee's game on TV.  Upon returning to the
 // list he consults the list to see what task is up next:
-//
+//..
 //  assert(!strcmp("Pay the bills.", toDoList.currentTask()));
-//
+//..
 // Next, he sees that he has to pay the bills.  When the bills are finished, he
 // flushes that task from the list:
-//
+//..
 //  assert(false == toDoList.finishTask());
-//
+//..
 // Then, he consults the list for the next task.
-//
+//..
 //  assert(!strcmp("Change the car's oil.", toDoList.currentTask()));
-//
+//..
 // Next, he sees he has to change the car's oil.  Before he can get started,
 // another request comes:
-//
+//..
 //  toDoList.enqueueTask("Get some hot dogs.");
 //  assert(!strcmp("Get some hot dogs.", toDoList.currentTask()));
-//
+//..
 // Then, he drives the car to the convenience store and picks up some hot dogs
 // and buns.  Upon returning home, he gives the hot dogs to his wife, updates
 // the list, and consults it for the next task.
-//
+//..
 //  assert(false == toDoList.finishTask());
 //  assert(!strcmp("Change the car's oil.", toDoList.currentTask()));
-//
+//..
 // Next, he finishes the oil change, updates the list, and consults it for the
 // next task.
-//
+//..
 //  assert(true == toDoList.finishTask());
 //  assert(!strcmp("<EMPTY>", toDoList.currentTask()));
-//
+//..
 // Finally, the wife has now been informed that everything is done, and she
 // makes another request:
-//
+//..
 //  toDoList.enqueueTask("Clean the rain gutters.");
 //..
 
