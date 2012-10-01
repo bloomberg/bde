@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Compare elements in two iterator ranges for equality or ordering.
+//@PURPOSE: Provide algorithms to compare iterator-ranges of elements.
 //
 //@CLASSES:
 //  bslalg::RangeCompare: comparison algorithms for iterator ranges
@@ -472,8 +472,8 @@ struct RangeCompare {
 
 struct RangeCompare_Imp {
     // This utility 'struct' provides the implementations for
-    // 'blsalg::RangeCompare'.  Multiple implementations are provided for each
-    // method in 'blsalg::RangeCompare', and the most efficient version is
+    // 'bslalg::RangeCompare'.  Multiple implementations are provided for each
+    // method in 'bslalg::RangeCompare', and the most efficient version is
     // found by disambiguating based on the iterator type, the value type, or
     // the presence of nested traits.
 

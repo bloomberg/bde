@@ -715,6 +715,7 @@ struct RbTreeUtil {
     // otherwise (see 'bsldoc_glossary').  'copyTree' provides the *strong*
     // guarantee.
 
+    // CLASS METHODS
                                  // Navigation
 
     static const RbTreeNode *leftmost(const RbTreeNode *subtree);
@@ -1050,6 +1051,7 @@ struct RbTreeUtil {
         // the sentinel node as the root of the tree.
 
                                  // Testing
+
     static void printTreeStructure(
                     FILE                   *file,
                     const RbTreeNode       *subtree,

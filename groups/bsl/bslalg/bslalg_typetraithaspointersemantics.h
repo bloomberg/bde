@@ -75,7 +75,8 @@ struct TypeTraitHasPointerSemantics {
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
 
-typedef bslalg::TypeTraitHasPointerSemantics bslalg_TypeTraitHasPointerSemantics;
+typedef bslalg::TypeTraitHasPointerSemantics
+                                           bslalg_TypeTraitHasPointerSemantics;
     // This alias is defined for backward compatibility.
 #endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 

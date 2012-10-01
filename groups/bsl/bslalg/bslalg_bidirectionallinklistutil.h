@@ -55,25 +55,25 @@ struct BidirectionalLinkListUtil {
     static
     void insertLinkBeforeTarget(BidirectionalLink *newNode,
                                 BidirectionalLink *target);
-       // Insert the specified 'newNode' before the specified 'target' node in
-       // the linked list that contains 'target'.  If 'target' is 0, then the
-       // value of the attributes 'nextLink' and 'previousLink' of 'newNode' is
-       // set to 0.  After successful execution of this function the values of
-       // the 'previousLink' and 'nextLink' attributes of all the links in the
-       // list appropriately reflect the operation.  The behavior is undefined
-       // unless '0 == target->previousLink()' is true or
-       // 'isWellFormed(target->previousLink(), target)' is true.
+        // Insert the specified 'newNode' before the specified 'target' node in
+        // the linked list that contains 'target'.  If 'target' is 0, then the
+        // value of the attributes 'nextLink' and 'previousLink' of 'newNode'
+        // is set to 0.  After successful execution of this function the values
+        // of the 'previousLink' and 'nextLink' attributes of all the links in
+        // the list appropriately reflect the operation.  The behavior is
+        // undefined unless '0 == target->previousLink()' is true or
+        // 'isWellFormed(target->previousLink(), target)' is true.
 
     static
     void insertLinkAfterTarget(BidirectionalLink *newNode,
                                BidirectionalLink *target);
-       // Insert the specified 'newNode' after the specified 'target' node in
-       // the linked list that contains 'target'.  If the node following
-       // 'target' is 0, then set the 'nextLink' attribute of 'newNode' to 0.
-       // After successful execution of this function the values of the
-       // 'previousLink' and 'nextLink' attributes of all the links in the list
-       // appropriately reflect the operation.  The behavior is undefined
-       // unless 'isWellFormed(target, target->nextLink())' is true.
+        // Insert the specified 'newNode' after the specified 'target' node in
+        // the linked list that contains 'target'.  If the node following
+        // 'target' is 0, then set the 'nextLink' attribute of 'newNode' to 0.
+        // After successful execution of this function the values of the
+        // 'previousLink' and 'nextLink' attributes of all the links in the
+        // list appropriately reflect the operation.  The behavior is undefined
+        // unless 'isWellFormed(target, target->nextLink())' is true.
 
     static
     bool isWellFormed(BidirectionalLink *head, BidirectionalLink *tail);
@@ -133,9 +133,9 @@ struct BidirectionalLinkListUtil {
         // 'isWellFormed(node->previousLink(), node->nextLink())' is true.
 };
 
-} // namespace BloombergLP::bslalg
+}  // close namespace BloombergLP::bslalg
 
-} // namespace BloombergLP
+}  // close namespace BloombergLP
 
 #endif
 
