@@ -12,12 +12,12 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bsl::is_trivially_copyable: type-traits meta-function
 //
-//@SEE_ALSO:
+//@SEE_ALSO:  bslmf_integerconstant, bslmf_nestedtraitdeclaration
 //
 //@AUTHOR: Pablo Halpern (phalpern)
 //
 //@DESCRIPTION: This component defines a meta-function,
-// 'bsl::is_trivially_copyable', which may be used to query whether a type is
+// 'bsl::is_trivially_copyable', that may be used to query whether a type is
 // trivially copyable as defined in section 3.9.3 of the C++11 standard
 // [basic.types].
 //
