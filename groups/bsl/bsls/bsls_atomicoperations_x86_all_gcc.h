@@ -2,6 +2,11 @@
 #ifndef INCLUDED_BSLS_ATOMICOPERATIONS_X86_ALL_GCC
 #define INCLUDED_BSLS_ATOMICOPERATIONS_X86_ALL_GCC
 
+#ifndef INCLUDED_BSLS_IDENT
+#include <bsls_ident.h>
+#endif
+BSLS_IDENT("$Id: $")
+
 //@PURPOSE: Provide implentations of atomic operations for X86/GCC.
 //
 //@CLASSES:
@@ -13,11 +18,6 @@
 // on the Linux X86 platform with GCC.  The classes are for private use only.
 // See 'bsls_atomicoperations' and 'bsls_atomic' for the public inteface to
 // atomics.
-
-#ifndef INCLUDED_BSLS_IDENT
-#include <bsls_ident.h>
-#endif
-BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLS_ATOMICOPERATIONS_DEFAULT
 #include <bsls_atomicoperations_default.h>

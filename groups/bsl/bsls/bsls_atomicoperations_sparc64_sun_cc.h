@@ -2,6 +2,11 @@
 #ifndef INCLUDED_BSLS_ATOMICOPERATIONS_SPARC64_SUN_CC
 #define INCLUDED_BSLS_ATOMICOPERATIONS_SPARC64_SUN_CC
 
+#ifndef INCLUDED_BSLS_IDENT
+#include <bsls_ident.h>
+#endif
+BSLS_IDENT("$Id: $")
+
 //@PURPOSE: Provide implentations of atomic operations for Sparc/Sun (64bit).
 //
 //@CLASSES:
@@ -13,11 +18,6 @@
 // on the Sun Sparc platform in 64bit mode with SunCC compiler.  The classes
 // are for private use only.  See 'bsls_atomicoperations' and 'bsls_atomic' for
 // the public inteface to atomics.
-
-#ifndef INCLUDED_BSLS_IDENT
-#include <bsls_ident.h>
-#endif
-BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLS_ATOMICOPERATIONS_DEFAULT
 #include <bsls_atomicoperations_default.h>

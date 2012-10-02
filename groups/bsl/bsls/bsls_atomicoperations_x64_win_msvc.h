@@ -2,6 +2,11 @@
 #ifndef INCLUDED_BSLS_ATOMICOPERATIONS_X64_WIN_MSVC
 #define INCLUDED_BSLS_ATOMICOPERATIONS_X64_WIN_MSVC
 
+#ifndef INCLUDED_BSLS_IDENT
+#include <bsls_ident.h>
+#endif
+BSLS_IDENT("$Id: $")
+
 //@PURPOSE: Provide implentations of atomic operations for X86_64/MSVC/Windows.
 //
 //@CLASSES:
@@ -14,11 +19,6 @@
 // on the Windows X86_64 platform with MSVC compiler.  The classes are for
 // private use only.  See 'bsls_atomicoperations' and 'bsls_atomic' for the
 // public inteface to atomics.
-
-#ifndef INCLUDED_BSLS_IDENT
-#include <bsls_ident.h>
-#endif
-BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLS_ATOMICOPERATIONS_DEFAULT
 #include <bsls_atomicoperations_default.h>

@@ -2,6 +2,11 @@
 #ifndef INCLUDED_BSLS_ATOMICOPERATIONS_IA64_HP_ACC
 #define INCLUDED_BSLS_ATOMICOPERATIONS_IA64_HP_ACC
 
+#ifndef INCLUDED_BSLS_IDENT
+#include <bsls_ident.h>
+#endif
+BSLS_IDENT("$Id: $")
+
 //@PURPOSE: Provide implentations of atomic operations for HPUX/IA64.
 //
 //@CLASSES:
@@ -13,11 +18,6 @@
 // on the HPUX/IA64 platform in 32 and 64bit modes.  The classes are for
 // private use only.  See 'bsls_atomicoperations' and 'bsls_atomic' for the
 // public inteface to atomics.
-
-#ifndef INCLUDED_BSLS_IDENT
-#include <bsls_ident.h>
-#endif
-BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLS_ATOMICOPERATIONS_DEFAULT
 #include <bsls_atomicoperations_default.h>

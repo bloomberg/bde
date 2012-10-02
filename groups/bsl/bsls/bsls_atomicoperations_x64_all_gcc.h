@@ -2,6 +2,11 @@
 #ifndef INCLUDED_BSLS_ATOMICOPERATIONS_X64_ALL_GCC
 #define INCLUDED_BSLS_ATOMICOPERATIONS_X64_ALL_GCC
 
+#ifndef INCLUDED_BSLS_IDENT
+#include <bsls_ident.h>
+#endif
+BSLS_IDENT("$Id: $")
+
 //@PURPOSE: Provide implentations of atomic operations for X86_64/GCC.
 //
 //@CLASSES:
@@ -21,11 +26,6 @@
 //: o "+m" constraint may cause an 'inconsistent operand constraint' error in
 //:   GCC 3.x in optimized builds, therefore sometimes a combination of output
 //:   "=m" and input "m" constraints is used.
-
-#ifndef INCLUDED_BSLS_IDENT
-#include <bsls_ident.h>
-#endif
-BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLS_ATOMICOPERATIONS_DEFAULT
 #include <bsls_atomicoperations_default.h>

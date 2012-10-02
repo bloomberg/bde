@@ -162,14 +162,14 @@ typedef bsls::Types::Int64            Int64;
 
 namespace {
 
-template <typename INT>
+template <class INT>
 struct LockData
 {
     INT flags[2];
     INT turn;     // 0 or 1 - index into d_flags
 };
 
-template <typename INT>
+template <class INT>
 class PetersonsLock
     // PetersonsLock class implements the Peterson's locking algorithms for two
     // concurrently executing threads, using atomic operations on integers with
@@ -217,7 +217,7 @@ private:
     LockData<INT>&  d_data;
 };
 
-template <typename INT>
+template <class INT>
 class PetersonsLockSeqCst
     // PetersonsLock class implements the Peterson's locking algorithms for two
     // concurrently executing threads, using atomic operations on integers with
@@ -258,7 +258,7 @@ private:
     LockData<INT>&  d_data;
 };
 
-template <typename LOCK>
+template <class LOCK>
 struct Guard
 {
     Guard(LOCK& lock)
@@ -279,7 +279,7 @@ bsls::AtomicInt s_data1(0);
 bsls::AtomicInt s_data2(0);
 bsls::AtomicInt s_data3(1);
 
-template <typename LOCK>
+template <class LOCK>
 void testAtomicLocking(LOCK& lock, int iterations)
     // Test 'lock' implemented using atomic operations by using it to protect
     // some shared data, which is both read and written to.
@@ -307,7 +307,7 @@ void testAtomicLocking(LOCK& lock, int iterations)
     }
 }
 
-template <typename LOCK>
+template <class LOCK>
 struct AtomicLockingThreadParam
 {
     AtomicLockingThreadParam(LOCK& lock, int iterations)
@@ -319,7 +319,7 @@ struct AtomicLockingThreadParam
     int     d_iterations;
 };
 
-template <typename LOCK>
+template <class LOCK>
 void *testAtomicLockingThreadFunc(void *arg)
 {
     AtomicLockingThreadParam<LOCK> *param
@@ -355,7 +355,7 @@ void joinThread(thread_t thr)
 }
 
 
-template <template <typename> class LOCK, typename INT>
+template <template <class> class LOCK, class INT>
 void testCaseMemOrder()
 {
     int iterations = 10000000;
@@ -700,9 +700,9 @@ int my_CountedHandleRep<INSTANCE>::decrement()
 // CREATORS
 template <class INSTANCE>
 inline
-my_CountedHandle<INSTANCE>::my_CountedHandle(INSTANCE *object)
+my_CountedHandle<INSTANCE>::my_CountedHandle(INSTANCE *instance)
 {
-    d_rep_p = new my_CountedHandleRep<INSTANCE>(object);
+    d_rep_p = new my_CountedHandleRep<INSTANCE>(instance);
 }
 //..
 // Then, we define the copy constructor; the new object copies the underlying

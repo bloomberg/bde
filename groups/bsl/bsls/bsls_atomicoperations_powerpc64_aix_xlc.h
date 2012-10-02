@@ -2,6 +2,11 @@
 #ifndef INCLUDED_BSLS_ATOMICOPERATIONS_POWERPC64_AIX_XLC
 #define INCLUDED_BSLS_ATOMICOPERATIONS_POWERPC64_AIX_XLC
 
+#ifndef INCLUDED_BSLS_IDENT
+#include <bsls_ident.h>
+#endif
+BSLS_IDENT("$Id: $")
+
 //@PURPOSE: Provide implentations of atomic operations for PowerPC/AIX (64bit).
 //
 //@CLASSES:
@@ -13,11 +18,6 @@
 // on the AIX PowerPC platform in 64bit mode with the xlC compiler.  The
 // classes are for private use only.  See 'bsls_atomicoperations' and
 // 'bsls_atomic' for the public inteface to atomics.
-
-#ifndef INCLUDED_BSLS_IDENT
-#include <bsls_ident.h>
-#endif
-BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLS_ATOMICOPERATIONS_POWERPC_AIX_XLC_DEFAULT
 #include <bsls_atomicoperations_powerpc_aix_xlc_default.h>
