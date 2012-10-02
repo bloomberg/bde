@@ -34,8 +34,8 @@ BSLS_IDENT("$Id: $")
 // types.
 //
 // Now, we instantiate the 'bsl::is_lvalue_reference' template for both a
-// non-reference type and a reference type, and assert the 'value' static data
-// member of each instantiation:
+// non-reference type and an lvalue reference type, and assert the 'value'
+// static data member of each instantiation:
 //..
 //  assert(false == bsl::is_lvalue_reference<int>::value);
 //  assert(true  == bsl::is_lvalue_reference<int&>::value);

@@ -17,7 +17,7 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR:
 //
 //@DESCRIPTION: This component defines a meta-function,
-// 'bsl::is_rvalue_reference', which may be used to query whether a type is a
+// 'bsl::is_rvalue_reference', which may be used to query whether a type is an
 // rvalue reference type.
 //
 // 'bsl::is_rvalue_reference' meets the requirements of the
@@ -30,11 +30,11 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Verify Rvalue Reference Types
 /// - - - - - - - - - - - - - - - - - - - -
-// Suppose that we want to assert whether a particular type is a rvalue
-// reference type.
+// Suppose that we want to assert whether a set of types are rvalue reference
+// types.
 //
 // Now, we instantiate the 'bsl::is_rvalue_reference' template for both a
-// non-reference type and a rvalue reference type, and assert the 'value'
+// non-reference type and an rvalue reference type, and assert the 'value'
 // static data member of each instantiation:
 //..
 //  assert(false == bsl::is_rvalue_reference<int>::value);
@@ -42,8 +42,8 @@ BSLS_IDENT("$Id: $")
 //  assert(true  == bsl::is_rvalue_reference<int&&>::value);
 //#endif
 //..
-// Note that rvalue is introduced in C++11 and may not be supported by all
-// compilers.
+// Note that rvalue reference is a feature introduced in C++11 and may not be
+// supported by all compilers.
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
