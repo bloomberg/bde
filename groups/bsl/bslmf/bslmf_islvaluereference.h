@@ -51,6 +51,10 @@ BSLS_IDENT("$Id: $")
 
 namespace bsl {
 
+                          // ==========================
+                          // struct is_lvalue_reference
+                          // ==========================
+
 template <typename TYPE>
 struct is_lvalue_reference : false_type
 {

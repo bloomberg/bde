@@ -124,9 +124,9 @@ struct IsEnum_AnyArithmeticType {
         // be ambiguous.
 };
 
-                        // ============
-                        // class IsEnum
-                        // ============
+                                 // ============
+                                 // class IsEnum
+                                 // ============
 
 template <class TYPE>
 struct IsEnum
@@ -153,6 +153,10 @@ struct IsEnum
 
 namespace bsl {
 
+                             // ==============
+                             // struct is_enum
+                             // ==============
+
 template <typename TYPE>
 struct is_enum
     : integral_constant<
@@ -161,7 +165,13 @@ struct is_enum
         && !is_reference<TYPE>::value
         && is_convertible<TYPE,
                           BloombergLP::bslmf::IsEnum_AnyArithmeticType>::value>
-{};
+{
+    // This 'struct' template implements the 'is_enum' meta-function defined in
+    // the C++11 standard [meta.unary.cat] to determine if the (template
+    // parameter) 'TYPE' is an enumerated type.  This 'struct' derives from
+    // 'bsl::true_type' if the 'TYPE' is an enumerated type, and
+    // 'bsl::false_type' otherwise.
+};
 
 }  // close namespace bsl
 
