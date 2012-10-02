@@ -2,8 +2,6 @@
 
 #include <bslmf_issame.h>
 
-#include <bsls_bsltestutil.h>
-
 #include <cstdlib>     // atoi()
 #include <cstdio>
 
@@ -15,8 +13,8 @@ using namespace std;
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// The objects under test are two meta-functions, 'bsl::is_same' and
-// 'bslmf::IsSame', that determine whether the two template parameter types are
+// The component under test defines two meta-functions, 'bsl::is_same' and
+// 'bslmf::IsSame', that determine whether two template parameter types are
 // same.  Thus, we need to ensure that the value returned by these
 // meta-functions are correct for each possible pair of types.  Since the two
 // meta-functions are functionally equivalent, we will use the same set of
@@ -127,6 +125,7 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("USAGE EXAMPLE\n"
                             "=============\n");
+
 ///Usage
 ///-----
 // In this section we show intended use of this component.
@@ -145,35 +144,36 @@ int main(int argc, char *argv[])
     typedef       int    INT;
     typedef       int&   INT_REF;
 //..
-// Now, we instantiate the 'bsl::is_same' template for each pair of the
+// Now, we instantiate the 'bsl::is_same' template for a certain pairs of the
 // 'typedef's and assert the 'value' static data member of each instantiation:
 //..
-    ASSERT(1 == (bsl::is_same<INT, INT>::value));
-    ASSERT(0 == (bsl::is_same<INT, DOUBLE>::value));
+    ASSERT(true  == (bsl::is_same<INT, INT>::value));
+    ASSERT(false == (bsl::is_same<INT, DOUBLE>::value));
 //..
 // Note that a 'const'-qualified type is considered distinct from the
 // non-'const' (but otherwise identical) type:
 //..
-    ASSERT(0 == (bsl::is_same<SHORT, CONST_SHORT>::value));
+    ASSERT(false == (bsl::is_same<SHORT, CONST_SHORT>::value));
 //..
 // Similarly, a 'TYPE' and a reference to 'TYPE' ('TYPE&') are distinct:
 //..
-    ASSERT(0 == (bsl::is_same<INT, INT_REF>::value));
+    ASSERT(false == (bsl::is_same<INT, INT_REF>::value));
 //..
+
       } break;
       case 2: {
         // --------------------------------------------------------------------
         // 'bslmf::IsSame::VALUE'
         //   Ensure that the static data member 'VALUE' of 'bslmf::IsSame'
-        //   instantiations having various (template parameter) 'TYPE' has the
-        //   correct value.
+        //   instantiations having various (template parameter) 'TYPE1' and
+        //   'TYPE2' has the correct value.
         //
         // Concerns:
-        //: 1 'IsSame::VALUE' is 'true' when the two template parameters types
-        //:   are of same type.
+        //: 1 'IsSame::VALUE' is '1' when the two template parameters types are
+        //:   of same type.
         //:
-        //: 2 'IsSame::VALUE' is 'false' when the two template parameters types
-        //:   are not of the same type.
+        //: 2 'IsSame::VALUE' is '0' when the two template parameters types are
+        //:   not of the same type.
         //
         // Plan:
         //   Instantiate 'bslmf::IsSame' with various combinations of types and
@@ -261,8 +261,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // 'bsl::is_same::value'
         //   Ensure that the static data member 'value' of 'bsl::is_same'
-        //   instantiations having various (template parameter) 'TYPE' has the
-        //   correct value.
+        //   instantiations having various (template parameter) 'TYPE1' and
+        //   'TYPE2' has the correct value.
         //
         // Concerns:
         //: 1 'is_same::value' is 'true' when the two template parameters types
@@ -273,7 +273,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Instantiate 'bsl::is_same' with various combinations of types and
-        //   verify that the 'value' member is initialized properly.
+        //   verify that the 'value' member is initialized properly.  (C-1,2)
         //
         // Testing:
         //   bsl::is_same::value
