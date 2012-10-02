@@ -7,10 +7,10 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Transform a type to a pointer to that type
+//@PURPOSE: Provides meta-function to tranform a type to a pointer to that type
 //
 //@CLASSES:
-//  bsl::add_pointer: transform a type to a pointer to that type
+//  bsl::add_pointer: meta-function to transform  to a pointer type
 //
 //@SEE_ALSO: bslmf_removepointer
 //
@@ -26,9 +26,9 @@ BSLS_IDENT("$Id: $")
 ///-----
 // In this section we show intended use of this component.
 //
-///Example 1: Transform Type to Pointer to the Type
-/// - - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose that we want to transform a type to a pointer to that type.
+///Example 1: Transform Type to Pointer Type to that Type
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Suppose that we want to transform a type to a pointer type to that type.
 //
 // First, we create two 'typedef's -- a pointer type ('MyPtrType')
 // and the type pointed to by the pointer type ('MyType'):
@@ -36,9 +36,9 @@ BSLS_IDENT("$Id: $")
 //  typedef int   MyType;
 //  typedef int * MyPtrType;
 //..
-// Now, we transform 'MyType' to a pointer to 'MyType' using 'bsl::add_pointer'
-// and verify that the resulting type is the same as 'MyPtrType'.  and verify
-// that the resulting type is the same as 'MyType':
+// Now, we transform 'MyType' to a pointer type to 'MyType' using
+// 'bsl::add_pointer' and verify that the resulting type is the same as
+// 'MyPtrType':
 //..
 //  assert((bsl::is_same<bsl::add_pointer<MyType>::type,
 //                       MyPtrType>::value));
@@ -61,15 +61,15 @@ namespace bsl {
 template <typename TYPE>
 struct add_pointer {
     // This 'struct' template implements the 'add_pointer' meta-function
-    // defined in the C++11 standard [meta.trans.ptr] to provide a 'typedef'
-    // 'type'.  'type' is an alias to a pointer type that points to the
-    // (template parameter) 'TYPE' if it's not a reference.  Otherwise, 'type'
-    // is an alias to a pointer type that points to the type referred to by the
-    // reference 'TYPE'.
+    // defined in the C++11 standard [meta.trans.ptr], providing an alias
+    // ,'type', that returns the result.  If the (template parameter) 'TYPE' is
+    // not a reference type, then 'type' is an alias to a pointer type that
+    // points to 'TYPE'; otherwise, 'type' is an alias to a pointer type that
+    // points to the type referred to by the reference 'TYPE'.
 
     typedef typename remove_reference<TYPE>::type *type;
         // This 'typedef' is an alias to a pointer type that points to the
-        // (template parameter) 'TYPE' if it's not a reference.  Otherwise,
+        // (template parameter) 'TYPE' if it's not a reference type; otherwise,
         // this 'typedef' is an alias to a pointer type that points to the type
         // referred to by the reference 'TYPE'.
 };
@@ -78,11 +78,11 @@ struct add_pointer {
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2012
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

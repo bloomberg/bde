@@ -18,14 +18,14 @@ using std::atoi;
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// The object under test is a meta-functions, 'bsl::add_const', that adds the
-// top-level 'const'-qualifier to a template parameter type.  Thus, we need to
-// ensure that the values returned by the meta-function is correct for each
-// possible category of types.
+// The component under test defines a meta-function, 'bsl::add_cv', that adds a
+// top-level 'const'-qualifier and a 'volatile'-qualifier to a template
+// parameter type.  Thus, we need to ensure that the values returned by the
+// meta-function is correct for each possible category of types.
 //
 // ----------------------------------------------------------------------------
 // PUBLIC CLASS DATA
-// [ 1] bsl::add_const
+// [ 1] bsl::add_cv::type
 //
 // ----------------------------------------------------------------------------
 // [ 2] USAGE EXAMPLE
@@ -111,13 +111,14 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\nUSAGE EXAMPLE\n"
                             "\n=============\n");
+
 ///Usage
 ///-----
 // In this section we show intended use of this component.
 //
-///Example 1: Adding The 'const'-qualifier and 'volatile'-qualifier to A Type
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose that we want to add the 'const'-qualifier and 'volatile'-qualifier
+///Example 1: Adding a 'const'-qualifier and 'volatile'-qualifier to a Type
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Suppose that we want to add a 'const'-qualifier and a 'volatile'-qualifier
 // to a particular type.
 //
 // First, we create two 'typedef's -- a 'const'-qualified and
@@ -127,9 +128,8 @@ int main(int argc, char *argv[])
         typedef int                MyType;
         typedef const volatile int MyCvType;
 //..
-// Now, we add the the 'const'-qualifier and the 'volatile'-qualifier to
-// 'MyType' using 'bsl::add_cv' and verify that the resulting type is the
-// same as 'MyCvType':
+// Now, we add a 'const'-qualifier and a 'volatile'-qualifier to 'MyType' using
+// 'bsl::add_cv' and verify that the resulting type is the same as 'MyCvType':
 //..
         ASSERT(true ==
                    (bsl::is_same<bsl::add_cv<MyType>::type, MyCvType>::value));
@@ -138,31 +138,35 @@ int main(int argc, char *argv[])
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // 'bsl::add_cv'
+        // 'bsl::add_cv::type'
         //   Ensure that the 'typedef' 'type' of 'bsl::add_cv' has the correct
         //   type for a variety of template parameter types.
         //
         // Concerns:
-        //: 1 'bsl::add_cv' only adds the top-level 'const'-qualifier and
-        //:   'volatile'-qualifier to regular types (test primitive, pointers,
-        //:   and userdefined types).
+        //: 1 'bsl::add_cv' adds a top-level 'const'-qualifier and a
+        //:   'volatile'-qualifier only to regular types (primitive, pointers,
+        //:   and user-defined types).
         //:
-        //: 2 'bsl::add_cv' doesn't add cv-qualifiers to reference types,
-        //:   function types, and already both 'const'-qualified and
-        //:   'volatile'-qualified types.
+        //: 2 'bsl::add_cv' does not add a 'const'-qualifier nor
+        //:   'volatile'-qualifier to reference types, function types, or types
+        //:   that are already both 'const'-qualified and 'volatile'-qualified.
         //
         // Plan:
         //   Verify that 'bsl::add_cv::type' has the correct type for each
         //   concern.
         //
         // Testing:
-        //   bsl::add_const
+        //   bsl::add_const::type
         // --------------------------------------------------------------------
+
+        if (verbose) printf("\n'bsl::add_cv::type'\n"
+                            "\n===================\n");
 
         // C-1
         ASSERT((is_same<add_cv<int>::type, int const volatile>::value));
         ASSERT((is_same<add_cv<int const>::type, int const volatile>::value));
-        ASSERT((is_same<add_cv<int volatile>::type, int const volatile>::value));
+        ASSERT((is_same<add_cv<int volatile>::type,
+                                                  int const volatile>::value));
 
         ASSERT((is_same<add_cv<int *>::type, int * const volatile>::value));
         ASSERT((is_same<add_cv<int const volatile *>::type,
@@ -190,3 +194,12 @@ int main(int argc, char *argv[])
 
     return testStatus;
 }
+
+// ----------------------------------------------------------------------------
+// NOTICE:
+//      Copyright (C) Bloomberg L.P., 2012
+//      All Rights Reserved.
+//      Property of Bloomberg L.P. (BLP)
+//      This software is made available solely pursuant to the
+//      terms of a BLP license agreement which governs its use.
+// ----------------------------- END-OF-FILE ----------------------------------
