@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide implentations of atomic operations for X86/MSVC/Windows.
+//@PURPOSE: Provide implementations of atomic operations for X86/MSVC/Windows.
 //
 //@CLASSES:
 //  bsls::AtomicOperations_X86_WIN_MSVC: atomics for X86/MSVC/Windows
@@ -17,7 +17,7 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION: This component provides classes necessary to implement atomics
 // on the Windows X86 platform with MSVC compiler.  The classes are for private
 // use only.  See 'bsls_atomicoperations' and 'bsls_atomic' for the public
-// inteface to atomics.
+// interface to atomics.
 
 #ifndef INCLUDED_BSLS_ATOMICOPERATIONS_DEFAULT
 #include <bsls_atomicoperations_default.h>

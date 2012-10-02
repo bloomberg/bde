@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide implentations of atomic operations for HPUX/IA64.
+//@PURPOSE: Provide implementations of atomic operations for HPUX/IA64.
 //
 //@CLASSES:
 //  bsls::AtomicOperations_IA64_HP_ACC: atomics implementation for HPUX/IA64.
@@ -17,7 +17,7 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION: This component provides classes necessary to implement atomics
 // on the HPUX/IA64 platform in 32 and 64bit modes.  The classes are for
 // private use only.  See 'bsls_atomicoperations' and 'bsls_atomic' for the
-// public inteface to atomics.
+// public interface to atomics.
 
 #ifndef INCLUDED_BSLS_ATOMICOPERATIONS_DEFAULT
 #include <bsls_atomicoperations_default.h>
@@ -102,7 +102,7 @@ struct AtomicOperations_IA64_HP_ACC_Default
 struct AtomicOperations_IA64_HP_ACC
     : AtomicOperations_IA64_HP_ACC_Default<AtomicOperations_IA64_HP_ACC>
 {
-private:
+  private:
     // release semantics
     static const _Asm_fence d_upfence   = _Asm_fence( _UP_MEM_FENCE
                                                     | _UP_ALU_FENCE
@@ -117,7 +117,7 @@ private:
 
     static const _Asm_fence d_fullfence = _Asm_fence(d_upfence | d_downfence);
 
-public:
+  public:
     typedef Atomic_TypeTraits<AtomicOperations_IA64_HP_ACC> AtomicTypes;
 
         // *** atomic functions for int ***

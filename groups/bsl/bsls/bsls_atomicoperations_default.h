@@ -22,7 +22,7 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION: [!PRIVATE!] This component provides classes having default
 // implementations of atomic operations independent of a any specific platform.
 // The purpose of these classes is for them to be combined with
-// platfrom-specific implementations of atomic operations to form a full set of
+// platform-specific implementations of atomic operations to form a full set of
 // atomic operations.
 //
 // [!WARNING!] This component should not be used directly by client code.  It
@@ -46,7 +46,7 @@ BSLS_IDENT("$Id: $")
 ///------------------------------------------------
 // There are about 70 different atomic operations we provide in this atomics
 // library.  Only a fraction of these operations (about 10-15) have
-// implemenations specific to a target platform.  These are the core atomic
+// implementations specific to a target platform.  These are the core atomic
 // operations.  Other operations have implementations that are independent of
 // the platform, and are defined in terms of those core operations.
 //
@@ -214,7 +214,7 @@ BSLS_IDENT("$Id: $")
 // were overriden.
 //
 // Platform-specific atomic operations for other platforms are implemented in a
-// similar manner.  Here is a conceptual diagram of relationtionships between
+// similar manner.  Here is a conceptual diagram of relationships between
 // classes that provide the default atomic operations and platform-specific
 // atomic operations (the bsls::AtomicOperations_ prefix is omitted for
 // brevity):

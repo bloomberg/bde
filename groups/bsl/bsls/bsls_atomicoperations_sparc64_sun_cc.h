@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide implentations of atomic operations for Sparc/Sun (64bit).
+//@PURPOSE: Provide implementations of atomic operations for Sparc/Sun (64bit).
 //
 //@CLASSES:
 //  bsls::AtomicOperations_SPARC64_SUN_CC: atomics for Sparc64/Sun.
@@ -17,7 +17,7 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION: This component provides classes necessary to implement atomics
 // on the Sun Sparc platform in 64bit mode with SunCC compiler.  The classes
 // are for private use only.  See 'bsls_atomicoperations' and 'bsls_atomic' for
-// the public inteface to atomics.
+// the public interface to atomics.
 
 #ifndef INCLUDED_BSLS_ATOMICOPERATIONS_DEFAULT
 #include <bsls_atomicoperations_default.h>

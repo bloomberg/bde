@@ -105,7 +105,7 @@ void aSsErT(int c, const char *s, int i) {
     }
 }
 
-}
+}  // close unnamed namespace
 
 # define ASSERT(X) do { aSsErT(!(X), #X, __LINE__); } while (0)
 
@@ -460,7 +460,7 @@ void testCaseSharedPtr()
     joinThread(thrWriter);
 }
 
-}
+}  // close unnamed namespace
 
 //=============================================================================
 //                       USAGE EXAMPLES FROM HEADER

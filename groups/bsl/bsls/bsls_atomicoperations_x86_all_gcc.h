@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide implentations of atomic operations for X86/GCC.
+//@PURPOSE: Provide implementations of atomic operations for X86/GCC.
 //
 //@CLASSES:
 //  bsls::AtomicOperations_X86_ALL_GCC: implementation of atomics for X86/GCC.
@@ -16,7 +16,7 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides classes necessary to implement atomics
 // on the Linux X86 platform with GCC.  The classes are for private use only.
-// See 'bsls_atomicoperations' and 'bsls_atomic' for the public inteface to
+// See 'bsls_atomicoperations' and 'bsls_atomic' for the public interface to
 // atomics.
 
 #ifndef INCLUDED_BSLS_ATOMICOPERATIONS_DEFAULT

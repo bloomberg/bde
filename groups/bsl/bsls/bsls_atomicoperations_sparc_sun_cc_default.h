@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide default base implentations of atomics for Sparc/Sun.
+//@PURPOSE: Provide default base implementations of atomics for Sparc/Sun.
 //
 //@CLASSES:
 //  bsls::AtomicOperations_SPARC_SUN_CC_Default32: default base for 32bit mode.
@@ -18,7 +18,7 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION: This component provides default base classes necessary to
 // implement atomics on the Sun Sparc platform with SunCC compiler.  The
 // classes are for private use only.  See 'bsls_atomicoperations' and
-// 'bsls_atomic' for the public inteface to atomics.
+// 'bsls_atomic' for the public interface to atomics.
 
 #ifndef INCLUDED_BSLS_ATOMICOPERATIONS_DEFAULT
 #include <bsls_atomicoperations_default.h>

@@ -222,7 +222,7 @@ int AtomicOperations_Powerpc_AddIntAcqRel(volatile int *atomicInt,
 
 }  // close package namespace
 
-}
+}  // close enterprise namespace
 
 #endif
 

@@ -949,7 +949,7 @@ class AtomicPointer {
         // Static assert that a 'TYPE*' pointer is binary compatible with a
         // 'void*' pointer.  The implementation of 'AtomicPointer' uses
         // 'reinterpret_cast' to convert between 'TYPE*' and 'void*' because
-        // function pointers are not implicitly convertable to 'void*', and
+        // function pointers are not implicitly convertible to 'void*', and
         // this assert makes sure that such a cast is safe.  Note that
         // 'bslmf_Assert' can't be used here because of package dependency
         // rules.

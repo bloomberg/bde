@@ -6,8 +6,8 @@ BSLS_IDENT("$Id$ $CSID$")
 
 namespace BloombergLP {
 namespace bsls {
-}
-}
+}  // close namespace bsls
+}  // close namespace BloombergLP
 
 // ---------------------------------------------------------------------------
 // NOTICE:

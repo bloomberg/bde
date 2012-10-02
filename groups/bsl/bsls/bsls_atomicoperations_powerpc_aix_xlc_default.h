@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide default base implentations of atomics for PowerPC/AIX.
+//@PURPOSE: Provide default base implementations of atomics for PowerPC/AIX.
 //
 //@CLASSES:
 //  bsls::AtomicOperations_POWERPC_AIX_XLC_Default32: default base for 32bit.
@@ -18,7 +18,7 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION: This component provides default base classes necessary to
 // implement atomics on the AIX PowerPC platform with the xlC compiler.  The
 // classes are for private use only.  See 'bsls_atomicoperations' and
-// 'bsls_atomic' for the public inteface to atomics.
+// 'bsls_atomic' for the public interface to atomics.
 
 #ifndef INCLUDED_BSLS_ATOMICOPERATIONS_DEFAULT
 #include <bsls_atomicoperations_default.h>

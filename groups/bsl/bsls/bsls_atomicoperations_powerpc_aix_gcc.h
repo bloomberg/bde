@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide implentations of atomic operations for PowerPC/AIX/GCC.
+//@PURPOSE: Provide implementations of atomic operations for PowerPC/AIX/GCC.
 //
 //@CLASSES:
 //  bsls::AtomicOperations_POWERPC_AIX_GCC: atomics for PPC/AIX/GCC.
@@ -17,7 +17,7 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION: This component provides classes necessary to implement atomics
 // on the AIX PowerPC platform in 32bit/64bit mode with the GCC compiler.  The
 // classes are for private use only.  See 'bsls_atomicoperations' and
-// 'bsls_atomic' for the public inteface to atomics.
+// 'bsls_atomic' for the public interface to atomics.
 //
 // NOTE: this implementation is incorrect and only minimally complete.  It is
 // provided for the sole purpose of passing cscheckin validation tests

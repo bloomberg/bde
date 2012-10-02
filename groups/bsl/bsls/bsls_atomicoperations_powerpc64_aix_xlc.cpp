@@ -238,7 +238,7 @@ Types::Int64 AtomicOperations_Powerpc64_AddInt64AcqRel(
 
 }  // close package namespace
 
-}
+}  // close enterprise namespace
 
 #endif
 

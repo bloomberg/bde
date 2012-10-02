@@ -4,7 +4,7 @@
 // This component deliberately does not include its header, as it relies on a
 // quirk of the PowerPC architecture making header and cpp incompatible at
 // compile-time, but perfect partners at link-time.  The issue is that the
-// "extern "C" functions rqeuired by the atomics protocols for 64-bit integer
+// "extern "C" functions required by the atomics protocols for 64-bit integer
 // values must be interpreted by the function implementation as being passed
 // two 32bit integer values.  Following the "C" protocols, having bound the
 // name and calling the function with the right convention as found by the
