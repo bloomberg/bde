@@ -15,7 +15,7 @@ using namespace std;
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// The objects under test are two meta-functions, 'bsl::is_polymorphic' and
+// The component under defines two meta-functions, 'bsl::is_polymorphic' and
 // 'bslmf::IsPolymorphic', that determine whether a template parameter type is
 // a polymorphic type.  Thus, we need to ensure that the values returned by
 // these meta-functions are correct for each possible category of types.  Since
@@ -207,8 +207,8 @@ class MyDerivedClass : public MyClass {
 // ... continued below
 
 // Finally, note that the following class is detected as polymorphic by this
-// component, but should really have a virtual destructor.  'gcc' issues a
-// warning for such infractions.
+// component, but should really have a virtual destructor ('gcc' issues a
+// warning for such infractions):
 //..
 
 class MyIncorrectPolymorphicClass {
@@ -263,22 +263,20 @@ int main(int argc, char *argv[])
         ASSERT(false == bsl::is_polymorphic<MyDerivedStruct&  >::value);
         ASSERT(false == bsl::is_polymorphic<MyDerivedStruct  *>::value);
 
-        ASSERT(true == bsl::is_polymorphic<      MyClass    >::value);
-        ASSERT(true == bsl::is_polymorphic<const MyClass&   >::value);
+        ASSERT(true  == bsl::is_polymorphic<      MyClass    >::value);
+        ASSERT(true  == bsl::is_polymorphic<const MyClass&   >::value);
         ASSERT(false == bsl::is_polymorphic<      MyClass   *>::value);
-        ASSERT(true == bsl::is_polymorphic<MyDerivedClass&  >::value);
+        ASSERT(true  == bsl::is_polymorphic<MyDerivedClass&  >::value);
         ASSERT(false == bsl::is_polymorphic<MyDerivedClass  *>::value);
 //..
         ASSERT(1 ==
                   bslmf::IsPolymorphic<MyIncorrectPolymorphicClass&  >::value);
         ASSERT(0 ==
                   bslmf::IsPolymorphic<MyIncorrectPolymorphicClass  *>::value);
-//..
-
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // 'bsl::is_polymorphic' Corner cases
+        // 'bsl::is_polymorphic' Corner Cases
         //   There are some dark corners of the type system that in principle
         //   we should not care about as their use is unlikely to pass a code
         //   review.  However, it is important to record the limits of this
@@ -299,8 +297,8 @@ int main(int argc, char *argv[])
         //   bsl::is_polymorphic
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\n'bsl::is_polymorphic' Testing corner cases\n"
-                            "\n==========================================\n");
+        if (verbose) printf("\n'bsl::is_polymorphic' Corner Cases\n"
+                            "\n==================================\n");
 
 #if defined(BSLMF_ISPOLYMORPHIC_HAS_INTRINSIC) || \
     defined(BSLS_PLATFORM__CMP_IBM)
@@ -860,7 +858,7 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // 'bslmf::IsPolymorphic' Corner cases
+        // 'bslmf::IsPolymorphic' Corner Cases
         //   There are some dark corners of the type system that in principle
         //   we should not care about as their use is unlikely to pass a code
         //   review.  However, it is important to record the limits of this
@@ -881,8 +879,8 @@ int main(int argc, char *argv[])
         //   bslmf::IsPolymorphic
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\n'bslmf::IsPolymorphic' Testing corner cases\n"
-                            "\n===========================================\n");
+        if (verbose) printf("\n'bslmf::IsPolymorphic' Corner Cases\n"
+                            "\n===================================\n");
 
 #if defined(BSLMF_ISPOLYMORPHIC_HAS_INTRINSIC) || \
     defined(BSLS_PLATFORM_CMP_IBM)
