@@ -9,9 +9,9 @@
 
 @DESCRIPTION: The 'bsl' ("Basic Standard Library") package group contains
  various packages that provide platform-specific classes, meta-functions,
- mechanisms for defensive programming, a framework for component testing,
- memory allocation protocols and algorithms, and an enhanced C++ standard
- library implementation.
+ defensive programming mechanisms, a framework for component testing, memory
+ allocation protocols and algorithms, and a C++ standard library
+ implementation.
 
  Note that the C++ standard library is implemented in the 'bsl' namespace
  instead of the standard 'std' namespace.  This allow clients to use both the
