@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a compile-time check for class types.
+//@PURPOSE: Provide a compile-time check for determining class types.
 //
 //@CLASSES:
 //  bsl::is_class: standard meta-function for determining class types
@@ -38,7 +38,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Verify Class Types
 ///- - - - - - - - - - - - - - -
-// Suppose that we want to assert whether a particular type is a class type.
+// Suppose that we want to assert whether a set of types are class types.
 //
 // First, we create a class type 'MyClass':
 //..
@@ -82,6 +82,10 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bslmf {
 
+                             // ==================
+                             // struct IsClass_Imp
+                             // ==================
+
 template <typename TYPE>
 struct IsClass_Imp {
     // This 'struct' template provides a meta-function to determine whether the
@@ -106,6 +110,10 @@ struct IsClass_Imp {
 
 namespace bsl {
 
+                             // ===============
+                             // struct is_class
+                             // ===============
+
 template <typename TYPE>
 struct is_class : integral_constant<bool,
                                  BloombergLP::bslmf::IsClass_Imp<
@@ -122,9 +130,9 @@ struct is_class : integral_constant<bool,
 namespace BloombergLP {
 namespace bslmf {
 
-                         // ==============
-                         // struct IsClass
-                         // ==============
+                            // ==============
+                            // struct IsClass
+                            // ==============
 
 template <typename TYPE>
 struct IsClass : bsl::is_class<TYPE>::type {

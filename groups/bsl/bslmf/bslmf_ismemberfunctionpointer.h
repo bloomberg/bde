@@ -15,7 +15,7 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR: Clay Wilson (cwilson9)
 //
 //@DESCRIPTION: This component defines a meta-function,
-// 'bsl::is_member_function_pointer', which may be used to query whether a type
+// 'bsl::is_member_function_pointer', that may be used to query whether a type
 // is a function pointer type to non-static member function.
 //
 // 'bsl::is_member_function_pointer' meets the requirements of the
