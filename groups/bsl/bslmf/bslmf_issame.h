@@ -15,7 +15,7 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Shawn Edwards (sedwards)
 //
-///@DESCRIPTION: This component defines two meta-functions, 'bsl::is_same'
+//@DESCRIPTION: This component defines two meta-functions, 'bsl::is_same'
 // and 'BloombergLP::bslmf::IsSame', both of which may be used to query whether
 // two types are same.  The types are same if they name the same type having
 // the same cv-qualifications.

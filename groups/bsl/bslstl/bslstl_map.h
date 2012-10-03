@@ -1361,7 +1361,7 @@ map<KEY, VALUE, COMPARATOR, ALLOCATOR>::operator=(const map& rhs)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(this != &rhs)) {
 
-        if (AllocatorTraits::propagate_on_container_copy_assignment::VALUE) {
+        if (AllocatorTraits::propagate_on_container_copy_assignment::value) {
             map other(rhs, rhs.nodeFactory().allocator());
             BloombergLP::bslalg::SwapUtil::swap(
                                              &nodeFactory().allocator(),
@@ -1542,7 +1542,7 @@ template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 inline
 void map<KEY, VALUE, COMPARATOR, ALLOCATOR>::swap(map& other)
 {
-    if (AllocatorTraits::propagate_on_container_swap::VALUE) {
+    if (AllocatorTraits::propagate_on_container_swap::value) {
         BloombergLP::bslalg::SwapUtil::swap(&nodeFactory().allocator(),
                                            &other.nodeFactory().allocator());
         quickSwap(other);

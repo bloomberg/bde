@@ -234,7 +234,7 @@ struct ScalarPrimitives {
     static void doCopyConstruct(TARGET_TYPE         *address,
                                 const TARGET_TYPE&   original,
                                 bslma::Allocator    *allocator,
-                                bslmf::MetaInt<0>);
+                                bsl::false_type);
         // Build an object of the (template parameter) type 'TARGET_TYPE',
         // which does not use a 'bslma::Allocator', from the specified
         // 'original' object of the same 'TARGET_TYPE' in the uninitialized
@@ -245,7 +245,7 @@ struct ScalarPrimitives {
     static void doCopyConstruct(TARGET_TYPE         *address,
                                 const TARGET_TYPE&   original,
                                 bslma::Allocator    *allocator,
-                                bslmf::MetaInt<1>);
+                                bsl::true_type);
         // Build an object of the (template parameter) type 'TARGET_TYPE',
         // which uses a 'bslma::Allocator', from the specified 'original'
         // object of the same 'TARGET_TYPE' in the uninitialized memory at the
@@ -276,7 +276,7 @@ template <typename TARGET_TYPE>
 void ScalarPrimitives::doCopyConstruct(TARGET_TYPE         *address,
                                        const TARGET_TYPE&   original,
                                        bslma::Allocator    *allocator,
-                                       bslmf::MetaInt<0>)
+                                       bsl::false_type)
 {
     new (address) TARGET_TYPE(original);
 }
@@ -285,7 +285,7 @@ template <typename TARGET_TYPE>
 void ScalarPrimitives::doCopyConstruct(TARGET_TYPE         *address,
                                        const TARGET_TYPE&   original,
                                        bslma::Allocator    *allocator,
-                                       bslmf::MetaInt<1>)
+                                       bsl::true_type)
 {
     new (address) TARGET_TYPE(original, allocator);
 }
@@ -297,8 +297,7 @@ void ScalarPrimitives::copyConstruct(TARGET_TYPE               *address,
 {
     BSLS_ASSERT_SAFE(address);
 
-    typedef bslmf::MetaInt<bslma::UsesBslmaAllocator<TARGET_TYPE>::value>
-        Trait;
+    typedef typename bslma::UsesBslmaAllocator<TARGET_TYPE>::type Trait;
     doCopyConstruct(address, original, allocator, Trait());
 }
 
@@ -777,9 +776,8 @@ class MyPoint {
 
   public:
     // TRAITS
-    BSLMF_NESTED_TRAIT_DECLARATION(
-            MyPoint,
-            BloombergLP::bslmf::IsBitwiseEqualityComparable);
+    BSLMF_NESTED_TRAIT_DECLARATION(MyPoint,
+                          BloombergLP::bslmf::IsBitwiseEqualityComparable);
 
     // CREATORS
     MyPoint(int x, int y);
@@ -846,7 +844,7 @@ bool operator!=(const MyPoint& lhs, const MyPoint& rhs)
 // of its data members, and that no padding is required for alignment.
 // Furthermore, 'MyPoint' has no virtual methods.  Therefore, 'MyPoint' objects
 // are bit-wise comparable, and we can correctly declare the
-// 'bslalg::TypeTraitBitwiseEqualityComparable' trait for the class, as shown
+// 'bslmf::IsBitwiseEqualityComparable' trait for the class, as shown
 // above under the public 'TRAITS' section.
 //
 // Now, we create two 'MyContainer<MyPoint>' objects and compare them using
@@ -872,7 +870,7 @@ void usageTestMyPoint()
 // contained in the 'MyContainer<MyPoint>' objects.  This comparison can
 // provide a significant performance boost over the comparison between two
 // 'MyContainer<MyPoint>' objects in which the nested
-// 'TypeTraitBitwiseEqualityComparable' trait is not associated with the
+// 'bslmf::IsBitwiseEqualityComparable' trait is not associated with the
 // 'MyPoint' class.
 //
 // Finally, note that we can instantiate 'MyContainer' with 'int' or any other

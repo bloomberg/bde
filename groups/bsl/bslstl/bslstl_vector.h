@@ -1059,7 +1059,7 @@ namespace bslma {
 
 template <typename VALUE_TYPE, typename ALLOCATOR>
 struct UsesBslmaAllocator<bsl::vector<VALUE_TYPE, ALLOCATOR> >
-    : bsl::is_convertible<Allocator*, ALLOCATOR>
+    : bsl::is_convertible<Allocator*, ALLOCATOR>::type
 {};
 
 }
@@ -1097,7 +1097,7 @@ void swap(vector<VALUE_TYPE *, ALLOCATOR>& a,
           vector<VALUE_TYPE *, ALLOCATOR>& b);
 
              // ===========================================
-             // class vector<const VALUE_TYPE *, ALLCOATOR>
+             // class vector<const VALUE_TYPE *, ALLOCATOR>
              // ===========================================
 
 template <class VALUE_TYPE, class ALLOCATOR>
@@ -1334,7 +1334,7 @@ void swap(vector<const VALUE_TYPE *, ALLOCATOR>& a,
                           // =======================
 
 template<class BSLSTL_ITERATOR, bool BSLSTL_NOTSPECIALIZED
-                   = BloombergLP::bslmf::IsFundamental<BSLSTL_ITERATOR>::VALUE>
+                   = BloombergLP::bslmf::IsFundamental<BSLSTL_ITERATOR>::value>
 struct Vector_DeduceIteratorCategory {
     typedef typename bsl::iterator_traits<BSLSTL_ITERATOR>::iterator_category
                                                                           type;

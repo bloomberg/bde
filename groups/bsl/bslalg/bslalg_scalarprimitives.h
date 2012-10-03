@@ -88,6 +88,18 @@ BSLS_IDENT("$Id: $")
 #include <bslma_allocator.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include <bslma_usesbslmaallocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
+#include <bslmf_isbitwisemoveable.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISPAIR
+#include <bslmf_ispair.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_ISSAME
 #include <bslmf_issame.h>
 #endif
@@ -96,11 +108,13 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_removecvq.h>
 #endif
 
-#include <bslmf_istriviallydefaultconstructible.h>
-#include <bslma_usesbslmaallocator.h>
+#ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
 #include <bslmf_istriviallycopyable.h>
-#include <bslmf_isbitwisemoveable.h>
-#include <bslmf_ispair.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISTRIVIALLYDEFAULTCONSTRUCTIBLE
+#include <bslmf_istriviallydefaultconstructible.h>
+#endif
 
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
@@ -1311,7 +1325,7 @@ ScalarPrimitives::construct(TARGET_TYPE      *address,
     enum {
         VALUE = bslma::UsesBslmaAllocator<TARGET_TYPE>::value
               ? Imp::USES_BSLMA_ALLOCATOR_TRAITS
-              : bslmf::IsSame<ARG1, TARGET_TYPE>::value
+              : bsl::is_same<ARG1, TARGET_TYPE>::value
                 && bsl::is_trivially_copyable<TARGET_TYPE>::value
                   ? Imp::BITWISE_COPYABLE_TRAITS
                   : bslmf::IsPair<TARGET_TYPE>::value
@@ -2006,7 +2020,7 @@ template <typename LHS_TYPE, typename RHS_TYPE>
 void ScalarPrimitives::swap(LHS_TYPE& lhs, RHS_TYPE& rhs)
 {
     enum {
-        VALUE = bslmf::IsSame<LHS_TYPE, RHS_TYPE>::value
+        VALUE = bsl::is_same<LHS_TYPE, RHS_TYPE>::value
                 && bslmf::IsBitwiseMoveable<LHS_TYPE>::value
               ? Imp::BITWISE_MOVEABLE_TRAITS
               : Imp::NIL_TRAITS
@@ -2877,7 +2891,7 @@ void ScalarPrimitives_Imp::swap(LHS_TYPE&                                lhs,
                                 RHS_TYPE&                                rhs,
                                 bslmf::MetaInt<BITWISE_MOVEABLE_TRAITS> *)
 {
-    if (bslmf::IsSame<LHS_TYPE, RHS_TYPE>::value
+    if (bsl::is_same<LHS_TYPE, RHS_TYPE>::value
      && !bslmf::IsFundamental<LHS_TYPE>::value
      && !bslmf::IsPointer<LHS_TYPE>::value
      && !bslma::UsesBslmaAllocator<LHS_TYPE>::value) {

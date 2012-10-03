@@ -745,7 +745,7 @@ int main(int argc, char *argv[])
         ASSERT((bslmf::IsBitwiseMoveable<bsl::allocator<void> >::value));
         ASSERT((bsl::is_trivially_copyable<bsl::allocator<void> >::value));
         ASSERT((bslmf::IsBitwiseEqualityComparable<
-                                                bsl::allocator<void> >::value));
+                                               bsl::allocator<void> >::value));
 
       } break;
 

@@ -18,9 +18,9 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component defines a single class template 'multimap',
 // implementing the standard container holding an ordered sequence of key-value
-// pairs (possibly having duplic keys), and presenting a mapping from the keys
-// (of a template parameter type, 'KEY') to their associated values (of another
-// template parameter type, 'VALUE').
+// pairs (possibly having duplicate keys), and presenting a mapping from the
+// keys (of a template parameter type, 'KEY') to their associated values (of
+// another template parameter type, 'VALUE').
 //
 // An instantiation of 'multimap' is an allocator-aware, value-semantic type
 // whose salient attributes are its size (number of key-value pairs) and the
@@ -198,6 +198,7 @@ BSLS_IDENT("$Id: $")
 //  +----------------------------------------------------+--------------------+
 //  | a.equal_range(k)                                   | O[log(n)]          |
 //  +----------------------------------------------------+--------------------+
+//..
 //
 ///Usage
 ///-----
@@ -790,7 +791,7 @@ class multimap {
         // to 'value_type'.  The behavior is undefined unless 'first' and
         // 'last' refer to a sequence of valid values where 'first' is at a
         // position at or before 'last'.  This method requires that the
-        // (template paramter) types 'KEY' and 'VALUE' both be
+        // (template parameter) types 'KEY' and 'VALUE' both be
         // "copy-constructible" (see {Requirements on 'KEY' and 'VALUE'}).
 
     ~multimap();
@@ -802,7 +803,7 @@ class multimap {
         // 'rhs' object, propagate to this object the allocator of 'rhs' if the
         // 'ALLOCATOR' type has trait 'propagate_on_container_copy_assignment',
         // and return a reference providing modifiable access to this object.
-        // This method requires that the (template paramter) types 'KEY' and
+        // This method requires that the (template parameter) types 'KEY' and
         // 'VALUE' both be "copy-constructible" (see {Requirements on 'KEY' and
         // 'VALUE'}).
 
@@ -1383,7 +1384,7 @@ multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::operator=(const multimap& rhs)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(this != &rhs)) {
 
-        if (AllocatorTraits::propagate_on_container_copy_assignment::VALUE) {
+        if (AllocatorTraits::propagate_on_container_copy_assignment::value) {
             multimap other(rhs, rhs.nodeFactory().allocator());
             BloombergLP::bslalg::SwapUtil::swap(
                                              &nodeFactory().allocator(),
@@ -1533,7 +1534,7 @@ template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 inline
 void multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::swap(multimap& other)
 {
-    if (AllocatorTraits::propagate_on_container_swap::VALUE) {
+    if (AllocatorTraits::propagate_on_container_swap::value) {
         BloombergLP::bslalg::SwapUtil::swap(&nodeFactory().allocator(),
                                            &other.nodeFactory().allocator());
         quickSwap(other);

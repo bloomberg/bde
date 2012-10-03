@@ -95,7 +95,7 @@ BSLS_IDENT("$Id: $")
 //  };
 //..
 // Note that 'int' is the most alignment-demanding type within 'MyStruct'.
-//..
+//
 // Now, we use 'AlignmentImpCalc' to calculate the alignments of two
 // types, 'short' and the 'MyStruct' we just defined:
 //..

@@ -71,7 +71,7 @@ static void aSsErT(int c, const char *s, int i)
        #M << ": " << M << "\t" << #N << ": " << N << "\n"; \
        aSsErT(1, #X, __LINE__); } }
 
-#define ASSERT_SAME(T1,T2) ASSERT((1 == bslmf::IsSame<T1,T2>::value))
+#define ASSERT_SAME(T1,T2) ASSERT((1 == bsl::is_same<T1,T2>::value))
 
 //=============================================================================
 //                  STANDARD BDEX EXCEPTION TEST MACROS
@@ -214,15 +214,15 @@ typedef void (*TestVoidFunc14)(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11,
         ASSERT(1 == bslmf::IsFunctionPointer<IntFunctionIntIntPtr>::value);
         typedef bslmf::FunctionPointerTraits<IntFunctionIntIntPtr>::ResultType
             ResultType1;
-        ASSERT(1 == (bslmf::IsSame<ResultType1, int>::value));
+        ASSERT(1 == (bsl::is_same<ResultType1, int>::value));
 
         ASSERT(1 == (bslmf::IsFunctionPointer<VoidFunc0>::value));
         typedef bslmf::FunctionPointerTraits<VoidFunc0>::ResultType
             ResultType0;
         typedef bslmf::FunctionPointerTraits<VoidFunc0>::ArgumentList
             ArgList0;
-        ASSERT(1 == (bslmf::IsSame<ResultType0, void>::value));
-        ASSERT(1 == (bslmf::IsSame<ArgList0, bslmf::TypeList0>::value));
+        ASSERT(1 == (bsl::is_same<ResultType0, void>::value));
+        ASSERT(1 == (bsl::is_same<ArgList0, bslmf::TypeList0>::value));
     }
 //..
 

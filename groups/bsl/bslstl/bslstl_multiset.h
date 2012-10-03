@@ -199,7 +199,7 @@ BSLS_IDENT("$Id: $")
 ///Example 1: Creating a Shopping Cart
 ///- - - - - - - - - - - - - - - - - -
 // In this example, we will utilize 'bsl::multiset' to define a class
-// 'ShoppingCart', that charaterizes a simple online shopping cart with the
+// 'ShoppingCart', that characterizes a simple online shopping cart with the
 // ability to add, remove, and view items in the shopping cart.
 //
 // Note that this example uses a type 'string' that is based on the standard
@@ -1245,7 +1245,7 @@ multiset<KEY, COMPARATOR, ALLOCATOR>::operator=(const multiset& rhs)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(this != &rhs)) {
 
-        if (AllocatorTraits::propagate_on_container_copy_assignment::VALUE) {
+        if (AllocatorTraits::propagate_on_container_copy_assignment::value) {
             multiset other(rhs, rhs.nodeFactory().allocator());
             BloombergLP::bslalg::SwapUtil::swap(
                                              &nodeFactory().allocator(),
@@ -1397,7 +1397,7 @@ template <class KEY, class COMPARATOR, class ALLOCATOR>
 inline
 void multiset<KEY, COMPARATOR, ALLOCATOR>::swap(multiset& other)
 {
-    if (AllocatorTraits::propagate_on_container_swap::VALUE) {
+    if (AllocatorTraits::propagate_on_container_swap::value) {
         BloombergLP::bslalg::SwapUtil::swap(&nodeFactory().allocator(),
                                            &other.nodeFactory().allocator());
         quickSwap(other);
