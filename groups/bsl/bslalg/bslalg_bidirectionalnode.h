@@ -26,9 +26,9 @@ BSLS_IDENT("$Id: $")
 // the parameterized 'VALUE_TYPE'.  The following inheritance hierarchy diagram
 // shows the classes involved and their methods:
 //..
-//                 ,---------------------------------.
-//                ( bslalg::BidirectionalNode         )
-//                 `---------------------------------'
+//                  ,-------------------------.
+//                 ( bslalg::BidirectionalNode )
+//                  `-------------------------'
 //                               |      value
 //                               V
 //                  ,-------------------------.

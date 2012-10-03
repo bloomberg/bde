@@ -22,14 +22,10 @@ BSLS_IDENT("$Id: $")
 // [forward.iterators].  A 'HashTableIterator' object is parameterized on
 // 'VALUE_TYPE', '', and 'DIFFERENCE_TYPE'.  The parameterized
 // 'VALUE_TYPE' indicates the type of the value to which this iterator provides
-// as references, and may be const-qualified for constant iterators.  The
-// parameterized '' shall provide a static 'extractValue' member
-// function returning a reference values stored through
-// 'bslstl::BidirectionalLink *' pointers to nodes in the hash table data
-// structure.  Note that 'VALUE_TYPE' may have additional const-qualification
-// over the type of reference returned by the '', in order to
-// support constant iterators.  Finally, the parameterized 'DIFFERENCE_TYPE'
-// determines the (standard mandated) 'difference_type' for the iterator.
+// references, and may be const-qualified for constant iterators.  The
+// parameterized 'DIFFERENCE_TYPE' determines the (standard mandated)
+// 'difference_type' for the iterator, and will typically be supplied by the
+// allocator used by the hash-table being iterated over.
 //
 ///Usage
 ///-----
@@ -84,9 +80,9 @@ namespace bslstl
 
 template <class VALUE_TYPE, class DIFFERENCE_TYPE>
 class HashTableIterator
-#ifdef BSLS_PLATFORM__OS_SOLARIS
+#ifdef BSLS_PLATFORM_OS_SOLARIS
 : public native_std::iterator<native_std::forward_iterator_tag, VALUE_TYPE>
-// On Solaris just to keep studio12-v4 happy, since algorithms takes only
+// On Solaris just to keep studio12-v4 happy, since algorithms take only
 // iterators inheriting from 'std::iterator'.
 #endif
 {
