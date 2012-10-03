@@ -2,7 +2,6 @@
 
 #include <bslmf_isclass.h>
 
-#include <bsls_platform.h>            // for testing only
 #include <bsls_bsltestutil.h>
 
 #include <cstdio>     // printf()
@@ -16,7 +15,7 @@ using namespace std;
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// The objects under test are two meta-functions, 'bsl::is_class' and
+// The component under test are two meta-functions, 'bsl::is_class' and
 // 'bslmf::IsClass', that determine whether a template parameter type is a
 // class type.  Thus, we need to ensure that the value returned by these
 // meta-functions are correct for each possible category of types.  Since the
@@ -154,7 +153,7 @@ struct Incomplete;
 //
 ///Example 1: Verify Class Types
 ///- - - - - - - - - - - - - - -
-// Suppose that we want to assert whether a particular type is a class type.
+// Suppose that we want to assert whether a set of types are class types.
 //
 // First, we create a class type 'MyClass':
 //..
