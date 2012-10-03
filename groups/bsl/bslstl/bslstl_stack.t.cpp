@@ -367,12 +367,12 @@ struct NonAllocCont {
 };
 
 namespace std {
-    template <typename VALUE>
-    void swap(NonAllocCont<VALUE>& lhs, NonAllocCont<VALUE>& rhs)
-    {
-        lhs.contents().swap(rhs.contents());
-    }
+template <typename VALUE>
+void swap(NonAllocCont<VALUE>& lhs, NonAllocCont<VALUE>& rhs)
+{
+    lhs.contents().swap(rhs.contents());
 }
+}  // close namespace std
 
 template <class VALUE>
 struct ValueName {
@@ -573,7 +573,7 @@ bool ToDoList::finishTask()
     if (!d_stack.empty()) {
         d_stack.pop();
 
-        return d_stack.empty();
+        return d_stack.empty();                                       // RETURN
     }
 
     return false;
@@ -583,7 +583,7 @@ bool ToDoList::finishTask()
 const char *ToDoList::currentTask() const
 {
     if (d_stack.empty()) {
-        return "<EMPTY>";
+        return "<EMPTY>";                                             // RETURN
     }
 
     return d_stack.top();
@@ -791,7 +791,6 @@ class TestDriver {
     typedef typename Obj::const_reference const_reference;
     typedef typename Obj::size_type       size_type;
     typedef CONTAINER                     container_type;
-
         // Shorthands
 
     typedef bsltf::TestValuesArray<value_type> TestValues;
@@ -846,7 +845,7 @@ class TestDriver {
                                const TestValues&  testValues,
                                size_t             numTestValues,
                                const int          LINE);
-        // Pop the elements out of 'obj', verifying that they exacttly match
+        // Pop the elements out of 'obj', verifying that they exactly match
         // the first 'numTestValues' elements in 'testValues'.
 
     static bool typeAlloc()
@@ -918,7 +917,8 @@ int TestDriver<CONTAINER>::ggg(Obj        *object,
                                const char *spec,
                                int         verbose)
 {
-    bslma::DefaultAllocatorGuard guard(&bslma::NewDeleteAllocator::singleton());
+    bslma::DefaultAllocatorGuard guard(
+                                      &bslma::NewDeleteAllocator::singleton());
     const TestValues VALUES;
 
     enum { SUCCESS = -1 };
@@ -1065,7 +1065,7 @@ void TestDriver<CONTAINER>::testCase12()
                 ASSERTV(cont, SPECX, SPECY, CMP, (CMP != 0) == NE);
             }
 
-            // Do it all over again, this time using a differrent allocator
+            // Do it all over again, this time using a different allocator
             // for 'mY' to verify changing the allocator has no impact on
             // comparisons.  Note we are re-testing the equality comparators
             // so this memory allocation aspect is tested for them too.
@@ -1141,9 +1141,11 @@ void TestDriver<CONTAINER>::testCase11()
 
     // Verify set defines the expected traits.
 
-    enum { CONTAINER_USES_ALLOC =  bslma::UsesBslmaAllocator<CONTAINER>::value };
+    enum { CONTAINER_USES_ALLOC =
+                                 bslma::UsesBslmaAllocator<CONTAINER>::value };
 
-    BSLMF_ASSERT(((int) CONTAINER_USES_ALLOC == bslma::UsesBslmaAllocator<Obj>::value));
+    BSLMF_ASSERT(
+        ((int) CONTAINER_USES_ALLOC == bslma::UsesBslmaAllocator<Obj>::value));
 
     // Verify stack does not define other common traits.
 
@@ -2363,7 +2365,7 @@ void TestDriver<CONTAINER>::testCase4()
                 }
                 else {
                     bsls::AssertFailureHandlerGuard
-                                           hG(bsls::AssertTest::failTestDriver);
+                                          hG(bsls::AssertTest::failTestDriver);
 
                     ASSERT_SAFE_FAIL(mX.top());
                 }
@@ -2715,7 +2717,7 @@ void TestDriver<CONTAINER>::testCase2()
 
             {
                 bsls::AssertFailureHandlerGuard
-                                           hG(bsls::AssertTest::failTestDriver);
+                                          hG(bsls::AssertTest::failTestDriver);
 
                 ASSERT_SAFE_FAIL(mX.pop());
             }

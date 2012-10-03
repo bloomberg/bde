@@ -192,4 +192,3 @@ struct is_trivially_copyable
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
 // ----------------------------- END-OF-FILE ----------------------------------
-

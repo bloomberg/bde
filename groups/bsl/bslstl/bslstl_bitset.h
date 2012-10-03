@@ -50,7 +50,7 @@ BSLS_IDENT("$Id: $")
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we want to write a function to determine whether or not a given
 // number is prime.  One way to implement this function is by using what's
-// called the Sieve of Erathosthenes.  The basic idea of this algorithm is to
+// called the Sieve of Eratosthenes.  The basic idea of this algorithm is to
 // repeatedly walk the sequence of integer values and mark any numbers up to
 // and including the particular value of interest that are integer multiples of
 // first 2, then 3, then 5, etc. (skipping 4 because it was previously marked
@@ -85,7 +85,7 @@ BSLS_IDENT("$Id: $")
 //
 //      bsl::bitset<MAX_VALUE + 1> compositeFlags;
 //..
-// Next, we observe that a default-contructed 'bsl::bitset' has no flags set,
+// Next, we observe that a default-constructed 'bsl::bitset' has no flags set,
 // We can check this by asserting that the 'none' method returns true, by
 // asserting that the 'any' method returns false, or by asserting that the
 // 'count' of set bits is 0:

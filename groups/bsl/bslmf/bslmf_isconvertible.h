@@ -17,7 +17,7 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Paul Staniforth (pstaniforth)
 //
-///@DESCRIPTION: This component defines two meta-functions,
+//@DESCRIPTION: This component defines two meta-functions,
 // 'bsl::is_convertible' and 'BloombergLP::bslmf::IsConvertible', both of which
 // may be used to check whether a conversion exists from one type to another.
 //

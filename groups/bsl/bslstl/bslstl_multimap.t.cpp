@@ -157,7 +157,7 @@ using namespace bsl;
 // [ 3] multimap<T,A>& gg(multimap<T,A> *object, const char *spec);
 // [11] multimap<T,A> g(const char *spec);
 //
-// [22] CONCERN: The object is comppatible with STL allocator.
+// [22] CONCERN: The object is compatible with STL allocators.
 // [23] CONCERN: The object has the necessary type traits
 // [24] CONCERN: The type provides the full interface defined by the standard.
 
@@ -297,7 +297,9 @@ typedef bsltf::NonTypicalOverloadsTestType     TestValueType;
 namespace bsl {
 
 template <class FIRST, class SECOND>
-inline void debugprint(const bsl::pair<FIRST, SECOND>& p) {
+inline
+void debugprint(const bsl::pair<FIRST, SECOND>& p)
+{
     bsls::BslTestUtil::callDebugprint(p.first);
     bsls::BslTestUtil::callDebugprint(p.second);
 }
@@ -320,7 +322,7 @@ void debugprint(const bsl::multimap<KEY, VALUE, COMP, ALLOC>& s)
     fflush(stdout);
 }
 
-} // close namespace bsl
+}  // close namespace bsl
 
 
 namespace {
@@ -972,7 +974,8 @@ int TestDriver<KEY, VALUE, COMP, ALLOC>::ggg(Obj        *object,
                                       const char *spec,
                                       int         verbose)
 {
-    bslma::DefaultAllocatorGuard guard(&bslma::NewDeleteAllocator::singleton());
+    bslma::DefaultAllocatorGuard guard(
+                                      &bslma::NewDeleteAllocator::singleton());
     const TestValues VALUES;
 
     enum { SUCCESS = -1 };
@@ -1622,7 +1625,6 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase21()
         bsl::multimap<KEY, VALUE, ComparatorFunction> X(
                                                        &lessThanFunction<KEY>);
         ASSERTV((ComparatorFunction)&lessThanFunction<KEY> == X.key_comp());
-        //ASSERTV((ComparatorFunction)&lessThanFunction<KEY> == X.value_comp());
     }
 
     static const int ID[] = { 0, 1, 2 };
@@ -2896,9 +2898,9 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase14()
         ASSERTV(1 == (bsl::is_same<typename Iter::reference,
                                    bsl::pair<const KEY, VALUE>&>::value));
         ASSERTV(1 == (bsl::is_same<typename CIter::pointer,
-                                   const bsl::pair<const KEY, VALUE>*>::value));
+                                  const bsl::pair<const KEY, VALUE>*>::value));
         ASSERTV(1 == (bsl::is_same<typename CIter::reference,
-                                   const bsl::pair<const KEY, VALUE>&>::value));
+                                  const bsl::pair<const KEY, VALUE>&>::value));
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int     LINE   = DATA[ti].d_lineNum;
@@ -3490,11 +3492,11 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase9_1()
     //   object of the class to any other object of the class when when
     //   allocator propagation is enabled.  This function implements the test
     //   plan which address C-12 from 'testCase9' and is implemented as a
-    //   separate function from 'testCase9', because at the time of writting,
+    //   separate function from 'testCase9', because at the time of writing,
     //   'AllocatorTraits' doesn't fully support allocator propagation, so some
     //   manual source code changes are needed to run this test.
     //
-    //   TODO: integerate this test function to 'testCase9' once
+    //   TODO: integrate this test function to 'testCase9' once
     //   'AllocatorTraits' fully support allocator propagation.
     //
     // Concerns:
@@ -3920,7 +3922,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase8_1()
     //   Ensure that the 'swap' functions properly swap the objects when
     //   allocator propagation is enabled.  This function implements the test
     //   plan which address C-6 from 'testCase8' and is implemented as a
-    //   separate function from 'testCase8', because at the time of writting,
+    //   separate function from 'testCase8', because at the time of writing,
     //   'AllocatorTraits' doesn't fully support allocator propagation, so some
     //   manual source code changes are needed to run this test.
     //
@@ -4113,7 +4115,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase8()
     //:
     //:     5 Use the value constructor and 'oaz' to a create a modifiable
     //:       'Obj' 'mZ', having the value described by 'R2'; also use the copy
-    //:       constructor to create, using a "scractch" allocator, a const
+    //:       constructor to create, using a "scratch" allocator, a const
     //:       'Obj', 'ZZ', from 'Z'.
     //:
     //:     6 Use the member and free 'swap' functions to swap the values of
@@ -4122,7 +4124,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase8()
     //:       false_type) under the presence of exception; verify, after each
     //:       swap, that:  (C-1, 5, 7)
     //:
-    //:       1 If exception occured during the swap, both values are
+    //:       1 If exception occurred during the swap, both values are
     //:         unchanged.  (C-7)
     //
     //:       2 If no exception occurred, the values have been exchanged.
@@ -4604,7 +4606,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase7()
                 ASSERTV(SPEC, W == Y0);
                 ASSERTV(SPEC, W == X);
                 ASSERTV(SPEC, Y0.get_allocator() ==
-                                            bslma::Default::defaultAllocator());
+                                           bslma::Default::defaultAllocator());
 
                 delete pX;
                 ASSERTV(SPEC, W == Y0);
@@ -5286,7 +5288,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase2()
     //:     and (c) passing the address of a test allocator distinct from the
     //:     default.  For each of these three iterations:  (C-1..14)
     //:
-    //:     1 Create three 'bslma::TestAllocator' objects, and install one as as
+    //:     1 Create three 'bslma::TestAllocator' objects, and install one as
     //:       the current default allocator (note that a ubiquitous test
     //:       allocator is already installed as the global allocator).
     //:
@@ -6079,7 +6081,8 @@ class string {
     }
 
     // MANIPULATORS
-    string& operator=(const string& rhs) {
+    string& operator=(const string& rhs)
+    {
         string temp(rhs);
         temp.swap(*this);
         return *this;
@@ -6093,6 +6096,7 @@ class string {
     void swap(string& other)
     {
         BSLS_ASSERT(d_allocator_p == other.d_allocator_p);
+
         std::swap(d_value_p, other.d_value_p);
         std::swap(d_size, other.d_size);
     }
@@ -6205,7 +6209,7 @@ class PhoneBook {
     // 'bsls::Types::Uint64' value.
 //
 //..
-// Here, we create a type alias, 'NameToNumberMap', for a 'bsl::mulimap' that
+// Here, we create a type alias, 'NameToNumberMap', for a 'bsl::multimap' that
 // will serve as the data member for a 'PhoneBook'.  A 'NameToNumberMap' has
 // keys of type 'FirstAndLastName', mapped-values of type
 // 'bsls::Types::Uint64', and a comparator of type 'FirstAndLastNameLess'.  We
@@ -6409,7 +6413,7 @@ bool operator!=(const PhoneBook& lhs, const PhoneBook& rhs)
 }
 //..
 
-} // close namespace 'UsageExample'
+}  // close namespace 'UsageExample'
 
 // ============================================================================
 //                            MAIN PROGRAM
@@ -6517,7 +6521,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING STANDARD INTERFACE COVERAGE
         // --------------------------------------------------------------------
-        // Test only 'int' and 'char' parameter types, becuase map's
+        // Test only 'int' and 'char' parameter types, because map's
         // 'operator<' and related operators only support parameterized types
         // that defines 'operator<'.
         RUN_EACH_TYPE(TestDriver, testCase25, int, char);

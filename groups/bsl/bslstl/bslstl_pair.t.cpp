@@ -446,33 +446,42 @@ struct my_MoveAbandonBslma {};
 
 namespace BloombergLP {
 namespace bslmf {
-template <> struct IsBitwiseMoveable<my_MoveAbandonBslma> : bsl::true_type {};
-}
+template <>
+struct IsBitwiseMoveable<my_MoveAbandonBslma> : bsl::true_type {};
+}  // close namespace bslmf
 
 namespace bslma {
-template <> struct UsesBslmaAllocator<my_MoveAbandonBslma> : bsl::true_type {};
-}
-}
+template <>
+struct UsesBslmaAllocator<my_MoveAbandonBslma> : bsl::true_type {};
+}  // close namespace bslma
+}  // close namespace BloombergLP
 
 struct my_CopyTrivial {};
 
 namespace bsl {
-template <> struct is_trivially_copyable<my_CopyTrivial> : bsl::true_type {};
-template <> struct is_trivially_default_constructible<my_CopyTrivial> : bsl::true_type {};
-}
+template <>
+struct is_trivially_copyable<my_CopyTrivial> : bsl::true_type {};
+template <>
+struct is_trivially_default_constructible<my_CopyTrivial>
+     : bsl::true_type {};
+}  // close namespace bsl
 
 struct my_EqualityTrivial {};
 
 namespace bsl {
-template <> struct is_trivially_copyable<my_EqualityTrivial> : bsl::true_type {};
-template <> struct is_trivially_default_constructible<my_EqualityTrivial> : bsl::true_type {};
-}
+template <>
+struct is_trivially_copyable<my_EqualityTrivial> : bsl::true_type {};
+template <>
+struct is_trivially_default_constructible<my_EqualityTrivial>
+     : bsl::true_type {};
+}  // close namespace bsl
 
 namespace BloombergLP {
 namespace bslmf {
-template <> struct IsBitwiseEqualityComparable<my_EqualityTrivial> : bsl::true_type {};
-}
-}
+template <>
+struct IsBitwiseEqualityComparable<my_EqualityTrivial> : bsl::true_type {};
+}  // close namespace bslmf
+}  // close namespace BloombergLP
 
 struct my_NoTraits {};
 
@@ -514,7 +523,7 @@ namespace TypeWithSwapNamespace {
     void swap(TypeWithSwap& lhs, TypeWithSwap& rhs) {
         lhs.swap(rhs);
     }
-}
+}  // close namespace TypeWithSwapNamespace
 
                            // ======================
                            // struct TypeWithoutSwap

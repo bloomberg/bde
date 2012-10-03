@@ -157,7 +157,7 @@ using namespace bsl;
 // [ 3] set<T,A>& gg(set<T,A> *object, const char *spec);
 // [11] set<T,A> g(const char *spec);
 //
-// [22] CONCERN: The object is comppatible with STL allocator.
+// [22] CONCERN: The object is compatible with STL allocators.
 // [23] CONCERN: The object has the necessary type traits
 // [24] CONCERN: The type provides the full interface defined by the standard.
 
@@ -308,7 +308,7 @@ void debugprint(const bsl::set<KEY, COMP, ALLOC>& s)
     fflush(stdout);
 }
 
-} // close namespace bsl
+}  // close namespace bsl
 
 namespace {
 
@@ -1344,7 +1344,8 @@ void TestDriver<KEY, COMP, ALLOC>::testCase23()
     BSLMF_ASSERT((1 == bslalg::HasStlIterators<bsl::set<KEY> >::value));
     BSLMF_ASSERT((1 == bslma::UsesBslmaAllocator<bsl::set<KEY> >::value));
 
-    // Verify the bslma-allocator trait is not defined for non bslma-allocators.
+    // Verify the bslma-allocator trait is not defined for non
+    // bslma-allocators.
     BSLMF_ASSERT((0 == bslma::UsesBslmaAllocator<bsl::set<KEY, std::less<KEY>,
                                                           StlAlloc> >::value));
 
@@ -3438,11 +3439,11 @@ void TestDriver<KEY, COMP, ALLOC>::testCase9_1()
     //   object of the class to any other object of the class when when
     //   allocator propagation is enabled.  This function implements the test
     //   plan which address C-12 from 'testCase9' and is implemented as a
-    //   separate function from 'testCase9', because at the time of writting,
+    //   separate function from 'testCase9', because at the time of writing,
     //   'AllocatorTraits' doesn't fully support allocator propagation, so some
     //   manual source code changes are needed to run this test.
     //
-    //   TODO: integerate this test function to 'testCase9' once
+    //   TODO: integrate this test function to 'testCase9' once
     //   'AllocatorTraits' fully support allocator propagation.
     //
     // Concerns:
@@ -4062,7 +4063,7 @@ void TestDriver<KEY, COMP, ALLOC>::testCase8()
     //:
     //:     5 Use the value constructor and 'oaz' to a create a modifiable
     //:       'Obj' 'mZ', having the value described by 'R2'; also use the copy
-    //:       constructor to create, using a "scractch" allocator, a const
+    //:       constructor to create, using a "scratch" allocator, a const
     //:       'Obj', 'ZZ', from 'Z'.
     //:
     //:     6 Use the member and free 'swap' functions to swap the values of
@@ -4071,7 +4072,7 @@ void TestDriver<KEY, COMP, ALLOC>::testCase8()
     //:       false_type) under the presence of exception; verify, after each
     //:       swap, that:  (C-1, 5, 7)
     //:
-    //:       1 If exception occured during the swap, both values are
+    //:       1 If exception occurred during the swap, both values are
     //:         unchanged.  (C-7)
     //
     //:       2 If no exception occurred, the values have been exchanged.
@@ -4574,7 +4575,7 @@ void TestDriver<KEY, COMP, ALLOC>::testCase7()
                 ASSERTV(SPEC, W == Y0);
                 ASSERTV(SPEC, W == X);
                 ASSERTV(SPEC, Y0.get_allocator() ==
-                                            bslma::Default::defaultAllocator());
+                                           bslma::Default::defaultAllocator());
 
                 delete pX;
                 ASSERTV(SPEC, W == Y0);
@@ -5264,7 +5265,7 @@ void TestDriver<KEY, COMP, ALLOC>::testCase2()
     //:     and (c) passing the address of a test allocator distinct from the
     //:     default.  For each of these three iterations:  (C-1..14)
     //:
-    //:     1 Create three 'bslma::TestAllocator' objects, and install one as as
+    //:     1 Create three 'bslma::TestAllocator' objects, and install one as
     //:       the current default allocator (note that a ubiquitous test
     //:       allocator is already installed as the global allocator).
     //:
@@ -6121,7 +6122,7 @@ struct MyDateLess {
 
     bool operator() (const MyDate& lhs, const MyDate& rhs) const
         // Return 'true' if the value of the specified 'lhs' is less than
-        // (ordered before) the vlaue of the specified 'rhs', and 'false'
+        // (ordered before) the value of the specified 'rhs', and 'false'
         // otherwise.  The 'lhs' value is considered less than the 'rhs' value
         // if the date represented by 'lhs' is earlier than the date
         // represented by 'rhs' in time.
@@ -6281,7 +6282,7 @@ bool operator!=(const HolidayCalendar& lhs, const HolidayCalendar& rhs)
 }
 //..
 
-} // close namespace UsageExample
+}  // close namespace UsageExample
 
 // ============================================================================
 //                            MAIN PROGRAM
@@ -6365,7 +6366,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING STANDARD INTERFACE COVERAGE
         // --------------------------------------------------------------------
-        // Test only 'int' and 'char' parameter types, becuase map's
+        // Test only 'int' and 'char' parameter types, because map's
         // 'operator<' and related operators only support parameterized types
         // that defines 'operator<'.
         RUN_EACH_TYPE(TestDriver, testCase25, int, char);

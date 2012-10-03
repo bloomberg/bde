@@ -17,7 +17,7 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Shawn Edwards (sedwards)
 //
-///@DESCRIPTION: This component defines two meta-functions,
+//@DESCRIPTION: This component defines two meta-functions,
 // 'bsl::is_fundamental' and 'BloombergLP::bslmf::IsFundamental', both of which
 // may be used to query whether a type is a pointer type.
 //

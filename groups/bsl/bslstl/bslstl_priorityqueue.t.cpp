@@ -766,7 +766,8 @@ bool TestDriver<VALUE, CONTAINER, COMPARATOR>::use_same_allocator(
                                                int                  TYPE_ALLOC,
                                                bslma::TestAllocator *ta)
 {
-    bslma::DefaultAllocatorGuard guard(&bslma::NewDeleteAllocator::singleton());
+    bslma::DefaultAllocatorGuard guard(
+                                      &bslma::NewDeleteAllocator::singleton());
     const TestValues VALUES;
 
     if (0 == TYPE_ALLOC)  // If 'VALUE' does not use allocator, return true.
@@ -790,7 +791,8 @@ void TestDriver<VALUE, CONTAINER, COMPARATOR>::populate_container(
                                                    const char*       SPEC,
                                                    size_t            length)
 {
-    bslma::DefaultAllocatorGuard guard(&bslma::NewDeleteAllocator::singleton());
+    bslma::DefaultAllocatorGuard guard(
+                                      &bslma::NewDeleteAllocator::singleton());
     const TestValues VALUES;
 
     for (size_t i = 0;i < length; ++i) {
@@ -803,7 +805,8 @@ void TestDriver<VALUE, CONTAINER, COMPARATOR>::populate_container(
 template <class VALUE, class CONTAINER, class COMPARATOR>
 bool TestDriver<VALUE, CONTAINER, COMPARATOR>::is_equal(Obj& a, Obj& b)
 {
-    bslma::DefaultAllocatorGuard guard(&bslma::NewDeleteAllocator::singleton());
+    bslma::DefaultAllocatorGuard guard(
+                                      &bslma::NewDeleteAllocator::singleton());
 
     if (a.size() != b.size()) {
         return false;                                                 // RETURN
@@ -827,7 +830,8 @@ int TestDriver<VALUE, CONTAINER, COMPARATOR>::ggg(Obj        *object,
                                                   const char *spec,
                                                   int         verbose)
 {
-    bslma::DefaultAllocatorGuard guard(&bslma::NewDeleteAllocator::singleton());
+    bslma::DefaultAllocatorGuard guard(
+                                      &bslma::NewDeleteAllocator::singleton());
     const TestValues VALUES;
 
     enum { SUCCESS = -1 };
@@ -1146,7 +1150,7 @@ void TestDriver<VALUE, CONTAINER, COMPARATOR>::testCase12()
                 static bool firstFlag = true;
                 if (firstFlag) {
                     bslma::DefaultAllocatorGuard guard(
-                                       &bslma::NewDeleteAllocator::singleton());
+                                      &bslma::NewDeleteAllocator::singleton());
                     Obj objTemp;
                     ASSERTV(LINE, CONFIG, objTemp, *objPtr,
                             is_equal(objTemp, *objPtr));
@@ -3298,4 +3302,3 @@ int main(int argc, char *argv[])
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
 // ----------------------------- END-OF-FILE ---------------------------------
-

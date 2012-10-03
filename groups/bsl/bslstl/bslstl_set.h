@@ -301,7 +301,7 @@ BSLS_IDENT("$Id: $")
 //
 //      bool operator() (const MyDate& lhs, const MyDate& rhs) const
 //          // Return 'true' if the value of the specified 'lhs' is less than
-//          // (ordered before) the vlaue of the specified 'rhs', and 'false'
+//          // (ordered before) the value of the specified 'rhs', and 'false'
 //          // otherwise.  The 'lhs' value is considered less than the 'rhs'
 //          // value if the date represented by 'lhs' is earlier than the date
 //          // represented by 'rhs' in time.

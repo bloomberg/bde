@@ -64,7 +64,7 @@ using namespace bsl;
 // must be tested for exception neutrality via the 'bslma_testallocator'
 // component.  After the mandatory sequence of cases (1--10) for value-semantic
 // types (cases 5 and 10 are not implemented, as there is not output or
-// streaming below stlport), we test each individual constructor, manipulator,
+// streaming below bslstl), we test each individual constructor, manipulator,
 // and accessor in subsequent cases.
 //
 // Abbreviations:
@@ -3365,7 +3365,7 @@ void TestDriver<TYPE,ALLOC>::testCase17()
 
                         // Have to separate const's from vars in boolean
                         // operations or we get these really stupid warnings
-                        // grom g++.
+                        // from g++.
 
                         const int TYPE_ALLOCS = !TYPE_ALLOC || TYPE_MOVEABLE
                                               ? 0
@@ -8066,7 +8066,7 @@ int main(int argc, char *argv[])
     switch (test) { case 0:  // Zero is always the leading case.
       case 23: {
         // --------------------------------------------------------------------
-        // RANGE INSERT FUNCION PTR BUG
+        // RANGE INSERT FUNCTION PTR BUG
         //
         // Concerns:
         //   In DRQS 31711031, it was observed that a c'tor insert range from

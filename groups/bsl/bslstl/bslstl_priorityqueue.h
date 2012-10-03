@@ -404,7 +404,7 @@ class priority_queue
     explicit priority_queue(const COMPARATOR& comparator);
         // Create an empty priority queue, adapting a default-constructed
         // container of the parameterized 'CONTAINER' type, and having the
-        // sepcified 'comparator' of the (template parameter) type 'COMPARATOR'
+        // specified 'comparator' of the (template parameter) type 'COMPARATOR'
         // to order priorities of elements in 'container'.
 
     template <class INPUT_ITERATOR>

@@ -1,4 +1,4 @@
-// bslma_usesbslmaallocator.t.cpp                  -*-C++-*-
+// bslma_usesbslmaallocator.t.cpp                                     -*-C++-*-
 
 #include "bslma_usesbslmaallocator.h"
 

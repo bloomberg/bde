@@ -72,7 +72,7 @@ using namespace std;
 // must be tested for exception neutrality via the 'bslma_testallocator'
 // component.  After the mandatory sequence of cases (1--10) for value-semantic
 // types (cases 5 and 10 are not implemented, as there is not output or
-// streaming below stlport), we test each individual constructor, manipulator,
+// streaming below bslstl), we test each individual constructor, manipulator,
 // and accessor in subsequent cases.
 //
 // Regarding the allocation model, we attempt to write a general test driver
