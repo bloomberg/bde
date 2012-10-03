@@ -95,18 +95,13 @@
 #include <limits.h>      // PATH_MAX on linux
 #include <float.h>       // FLT_MAX, etc.
 
+#include <sys/types.h> // struct stat: required on Sun and Windows only
+#include <sys/stat.h>  // struct stat: required on Sun and Windows only
+
 #if defined(BSLS_BSLTESTUTIL_OS_WINDOWS)
 # include <windows.h>    // MAX_PATH
 # include <io.h>         // _dup2
-# include <sys/types.h>  // struct stat: required on Sun and Windows only
-# include <sys/stat.h>   // struct stat: required on Sun and Windows only
 #else
-# if defined(BSLS_BSLTESTUTIL_OS_SUNOS) || \
-     defined(BSLS_BSLTESTUTIL_OS_SOLARIS) || \
-     defined(BSLS_BSLTESTUTIL_OS_DARWIN)
-#  include <sys/types.h> // struct stat: required on Sun and Windows only
-#  include <sys/stat.h>  // struct stat: required on Sun and Windows only
-# endif
 # include <unistd.h>
 #endif
 

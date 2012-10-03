@@ -122,8 +122,12 @@ BDES_IDENT("$Id: $")
 #include <baescm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include <bslma_usesbslmaallocator.h>
 #endif
 
 #ifndef INCLUDED_BDEAT_VALUETYPEFUNCTIONS
@@ -168,10 +172,6 @@ BDES_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-struct baenet_HttpExtendedHeaderFields_Trait
-                                          : bslalg_TypeTraitUsesBslmaAllocator,
-                                            bdeu_TypeTraitHasPrintMethod { };
-
                    // =====================================
                    // class baenet_HttpExtendedHeaderFields
                    // =====================================
@@ -204,8 +204,10 @@ class baenet_HttpExtendedHeaderFields {
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(baenet_HttpExtendedHeaderFields,
-                                 baenet_HttpExtendedHeaderFields_Trait);
+    BSLMF_NESTED_TRAIT_DECLARATION(baenet_HttpExtendedHeaderFields,
+                                   bslma::UsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(baenet_HttpExtendedHeaderFields,
+                                   bdeu_HasPrintMethod);
 
     // TYPES
     typedef FieldMap::iterator       FieldIterator;

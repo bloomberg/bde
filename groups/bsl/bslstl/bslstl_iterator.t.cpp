@@ -624,8 +624,7 @@ int main(int argc, char *argv[])
         //: 2 The value of the original reverse iterator is left unaffected.
         //:
         //: 3 Subsequent changes in or destruction of the original reverse
-        //:   iterator have no effect on the copy-constructed reverse
-        //:   iterator.
+        //:   iterator have no effect on the copy-constructed reverse iterator.
         //:
         //: 4 Subsequent changes on the copy-constructed reverse iterator have
         //:   no effect on the original.
@@ -975,7 +974,7 @@ int main(int argc, char *argv[])
         //:   with 'cB'.  Also verify the increment was performed correctly by
         //:   checking the value 'cB' refers to.  (C-2)
         //:
-        //: 4 Create another constant reverse iterat 'cC' using value
+        //: 4 Create another constant reverse iterator 'cC' using value
         //:   constructor, pre-increment it.  Verify 'cC' has changed by
         //:   comparing 'cC' with 'cB'.  Also verify the pre-increment was
         //:   performed correctly by checking the value it refers to.  (C-2,3)

@@ -225,7 +225,7 @@ class Stack {
 template <class VALUE>
 class TestDriver {
     // This templatized struct provide a namespace for testing the 'map'
-    // container.  The parameterized 'VALUE' specifies the value type forr this
+    // container.  The parameterized 'VALUE' specifies the value type for this
     // object.  Each "testCase*" method test a specific aspect of
     // 'SimplePool<VALUE>'.  Every test cases should be invoked with various
     // parameterized type to fully test the container.
@@ -404,7 +404,7 @@ void TestDriver<VALUE>::testCase8()
     // Plan:
     //: 1 Using a table-based approach:
     //:
-    //:   1 Create two objects of whick memory has been allocated and
+    //:   1 Create two objects of which memory has been allocated and
     //:     deallocated various number of times.
     //:
     //:   2 Swap the two objects, verify allocator is not changed.  (C-2)
@@ -585,7 +585,7 @@ void TestDriver<VALUE>::testCase7()
     //: 1 'release' deallocate all memory whether it was in the free list or
     //:   used list.
     //:
-    //: 2 No temporry memory is allocated.
+    //: 2 No temporary memory is allocated.
     //:
     //: 3 No free memory blocks is available after a 'release'.  i.e.,
     //:   subsequent 'allocate' will need to allocate memory from the heap.
@@ -1098,8 +1098,8 @@ void TestDriver<VALUE>::testCase2()
             else {
                 ptrdiff_t offset = sizeof(VALUE);
                 offset += bsls::AlignmentUtil::calculateAlignmentOffset(
-                                        (void *) offset,
-                                        bsls::AlignmentFromType<void *>::VALUE);
+                                       (void *) offset,
+                                       bsls::AlignmentFromType<void *>::VALUE);
                 ASSERTV(oam.isTotalSame());
                 ASSERTV(prevPtr, ptr, (char *)prevPtr + offset == (char*)ptr);
             }

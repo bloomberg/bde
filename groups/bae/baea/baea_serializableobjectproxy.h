@@ -2210,13 +2210,17 @@ int baea_SerializableObjectProxy::arrayAccessElement(ACCESSOR& accessor,
 //                            Basic Type Traits
 // ============================================================================
 
-template<>
-struct bslalg_TypeTraits<baea_SerializableObjectProxy> :
-    bdeat_TypeTraitBasicChoice,
-    bdeat_TypeTraitBasicSequence,
-    bdeat_TypeTraitBasicEnumeration
-{
-};
+template <>
+struct bdeat_IsBasicChoice<baea_SerializableObjectProxy> : bsl::true_type
+{};
+
+template <>
+struct bdeat_IsBasicSequence<baea_SerializableObjectProxy> : bsl::true_type
+{};
+
+template <>
+struct bdeat_IsBasicEnumeration<baea_SerializableObjectProxy> : bsl::true_type
+{};
 
 // ============================================================================
 //                      'bdeat_typecategory' overloads

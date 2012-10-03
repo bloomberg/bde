@@ -6,8 +6,12 @@
 #include <bslmf_isconvertible.h>
 #include <bslmf_metaint.h>
 #include <bslmf_removecvq.h>
+#include <bslmf_if.h>
 #include <bsls_objectbuffer.h>
 #include <bsls_platform.h>
+#include <bslalg_typetraitbitwisecopyable.h>
+#include <bslalg_typetraitbitwisemoveable.h>
+#include <bslalg_typetraithastrivialdefaultconstructor.h>
 
 #include <bsls_types.h>  // for testing only
 
@@ -102,17 +106,15 @@ const unsigned TRAIT_EQPOD = (TRAIT_POD |
 
 // Traits detection
 template <typename TYPE, typename TRAIT>
-class HasTrait {
-    typedef typename bslmf::RemoveCvq<TYPE>::Type  NoCvqType;
-    typedef bslalg_TypeTraits<NoCvqType>           NoCvqTraits;
-
-  public:
+struct HasTrait {
     enum {
-        VALUE = bslmf::IsConvertible<NoCvqTraits, TRAIT>::VALUE
+        VALUE = TRAIT::template Metafunction<TYPE>::value
     };
 
     typedef bslmf::MetaInt<VALUE> Type;
 };
+
+#if 0 // implied traits
 
 template <typename TYPE>
 class HasTrait<TYPE, bslalg::TypeTraitBitwiseMoveable> {
@@ -148,6 +150,8 @@ struct HasTrait<TYPE, bslalg::TypeTraitBitwiseCopyable> {
 
     typedef bslmf::MetaInt<VALUE> Type;
 };
+
+#endif // implied traits
 
 // Traits bit vector
 template <typename TYPE>
@@ -198,7 +202,7 @@ struct Identity {
     typedef Type const volatile   cvType;                              \
     static const char *TypeName = #TYPE;                               \
     static const unsigned traits = traitBits<  Type>();                \
-    LOOP2_ASSERT(TypeName, traits, traitBits<  Type>() == TRAIT_BITS); \
+    LOOP2_ASSERT(TypeName, traits, traitBits<  Type>() == (TRAIT_BITS)); \
     LOOP2_ASSERT(TypeName, traits, traitBits< cType>() == traits);     \
     LOOP2_ASSERT(TypeName, traits, traitBits< vType>() == traits);     \
     LOOP2_ASSERT(TypeName, traits, traitBits<cvType>() == traits);     \
@@ -219,19 +223,21 @@ struct my_Class1
 };
 
 namespace BloombergLP {
+namespace bslma {
+ 
+template <> struct UsesBslmaAllocator<my_Class1> : bsl::true_type { };
 
-    template <>
-        struct bslalg_TypeTraits<my_Class1>
-        : bslalg::TypeTraitUsesBslmaAllocator {};
-
+}  // close bslma namespace
 }  // close enterprise namespace
 
 template <class T>
 struct my_Class2
 {
     // Class template that has nested type traits
-    BSLALG_DECLARE_NESTED_TRAITS(my_Class2,
-                                 BloombergLP::bslalg::TypeTraitsGroupPod);
+    BSLALG_DECLARE_NESTED_TRAITS3(my_Class2,
+                                bslalg::TypeTraitBitwiseCopyable,
+                                bslalg::TypeTraitBitwiseMoveable,
+                                bslalg::TypeTraitHasTrivialDefaultConstructor);
 };
 
 struct my_Class4
@@ -388,7 +394,7 @@ namespace BSLALG_TYPETRAITS_USAGE_EXAMPLE {
         template <class TYPE>
         static void copyConstruct(TYPE             *location,
                                   const TYPE&       value,
-                                  bslma::Allocator *allocator,
+                                  bslma::Allocator */* allocator */,
                                   bslalg::TypeTraitNil)
             // Create a copy of the specified 'value' at the specified
             // 'location'.  Note that the specified 'allocator' is ignored.
@@ -409,7 +415,10 @@ namespace BSLALG_TYPETRAITS_USAGE_EXAMPLE {
             // 'bslalg::TypeTraitUsesBslmaAllocator'.
         {
             copyConstruct(location, value, allocator,
-                          bslalg_TypeTraits<TYPE>());
+                typename bslmf::If<HasTrait<TYPE,
+                              bslalg::TypeTraitUsesBslmaAllocator>::VALUE,
+                          bslalg::TypeTraitUsesBslmaAllocator,
+                          bslalg::TypeTraitNil>::Type());
         }
 
     };
