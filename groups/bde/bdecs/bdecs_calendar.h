@@ -179,8 +179,8 @@ BDES_IDENT("$Id: $")
 //      // associated with a (typically short) name.
 //
 //      // DATA
-//      bsl::hash_map<bsl::string, bdecs_PackedCalendar *>  d_map;
-//      bslma_Allocator                                    *d_allocator_p;
+//      bsl::unordered_map<bsl::string, bdecs_PackedCalendar *>  d_map;
+//      bslma_Allocator                                         *d_allocator_p;
 //
 //     public:
 //       // CREATORS
@@ -206,7 +206,7 @@ BDES_IDENT("$Id: $")
 //  const bdecs_PackedCalendar *
 //  MyPackedCalendarCache::lookup(const bsl::string& name) const
 //  {
-//      typedef bsl::hash_map<bsl::string, bdecs_PackedCalendar *> Cache;
+//      typedef bsl::unordered_map<bsl::string, bdecs_PackedCalendar *> Cache;
 //      Cache::const_iterator itr = d_map.find(name);
 //
 //      if (itr == d_map.end()) {
@@ -239,8 +239,8 @@ BDES_IDENT("$Id: $")
 //      // whose address is supplied at construction.
 //
 //      // DATA
-//      MyPackedCalendarCache                      *d_datasource_p;
-//      bsl::hash_map<bsl::string, bdecs_Calendar>  d_map;
+//      MyPackedCalendarCache                           *d_datasource_p;
+//      bsl::unordered_map<bsl::string, bdecs_Calendar>  d_map;
 //
 //    public:
 //      // CREATORS
