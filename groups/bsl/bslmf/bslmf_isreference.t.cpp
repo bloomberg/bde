@@ -1,6 +1,8 @@
 // bslmf_isreference.t.cpp                                            -*-C++-*-
 #include <bslmf_isreference.h>
 
+#include <bsls_compilerfeatures.h>
+
 #include <cstdio>
 #include <cstdlib>
 
@@ -13,9 +15,9 @@ using namespace std;
 //                                Overview
 //                                --------
 // The component under test defines a meta-function, 'bsl::is_reference', that
-// determines whether a template parameter type is a (lvalue or rvalue)
+// determines whether a template parameter type is an (lvalue or rvalue)
 // reference type.  Thus, we need to ensure that the value returned by this
-// meta-functions is correct for each possible category of types.
+// meta-function is correct for each possible category of types.
 //
 // ----------------------------------------------------------------------------
 // PUBLIC CLASS DATA
@@ -112,15 +114,15 @@ class DerivedClassTestType : public BaseClassTestType {
 };
 
 typedef int (StructTestType::*MethodPtrTestType) ();
-    // This pointer type to non-static function member is intended to be used
+    // This pointer to non-static function member type is intended to be used
     // for testing as the template parameter 'TYPE' of 'bsl::is_reference'.
 
 typedef void (*FunctionPtrTestType) ();
     // This function pointer type is intended to be used for testing as the
     // template parameter 'TYPE' of 'bsl::is_reference'.
 
-typedef int StructTestType::* PMD;
-    // This pointer type to data member is intended to be used for testing as
+typedef int StructTestType::*PMD;
+    // This pointer to data member type is intended to be used for testing as
     // the template parameter 'TYPE' of 'bsl::is_reference'.
 
 struct Incomplete;
@@ -202,7 +204,7 @@ int main(int argc, char *argv[])
 // reference types.
 //
 // Now, we instantiate the 'bsl::is_reference' template for a non-reference
-// type, a lvalue reference type, and a rvalue reference type, and assert the
+// type, an lvalue reference type, and an rvalue reference type, and assert the
 // 'value' static data member of each instantiation:
 //..
     ASSERT(false == bsl::is_reference<int>::value);
@@ -211,8 +213,8 @@ int main(int argc, char *argv[])
     ASSERT(true  == bsl::is_reference<int&&>::value);
   #endif
 //..
-// Note that rvalue reference is a feature introduced in C++11 standand, and
-// may not be supported by all compilers.
+// Note that rvalue reference is a feature introduced in the C++11 standand,
+// and may not be supported by all compilers.
 
 
       } break;
@@ -220,7 +222,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // 'bsl::is_reference::value'
         //   Ensure that the static data member 'value' of 'bsl::is_reference'
-        //   instantiations having various (template parameter) 'TYPE' has the
+        //   instantiations having various (template parameter) 'TYPE's has the
         //   correct value.
         //
         // Concerns:
@@ -247,8 +249,8 @@ int main(int argc, char *argv[])
         //   bsl::is_reference::value
         // --------------------------------------------------------------------
 
-        if (verbose) printf("bsl::is_reference::value\n"
-                            "========================\n");
+        if (verbose) printf("'bsl::is_reference::value'\n"
+                            "==========================\n");
 
         // C-1
         TYPE_ASSERT_CVQ_SUFFIX(bsl::is_reference, value, void, false);
@@ -389,11 +391,11 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2012
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------
