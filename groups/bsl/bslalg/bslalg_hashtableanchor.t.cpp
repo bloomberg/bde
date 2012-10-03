@@ -80,9 +80,6 @@ using namespace BloombergLP;
 //:   o copy-assignment
 //:   o swap
 // ----------------------------------------------------------------------------
-// CLASS METHODS
-// [11] static bool isValidUtcOffsetInSeconds(int value);
-//
 // CREATORS
 // [ 2] HashTableAnchor(HashTableBucket *, size_t, BidirectionalLink *);
 // [ 7] HashTableAnchor(const HashTableAnchor&)
@@ -107,7 +104,7 @@ using namespace BloombergLP;
 // [ 8] void swap(HashTableAnchor& a, b);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [12] USAGE EXAMPLE
+// [11] USAGE EXAMPLE
 // [ *] CONCERN: This test driver is reusable w/other, similar components.
 // [ *] CONCERN: In no case does memory come from the global allocator.
 // [ 3] CONCERN: All creator/manipulator ptr./ref. parameters are 'const'.
