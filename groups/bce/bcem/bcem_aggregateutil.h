@@ -955,7 +955,7 @@ int bcem_AggregateUtil::fromAggregateRawToEnumeration(
                                          TYPE                     *destination,
                                          const bcem_AggregateRaw&  aggregate)
 {
-    typedef typename bslalg_TypeTraits<TYPE>::Wrapper Wrapper;
+    typedef typename bdeat_BasicEnumerationWrapper<TYPE>::Wrapper Wrapper;
 
     return Wrapper::fromString(destination, aggregate.asString());
 }
@@ -1579,7 +1579,7 @@ int bcem_AggregateUtil::toAggregateRawFromEnumeration(
                                                 bcem_AggregateRaw *aggregate,
                                                 const TYPE&        source)
 {
-    typedef typename bslalg_TypeTraits<TYPE>::Wrapper Wrapper;
+    typedef typename bdeat_BasicEnumerationWrapper<TYPE>::Wrapper Wrapper;
 
     bcem_ErrorAttributes errorDescription;
     aggregate->setValue(&errorDescription, Wrapper::toString(source));
