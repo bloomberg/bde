@@ -7,6 +7,8 @@ BDES_IDENT_RCSID(bcem_errorattributes_cpp,"$Id$ $CSID$")
 
 #include <bslim_printer.h>
 
+#include <bsl_ostream.h>
+
 namespace BloombergLP {
 
                      // --------------------------
