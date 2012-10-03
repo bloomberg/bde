@@ -89,7 +89,7 @@ BDES_IDENT("$Id: $")
 // The following detailed example uses the bitwise-swap
 // function.  We define a basic templatized 'Array' class as our example
 // container.  This container class may be parameterized by any class that is
-// bitwise moveable.  (See the component 'bslmf_IsBitwiseCopyable'.)  In
+// bitwise moveable.  (See the component 'bslmf_istriviallycopyable'.)  In
 // addition to the constructor and destructor, the container class has an index
 // operator and a swap function.  The swap function is implemented using the
 // 'bdeimp_BitwiseCopy' component.

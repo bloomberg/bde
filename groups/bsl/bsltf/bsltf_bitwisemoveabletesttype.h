@@ -18,7 +18,7 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides a single, unconstrained
 // (value-semantic) attribute class, 'BitwiseMoveableTestType', that is
-// bitwise-moveable and defines the 'bslalg_TypeTraitBitwiseMoveable' type
+// bitwise-moveable and defines the 'bslmf::IsBitwiseMoveable' type
 // trait.
 //
 ///Attributes
@@ -45,24 +45,22 @@ BSLS_IDENT("$Id: $")
 //  void printTypeTraits()
 //      // Prints the traits of the parameterized 'TYPE' to the console.
 //  {
-//      if (bslmf_IsConvertible<bslalg_TypeTraits<TYPE>,
-//          bslalg_TypeTraitUsesBslmaAllocator>::VALUE) {
-//          printf("Type defines bslalg_TypeTraitUsesBslmaAllocator.\n");
+//      if (bslma::UsesBslmaAllocator<TYPE>::value) {
+//          printf("Type defines bslma::UsesBslmaAllocator.\n");
 //      }
 //      else {
 //          printf(
-//               "Type does not define bslalg_TypeTraitUsesBslmaAllocator.\n");
+//               "Type does not define bslma::UsesBslmaAllocator.\n");
 //      }
 //
-//      if (bslmf_IsConvertible<bslalg_TypeTraits<TYPE>,
-//          bslalg_TypeTraitBitwiseMoveable>::VALUE) {
-//          printf("Type defines bslalg_TypeTraitBitwiseMoveable.\n");
+//      if (blsmf::IsBitwiseMoveable<TYPE>::value) {
+//          printf("Type defines bslmf::IsBitwiseMoveable.\n");
 //      }
 //      else {
-//          printf("Type does not define bslalg_TypeTraitBitwiseMoveable.\n");
+//          printf("Type does not define bslmf::IsBitwiseMoveable.\n");
 //      }
 //  }
-// ..
+//..
 // Now, we invoke the 'printTypeTraits' function template using
 // 'BitwiseMoveableTestType' as the parameterized 'TYPE':
 //..
@@ -70,12 +68,16 @@ BSLS_IDENT("$Id: $")
 //..
 // Finally, we observe the console output:
 //..
-//  Type does not define bslalg_TypeTraitUsesBslmaAllocator.
-//  Type defines bslalg_TypeTraitBitwiseMoveable.
+//  Type does not define bslma::UsesBslmaAllocator.
+//  Type defines bslmf::IsBitwiseMoveable.
 //..
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include <bslma_usesbslmaallocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
+#include <bslmf_isbitwisemoveable.h>
 #endif
 
 namespace BloombergLP {
@@ -87,7 +89,7 @@ namespace bsltf {
 
 class BitwiseMoveableTestType {
     // This unconstrained (value-semantic) attribute class defines the
-    // 'bslalg_TypeTraitBitwiseMoveable' and does not allocate memory.  See the
+    // 'bslmf::IsBitwiseMoveable' and does not allocate memory.  See the
     // Attributes section under @DESCRIPTION in the component-level
     // documentation for information on the class attributes.
 
@@ -95,10 +97,6 @@ class BitwiseMoveableTestType {
     int d_data;  // class value
 
   public:
-    // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(BitwiseMoveableTestType,
-                                 bslalg::TypeTraitBitwiseMoveable);
-
     // CREATORS
     BitwiseMoveableTestType();
         // Create a 'SimpleTestType' object having the (default) attribute
@@ -132,6 +130,16 @@ class BitwiseMoveableTestType {
     int data() const;
         // Return the value of the 'data' attribute of this object.
 };
+
+}
+
+// TRAITS
+namespace bslmf {
+template <> struct IsBitwiseMoveable<bsltf::BitwiseMoveableTestType>
+    : bsl::true_type {};
+}
+
+namespace bsltf {
 
 // FREE OPERATORS
 bool operator==(const BitwiseMoveableTestType& lhs,

@@ -29,7 +29,6 @@
 #include <bsltf_testvaluesarray.h>
 #include <bsltf_stdtestallocator.h>
 
-
 // ============================================================================
 //                          ADL SWAP TEST HELPER
 // ----------------------------------------------------------------------------
@@ -767,7 +766,8 @@ bool TestDriver<VALUE, CONTAINER, COMPARATOR>::use_same_allocator(
                                                int                  TYPE_ALLOC,
                                                bslma::TestAllocator *ta)
 {
-    bslma::DefaultAllocatorGuard guard(&bslma::NewDeleteAllocator::singleton());
+    bslma::DefaultAllocatorGuard guard(
+                                      &bslma::NewDeleteAllocator::singleton());
     const TestValues VALUES;
 
     if (0 == TYPE_ALLOC)  // If 'VALUE' does not use allocator, return true.
@@ -791,7 +791,8 @@ void TestDriver<VALUE, CONTAINER, COMPARATOR>::populate_container(
                                                    const char*       SPEC,
                                                    size_t            length)
 {
-    bslma::DefaultAllocatorGuard guard(&bslma::NewDeleteAllocator::singleton());
+    bslma::DefaultAllocatorGuard guard(
+                                      &bslma::NewDeleteAllocator::singleton());
     const TestValues VALUES;
 
     for (size_t i = 0;i < length; ++i) {
@@ -804,7 +805,8 @@ void TestDriver<VALUE, CONTAINER, COMPARATOR>::populate_container(
 template <class VALUE, class CONTAINER, class COMPARATOR>
 bool TestDriver<VALUE, CONTAINER, COMPARATOR>::is_equal(Obj& a, Obj& b)
 {
-    bslma::DefaultAllocatorGuard guard(&bslma::NewDeleteAllocator::singleton());
+    bslma::DefaultAllocatorGuard guard(
+                                      &bslma::NewDeleteAllocator::singleton());
 
     if (a.size() != b.size()) {
         return false;                                                 // RETURN
@@ -828,7 +830,8 @@ int TestDriver<VALUE, CONTAINER, COMPARATOR>::ggg(Obj        *object,
                                                   const char *spec,
                                                   int         verbose)
 {
-    bslma::DefaultAllocatorGuard guard(&bslma::NewDeleteAllocator::singleton());
+    bslma::DefaultAllocatorGuard guard(
+                                      &bslma::NewDeleteAllocator::singleton());
     const TestValues VALUES;
 
     enum { SUCCESS = -1 };
@@ -1048,8 +1051,7 @@ void TestDriver<VALUE, CONTAINER, COMPARATOR>::testCase12()
     //  priority_queue(const CONTAINER& container, const ALLOCATOR& allocator);
     // ------------------------------------------------------------------------
 
-    const int TYPE_ALLOC =
-           bslalg::HasTrait<VALUE, bslalg::TypeTraitUsesBslmaAllocator>::VALUE;
+    const int TYPE_ALLOC = bslma::UsesBslmaAllocator<VALUE>::value;
 
     const int NUM_DATA                     = DEFAULT_NUM_DATA;
     const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
@@ -1148,7 +1150,7 @@ void TestDriver<VALUE, CONTAINER, COMPARATOR>::testCase12()
                 static bool firstFlag = true;
                 if (firstFlag) {
                     bslma::DefaultAllocatorGuard guard(
-                                       &bslma::NewDeleteAllocator::singleton());
+                                      &bslma::NewDeleteAllocator::singleton());
                     Obj objTemp;
                     ASSERTV(LINE, CONFIG, objTemp, *objPtr,
                             is_equal(objTemp, *objPtr));
@@ -1416,8 +1418,7 @@ void TestDriver<VALUE, CONTAINER, COMPARATOR>::testCase9()
     // ------------------------------------------------------------------------
 
 
-    const int TYPE_ALLOC =
-           bslalg::HasTrait<VALUE, bslalg::TypeTraitUsesBslmaAllocator>::VALUE;
+    const int TYPE_ALLOC = bslma::UsesBslmaAllocator<VALUE>::value;
 
     const int NUM_DATA                     = DEFAULT_NUM_DATA;
     const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
@@ -1633,8 +1634,7 @@ void TestDriver<VALUE, CONTAINER, COMPARATOR>::testCase8()
     if (verbose) printf("\nSWAP MEMBER AND FREE FUNCTIONS"
                         "\n==============================\n");
 
-    const int TYPE_ALLOC =
-           bslalg::HasTrait<VALUE, bslalg::TypeTraitUsesBslmaAllocator>::VALUE;
+    const int TYPE_ALLOC = bslma::UsesBslmaAllocator<VALUE>::value;
 
     if (verbose) printf(
                      "\nAssign the address of each function to a variable.\n");
@@ -1846,8 +1846,7 @@ void TestDriver<VALUE, CONTAINER, COMPARATOR>::testCase7()
 
     bslma::TestAllocator oa(veryVeryVerbose);
 
-    const int TYPE_ALLOC =
-           bslalg::HasTrait<VALUE, bslalg::TypeTraitUsesBslmaAllocator>::VALUE;
+    const int TYPE_ALLOC = bslma::UsesBslmaAllocator<VALUE>::value;
 
     if (verbose)
         printf("\nTesting parameters: TYPE_ALLOC = %d.\n", TYPE_ALLOC);
@@ -2334,8 +2333,7 @@ void TestDriver<VALUE, CONTAINER, COMPARATOR>::testCase2()
     //   void pop();
     // ------------------------------------------------------------------------
 
-    const int TYPE_ALLOC =
-             bslalg::HasTrait<VALUE, bslalg::TypeTraitUsesBslmaAllocator>::VALUE;
+    const int TYPE_ALLOC = bslma::UsesBslmaAllocator<VALUE>::value;
 
     if (verbose) { P(TYPE_ALLOC); }
 
@@ -3304,4 +3302,3 @@ int main(int argc, char *argv[])
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
 // ----------------------------- END-OF-FILE ---------------------------------
-

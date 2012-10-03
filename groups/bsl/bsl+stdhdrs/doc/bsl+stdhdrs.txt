@@ -390,7 +390,7 @@
 :   included.  Therefore, the include guards in those files do not guard the
 :   entire file.
 :
-: o '.SUNWCCh' files are needed to override the native STL include files on
-:   Sun.  The file extension tells the Sun compiler that it is an STL header
-:   file.
+: o '.SUNWCCh' files are needed to override the native STL include files when
+:   using the Oracle Studio compiler.  The file extension tells the compiler
+:   that it is an STL header file.
 

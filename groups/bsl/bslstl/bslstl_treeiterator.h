@@ -193,8 +193,8 @@ class TreeIterator
     // 'bslstl::TreeNode' object).
 
     // PRIVATE TYPES
-    typedef typename BloombergLP::bslmf::RemoveCvq<BSLSTL_VALUE>::Type NcType;
-    typedef TreeIterator<NcType, BSLSTL_NODE, BSLSTL_DIFFERENCE>       NcIter;
+    typedef typename bsl::remove_cv<BSLSTL_VALUE>::type          NcType;
+    typedef TreeIterator<NcType, BSLSTL_NODE, BSLSTL_DIFFERENCE> NcIter;
 
     // DATA
     bslalg::RbTreeNode *d_node_p;  // current iterator position
@@ -215,9 +215,9 @@ class TreeIterator
     // PUBLIC TYPES
     typedef bsl::bidirectional_iterator_tag iterator_category;
     typedef NcType                          value_type;
-    typedef BSLSTL_DIFFERENCE                      difference_type;
-    typedef BSLSTL_VALUE*                          pointer;
-    typedef BSLSTL_VALUE&                          reference;
+    typedef BSLSTL_DIFFERENCE               difference_type;
+    typedef BSLSTL_VALUE*                   pointer;
+    typedef BSLSTL_VALUE&                   reference;
         // Standard iterator defined types [24.4.2].
 
     // CREATORS

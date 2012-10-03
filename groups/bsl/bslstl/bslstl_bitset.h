@@ -50,7 +50,7 @@ BSLS_IDENT("$Id: $")
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we want to write a function to determine whether or not a given
 // number is prime.  One way to implement this function is by using what's
-// called the Sieve of Erathosthenes.  The basic idea of this algorithm is to
+// called the Sieve of Eratosthenes.  The basic idea of this algorithm is to
 // repeatedly walk the sequence of integer values and mark any numbers up to
 // and including the particular value of interest that are integer multiples of
 // first 2, then 3, then 5, etc. (skipping 4 because it was previously marked
@@ -85,7 +85,7 @@ BSLS_IDENT("$Id: $")
 //
 //      bsl::bitset<MAX_VALUE + 1> compositeFlags;
 //..
-// Next, we observe that a default-contructed 'bsl::bitset' has no flags set,
+// Next, we observe that a default-constructed 'bsl::bitset' has no flags set,
 // We can check this by asserting that the 'none' method returns true, by
 // asserting that the 'any' method returns false, or by asserting that the
 // 'count' of set bits is 0:
@@ -180,14 +180,6 @@ BSL_OVERRIDES_STD mode"
 
 #ifndef INCLUDED_BSLSTL_STRING
 #include <bslstl_string.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_METAINT
-#include <bslmf_metaint.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ASSERT
@@ -327,8 +319,8 @@ class bitset {
         // Clear the bits unused by the bitset in 'd_data', namely, bits
         // 'BITSETSIZE * BITSPERINT - 1' to N (where bit count starts at 0).
 
-    void clearUnusedBits(BloombergLP::bslmf::MetaInt<0>);
-    void clearUnusedBits(BloombergLP::bslmf::MetaInt<1>);
+    void clearUnusedBits(bsl::false_type);
+    void clearUnusedBits(bsl::true_type);
         // Implementations of 'clearUnusedBits', overloaded by whether there
         // are any unused bits.
 
@@ -674,18 +666,18 @@ void bitset<N>::clearUnusedBits()
 {
     enum { VALUE = N % BITSPERINT ? 1 : 0 };
 
-    clearUnusedBits(BloombergLP::bslmf::MetaInt<VALUE>());
+    clearUnusedBits(bsl::integral_constant<bool, VALUE>());
 }
 
 template <std::size_t N>
 inline
-void bitset<N>::clearUnusedBits(BloombergLP::bslmf::MetaInt<0>)
+void bitset<N>::clearUnusedBits(bsl::false_type)
 {
 }
 
 template <std::size_t N>
 inline
-void bitset<N>::clearUnusedBits(BloombergLP::bslmf::MetaInt<1>)
+void bitset<N>::clearUnusedBits(bsl::true_type)
 {
     const unsigned int offset = N % BITSPERINT;  // never 0
 
