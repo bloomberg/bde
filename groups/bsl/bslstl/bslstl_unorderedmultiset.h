@@ -389,13 +389,12 @@ class unordered_multiset
                     ::BloombergLP::bslmf::IsBitwiseMoveable<HashTable>::value);
 
     typedef ::BloombergLP::bslstl::HashTableIterator<
-                                         value_type, difference_type> iterator;
-    typedef ::BloombergLP::bslstl::HashTableIterator<
-                             const value_type, difference_type> const_iterator;
+                                   const value_type, difference_type> iterator;
     typedef ::BloombergLP::bslstl::HashTableBucketIterator<
-                                   value_type, difference_type> local_iterator;
-    typedef ::BloombergLP::bslstl::HashTableBucketIterator<
-                       const value_type, difference_type> const_local_iterator;
+                             const value_type, difference_type> local_iterator;
+
+    typedef iterator                                             const_iterator;
+    typedef local_iterator                                const_local_iterator;
 
   private:
     // DATA
