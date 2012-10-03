@@ -18,14 +18,14 @@ using std::atoi;
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// The object under test is a meta-functions, 'bsl::remove_cv', that removes
-// the top-level cv-qualifier from a template parameter type.  Thus, we need to
-// ensure that the values returned by the meta-function is correct for each
-// possible category of types.
+// The component under test defines a meta-functions, 'bsl::remove_cv', that
+// removes any top-level cv-qualifiers from a template parameter type.  Thus,
+// we need to ensure that the values returned by the meta-function is correct
+// for each possible category of types.
 //
 // ----------------------------------------------------------------------------
 // PUBLIC CLASS DATA
-// [ 1] bsl::remove_cv
+// [ 1] bsl::remove_cv::type
 //
 // ----------------------------------------------------------------------------
 // [ 2] USAGE EXAMPLE
@@ -113,18 +113,19 @@ int main(int argc, char *argv[])
 ///-----
 // In this section we show intended use of this component.
 //
-///Example 1: Removing The CV-Qualifier of A Type
-/// - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose that we want to strip the cv-qualifier from a particular type.
+///Example 1: Removing the CV-Qualifiers of a Type
+///- - - - - - - - - - - - - - - - - - - - - - - -
+// Suppose that we want to remove the cv-qualifiers from a particular type.
 //
-// First, we create two 'typedef's -- a cv-qualified type ('MyCvType') and the
-// same type without the cv-qualifier ('MyType'):
+// First, we create two 'typedef's -- a 'const'-qualified and
+// 'volatile'-qualified type ('MyCvType') and the same type without the
+// cv-qualifier ('MyType'):
 //..
         typedef int                MyType;
         typedef const volatile int MyCvType;
 //..
-// Now, we strip the the cv-qualifier from 'MyCvType' using 'bsl::remove_cv'
-// and verify that the resulting type is the same as 'MyType':
+// Now, we remove the cv-qualifiers from 'MyCvType' using 'bsl::remove_cv' and
+// verify that the resulting type is the same as 'MyType':
 //..
         ASSERT(true == (bsl::is_same<bsl::remove_cv<MyCvType>::type,
                                                               MyType>::value));
@@ -133,58 +134,47 @@ int main(int argc, char *argv[])
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // 'bsl::remove_cv'
+        // 'bsl::remove_cv::type'
         //   Ensure that the 'typedef' 'type' of 'bsl::remove_cv'
         //   instantiations has the same type as the template parameter type
         //   except has any top-level cv-qualifier removed.
         //
         // Concerns:
-        //: 1 'bsl::remove_cv::type' is 'T' when 'TYPE' is 'T'.
+        //: 1 'bsl::remove_cv' leaves types that are not 'const'-qualified nor
+        //:   'volatile'-qualified as-is.
         //:
-        //: 2 'bsl::remove_cv::type' is 'T' when 'TYPE' is 'T const'.
-        //:
-        //: 3 'bsl::remove_cv::type' is 'T' when 'TYPE' is 'T volatile'.
-        //:
-        //: 4 'bsl::remove_cv::type' is 'T' when 'TYPE' is 'T const volatile'.
-        //:
-        //: 5 'bsl::remove_cv::type' is 'T const volatile *' when 'TYPE' is
-        //:   'T const volatile *'.
+        //: 2 'bsl::remove_const' remove any top-level cv-qualifiers.
         //
         // Plan:
-        //   Verify that 'bsl::remove_cv' returns the correct value for each
+        //   Verify that 'bsl::remove_cv::type' has the correct type for each
         //   concern.
         //
         // Testing:
-        //   bsl::remove_cv
+        //   bsl::remove_cv::type
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\n'bsl::remove_const'\n"
-                            "\n===================\n");
+        if (verbose) printf("\n'bsl::remove_cv::type'\n"
+                            "\n======================\n");
 
         // C-1
         ASSERT((is_same<remove_cv<int>::type, int>::value));
         ASSERT((is_same<remove_cv<int *>::type, int *>::value));
         ASSERT((is_same<remove_cv<TestType>::type, TestType>::value));
-
+        ASSERT((is_same<remove_volatile<int const volatile *>::type,
+                                                int const volatile *>::value));
         // C-2
         ASSERT((is_same<remove_cv<int const>::type, int>::value));
         ASSERT((is_same<remove_cv<int * const>::type, int *>::value));
         ASSERT((is_same<remove_cv<TestType const>::type, TestType>::value));
 
-        // C-3
         ASSERT((is_same<remove_cv<int volatile>::type, int>::value));
         ASSERT((is_same<remove_cv<int * volatile>::type, int *>::value));
         ASSERT((is_same<remove_cv<TestType volatile>::type, TestType>::value));
 
-        // C-4
         ASSERT((is_same<remove_cv<int const volatile>::type, int>::value));
         ASSERT((is_same<remove_cv<int * const volatile>::type, int *>::value));
         ASSERT((is_same<remove_cv<TestType const volatile>::type,
                                                             TestType>::value));
-
-        // C-5
-        ASSERT((is_same<remove_volatile<int const volatile *>::type,
-                                                int const volatile *>::value));
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);

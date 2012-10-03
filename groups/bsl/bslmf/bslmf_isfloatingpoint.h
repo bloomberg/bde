@@ -67,31 +67,28 @@ namespace bslmf {
 
 template <typename TYPE>
 struct IsFloatingPoint_Imp : bsl::false_type {
-    // This 'struct' template provides a meta-function to determine whether the
-    // (template parameter) 'TYPE' is a floating-point type.  This generic
+    // This 'struct' template implements a meta-function to determine whether
+    // the (template parameter) 'TYPE' is a floating-point type.  This generic
     // default template derives from 'bsl::false_type'.  Template
     // specializations are provided (below) that derives from 'bsl::true_type'.
 };
 
 template <>
 struct IsFloatingPoint_Imp<float> : bsl::true_type {
-     // This specialization of 'IsFloatingPoint_Imp' derives from
-     // 'bsl::true_type' for when the (template parameter) 'TYPE' is a
-     // floating-point type.
+     // This specialization of 'IsFloatingPoint_Imp', for when the (template
+     // parameter) 'TYPE' is a 'float', derives from 'bsl::true_type'.
 };
 
 template <>
 struct IsFloatingPoint_Imp<double> : bsl::true_type {
-     // This specialization of 'IsFloatingPoint_Imp' derives from
-     // 'bsl::true_type' for when the (template parameter) 'TYPE' is a
-     // floating-point type.
+     // This specialization of 'IsFloatingPoint_Imp', for when the (template
+     // parameter) 'TYPE' is a 'double', derives from 'bsl::true_type'.
 };
 
 template <>
 struct IsFloatingPoint_Imp<long double> : bsl::true_type {
-     // This specialization of 'IsFloatingPoint_Imp' derives from
-     // 'bsl::true_type' for when the (template parameter) 'TYPE' is a
-     // floating-point type.
+     // This specialization of 'IsFloatingPoint_Imp', for when the (template
+     // parameter) 'TYPE' is a 'long double', derives from 'bsl::true_type'.
 };
 
 }
@@ -110,8 +107,8 @@ struct is_floating_point
     // This 'struct' template implements the 'is_floating_point' meta-function
     // defined in the C++11 standard [meta.unary.cat] to determine if the
     // (template parameter) 'TYPE' is a floating-point type.  This 'struct'
-    // derives from 'bsl::true_type' if the 'TYPE' is a floating-point type and
-    // 'bsl::false_type' otherwise.
+    // derives from 'bsl::true_type' if the 'TYPE' is a floating-point type,
+    // and 'bsl::false_type' otherwise.
 };
 
 }

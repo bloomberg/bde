@@ -78,8 +78,8 @@ namespace bslmf {
 
 template <typename TYPE>
 struct IsVoid_Imp : bsl::false_type {
-    // This 'struct' template provides a meta-function to determine whether the
-    // (template parameter) 'TYPE' is a (non-cv-qualified) void type.  This
+    // This 'struct' template implements a meta-function to determine whether
+    // the (template parameter) 'TYPE' is a (non-cv-qualified) void type.  This
     // generic default template derives from 'bsl::false_type'.  A template
     // specialization is provided (below) that derives from 'bsl::true_type'.
 };

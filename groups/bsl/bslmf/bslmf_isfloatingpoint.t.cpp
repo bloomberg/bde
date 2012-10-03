@@ -15,10 +15,10 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// The object under test is a meta-functions, 'bsl::is_floating_point', that
-// determine whether a template parameter type is a floating-point type.  Thus,
-// we need to ensure that the values returned by the meta-functions is correct
-// for each possible category of types.
+// The component under test defines a meta-functions, 'bsl::is_floating_point',
+// that determine whether a template parameter type is a floating-point type.
+// Thus, we need to ensure that the values returned by the meta-functions is
+// correct for each possible category of types.
 //
 // ----------------------------------------------------------------------------
 // PUBLIC CLASS DATA
@@ -67,19 +67,14 @@ void aSsErT(bool b, const char *s, int i)
 namespace {
 
 struct TestType {
-   // This user-defined type is intended to be used during testing as an
-   // argument for the template parameter 'TYPE' of 'bsl::is_pointer'.
+    // This user-defined type is used for testing.
 };
 
 typedef int (TestType::*MethodPtrTestType) ();
-    // This pointer to non-static function member type is intended to be used
-    // during testing as an argument for the template parameter 'TYPE' of
-    // 'bsl::is_pointer' and 'bslmf::IsPointer'.
+    // This pointer to non-static function member type is used for testing.
 
 typedef void (*FunctionPtrTestType) ();
-    // This function pointer type is intended to be used during testing as an
-    // argument for the template parameter 'TYPE' of
-    // 'bsl::is_pointer' and 'bslmf::IsPointer'.
+    // This function pointer type is used for testing.
 
 }  // close unnamed namespace
 
@@ -157,9 +152,8 @@ int main(int argc, char *argv[])
       case 1: {
         // --------------------------------------------------------------------
         // 'bsl::is_floating_point::value'
-        //   Ensure that the static data member 'value' of
-        //   'bsl::is_floating_point' instantiations having various (template
-        //   parameter) 'TYPES' has the correct value.
+        //   Ensure that 'bsl::is_floating_point' returns the correct values
+        //   for a variety of a variety of template parameter types.
         //
         // Concerns:
         //: 1 'is_floating_point::value' is 'false' when 'TYPE' is a (possibly
@@ -173,7 +167,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Verify that 'bsl::is_floating_point::value' has the correct value
-        //   for each (template parameter) 'TYPE' in the concerns.
+        //   for each concern.
         //
         // Testing:
         //   bsl::is_floating_point::value

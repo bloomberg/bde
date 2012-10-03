@@ -16,24 +16,26 @@ using std::atoi;
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// The object under test is a meta-function, 'bsl::is_trivially_copyable', that
-// determines whether a template parameter type is trivially copyable.  The
-// meta-function by defualt support a set of type categories and can be
-// extended to support other type through either template specialization or a
-// macro.
+// The component under test defines a meta-function,
+// 'bsl::is_trivially_copyable', that determines whether a template parameter
+// type is trivially copyable.  By defualt, the meta-function supports a
+// restricted set of type categories and can be extended to support other types
+// through either template specialization or use of the
+// 'BSLMF_NESTED_TRAIT_DECLARATION' macro.
 //
 // Thus, we need to ensure that the natively supported types are correctly
-// identified by the meta-function by testing the meta-function with each
-// possible supported category of types.  We also need to verify that the
+// identified by the meta-function by testing the meta-function with each of
+// the supported type categories.  We also need to verify that the
 // meta-function can be correctly extended to support other types through
-// either of the 2 supported mechanisms.
+// either of the two supported mechanisms.
 //
 // ----------------------------------------------------------------------------
-// class methods
-// [ 2] bsl::is_trivially_copyable
+// PUBLIC CLASS DATA
+// [ 1] bsl::is_trivially_copyable::value
 //
 // ----------------------------------------------------------------------------
 // [ 3] USAGE EXAMPLE
+// [ 2] EXTENDING bsl::is_trivially_copyable::value
 
 //=============================================================================
 //                  STANDARD BDE ASSERT TEST MACRO
@@ -117,23 +119,24 @@ struct is_trivially_copyable<MyTriviallyCopyableType> : bsl::true_type {
 
 }  // close namespace bsl
 
+
 namespace {
 
 struct UserDefinedTcTestType {
-    // This user-defined type that is marked to be trivially copyable using
-    // specialization is used for testing.
+    // This user-defined type, which is marked to be trivially copyable using
+    // template specialization (below), is used for testing.
 };
 
 struct UserDefinedTcTestType2 {
-    // This user-defined type that is marked to be trivially copyable using the
-    // 'BSLMF_NESTED_TRAIT_DECLARATION' macro is used for testing.
+    // This user-defined type, which is marked to be trivially copyable using
+    // the 'BSLMF_NESTED_TRAIT_DECLARATION' macro, is used for testing.
 
     BSLMF_NESTED_TRAIT_DECLARATION(UserDefinedTcTestType2,
                                    bsl::is_trivially_copyable);
 };
 
 struct UserDefinedNonTcTestType {
-    // This user-defined type that is not marked to be trivially copyable is
+    // This user-defined type, which is not marked to be trivially copyable, is
     // used for testing.
 };
 
@@ -141,14 +144,14 @@ enum EnumTestType {
     // This 'enum' type is used for testing.
 };
 
-typedef int * PointerTestType;
+typedef int *PointerTestType;
     // This pointer type is used for testing.
 
 typedef int& ReferenceTestType;
     // This reference type is used for testing.
 
 typedef int (UserDefinedNonTcTestType::*MethodPtrTestType) ();
-    // This non-static function member type is used for testing.
+    // This pointer to non-static function member type is used for testing.
 
 }  // close unnamed namespace
 
@@ -174,7 +177,23 @@ int main(int argc, char *argv[])
 
     switch (test) { case 0:
       case 3: {
-          if (verbose) printf("\nUSAGE EXAMPLE"
+        // --------------------------------------------------------------------
+        // USAGE EXAMPLE
+        //
+        // Concerns:
+        //: 1 The usage example provided in the component header file compiles,
+        //:   links, and runs as shown.
+        //
+        // Plan:
+        //: 1 Incorporate usage example from header into test driver, remove
+        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //:   (C-1)
+        //
+        // Testing:
+        //   USAGE EXAMPLE
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nUSAGE EXAMPLE"
                               "\n=============\n");
 
 ///Usage
@@ -185,10 +204,10 @@ int main(int argc, char *argv[])
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose that we want to assert whether a type is trivially copyable.
 //
-// First, we define a set types to evaluate:
+// First, we define a set of types to evaluate:
 //..
-          typedef int MyFundamentalType;
-          typedef int& MyFundamentalTypeReference;
+        typedef int  MyFundamentalType;
+        typedef int& MyFundamentalTypeReference;
 //
 //  class MyTriviallyCopyableType {
 //  };
@@ -197,7 +216,7 @@ int main(int argc, char *argv[])
 //      //...
 //  };
 //..
-// Then, since user-defined types can not be automatically evaluated by
+// Then, since user-defined types cannot be automatically evaluated by
 // 'is_trivially_copyable', we define a template specialization to specify that
 // 'MyTriviallyCopyableType' is trivially copyable:
 //..
@@ -214,31 +233,31 @@ int main(int argc, char *argv[])
 // Now, we verify whether each type is trivially copyable using
 // 'bsl::is_trivially_copyable':
 //..
-          ASSERT(true == bsl::is_trivially_copyable<MyFundamentalType>::value);
-          ASSERT(false == bsl::is_trivially_copyable<
+        ASSERT(true  == bsl::is_trivially_copyable<MyFundamentalType>::value);
+        ASSERT(false == bsl::is_trivially_copyable<
                                            MyFundamentalTypeReference>::value);
-          ASSERT(true == bsl::is_trivially_copyable<
+        ASSERT(true  == bsl::is_trivially_copyable<
                                               MyTriviallyCopyableType>::value);
-          ASSERT(false == bsl::is_trivially_copyable<
+        ASSERT(false == bsl::is_trivially_copyable<
                                            MyNonTriviallyCopyableType>::value);
 //..
 
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // 'bsl::is_trivially_copyable' manual
+        // Extending 'bsl::is_trivially_copyable'
         //   Ensure the 'bsl::is_trivially_copyable' meta-function returns the
         //   correct value for types explicitly specified to be trivially
         //   copyable.
         //
         // Concerns:
-        //: 1 The meta-function returns false for normal user-defined types.
+        //: 1 The meta-function returns 'false' for normal user-defined types.
         //:
-        //: 2 The meta-function returns true for a user-defined type, if a
+        //: 2 The meta-function returns 'true' for a user-defined type, if a
         //:   specialization for 'bsl::is_trivially_copyable' on that type is
         //:   defined to inherit from 'bsl::true_type'.
         //:
-        //: 3 The meta-function returns true for a user-defined type that
+        //: 3 The meta-function returns 'true' for a user-defined type that
         //:   specifies it has the trait using the
         //:   'BSLMF_NESTED_TRAIT_DECLARATION' macro.
         //
@@ -247,68 +266,68 @@ int main(int argc, char *argv[])
         //   for each type listed in the concerns.
         //
         // Testing:
-        //   bsl::is_trivially_copyable
+        //   Extending bsl::is_trivially_copyable
         // --------------------------------------------------------------------
 
         if (verbose)
-            printf("\n'bsl::is_trivially_copyable' manual\n"
-                   "\n===================================\n");
+            printf("\nExtending 'bsl::is_trivially_copyable'\n"
+                   "\n======================================\n");
 
         // C-1
         ASSERT(!bsl::is_trivially_copyable<UserDefinedNonTcTestType>::value);
 
         // C-2
-        ASSERT(bsl::is_trivially_copyable<UserDefinedTcTestType>::value);
+        ASSERT( bsl::is_trivially_copyable<UserDefinedTcTestType>::value);
 
         // C-3
-        ASSERT(bsl::is_trivially_copyable<UserDefinedTcTestType2>::value);
+        ASSERT( bsl::is_trivially_copyable<UserDefinedTcTestType2>::value);
 
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // 'bsl::is_trivially_copyable' intrinsic
+        // 'bsl::is_trivially_copyable::value'
         //   Ensure the 'bsl::is_trivially_copyable' meta-function
         //   returns the correct value for intrinsically supported types.
         //
         // Concerns:
-        //: 1 The meta-function returns false for reference types.
+        //: 1 The meta-function returns 'false' for reference types.
         //:
-        //: 2 The meta-function returns true for fundamental types.
+        //: 2 The meta-function returns 'true' for fundamental types.
         //:
-        //: 3 The meta-function returns true for enum types.
+        //: 3 The meta-function returns 'true' for enum types.
         //:
-        //: 4 The meta-function returns true for pointer types.
+        //: 4 The meta-function returns 'true' for pointer types.
         //:
-        //: 5 The meta-function returns true for pointer to member types.
+        //: 5 The meta-function returns 'true' for pointer to member types.
         //
         // Plan:
         //   Verify that 'bsl::is_trivially_copyable' returns the correct
         //   value for each type listed in the concerns.
         //
         // Testing:
-        //   bsl::is_trivially_copyable
+        //   bsl::is_trivially_copyable::value
         // --------------------------------------------------------------------
 
         if (verbose)
-            printf("\n'bsl::is_trivially_copyable' intrinsic\n"
-                   "\n======================================\n");
+            printf("\n'bsl::is_trivially_copyable::value'\n"
+                   "\n===================================\n");
 
         // C-1
         ASSERT(!bsl::is_trivially_copyable<ReferenceTestType>::value);
 
         // C-2
-        ASSERT(bsl::is_trivially_copyable<int>::value);
-        ASSERT(bsl::is_trivially_copyable<char>::value);
+        ASSERT( bsl::is_trivially_copyable<int>::value);
+        ASSERT( bsl::is_trivially_copyable<char>::value);
         // ASSERT(bsl::is_trivially_copyable<void>::value);
 
         // C-3
-        ASSERT(bsl::is_trivially_copyable<EnumTestType>::value);
+        ASSERT( bsl::is_trivially_copyable<EnumTestType>::value);
 
         // C-4
-        ASSERT(bsl::is_trivially_copyable<PointerTestType>::value);
+        ASSERT( bsl::is_trivially_copyable<PointerTestType>::value);
 
         // C-5
-        ASSERT(bsl::is_trivially_copyable<MethodPtrTestType>::value);
+        ASSERT( bsl::is_trivially_copyable<MethodPtrTestType>::value);
 
       } break;
       default: {
