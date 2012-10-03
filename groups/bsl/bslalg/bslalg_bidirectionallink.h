@@ -19,7 +19,7 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION: This component provides a single POD-like class,
 // 'BidirectionalLink', used to represent a node in a doubly-linked list.  A
 // 'BidirectionalLink' provides the address to its preceding node, and the
-// address of it successor node.  A null-pointer value for either address
+// address of its successor node.  A null-pointer value for either address
 // signifies the end of the list.  'BidirectionalLink' does not, however,
 // contain "payload" data (e.g., a value), as it is intended to work with
 // generalized list operations (see 'bslalg_bidirectionallinklistutil').
