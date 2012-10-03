@@ -148,7 +148,7 @@ ALLOCATOR Util::copyContainerAllocator(const ALLOCATOR& rhsAlloc)
     typedef typename
         bsl::is_convertible<bslma::Allocator*,ALLOCATOR>::type IsBslma;
 
-    return AllocatorUtil<ALLOCATOR, IsBslma::VALUE>::copyContainerAllocator(
+    return AllocatorUtil<ALLOCATOR, IsBslma::value>::copyContainerAllocator(
                                                                      rhsAlloc);
 }
 

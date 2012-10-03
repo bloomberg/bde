@@ -1334,7 +1334,7 @@ void swap(vector<const VALUE_TYPE *, ALLOCATOR>& a,
                           // =======================
 
 template<class BSLSTL_ITERATOR, bool BSLSTL_NOTSPECIALIZED
-                   = BloombergLP::bslmf::IsFundamental<BSLSTL_ITERATOR>::VALUE>
+                   = BloombergLP::bslmf::IsFundamental<BSLSTL_ITERATOR>::value>
 struct Vector_DeduceIteratorCategory {
     typedef typename bsl::iterator_traits<BSLSTL_ITERATOR>::iterator_category
                                                                           type;

@@ -524,10 +524,6 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_HASTRAIT
-#include <bslalg_hastrait.h>
-#endif
-
 #ifndef INCLUDED_BSLALG_TYPETRAITHASSTLITERATORS
 #include <bslalg_typetraithasstliterators.h>
 #endif
@@ -863,11 +859,11 @@ struct Printer_Selector {
                                          // call the type's '.print' method
     };
 
-    typedef bslmf::MetaInt<BSLIM_FUNDAMENTAL>       Fundamental;
-    typedef bslmf::MetaInt<BSLIM_FUNCTION_POINTER>  FunctionPointer;
-    typedef bslmf::MetaInt<BSLIM_POINTER>           Pointer;
-    typedef bslmf::MetaInt<BSLIM_HAS_STL_ITERATORS> HasStlIterators;
-    typedef bslmf::MetaInt<BSLIM_DEFAULT>           Default;
+    typedef bsl::integral_constant<int, BSLIM_FUNDAMENTAL>       Fundamental;
+    typedef bsl::integral_constant<int, BSLIM_FUNCTION_POINTER>  FunctionPointer;
+    typedef bsl::integral_constant<int, BSLIM_POINTER>           Pointer;
+    typedef bsl::integral_constant<int, BSLIM_HAS_STL_ITERATORS> HasStlIterators;
+    typedef bsl::integral_constant<int, BSLIM_DEFAULT>           Default;
 };
 
                         // =========================
@@ -879,25 +875,21 @@ class Printer_DetectType {
     // This struct provides a meta-function to classify a data type as either
     // a fundamental, pointer, or user-defined type.
 
-    // PRIVATE TYPES
-    typedef bslalg::TypeTraitHasStlIterators HasIterators;
-
   public:
     // PUBLIC TYPES
     enum {
-        VALUE = bslmf::IsFundamental<TYPE>::VALUE || bslmf::IsEnum<TYPE>::VALUE
+        VALUE = bsl::is_fundamental<TYPE>::value || bsl::is_enum<TYPE>::value
                 ? Printer_Selector::BSLIM_FUNDAMENTAL
-                : bslmf::IsFunctionPointer<TYPE>::VALUE
+                : bslmf::IsFunctionPointer<TYPE>::value
                   ? Printer_Selector::BSLIM_FUNCTION_POINTER
-                  : bslmf::IsPointer<TYPE>::VALUE ||
-                                                 bslmf::IsArray<TYPE>::VALUE
+                  : bsl::is_pointer<TYPE>::value || bsl::is_array<TYPE>::value
                     ? Printer_Selector::BSLIM_POINTER
-                    : bslalg::HasTrait<TYPE, HasIterators>::VALUE
+                    : bslalg::HasStlIterators<TYPE>::value
                       ? Printer_Selector::BSLIM_HAS_STL_ITERATORS
                       : Printer_Selector::BSLIM_DEFAULT
     };
 
-    typedef bslmf::MetaInt<VALUE> Type;
+    typedef bsl::integral_constant<int, VALUE> Type;
 };
 
 
