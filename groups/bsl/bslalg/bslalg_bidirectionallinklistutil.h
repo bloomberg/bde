@@ -24,8 +24,7 @@ BSLS_IDENT("$Id: $")
 // nodes.  The main operations include insertion and removal of a node from a
 // list of nodes, and the *splicing* of ranges from one list into another one.
 // Splicing is the operation of moving a sub-list, or range, of elements from
-// one linked list and into a second list, at a
-// specified position.
+// one linked list and into a second list, at a specified position.
 //
 ///Usage
 ///-----
