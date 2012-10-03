@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a primitive type trait for classes that have no other traits
+//@PURPOSE: Provide a primitive trait for classes that have no other traits.
 //
 //@CLASSES:
 //  bslalg::TypeTraitBitwiseCopyable: bit-wise copyable trait
@@ -28,12 +28,12 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_NIL
-#include <bslmf_nil.h>
-#endif
-
 #ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
 #include <bslmf_integralconstant.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_NIL
+#include <bslmf_nil.h>
 #endif
 
 namespace BloombergLP {
@@ -55,7 +55,8 @@ struct TypeTraitNil
         // for the nil trait.
     };
 
-    template <class TYPE> struct Metafunction : bsl::true_type { };
+    template <class TYPE>
+    struct Metafunction : bsl::true_type { };
 };
 
 }  // close package namespace

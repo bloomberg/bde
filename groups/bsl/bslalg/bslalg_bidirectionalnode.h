@@ -12,8 +12,8 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //   bslalg::BidirectionalNode : Node holding a value in a linked list
 //
-//@SEE_ALSO: bslalg_bidirectionallistutil, bslalg_hashtableimputil,
-//           bslalg_bidirectionallink
+//@SEE_ALSO: bslalg_bidirectionallink, bslalg_bidirectionallinklistutil,
+//           bslalg_hashtableimputil
 //
 //@AUTHOR: Alisdair Meredith (ameredith1) Stefano Pacifico (spacifico1)
 //
@@ -98,7 +98,7 @@ BSLS_IDENT("$Id: $")
 // Then, we define our 'MyList' class, with 'MyList::Iterator' being a public
 // typedef of 'MyList_Iterator'.  For brevity, we will omit a lot of
 // functionality that a full, general-purpose list class would have,
-// implmenting only what we will need for this example.
+// implementing only what we will need for this example.
 //..
 //                                  // ======
 //                                  // MyList
@@ -137,7 +137,7 @@ BSLS_IDENT("$Id: $")
 //      void popBack();
 //  };
 //..
-// Next, we implment the functions for the iterator type.
+// Next, we implement the functions for the iterator type.
 //..
 //                              // ---------------
 //                              // MyList_Iterator
@@ -243,7 +243,7 @@ BSLS_IDENT("$Id: $")
 //      d_allocator_p->deallocate(condemned);
 //  }
 //..
-// Next, in 'main', we have finished implmenting our 'MyList' class and its
+// Next, in 'main', we have finished implementing our 'MyList' class and its
 // 'Iterator' type, we will use one to store a fibonacci sequence of ints.  We
 // declare the memory allocator that we will use:
 //..
@@ -321,7 +321,7 @@ namespace bslalg {
                         // =======================
 
 template <class VALUE_TYPE>
-class BidirectionalNode: public bslalg::BidirectionalLink {
+class BidirectionalNode : public bslalg::BidirectionalLink {
     // This POD-like 'class' describes a node suitable for use in a
     // doubly-linked list of values of the parameterized 'VALUE'.  This class
     // is a "POD-like" to facilitate efficient allocation and use in the
@@ -333,7 +333,7 @@ class BidirectionalNode: public bslalg::BidirectionalLink {
 
   public:
     // PUBLIC TYPES
-    typedef VALUE_TYPE    ValueType;      // Payload Type
+    typedef VALUE_TYPE    ValueType;      // payload type
 
   private:
     // DATA

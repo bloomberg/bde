@@ -387,7 +387,7 @@ struct is_trivially_copyable<BloombergLP::bslalg::DequeIterator<VALUE_TYPE,
     : true_type
 {};
 
-}
+}  // close namespace bsl
 
 namespace BloombergLP {
 
@@ -554,13 +554,13 @@ DequeIterator<VALUE_TYPE, BLOCK_LENGTH>::operator-(
                       const DequeIterator<VALUE_TYPE, BLOCK_LENGTH>& rhs) const
 {
     if (d_blockPtr_p == rhs.d_blockPtr_p) {
-        return d_value_p - rhs.d_value_p;
+        return d_value_p - rhs.d_value_p;                             // RETURN
     }
     else {
         const int numFullBlocks = static_cast<int>(
                                     this->d_blockPtr_p - rhs.d_blockPtr_p - 1);
         return (numFullBlocks * BLOCK_LENGTH +
-                               rhs.remainingInBlock() + this->offsetInBlock());
+                rhs.remainingInBlock() + this->offsetInBlock());      // RETURN
     }
 }
 
@@ -840,10 +840,10 @@ bool bslalg::operator<(const DequeIterator<VALUE_TYPE, BLOCK_LENGTH>& lhs,
                        const DequeIterator<VALUE_TYPE, BLOCK_LENGTH>& rhs)
 {
     if (lhs.d_blockPtr_p == rhs.d_blockPtr_p) {
-        return lhs.d_value_p < rhs.d_value_p;
+        return lhs.d_value_p < rhs.d_value_p;                         // RETURN
     }
     else {
-        return lhs.d_blockPtr_p < rhs.d_blockPtr_p;
+        return lhs.d_blockPtr_p < rhs.d_blockPtr_p;                   // RETURN
     }
 }
 

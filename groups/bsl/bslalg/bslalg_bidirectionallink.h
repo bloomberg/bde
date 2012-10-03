@@ -111,7 +111,7 @@ BSLS_IDENT("$Id: $")
 // Then, we define our 'MyList' class, with 'MyList::Iterator' being a public
 // typedef of 'MyList_Iterator'.  For brevity, we will omit a lot of
 // functionality that a full, general-purpose list class would have,
-// implmenting only what we will need for this example.
+// implementing only what we will need for this example.
 //..
 //                                  // ======
 //                                  // MyList
@@ -151,7 +151,7 @@ BSLS_IDENT("$Id: $")
 //      void popBack();
 //  };
 //..
-// Next, we implment the functions for the iterator type.
+// Next, we implement the functions for the iterator type.
 //..
 //                              // ---------------
 //                              // MyList_Iterator
@@ -254,7 +254,7 @@ BSLS_IDENT("$Id: $")
 //      d_allocator_p->deallocate(condemned);
 //  }
 //..
-// Next, we have finished implmenting our 'MyList' class and its 'Iterator'
+// Next, we have finished implementing our 'MyList' class and its 'Iterator'
 // type, we will use one to store a fibonacci sequence of ints.  In 'main',
 // We declare the memory allocator that we will use:
 //..

@@ -47,14 +47,19 @@ struct TypeTraitHasTrivialDefaultConstructor {
 
     template <class TYPE>
     struct NestedTraitDeclaration :
-        bslmf::NestedTraitDeclaration<TYPE, bsl::is_trivially_default_constructible>
+        bslmf::NestedTraitDeclaration<TYPE,
+                                      bsl::is_trivially_default_constructible>
     {
-        // This class template ties the 'bslalg::TypeTaitBitwiseEqualityComparable'
-        // trait tag to the 'bslmf::IsBitwiseEqualityCompareble' trait metafunction.
+        // This class template ties the
+        // 'bslalg::TypeTraitBitwiseEqualityComparable'
+        // trait tag to the 'bslmf::IsBitwiseEqualityComparable'
+        // trait metafunction.
     };
 
     template <class TYPE>
-    struct Metafunction : bsl::is_trivially_default_constructible<TYPE>::type { };
+    struct Metafunction : bsl::is_trivially_default_constructible<TYPE>::type
+    {
+    };
 };
 
 }  // close package namespace
@@ -64,7 +69,8 @@ struct TypeTraitHasTrivialDefaultConstructor {
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
 
-typedef bslalg::TypeTraitHasTrivialDefaultConstructor bslalg_TypeTraitHasTrivialDefaultConstructor;
+typedef bslalg::TypeTraitHasTrivialDefaultConstructor
+                                  bslalg_TypeTraitHasTrivialDefaultConstructor;
     // This alias is defined for backward compatibility.
 #endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
