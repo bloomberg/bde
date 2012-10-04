@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a compile-time check for arithmetic types.
+//@PURPOSE: Provide a compile-time check for determining arithmetic types.
 //
 //@CLASSES:
 //  bsl::is_arithmetic: standard meta-function for determining arithmetic types
@@ -17,7 +17,7 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR:
 //
 //@DESCRIPTION: This component defines a meta-function, 'bsl::is_arithmetic',
-// which may be used to query whether a type is an arithmetic type.
+// that may be used to query whether a type is an arithmetic type.
 //
 // 'bsl::is_arithmetic' meets the requirements of the 'is_arithmetic' template
 // defined in the C++11 standard [meta.unary.comp].
@@ -28,8 +28,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Verify Arithmetic Types
 /// - - - - - - - - - - - - - - - - -
-// Suppose that we want to assert whether a particular type is a arithmetic
-// type.
+// Suppose that we want to assert whether a set of types are arithmetic types.
 //
 // Now, we instantiate the 'bsl::is_arithmetic' template for both a
 // non-arithmetic type and a arithmetic type, and assert the 'value' static
@@ -56,6 +55,9 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace bsl {
+                         // ====================
+                         // struct is_arithmetic
+                         // ====================
 
 template <typename TYPE>
 struct is_arithmetic
@@ -67,19 +69,18 @@ struct is_arithmetic
     // defined in the C++11 standard [meta.unary.comp] to determine if the
     // (template parameter) 'TYPE' is an arithmetic type.  This 'struct'
     // derives from 'bsl::true_type' if the 'TYPE' is an arithmetic type,
-    // and 'bsl::false_type' otherwise.
+    // and from 'bsl::false_type' otherwise.
 };
-
 
 }  // close namespace bsl
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2012
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

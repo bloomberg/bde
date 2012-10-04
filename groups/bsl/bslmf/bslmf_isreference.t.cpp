@@ -114,7 +114,7 @@ class DerivedClassTestType : public BaseClassTestType {
 };
 
 typedef int (StructTestType::*MethodPtrTestType) ();
-    // This pointer to non-static function member type is intended to be used
+    // This pointer to non-static member function type is intended to be used
     // for testing as the template parameter 'TYPE' of 'bsl::is_reference'.
 
 typedef void (*FunctionPtrTestType) ();
@@ -122,7 +122,7 @@ typedef void (*FunctionPtrTestType) ();
     // template parameter 'TYPE' of 'bsl::is_reference'.
 
 typedef int StructTestType::*PMD;
-    // This pointer to data member type is intended to be used for testing as
+    // This pointer to member object type is intended to be used for testing as
     // the template parameter 'TYPE' of 'bsl::is_reference'.
 
 struct Incomplete;
