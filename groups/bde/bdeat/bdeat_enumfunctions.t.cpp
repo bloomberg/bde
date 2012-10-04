@@ -202,8 +202,13 @@ const bdeat_EnumeratorInfo PolygonType::ENUMERATOR_INFO_ARRAY[] = {
 
 // TYPE TRAITS
 template <>
-struct bslalg_TypeTraits<geom::PolygonType::Value>
-                                              : bdeat_TypeTraitBasicEnumeration
+struct bdeat_IsBasicEnumeration<geom::PolygonType::Value> : bsl::true_type
+{
+};
+
+template <>
+struct bdeat_BasicEnumerationWrapper<geom::PolygonType::Value> :
+    geom::PolygonType
 {
     typedef geom::PolygonType Wrapper;
 };

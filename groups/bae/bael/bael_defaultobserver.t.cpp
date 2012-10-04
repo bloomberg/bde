@@ -27,7 +27,7 @@
 #include <bsl_strstream.h>
 
 // Note: on Windows -> WinGDI.h:#define PASSTHROUGH 19
-#if defined(BSLS_PLATFORM__CMP_MSVC) && defined(PASSTHROUGH)
+#if defined(BSLS_PLATFORM_CMP_MSVC) && defined(PASSTHROUGH)
 #undef PASSTHROUGH
 #endif
 

@@ -754,7 +754,7 @@ struct bdeu_BitstringUtil {
         // undefined unless '0 <= index', '0 <= numBits', and 'bitstring' has a
         // length of at least 'index + numBits'.
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
     static void appendBits(int  *bitstring,
                            int   length,
@@ -1207,7 +1207,7 @@ struct bdeu_BitstringUtil {
         //
         // DEPRECATED: Use 'swapRaw' instead.
 
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 };
 
@@ -1354,7 +1354,7 @@ void bdeu_BitstringUtil::removeAndFill1(int *bitstring,
     set(bitstring, length - numBits, true, numBits);
 }
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
 inline
 void bdeu_BitstringUtil::appendBits(int  *bitstring,
@@ -1682,7 +1682,7 @@ void bdeu_BitstringUtil::swapBits(int *lhsArray,
     swapRaw(lhsArray, lhsArrayIndex, rhsArray, rhsArrayIndex, numBits);
 }
 
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 }  // close namespace BloombergLP
 

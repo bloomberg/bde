@@ -57,17 +57,17 @@ BSLS_IDENT("$Id: $")
 // predefined type members 'TypeN' (where '1 <= N <= 20'), or another
 // meta-function 'bslmf::TypeListTypeOf':
 //..
-//  assert(1 == bslmf::IsSame<int,    List::Type1>::VALUE)
-//  assert(1 == bslmf::IsSame<double, List::Type2>::VALUE)
-//  assert(1 == bslmf::IsSame<char,   List::Type3>::VALUE)
+//  assert(1 == bslmf::IsSame<int,    List::Type1>::value)
+//  assert(1 == bslmf::IsSame<double, List::Type2>::value)
+//  assert(1 == bslmf::IsSame<char,   List::Type3>::value)
 //
 //  typedef bslmf::TypeListTypeOf<1, List>::Type my_Type1;
 //  typedef bslmf::TypeListTypeOf<2, List>::Type my_Type2;
 //  typedef bslmf::TypeListTypeOf<3, List>::Type my_Type3;
 //
-//  assert(1 == bslmf::IsSame<int,    my_Type1>::VALUE)
-//  assert(1 == bslmf::IsSame<double, my_Type2>::VALUE)
-//  assert(1 == bslmf::IsSame<char,   my_Type3>::VALUE)
+//  assert(1 == bslmf::IsSame<int,    my_Type1>::value)
+//  assert(1 == bslmf::IsSame<double, my_Type2>::value)
+//  assert(1 == bslmf::IsSame<char,   my_Type3>::value)
 //..
 
 #ifndef INCLUDED_BSLSCM_VERSION
@@ -972,6 +972,7 @@ struct TypeListTypeOf<20,LIST,DEFAULTTYPE,1> {
 
 }  // close package namespace
 
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
@@ -1116,6 +1117,7 @@ typedef bslmf::TypeList0 bslmf_TypeList0;
 #endif
 #define bslmf_TypeListNil bslmf::TypeListNil
     // This alias is defined for backward compatibility.
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

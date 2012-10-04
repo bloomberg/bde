@@ -5,7 +5,7 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
-#if defined(BSLS_PLATFORM__CPU_IA64) && defined(BSLS_PLATFORM__OS_HPUX)
+#if defined(BSLS_PLATFORM_CPU_IA64) && defined(BSLS_PLATFORM_OS_HPUX)
 
 namespace BloombergLP {
 namespace bsls {
@@ -91,8 +91,8 @@ void AtomicOperations_IA64_HP_ACC::
                      value);
 }
 
-}
-}
+}  // close namespace bsls
+}  // close namespace BloombergLP
 
 #endif
 

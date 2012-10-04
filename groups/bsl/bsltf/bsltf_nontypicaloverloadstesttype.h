@@ -51,10 +51,6 @@ BSLS_IDENT("$Id: $")
 //  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(delete obj);
 //..
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 #endif
@@ -126,7 +122,7 @@ class NonTypicalOverloadsTestType {
         // Set the 'data' attribute of this object to the specified 'value'.
 
 
-#ifdef BSLS_PLATFORM__CMP_MSVC
+#ifdef BSLS_PLATFORM_CMP_MSVC
     // ACCESSORS
     NonTypicalOverloadsTestType* operator&();
         // Overload 'operator&' and assert this method is not called.  This is
@@ -218,7 +214,7 @@ void NonTypicalOverloadsTestType::setData(int value)
     d_data = value;
 }
 
-#ifdef BSLS_PLATFORM__CMP_MSVC
+#ifdef BSLS_PLATFORM_CMP_MSVC
 // ACCESSORS
 inline
 NonTypicalOverloadsTestType* NonTypicalOverloadsTestType::operator&()

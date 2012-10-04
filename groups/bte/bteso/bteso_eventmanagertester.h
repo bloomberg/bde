@@ -550,13 +550,13 @@ struct bteso_EventManagerTester {
                                         // only parse the test script to the
                                         // standard output.
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , VERBOSE           = BTESO_VERBOSE
       , VERY_VERBOSE      = BTESO_VERY_VERBOSE
       , VERY_VERY_VERBOSE = BTESO_VERY_VERY_VERBOSE
       , ABORT             = BTESO_ABORT
       , DRY_RUN           = BTESO_DRY_RUN
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     static int gg(bteso_EventManager         *eventManager,

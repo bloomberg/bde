@@ -382,7 +382,7 @@ using namespace bsl;  // automatically added by script
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
-#ifdef BSLS_PLATFORM__CMP_MSVC
+#ifdef BSLS_PLATFORM_CMP_MSVC
 // Disable warnings that the Microsoft compiler issues for overflow of floating
 // point constants, that we are deliberately using to confirm how we handle
 // infinities.  Unfortunately this warning must be disabled outside the
@@ -1014,7 +1014,7 @@ int main(int argc, char *argv[])
               { L_, "Int64", (bsls_PlatformUtil::Int64)LONG_MAX, 0 },
               { L_, "Int64", (bsls_PlatformUtil::Int64)LONG_MIN, 0 },
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
               { L_, "Float", (float)0.000000000314159, "3.14159e-010" },
               { L_, "Float", (float)3.14159e100, "+INF" },
               { L_, "Double", (double)0.0000000000000000314, "3.14e-017"  },
@@ -2623,7 +2623,7 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-#ifdef BSLS_PLATFORM__CMP_MSVC
+#ifdef BSLS_PLATFORM_CMP_MSVC
 // Pop the stack of disabled warnings that were pushed before the 'main'
 // function definition.
 #pragma warning( pop )

@@ -25,7 +25,7 @@ static const char LOG_CATEGORY[] = "BAETZO.DEFAULTZONEINFOCACHE";
 
 // Potential locations of TZ Database time-zone information.
 static const char *BAETZO_DATA_LOCATIONS[] = {
-#ifndef BSLS_PLATFORM__OS_WINDOWS
+#ifndef BSLS_PLATFORM_OS_WINDOWS
     "/bb/data/datetime/zoneinfo/"
   , "/usr/share/lib/zoneinfo/"
   , 0

@@ -37,6 +37,14 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include <bslma_usesbslmaallocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
+#endif
+
 namespace BloombergLP {
 
 namespace bslalg {
@@ -61,12 +69,29 @@ struct TypeTraitUsesBslmaAllocator {
     // container classes instantiated with 'std::allocator' should also be
     // assigned this trait, since 'std::allocator' is built on
     // 'bslma::Allocator'.  )
+
+    template <class TYPE>
+    struct NestedTraitDeclaration :
+        bslmf::NestedTraitDeclaration<TYPE, bslma::UsesBslmaAllocator>
+    {
+        // This class template ties the 'bslalg::TypeTaitBitwiseMoveable'
+        // trait tag to the 'bslma::UsesBslmaAllocator' trait metafunction.
+    };
+
+    template <class TYPE>
+    struct Metafunction : bslma::UsesBslmaAllocator<TYPE> { };
 };
 
 }  // close package namespace
 
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
+
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
                  //==========================================
                  // struct bdealg_TypeTraitUsesBdemaAllocator
@@ -75,14 +100,12 @@ struct TypeTraitUsesBslmaAllocator {
 typedef bslalg::TypeTraitUsesBslmaAllocator bdealg_TypeTraitUsesBdemaAllocator;
     // This alias is defined for backward compatibility.
 
-#endif
-
-// ===========================================================================
-//                           BACKWARD COMPATIBILITY
-// ===========================================================================
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 typedef bslalg::TypeTraitUsesBslmaAllocator bslalg_TypeTraitUsesBslmaAllocator;
     // This alias is defined for backward compatibility.
+
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

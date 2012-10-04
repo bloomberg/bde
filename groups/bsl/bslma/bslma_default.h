@@ -783,7 +783,8 @@ Allocator *Default::defaultAllocator()
         bsls::AtomicOperations::setIntRelaxed(&s_locked, 1);
     }
 
-    return (Allocator *) bsls::AtomicOperations::getPtrRelaxed(&s_allocator);
+    return static_cast<Allocator *>(const_cast<void *>(
+                         bsls::AtomicOperations::getPtrRelaxed(&s_allocator)));
 }
 
 inline
@@ -797,8 +798,8 @@ Allocator *Default::allocator(Allocator *basicAllocator)
 inline
 Allocator *Default::globalAllocator(Allocator *basicAllocator)
 {
-    Allocator *globalAllocator = (Allocator *)
-                     bsls::AtomicOperations::getPtrAcquire(&s_globalAllocator);
+    Allocator *globalAllocator = static_cast<Allocator *>(const_cast<void *>(
+                   bsls::AtomicOperations::getPtrAcquire(&s_globalAllocator)));
 
     return basicAllocator ? basicAllocator
                           : globalAllocator
@@ -808,12 +809,13 @@ Allocator *Default::globalAllocator(Allocator *basicAllocator)
 
 }  // close package namespace
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
                         // ====================
                         // struct bdema_Default
                         // ====================
@@ -823,10 +825,12 @@ typedef bslma::Default bdema_Default;
     // the default and global allocator pointers.  This alias is defined for
     // backward compatibility.
 
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 typedef bslma::Default bslma_Default;
     // This alias is defined for backward compatibility.
+
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

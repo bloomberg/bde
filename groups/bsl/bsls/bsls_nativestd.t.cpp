@@ -20,7 +20,7 @@ namespace fake_std {
 //=============================================================================
 //                             TEST PLAN
 //-----------------------------------------------------------------------------
-// Test usage example for succesful compilation.
+// Test usage example for successful compilation.
 // Test visibility of symbols inside 'std' by defining them, then hiding the
 // 'std' namespace.
 //

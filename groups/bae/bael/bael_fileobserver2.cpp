@@ -42,12 +42,12 @@ BDES_IDENT_RCSID(bael_fileobserver2_cpp,"$Id$ $CSID$")
 #include <bsl_c_time.h>
 #include <bsl_c_stdio.h>   // for 'snprintf'
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
 #include <sys/types.h>
 #include <sys/stat.h>
 #endif
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
 #include <windows.h>
 #endif
 
@@ -67,7 +67,7 @@ enum {
 int getErrorCode(void)
     // Return the system-specific error code.
 {
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
     int rc = GetLastError();
     return rc ? rc : errno;
 #else
@@ -80,7 +80,7 @@ bsl::string getTimestampSuffix(const bdet_Datetime& timestamp)
 {
     char buffer[20];
 
-#if defined(BSLS_PLATFORM__CMP_MSVC)
+#if defined(BSLS_PLATFORM_CMP_MSVC)
 #define snprintf _snprintf
 #endif
 
@@ -94,7 +94,7 @@ bsl::string getTimestampSuffix(const bdet_Datetime& timestamp)
              timestamp.minute(),
              timestamp.second());
 
-#if defined(BSLS_PLATFORM__CMP_MSVC)
+#if defined(BSLS_PLATFORM_CMP_MSVC)
 #undef snprintf
 #endif
 
@@ -221,7 +221,7 @@ int openLogFile(bsl::ostream *stream, const char *filename)
                                                              fileExistFlag,
                                                              true);
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
     // Add read/write access to other, because 'bdesu_FileUtil::open' set file
     // permission to 'rw-rw----'.
 
@@ -329,7 +329,7 @@ void bael_FileObserver2::logRecordDefault(bsl::ostream&      stream,
     int length = timestamp.printToBuffer(ptr, sizeof(buffer) - 1);
     ptr += length;
 
-#if defined(BSLS_PLATFORM__CMP_MSVC)
+#if defined(BSLS_PLATFORM_CMP_MSVC)
 #define snprintf _snprintf
 #endif
 
@@ -343,7 +343,7 @@ void bael_FileObserver2::logRecordDefault(bsl::ostream&      stream,
              fixedFields.fileName(),
              fixedFields.lineNumber());
 
-#if defined(BSLS_PLATFORM__CMP_MSVC)
+#if defined(BSLS_PLATFORM_CMP_MSVC)
 #undef snprintf
 #endif
 

@@ -1,8 +1,6 @@
 // bsltf_bitwisemoveabletesttype.t.cpp                                -*-C++-*-
 #include <bsltf_bitwisemoveabletesttype.h>
 
-#include <bslalg_hastrait.h>
-
 #include <bslma_testallocator.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_default.h>
@@ -164,20 +162,18 @@ template <class TYPE>
 void printTypeTraits()
     // Prints the traits of the parameterized 'TYPE' to the console.
 {
-    if (bslmf_IsConvertible<bslalg_TypeTraits<TYPE>,
-        bslalg_TypeTraitUsesBslmaAllocator>::VALUE) {
-        printf("Type defines bslalg_TypeTraitUsesBslmaAllocator.\n");
+    if (bslma::UsesBslmaAllocator<TYPE>::value) {
+        printf("Type defines bslma::UsesBslmaAllocator.\n");
     }
     else {
-        printf("Type does not define bslalg_TypeTraitUsesBslmaAllocator.\n");
+        printf("Type does not define bslma::UsesBslmaAllocator.\n");
     }
 
-    if (bslmf_IsConvertible<bslalg_TypeTraits<TYPE>,
-        bslalg_TypeTraitBitwiseMoveable>::VALUE) {
-        printf("Type defines bslalg_TypeTraitBitwiseMoveable.\n");
+    if (bslmf::IsBitwiseMoveable<TYPE>::value) {
+        printf("Type defines bslmf::IsBitwiseMoveable.\n");
     }
     else {
-        printf("Type does not define bslalg_TypeTraitBitwiseMoveable.\n");
+        printf("Type does not define bslmf::IsBitwiseMoveable.\n");
     }
 }
 //..
@@ -197,11 +193,11 @@ int main(int argc, char *argv[]) {
 
     // CONCERN: No memory is ever allocated.
 
-    bslma_TestAllocator globalAllocator("global", veryVeryVeryVerbose);
-    bslma_Default::setGlobalAllocator(&globalAllocator);
+    bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
+    bslma::Default::setGlobalAllocator(&globalAllocator);
 
-    bslma_TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
-    bslma_Default::setDefaultAllocator(&defaultAllocator);
+    bslma::TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
+    bslma::Default::setDefaultAllocator(&defaultAllocator);
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 12: {
@@ -214,8 +210,8 @@ int main(int argc, char *argv[]) {
 //..
 // Finally, we observe the console output:
 //..
-//  Type does not define bslalg_TypeTraitUsesBslmaAllocator.
-//  Type defines bslalg_TypeTraitBitwiseMoveable.
+//  Type does not define bslma::UsesBslmaAllocator.
+//  Type defines bslmf::IsBitwiseMoveable.
 //..
       } break;
       case 11: {
@@ -231,9 +227,7 @@ int main(int argc, char *argv[]) {
         // Testing:
         //   CONCERN: The object has the necessary type traits
         // --------------------------------------------------------------------
-        BSLMF_ASSERT((1 ==
-                      bslalg_HasTrait<Obj,
-                                     bslalg_TypeTraitBitwiseMoveable>::VALUE));
+        BSLMF_ASSERT(bslmf::IsBitwiseMoveable<Obj>::value);
       } break;
       case 10: {
         // --------------------------------------------------------------------

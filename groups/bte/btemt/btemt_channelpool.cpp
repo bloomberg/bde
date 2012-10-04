@@ -41,7 +41,7 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bsl_utility.h>
 #include <bsl_vector.h>
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
 #include <sys/types.h>
 #include <unistd.h>
 #include <fcntl.h>
@@ -1918,7 +1918,7 @@ btemt_Channel::btemt_Channel(
     socket->setBlockingMode(bteso_Flag::BTESO_NONBLOCKING_MODE);
     socket->peerAddress(&d_peerAddress);
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
     // Set close-on-exec flag (DRQS 6748730): this only makes sense in Unix,
     // there is no equivalent for Windows.
 
@@ -2792,7 +2792,7 @@ int btemt_ChannelPool::listen(const bteso_IPv4Address&   endpoint,
         return LISTEN_FAILED;                                         // RETURN
     }
 
-#ifndef BTESO_PLATFORM__WIN_SOCKETS
+#ifndef BTESO_PLATFORM_WIN_SOCKETS
         // Windows has a bug -- setting listening socket to non-blocking
         // mode will force subsequent 'accept' calls to return
         // WSAEWOULDBLOCK *even when connection is present*.
@@ -2803,7 +2803,7 @@ int btemt_ChannelPool::listen(const bteso_IPv4Address&   endpoint,
     }
 #endif
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
     // Set close-on-exec flag (DRQS 10646260): this only makes sense in Unix,
     // there is no equivalent for Windows.
 

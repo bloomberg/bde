@@ -9,11 +9,11 @@
 #include <cassert>
 
 #include <cstdio>    // 'fprintf'
-#include <cstdlib>   // 'atio'
+#include <cstdlib>   // 'atoi'
 #include <cstring>   // 'strcmp'
 #include <iostream>  // 'cout'
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
 #include <signal.h>
 #endif
 
@@ -21,7 +21,7 @@
 // access to conforming C++0x compilers.
 //# define BSLS_ASSERT_NORETURN [[noreturn]]
 
-#if defined(BSLS_PLATFORM__CMP_MSVC)
+#if defined(BSLS_PLATFORM_CMP_MSVC)
 #   define BSLS_ASSERT_NORETURN __declspec(noreturn)
 #else
 #   define BSLS_ASSERT_NORETURN
@@ -1803,7 +1803,7 @@ int main(int argc, char *argv[])
         cout << endl << "Manual Testing 'bsls::Assert::failAbort'" << endl
                      << "========================================" << endl;
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
         sigset_t newset;
         sigaddset(&newset, SIGABRT);
 
@@ -1871,7 +1871,7 @@ int main(int argc, char *argv[])
 #else
         cout << "\nNON-EXCEPTION BUILD" << endl;
 
-  #ifdef BSLS_PLATFORM__OS_UNIX
+  #ifdef BSLS_PLATFORM_OS_UNIX
         sigset_t newset;
         sigaddset(&newset, SIGABRT);
 
@@ -1965,7 +1965,8 @@ int main(int argc, char *argv[])
 // construct that is not supported inside a function definition, such as
 // declaring a template or defining a "local" function.  consequently, we must
 // provide a deeper "include-guard" inside the component header itself to
-// protect the non-macro parts of this compont against the repeated inclusion.
+// protect the non-macro parts of this component against the repeated
+// inclusion.
 //
 // For each test iteration that '#include <bsls_assert.h>', each of the macros
 // listed above should be undefined, along with each of the following that are
@@ -1975,7 +1976,7 @@ int main(int argc, char *argv[])
 //   BSLS_ASSERT_OPT
 //   BSLS_ASSERT_ASSERT
 //
-// Note that each test contains a certain ammount of "boilerplate" code that
+// Note that each test contains a certain amount of "boilerplate" code that
 // looks like it might be refactored into a common function or two.  This would
 // be a mistake, as the "bodies" that looks similar will actually have quite
 // meanings as the macros expand in different ways according to the

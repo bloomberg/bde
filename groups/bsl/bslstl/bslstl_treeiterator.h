@@ -169,7 +169,7 @@ namespace bslstl {
 
 template <class VALUE, class NODE, class DIFFERENCE_TYPE>
 class TreeIterator
-#ifdef BSLS_PLATFORM__OS_SOLARIS
+#ifdef BSLS_PLATFORM_OS_SOLARIS
     : public std::iterator<std::bidirectional_iterator_tag, VALUE>
 // On Solaris just to keep studio12-v4 happy, since algorithms takes only
 // iterators inheriting from 'std::iterator'.
@@ -192,8 +192,8 @@ class TreeIterator
     // a 'bslstl::TreeNode' object).
 
     // PRIVATE TYPES
-    typedef typename BloombergLP::bslmf_RemoveCvq<VALUE>::Type NcType;
-    typedef TreeIterator<NcType, NODE, DIFFERENCE_TYPE>      NcIter;
+    typedef typename bsl::remove_cv<VALUE>::type          NcType;
+    typedef TreeIterator<NcType, NODE, DIFFERENCE_TYPE> NcIter;
 
     // DATA
     bslalg::RbTreeNode *d_node_p;  // current iterator position
@@ -214,7 +214,7 @@ class TreeIterator
     // PUBLIC TYPES
     typedef bsl::bidirectional_iterator_tag iterator_category;
     typedef NcType                          value_type;
-    typedef DIFFERENCE_TYPE                      difference_type;
+    typedef DIFFERENCE_TYPE                 difference_type;
     typedef VALUE*                          pointer;
     typedef VALUE&                          reference;
         // Standard iterator defined types [24.4.2].

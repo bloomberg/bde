@@ -2,7 +2,12 @@
 #ifndef INCLUDED_BSLS_ATOMICOPERATIONS_SPARC_SUN_CC_DEFAULT
 #define INCLUDED_BSLS_ATOMICOPERATIONS_SPARC_SUN_CC_DEFAULT
 
-//@PURPOSE: Provide default base implentations of atomics for Sparc/Sun.
+#ifndef INCLUDED_BSLS_IDENT
+#include <bsls_ident.h>
+#endif
+BSLS_IDENT("$Id: $")
+
+//@PURPOSE: Provide default base implementations of atomics for Sparc/Sun.
 //
 //@CLASSES:
 //  bsls::AtomicOperations_SPARC_SUN_CC_Default32: default base for 32bit mode.
@@ -13,24 +18,23 @@
 //@DESCRIPTION: This component provides default base classes necessary to
 // implement atomics on the Sun Sparc platform with SunCC compiler.  The
 // classes are for private use only.  See 'bsls_atomicoperations' and
-// 'bsls_atomic' for the public inteface to atomics.
-
-#ifndef INCLUDED_BSLS_IDENT
-#include <bsls_ident.h>
-#endif
-BSLS_IDENT("$Id: $")
-
-#ifndef INCLUDED_BSLS_TYPES
-#include <bsls_types.h>
-#endif
+// 'bsls_atomic' for the public interface to atomics.
 
 #ifndef INCLUDED_BSLS_ATOMICOPERATIONS_DEFAULT
 #include <bsls_atomicoperations_default.h>
 #endif
 
-#if (defined(BSLS_PLATFORM__CPU_SPARC_V9)                                     \
-                                     || defined(BSLS_PLATFORM__CPU_SPARC_32)) \
-    && (defined(BSLS_PLATFORM__CMP_GNU) || defined(BSLS_PLATFORM__CMP_SUN))
+#ifndef INCLUDED_BSLS_PLATFORM
+#include <bsls_platform.h>
+#endif
+
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
+#endif
+
+#if (defined(BSLS_PLATFORM_CPU_SPARC_V9)                                     \
+                                     || defined(BSLS_PLATFORM_CPU_SPARC_32)) \
+    && (defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_SUN))
 
 namespace BloombergLP {
 

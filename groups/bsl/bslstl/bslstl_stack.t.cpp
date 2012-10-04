@@ -17,6 +17,7 @@
 #include <bslalg_rangecompare.h>
 
 #include <bslmf_issame.h>
+#include <bslmf_haspointersemantics.h>
 
 #include <bsls_alignmentutil.h>
 #include <bsls_asserttest.h>
@@ -25,7 +26,10 @@
 #include <algorithm>
 #include <functional>
 #include <typeinfo>
+#include <cstdio>
 
+#include <cstdio>
+#include <cstdlib>
 #include <string.h>
 
 // ============================================================================
@@ -258,7 +262,7 @@ static const int DEFAULT_NUM_DATA = sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA;
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
-#ifndef BSLS_PLATFORM__OS_WINDOWS
+#ifndef BSLS_PLATFORM_OS_WINDOWS
 # define TEST_TYPES_REGULAR(containerArg)                                     \
         containerArg<signed char>,                                            \
         containerArg<size_t>,                                                 \
@@ -363,12 +367,12 @@ struct NonAllocCont {
 };
 
 namespace std {
-    template <typename VALUE>
-    void swap(NonAllocCont<VALUE>& lhs, NonAllocCont<VALUE>& rhs)
-    {
-        lhs.contents().swap(rhs.contents());
-    }
+template <typename VALUE>
+void swap(NonAllocCont<VALUE>& lhs, NonAllocCont<VALUE>& rhs)
+{
+    lhs.contents().swap(rhs.contents());
 }
+}  // close namespace std
 
 template <class VALUE>
 struct ValueName {
@@ -515,7 +519,7 @@ void verifyStack(const stack<typename CONTAINER::value_type,
                  const VALUES&            expectedValues,
                  size_t                   expectedSize,
                  const int                LINE,
-                 bslma_Allocator         *allocator = 0)
+                 bslma::Allocator         *allocator = 0)
 {
     stack<typename CONTAINER::value_type, CONTAINER>
                                 copyX(X, bslma::Default::allocator(allocator));
@@ -569,7 +573,7 @@ bool ToDoList::finishTask()
     if (!d_stack.empty()) {
         d_stack.pop();
 
-        return d_stack.empty();
+        return d_stack.empty();                                       // RETURN
     }
 
     return false;
@@ -579,7 +583,7 @@ bool ToDoList::finishTask()
 const char *ToDoList::currentTask() const
 {
     if (d_stack.empty()) {
-        return "<EMPTY>";
+        return "<EMPTY>";                                             // RETURN
     }
 
     return d_stack.top();
@@ -610,7 +614,7 @@ struct ExceptionGuard {
     // CREATORS
     ExceptionGuard(const OBJECT    *object,
                    int              line,
-                   bslma_Allocator *basicAllocator = 0)
+                   bslma::Allocator *basicAllocator = 0)
     : d_line(line)
     , d_copy(*object, basicAllocator)
     , d_object_p(object)
@@ -787,7 +791,6 @@ class TestDriver {
     typedef typename Obj::const_reference const_reference;
     typedef typename Obj::size_type       size_type;
     typedef CONTAINER                     container_type;
-
         // Shorthands
 
     typedef bsltf::TestValuesArray<value_type> TestValues;
@@ -842,13 +845,12 @@ class TestDriver {
                                const TestValues&  testValues,
                                size_t             numTestValues,
                                const int          LINE);
-        // Pop the elements out of 'obj', verifying that they exacttly match
+        // Pop the elements out of 'obj', verifying that they exactly match
         // the first 'numTestValues' elements in 'testValues'.
 
     static bool typeAlloc()
     {
-        return bslalg::HasTrait<value_type,
-                                bslalg::TypeTraitUsesBslmaAllocator>::VALUE;
+        return  bslma::UsesBslmaAllocator<value_type>::value;
     }
 
     static bool emptyWillAlloc()
@@ -856,7 +858,7 @@ class TestDriver {
         // Creating an empty 'deque' allocates memory, creating an empty
         // 'vector' does not.
 
-        return bslmf_IsSame<CONTAINER, deque<value_type> >::VALUE;
+        return bsl::is_same<CONTAINER, deque<value_type> >::value;
     }
 
   public:
@@ -915,7 +917,8 @@ int TestDriver<CONTAINER>::ggg(Obj        *object,
                                const char *spec,
                                int         verbose)
 {
-    bslma::DefaultAllocatorGuard guard(&bslma_NewDeleteAllocator::singleton());
+    bslma::DefaultAllocatorGuard guard(
+                                      &bslma::NewDeleteAllocator::singleton());
     const TestValues VALUES;
 
     enum { SUCCESS = -1 };
@@ -951,7 +954,7 @@ template <class CONTAINER>
 bsl::stack<typename CONTAINER::value_type, CONTAINER>
 TestDriver<CONTAINER>::g(const char *spec)
 {
-    Obj object((bslma_Allocator *)0);
+    Obj object((bslma::Allocator *)0);
     return gg(&object, spec);
 }
 
@@ -1062,7 +1065,7 @@ void TestDriver<CONTAINER>::testCase12()
                 ASSERTV(cont, SPECX, SPECY, CMP, (CMP != 0) == NE);
             }
 
-            // Do it all over again, this time using a differrent allocator
+            // Do it all over again, this time using a different allocator
             // for 'mY' to verify changing the allocator has no impact on
             // comparisons.  Note we are re-testing the equality comparators
             // so this memory allocation aspect is tested for them too.
@@ -1138,39 +1141,25 @@ void TestDriver<CONTAINER>::testCase11()
 
     // Verify set defines the expected traits.
 
-    enum { CONTAINER_USES_ALLOC = 
-                bslalg::HasTrait<CONTAINER,
-                                 bslalg::TypeTraitUsesBslmaAllocator>::VALUE };
+    enum { CONTAINER_USES_ALLOC =
+                                 bslma::UsesBslmaAllocator<CONTAINER>::value };
 
-    BSLMF_ASSERT(((int) CONTAINER_USES_ALLOC ==
-                bslalg::HasTrait<Obj,
-                                 bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
+    BSLMF_ASSERT(
+        ((int) CONTAINER_USES_ALLOC == bslma::UsesBslmaAllocator<Obj>::value));
 
     // Verify stack does not define other common traits.
 
-    BSLMF_ASSERT((0 ==
-                  bslalg::HasTrait<Obj,
-                                   bslalg::TypeTraitHasStlIterators>::VALUE));
+    BSLMF_ASSERT((0 == bslalg::HasStlIterators<Obj>::value));
 
-    BSLMF_ASSERT((0 ==
-                  bslalg::HasTrait<Obj,
-                                   bslalg::TypeTraitBitwiseCopyable>::VALUE));
+    BSLMF_ASSERT((0 == bsl::is_trivially_copyable<Obj>::value));
 
-    BSLMF_ASSERT((0 ==
-                  bslalg::HasTrait<Obj,
-                          bslalg::TypeTraitBitwiseEqualityComparable>::VALUE));
+    BSLMF_ASSERT((0 == bslmf::IsBitwiseEqualityComparable<Obj>::value));
 
-    BSLMF_ASSERT((0 ==
-                  bslalg::HasTrait<Obj,
-                                   bslalg::TypeTraitBitwiseMoveable>::VALUE));
+    BSLMF_ASSERT((0 == bslmf::IsBitwiseMoveable<Obj>::value));
 
-    BSLMF_ASSERT((0 ==
-                  bslalg::HasTrait<Obj,
-                                bslalg::TypeTraitHasPointerSemantics>::VALUE));
+    BSLMF_ASSERT((0 == bslmf::HasPointerSemantics<Obj>::value));
 
-    BSLMF_ASSERT((0 ==
-                  bslalg::HasTrait<Obj,
-                       bslalg::TypeTraitHasTrivialDefaultConstructor>::VALUE));
+    BSLMF_ASSERT((0 == bsl::is_trivially_default_constructible<Obj>::value));
 }
 
 template <class CONTAINER>
@@ -2375,8 +2364,8 @@ void TestDriver<CONTAINER>::testCase4()
                     ASSERTV(LINE, SPEC, CONFIG, EXP[LENGTH - 1] ==  X.top());
                 }
                 else {
-                    bsls_AssertFailureHandlerGuard
-                                           hG(bsls_AssertTest::failTestDriver);
+                    bsls::AssertFailureHandlerGuard
+                                          hG(bsls::AssertTest::failTestDriver);
 
                     ASSERT_SAFE_FAIL(mX.top());
                 }
@@ -2727,8 +2716,8 @@ void TestDriver<CONTAINER>::testCase2()
             ASSERTV(LENGTH, CONFIG, X.empty());
 
             {
-                bsls_AssertFailureHandlerGuard
-                                           hG(bsls_AssertTest::failTestDriver);
+                bsls::AssertFailureHandlerGuard
+                                          hG(bsls::AssertTest::failTestDriver);
 
                 ASSERT_SAFE_FAIL(mX.pop());
             }
@@ -3444,7 +3433,7 @@ int main(int argc, char *argv[])
         typedef stack<int>                IStack;
         typedef stack<int, deque<int> >   IDStack;
 
-        BSLMF_ASSERT((bslmf::IsSame<IStack, IDStack>::VALUE));
+        BSLMF_ASSERT((bsl::is_same<IStack, IDStack>::value));
 
         // Verify that if a container is specified, the first template
         // argument is ignored.
@@ -3452,8 +3441,8 @@ int main(int argc, char *argv[])
         typedef stack<void,   vector<int> > VIVStack;
         typedef stack<double, vector<int> > DIVStack;
 
-        BSLMF_ASSERT((bslmf::IsSame<VIVStack::value_type, int>::VALUE));
-        BSLMF_ASSERT((bslmf::IsSame<DIVStack::value_type, int>::VALUE));
+        BSLMF_ASSERT((bsl::is_same<VIVStack::value_type, int>::value));
+        BSLMF_ASSERT((bsl::is_same<DIVStack::value_type, int>::value));
 
         VIVStack vivs;          const VIVStack& VIVS = vivs;
 
@@ -3502,30 +3491,24 @@ int main(int argc, char *argv[])
         typedef bsl::stack<int, NonAllocCont<int> > NonAllocStack;
 
         if (verbose) printf("NonAllocCont --------------------------------\n");
-        BSLMF_ASSERT((0 == bslalg::HasTrait<
-                                 NonAllocCont<int>,
-                                 bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
-        BSLMF_ASSERT((0 == bslalg::HasTrait<
-                                 NonAllocStack,
-                                 bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
+        BSLMF_ASSERT((0 == bslma::UsesBslmaAllocator<
+                                 NonAllocCont<int> >::value));
+        BSLMF_ASSERT((0 == bslma::UsesBslmaAllocator<
+                                 NonAllocStack>::value));
         TestDriver<NonAllocCont<int> >::testCase11();
 
         if (verbose) printf("deque ---------------------------------------\n");
-        BSLMF_ASSERT((0 == bslalg::HasTrait<
-                                 WeirdAllocDeque,
-                                 bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
-        BSLMF_ASSERT((0 == bslalg::HasTrait<
-                                 WeirdAllocDequeStack,
-                                 bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
+        BSLMF_ASSERT((0 == bslma::UsesBslmaAllocator<
+                                 WeirdAllocDeque>::value));
+        BSLMF_ASSERT((0 == bslma::UsesBslmaAllocator<
+                                 WeirdAllocDequeStack>::value));
         RUN_EACH_TYPE(TestDriver, testCase11, TEST_TYPES_REGULAR(deque));
 
         if (verbose) printf("vector --------------------------------------\n");
-        BSLMF_ASSERT((0 == bslalg::HasTrait<
-                                 WeirdAllocVector,
-                                 bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
-        BSLMF_ASSERT((0 == bslalg::HasTrait<
-                                 WeirdAllocVectorStack,
-                                 bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
+        BSLMF_ASSERT((0 == bslma::UsesBslmaAllocator<
+                                 WeirdAllocVector>::value));
+        BSLMF_ASSERT((0 == bslma::UsesBslmaAllocator<
+                                 WeirdAllocVectorStack>::value));
         RUN_EACH_TYPE(TestDriver, testCase11, TEST_TYPES_REGULAR(vector));
       } break;
       case 10: {

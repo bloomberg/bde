@@ -37,16 +37,12 @@ BSLS_IDENT("$Id: $")
 #include <bslalg_arraydestructionprimitives.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_HASTRAIT
-#include <bslalg_hastrait.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITBITWISEMOVEABLE
-#include <bslalg_typetraitbitwisemoveable.h>
-#endif
-
 #ifndef INCLUDED_BSLMF_ASSERT
 #include <bslmf_assert.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
+#include <bslmf_isbitwisemoveable.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ASSERT
@@ -97,8 +93,7 @@ class AutoArrayMoveDestructor {
                              // guarded range
 
     // CLASS INVARIANT
-    BSLMF_ASSERT((HasTrait<OBJECT_TYPE,
-                  TypeTraitBitwiseMoveable>::VALUE));
+    BSLMF_ASSERT(bslmf::IsBitwiseMoveable<OBJECT_TYPE>::value);
 
     // NOT IMPLEMENTED
   private:
@@ -238,6 +233,7 @@ OBJECT_TYPE *AutoArrayMoveDestructor<OBJECT_TYPE>::destination() const
 
 }  // close package namespace
 
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
@@ -247,6 +243,7 @@ OBJECT_TYPE *AutoArrayMoveDestructor<OBJECT_TYPE>::destination() const
 #endif
 #define bslalg_AutoArrayMoveDestructor bslalg::AutoArrayMoveDestructor
     // This alias is defined for backward compatibility.
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

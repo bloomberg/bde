@@ -51,7 +51,7 @@ static void aSsErT(int c, const char *s, int i) {
 #define L_ __LINE__                           // current Line number
 #define T_() cout << '\t' << flush;           // Print tab w/o linefeed.
 
-#define ASSERT_SAME(X, Y) ASSERT(1 == (bslmf::IsSame<X, Y>::VALUE))
+#define ASSERT_SAME(X, Y) ASSERT(1 == (bslmf::IsSame<X, Y>::value))
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -115,25 +115,25 @@ void usageExample()
     typedef MyType*                EXP10;
 
     ASSERT(1 == (bslmf::IsSame<bslmf::ForwardingType<T1>::Type,
-                               EXP1>::VALUE));
+                               EXP1>::value));
     ASSERT(1 == (bslmf::IsSame<bslmf::ForwardingType<T2>::Type,
-                               EXP2>::VALUE));
+                               EXP2>::value));
     ASSERT(1 == (bslmf::IsSame<bslmf::ForwardingType<T3>::Type,
-                               EXP3>::VALUE));
+                               EXP3>::value));
     ASSERT(1 == (bslmf::IsSame<bslmf::ForwardingType<T4>::Type,
-                               EXP4>::VALUE));
+                               EXP4>::value));
     ASSERT(1 == (bslmf::IsSame<bslmf::ForwardingType<T5>::Type,
-                               EXP5>::VALUE));
+                               EXP5>::value));
     ASSERT(1 == (bslmf::IsSame<bslmf::ForwardingType<T6>::Type,
-                               EXP6>::VALUE));
+                               EXP6>::value));
     ASSERT(1 == (bslmf::IsSame<bslmf::ForwardingType<T7>::Type,
-                               EXP7>::VALUE));
+                               EXP7>::value));
     ASSERT(1 == (bslmf::IsSame<bslmf::ForwardingType<T8>::Type,
-                               EXP8>::VALUE));
+                               EXP8>::value));
     ASSERT(1 == (bslmf::IsSame<bslmf::ForwardingType<T9>::Type,
-                               EXP9>::VALUE));
+                               EXP9>::value));
     ASSERT(1 == (bslmf::IsSame<bslmf::ForwardingType<T10>::Type,
-                               EXP10>::VALUE));
+                               EXP10>::value));
 }
 
 //=============================================================================
@@ -189,12 +189,12 @@ int main(int argc, char *argv[])
         ASSERT_SAME(bslmf::ConstForwardingType<int       >::Type, int);
         ASSERT_SAME(bslmf::ConstForwardingType<int&      >::Type, int&);
         if (verbose)
-            P(bslmf::ConstForwardingType<int&>::BSLMF_FORWARDING_TYPE__ID);
+            P(bslmf::ConstForwardingType<int&>::BSLMF_FORWARDING_TYPE_ID);
         ASSERT_SAME(bslmf::ConstForwardingType<int const&>::Type, int);
 
         ASSERT_SAME(bslmf::ConstForwardingType<void *>::Type, void *);
         if (verbose)
-            P(bslmf::ConstForwardingType<void *>::BSLMF_FORWARDING_TYPE__ID);
+            P(bslmf::ConstForwardingType<void *>::BSLMF_FORWARDING_TYPE_ID);
         ASSERT_SAME(bslmf::ConstForwardingType<void *&>::Type,
                     void *&);
         ASSERT_SAME(bslmf::ConstForwardingType<void volatile *&>::Type,
@@ -209,10 +209,10 @@ int main(int argc, char *argv[])
         ASSERT_SAME(bslmf::ConstForwardingType<Struct& >::Type, Struct&);
         ASSERT_SAME(bslmf::ConstForwardingType<Union   >::Type, const Union&);
         ASSERT_SAME(bslmf::ConstForwardingType<Union&  >::Type, Union&);
-        ASSERT(0 == bslmf::IsArray<Class>::VALUE);
+        ASSERT(0 == bslmf::IsArray<Class>::value);
         ASSERT_SAME(bslmf::ConstForwardingType<Class   >::Type,const Class&);
         if (verbose)
-            P(bslmf::ConstForwardingType<Class>::BSLMF_FORWARDING_TYPE__ID);
+            P(bslmf::ConstForwardingType<Class>::BSLMF_FORWARDING_TYPE_ID);
         if (verbose) P(bslmf::ConstForwardingType<Class>::IS_BASIC_TYPE);
         ASSERT_SAME(bslmf::ConstForwardingType<const Class&>::Type,
                     const Class&);
@@ -234,7 +234,7 @@ int main(int argc, char *argv[])
         ASSERT_SAME(bslmf::ConstForwardingType< A>::Type, const char*);
         ASSERT_SAME(bslmf::ConstForwardingType<RA>::Type, char*);
         if (verbose)
-            P(bslmf::ConstForwardingType<RA>::BSLMF_FORWARDING_TYPE__ID);
+            P(bslmf::ConstForwardingType<RA>::BSLMF_FORWARDING_TYPE_ID);
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -266,10 +266,10 @@ int main(int argc, char *argv[])
         ASSERT_SAME(bslmf::ForwardingType<Struct&     >::Type, Struct&);
         ASSERT_SAME(bslmf::ForwardingType<Union       >::Type, const Union&);
         ASSERT_SAME(bslmf::ForwardingType<Union&      >::Type, Union&);
-        ASSERT(0 == bslmf::IsArray<Class>::VALUE);
+        ASSERT(0 == bslmf::IsArray<Class>::value);
         ASSERT_SAME(bslmf::ForwardingType<Class       >::Type, const Class&);
         if (verbose)
-            P(bslmf::ForwardingType<Class>::BSLMF_FORWARDING_TYPE__ID);
+            P(bslmf::ForwardingType<Class>::BSLMF_FORWARDING_TYPE_ID);
         if (verbose) P(bslmf::ForwardingType<Class>::IS_BASIC_TYPE);
         ASSERT_SAME(bslmf::ForwardingType<const Class&>::Type, const Class&);
 
@@ -282,9 +282,9 @@ int main(int argc, char *argv[])
 
         ASSERT_SAME(bslmf::ForwardingType<int Class::*&>::Type, int Class::*&);
 
-#if !defined(BSLS_PLATFORM__CMP_MSVC)    \
-    && (!defined(BSLS_PLATFORM__CMP_IBM) \
-        || (BSLS_PLATFORM__CMP_VER_MAJOR < 0x0800))
+#if !defined(BSLS_PLATFORM_CMP_MSVC)    \
+    && (!defined(BSLS_PLATFORM_CMP_IBM) \
+        || (BSLS_PLATFORM_CMP_VER_MAJOR < 0x0800))
         // xlc-8 and MSVC 2005 seem to have problems with function types.
 
         ASSERT_SAME(bslmf::ForwardingType<  F>::Type,  F);
@@ -294,9 +294,9 @@ int main(int argc, char *argv[])
         ASSERT_SAME(bslmf::ForwardingType< PF>::Type, PF);
         ASSERT_SAME(bslmf::ForwardingType<RPF>::Type, PF&);
 
-#if !defined(BSLS_PLATFORM__CMP_MSVC)    \
-    && (!defined(BSLS_PLATFORM__CMP_IBM) \
-        || (BSLS_PLATFORM__CMP_VER_MAJOR < 0x0800))
+#if !defined(BSLS_PLATFORM_CMP_MSVC)    \
+    && (!defined(BSLS_PLATFORM_CMP_IBM) \
+        || (BSLS_PLATFORM_CMP_VER_MAJOR < 0x0800))
         // xlc-8 and MSVC 2005 seem to have problems with function types.
 
         ASSERT_SAME(bslmf::ForwardingType< Fi >::Type, Fi);

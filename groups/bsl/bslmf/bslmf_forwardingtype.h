@@ -65,25 +65,25 @@ BSLS_IDENT("$Id: $")
 // Finally, check that they match:
 //..
 //  assert(1 == (bslmf::IsSame<bslmf::ForwardingType<T1>::Type,
-//                             EXP1>::VALUE));
+//                             EXP1>::value));
 //  assert(1 == (bslmf::IsSame<bslmf::ForwardingType<T2>::Type,
-//                             EXP2>::VALUE));
+//                             EXP2>::value));
 //  assert(1 == (bslmf::IsSame<bslmf::ForwardingType<T3>::Type,
-//                             EXP3>::VALUE));
+//                             EXP3>::value));
 //  assert(1 == (bslmf::IsSame<bslmf::ForwardingType<T4>::Type,
-//                             EXP4>::VALUE));
+//                             EXP4>::value));
 //  assert(1 == (bslmf::IsSame<bslmf::ForwardingType<T5>::Type,
-//                             EXP5>::VALUE));
+//                             EXP5>::value));
 //  assert(1 == (bslmf::IsSame<bslmf::ForwardingType<T6>::Type,
-//                             EXP6>::VALUE));
+//                             EXP6>::value));
 //  assert(1 == (bslmf::IsSame<bslmf::ForwardingType<T7>::Type,
-//                             EXP7>::VALUE));
+//                             EXP7>::value));
 //  assert(1 == (bslmf::IsSame<bslmf::ForwardingType<T8>::Type,
-//                             EXP8>::VALUE));
+//                             EXP8>::value));
 //  assert(1 == (bslmf::IsSame<bslmf::ForwardingType<T9>::Type,
-//                             EXP9>::VALUE));
+//                             EXP9>::value));
 //  assert(1 == (bslmf::IsSame<bslmf::ForwardingType<T10>::Type,
-//                             EXP10>::VALUE));
+//                             EXP10>::value));
 //..
 
 #ifndef INCLUDED_BSLSCM_VERSION
@@ -136,14 +136,14 @@ struct ForwardingType {
     // This template is used to specialize 'TYPE' such that arguments of type
     // 'TYPE' can be efficiently forwarded by reference or pointer.
 
-    enum { BSLMF_FORWARDING_TYPE__ID = 1 };  // For testing only.
+    enum { BSLMF_FORWARDING_TYPE_ID = 1 };  // For testing only.
     enum {
-        IS_BASIC_TYPE = IsFundamental<TYPE>::VALUE ||
-                        IsPointerToMember<TYPE>::VALUE ||
-                        IsMemberFunctionPointer<TYPE>::VALUE ||
-                        IsFunctionPointer<TYPE>::VALUE ||
-                        IsFunctionPointer<TYPE*>::VALUE ||
-                        IsEnum<TYPE>::VALUE
+        IS_BASIC_TYPE = IsFundamental<TYPE>::value ||
+                        IsPointerToMember<TYPE>::value ||
+                        IsMemberFunctionPointer<TYPE>::value ||
+                        IsFunctionPointer<TYPE>::value ||
+                        IsFunctionPointer<TYPE*>::value ||
+                        IsEnum<TYPE>::value
     };
 
     typedef typename
@@ -158,14 +158,14 @@ struct ForwardingType<const TYPE&> {
     // that case, it may be advantageous to pass an argument by value if 'T' is
     // a basic type, but not if it is a user-defined type.
 
-    enum { BSLMF_FORWARDING_TYPE__ID = 2 };  // For testing only.
+    enum { BSLMF_FORWARDING_TYPE_ID = 2 };  // For testing only.
     enum {
-        IS_BASIC_TYPE = IsFundamental<TYPE>::VALUE ||
-                        IsPointerToMember<TYPE>::VALUE ||
-                        IsMemberFunctionPointer<TYPE>::VALUE ||
-                        IsFunctionPointer<TYPE>::VALUE ||
-                        IsFunctionPointer<TYPE*>::VALUE ||
-                        IsEnum<TYPE>::VALUE
+        IS_BASIC_TYPE = IsFundamental<TYPE>::value ||
+                        IsPointerToMember<TYPE>::value ||
+                        IsMemberFunctionPointer<TYPE>::value ||
+                        IsFunctionPointer<TYPE>::value ||
+                        IsFunctionPointer<TYPE*>::value ||
+                        IsEnum<TYPE>::value
     };
 
     typedef typename
@@ -178,7 +178,7 @@ struct ForwardingType<const volatile TYPE&> {
     // 'ForwardingType' is a 'const volatile T&'.  In that case, this template
     // parameter cannot be forwarded as any other type.
 
-    enum { BSLMF_FORWARDING_TYPE__ID = 3 };  // For testing only.
+    enum { BSLMF_FORWARDING_TYPE_ID = 3 };  // For testing only.
 
     typedef const volatile TYPE& Type;
 };
@@ -189,7 +189,7 @@ struct ForwardingType<volatile TYPE&> {
     // 'ForwardingType' is a 'const volatile T&'.  In that case, this template
     // parameter cannot be forwarded as any other type.
 
-    enum { BSLMF_FORWARDING_TYPE__ID = 4 };  // For testing only.
+    enum { BSLMF_FORWARDING_TYPE_ID = 4 };  // For testing only.
 
     typedef volatile TYPE* Type;
 };
@@ -200,14 +200,14 @@ struct ForwardingType<TYPE&>
     // This specialization is used when the template parameter of
     // 'ForwardingType' is a 'T&' and 'T' is not cv-qualified.
 
-    enum { BSLMF_FORWARDING_TYPE__ID = 5 };  // For testing only.
+    enum { BSLMF_FORWARDING_TYPE_ID = 5 };  // For testing only.
 };
 
 template <typename TYPE>
 struct ForwardingType<TYPE*> {
     // Pointer rvalues should not be forwarded any other way.
 
-    enum { BSLMF_FORWARDING_TYPE__ID = 6 };  // For testing only.
+    enum { BSLMF_FORWARDING_TYPE_ID = 6 };  // For testing only.
     typedef TYPE* Type;
 };
 
@@ -215,7 +215,7 @@ template <typename TYPE>
 struct ForwardingType<TYPE* const&> {
     // Pointer rvalues should not be forwarded any other way.
 
-    enum { BSLMF_FORWARDING_TYPE__ID = 7 };  // For testing only.
+    enum { BSLMF_FORWARDING_TYPE_ID = 7 };  // For testing only.
     typedef TYPE* Type;
 };
 
@@ -272,6 +272,7 @@ struct ForwardingType_Imp<TYPE,1, 0> {
 
 }  // close package namespace
 
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
@@ -287,6 +288,7 @@ struct ForwardingType_Imp<TYPE,1, 0> {
 #endif
 #define bslmf_ForwardingType bslmf::ForwardingType
     // This alias is defined for backward compatibility.
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

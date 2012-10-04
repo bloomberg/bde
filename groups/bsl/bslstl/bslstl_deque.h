@@ -12,7 +12,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslstl_Deque: standard-compliant 'bsl::deque' implementation
 //
-//@SEE_ALSO: bslstl_vector, bsl+stlport
+//@SEE_ALSO: bslstl_vector, bsl+stlhdrs
 //
 //@AUTHOR: Pablo Halpern (phalpern),  Herve Bronnimann (hbronnim),
 //         Arthur Chiu (achiu)
@@ -41,8 +41,118 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// This component is for use by the 'bsl+stlport' package.  Prefer using
-// 'bsl::deque' directly.
+// In this section we show intended usage of this component.
+//
+///Example 1: Using a 'deque' to Implement a Laundry Queue
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Suppose we want to define a class to maintain a process queue of names of
+// customers who are dropping off their laundry at a drop-off laundry service.
+// We can accomplish this by defining a new class characterizing a
+// laundry-process queue that uses 'bsl::deque' in its implementation.
+//
+// The process queue provides two methods, 'push' and 'expeditedPush', for
+// inserting names of customers onto the queue.  When calling the 'push'
+// method, the customer's name will be inserted at the end of the queue -- his
+// laundry will be done after the laundry of customers previously on the queue.
+// The 'expeditedPush' method is reserved for customers who have bribed the
+// merchant for expedited service.  When calling the 'expeditedPush' method,
+// the customer's name will be inserted onto the front of the queue -- his
+// laundry will be done before customers previously on the queue.
+//
+// When the workers are ready to do some laundry, they call the 'next' method
+// of the queue, which returns the name of the customer whose laundry is to be
+// done next.  For brevity of the usage example, we do not show how customers
+// are track while or after their laundry is being done.
+//
+// In addition, the laundry queue also provides the 'find' method, which
+// returns a 'bool' to indicate whether a given customer is still in the queue.
+//
+// First, we declare a class 'LaundryQueue' based on a deque, to store names of
+// customers at a drop-off laundry:
+//..
+//  class LaundryQueue {
+//      // This 'class' keeps track of customers enqueued to have their laundry
+//      // done by a laundromat.
+//
+//      // DATA
+//      bsl::deque<bsl::string> d_queue;
+//
+//    public:
+//      // CREATORS
+//      LaundryQueue(bslma::Allocator *basicAllocator = 0);
+//          // Create a 'LaundryQueue' object using the specified
+//          // 'basicAllocator'.  If 'basicAllocator' is not provided, use the
+//          // default allocator.
+//
+//      // MANIPULATORS
+//      void push(const bsl::string& customerName);
+//          // Add the specified 'customerName' to the back of the laundry
+//          // queue.
+//
+//      void expeditedPush(const bsl::string& customerName);
+//          // Add the specified 'customerName' to the laundry queue at the
+//          // front.
+//
+//      bsl::string next();
+//          // Return the name from the front of the queue, removing it from
+//          // the queue.  If the queue is empty, return '(* empty *)' which is
+//          // not a valid name for a customer.
+//
+//      // ACCESSORS
+//      bool find(const bsl::string& customerName);
+//          // Return 'true' if 'customerName' is in the queue, and 'false'
+//          // otherwise.
+//  };
+//..
+// Then, we define the implementation of the methods of 'LaundryQueue'
+//..
+// CREATORS
+//  LaundryQueue::LaundryQueue(bslma::Allocator *basicAllocator)
+//  : d_queue(basicAllocator)
+//  {
+//      // Note that the allocator is propagated to the underlying 'deque',
+//      // which will use the default allocator is '0 == basicAllocator'.
+//  }
+//
+// MANIPULATORS
+//  void LaundryQueue::push(const bsl::string& customerName)
+//  {
+//      d_queue.push_back(customerName);     // note constant time
+//  }
+//
+//  void LaundryQueue::expeditedPush(const bsl::string& customerName)
+//  {
+//      d_queue.push_front(customerName);    // note constant time
+//  }
+//
+//  bsl::string LaundryQueue::next()
+//  {
+//      if (d_queue.empty()) {
+//          return "(* empty *)";
+//      }
+//
+//      bsl::string ret = d_queue.front();   // note constant time
+//
+//      d_queue.pop_front();                 // note constant time
+//
+//      return ret;
+//  }
+//
+//  // ACCESSORS
+//  bool LaundryQueue::find(const bsl::string& customerName)
+//  {
+//      // Note 'd_queue.empty() || d_queue[0] == d_queue.front()'
+//
+//      for (size_t i = 0; i < d_queue.size(); ++i) {
+//          if (customerName == d_queue[i]) {    // note '[]' is constant time
+//              return true;
+//          }
+//      }
+//
+//      return false;
+//  }
+//..
+
 
 // Prevent 'bslstl' headers from being included directly in 'BSL_OVERRIDES_STD'
 // mode.  Doing so is unsupported, and is likely to cause compilation errors.
@@ -59,8 +169,8 @@ BSL_OVERRIDES_STD mode"
 #include <bslstl_allocator.h>
 #endif
 
-#ifndef INCLUDED_BSLSTL_CONTAINERBASE
-#include <bslstl_containerbase.h>
+#ifndef INCLUDED_BSLALG_CONTAINERBASE
+#include <bslalg_containerbase.h>
 #endif
 
 #ifndef INCLUDED_BSLSTL_ITERATOR
@@ -73,10 +183,6 @@ BSL_OVERRIDES_STD mode"
 
 #ifndef INCLUDED_BSLSTL_STDEXCEPTUTIL
 #include <bslstl_stdexceptutil.h>
-#endif
-
-#ifndef INCLUDED_BSLSTL_UTIL
-#include <bslstl_util.h>
 #endif
 
 #ifndef INCLUDED_BSLALG_DEQUEIMPUTIL
@@ -103,16 +209,8 @@ BSL_OVERRIDES_STD mode"
 #include <bslalg_scalarprimitives.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BSLSTL_TRAITSGROUPSTLSEQUENCECONTAINER
-#include <bslstl_traitsgroupstlsequencecontainer.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ANYTYPE
-#include <bslmf_anytype.h>
+#ifndef INCLUDED_BSLALG_TYPETRAITHASSTLITERATORS
+#include <bslalg_typetraithasstliterators.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_ASSERT
@@ -121,6 +219,18 @@ BSL_OVERRIDES_STD mode"
 
 #ifndef INCLUDED_BSLMF_ISSAME
 #include <bslmf_issame.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_MATCHANYTYPE
+#include <bslmf_matchanytype.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_MATCHARITHMETICTYPE
+#include <bslmf_matcharithmetictype.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_NIL
+#include <bslmf_nil.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ASSERT
@@ -209,7 +319,7 @@ class Deque_Base {
     // important that this class has the same layout as the deque class
     // implementation.  It is parameterized by 'VALUE_TYPE' only and implements
     // the portion of 'bsl::deque' that does not need to know about its
-    // parameterized 'ALLCOATOR' (in order to generate shorter debug strings).
+    // parameterized 'ALLOCATOR' (in order to generate shorter debug strings).
     // Note that this class must have the same layout as 'Deque_Imp' (see
     // implementation file).
 
@@ -363,7 +473,7 @@ class Deque_Base {
 
 template <class VALUE_TYPE, class ALLOCATOR = allocator<VALUE_TYPE> >
 class deque : public  Deque_Base<VALUE_TYPE>
-            , private BloombergLP::bslstl::ContainerBase<ALLOCATOR> {
+            , private BloombergLP::bslalg::ContainerBase<ALLOCATOR> {
     // This class template provides an STL-compliant 'deque' that conforms to
     // the 'bslma::Allocator' model.  For the requirements of a deque class,
     // consult the second revision of the ISO/IEC 14882 Programming Language
@@ -403,7 +513,7 @@ class deque : public  Deque_Base<VALUE_TYPE>
 
     typedef Deque_Base<VALUE_TYPE>                             Base;
 
-    typedef BloombergLP::bslstl::ContainerBase<ALLOCATOR>      ContainerBase;
+    typedef BloombergLP::bslalg::ContainerBase<ALLOCATOR>      ContainerBase;
 
     typedef BloombergLP::bslalg::DequeImpUtil<VALUE_TYPE,
                                              BLOCK_LENGTH>     Imp;
@@ -454,10 +564,9 @@ class deque : public  Deque_Base<VALUE_TYPE>
   private:
     // ASSERTIONS
 
-    BSLMF_ASSERT((BloombergLP::bslmf::IsSame<reference,
-                                            typename Base::reference>::VALUE));
-    BSLMF_ASSERT((BloombergLP::bslmf::IsSame<const_reference,
-                                      typename Base::const_reference>::VALUE));
+    BSLMF_ASSERT((is_same<reference, typename Base::reference>::VALUE));
+    BSLMF_ASSERT((is_same<const_reference,
+                  typename Base::const_reference>::VALUE));
         // This need not necessarily be true as per the C++ standard, but is a
         // safe assumption for this implementation and allows to implement the
         // element access within the 'Base' type (that is parameterized by
@@ -501,11 +610,12 @@ class deque : public  Deque_Base<VALUE_TYPE>
         // may call it for a temporary object).
 
     template <class INTEGER_TYPE>
-    void privateInsertDispatch(const_iterator          position,
-                               INTEGER_TYPE            numElements,
-                               INTEGER_TYPE            value,
-                               BloombergLP::bslstl::UtilIterator,
-                               int);
+    void privateInsertDispatch(
+                           const_iterator                          position,
+                           INTEGER_TYPE                            numElements,
+                           INTEGER_TYPE                            value,
+                           BloombergLP::bslmf::MatchArithmeticType ,
+                           BloombergLP::bslmf::Nil                 );
         // Insert the specified 'numElements' copies of the specified 'value'
         // into this deque at the specified 'position'.  This overload matches
         // 'privateInsert' when the second and third arguments are of the same
@@ -513,11 +623,11 @@ class deque : public  Deque_Base<VALUE_TYPE>
         // arguments are used only for overload resolution.
 
     template <class INPUT_ITER>
-    void privateInsertDispatch(const_iterator position,
-                               INPUT_ITER     first,
-                               INPUT_ITER     last,
-                               BloombergLP::bslmf::AnyType,
-                               BloombergLP::bslmf::AnyType);
+    void privateInsertDispatch(const_iterator                   position,
+                               INPUT_ITER                       first,
+                               INPUT_ITER                       last,
+                               BloombergLP::bslmf::MatchAnyType ,
+                               BloombergLP::bslmf::MatchAnyType );
         // Insert the elements in the range specified as '[first, last)' into
         // this deque at the specified 'position'.  The third and fourth
         // arguments are used only for overload resolution so that this
@@ -583,13 +693,6 @@ class deque : public  Deque_Base<VALUE_TYPE>
     friend class Deque_Guard;
 
   public:
-    // TRAITS
-    typedef BloombergLP::bslstl::TraitsGroupStlSequenceContainer<
-                                                    VALUE_TYPE,
-                                                    ALLOCATOR> DequeTypeTraits;
-    BSLALG_DECLARE_NESTED_TRAITS(deque, DequeTypeTraits);
-        // Declare nested type traits for this class.
-
     // CREATORS
 
     // *** 23.2.1.1 construct/copy/destroy: ***
@@ -782,6 +885,49 @@ class deque : public  Deque_Base<VALUE_TYPE>
         // number of elements are guaranteed to raise a 'bsl::length_error'
         // exception.
 };
+
+}  // namespace bsl
+
+// ============================================================================
+//                                TYPE TRAITS
+// ============================================================================
+
+// Type traits for STL *sequence* containers:
+//: o A sequence container defines STL iterators.
+//: o A sequence container is bitwise moveable if the allocator is bitwise
+//:     moveable.
+//: o A sequence container uses 'bslma' allocators if the parameterized
+//:     'ALLOCATOR' is convertible from 'bslma::Allocator*'.
+
+namespace BloombergLP {
+namespace bslalg {
+
+template <typename VALUE_TYPE, typename ALLOCATOR>
+struct HasStlIterators<bsl::deque<VALUE_TYPE, ALLOCATOR> > : bsl::true_type
+{};
+
+}
+
+namespace bslmf {
+
+template <typename VALUE_TYPE, typename ALLOCATOR>
+struct IsBitwiseMoveable<bsl::deque<VALUE_TYPE, ALLOCATOR> >
+    : IsBitwiseMoveable<ALLOCATOR>
+{};
+
+}
+
+namespace bslma {
+
+template <typename VALUE_TYPE, typename ALLOCATOR>
+struct UsesBslmaAllocator<bsl::deque<VALUE_TYPE, ALLOCATOR> >
+    : bsl::is_convertible<Allocator*, ALLOCATOR>
+{};
+
+}
+}  // namespace BloombergLP
+
+namespace bsl {
 
 // FREE OPERATORS
 template <class VALUE_TYPE, class ALLOCATOR>
@@ -1018,6 +1164,11 @@ class Deque_Guard {
     std::size_t operator--();
         // Decrement the count of this guard, and return new count.
 
+    void release();
+        // Set the count of this tail guard to zero.  Note that this guard
+        // destructor will do nothing if count is not incremented again after
+        // this call.
+
     // ACCESSORS
     std::size_t count() const;
         // Return the current tail count.
@@ -1027,11 +1178,6 @@ class Deque_Guard {
 
     IteratorImp end() const;
         // Return a pointer after the item the last item in the guarded range.
-
-    void release();
-        // Set the count of this tail guard to zero.  Note that this guard
-        // destructor will do nothing if count is not incremented again after
-        // this call.
 };
 
 // ===========================================================================
@@ -1267,7 +1413,8 @@ Deque_Base<VALUE_TYPE>::back() const
 template <class VALUE_TYPE, class ALLOCATOR>
 inline
 deque<VALUE_TYPE,ALLOCATOR>::deque(RawInit, const ALLOCATOR& allocator)
-: ContainerBase(allocator)
+: Deque_Base<VALUE_TYPE>()
+, ContainerBase(allocator)
 {
     this->d_blocks = 0;
 }
@@ -1422,11 +1569,11 @@ template <class VALUE_TYPE, class ALLOCATOR>
 template <class INTEGRAL_TYPE>
 inline
 void deque<VALUE_TYPE,ALLOCATOR>::privateInsertDispatch(
-                                          const_iterator           position,
-                                          INTEGRAL_TYPE            numElements,
-                                          INTEGRAL_TYPE            value,
-                                          BloombergLP::bslstl::UtilIterator,
-                                          int)
+                           const_iterator                          position,
+                           INTEGRAL_TYPE                           numElements,
+                           INTEGRAL_TYPE                           value,
+                           BloombergLP::bslmf::MatchArithmeticType ,
+                           BloombergLP::bslmf::Nil                 )
 {
     insert(position,
            static_cast<size_type>(numElements),
@@ -1436,11 +1583,11 @@ void deque<VALUE_TYPE,ALLOCATOR>::privateInsertDispatch(
 template <class VALUE_TYPE, class ALLOCATOR>
 template <class INPUT_ITER>
 void deque<VALUE_TYPE,ALLOCATOR>::privateInsertDispatch(
-                                                   const_iterator position,
-                                                   INPUT_ITER     first,
-                                                   INPUT_ITER     last,
-                                                   BloombergLP::bslmf::AnyType,
-                                                   BloombergLP::bslmf::AnyType)
+                                     const_iterator                   position,
+                                     INPUT_ITER                       first,
+                                     INPUT_ITER                       last,
+                                     BloombergLP::bslmf::MatchAnyType ,
+                                     BloombergLP::bslmf::MatchAnyType )
 {
     typedef typename iterator_traits<INPUT_ITER>::iterator_category Tag;
 
@@ -1885,7 +2032,8 @@ deque<VALUE_TYPE,ALLOCATOR>::privatePrepend(
 // CREATORS
 template <class VALUE_TYPE, class ALLOCATOR>
 deque<VALUE_TYPE,ALLOCATOR>::deque(const ALLOCATOR& allocator)
-: ContainerBase(allocator)
+: Deque_Base<VALUE_TYPE>()
+, ContainerBase(allocator)
 {
     deque temp(RAW_INIT, this->get_allocator());
     temp.privateInit(0);
@@ -1895,7 +2043,8 @@ deque<VALUE_TYPE,ALLOCATOR>::deque(const ALLOCATOR& allocator)
 template <class VALUE_TYPE, class ALLOCATOR>
 deque<VALUE_TYPE,ALLOCATOR>::deque(size_type         numElements,
                                    const ALLOCATOR&  allocator)
-: ContainerBase(allocator)
+: Deque_Base<VALUE_TYPE>()
+, ContainerBase(allocator)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(numElements > max_size())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -1912,7 +2061,8 @@ template <class VALUE_TYPE, class ALLOCATOR>
 deque<VALUE_TYPE,ALLOCATOR>::deque(size_type         numElements,
                                    const VALUE_TYPE& value,
                                    const ALLOCATOR&  allocator)
-: ContainerBase(allocator)
+: Deque_Base<VALUE_TYPE>()
+, ContainerBase(allocator)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(numElements > max_size())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -1930,7 +2080,8 @@ template <class INPUT_ITER>
 deque<VALUE_TYPE,ALLOCATOR>::deque(INPUT_ITER       first,
                                    INPUT_ITER       last,
                                    const ALLOCATOR& allocator)
-: ContainerBase(allocator)
+: Deque_Base<VALUE_TYPE>()
+, ContainerBase(allocator)
 {
     deque temp(RAW_INIT, this->get_allocator());
     temp.privateInit(0);
@@ -1940,7 +2091,8 @@ deque<VALUE_TYPE,ALLOCATOR>::deque(INPUT_ITER       first,
 
 template <class VALUE_TYPE, class ALLOCATOR>
 deque<VALUE_TYPE,ALLOCATOR>::deque(const deque<VALUE_TYPE,ALLOCATOR>& rhs)
-: ContainerBase(rhs)
+: Deque_Base<VALUE_TYPE>()
+, ContainerBase(rhs)
 {
     deque temp(RAW_INIT, this->get_allocator());
     temp.privateInit(rhs.size());
@@ -1954,7 +2106,8 @@ template <class VALUE_TYPE, class ALLOCATOR>
 deque<VALUE_TYPE,ALLOCATOR>::deque(
                                   const deque<VALUE_TYPE,ALLOCATOR>& rhs,
                                   const ALLOCATOR&                   allocator)
-: ContainerBase(allocator)
+: Deque_Base<VALUE_TYPE>()
+, ContainerBase(allocator)
 {
     deque temp(RAW_INIT, this->get_allocator());
     temp.privateInit(rhs.size());
@@ -2360,7 +2513,11 @@ void deque<VALUE_TYPE,ALLOCATOR>::insert(const_iterator position,
     BSLS_ASSERT_SAFE(position >= this->begin());
     BSLS_ASSERT_SAFE(position <= this->end());
 
-    privateInsertDispatch(position, first, last, first, 0);
+    privateInsertDispatch(position,
+                          first,
+                          last,
+                          first,
+                          BloombergLP::bslmf::Nil());
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>

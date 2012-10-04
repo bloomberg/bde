@@ -325,10 +325,6 @@ class TestType {
     bslma::Allocator *d_allocator_p;
 
   public:
-    // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(TestType,
-                                 bslalg::TypeTraitUsesBslmaAllocator);
-
     // CREATORS
     TestType(bslma::Allocator *ba = 0)
     : d_data_p(0)
@@ -399,6 +395,13 @@ class TestType {
         }
     }
 };
+
+// TRAITS
+namespace BloombergLP {
+namespace bslma {
+template <> struct UsesBslmaAllocator<TestType> : bsl::true_type {};
+}
+}
 
 bool operator==(const TestType& lhs, const TestType& rhs)
 {
@@ -491,11 +494,6 @@ class BitwiseMoveableTestType : public TestType {
     // bit-wise moveable trait.  All members are inherited.
 
   public:
-    // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS2(BitwiseMoveableTestType,
-                                  bslalg::TypeTraitUsesBslmaAllocator,
-                                  bslalg::TypeTraitBitwiseMoveable);
-
     // CREATORS
     BitwiseMoveableTestType(bslma::Allocator *ba = 0)
     : TestType(ba)
@@ -514,6 +512,19 @@ class BitwiseMoveableTestType : public TestType {
     }
 };
 
+// TRAITS
+namespace BloombergLP {
+namespace bslma {
+template <> struct UsesBslmaAllocator<BitwiseMoveableTestType>
+    : bsl::true_type {};
+}
+
+namespace bslmf {
+template <> struct IsBitwiseMoveable<BitwiseMoveableTestType>
+    : bsl::true_type {};
+}
+}
+
                        // =============================
                        // class BitwiseCopyableTestType
                        // =============================
@@ -523,10 +534,6 @@ class BitwiseCopyableTestType : public TestTypeNoAlloc {
     // bit-wise copyable trait.  All members are inherited.
 
   public:
-    // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(BitwiseCopyableTestType,
-                                 bslalg::TypeTraitBitwiseCopyable);
-
     // CREATORS
     BitwiseCopyableTestType()
     : TestTypeNoAlloc()
@@ -544,6 +551,12 @@ class BitwiseCopyableTestType : public TestTypeNoAlloc {
     {
     }
 };
+
+// TRAITS
+namespace bsl {
+template <> struct is_trivially_copyable<BitwiseCopyableTestType>
+    : true_type {};
+}
 
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
