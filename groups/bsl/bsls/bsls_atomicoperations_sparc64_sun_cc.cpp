@@ -111,7 +111,7 @@ void bsls_AtomicOperations_Sparc64_AssemblyContainer()
         "add %o2, %o1, %o0");
 }
 
-}
+}  // close enterprise namespace
 
 #endif
 

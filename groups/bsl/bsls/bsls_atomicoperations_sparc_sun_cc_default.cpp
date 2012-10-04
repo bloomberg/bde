@@ -113,7 +113,7 @@ void bsls_AtomicOperations_Sparc_AssemblyContainer()
         "add %o2, %o1, %o0\n");     // return the new value
 }
 
-}
+}  // close enterprise namespace
 
 #endif
 
