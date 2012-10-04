@@ -17,7 +17,7 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR:
 //
 //@DESCRIPTION: This component defines a meta-function, 'bsl::is_function',
-// which may be used to query whether a type is a function type.
+// that may be used to query whether a type is a function type.
 //
 // 'bsl::is_function' meets the requirements of the 'is_function' template
 // defined in the C++11 standard [meta.unary.cat].
@@ -56,6 +56,10 @@ BSLS_IDENT("$Id: $")
 
 namespace bsl {
 
+                             // ==================
+                             // struct is_function
+                             // ==================
+
 template <typename TYPE>
 struct is_function
     : integral_constant<
@@ -64,20 +68,20 @@ struct is_function
                       typename add_pointer<TYPE>::type>::IS_FUNCTION_POINTER> {
     // This 'struct' template implements the 'is_function' meta-function
     // defined in the C++11 standard [meta.unary.cat] to determine if the
-    // (template parameter) 'TYPE' is a function.  This 'struct' derives from
-    // 'bsl::true_type' if the 'TYPE' is a function type, and 'bsl::false_type'
-    // otherwise.
+    // (template parameter) 'TYPE' is a function type.  This 'struct' derives
+    // from 'bsl::true_type' if the 'TYPE' is a function type, and
+    // from 'bsl::false_type' otherwise.
 };
 
 }  // close namespace bsl
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2012
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

@@ -18,9 +18,10 @@ using namespace std;
 // The component under test defines two meta-functions, 'bsl::is_enum' and
 // 'bslmf::IsEnum', that determine whether a template parameter type is an
 // enumerated type.  Thus, we need to ensure that the value returned by these
-// meta-functions are correct for each possible category of types.  Since the
-// two meta-functions are functionally equivalent, we will use the same set of
-// types for both.
+// meta-functions are correct for each possible category of types.  we will
+// assert the results of the same set of types for both, except that we verify
+// 'bsl::is_enum' returns 'false' on a reference type to an enumerated type
+// while 'bslmf::IsEnum' returns '1'.
 //
 //-----------------------------------------------------------------------------
 // PUBLIC CLASS DATA
@@ -93,15 +94,15 @@ class DerivedClassTestType : public BaseClassTestType {
 };
 
 typedef int (StructTestType::*MethodPtrTestType) ();
-    // This pointer type to non-static function member is intended to be used
+    // This pointer to non-static member function type is intended to be used
     // for testing as the template parameter 'TYPE' of 'bsl::is_enum'.
 
 typedef void (*FunctionPtrTestType) ();
     // This function pointer type is intended to be used for testing as the
     // template parameter 'TYPE' of 'bsl::is_enum'.
 
-typedef int StructTestType::* PMD;
-    // This pointer type to data member is intended to be used for testing as
+typedef int StructTestType::*PMD;
+    // This pointer to member object type is intended to be used for testing as
     // the template parameter 'TYPE' of 'bsl::is_enum'.
 
 struct Incomplete;
@@ -194,7 +195,10 @@ int main(int argc, char *argv[])
 //..
     ASSERT(true  == bsl::is_enum<MyEnum>::value);
     ASSERT(false == bsl::is_enum<MyClass>::value);
+    ASSERT(false == bsl::is_enum<MyEnum&>::value);
 //..
+// Notice that 'bsl::is_enum' returns 'false' on reference type to an
+// enumerated type.
 
       } break;
       case 2: {
@@ -209,7 +213,7 @@ int main(int argc, char *argv[])
         //:   primitive type.
         //:
         //: 2 'IsEnum::VALUE' is 1 when 'TYPE' is a (possibly cv-qualified)
-        //:   'enum' type.
+        //:   'enum' type or a reference to 'enum' type.
         //:
         //: 3 'IsEnum::VALUE' is 0 when 'TYPE' is a (possibly cv-qualified)
         //:   'class', 'struct', or 'union' type.
@@ -234,6 +238,7 @@ int main(int argc, char *argv[])
 
         // C-2
         TYPE_ASSERT_CVQ_SUFFIX(bslmf::IsEnum, EnumTestType, 1);
+        TYPE_ASSERT_CVQ_REF   (bslmf::IsEnum, EnumTestType, 1);
 
         // C-3
         TYPE_ASSERT_CVQ_SUFFIX(bslmf::IsEnum, StructTestType,       0);
@@ -286,7 +291,8 @@ int main(int argc, char *argv[])
         //:   cv-qualified) primitive type.
         //:
         //: 2 'is_enum::value' is 'true' when 'TYPE' is a (possibly
-        //:   cv-qualified) 'enum' type.
+        //:   cv-qualified) 'enum' type, and is 'false' when 'TYPE' is a
+        //:   (possibly cv-qualified) reference to an enumerated type.
         //:
         //: 3 'is_enum::value' is 'false' when 'TYPE' is a (possibly
         //:   cv-qualified) 'class', 'struct', or 'union' type.
@@ -311,6 +317,7 @@ int main(int argc, char *argv[])
 
         // C-2
         TYPE_ASSERT_CVQ_SUFFIX(bsl::is_enum, EnumTestType, true);
+        TYPE_ASSERT_CVQ_REF   (bsl::is_enum, EnumTestType, false);
 
         // C-3
         TYPE_ASSERT_CVQ_SUFFIX(bsl::is_enum, StructTestType,       false);
@@ -364,11 +371,11 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2004
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

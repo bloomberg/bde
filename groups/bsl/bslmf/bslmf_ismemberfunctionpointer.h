@@ -16,7 +16,7 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component defines a meta-function,
 // 'bsl::is_member_function_pointer', that may be used to query whether a type
-// is a function pointer type to non-static member function.
+// is a function pointer to non-static member function type.
 //
 // 'bsl::is_member_function_pointer' meets the requirements of the
 // 'is_member_function_pointer' template defined in the C++11 standard
@@ -28,7 +28,8 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Verify Member Function Pointer Types
 ///- - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose that we want to assert whether a particular type is a class type.
+// Suppose that we want to assert whether a set of types are pointer to
+// non-static member function types.
 //
 // First, we create a user-defined type 'MyStruct':
 //..
@@ -613,7 +614,7 @@ struct is_member_function_pointer
     // meta-function defined in the C++11 standard [meta.unary.cat] to
     // determine if the (template parameter) 'TYPE' is a pointer type to
     // non-static member function.  This 'struct' derives from 'bsl::true_type'
-    // if the 'TYPE' is a pointer type to non-static member function, and
+    // if the 'TYPE' is a pointer type to non-static member function, and from
     // 'bsl::false_type' otherwise.
 };
 

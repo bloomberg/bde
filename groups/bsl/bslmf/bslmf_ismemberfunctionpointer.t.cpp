@@ -16,9 +16,9 @@ using namespace std;
 //                                --------
 // The component under test defines a meta-function,
 // 'bsl::is_member_function_pointer', which determines whether a template
-// parameter type is a function pointer type to (non-static) member function.
-// Thus, we need to ensure that the value returned by this meta-function is
-// correct for each possible category of types.
+// parameter type is a pointer to (non-static) member function type.  Thus, we
+// need to ensure that the value returned by this meta-function is correct for
+// each possible category of types.
 //
 // ----------------------------------------------------------------------------
 // PUBLIC CLASS DATA
@@ -90,7 +90,7 @@ class DerivedClassTestType : public BaseClassTestType {
 };
 
 typedef int (StructTestType::*MethodPtrTestType) ();
-    // This pointer type to non-static function member is intended to be used
+    // This pointer to non-static member function type is intended to be used
     // for testing as the template parameter 'TYPE' of
     // 'bsl::is_member_function_pointer'.
 
@@ -99,7 +99,7 @@ typedef void (*FunctionPtrTestType) ();
     // template parameter 'TYPE' of 'bsl::is_member_function_pointer'.
 
 typedef int StructTestType::* PMD;
-    // This pointer type to data member is intended to be used for testing as
+    // This pointer to member object type is intended to be used for testing as
     // the template parameter 'TYPE' of 'bsl::is_member_function_pointer'.
 
 struct Incomplete;
@@ -142,7 +142,8 @@ struct Incomplete;
 //
 ///Example 1: Verify Member Function Pointer Types
 ///- - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose that we want to assert whether a particular type is a class type.
+// Suppose that we want to assert whether a set of types are pointer to
+// non-static member function types.
 //
 // First, we create a user-defined type 'MyStruct':
 //..
@@ -213,12 +214,12 @@ int main(int argc, char *argv[])
         //:   (possibly cv-qualified) user-defined type.
         //:
         //: 3 'is_member_function_pointer::value' is 'false' when 'TYPE' is a
-        //:   (possibly cv-qualified) pointer type other than a pointer type to
+        //:   (possibly cv-qualified) pointer type other than pointer to
         //:   non-static member function pointer.
         //:
         //: 4 'is_member_function_pointer::value' is 'true' when 'TYPE' is a
-        //:   (possibly cv-qualified) pointer type to non-static member
-        //:   function.
+        //:   (possibly cv-qualified) pointer to non-static member function
+        //:   type.
         //:
         //: 5 'is_member_function_pointer::value' is 'false' when 'TYPE' is a
         //:   (possibly cv-qualified) function type.
@@ -232,8 +233,8 @@ int main(int argc, char *argv[])
         //   bsl::is_member_function_pointer::value
         // --------------------------------------------------------------------
 
-        if (verbose) printf("bsl::is_member_function_pointer\n"
-                            "===============================\n");
+        if (verbose) printf("'bsl::is_member_function_pointer'\n"
+                            "=================================\n");
 
         // C-1
         TYPE_ASSERT_CVQ_SUFFIX(bsl::is_member_function_pointer, void, false);
@@ -341,11 +342,11 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2012
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

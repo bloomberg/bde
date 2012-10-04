@@ -25,10 +25,12 @@ BSLS_IDENT("$Id: $")
 // the C++11 standard [meta.unary.cat], while 'bslmf::IsEnum' was devised
 // before 'is_class' was standardized.
 //
-// The two meta-functions are functionally equivalent.  The major difference
-// between them is that the result for 'bsl::is_enum' is indicated by the class
-// member 'value', while the result for 'bslmf::IsEnum' is indicated by the
-// class member 'VALUE'.
+// The two meta-functions are functionally equivalent except that a reference
+// type to an enumerated type is determinted as enumerated type by
+// 'bslmf::IsEnum' while it is not by 'bsl::isenum'.  The other major
+// difference between them is that the result for 'bsl::is_enum' is indicated
+// by the class member 'value', while the result for 'bslmf::IsEnum' is
+// indicated by the class member 'VALUE'.
 //
 // Note that 'bsl::is_enum' should be preferred over 'bslmf::IsEnum', and in
 // general, should be used by new components.
@@ -39,7 +41,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Verify Enumerated Types
 /// - - - - - - - - - - - - - - - - -
-// Suppose that we want to assert whether a set of types are enum types.
+// Suppose that we want to assert whether a set of types are enumerated types.
 //
 // First, we create an enumerated type, 'MyEnum', and a non-enumerated class
 // type, 'MyClass':
@@ -52,7 +54,10 @@ BSLS_IDENT("$Id: $")
 //..
 //  assert(true  == bsl::is_enum<MyEnum>::value);
 //  assert(false == bsl::is_enum<MyClass>::value);
+//  assert(false == bsl::is_enum<MyEnum&>::value);
 //..
+// Notice that 'bsl::is_enum' returns 'false' on reference type to an
+// enumerated type.
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
@@ -169,7 +174,7 @@ struct is_enum
     // This 'struct' template implements the 'is_enum' meta-function defined in
     // the C++11 standard [meta.unary.cat] to determine if the (template
     // parameter) 'TYPE' is an enumerated type.  This 'struct' derives from
-    // 'bsl::true_type' if the 'TYPE' is an enumerated type, and
+    // 'bsl::true_type' if the 'TYPE' is an enumerated type, and from
     // 'bsl::false_type' otherwise.
 };
 
@@ -189,11 +194,11 @@ struct is_enum
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2012
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

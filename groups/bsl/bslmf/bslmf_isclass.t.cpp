@@ -67,55 +67,46 @@ void aSsErT(bool b, const char *s, int i)
 
 namespace {
 
-enum   EnumTestType {
-    // This user-defined 'enum' type is intended to be used during testing as
-    // an argument for the template parameter 'TYPE' of 'bsl::is_class' and
-    // 'bslmf::IsClass'.
+enum EnumTestType {
+    // This user-defined 'enum' type is intended to be used for testing as the
+    // template parameter 'TYPE' of 'bsl::is_class'.
 };
 
 struct StructTestType {
-    // This user-defined 'struct' type is intended to be used during testing as
-    // an argument for the template parameter 'TYPE' of 'bsl::is_class' and
-    // 'bslmf::IsClass'.
+    // This user-defined 'struct' type is intended to be used for testing as
+    // the template parameter 'TYPE' of 'bsl::is_class'.
 };
 
-union  UnionTestType {
-    // This user-defined 'union' type is intended to be used during testing as
-    // an argument for the template parameter 'TYPE' of 'bsl::is_class' and
-    // 'bslmf::IsClass'.
+union UnionTestType {
+    // This user-defined 'union' type is intended to be used for testing as the
+    // template parameter 'TYPE' of 'bsl::is_class'.
 };
 
-class  BaseClassTestType {
-    // This user-defined base class type is intended to be used during testing
-    // as an argument for the template parameter 'TYPE' of 'bsl::is_class' and
-    // 'bslmf::IsClass'.
+class BaseClassTestType {
+    // This user-defined base class type is intended to be used for testing as
+    // the template parameter 'TYPE' of 'bsl::is_class'.
 };
 
-class  DerivedClassTestType : public BaseClassTestType {
-    // This user-defined derived class type is intended to be used during
-    // testing as an argument for the template parameter 'TYPE' of
-    // 'bsl::is_class' and 'bslmf::IsClass'.
+class DerivedClassTestType : public BaseClassTestType {
+    // This user-defined derived class type is intended to be used for testing
+    // as the template parameter 'TYPE' of 'bsl::is_class'.
 };
 
 typedef int (StructTestType::*MethodPtrTestType) ();
-    // This non-static function member type is intended to be used during
-    // testing as an argument for the template parameter 'TYPE' of
-    // 'bsl::is_class' and 'bslmf::IsClass'.
+    // This pointer to non-static member function type is intended to be used
+    // for testing as the template parameter 'TYPE' of 'bsl::is_class'.
 
 typedef void (*FunctionPtrTestType) ();
-    // This function pointer type is intended to be used during testing as an
-    // argument as an argument for the template parameter 'TYPE' of
-    // 'bsl::is_class' and 'bslmf::IsClass'.
+    // This function pointer type is intended to be used for testing as the
+    // template parameter 'TYPE' of 'bsl::is_class'.
 
-typedef int StructTestType::* PMD;
-    // This class public data member pointer type is intended to be used during
-    // testing as an argument as an argument for the template parameter 'TYPE'
-    // of 'bsl::is_class' and 'bslmf::IsClass'.
+typedef int StructTestType::*PMD;
+    // This pointer to member object type is intended to be used for testing as
+    // the template parameter 'TYPE' of 'bsl::is_class'.
 
 struct Incomplete;
-    // This incomplete 'struct' type is intended to be used during testing as
-    // an argument as an argument for the template parameter 'TYPE' of
-    // 'bsl::is_class' and 'bslmf::IsClass'.
+    // This incomplete 'struct' type is intended to be used for testing as the
+    // template parameter 'TYPE' of 'bsl::is_class'.
 
 }  // close unnamed namespace
 
@@ -195,7 +186,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("USAGE EXAMPLE\n"
                             "=============\n");
 // Now, we instantiate the 'bsl::is_class' template for both a non-class type
-// and the defined type 'MyClass', asserting the 'value' static data member of
+// and the defined type 'MyClass', and assert the 'value' static data member of
 // each instantiation:
 //..
     ASSERT(false == bsl::is_class<int>::value);
@@ -207,7 +198,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // 'bslmf::IsClass::VALUE'
         //   Ensure that the static data member 'VALUE' of 'bslmf::IsClass'
-        //   instantiations having various (template parameter) 'TYPES' has the
+        //   instantiations having various (template parameter) 'TYPE's has the
         //   correct value.
         //
         // Concerns:
@@ -234,8 +225,8 @@ int main(int argc, char *argv[])
         //   bslmf::IsClass::VALUE
         // --------------------------------------------------------------------
 
-        if (verbose) printf("bslmf::IsClass\n"
-                            "==============\n");
+        if (verbose) printf("'bslmf::IsClass'\n"
+                            "================\n");
 
         // C-1
         TYPE_ASSERT_CVQ_SUFFIX(bslmf::IsClass, void, 0);
@@ -321,8 +312,8 @@ int main(int argc, char *argv[])
         //   bsl::is_class::value
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nbsl::is_class\n"
-                              "=============\n");
+        if (verbose) printf("'bsl::is_class'\n"
+                            "===============\n");
 
         // C-1
         TYPE_ASSERT_CVQ_SUFFIX(bsl::is_class, void, false);
@@ -389,11 +380,11 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2005
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

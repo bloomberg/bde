@@ -16,7 +16,7 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component defines a meta-function,
 // 'bsl::is_member_object_pointer', which may be used to query whether a type
-// is a pointer to non-static member object.
+// is a pointer to non-static member object type.
 //
 // 'bsl::is_member_object_pointer' meets the requirements of the
 // 'is_member_object_pointer' template defined in the C++11 standard
@@ -28,14 +28,13 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Verify Member Function Pointer Types
 ///- - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose that we want to assert whether a particular type is a class type.
+// Suppose that we want to assert whether a set of types are pointers to member
+// object types.
 //
 // First, we create a user-defined type 'MyStruct':
 //..
 //  struct MyStruct
 //  {
-//      // DATA
-//      int memData;  // a member data
 //  };
 //..
 // Now, we create a 'typedef' for a member object pointer type:
@@ -116,18 +115,18 @@ struct is_member_object_pointer
     // determine if the (template parameter) 'TYPE' is a pointer type to
     // non-static data member.  This 'struct' derives from 'bsl::true_type' if
     // the 'TYPE' is a pointer type to non-static data member, and
-    // 'bsl::false_type' otherwise.
+    // from 'bsl::false_type' otherwise.
 };
 
 }  // close namespace bsl
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2012
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

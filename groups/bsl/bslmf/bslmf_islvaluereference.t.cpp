@@ -89,7 +89,7 @@ class DerivedClassTestType : public BaseClassTestType {
 };
 
 typedef int (StructTestType::*MethodPtrTestType) ();
-    // This pointer type to non-static function member is intended to be used
+    // This pointer to non-static member functiontype is intended to be used
     // for testing as the template parameter 'TYPE' of
     // 'bsl::is_lvalue_reference'.
 
@@ -97,8 +97,8 @@ typedef void (*FunctionPtrTestType) ();
     // This function pointer type is intended to be used for testing as the
     // template parameter 'TYPE' of 'bsl::is_lvalue_reference'.
 
-typedef int StructTestType::* PMD;
-    // This pointer type to data member is intended to be used for testing as
+typedef int StructTestType::*PMD;
+    // This pointer to member object type is intended to be used for testing as
     // the template parameter 'TYPE' of 'bsl::is_lvalue_reference'.
 
 struct Incomplete;
@@ -186,7 +186,7 @@ int main(int argc, char *argv[])
         // 'bsl::is_lvalue_reference::value'
         //   Ensure that the static data member 'value' of
         //   'bsl::is_lvalue_reference' instantiations having various (template
-        //   parameter) 'TYPE' has the correct value.
+        //   parameter) 'TYPE's has the correct value.
         //
         // Concerns:
         //: 1 'is_lvalue_reference::value' is 'false' when 'TYPE' is a
@@ -212,8 +212,8 @@ int main(int argc, char *argv[])
         //   bsl::is_lvalue_reference::value
         // --------------------------------------------------------------------
 
-        if (verbose)  printf("bsl::is_lvalue_reference::value\n"
-                             "===============================\n");
+        if (verbose)  printf("'bsl::is_lvalue_reference::value'\n"
+                             "=================================\n");
 
         // C-1
         TYPE_ASSERT_CVQ_SUFFIX(bsl::is_lvalue_reference, void, false);
@@ -314,11 +314,11 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2012
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

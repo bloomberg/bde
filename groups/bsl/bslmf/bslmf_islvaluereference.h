@@ -59,7 +59,7 @@ template <typename TYPE>
 struct is_lvalue_reference : false_type
 {
     // This 'struct' template provides a meta-function to determine whether the
-    // (template parameter) 'TYPE' is a (cv-qualified) lvalue reference type.
+    // (template parameter) 'TYPE' is an (cv-qualified) lvalue reference type.
     // This generic default template derives from 'bsl::false_type'.  A
     // template specialization is provided (below) that derives from
     // 'bsl::true_type'.
@@ -69,7 +69,7 @@ template <typename TYPE>
 struct is_lvalue_reference<TYPE &> : true_type
 {
     // This partial specialization of 'is_lvalue_reference' derives from
-    // 'bsl::true_type' for when the (template parameter) 'TYPE' is a lvalue
+    // 'bsl::true_type' for when the (template parameter) 'TYPE' is an lvalue
     // reference type.
 };
 
@@ -77,11 +77,11 @@ struct is_lvalue_reference<TYPE &> : true_type
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2012
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

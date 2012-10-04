@@ -90,7 +90,7 @@ class DerivedClassTestType : public BaseClassTestType {
 };
 
 typedef int (StructTestType::*MethodPtrTestType) ();
-    // This pointer type to non-static function member is intended to be used
+    // This pointer to non-static member function type is intended to be used
     // for testing as the template parameter 'TYPE' of
     // 'bsl::is_rvalue_reference'.
 
@@ -98,8 +98,8 @@ typedef void (*FunctionPtrTestType) ();
     // This function pointer type is intended to be used for testing as the
     // template parameter 'TYPE' of 'bsl::is_rvalue_reference'.
 
-typedef int StructTestType::* PMD;
-    // This pointer type to data member is intended to be used for testing as
+typedef int StructTestType::*PMD;
+    // This pointer to member object type is intended to be used for testing as
     // the template parameter 'TYPE' of 'bsl::is_rvalue_reference'.
 
 struct Incomplete;
@@ -209,10 +209,10 @@ int main(int argc, char *argv[])
         //: 3 'is_rvalue_reference::value' is 'false' when 'TYPE' is a
         //:   (possibly cv-qualified) pointer type.
         //:
-        //: 4 'is_rvalue_reference::value' is 'true' when 'TYPE' is a
+        //: 4 'is_rvalue_reference::value' is 'true' when 'TYPE' is an
         //:   (possibly cv-qualified) lvalue reference type.
         //:
-        //: 5 'is_rvalue_reference::value' is 'true' when 'TYPE' is a
+        //: 5 'is_rvalue_reference::value' is 'true' when 'TYPE' is an
         //:   (possibly cv-qualified) rvalue reference type.
         //:
         //: 6 'is_rvalue_reference::value' is 'false' when 'TYPE' is a
@@ -226,8 +226,8 @@ int main(int argc, char *argv[])
         //   bsl::is_rvalue_reference::value
         // --------------------------------------------------------------------
 
-        if (verbose) printf("bsl::is_rvalue_reference::value\n"
-                            "===============================\n");
+        if (verbose) printf("'bsl::is_rvalue_reference::value'\n"
+                            "=================================\n");
 
         // C-1
         TYPE_ASSERT_CVQ_SUFFIX(bsl::is_rvalue_reference, void, false);
