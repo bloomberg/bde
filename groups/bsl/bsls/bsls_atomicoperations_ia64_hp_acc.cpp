@@ -91,8 +91,8 @@ void AtomicOperations_IA64_HP_ACC::
                      value);
 }
 
-}
-}
+}  // close namespace bsls
+}  // close namespace BloombergLP
 
 #endif
 

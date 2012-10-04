@@ -69,8 +69,12 @@ BDES_IDENT("$Id: $")
 #include <baenet_httpextendedheaderfields.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include <bslma_usesbslmaallocator.h>
 #endif
 
 #ifndef INCLUDED_BDEAT_ATTRIBUTEINFO
@@ -111,9 +115,6 @@ BDES_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-struct baenet_HttpRequestHeader_Trait : bslalg_TypeTraitUsesBslmaAllocator,
-                                        bdeu_TypeTraitHasPrintMethod { };
-
 class baenet_HttpRequestHeader : public baenet_HttpHeader {
     // HTTP request header.
 
@@ -124,8 +125,10 @@ class baenet_HttpRequestHeader : public baenet_HttpHeader {
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(baenet_HttpRequestHeader,
-                                 baenet_HttpRequestHeader_Trait);
+    BSLMF_NESTED_TRAIT_DECLARATION(baenet_HttpRequestHeader,
+                                   bslma::UsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(baenet_HttpRequestHeader,
+                                   bdeu_HasPrintMethod);
 
     // CLASS METHODS
     static int maxSupportedBdexVersion();

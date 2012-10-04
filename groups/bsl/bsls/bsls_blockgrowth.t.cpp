@@ -16,7 +16,7 @@ using namespace std;
 //                             Overview
 //                             --------
 // This component implements a standard enumeration that, in addition to its
-// enumeration values, provide a count of enumeration values and a 'toAsicii'
+// enumeration values, provide a count of enumeration values and a 'toAscii'
 // method.
 //-----------------------------------------------------------------------------
 // [1] enum Strategy { ... };

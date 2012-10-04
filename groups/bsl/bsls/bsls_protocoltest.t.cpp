@@ -166,14 +166,14 @@ struct NoVirtualDestructorTest : bsls::ProtocolTestImp<NoVirtualDestructor> {
     void foo() { markDone(); }
 };
 
-// For testing return value convertions to a reference to a non-copyable type
+// For testing return value conversions to a reference to a non-copyable type
 struct NonCopyable {
   private:
     NonCopyable(NonCopyable const &);
     NonCopyable & operator=(NonCopyable const &);
 };
 
-// For testing protocol method testing aparatus.
+// For testing protocol method testing apparatus.
 struct MyInterfaceNonVirtual {
     int foo(int) { return 0; }
     virtual void bar() = 0;
@@ -422,7 +422,7 @@ int main(int argc, char *argv[])
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // TESTING PROTOCOL METHOD TESTING APARATUS
+        // TESTING PROTOCOL METHOD TESTING APPARATUS
         //
         // Concerns:
         //:  1 Protocol method calls from the test driver object indirectly
@@ -438,7 +438,7 @@ int main(int argc, char *argv[])
         //:    a protocol method returns a reference to a non-copyable type.
         //
         // Plan:
-        //:  1 Instantiate 'bsls::PrototolTestDriver' with a protocol type that
+        //:  1 Instantiate 'bsls::ProtocolTestDriver' with a protocol type that
         //:    declares its methods correctly and verify the 'failures' and
         //:    'lastStatus' assume the proper values after calling the methods
         //:    of the protocol type.
@@ -452,10 +452,10 @@ int main(int argc, char *argv[])
         //:    from the test driver object.
         //
         // Testing:
-        //   Protocol method testing aparatus.
+        //   Protocol method testing apparatus.
         // --------------------------------------------------------------------
 
-        if (verbose) printf("TESTING PROTOCOL METHOD TESTING APARATUS\n"
+        if (verbose) printf("TESTING PROTOCOL METHOD TESTING APPARATUS\n"
                             "========================================\n");
 
         if (veryVerbose) printf("\ttesting 'good' protocol methods\n");
@@ -661,9 +661,9 @@ int main(int argc, char *argv[])
         //:  2 Verify that an object of bsls::ProtocolTestImp class can be a
         //:    proxy (by overloading 'operator->()') to the protocol.
         //:  3 Verify that bsls::ProtocolTest_MethodReturnType provides proper
-        //:    convertions to value and pointer types.
+        //:    conversions to value and pointer types.
         //:  4 Verify that bsls::ProtocolTest_MethodReturnRefType provides
-        //:    proper convertions to referece types.
+        //:    proper conversions to reference types.
         //:  5 Verify that bsls::ProtocolTest_Status correctly keeps track of
         //:    the last test status and the count of failures.
         //
@@ -701,7 +701,7 @@ int main(int argc, char *argv[])
                                     "(compile-time)\n");
 
             {
-                // test the possibility of convertions to value/pointer types
+                // test the possibility of conversions to value/pointer types
                 int val                = bsls::ProtocolTest_MethodReturnType();
                 int const & const_ref  = bsls::ProtocolTest_MethodReturnType();
                 int * ptr              = bsls::ProtocolTest_MethodReturnType();
@@ -716,7 +716,7 @@ int main(int argc, char *argv[])
                                     "(compile-time)\n");
 
             {
-                // test the possibility of convertions to reference types
+                // test the possibility of conversions to reference types
                 NonCopyable & ref = bsls::ProtocolTest_MethodReturnRefType();
                 NonCopyable const & const_ref =
                                       bsls::ProtocolTest_MethodReturnRefType();
@@ -813,7 +813,7 @@ int main(int argc, char *argv[])
         // Plan:
         //:  1 Instantiate 'bsls::ProtocolTest' with an abstract class and
         //:    verify that 'testAbstract' returns 'true'.  Instantiate
-        //:    'bsls::PrototolTestDriver' with a non-abstract class and verify
+        //:    'bsls::ProtocolTestDriver' with a non-abstract class and verify
         //:    that 'testAbstract' returns 'false'.
         //:  2 Instantiate 'bsls::ProtocolTest' with a protocol having no
         //:    data fields and verify that 'testNoDataMembers' returns 'true'.
@@ -822,7 +822,7 @@ int main(int argc, char *argv[])
         //:  3 Instantiate 'bsls::ProtocolTest' with a protocol having a
         //:    virtual destructor and verify that 'testVirtualDestructor'
         //:    returns 'true'.  Instantiate 'bsls::ProtocolTest' with a
-        //:    protocol withtout a virtual destructor and verify that
+        //:    protocol without a virtual destructor and verify that
         //:    'testVirtualDestructor' returns 'false'.
         //
         // Testing:
@@ -976,14 +976,14 @@ int main(int argc, char *argv[])
       case 1: {
         // --------------------------------------------------------------------
         // BREATHING TEST
-        //   This test excercies (but doesn't fully test basic functionality.
+        //   This test exercise (but doesn't fully test basic functionality.
         //
         // Concerns:
         //: 1 Classes in this component are sufficiently functional to enable
         //:   comprehensive testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Create an object of 'bsls::PrototolTestDriver' and try some of
+        //: 1 Create an object of 'bsls::ProtocolTestDriver' and try some of
         //:   its accessors.
         //
         // Testing:

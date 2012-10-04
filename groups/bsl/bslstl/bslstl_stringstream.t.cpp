@@ -419,7 +419,7 @@ int main(int argc, char *argv[])
         //: 1 Create 'stringstream' object with a default constructor.
         //: 2 Create 'stringstream' object with a constructor with allocator.
         //: 3 Create 'stringstream' object with a constructor with string.
-        //: 4 Exersice basic 'stringstream' input/output operations.
+        //: 4 Exercise basic 'stringstream' input/output operations.
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING STRINGSTREAM"

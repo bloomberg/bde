@@ -101,7 +101,7 @@ static void aSsErT(int c, const char *s, int i)
 // both its size and alignment requirement equal to the alignment requirement
 // of a specified template parameter type.  We can utilize the
 // 'AlignmentImpTag' 'struct' template, the overloads of
-// 'AlignmentImpMatch::match' class method, the 'AiignmentImp_Prioirty'
+// 'AlignmentImpMatch::match' class method, the 'AlignmentImp_Priority'
 // template class, and the 'AlignmentImpPrioriityToType' template class to do
 // this calculation.
 

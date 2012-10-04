@@ -6,7 +6,6 @@
 #include <bslstl_iterator.h>
 #include <bslstl_forwarditerator.h>
 
-#include <bslalg_typetraits.h>
 #include <bslma_allocator.h>
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>   // for testing only
@@ -65,7 +64,7 @@ using namespace bsl;
 // must be tested for exception neutrality via the 'bslma_testallocator'
 // component.  After the mandatory sequence of cases (1--10) for value-semantic
 // types (cases 5 and 10 are not implemented, as there is not output or
-// streaming below stlport), we test each individual constructor, manipulator,
+// streaming below bslstl), we test each individual constructor, manipulator,
 // and accessor in subsequent cases.
 //
 // Abbreviations:
@@ -425,8 +424,7 @@ class TestType {
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(TestType,
-                                 bslalg::TypeTraitUsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(TestType, bslma::UsesBslmaAllocator);
 
     // CREATORS
     explicit
@@ -619,9 +617,10 @@ class BitwiseMoveableTestType : public TestType {
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS2(BitwiseMoveableTestType,
-                                  bslalg::TypeTraitUsesBslmaAllocator,
-                                  bslalg::TypeTraitBitwiseMoveable);
+    BSLMF_NESTED_TRAIT_DECLARATION(BitwiseMoveableTestType,
+                                   bslma::UsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(BitwiseMoveableTestType,
+                                   bslmf::IsBitwiseMoveable);
 
     // CREATORS
     explicit
@@ -654,8 +653,8 @@ class BitwiseCopyableTestType : public TestTypeNoAlloc {
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(BitwiseCopyableTestType,
-                                 bslalg::TypeTraitBitwiseCopyable);
+    BSLMF_NESTED_TRAIT_DECLARATION(BitwiseCopyableTestType,
+                                   bsl::is_trivially_copyable);
 
     // CREATORS
     BitwiseCopyableTestType()
@@ -689,8 +688,8 @@ class BitwiseEqComparableTestType {
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(BitwiseEqComparableTestType,
-                                 bslalg::TypeTraitBitwiseEqualityComparable);
+    BSLMF_NESTED_TRAIT_DECLARATION(BitwiseEqComparableTestType,
+                                   bslmf::IsBitwiseEqualityComparable);
 
     // CREATORS
     BitwiseEqComparableTestType()
@@ -879,10 +878,6 @@ class LimitAllocator : public ALLOC {
     size_type d_limit;
 
   public:
-    // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(LimitAllocator,
-                                 BloombergLP::bslalg_TypeTraits<AllocBase>);
-
     // CREATORS
     LimitAllocator()
     : d_limit(-1) {}
@@ -901,6 +896,18 @@ class LimitAllocator : public ALLOC {
     // ACCESSORS
     size_type max_size() const { return d_limit; }
 };
+
+namespace BloombergLP {
+namespace bslmf {
+
+template <typename ALLOCATOR>
+struct IsBitwiseMoveable<LimitAllocator<ALLOCATOR> >
+    : IsBitwiseMoveable<ALLOCATOR>
+{};
+
+}
+
+}  // namespace BloombergLP
 
 //=============================================================================
 //                            Test Case 22
@@ -957,7 +964,7 @@ struct TestDriver {
     //-------------------------------------------------------------------------
 
     // TYPES
-    typedef Vector_Imp<TYPE,ALLOC>  Obj;
+    typedef bsl::vector<TYPE,ALLOC>  Obj;
         // Type under testing.
 
     typedef typename Obj::iterator                iterator;
@@ -1159,7 +1166,7 @@ int TestDriver<TYPE,ALLOC>::ggg(Obj *object,
 }
 
 template <class TYPE, class ALLOC>
-Vector_Imp<TYPE,ALLOC>& TestDriver<TYPE,ALLOC>::gg(Obj        *object,
+bsl::vector<TYPE,ALLOC>& TestDriver<TYPE,ALLOC>::gg(Obj        *object,
                                                    const char *spec)
 {
     ASSERT(ggg(object, spec) < 0);
@@ -1167,7 +1174,7 @@ Vector_Imp<TYPE,ALLOC>& TestDriver<TYPE,ALLOC>::gg(Obj        *object,
 }
 
 template <class TYPE, class ALLOC>
-Vector_Imp<TYPE,ALLOC> TestDriver<TYPE,ALLOC>::g(const char *spec)
+bsl::vector<TYPE,ALLOC> TestDriver<TYPE,ALLOC>::g(const char *spec)
 {
     Obj object((bslma::Allocator *)0);
     return gg(&object, spec);
@@ -1433,13 +1440,13 @@ void TestDriver<TYPE,ALLOC>::testCaseM1()
     const TYPE         *values      = 0;
     const TYPE *const&  VALUES      = values;
     const int           NUM_VALUES  = getValues(&values);
-    const int           LENGTH_S    = bslmf::IsSame<TYPE,char>::VALUE
+    const int           LENGTH_S    = bsl::is_same<TYPE,char>::value
                                     ? 5000 : 1000;
-    const int           LENGTH_L    = bslmf::IsSame<TYPE,char>::VALUE
+    const int           LENGTH_L    = bsl::is_same<TYPE,char>::value
                                     ? 20000 : 5000;
-    const int           NUM_VECTOR_S = bslmf::IsSame<TYPE,char>::VALUE
+    const int           NUM_VECTOR_S = bsl::is_same<TYPE,char>::value
                                      ? 500 : 100;
-    const int           NUM_VECTOR_L = bslmf::IsSame<TYPE,char>::VALUE
+    const int           NUM_VECTOR_L = bsl::is_same<TYPE,char>::value
                                      ? 5000 : 1000;
 
     // INITIAL ALLOCATION (NOT TIMED)
@@ -2556,10 +2563,8 @@ void TestDriver<TYPE,ALLOC>::testCase18()
     const int           NUM_VALUES = getValues(&values);
 
     enum {
-        TYPE_MOVEABLE  = bslalg::HasTrait<TYPE,
-                                      bslalg::TypeTraitBitwiseMoveable>::VALUE,
-        TYPE_ALLOC  = bslalg::HasTrait<TYPE,
-                                   bslalg::TypeTraitUsesBslmaAllocator>::VALUE
+        TYPE_MOVEABLE  = bslmf::IsBitwiseMoveable<TYPE>::value,
+        TYPE_ALLOC  =  bslma::UsesBslmaAllocator<TYPE>::value
     };
 
     static const struct {
@@ -3133,10 +3138,8 @@ void TestDriver<TYPE,ALLOC>::testCase17()
     const int           NUM_VALUES = getValues(&values);
 
     enum {
-        TYPE_MOVEABLE  = bslalg::HasTrait<TYPE,
-                                      bslalg::TypeTraitBitwiseMoveable>::VALUE,
-        TYPE_ALLOC  = bslalg::HasTrait<TYPE,
-                                   bslalg::TypeTraitUsesBslmaAllocator>::VALUE
+        TYPE_MOVEABLE  = bslmf::IsBitwiseMoveable<TYPE>::value,
+        TYPE_ALLOC  =  bslma::UsesBslmaAllocator<TYPE>::value
     };
 
     static const struct {
@@ -3362,7 +3365,7 @@ void TestDriver<TYPE,ALLOC>::testCase17()
 
                         // Have to separate const's from vars in boolean
                         // operations or we get these really stupid warnings
-                        // grom g++.
+                        // from g++.
 
                         const int TYPE_ALLOCS = !TYPE_ALLOC || TYPE_MOVEABLE
                                               ? 0
@@ -3581,16 +3584,14 @@ void TestDriver<TYPE,ALLOC>::testCase17Range(const CONTAINER&)
     const TYPE *const&  VALUES     = values;
     const int           NUM_VALUES = getValues(&values);
 
-    const int TYPE_MOVEABLE  = bslalg::HasTrait<TYPE,
-                                      bslalg::TypeTraitBitwiseMoveable>::VALUE;
-    const int TYPE_ALLOC  = bslalg::HasTrait<TYPE,
-                                   bslalg::TypeTraitUsesBslmaAllocator>::VALUE;
+    const int TYPE_MOVEABLE  = bslmf::IsBitwiseMoveable<TYPE>::value;
+    const int TYPE_ALLOC  =  bslma::UsesBslmaAllocator<TYPE>::value;
 
     const int INPUT_ITERATOR_TAG =
-        bslmf::IsSame<std::input_iterator_tag,
+        bsl::is_same<std::input_iterator_tag,
                       typename bsl::iterator_traits<
                          typename CONTAINER::const_iterator>::iterator_category
-                      >::VALUE;
+                      >::value;
 
     static const struct {
         int         d_lineNum;          // source line number
@@ -4000,7 +4001,7 @@ void TestDriver<TYPE,ALLOC>::testCase16()
     //   reference (setting it to a default value, then back to its original
     //   value, and as a non-modifiable reference.
     //
-    // For 4--6, use 'bslmf::IsSame' to assert the identity of iterator types.
+    // For 4--6, use 'bsl::is_same' to assert the identity of iterator types.
     // Note that these concerns let us get away with other concerns such as
     // testing that 'iter[i]' and 'iter + i' advance 'iter' by the correct
     // number 'i' of positions, and other concern about traits, because
@@ -4040,8 +4041,8 @@ void TestDriver<TYPE,ALLOC>::testCase16()
     if (verbose) printf("Testing 'iterator', 'begin', and 'end',"
                         " and 'const' variants.\n");
     {
-        ASSERT(1 == (bslmf::IsSame<iterator, TYPE *>::VALUE));
-        ASSERT(1 == (bslmf::IsSame<const_iterator, const TYPE *>::VALUE));
+        ASSERT(1 == (bsl::is_same<iterator, TYPE *>::value));
+        ASSERT(1 == (bsl::is_same<const_iterator, const TYPE *>::value));
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int     LINE   = DATA[ti].d_lineNum;
@@ -4080,10 +4081,10 @@ void TestDriver<TYPE,ALLOC>::testCase16()
     {
 #ifdef BSLS_PLATFORM_CMP_SUN
 #else
-        ASSERT(1 == (bslmf::IsSame<reverse_iterator,
-                                   bsl::reverse_iterator<TYPE *> >::VALUE));
-        ASSERT(1 == (bslmf::IsSame<const_reverse_iterator,
-                                bsl::reverse_iterator<const TYPE *> >::VALUE));
+        ASSERT(1 == (bsl::is_same<reverse_iterator,
+                                   bsl::reverse_iterator<TYPE *> >::value));
+        ASSERT(1 == (bsl::is_same<const_reverse_iterator,
+                                bsl::reverse_iterator<const TYPE *> >::value));
 #endif
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
@@ -4404,8 +4405,7 @@ void TestDriver<TYPE,ALLOC>::testCase14()
     const TYPE *const&  VALUES     = values;
     const int           NUM_VALUES = getValues(&values);
 
-    const int TYPE_ALLOC = bslalg::HasTrait<TYPE,
-                                   bslalg::TypeTraitUsesBslmaAllocator>::VALUE;
+    const int TYPE_ALLOC =  bslma::UsesBslmaAllocator<TYPE>::value;
 
     static const size_t EXTEND[] = {
         0, 1, 2, 3, 4, 5, 7, 8, 9, 15, 16, 17
@@ -5123,8 +5123,7 @@ void TestDriver<TYPE,ALLOC>::testCase12()
     const TYPE *const&  VALUES     = values;
     const int           NUM_VALUES = getValues(&values);
 
-    const int TYPE_ALLOC = bslalg::HasTrait<TYPE,
-                                   bslalg::TypeTraitUsesBslmaAllocator>::VALUE;
+    const int TYPE_ALLOC =  bslma::UsesBslmaAllocator<TYPE>::value;
 
     if (verbose) printf("\nTesting initial-length ctor "
                         "with (default) initial value.\n");
@@ -5536,16 +5535,14 @@ void TestDriver<TYPE,ALLOC>::testCase12Range(const CONTAINER&)
 
     bslma::TestAllocator testAllocator(veryVeryVerbose);
 
-    const int TYPE_MOVEABLE  = bslalg::HasTrait<TYPE,
-                                      bslalg::TypeTraitBitwiseMoveable>::VALUE;
-    const int TYPE_ALLOC = bslalg::HasTrait<TYPE,
-                                   bslalg::TypeTraitUsesBslmaAllocator>::VALUE;
+    const int TYPE_MOVEABLE  = bslmf::IsBitwiseMoveable<TYPE>::value;
+    const int TYPE_ALLOC =  bslma::UsesBslmaAllocator<TYPE>::value;
 
     const int INPUT_ITERATOR_TAG =
-        bslmf::IsSame<std::input_iterator_tag,
+        bsl::is_same<std::input_iterator_tag,
                       typename bsl::iterator_traits<
                          typename CONTAINER::const_iterator>::iterator_category
-                      >::VALUE;
+                      >::value;
 
     static const struct {
         int         d_lineNum;          // source line number
@@ -5720,10 +5717,10 @@ void TestDriver<TYPE,ALLOC>::testCase12Range(const CONTAINER&)
     }
 
     const int RANDOM_ACCESS_ITERATOR_TAG =
-          bslmf::IsSame<std::random_access_iterator_tag,
+          bsl::is_same<std::random_access_iterator_tag,
                        typename bsl::iterator_traits<
                          typename CONTAINER::const_iterator>::iterator_category
-                      >::VALUE;
+                      >::value;
 
     if (RANDOM_ACCESS_ITERATOR_TAG) {
         if (verbose) { printf("\nNegative testing\n"); }
@@ -5810,7 +5807,7 @@ void TestDriver<TYPE,ALLOC>::testCase11()
     //   o That the 'computeNewCapacity' class method does not overflow
     //   o That creating an empty vector does not allocate
     //   o That the allocator is passed through to elements
-    //   o That the vector class has the 'bslalg::TypeTraitUsesBslmaAllocator'
+    //   o That the vector class has the 'bslma::UsesBslmaAllocator' trait.
     //
     // Plan:
     //   We first verify that the 'Vector_Imp' class has the traits, and
@@ -5838,10 +5835,11 @@ void TestDriver<TYPE,ALLOC>::testCase11()
     (void)NUM_VALUES;
 
     if (verbose)
-        printf("\nTesting 'bslalg::TypeTraitUsesBslmaAllocator'.\n");
+        printf("\nTesting 'bslma::UsesBslmaAllocator'.\n");
 
-    ASSERT((bslalg::HasTrait<Obj,
-                             bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
+    ASSERT((bsl::is_convertible<bslma::Allocator *,
+                                typename Obj::allocator_type>::value));
+    ASSERT((bslma::UsesBslmaAllocator<Obj>::value));
 
     if (verbose)
         printf("\nTesting that empty vector does not allocate.\n");
@@ -5853,8 +5851,7 @@ void TestDriver<TYPE,ALLOC>::testCase11()
     if (verbose)
         printf("\nTesting passing allocator through to elements.\n");
 
-    ASSERT((bslalg::HasTrait<TYPE,
-                             bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
+    ASSERT(( bslma::UsesBslmaAllocator<TYPE>::value));
     {
         Obj mX(1, VALUES[0], &testAllocator);  const Obj& X = mX;
         ASSERT(&testAllocator == X[0].allocator());
@@ -6334,11 +6331,9 @@ void TestDriver<TYPE,ALLOC>::testCase7()
     const TYPE *const&  VALUES     = values;
     const int           NUM_VALUES = getValues(&values);
 
-    const int TYPE_MOVE  = bslalg::HasTrait<TYPE,
-                                       bslalg::TypeTraitBitwiseMoveable>::VALUE
+    const int TYPE_MOVE  = bslmf::IsBitwiseMoveable<TYPE>::value
                          ? 0 : 1;  // if moveable, moves do not count as allocs
-    const int TYPE_ALLOC = bslalg::HasTrait<TYPE,
-                                   bslalg::TypeTraitUsesBslmaAllocator>::VALUE;
+    const int TYPE_ALLOC =  bslma::UsesBslmaAllocator<TYPE>::value;
 
     if (verbose)
         printf("\nTesting parameters: TYPE_ALLOC = %d, TYPE_MOVE = %d.\n",
@@ -7424,11 +7419,9 @@ void TestDriver<TYPE,ALLOC>::testCase2()
     const TYPE *const&  VALUES     = values;
     const int           NUM_VALUES = getValues(&values);
 
-    const int TYPE_MOVE = bslalg::HasTrait<TYPE,
-                                       bslalg::TypeTraitBitwiseMoveable>::VALUE
+    const int TYPE_MOVE = bslmf::IsBitwiseMoveable<TYPE>::value
                             ? 0 : 1;
-    const int TYPE_ALLOC  = bslalg::HasTrait<TYPE,
-                                   bslalg::TypeTraitUsesBslmaAllocator>::VALUE;
+    const int TYPE_ALLOC  =  bslma::UsesBslmaAllocator<TYPE>::value;
 
     if (verbose)
         printf("\tTesting parameters: TYPE_ALLOC = %d, TYPE_MOVE = %d.\n",
@@ -8073,7 +8066,7 @@ int main(int argc, char *argv[])
     switch (test) { case 0:  // Zero is always the leading case.
       case 23: {
         // --------------------------------------------------------------------
-        // RANGE INSERT FUNCION PTR BUG
+        // RANGE INSERT FUNCTION PTR BUG
         //
         // Concerns:
         //   In DRQS 31711031, it was observed that a c'tor insert range from
@@ -8946,13 +8939,10 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\nAdditional tests: traits.\n");
 
-#ifndef BSLS_PLATFORM_CMP_MSVC  // Temporarily does not work
-        ASSERT(  (bslalg::HasTrait<Vector_Imp<char>,
-                  bslalg::TypeTraitBitwiseMoveable>::VALUE));
-        ASSERT(  (bslalg::HasTrait<Vector_Imp<T>,
-                  bslalg::TypeTraitBitwiseMoveable>::VALUE));
-        ASSERT(  (bslalg::HasTrait<Vector_Imp<Vector_Imp<int> >,
-                  bslalg::TypeTraitBitwiseMoveable>::VALUE));
+#ifndef BSLS_PLATFORM__CMP_MSVC  // Temporarily does not work
+        ASSERT(  (bslmf::IsBitwiseMoveable<vector<char> >::value));
+        ASSERT(  (bslmf::IsBitwiseMoveable<vector<T> >::value));
+        ASSERT(  (bslmf::IsBitwiseMoveable<vector<Vector_Imp<int> > >::value));
 #endif
 
       } break;

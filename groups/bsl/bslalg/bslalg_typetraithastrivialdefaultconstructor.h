@@ -26,6 +26,10 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_ISTRIVIALLYDEFAULTCONSTRUCTIBLE
+#include <bslmf_istriviallydefaultconstructible.h>
+#endif
+
 namespace BloombergLP {
 
 namespace bslalg {
@@ -40,6 +44,17 @@ struct TypeTraitHasTrivialDefaultConstructor {
     // possible for such a type not to be bitwise copyable, undefined behavior
     // may result if this trait is assigned to such a type.  (See the
     // description of 'TypeTraitBitwiseCopyable'.)
+
+    template <class TYPE>
+    struct NestedTraitDeclaration :
+        bslmf::NestedTraitDeclaration<TYPE, bsl::is_trivially_default_constructible>
+    {
+        // This class template ties the 'bslalg::TypeTaitBitwiseEqualityComparable'
+        // trait tag to the 'bslmf::IsBitwiseEqualityCompareble' trait metafunction.
+    };
+
+    template <class TYPE>
+    struct Metafunction : bsl::is_trivially_default_constructible<TYPE>::type { };
 };
 
 }  // close package namespace
