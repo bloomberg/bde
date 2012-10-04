@@ -2,13 +2,12 @@
 
 #include <bslmf_isfundamental.h>
 
-#include <bsls_platform.h>
-#include <bsls_types.h>
+//#include <bsls_platform.h>
+//#include <bsls_types.h>
 #include <bsls_bsltestutil.h>
 
 #include <cstdio>
 #include <cstdlib>     // atoi()
-#include <iostream>
 
 using namespace BloombergLP;
 using namespace std;
@@ -18,9 +17,9 @@ using namespace std;
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// The objects under test are two meta-functions, 'bsl::is_fundamental' and
-// 'bslmf::IsFundamental', that determine whether a template parameter type is
-// a fundamental type.  Thus, we need to ensure that the value returned by
+// The component under test defines two meta-functions, 'bsl::is_fundamental'
+// and 'bslmf::IsFundamental', that determine whether a template parameter type
+// is a fundamental type.  Thus, we need to ensure that the value returned by
 // these meta-functions are correct for each possible category of types.  Since
 // the two meta-functions are functionally equivalent, we will use the same set
 // of types for both.
@@ -70,55 +69,46 @@ void aSsErT(bool b, const char *s, int i)
 
 namespace {
 
-enum   EnumTestType {
-    // This user-defined 'enum' type is intended to be used during testing as
-    // an argument for the template parameter 'TYPE' of 'bsl::is_fundamental'
-    // and 'bslmf::IsFundamental'.
+enum EnumTestType {
+    // This user-defined 'enum' type is intended to be used for testing as the
+    // template parameter 'TYPE' of 'bsl::is_fundamental'.
 };
 
 struct StructTestType {
-    // This user-defined 'struct' type is intended to be used during testing as
-    // an argument for the template parameter 'TYPE' of 'bsl::is_fundamental'
-    // and 'bslmf::IsFundamental'.
+    // This user-defined 'struct' type is intended to be used for testing as
+    // the template parameter 'TYPE' of 'bsl::is_fundamental'.
 };
 
-union  UnionTestType {
-    // This user-defined 'union' type is intended to be used during testing as
-    // an argument for the template parameter 'TYPE' of 'bsl::is_fundamental'
-    // and 'bslmf::IsFundamental'.
+union UnionTestType {
+    // This user-defined 'union' type is intended to be used for testing as the
+    // template parameter 'TYPE' of 'bsl::is_fundamental'.
 };
 
-class  BaseClassTestType {
-    // This user-defined base class type is intended to be used during testing
-    // as an argument for the template parameter 'TYPE' of
-    // 'bsl::is_fundamental' and 'bslmf::IsFundamental'.
+class BaseClassTestType {
+    // This user-defined base class type is intended to be used for testing as
+    // the template parameter 'TYPE' of 'bsl::is_fundamental'.
 };
 
-class  DerivedClassTestType : public BaseClassTestType {
-    // This user-defined derived class type is intended to be used during
-    // testing as an argument for the template parameter 'TYPE' of
-    // 'bsl::is_fundamental' and 'bslmf::IsFundamental'.
+class DerivedClassTestType : public BaseClassTestType {
+    // This user-defined derived class type is intended to be used for testing
+    // as the template parameter 'TYPE' of 'bsl::is_fundamental'.
 };
 
 typedef int (StructTestType::*MethodPtrTestType) ();
-    // This non-static function member type is intended to be used during
-    // testing as an argument for the template parameter 'TYPE' of
-    // 'bsl::is_fundamental' and 'bslmf::IsFundamental'.
+    // This pointer to non-static member function type is intended to be used
+    // for testing as the template parameter 'TYPE' of 'bsl::is_fundamental'.
 
 typedef void (*FunctionPtrTestType) ();
-    // This function pointer type is intended to be used during testing as an
-    // argument as an argument for the template parameter 'TYPE' of
-    // 'bsl::is_fundamental' and 'bslmf::IsFundamental'.
+    // This function pointer type is intended to be used for testing as the
+    // template parameter 'TYPE' of 'bsl::is_fundamental'.
 
-typedef int StructTestType::* PMD;
-    // This class public data member pointer type is intended to be used during
-    // testing as an argument as an argument for the template parameter 'TYPE'
-    // of 'bsl::is_fundamental' and 'bslmf::IsFundamental'.
+typedef int StructTestType::*PMD;
+    // This pointer to member object type is intended to be used for testing as
+    // the template parameter 'TYPE' of 'bsl::is_fundamental'.
 
 struct Incomplete;
-    // This incomplete 'struct' type is intended to be used during testing as
-    // an argument as an argument for the template parameter 'TYPE' of
-    // 'bsl::is_fundamental' and 'bslmf::IsFundamental'.
+    // This incomplete 'struct' type is intended to be used for testing as the
+    // template parameter 'TYPE' of 'bsl::is_fundamental'.
 
 }  // close unnamed namespace
 
@@ -184,8 +174,7 @@ int main(int argc, char *argv[])
 //
 ///Example 1: Verify Fundamental Types
 ///- - - - - - - - - - - - - - - - - -
-// Suppose that we want to assert whether a particular type is a fundamental
-// type.
+// Suppose that we want to assert whether a set of types are fundamental types.
 //
 // Now, we instantiate the 'bsl::is_fundamental' template for a couple of
 // non-fundamental and fundamental types, and assert the 'value' static data
@@ -202,7 +191,7 @@ int main(int argc, char *argv[])
         // 'bslmf::IsFundamental::VALUE'
         //   Ensure that the static data member 'VALUE' of
         //   'bslmf::IsFundamental' instantiations having various (template
-        //   parameter) 'TYPE' has the correct value.
+        //   parameter) 'TYPE's has the correct value.
         //
         // Concerns:
         //: 1 'IsFundamental::VALUE' is 'true' when 'TYPE' is a (possibly
@@ -218,16 +207,15 @@ int main(int argc, char *argv[])
         //:   cv-qualified) function type.
         //
         // Plan:
-        //   Verify that 'bslmf::IsFundamental::VALUE' has the
-        //   correct value for each (template parameter) 'TYPE' in the
-        //   concerns.
+        //   Verify that 'bslmf::IsFundamental::VALUE' has the correct value
+        //   for each (template parameter) 'TYPE' in the concerns.
         //
         // Testing:
         //   bslmf::IsFundamental::VALUE
         // --------------------------------------------------------------------
 
-        if (verbose) printf("bslmf::IsFundamental\n"
-                            "====================\n");
+        if (verbose) printf("'bslmf::IsFundamental::VALUE'\n"
+                            "=============================\n");
 
         // C-1
         TYPE_ASSERT_CVQ_SUFFIX(
@@ -349,7 +337,7 @@ int main(int argc, char *argv[])
         // 'bsl::is_fundamental::value'
         //   Ensure that the static data member 'value' of
         //   'bsl::is_fundamental' instantiations having various (template
-        //   parameter) 'TYPE' has the correct value.
+        //   parameter) 'TYPE's has the correct value.
         //
         // Concerns:
         //: 1 'is_fundamental::value' is 'true' when 'TYPE' is a (possibly
@@ -365,16 +353,15 @@ int main(int argc, char *argv[])
         //:   cv-qualified) function type.
         //
         // Plan:
-        //   Verify that 'bsl::is_fundamental::value' has the
-        //   correct value for each (template parameter) 'TYPE' in the
-        //   concerns.
+        //   Verify that 'bsl::is_fundamental::value' has the correct value for
+        //   each (template parameter) 'TYPE' in the concerns.
         //
         // Testing:
         //   bsl::is_fundamental::value
         // --------------------------------------------------------------------
 
-        if (verbose) printf("bsl::is_fundamental\n"
-                            "===================\n");
+        if (verbose) printf("'bsl::is_fundamental::value'\n"
+                            "============================\n");
 
         // C-1
         TYPE_ASSERT_CVQ_SUFFIX(
@@ -492,23 +479,22 @@ int main(int argc, char *argv[])
 
       } break;
       default: {
-        cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
-        testStatus = -1;
+          fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
+          testStatus = -1;
       }
     }
 
     if (testStatus > 0) {
-        cerr << "Error, non-zero test status = "
-             << testStatus << "." << endl;
+        fprintf(stderr, "Error, non-zero test status = %d.\n", testStatus);
     }
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2004
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

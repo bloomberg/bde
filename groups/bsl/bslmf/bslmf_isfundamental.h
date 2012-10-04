@@ -7,11 +7,11 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a compile-time check for fundamental types.
+//@PURPOSE: Provide a compile-time check for determining fundamental types.
 //
 //@CLASSES:
-//  bsl::is_fundamental: standard meta-function for fundamental type checking
-//  bslmf::IsFundamental: meta-function for fundamental type checking
+//  bsl::is_fundamental: standard meta-function for checking fundamental types
+//  bslmf::IsFundamental: meta-function for checking fundamental types
 //
 //@SEE_ALSO: bslmf_isenum, bslmf_ispointer
 //
@@ -19,7 +19,7 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component defines two meta-functions,
 // 'bsl::is_fundamental' and 'BloombergLP::bslmf::IsFundamental', both of which
-// may be used to query whether a type is a pointer type.
+// may be used to query whether a type is a fundamental type.
 //
 // 'bsl::is_fundamental' meets the requirements of the 'is_fundamental'
 // template defined in the C++11 standard [meta.unary.comp], while
@@ -33,8 +33,8 @@ BSLS_IDENT("$Id: $")
 // Note that 'bsl::is_fundamental' should be preferred over
 // 'bslmf::Fundamental', and in general, should be used by new components.
 //
-// The C++ fundamental types are described in the C++ standard, section 3.9.1
-// ("Fundamental types"), and consist of the following distinct types:
+// The C++ fundamental types are described in the C++ standard
+// [basic.fundamental] , and consist of the following distinct types:
 //..
 //  bool
 //  char
@@ -52,8 +52,8 @@ BSLS_IDENT("$Id: $")
 //  long double
 //  void
 //..
-// To these types, this component adds the following non-standard types and
-// identifies them as fundamental types:
+// Besides these types, this component also identifies the following
+// non-standard types as fundamental types:
 //..
 //  long long int                            (also referred to as "long long")
 //  unsigned long long int          (also referred to as "unsigned long long")
@@ -65,8 +65,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Verify Fundamental Types
 ///- - - - - - - - - - - - - - - - - -
-// Suppose that we want to assert whether a particular type is a fundamental
-// type.
+// Suppose that we want to assert whether a set of types are fundamental types.
 //
 // Now, we instantiate the 'bsl::is_fundamental' template for a couple of
 // non-fundamental and fundamental types, and assert the 'value' static data
@@ -109,50 +108,134 @@ namespace bslmf {
 template <typename T>
 struct IsFundamental_Imp : bsl::false_type
 {
-    // This class is an implementation detail.  Do not use directly.  The
-    // general case for type 'T' is that it is assumed not to be fundamental.
-    // This class is specialized for each fundamental type.  Note that the
-    // specializations are always for 'const volatile' types.  The
-    // 'IsFundamental' derived class (below) takes advantage of the fact that
-    // cv-qualifications are idempotent to add 'const volatile' to every type
-    // and thus avoid having 4 times as many specialization (for each of 4
-    // combinations of 'const' and 'volatile' qualifiers).
+    // This 'struct' template implements a meta-function to determine whether
+    // the (template parameter) 'TYPE' is a (non-cv-qualified) pointer type.
+    // This generic default template derives from 'bsl::false_type'.  Template
+    // specializations for fundamental types are provided (below) that derives
+    // from 'bsl::true_type'.
 };
 
 template <> struct IsFundamental_Imp<bool>
-    : bsl::true_type { };
+    : bsl::true_type
+{
+    // This partial specialization of 'IsFundamental_Imp' derives from
+    // 'bsl::true_type' for when the (template parameter) 'TYPE' is a 'bool'
+    // type.
+};
+
 template <> struct IsFundamental_Imp<char>
-    : bsl::true_type { };
+    : bsl::true_type
+{
+    // This partial specialization of 'IsFundamental_Imp' derives from
+    // 'bsl::true_type' for when the (template parameter) 'TYPE' is a 'char'
+    // type.
+};
+
 template <> struct IsFundamental_Imp<signed char>
-    : bsl::true_type { };
+    : bsl::true_type
+{
+    // This partial specialization of 'IsFundamental_Imp' derives from
+    // 'bsl::true_type' for when the (template parameter) 'TYPE' is a
+    // 'signed char' type.
+};
 template <> struct IsFundamental_Imp<unsigned char>
-    : bsl::true_type { };
+    : bsl::true_type
+{
+    // This partial specialization of 'IsFundamental_Imp' derives from
+    // 'bsl::true_type' for when the (template parameter) 'TYPE' is an
+    // 'unsigned char' type.
+};
 template <> struct IsFundamental_Imp<wchar_t>
-    : bsl::true_type { };
+    : bsl::true_type
+{
+    // This partial specialization of 'IsFundamental_Imp' derives from
+    // 'bsl::true_type' for when the (template parameter) 'TYPE' is a 'wchar_t'
+    // type.
+};
 template <> struct IsFundamental_Imp<short>
-    : bsl::true_type { };
+    : bsl::true_type
+{
+    // This partial specialization of 'IsFundamental_Imp' derives from
+    // 'bsl::true_type' for when the (template parameter) 'TYPE' is a 'short'
+    // type.
+};
 template <> struct IsFundamental_Imp<unsigned short>
-    : bsl::true_type { };
+    : bsl::true_type
+{
+    // This partial specialization of 'IsFundamental_Imp' derives from
+    // 'bsl::true_type' for when the (template parameter) 'TYPE' is an
+    // 'unsigned short' type.
+};
 template <> struct IsFundamental_Imp<int>
-    : bsl::true_type { };
+    : bsl::true_type
+{
+    // This partial specialization of 'IsFundamental_Imp' derives from
+    // 'bsl::true_type' for when the (template parameter) 'TYPE' is a 'int'
+    // type.
+};
 template <> struct IsFundamental_Imp<unsigned int>
-    : bsl::true_type { };
+    : bsl::true_type
+{
+    // This partial specialization of 'IsFundamental_Imp' derives from
+    // 'bsl::true_type' for when the (template parameter) 'TYPE' is an
+    // 'unsigned int' type.
+};
 template <> struct IsFundamental_Imp<long>
-    : bsl::true_type { };
+    : bsl::true_type
+{
+    // This partial specialization of 'IsFundamental_Imp' derives from
+    // 'bsl::true_type' for when the (template parameter) 'TYPE' is a 'long'
+    // type.
+};
 template <> struct IsFundamental_Imp<unsigned long>
-    : bsl::true_type { };
+    : bsl::true_type
+{
+    // This partial specialization of 'IsFundamental_Imp' derives from
+    // 'bsl::true_type' for when the (template parameter) 'TYPE' is a
+    // 'unsigned long' type.
+};
 template <> struct IsFundamental_Imp<long long>
-    : bsl::true_type { };
+    : bsl::true_type
+{
+    // This partial specialization of 'IsFundamental_Imp' derives from
+    // 'bsl::true_type' for when the (template parameter) 'TYPE' is a
+    // 'long long' type.
+};
 template <> struct IsFundamental_Imp<unsigned long long>
-    : bsl::true_type { };
+    : bsl::true_type
+{
+    // This partial specialization of 'IsFundamental_Imp' derives from
+    // 'bsl::true_type' for when the (template parameter) 'TYPE' is an
+    // 'unsigned long long' type.
+};
 template <> struct IsFundamental_Imp<float>
-    : bsl::true_type { };
+    : bsl::true_type
+{
+    // This partial specialization of 'IsFundamental_Imp' derives from
+    // 'bsl::true_type' for when the (template parameter) 'TYPE' is a 'float'
+    // type.
+};
 template <> struct IsFundamental_Imp<double>
-    : bsl::true_type { };
+    : bsl::true_type
+{
+    // This partial specialization of 'IsFundamental_Imp' derives from
+    // 'bsl::true_type' for when the (template parameter) 'TYPE' is a 'double'
+    // type.
+};
 template <> struct IsFundamental_Imp<long double>
-    : bsl::true_type { };
+    : bsl::true_type
+{
+    // This partial specialization of 'IsFundamental_Imp' derives from
+    // 'bsl::true_type' for when the (template parameter) 'TYPE' is a
+    // 'long double' type.
+};
 template <> struct IsFundamental_Imp<void>
-    : bsl::true_type { };
+    : bsl::true_type
+{
+    // This partial specialization of 'IsFundamental_Imp' derives from
+    // 'bsl::true_type' for when the (template parameter) 'TYPE' is a 'void'
+    // type.
+};
 
                          // ====================
                          // struct IsFundamental
@@ -180,6 +263,9 @@ struct IsFundamental<TYPE&>
 }  // close enterprise namespace
 
 namespace bsl {
+                         // =====================
+                         // struct is_fundamental
+                         // =====================
 
 template <typename TYPE>
 struct is_fundamental
@@ -188,7 +274,7 @@ struct is_fundamental
                         || is_void<TYPE>::value>
 {
     // This class implements a meta-function for checking if a type is
-    // fundamental as defined in C++11 section 3.9.1 [basic.fundamental] with
+    // fundamental as defined in the C++11 standard [basic.fundamental] with
     // the exception of 'nullptr_t' which is not supported yet.
 };
 
@@ -208,11 +294,11 @@ struct is_fundamental
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2002
+//      Copyright (C) Bloomberg L.P., 2012
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------
