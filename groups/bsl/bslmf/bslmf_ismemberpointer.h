@@ -17,25 +17,24 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR:
 //
 //@DESCRIPTION: This component defines a meta-function,
-// 'bsl::is_member_pointer', which may be used to query whether a type is a
-// pointer type to non-static data member.
+// 'bsl::is_member_pointer', that may be used to query whether a type is a
+// pointer to non-static member type.
 //
 // 'bsl::is_member_pointer' meets the requirements of the 'is_member_pointer'
 // template defined in the C++11 standard [meta.unary.comp].
 //
 ///Example 1: Verify Member Pointer Types
 /// - - - - - - - - - - - - - - - - - - -
-// Suppose that we want to assert whether a particular type is a class type.
+// Suppose that we want to assert whether a set of types are member pointer
+// types.
 //
 // First, we create a user-defined type 'MyStruct':
 //..
 //  struct MyStruct
 //  {
-//      // DATA
-//      int memData;  // a member data
 //  };
 //..
-// Now, we create three 'typedef's -- a data member object pointer, a member
+// Now, we create three 'typedef's -- a member object pointer type, a member
 // function pointer type and a general function pointer type:
 //..
 //  typedef int MyStruct::* DataMemPtr;
@@ -76,6 +75,10 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace bsl {
+
+                         // ========================
+                         // struct is_member_pointer
+                         // ========================
 
 template <typename TYPE>
 struct is_member_pointer
