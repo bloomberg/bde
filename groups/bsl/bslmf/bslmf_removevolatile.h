@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a meta-function for removing top-level 'volatile'-qualifier
+//@PURPOSE: Provide a meta-function for removing 'volatile'-qualifier.
 //
 //@CLASSES:
 //  bsl::remove_volatile: meta-function for removing 'volatile'-qualifier
@@ -68,6 +68,7 @@ struct remove_volatile {
     // that removes the 'volatile'-qualifier for when 'TYPE' is
     // 'volatile'-qualified.
 
+    // PUBLIC TYPES
     typedef TYPE type;
         // This 'typedef' is an alias to the (template parameter) 'TYPE'.
 };
@@ -78,6 +79,7 @@ struct remove_volatile<TYPE volatile> {
      // (template parameter) 'TYPE' is 'volatile'-qualified, provides a
      // 'typedef' 'type' that has the 'volatile'-qualifier removed.
 
+    // PUBLIC TYPES
     typedef TYPE type;
         // This 'typedef' to a type that is the same as the (template
         // parameter) 'TYPE' except with the 'volatile'-qualifier removed.

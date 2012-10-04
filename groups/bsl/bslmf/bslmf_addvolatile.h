@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a meta-function for adding a top-level 'volatile'-qualifier
+//@PURPOSE: Provide a meta-function for adding a 'volatile'-qualifier.
 //
 //@CLASSES:
 //  bsl::add_volatile: adding a top-level 'volatile'-qualifier
@@ -77,6 +77,7 @@ struct AddVolatile_Imp {
     // adds the 'volatile'-qualifier to 'TYPE'.  A template specialization
     // (below) leaves 'TYPE' as-is in its 'Type' alias.
 
+    // PUBLIC TYPES
     typedef TYPE volatile Type;
         // This 'typedef' is an alias to a type that is the same as the
         // (template parameter) 'TYPE' except that a top-level
@@ -93,6 +94,7 @@ struct AddVolatile_Imp<TYPE, false> {
     // parameter) 'ADD_VOLATILE_FLAG' is 'false', provides an alias 'Type' that
     // has the same type as the (template parameter) 'TYPE'.
 
+    // PUBLIC TYPES
     typedef TYPE Type;
         // This 'typedef' is an alias to the (template parameter) 'TYPE'.
 };
