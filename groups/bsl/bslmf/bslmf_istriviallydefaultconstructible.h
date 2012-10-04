@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide compile-time check for trivially default-constructible.
+//@PURPOSE: Provide a compile-time check for trivially default-constructible.
 //
 //@CLASSES:
 //  bsl::is_trivially_default_constructible: trait meta-function
@@ -111,7 +111,7 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
- #endif
+#endif
 
 #ifndef INCLUDED_BSLMF_DETECTNESTEDTRAIT
 #include <bslmf_detectnestedtrait.h>
@@ -170,7 +170,7 @@ struct IsTriviallyDefaultConstructible_Imp
                         || IsPointerToMember<TYPE>::value
                         || DetectNestedTrait<TYPE,
                             bsl::is_trivially_default_constructible>::value)> {
-    // This 'struct' template implement a meta-function to determine whether
+    // This 'struct' template implements a meta-function to determine whether
     // the (non-cv-qualified) (template parameter) 'TYPE' is trivially
     // default-constructible.
 };
@@ -191,7 +191,7 @@ struct is_trivially_default_constructible
     // This 'struct' template implements a meta-function to determine whether
     // the (template parameter) 'TYPE' is trivially default-constructible.
     // This 'struct' derives from 'bsl::true_type' if the 'TYPE' is trivially
-    // defaul-constructible, and from 'bsl::false_type' otherwise.  This
+    // default-constructible, and from 'bsl::false_type' otherwise.  This
     // meta-function has the same syntax as the
     // 'is_trivially_default_constructible' meta-function defined in the C++11
     // standard [meta.unary.prop]; however, this meta-function can
