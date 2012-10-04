@@ -116,7 +116,7 @@ int main(int argc, char *argv[])
     switch (test) { case 0:
       case 4: {
         // --------------------------------------------------------------------
-        // DUMPING VALUES OF OLD '__' LITERALS 
+        // DUMPING VALUES OF OLD '__' LITERALS
         //
         // Concerns:
         //   It is hard to tell which old literals are enabled and which
