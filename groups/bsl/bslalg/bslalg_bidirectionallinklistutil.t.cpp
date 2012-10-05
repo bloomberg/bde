@@ -4,6 +4,7 @@
 
 #include <bslalg_bidirectionallink.h>
 
+#include <bslma_default.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatormonitor.h>
 #include <bslma_defaultallocatorguard.h>
@@ -14,6 +15,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 using namespace BloombergLP;
 using namespace BloombergLP::bslalg;
@@ -89,8 +91,155 @@ void aSsErT(bool b, const char *s, int i)
 #define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
 
-typedef BidirectionalLink Link;
+typedef BidirectionalLink         Link;
 typedef BidirectionalLinkListUtil Obj;
+
+// First, since 'Link' neither has a constructor nor is a POD (which would make
+// aggregate initialization possible), we create a function 'makeLink' to
+// assemble a link from two pointers:
+
+Link makeLink(Link *prev, Link *next)
+{
+    Link result;
+    result.setPreviousLink(prev);
+    result.setNextLink(    next);
+
+    return result;
+}
+
+// Then, we create a function that will, passed two links that are endpoints
+// of a linked list from the specified 'first' to 'last' though the 'nextLink'
+// pointers, count the number of nodes in the list including both endpoints.
+
+int length(Link *first, Link *last)
+{
+    int result = 0;
+    Link *p = first;
+    while (p && ++result && last != p) {
+        p = p->nextLink();
+    }
+
+    return result;
+}
+
+struct Bucket {
+    // DATA
+    Link *d_first;
+    Link *d_last;
+
+    // MANIPULATORS
+    void clone(const Bucket& bucket, bslma::Allocator *alloc = 0);
+        // Make a copy of the specified 'bucket' using the specified allocator
+        // 'alloc'.  Note that all links are copied, with new copies being
+        // allocated with the specified 'alloc'.
+
+    void destroy(bslma::Allocator *alloc = 0);
+        // Destroy the nodes in the list ranging from 'this->d_first' to
+        // 'this->d_last'.  Note that if any surving nodes are pointing at
+        // either of those nodes, they will be left dangling.
+
+    // ACCESSORS
+    int length() const;
+        // Returns the number of nodes in the range '[ d_first, d_last ]'.  If
+        // the bucket is not well-formed, and return a negative value.  This
+        // should work for any bucket that is well-formed.
+};
+
+void Bucket::clone(const Bucket& bucket, bslma::Allocator *alloc)
+{
+    alloc = bslma_Default::allocator(alloc);
+
+    ASSERT(Obj::isWellFormed(bucket.d_first, bucket.d_last));
+
+    this->d_first = 0;
+    for (Link *link = bucket.d_first, *prev = 0, *newLink; link;
+                                     link = link->nextLink(), prev = newLink) {
+        newLink = static_cast<Link *>(alloc->allocate(sizeof(Link)));
+        newLink->setPreviousLink(prev);
+        if (!prev) {
+            this->d_first = newLink;
+        }
+        else {
+            prev->setNextLink(newLink);
+        }
+
+        if (bucket.d_last == link) {
+            newLink->setNextLink(0);
+            this->d_last = newLink;
+            return;                                                   // RETURN
+        }
+    }
+
+    ASSERT(0 == this->d_first);
+    this->d_last = 0;
+}
+
+void Bucket::destroy(bslma::Allocator *alloc)
+{
+    alloc = bslma_Default::allocator(alloc);
+
+    ASSERT(Obj::isWellFormed(this->d_first, this->d_last));
+
+    if (!this->d_first) {
+        return;                                                       // RETURN
+    }
+
+    Link *link = this->d_first, *condemned;
+    do {
+        condemned = link;
+        link = link->nextLink();
+
+        alloc->deallocate(condemned);
+    } while (this->d_last != condemned);
+
+    this->d_first = this->d_last = 0;
+}
+
+int Bucket::length() const
+{
+    if (!Obj::isWellFormed(this->d_first, this->d_last)) {
+        return -1;                                                    // RETURN
+    }
+
+    return ::length(d_first, d_last);
+}
+
+static
+Link links[] = {
+    makeLink(0,         links + 1),
+    makeLink(links + 0, links + 2),
+    makeLink(links + 1, links + 3),
+    makeLink(links + 2, links + 4),
+    makeLink(links + 3, links + 5),
+    makeLink(links + 4, links + 6),
+    makeLink(links + 5, 0)          };
+enum { NUM_LINKS = sizeof links / sizeof *links,
+       LAST_LINK = NUM_LINKS - 1 };
+
+const Bucket linksBucket = { &links[0], &links[ NUM_LINKS - 1 ] };
+
+struct DefaultDataRow {
+    int    d_line;
+    Bucket d_bucket;
+    bool   d_isWellFormed;
+    int    d_length;
+};
+
+Link *DEFAULT_BOGUS = (Link *) 0xBADA55E5;
+
+const DefaultDataRow DEFAULT_DATA[] = {
+    { L_, { 0,         0                   }, 1,  0 },
+    { L_, { DEFAULT_BOGUS, 0               }, 0, -1 },
+    { L_, { 0        , DEFAULT_BOGUS       }, 0, -1 },
+    { L_, { &links[0], &links[0]           }, 1,  1 },
+    { L_, { &links[0], &links[LAST_LINK]   }, 1,  7 },
+    { L_, { &links[0], &links[1]           }, 1,  2 },
+    { L_, { &links[1], &links[LAST_LINK-1] }, 1,  5 },
+    { L_, { &links[1], &links[0]           }, 0, -1 },
+    { L_, { &links[LAST_LINK-1], &links[1] }, 0, -1 },
+    { L_, { &links[LAST_LINK], &links[0]   }, 0, -1 } };
+
+enum { NUM_DEFAULT_DATA = sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA };
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -106,7 +255,965 @@ int main(int argc, char *argv[])
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
+    ASSERT(Obj::isWellFormed(linksBucket.d_first, linksBucket.d_last));
+
     switch (test) { case 0:
+      case 8: {
+        // --------------------------------------------------------------------
+        // TESTING USAGE
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("Usage Example\n"
+                            "=============\n");
+
+// Next, in our 'main', we declare a 'typedef' for the component name and a
+// a contanst 'invalid' garbage pointer we use when we want data to be garbage.
+
+        typedef BidirectionalLinkListUtil Util;
+        Link * const invalid = (Link *) 0XBADDEED5;
+
+// Then, we create a linked list of links and use 'isWellFormed' to verify
+// that it is well formed, and call the 'length' method we just created to
+// verify its length.
+
+        Link usageData[] = {
+            makeLink(0,             &usageData[1]),
+            makeLink(&usageData[0], &usageData[2]),
+            makeLink(&usageData[1], &usageData[3]),
+            makeLink(&usageData[2], 0            )  };
+
+        ASSERT(Util::isWellFormed(      &usageData[0], &usageData[3]));
+        ASSERT(4 == length(&usageData[0], &usageData[3]));
+
+// Next, we create two new links 'front' and 'back', and initialize them with
+// garbage:
+
+        Link front = makeLink(invalid, invalid);
+        Link back  = makeLink(invalid, invalid);
+
+// Then, we use our component's 'insertLinkBeforeTarget' and
+// 'insertLinkAfterTarget' to concatenate 'front' to the front of the list and
+// 'back' to its rear:
+
+        Util::insertLinkBeforeTarget(&front, &usageData[0]);
+        Util::insertLinkAfterTarget( &back,  &usageData[3]);
+
+// Next, We examine the new list and verify we now have a well-formed list, 2
+// longer than the old list:
+
+        ASSERT(0 == front.previousLink());
+        ASSERT(0 == back .nextLink());
+        ASSERT(Util::isWellFormed(          &front, &back));
+        ASSERT(6 == length(&front, &back));
+
+// Then, we use our component's 'unlink' method to remove two nodes from our
+// list.  Note that the state of the removed nodes is undefined:
+
+        Util::unlink(&usageData[1]);
+        Util::unlink(&usageData[3]);
+
+// Next, we verify that the new list is well formed and 2 elements shorter than
+// it was before we removed those two nodes:
+
+        ASSERT(Util::isWellFormed(&front, &back));
+        ASSERT(4 == length(&front, &back));
+
+// Then, we weave the two discarded nodes into a new, second list of two nodes,
+// and use 'isWellFormed' and 'length' to verify it is as we expect:
+
+        usageData[1] = makeLink(0, &usageData[3]);
+        usageData[3] = makeLink(&usageData[1], 0);
+        ASSERT(Util::isWellFormed(&usageData[1], &usageData[3]));
+        ASSERT(2 ==        length(&usageData[1], &usageData[3]));
+
+// Next, we use our component's 'spliceListBeforeTarget' method to remove the
+// middle nodes from the longer list and append them to the end of shorter
+// list.  Note that the splicing function not only adds the sequence to the new
+// list, it also splices the list the sequence is removed from so that both are
+// well-formed lists:
+
+        Util::spliceListBeforeTarget(&usageData[0],
+                                     &usageData[2],
+                                     &usageData[3]);
+
+// Then, we use 'isWellFormed' and 'length' to verify the state of our two
+// lists:
+
+        ASSERT(Util::isWellFormed(&usageData[1], &usageData[3]));
+        ASSERT(4 ==        length(&usageData[1], &usageData[3]));
+
+        ASSERT(Util::isWellFormed(&front, &back));
+        ASSERT(2 ==        length(&front, &back));
+
+// Next, we call 'spliceListBeforeTarget' again to join our two lists into one:
+
+        Util::spliceListBeforeTarget(&usageData[1],
+                                     &usageData[3],
+                                     &back);
+
+// Now, we use 'isWellFormed' and 'length' to verify the state of our one
+// remaining list:
+
+        ASSERT(Util::isWellFormed(&front, &back));
+        ASSERT(6 ==        length(&front, &back));
+        ASSERT(0 == front.previousLink());
+        ASSERT(0 == back .nextLink());
+
+// Finally, we traverse our list in both directions, examining each node to
+// verify all the links and that the sequence is as expected:
+
+        Link *p = &front;
+        ASSERT(0 == p->previousLink());
+        p = p->nextLink();
+        ASSERT(&usageData[1] == p);
+        p = p->nextLink();
+        ASSERT(&usageData[0] == p);
+        p = p->nextLink();
+        ASSERT(&usageData[2] == p);
+        p = p->nextLink();
+        ASSERT(&usageData[3] == p);
+        p = p->nextLink();
+        ASSERT(&back         == p);
+        ASSERT(0 == p->nextLink());
+
+        p = p->previousLink();
+        ASSERT(&usageData[3] == p);
+        p = p->previousLink();
+        ASSERT(&usageData[2] == p);
+        p = p->previousLink();
+        ASSERT(&usageData[0] == p);
+        p = p->previousLink();
+        ASSERT(&usageData[1] == p);
+        p = p->previousLink();
+        ASSERT(&front        == p);
+        ASSERT(0 == p->previousLink());
+      } break;
+      case 7: {
+        // --------------------------------------------------------------------
+        // TESTING 'spliceListBeforeTarget'
+        //
+        // Concerns:
+        //: That the 'spliceListBeforeTarget' works correctly
+        //
+        // Plan:
+        // Test all combinations of the following:
+        //: 1 Target is:
+        //:   o Zero.
+        //:   o The beginning of a list.
+        //:   o The last node of a list.
+        //: 2 Inserted is (A: a single node, B: a list of nodes)
+        //:   o By itself.
+        //:   o At the beginning of a list.
+        //:   o At the end of a list.
+        //:   o In the middle of a list.
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("TESTING spliceListBeforeTarget\n"
+                            "==============================\n");
+
+        if (verbose) printf("insert single link, target == 0\n");
+        {
+            Link   toInsertLink = makeLink(0, 0);
+            Obj::spliceListBeforeTarget(&toInsertLink,
+                                        &toInsertLink,
+                                        0);
+            ASSERT(0 == toInsertLink.previousLink());
+            ASSERT(0 == toInsertLink.nextLink());
+            ASSERT(Obj::isWellFormed(&toInsertLink, &toInsertLink));
+        }
+
+        if (verbose) printf("insert full list, target == 0\n");
+        {
+            bslma::TestAllocator ta("testAllocator", veryVeryVeryVerbose);
+
+            Bucket toInsert;
+            toInsert.clone(linksBucket, &ta);
+
+            Obj::spliceListBeforeTarget(toInsert.d_first,
+                                        toInsert.d_last,
+                                        0);
+            ASSERT(0 == toInsert.d_first->previousLink());
+            ASSERT(0 == toInsert.d_last ->nextLink());
+            ASSERT(Obj::isWellFormed(toInsert.d_first, toInsert.d_last));
+
+            toInsert.destroy(&ta);
+        }
+
+        if (verbose) printf("insert single node from start of list,"
+                            " target == 0\n");
+        {
+            bslma::TestAllocator ta("testAllocator", veryVeryVeryVerbose);
+
+            Bucket toInsert;
+            toInsert.clone(linksBucket, &ta);
+            Link   *first  = toInsert.d_first;
+            Link   *second = toInsert.d_first->nextLink();
+
+            Obj::spliceListBeforeTarget(first,
+                                        first,
+                                        0);
+            ASSERT(0 == first->previousLink());
+            ASSERT(0 == first->nextLink());
+            ASSERT(0 == second->previousLink());
+            ASSERT(Obj::isWellFormed(first, first));
+            ASSERT(1 == length(first, first));
+
+            toInsert.d_first = second;
+            ASSERT(Obj::isWellFormed(toInsert.d_first, toInsert.d_last));
+            ASSERT(NUM_LINKS - 1 == toInsert.length());
+            ASSERT(0 == toInsert.d_first->previousLink());
+            ASSERT(0 == toInsert.d_last ->nextLink());
+
+            Obj::spliceListBeforeTarget(first,
+                                        first,
+                                        toInsert.d_first);
+            toInsert.d_first = first;
+            ASSERT(Obj::isWellFormed(toInsert.d_first, toInsert.d_last));
+            ASSERT(NUM_LINKS == toInsert.length());
+            ASSERT(0 == toInsert.d_first->previousLink());
+            ASSERT(0 == toInsert.d_last ->nextLink());
+
+            toInsert.destroy(&ta);
+        }
+
+        if (verbose) printf("insert single node from end of list,"
+                            " target == 0\n");
+        {
+            bslma::TestAllocator ta("testAllocator", veryVeryVeryVerbose);
+
+            Bucket toInsert;
+            toInsert.clone(linksBucket, &ta);
+            Link *last = toInsert.d_last;
+            Link *prev = toInsert.d_last->previousLink();
+
+            Obj::spliceListBeforeTarget(last, last, 0);
+            ASSERT(0 == last->previousLink());
+            ASSERT(0 == last->nextLink());
+            ASSERT(0 == prev->nextLink());
+            ASSERT(Obj::isWellFormed(last, last));
+            ASSERT(1 == length(last, last));
+
+            toInsert.d_last = prev;
+            ASSERT(Obj::isWellFormed(toInsert.d_first, toInsert.d_last));
+            ASSERT(NUM_LINKS - 1 == toInsert.length());
+            ASSERT(0 == toInsert.d_first->previousLink());
+            ASSERT(0 == toInsert.d_last ->nextLink());
+
+            Obj::spliceListBeforeTarget(last,
+                                        last,
+                                        toInsert.d_first);
+            toInsert.d_first = last;
+            ASSERT(Obj::isWellFormed(toInsert.d_first, toInsert.d_last));
+            ASSERT(NUM_LINKS == toInsert.length());
+            ASSERT(0 == toInsert.d_first->previousLink());
+            ASSERT(0 == toInsert.d_last ->nextLink());
+
+            toInsert.destroy(&ta);
+        }
+
+        if (verbose) printf("insert single node from middle of list,"
+                            " target == 0\n");
+        {
+            bslma::TestAllocator ta("testAllocator", veryVeryVeryVerbose);
+
+            Bucket toInsert;
+            toInsert.clone(linksBucket, &ta);
+            Link *middle = toInsert.d_first->nextLink()->nextLink();
+            Link *prev   = middle->previousLink();
+            Link *next   = middle->nextLink();
+
+            Obj::spliceListBeforeTarget(middle, middle, 0);
+            ASSERT(0 == middle->previousLink());
+            ASSERT(0 == middle->nextLink());
+            ASSERT(next == prev->nextLink());
+            ASSERT(prev == next->previousLink());
+            ASSERT(Obj::isWellFormed(middle, middle));
+            ASSERT(1 == length(middle, middle));
+
+            ASSERT(Obj::isWellFormed(toInsert.d_first, toInsert.d_last));
+            ASSERT(NUM_LINKS - 1 == toInsert.length());
+            ASSERT(0 == toInsert.d_first->previousLink());
+            ASSERT(0 == toInsert.d_last ->nextLink());
+
+            Obj::spliceListBeforeTarget(middle,
+                                        middle,
+                                        next);
+            ASSERT(Obj::isWellFormed(toInsert.d_first, toInsert.d_last));
+            ASSERT(NUM_LINKS == toInsert.length());
+            ASSERT(0 == toInsert.d_first->previousLink());
+            ASSERT(0 == toInsert.d_last ->nextLink());
+
+            toInsert.destroy(&ta);
+        }
+
+        if (verbose) printf("insert single link, target == front of list\n");
+        {
+            bslma::TestAllocator ta("testAllocator", veryVeryVeryVerbose);
+
+            Bucket dest;
+            dest.clone(linksBucket, &ta);
+
+            Link   toInsertLink = makeLink(0, 0);
+            Obj::spliceListBeforeTarget(&toInsertLink,
+                                        &toInsertLink,
+                                        dest.d_first);
+            ASSERT(0 == toInsertLink.previousLink());
+            ASSERT(dest.d_first == toInsertLink.nextLink());
+            ASSERT(Obj::isWellFormed(&toInsertLink, dest.d_last));
+            ASSERT(NUM_LINKS + 1 == length(&toInsertLink, dest.d_last));
+
+            dest.destroy(&ta);
+        }
+
+        if (verbose) printf("insert full list, target == front of list\n");
+        {
+            bslma::TestAllocator ta("testAllocator", veryVeryVeryVerbose);
+
+            Bucket dest;
+            dest.clone(linksBucket, &ta);
+
+            Bucket toInsert;
+            toInsert.clone(linksBucket, &ta);
+
+            Obj::spliceListBeforeTarget(toInsert.d_first,
+                                        toInsert.d_last,
+                                        dest.d_first);
+            ASSERT(0 == toInsert.d_first->previousLink());
+            ASSERT(dest.d_first    == toInsert.d_last->nextLink());
+            ASSERT(toInsert.d_last == dest.d_first->previousLink());
+            ASSERT(0 == dest.d_last ->nextLink());
+            ASSERT(Obj::isWellFormed(toInsert.d_first, dest.d_last));
+            ASSERT(2 * NUM_LINKS == length(toInsert.d_first, dest.d_last));
+
+            toInsert.d_last = dest.d_last;
+
+            toInsert.destroy(&ta);
+        }
+
+        if (verbose) printf("insert single node from start of list,"
+                            " target == front of list\n");
+        {
+            bslma::TestAllocator ta("testAllocator", veryVeryVeryVerbose);
+
+            Bucket dest;
+            dest.clone(linksBucket, &ta);
+
+            Bucket toInsert;
+            toInsert.clone(linksBucket, &ta);
+            Link   *first  = toInsert.d_first;
+            Link   *second = toInsert.d_first->nextLink();
+
+            Obj::spliceListBeforeTarget(first,
+                                        first,
+                                        dest.d_first);
+            ASSERT(0 == first->previousLink());
+            ASSERT(dest.d_first == first->nextLink());
+            ASSERT(first        == dest.d_first->previousLink());
+            ASSERT(0 == second->previousLink());
+
+            toInsert.d_first = second;
+            dest.    d_first = first;
+
+            ASSERT(0 == toInsert.d_first->previousLink());
+            ASSERT(0 == toInsert.d_last ->nextLink());
+            ASSERT(0 == dest.d_first->previousLink());
+            ASSERT(0 == dest.d_last ->nextLink());
+
+            ASSERT(Obj::isWellFormed(toInsert.d_first, toInsert.d_last));
+            ASSERT(NUM_LINKS - 1 == toInsert.length());
+            ASSERT(Obj::isWellFormed(dest    .d_first, dest    .d_last));
+            ASSERT(NUM_LINKS + 1 == dest    .length());
+
+            toInsert.destroy(&ta);
+            dest.    destroy(&ta);
+        }
+
+        if (verbose) printf("insert single node from end of list,"
+                            " target == front of list\n");
+        {
+            bslma::TestAllocator ta("testAllocator", veryVeryVeryVerbose);
+
+            Bucket dest;
+            dest.clone(linksBucket, &ta);
+
+            Bucket toInsert;
+            toInsert.clone(linksBucket, &ta);
+            Link *last = toInsert.d_last;
+            Link *prev = toInsert.d_last->previousLink();
+
+            Obj::spliceListBeforeTarget(last, last, dest.d_first);
+            ASSERT(0 == last->previousLink());
+            ASSERT(0 == prev->nextLink());
+
+            ASSERT(last == dest.d_first->previousLink());
+            ASSERT(dest.d_first == last->nextLink());
+
+            toInsert.d_last  = prev;
+            dest.    d_first = last;
+
+            ASSERT(Obj::isWellFormed(toInsert.d_first, toInsert.d_last));
+            ASSERT(NUM_LINKS - 1 == toInsert.length());
+            ASSERT(Obj::isWellFormed(dest    .d_first, dest    .d_last));
+            ASSERT(NUM_LINKS + 1 == dest    .length());
+
+            ASSERT(0 == toInsert.d_first->previousLink());
+            ASSERT(0 == toInsert.d_last ->nextLink());
+            ASSERT(0 == dest    .d_first->previousLink());
+            ASSERT(0 == dest    .d_last ->nextLink());
+
+            toInsert.destroy(&ta);
+            dest    .destroy(&ta);
+        }
+
+        if (verbose) printf("insert single node from middle of list,"
+                            " target == front of list\n");
+        {
+            bslma::TestAllocator ta("testAllocator", veryVeryVeryVerbose);
+
+            Bucket dest;
+            dest.clone(linksBucket, &ta);
+
+            Bucket toInsert;
+            toInsert.clone(linksBucket, &ta);
+            Link *middle = toInsert.d_first->nextLink()->nextLink();
+            Link *prev   = middle->previousLink();
+            Link *next   = middle->nextLink();
+
+            Obj::spliceListBeforeTarget(middle, middle, dest.d_first);
+            ASSERT(0 == middle->previousLink());
+            ASSERT(dest.d_first == middle->nextLink());
+            ASSERT(next == prev->nextLink());
+            ASSERT(prev == next->previousLink());
+            ASSERT(Obj::isWellFormed(middle, dest.d_last));
+            ASSERT(1 == length(middle, middle));
+
+            dest.d_first = middle;
+
+            ASSERT(Obj::isWellFormed(toInsert.d_first, toInsert.d_last));
+            ASSERT(NUM_LINKS - 1 == toInsert.length());
+            ASSERT(0 == toInsert.d_first->previousLink());
+            ASSERT(0 == toInsert.d_last ->nextLink());
+
+            ASSERT(Obj::isWellFormed(dest    .d_first, dest    .d_last));
+            ASSERT(NUM_LINKS + 1 == dest    .length());
+            ASSERT(0 == dest    .d_first->previousLink());
+            ASSERT(0 == dest    .d_last ->nextLink());
+
+            toInsert.destroy(&ta);
+            dest    .destroy(&ta);
+        }
+
+        if (verbose) printf("insert single link, target == end of list\n");
+        {
+            bslma::TestAllocator ta("testAllocator", veryVeryVeryVerbose);
+
+            Bucket dest;
+            dest.clone(linksBucket, &ta);
+            Link *destPrev = dest.d_last->previousLink();
+
+            Link   toInsertLink = makeLink(0, 0);
+            Obj::spliceListBeforeTarget(&toInsertLink,
+                                        &toInsertLink,
+                                        dest.d_last);
+            ASSERT(destPrev      == toInsertLink.previousLink());
+            ASSERT(&toInsertLink == destPrev->nextLink());
+            ASSERT(dest.d_last   == toInsertLink.nextLink());
+            ASSERT(&toInsertLink == dest.d_last->previousLink());
+            ASSERT(Obj::isWellFormed(dest.d_first, &toInsertLink));
+            ASSERT(NUM_LINKS + 1 == dest.length());
+
+            Obj::unlink(&toInsertLink);
+
+            dest.destroy(&ta);
+        }
+
+        if (verbose) printf("insert full list, target == end of list\n");
+        {
+            bslma::TestAllocator ta("testAllocator", veryVeryVeryVerbose);
+
+            Bucket dest;
+            dest.clone(linksBucket, &ta);
+            Link *destPrev = dest.d_last->previousLink();
+
+            Bucket toInsert;
+            toInsert.clone(linksBucket, &ta);
+
+            Obj::spliceListBeforeTarget(toInsert.d_first,
+                                        toInsert.d_last,
+                                        dest.d_last);
+            ASSERT(destPrev         == toInsert.d_first->previousLink());
+            ASSERT(dest.d_last      == toInsert.d_last->nextLink());
+            ASSERT(toInsert.d_last  == dest.d_last->previousLink());
+            ASSERT(toInsert.d_first == destPrev->nextLink());
+            ASSERT(0 == dest.d_last ->nextLink());
+            ASSERT(0 == dest.d_first->previousLink());
+
+            ASSERT(Obj::isWellFormed(toInsert.d_first, toInsert.d_last));
+            ASSERT(    NUM_LINKS == toInsert.length());
+
+            ASSERT(Obj::isWellFormed(dest    .d_first, dest    .d_last));
+            ASSERT(2 * NUM_LINKS == dest    .length());
+
+            dest.destroy(&ta);
+        }
+
+        if (verbose) printf("insert single node from start of list,"
+                            " target == end of list\n");
+        {
+            bslma::TestAllocator ta("testAllocator", veryVeryVeryVerbose);
+
+            Bucket dest;
+            dest.clone(linksBucket, &ta);
+            Link *destPrev = dest.d_last->previousLink();
+
+            Bucket toInsert;
+            toInsert.clone(linksBucket, &ta);
+            Link   *first  = toInsert.d_first;
+            Link   *second = toInsert.d_first->nextLink();
+
+            Obj::spliceListBeforeTarget(first,
+                                        first,
+                                        dest.d_last);
+            ASSERT(destPrev == first->previousLink());
+            ASSERT(dest.d_last == first->nextLink());
+            ASSERT(first       == dest.d_last->previousLink());
+            ASSERT(first       == destPrev->nextLink());
+            ASSERT(0 == second->previousLink());
+
+            toInsert.d_first = second;
+
+            ASSERT(0 == toInsert.d_first->previousLink());
+            ASSERT(0 == toInsert.d_last ->nextLink());
+            ASSERT(0 == dest    .d_first->previousLink());
+            ASSERT(0 == dest    .d_last ->nextLink());
+
+            ASSERT(Obj::isWellFormed(toInsert.d_first, toInsert.d_last));
+            ASSERT(NUM_LINKS - 1 == toInsert.length());
+            ASSERT(Obj::isWellFormed(dest    .d_first, dest    .d_last));
+            ASSERT(NUM_LINKS + 1 == dest    .length());
+
+            toInsert.destroy(&ta);
+            dest.    destroy(&ta);
+        }
+
+        if (verbose) printf("insert single node from end of list,"
+                            " target == end of list\n");
+        {
+            bslma::TestAllocator ta("testAllocator", veryVeryVeryVerbose);
+
+            Bucket dest;
+            dest.clone(linksBucket, &ta);
+            Link *destPrev = dest.d_last->previousLink();
+
+            Bucket toInsert;
+            toInsert.clone(linksBucket, &ta);
+            Link *last = toInsert.d_last;
+            Link *prev = toInsert.d_last->previousLink();
+
+            Obj::spliceListBeforeTarget(last, last, dest.d_last);
+            ASSERT(destPrev == last->previousLink());
+            ASSERT(0 == prev->nextLink());
+            ASSERT(dest.d_last == last->nextLink());
+            ASSERT(last == dest.d_last->previousLink());
+
+            toInsert.d_last  = prev;
+
+            ASSERT(Obj::isWellFormed(toInsert.d_first, toInsert.d_last));
+            ASSERT(NUM_LINKS - 1 == toInsert.length());
+            ASSERT(Obj::isWellFormed(dest    .d_first, dest    .d_last));
+            ASSERT(NUM_LINKS + 1 == dest    .length());
+
+            ASSERT(0 == toInsert.d_first->previousLink());
+            ASSERT(0 == toInsert.d_last ->nextLink());
+            ASSERT(0 == dest    .d_first->previousLink());
+            ASSERT(0 == dest    .d_last ->nextLink());
+
+            toInsert.destroy(&ta);
+            dest    .destroy(&ta);
+        }
+
+        if (verbose) printf("insert single node from middle of list,"
+                            " target == front of list\n");
+        {
+            bslma::TestAllocator ta("testAllocator", veryVeryVeryVerbose);
+
+            Bucket dest;
+            dest.clone(linksBucket, &ta);
+            Link *destPrev = dest.d_last->previousLink();
+
+            Bucket toInsert;
+            toInsert.clone(linksBucket, &ta);
+            Link *middle = toInsert.d_first->nextLink()->nextLink();
+            Link *prev   = middle->previousLink();
+            Link *next   = middle->nextLink();
+
+            Obj::spliceListBeforeTarget(middle, middle, dest.d_last);
+            ASSERT(destPrev    == middle->previousLink());
+            ASSERT(dest.d_last == middle->nextLink());
+            ASSERT(next == prev->nextLink());
+            ASSERT(prev == next->previousLink());
+
+            ASSERT(Obj::isWellFormed(toInsert.d_first, toInsert.d_last));
+            ASSERT(NUM_LINKS - 1 == toInsert.length());
+            ASSERT(0 == toInsert.d_first->previousLink());
+            ASSERT(0 == toInsert.d_last ->nextLink());
+
+            ASSERT(Obj::isWellFormed(dest    .d_first, dest    .d_last));
+            ASSERT(NUM_LINKS + 1 == dest    .length());
+            ASSERT(0 == dest    .d_first->previousLink());
+            ASSERT(0 == dest    .d_last ->nextLink());
+
+            toInsert.destroy(&ta);
+            dest    .destroy(&ta);
+        }
+      } break;
+      case 6: {
+        // --------------------------------------------------------------------
+        // TESTING 'insertLinkAfterTarget'
+        //
+        // Concerns:
+        //: 1 That the function works correctly when 'target' is at the
+        //:   end of the list.
+        //: 2 That the function works correctly when 'target' is the only
+        //:   element in a list.
+        //: 3 That the function works correctly when 'target' is in the middle
+        //:   of a list.
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("TESTING 'insertLinkAfterTarget'\n"
+                            "================================\n");
+
+        Link bogusLink;
+        bogusLink.setPreviousLink(DEFAULT_BOGUS);
+        bogusLink.setNextLink(    DEFAULT_BOGUS);
+
+        if (verbose) printf("at the end of list\n");
+        {
+            bslma::TestAllocator ta("testAllocator", veryVeryVeryVerbose);
+
+            Bucket bucket;
+            bucket.clone(linksBucket, &ta);
+
+            ASSERTV(Obj::isWellFormed(bucket.d_first, bucket.d_last));
+            ASSERTV(NUM_LINKS == bucket.length());
+
+            Link newLink = bogusLink;
+
+            Obj::insertLinkAfterTarget(&newLink, bucket.d_last);
+            ASSERTV(0             == newLink.nextLink());
+            ASSERTV(bucket.d_last == newLink.previousLink());
+
+            ASSERTV(Obj::isWellFormed(bucket.d_first, &newLink));
+            ASSERTV(NUM_LINKS == bucket.length());
+
+            bucket.destroy(&ta);
+        }
+
+        if (verbose) printf("where there's only one element in the list\n");
+        {
+            Link oldLink = makeLink(0, 0);
+            Link newLink = bogusLink;
+
+            Obj::insertLinkAfterTarget(&newLink, &oldLink);
+            ASSERTV(0        == newLink.nextLink());
+            ASSERTV(&oldLink == newLink.previousLink());
+
+            ASSERTV(0        == oldLink.previousLink());
+            ASSERTV(Obj::isWellFormed(&oldLink, &newLink));
+        }
+
+        if (verbose) printf("in the middle of the list\n");
+        {
+            bslma::TestAllocator ta("testAllocator", veryVeryVeryVerbose);
+
+            Bucket bucket;
+            bucket.clone(linksBucket, &ta);
+
+            ASSERTV(Obj::isWellFormed(bucket.d_first, bucket.d_last));
+            ASSERTV(NUM_LINKS == bucket.length());
+
+            Link *at = bucket.d_first->nextLink()->nextLink();
+
+            Link newLink = bogusLink;
+
+            Obj::insertLinkAfterTarget(&newLink, at);
+            ASSERTV(Obj::isWellFormed(bucket.d_first, bucket.d_last));
+            ASSERTV(NUM_LINKS + 1 == bucket.length());
+
+            ASSERTV(at == newLink.previousLink());
+
+            Obj::unlink(&newLink);
+            ASSERTV(Obj::isWellFormed(bucket.d_first, bucket.d_last));
+            ASSERTV(NUM_LINKS == bucket.length());
+
+            bucket.destroy(&ta);
+        }
+      } break;
+      case 5: {
+        // --------------------------------------------------------------------
+        // Testing 'insertLinkBeforeTarget'
+        //
+        // Concerns:
+        //: 1 That the function works correctly when '0 == target'.
+        //: 2 That the function works correctly when 'target' is at the
+        //:   beginning of the list.
+        //: 3 That the function works correctly when 'target' is the only
+        //:   element in a list.
+        //: 4 That the function works correctly when 'target' is in the middle
+        //:   of a list.
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("TESTING 'insertLinkBeforeTarget'\n"
+                            "================================\n");
+
+        Link bogusLink;
+        bogusLink.setPreviousLink(DEFAULT_BOGUS);
+        bogusLink.setNextLink(    DEFAULT_BOGUS);
+
+        if (verbose) printf("target == 0\n");
+        {
+            Link newLink = bogusLink;
+
+            Obj::insertLinkBeforeTarget(&newLink, 0);
+            ASSERT(0 == newLink.nextLink());
+            ASSERT(0 == newLink.previousLink());
+        }
+
+        if (verbose) printf("at the beginning of list\n");
+        {
+            bslma::TestAllocator ta("testAllocator", veryVeryVeryVerbose);
+
+            Bucket bucket;
+            bucket.clone(linksBucket, &ta);
+
+            ASSERTV(Obj::isWellFormed(bucket.d_first, bucket.d_last));
+            ASSERTV(NUM_LINKS == bucket.length());
+
+            Link newLink = bogusLink;
+
+            Obj::insertLinkBeforeTarget(&newLink, bucket.d_first);
+            ASSERTV(0              == newLink.previousLink());
+            ASSERTV(bucket.d_first == newLink.nextLink());
+
+            ASSERTV(Obj::isWellFormed(&newLink, bucket.d_last));
+            ASSERTV(NUM_LINKS == bucket.length());
+
+            bucket.destroy(&ta);
+        }
+
+        if (verbose) printf("where there's only one element in the list\n");
+        {
+            Link oldLink = makeLink(0, 0);
+            Link newLink = bogusLink;
+
+            Obj::insertLinkBeforeTarget(&newLink, &oldLink);
+            ASSERTV(0        == newLink.previousLink());
+            ASSERTV(&oldLink == newLink.nextLink());
+
+            ASSERTV(0        == oldLink.nextLink());
+            ASSERTV(Obj::isWellFormed(&newLink, &oldLink));
+        }
+
+        if (verbose) printf("in the middle of the list\n");
+        {
+            bslma::TestAllocator ta("testAllocator", veryVeryVeryVerbose);
+
+            Bucket bucket;
+            bucket.clone(linksBucket, &ta);
+
+            ASSERTV(Obj::isWellFormed(bucket.d_first, bucket.d_last));
+            ASSERTV(NUM_LINKS == bucket.length());
+
+            Link *at = bucket.d_first->nextLink()->nextLink();
+
+            Link newLink = bogusLink;
+
+            Obj::insertLinkBeforeTarget(&newLink, at);
+            ASSERTV(Obj::isWellFormed(bucket.d_first, bucket.d_last));
+            ASSERTV(NUM_LINKS + 1 == bucket.length());
+
+            ASSERTV(at == newLink.nextLink());
+
+            Obj::unlink(&newLink);
+            ASSERTV(Obj::isWellFormed(bucket.d_first, bucket.d_last));
+            ASSERTV(NUM_LINKS == bucket.length());
+
+            bucket.destroy(&ta);
+        }
+      } break;
+      case 4: {
+        // --------------------------------------------------------------------
+        // TESTING 'unlink'
+        //
+        // Concerns:
+        //: 1 'unlink' successfully removes a node in the middle of a list.
+        //: 2 'unlink' successfully removes a node at either end of the list.
+        //
+        // Plan:
+        //: Clone 'linksBucket' and operate on cloned strings, being sure to
+        //: explicitly delete the 'unlinked' nodes.
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("TESTING 'unlink'\n"
+                            "================\n");
+
+        if (verbose) printf("unlink in middle of list\n");
+        {
+            bslma::TestAllocator ta("testAllocator", veryVeryVeryVerbose);
+
+            Bucket bucket;
+            bucket.clone(linksBucket, &ta);
+
+            ASSERTV(Obj::isWellFormed(bucket.d_first, bucket.d_last));
+            ASSERTV(NUM_LINKS == bucket.length());
+
+            Link *condemned = bucket.d_first->nextLink()->nextLink();
+
+            Obj::unlink(condemned);
+            memset(condemned, 'x', sizeof(Link));
+
+            ASSERTV(Obj::isWellFormed(bucket.d_first, bucket.d_last));
+            ASSERTV(NUM_LINKS - 1 == bucket.length());
+
+            ta.deallocate(condemned);
+            bucket.destroy(&ta);
+        }
+
+        if (verbose) printf("unlink at start of list\n");
+        {
+            bslma::TestAllocator ta("testAllocator", veryVeryVeryVerbose);
+
+            Bucket bucket;
+            bucket.clone(linksBucket, &ta);
+
+            ASSERTV(Obj::isWellFormed(bucket.d_first, bucket.d_last));
+            ASSERTV(NUM_LINKS == bucket.length());
+
+            Link *condemned = bucket.d_first;
+            bucket.d_first = condemned->nextLink();
+
+            Obj::unlink(condemned);
+            memset(condemned, 'x', sizeof(Link));
+
+            ASSERTV(Obj::isWellFormed(bucket.d_first, bucket.d_last));
+            ASSERTV(NUM_LINKS - 1 == bucket.length());
+
+            ta.deallocate(condemned);
+            bucket.destroy(&ta);
+        }
+
+        if (verbose) printf("unlink at end of list\n");
+        {
+            bslma::TestAllocator ta("testAllocator", veryVeryVeryVerbose);
+
+            Bucket bucket;
+            bucket.clone(linksBucket, &ta);
+
+            ASSERTV(Obj::isWellFormed(bucket.d_first, bucket.d_last));
+            ASSERTV(NUM_LINKS == bucket.length());
+
+            Link *condemned = bucket.d_last;
+            bucket.d_last = condemned->previousLink();
+
+            Obj::unlink(condemned);
+            memset(condemned, 'x', sizeof(Link));
+
+            ASSERTV(Obj::isWellFormed(bucket.d_first, bucket.d_last));
+            ASSERTV(NUM_LINKS - 1 == bucket.length());
+
+            ta.deallocate(condemned);
+            bucket.destroy(&ta);
+        }
+      } break;
+      case 3: {
+        // --------------------------------------------------------------------
+        // TESTING Bucket: 'clone', 'destroy', 'length'
+        //
+        // Concern:
+        //: 1 That 'clone' accuratel copies a bucket, and 'destroy'
+        //:   effectively destroys it.
+        //: 2 That 'length' accurately measures the length of a bucket.
+        //
+        // Plan:
+        //: 1 Call 'length' on each bucket in the test data and verify we are
+        //:   getting the proper results.
+        //: 2 Clone a copy of the bucket using a test allocator, verify that
+        //:   'isWellFormed' and 'length' return the same values as they
+        //:   returned for the original bucket.
+        //: 3 Verify the ends of the list in the cloned bucket are 0.
+        //: 4 Call 'destroy'.  The test allocator will inform us of any
+        //:   redundant frees or leaked memory.
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("TESTING isWellFormed\n"
+                            "====================\n");
+
+        enum { NUM_DATA                        = NUM_DEFAULT_DATA };
+        const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
+
+        for (int i = 0; i < NUM_DATA; ++i) {
+            const int LINE         = DATA[i].d_line;
+            const Bucket& BUCKET   = DATA[i].d_bucket;
+            Link *FIRST            = BUCKET.d_first;
+            Link *LAST             = BUCKET.d_last;
+            const bool WELL_FORMED = DATA[i].d_isWellFormed;
+            const int  LENGTH      = DATA[i].d_length;
+
+            LOOP_ASSERT(LINE, WELL_FORMED == Obj::isWellFormed(FIRST, LAST));
+            LOOP_ASSERT(LINE, LENGTH      == BUCKET.length());
+
+            if (!WELL_FORMED) {
+                continue;
+            }
+
+            bslma::TestAllocator ta("testAllocator", veryVeryVeryVerbose);
+
+            Bucket bucket;
+            bucket.clone(BUCKET, &ta);
+
+            ASSERTV(LINE, !!LENGTH == (0 != ta.numBlocksInUse()));
+            ASSERTV(LINE, WELL_FORMED == Obj::isWellFormed(bucket.d_first,
+                                                           bucket.d_last));
+            ASSERTV(LINE, LENGTH      == bucket.length());
+
+            if (LENGTH > 0) {
+                ASSERTV(LINE, 0 == bucket.d_first->previousLink());
+                ASSERTV(LINE, 0 == bucket.d_last->nextLink());
+            }
+            else {
+                ASSERTV(LINE, 0 == bucket.d_first && 0 == bucket.d_last);
+            }
+
+            bucket.destroy(&ta);
+        }
+      } break;
+      case 2: {
+        // --------------------------------------------------------------------
+        // TESTING 'isWellFormed'
+        //
+        // Concern:
+        //: 1 'isWellFormed' correctly assesses the state of ranges of links.
+        //
+        // Plan:
+        //: 1 Feed all combinations of ranges of links to 'isWellFormed
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("TESTING isWellFormed\n"
+                            "====================\n");
+
+        enum { NUM_DATA                        = NUM_DEFAULT_DATA };
+        const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
+
+        for (int i = 0; i < NUM_DATA; ++i) {
+            const int LINE         = DATA[i].d_line;
+            const Bucket& BUCKET   = DATA[i].d_bucket;
+            Link *FIRST            = BUCKET.d_first;
+            Link *LAST             = BUCKET.d_last;
+            const bool WELL_FORMED = DATA[i].d_isWellFormed;
+
+            ASSERTV(LINE, WELL_FORMED == Obj::isWellFormed(FIRST, LAST));
+        }
+      } break;
       case 1: {
         // --------------------------------------------------------------------
         // BREATHING TEST
