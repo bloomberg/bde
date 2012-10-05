@@ -458,25 +458,27 @@ class HashTable {
 
     HashTable(const HashTable& original);
         // Create a 'HashTable' having the same value as the specified
-        // 'original'.  Use a copy of 'original.hasher()' and a copy of
-        // 'original.comparator()' to organize elements in this hash-table.
-        // Use the allocator returned by 'bsl::allocator_traits<ALLOCATOR>::
-        // select_on_container_copy_construction(original.allocator())'
+        // 'original', and the same 'maxLoadFactor'.  Use a copy of
+        // 'original.hasher()' and a copy of 'original.comparator()' to
+        // organize elements in this hash-table.  Use the allocator returned by
+        // 'bsl::allocator_traits<ALLOCATOR>::
+        //  select_on_container_copy_construction(original.allocator())'
         // to allocate memory.  If the type 'ALLOCATOR' is 'bsl::allocator'
         // (the default), the currently installed default allocator will be
         // used to supply memory.  Note that this hash-table may have fewer
         // buckets than 'original', and a correspondingly higher 'loadFactor',
-        // so long as 'maxLoadFactor' is not exceeded.
+        // so long as 'maxLoadFactor' is not exceeded.  Note that the created
+        // hash table may have a different 'numBuckets' than 'original', and a
+        // correspondingly different 'loadFactor', as long as 'maxLoadFactor'
+        // is not exceeded.
 
     HashTable(const HashTable& original, const ALLOCATOR& allocator);
-        // Create a 'HashTable' having the same value as the specified
-        // 'original' that will use the specified 'allocator' to supply memory
-        // if the (template parameter) type 'ALLOCATOR' is 'bsl::allocator'
-        // (the default), and a default constructed 'ALLOCATOR' object
-        // otherwise.  Use a copy of 'original.hasher()' and a copy of
-        // 'original.comparator()' to organize elements in this hash-table.
-        // Note that this hash-table may have fewer buckets than 'original',
-        // and a correspondingly higher 'loadFactor', so long as
+        // Create a 'HashTable' having the same value and 'maxLoadFactor' as
+        // the specified 'original', that will use the specified 'allocator' to
+        // supply memory.  Use a copy of 'original.hasher()' and a copy of
+        // 'original.comparator()' to organize elements in this hash- table.
+        // Note that this hash-table may have a different 'numBuckets' than
+        // 'original', and a correspondingly different 'loadFactor', as long as
         // 'maxLoadFactor' is not exceeded.
 
     ~HashTable();
