@@ -51,11 +51,12 @@ void BidirectionalLinkListUtil::insertLinkAfterTarget(
 {
     BSLS_ASSERT_SAFE(newNode);
     BSLS_ASSERT_SAFE(target);
-#ifdef BDE_BUILD_TARGET_SAFE2
-    BSLS_ASSERT_SAFE2(isWellFormed(target, target->nextLink()));
-#endif
 
     BidirectionalLink *next = target->nextLink();
+
+#ifdef BDE_BUILD_TARGET_SAFE2
+    BSLS_ASSERT_SAFE2(!next || isWellFormed(target, next));
+#endif
 
     target->setNextLink(newNode);
     if (next) {
@@ -77,41 +78,32 @@ bool BidirectionalLinkListUtil::isWellFormed(BidirectionalLink *head,
         return true;                                                  // RETURN
     }
 
-    if (head->previousLink() && head->previousLink()->nextLink() != head) {
-        return false;                                                 // RETURN
-    }
-    if (tail->nextLink() && tail->nextLink()->previousLink() != tail) {
+    // Check that the nodes adjacent to the ends point back at us.
+
+    if   ((head->previousLink() && head->previousLink()->nextLink() != head)
+       || (tail->nextLink()     && tail->nextLink()->previousLink() != tail)) {
         return false;                                                 // RETURN
     }
 
-    if(head == tail) {    // single element list
+    if (head == tail) {    // single element list
         return true;                                                  // RETURN
     }
 
-    // 'head' must have a valid 'nextLink' at this point
-
-    if(head->nextLink()->previousLink() != head) {
-           return false;                                              // RETURN
-    }
-
-    const BidirectionalLink *cursor = head->nextLink();
-
-    while (cursor != tail) {
-        if (   cursor->nextLink()->previousLink() != cursor
-            || cursor->previousLink()->nextLink() != cursor) {
-
+    for (const BidirectionalLink *prev = head, *cursor = head->nextLink();
+                               cursor;
+                                  prev = cursor, cursor = cursor->nextLink()) {
+        if (cursor->previousLink() != prev) {
             return false;                                             // RETURN
         }
-        cursor = cursor->nextLink();
+
+        if (tail == cursor) {
+            return true;                                              // RETURN
+        }
     }
 
-    // 'tail' must have a valid 'previousLink' at this point
+    // We ran off the end of the list without reaching 'tail'.
 
-    if(tail->previousLink()->nextLink() != tail) {
-        return false;                                                 // RETURN
-    }
-
-    return true;
+    return false;
 }
 
 void BidirectionalLinkListUtil::spliceListBeforeTarget
@@ -131,6 +123,7 @@ void BidirectionalLinkListUtil::spliceListBeforeTarget
 #endif
 
     // unlink from existing list
+
     if (BidirectionalLink* prev = first->previousLink()) {
         prev->setNextLink(last->nextLink());
     }
@@ -139,9 +132,11 @@ void BidirectionalLinkListUtil::spliceListBeforeTarget
     }
 
     // update into spliced location:
+
     if (!target) {
         // Prepending target an empty list is *explicitly* *allowed*
         // The "spliced" segment is still extracted from the original list
+
         first->setPreviousLink(0);  // redundant with pre-condition
         last->setNextLink(0);
     }
@@ -163,16 +158,20 @@ void BidirectionalLinkListUtil::unlink(BidirectionalLink *node)
 {
     BSLS_ASSERT_SAFE(node);
 
-    if (BidirectionalLink *prev = node->previousLink()) {
-        if (BidirectionalLink *next = node->nextLink()) {
-             next->setPreviousLink(prev);
+    BidirectionalLink *prev = node->previousLink(), *next = node->nextLink();
+
+    if (prev) {
+        if (next) {
+            BSLS_ASSERT_SAFE(isWellFormed(prev, next));
+
+            next->setPreviousLink(prev);
             prev->setNextLink(next);
         }
         else {
             prev->setNextLink(0);
         }
     }
-    else if(BidirectionalLink *next = node->nextLink()) {
+    else if (next) {
         next->setPreviousLink(0);
     }
 }
