@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a compile-time type conversion checker.
+//@PURPOSE: Provide a compile-time check for type conversion.
 //
 //@CLASSES:
 //  bsl::is_convertible: standard meta-function for type conversion checking
@@ -25,15 +25,18 @@ BSLS_IDENT("$Id: $")
 // template defined in the C++11 standard [meta.rel], while
 // 'bslmf::IsConvertible' was devised before 'is_convertible' was standardized.
 //
-// The two meta-functions are functionally equivalent.  The major difference
-// between them is that the result for 'bsl::is_convertible' is indicated by
-// the class member 'value', while the result for 'bslmf::IsConvertible' is
-// indicated by the class member 'VALUE'.
+// The two meta-functions are functionally equivalent except that the
+// 'bsl::is_convertible' does not allow its template parameter types to be
+// incomplete types according to the C++11 standard while
+// 'bslmf::IsConvertible' tests conversions involving incomplete types.  The
+// other major difference between them is that the result for
+// 'bsl::is_convertible' is indicated by the class member 'value', while the
+// result for 'bslmf::IsConvertible' is indicated by the class member 'VALUE'.
 //
 // Note that 'bsl::is_convertible' should be preferred over
 // 'bslmf::IsConvertible', and in general, should be used by new components.
 // Note also that the result is undefined if either parameter is 'void'.  Note
-// also that 'bslmf::IsConvertible' can produce compiler errors if the
+// also that 'bsl::is_convertible' can produce compiler errors if the
 // conversion is ambiguous.  For example,
 //..
 //  struct A {};
@@ -41,7 +44,7 @@ BSLS_IDENT("$Id: $")
 //  struct C : public A {};
 //  struct D : public B, public C {};
 //
-//  static int const C = bslmf::IsConvertible<D*, A*>::value; // ERROR!
+//  static int const C = bsl::is_convertible<D*, A*>::value; // ERROR!
 //..
 //
 ///Usage
@@ -61,8 +64,8 @@ BSLS_IDENT("$Id: $")
 // Suppose we are implementing some container's 'addObj' method that adds a new
 // object (in its default state) of the container's template parameter 'TYPE'.
 // The method calls an overloaded function 'createObj' to create a new object
-// of the parameterized type in its internal array.  The idea is to invoke one
-// version of 'createObj' if the type provides a constructor that takes a
+// of the template parameter type in its internal array.  The idea is to invoke
+// one version of 'createObj' if the type provides a constructor that takes a
 // pointer to an allocator as its sole argument, and another version if the
 // type provides only a default constructor.
 //
@@ -96,7 +99,7 @@ BSLS_IDENT("$Id: $")
 // Next, we define the first 'createObj' function that takes a
 // 'bsl::false_type' as its last argument, whereas the second 'createObj'
 // function takes a 'bsl::true_type' object.  The result of the
-// 'bsl::is_convertible' meta-function (i.e., its 'Type' member) is used to
+// 'bsl::is_convertible' meta-function (i.e., its 'type' member) is used to
 // create the last argument passed to 'createObj'.  Neither version of
 // 'createObj' makes use of this argument -- it is used only to differentiate
 // the argument list so we can overload the function.
@@ -104,21 +107,21 @@ BSLS_IDENT("$Id: $")
 //  template<class TYPE>
 //  void createObj(TYPE *space, MyAllocator *, bsl::false_type)
 //  {
-//     // Use the type's default constructor if
-//     // 'bsl::is_convertible<MyAllocator*, TYPE>::value == false', i.e.,
-//     // there is no conversion from a 'MyAllocator' pointer to a 'TYPE'.
+//      // Use the type's default constructor if
+//      // 'bsl::is_convertible<MyAllocator*, TYPE>::value == false', i.e.,
+//      // there is no conversion from a 'MyAllocator' pointer to a 'TYPE'.
 //
-//     new (space) TYPE();
+//      new (space) TYPE();
 //  }
 //
 //  template<class TYPE>
 //  void createObj(TYPE *space, MyAllocator *alloc, bsl::true_type)
 //  {
-//     // Use the type's constructor that takes a pointer to an allocator if
-//     // 'bsl::is_convertible<MyAllocator*, TYPE>::value == true', i.e., there
-//     // is a conversion from a 'MyAllocator' pointer to a 'TYPE'.
+//      // Use the type's constructor that takes a pointer to an allocator if
+//      // 'bsl::is_convertible<MyAllocator*, TYPE>::value == true', i.e., there
+//      // is a conversion from a 'MyAllocator' pointer to a 'TYPE'.
 //
-//     new (space) TYPE(alloc);
+//      new (space) TYPE(alloc);
 //  }
 //..
 // Now, we define our 'MyContainer' type and implement the 'addObj' method:
@@ -206,19 +209,16 @@ namespace BloombergLP {
 
 namespace bslmf {
 
-                         // ==============================
-                         // private implementation classes
-                         // ==============================
-
-// IMPLEMENTATION NOTE: Why is this so complicated?  The 'IsConvertible'
-// meta-function is fairly simple at its core (see 'IsConvertible_Imp', below).
-// All that's needed is to have a function that can be called with 'TO_TYPE'
-// and test if that function is callable with 'FROM_TYPE'.  The complications
-// are as follows:
+// IMPLEMENTATION NOTE:
 //
-// It is should be possible to determine that some conversions are valid even
-// if 'FROM_TYPE' is an incomplete type.  For example, given an incomplete
-// type, X, the following can be assumed:
+// The 'IsConvertible' meta-function is fairly simple at its core (see
+// 'IsConvertible_Imp', below).  All that's needed is to have a function that
+// can be called with 'TO_TYPE' and test if that function is callable with
+// 'FROM_TYPE'.  The complications are as follows:
+//
+// It should be possible to determine that some conversions are valid even if
+// 'FROM_TYPE' is an incomplete type.  For example, given an incomplete type,
+// 'X', the following can be assumed:
 //..
 //  X is convertible to X
 //  X is convertible to const X
@@ -240,10 +240,10 @@ namespace bslmf {
 // incomplete type.  We must also suppress the addition of 'const' if 'TO_TYPE'
 // is already a reference.
 //
-// Finally, we would like this metafunction to work even if 'FROM_TYPE' and/or
+// Finally, we would like this meta-function to work even if 'FROM_TYPE' and/or
 // 'TO_TYPE' are 'void', so we must add specializations for these cases.
 //
-// In the end, we end up with template for the general case and 11 partial and
+// In the end, we end up with template for the general case, 11 partial and
 // full specializations corresponding to the cross-product of the following
 // parameter patterns:
 //..
@@ -264,21 +264,35 @@ namespace bslmf {
 // most common case.  A full solution to this warning problem is likely to be
 // much more involved.
 
+                         // ==========================
+                         // struct IsConvertible_Match
+                         // ==========================
+
 struct IsConvertible_Match {
-    // Private functions to check for successful match.  Sun CC 5.2 requires
-    // that this struct not be nested within 'IsConvertible_Imp'.
+    // This 'struct' provides functions to check for successful conversion
+    // match.  Sun CC 5.2 requires that this struct not be nested within
+    // 'IsConvertible_Imp'.
 
     typedef struct { char a;    } yes_type;
     typedef struct { char a[2]; } no_type;
 
     static yes_type match(IsConvertible_Match&);
-    template <typename T>
-    static no_type match(const T&);
-    template <typename T>
-    static no_type match(const volatile T&);
-        // Return 'yes_type' if called on an argument of type
+        // Return 'yes_type' if called on 'IsConvertible_Match' type.
+
+    template <typename TYPE>
+    static no_type match(const TYPE&);
+        // Return 'yes_type' if the (template parameter) 'TYPE' is
+        // 'IsConvertible_Match', and 'no_type' otherwise.
+
+    template <typename TYPE>
+    static no_type match(const volatile TYPE&);
+        // Return 'yes_type' if the (template parameter) 'TYPE' is
         // 'IsConvertible_Match' and 'no_type' otherwise.
 };
+
+                         // ========================
+                         // struct IsConvertible_Imp
+                         // ========================
 
 template <typename FROM_TYPE, typename TO_TYPE
 #if defined(BSLS_PLATFORM_CMP_GNU)
@@ -287,12 +301,12 @@ template <typename FROM_TYPE, typename TO_TYPE
 #endif
          >
 struct IsConvertible_Imp {
-    // Private class.
-
-    // General instance: Implements 'IsConvertible<FROM_TYPE, TO_TYPE>' where
-    // conversion to 'TO_TYPE' is not necessarily the same as conversion to
-    // 'const TO_TYPE&'.  Will not compile if 'TO_TYPE' is an incomplete type
-    // (although it may be a pointer or reference to incomplete type).
+    // This 'struct' template implements the meta-function
+    // 'IsConvertible<FROM_TYPE, TO_TYPE>' where the conversion to the
+    // (template parameter) 'TO_TYPE' is not necessarily the same as conversion
+    // to 'const TO_TYPE&'.  The instantiation of this 'struct' will not
+    // compile if 'TO_TYPE' is an incomplete type, a pointer to incomplete
+    // type, or a reference to incomplete type.
 
   private:
     struct Test
@@ -301,9 +315,7 @@ struct IsConvertible_Imp {
 
         IsConvertible_Match& operator, (TO_TYPE) const;
             // Return a reference to type 'IsConvertible_Match' if called with
-            // an argument convertible to 'TO_TYPE'; otherwise the default
-            // comma operator will simply return its second argument (of type
-            // 'TO_TYPE').
+            // an argument convertible to 'TO_TYPE', or 'TO_TYPE' otherwise.
     };
 
   public:
@@ -314,9 +326,9 @@ struct IsConvertible_Imp {
 #endif
     enum {
         // Invoke the comma operator with 'Test&' on the left and 'FROM_TYPE'
-        // on the right.  If 'FROM_TYPE' is convertible to 'TO_TYPE', the comma
-        // will return 'IsConvertible_Match' and cause a match, otherwise it
-        // will return 'FROM_TYPE', which does not match.
+        // on the right.  The 'value' is 'true' if 'FROM_TYPE' is convertible
+        // to 'TO_TYPE', or 'false' otherwise.
+
         value = (sizeof(IsConvertible_Match::yes_type) ==
                  sizeof(IsConvertible_Match::match(
                            (TypeRep<Test>::rep(), TypeRep<FROM_TYPE>::rep()))))
@@ -327,61 +339,63 @@ struct IsConvertible_Imp {
 #endif
 
     typedef bsl::integral_constant<bool, value> type;
-        // 'bsl::true_type' if 'FROM_TYPE' is convertible to 'TO_TYPE', else
-        // 'bsl::false_type'.
+        // This 'typedef' returns 'bsl::true_type' if 'FROM_TYPE' is
+        // convertible to 'TO_TYPE', or 'bsl::false_type' otherwise.
 };
 
 #if defined(BSLS_PLATFORM_CMP_GNU)
-// Partial specializations when 'TO_TYPE' is a fundamental type.  The sole
-// purpose of these specializations is to remove gcc warnings when converting
-// from 'FLOAT' to 'INT' as above, where 'INT' and 'FLOAT' represent an integer
-// type and a floating point type, respectively.  Because of the large number
-// of specializations, and to make the intent of the code clearer, we will use
-// three macros:
+
+// IMPLEMENTATION NOTE:
+//
+// The following macros define partial specializations of 'IsConvertible_Imp'
+// when 'TO_TYPE' is a fundamental type.  The sole purpose of these
+// specializations is to remove gcc warnings when converting from 'FLOAT' to
+// 'INT' as above, where 'INT' and 'FLOAT' are template parameter types
+// representing an integer type and a floating point type, respectively.  The
+// macros make the code clearer because of the large number of specializations:
 
 #define BSLMF_ISCONVERTIBLE_SAMETYPEVALUE(VALUE, FROM, TO, FROM_FUND, TO_FUND)\
 template <typename TYPE>                                                      \
 struct IsConvertible_Imp<FROM, TO, FROM_FUND, TO_FUND>                        \
     : bsl::integral_constant<bool, VALUE> {};
-    // Define a partial specialization of 'bslmf::IsConvertible_Imp' in terms
-    // of a single template parameter 'TYPE', defined as
-    // 'bsl::integral_constant<bool, VALUE>' for the specified macro argument
-    // 'VALUE'.  The specified macro arguments 'FROM' and 'TO' are cv-qualified
-    // type expressions constructed out of 'TYPE'.
+    // This partial specialization of 'bslmf::IsConvertible_Imp' derives from
+    // 'bsl::integral_constant' having the specified macro argument 'VALUE'.
+    // The specified macro arguments 'FROM' and 'TO' are cv-qualified type
+    // expressions constructed out of the (template parameter) 'TYPE'.
 
 #define BSLMF_ISCONVERTIBLE_VALUE(VALUE, FROM, TO, FROM_FUND, TO_FUND)        \
 template <typename FROM_TYPE, typename TO_TYPE>                               \
 struct IsConvertible_Imp<FROM, TO, FROM_FUND, TO_FUND>                        \
     : bsl::integral_constant<bool, VALUE> {};
-    // Define a partial specialization of 'bslmf::IsConvertible_Imp' in terms
-    // of two template parameters 'FROM_TYPE' and 'TO_TYPE', defined as
-    // 'bsl::integral_constant<bool, VALUE>' for the specified macro argument
-    // 'VALUE'.  The specified macro arguments 'FROM' and 'TO' are cv-qualified
-    // type expression constructed out of 'FROM_TYPE' and 'TO_TYPE',
-    // respectively.
+    // This partial specialization of 'bslmf::IsConvertible_Imp' derives from
+    // 'bsl::integral_constant' having the specified macro argument 'VALUE'.
+    // The specified macro arguments 'FROM' and 'TO' are cv-qualified type
+    // expressions constructed out of 'FROM_TYPE' and 'TO_TYPE', respectively.
 
 #define BSLMF_ISCONVERTIBLE_FORWARD(FROM, TO, FROM_FUND, TO_FUND)             \
 template <typename FROM_TYPE, typename TO_TYPE>                               \
 struct IsConvertible_Imp<FROM, TO, FROM_FUND, TO_FUND>                        \
     : IsConvertible_Imp<FROM, TO, 0, 0> {};
-    // Define a partial specialization of 'bslmf::IsConvertible_Imp' in terms
-    // of two template parameters 'FROM_TYPE' and 'TO_TYPE', that simply
-    // applies the general mechanism for non-fundamental types.  The specified
-    // macro arguments 'FROM' and 'TO' are cv-qualified type expressions
-    // constructed out of 'FROM_TYPE' and 'TO_TYPE', respectively.
+    // This partial specialization of 'bslmf::IsConvertible_Imp' applies the
+    // general mechanism for non-fundamental types.  The specified macro
+    // arguments 'FROM' and 'TO' are cv-qualified type expressions constructed
+    // out of 'FROM_TYPE' and 'TO_TYPE', respectively.
 
-// The logic we follow is to rely on the above implementation in cases that we
-// know never produce a warning.  There are two cases we must guard against:
+// IMPLEMENTATION NOTE:
+//
+// Now, we will use the previously defined macros to define various partial
+// specializations that we know never produce a warning.  There are two cases
+// we must guard against:
 //
 // (1) When 'TO_TYPE' is fundamental (but not void), and the conversion from
-// 'FROM_TYPE' to 'TO_TYPE' would succeed: there is a risk that 'FROM_TYPE' is
+// 'FROM_TYPE' to 'TO_TYPE' would succeed.  There is a risk that 'FROM_TYPE' is
 // a floating point type, or convertible to a floating point type, and
 // 'TO_TYPE' is integral.  But then the conversion would also succeed by
 // replacing 'TO_TYPE' by 'double', which produces no warning.  This is
 // *almost* an equivalence (i.e., the conversion fails if it fails when
 // replacing 'TO_TYPE' by 'double'), with the only exception being when both
 // types are fundamental, and the conversion is from 'volatile FROM_TYPE' to
-// 'const TO_TYPE&' where both 'FROM_TYPE' and 'TO_TYPE' are cv-unqualified.
+// 'const TO_TYPE&' where both 'FROM_TYPE' and 'TO_TYPE' are not cv-qualified.
 // The latter conversion should always fail if 'FROM_TYPE' is the same as
 // 'TO_TYPE', and always succeed if 'FROM_TYPE' is also a fundamental type
 // (note that testing so would trigger the warning).
@@ -396,7 +410,7 @@ struct IsConvertible_Imp<FROM, TO, FROM_FUND, TO_FUND>                        \
 // SECTION 1: BOTH TYPES ARE FUNDAMENTAL
 // -------------------------------------
 // The following six partial specializations will match if TO_TYPE is exactly a
-// 'const&'.
+// constant reference type.
 
 BSLMF_ISCONVERTIBLE_SAMETYPEVALUE(0, const volatile TYPE, const TYPE&, 1, 1)
 BSLMF_ISCONVERTIBLE_SAMETYPEVALUE(0, volatile TYPE, const TYPE&, 1, 1)
@@ -509,102 +523,104 @@ struct is_convertible
     : BloombergLP::bslmf::IsConvertible_Imp<
                                 FROM_TYPE,
                                 typename remove_cv<TO_TYPE>::type const&>::type
-    // Implement a meta function which computes -- at compile time -- whether
-    // 'FROM_TYPE' is convertible to 'TO_TYPE'.  Note that if 'TO_TYPE' is not
-    // a reference type, then the cv-qualification of 'TO_TYPE' is ignored.
-
-    // We pass in a const& because the 'TO_TYPE' may not have a
-    // copy-constructor but the 'FROM_TYPE' could have a conversion operator to
-    // a const& (not a value), and we still want the conversion to succeed.
-    // Also, if the TO_TYPE is incomplete, we don't want to require a
-    // copy-constructor.
 {
+    // This 'struct' template implements the 'is_convertible' meta-function
+    // defined in the C++11 standard [meta.rel] to determine if the (template
+    // parameter) 'FROM_TYPE' is convertible to the (template parameter)
+    // 'TO_TYPE'.  This 'struct' derives from 'bsl::true_type' if the
+    // 'FROM_TYPE' is convertible to 'TO_TYPE', and from 'bsl::false_type'
+    // otherwise.  Note that both 'FROM_TYPE' and 'TO_TYPE' should be complete
+    // types, arrays of unknown bound, or (possibly cv-qualified) void types.
 };
 
 template <typename FROM_TYPE, typename TO_TYPE>
 struct is_convertible<FROM_TYPE, TO_TYPE&>
     : BloombergLP::bslmf::IsConvertible_Imp<FROM_TYPE, TO_TYPE&>::type
-    // Partial specialization of 'IsConvertible<FROM_TYPE, TO_TYPE>' for the
-    // case where 'TO_TYPE' is a reference.
 {
+    // This partial specialization is instantiated for the case where the
+    // (template parameter) 'TO_TYPE' is a reference type.
 };
 
 template <typename FROM_TYPE>
 struct is_convertible<FROM_TYPE, void> : false_type
-    // Partial specialization of 'IsConvertible<FROM_TYPE, TO_TYPE>' for the
-    // case where 'TO_TYPE' is 'void'.  Evaluates to false.
 {
+    // This partial specialization deriving from 'bsl::false_type' is
+    // instantiated for the case where the (template parameter) 'FROM_TYPE' is
+    // non-'void' type and is converting to 'void' type.
 };
 
 template <typename FROM_TYPE, typename TO_TYPE>
 struct is_convertible<volatile FROM_TYPE, TO_TYPE>
     : BloombergLP::bslmf::IsConvertible_Imp<volatile FROM_TYPE, TO_TYPE>::type
-    // Partial specialization of 'IsConvertible<FROM_TYPE, TO_TYPE>' for for
-    // the case where 'FROM_TYPE' is volatile.
 {
+    // This partial specialization is instantiated for the case where the
+    // (template parameter) 'FROM_TYPE' is 'volatile' type.
 };
 
 template <typename FROM_TYPE, typename TO_TYPE>
 struct is_convertible<volatile FROM_TYPE, TO_TYPE&>
     : BloombergLP::bslmf::IsConvertible_Imp<volatile FROM_TYPE, TO_TYPE&>::type
-    // Partial specialization of 'IsConvertible<FROM_TYPE, TO_TYPE>' for for
-    // the case where 'FROM_TYPE' is volatile and 'TO_TYPE' is a reference.
 {
+    // This partial specialization is instantiated for the case where the
+    // (template parameter) 'FROM_TYPE' is 'volatile' type and the (template
+    // parameter) 'TO_TYPE' is a reference type.
 };
 
 template <typename FROM_TYPE>
 struct is_convertible<volatile FROM_TYPE, void> : false_type
-    // Partial specialization of 'IsConvertible<FROM_TYPE, TO_TYPE>' for for
-    // the case where 'FROM_TYPE' is volatile and 'TO_TYPE' is void.  Evaluates
-    // to false.  In that case, disable the check for fundamentals.
 {
+    // This partial specialization deriving from 'bsl::false_type' is
+    // instantiated for the case where the (template parameter) 'FROM_TYPE' is
+    // 'volatile' type and is converting to 'void' type.
 };
 
 template <typename FROM_TYPE, typename TO_TYPE>
 struct is_convertible<volatile FROM_TYPE&, TO_TYPE>
     : BloombergLP::bslmf::IsConvertible_Imp<volatile FROM_TYPE&, TO_TYPE>::type
-    // Partial specialization of 'IsConvertible<FROM_TYPE, TO_TYPE>' for for
-    // the case where 'FROM_TYPE' is a reference to 'volatile'.
 {
+    // This partial specialization is instantiated for the case where the
+    // (template parameter) 'FROM_TYPE' is a reference to a 'volatile' type.
 };
 
 template <typename FROM_TYPE, typename TO_TYPE>
 struct is_convertible<volatile FROM_TYPE&, TO_TYPE&>
    : BloombergLP::bslmf::IsConvertible_Imp<volatile FROM_TYPE&, TO_TYPE&>::type
-    // Partial specialization of 'IsConvertible<FROM_TYPE, TO_TYPE>' for for
-    // the case where 'FROM_TYPE' is a reference to 'volatile' and 'TO_TYPE' is
-    // a reference.
 {
+    // This partial specialization is instantiated for the case where the
+    // (template parameter) 'FROM_TYPE' is a reference to a 'volatile' type and
+    // the (template parameter) 'TO_TYPE' is a reference type.
 };
 
 template <typename FROM_TYPE>
 struct is_convertible<volatile FROM_TYPE&, void> : false_type
-    // Partial specialization of 'IsConvertible<FROM_TYPE, TO_TYPE>' for for
-    // the case where 'FROM_TYPE' is a reference to 'volatile' and 'TO_TYPE' is
-    // void.  Evaluates to false.
 {
+    // This partial specialization deriving from 'bsl::false_type' is
+    // instantiated for the case where the (template parameter) 'FROM_TYPE' is
+    // a reference to a 'volatile' type and is converting to 'void' type.
 };
 
 template <typename TO_TYPE>
 struct is_convertible<void, TO_TYPE> : false_type
-    // Partial specialization of 'IsConvertible<FROM_TYPE, TO_TYPE>' for for
-    // the case where 'FROM_TYPE' is void.  Evaluates to false.
 {
+    // This partial specialization deriving from 'bsl::false_type' is
+    // instantiated for the case where 'void' type is converting to the
+    // non-'void' (template parameter) 'TO_TYPE'.
 };
 
 template <typename TO_TYPE>
 struct is_convertible<void, TO_TYPE&> : false_type
-    // Partial specialization of 'IsConvertible<FROM_TYPE, TO_TYPE>' for for
-    // the case where 'FROM_TYPE' is void and 'TO_TYPE' is a reference.
-    // Evaluates to false.
 {
+    // This partial specialization deriving from 'bsl::false_type' is
+    // instantiated for the case where 'void' type is converting to the
+    // (template parameter) 'TO_TYPE', which is a reference type.
 };
 
 template <>
 struct is_convertible<void, void> : true_type
-    // Specialization of 'IsConvertible<FROM_TYPE, TO_TYPE>' for for the case
-    // where 'FROM_TYPE' and 'TO_TYPE' are both 'void'.  Evaluates to true.
 {
+    // This partial specialization deriving from 'bsl::true_type' is
+    // instantiated for the case where 'void' type is converting to 'void'
+    // type.
 };
 
 }  // close namespace bsl
@@ -640,11 +656,11 @@ struct IsConvertible : bsl::is_convertible<FROM_TYPE, TO_TYPE>::type
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2002
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

@@ -90,7 +90,7 @@ struct is_member_pointer
     // defined in the C++11 standard [meta.unary.comp] to determine if the
     // (template parameter) 'TYPE' is a member pointer type.  This 'struct'
     // derives from 'bsl::true_type' if the 'TYPE' is a member pointer type,
-    // and 'bsl::false_type' otherwise.
+    // and from 'bsl::false_type' otherwise.
 };
 
 }  // close namespace bsl
