@@ -226,7 +226,9 @@ struct BidirectionalLinkListUtil {
         // After successful execution of this function the values of the
         // 'previousLink' and 'nextLink' attributes of all the links in the
         // list appropriately reflect the operation.  The behavior is undefined
-        // unless 'isWellFormed(target, target->nextLink())' is true.
+        // unless '0 != newNode' and '0 != target'.  The behavior is also
+        // undefined unless '0 == target->nextLink()' is true or
+        // 'isWellFormed(target, target->nextLink())' are true.
 
     static
     bool isWellFormed(BidirectionalLink *head, BidirectionalLink *tail);
