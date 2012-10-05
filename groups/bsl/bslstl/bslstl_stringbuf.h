@@ -661,7 +661,6 @@ typename basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::pos_type
                                                ios_base::seekdir  whence,
                                                ios_base::openmode modeBitMask)
 {
-
     // If 'whence' is 'ios_base::cur' (the current position), 'modeBitMask'
     // may not be both input and output mode.
 
@@ -753,6 +752,10 @@ native_std::streamsize
                                           char_type              *result,
                                           native_std::streamsize numCharacters)
 {
+    if ((d_mode & ios_base::in) == 0) {
+        return 0;                                                     // RETURN
+    }
+
     if (this->gptr() != this->egptr()) {
         // There are characters available in this buffer.
 
@@ -781,6 +784,10 @@ template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 typename basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::int_type
     basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::underflow()
 {
+    if ((d_mode & ios_base::in) == 0) {
+        return traits_type::eof();                                    // RETURN
+    }
+
     if (this->gptr() != this->egptr()) {
         // There are characters available in this buffer.
 
@@ -801,6 +808,10 @@ template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 typename basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::int_type
     basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::uflow()
 {
+    if ((d_mode & ios_base::in) == 0) {
+        return traits_type::eof();                                    // RETURN
+    }
+
     if (this->gptr() != this->egptr()) {
         // There are characters available in this buffer.
 
@@ -1026,7 +1037,7 @@ void basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::str(
 {
     d_str             = value;
     d_lastWrittenChar = d_str.size();
-    updateStreamPositions(0, d_lastWrittenChar);
+    updateStreamPositions(0, d_mode & ios_base::ate ? d_lastWrittenChar : 0);
 }
 
 // ACCESSORS
