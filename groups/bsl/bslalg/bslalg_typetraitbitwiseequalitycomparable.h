@@ -2,6 +2,15 @@
 #ifndef INCLUDED_BSLALG_TYPETRAITBITWISEEQUALITYCOMPARABLE
 #define INCLUDED_BSLALG_TYPETRAITBITWISEEQUALITYCOMPARABLE
 
+//@PURPOSE: Provide a type trait indicating bitwise equality comparability.
+//
+//@CLASSES:
+//  bslalg::TypeTraitBitwiseEqualityComparable: type trait metafunction
+//
+//@AUTHOR: Alexei Zakharov <azakharov7)
+//
+//@DESCRIPTION:
+
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
 #endif
@@ -19,9 +28,9 @@ namespace BloombergLP {
 
 namespace bslalg {
 
-              //==========================================
+              // =========================================
               // struct TypeTraitBitwiseEqualityComparable
-              //==========================================
+              // =========================================
 
 struct TypeTraitBitwiseEqualityComparable {
     // Objects of a type with this trait can be compared for equality using
@@ -37,8 +46,9 @@ struct TypeTraitBitwiseEqualityComparable {
     struct NestedTraitDeclaration :
         bslmf::NestedTraitDeclaration<TYPE, bslmf::IsBitwiseEqualityComparable>
     {
-        // This class template ties the 'bslalg::TypeTaitBitwiseEqualityComparable'
-        // trait tag to the 'bslmf::IsBitwiseEqualityCompareble' trait metafunction.
+        // This class template ties the
+        // 'bslalg::TypeTaitBitwiseEqualityComparable' trait tag to the
+        // 'bslmf::IsBitwiseEqualityCompareble' trait metafunction.
     };
 
     template <class TYPE>

@@ -18,7 +18,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bslma' package currently has 19 components having 6 levels of physical
+ The 'bslma' package currently has 20 components having 6 levels of physical
  dependency.  The table below shows the hierarchical ordering of the
  components.  The order of components within each level is not architecturally
  significant, just alphabetical.
@@ -43,6 +43,7 @@
      bslma_managedallocator
      bslma_newdeleteallocator
      bslma_testallocatorexception
+     bslma_usesbslmaallocator
 
   2. bslma_allocator
 
@@ -62,9 +63,6 @@
 :
 : 'bslma_autorawdeleter':
 :      Provide a range proctor to manage a sequence objects.
-:
-: 'bslma_bufferallocator':
-:      Support efficient memory allocations from a user-supplied buffer.
 :
 : 'bslma_deallocatorguard':
 :      Provide a guard to unconditionally manage a block of memory.
@@ -87,9 +85,6 @@
 : 'bslma_destructorproctor':
 :      Provide a proctor to conditionally manage an object.
 :
-: 'bslma_infrequentdeleteblocklist':
-:      Provide allocation and management of a sequence of memory blocks.
-:
 : 'bslma_mallocfreeallocator':
 :      Provide malloc/free adaptor to 'bslma::Allocator' protocol.
 :
@@ -105,12 +100,6 @@
 : 'bslma_rawdeleterproctor':
 :      Provide a proctor to conditionally manage an object.
 :
-: 'bslma_sequentialallocator':
-:      Support fast memory allocation for objects of varying sizes.
-:
-: 'bslma_sequentialpool':
-:      Provide fast variable-size memory pool with allocation methods.
-:
 : 'bslma_testallocator':
 :      Provide instrumented malloc/free allocator to track memory usage.
 :
@@ -119,6 +108,9 @@
 :
 : 'bslma_testallocatormonitor':
 :      Provide a mechanism to summarize 'bslma::TestAllocator' object use.
+:
+: 'bslma_usesbslmaallocator':
+:      Provide a metafunction that indicates the use of bslma allocators
 
 /Component Overview
 /------------------
