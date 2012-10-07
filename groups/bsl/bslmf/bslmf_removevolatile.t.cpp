@@ -18,14 +18,14 @@ using std::fprintf;
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// The object under test is a meta-functions, 'bsl::remove_volatile', that
-// removes the top-level 'volatile'-qualifier from a template parameter type.
-// Thus, we need to ensure that the values returned by the meta-function is
-// correct for each possible category of types.
+// The component under test defines a meta-functions, 'bsl::remove_volatile',
+// that removes any top-level 'volatile'-qualifier from a template parameter
+// type.  Thus, we need to ensure that the values returned by the meta-function
+// is correct for each possible category of types.
 //
 // ----------------------------------------------------------------------------
 // PUBLIC CLASS DATA
-// [ 1] bsl::remove_volatile
+// [ 1] bsl::remove_volatile::type
 //
 // ----------------------------------------------------------------------------
 // [ 2] USAGE EXAMPLE
@@ -113,60 +113,57 @@ int main(int argc, char *argv[])
 ///-----
 // In this section we show intended use of this component.
 //
-///Example 1: Removing The Volatile-Qualifier of A Type
-///- - - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose that we want to strip the 'volatile'-qualifier from a particular
-// type..
+///Example 1: Removing the 'volatile'-qualifier of a Type
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Suppose that we want to remove any 'volatile'-qualifier from a particular
+// type.
 //
 // First, we create two 'typedef's -- a 'volatile'-qualified type
 // ('MyVolatileType') and the same type without the 'volatile'-qualifier
 // ('MyType'):
 //..
-        typedef int       MyType;
+        typedef int          MyType;
         typedef volatile int MyVolatileType;
 //..
-// Now, we strip the the 'volatile'-qualifier from 'MyVolatileType' using
+// Now, we remove the 'volatile'-qualifier from 'MyVolatileType' using
 // 'bsl::remove_volatile' and verify that the resulting type is the same as
-// 'MyType'.
+// 'MyType':
 //..
-        ASSERT(true == (bsl::is_same<
-                  bsl::remove_volatile<MyVolatileType>::type, MyType>::value));
+        ASSERT(true ==
+               (bsl::is_same<bsl::remove_volatile<MyVolatileType>::type,
+                                                              MyType>::value));
 //..
 
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // 'bsl::remove_volatile'
-        //   Ensure that the 'typedef' 'type' of 'bsl::remove_volatile'
-        //   instantiations has the same type as the template parameter type
-        //   except has any top-level 'volatile'-qualifier removed.
+        // 'bsl::remove_volatile::type'
+        //   Ensure that the 'typedef' 'type' of 'bsl::remove_volatile' has the
+        //   correct type for a variety of template parameter types.
         //
         // Concerns:
-        //: 1 'bsl::remove_volatile::type' is 'T' when 'TYPE' is 'T'.
+        //: 1 'bsl::remove_volatile' leaves types that are not
+        //:   'volatile'-qualified at the top-level as-is.
         //:
-        //: 2 'bsl::remove_volatile::type' is 'T' when 'TYPE' is 'T volatile'.
-        //:
-        //: 3 'bsl::remove_volatile::type' is 'T const' when 'TYPE' is
-        //:   'T const volatile'.
-        //:
-        //: 4 'bsl::remove_volatile::type' is 'T volatile *' when 'TYPE' is
-        //:   'T volatile *'.
+        //: 2 'bsl::remove_volatile' remove any top-level 'volatile'-qualifier.
         //
         // Plan:
         //   Verify that 'bsl::remove_volatile::type' has the correct type for
-        //   each (template parameter) 'TYPE' in the concerns.
+        //   each concern.
         //
         // Testing:
-        //   bsl::remove_volatile
+        //   bsl::remove_volatile::type
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\n'bsl::remove_volatile'\n"
-                            "\n======================\n");
+        if (verbose) printf("\n'bsl::remove_volatile::type'\n"
+                            "\n============================\n");
 
         // C-1
         ASSERT((is_same<remove_volatile<int>::type, int>::value));
         ASSERT((is_same<remove_volatile<int *>::type, int *>::value));
         ASSERT((is_same<remove_volatile<TestType>::type, TestType>::value));
+        ASSERT((is_same<remove_volatile<int volatile *>::type,
+                                                      int volatile *>::value));
 
         // C-2
         ASSERT((is_same<remove_volatile<int volatile>::type, int>::value));
@@ -174,7 +171,6 @@ int main(int argc, char *argv[])
         ASSERT((is_same<remove_volatile<TestType volatile>::type,
                                                             TestType>::value));
 
-        // C-3
         ASSERT((is_same<remove_volatile<int const volatile>::type,
                                                            int const>::value));
         ASSERT((is_same<remove_volatile<int * const volatile>::type,
@@ -182,13 +178,8 @@ int main(int argc, char *argv[])
         ASSERT((is_same<remove_volatile<TestType const volatile>::type,
                                                       TestType const>::value));
 
-        // C-4
-        ASSERT((is_same<remove_volatile<int volatile *>::type,
-                                                      int volatile *>::value));
-
       } break;
       default: {
-
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
         testStatus = -1;
       }
@@ -200,3 +191,12 @@ int main(int argc, char *argv[])
 
     return testStatus;
 }
+
+// ---------------------------------------------------------------------------
+// NOTICE:
+//      Copyright (C) Bloomberg L.P., 2012
+//      All Rights Reserved.
+//      Property of Bloomberg L.P. (BLP)
+//      This software is made available solely pursuant to the
+//      terms of a BLP license agreement which governs its use.
+// ----------------------------- END-OF-FILE ---------------------------------

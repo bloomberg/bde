@@ -50,10 +50,14 @@ BSLS_IDENT("$Id: $")
 // 'typedef's and assert the 'value' static data member of each instantiation:
 //..
 //  assert(false == bsl::is_const<MyType>::value);
-//  assert(true == bsl::is_const<MyConstType>::value);
+//  assert(true  == bsl::is_const<MyConstType>::value);
 //..
 
 namespace bsl {
+
+                         // ===============
+                         // struct is_const
+                         // ===============
 
 template <typename TYPE>
 struct is_const : false_type {
@@ -66,21 +70,25 @@ struct is_const : false_type {
     // (below) that derives from 'bsl::true_type'.
 };
 
+                         // ===========================
+                         // struct is_const<TYPE const>
+                         // ===========================
+
 template <typename TYPE>
 struct is_const<TYPE const> : true_type {
-     // This partial specialization of 'is_const' derives from 'bsl::true_type'
-     // for when the (template parameter) 'TYPE' is 'const'-qualified.
+     // This partial specialization of 'is_const', for when the (template
+     // parameter) is 'const'-qualified, derives from 'bsl::true_type'.
 };
 
 }  // close namespace bsl
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2012
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

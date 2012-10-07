@@ -18,14 +18,14 @@ using std::fprintf;
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// The object under test is a meta-functions, 'bsl::remove_const', that
-// removes the top-level 'const'-qualifier from a template parameter type.
+// The component under test defines a meta-functions, 'bsl::remove_const', that
+// removes any top-level 'const'-qualifier from a template parameter type.
 // Thus, we need to ensure that the values returned by the meta-function is
 // correct for each possible category of types.
 //
 // ----------------------------------------------------------------------------
 // PUBLIC CLASS DATA
-// [ 1] bsl::remove_const
+// [ 1] bsl::remove_const::type
 //
 // ----------------------------------------------------------------------------
 // [ 2] USAGE EXAMPLE
@@ -113,9 +113,10 @@ int main(int argc, char *argv[])
 ///-----
 // In this section we show intended use of this component.
 //
-///Example 1: Removing The Const-Qualifier of A Type
-///- - - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose that we want to strip the 'const'-qualifier from a particular type..
+///Example 1: Removing The 'const'-qualifier of A Type
+///- - - - - - - - - - - - - - - - - - - - - - - - - -
+// Suppose that we want to remove any top-level 'const'-qualifier from a
+// particular type.
 //
 // First, we create two 'typedef's -- a 'const'-qualified type ('MyConstType')
 // and the same type without the 'const'-qualifier ('MyType'):
@@ -123,65 +124,56 @@ int main(int argc, char *argv[])
         typedef int       MyType;
         typedef const int MyConstType;
 //..
-// Now, we strip the the 'const'-qualifier from 'MyConstType' using
+// Now, we remove the 'const'-qualifier from 'MyConstType' using
 // 'bsl::remove_const' and verify that the resulting type is the same as
-// 'MyType'.
+// 'MyType':
 //..
-        ASSERT(true ==
-          (bsl::is_same<bsl::remove_const<MyConstType>::type, MyType>::value));
+        ASSERT(true == (bsl::is_same<bsl::remove_const<MyConstType>::type,
+                                                              MyType>::value));
 //..
 
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // 'bsl::remove_const'
-        //   Ensure that the 'typedef' 'type' of 'bsl::remove_const'
-        //   instantiations has the same type as the template parameter type
-        //   except has any top-level 'const'-qualifier removed.
+        // 'bsl::remove_const::type'
+        //   Ensure that the 'typedef' 'type' of 'bsl::remove_const' has the
+        //   correct type for a variety of template parameter types.
         //
         // Concerns:
-        //: 1 'bsl::remove_const::type' is 'T' when 'TYPE' is 'T'.
+        //: 1 'bsl::remove_const' leaves types that are not 'const'-qualified
+        //:   at the top-level as-is.
         //:
-        //: 2 'bsl::remove_const::type' is 'T' when 'TYPE' is 'T const'.
-        //:
-        //: 3 'bsl::remove_const::type' is 'T volatile' when 'TYPE' is
-        //:   'T const volatile'.
-        //:
-        //: 4 'bsl::remove_const::type' is 'T const *' when 'TYPE' is
-        //:   'T const *'.
+        //: 2 'bsl::remove_const' remove any top-level 'const'-qualifier.
         //
         // Plan:
-        //   Verify that 'bsl::remove_const' returns the correct value for each
-        //   concern.
+        //   Verify that 'bsl::remove_const::type' has the correct type for
+        //   each concern.
         //
         // Testing:
-        //   bsl::remove_const
+        //   bsl::remove_const::type
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\n'bsl::remove_const'\n"
-                            "\n===================\n");
+        if (verbose) printf("\n'bsl::remove_const::type'\n"
+                            "\n=========================\n");
 
         // C-1
         ASSERT((is_same<remove_const<int>::type, int>::value));
         ASSERT((is_same<remove_const<int *>::type, int *>::value));
         ASSERT((is_same<remove_const<TestType>::type, TestType>::value));
+        ASSERT((is_same<remove_const<int const *>::type,
+                                                         int const *>::value));
 
         // C-2
         ASSERT((is_same<remove_const<int const>::type, int>::value));
         ASSERT((is_same<remove_const<int * const>::type, int *>::value));
         ASSERT((is_same<remove_const<TestType const>::type, TestType>::value));
 
-        // C-3
         ASSERT((is_same<remove_const<int const volatile>::type,
                                                         int volatile>::value));
         ASSERT((is_same<remove_const<int * const volatile>::type,
                                                       int * volatile>::value));
         ASSERT((is_same<remove_const<TestType const volatile>::type,
                                                    TestType volatile>::value));
-
-        // C-4
-        ASSERT((is_same<remove_const<int const *>::type,
-                                                         int const *>::value));
 
       } break;
       default: {
@@ -197,3 +189,12 @@ int main(int argc, char *argv[])
 
     return testStatus;
 }
+
+// ---------------------------------------------------------------------------
+// NOTICE:
+//      Copyright (C) Bloomberg L.P., 2012
+//      All Rights Reserved.
+//      Property of Bloomberg L.P. (BLP)
+//      This software is made available solely pursuant to the
+//      terms of a BLP license agreement which governs its use.
+// ----------------------------- END-OF-FILE ---------------------------------

@@ -18,14 +18,14 @@ using std::atoi;
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// The object under test is a meta-functions, 'bsl::remove_pointer', that
-// transforms a pointer type to the type pointed to by the pointer type.
+// The component under test defines a meta-functions, 'bsl::remove_pointer',
+// that transforms a pointer type to the type pointed to by the pointer type.
 // We need to ensure that the values returned by the meta-function is correct
 // for each possible category of types.
 //
 // ----------------------------------------------------------------------------
 // PUBLIC CLASS DATA
-// [ 1] bsl::remove_pointer
+// [ 1] bsl::remove_pointer::type
 //
 // ----------------------------------------------------------------------------
 // [ 2] USAGE EXAMPLE
@@ -107,38 +107,38 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\nUSAGE EXAMPLE\n"
                             "\n=============\n");
+
 ///Usage
 ///-----
 // In this section we show intended use of this component.
 //
-///Example 1: Transform Pointer Type to The Type Pointed to By the Pointer Type
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose that we want to transform a pointer type to the type pointed to by
-// that poiner type.
+///Example 1: Get the Type Pointed to by a Pointer Type
+/// - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Suppose that we want to get the type pointed to by a poiner type.
 //
 // First, we create two 'typedef's -- a pointer type ('MyPtrType')
 // and the type pointed to by the pointer type ('MyType'):
 //..
-        typedef int   MyType;
-        typedef int * MyPtrType;
+//  typedef int   MyType;
+//  typedef int * MyPtrType;
 //..
 // Now, we get the type pointed to by 'MyPtrType' using 'bsl::remove_pointer'
 // and verify that the resulting type is the same as 'MyType':
 //..
-        ASSERT((bsl::is_same<bsl::remove_pointer<MyPtrType>::type,
-                             MyType>::value));
+//  assert((bsl::is_same<bsl::remove_pointer<MyPtrType>::type,
+//                       MyType>::value));
 //..
+
       } break;
       case 1: {
         // --------------------------------------------------------------------
         // 'bsl::remove_pointer'
-        //   Ensure that the 'typedef' 'type' of 'bsl::remove_pointer'
-        //   instantiations has the type pointed to by the template parameter
-        //   type.
+        //   Ensure that the 'typedef' 'type' of 'bsl::remove_pointer' has the
+        //   correct type for a variety of template parameter types.
         //
         // Concerns:
         //: 1 'bsl::remove_pointer' transforms a (possibly cv-qualified)
-        //:   pointer type to the type pointed to by the pointer type.
+        //:   pointer type to the type pointed to by that pointer type.
         //:
         //: 2 'bsl::remove_pointer' returns the same type as the argument when
         //:   it is not a pointer type.
@@ -183,3 +183,12 @@ int main(int argc, char *argv[])
 
     return testStatus;
 }
+
+// ---------------------------------------------------------------------------
+// NOTICE:
+//      Copyright (C) Bloomberg L.P., 2012
+//      All Rights Reserved.
+//      Property of Bloomberg L.P. (BLP)
+//      This software is made available solely pursuant to the
+//      terms of a BLP license agreement which governs its use.
+// ----------------------------- END-OF-FILE ---------------------------------

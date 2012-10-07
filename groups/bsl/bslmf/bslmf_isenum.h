@@ -7,11 +7,11 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide compile-time detection of enumerated types.
+//@PURPOSE: Provide compile-time check for determining enumerated types.
 //
 //@CLASSES:
 //  bsl::is_class: standard meta-function for determining enumerated types
-//  bslmf::IsEnum: meta-function for detecting enumerated types
+//  bslmf::IsEnum: meta-function for determining enumerated types
 //
 //@SEE_ALSO: bslmf_isfundamental
 //
@@ -19,7 +19,7 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component defines two meta-functions, 'bsl::is_enum' and
 // 'BloombergLP::bslmf::IsEnum', both of which may be used to query whether a
-// type is a enumerated, optionally qualified with 'const' or volatile'.
+// type is an enumerated type, optionally qualified with 'const' or volatile'.
 //
 // 'bsl::is_enum' meets the requirements of the 'is_enum' template defined in
 // the C++11 standard [meta.unary.cat], while 'bslmf::IsEnum' was devised
@@ -39,7 +39,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Verify Enumerated Types
 /// - - - - - - - - - - - - - - - - -
-// Suppose that we want to assert whether a particular type is a class type.
+// Suppose that we want to assert whether a set of types are enum types.
 //
 // First, we create an enumerated type, 'MyEnum', and a non-enumerated class
 // type, 'MyClass':
@@ -48,7 +48,7 @@ BSLS_IDENT("$Id: $")
 //  class MyClass { MyClass(MyEnum); };
 //..
 // Now, we instantiate the 'bsl::is_enum' template for both types we defined
-// previously, asserting the 'value' static data member of each instantiation:
+// previously, and assert the 'value' static data member of each instantiation:
 //..
 //  assert(true  == bsl::is_enum<MyEnum>::value);
 //  assert(false == bsl::is_enum<MyClass>::value);
@@ -124,9 +124,9 @@ struct IsEnum_AnyArithmeticType {
         // be ambiguous.
 };
 
-                        // ============
-                        // class IsEnum
-                        // ============
+                                 // ============
+                                 // class IsEnum
+                                 // ============
 
 template <class TYPE>
 struct IsEnum
@@ -153,6 +153,10 @@ struct IsEnum
 
 namespace bsl {
 
+                             // ==============
+                             // struct is_enum
+                             // ==============
+
 template <typename TYPE>
 struct is_enum
     : integral_constant<
@@ -161,7 +165,13 @@ struct is_enum
         && !is_reference<TYPE>::value
         && is_convertible<TYPE,
                           BloombergLP::bslmf::IsEnum_AnyArithmeticType>::value>
-{};
+{
+    // This 'struct' template implements the 'is_enum' meta-function defined in
+    // the C++11 standard [meta.unary.cat] to determine if the (template
+    // parameter) 'TYPE' is an enumerated type.  This 'struct' derives from
+    // 'bsl::true_type' if the 'TYPE' is an enumerated type, and
+    // 'bsl::false_type' otherwise.
+};
 
 }  // close namespace bsl
 
@@ -180,7 +190,8 @@ struct is_enum
 #endif
 
 // ---------------------------------------------------------------------------
-// NOTICE: //      Copyright (C) Bloomberg L.P., 2010
+// NOTICE:
+//      Copyright (C) Bloomberg L.P., 2012
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the

@@ -16,7 +16,7 @@ using namespace std;
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// The objects under test are two meta-functions, 'bsl::is_array' and
+// The component under test defines two meta-functions, 'bsl::is_array' and
 // 'bslmf::IsArray', that determine whether a template parameter type is an
 // array type.  Thus, we need to ensure that the values returned by these
 // meta-functions are correct for each possible category of types.  Since the

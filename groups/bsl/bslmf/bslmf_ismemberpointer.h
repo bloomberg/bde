@@ -82,7 +82,13 @@ struct is_member_pointer
     : integral_constant<bool,
                         is_member_object_pointer<TYPE>::value
                         || bsl::is_member_function_pointer<TYPE>::value>
-{};
+{
+    // This 'struct' template implements the 'is_member_pointer' meta-function
+    // defined in the C++11 standard [meta.unary.comp] to determine if the
+    // (template parameter) 'TYPE' is a member pointer type.  This 'struct'
+    // derives from 'bsl::true_type' if the 'TYPE' is a member pointer type,
+    // and 'bsl::false_type' otherwise.
+};
 
 }  // close namespace bsl
 

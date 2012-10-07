@@ -184,7 +184,8 @@ void ArrayPrimitives_Imp::uninitializedFillN(
         return;                                                      // RETURN
     }
     const char  *valueCharBuffer  = (const char *) &value;
-    const short *valueShortBuffer = (const short*)(void *) valueCharBuffer;
+    const short *valueShortBuffer = static_cast<const short *>(
+                                   static_cast<const void *>(valueCharBuffer));
     if (valueCharBuffer[0]  == valueCharBuffer[1] &&
         valueShortBuffer[0] == valueShortBuffer[1]) {
         // The two tests above make sure all four bytes of value are identical.
@@ -210,8 +211,10 @@ void ArrayPrimitives_Imp::uninitializedFillN(
         return;                                                      // RETURN
     }
     const char  *valueCharBuffer  = (const char *) &value;
-    const short *valueShortBuffer = (const short *)(void *) valueCharBuffer;
-    const int   *valueIntBuffer   = (const int   *)(void *) valueCharBuffer;
+    const short *valueShortBuffer = static_cast<const short *>(
+                                   static_cast<const void *>(valueCharBuffer));
+    const int   *valueIntBuffer   = static_cast<const int *>(
+                                   static_cast<const void *>(valueCharBuffer));
     if (valueCharBuffer[0]  == valueCharBuffer[1] &&
         valueShortBuffer[0] == valueShortBuffer[1] &&
         valueIntBuffer[0]   == valueIntBuffer[1]) {
@@ -346,6 +349,8 @@ void ArrayPrimitives_Imp::bitwiseSwapRanges(char *begin,
 
     std::ptrdiff_t numBytes = static_cast<int>(middle - begin);
     BSLS_ASSERT(numBytes == end - middle);
+
+    (void) end;
 
     union {
         char                                d_buffer[INPLACE_BUFFER_SIZE];

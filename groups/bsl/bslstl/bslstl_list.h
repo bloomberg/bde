@@ -267,7 +267,7 @@ BSLS_IDENT("$Id: $")
 //      }
 //
 //      int brightness() const
-//          // Return the brightness of this 'Star' ojbect.
+//          // Return the brightness of this 'Star' object.
 //      {
 //          return d_brightness;
 //      }

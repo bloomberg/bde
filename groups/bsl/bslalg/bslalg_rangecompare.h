@@ -517,7 +517,7 @@ struct RangeCompare_Imp {
                       INPUT_ITER        end1,
                       INPUT_ITER        start2,
                       const VALUE_TYPE&,
-                      bslmf::MatchAnyType);
+                      bsl::false_type);
     template <typename INPUT_ITER, typename VALUE_TYPE>
     static bool equal(INPUT_ITER        start1,
                       INPUT_ITER        end1,
@@ -837,7 +837,7 @@ bool RangeCompare_Imp::equal(INPUT_ITER        start1,
                              INPUT_ITER        end1,
                              INPUT_ITER        start2,
                              const VALUE_TYPE&,
-                             bslmf::MatchAnyType)
+                             bsl::false_type)
 {
     for ( ; start1 != end1; ++start1, ++start2) {
         if (!(*start1 == *start2)) {
@@ -886,7 +886,7 @@ bool RangeCompare_Imp::equalBitwiseEqualityComparable(INPUT_ITER        start1,
 {
     // We can't be as optimized as above.
 
-    return equal(start1, end1, start2, *start1, bslmf::MatchAnyType(0));
+    return equal(start1, end1, start2, *start1, bsl::false_type());
 }
 
                      // *** lexicographical overloads: ***

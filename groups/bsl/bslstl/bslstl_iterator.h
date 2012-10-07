@@ -41,7 +41,7 @@ BSLS_IDENT("$Id: $")
 //
 // First, we create a elided definition of the template container class,
 // 'MyFixedSizeArray', which provides mutable and constant iterators of
-// template type 'bsl::iterator' and 'reverse_iteraotr':
+// template type 'bsl::iterator' and 'reverse_iterator':
 //..
 //  template <class VALUE, int SIZE>
 //  class MyFixedSizeArray

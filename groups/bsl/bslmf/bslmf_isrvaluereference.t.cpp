@@ -3,23 +3,22 @@
 
 #include <bsls_bsltestutil.h>
 
-#include <iostream>
 #include <cstdio>
-#include <cstdlib>
+#include <cstdlib>  // atoi()
 
-using namespace std;
-using namespace bsl;
 using namespace BloombergLP;
+using namespace std;
 
 //=============================================================================
 //                                TEST PLAN
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// The object under test is a meta-function, 'bsl::is_rvalue_reference', which
-// determine whether a template parameter type is a rvalue reference type.
-// Thus, we need to ensure that the value returned by this meta-functions is
-// correct for each possible category of types.
+// The component under test defines a meta-function,
+// 'bsl::is_rvalue_reference', that determines whether a template parameter
+// type is an rvalue reference type.  Thus, we need to ensure that the value
+// returned by this meta-functions is correct for each possible category of
+// types.
 //
 // ----------------------------------------------------------------------------
 // PUBLIC CLASS DATA
@@ -65,55 +64,47 @@ void aSsErT(bool b, const char *s, int i)
 
 namespace {
 
-enum   EnumTestType {
-    // This user-defined 'enum' type is intended to be used during testing as
-    // an argument for the template parameter 'TYPE' of
-    // 'bsl::is_rvalue_reference'.
+enum EnumTestType {
+    // This user-defined 'enum' type is intended to be used for testing as the
+    // template parameter 'TYPE' of 'bsl::is_rvalue_reference'.
 };
 
 struct StructTestType {
-    // This user-defined 'struct' type is intended to be used during testing as
-    // an argument for the template parameter 'TYPE' of
-    // 'bsl::is_rvalue_reference'.
+    // This user-defined 'struct' type is intended to be used for testing as
+    // the template parameter 'TYPE' of 'bsl::is_rvalue_reference'.
 };
 
-union  UnionTestType {
-    // This user-defined 'union' type is intended to be used during testing as
-    // an argument for the template parameter 'TYPE' of
-    // 'bsl::is_rvalue_reference'.
+union UnionTestType {
+    // This user-defined 'union' type is intended to be used for testing as the
+    // template parameter 'TYPE' of 'bsl::is_rvalue_reference'.
 };
 
-class  BaseClassTestType {
-    // This user-defined base class type is intended to be used during testing
-    // as an argument for the template parameter 'TYPE' of
-    // 'bsl::is_rvalue_reference'.
+class BaseClassTestType {
+    // This user-defined base class type is intended to be used for testing as
+    // the template parameter 'TYPE' of 'bsl::is_rvalue_reference'.
 };
 
-class  DerivedClassTestType : public BaseClassTestType {
-    // This user-defined derived class type is intended to be used during
-    // testing as an argument for the template parameter 'TYPE' of
-    // 'bsl::is_rvalue_reference'.
+class DerivedClassTestType : public BaseClassTestType {
+    // This user-defined derived class type is intended to be used for testing
+    // as the template parameter 'TYPE' of 'bsl::is_rvalue_reference'.
 };
 
 typedef int (StructTestType::*MethodPtrTestType) ();
-    // This non-static function member type is intended to be used during
-    // testing as an argument for the template parameter 'TYPE' of
+    // This pointer type to non-static function member is intended to be used
+    // for testing as the template parameter 'TYPE' of
     // 'bsl::is_rvalue_reference'.
 
 typedef void (*FunctionPtrTestType) ();
-    // This function pointer type is intended to be used during testing as an
-    // argument as an argument for the template parameter 'TYPE' of
-    // 'bsl::is_rvalue_reference'.
+    // This function pointer type is intended to be used for testing as the
+    // template parameter 'TYPE' of 'bsl::is_rvalue_reference'.
 
 typedef int StructTestType::* PMD;
-    // This class public data member pointer type is intended to be used during
-    // testing as an argument as an argument for the template parameter 'TYPE'
-    // of 'bsl::is_rvalue_reference'.
+    // This pointer type to data member is intended to be used for testing as
+    // the template parameter 'TYPE' of 'bsl::is_rvalue_reference'.
 
 struct Incomplete;
-    // This incomplete 'struct' type is intended to be used during testing as
-    // an argument as an argument for the template parameter 'TYPE' of
-    // 'bsl::is_rvalue_reference'.
+    // This incomplete 'struct' type is intended to be used for testing as the
+    // template parameter 'TYPE' of 'bsl::is_rvalue_reference'.
 
 }  // close unnamed namespace
 
@@ -185,11 +176,11 @@ int main(int argc, char *argv[])
 //
 ///Example 1: Verify Rvalue Reference Types
 /// - - - - - - - - - - - - - - - - - - - -
-// Suppose that we want to assert whether a particular type is a rvalue
-// reference type.
+// Suppose that we want to assert whether a set of types are rvalue reference
+// types.
 //
 // Now, we instantiate the 'bsl::is_rvalue_reference' template for both a
-// non-reference type and a rvalue reference type, and assert the 'value'
+// non-reference type and an rvalue reference type, and assert the 'value'
 // static data member of each instantiation:
 //..
     ASSERT(false == bsl::is_rvalue_reference<int>::value);
@@ -197,8 +188,8 @@ int main(int argc, char *argv[])
     ASSERT(true  == bsl::is_rvalue_reference<int&&>::value);
   #endif
 //..
-// Note that rvalue is introduced in C++11 and may not be supported by all
-// compilers.
+// Note that rvalue reference is a feature introduced in C++11 and may not be
+// supported by all compilers.
 
       } break;
       case 1: {
@@ -206,7 +197,7 @@ int main(int argc, char *argv[])
         // 'bsl::is_rvalue_reference::value'
         //   Ensure that the static data member 'value' of
         //   'bsl::is_rvalue_reference' instantiations having various (template
-        //   parameter) 'TYPES' has the correct value.
+        //   parameter) 'TYPE's has the correct value.
         //
         // Concerns:
         //: 1 'is_rvalue_reference::value' is 'false' when 'TYPE' is a
@@ -367,16 +358,16 @@ int main(int argc, char *argv[])
         TYPE_ASSERT_CVQ_PREFIX(bsl::is_rvalue_reference, void (int),  false);
       } break;
       default: {
-        cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
+        fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
         testStatus = -1;
       }
     }
 
     if (testStatus > 0) {
-        cerr << "Error, non-zero test status = " << testStatus << "." << endl;
+        fprintf(stderr, "Error, non-zero test status = %d.\n", testStatus);
     }
-
     return testStatus;
+
 }
 
 // ---------------------------------------------------------------------------

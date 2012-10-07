@@ -157,7 +157,7 @@ using namespace bsl;
 // [ 3] multiset<T,A>& gg(multiset<T,A> *object, const char *spec);
 // [11] multiset<T,A> g(const char *spec);
 //
-// [22] CONCERN: The object is comppatible with STL allocator.
+// [22] CONCERN: The object is compatible with STL allocator.
 // [23] CONCERN: The object has the necessary type traits
 // [24] CONCERN: The type provides the full interface defined by the standard.
 
@@ -319,7 +319,7 @@ void debugprint(const bsl::multiset<KEY, COMP, ALLOC>& s)
     fflush(stdout);
 }
 
-} // close namespace bsl
+}  // close namespace bsl
 
 namespace {
 
@@ -950,7 +950,8 @@ int TestDriver<KEY, COMP, ALLOC>::ggg(bsl::multiset<KEY, COMP, ALLOC> *object,
                                       const char                      *spec,
                                       int                              verbose)
 {
-    bslma::DefaultAllocatorGuard guard(&bslma::NewDeleteAllocator::singleton());
+    bslma::DefaultAllocatorGuard guard(
+                                      &bslma::NewDeleteAllocator::singleton());
     const TestValues VALUES;
 
     enum { SUCCESS = -1 };
@@ -1356,8 +1357,9 @@ void TestDriver<KEY, COMP, ALLOC>::testCase23()
     BSLMF_ASSERT((1 == bslalg::HasStlIterators<bsl::multiset<KEY> >::value));
     BSLMF_ASSERT((1 == bslma::UsesBslmaAllocator<bsl::multiset<KEY> >::value));
 
-    // Verify the bslma-allocator trait is not defined for non bslma-allocators.
-    BSLMF_ASSERT((0 == bslma::UsesBslmaAllocator<bsl::multiset<KEY, 
+    // Verify the bslma-allocator trait is not defined for non
+    // bslma-allocators.
+    BSLMF_ASSERT((0 == bslma::UsesBslmaAllocator<bsl::multiset<KEY,
                                           std::less<KEY>, StlAlloc> >::value));
 
     // Verify multiset does not define other common traits.
@@ -3446,11 +3448,11 @@ void TestDriver<KEY, COMP, ALLOC>::testCase9_1()
     //   object of the class to any other object of the class when when
     //   allocator propagation is enabled.  This function implements the test
     //   plan which address C-12 from 'testCase9' and is implemented as a
-    //   separate function from 'testCase9', because at the time of writting,
+    //   separate function from 'testCase9', because at the time of writing,
     //   'AllocatorTraits' doesn't fully support allocator propagation, so some
     //   manual source code changes are needed to run this test.
     //
-    //   TODO: integerate this test function to 'testCase9' once
+    //   TODO: integrate this test function to 'testCase9' once
     //   'AllocatorTraits' fully support allocator propagation.
     //
     // Concerns:
@@ -4071,7 +4073,7 @@ void TestDriver<KEY, COMP, ALLOC>::testCase8()
     //:
     //:     5 Use the value constructor and 'oaz' to a create a modifiable
     //:       'Obj' 'mZ', having the value described by 'R2'; also use the copy
-    //:       constructor to create, using a "scractch" allocator, a const
+    //:       constructor to create, using a "scratch" allocator, a const
     //:       'Obj', 'ZZ', from 'Z'.
     //:
     //:     6 Use the member and free 'swap' functions to swap the values of
@@ -4080,7 +4082,7 @@ void TestDriver<KEY, COMP, ALLOC>::testCase8()
     //:       false_type) under the presence of exception; verify, after each
     //:       swap, that:  (C-1, 5, 7)
     //:
-    //:       1 If exception occured during the swap, both values are
+    //:       1 If exception occurred during the swap, both values are
     //:         unchanged.  (C-7)
     //
     //:       2 If no exception occurred, the values have been exchanged.
@@ -4581,7 +4583,7 @@ void TestDriver<KEY, COMP, ALLOC>::testCase7()
                 ASSERTV(SPEC, W == Y0);
                 ASSERTV(SPEC, W == X);
                 ASSERTV(SPEC, Y0.get_allocator() ==
-                                            bslma::Default::defaultAllocator());
+                                           bslma::Default::defaultAllocator());
 
                 delete pX;
                 ASSERTV(SPEC, W == Y0);
@@ -5266,7 +5268,7 @@ void TestDriver<KEY, COMP, ALLOC>::testCase2()
     //:     and (c) passing the address of a test allocator distinct from the
     //:     default.  For each of these three iterations:  (C-1..14)
     //:
-    //:     1 Create three 'bslma::TestAllocator' objects, and install one as as
+    //:     1 Create three 'bslma::TestAllocator' objects, and install one as
     //:       the current default allocator (note that a ubiquitous test
     //:       allocator is already installed as the global allocator).
     //:
@@ -6070,7 +6072,8 @@ class string {
     }
 
     // MANIPULATORS
-    string& operator=(const string& rhs) {
+    string& operator=(const string& rhs)
+    {
         string temp(rhs);
         temp.swap(*this);
         return *this;
@@ -6084,6 +6087,7 @@ class string {
     void swap(string& other)
     {
         BSLS_ASSERT(d_allocator_p == other.d_allocator_p);
+
         std::swap(d_value_p, other.d_value_p);
         std::swap(d_size, other.d_size);
     }
@@ -6139,7 +6143,7 @@ const char *string::EMPTY_STRING = "";
 ///Example 1: Creating a Shopping Cart
 ///- - - - - - - - - - - - - - - - - -
 // In this example, we will utilize 'bsl::multiset' to define a class
-// 'ShoppingCart', that charaterizes a simple online shopping cart with the
+// 'ShoppingCart', that characterizes a simple online shopping cart with the
 // ability to add, remove, and view items in the shopping cart.
 //
 // Note that this example uses a type 'string' that is based on the standard
@@ -6341,7 +6345,7 @@ bool operator!=(const ShoppingCart& lhs, const ShoppingCart& rhs)
 }
 //..
 
-} // close namespace 'UsageExample'
+}  // close namespace 'UsageExample'
 
 
 // ============================================================================
@@ -6423,7 +6427,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING STANDARD INTERFACE COVERAGE
         // --------------------------------------------------------------------
-        // Test only 'int' and 'char' parameter types, becuase map's
+        // Test only 'int' and 'char' parameter types, because map's
         // 'operator<' and related operators only support parameterized types
         // that defines 'operator<'.
         RUN_EACH_TYPE(TestDriver, testCase25, int, char);

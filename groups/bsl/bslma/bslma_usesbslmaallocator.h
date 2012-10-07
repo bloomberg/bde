@@ -59,6 +59,11 @@ private:
         // pointer type.
     } *UniquePtrType;
 
+#ifndef BSLS_PLATFORM_OS_AIX
+    // The following test, which is intended to catch older code relying on
+    // a deprecated idiom for testing whether a type accepts an allocator,
+    // causes compilation failures on AIX for several components. 
+
     enum {
         // If a pointer to 'Allocator' is convertible to 'T', then 'T' has a
         // non-explcit constructor taking an allocator.
@@ -82,6 +87,7 @@ public:
     // automatically associated with 'TYPE'; such sniffing is no longer
     // supported.
     BSLMF_ASSERT(! SNIFFED_BSLMA_IDIOM);
+#endif
 };
 
 template <class TYPE>
@@ -97,21 +103,21 @@ struct UsesBslmaAllocator : UsesBslmaAllocator_Imp<TYPE,
 };
 
 template <class TYPE>
-struct UsesBslmaAllocator<const TYPE> : UsesBslmaAllocator<TYPE>
+struct UsesBslmaAllocator<const TYPE> : UsesBslmaAllocator<TYPE>::type
 {
     // Specialization that associates the same trait with 'const TYPE' as with
     // unqualified 'TYPE'.
 };
 
 template <class TYPE>
-struct UsesBslmaAllocator<volatile TYPE> : UsesBslmaAllocator<TYPE>
+struct UsesBslmaAllocator<volatile TYPE> : UsesBslmaAllocator<TYPE>::type
 {
     // Specialization that associates the same trait with 'volatile TYPE' as
     // with unqualified 'TYPE'.
 };
 
 template <class TYPE>
-struct UsesBslmaAllocator<const volatile TYPE> : UsesBslmaAllocator<TYPE>
+struct UsesBslmaAllocator<const volatile TYPE> : UsesBslmaAllocator<TYPE>::type
 {
     // Specialization that associates the same trait with 'const volatile
     // TYPE' as with unqualified 'TYPE'.

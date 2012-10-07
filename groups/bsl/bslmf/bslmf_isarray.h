@@ -87,7 +87,7 @@ struct is_array : false_type {
     // This 'struct' template implements the 'is_array' meta-function defined
     // in the C++11 standard [meta.unary.cat] to determine if the (template
     // parameter) 'TYPE' is an array type.  This 'struct' derives from
-    // 'bsl::true_type' if the 'TYPE' is an array type and 'bsl::false_type'
+    // 'bsl::true_type' if the 'TYPE' is an array type, and 'bsl::false_type'
     // otherwise.
 };
 
@@ -97,8 +97,8 @@ struct is_array : false_type {
 
 template <typename TYPE, std::size_t NUM_ELEMENTS>
 struct is_array<TYPE [NUM_ELEMENTS]> : true_type {
-     // This specialization of 'is_array' derives from 'bsl::true_type' for
-     // when the (template parameter) 'TYPE' is a an array type.
+     // This specialization of 'is_array', for when the (template parameter)
+     // 'TYPE' is an array of known bound type, derives from 'bsl::true_type'
 };
 
                          // ========================
@@ -107,8 +107,8 @@ struct is_array<TYPE [NUM_ELEMENTS]> : true_type {
 
 template <typename TYPE>
 struct is_array<TYPE []> : true_type {
-     // This specialization of 'is_array' derives from 'bsl::true_type' for
-     // when the (template parameter) 'TYPE' is a an array type.
+     // This specialization of 'is_array', for when the (template parameter)
+     // 'TYPE' is an array of unknown bound type, derives from 'bsl::true_type'
 };
 
                          // =======================
@@ -117,8 +117,10 @@ struct is_array<TYPE []> : true_type {
 
 template <typename TYPE>
 struct is_array<TYPE &> : is_array<TYPE>::type {
-     // This partial specialization of 'is_array' strip the reference-ness from
-     // the (template parameter) 'TYPE'.
+     // This partial specialization of 'is_array', for when the (template
+     // parameter) 'TYPE' is a reference type, recursively derives from the
+     // 'is_array' instantiated with the type referenced by 'TYPE' as the
+     // template argument.
 };
 
 }
@@ -135,8 +137,8 @@ template <typename TYPE>
 struct IsArray  : bsl::is_array<TYPE>::type {
     // This 'struct' template implements a meta-function to determine if the
     // (template parameter) 'TYPE' is an array type.  This 'struct' derives
-    // from 'bslmf::MetaInt<1>' if the 'TYPE' is an array type (but not a
-    // pointer to non-static member), and 'bslmf::MetaInt<0>' otherwise.
+    // from 'bslmf::MetaInt<1>' if the 'TYPE' is an array type, and
+    // 'bslmf::MetaInt<0>' otherwise.
     //
     // Note that although this 'struct' is functionally equivalent to
     // 'bsl::is_array', the use of 'bsl::is_array' should be preferred.
