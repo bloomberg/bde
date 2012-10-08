@@ -4,10 +4,10 @@
 
 #include <bslalg_rangecompare.h>
 
-#include <bslma_default.h>
 #include <bslma_allocator.h>
-#include <bslma_testallocator.h>
+#include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
+#include <bslma_testallocator.h>
 #include <bslma_testallocatormonitor.h>
 #include <bslma_usesbslmaallocator.h>
 
@@ -19,12 +19,6 @@
 #include <bsltf_stdtestallocator.h>
 #include <bsltf_templatetestfacility.h>
 #include <bsltf_testvaluesarray.h>
-
-#include <algorithm>
-#include <climits>
-#include <cstdlib>
-#include <iostream>
-#include <sstream>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -48,9 +42,6 @@ void invokeAdlSwap(TYPE& a, TYPE& b)
 using namespace BloombergLP;
 using namespace bsl;
 
-using std::cerr;
-using std::cout;
-using std::endl;
 
 //=============================================================================
 //                             TEST PLAN
@@ -237,6 +228,8 @@ keyForValue(const typename CONTAINER::value_type v)
 template <class CONTAINER>
 void testConstEmptyContainer(const CONTAINER& x)
 {
+    typedef          CONTAINER                 TestType;
+    typedef typename CONTAINER::size_type      SizeType;
     typedef typename CONTAINER::const_iterator const_iterator;
 
     ASSERT(x.empty());
@@ -249,8 +242,8 @@ void testConstEmptyContainer(const CONTAINER& x)
     ASSERT(0 == x.count(5));
     ASSERT(x.end() == x.find(5));
 
-    int nBuckets = x.bucket_count();
-    for (int i = 0; i != nBuckets; ++i) {
+    SizeType nBuckets = x.bucket_count();
+    for (SizeType i = 0; i != nBuckets; ++i) {
         ASSERT(0 == x.bucket_size(i));
         ASSERT(x.begin(i) == x.end(i));
         ASSERT(x.cbegin(i) == x.cend(i));
@@ -270,7 +263,9 @@ void testConstEmptyContainer(const CONTAINER& x)
 template <class CONTAINER>
 void testEmptyContainer(CONTAINER& x)
 {
-    typedef typename CONTAINER::iterator iterator;
+    typedef          CONTAINER             TestType;
+    typedef typename CONTAINER::size_type  SizeType;
+    typedef typename CONTAINER::iterator   iterator;
 
     ASSERT(x.empty());
     ASSERT(0 == x.size());
@@ -287,8 +282,8 @@ void testEmptyContainer(CONTAINER& x)
     ASSERT(0 == x.count(5));
     ASSERT(x.end() == x.find(5));
 
-    int nBuckets = x.bucket_count();
-    for (int i = 0; i != nBuckets; ++i) {
+    SizeType nBuckets = x.bucket_count();
+    for (SizeType i = 0; i != nBuckets; ++i) {
         ASSERT(0 == x.bucket_size(i));
         ASSERT(x.begin(i) == x.end(i));
         ASSERT(x.cbegin(i) == x.cend(i));
@@ -310,22 +305,24 @@ void testEmptyContainer(CONTAINER& x)
 }
 
 template <class CONTAINER>
-void testContainerHasData(const CONTAINER& x,
-                          int              nCopies,
+void testContainerHasData(const CONTAINER&                      x,
+                          typename CONTAINER::size_type         nCopies,
                           const typename CONTAINER::value_type *data,
-                          int              size)
+                          typename CONTAINER::size_type         size)
 {
+    typedef          CONTAINER                 TestType;
+    typedef typename CONTAINER::size_type      SizeType;
     typedef typename CONTAINER::const_iterator TestIterator;
 
     ASSERT(nCopies);
     ASSERT(x.size() == nCopies * size);
 
-    for (int i = 0; i != size; ++i) {
+    for (SizeType i = 0; i != size; ++i) {
         const typename CONTAINER::value_type& testValue = data[i];
         TestIterator it = x.find(keyForValue<CONTAINER>(testValue));
         ASSERT(x.end() !=  it);
         ASSERT(data[i] == *it);
-        const int countValues = x.count(keyForValue<CONTAINER>(testValue));
+        const SizeType countValues = x.count(keyForValue<CONTAINER>(testValue));
         LOOP3_ASSERT(i, countValues, nCopies,
                      countValues == nCopies);
 
@@ -333,7 +330,7 @@ void testContainerHasData(const CONTAINER& x,
                               x.equal_range(keyForValue<CONTAINER>(testValue));
 
 #ifndef BSLS_PLATFORM_CMP_SUN
-        const int rangeDist = native_std::distance(range.first, range.second);
+        const SizeType rangeDist = native_std::distance(range.first, range.second);
         LOOP2_ASSERT(countValues,   rangeDist,
                      countValues == rangeDist);
 #else
@@ -341,7 +338,7 @@ void testContainerHasData(const CONTAINER& x,
 #endif
 
         ASSERT(range.first == it);
-        for(int iterations = nCopies; --iterations; ++it) {
+        for(SizeType iterations = nCopies; --iterations; ++it) {
             ASSERT(testValue == *it);
         }
         // Need one extra increment to reach past-the-range iterator.
@@ -357,12 +354,13 @@ void fillContainerWithData(CONTAINER& x,
                            const typename CONTAINER::value_type *data,
                            int       size)
 {
-    typedef typename CONTAINER::iterator iterator;
+    typedef typename CONTAINER::size_type  SizeType;
+    typedef typename CONTAINER::iterator   iterator;
 
     ASSERT(0 < size);
-    const size_t nCopies = x.count(data[0]) + 1;
+    const SizeType nCopies = x.count(data[0]) + 1;
 
-    int initialSize = x.size();
+    SizeType initialSize = x.size();
     x.insert(data, data + size);
     ASSERT(x.size() == initialSize + size);
 
@@ -415,6 +413,8 @@ void testBuckets(CONTAINER& mX)
     // adding elements from all buckets should exactly equal 'size'
     // large buckets imply many hash collisions, which is undesirable
     //    large buckets may be consequence of multicontainers
+    typedef                      CONTAINER                       TestType;
+    typedef typename             CONTAINER::size_type            SizeType;
     typedef typename             CONTAINER::iterator             iterator;
     typedef typename       CONTAINER::const_iterator       const_iterator;
     typedef typename       CONTAINER::local_iterator       local_iterator;
@@ -423,15 +423,13 @@ void testBuckets(CONTAINER& mX)
 
     const CONTAINER &x = mX;
 
-    unsigned bucketCount = x.bucket_count();
-    unsigned int collisions = 0;
-    unsigned int itemCount  = 0;
+    SizeType bucketCount = x.bucket_count();
+    SizeType collisions = 0;
+    SizeType itemCount  = 0;
 
     for (unsigned i = 0; i != bucketCount; ++i ) {
         const unsigned count = x.bucket_size(i);
         if (0 == count) {
-            if (g_veryVeryVerbose) cout << i << "\t(EMPTY)" << endl;
-
             ASSERT(x.begin(i) == x.end(i));
             ASSERT(mX.begin(i) == mX.end(i));
             ASSERT(mX.cbegin(i) == mX.cend(i));
@@ -442,8 +440,8 @@ void testBuckets(CONTAINER& mX)
         }
 
         itemCount += count;
-        //collisions += count-1;
-        unsigned int bucketItems = 0;
+        collisions += count-1;
+        SizeType bucketItems = 0;
         for (const_local_iterator iter = x.begin(i); iter != x.end(i); ++iter)
         {
             ASSERT(i == x.bucket(keyForValue<CONTAINER>(*iter)));
@@ -476,11 +474,13 @@ void testBuckets(CONTAINER& mX)
 template <class CONTAINER>
 void testErase(CONTAINER& mX)
 {
+    typedef          CONTAINER                       TestType;
+    typedef typename CONTAINER::     size_type       SizeType;
     typedef typename CONTAINER::      iterator       iterator;
     typedef typename CONTAINER::const_iterator const_iterator;
 
     const CONTAINER& x = mX;
-    int size = x.size();
+    SizeType size = x.size();
 
     // test empty sub-ranges
     ASSERT(x.begin() == mX.erase(x.cbegin(), x.cbegin()));
@@ -499,7 +499,7 @@ void testErase(CONTAINER& mX)
     const_iterator cIter = x.begin();
     bsl::advance(cIter, x.size()/10);
     typename CONTAINER::key_type key = keyForValue<CONTAINER>(*cIter);
-    int duplicates = x.count(key);
+    SizeType duplicates = x.count(key);
     ASSERT(0 != duplicates);  // already tested, just a sanity check
     bsl::pair<const_iterator, const_iterator> valRange = x.equal_range(key);
     ASSERT(valRange.second != x.end());  // or else container is *tiny*
@@ -557,7 +557,7 @@ void testErase(CONTAINER& mX)
     // confirm they are not in the same bucket:
     ASSERT(x.bucket(key) != x.bucket(keyForValue<CONTAINER>(*cIter)));
     ASSERT(x.bucket(key) != x.bucket(keyForValue<CONTAINER>(*next)));
-    size_t erasures = 0;
+    SizeType erasures = 0;
     while (cIter != next) {
         cIter = mX.erase(cIter);  // compile check for return type
         ++erasures;
@@ -719,7 +719,7 @@ int verifyContainer(const CONTAINER& container,
     }
 
     size_t missing = 0;
-    for (int j = 0; j != expectedSize; ++j) {
+    for (size_t j = 0; j != expectedSize; ++j) {
         if (!foundValues[j]) {
             ++missing;
         }
@@ -1634,7 +1634,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase2()
 
             Obj&                   mX = *objPtr;  const Obj& X = mX;
             bslma::TestAllocator&  oa = *objAllocatorPtr;
-            bslma::TestAllocator& noa = 'c' != CONFIG ? sa : da;
+//            bslma::TestAllocator& noa = 'c' != CONFIG ? sa : da;
 
             // Verify any attribute allocators are installed properly.
 
@@ -1715,8 +1715,8 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase2()
                 // check expected elements are present in container, with
                 // expected number of duplicates
                 {
-                    int *foundValues = new int[X.size()];
-                    for (int j = 0;j != X.size(); ++j) {
+                    size_t *foundValues = new size_t[X.size()];
+                    for (size_t j = 0;j != X.size(); ++j) {
                         foundValues[j] = 0;
                     }
 
@@ -1733,7 +1733,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase2()
                         while (++j != X.size());
                     }
                     size_t missing = 0;
-                    for (int j = 0; j != X.size(); ++j) {
+                    for (size_t j = 0; j != X.size(); ++j) {
                         if (!foundValues[j]) { ++missing; }
                     }
                     ASSERTV(LENGTH, CONFIG, missing, 0 == missing);
@@ -1903,11 +1903,15 @@ int main(int argc, char *argv[])
 
         typedef bsl::unordered_multiset<int> TestType;
 
+        if (veryVerbose)
+            printf("Default construct an unordered_mutliset, 'x'\n");
+
         TestType mX;
         const TestType &x = mX;
 
+        if (veryVerbose) printf("Validate default behavior of 'x'\n");
+
         ASSERT(1.0f == x.max_load_factor());
-if (veryVerbose) cout << "<<A>>" << endl;
 
         testConstEmptyContainer(x);
         testEmptyContainer(mX);
@@ -1918,7 +1922,9 @@ if (veryVerbose) cout << "<<A>>" << endl;
         testEmptyContainer(mX);
 
         validateIteration(mX);
-if (veryVerbose) cout << "<<B>>" << endl;
+
+        if (veryVerbose) printf("Prepare a test array of data samples\n");
+
         const int MAX_SAMPLE = 10000;
 //        const int MAX_SAMPLE = 7;  // minimum size to support all erase tests
         int *dataSamples = new int[MAX_SAMPLE];
@@ -1926,17 +1932,23 @@ if (veryVerbose) cout << "<<B>>" << endl;
             dataSamples[i] = i;
         }
 
-if (veryVerbose) cout << "<<C>>" << endl;
+        if (veryVerbose)  printf(
+          "Range-construct an unordered_multiset, 'y', from the test array\n");
 
         TestType mY(dataSamples, dataSamples + MAX_SAMPLE);
         const TestType &y = mY;
 
+        if (veryVerbose)
+            printf("Validate behavior of freshly constructed 'y'\n");
+
         ASSERT(1.0f == y.max_load_factor());
-if (veryVerbose) cout << "<<D>>" << endl;
 
         testContainerHasData(y, 1, dataSamples, MAX_SAMPLE);
         validateIteration(mY);
-if (veryVerbose) cout << "<<E>>" << endl;
+
+        if (veryVerbose)
+            printf("Assert equality relationships, noting 'x != y'\n");
+
         ASSERT(x == x);
         ASSERT(!(x != x));
         ASSERT(y != x);
@@ -1946,16 +1958,23 @@ if (veryVerbose) cout << "<<E>>" << endl;
         ASSERT(y == y);
         ASSERT(!(y != y));
 
+        if (veryVerbose) printf("Swap 'x' and 'y'\n");
+
         swap(mX, mY);
-if (veryVerbose) cout << "<<F>>" << endl;
+
+        if (veryVerbose) printf("Validate swapped values\n");
 
         testConstEmptyContainer(y);
         testEmptyContainer(mY);
+
         validateIteration(mY);
-if (veryVerbose) cout << "<<G>>" << endl;
+
         testContainerHasData(x, 1, dataSamples, MAX_SAMPLE);
+
         validateIteration(mX);
-if (veryVerbose) cout << "<<H>>" << endl;
+
+        if (veryVerbose)
+            printf("Assert swapped equality relationships, noting 'x != y'\n");
 
         ASSERT(x == x);
         ASSERT(!(x != x));
@@ -1966,39 +1985,47 @@ if (veryVerbose) cout << "<<H>>" << endl;
         ASSERT(y == y);
         ASSERT(!(y != y));
 
-if (veryVerbose) cout << "<(H1)>" << endl;
         testBuckets(mX);
+
+        if (veryVerbose) printf("Try to fill 'x' with duplicate values\n");
+
         for (int i = 0; i != MAX_SAMPLE; ++i) {
-//cout << "<(Hi)> " << i << endl;
-//validateIteration(mX);
-//testBuckets(mX);
             LOOP_ASSERT(i, 1 == x.count(dataSamples[i]));
             TestType::iterator it = mX.insert(dataSamples[i]);
             ASSERT(x.end() != it);
             ASSERT(*it == dataSamples[i]);
             LOOP_ASSERT(i, 2 == x.count(dataSamples[i]));
         }
-if (veryVerbose) cout << "<(H2)>" << endl;
+
         testBuckets(mX);
         validateIteration(mX);
-if (veryVeryVerbose) cout << "<<I>>" << endl;
+
+        if (veryVerbose) printf(
+          "Confirm the value of 'x' with the successfully inserted values.\n");
 
         testContainerHasData(x, 2, dataSamples, MAX_SAMPLE);
-if (veryVerbose) cout << "<<J>>" << endl;
+
+        if (veryVerbose) printf(
+                "Create an unordered_multiset, 'z', that is a copy of 'x'.\n");
 
         TestType mZ = x;
         const TestType &z = mZ;
+
+        if (veryVerbose)
+            printf("Validate behavior of freshly constructed 'z'.\n");
+
         ASSERT(1.0f == z.max_load_factor());
         ASSERT(x == z);
         ASSERT(!(x != z));
         ASSERT(z == x);
         ASSERT(!(z != x));
 
-if (veryVerbose) cout << "<<K>>" << endl;
-
-
         validateIteration(mZ);
         testContainerHasData(z, 2, dataSamples, MAX_SAMPLE);
+
+        if (veryVerbose) printf(
+                             "Expand 'z' with additional duplicate values.\n");
+
         for (int i = 3; i != 6; ++i) {
             fillContainerWithData(mZ, dataSamples, MAX_SAMPLE);
             testContainerHasData(z, i, dataSamples, MAX_SAMPLE);
@@ -2009,26 +2036,36 @@ if (veryVerbose) cout << "<<K>>" << endl;
         ASSERT(z != x);
         ASSERT(!(z == x));
 
-if (veryVerbose) cout << "<<L>>" << endl;
+        if (veryVerbose)
+            printf("Confirm that 'x' is unchanged by making the copy.\n");
 
         testBuckets(mX);
         validateIteration(mX);
-if (veryVerbose) cout << "<<M>>" << endl;
+        testContainerHasData(x, 2, dataSamples, MAX_SAMPLE);
+
+        if (veryVerbose)
+            printf("Clear 'x' and confirm that it is empty.\n");
 
         mX.clear();
         testEmptyContainer(mX);
         testBuckets(mX);
-if (veryVerbose) cout << "<<N>>" << endl;
+
+        if (veryVerbose)
+            printf("Assign the value of 'y' to 'x'.\n");
 
         mX = y;
+
+        if (veryVerbose) printf("Confirm 'x' has the expected value.\n");
+
         ASSERT(x == y);
+
         validateIteration(mX);
         testBuckets(mX);
-if (veryVerbose) cout << "<<O>>" << endl;
 
         testErase(mZ);
 
-if (veryVerbose) cout << "<<P>>" << endl;
+        if (veryVerbose)
+            printf("Final message to confim the end of the breathing test.\n");
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
