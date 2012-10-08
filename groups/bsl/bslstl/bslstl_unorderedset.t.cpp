@@ -2,17 +2,14 @@
 
 #include <bslstl_unorderedset.h>
 
-#include <bslma_default.h>
-#include <bslma_testallocator.h>
-#include <bslma_usesbslmaallocator.h>
-
 #include <bslalg_rangecompare.h>
 
-#include <bslma_default.h>
 #include <bslma_allocator.h>
-#include <bslma_testallocator.h>
+#include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
+#include <bslma_testallocator.h>
 #include <bslma_testallocatormonitor.h>
+#include <bslma_usesbslmaallocator.h>
 
 #include <bslmf_issame.h>
 
@@ -29,6 +26,9 @@
 #include <functional>
 #include <iostream>
 #include <sstream>
+
+#include <stdio.h>
+#include <stdlib.h>
 
 // ============================================================================
 //                          ADL SWAP TEST HELPER
