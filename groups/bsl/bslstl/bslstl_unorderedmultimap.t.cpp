@@ -559,9 +559,9 @@ int main(int argc, char *argv[])
         g_veryVeryVerbose =     veryVeryVerbose;
     g_veryVeryVeryVerbose = veryVeryVeryVerbose;
 
-    cout << "TEST " << __FILE__ << " CASE " << test << endl;
+    printf("TEST " __FILE__ " CASE %d\n", test);
 
-    bslma::TestAllocator testAlloc("ta", veryVeryVeryVerbose);
+    bslma::TestAllocator testAlloc("A");
     bslma::Default::setDefaultAllocator(&testAlloc);
 
     switch (test) { case 0:
@@ -583,8 +583,8 @@ int main(int argc, char *argv[])
         //   BREATHING TEST
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "BREATHING TEST" << endl
-                                  << "==============" << endl;
+        if (verbose) printf("\nBREATHING TEST"
+                            "\n==============\n");
 
         typedef bsl::unordered_multimap<int, int > TestType;
 
@@ -709,15 +709,15 @@ cout << "<<O>>" << endl;
 cout << "<<P>>" << endl;
       } break;
       default: {
-        cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
+        fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
         testStatus = -1;
       }
-
     }
 
     if (testStatus > 0) {
-        cerr << "Error, non-zero test status = " << testStatus << "." << endl;
+        fprintf(stderr, "Error, non-zero test status = %d.\n", testStatus);
     }
+
     return testStatus;
 }  // Empty test driver
 

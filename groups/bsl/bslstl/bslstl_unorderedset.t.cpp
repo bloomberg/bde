@@ -3429,8 +3429,8 @@ int main(int argc, char *argv[])
         //   BREATHING TEST
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "BREATHING TEST" << endl
-                                  << "==============" << endl;
+        if (verbose) printf("\nBREATHING TEST"
+                            "\n==============\n");
 
         typedef bsl::unordered_set<int> TestType;
 
@@ -3616,7 +3616,7 @@ if (veryVerbose) cout << "<<P>>" << endl;
         fprintf(stderr, "Error, non-zero test status = %d.\n", testStatus);
     }
     return testStatus;
-}  // Empty test driver
+}
 
 // ---------------------------------------------------------------------------
 // NOTICE:
