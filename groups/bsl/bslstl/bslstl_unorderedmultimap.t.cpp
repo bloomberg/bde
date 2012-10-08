@@ -18,6 +18,9 @@
 #include <iostream>
 #include <sstream>
 
+#include <stdio.h>
+#include <stdlib.h>
+
 using namespace BloombergLP;
 using namespace bsl;
 
