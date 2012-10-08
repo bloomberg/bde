@@ -1838,7 +1838,7 @@ int main(int argc, char *argv[])
         g_veryVeryVerbose =     veryVeryVerbose;
     g_veryVeryVeryVerbose = veryVeryVeryVerbose;
 
-    cout << "TEST " << __FILE__ << " CASE " << test << endl;
+    printf("TEST " __FILE__ " CASE %d\n", test);
 
     bslma::TestAllocator testAlloc("A");
     bslma::Default::setDefaultAllocator(&testAlloc);
@@ -2031,15 +2031,15 @@ if (veryVerbose) cout << "<<O>>" << endl;
 if (veryVerbose) cout << "<<P>>" << endl;
       } break;
       default: {
-        cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
+        fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
         testStatus = -1;
       }
-
     }
 
     if (testStatus > 0) {
-        cerr << "Error, non-zero test status = " << testStatus << "." << endl;
+        fprintf(stderr, "Error, non-zero test status = %d.\n", testStatus);
     }
+
     return testStatus;
 }  // Empty test driver
 
