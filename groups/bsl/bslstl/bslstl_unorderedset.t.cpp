@@ -3492,6 +3492,7 @@ int main(int argc, char *argv[])
         swap(mX, mY);
 
         if (veryVerbose) printf("Validate swapped values\n");
+
         testConstEmptyContainer(y);
         testEmptyContainer(mY);
         validateIteration(mY);
@@ -3512,6 +3513,7 @@ int main(int argc, char *argv[])
         ASSERT(!(y != y));
 
         if (veryVerbose) printf("Try to fill 'x' with duplicate values\n");
+
         for (int i = 0; i != MAX_SAMPLE; ++i) {
             typedef bsl::pair<TestType::iterator, bool> InsertResult;
             InsertResult iterBool = mX.insert(dataSamples[i]);

@@ -18,23 +18,13 @@
 #include <bsltf_testvaluesarray.h>
 #include <bsltf_stdtestallocator.h>
 
-#include <stdio.h>
-#include <stdlib.h>
-
-#include <algorithm>
-#include <iostream>
-#include <sstream>
-#include <stdexcept>
+#include <stdexcept>   // to confirm that the contractual exceptions are thrown
 
 #include <stdio.h>
 #include <stdlib.h>
 
 using namespace BloombergLP;
 using namespace bsl;
-
-using std::cerr;
-using std::cout;
-using std::endl;
 
 //=============================================================================
 //                             TEST PLAN
@@ -327,6 +317,7 @@ void testBuckets(CONTAINER& mX)
     // adding elements from all buckets should exactly equal 'size'
     // large buckets imply many hash collisions, which is undesirable
     //    large buckets may be consequence of multicontainers
+    typedef typename             CONTAINER::size_type            SizeType;
     typedef typename             CONTAINER::iterator             iterator;
     typedef typename       CONTAINER::const_iterator       const_iterator;
     typedef typename       CONTAINER::local_iterator       local_iterator;
@@ -335,12 +326,12 @@ void testBuckets(CONTAINER& mX)
 
     const CONTAINER &x = mX;
 
-    unsigned bucketCount = x.bucket_count();
-    unsigned int collisions = 0;
-    unsigned int itemCount  = 0;
+    SizeType bucketCount = x.bucket_count();
+    SizeType collisions = 0;
+    SizeType itemCount  = 0;
 
-    for (unsigned i = 0; i != bucketCount; ++i ) {
-        const unsigned count = x.bucket_size(i);
+    for (SizeType i = 0; i != bucketCount; ++i ) {
+        const SizeType count = x.bucket_size(i);
         if (0 == count) {
             ASSERT(x.begin(i) == x.end(i));
             ASSERT(mX.begin(i) == mX.end(i));
@@ -352,8 +343,8 @@ void testBuckets(CONTAINER& mX)
         }
 
         itemCount += count;
-        //collisions += count-1;
-        unsigned int bucketItems = 0;
+        collisions += count-1;
+        SizeType bucketItems = 0;
         for (const_local_iterator iter = x.begin(i); iter != x.end(i); ++iter)
         {
             ASSERT(i == x.bucket(keyForValue<CONTAINER>(*iter)));
@@ -708,30 +699,27 @@ int main(int argc, char *argv[])
 
         typedef bsl::unordered_map<int, int> TestType;
 
-        if (verbose) printf("Default construct an unordered map.\n");
+        if (veryVerbose) printf("Default construct an unordered map, 'x'\n");
 
         TestType mX;
         const TestType &x = mX;
 
-        if (verbose) printf("Check 'max_load_factor' in the default state.\n");
+        if (veryVerbose) printf("Validate default behavior of 'x'\n");
 
         ASSERT(1.0f == x.max_load_factor());
 
         testConstEmptyContainer(x);
-        printf("<<A 1>>\n");
         testEmptyContainer(mX);
-        printf("<<A 2>>\n");
 
         swap(mX, mX);
-        printf("<<A 3>>\n");
 
         testConstEmptyContainer(x);
-        printf("<<A 4>>\n");
         testEmptyContainer(mX);
-        printf("<<A 5>>\n");
 
         validateIteration(mX);
-        printf("<<B>>\n");
+
+        if (veryVerbose) printf("Prepare a test array of data samples\n");
+
         typedef TestType::value_type BaseValue;
         const int MAX_SAMPLE = 5000;
         BaseValue *dataSamples = new BaseValue[MAX_SAMPLE];
@@ -740,17 +728,23 @@ int main(int argc, char *argv[])
                                                      // supply 'const' key
         }
 
-        printf("<<C>>\n");
+        if (veryVerbose)  printf(
+               "Range-construct an unordered_map, 'y', from the test array\n");
 
         TestType mY(dataSamples, dataSamples + MAX_SAMPLE);
         const TestType &y = mY;
 
+        if (veryVerbose)
+            printf("Validate behavior of freshly constructed 'y'\n");
+
         ASSERT(1.0f == y.max_load_factor());
-        printf("<<D>>\n");
 
         testContainerHasData(y, 1, dataSamples, MAX_SAMPLE);
         validateIteration(mY);
-        printf("<<E>>\n");
+
+        if (veryVerbose)
+            printf("Assert equality relationships, noting 'x != y'\n");
+
         ASSERT(x == x);
         ASSERT(!(x != x));
         ASSERT(y != x);
@@ -760,16 +754,21 @@ int main(int argc, char *argv[])
         ASSERT(y == y);
         ASSERT(!(y != y));
 
+        if (veryVerbose) printf("Swap 'x' and 'y'\n");
+
         swap(mX, mY);
-        printf("<<F>>\n");
+
+        if (veryVerbose) printf("Validate swapped values\n");
 
         testConstEmptyContainer(y);
         testEmptyContainer(mY);
         validateIteration(mY);
-        printf("<<G>>\n");
+
         testContainerHasData(x, 1, dataSamples, MAX_SAMPLE);
         validateIteration(mX);
-        printf("<<H>>\n");
+
+        if (veryVerbose)
+            printf("Assert swapped equality relationships, noting 'x != y'\n");
 
         ASSERT(x == x);
         ASSERT(!(x != x));
@@ -779,6 +778,8 @@ int main(int argc, char *argv[])
         ASSERT(!(x == y));
         ASSERT(y == y);
         ASSERT(!(y != y));
+
+        if (veryVerbose) printf("Try to fill 'x' with duplicate values\n");
 
         for (int i = 0; i != MAX_SAMPLE; ++i) {
             typedef bsl::pair<TestType::iterator, bool> InsertResult;
@@ -787,8 +788,13 @@ int main(int argc, char *argv[])
             ASSERT(x.end() != iterBool.first);
             ASSERT(*iterBool.first == dataSamples[i]);
         }
+
+        if (veryVerbose) printf("Validate 'x' with the expected value\n");
+
         validateIteration(mX);
-        printf("<<I>>\n");
+        testContainerHasData(x, 1, dataSamples, MAX_SAMPLE);
+
+        if (veryVerbose) printf("Fill 'y' with the same values as 'x'\n");
 
         for (int i = 0; i != MAX_SAMPLE; ++i) {
             typedef bsl::pair<TestType::iterator, bool> InsertResult;
@@ -797,7 +803,13 @@ int main(int argc, char *argv[])
             ASSERT(x.end() != iterBool.first);
             ASSERT(*iterBool.first == dataSamples[i]);
         }
-        validateIteration(mX);
+
+        if (veryVerbose) printf("Validate 'y' with the expected value\n");
+
+        validateIteration(mY);
+        testContainerHasData(y, 1, dataSamples, MAX_SAMPLE);
+
+        if (veryVerbose) printf("'x' and 'y' should now compare equal\n");
 
         ASSERT(x == x);
         ASSERT(!(x != x));
@@ -807,58 +819,57 @@ int main(int argc, char *argv[])
         ASSERT(!(x != y));
         ASSERT(y == y);
         ASSERT(!(y != y));
-        printf("<<I>>\n");
 
         testContainerHasData(x, 1, dataSamples, MAX_SAMPLE);
         testContainerHasData(y, 1, dataSamples, MAX_SAMPLE);
-        printf("<<J>>\n");
+
+        if (veryVerbose)
+            printf("Create an unordered_map, 'z', that is a copy of 'x'\n");
 
         TestType mZ = x;
         const TestType &z = mZ;
+
+        if (veryVerbose)
+            printf("Validate behavior of freshly constructed 'y'\n");
+
         ASSERT(1.0f == z.max_load_factor());
         ASSERT(x == z);
         ASSERT(!(x != z));
         ASSERT(z == x);
         ASSERT(!(z != x));
 
-        printf("<<K>>\n");
-
-
         validateIteration(mZ);
-#if 0 // Intended for multi-containers only
-        for (int i = 3; i != 6; ++i) {
-            fillContainerWithData(mZ, dataSamples, MAX_SAMPLE);
-            testContainerHasData(z, i, dataSamples, MAX_SAMPLE);
-            validateIteration(mZ);
-        }
-        ASSERT(x != z);
-        ASSERT(!(x == z));
-        ASSERT(z != x);
-        ASSERT(!(z == x));
-#endif
-        printf("<<L>>\n");
+
+        if (veryVerbose)
+            printf("Confirm that 'x' is unchanged by making the copy.\n");
 
         testBuckets(mX);
         validateIteration(mX);
-        printf("<<M>>\n");
+        ASSERT(y == x);
+
+        if (veryVerbose)
+            printf("Clear 'x' and confirm that it is empty.\n");
 
         mX.clear();
         testEmptyContainer(mX);
         testBuckets(mX);
-        printf("<<N>>\n");
+
+        if (veryVerbose)
+            printf("Assign the value of 'y' to 'x'.\n");
 
         mX = y;
+
+        if (veryVerbose) printf("Confirm 'x' has the expected value.\n");
+
         ASSERT(x == y);
         validateIteration(mX);
         testBuckets(mX);
-        printf("<<O>>\n");
 
-        if (veryVerbose) {
+        if (veryVeryVerbose) {
             debugPrint(mZ);
         }
         testErase(mZ);
 
-        printf("<<P>>\n");
 
         // quickly confirm assumptions on state of the containers
         ASSERT(z.empty());
@@ -867,8 +878,8 @@ int main(int argc, char *argv[])
         testMapLookup(mX);
         testImplicitInsert(mZ);  // double-check with an empty map
 
-        printf("<<Q>>\n");
-
+        if (veryVerbose)
+            printf("Final message to confim the end of the breathing test.\n");
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
