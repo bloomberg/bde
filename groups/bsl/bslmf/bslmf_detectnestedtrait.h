@@ -92,6 +92,15 @@ struct DetectNestedTrait : DetectNestedTrait_Imp<TYPE, TRAIT>::Type {
     // otherwise.
 };
 
+template <template <class T> class TRAIT>
+struct DetectNestedTrait<void, TRAIT> : bsl::false_type {
+    // This partial specialization of 'DetectNestedTrait' evaluates to
+    // 'false_type' for 'TYPE == void'.  Since 'void' is not a class, it
+    // cannot have nested traits.  This partial specialization is necessary to
+    // avoid attempting to generate a reference-to-void within the primary
+    // template.
+};
+
 }  // close package namespace
 
 }  // close enterprise namespace
