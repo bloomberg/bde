@@ -24,7 +24,6 @@
 #include <stdlib.h>
 
 using namespace BloombergLP;
-using namespace bsl;
 
 //=============================================================================
 //                             TEST PLAN
