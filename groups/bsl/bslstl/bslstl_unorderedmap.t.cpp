@@ -18,8 +18,6 @@
 #include <bsltf_stdtestallocator.h>
 
 #include <stdexcept>   // to confirm that the contractual exceptions are thrown
-#include <stdio.h>
-#include <stdlib.h>
 
 #include <stdio.h>
 #include <stdlib.h>
