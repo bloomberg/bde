@@ -733,7 +733,6 @@ int main(int argc, char *argv[])
 
         if (veryVerbose)
             printf("Final message to confim the end of the breathing test.\n");
-
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
