@@ -66,10 +66,6 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_removecv.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_REMOVEREFERENCE
-#include <bslmf_removereference.h>
-#endif
-
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 #ifndef INCLUDED_CSTDLIB
@@ -117,9 +113,7 @@ namespace bsl {
 template <typename TYPE>
 struct is_class : integral_constant<bool,
                                  BloombergLP::bslmf::IsClass_Imp<
-                                     typename remove_cv<
-                                         typename remove_reference<TYPE>::type>
-                                             ::type>::Value> {
+                                     typename remove_cv<TYPE>::type>::Value> {
     // This 'struct' template implements the 'is_class' meta-function defined
     // in the C++11 standard [meta.unary.cat] to determine if the (template
     // parameter) 'TYPE' is a class.

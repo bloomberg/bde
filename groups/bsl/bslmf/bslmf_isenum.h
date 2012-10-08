@@ -74,16 +74,8 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_removecv.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_REMOVEREFERENCE
-#include <bslmf_removereference.h>
-#endif
-
 #ifndef INCLUDED_BSLMF_ISREFERENCE
 #include <bslmf_isreference.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_METAINT
-#include <bslmf_metaint.h>
 #endif
 
 namespace BloombergLP {
@@ -124,38 +116,15 @@ struct IsEnum_AnyArithmeticType {
         // be ambiguous.
 };
 
-                                 // ============
-                                 // class IsEnum
-                                 // ============
-
-template <class TYPE>
-struct IsEnum
-    : bsl::integral_constant<
-        bool,
-        !bsl::is_fundamental<typename bsl::remove_reference<
-                             typename bsl::remove_cv<TYPE>::type>::type>::value
-        && bsl::is_convertible<TYPE, IsEnum_AnyArithmeticType>::value>
-    // This struct provides a meta-function that computes, at compile time,
-    // whether 'TYPE' is of enumeration type.  It derives from 'bsl::true_type'
-    // if 'TYPE' is an enumeration type, or from 'bsl::false_type' otherwise.
-    //
-    // Enumeration types are the only user-defined types that have the
-    // characteristics of a native arithmetic type (i.e., they can be promoted
-    // to 'int' without invoking user-defined conversions).  This class takes
-    // advantage if this property to distinguish 'enum' types from class types
-    // that are convertible to 'int'.
-{
-};
-
 }  // close package namespace
 
 }  // close enterprise namespace
 
 namespace bsl {
 
-                             // ==============
-                             // struct is_enum
-                             // ==============
+                               // ==============
+                               // struct is_enum
+                               // ==============
 
 template <typename TYPE>
 struct is_enum
@@ -174,6 +143,32 @@ struct is_enum
 };
 
 }  // close namespace bsl
+
+namespace BloombergLP {
+
+namespace bslmf {
+
+                                // ============
+                                // class IsEnum
+                                // ============
+
+template <class TYPE>
+struct IsEnum : bsl::is_enum<TYPE>::type 
+    // This struct provides a meta-function that computes, at compile time,
+    // whether 'TYPE' is of enumeration type.  It derives from 'bsl::true_type'
+    // if 'TYPE' is an enumeration type, or from 'bsl::false_type' otherwise.
+    //
+    // Enumeration types are the only user-defined types that have the
+    // characteristics of a native arithmetic type (i.e., they can be promoted
+    // to 'int' without invoking user-defined conversions).  This class takes
+    // advantage if this property to distinguish 'enum' types from class types
+    // that are convertible to 'int'.
+{
+};
+
+}  // close package namespace
+
+}  // close enterprise namespace
 
 #ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ===========================================================================

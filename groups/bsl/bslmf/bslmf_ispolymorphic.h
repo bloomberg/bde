@@ -117,10 +117,6 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_isclass.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_METAINT
-#include <bslmf_metaint.h>
-#endif
-
 #ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
 #include <bslmf_integralconstant.h>
 #endif
@@ -133,10 +129,8 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_removereference.h>
 #endif
 
-#ifdef BDE_BUILD_TARGET_EXC
-#define BSLMF_ISPOLYMORPHIC_NOTHROW throw()
-#else
-#define BSLMF_ISPOLYMORPHIC_NOTHROW
+#ifndef INCLUDED_BSLS_EXCEPTIONUTIL
+#include <bsls_exceptionutil.h>
 #endif
 
 #if (defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VER_MAJOR >= 40300)\
@@ -182,14 +176,14 @@ struct IsPolymorphic_Imp<TYPE, true> {
 
     struct IsPoly : public TYPE {
         IsPoly();
-        virtual ~IsPoly() BSLMF_ISPOLYMORPHIC_NOTHROW;
+        virtual ~IsPoly() BSLS_NOTHROW_SPEC;
 
         char dummy[256];
     };
 
     struct MaybePoly : public TYPE {
         MaybePoly();
-        ~MaybePoly() BSLMF_ISPOLYMORPHIC_NOTHROW;
+        ~MaybePoly() BSLS_NOTHROW_SPEC;
         char dummy[256];
     };
 
@@ -207,8 +201,7 @@ template <typename TYPE>
 struct is_polymorphic
     : integral_constant<bool,
                         BloombergLP::bslmf::IsPolymorphic_Imp<
-                             typename remove_cv<
-                                 typename remove_reference<TYPE>::type>::type>
+                             typename remove_cv<TYPE>::type>
                         ::Value> {
     // This 'struct' template implements the 'is_polymorphic' meta-function
     // defined in the C++11 standard [meta.unary.prop] to determine if the
@@ -231,8 +224,8 @@ template <typename TYPE>
 struct IsPolymorphic : bsl::is_polymorphic<TYPE>::type {
     // This 'struct' template implements a meta-function to determine if the
     // (template parameter) 'TYPE' is a (possiblly cv-qualified) polymorphic
-    // type.  This 'struct' derives from 'bslmf::MetaInt<1>' if the 'TYPE' is a
-    // polymorphic type, and 'bslmf::MetaInt<0>' otherwise.
+    // type.  This 'struct' derives from 'bsl::true_type' if the 'TYPE' is a
+    // polymorphic type, and 'bsl::false_type' otherwise.
     //
     // Note that although this 'struct' is functionally equivalent to
     // 'bsl::is_polymorphic', the use of 'bsl::is_polymorphic' should be
@@ -254,8 +247,6 @@ struct IsPolymorphic : bsl::is_polymorphic<TYPE>::type {
 #endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
-
-#undef BSLMF_ISPOLYMORPHIC_NOTHROW
 
 #endif
 

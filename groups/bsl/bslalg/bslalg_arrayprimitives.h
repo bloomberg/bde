@@ -341,6 +341,10 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bslmf_removecvq.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_REMOVEPOINTER
+#include <bslmf_removepointer.h>
+#endif
+
 #ifndef INCLUDED_BSLS_ALIGNMENTUTIL
 #include <bsls_alignmentutil.h>
 #endif
@@ -1090,47 +1094,6 @@ struct ArrayPrimitives_Imp {
         // *prove* that the passed range is invalid.
 };
 
-                        // ================================
-                        // bslalg_ArrayPrimitives_RemovePtr
-                        // ================================
-
-//TBD #ifndef BDE_OMIT_DEPRECATED
-template <typename NON_PTR_TYPE>
-struct ArrayPrimitives_RemovePtr {
-    // Given a template parameter 'T*', yield 'Type == T'.  Given a template
-    // paramter 'T' that is not a pointer, yield 'T'.
-    //
-    // DEPRECATED: In a future release, the class will be phased out and
-    // replaced by a new component in bslmf.
-
-    typedef NON_PTR_TYPE Type;
-};
-
-template <typename TARGET_TYPE>
-struct ArrayPrimitives_RemovePtr<TARGET_TYPE *> {
-
-    typedef TARGET_TYPE Type;
-};
-
-template <typename TARGET_TYPE>
-struct ArrayPrimitives_RemovePtr<const TARGET_TYPE *> {
-
-    typedef TARGET_TYPE Type;
-};
-
-template <typename TARGET_TYPE>
-struct ArrayPrimitives_RemovePtr<volatile TARGET_TYPE *> {
-
-    typedef TARGET_TYPE Type;
-};
-
-template <typename TARGET_TYPE>
-struct ArrayPrimitives_RemovePtr<const volatile TARGET_TYPE *> {
-
-    typedef TARGET_TYPE Type;
-};
-//TBD #endif  // BDE_OMIT_DEPRECATED
-
 // ===========================================================================
 //                      INLINE FUNCTION DEFINITIONS
 // ===========================================================================
@@ -1210,7 +1173,7 @@ void ArrayPrimitives::copyConstruct(TARGET_TYPE *toBegin,
 {
     BSLS_ASSERT_SAFE(toBegin || fromBegin == fromEnd);
 
-    typedef typename ArrayPrimitives_RemovePtr<FWD_ITER>::Type FwdTarget;
+    typedef typename bsl::remove_pointer<FWD_ITER>::type FwdTarget;
     enum {
         ARE_PTRS_TO_PTRS = bslmf::IsPointer<TARGET_TYPE>::value &&
                            bslmf::IsPointer<FWD_ITER   >::value &&
@@ -1495,7 +1458,7 @@ void ArrayPrimitives::insert(TARGET_TYPE *toBegin,
         return;                                                       // RETURN
     }
 
-    typedef typename ArrayPrimitives_RemovePtr<FWD_ITER>::Type FwdTarget;
+    typedef typename bsl::remove_pointer<FWD_ITER>::type FwdTarget;
     enum {
         ARE_PTRS_TO_PTRS = bslmf::IsPointer<TARGET_TYPE>::value &&
                            bslmf::IsPointer<FWD_ITER   >::value &&
@@ -1949,16 +1912,10 @@ void ArrayPrimitives_Imp::copyConstruct(
 
     BSLMF_ASSERT(sizeof(void *) == sizeof(void (*)()));
 
-    typedef typename bslmf::RemovePtrCvq<TARGET_TYPE>::Type NoConstTargetType;
-    typedef typename bslmf::RemovePtrCvq<FWD_ITER>::ValueType
-                                                           NoConstFwdIterValue;
-    typedef typename bslmf::RemovePtrCvq<NoConstFwdIterValue>::ValueType
-                                                      NoConstFwdIterValueValue;
-
     copyConstruct(
-           (void *       *) const_cast<NoConstTargetType *>(toBegin),
-           (void * const *) const_cast<NoConstFwdIterValueValue **>(fromBegin),
-           (void * const *) const_cast<NoConstFwdIterValueValue **>(fromEnd),
+           (void *       *) toBegin,
+           (void * const *) fromBegin,
+           (void * const *) fromEnd,
            allocator,
            (bslmf::MetaInt<BITWISE_COPYABLE_TRAITS> *) 0);
 }
@@ -2320,16 +2277,10 @@ void ArrayPrimitives_Imp::insert(
 
     BSLMF_ASSERT(sizeof(void *) == sizeof(void (*)()));
 
-    typedef typename bslmf::RemovePtrCvq<TARGET_TYPE>::Type NoConstTargetType;
-    typedef typename bslmf::RemovePtrCvq<FWD_ITER>::ValueType
-                                                           NoConstFwdIterValue;
-    typedef typename bslmf::RemovePtrCvq<NoConstFwdIterValue>::ValueType
-                                                      NoConstFwdIterValueValue;
-
-    insert((void *       *) const_cast<NoConstTargetType *>(toBegin),
-           (void *       *) const_cast<NoConstTargetType *>(toEnd),
-           (void * const *) const_cast<NoConstFwdIterValueValue **>(fromBegin),
-           (void * const *) const_cast<NoConstFwdIterValueValue **>(fromEnd),
+    insert((void *       *) toBegin,
+           (void *       *) toEnd,
+           (void * const *) fromBegin,
+           (void * const *) fromEnd,
            numElements,
            allocator,
            (bslmf::MetaInt<BITWISE_COPYABLE_TRAITS> *) 0);
