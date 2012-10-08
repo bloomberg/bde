@@ -20,7 +20,7 @@
 #include <bsltf_templatetestfacility.h>
 #include <bsltf_testvaluesarray.h>
 
-#include <algorithm>
+//#include <algorithm>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -462,7 +462,8 @@ class GroupedHasher : private HASHER{
     {
         int groupNum = bsltf::TemplateTestFacility::getIdentifier<TYPE>(value)
                      / GROUP_SIZE;
-        return ((HASHER *)this)->operator()(groupNum);
+        return const_cast<HASHER *>(static_cast<const HASHER *>(this))->
+                                                          operator()(groupNum);
     }
 };
 
