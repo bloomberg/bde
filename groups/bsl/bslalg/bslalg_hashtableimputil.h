@@ -242,7 +242,7 @@ struct HashTableImpUtil {
     template <class KEY_CONFIG, class HASHER>
     static bool isWellFormed(const HashTableAnchor& anchor);
         // Return 'true' if the specified 'anchor' is well-formed.  For a
-        // 'HastTableAnchor' to be considered well-formed for a particular key
+        // 'HashTableAnchor' to be considered well-formed for a particular key
         // policy, 'KEY_CONFIG', and hash functor, 'HASHER', all of the
         // following must be true:
         //
@@ -250,7 +250,7 @@ struct HashTableImpUtil {
         //:   well-formed doubly linked list (see
         //:   'bslalg_bidirectionallinklistutil').
         //:
-        //: 2 Each link in the list is an object of
+        //: 2 Each link in the list is an object of type
         //:   'BidirectionalNode<KEY_CONFIG::ValueType>'
         //:
         //: 3 Links in the doubly linked list having the same adjusted hash
