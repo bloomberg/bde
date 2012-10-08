@@ -11,7 +11,6 @@ BSLS_IDENT("$Id$ $CSID$")
 
 #if defined BSLS_PLATFORM_OS_UNIX
     #include <time.h>      // NOTE: <ctime> conflicts with <sys/time.h>
-    #include <sys/time.h>  // gethrtime()
     #include <sys/times.h> // struct tms, times()
     #include <unistd.h>    // sysconf(), _SC_CLK_TCK
 #elif defined BSLS_PLATFORM_OS_WINDOWS
@@ -20,6 +19,12 @@ BSLS_IDENT("$Id$ $CSID$")
     #include <sys/timeb.h> // ftime(struct timeb *)
 #else
     #error "Don't know how to get nanosecond time for this platform"
+#endif
+
+#ifdef BSLS_PLATFORM_OS_SOLARIS
+    #include <sys/time.h>  // gethrtime()
+#ifdef BSLS_PLATFORM_OS_HPUX
+    #include <sys/time.h>  // gethrtime()
 #endif
 
 namespace BloombergLP {
