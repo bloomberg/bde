@@ -160,6 +160,7 @@ template <class CONTAINER>
 void testConstEmptyContainer(const CONTAINER& x)
 {
     typedef CONTAINER TestType;
+    typedef typename TestType::size_type SizeType;
 
     ASSERT(x.empty());
     LOOP_ASSERT(x.size(), 0 == x.size());
@@ -171,8 +172,8 @@ void testConstEmptyContainer(const CONTAINER& x)
     ASSERT(0 == x.count(5));
     ASSERT(x.end() == x.find(5));
 
-    int nBuckets = x.bucket_count();
-    for (int i = 0; i != nBuckets; ++i) {
+    SizeType nBuckets = x.bucket_count();
+    for (SizeType i = 0; i != nBuckets; ++i) {
         ASSERT(0 == x.bucket_size(i));
         ASSERT(x.begin(i) == x.end(i));
         ASSERT(x.cbegin(i) == x.cend(i));
@@ -194,6 +195,7 @@ template <class CONTAINER>
 void testEmptyContainer(CONTAINER& x)
 {
     typedef CONTAINER TestType;
+    typedef typename TestType::size_type SizeType;
 
     ASSERT(x.empty());
     ASSERT(0 == x.size());
@@ -208,8 +210,8 @@ void testEmptyContainer(CONTAINER& x)
     ASSERT(0 == x.count(5));
     ASSERT(x.end() == x.find(5));
 
-    int nBuckets = x.bucket_count();
-    for (int i = 0; i != nBuckets; ++i) {
+    SizeType nBuckets = x.bucket_count();
+    for (SizeType i = 0; i != nBuckets; ++i) {
         ASSERT(0 == x.bucket_size(i));
         ASSERT(x.begin(i) == x.end(i));
         ASSERT(x.cbegin(i) == x.cend(i));
@@ -234,17 +236,18 @@ void testEmptyContainer(CONTAINER& x)
 }
 
 template <class CONTAINER>
-void testContainerHasData(const CONTAINER& x,
-                          int              nCopies,
+void testContainerHasData(const CONTAINER&                      x,
+                          typename CONTAINER::size_type         nCopies,
                           const typename CONTAINER::value_type *data,
-                          int              size)
+                          typename CONTAINER::size_type         size)
 {
     typedef CONTAINER TestType;
+    typedef typename TestType::size_type      SizeType;
     typedef typename TestType::const_iterator TestIterator;
 
     ASSERT(x.size() == nCopies * size);
 
-    for (int i = 0; i != size; ++i) {
+    for (SizeType i = 0; i != size; ++i) {
         TestIterator it = x.find(keyForValue<CONTAINER>(data[i]));
         ASSERT(x.end() != it);
         ASSERT(*it == data[i]);
@@ -270,12 +273,13 @@ void fillContainerWithData(CONTAINER& x,
                            int       size)
 {
     typedef CONTAINER TestType;
+    typedef typename TestType::size_type SizeType;
 
-    int initialSize = x.size();
+    SizeType initialSize = x.size();
     x.insert(data, data + size);
     ASSERT(x.size() == initialSize + size);
 
-    for (int i = 0; i != size; ++i) {
+    for (SizeType i = 0; i != size; ++i) {
         typename TestType::iterator it =
                                        x.find(keyForValue<CONTAINER>(data[i]));
         ASSERT(x.end() != it);
@@ -382,11 +386,12 @@ void testBuckets(CONTAINER& mX)
 template <class CONTAINER>
 void testErase(CONTAINER& mX)
 {
+    typedef typename CONTAINER::      size_type      SizeType;
     typedef typename CONTAINER::      iterator       iterator;
     typedef typename CONTAINER::const_iterator const_iterator;
 
     const CONTAINER& x = mX;
-    int size = x.size();
+    SizeType size = x.size();
 
     // test empty sub-ranges
     ASSERT(x.begin() == mX.erase(x.cbegin(), x.cbegin()));
@@ -405,7 +410,7 @@ void testErase(CONTAINER& mX)
     const_iterator cIter = x.begin();
     bsl::advance(cIter, x.size()/10);
     typename CONTAINER::key_type key = keyForValue<CONTAINER>(*cIter);
-    int duplicates = x.count(key);
+    SizeType duplicates = x.count(key);
     ASSERT(0 != duplicates);  // already tested, just a sanity check
     bsl::pair<const_iterator, const_iterator> valRange = x.equal_range(key);
     ASSERT(valRange.second != x.end());  // or else container is *tiny*
@@ -463,7 +468,7 @@ void testErase(CONTAINER& mX)
     // confirm they are not in the same bucket:
     //ASSERT(x.bucket(key) != x.bucket(keyForValue<CONTAINER>(*cIter)));
     //ASSERT(x.bucket(key) != x.bucket(keyForValue<CONTAINER>(*next)));
-    size_t erasures = 0;
+    SizeType erasures = 0;
     while (cIter != next) {
         cIter = mX.erase(cIter);  // compile check for return type
         ++erasures;
@@ -530,6 +535,7 @@ void testErase(CONTAINER& mX)
 template <class CONTAINER>
 void testMapLookup(CONTAINER& mX)
 {
+    typedef typename CONTAINER::      size_type      SizeType;
     typedef typename CONTAINER::      iterator       iterator;
     typedef typename CONTAINER::const_iterator const_iterator;
 
@@ -543,7 +549,7 @@ void testMapLookup(CONTAINER& mX)
         // do we write a note that we just erased an element?
     }
 
-    int size = x.size();
+    SizeType size = x.size();
 
     iterator it = mX.begin();
     key_type    key   = it->first;
@@ -569,6 +575,7 @@ void testMapLookup(CONTAINER& mX)
     try {
         mapped_type v = x.at(key_type());
         ASSERT(false); // prior line should throw
+        (void)v;       // resolve unused variable warning
     }
     catch(const std::exception&) {
         // expected code path
@@ -578,6 +585,7 @@ void testMapLookup(CONTAINER& mX)
     try {
         mapped_type v = mX.at(key_type());
         ASSERT(false); // prior line should throw
+        (void)v;       // resolve unused variable warning
     }
     catch(const std::exception&) {
         // expected code path
@@ -617,6 +625,7 @@ void testImplicitInsert(CONTAINER& mX)
     try {
         mapped_type v = x.at(key_type());
         ASSERT(false); // prior line should throw
+        (void)v;       // resolve unused variable warning
     }
     catch(const std::out_of_range&) {
         // expected code path
@@ -626,6 +635,7 @@ void testImplicitInsert(CONTAINER& mX)
     try {
         mapped_type v = mX.at(key_type());
         ASSERT(false); // prior line should throw
+        (void)v;       // resolve unused variable warning
     }
     catch(const std::out_of_range&) {
         // expected code path
@@ -669,7 +679,10 @@ int main(int argc, char *argv[])
         g_veryVeryVerbose =     veryVeryVerbose;
     g_veryVeryVeryVerbose = veryVeryVeryVerbose;
 
-    cout << "TEST " << __FILE__ << " CASE " << test << endl;
+    printf("TEST " __FILE__ " CASE %d\n", test);
+
+    bslma::TestAllocator testAlloc("A");
+    bslma::Default::setDefaultAllocator(&testAlloc);
 
     switch (test) { case 0:
       case 1: {
@@ -690,33 +703,35 @@ int main(int argc, char *argv[])
         //   BREATHING TEST
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "BREATHING TEST" << endl
-                                  << "==============" << endl;
-
+        if (verbose) printf("\nBREATHING TEST"
+                            "\n==============\n");
 
         typedef bsl::unordered_map<int, int> TestType;
+
+        if (verbose) printf("Default construct an unordered map.\n");
 
         TestType mX;
         const TestType &x = mX;
 
+        if (verbose) printf("Check 'max_load_factor' in the default state.\n");
+
         ASSERT(1.0f == x.max_load_factor());
-cout << "<<A>>" << endl;
 
         testConstEmptyContainer(x);
-cout << "<<A 1>>" << endl;
+        printf("<<A 1>>\n");
         testEmptyContainer(mX);
-cout << "<<A 2>>" << endl;
+        printf("<<A 2>>\n");
 
         swap(mX, mX);
-cout << "<<A 3>>" << endl;
+        printf("<<A 3>>\n");
 
         testConstEmptyContainer(x);
-cout << "<<A 4>>" << endl;
+        printf("<<A 4>>\n");
         testEmptyContainer(mX);
-cout << "<<A 5>>" << endl;
+        printf("<<A 5>>\n");
 
         validateIteration(mX);
-cout << "<<B>>" << endl;
+        printf("<<B>>\n");
         typedef TestType::value_type BaseValue;
         const int MAX_SAMPLE = 5000;
         BaseValue *dataSamples = new BaseValue[MAX_SAMPLE];
@@ -725,17 +740,17 @@ cout << "<<B>>" << endl;
                                                      // supply 'const' key
         }
 
-cout << "<<C>>" << endl;
+        printf("<<C>>\n");
 
         TestType mY(dataSamples, dataSamples + MAX_SAMPLE);
         const TestType &y = mY;
 
         ASSERT(1.0f == y.max_load_factor());
-cout << "<<D>>" << endl;
+        printf("<<D>>\n");
 
         testContainerHasData(y, 1, dataSamples, MAX_SAMPLE);
         validateIteration(mY);
-cout << "<<E>>" << endl;
+        printf("<<E>>\n");
         ASSERT(x == x);
         ASSERT(!(x != x));
         ASSERT(y != x);
@@ -746,15 +761,15 @@ cout << "<<E>>" << endl;
         ASSERT(!(y != y));
 
         swap(mX, mY);
-cout << "<<F>>" << endl;
+        printf("<<F>>\n");
 
         testConstEmptyContainer(y);
         testEmptyContainer(mY);
         validateIteration(mY);
-cout << "<<G>>" << endl;
+        printf("<<G>>\n");
         testContainerHasData(x, 1, dataSamples, MAX_SAMPLE);
         validateIteration(mX);
-cout << "<<H>>" << endl;
+        printf("<<H>>\n");
 
         ASSERT(x == x);
         ASSERT(!(x != x));
@@ -773,7 +788,7 @@ cout << "<<H>>" << endl;
             ASSERT(*iterBool.first == dataSamples[i]);
         }
         validateIteration(mX);
-cout << "<<I>>" << endl;
+        printf("<<I>>\n");
 
         for (int i = 0; i != MAX_SAMPLE; ++i) {
             typedef bsl::pair<TestType::iterator, bool> InsertResult;
@@ -792,11 +807,11 @@ cout << "<<I>>" << endl;
         ASSERT(!(x != y));
         ASSERT(y == y);
         ASSERT(!(y != y));
-cout << "<<I>>" << endl;
+        printf("<<I>>\n");
 
         testContainerHasData(x, 1, dataSamples, MAX_SAMPLE);
         testContainerHasData(y, 1, dataSamples, MAX_SAMPLE);
-cout << "<<J>>" << endl;
+        printf("<<J>>\n");
 
         TestType mZ = x;
         const TestType &z = mZ;
@@ -806,7 +821,7 @@ cout << "<<J>>" << endl;
         ASSERT(z == x);
         ASSERT(!(z != x));
 
-cout << "<<K>>" << endl;
+        printf("<<K>>\n");
 
 
         validateIteration(mZ);
@@ -821,29 +836,29 @@ cout << "<<K>>" << endl;
         ASSERT(z != x);
         ASSERT(!(z == x));
 #endif
-cout << "<<L>>" << endl;
+        printf("<<L>>\n");
 
         testBuckets(mX);
         validateIteration(mX);
-cout << "<<M>>" << endl;
+        printf("<<M>>\n");
 
         mX.clear();
         testEmptyContainer(mX);
         testBuckets(mX);
-cout << "<<N>>" << endl;
+        printf("<<N>>\n");
 
         mX = y;
         ASSERT(x == y);
         validateIteration(mX);
         testBuckets(mX);
-cout << "<<O>>" << endl;
+        printf("<<O>>\n");
 
         if (veryVerbose) {
             debugPrint(mZ);
         }
         testErase(mZ);
 
-cout << "<<P>>" << endl;
+        printf("<<P>>\n");
 
         // quickly confirm assumptions on state of the containers
         ASSERT(z.empty());
@@ -852,19 +867,19 @@ cout << "<<P>>" << endl;
         testMapLookup(mX);
         testImplicitInsert(mZ);  // double-check with an empty map
 
-cout << "<<Q>>" << endl;
+        printf("<<Q>>\n");
 
       } break;
       default: {
-        cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
+        fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
         testStatus = -1;
       }
-
     }
 
     if (testStatus > 0) {
-        cerr << "Error, non-zero test status = " << testStatus << "." << endl;
+        fprintf(stderr, "Error, non-zero test status = %d.\n", testStatus);
     }
+
     return testStatus;
 }  // Breathing test driver
 
