@@ -829,7 +829,7 @@ int main(int argc, char *argv[])
         const TestType &z = mZ;
 
         if (veryVerbose)
-            printf("Validate behavior of freshly constructed 'y'\n");
+            printf("Validate behavior of freshly constructed 'z'\n");
 
         ASSERT(1.0f == z.max_load_factor());
         ASSERT(x == z);
