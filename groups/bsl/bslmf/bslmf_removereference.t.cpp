@@ -17,17 +17,19 @@ using namespace std;
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// The object under test is a meta-function, 'bsl::remove_reference', which
-// transform a template parameter 'TYPE' to its rvalue reference type.  Thus,
-// we need to ensure that the value returned by this meta-functions is correct
-// for each possible category of types.
+// The component under test defines two meta-function, 'bsl::remove_reference'
+// and 'bslmf::RemoveReference', both of which removes the reference-ness of
+// the (template parameter) 'TYPE'.  Thus, we need to ensure that the value
+// returned by this meta-functions is correct for each possible category of
+// types.
 //
 // ----------------------------------------------------------------------------
 // PUBLIC CLASS DATA
 // [ 1] bsl::remove_reference::type
+// [ 2] bslmf::RemoveReference::Type
 //
 // ----------------------------------------------------------------------------
-// [ 2] USAGE EXAMPLE
+// [ 3] USAGE EXAMPLE
 
 //=============================================================================
 //                  STANDARD BDE ASSERT TEST MACRO
@@ -72,18 +74,28 @@ class  Class  {};
 
 typedef int INT;
 
-typedef void      F ();
-typedef void ( & RF)();
-typedef void (*  PF)();
-typedef void (*&RPF)();
+typedef void        F ();
+typedef void (  &  RF)();
+typedef void (*    PF)();
+typedef void (*&  RPF)();
 
-typedef void    Fi  (int);
-typedef void (&RFi) (int);
-typedef void    FRi (int&);
-typedef void (&RFRi)(int&);
+typedef void      Fi  (int);
+typedef void ( & RFi) (int);
+typedef void      FRi (int&);
+typedef void ( & RFRi)(int&);
 
-typedef char    A [5];
-typedef char (&RA)[5];
+
+typedef char      A [5];
+typedef char ( & RA)[5];
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+typedef void ( && RRF) ();
+typedef void (*&&RRPF) ();
+typedef void ( &&RRFi) (int);
+typedef void ( &&RRFRi)(int&);
+
+typedef char ( &&RRA)[5];
+#endif
 
 #define ASSERT_SAME(X, Y)                                                     \
     ASSERT((bsl::is_same<bsl::remove_reference<X>::type, Y>::value))
@@ -142,13 +154,13 @@ int main(int argc, char *argv[])
 ///-----
 // In this section we show intended use of this component.
 //
-///Example 1: Verify Pointer Types
-///- - - - - - - - - - - - - - - -
-// Suppose that we want to remove reference-ness on a couple of types.
+///Example 1: Remove Types' Reference-ness
+///- - - - - - - - - - - - - - - - - - - -
+// Suppose that we want to remove reference-ness on a set of types.
 //
 // Now, we instantiate the 'bsl::remove_reference' template for each of these
-// types, and use 'bsl::is_same' meta-function to assert the 'type' static data
-// member of each instantiation:
+// types, and use the 'bsl::is_same' meta-function to assert the 'type' static
+// data member of each instantiation:
 //..
     ASSERT(true  ==
                (bsl::is_same<bsl::remove_reference<int&>::type, int >::value));
@@ -156,7 +168,13 @@ int main(int argc, char *argv[])
                (bsl::is_same<bsl::remove_reference<int&>::type, int&>::value));
     ASSERT(true  ==
                (bsl::is_same<bsl::remove_reference<int >::type, int >::value));
+  #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+    ASSERT(true ==
+              (bsl::is_same<bsl::remove_reference<int&&>::type, int >::value));
+  #endif
 //..
+// Note that rvalue reference is a feature introduced in the C++11 standard and
+// may not be supported by all compilers.
 
       } break;
       case 2: {
@@ -168,55 +186,75 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //: 1 'RemoveReference::Type' correctly removes reference-ness from
-        //:   'TYPE' if 'TYPE' is a reference type.
+        //:   'TYPE' if 'TYPE' is an (lvalue or rvalue) reference type.
         //:
         //: 2 'RemoveReference::Type' does not transform 'TYPE' when 'TYPE' is
         //:   not a reference type.
         //
         // Plan:
         //   Instantiate 'bslmf::RemoveReference' with various types and
-        //   verify that the 'Type' member is initialized properly.
+        //   verify that the 'Type' member is initialized properly.  (C-1)
         //
         // Testing:
         //   bslmf::RemoveReference::Type
         // --------------------------------------------------------------------
 
-        if (verbose) printf("bslmf::RemoveReference\n"
-                            "======================\n");
+        if (verbose) printf("bslmf::RemoveReference::Type\n"
+                            "============================\n");
 
-        ASSERT_REMOVE_REF2(int,  int);
-        ASSERT_REMOVE_REF2(int&, int);
+        // C-1
 
-        ASSERT_REMOVE_REF2(void*,  void*);
-        ASSERT_REMOVE_REF2(void*&, void*);
-
-        ASSERT_REMOVE_REF2(Enum,  Enum);
-        ASSERT_REMOVE_REF2(Enum&, Enum);
-
-        ASSERT_REMOVE_REF2(Struct,  Struct);
+        ASSERT_REMOVE_REF2(int&,    int);
+        ASSERT_REMOVE_REF2(void*&,  void*);
+        ASSERT_REMOVE_REF2(Enum&,   Enum);
         ASSERT_REMOVE_REF2(Struct&, Struct);
+        ASSERT_REMOVE_REF2(Union&,  Union);
+        ASSERT_REMOVE_REF2(Class&,  Class);
 
-        ASSERT_REMOVE_REF2(Union,  Union);
-        ASSERT_REMOVE_REF2(Union&, Union);
-
-        ASSERT_REMOVE_REF2(Class,  Class);
-        ASSERT_REMOVE_REF2(Class&, Class);
-
-        ASSERT_REMOVE_REF2(int Class::*,  int Class::*);
         ASSERT_REMOVE_REF2(int Class::*&, int Class::*);
 
-        ASSERT_SAME2(  F,  F);
         ASSERT_SAME2( RF,  F);
-        ASSERT_SAME2( PF, PF);
         ASSERT_SAME2(RPF, PF);
 
-        ASSERT_SAME2(  Fi,  Fi);
         ASSERT_SAME2( RFi,  Fi);
-        ASSERT_SAME2( FRi, FRi);
         ASSERT_SAME2(RFRi, FRi);
 
-        ASSERT_SAME2(A,  A);
         ASSERT_SAME2(RA, A);
+
+        // C-2
+
+        ASSERT_REMOVE_REF2(int,    int);
+        ASSERT_REMOVE_REF2(void*,  void*);
+        ASSERT_REMOVE_REF2(Enum,   Enum);
+        ASSERT_REMOVE_REF2(Struct, Struct);
+        ASSERT_REMOVE_REF2(Union,  Union);
+        ASSERT_REMOVE_REF2(Class,  Class);
+
+        ASSERT_REMOVE_REF2(int Class::*,  int Class::*);
+
+        ASSERT_SAME2( F,  F);
+        ASSERT_SAME2(PF, PF);
+
+        ASSERT_SAME2( Fi,  Fi);
+        ASSERT_SAME2(FRi, FRi);
+
+        ASSERT_SAME2(A,  A);
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+        ASSERT_REMOVE_REF2(int&&,    int );
+        ASSERT_REMOVE_REF2(void*&&,  void*);
+        ASSERT_REMOVE_REF2(Struct&&, Struct);
+        ASSERT_REMOVE_REF2(Union&&,  Union);
+        ASSERT_REMOVE_REF2(Class&&,  Class);
+        ASSERT_REMOVE_REF2(int Class::*&&, int Class::*);
+
+        ASSERT_SAME2(RRF,   F);
+        ASSERT_SAME2(RRPF,  PF);
+        ASSERT_SAME2(RRFRi, FRi);
+
+        ASSERT_SAME2(RRA, A);
+#endif
+
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -227,55 +265,75 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //: 1 'remove_reference::type' correctly removes reference-ness from
-        //:   'TYPE' if 'TYPE' is a reference type.
+        //:   'TYPE' if 'TYPE' is an (lvalue or rvalue) reference type.
         //:
         //: 2 'remove_reference::type' does not transform 'TYPE' when 'TYPE' is
         //:   not a reference type.
         //
         // Plan:
         //   Instantiate 'bsl::remove_reference' with various types and
-        //   verify that the 'type' member is initialized properly.
+        //   verify that the 'type' member is initialized properly.  (C-1,2)
         //
         // Testing:
         //   bsl::remove_reference::type
         // --------------------------------------------------------------------
 
-        if (verbose) printf("bsl::remove_reference\n"
-                            "=====================\n");
+        if (verbose) printf("bsl::remove_reference::type\n"
+                            "===========================\n");
 
-        ASSERT_REMOVE_REF(int,  int);
-        ASSERT_REMOVE_REF(int&, int);
+        // C-1
 
-        ASSERT_REMOVE_REF(void*,  void*);
-        ASSERT_REMOVE_REF(void*&, void*);
-
-        ASSERT_REMOVE_REF(Enum,  Enum);
-        ASSERT_REMOVE_REF(Enum&, Enum);
-
-        ASSERT_REMOVE_REF(Struct,  Struct);
+        ASSERT_REMOVE_REF(int&,    int);
+        ASSERT_REMOVE_REF(void*&,  void*);
+        ASSERT_REMOVE_REF(Enum&,   Enum);
         ASSERT_REMOVE_REF(Struct&, Struct);
+        ASSERT_REMOVE_REF(Union&,  Union);
+        ASSERT_REMOVE_REF(Class&,  Class);
 
-        ASSERT_REMOVE_REF(Union,  Union);
-        ASSERT_REMOVE_REF(Union&, Union);
-
-        ASSERT_REMOVE_REF(Class,  Class);
-        ASSERT_REMOVE_REF(Class&, Class);
-
-        ASSERT_REMOVE_REF(int Class::*,  int Class::*);
         ASSERT_REMOVE_REF(int Class::*&, int Class::*);
 
         ASSERT_SAME(  F,  F);
-        ASSERT_SAME( RF,  F);
         ASSERT_SAME( PF, PF);
-        ASSERT_SAME(RPF, PF);
 
-        ASSERT_SAME(  Fi,  Fi);
         ASSERT_SAME( RFi,  Fi);
-        ASSERT_SAME( FRi, FRi);
         ASSERT_SAME(RFRi, FRi);
 
-        ASSERT_SAME(A,  A);
         ASSERT_SAME(RA, A);
+
+        // C-2
+
+        ASSERT_REMOVE_REF(int,    int);
+        ASSERT_REMOVE_REF(void*,  void*);
+        ASSERT_REMOVE_REF(Enum,   Enum);
+        ASSERT_REMOVE_REF(Struct, Struct);
+        ASSERT_REMOVE_REF(Union,  Union);
+        ASSERT_REMOVE_REF(Class,  Class);
+
+        ASSERT_REMOVE_REF(int Class::*,  int Class::*);
+
+        ASSERT_SAME( RF,  F);
+        ASSERT_SAME(RPF, PF);
+
+        ASSERT_SAME( Fi,  Fi);
+        ASSERT_SAME(FRi, FRi);
+
+        ASSERT_SAME(A,  A);
+
+  #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+        ASSERT_REMOVE_REF(int&&,    int );
+        ASSERT_REMOVE_REF(void*&&,  void*);
+        ASSERT_REMOVE_REF(Enum&&,   Enum);
+        ASSERT_REMOVE_REF(Struct&&, Struct);
+        ASSERT_REMOVE_REF(Union&&,  Union);
+        ASSERT_REMOVE_REF(Class&&,  Class);
+        ASSERT_REMOVE_REF(int Class::*&&, int Class::*);
+
+        ASSERT_SAME(RRF,   F);
+        ASSERT_SAME(RRPF,  PF);
+        ASSERT_SAME(RRFRi, FRi);
+
+        ASSERT_SAME(RRA, A);
+  #endif
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
@@ -290,11 +348,11 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2005
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

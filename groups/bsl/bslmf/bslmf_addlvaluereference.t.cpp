@@ -17,10 +17,10 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// The object under test is a meta-function, 'bsl::add_lvalue_reference', which
-// transform a template parameter 'TYPE' to its lvalue reference type.  Thus,
-// we need to ensure that the value returned by this meta-functions is correct
-// for each possible category of types.
+// The component under test defines a meta-function,
+// 'bsl::add_lvalue_reference', which transform a template parameter 'TYPE' to
+// its lvalue reference type.  Thus, we need to ensure that the value returned
+// by this meta-functions is correct for each possible category of types.
 //
 // ----------------------------------------------------------------------------
 // PUBLIC CLASS DATA
@@ -134,6 +134,22 @@ struct Incomplete;
               const volatile TYPE&                                            \
               >::value));
 
+#define ASSERT_LVALUE_REF_TRUE2(TYPE)                                         \
+    ASSERT(true == (bsl::is_same<                                             \
+              bsl::add_lvalue_reference<TYPE&&>::type, TYPE&                  \
+              >::value));                                                     \
+    ASSERT(true == (bsl::is_same<                                             \
+              bsl::add_lvalue_reference<const TYPE&&>::type, const TYPE&      \
+              >::value));                                                     \
+    ASSERT(true == (bsl::is_same<                                             \
+              bsl::add_lvalue_reference<volatile TYPE&>::type, volatile TYPE& \
+              >::value));                                                     \
+    ASSERT(true == (bsl::is_same<                                             \
+              bsl::add_lvalue_reference<const volatile TYPE&&>::type,         \
+              const volatile TYPE&                                            \
+              >::value));
+
+
 #define ASSERT_LVALUE_REF_FALSE(TYPE)                                         \
     ASSERT(false == (bsl::is_same<                                            \
               bsl::add_lvalue_reference<TYPE>::type, TYPE                     \
@@ -202,7 +218,8 @@ int main(int argc, char *argv[])
 //
 ///Example 1: Transform to Lvalue Reference Types
 /// - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose that we want to transform a couple of types to reference types.
+// Suppose that we want to transform a set of types to their lvalue reference
+// types.
 //
 // Now, we instantiate the 'bsl::add_lvalue_reference' template for these
 // types, and use the 'bsl::is_same' meta-function to assert the 'type' static
@@ -219,8 +236,8 @@ int main(int argc, char *argv[])
           (bsl::is_same<bsl::add_lvalue_reference<int&&>::type, int&>::value));
   #endif
 //..
-// Note that rvalue is introduced in C++11 and may not be supported by all
-// compilers.
+// Note that rvalue reference is a feature introduced in the C++11 standard and
+// may not be supported by all compilers.
 
       } break;
       case 1: {
@@ -235,7 +252,11 @@ int main(int argc, char *argv[])
         //:   lvalue reference type when 'TYPE' is an object or a function.
         //:
         //: 2 'add_lvalue_reference::type' does not transform 'TYPE' when
-        //:   'TYPE' is neither an object nor function.
+        //:   'TYPE' is already an lvalue reference type.
+        //:
+        //: 3 'add_lvalue_reference::type' transformes 'TYPE' to the lvalue
+        //:   reference type of its underlying type when 'TYPE' is an rvalue
+        //:   reference type.
         //
         // Plan:
         //   Instantiate 'bsl::add_lvalue_reference' with various types and
@@ -245,106 +266,67 @@ int main(int argc, char *argv[])
         //   bsl::add_lvalue_reference::type
         // --------------------------------------------------------------------
 
-        if (verbose) printf("bsl::add_lvalue_reference\n"
-                            "=========================\n");
+        if (verbose) printf("bsl::add_lvalue_reference::type\n"
+                            "===============================\n");
+
+        // C-1
 
         ASSERT_LVALUE_REF_TRUE (int );
         ASSERT_LVALUE_REF_FALSE(int );
-        ASSERT_LVALUE_REF_SAME (int&);
         ASSERT_LVALUE_REF_TRUE (int* );
         ASSERT_LVALUE_REF_FALSE(int* );
-        ASSERT_LVALUE_REF_SAME (int*&);
-
         ASSERT_LVALUE_REF_TRUE (EnumTestType );
         ASSERT_LVALUE_REF_FALSE(EnumTestType );
-        ASSERT_LVALUE_REF_SAME (EnumTestType&);
         ASSERT_LVALUE_REF_TRUE (EnumTestType* );
         ASSERT_LVALUE_REF_FALSE(EnumTestType* );
-        ASSERT_LVALUE_REF_SAME (EnumTestType*&);
-
         ASSERT_LVALUE_REF_TRUE (StructTestType );
         ASSERT_LVALUE_REF_FALSE(StructTestType );
-        ASSERT_LVALUE_REF_SAME (StructTestType&);
         ASSERT_LVALUE_REF_TRUE (StructTestType* );
         ASSERT_LVALUE_REF_FALSE(StructTestType* );
-        ASSERT_LVALUE_REF_SAME (StructTestType*&);
-
         ASSERT_LVALUE_REF_TRUE (UnionTestType );
         ASSERT_LVALUE_REF_FALSE(UnionTestType );
-        ASSERT_LVALUE_REF_SAME (UnionTestType&);
         ASSERT_LVALUE_REF_TRUE (UnionTestType* );
         ASSERT_LVALUE_REF_FALSE(UnionTestType* );
-        ASSERT_LVALUE_REF_SAME (UnionTestType*&);
-
         ASSERT_LVALUE_REF_TRUE (BaseClassTestType );
         ASSERT_LVALUE_REF_FALSE(BaseClassTestType );
-        ASSERT_LVALUE_REF_SAME (BaseClassTestType&);
-        ASSERT_LVALUE_REF_TRUE (BaseClassTestType* );
+        ASSERT_LVALUE_REF_TRUE (BaseClassTestType*);
         ASSERT_LVALUE_REF_FALSE(BaseClassTestType* );
-        ASSERT_LVALUE_REF_SAME (BaseClassTestType*&);
-
         ASSERT_LVALUE_REF_TRUE (DerivedClassTestType );
         ASSERT_LVALUE_REF_FALSE(DerivedClassTestType );
-        ASSERT_LVALUE_REF_SAME (DerivedClassTestType&);
         ASSERT_LVALUE_REF_TRUE (DerivedClassTestType* );
         ASSERT_LVALUE_REF_FALSE(DerivedClassTestType* );
-        ASSERT_LVALUE_REF_SAME (DerivedClassTestType*&);
-
         ASSERT_LVALUE_REF_TRUE (MethodPtrTestType );
         ASSERT_LVALUE_REF_FALSE(MethodPtrTestType );
-        ASSERT_LVALUE_REF_SAME (MethodPtrTestType&);
         ASSERT_LVALUE_REF_TRUE (MethodPtrTestType* );
         ASSERT_LVALUE_REF_FALSE(MethodPtrTestType* );
-        ASSERT_LVALUE_REF_SAME (MethodPtrTestType*&);
-
         ASSERT_LVALUE_REF_TRUE (FunctionPtrTestType );
         ASSERT_LVALUE_REF_FALSE(FunctionPtrTestType );
-        ASSERT_LVALUE_REF_SAME (FunctionPtrTestType&);
         ASSERT_LVALUE_REF_TRUE (FunctionPtrTestType* );
         ASSERT_LVALUE_REF_FALSE(FunctionPtrTestType* );
-        ASSERT_LVALUE_REF_SAME (FunctionPtrTestType*&);
-
         ASSERT_LVALUE_REF_TRUE (PMD );
         ASSERT_LVALUE_REF_FALSE(PMD );
-        ASSERT_LVALUE_REF_SAME (PMD&);
         ASSERT_LVALUE_REF_TRUE (PMD* );
         ASSERT_LVALUE_REF_FALSE(PMD* );
-        ASSERT_LVALUE_REF_SAME (PMD*&);
-
         ASSERT_LVALUE_REF_TRUE (int StructTestType::* );
         ASSERT_LVALUE_REF_FALSE(int StructTestType::* );
-        ASSERT_LVALUE_REF_SAME (int StructTestType::*&);
         ASSERT_LVALUE_REF_TRUE (int StructTestType::* * );
         ASSERT_LVALUE_REF_FALSE(int StructTestType::* * );
-        ASSERT_LVALUE_REF_SAME (int StructTestType::* *&);
-
         ASSERT_LVALUE_REF_TRUE (int StructTestType::* * );
         ASSERT_LVALUE_REF_FALSE(int StructTestType::* * );
-        ASSERT_LVALUE_REF_SAME (int StructTestType::* *&);
         ASSERT_LVALUE_REF_TRUE (int StructTestType::* * * );
         ASSERT_LVALUE_REF_FALSE(int StructTestType::* * * );
-        ASSERT_LVALUE_REF_SAME (int StructTestType::* * *&);
-
         ASSERT_LVALUE_REF_TRUE (PMD BaseClassTestType::* );
         ASSERT_LVALUE_REF_FALSE(PMD BaseClassTestType::* );
-        ASSERT_LVALUE_REF_SAME (PMD BaseClassTestType::*&);
         ASSERT_LVALUE_REF_TRUE (PMD BaseClassTestType::* * );
         ASSERT_LVALUE_REF_FALSE(PMD BaseClassTestType::* * );
-        ASSERT_LVALUE_REF_SAME (PMD BaseClassTestType::* *&);
-
         ASSERT_LVALUE_REF_TRUE (PMD BaseClassTestType::* * );
         ASSERT_LVALUE_REF_FALSE(PMD BaseClassTestType::* * );
-        ASSERT_LVALUE_REF_SAME (PMD BaseClassTestType::* *&);
         ASSERT_LVALUE_REF_TRUE (PMD BaseClassTestType::* * * );
         ASSERT_LVALUE_REF_FALSE(PMD BaseClassTestType::* * * );
-        ASSERT_LVALUE_REF_SAME (PMD BaseClassTestType::* * *&);
-
         ASSERT_LVALUE_REF_TRUE (Incomplete );
         ASSERT_LVALUE_REF_FALSE(Incomplete );
-        ASSERT_LVALUE_REF_SAME (Incomplete&);
         ASSERT_LVALUE_REF_TRUE (Incomplete* );
         ASSERT_LVALUE_REF_FALSE(Incomplete* );
-        ASSERT_LVALUE_REF_SAME (Incomplete*&);
 
 #ifndef BSLS_PLATFORM__CMP_IBM
         // Some function types are not compilable on AIX.
@@ -352,10 +334,87 @@ int main(int argc, char *argv[])
         typedef int F(int);
         ASSERT_LVALUE_REF_TRUE (F);
         ASSERT_LVALUE_REF_FALSE(F);
-        ASSERT_LVALUE_REF_SAME (F&);
         ASSERT_LVALUE_REF_TRUE (F*);
         ASSERT_LVALUE_REF_FALSE(F*);
-        ASSERT_LVALUE_REF_SAME (F*&);
+#endif
+
+        // C-2
+
+        ASSERT_LVALUE_REF_SAME(int&);
+        ASSERT_LVALUE_REF_SAME(int*&);
+        ASSERT_LVALUE_REF_SAME(EnumTestType&);
+        ASSERT_LVALUE_REF_SAME(EnumTestType*&);
+        ASSERT_LVALUE_REF_SAME(StructTestType&);
+        ASSERT_LVALUE_REF_SAME(StructTestType*&);
+        ASSERT_LVALUE_REF_SAME(UnionTestType&);
+        ASSERT_LVALUE_REF_SAME(UnionTestType*&);
+        ASSERT_LVALUE_REF_SAME(BaseClassTestType&);
+        ASSERT_LVALUE_REF_SAME(BaseClassTestType*&);
+        ASSERT_LVALUE_REF_SAME(DerivedClassTestType&);
+        ASSERT_LVALUE_REF_SAME(DerivedClassTestType*&);
+        ASSERT_LVALUE_REF_SAME(MethodPtrTestType&);
+        ASSERT_LVALUE_REF_SAME(MethodPtrTestType*&);
+        ASSERT_LVALUE_REF_SAME(FunctionPtrTestType&);
+        ASSERT_LVALUE_REF_SAME(FunctionPtrTestType*&);
+        ASSERT_LVALUE_REF_SAME(PMD&);
+        ASSERT_LVALUE_REF_SAME(PMD*&);
+        ASSERT_LVALUE_REF_SAME(int StructTestType::*&);
+        ASSERT_LVALUE_REF_SAME(int StructTestType::* *&);
+        ASSERT_LVALUE_REF_SAME(int StructTestType::* *&);
+        ASSERT_LVALUE_REF_SAME(int StructTestType::* * *&);
+        ASSERT_LVALUE_REF_SAME(PMD BaseClassTestType::*&);
+        ASSERT_LVALUE_REF_SAME(PMD BaseClassTestType::* *&);
+        ASSERT_LVALUE_REF_SAME(PMD BaseClassTestType::* *&);
+        ASSERT_LVALUE_REF_SAME(PMD BaseClassTestType::* * *&);
+        ASSERT_LVALUE_REF_SAME(Incomplete&);
+        ASSERT_LVALUE_REF_SAME(Incomplete*&);
+
+#ifndef BSLS_PLATFORM__CMP_IBM
+        // Some function types are not compilable on AIX.
+
+        ASSERT_LVALUE_REF_SAME(F&);
+        ASSERT_LVALUE_REF_SAME(F*&);
+#endif
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+        // C-3
+
+        ASSERT_LVALUE_REF_TRUE2(int);
+        ASSERT_LVALUE_REF_TRUE2(int*);
+        ASSERT_LVALUE_REF_TRUE2(EnumTestType);
+        ASSERT_LVALUE_REF_TRUE2(EnumTestType*);
+        ASSERT_LVALUE_REF_TRUE2(StructTestType);
+        ASSERT_LVALUE_REF_TRUE2(StructTestType*);
+        ASSERT_LVALUE_REF_TRUE2(UnionTestType);
+        ASSERT_LVALUE_REF_TRUE2(UnionTestType*);
+        ASSERT_LVALUE_REF_TRUE2(BaseClassTestType);
+        ASSERT_LVALUE_REF_TRUE2(BaseClassTestType*);
+        ASSERT_LVALUE_REF_TRUE2(DerivedClassTestType);
+        ASSERT_LVALUE_REF_TRUE2(DerivedClassTestType*);
+        ASSERT_LVALUE_REF_TRUE2(MethodPtrTestType);
+        ASSERT_LVALUE_REF_TRUE2(MethodPtrTestType*);
+        ASSERT_LVALUE_REF_TRUE2(FunctionPtrTestType);
+        ASSERT_LVALUE_REF_TRUE2(FunctionPtrTestType*);
+        ASSERT_LVALUE_REF_TRUE2(PMD);
+        ASSERT_LVALUE_REF_TRUE2(PMD*);
+        ASSERT_LVALUE_REF_TRUE2(int StructTestType::*);
+        ASSERT_LVALUE_REF_TRUE2(int StructTestType::* *);
+        ASSERT_LVALUE_REF_TRUE2(int StructTestType::* *);
+        ASSERT_LVALUE_REF_TRUE2(int StructTestType::* * *);
+        ASSERT_LVALUE_REF_TRUE2(PMD BaseClassTestType::*);
+        ASSERT_LVALUE_REF_TRUE2(PMD BaseClassTestType::* *);
+        ASSERT_LVALUE_REF_TRUE2(PMD BaseClassTestType::* *);
+        ASSERT_LVALUE_REF_TRUE2(PMD BaseClassTestType::* * *);
+        ASSERT_LVALUE_REF_TRUE2(Incomplete);
+        ASSERT_LVALUE_REF_TRUE2(Incomplete*);
+
+#ifndef BSLS_PLATFORM__CMP_IBM
+        // Some function types are not compilable on AIX.
+
+        ASSERT_LVALUE_REF_TRUE2(F);
+        ASSERT_LVALUE_REF_TRUE2(F*);
+#endif
+
 #endif
       } break;
       default: {

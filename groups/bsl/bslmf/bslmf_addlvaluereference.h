@@ -10,15 +10,15 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a compile-time type transformation to lvalue reference.
 //
 //@CLASSES:
-//  bsl::add_lvalue_reference: standard meta-function for transforming type
+//  bsl::add_lvalue_reference: standard meta-function for type transformation
 //
-//@SEE_ALSO: bslmf_integralconstant
+//@SEE_ALSO: bslmf_addrvaluereference, bslmf_removereference
 //
 //@AUTHOR:
 //
 //@DESCRIPTION: This component defines a meta-function,
-// 'bsl::add_lvalue_reference', which may be used to transform a type to a
-// its lvalue reference type.
+// 'bsl::add_lvalue_reference', that may be used to transform a type to its
+// lvalue reference type.
 //
 // 'bsl::add_lvalue_reference' meets the requirements of the
 // 'add_lvalue_reference' template defined in the C++11 standard
@@ -30,7 +30,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Transform to Lvalue Reference Types
 /// - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose that we want to transform a couple of types to lvalue reference
+// Suppose that we want to transform a set of types to their lvalue reference
 // types.
 //
 // Now, we instantiate the 'bsl::add_lvalue_reference' template for each of
@@ -48,8 +48,8 @@ BSLS_IDENT("$Id: $")
 //        (bsl::is_same<bsl::add_lvalue_reference<int&&>::type, int&>::value));
 //#endif
 //..
-// Note that rvalue is introduced in C++11 and may not be supported by all
-// compilers.
+// Note that rvalue reference is a feature introduced in the C++11 standard and
+// may not be supported by all compilers.
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
@@ -60,11 +60,18 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace bsl {
+                         // ===========================
+                         // struct add_lvalue_reference
+                         // ===========================
 
 template <typename TYPE>
 struct add_lvalue_reference
 {
+    // This 'struct' template implements a meta-function to transform the
+    // the (template parameter) 'TYPE' to its lvalue reference type.
+
     typedef TYPE& type;
+        // This 'typdef' defines the return type of this meta function.
 };
 
 #if !defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
@@ -72,7 +79,11 @@ struct add_lvalue_reference
 template <typename TYPE>
 struct add_lvalue_reference<TYPE&>
 {
+    // This partial specialization of 'add_lvalue_reference' defines a return
+    // type when it is instantiated with an lvalue reference type.
+
     typedef TYPE& type;
+        // This 'typdef' defines the return type of this meta function.
 };
 
 #else  // defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
@@ -80,7 +91,11 @@ struct add_lvalue_reference<TYPE&>
 template <typename TYPE>
 struct add_lvalue_reference<TYPE&&>
 {
+    // This partial specialization of 'add_lvalue_reference' defines a return
+    // type when it is instantiated with an rvalue reference type.
+
     typedef TYPE& type;
+        // This 'typdef' defines the return type of this meta function.
 };
 
 #endif
