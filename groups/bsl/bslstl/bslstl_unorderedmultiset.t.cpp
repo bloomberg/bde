@@ -40,8 +40,6 @@ void invokeAdlSwap(TYPE& a, TYPE& b)
 }
 
 using namespace BloombergLP;
-using namespace bsl;
-
 
 //=============================================================================
 //                             TEST PLAN
