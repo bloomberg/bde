@@ -670,7 +670,6 @@ int main(int argc, char *argv[])
         if (veryVerbose) printf(
           "Confirm the value of 'x' with the successfully inserted values.\n");
 
-
         testContainerHasData(x, 2, dataSamples, MAX_SAMPLE);
 
         if (veryVerbose) printf(
@@ -680,7 +679,7 @@ int main(int argc, char *argv[])
         const TestType &z = mZ;
 
         if (veryVerbose)
-            printf("Validate behavior of freshly constructed 'y'.\n");
+            printf("Validate behavior of freshly constructed 'z'.\n");
 
         ASSERT(1.0f == z.max_load_factor());
         ASSERT(x == z);
@@ -734,7 +733,6 @@ int main(int argc, char *argv[])
 
         if (veryVerbose)
             printf("Final message to confim the end of the breathing test.\n");
-
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
