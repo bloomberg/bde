@@ -32,7 +32,6 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 
-
 #ifndef INCLUDED_BSLSTL_ALLOCATORTRAITS
 #include <bslstl_allocatortraits.h>
 #endif
