@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a bucket represantation for hash table data structures.
+//@PURPOSE: Provide a bucket representation for hash table data structures.
 //
 //@CLASSES:
 //   bslalg::HashTableBucket : hash-table, manages externally allocated nodes
@@ -71,7 +71,7 @@ BSLS_IDENT("$Id: $")
 // Then, we define our 'MyList' class, which will inherit from
 // 'bslalg::HashTableBucket'.  'MyList::Iterator' will be a public typedef of
 // 'MyList_Iterator'.  For brevity, we will omit a lot of functionality that a
-// full, general-purpose list class would have, implmenting only what we will
+// full, general-purpose list class would have, implementing only what we will
 // need for this example.
 //..
 //                                  // ======
@@ -108,7 +108,7 @@ BSLS_IDENT("$Id: $")
 //      void popBack();
 //  };
 //..
-// Next, we implment the functions for the iterator type.
+// Next, we implement the functions for the iterator type.
 //..
 //                              // ---------------
 //                              // MyList_Iterator
@@ -201,9 +201,9 @@ BSLS_IDENT("$Id: $")
 //      d_allocator_p->deallocate(condemned);
 //  }
 //..
-// Next, in our 'main', we have finished implmenting our 'MyList' class and its
-// 'Iterator' type, we will use one to store a fibonacci sequence of ints.  We
-// declare the memory allocator that we will use:
+// Next, in our 'main', we have finished implementing our 'MyList' class and
+// its 'Iterator' type, we will use one to store a fibonacci sequence of ints.
+// We declare the memory allocator that we will use:
 //..
 //          bslma::TestAllocator oa("oa");
 //..
@@ -311,14 +311,14 @@ struct HashTableBucket {
     void setFirst(BidirectionalLink *node);
         // Set the 'first' element of this bucket to the specified 'node'.  The
         // behavior is undefined unless 'node' is an element from the same
-        // birectional list as the 'last' element in this bucket, and 'node'
+        // bidirectional list as the 'last' element in this bucket, and 'node'
         // either precedes 'last' in that list, or is the same node, or this
         // bucket is empty and 'node' has a null pointer value.
 
     void setLast(BidirectionalLink *node);
         // Set the 'last' element of this bucket to the specified 'node'.  The
         // behavior is undefined unless 'node' is an element from the same
-        // birectional list as the 'first' element in this bucket, and 'node'
+        // bidirectional list as the 'first' element in this bucket, and 'node'
         // either follows 'first' in that list, or is the same node, or this
         // bucket is empty and 'node' has a null pointer value.
 
