@@ -1200,7 +1200,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase12()
     //:   buckets.
     //:
     //: 2 'rehashForNumElements' allocates sufficient buckets so that, after
-    //:   the rehash, 'numBuckets() / maxLoadFactor()' >= the speficied number
+    //:   the rehash, 'numBuckets() / maxLoadFactor()' >= the specified number
     //:   of elements.
     //:
     //: 3 Rehash does not affect the value of the object.
@@ -1720,14 +1720,16 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase8()
     //   allocator.
     //
     // Concerns:
-    //: 1 Both functions exchange the values of the (two) supplied objects.
+    //: 1 Both functions exchange the state of the (two) supplied objects,
+    //:   comprising their values, their functors, and their 'maxLoadFactor'
+    //:   attribute.
     //:
     //: 2 Both functions have standard signatures and return types.
     //:
     //: 3 Using either function to swap an object with itself does not
     //:   affect the value of the object (alias-safety).
     //:
-    //: 4 If the two objects being swapped uses the same allocator, neither
+    //: 4 If the two objects being swapped use the same allocator, neither
     //:   function allocates memory from any allocator and the allocator
     //:   address held by both objects is unchanged.
     //:
@@ -1746,6 +1748,11 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase8()
     //:
     //: 8 The free 'swap' function is discoverable through ADL (Argument
     //:   Dependent Lookup).
+    //:
+    //: 9 'swap' does not invalidate any references or pointers to elements
+    //:   stored in either hash table, unless allocators are unequal and
+    //:   'AllocatorTraits::propagate_on_container_swap' is an alias to
+    //:   'false_type'.
     //
     // Plan:
     //: 1 Use the addresses of the 'swap' member and free functions defined
@@ -2113,13 +2120,13 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase7()
     //  is a special 'insertElement' function that does not allow us to insert
     //  past the precomputed capacity of a HashTable, some test scenarios may
     //  produce copies that cannot be further modified by our chosen primary
-    //  manipulator.  Therfore, we will test for a failed insertion in the case
+    //  manipulator.  Therefor, we will test for a failed insertion in the case
     //  that the number of elements in the test data exactly matches the limit
     //  that can be allocated to the buckets without forcing a rehash, and in
     //  that case our mutate-event will be to clear the container instead.  We
     //  considered selectively avoiding this corner case with careful selection
     //  of test data, but realized that simply left a predictable, untested
-    //  pattern in our test driver.  We will validate the proper behaviour when
+    //  pattern in our test driver.  We will validate the proper behavior when
     //  an 'insert' operation forces a rehash when testing the 'insert' methods
     //  in a subsequent test case.
     //
@@ -2273,7 +2280,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase7()
                 const size_t EXPECTED_LENGTH = RESULT
                                              ? LENGTH + 1
                                              : 0;
-                                 
+
                 ASSERTV(SPEC, Y1.size(), EXPECTED_LENGTH,
                         Y1.size() == EXPECTED_LENGTH);
                 ASSERTV(SPEC, W != Y1);
@@ -2610,8 +2617,8 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase6()
                     ASSERTV(LINE1, LINE2, CONFIG, !EXP == (X != Z));
                     ASSERTV(LINE1, LINE2, CONFIG, !EXP == (Z != X));
 
-                    // confirm values compare equal with differing no-salient
-                    // attirutes
+                    // confirm values compare equal with differing non-salient
+                    // attributes.
                     if (!(0 == Y.size())) {
                         ASSERTV(LINE2, CONFIG, Y.numBuckets(), Z.numBuckets(),
                                 Y.loadFactor() !=  Z.loadFactor());

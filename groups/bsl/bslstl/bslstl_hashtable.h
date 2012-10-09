@@ -424,19 +424,19 @@ class HashTable {
   public:
     // CREATORS
     explicit HashTable(const ALLOCATOR& basicAllocator = ALLOCATOR());
-        // Create an empty 'HashTable' object.  Optionally specify a
-        // 'basicAllocator' used to supply memory.  If 'allocator' is not
-        // supplied, a default-constructed object of the (template parameter)
-        // type 'ALLOCATOR' is used.  Use a default constructed object of the
-        // (template parameter) type 'HASHER' and a default constructed
-        // object of the (template parameter) type 'COMPARATOR' to organize
-        // elements in the table.  If the 'ALLOCATOR' is 'bsl::allocator'
-        // (the default), then 'allocator', if supplied, shall be convertible
-        // to 'bslma::Allocator *'.  If the 'ALLOCATOR' is 'bsl::allocator' and
-        // 'allocator' is not supplied, the currently installed default
-        // allocator will be used to supply memory.  No memory will be
-        // allocated unless the parameterizing 'HASHER' or 'COMPARATOR'
-        // allocate memory in their default constructor.
+        // Create an empty 'HashTable' object with a 'maxLoadFactor' of 1.0.
+        // Optionally specify a 'basicAllocator' used to supply memory.  If
+        // 'allocator' is not supplied, a default-constructed object of the
+        // (template parameter) type 'ALLOCATOR' is used.  Use a default
+        // constructed object of the (template parameter) type 'HASHER' and a
+        // default constructed object of the (template parameter) type
+        // 'COMPARATOR' to organize elements in the table.  If the 'ALLOCATOR'
+        // is 'bsl::allocator' (the default), then 'allocator', if supplied,
+        // shall be convertible to 'bslma::Allocator *'.  If the 'ALLOCATOR' is
+        // 'bsl::allocator' and 'allocator' is not supplied, the currently
+        // installed default allocator will be used to supply memory.  No
+        // memory will be allocated unless the parameterizing 'HASHER' or
+        // 'COMPARATOR' allocate memory in their default constructor.
 
     HashTable(const HASHER&     hash,
               const COMPARATOR& compare,
@@ -444,17 +444,17 @@ class HashTable {
               const ALLOCATOR&  allocator = ALLOCATOR());
         // Create an empty hash-table using the specified 'hash' and
         // 'compare' functors to organize elements in the table, which will
-        // initially have at least the specified 'initialNumBuckets'.
-        // Optionally specify an 'allocator' used to supply memory.  If
-        // 'allocator' is not supplied, a default-constructed object of the
-        // (template parameter) type 'ALLOCATOR' is used.  If the 'ALLOCATOR'
-        // is 'bsl::allocator' (the default), then 'allocator', if supplied,
-        // shall be convertible to 'bslma::Allocator *'.  If the 'ALLOCATOR'
-        // is 'bsl::allocator' and 'allocator' is not supplied, the currently
-        // installed default allocator will be used to supply memory.  Note
-        // that more than 'initialNumBuckets' buckets may be created in order
-        // to preserve the bucket allocation strategy of the hash-table (but
-        // never fewer).
+        // initially have at least the specified 'initialNumBuckets' and a
+        // 'maxLoadFactor' of 1.0.  Optionally specify an 'allocator' used to
+        // supply memory.  If 'allocator' is not supplied, a default-
+        // constructed object of the (template parameter) type 'ALLOCATOR' is
+        // used.  If the 'ALLOCATOR' is 'bsl::allocator' (the default), then
+        // 'allocator', if supplied, shall be convertible to
+        // 'bslma::Allocator *'.  If the 'ALLOCATOR' is 'bsl::allocator' and
+        // 'allocator' is not supplied, the currently installed default
+        // allocator will be used to supply memory.  Note that more than
+        // 'initialNumBuckets' buckets may be created in order to preserve the
+        // bucket allocation strategy of the hash-table (but never fewer).
 
     HashTable(const HashTable& original);
         // Create a 'HashTable' having the same value as the specified
@@ -486,16 +486,13 @@ class HashTable {
 
     // MANIPULATORS
     HashTable& operator=(const HashTable& rhs);
-        // Assign to this object the value, hasher, and comparator of the
-        // specified 'rhs' object, replace the allocator of this object with
-        // the allocator of 'rhs' if the 'ALLOCATOR' type has the trait
-        // 'propagate_on_container_copy_assignment', and return a reference
-        // providing modifiable access to this object.  This method requires
-        // that the parameterized 'HASHER' and 'COMPARATOR' types be
-        // "copy-constructible" (see {Requirements on 'KEY_CONFIG'}).  The
-        // behavior is undefined unless this object's allocator and the
-        // allocator of 'rhs' have the same value, or the 'ALLOCATOR' type has
-        // the trait 'propagate_on_container_copy_assignment'.
+        // Assign to this object the value, hasher, comparator and
+        // 'maxLoadFactor' of the specified 'rhs' object, replace the allocator
+        // of this object with the allocator of 'rhs' if the 'ALLOCATOR' type
+        // has the trait 'propagate_on_container_copy_assignment', and return a
+        // reference providing modifiable access to this object.  This method
+        // requires that the parameterized 'HASHER' and 'COMPARATOR' types be
+        // "copy-constructible" (see {Requirements on 'KEY_CONFIG'}).
 
     template <class SOURCE_TYPE>
     bslalg::BidirectionalLink *insert(const SOURCE_TYPE& value);
@@ -583,9 +580,9 @@ class HashTable {
         // is undefined unless '0 < loadFactor'.
 
     void swap(HashTable& other);
-        // Exchange the value of this object, its 'comparator' functor and its
-        // 'hasher' function, with those of the specified 'other' object.
-        // Additionally if
+        // Exchange the value of this object, its 'comparator' functor, its
+        // 'hasher' functor, and its 'maxLoadFactor' with those of the
+        // specified 'other' object.  Additionally if
         // 'bslstl::AllocatorTraits<ALLOCATOR>::propagate_on_container_swap' is
         // 'true' then exchange the allocator of this object with that of the
         // 'other' object, and do not modify either allocator otherwise.  This
@@ -595,7 +592,6 @@ class HashTable {
         // state.  The operation guarantees O[1] complexity.  The behavior is
         // undefined unless either this object was created with the same
         // allocator as 'other' or 'propagate_on_container_swap' is 'true'.
-
 
     // ACCESSORS
     ALLOCATOR allocator() const;
@@ -702,9 +698,9 @@ class HashTable {
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 void swap(HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>& x,
           HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>& y);
-    // Swap both the value, the hasher and the comparator of the specified 'a'
-    // object with the value, the hasher and the comparator of the specified
-    // 'b' object.  Additionally if
+    // Swap both the value, the hasher, the comparator and the 'maxLoadFactor'
+    // of the specified 'a' object with the value, the hasher, the comparator
+    // and the 'maxLoadFactor' of the specified 'b' object.  Additionally if
     // 'bslstl::AllocatorTraits<ALLOCATOR>::propagate_on_container_swap' is
     // 'true' then exchange the allocator of 'a' with that of 'b', and do not
     // modify either allocator otherwise.  This method provides the no-throw
