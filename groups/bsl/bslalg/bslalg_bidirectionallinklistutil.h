@@ -28,6 +28,160 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended usage of this component.
+//
+///Example 1: Creating and Using a List Template Class
+///- - - - - - - - - - - - - - - - - - - - - - - - - -
+// First, since 'Link' neither has a constructor nor is a POD (which would make
+// aggregate initialization possible), we create a function 'makeLink' to
+// assemble a link from two pointers:
+//..
+//  Link makeLink(Link *prev, Link *next)
+//  {
+//      Link result;
+//      result.setPreviousLink(prev);
+//      result.setNextLink(    next);
+//
+//      return result;
+//  }
+//..
+// Then, we create a function that will, passed two links that are endpoints
+// of a linked list from the specified 'first' to 'last' though the 'nextLink'
+// pointers, count the number of nodes in the list including both endpoints.
+//..
+//  int length(Link *first, Link *last)
+//  {
+//      int result = 0;
+//      Link *p = first;
+//      while (p && ++result && last != p) {
+//          p = p->nextLink();
+//      }
+//
+//      return result;
+//  }
+//..
+// Next, in our 'main', we declare a 'typedef' for the component name and a
+// a constant 'invalid' garbage pointer we use when we want data to be garbage.
+//..
+//  typedef BidirectionalLinkListUtil Util;
+//  Link * const invalid = (Link *) 0XBADDEED5;
+//..
+// Then, we create a linked list of links and use 'isWellFormed' to verify
+// that it is well formed, and call the 'length' method we just created to
+// verify its length.
+//..
+//  Link usageData[] = {
+//      makeLink(0,             &usageData[1]),
+//      makeLink(&usageData[0], &usageData[2]),
+//      makeLink(&usageData[1], &usageData[3]),
+//      makeLink(&usageData[2], 0            )  };
+//
+//  assert(Util::isWellFormed(      &usageData[0], &usageData[3]));
+//  assert(4 == length(&usageData[0], &usageData[3]));
+//..
+// Next, we create two new links 'front' and 'back', and initialize them with
+// garbage:
+//..
+//  Link front = makeLink(invalid, invalid);
+//  Link back  = makeLink(invalid, invalid);
+//..
+// Then, we use our component's 'insertLinkBeforeTarget' and
+// 'insertLinkAfterTarget' to concatenate 'front' to the front of the list and
+// 'back' to its rear:
+//..
+//  Util::insertLinkBeforeTarget(&front, &usageData[0]);
+//  Util::insertLinkAfterTarget( &back,  &usageData[3]);
+//..
+// Next, We examine the new list and verify we now have a well-formed list, 2
+// longer than the old list:
+//..
+//  assert(0 == front.previousLink());
+//  assert(0 == back .nextLink());
+//  assert(Util::isWellFormed(          &front, &back));
+//  assert(6 == length(&front, &back));
+//..
+// Then, we use our component's 'unlink' method to remove two nodes from our
+// list.  Note that the state of the removed nodes is undefined:
+//..
+//  Util::unlink(&usageData[1]);
+//  Util::unlink(&usageData[3]);
+//..
+// Next, we verify that the new list is well formed and 2 elements shorter than
+// it was before we removed those two nodes:
+//..
+//  assert(Util::isWellFormed(&front, &back));
+//  assert(4 == length(&front, &back));
+//..
+// Then, we weave the two discarded nodes into a new, second list of two nodes,
+// and use 'isWellFormed' and 'length' to verify it is as we expect:
+//..
+//  usageData[1] = makeLink(0, &usageData[3]);
+//  usageData[3] = makeLink(&usageData[1], 0);
+//  assert(Util::isWellFormed(&usageData[1], &usageData[3]));
+//  assert(2 ==        length(&usageData[1], &usageData[3]));
+//..
+// Next, we use our component's 'spliceListBeforeTarget' method to remove the
+// middle nodes from the longer list and append them to the end of shorter
+// list.  Note that the splicing function not only adds the sequence to the new
+// list, it also splices the list the sequence is removed from so that both are
+// well-formed lists:
+//..
+//  Util::spliceListBeforeTarget(&usageData[0],
+//                               &usageData[2],
+//                               &usageData[3]);
+//..
+// Then, we use 'isWellFormed' and 'length' to verify the state of our two
+// lists:
+//..
+//  assert(Util::isWellFormed(&usageData[1], &usageData[3]));
+//  assert(4 ==        length(&usageData[1], &usageData[3]));
+//
+//  assert(Util::isWellFormed(&front, &back));
+//  assert(2 ==        length(&front, &back));
+//..
+// Next, we call 'spliceListBeforeTarget' again to join our two lists into one:
+//..
+//  Util::spliceListBeforeTarget(&usageData[1],
+//                               &usageData[3],
+//                               &back);
+//..
+// Now, we use 'isWellFormed' and 'length' to verify the state of our one
+// remaining list:
+//..
+//  assert(Util::isWellFormed(&front, &back));
+//  assert(6 ==        length(&front, &back));
+//  assert(0 == front.previousLink());
+//  assert(0 == back .nextLink());
+//..
+// Finally, we traverse our list in both directions, examining each node to
+// verify all the links and that the sequence is as expected:
+//..
+//  Link *p = &front;
+//  assert(0 == p->previousLink());
+//  p = p->nextLink();
+//  assert(&usageData[1] == p);
+//  p = p->nextLink();
+//  assert(&usageData[0] == p);
+//  p = p->nextLink();
+//  assert(&usageData[2] == p);
+//  p = p->nextLink();
+//  assert(&usageData[3] == p);
+//  p = p->nextLink();
+//  assert(&back         == p);
+//  assert(0 == p->nextLink());
+//
+//  p = p->previousLink();
+//  assert(&usageData[3] == p);
+//  p = p->previousLink();
+//  assert(&usageData[2] == p);
+//  p = p->previousLink();
+//  assert(&usageData[0] == p);
+//  p = p->previousLink();
+//  assert(&usageData[1] == p);
+//  p = p->previousLink();
+//  assert(&front        == p);
+//  assert(0 == p->previousLink());
+//..
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
@@ -72,7 +226,9 @@ struct BidirectionalLinkListUtil {
         // After successful execution of this function the values of the
         // 'previousLink' and 'nextLink' attributes of all the links in the
         // list appropriately reflect the operation.  The behavior is undefined
-        // unless 'isWellFormed(target, target->nextLink())' is true.
+        // unless '0 != newNode' and '0 != target'.  The behavior is also
+        // undefined unless '0 == target->nextLink()' is true or
+        // 'isWellFormed(target, target->nextLink())' are true.
 
     static
     bool isWellFormed(BidirectionalLink *head, BidirectionalLink *tail);
@@ -115,9 +271,9 @@ struct BidirectionalLinkListUtil {
         // function the values of the 'previousLink' and 'nextLink' attributes
         // of all the links in the origin and destination lists appropriately
         // reflect the operation.  The behavior is undefined unless both
-        // 'first' and 'last' are members of the same linked list; 'first'
-        // precedes 'last' in the list, or 'first == last'; 'target' is not a
-        // node contained in the closed range '[first, last]'; and
+        // 'first' and 'last' are non-zero members of the same linked list;
+        // 'first' precedes 'last' in the list, or 'first == last'; 'target' is
+        // not a node contained in the closed range '[first, last]'; and
         // 'isWellFormed(first, last)' is true.
 
     static
@@ -128,8 +284,8 @@ struct BidirectionalLinkListUtil {
         // origin and destination lists appropriately reflect the operation
         // Note that this method does *not* change the value for the 'nextLink'
         // and 'previousLink' attributes of 'node'.  The behavior is
-        // undefined unless
-        // 'isWellFormed(node->previousLink(), node->nextLink())' is true.
+        // undefined unless '!node->previousLink()', '!node->nextLink()', or
+        // 'isWellFormed(node->previousLink(), node->nextLink())' are true.
 };
 
 }  // close namespace BloombergLP::bslalg

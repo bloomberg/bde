@@ -384,7 +384,7 @@ class unordered_set
     typedef ::BloombergLP::bslstl::HashTableBucketIterator<
                              const value_type, difference_type> local_iterator;
 
-    typedef iterator                                             const_iterator;
+    typedef iterator                                            const_iterator;
     typedef local_iterator                                const_local_iterator;
 
   private:
