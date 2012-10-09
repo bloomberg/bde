@@ -29,8 +29,8 @@ BSLS_IDENT("$Id: $")
 
 #ifndef BSL_OVERRIDES_STD
 
-#include <bslstl_unordered_map.h>
-#include <bslstl_unordered_multimap.h>
+#include <bslstl_unorderedmap.h>
+#include <bslstl_unorderedmultimap.h>
 
 #endif  // BSL_OVERRIDES_STD
 
