@@ -61,7 +61,7 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 // Next, in our 'main', we declare a 'typedef' for the component name and a
-// a contanst 'invalid' garbage pointer we use when we want data to be garbage.
+// a constant 'invalid' garbage pointer we use when we want data to be garbage.
 //..
 //  typedef BidirectionalLinkListUtil Util;
 //  Link * const invalid = (Link *) 0XBADDEED5;
