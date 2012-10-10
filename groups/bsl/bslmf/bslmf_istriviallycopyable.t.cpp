@@ -318,7 +318,7 @@ int main(int argc, char *argv[])
         // C-2
         ASSERT( bsl::is_trivially_copyable<int>::value);
         ASSERT( bsl::is_trivially_copyable<char>::value);
-        // ASSERT(bsl::is_trivially_copyable<void>::value);
+        ASSERT( bsl::is_trivially_copyable<void>::value);
 
         // C-3
         ASSERT( bsl::is_trivially_copyable<EnumTestType>::value);

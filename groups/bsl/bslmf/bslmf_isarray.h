@@ -54,10 +54,6 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_METAINT
-#include <bslmf_metaint.h>
-#endif
-
 #ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
 #include <bslmf_integralconstant.h>
 #endif
@@ -111,18 +107,6 @@ struct is_array<TYPE []> : true_type {
      // 'TYPE' is an array of unknown bound type, derives from 'bsl::true_type'
 };
 
-                         // =======================
-                         // struct is_array<TYPE &>
-                         // =======================
-
-template <typename TYPE>
-struct is_array<TYPE &> : is_array<TYPE>::type {
-     // This partial specialization of 'is_array', for when the (template
-     // parameter) 'TYPE' is a reference type, recursively derives from the
-     // 'is_array' instantiated with the type referenced by 'TYPE' as the
-     // template argument.
-};
-
 }
 
 namespace BloombergLP {
@@ -137,8 +121,8 @@ template <typename TYPE>
 struct IsArray  : bsl::is_array<TYPE>::type {
     // This 'struct' template implements a meta-function to determine if the
     // (template parameter) 'TYPE' is an array type.  This 'struct' derives
-    // from 'bslmf::MetaInt<1>' if the 'TYPE' is an array type, and
-    // 'bslmf::MetaInt<0>' otherwise.
+    // from 'bsl::true_type' if the 'TYPE' is an array type, and
+    // 'bsl::false_type' otherwise.
     //
     // Note that although this 'struct' is functionally equivalent to
     // 'bsl::is_array', the use of 'bsl::is_array' should be preferred.
@@ -164,7 +148,7 @@ struct IsArray  : bsl::is_array<TYPE>::type {
 
 // ---------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2005
+//      Copyright (C) Bloomberg L.P., 2012
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the

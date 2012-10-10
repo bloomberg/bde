@@ -264,12 +264,12 @@ int main(int argc, char *argv[])
         ASSERT(false == bsl::is_polymorphic<MyDerivedStruct  *>::value);
 
         ASSERT(true  == bsl::is_polymorphic<      MyClass    >::value);
-        ASSERT(true  == bsl::is_polymorphic<const MyClass&   >::value);
+        ASSERT(false == bsl::is_polymorphic<const MyClass&   >::value);
         ASSERT(false == bsl::is_polymorphic<      MyClass   *>::value);
-        ASSERT(true  == bsl::is_polymorphic<MyDerivedClass&  >::value);
+        ASSERT(false == bsl::is_polymorphic<MyDerivedClass&  >::value);
         ASSERT(false == bsl::is_polymorphic<MyDerivedClass  *>::value);
 //..
-        ASSERT(1 ==
+        ASSERT(0 ==
                   bslmf::IsPolymorphic<MyIncorrectPolymorphicClass&  >::value);
         ASSERT(0 ==
                   bslmf::IsPolymorphic<MyIncorrectPolymorphicClass  *>::value);
@@ -419,10 +419,10 @@ int main(int argc, char *argv[])
         ASSERT(1 == bsl::is_polymorphic<Poly1 volatile      >::value);
         ASSERT(1 == bsl::is_polymorphic<Poly1 const volatile>::value);
 
-        ASSERT(1 == bsl::is_polymorphic<Poly1&               >::value);
-        ASSERT(1 == bsl::is_polymorphic<Poly1 const&         >::value);
-        ASSERT(1 == bsl::is_polymorphic<Poly1 volatile&      >::value);
-        ASSERT(1 == bsl::is_polymorphic<Poly1 const volatile&>::value);
+        ASSERT(0 == bsl::is_polymorphic<Poly1&               >::value);
+        ASSERT(0 == bsl::is_polymorphic<Poly1 const&         >::value);
+        ASSERT(0 == bsl::is_polymorphic<Poly1 volatile&      >::value);
+        ASSERT(0 == bsl::is_polymorphic<Poly1 const volatile&>::value);
 
         ASSERT(0 == bsl::is_polymorphic<Poly1 *              >::value);
         ASSERT(0 == bsl::is_polymorphic<Poly1 *const         >::value);
@@ -434,10 +434,10 @@ int main(int argc, char *argv[])
         ASSERT(1 == bsl::is_polymorphic<Poly2 volatile      >::value);
         ASSERT(1 == bsl::is_polymorphic<Poly2 const volatile>::value);
 
-        ASSERT(1 == bsl::is_polymorphic<Poly2&               >::value);
-        ASSERT(1 == bsl::is_polymorphic<Poly2 const&         >::value);
-        ASSERT(1 == bsl::is_polymorphic<Poly2 volatile&      >::value);
-        ASSERT(1 == bsl::is_polymorphic<Poly2 const volatile&>::value);
+        ASSERT(0 == bsl::is_polymorphic<Poly2&               >::value);
+        ASSERT(0 == bsl::is_polymorphic<Poly2 const&         >::value);
+        ASSERT(0 == bsl::is_polymorphic<Poly2 volatile&      >::value);
+        ASSERT(0 == bsl::is_polymorphic<Poly2 const volatile&>::value);
 
         ASSERT(0 == bsl::is_polymorphic<Poly2 *              >::value);
         ASSERT(0 == bsl::is_polymorphic<Poly2 *const         >::value);
@@ -453,13 +453,13 @@ int main(int argc, char *argv[])
         ASSERT(1 == bsl::is_polymorphic<
                               VirtuallyDerivedFromPoly const volatile>::value);
 
-        ASSERT(1 == bsl::is_polymorphic<
+        ASSERT(0 == bsl::is_polymorphic<
                              VirtuallyDerivedFromPoly&         >::value);
-        ASSERT(1 == bsl::is_polymorphic<
+        ASSERT(0 == bsl::is_polymorphic<
                              VirtuallyDerivedFromPoly const&   >::value);
-        ASSERT(1 == bsl::is_polymorphic<
+        ASSERT(0 == bsl::is_polymorphic<
                              VirtuallyDerivedFromPoly volatile&>::value);
-        ASSERT(1 == bsl::is_polymorphic<
+        ASSERT(0 == bsl::is_polymorphic<
                              VirtuallyDerivedFromPoly const volatile&>::value);
 
         ASSERT(0 == bsl::is_polymorphic<
@@ -480,13 +480,13 @@ int main(int argc, char *argv[])
         ASSERT(1 == bsl::is_polymorphic<
                                 VirtuallyDerivedMixed1 const volatile>::value);
 
-        ASSERT(1 == bsl::is_polymorphic<
+        ASSERT(0 == bsl::is_polymorphic<
                                VirtuallyDerivedMixed1&               >::value);
-        ASSERT(1 == bsl::is_polymorphic<
+        ASSERT(0 == bsl::is_polymorphic<
                                VirtuallyDerivedMixed1 const&         >::value);
-        ASSERT(1 == bsl::is_polymorphic<
+        ASSERT(0 == bsl::is_polymorphic<
                                VirtuallyDerivedMixed1 volatile&      >::value);
-        ASSERT(1 == bsl::is_polymorphic<
+        ASSERT(0 == bsl::is_polymorphic<
                                VirtuallyDerivedMixed1 const volatile&>::value);
 
         ASSERT(0 == bsl::is_polymorphic<
@@ -508,13 +508,13 @@ int main(int argc, char *argv[])
         ASSERT(1 == bsl::is_polymorphic<
                                 VirtuallyDerivedMixed2 const volatile>::value);
 
-        ASSERT(1 == bsl::is_polymorphic<
+        ASSERT(0 == bsl::is_polymorphic<
                                VirtuallyDerivedMixed2&               >::value);
-        ASSERT(1 == bsl::is_polymorphic<
+        ASSERT(0 == bsl::is_polymorphic<
                                VirtuallyDerivedMixed2 const&         >::value);
-        ASSERT(1 == bsl::is_polymorphic<
+        ASSERT(0 == bsl::is_polymorphic<
                                VirtuallyDerivedMixed2 volatile&      >::value);
-        ASSERT(1 == bsl::is_polymorphic<
+        ASSERT(0 == bsl::is_polymorphic<
                                VirtuallyDerivedMixed2 const volatile&>::value);
 
         ASSERT(0 == bsl::is_polymorphic<
@@ -536,13 +536,13 @@ int main(int argc, char *argv[])
         ASSERT(1 == bsl::is_polymorphic<
                                   PolyVirtuallyDerived const volatile>::value);
 
-        ASSERT(1 == bsl::is_polymorphic<
+        ASSERT(0 == bsl::is_polymorphic<
                                  PolyVirtuallyDerived&               >::value);
-        ASSERT(1 == bsl::is_polymorphic<
+        ASSERT(0 == bsl::is_polymorphic<
                                  PolyVirtuallyDerived const&         >::value);
-        ASSERT(1 == bsl::is_polymorphic<
+        ASSERT(0 == bsl::is_polymorphic<
                                  PolyVirtuallyDerived volatile&      >::value);
-        ASSERT(1 == bsl::is_polymorphic<
+        ASSERT(0 == bsl::is_polymorphic<
                                  PolyVirtuallyDerived const volatile&>::value);
 
         ASSERT(0 == bsl::is_polymorphic<
@@ -690,10 +690,10 @@ int main(int argc, char *argv[])
         ASSERT(1 == bsl::is_polymorphic<DerivedPoly volatile      >::value);
         ASSERT(1 == bsl::is_polymorphic<DerivedPoly const volatile>::value);
 
-        ASSERT(1 == bsl::is_polymorphic<DerivedPoly&               >::value);
-        ASSERT(1 == bsl::is_polymorphic<DerivedPoly const&         >::value);
-        ASSERT(1 == bsl::is_polymorphic<DerivedPoly volatile&      >::value);
-        ASSERT(1 == bsl::is_polymorphic<DerivedPoly const volatile&>::value);
+        ASSERT(0 == bsl::is_polymorphic<DerivedPoly&               >::value);
+        ASSERT(0 == bsl::is_polymorphic<DerivedPoly const&         >::value);
+        ASSERT(0 == bsl::is_polymorphic<DerivedPoly volatile&      >::value);
+        ASSERT(0 == bsl::is_polymorphic<DerivedPoly const volatile&>::value);
 
         ASSERT(0 == bsl::is_polymorphic<DerivedPoly *              >::value);
         ASSERT(0 == bsl::is_polymorphic<DerivedPoly *const         >::value);
@@ -709,13 +709,13 @@ int main(int argc, char *argv[])
         ASSERT(1 == bsl::is_polymorphic<
                                  DerivedPolyThrowSpec const volatile>::value);
 
-        ASSERT(1 == bsl::is_polymorphic<
+        ASSERT(0 == bsl::is_polymorphic<
                                  DerivedPolyThrowSpec&               >::value);
-        ASSERT(1 == bsl::is_polymorphic<
+        ASSERT(0 == bsl::is_polymorphic<
                                  DerivedPolyThrowSpec const&         >::value);
-        ASSERT(1 == bsl::is_polymorphic<
+        ASSERT(0 == bsl::is_polymorphic<
                                  DerivedPolyThrowSpec volatile&      >::value);
-        ASSERT(1 == bsl::is_polymorphic<
+        ASSERT(0 == bsl::is_polymorphic<
                                  DerivedPolyThrowSpec const volatile&>::value);
 
         ASSERT(0 == bsl::is_polymorphic<
@@ -732,10 +732,10 @@ int main(int argc, char *argv[])
         ASSERT(1 == bsl::is_polymorphic<Poly volatile      >::value);
         ASSERT(1 == bsl::is_polymorphic<Poly const volatile>::value);
 
-        ASSERT(1 == bsl::is_polymorphic<Poly&               >::value);
-        ASSERT(1 == bsl::is_polymorphic<Poly const&         >::value);
-        ASSERT(1 == bsl::is_polymorphic<Poly volatile&      >::value);
-        ASSERT(1 == bsl::is_polymorphic<Poly const volatile&>::value);
+        ASSERT(0 == bsl::is_polymorphic<Poly&               >::value);
+        ASSERT(0 == bsl::is_polymorphic<Poly const&         >::value);
+        ASSERT(0 == bsl::is_polymorphic<Poly volatile&      >::value);
+        ASSERT(0 == bsl::is_polymorphic<Poly const volatile&>::value);
 
         ASSERT(0 == bsl::is_polymorphic<Poly *              >::value);
         ASSERT(0 == bsl::is_polymorphic<Poly *const         >::value);
@@ -751,13 +751,13 @@ int main(int argc, char *argv[])
         ASSERT(1 == bsl::is_polymorphic<
                                      DerivedFromPoly const volatile>::value);
 
-        ASSERT(1 == bsl::is_polymorphic<
+        ASSERT(0 == bsl::is_polymorphic<
                                      DerivedFromPoly&               >::value);
-        ASSERT(1 == bsl::is_polymorphic<
+        ASSERT(0 == bsl::is_polymorphic<
                                      DerivedFromPoly const&         >::value);
-        ASSERT(1 == bsl::is_polymorphic<
+        ASSERT(0 == bsl::is_polymorphic<
                                      DerivedFromPoly volatile&      >::value);
-        ASSERT(1 == bsl::is_polymorphic<
+        ASSERT(0 == bsl::is_polymorphic<
                                      DerivedFromPoly const volatile&>::value);
 
         ASSERT(0 == bsl::is_polymorphic<
@@ -778,13 +778,13 @@ int main(int argc, char *argv[])
         ASSERT(1 == bsl::is_polymorphic<
                              DerivedFromPolyThrowSpec const volatile>::value);
 
-        ASSERT(1 == bsl::is_polymorphic<
+        ASSERT(0 == bsl::is_polymorphic<
                             DerivedFromPolyThrowSpec&               >::value);
-        ASSERT(1 == bsl::is_polymorphic<
+        ASSERT(0 == bsl::is_polymorphic<
                             DerivedFromPolyThrowSpec const&         >::value);
-        ASSERT(1 == bsl::is_polymorphic<
+        ASSERT(0 == bsl::is_polymorphic<
                             DerivedFromPolyThrowSpec volatile&      >::value);
-        ASSERT(1 == bsl::is_polymorphic<
+        ASSERT(0 == bsl::is_polymorphic<
                             DerivedFromPolyThrowSpec const volatile&>::value);
 
         ASSERT(0 == bsl::is_polymorphic<
@@ -801,13 +801,13 @@ int main(int argc, char *argv[])
         ASSERT(1 == bsl::is_polymorphic<PolyThrowSpec volatile      >::value);
         ASSERT(1 == bsl::is_polymorphic<PolyThrowSpec const volatile>::value);
 
-        ASSERT(1 == bsl::is_polymorphic<
+        ASSERT(0 == bsl::is_polymorphic<
                                         PolyThrowSpec&               >::value);
-        ASSERT(1 == bsl::is_polymorphic<
+        ASSERT(0 == bsl::is_polymorphic<
                                         PolyThrowSpec const&         >::value);
-        ASSERT(1 == bsl::is_polymorphic<
+        ASSERT(0 == bsl::is_polymorphic<
                                         PolyThrowSpec volatile&      >::value);
-        ASSERT(1 == bsl::is_polymorphic<
+        ASSERT(0 == bsl::is_polymorphic<
                                         PolyThrowSpec const volatile&>::value);
 
         ASSERT(0 == bsl::is_polymorphic<
@@ -828,13 +828,13 @@ int main(int argc, char *argv[])
         ASSERT(1 == bsl::is_polymorphic<
                            DerivedFromPolyThrowSpec2 const volatile>::value);
 
-        ASSERT(1 == bsl::is_polymorphic<
+        ASSERT(0 == bsl::is_polymorphic<
                            DerivedFromPolyThrowSpec2&               >::value);
-        ASSERT(1 == bsl::is_polymorphic<
+        ASSERT(0 == bsl::is_polymorphic<
                            DerivedFromPolyThrowSpec2 const&         >::value);
-        ASSERT(1 == bsl::is_polymorphic<
+        ASSERT(0 == bsl::is_polymorphic<
                            DerivedFromPolyThrowSpec2 volatile&      >::value);
-        ASSERT(1 == bsl::is_polymorphic<
+        ASSERT(0 == bsl::is_polymorphic<
                            DerivedFromPolyThrowSpec2 const volatile&>::value);
 
         ASSERT(0 == bsl::is_polymorphic<
@@ -1001,10 +1001,10 @@ int main(int argc, char *argv[])
         ASSERT(1 == bslmf::IsPolymorphic<Poly1 volatile      >::value);
         ASSERT(1 == bslmf::IsPolymorphic<Poly1 const volatile>::value);
 
-        ASSERT(1 == bslmf::IsPolymorphic<Poly1&               >::value);
-        ASSERT(1 == bslmf::IsPolymorphic<Poly1 const&         >::value);
-        ASSERT(1 == bslmf::IsPolymorphic<Poly1 volatile&      >::value);
-        ASSERT(1 == bslmf::IsPolymorphic<Poly1 const volatile&>::value);
+        ASSERT(0 == bslmf::IsPolymorphic<Poly1&               >::value);
+        ASSERT(0 == bslmf::IsPolymorphic<Poly1 const&         >::value);
+        ASSERT(0 == bslmf::IsPolymorphic<Poly1 volatile&      >::value);
+        ASSERT(0 == bslmf::IsPolymorphic<Poly1 const volatile&>::value);
 
         ASSERT(0 == bslmf::IsPolymorphic<Poly1 *              >::value);
         ASSERT(0 == bslmf::IsPolymorphic<Poly1 *const         >::value);
@@ -1016,10 +1016,10 @@ int main(int argc, char *argv[])
         ASSERT(1 == bslmf::IsPolymorphic<Poly2 volatile      >::value);
         ASSERT(1 == bslmf::IsPolymorphic<Poly2 const volatile>::value);
 
-        ASSERT(1 == bslmf::IsPolymorphic<Poly2&               >::value);
-        ASSERT(1 == bslmf::IsPolymorphic<Poly2 const&         >::value);
-        ASSERT(1 == bslmf::IsPolymorphic<Poly2 volatile&      >::value);
-        ASSERT(1 == bslmf::IsPolymorphic<Poly2 const volatile&>::value);
+        ASSERT(0 == bslmf::IsPolymorphic<Poly2&               >::value);
+        ASSERT(0 == bslmf::IsPolymorphic<Poly2 const&         >::value);
+        ASSERT(0 == bslmf::IsPolymorphic<Poly2 volatile&      >::value);
+        ASSERT(0 == bslmf::IsPolymorphic<Poly2 const volatile&>::value);
 
         ASSERT(0 == bslmf::IsPolymorphic<Poly2 *              >::value);
         ASSERT(0 == bslmf::IsPolymorphic<Poly2 *const         >::value);
@@ -1035,13 +1035,13 @@ int main(int argc, char *argv[])
         ASSERT(1 == bslmf::IsPolymorphic<
                               VirtuallyDerivedFromPoly const volatile>::value);
 
-        ASSERT(1 == bslmf::IsPolymorphic<
+        ASSERT(0 == bslmf::IsPolymorphic<
                              VirtuallyDerivedFromPoly&         >::value);
-        ASSERT(1 == bslmf::IsPolymorphic<
+        ASSERT(0 == bslmf::IsPolymorphic<
                              VirtuallyDerivedFromPoly const&   >::value);
-        ASSERT(1 == bslmf::IsPolymorphic<
+        ASSERT(0 == bslmf::IsPolymorphic<
                              VirtuallyDerivedFromPoly volatile&>::value);
-        ASSERT(1 == bslmf::IsPolymorphic<
+        ASSERT(0 == bslmf::IsPolymorphic<
                              VirtuallyDerivedFromPoly const volatile&>::value);
 
         ASSERT(0 == bslmf::IsPolymorphic<
@@ -1062,13 +1062,13 @@ int main(int argc, char *argv[])
         ASSERT(1 == bslmf::IsPolymorphic<
                                 VirtuallyDerivedMixed1 const volatile>::value);
 
-        ASSERT(1 == bslmf::IsPolymorphic<
+        ASSERT(0 == bslmf::IsPolymorphic<
                                VirtuallyDerivedMixed1&               >::value);
-        ASSERT(1 == bslmf::IsPolymorphic<
+        ASSERT(0 == bslmf::IsPolymorphic<
                                VirtuallyDerivedMixed1 const&         >::value);
-        ASSERT(1 == bslmf::IsPolymorphic<
+        ASSERT(0 == bslmf::IsPolymorphic<
                                VirtuallyDerivedMixed1 volatile&      >::value);
-        ASSERT(1 == bslmf::IsPolymorphic<
+        ASSERT(0 == bslmf::IsPolymorphic<
                                VirtuallyDerivedMixed1 const volatile&>::value);
 
         ASSERT(0 == bslmf::IsPolymorphic<
@@ -1090,13 +1090,13 @@ int main(int argc, char *argv[])
         ASSERT(1 == bslmf::IsPolymorphic<
                                 VirtuallyDerivedMixed2 const volatile>::value);
 
-        ASSERT(1 == bslmf::IsPolymorphic<
+        ASSERT(0 == bslmf::IsPolymorphic<
                                VirtuallyDerivedMixed2&               >::value);
-        ASSERT(1 == bslmf::IsPolymorphic<
+        ASSERT(0 == bslmf::IsPolymorphic<
                                VirtuallyDerivedMixed2 const&         >::value);
-        ASSERT(1 == bslmf::IsPolymorphic<
+        ASSERT(0 == bslmf::IsPolymorphic<
                                VirtuallyDerivedMixed2 volatile&      >::value);
-        ASSERT(1 == bslmf::IsPolymorphic<
+        ASSERT(0 == bslmf::IsPolymorphic<
                                VirtuallyDerivedMixed2 const volatile&>::value);
 
         ASSERT(0 == bslmf::IsPolymorphic<
@@ -1118,13 +1118,13 @@ int main(int argc, char *argv[])
         ASSERT(1 == bslmf::IsPolymorphic<
                                   PolyVirtuallyDerived const volatile>::value);
 
-        ASSERT(1 == bslmf::IsPolymorphic<
+        ASSERT(0 == bslmf::IsPolymorphic<
                                  PolyVirtuallyDerived&               >::value);
-        ASSERT(1 == bslmf::IsPolymorphic<
+        ASSERT(0 == bslmf::IsPolymorphic<
                                  PolyVirtuallyDerived const&         >::value);
-        ASSERT(1 == bslmf::IsPolymorphic<
+        ASSERT(0 == bslmf::IsPolymorphic<
                                  PolyVirtuallyDerived volatile&      >::value);
-        ASSERT(1 == bslmf::IsPolymorphic<
+        ASSERT(0 == bslmf::IsPolymorphic<
                                  PolyVirtuallyDerived const volatile&>::value);
 
         ASSERT(0 == bslmf::IsPolymorphic<
@@ -1272,10 +1272,10 @@ int main(int argc, char *argv[])
         ASSERT(1 == bslmf::IsPolymorphic<DerivedPoly volatile      >::value);
         ASSERT(1 == bslmf::IsPolymorphic<DerivedPoly const volatile>::value);
 
-        ASSERT(1 == bslmf::IsPolymorphic<DerivedPoly&               >::value);
-        ASSERT(1 == bslmf::IsPolymorphic<DerivedPoly const&         >::value);
-        ASSERT(1 == bslmf::IsPolymorphic<DerivedPoly volatile&      >::value);
-        ASSERT(1 == bslmf::IsPolymorphic<DerivedPoly const volatile&>::value);
+        ASSERT(0 == bslmf::IsPolymorphic<DerivedPoly&               >::value);
+        ASSERT(0 == bslmf::IsPolymorphic<DerivedPoly const&         >::value);
+        ASSERT(0 == bslmf::IsPolymorphic<DerivedPoly volatile&      >::value);
+        ASSERT(0 == bslmf::IsPolymorphic<DerivedPoly const volatile&>::value);
 
         ASSERT(0 == bslmf::IsPolymorphic<DerivedPoly *              >::value);
         ASSERT(0 == bslmf::IsPolymorphic<DerivedPoly *const         >::value);
@@ -1291,13 +1291,13 @@ int main(int argc, char *argv[])
         ASSERT(1 == bslmf::IsPolymorphic<
                                  DerivedPolyThrowSpec const volatile>::value);
 
-        ASSERT(1 == bslmf::IsPolymorphic<
+        ASSERT(0 == bslmf::IsPolymorphic<
                                  DerivedPolyThrowSpec&               >::value);
-        ASSERT(1 == bslmf::IsPolymorphic<
+        ASSERT(0 == bslmf::IsPolymorphic<
                                  DerivedPolyThrowSpec const&         >::value);
-        ASSERT(1 == bslmf::IsPolymorphic<
+        ASSERT(0 == bslmf::IsPolymorphic<
                                  DerivedPolyThrowSpec volatile&      >::value);
-        ASSERT(1 == bslmf::IsPolymorphic<
+        ASSERT(0 == bslmf::IsPolymorphic<
                                  DerivedPolyThrowSpec const volatile&>::value);
 
         ASSERT(0 == bslmf::IsPolymorphic<
@@ -1314,10 +1314,10 @@ int main(int argc, char *argv[])
         ASSERT(1 == bslmf::IsPolymorphic<Poly volatile      >::value);
         ASSERT(1 == bslmf::IsPolymorphic<Poly const volatile>::value);
 
-        ASSERT(1 == bslmf::IsPolymorphic<Poly&               >::value);
-        ASSERT(1 == bslmf::IsPolymorphic<Poly const&         >::value);
-        ASSERT(1 == bslmf::IsPolymorphic<Poly volatile&      >::value);
-        ASSERT(1 == bslmf::IsPolymorphic<Poly const volatile&>::value);
+        ASSERT(0 == bslmf::IsPolymorphic<Poly&               >::value);
+        ASSERT(0 == bslmf::IsPolymorphic<Poly const&         >::value);
+        ASSERT(0 == bslmf::IsPolymorphic<Poly volatile&      >::value);
+        ASSERT(0 == bslmf::IsPolymorphic<Poly const volatile&>::value);
 
         ASSERT(0 == bslmf::IsPolymorphic<Poly *              >::value);
         ASSERT(0 == bslmf::IsPolymorphic<Poly *const         >::value);
@@ -1333,13 +1333,13 @@ int main(int argc, char *argv[])
         ASSERT(1 == bslmf::IsPolymorphic<
                                      DerivedFromPoly const volatile>::value);
 
-        ASSERT(1 == bslmf::IsPolymorphic<
+        ASSERT(0 == bslmf::IsPolymorphic<
                                      DerivedFromPoly&               >::value);
-        ASSERT(1 == bslmf::IsPolymorphic<
+        ASSERT(0 == bslmf::IsPolymorphic<
                                      DerivedFromPoly const&         >::value);
-        ASSERT(1 == bslmf::IsPolymorphic<
+        ASSERT(0 == bslmf::IsPolymorphic<
                                      DerivedFromPoly volatile&      >::value);
-        ASSERT(1 == bslmf::IsPolymorphic<
+        ASSERT(0 == bslmf::IsPolymorphic<
                                      DerivedFromPoly const volatile&>::value);
 
         ASSERT(0 == bslmf::IsPolymorphic<
@@ -1360,13 +1360,13 @@ int main(int argc, char *argv[])
         ASSERT(1 == bslmf::IsPolymorphic<
                              DerivedFromPolyThrowSpec const volatile>::value);
 
-        ASSERT(1 == bslmf::IsPolymorphic<
+        ASSERT(0 == bslmf::IsPolymorphic<
                             DerivedFromPolyThrowSpec&               >::value);
-        ASSERT(1 == bslmf::IsPolymorphic<
+        ASSERT(0 == bslmf::IsPolymorphic<
                             DerivedFromPolyThrowSpec const&         >::value);
-        ASSERT(1 == bslmf::IsPolymorphic<
+        ASSERT(0 == bslmf::IsPolymorphic<
                             DerivedFromPolyThrowSpec volatile&      >::value);
-        ASSERT(1 == bslmf::IsPolymorphic<
+        ASSERT(0 == bslmf::IsPolymorphic<
                             DerivedFromPolyThrowSpec const volatile&>::value);
 
         ASSERT(0 == bslmf::IsPolymorphic<
@@ -1383,13 +1383,13 @@ int main(int argc, char *argv[])
         ASSERT(1 == bslmf::IsPolymorphic<PolyThrowSpec volatile      >::value);
         ASSERT(1 == bslmf::IsPolymorphic<PolyThrowSpec const volatile>::value);
 
-        ASSERT(1 == bslmf::IsPolymorphic<
+        ASSERT(0 == bslmf::IsPolymorphic<
                                         PolyThrowSpec&               >::value);
-        ASSERT(1 == bslmf::IsPolymorphic<
+        ASSERT(0 == bslmf::IsPolymorphic<
                                         PolyThrowSpec const&         >::value);
-        ASSERT(1 == bslmf::IsPolymorphic<
+        ASSERT(0 == bslmf::IsPolymorphic<
                                         PolyThrowSpec volatile&      >::value);
-        ASSERT(1 == bslmf::IsPolymorphic<
+        ASSERT(0 == bslmf::IsPolymorphic<
                                         PolyThrowSpec const volatile&>::value);
 
         ASSERT(0 == bslmf::IsPolymorphic<
@@ -1410,13 +1410,13 @@ int main(int argc, char *argv[])
         ASSERT(1 == bslmf::IsPolymorphic<
                            DerivedFromPolyThrowSpec2 const volatile>::value);
 
-        ASSERT(1 == bslmf::IsPolymorphic<
+        ASSERT(0 == bslmf::IsPolymorphic<
                            DerivedFromPolyThrowSpec2&               >::value);
-        ASSERT(1 == bslmf::IsPolymorphic<
+        ASSERT(0 == bslmf::IsPolymorphic<
                            DerivedFromPolyThrowSpec2 const&         >::value);
-        ASSERT(1 == bslmf::IsPolymorphic<
+        ASSERT(0 == bslmf::IsPolymorphic<
                            DerivedFromPolyThrowSpec2 volatile&      >::value);
-        ASSERT(1 == bslmf::IsPolymorphic<
+        ASSERT(0 == bslmf::IsPolymorphic<
                            DerivedFromPolyThrowSpec2 const volatile&>::value);
 
         ASSERT(0 == bslmf::IsPolymorphic<

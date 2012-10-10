@@ -238,15 +238,15 @@ int main(int argc, char *argv[])
 
         // C-3
         TYPE_ASSERT_CVQ_SUFFIX(bslmf::IsClass, StructTestType,       1);
-        TYPE_ASSERT_CVQ_REF   (bslmf::IsClass, StructTestType,       1);
+        TYPE_ASSERT_CVQ_REF   (bslmf::IsClass, StructTestType,       0);
         TYPE_ASSERT_CVQ_SUFFIX(bslmf::IsClass, UnionTestType,        1);
-        TYPE_ASSERT_CVQ_REF   (bslmf::IsClass, UnionTestType,        1);
+        TYPE_ASSERT_CVQ_REF   (bslmf::IsClass, UnionTestType,        0);
         TYPE_ASSERT_CVQ_SUFFIX(bslmf::IsClass, Incomplete,           1);
-        TYPE_ASSERT_CVQ_REF   (bslmf::IsClass, Incomplete,           1);
+        TYPE_ASSERT_CVQ_REF   (bslmf::IsClass, Incomplete,           0);
         TYPE_ASSERT_CVQ_SUFFIX(bslmf::IsClass, BaseClassTestType,    1);
-        TYPE_ASSERT_CVQ_REF   (bslmf::IsClass, BaseClassTestType,    1);
+        TYPE_ASSERT_CVQ_REF   (bslmf::IsClass, BaseClassTestType,    0);
         TYPE_ASSERT_CVQ_SUFFIX(bslmf::IsClass, DerivedClassTestType, 1);
-        TYPE_ASSERT_CVQ_REF   (bslmf::IsClass, DerivedClassTestType, 1);
+        TYPE_ASSERT_CVQ_REF   (bslmf::IsClass, DerivedClassTestType, 0);
 
         // C-4
         TYPE_ASSERT_CVQ(bslmf::IsClass, int*,                       0);
@@ -325,15 +325,15 @@ int main(int argc, char *argv[])
 
         // C-3
         TYPE_ASSERT_CVQ_SUFFIX(bsl::is_class, StructTestType,       true);
-        TYPE_ASSERT_CVQ_REF   (bsl::is_class, StructTestType,       true);
+        TYPE_ASSERT_CVQ_REF   (bsl::is_class, StructTestType,       false);
         TYPE_ASSERT_CVQ_SUFFIX(bsl::is_class, UnionTestType,        true);
-        TYPE_ASSERT_CVQ_REF   (bsl::is_class, UnionTestType,        true);
+        TYPE_ASSERT_CVQ_REF   (bsl::is_class, UnionTestType,        false);
         TYPE_ASSERT_CVQ_SUFFIX(bsl::is_class, Incomplete,           true);
-        TYPE_ASSERT_CVQ_REF   (bsl::is_class, Incomplete,           true);
+        TYPE_ASSERT_CVQ_REF   (bsl::is_class, Incomplete,           false);
         TYPE_ASSERT_CVQ_SUFFIX(bsl::is_class, BaseClassTestType,    true);
-        TYPE_ASSERT_CVQ_REF   (bsl::is_class, BaseClassTestType,    true);
+        TYPE_ASSERT_CVQ_REF   (bsl::is_class, BaseClassTestType,    false);
         TYPE_ASSERT_CVQ_SUFFIX(bsl::is_class, DerivedClassTestType, true);
-        TYPE_ASSERT_CVQ_REF   (bsl::is_class, DerivedClassTestType, true);
+        TYPE_ASSERT_CVQ_REF   (bsl::is_class, DerivedClassTestType, false);
 
         // C-4
         TYPE_ASSERT_CVQ(bsl::is_class, int*,                       false);
