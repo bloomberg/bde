@@ -8,11 +8,14 @@
 
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
+#include <bsls_platform.h>
+#include <bsls_types.h>
 
 #include <new>
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 using namespace BloombergLP;
 
@@ -333,7 +336,7 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:
-      case 3: {
+      case 5: {
         // --------------------------------------------------------------------
         // USAGE
         //
@@ -403,9 +406,138 @@ int main(int argc, char *argv[])
         ASSERT(oa.numBlocksTotal() > 0);
         ASSERT(0 == oa.numBlocksInUse());
       } break;
+      case 4: {
+        // --------------------------------------------------------------------
+        // BASE CLASS MANIPULATORS AND ACCESSORS
+        //
+        // Concerns:
+        //: 1 That the base class manipulators and accessors are accessible
+        //:   (not private or protected inheritance).
+        //:
+        //: 2 That the base class accessors are const methods.
+        //
+        // Plan:
+        //: 1 Create an object and a const reference to it.  Manipulate the
+        //:   object with the accessors using the non-const object, and observe
+        //:   it via the accessors using the const object.
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("TESTING BASE CLASS MANIPULATORS & ACCESSORS\n"
+                            "===========================================\n");
+
+
+        bslma::TestAllocator da("default");
+        bslma::TestAllocator oa("object");
+
+        bslma::DefaultAllocatorGuard defaultGuard(&da);
+
+        {
+            typedef bslalg::BidirectionalNode<int> Obj;
+
+            Obj * const K1 = (Obj *) 0xaddc0c0a;
+            Obj * const K2 = (Obj *) 0xbaddeed5;
+            Obj * const K3 = (Obj *) 0x50fabed5;
+            Obj * const K4 = (Obj *)  0x5eaf00d;
+
+            const int KA_INT = 0xa0a0a0a0;
+
+#ifdef BSLS_PLATFORM__CPU_32_BIT
+            Obj * const KA = (Obj *) KA_INT;
+#else
+            bsls::Types::Uint64 KA_UNSIGNED = 0xa0a0a0a0;
+            Obj * const KA = (Obj *) ((KA_UNSIGNED << 32) | KA_UNSIGNED);
+#endif
+
+            Obj *xPtr = (Obj *) oa.allocate(sizeof(Obj));
+            Obj& mX = *xPtr;     const Obj& X = mX;
+
+            memset(xPtr, 0xa0, sizeof(mX));
+
+            ASSERT(KA_INT == X.value());
+            ASSERT(0  != X.previousLink());
+            ASSERT(0  != X.nextLink());
+            ASSERTV((void *) KA, KA == X.previousLink());
+            ASSERT(KA == X.nextLink());
+
+            mX.reset();
+            ASSERT(KA_INT == X.value());// 'reset' affected base class only
+            ASSERT(0 == X.previousLink());
+            ASSERT(0 == X.nextLink());
+
+            mX.setPreviousLink(K1);
+            mX.setNextLink(    K2);
+            mX.value()       = 5;
+            ASSERT(K1 == X.previousLink());
+            ASSERT(K2 == X.nextLink());
+            ASSERT(5  == X.value());
+
+            mX.value()       = -1776;
+            mX.setNextLink(    K3);
+            mX.setPreviousLink(K4);
+            ASSERT(-1776 == X.value());
+            ASSERT(K3    == X.nextLink());
+            ASSERT(K4    == X.previousLink());
+
+            oa.deallocate(&mX);
+        }
+      } break;
+      case 3: {
+        // --------------------------------------------------------------------
+        // BASIC ACCESSORS
+        //   Ensure each basic accessor properly interprets object state.
+        //
+        // Concerns:
+        //: 1 Each accessor returns the value of the corresponding attribute
+        //:    of the object.
+        //:
+        //: 2 Each accessor method is declared 'const'.
+        //
+        // Plan:
+        //: 1 Using the manipulators, set the object to the desired state,
+        //:   and observe the state from the 'const' accessors.
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("TESTING ACCESSORS\n"
+                            "=================\n");
+
+        bslma::TestAllocator da("default");
+        bslma::TestAllocator oa("object");
+
+        bslma::DefaultAllocatorGuard defaultGuard(&da);
+
+        static struct {
+            int d_line;
+            int d_value;
+        } DATA[] = {
+            { L_,      0 },
+            { L_,      1 },
+            { L_,     -1 },
+            { L_,  56789 },
+            { L_, -98765 } };
+        enum { NUM_DATA = sizeof DATA / sizeof *DATA };
+
+        if (verbose) printf("Table-driven test, re-using object\n");
+        {
+            typedef bslalg::BidirectionalNode<int> Obj;
+
+            Obj *xPtr = (Obj *) oa.allocate(sizeof(Obj));
+            Obj& mX = *xPtr; const Obj& X = mX;
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int LINE  = DATA[i].d_line;
+                const int VALUE = DATA[i].d_value;
+
+                mX.value() = VALUE;
+
+                ASSERTV(LINE, VALUE == X.value());
+            }
+
+            oa.deallocate(xPtr);
+        }
+      } break;
       case 2: {
         // --------------------------------------------------------------------
-        // PRIMARY MANIPULATORS AND BASIC ACCESSORS
+        // PRIMARY MANIPULATORS
         //
         // Concerns:
         //: 1 Manipulators can set value.
@@ -444,7 +576,7 @@ int main(int argc, char *argv[])
             Obj& mX = *xPtr; const Obj& X = mX;
 
             ::new (&xPtr->value()) VT(7);
-            ASSERTV(X.value(), 7 == X.value());
+            ASSERTV(X.value(),  7 == X.value());
 
             mX.value() = 5;
             ASSERTV(X.value(),  5 == X.value());
@@ -473,7 +605,7 @@ int main(int argc, char *argv[])
 
             ::new (&xPtr->value()) Obj::ValueType(7);
             ASSERTV(1 == TestType1::numConstructions());
-            ASSERTV(X.value().get(), 7 == X.value().get());
+            ASSERTV(X.value().get(),  7 == X.value().get());
 
             mX.value().set(5);
             ASSERTV(X.value().get(),  5 == X.value().get());
