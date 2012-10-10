@@ -21,9 +21,7 @@ BSLS_IDENT("$Id$ $CSID$")
     #error "Don't know how to get nanosecond time for this platform"
 #endif
 
-#ifdef BSLS_PLATFORM_OS_SOLARIS
-    #include <sys/time.h>  // gethrtime()
-#ifdef BSLS_PLATFORM_OS_HPUX
+#if defined(BSLS_PLATFORM_OS_SOLARIS) || defined(BSLS_PLATFORM_OS_HPUX)
     #include <sys/time.h>  // gethrtime()
 #endif
 
