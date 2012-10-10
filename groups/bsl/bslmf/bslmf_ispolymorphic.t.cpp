@@ -312,11 +312,6 @@ int main(int argc, char *argv[])
         ASSERT(EXP == bsl::is_polymorphic<Base1 volatile      >::value);
         ASSERT(EXP == bsl::is_polymorphic<Base1 const volatile>::value);
 
-        ASSERT(EXP == bsl::is_polymorphic<Base1&               >::value);
-        ASSERT(EXP == bsl::is_polymorphic<Base1 const&         >::value);
-        ASSERT(EXP == bsl::is_polymorphic<Base1 volatile&      >::value);
-        ASSERT(EXP == bsl::is_polymorphic<Base1 const volatile&>::value);
-
         ASSERT(0 == bsl::is_polymorphic<Base1 *              >::value);
         ASSERT(0 == bsl::is_polymorphic<Base1 *const         >::value);
         ASSERT(0 == bsl::is_polymorphic<Base1 *volatile      >::value);
@@ -326,11 +321,6 @@ int main(int argc, char *argv[])
         ASSERT(EXP == bsl::is_polymorphic<Base2 const         >::value);
         ASSERT(EXP == bsl::is_polymorphic<Base2 volatile      >::value);
         ASSERT(EXP == bsl::is_polymorphic<Base2 const volatile>::value);
-
-        ASSERT(EXP == bsl::is_polymorphic<Base2&               >::value);
-        ASSERT(EXP == bsl::is_polymorphic<Base2 const&         >::value);
-        ASSERT(EXP == bsl::is_polymorphic<Base2 volatile&      >::value);
-        ASSERT(EXP == bsl::is_polymorphic<Base2 const volatile&>::value);
 
         ASSERT(0 == bsl::is_polymorphic<Base2 *              >::value);
         ASSERT(0 == bsl::is_polymorphic<Base2 *const         >::value);
@@ -345,15 +335,6 @@ int main(int argc, char *argv[])
                                       VirtuallyDerived volatile      >::value);
         ASSERT(EXP == bsl::is_polymorphic<
                                       VirtuallyDerived const volatile>::value);
-
-        ASSERT(EXP == bsl::is_polymorphic<
-                                      VirtuallyDerived&              >::value);
-        ASSERT(EXP == bsl::is_polymorphic<
-                                     VirtuallyDerived const&         >::value);
-        ASSERT(EXP == bsl::is_polymorphic<
-                                     VirtuallyDerived volatile&      >::value);
-        ASSERT(EXP == bsl::is_polymorphic<
-                                     VirtuallyDerived const volatile&>::value);
 
         ASSERT(0 == bsl::is_polymorphic<
                                      VirtuallyDerived *              >::value);
@@ -894,11 +875,6 @@ int main(int argc, char *argv[])
         ASSERT(EXP == bslmf::IsPolymorphic<Base1 volatile      >::value);
         ASSERT(EXP == bslmf::IsPolymorphic<Base1 const volatile>::value);
 
-        ASSERT(EXP == bslmf::IsPolymorphic<Base1&               >::value);
-        ASSERT(EXP == bslmf::IsPolymorphic<Base1 const&         >::value);
-        ASSERT(EXP == bslmf::IsPolymorphic<Base1 volatile&      >::value);
-        ASSERT(EXP == bslmf::IsPolymorphic<Base1 const volatile&>::value);
-
         ASSERT(0 == bslmf::IsPolymorphic<Base1 *              >::value);
         ASSERT(0 == bslmf::IsPolymorphic<Base1 *const         >::value);
         ASSERT(0 == bslmf::IsPolymorphic<Base1 *volatile      >::value);
@@ -908,11 +884,6 @@ int main(int argc, char *argv[])
         ASSERT(EXP == bslmf::IsPolymorphic<Base2 const         >::value);
         ASSERT(EXP == bslmf::IsPolymorphic<Base2 volatile      >::value);
         ASSERT(EXP == bslmf::IsPolymorphic<Base2 const volatile>::value);
-
-        ASSERT(EXP == bslmf::IsPolymorphic<Base2&               >::value);
-        ASSERT(EXP == bslmf::IsPolymorphic<Base2 const&         >::value);
-        ASSERT(EXP == bslmf::IsPolymorphic<Base2 volatile&      >::value);
-        ASSERT(EXP == bslmf::IsPolymorphic<Base2 const volatile&>::value);
 
         ASSERT(0 == bslmf::IsPolymorphic<Base2 *              >::value);
         ASSERT(0 == bslmf::IsPolymorphic<Base2 *const         >::value);
@@ -927,15 +898,6 @@ int main(int argc, char *argv[])
                                       VirtuallyDerived volatile      >::value);
         ASSERT(EXP == bslmf::IsPolymorphic<
                                       VirtuallyDerived const volatile>::value);
-
-        ASSERT(EXP == bslmf::IsPolymorphic<
-                                      VirtuallyDerived&              >::value);
-        ASSERT(EXP == bslmf::IsPolymorphic<
-                                     VirtuallyDerived const&         >::value);
-        ASSERT(EXP == bslmf::IsPolymorphic<
-                                     VirtuallyDerived volatile&      >::value);
-        ASSERT(EXP == bslmf::IsPolymorphic<
-                                     VirtuallyDerived const volatile&>::value);
 
         ASSERT(0 == bslmf::IsPolymorphic<
                                      VirtuallyDerived *              >::value);
