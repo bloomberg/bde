@@ -25,12 +25,10 @@ BSLS_IDENT("$Id: $")
 // the C++11 standard [meta.unary.cat], while 'bslmf::IsEnum' was devised
 // before 'is_class' was standardized.
 //
-// The two meta-functions are functionally equivalent except that a reference
-// type to an enumerated type is determinted as enumerated type by
-// 'bslmf::IsEnum' while it is not by 'bsl::isenum'.  The other major
-// difference between them is that the result for 'bsl::is_enum' is indicated
-// by the class member 'value', while the result for 'bslmf::IsEnum' is
-// indicated by the class member 'VALUE'.
+// The two meta-functions are functionally equivalent.  The major difference
+// between them is that the result for 'bsl::is_enum' is indicated by the class
+// member 'value', while the result for 'bslmf::IsEnum' is indicated by the
+// class member 'VALUE'.
 //
 // Note that 'bsl::is_enum' should be preferred over 'bslmf::IsEnum', and in
 // general, should be used by new components.
@@ -41,7 +39,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Verify Enumerated Types
 /// - - - - - - - - - - - - - - - - -
-// Suppose that we want to assert whether a set of types are enumerated types.
+// Suppose that we want to assert whether a set of types are 'enum' types.
 //
 // First, we create an enumerated type, 'MyEnum', and a non-enumerated class
 // type, 'MyClass':
@@ -54,10 +52,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  assert(true  == bsl::is_enum<MyEnum>::value);
 //  assert(false == bsl::is_enum<MyClass>::value);
-//  assert(false == bsl::is_enum<MyEnum&>::value);
 //..
-// Notice that 'bsl::is_enum' returns 'false' on reference type to an
-// enumerated type.
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
@@ -158,17 +153,17 @@ namespace bslmf {
                                 // ============
 
 template <class TYPE>
-struct IsEnum : bsl::is_enum<TYPE>::type 
+struct IsEnum : bsl::is_enum<TYPE>::type
+{
     // This struct provides a meta-function that computes, at compile time,
     // whether 'TYPE' is of enumeration type.  It derives from 'bsl::true_type'
-    // if 'TYPE' is an enumeration type, or from 'bsl::false_type' otherwise.
+    // if 'TYPE' is an enumeration type, and from 'bsl::false_type' otherwise.
     //
     // Enumeration types are the only user-defined types that have the
     // characteristics of a native arithmetic type (i.e., they can be promoted
     // to 'int' without invoking user-defined conversions).  This class takes
     // advantage if this property to distinguish 'enum' types from class types
     // that are convertible to 'int'.
-{
 };
 
 }  // close package namespace
