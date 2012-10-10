@@ -208,8 +208,8 @@ int main(int argc, char *argv[])
         //: 1 'IsEnum::VALUE' is 0 when 'TYPE' is a (possibly cv-qualified)
         //:   primitive type.
         //:
-        //: 2 'IsEnum::VALUE' is 0 when 'TYPE' is a (possibly cv-qualified)
-        //:   'enum' type or a reference to 'enum' type.
+        //: 2 'IsEnum::VALUE' is 1 when 'TYPE' is a (possibly cv-qualified)
+        //:   'enum' type, and is 0 when 'TYPE' is a reference to 'enum' type.
         //:
         //: 3 'IsEnum::VALUE' is 0 when 'TYPE' is a (possibly cv-qualified)
         //:   'class', 'struct', or 'union' type.
