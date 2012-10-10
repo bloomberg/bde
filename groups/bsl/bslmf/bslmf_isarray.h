@@ -40,14 +40,14 @@ BSLS_IDENT("$Id: $")
 //
 // First, we create two 'typedef's -- an array type and a non-array type:
 //..
-//  typedef int   MyType;
-//  typedef int[] MyArrayType;
+//  typedef int MyType;
+//  typedef int MyArrayType[]
 //..
 // Now, we instantiate the 'bsl::is_array' template for each of the
 // 'typedef's and assert the 'value' static data member of each instantiation:
 //..
 //  assert(false == bsl::is_array<MyType>::value);
-//  assert(true == bsl::is_array<MyArrayType>::value);
+//  assert(true  == bsl::is_array<MyArrayType>::value);
 //..
 
 #ifndef INCLUDED_BSLSCM_VERSION
