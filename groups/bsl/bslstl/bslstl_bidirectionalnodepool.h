@@ -19,6 +19,7 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION: This component implements a mechanism that creates and deletes
 // 'bslalg::BidirectionalListNode' objects for the parameterized 'VALUE' type
 // for use in hash-table-based containers.
+//
 // A 'bslstl::BidirectionalNodePool' contains a memory pool provided by the
 // 'bslstl_simplepool' component to provide memory for the nodes (see
 // 'bslstl_simplepool').  When the pool is empty, a number of memory blocks is
@@ -31,7 +32,9 @@ BSLS_IDENT("$Id: $")
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
-
+//
+///Example 1: Creating a 'LinkedList' Container
+/// - - - - - - - - - - - - - - - - - - - - - -
 
 #ifndef INCLUDED_BSLSTL_ALLOCATORTRAITS
 #include <bslstl_allocatortraits.h>

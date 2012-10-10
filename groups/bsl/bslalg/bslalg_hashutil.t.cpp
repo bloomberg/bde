@@ -113,7 +113,7 @@ void time_computeHash(const TYPE&   key,
         value += HashUtil::computeHash(key) % LENGTH;
     }
     timer.stop();
-    printf("Hashing 1M values (in seconds): %d\tof type %s\n",
+    printf("Hashing 1M values (in seconds): %g\tof type %s\n",
            timer.elapsedTime(),
            TYPEID);
     (void)value;

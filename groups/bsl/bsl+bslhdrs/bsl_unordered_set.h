@@ -28,8 +28,8 @@ BSLS_IDENT("$Id: $")
 //#endif
 
 #ifndef BSL_OVERRIDES_STD
-#include <bslstl_unordered_multiset.h>
-#include <bslstl_unordered_set.h>
+#include <bslstl_unorderedmultiset.h>
+#include <bslstl_unorderedset.h>
 #endif  // BSL_OVERRIDES_STD
 
 #endif  // INCLUDED_BSL_UNORDERED_SET
