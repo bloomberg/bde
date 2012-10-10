@@ -23,6 +23,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 // ============================================================================
 //                          ADL SWAP TEST HELPER
@@ -379,19 +380,7 @@ bool PtrHashSet::checkInvariants() const
 
     numNodes = 0;
     for (unsigned i = 0; i < bucketArraySize(); ++i) {
-        Bucket& bucket = bucketArrayAddress()[i];
-        if (bucket.first()) {
-            ++numNodes;
-            for (Node *node = (Node *) bucket.first(); bucket.last() != node;
-                                            node = (Node *) node->nextLink()) {
-                ++numNodes;
-            }
-        }
-        else {
-            ok = !bucket.last();
-            ASSERT(ok && "!bucket.last()");
-            if (!ok) return false;                                    // RETURN
-        }
+        numNodes += bucketArrayAddress()[i].countElements();
     }
     ok = size() == numNodes;
     ASSERT(ok && "size() == numNodes");
