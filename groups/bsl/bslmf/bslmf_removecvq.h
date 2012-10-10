@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslmf::RemoveCvq: meta-function for stripping 'const'/'volatile' qualifiers
 //
-//@AUTHOR: Shawn Edwards (sedwards)
-//
 //@DESCRIPTION: This component defines a simple template structure used to
 // strip of any top-level 'const'/'volatile' qualifiers from it's single
 // template parameter.  The un-qualified type can be accessed via the 'Type'
@@ -95,16 +93,32 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_REMOVECV
+#include <bslmf_removecv.h>
+#endif
+
 namespace BloombergLP {
 
 namespace bslmf {
+
+template <typename TYPE>
+struct Remove_NonCvPointer
+{
+    typedef TYPE Type;
+};
+
+template <typename TYPE>
+struct Remove_NonCvPointer<TYPE *>
+{
+    typedef TYPE Type;
+};
 
                               // ================
                               // struct RemoveCvq
                               // ================
 
-template <typename T>
-struct RemovePtrCvq;
+template <typename TYPE>
+struct RemovePtrCvq
     // This class implements a meta-function for stripping 'const' and
     // 'volatile' qualifiers from the type pointed to by it's parameter type.
     // It also returns, in 'ValueType', the (non-cvq) type pointed to by its
@@ -114,63 +128,23 @@ struct RemovePtrCvq;
     // specializations, but does not work with direct specialization on T, T
     // const, and T volatile.  Thus, 'RemoveCvq', below, is implemented
     // indirectly in terms of 'RemovePtrCvq'.
-
-template <typename T>
-struct RemovePtrCvq<T *>
-    // This specialization handles unqualified pointers.
 {
-    typedef T *Type;
-    typedef T  ValueType;
-};
-
-template <typename T>
-struct RemovePtrCvq<T const *>
-    // This specialization removes 'const' qualification.
-{
-    typedef T *Type;
-    typedef T  ValueType;
-};
-
-template <typename T>
-struct RemovePtrCvq<T volatile *>
-    // This specialization removes 'volatile' qualification.
-{
-    typedef T *Type;
-    typedef T  ValueType;
-};
-
-template <typename T>
-struct RemovePtrCvq<T const volatile *>
-    // This specialization removes 'const volatile' qualification.
-{
-    typedef T *Type;
-    typedef T  ValueType;
+    typedef typename bsl::remove_cv<TYPE>::type                      Type;
+    typedef typename Remove_NonCvPointer<typename bsl::remove_cv<TYPE>::type>::Type
+                                                                     ValueType;
 };
 
                            // ================
                            // struct RemoveCvq
                            // ================
 
-template <typename T>
+template <typename TYPE>
 struct RemoveCvq
 {
     // This class implements a meta-function for stripping top-level
     // const/volatile qualifiers from it's parameter type.
-    // IMPLEMENTATION NOTE: The Sun Workshop 6 C++ 5.2 compiler works with
-    // pointer specializations, but does not work with direct specialization on
-    // 'T', 'T const', and 'T volatile'.  Thus, 'RemoveCvq' is implemented
-    // indirectly in terms of 'RemovePtrCvq', above.
 
-    typedef typename RemovePtrCvq<T*>::ValueType Type;
-};
-
-template <typename T>
-struct RemoveCvq<T&>
-{
-    // Specialization of 'RemoveCvq<T>' for reference types.  Since a reference
-    // cannot have cv qualifiers, the result is simply 'T&'
-
-    typedef T& Type;
+    typedef typename bsl::remove_cv<TYPE>::type Type;
 };
 
 }  // close package namespace

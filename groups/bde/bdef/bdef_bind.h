@@ -751,6 +751,10 @@ BDES_IDENT("$Id: $")
 #include <bslalg_typetraits.h>
 #endif
 
+#ifndef INCLUDED_BSLALG_HASTRAIT
+#include <bslalg_hastrait.h>
+#endif
+
 #ifndef INCLUDED_BSLALG_TYPETRAITHASPOINTERSEMANTICS
 #include <bslalg_typetraithaspointersemantics.h>
 #endif

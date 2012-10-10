@@ -168,6 +168,7 @@ BSLS_IDENT("$Id: $")
 //  |-----------------------------------------+-------------------------------|
 //  | a < b, a <= b, a > b, a >= b            | O[n]                          |
 //  +-----------------------------------------+-------------------------------+
+//..
 //
 ///Usage
 ///-----
@@ -249,7 +250,7 @@ BSLS_IDENT("$Id: $")
 //  bslma::TestAllocator allocator1, allocator2;
 //
 //  const char *SHORT_STRING = "A small string";
-//  const char *LONG_STRING  = "This long string would definitely cause " \
+//  const char *LONG_STRING  = "This long string would definitely cause "
 //                             "memory to be allocated on creation";
 //
 //  const bsl::string x(SHORT_STRING, &allocator1);
@@ -594,24 +595,16 @@ BSL_OVERRIDES_STD mode"
 #include <bslstl_stringrefdata.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_HASTRAIT
-#include <bslalg_hastrait.h>
-#endif
-
 #ifndef INCLUDED_BSLALG_SCALARPRIMITIVES
 #include <bslalg_scalarprimitives.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITBITWISEMOVEABLE
-#include <bslalg_typetraitbitwisemoveable.h>
+#ifndef INCLUDED_BSLALG_TYPETRAITHASSTLITERATORS
+#include <bslalg_typetraithasstliterators.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BSLSTL_TRAITSGROUPSTLSEQUENCECONTAINER
-#include <bslstl_traitsgroupstlsequencecontainer.h>
+#ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
+#include <bslmf_isbitwisemoveable.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_ASSERT
@@ -892,11 +885,11 @@ class String_Imp {
                                 // without reallocation
 
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(
-                                String_Imp,
-                                BloombergLP::bslalg::TypeTraitBitwiseMoveable);
-        // Since the standard requires 'CHAR_TYPE' to be a POD and thereby
-        // bitwise-moveable, 'String_Imp' is also bitwise-moveable.
+    BSLMF_NESTED_TRAIT_DECLARATION(String_Imp,
+                                   BloombergLP::bslmf::IsBitwiseMoveable);
+        // 'CHAR_TYPE' is required to be a POD as per the Standard, which makes
+        // 'CHAR_TYPE' bitwise-moveable, so 'String_Imp' is also
+        // bitwise-moveable.
 
     // CLASS METHODS
     static SIZE_TYPE computeNewCapacity(SIZE_TYPE newLength,
@@ -1123,7 +1116,7 @@ class basic_string
                                const_iterator first,
                                const_iterator last);
         // Insert into this object at the specified 'position' a string
-        // represenented by the specified 'first' and 'last' iterators using
+        // represented by the specified 'first' and 'last' iterators using
         // the 'privateInsertRaw' method for insertion.
 
     template <typename INPUT_ITER>
@@ -1131,7 +1124,7 @@ class basic_string
                                INPUT_ITER     first,
                                INPUT_ITER     last);
         // Insert into this object at the specified 'position' a string
-        // represenented by the specified 'first' and 'last' iterators.  Since
+        // represented by the specified 'first' and 'last' iterators.  Since
         // the parameterized 'INPUT_ITER' type can also resolve to an integral
         // type use the 'privateReplaceDispatch' to disambiguate between the
         // integral type and iterator types.
@@ -1272,21 +1265,11 @@ class basic_string
         // 'lhsPosition <= length() - lhsNumChars'.
 
     // INVARIANTS
-    BSLMF_ASSERT((BloombergLP::bslmf::
-                  IsSame<CHAR_TYPE, typename ALLOCATOR::value_type>::VALUE));
+    BSLMF_ASSERT((bsl::is_same<CHAR_TYPE,
+                               typename ALLOCATOR::value_type>::value));
         // This is required by the C++ standard (23.1, clause 1).
 
   public:
-    // TRAITS
-    typedef BloombergLP::bslstl::TraitsGroupStlSequenceContainer<
-                                                   CHAR_TYPE,
-                                                   ALLOCATOR> StringTypeTraits;
-
-    BSLALG_DECLARE_NESTED_TRAITS(basic_string, StringTypeTraits);
-        // Declare nested type traits for this class.  This class is bitwise
-        // movable if the allocator is bitwise movable.  It uses 'bslma'
-        // allocators if 'ALLOCATOR' is convertible from 'bslma::Allocator*'.
-
     // PUBLIC CLASS DATA
     static const size_type npos = ~size_type(0);
         // Value used to denote "not-a-position", guaranteed to be outside the
@@ -2150,6 +2133,50 @@ class basic_string
         // "Lexicographical Comparisons" for definitions.
 };
 
+}  // namespace bsl
+
+// ============================================================================
+//                                TYPE TRAITS
+// ============================================================================
+
+// Type traits for STL *sequence* containers:
+//: o A sequence container defines STL iterators.
+//: o A sequence container is bitwise moveable if the allocator is bitwise
+//:     moveable.
+//: o A sequence container uses 'bslma' allocators if the parameterized
+//:     'ALLOCATOR' is convertible from 'bslma::Allocator*'.
+
+namespace BloombergLP {
+namespace bslalg {
+
+template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOC>
+struct HasStlIterators<bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC> >
+    : bsl::true_type
+{};
+
+}
+
+namespace bslmf {
+
+template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOC>
+struct IsBitwiseMoveable<bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC> >
+    : IsBitwiseMoveable<ALLOC>
+{};
+
+}
+
+namespace bslma {
+
+template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOC>
+struct UsesBslmaAllocator<bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC> >
+    : bsl::is_convertible<Allocator*, ALLOC>
+{};
+
+}
+}  // namespace BloombergLP
+
+namespace bsl {
+
 // TYPEDEFS
 typedef basic_string<char>    string;
 typedef basic_string<wchar_t> wstring;
@@ -2395,9 +2422,7 @@ struct hash<basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR> >
     // Specialization of 'hash' for 'basic_string'.
 {
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(
-                                hash,
-                                BloombergLP::bslalg::TypeTraitBitwiseCopyable);
+    BSLMF_NESTED_TRAIT_DECLARATION(hash, bsl::is_trivially_copyable);
 
     std::size_t operator()(const basic_string<CHAR_TYPE,
                            CHAR_TRAITS, ALLOCATOR>& str) const

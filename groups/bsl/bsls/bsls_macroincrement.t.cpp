@@ -114,8 +114,8 @@ int main(int argc, char *argv[])
         //:  2 For integer literal V in the range '[0, 19999]', set
         //:    'BSLS_MACROINCREMENT(LINENO(V))' as the first argument following
         //:    '#line' directive where 'LINENO' is a macro eventually expanding
-        //:     to an integer liternal in range '[0, 19999']'.  Verify the line
-        //:     number is correctly incremented.  (C-1)
+        //:     to an integer literal in the range '[0, 19999']'.  Verify the
+        //:     line number is correctly incremented.  (C-1)
         //
         // Testing:
         //   BSLS_MACROINCREMENT

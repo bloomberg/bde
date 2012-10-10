@@ -6,6 +6,10 @@
 #include <bslma_default.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatormonitor.h>
+#include <bslmf_nestedtraitdeclaration.h>
+#include <bslmf_istriviallycopyable.h>
+#include <bslmf_isbitwisemoveable.h>
+#include <bslmf_isbitwiseequalitycomparable.h>
 #include <bsls_platform.h>
 #include <bsls_util.h>
 #include <bsls_bsltestutil.h>
@@ -90,16 +94,6 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
 
 namespace {
 
-struct Allocator_BslalgTypeTraits
-    : BloombergLP::bslalg::TypeTraitBitwiseCopyable
-    , BloombergLP::bslalg::TypeTraitBitwiseMoveable
-    , BloombergLP::bslalg::TypeTraitBitwiseEqualityComparable
-{
-    // Type traits for 'bsl::Allocator'.  This class cannot be nested within
-    // 'allocator' because doing so confuses the AIX xlC 6 compiler, which
-    // sometimes thinks that the nested struct is private even when it's in the
-    // private section of the enclosing class.
-};
 template <class T>
 class Allocator {
     // An STL-compatible allocator that forwards allocation calls to an
@@ -111,7 +105,11 @@ class Allocator {
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(Allocator, Allocator_BslalgTypeTraits);
+    BSLMF_NESTED_TRAIT_DECLARATION(Allocator, bsl::is_trivially_copyable);
+    BSLMF_NESTED_TRAIT_DECLARATION(Allocator, bslmf::IsBitwiseMoveable);
+    BSLMF_NESTED_TRAIT_DECLARATION(
+            Allocator,
+            bslmf::IsBitwiseEqualityComparable);
         // Declare nested type traits for this class.
 
     // PUBLIC TYPES
@@ -586,7 +584,7 @@ int main(int argc, char *argv[])
         Obj mX(a);
 
         for (int i = 1; i <= 5; ++i) {
-            bslma_TestAllocatorMonitor tam(&ta);
+            bslma::TestAllocatorMonitor tam(&ta);
 
             Obj::pointer ptr = mX.allocate(i);
             ASSERTV(i, i * sizeof(TestType) == ta.numBytesInUse());

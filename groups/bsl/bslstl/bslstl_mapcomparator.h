@@ -17,12 +17,12 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR: Henry Verschell (hverschell), Chen He (che2)
 //
 //@DESCRIPTION: This component provides a functor adapter, 'MapComparator',
-// that adapts a paramterized 'COMPARATOR' comparing objects of a parameterized
-// 'KEY' type into a functor comparing a object of 'KEY' type with a objects of
-// 'TreeNode' type holding a 'bsl::pair<KEY, VALUE>' object.  Note that this
-// functor was designed to be supplied to functions in 'bslalg::RbTreeUtil'
-// primarily for the purpose of implementing a 'map' container using the
-// utilities defined in 'bslalg::RbTreeUtil'.
+// that adapts a parameterized 'COMPARATOR' comparing objects of a
+// parameterized 'KEY' type into a functor comparing a object of 'KEY' type
+// with objects of 'TreeNode' type holding a 'bsl::pair<KEY, VALUE>' object.
+// Note that this functor was designed to be supplied to functions in
+// 'bslalg::RbTreeUtil', primarily for the purpose of implementing a 'map'
+// container using the utilities defined in 'bslalg::RbTreeUtil'.
 //
 ///Usage
 ///-----
@@ -157,7 +157,7 @@ class MapComparator : public bslalg::FunctorAdapter<COMPARATOR>::Type {
 class MapComparator : private bslalg::FunctorAdapter<COMPARATOR>::Type {
 #endif
     // This class overloads the function-call operator to compare a referenced
-    // 'bslalg::RbTreeNode' object with a object of the paramterized 'KEY'
+    // 'bslalg::RbTreeNode' object with a object of the parameterized 'KEY'
     // type, assuming the reference to 'bslalg::RbTreeNode' is a base of a
     // 'bslstl::TreeNode' holding a 'pair<KEY, VALUE>', using a functor of the
     // parameterized 'COMPARATOR' type.

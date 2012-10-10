@@ -24,7 +24,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  Trait                             Note
 //  -----                             -------------------------------------
-//  bslalg::TypeTraitBitwiseCopyable  Expressed in English as "TYPE has the
+//   bsl::is_trivially_copyable       Expressed in English as "TYPE has the
 //                                    bit-wise copyable trait", or "TYPE is
 //                                    bit-wise copyable", this trait also
 //                                    implies that destructor calls can be
@@ -95,24 +95,16 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_HASTRAIT
-#include <bslalg_hastrait.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_METAINT
-#include <bslmf_metaint.h>
-#endif
-
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 #endif
 
 #ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
+#include <bslmf_istriviallycopyable.h>
 #endif
 
 #ifndef INCLUDED_CSTDDEF
@@ -143,17 +135,17 @@ struct ArrayDestructionPrimitives {
     template <class TARGET_TYPE>
     static void destroy(TARGET_TYPE        *begin,
                         TARGET_TYPE        *end,
-                        bslmf::MetaInt<1>);
+                        bsl::true_type);
     template <class TARGET_TYPE>
     static void destroy(TARGET_TYPE        *begin,
                         TARGET_TYPE        *end,
-                        bslmf::MetaInt<0>);
+                        bsl::false_type);
         // Destroy each instance of 'TARGET_TYPE' in the array beginning at the
         // specified 'begin' address and ending immediately before the
         // specified 'end' address.  Use the destructor of the parameterized
         // 'TARGET_TYPE', or do nothing if the 'TARGET_TYPE' is bit-wise
         // copyable (i.e., if the last argument is of type
-        // 'bslmf::MetaInt<1>').  Note that the last argument is for
+        // 'bsl::true_type').  Note that the last argument is for
         // overloading resolution only and its value is ignored.
 
   public:
@@ -184,7 +176,7 @@ template <class TARGET_TYPE>
 inline
 void ArrayDestructionPrimitives::destroy(TARGET_TYPE       *begin,
                                          TARGET_TYPE       *end,
-                                         bslmf::MetaInt<1>)
+                                         bsl::true_type)
 {
     // 'BitwiseCopyable' is a valid surrogate for 'HasTrivialDestructor'.
 
@@ -200,7 +192,7 @@ void ArrayDestructionPrimitives::destroy(TARGET_TYPE       *begin,
 template <class TARGET_TYPE>
 void ArrayDestructionPrimitives::destroy(TARGET_TYPE       *begin,
                                          TARGET_TYPE       *end,
-                                         bslmf::MetaInt<0>)
+                                         bsl::false_type)
 {
     for (; begin != end; ++begin) {
         begin->~TARGET_TYPE();
@@ -217,9 +209,8 @@ void ArrayDestructionPrimitives::destroy(TARGET_TYPE *begin,
     BSLS_ASSERT_SAFE(end   || !begin);
     BSLS_ASSERT_SAFE(begin <= end);
 
-    typedef typename HasTrait<TARGET_TYPE,
-                              TypeTraitBitwiseCopyable>::Type Trait;
-    destroy(begin, end, Trait());
+    destroy(begin, end,
+            typename bsl::is_trivially_copyable<TARGET_TYPE>::type());
 }
 
 }  // close package namespace

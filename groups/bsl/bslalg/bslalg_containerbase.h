@@ -91,8 +91,12 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_IF
-#include <bslmf_if.h>
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_CONDITIONAL
+#include <bslmf_conditional.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_ISCONVERTIBLE
@@ -235,9 +239,9 @@ class ContainerBase_NonBslmaBase : public ALLOCATOR {
 
 template <class ALLOCATOR>
 class ContainerBase : public
-    bslmf::If<bslmf::IsConvertible<bslma::Allocator*, ALLOCATOR>::VALUE,
-              ContainerBase_BslmaBase<ALLOCATOR>,
-              ContainerBase_NonBslmaBase<ALLOCATOR> >::Type {
+    bsl::conditional<bsl::is_convertible<bslma::Allocator*, ALLOCATOR>::value,
+                     ContainerBase_BslmaBase<ALLOCATOR>,
+                     ContainerBase_NonBslmaBase<ALLOCATOR> >::type {
     // Allocator proxy class for STL-style containers.  Provides access to the
     // allocator.  Implements the entire STL allocator interface, redirecting
     // allocation and deallocation calls to the proxied allocator.  One of two
@@ -246,9 +250,10 @@ class ContainerBase : public
 
     // PRIVATE TYPES
     typedef typename
-        bslmf::If<bslmf::IsConvertible<bslma::Allocator*, ALLOCATOR>::VALUE,
+        bsl::conditional<
+                  bsl::is_convertible<bslma::Allocator*, ALLOCATOR>::value,
                   ContainerBase_BslmaBase<ALLOCATOR>,
-                  ContainerBase_NonBslmaBase<ALLOCATOR> >::Type Base;
+                  ContainerBase_NonBslmaBase<ALLOCATOR> >::type Base;
 
     // NOT IMPLEMENTED
     ContainerBase& operator=(const ContainerBase&);
@@ -267,7 +272,7 @@ class ContainerBase : public
 
   public:
     // PUBLIC TYPES
-    typedef typename Base::AllocatorType   AllocatorType;
+    typedef typename Base::AllocatorType            AllocatorType;
 
     typedef typename AllocatorType::size_type       size_type;
     typedef typename AllocatorType::difference_type difference_type;

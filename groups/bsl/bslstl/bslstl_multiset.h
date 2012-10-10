@@ -87,7 +87,7 @@ BSLS_IDENT("$Id: $")
 // In addition to directly allocating memory from the indicated
 // 'bslma::Allocator', a multiset supplies that allocator's address to the
 // constructors of contained objects of the (template parameter) type 'KEY'
-// with the 'bslalg::TypeTraitUsesBslmaAllocator' trait.
+// with the 'bslma::UsesBslmaAllocator' trait.
 //
 ///Operations
 ///----------
@@ -199,7 +199,7 @@ BSLS_IDENT("$Id: $")
 ///Example 1: Creating a Shopping Cart
 ///- - - - - - - - - - - - - - - - - -
 // In this example, we will utilize 'bsl::multiset' to define a class
-// 'ShoppingCart', that charaterizes a simple online shopping cart with the
+// 'ShoppingCart', that characterizes a simple online shopping cart with the
 // ability to add, remove, and view items in the shopping cart.
 //
 // Note that this example uses a type 'string' that is based on the standard
@@ -461,12 +461,8 @@ BSL_OVERRIDES_STD mode"
 #include <bslalg_rbtreeutil.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BSLSTL_TRAITSGROUPSTLASSOCIATIVECONTAINER
-#include <bslstl_traitsgroupstlassociativecontainer.h>
+#ifndef INCLUDED_BSLALG_TYPETRAITHASSTLITERATORS
+#include <bslalg_typetraithasstliterators.h>
 #endif
 
 #ifndef INCLUDED_FUNCTIONAL
@@ -592,11 +588,6 @@ class multiset {
         // comparator for this tree.
 
   public:
-    // TRAITS
-    typedef BloombergLP::bslstl::TraitsGroupStlAssociativeContainer<ALLOCATOR>
-                                                               TreeTypeTraits;
-    BSLALG_DECLARE_NESTED_TRAITS(multiset, TreeTypeTraits);
-
     // CREATORS
     explicit multiset(const COMPARATOR&  comparator = COMPARATOR(),
                       const ALLOCATOR& allocator = ALLOCATOR())
@@ -963,6 +954,43 @@ class multiset {
 
     // void insert(initializer_list<value_type>);
 };
+
+}  // namespace bsl
+
+// ============================================================================
+//                                TYPE TRAITS
+// ============================================================================
+
+// Type traits for STL *ordered* containers:
+//: o An ordered container defines STL iterators.
+//: o An ordered container uses 'bslma' allocators if the parameterized
+//:     'ALLOCATOR' is convertible from 'bslma::Allocator*'.
+
+namespace BloombergLP {
+namespace bslalg {
+
+template <typename KEY,
+          typename COMPARATOR,
+          typename ALLOCATOR>
+struct HasStlIterators<bsl::multiset<KEY, COMPARATOR, ALLOCATOR> >
+    : bsl::true_type
+{};
+
+}
+
+namespace bslma {
+
+template <typename KEY,
+          typename COMPARATOR,
+          typename ALLOCATOR>
+struct UsesBslmaAllocator<bsl::multiset<KEY, COMPARATOR, ALLOCATOR> >
+    : bsl::is_convertible<Allocator*, ALLOCATOR>
+{};
+
+}
+}  // namespace BloombergLP
+
+namespace bsl {
 
 template <class KEY, class COMPARATOR, class ALLOCATOR>
     bool operator==(const multiset<KEY, COMPARATOR, ALLOCATOR>& lhs,

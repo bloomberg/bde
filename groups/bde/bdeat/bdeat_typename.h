@@ -532,9 +532,7 @@ template <typename TYPE>
 inline
 const char *bdeat_TypeName_Imp::classNameImp(const TYPE *, IsBasicEnumeration)
 {
-    typedef typename
-    bslalg_TypeTraits<TYPE>::Wrapper Wrapper;
-
+    typedef typename bdeat_BasicEnumerationWrapper<TYPE>::Wrapper Wrapper;
     return Wrapper::CLASS_NAME;
 }
 
