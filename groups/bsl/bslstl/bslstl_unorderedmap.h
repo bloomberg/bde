@@ -331,7 +331,6 @@ class unordered_map {
     //
     // This class:
     //: o supports a complete set of *value-semantic* operations
-    //:   o except for 'bdex' serialization
     //: o is *exception-neutral* (agnostic except for the 'at' method)
     //: o is *alias-safe*
     //: o is 'const' *thread-safe*
@@ -421,45 +420,53 @@ class unordered_map {
                            const hasher&         hash = hasher(),
                            const key_equal&      keyEqual = key_equal(),
                            const allocator_type& allocator = allocator_type());
-        // Construct an empty unordered map.  Optionally specify an
-        // 'initialNumBuckets' indicating the initial size of the array of
-        // buckets of this container.  If 'initialNumBuckets' is not supplied,
-        // an implementation defined value is used.  Optionally specify a
-        // 'hasher' used to generate the hash values associated to the
-        // key-value pairs contained in this object.  If 'hash' is not
-        // supplied, a default-constructed object of type 'hasher' is used.
-        // Optionally specify a key-equality functor 'keyEqual' used to verify
-        // that two key values are the same.  If 'keyEqual' is not supplied, a
-        // default-constructed object of type 'key_equal' is used.  Optionally
-        // specify an 'allocator' used to supply memory.  If 'allocator' is not
-        // supplied, a default-constructed object of the (template parameter)
-        // type 'allocator_type' is used.  If the 'allocator_type' is
-        // 'bsl::allocator' (the default), then 'allocator' shall be
-        // convertible to 'bslma::Allocator *'.  If the 'ALLOCATOR' is
-        // 'bsl::allocator' and 'allocator' is not supplied, the currently
-        // installed default allocator will be used to supply memory.
+        // Create an empty unordered map having a 'max_load_factor' of 1.0.
+        // Optionally specify an 'initialNumBuckets' indicating the minimum
+        // initial size of the array of buckets of this container.  If
+        // 'initialNumBuckets' is not supplied, one empty bucket shall be used.
+        // Optionally specify a 'hasher' used to generate the hash values
+        // associated to the key-value pairs contained in this object.  If
+        // 'hash' is not supplied, a default-constructed object of type
+        // 'hasher' is used.  Optionally specify a key-equality functor
+        // 'keyEqual' used to verify that two key values are the same.  If
+        // 'keyEqual' is not supplied, a default-constructed object of type
+        // 'key_equal' is used.  Optionally specify an 'allocator' used to
+        // supply memory.  If 'allocator' is not supplied, a default-
+        // constructed object of the (template parameter) type 'allocator_type'
+        // is used.  If the 'allocator_type' is 'bsl::allocator' (the default),
+        // then 'allocator' shall be convertible to 'bslma::Allocator *'.  If
+        // the 'ALLOCATOR' is 'bsl::allocator' and 'allocator' is not supplied,
+        // the currently installed default allocator will be used to supply
+        // memory.  Note that more than 'initialNumBuckets' buckets may be
+        // created in order to preserve the bucket allocation strategy of the
+        // hash-table (but never fewer).
 
     explicit unordered_map(const allocator_type& allocator);
-        // Construct an empty unordered map that uses the specified 'allocator'
-        // to supply memory.  Use a default-constructed object of type 'hasher'
-        // to generate hash values for the key-value pairs contained in this
-        // object.  Also, use a default-constructed object of type 'key_equal'
-        // to verify that two key values are the same.  If the
-        // 'allocator_type' is 'bsl::allocator' (the default), then 'allocator'
-        // shall be convertible to 'bslma::Allocator *'.
+        // Create an empty unordered map, having a 'max_load_factor' of 1.0,
+        // that uses the specified 'allocator' to supply memory.  Use a
+        // default-constructed object of type 'hasher' to generate hash values
+        // for the key-value pairs contained in this object.  Also, use a
+        // default-constructed object of type 'key_equal' to verify that two
+        // key values are the same.  If the 'allocator_type' is
+        // 'bsl::allocator' (the default), then 'allocator' shall be
+        // convertible to 'bslma::Allocator *'.
 
-    unordered_map(const unordered_map&  original);
+    unordered_map(const unordered_map& original);
+        // Create an unordered map having the same value, hasher, key-equality
+        // comparator and 'max_load_factor' as the specified 'original'.  Use
+        // the allocator returned by 'bsl::allocator_traits<allocator_type>::
+        // select_on_container_copy_construction(original.get_allocator())'
+        // to supply memory.  If the 'allocator_type' is 'bsl::allocator'
+        // (the default), the currently installed default allocator will be
+        // used to supply memory.
+
     unordered_map(const unordered_map&  original,
                   const allocator_type& allocator);
-        // Construct an unordered map having the same value as that of the
-        // specified 'original'.  Use a default-constructed object of type
-        // 'hasher' to generate hash values for the key-value pairs contained
-        // in this object.  Also, use a default-constructed object of type
-        // 'key_equal' to verify that two key values are the same.  Optionally
-        // specify an 'allocator' used to supply memory.  If 'allocator' is not
-        // supplied, a default-constructed object of type 'allocator_type' is
-        // used.  If the 'allocator_type' is 'bsl::allocator' (the default),
-        // then 'allocator' shall be convertible to 'bslma::Allocator *'.
+        // Create an unordered map having the same value, hasher, key-equality
+        // comparator and 'max_load_factor' as the specified 'original', and
+        // using the specified 'allocator' to supply memory.  If the
+        // 'allocator_type' is 'bsl::allocator' (the default), then 'allocator'
+        // shall be convertible to 'bslma::Allocator *'.
 
     template <class INPUT_ITERATOR>
     unordered_map(INPUT_ITERATOR        first,
@@ -468,43 +475,47 @@ class unordered_map {
                   const hasher&         hash = hasher(),
                   const key_equal&      keyEqual = key_equal(),
                   const allocator_type& allocator = allocator_type());
-        // Construct an empty unordered map and insert each 'value_type' object
-        // in the sequence starting at the specified 'first' element, and
-        // ending immediately before the specified 'last' element, ignoring
-        // those pairs having a key that appears earlier in the sequence.
-        // Optionally specify an 'initialNumBuckets' indicating the initial
-        // size of the array of buckets of this container.  If
-        // 'initialNumBuckets' is not supplied, an implementation defined value
-        // is used.  Optionally specify a 'hasher' used to generate hash values
-        // for the key-value pairs contained in this object.  If 'hash' is not
-        // supplied, a default-constructed object of type 'hasher' is used.
-        // Optionally specify a key-equality functor 'keyEqual' used to verify
-        // that two key values are the same.  If 'keyEqual' is not supplied, a
-        // default-constructed object of type 'key_equal' is used.  Optionally
-        // specify an 'allocator' used to supply memory.  If 'allocator' is not
-        // supplied, a default-constructed object of the (template parameter)
-        // type 'allocator_type' is used.  If the 'allocator_type' is
-        // 'bsl::allocator' (the default), then 'allocator' shall be
-        // convertible to 'bslma::Allocator *'.  If the 'allocator_type' is
-        // 'bsl::allocator' and 'allocator' is not supplied, the currently
-        // installed default allocator will be used to supply memory.  The
-        // (template parameter) type 'INPUT_ITERATOR' shall meet the
-        // requirements of an input iterator defined in the C++11 standard
-        // [24.2.3] providing access to values of a type convertible to
-        // 'value_type'.  The behavior is undefined unless 'first' and 'last'
-        // refer to a sequence of valid values where 'first' is at a position
-        // at or before 'last'.  This method requires that the (template
-        // parameter) types 'KEY' and 'VALUE' both be "copy-constructible" (see
-        // {Requirements on 'KEY' and 'VALUE'}).
+        // Create an empty unordered map, having a 'max_load_factor' of 1.0,
+        // and insert each 'value_type' object in the sequence starting at the
+        // specified 'first' element, and ending immediately before the
+        // specified 'last' element, ignoring those pairs having a key that
+        // appears earlier in the sequence.  Optionally specify a mimimum
+        // 'initialNumBuckets' suggesting the initial size of the array of
+        // buckets of this container.  If 'initialNumBuckets' is not supplied,
+        // and 'first' and 'last' denote an empty range, a single empty bucket
+        // shall be supplied.  Optionally specify a 'hasher' used to generate
+        // hash values for the key-value pairs contained in this object.  If
+        // 'hash' is not supplied, a default-constructed object of type
+        // 'hasher' is used.  Optionally specify a key-equality functor
+        // 'keyEqual' used to verify that two key values are the same.  If
+        // 'keyEqual' is not supplied, a default-constructed object of type
+        // 'key_equal' is used.  Optionally specify an 'allocator' used to
+        // supply memory.  If 'allocator' is not supplied, a default-
+        // constructed object of the (template parameter) type 'allocator_type'
+        // is used.  If the 'allocator_type' is 'bsl::allocator' (the default),
+        // then 'allocator' shall be  convertible to 'bslma::Allocator *'.  If
+        // the 'allocator_type' is 'bsl::allocator' and 'allocator' is not
+        // supplied, the currently installed default allocator will be used to
+        // supply memory.  The (template parameter) type 'INPUT_ITERATOR' shall
+        // meet the requirements of an input iterator defined in the C++11
+        // standard [24.2.3] providing access to values of a type convertible
+        // to 'value_type'.  The behavior is undefined unless 'first' and
+        // 'last' refer to a sequence of valid values where 'first' is at a
+        // position at or before 'last'.  This method requires that the
+        // (template parameter) types 'KEY' and 'VALUE' both be
+        // "copy-constructible" (see {Requirements on 'KEY' and 'VALUE'}).
+        // Note that more than 'initialNumBuckets' buckets may be created in
+        // order to preserve the bucket allocation strategy of the hash-table
+        // (but never fewer).
 
     ~unordered_map();
         // Destroy this object.
 
     // MANIPULATORS
     unordered_map& operator=(const unordered_map& rhs);
-        // Assign to this object the value, hasher, and key-equality functor of
-        // the specified 'rhs' object, propagate to this object the allocator
-        // of 'rhs' if the 'ALLOCATOR' type has trait
+        // Assign to this object the value, hasher, key-equality functor and
+        // 'max_load_factor' of the specified 'rhs' object, propagate to this
+        // object the allocator of 'rhs' if 'allocator_type' has trait
         // 'propagate_on_container_copy_assignment', and return a reference
         // providing modifiable access to this object.  This method requires
         // that the (template parameter types) 'KEY' and 'VALUE' both be
@@ -561,21 +572,41 @@ class unordered_map {
         // 'KEY' and 'VALUE' types both be "copy-constructible" (see
         // {Requirements on 'KEY' and 'VALUE'}).
 
+    template <class SOURCE_TYPE>
+    pair<iterator, bool> insert(const SOURCE_TYPE& value);
+        // Insert the specified 'value' into this map if the key (the 'first'
+        // element) of the 'value' does not already exist in this map;
+        // otherwise, if a 'value_type' object having the same key as 'value'
+        // already exists in this map, this method has no effect.  Return a
+        // pair whose 'first' member is an iterator referring to the (possibly
+        // newly inserted) 'value_type' object in this map whose key is the
+        // same as that of 'value', and whose 'second' member is 'true' if a
+        // new value was inserted, and 'false' if the value was already
+        // present.  This method requires that the (template parameter) types
+        // 'KEY' and 'VALUE' types both be "copy-constructible" (see
+        // {Requirements on 'KEY' and 'VALUE'}).
+
     iterator insert(const_iterator hint, const value_type& value);
-        // Insert the specified 'value' into this map (in constant
-        // time if the specified 'hint' is a valid element in the bucket to
-        // which 'value' belongs), if the key (the 'first' element) of the
-        // 'value' does not already exist in this map; otherwise, if a
-        // 'value_type' object having the same key as 'value' already exists in
-        // this map, this method has no effect.  Return an iterator referring
-        // to the (possibly newly inserted) 'value_type' object in this map
-        // whose key is the same as that of 'value'.  If 'hint' does not refer
-        // to an element in the bucket of the key of 'value', this operation
-        // will have worst case O[N] and average case constant time complexity,
-        // where 'N' is the size of this map.  The behavior is undefined unless
-        // 'hint' is a valid iterator into this unordered map.  This method
-        // requires that the (template parameter) types 'KEY' and 'VALUE' both
-        // be "copy-constructible" (see {Requirements on 'KEY' and
+        // Insert the specified 'value' into this map if the key (the 'first'
+        // element) of the 'value' does not already exist in this map.  Return
+        // an iterator referring to the (possibly newly inserted) 'value_type'
+        // object in this map whose key is the same as that of 'value'.  The
+        // behavior is undefined unless 'hint' is a valid iterator into this
+        // unordered map, although its value is not used otherwise.  This
+        // method requires that the (template parameter) types 'KEY' and
+        // 'VALUE' both be "copy-constructible" (see {Requirements on 'KEY' and
+        // 'VALUE'}).
+
+    template <class SOURCE_TYPE>
+    iterator insert(const_iterator hint, const SOURCE_TYPE& value);
+        // Insert the specified 'value' into this map if the key (the 'first'
+        // element) of the 'value' does not already exist in this map.  Return
+        // an iterator referring to the (possibly newly inserted) 'value_type'
+        // object in this map whose key is the same as that of 'value'.  The
+        // behavior is undefined unless 'hint' is a valid iterator into this
+        // unordered map, although its value is not used otherwise.  This
+        // method requires that the (template parameter) types 'KEY' and
+        // 'VALUE' both be "copy-constructible" (see {Requirements on 'KEY' and
         // 'VALUE'}).
 
     template <class INPUT_ITERATOR>
@@ -611,20 +642,20 @@ class unordered_map {
         // position, and return 'last'.  The behavior is undefined unless
         // 'first' and 'last' either refer to elements in this map or are the
         // 'end' iterator, and the 'first' position is at or before the 'last'
-        // position in the ordered sequence provided by this container.
+        // position in the iteration sequence provided by this container.
 
     void swap(unordered_map& other);
-        // Exchange the value of this object as well as its hasher and
-        // key-equality functor with those of the specified 'other' object.
-        // The behavior is undefined is unless this object was created with the
-        // same allocator as 'other'.  Additionally if
-        // 'bslstl::AllocatorTraits<ALLOCATOR>::propagate_on_container_swap' is
-        // 'true' then exchange the allocator of this object with that of the
-        // 'other' object, and do not modify either allocator otherwise.  This
-        // method provides the no-throw exception-safety guarantee and
-        // guarantees O[1] complexity.  The behavior is undefined is unless
-        // either this object was created with the same allocator as 'other' or
-        // 'propagate_on_container_swap' is 'true'.
+        // Exchange the value of this object as well as its hasher,
+        // key-equality functor and 'max_load_factor' with those of the
+        // specified 'other' object.  If 'allocator_type' has the trait
+        // 'propagate_on_container_swap', exchange the allocator of this object
+        // with that of the 'other' object, and do not modify either allocator
+        // otherwise.  This method provides the no-throw exception-safety
+        // guarantee and guarantees O[1] complexity, as long as the (template
+        // parameter) 'hasher' and (template parameter) 'key_equal' do not
+        // throw when 'swap'ped.  The behavior is undefined unless either this
+        // object was created with the same allocator as 'other' or
+        // 'allocator_type' has the 'propagate_on_container_swap' trait.
 
     void clear();
         // Remove all entries from this map.  Note that the container is
@@ -648,20 +679,30 @@ class unordered_map {
 
     void  max_load_factor(float newLoadFactor);
         // Set the maximum load factor of this container to the specified
-        // 'newLoadFactor'.
+        // 'newLoadFactor'.  This unordered map will enforce the maximum load
+        // factor by rehashing into a larger array of buckets on any any insert
+        // operation where a successful insertion would exceed the maximum load
+        // factor.  The maximum load factor may actually be less than the
+        // current load factor after calling this method, until the next
+        // insert operation is called.  The behavior is undefined unless
+        // '0 < loadFactor'.
 
     void  rehash(size_type numBuckets);
         // Change the size of the array of buckets maintained by this container
-        // to the specified 'numBuckets', and redistribute all the contained
-        // elements into the new sequence of buckets, according to their hash
-        // values.  Note that this operation has no effect if rehashing the
-        // elements into 'numBuckets' would cause this map to exceed its
-        // 'max_load_factor'.
+        // to at least the specified 'numBuckets', and redistribute all the
+        // contained elements into the new sequence of buckets, according to
+        // their hash values.  After this call, 'load_factor' will be less than
+        // or equal to 'max_load_factor'.  This operation has no effect if
+        // rehashing the elements into 'numBuckets' would cause this map to
+        // exceed its 'max_load_factor'.
 
     void  reserve(size_type numElements);
-        // Increase the number of buckets of this map to a quantity such that
-        // the ratio between the specified 'numElements' and this quantity does
-        // not exceed 'max_load_factor'.
+        // Change the size of the array of buckets maintained by this container
+        // so that 'load_factor() < max_load_factor()', even if the container
+        // grows to a 'size' of the specificed 'numElements', and redistribute
+        // all the contained elements into the new sequence of buckets,
+        // according to their hash values.  This operation has no effect if
+        // 'size() <= numElements'.
 
     // ACCESSORS
     allocator_type get_allocator() const;
@@ -1096,6 +1137,23 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::insert(
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class SOURCE_TYPE>
+inline
+bsl::pair<typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator,
+          bool>
+unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::insert(
+                                                      const SOURCE_TYPE& value)
+{
+    typedef bsl::pair<iterator, bool> ResultType;
+
+    bool isInsertedFlag = false;
+
+    HashTableLink *result = d_impl.insertIfMissing(&isInsertedFlag, value);
+
+    return ResultType(iterator(result), isInsertedFlag);
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator
 unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::insert(
                                                        const_iterator,
@@ -1109,9 +1167,34 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::insert(
     // the whole bucket looking for duplicates, and the hint is no help in
     // finding the start of a bucket.
 
-    return this->insert(value);
+    bool isInsertedFlag;  // not used
+
+    HashTableLink *result = d_impl.insertIfMissing(&isInsertedFlag, value);
+
+    return iterator(result);
 }
 
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class SOURCE_TYPE>
+typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator
+unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::insert(
+                                                      const_iterator,
+                                                      const SOURCE_TYPE& value)
+{
+    // There is no realistic use-case for the 'hint' in an unordered_map of
+    // unique values.  We could quickly test for a duplicate key, and have a
+    // fast return path for when the method fails, but in the typical use case
+    // where a new element is inserted, we are adding an extra key-check for no
+    // benefit.  In order to insert an element into a bucket, we need to walk
+    // the whole bucket looking for duplicates, and the hint is no help in
+    // finding the start of a bucket.
+
+    bool isInsertedFlag;  // not used
+
+    HashTableLink *result = d_impl.insertIfMissing(&isInsertedFlag, value);
+
+    return iterator(result);
+}
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 template <class INPUT_ITERATOR>
@@ -1126,8 +1209,9 @@ void unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::insert(
         this->reserve(this->size() + maxInsertions);
     }
 
+    bool isInsertedFlag;  // not used
     while (first != last) {
-        this->insert(*first++);
+        d_impl.insertIfMissing(&isInsertedFlag, *first++);
     }
 }
 
