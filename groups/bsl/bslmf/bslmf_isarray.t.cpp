@@ -24,8 +24,8 @@ using namespace std;
 // types for both.
 //
 //-----------------------------------------------------------------------------
-// [ 2] BloombergLP::bslmf::IsPointer
-// [ 1] bsl::is_pointer
+// [ 2] BloombergLP::bslmf::IsArray
+// [ 1] bsl::is_array
 //
 // ----------------------------------------------------------------------------
 // [ 3] USAGE EXAMPLE
@@ -94,15 +94,15 @@ int main(int argc, char *argv[])
       case 3: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
-        //   Simple example illustrating use of 'bslmf::IsArray'.
         //
         // Concerns:
+        //: 1 The usage example provided in the component header file compiles,
+        //:   links, and runs as shown.
         //
         // Plan:
-        //
-        // Tactics:
-        //   - Add-Hoc Data Selection Method
-        //   - Brute-Force implementation technique
+        //: 1 Incorporate usage example from header into test driver, remove
+        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //:   (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -113,19 +113,43 @@ int main(int argc, char *argv[])
 
 ///Usage
 ///-----
-// For example:
+// In this section we show intended use of this component.
+//
+///Example 1: Verify Array Types
+///- - - - - - - - - - - - - - - -
+// Suppose that we want to assert whether a particular type is an Array type.
+//
+// First, we create two 'typedef's -- an array type and a non-array type:
 //..
-     ASSERT(1 == bslmf::IsArray<int    [5]>::value);
-     ASSERT(0 == bslmf::IsArray<int  *    >::value);
-     ASSERT(0 == bslmf::IsArray<int (*)[5]>::value);
+        typedef int MyType;
+        typedef int MyArrayType[];
+//..
+// Now, we instantiate the 'bsl::is_array' template for each of the
+// 'typedef's and assert the 'value' static data member of each instantiation:
+//..
+        ASSERT(false == bsl::is_array<MyType>::value);
+        ASSERT(true  == bsl::is_array<MyArrayType>::value);
 //..
 
       } break;
       case 2: {
         // --------------------------------------------------------------------
+        // 'bslmf::IsArray'
+        //   Ensure that 'bslmf::IsArray' returns the correct values for a
+        //   variety of a variety of template parameter types.
+        //
+        // Concerns:
+        //: 1 'IsArray' returns 'true' for a  bounded array type.
+        //:
+        //: 2 'IsArray' returns 'true' for an unbouded array type.
+        //:
+        //: 3 'IsArray' returns 'false' for a reference type to an array type.
+        //:
+        //: 4 'IsArray' returns 'false' for non-array types.
+        //
         // Test Plan:
-        //   Instantiate 'bslmf::IsArray' with various types and verify
-        //   that their 'value' member is initialized properly.
+        //   Verify that 'bslmf::IsArray' return the correct value for each
+        //   concern.
         //
         // Testing:
         //   bslmf::IsArray
@@ -230,16 +254,29 @@ int main(int argc, char *argv[])
       } break;
       case 1: {
         // --------------------------------------------------------------------
+        // 'bsl::is_array'
+        //   Ensure that 'bsl::is_array' returns the correct values for a
+        //   variety of a variety of template parameter types.
+        //
+        // Concerns:
+        //: 1 'is_array' returns 'true' for a  bounded array type.
+        //:
+        //: 2 'is_array' returns 'true' for an unbouded array type.
+        //:
+        //: 3 'is_array' returns 'false' for a reference type to an array type.
+        //:
+        //: 4 'is_array' returns 'false' for non-array types.
+        //
         // Test Plan:
-        //   Instantiate 'bsl::is_array' with various types and verify
-        //   that their 'value' member is initialized properly.
+        //   Verify that 'bsl::is_array' return the correct value for
+        //   each concern.
         //
         // Testing:
         //   bsl::is_array
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nbsl::is_array\n"
-                            "\n=============\n");
+        if (verbose) printf("\n'bsl::is_array'\n"
+                            "\n===============\n");
 
         ASSERT(1 == bsl::is_array<char          [1]>::value);
         ASSERT(1 == bsl::is_array<char const    [1]>::value);
