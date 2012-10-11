@@ -496,6 +496,7 @@ class HashTable {
 
     template <class SOURCE_TYPE>
     bslalg::BidirectionalLink *insert(const SOURCE_TYPE& value);
+    bslalg::BidirectionalLink *insert(const ValueType&   value);
         // Insert the specified 'value' into this hash-table, and return the
         // address of the new node.  If this hash-table already contains an
         // element having the same key as 'value' (according to this hash-
@@ -516,6 +517,9 @@ class HashTable {
     bslalg::BidirectionalLink *insertIfMissing(
                                             bool               *isInsertedFlag,
                                             const SOURCE_TYPE&  value);
+    bslalg::BidirectionalLink *insertIfMissing(
+                                            bool               *isInsertedFlag,
+                                            const ValueType&    value);
         // Return the address of an element in this hash table having a key
         // that compares equal to the key of the specified 'value' using the
         // 'comparator' functor of this hash-table.  If no such element exists,
@@ -825,6 +829,53 @@ class HashTable_ListProctor {
         // If no object is currently being managed, this method has no effect.
 };
 
+                    // ===========================
+                    // class HashTable_NodeProctor
+                    // ===========================
+
+template <class FACTORY>
+class HashTable_NodeProctor {
+    // This class implements a proctor that, unless its 'release' method has
+    // previously been invoked, automatically deallocates a managed list of
+    // nodes upon destruction by recursively invoking the 'deleteNode'
+    // method of a supplied factory on each node.  The (template parameter)
+    // type 'FACTORY' shall be provide a member function that can be called as
+    // if it had the following signature:
+    //..
+    //  void deleteNode(bslalg::BidirectionalLink *node);
+    //..
+
+  private:
+    // DATA
+    FACTORY                   *d_factory;
+    bslalg::BidirectionalLink *d_node;
+
+  private:
+    // NOT IMPLEMENTED
+    HashTable_NodeProctor(const HashTable_NodeProctor&);
+    HashTable_NodeProctor& operator == (const HashTable_NodeProctor&);
+
+  public:
+    HashTable_NodeProctor(FACTORY                   *factory,
+                          bslalg::BidirectionalLink *node);
+        // Create a new node-proctor that conditionally manages the specified
+        // 'node' (if non-zero), and that uses the specified 'factory' to
+        // destroy the node (unless released) upon its destruction.  The
+        // behavior is undefined unless 'node' was created by the specified
+        // 'factory'.
+
+    ~HashTable_NodeProctor();
+        // Destroy this node proctor, and delete the node that it manages (if
+        // any) by invoking the 'deleteNode' method of the factory supplied at
+        // construction.  If no node is currently being managed, this method
+        // has no effect.
+
+    // MANIPULATORS
+    void release();
+        // Release from management the node currently managed by this proctor.
+        // If no object is currently being managed, this method has no effect.
+};
+
                     // ==========================
                     // class HashTable_ImpDetails
                     // ==========================
@@ -961,6 +1012,39 @@ inline
 void HashTable_ListProctor<FACTORY>::release()
 {
     d_root = 0;
+}
+
+                    // ---------------------------
+                    // class HashTable_NodeProctor
+                    // ---------------------------
+
+// CREATORS
+template <class FACTORY>
+inline
+HashTable_NodeProctor<FACTORY>::HashTable_NodeProctor(
+                                           FACTORY                   *factory,
+                                           bslalg::BidirectionalLink *node)
+: d_factory(factory)
+, d_node(node)
+{
+    BSLS_ASSERT_SAFE(factory);
+}
+
+template <class FACTORY>
+inline
+HashTable_NodeProctor<FACTORY>::~HashTable_NodeProctor()
+{
+    if (d_node) {
+        d_factory->deleteNode(d_node);
+    }
+}
+
+// MANIPULATORS
+template <class FACTORY>
+inline
+void HashTable_NodeProctor<FACTORY>::release()
+{
+    d_node = 0;
 }
 
                     // ----------------------------
@@ -1407,10 +1491,9 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::operator=(
 }
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
-template <class SOURCE_TYPE>
 bslalg::BidirectionalLink *
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::insert(
-                                                      const SOURCE_TYPE& value)
+                                                        const ValueType& value)
 {
     // Rehash (if appropriate) first as it will reduce load factor and so
     // potentially improve the 'find' time.
@@ -1450,6 +1533,50 @@ template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 template <class SOURCE_TYPE>
 bslalg::BidirectionalLink *
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::insert(
+                                                      const SOURCE_TYPE& value)
+{
+    typedef bslalg::HashTableImpUtil ImpUtil;
+
+    // Rehash (if appropriate) first as it will reduce load factor and so
+    // potentially improve the 'find' time.
+    if (d_size >= d_capacity) {
+        this->rehashForNumBuckets(numBuckets() + 1);
+    }
+
+    // Create a node having the new 'value' we want to insert into the table.
+    // We can extract the 'key' from this value without accidentally creating
+    // a temporary (using the default allocator for any dynanmic memory).
+    bslalg::BidirectionalLink *newNode =
+                                  d_parameters.nodeFactory().createNode(value);
+
+    // This node needs wrapping in a proctor, in case either of the user-
+    // supplied functors throws an exception.
+    HashTable_NodeProctor<typename ImplParameters::NodeFactory>
+                             nodeProctor(&d_parameters.nodeFactory(), newNode);
+
+    // Now we can search for the node in the table, being careful to compute
+    // the hash value only once.
+    const KeyType& key = ImpUtil::extractKey<KEY_CONFIG>(newNode);
+    size_t hashCode = this->hasher()(key);
+    bslalg::BidirectionalLink *position = this->find(key, hashCode);
+
+    if (!position) {
+        ImpUtil::insertAtFrontOfBucket(&d_anchor, newNode, hashCode);
+    }
+    else {
+        ImpUtil::insertAtPosition(&d_anchor, newNode, hashCode, position);
+    }
+    nodeProctor.release();
+
+    ++d_size;
+
+    return newNode;
+}
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+template <class SOURCE_TYPE>
+bslalg::BidirectionalLink *
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::insert(
                                               const SOURCE_TYPE&         value,
                                               bslalg::BidirectionalLink *hint)
 {
@@ -1470,6 +1597,8 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::insert(
 
     // There is potential for the user-supplied hasher and comparator to throw,
     // so now we need to manage our 'newNode' with a proctor.
+    HashTable_NodeProctor<typename ImplParameters::NodeFactory>
+                             nodeProctor(&d_parameters.nodeFactory(), newNode);
 
     // Insert logic, first test the hint
     const KeyType& key = ImpUtil::extractKey<KEY_CONFIG>(newNode);
@@ -1484,6 +1613,7 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::insert(
     else {
         ImpUtil::insertAtPosition(&d_anchor, newNode, hashCode, hint);
     }
+    nodeProctor.release();
 
     ++d_size;
 
@@ -1491,12 +1621,13 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::insert(
 }
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
-template <class SOURCE_TYPE>
 bslalg::BidirectionalLink *
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::insertIfMissing(
-                                               bool               *isInserted,
-                                               const SOURCE_TYPE&  value)
+                                               bool             *isInserted,
+                                               const ValueType&  value)
 {
+    BSLS_ASSERT(isInserted);
+
     const KeyType& key = KEY_CONFIG::extractKey(value);
     size_t hashCode = this->hasher()(key);
     bslalg::BidirectionalLink *position = this->find(key, hashCode);
@@ -1513,6 +1644,55 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::insertIfMissing(
                                                         position,
                                                         hashCode);
         ++d_size;
+    }
+
+    return position;
+}
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+template <class SOURCE_TYPE>
+bslalg::BidirectionalLink *
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::insertIfMissing(
+                                               bool               *isInserted,
+                                               const SOURCE_TYPE&  value)
+{
+    BSLS_ASSERT(isInserted);
+
+    typedef bslalg::HashTableImpUtil ImpUtil;
+
+    // Rehash (if appropriate) first as it will reduce load factor and so
+    // potentially improve the potential 'find' time later.
+    if (d_size >= d_capacity) {
+        this->rehashForNumBuckets(numBuckets() + 1);
+    }
+
+    // Next we must create the node, to avoid making a temporary of 'ValueType'
+    // from the object of template parameter 'SOURCE_TYPE'.
+    bslalg::BidirectionalLink *newNode =
+                                  d_parameters.nodeFactory().createNode(value);
+
+    // There is potential for the user-supplied hasher and comparator to throw,
+    // so now we need to manage our 'newNode' with a proctor.
+    HashTable_NodeProctor<typename ImplParameters::NodeFactory>
+                             nodeProctor(&d_parameters.nodeFactory(), newNode);
+
+    // Insert logic, first test the hint
+    const KeyType& key = ImpUtil::extractKey<KEY_CONFIG>(newNode);
+    size_t hashCode = this->hasher()(key);
+    bslalg::BidirectionalLink *position = this->find(key, hashCode);
+
+    *isInserted = (!position);
+
+    if(!position) {
+        if (d_size >= d_capacity) {
+            this->rehashForNumBuckets(numBuckets() + 1);
+        }
+
+        ImpUtil::insertAtFrontOfBucket(&d_anchor, position, hashCode);
+        nodeProctor.release();
+
+        ++d_size;
+        position = newNode;
     }
 
     return position;
