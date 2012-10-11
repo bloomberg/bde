@@ -10,10 +10,12 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a configuration class to use a whole object as its own key.
 //
 //@CLASSES:
+//   bslstl::UnorderedSetKeyConfiguration: trivial identity tranformation
 //
-//@SEE_ALSO: bslalg_hashtableimputil
+//@SEE_ALSO: bslstl_unorderedmapkeyconfiguration, bslalg_hashtableimputil
 //
-//@AUTHOR: Alisdair Meredith (ameredith1), Stefano Pacifico (spacifico1)
+//@AUTHOR: Alisdair Meredith (ameredith1), Stefano Pacifico (spacifico1),
+//         Bill Chapman (bchapman2)
 //
 //@DESCRIPTION: This component provides an identity transformation.
 // 'bslalg::HashTableImpUtil' has a static 'extractKey' function template
@@ -25,6 +27,196 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Using Multiple Extractors to Sort an Array on Different Keys
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Suppose we want to define a 'sort' function which will work on a variety
+// of different object types.  The object has to have a 'key' within it,
+// possibly the whole object, which will compare with the 'key' of other
+// objects with a transitive '<' operator.
+//
+// First, we define our function 'mySort', which takes two template args:
+// 'VALUE_TYPE', the type of object being sorted, and 'KEY_EXTRACTOR', the
+// utility class that will extra which part of the objects to be sorted is the
+// key which will drive the sort:
+//..
+//  template <typename VALUE_TYPE, typename KEY_EXTRACTOR>
+//  void mySort(VALUE_TYPE *begin, VALUE_TYPE *end, const KEY_EXTRACTOR&)
+//      // This function provides an order-preserving sort of the items in the
+//      // range '[ begin, end )', where 'KEY_EXTRACTOR::extractKey' yields the
+//      // key being sorted over.  We require that 'VALUE_TYPE' support copy
+//      // construction and assignment.
+//  {
+//      while (begin < --end) {
+//          for (VALUE_TYPE *it = begin; it < end; ++it) {
+//              if (KEY_EXTRACTOR::extractKey(it[1]) <
+//                                          KEY_EXTRACTOR::extractKey(it[0])) {
+//                  // they're in the wrong order -- swap them
+//
+//                  VALUE_TYPE tmp(it[0]);
+//                  it[0] = it[1];
+//                  it[1] = tmp;
+//              }
+//          }
+//
+//          // '*end' is now the highest element in the range '[ begin, end ]',
+//          // so we only have to sort the elements before it in the next pass.
+//      }
+//  }
+//..
+// Then, we define 'StudentRecord', which keeps some vital statistics on
+// students:
+//..
+//  struct StudentRecord {
+//      const char *d_name;
+//      double      d_gpa;
+//      int         d_age;
+//  };
+//..
+// Next, we define two extractors for 'StudentRecord', which will yield the
+// 'GPA' or 'Age' fields:
+//..
+//  struct StudentRecordGPAExtractor {
+//      static
+//      const double& extractKey(const StudentRecord& record)
+//      {
+//          return record.d_gpa;
+//      }
+//  };
+//
+//  struct StudentRecordAgeExtractor {
+//      static
+//      const int& extractKey(const StudentRecord& record)
+//      {
+//          return record.d_age;
+//      }
+//  };
+//..
+// Then, in 'main', we create an array of 'StudentRecord's describing a set of
+// students, with their names, GPA's, and ages.
+//..
+//  StudentRecord studentArray[] = {
+//      { "Phil",  3.4, 19 },
+//      { "Bob",   2.7, 20 },
+//      { "Bill",  4.2, 21 },
+//      { "Stan",  1.9, 18 },
+//      { "Ann",   2.3, 21 },
+//      { "Julie", 2.3, 20 } };
+//  const int NUM_STUDENTS = sizeof studentArray / sizeof *studentArray;
+//..
+// Next, using our GPA extractor and our 'mySort' function, we sort the
+// students by GPA:
+//..
+//  StudentRecordGPAExtractor gpaExtractor;
+//
+//  mySort(studentArray + 0,
+//         studentArray + NUM_STUDENTS,
+//         gpaExtractor);
+//..
+// Then, we print out the sorted array of students:
+//..
+//  if (verbose) {
+//      printf("\nList of students, lowest GPA first:\n");
+//      printf(  "===================================\n");
+//
+//      printf("Name   GPA  AGE\n"
+//             "-----  ---  ---\n");
+//      for (int i = 0; i < NUM_STUDENTS; ++i) {
+//          const StudentRecord& record = studentArray[i];
+//
+//          printf("%-5s  %g  %3d\n", record.d_name,
+//                                    record.d_gpa,
+//                                    record.d_age);
+//      }
+//  }
+//..
+// The output produced is:
+//..
+//  List of students, lowest GPA first:
+//  ===================================
+//  Name   GPA  AGE
+//  -----  ---  ---
+//  Stan   1.9   18
+//  Ann    2.3   21
+//  Julie  2.3   20
+//  Bob    2.7   20
+//  Phil   3.4   19
+//  Bill   4.2   21
+//..
+// Note that Ann and Julie, who have the same GPA, are still in the same order
+// as they were before the sort, as 'mySort' was an order-preserving sort:
+//
+// Next, we sort by age with our age extractor, and print out the results:
+//..
+//  StudentRecordAgeExtractor ageExtractor;
+//
+//  mySort(studentArray + 0,
+//         studentArray + NUM_STUDENTS,
+//         ageExtractor);
+//
+//  if (verbose) {
+//      printf("\nList of students, youngest first:\n");
+//      printf(  "================================\n");
+//
+//      printf("Name   GPA  AGE\n"
+//             "-----  ---  ---\n");
+//      for (int i = 0; i < NUM_STUDENTS; ++i) {
+//          const StudentRecord& record = studentArray[i];
+//
+//          printf("%-5s  %g  %3d\n", record.d_name,
+//                                    record.d_gpa,
+//                                    record.d_age);
+//      }
+//  }
+//..
+// The output is:
+//..
+//  List of students, youngest first:
+//  ================================
+//  Name   GPA  AGE
+//  -----  ---  ---
+//  Stan   1.9   18
+//  Phil   3.4   19
+//  Julie  2.3   20
+//  Bob    2.7   20
+//  Ann    2.3   21
+//  Bill   4.2   21
+//..
+// Note again, the ordering of students with identical ages is preserved.
+//
+// Then, we define an array full of integers to be sorted.
+//..
+//  int intArray[] = { 8, 3728, 2919, 27438, -2837, 18282, 34, -3 };
+//  const int NUM_INTS = sizeof intArray / sizeof *intArray;
+//..
+// Next, we want to sort the integers.  In this case, the key being sorted on
+// is the whole 'int', so we use 'bslstl::UnorderedSetKeyConfiguration<int>' as
+// our extractor:
+//..
+//  bslstl::UnorderedSetKeyConfiguration<int> intExtractor;
+//..
+// Now, we sort the array using our 'sort' function and the extractor, and
+// printout out the sorted array:
+//..
+//  mySort(intArray + 0, intArray + NUM_INTS, intExtractor);
+//
+//  if (verbose) {
+//      printf("\nSorted integer array:\n"
+//               "====================\n");
+//
+//      for (int i = 0; i < NUM_INTS; ++i) {
+//          printf("%s%d", (i ? ", " : ""), intArray[i]);
+//      }
+//      printf("\n");
+//  }
+//..
+// Finally, we observe that the output produced is:
+//..
+//  Sorted integer array:
+//  ====================
+//  -2837, -3, 8, 34, 2919, 3728, 18282, 27438
+//..
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
