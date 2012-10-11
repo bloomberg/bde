@@ -496,7 +496,6 @@ class HashTable {
 
     template <class SOURCE_TYPE>
     bslalg::BidirectionalLink *insert(const SOURCE_TYPE& value);
-    bslalg::BidirectionalLink *insert(const ValueType&   value);
         // Insert the specified 'value' into this hash-table, and return the
         // address of the new node.  If this hash-table already contains an
         // element having the same key as 'value' (according to this hash-
@@ -1488,45 +1487,6 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::operator=(
         }
     }
     return *this;
-}
-
-template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
-bslalg::BidirectionalLink *
-HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::insert(
-                                                        const ValueType& value)
-{
-    // Rehash (if appropriate) first as it will reduce load factor and so
-    // potentially improve the 'find' time.
-    if (d_size >= d_capacity) {
-        this->rehashForNumBuckets(numBuckets() + 1);
-    }
-
-    // Ensure all calls to (potentially throwing) user-supplied functors occur
-    // before we allocate a new node - so that there is no need for a proctor
-    // to manage the new node to the end of the function.
-    const KeyType& key = KEY_CONFIG::extractKey(value);
-    size_t hashCode = this->hasher()(key);
-    bslalg::BidirectionalLink *position = this->find(key, hashCode);
-
-    // This allocation is the last potentially-throwing operation, so we can
-    // safely run to the end of the function without a proctor.
-    bslalg::BidirectionalLink *newNode =
-                                  d_parameters.nodeFactory().createNode(value);
-    if (!position) {
-        bslalg::HashTableImpUtil::insertAtFrontOfBucket(&d_anchor,
-                                                        newNode,
-                                                        hashCode);
-    }
-    else {
-        bslalg::HashTableImpUtil::insertAtPosition(&d_anchor,
-                                                   newNode,
-                                                   hashCode,
-                                                   position);
-    }
-
-    ++d_size;
-
-    return newNode;
 }
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
