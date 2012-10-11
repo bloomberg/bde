@@ -1091,13 +1091,10 @@ unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::insert(INPUT_ITERATOR first,
         this->reserve(this->size() + maxInsertions);
     }
 
-    // Typically will create an un-necessary temporary dereferencing each
-    // iterator and casting to a reference of 'const value_type&'.
     while (first != last) {
-        this->insert(*first++);
+        d_impl.insert(*first++);
     }
 }
-
 
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 inline
