@@ -48,21 +48,20 @@ BSLS_IDENT("$Id: $")
 //      // key being sorted over.  We require that 'VALUE_TYPE' support copy
 //      // construction and assignment.
 //  {
-//      for (; begin < end; ++begin) {
-//          for (VALUE_TYPE *it = end - 2; begin <= it; --it) {
+//      while (begin < --end) {
+//          for (VALUE_TYPE *it = begin; it < end; ++it) {
 //              if (KEY_EXTRACTOR::extractKey(it[1]) <
-//                                            KEY_EXTRACTOR::extractKey(*it)) {
+//                                          KEY_EXTRACTOR::extractKey(it[0])) {
 //                  // they're in the wrong order -- swap them
 //
-//                  VALUE_TYPE tmp(*it);
-//                  *it = it[1];
+//                  VALUE_TYPE tmp(it[0]);
+//                  it[0] = it[1];
 //                  it[1] = tmp;
 //              }
 //          }
 //
-//          // '*begin' is now the leastmost element in the range
-//          // '[ begin, end )', so we only have to sort the elements after it
-//          // in the next pass.
+//          // '*end' is now the highest element in the range '[ begin, end ]',
+//          // so we only have to sort the elements before it in the next pass.
 //      }
 //  }
 //..
