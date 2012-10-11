@@ -1064,11 +1064,10 @@ void unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::insert(INPUT_ITERATOR first,
         this->reserve(this->size() + maxInsertions);
     }
 
-    // This loop could be improved with fewer temporaries, we are discarding a
-    // 'pair' returned from each call to 'insert'.
+    bool isInsertedFlag;  // value is not used
 
     while (first != last) {
-        this->insert(*first++);
+        d_impl.insertIfMissing(&isInsertedFlag, *first++);
     }
 }
 
