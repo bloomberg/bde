@@ -10,6 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a configuration class to use a whole object as its own key.
 //
 //@CLASSES:
+//   bslstl::UnorderedSetKeyConfiguration: trivial identity tranformation
 //
 //@SEE_ALSO: bslstl_unorderedmapkeyconfiguration, bslalg_hashtableimputil
 //
