@@ -466,7 +466,7 @@ class ConstructorProxy {
         // Return a reference to the non-modifiable object held by this proxy.
 };
 
-}
+}  // close namespace bslalg
 
 // ============================================================================
 //                                TYPE TRAITS
@@ -479,7 +479,7 @@ struct UsesBslmaAllocator<bslalg::ConstructorProxy<OBJECT_TYPE> >
     : bsl::true_type
 {};
 
-}
+}  // close namespace bslma
 
 // ============================================================================
 //                      INLINE FUNCTION DEFINITIONS

@@ -83,34 +83,34 @@ void HashTableImpUtil::insertAtPosition(HashTableAnchor    *anchor,
 }
 
 void HashTableImpUtil::insertAtFrontOfBucket(HashTableAnchor    *anchor,
-                                             BidirectionalLink  *newNode,
+                                             BidirectionalLink  *link,
                                              native_std::size_t  hashCode)
 {
-    BSLS_ASSERT_SAFE(newNode);
     BSLS_ASSERT_SAFE(anchor);
+    BSLS_ASSERT_SAFE(link);
 
     HashTableBucket *bucket = findBucketForHashCode(*anchor, hashCode);
     BSLS_ASSERT_SAFE(bucket);
 
     if (bucket->first()) {
-        BidirectionalLinkListUtil::insertLinkBeforeTarget(newNode,
+        BidirectionalLinkListUtil::insertLinkBeforeTarget(link,
                                                           bucket->first());
         if (anchor->listRootAddress() == bucket->first()) {
-            anchor->setListRootAddress(newNode);
+            anchor->setListRootAddress(link);
         }
-        bucket->setFirst(newNode);
+        bucket->setFirst(link);
     }
     else {
         // New bucket is required.
 
         BidirectionalLinkListUtil::insertLinkBeforeTarget(
-                                                    newNode,
+                                                    link,
                                                     anchor->listRootAddress());
 
         // New buckets are inserted in front of the list.
 
-        anchor->setListRootAddress(newNode);
-        bucket->setFirstAndLast(newNode, newNode);
+        anchor->setListRootAddress(link);
+        bucket->setFirstAndLast(link, link);
     }
 }
 

@@ -95,11 +95,10 @@ class AutoArrayMoveDestructor {
     // CLASS INVARIANT
     BSLMF_ASSERT(bslmf::IsBitwiseMoveable<OBJECT_TYPE>::value);
 
-    // NOT IMPLEMENTED
   private:
+    // NOT IMPLEMENTED
     AutoArrayMoveDestructor(const AutoArrayMoveDestructor&);
-    AutoArrayMoveDestructor&
-    operator=(const AutoArrayMoveDestructor&);
+    AutoArrayMoveDestructor& operator=(const AutoArrayMoveDestructor&);
 
   public:
     // CREATORS
@@ -200,7 +199,7 @@ void AutoArrayMoveDestructor<OBJECT_TYPE>::advance()
     ++d_dst_p;
 
     BSLS_ASSERT_SAFE(d_dst_p != d_begin_p || d_middle_p == d_end_p);
- }
+}
 
 // ACCESSORS
 template <class OBJECT_TYPE>
