@@ -13,8 +13,7 @@ BSLS_IDENT("$Id: $")
 //  bsltf::TemplateTestFacility: namespace for template-testing utilities
 //
 //@MACROS:
-//  BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(CLASS, METHOD, TYPE...):
-//      invoke CLASS<TYPE>.METHOD for each listed TYPE 
+//  BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(CLASS, METHOD, TYPE...): run all
 //  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE: list of primitive types
 //  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_USER_DEFINED: list user types
 //  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR: list of typical types
