@@ -49,11 +49,12 @@ using namespace bslstl;
 //
 // Global Concerns:
 //: o Pointer/reference parameters are declared 'const'.
-//: o No memory is ever allocated.
+//: o No memory is ever allocated from the global allocator.
 //: o Precondition violations are detected in appropriate build modes.
 //-----------------------------------------------------------------------------
 // CREATORS
 // [ 2] explicit BidirectionalNodePool(const ALLOCATOR& allocator);
+// [ 2] ~BidirectionalNodePool();
 //
 // MANIPULATORS
 // [ 4] AllocatorType& allocator();
@@ -69,6 +70,7 @@ using namespace bslstl;
 // [ 4] const AllocatorType& allocator() const;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
+// [ *] CONCERN: No memory is ever allocated from the global allocator.
 //-----------------------------------------------------------------------------
 //=============================================================================
 
@@ -217,10 +219,10 @@ class NonAllocatingTestType {
     // tracking of the constructor that was called.
 
     // DATA
-    bool   d_singleFlag;  // flag indicating that the single-argument
+    bool   d_singleFlag;  // flag indicating that the one-parameter
                           // constructor has been called.
 
-    bool   d_doubleFlag;  // flag indicating that the double-argument
+    bool   d_doubleFlag;  // flag indicating that the two-parameters
                           // constructor has been called.
 
     double d_arg1;        // value of the first constructor argument
@@ -250,12 +252,12 @@ class NonAllocatingTestType {
     }
 
     // ACCESSORS
-    bool oneArgConstructorFlag()
+    bool oneParamConstructorFlag()
     {
         return d_singleFlag;
     }
 
-    bool twoArgsConstructorFlag()
+    bool twoParamsConstructorFlag()
     {
         return d_doubleFlag;
     }
@@ -270,11 +272,11 @@ class AllocatingTestType {
 
     // DATA
     bool              d_singleFlag;   // flag indicating that the
-                                      // single-argument constructor has been
+                                      // one-parameter constructor has been
                                       // called.
 
     bool              d_doubleFlag;   // flag indicating that the
-                                      // double-argument constructor has been
+                                      // two-parameter constructor has been
                                       // called.
 
     double           *d_arg1_p;       // address of the first constructor
@@ -331,12 +333,12 @@ class AllocatingTestType {
     }
 
     // ACCESSORS
-    bool oneArgConstructorFlag()
+    bool oneParamConstructorFlag()
     {
         return d_singleFlag;
     }
 
-    bool twoArgsConstructorFlag()
+    bool twoParamsConstructorFlag()
     {
         return d_doubleFlag;
     }
@@ -469,9 +471,6 @@ class TestDriver {
 
     static void testCase4();
         // Test basic accessors ('allocator').
-
-    static void testCase3();
-        // Test generator functions 'ggg', and 'gg'.
 
     static void testCase2();
         // Test primary manipulators.
@@ -985,7 +984,7 @@ void TestDriver<VALUE>::testCase8()
             ValueNode *node = static_cast<ValueNode *>(ptr);
             ASSERTV(i, arg1 == node->value().arg1());
             ASSERTV(i, arg2 == node->value().arg2());
-            ASSERTV(i, node->value().twoArgsConstructorFlag());
+            ASSERTV(i, node->value().twoParamsConstructorFlag());
         }
 
         while(!usedX.empty()) {
@@ -1005,7 +1004,7 @@ void TestDriver<VALUE>::testCase8()
         ValueNode *node = static_cast<ValueNode *>(ptr);
         ASSERTV(1 == node->value().arg1());
         ASSERTV(2 == node->value().arg2());
-        ASSERTV(node->value().twoArgsConstructorFlag());
+        ASSERTV(node->value().twoParamsConstructorFlag());
 
         mX.deleteNode(ptr);
     }
@@ -1122,12 +1121,12 @@ void TestDriver<NonAllocatingTestType>::testCase7()
     double arg1 = 1.0;
     Link *ptr = mX.createNode(arg1);
 
-    ASSERT(static_cast<ValueNode*>(ptr)->value().oneArgConstructorFlag());
+    ASSERT(static_cast<ValueNode*>(ptr)->value().oneParamConstructorFlag());
     mX.deleteNode(ptr);
 
     float arg1f = 1.0;
     ptr = mX.createNode(arg1f);
-    ASSERT(static_cast<ValueNode*>(ptr)->value().oneArgConstructorFlag());
+    ASSERT(static_cast<ValueNode*>(ptr)->value().oneParamConstructorFlag());
 }
 
 
@@ -1141,7 +1140,7 @@ void TestDriver<VALUE>::testCase6()
     //: 1 'reserve' allocate exactly the specified number of blocks such that
     //:   subsequent 'allocate' does not get memory from the heap.
     //:
-    //: 2 Free blocks that was allocated before 'reserve' is not destroyed.
+    //: 2 Free blocks that was allocated before 'reserve' are not destroyed.
     //:
     //: 3 All memory allocation comes from the object allocator.
     //:
@@ -1241,15 +1240,12 @@ void TestDriver<VALUE>::testCase5()
     //: 2 'createNode' does not allocate from the heap when there are still
     //:   blocks in the free list.
     //:
-    //: 3 'createNode' retrieve the last block that was deallocated.
+    //: 3 'createNode' retrieve the last node that was deleted.
     //:
-    //: 4 'allocate' will retrieve memory from the heap once so that the next
-    //:   allocation will not allocate from the heap.
-    //:
-    //: 5 'deleteNode' does not allocate or release any memory other than those
+    //: 4 'deleteNode' does not allocate or release any memory other than those
     //:   caused by the destructor of the value.
     //:
-    //: 6 QoI: Asserted precondition violations are detected when enabled.
+    //: 5 QoI: Asserted precondition violations are detected when enabled.
     //
     // Plan:
     //: 1 Create a list of sequences to allocate and deallocate memory.  For
@@ -1257,17 +1253,20 @@ void TestDriver<VALUE>::testCase5()
     //:
     //:   1 Invoke 'createNode' and 'deleteNode' according to the sequence.
     //:
-    //:   2 Verify that each allocate returns the last block that was
+    //:   2 Verify that each 'createNode' returns the last block that was
     //:     deallocated if 'deleteNode' was called.  (C-1..3)
     //:
     //:   3 Verify no memory was allocated from the heap on 'deleteNode'.
-    //:     (C-5)
+    //:     (C-4)
     //:
     //:   4 Verify 'createNode' will get memory from the heap only when
     //:     expected.
     //:
     //: 2 Verify that, in appropriate build modes, defensive checks are
-    //:   triggered (using the 'BSLS_ASSERTTEST_*' macros).  (C-6)
+    //:   triggered (using the 'BSLS_ASSERTTEST_*' macros).  (C-5)
+    //
+    // Testing:
+    //   void deleteNode(bslalg::BidirectionalLink *node);
     // --------------------------------------------------------------------
 
     if (verbose) printf("\nMANIPULATOR 'deleteNode'"
@@ -1394,6 +1393,7 @@ void TestDriver<VALUE>::testCase4()
     //
     // Testing:
     //   AllocatorType& allocator();
+    //   const AllocatorType& allocator() const;
     // ------------------------------------------------------------------------
 
     for (char cfg = 'a'; cfg <= 'c'; ++cfg) {
@@ -1437,6 +1437,7 @@ void TestDriver<VALUE>::testCase4()
         bslma::TestAllocatorMonitor oam(&oa);
 
         ASSERTV(CONFIG, &oa == X.allocator());
+        ASSERTV(CONFIG, &oa == mX.allocator());
 
         ASSERT(oam.isTotalSame());
 
@@ -1455,13 +1456,6 @@ void TestDriver<VALUE>::testCase4()
     }
 }
 
-template<class VALUE>
-void TestDriver<VALUE>::testCase3()
-{
-    // ------------------------------------------------------------------------
-    // RESERVED FOR TEST APPARATUS TESTING
-    // ------------------------------------------------------------------------
-}
 
 template<class VALUE>
 void TestDriver<VALUE>::testCase2()
@@ -1477,34 +1471,45 @@ void TestDriver<VALUE>::testCase2()
     //: 1 An object created with the constructor has the specified
     //:   allocator.
     //:
-    //: 2 Any memory allocation is from the object allocator.
+    //: 2 if the (template parameter) 'ALLOCATOR' is an instance of the
+    //:   'bsl::allocator' template, then any memory allocation is from the
+    //:   supplied allocator .
     //:
-    //: 3 There is no temporary allocation from any allocator.
+    //: 3 If the default allocator if the (template parameter) 'ALLOCATOR' is
+    //:   another standard-compliant allocator, then memory allocated for the
+    //:   nodes is from the supplied allocator, while memory allocated for the
+    //:   constructor of the node's 'value' attribute is from the default
+    //:   allocator.
     //:
-    //: 4 Every object releases any allocated memory at destruction.
+    //: 4 There is no temporary allocation from any allocator.
     //:
-    //: 5 Allocation starts at one block, up to a maximum of 32 blocks.
+    //: 5 Every object releases any allocated memory at destruction.
     //:
-    //: 6 Constructor allocates no memory.
+    //: 6 Allocation starts at one block, up to a maximum of 32 blocks.
     //:
-    //: 7 Any memory allocation is exception neutral.
-    //
+    //: 7 Constructor allocates no memory.
+    //:
+    //: 8 Any memory allocation is exception neutral.
+    //:
     // Plan:
-    //: 1 For each allocator configuration:
+    //: 1 For each 'bsl::allocator' configuration:
     //:
-    //:   1 Create a pool object and verify no memory is allocated.  (C-1, 8)
+    //:   1 Create a pool object and verify no memory is allocated.  (C-1, 7)
     //:
     //:   2 Call 'allocate' 96 times in the presence of exception, for each
     //:     time:
     //:
     //:     1 Verify memory is only allocated from object allocator and only
-    //:       when expected.  (C-2..3, 5..6)
+    //:       when expected.  (C-2, 4, 6..7)
     //:
     //:     2 If memory is not allocated, the address is the max of
     //:       'sizeof(VALUE)' and 'sizeof(void *) larger than the previous
-    //:       address.  (C-7)
+    //:       address.  (C-8)
     //:
-    //:   3 Delete the object and verify all memory is deallocated.  (C-4)
+    //:   3 Delete the object and verify all memory is deallocated.  (C-5)
+    //:
+    //: 2 Repeat P1, except using another standard-compliant allocator.
+    //    (C-1..8)
     //
     // Testing:
     //   explicit BidirectionalNodePool(const ALLOCATOR& allocator);
@@ -1516,9 +1521,10 @@ void TestDriver<VALUE>::testCase2()
                  "\nDEFAULT CTOR, PRIMARY MANIPULATORS, & DTOR"
                  "\n==========================================\n");
 
-    if (verbose) printf("\nTesting with various allocator configurations.\n");
-
     const bool TYPE_ALLOC = bslma::UsesBslmaAllocator<VALUE>::value;
+
+
+    // Testing various 'bsl::allocator' configuration.
 
     for (char cfg = 'a'; cfg <= 'b'; ++cfg) {
 
@@ -1607,6 +1613,82 @@ void TestDriver<VALUE>::testCase2()
         ASSERTV(oa.numBlocksInUse(),  0 ==  oa.numBlocksInUse());
         ASSERTV(noa.numBlocksTotal(), 0 == noa.numBlocksTotal());
     }
+
+    // Testing standard-compliant allocator.
+    {
+        bslma::TestAllocator da("default",   veryVeryVeryVerbose);
+        bslma::TestAllocator fa("footprint", veryVeryVeryVerbose);
+        bslma::TestAllocator sa("supplied",   veryVeryVeryVerbose);
+
+        bslma::DefaultAllocatorGuard dag(&da);
+        bsltf::StdTestAllocatorConfigurationGuard stag(&sa);
+
+        typedef bslstl::BidirectionalNodePool<VALUE, StlAlloc> ObjStlAlloc;
+
+        StlAlloc     stlOA;
+        ObjStlAlloc *objPtr = new (fa) ObjStlAlloc(stlOA);
+
+        ObjStlAlloc& mX = *objPtr;
+
+        // ---------------------------------------
+        // Verify allocator is installed properly.
+        // ---------------------------------------
+
+        ASSERTV(stlOA == mX.allocator());
+
+        // Verify no allocation from the object/non-object allocators.
+
+        ASSERTV(sa.numBlocksTotal(), 0 == sa.numBlocksTotal());
+        ASSERTV(da.numBlocksTotal(), 0 == da.numBlocksTotal());
+
+        Stack usedBlocks;
+
+        for (int i = 0; i < 96; ++i) {
+            bslma::TestAllocatorMonitor dam(&da);
+            bslma::TestAllocatorMonitor sam(&sa);
+
+            Link *ptr = mX.createNode();
+
+            if (expectToAllocate(i + 1)) {
+                ASSERTV(1 == sam.numBlocksTotalChange());
+                ASSERTV(1 == sam.numBlocksInUseChange());
+                ASSERTV(TYPE_ALLOC == dam.numBlocksTotalChange());
+                ASSERTV(TYPE_ALLOC == dam.numBlocksInUseChange());
+            }
+            else {
+                ASSERTV(TYPE_ALLOC == dam.numBlocksTotalChange());
+                ASSERTV(TYPE_ALLOC == dam.numBlocksInUseChange());
+            }
+
+            usedBlocks.push(ptr);
+        }
+
+        // Verify no temporary memory is allocated from the object
+        // allocator.
+        ASSERTV(da.numBlocksTotal(), da.numBlocksInUse(),
+                sa.numBlocksTotal() == sa.numBlocksInUse());
+
+        // Free up used blocks.
+        for (int i = 0; i < 96; ++i) {
+            bslma::TestAllocatorMonitor dam(&da);
+
+            mX.deleteNode(usedBlocks.back());
+
+            ASSERTV(-TYPE_ALLOC == dam.numBlocksInUseChange());
+
+            usedBlocks.pop();
+        }
+
+        // Reclaim dynamically allocated object under test.
+
+        fa.deleteObject(objPtr);
+
+        // Verify all memory is released on object destruction.
+
+        ASSERTV(fa.numBlocksInUse(), 0 == fa.numBlocksInUse());
+        ASSERTV(da.numBlocksInUse(), 0 == da.numBlocksInUse());
+        ASSERTV(sa.numBlocksInUse(), 0 == sa.numBlocksInUse());
+    }
 }
 
 }  // close unnamed namespace
@@ -1636,12 +1718,16 @@ int main(int argc, char *argv[])
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
+    // CONCERN: No memory is ever allocated from the global allocator.
+    bslma::TestAllocator ga("global", veryVeryVeryVerbose);
+    bslma::Default::setGlobalAllocator(&ga);
+    bslma::TestAllocatorMonitor gam(&ga);
+
     switch (test) { case 0:
       case 10: {
         // --------------------------------------------------------------------
         // MANIPULATOR 'swap'
         // --------------------------------------------------------------------
-
         RUN_EACH_TYPE(TestDriver,
                       testCase10,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
@@ -1699,8 +1785,110 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // RESERVED FOR TEST APPARATUS TESTING
+        // TEST APPARATUS
+        //
+        // Concerns:
+        //: 1 Objects of 'NonAllocatingTestType' and 'AllocatingTestType'
+        //:   correctly keep track of whether they are created with the
+        //:   one-parameter constructor or two-parameter constructor.
+        //:
+        //: 2 The arguments used to construct objects of
+        //:   'NonAllocatingTestType' and 'AllocatingTestType' can be accessed
+        //:   from the 'arg1' and 'arg2' methods.
+        //:
+        //: 3 'NonAllocatingTestType' does not allocate any memory.
+        //:
+        //: 4 'AllocatingTestType' correctly allocate memory on construction
+        //:   and releases memory on destruction.
+        //:
+        //: 5 'AllocatingTestType' has the 'bslma::UsesBslmaAllocator' type
+        //:   trait.
+        //
+        // Plan:
+        //: 1 Construct two 'NonAllocatingTestType' objects using the
+        //:   one-parameter constructor and two-parameter constructor
+        //:   respectively:
+        //:
+        //:   1 Verify that no memory has been allocated.  (C-3)
+        //:
+        //:   2 Verify that calling 'oneParamConstructorFlag' and
+        //:     'twoParamsConstructorFlag' correctly identifies which
+        //:     constructor has been called.  (C-1)
+        //:
+        //:   3 Verify that 'arg1' and 'arg2' methods return the arguments used
+        //:     when calling the constructors.  (C-2)
+        //:
+        //: 2 Verify that 'AllocatingTestType' has the
+        //:   'bslma::UsesBslmaAllocator' trait.  (C-5)
+        //:
+        //: 3 Construct two 'AllocatingTestType' objects using the
+        //:   one-parameter constructor and two-parameter constructor
+        //:   respectively:
+        //:
+        //:   1 Verify that memory has been allocated by only the object
+        //:     allocator specified at construction.  (C-4)
+        //:
+        //:   2 Verify that calling 'oneParamConstructorFlag' and
+        //:     'twoParamsConstructorFlag' correctly identifies which
+        //:     constructor has been called.  (C-1)
+        //:
+        //:   3 Verify that 'arg1' and 'arg2' methods return the arguments used
+        //:     when calling the constructors.  (C-2)
+        //:
+        //:   4 Verify after the objects are destroyed that memory used will
+        //:     have been released.  (C-3)
         // --------------------------------------------------------------------
+
+        const double ARG1 = 10;
+        const double ARG2 = 10;
+        {
+            NonAllocatingTestType X(ARG1);
+            NonAllocatingTestType Y(ARG1, ARG2);
+
+            ASSERT( X.oneParamConstructorFlag());
+            ASSERT(!X.twoParamsConstructorFlag());
+
+            ASSERT(!Y.oneParamConstructorFlag());
+            ASSERT( Y.twoParamsConstructorFlag());
+
+            ASSERT(ARG1 == X.arg1());
+            ASSERT(ARG1 == Y.arg1());
+            ASSERT(ARG2 == Y.arg2());
+        }
+
+        ASSERT(bslma::UsesBslmaAllocator<AllocatingTestType>::value);
+
+
+        bslma::TestAllocator da("default",   veryVeryVeryVerbose);
+        bslma::TestAllocator sa("supplied",  veryVeryVeryVerbose);
+
+        {
+            AllocatingTestType X(ARG1, &sa);
+
+            ASSERT(0 == da.numBlocksTotal());
+            ASSERT(2 == sa.numBlocksTotal());
+            ASSERT(2 == sa.numBlocksInUse());
+
+            AllocatingTestType Y(ARG1, ARG2, &sa);
+
+            ASSERT(0 == da.numBlocksTotal());
+            ASSERT(4 == sa.numBlocksTotal());
+            ASSERT(4 == sa.numBlocksInUse());
+
+            ASSERT( X.oneParamConstructorFlag());
+            ASSERT(!X.twoParamsConstructorFlag());
+
+            ASSERT(!Y.oneParamConstructorFlag());
+            ASSERT( Y.twoParamsConstructorFlag());
+
+            ASSERT(ARG1 == X.arg1());
+            ASSERT(ARG1 == Y.arg1());
+            ASSERT(ARG2 == Y.arg2());
+        }
+
+        ASSERT(0 == da.numBlocksTotal());
+        ASSERT(0 == sa.numBlocksInUse());
+
       } break;
       case 2: {
         // --------------------------------------------------------------------
@@ -1709,7 +1897,7 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE(TestDriver,
                       testCase2,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+                      bsltf::AllocTestType);
 
       } break;
       case 1: {
@@ -1802,6 +1990,9 @@ int main(int argc, char *argv[])
         testStatus = -1;
       }
     }
+
+    // CONCERN: No memory is ever allocated from the global allocator.
+    ASSERTV(gam.isTotalSame());
 
     if (testStatus > 0) {
         fprintf(stderr, "Error, non-zero test status = %d.\n", testStatus);
