@@ -45,7 +45,27 @@ using namespace bslstl;
 // Since this mechanism doesn't provide the copy-assignment operator, the
 // copy-constructor, and the equality comparison operator, we will follow only
 // the first four tests in the standard 10-case approach to testing
-// value-semantic types.
+// value-semantic types, which includes the breathing test, and the tests for
+// primary manipulators and primary accessors.
+//
+// One area of focus is ensuring that the memory is allocated from the correct
+// allocator for varying allocator types: instances of 'bsl::allocator', and
+// another standard-conforming allocator type.  On node creation, if the
+// allocator type is an instance of 'bsl::allocator', then the contained
+// 'bslma::Allocator' object will be used to allocate the 'value' attribute of
+// the node; otherwise, the default allocator will be used.
+//
+// The primary manipulators and basic accessors are decided to be:
+//
+// Primary Manipulators:
+//: o no parameter version of 'createNode'
+//
+// Basic Accessors:
+//: o 'allocator'
+//
+// After the above are tested, the rest of the test driver will concentrate on
+// testing the methods to return a node to the memory pool, 'deleteNode', and
+// other overloads for 'createNode'.
 //
 // Global Concerns:
 //: o Pointer/reference parameters are declared 'const'.
