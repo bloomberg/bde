@@ -27,7 +27,7 @@ void HashTableImpUtil::remove(HashTableAnchor    *anchor,
     BSLS_ASSERT_SAFE(
             link->previousLink() || anchor->listRootAddress() == link);
 
-#ifdef BDE_BUILD_TARGET_SAFE2
+#ifdef BDE_BUILD_TARGET_SAFE_2
     HashTableBucket *bucket = findBucketForHashCode(*anchor, hashCode);
     BSLS_ASSERT_SAFE2(bucketContainsLink(bucket, link));
 #endif
