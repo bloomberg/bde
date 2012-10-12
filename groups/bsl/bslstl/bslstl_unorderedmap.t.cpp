@@ -95,6 +95,12 @@ void aSsErT(bool b, const char *s, int i)
 //                              TEST SUPPORT
 //-----------------------------------------------------------------------------
 
+#if defined BSLS_PLATFORM_CMP_MSVC
+#  define ZU "%Iu"
+#else
+#  define ZU "%zu"
+#endif
+
 bool g_verbose;
 bool g_veryVerbose;
 bool g_veryVeryVerbose;
@@ -116,7 +122,7 @@ void debugPrint(const bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOC>& s)
             if (s.cbegin(n) == s.cend(n)) {
                 continue;
             }
-            printf("\nBucket [%d]: ", n);
+            printf("\nBucket ["ZU"]: ", n);
             for (LCIter lci = s.cbegin(n); lci != s.cend(n); ++lci) {
                 printf("[%d, %d], ", lci->first, lci->second);
 
@@ -275,7 +281,7 @@ void fillContainerWithData(CONTAINER& x,
     }
 }
 
-template<typename CONTAINER>
+template<class CONTAINER>
 void validateIteration(CONTAINER &c)
 {
     typedef typename CONTAINER::iterator       iterator;
