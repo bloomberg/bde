@@ -193,8 +193,6 @@ struct HashTableImpUtil {
         // 'computeBucketIndex').  The behavior is undefined if 'anchor'
         // has 0 buckets.
 
-
-
     static void spliceListIntoBucket(HashTableAnchor    *anchor,
                                      native_std::size_t  bucketIndex,
                                      BidirectionalLink  *first,
@@ -281,7 +279,7 @@ struct HashTableImpUtil {
         // Insert the specified 'link', having the specified (non-adjusted)
         // 'hashCode',  into the the specified 'anchor', at the front of the
         // bucket with index
-        // 'computeBucketIndex(hashCode, anchor->bucketArraySize()'.  The
+        // 'computeBucketIndex(hashCode, anchor->bucketArraySize())'.  The
         // behavior is undefined unless 'anchor' is well-formed (see
         // 'isWellFormed') for some combination of 'KEY_CONFIG' and
         // 'HASHER' such that 'link' refers to a node of type
@@ -297,7 +295,7 @@ struct HashTableImpUtil {
         // specified 'position' in the bi-directional linked list of 'anchor'.
         // The behavior is undefined unless position is in the bucket having
         // index 'computeBucketIndex(hashCode, anchor->bucketArraySize())' and
-        // anchor' is well-formed (see 'isWellFormed') for some combination of
+        // 'anchor' is well-formed (see 'isWellFormed') for some combination of
         // 'KEY_CONFIG' and 'HASHER' such that 'link' refers to a node of type
         // 'BidirectionalNode<KEY_CONFIG::ValueType>' and
         // 'HASHER(extractKey<KEY_CONFIG>(link))' returns 'hashCode'.
