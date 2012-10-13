@@ -16,10 +16,10 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Alisdair Meredith (ameredith1), Stefano Pacifico (spacifico1)
 //
-//@DESCRIPTION: This component defines a single class template
+//@DESCRIPTION: This component defines a single class template,
 // 'unordered_multimap', implementing the standard container holding a
 // collection of (possibly repeated) keys, each mapped to an associated value
-// (with no guarantees on ordering).
+// (with minimal guarantees on ordering).
 //
 // An instantiation of 'unordered_multimap' is an allocator-aware,
 // value-semantic type whose salient attributes are its size (number of keys)
@@ -996,7 +996,7 @@ unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::erase(
                                                          const_iterator first,
                                                          const_iterator last)
 {
-#if defined BDE_BUILD_TARGET_SAFE2
+#if defined BDE_BUILD_TARGET_SAFE_2
     if (first != last) {
         iterator it        = this->begin();
         const iterator end = this->end();

@@ -23,8 +23,8 @@ void BidirectionalLinkListUtil::insertLinkBeforeTarget(
                                                    BidirectionalLink  *target)
 {
     BSLS_ASSERT(newNode);
-#ifdef BDE_BUILD_TARGET_SAFE2
-    BSLS_ASSERT_SAFE2(isWellFormed(target, target));
+#ifdef BDE_BUILD_TARGET_SAFE_2
+    BSLS_ASSERT_SAFE(isWellFormed(target, target));
 #endif
 
     // Prepending before an empty list is *explicitly* *allowed*
@@ -54,8 +54,8 @@ void BidirectionalLinkListUtil::insertLinkAfterTarget(
 
     BidirectionalLink *next = target->nextLink();
 
-#ifdef BDE_BUILD_TARGET_SAFE2
-    BSLS_ASSERT_SAFE2(!next || isWellFormed(target, next));
+#ifdef BDE_BUILD_TARGET_SAFE_2
+    BSLS_ASSERT_SAFE(!next || isWellFormed(target, next));
 #endif
 
     target->setNextLink(newNode);
@@ -113,13 +113,14 @@ void BidirectionalLinkListUtil::spliceListBeforeTarget
 {
     BSLS_ASSERT_SAFE(first);
     BSLS_ASSERT_SAFE(last);
-#ifdef BDE_BUILD_TARGET_SAFE2
+#ifdef BDE_BUILD_TARGET_SAFE_2
+    // Test to avoid creating loops is O(N) expensive, so check only in SAFE_2
     BidirectionalLink *cursor = first;
     while(cursor != last->nextLink()) {
-        BSLS_ASSERT_SAFE2(cursor == target);
+        BSLS_ASSERT_SAFE(cursor != target);
         cursor = cursor->nextLink();
     }
-    BSLS_ASSERT_SAFE2(isWellFormed(first, last));
+    BSLS_ASSERT_SAFE(isWellFormed(first, last));
 #endif
 
     // unlink from existing list

@@ -993,7 +993,7 @@ typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::iterator
 unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::erase(const_iterator first,
                                                   const_iterator last)
 {
-#if defined BDE_BUILD_TARGET_SAFE2
+#if defined BDE_BUILD_TARGET_SAFE_2
     if (first != last) {
         iterator it        = this->begin();
         const iterator end = this->end();
