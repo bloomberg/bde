@@ -3,8 +3,8 @@
 
 #include <bsls_bsltestutil.h>
 
-#include <cstdio>
-#include <cstdlib>
+#include <cstdio>   // 'printf'
+#include <cstdlib>  // 'atoi'
 
 using namespace BloombergLP;
 using namespace std;
@@ -97,6 +97,21 @@ typedef void (*FunctionPtrTestType) ();
     // This function pointer type is intended to be used for testing as the
     // template parameter 'TYPE' of 'bsl::is_function'.
 
+typedef void VoidRetNoParamFunctionTestType();
+    // This function type having 'void' return type and no parameters is
+    // intended to be used for testing as the template parameter 'TYPE' of
+    // 'bsl::is_function'.
+
+typedef int IntRetNoParamFunctionTestType();
+    // This function type having 'int' return type and no parameters is
+    // intended to be used for testing as the template parameter 'TYPE' of
+    // 'bsl::is_function'.
+
+typedef int IntRetParamFunctionTestType(int, int);
+    // This function type having 'int' return type and 'int' parameters is
+    // intended to be used for testing as the template parameter 'TYPE' of
+    // 'bsl::is_function'.
+
 typedef int StructTestType::*PMD;
     // This pointer to member object type is intended to be used for testing as
     // the template parameter 'TYPE' of 'bsl::is_function'.
@@ -170,7 +185,7 @@ int main(int argc, char *argv[])
 //
 ///Example 1: Verify Function Types
 /// - - - - - - - - - - - - - - - -
-// Suppose that we want to assert whether a particular type is a function type.
+// Suppose that we want to assert whether a set of types are function types.
 //
 // Now, we instantiate the 'bsl::is_function' template for a non-function type
 // and a function type, and assert the 'value' static data member of each
@@ -261,6 +276,12 @@ int main(int argc, char *argv[])
         TYPE_ASSERT_CVQ_PREFIX(bsl::is_function, void (void), true);
         TYPE_ASSERT_CVQ_PREFIX(bsl::is_function, int  (void), true);
         TYPE_ASSERT_CVQ_PREFIX(bsl::is_function, void (int),  true);
+        TYPE_ASSERT_CVQ_PREFIX(
+                       bsl::is_function, VoidRetNoParamFunctionTestType, true);
+        TYPE_ASSERT_CVQ_PREFIX(
+                       bsl::is_function, IntRetNoParamFunctionTestType,  true);
+        TYPE_ASSERT_CVQ_PREFIX(
+                       bsl::is_function, IntRetParamFunctionTestType,    true);
       } break;
       default: {
           fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
@@ -275,11 +296,11 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2012
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

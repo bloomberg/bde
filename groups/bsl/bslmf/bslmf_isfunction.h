@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a compile-time check for function types.
+//@PURPOSE: Provide a compile-time check for determining function types.
 //
 //@CLASSES:
 //  bsl::is_function: standard meta-function for determining function types
@@ -17,7 +17,8 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR:
 //
 //@DESCRIPTION: This component defines a meta-function, 'bsl::is_function',
-// that may be used to query whether a type is a function type.
+// that may be used to query whether a template parameter type is a function
+// type.
 //
 // 'bsl::is_function' meets the requirements of the 'is_function' template
 // defined in the C++11 standard [meta.unary.cat].
@@ -28,7 +29,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Verify Function Types
 /// - - - - - - - - - - - - - - - -
-// Suppose that we want to assert whether a particular type is a function type.
+// Suppose that we want to assert whether a set of types are function types.
 //
 // Now, we instantiate the 'bsl::is_function' template for both a non-function
 // type and a function type, and assert the 'value' static data member of each
@@ -42,20 +43,19 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
-#include <bslmf_integralconstant.h>
+#ifndef INCLUDED_BSLMF_ADDPOINTER
+#include <bslmf_addpointer.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_FUNCTIONPOINTERTRAITS
 #include <bslmf_functionpointertraits.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_ADDPOINTER
-#include <bslmf_addpointer.h>
+#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
+#include <bslmf_integralconstant.h>
 #endif
 
 namespace bsl {
-
                              // ==================
                              // struct is_function
                              // ==================

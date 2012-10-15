@@ -113,7 +113,7 @@ namespace bsl {
 template <class TYPE>
 struct is_class : integral_constant<bool,
                                  BloombergLP::bslmf::IsClass_Imp<
-                                         class remove_cv<TYPE>::type>::Value> {
+                                      typename remove_cv<TYPE>::type>::Value> {
     // This 'struct' template implements the 'is_class' meta-function defined
     // in the C++11 standard [meta.unary.cat] to determine if the (template
     // parameter) 'TYPE' is a class.
