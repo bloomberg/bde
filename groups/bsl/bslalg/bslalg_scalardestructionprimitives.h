@@ -43,7 +43,7 @@ BSLS_IDENT("$Id: $")
 ///- - - - - - - - - - - - - - - - - - - - - - - -
 // In this example, we will use 'bslalg::ScalarDestructionPrimitives' to
 // destroy both a scalar integer and a 'MyInteger' type object.  Calling the
-// 'destory' method on a scalar integer is a no-op while calling the 'destroy'
+// 'destroy' method on a scalar integer is a no-op while calling the 'destroy'
 // method on an object of 'MyInteger' class invokes the destructor of the
 // object.
 //

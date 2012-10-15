@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Encapsulate the array of buckets and list of values of a hash table
+//@PURPOSE: Provide a type holding the constituent parts of a hash table.
 //
 //@CLASSES:
 // bslalg::HashTableAnchor: (in-core) bucket-array and node list
@@ -249,13 +249,15 @@ HashTableAnchor& HashTableAnchor::operator=(const HashTableAnchor& rhs)
 }
 
 inline
-void HashTableAnchor::setBucketArrayAddressAndSize(HashTableBucket    *array,
-                                                   native_std::size_t  size)
+void HashTableAnchor::setBucketArrayAddressAndSize(
+                                        HashTableBucket    *bucketArrayAddress,
+                                        native_std::size_t  bucketArraySize)
 {
-    BSLS_ASSERT_SAFE((array && 0 < size) || (!array && !size));
+    BSLS_ASSERT_SAFE(( bucketArrayAddress && 0 < bucketArraySize)
+                  || (!bucketArrayAddress &&    !bucketArraySize));
 
-    d_bucketArrayAddress_p = array;
-    d_bucketArraySize      = size;
+    d_bucketArrayAddress_p = bucketArrayAddress;
+    d_bucketArraySize      = bucketArraySize;
 }
 
 inline
@@ -293,7 +295,7 @@ HashTableBucket *HashTableAnchor::bucketArrayAddress() const
     return d_bucketArrayAddress_p;
 }
 
-} // end namespace bslalg
+}  // close namespace bslalg
 
 // FREE OPERATORS
 inline
