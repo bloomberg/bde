@@ -1041,7 +1041,7 @@ unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::erase(const_iterator first,
                                                        const_iterator last)
 {
 
-#if defined BDE_BUILD_TARGET_SAFE2
+#if defined BDE_BUILD_TARGET_SAFE_2
     if (first != last) {
         iterator it        = this->begin();
         const iterator end = this->end();
@@ -1091,13 +1091,10 @@ unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::insert(INPUT_ITERATOR first,
         this->reserve(this->size() + maxInsertions);
     }
 
-    // Typically will create an un-necessary temporary dereferencing each
-    // iterator and casting to a reference of 'const value_type&'.
     while (first != last) {
-        this->insert(*first++);
+        d_impl.insert(*first++);
     }
 }
-
 
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 inline

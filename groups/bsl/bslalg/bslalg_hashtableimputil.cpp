@@ -9,7 +9,7 @@ BSLS_IDENT("$Id$ $CSID$")
 
 #include <bsls_types.h>
 
-#include <stdio.h>
+//#include <stdio.h>
 
 namespace BloombergLP
 {
@@ -61,8 +61,8 @@ void HashTableImpUtil::insertAtFrontOfBucket(HashTableAnchor    *anchor,
                                              BidirectionalLink  *link,
                                              native_std::size_t  hashCode)
 {
-    BSLS_ASSERT_SAFE(anchor);
-    BSLS_ASSERT_SAFE(link);
+    BSLS_ASSERT(anchor);
+    BSLS_ASSERT(link);
 
     HashTableBucket *bucket = findBucketForHashCode(*anchor, hashCode);
     BSLS_ASSERT_SAFE(bucket);

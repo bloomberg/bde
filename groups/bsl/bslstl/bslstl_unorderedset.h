@@ -993,7 +993,7 @@ typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::iterator
 unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::erase(const_iterator first,
                                                   const_iterator last)
 {
-#if defined BDE_BUILD_TARGET_SAFE2
+#if defined BDE_BUILD_TARGET_SAFE_2
     if (first != last) {
         iterator it        = this->begin();
         const iterator end = this->end();
@@ -1064,11 +1064,10 @@ void unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::insert(INPUT_ITERATOR first,
         this->reserve(this->size() + maxInsertions);
     }
 
-    // This loop could be improved with fewer temporaries, we are discarding a
-    // 'pair' returned from each call to 'insert'.
+    bool isInsertedFlag;  // value is not used
 
     while (first != last) {
-        this->insert(*first++);
+        d_impl.insertIfMissing(&isInsertedFlag, *first++);
     }
 }
 
