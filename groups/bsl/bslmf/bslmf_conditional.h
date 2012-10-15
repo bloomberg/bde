@@ -17,7 +17,7 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR:
 //
 //@DESCRIPTION: This component defines a meta-function, 'bsl::conditional',
-// that may be used to tranform into one of the two given types based on its
+// that may be used to transform into one of the two given types based on its
 // (template parameter) 'bool' type value.
 //
 // 'bsl::conditional' meets the requirements of the 'conditional' template

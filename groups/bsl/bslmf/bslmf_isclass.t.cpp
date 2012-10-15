@@ -1,11 +1,10 @@
 // bslmf_isclass.t.cpp                                                -*-C++-*-
-
 #include <bslmf_isclass.h>
 
 #include <bsls_bsltestutil.h>
 
-#include <cstdio>     // printf()
-#include <cstdlib>    // atoi()
+#include <cstdio>     // 'printf'
+#include <cstdlib>    // 'atoi'
 
 using namespace BloombergLP;
 using namespace std;
@@ -15,16 +14,16 @@ using namespace std;
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// The component under test are two meta-functions, 'bsl::is_class' and
+// The component under test defines two meta-functions, 'bsl::is_class' and
 // 'bslmf::IsClass', that determine whether a template parameter type is a
-// class type.  Thus, we need to ensure that the value returned by these
+// class type.  Thus, we need to ensure that the values returned by these
 // meta-functions are correct for each possible category of types.  Since the
 // two meta-functions are functionally equivalent, we will use the same set of
 // types for both.
 //
 //-----------------------------------------------------------------------------
 // PUBLIC CLASS DATA
-// [ 2] BloombergLP::bslmf::IsClass::VALUE
+// [ 2] bslmf::IsClass::VALUE
 // [ 1] bsl::is_class::value
 //
 // ----------------------------------------------------------------------------
@@ -185,6 +184,7 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("USAGE EXAMPLE\n"
                             "=============\n");
+
 // Now, we instantiate the 'bsl::is_class' template for both a non-class type
 // and the defined type 'MyClass', and assert the 'value' static data member of
 // each instantiation:
@@ -212,21 +212,21 @@ int main(int argc, char *argv[])
         //:   'class', 'struct', or 'union' type.
         //:
         //: 4 'IsClass::VALUE' is 0 when 'TYPE' is a (possibly cv-qualified)
-        //:   pointer type.
+        //:   pointer or pointer-to-member type.
         //:
-        //: 5 'IsClass::VALUE' is 0 when 'TYPE' is a (possibly cv-qualifie)
+        //: 5 'IsClass::VALUE' is 0 when 'TYPE' is a (possibly cv-qualified)
         //:   function type.
         //
         // Plan:
-        //   Verify that 'bsl::IsClass::VALUE' has the correct value for each
+        //   Verify that 'bslmf::IsClass::VALUE' has the correct value for each
         //   (template parameter) 'TYPE' in the concerns.
         //
         // Testing:
         //   bslmf::IsClass::VALUE
         // --------------------------------------------------------------------
 
-        if (verbose) printf("'bslmf::IsClass'\n"
-                            "================\n");
+        if (verbose) printf("'bslmf::IsClass::VALUE'\n"
+                            "=======================\n");
 
         // C-1
         TYPE_ASSERT_CVQ_SUFFIX(bslmf::IsClass, void, 0);
@@ -285,7 +285,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // 'bsl::is_class::value'
         //   Ensure that the static data member 'value' of 'bsl::is_class'
-        //   instantiations having various (template parameter) 'TYPES' has the
+        //   instantiations having various (template parameter) 'TYPE's has the
         //   correct value.
         //
         // Concerns:
@@ -299,10 +299,10 @@ int main(int argc, char *argv[])
         //:   cv-qualified) 'class', 'struct', or 'union' type.
         //:
         //: 4 'is_class::value' is 'false' when 'TYPE' is a (possibly
-        //:   cv-qualified) pointer type.
+        //:   cv-qualified) pointer or pointer-to-member type.
         //:
         //: 5 'is_class::value' is 'false' when 'TYPE' is a (possibly
-        //:   cv-qualifie) function type.
+        //:   cv-qualified) function type.
         //
         // Plan:
         //   Verify that 'bsl::is_class::value' has the correct value for
@@ -312,8 +312,8 @@ int main(int argc, char *argv[])
         //   bsl::is_class::value
         // --------------------------------------------------------------------
 
-        if (verbose) printf("'bsl::is_class'\n"
-                            "===============\n");
+        if (verbose) printf("'bsl::is_class::value'\n"
+                            "======================\n");
 
         // C-1
         TYPE_ASSERT_CVQ_SUFFIX(bsl::is_class, void, false);
