@@ -199,7 +199,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // 'bsl::is_function::value'
         //   Ensure that the static data member 'value' of 'bsl::is_function'
-        //   instantiations having various (template parameter) 'TYPES' has the
+        //   instantiations having various (template parameter) 'TYPE's has the
         //   correct value.
         //
         // Concerns:
@@ -210,7 +210,7 @@ int main(int argc, char *argv[])
         //:   cv-qualified) user-defined type.
         //:
         //: 3 'is_function::value' is 'false' when 'TYPE' is a (possibly
-        //:   cv-qualified) pointer type.
+        //:   cv-qualified) pointer or pointer-to-member type.
         //:
         //: 4 'is_function::value' is 'true' when 'TYPE' is a (possibly
         //:   cv-qualified) function type.
