@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a meat-function to transform pointer type to referent type.
+//@PURPOSE: Provide a meta-function to transform pointer type to referent type.
 //
 //@CLASSES:
 //  bsl::remove_pointer: transform a pointer type to its referent pointer

@@ -144,7 +144,7 @@ int main(int argc, char *argv[])
     int verbose = argc > 2;
     int veryVerbose = argc > 3;
 
-    setbuf(stdout, 0);    // Use unbuffered output
+    setbuf(stdout, 0);  // Use unbuffered output
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
@@ -199,7 +199,7 @@ int main(int argc, char *argv[])
         //:
         //: 2 Objects of type 'bsl::is_void' are unambiguously convertible to
         //:   to 'bsl::true_type' if the (template parameter) type is the
-        //:   cv-qualified 'void' type, and 'bslmf::MetaIn' otherwise.
+        //:   cv-qualified 'void' type, and 'bsl::false_type' otherwise.
         //:
         //: 3 Objects of both 'bslmf::IsVoid' and 'bsl::is_void' are
         //:   contextually convertible to the boolean value 'true' if the
@@ -207,9 +207,10 @@ int main(int argc, char *argv[])
         //:   'false' otherwise.
         //
         // Plan:
-        //: 1 Define a set of functions overloads that returns 'true' for the
-        //:   overloads has the parameter 'bsl::true_type', 'bsl::false_type',
-        //:   'bslmf::MetaInt<0>', and 'bslmf::MetaInt<1>'.
+        //: 1 Define a set of one-parameter function overloads that return
+        //:   'true' if and only if the argument is one of the following types:
+        //:   'bsl::true_type', 'bsl::false_type', 'bslmf::MetaInt<0>', and
+        //:   'bslmf::MetaInt<1>'.
         //:
         //: 2 For 'bslmf::IsVoid' instantiated on a variety of ('void' and
         //:   non-'void') types, verify the return values from the functions
@@ -303,21 +304,23 @@ int main(int argc, char *argv[])
         //:   'bsl::true_type'.
         //
         // Plan:
-        //: 1 Define two meta-functions that returns true either if the
+        //: 1 Define two meta-functions that return 'true' either if the
         //:   (template parameter) type is 'bslmf::MetaInt<1>' or if the
         //:   (template parameter) type is 'bslmf::MetaInt<0>'.
         //:
-        //: 2 For 'bslmf::IsVoid::Type' instantiated on a variety of ('void'
-        //:   and non-'void') types, verify the return value of the
-        //:   meta-function defined in P-1.  (C-1..2)
+        //: 2 For 'bslmf::IsVoid' instantiated on a variety of ('void' and
+        //:   non-'void') types, verify the return value of the meta-function
+        //:   defined in P-1 for the 'type' alias of each instantiation.
+        //:   (C-1..2)
         //:
-        //: 3 Define two meta-functions that returns true either if the
-        //:   (template parameter) type is 'bsl::true_type' or if the
-        //:   (template parameter) type is 'bsl::false_type'.
+        //: 3 Define two meta-functions that return 'true' either if the
+        //:   (template parameter) type is 'bsl::true_type' or if the (template
+        //:   parameter) type is 'bsl::false_type'.
         //:
-        //: 4 For 'bslmf::IsVoid::type' instantiated on a variety of ('void'
-        //:   and non-'void') types, verify the return value of the
-        //:   meta-function defined in P-3.  (C-3..4)
+        //: 4 For 'bslmf::IsVoid' instantiated on a variety of ('void' and
+        //:   non-'void') types, verify the return value of the meta-function
+        //:   defined in P-3 for the 'Type' alias of each instantiation.
+        //:   (C-3..4)
         //
         // Testing:
         //   bslmf::IsVoid::Type
@@ -360,12 +363,12 @@ int main(int argc, char *argv[])
         // 'bslmf::IsVoid::VALUE' and 'bsl::is_void::value'
         //
         // Concerns:
-        //: 1 The meta-functions returns 'true' for any 'void' type, regardless
+        //: 1 The meta-functions return 'true' for any 'void' type, regardless
         //:   of its cv-qualification.
         //:
-        //: 2 The meta-functions returns 'false' for every other type.
+        //: 2 The meta-functions return 'false' for every other type.
         //:
-        //: 3 The meta-functions returns the correct result, even when the
+        //: 3 The meta-functions return the correct result, even when the
         //:   potentially 'void' type it is diagnosing is a type alias, such as
         //:   a dependent type name in a template.
         //
@@ -411,16 +414,13 @@ int main(int argc, char *argv[])
       case 1: {
         // --------------------------------------------------------------------
         // BREATHING TEST
-        //   This case exercises (but does not fully test) basic functionality.
-        //
-        // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        //   Developers' Sandbox.
         //
         // Plan:
+        //   Perform and ad-hoc test of the meta-function.
         //
         // Testing:
-        //   BREATHING TEST
+        //   This "test" *exercises* basic functionality, but *tests* nothing.
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nBREATHING TEST"
