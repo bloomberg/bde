@@ -9,7 +9,6 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide algorithms for implementing a hash table.
 //
-
 //@CLASSES:
 //  bslalg::HashTableImpUtil: functions used to implement a hash table
 //
@@ -177,7 +176,6 @@ namespace bslalg {
                           // class HashTableImpUtil
                           // ======================
 
-
 struct HashTableImpUtil {
     // This 'struct' provides a namespace for a suite of utility functions
     // for creating and manipulating a hash table.
@@ -235,7 +233,6 @@ struct HashTableImpUtil {
         // 'link'.  The behavior is undefined unless 'link' refers to a node
         // of type 'BidirectionalNode<KEY_CONFIG::ValueType>'.  'KEY_CONFIG'
         // shall be a namespace providing the type name 'ValueType'.
-
 
     template <class KEY_CONFIG, class HASHER>
     static bool isWellFormed(const HashTableAnchor& anchor);
@@ -435,7 +432,6 @@ const typename KEY_CONFIG::KeyType& HashTableImpUtil::extractKey(
     return KEY_CONFIG::extractKey(node->value());
 }
 
-    // lookup
 template <class KEY_CONFIG, class KEY_EQUAL>
 inline
 BidirectionalLink *HashTableImpUtil::find(
@@ -497,7 +493,7 @@ void HashTableImpUtil::rehash(HashTableAnchor   *newAnchor,
                 bucketIndex == computeBucketIndex(
                                    hasher(extractKey<KEY_CONFIG>(elementList)),
                                    bucketArraySize)) {
-             last = elementList;
+            last = elementList;
         }
 
         spliceListIntoBucket(newAnchor, bucketIndex, first, last);
