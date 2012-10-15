@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide meta-function to tranform a type to a pointer to that type.
+//@PURPOSE: Provide meta-function to transform a type to pointer to that type.
 //
 //@CLASSES:
 //  bsl::add_pointer: meta-function to transform a type to a pointer type
