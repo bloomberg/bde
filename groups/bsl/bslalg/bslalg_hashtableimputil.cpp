@@ -27,15 +27,16 @@ void HashTableImpUtil::remove(HashTableAnchor    *anchor,
     BSLS_ASSERT_SAFE(
             link->previousLink() || anchor->listRootAddress() == link);
 
-#ifdef BDE_BUILD_TARGET_SAFE2
     HashTableBucket *bucket = findBucketForHashCode(*anchor, hashCode);
-    BSLS_ASSERT_SAFE2(bucketContainsLink(bucket, link));
+
+#ifdef BDE_BUILD_TARGET_SAFE_2
+    BSLS_ASSERT_SAFE(bucket->first());
+    BSLS_ASSERT_SAFE(bucketContainsLink(bucket, link));
 #endif
 
     // Note that we must update the bucket *before* we unlink from the list,
     // as otherwise we will lose our nextLink()/prev pointers.
 
-    HashTableBucket *bucket = findBucketForHashCode(*anchor, hashCode);
     if (bucket->first() == link) {
         if (bucket->last() == link) {
             bucket->reset();
@@ -53,32 +54,6 @@ void HashTableImpUtil::remove(HashTableAnchor    *anchor,
 
     if (link == anchor->listRootAddress()) {
         anchor->setListRootAddress(next);
-    }
-}
-
-void HashTableImpUtil::insertAtPosition(HashTableAnchor    *anchor,
-                                        BidirectionalLink  *link,
-                                        native_std::size_t  hashCode,
-                                        BidirectionalLink  *position)
-{
-    BSLS_ASSERT_SAFE(anchor);
-    BSLS_ASSERT_SAFE(link);
-    BSLS_ASSERT_SAFE(position);
-
-#ifdef BDE_BUILD_TARGET_SAFE2
-    HashTableBucket *bucket = findBucketForHashCode(*anchor, hashCode);
-    BSLS_ASSERT_SAFE2(bucketContainsLink(bucket, position));
-#endif
-
-    HashTableBucket *bucket = findBucketForHashCode(*anchor, hashCode);
-
-    BidirectionalLinkListUtil::insertLinkBeforeTarget(link, position);
-
-    if (position == bucket->first()) {
-        bucket->setFirst(link);
-    }
-    if (position == anchor->listRootAddress()) {
-        anchor->setListRootAddress(link);
     }
 }
 
@@ -111,6 +86,32 @@ void HashTableImpUtil::insertAtFrontOfBucket(HashTableAnchor    *anchor,
 
         anchor->setListRootAddress(link);
         bucket->setFirstAndLast(link, link);
+    }
+}
+
+void HashTableImpUtil::insertAtPosition(HashTableAnchor    *anchor,
+                                        BidirectionalLink  *link,
+                                        native_std::size_t  hashCode,
+                                        BidirectionalLink  *position)
+{
+    BSLS_ASSERT_SAFE(anchor);
+    BSLS_ASSERT_SAFE(link);
+    BSLS_ASSERT_SAFE(position);
+
+    HashTableBucket *bucket = findBucketForHashCode(*anchor, hashCode);
+
+#ifdef BDE_BUILD_TARGET_SAFE_2
+    BSLS_ASSERT_SAFE(bucket->first());
+    BSLS_ASSERT_SAFE(bucketContainsLink(bucket, position));
+#endif
+
+    BidirectionalLinkListUtil::insertLinkBeforeTarget(link, position);
+
+    if (position == bucket->first()) {
+        bucket->setFirst(link);
+    }
+    if (position == anchor->listRootAddress()) {
+        anchor->setListRootAddress(link);
     }
 }
 
