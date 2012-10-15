@@ -106,11 +106,8 @@ struct TestSetKeyPolicy
     typedef KEY KeyType;
     typedef KEY ValueType;
 
-    static const KeyType& extractKey(const ValueType& value) {
-        return value;
-    }
-
-    static const ValueType& extractValue(const ValueType& value) {
+    static const KeyType& extractKey(const ValueType& value)
+    {
         return value;
     }
 };
@@ -121,8 +118,8 @@ struct NodeUtil {
     typedef VALUE                    ValueType;
 
     static
-    BidirectionalLink *create(const VALUE&      value,
-                              bslma::Allocator *basicAllocator)
+    Node *create(const VALUE&      value,
+                 bslma::Allocator *basicAllocator)
     {
         BSLS_ASSERT(basicAllocator);
 
@@ -204,6 +201,26 @@ void debugPrint(const HashTableAnchor& anchor)
     fflush(stdout);
 }
 
+struct WeirdRecord {
+    int d_key;
+    int d_payload;
+
+    bool operator==(const WeirdRecord& rhs) const
+    {
+        return d_key == rhs.d_key && d_payload == rhs.d_payload;
+    }
+};
+
+struct WeirdRecordKeyConfiguration {
+    typedef WeirdRecord ValueType;
+    typedef int         KeyType;
+
+    static const KeyType& extractKey(const WeirdRecord& record)
+    {
+        return record.d_key;
+    }
+};
+
 
 typedef HashTableBucket           Bucket;
 typedef HashTableAnchor           Anchor;
@@ -226,6 +243,292 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:
+      case 4: {
+        // --------------------------------------------------------------------
+        // TESTING insertAtPosition
+        // --------------------------------------------------------------------
+
+        bslma::TestAllocator da("defaultAllocator", veryVeryVeryVerbose);
+        bslma::DefaultAllocatorGuard defaultGuard(&da);
+
+        bslma::TestAllocator oa("objectAllocator", veryVeryVeryVerbose);
+        bslma::TestAllocatorMonitor om(&oa);
+
+        {
+            typedef BidirectionalNode<int> IntNode;
+            typedef TestSetKeyPolicy<int>  TestPolicy;
+            typedef NodeUtil<int>          IntNodeUtil;
+
+            IntNode *nodes[] = { IntNodeUtil::create(0, &oa),
+                                 IntNodeUtil::create(1, &oa),
+                                 IntNodeUtil::create(2, &oa),
+                                 IntNodeUtil::create(3, &oa),
+                                 IntNodeUtil::create(4, &oa),
+                                 IntNodeUtil::create(5, &oa) };
+            const int NUM_NODES = sizeof nodes / sizeof *nodes;
+
+            Link *garbage = (Link *) 0xbaddeed5;
+
+            for (int i = 0; i < NUM_NODES; ++i) {
+                nodes[i]->setPreviousLink(garbage);
+                nodes[i]->setNextLink(    garbage);
+            }
+
+            Bucket bucket = { 0, 0 };
+            Anchor anchor(&bucket, 1, 0);
+
+            Obj::insertAtFrontOfBucket(&anchor, nodes[0], 0);
+
+            // At the front of a bucket
+
+            Obj::insertAtPosition(&anchor, nodes[1], 1, nodes[0]);
+
+            ASSERT(0        == nodes[1]->previousLink());
+            ASSERT(nodes[0] == nodes[1]->nextLink());
+            ASSERT(0        == nodes[0]->nextLink());
+            ASSERT(nodes[1] == nodes[0]->previousLink());
+            ASSERT(nodes[1] == bucket.first());
+            ASSERT(nodes[0] == bucket.last());
+            ASSERT(nodes[1] == anchor.listRootAddress());
+            ASSERT(2 == bucket.countElements());
+
+            // In the middle / before the last node in the bucket
+
+            Obj::insertAtPosition(&anchor, nodes[2], 1, nodes[0]);
+
+            ASSERT(nodes[1] == nodes[2]->previousLink());
+            ASSERT(nodes[2] == nodes[1]->nextLink());
+            ASSERT(nodes[0] == nodes[2]->nextLink());
+            ASSERT(nodes[1] == bucket.first());
+            ASSERT(nodes[0] == bucket.last());
+            ASSERT(nodes[1] == anchor.listRootAddress());
+            ASSERT(3 == bucket.countElements());
+
+            ASSERT(0 == nodes[1]->previousLink());
+            ASSERT(0 == nodes[0]->nextLink());
+            ASSERT(Util::isWellFormed(nodes[1], nodes[0]));
+
+            bucket.reset();
+
+            // At the front of bucket, list not empty
+
+            Obj::insertAtFrontOfBucket(&anchor, nodes[3], 0);
+
+            ASSERT(0        == nodes[3]->previousLink());
+            ASSERT(nodes[1] == nodes[3]->nextLink());
+            ASSERT(nodes[3] == nodes[1]->previousLink());
+            ASSERT(nodes[3] == bucket.first());
+            ASSERT(nodes[3] == bucket.last());
+            ASSERT(nodes[3] == anchor.listRootAddress());
+            ASSERT(1 == bucket.countElements());
+
+            ASSERT(0 == nodes[3]->previousLink());
+            ASSERT(0 == nodes[0]->nextLink());
+            ASSERT(Util::isWellFormed(nodes[3], nodes[0]));
+
+            {
+                Bucket bigBucket = { nodes[3], nodes[0] };
+                ASSERT(4 == bigBucket.countElements());
+            }
+
+            nodes[0]->setNextLink(nodes[3]);
+            nodes[3]->setPreviousLink(nodes[0]);
+            nodes[3]->setNextLink(0);
+            nodes[1]->setPreviousLink(0);
+
+            anchor.setListRootAddress(nodes[1]);
+
+            ASSERT(0 == nodes[1]->previousLink());
+            ASSERT(0 == nodes[3]->nextLink());
+            ASSERT(Util::isWellFormed(nodes[1], nodes[3]));
+
+            {
+                Bucket bigBucket = { nodes[1], nodes[3] };
+                ASSERT(4 == bigBucket.countElements());
+            }
+
+            Obj::insertAtPosition(&anchor, nodes[4], 1, nodes[3]);
+
+            ASSERT(nodes[4] == nodes[3]->previousLink());
+            ASSERT(nodes[3] == nodes[4]->nextLink());
+            ASSERT(nodes[4] == bucket.first());
+            ASSERT(nodes[3] == bucket.last());
+            ASSERT(2 == bucket.countElements());
+
+            ASSERT(nodes[1] == anchor.listRootAddress());
+
+            ASSERT(0 == nodes[1]->previousLink());
+            ASSERT(0 == nodes[3]->nextLink());
+            ASSERT(Util::isWellFormed(nodes[1], nodes[3]));
+
+            {
+                Bucket bigBucket = { nodes[1], nodes[3] };
+                ASSERT(5 == bigBucket.countElements());
+            }
+
+            for (int i = 0; i < NUM_NODES; ++i) {
+                IntNodeUtil::destroy(nodes[i], &oa);
+            }
+        }
+
+        ASSERT(0 == da.numAllocations());
+      } break;
+      case 3: {
+        // --------------------------------------------------------------------
+        // TESTING insertAtFrontOfBucket
+        //
+        // Concerns:
+        //   That 'insertAtFrontOfBucket' performs as specced
+        //
+        // Plan:
+        //: Test in 4 cases:
+        //: o Bucket empty, root empty
+        //: o Bucket not empty, root contains only bucket
+        //: o Bucket empty, root not empty
+        //: o Bucket not empty, root not empty, not pointing to bucket
+        // --------------------------------------------------------------------
+
+        bslma::TestAllocator da("defaultAllocator", veryVeryVeryVerbose);
+        bslma::DefaultAllocatorGuard defaultGuard(&da);
+
+        bslma::TestAllocator oa("objectAllocator", veryVeryVeryVerbose);
+        bslma::TestAllocatorMonitor om(&oa);
+
+        {
+            typedef BidirectionalNode<int> IntNode;
+            typedef TestSetKeyPolicy<int>  TestPolicy;
+            typedef NodeUtil<int>          IntNodeUtil;
+
+            IntNode *nodes[] = { IntNodeUtil::create(0, &oa),
+                                 IntNodeUtil::create(1, &oa),
+                                 IntNodeUtil::create(2, &oa),
+                                 IntNodeUtil::create(3, &oa),
+                                 IntNodeUtil::create(4, &oa),
+                                 IntNodeUtil::create(5, &oa) };
+            const int NUM_NODES = sizeof nodes / sizeof *nodes;
+
+            Link *garbage = (Link *) 0xbaddeed5;
+
+            for (int i = 0; i < NUM_NODES; ++i) {
+                nodes[i]->setPreviousLink(garbage);
+                nodes[i]->setNextLink(    garbage);
+            }
+
+            Bucket bucket = { 0, 0 };
+            Anchor anchor(&bucket, 1, 0);
+
+            Obj::insertAtFrontOfBucket(&anchor, nodes[0], 0);
+            ASSERT(0 == nodes[0]->previousLink());
+            ASSERT(0 == nodes[0]->nextLink());
+            ASSERT(nodes[0] == bucket.first());
+            ASSERT(nodes[0] == bucket.last());
+            ASSERT(nodes[0] == anchor.listRootAddress());
+            ASSERT(1 == bucket.countElements());
+
+            Obj::insertAtFrontOfBucket(&anchor, nodes[1], 1);
+            ASSERT(0        == nodes[1]->previousLink());
+            ASSERT(nodes[0] == nodes[1]->nextLink());
+            ASSERT(0        == nodes[0]->nextLink());
+            ASSERT(nodes[1] == nodes[0]->previousLink());
+            ASSERT(nodes[1] == bucket.first());
+            ASSERT(nodes[0] == bucket.last());
+            ASSERT(nodes[1] == anchor.listRootAddress());
+            ASSERT(2 == bucket.countElements());
+
+            bucket.reset();
+
+            Obj::insertAtFrontOfBucket(&anchor, nodes[2], 2);
+            ASSERT(0        == nodes[2]->previousLink());
+            ASSERT(nodes[1] == nodes[2]->nextLink());
+            ASSERT(nodes[2] == nodes[1]->previousLink());
+            ASSERT(nodes[2] == bucket.first());
+            ASSERT(nodes[2] == bucket.last());
+            ASSERT(nodes[2] == anchor.listRootAddress());
+            ASSERT(1 == bucket.countElements());
+
+            nodes[1]->setPreviousLink(0);
+            anchor.setListRootAddress(nodes[1]);
+
+            Util::insertLinkAfterTarget(nodes[2], nodes[0]);
+            ASSERT(0        == nodes[2]->nextLink());
+            ASSERT(nodes[0] == nodes[2]->previousLink());
+
+            // Now inserting with not empty bucket, with list root address
+            // not pointing to bucket.
+
+            Obj::insertAtFrontOfBucket(&anchor, nodes[3], 3);
+            ASSERT(nodes[0] == nodes[3]->previousLink());
+            ASSERT(nodes[2] == nodes[3]->nextLink());
+            ASSERT(0        == nodes[1]->previousLink());
+            ASSERT(nodes[3] == bucket.first());
+            ASSERT(nodes[2] == bucket.last());
+            ASSERT(nodes[1] == anchor.listRootAddress());
+            ASSERT(2 == bucket.countElements());
+
+            ASSERT(0 == nodes[1]->previousLink());
+            ASSERT(0 == nodes[2]->nextLink());
+            ASSERT(Util::isWellFormed(nodes[3], nodes[2]));
+
+            Bucket bigBucket = { nodes[1], nodes[2] };
+            ASSERT(4 == bigBucket.countElements());
+
+            for (int i = 0; i < NUM_NODES; ++i) {
+                IntNodeUtil::destroy(nodes[i], &oa);
+            }
+        }
+
+        ASSERT(0 == da.numAllocations());
+      } break;
+      case 2: {
+        // --------------------------------------------------------------------
+        // TESTING EXTRACTVALUE AND EXTRACTKEY
+        //
+        // Concerns:
+        //   That 'extractValue' and 'extractKey' work as described;
+        // --------------------------------------------------------------------
+
+
+        bslma::TestAllocator da("defaultAllocator", veryVeryVeryVerbose);
+        bslma::DefaultAllocatorGuard defaultGuard(&da);
+
+        bslma::TestAllocator oa("objectAllocator", veryVeryVeryVerbose);
+        bslma::TestAllocatorMonitor om(&oa);
+
+        {
+            typedef BidirectionalNode<WeirdRecord> WeirdNode;
+            typedef NodeUtil<WeirdRecord>          Util;
+            typedef WeirdRecordKeyConfiguration    Config;
+
+            const WeirdRecord wr = { 1, 2 };
+            WeirdNode *wn = (WeirdNode *) Util::create(wr, &oa);
+
+            ASSERT(wr == wn->value());
+
+            ASSERT(1  == Obj::extractKey<Config>(wn));
+            ASSERT(wr == Obj::extractValue<Config>(wn));
+
+            Util::destroy(wn, &oa);
+        }
+
+        {
+            typedef BidirectionalNode<int> IntNode;
+            typedef TestSetKeyPolicy<int>  TestPolicy;
+            typedef NodeUtil<int>          IntNodeUtil;
+
+            const int K = 7;
+
+            IntNode *in = (IntNode *) IntNodeUtil::create(K, &oa);
+
+            ASSERT(K == in->value());
+
+            ASSERT(K == Obj::extractKey<TestPolicy>(in));
+            ASSERT(K == Obj::extractValue<TestPolicy>(in));
+
+            IntNodeUtil::destroy(in, &oa);
+        }
+
+        ASSERT(0 == da.numAllocations());
+      } break;
       case 1: {
         // --------------------------------------------------------------------
         // BREATHING TEST
@@ -255,7 +558,6 @@ int main(int argc, char *argv[])
 
         bslma::TestAllocator oa("objectAllocator", veryVeryVeryVerbose);
         bslma::TestAllocatorMonitor om(&oa);
-
 
         // [  ] const KeyType& extractKey(const BidirectionalLink *link);
         if (veryVerbose) printf("\t\t Testing 'extractKey'\n");
@@ -290,8 +592,8 @@ int main(int argc, char *argv[])
         if (veryVerbose) printf("\t\t Testing 'computeBucketIndex'\n");
         {
             const struct {
-               size_t d_hash;
-               size_t d_numBuckets;
+                size_t d_hash;
+                size_t d_numBuckets;
             } DATA[] = {   //HASH   //NUM BUCKETS
                          {      0,              1},
                          {      0,     1234567890},
