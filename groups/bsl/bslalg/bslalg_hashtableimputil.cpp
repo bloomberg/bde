@@ -9,8 +9,6 @@ BSLS_IDENT("$Id$ $CSID$")
 
 #include <bsls_types.h>
 
-//#include <stdio.h>
-
 namespace BloombergLP
 {
 
@@ -109,6 +107,32 @@ void HashTableImpUtil::insertAtFrontOfBucket(HashTableAnchor    *anchor,
 
         anchor->setListRootAddress(link);
         bucket->setFirstAndLast(link, link);
+    }
+}
+
+void HashTableImpUtil::insertAtPosition(HashTableAnchor    *anchor,
+                                        BidirectionalLink  *link,
+                                        native_std::size_t  hashCode,
+                                        BidirectionalLink  *position)
+{
+    BSLS_ASSERT_SAFE(anchor);
+    BSLS_ASSERT_SAFE(link);
+    BSLS_ASSERT_SAFE(position);
+
+    HashTableBucket *bucket = findBucketForHashCode(*anchor, hashCode);
+
+#ifdef BDE_BUILD_TARGET_SAFE_2
+    BSLS_ASSERT_SAFE(bucket->first());
+    BSLS_ASSERT_SAFE(bucketContainsLink(bucket, position));
+#endif
+
+    BidirectionalLinkListUtil::insertLinkBeforeTarget(link, position);
+
+    if (position == bucket->first()) {
+        bucket->setFirst(link);
+    }
+    if (position == anchor->listRootAddress()) {
+        anchor->setListRootAddress(link);
     }
 }
 
