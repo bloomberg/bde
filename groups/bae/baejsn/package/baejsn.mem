@@ -1,2 +1,4 @@
 # baejsn.mem
+baejsn_decoder
 baejsn_parser
+baejsn_parserutil

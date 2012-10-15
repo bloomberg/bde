@@ -26,7 +26,7 @@ namespace rapidjson {
 enum ParseFlag {
     kParseDefaultFlags = 0,         //!< Default parse flags. Non-destructive parsing. Text strings are decoded into allocated buffer.
     kParseInsituFlag = 1,           //!< In-situ(destructive) parsing.
-    kParseValidateEncodingFlag = 2, //!< Validate encoding of JSON strings.
+    kParseValidateEncodingFlag = 2 //!< Validate encoding of JSON strings.
 };
 
 typedef char Ch;
@@ -515,7 +515,7 @@ private:
 
         // Finish parsing, call event according to the type of number.
         if (useDouble) {
-            d *= pow(10, exp + expFrac);
+            d *= pow(10.0, exp + expFrac);
             handler.Double(minus ? -d : d);
         }
         else {
