@@ -127,8 +127,6 @@ int main(int argc, char *argv[]) {
     bool     veryVerbose = argc > 3;
     bool veryVeryVerbose = argc > 4;
 
-    verbose = 1;
-    for(test=1;test<=14;test++)
     switch (test) {
 
         case 14: {
