@@ -88,6 +88,9 @@ using namespace bslstl;
 //
 // ACCESSORS
 // [ 4] const AllocatorType& allocator() const;
+//
+// FREE FUNCTIONS
+// [10] void swap(BidirectionalNodePool& a, b);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ *] CONCERN: No memory is ever allocated from the global allocator.
@@ -191,7 +194,7 @@ bool expectToAllocate(int n)
 }  // close unnamed namespace
 
 //=============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+//                               TEST FACILITIES
 //-----------------------------------------------------------------------------
 
 namespace {
@@ -272,18 +275,18 @@ class NonAllocatingTestType {
     }
 
     // ACCESSORS
-    bool oneParamConstructorFlag()
+    bool oneParamConstructorFlag() const
     {
         return d_singleFlag;
     }
 
-    bool twoParamsConstructorFlag()
+    bool twoParamsConstructorFlag() const
     {
         return d_doubleFlag;
     }
 
-    double arg1() { return d_arg1; }
-    double arg2() { return d_arg2; }
+    double arg1() const { return d_arg1; }
+    double arg2() const { return d_arg2; }
 };
 
 class AllocatingTestType {
@@ -353,17 +356,18 @@ class AllocatingTestType {
     }
 
     // ACCESSORS
-    bool oneParamConstructorFlag()
+    bool oneParamConstructorFlag() const
     {
         return d_singleFlag;
     }
 
-    bool twoParamsConstructorFlag()
+    bool twoParamsConstructorFlag() const
     {
         return d_doubleFlag;
     }
-    double arg1() { return *d_arg1_p; }
-    double arg2() { return *d_arg2_p; }
+
+    double arg1() const { return *d_arg1_p; }
+    double arg2() const { return *d_arg2_p; }
 };
 
 }  // close unnamed namespace
@@ -379,10 +383,6 @@ struct UsesBslmaAllocator<AllocatingTestType> : bsl::true_type {};
 
 }
 }
-
-//=============================================================================
-//                               TEST FACILITIES
-//-----------------------------------------------------------------------------
 
 namespace {
 
@@ -419,18 +419,18 @@ class Stack
     }
 
     // ACCESSORS
-    bool empty() { return 0 == d_size; }
+    bool empty() const { return 0 == d_size; }
 
-    int size() { return d_size; }
+    int size() const { return d_size; }
 
-    Link *back()
+    Link *back() const
     {
         BSLS_ASSERT(0 != d_size);
 
         return d_data[d_size - 1];
     }
 
-    Link *operator[](size_t index)
+    Link *operator[] (size_t index) const
     {
         return d_data[index];
     }
@@ -468,8 +468,8 @@ class TestDriver {
 
   public:
     // TEST CASES
-    // static void testCase10();
-        // Reserved for BSLX.
+    static void testCase11();
+        // Test type traits.
 
     static void testCase10();
         // Test 'swap'.
@@ -553,6 +553,26 @@ void TestDriver<VALUE>::createFreeBlocks(Obj   *result,
 }
 
 template<class VALUE>
+void TestDriver<VALUE>::testCase11()
+{
+    // ------------------------------------------------------------------------
+    // TYPE TRAITS
+    //
+    // Concern:
+    //: 1 The object has the necessary type traits.
+    //
+    // Plan:
+    //: 1 Use 'BSLMF_ASSERT' to verify all the type traits exists.  (C-1)
+    //
+    // Testing:
+    //   CONCERN: The object has the necessary type traits.
+    // ------------------------------------------------------------------------
+
+    // Verify set defines the expected traits.
+    BSLMF_ASSERT((1 == bslmf::IsBitwiseMoveable<Obj>::value));
+}
+
+template<class VALUE>
 void TestDriver<VALUE>::testCase10()
 {
     // --------------------------------------------------------------------
@@ -573,6 +593,9 @@ void TestDriver<VALUE>::testCase10()
     //: 5 Memory is deallocated on the destruction of the object.
     //:
     //: 6 QoI: Asserted precondition violations are detected when enabled.
+    //:
+    //: 7 The free 'swap' function is discoverable through ADL (Argument
+    //:   Dependent Lookup).
     //
     // Plan:
     //: 1 Using a table-based approach:
@@ -598,11 +621,15 @@ void TestDriver<VALUE>::testCase10()
     //:   triggered (using the 'BSLS_ASSERTTEST_*' macros).  (C-6)
     //:
     //: 3 Repeat P-1..2, except this time use 'invokeAdlSwap' helper function
-    //:   template instead of the 'swap' method.
+    //:   template instead of the 'swap' method.  (C-1..7)
     //
     // Testing:
     //   void swap(BidirectionalNodePool<VALUE, ALLOCATOR>& other);
+    //   void swap(BidirectionalNodePool& a, b);
     // --------------------------------------------------------------------
+
+    if (verbose) printf("\nMANIPULATOR 'swap'"
+                        "\n==================\n");
 
     struct {
         int d_line;
@@ -873,6 +900,9 @@ void TestDriver<VALUE>::testCase9()
     //   bslalg::BidirectionalLink *cloneNode(
     //                              const bslalg::BidirectionalLink& original);
     // -----------------------------------------------------------------------
+
+    if (verbose) printf("\nMANIPULATOR 'cloneNode(value)'"
+                        "\n==============================\n");
 
     const bool TYPE_ALLOC = bslma::UsesBslmaAllocator<VALUE>::value;
 
@@ -1744,6 +1774,14 @@ int main(int argc, char *argv[])
     bslma::TestAllocatorMonitor gam(&ga);
 
     switch (test) { case 0:
+      case 11: {
+        // --------------------------------------------------------------------
+        // TYPE TRAITS
+        // --------------------------------------------------------------------
+        RUN_EACH_TYPE(TestDriver,
+                      testCase11,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+      } break;
       case 10: {
         // --------------------------------------------------------------------
         // MANIPULATOR 'swap'
@@ -1751,7 +1789,6 @@ int main(int argc, char *argv[])
         RUN_EACH_TYPE(TestDriver,
                       testCase10,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
-
       } break;
       case 9: {
         // --------------------------------------------------------------------
@@ -1760,7 +1797,6 @@ int main(int argc, char *argv[])
         RUN_EACH_TYPE(TestDriver,
                       testCase9,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
-
       } break;
       case 8: {
         // --------------------------------------------------------------------

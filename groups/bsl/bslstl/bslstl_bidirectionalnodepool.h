@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide efficient creation of nodes used in node-based container.
+//@PURPOSE: Provide efficient creation of nodes used in a node-based container.
 //
 //@CLASSES:
 //   bslstl::BidirectionalNodePool: memory manager to allocate hash table nodes
@@ -16,13 +16,29 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslstl_simplepool
 //
-//@DESCRIPTION: This component implements a mechanism that creates and destroys
-// 'bslalg::BidirectionalListNode' objects holding a (template parameter) type
-// for use in hash-table-based containers.
+//@DESCRIPTION: This component implements a mechanism, 'BidirectionalNodePool',
+// that creates and destroys 'bslalg::BidirectionalListNode' objects holding
+// objects of a (template parameter) type 'VALUE' for use in hash-table-based
+// containers.
 //
-// A 'bslstl::BidirectionalNodePool' uses a memory pool provided by the
+// A 'BidirectionalNodePool' uses a memory pool provided by the
 // 'bslstl_simplepool' component in its implementation to provide memory for
 // the nodes (see 'bslstl_simplepool').
+//
+///Memory Allocation
+///-----------------
+// 'BidirectionalNodePool' uses an allocator of the (template parameter) type
+// 'ALLOCATOR' specified at construction to allocate memory.
+// 'BidirectionalNodePool' supports allocators meeting the requirements of the
+// C++ standard allocator requirements ([allocator.requirements], C++11
+// 17.6.3.5).
+//
+// If 'ALLOCATOR' is 'bsl::allocator', then the 'bslma::Allocator' object,
+// which is used in the implementation of the 'bsl::allocator' object specified
+// at construction, will be supplied to constructors of the (template
+// parameter) type 'VALUE' in the 'cloneNode' method and 'createNode' method
+// overloads, if the type 'VALUE' defines the 'bslma::UsesBslmaAllocator'
+// trait.
 //
 ///Usage
 ///-----
@@ -49,6 +65,10 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLMA_DEALLOCATORPROCTOR
 #include <bslma_deallocatorproctor.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
+#include <bslmf_isbitwisemoveable.h>
 #endif
 
 #ifndef INCLUDED_BSLS_NATIVESTD
@@ -182,9 +202,30 @@ void swap(BidirectionalNodePool<VALUE, ALLOCATOR>& a,
         // object and the specified 'b' object.  The behavior is undefined
         // unless unless 'a.allocator() == b.allocator()'.
 
+}  // close namespace bslstl
+
+
+// ============================================================================
+//                                TYPE TRAITS
+// ============================================================================
+
+// Type traits for HashTable:
+//: o A HashTable is bitwise moveable if the allocator is bitwise moveable.
+
+namespace bslmf {
+
+template <class VALUE, class ALLOCATOR>
+struct IsBitwiseMoveable<bslstl::BidirectionalNodePool<VALUE, ALLOCATOR> >
+: bsl::integral_constant<bool, bslmf::IsBitwiseMoveable<ALLOCATOR>::value>
+{};
+
+}  // close namespace bslmf
+
 // ===========================================================================
 //                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
 // ===========================================================================
+
+namespace bslstl {
 
 // CREATORS
 template <class VALUE, class ALLOCATOR>
