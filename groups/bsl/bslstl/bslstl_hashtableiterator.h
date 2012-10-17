@@ -182,7 +182,7 @@ class HashTableIterator
         // part of the C++ standard.
 };
 
-// FREE FUNCTIONS AND OPERATORS
+// FREE OPERATORS
 template <class VALUE_TYPE, class DIFFERENCE_TYPE>
 bool operator==(const HashTableIterator<VALUE_TYPE, DIFFERENCE_TYPE>& lhs,
                 const HashTableIterator<VALUE_TYPE, DIFFERENCE_TYPE>& rhs);
@@ -318,7 +318,7 @@ HashTableIterator<VALUE_TYPE, DIFFERENCE_TYPE>::node() const
     return d_node_p;
 }
 
-// FREE FUNCTIONS
+// FREE OPERATORS
 template <class VALUE_TYPE, class DIFFERENCE_TYPE>
 inline
 bool operator==(const HashTableIterator<VALUE_TYPE, DIFFERENCE_TYPE>& lhs,
