@@ -1,3 +1,4 @@
+// baejsn_parserutil.h                                                -*-C++-*-
 #ifndef INCLUDED_BAEJSN_PARSERUTIL
 #define INCLUDED_BAEJSN_PARSERUTIL
 
@@ -53,8 +54,8 @@ struct baejsn_ParserUtil
     static int getDouble(bsl::streambuf *streamBuf,
                          double         *value);
 
-    static int getNumber(bsl::streambuf *streamBuf,
-                         double         *value);
+    //static int getNumber(bsl::streambuf *streamBuf,
+    //                     double         *value);
     template <class TYPE>
     static int getNumber(bsl::streambuf *streamBuf,
                          TYPE           *value);
@@ -66,24 +67,28 @@ struct baejsn_ParserUtil
         // matches the specified 'token', advance the get pointer to the
         // charater just after the matched string, with no effect otherwise.
         // Return 0 if a match is found, and a non-zero value otherwise.
+
+    static int putString(bsl::streambuf *streamBuf, const bsl::string& value);
 };
 
 // ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-inline
-int baejsn_ParserUtil::getNumber(bsl::streambuf *streamBuf,
-                                 double         *value)
-{
-    return getDouble(streamBuf, value);
-}
+//inline
+//int baejsn_ParserUtil::getNumber(bsl::streambuf *streamBuf,
+//                                 double         *value)
+//{
+//    return getDouble(streamBuf, value);
+//}
 
 template <class TYPE>
 inline
 int baejsn_ParserUtil::getNumber(bsl::streambuf *streamBuf,
                                  TYPE           *value)
 {
+    // TBD: We lose accuraccy for int64.  Does it matter?
+
     double temp;
     int rc = baejsn_ParserUtil::getDouble(streamBuf, &temp);
     *value = static_cast<TYPE>(temp);

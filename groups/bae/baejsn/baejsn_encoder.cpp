@@ -1,35 +1,49 @@
+// baejsn_encoder.cpp                                                 -*-C++-*-
+#include <baejsn_encoder.h>
+#include <baejsn_decoder.h>  // for testing only
 
-void Json::Encoder::encode(const char value)
+namespace BloombergLP {
+
+// PRIVATE MANIPULATORS
+bsl::ostream& baejsn_Encoder::logStream()
+{
+    if (0 == d_logStream) {
+        d_logStream = new(d_logArea.buffer()) bsl::ostringstream;
+    }
+    return *d_logStream;
+}
+
+void baejsn_Encoder::encodeSimple(const char value)
 {
     std::ostringstream str;
 
     str << "\\u00" << std::hex << std::setfill('0') << std::setw(2) << (static_cast<unsigned int>(value) & 0xff);
 
-    mInto << '"' << str.str() << '"';
+    d_outputStream << '"' << str.str() << '"';
 }
 
-void Json::Encoder::encode(const std::string & value)
+void baejsn_Encoder::encodeSimple(const std::string & value)
 {
-    mInto << '"';
+    d_outputStream << '"';
 
     for (std::string::const_iterator it = value.begin(); it != value.end(); ++it)
     {
         if (*it == '"' || *it == '\\' || *it == '/') // printable (but miss-enterpreted)
-            mInto << '\\' << *it;
+            d_outputStream << '\\' << *it;
         else if (*it == '\b') // non printable
-            mInto << "\\b";
+            d_outputStream << "\\b";
         else if (*it == '\f')
-            mInto << "\\f";
+            d_outputStream << "\\f";
         else if (*it == '\n')
-            mInto << "\\n";
+            d_outputStream << "\\n";
         else if (*it == '\r')
-            mInto << "\\r";
+            d_outputStream << "\\r";
         else if (*it == '\t')
-            mInto << "\\t";
+            d_outputStream << "\\t";
         // TBD: Disable mOptions for now.
         //else if (*it == '\0' && mOptions[Options::useModifiedUtf8])
         //{
-        //    mInto << "\\uc080";
+        //    d_outputStream << "\\uc080";
         //}
         //else if ((static_cast<unsigned int>(*it) & 0xff) < 32) // any other control characters as hex
         //{
@@ -52,163 +66,24 @@ void Json::Encoder::encode(const std::string & value)
         //    //    ++it;
         //    //}
 
-        //    mInto << str.str();
+        //    d_outputStream << str.str();
         //}
         else
         {
-            mInto << *it;
+            d_outputStream << *it;
         }
     }
 
-    mInto << '"';
+    d_outputStream << '"';
 }
 
-void Json::Encoder::encodeHex(const std::vector<char> & value)
-{
-    //if (!value.empty())
-    //    mInto << "\"" << mobcmn::HexConvert::toHex(&value[0], value.size()) << "\"";
-    //else
-    //    mInto << "\"\"";
-}
+}  // close namespace BloombergLP
 
-void Json::Encoder::encode(const bcem_Aggregate & value)
-{
-    switch (value.dataType())
-    {
-      default:
-        BAEJSN_THROW(mobcmn::ExBadArg, "Unknown aggregate type " << static_cast<int>(value.dataType()) << " failed to encode");
-
-      case bdem_ElemType::BDEM_CHAR:
-        encode(value.asChar());
-        break;
-      case bdem_ElemType::BDEM_SHORT:
-        encode(value.asShort());
-        break;
-      case bdem_ElemType::BDEM_INT:
-        encode(value.asInt());
-        break;
-      case bdem_ElemType::BDEM_INT64:
-        encode(value.asInt64());
-        break;
-      case bdem_ElemType::BDEM_FLOAT:
-        encode(value.asFloat());
-        break;
-      case bdem_ElemType::BDEM_DOUBLE:
-        encode(value.asDouble());
-        break;
-      case bdem_ElemType::BDEM_STRING:
-        encode(value.asString());
-        break;
-
-      case bdem_ElemType::BDEM_DATETIME:
-      case bdem_ElemType::BDEM_DATETIMETZ:
-      case bdem_ElemType::BDEM_DATE:
-      case bdem_ElemType::BDEM_DATETZ:
-      case bdem_ElemType::BDEM_TIME:
-      case bdem_ElemType::BDEM_TIMETZ:
-        BAEJSN_THROW(mobcmn::ExBadArg, "Data type encodings are not supported");
-
-      case bdem_ElemType::BDEM_CHAR_ARRAY:
-      case bdem_ElemType::BDEM_SHORT_ARRAY:
-      case bdem_ElemType::BDEM_INT_ARRAY:
-      case bdem_ElemType::BDEM_INT64_ARRAY:
-      case bdem_ElemType::BDEM_FLOAT_ARRAY:
-      case bdem_ElemType::BDEM_DOUBLE_ARRAY:
-      case bdem_ElemType::BDEM_STRING_ARRAY:
-      case bdem_ElemType::BDEM_BOOL_ARRAY:
-      case bdem_ElemType::BDEM_DATETIME_ARRAY:
-      case bdem_ElemType::BDEM_DATETIMETZ_ARRAY:
-      case bdem_ElemType::BDEM_DATETZ_ARRAY:
-      case bdem_ElemType::BDEM_DATE_ARRAY:
-      case bdem_ElemType::BDEM_TIMETZ_ARRAY:
-      case bdem_ElemType::BDEM_TIME_ARRAY:
-      case bdem_ElemType::BDEM_CHOICE_ARRAY:
-      case bdem_ElemType::BDEM_TABLE:
-        mInto << '[';
-
-        for (int i = 0, length = value.length(); i < length; ++i)
-        {
-            if (i > 0)
-                mInto << ',';
-
-            encode(value[i]);
-        }
-
-        mInto << ']';
-        break;
-
-      case bdem_ElemType::BDEM_LIST:
-      case bdem_ElemType::BDEM_ROW:
-        mInto << '{';
-
-        for (int i = 0, coded = 0, length = value.length(); i < length; ++i)
-        {
-            const bcem_Aggregate & aggregate = value.fieldById(i);
-            const bdem_FieldDef *  fieldDef  = aggregate.fieldDef();
-
-            // skip any kind of null element
-            if (!fieldDef || !fieldDef->fieldName())
-                continue;
-
-            if (aggregate.isNul2())
-                continue;
-
-            if (aggregate.dataType() == bdem_ElemType::BDEM_STRING && aggregate.asString().empty())
-                continue;
-
-            if (bdem_ElemType::isArrayType(aggregate.dataType()) && aggregate.length() == 0)
-                continue;
-
-            if (coded)
-                mInto << ',';
-
-            encode(fieldDef->fieldName());
-
-            mInto << ':';
-
-            if (!aggregate.isNul2())
-                encode(aggregate);
-            else
-                mInto << "null";
-
-            ++coded;
-        }
-
-        mInto << '}';
-        break;
-
-      case bdem_ElemType::BDEM_BOOL:
-        encode(value.asBool());
-        break;
-
-      case bdem_ElemType::BDEM_CHOICE:
-
-        if (!value.isNul2())
-        {
-            mInto << '{';
-
-            encode(value.selector());
-
-            mInto << ':';
-
-            const bcem_Aggregate & aggregate = value.fieldById(value.selectorId());
-
-            encode(aggregate);
-
-            mInto << '}';
-        }
-        else
-        {
-            mInto << "null";
-        }
-        break;
-
-      case bdem_ElemType::BDEM_VOID:
-        mInto << "null";
-        break;
-
-      case bdem_ElemType::BDEM_CHOICE_ARRAY_ITEM:
-        BAEJSN_THROW(mobcmn::ExBadArg, "Choice array type encodings are not supported");
-    }
-}
-
+// ----------------------------------------------------------------------------
+// NOTICE:
+//      Copyright (C) Bloomberg L.P., 2012
+//      All Rights Reserved.
+//      Property of Bloomberg L.P.  (BLP)
+//      This software is made available solely pursuant to the
+//      terms of a BLP license agreement which governs its use.
+// ----------------------------- END-OF-FILE ----------------------------------

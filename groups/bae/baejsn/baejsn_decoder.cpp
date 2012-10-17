@@ -1,3 +1,4 @@
+// baejsn_decoder.cpp                                                 -*-C++-*-
 #include <baejsn_decoder.h>
 #include <bcemt_once.h>
 #include <bdem_elemtype.h>
@@ -48,7 +49,7 @@ int baejsn_Decoder::decodeArray(std::vector<char> *value)
     value->resize((hexString.length() * 3 + 3) / 4);
     int numOut;
     int numIn;
-    int rc = decoder.convert(value->data(), &numOut, &numIn, hexString.begin(), hexString.end());
+    int rc = decoder.convert(value->begin(), &numOut, &numIn, hexString.begin(), hexString.end());
     value->resize(numOut);
     return rc;
 }
@@ -63,3 +64,11 @@ bsl::string baejsn_Decoder::loggedMessages() const
 
 }  // close namespace BloombergLP
 
+// ----------------------------------------------------------------------------
+// NOTICE:
+//      Copyright (C) Bloomberg L.P., 2012
+//      All Rights Reserved.
+//      Property of Bloomberg L.P.  (BLP)
+//      This software is made available solely pursuant to the
+//      terms of a BLP license agreement which governs its use.
+// ----------------------------- END-OF-FILE ----------------------------------

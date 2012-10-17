@@ -1,6 +1,9 @@
 // baejsn_parserutil.cpp                                              -*-C++-*-
 #include <baejsn_parserutil.h>
+#include <bsl_sstream.h>
 #include <bsl_cmath.h>
+#include <bsl_iomanip.h>
+#include <iostream>
 
 #include <bdes_ident.h>
 BDES_IDENT_RCSID(baejsn_parserutil_cpp,"$Id$ $CSID$")
@@ -29,20 +32,12 @@ bool matchFloatDecimalPart(bsl::streambuf *streamBuf, TYPE *value)
         }
 
         if (multiplier == 1.0) {
-            //BAEJSN_THROW(mobcmn::ExBadArg,
-            //             "Could not decode float decimal @ "
-            //             << (ch == bsl::streambuf::traits_type::eof()
-            //                ? ' '
-            //                : ch));
             return false;
         }
 
         return true;
     }
-    else
-    {
-        return false;
-    }
+    return true;
 }
 
 template <typename TYPE>
@@ -74,10 +69,7 @@ bool matchFloatExponantPart(bsl::streambuf *streamBuf, TYPE *value)
 
         return true;
     }
-    else
-    {
-        return false;
-    }
+    return true;
 }
 
 }  // close anonymous namespace
@@ -111,23 +103,49 @@ int baejsn_ParserUtil::skipSpaces(bsl::streambuf *streamBuf)
 
 int baejsn_ParserUtil::getDouble(bsl::streambuf *streamBuf, double *value)
 {
+    // This implementation is not very good.  It needs a lot of division and
+    // loses precision.
+
     baejsn_ParserUtil::skipSpaces(streamBuf);
 
     // extract the integer part
-    {
-        bsls::Types::Int64 integerPart = 0;
-        if (0 != getInteger(streamBuf, &integerPart)) {
-            return 1;
-        }
+    int ch = streamBuf->sgetc();
 
-        *value = integerPart;
+    if (ch == bsl::streambuf::traits_type::eof()) {
+        return 1;
     }
 
+    bool negative  = false;
+    if (ch == '-')
+    {
+        negative = true;
+        streamBuf->snextc();
+    }
+
+    bsls::Types::Uint64 magnitude = 0;
+    if (0 != getInteger(streamBuf, &magnitude))
+    {
+        return 1;
+    }
+
+    *value = static_cast<double>(magnitude);
+
     // extract the decimal part
-    matchFloatDecimalPart(streamBuf, value);
+    if (!matchFloatDecimalPart(streamBuf, value)) 
+    {
+        return 1;
+    }
+
 
     // extract the exponent part
-    matchFloatExponantPart(streamBuf, value);
+    if (!matchFloatExponantPart(streamBuf, value)) {
+        return 1;
+    }
+
+    if (negative) {
+        *value = *value * -1;
+    }
+
     return 0;
 }
 
@@ -137,7 +155,7 @@ int baejsn_ParserUtil::getInteger(bsl::streambuf     *streamBuf,
     int ch = streamBuf->sgetc();
 
     if (ch == bsl::streambuf::traits_type::eof()) {
-        return false;
+        return 1;
     }
 
     bool                negative  = false;
@@ -176,7 +194,7 @@ int baejsn_ParserUtil::getInteger(bsl::streambuf      *streamBuf,
         ch = streamBuf->snextc();
     }
 
-    return !foundNumberFlag;
+    return foundNumberFlag ? 0 : 1;
 }
 
 int baejsn_ParserUtil::getString(bsl::streambuf *streamBuf,
@@ -285,6 +303,87 @@ int baejsn_ParserUtil::eatToken(bsl::streambuf *streamBuf,
         ch = streamBuf->snextc();
     }
 
+    return 0;
+}
+
+
+int baejsn_ParserUtil::putString(bsl::streambuf     *streamBuf,
+                                 const bsl::string&  value)
+{
+    streamBuf->sputc('"');
+
+    for (std::string::const_iterator it = value.begin(); it != value.end(); ++it)
+    {
+        if (*it == '"' || *it == '\\' || *it == '/') {// printable (but miss-enterpreted)
+            streamBuf->sputc('\\');
+            streamBuf->sputc(*it);
+        }
+        else if (*it == '\b') {
+            // non printable
+            streamBuf->sputc('\\');
+            streamBuf->sputc('b');
+            //streamBuf->sputc("\\b");
+        }
+        else if (*it == '\f') {
+            streamBuf->sputc('\\');
+            streamBuf->sputc('f');
+            //streamBuf->sputc("\\f");
+        }
+        else if (*it == '\n') {
+            streamBuf->sputc('\\');
+            streamBuf->sputc('n');
+            //streamBuf->sputc("\\n");
+        }
+        else if (*it == '\r') {
+            streamBuf->sputc('\\');
+            streamBuf->sputc('r');
+            //streamBuf->sputc("\\r");
+        }
+        else if (*it == '\t') {
+            streamBuf->sputc('\\');
+            streamBuf->sputc('t');
+            //streamBuf->sputc("\\t");
+        }
+        // TBD: Disable mOptions for now.
+        //else if (*it == '\0' && mOptions[Options::useModifiedUtf8])
+        //{
+        //    streamBuf->sputc("\\uc080";
+        //}
+        else if ((static_cast<unsigned int>(*it) & 0xff) < 32) {
+            // Any other control characters as hex.
+
+            // todo add back multi byte support, but unicode >= 0xD800 && unicode <= 0xDBFF checks are required to ensure that
+            //      surrogate encodings are or are not needed when pushing binary as a string
+            //
+            //std::string::const_iterator next = it;
+            //++next;
+
+            bsl::ostringstream str;
+
+            //if (*it == 0 || next == value.end())
+            {
+                str << "\\u00"
+                    << std::hex
+                    << std::setfill('0')
+                    << std::setw(2)
+                    << (static_cast<unsigned int>(*it) & 0xff);
+            }
+            //else
+            //{
+            //    str << "\\u" << std::hex << std::setfill('0') << std::setw(2) << (static_cast<unsigned int>(*it) & 0xff)
+            //                 << std::hex << std::setfill('0') << std::setw(2) << (static_cast<unsigned int>(*next) & 0xff);
+            //    ++it;
+            //}
+
+            streamBuf->sputn(str.str().c_str(), str.str().length());
+        }
+        else
+        {
+            streamBuf->sputc(*it);
+        }
+    }
+
+    streamBuf->sputc('"');
     return 0;
 }
 

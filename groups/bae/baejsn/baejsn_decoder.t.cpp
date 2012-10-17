@@ -1,3 +1,4 @@
+// baejsn_decoder.t.cpp                                               -*-C++-*-
 #include <baejsn_decoder.h>
 #include <baea_testmessages.h>
 
@@ -112,6 +113,8 @@ static void aSsErT(int c, const char *s, int i)
 // ============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
+
+typedef baejsn_Decoder Obj;
 
 static const char* TEST_MESSAGES[] = {
 

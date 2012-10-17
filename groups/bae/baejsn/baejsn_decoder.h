@@ -1,3 +1,4 @@
+// baejsn_decoder.h                                                   -*-C++-*-
 #ifndef INCLUDED_BAEJSN_DECODER
 #define INCLUDED_BAEJSN_DECODER
 
@@ -60,8 +61,6 @@ BDES_IDENT("$Id: $")
 #include <bsl_string.h>
 #endif
 
-#include <iostream>  // TBD: Remove later
-
 namespace BloombergLP {
 
 // TBD: Remove this macro
@@ -97,6 +96,7 @@ class baejsn_Decoder
     bsl::streambuf                  *d_streamBuf;    // held, not owned
 
 
+    // FRIEND
     friend struct baejsn_Decoder_DecodeImpProxy;
     friend struct baejsn_Decoder_ElementVisitor;
 
@@ -226,10 +226,10 @@ struct baejsn_Decoder_ElementVisitor {
 
     // MANIPULATORS
     template <typename TYPE>
-    int operator()(TYPE value);
+    int operator()(TYPE *value);
 
     template <typename TYPE, typename ATTRIBUTE_OR_SELECTION>
-    int operator()(TYPE value, const ATTRIBUTE_OR_SELECTION &);
+    int operator()(TYPE *value, const ATTRIBUTE_OR_SELECTION &);
 };
 
                  // ====================================
@@ -752,7 +752,7 @@ int baejsn_Decoder::decode(bsl::istream& stream, TYPE *value)
 
 template <typename TYPE>
 inline
-int baejsn_Decoder_ElementVisitor::operator()(TYPE value)
+int baejsn_Decoder_ElementVisitor::operator()(TYPE *value)
 {
     d_decoder->decode(value);
     return 0;
@@ -760,7 +760,7 @@ int baejsn_Decoder_ElementVisitor::operator()(TYPE value)
 
 template <typename TYPE, typename ATTRIBUTE_OR_SELECTION>
 inline
-int baejsn_Decoder_ElementVisitor::operator()(TYPE value,
+int baejsn_Decoder_ElementVisitor::operator()(TYPE *value,
                                               const ATTRIBUTE_OR_SELECTION &)
 {
     d_decoder->decode(value);
@@ -794,3 +794,12 @@ int baejsn_Decoder_DecodeImpProxy::operator()(TYPE         *object,
 }  // close namespace BloombergLP
 
 #endif
+
+// ----------------------------------------------------------------------------
+// NOTICE:
+//      Copyright (C) Bloomberg L.P., 2012
+//      All Rights Reserved.
+//      Property of Bloomberg L.P.  (BLP)
+//      This software is made available solely pursuant to the
+//      terms of a BLP license agreement which governs its use.
+// ----------------------------- END-OF-FILE ----------------------------------
