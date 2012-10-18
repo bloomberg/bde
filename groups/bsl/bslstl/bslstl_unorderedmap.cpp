@@ -1,6 +1,10 @@
 // bslstl_unorderedmap.cpp                                            -*-C++-*-
 #include <bslstl_unorderedmap.h>
 
+#include <bslstl_pair.h>    // for testing only
+#include <bslstl_string.h>  // for testing only
+#include <bslstl_vector.h>  // for testing only
+
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
