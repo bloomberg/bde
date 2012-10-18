@@ -86,12 +86,12 @@ namespace bslmf {
 
 struct IsEnum_AnyArithmeticType {
     // This struct provides a type that is convertible from any arithmetic
-    // (i.e., integral or floating-point) type.  Converting any type to a
-    // 'IsEnum_AnyArithmeticType' is a user-defined conversion and cannot be
-    // combined with any other implicit user-defined conversions.  Thus, even
-    // class types that have conversion operators to arithmetic types or
-    // enumerated types will not be implicitly convertible to
-    // 'IsEnum_AnyArithmeticType'.
+    // (i.e., integral or floating-point) type, or any enumerated type.
+    // Converting any type to an 'IsEnum_AnyArithmeticType' is a user-defined
+    // conversion and cannot be combined with any other implicit user-defined
+    // conversions.  Thus, even class types that have conversion operators to
+    // arithmetic types or enumerated types will not be implicitly convertible
+    // to 'IsEnum_AnyArithmeticType'.
 
     // NOT IMPLEMENTED
     IsEnum_AnyArithmeticType(wchar_t);
@@ -103,14 +103,15 @@ struct IsEnum_AnyArithmeticType {
     IsEnum_AnyArithmeticType(unsigned long long);
     IsEnum_AnyArithmeticType(double);
     IsEnum_AnyArithmeticType(long double);
-        // Create a conversion from the specified arithmetic type.  Note that
-        // it is not necessary to provide overloads taking 'bool', 'char', or
-        // 'short' because they are automatically promoted to 'int'; nor is a
-        // 'float' overload needed because it is automatically promoted to
-        // 'double'.  Also note that the other variants are necessary because a
-        // conversion from, e.g., a 'long double' to a 'double' does not take
-        // precedence over a conversion from 'long double' to 'int' and,
-        // therefore, would be ambiguous.
+        // Create an 'IsEnum_AnyArithmeticType' object form a value of one of
+        // the indicated arithmetic types.  Note that it is not necessary to
+        // provide overloads taking 'bool', 'char', or 'short' because they are
+        // automatically promoted to 'int'; nor is a 'float' overload needed
+        // because it is automatically promoted to 'double'.  Also note that
+        // the other variants are necessary because a conversion from, e.g., a
+        // 'long double' to a 'double' does not take precedence over a
+        // conversion from 'long double' to 'int' and, therefore, would be
+        // ambiguous.
 };
 
 }  // close package namespace
@@ -147,14 +148,13 @@ namespace bslmf {
                                 // ============
 
 template <class TYPE>
-struct IsEnum : bsl::is_enum<TYPE>::type
-{
+struct IsEnum : bsl::is_enum<TYPE>::type {
     // This struct provides a meta-function that computes, at compile time,
-    // whether the 'TYPE' is an enumerated type.  It derives from
-    // 'bsl::true_type' if 'TYPE' is an enumeration type, and from
+    // whether the (template parameter) 'TYPE' is an enumerated type.  It
+    // derives from 'bsl::true_type' if 'TYPE' is an enumerated type, and from
     // 'bsl::false_type' otherwise.
     //
-    // Enumeration types are the only user-defined types that have the
+    // Enumerated types are the only user-defined types that have the
     // characteristics of a native arithmetic type (i.e., they can be converted
     // to an integral type without invoking user-defined conversions).  This
     // class takes advantage of this property to distinguish 'enum' types from

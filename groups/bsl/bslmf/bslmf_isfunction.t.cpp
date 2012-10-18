@@ -90,7 +90,7 @@ class DerivedClassTestType : public BaseClassTestType {
 };
 
 typedef int (StructTestType::*MethodPtrTestType) ();
-    // This pointer to non-static member functiontype is intended to be used
+    // This pointer to non-static member function type is intended to be used
     // for testing as the template parameter 'TYPE' of 'bsl::is_function'.
 
 typedef void (*FunctionPtrTestType) ();

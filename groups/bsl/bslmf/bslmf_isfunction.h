@@ -56,11 +56,12 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace bsl {
+
                              // ==================
                              // struct is_function
                              // ==================
 
-template <typename TYPE>
+template <class TYPE>
 struct is_function
     : integral_constant<
             bool,

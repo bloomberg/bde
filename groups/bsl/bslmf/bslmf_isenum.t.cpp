@@ -110,9 +110,9 @@ struct Incomplete;
     // template parameter 'TYPE' of 'bsl::is_enum'.
 
 struct ConvertToIntTestType {
-    // This 'struct' type having conversion operator to 'int' is intended to be
-    // used for testing as the template parameter 'TYPE' of 'bsl::is_enum'.
-    // This type should not be determined as enumerated type.
+    // This 'struct' type having conversion operator to 'int', is intended to
+    // be used for testing as the template parameter 'TYPE' of 'bsl::is_enum'.
+    // This type should not be determined to be an enumerated type.
 
     operator int() { return 0; }
 };
@@ -120,7 +120,8 @@ struct ConvertToIntTestType {
 struct ConvertToEnumTestType {
     // This 'struct' type having conversion operator to 'EnumTestType' is
     // intended to be used for testing as the template parameter 'TYPE' of
-    // 'bsl::is_enum'.  This type should not be determined as enumerated type.
+    // 'bsl::is_enum'.  This type should not be determined to be an enumerated
+    // type.
 
     operator EnumTestType() { return ENUM_TEST_VALUE0; }
 };
