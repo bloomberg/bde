@@ -68,6 +68,10 @@ struct baejsn_ParserUtil
         // charater just after the matched string, with no effect otherwise.
         // Return 0 if a match is found, and a non-zero value otherwise.
 
+    static int advancePastTokenAndWhitespace(bsl::streambuf *streamBuf,
+                                             char            token);
+        // TBD
+
     static int putString(bsl::streambuf *streamBuf, const bsl::string& value);
 };
 
