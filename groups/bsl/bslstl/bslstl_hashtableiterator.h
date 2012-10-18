@@ -16,12 +16,12 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Alisdair Meredith (ameredith1), Stefano Pacifico (spacifico1)
 //
-//@DESCRIPTION: This component provides a standard-conforming forward iterator
-// over the elements of a hash table implemented using a list of
-// 'bslalg::BidirectionalLink' objects.  The requirements of a forward iterator
-// are outlined in the C++11 standard in section [24.2.5] under the tag
-// [forward.iterators].  The 'HashTableIterator' class template has two
-// template parameters: 'VALUE_TYPE', and 'DIFFERENCE_TYPE'.  'VALUE_TYPE'
+//@DESCRIPTION: This component provides a standard-conforming forward iterator,
+// 'bslstl::HashTableIterator', over a list of elements (of type
+// 'bslalg::BidirectionalLink') in a hashtable.  The requirements of a forward
+// iterator are outlined in the C++11 standard in section [24.2.5] under the
+// tag [forward.iterators].  The 'bslstl::HashTableIterator' class template has
+// two template parameters: 'VALUE_TYPE', and 'DIFFERENCE_TYPE'.  'VALUE_TYPE'
 // indicates the type of the value to which this iterator provides references,
 // and may be const-qualified for constant iterators.  'DIFFERENCE_TYPE'
 // determines the (standard mandated) 'difference_type' for the iterator, and
@@ -228,9 +228,9 @@ bool operator!=(
 template <class VALUE_TYPE, class DIFFERENCE_TYPE>
 HashTableIterator<VALUE_TYPE, DIFFERENCE_TYPE>
 operator++(HashTableIterator<VALUE_TYPE, DIFFERENCE_TYPE>& iter, int);
-    // Move this iterator to the next node in the list and return value of
-    // this iterator prior to this call.  The behavior is undefined unless
-    // the iterator refers to a valid (not yet erased) node a the list.
+    // Move the specified 'iter' to the next node in the list and return
+    // value of 'iter' prior to this call.  The behavior is undefined
+    // unless 'iter' refers to a valid (not yet erased) node a the list.
 
 
 // ===========================================================================
@@ -401,8 +401,8 @@ operator++(HashTableIterator<VALUE_TYPE, DIFFERENCE_TYPE>& iter, int)
     return temp;
 }
 
-}  // close namespace bslstl
-}  // close namespace BloombergLP
+}  // close package namespace
+}  // close enterprise namespace
 
 #endif
 

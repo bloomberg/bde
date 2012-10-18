@@ -69,7 +69,6 @@ using namespace BloombergLP;
 //: o No memory is ever allocated.
 //
 // ----------------------------------------------------------------------------
-//
 // CREATORS
 // [ 2] HashTableIterator();
 // [ 2] explicit HashTableIterator(bslalg::BidirectionalLink *node);
@@ -94,7 +93,6 @@ using namespace BloombergLP;
 // [ 1] BREATHING TEST
 // [14] USAGE EXAMPLE
 // [ *] CONCERN: In no case does memory come from the global allocator.
-// [ *] CONCERN: No memory is ever allocated from this class.
 // [13] TYPE TRAITS
 
 // ============================================================================
@@ -208,7 +206,6 @@ class TestDriver {
     typedef NodePool<VALUE> Pool;
     typedef bslalg::BidirectionalNode<VALUE> Node;
     typedef bslalg::BidirectionalLink Link;
-
 
   public:
     // TEST CASES
