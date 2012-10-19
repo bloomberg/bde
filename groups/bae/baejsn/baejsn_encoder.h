@@ -7,11 +7,12 @@
 #endif
 BDES_IDENT("$Id: $")
 
-//@PURPOSE: Provide a JSON encoder class
+//@PURPOSE: Provide a JSON encoder class.
 //
 //@CLASSES:
+// baejsn_Encoder: JSON encoder utility class
 //
-//@SEE_ALSO:
+//@SEE_ALSO: baejsn_decoder
 //
 //@AUTHOR: Raymond Chiu (schiu49)
 //
@@ -26,24 +27,61 @@ BDES_IDENT("$Id: $")
 #include <baejsn_parserutil.h>
 #endif
 
-#include <stdint.h>
+#ifndef INCLUDED_BSL_IOMANIP
+#include <bsl_iomanip.h>
+#endif
 
-#include <iomanip>
-#include <sstream>
-#include <limits>
-#include <set>
-#include <vector>
-
-#include <bslmf_if.h>
-#include <bdeut_nullablevalue.h>
-#include <bdeat_attributeinfo.h>
-#include <bdeat_sequencefunctions.h>
-#include <bdeat_choicefunctions.h>
-#include <bdeat_enumfunctions.h>
-#include <bdeat_typecategory.h>
-#include <bdeat_formattingmode.h>
-#include <bdeat_valuetypefunctions.h>
+#ifndef INCLUDED_BSL_SSTREAM
 #include <bsl_sstream.h>
+#endif
+
+#ifndef INCLUDED_BSL_LIMITS
+#include <bsl_limits.h>
+#endif
+
+#ifndef INCLUDED_BSL_VECTOR
+#include <bsl_vector.h>
+#endif
+
+#ifndef INCLUDED_BSL_STRING
+#include <bsl_string.h>
+#endif
+
+#ifndef INCLUDED_BDEUT_NULLABLEVALUE
+#include <bdeut_nullablevalue.h>
+#endif
+
+#ifndef INCLUDED_BDEAT_ATTRIBUTEINFO
+#include <bdeat_attributeinfo.h>
+#endif
+
+#ifndef INCLUDED_BDEAT_SEQUENCEFUNCTIONS
+#include <bdeat_sequencefunctions.h>
+#endif
+
+#ifndef INCLUDED_BDEAT_CHOICEFUNCTIONS
+#include <bdeat_choicefunctions.h>
+#endif
+
+#ifndef INCLUDED_BDEAT_ENUMFUNCTIONS
+#include <bdeat_enumfunctions.h>
+#endif
+
+#ifndef INCLUDED_BDEAT_TYPECATEGORY
+#include <bdeat_typecategory.h>
+#endif
+
+#ifndef INCLUDED_BDEAT_FORMATTINGMODE
+#include <bdeat_formattingmode.h>
+#endif
+
+#ifndef INCLUDED_BDEAT_VALUETYPEFUNCTIONS
+#include <bdeat_valuetypefunctions.h>
+#endif
+
+#ifndef INCLUDED_BSL_SSTREAM
+#include <bsl_sstream.h>
+#endif
 
 #ifndef INCLUDED_BDEDE_BASE64ENCODER
 #include <bdede_base64encoder.h>
@@ -65,28 +103,126 @@ BDES_IDENT("$Id: $")
 #include <bsl_string.h>
 #endif
 
-#include <iostream>  // TBD: Remove later
-
 namespace BloombergLP {
 
-class baejsn_Encoder {
-    // DATA
-    //bslma_Allocator                 *d_allocator;    // held, not owned
+                        // ====================
+                        // class baejsn_Encoder
+                        // ====================
 
-    bsls_ObjectBuffer<bsl::ostringstream>  d_logArea;      // placeholder for
+class baejsn_Encoder {
+    // FRIENDS
+    friend struct baejsn_Encoder_EncodeImpl;
+
+  private:
+    // PRIVATE TYPES
+    class MemOutStream : public bsl::ostream
+    {
+        // This class provides stream for logging using 'bdesb_MemOutStreamBuf'
+        // as a streambuf.  The logging stream is created on demand, i.e.,
+        // during the first attempt to log message.
+
+        // DATA
+        bdesb_MemOutStreamBuf d_sb;
+
+      private:
+        // NOT IMPLEMENTED
+        MemOutStream(const MemOutStream&);
+        MemOutStream& operator=(const MemOutStream&);
+
+      public:
+        // CREATORS
+        explicit MemOutStream(bslma_Allocator *basicAllocator = 0);
+            // Create a new stream using the specified 'basicAllocator'.
+
+        virtual ~MemOutStream();
+            // Destroy this stream and release memory back to the allocator.
+            //
+            // Although the compiler should generate this destructor
+            // implicitly, xlC 8 breaks when the destructor is called by name
+            // unless it is explicitly declared.
+
+        // MANIPULATORS
+        void reset();
+            // Reset the internal streambuf to empty.
+
+        // ACCESSORS
+        const char *data() const;
+            // Return a pointer to the memory containing the formatted values
+            // formatted to this stream.  The data is not null-terminated
+            // unless a null character was appended onto this stream.
+
+        int length() const;
+            // Return the length of of the formatted data, including null
+            // characters appended to the stream, if any.
+    };
+
+  private:
+    // DATA
+    bslma_Allocator                 *d_allocator;    // held, not owned
+
+    bsls_ObjectBuffer<MemOutStream>  d_logArea;      // placeholder for
                                                      // MemOutStream
 
-    bsl::ostringstream              *d_logStream;    // if not zero,
-                                                     // log stream was
-                                                     // created at the
-                                                     // moment of first
-                                                     // logging and must
-                                                     // be destroyed
+    MemOutStream                    *d_logStream;    // if not zero, log stream
+                                                     // was created at the
+                                                     // moment of first logging
+                                                     // and must be destroyed
 
-    bsl::ostream                  d_outputStream;    // held, not owned
+  private:
+    // PRIVATE MANIPULATORS
+    bsl::ostream& logStream();
+        // Return the stream for logging.  Note the if stream has not
+        // been created yet, it will be created during this call.
 
-    // FRIEND
-    friend struct baejsn_Encoder_EncodeImpProxy;
+
+    template <class TYPE>
+    int encodeObject(bsl::streambuf *streamBuf, const TYPE& value);
+        // Verify the specified 'value' of (template parameter) type 'TYPE' is
+        // a Sequence or Choice and encode 'value' into the specified
+        // 'streamBuf'.  Return 0 on success, and a non-zero value otherwise.
+
+  public:
+    // CREATORS
+    explicit baejsn_Encoder(bslma::Allocator *basicAllocator = 0);
+        // Create a encoder object.  Optionally specify a 'basicAllocator' used
+        // to supply memory.  If 'basicAllocator' is 0, the currently installed
+        // default allocator is used.
+
+    ~baejsn_Encoder();
+        // Destroy this object.
+
+    // MANIPULATORS
+    template <typename TYPE>
+    int encode(bsl::streambuf *streamBuf, const TYPE& value);
+        // Encode the specifed 'value' of parameterized 'TYPE' into the
+        // specified 'streamBuf'.  Return 0 on success, and a non-zero value
+        // otherwise.
+
+    template <typename TYPE>
+    int encode(bsl::ostream& stream, const TYPE& value);
+        // Encode the specifed 'value' of parameterized 'TYPE' into the
+        // specified 'streamBuf'.  Return 0 on success, and a non-zero value
+        // otherwise.  Note that 'stream' will be invalidated if the encoding
+        // failed.
+
+    // ACCESSORS
+    bslstl::StringRef loggedMessages() const;
+        // Return a string containing any error, warning, or trace messages
+        // that were logged during the last call to the 'encode' method.  The
+        // log is reset each time 'encode' is called.
+};
+
+                        // ===============================
+                        // class baejsn_Encoder_EncodeImpl
+                        // ===============================
+
+class baejsn_Encoder_EncodeImpl {
+    // DATA
+    baejsn_Encoder *d_encoder;
+    bsl::ostream    d_outputStream;
+
+    // FRIENDS
+    friend struct baejsn_Encoder_DynamicTypeChooser;
     friend struct baejsn_Encoder_ElementVisitor;
     friend struct baejsn_Encoder_SequenceVisitor;
 
@@ -96,238 +232,93 @@ class baejsn_Encoder {
         // Return the stream for logging.  Note the if stream has not
         // been created yet, it will be created during this call.
 
-  public:
-    void encodeSimple(short  value) { d_outputStream << value; }
-    void encodeSimple(int  value) { d_outputStream << value; }
-    void encodeSimple(bsls::Types::Int64  value) { d_outputStream << value; }
-
-    void encodeSimple(unsigned char value) { d_outputStream << static_cast<int>(value); }
-    void encodeSimple(unsigned short value) { d_outputStream << value; }
-    void encodeSimple(unsigned int value) { d_outputStream << value; }
-    void encodeSimple(bsls::Types::Uint64 value) { d_outputStream << value; }
-
-    void encodeSimple(float  value) { encodeFloat(value); }
-    void encodeSimple(double value) { encodeFloat(value); }
-
-    void encodeSimple(const bdet_Time& value) { encodeIso8601(value); }
-    void encodeSimple(const bdet_Date& value) { encodeIso8601(value); }
-    void encodeSimple(const bdet_Datetime& value) { encodeIso8601(value); }
-    void encodeSimple(const bdet_TimeTz& value) { encodeIso8601(value); }
-    void encodeSimple(const bdet_DateTz& value) { encodeIso8601(value); }
-    void encodeSimple(const bdet_DatetimeTz& value) { encodeIso8601(value); }
-
-    template <class TYPE>
-    int encodeIso8601(const TYPE& value) {
-        char buffer[bdepu_Iso8601::BDEPU_MAX_DATETIME_STRLEN + 1];
-        bdepu_Iso8601::generate(buffer, value, sizeof buffer);
-        encodeSimple(buffer);
-        return 0;
-    }
-
-    template <typename TYPE>
-    void encodeFloat(TYPE value)
-    {
-        std::streamsize         prec  = d_outputStream.precision();
-        std::ios_base::fmtflags flags = d_outputStream.flags();
-
-        d_outputStream.precision(std::numeric_limits<TYPE>::digits10);
-        d_outputStream.setf(std::ios::scientific, std::ios::floatfield);
-
-        d_outputStream << value;
-
-        d_outputStream.precision(prec);
-        d_outputStream.flags(flags);
-    }
-
-    void encodeSimple(const bool value) { d_outputStream << (value ? "true" : "false"); }
-
-    void encodeSimple(const char value);
-    void encodeSimple(const bsl::string & value);
-    void encodeSimple(const char * value) { encode(std::string(value)); }
-
-    void encodeArray(const bsl::vector<char>& value)
-    {
-        bsl::string base64String;
-        bdede_Base64Encoder encoder(0);
-        base64String.resize(bdede_Base64Encoder::encodedLength(value.size(), 0));
-        int numOut;
-        int numIn;
-        int rc = encoder.convert(base64String.begin(), &numOut, &numIn, value.begin(), value.end());
-        rc = encoder.endConvert(base64String.begin() + numOut);
-
-        //base64String.resize(numOut);
-
-        encodeSimple(base64String);
-        //d_outputStream << '[';
-
-        //for (typename std::vector<TYPE>::const_iterator it = value.begin(); it != value.end(); ++it)
-        //{
-        //    if (it != value.begin())
-        //        d_outputStream << ',';
-
-        //    encodeHex(*it);
-        //}
-
-        //d_outputStream << ']';
-    }
-
-    template <typename TYPE>
-    void encodeArray(const TYPE& value);
-
-    //void encodeHex(const std::vector<char> & value);
-
-    //template <typename TYPE>
-    //void encodeHex(const std::vector<TYPE> & value)
-    //{
-    //    d_outputStream << '[';
-
-    //    for (typename std::vector<TYPE>::const_iterator it = value.begin(); it != value.end(); ++it)
-    //    {
-    //        if (it != value.begin())
-    //            d_outputStream << ',';
-
-    //        encodeHex(*it);
-    //    }
-
-    //    d_outputStream << ']';
-    //}
-
-    //void encode(const bcem_Aggregate & value);
-
-    template <typename TYPE>
-    void encode(const TYPE & value)
-    {
-        // TBD: A JSON string must contain an object.  i.e., the 'TYPE' *must*
-        // be a Sequence or Choice on the first invocation of 'decode'.  This
-        // 'decode' method is currently used to decode other JSON values.
-        // Consequently, the decoder will allow a JSON string that contains
-        // other JSON value instead of an object and should be fixed.
-
-        typedef typename
-        bdeat_TypeCategory::Select<TYPE>::Type TypeCategory;
-        // TBD: return value
-        //return encodeChooser(value, TypeCategory());
-        encodeChooser(value, TypeCategory());
-    }
-
-    template <typename TYPE>
-    void encodeSequence(const TYPE & value);
-
-    template <typename TYPE>
-    void encodeChoice(const TYPE & value);
-
-    template <typename TYPE>
-    void encodeEnumString(const TYPE & value)
-    {
-        std::string valueString;
-        bdeat_EnumFunctions::toString(&valueString, value);
-        encode(valueString);
-    }
-
-    template <typename TYPE>
-    void encodeEnumCustomized(const TYPE & value)
-    {
-        encode(bdeat_CustomizedTypeFunctions::convertToBaseType(value));
-    }
-
-    template <typename TYPE>
-    void encodeNullable(const TYPE & value);
-
-  private:
-    template <typename TYPE>
-    void encodeChooser(const TYPE & value, bdeat_TypeCategory::Sequence)
-    {
-        // TBD: need to specialize for empty sequence.
-        //typedef typename bslmf_If< TYPE::NUM_ATTRIBUTES != 0, IsSequence, IsSequenceEmpty >::Type TypeTag;
-        //encodeChooserSequence(value, TypeTag());
-        encodeSequence(value);
-    }
-
-    template <typename TYPE>
-    void encodeChooser(const TYPE & value, bdeat_TypeCategory::Choice) { encodeChoice(value); }
-
-    template <typename TYPE>
-    void encodeChooser(const TYPE & value, bdeat_TypeCategory::Enumeration) { encodeEnumString(value); }
-
-    template <typename TYPE>
-    void encodeChooser(const TYPE & value, bdeat_TypeCategory::CustomizedType) { encodeEnumCustomized(value); }
-
-    template <typename TYPE>
-    void encodeChooser(const TYPE &value, bdeat_TypeCategory::DynamicType);
-
-    template <typename TYPE>
-    void encodeChooser(const TYPE &value, bdeat_TypeCategory::Simple) { encodeSimple(value); }
-
-    template <typename TYPE>
-    void encodeChooser(const TYPE& value, bdeat_TypeCategory::Array) { encodeArray(value); }
-
-    template <typename TYPE>
-    void encodeChooser(const TYPE& value, bdeat_TypeCategory::NullableValue) { encodeNullable(value);}
-
-    //template <typename TYPE, typename TYPE_CATEGORY>
-    //int encodeChooser(const TYPE *, const TYPE_CATEGORY&);
-
-    struct HasEncodeValue
-    {
-        struct IsChoice { enum { VALUE = 1 }; };
-        struct IsOther  { enum { VALUE = 1 }; };
-
-        template <typename TYPE, typename ATTRIBUTE_OR_SELECTION>
-        int operator() (const std::vector<TYPE> & value, const ATTRIBUTE_OR_SELECTION &)
-        {
-            return value.empty() ? 0 : 1;
-        }
-
-        template <typename TYPE, typename ATTRIBUTE_OR_SELECTION>
-        int operator() (const bdeut_NullableValue<TYPE> & value, const ATTRIBUTE_OR_SELECTION &)
-        {
-            return value.isNull() ? 0 : 1;
-        }
-
-        template <typename TYPE, typename ATTRIBUTE_OR_SELECTION>
-        int operator() (const TYPE & value, const ATTRIBUTE_OR_SELECTION &)
-        {
-            typedef typename bslmf_If< bdeat_ChoiceFunctions::IsChoice<TYPE>::VALUE, IsChoice, IsOther>::Type TypeTag;
-
-            return hasValue(value, TypeTag()) ? 1 : 0;
-        }
-
-      private:
-        template <typename TYPE>
-        bool hasValue (const TYPE &value, IsChoice)
-        {
-            return value.selectionId() >= 0;
-        }
-
-        template <typename TYPE>
-        bool hasValue (const TYPE &, IsOther)
-        {
-            return true;
-        }
-    };
+    bsl::ostream& outputStream();
+        // Return the stream for output.
 
   public:
     // CREATORS
-    baejsn_Encoder();
-        // Create a encoder object.
+    baejsn_Encoder_EncodeImpl(baejsn_Encoder *encoder,
+                              bsl::streambuf *streambuf);
+        // Create a 'baejsn_Encoder_EncodeImpl' object.
+
+    // MANIPULATORS
+    int encodeSimple(const bool value);
+    int encodeSimple(const char value);
+    int encodeSimple(short  value);
+    int encodeSimple(int  value);
+    int encodeSimple(bsls::Types::Int64  value);
+
+    int encodeSimple(unsigned char value);
+    int encodeSimple(unsigned short value);
+    int encodeSimple(unsigned int value);
+    int encodeSimple(bsls::Types::Uint64 value);
+
+    int encodeSimple(float  value);
+    int encodeSimple(double value);
+
+    int encodeSimple(const bsl::string & value);
+    int encodeSimple(const char *value);
+
+    int encodeSimple(const bdet_Time& value);
+    int encodeSimple(const bdet_Date& value);
+    int encodeSimple(const bdet_Datetime& value);
+    int encodeSimple(const bdet_TimeTz& value);
+    int encodeSimple(const bdet_DateTz& value);
+    int encodeSimple(const bdet_DatetimeTz& value);
+
+
+    template <class TYPE>
+    int encodeIso8601(const TYPE& value);
 
     template <typename TYPE>
-    int encode(bsl::streambuf *streamBuf, const TYPE& variable);
-        // Encode an object of parameterized 'TYPE' from the specified
-        // 'streamBuf' and load the result into the specified modifiable
-        // 'variable'.  Return 0 on success, and a non-zero value otherwise.
+    int encodeFloat(TYPE value);
+
+    int encodeArray(const bsl::vector<char>& value);
 
     template <typename TYPE>
-    int encode(bsl::ostream& stream, const TYPE& variable);
-        // Encode an object of parameterized 'TYPE' from the specified 'stream'
-        // and load the result into the specified modifiable 'variable'.
-        // Return 0 on success, and a non-zero value otherwise.  Note that
-        // 'stream' will be invalidated if the decoding fails.
+    int encodeArray(const TYPE& value);
 
-    bsl::string loggedMessages() const;
-        // Return a string containing any error, warning, or trace messages
-        // that were logged during the last call to the 'encode' method.  The
-        // log is reset each time 'encode' is called.
+    template <typename TYPE>
+    int encodeSequence(const TYPE & value);
+
+    template <typename TYPE>
+    int encodeChoice(const TYPE & value);
+
+    template <typename TYPE>
+    int encodeEnumeration(const TYPE & value);
+
+    template <typename TYPE>
+    int encodeCustomized(const TYPE & value);
+
+    template <typename TYPE>
+    int encodeNullable(const TYPE & value);
+
+    template <typename TYPE>
+    int encodeChooser(const TYPE & value, bdeat_TypeCategory::Sequence);
+
+    template <typename TYPE>
+    int encodeChooser(const TYPE & value, bdeat_TypeCategory::Choice);
+
+    template <typename TYPE>
+    int encodeChooser(const TYPE & value, bdeat_TypeCategory::Enumeration);
+
+    template <typename TYPE>
+    int encodeChooser(const TYPE & value, bdeat_TypeCategory::CustomizedType);
+
+    template <typename TYPE>
+    int encodeChooser(const TYPE &value, bdeat_TypeCategory::DynamicType);
+
+    template <typename TYPE>
+    int encodeChooser(const TYPE &value, bdeat_TypeCategory::Simple);
+
+    template <typename TYPE>
+    int encodeChooser(const TYPE& value, bdeat_TypeCategory::Array);
+
+    template <typename TYPE>
+    int encodeChooser(const TYPE& value, bdeat_TypeCategory::NullableValue);
+
+    template <typename TYPE>
+    int encode(const TYPE & value);
 };
 
                  // ====================================
@@ -338,7 +329,7 @@ struct baejsn_Encoder_ElementVisitor {
     // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
 
     // DATA
-    baejsn_Encoder *d_encoder;
+    baejsn_Encoder_EncodeImpl *d_encoder;
 
     // CREATORS
     // Creators have been omitted to allow simple static initialization of
@@ -353,33 +344,46 @@ struct baejsn_Encoder_ElementVisitor {
 };
 
                  // ====================================
-                 // struct baejsn_Encoder_SequenceVisitor
+                 // class baejsn_Encoder_SequenceVisitor
                  // ====================================
 
-struct baejsn_Encoder_SequenceVisitor {
+class baejsn_Encoder_SequenceVisitor {
     // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
 
     // DATA
-    baejsn_Encoder *d_encoder;
-    bool            d_firstPassFlag;
+    baejsn_Encoder_EncodeImpl *d_encoder;
+    bool                       d_firstPassFlag;
 
+  private:
+    // PRIVATE CLASS METHODS
+    template <class TYPE>
+    static bool isAttributeNull(const TYPE&, bslmf::MetaInt<0>);
+
+    template <class TYPE>
+    static bool isAttributeNull(const TYPE& value, bslmf::MetaInt<1>);
+
+    template <class TYPE>
+    static bool isAttributeNull(const TYPE& value);
+
+  public:
     // CREATORS
-    baejsn_Encoder_SequenceVisitor(baejsn_Encoder *encoder);
+    explicit baejsn_Encoder_SequenceVisitor(
+                                           baejsn_Encoder_EncodeImpl *encoder);
 
     // MANIPULATORS
     template <typename TYPE, typename ATTRIBUTE_OR_SELECTION>
     int operator()(const TYPE& value, const ATTRIBUTE_OR_SELECTION &info);
 };
 
-                 // ====================================
-                 // struct baejsn_Encoder_EncodeImpProxy
-                 // ====================================
+                 // =========================================
+                 // struct baejsn_Encoder_DynamicTypeChooser
+                 // =========================================
 
-struct baejsn_Encoder_EncodeImpProxy {
+struct baejsn_Encoder_DynamicTypeChooser {
     // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
 
     // DATA
-    baejsn_Encoder *d_encoder;
+    baejsn_Encoder_EncodeImpl *d_encoder;
 
     // CREATORS
     // Creators have been omitted to allow simple static initialization of
@@ -393,199 +397,509 @@ struct baejsn_Encoder_EncodeImpProxy {
     int operator()(const TYPE& object, ANY_CATEGORY category);
 };
 
-// PRIVATE MANIPULATORS
-template <typename TYPE>
+// ============================================================================
+//                        INLINE FUNCTION DEFINITIONS
+// ============================================================================
+
+                   // ----------------------------------
+                   // class baejsn_Encoder::MemOutStream
+                   // ----------------------------------
+
 inline
-void baejsn_Encoder::encodeChooser(const TYPE& value, bdeat_TypeCategory::DynamicType)
+baejsn_Encoder::MemOutStream::MemOutStream(bslma_Allocator *basicAllocator)
+: bsl::ostream(0)
+, d_sb(bslma_Default::allocator(basicAllocator))
 {
-    baejsn_Encoder_EncodeImpProxy proxy = { this };
-    // TBD: return
-    bdeat_TypeCategoryUtil::accessByCategory(value, proxy);
+    rdbuf(&d_sb);
+}
+
+// MANIPULATORS
+inline
+void baejsn_Encoder::MemOutStream::reset()
+{
+    d_sb.reset();
+}
+
+// ACCESSORS
+inline
+const char* baejsn_Encoder::MemOutStream::data() const
+{
+    return d_sb.data();
+}
+
+inline
+int baejsn_Encoder::MemOutStream::length() const
+{
+    return (int)d_sb.length();
 }
 
                             // --------------------
                             // class baejsn_Encoder
                             // --------------------
 
-//template <typename TYPE>
-//inline
-//int baejsn_Encoder::encode(TYPE *value)
-//{
-//    // TBD: A JSON string must contain an object.  i.e., the 'TYPE' *must*
-//    // be a Sequence or Choice on the first invocation of 'encode'.  This
-//    // 'encode' method is currently used to encode other JSON values.
-//    // Consequently, the decoder will allow a JSON string that contains
-//    // other JSON value instead of an object and should be fixed.
-//
-//    typedef typename
-//    bdeat_TypeCategory::Select<TYPE>::Type TypeCategory;
-//    return decodeChooser(value, TypeCategory());
-//}
-
 // PRIVATE MANIPULATORS
 template <typename TYPE>
-void baejsn_Encoder::encodeArray(const TYPE& value)
+int baejsn_Encoder::encodeObject(bsl::streambuf *streamBuf, const TYPE& value)
 {
-    d_outputStream << '[';
-
-    bsl::size_t size = bdeat_ArrayFunctions::size(value);
-
-    for (bsl::size_t i = 0; i < size; ++i)
-    {
-        if (0 != i) {
-            d_outputStream << ',';
-        }
-
-        baejsn_Encoder_ElementVisitor visitor = { this };
-        if (0 != bdeat_ArrayFunctions::accessElement(value, visitor, i)) {
-            return;
-        }
+    bdeat_TypeCategory::Value category =
+                                    bdeat_TypeCategoryFunctions::select(value);
+    if (bdeat_TypeCategory::BDEAT_SEQUENCE_CATEGORY != category
+     && bdeat_TypeCategory::BDEAT_CHOICE_CATEGORY != category) {
+        logStream() << "Encoded object must be a Sequence or Choice type"
+                    << bsl::endl;
+        return -1;                                                    // RETURN
     }
-
-    d_outputStream << ']';
+    baejsn_Encoder_EncodeImpl encoder(this, streamBuf);
+    return encoder.encode(value);
 }
 
+// MANIPULATORS
 template <typename TYPE>
-void baejsn_Encoder::encodeSequence(const TYPE & value)
+int baejsn_Encoder::encode(bsl::streambuf *streamBuf, const TYPE& value)
 {
-    d_outputStream << '{';
-
-    baejsn_Encoder_SequenceVisitor visitor(this);
-    if (0 != bdeat_SequenceFunctions::accessAttributes(value, visitor)) {
-        return;
-    }
-    //for (int i = 0, coded = 0; i < TYPE::NUM_ATTRIBUTES; ++i)
-    //{
-    //    const bdeat_AttributeInfo & attribute = TYPE::ATTRIBUTE_INFO_ARRAY[i];
-
-    //    HasEncodeValue hasEncodeValueSelector;
-    //    if (value.accessAttribute(hasEncodeValueSelector, attribute.id()) <= 0)
-    //        continue;
-
-    //    if (coded)
-    //        d_outputStream << ',';
-
-    //    encode(attribute.name());
-
-    //    d_outputStream << ':';
-
-    //    if (value.accessAttribute(*this, attribute.id()) < 0)
-    //        d_outputStream << "null";
-
-    //   ++coded;
-    //}
-
-    d_outputStream << '}';
-}
-
-template <typename TYPE>
-void baejsn_Encoder::encodeChoice(const TYPE & value)
-{
-    //const bdeat_SelectionInfo * selection = value.lookupSelectionInfo(value.selectionId());
-
-    if (bdeat_ChoiceFunctions::BDEAT_UNDEFINED_SELECTION_ID !=
-                                     bdeat_ChoiceFunctions::selectionId(value))
-    {
-        d_outputStream << '{';
-
-        //encode(selection->name());
-
-        //d_outputStream << ':';
-
-        baejsn_Encoder_ElementVisitor visitor = { this };
-        if (0 != bdeat_ChoiceFunctions::accessSelection(value, visitor)) {
-            return;
-        }
-        //if (value.accessSelection(*this) < 0)
-        //    d_outputStream << "null";
-
-        d_outputStream << '}';
-    }
-    else {
-        d_outputStream << "null";
-    }
-}
-
-template <typename TYPE>
-void baejsn_Encoder::encodeNullable(const TYPE & value)
-{
-    if (bdeat_NullableValueFunctions::isNull(value)) {
-        d_outputStream << "null";
-        return;
-    }
-
-    baejsn_Encoder_ElementVisitor visitor = { this };
-    bdeat_NullableValueFunctions::accessValue(value, visitor);
-    return;
-}
-
-template <typename TYPE>
-int baejsn_Encoder::encode(bsl::streambuf *streamBuf, const TYPE& variable)
-{
-    //BSLS_ASSERT(0 == d_streamBuf);
     BSLS_ASSERT(streamBuf);
 
-    d_outputStream.rdbuf(streamBuf);
+    if (d_logStream != 0) {
+        d_logStream->reset();
+    }
 
-    //if (d_logStream != 0) {
-    //    d_logStream->reset();
-    //}
-
-    //int rc = encode(variable);
-    encode(variable);
-
-    d_outputStream.rdbuf(0);
-    return 0;
+    return encodeObject(streamBuf, value);
 }
 
 template <typename TYPE>
 int baejsn_Encoder::encode(bsl::ostream& stream, const TYPE& value)
 {
     if (!stream.good()) {
-        return -1;
+        logStream() << "Invalid stream." << bsl::endl;
+        return -1;                                                    // RETURN
     }
 
     if (0 != this->encode(stream.rdbuf(), value)) {
         stream.setstate(bsl::ios_base::failbit);
-        return -1;
+        return -1;                                                    // RETURN
     }
 
     return 0;
 }
 
-// CREATORS
+// ACCESSORS
 inline
-baejsn_Encoder::baejsn_Encoder()
-: d_outputStream(0)
+bslstl::StringRef baejsn_Encoder::loggedMessages() const
 {
+    if (d_logStream) {
+        return bslstl::StringRef(d_logStream->data(), d_logStream->length());
+                                                                      // RETURN
+    }
+    return bslstl::StringRef();
+}
+
+                            // -------------------------------
+                            // class baejsn_Encoder_EncodeImpl
+                            // -------------------------------
+
+inline
+baejsn_Encoder_EncodeImpl::baejsn_Encoder_EncodeImpl(baejsn_Encoder *encoder,
+                                                     bsl::streambuf *streambuf)
+: d_encoder(encoder)
+, d_outputStream(streambuf)
+{
+}
+
+// PRIVATE MANIPULATORS
+inline
+bsl::ostream& baejsn_Encoder_EncodeImpl::logStream()
+{
+    return d_encoder->logStream();
+}
+
+inline
+bsl::ostream& baejsn_Encoder_EncodeImpl::outputStream()
+{
+    return d_outputStream;
+}
+
+// MANIPULATORS
+inline
+int baejsn_Encoder_EncodeImpl::encodeSimple(const bool value)
+{
+    outputStream() << (value ? "true" : "false");
+    return 0;
+}
+
+inline
+int baejsn_Encoder_EncodeImpl::encodeSimple(short  value)
+{
+    outputStream() << value;
+    return 0;
+}
+
+inline
+int baejsn_Encoder_EncodeImpl::encodeSimple(int  value)
+{
+    outputStream() << value;
+    return 0;
+}
+
+inline
+int baejsn_Encoder_EncodeImpl::encodeSimple(bsls::Types::Int64  value)
+{
+    outputStream() << value;
+    return 0;
+}
+
+inline
+int baejsn_Encoder_EncodeImpl::encodeSimple(unsigned char value)
+{
+    outputStream() << static_cast<int>(value);
+    return 0;
+}
+
+inline
+int baejsn_Encoder_EncodeImpl::encodeSimple(unsigned short value)
+{
+    outputStream() << value;
+    return 0;
+}
+
+inline
+int baejsn_Encoder_EncodeImpl::encodeSimple(unsigned int value)
+{
+    outputStream() << value;
+    return 0;
+}
+
+inline
+int baejsn_Encoder_EncodeImpl::encodeSimple(bsls::Types::Uint64 value)
+{
+    outputStream() << value;
+    return 0;
+}
+
+inline
+int baejsn_Encoder_EncodeImpl::encodeSimple(float  value)
+{
+    encodeFloat(value);
+    return 0;
+}
+
+inline
+int baejsn_Encoder_EncodeImpl::encodeSimple(double value)
+{
+    encodeFloat(value);
+    return 0;
+}
+
+
+inline
+int baejsn_Encoder_EncodeImpl::encodeSimple(const char * value)
+{
+    return encodeSimple(bsl::string(value));
+}
+
+inline
+int baejsn_Encoder_EncodeImpl::encodeSimple(const bdet_Time& value)
+{
+    return encodeIso8601(value);
+}
+
+inline
+int baejsn_Encoder_EncodeImpl::encodeSimple(const bdet_Date& value)
+{
+    return encodeIso8601(value);
+}
+
+inline
+int baejsn_Encoder_EncodeImpl::encodeSimple(const bdet_Datetime& value)
+{
+    return encodeIso8601(value);
+}
+
+inline
+int baejsn_Encoder_EncodeImpl::encodeSimple(const bdet_TimeTz& value)
+{
+    return encodeIso8601(value);
+}
+
+inline
+int baejsn_Encoder_EncodeImpl::encodeSimple(const bdet_DateTz& value)
+{
+    return encodeIso8601(value);
+}
+
+inline
+int baejsn_Encoder_EncodeImpl::encodeSimple(const bdet_DatetimeTz& value)
+{
+    return encodeIso8601(value);
+}
+
+template <typename TYPE>
+int baejsn_Encoder_EncodeImpl::encodeArray(const TYPE& value)
+{
+    outputStream() << '[';
+
+    bsl::size_t size = bdeat_ArrayFunctions::size(value);
+
+    for (bsl::size_t i = 0; i < size; ++i)
+    {
+        if (0 != i) {
+            outputStream() << ',';
+        }
+
+        baejsn_Encoder_ElementVisitor visitor = { this };
+        if (0 != bdeat_ArrayFunctions::accessElement(value, visitor, i)) {
+            return -1;                                                // RETURN
+        }
+    }
+
+    outputStream() << ']';
+    return 0;
+}
+
+template <typename TYPE>
+int baejsn_Encoder_EncodeImpl::encodeSequence(const TYPE & value)
+{
+    outputStream() << '{';
+
+    baejsn_Encoder_SequenceVisitor visitor(this);
+    if (0 != bdeat_SequenceFunctions::accessAttributes(value, visitor)) {
+        return -1;                                                    // RETURN
+    }
+
+    outputStream() << '}';
+    return 0;
+}
+
+template <typename TYPE>
+int baejsn_Encoder_EncodeImpl::encodeChoice(const TYPE & value)
+{
+    if (bdeat_ChoiceFunctions::BDEAT_UNDEFINED_SELECTION_ID !=
+                                     bdeat_ChoiceFunctions::selectionId(value))
+    {
+        outputStream() << '{';
+
+        baejsn_Encoder_ElementVisitor visitor = { this };
+        if (0 != bdeat_ChoiceFunctions::accessSelection(value, visitor)) {
+            return -1;                                                // RETURN
+        }
+
+        outputStream() << '}';
+    }
+    else {
+        logStream() << "Undefined selection for Choice object" << bsl::endl;
+        return -1;                                                    // RETURN
+    }
+    return 0;
+}
+
+template <typename TYPE>
+int baejsn_Encoder_EncodeImpl::encodeNullable(const TYPE & value)
+{
+    if (bdeat_NullableValueFunctions::isNull(value)) {
+        outputStream() << "null";
+        return 0;                                                     // RETURN
+    }
+
+    baejsn_Encoder_ElementVisitor visitor = { this };
+    return bdeat_NullableValueFunctions::accessValue(value, visitor);
+}
+
+template <class TYPE>
+inline
+int baejsn_Encoder_EncodeImpl::encodeIso8601(const TYPE& value)
+{
+    char buffer[bdepu_Iso8601::BDEPU_MAX_DATETIME_STRLEN + 1];
+    bdepu_Iso8601::generate(buffer, value, sizeof buffer);
+    return encodeSimple(buffer);
+}
+
+template <typename TYPE>
+inline
+int baejsn_Encoder_EncodeImpl::encodeFloat(TYPE value)
+{
+    bsl::streamsize         prec  = outputStream().precision();
+    bsl::ios_base::fmtflags flags = outputStream().flags();
+
+    outputStream().precision(bsl::numeric_limits<TYPE>::digits10);
+    outputStream().setf(bsl::ios::scientific, bsl::ios::floatfield);
+
+    outputStream() << value;
+
+    outputStream().precision(prec);
+    outputStream().flags(flags);
+    return 0;
+}
+
+template <typename TYPE>
+inline
+int baejsn_Encoder_EncodeImpl::encodeEnumeration(const TYPE & value)
+{
+    bsl::string valueString;
+    bdeat_EnumFunctions::toString(&valueString, value);
+    return encode(valueString);
+}
+
+template <typename TYPE>
+inline
+int baejsn_Encoder_EncodeImpl::encodeCustomized(const TYPE & value)
+{
+    return encode(bdeat_CustomizedTypeFunctions::convertToBaseType(value));
+}
+
+template <typename TYPE>
+inline
+int baejsn_Encoder_EncodeImpl::encodeChooser(const TYPE& value,
+                                  bdeat_TypeCategory::Sequence)
+{
+    return encodeSequence(value);
+}
+
+template <typename TYPE>
+inline
+int baejsn_Encoder_EncodeImpl::encodeChooser(const TYPE& value,
+                                  bdeat_TypeCategory::Choice)
+{
+    return encodeChoice(value);
+}
+
+template <typename TYPE>
+inline
+int baejsn_Encoder_EncodeImpl::encodeChooser(const TYPE& value,
+                                  bdeat_TypeCategory::Enumeration)
+{
+    return encodeEnumeration(value);
+}
+
+template <typename TYPE>
+inline
+int baejsn_Encoder_EncodeImpl::encodeChooser(const TYPE& value,
+                                  bdeat_TypeCategory::CustomizedType)
+{
+    return encodeCustomized(value);
+}
+
+template <typename TYPE>
+inline
+int baejsn_Encoder_EncodeImpl::encodeChooser(const TYPE& value,
+                                  bdeat_TypeCategory::DynamicType)
+{
+    baejsn_Encoder_DynamicTypeChooser proxy = { this };
+    return bdeat_TypeCategoryUtil::accessByCategory(value, proxy);
+}
+
+
+template <typename TYPE>
+inline
+int baejsn_Encoder_EncodeImpl::encodeChooser(const TYPE& value,
+                                  bdeat_TypeCategory::Simple)
+{
+    return encodeSimple(value);
+}
+
+template <typename TYPE>
+inline
+int baejsn_Encoder_EncodeImpl::encodeChooser(const TYPE& value,
+                                  bdeat_TypeCategory::Array)
+{
+    return encodeArray(value);
+}
+
+template <typename TYPE>
+inline
+int baejsn_Encoder_EncodeImpl::encodeChooser(const TYPE& value,
+                                  bdeat_TypeCategory::NullableValue)
+{
+    return encodeNullable(value);
+}
+
+template <typename TYPE>
+inline
+int baejsn_Encoder_EncodeImpl::encode(const TYPE& value)
+{
+    typedef typename
+    bdeat_TypeCategory::Select<TYPE>::Type TypeCategory;
+    return encodeChooser(value, TypeCategory());
 }
 
                     // -------------------------------------
                     // struct baejsn_Encoder_SequenceVisitor
                     // -------------------------------------
 
+// PRIVATE CLASS METHODS
+template <class TYPE>
+inline
+bool baejsn_Encoder_SequenceVisitor::isAttributeNull(const TYPE&,
+                                                     bslmf::MetaInt<0>)
+{
+    return false;
+}
+
+template <class TYPE>
+inline
+bool baejsn_Encoder_SequenceVisitor::isAttributeNull(const TYPE& value,
+                                                     bslmf::MetaInt<1>)
+{
+    if (bdeat_TypeCategory::BDEAT_NULLABLE_VALUE_CATEGORY ==
+                              bdeat_TypeCategoryFunctions::select(value)) {
+        return bdeat_NullableValueFunctions::isNull(value);           // RETURN
+    }
+    return false;
+}
+
+template <class TYPE>
+inline
+bool baejsn_Encoder_SequenceVisitor::isAttributeNull(const TYPE& value)
+{
+    return isAttributeNull(value,
+                           bslmf::MetaInt<bdeat_NullableValueFunctions
+                                        ::IsNullableValue<TYPE>::VALUE>());
+}
+
+// CREATORS
 inline
 baejsn_Encoder_SequenceVisitor::baejsn_Encoder_SequenceVisitor(
-                                                       baejsn_Encoder *encoder)
+                                            baejsn_Encoder_EncodeImpl *encoder)
 : d_encoder(encoder)
 , d_firstPassFlag(true)
 {
 }
 
+// MANIPULATORS
 template <typename TYPE, typename ATTRIBUTE_OR_SELECTION>
 inline
-int baejsn_Encoder_SequenceVisitor::operator()(const TYPE &value,
-                                               const ATTRIBUTE_OR_SELECTION &info)
+int baejsn_Encoder_SequenceVisitor::operator()(
+                                           const TYPE&                   value,
+                                           const ATTRIBUTE_OR_SELECTION& info)
 {
-    if (!d_firstPassFlag) {
-        d_encoder->encode(',');
-    }
-    d_encoder->encode(info.name());
-    d_encoder->d_outputStream << ':';
-    d_encoder->encode(value);
+    // Determine if 'value' is null and do not encode 'value' if it is.
 
-    // TBD: Check return value of encode before setting d_firstPassFlag.
-    d_firstPassFlag = true;
+    if (isAttributeNull(value)) {
+        return 0;                                                     // RETURN
+    }
+
+    if (!d_firstPassFlag) {
+        d_encoder->outputStream() << ',';
+    }
+    int rc = d_encoder->encode(info.name());
+    if (0 != rc) {
+        d_encoder->logStream()
+            << "Unable to encode the name of the attribute '"
+            << info.name()
+            << "'."
+            << bsl::endl;
+        return -1;                                                    // RETURN
+    }
+    d_encoder->outputStream() << ':';
+    rc = d_encoder->encode(value);
+    if (0 != rc) {
+        d_encoder->logStream()
+            << "Unable to encode the value of the attribute '"
+            << info.name()
+            << "'."
+            << bsl::endl;
+        return -1;                                                    // RETURN
+    }
+
+    d_firstPassFlag = false;
 
     return 0;
 }
@@ -604,33 +918,35 @@ int baejsn_Encoder_ElementVisitor::operator()(const TYPE &value)
 
 template <typename TYPE, typename ATTRIBUTE_OR_SELECTION>
 inline
-int baejsn_Encoder_ElementVisitor::operator()(const TYPE &value,
-                                              const ATTRIBUTE_OR_SELECTION &info)
+int baejsn_Encoder_ElementVisitor::operator()(
+                                            const TYPE&                   value,
+                                            const ATTRIBUTE_OR_SELECTION& info)
 {
     d_encoder->encode(info.name());
-    d_encoder->d_outputStream << ':';
+    d_encoder->outputStream() << ':';
     d_encoder->encode(value);
 
     return 0;
 }
 
-                    // ------------------------------------
-                    // struct baejsn_Encoder_EncodeImpProxy
-                    // ------------------------------------
+                    // -----------------------------------------
+                    // struct baejsn_Encoder_DynamicTypeChooser
+                    // -----------------------------------------
 
 // MANIPULATORS
 template <typename TYPE>
 inline
-int baejsn_Encoder_EncodeImpProxy::operator()(const TYPE&, bslmf_Nil)
+int baejsn_Encoder_DynamicTypeChooser::operator()(const TYPE&, bslmf_Nil)
 {
-    BSLS_ASSERT_SAFE(0);
+    BSLS_ASSERT_OPT(!"Should be unreachable");
+
     return -1;
 }
 
 template <typename TYPE, typename ANY_CATEGORY>
 inline
-int baejsn_Encoder_EncodeImpProxy::operator()(const TYPE&  object,
-                                              ANY_CATEGORY category)
+int baejsn_Encoder_DynamicTypeChooser::operator()(const TYPE&  object,
+                                                   ANY_CATEGORY category)
 {
     d_encoder->encodeChooser(object, category);
     return 0;
