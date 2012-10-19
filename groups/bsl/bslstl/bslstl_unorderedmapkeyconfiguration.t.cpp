@@ -2,6 +2,8 @@
 #include <bslstl_unorderedmapkeyconfiguration.h>
 
 #include <bslmf_isconst.h>
+#include <bslmf_issame.h>
+#include <bslmf_removecv.h>
 
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
@@ -98,6 +100,18 @@ bool isConstObject(TYPE&)
     return bsl::is_const<TYPE>::value;
 }
 
+template <typename CONFIGURED_TYPE>
+struct IsSameType {
+    template <typename OBJECT_TYPE>
+    bool operator ()(const OBJECT_TYPE&) const
+    {
+        typedef typename bsl::remove_cv<CONFIGURED_TYPE>::type  CT;
+        typedef typename bsl::remove_cv<OBJECT_TYPE>::type      OT;
+
+        return bsl::is_same<CT, OT>::value;
+    }
+};
+
 //=============================================================================
 //                             USAGE EXAMPLE
 //-----------------------------------------------------------------------------
@@ -185,7 +199,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:
-      case 3: {
+      case 4: {
         // --------------------------------------------------------------------
         // USAGE
         //
@@ -350,9 +364,55 @@ int main(int argc, char *argv[])
 //  Eric   15.00
 //..
       } break;
+      case 3: {
+        // --------------------------------------------------------------------
+        // TESTING RESULT HAS EXPECTED TYPE
+        //
+        // Concern:
+        //   That the result of 'extractKey' is always the same type (except
+        //   for cv qualifiers) as passed type:
+        //
+        // Plan:
+        //   Use the 'isSameType' method defined above to verify this.
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("TESTING RESULT IS CONST\n"
+                            "=======================\n");
+
+        typedef MyPair<int, double> IntDoublePr;
+
+        int i;
+
+        ASSERT(1 == IsSameType<int>()(i));
+
+        const int j = 4;
+
+        ASSERT(1 == IsSameType<int>()(j));
+
+        FILE file;
+
+        ASSERT(1 == IsSameType<FILE>()(file));
+        ASSERT(0 == IsSameType<int >()(file));
+
+        const FILE cFile = file;
+
+        ASSERT(1 == IsSameType<FILE>()(cFile));
+        ASSERT(0 == IsSameType<int >()(cFile));
+
+        IntDoublePr pr = { 3, 4.7 };    const IntDoublePr& PR = pr;
+
+        ASSERT(1 == IsSameType<int>()(
+           bslstl::UnorderedMapKeyConfiguration<IntDoublePr>::extractKey(pr)));
+        ASSERT(1 == IsSameType<int>()(
+           bslstl::UnorderedMapKeyConfiguration<IntDoublePr>::extractKey(PR)));
+        ASSERT(0 == IsSameType<IntDoublePr>()(
+           bslstl::UnorderedMapKeyConfiguration<IntDoublePr>::extractKey(pr)));
+        ASSERT(0 == IsSameType<double>()(
+           bslstl::UnorderedMapKeyConfiguration<IntDoublePr>::extractKey(PR)));
+      } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING RESULT IS CONST
+        // TESTING 'KeyType, 'ValueType', RESULT IS CONST
         //
         // Concern:
         //   That the result of 'extractKey' is always a const value.
@@ -361,8 +421,22 @@ int main(int argc, char *argv[])
         //   Use the 'isConstObject' method defined above to verify this.
         // --------------------------------------------------------------------
 
-        if (verbose) printf("TESTING RESULT IS CONST\n"
-                            "=======================\n");
+        if (verbose) printf(
+                           "TESTING 'KeyType, 'ValueType', RESULT IS CONST\n"
+                           "==============================================\n");
+
+        typedef MyPair<int, FILE> IntFilePr;
+
+        typedef bslstl::UnorderedMapKeyConfiguration<IntFilePr>::KeyType   KT;
+        typedef bslstl::UnorderedMapKeyConfiguration<IntFilePr>::ValueType VT;
+
+        // TBD: Should 'KeyType' be const?  It's not.
+
+        ASSERT(0 == bsl::is_const<KT>::value);
+        ASSERT(0 == bsl::is_const<VT>::value);
+
+        ASSERT(1 == (bsl::is_same<int,       KT>::value));
+        ASSERT(1 == (bsl::is_same<IntFilePr, VT>::value));
 
         typedef MyPair<int, int> IntPair;
 
