@@ -1,6 +1,10 @@
 // baejsn_encoder.cpp                                                 -*-C++-*-
 #include <baejsn_encoder.h>
-#include <baejsn_decoder.h>  // for testing only
+
+#include <bdes_ident.h>
+BDES_IDENT_RCSID(baetzo_localtimedescriptor_cpp,"$Id$ $CSID$")
+
+#include <bdede_base64encoder.h>
 
 namespace BloombergLP {
 

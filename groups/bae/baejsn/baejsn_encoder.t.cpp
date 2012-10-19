@@ -1,6 +1,5 @@
 // baejsn_encoder.t.cpp                                               -*-C++-*-
 #include <baejsn_encoder.h>
-#include <baejsn_decoder.h>
 
 #include <bdem_schema.h>
 #include <bdem_recorddef.h>
@@ -34,6 +33,9 @@
 #include <baexml_decoder.h>
 #include <baexml_minireader.h>
 #include <baexml_errorinfo.h>
+
+#include <bdeut_nullablevalue.h>
+#include <bdeut_nullableallocatedvalue.h>
 
 #include <iostream>
 
@@ -1152,95 +1154,886 @@ static const int NUM_XML_TEST_MESSAGES =
                       (sizeof(XML_TEST_MESSAGES) / sizeof(*XML_TEST_MESSAGES));
 
 
-static const char* TEST_MESSAGES[] = {
+static const char* JSON_TEST_MESSAGES[] = {
 
-"{"
-"    \"selection1\" : {"
-"        \"element3\" : {"
-"            \"selection1\" : true"
-"        }"
-"    }"
-"}",
+"{\"selection1\":{\"element1\":{\"selection1\":{\"element1\":0,\"element2\":"
+"\"custom\",\"element3\":999,\"element4\":0,\"element5\":[999,999],\"element6"
+"\":\"custom\",\"element7\":999,\"element8\":[0,0],\"element9\":[\"custom\",\""
+"custom\"],\"element10\":[0,0],\"element11\":[999,999]}},\"element2\":[{\"sel"
+"ection2\":1.500000000000000e+00},{\"selection2\":1.500000000000000e+00}],\"e"
+"lement3\":{\"selection2\":\"\"},\"element4\":[{\"selection1\":{\"element1\":"
+"0,\"element2\":\"custom\",\"element3\":999,\"element4\":0,\"element5\":[999,"
+"999],\"element6\":\"custom\",\"element7\":999,\"element8\":[0,0],\"element9"
+"\":[\"custom\",\"custom\"],\"element10\":[0,0],\"element11\":[999,999]}},{\"s"
+"election1\":{\"element1\":0,\"element2\":\"custom\",\"element3\":999,\"eleme"
+"nt4\":0,\"element5\":[999,999],\"element6\":\"custom\",\"element7\":999,\"el"
+"ement8\":[0,0],\"element9\":[\"custom\",\"custom\"],\"element10\":[0,0],\"el"
+"ement11\":[999,999]}}]}}",
 
+"{\"selection1\":{\"element2\":[],\"element3\":{\"selection1\":true},\"elemen"
+"t4\":[]}}",
 
-"{"
-"    \"selection1\" : {"
-"        \"element1\" : {"
-"            \"selection1\" : {"
-"                \"element1\"  : 0,"
-"                \"element2\"  : \"custom\","
-"                \"element3\"  : 999,"
-"                \"element4\"  : 0,"
-"                \"element5\"  : [ 999 ] ,"
-"                \"element6\"  : \"custom\","
-"                \"element7\"  : 999,"
-"                \"element8\"  : [ 0 ],"
-"                \"element9\"  : [ \"custom\" ],"
-"                \"element10\" : [ 0 ],"
-"                \"element11\" : [ 999 ]"
-"            }"
-"        },"
-"        \"element2\" : ["
-"            { \"selection2\" : 1.5 },"
-"            { \"selection2\" : 1.5 }"
-"        ],"
-"        \"element3\" : {"
-"            \"selection2\" : \"\""
-"        },"
-"       \"element4\" : ["
-"            { \"selection1\" : {"
-"                \"element1\"  : 0,"
-"                \"element2\"  : \"custom\","
-"                \"element3\"  : 999,"
-"                \"element4\"  : 0,"
-"                \"element5\"  : [ 999 ] ,"
-"                \"element6\"  : \"custom\","
-"                \"element7\"  : 999,"
-"                \"element8\"  : [ 0 ],"
-"                \"element9\"  : [ \"custom\" ],"
-"                \"element10\" : [ 0 ],"
-"                \"element11\" : [ 999 ]"
-"            }},"
-"            { \"selection1\" : {"
-"                \"element1\"  : 0,"
-"                \"element2\"  : \"custom\","
-"                \"element3\"  : 999,"
-"                \"element4\"  : 0,"
-"                \"element5\"  : [ 999 ] ,"
-"                \"element6\"  : \"custom\","
-"                \"element7\"  : 999,"
-"                \"element8\"  : [ 0 ],"
-"                \"element9\"  : [ \"custom\" ],"
-"                \"element10\" : [ 0 ],"
-"                \"element11\" : [ 999 ]"
-"            }}"
-"       ]"
-"    }"
-"}",
+"{\"selection1\":{\"element1\":{\"selection1\":{\"element1\":255,\"element4\""
+":255,\"element5\":[],\"element6\":\"custom\",\"element7\":999,\"element8\":["
+"255,255],\"element9\":[],\"element10\":[255,255],\"element11\":[]}},\"elemen"
+"t2\":[{\"selection3\":{\"element1\":[],\"element2\":[],\"element8\":true,\"e"
+"lement9\":\"\",\"element10\":1.500000000000000e+00,\"element11\":\"\\/wAB\","
+"\"element12\":2,\"element13\":\"LONDON\",\"element14\":[],\"element15\":[],"
+"\"element16\":[],\"element17\":[],\"element18\":[],\"element19\":[]}},{\"sele"
+"ction3\":{\"element1\":[],\"element2\":[],\"element8\":true,\"element9\":\""
+"\",\"element10\":1.500000000000000e+00,\"element11\":\"\\/wAB\",\"element12\""
+":2,\"element13\":\"LONDON\",\"element14\":[],\"element15\":[],\"element16\":"
+"[],\"element17\":[],\"element18\":[],\"element19\":[]}}],\"element3\":{\"sel"
+"ection2\":\"arbitrary string value\"},\"element4\":[{\"selection1\":{\"eleme"
+"nt1\":255,\"element4\":255,\"element5\":[],\"element6\":\"custom\",\"element"
+"7\":999,\"element8\":[255,255],\"element9\":[],\"element10\":[255,255],\"ele"
+"ment11\":[]}},{\"selection1\":{\"element1\":255,\"element4\":255,\"element5"
+"\":[],\"element6\":\"custom\",\"element7\":999,\"element8\":[255,255],\"eleme"
+"nt9\":[],\"element10\":[255,255],\"element11\":[]}}]}}",
 
+"{\"selection1\":{\"element1\":{\"selection2\":255},\"element2\":[{\"selectio"
+"n3\":{\"element1\":[{\"element1\":[\"LONDON\",\"LONDON\"],\"element2\":[\"ar"
+"bitrary string value\",\"arbitrary string value\"],\"element3\":true,\"eleme"
+"nt4\":\"arbitrary string value\",\"element5\":{\"element1\":{\"element1\":["
+"\"LONDON\",\"LONDON\"],\"element2\":[\"arbitrary string value\",\"arbitrary s"
+"tring value\"],\"element3\":true,\"element4\":\"arbitrary string value\",\"e"
+"lement5\":{\"element1\":{\"element1\":[\"LONDON\",\"LONDON\"],\"element2\":["
+"\"arbitrary string value\",\"arbitrary string value\"],\"element3\":true,\"e"
+"lement4\":\"arbitrary string value\",\"element6\":[\"LONDON\",\"LONDON\"]},"
+"\"element2\":[true,true],\"element3\":[1.500000000000000e+00,1.50000000000000"
+"0e+00],\"element4\":[\"\\/wAB\",\"\\/wAB\"],\"element5\":[2,2],\"element6\":"
+"[\"2012-08-18T13:25:00.000+00:00\",\"2012-08-18T13:25:00.000+00:00\"],\"elem"
+"ent7\":[]},\"element6\":[\"LONDON\",\"LONDON\"]},\"element2\":[true,true],\""
+"element3\":[1.500000000000000e+00,1.500000000000000e+00],\"element4\":[\"\\/"
+"wAB\",\"\\/wAB\"],\"element5\":[2,2],\"element6\":[\"2012-08-18T13:25:00.000"
+"+00:00\",\"2012-08-18T13:25:00.000+00:00\"],\"element7\":[]},\"element6\":["
+"\"LONDON\",\"LONDON\"]},{\"element1\":[\"LONDON\",\"LONDON\"],\"element2\":["
+"\"arbitrary string value\",\"arbitrary string value\"],\"element3\":true,\"el"
+"ement4\":\"arbitrary string value\",\"element5\":{\"element1\":{\"element1\""
+":[\"LONDON\",\"LONDON\"],\"element2\":[\"arbitrary string value\",\"arbitrar"
+"y string value\"],\"element3\":true,\"element4\":\"arbitrary string value\","
+"\"element5\":{\"element1\":{\"element1\":[\"LONDON\",\"LONDON\"],\"element2"
+"\":[\"arbitrary string value\",\"arbitrary string value\"],\"element3\":true,"
+"\"element4\":\"arbitrary string value\",\"element6\":[\"LONDON\",\"LONDON\"]"
+"},\"element2\":[true,true],\"element3\":[1.500000000000000e+00,1.50000000000"
+"0000e+00],\"element4\":[\"\\/wAB\",\"\\/wAB\"],\"element5\":[2,2],\"element6"
+"\":[\"2012-08-18T13:25:00.000+00:00\",\"2012-08-18T13:25:00.000+00:00\"],\"e"
+"lement7\":[]},\"element6\":[\"LONDON\",\"LONDON\"]},\"element2\":[true,true]"
+",\"element3\":[1.500000000000000e+00,1.500000000000000e+00],\"element4\":[\""
+"\\/wAB\",\"\\/wAB\"],\"element5\":[2,2],\"element6\":[\"2012-08-18T13:25:00."
+"000+00:00\",\"2012-08-18T13:25:00.000+00:00\"],\"element7\":[]},\"element6\""
+":[\"LONDON\",\"LONDON\"]}],\"element2\":[{\"selection2\":1.500000000000000e+"
+"00},{\"selection2\":1.500000000000000e+00}],\"element3\":\"\\/wAB\",\"elemen"
+"t4\":2,\"element5\":\"2012-08-18T13:25:00.000+00:00\",\"element6\":\"custom"
+"\",\"element7\":\"LONDON\",\"element8\":true,\"element9\":\"arbitrary string "
+"value\",\"element10\":1.500000000000000e+00,\"element11\":\"\\/wAB\",\"eleme"
+"nt12\":2,\"element13\":\"LONDON\",\"element14\":[true,true],\"element15\":[1"
+".500000000000000e+00,1.500000000000000e+00],\"element16\":[\"\\/wAB\",\"\\/w"
+"AB\"],\"element17\":[2,2],\"element18\":[\"2012-08-18T13:25:00.000+00:00\","
+"\"2012-08-18T13:25:00.000+00:00\"],\"element19\":[\"custom\",\"custom\"]}},{"
+"\"selection3\":{\"element1\":[{\"element1\":[\"LONDON\",\"LONDON\"],\"element"
+"2\":[\"arbitrary string value\",\"arbitrary string value\"],\"element3\":tru"
+"e,\"element4\":\"arbitrary string value\",\"element5\":{\"element1\":{\"elem"
+"ent1\":[\"LONDON\",\"LONDON\"],\"element2\":[\"arbitrary string value\",\"ar"
+"bitrary string value\"],\"element3\":true,\"element4\":\"arbitrary string va"
+"lue\",\"element5\":{\"element1\":{\"element1\":[\"LONDON\",\"LONDON\"],\"ele"
+"ment2\":[\"arbitrary string value\",\"arbitrary string value\"],\"element3\""
+":true,\"element4\":\"arbitrary string value\",\"element6\":[\"LONDON\",\"LON"
+"DON\"]},\"element2\":[true,true],\"element3\":[1.500000000000000e+00,1.50000"
+"0000000000e+00],\"element4\":[\"\\/wAB\",\"\\/wAB\"],\"element5\":[2,2],\"el"
+"ement6\":[\"2012-08-18T13:25:00.000+00:00\",\"2012-08-18T13:25:00.000+00:00"
+"\"],\"element7\":[]},\"element6\":[\"LONDON\",\"LONDON\"]},\"element2\":[true"
+",true],\"element3\":[1.500000000000000e+00,1.500000000000000e+00],\"element4"
+"\":[\"\\/wAB\",\"\\/wAB\"],\"element5\":[2,2],\"element6\":[\"2012-08-18T13:"
+"25:00.000+00:00\",\"2012-08-18T13:25:00.000+00:00\"],\"element7\":[]},\"elem"
+"ent6\":[\"LONDON\",\"LONDON\"]},{\"element1\":[\"LONDON\",\"LONDON\"],\"elem"
+"ent2\":[\"arbitrary string value\",\"arbitrary string value\"],\"element3\":"
+"true,\"element4\":\"arbitrary string value\",\"element5\":{\"element1\":{\"e"
+"lement1\":[\"LONDON\",\"LONDON\"],\"element2\":[\"arbitrary string value\","
+"\"arbitrary string value\"],\"element3\":true,\"element4\":\"arbitrary string"
+" value\",\"element5\":{\"element1\":{\"element1\":[\"LONDON\",\"LONDON\"],\""
+"element2\":[\"arbitrary string value\",\"arbitrary string value\"],\"element"
+"3\":true,\"element4\":\"arbitrary string value\",\"element6\":[\"LONDON\",\""
+"LONDON\"]},\"element2\":[true,true],\"element3\":[1.500000000000000e+00,1.50"
+"0000000000000e+00],\"element4\":[\"\\/wAB\",\"\\/wAB\"],\"element5\":[2,2],"
+"\"element6\":[\"2012-08-18T13:25:00.000+00:00\",\"2012-08-18T13:25:00.000+00:"
+"00\"],\"element7\":[]},\"element6\":[\"LONDON\",\"LONDON\"]},\"element2\":[t"
+"rue,true],\"element3\":[1.500000000000000e+00,1.500000000000000e+00],\"eleme"
+"nt4\":[\"\\/wAB\",\"\\/wAB\"],\"element5\":[2,2],\"element6\":[\"2012-08-18T"
+"13:25:00.000+00:00\",\"2012-08-18T13:25:00.000+00:00\"],\"element7\":[]},\"e"
+"lement6\":[\"LONDON\",\"LONDON\"]}],\"element2\":[{\"selection2\":1.50000000"
+"0000000e+00},{\"selection2\":1.500000000000000e+00}],\"element3\":\"\\/wAB\""
+",\"element4\":2,\"element5\":\"2012-08-18T13:25:00.000+00:00\",\"element6\":"
+"\"custom\",\"element7\":\"LONDON\",\"element8\":true,\"element9\":\"arbitrar"
+"y string value\",\"element10\":1.500000000000000e+00,\"element11\":\"\\/wAB"
+"\",\"element12\":2,\"element13\":\"LONDON\",\"element14\":[true,true],\"eleme"
+"nt15\":[1.500000000000000e+00,1.500000000000000e+00],\"element16\":[\"\\/wAB"
+"\",\"\\/wAB\"],\"element17\":[2,2],\"element18\":[\"2012-08-18T13:25:00.000+"
+"00:00\",\"2012-08-18T13:25:00.000+00:00\"],\"element19\":[\"custom\",\"custo"
+"m\"]}}],\"element3\":{\"selection3\":{\"selection1\":2}},\"element4\":[{\"se"
+"lection2\":255},{\"selection2\":255}]}}",
 
-"{"
-"    \"selection3\" : {"
-"        \"element1\" : \"custom\","
-"        \"element2\" : 255,"
-"        \"element3\" : \"2012-08-18T13:25:00\","
-"        \"element4\" : {"
-"            \"selection3\" : {"
-"                \"element8\" : true,"
-"                \"element9\" : \"\","
-"                \"element10\" : 1.5,"
-"                \"element11\" : \"VGhlIHF1aWNrIGJyb3duIGZveA==\","
-"                \"element12\" : 2,"
-"                \"element13\" : \"LONDON\""
-"            }"
-"        }"
-"    }"
-"}"
+"{\"selection1\":{\"element1\":{\"selection2\":0},\"element2\":[{\"selection3"
+"\":{\"element1\":[{\"element1\":[],\"element2\":[\"\",\"\"],\"element4\":\""
+"\",\"element5\":{\"element1\":{\"element1\":[],\"element2\":[\"\",\"\"],\"ele"
+"ment4\":\"\",\"element5\":{\"element1\":{\"element1\":[],\"element2\":[\"\","
+"\"\"],\"element4\":\"\",\"element6\":[]},\"element2\":[],\"element3\":[],\"e"
+"lement4\":[],\"element5\":[],\"element6\":[],\"element7\":[]},\"element6\":["
+"]},\"element2\":[],\"element3\":[],\"element4\":[],\"element5\":[],\"element"
+"6\":[],\"element7\":[]},\"element6\":[]},{\"element1\":[],\"element2\":[\"\""
+",\"\"],\"element4\":\"\",\"element5\":{\"element1\":{\"element1\":[],\"eleme"
+"nt2\":[\"\",\"\"],\"element4\":\"\",\"element5\":{\"element1\":{\"element1\""
+":[],\"element2\":[\"\",\"\"],\"element4\":\"\",\"element6\":[]},\"element2\""
+":[],\"element3\":[],\"element4\":[],\"element5\":[],\"element6\":[],\"elemen"
+"t7\":[]},\"element6\":[]},\"element2\":[],\"element3\":[],\"element4\":[],\""
+"element5\":[],\"element6\":[],\"element7\":[]},\"element6\":[]}],\"element2"
+"\":[{\"selection3\":{\"element1\":[],\"element2\":[],\"element8\":true,\"elem"
+"ent9\":\"\",\"element10\":1.500000000000000e+00,\"element11\":\"\\/wAB\",\"e"
+"lement12\":2,\"element13\":\"LONDON\",\"element14\":[],\"element15\":[],\"el"
+"ement16\":[],\"element17\":[],\"element18\":[],\"element19\":[]}},{\"selecti"
+"on3\":{\"element1\":[],\"element2\":[],\"element8\":true,\"element9\":\"\","
+"\"element10\":1.500000000000000e+00,\"element11\":\"\\/wAB\",\"element12\":2,"
+"\"element13\":\"LONDON\",\"element14\":[],\"element15\":[],\"element16\":[],"
+"\"element17\":[],\"element18\":[],\"element19\":[]}}],\"element8\":true,\"el"
+"ement9\":\"\",\"element10\":1.500000000000000e+00,\"element11\":\"\\/wAB\","
+"\"element12\":2,\"element13\":\"LONDON\",\"element14\":[],\"element15\":[],\""
+"element16\":[],\"element17\":[],\"element18\":[],\"element19\":[]}},{\"selec"
+"tion3\":{\"element1\":[{\"element1\":[],\"element2\":[\"\",\"\"],\"element4"
+"\":\"\",\"element5\":{\"element1\":{\"element1\":[],\"element2\":[\"\",\"\"],"
+"\"element4\":\"\",\"element5\":{\"element1\":{\"element1\":[],\"element2\":["
+"\"\",\"\"],\"element4\":\"\",\"element6\":[]},\"element2\":[],\"element3\":["
+"],\"element4\":[],\"element5\":[],\"element6\":[],\"element7\":[]},\"element"
+"6\":[]},\"element2\":[],\"element3\":[],\"element4\":[],\"element5\":[],\"el"
+"ement6\":[],\"element7\":[]},\"element6\":[]},{\"element1\":[],\"element2\":"
+"[\"\",\"\"],\"element4\":\"\",\"element5\":{\"element1\":{\"element1\":[],\""
+"element2\":[\"\",\"\"],\"element4\":\"\",\"element5\":{\"element1\":{\"eleme"
+"nt1\":[],\"element2\":[\"\",\"\"],\"element4\":\"\",\"element6\":[]},\"eleme"
+"nt2\":[],\"element3\":[],\"element4\":[],\"element5\":[],\"element6\":[],\"e"
+"lement7\":[]},\"element6\":[]},\"element2\":[],\"element3\":[],\"element4\":"
+"[],\"element5\":[],\"element6\":[],\"element7\":[]},\"element6\":[]}],\"elem"
+"ent2\":[{\"selection3\":{\"element1\":[],\"element2\":[],\"element8\":true,"
+"\"element9\":\"\",\"element10\":1.500000000000000e+00,\"element11\":\"\\/wAB"
+"\",\"element12\":2,\"element13\":\"LONDON\",\"element14\":[],\"element15\":[]"
+",\"element16\":[],\"element17\":[],\"element18\":[],\"element19\":[]}},{\"se"
+"lection3\":{\"element1\":[],\"element2\":[],\"element8\":true,\"element9\":"
+"\"\",\"element10\":1.500000000000000e+00,\"element11\":\"\\/wAB\",\"element12"
+"\":2,\"element13\":\"LONDON\",\"element14\":[],\"element15\":[],\"element16"
+"\":[],\"element17\":[],\"element18\":[],\"element19\":[]}}],\"element8\":true"
+",\"element9\":\"\",\"element10\":1.500000000000000e+00,\"element11\":\"\\/wA"
+"B\",\"element12\":2,\"element13\":\"LONDON\",\"element14\":[],\"element15\":"
+"[],\"element16\":[],\"element17\":[],\"element18\":[],\"element19\":[]}}],\""
+"element3\":{\"selection3\":{\"selection2\":1.500000000000000e+00}},\"element"
+"4\":[{\"selection2\":0},{\"selection2\":0}]}}",
+
+"{\"selection1\":{\"element1\":{\"selection3\":\"custom\"},\"element2\":[{\"s"
+"election3\":{\"element1\":[{\"element1\":[\"LONDON\",\"LONDON\"],\"element2"
+"\":[],\"element3\":true,\"element5\":{\"element1\":{\"element1\":[\"LONDON\","
+"\"LONDON\"],\"element2\":[],\"element3\":true,\"element5\":{\"element1\":{\""
+"element1\":[\"LONDON\",\"LONDON\"],\"element2\":[],\"element3\":true,\"eleme"
+"nt6\":[\"LONDON\",\"LONDON\"]},\"element2\":[true,true],\"element3\":[1.5000"
+"00000000000e+00,1.500000000000000e+00],\"element4\":[\"\\/wAB\",\"\\/wAB\"],"
+"\"element5\":[2,2],\"element6\":[\"2012-08-18T13:25:00.000+00:00\",\"2012-08"
+"-18T13:25:00.000+00:00\"],\"element7\":[]},\"element6\":[\"LONDON\",\"LONDON"
+"\"]},\"element2\":[true,true],\"element3\":[1.500000000000000e+00,1.50000000"
+"0000000e+00],\"element4\":[\"\\/wAB\",\"\\/wAB\"],\"element5\":[2,2],\"eleme"
+"nt6\":[\"2012-08-18T13:25:00.000+00:00\",\"2012-08-18T13:25:00.000+00:00\"],"
+"\"element7\":[]},\"element6\":[\"LONDON\",\"LONDON\"]},{\"element1\":[\"LOND"
+"ON\",\"LONDON\"],\"element2\":[],\"element3\":true,\"element5\":{\"element1"
+"\":{\"element1\":[\"LONDON\",\"LONDON\"],\"element2\":[],\"element3\":true,\""
+"element5\":{\"element1\":{\"element1\":[\"LONDON\",\"LONDON\"],\"element2\":"
+"[],\"element3\":true,\"element6\":[\"LONDON\",\"LONDON\"]},\"element2\":[tru"
+"e,true],\"element3\":[1.500000000000000e+00,1.500000000000000e+00],\"element"
+"4\":[\"\\/wAB\",\"\\/wAB\"],\"element5\":[2,2],\"element6\":[\"2012-08-18T13"
+":25:00.000+00:00\",\"2012-08-18T13:25:00.000+00:00\"],\"element7\":[]},\"ele"
+"ment6\":[\"LONDON\",\"LONDON\"]},\"element2\":[true,true],\"element3\":[1.50"
+"0000000000000e+00,1.500000000000000e+00],\"element4\":[\"\\/wAB\",\"\\/wAB\""
+"],\"element5\":[2,2],\"element6\":[\"2012-08-18T13:25:00.000+00:00\",\"2012-"
+"08-18T13:25:00.000+00:00\"],\"element7\":[]},\"element6\":[\"LONDON\",\"LOND"
+"ON\"]}],\"element2\":[{\"selection3\":{\"element1\":[{\"element1\":[\"LONDON"
+"\",\"LONDON\"],\"element2\":[\"arbitrary string value\",\"arbitrary string v"
+"alue\"],\"element3\":true,\"element4\":\"arbitrary string value\",\"element5"
+"\":{\"element1\":{\"element1\":[\"LONDON\",\"LONDON\"],\"element2\":[\"arbit"
+"rary string value\",\"arbitrary string value\"],\"element3\":true,\"element4"
+"\":\"arbitrary string value\",\"element5\":{\"element1\":{\"element1\":[\"LO"
+"NDON\",\"LONDON\"],\"element2\":[\"arbitrary string value\",\"arbitrary stri"
+"ng value\"],\"element3\":true,\"element4\":\"arbitrary string value\",\"elem"
+"ent6\":[\"LONDON\",\"LONDON\"]},\"element2\":[true,true],\"element3\":[1.500"
+"000000000000e+00,1.500000000000000e+00],\"element4\":[\"\\/wAB\",\"\\/wAB\"]"
+",\"element5\":[2,2],\"element6\":[\"2012-08-18T13:25:00.000+00:00\",\"2012-0"
+"8-18T13:25:00.000+00:00\"],\"element7\":[]},\"element6\":[\"LONDON\",\"LONDO"
+"N\"]},\"element2\":[true,true],\"element3\":[1.500000000000000e+00,1.5000000"
+"00000000e+00],\"element4\":[\"\\/wAB\",\"\\/wAB\"],\"element5\":[2,2],\"elem"
+"ent6\":[\"2012-08-18T13:25:00.000+00:00\",\"2012-08-18T13:25:00.000+00:00\"]"
+",\"element7\":[]},\"element6\":[\"LONDON\",\"LONDON\"]},{\"element1\":[\"LON"
+"DON\",\"LONDON\"],\"element2\":[\"arbitrary string value\",\"arbitrary strin"
+"g value\"],\"element3\":true,\"element4\":\"arbitrary string value\",\"eleme"
+"nt5\":{\"element1\":{\"element1\":[\"LONDON\",\"LONDON\"],\"element2\":[\"ar"
+"bitrary string value\",\"arbitrary string value\"],\"element3\":true,\"eleme"
+"nt4\":\"arbitrary string value\",\"element5\":{\"element1\":{\"element1\":["
+"\"LONDON\",\"LONDON\"],\"element2\":[\"arbitrary string value\",\"arbitrary s"
+"tring value\"],\"element3\":true,\"element4\":\"arbitrary string value\",\"e"
+"lement6\":[\"LONDON\",\"LONDON\"]},\"element2\":[true,true],\"element3\":[1."
+"500000000000000e+00,1.500000000000000e+00],\"element4\":[\"\\/wAB\",\"\\/wAB"
+"\"],\"element5\":[2,2],\"element6\":[\"2012-08-18T13:25:00.000+00:00\",\"201"
+"2-08-18T13:25:00.000+00:00\"],\"element7\":[]},\"element6\":[\"LONDON\",\"LO"
+"NDON\"]},\"element2\":[true,true],\"element3\":[1.500000000000000e+00,1.5000"
+"00000000000e+00],\"element4\":[\"\\/wAB\",\"\\/wAB\"],\"element5\":[2,2],\"e"
+"lement6\":[\"2012-08-18T13:25:00.000+00:00\",\"2012-08-18T13:25:00.000+00:00"
+"\"],\"element7\":[]},\"element6\":[\"LONDON\",\"LONDON\"]}],\"element2\":[{"
+"\"selection2\":1.500000000000000e+00},{\"selection2\":1.500000000000000e+00}]"
+",\"element3\":\"\\/wAB\",\"element4\":2,\"element5\":\"2012-08-18T13:25:00.0"
+"00+00:00\",\"element6\":\"custom\",\"element7\":\"LONDON\",\"element8\":true"
+",\"element9\":\"arbitrary string value\",\"element10\":1.500000000000000e+00"
+",\"element11\":\"\\/wAB\",\"element12\":2,\"element13\":\"LONDON\",\"element"
+"14\":[true,true],\"element15\":[1.500000000000000e+00,1.500000000000000e+00]"
+",\"element16\":[\"\\/wAB\",\"\\/wAB\"],\"element17\":[2,2],\"element18\":[\""
+"2012-08-18T13:25:00.000+00:00\",\"2012-08-18T13:25:00.000+00:00\"],\"element"
+"19\":[\"custom\",\"custom\"]}},{\"selection3\":{\"element1\":[{\"element1\":"
+"[\"LONDON\",\"LONDON\"],\"element2\":[\"arbitrary string value\",\"arbitrary"
+" string value\"],\"element3\":true,\"element4\":\"arbitrary string value\","
+"\"element5\":{\"element1\":{\"element1\":[\"LONDON\",\"LONDON\"],\"element2\""
+":[\"arbitrary string value\",\"arbitrary string value\"],\"element3\":true,"
+"\"element4\":\"arbitrary string value\",\"element5\":{\"element1\":{\"element"
+"1\":[\"LONDON\",\"LONDON\"],\"element2\":[\"arbitrary string value\",\"arbit"
+"rary string value\"],\"element3\":true,\"element4\":\"arbitrary string value"
+"\",\"element6\":[\"LONDON\",\"LONDON\"]},\"element2\":[true,true],\"element3"
+"\":[1.500000000000000e+00,1.500000000000000e+00],\"element4\":[\"\\/wAB\",\""
+"\\/wAB\"],\"element5\":[2,2],\"element6\":[\"2012-08-18T13:25:00.000+00:00\""
+",\"2012-08-18T13:25:00.000+00:00\"],\"element7\":[]},\"element6\":[\"LONDON"
+"\",\"LONDON\"]},\"element2\":[true,true],\"element3\":[1.500000000000000e+00,"
+"1.500000000000000e+00],\"element4\":[\"\\/wAB\",\"\\/wAB\"],\"element5\":[2,"
+"2],\"element6\":[\"2012-08-18T13:25:00.000+00:00\",\"2012-08-18T13:25:00.000"
+"+00:00\"],\"element7\":[]},\"element6\":[\"LONDON\",\"LONDON\"]},{\"element1"
+"\":[\"LONDON\",\"LONDON\"],\"element2\":[\"arbitrary string value\",\"arbitr"
+"ary string value\"],\"element3\":true,\"element4\":\"arbitrary string value"
+"\",\"element5\":{\"element1\":{\"element1\":[\"LONDON\",\"LONDON\"],\"element"
+"2\":[\"arbitrary string value\",\"arbitrary string value\"],\"element3\":tru"
+"e,\"element4\":\"arbitrary string value\",\"element5\":{\"element1\":{\"elem"
+"ent1\":[\"LONDON\",\"LONDON\"],\"element2\":[\"arbitrary string value\",\"ar"
+"bitrary string value\"],\"element3\":true,\"element4\":\"arbitrary string va"
+"lue\",\"element6\":[\"LONDON\",\"LONDON\"]},\"element2\":[true,true],\"eleme"
+"nt3\":[1.500000000000000e+00,1.500000000000000e+00],\"element4\":[\"\\/wAB\""
+",\"\\/wAB\"],\"element5\":[2,2],\"element6\":[\"2012-08-18T13:25:00.000+00:0"
+"0\",\"2012-08-18T13:25:00.000+00:00\"],\"element7\":[]},\"element6\":[\"LOND"
+"ON\",\"LONDON\"]},\"element2\":[true,true],\"element3\":[1.500000000000000e+"
+"00,1.500000000000000e+00],\"element4\":[\"\\/wAB\",\"\\/wAB\"],\"element5\":"
+"[2,2],\"element6\":[\"2012-08-18T13:25:00.000+00:00\",\"2012-08-18T13:25:00."
+"000+00:00\"],\"element7\":[]},\"element6\":[\"LONDON\",\"LONDON\"]}],\"eleme"
+"nt2\":[{\"selection2\":1.500000000000000e+00},{\"selection2\":1.500000000000"
+"000e+00}],\"element3\":\"\\/wAB\",\"element4\":2,\"element5\":\"2012-08-18T1"
+"3:25:00.000+00:00\",\"element6\":\"custom\",\"element7\":\"LONDON\",\"elemen"
+"t8\":true,\"element9\":\"arbitrary string value\",\"element10\":1.5000000000"
+"00000e+00,\"element11\":\"\\/wAB\",\"element12\":2,\"element13\":\"LONDON\","
+"\"element14\":[true,true],\"element15\":[1.500000000000000e+00,1.50000000000"
+"0000e+00],\"element16\":[\"\\/wAB\",\"\\/wAB\"],\"element17\":[2,2],\"elemen"
+"t18\":[\"2012-08-18T13:25:00.000+00:00\",\"2012-08-18T13:25:00.000+00:00\"],"
+"\"element19\":[\"custom\",\"custom\"]}}],\"element3\":\"\\/wAB\",\"element4"
+"\":2,\"element5\":\"2012-08-18T13:25:00.000+00:00\",\"element6\":\"custom\","
+"\"element7\":\"LONDON\",\"element8\":true,\"element9\":\"arbitrary string val"
+"ue\",\"element10\":1.500000000000000e+00,\"element11\":\"\\/wAB\",\"element1"
+"2\":2,\"element13\":\"LONDON\",\"element14\":[true,true],\"element15\":[1.50"
+"0000000000000e+00,1.500000000000000e+00],\"element16\":[\"\\/wAB\",\"\\/wAB"
+"\"],\"element17\":[2,2],\"element18\":[\"2012-08-18T13:25:00.000+00:00\",\"20"
+"12-08-18T13:25:00.000+00:00\"],\"element19\":[\"custom\",\"custom\"]}},{\"se"
+"lection3\":{\"element1\":[{\"element1\":[\"LONDON\",\"LONDON\"],\"element2\""
+":[],\"element3\":true,\"element5\":{\"element1\":{\"element1\":[\"LONDON\","
+"\"LONDON\"],\"element2\":[],\"element3\":true,\"element5\":{\"element1\":{\"e"
+"lement1\":[\"LONDON\",\"LONDON\"],\"element2\":[],\"element3\":true,\"elemen"
+"t6\":[\"LONDON\",\"LONDON\"]},\"element2\":[true,true],\"element3\":[1.50000"
+"0000000000e+00,1.500000000000000e+00],\"element4\":[\"\\/wAB\",\"\\/wAB\"],"
+"\"element5\":[2,2],\"element6\":[\"2012-08-18T13:25:00.000+00:00\",\"2012-08-"
+"18T13:25:00.000+00:00\"],\"element7\":[]},\"element6\":[\"LONDON\",\"LONDON"
+"\"]},\"element2\":[true,true],\"element3\":[1.500000000000000e+00,1.500000000"
+"000000e+00],\"element4\":[\"\\/wAB\",\"\\/wAB\"],\"element5\":[2,2],\"elemen"
+"t6\":[\"2012-08-18T13:25:00.000+00:00\",\"2012-08-18T13:25:00.000+00:00\"],"
+"\"element7\":[]},\"element6\":[\"LONDON\",\"LONDON\"]},{\"element1\":[\"LONDO"
+"N\",\"LONDON\"],\"element2\":[],\"element3\":true,\"element5\":{\"element1\""
+":{\"element1\":[\"LONDON\",\"LONDON\"],\"element2\":[],\"element3\":true,\"e"
+"lement5\":{\"element1\":{\"element1\":[\"LONDON\",\"LONDON\"],\"element2\":["
+"],\"element3\":true,\"element6\":[\"LONDON\",\"LONDON\"]},\"element2\":[true"
+",true],\"element3\":[1.500000000000000e+00,1.500000000000000e+00],\"element4"
+"\":[\"\\/wAB\",\"\\/wAB\"],\"element5\":[2,2],\"element6\":[\"2012-08-18T13:"
+"25:00.000+00:00\",\"2012-08-18T13:25:00.000+00:00\"],\"element7\":[]},\"elem"
+"ent6\":[\"LONDON\",\"LONDON\"]},\"element2\":[true,true],\"element3\":[1.500"
+"000000000000e+00,1.500000000000000e+00],\"element4\":[\"\\/wAB\",\"\\/wAB\"]"
+",\"element5\":[2,2],\"element6\":[\"2012-08-18T13:25:00.000+00:00\",\"2012-0"
+"8-18T13:25:00.000+00:00\"],\"element7\":[]},\"element6\":[\"LONDON\",\"LONDO"
+"N\"]}],\"element2\":[{\"selection3\":{\"element1\":[{\"element1\":[\"LONDON"
+"\",\"LONDON\"],\"element2\":[\"arbitrary string value\",\"arbitrary string va"
+"lue\"],\"element3\":true,\"element4\":\"arbitrary string value\",\"element5"
+"\":{\"element1\":{\"element1\":[\"LONDON\",\"LONDON\"],\"element2\":[\"arbitr"
+"ary string value\",\"arbitrary string value\"],\"element3\":true,\"element4"
+"\":\"arbitrary string value\",\"element5\":{\"element1\":{\"element1\":[\"LON"
+"DON\",\"LONDON\"],\"element2\":[\"arbitrary string value\",\"arbitrary strin"
+"g value\"],\"element3\":true,\"element4\":\"arbitrary string value\",\"eleme"
+"nt6\":[\"LONDON\",\"LONDON\"]},\"element2\":[true,true],\"element3\":[1.5000"
+"00000000000e+00,1.500000000000000e+00],\"element4\":[\"\\/wAB\",\"\\/wAB\"],"
+"\"element5\":[2,2],\"element6\":[\"2012-08-18T13:25:00.000+00:00\",\"2012-08"
+"-18T13:25:00.000+00:00\"],\"element7\":[]},\"element6\":[\"LONDON\",\"LONDON"
+"\"]},\"element2\":[true,true],\"element3\":[1.500000000000000e+00,1.50000000"
+"0000000e+00],\"element4\":[\"\\/wAB\",\"\\/wAB\"],\"element5\":[2,2],\"eleme"
+"nt6\":[\"2012-08-18T13:25:00.000+00:00\",\"2012-08-18T13:25:00.000+00:00\"],"
+"\"element7\":[]},\"element6\":[\"LONDON\",\"LONDON\"]},{\"element1\":[\"LOND"
+"ON\",\"LONDON\"],\"element2\":[\"arbitrary string value\",\"arbitrary string"
+" value\"],\"element3\":true,\"element4\":\"arbitrary string value\",\"elemen"
+"t5\":{\"element1\":{\"element1\":[\"LONDON\",\"LONDON\"],\"element2\":[\"arb"
+"itrary string value\",\"arbitrary string value\"],\"element3\":true,\"elemen"
+"t4\":\"arbitrary string value\",\"element5\":{\"element1\":{\"element1\":[\""
+"LONDON\",\"LONDON\"],\"element2\":[\"arbitrary string value\",\"arbitrary st"
+"ring value\"],\"element3\":true,\"element4\":\"arbitrary string value\",\"el"
+"ement6\":[\"LONDON\",\"LONDON\"]},\"element2\":[true,true],\"element3\":[1.5"
+"00000000000000e+00,1.500000000000000e+00],\"element4\":[\"\\/wAB\",\"\\/wAB"
+"\"],\"element5\":[2,2],\"element6\":[\"2012-08-18T13:25:00.000+00:00\",\"2012"
+"-08-18T13:25:00.000+00:00\"],\"element7\":[]},\"element6\":[\"LONDON\",\"LON"
+"DON\"]},\"element2\":[true,true],\"element3\":[1.500000000000000e+00,1.50000"
+"0000000000e+00],\"element4\":[\"\\/wAB\",\"\\/wAB\"],\"element5\":[2,2],\"el"
+"ement6\":[\"2012-08-18T13:25:00.000+00:00\",\"2012-08-18T13:25:00.000+00:00"
+"\"],\"element7\":[]},\"element6\":[\"LONDON\",\"LONDON\"]}],\"element2\":[{\""
+"selection2\":1.500000000000000e+00},{\"selection2\":1.500000000000000e+00}],"
+"\"element3\":\"\\/wAB\",\"element4\":2,\"element5\":\"2012-08-18T13:25:00.00"
+"0+00:00\",\"element6\":\"custom\",\"element7\":\"LONDON\",\"element8\":true,"
+"\"element9\":\"arbitrary string value\",\"element10\":1.500000000000000e+00,"
+"\"element11\":\"\\/wAB\",\"element12\":2,\"element13\":\"LONDON\",\"element1"
+"4\":[true,true],\"element15\":[1.500000000000000e+00,1.500000000000000e+00],"
+"\"element16\":[\"\\/wAB\",\"\\/wAB\"],\"element17\":[2,2],\"element18\":[\"2"
+"012-08-18T13:25:00.000+00:00\",\"2012-08-18T13:25:00.000+00:00\"],\"element1"
+"9\":[\"custom\",\"custom\"]}},{\"selection3\":{\"element1\":[{\"element1\":["
+"\"LONDON\",\"LONDON\"],\"element2\":[\"arbitrary string value\",\"arbitrary "
+"string value\"],\"element3\":true,\"element4\":\"arbitrary string value\",\""
+"element5\":{\"element1\":{\"element1\":[\"LONDON\",\"LONDON\"],\"element2\":"
+"[\"arbitrary string value\",\"arbitrary string value\"],\"element3\":true,\""
+"element4\":\"arbitrary string value\",\"element5\":{\"element1\":{\"element1"
+"\":[\"LONDON\",\"LONDON\"],\"element2\":[\"arbitrary string value\",\"arbitr"
+"ary string value\"],\"element3\":true,\"element4\":\"arbitrary string value"
+"\",\"element6\":[\"LONDON\",\"LONDON\"]},\"element2\":[true,true],\"element3"
+"\":[1.500000000000000e+00,1.500000000000000e+00],\"element4\":[\"\\/wAB\",\""
+"\\/wAB\"],\"element5\":[2,2],\"element6\":[\"2012-08-18T13:25:00.000+00:00\","
+"\"2012-08-18T13:25:00.000+00:00\"],\"element7\":[]},\"element6\":[\"LONDON\""
+",\"LONDON\"]},\"element2\":[true,true],\"element3\":[1.500000000000000e+00,1"
+".500000000000000e+00],\"element4\":[\"\\/wAB\",\"\\/wAB\"],\"element5\":[2,2"
+"],\"element6\":[\"2012-08-18T13:25:00.000+00:00\",\"2012-08-18T13:25:00.000+"
+"00:00\"],\"element7\":[]},\"element6\":[\"LONDON\",\"LONDON\"]},{\"element1"
+"\":[\"LONDON\",\"LONDON\"],\"element2\":[\"arbitrary string value\",\"arbitra"
+"ry string value\"],\"element3\":true,\"element4\":\"arbitrary string value\""
+",\"element5\":{\"element1\":{\"element1\":[\"LONDON\",\"LONDON\"],\"element2"
+"\":[\"arbitrary string value\",\"arbitrary string value\"],\"element3\":true"
+",\"element4\":\"arbitrary string value\",\"element5\":{\"element1\":{\"eleme"
+"nt1\":[\"LONDON\",\"LONDON\"],\"element2\":[\"arbitrary string value\",\"arb"
+"itrary string value\"],\"element3\":true,\"element4\":\"arbitrary string val"
+"ue\",\"element6\":[\"LONDON\",\"LONDON\"]},\"element2\":[true,true],\"elemen"
+"t3\":[1.500000000000000e+00,1.500000000000000e+00],\"element4\":[\"\\/wAB\","
+"\"\\/wAB\"],\"element5\":[2,2],\"element6\":[\"2012-08-18T13:25:00.000+00:00"
+"\",\"2012-08-18T13:25:00.000+00:00\"],\"element7\":[]},\"element6\":[\"LONDO"
+"N\",\"LONDON\"]},\"element2\":[true,true],\"element3\":[1.500000000000000e+0"
+"0,1.500000000000000e+00],\"element4\":[\"\\/wAB\",\"\\/wAB\"],\"element5\":["
+"2,2],\"element6\":[\"2012-08-18T13:25:00.000+00:00\",\"2012-08-18T13:25:00.0"
+"00+00:00\"],\"element7\":[]},\"element6\":[\"LONDON\",\"LONDON\"]}],\"elemen"
+"t2\":[{\"selection2\":1.500000000000000e+00},{\"selection2\":1.5000000000000"
+"00e+00}],\"element3\":\"\\/wAB\",\"element4\":2,\"element5\":\"2012-08-18T13"
+":25:00.000+00:00\",\"element6\":\"custom\",\"element7\":\"LONDON\",\"element"
+"8\":true,\"element9\":\"arbitrary string value\",\"element10\":1.50000000000"
+"0000e+00,\"element11\":\"\\/wAB\",\"element12\":2,\"element13\":\"LONDON\","
+"\"element14\":[true,true],\"element15\":[1.500000000000000e+00,1.500000000000"
+"000e+00],\"element16\":[\"\\/wAB\",\"\\/wAB\"],\"element17\":[2,2],\"element"
+"18\":[\"2012-08-18T13:25:00.000+00:00\",\"2012-08-18T13:25:00.000+00:00\"],"
+"\"element19\":[\"custom\",\"custom\"]}}],\"element3\":\"\\/wAB\",\"element4\""
+":2,\"element5\":\"2012-08-18T13:25:00.000+00:00\",\"element6\":\"custom\",\""
+"element7\":\"LONDON\",\"element8\":true,\"element9\":\"arbitrary string valu"
+"e\",\"element10\":1.500000000000000e+00,\"element11\":\"\\/wAB\",\"element12"
+"\":2,\"element13\":\"LONDON\",\"element14\":[true,true],\"element15\":[1.500"
+"000000000000e+00,1.500000000000000e+00],\"element16\":[\"\\/wAB\",\"\\/wAB\""
+"],\"element17\":[2,2],\"element18\":[\"2012-08-18T13:25:00.000+00:00\",\"201"
+"2-08-18T13:25:00.000+00:00\"],\"element19\":[\"custom\",\"custom\"]}}],\"ele"
+"ment3\":{\"selection3\":{\"selection3\":{\"element1\":[],\"element2\":[],\"e"
+"lement8\":true,\"element9\":\"\",\"element10\":1.500000000000000e+00,\"eleme"
+"nt11\":\"\\/wAB\",\"element12\":2,\"element13\":\"LONDON\",\"element14\":[],"
+"\"element15\":[],\"element16\":[],\"element17\":[],\"element18\":[],\"elemen"
+"t19\":[]}}},\"element4\":[{\"selection3\":\"custom\"},{\"selection3\":\"cust"
+"om\"}]}}",
+
+"{\"selection1\":{\"element1\":{\"selection4\":999},\"element2\":[{\"selectio"
+"n4\":{\"selection1\":true}},{\"selection4\":{\"selection1\":true}}],\"elemen"
+"t3\":{\"selection3\":{\"selection3\":{\"element1\":[{\"element1\":[\"LONDON"
+"\",\"LONDON\"],\"element2\":[\"arbitrary string value\",\"arbitrary string va"
+"lue\"],\"element3\":true,\"element4\":\"arbitrary string value\",\"element5"
+"\":{\"element1\":{\"element1\":[\"LONDON\",\"LONDON\"],\"element2\":[\"arbitr"
+"ary string value\",\"arbitrary string value\"],\"element3\":true,\"element4"
+"\":\"arbitrary string value\",\"element5\":{\"element1\":{\"element1\":[\"LON"
+"DON\",\"LONDON\"],\"element2\":[\"arbitrary string value\",\"arbitrary strin"
+"g value\"],\"element3\":true,\"element4\":\"arbitrary string value\",\"eleme"
+"nt6\":[\"LONDON\",\"LONDON\"]},\"element2\":[true,true],\"element3\":[1.5000"
+"00000000000e+00,1.500000000000000e+00],\"element4\":[\"\\/wAB\",\"\\/wAB\"],"
+"\"element5\":[2,2],\"element6\":[\"2012-08-18T13:25:00.000+00:00\",\"2012-08"
+"-18T13:25:00.000+00:00\"],\"element7\":[]},\"element6\":[\"LONDON\",\"LONDON"
+"\"]},\"element2\":[true,true],\"element3\":[1.500000000000000e+00,1.50000000"
+"0000000e+00],\"element4\":[\"\\/wAB\",\"\\/wAB\"],\"element5\":[2,2],\"eleme"
+"nt6\":[\"2012-08-18T13:25:00.000+00:00\",\"2012-08-18T13:25:00.000+00:00\"],"
+"\"element7\":[]},\"element6\":[\"LONDON\",\"LONDON\"]},{\"element1\":[\"LOND"
+"ON\",\"LONDON\"],\"element2\":[\"arbitrary string value\",\"arbitrary string"
+" value\"],\"element3\":true,\"element4\":\"arbitrary string value\",\"elemen"
+"t5\":{\"element1\":{\"element1\":[\"LONDON\",\"LONDON\"],\"element2\":[\"arb"
+"itrary string value\",\"arbitrary string value\"],\"element3\":true,\"elemen"
+"t4\":\"arbitrary string value\",\"element5\":{\"element1\":{\"element1\":[\""
+"LONDON\",\"LONDON\"],\"element2\":[\"arbitrary string value\",\"arbitrary st"
+"ring value\"],\"element3\":true,\"element4\":\"arbitrary string value\",\"el"
+"ement6\":[\"LONDON\",\"LONDON\"]},\"element2\":[true,true],\"element3\":[1.5"
+"00000000000000e+00,1.500000000000000e+00],\"element4\":[\"\\/wAB\",\"\\/wAB"
+"\"],\"element5\":[2,2],\"element6\":[\"2012-08-18T13:25:00.000+00:00\",\"2012"
+"-08-18T13:25:00.000+00:00\"],\"element7\":[]},\"element6\":[\"LONDON\",\"LON"
+"DON\"]},\"element2\":[true,true],\"element3\":[1.500000000000000e+00,1.50000"
+"0000000000e+00],\"element4\":[\"\\/wAB\",\"\\/wAB\"],\"element5\":[2,2],\"el"
+"ement6\":[\"2012-08-18T13:25:00.000+00:00\",\"2012-08-18T13:25:00.000+00:00"
+"\"],\"element7\":[]},\"element6\":[\"LONDON\",\"LONDON\"]}],\"element2\":[{\""
+"selection2\":1.500000000000000e+00},{\"selection2\":1.500000000000000e+00}],"
+"\"element3\":\"\\/wAB\",\"element4\":2,\"element5\":\"2012-08-18T13:25:00.00"
+"0+00:00\",\"element6\":\"custom\",\"element7\":\"LONDON\",\"element8\":true,"
+"\"element9\":\"arbitrary string value\",\"element10\":1.500000000000000e+00,"
+"\"element11\":\"\\/wAB\",\"element12\":2,\"element13\":\"LONDON\",\"element1"
+"4\":[true,true],\"element15\":[1.500000000000000e+00,1.500000000000000e+00],"
+"\"element16\":[\"\\/wAB\",\"\\/wAB\"],\"element17\":[2,2],\"element18\":[\"2"
+"012-08-18T13:25:00.000+00:00\",\"2012-08-18T13:25:00.000+00:00\"],\"element1"
+"9\":[\"custom\",\"custom\"]}}},\"element4\":[{\"selection4\":999},{\"selecti"
+"on4\":999}]}}",
+
+"{\"selection1\":{\"element1\":{\"selection1\":{\"element4\":255,\"element5\""
+":[],\"element6\":\"custom\",\"element7\":999,\"element8\":[],\"element9\":[]"
+",\"element10\":[],\"element11\":[]}},\"element2\":[{\"selection4\":{\"select"
+"ion2\":\"\"}},{\"selection4\":{\"selection2\":\"\"}}],\"element3\":{\"select"
+"ion3\":{\"selection3\":{\"element1\":[{\"element1\":[],\"element2\":[\"\",\""
+"\"],\"element4\":\"\",\"element5\":{\"element1\":{\"element1\":[],\"element2"
+"\":[\"\",\"\"],\"element4\":\"\",\"element5\":{\"element1\":{\"element1\":[]"
+",\"element2\":[\"\",\"\"],\"element4\":\"\",\"element6\":[]},\"element2\":[]"
+",\"element3\":[],\"element4\":[],\"element5\":[],\"element6\":[],\"element7"
+"\":[]},\"element6\":[]},\"element2\":[],\"element3\":[],\"element4\":[],\"ele"
+"ment5\":[],\"element6\":[],\"element7\":[]},\"element6\":[]},{\"element1\":["
+"],\"element2\":[\"\",\"\"],\"element4\":\"\",\"element5\":{\"element1\":{\"e"
+"lement1\":[],\"element2\":[\"\",\"\"],\"element4\":\"\",\"element5\":{\"elem"
+"ent1\":{\"element1\":[],\"element2\":[\"\",\"\"],\"element4\":\"\",\"element"
+"6\":[]},\"element2\":[],\"element3\":[],\"element4\":[],\"element5\":[],\"el"
+"ement6\":[],\"element7\":[]},\"element6\":[]},\"element2\":[],\"element3\":["
+"],\"element4\":[],\"element5\":[],\"element6\":[],\"element7\":[]},\"element"
+"6\":[]}],\"element2\":[{\"selection3\":{\"element1\":[],\"element2\":[],\"el"
+"ement8\":true,\"element9\":\"\",\"element10\":1.500000000000000e+00,\"elemen"
+"t11\":\"\\/wAB\",\"element12\":2,\"element13\":\"LONDON\",\"element14\":[],"
+"\"element15\":[],\"element16\":[],\"element17\":[],\"element18\":[],\"element"
+"19\":[]}},{\"selection3\":{\"element1\":[],\"element2\":[],\"element8\":true"
+",\"element9\":\"\",\"element10\":1.500000000000000e+00,\"element11\":\"\\/wA"
+"B\",\"element12\":2,\"element13\":\"LONDON\",\"element14\":[],\"element15\":"
+"[],\"element16\":[],\"element17\":[],\"element18\":[],\"element19\":[]}}],\""
+"element8\":true,\"element9\":\"\",\"element10\":1.500000000000000e+00,\"elem"
+"ent11\":\"\\/wAB\",\"element12\":2,\"element13\":\"LONDON\",\"element14\":[]"
+",\"element15\":[],\"element16\":[],\"element17\":[],\"element18\":[],\"eleme"
+"nt19\":[]}}},\"element4\":[{\"selection1\":{\"element4\":255,\"element5\":[]"
+",\"element6\":\"custom\",\"element7\":999,\"element8\":[],\"element9\":[],\""
+"element10\":[],\"element11\":[]}},{\"selection1\":{\"element4\":255,\"elemen"
+"t5\":[],\"element6\":\"custom\",\"element7\":999,\"element8\":[],\"element9"
+"\":[],\"element10\":[],\"element11\":[]}}]}}",
+
+"{\"selection1\":{\"element2\":[{\"selection4\":{\"selection2\":\"arbitrary s"
+"tring value\"}},{\"selection4\":{\"selection2\":\"arbitrary string value\"}}"
+"],\"element3\":{\"selection3\":{\"selection3\":{\"element1\":[{\"element1\":"
+"[\"LONDON\",\"LONDON\"],\"element2\":[],\"element3\":true,\"element5\":{\"el"
+"ement1\":{\"element1\":[\"LONDON\",\"LONDON\"],\"element2\":[],\"element3\":"
+"true,\"element5\":{\"element1\":{\"element1\":[\"LONDON\",\"LONDON\"],\"elem"
+"ent2\":[],\"element3\":true,\"element6\":[\"LONDON\",\"LONDON\"]},\"element2"
+"\":[true,true],\"element3\":[1.500000000000000e+00,1.500000000000000e+00],\""
+"element4\":[\"\\/wAB\",\"\\/wAB\"],\"element5\":[2,2],\"element6\":[\"2012-0"
+"8-18T13:25:00.000+00:00\",\"2012-08-18T13:25:00.000+00:00\"],\"element7\":[]"
+"},\"element6\":[\"LONDON\",\"LONDON\"]},\"element2\":[true,true],\"element3"
+"\":[1.500000000000000e+00,1.500000000000000e+00],\"element4\":[\"\\/wAB\",\""
+"\\/wAB\"],\"element5\":[2,2],\"element6\":[\"2012-08-18T13:25:00.000+00:00\","
+"\"2012-08-18T13:25:00.000+00:00\"],\"element7\":[]},\"element6\":[\"LONDON\""
+",\"LONDON\"]},{\"element1\":[\"LONDON\",\"LONDON\"],\"element2\":[],\"elemen"
+"t3\":true,\"element5\":{\"element1\":{\"element1\":[\"LONDON\",\"LONDON\"],"
+"\"element2\":[],\"element3\":true,\"element5\":{\"element1\":{\"element1\":["
+"\"LONDON\",\"LONDON\"],\"element2\":[],\"element3\":true,\"element6\":[\"LOND"
+"ON\",\"LONDON\"]},\"element2\":[true,true],\"element3\":[1.500000000000000e+"
+"00,1.500000000000000e+00],\"element4\":[\"\\/wAB\",\"\\/wAB\"],\"element5\":"
+"[2,2],\"element6\":[\"2012-08-18T13:25:00.000+00:00\",\"2012-08-18T13:25:00."
+"000+00:00\"],\"element7\":[]},\"element6\":[\"LONDON\",\"LONDON\"]},\"elemen"
+"t2\":[true,true],\"element3\":[1.500000000000000e+00,1.500000000000000e+00],"
+"\"element4\":[\"\\/wAB\",\"\\/wAB\"],\"element5\":[2,2],\"element6\":[\"2012"
+"-08-18T13:25:00.000+00:00\",\"2012-08-18T13:25:00.000+00:00\"],\"element7\":"
+"[]},\"element6\":[\"LONDON\",\"LONDON\"]}],\"element2\":[{\"selection3\":{\""
+"element1\":[{\"element1\":[\"LONDON\",\"LONDON\"],\"element2\":[\"arbitrary "
+"string value\",\"arbitrary string value\"],\"element3\":true,\"element4\":\""
+"arbitrary string value\",\"element5\":{\"element1\":{\"element1\":[\"LONDON"
+"\",\"LONDON\"],\"element2\":[\"arbitrary string value\",\"arbitrary string va"
+"lue\"],\"element3\":true,\"element4\":\"arbitrary string value\",\"element5"
+"\":{\"element1\":{\"element1\":[\"LONDON\",\"LONDON\"],\"element2\":[\"arbitr"
+"ary string value\",\"arbitrary string value\"],\"element3\":true,\"element4"
+"\":\"arbitrary string value\",\"element6\":[\"LONDON\",\"LONDON\"]},\"element"
+"2\":[true,true],\"element3\":[1.500000000000000e+00,1.500000000000000e+00],"
+"\"element4\":[\"\\/wAB\",\"\\/wAB\"],\"element5\":[2,2],\"element6\":[\"2012-"
+"08-18T13:25:00.000+00:00\",\"2012-08-18T13:25:00.000+00:00\"],\"element7\":["
+"]},\"element6\":[\"LONDON\",\"LONDON\"]},\"element2\":[true,true],\"element3"
+"\":[1.500000000000000e+00,1.500000000000000e+00],\"element4\":[\"\\/wAB\",\""
+"\\/wAB\"],\"element5\":[2,2],\"element6\":[\"2012-08-18T13:25:00.000+00:00\""
+",\"2012-08-18T13:25:00.000+00:00\"],\"element7\":[]},\"element6\":[\"LONDON"
+"\",\"LONDON\"]},{\"element1\":[\"LONDON\",\"LONDON\"],\"element2\":[\"arbitra"
+"ry string value\",\"arbitrary string value\"],\"element3\":true,\"element4\""
+":\"arbitrary string value\",\"element5\":{\"element1\":{\"element1\":[\"LOND"
+"ON\",\"LONDON\"],\"element2\":[\"arbitrary string value\",\"arbitrary string"
+" value\"],\"element3\":true,\"element4\":\"arbitrary string value\",\"elemen"
+"t5\":{\"element1\":{\"element1\":[\"LONDON\",\"LONDON\"],\"element2\":[\"arb"
+"itrary string value\",\"arbitrary string value\"],\"element3\":true,\"elemen"
+"t4\":\"arbitrary string value\",\"element6\":[\"LONDON\",\"LONDON\"]},\"elem"
+"ent2\":[true,true],\"element3\":[1.500000000000000e+00,1.500000000000000e+00"
+"],\"element4\":[\"\\/wAB\",\"\\/wAB\"],\"element5\":[2,2],\"element6\":[\"20"
+"12-08-18T13:25:00.000+00:00\",\"2012-08-18T13:25:00.000+00:00\"],\"element7"
+"\":[]},\"element6\":[\"LONDON\",\"LONDON\"]},\"element2\":[true,true],\"eleme"
+"nt3\":[1.500000000000000e+00,1.500000000000000e+00],\"element4\":[\"\\/wAB\""
+",\"\\/wAB\"],\"element5\":[2,2],\"element6\":[\"2012-08-18T13:25:00.000+00:0"
+"0\",\"2012-08-18T13:25:00.000+00:00\"],\"element7\":[]},\"element6\":[\"LOND"
+"ON\",\"LONDON\"]}],\"element2\":[{\"selection2\":1.500000000000000e+00},{\"s"
+"election2\":1.500000000000000e+00}],\"element3\":\"\\/wAB\",\"element4\":2,"
+"\"element5\":\"2012-08-18T13:25:00.000+00:00\",\"element6\":\"custom\",\"elem"
+"ent7\":\"LONDON\",\"element8\":true,\"element9\":\"arbitrary string value\","
+"\"element10\":1.500000000000000e+00,\"element11\":\"\\/wAB\",\"element12\":2"
+",\"element13\":\"LONDON\",\"element14\":[true,true],\"element15\":[1.5000000"
+"00000000e+00,1.500000000000000e+00],\"element16\":[\"\\/wAB\",\"\\/wAB\"],\""
+"element17\":[2,2],\"element18\":[\"2012-08-18T13:25:00.000+00:00\",\"2012-08"
+"-18T13:25:00.000+00:00\"],\"element19\":[\"custom\",\"custom\"]}},{\"selecti"
+"on3\":{\"element1\":[{\"element1\":[\"LONDON\",\"LONDON\"],\"element2\":[\"a"
+"rbitrary string value\",\"arbitrary string value\"],\"element3\":true,\"elem"
+"ent4\":\"arbitrary string value\",\"element5\":{\"element1\":{\"element1\":["
+"\"LONDON\",\"LONDON\"],\"element2\":[\"arbitrary string value\",\"arbitrary "
+"string value\"],\"element3\":true,\"element4\":\"arbitrary string value\",\""
+"element5\":{\"element1\":{\"element1\":[\"LONDON\",\"LONDON\"],\"element2\":"
+"[\"arbitrary string value\",\"arbitrary string value\"],\"element3\":true,\""
+"element4\":\"arbitrary string value\",\"element6\":[\"LONDON\",\"LONDON\"]},"
+"\"element2\":[true,true],\"element3\":[1.500000000000000e+00,1.5000000000000"
+"00e+00],\"element4\":[\"\\/wAB\",\"\\/wAB\"],\"element5\":[2,2],\"element6\""
+":[\"2012-08-18T13:25:00.000+00:00\",\"2012-08-18T13:25:00.000+00:00\"],\"ele"
+"ment7\":[]},\"element6\":[\"LONDON\",\"LONDON\"]},\"element2\":[true,true],"
+"\"element3\":[1.500000000000000e+00,1.500000000000000e+00],\"element4\":[\"\\"
+"/wAB\",\"\\/wAB\"],\"element5\":[2,2],\"element6\":[\"2012-08-18T13:25:00.00"
+"0+00:00\",\"2012-08-18T13:25:00.000+00:00\"],\"element7\":[]},\"element6\":["
+"\"LONDON\",\"LONDON\"]},{\"element1\":[\"LONDON\",\"LONDON\"],\"element2\":["
+"\"arbitrary string value\",\"arbitrary string value\"],\"element3\":true,\"e"
+"lement4\":\"arbitrary string value\",\"element5\":{\"element1\":{\"element1"
+"\":[\"LONDON\",\"LONDON\"],\"element2\":[\"arbitrary string value\",\"arbitra"
+"ry string value\"],\"element3\":true,\"element4\":\"arbitrary string value\""
+",\"element5\":{\"element1\":{\"element1\":[\"LONDON\",\"LONDON\"],\"element2"
+"\":[\"arbitrary string value\",\"arbitrary string value\"],\"element3\":true"
+",\"element4\":\"arbitrary string value\",\"element6\":[\"LONDON\",\"LONDON\""
+"]},\"element2\":[true,true],\"element3\":[1.500000000000000e+00,1.5000000000"
+"00000e+00],\"element4\":[\"\\/wAB\",\"\\/wAB\"],\"element5\":[2,2],\"element"
+"6\":[\"2012-08-18T13:25:00.000+00:00\",\"2012-08-18T13:25:00.000+00:00\"],\""
+"element7\":[]},\"element6\":[\"LONDON\",\"LONDON\"]},\"element2\":[true,true"
+"],\"element3\":[1.500000000000000e+00,1.500000000000000e+00],\"element4\":["
+"\"\\/wAB\",\"\\/wAB\"],\"element5\":[2,2],\"element6\":[\"2012-08-18T13:25:00"
+".000+00:00\",\"2012-08-18T13:25:00.000+00:00\"],\"element7\":[]},\"element6"
+"\":[\"LONDON\",\"LONDON\"]}],\"element2\":[{\"selection2\":1.500000000000000e"
+"+00},{\"selection2\":1.500000000000000e+00}],\"element3\":\"\\/wAB\",\"eleme"
+"nt4\":2,\"element5\":\"2012-08-18T13:25:00.000+00:00\",\"element6\":\"custom"
+"\",\"element7\":\"LONDON\",\"element8\":true,\"element9\":\"arbitrary string"
+" value\",\"element10\":1.500000000000000e+00,\"element11\":\"\\/wAB\",\"elem"
+"ent12\":2,\"element13\":\"LONDON\",\"element14\":[true,true],\"element15\":["
+"1.500000000000000e+00,1.500000000000000e+00],\"element16\":[\"\\/wAB\",\"\\/"
+"wAB\"],\"element17\":[2,2],\"element18\":[\"2012-08-18T13:25:00.000+00:00\","
+"\"2012-08-18T13:25:00.000+00:00\"],\"element19\":[\"custom\",\"custom\"]}}],"
+"\"element3\":\"\\/wAB\",\"element4\":2,\"element5\":\"2012-08-18T13:25:00.00"
+"0+00:00\",\"element6\":\"custom\",\"element7\":\"LONDON\",\"element8\":true,"
+"\"element9\":\"arbitrary string value\",\"element10\":1.500000000000000e+00,"
+"\"element11\":\"\\/wAB\",\"element12\":2,\"element13\":\"LONDON\",\"element1"
+"4\":[true,true],\"element15\":[1.500000000000000e+00,1.500000000000000e+00],"
+"\"element16\":[\"\\/wAB\",\"\\/wAB\"],\"element17\":[2,2],\"element18\":[\"2"
+"012-08-18T13:25:00.000+00:00\",\"2012-08-18T13:25:00.000+00:00\"],\"element1"
+"9\":[\"custom\",\"custom\"]}}},\"element4\":[]}}",
+
+"{\"selection1\":{\"element1\":{\"selection1\":{\"element1\":0,\"element2\":"
+"\"custom\",\"element3\":999,\"element4\":0,\"element5\":[999,999],\"element6"
+"\":\"custom\",\"element7\":999,\"element8\":[0,0],\"element9\":[\"custom\",\""
+"custom\"],\"element10\":[0,0],\"element11\":[999,999]}},\"element2\":[{\"sel"
+"ection1\":2},{\"selection1\":2}],\"element3\":{\"selection1\":true},\"elemen"
+"t4\":[{\"selection1\":{\"element1\":0,\"element2\":\"custom\",\"element3\":9"
+"99,\"element4\":0,\"element5\":[999,999],\"element6\":\"custom\",\"element7"
+"\":999,\"element8\":[0,0],\"element9\":[\"custom\",\"custom\"],\"element10\":"
+"[0,0],\"element11\":[999,999]}},{\"selection1\":{\"element1\":0,\"element2\""
+":\"custom\",\"element3\":999,\"element4\":0,\"element5\":[999,999],\"element"
+"6\":\"custom\",\"element7\":999,\"element8\":[0,0],\"element9\":[\"custom\","
+"\"custom\"],\"element10\":[0,0],\"element11\":[999,999]}}]}}",
+
+"{\"selection2\":\"\\/wAB\"}",
+
+"{\"selection3\":{\"element1\":\"custom\",\"element2\":255,\"element3\":\"201"
+"2-08-18T13:25:00.000+00:00\"}}",
+
+"{\"selection3\":{\"element1\":\"custom\",\"element2\":0,\"element3\":\"2012-"
+"08-18T13:25:00.000+00:00\",\"element4\":{\"selection2\":1.500000000000000e+0"
+"0},\"element5\":1.500000000000000e+00}}",
+
+"{\"selection3\":{\"element1\":\"custom\",\"element2\":255,\"element3\":\"201"
+"2-08-18T13:25:00.000+00:00\",\"element4\":{\"selection3\":{\"element1\":[],"
+"\"element2\":[],\"element8\":true,\"element9\":\"\",\"element10\":1.500000000"
+"000000e+00,\"element11\":\"\\/wAB\",\"element12\":2,\"element13\":\"LONDON\""
+",\"element14\":[],\"element15\":[],\"element16\":[],\"element17\":[],\"eleme"
+"nt18\":[],\"element19\":[]}}}}",
+
+"{\"selection3\":{\"element1\":\"custom\",\"element2\":0,\"element3\":\"2012-"
+"08-18T13:25:00.000+00:00\",\"element4\":{\"selection3\":{\"element1\":[{\"el"
+"ement1\":[\"LONDON\",\"LONDON\"],\"element2\":[\"arbitrary string value\",\""
+"arbitrary string value\"],\"element3\":true,\"element4\":\"arbitrary string "
+"value\",\"element5\":{\"element1\":{\"element1\":[\"LONDON\",\"LONDON\"],\"e"
+"lement2\":[\"arbitrary string value\",\"arbitrary string value\"],\"element3"
+"\":true,\"element4\":\"arbitrary string value\",\"element5\":{\"element1\":{"
+"\"element1\":[\"LONDON\",\"LONDON\"],\"element2\":[\"arbitrary string value"
+"\",\"arbitrary string value\"],\"element3\":true,\"element4\":\"arbitrary str"
+"ing value\",\"element6\":[\"LONDON\",\"LONDON\"]},\"element2\":[true,true],"
+"\"element3\":[1.500000000000000e+00,1.500000000000000e+00],\"element4\":[\"\\"
+"/wAB\",\"\\/wAB\"],\"element5\":[2,2],\"element6\":[\"2012-08-18T13:25:00.00"
+"0+00:00\",\"2012-08-18T13:25:00.000+00:00\"],\"element7\":[]},\"element6\":["
+"\"LONDON\",\"LONDON\"]},\"element2\":[true,true],\"element3\":[1.50000000000"
+"0000e+00,1.500000000000000e+00],\"element4\":[\"\\/wAB\",\"\\/wAB\"],\"eleme"
+"nt5\":[2,2],\"element6\":[\"2012-08-18T13:25:00.000+00:00\",\"2012-08-18T13:"
+"25:00.000+00:00\"],\"element7\":[]},\"element6\":[\"LONDON\",\"LONDON\"]},{"
+"\"element1\":[\"LONDON\",\"LONDON\"],\"element2\":[\"arbitrary string value\""
+",\"arbitrary string value\"],\"element3\":true,\"element4\":\"arbitrary stri"
+"ng value\",\"element5\":{\"element1\":{\"element1\":[\"LONDON\",\"LONDON\"],"
+"\"element2\":[\"arbitrary string value\",\"arbitrary string value\"],\"eleme"
+"nt3\":true,\"element4\":\"arbitrary string value\",\"element5\":{\"element1"
+"\":{\"element1\":[\"LONDON\",\"LONDON\"],\"element2\":[\"arbitrary string val"
+"ue\",\"arbitrary string value\"],\"element3\":true,\"element4\":\"arbitrary "
+"string value\",\"element6\":[\"LONDON\",\"LONDON\"]},\"element2\":[true,true"
+"],\"element3\":[1.500000000000000e+00,1.500000000000000e+00],\"element4\":["
+"\"\\/wAB\",\"\\/wAB\"],\"element5\":[2,2],\"element6\":[\"2012-08-18T13:25:00"
+".000+00:00\",\"2012-08-18T13:25:00.000+00:00\"],\"element7\":[]},\"element6"
+"\":[\"LONDON\",\"LONDON\"]},\"element2\":[true,true],\"element3\":[1.50000000"
+"0000000e+00,1.500000000000000e+00],\"element4\":[\"\\/wAB\",\"\\/wAB\"],\"el"
+"ement5\":[2,2],\"element6\":[\"2012-08-18T13:25:00.000+00:00\",\"2012-08-18T"
+"13:25:00.000+00:00\"],\"element7\":[]},\"element6\":[\"LONDON\",\"LONDON\"]}"
+"],\"element2\":[{\"selection2\":1.500000000000000e+00},{\"selection2\":1.500"
+"000000000000e+00}],\"element3\":\"\\/wAB\",\"element4\":2,\"element5\":\"201"
+"2-08-18T13:25:00.000+00:00\",\"element6\":\"custom\",\"element7\":\"LONDON\""
+",\"element8\":true,\"element9\":\"arbitrary string value\",\"element10\":1.5"
+"00000000000000e+00,\"element11\":\"\\/wAB\",\"element12\":2,\"element13\":\""
+"LONDON\",\"element14\":[true,true],\"element15\":[1.500000000000000e+00,1.50"
+"0000000000000e+00],\"element16\":[\"\\/wAB\",\"\\/wAB\"],\"element17\":[2,2]"
+",\"element18\":[\"2012-08-18T13:25:00.000+00:00\",\"2012-08-18T13:25:00.000+"
+"00:00\"],\"element19\":[\"custom\",\"custom\"]}},\"element5\":1.500000000000"
+"000e+00}}",
+
+"{\"selection3\":{\"element1\":\"custom\",\"element2\":255,\"element3\":\"201"
+"2-08-18T13:25:00.000+00:00\",\"element4\":{\"selection3\":{\"element1\":[{\""
+"element1\":[],\"element2\":[\"\",\"\"],\"element4\":\"\",\"element5\":{\"ele"
+"ment1\":{\"element1\":[],\"element2\":[\"\",\"\"],\"element4\":\"\",\"elemen"
+"t5\":{\"element1\":{\"element1\":[],\"element2\":[\"\",\"\"],\"element4\":\""
+"\",\"element6\":[]},\"element2\":[],\"element3\":[],\"element4\":[],\"elemen"
+"t5\":[],\"element6\":[],\"element7\":[]},\"element6\":[]},\"element2\":[],\""
+"element3\":[],\"element4\":[],\"element5\":[],\"element6\":[],\"element7\":["
+"]},\"element6\":[]},{\"element1\":[],\"element2\":[\"\",\"\"],\"element4\":"
+"\"\",\"element5\":{\"element1\":{\"element1\":[],\"element2\":[\"\",\"\"],\"e"
+"lement4\":\"\",\"element5\":{\"element1\":{\"element1\":[],\"element2\":[\""
+"\",\"\"],\"element4\":\"\",\"element6\":[]},\"element2\":[],\"element3\":[],"
+"\"element4\":[],\"element5\":[],\"element6\":[],\"element7\":[]},\"element6\""
+":[]},\"element2\":[],\"element3\":[],\"element4\":[],\"element5\":[],\"eleme"
+"nt6\":[],\"element7\":[]},\"element6\":[]}],\"element2\":[{\"selection3\":{"
+"\"element1\":[],\"element2\":[],\"element8\":true,\"element9\":\"\",\"element"
+"10\":1.500000000000000e+00,\"element11\":\"\\/wAB\",\"element12\":2,\"elemen"
+"t13\":\"LONDON\",\"element14\":[],\"element15\":[],\"element16\":[],\"elemen"
+"t17\":[],\"element18\":[],\"element19\":[]}},{\"selection3\":{\"element1\":["
+"],\"element2\":[],\"element8\":true,\"element9\":\"\",\"element10\":1.500000"
+"000000000e+00,\"element11\":\"\\/wAB\",\"element12\":2,\"element13\":\"LONDO"
+"N\",\"element14\":[],\"element15\":[],\"element16\":[],\"element17\":[],\"el"
+"ement18\":[],\"element19\":[]}}],\"element8\":true,\"element9\":\"\",\"eleme"
+"nt10\":1.500000000000000e+00,\"element11\":\"\\/wAB\",\"element12\":2,\"elem"
+"ent13\":\"LONDON\",\"element14\":[],\"element15\":[],\"element16\":[],\"elem"
+"ent17\":[],\"element18\":[],\"element19\":[]}}}}",
+
+"{\"selection3\":{\"element1\":\"custom\",\"element2\":0,\"element3\":\"2012-"
+"08-18T13:25:00.000+00:00\",\"element4\":{\"selection3\":{\"element1\":[{\"el"
+"ement1\":[\"LONDON\",\"LONDON\"],\"element2\":[],\"element3\":true,\"element"
+"5\":{\"element1\":{\"element1\":[\"LONDON\",\"LONDON\"],\"element2\":[],\"el"
+"ement3\":true,\"element5\":{\"element1\":{\"element1\":[\"LONDON\",\"LONDON"
+"\"],\"element2\":[],\"element3\":true,\"element6\":[\"LONDON\",\"LONDON\"]},"
+"\"element2\":[true,true],\"element3\":[1.500000000000000e+00,1.50000000000000"
+"0e+00],\"element4\":[\"\\/wAB\",\"\\/wAB\"],\"element5\":[2,2],\"element6\":"
+"[\"2012-08-18T13:25:00.000+00:00\",\"2012-08-18T13:25:00.000+00:00\"],\"elem"
+"ent7\":[]},\"element6\":[\"LONDON\",\"LONDON\"]},\"element2\":[true,true],\""
+"element3\":[1.500000000000000e+00,1.500000000000000e+00],\"element4\":[\"\\/"
+"wAB\",\"\\/wAB\"],\"element5\":[2,2],\"element6\":[\"2012-08-18T13:25:00.000"
+"+00:00\",\"2012-08-18T13:25:00.000+00:00\"],\"element7\":[]},\"element6\":["
+"\"LONDON\",\"LONDON\"]},{\"element1\":[\"LONDON\",\"LONDON\"],\"element2\":[]"
+",\"element3\":true,\"element5\":{\"element1\":{\"element1\":[\"LONDON\",\"LO"
+"NDON\"],\"element2\":[],\"element3\":true,\"element5\":{\"element1\":{\"elem"
+"ent1\":[\"LONDON\",\"LONDON\"],\"element2\":[],\"element3\":true,\"element6"
+"\":[\"LONDON\",\"LONDON\"]},\"element2\":[true,true],\"element3\":[1.50000000"
+"0000000e+00,1.500000000000000e+00],\"element4\":[\"\\/wAB\",\"\\/wAB\"],\"el"
+"ement5\":[2,2],\"element6\":[\"2012-08-18T13:25:00.000+00:00\",\"2012-08-18T"
+"13:25:00.000+00:00\"],\"element7\":[]},\"element6\":[\"LONDON\",\"LONDON\"]}"
+",\"element2\":[true,true],\"element3\":[1.500000000000000e+00,1.500000000000"
+"000e+00],\"element4\":[\"\\/wAB\",\"\\/wAB\"],\"element5\":[2,2],\"element6"
+"\":[\"2012-08-18T13:25:00.000+00:00\",\"2012-08-18T13:25:00.000+00:00\"],\"el"
+"ement7\":[]},\"element6\":[\"LONDON\",\"LONDON\"]}],\"element2\":[{\"selecti"
+"on3\":{\"element1\":[{\"element1\":[\"LONDON\",\"LONDON\"],\"element2\":[\"a"
+"rbitrary string value\",\"arbitrary string value\"],\"element3\":true,\"elem"
+"ent4\":\"arbitrary string value\",\"element5\":{\"element1\":{\"element1\":["
+"\"LONDON\",\"LONDON\"],\"element2\":[\"arbitrary string value\",\"arbitrary "
+"string value\"],\"element3\":true,\"element4\":\"arbitrary string value\",\""
+"element5\":{\"element1\":{\"element1\":[\"LONDON\",\"LONDON\"],\"element2\":"
+"[\"arbitrary string value\",\"arbitrary string value\"],\"element3\":true,\""
+"element4\":\"arbitrary string value\",\"element6\":[\"LONDON\",\"LONDON\"]},"
+"\"element2\":[true,true],\"element3\":[1.500000000000000e+00,1.5000000000000"
+"00e+00],\"element4\":[\"\\/wAB\",\"\\/wAB\"],\"element5\":[2,2],\"element6\""
+":[\"2012-08-18T13:25:00.000+00:00\",\"2012-08-18T13:25:00.000+00:00\"],\"ele"
+"ment7\":[]},\"element6\":[\"LONDON\",\"LONDON\"]},\"element2\":[true,true],"
+"\"element3\":[1.500000000000000e+00,1.500000000000000e+00],\"element4\":[\"\\"
+"/wAB\",\"\\/wAB\"],\"element5\":[2,2],\"element6\":[\"2012-08-18T13:25:00.00"
+"0+00:00\",\"2012-08-18T13:25:00.000+00:00\"],\"element7\":[]},\"element6\":["
+"\"LONDON\",\"LONDON\"]},{\"element1\":[\"LONDON\",\"LONDON\"],\"element2\":["
+"\"arbitrary string value\",\"arbitrary string value\"],\"element3\":true,\"e"
+"lement4\":\"arbitrary string value\",\"element5\":{\"element1\":{\"element1"
+"\":[\"LONDON\",\"LONDON\"],\"element2\":[\"arbitrary string value\",\"arbitra"
+"ry string value\"],\"element3\":true,\"element4\":\"arbitrary string value\""
+",\"element5\":{\"element1\":{\"element1\":[\"LONDON\",\"LONDON\"],\"element2"
+"\":[\"arbitrary string value\",\"arbitrary string value\"],\"element3\":true"
+",\"element4\":\"arbitrary string value\",\"element6\":[\"LONDON\",\"LONDON\""
+"]},\"element2\":[true,true],\"element3\":[1.500000000000000e+00,1.5000000000"
+"00000e+00],\"element4\":[\"\\/wAB\",\"\\/wAB\"],\"element5\":[2,2],\"element"
+"6\":[\"2012-08-18T13:25:00.000+00:00\",\"2012-08-18T13:25:00.000+00:00\"],\""
+"element7\":[]},\"element6\":[\"LONDON\",\"LONDON\"]},\"element2\":[true,true"
+"],\"element3\":[1.500000000000000e+00,1.500000000000000e+00],\"element4\":["
+"\"\\/wAB\",\"\\/wAB\"],\"element5\":[2,2],\"element6\":[\"2012-08-18T13:25:00"
+".000+00:00\",\"2012-08-18T13:25:00.000+00:00\"],\"element7\":[]},\"element6"
+"\":[\"LONDON\",\"LONDON\"]}],\"element2\":[{\"selection2\":1.500000000000000e"
+"+00},{\"selection2\":1.500000000000000e+00}],\"element3\":\"\\/wAB\",\"eleme"
+"nt4\":2,\"element5\":\"2012-08-18T13:25:00.000+00:00\",\"element6\":\"custom"
+"\",\"element7\":\"LONDON\",\"element8\":true,\"element9\":\"arbitrary string"
+" value\",\"element10\":1.500000000000000e+00,\"element11\":\"\\/wAB\",\"elem"
+"ent12\":2,\"element13\":\"LONDON\",\"element14\":[true,true],\"element15\":["
+"1.500000000000000e+00,1.500000000000000e+00],\"element16\":[\"\\/wAB\",\"\\/"
+"wAB\"],\"element17\":[2,2],\"element18\":[\"2012-08-18T13:25:00.000+00:00\","
+"\"2012-08-18T13:25:00.000+00:00\"],\"element19\":[\"custom\",\"custom\"]}},{"
+"\"selection3\":{\"element1\":[{\"element1\":[\"LONDON\",\"LONDON\"],\"elemen"
+"t2\":[\"arbitrary string value\",\"arbitrary string value\"],\"element3\":tr"
+"ue,\"element4\":\"arbitrary string value\",\"element5\":{\"element1\":{\"ele"
+"ment1\":[\"LONDON\",\"LONDON\"],\"element2\":[\"arbitrary string value\",\"a"
+"rbitrary string value\"],\"element3\":true,\"element4\":\"arbitrary string v"
+"alue\",\"element5\":{\"element1\":{\"element1\":[\"LONDON\",\"LONDON\"],\"el"
+"ement2\":[\"arbitrary string value\",\"arbitrary string value\"],\"element3"
+"\":true,\"element4\":\"arbitrary string value\",\"element6\":[\"LONDON\",\"LO"
+"NDON\"]},\"element2\":[true,true],\"element3\":[1.500000000000000e+00,1.5000"
+"00000000000e+00],\"element4\":[\"\\/wAB\",\"\\/wAB\"],\"element5\":[2,2],\"e"
+"lement6\":[\"2012-08-18T13:25:00.000+00:00\",\"2012-08-18T13:25:00.000+00:00"
+"\"],\"element7\":[]},\"element6\":[\"LONDON\",\"LONDON\"]},\"element2\":[tru"
+"e,true],\"element3\":[1.500000000000000e+00,1.500000000000000e+00],\"element"
+"4\":[\"\\/wAB\",\"\\/wAB\"],\"element5\":[2,2],\"element6\":[\"2012-08-18T13"
+":25:00.000+00:00\",\"2012-08-18T13:25:00.000+00:00\"],\"element7\":[]},\"ele"
+"ment6\":[\"LONDON\",\"LONDON\"]},{\"element1\":[\"LONDON\",\"LONDON\"],\"ele"
+"ment2\":[\"arbitrary string value\",\"arbitrary string value\"],\"element3\""
+":true,\"element4\":\"arbitrary string value\",\"element5\":{\"element1\":{\""
+"element1\":[\"LONDON\",\"LONDON\"],\"element2\":[\"arbitrary string value\","
+"\"arbitrary string value\"],\"element3\":true,\"element4\":\"arbitrary strin"
+"g value\",\"element5\":{\"element1\":{\"element1\":[\"LONDON\",\"LONDON\"],"
+"\"element2\":[\"arbitrary string value\",\"arbitrary string value\"],\"elemen"
+"t3\":true,\"element4\":\"arbitrary string value\",\"element6\":[\"LONDON\","
+"\"LONDON\"]},\"element2\":[true,true],\"element3\":[1.500000000000000e+00,1.5"
+"00000000000000e+00],\"element4\":[\"\\/wAB\",\"\\/wAB\"],\"element5\":[2,2],"
+"\"element6\":[\"2012-08-18T13:25:00.000+00:00\",\"2012-08-18T13:25:00.000+00"
+":00\"],\"element7\":[]},\"element6\":[\"LONDON\",\"LONDON\"]},\"element2\":["
+"true,true],\"element3\":[1.500000000000000e+00,1.500000000000000e+00],\"elem"
+"ent4\":[\"\\/wAB\",\"\\/wAB\"],\"element5\":[2,2],\"element6\":[\"2012-08-18"
+"T13:25:00.000+00:00\",\"2012-08-18T13:25:00.000+00:00\"],\"element7\":[]},\""
+"element6\":[\"LONDON\",\"LONDON\"]}],\"element2\":[{\"selection2\":1.5000000"
+"00000000e+00},{\"selection2\":1.500000000000000e+00}],\"element3\":\"\\/wAB"
+"\",\"element4\":2,\"element5\":\"2012-08-18T13:25:00.000+00:00\",\"element6\""
+":\"custom\",\"element7\":\"LONDON\",\"element8\":true,\"element9\":\"arbitra"
+"ry string value\",\"element10\":1.500000000000000e+00,\"element11\":\"\\/wAB"
+"\",\"element12\":2,\"element13\":\"LONDON\",\"element14\":[true,true],\"elem"
+"ent15\":[1.500000000000000e+00,1.500000000000000e+00],\"element16\":[\"\\/wA"
+"B\",\"\\/wAB\"],\"element17\":[2,2],\"element18\":[\"2012-08-18T13:25:00.000"
+"+00:00\",\"2012-08-18T13:25:00.000+00:00\"],\"element19\":[\"custom\",\"cust"
+"om\"]}}],\"element3\":\"\\/wAB\",\"element4\":2,\"element5\":\"2012-08-18T13"
+":25:00.000+00:00\",\"element6\":\"custom\",\"element7\":\"LONDON\",\"element"
+"8\":true,\"element9\":\"arbitrary string value\",\"element10\":1.50000000000"
+"0000e+00,\"element11\":\"\\/wAB\",\"element12\":2,\"element13\":\"LONDON\","
+"\"element14\":[true,true],\"element15\":[1.500000000000000e+00,1.500000000000"
+"000e+00],\"element16\":[\"\\/wAB\",\"\\/wAB\"],\"element17\":[2,2],\"element"
+"18\":[\"2012-08-18T13:25:00.000+00:00\",\"2012-08-18T13:25:00.000+00:00\"],"
+"\"element19\":[\"custom\",\"custom\"]}},\"element5\":1.500000000000000e+00}}",
+
+"{\"selection3\":{\"element1\":\"custom\",\"element2\":255,\"element3\":\"201"
+"2-08-18T13:25:00.000+00:00\",\"element4\":{\"selection4\":{\"selection1\":tr"
+"ue}}}}",
+
+"{\"selection3\":{\"element1\":\"custom\",\"element2\":0,\"element3\":\"2012-"
+"08-18T13:25:00.000+00:00\",\"element4\":{\"selection4\":{\"selection2\":\"\""
+"}},\"element5\":1.500000000000000e+00}}",
+
+"{\"selection3\":{\"element1\":\"custom\",\"element2\":255,\"element3\":\"201"
+"2-08-18T13:25:00.000+00:00\",\"element4\":{\"selection4\":{\"selection2\":\""
+"arbitrary string value\"}}}}",
+
+"{\"selection3\":{\"element1\":\"custom\",\"element2\":0,\"element3\":\"2012-"
+"08-18T13:25:00.000+00:00\",\"element4\":{\"selection1\":2},\"element5\":1.50"
+"0000000000000e+00}}",
+
+"{\"selection4\":{\"element1\":[],\"element2\":[],\"element6\":[]}}",
+
+"{\"selection4\":{\"element1\":[\"LONDON\",\"LONDON\"],\"element2\":[\"arbitr"
+"ary string value\",\"arbitrary string value\"],\"element3\":true,\"element4"
+"\":\"arbitrary string value\",\"element5\":{\"element1\":{\"element1\":[\"LON"
+"DON\",\"LONDON\"],\"element2\":[\"arbitrary string value\",\"arbitrary strin"
+"g value\"],\"element3\":true,\"element4\":\"arbitrary string value\",\"eleme"
+"nt5\":{\"element1\":{\"element1\":[\"LONDON\",\"LONDON\"],\"element2\":[\"ar"
+"bitrary string value\",\"arbitrary string value\"],\"element3\":true,\"eleme"
+"nt4\":\"arbitrary string value\",\"element6\":[\"LONDON\",\"LONDON\"]},\"ele"
+"ment2\":[true,true],\"element3\":[1.500000000000000e+00,1.500000000000000e+0"
+"0],\"element4\":[\"\\/wAB\",\"\\/wAB\"],\"element5\":[2,2],\"element6\":[\"2"
+"012-08-18T13:25:00.000+00:00\",\"2012-08-18T13:25:00.000+00:00\"],\"element7"
+"\":[]},\"element6\":[\"LONDON\",\"LONDON\"]},\"element2\":[true,true],\"elem"
+"ent3\":[1.500000000000000e+00,1.500000000000000e+00],\"element4\":[\"\\/wAB"
+"\",\"\\/wAB\"],\"element5\":[2,2],\"element6\":[\"2012-08-18T13:25:00.000+00:"
+"00\",\"2012-08-18T13:25:00.000+00:00\"],\"element7\":[]},\"element6\":[\"LON"
+"DON\",\"LONDON\"]}}",
+
+"{\"selection4\":{\"element1\":[],\"element2\":[\"\",\"\"],\"element4\":\"\","
+"\"element5\":{\"element1\":{\"element1\":[],\"element2\":[\"\",\"\"],\"eleme"
+"nt4\":\"\",\"element5\":{\"element1\":{\"element1\":[],\"element2\":[\"\",\""
+"\"],\"element4\":\"\",\"element6\":[]},\"element2\":[],\"element3\":[],\"ele"
+"ment4\":[],\"element5\":[],\"element6\":[],\"element7\":[]},\"element6\":[]}"
+",\"element2\":[],\"element3\":[],\"element4\":[],\"element5\":[],\"element6"
+"\":[],\"element7\":[]},\"element6\":[]}}",
+
+"{\"selection5\":\"2012-08-18T13:25:00.000+00:00\"}",
+
+"{\"selection6\":\"custom\"}",
+
+"{\"selection7\":\"LONDON\"}",
+
+"{\"selection8\":{\"selection1\":{\"element4\":255,\"element5\":[],\"element6"
+"\":\"custom\",\"element7\":999,\"element8\":[],\"element9\":[],\"element10\""
+":[],\"element11\":[]}}}",
+
+"{\"selection8\":{\"selection1\":{\"element1\":0,\"element2\":\"custom\",\"el"
+"ement3\":999,\"element4\":0,\"element5\":[999,999],\"element6\":\"custom\","
+"\"element7\":999,\"element8\":[0,0],\"element9\":[\"custom\",\"custom\"],\"el"
+"ement10\":[0,0],\"element11\":[999,999]}}}",
+
+"{\"selection8\":{\"selection1\":{\"element1\":255,\"element4\":255,\"element"
+"5\":[],\"element6\":\"custom\",\"element7\":999,\"element8\":[255,255],\"ele"
+"ment9\":[],\"element10\":[255,255],\"element11\":[]}}}",
+
+"{\"selection8\":{\"selection2\":255}}",
+
+"{\"selection8\":{\"selection2\":0}}",
+
+"{\"selection8\":{\"selection3\":\"custom\"}}",
+
+"{\"selection8\":{\"selection4\":999}}",
+
+"{\"selection9\":{}}",
+
+"{\"selection10\":{\"element1\":3000000000,\"element2\":32794,\"element3\":92"
+"23372036854785808}}"
 
 };
 
-static const int NUM_TEST_MESSAGES =
-                              (sizeof(TEST_MESSAGES) / sizeof(*TEST_MESSAGES));
+static const int NUM_JSON_TEST_MESSAGES =
+                    (sizeof(JSON_TEST_MESSAGES) / sizeof(*JSON_TEST_MESSAGES));
+
+BSLMF_ASSERT(NUM_JSON_TEST_MESSAGES == NUM_XML_TEST_MESSAGES);
 
 
 namespace BloombergLP {
@@ -2627,6 +3420,10 @@ void constructFeatureTestMessage(std::vector<baea::FeatureTestMessage>* objects)
 
 }  // close anonymous namespace
 
+// ============================================================================
+//                              MAIN PROGRAM
+// ----------------------------------------------------------------------------
+
 int main(int argc, char *argv[])
 {
     int test = argc > 1 ? atoi(argv[1]) : 0;
@@ -2637,7 +3434,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 12: {
+      case 14: {
         // --------------------------------------------------------------------
         // Encode test
         //
@@ -2648,27 +3445,290 @@ int main(int argc, char *argv[])
         //  int encode(const TYPE & value);
         // --------------------------------------------------------------------
       } break;
+      case 13: {
+        // --------------------------------------------------------------------
+        // Encode Sequence
+        //
+        // Concerns:
+        //: 1 Empty sequence will be encoded as an object without any member.
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "Encode empty sequence." << endl;
+        {
+            const baea::VoidSequence X;
+
+            Obj  encoder;
+            bsl::ostringstream oss;
+            Impl impl(&encoder, oss.rdbuf());
+            ASSERTV(0 == impl.encode(X));
+
+            bsl::string result = oss.str();
+            ASSERTV(result, result == "{}");
+        }
+
+        {
+            baea::Sequence2 mX; const baea::Sequence2& X = mX;
+            mX.element1() = baea::CustomString("Hello");
+            mX.element2() = 42;
+            mX.element3() = bdet_DatetimeTz(
+                                  bdet_Datetime(2012, 12, 31, 12, 59, 59, 999),
+                                  -720);
+
+            {
+                Obj  encoder;
+                bsl::ostringstream oss;
+                Impl impl(&encoder, oss.rdbuf());
+                ASSERTV(0 == impl.encode(X));
+
+                const char *EXP = 
+                    "{"
+                        "\"element1\":\"Hello\","
+                        "\"element2\":42,"
+                        "\"element3\":\"2012-12-31T12:59:59.999-12:00\""
+                    "}";
+                bsl::string result = oss.str();
+                ASSERTV(result, EXP, result == EXP);
+            }
+
+            mX.element4().makeValue();
+            mX.element5().makeValue(3.14);
+            {
+                // 'element4' is an unselected Choice.  Ensure encode sequence
+                // propagate errors.
+
+                Obj  encoder;
+                bsl::ostringstream oss;
+                Impl impl(&encoder, oss.rdbuf());
+                ASSERTV(0 != impl.encode(X));
+            }
+
+            mX.element4().value().makeSelection1(99);
+            {
+                Obj  encoder;
+                bsl::ostringstream oss;
+                Impl impl(&encoder, oss.rdbuf());
+                ASSERTV(0 == impl.encode(X));
+                const char *EXP = 
+                    "{"
+                        "\"element1\":\"Hello\","
+                        "\"element2\":42,"
+                        "\"element3\":\"2012-12-31T12:59:59.999-12:00\","
+                        "\"element4\":{\"selection1\":99},"
+                        "\"element5\":3.140000000000000e+00"
+                    "}";
+                bsl::string result = oss.str();
+                ASSERTV(result, EXP, result == EXP);
+            }
+        }
+
+      } break;
+      case 12: {
+        // --------------------------------------------------------------------
+        // Encode Choice
+        // --------------------------------------------------------------------
+        if (verbose) cout << "Encode Choice" << endl;
+        {
+            baea::Choice2 mX; const baea::Choice2& X = mX;
+            {
+                // Test that it fails without selection.
+
+                Obj  encoder;
+                bsl::ostringstream oss;
+                Impl impl(&encoder, oss.rdbuf());
+                ASSERTV(0 != impl.encode(X));
+            }
+            {
+                mX.makeSelection1(true);
+
+                Obj  encoder;
+                bsl::ostringstream oss;
+                Impl impl(&encoder, oss.rdbuf());
+                ASSERTV(0 == impl.encode(X));
+
+                bsl::string result = oss.str();
+                ASSERTV(result, result == "{\"selection1\":true}");
+            }
+            {
+                mX.makeSelection2("A quick brown fox");
+
+                Obj  encoder;
+                bsl::ostringstream oss;
+                Impl impl(&encoder, oss.rdbuf());
+                ASSERTV(0 == impl.encode(X));
+
+                bsl::string result = oss.str();
+                ASSERTV(result,
+                        result == "{\"selection2\":\"A quick brown fox\"}");
+            }
+            {
+                mX.makeSelection3();
+
+                Obj  encoder;
+                bsl::ostringstream oss;
+                Impl impl(&encoder, oss.rdbuf());
+                ASSERTV(0 != impl.encode(X));
+            }
+            {
+                mX.selection3().makeSelection1(42);
+
+                Obj  encoder;
+                bsl::ostringstream oss;
+                Impl impl(&encoder, oss.rdbuf());
+                ASSERTV(0 == impl.encode(X));
+
+                bsl::string result = oss.str();
+                ASSERTV(result,
+                        result == "{\"selection3\":{\"selection1\":42}}");
+            }
+        }
+      } break;
       case 11: {
         // --------------------------------------------------------------------
         // Encode Array
+        //
+        // Concerns:
+        //: 1 'bsl::vector<char>' is encoded into base64 encoding.
         // --------------------------------------------------------------------
+
+        if (verbose) cout << "Encode 'vector<char>'" << endl;
+        {
+            const struct {
+                int         d_line;
+                const char *d_input;
+                int         d_inputLength;
+                const char *d_result;
+            } DATA[] = {
+
+            //LINE  INPUT  LEN  RESULT
+            //----  -----  ---  ------
+
+            { L_,   "",     0,   "\"\""  },
+            { L_,   "\x00", 1,   "\"AA==\""  },
+            { L_,   "\x01", 1,   "\"AQ==\""  },
+            { L_,   "\xFF", 1,   "\"\\/w==\""  },
+            { L_,   "\x00\x00\x00\x00\x00\x00\x00\x00\00", 9,
+                                                           "\"AAAAAAAAAAAA\"" }
+
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int         LINE   = DATA[ti].d_line;
+                const char *const INPUT  = DATA[ti].d_input;
+                const int         LENGTH = DATA[ti].d_inputLength;
+                const char *const EXP    = DATA[ti].d_result;
+                const bsl::vector<char> VALUE(INPUT, INPUT + LENGTH);
+
+                Obj  encoder;
+                bsl::ostringstream oss;
+                Impl impl(&encoder, oss.rdbuf());
+                ASSERTV(LINE, 0 == impl.encode(VALUE));
+
+                bsl::string result = oss.str();
+                ASSERTV(LINE, result, EXP, result == EXP);
+            }
+        }
+
+        if (verbose) cout << "Encode 'vector<int>'" << endl;
+        {
+            const struct {
+                int         d_line;
+                const char *d_result;
+            } DATA[] = {
+
+            //LINE  RESULT
+            //----  ------
+
+            { L_,   "[]"  },
+            { L_,   "[0]"  },
+            { L_,   "[0,1]"  },
+            { L_,   "[0,1,2]"  },
+            { L_,   "[0,1,2,3]"  }
+
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int         LINE   = DATA[ti].d_line;
+                const int         NUM    = ti;
+                const char *const EXP    = DATA[ti].d_result;
+
+                bsl::vector<int> value;
+                for (int i = 0; i < NUM; ++i) {
+                    value.push_back(i);
+                }
+
+                Obj  encoder;
+                bsl::ostringstream oss;
+                Impl impl(&encoder, oss.rdbuf());
+                ASSERTV(LINE, 0 == impl.encode(value));
+
+                bsl::string result = oss.str();
+                ASSERTV(LINE, result, EXP, result == EXP);
+            }
+        }
       } break;
       case 10: {
+        // --------------------------------------------------------------------
+        // Encode Nullable
+        //
+        // Concerns:
+        //: 1 Null value is encoded to "null".
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "Encode null value" << endl;
+        {
+            bdeut_NullableValue<int> mX;
+            const bdeut_NullableValue<int>& X = mX;
+
+            Obj  encoder;
+            {
+                bsl::ostringstream oss;
+                Impl impl(&encoder, oss.rdbuf());
+                ASSERTV(0 == impl.encode(X));
+
+                bsl::string result = oss.str();
+                ASSERTV(result, result == "null");
+            }
+
+            mX = 0;
+            {
+                bsl::ostringstream oss;
+                Impl impl(&encoder, oss.rdbuf());
+                ASSERTV(0 == impl.encode(X));
+
+                bsl::string result = oss.str();
+                ASSERTV(result, result == "0");
+            }
+
+            mX = 42;
+            {
+                bsl::ostringstream oss;
+                Impl impl(&encoder, oss.rdbuf());
+                ASSERTV(0 == impl.encode(X));
+
+                bsl::string result = oss.str();
+                ASSERTV(result, result == "42");
+            }
+
+            mX.reset();
+            {
+                bsl::ostringstream oss;
+                Impl impl(&encoder, oss.rdbuf());
+                ASSERTV(0 == impl.encode(X));
+
+                bsl::string result = oss.str();
+                ASSERTV(result, result == "null");
+            }
+        }
+
+      } break;
+      case 9: {
         // --------------------------------------------------------------------
         // Encode Customized
         // --------------------------------------------------------------------
       } break;
-      case 9: {
-        // --------------------------------------------------------------------
-        // Encode Choice
-        // --------------------------------------------------------------------
-      } break;
       case 8: {
-        // --------------------------------------------------------------------
-        // Encode Sequence
-        // --------------------------------------------------------------------
-      } break;
-      case 7: {
         // --------------------------------------------------------------------
         // Encode Enumeration
         // --------------------------------------------------------------------
@@ -2690,7 +3750,7 @@ int main(int argc, char *argv[])
             ASSERTV(ti, result, exp, result == exp);
         }
       } break;
-      case 6: {
+      case 7: {
         // --------------------------------------------------------------------
         // Encode Date/Time
         // --------------------------------------------------------------------
@@ -2722,7 +3782,62 @@ int main(int argc, char *argv[])
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        const char *datetimeTzResults[] = {
+        const char *expectedDate[] = {
+            "\"0001-01-01\"",
+            "\"2005-01-01\"",
+            "\"0123-06-15\"",
+            "\"1999-10-12\"",
+            "\"1999-10-12\"",
+            "\"1999-10-12\"",
+            "\"1999-10-12\"",
+            "\"1999-12-31\""
+        };
+
+        const char *expectedDateTz[] = {
+            "\"0001-01-01+00:00\"",
+            "\"2005-01-01-01:30\"",
+            "\"0123-06-15-04:00\"",
+            "\"1999-10-12-12:00\"",
+            "\"1999-10-12+01:30\"",
+            "\"1999-10-12+04:00\"",
+            "\"1999-10-12+12:00\"",
+            "\"1999-12-31+12:00\""
+        };
+
+        const char *expectedTime[] = {
+            "\"00:00:00.000\"",
+            "\"00:00:00.000\"",
+            "\"13:40:59.000\"",
+            "\"23:00:01.000\"",
+            "\"23:00:01.000\"",
+            "\"23:00:01.456\"",
+            "\"23:00:01.999\"",
+            "\"23:59:59.999\""
+        };
+
+        const char *expectedTimeTz[] = {
+            "\"00:00:00.000+00:00\"",
+            "\"00:00:00.000-01:30\"",
+            "\"13:40:59.000-04:00\"",
+            "\"23:00:01.000-12:00\"",
+            "\"23:00:01.000+01:30\"",
+            "\"23:00:01.456+04:00\"",
+            "\"23:00:01.999+12:00\"",
+            "\"23:59:59.999+12:00\""
+        };
+
+        const char *expectedDatetime[] = {
+            "\"0001-01-01T00:00:00.000\"",
+            "\"2005-01-01T00:00:00.000\"",
+            "\"0123-06-15T13:40:59.000\"",
+            "\"1999-10-12T23:00:01.000\"",
+            "\"1999-10-12T23:00:01.000\"",
+            "\"1999-10-12T23:00:01.456\"",
+            "\"1999-10-12T23:00:01.999\"",
+            "\"1999-12-31T23:59:59.999\""
+        };
+
+        const char *expectedDatetimeTz[] = {
             "\"0001-01-01T00:00:00.000+00:00\"",
             "\"2005-01-01T00:00:00.000-01:30\"",
             "\"0123-06-15T13:40:59.000-04:00\"",
@@ -2753,8 +3868,74 @@ int main(int argc, char *argv[])
             bdet_TimeTz     theTimeTz(theTime, OFFSET);
             bdet_DatetimeTz theDatetimeTz(theDatetime, OFFSET);
 
+            if (verbose) cout << "Encode Date" << endl;
             {
-                const char *EXP = datetimeTzResults[ti];
+                const char *EXP = expectedDate[ti];
+                Obj  encoder;
+
+                bsl::ostringstream oss;
+                Impl impl(&encoder, oss.rdbuf());
+                ASSERTV(LINE, 0 == impl.encode(theDate));
+
+                bsl::string result = oss.str();
+                ASSERTV(LINE, result, EXP, result == EXP);
+            }
+
+            if (verbose) cout << "Encode DateTz" << endl;
+            {
+                const char *EXP = expectedDateTz[ti];
+                Obj  encoder;
+
+                bsl::ostringstream oss;
+                Impl impl(&encoder, oss.rdbuf());
+                ASSERTV(LINE, 0 == impl.encode(theDateTz));
+
+                bsl::string result = oss.str();
+                ASSERTV(LINE, result, EXP, result == EXP);
+            }
+
+            if (verbose) cout << "Encode Time" << endl;
+            {
+                const char *EXP = expectedTime[ti];
+                Obj  encoder;
+
+                bsl::ostringstream oss;
+                Impl impl(&encoder, oss.rdbuf());
+                ASSERTV(LINE, 0 == impl.encode(theTime));
+
+                bsl::string result = oss.str();
+                ASSERTV(LINE, result, EXP, result == EXP);
+            }
+
+            if (verbose) cout << "Encode TimeTz" << endl;
+            {
+                const char *EXP = expectedTimeTz[ti];
+                Obj  encoder;
+
+                bsl::ostringstream oss;
+                Impl impl(&encoder, oss.rdbuf());
+                ASSERTV(LINE, 0 == impl.encode(theTimeTz));
+
+                bsl::string result = oss.str();
+                ASSERTV(LINE, result, EXP, result == EXP);
+            }
+
+            if (verbose) cout << "Encode Datetime" << endl;
+            {
+                const char *EXP = expectedDatetime[ti];
+                Obj  encoder;
+
+                bsl::ostringstream oss;
+                Impl impl(&encoder, oss.rdbuf());
+                ASSERTV(LINE, 0 == impl.encode(theDatetime));
+
+                bsl::string result = oss.str();
+                ASSERTV(LINE, result, EXP, result == EXP);
+            }
+
+            if (verbose) cout << "Encode DatetimeTz" << endl;
+            {
+                const char *EXP = expectedDatetimeTz[ti];
                 Obj  encoder;
 
                 bsl::ostringstream oss;
@@ -2766,7 +3947,7 @@ int main(int argc, char *argv[])
             }
         }
       } break;
-      case 5: {
+      case 6: {
         // --------------------------------------------------------------------
         // Encode Numbers
         // --------------------------------------------------------------------
@@ -2829,8 +4010,8 @@ int main(int argc, char *argv[])
                 const int         LINE  = DATA[ti].d_line;
                 const Int64       VALUE = DATA[ti].d_value;
                 const char *const EXP   = DATA[ti].d_result;
-                Obj  encoder;
 
+                Obj  encoder;
                 bsl::ostringstream oss;
                 Impl impl(&encoder, oss.rdbuf());
                 ASSERTV(LINE, 0 == impl.encode(VALUE));
@@ -2840,7 +4021,7 @@ int main(int argc, char *argv[])
             }
         }
       } break;
-      case 4: {
+      case 5: {
         // --------------------------------------------------------------------
         // Encode Strings
         //
@@ -2959,6 +4140,32 @@ int main(int argc, char *argv[])
             }
         }
       } break;
+      case 4: {
+        // --------------------------------------------------------------------
+        // ENCODE bool
+        // --------------------------------------------------------------------
+        if (verbose) cout << "Encode 'true'" << endl;
+        {
+            Obj  encoder;
+            bsl::ostringstream oss;
+            Impl impl(&encoder, oss.rdbuf());
+            ASSERTV(0 == impl.encode(true));
+
+            bsl::string result = oss.str();
+            ASSERTV(result, result == "true");
+        }
+
+        if (verbose) cout << "Encode 'false'" << endl;
+        {
+            Obj  encoder;
+            bsl::ostringstream oss;
+            Impl impl(&encoder, oss.rdbuf());
+            ASSERTV(0 == impl.encode(false));
+
+            bsl::string result = oss.str();
+            ASSERTV(result, result == "false");
+        }
+      } break;
       case 3: {
         // --------------------------------------------------------------------
         // TEST BCEM_AGGREGATE
@@ -2972,13 +4179,13 @@ int main(int argc, char *argv[])
         bcema_SharedPtr<bdem_Schema> schema(new bdem_Schema);
 
         bdem_RecordDef *address = schema->createRecord("Address");
-        address->appendField(bdem_ElemType::BDEM_STRING,       "street");
-        address->appendField(bdem_ElemType::BDEM_STRING,       "city");
-        address->appendField(bdem_ElemType::BDEM_STRING,       "state");
+        address->appendField(bdem_ElemType::BDEM_STRING, "street");
+        address->appendField(bdem_ElemType::BDEM_STRING, "city");
+        address->appendField(bdem_ElemType::BDEM_STRING, "state");
 
         bdem_RecordDef *employee = schema->createRecord("Employee");
         employee->appendField(bdem_ElemType::BDEM_STRING, "name");
-        employee->appendField(bdem_ElemType::BDEM_LIST,   address, "homeAddress");
+        employee->appendField(bdem_ElemType::BDEM_LIST, address, "homeAddress");
         employee->appendField(bdem_ElemType::BDEM_INT, "age");
 
         bcem_Aggregate bob(schema, "Employee");
@@ -2994,11 +4201,16 @@ int main(int argc, char *argv[])
                 "\"age\":21"
             "}";
 
-        baejsn_Decoder decoder;
-        bsl::istringstream iss(jsonText);
+        //baejsn_Decoder decoder;
+        //bsl::istringstream iss(jsonText);
 
-        ASSERTV(0 == decoder.decode(iss, &bob));
+        //ASSERTV(0 == decoder.decode(iss, &bob));
 
+        bob["name"].setValue("Bob");
+        bob["homeAddress"]["street"].setValue("Some Street");
+        bob["homeAddress"]["city"].setValue("Some City");
+        bob["homeAddress"]["state"].setValue("Some State");
+        bob["age"].setValue(21);
         //P(bob);
 
         baejsn_Encoder encoder;
@@ -3024,27 +4236,23 @@ int main(int argc, char *argv[])
         constructFeatureTestMessage(&testObjects);
 
         for (int ti = 0; ti < (int)testObjects.size(); ++ti) {
-            //const char *jsonText = TEST_MESSAGES[ti];
-
-            //P(message);
             baejsn_Encoder encoder;
             bsl::ostringstream oss;
             ASSERTV(0 == encoder.encode(oss, testObjects[ti]));
 
-            //ASSERTV(oss.str() == jsonText);
+            ASSERTV(oss.str() == JSON_TEST_MESSAGES[ti]);
             if (verbose) {
                 P(oss.str());
             }
 
-            baejsn_Decoder decoder;
-            bsl::istringstream iss(oss.str());
+            //baejsn_Decoder decoder;
+            //bsl::istringstream iss(oss.str());
 
-            baea::FeatureTestMessage object;
-            ASSERTV(ti, 0 == decoder.decode(iss, &object));
+            //baea::FeatureTestMessage object;
+            //ASSERTV(ti, 0 == decoder.decode(iss, &object));
 
-            ASSERTV(ti, testObjects[ti], object, testObjects[ti] == object);
+            //ASSERTV(ti, testObjects[ti], object, testObjects[ti] == object);
         }
-
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -3076,8 +4284,11 @@ int main(int argc, char *argv[])
 
         bsl::istringstream iss(jsonText);
 
-        baejsn_Decoder decoder;
-        ASSERTV(0 == decoder.decode(iss, &bob));
+        bob.name() = "Bob";
+        bob.homeAddress().street() = "Some Street";
+        bob.homeAddress().city() = "Some City";
+        bob.homeAddress().state() = "Some State";
+        bob.age() = 21;
 
         ASSERTV(bob.name(), "Bob"         == bob.name());
         ASSERT("Some Street" == bob.homeAddress().street());

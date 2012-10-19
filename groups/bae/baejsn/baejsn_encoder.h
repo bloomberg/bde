@@ -47,10 +47,6 @@ BDES_IDENT("$Id: $")
 #include <bsl_string.h>
 #endif
 
-#ifndef INCLUDED_BDEUT_NULLABLEVALUE
-#include <bdeut_nullablevalue.h>
-#endif
-
 #ifndef INCLUDED_BDEAT_ATTRIBUTEINFO
 #include <bdeat_attributeinfo.h>
 #endif
@@ -81,10 +77,6 @@ BDES_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSL_SSTREAM
 #include <bsl_sstream.h>
-#endif
-
-#ifndef INCLUDED_BDEDE_BASE64ENCODER
-#include <bdede_base64encoder.h>
 #endif
 
 #ifndef INCLUDED_BDESB_MEMOUTSTREAMBUF
@@ -474,9 +466,10 @@ int baejsn_Encoder::encode(bsl::ostream& stream, const TYPE& value)
         return -1;                                                    // RETURN
     }
 
-    if (0 != this->encode(stream.rdbuf(), value)) {
+    int rc = this->encode(stream.rdbuf(), value);
+    if (0 != rc) {
         stream.setstate(bsl::ios_base::failbit);
-        return -1;                                                    // RETURN
+        return rc;                                                    // RETURN
     }
 
     return 0;
@@ -646,8 +639,9 @@ int baejsn_Encoder_EncodeImpl::encodeArray(const TYPE& value)
         }
 
         baejsn_Encoder_ElementVisitor visitor = { this };
-        if (0 != bdeat_ArrayFunctions::accessElement(value, visitor, i)) {
-            return -1;                                                // RETURN
+        int rc = bdeat_ArrayFunctions::accessElement(value, visitor, i);
+        if (0 != rc) {
+            return rc;                                                // RETURN
         }
     }
 
@@ -661,8 +655,9 @@ int baejsn_Encoder_EncodeImpl::encodeSequence(const TYPE & value)
     outputStream() << '{';
 
     baejsn_Encoder_SequenceVisitor visitor(this);
-    if (0 != bdeat_SequenceFunctions::accessAttributes(value, visitor)) {
-        return -1;                                                    // RETURN
+    int rc = bdeat_SequenceFunctions::accessAttributes(value, visitor);
+    if (0 != rc) {
+        return rc;                                                    // RETURN
     }
 
     outputStream() << '}';
@@ -886,7 +881,7 @@ int baejsn_Encoder_SequenceVisitor::operator()(
             << info.name()
             << "'."
             << bsl::endl;
-        return -1;                                                    // RETURN
+        return rc;                                                    // RETURN
     }
     d_encoder->outputStream() << ':';
     rc = d_encoder->encode(value);
@@ -896,7 +891,7 @@ int baejsn_Encoder_SequenceVisitor::operator()(
             << info.name()
             << "'."
             << bsl::endl;
-        return -1;                                                    // RETURN
+        return rc;                                                    // RETURN
     }
 
     d_firstPassFlag = false;
@@ -912,8 +907,7 @@ template <typename TYPE>
 inline
 int baejsn_Encoder_ElementVisitor::operator()(const TYPE &value)
 {
-    d_encoder->encode(value);
-    return 0;
+    return d_encoder->encode(value);
 }
 
 template <typename TYPE, typename ATTRIBUTE_OR_SELECTION>
@@ -922,10 +916,25 @@ int baejsn_Encoder_ElementVisitor::operator()(
                                             const TYPE&                   value,
                                             const ATTRIBUTE_OR_SELECTION& info)
 {
-    d_encoder->encode(info.name());
+    int rc = d_encoder->encode(info.name());
+    if (0 != rc) {
+        d_encoder->logStream()
+            << "Unable to encode the name of the selection, '"
+            << info.name()
+            << "'."
+            << bsl::endl;
+        return rc;
+    }
     d_encoder->outputStream() << ':';
-    d_encoder->encode(value);
-
+    rc = d_encoder->encode(value);
+    if (0 != rc) {
+        d_encoder->logStream()
+            << "Unable to encode the value of the selection, '"
+            << info.name()
+            << "'."
+            << bsl::endl;
+        return rc;
+    }
     return 0;
 }
 
@@ -938,7 +947,7 @@ template <typename TYPE>
 inline
 int baejsn_Encoder_DynamicTypeChooser::operator()(const TYPE&, bslmf_Nil)
 {
-    BSLS_ASSERT_OPT(!"Should be unreachable");
+    BSLS_ASSERT_OPT(!"Should be unreachable!");
 
     return -1;
 }
