@@ -263,6 +263,10 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
+#ifndef INCLUDED_BSLALG_BIDIRECTIONALLINK
+#include <bslalg_bidirectionallink.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
 #include <bslmf_istriviallycopyable.h>
 #endif
@@ -286,8 +290,6 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 namespace bslalg {
-
-class BidirectionalLink;
 
                           // =====================
                           // class HashTableBucket
@@ -333,6 +335,12 @@ struct HashTableBucket {
         // Set 'first' and 'last' to a null pointer value.
 
     // ACCESSORS
+    BidirectionalLink *end() const;
+        // Return the next node after the end of this bucket, or 0 if
+        // '0 == last()', so the range to traverse to traverse all nodes in the
+        // bucket is always '[ first(), end() )' regardless of whether the
+        // bucket is empty.
+
     BidirectionalLink *first() const;
         // Return the address of the first element in this hash bucket, or a
         // null pointer value if the bucket is empty.
@@ -399,6 +407,12 @@ void HashTableBucket::reset()
 }
 
 // ACCESSORS
+inline
+BidirectionalLink *HashTableBucket::end() const
+{
+    return d_last_p ? d_last_p->nextLink() : 0;
+}
+
 inline
 BidirectionalLink *HashTableBucket::first() const
 {
