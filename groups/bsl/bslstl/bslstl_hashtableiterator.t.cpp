@@ -545,7 +545,7 @@ void TestDriver<VALUE>::testCase9()
     if (verbose) printf("\nCOPY-ASSIGNMENT OPERATOR"
                         "\n========================\n");
 
-    //Assign the address of the operator to a variable.
+    // Assign the address of the operator to a variable.
 
     {
         typedef Obj& (Obj::*operatorPtr)(const Obj&);
@@ -573,8 +573,7 @@ void TestDriver<VALUE>::testCase9()
         Util::insertLinkAfterTarget(nodes[ti], nodes[ti - 1]);
     }
 
-    // Test the assignment operator on the cross product of the iterators
-    // pointing to nodes in the tree.
+    // Test the assignment operator on the cross product of the iterators.
 
     for (int ti = 0; ti < N; ++ti) {
 
@@ -642,21 +641,18 @@ void TestDriver<VALUE>::testCase7()
     //:
     //:   1 Create two 'const' 'Obj' 'Z', and 'ZZ' both pointing to 'N1'.
     //:
-    //:   2 Create a 'const' object having the parameterized 'VALUE_TYPE'
-    //:     declared 'const', 'Y', pointing to 'N1'.
-    //:
-    //:   3 Use the copy constructor to create an object 'X1', supplying it the
+    //:   2 Use the copy constructor to create an object 'X1', supplying it the
     //:     'const' object 'Z'.  (C-2)
     //:
-    //:   4 Verify that the newly constructed object 'X1', has the same value
+    //:   3 Verify that the newly constructed object 'X1', has the same value
     //:     as that of 'Z'.  Verify that 'Z' still has the same value as that
     //:     of 'ZZ'.  (C-1,3)
     //:
-    //:   5 Use the copy constructor to create an object having
+    //:   4 Use the copy constructor to create an object having
     //:     'const'-qualified value type 'X2', supplying the object 'Z'.
     //      (C-2, 4)
     //:
-    //:   6 Verify that the newly constructed object 'X2', has the same value
+    //:   5 Verify that the newly constructed object 'X2', has the same value
     //:     as that of 'ZZ'.  Verify that 'Z' still has the same value as that
     //:     of 'ZZ'.  (C-1,3)
     //
@@ -692,7 +688,7 @@ void TestDriver<VALUE>::testCase7()
 
         const Obj X1(Z);
 
-        if (veryVerbose) { T_ T_ P_(ti) }
+        if (veryVerbose) { T_ T_ P(ti) }
 
         ASSERTV(Z == X1);
         ASSERTV(Z == ZZ);
@@ -1147,6 +1143,10 @@ int main(int argc, char *argv[])
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
       } break;
       case 8: {
+        // --------------------------------------------------------------------
+        // SWAP MEMBER AND FREE FUNCTIONS
+        //   N/A
+        // --------------------------------------------------------------------
       } break;
       case 7: {
         // --------------------------------------------------------------------

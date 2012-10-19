@@ -685,7 +685,8 @@ void TestDriver<VALUE>::testCase10()
                 Stack freeY;
                 {
                     Obj mY(&oa);
-                    const Obj& Y = init(&mY, &usedY, &freeY, ALLOCS2, DEALLOCS2);
+                    const Obj& Y = init(&mY, &usedY, &freeY, ALLOCS2,
+                                        DEALLOCS2);
 
                     if (veryVerbose) { T_ P_(LINE1) P(LINE2) }
 
@@ -722,9 +723,9 @@ void TestDriver<VALUE>::testCase10()
                     }
                 }
 
-                // 'Y' is now destroyed, its blocks should be deallocated.  Verify
-                // Blocks in 'X' (which used to be in 'Y' before the swap) is not
-                // deallocated.
+                // 'Y' is now destroyed, its blocks should be deallocated.
+                // Verify Blocks in 'X' (which used to be in 'Y' before the
+                // swap) is not deallocated.
 
                 char SCRIBBLED_MEMORY[sizeof(VALUE)];
                 memset(SCRIBBLED_MEMORY, 0xA5, sizeof(VALUE));
@@ -746,7 +747,8 @@ void TestDriver<VALUE>::testCase10()
 
         if (verbose) printf("\nNegative Testing.\n");
         {
-            bsls::AssertFailureHandlerGuard hG(bsls::AssertTest::failTestDriver);
+            bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
 
             if (veryVerbose) printf("\t'swap' member function\n");
             {
@@ -788,7 +790,8 @@ void TestDriver<VALUE>::testCase10()
                 Stack freeY;
                 {
                     Obj mY(&oa);
-                    const Obj& Y = init(&mY, &usedY, &freeY, ALLOCS2, DEALLOCS2);
+                    const Obj& Y = init(&mY, &usedY, &freeY, ALLOCS2,
+                                        DEALLOCS2);
 
                     if (veryVerbose) { T_ P_(LINE1) P(LINE2) }
 
@@ -825,9 +828,9 @@ void TestDriver<VALUE>::testCase10()
                     }
                 }
 
-                // 'Y' is now destroyed, its blocks should be deallocated.  Verify
-                // Blocks in 'X' (which used to be in 'Y' before the swap) is not
-                // deallocated.
+                // 'Y' is now destroyed, its blocks should be deallocated.
+                // Verify Blocks in 'X' (which used to be in 'Y' before the
+                // swap) is not deallocated.
 
                 char SCRIBBLED_MEMORY[sizeof(VALUE)];
                 memset(SCRIBBLED_MEMORY, 0xA5, sizeof(VALUE));
