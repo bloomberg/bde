@@ -481,6 +481,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == bucket.countElements());
             ASSERT(0 == bucket.first());
             ASSERT(0 == bucket.last());
+            ASSERT(0 == bucket.end());
         }
 
         Link l1;
@@ -501,6 +502,21 @@ int main(int argc, char *argv[])
             ASSERT(3 == bucket.countElements());
             ASSERT(&l1 == bucket.first());
             ASSERT(&l3 == bucket.last());
+            ASSERT(0   == bucket.end());
+        }
+
+        Link l4;
+        l3.setNextLink(&l4);
+        l4.setPreviousLink(&l3);
+        l4.setNextLink(0);
+
+        {
+            Obj bucket = { &l1, &l3 };
+            myCheckInvariants(bucket);
+            ASSERT(3 == bucket.countElements());
+            ASSERT(&l1 == bucket.first());
+            ASSERT(&l3 == bucket.last());
+            ASSERT(&l4 == bucket.end());
         }
       } break;
       case 2: {
