@@ -15,6 +15,84 @@ namespace BloombergLP
 namespace bslalg
 {
 
+                    //-------------------------------------
+                    // class HashTableImpUtil::UniqueTester
+                    //-------------------------------------
+
+HashTableImpUtil::UniqueTester::UniqueTester(bslma::Allocator *allocator)
+: d_hashNodesForBucket(0)
+, d_freeHashNodes(0)
+, d_allocator_p(allocator)
+{
+    BSLS_ASSERT_SAFE(allocator);
+}
+
+HashTableImpUtil::UniqueTester::~UniqueTester()
+{
+    for (HashNode *node = d_hashNodesForBucket; node; ) {
+        HashNode *condemned = node;
+        node = node->d_next;
+
+        d_allocator_p->deallocate(condemned);
+    }
+    for (HashNode *node = d_freeHashNodes;      node; ) {
+        HashNode *condemned = node;
+        node = node->d_next;
+
+        d_allocator_p->deallocate(condemned);
+    }
+}
+
+void HashTableImpUtil::UniqueTester::clear()
+{
+    // Move all the nodes in the 'd_hashNodesForBucket' list to the
+    // free list.
+
+    while (d_hashNodesForBucket) {
+        HashNode *movingNode = d_hashNodesForBucket;
+        d_hashNodesForBucket = movingNode->d_next;
+
+        movingNode->d_next = d_freeHashNodes;
+        d_freeHashNodes = movingNode;
+    }
+}
+
+bool HashTableImpUtil::UniqueTester::registerUniqueHashValue(
+                                                       native_std::size_t hash)
+{
+    for (const HashNode *finder = d_hashNodesForBucket; finder;
+                                                     finder = finder->d_next) {
+        if (finder->d_hash == hash) {
+            return false;                                             // RETURN
+        }
+    }
+
+    // 'value' is unique.  Add it to the list.
+
+    // Get a new node to store it in.
+
+    HashNode *newNode;
+    if (d_freeHashNodes) {
+        newNode = d_freeHashNodes;
+        d_freeHashNodes = newNode->d_next;
+    }
+    else {
+        newNode = (HashNode *) d_allocator_p->allocate(sizeof(HashNode));
+    }
+
+    // Enter the new hash node into the list
+
+    newNode->d_hash = hash;
+    newNode->d_next = d_hashNodesForBucket;
+    d_hashNodesForBucket = newNode;
+
+    return true;
+}
+
+                        //-----------------------
+                        // class HashTableImpUtil
+                        //-----------------------
+
 // CLASS METHODS
 void HashTableImpUtil::remove(HashTableAnchor    *anchor,
                               BidirectionalLink  *link,
@@ -110,6 +188,35 @@ void HashTableImpUtil::insertAtFrontOfBucket(HashTableAnchor    *anchor,
     }
 }
 
+void HashTableImpUtil::insertAtBackOfBucket(HashTableAnchor    *anchor,
+                                            BidirectionalLink  *link,
+                                            native_std::size_t  hashCode)
+{
+    BSLS_ASSERT(anchor);
+    BSLS_ASSERT(link);
+
+    HashTableBucket *bucket = findBucketForHashCode(*anchor, hashCode);
+    BSLS_ASSERT_SAFE(bucket);
+
+    if (bucket->last()) {
+        BidirectionalLinkListUtil::insertLinkAfterTarget(link,
+                                                         bucket->last());
+        bucket->setLast(link);
+    }
+    else {
+        // New bucket is required.
+
+        BidirectionalLinkListUtil::insertLinkBeforeTarget(
+                                                    link,
+                                                    anchor->listRootAddress());
+
+        // New buckets are inserted in front of the list.
+
+        anchor->setListRootAddress(link);
+        bucket->setFirstAndLast(link, link);
+    }
+}
+
 void HashTableImpUtil::insertAtPosition(HashTableAnchor    *anchor,
                                         BidirectionalLink  *link,
                                         native_std::size_t  hashCode,
@@ -123,7 +230,7 @@ void HashTableImpUtil::insertAtPosition(HashTableAnchor    *anchor,
 
 #ifdef BDE_BUILD_TARGET_SAFE_2
     BSLS_ASSERT_SAFE(bucket->first());
-    BSLS_ASSERT_SAFE(bucketContainsLink(bucket, position));
+    BSLS_ASSERT_SAFE(bucketContainsLink(*bucket, position));
 #endif
 
     BidirectionalLinkListUtil::insertLinkBeforeTarget(link, position);
@@ -133,36 +240,6 @@ void HashTableImpUtil::insertAtPosition(HashTableAnchor    *anchor,
     }
     if (position == anchor->listRootAddress()) {
         anchor->setListRootAddress(link);
-    }
-}
-
-void HashTableImpUtil::spliceListIntoBucket(HashTableAnchor    *anchor,
-                                            native_std::size_t  bucketIndex,
-                                            BidirectionalLink  *first,
-                                            BidirectionalLink  *last)
-{
-    BSLS_ASSERT_SAFE(anchor);
-    BSLS_ASSERT_SAFE(anchor->bucketArraySize() > bucketIndex);
-    BSLS_ASSERT_SAFE(first);
-    BSLS_ASSERT_SAFE(last);
-
-    BidirectionalLink *root   = anchor->listRootAddress();
-    HashTableBucket   *bucket = &anchor->bucketArrayAddress()[bucketIndex];
-
-    if (!bucket->first()) {
-        bucket->setFirstAndLast(first, last);
-
-        BidirectionalLinkListUtil::spliceListBeforeTarget(first, last, root);
-        anchor->setListRootAddress(first);
-    }
-    else {
-        BidirectionalLinkListUtil::spliceListBeforeTarget(first,
-                                                          last,
-                                                          bucket->first());
-        if (bucket->first() == root) {
-            anchor->setListRootAddress(first);
-        }
-        bucket->setFirst(first);
     }
 }
 
