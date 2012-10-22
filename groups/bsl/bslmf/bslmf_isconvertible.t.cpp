@@ -31,16 +31,16 @@ using namespace std;
 // need to ensure that the values returned by these meta-functions are correct
 // for each possible pair of categorized types.  The two meta-functions are
 // functionally equivalent except 'bsl::is_convertible' only allows complete
-// template parameter types.  We will use the same set of types for
+// template parameter types.  We will use the same set of complete types for
 // 'bslmf::IsConvertible as that for 'bsl::is_convertible', and an additional
-// set of testing types involving incomplete types.
+// set of incomplete types for testing 'bslmf::IsConvertible' alone.
 //
 //-----------------------------------------------------------------------------
 // PUBLIC CLASS DATA
-// [ 1] bsl::Is_convertible::value
+// [ 1] bsl::is_convertible::value
 // [ 2] bslmf::IsConvertible::VALUE
-// [ 3] Testing no GCC warnings
-// [ 4] Testing no GCC warnings via a user-defined class
+// [ 3] Testing GCC Warnings Suppression
+// [ 4] Testing GCC Warnings Suppression Via a User-Defined Class
 //
 //-----------------------------------------------------------------------------
 // [ 5] USAGE EXAMPLE
@@ -100,7 +100,7 @@ class ConvertibleTo {
 
 template <class TYPE>
 class ConvertibleFrom {
-    // Object that's convertible From 'TYPE', for use in name only.
+    // This class is convertible from 'TYPE'.
 
     // DATA
     TYPE d_value;
@@ -129,16 +129,14 @@ class my_OtherClass {
     operator my_Class&();
 };
 
-class my_ThirdClass
-{
+class my_ThirdClass {
     // This class is convertible from 'my_Class'.
 
   public:
     my_ThirdClass(const my_Class&);
 };
 
-class my_AbstractClass
-{
+class my_AbstractClass {
     // This is an abstract class.
 
   public:
@@ -150,8 +148,7 @@ class my_AbstractClass
     int func1(int);
 };
 
-class my_DerivedClass : public my_AbstractClass
-{
+class my_DerivedClass : public my_AbstractClass {
     // This is a derived class.
 
   public:
@@ -168,8 +165,7 @@ class my_IncompleteClass2;  // incomplete class
 
 enum my_Enum { MY_VAL0, MY_VAL1 };
 
-class my_EnumClass
-{
+class my_EnumClass {
     // This class defines nested 'enum' type.
   public:
     enum Type { VAL0, VAL1 };
@@ -178,8 +174,7 @@ class my_EnumClass
 class my_BslmaAllocator;
 
 template <class TYPE>
-class my_StlAllocator
-{
+class my_StlAllocator {
     // This class is convertible from 'my_BslmaAllocator*'.
 
   public:
@@ -188,17 +183,13 @@ class my_StlAllocator
 };
 
 struct my_PlacementNew {
-    void *d_p; my_PlacementNew(void *p)
-        : d_p(p) {}
+    void *d_p; my_PlacementNew(void *p) : d_p(p) {}
 };
 
 void *operator new(size_t, my_PlacementNew p)
 {
     return p.d_p;
 }
-
-static const int A = bslmf::IsConvertible<int, char >::value; // A is 1
-static const int B = bslmf::IsConvertible<int, char*>::value; // B is 0
 
 // Verify that the 'bsl::is_convertible::value' is evaluated at compile-time.
 
@@ -234,8 +225,8 @@ static char C13[1 + bslmf::IsConvertible<int,   int *>::VALUE];    // sz=1
 //
 // Suppose we are implementing some container's 'addObject' method that adds a
 // new object (in its default state) of the container's template parameter
-// 'TYPE'.  The method calls an overloaded function 'createObject' to create a
-// new object of the template parameter type in its internal array.  The idea
+// 'TYPE'.  The method calls an overloaded function, 'createObject', to create
+// a new object of the template parameter type in its internal array.  The idea
 // is to invoke one version of 'createObject' if the type provides a
 // constructor that takes a pointer to an allocator as its sole argument, and
 // another version if the type provides only a default constructor.
@@ -276,7 +267,7 @@ struct Bar {
 // differentiate the argument list so we can overload the function.
 //..
 template <class TYPE>
-void createObject(TYPE *space, MyAllocator*, bsl::false_type)
+void createObject(TYPE *space, MyAllocator *, bsl::false_type)
 {
     // Create an object of the (template parameter) 'TYPE' using its
     // default constructor at the specified memory address 'space'.
@@ -299,10 +290,8 @@ template <class TYPE>
 class MyContainer {
     // DATA
     TYPE        *d_array_p;  // underlying array
-
-    MyAllocator *d_alloc_p;  // allocator protocol
-
     int          d_length;   // logical length of array
+    MyAllocator *d_alloc_p;  // allocator protocol
 
     // ...
 
@@ -315,7 +304,7 @@ class MyContainer {
     , d_length(0)
     {
         d_array_p
-              = reinterpret_cast<TYPE*>(d_alloc_p->allocate(sizeof(TYPE)));
+             = reinterpret_cast<TYPE *>(d_alloc_p->allocate(sizeof(TYPE)));
     }
 
     ~MyContainer()
@@ -328,9 +317,9 @@ class MyContainer {
     {
         resizeInternalArrayIfNeeded();
 
-        typedef typename bsl::is_convertible<MyAllocator*, TYPE>::type
-                                                                   isAlloc;
-        createObject(d_array_p + d_length, d_alloc_p, isAlloc());
+        typedef typename bsl::is_convertible<MyAllocator *, TYPE>::type
+                                                            TakesAllocator;
+        createObject(d_array_p + d_length, d_alloc_p, TakesAllocator());
         ++d_length;
     }
 };
@@ -385,7 +374,7 @@ int main(int argc, char *argv[])
 
 //
 // Finally, we instantiate 'MyContainer' with both 'Foo' and 'Bar' types, and
-// call 'addObj' on both containers:
+// call 'addObject' on both containers:
 //..
     MyAllocator a;
 
@@ -399,11 +388,11 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // Testing no GCC warnings via a user-defined class
+        // Testing GCC Warnings Suppression Via a User-Defined Class
         //
         // Concern:
         //: 1 GCC should not generate a warning for integral to floating-point
-        //:   tyep conversions via a user-defined class.
+        //:   type conversions via a user-defined class.
         //
         // Plan:
         //   Instantiate 'bsl::is_convertible' with various fundamental type
@@ -417,10 +406,13 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose)
-            printf("Testing no GCC warnings via a user-defined class\n"
-                   "================================================\n");
+            printf(
+                "Testing GCC Warnings Suppression Via a User-Defined Class\n"
+                "=========================================================\n");
 
-        // Two user conversions is one too many.
+        // Conversion of basic types via two user-defined classes returns
+        // 'false'.
+
         ASSERT(false == (bsl::is_convertible<ConvertibleFrom<int>,
                                              ConvertibleTo<int> >::value));
 
@@ -475,7 +467,7 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // Testing no GCC warnings
+        // Testing GCC Warnings Suppression
         //
         // Concern:
         //: 1  GCC should not generate a warning for implicit integral to
@@ -493,8 +485,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose)
-            printf("Testing no GCC warnings\n"
-                   "=======================\n");
+            printf("Testing GCC Warnings Suppression\n"
+                   "================================\n");
 
         // Test conversion of basic types.
 
@@ -650,54 +642,54 @@ int main(int argc, char *argv[])
         // 'bslmf::IsConvertible::VALUE'
         //
         // Concerns
-        //: 1 'IsConvertible::VALUE' returns correct value when both
+        //: 1 'IsConvertible::VALUE' returns the correct value when both
         //:   'FROM_TYPE' and 'TO_TYPE' are basic types.
         //:
-        //: 2 'IsConvertible::VALUE' returns correct value when one of
+        //: 2 'IsConvertible::VALUE' returns the correct value when one of
         //:   'FROM_TYPE' and 'TO_TYPE' is 'const' type.
         //:
-        //: 3 'IsConvertible::VALUE' returns correct value when one of
-        //:   'FROM_TYPE' and 'TO_TYPE' is 'const' pointer or 'const' reference
-        //:   type.
+        //: 3 'IsConvertible::VALUE' returns the correct value when one of
+        //:   'FROM_TYPE' and 'TO_TYPE' is a 'const' pointer or 'const'
+        //:   reference type.
         //:
-        //: 4 'IsConvertible::VALUE' returns correct value when one of
-        //:   'FROM_TYPE' and 'TO_TYPE' is 'volatile' type.
+        //: 4 'IsConvertible::VALUE' returns the correct value when one of
+        //:   'FROM_TYPE' and 'TO_TYPE' is a 'volatile' type.
         //:
-        //: 5 'IsConvertible::VALUE' returns correct value when 'FROM_TYPE'
+        //: 5 'IsConvertible::VALUE' returns the correct value when 'FROM_TYPE'
         //:   and 'TO_TYPE' are various combinations of (possibly cv-qualified)
         //:   types.
         //:
-        //: 6 'IsConvertible::VALUE' returns correct value when one of
-        //:   'FROM_TYPE' and 'TO_TYPE' is 'volatile' pointer or 'volatile'
+        //: 6 'IsConvertible::VALUE' returns the correct value when one of
+        //:   'FROM_TYPE' and 'TO_TYPE' is a 'volatile' pointer or 'volatile'
         //:   reference type.
         //:
-        //: 7 'IsConvertible::VALUE' returns correct value when 'FROM_TYPE'
+        //: 7 'IsConvertible::VALUE' returns the correct value when 'FROM_TYPE'
         //:   and 'TO_TYPE' are various combinations of different (possibly
         //:   cv-qualified) user-defined types, pointer to user-defined types,
         //:   and reference to user-defined types.
         //:
-        //: 8 'IsConvertible::VALUE' returns correct value when one or both of
-        //:   'FROM_TYPE' and 'TO_TYPE' are void types.
+        //: 8 'IsConvertible::VALUE' returns the correct value when one or both
+        //:   of 'FROM_TYPE' and 'TO_TYPE' are 'void' types.
         //:
-        //: 9 'IsConvertible::VALUE' returns correct value when conversion
+        //: 9 'IsConvertible::VALUE' returns the correct value when conversion
         //:   happens between a base class type and a derived class type.
         //:
-        //: 10 'IsConvertible::VALUE' returns correct value when conversion
-        //:    happens between pointer to base class member object types and
-        //:    pointer to derived class member object types.
+        //: 10 'IsConvertible::VALUE' returns the correct value when conversion
+        //:    happens between pointer to base class member object type and
+        //:    pointer to derived class member object type.
         //:
-        //: 11 'IsConvertible::VALUE' returns correct value when conversion
-        //:    happens between pointer to base class member function types and
-        //:    pointer to derived class member function types.
+        //: 11 'IsConvertible::VALUE' returns the correct value when conversion
+        //:    happens between pointer to base class member function type and
+        //:    pointer to derived class member function type.
         //:
-        //: 12 'IsConvertible::VALUE' returns correct value when conversion
+        //: 12 'IsConvertible::VALUE' returns the correct value when conversion
         //:    happens between arrays of unknown bound, and other types.
         //:
-        //: 13 'IsConvertible::VALUE' returns correct value when conversion
+        //: 13 'IsConvertible::VALUE' returns the correct value when conversion
         //:    happens between incomplete types and other types.
         //
         // Plan:
-        //   Instantiate 'bsl::IsConvertible' with various type combinations
+        //   Instantiate 'bslmf::IsConvertible' with various type combinations
         //   and verify that the 'VALUE' member is initialized properly.
         //   (C-1..13)
         //
@@ -979,48 +971,49 @@ int main(int argc, char *argv[])
         // 'bsl::is_convertible::value'
         //
         // Concerns
-        //: 1 'is_convertible::value' returns correct value when both
+        //: 1 'is_convertible::value' returns the correct value when both
         //:   'FROM_TYPE' and 'TO_TYPE' are basic types.
         //:
-        //: 2 'is_convertible::value' returns correct value when one of
-        //:   'FROM_TYPE' and 'TO_TYPE' is 'const' type.
+        //: 2 'is_convertible::value' returns the correct value when one of
+        //:   'FROM_TYPE' and 'TO_TYPE' is a 'const' type.
         //:
-        //: 3 'is_convertible::value' returns correct value when one of
-        //:   'FROM_TYPE' and 'TO_TYPE' is 'const' pointer or 'const' reference
-        //:   type.
-        //:
-        //: 4 'is_convertible::value' returns correct value when one of
-        //:   'FROM_TYPE' and 'TO_TYPE' is 'volatile' type.
-        //:
-        //: 5 'is_convertible::value' returns correct value when 'FROM_TYPE'
-        //:   and 'TO_TYPE' are various combinations of (possibly cv-qualified)
-        //:   types.
-        //:
-        //: 6 'is_convertible::value' returns correct value when one of
-        //:   'FROM_TYPE' and 'TO_TYPE' is 'volatile' pointer or 'volatile'
+        //: 3 'is_convertible::value' returns the correct value when one of
+        //:   'FROM_TYPE' and 'TO_TYPE' is  a'const' pointer or 'const'
         //:   reference type.
         //:
-        //: 7 'is_convertible::value' returns correct value when 'FROM_TYPE'
-        //:   and 'TO_TYPE' are various combinations of different (possibly
-        //:   cv-qualified) user-defined types, pointer to user-defined types,
-        //:   and reference to user-defined types.
+        //: 4 'is_convertible::value' returns the correct value when one of
+        //:   'FROM_TYPE' and 'TO_TYPE' is a 'volatile' type.
         //:
-        //: 8 'is_convertible::value' returns correct value when one or both of
-        //:   'FROM_TYPE' and 'TO_TYPE' are void types.
+        //: 5 'is_convertible::value' returns the correct value when
+        //:   'FROM_TYPE' and 'TO_TYPE' are various combinations of (possibly
+        //:   cv-qualified) types.
         //:
-        //: 9 'is_convertible::value' returns correct value when conversion
+        //: 6 'is_convertible::value' returns the correct value when one of
+        //:   'FROM_TYPE' and 'TO_TYPE' is a 'volatile' pointer or 'volatile'
+        //:   reference type.
+        //:
+        //: 7 'is_convertible::value' returns the correct value when
+        //:   'FROM_TYPE' and 'TO_TYPE' are various combinations of different
+        //:   (possibly cv-qualified) user-defined types, pointer to
+        //:   user-defined types, and reference to user-defined types.
+        //:
+        //: 8 'is_convertible::value' returns the correct value when one or
+        //:    both of 'FROM_TYPE' and 'TO_TYPE' are 'void' types.
+        //:
+        //: 9 'is_convertible::value' returns the correct value when conversion
         //:   happens between a base class type and a derived class type.
         //:
-        //: 10 'is_convertible::value' returns correct value when conversion
-        //:    happens between pointer to base class member object types and
-        //:    pointer to derived class member object types.
+        //: 10 'is_convertible::value' returns the correct value when
+        //:    conversion happens between pointer to base class member object
+        //:    type and pointer to derived class member object type.
         //:
-        //: 11 'is_convertible::value' returns correct value when conversion
-        //:    happens between pointer to base class member function types and
-        //:    pointer to derived class member function types.
+        //: 11 'is_convertible::value' returns the correct value when
+        //:    conversion happens between pointer to base class member function
+        //:    type and pointer to derived class member function type.
         //:
-        //: 12 'is_convertible::value' returns correct value when conversion
-        //:    happens between arrays of unknown bound, and other types.
+        //: 12 'is_convertible::value' returns the correct value when
+        //:    conversion happens between arrays of unknown bound, and other
+        //:    types.
         //
         // Plan:
         //   Instantiate 'bsl::is_convertible' with various type combinations
