@@ -511,7 +511,7 @@ void TestDriver<VALUE>::testCase11()
     //:
     //: 2 Create M buckets each containing N nodes.
     //:
-    //: 3 For each node 'N1'in each bucket 'M1' of P-2: (C-1,3,4)
+    //: 3 For each node 'N1' in each bucket 'M1' of P-2: (C-1,3,4)
     //:
     //:   1 Create a modifiable 'Obj', 'mX', pointing to 'N1' and 'M1'.
     //:
