@@ -158,7 +158,6 @@ static bool         veryVerbose;
 static bool     veryVeryVerbose;
 static bool veryVeryVeryVerbose;
 
-
 //=============================================================================
 //             GLOBAL TYPEDEFS, FUNCTIONS AND VARIABLES FOR TESTING
 //-----------------------------------------------------------------------------

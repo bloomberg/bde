@@ -17,9 +17,9 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: bslstl_hashtable
 //
 //@DESCRIPTION: This component provides a namespace, 'bslstl::IteratorUtil',
-// containing utility functions for iterator types.  In particular this
-// component includes a function 'insertDistance' that returns the the
-// number of elements that should be accounted for when range-inserting in a
+// containing utility functions for iterator types.  In particular, this
+// component includes a function 'insertDistance' that returns the the number
+// of elements that should be accounted for when range-inserting in a
 // container, given a pair of iterator 'a' and 'b' describing a half-open range
 // '[a,b)'.
 //
@@ -62,9 +62,12 @@ struct IteratorUtil {
     template <class InputIterator>
     static native_std::size_t insertDistance(InputIterator first,
                                              InputIterator last);
-        // Return 0 if InputIterator really is limited to the standard
-        // input-iterator category, otherwise return the distance from first
-        // to last.
+        // Return 0 if the (template parameter) type 'InputIterator' is limited
+        // to the standard input-iterator category, otherwise return the number
+        // of elements that is reachable from the specified 'first' to (but not
+        // including) the specified 'last'.  The behavior is undefined unless
+        // 'last' is reachable from 'first' by (possibly repeatedly)
+        // incrementing 'first'.
 };
 
 // ============================================================================
