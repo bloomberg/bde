@@ -198,7 +198,7 @@ int main(int argc, char *argv[])
         //:   cv-qualified 'void' type, and 'bslmf::MetaInt<0>' otherwise.
         //:
         //: 2 Objects of type 'bsl::is_void' are unambiguously convertible to
-        //:   to 'bsl::true_type' if the (template parameter) type is the
+        //:   'bsl::true_type' if the (template parameter) type is the
         //:   cv-qualified 'void' type, and 'bsl::false_type' otherwise.
         //:
         //: 3 Objects of both 'bslmf::IsVoid' and 'bsl::is_void' are
@@ -310,16 +310,16 @@ int main(int argc, char *argv[])
         //:
         //: 2 For 'bslmf::IsVoid' instantiated on a variety of ('void' and
         //:   non-'void') types, verify the return value of the meta-function
-        //:   defined in P-1 for the 'type' alias of each instantiation.
+        //:   defined in P-1 for the 'Type' alias of each instantiation.
         //:   (C-1..2)
         //:
         //: 3 Define two meta-functions that return 'true' either if the
         //:   (template parameter) type is 'bsl::true_type' or if the (template
         //:   parameter) type is 'bsl::false_type'.
         //:
-        //: 4 For 'bslmf::IsVoid' instantiated on a variety of ('void' and
+        //: 4 For 'bsl::is_void' instantiated on a variety of ('void' and
         //:   non-'void') types, verify the return value of the meta-function
-        //:   defined in P-3 for the 'Type' alias of each instantiation.
+        //:   defined in P-3 for the 'type' alias of each instantiation.
         //:   (C-3..4)
         //
         // Testing:
@@ -417,7 +417,7 @@ int main(int argc, char *argv[])
         //   Developers' Sandbox.
         //
         // Plan:
-        //   Perform and ad-hoc test of the meta-function.
+        //   Perform an ad-hoc test of the two meta-functions.
         //
         // Testing:
         //   This "test" *exercises* basic functionality, but *tests* nothing.
@@ -426,8 +426,11 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nBREATHING TEST"
                             "\n==============\n");
 
-        ASSERT(bslmf::IsVoid<void>::value);
-        ASSERT(!bslmf::IsVoid<int>::value);
+        ASSERT(bslmf::IsVoid<void>::VALUE);
+        ASSERT(!bslmf::IsVoid<int>::VALUE);
+
+        ASSERT(bsl::is_void<void>::value);
+        ASSERT(!bsl::is_void<int>::value);
 
       } break;
       default: {
