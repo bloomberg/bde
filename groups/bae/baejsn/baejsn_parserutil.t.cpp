@@ -140,9 +140,9 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 12: {
+      case 14: {
         // --------------------------------------------------------------------
-        // TESTING 'putValue' & 'getValue' for double values
+        // TESTING 'getValue' for bdet_Date values
         //
         // Concerns:
         //
@@ -151,10 +151,400 @@ int main(int argc, char *argv[])
         // Testing:
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout
-                     << "\nTESTING 'putValue' and 'getValue' for double"
-                     << "\n==========================================="
-                     << bsl::endl;
+        if (verbose) bsl::cout << "\nTESTING 'getValue' for date & time types"
+                               << "\n========================================"
+                               << bsl::endl;
+        {
+            static const struct {
+                int d_line;      // source line number
+                int d_year;      // year under test
+                int d_month;     // month under test
+                int d_day;       // day under test
+                int d_hour;      // hour under test
+                int d_minutes;   // minutes under test
+                int d_seconds;   // seconds under test
+                int d_milliSecs; // milli seconds under test
+                int d_tzoffset;  // time zone offset
+            } DATA[] = {
+   //line no.  year   month   day   hour    min   sec    ms  offset
+   //-------   -----  -----   ---   ----    ---   ---    --  ------
+    {      L_,      1,     1,    1,     0,     0,    0,    0,      0     },
+    {      L_,      1,     1,    1,     0,     0,    0,    0,     45     },
+    {      L_,      1,     1,    1,     0,     0,    0,    0,  -1439     },
+
+    {      L_,      1,     1,    1,     1,     1,    1,    1,      0     },
+    {      L_,      1,     1,    1,     1,     1,    1,    1,    500     },
+    {      L_,      1,     1,    1,     0,     0,    0,    0,  -1439     },
+
+    {      L_,      1,     1,    1,     1,    23,   59,   59,      0     },
+    {      L_,      1,     1,    1,     1,    23,   59,   59,   1439     },
+    {      L_,      1,     1,    1,     1,    23,   59,   59,  -1439     },
+
+    {      L_,      1,     1,    2,     0,     0,    0,    0,      0     },
+    {      L_,      1,     1,    2,     0,     0,    0,    0,   1439     },
+    {      L_,      1,     1,    2,     0,     0,    0,    0,  -1439     },
+
+    {      L_,      1,     1,    2,     1,     1,    1,    1,      0     },
+    {      L_,      1,     1,    2,     1,     1,    1,    1,    500     },
+
+    {      L_,      1,     1,    2,     1,    23,   59,   59,      0     },
+    {      L_,      1,     1,    2,     1,    23,   59,   59,    500     },
+    {      L_,      1,     1,    2,     1,    23,   59,   59,   -500     },
+
+    {      L_,      1,     1,   10,     0,     0,    0,    0,      0     },
+    {      L_,      1,     1,   10,     1,     1,    1,    1,     99     },
+
+    {      L_,      1,     1,   30,     0,     0,    0,    0,      0     },
+    {      L_,      1,     1,   31,     0,     0,    0,    0,   1439     },
+    {      L_,      1,     1,   31,     0,     0,    0,    0,  -1439     },
+
+    {      L_,      1,     2,    1,     0,     0,    0,    0,      0     },
+    {      L_,      1,     2,    1,    23,    59,   59,    0,   1439     },
+
+    {      L_,      1,    12,   31,     0,     0,    0,    0,      0     },
+    {      L_,      1,    12,   31,    23,    59,   59,    0,   1439     },
+
+    {      L_,      2,     1,    1,     0,     0,    0,    0,      0     },
+    {      L_,      2,     1,    1,    23,    59,   59,    0,   1439     },
+
+    {      L_,      4,     1,    1,     0,     0,    0,    0,      0     },
+    {      L_,      4,     1,    1,    23,    59,   59,    0,   1439     },
+
+    {      L_,      4,     2,   28,     0,     0,    0,    0,      0     },
+    {      L_,      4,     2,   28,    23,    59,   59,    0,   1439     },
+    {      L_,      4,     2,   28,    23,    59,   59,    0,  -1439     },
+
+    {      L_,      4,     2,   29,     0,     0,    0,    0,      0     },
+    {      L_,      4,     2,   29,    23,    59,   59,    0,   1439     },
+    {      L_,      4,     2,   29,    23,    59,   59,    0,  -1439     },
+
+    {      L_,      4,     3,    1,     0,     0,    0,    0,      0     },
+    {      L_,      4,     3,    1,    23,    59,   59,    0,   1439     },
+    {      L_,      4,     3,    1,    23,    59,   59,    0,  -1439     },
+
+    {      L_,      8,     2,   28,     0,     0,    0,    0,      0     },
+    {      L_,      8,     2,   28,    23,    59,   59,    0,   1439     },
+
+    {      L_,      8,     2,   29,     0,     0,    0,    0,      0     },
+    {      L_,      8,     2,   29,    23,    59,   59,    0,   1439     },
+
+    {      L_,      8,     3,    1,     0,     0,    0,    0,      0     },
+    {      L_,      8,     3,    1,    23,    59,   59,    0,   1439     },
+
+    {      L_,    100,     2,   28,     0,     0,    0,    0,      0     },
+    {      L_,    100,     2,   28,    23,    59,   59,    0,   1439     },
+    {      L_,    100,     2,   28,    23,    59,   59,    0,  -1439     },
+
+    {      L_,    100,     3,    1,     0,     0,    0,    0,      0     },
+    {      L_,    100,     3,    1,    23,    59,   59,    0,   1439     },
+    {      L_,    100,     3,    1,    23,    59,   59,    0,  -1439     },
+
+    {      L_,    400,     2,   28,     0,     0,    0,    0,      0     },
+    {      L_,    400,     2,   28,    23,    59,   59,    0,   1439     },
+    {      L_,    400,     2,   28,    23,    59,   59,    0,  -1439     },
+
+    {      L_,    400,     2,   29,     0,     0,    0,    0,      0     },
+    {      L_,    400,     2,   29,    23,    59,   59,    0,   1439     },
+    {      L_,    400,     2,   29,    23,    59,   59,    0,  -1439     },
+
+    {      L_,    400,     3,    1,     0,     0,    0,    0,      0     },
+    {      L_,    400,     3,    1,    23,    59,   59,    0,   1439     },
+    {      L_,    400,     3,    1,    23,    59,   59,    0,  -1439     },
+
+    {      L_,    500,     2,   28,     0,     0,    0,    0,      0     },
+    {      L_,    500,     2,   28,    23,    59,   59,    0,   1439     },
+
+    {      L_,    500,     3,    1,     0,     0,    0,    0,      0     },
+    {      L_,    500,     3,    1,    23,    59,   59,    0,   1439     },
+
+    {      L_,    800,     2,   28,     0,     0,    0,    0,      0     },
+    {      L_,    800,     2,   28,    23,    59,   59,    0,   1439     },
+
+    {      L_,    800,     2,   29,     0,     0,    0,    0,      0     },
+    {      L_,    800,     2,   29,    23,    59,   59,    0,   1439     },
+
+    {      L_,    800,     3,    1,     0,     0,    0,    0,      0     },
+    {      L_,    800,     3,    1,    23,    59,   59,    0,   1439     },
+
+    {      L_,   1000,     2,   28,     0,     0,    0,    0,      0     },
+    {      L_,   1000,     2,   28,    23,    59,   59,    0,   1439     },
+
+    {      L_,   1000,     3,    1,     0,     0,    0,    0,      0     },
+    {      L_,   1000,     3,    1,    23,    59,   59,    0,   1439     },
+
+    {      L_,   2000,     2,   28,     0,     0,    0,    0,      0     },
+    {      L_,   2000,     2,   28,    23,    59,   59,    0,   1439     },
+
+    {      L_,   2000,     2,   29,     0,     0,    0,    0,      0     },
+    {      L_,   2000,     2,   29,    23,    59,   59,    0,   1439     },
+
+    {      L_,   2000,     3,    1,     0,     0,    0,    0,      0     },
+    {      L_,   2000,     3,    1,    23,    59,   59,    0,   1439     },
+
+    {      L_,   2016,    12,   31,     0,     0,    0,    0,      0     },
+    {      L_,   2017,    12,   31,     0,     0,    0,    0,      0     },
+    {      L_,   2018,    12,   31,     0,     0,    0,    0,      0     },
+    {      L_,   2019,    12,   31,     0,     0,    0,    0,      0     },
+
+    {      L_,   2020,     1,    1,     0,     0,    0,    0,      0     },
+    {      L_,   2020,     1,    1,     0,     0,    0,    0,   1439     },
+    {      L_,   2020,     1,    1,     0,     0,    0,    0,  -1439     },
+
+    {      L_,   2020,     1,    1,    23,    59,   59,  999,      0     },
+    {      L_,   2020,     1,    1,    23,    59,   59,  999,   1439     },
+    {      L_,   2020,     1,    1,    23,    59,   59,  999,  -1439     },
+
+    {      L_,   2020,     1,    2,     0,     0,    0,    0,      0     },
+    {      L_,   2020,     1,    2,     0,     0,    0,    0,   1439     },
+    {      L_,   2020,     1,    2,     0,     0,    0,    0,  -1439     },
+
+    {      L_,   2020,     2,   28,     0,     0,    0,    0,      0     },
+    {      L_,   2020,     2,   28,    23,    59,   59,    0,   1439     },
+    {      L_,   2020,     2,   28,    23,    59,   59,    0,  -1439     },
+
+    {      L_,   2020,     2,   29,     0,     0,    0,    0,      0     },
+    {      L_,   2020,     2,   29,    23,    59,   59,    0,   1439     },
+    {      L_,   2020,     2,   29,    23,    59,   59,    0,  -1439     },
+
+    {      L_,   2020,     3,    1,     0,     0,    0,    0,      0     },
+    {      L_,   2020,     3,    1,    23,    59,   59,    0,   1439     },
+    {      L_,   2020,     3,    1,    23,    59,   59,    0,  -1439     },
+
+    {      L_,   2021,     1,    2,     0,     0,    0,    0,      0     },
+    {      L_,   2022,     1,    2,     0,     0,    0,    0,      0     },
+
+    {      L_,   9999,     2,   28,     0,     0,    0,    0,      0     },
+    {      L_,   9999,     2,   28,    23,    59,   59,    0,   1439     },
+    {      L_,   9999,     2,   28,    23,    59,   59,    0,  -1439     },
+
+    {      L_,   9999,     3,    1,     0,     0,    0,    0,      0     },
+    {      L_,   9999,     3,    1,    23,    59,   59,    0,   1439     },
+    {      L_,   9999,     3,    1,    23,    59,   59,    0,  -1439     },
+
+    {      L_,   9999,    12,   30,     0,     0,    0,    0,      0     },
+    {      L_,   9999,    12,   30,    23,    59,   59,    0,   1439     },
+
+    {      L_,   9999,    12,   31,     0,     0,    0,    0,      0     },
+    {      L_,   9999,    12,   31,    23,    59,   59,    0,   1439     },
+        };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int         LINE        = DATA[i].d_line;
+                const int         YEAR        = DATA[i].d_year;
+                const int         MONTH       = DATA[i].d_month;
+                const int         DAY         = DATA[i].d_day;
+                const int         HOUR        = DATA[i].d_hour;
+                const int         MINUTE      = DATA[i].d_minutes;
+                const int         SECOND      = DATA[i].d_seconds;
+                const int         MILLISECOND = DATA[i].d_milliSecs;
+                const int         OFFSET      = DATA[i].d_tzoffset;
+
+                if (veryVerbose) { cout << "\nTesting date values" << endl; }
+                {
+                    bdet_Date exp;  const bdet_Date& EXP = exp;
+                    exp.setYearMonthDayIfValid(YEAR, MONTH, DAY);
+
+                    const int SIZE = 64;
+                    char buffer[SIZE];  memset(buffer, 0, SIZE);
+
+                    const int LEN = bdepu_Iso8601::generate(buffer, exp, SIZE);
+
+                    bdet_Date value;
+
+                    bdesb_MemOutStreamBuf osb;
+                    osb.sputc('"');
+                    osb.sputn(buffer, LEN);
+                    osb.sputc('"');
+
+                    bdesb_FixedMemInStreamBuf isb(osb.data(), osb.length());
+                    LOOP_ASSERT(LINE, SUCCESS == Util::getValue(&isb, &value));
+                    LOOP_ASSERT(LINE, 0 == isb.length());
+                    LOOP_ASSERT(LINE, EXP == value);
+                }
+
+                if (veryVerbose) { cout << "\nTesting datetz values" << endl; }
+                {
+                    bdet_Date d;  const bdet_Date& D = d;
+                    d.setYearMonthDayIfValid(YEAR, MONTH, DAY);
+                    bdet_DateTz exp(D, OFFSET);  const bdet_DateTz& EXP = exp;
+
+                    const int SIZE = 64;
+                    char buffer[SIZE];  memset(buffer, 0, SIZE);
+
+                    const int LEN = bdepu_Iso8601::generate(buffer, exp, SIZE);
+
+                    bdet_DateTz value;
+
+                    bdesb_MemOutStreamBuf osb;
+                    osb.sputc('"');
+                    osb.sputn(buffer, LEN);
+                    osb.sputc('"');
+
+                    bdesb_FixedMemInStreamBuf isb(osb.data(), osb.length());
+                    LOOP_ASSERT(LINE, SUCCESS == Util::getValue(&isb, &value));
+                    LOOP_ASSERT(LINE, 0 == isb.length());
+                    LOOP_ASSERT(LINE, EXP == value);
+                }
+
+                if (veryVerbose) { cout << "\nTesting time values" << endl; }
+                {
+                    bdet_Time exp;  const bdet_Time& EXP = exp;
+                    exp.setTimeIfValid(HOUR, MINUTE, SECOND, MILLISECOND);
+
+                    const int SIZE = 64;
+                    char buffer[SIZE];  memset(buffer, 0, SIZE);
+
+                    const int LEN = bdepu_Iso8601::generate(buffer, exp, SIZE);
+
+                    bdet_Time value;
+
+                    bdesb_MemOutStreamBuf osb;
+                    osb.sputc('"');
+                    osb.sputn(buffer, LEN);
+                    osb.sputc('"');
+
+                    bdesb_FixedMemInStreamBuf isb(osb.data(), osb.length());
+                    LOOP_ASSERT(LINE, SUCCESS == Util::getValue(&isb, &value));
+                    LOOP_ASSERT(LINE, 0 == isb.length());
+                    LOOP_ASSERT(LINE, EXP == value);
+                }
+
+                if (veryVerbose) { cout << "\nTesting timetz values" << endl; }
+                {
+                    bdet_Time t;  const bdet_Time& T = t;
+                    t.setTimeIfValid(HOUR, MINUTE, SECOND, MILLISECOND);
+                    bdet_TimeTz exp(T, OFFSET);  const bdet_TimeTz& EXP = exp;
+
+                    const int SIZE = 64;
+                    char buffer[SIZE];  memset(buffer, 0, SIZE);
+
+                    const int LEN = bdepu_Iso8601::generate(buffer, exp, SIZE);
+
+                    bdet_TimeTz value;
+
+                    bdesb_MemOutStreamBuf osb;
+                    osb.sputc('"');
+                    osb.sputn(buffer, LEN);
+                    osb.sputc('"');
+
+                    bdesb_FixedMemInStreamBuf isb(osb.data(), osb.length());
+                    LOOP_ASSERT(LINE, SUCCESS == Util::getValue(&isb, &value));
+                    LOOP_ASSERT(LINE, 0 == isb.length());
+                    LOOP_ASSERT(LINE, EXP == value);
+                }
+
+                if (veryVerbose) { cout << "\nTesting datetime values"
+                                        << endl; }
+                {
+                    bdet_Datetime exp;  const bdet_Datetime& EXP = exp;
+                    exp.setDatetimeIfValid(YEAR, MONTH, DAY,
+                                           HOUR, MINUTE, SECOND, MILLISECOND);
+
+                    const int SIZE = 64;
+                    char buffer[SIZE];  memset(buffer, 0, SIZE);
+
+                    const int LEN = bdepu_Iso8601::generate(buffer, exp, SIZE);
+
+                    bdet_Datetime value;
+
+                    bdesb_MemOutStreamBuf osb;
+                    osb.sputc('"');
+                    osb.sputn(buffer, LEN);
+                    osb.sputc('"');
+
+                    bdesb_FixedMemInStreamBuf isb(osb.data(), osb.length());
+                    LOOP_ASSERT(LINE, SUCCESS == Util::getValue(&isb, &value));
+                    LOOP_ASSERT(LINE, 0 == isb.length());
+                    LOOP_ASSERT(LINE, EXP == value);
+                }
+
+                if (veryVerbose) { cout << "\nTesting datetimetz values"
+                                        << endl; }
+                {
+                    bdet_Datetime dt;  const bdet_Datetime& DT = dt;
+                    dt.setDatetimeIfValid(YEAR, MONTH, DAY,
+                                          HOUR, MINUTE, SECOND, MILLISECOND);
+                    bdet_DatetimeTz exp(DT, OFFSET);
+                    const bdet_DatetimeTz& EXP = exp;
+
+                    const int SIZE = 64;
+                    char buffer[SIZE];  memset(buffer, 0, SIZE);
+
+                    const int LEN = bdepu_Iso8601::generate(buffer, exp, SIZE);
+
+                    bdet_DatetimeTz value;
+
+                    bdesb_MemOutStreamBuf osb;
+                    osb.sputc('"');
+                    osb.sputn(buffer, LEN);
+                    osb.sputc('"');
+
+                    bdesb_FixedMemInStreamBuf isb(osb.data(), osb.length());
+                    LOOP_ASSERT(LINE, SUCCESS == Util::getValue(&isb, &value));
+                    LOOP_ASSERT(LINE, 0 == isb.length());
+                    LOOP_ASSERT(LINE, EXP == value);
+                }
+            }
+        }
+      } break;
+      case 13: {
+        // --------------------------------------------------------------------
+        // TESTING 'getValue' for string values
+        //
+        // Concerns:
+        //
+        // Plan:
+        //
+        // Testing:
+        // --------------------------------------------------------------------
+
+        if (verbose) bsl::cout << "\nTESTING 'getValue' for string"
+                               << "\n============================="
+                               << bsl::endl;
+        {
+            static const struct {
+                int         d_line;   // line number
+                const char *d_value;  // string value
+                const char *d_exp;    // expected output onto the stream
+            } DATA[] = {
+                // line   value       exp
+                // ----   -----       ---
+                {  L_,     "",        "\"\""      },
+                {  L_,     "ABC",     "\"ABC\""   },
+            };
+            const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int            LINE  = DATA[i].d_line;
+                const string         VALUE = DATA[i].d_value;
+                const string         EXP   = DATA[i].d_exp;
+                      string         value;
+
+                if (veryVerbose) { cout << "\nTesting string values" << endl; }
+                {
+                    bdesb_FixedMemInStreamBuf isb(EXP.data(), EXP.length());
+                    LOOP_ASSERT(LINE, SUCCESS == Util::getValue(&isb, &value));
+                    LOOP_ASSERT(LINE, 0 == isb.length());
+                    LOOP_ASSERT(LINE, VALUE == value);
+                }
+            }
+        }
+      } break;
+      case 12: {
+        // --------------------------------------------------------------------
+        // TESTING 'getValue' for double values
+        //
+        // Concerns:
+        //
+        // Plan:
+        //
+        // Testing:
+        // --------------------------------------------------------------------
+
+        if (verbose) bsl::cout << "\nTESTING 'getValue' for double"
+                               << "\n============================="
+                               << bsl::endl;
         {
             typedef double Type;
 
@@ -192,16 +582,6 @@ int main(int argc, char *argv[])
 
                 if (veryVerbose) { cout << "\nTesting double values" << endl; }
                 {
-//                     bdesb_MemOutStreamBuf osb;
-//                     LOOP_ASSERT(LINE, SUCCESS == Util::putValue(&osb, VAL));
-//                     LOOP_ASSERT(LINE, LEN     == osb.length());
-//                     LOOP_ASSERT(LINE, areBuffersEqual(EXP, osb.data()));
-
-//                     if (veryVerbose) {
-//                         cout << "ACT: ";
-//                         P(EXP)
-//                     }
-
                     bdesb_FixedMemInStreamBuf isb(EXP.data(), EXP.length());
                     LOOP_ASSERT(LINE, SUCCESS == Util::getValue(&isb, &val));
                     LOOP_ASSERT(LINE, 0 == isb.length());
@@ -212,7 +592,7 @@ int main(int argc, char *argv[])
       } break;
       case 11: {
         // --------------------------------------------------------------------
-        // TESTING 'putValue' & 'getValue' for float values
+        // TESTING 'getValue' for float values
         //
         // Concerns:
         //
@@ -221,10 +601,9 @@ int main(int argc, char *argv[])
         // Testing:
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout
-                     << "\nTESTING 'putValue' and 'getValue' for float"
-                     << "\n==========================================="
-                     << bsl::endl;
+        if (verbose) bsl::cout << "\nTESTING 'getValue' for float"
+                               << "\n============================"
+                               << bsl::endl;
         {
             typedef float Type;
 
@@ -262,16 +641,6 @@ int main(int argc, char *argv[])
 
                 if (veryVerbose) { cout << "\nTesting float values" << endl; }
                 {
-//                     bdesb_MemOutStreamBuf osb;
-//                     LOOP_ASSERT(LINE, SUCCESS == Util::putValue(&osb, VAL));
-//                     LOOP_ASSERT(LINE, LEN     == osb.length());
-//                     LOOP_ASSERT(LINE, areBuffersEqual(EXP, osb.data()));
-
-//                     if (veryVerbose) {
-//                         cout << "ACT: ";
-//                         P(EXP)
-//                     }
-
                     bdesb_FixedMemInStreamBuf isb(EXP.data(), EXP.length());
                     LOOP_ASSERT(LINE, SUCCESS == Util::getValue(&isb, &val));
                     LOOP_ASSERT(LINE, 0 == isb.length());
@@ -282,7 +651,7 @@ int main(int argc, char *argv[])
       } break;
       case 10: {
         // --------------------------------------------------------------------
-        // TESTING 'putValue' & 'getValue' for Uint64 values
+        // TESTING 'getValue' for Uint64 values
         //
         // Concerns:
         //
@@ -291,10 +660,9 @@ int main(int argc, char *argv[])
         // Testing:
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout
-                     << "\nTESTING 'putValue' and 'getValue' for Uint64"
-                     << "\n============================================"
-                     << bsl::endl;
+        if (verbose) bsl::cout << "\nTESTING 'getValue' for Uint64"
+                               << "\n============================="
+                               << bsl::endl;
         {
             typedef Uint64 Type;
 
@@ -351,16 +719,6 @@ int main(int argc, char *argv[])
 
                 if (veryVerbose) { cout << "\nTesting Uint64 values" << endl; }
                 {
-//                     bdesb_MemOutStreamBuf osb;
-//                     LOOP_ASSERT(LINE, SUCCESS == Util::putValue(&osb, VAL));
-//                     LOOP_ASSERT(LINE, LEN     == osb.length());
-//                     LOOP_ASSERT(LINE, areBuffersEqual(EXP, osb.data()));
-
-//                     if (veryVerbose) {
-//                         cout << "ACT: ";
-//                         P(EXP)
-//                     }
-
                     bdesb_FixedMemInStreamBuf isb(EXP.data(), EXP.length());
                     LOOP_ASSERT(LINE, SUCCESS == Util::getValue(&isb, &val));
                     LOOP_ASSERT(LINE, 0 == isb.length());
@@ -371,7 +729,7 @@ int main(int argc, char *argv[])
       } break;
       case 9: {
         // --------------------------------------------------------------------
-        // TESTING 'putValue' & 'getValue' for Int64 values
+        // TESTING 'getValue' for Int64 values
         //
         // Concerns:
         //
@@ -380,10 +738,9 @@ int main(int argc, char *argv[])
         // Testing:
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout
-                     << "\nTESTING 'putValue' and 'getValue' for Int64"
-                     << "\n==========================================="
-                     << bsl::endl;
+        if (verbose) bsl::cout << "\nTESTING 'getValue' for Int64"
+                               << "\n============================"
+                               << bsl::endl;
         {
             typedef Int64 Type;
 
@@ -455,16 +812,6 @@ int main(int argc, char *argv[])
 
                 if (veryVerbose) { cout << "\nTesting Int64 values" << endl; }
                 {
-//                     bdesb_MemOutStreamBuf osb;
-//                     LOOP_ASSERT(LINE, SUCCESS == Util::putValue(&osb, VAL));
-//                     LOOP_ASSERT(LINE, LEN     == osb.length());
-//                     LOOP_ASSERT(LINE, areBuffersEqual(EXP, osb.data()));
-
-//                     if (veryVerbose) {
-//                         cout << "ACT: ";
-//                         P(EXP)
-//                     }
-
                     bdesb_FixedMemInStreamBuf isb(EXP.data(), EXP.length());
                     LOOP_ASSERT(LINE, SUCCESS == Util::getValue(&isb, &val));
                     LOOP_ASSERT(LINE, 0 == isb.length());
@@ -475,7 +822,7 @@ int main(int argc, char *argv[])
       } break;
       case 8: {
         // --------------------------------------------------------------------
-        // TESTING 'putValue' & 'getValue' for unsigned int values
+        // TESTING 'getValue' for unsigned int values
         //
         // Concerns:
         //
@@ -484,10 +831,9 @@ int main(int argc, char *argv[])
         // Testing:
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout
-                     << "\nTESTING 'putValue' and 'getValue' for unsigned int"
-                     << "\n=================================================="
-                     << bsl::endl;
+        if (verbose) bsl::cout << "\nTESTING 'getValue' for unsigned int"
+                               << "\n==================================="
+                               << bsl::endl;
         {
             typedef unsigned int Type;
 
@@ -545,16 +891,6 @@ int main(int argc, char *argv[])
                 if (veryVerbose) { cout << "\nTesting unsigned int values"
                                         << endl; }
                 {
-//                     bdesb_MemOutStreamBuf osb;
-//                     LOOP_ASSERT(LINE, SUCCESS == Util::putValue(&osb, VAL));
-//                     LOOP_ASSERT(LINE, LEN     == osb.length());
-//                     LOOP_ASSERT(LINE, areBuffersEqual(EXP, osb.data()));
-
-//                     if (veryVerbose) {
-//                         cout << "ACT: ";
-//                         P(EXP)
-//                     }
-
                     bdesb_FixedMemInStreamBuf isb(EXP.data(), EXP.length());
                     LOOP_ASSERT(LINE, SUCCESS == Util::getValue(&isb, &val));
                     LOOP_ASSERT(LINE, 0 == isb.length());
@@ -565,7 +901,7 @@ int main(int argc, char *argv[])
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // TESTING 'putValue' & 'getValue' for int values
+        // TESTING 'getValue' for int values
         //
         // Concerns:
         //
@@ -574,10 +910,9 @@ int main(int argc, char *argv[])
         // Testing:
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout
-                     << "\nTESTING 'putValue' and 'getValue' for int"
-                     << "\n========================================="
-                     << bsl::endl;
+        if (verbose) bsl::cout << "\nTESTING 'getValue' for int"
+                               << "\n=========================="
+                               << bsl::endl;
         {
             typedef int Type;
 
@@ -645,16 +980,6 @@ int main(int argc, char *argv[])
 
                 if (veryVerbose) { cout << "\nTesting int values" << endl; }
                 {
-//                     bdesb_MemOutStreamBuf osb;
-//                     LOOP_ASSERT(LINE, SUCCESS == Util::putValue(&osb, VAL));
-//                     LOOP_ASSERT(LINE, LEN     == osb.length());
-//                     LOOP_ASSERT(LINE, areBuffersEqual(EXP, osb.data()));
-
-//                     if (veryVerbose) {
-//                         cout << "ACT: ";
-//                         P(EXP)
-//                     }
-
                     bdesb_FixedMemInStreamBuf isb(EXP.data(), EXP.length());
                     LOOP_ASSERT(LINE, SUCCESS == Util::getValue(&isb, &val));
                     LOOP_ASSERT(LINE, 0 == isb.length());
@@ -665,7 +990,7 @@ int main(int argc, char *argv[])
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING 'putValue' & 'getValue' for unsigned short values
+        // TESTING 'getValue' for unsigned short values
         //
         // Concerns:
         //
@@ -674,10 +999,9 @@ int main(int argc, char *argv[])
         // Testing:
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout
-                    << "\nTESTING 'putValue' and 'getValue' for unsigned short"
-                    << "\n===================================================="
-                    << bsl::endl;
+        if (verbose) bsl::cout << "\nTESTING 'getValue' for unsigned short"
+                               << "\n====================================="
+                               << bsl::endl;
         {
             typedef unsigned short Type;
 
@@ -728,16 +1052,6 @@ int main(int argc, char *argv[])
 
                 if (veryVerbose) { cout << "\nTesting short values" << endl; }
                 {
-//                     bdesb_MemOutStreamBuf osb;
-//                     LOOP_ASSERT(LINE, SUCCESS == Util::putValue(&osb, VAL));
-//                     LOOP_ASSERT(LINE, LEN     == osb.length());
-//                     LOOP_ASSERT(LINE, areBuffersEqual(EXP, osb.data()));
-
-//                     if (veryVerbose) {
-//                         cout << "ACT: ";
-//                         P(EXP)
-//                     }
-
                     bdesb_FixedMemInStreamBuf isb(EXP.data(), EXP.length());
                     LOOP_ASSERT(LINE, SUCCESS == Util::getValue(&isb, &val));
                     LOOP_ASSERT(LINE, 0 == isb.length());
@@ -748,7 +1062,7 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING 'putValue' & 'getValue' for short values
+        // TESTING 'getValue' for short values
         //
         // Concerns:
         //
@@ -757,10 +1071,9 @@ int main(int argc, char *argv[])
         // Testing:
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout
-                     << "\nTESTING 'putValue' and 'getValue' for short"
-                     << "\n==========================================="
-                     << bsl::endl;
+        if (verbose) bsl::cout << "\nTESTING 'getValue' for short"
+                               << "\n============================"
+                               << bsl::endl;
         {
             typedef short Type;
 
@@ -813,16 +1126,6 @@ int main(int argc, char *argv[])
 
                 if (veryVerbose) { cout << "\nTesting short values" << endl; }
                 {
-//                     bdesb_MemOutStreamBuf osb;
-//                     LOOP_ASSERT(LINE, SUCCESS == Util::putValue(&osb, VAL));
-//                     LOOP_ASSERT(LINE, LEN     == osb.length());
-//                     LOOP_ASSERT(LINE, areBuffersEqual(EXP, osb.data()));
-
-//                     if (veryVerbose) {
-//                         cout << "ACT: ";
-//                         P(EXP)
-//                     }
-
                     bdesb_FixedMemInStreamBuf isb(EXP.data(), EXP.length());
                     LOOP_ASSERT(LINE, SUCCESS == Util::getValue(&isb, &val));
                     LOOP_ASSERT(LINE, 0 == isb.length());
@@ -833,7 +1136,7 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING 'putValue' & 'getValue' for unsigned char values
+        // TESTING 'getValue' for unsigned char values
         //
         // Concerns:
         //
@@ -842,10 +1145,9 @@ int main(int argc, char *argv[])
         // Testing:
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout
-                     << "\nTESTING 'putValue' and 'getValue' for unsigned char"
-                     << "\n==================================================="
-                     << bsl::endl;
+        if (verbose) bsl::cout << "\nTESTING 'getValue' for unsigned char"
+                               << "\n===================================="
+                               << bsl::endl;
         {
             typedef unsigned char Type;
 
@@ -893,16 +1195,6 @@ int main(int argc, char *argv[])
                 if (veryVerbose) { cout << "\nTesting unsigned char values"
                                         << endl; }
                 {
-//                     bdesb_MemOutStreamBuf osb;
-//                     LOOP_ASSERT(LINE, SUCCESS == Util::putValue(&osb, VAL));
-//                     LOOP_ASSERT(LINE, LEN     == osb.length());
-//                     LOOP_ASSERT(LINE, areBuffersEqual(EXP, osb.data()));
-
-//                     if (veryVerbose) {
-//                         cout << "ACT: ";
-//                         P(EXP)
-//                     }
-
                     bdesb_FixedMemInStreamBuf isb(EXP.data(), EXP.length());
                     LOOP_ASSERT(LINE, SUCCESS == Util::getValue(&isb, &val));
                     LOOP_ASSERT(LINE, 0 == isb.length());
@@ -913,7 +1205,7 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING 'putValue' & 'getValue' for signed char values
+        // TESTING 'getValue' for signed char values
         //
         // Concerns:
         //
@@ -922,78 +1214,90 @@ int main(int argc, char *argv[])
         // Testing:
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout
-                     << "\nTESTING 'putValue' and 'getValue' for signed char"
-                     << "\n================================================="
-                     << bsl::endl;
+        if (verbose) bsl::cout << "\nTESTING 'getValue' for signed char"
+                               << "\n=================================="
+                               << bsl::endl;
 
         {
+            const char ERROR_CHAR = 'X';
+
             static const struct {
-                int         d_line;   // line number
-                char        d_value;  // char value
-                const char *d_exp;    // expected output onto the stream
+                int         d_line;    // line number
+                const char *d_input_p; // input on the stream
+                char        d_exp;     // exp char value
+                bool        d_isValid; // isValid flag
             } DATA[] = {
-                // line   value       exp
-                // ----   -----       ---
-                {  L_,      '0',      "\"0\""   },
-                {  L_,      '1',      "\"1\""   },
-                {  L_,      'A',      "\"A\""   },
-                {  L_,      'Z',      "\"Z\""   },
+                // line    input        exp      isValid  
+                // ----    -----        ---      -------
+                {  L_,     "\"0\"",     '0',     true  },
+                {  L_,     "\"1\"",     '1',     true  },
+                {  L_,     "\"A\"",     'A',     true  },
+                {  L_,     "\"z\"",     'z',     true  },
+
+                {  L_,     "\"\\\"\"",  '\"',    true  },
+                {  L_,     "\"\\\\\"",  '\\',    true  },
+                {  L_,     "\"\\b\"",   '\b',    true  },
+                {  L_,     "\"\\f\"",   '\f',    true  },
+                {  L_,     "\"\\n\"",   '\n',    true  },
+                {  L_,     "\"\\r\"",   '\r',    true  },
+                {  L_,     "\"\\t\"",   '\t',    true  },
+
+                {  L_,     "\"AB\"",     ERROR_CHAR,     false  },
+
+                // TBD: 
+//                 {  L_,     "\"\\u0041\" ",   'A',     true  },
             };
             const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
 
             for (int i = 0; i < NUM_DATA; ++i) {
-                const int            LINE = DATA[i].d_line;
-                const char           C    = DATA[i].d_value;
-                const signed char    SC   = (signed char) DATA[i].d_value;
-                const string         EXP  = DATA[i].d_exp;
+                const int            LINE     = DATA[i].d_line;
+                const string         INPUT    = DATA[i].d_input_p;
+                const char           C        = DATA[i].d_exp;
+                const signed char    SC       = (signed char) DATA[i].d_exp;
+                const bool           IS_VALID = DATA[i].d_isValid;
                       char           c;
                       signed char    sc;
 
+                if (veryVerbose) { P(INPUT) P(C) } 
+
                 if (veryVerbose) { cout << "\nTesting char values" << endl; }
                 {
-//                     bdesb_MemOutStreamBuf osb;
-//                     LOOP_ASSERT(LINE, SUCCESS == Util::putValue(&osb, C));
-//                     LOOP_ASSERT(LINE, LEN     == osb.length());
-//                     LOOP_ASSERT(LINE, areBuffersEqual(EXP, osb.data()));
-
-//                     if (veryVerbose) {
-//                         cout << "ACT: ";
-//                         P(EXP)
-//                     }
-
-                    bdesb_FixedMemInStreamBuf isb(EXP.data(), EXP.length());
-                    LOOP_ASSERT(LINE, SUCCESS == Util::getValue(&isb, &c));
-                    LOOP_ASSERT(LINE, 0 == isb.length());
-                    LOOP_ASSERT(LINE, c == C);
+                    bdesb_FixedMemInStreamBuf isb(INPUT.data(),
+                                                  INPUT.length());
+                    const int rc = Util::getValue(&isb, &c);
+                    if (IS_VALID) {
+                        LOOP_ASSERT(LINE, 0 == rc);
+                        LOOP_ASSERT(LINE, 0 == isb.length());
+                        LOOP_ASSERT(LINE, C == c);
+                    }
+                    else {
+                        LOOP_ASSERT(LINE, rc);
+                        LOOP_ASSERT(LINE, C == ERROR_CHAR);
+                    }
                 }
 
                 if (veryVerbose) { cout << "\nTesting signed char values"
                                         << endl; }
                 {
-//                     bdesb_MemOutStreamBuf osb;
-//                     LOOP_ASSERT(LINE, SUCCESS == Util::putValue(&osb, SC));
-//                     LOOP_ASSERT(LINE, LEN     == osb.length());
-//                     LOOP_ASSERT(LINE, 0       ==
-//                                               compareBuffers(osb.data(), EXP));
-
-//                     if (veryVerbose) {
-//                         P(EXP)
-//                         cout << "ACT: ";
-//                         printBuffer(osb.data(), osb.length());
-//                     }
-
-                    bdesb_FixedMemInStreamBuf isb(EXP.data(), EXP.length());
-                    LOOP_ASSERT(LINE, SUCCESS == Util::getValue(&isb, &sc));
-                    LOOP_ASSERT(LINE, 0  == isb.length());
-                    LOOP_ASSERT(LINE, sc == SC);
+                    bdesb_FixedMemInStreamBuf isb(INPUT.data(),
+                                                  INPUT.length());
+                    const int rc = Util::getValue(&isb, &sc);
+                    if (IS_VALID) {
+                        LOOP_ASSERT(LINE, 0  == rc);
+                        LOOP_ASSERT(LINE, 0  == isb.length());
+                        LOOP_ASSERT(LINE, SC == sc);
+                    }
+                    else {
+                        LOOP_ASSERT(LINE, rc);
+                        LOOP_ASSERT(LINE, SC == ERROR_CHAR);
+                    }
                 }
             }
         }
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'putValue' & 'getValue' for bool values
+        // TESTING 'getValue' for bool values
         //
         // Concerns:
         //
@@ -1002,27 +1306,18 @@ int main(int argc, char *argv[])
         // Testing:
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout
-                         << "\nTESTING 'putValue' and 'getValue' for bool"
-                         << "\n=========================================="
-                         << bsl::endl;
+        if (verbose) bsl::cout << "\nTESTING 'getValue' for bool"
+                               << "\n===========================" << bsl::endl;
 
         {
             typedef bool Type;
 
             const Type XA1 = true;  Type XA2; const string EA = "true";
             const Type XB1 = false; Type XB2; const string EB = "false";
+                  Type XC1 = true;  Type XC2 = false;
+            const string EC = "error";
 
             {
-//                 bdesb_MemOutStreamBuf osb;
-//                 ASSERT(SUCCESS  == Util::putValue(&osb, XA1));
-//                 ASSERT(4        == osb.length());
-//                 ASSERT(areBuffersEqual(EA, osb.data()));
-
-//                 if (veryVerbose) {
-//                     P(osb.str());
-//                 }
-
                 bdesb_FixedMemInStreamBuf isb(EA.data(), EA.length());
                 ASSERT(SUCCESS == Util::getValue(&isb, &XA2));
                 ASSERT(0       == isb.length());
@@ -1030,19 +1325,22 @@ int main(int argc, char *argv[])
             }
 
             {
-//                 bdesb_MemOutStreamBuf osb;
-//                 ASSERT(SUCCESS  == Util::putValue(&osb, XA1));
-//                 ASSERT(4        == osb.length());
-//                 ASSERT(areBuffersEqual(EA, osb.data()));
-
-//                 if (veryVerbose) {
-//                     P(osb.str());
-//                 }
-
                 bdesb_FixedMemInStreamBuf isb(EB.data(), EB.length());
                 ASSERT(SUCCESS == Util::getValue(&isb, &XB2));
                 ASSERT(0       == isb.length());
                 ASSERT(XB1     == XB2);
+            }
+
+            {
+                bdesb_FixedMemInStreamBuf isb(EC.data(), EC.length());
+                ASSERT(FAILURE == Util::getValue(&isb, &XC1));
+                ASSERT(true == XC1);
+            }
+
+            {
+                bdesb_FixedMemInStreamBuf isb(EC.data(), EC.length());
+                ASSERT(FAILURE == Util::getValue(&isb, &XC2));
+                ASSERT(false == XC2);
             }
         }
       } break;

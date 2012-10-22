@@ -4,6 +4,10 @@
 #include <bdes_ident.h>
 BDES_IDENT_RCSID(baejsn_parserutil_cpp,"$Id$ $CSID$")
 
+#include <baexml_hexparser.h>
+
+#include <bsl_sstream.h>
+
 #include <bsl_sstream.h>
 #include <bsl_cmath.h>
 #include <bsl_iomanip.h>
@@ -193,91 +197,95 @@ int baejsn_ParserUtil::getInteger(bsl::streambuf      *streamBuf,
     return foundNumberFlag ? 0 : 1;
 }
 
-int baejsn_ParserUtil::getString(bsl::streambuf *streamBuf,
-                                 bsl::string    *value)
+int baejsn_ParserUtil::getString(bsl::streambuf *streamBuf, bsl::string *value)
 {
     value->clear();
 
     int ch = streamBuf->sgetc();
     if (ch != bsl::streambuf::traits_type::eof()) {
-        if (ch != '"')
-            return 1;
-
+        if (ch != '"') {
+            return -1;                                                // RETURN
+        }
         ch = streamBuf->snextc();
     }
 
     bool escaped = false;
 
     while (ch != bsl::streambuf::traits_type::eof()) {
-        if (escaped)
-        {
-            if (ch == '"' || ch =='\\' || ch == '/') // printable
+        if (escaped) {
+            if (ch == '"' || ch =='\\' || ch == '/') {
+
+                // printable characters
+
                 *value += ch;
-            else if (ch == 'b') // non printable
+            }
+            else if (ch == 'b') {
+
+                // non printables
+
                 *value += '\b';
-            else if (ch == 'f')
+            }
+            else if (ch == 'f') {
                 *value += '\f';
-            else if (ch == 'n')
+            }
+            else if (ch == 'n') {
                 *value += '\n';
-            else if (ch == 'r')
+            }
+            else if (ch == 'r') {
                 *value += '\r';
-            else if (ch == 't')
+            }
+            else if (ch == 't') {
                 *value += '\t';
-            else if (ch == 'u')
-            {
+            }
+            else if (ch == 'u') {
+                streamBuf->snextc();
+
+                const int SIZE = 4;
+                char buffer[SIZE + 1];
+
+                const int numRead = streamBuf->sgetn(buffer, SIZE);
+                if (SIZE != numRead) {
+                    return -1;                                        // RETURN
+                }
+                buffer[SIZE] = '\0';
+
                 // hex encoded, pull the next 4 bytes
-                std::string hex;
-                for (int i = 0; i < 4; ++i)
-                {
-                    ch = streamBuf->snextc();
 
-                    if (ch == bsl::streambuf::traits_type::eof()) {
-                        return 1; // badly encoded
-                    }
+                baexml_HexParser<bsl::string> parser;
 
-                    if (!(ch >= '0' && ch <= '9') && !(ch >= 'a' && ch <= 'f')
-                     && !(ch >= 'A' && ch <= 'F')) {
-                        return 1; // badly encoded
-                    }
-
-                    hex += static_cast<char>(ch);
+                if (0 != parser.beginParse(value)) {
+                    return -1;                                        // RETURN
                 }
 
-                //std::string raw = mobcmn::HexConvert::fromHex(hex);
-                std::string raw = "h";
+                if (0 != parser.pushCharacters(buffer, buffer + SIZE)) {
+                    return -1;                                        // RETURN
+                }
 
-                //if (mOptions[Options::useModifiedUtf8] && raw == "\xc0\x80")
-                //    *value += '\0';
-                //else
-                if (raw.length() == 2 && raw[0] == '\0')
-                    *value += raw[1];
-                else
-                    *value += raw;
+                parser.endParse();
             }
 
             escaped = false;
         }
-        else
-        {
-            if (ch == '\\')
+        else {
+            if (ch == '\\') {
                 escaped = true;
-            else if (ch == '"')
-            {
-                streamBuf->snextc();
-                return 0;
             }
-            else
+            else if (ch == '"') {
+                streamBuf->snextc();
+                return 0;                                             // RETURN
+            }
+            else {
                 *value += ch;
+            }
         }
 
         ch = streamBuf->snextc();
     }
 
-    return 1;
+    return -1;
 }
 
-int baejsn_ParserUtil::eatToken(bsl::streambuf *streamBuf,
-                                 const char     *token)
+int baejsn_ParserUtil::eatToken(bsl::streambuf *streamBuf, const char *token)
 {
     int ch = streamBuf->sgetc();
     bsl::streampos pos = streamBuf->pubseekoff(0, bsl::ios_base::cur);

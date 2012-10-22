@@ -340,6 +340,8 @@ template <typename TYPE>
 inline
 int baejsn_Decoder::decodeImp(TYPE *value, bdeat_TypeCategory::Enumeration)
 {
+    baejsn_ParserUtil::skipSpaces(d_streamBuf);
+
     bsl::string valueString;
 
     if (0 != decodeImp(&valueString, bdeat_TypeCategory::Simple())) {
@@ -363,6 +365,8 @@ template <typename TYPE>
 inline
 int baejsn_Decoder::decodeImp(TYPE *value, bdeat_TypeCategory::CustomizedType)
 {
+    baejsn_ParserUtil::skipSpaces(d_streamBuf);
+
     typename bdeat_CustomizedTypeFunctions::BaseType<TYPE>::Type valueBaseType;
 
     if (0 != decodeImp(&valueBaseType, bdeat_TypeCategory::Simple())) {
@@ -385,6 +389,8 @@ template <typename TYPE>
 inline
 int baejsn_Decoder::decodeImp(TYPE *value, bdeat_TypeCategory::Simple)
 {
+    baejsn_ParserUtil::skipSpaces(d_streamBuf);
+
     return baejsn_ParserUtil::getValue(d_streamBuf, value);
 }
 

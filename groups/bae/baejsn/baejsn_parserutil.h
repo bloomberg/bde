@@ -126,8 +126,6 @@ template <typename TYPE>
 int baejsn_ParserUtil::getDateAndTimeValue(bsl::streambuf *streamBuf,
                                            TYPE           *value)
 {
-    skipSpaces(streamBuf);
-
     bsl::string temp;
     if (0 != getString(streamBuf, &temp)) {
         return -1;                                                    // RETURN
@@ -140,8 +138,6 @@ inline
 int baejsn_ParserUtil::getNumericalValue(bsl::streambuf *streamBuf,
                                          TYPE           *value)
 {
-    skipSpaces(streamBuf);
-
     return getNumber(streamBuf, value);
 }
 
@@ -149,8 +145,6 @@ inline
 int baejsn_ParserUtil::getValueImp(bsl::streambuf *streamBuf,
                                    bool           *value)
 {
-    skipSpaces(streamBuf);
-
     if (0 == eatToken(streamBuf, "true")) {
         *value = true;
     }
@@ -167,8 +161,6 @@ inline
 int baejsn_ParserUtil::getValueImp(bsl::streambuf *streamBuf,
                                    char           *value)
 {
-    skipSpaces(streamBuf);
-
     bsl::string valueString;
 
     if (0 == getString(streamBuf, &valueString)
@@ -253,8 +245,6 @@ inline
 int baejsn_ParserUtil::getValueImp(bsl::streambuf *streamBuf,
                                    bsl::string    *value)
 {
-    skipSpaces(streamBuf);
-
     if (0 != getString(streamBuf, value)) {
         return -1;                                                    // RETURN
     }
