@@ -4,6 +4,8 @@
 #include <bdes_ident.h>
 BDES_IDENT_RCSID(baejsn_decoder_cpp,"$Id$ $CSID$")
 
+#include <bdede_base64decoder.h>
+
 namespace BloombergLP {
 
 namespace {

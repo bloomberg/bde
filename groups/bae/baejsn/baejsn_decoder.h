@@ -59,18 +59,6 @@ BDES_IDENT("$Id: $")
 #include <bdeat_valuetypefunctions.h>
 #endif
 
-#ifndef INCLUDED_BDEDE_BASE64DECODER
-#include <bdede_base64decoder.h>
-#endif
-
-#ifndef INCLUDED_BDEUT_NULLABLEALLOCATEDVALUE
-#include <bdeut_nullableallocatedvalue.h>
-#endif
-
-#ifndef INCLUDED_BDEUT_NULLABLEVALUE
-#include <bdeut_nullablevalue.h>
-#endif
-
 #ifndef INCLUDED_BSLMF_ASSERT
 #include <bslmf_assert.h>
 #endif
