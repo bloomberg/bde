@@ -2,6 +2,7 @@
 
 #include <bsls_compilerfeatures.h>
 
+#include <cstdio>      // printf()
 #include <cstdlib>     // atoi()
 #include <iostream>
 
@@ -175,7 +176,7 @@ struct PackSize<T>
 // uses them.  For example, if 'BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT' is
 // defined, then we try to compile code that uses 'static_assert'.  This is a
 // purely compile-time test.  If the code compiles than the test succeeds, if
-// the code failes to compile than the test fails.  Due to the limitations of
+// the code fails to compile than the test fails.  Due to the limitations of
 // the testing framework there is no way to turn compile-time failures into
 // runtime failures.  Note that we don't intend to test the correctness of the
 // implementation of C++ features, but just the fact that features are
@@ -352,7 +353,7 @@ int main(int argc, char *argv[])
         // Plan:
         //: 1. If 'BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE' is defined then
         //:    compile code that uses this feature to define variables of type
-        //:    infered from decltype.
+        //:    inferred from decltype.
         //
         // Testing:
         //   BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE

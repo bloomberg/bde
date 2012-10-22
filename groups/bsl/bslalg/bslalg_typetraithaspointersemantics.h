@@ -30,6 +30,14 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_HASPOINTERSEMANTICS
+#include <bslmf_haspointersemantics.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
+#endif
+
 namespace BloombergLP {
 
 namespace bslalg {
@@ -47,16 +55,30 @@ struct TypeTraitHasPointerSemantics {
     // pointers.  Some examples of such types include 'std::auto_ptr', and
     // 'bslma::ManagedPtr'.  This trait is generally used by objects that
     // invoke the wrapped type.
+
+    template <class TYPE>
+    struct NestedTraitDeclaration :
+        bslmf::NestedTraitDeclaration<TYPE, bslmf::HasPointerSemantics>
+    {
+        // This class template ties the 'bslalg::TypeTraitHasPointerSemantics'
+        // trait tag to the 'bslmf::HasPointerSemantics' trait metafunction.
+    };
+
+    template <class TYPE>
+    struct Metafunction : bslmf::HasPointerSemantics<TYPE>::type { };
 };
 
 }  // close package namespace
 
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
 
-typedef bslalg::TypeTraitHasPointerSemantics bslalg_TypeTraitHasPointerSemantics;
+typedef bslalg::TypeTraitHasPointerSemantics
+                                           bslalg_TypeTraitHasPointerSemantics;
     // This alias is defined for backward compatibility.
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

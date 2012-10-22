@@ -30,6 +30,10 @@
 #ifndef INCLUDED_BSLSTP_HASHTABLE
 #define INCLUDED_BSLSTP_HASHTABLE
 
+#ifdef BDE_OMIT_TRANSITIONAL // STP
+#error "bslstp_hashtable is not for publication"
+#endif
+
 #ifndef INCLUDED_BSLSTP_ALLOC
 #include <bslstp_alloc.h>
 #endif
@@ -40,6 +44,10 @@
 
 #ifndef INCLUDED_BSLSTP_ITERATOR
 #include <bslstp_iterator.h> // const and nonconst traits for iterator
+#endif
+
+#ifndef INCLUDED_BSLSTP_UTIL
+#include <bslstp_util.h>
 #endif
 
 #ifndef INCLUDED_BSLSTL_PAIR
@@ -58,16 +66,8 @@
 #include <bslalg_typetraits.h>
 #endif
 
-#ifndef INCLUDED_BSLSTL_TRAITSGROUPSTLUNORDEREDCONTAINER
-#include <bslstl_traitsgroupstlunorderedcontainer.h>
-#endif
-
 #ifndef INCLUDED_BSLSTL_VECTOR
 #include <bslstl_vector.h>
-#endif
-
-#ifndef INCLUDED_BSLSTL_UTIL
-#include <bslstl_util.h>
 #endif
 
 #ifndef INCLUDED_BSLS_EXCEPTIONUTIL
@@ -319,20 +319,22 @@ public:
     _M_initialize_buckets(__n);
   }
 
+  /* TODO:
   typedef BloombergLP::bslstl::TraitsGroupStlUnorderedContainer<
     _Val,
     _HF,
     _EqK,
     _All> HashTableTypeTraits;
   BSLALG_DECLARE_NESTED_TRAITS(hashtable, HashTableTypeTraits);
+  */
 
   hashtable(const _Self& __ht)
     :
       _M_hash(__ht._M_hash),
       _M_equals(__ht._M_equals),
       _M_get_key(__ht._M_get_key),
-      _M_buckets(BloombergLP::bslstl::Util::copyContainerAllocator(__ht.get_allocator())),
-      _M_num_elements(BloombergLP::bslstl::Util::copyContainerAllocator((const _M_node_allocator_type&)__ht._M_num_elements), (size_type)0)
+      _M_buckets(BloombergLP::bslstp::Util::copyContainerAllocator(__ht.get_allocator())),
+      _M_num_elements(BloombergLP::bslstp::Util::copyContainerAllocator((const _M_node_allocator_type&)__ht._M_num_elements), (size_type)0)
   {
     _M_copy_from(__ht);
   }
@@ -368,7 +370,7 @@ public:
 
   void swap(_Self& __ht)
   {
-    BloombergLP::bslstl::Util::swapContainers(*this, __ht, QuickSwap());
+    BloombergLP::bslstp::Util::swapContainers(*this, __ht, QuickSwap());
   }
 
   iterator begin()

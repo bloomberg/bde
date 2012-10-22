@@ -245,7 +245,7 @@ class BidirectionalIterator
     //..
 
     // PRIVATE TYPES
-    typedef typename bslmf::RemoveCvq<T>::Type UnCvqT;  // value type without
+    typedef typename bsl::remove_cv<T>::type UnCvqT;   // value type without
                                                        // 'const' and
                                                        // 'volatile'
                                                        // qualifications
@@ -430,6 +430,7 @@ bslstl::operator--(BidirectionalIterator<T,ITER_IMP,TAG_TYPE>& iter, int)
     return tmp;
 }
 
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
@@ -439,6 +440,7 @@ bslstl::operator--(BidirectionalIterator<T,ITER_IMP,TAG_TYPE>& iter, int)
 #endif
 #define bslstl_BidirectionalIterator bslstl::BidirectionalIterator
     // This alias is defined for backward compatibility.
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

@@ -412,7 +412,7 @@ void ConstructorTestHelp1b::resetWithCount(ConstructorTestHelp1b *self, int c)
 
          int val = d_count;
 
-#ifdef BSLS_PLATFORM__OS_LINUX
+#ifdef BSLS_PLATFORM_OS_LINUX
          // when running test drivers on linux, this yield() tends to consume
          // a lot more time than we want.  So just microSleep(1) instead,
          // which is a much smaller delay (but quite a bit more than 1
@@ -557,6 +557,9 @@ class B
     bslma_Allocator *d_alloc_p;
 
 public:
+    // TRAITS
+    BSLALG_DECLARE_NESTED_TRAITS(B, bslalg::TypeTraitUsesBslmaAllocator);
+
     static int constructorCount;
     static int destructorCount;
 
@@ -585,6 +588,7 @@ int B::constructorCount = 0;
 int B::destructorCount = 0;
 
 } // namespace BCEC_OBJECTPOOL_TEST_CASE_11
+
 //=============================================================================
 //                         CASE 10 RELATED ENTITIES
 //-----------------------------------------------------------------------------
@@ -648,8 +652,8 @@ bcec_ObjectPool<Counter> *pool;
 
 bcemt_Barrier barrier(NUM_THREADS);
 
-#if !defined(BSLS_PLATFORM__CMP_SUN) \
-    || BSLS_PLATFORM__CMP_VER_MAJOR >= 1360
+#if !defined(BSLS_PLATFORM_CMP_SUN) \
+    || BSLS_PLATFORM_CMP_VER_MAJOR >= 1360
 extern "C"
     // This is a thread function and, thus, it must have extern "C" linkage.
     // Sun Workshop compilers, however, have a bug in that an extern "C"
@@ -690,8 +694,8 @@ bcec_ObjectPool<my_Class> *pool;
 
 bcemt_Barrier barrier(NUM_THREADS);
 
-#if !defined(BSLS_PLATFORM__CMP_SUN) \
-    || BSLS_PLATFORM__CMP_VER_MAJOR >= 1360
+#if !defined(BSLS_PLATFORM_CMP_SUN) \
+    || BSLS_PLATFORM_CMP_VER_MAJOR >= 1360
 extern "C"
     // This is a thread function and, thus, it must have extern "C" linkage.
     // Sun Workshop compilers, however, have a bug in that an extern "C"
@@ -736,8 +740,8 @@ bcec_ObjectPool<my_Class> *pool;
 
 bcemt_Barrier barrier(NUM_THREADS);
 
-#if !defined(BSLS_PLATFORM__CMP_SUN) \
-    || BSLS_PLATFORM__CMP_VER_MAJOR >= 1360
+#if !defined(BSLS_PLATFORM_CMP_SUN) \
+    || BSLS_PLATFORM_CMP_VER_MAJOR >= 1360
 extern "C"
     // This is a thread function and, thus, it must have extern "C" linkage.
     // Sun Workshop compilers, however, have a bug in that an extern "C"
@@ -781,8 +785,8 @@ bcemt_Barrier barrierAll(NUM_THREADS); // barrier for all threads
 bcemt_Barrier barrier0(NUM_THREADS/4); // barrier for threads having
                                        // thread-number % 4 == 0
 
-#if !defined(BSLS_PLATFORM__CMP_SUN) \
-    || BSLS_PLATFORM__CMP_VER_MAJOR >= 1360
+#if !defined(BSLS_PLATFORM_CMP_SUN) \
+    || BSLS_PLATFORM_CMP_VER_MAJOR >= 1360
 extern "C"
     // This is a thread function and, thus, it must have extern "C" linkage.
     // Sun Workshop compilers, however, have a bug in that an extern "C"
@@ -883,8 +887,8 @@ bcec_ObjectPool<my_Class> *pool;
 
 bcemt_Barrier barrier(NUM_THREADS);
 
-#if !defined(BSLS_PLATFORM__CMP_SUN) \
-    || BSLS_PLATFORM__CMP_VER_MAJOR >= 1360
+#if !defined(BSLS_PLATFORM_CMP_SUN) \
+    || BSLS_PLATFORM_CMP_VER_MAJOR >= 1360
 extern "C"
     // This is a thread function and, thus, it must have extern "C" linkage.
     // Sun Workshop compilers, however, have a bug in that an extern "C"
@@ -924,8 +928,8 @@ bcec_ObjectPool<my_Class> *pool;
 bcemt_Barrier barrierAll(NUM_THREADS);   // barrier for all threads
 bcemt_Barrier barrier0(NUM_THREADS / 2); // barrier for even numbered threads
 
-#if !defined(BSLS_PLATFORM__CMP_SUN) \
-    || BSLS_PLATFORM__CMP_VER_MAJOR >= 1360
+#if !defined(BSLS_PLATFORM_CMP_SUN) \
+    || BSLS_PLATFORM_CMP_VER_MAJOR >= 1360
 extern "C"
     // This is a thread function and, thus, it must have extern "C" linkage.
     // Sun Workshop compilers, however, have a bug in that an extern "C"
@@ -992,8 +996,8 @@ bcec_ObjectPool<my_Class> *pool;
 
 bcemt_Barrier barrier(NUM_THREADS);
 
-#if !defined(BSLS_PLATFORM__CMP_SUN) \
-    || BSLS_PLATFORM__CMP_VER_MAJOR >= 1360
+#if !defined(BSLS_PLATFORM_CMP_SUN) \
+    || BSLS_PLATFORM_CMP_VER_MAJOR >= 1360
 extern "C"
     // This is a thread function and, thus, it must have extern "C" linkage.
     // Sun Workshop compilers, however, have a bug in that an extern "C"
@@ -1168,8 +1172,8 @@ bces_AtomicInt64 totalResponseTime1; // total response time when
 bces_AtomicInt64 totalResponseTime2; // total response time when
                                      // we use object pool
 
-#if !defined(BSLS_PLATFORM__CMP_SUN) \
-    || BSLS_PLATFORM__CMP_VER_MAJOR >= 1360
+#if !defined(BSLS_PLATFORM_CMP_SUN) \
+    || BSLS_PLATFORM_CMP_VER_MAJOR >= 1360
 extern "C"
     // This is a thread function and, thus, it must have extern "C" linkage.
     // Sun Workshop compilers, however, have a bug in that an extern "C"
@@ -1199,8 +1203,8 @@ void queryHandler1(Query *query)
     queryFactory->destroyQuery(query);
 }
 
-#if !defined(BSLS_PLATFORM__CMP_SUN) \
-    || BSLS_PLATFORM__CMP_VER_MAJOR >= 1360
+#if !defined(BSLS_PLATFORM_CMP_SUN) \
+    || BSLS_PLATFORM_CMP_VER_MAJOR >= 1360
 extern "C"
     // This is a thread function and, thus, it must have extern "C" linkage.
     // Sun Workshop compilers, however, have a bug in that an extern "C"

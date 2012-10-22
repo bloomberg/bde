@@ -12,11 +12,11 @@
 #include <bsl_c_stdio.h>     // sprintf(), snprintf() [NOT <cstdio>, which does
                              // not include 'snprintf']
 
-#if defined(BSLS_PLATFORM__CMP_MSVC)
+#if defined(BSLS_PLATFORM_CMP_MSVC)
 #define snprintf _snprintf
 #endif
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
 #include <arpa/inet.h>
 #else
 #include <winsock2.h>
@@ -43,12 +43,12 @@ using namespace bsl;
 // [ 1] static int isBigEndian() const;
 // [ 1] static int isLittleEndian() const;
 // [ 3] static int roundUpToMaximalAlignment(int size);
-// [ 1] BDES_PLATFORMUTIL__IS_LITTLE_ENDIAN
-// [ 1] BDES_PLATFORMUTIL__IS_BIG_ENDIAN
-// [ 7] BDES_PLATFORMUTIL__HTONS
-// [ 7] BDES_PLATFORMUTIL__HTONL
-// [ 7] BDES_PLATFORMUTIL__NTOHS
-// [ 7] BDES_PLATFORMUTIL__NTOHL
+// [ 1] BDES_PLATFORMUTIL_IS_LITTLE_ENDIAN
+// [ 1] BDES_PLATFORMUTIL_IS_BIG_ENDIAN
+// [ 7] BDES_PLATFORMUTIL_HTONS
+// [ 7] BDES_PLATFORMUTIL_HTONL
+// [ 7] BDES_PLATFORMUTIL_NTOHS
+// [ 7] BDES_PLATFORMUTIL_NTOHL
 //-----------------------------------------------------------------------------
 // [ 6] operator<<(ostream&, const bdes_PlatformUtil::Uint64&);
 // [ 5] operator<<(ostream&, const bdes_PlatformUtil::Int64&);
@@ -87,7 +87,7 @@ static void aSsErT(int c, const char *s, int i)
 //                    GLOBAL HELPER FUNCTIONS FOR TESTING
 //--------------------------------------------------------------------------
 
-#if defined(BSLS_PLATFORM__CMP_MSVC)
+#if defined(BSLS_PLATFORM_CMP_MSVC)
 #define INT64_FMT_STR  "0x%I64X"
 #else
 #define INT64_FMT_STR  "0x%llX"
@@ -120,7 +120,7 @@ void printBits(bdes_PlatformUtil::Uint64 value)
 
 #undef INT64_FMT_STR
 
-#if defined(BSLS_PLATFORM__CPU_X86) && defined(BSLS_PLATFORM__CMP_GNU)
+#if defined(BSLS_PLATFORM_CPU_X86) && defined(BSLS_PLATFORM_CMP_GNU)
 // On Linux x86, no natural type is aligned on a 64-bit boundary, but we need
 // such a type to implement low-level constructs (e.g 64-bit atomic types).
 
@@ -213,14 +213,14 @@ int main(int argc, char *argv[])
         //  provided macros.
         //
         // Testing:
-        //   BDES_PLATFORMUTIL__HTONS
-        //   BDES_PLATFORMUTIL__NTOHS
-        //   BDES_PLATFORMUTIL__HTONS
-        //   BDES_PLATFORMUTIL__NTOHL
+        //   BDES_PLATFORMUTIL_HTONS
+        //   BDES_PLATFORMUTIL_NTOHS
+        //   BDES_PLATFORMUTIL_HTONS
+        //   BDES_PLATFORMUTIL_NTOHL
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-            << "Testing BDES_PLATFORMUTIL__HTONS and BDES_PLATFORMUTIL__NTOHS"
+            << "Testing BDES_PLATFORMUTIL_HTONS and BDES_PLATFORMUTIL_NTOHS"
             << endl
             << "============================================================="
             << endl;
@@ -248,7 +248,7 @@ int main(int argc, char *argv[])
                 {
                     const unsigned short oracle = htons(VALUE);
                     const unsigned short newValue
-                                             = BDES_PLATFORMUTIL__HTONS(VALUE);
+                                             = BDES_PLATFORMUTIL_HTONS(VALUE);
 
                     if (veryVerbose) {
                         TAB P_(ti); P_(VALUE); P_(newValue); P(oracle)
@@ -259,7 +259,7 @@ int main(int argc, char *argv[])
                 {
                     const unsigned short oracle = ntohs(VALUE);
                     const unsigned short newValue
-                                             = BDES_PLATFORMUTIL__NTOHS(VALUE);
+                                             = BDES_PLATFORMUTIL_NTOHS(VALUE);
 
                     if (veryVerbose) {
                         TAB P_(ti); P_(VALUE); P_(newValue); P(oracle)
@@ -271,7 +271,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) cout << endl
-            << "Testing BDES_PLATFORMUTIL__HTONL and BDES_PLATFORMUTIL__NTOHL"
+            << "Testing BDES_PLATFORMUTIL_HTONL and BDES_PLATFORMUTIL_NTOHL"
             << endl
             << "============================================================="
             << endl;
@@ -304,7 +304,7 @@ int main(int argc, char *argv[])
 
                 {
                     const int oracle = htonl(VALUE);
-                    const int newValue = BDES_PLATFORMUTIL__HTONL(VALUE);
+                    const int newValue = BDES_PLATFORMUTIL_HTONL(VALUE);
 
                     if (veryVerbose) {
                         TAB P_(ti); P_(VALUE); P_(newValue); P(oracle)
@@ -314,7 +314,7 @@ int main(int argc, char *argv[])
                 }
                 {
                     const int oracle = ntohl(VALUE);
-                    const int newValue = BDES_PLATFORMUTIL__NTOHL(VALUE);
+                    const int newValue = BDES_PLATFORMUTIL_NTOHL(VALUE);
 
                     if (veryVerbose) {
                         TAB P_(ti); P_(VALUE); P_(newValue); P(oracle)
@@ -375,7 +375,7 @@ int main(int argc, char *argv[])
             { L_,   0x7FFFFFFF,         "2147483647"           },
             { L_,   0x80000000,         "2147483648"           },
             { L_,   0xFFFFFFFF,         "4294967295"           },
-#if !defined(BSLS_PLATFORM__NO_64_BIT_LITERALS)
+#if !defined(BSLS_PLATFORM_NO_64_BIT_LITERALS)
             { L_,   0x100000000,        "4294967296"           },
             { L_,   0x7FFFFFFFFFFFFFFF, "9223372036854775807"  },
             { L_,   0x8000000000000000, "9223372036854775808"  },
@@ -411,7 +411,7 @@ int main(int argc, char *argv[])
                 if (veryVerbose)
                     cout << "\tEXPECTED FORMAT     : " << FMT << endl;
 
-                #if defined(BSLS_PLATFORM__CMP_MSVC)
+                #if defined(BSLS_PLATFORM_CMP_MSVC)
                 snprintf(buf1, SIZE, "%I64u", SPEC);
                 snprintf(buf2, SIZE, "%I64u", SPEC);
                 #else
@@ -474,7 +474,7 @@ int main(int argc, char *argv[])
                 if (veryVerbose)
                     cout << "\tEXPECTED FORMAT     : " << FMT << endl;
 
-                #if defined(BSLS_PLATFORM__CMP_MSVC)
+                #if defined(BSLS_PLATFORM_CMP_MSVC)
                 snprintf(buf1, SIZE, "%I64u", SPEC);
                 snprintf(buf2, SIZE, "%I64u", SPEC);
                 #else
@@ -548,7 +548,7 @@ int main(int argc, char *argv[])
             { L_,   0x7FFFFFFF,         "2147483647"           },
             { L_,   0x80000000,         "2147483648"           },
             { L_,   0xFFFFFFFF,         "4294967295"           },
-#if !defined(BSLS_PLATFORM__NO_64_BIT_LITERALS)
+#if !defined(BSLS_PLATFORM_NO_64_BIT_LITERALS)
             { L_,   0x100000000,        "4294967296"           },
             { L_,   0x7FFFFFFFFFFFFFFF, "9223372036854775807"  },
             { L_,   0x8000000000000000, "-9223372036854775808" },
@@ -584,7 +584,7 @@ int main(int argc, char *argv[])
             if (veryVerbose)
                 cout << "EXPECTED FORMAT:" << endl << FMT << endl;
 
-            #if defined(BSLS_PLATFORM__CMP_MSVC)
+            #if defined(BSLS_PLATFORM_CMP_MSVC)
             snprintf(buf1, SIZE, "%I64d", SPEC);
             snprintf(buf2, SIZE, "%I64d", SPEC);
             #else
@@ -642,7 +642,7 @@ int main(int argc, char *argv[])
                 cout << "\tSpec = \t\t      " << SPEC << endl
                      << "\tEXPECTED FORMAT     : " << FMT << endl;
 
-            #if defined(BSLS_PLATFORM__CMP_MSVC)
+            #if defined(BSLS_PLATFORM_CMP_MSVC)
             snprintf(buf1, SIZE, "%I64d", SPEC);
             snprintf(buf2, SIZE, "%I64d", SPEC);
             #else
@@ -709,16 +709,16 @@ int main(int argc, char *argv[])
         struct DoubleAlign      { char c; double d_double;          };
         struct LongDoubleAlign  { char c; long double d_longDouble; };
         struct VoidPtrAlign     { char c; void  *d_voidPtr;         };
-#if defined(BSLS_PLATFORM__CPU_X86) && defined(BSLS_PLATFORM__CMP_GNU)
+#if defined(BSLS_PLATFORM_CPU_X86) && defined(BSLS_PLATFORM_CMP_GNU)
         struct Test8bytesAlign  { char c; Test8BytesAlignedType
                                                d_8BytesAlignedType; };
 #endif
 
-#if BSL_LEGACY == 0
-    typedef bsls_AlignmentUtil::MaxAlignedType LegacyMaxAlign;
-#else
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
     typedef U::MaxAlign                        LegacyMaxAlign;
-#endif
+#else
+    typedef bsls_AlignmentUtil::MaxAlignedType LegacyMaxAlign;
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
         struct MaxAlignAlign    { char c; LegacyMaxAlign d_maxAlign;};
 
@@ -732,7 +732,7 @@ int main(int argc, char *argv[])
                 | (offsetof(DoubleAlign, d_double)         - 1)
                 | (offsetof(LongDoubleAlign, d_longDouble) - 1)
                 | (offsetof(VoidPtrAlign, d_voidPtr)       - 1)
-#if defined(BSLS_PLATFORM__CPU_X86) && defined(BSLS_PLATFORM__CMP_GNU)
+#if defined(BSLS_PLATFORM_CPU_X86) && defined(BSLS_PLATFORM_CMP_GNU)
                 | (offsetof(Test8bytesAlign,
                                 d_8BytesAlignedType)       - 1)
 #endif
@@ -846,10 +846,10 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING BIG ENDIAN and LITTLE ENDIAN:
         //   Concerns:
-        //     1. The macros BDES_PLATFORMUTIL__IS_BIG_ENDIAN and
-        //        BSLS_PLATFORM__IS_LITTLE_ENDIAN must have boolean values.
-        //     2. The macros BDES_PLATFORMUTIL__IS_BIG_ENDIAN and
-        //        BSLS_PLATFORM__IS_LITTLE_ENDIAN are assigned at compile
+        //     1. The macros BDES_PLATFORMUTIL_IS_BIG_ENDIAN and
+        //        BSLS_PLATFORM_IS_LITTLE_ENDIAN must have boolean values.
+        //     2. The macros BDES_PLATFORMUTIL_IS_BIG_ENDIAN and
+        //        BSLS_PLATFORM_IS_LITTLE_ENDIAN are assigned at compile
         //        time based on the platform (see overview above).  If any
         //        one of the flags or inferences is wrong, the "endian-ness"
         //        of a given platform could be wrong.  Similarly, the
@@ -869,8 +869,8 @@ int main(int argc, char *argv[])
         // Testing:
         //   static int isBigEndian();
         //   static int isLittleEndian();
-        //   BDES_PLATFORMUTIL__IS_LITTLE_ENDIAN
-        //   BDES_PLATFORMUTIL__IS_BIG_ENDIAN
+        //   BDES_PLATFORMUTIL_IS_LITTLE_ENDIAN
+        //   BDES_PLATFORMUTIL_IS_BIG_ENDIAN
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -894,10 +894,10 @@ int main(int argc, char *argv[])
         ASSERT(::isLittleEndian() != Util::isBigEndian());
 
         // Must be same as preprocessor MACROS.
-#if defined(BDES_PLATFORMUTIL__IS_BIG_ENDIAN)
-        ASSERT(BDES_PLATFORMUTIL__IS_BIG_ENDIAN == Util::isBigEndian());
+#if defined(BDES_PLATFORMUTIL_IS_BIG_ENDIAN)
+        ASSERT(BDES_PLATFORMUTIL_IS_BIG_ENDIAN == Util::isBigEndian());
 #else
-        ASSERT(BDES_PLATFORMUTIL__IS_LITTLE_ENDIAN == Util::isLittleEndian());
+        ASSERT(BDES_PLATFORMUTIL_IS_LITTLE_ENDIAN == Util::isLittleEndian());
 #endif
       } break;
       default: {

@@ -624,7 +624,7 @@ class bdef_Function_Rep {
         // this functor will be empty.
 
     // ACCESSORS
-#ifndef BSLS_PLATFORM__CMP_IBM
+#ifndef BSLS_PLATFORM_CMP_IBM
     template <class FUNC>
     FUNC invocable(bslmf_Tag<IS_FUNCTION_POINTER> *) const;
         // Return the function pointer of the parameterized 'FUNC' type stored
@@ -846,7 +846,7 @@ class bdef_Function {
     InvokerFunc d_invoker_p; // proxy function used to invoke this functor
 
     // PRIVATE CLASS METHODS
-#if defined(BSLS_PLATFORM__CMP_MSVC)
+#if defined(BSLS_PLATFORM_CMP_MSVC)
     // Windows compiler cannot differentiate between the two static member
     // template overloads, even though they have different signatures due to
     // the different 'bslmf_Tag' arguments.  We resort to this alternate
@@ -864,7 +864,7 @@ class bdef_Function {
         return 0;
     }
 
-#if defined(BSLS_PLATFORM__CMP_MSVC)
+#if defined(BSLS_PLATFORM_CMP_MSVC)
     // We do not prefer this version of this 'getInvoker' implementation
     // because the type 'FUNC' is mentioned twice in the prototype (instead of
     // only once for the other implementation, below), leading to longer debug
@@ -1127,7 +1127,7 @@ void swap(bdef_Function<PROTOTYPE>& a, bdef_Function<PROTOTYPE>& b);
 
 // ---- Anything below this line is implementation specific.  Do not use.  ----
 
-#ifdef BSLS_PLATFORM__CMP_IBM
+#ifdef BSLS_PLATFORM_CMP_IBM
 
                         // ==============================
                         // struct bdef_Function_Invocable
@@ -1356,7 +1356,7 @@ struct bdef_Function_TypeList {
     //  IS_OUT_OF_PLACE_WITHOUT_POINTER_SEMANTICS
     //..
 
-#ifndef BSLS_PLATFORM__CMP_IBM
+#ifndef BSLS_PLATFORM_CMP_IBM
 
 #define BDEF_FUNCTION_INVOKER(FUNC, rep) \
                             (rep->invocable<FUNC>((bslmf_Tag<INVOKER_TAG> *)0))
@@ -2147,7 +2147,7 @@ bdef_Function<PROTOTYPE>::bdef_Function(const FUNC_OR_ALLOC& funcOrAlloc)
                                              ? IS_OUT_OF_PLACE_BITWISE_COPYABLE
                                              : IS_OUT_OF_PLACE> *)0,
         (bslma_Allocator *)0)
-#if defined(BSLS_PLATFORM__CMP_MSVC)
+#if defined(BSLS_PLATFORM_CMP_MSVC)
 , d_invoker_p(getInvoker((typename bslmf_If<bslmf_IsConvertible<
                                                      FUNC_OR_ALLOC,
                                                      bslma_Allocator *>::VALUE,
@@ -2184,7 +2184,7 @@ bdef_Function<PROTOTYPE>::bdef_Function(const FUNC&      func,
                                              ? IS_OUT_OF_PLACE_BITWISE_COPYABLE
                                              : IS_OUT_OF_PLACE> *)0,
         allocator)
-#if defined(BSLS_PLATFORM__CMP_MSVC)
+#if defined(BSLS_PLATFORM_CMP_MSVC)
 , d_invoker_p(getInvoker((FUNC *)0))
 #else
 , d_invoker_p(getInvoker<FUNC>((bslmf_Tag<IS_NOT_ALLOCATOR>*)0))
@@ -2220,7 +2220,7 @@ bdef_Function<PROTOTYPE>&
 bdef_Function<PROTOTYPE>::operator=(const FUNC& func)
 {
     d_rep       = func;
-#if defined(BSLS_PLATFORM__CMP_MSVC)
+#if defined(BSLS_PLATFORM_CMP_MSVC)
     d_invoker_p = getInvoker((FUNC *)0);
 #else
     d_invoker_p = getInvoker<FUNC>((bslmf_Tag<IS_NOT_ALLOCATOR>*)0);
@@ -2236,7 +2236,7 @@ bdef_Function<PROTOTYPE>::load(const FUNC&      func,
                                bslma_Allocator *allocator)
 {
     d_rep.load(func, allocator);
-#if defined(BSLS_PLATFORM__CMP_MSVC)
+#if defined(BSLS_PLATFORM_CMP_MSVC)
     d_invoker_p = getInvoker((FUNC *)0);
 #else
     d_invoker_p = getInvoker<FUNC>((bslmf_Tag<IS_NOT_ALLOCATOR>*)0);
@@ -2630,7 +2630,7 @@ bdef_Function_Rep::load(const FUNC& func, bslma_Allocator *allocator)
 }
 
 // ACCESSORS
-#ifndef BSLS_PLATFORM__CMP_IBM
+#ifndef BSLS_PLATFORM_CMP_IBM
 template <class FUNC>
 inline
 FUNC bdef_Function_Rep::invocable(bslmf_Tag<IS_FUNCTION_POINTER> *) const

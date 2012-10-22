@@ -2,7 +2,12 @@
 #ifndef INCLUDED_BSLS_ATOMICOPERATIONS_SPARC64_SUN_CC
 #define INCLUDED_BSLS_ATOMICOPERATIONS_SPARC64_SUN_CC
 
-//@PURPOSE: Provide implentations of atomic operations for Sparc/Sun (64bit).
+#ifndef INCLUDED_BSLS_IDENT
+#include <bsls_ident.h>
+#endif
+BSLS_IDENT("$Id: $")
+
+//@PURPOSE: Provide implementations of atomic operations for Sparc/Sun (64bit).
 //
 //@CLASSES:
 //  bsls::AtomicOperations_SPARC64_SUN_CC: atomics for Sparc64/Sun.
@@ -12,16 +17,7 @@
 //@DESCRIPTION: This component provides classes necessary to implement atomics
 // on the Sun Sparc platform in 64bit mode with SunCC compiler.  The classes
 // are for private use only.  See 'bsls_atomicoperations' and 'bsls_atomic' for
-// the public inteface to atomics.
-
-#ifndef INCLUDED_BSLS_IDENT
-#include <bsls_ident.h>
-#endif
-BSLS_IDENT("$Id: $")
-
-#ifndef INCLUDED_BSLS_TYPES
-#include <bsls_types.h>
-#endif
+// the public interface to atomics.
 
 #ifndef INCLUDED_BSLS_ATOMICOPERATIONS_DEFAULT
 #include <bsls_atomicoperations_default.h>
@@ -31,8 +27,16 @@ BSLS_IDENT("$Id: $")
 #include <bsls_atomicoperations_sparc_sun_cc_default.h>
 #endif
 
-#if defined(BSLS_PLATFORM__CPU_SPARC_V9) \
-    && (defined(BSLS_PLATFORM__CMP_GNU) || defined(BSLS_PLATFORM__CMP_SUN))
+#ifndef INCLUDED_BSLS_PLATFORM
+#include <bsls_platform.h>
+#endif
+
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
+#endif
+
+#if defined(BSLS_PLATFORM_CPU_SPARC_V9) \
+    && (defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_SUN))
 
 namespace BloombergLP {
 
@@ -88,7 +92,7 @@ struct Atomic_TypeTraits<AtomicOperations_SPARC64_SUN_CC>
 {
     struct Int
     {
-#ifdef BSLS_PLATFORM__CMP_GNU
+#ifdef BSLS_PLATFORM_CMP_GNU
         volatile int d_value __attribute__((__aligned__(sizeof(int))));
 #else
 #       pragma align 4 (d_value)
@@ -98,7 +102,7 @@ struct Atomic_TypeTraits<AtomicOperations_SPARC64_SUN_CC>
 
     struct Int64
     {
-#ifdef BSLS_PLATFORM__CMP_GNU
+#ifdef BSLS_PLATFORM_CMP_GNU
         volatile Types::Int64 d_value
                        __attribute__((__aligned__(sizeof(Types::Int64))));
 #else
@@ -109,7 +113,7 @@ struct Atomic_TypeTraits<AtomicOperations_SPARC64_SUN_CC>
 
     struct Pointer
     {
-#ifdef BSLS_PLATFORM__CMP_GNU
+#ifdef BSLS_PLATFORM_CMP_GNU
         void const * volatile d_value
                                   __attribute__((__aligned__(sizeof(void *))));
 #else

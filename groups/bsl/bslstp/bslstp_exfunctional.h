@@ -58,6 +58,10 @@ BSLS_IDENT("$Id: $")
 // This component is for use by the 'bsl+stdhdrs' package.  Use 'functional'
 // directly.
 
+#ifdef BDE_OMIT_TRANSITIONAL // STP
+#error "bslstp_exfunctional is not for publication"
+#endif
+
 // Prevent 'bslstp' headers from being included directly in 'BSL_OVERRIDES_STD'
 // mode.  Doing so is unsupported, and is likely to cause compilation errors.
 #if defined(BSL_OVERRIDES_STD) && !defined(BSL_STDHDRS_PROLOGUE_IN_EFFECT)
@@ -75,6 +79,10 @@ BSL_OVERRIDES_STD mode"
 
 #ifndef INCLUDED_BSLS_NATIVESTD
 #include <bsls_nativestd.h>
+#endif
+
+#ifndef INCLUDED_BSLSTL_EQUALTO
+#include <bslstl_equalto.h>
 #endif
 
 #ifndef INCLUDED_FUNCTIONAL
@@ -295,7 +303,7 @@ struct ComparatorSelector
     // 'std::equal_to' functor.
 {
     // TYPES
-    typedef std::equal_to<HASH_KEY> Type;
+    typedef bsl::equal_to<HASH_KEY> Type;
 };
 
 template <>

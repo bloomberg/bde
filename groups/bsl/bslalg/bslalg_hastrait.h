@@ -22,7 +22,7 @@ BSLS_IDENT("$Id: $")
 // instance, a class having the trait 'bslalg::TypeTraitBitwiseMoveable' may
 // allow resizing an array of objects by simply calling 'std::memcpy' instead
 // of invoking a copy-constructor on every object.  The usage example shows how
-// to use the 'bslalg::TypeTraitUsesBslmaAllocator' to propagate allocators to
+// to use the 'bslma::UsesBslmaAllocator' to propagate allocators to
 // nested instances that may require them.
 //
 // This component should be used in conjunction with other components from the
@@ -40,10 +40,6 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_ISCONVERTIBLE
@@ -74,54 +70,10 @@ struct HasTrait {
     // 'bslalg_TypeTraits<TYPE>' directly includes 'TRAIT' or else includes a
     // trait that implies 'TRAIT'.
 
-  private:
-    typedef typename bslmf::RemoveCvq<TYPE>::Type  NoCvqType;
-    typedef bslalg_TypeTraits<NoCvqType>           NoCvqTraits;
-
   public:
     enum {
-        VALUE = bslmf::IsConvertible<NoCvqTraits, TRAIT>::VALUE
-    };
-
-    typedef bslmf::MetaInt<VALUE> Type;
-};
-
-template <typename TYPE>
-struct HasTrait<TYPE, TypeTraitBitwiseMoveable> {
-    // bitwise copyable                => bitwise moveable
-    // has trivial default constructor => bitwise moveable
-
-  private:
-    typedef typename bslmf::RemoveCvq<TYPE>::Type  NoCvqType;
-    typedef bslalg_TypeTraits<NoCvqType>           NoCvqTraits;
-
-  public:
-    enum {
-        VALUE = bslmf::IsConvertible<NoCvqTraits,
-                                    TypeTraitBitwiseMoveable>::VALUE
-             || bslmf::IsConvertible<NoCvqTraits,
-                                    TypeTraitBitwiseCopyable>::VALUE
-             || bslmf::IsConvertible<NoCvqTraits,
-                           TypeTraitHasTrivialDefaultConstructor>::VALUE
-    };
-
-    typedef bslmf::MetaInt<VALUE> Type;
-};
-
-template <typename TYPE>
-struct HasTrait<TYPE, TypeTraitBitwiseCopyable> {
-    // has trivial default constructor => bitwise copyable
-
-  private:
-    typedef typename bslmf::RemoveCvq<TYPE>::Type  NoCvqType;
-    typedef bslalg_TypeTraits<NoCvqType>           NoCvqTraits;
-
-  public:
-    enum {
-        VALUE = bslmf::IsConvertible<NoCvqTraits,
-                                    TypeTraitBitwiseCopyable>::VALUE
-             || bslmf::IsConvertible<NoCvqTraits,
-                           TypeTraitHasTrivialDefaultConstructor>::VALUE
+        VALUE = TRAIT::template
+                       Metafunction<typename bsl::remove_cv<TYPE>::type>::value
     };
 
     typedef bslmf::MetaInt<VALUE> Type;
@@ -129,6 +81,7 @@ struct HasTrait<TYPE, TypeTraitBitwiseCopyable> {
 
 }  // close package namespace
 
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
@@ -138,6 +91,7 @@ struct HasTrait<TYPE, TypeTraitBitwiseCopyable> {
 #endif
 #define bslalg_HasTrait bslalg::HasTrait
     // This alias is defined for backward compatibility.
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

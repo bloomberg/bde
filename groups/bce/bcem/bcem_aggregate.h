@@ -787,7 +787,7 @@ class bcem_Aggregate {
                            const bcem_ErrorAttributes& errorDescription) const;
     const bcem_Aggregate makeError(bcem_ErrorCode::Code  errorCode,
                                    const char           *msg, ...) const
-#ifdef BSLS_PLATFORM__CMP_GNU
+#ifdef BSLS_PLATFORM_CMP_GNU
         // Declare this function as printf-like in gcc.
         // The 'msg' arg is the 3rd arg, including the implicit 'this'.
         __attribute__ ((__format__ (__printf__, 3, 4)))
@@ -1660,7 +1660,7 @@ class bcem_Aggregate {
         // Return 'true' if the data referenced by this aggregate can be made
         // null, and 'false' otherwise.
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
     bool isUnset() const;
         // Return 'true' if the data referenced by this aggregate has the
         // "unset" value for its type (i.e., is an "unset" scalar as defined in
@@ -1669,7 +1669,7 @@ class bcem_Aggregate {
         // 'true'.  Note that this function should rarely be needed; generally
         // 'isNul2()' should be used instead; 'isUnset()' will be removed in a
         // future release.
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
     int errorCode() const;
         // Return a negative error code describing the the status of this

@@ -12,9 +12,9 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //   bsltf::NonEqualComparableTestType: non-equal-comparable class
 //
-//@AUTHOR: Chen He (che2)
+//@SEE_ALSO: bsltf_templatetestfacility
 //
-//@SEE ALSO: bsltf_templatetestfacility
+//@AUTHOR: Chen He (che2)
 //
 //@DESCRIPTION: This component provides a single, unconstrained
 // (value-semantic) attribute class, 'NonEqualComparableTestType', that does
@@ -48,10 +48,6 @@ BSLS_IDENT("$Id: $")
 //..
 //  assert(X != Y); // This will not compile
 //..
-
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
 
 namespace BloombergLP {
 namespace bsltf {

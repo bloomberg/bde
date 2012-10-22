@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a primitive type trait for bit-wise copyable classes.
+//@PURPOSE: Provide a primitive trait for classes that have no other traits.
 //
 //@CLASSES:
 //  bslalg::TypeTraitBitwiseCopyable: bit-wise copyable trait
@@ -28,6 +28,10 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
+#include <bslmf_integralconstant.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_NIL
 #include <bslmf_nil.h>
 #endif
@@ -40,11 +44,24 @@ namespace bslalg {
                             // TypeTraitNil
                             //=============
 
-typedef bslmf::Nil TypeTraitNil;
-    // The nil trait.  Types with no other traits have the nil trait.
+struct TypeTraitNil
+{
+    // Nil trait -- every type has this trait.
+
+    template <class TYPE>
+    struct NestedTraitDeclaration
+    {
+        // This metafunction returns 'true_type' for any class that is queried
+        // for the nil trait.
+    };
+
+    template <class TYPE>
+    struct Metafunction : bsl::true_type { };
+};
 
 }  // close package namespace
 
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
@@ -54,6 +71,7 @@ typedef bslmf::Nil TypeTraitNil;
 #endif
 #define bslalg_TypeTraitNil bslalg::TypeTraitNil
     // This alias is defined for backward compatibility.
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

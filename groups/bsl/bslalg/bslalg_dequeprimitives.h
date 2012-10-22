@@ -12,7 +12,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslalg::DequePrimitives: namespace for deque algorithms
 //
-//@SEE_ALSO: bslalg_scalarprimitives, bslalg_arrayprimitives, bslalg_typetraits
+//@SEE_ALSO: bslalg_scalarprimitives, bslalg_arrayprimitives
 //
 //@AUTHOR: Herve Bronnimann (hbronnim), Arthur Chiu (achiu)
 //
@@ -68,24 +68,11 @@ BSLS_IDENT("$Id: $")
 //..
 //  Trait                                         English description
 //  -----                                         -------------------
-//  bslalg::TypeTraitPair                         "TYPE has the pair trait", or
-//                                                "TYPE is a pair type"
-//
-//  bslalg::TypeTraitUsesBslmaAllocator           "the 'TYPE' constructor takes
-//                                                an allocator argument", or
-//                                                "'TYPE' supports 'bslma'
-//                                                allocators"
-//
-//  bslalg::TypeTraitHasTrivialDefaultConstructor "TYPE has the trivial default
-//                                                constructor trait", or
-//                                                "TYPE has a trivial default
-//                                                constructor"
-//
-//  bslalg::TypeTraitBitwiseCopyable              "TYPE has the bit-wise
+//  bsl::is_trivially_copyable                    "TYPE has the bit-wise
 //                                                copyable trait", or
 //                                                "TYPE is bit-wise copyable"
 //
-//  bslalg::TypeTraitBitwiseMoveable              "TYPE has the bit-wise
+//  bslmf::IsBitwiseMoveable                      "TYPE has the bit-wise
 //                                                moveable trait", or
 //                                                "TYPE is bit-wise moveable"
 //..
@@ -133,16 +120,8 @@ BSLS_IDENT("$Id: $")
 #include <bslalg_scalarprimitives.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
 #ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ANYTYPE
-#include <bslmf_anytype.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_FUNCTIONPOINTERTRAITS
@@ -194,7 +173,6 @@ namespace {
     };
 
 }
-
 
 namespace bslalg {
 
@@ -775,8 +753,7 @@ void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>
                                        ::destruct(Iterator begin, Iterator end)
 {
     enum {
-        IS_BITWISECOPYABLE  = HasTrait<VALUE_TYPE,
-                                       TypeTraitBitwiseCopyable>::VALUE,
+        IS_BITWISECOPYABLE  = bsl::is_trivially_copyable<VALUE_TYPE>::value,
 
         VALUE = IS_BITWISECOPYABLE
               ? BITWISE_COPYABLE_TRAITS
@@ -822,8 +799,7 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>
                                                     ALLOCATOR *allocator)
 {
     enum {
-        IS_BITWISECOPYABLE  = HasTrait<VALUE_TYPE,
-                                       TypeTraitBitwiseCopyable>::VALUE,
+        IS_BITWISECOPYABLE  = bsl::is_trivially_copyable<VALUE_TYPE>::value,
 
         VALUE = IS_BITWISECOPYABLE
               ? BITWISE_COPYABLE_TRAITS
@@ -922,10 +898,8 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>
                                                ALLOCATOR         *allocator)
 {
     enum {
-        IS_BITWISECOPYABLE  = HasTrait<VALUE_TYPE,
-                                       TypeTraitBitwiseCopyable>::VALUE,
-        IS_BITWISEMOVEABLE  = HasTrait<VALUE_TYPE,
-                                       TypeTraitBitwiseMoveable>::VALUE,
+        IS_BITWISECOPYABLE  = bsl::is_trivially_copyable<VALUE_TYPE>::value,
+        IS_BITWISEMOVEABLE  = bslmf::IsBitwiseMoveable<VALUE_TYPE>::value,
 
         VALUE = IS_BITWISECOPYABLE
               ? BITWISE_COPYABLE_TRAITS : IS_BITWISEMOVEABLE
@@ -1142,10 +1116,8 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>
                                     ALLOCATOR         *allocator)
 {
     enum {
-        IS_BITWISECOPYABLE  = HasTrait<VALUE_TYPE,
-                                       TypeTraitBitwiseCopyable>::VALUE,
-        IS_BITWISEMOVEABLE  = HasTrait<VALUE_TYPE,
-                                       TypeTraitBitwiseMoveable>::VALUE,
+        IS_BITWISECOPYABLE  = bsl::is_trivially_copyable<VALUE_TYPE>::value,
+        IS_BITWISEMOVEABLE  = bslmf::IsBitwiseMoveable<VALUE_TYPE>::value,
 
         VALUE = IS_BITWISECOPYABLE
               ? BITWISE_COPYABLE_TRAITS : IS_BITWISEMOVEABLE
@@ -1990,8 +1962,7 @@ DequePrimitives<VALUE_TYPE, 1>::uninitializedFillNFront(
         IS_FUNDAMENTAL_OR_POINTER = IS_FUNDAMENTAL ||
                                     (IS_POINTER && !IS_FUNCTION_POINTER),
 
-        IS_BITWISECOPYABLE  = HasTrait<VALUE_TYPE,
-                                      TypeTraitBitwiseCopyable>::VALUE,
+        IS_BITWISECOPYABLE  = bsl::is_trivially_copyable<VALUE_TYPE>::value,
 
         VALUE = IS_FUNDAMENTAL_OR_POINTER || IS_BITWISECOPYABLE ?
                 NON_NIL_TRAITS
@@ -2066,8 +2037,7 @@ DequePrimitives<VALUE_TYPE, 1>::uninitializedFillNBack(
         IS_FUNDAMENTAL_OR_POINTER = IS_FUNDAMENTAL ||
                                     (IS_POINTER && !IS_FUNCTION_POINTER),
 
-        IS_BITWISECOPYABLE  = HasTrait<VALUE_TYPE,
-                                      TypeTraitBitwiseCopyable>::VALUE,
+        IS_BITWISECOPYABLE  = bsl::is_trivially_copyable<VALUE_TYPE>::value,
 
         VALUE = IS_FUNDAMENTAL_OR_POINTER || IS_BITWISECOPYABLE ?
                 NON_NIL_TRAITS
@@ -2266,6 +2236,7 @@ void DequePrimitives_DequeMoveGuard<VALUE_TYPE, BLOCK_LENGTH>::release()
 
 }  // close package namespace
 
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
@@ -2275,6 +2246,7 @@ void DequePrimitives_DequeMoveGuard<VALUE_TYPE, BLOCK_LENGTH>::release()
 #endif
 #define bslalg_DequePrimitives bslalg::DequePrimitives
     // This alias is defined for backward compatibility.
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

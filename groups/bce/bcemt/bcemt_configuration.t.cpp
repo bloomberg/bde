@@ -242,7 +242,7 @@ int main(int argc, char *argv[])
 
         bsl::size_t guardSize = Obj::nativeDefaultThreadGuardSize();
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
         ASSERT(0 == guardSize);
 #else
         ASSERT(guardSize > 0);

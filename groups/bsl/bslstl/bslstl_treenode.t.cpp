@@ -113,7 +113,7 @@ inline void debugprint(const bsl::string &s) {
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
-#ifdef BSLS_PLATFORM__CPU_32_BIT
+#ifdef BSLS_PLATFORM_CPU_32_BIT
 #define SUFFICIENTLY_LONG_STRING "123456789012345678901234567890123"
 #else  // 64_BIT
 #define SUFFICIENTLY_LONG_STRING "12345678901234567890123456789012" \
@@ -509,7 +509,7 @@ int main(int argc, char *argv[])
         // Concerns:
         //: 1 Manipulators can set value.
         //:
-        //: 2 Accessor return value set by maninpulator.
+        //: 2 Accessor return value set by manipulator.
         //:
         //: 3 Accessor is declared const.
         //

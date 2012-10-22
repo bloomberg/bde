@@ -129,6 +129,10 @@ BSLS_IDENT("$Id: $")
 //  assert(!functionLessThan10(12));
 //..
 
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_ASSERT
 #include <bslmf_assert.h>
 #endif
@@ -204,7 +208,7 @@ class FunctorAdapter<FUNCTION*> {
     // functor that delegates to a function pointer matching the parameterized
     // 'FUNCTION' type.
 
-    BSLMF_ASSERT(bslmf_IsFunctionPointer<FUNCTION*>::VALUE);
+    BSLMF_ASSERT(bslmf::IsFunctionPointer<FUNCTION*>::VALUE);
         // This 'BSLMF_ASSERT' statement ensures that the parameter 'FUNCTION'
         // must be a function pointer.
 

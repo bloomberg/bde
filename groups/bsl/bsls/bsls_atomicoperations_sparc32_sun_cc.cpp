@@ -5,8 +5,8 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
-#if defined(BSLS_PLATFORM__CPU_SPARC_32) \
-    && (defined(BSLS_PLATFORM__CMP_GNU) || defined(BSLS_PLATFORM__CMP_SUN))
+#if defined(BSLS_PLATFORM_CPU_SPARC_32) \
+    && (defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_SUN))
 
 namespace BloombergLP {
 
@@ -216,7 +216,7 @@ void bsls_AtomicOperations_Sparc32_AssemblyContainer()
         "srlx %o0, 32, %o0");  // a 32-bit %o0/%01 pair
 }
 
-}
+}  // close enterprise namespace
 
 #endif
 
