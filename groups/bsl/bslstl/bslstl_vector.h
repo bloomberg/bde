@@ -31,7 +31,7 @@ BSLS_IDENT("$Id: $")
 // be copyable.
 //
 // A vector meets the requirements of a sequential container with random access
-// iterators in the [vector] section of the C++ standard.  The 'vector'
+// iterators in section 23.3.6 [vector] of the C++ standard.  The 'vector'
 // implemented here adheres to the C++11 standard, except it does not have the
 // 'shrink_to_fit' method, interfaces that take rvalue references,
 // 'initializer_lists', 'emplace', and operations taking a variadic number of
@@ -45,10 +45,10 @@ BSLS_IDENT("$Id: $")
 // allocation, so each value occupies only one bit.  The references returned by
 // a 'vector<bool>' object are not references to 'bool', but a class that
 // simulates the behavior of references to a bit in 'vector<bool>'.
-// Specifically, the class provides a conversion operator that returns true
-// when the bit is set and false otherwise, and the class also provides an
-// assignment operator that set the bit when the argument is true and clears it
-// otherwise.
+// Specifically, the class provides a conversion operator that returns 'true'
+// when the bit is set and 'false' otherwise, and the class also provides an
+// assignment operator that set the bit when the argument is 'true' and clears
+// it otherwise.
 //
 ///Requirements on 'VALUE_TYPE'
 ///----------------------------
@@ -211,9 +211,7 @@ BSLS_IDENT("$Id: $")
 //      // and rows of the matrix can be specified at construction and, at any
 //      // time, via the 'reset', 'insertRow', and 'insertColumn' methods.  The
 //      // value of each element in the matrix can be set and accessed using
-//      // the 'theValue', and 'theModifiableValue' methods respectively.  A
-//      // free operator, 'operator*', is available to return the product of
-//      // two specified matrices.
+//      // the 'theValue', and 'theModifiableValue' methods respectively.
 //
 //    public:
 //      // PUBLIC TYPES
@@ -245,8 +243,8 @@ BSLS_IDENT("$Id: $")
 //      typedef typename MatrixType::const_iterator ConstRowIterator;
 //
 //      // CREATORS
-//      MyMatrix(int numRows,
-//               int numColumns,
+//      MyMatrix(int               numRows,
+//               int               numColumns,
 //               bslma::Allocator *basicAllocator = 0);
 //          // Create a 'MyMatrix' object having the specified 'numRows' and
 //          // the specified 'numColumns'.  All elements of the (template
@@ -257,7 +255,7 @@ BSLS_IDENT("$Id: $")
 //          // behavior is undefined unless '0 <= numRows' and
 //          // '0 <= numColumns'
 //
-//      MyMatrix(const MyMatrix& original,
+//      MyMatrix(const MyMatrix&   original,
 //               bslma::Allocator *basicAllocator = 0);
 //          // Create a 'MyMatrix' object having the same value as the
 //          // specified 'original' object.  Optionally specify a
@@ -473,25 +471,6 @@ BSLS_IDENT("$Id: $")
 //                            const MyMatrix<TYPE>& rhs)
 //  {
 //      return !(lhs == rhs);
-//  }
-//
-//  template <class TYPE>
-//  MyMatrix<TYPE> operator*(const MyMatrix<TYPE>& lhs,
-//                           const MyMatrix<TYPE>& rhs)
-//  {
-//      BSLS_ASSERT(lhs.numColumns() == rhs.numRows());
-//
-//      MyMatrix<TYPE> answer(lhs.numRows(), rhs.numColumns());
-//
-//      for (int i = 0; i < lhs.numRows(); ++i) {
-//          for (int j = 0; j < rhs.numColumns(); ++j) {
-//              for (int k = 0; k < lhs.numColumns(); ++k) {
-//                  answer.theModifiableValue(i, j) +=
-//                      lhs.theValue(i, k) * rhs.theValue(k, j);
-//              }
-//          }
-//      }
-//      return answer;
 //  }
 //..
 

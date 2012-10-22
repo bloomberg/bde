@@ -8090,8 +8090,8 @@ class MyMatrix {
     typedef typename MatrixType::const_iterator ConstRowIterator;
 
     // CREATORS
-    MyMatrix(int numRows,
-             int numColumns,
+    MyMatrix(int               numRows,
+             int               numColumns,
              bslma::Allocator *basicAllocator = 0);
         // Create a 'MyMatrix' object having the specified 'numRows' and the
         // specified 'numColumns'.  All elements of the (template parameter)
@@ -8101,7 +8101,7 @@ class MyMatrix {
         // used.  The behavior is undefined unless '0 <= numRows' and
         // '0 <= numColumns'
 
-    MyMatrix(const MyMatrix& original,
+    MyMatrix(const MyMatrix&   original,
              bslma::Allocator *basicAllocator = 0);
         // Create a 'MyMatrix' object having the same value as the specified
         // 'original' object.  Optionally specify a 'basicAllocator' used to
@@ -8177,13 +8177,6 @@ MyMatrix<TYPE> operator!=(const MyMatrix<TYPE>& lhs,
     // same value, and 'false' otherwise.  Two 'MyMatrix' objects do not have
     // the same value if they do not have the same number of rows and columns
     // or every element in both matrices do not compare equal.
-
-template <class TYPE>
-MyMatrix<TYPE> operator*(const MyMatrix<TYPE>& lhs,
-                         const MyMatrix<TYPE>& rhs);
-    // Return a 'MyMatrix' objects that is the product of the specified 'lhs'
-    // and 'rhs'.  The behavior is undefined unless
-    // 'lhs.numColumns() == rhs.numRows()'.
 //..
 // Now, we define the methods of 'MyMatrix':
 //..
@@ -8315,25 +8308,6 @@ MyMatrix<TYPE> operator!=(const MyMatrix<TYPE>& lhs,
 {
     return !(lhs == rhs);
 }
-
-template <class TYPE>
-MyMatrix<TYPE> operator*(const MyMatrix<TYPE>& lhs,
-                         const MyMatrix<TYPE>& rhs)
-{
-    BSLS_ASSERT(lhs.numColumns() == rhs.numRows());
-
-    MyMatrix<TYPE> answer(lhs.numRows(), rhs.numColumns());
-
-    for (int i = 0; i < lhs.numRows(); ++i) {
-        for (int j = 0; j < rhs.numColumns(); ++j) {
-            for (int k = 0; k < lhs.numColumns(); ++k) {
-                answer.theModifiableValue(i, j) +=
-                    lhs.theValue(i, k) * rhs.theValue(k, j);
-            }
-        }
-    }
-    return answer;
-}
 //..
 
 }  // close unnamed namespace
@@ -8403,9 +8377,9 @@ int main(int argc, char *argv[])
         {
             bslma::TestAllocator oa("oa", veryVeryVeryVerbose);
 
-            // 1 2     5   17
-            //      x    =
-            // 3 4     6   39
+            // 1 2
+            //
+            // 3 4
 
             MyMatrix<int> m1(1, 1, &oa);
             m1.theModifiableValue(0, 0) = 4;
@@ -8415,14 +8389,10 @@ int main(int argc, char *argv[])
             m1.theModifiableValue(0, 0) = 1;
             m1.theModifiableValue(1, 0) = 3;
 
-            MyMatrix<int> m2(2, 1, &oa);
-            m2.theModifiableValue(0, 0) = 5;
-            m2.theModifiableValue(1, 0) = 6;
-
-            MyMatrix<int> m3 = m1 * m2;
-
-            ASSERT(17 == m3.theValue(0, 0));
-            ASSERT(39 == m3.theValue(1, 0));
+            ASSERT(1 == m1.theValue(0, 0));
+            ASSERT(2 == m1.theValue(0, 1));
+            ASSERT(3 == m1.theValue(1, 0));
+            ASSERT(4 == m1.theValue(1, 1));
         }
       } break;
       case 23: {
