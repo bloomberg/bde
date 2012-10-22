@@ -1,12 +1,12 @@
 // baejsn_parserutil.cpp                                              -*-C++-*-
 #include <baejsn_parserutil.h>
-#include <bsl_sstream.h>
-#include <bsl_cmath.h>
-#include <bsl_iomanip.h>
-#include <iostream>
 
 #include <bdes_ident.h>
 BDES_IDENT_RCSID(baejsn_parserutil_cpp,"$Id$ $CSID$")
+
+#include <bsl_sstream.h>
+#include <bsl_cmath.h>
+#include <bsl_iomanip.h>
 
 namespace BloombergLP {
 
@@ -15,8 +15,7 @@ namespace {
 template <typename TYPE>
 bool matchFloatDecimalPart(bsl::streambuf *streamBuf, TYPE *value)
 {
-    if (streamBuf->sgetc() == '.')
-    {
+    if (streamBuf->sgetc() == '.') {
         double multiplier = 1.0;
 
         int ch = streamBuf->snextc();
@@ -43,9 +42,8 @@ bool matchFloatDecimalPart(bsl::streambuf *streamBuf, TYPE *value)
 template <typename TYPE>
 bool matchFloatExponantPart(bsl::streambuf *streamBuf, TYPE *value)
 {
-    if (streamBuf->sgetc() == 'e' || streamBuf->sgetc() == 'E')
-    {
-        int  exponentSign = 1;
+    if (streamBuf->sgetc() == 'e' || streamBuf->sgetc() == 'E') {
+        int                 exponentSign = 1;
         bsls::Types::Uint64 exponentPart = 0;
 
         int ch = streamBuf->snextc();
@@ -59,13 +57,11 @@ bool matchFloatExponantPart(bsl::streambuf *streamBuf, TYPE *value)
         }
 
         if (0 != baejsn_ParserUtil::getInteger(streamBuf, &exponentPart)) {
-            //BAEJSN_THROW(mobcmn::ExBadArg,
-            //             "Could not decode float exponent @ "
-            //             << (streamBuf->sgetc() == bsl::streambuf::traits_type::eof() ? ' ' : streamBuf->sgetc()));
             return false;
         }
 
-        *value *= bsl::pow(static_cast<TYPE>(10), static_cast<TYPE>(exponentSign) * static_cast<TYPE>(exponentPart));
+        *value *= bsl::pow(static_cast<TYPE>(10),
+                           static_cast<TYPE>(exponentSign) * static_cast<TYPE>(exponentPart));
 
         return true;
     }
@@ -306,6 +302,18 @@ int baejsn_ParserUtil::eatToken(bsl::streambuf *streamBuf,
     return 0;
 }
 
+int baejsn_ParserUtil::advancePastWhitespaceAndToken(bsl::streambuf *streamBuf,
+                                                     char            token)
+{
+    skipSpaces(streamBuf);
+
+    const int nextChar = streamBuf->sgetc();
+    if (nextChar == static_cast<int>(token)) {
+        streamBuf->snextc();
+        return 0;                                                     // RETURN
+    }
+    return -1;
+}
 
 int baejsn_ParserUtil::putString(bsl::streambuf     *streamBuf,
                                  const bsl::string&  value)

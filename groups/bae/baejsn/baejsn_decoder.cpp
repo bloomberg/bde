@@ -1,8 +1,8 @@
 // baejsn_decoder.cpp                                                 -*-C++-*-
 #include <baejsn_decoder.h>
-#include <bcemt_once.h>
-#include <bdem_elemtype.h>
-#include <bdede_base64decoder.h>
+
+#include <bdes_ident.h>
+BDES_IDENT_RCSID(baejsn_decoder_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
@@ -20,21 +20,25 @@ namespace {
 
 }
 
-// PRIVATE MANIPULATORS
-int baejsn_Decoder::decodeArray(std::vector<char> *value)
+                   // --------------------
+                   // class baejsn_Decoder
+                   // --------------------
+
+int baejsn_Decoder::decodeBinaryArray(std::vector<char> *value)
 {
+    // TBD: Review
     baejsn_ParserUtil::skipSpaces(d_streamBuf);
 
-    std::string hexString;
+    bsl::string hexString;
     if (0 != baejsn_ParserUtil::getString(d_streamBuf, &hexString)) {
         d_logStream << "Expected string containing base64";
-        return 1;
+        return 1;                                                     // RETURN
     }
 
     if (0 != (hexString.length() & 0x03)) {
         d_logStream << "Expected string containing base64, "
                        "but string length is not a multiple of 4";
-        return 1;
+        return 1;                                                     // RETURN
     }
 
     bdede_Base64Decoder decoder(true);
@@ -48,11 +52,6 @@ int baejsn_Decoder::decodeArray(std::vector<char> *value)
                              hexString.end());
     value->resize(numOut);
     return rc;
-}
-
-bsl::string baejsn_Decoder::loggedMessages() const
-{
-    return d_logStream.str();
 }
 
 }  // close namespace BloombergLP

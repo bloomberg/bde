@@ -41,12 +41,36 @@ namespace BloombergLP {
                             // struct baejsn_ParserUtil
                             // ========================
 
-struct baejsn_ParserUtil
-{
-    static int skipSpaces(bsl::streambuf *streamBuf);
+struct baejsn_ParserUtil {
+  private:
 
-    static int getInteger(bsl::streambuf      *streamBuf,
-                          bsls::Types::Uint64 *value);
+    template <typename TYPE>
+    static int getDateAndTimeValue(bsl::streambuf *streamBuf, TYPE *value);
+
+    template <typename TYPE>
+    static int getNumericalValue(bsl::streambuf *streamBuf, TYPE *value);
+
+    static int getValueImp(bsl::streambuf *streamBuf, bool            *value);
+    static int getValueImp(bsl::streambuf *streamBuf, char            *value);
+    static int getValueImp(bsl::streambuf *streamBuf, unsigned char   *value);
+    static int getValueImp(bsl::streambuf *streamBuf, signed char     *value);
+    static int getValueImp(bsl::streambuf *streamBuf, short           *value);
+    static int getValueImp(bsl::streambuf *streamBuf, unsigned short  *value);
+    static int getValueImp(bsl::streambuf *streamBuf, int             *value);
+    static int getValueImp(bsl::streambuf *streamBuf, unsigned int    *value);
+    static int getValueImp(bsl::streambuf     *streamBuf,
+                           bsls::Types::Int64 *value);
+    static int getValueImp(bsl::streambuf      *streamBuf,
+                           bsls::Types::Uint64 *value);
+    static int getValueImp(bsl::streambuf *streamBuf, float           *value);
+    static int getValueImp(bsl::streambuf *streamBuf, double          *value);
+    static int getValueImp(bsl::streambuf *streamBuf, bsl::string     *value);
+    static int getValueImp(bsl::streambuf *streamBuf, bdet_Date       *value);
+    static int getValueImp(bsl::streambuf *streamBuf, bdet_Datetime   *value);
+    static int getValueImp(bsl::streambuf *streamBuf, bdet_DatetimeTz *value);
+    static int getValueImp(bsl::streambuf *streamBuf, bdet_DateTz     *value);
+    static int getValueImp(bsl::streambuf *streamBuf, bdet_Time       *value);
+    static int getValueImp(bsl::streambuf *streamBuf, bdet_TimeTz     *value);
 
     static int getInteger(bsl::streambuf      *streamBuf,
                           bsls::Types::Int64  *value);
@@ -56,9 +80,9 @@ struct baejsn_ParserUtil
 
     //static int getNumber(bsl::streambuf *streamBuf,
     //                     double         *value);
-    template <class TYPE>
-    static int getNumber(bsl::streambuf *streamBuf,
-                         TYPE           *value);
+
+  public:
+    static int skipSpaces(bsl::streambuf *streamBuf);
 
     static int getString(bsl::streambuf *streamBuf, bsl::string *value);
 
@@ -68,16 +92,216 @@ struct baejsn_ParserUtil
         // charater just after the matched string, with no effect otherwise.
         // Return 0 if a match is found, and a non-zero value otherwise.
 
-    static int advancePastTokenAndWhitespace(bsl::streambuf *streamBuf,
+    static int advancePastWhitespaceAndToken(bsl::streambuf *streamBuf,
                                              char            token);
         // TBD
 
+    static int getInteger(bsl::streambuf      *streamBuf,
+                          bsls::Types::Uint64 *value);
+        // TBD make private
+
+    template <class TYPE>
+    static int getNumber(bsl::streambuf *streamBuf, TYPE *value);
+        // TBD make private
+
     static int putString(bsl::streambuf *streamBuf, const bsl::string& value);
+
+    template <typename TYPE>
+    static int putValue(bsl::streambuf *streamBuf, const TYPE& value);
+
+    template <typename TYPE>
+    static int getValue(bsl::streambuf *streamBuf, TYPE *value);
 };
 
 // ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
 // ============================================================================
+
+                            // ------------------------
+                            // struct baejsn_ParserUtil
+                            // ------------------------
+
+// PRIVATE METHODS
+template <typename TYPE>
+int baejsn_ParserUtil::getDateAndTimeValue(bsl::streambuf *streamBuf,
+                                           TYPE           *value)
+{
+    skipSpaces(streamBuf);
+
+    bsl::string temp;
+    if (0 != getString(streamBuf, &temp)) {
+        return -1;                                                    // RETURN
+    }
+    return bdepu_Iso8601::parse(value, temp.data(), temp.length());
+}
+
+template <typename TYPE>
+inline
+int baejsn_ParserUtil::getNumericalValue(bsl::streambuf *streamBuf,
+                                         TYPE           *value)
+{
+    skipSpaces(streamBuf);
+
+    return getNumber(streamBuf, value);
+}
+
+inline
+int baejsn_ParserUtil::getValueImp(bsl::streambuf *streamBuf,
+                                   bool           *value)
+{
+    skipSpaces(streamBuf);
+
+    if (0 == eatToken(streamBuf, "true")) {
+        *value = true;
+    }
+    else if (0 == eatToken(streamBuf, "false")) {
+        *value = false;
+    }
+    else {
+        return -1;                                                    // RETURN
+    }
+    return 0;
+}
+
+inline
+int baejsn_ParserUtil::getValueImp(bsl::streambuf *streamBuf,
+                                   char           *value)
+{
+    skipSpaces(streamBuf);
+
+    bsl::string valueString;
+
+    if (0 == getString(streamBuf, &valueString)
+     && 1 == valueString.length()) {
+        *value = valueString[0];
+    }
+    else {
+        return -1;                                                    // RETURN
+    }
+    return 0;
+}
+
+inline
+int baejsn_ParserUtil::getValueImp(bsl::streambuf *streamBuf,
+                                   unsigned char  *value)
+{
+    return getNumericalValue(streamBuf, value);
+}
+
+inline
+int baejsn_ParserUtil::getValueImp(bsl::streambuf *streamBuf,
+                                   signed char    *value)
+{
+    return getValueImp(streamBuf, (char *) value);
+}
+
+inline
+int baejsn_ParserUtil::getValueImp(bsl::streambuf *streamBuf, short *value)
+{
+    return getNumericalValue(streamBuf, value);
+}
+
+inline
+int baejsn_ParserUtil::getValueImp(bsl::streambuf *streamBuf,
+                                   unsigned short *value)
+{
+    return getNumericalValue(streamBuf, value);
+}
+
+inline
+int baejsn_ParserUtil::getValueImp(bsl::streambuf *streamBuf, int *value)
+{
+    return getNumericalValue(streamBuf, value);
+}
+
+inline
+int baejsn_ParserUtil::getValueImp(bsl::streambuf *streamBuf,
+                                   unsigned int   *value)
+{
+    return getNumericalValue(streamBuf, value);
+}
+
+inline
+int baejsn_ParserUtil::getValueImp(bsl::streambuf     *streamBuf,
+                                   bsls::Types::Int64 *value)
+{
+    return getNumericalValue(streamBuf, value);
+}
+
+inline
+int baejsn_ParserUtil::getValueImp(bsl::streambuf      *streamBuf,
+                                   bsls::Types::Uint64 *value)
+{
+    return getNumericalValue(streamBuf, value);
+}
+
+inline
+int baejsn_ParserUtil::getValueImp(bsl::streambuf *streamBuf,
+                                   float          *value)
+{
+    return getNumericalValue(streamBuf, value);
+}
+
+inline
+int baejsn_ParserUtil::getValueImp(bsl::streambuf *streamBuf,
+                                   double         *value)
+{
+    return getNumericalValue(streamBuf, value);
+}
+
+inline
+int baejsn_ParserUtil::getValueImp(bsl::streambuf *streamBuf,
+                                   bsl::string    *value)
+{
+    skipSpaces(streamBuf);
+
+    if (0 != getString(streamBuf, value)) {
+        return -1;                                                    // RETURN
+    }
+    return 0;
+}
+
+inline
+int baejsn_ParserUtil::getValueImp(bsl::streambuf *streamBuf,
+                                   bdet_Date      *value)
+{
+    return getDateAndTimeValue(streamBuf, value);
+}
+
+inline
+int baejsn_ParserUtil::getValueImp(bsl::streambuf *streamBuf,
+                                   bdet_Datetime  *value)
+{
+    return getDateAndTimeValue(streamBuf, value);
+}
+
+inline
+int baejsn_ParserUtil::getValueImp(bsl::streambuf  *streamBuf,
+                                   bdet_DatetimeTz *value)
+{
+    return getDateAndTimeValue(streamBuf, value);
+}
+
+inline
+int baejsn_ParserUtil::getValueImp(bsl::streambuf *streamBuf,
+                                   bdet_DateTz    *value)
+{
+    return getDateAndTimeValue(streamBuf, value);
+}
+
+inline
+int baejsn_ParserUtil::getValueImp(bsl::streambuf *streamBuf,
+                                   bdet_Time      *value)
+{
+    return getDateAndTimeValue(streamBuf, value);
+}
+
+inline
+int baejsn_ParserUtil::getValueImp(bsl::streambuf *streamBuf,
+                                   bdet_TimeTz    *value)
+{
+    return getDateAndTimeValue(streamBuf, value);
+}
 
 //inline
 //int baejsn_ParserUtil::getNumber(bsl::streambuf *streamBuf,
@@ -97,6 +321,13 @@ int baejsn_ParserUtil::getNumber(bsl::streambuf *streamBuf,
     int rc = baejsn_ParserUtil::getDouble(streamBuf, &temp);
     *value = static_cast<TYPE>(temp);
     return rc;
+}
+
+template <class TYPE>
+inline
+int baejsn_ParserUtil::getValue(bsl::streambuf *streamBuf, TYPE *value)
+{
+    return getValueImp(streamBuf, value);
 }
 
 }  // close namespace BloombergLP
