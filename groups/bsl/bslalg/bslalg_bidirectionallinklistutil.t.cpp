@@ -184,13 +184,13 @@ void Bucket::destroy(bslma::Allocator *alloc)
         return;                                                       // RETURN
     }
 
-    Link *link = this->d_first, *condemned;
+    Link *link = this->d_first, *toDelete;
     do {
-        condemned = link;
+        toDelete = link;
         link = link->nextLink();
 
-        alloc->deallocate(condemned);
-    } while (this->d_last != condemned);
+        alloc->deallocate(toDelete);
+    } while (this->d_last != toDelete);
 
     this->d_first = this->d_last = 0;
 }
@@ -1067,15 +1067,15 @@ int main(int argc, char *argv[])
             ASSERTV(Obj::isWellFormed(bucket.d_first, bucket.d_last));
             ASSERTV(NUM_LINKS == bucket.length());
 
-            Link *condemned = bucket.d_first->nextLink()->nextLink();
+            Link *toDelete = bucket.d_first->nextLink()->nextLink();
 
-            Obj::unlink(condemned);
-            memset(condemned, 'x', sizeof(Link));
+            Obj::unlink(toDelete);
+            memset(toDelete, 'x', sizeof(Link));
 
             ASSERTV(Obj::isWellFormed(bucket.d_first, bucket.d_last));
             ASSERTV(NUM_LINKS - 1 == bucket.length());
 
-            ta.deallocate(condemned);
+            ta.deallocate(toDelete);
             bucket.destroy(&ta);
         }
 
@@ -1089,16 +1089,16 @@ int main(int argc, char *argv[])
             ASSERTV(Obj::isWellFormed(bucket.d_first, bucket.d_last));
             ASSERTV(NUM_LINKS == bucket.length());
 
-            Link *condemned = bucket.d_first;
-            bucket.d_first = condemned->nextLink();
+            Link *toDelete = bucket.d_first;
+            bucket.d_first = toDelete->nextLink();
 
-            Obj::unlink(condemned);
-            memset(condemned, 'x', sizeof(Link));
+            Obj::unlink(toDelete);
+            memset(toDelete, 'x', sizeof(Link));
 
             ASSERTV(Obj::isWellFormed(bucket.d_first, bucket.d_last));
             ASSERTV(NUM_LINKS - 1 == bucket.length());
 
-            ta.deallocate(condemned);
+            ta.deallocate(toDelete);
             bucket.destroy(&ta);
         }
 
@@ -1112,16 +1112,16 @@ int main(int argc, char *argv[])
             ASSERTV(Obj::isWellFormed(bucket.d_first, bucket.d_last));
             ASSERTV(NUM_LINKS == bucket.length());
 
-            Link *condemned = bucket.d_last;
-            bucket.d_last = condemned->previousLink();
+            Link *toDelete = bucket.d_last;
+            bucket.d_last = toDelete->previousLink();
 
-            Obj::unlink(condemned);
-            memset(condemned, 'x', sizeof(Link));
+            Obj::unlink(toDelete);
+            memset(toDelete, 'x', sizeof(Link));
 
             ASSERTV(Obj::isWellFormed(bucket.d_first, bucket.d_last));
             ASSERTV(NUM_LINKS - 1 == bucket.length());
 
-            ta.deallocate(condemned);
+            ta.deallocate(toDelete);
             bucket.destroy(&ta);
         }
       } break;
