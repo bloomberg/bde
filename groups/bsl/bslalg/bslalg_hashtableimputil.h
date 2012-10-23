@@ -292,11 +292,11 @@ BSLS_IDENT("$Id: $")
 //      BSLS_ASSERT_SAFE(checkInvariants());
 //
 //      for (Link *link = listRootAddress(); link; ) {
-//          Node *condemned = (Node *) link;
+//          Node *toDelete = (Node *) link;
 //          link = link->nextLink();
 //
-//          condemned->value().~KEY();
-//          d_allocator_p->deallocate(condemned);
+//          toDelete->value().~KEY();
+//          d_allocator_p->deallocate(toDelete);
 //      }
 //
 //      d_allocator_p->deallocate(bucketArrayAddress());
@@ -363,7 +363,9 @@ BSLS_IDENT("$Id: $")
 //
 //      ++d_numNodes;
 //      Node *node = (Node *) d_allocator_p->allocate(sizeof(Node));
-//      new (&node->value()) KEY(key);
+//      bslalg::ScalarPrimitives::copyConstruct(&node->value(),
+//                                              key,
+//                                              d_allocator_p);
 //
 //      ImpUtil::insertAtBackOfBucket(this, node, hashCode);
 //

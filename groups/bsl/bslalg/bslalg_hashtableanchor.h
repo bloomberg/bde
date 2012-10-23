@@ -282,11 +282,11 @@ BSLS_IDENT("$Id: $")
 //      BSLS_ASSERT_SAFE(checkInvariants());
 //
 //      for (Node *node = (Node *) listRootAddress(); node; ) {
-//          Node *condemned = node;
+//          Node *toDelete = node;
 //          node = (Node *) node->nextLink();
 //
-//          memset(condemned, 0x5a, sizeof(*condemned));
-//          d_allocator_p->deallocate(condemned);
+//          memset(toDelete, 0x5a, sizeof(*toDelete));
+//          d_allocator_p->deallocate(toDelete);
 //      }
 //
 //      d_allocator_p->deallocate(bucketArrayAddress());
