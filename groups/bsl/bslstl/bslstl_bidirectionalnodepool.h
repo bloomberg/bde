@@ -33,19 +33,152 @@ BSLS_IDENT("$Id: $")
 // C++ standard allocator requirements ([allocator.requirements], C++11
 // 17.6.3.5).
 //
-// If 'ALLOCATOR' is 'bsl::allocator', then the 'bslma::Allocator' object,
-// which is used in the implementation of the 'bsl::allocator' object specified
-// at construction, will be supplied to constructors of the (template
-// parameter) type 'VALUE' in the 'cloneNode' method and 'createNode' method
-// overloads, if the type 'VALUE' defines the 'bslma::UsesBslmaAllocator'
-// trait.
+// If 'ALLOCATOR' is 'bsl::allocator' and the (template parameter) type 'VALUE'
+// defines the 'bslma::UsesBslmaAllocator' trait, then the 'bslma::Allocator'
+// object specified at construction will be supplied to constructors of the
+// (template parameter) type 'VALUE' in the 'cloneNode' method and 'createNode'
+// method overloads.
 //
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Creating a 'LinkedList' Container
-/// - - - - - - - - - - - - - - - - - - - - - -
+///Example 1: Creating a Linked List Container
+///- - - - - - - - - - - - - - - - - - - - - -
+// Suppose that we want to define a bidirectional linked list that can hold
+// elements of a template parameter type.  'bslstl::BidirectionalNodePool' can
+// be used to create and destroy nodes that make up a linked list.
+//
+// First, we create an elided definition of the class template 'MyList':
+//..
+// #include <bslalg_bidirectionallinklistutil.h>
+//
+//  template <class VALUE, class ALLOCATOR>
+//  class MyList {
+//      // This class template implements a bidirectional linked list of
+//      // element of the (template parameter) type 'VALUE'.  The memory used
+//      // will be allocated from an allocator of the (template parameter) type
+//      // 'ALLOCATOR' specified at construction.
+//
+//    public:
+//      // TYPES
+//      typedef bslalg::BidirectionalNode<VALUE> Node;
+//          // This 'typedef' is an alias to the type of the linked list node.
+//
+//    private:
+//      // TYPES
+//      typedef bslstl::BidirectionalNodePool<VALUE, ALLOCATOR> Pool;
+//          // This 'typedef' is an alias to the type of the memory pool.
+//
+//      typedef bslalg::BidirectionalLinkListUtil               Util;
+//          // This 'typedef' is an alias to the utility 'struct' providing
+//          // functions for constructing and manipulating linked lists.
+//
+//      typedef bslalg::BidirectionalLink                       Link;
+//          // This 'typedef' is an alis to the type of the linked list link.
+//
+//      // DATA
+//      Node *d_head_p;  // pointer to the head of the linked list
+//      Node *d_tail_p;  // pointer to the tail of the linked list
+//      Pool  d_pool;    // memory pool used to allocate memory
+//
+//
+//    public:
+//      // CREATORS
+//      MyList(const ALLOCATOR& allocator = ALLOCATOR());
+//          // Create an empty linked list that allocate memory using the
+//          // specified 'allocator'.
+//
+//      ~MyList();
+//          // Destroy this linked list by calling destructor for each element
+//          // and deallocate all allocated storage.
+//
+//      // MANIPULATORS
+//      void pushFront(const VALUE& value);
+//          // Insert the specified 'value' at the front of this linked list.
+//
+//      void pushBack(const VALUE& value);
+//          // Insert the specified 'value' at the end of this linked list.
+//
+//      //...
+//  };
+//..
+// Now, we define the methods of 'MyMatrix':
+//..
+// CREATORS
+//  template <class VALUE, class ALLOCATOR>
+//  MyList<VALUE, ALLOCATOR>::MyList(const ALLOCATOR& basicAllocator)
+//  : d_head_p(0)
+//  , d_tail_p(0)
+//  , d_pool(basicAllocator)
+//  {
+//  }
+//
+//  template <class VALUE, class ALLOCATOR>
+//  MyList<VALUE, ALLOCATOR>::~MyList()
+//  {
+//      Link *link = d_head_p;
+//      while (link) {
+//          Link *next = link->nextLink();
+//..
+// Here, we call the memory pool's 'deleteNode' method to destroy the 'value'
+// attribute of the node and return its memory footprint back to the pool:
+//..
+//          d_pool.deleteNode(static_cast<Node*>(link));
+//          link = next;
+//      }
+//  }
+//
+// MANIPULATORS
+//  template <class VALUE, class ALLOCATOR>
+//  void
+//  MyList<VALUE, ALLOCATOR>::pushFront(const VALUE& value)
+//  {
+//..
+// Here, we call the memory pool's 'createNode' method to allocate a node and
+// copy-construct the specified 'value' at the 'value' attribute of the node:
+//..
+//      Node *node = static_cast<Node *>(d_pool.createNode(value));
+//..
+// Note that the memory pool will allocate the footprint of the node using the
+// allocator specified at construction.  If the (template parameter) type
+// 'ALLOCATOR' is an instance of 'bsl::allocator' and the (template parameter)
+// type 'VALUE' has the 'bslma::UsesBslmaAllocator' trait, then the allocator
+// specified at construction will also be supplied to the copy-constructor of
+// 'VALUE'.
+//..
+//      if (!d_head_p) {
+//          d_tail_p = node;
+//          node->setNextLink(0);
+//          node->setPreviousLink(0);
+//      }
+//      else {
+//          Util::insertLinkBeforeTarget(node, d_head_p);
+//      }
+//      d_head_p = node;
+//  }
+//
+//  template <class VALUE, class ALLOCATOR>
+//  void
+//  MyList<VALUE, ALLOCATOR>::pushBack(const VALUE& value)
+//  {
+//..
+// Here, just like how we implemented the 'pushFront' method, we call the
+// pool's 'createNode' method to allocate a node and copy-construct the
+// specified 'value' at the 'value' attribute of the node:
+//..
+//      Node *node = static_cast<Node *>(d_pool.createNode(value));
+//      if (!d_head_p) {
+//          d_head_p = node;
+//          node->setNextLink(0);
+//          node->setPreviousLink(0);
+//      }
+//      else {
+//          Util::insertLinkAfterTarget(node, d_tail_p);
+//      }
+//      d_tail_p = node;
+//  }
+//..
 
 #ifndef INCLUDED_BSLSTL_ALLOCATORTRAITS
 #include <bslstl_allocatortraits.h>
