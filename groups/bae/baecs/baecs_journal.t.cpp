@@ -189,7 +189,7 @@ void getTmpFileName(char* filename, int testCase) {
        const char* tmpdirName = getenv("TMPDIR");
 #endif
        if (0 == tmpdirName) {
-          tmpdirName = "/bb/data/tmp";
+          tmpdirName = "/bb/data/tmp";  // Bloomberg-specific
        }
 
        snprintf(filename, MAX_TMPFILENAME,
