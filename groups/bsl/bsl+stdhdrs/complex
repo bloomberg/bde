@@ -56,10 +56,10 @@ BSLS_IDENT("$Id: $")
 #     include BSL_NATIVE_CPP_LIB_HEADER(complex)
 #   endif
 
-#   ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#   ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
         // Permit reliance on transitive includes within robo.
 #   include <cmath>
-#   endif // BDE_OMIT_INTERNAL_DEPRECATED
+#   endif
 
 #   include <bsl_complex.h>
 

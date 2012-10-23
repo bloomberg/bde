@@ -46,10 +46,10 @@ BSLS_IDENT("$Id: $")
 
 #   include BSL_NATIVE_CPP_LIB_HEADER(sstream)
 
-#   ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#   ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
         // Permit reliance on transitive includes within robo.
 #   include <iosfwd>
-#   endif // BDE_OMIT_INTERNAL_DEPRECATED
+#   endif
 
 #   ifndef BSL_INCLUDE_BSL_SSTREAM
 #   define BSL_INCLUDE_BSL_SSTREAM

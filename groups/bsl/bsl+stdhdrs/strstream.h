@@ -13,10 +13,10 @@
 
 #include <bsl_strstream.h>
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
     // Permit reliance on transitive includes within robo.
 #include <iostream.h>
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
+#endif
 
 using std::strstreambuf;
 using std::istrstream;
