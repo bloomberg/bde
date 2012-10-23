@@ -325,6 +325,321 @@ struct Mod8Hasher {
     }
 };
 
+template <typename HASHER, typename POLICY>
+struct HashNodeUsingHasherAndPolicy {
+    HASHER d_hasher;
+
+    size_t operator()(bslalg::BidirectionalLink *link) const
+    {
+        return d_hasher(Obj::extractKey<POLICY>(link));
+    }
+};
+
+// ============================================================================
+//                                 USAGE EXAMPLE
+// ----------------------------------------------------------------------------
+
+///Usage
+///-----
+// This section illustrates intended usage of this component.
+//
+///Example 1: Creating and Using a Hash Set
+/// - - - - - - - - - - - - - - - - - - - -
+// Suppose we want to build a hash set that will keep track of keys stored in
+// set.
+//
+// First, we define an abstract template class 'HashSet' that will provide a
+// hash set for any type that has a copy constructor, a destructor, an equality
+// comparator and a hash function.  We inherit from the 'HashTableAnchor' class
+// use the the 'BidirectionalLinkListUtil' and 'HashTableImpUtil' classes to
+// facilitate building the table:
+//..
+template <typename KEY, typename HASHER, typename EQUAL>
+class HashSet : public bslalg::HashTableAnchor {
+    // PRIVATE TYPES
+    typedef bslalg::BidirectionalLink         Link;
+    typedef bslalg::BidirectionalNode<KEY>    Node;
+    typedef bslalg::HashTableBucket           Bucket;
+    typedef bslalg::BidirectionalLinkListUtil ListUtil;
+    typedef bslalg::HashTableImpUtil          ImpUtil;
+    typedef native_std::size_t                size_t;
+
+    struct Policy {
+        typedef KEY KeyType;
+        typedef KEY ValueType;
+
+        static const KeyType& extractKey(const ValueType& value)
+        {
+            return value;
+        }
+    };
+
+    // DATA
+    double            d_maxLoadFactor;
+    unsigned          d_numNodes;
+    HASHER            d_hasher;
+    EQUAL             d_equal;
+    bslma::Allocator *d_allocator_p;
+
+    // PRIVATE MANIPULATORS
+    void grow();
+        // Roughly double the number of buckets, such that the number of
+        // buckets shall always be '2^N - 1'.
+
+    // PRIVATE ACCESSORS
+    bool checkInvariants() const;
+        // Perform sanity checks on this table, returning 'true' if all the
+        // tests pass and 'false' otherwise.  Note that many of the checks
+        // are done with the 'ASSERTV' macro and will cause messages to be
+        // written to the console.
+
+    Node* find(const KEY& key,
+               size_t     hashCode) const;
+        // Return a pointer to the node containing the specified 'key', and 0
+        // if no such node is in the table.
+
+  private:
+    // NOT IMPLEMENTED
+    HashSet(const HashSet&, bslma::Allocator *);
+    HashSet& operator=(const HashSet&);
+
+  public:
+    // CREATORS
+    explicit
+    HashSet(bslma::Allocator *allocator = 0);
+        // Create a 'HashSet', using the specified 'allocator'.  If no
+        // allocator is specified, use the default allocator.
+
+    ~HashSet();
+        // Destroy this 'HashSet', freeing all its memory.
+
+    // MANIPULATORS
+    bool insert(const KEY& key);
+        // If the specfied 'key' is not in this hash table, add it, returning
+        // 'true'.  If it is already in the table, return 'false' with no
+        // action taken.
+
+    bool erase(const KEY& key);
+        // If the specfied 'key' is in this hash table, remove it, returning
+        // 'true'.  If it is not found in the table, return 'false' with no
+        // action taken.
+
+    // ACCESSORS
+    native_std::size_t count(const KEY& key) const;
+        // Return 1 if the specified 'key' is in this table and 0 otherwise.
+
+    native_std::size_t size() const;
+        // Return the number of discrete keys that are stored in this table.
+};
+
+// PRIVATE MANIPULATORS
+template <typename KEY, typename HASHER, typename EQUAL>
+void HashSet<KEY, HASHER, EQUAL>::grow()
+{
+    // 'bucketArraySize' will always be '2^N - 1', so that if hashed values
+    // are aligned by some 2^N they're likely to be relatively prime to the
+    // length of the hash table.
+
+    d_allocator_p->deallocate(bucketArrayAddress());
+    size_t newBucketArraySize = bucketArraySize() * 2 + 1;
+    setBucketArrayAddressAndSize((Bucket *) d_allocator_p->allocate(
+                                          newBucketArraySize * sizeof(Bucket)),
+                                          newBucketArraySize);
+
+    ImpUtil::rehash<Policy, HASHER>(this,
+                                    listRootAddress(),
+                                    d_hasher);
+}
+
+// PRIVATE ACCESSORS
+template <typename KEY, typename HASHER, typename EQUAL>
+bool HashSet<KEY, HASHER, EQUAL>::checkInvariants() const
+{
+    // 'HashTableImpUtil's 'isWellFormed' will verify that all nodes are in
+    // their proper buckets, that there are no buckets containing nodes that
+    // are not in the main linked list, and no nodes in the main linked list
+    // that are not in buckets.  To verify that 'd_numNodes' is correct we have
+    // to traverse the list and count the nodes ourselves.
+
+    size_t numNodes = 0;
+    for (BidirectionalLink *cursor = listRootAddress();
+                                         cursor; cursor = cursor->nextLink()) {
+        ++numNodes;
+    }
+
+    return size() == numNodes &&
+                   ImpUtil::isWellFormed<Policy, HASHER>(*this, d_allocator_p);
+}
+
+template <typename KEY, typename HASHER, typename EQUAL>
+bslalg::BidirectionalNode<KEY> *HashSet<KEY, HASHER, EQUAL>::find(
+                                             const KEY&         key,
+                                             native_std::size_t hashCode) const
+{
+    return (Node *) ImpUtil::find<Policy, EQUAL>(*this,
+                                                 key,
+                                                 d_equal,
+                                                 hashCode);
+}
+
+// CREATORS
+template <typename KEY, typename HASHER, typename EQUAL>
+HashSet<KEY, HASHER, EQUAL>::HashSet(bslma::Allocator *allocator)
+: HashTableAnchor(0, 0, 0)
+, d_maxLoadFactor(0.4)
+, d_numNodes(0)
+{
+    enum { NUM_BUCKETS = 3 };    // 'NUM_BUCKETS' must be '2^N - 1' for some
+                                 // 'N'.
+
+    d_allocator_p = bslma::Default::allocator(allocator);
+    native_std::size_t bucketArraySizeInBytes = NUM_BUCKETS * sizeof(Bucket);
+    setBucketArrayAddressAndSize(
+                    (Bucket *) d_allocator_p->allocate(bucketArraySizeInBytes),
+                    NUM_BUCKETS);
+    memset(bucketArrayAddress(), 0, bucketArraySizeInBytes);
+}
+
+template <typename KEY, typename HASHER, typename EQUAL>
+HashSet<KEY, HASHER, EQUAL>::~HashSet()
+{
+    BSLS_ASSERT_SAFE(checkInvariants());
+
+    for (Link *link = listRootAddress(); link; ) {
+        Node *condemned = (Node *) link;
+        link = link->nextLink();
+
+        condemned->value().~KEY();
+        d_allocator_p->deallocate(condemned);
+    }
+
+    d_allocator_p->deallocate(bucketArrayAddress());
+}
+
+// MANIPULATORS
+template <typename KEY, typename HASHER, typename EQUAL>
+bool HashSet<KEY, HASHER, EQUAL>::erase(const KEY& key)
+{
+    size_t hashCode = d_hasher(key);
+    Node *node = find(key, hashCode);
+
+    if (!node) {
+        return false;                                                 // RETURN
+    }
+
+    size_t bucketIdx = ImpUtil::computeBucketIndex(hashCode,
+                                                   bucketArraySize());
+    Bucket& bucket = bucketArrayAddress()[bucketIdx];
+
+    BSLS_ASSERT_SAFE(bucket.first() && bucket.last());
+
+    if (bucket.first() == node) {
+        if (bucket.last() == node) {
+            bucket.reset();
+        }
+        else {
+            bucket.setFirst(node->nextLink());
+        }
+    }
+    else if (bucket.last() == node) {
+        bucket.setLast(node->previousLink());
+    }
+
+    Link *root = listRootAddress() == node ? node->nextLink() : 0;
+    ListUtil::unlink(node);
+    if (root) {
+        setListRootAddress(root);
+    }
+
+    node->value().~KEY();
+    d_allocator_p->deallocate(node);
+
+    --d_numNodes;
+    BSLS_ASSERT_SAFE(checkInvariants());
+
+    return true;
+}
+
+template <typename KEY, typename HASHER, typename EQUAL>
+bool HashSet<KEY, HASHER, EQUAL>::insert(const KEY& key)
+{
+    size_t hashCode = d_hasher(key);
+
+    if (find(key, hashCode)) {
+        // Already in set, do nothing.
+
+        return false;                                                 // RETURN
+    }
+
+    if (bucketArraySize() * d_maxLoadFactor < d_numNodes + 1) {
+        grow();
+    }
+
+    ++d_numNodes;
+    Node *node = (Node *) d_allocator_p->allocate(sizeof(Node));
+    new (&node->value()) KEY(key);
+
+    ImpUtil::insertAtBackOfBucket(this, node, hashCode);
+
+    BSLS_ASSERT_SAFE(find(key, hashCode));
+    BSLS_ASSERT_SAFE(checkInvariants());
+
+    return true;
+}
+
+// ACCESSORS
+template <typename KEY, typename HASHER, typename EQUAL>
+native_std::size_t HashSet<KEY, HASHER, EQUAL>::count(const KEY& key) const
+{
+    return 0 != find(key, d_hasher(key));
+}
+
+template <typename KEY, typename HASHER, typename EQUAL>
+native_std::size_t HashSet<KEY, HASHER, EQUAL>::size() const
+{
+    return d_numNodes;
+}
+//..
+// Then, we customize our table to manipulate zero-terminated 'const char *'
+// strings.  We make the simplifying assumption that the strings pointed at by
+// the 'const char *'s are longer-lived that the 'HashSet' will be.  We must
+// provide an equality comparator so that two copies, in diffferent locations,
+// of the same sequence of characters will evaluate equal:
+//..
+struct StringEqual {
+    bool operator()(const char *lhs, const char *rhs) const
+    {
+        return !strcmp(lhs, rhs);
+    }
+};
+//..
+// Next, we must provide a string hash function to convert a 'const char *' to
+// a 'size_t':
+//..
+struct StringHash {
+    native_std::size_t operator()(const char *string) const;
+};
+
+native_std::size_t StringHash::operator()(const char *string) const
+{
+    enum { BITS_IN_SIZE_T = sizeof(size_t) * 8 };
+
+    native_std::size_t result = 0;
+    for (int shift = 0; *string;
+                              ++string, shift = (shift + 7) % BITS_IN_SIZE_T) {
+        unsigned char c = *string;
+        if (shift <= BITS_IN_SIZE_T - 8) {
+            result += c << shift;
+        }
+        else {
+            result += c << shift;
+            result += c >> (BITS_IN_SIZE_T - shift);
+        }
+    }
+
+    return result;
+};
+
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -340,12 +655,285 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:
+      case 12: {
+        // --------------------------------------------------------------------
+        // USAGE EXAMPLE
+        //
+        // Concern:
+        //   Demonstrate the functioning of this component.
+        //
+        // Plan:
+        //   Create a hash table using the functions in this component and
+        //   'HashTableAnchor'.
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("TESTING USAGE EXAMPLE\n"
+                            "=====================\n");
+//..
+// Then, we declare a test allocator and make it the default allocator to use
+// during our example, to observe if we leak any memory:
+//..
+        bslma::TestAllocator da("defaultAllocator");
+        bslma::DefaultAllocatorGuard defaultGuard(&da);
+//..
+// Next, in 'main', we create an instance of our 'HashSet' type, configured to
+// contain 'const char *' strings:
+//..
+        HashSet<const char *, StringHash, StringEqual> hs;
+//..
+// Then, we insert a few values:
+//..
+        ASSERT(1 == hs.insert("woof"));
+        ASSERT(1 == hs.insert("arf"));
+        ASSERT(1 == hs.insert("meow"));
+//..
+// Next, we attempt to insert a redundant value, and observe that the 'insert'
+// mthod returns 'false' to indicate that the insert was refused:
+//..
+        ASSERT(0 == hs.insert("woof"));
+//..
+// Then, we use to 'size' method to observe that there are 3 strings stored in
+// our 'HashSet':
+//..
+        ASSERT(3 == hs.size());
+//..
+// Next, we use the 'count' method to observe, specifically, which strings are
+// and are not in our 'HashSet':
+//..
+        ASSERT(1 == hs.count("woof"));
+        ASSERT(1 == hs.count("arf"));
+        ASSERT(1 == hs.count("meow"));
+        ASSERT(0 == hs.count("ruff"));
+        ASSERT(0 == hs.count("chomp"));
+//..
+// Then, we attempt to erase a string which is not in our 'HashSet' and observe
+// that 'false' is returned, which tells us the 'erase' attempt was
+// unsuccesful:
+//..
+        ASSERT(0 == hs.erase("ruff"));
+//..
+// Next, we erase the string "meow", which is stored in our 'HashSet' and
+// observe that 'true' is returned, telling us the 'erase' attempt succeeded:
+//..
+        ASSERT(1 == hs.erase("meow"));
+//..
+// Now, we use the 'size' method to verify there are 2 strings remaining in our
+// 'HashSet':
+//..
+        ASSERT(2 == hs.size());
+//..
+// Finally, we use the 'count' method to observe specifically which strings are
+// still in our 'HashSet'.  Note that "meow" is no longer there.  We observe
+// that the default allocator was never used.  When we leave the block, our
+// 'HashSet' will be destroyed, freeing its memory, then our 'TestAllocator'
+// will be destroyed, verifying that our destructor worked correctly and that
+// no memory was leaked:
+//..
+        ASSERT(1 == hs.count("woof"));
+        ASSERT(1 == hs.count("arf"));
+        ASSERT(0 == hs.count("meow"));
+        ASSERT(0 == hs.count("ruff"));
+        ASSERT(0 == hs.count("chomp"));
+//..
+      } break;
+      case 11: {
+        // --------------------------------------------------------------------
+        // ATTEMPTED USAGE EXAMPLE
+        //
+        // This is a failed attempt at a usage example.  After I wrote it I
+        // realized it would never pass review.  As long as the code is done
+        // and working, I'll leave it here for extra testing.  The problem
+        // with this usage example is it isn't telling a "story".
+        //
+        // Now that I have written another usage example that I expect will
+        // pass review, I would like to point out that the following code
+        // actually demonstrates the details of the behavior of the functions
+        // in this component a lot better than that one does.
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("TESTING ATTEMPTED USAGE EXAMPLE\n"
+                            "===============================\n");
+
+// Then, in 'main', we set up some typedefs to refer to frequently used
+// types:
+
+        typedef bslalg::HashTableImpUtil       Obj;
+        typedef bslalg::BidirectionalNode<int> IntNode;
+        typedef TestSetKeyPolicy<int>          TestPolicy;
+        typedef NodeUtil<int>                  IntNodeUtil;
+
+// Next, we create a hasher functor object that will take a link as input,
+// interpret it as a an 'IntNode', and hash the int to a size_t using
+// 'Mod8Hasher':
+
+        HashNodeUsingHasherAndPolicy<Mod8Hasher, TestSetKeyPolicy<int> >
+                                                                    nodeHasher;
+
+// Then, we declare a default allocator to be used in this example:
+
+        bslma::TestAllocator da("defaultAllocator", veryVeryVeryVerbose);
+        bslma::DefaultAllocatorGuard defaultGuard(&da);
+        bslma::TestAllocatorMonitor dam(&da);
+
+// Next, we declare an array to hold our links, and an array of buckets:
+
+        enum { NUM_LINK_ARRAY = 015 };
+        bslalg::BidirectionalLink *links[NUM_LINK_ARRAY];
+        memset(links, 0, sizeof(links));
+
+        enum { NUM_BUCKET_ARRAY = 8 };
+        bslalg::HashTableBucket buckets[NUM_BUCKET_ARRAY];
+        memset(buckets, 0, sizeof(buckets));
+
+// Then, we declare an anchor for our hash table:
+
+        int numActiveBuckets = 4;
+        bslalg::HashTableAnchor anchor(buckets, numActiveBuckets, 0);
+
+// Next, we populate our table with some links:
+
+#define CREATE_NODE(octal) do {                                               \
+            links[octal] = IntNodeUtil::create(octal, &da);                   \
+            Obj::insertAtBackOfBucket(                                        \
+                            &anchor, links[octal], nodeHasher(links[octal])); \
+        } while(false)
+
+        CREATE_NODE(000);        CREATE_NODE(010);
+        CREATE_NODE(001);
+        CREATE_NODE(002);
+        CREATE_NODE(004);        CREATE_NODE(014);
+
+#undef CREATE_NODE
+
+// Then, we make sure our table is well-formed.  Monitor the default allocator
+// and observe that some default memory is temporarily used and freed:
+
+        dam.reset();
+        ASSERT((Obj::isWellFormed<TestPolicy, Mod8Hasher>(anchor)));
+        ASSERT(dam.isTotalUp());
+        ASSERT(dam.isInUseSame());
+
+// Next, we call 'bucketContainsLink' to observe which bucket node '014' is in:
+
+        for (int i = 0; i < numActiveBuckets; ++i) {
+            ASSERTV(i, ((int) Obj::computeBucketIndex(nodeHasher(links[014]),
+                                                numActiveBuckets) == i) ==
+                              Obj::bucketContainsLink(buckets[i], links[014]));
+        }
+
+// Then, we observe there are 4 nodes in 'buckets[0]' (they are '000', '001',
+// '004', '014'):
+
+        ASSERT(4 == buckets[0].countElements());
+        ASSERT(links[000] == buckets[0].first());
+        ASSERT(links[010] == buckets[0].first()->nextLink());
+        ASSERT(links[004] == buckets[0].first()->nextLink()->nextLink());
+        ASSERT(links[014] == buckets[0].last());
+
+// Next, we use 'remove' to remove node '014' from the table, and observe the
+// state of the table and bucket after that:
+
+        Obj::remove(&anchor, links[014], nodeHasher(links[014]));
+
+        ASSERT(0 == Obj::computeBucketIndex(nodeHasher(links[014]),
+                                            numActiveBuckets));
+        ASSERT(3 == buckets[0].countElements());
+        ASSERT(links[000] == buckets[0].first());
+        ASSERT(links[004] == buckets[0].last());
+        ASSERT((Obj::isWellFormed<TestPolicy, Mod8Hasher>(anchor)));
+
+// Then, we insert node '014' back into the table, but in the wrong bucket,
+// and observe that the table is no longer well-formed:
+
+        Obj::insertAtBackOfBucket(&anchor, links[014], 3);
+
+        ASSERT(1 == buckets[3].countElements());
+        ASSERT(0 == (Obj::isWellFormed<TestPolicy, Mod8Hasher>(anchor)));
+
+// Next, we move it back to the bucket it was originally in, but put it at the
+// front of the bucket, rather than the rear, using 'insertAtFrontOfBucket'.
+// It has the same hash value as node '004', which is at the rear of the
+// bucket.  The two nodes with the same hash value are now separated from each,
+// with the nodes '000' and '010' with hash value '0' in between.  In a former
+// implementation, this would have meant the table was not well formed, but
+// in the current implementation, this still passes muster:
+
+        Obj::remove(&anchor, links[014], 3);
+        Obj::insertAtFrontOfBucket(&anchor,
+                                   links[014],
+                                   nodeHasher(links[014]));
+
+        ASSERT(4 == Mod8Hasher()(014));
+        ASSERT(0 == Obj::computeBucketIndex(nodeHasher(links[014]),
+                                            numActiveBuckets));
+        ASSERT(4 == buckets[0].countElements());
+        ASSERT(links[014] == buckets[0].first());
+        ASSERT(links[000] == buckets[0].first()->nextLink());
+        ASSERT(links[010] == buckets[0].first()->nextLink()->nextLink());
+        ASSERT(links[004] == buckets[0].last());
+
+        ASSERT((Obj::isWellFormed<TestPolicy, Mod8Hasher>(anchor)));
+
+// Then, we move the node to before node '004', which has the same hash value,
+// so they'll be adjacent and the hash table will be well-formed:
+
+        ASSERT(links[004] == buckets[0].last());
+
+        Obj::remove(&anchor, links[014], 4);
+        Obj::insertAtPosition(&anchor,
+                              links[014],
+                              4,
+                              links[004]);
+
+        ASSERT(4 == buckets[0].countElements());
+        ASSERT(links[000] == buckets[0].first());
+        ASSERT(links[010] == buckets[0].first()->nextLink());
+        ASSERT(links[014] == buckets[0].first()->nextLink()->nextLink());
+        ASSERT(links[004] == buckets[0].last());
+
+        ASSERT((Obj::isWellFormed<TestPolicy, Mod8Hasher>(anchor)));
+
+// Now, we grow the table from having 4 buckets to having 8 buckets using
+// 'rehash':
+
+        numActiveBuckets = NUM_BUCKET_ARRAY;    // numActiveBuckets = 8;
+        anchor.setBucketArrayAddressAndSize(anchor.bucketArrayAddress(),
+                                            numActiveBuckets);
+
+        Obj::rehash<TestPolicy, Mod8Hasher>(&anchor,
+                                            anchor.listRootAddress(),
+                                            Mod8Hasher());
+
+// Finally, we observe our grown table in detail, and clean up:
+
+        ASSERT((Obj::isWellFormed<TestPolicy, Mod8Hasher>(anchor)));
+
+        ASSERT(links[000] == buckets[0].first());
+        ASSERT(links[010] == buckets[0].last());
+
+        ASSERT(links[001] == buckets[1].first());
+        ASSERT(links[001] == buckets[1].last());
+
+        ASSERT(links[002] == buckets[2].first());
+        ASSERT(links[002] == buckets[2].last());
+
+        ASSERT(0          == buckets[3].countElements());
+
+        ASSERT(links[014] == buckets[4].first());
+        ASSERT(links[004] == buckets[4].last());
+
+        ASSERT(0          == buckets[5].countElements());
+        ASSERT(0          == buckets[6].countElements());
+        ASSERT(0          == buckets[7].countElements());
+
+        IntNodeUtil::disposeList(anchor.listRootAddress(), &da);
+      } break;
       case 10: {
         // --------------------------------------------------------------------
         // TESTING 'remove' and 'bucketContainsLink'
         // --------------------------------------------------------------------
 
-        if (verbose) printf("TESTING 'rehash' and 'bucketContainsLink'\n"
+        if (verbose) printf("TESTING 'remove' and 'bucketContainsLink'\n"
                             "=========================================\n");
 
         bslma::TestAllocator da("defaultAllocator", veryVeryVeryVerbose);
@@ -383,11 +971,6 @@ int main(int argc, char *argv[])
         memset(buckets, 0, sizeof(buckets));
 
         Anchor anchor(buckets, 4, 0);
-
-        // Make sure 'rehash' doesn't segfault or anything given an empty
-        // list.
-
-        Obj::rehash<TestPolicy, Mod8Hasher>(&anchor, 0, Mod8Hasher());
 
         Obj::insertAtBackOfBucket(&anchor, node000, 0);
         Obj::insertAtBackOfBucket(&anchor, node010, 0);
@@ -656,11 +1239,6 @@ int main(int argc, char *argv[])
 
         Anchor anchor(buckets, 2, 0);    const Anchor& ANCHOR = anchor;
 
-        // Make sure 'rehash' doesn't segfault or anything given an empty
-        // list.
-
-        Obj::rehash<TestPolicy, Mod8Hasher>(&anchor, 0, Mod8Hasher());
-
         Obj::insertAtBackOfBucket(&anchor, node000, 0);
         Obj::insertAtBackOfBucket(&anchor, node010, 0);
         Obj::insertAtBackOfBucket(&anchor, node020, 0);
@@ -858,7 +1436,7 @@ int main(int argc, char *argv[])
         }
 
         bslalg::BidirectionalLink *root = anchor.listRootAddress();
-        memset(buckets, 0, sizeof(buckets));
+        memset(buckets, 0xa4, sizeof(buckets));
         anchor.setBucketArrayAddressAndSize(buckets, 4);
 
         Obj::rehash<TestPolicy, Mod8Hasher>(&anchor, root, Mod8Hasher());
@@ -950,6 +1528,7 @@ int main(int argc, char *argv[])
         //:   6 A bucket contains a link that is not in the root list.
         //:   7 Two nodes with identical hash values are in the same bucket,
         //:     but not in a contiguous sequence for that hash value.
+        //:     Was forbidden in earlier implementation, now permissible.
         // --------------------------------------------------------------------
 
         if (verbose) printf("TESTING 'isWellFormed'\n"
@@ -1152,7 +1731,7 @@ int main(int argc, char *argv[])
         ASSERT(Util::isWellFormed(root, node043));
         ASSERT((Obj::isWellFormed<TestPolicy, Mod100Hasher>(anchor)));
 
-        if (verbose) Q(Node in right bucket wrong hash sequence); // ----------
+        if (verbose) Q(Node in right bucket wrong hash sequence - permissible);
 
         {
             Bucket bigBucket = { node010, node130 };
@@ -1172,7 +1751,7 @@ int main(int argc, char *argv[])
         ASSERT(6 == buckets[0].countElements());
 
         ASSERT(Util::isWellFormed(root, node043));
-        ASSERT(0 == (Obj::isWellFormed<TestPolicy, Mod100Hasher>(anchor)));
+        ASSERT((Obj::isWellFormed<TestPolicy, Mod100Hasher>(anchor)));
 
         Util::unlink(node020);
         Util::insertLinkBeforeTarget(node020, node030);
