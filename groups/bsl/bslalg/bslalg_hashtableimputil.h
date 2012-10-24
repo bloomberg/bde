@@ -1,3 +1,4 @@
+
 // bslalg_hashtableimputil.h                                          -*-C++-*-
 #ifndef INCLUDED_BSLALG_HASHTABLEIMPUTIL
 #define INCLUDED_BSLALG_HASHTABLEIMPUTIL
@@ -9,7 +10,6 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide algorithms for implementing a hash table.
 //
-
 //@CLASSES:
 //  bslalg::HashTableImpUtil: functions used to implement a hash table
 //
@@ -76,7 +76,6 @@ BSLS_IDENT("$Id: $")
 // lower order bits do not participate to the final adjusted value); however,
 // the means of adjustment may change in the future.
 //
-///
 ///Well-Formed 'HashTableAnchor' Objects
 ///--------------------------------------
 // Many of the algorithms defined in this component operate on
@@ -95,17 +94,10 @@ BSLS_IDENT("$Id: $")
 //: 2 Each link in the list is an object of type
 //:   'BidirectionalNode<KEY_CONFIG::ValueType>'
 //:
-//: 3 Links in the doubly linked list having the same adjusted hash value are
-//:   contiguous, where the adjusted hash value is the value returned by
-//:   'HashTableImpUtil::computeBucketIndex', for
-//:   'HashTableImpUtil::extractKey<KEY_CONFIG>(link)' and the size of the
-//:   bucket array.
-//:
-//: 4 The first and last links in each bucket in the bucket array refer to a
-//:   the first and last element in the doubly linked list having an adjusted
-//:   hash value equal to that buckets index.  If no values in the doubly
-//:   linked list have an adjust hash value equal to a bucket's index, then
-//:   the addresses of the first and last links for that bucket are 0.
+//: 3 For each bucket, the range of nodes '[ bucket.first(), bucket.last() ]'
+//:   contains all nodes in the hash table for which
+//:   'computeBucketIndex(HASHER(extractKey(link)' is the index of the bucket,
+//:   and no other nodes.
 //
 ///'KEY_CONFIG' Template Parameter
 ///-------------------------------
@@ -121,7 +113,7 @@ BSLS_IDENT("$Id: $")
 //     // Alias for the type of the values stored by the 'BidirectionalNode'
 //     // elements in the hash table.
 //
-//  typedef <KEY_TYPE>   KeyType;
+//  typedef <KEY_TYPE> KeyType;
 //     // Alias for the type of the key value extracted from the 'ValueType'
 //     // stored in the 'BidirectionalNode' elements of a hash table.
 //
@@ -129,9 +121,381 @@ BSLS_IDENT("$Id: $")
 //      // Return the 'KeyType' information associated with the specified
 //      // 'object'.
 //..
-//
 ///Usage
 ///-----
+// This section illustrates intended usage of this component.
+//
+///Example 1: Creating and Using a Hash Set
+/// - - - - - - - - - - - - - - - - - - - -
+// Suppose we want to build a hash set that will keep track of keys stored in
+// set.
+//
+// First, we define an abstract template class 'HashSet' that will provide a
+// hash set for any type that has a copy constructor, a destructor, an equality
+// comparator and a hash function.  We inherit from the 'HashTableAnchor' class
+// use the the 'BidirectionalLinkListUtil' and 'HashTableImpUtil' classes to
+// facilitate building the table:
+//..
+//  template <typename KEY, typename HASHER, typename EQUAL>
+//  class HashSet : public bslalg::HashTableAnchor {
+//      // PRIVATE TYPES
+//      typedef bslalg::BidirectionalLink         Link;
+//      typedef bslalg::BidirectionalNode<KEY>    Node;
+//      typedef bslalg::HashTableBucket           Bucket;
+//      typedef bslalg::BidirectionalLinkListUtil ListUtil;
+//      typedef bslalg::HashTableImpUtil          ImpUtil;
+//      typedef native_std::size_t                size_t;
+//
+//      struct Policy {
+//          typedef KEY KeyType;
+//          typedef KEY ValueType;
+//
+//          static const KeyType& extractKey(const ValueType& value)
+//          {
+//              return value;
+//          }
+//      };
+//
+//      // DATA
+//      double            d_maxLoadFactor;
+//      unsigned          d_numNodes;
+//      HASHER            d_hasher;
+//      EQUAL             d_equal;
+//      bslma::Allocator *d_allocator_p;
+//
+//      // PRIVATE MANIPULATORS
+//      void grow();
+//          // Roughly double the number of buckets, such that the number of
+//          // buckets shall always be '2^N - 1'.
+//
+//      // PRIVATE ACCESSORS
+//      bool checkInvariants() const;
+//          // Perform sanity checks on this table, returning 'true' if all the
+//          // tests pass and 'false' otherwise.  Note that many of the checks
+//          // are done with the 'ASSERTV' macro and will cause messages to be
+//          // written to the console.
+//
+//      Node* find(const KEY& key,
+//                 size_t     hashCode) const;
+//          // Return a pointer to the node containing the specified 'key', and
+//          // 0 if no such node is in the table.
+//
+//    private:
+//      // NOT IMPLEMENTED
+//      HashSet(const HashSet&, bslma::Allocator *);
+//      HashSet& operator=(const HashSet&);
+//
+//    public:
+//      // CREATORS
+//      explicit
+//      HashSet(bslma::Allocator *allocator = 0);
+//          // Create a 'HashSet', using the specified 'allocator'.  If no
+//          // allocator is specified, use the default allocator.
+//
+//      ~HashSet();
+//          // Destroy this 'HashSet', freeing all its memory.
+//
+//      // MANIPULATORS
+//      bool insert(const KEY& key);
+//          // If the specfied 'key' is not in this hash table, add it,
+//          // returning 'true'.  If it is already in the table, return 'false'
+//          // with no action taken.
+//
+//      bool erase(const KEY& key);
+//          // If the specfied 'key' is in this hash table, remove it,
+//          // returning 'true'.  If it is not found in the table, return
+//          // 'false' with no action taken.
+//
+//      // ACCESSORS
+//      native_std::size_t count(const KEY& key) const;
+//          // Return 1 if the specified 'key' is in this table and 0
+//          // otherwise.
+//
+//      native_std::size_t size() const;
+//          // Return the number of discrete keys that are stored in this
+//          // table.
+//  };
+//
+//  // PRIVATE MANIPULATORS
+//  template <typename KEY, typename HASHER, typename EQUAL>
+//  void HashSet<KEY, HASHER, EQUAL>::grow()
+//  {
+//      // 'bucketArraySize' will always be '2^N - 1', so that if hashed values
+//      // are aligned by some 2^N they're likely to be relatively prime to the
+//      // length of the hash table.
+//
+//      d_allocator_p->deallocate(bucketArrayAddress());
+//      size_t newBucketArraySize = bucketArraySize() * 2 + 1;
+//      setBucketArrayAddressAndSize((Bucket *) d_allocator_p->allocate(
+//                                        newBucketArraySize * sizeof(Bucket)),
+//                                        newBucketArraySize);
+//
+//      ImpUtil::rehash<Policy, HASHER>(this,
+//                                      listRootAddress(),
+//                                      d_hasher);
+//  }
+//
+//  // PRIVATE ACCESSORS
+//  template <typename KEY, typename HASHER, typename EQUAL>
+//  bool HashSet<KEY, HASHER, EQUAL>::checkInvariants() const
+//  {
+//..
+// 'HashTableImpUtil's 'isWellFormed' will verify that all nodes are in their
+// proper buckets, that there are no buckets containing nodes that are not in
+// the main linked list, and no nodes in the main linked list that are not in
+// buckets.  To verify that 'd_numNodes' is correct we have to traverse the
+// list and count the nodes ourselves.
+//..
+//      size_t numNodes = 0;
+//      for (BidirectionalLink *cursor = listRootAddress;
+//                                       cursor; cursor = cursor->nextLink()) {
+//          ++numNodes;
+//      }
+//
+//      return size() == numNodes &&
+//                  ImpUtil::isWellFormed<Policy, HASHER>(this, d_allocator_p);
+//  }
+//
+//  template <typename KEY, typename HASHER, typename EQUAL>
+//  bslalg::BidirectionalNode<KEY> *HashSet<KEY, HASHER, EQUAL>::find(
+//                                           const KEY&         key,
+//                                           native_std::size_t hashCode) const
+//  {
+//      return (Node *) ImpUtil::find<Policy, EQUAL>(*this,
+//                                                   key,
+//                                                   d_equal,
+//                                                   hashCode);
+//  }
+//
+//  // CREATORS
+//  template <typename KEY, typename HASHER, typename EQUAL>
+//  HashSet<KEY, HASHER, EQUAL>::HashSet(bslma::Allocator *allocator)
+//  : HashTableAnchor(0, 0, 0)
+//  , d_maxLoadFactor(0.4)
+//  , d_numNodes(0)
+//  {
+//      enum { NUM_BUCKETS = 3 };    // 'NUM_BUCKETS' must be '2^N - 1' for
+//                                   // some 'N'.
+//
+//      d_allocator_p = bslma::Default::allocator(allocator);
+//      native_std::size_t bucketArraySizeInBytes =
+//                                                NUM_BUCKETS * sizeof(Bucket);
+//      setBucketArrayAddressAndSize(
+//                  (Bucket *) d_allocator_p->allocate(bucketArraySizeInBytes),
+//                  NUM_BUCKETS);
+//      memset(bucketArrayAddress(), 0, bucketArraySizeInBytes);
+//  }
+//
+//  template <typename KEY, typename HASHER, typename EQUAL>
+//  HashSet<KEY, HASHER, EQUAL>::~HashSet()
+//  {
+//      BSLS_ASSERT_SAFE(checkInvariants());
+//
+//      for (Link *link = listRootAddress(); link; ) {
+//          Node *toDelete = (Node *) link;
+//          link = link->nextLink();
+//
+//          toDelete->value().~KEY();
+//          d_allocator_p->deallocate(toDelete);
+//      }
+//
+//      d_allocator_p->deallocate(bucketArrayAddress());
+//  }
+//
+//  // MANIPULATORS
+//  template <typename KEY, typename HASHER, typename EQUAL>
+//  bool HashSet<KEY, HASHER, EQUAL>::erase(const KEY& key)
+//  {
+//      size_t hashCode = d_hasher(key);
+//      Node *node = find(key, hashCode);
+//
+//      if (!node) {
+//          return false;                                             // RETURN
+//      }
+//
+//      size_t bucketIdx = ImpUtil::computeBucketIndex(hashCode,
+//                                                     bucketArraySize());
+//      Bucket& bucket = bucketArrayAddress()[bucketIdx];
+//
+//      BSLS_ASSERT_SAFE(bucket.first() && bucket.last());
+//
+//      if (bucket.first() == node) {
+//          if (bucket.last() == node) {
+//              bucket.reset();
+//          }
+//          else {
+//              bucket.setFirst(node->nextLink());
+//          }
+//      }
+//      else if (bucket.last() == node) {
+//          bucket.setLast(node->previousLink());
+//      }
+//
+//      if (listRootAddress() == node) {
+//          setListRootAddress(node->nextLink());
+//      }
+//
+//      ListUtil::unlink(node);
+//
+//      node->value().~KEY();
+//      d_allocator_p->deallocate(node);
+//
+//      --d_numNodes;
+//      BSLS_ASSERT_SAFE(checkInvariants());
+//
+//      return true;
+//  }
+//
+//  template <typename KEY, typename HASHER, typename EQUAL>
+//  bool HashSet<KEY, HASHER, EQUAL>::insert(const KEY& key)
+//  {
+//      size_t hashCode = d_hasher(key);
+//
+//      if (find(key, hashCode)) {
+//          // Already in set, do nothing.
+//
+//          return false;                                             // RETURN
+//      }
+//
+//      if (bucketArraySize() * d_maxLoadFactor < d_numNodes + 1) {
+//          grow();
+//      }
+//
+//      ++d_numNodes;
+//      Node *node = (Node *) d_allocator_p->allocate(sizeof(Node));
+//      bslalg::ScalarPrimitives::copyConstruct(&node->value(),
+//                                              key,
+//                                              d_allocator_p);
+//
+//      ImpUtil::insertAtBackOfBucket(this, node, hashCode);
+//
+//      BSLS_ASSERT_SAFE(find(key, hashCode));
+//      BSLS_ASSERT_SAFE(checkInvariants());
+//
+//      return true;
+//  }
+//
+//  // ACCESSORS
+//  template <typename KEY, typename HASHER, typename EQUAL>
+//  native_std::size_t HashSet<KEY, HASHER, EQUAL>::count(const KEY& key) const
+//  {
+//      return 0 != find(key, d_hasher(key));
+//  }
+//
+//  template <typename KEY, typename HASHER, typename EQUAL>
+//  native_std::size_t HashSet<KEY, HASHER, EQUAL>::size() const
+//  {
+//      return d_numNodes;
+//  }
+//..
+// Then, we customize our table to manipulate zero-terminated 'const char *'
+// strings.  We make the simplifying assumption that the strings pointed at by
+// the 'const char *'s are longer-lived that the 'HashSet' will be.  We must
+// provide an equality comparator so that two copies, in diffferent locations,
+// of the same sequence of characters will evaluate equal:
+//..
+//  struct StringEqual {
+//      bool operator()(const char *lhs, const char *rhs) const
+//      {
+//          return !strcmp(lhs, rhs);
+//      }
+//  };
+//..
+// Next, we must provide a string hash function to convert a 'const char *' to
+// a 'size_t':
+//..
+//  struct StringHash {
+//      native_std::size_t operator()(const char *string) const;
+//  };
+//
+//  native_std::size_t StringHash::operator()(const char *string) const
+//  {
+//      enum { BITS_IN_SIZE_T = sizeof(size_t) * 8 };
+//
+//      native_std::size_t result = 0;
+//      for (int shift = 0; *string;
+//                            ++string, shift = (shift + 7) % BITS_IN_SIZE_T) {
+//          unsigned char c = *string;
+//          if (shift <= BITS_IN_SIZE_T - 8) {
+//              result += c << shift;
+//          }
+//          else {
+//              result += c << shift;
+//              result += c >> (BITS_IN_SIZE_T - shift);
+//          }
+//      }
+//
+//      return result;
+//  };
+//..
+// Then, we declare a couple of 'TestAllocator's to use during our example:
+//..
+//  bslma::TestAllocator da("defaultAllocator");
+//  bslma::DefaultAllocatorGuard defaultGuard(&da);
+//
+//  bslma::TestAllocator ta("testAllocator");
+//..
+// Next, in 'main', we create an instance of our 'HashSet' type, configured to
+// contain 'const char *' strings:
+//..
+//  HashSet<const char *, StringHash, StringEqual> hs(&ta);
+//..
+// Then, we insert a few values:
+//..
+//  assert(1 == hs.insert("woof"));
+//  assert(1 == hs.insert("arf"));
+//  assert(1 == hs.insert("meow"));
+//..
+// Next, we attempt to insert a redundant value, and observe that the 'insert'
+// mthod returns 'false' to indicate that the insert was refused:
+//..
+//  assert(0 == hs.insert("woof"));
+//..
+// Then, we use to 'size' method to observe that there are 3 strings stored in
+// our 'HashSet':
+//..
+//  assert(3 == hs.size());
+//..
+// Next, we use the 'count' method to observe, specifically, which strings are
+// and are not in our 'HashSet':
+//..
+//  assert(1 == hs.count("woof"));
+//  assert(1 == hs.count("arf"));
+//  assert(1 == hs.count("meow"));
+//  assert(0 == hs.count("ruff"));
+//  assert(0 == hs.count("chomp"));
+//..
+// Then, we attempt to erase a string which is not in our 'HashSet' and observe
+// that 'false' is returned, which tells us the 'erase' attempt was
+// unsuccesful:
+//..
+//  assert(0 == hs.erase("ruff"));
+//..
+// Next, we erase the string "meow", which is stored in our 'HashSet' and
+// observe that 'true' is returned, telling us the 'erase' attempt succeeded:
+//..
+//  assert(1 == hs.erase("meow"));
+//..
+// Now, we use the 'size' method to verify there are 2 strings remaining in our
+// 'HashSet':
+//..
+//  assert(2 == hs.size());
+//..
+// Finally, we use the 'count' method to observe specifically which strings are
+// still in our 'HashSet'.  Note that "meow" is no longer there.  We observe
+// that the default allocator was never used.  When we leave the block, our
+// 'HashSet' will be destroyed, freeing its memory, then our 'TestAllocator'
+// will be destroyed, verifying that our destructor worked correctly and that
+// no memory was leaked:
+//..
+//  assert(1 == hs.count("woof"));
+//  assert(1 == hs.count("arf"));
+//  assert(0 == hs.count("meow"));
+//  assert(0 == hs.count("ruff"));
+//  assert(0 == hs.count("chomp"));
+//
+//  assert(0 == da.numAllocations());
+//..
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
@@ -157,6 +521,18 @@ BSLS_IDENT("$Id: $")
 #include <bslalg_hashtablebucket.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_DEALLOCATORGUARD
+#include <bslma_deallocatorguard.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_DEFAULT
+#include <bslma_default.h>
+#endif
+
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 #endif
@@ -177,12 +553,14 @@ namespace bslalg {
                           // class HashTableImpUtil
                           // ======================
 
-
 struct HashTableImpUtil {
     // This 'struct' provides a namespace for a suite of utility functions
     // for creating and manipulating a hash table.
 
   private:
+    // PRIVATE TYPES
+    typedef native_std::size_t size_t;
+
     // PRIVATE CLASS METHODS
     static HashTableBucket *findBucketForHashCode(
                                               const HashTableAnchor& anchor,
@@ -193,26 +571,14 @@ struct HashTableImpUtil {
         // 'computeBucketIndex').  The behavior is undefined if 'anchor'
         // has 0 buckets.
 
-    static void spliceListIntoBucket(HashTableAnchor    *anchor,
-                                     native_std::size_t  bucketIndex,
-                                     BidirectionalLink  *first,
-                                     BidirectionalLink  *last);
-         // Move into the bucket at the specified 'bucketIndex', in the
-         // specified 'anchor', the list of elements in the closed range
-         // '[first, last]'.  The behavior is undefined unless 'bucketIndex' is
-         // the adjusted hash value of all the elements held by the links in
-         // the closed range '[first, last]', and unless the linked list
-         // identified by the closed range '[first, last]' is well formed (see
-         // 'bslalg::BidirectionalLink::isWellFormed').
-
+  public:
+    // CLASS METHODS
     static bool bucketContainsLink(const HashTableBucket&  bucket,
                                    BidirectionalLink      *linkAddress);
         // Return 'true' if the specified 'linkAddress' is the address of one
         // of the links in the list of elements in the closed range
         // '[bucket.first(), bucket.last()]'.
 
-  public:
-    // CLASS METHODS
     template<class KEY_CONFIG>
     static const typename KEY_CONFIG::KeyType& extractKey(
                                                 const BidirectionalLink *link);
@@ -236,33 +602,34 @@ struct HashTableImpUtil {
         // of type 'BidirectionalNode<KEY_CONFIG::ValueType>'.  'KEY_CONFIG'
         // shall be a namespace providing the type name 'ValueType'.
 
-
     template <class KEY_CONFIG, class HASHER>
-    static bool isWellFormed(const HashTableAnchor& anchor);
-        // Return 'true' if the specified 'anchor' is well-formed.  For a
-        // 'HashTableAnchor' to be considered well-formed for a particular key
-        // policy, 'KEY_CONFIG', and hash functor, 'HASHER', all of the
-        // following must be true:
+    static bool isWellFormed(const HashTableAnchor& anchor,
+                             bslma::Allocator       *allocator = 0);
+        // Return 'true' if the specified 'anchor' is well-formed.  Use the
+        // specified 'allocator' for temporary memory, or the default allocator
+        // if none is specified.  For a 'HashTableAnchor' to be considered
+        // well-formed for a particular key policy, 'KEY_CONFIG', and hash
+        // functor, 'HASHER', all of the following must be true:
         //
         //: 1 The 'anchor.listRootAddress()' is the address of a
         //:   well-formed doubly linked list (see
         //:   'bslalg_bidirectionallinklistutil').
         //:
-        //: 2 Each link in the list is an object of type
-        //:   'BidirectionalNode<KEY_CONFIG::ValueType>'
-        //:
-        //: 3 Links in the doubly linked list having the same adjusted hash
+        //: 2 Links in the doubly linked list having the same adjusted hash
         //:   value are contiguous, where the adjusted hash value is the value
         //:   returned by 'computeBucketIndex', for
         //:   'extractKey<KEY_CONFIG>(link)' and 'anchor.bucketArraySize()'.
         //:
+        //: 3 Links in the doubly linked list having the same hash value are
+        //:   contiguous.
+        //:
         //: 4 The first and last links in each bucket (in the bucket array,
         //:   anchor.bucketArrayAddress()') refer to a the first and last
-        //:   element in the doubly linked list having an adjusted hash value
-        //:   equal to that bucket's array index.  If no values in the doubly
-        //:   linked list have an adjusted hash value equal to a bucket's
-        //:   index, then the addresses of the first and last links for that
-        //:   bucket are 0.
+        //:   element in the well-formed doubly linked list of all nodes in the
+        //:   list having an adjusted hash value equal to that bucket's array
+        //:   index.  If no values in the doubly linked list have an adjusted
+        //:   hash value equal to a bucket's index, then the addresses of the
+        //:   first and last links for that bucket are 0.
 
     static native_std::size_t computeBucketIndex(
                                                 native_std::size_t hashCode,
@@ -283,6 +650,18 @@ struct HashTableImpUtil {
         // behavior is undefined unless 'anchor' is well-formed (see
         // 'isWellFormed') for some combination of 'KEY_CONFIG' and
         // 'HASHER' such that 'link' refers to a node of type
+        // 'BidirectionalNode<KEY_CONFIG::ValueType>' and
+        // 'HASHER(extractKey<KEY_CONFIG>(link))' returns 'hashCode'.
+
+    static void insertAtBackOfBucket(HashTableAnchor    *anchor,
+                                     BidirectionalLink  *link,
+                                     native_std::size_t  hashCode);
+        // Insert the specified 'link', having the specified (non-adjusted)
+        // 'hashCode', into the the specified 'anchor', into the bucket with
+        // index 'computeBucketIndex(hashCode, anchor->bucketArraySize())',
+        // after the last node in the bucket.  The behavior is undefined unless
+        // 'anchor' is well-formed (see 'isWellFormed') for some combination of
+        // 'KEY_CONFIG' and 'HASHER' such that 'link' refers to a node of type
         // 'BidirectionalNode<KEY_CONFIG::ValueType>' and
         // 'HASHER(extractKey<KEY_CONFIG>(link))' returns 'hashCode'.
 
@@ -341,18 +720,19 @@ struct HashTableImpUtil {
     static void rehash(HashTableAnchor   *newAnchor,
                        BidirectionalLink *elementList,
                        const HASHER&      hasher);
-        // Populate the specified 'newHashTable' with all the elements
-        // in the specified 'elementList', using the specified 'hasher' to
-        // determine the (non-adjusted) hash code for each element.  This
-        // operation provides the strong exception guarantee unless the
-        // supplied 'hasher' throws, in which case it provides no exception
-        // safety guarantee.  The behavior is undefined unless, 'newHashTable'
-        // holds no elements and has one or more (empty) buckets, and
-        // 'elementList' is a well-formed bi-directional list (see
-        // 'BidirectionalLinkListUtil::isWellFormed') whose nodes are each of
-        // type 'BidirectionalNode<KEY_CONFIG::ValueType>', the previous
-        // address of the first node and the next address of the last node are
-        // 0.
+        // Populate the specified 'newHashTable' with all the elements in the
+        // specified 'elementList', using the specified 'hasher' to determine
+        // the (non-adjusted) hash code for each element.  This operation
+        // provides the strong exception guarantee unless the supplied 'hasher'
+        // throws, in which case it provides no exception safety guarantee.
+        // The buckets in the array in 'newAnchor' and the list root address in
+        // 'newAnchor' are assumed to be garbage and overwritten.  The behavior
+        // is undefined unless, 'newHashTable' holds no elements and has one or
+        // more (empty) buckets, and 'elementList' is a well-formed
+        // bi-directional list (see 'BidirectionalLinkListUtil::isWellFormed')
+        // whose nodes are each of type
+        // 'BidirectionalNode<KEY_CONFIG::ValueType>', the previous address of
+        // the first node and the next address of the last node are 0.
 };
 
 // ===========================================================================
@@ -396,17 +776,16 @@ bool HashTableImpUtil::bucketContainsLink(const HashTableBucket&   bucket,
 {
     BSLS_ASSERT_SAFE(!bucket.first() == !bucket.last());
 
-    if(!bucket.first()) {
-        return false;                                                 // RETURN
-    }
-
-    const BidirectionalLink *cursor = bucket.first();
-    while (bucket.last()->nextLink() != cursor) {
-        if (cursor == linkAddress) {
+    for (BidirectionalLink *cursor     = bucket.first(),
+                           * const end = bucket.end(); end != cursor;
+                                                 cursor = cursor->nextLink()) {
+        if (linkAddress == cursor) {
             return true;                                              // RETURN
         }
-        cursor = cursor->nextLink();
+
+        BSLS_ASSERT_SAFE(cursor);
     }
+
     return false;
 }
 
@@ -435,7 +814,6 @@ const typename KEY_CONFIG::KeyType& HashTableImpUtil::extractKey(
     return KEY_CONFIG::extractKey(node->value());
 }
 
-    // lookup
 template <class KEY_CONFIG, class KEY_EQUAL>
 inline
 BidirectionalLink *HashTableImpUtil::find(
@@ -447,22 +825,14 @@ BidirectionalLink *HashTableImpUtil::find(
     BSLS_ASSERT_SAFE(anchor.bucketArrayAddress());
     BSLS_ASSERT_SAFE(anchor.bucketArraySize());
 
-    const native_std::size_t bucketId = computeBucketIndex(
-                                                     hashCode,
-                                                     anchor.bucketArraySize());
-    const HashTableBucket& bucket = anchor.bucketArrayAddress()[bucketId];
+    const HashTableBucket *bucket = findBucketForHashCode(anchor, hashCode);
+    BSLS_ASSERT_SAFE(bucket);
 
-    // Odd loop structure as we must test on both first/last before terminating
-    // the loop as not-found.
-
-    if (BidirectionalLink *cursor = bucket.first()) {
-        for ( ; ; cursor = cursor->nextLink() ) {
-            if (equalityFunctor(key, extractKey<KEY_CONFIG>(cursor))) {
-                return cursor;                                        // RETURN
-            }
-            if (cursor == bucket.last()) {
-                break;
-            }
+    for (BidirectionalLink *cursor     = bucket->first(),
+                           * const end = bucket->end();
+                                 end != cursor; cursor = cursor->nextLink() ) {
+        if (equalityFunctor(key, extractKey<KEY_CONFIG>(cursor))) {
+            return cursor;                                            // RETURN
         }
     }
 
@@ -470,96 +840,130 @@ BidirectionalLink *HashTableImpUtil::find(
 }
 
 template <class KEY_CONFIG, class HASHER>
-inline
 void HashTableImpUtil::rehash(HashTableAnchor   *newAnchor,
                               BidirectionalLink *elementList,
                               const HASHER&      hasher)
 {
     BSLS_ASSERT_SAFE(newAnchor);
+    BSLS_ASSERT_SAFE(newAnchor->bucketArrayAddress());
     BSLS_ASSERT_SAFE(0 != newAnchor->bucketArraySize());
-    BSLS_ASSERT_SAFE(elementList);          // empty lists do not need a rehash
-    BSLS_ASSERT_SAFE(!elementList->previousLink());  // otherwise, not a 'root'
+    BSLS_ASSERT_SAFE(!elementList || !elementList->previousLink());
 
-    const native_std::size_t bucketArraySize = newAnchor->bucketArraySize();
+    // The callers of this function should be rewritten to take into account
+    // that it is the responsibility of this function, not its callers, to zero
+    // out the buckets.
 
-    do {
-        BidirectionalLink *first = elementList;
-        native_std::size_t  bucketIndex= computeBucketIndex(
-                                        hasher(extractKey<KEY_CONFIG>(first)),
-                                        bucketArraySize);
-
-        BidirectionalLink *last  = first;
-
-        // Walk list of nodes that will rehash to the same bucket
-        // This will advance the list extraction point *before* we splice
-
-        while ((elementList = elementList->nextLink()) &&
-                bucketIndex == computeBucketIndex(
-                                   hasher(extractKey<KEY_CONFIG>(elementList)),
-                                   bucketArraySize)) {
-             last = elementList;
-        }
-
-        spliceListIntoBucket(newAnchor, bucketIndex, first, last);
+    for (void **cursor     = (void **)  newAnchor->bucketArrayAddress(),
+              ** const end = (void **) (newAnchor->bucketArrayAddress() +
+                                        newAnchor->bucketArraySize());
+                                                      cursor < end; ++cursor) {
+        *cursor = 0;
     }
-    while (elementList);
+    newAnchor->setListRootAddress(0);
+
+    while (elementList) {
+        BidirectionalLink *nextNode = elementList;
+        elementList = elementList->nextLink();
+
+        insertAtBackOfBucket(newAnchor,
+                             nextNode,
+                             hasher(extractKey<KEY_CONFIG>(nextNode)));
+    }
+
+#ifdef BDE_BUILD_TARGET_SAFE_2
+    BSLS_ASSERT_SAFE((isWellFormed<KEY_CONFIG, HASHER>(*newAnchor)));
+#endif
 }
 
 template <class KEY_CONFIG, class HASHER>
-inline
-bool HashTableImpUtil::isWellFormed(const HashTableAnchor& anchor)
+bool HashTableImpUtil::isWellFormed(const HashTableAnchor&  anchor,
+                                    bslma::Allocator       *allocator)
 {
-    HashTableBucket    *array = anchor.bucketArrayAddress();
-    native_std::size_t  size  = anchor.bucketArraySize();
-    BidirectionalLink  *root  = anchor.listRootAddress();
-
-    // Check that all nodes are in the correct bucket.
-
-    if (size) {
-        BidirectionalLink *cursor = anchor.listRootAddress();
-        while (cursor) {
-            size_t hash  = HASHER()(extractKey<KEY_CONFIG>(cursor));
-            size_t index = computeBucketIndex(hash, size);
-            if (!bucketContainsLink(array[index], cursor)) {
-                return false;                                         // RETURN
-            }
-            cursor = cursor->nextLink();
-        }
+    if (!allocator) {
+        allocator = bslma::Default::defaultAllocator();
     }
 
+    HashTableBucket    *array = anchor.bucketArrayAddress();
+    size_t              size  = anchor.bucketArraySize();
+    BidirectionalLink  *root  = anchor.listRootAddress();
 
-    // Check that all the buckets have consistent 'first' and 'last', and that
-    // 'first' and 'last', if not 0, are part of the list of elements.
-
+    bool *bucketsUsed = (bool *) allocator->allocate(size);
+    bslma::DeallocatorGuard<bslma::Allocator> guard(bucketsUsed, allocator);
     for (size_t i = 0; i < size; ++i) {
+        bucketsUsed[i] = false;
+    }
 
-        HashTableBucket& bucket = array[i];
+    size_t hash,       prevHash;
+    size_t bucketIdx,  prevBucketIdx;
+    BidirectionalLink *prev = 0;
 
-        if (!bucket.first() != !bucket.last()) {  // 'first' XOR 'second
+    bool firstTime = true;
+    for (BidirectionalLink *cursor = root; cursor;
+                              prevHash = hash, prevBucketIdx = bucketIdx,
+                                 prev = cursor, cursor = cursor->nextLink()) {
+        hash = HASHER()(extractKey<KEY_CONFIG>(cursor));
+        bucketIdx = (firstTime || hash != prevHash)
+                  ? computeBucketIndex(hash, size)
+                  : prevBucketIdx;
+
+        if (cursor->previousLink() != prev) {
             return false;                                             // RETURN
         }
 
-        if (bucket.first()) {
-            if (   !bslalg::BidirectionalLinkListUtil::isWellFormed(
-                                                                root,
-                                                                bucket.first())
-                || !bslalg::BidirectionalLinkListUtil::isWellFormed(
-                                                                root,
-                                                                bucket.last()))
-            {
-                return false;                                         // RETURN
-            }
-            BidirectionalLink *cursor = bucket.first();
-            while (cursor != bucket.last()->nextLink()) {
-                size_t hash  = HASHER()(extractKey<KEY_CONFIG>(cursor));
-                size_t index = computeBucketIndex(hash, size);
-                if (!bucketContainsLink(array[index], cursor)) {
+        if (firstTime || hash != prevHash) {
+            if (firstTime || bucketIdx != prevBucketIdx) {
+                // New bucket
+
+                // We should be the first node in the new bucket, so if this
+                // bucket's been visited before, it's an error.
+
+                if (bucketsUsed[bucketIdx]) {
                     return false;                                     // RETURN
                 }
-                cursor = cursor->nextLink();
+                bucketsUsed[bucketIdx] = true;
+
+                // Since we're the first node in the bucket, bucket.first()
+                // should point at us.
+
+                if (array[bucketIdx].first() != cursor) {
+                    return false;                                     // RETURN
+                }
+
+                // 'last()' of the previous bucket should point at the
+                // previous node.
+
+                if (!firstTime && array[prevBucketIdx].last() != prev) {
+                    return false;                                     // RETURN
+                }
+
+                firstTime = false;
+            }
+            else {
+                // old bucket
+
+                BSLS_ASSERT(!firstTime);
             }
         }
     }
+
+    if (!firstTime && array[prevBucketIdx].last() != prev) {
+        return false;                                                 // RETURN
+    }
+
+    // Check that traversing the root list traversed all non-empty buckets.
+
+    for (size_t i = 0; i < size; ++i) {
+        const HashTableBucket& b = array[i];
+        if (bucketsUsed[i]) {
+            if  (!b.first() || !b.last()) {
+                return false;                                         // RETURN
+            }
+        }
+        else if ( b.first() ||  b.last()) {
+            return false;                                             // RETURN
+        }
+    }
+
     return true;
 }
 

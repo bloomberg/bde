@@ -115,6 +115,7 @@ void BidirectionalLinkListUtil::spliceListBeforeTarget
     BSLS_ASSERT_SAFE(last);
 #ifdef BDE_BUILD_TARGET_SAFE_2
     // Test to avoid creating loops is O(N) expensive, so check only in SAFE_2
+
     BidirectionalLink *cursor = first;
     while(cursor != last->nextLink()) {
         BSLS_ASSERT_SAFE(cursor != target);

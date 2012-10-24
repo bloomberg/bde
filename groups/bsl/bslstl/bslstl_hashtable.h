@@ -571,16 +571,16 @@ class HashTable {
         // exception guarantee, leaving the hash-table in a valid, but
         // otherwise unspecified (and potentially empty), state.
 
-    void setMaxLoadFactor(float loadFactor);
+    void setMaxLoadFactor(float maxLoadFactor);
         // Set the maximum load factor permitted by this hash table to the
-        // specified 'loadFactor', where load factor is the statistical mean
+        // specified 'maxLoadFactor', where load factor is the statistical mean
         // number of elements per bucket.  This hash table will enforce the
         // maximum load factor by rehashing into a larger array of buckets on
         // any any insertion operation where a successful insertion would
         // exceed the maximum load factor.  The maximum load factor may
         // actually be less than the current load factor after calling this
         // method, until the next insertion operation is called.  The behavior
-        // is undefined unless '0 < loadFactor'.
+        // is undefined unless '0 < maxLoadFactor'.
 
     void swap(HashTable& other);
         // Exchange the value of this object, its 'comparator' functor, its
@@ -1893,13 +1893,17 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::maxLoadFactor() const
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 inline
 void HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::setMaxLoadFactor(
-                                                              float loadFactor)
+                                                           float maxLoadFactor)
 {
-    BSLS_ASSERT_SAFE(0.0f < loadFactor);
+    BSLS_ASSERT_SAFE(0.0f < maxLoadFactor);
 
-    d_maxLoadFactor = loadFactor;
+    d_maxLoadFactor = maxLoadFactor;
     d_capacity = static_cast<native_std::size_t>(native_std::ceil(
-                         static_cast<float>(this->numBuckets()) * loadFactor));
+                      static_cast<float>(this->numBuckets()) * maxLoadFactor));
+
+    if (d_capacity < d_size) {
+        this->rehashForNumElements(d_size);
+    }
 }
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
