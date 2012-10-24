@@ -14,17 +14,17 @@ BSLS_IDENT("$Id$ $CSID$")
 //
 ///Supporting Incomplete Type Convertibility
 ///- - - - - - - - - - - - - - - - - - - - -
-// The 'IsConvertible_Imp' was implemented before 'bsl::is_convertible' was
-// standardized.  The 'IsConvertible_Imp' was required to support incomplete
-// type convertibility despite that the C++11 standard [meta.rel] disallows
-// passing incomplete template parameter types to 'bsl::is_convertible'.
+// 'IsConvertible_Imp' was implemented before 'bsl::is_convertible' was
+// standardized.  'IsConvertible_Imp' was required to support incomplete type
+// convertibility despite that the C++11 standard [meta.rel] disallows passing
+// incomplete template parameter types to 'bsl::is_convertible'.
 //
 // It should be possible to determine that some conversions are valid even if
 // the (template parameter) 'FROM_TYPE' is an incomplete type.  For example,
 // given an incomplete type, 'X', the following can be assumed:
 //..
 //  'X' is convertible to 'X'.
-//  'X' is convertible to const 'X'.
+//  'X' is convertible to 'const X'.
 //  'const X' is convertible to 'X'.
 //  cv-qualified 'X&' is convertible to cv-qualified 'X'.
 //..
@@ -45,7 +45,7 @@ BSLS_IDENT("$Id$ $CSID$")
 // Finally, we would like this meta-function to work even if 'FROM_TYPE' and/or
 // 'TO_TYPE' are 'void', so we must add specializations for these cases.
 //
-// In the end, we end up with template for the general case, 11 partial or
+// In the end, we end up with template for the general case, plus 11 partial or
 // full specializations corresponding to the cross-product of the following
 // parameter patterns:
 //..
@@ -80,7 +80,7 @@ BSLS_IDENT("$Id$ $CSID$")
 // The macros make the code clearer because of the large number of
 // specializations: the sole purpose of these specializations is to suppress
 // GCC warnings when converting from 'FLOAT' to 'INT', where 'INT'
-// and 'FLOAT' are template parameter types representing an integer type and a
+// and 'FLOAT' are template parameter types representing an integral type and a
 // floating-point type, respectively.
 //
 // Now, we will use the previously defined macros to define various partial
@@ -91,9 +91,9 @@ BSLS_IDENT("$Id$ $CSID$")
 // 'FROM_TYPE' to 'TO_TYPE' would succeed.  There is a risk that 'FROM_TYPE' is
 // a floating-point type, or convertible to a floating-point type, and
 // 'TO_TYPE' is integral.  But then the conversion would also succeed by
-// replacing 'TO_TYPE' by 'double', which produces no warning.  This is
+// replacing 'TO_TYPE' with 'double', which produces no warning.  This is
 // *almost* an equivalence (i.e., the conversion fails if it fails when
-// replacing 'TO_TYPE' by 'double'), with the only exception being when both
+// replacing 'TO_TYPE' with 'double'), with the only exception being when both
 // types are fundamental, and the conversion is from 'volatile FROM_TYPE' to
 // 'const TO_TYPE&' where both 'FROM_TYPE' and 'TO_TYPE' are not cv-qualified.
 // The latter conversion should always fail if 'FROM_TYPE' is the same as
@@ -103,7 +103,7 @@ BSLS_IDENT("$Id$ $CSID$")
 // (2) When 'TO_TYPE' is not fundamental: there is a risk that 'FROM_TYPE' is a
 // floating-point type, and 'TO_TYPE' has an implicit constructor from an
 // integral type.  But then the conversion would also succeed by replacing
-// 'FROM_TYPE' by 'int', which produces no warning.  In that case, there is a
+// 'FROM_TYPE' with 'int', which produces no warning.  In that case, there is a
 // strict equivalence between the two definitions, since the 'volatile' to
 // 'const&' conversion is only a problem when both types are fundamental.
 //
@@ -168,13 +168,11 @@ BSLS_IDENT("$Id$ $CSID$")
 //..
 //  template <class FROM_TYPE, class TO_TYPE>
 //  struct IsConvertible_Imp<const FROM_TYPE, TO_TYPE, 1, 1>
-//      : IsConvertible_Imp<const FROM_TYPE, double, 0, 0>::type
-//  {
+//      : IsConvertible_Imp<const FROM_TYPE, double, 0, 0>::type {
 //  };
 //  template <class FROM_TYPE, class TO_TYPE>
 //  struct IsConvertible_Imp<FROM_TYPE, TO_TYPE, 1, 1>
-//      : IsConvertible_Imp<FROM_TYPE, double, 0, 0>::type
-//  {
+//      : IsConvertible_Imp<FROM_TYPE, double, 0, 0>::type {
 //  };
 //..
 // The next partial specialization will be picked up by the compiler when
@@ -185,8 +183,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //..
 //  template <class FROM_TYPE, class TO_TYPE>
 //  struct IsConvertible_Imp<FROM_TYPE, TO_TYPE, 0, 1>
-//      : IsConvertible_Imp<FROM_TYPE, double, 0, 0>::type
-//  {
+//      : IsConvertible_Imp<FROM_TYPE, double, 0, 0>::type {
 //  };
 //..
 // This partial specialization will be picked up by the compiler when
@@ -197,8 +194,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //..
 //  template <class FROM_TYPE, class TO_TYPE>
 //  struct IsConvertible_Imp<FROM_TYPE, TO_TYPE, 1, 0>
-//      : IsConvertible_Imp<int, TO_TYPE, 0, 0>::type
-//  {
+//      : IsConvertible_Imp<int, TO_TYPE, 0, 0>::type {
 //  };
 //..
 
