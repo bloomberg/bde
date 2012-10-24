@@ -29,15 +29,15 @@ BSLS_IDENT("$Id: $")
 // In this section we show intended use of this component.
 //
 ///Example 1: Verify Floating-Point Types
-///- - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - -
 // Suppose that we want to assert whether a particular type is a floating-point
 // type.
 //
 // First, we create two 'typedef's -- a floating-point type and a
 // non-floating-point type:
 //..
-//  typedef void MyType;
-//  typedef float  MyFloatingPointType;
+//  typedef void  MyType;
+//  typedef float MyFloatingPointType;
 //..
 // Now, we instantiate the 'bsl::is_floating_point' template for each of the
 // 'typedef's and assert the 'value' static data member of each instantiation:
@@ -115,11 +115,11 @@ struct is_floating_point
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2012
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------
