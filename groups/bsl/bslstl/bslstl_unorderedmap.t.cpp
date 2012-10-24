@@ -2,6 +2,7 @@
 
 #include <bslstl_unorderedmap.h>
 
+#include <bslstl_hash.h>
 #include <bslstl_pair.h>
 #include <bslstl_string.h>
 #include <bslstl_vector.h>
@@ -42,7 +43,7 @@ using namespace BloombergLP;
 // [ ]
 //-----------------------------------------------------------------------------
 // [1] BREATHING TEST
-// [ ] USAGE EXAMPLE
+// [2] USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
 // ============================================================================
@@ -669,11 +670,104 @@ void testImplicitInsert(CONTAINER& mX)
 //                                USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
-namespace UsageExample {
-} // close namespace UsageExample
+#if defined(BSLS_PLATFORM_CMP_SUN) // Work around per internal ticket D36282765
+static int my_count_if_equal(bsl::vector<int>::const_iterator begin,
+                             bsl::vector<int>::const_iterator end,
+							 const int                        value)
+{
+    int count = 0;
+	for (bsl::vector<int>::const_iterator cur = begin; end != cur; ++cur) {
+	    if (value == *cur) {
+		    ++count;
+		}
+	}
+	return count;
+}
+#endif
+
+///Example 3: Inverse Concordance
+///------------------------------
+// If one has a concordance for a set of documents (an index of the position of
+// every unique word in those documents), then words of interest can be
+// efficiently located.  Suppose after locating a word of interest one also
+// needs the surrounding words (for context).  Searching in the original
+// document requires re-tokenization (time consuming).  Alternatively, one can
+// use the concordance to create an inverse concordance to provide a fast
+// lookup of the words at given locations in a document and then examine words
+// near the word of interest.
+//
+// First, define the types required (and convenient aliases) to create an
+// unordered map from a word location to the corresponding word.  The "key"
+// value will be 'WordLocation', a pair 'int' values: the first being the
+// document code number (arbitrarily assigned), and second the word offset in
+// that document (the first word of the document is at offset 0).  The "value"
+// of each entry is a 'bsl::string' containing the word at that location.
+//..
+    typedef bsl::pair<int, int> WordLocation;
+        // Document code number and word offset in that document specify
+        // a word location.
+
+    typedef bsl::pair<WordLocation, bsl::string> InverseConcordanceEntry;
+        // Entry that maps a 'WordLocation' value to a 'bsl::string' value.
+//..
+// Notice that that 'WordLocation', the type of the key value, has no natural
+// ordering.  The assignment of document codes is arbitrary so there is no
+// reason to consider the words on one document to sort below those in any
+// another.
+//
+// Then, since there is no default hash function for the 'WordLocation' type,
+// we define one.  The document code and the word offset are combined to form a
+// single 'int' value which is then hashed using the default mechanism.
+//..
+    class WordLocationHash
+    {
+      public:
+        // CREATORS
+        //! WordLocationHash() = default;
+            // Create a 'WordLocationHash' object.
+
+        //! hash(const WordLocationHash& original) = default;
+            // Create a 'WordLocationHash' object.  Note that as
+            // 'WordLocationHash' is an empty (stateless) type, this operation
+            // will have no observable effect.
+
+        //! ~WordLocationHash() = default;
+            // Destroy this object.
+
+        // MANIPULATORS
+        //! WordLocationHash& operator=(const WordLocationHash& rhs) = default;
+            // Assign to this object the value of the specified 'rhs' object,
+            // and return a reference providing modifiable access to this
+            // object.  Note that as 'WordLocationHash' is an empty (stateless)
+            // type, this operation will have no observable effect.
+
+        // ACCESSORS
+        std::size_t operator()(WordLocation x) const
+            // Return a hash value computed using the specified 'x'.
+        {
+            return bsl::hash<int>()(x.first * 1000000 + x.second);
+        }
+    };
+//..
+// Notice that many of the required methods of the hash type are compiler
+// generated.  (The declaration of those methods are commented out and suffixed
+// by an '= default' comment.)
+//
+// Next, we define the type of the unordered map and associated convenience
+// aliases:
+//..
+    typedef bsl::unordered_map<WordLocation, bsl::string, WordLocationHash>
+                                                 InverseConcordance;
+
+    typedef InverseConcordance::iterator         InverseConcordanceItr;
+
+    typedef bsl::pair<InverseConcordanceItr, bool>
+                                                InverseConcordanceInsertStatus;
+//..
+
 
 //=============================================================================
-//                              MAIN PROGRAM
+// MAIN PROGRAM
 //-----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
@@ -708,44 +802,42 @@ int main(int argc, char *argv[])
         //:   leading comment characters, and replace 'assert' with 'ASSERT'.
         //:   (C-1)
         //
-        // Testing:
-        //   USAGE EXAMPLE
+        // Testing: USAGE EXAMPLE
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nUSAGE EXAMPLE"
                             "\n=============\n");
-        {
 ///Usage
 ///-----
 // In this section we show intended use of this component.
 //
 ///Example 1: Gathering Document Statistics
-/// - - - - - - - - - - - - - - - - - - - - 
+/// - - - - - - - - - - - - - - - - - - - -
 // Unordered maps are useful in situations when there is no meaningful way to
-// compare key values, when the order of the keys is irrelevant to the problem
-// domain, and (even if there is a meaningful ordering) the value of ordering
-// the results is outweighed by the higher performance provided by unordered
-// maps (compared to ordered maps).
+// order the key values, when the order of the keys is irrelevant to the
+// problem domain (see {Example 3}), and (even if there is a meaningful
+// ordering) the value of ordering the results is outweighed by the higher
+// performance provided by unordered maps (compared to ordered maps).
 //
 // Suppose one wished to gather statistics on the words appearing in a large
 // set of documents on disk or in a data base.  Gathering those statics is
 // intrusive (as one is competing for access to the documents with the regular
-// users) and must be done as quickly as possible.  Moreover, the set of
-// unique words appearing in those documents may be high. The English language
-// has in excess of a million words (albeit many appear infrequently), and, if
-// the documents contain serial numbers, or Social Security numbers, or
-// chemical formulas, etc. then the O[log(n)] insertion time of ordered maps
-// may well be inadequate.  The unordered map, having an O[1] average insersion
-// cost, is a viable alternative.  In many problem domains, sorting, if needed,
-// can be done after the data is gathered.
+// users) and must be done as quickly as possible.  Moreover, the set of unique
+// words appearing in those documents may be high.  The English language has in
+// excess of a million words (albeit many appear infrequently), and, if the
+// documents contain serial numbers, or Social Security numbers, or chemical
+// formulas, etc. then the O[log(n)] insertion time of ordered maps may well be
+// inadequate.  The unordered map, having an O[1] average insersion cost, is a
+// viable alternative.  In many problem domains, sorting, if needed, can be
+// done after the data is gathered.
 //
 // This example illustrates the use of 'bsl::unordered_map' to gather one
 // simple statistic (counts of unique words) on a single document.  To avoid
-// irrelevant details of acquiring the data, two modestly sized documents are
-// stored as a static arrays:
+// irrelevant details of acquiring the data, several modestly sized documents
+// are stored in static arrays:
 //..
     static char document0[] =
-    " *IN* *CONGRESS*, *July* *4*, *1776*.\n"
+    " IN CONGRESS, July 4, 1776.\n"
     "\n"
     " The unanimous Declaration of the thirteen united States of America,\n"
     "\n"
@@ -908,21 +1000,7 @@ int main(int argc, char *argv[])
     " States may of right do.  And for the support of this Declaration,\n"
     " with a firm reliance on the protection of divine Providence, we\n"
     " mutually pledge to each other our Lives, our Fortunes and our sacred\n"
-    " Honor.\n"
-    "\n"
-    " Button Gwinnett Lyman Hall George Walton William Hooper Joseph Hewes\n"
-    " John Penn Edward Rutledge Thomas Heyward, Jr.  Thomas Lynch, Jr.\n"
-    " Arthur Middleton John Hancock Maryland: Samuel Chase William Paca\n"
-    " Thomas Stone Charles Carroll of Carrollton George Wythe Richard Henry\n"
-    " Lee Thomas Jefferson Benjamin Harrison Thomas Nelson, Jr.  Francis\n"
-    " Lightfoot Lee Carter Braxton Robert Morris Benjamin Rush Benjamin\n"
-    " Franklin John Morton George Clymer James Smith George Taylor James\n"
-    " Wilson George Ross Caesar Rodney George Read Thomas McKean William\n"
-    " Floyd Philip Livingston Francis Lewis Lewis Morris Richard Stockton\n"
-    " John Witherspoon Francis Hopkinson John Hart Abraham Clark Josiah\n"
-    " Bartlett William Whipple Samuel Adams John Adams Robert Treat Paine\n"
-    " Elbridge Gerry Stephen Hopkins William Ellery Roger Sherman Samuel\n"
-    " Huntington William Williams Oliver Wolcott Matthew Thornton\n";
+    " Honor.\n";
 
     static char document1[] =
     "/The Universal Declaration of Human Rights\n"
@@ -1225,15 +1303,700 @@ int main(int argc, char *argv[])
     " perform any act aimed at the destruction of any of the rights and\n"
     " freedoms set forth herein.\n";
 
-    static char * const documents[] = { &document0[0], &document1[0] };
-    const int          numDocuments = sizeof documents / sizeof *documents;
+    static char document2[] =
+    "/CHARTER OF FUNDAMENTAL RIGHTS OF THE EUROPEAN UNION\n"
+    "/---------------------------------------------------\n"
+    " PREAMBLE\n"
+    "\n"
+    " The peoples of Europe, in creating an ever closer union among them,\n"
+    " are resolved to share a peaceful future based on common values.\n"
+    "\n"
+    " Conscious of its spiritual and moral heritage, the Union is founded\n"
+    " on the indivisible, universal values of human dignity, freedom,\n"
+    " equality and solidarity; it is based on the principles of democracy\n"
+    " and the rule of law.  It places the individual at the heart of its\n"
+    " activities, by establishing the citizenship of the Union and by\n"
+    " creating an area of freedom, security and justice.\n"
+    "\n"
+    " The Union contributes to the preservation and to the development of\n"
+    " these common values while respecting the diversity of the cultures\n"
+    " and traditions of the peoples of Europe as well as the national\n"
+    " identities of the Member States and the organisation of their public\n"
+    " authorities at national, regional and local levels; it seeks to\n"
+    " promote balanced and sustainable development and ensures free\n"
+    " movement of persons, goods, services and capital, and the freedom of\n"
+    " establishment.\n"
+    "\n"
+    " To this end, it is necessary to strengthen the protection of\n"
+    " fundamental rights in the light of changes in society, social\n"
+    " progress and scientific and technological developments by making\n"
+    " those rights more visible in a Charter.\n"
+    "\n"
+    " This Charter reaffirms, with due regard for the powers and tasks of\n"
+    " the Community and the Union and the principle of subsidiarity, the\n"
+    " rights as they result, in particular, from the constitutional\n"
+    " traditions and international obligations common to the Member States,\n"
+    " the Treaty on European Union, the Community Treaties, the European\n"
+    " Convention for the Protection of Human Rights and Fundamental\n"
+    " Freedoms, the Social Charters adopted by the Community and by the\n"
+    " Council of Europe and the case-law of the Court of Justice of the\n"
+    " European Communities and of the European Court of Human Rights.\n"
+    "\n"
+    " Enjoyment of these rights entails responsibilities and duties with\n"
+    " regard to other persons, to the human community and to future\n"
+    " generations.\n"
+    "\n"
+    " The Union therefore recognises the rights, freedoms and principles\n"
+    " set out hereafter.\n"
+    "\n"
+    "/CHAPTER I\n"
+    "/- - - - -\n"
+    " DIGNITY\n"
+    "\n"
+    "/Article 1\n"
+    "/  -  -  -\n"
+    " Human dignity\n"
+    "\n"
+    " Human dignity is inviolable.  It must be respected and protected.\n"
+    "\n"
+    "/Article 2\n"
+    "/  -  -  -\n"
+    " Right to life\n"
+    "\n"
+    ": 1 Everyone has the right to life.\n"
+    ": 2 No one shall be condemned to the death penalty, or executed.\n"
+    "\n"
+    "/Article 3\n"
+    "/  -  -  -\n"
+    " Right to the integrity of the person\n"
+    "\n"
+    ": 1 Everyone has the right to respect for his or her physical and\n"
+    ":   mental integrity.\n"
+    ":\n"
+    ": 2 In the fields of medicine and biology, the following must be\n"
+    ":   respected in particular:\n"
+    ":\n"
+    ":   o the free and informed consent of the person concerned, according\n"
+    ":     to the procedures laid down by law,\n"
+    ":\n"
+    ":   o the prohibition of eugenic practices, in particular those aiming\n"
+    ":     at the selection of persons,\n"
+    ":\n"
+    ":   o the prohibition on making the human body and its parts as such a\n"
+    ":     source of financial gain,\n"
+    ":\n"
+    ":   o the prohibition of the reproductive cloning of human beings.\n"
+    "\n"
+    "/Article 4\n"
+    "/  -  -  -\n"
+    " Prohibition of torture and inhuman or degrading treatment or\n"
+    " punishment\n"
+    "\n"
+    " No one shall be subjected to torture or to inhuman or degrading\n"
+    " treatment or punishment.\n"
+    "\n"
+    "/Article 5\n"
+    "/  -  -  -\n"
+    " Prohibition of slavery and forced labour\n"
+    "\n"
+    ": 1 No one shall be held in slavery or servitude.\n"
+    ": 2 No one shall be required to perform forced or compulsory labour.\n"
+    ": 3 Trafficking in human beings is prohibited.\n"
+    "\n"
+    "/CHAPTER II\n"
+    "/ - - - - -\n"
+    " FREEDOMS\n"
+    "\n"
+    "/Article 6\n"
+    "/  -  -  -\n"
+    " Right to liberty and security\n"
+    "\n"
+    " Everyone has the right to liberty and security of person.\n"
+    "\n"
+    "/Article 7\n"
+    "/  -  -  -\n"
+    " Respect for private and family life\n"
+    "\n"
+    " Everyone has the right to respect for his or her private and family\n"
+    " life, home and communications.\n"
+    "\n"
+    "/Article 8\n"
+    "/  -  -  -\n"
+    " Protection of personal data\n"
+    "\n"
+    ": 1 Everyone has the right to the protection of personal data\n"
+    ":   concerning him or her.\n"
+    ":\n"
+    ": 2 Such data must be processed fairly for specified purposes and on\n"
+    ":   the basis of the consent of the person concerned or some other\n"
+    ":   legitimate basis laid down by law.  Everyone has the right of\n"
+    ":   access to data which has been collected concerning him or her, and\n"
+    ":   the right to have it rectified.\n"
+    ":\n"
+    ": 3 Compliance with these rules shall be subject to control by an\n"
+    ":   independent authority.\n"
+    "\n"
+    "/Article 9\n"
+    "/  -  -  -\n"
+    " Right to marry and right to found a family\n"
+    "\n"
+    " The right to marry and the right to found a family shall be\n"
+    " guaranteed in accordance with the national laws governing the\n"
+    " exercise of these rights.\n"
+    "\n"
+    "/Article 10\n"
+    "/-  -  -  -\n"
+    " Freedom of thought, conscience and religion\n"
+    "\n"
+    ": 1 Everyone has the right to freedom of thought, conscience and\n"
+    ":   religion.  This right includes freedom to change religion or\n"
+    ":   belief and freedom, either alone or in community with others and\n"
+    ":   in public or in private, to manifest religion or belief, in\n"
+    ":   worship, teaching, practice and observance.\n"
+    ":\n"
+    ": 2 The right to conscientious objection is recognised, in accordance\n"
+    ":   with the national laws governing the exercise of this right.\n"
+    "\n"
+    "/Article 11\n"
+    "/-  -  -  -\n"
+    " Freedom of expression and information\n"
+    "\n"
+    ": 1 Everyone has the right to freedom of expression.  This right shall\n"
+    ":   include freedom to hold opinions and to receive and impart\n"
+    ":   information and ideas without interference by public authority and\n"
+    ":   regardless of frontiers.\n"
+    ":\n"
+    ": 2 The freedom and pluralism of the media shall be respected.\n"
+    "\n"
+    "/Article 12\n"
+    "/-  -  -  -\n"
+    " Freedom of assembly and of association\n"
+    "\n"
+    ": 1 Everyone has the right to freedom of peaceful assembly and to\n"
+    ":   freedom of association at all levels, in particular in political,\n"
+    ":   trade union and civic matters, which implies the right of everyone\n"
+    ":   to form and to join trade unions for the protection of his or her\n"
+    ":   interests.\n"
+    ":\n"
+    ": 2 Political parties at Union level contribute to expressing the\n"
+    ":   political will of the citizens of the Union.\n"
+    "\n"
+    "/Article 13\n"
+    "/-  -  -  -\n"
+    " Freedom of the arts and sciences\n"
+    "\n"
+    " The arts and scientific research shall be free of constraint.\n"
+    " Academic freedom shall be respected.\n"
+    "\n"
+    "/Article 14\n"
+    "/-  -  -  -\n"
+    " Right to education\n"
+    "\n"
+    ": 1 Everyone has the right to education and to have access to\n"
+    ":   vocational and continuing training.\n"
+    ":\n"
+    ": 2 This right includes the possibility to receive free compulsory\n"
+    ":   education.\n"
+    ":\n"
+    ": 3 The freedom to found educational establishments with due respect\n"
+    ":   for democratic principles and the right of parents to ensure the\n"
+    ":   education and teaching of their children in conformity with their\n"
+    ":   religious, philosophical and pedagogical convictions shall be\n"
+    ":   respected, in accordance with the national laws governing the\n"
+    ":   exercise of such freedom and right.\n"
+    "\n"
+    "/Article 15\n"
+    "/-  -  -  -\n"
+    " Freedom to choose an occupation and right to engage in work\n"
+    "\n"
+    ": 1 Everyone has the right to engage in work and to pursue a freely\n"
+    ":   chosen or accepted occupation.\n"
+    ":\n"
+    ": 2 Every citizen of the Union has the freedom to seek employment, to\n"
+    ":   work, to exercise the right of establishment and to provide\n"
+    ":   services in any Member State.\n"
+    ":\n"
+    ": 3 Nationals of third countries who are authorised to work in the\n"
+    ":   territories of the Member States are entitled to working\n"
+    ":   conditions equivalent to those of citizens of the Union.\n"
+    "\n"
+    "/Article 16\n"
+    "/-  -  -  -\n"
+    " Freedom to conduct a business\n"
+    "\n"
+    " The freedom to conduct a business in accordance with Community law\n"
+    " and national laws and practices is recognised.\n"
+    "\n"
+    "/Article 17\n"
+    "/-  -  -  -\n"
+    " Right to property\n"
+    "\n"
+    ": 1 Everyone has the right to own, use, dispose of and bequeath his or\n"
+    ":   her lawfully acquired possessions.  No one may be deprived of his\n"
+    ":   or her possessions, except in the public interest and in the cases\n"
+    ":   and under the conditions provided for by law, subject to fair\n"
+    ":   compensation being paid in good time for their loss.  The use of\n"
+    ":   property may be regulated by law in so far as is necessary for the\n"
+    ":   general interest.\n"
+    ":\n"
+    ": 2 Intellectual property shall be protected.\n"
+    "\n"
+    "/Article 18\n"
+    "/-  -  -  -\n"
+    " Right to asylum\n"
+    "\n"
+    " The right to asylum shall be guaranteed with due respect for the\n"
+    " rules of the Geneva Convention of 28 July 1951 and the Protocol of 31\n"
+    " January 1967 relating to the status of refugees and in accordance\n"
+    " with the Treaty establishing the European Community.\n"
+    "\n"
+    "/Article 19\n"
+    "/-  -  -  -\n"
+    " Protection in the event of removal, expulsion or extradition\n"
+    "\n"
+    ": 1 Collective expulsions are prohibited.\n"
+    ":\n"
+    ": 2 No one may be removed, expelled or extradited to a State where\n"
+    ":   there is a serious risk that he or she would be subjected to the\n"
+    ":   death penalty, torture or other inhuman or degrading treatment or\n"
+    ":   punishment.\n"
+    "\n"
+    "/CHAPTER III\n"
+    "/- - - - - -\n"
+    " EQUALITY\n"
+    "\n"
+    "/Article 20\n"
+    "/-  -  -  -\n"
+    " Equality before the law\n"
+    "\n"
+    " Everyone is equal before the law.\n"
+    "\n"
+    "/Article 21\n"
+    "/-  -  -  -\n"
+    " Non-discrimination\n"
+    "\n"
+    ": 1 Any discrimination based on any ground such as sex, race, colour,\n"
+    ":   ethnic or social origin, genetic features, language, religion or\n"
+    ":   belief, political or any other opinion, membership of a national\n"
+    ":   minority, property, birth, disability, age or sexual orientation\n"
+    ":   shall be prohibited.\n"
+    ":\n"
+    ": 2 Within the scope of application of the Treaty establishing the\n"
+    ":   European Community and of the Treaty on European Union, and\n"
+    ":   without prejudice to the special provisions of those Treaties, any\n"
+    ":   discrimination on grounds of nationality shall be prohibited.\n"
+    "\n"
+    "/Article 22\n"
+    "/-  -  -  -\n"
+    " Cultural, religious and linguistic diversity\n"
+    "\n"
+    " The Union shall respect cultural, religious and linguistic diversity.\n"
+    "\n"
+    "/Article 23\n"
+    "/-  -  -  -\n"
+    " Equality between men and women\n"
+    "\n"
+    " Equality between men and women must be ensured in all areas,\n"
+    " including employment, work and pay.  The principle of equality shall\n"
+    " not prevent the maintenance or adoption of measures providing for\n"
+    " specific advantages in favour of the under-represented sex.\n"
+    "\n"
+    "/Article 24\n"
+    "/-  -  -  -\n"
+    " The rights of the child\n"
+    "\n"
+    ": 1 Children shall have the right to such protection and care as is\n"
+    ":   necessary for their well-being.  They may express their views\n"
+    ":   freely.  Such views shall be taken into consideration on matters\n"
+    ":   which concern them in accordance with their age and maturity.\n"
+    ":\n"
+    ": 2 In all actions relating to children, whether taken by public\n"
+    ":   authorities or private institutions, the child's best interests\n"
+    ":   must be a primary consideration.\n"
+    ":\n"
+    ": 3 Every child shall have the right to maintain on a regular basis a\n"
+    ":   personal relationship and direct contact with both his or her\n"
+    ":   parents, unless that is contrary to his or her interests.\n"
+    "\n"
+    "/Article 25\n"
+    "/-  -  -  -\n"
+    " The rights of the elderly\n"
+    "\n"
+    " The Union recognises and respects the rights of the elderly to lead a\n"
+    " life of dignity and independence and to participate in social and\n"
+    " cultural life.\n"
+    "\n"
+    "/Article 26\n"
+    "/-  -  -  -\n"
+    " Integration of persons with disabilities\n"
+    "\n"
+    " The Union recognises and respects the right of persons with\n"
+    " disabilities to benefit from measures designed to ensure their\n"
+    " independence, social and occupational integration and participation\n"
+    " in the life of the community.\n"
+    "\n"
+    "/CHAPTER IV\n"
+    "/ - - - - -\n"
+    " SOLIDARITY\n"
+    "\n"
+    "/Article 27\n"
+    "/-  -  -  -\n"
+    " Workers' right to information and consultation within the undertaking\n"
+    "\n"
+    " Workers or their representatives must, at the appropriate levels, be\n"
+    " guaranteed information and consultation in good time in the cases and\n"
+    " under the conditions provided for by Community law and national laws\n"
+    " and practices.\n"
+    "\n"
+    "/Article 28\n"
+    "/-  -  -  -\n"
+    " Right of collective bargaining and action\n"
+    "\n"
+    " Workers and employers, or their respective organisations, have, in\n"
+    " accordance with Community law and national laws and practices, the\n"
+    " right to negotiate and conclude collective agreements at the\n"
+    " appropriate levels and, in cases of conflicts of interest, to take\n"
+    " collective action to defend their interests, including strike action.\n"
+    "\n"
+    "/Article 29\n"
+    "/-  -  -  -\n"
+    " Right of access to placement services\n"
+    "\n"
+    " Everyone has the right of access to a free placement service.\n"
+    "\n"
+    "/Article 30\n"
+    "/-  -  -  -\n"
+    " Protection in the event of unjustified dismissal\n"
+    "\n"
+    " Every worker has the right to protection against unjustified\n"
+    " dismissal, in accordance with Community law and national laws and\n"
+    " practices.\n"
+    "\n"
+    "/Article 31\n"
+    "/-  -  -  -\n"
+    " Fair and just working conditions\n"
+    "\n"
+    ": 1 Every worker has the right to working conditions which respect his\n"
+    ":   or her health, safety and dignity.\n"
+    ":\n"
+    ": 2 Every worker has the right to limitation of maximum working hours,\n"
+    ":   to daily and weekly rest periods and to an annual period of paid\n"
+    ":   leave.\n"
+    "\n"
+    "/Article 32\n"
+    "/-  -  -  -\n"
+    " Prohibition of child labour and protection of young people at work\n"
+    "\n"
+    " The employment of children is prohibited.  The minimum age of\n"
+    " admission to employment may not be lower than the minimum\n"
+    " school-leaving age, without prejudice to such rules as may be more\n"
+    " favourable to young people and except for limited derogations.  Young\n"
+    " people admitted to work must have working conditions appropriate to\n"
+    " their age and be protected against economic exploitation and any work\n"
+    " likely to harm their safety, health or physical, mental, moral or\n"
+    " social development or to interfere with their education.\n"
+    "\n"
+    "/Article 33\n"
+    "/-  -  -  -\n"
+    " Family and professional life\n"
+    "\n"
+    ": 1 The family shall enjoy legal, economic and social protection.\n"
+    ":\n"
+    ": 2 To reconcile family and professional life, everyone shall have the\n"
+    ":   right to protection from dismissal for a reason connected with\n"
+    ":   maternity and the right to paid maternity leave and to parental\n"
+    ":   leave following the birth or adoption of a child.\n"
+    "\n"
+    "/Article 34\n"
+    "/-  -  -  -\n"
+    " Social security and social assistance\n"
+    "\n"
+    ": 1 The Union recognises and respects the entitlement to social\n"
+    ":   security benefits and social services providing protection in\n"
+    ":   cases such as maternity, illness, industrial accidents, dependency\n"
+    ":   or old age, and in the case of loss of employment, in accordance\n"
+    ":   with the rules laid down by Community law and national laws and\n"
+    ":   practices.\n"
+    ":\n"
+    ": 2 Everyone residing and moving legally within the European Union is\n"
+    ":   entitled to social security benefits and social advantages in\n"
+    ":   accordance with Community law and national laws and practices.\n"
+    ":\n"
+    ": 3 In order to combat social exclusion and poverty, the Union\n"
+    ":   recognises and respects the right to social and housing assistance\n"
+    ":   so as to ensure a decent existence for all those who lack\n"
+    ":   sufficient resources, in accordance with the rules laid down by\n"
+    ":   Community law and national laws and practices.\n"
+    "\n"
+    "/Article 35\n"
+    "/-  -  -  -\n"
+    " Health care\n"
+    "\n"
+    " Everyone has the right of access to preventive health care and the\n"
+    " right to benefit from medical treatment under the conditions\n"
+    " established by national laws and practices.  A high level of human\n"
+    " health protection shall be ensured in the definition and\n"
+    " implementation of all Union policies and activities.\n"
+    "\n"
+    "/Article 36\n"
+    "/-  -  -  -\n"
+    " Access to services of general economic interest\n"
+    "\n"
+    " The Union recognises and respects access to services of general\n"
+    " economic interest as provided for in national laws and practices, in\n"
+    " accordance with the Treaty establishing the European Community, in\n"
+    " order to promote the social and territorial cohesion of the Union.\n"
+    "\n"
+    "/Article 37\n"
+    "/-  -  -  -\n"
+    " Environmental protection\n"
+    "\n"
+    " A high level of environmental protection and the improvement of the\n"
+    " quality of the environment must be integrated into the policies of\n"
+    " the Union and ensured in accordance with the principle of sustainable\n"
+    " development.\n"
+    "\n"
+    "/Article 38\n"
+    "/-  -  -  -\n"
+    " Consumer protection\n"
+    "\n"
+    " Union policies shall ensure a high level of consumer protection.\n"
+    "\n"
+    "/CHAPTER V\n"
+    "/- - - - -\n"
+    " CITIZENS' RIGHTS\n"
+    "\n"
+    "/Article 39\n"
+    "/-  -  -  -\n"
+    " Right to vote and to stand as a candidate at elections to the\n"
+    " European Parliament\n"
+    "\n"
+    ": 1 Every citizen of the Union has the right to vote and to stand as a\n"
+    ":   candidate at elections to the European Parliament in the Member\n"
+    ":   State in which he or she resides, under the same conditions as\n"
+    ":   nationals of that State.\n"
+    ":\n"
+    ": 2 Members of the European Parliament shall be elected by direct\n"
+    ":   universal suffrage in a free and secret ballot.\n"
+    "\n"
+    "/Article 40\n"
+    "/-  -  -  -\n"
+    " Right to vote and to stand as a candidate at municipal elections\n"
+    "\n"
+    " Every citizen of the Union has the right to vote and to stand as a\n"
+    " candidate at municipal elections in the Member State in which he or\n"
+    " she resides under the same conditions as nationals of that State.\n"
+    "\n"
+    "/Article 41\n"
+    "/-  -  -  -\n"
+    " Right to good administration\n"
+    "\n"
+    ": 1 Every person has the right to have his or her affairs handled\n"
+    ":   impartially, fairly and within a reasonable time by the\n"
+    ":   institutions and bodies of the Union.\n"
+    ":\n"
+    ": 2 This right includes:\n"
+    ":\n"
+    ":   o the right of every person to be heard, before any individual\n"
+    ":     measure which would affect him or her adversely is taken;\n"
+    ":\n"
+    ":   o the right of every person to have access to his or her file,\n"
+    ":     while respecting the legitimate interests of confidentiality and\n"
+    ":     of professional and business secrecy;\n"
+    ":\n"
+    ":   o the obligation of the administration to give reasons for its\n"
+    ":     decisions.\n"
+    ":\n"
+    ": 3 Every person has the right to have the Community make good any\n"
+    ":   damage caused by its institutions or by its servants in the\n"
+    ":   performance of their duties, in accordance with the general\n"
+    ":   principles common to the laws of the Member States.\n"
+    ":\n"
+    ": 4 Every person may write to the institutions of the Union in one of\n"
+    ":   the languages of the Treaties and must have an answer in the same\n"
+    ":   language.\n"
+    "\n"
+    "/Article 42\n"
+    "/-  -  -  -\n"
+    " Right of access to documents\n"
+    "\n"
+    " Any citizen of the Union, and any natural or legal person residing or\n"
+    " having its registered office in a Member State, has a right of access\n"
+    " to European Parliament, Council and Commission documents.\n"
+    "\n"
+    "/Article 43\n"
+    "/-  -  -  -\n"
+    " Ombudsman\n"
+    "\n"
+    " Any citizen of the Union and any natural or legal person residing or\n"
+    " having its registered office in a Member State has the right to refer\n"
+    " to the Ombudsman of the Union cases of maladministration in the\n"
+    " activities of the Community institutions or bodies, with the\n"
+    " exception of the Court of Justice and the Court of First Instance\n"
+    " acting in their judicial role.\n"
+    "\n"
+    "/Article 44\n"
+    "/-  -  -  -\n"
+    " Right to petition\n"
+    "\n"
+    " Any citizen of the Union and any natural or legal person residing or\n"
+    " having its registered office in a Member State has the right to\n"
+    " petition the European Parliament.\n"
+    "\n"
+    "/Article 45\n"
+    "/-  -  -  -\n"
+    " Freedom of movement and of residence\n"
+    "\n"
+    ": 1 Every citizen of the Union has the right to move and reside freely\n"
+    ":   within the territory of the Member States.\n"
+    ":\n"
+    ": 2 Freedom of movement and residence may be granted, in accordance\n"
+    ":   with the Treaty establishing the European Community, to nationals\n"
+    ":   of third countries legally resident in the territory of a Member\n"
+    ":   State.\n"
+    "\n"
+    "/Article 46\n"
+    "/-  -  -  -\n"
+    " Diplomatic and consular protection\n"
+    "\n"
+    " Every citizen of the Union shall, in the territory of a third country\n"
+    " in which the Member State of which he or she is a national is not\n"
+    " represented, be entitled to protection by the diplomatic or consular\n"
+    " authorities of any Member State, on the same conditions as the\n"
+    " nationals of that Member State.\n"
+    "\n"
+    "/CHAPTER VI\n"
+    "/ - - - - -\n"
+    " JUSTICE\n"
+    "\n"
+    "/Article 47\n"
+    "/-  -  -  -\n"
+    " Right to an effective remedy and to a fair trial\n"
+    "\n"
+    " Everyone whose rights and freedoms guaranteed by the law of the Union\n"
+    " are violated has the right to an effective remedy before a tribunal\n"
+    " in compliance with the conditions laid down in this Article.\n"
+    " Everyone is entitled to a fair and public hearing within a reasonable\n"
+    " time by an independent and impartial tribunal previously established\n"
+    " by law.  Everyone shall have the possibility of being advised,\n"
+    " defended and represented.  Legal aid shall be made available to those\n"
+    " who lack sufficient resources in so far as such aid is necessary to\n"
+    " ensure effective access to justice.\n"
+    "\n"
+    "/Article 48\n"
+    "/-  -  -  -\n"
+    " Presumption of innocence and right of defence\n"
+    "\n"
+    ": 1 Everyone who has been charged shall be presumed innocent until\n"
+    ":   proved guilty according to law.\n"
+    ":\n"
+    ": 2 Respect for the rights of the defence of anyone who has been\n"
+    ":   charged shall be guaranteed.\n"
+    "\n"
+    "/Article 49\n"
+    "/-  -  -  -\n"
+    " Principles of legality and proportionality of criminal offences and\n"
+    " penalties\n"
+    "\n"
+    ": 1 No one shall be held guilty of any criminal offence on account of\n"
+    ":   any act or omission which did not constitute a criminal offence\n"
+    ":   under national law or international law at the time when it was\n"
+    ":   committed.  Nor shall a heavier penalty be imposed than that which\n"
+    ":   was applicable at the time the criminal offence was committed.\n"
+    ":   If, subsequent to the commission of a criminal offence, the law\n"
+    ":   provides for a lighter penalty, that penalty shall be applicable.\n"
+    ":\n"
+    ": 2 This Article shall not prejudice the trial and punishment of any\n"
+    ":   person for any act or omission which, at the time when it was\n"
+    ":   committed, was criminal according to the general principles\n"
+    ":   recognised by the community of nations.\n"
+    ":\n"
+    ": 3 The severity of penalties must not be disproportionate to the\n"
+    ":   criminal offence.\n"
+    "\n"
+    "/Article 50\n"
+    "/-  -  -  -\n"
+    " Right not to be tried or punished twice in criminal proceedings for\n"
+    " the same criminal offence\n"
+    "\n"
+    " No one shall be liable to be tried or punished again in criminal\n"
+    " proceedings for an offence for which he or she has already been\n"
+    " finally acquitted or convicted within the Union in accordance with\n"
+    " the law.\n"
+    "\n"
+    "/CHAPTER VII\n"
+    "/- - - - - -\n"
+    " GENERAL PROVISIONS\n"
+    "\n"
+    "/Article 51\n"
+    "/-  -  -  -\n"
+    " Scope\n"
+    "\n"
+    ": 1 The provisions of this Charter are addressed to the institutions\n"
+    ":   and bodies of the Union with due regard for the principle of\n"
+    ":   subsidiarity and to the Member States only when they are\n"
+    ":   implementing Union law.  They shall therefore respect the rights,\n"
+    ":   observe the principles and promote the application thereof in\n"
+    ":   accordance with their respective powers.\n"
+    ":\n"
+    ": 2 This Charter does not establish any new power or task for the\n"
+    ":   Community or the Union, or modify powers and tasks defined by the\n"
+    ":   Treaties.\n"
+    "\n"
+    "/Article 52\n"
+    "/-  -  -  -\n"
+    " Scope of guaranteed rights\n"
+    "\n"
+    ": 1 Any limitation on the exercise of the rights and freedoms\n"
+    ":   recognised by this Charter must be provided for by law and respect\n"
+    ":   the essence of those rights and freedoms.  Subject to the\n"
+    ":   principle of proportionality, limitations may be made only if they\n"
+    ":   are necessary and genuinely meet objectives of general interest\n"
+    ":   recognised by the Union or the need to protect the rights and\n"
+    ":   freedoms of others.\n"
+    ":\n"
+    ": 2 Rights recognised by this Charter which are based on the Community\n"
+    ":   Treaties or the Treaty on European Union shall be exercised under\n"
+    ":   the conditions and within the limits defined by those Treaties.\n"
+    ":\n"
+    ": 3 In so far as this Charter contains rights which correspond to\n"
+    ":   rights guaranteed by the Convention for the Protection of Human\n"
+    ":   Rights and Fundamental Freedoms, the meaning and scope of those\n"
+    ":   rights shall be the same as those laid down by the said\n"
+    ":   Convention.  This provision shall not prevent Union law providing\n"
+    ":   more extensive protection.\n"
+    "\n"
+    "/Article 53\n"
+    "/-  -  -  -\n"
+    " Level of protection\n"
+    "\n"
+    " Nothing in this Charter shall be interpreted as restricting or\n"
+    " adversely affecting human rights and fundamental freedoms as\n"
+    " recognised, in their respective fields of application, by Union law\n"
+    " and international law and by international agreements to which the\n"
+    " Union, the Community or all the Member States are party, including\n"
+    " the European Convention for the Protection of Human Rights and\n"
+    " Fundamental Freedoms, and by the Member States' constitutions.\n"
+    "\n"
+    "/Article 54\n"
+    "/-  -  -  -\n"
+    " Prohibition of abuse of rights\n"
+    "\n"
+    " Nothing in this Charter shall be interpreted as implying any right to\n"
+    " engage in any activity or to perform any act aimed at the destruction\n"
+    " of any of the rights and freedoms recognised in this Charter or at\n"
+    " their limitation to a greater extent than is provided for herein.\n";
+
+    static char * const documents[] = { &document0[0],
+                                        &document1[0],
+                                        &document2[0]
+                                      };
+    const int           numDocuments = sizeof documents / sizeof *documents;
 //..
 // First, we define several aliases to make our code more comprehensible.
 //..
     typedef bsl::unordered_map<bsl::string, int> WordTally;
     typedef bsl::pair         <bsl::string, int> WordTallyEntry;
-  //typedef WordTally::value_type                WordTallyEntry;
-  //typedef bsl::pair   <const bsl::string, int> WordTallyEntry;
     typedef bsl::pair<WordTally::iterator, bool> WordTallyInsertStatus;
 //..
 // Next, we (default) create an unordered map to hold our word tallies.  The
@@ -1241,17 +2004,19 @@ int main(int argc, char *argv[])
 //..
     WordTally wordTally;
 
+if (verbose) {
     printf("size             %4d initial\n", wordTally.size());
     printf("bucket_count     %4d initial\n", wordTally.bucket_count());
     printf("load_factor      %f  initial\n", wordTally.load_factor());
     printf("max_load_factor  %f  initial\n", wordTally.max_load_factor());
+};
 //..
 // Then, we define the set of characters that define word boundaries:
 //..
-    const char *delimiters = " \n\t,:;.()[]?!/-";
+    const char *delimiters = " \n\t,:;.()[]?!/";
 //..
-// Next, we extract the words from our documents.  Note that 'strtok'
-// modifies the document arrays (which were not made 'const').
+// Next, we extract the words from our documents.  Note that 'strtok' modifies
+// the document arrays (which were not made 'const').
 //
 // We tentatively assume that we are seeing each word for the first time and
 // attempt to insert an initial record for that word.  If that succeeds (a
@@ -1275,8 +2040,8 @@ int main(int argc, char *argv[])
 //..
 // Then, now that the data has been (quickly) gathered, we can indulge in
 // analysis that is more time consuming.  For example, we can define a
-// comparison, sort the entries, and determine the 16 most commonly used words
-// in the given document:
+// comparison function, sort the entries, and determine the 20 most commonly
+// used words in the given document:
 //..
     struct WordTallyEntryCompare {
         static bool lessValue(const WordTallyEntry& a,
@@ -1289,55 +2054,68 @@ int main(int argc, char *argv[])
         }
     };
 
-    bsl::vector<WordTallyEntry> array(wordTally.cbegin(), wordTally.cend());
+    bsl::vector<WordTallyEntry> array(wordTally.begin(), wordTally.end());
+
     std::partial_sort(array.begin(),
                       array.begin() + 20,
                       array.end(),
                       WordTallyEntryCompare::moreValue);
 //..
-//  Notice that 'partial_sort' suffices since we seek only the 16 most used
-//  words, and not a complete distribution of word counts.
+// Notice that 'partial_sort' suffices since we seek only the 20 most used
+// words, and not a complete distribution of word counts.
 //
-//  Finally, we print the sorted portion of 'array':
+// Finally, we print the sorted portion of 'array':
 //..
     for (bsl::vector<WordTallyEntry>::const_iterator cur  = array.begin(),
-                                                     end  = cur + 16;
-                                                     end != cur; ++cur) {    
+                                                     end  = cur + 20;
+                                                     end != cur; ++cur) {
+if (verbose) {
         printf("%-10s %4d\n", cur->first.c_str(), cur->second);
+}
     }
 //..
 // and standard output shows:
 //..
-//  the         193
-//  of          169
-//  and         161
-//  to          147
-//  in           60
-//  has          48
-//  be           40
-//  right        38
-//  for          37
-//  a            34
-//  or           32
-//  Article      30
-//  his          30
-//  Everyone     29
-//  shall        28
-//  by           26
+//  the         463
+//  -           398
+//  of          361
+//  and         349
+//  to          306
+//  in          141
+//  or          106
+//  right        93
+//  be           90
+//  Article      86
+//  has          79
+//  a            76
+//  shall        69
+//  for          69
+//  by           62
+//  with         50
+//  Everyone     49
+//  rights       44
+//  their        44
+//  is           43
 //..
+// Notice that "-" (used as an header underscore in our markup) appears in the
+// word count.  That could be elimiated by adding '-' to the set of delimiters;
+// however, that would partition hyphenated words into separate words.  In
+// practice, one defines a "stop list" of common words (e.g., "the", "of",
+// "and", "is") that one does not wish to tally.  We could easily and "-" to
+// the stop list.
 //
 ///Example 2: Examining and Setting Unordered Map Configuration
 ///------------------------------------------------------------
-// The unordered map interfaces all some insight into and control of its inner
-// workings.  The unordered map is implemented using a hash table (see
-// 'bslstl_hashtable'}), a dynamically sized array of "buckets".  If two
+// The unordered map interfaces provide some insight into and control of its
+// inner workings.  The unordered map is implemented using a hash table (see
+// {'bslstl_hashtable'}), a dynamically sized array of "buckets".  If two
 // elements hash to the same position the the table (the same bucket), then
 // that bucket will house multiple elements.  As elements are added to the
 // unordered map, the number of buckets is increased (and the existing elements
 // redistributed) to keep the average number of elements per bucket (the
 // "loading factor") below the specified maximum (the "maximum load factor", 1
 // by default).
-// 
+//
 // First, when 'wordTally' was created in {Example 1}, its metrics were:
 //..
 //  size                0 initial
@@ -1345,34 +2123,35 @@ int main(int argc, char *argv[])
 //  load_factor      0.000000  initial
 //  max_load_factor  1.000000  initial
 //..
-// Notice that even when there are no elements ('size' is 0) there is one 
+// Notice that even when there are no elements ('size' is 0) there is one
 // bucket.  Since there are no elements, the average number of elements per
 // bucket must be 0 (the 'load_factor').
 //
 // Next, after 'wordTally' has been loaded, we examine its metrics:
 //..
+if (verbose) {
     printf("size             %4d\n", wordTally.size());
     printf("bucket_count     %4d\n", wordTally.bucket_count());
     printf("load_factor      %f\n",  wordTally.load_factor());
     printf("max_load_factor  %f\n",  wordTally.max_load_factor());
+}
 //..
 // and find at standard output:
 //..
-//  size             1108
+//  size             1504
 //  bucket_count     2099
-//  load_factor      0.527870
+//  load_factor      0.716532
 //  max_load_factor  1.000000
 //..
-// Notice how the number of buckets has increased.  (Sampling this metric
-// as the map was loaded would show that the increase was done in several
-// stages.)
+// Notice how the number of buckets has increased.  (Sampling this metric as
+// the map was loaded would show that the increase was done in several stages.)
 //
 // Then, we see that the load factor is indeed below the specified maximum;
 // however we obtain further details of how the buckets are used.
-
-// The unordered map provides and interface giving the element count of of elements in each bucket, we
-// can easily determine the bucket with the greatest number of elements (i.e.,
-// (greatest number of has collisions):
+//
+// The unordered map provides and interface giving the element count of of
+// elements in each bucket, we can easily determine the bucket with the
+// greatest number of elements (i.e., (greatest number of has collisions):
 //..
     bsl::vector<int> bucketSizes;
     for (int idx = 0; idx < wordTally.bucket_count(); ++idx) {
@@ -1380,30 +2159,47 @@ int main(int argc, char *argv[])
     }
     int maxBucketSize = *std::max_element(bucketSizes.begin(),
                                           bucketSizes.end());
+if (verbose) {
     printf("maxBucketSize    %4d\n", maxBucketSize);
+}
 //..
 // and find on standard output:
 //..
-//  maxBucketSize       4
+//  maxBucketSize       5
 //..
-// We can also count the number of empty buckets, and the number of buckets
-// at 'maxBucketSize'.
+// We can also count the number of empty buckets, and the number of buckets at
+// 'maxBucketSize'.
 //..
+#if defined(BSLS_PLATFORM_CMP_SUN) // Work around per internal ticket D36282765
+    int numEmptyBuckets = my_count_if_equal(bucketSizes.begin(),
+                                            bucketSizes.end(),
+                                            0);
+#else
     int numEmptyBuckets = std::count_if(bucketSizes.begin(),
                                         bucketSizes.end(),
                                         std::bind1st(std::equal_to<int>(), 0));
+#endif
+if (verbose) {
     printf("numEmptyBuckets  %4d\n", numEmptyBuckets);
-
+}
+#if defined(BSLS_PLATFORM_CMP_SUN) // Work around per internal ticket D36282765
+    int numMaxBuckets = my_count_if_equal(bucketSizes.begin(),
+                                          bucketSizes.end(),
+                                          maxBucketSize);
+#else
     int numMaxBuckets = std::count_if(
                            bucketSizes.begin(),
                            bucketSizes.end(),
                            std::bind1st(std::equal_to<int>(), maxBucketSize));
+#endif
+if (verbose) {
     printf("numMaxBuckets    %4d\n", numMaxBuckets);
+}
 //..
 // which shows on standard output:
 //..
-//  numEmptyBuckets 1236
-//  numMaxBuckets      1
+//  numEmptyBuckets  1031
+//  numMaxBuckets       3
 //..
 // Suppose we are not satisfied with this distribution.  (Perhaps the load
 // factor is too high.)  We can create a second, differently configured table.
@@ -1413,10 +2209,12 @@ int main(int argc, char *argv[])
 //..
     WordTally wordTally2(wordTally.bucket_count() * 2);
 
+if (verbose) {
     printf("size2            %4d initial\n", wordTally2.size());
     printf("bucket_count2    %4d initial\n", wordTally2.bucket_count());
     printf("load_factor2     %f  initial\n", wordTally2.load_factor());
     printf("max_load_factor2 %f  initial\n", wordTally2.max_load_factor());
+}
 //..
 // Standard output shows:
 //..
@@ -1434,10 +2232,12 @@ int main(int argc, char *argv[])
 //..
     wordTally2.insert(wordTally.begin(), wordTally.end());
 
+if (verbose) {
     printf("size2            %4d\n", wordTally2.size());
     printf("bucket_count2    %4d\n", wordTally2.bucket_count());
     printf("load_factor2     %f\n",  wordTally2.load_factor());
     printf("max_load_factor2 %f\n",  wordTally2.max_load_factor());
+}
 
     bsl::vector<int> bucketSizes2;
     for (int idx = 0; idx < wordTally2.bucket_count(); ++idx) {
@@ -1445,28 +2245,46 @@ int main(int argc, char *argv[])
     }
     int maxBucketSize2 = *std::max_element(bucketSizes2.begin(),
                                            bucketSizes2.end());
+if (verbose) {
     printf("maxBucketSize2   %4d\n", maxBucketSize2);
+}
 
+#if defined(BSLS_PLATFORM_CMP_SUN) // Work around per internal ticket D36282765
+    int numEmptyBuckets2 = my_count_if_equal(bucketSizes2.begin(),
+                                             bucketSizes2.end(),
+                                             0);
+#else
     int numEmptyBuckets2 = std::count_if(
                                         bucketSizes2.begin(),
                                         bucketSizes2.end(),
                                         std::bind1st(std::equal_to<int>(), 0));
+#endif
+if (verbose) {
     printf("numEmptyBuckets2 %4d\n", numEmptyBuckets2);
+}
+#if defined(BSLS_PLATFORM_CMP_SUN) // Work around per internal ticket D36282765
+    int numMaxBuckets2 = my_count_if_equal(bucketSizes2.begin(),
+                                           bucketSizes2.end(),
+                                           maxBucketSize2);
+#else
     int numMaxBuckets2 = std::count_if(
                            bucketSizes2.begin(),
                            bucketSizes2.end(),
                            std::bind1st(std::equal_to<int>(), maxBucketSize2));
+#endif
+if (verbose) {
     printf("numMaxBuckets2   %4d\n", numMaxBuckets2);
+}
 //..
 // Finally, we see on standard output:
 //..
-//  size2            1108
+//  size2            1504
 //  bucket_count2    4201
-//  load_factor2     0.263747
+//  load_factor2     0.358010
 //  max_load_factor2 1.000000
-//  maxBucketSize2      3
-//  numEmptyBuckets2 3242
-//  numMaxBuckets2     15
+//  maxBucketSize2      4
+//  numEmptyBuckets2 2971
+//  numMaxBuckets2      5
 //..
 // Notice that the loading factor has been (roughly) cut in half; we have
 // achieved our goal.  Also notice that the bucket count is unchanged since
@@ -1477,7 +2295,3484 @@ int main(int argc, char *argv[])
 //
 // Thus, the unordered map provides facilities by which we can make trade-offs
 // in performance characteristics of the containers we create.
+//
+///Example 3: Inverse Concordance
+///------------------------------
+// continued...
+//
+// Next, obtain a concordance for the document set (see
+// {'bslstl_unorderedmultimap'|Example 1}).  Here, the concordance is provided
+// as a statically initialized array:
+//..
+    static struct {
+        const char *d_word;
+        int         d_documentCode;
+        int         d_wordOffset;
+    } concordance[] = {
+        { "extent",             2,  3597 }, { "to",                 2,  1225 },
+        { "greater",            2,  3596 }, { "to",                 2,  1221 },
+        { "abuse",              2,  3551 }, { "to",                 2,  1182 },
+        { "constitutions",      2,  3546 }, { "to",                 2,  1141 },
+        { "affecting",          2,  3491 }, { "to",                 2,  1134 },
+        { "Level",              2,  3477 }, { "to",                 2,  1115 },
+        { "provision",          2,  3465 }, { "to",                 2,  1109 },
+        { "said",               2,  3462 }, { "to",                 2,  1099 },
+        { "correspond",         2,  3429 }, { "to",                 2,  1095 },
+        { "contains",           2,  3426 }, { "to",                 2,  1084 },
+        { "limits",             2,  3414 }, { "to",                 2,  1069 },
+        { "protect",            2,  3379 }, { "to",                 2,  1062 },
+        { "need",               2,  3377 }, { "to",                 2,  1060 },
+        { "objectives",         2,  3367 }, { "to",                 2,  1057 },
+        { "meet",               2,  3366 }, { "to",                 2,  1040 },
+        { "Subject",            2,  3349 }, { "to",                 2,  1035 },
+        { "essence",            2,  3343 }, { "to",                 2,  1026 },
+        { "defined",            2,  3415 }, { "to",                 2,  1020 },
+        { "defined",            2,  3309 }, { "to",                 2,   982 },
+        { "modify",             2,  3305 }, { "to",                 2,   967 },
+        { "task",               2,  3297 }, { "to",                 2,   959 },
+        { "does",               2,  3290 }, { "to",                 2,   948 },
+        { "thereof",            2,  3280 }, { "to",                 2,   945 },
+        { "addressed",          2,  3238 }, { "to",                 2,   942 },
+        { "Scope",              2,  3315 }, { "to",                 2,   935 },
+        { "Scope",              2,  3230 }, { "to",                 2,   898 },
+        { "VII",                2,  3225 }, { "to",                 2,   879 },
+        { "convicted",          2,  3215 }, { "to",                 2,   876 },
+        { "acquitted",          2,  3213 }, { "to",                 2,   854 },
+        { "finally",            2,  3212 }, { "to",                 2,   848 },
+        { "again",              2,  3197 }, { "to",                 2,   808 },
+        { "liable",             2,  3191 }, { "to",                 2,   804 },
+        { "twice",              2,  3178 }, { "to",                 2,   795 },
+        { "punished",           2,  3196 }, { "to",                 2,   766 },
+        { "punished",           2,  3177 }, { "to",                 2,   752 },
+        { "disproportionate",   2,  3164 }, { "to",                 2,   732 },
+        { "severity",           2,  3158 }, { "to",                 2,   721 },
+        { "lighter",            2,  3110 }, { "to",                 2,   689 },
+        { "provides",           2,  3107 }, { "to",                 2,   684 },
+        { "subsequent",         2,  3097 }, { "to",                 2,   678 },
+        { "If",                 2,  3096 }, { "to",                 2,   674 },
+        { "penalties",          2,  3160 }, { "to",                 2,   665 },
+        { "penalties",          2,  3037 }, { "to",                 2,   653 },
+        { "legality",           2,  3030 }, { "to",                 2,   640 },
+        { "Principles",         2,  3028 }, { "to",                 2,   594 },
+        { "54",                 2,  3548 }, { "to",                 2,   570 },
+        { "49",                 2,  3027 }, { "to",                 2,   552 },
+        { "anyone",             2,  3018 }, { "to",                 2,   544 },
+        { "53",                 2,  3476 }, { "to",                 2,   525 },
+        { "48",                 2,  2985 }, { "to",                 2,   494 },
+        { "aid",                2,  2975 }, { "to",                 2,   491 },
+        { "aid",                2,  2959 }, { "to",                 2,   424 },
+        { "Legal",              2,  2958 }, { "to",                 2,   388 },
+        { "defended",           2,  2955 }, { "to",                 2,   377 },
+        { "advised",            2,  2954 }, { "to",                 2,   368 },
+        { "previously",         2,  2943 }, { "to",                 2,   360 },
+        { "violated",           2,  2903 }, { "to",                 2,   353 },
+        { "52",                 2,  3314 }, { "to",                 2,   318 },
+        { "47",                 2,  2879 }, { "to",                 2,   313 },
+        { "JUSTICE",            2,  2877 }, { "to",                 2,   310 },
+        { "VI",                 2,  2876 }, { "to",                 2,   242 },
+        { "diplomatic",         2,  2856 }, { "to",                 2,   175 },
+        { "consular",           2,  2858 }, { "to",                 2,   148 },
+        { "consular",           2,  2819 }, { "to",                 2,   102 },
+        { "Diplomatic",         2,  2817 }, { "to",                 2,    98 },
+        { "51",                 2,  3229 }, { "to",                 2,    23 },
+        { "46",                 2,  2816 }, { "to",                 1,  1767 },
+        { "resident",           2,  2807 }, { "to",                 1,  1761 },
+        { "reside",             2,  2774 }, { "to",                 1,  1733 },
+        { "50",                 2,  3170 }, { "to",                 1,  1678 },
+        { "45",                 2,  2755 }, { "to",                 1,  1648 },
+        { "petition",           2,  2750 }, { "to",                 1,  1621 },
+        { "petition",           2,  2724 }, { "to",                 1,  1593 },
+        { "role",               2,  2719 }, { "to",                 1,  1580 },
+        { "judicial",           2,  2718 }, { "to",                 1,  1575 },
+        { "acting",             2,  2715 }, { "to",                 1,  1566 },
+        { "Instance",           2,  2714 }, { "to",                 1,  1555 },
+        { "First",              2,  2713 }, { "to",                 1,  1545 },
+        { "maladministration",  2,  2691 }, { "to",                 1,  1500 },
+        { "refer",              2,  2682 }, { "to",                 1,  1491 },
+        { "Ombudsman",          2,  2685 }, { "to",                 1,  1479 },
+        { "Ombudsman",          2,  2656 }, { "to",                 1,  1444 },
+        { "Commission",         2,  2652 }, { "to",                 1,  1417 },
+        { "registered",         2,  2740 }, { "to",                 1,  1389 },
+        { "registered",         2,  2672 }, { "to",                 1,  1357 },
+        { "registered",         2,  2636 }, { "to",                 1,  1335 },
+        { "documents",          2,  2653 }, { "to",                 1,  1319 },
+        { "documents",          2,  2620 }, { "to",                 1,  1316 },
+        { "answer",             2,  2609 }, { "to",                 1,  1284 },
+        { "languages",          2,  2601 }, { "to",                 1,  1271 },
+        { "write",              2,  2590 }, { "to",                 1,  1259 },
+        { "performance",        2,  2568 }, { "to",                 1,  1251 },
+        { "servants",           2,  2565 }, { "to",                 1,  1246 },
+        { "caused",             2,  2558 }, { "to",                 1,  1244 },
+        { "damage",             2,  2557 }, { "to",                 1,  1199 },
+        { "make",               2,  2554 }, { "to",                 1,  1193 },
+        { "decisions",          2,  2543 }, { "to",                 1,  1130 },
+        { "reasons",            2,  2540 }, { "to",                 1,  1107 },
+        { "give",               2,  2539 }, { "to",                 1,  1097 },
+        { "obligation",         2,  2534 }, { "to",                 1,  1095 },
+        { "secrecy",            2,  2531 }, { "to",                 1,  1082 },
+        { "confidentiality",    2,  2525 }, { "to",                 1,  1060 },
+        { "file",               2,  2518 }, { "to",                 1,  1054 },
+        { "adversely",          2,  3490 }, { "to",                 1,  1044 },
+        { "adversely",          2,  2502 }, { "to",                 1,  1026 },
+        { "affect",             2,  2498 }, { "to",                 1,  1006 },
+        { "measure",            2,  2495 }, { "to",                 1,   995 },
+        { "heard",              2,  2491 }, { "to",                 1,   968 },
+        { "impartially",        2,  2464 }, { "to",                 1,   954 },
+        { "handled",            2,  2463 }, { "to",                 1,   914 },
+        { "affairs",            2,  2462 }, { "to",                 1,   910 },
+        { "administration",     2,  2537 }, { "to",                 1,   903 },
+        { "administration",     2,  2450 }, { "to",                 1,   900 },
+        { "municipal",          2,  2424 }, { "to",                 1,   892 },
+        { "municipal",          2,  2405 }, { "to",                 1,   875 },
+        { "ballot",             2,  2392 }, { "to",                 1,   858 },
+        { "Members",            2,  2375 }, { "to",                 1,   842 },
+        { "Parliament",         2,  2753 }, { "to",                 1,   812 },
+        { "Parliament",         2,  2649 }, { "to",                 1,   809 },
+        { "Parliament",         2,  2379 }, { "to",                 1,   799 },
+        { "Parliament",         2,  2354 }, { "to",                 1,   797 },
+        { "Parliament",         2,  2331 }, { "to",                 1,   789 },
+        { "candidate",          2,  2422 }, { "to",                 1,   772 },
+        { "candidate",          2,  2403 }, { "to",                 1,   754 },
+        { "candidate",          2,  2348 }, { "to",                 1,   743 },
+        { "candidate",          2,  2325 }, { "to",                 1,   732 },
+        { "44",                 2,  2721 }, { "to",                 1,   649 },
+        { "39",                 2,  2316 }, { "to",                 1,   641 },
+        { "CITIZENS'",          2,  2313 }, { "to",                 1,   602 },
+        { "V",                  2,  2312 }, { "to",                 1,   588 },
+        { "consumer",           2,  2309 }, { "to",                 1,   558 },
+        { "Consumer",           2,  2299 }, { "to",                 1,   549 },
+        { "43",                 2,  2655 }, { "to",                 1,   534 },
+        { "38",                 2,  2298 }, { "to",                 1,   525 },
+        { "integrated",         2,  2280 }, { "to",                 1,   502 },
+        { "environment",        2,  2277 }, { "to",                 1,   488 },
+        { "quality",            2,  2274 }, { "to",                 1,   485 },
+        { "improvement",        2,  2271 }, { "to",                 1,   448 },
+        { "environmental",      2,  2267 }, { "to",                 1,   422 },
+        { "Environmental",      2,  2261 }, { "to",                 1,   365 },
+        { "42",                 2,  2615 }, { "to",                 1,   302 },
+        { "37",                 2,  2260 }, { "to",                 1,   287 },
+        { "cohesion",           2,  2255 }, { "to",                 1,   264 },
+        { "territorial",        2,  2254 }, { "to",                 1,   196 },
+        { "41",                 2,  2446 }, { "to",                 1,   178 },
+        { "36",                 2,  2210 }, { "to",                 1,   130 },
+        { "policies",           2,  2302 }, { "to",                 1,   109 },
+        { "policies",           2,  2283 }, { "to",                 1,   102 },
+        { "policies",           2,  2206 }, { "to",                 1,    99 },
+        { "implementation",     2,  2202 }, { "to",                 0,  1351 },
+        { "definition",         2,  2200 }, { "to",                 0,  1317 },
+        { "preventive",         2,  2168 }, { "to",                 0,  1307 },
+        { "Health",             2,  2159 }, { "to",                 0,  1292 },
+        { "40",                 2,  2394 }, { "to",                 0,  1272 },
+        { "35",                 2,  2158 }, { "to",                 0,  1259 },
+        { "sufficient",         2,  2968 }, { "to",                 0,  1219 },
+        { "sufficient",         2,  2140 }, { "to",                 0,  1169 },
+        { "poverty",            2,  2115 }, { "to",                 0,  1152 },
+        { "exclusion",          2,  2113 }, { "to",                 0,  1134 },
+        { "combat",             2,  2111 }, { "to",                 0,  1111 },
+        { "legally",            2,  2806 }, { "to",                 0,  1104 },
+        { "legally",            2,  2083 }, { "to",                 0,  1094 },
+        { "observe",            2,  3273 }, { "to",                 0,  1079 },
+        { "moving",             2,  2082 }, { "to",                 0,  1009 },
+        { "residing",           2,  2736 }, { "to",                 0,   992 },
+        { "residing",           2,  2668 }, { "to",                 0,   982 },
+        { "residing",           2,  2632 }, { "to",                 0,   976 },
+        { "residing",           2,  2080 }, { "to",                 0,   930 },
+        { "dependency",         2,  2051 }, { "to",                 0,   874 },
+        { "accidents",          2,  2050 }, { "to",                 0,   824 },
+        { "industrial",         2,  2049 }, { "to",                 0,   794 },
+        { "entitlement",        2,  2033 }, { "to",                 0,   716 },
+        { "parental",           2,  2009 }, { "to",                 0,   705 },
+        { "reconcile",          2,  1980 }, { "to",                 0,   701 },
+        { "legal",              2,  2734 }, { "to",                 0,   698 },
+        { "legal",              2,  2666 }, { "to",                 0,   688 },
+        { "legal",              2,  2630 }, { "to",                 0,   680 },
+        { "legal",              2,  1973 }, { "to",                 0,   649 },
+        { "Family",             2,  1964 }, { "to",                 0,   604 },
+        { "harm",               2,  1945 }, { "to",                 0,   578 },
+        { "admitted",           2,  1923 }, { "to",                 0,   575 },
+        { "Young",              2,  1921 }, { "to",                 0,   557 },
+        { "limited",            2,  1919 }, { "to",                 0,   542 },
+        { "leaving",            2,  1901 }, { "to",                 0,   526 },
+        { "school",             2,  1900 }, { "to",                 0,   514 },
+        { "lower",              2,  1896 }, { "to",                 0,   511 },
+        { "admission",          2,  1890 }, { "to",                 0,   445 },
+        { "minimum",            2,  1899 }, { "to",                 0,   441 },
+        { "minimum",            2,  1887 }, { "to",                 0,   414 },
+        { "young",              2,  1914 }, { "to",                 0,   408 },
+        { "young",              2,  1876 }, { "to",                 0,   406 },
+        { "period",             2,  1863 }, { "to",                 0,   379 },
+        { "annual",             2,  1862 }, { "to",                 0,   362 },
+        { "periods",            2,  1858 }, { "to",                 0,   352 },
+        { "weekly",             2,  1856 }, { "to",                 0,   307 },
+        { "daily",              2,  1854 }, { "to",                 0,   281 },
+        { "maximum",            2,  1850 }, { "to",                 0,   275 },
+        { "safety",             2,  1947 }, { "to",                 0,   261 },
+        { "safety",             2,  1838 }, { "to",                 0,   239 },
+        { "Fair",               2,  1818 }, { "to",                 0,   232 },
+        { "worker",             2,  1843 }, { "to",                 0,   225 },
+        { "worker",             2,  1825 }, { "to",                 0,   191 },
+        { "worker",             2,  1797 }, { "to",                 0,   185 },
+        { "dismissal",          2,  1993 }, { "to",                 0,   167 },
+        { "dismissal",          2,  1805 }, { "to",                 0,   163 },
+        { "dismissal",          2,  1795 }, { "to",                 0,   160 },
+        { "unjustified",        2,  1804 }, { "to",                 0,   123 },
+        { "unjustified",        2,  1794 }, { "to",                 0,    90 },
+        { "strike",             2,  1766 }, { "to",                 0,    83 },
+        { "defend",             2,  1762 }, { "to",                 0,    68 },
+        { "conflicts",          2,  1754 }, { "to",                 0,    53 },
+        { "agreements",         2,  3514 }, { "to",                 0,    40 },
+        { "agreements",         2,  1745 }, { "to",                 0,    28 },
+        { "organisations",      2,  1726 }, { "that",               2,  3112 },
+        { "respective",         2,  3501 }, { "that",               2,  3084 },
+        { "respective",         2,  3285 }, { "that",               2,  2872 },
+        { "respective",         2,  1725 }, { "that",               2,  2443 },
+        { "employers",          2,  1722 }, { "that",               2,  2372 },
+        { "action",             2,  1767 }, { "that",               2,  1584 },
+        { "action",             2,  1760 }, { "that",               2,  1301 },
+        { "action",             2,  1719 }, { "that",               1,  1551 },
+        { "bargaining",         2,  1717 }, { "that",               1,   714 },
+        { "collective",         2,  1759 }, { "that",               1,   267 },
+        { "collective",         2,  1744 }, { "that",               1,   115 },
+        { "collective",         2,  1716 }, { "that",               0,  1297 },
+        { "appropriate",        2,  1930 }, { "that",               0,  1277 },
+        { "appropriate",        2,  1748 }, { "that",               0,  1265 },
+        { "appropriate",        2,  1685 }, { "that",               0,   565 },
+        { "Workers",            2,  1720 }, { "that",               0,   220 },
+        { "Workers",            2,  1678 }, { "that",               0,   201 },
+        { "undertaking",        2,  1677 }, { "that",               0,   111 },
+        { "Workers'",           2,  1669 }, { "that",               0,   100 },
+        { "IV",                 2,  1665 }, { "that",               0,    94 },
+        { "participation",      2,  1657 }, { "that",               0,    74 },
+        { "integration",        2,  1655 }, { "Seas",               0,   975 },
+        { "occupational",       2,  1654 }, { "Seas",               0,   793 },
+        { "designed",           2,  1647 }, { "while",              2,  2519 },
+        { "benefit",            2,  2175 }, { "while",              2,   109 },
+        { "benefit",            2,  1644 }, { "while",              0,   227 },
+        { "disabilities",       2,  1642 }, { "proportionality",    2,  3354 },
+        { "disabilities",       2,  1631 }, { "proportionality",    2,  3032 },
+        { "Integration",        2,  1627 }, { "*4*",                0,     3 },
+        { "lead",               2,  1610 }, { "secure",             1,   303 },
+        { "respects",           2,  2222 }, { "secure",             0,   124 },
+        { "respects",           2,  2120 }, { "shewn",              0,   219 },
+        { "respects",           2,  2031 }, { "dissolve",           0,    29 },
+        { "respects",           2,  1636 }, { "Protection",         2,  3534 },
+        { "respects",           2,  1603 }, { "Protection",         2,  3438 },
+        { "elderly",            2,  1608 }, { "Protection",         2,  1789 },
+        { "elderly",            2,  1598 }, { "Protection",         2,  1269 },
+        { "contact",            2,  1576 }, { "Protection",         2,   585 },
+        { "relationship",       2,  1573 }, { "Protection",         2,   259 },
+        { "regular",            2,  1569 }, { "Protection",         0,   894 },
+        { "maintain",           2,  1566 }, { "The",                2,  3232 },
+        { "primary",            2,  1556 }, { "The",                2,  3157 },
+        { "best",               2,  1551 }, { "The",                2,  2218 },
+        { "child's",            2,  1550 }, { "The",                2,  2027 },
+        { "institutions",       2,  3241 }, { "The",                2,  1969 },
+        { "institutions",       2,  2698 }, { "The",                2,  1886 },
+        { "institutions",       2,  2593 }, { "The",                2,  1880 },
+        { "institutions",       2,  2561 }, { "The",                2,  1632 },
+        { "institutions",       2,  2473 }, { "The",                2,  1599 },
+        { "institutions",       2,  1548 }, { "The",                2,  1594 },
+        { "actions",            2,  1537 }, { "The",                2,  1486 },
+        { "maturity",           2,  1533 }, { "The",                2,  1460 },
+        { "concern",            2,  1525 }, { "The",                2,  1428 },
+        { "consideration",      2,  1557 }, { "The",                2,  1223 },
+        { "consideration",      2,  1521 }, { "The",                2,  1193 },
+        { "views",              2,  1516 }, { "The",                2,  1113 },
+        { "views",              2,  1513 }, { "The",                2,   965 },
+        { "express",            2,  1511 }, { "The",                2,   917 },
+        { "Children",           2,  1492 }, { "The",                2,   825 },
+        { "child",              2,  2018 }, { "The",                2,   764 },
+        { "child",              2,  1871 }, { "The",                2,   682 },
+        { "child",              2,  1560 }, { "The",                2,   321 },
+        { "child",              2,  1490 }, { "The",                2,    95 },
+        { "represented",        2,  2957 }, { "The",                2,     9 },
+        { "represented",        2,  2849 }, { "The",                1,  1137 },
+        { "represented",        2,  1482 }, { "The",                1,   940 },
+        { "favour",             2,  1478 }, { "The",                1,     0 },
+        { "advantages",         2,  2096 }, { "The",                0,   314 },
+        { "advantages",         2,  1476 }, { "The",                0,     5 },
+        { "specific",           2,  1475 }, { "on",                 2,  3402 },
+        { "providing",          2,  3471 }, { "on",                 2,  3395 },
+        { "providing",          2,  2041 }, { "on",                 2,  3322 },
+        { "providing",          2,  1473 }, { "on",                 2,  3049 },
+        { "adoption",           2,  2015 }, { "on",                 2,  2864 },
+        { "adoption",           2,  1470 }, { "on",                 2,  1567 },
+        { "areas",              2,  1454 }, { "on",                 2,  1522 },
+        { "linguistic",         2,  1435 }, { "on",                 2,  1414 },
+        { "linguistic",         2,  1426 }, { "on",                 2,  1399 },
+        { "Cultural",           2,  1423 }, { "on",                 2,  1344 },
+        { "grounds",            2,  1415 }, { "on",                 2,   615 },
+        { "provisions",         2,  3233 }, { "on",                 2,   449 },
+        { "provisions",         2,  1408 }, { "on",                 2,   248 },
+        { "prejudice",          2,  3122 }, { "on",                 2,    58 },
+        { "prejudice",          2,  1904 }, { "on",                 2,    43 },
+        { "prejudice",          2,  1404 }, { "on",                 2,    29 },
+        { "application",        2,  3504 }, { "on",                 1,  1481 },
+        { "application",        2,  3279 }, { "on",                 1,   678 },
+        { "application",        2,  1387 }, { "on",                 1,   407 },
+        { "Within",             2,  1383 }, { "on",                 0,  1342 },
+        { "orientation",        2,  1378 }, { "on",                 0,  1011 },
+        { "minority",           2,  1371 }, { "on",                 0,   972 },
+        { "membership",         2,  1367 }, { "on",                 0,   770 },
+        { "features",           2,  1357 }, { "on",                 0,   748 },
+        { "ethnic",             2,  1352 }, { "on",                 0,   616 },
+        { "ground",             2,  1346 }, { "on",                 0,   494 },
+        { "Any",                2,  3320 }, { "on",                 0,   174 },
+        { "Any",                2,  2725 }, { "separate",           0,    49 },
+        { "Any",                2,  2657 }, { "*CONGRESS*",         0,     1 },
+        { "Any",                2,  2621 }, { "taking",             0,   845 },
+        { "Any",                2,  1341 }, { "human",              2,  3492 },
+        { "Non",                2,  1338 }, { "human",              2,  2192 },
+        { "EQUALITY",           2,  1323 }, { "human",              2,   534 },
+        { "III",                2,  1322 }, { "human",              2,   472 },
+        { "risk",               2,  1300 }, { "human",              2,   452 },
+        { "serious",            2,  1299 }, { "human",              2,   315 },
+        { "there",              2,  1296 }, { "human",              2,    49 },
+        { "where",              2,  1295 }, { "human",              1,  1506 },
+        { "extradited",         2,  1291 }, { "human",              1,  1497 },
+        { "expelled",           2,  1289 }, { "human",              1,  1299 },
+        { "removed",            2,  1288 }, { "human",              1,   331 },
+        { "expulsions",         2,  1280 }, { "human",              1,   214 },
+        { "independence",       2,  1651 }, { "human",              1,   164 },
+        { "independence",       2,  1616 }, { "human",              1,   155 },
+        { "Collective",         2,  1279 }, { "human",              1,   116 },
+        { "expulsion",          2,  1275 }, { "human",              1,    65 },
+        { "refugees",           2,  1256 }, { "human",              1,    43 },
+        { "relating",           2,  1538 }, { "human",              1,    25 },
+        { "relating",           2,  1251 }, { "human",              0,    20 },
+        { "extradition",        2,  1277 }, { "eat",                0,   654 },
+        { "1967",               2,  1250 }, { "we",                 0,  1348 },
+        { "January",            2,  1249 }, { "we",                 0,  1192 },
+        { "Protocol",           2,  1246 }, { "we",                 0,  1141 },
+        { "1951",               2,  1243 }, { "seas",               0,   905 },
+        { "July",               2,  1242 }, { "equal",              2,  1332 },
+        { "Geneva",             2,  1238 }, { "equal",              1,  1275 },
+        { "Intellectual",       2,  1213 }, { "equal",              1,  1272 },
+        { "far",                2,  3422 }, { "equal",              1,  1167 },
+        { "far",                2,  2972 }, { "equal",              1,  1128 },
+        { "far",                2,  1204 }, { "equal",              1,   911 },
+        { "regulated",          2,  1199 }, { "equal",              1,   535 },
+        { "loss",               2,  2060 }, { "equal",              1,   526 },
+        { "loss",               2,  1192 }, { "equal",              1,   515 },
+        { "paid",               2,  2004 }, { "equal",              1,   337 },
+        { "paid",               2,  1865 }, { "equal",              1,   169 },
+        { "paid",               2,  1186 }, { "equal",              1,    16 },
+        { "compensation",       2,  1184 }, { "equal",              0,    99 },
+        { "provided",           2,  3600 }, { "equal",              0,    51 },
+        { "provided",           2,  3336 }, { "a",                  2,  3595 },
+        { "provided",           2,  2231 }, { "a",                  2,  3109 },
+        { "provided",           2,  1702 }, { "a",                  2,  3102 },
+        { "provided",           2,  1177 }, { "a",                  2,  3078 },
+        { "interest",           2,  3370 }, { "a",                  2,  3060 },
+        { "interest",           2,  2229 }, { "a",                  2,  2934 },
+        { "interest",           2,  2217 }, { "a",                  2,  2928 },
+        { "interest",           2,  1756 }, { "a",                  2,  2912 },
+        { "interest",           2,  1211 }, { "a",                  2,  2887 },
+        { "interest",           2,  1168 }, { "a",                  2,  2845 },
+        { "except",             2,  1917 }, { "a",                  2,  2831 },
+        { "except",             2,  1164 }, { "a",                  2,  2812 },
+        { "possessions",        2,  1163 }, { "a",                  2,  2743 },
+        { "possessions",        2,  1153 }, { "a",                  2,  2675 },
+        { "lawfully",           2,  1151 }, { "a",                  2,  2643 },
+        { "bequeath",           2,  1147 }, { "a",                  2,  2639 },
+        { "party",              2,  3527 }, { "a",                  2,  2468 },
+        { "dispose",            2,  1144 }, { "a",                  2,  2421 },
+        { "business",           2,  2530 }, { "a",                  2,  2402 },
+        { "business",           2,  1118 }, { "a",                  2,  2388 },
+        { "business",           2,  1112 }, { "a",                  2,  2347 },
+        { "conduct",            2,  1116 }, { "a",                  2,  2324 },
+        { "conduct",            2,  1110 }, { "a",                  2,  2305 },
+        { "authorised",         2,  1083 }, { "a",                  2,  2132 },
+        { "third",              2,  2832 }, { "a",                  2,  2017 },
+        { "third",              2,  2804 }, { "a",                  2,  1995 },
+        { "third",              2,  1079 }, { "a",                  2,  1783 },
+        { "Nationals",          2,  1077 }, { "a",                  2,  1611 },
+        { "applicable",         2,  3116 }, { "a",                  2,  1571 },
+        { "applicable",         2,  3087 }, { "a",                  2,  1568 },
+        { "applicable",         1,   716 }, { "a",                  2,  1555 },
+        { "imposed",            2,  3082 }, { "a",                  2,  1369 },
+        { "imposed",            1,   710 }, { "a",                  2,  1298 },
+        { "usurpations",        0,  1155 }, { "a",                  2,  1293 },
+        { "usurpations",        0,   330 }, { "a",                  2,  1117 },
+        { "usurpations",        0,   252 }, { "a",                  2,  1111 },
+        { "committed",          2,  3142 }, { "a",                  2,  1042 },
+        { "committed",          2,  3095 }, { "a",                  2,   691 },
+        { "committed",          2,  3075 }, { "a",                  2,   680 },
+        { "committed",          1,   724 }, { "a",                  2,   459 },
+        { "committed",          1,   703 }, { "a",                  2,   203 },
+        { "was",                2,  3143 }, { "a",                  2,    25 },
+        { "was",                2,  3141 }, { "a",                  1,  1718 },
+        { "was",                2,  3094 }, { "a",                  1,  1622 },
+        { "was",                2,  3086 }, { "a",                  1,  1542 },
+        { "was",                2,  3074 }, { "a",                  1,  1358 },
+        { "was",                1,   723 }, { "a",                  1,  1186 },
+        { "was",                1,   715 }, { "a",                  1,   905 },
+        { "was",                1,   702 }, { "a",                  1,   859 },
+        { "constitute",         2,  3059 }, { "a",                  1,   706 },
+        { "constitute",         1,   688 }, { "a",                  1,   689 },
+        { "did",                2,  3057 }, { "a",                  1,   652 },
+        { "did",                1,   686 }, { "a",                  1,   635 },
+        { "13",                 2,   910 }, { "a",                  1,   603 },
+        { "13",                 1,   766 }, { "a",                  1,   506 },
+        { "account",            2,  3050 }, { "a",                  1,   424 },
+        { "account",            1,   679 }, { "a",                  1,   356 },
+        { "defence",            2,  3016 }, { "a",                  1,   253 },
+        { "defence",            2,  2992 }, { "a",                  1,   220 },
+        { "defence",            1,   666 }, { "a",                  1,   106 },
+        { "guarantees",         1,   662 }, { "a",                  1,    61 },
+        { "trial",              2,  3124 }, { "a",                  0,  1339 },
+        { "trial",              2,  2889 }, { "a",                  0,  1084 },
+        { "trial",              1,   654 }, { "a",                  0,  1075 },
+        { "EUROPEAN",           2,     6 }, { "a",                  0,   960 },
+        { "visible",            2,   201 }, { "a",                  0,   810 },
+        { "proved",             2,  3004 }, { "a",                  0,   736 },
+        { "proved",             1,   646 }, { "a",                  0,   702 },
+        { "jurisdictional",     1,   413 }, { "a",                  0,   638 },
+        { "until",              2,  3003 }, { "a",                  0,   505 },
+        { "until",              1,   645 }, { "a",                  0,   438 },
+        { "innocent",           2,  3002 }, { "a",                  0,   353 },
+        { "innocent",           1,   644 }, { "a",                  0,   324 },
+        { "offence",            2,  3203 }, { "a",                  0,   259 },
+        { "offence",            2,  3186 }, { "a",                  0,   246 },
+        { "offence",            2,  3168 }, { "a",                  0,    65 },
+        { "offence",            2,  3104 }, { "implementing",       2,  3264 },
+        { "offence",            2,  3093 }, { "*July*",             0,     2 },
+        { "offence",            2,  3062 }, { "Facts",              0,   349 },
+        { "offence",            2,  3048 }, { "consultation",       2,  1691 },
+        { "offence",            1,   722 }, { "consultation",       2,  1674 },
+        { "offence",            1,   691 }, { "Savages",            0,  1020 },
+        { "offence",            1,   677 }, { "the",                2,  3582 },
+        { "offence",            1,   637 }, { "the",                2,  3577 },
+        { "penal",              1,   721 }, { "the",                2,  3543 },
+        { "penal",              1,   690 }, { "the",                2,  3533 },
+        { "penal",              1,   676 }, { "the",                2,  3529 },
+        { "penal",              1,   636 }, { "the",                2,  3523 },
+        { "charged",            2,  3022 }, { "the",                2,  3519 },
+        { "charged",            2,  2998 }, { "the",                2,  3517 },
+        { "charged",            1,   633 }, { "the",                2,  3461 },
+        { "11",                 2,   784 }, { "the",                2,  3454 },
+        { "11",                 1,   630 }, { "the",                2,  3445 },
+        { "charge",             1,   626 }, { "the",                2,  3437 },
+        { "our",                0,  1359 }, { "the",                2,  3434 },
+        { "our",                0,  1356 }, { "the",                2,  3413 },
+        { "our",                0,  1354 }, { "the",                2,  3409 },
+        { "our",                0,  1230 }, { "the",                2,  3400 },
+        { "our",                0,  1186 }, { "the",                2,  3396 },
+        { "our",                0,  1160 }, { "the",                2,  3380 },
+        { "our",                0,  1149 }, { "the",                2,  3376 },
+        { "our",                0,  1126 }, { "the",                2,  3373 },
+        { "our",                0,  1095 }, { "the",                2,  3351 },
+        { "our",                0,  1015 }, { "the",                2,  3342 },
+        { "our",                0,   967 }, { "the",                2,  3326 },
+        { "our",                0,   917 }, { "the",                2,  3323 },
+        { "our",                0,   910 }, { "the",                2,  3311 },
+        { "our",                0,   907 }, { "the",                2,  3302 },
+        { "our",                0,   904 }, { "the",                2,  3299 },
+        { "our",                0,   865 }, { "the",                2,  3278 },
+        { "our",                0,   860 }, { "the",                2,  3274 },
+        { "our",                0,   850 }, { "the",                2,  3271 },
+        { "our",                0,   847 }, { "the",                2,  3257 },
+        { "our",                0,   773 }, { "the",                2,  3251 },
+        { "our",                0,   758 }, { "the",                2,  3245 },
+        { "our",                0,   711 }, { "the",                2,  3240 },
+        { "our",                0,   706 }, { "the",                2,  3222 },
+        { "our",                0,   674 }, { "the",                2,  3217 },
+        { "our",                0,   651 }, { "the",                2,  3183 },
+        { "tolerance",          1,  1515 }, { "the",                2,  3166 },
+        { "obligations",        2,   240 }, { "the",                2,  3152 },
+        { "obligations",        1,   621 }, { "the",                2,  3147 },
+        { "combined",           0,   695 }, { "the",                2,  3137 },
+        { "determination",      1,   616 }, { "the",                2,  3123 },
+        { "tribunal",           2,  2942 }, { "the",                2,  3105 },
+        { "tribunal",           2,  2913 }, { "the",                2,  3099 },
+        { "tribunal",           1,   613 }, { "the",                2,  3091 },
+        { "hearing",            2,  2932 }, { "the",                2,  3089 },
+        { "hearing",            1,   607 }, { "the",                2,  3070 },
+        { "commission",         2,  3100 }, { "the",                2,  3015 },
+        { "equality",           2,  1463 }, { "the",                2,  3012 },
+        { "equality",           2,    52 }, { "the",                2,  2950 },
+        { "equality",           1,   601 }, { "the",                2,  2917 },
+        { "10",                 2,   709 }, { "the",                2,  2905 },
+        { "10",                 1,   595 }, { "the",                2,  2900 },
+        { "interference",       2,   816 }, { "the",                2,  2897 },
+        { "interference",       1,  1058 }, { "the",                2,  2869 },
+        { "interference",       1,   762 }, { "the",                2,  2865 },
+        { "interference",       1,   734 }, { "the",                2,  2855 },
+        { "cause",              0,   512 }, { "the",                2,  2836 },
+        { "arrest",             1,   590 }, { "the",                2,  2828 },
+        { "arbitrary",          1,   733 }, { "the",                2,  2824 },
+        { "arbitrary",          1,   589 }, { "the",                2,  2809 },
+        { "9",                  2,   672 }, { "the",                2,  2798 },
+        { "9",                  1,   582 }, { "the",                2,  2795 },
+        { "remedy",             2,  2910 }, { "the",                2,  2780 },
+        { "remedy",             2,  2884 }, { "the",                2,  2777 },
+        { "remedy",             1,   561 }, { "the",                2,  2769 },
+        { "eugenic",            2,   435 }, { "the",                2,  2766 },
+        { "8",                  2,   584 }, { "the",                2,  2751 },
+        { "8",                  1,   553 }, { "the",                2,  2747 },
+        { "incitement",         1,   548 }, { "the",                2,  2728 },
+        { "violation",          1,   541 }, { "the",                2,  2710 },
+        { "THE",                2,     5 }, { "the",                2,  2705 },
+        { "THE",                1,   242 }, { "the",                2,  2702 },
+        { "discrimination",     2,  1413 }, { "the",                2,  2696 },
+        { "discrimination",     2,  1342 }, { "the",                2,  2693 },
+        { "discrimination",     2,  1339 }, { "the",                2,  2687 },
+        { "discrimination",     1,  1267 }, { "the",                2,  2684 },
+        { "discrimination",     1,   551 }, { "the",                2,  2679 },
+        { "discrimination",     1,   539 }, { "the",                2,  2660 },
+        { "discrimination",     1,   524 }, { "the",                2,  2624 },
+        { "everywhere",         1,   504 }, { "the",                2,  2611 },
+        { "12",                 2,   836 }, { "the",                2,  2603 },
+        { "12",                 1,   726 }, { "the",                2,  2600 },
+        { "degrading",          2,  1317 }, { "the",                2,  2595 },
+        { "degrading",          2,   497 }, { "the",                2,  2592 },
+        { "degrading",          2,   482 }, { "the",                2,  2583 },
+        { "degrading",          1,   492 }, { "the",                2,  2580 },
+        { "torture",            2,  1312 }, { "the",                2,  2575 },
+        { "torture",            2,   492 }, { "the",                2,  2567 },
+        { "torture",            2,   478 }, { "the",                2,  2552 },
+        { "torture",            1,   486 }, { "the",                2,  2548 },
+        { "subjected",          2,  1307 }, { "the",                2,  2536 },
+        { "subjected",          2,   490 }, { "the",                2,  2533 },
+        { "subjected",          1,   731 }, { "the",                2,  2521 },
+        { "subjected",          1,   587 }, { "the",                2,  2506 },
+        { "subjected",          1,   484 }, { "the",                2,  2484 },
+        { "5",                  2,   502 }, { "the",                2,  2477 },
+        { "5",                  1,   479 }, { "the",                2,  2472 },
+        { "prohibited",         2,  1885 }, { "the",                2,  2455 },
+        { "prohibited",         2,  1420 }, { "the",                2,  2437 },
+        { "prohibited",         2,  1381 }, { "the",                2,  2427 },
+        { "prohibited",         2,  1282 }, { "the",                2,  2413 },
+        { "prohibited",         2,   537 }, { "the",                2,  2410 },
+        { "prohibited",         1,   473 }, { "the",                2,  2377 },
+        { "financial",          2,   462 }, { "the",                2,  2366 },
+        { "slave",              1,   469 }, { "the",                2,  2356 },
+        { "invested",           0,   871 }, { "the",                2,  2352 },
+        { "No",                 2,  3187 }, { "the",                2,  2339 },
+        { "No",                 2,  3039 }, { "the",                2,  2336 },
+        { "No",                 2,  1284 }, { "the",                2,  2329 },
+        { "No",                 2,  1154 }, { "the",                2,  2292 },
+        { "No",                 2,   520 }, { "the",                2,  2285 },
+        { "No",                 2,   510 }, { "the",                2,  2282 },
+        { "No",                 2,   486 }, { "the",                2,  2276 },
+        { "No",                 2,   363 }, { "the",                2,  2273 },
+        { "No",                 1,  1090 }, { "the",                2,  2270 },
+        { "No",                 1,   980 }, { "the",                2,  2257 },
+        { "No",                 1,   862 }, { "the",                2,  2251 },
+        { "No",                 1,   727 }, { "the",                2,  2244 },
+        { "No",                 1,   668 }, { "the",                2,  2241 },
+        { "No",                 1,   583 }, { "the",                2,  2199 },
+        { "No",                 1,   480 }, { "the",                2,  2180 },
+        { "No",                 1,   457 }, { "the",                2,  2172 },
+        { "4",                  2,  2586 }, { "the",                2,  2163 },
+        { "4",                  2,   475 }, { "the",                2,  2145 },
+        { "4",                  1,  1311 }, { "the",                2,  2121 },
+        { "4",                  1,   456 }, { "the",                2,  2116 },
+        { "liberty",            2,   553 }, { "the",                2,  2085 },
+        { "liberty",            2,   545 }, { "the",                2,  2066 },
+        { "liberty",            1,   450 }, { "the",                2,  2057 },
+        { "limitation",         2,  3593 }, { "the",                2,  2032 },
+        { "limitation",         2,  3321 }, { "the",                2,  2012 },
+        { "limitation",         2,  1848 }, { "the",                2,  2001 },
+        { "limitation",         1,  1341 }, { "the",                2,  1988 },
+        { "limitation",         1,   890 }, { "the",                2,  1898 },
+        { "limitation",         1,   439 }, { "the",                2,  1845 },
+        { "governing",          2,  1009 }, { "the",                2,  1827 },
+        { "governing",          2,   777 }, { "the",                2,  1799 },
+        { "governing",          2,   702 }, { "the",                2,  1791 },
+        { "governing",          1,   434 }, { "the",                2,  1778 },
+        { "trust",              1,   431 }, { "the",                2,  1747 },
+        { "belongs",            1,   426 }, { "the",                2,  1738 },
+        { "territory",          2,  2829 }, { "the",                2,  1700 },
+        { "territory",          2,  2810 }, { "the",                2,  1696 },
+        { "territory",          2,  2778 }, { "the",                2,  1684 },
+        { "territory",          1,   421 }, { "the",                2,  1676 },
+        { "interfere",          2,  1958 }, { "the",                2,  1662 },
+        { "country",            2,  2833 }, { "the",                2,  1659 },
+        { "country",            1,  1135 }, { "the",                2,  1637 },
+        { "country",            1,  1115 }, { "the",                2,  1607 },
+        { "country",            1,   801 }, { "the",                2,  1604 },
+        { "country",            1,   792 }, { "the",                2,  1597 },
+        { "country",            1,   419 }, { "the",                2,  1563 },
+        { "no",                 1,  1728 }, { "the",                2,  1549 },
+        { "no",                 1,   402 }, { "the",                2,  1495 },
+        { "Furthermore",        1,   401 }, { "the",                2,  1489 },
+        { "birth",              2,  2013 }, { "the",                2,  1480 },
+        { "birth",              2,  1373 }, { "the",                2,  1467 },
+        { "birth",              1,   397 }, { "the",                2,  1406 },
+        { "Access",             2,  2211 }, { "the",                2,  1397 },
+        { "property",           2,  1372 }, { "the",                2,  1392 },
+        { "property",           2,  1214 }, { "the",                2,  1389 },
+        { "property",           2,  1196 }, { "the",                2,  1384 },
+        { "property",           2,  1135 }, { "the",                2,  1334 },
+        { "property",           1,   988 }, { "the",                2,  1328 },
+        { "property",           1,   970 }, { "the",                2,  1309 },
+        { "property",           1,   396 }, { "the",                2,  1271 },
+        { "religion",           2,  1359 }, { "the",                2,  1264 },
+        { "religion",           2,   754 }, { "the",                2,  1261 },
+        { "religion",           2,   734 }, { "the",                2,  1253 },
+        { "religion",           2,   727 }, { "the",                2,  1245 },
+        { "religion",           2,   715 }, { "the",                2,  1237 },
+        { "religion",           1,  1029 }, { "the",                2,  1234 },
+        { "religion",           1,  1009 }, { "the",                2,  1209 },
+        { "religion",           1,  1001 }, { "the",                2,  1175 },
+        { "religion",           1,   896 }, { "the",                2,  1171 },
+        { "religion",           1,   387 }, { "the",                2,  1166 },
+        { "language",           2,  2613 }, { "the",                2,  1139 },
+        { "language",           2,  1358 }, { "the",                2,  1104 },
+        { "language",           1,   386 }, { "the",                2,  1090 },
+        { "sex",                2,  1483 }, { "the",                2,  1087 },
+        { "sex",                2,  1349 }, { "the",                2,  1064 },
+        { "sex",                1,   385 }, { "the",                2,  1055 },
+        { "colour",             2,  1351 }, { "the",                2,  1052 },
+        { "colour",             1,   384 }, { "the",                2,  1033 },
+        { "race",               2,  1350 }, { "the",                2,  1010 },
+        { "race",               1,   893 }, { "the",                2,  1006 },
+        { "race",               1,   383 }, { "the",                2,   984 },
+        { "kind",               1,  1548 }, { "the",                2,   978 },
+        { "kind",               1,   380 }, { "the",                2,   957 },
+        { "distinction",        1,   403 }, { "the",                2,   940 },
+        { "distinction",        1,   377 }, { "the",                2,   913 },
+        { "Equality",           2,  1444 }, { "the",                2,   907 },
+        { "Equality",           2,  1439 }, { "the",                2,   904 },
+        { "Equality",           2,  1326 }, { "the",                2,   900 },
+        { "forth",              1,  1783 }, { "the",                2,   884 },
+        { "forth",              1,  1634 }, { "the",                2,   872 },
+        { "forth",              1,   372 }, { "the",                2,   846 },
+        { "scope",              2,  3448 }, { "the",                2,   830 },
+        { "scope",              2,  1385 }, { "the",                2,   793 },
+        { "she",                2,  3208 }, { "the",                2,   778 },
+        { "she",                2,  2843 }, { "the",                2,   774 },
+        { "she",                2,  2434 }, { "the",                2,   719 },
+        { "she",                2,  2363 }, { "the",                2,   703 },
+        { "she",                2,  1304 }, { "the",                2,   699 },
+        { "set",                2,   330 }, { "the",                2,   687 },
+        { "set",                1,  1782 }, { "the",                2,   651 },
+        { "set",                1,  1633 }, { "the",                2,   636 },
+        { "set",                1,   371 }, { "the",                2,   622 },
+        { "entitled",           2,  2926 }, { "the",                2,   619 },
+        { "entitled",           2,  2851 }, { "the",                2,   616 },
+        { "entitled",           2,  2089 }, { "the",                2,   595 },
+        { "entitled",           2,  1094 }, { "the",                2,   592 },
+        { "entitled",           1,  1620 }, { "the",                2,   568 },
+        { "entitled",           1,  1416 }, { "the",                2,   550 },
+        { "entitled",           1,  1198 }, { "the",                2,   468 },
+        { "entitled",           1,   953 }, { "the",                2,   465 },
+        { "entitled",           1,   909 }, { "the",                2,   451 },
+        { "entitled",           1,   598 }, { "the",                2,   447 },
+        { "entitled",           1,   533 }, { "the",                2,   442 },
+        { "entitled",           1,   521 }, { "the",                2,   432 },
+        { "entitled",           1,   364 }, { "the",                2,   425 },
+        { "Everyone",           2,  2994 }, { "the",                2,   420 },
+        { "Everyone",           2,  2947 }, { "the",                2,   414 },
+        { "Everyone",           2,  2924 }, { "the",                2,   406 },
+        { "Everyone",           2,  2890 }, { "the",                2,   400 },
+        { "Everyone",           2,  2161 }, { "the",                2,   386 },
+        { "Everyone",           2,  2079 }, { "the",                2,   381 },
+        { "Everyone",           2,  1776 }, { "the",                2,   378 },
+        { "Everyone",           2,  1330 }, { "the",                2,   369 },
+        { "Everyone",           2,  1137 }, { "the",                2,   358 },
+        { "Everyone",           2,  1031 }, { "the",                2,   325 },
+        { "Everyone",           2,   938 }, { "the",                2,   314 },
+        { "Everyone",           2,   844 }, { "the",                2,   294 },
+        { "Everyone",           2,   791 }, { "the",                2,   289 },
+        { "Everyone",           2,   717 }, { "the",                2,   284 },
+        { "Everyone",           2,   634 }, { "the",                2,   280 },
+        { "Everyone",           2,   590 }, { "the",                2,   275 },
+        { "Everyone",           2,   566 }, { "the",                2,   271 },
+        { "Everyone",           2,   548 }, { "the",                2,   266 },
+        { "Everyone",           2,   384 }, { "the",                2,   258 },
+        { "Everyone",           2,   356 }, { "the",                2,   254 },
+        { "Everyone",           1,  1645 }, { "the",                2,   251 },
+        { "Everyone",           1,  1618 }, { "the",                2,   246 },
+        { "Everyone",           1,  1589 }, { "the",                2,   243 },
+        { "Everyone",           1,  1561 }, { "the",                2,   235 },
+        { "Everyone",           1,  1440 }, { "the",                2,   227 },
+        { "Everyone",           1,  1353 }, { "the",                2,   223 },
+        { "Everyone",           1,  1331 }, { "the",                2,   220 },
+        { "Everyone",           1,  1312 }, { "the",                2,   217 },
+        { "Everyone",           1,  1278 }, { "the",                2,   212 },
+        { "Everyone",           1,  1264 }, { "the",                2,   183 },
+        { "Everyone",           1,  1240 }, { "the",                2,   177 },
+        { "Everyone",           1,  1184 }, { "the",                2,   165 },
+        { "Everyone",           1,  1123 }, { "the",                2,   134 },
+        { "Everyone",           1,  1103 }, { "the",                2,   130 },
+        { "Everyone",           1,  1078 }, { "the",                2,   126 },
+        { "Everyone",           1,  1040 }, { "the",                2,   119 },
+        { "Everyone",           1,   991 }, { "the",                2,   114 },
+        { "Everyone",           1,   964 }, { "the",                2,   111 },
+        { "Everyone",           1,   854 }, { "the",                2,   103 },
+        { "Everyone",           1,   805 }, { "the",                2,    99 },
+        { "Everyone",           1,   785 }, { "the",                2,    83 },
+        { "Everyone",           1,   768 }, { "the",                2,    80 },
+        { "Everyone",           1,   750 }, { "the",                2,    73 },
+        { "Everyone",           1,   632 }, { "the",                2,    70 },
+        { "Everyone",           1,   596 }, { "the",                2,    64 },
+        { "Everyone",           1,   554 }, { "the",                2,    59 },
+        { "Everyone",           1,   498 }, { "the",                2,    44 },
+        { "Everyone",           1,   444 }, { "the",                2,    39 },
+        { "Everyone",           1,   362 }, { "the",                1,  1778 },
+        { "employment",         2,  2062 }, { "the",                1,  1773 },
+        { "employment",         2,  1892 }, { "the",                1,  1739 },
+        { "employment",         2,  1881 }, { "the",                1,  1734 },
+        { "employment",         2,  1456 }, { "the",                1,  1714 },
+        { "employment",         2,  1059 }, { "the",                1,  1706 },
+        { "employment",         1,  1250 }, { "the",                1,  1697 },
+        { "towards",            1,   352 }, { "the",                1,  1688 },
+        { "born",               1,  1425 }, { "the",                1,  1666 },
+        { "born",               1,   334 }, { "the",                1,  1654 },
+        { "cutting",            0,   756 }, { "the",                1,  1649 },
+        { "All",                1,  1422 }, { "the",                1,  1629 },
+        { "All",                1,   531 }, { "the",                1,  1614 },
+        { "All",                1,   513 }, { "the",                1,  1597 },
+        { "All",                1,   330 }, { "the",                1,  1594 },
+        { "1",                  2,  3319 }, { "the",                1,  1591 },
+        { "1",                  2,  3231 }, { "the",                1,  1577 },
+        { "1",                  2,  3038 }, { "the",                1,  1573 },
+        { "1",                  2,  2993 }, { "the",                1,  1569 },
+        { "1",                  2,  2762 }, { "the",                1,  1563 },
+        { "1",                  2,  2451 }, { "the",                1,  1547 },
+        { "1",                  2,  2332 }, { "the",                1,  1535 },
+        { "1",                  2,  2026 }, { "the",                1,  1531 },
+        { "1",                  2,  1968 }, { "the",                1,  1528 },
+        { "1",                  2,  1823 }, { "the",                1,  1501 },
+        { "1",                  2,  1491 }, { "the",                1,  1496 },
+        { "1",                  2,  1340 }, { "the",                1,  1492 },
+        { "1",                  2,  1278 }, { "the",                1,  1482 },
+        { "1",                  2,  1136 }, { "the",                1,  1453 },
+        { "1",                  2,  1030 }, { "the",                1,  1442 },
+        { "1",                  2,   937 }, { "the",                1,  1433 },
+        { "1",                  2,   843 }, { "the",                1,  1392 },
+        { "1",                  2,   790 }, { "the",                1,  1387 },
+        { "1",                  2,   716 }, { "the",                1,  1364 },
+        { "1",                  2,   589 }, { "the",                1,  1355 },
+        { "1",                  2,   509 }, { "the",                1,  1333 },
+        { "1",                  2,   383 }, { "the",                1,  1324 },
+        { "1",                  2,   355 }, { "the",                1,  1314 },
+        { "1",                  2,   337 }, { "the",                1,  1282 },
+        { "1",                  1,  1644 }, { "the",                1,  1269 },
+        { "1",                  1,  1560 }, { "the",                1,  1242 },
+        { "1",                  1,  1439 }, { "the",                1,  1231 },
+        { "1",                  1,  1352 }, { "the",                1,  1220 },
+        { "1",                  1,  1239 }, { "the",                1,  1212 },
+        { "1",                  1,  1102 }, { "the",                1,  1191 },
+        { "1",                  1,  1077 }, { "the",                1,  1147 },
+        { "1",                  1,   963 }, { "the",                1,  1144 },
+        { "1",                  1,   881 }, { "the",                1,  1140 },
+        { "1",                  1,   853 }, { "the",                1,  1125 },
+        { "1",                  1,   804 }, { "the",                1,  1111 },
+        { "1",                  1,   767 }, { "the",                1,  1105 },
+        { "1",                  1,   631 }, { "the",                1,  1080 },
+        { "1",                  1,   329 }, { "the",                1,  1042 },
+        { "Article",            2,  3547 }, { "the",                1,   993 },
+        { "Article",            2,  3475 }, { "the",                1,   966 },
+        { "Article",            2,  3313 }, { "the",                1,   959 },
+        { "Article",            2,  3228 }, { "the",                1,   943 },
+        { "Article",            2,  3169 }, { "the",                1,   936 },
+        { "Article",            2,  3119 }, { "the",                1,   930 },
+        { "Article",            2,  3026 }, { "the",                1,   898 },
+        { "Article",            2,  2984 }, { "the",                1,   873 },
+        { "Article",            2,  2923 }, { "the",                1,   856 },
+        { "Article",            2,  2878 }, { "the",                1,   848 },
+        { "Article",            2,  2815 }, { "the",                1,   843 },
+        { "Article",            2,  2754 }, { "the",                1,   828 },
+        { "Article",            2,  2720 }, { "the",                1,   807 },
+        { "Article",            2,  2654 }, { "the",                1,   787 },
+        { "Article",            2,  2614 }, { "the",                1,   779 },
+        { "Article",            2,  2445 }, { "the",                1,   770 },
+        { "Article",            2,  2393 }, { "the",                1,   758 },
+        { "Article",            2,  2315 }, { "the",                1,   755 },
+        { "Article",            2,  2297 }, { "the",                1,   752 },
+        { "Article",            2,  2259 }, { "the",                1,   720 },
+        { "Article",            2,  2209 }, { "the",                1,   718 },
+        { "Article",            2,  2157 }, { "the",                1,   712 },
+        { "Article",            2,  2019 }, { "the",                1,   698 },
+        { "Article",            2,  1962 }, { "the",                1,   661 },
+        { "Article",            2,  1867 }, { "the",                1,   639 },
+        { "Article",            2,  1816 }, { "the",                1,   615 },
+        { "Article",            2,  1787 }, { "the",                1,   576 },
+        { "Article",            2,  1768 }, { "the",                1,   570 },
+        { "Article",            2,  1712 }, { "the",                1,   563 },
+        { "Article",            2,  1667 }, { "the",                1,   556 },
+        { "Article",            2,  1625 }, { "the",                1,   529 },
+        { "Article",            2,  1592 }, { "the",                1,   517 },
+        { "Article",            2,  1484 }, { "the",                1,   509 },
+        { "Article",            2,  1437 }, { "the",                1,   500 },
+        { "Article",            2,  1421 }, { "the",                1,   468 },
+        { "Article",            2,  1336 }, { "the",                1,   446 },
+        { "Article",            2,  1324 }, { "the",                1,   418 },
+        { "Article",            2,  1267 }, { "the",                1,   411 },
+        { "Article",            2,  1218 }, { "the",                1,   408 },
+        { "Article",            2,  1131 }, { "the",                1,   367 },
+        { "Article",            2,  1106 }, { "the",                1,   321 },
+        { "Article",            2,  1017 }, { "the",                1,   313 },
+        { "Article",            2,   932 }, { "the",                1,   265 },
+        { "Article",            2,   909 }, { "the",                1,   234 },
+        { "Article",            2,   835 }, { "the",                1,   230 },
+        { "Article",            2,   783 }, { "the",                1,   205 },
+        { "Article",            2,   708 }, { "the",                1,   202 },
+        { "Article",            2,   671 }, { "the",                1,   168 },
+        { "Article",            2,   583 }, { "the",                1,   163 },
+        { "Article",            2,   558 }, { "the",                1,   158 },
+        { "Article",            2,   541 }, { "the",                1,   148 },
+        { "Article",            2,   501 }, { "the",                1,   143 },
+        { "Article",            2,   474 }, { "the",                1,   140 },
+        { "Article",            2,   374 }, { "the",                1,   132 },
+        { "Article",            2,   350 }, { "the",                1,   122 },
+        { "Article",            2,   336 }, { "the",                1,    88 },
+        { "Article",            1,  1742 }, { "the",                1,    84 },
+        { "Article",            1,  1642 }, { "the",                1,    58 },
+        { "Article",            1,  1616 }, { "the",                1,    53 },
+        { "Article",            1,  1558 }, { "the",                1,    36 },
+        { "Article",            1,  1437 }, { "the",                1,    28 },
+        { "Article",            1,  1350 }, { "the",                1,    24 },
+        { "Article",            1,  1329 }, { "the",                1,    15 },
+        { "Article",            1,  1237 }, { "the",                1,    10 },
+        { "Article",            1,  1182 }, { "the",                0,  1343 },
+        { "Article",            1,  1100 }, { "the",                0,  1333 },
+        { "Article",            1,  1075 }, { "the",                0,  1284 },
+        { "Article",            1,  1038 }, { "the",                0,  1273 },
+        { "Article",            1,   989 }, { "the",                0,  1240 },
+        { "Article",            1,   961 }, { "the",                0,  1234 },
+        { "Article",            1,   879 }, { "the",                0,  1227 },
+        { "Article",            1,   851 }, { "the",                0,  1224 },
+        { "Article",            1,   802 }, { "the",                0,  1220 },
+        { "Article",            1,   765 }, { "the",                0,  1209 },
+        { "Article",            1,   725 }, { "the",                0,  1206 },
+        { "Article",            1,   629 }, { "the",                0,  1194 },
+        { "Article",            1,   594 }, { "the",                0,  1182 },
+        { "Article",            1,   581 }, { "the",                0,  1170 },
+        { "Article",            1,   552 }, { "the",                0,  1146 },
+        { "Article",            1,   511 }, { "the",                0,  1123 },
+        { "Article",            1,   496 }, { "the",                0,  1081 },
+        { "Article",            1,   478 }, { "the",                0,  1048 },
+        { "Article",            1,   455 }, { "the",                0,  1017 },
+        { "Article",            1,   442 }, { "the",                0,  1012 },
+        { "Article",            1,   360 }, { "the",                0,   984 },
+        { "Article",            1,   328 }, { "the",                0,   973 },
+        { "territories",        2,  1088 }, { "the",                0,   957 },
+        { "territories",        1,   324 }, { "the",                0,   950 },
+        { "both",               2,  1578 }, { "the",                0,   932 },
+        { "both",               1,   311 }, { "the",                0,   914 },
+        { "effective",          2,  2980 }, { "the",                0,   857 },
+        { "effective",          2,  2909 }, { "the",                0,   836 },
+        { "effective",          2,  2883 }, { "the",                0,   803 },
+        { "effective",          1,   560 }, { "the",                0,   782 },
+        { "effective",          1,   307 }, { "the",                0,   764 },
+        { "international",      2,  3513 }, { "the",                0,   749 },
+        { "international",      2,  3509 }, { "the",                0,   689 },
+        { "international",      2,  3067 }, { "the",                0,   682 },
+        { "international",      2,   239 }, { "the",                0,   671 },
+        { "international",      1,  1625 }, { "the",                0,   627 },
+        { "international",      1,  1205 }, { "the",                0,   621 },
+        { "international",      1,   695 }, { "the",                0,   596 },
+        { "international",      1,   415 }, { "the",                0,   585 },
+        { "international",      1,   301 }, { "the",                0,   568 },
+        { "national",           2,  3064 }, { "the",                0,   559 },
+        { "national",           2,  2846 }, { "the",                0,   544 },
+        { "national",           2,  2234 }, { "the",                0,   538 },
+        { "national",           2,  2184 }, { "the",                0,   534 },
+        { "national",           2,  2153 }, { "the",                0,   527 },
+        { "national",           2,  2103 }, { "the",                0,   518 },
+        { "national",           2,  2074 }, { "the",                0,   498 },
+        { "national",           2,  1812 }, { "the",                0,   495 },
+        { "national",           2,  1734 }, { "the",                0,   469 },
+        { "national",           2,  1708 }, { "the",                0,   462 },
+        { "national",           2,  1370 }, { "the",                0,   436 },
+        { "national",           2,  1125 }, { "the",                0,   431 },
+        { "national",           2,  1007 }, { "the",                0,   419 },
+        { "national",           2,   775 }, { "the",                0,   370 },
+        { "national",           2,   700 }, { "the",                0,   364 },
+        { "national",           2,   141 }, { "the",                0,   336 },
+        { "national",           2,   127 }, { "the",                0,   317 },
+        { "national",           1,  1202 }, { "the",                0,   302 },
+        { "national",           1,   693 }, { "the",                0,   292 },
+        { "national",           1,   565 }, { "the",                0,   255 },
+        { "national",           1,   392 }, { "the",                0,   237 },
+        { "national",           1,   299 }, { "the",                0,   158 },
+        { "progressive",        1,   297 }, { "the",                0,   155 },
+        { "education",          2,  1961 }, { "the",                0,   140 },
+        { "education",          2,   985 }, { "the",                0,   137 },
+        { "education",          2,   963 }, { "the",                0,   118 },
+        { "education",          2,   943 }, { "the",                0,    84 },
+        { "education",          2,   936 }, { "the",                0,    78 },
+        { "education",          1,  1550 }, { "the",                0,    69 },
+        { "education",          1,  1474 }, { "the",                0,    55 },
+        { "education",          1,  1466 }, { "the",                0,    48 },
+        { "education",          1,  1459 }, { "the",                0,    46 },
+        { "education",          1,  1445 }, { "the",                0,    43 },
+        { "education",          1,   286 }, { "the",                0,    30 },
+        { "6",                  2,   542 }, { "the",                0,    17 },
+        { "6",                  1,   497 }, { "the",                0,     9 },
+        { "continuing",         2,   951 }, { "hath",               0,   218 },
+        { "teaching",           2,   987 }, { "forms",              1,   477 },
+        { "teaching",           2,   759 }, { "forms",              0,   238 },
+        { "teaching",           1,  1033 }, { "status",             2,  1254 },
+        { "teaching",           1,   284 }, { "status",             1,   416 },
+        { "him",                2,  2499 }, { "status",             1,   400 },
+        { "him",                2,   647 }, { "object",             0,   335 },
+        { "him",                2,   601 }, { "political",          2,  1362 },
+        { "him",                1,   628 }, { "political",          2,   901 },
+        { "him",                1,   574 }, { "political",          2,   864 },
+        { "strive",             1,   282 }, { "political",          1,   836 },
+        { "adequate",           1,  1362 }, { "political",          1,   412 },
+        { "constantly",         1,   278 }, { "political",          1,   388 },
+        { "organ",              1,   272 }, { "political",          0,  1279 },
+        { "including",          2,  3528 }, { "political",          0,    31 },
+        { "including",          2,  1765 }, { "endeavoured",        0,  1008 },
+        { "including",          2,  1455 }, { "endeavoured",        0,   556 },
+        { "including",          1,  1375 }, { "hold",               2,   805 },
+        { "including",          1,  1339 }, { "hold",               1,  1055 },
+        { "including",          1,   793 }, { "hold",               0,  1193 },
+        { "individual",         2,  2494 }, { "hold",               0,  1189 },
+        { "individual",         2,    71 }, { "hold",               0,    87 },
+        { "individual",         1,   269 }, { "bands",              0,    32 },
+        { "be",                 2,  3559 }, { "Honor",              0,  1361 },
+        { "be",                 2,  3485 }, { "own",                2,  1142 },
+        { "be",                 2,  3453 }, { "own",                1,   969 },
+        { "be",                 2,  3406 }, { "own",                1,   795 },
+        { "be",                 2,  3357 }, { "own",                0,   866 },
+        { "be",                 2,  3335 }, { "have",               2,  2949 },
+        { "be",                 2,  3193 }, { "have",               2,  2607 },
+        { "be",                 2,  3190 }, { "have",               2,  2551 },
+        { "be",                 2,  3174 }, { "have",               2,  2512 },
+        { "be",                 2,  3163 }, { "have",               2,  2458 },
+        { "be",                 2,  3115 }, { "have",               2,  1987 },
+        { "be",                 2,  3081 }, { "have",               2,  1927 },
+        { "be",                 2,  3042 }, { "have",               2,  1727 },
+        { "be",                 2,  3024 }, { "have",               2,  1562 },
+        { "be",                 2,  3000 }, { "have",               2,  1494 },
+        { "be",                 2,  2961 }, { "have",               2,   946 },
+        { "be",                 2,  2850 }, { "have",               2,   654 },
+        { "be",                 2,  2790 }, { "have",               1,  1541 },
+        { "be",                 2,  2490 }, { "have",               1,   897 },
+        { "be",                 2,  2381 }, { "have",               1,   193 },
+        { "be",                 2,  2279 }, { "have",               1,   176 },
+        { "be",                 2,  2196 }, { "have",               1,   146 },
+        { "be",                 2,  1935 }, { "have",               1,   103 },
+        { "be",                 2,  1910 }, { "have",               1,    51 },
+        { "be",                 2,  1895 }, { "have",               1,    45 },
+        { "be",                 2,  1687 }, { "have",               0,  1304 },
+        { "be",                 2,  1554 }, { "have",               0,  1166 },
+        { "be",                 2,  1518 }, { "have",               0,  1142 },
+        { "be",                 2,  1450 }, { "have",               0,  1132 },
+        { "be",                 2,  1419 }, { "have",               0,  1119 },
+        { "be",                 2,  1380 }, { "have",               0,  1099 },
+        { "be",                 2,  1306 }, { "have",               0,  1088 },
+        { "be",                 2,  1287 }, { "have",               0,  1055 },
+        { "be",                 2,  1228 }, { "have",               0,  1043 },
+        { "be",                 2,  1216 }, { "have",               0,   524 },
+        { "be",                 2,  1198 }, { "have",               0,    34 },
+        { "be",                 2,  1157 }, { "good",               2,  2555 },
+        { "be",                 2,  1001 }, { "good",               2,  2449 },
+        { "be",                 2,   930 }, { "good",               2,  1693 },
+        { "be",                 2,   923 }, { "good",               2,  1188 },
+        { "be",                 2,   833 }, { "good",               0,  1241 },
+        { "be",                 2,   694 }, { "good",               0,   372 },
+        { "be",                 2,   663 }, { "after",              0,   508 },
+        { "be",                 2,   608 }, { "connected",          2,  1997 },
+        { "be",                 2,   523 }, { "connected",          0,    35 },
+        { "be",                 2,   513 }, { "Hands",              0,   997 },
+        { "be",                 2,   489 }, { "them",               2,  1526 },
+        { "be",                 2,   409 }, { "them",               2,    20 },
+        { "be",                 2,   366 }, { "them",               0,  1282 },
+        { "be",                 2,   346 }, { "them",               0,  1190 },
+        { "be",                 1,  1749 }, { "them",               0,  1144 },
+        { "be",                 1,  1730 }, { "them",               0,  1121 },
+        { "be",                 1,  1675 }, { "them",               0,  1101 },
+        { "be",                 1,  1639 }, { "them",               0,   734 },
+        { "be",                 1,  1553 }, { "them",               0,   474 },
+        { "be",                 1,  1489 }, { "them",               0,   442 },
+        { "be",                 1,  1476 }, { "them",               0,   409 },
+        { "be",                 1,  1468 }, { "them",               0,   306 },
+        { "be",                 1,  1461 }, { "them",               0,   263 },
+        { "be",                 1,  1448 }, { "them",               0,   186 },
+        { "be",                 1,  1171 }, { "them",               0,    82 },
+        { "be",                 1,  1163 }, { "them",               0,    64 },
+        { "be",                 1,  1154 }, { "them",               0,    36 },
+        { "be",                 1,  1143 }, { "conditions",         2,  3410 },
+        { "be",                 1,  1093 }, { "conditions",         2,  2918 },
+        { "be",                 1,   983 }, { "conditions",         2,  2867 },
+        { "be",                 1,   925 }, { "conditions",         2,  2439 },
+        { "be",                 1,   865 }, { "conditions",         2,  2368 },
+        { "be",                 1,   825 }, { "conditions",         2,  2181 },
+        { "be",                 1,   730 }, { "conditions",         2,  1929 },
+        { "be",                 1,   709 }, { "conditions",         2,  1831 },
+        { "be",                 1,   671 }, { "conditions",         2,  1822 },
+        { "be",                 1,   642 }, { "conditions",         2,  1701 },
+        { "be",                 1,   586 }, { "conditions",         2,  1176 },
+        { "be",                 1,   483 }, { "conditions",         2,  1097 },
+        { "be",                 1,   472 }, { "conditions",         1,  1255 },
+        { "be",                 1,   460 }, { "conditions",         0,  1035 },
+        { "be",                 1,   429 }, { "conditions",         0,   586 },
+        { "be",                 1,   405 }, { "Country",            0,   981 },
+        { "be",                 1,   119 }, { "and",                2,  3584 },
+        { "be",                 1,   100 }, { "and",                2,  3541 },
+        { "be",                 0,  1293 }, { "and",                2,  3538 },
+        { "be",                 0,  1260 }, { "and",                2,  3511 },
+        { "be",                 0,  1080 }, { "and",                2,  3508 },
+        { "be",                 0,   795 }, { "and",                2,  3494 },
+        { "be",                 0,   515 }, { "and",                2,  3447 },
+        { "be",                 0,   396 }, { "and",                2,  3442 },
+        { "be",                 0,   350 }, { "and",                2,  3411 },
+        { "be",                 0,   207 }, { "and",                2,  3382 },
+        { "be",                 0,    91 }, { "and",                2,  3364 },
+        { "achievement",        1,   257 }, { "and",                2,  3347 },
+        { "standard",           1,  1359 }, { "and",                2,  3340 },
+        { "standard",           1,   255 }, { "and",                2,  3328 },
+        { "RIGHTS",             2,  2314 }, { "and",                2,  3307 },
+        { "RIGHTS",             2,     3 }, { "and",                2,  3276 },
+        { "RIGHTS",             1,   251 }, { "and",                2,  3255 },
+        { "vocational",         2,   949 }, { "and",                2,  3242 },
+        { "OF",                 2,     4 }, { "and",                2,  3125 },
+        { "OF",                 2,     1 }, { "and",                2,  3036 },
+        { "OF",                 1,   249 }, { "and",                2,  3031 },
+        { "UNIVERSAL",          1,   247 }, { "and",                2,  2989 },
+        { "THIS",               1,   246 }, { "and",                2,  2956 },
+        { "proclaims",          1,   245 }, { "and",                2,  2940 },
+        { "ASSEMBLY",           1,   244 }, { "and",                2,  2930 },
+        { "GENERAL",            2,  3226 }, { "and",                2,  2893 },
+        { "GENERAL",            1,   243 }, { "and",                2,  2885 },
+        { "Assent",             0,   715 }, { "and",                2,  2818 },
+        { "Assent",             0,   603 }, { "and",                2,  2787 },
+        { "Assent",             0,   394 }, { "and",                2,  2773 },
+        { "Assent",             0,   361 }, { "and",                2,  2759 },
+        { "Therefore",          1,   241 }, { "and",                2,  2730 },
+        { "Now",                1,   240 }, { "and",                2,  2709 },
+        { "greatest",           1,   231 }, { "and",                2,  2662 },
+        { "understanding",      1,  1514 }, { "and",                2,  2651 },
+        { "understanding",      1,   222 }, { "and",                2,  2626 },
+        { "freedoms",           2,  3585 }, { "and",                2,  2605 },
+        { "freedoms",           2,  3496 }, { "and",                2,  2529 },
+        { "freedoms",           2,  3383 }, { "and",                2,  2526 },
+        { "freedoms",           2,  3348 }, { "and",                2,  2474 },
+        { "freedoms",           2,  3329 }, { "and",                2,  2466 },
+        { "freedoms",           2,  2894 }, { "and",                2,  2417 },
+        { "freedoms",           2,   327 }, { "and",                2,  2398 },
+        { "freedoms",           1,  1781 }, { "and",                2,  2390 },
+        { "freedoms",           1,  1725 }, { "and",                2,  2343 },
+        { "freedoms",           1,  1700 }, { "and",                2,  2320 },
+        { "freedoms",           1,  1672 }, { "and",                2,  2287 },
+        { "freedoms",           1,  1632 }, { "and",                2,  2269 },
+        { "freedoms",           1,  1510 }, { "and",                2,  2253 },
+        { "freedoms",           1,   370 }, { "and",                2,  2236 },
+        { "freedoms",           1,   294 }, { "and",                2,  2221 },
+        { "freedoms",           1,   227 }, { "and",                2,  2207 },
+        { "freedoms",           1,   218 }, { "and",                2,  2201 },
+        { "use",                2,  1194 }, { "and",                2,  2186 },
+        { "use",                2,  1143 }, { "and",                2,  2171 },
+        { "observance",         2,   762 }, { "and",                2,  2155 },
+        { "observance",         1,  1037 }, { "and",                2,  2152 },
+        { "observance",         1,   310 }, { "and",                2,  2125 },
+        { "observance",         1,   212 }, { "and",                2,  2119 },
+        { "universal",          2,  2385 }, { "and",                2,  2114 },
+        { "universal",          2,    46 }, { "and",                2,  2105 },
+        { "universal",          1,  1165 }, { "and",                2,  2102 },
+        { "universal",          1,   305 }, { "and",                2,  2094 },
+        { "universal",          1,   208 }, { "and",                2,  2081 },
+        { "promotion",          1,   206 }, { "and",                2,  2076 },
+        { "ensures",            2,   155 }, { "and",                2,  2073 },
+        { "population",         0,   560 }, { "and",                2,  2055 },
+        { "pledged",            1,   194 }, { "and",                2,  2038 },
+        { "origin",             2,  1355 }, { "and",                2,  2030 },
+        { "origin",             1,   395 }, { "and",                2,  2023 },
+        { "larger",             1,   188 }, { "and",                2,  2007 },
+        { "granted",            2,  2791 }, { "and",                2,  2000 },
+        { "granted",            1,   573 }, { "and",                2,  1982 },
+        { "better",             1,   183 }, { "and",                2,  1975 },
+        { "had",                1,   659 }, { "and",                2,  1965 },
+        { "merciless",          0,  1018 }, { "and",                2,  1940 },
+        { "progress",           2,   190 }, { "and",                2,  1934 },
+        { "progress",           1,   181 }, { "and",                2,  1916 },
+        { "determined",         1,  1683 }, { "and",                2,  1873 },
+        { "determined",         1,   177 }, { "and",                2,  1859 },
+        { "fundamental",        2,  3495 }, { "and",                2,  1855 },
+        { "fundamental",        2,   180 }, { "and",                2,  1839 },
+        { "fundamental",        1,  1509 }, { "and",                2,  1819 },
+        { "fundamental",        1,  1456 }, { "and",                2,  1814 },
+        { "fundamental",        1,   946 }, { "and",                2,  1811 },
+        { "fundamental",        1,   571 }, { "and",                2,  1750 },
+        { "fundamental",        1,   217 }, { "and",                2,  1742 },
+        { "fundamental",        1,   154 }, { "and",                2,  1736 },
+        { "cultural",           2,  1623 }, { "and",                2,  1733 },
+        { "cultural",           2,  1432 }, { "and",                2,  1721 },
+        { "cultural",           1,  1570 }, { "and",                2,  1718 },
+        { "cultural",           1,  1224 }, { "and",                2,  1710 },
+        { "nationals",          2,  2870 }, { "and",                2,  1707 },
+        { "nationals",          2,  2802 }, { "and",                2,  1698 },
+        { "nationals",          2,  2441 }, { "and",                2,  1690 },
+        { "nationals",          2,  2370 }, { "and",                2,  1673 },
+        { "faith",              1,   152 }, { "and",                2,  1656 },
+        { "too",                0,  1165 }, { "and",                2,  1653 },
+        { "right",              2,  3564 }, { "and",                2,  1635 },
+        { "right",              2,  2990 }, { "and",                2,  1622 },
+        { "right",              2,  2906 }, { "and",                2,  1617 },
+        { "right",              2,  2770 }, { "and",                2,  1615 },
+        { "right",              2,  2748 }, { "and",                2,  1602 },
+        { "right",              2,  2680 }, { "and",                2,  1574 },
+        { "right",              2,  2644 }, { "and",                2,  1532 },
+        { "right",              2,  2549 }, { "and",                2,  1500 },
+        { "right",              2,  2507 }, { "and",                2,  1458 },
+        { "right",              2,  2485 }, { "and",                2,  1447 },
+        { "right",              2,  2481 }, { "and",                2,  1442 },
+        { "right",              2,  2456 }, { "and",                2,  1434 },
+        { "right",              2,  2414 }, { "and",                2,  1425 },
+        { "right",              2,  2340 }, { "and",                2,  1402 },
+        { "right",              2,  2173 }, { "and",                2,  1395 },
+        { "right",              2,  2164 }, { "and",                2,  1257 },
+        { "right",              2,  2122 }, { "and",                2,  1244 },
+        { "right",              2,  2002 }, { "and",                2,  1173 },
+        { "right",              2,  1989 }, { "and",                2,  1169 },
+        { "right",              2,  1846 }, { "and",                2,  1146 },
+        { "right",              2,  1828 }, { "and",                2,  1127 },
+        { "right",              2,  1800 }, { "and",                2,  1124 },
+        { "right",              2,  1779 }, { "and",                2,  1068 },
+        { "right",              2,  1739 }, { "and",                2,  1039 },
+        { "right",              2,  1670 }, { "and",                2,  1024 },
+        { "right",              2,  1638 }, { "and",                2,  1015 },
+        { "right",              2,  1564 }, { "and",                2,   997 },
+        { "right",              2,  1496 }, { "and",                2,   986 },
+        { "right",              2,  1224 }, { "and",                2,   977 },
+        { "right",              2,  1140 }, { "and",                2,   950 },
+        { "right",              2,  1065 }, { "and",                2,   944 },
+        { "right",              2,  1034 }, { "and",                2,   919 },
+        { "right",              2,  1025 }, { "and",                2,   915 },
+        { "right",              2,  1016 }, { "and",                2,   878 },
+        { "right",              2,   979 }, { "and",                2,   867 },
+        { "right",              2,   955 }, { "and",                2,   853 },
+        { "right",              2,   941 }, { "and",                2,   840 },
+        { "right",              2,   873 }, { "and",                2,   827 },
+        { "right",              2,   847 }, { "and",                2,   820 },
+        { "right",              2,   800 }, { "and",                2,   813 },
+        { "right",              2,   794 }, { "and",                2,   810 },
+        { "right",              2,   782 }, { "and",                2,   807 },
+        { "right",              2,   765 }, { "and",                2,   788 },
+        { "right",              2,   729 }, { "and",                2,   761 },
+        { "right",              2,   720 }, { "and",                2,   746 },
+        { "right",              2,   688 }, { "and",                2,   737 },
+        { "right",              2,   683 }, { "and",                2,   726 },
+        { "right",              2,   677 }, { "and",                2,   714 },
+        { "right",              2,   652 }, { "and",                2,   686 },
+        { "right",              2,   637 }, { "and",                2,   676 },
+        { "right",              2,   593 }, { "and",                2,   650 },
+        { "right",              2,   569 }, { "and",                2,   614 },
+        { "right",              2,   551 }, { "and",                2,   581 },
+        { "right",              2,   387 }, { "and",                2,   577 },
+        { "right",              2,   359 }, { "and",                2,   563 },
+        { "right",              1,  1760 }, { "and",                2,   554 },
+        { "right",              1,  1592 }, { "and",                2,   546 },
+        { "right",              1,  1564 }, { "and",                2,   506 },
+        { "right",              1,  1544 }, { "and",                2,   479 },
+        { "right",              1,  1443 }, { "and",                2,   454 },
+        { "right",              1,  1388 }, { "and",                2,   416 },
+        { "right",              1,  1356 }, { "and",                2,   404 },
+        { "right",              1,  1334 }, { "and",                2,   395 },
+        { "right",              1,  1315 }, { "and",                2,   348 },
+        { "right",              1,  1283 }, { "and",                2,   328 },
+        { "right",              1,  1270 }, { "and",                2,   317 },
+        { "right",              1,  1243 }, { "and",                2,   306 },
+        { "right",              1,  1192 }, { "and",                2,   292 },
+        { "right",              1,  1126 }, { "and",                2,   279 },
+        { "right",              1,  1106 }, { "and",                2,   273 },
+        { "right",              1,  1081 }, { "and",                2,   263 },
+        { "right",              1,  1051 }, { "and",                2,   238 },
+        { "right",              1,  1043 }, { "and",                2,   222 },
+        { "right",              1,  1003 }, { "and",                2,   219 },
+        { "right",              1,   994 }, { "and",                2,   214 },
+        { "right",              1,   967 }, { "and",                2,   193 },
+        { "right",              1,   899 }, { "and",                2,   191 },
+        { "right",              1,   874 }, { "and",                2,   164 },
+        { "right",              1,   857 }, { "and",                2,   162 },
+        { "right",              1,   822 }, { "and",                2,   154 },
+        { "right",              1,   808 }, { "and",                2,   151 },
+        { "right",              1,   788 }, { "and",                2,   143 },
+        { "right",              1,   771 }, { "and",                2,   133 },
+        { "right",              1,   753 }, { "and",                2,   116 },
+        { "right",              1,   640 }, { "and",                2,   101 },
+        { "right",              1,   557 }, { "and",                2,    93 },
+        { "right",              1,   501 }, { "and",                2,    85 },
+        { "right",              1,   447 }, { "and",                2,    63 },
+        { "right",              0,  1329 }, { "and",                2,    53 },
+        { "right",              0,   439 }, { "and",                2,    36 },
+        { "right",              0,   432 }, { "and",                1,  1780 },
+        { "right",              0,   270 }, { "and",                1,  1736 },
+        { "right",              0,   233 }, { "and",                1,  1724 },
+        { "reaffirmed",         1,   150 }, { "and",                1,  1713 },
+        { "Charter",            2,  3589 }, { "and",                1,  1703 },
+        { "Charter",            2,  3557 }, { "and",                1,  1699 },
+        { "Charter",            2,  3483 }, { "and",                1,  1694 },
+        { "Charter",            2,  3425 }, { "and",                1,  1671 },
+        { "Charter",            2,  3391 }, { "and",                1,  1656 },
+        { "Charter",            2,  3333 }, { "and",                1,  1631 },
+        { "Charter",            2,  3289 }, { "and",                1,  1624 },
+        { "Charter",            2,  3236 }, { "and",                1,  1599 },
+        { "Charter",            2,   206 }, { "and",                1,  1585 },
+        { "Charter",            2,   204 }, { "and",                1,  1579 },
+        { "Charter",            1,   149 }, { "and",                1,  1525 },
+        { "genetic",            2,  1356 }, { "and",                1,  1516 },
+        { "violating",          1,   569 }, { "and",                1,  1508 },
+        { "peoples",            2,   120 }, { "and",                1,  1499 },
+        { "peoples",            2,    10 }, { "and",                1,  1472 },
+        { "peoples",            1,   322 }, { "and",                1,  1464 },
+        { "peoples",            1,   314 }, { "and",                1,  1455 },
+        { "peoples",            1,   260 }, { "and",                1,  1420 },
+        { "peoples",            1,   141 }, { "and",                1,  1413 },
+        { "nations",            2,  3155 }, { "and",                1,  1386 },
+        { "nations",            1,  1520 }, { "and",                1,  1382 },
+        { "nations",            1,   263 }, { "and",                1,  1379 },
+        { "nations",            1,   138 }, { "and",                1,  1371 },
+        { "relations",          1,   136 }, { "and",                1,  1366 },
+        { "friendly",           1,   135 }, { "and",                1,  1345 },
+        { "development",        2,  2296 }, { "and",                1,  1337 },
+        { "development",        2,  1955 }, { "and",                1,  1318 },
+        { "development",        2,   153 }, { "and",                1,  1301 },
+        { "development",        2,   104 }, { "and",                1,  1292 },
+        { "development",        1,  1658 }, { "and",                1,  1286 },
+        { "development",        1,  1494 }, { "and",                1,  1258 },
+        { "development",        1,  1233 }, { "and",                1,  1253 },
+        { "development",        1,   133 }, { "and",                1,  1230 },
+        { "promote",            2,  3277 }, { "and",                1,  1223 },
+        { "promote",            2,  2250 }, { "and",                1,  1214 },
+        { "promote",            2,   149 }, { "and",                1,  1208 },
+        { "promote",            1,  1513 }, { "and",                1,  1204 },
+        { "promote",            1,   288 }, { "and",                1,  1196 },
+        { "promote",            1,   179 }, { "and",                1,  1169 },
+        { "promote",            1,   131 }, { "and",                1,  1166 },
+        { "law",                2,  3510 }, { "and",                1,  1158 },
+        { "law",                2,  3507 }, { "and",                1,  1087 },
+        { "law",                2,  3470 }, { "and",                1,  1071 },
+        { "law",                2,  3339 }, { "and",                1,  1066 },
+        { "law",                2,  3266 }, { "and",                1,  1063 },
+        { "law",                2,  3223 }, { "and",                1,  1059 },
+        { "law",                2,  3106 }, { "and",                1,  1048 },
+        { "law",                2,  3068 }, { "and",                1,  1036 },
+        { "law",                2,  3065 }, { "and",                1,  1021 },
+        { "law",                2,  3008 }, { "and",                1,  1012 },
+        { "law",                2,  2946 }, { "and",                1,  1000 },
+        { "law",                2,  2898 }, { "and",                1,   958 },
+        { "law",                2,  2151 }, { "and",                1,   951 },
+        { "law",                2,  2101 }, { "and",                1,   945 },
+        { "law",                2,  2072 }, { "and",                1,   932 },
+        { "law",                2,  1810 }, { "and",                1,   918 },
+        { "law",                2,  1732 }, { "and",                1,   902 },
+        { "law",                2,  1706 }, { "and",                1,   883 },
+        { "law",                2,  1335 }, { "and",                1,   845 },
+        { "law",                2,  1329 }, { "and",                1,   811 },
+        { "law",                2,  1201 }, { "and",                1,   796 },
+        { "law",                2,  1180 }, { "and",                1,   776 },
+        { "law",                2,  1123 }, { "and",                1,   748 },
+        { "law",                2,   633 }, { "and",                1,   622 },
+        { "law",                2,   430 }, { "and",                1,   620 },
+        { "law",                2,   282 }, { "and",                1,   611 },
+        { "law",                2,    67 }, { "and",                1,   605 },
+        { "law",                1,  1685 }, { "and",                1,   545 },
+        { "law",                1,   759 }, { "and",                1,   519 },
+        { "law",                1,   696 }, { "and",                1,   467 },
+        { "law",                1,   650 }, { "and",                1,   451 },
+        { "law",                1,   580 }, { "and",                1,   369 },
+        { "law",                1,   530 }, { "and",                1,   349 },
+        { "law",                1,   518 }, { "and",                1,   347 },
+        { "law",                1,   510 }, { "and",                1,   340 },
+        { "law",                1,   125 }, { "and",                1,   336 },
+        { "legislate",          0,   875 }, { "and",                1,   319 },
+        { "rebellion",          1,   110 }, { "and",                1,   309 },
+        { "resort",             1,   108 }, { "and",                1,   306 },
+        { "part",               1,  1109 }, { "and",                1,   300 },
+        { "34",                 2,  2020 }, { "and",                1,   295 },
+        { "29",                 2,  1769 }, { "and",                1,   293 },
+        { "29",                 1,  1643 }, { "and",                1,   285 },
+        { "last",               1,   107 }, { "and",                1,   270 },
+        { "recourse",           1,   104 }, { "and",                1,   261 },
+        { "so",                 2,  3421 }, { "and",                1,   226 },
+        { "so",                 2,  2971 }, { "and",                1,   216 },
+        { "so",                 2,  2128 }, { "and",                1,   211 },
+        { "so",                 2,  1203 }, { "and",                1,   182 },
+        { "so",                 0,   822 }, { "and",                1,   175 },
+        { "so",                 0,   400 }, { "and",                1,   173 },
+        { "compelled",          1,  1094 }, { "and",                1,   166 },
+        { "compelled",          1,   101 }, { "and",                1,   160 },
+        { "aspiration",         1,    86 }, { "and",                1,   113 },
+        { "highest",            1,    85 }, { "and",                1,    78 },
+        { "want",               1,    79 }, { "and",                1,    74 },
+        { "fear",               1,    77 }, { "and",                1,    72 },
+        { "belief",             2,  1361 }, { "and",                1,    57 },
+        { "belief",             2,   756 }, { "and",                1,    40 },
+        { "belief",             2,   736 }, { "and",                1,    33 },
+        { "belief",             1,  1031 }, { "and",                1,    17 },
+        { "belief",             1,  1011 }, { "and",                1,    13 },
+        { "belief",             1,    73 }, { "and",                0,  1358 },
+        { "beings",             2,   535 }, { "and",                0,  1322 },
+        { "beings",             2,   473 }, { "and",                0,  1316 },
+        { "beings",             1,   332 }, { "and",                0,  1300 },
+        { "beings",             1,    66 }, { "and",                0,  1296 },
+        { "advent",             1,    59 }, { "and",                0,  1290 },
+        { "conscience",         2,   725 }, { "and",                0,  1283 },
+        { "conscience",         2,   713 }, { "and",                0,  1276 },
+        { "conscience",         1,   999 }, { "and",                0,  1262 },
+        { "conscience",         1,   348 }, { "and",                0,  1255 },
+        { "conscience",         1,    54 }, { "and",                0,  1248 },
+        { "outraged",           1,    52 }, { "and",                0,  1236 },
+        { "acts",               1,   840 }, { "and",                0,  1188 },
+        { "acts",               1,   568 }, { "and",                0,  1174 },
+        { "acts",               1,    49 }, { "and",                0,  1162 },
+        { "resulted",           1,    46 }, { "and",                0,  1140 },
+        { "contempt",           1,    41 }, { "and",                0,  1138 },
+        { "basis",              2,  1570 }, { "and",                0,  1128 },
+        { "basis",              2,   629 }, { "and",                0,  1034 },
+        { "basis",              2,   617 }, { "and",                0,  1006 },
+        { "basis",              1,  1483 }, { "and",                0,   989 },
+        { "basis",              1,  1145 }, { "and",                0,   954 },
+        { "basis",              1,   409 }, { "and",                0,   937 },
+        { "every",              2,  2509 }, { "and",                0,   912 },
+        { "every",              2,  2487 }, { "and",                0,   895 },
+        { "every",              1,   271 }, { "and",                0,   868 },
+        { "every",              1,   268 }, { "and",                0,   854 },
+        { "every",              0,  1070 }, { "and",                0,   831 },
+        { "every",              0,  1037 }, { "and",                0,   818 },
+        { "thirteen",           0,    10 }, { "and",                0,   708 },
+        { "disregard",          1,    39 }, { "and",                0,   686 },
+        { "detention",          1,   591 }, { "and",                0,   653 },
+        { "impart",             2,   811 }, { "and",                0,   643 },
+        { "impart",             1,  1064 }, { "and",                0,   629 },
+        { "presumed",           2,  3001 }, { "and",                0,   626 },
+        { "presumed",           1,   643 }, { "and",                0,   583 },
+        { "personality",        1,  1661 }, { "and",                0,   550 },
+        { "personality",        1,  1498 }, { "and",                0,   459 },
+        { "personality",        1,  1236 }, { "and",                0,   443 },
+        { "HUMAN",              1,   250 }, { "and",                0,   398 },
+        { "men",                2,  1446 }, { "and",                0,   384 },
+        { "men",                2,  1441 }, { "and",                0,   367 },
+        { "men",                1,   172 }, { "and",                0,   329 },
+        { "men",                0,    96 }, { "and",                0,   298 },
+        { "illness",            2,  2048 }, { "and",                0,   280 },
+        { "freedom",            2,  1114 }, { "and",                0,   251 },
+        { "freedom",            2,  1056 }, { "and",                0,   214 },
+        { "freedom",            2,  1014 }, { "and",                0,   211 },
+        { "freedom",            2,   966 }, { "and",                0,   195 },
+        { "freedom",            2,   928 }, { "and",                0,   177 },
+        { "freedom",            2,   855 }, { "and",                0,   166 },
+        { "freedom",            2,   849 }, { "and",                0,   117 },
+        { "freedom",            2,   826 }, { "and",                0,    59 },
+        { "freedom",            2,   803 }, { "and",                0,    50 },
+        { "freedom",            2,   796 }, { "and",                0,    39 },
+        { "freedom",            2,   738 }, { "with",               2,  3283 },
+        { "freedom",            2,   731 }, { "with",               2,  3247 },
+        { "freedom",            2,   722 }, { "with",               2,  3221 },
+        { "freedom",            2,   166 }, { "with",               2,  2916 },
+        { "freedom",            2,    91 }, { "with",               2,  2794 },
+        { "freedom",            2,    51 }, { "with",               2,  2701 },
+        { "freedom",            1,  1083 }, { "with",               2,  2574 },
+        { "freedom",            1,  1053 }, { "with",               2,  2291 },
+        { "freedom",            1,  1045 }, { "with",               2,  2240 },
+        { "freedom",            1,  1013 }, { "with",               2,  2144 },
+        { "freedom",            1,  1005 }, { "with",               2,  2099 },
+        { "freedom",            1,   996 }, { "with",               2,  2065 },
+        { "freedom",            1,   773 }, { "with",               2,  1998 },
+        { "freedom",            1,   189 }, { "with",               2,  1959 },
+        { "freedom",            1,    75 }, { "with",               2,  1808 },
+        { "freedom",            1,    69 }, { "with",               2,  1730 },
+        { "freedom",            1,    31 }, { "with",               2,  1641 },
+        { "laws",               2,  2581 }, { "with",               2,  1630 },
+        { "laws",               2,  2235 }, { "with",               2,  1577 },
+        { "laws",               2,  2185 }, { "with",               2,  1529 },
+        { "laws",               2,  2154 }, { "with",               2,  1260 },
+        { "laws",               2,  2104 }, { "with",               2,  1230 },
+        { "laws",               2,  2075 }, { "with",               2,  1121 },
+        { "laws",               2,  1813 }, { "with",               2,  1005 },
+        { "laws",               2,  1735 }, { "with",               2,   993 },
+        { "laws",               2,  1709 }, { "with",               2,   971 },
+        { "laws",               2,  1126 }, { "with",               2,   773 },
+        { "laws",               2,  1008 }, { "with",               2,   744 },
+        { "laws",               2,   776 }, { "with",               2,   698 },
+        { "laws",               2,   701 }, { "with",               2,   659 },
+        { "laws",               0,   712 }, { "with",               2,   308 },
+        { "pursue",             2,  1041 }, { "with",               2,   208 },
+        { "family",             2,  1981 }, { "with",               1,  1348 },
+        { "family",             2,  1970 }, { "with",               1,  1211 },
+        { "family",             2,   692 }, { "with",               1,  1019 },
+        { "family",             2,   681 }, { "with",               1,   977 },
+        { "family",             2,   578 }, { "with",               1,   929 },
+        { "family",             2,   564 }, { "with",               1,   735 },
+        { "family",             1,  1374 }, { "with",               1,   634 },
+        { "family",             1,  1294 }, { "with",               1,   345 },
+        { "family",             1,   941 }, { "with",               1,   201 },
+        { "family",             1,   906 }, { "with",               0,  1338 },
+        { "family",             1,   738 }, { "with",               0,   941 },
+        { "family",             1,    26 }, { "with",               0,   872 },
+        { "members",            1,    22 }, { "with",               0,   760 },
+        { "Oppressions",        0,  1041 }, { "with",               0,   696 },
+        { "guilty",             2,  3044 }, { "with",               0,   489 },
+        { "guilty",             2,  3005 }, { "with",               0,   477 },
+        { "guilty",             1,   673 }, { "with",               0,   107 },
+        { "guilty",             1,   647 }, { "with",               0,    37 },
+        { "inalienable",        1,    18 }, { "criminal",           2,  3199 },
+        { "British",            0,  1274 }, { "criminal",           2,  3185 },
+        { "will",               2,   902 }, { "criminal",           2,  3180 },
+        { "will",               1,  1152 }, { "criminal",           2,  3167 },
+        { "will",               1,  1138 }, { "criminal",           2,  3144 },
+        { "will",               0,   199 }, { "criminal",           2,  3103 },
+        { "disability",         2,  1374 }, { "criminal",           2,  3092 },
+        { "disability",         1,  1397 }, { "criminal",           2,  3061 },
+        { "inherent",           1,    11 }, { "criminal",           2,  3047 },
+        { "Whereas",            1,   219 }, { "criminal",           2,  3034 },
+        { "Whereas",            1,   190 }, { "criminal",           1,   625 },
+        { "Whereas",            1,   139 }, { "provide",            2,  1070 },
+        { "Whereas",            1,   126 }, { "provide",            0,   282 },
+        { "Whereas",            1,    91 }, { "people",             2,  1922 },
+        { "Whereas",            1,    38 }, { "people",             2,  1915 },
+        { "Whereas",            1,     7 }, { "people",             2,  1877 },
+        { "Preamble",           1,     6 }, { "people",             1,  1141 },
+        { "Universal",          1,     1 }, { "people",             1,    90 },
+        { "sacred",             0,  1360 }, { "people",             0,  1086 },
+        { "Lives",              0,  1355 }, { "people",             0,   918 },
+        { "pledge",             1,   239 }, { "people",             0,   652 },
+        { "pledge",             0,  1350 }, { "people",             0,   499 },
+        { "mutually",           0,  1349 }, { "people",             0,   428 },
+        { "Providence",         0,  1347 }, { "people",             0,   425 },
+        { "divine",             0,  1346 }, { "people",             0,    27 },
+        { "Armies",             0,   926 }, { "wholesome",          0,   366 },
+        { "Armies",             0,   669 }, { "away",               0,   846 },
+        { "And",                0,  1331 }, { "groups",             1,  1524 },
+        { "Things",             0,  1323 }, { "purpose",            1,  1689 },
+        { "Commerce",           0,  1315 }, { "purpose",            0,   566 },
+        { "belong",             1,  1096 }, { "purpose",            0,   471 },
+        { "establish",          2,  3292 }, { "duty",               0,   274 },
+        { "establish",          0,  1314 }, { "unless",             2,  1583 },
+        { "contract",           0,  1312 }, { "unless",             0,   426 },
+        { "conclude",           2,  1743 }, { "unless",             0,   387 },
+        { "conclude",           0,  1310 }, { "truths",             0,    89 },
+        { "life",               2,  1984 }, { "fair",               2,  2929 },
+        { "life",               2,  1967 }, { "fair",               2,  2888 },
+        { "life",               2,  1660 }, { "fair",               2,  1183 },
+        { "life",               2,  1624 }, { "fair",               1,   604 },
+        { "life",               2,  1612 }, { "earth",              0,    47 },
+        { "life",               2,   579 }, { "Absolved",           0,  1268 },
+        { "life",               2,   565 }, { "Men",                1,   882 },
+        { "life",               2,   361 }, { "Men",                0,   131 },
+        { "life",               2,   354 }, { "disposed",           0,   224 },
+        { "life",               1,  1571 }, { "same",               2,  3455 },
+        { "life",               1,   449 }, { "same",               2,  3184 },
+        { "life",               1,   186 }, { "same",               2,  2866 },
+        { "levy",               0,  1308 }, { "same",               2,  2612 },
+        { "Power",              0,  1306 }, { "same",               2,  2438 },
+        { "full",               1,  1657 }, { "same",               2,  2367 },
+        { "full",               1,  1493 }, { "same",               1,  1434 },
+        { "full",               1,   933 }, { "same",               0,   837 },
+        { "full",               1,   886 }, { "same",               0,   256 },
+        { "full",               1,   600 }, { "compulsory",         2,   962 },
+        { "full",               1,   235 }, { "compulsory",         2,   529 },
+        { "full",               0,  1305 }, { "compulsory",         1,  1462 },
+        { "between",            2,  1445 }, { "station",            0,    52 },
+        { "between",            2,  1440 }, { "foundation",         1,    29 },
+        { "between",            1,   137 }, { "foundation",         0,   173 },
+        { "between",            0,  1281 }, { "information",        2,  1689 },
+        { "pursuing",           0,   253 }, { "information",        2,  1672 },
+        { "connection",         0,  1280 }, { "information",        2,   812 },
+        { "Crown",              0,  1275 }, { "information",        2,   789 },
+        { "Independent",        0,  1325 }, { "information",        1,  1065 },
+        { "Independent",        0,  1301 }, { "these",              2,   706 },
+        { "Independent",        0,  1263 }, { "these",              2,   660 },
+        { "ought",              0,  1291 }, { "these",              2,   302 },
+        { "ought",              0,  1258 }, { "these",              2,   106 },
+        { "fit",                0,   832 }, { "these",              1,   291 },
+        { "publish",            0,  1247 }, { "these",              1,   224 },
+        { "take",               2,  1758 }, { "these",              0,  1251 },
+        { "take",               1,  1108 }, { "these",              0,  1244 },
+        { "solemnly",           0,  1246 }, { "these",              0,  1154 },
+        { "Authority",          0,  1238 }, { "these",              0,  1040 },
+        { "Name",               0,  1235 }, { "these",              0,   841 },
+        { "Judge",              0,  1222 }, { "these",              0,   752 },
+        { "before",             2,  2911 }, { "these",              0,   562 },
+        { "before",             2,  2492 }, { "these",              0,   343 },
+        { "before",             2,  1333 }, { "these",              0,   296 },
+        { "before",             2,  1327 }, { "these",              0,   151 },
+        { "before",             1,   516 }, { "these",              0,   125 },
+        { "before",             1,   508 }, { "these",              0,   113 },
+        { "social",             2,  2252 }, { "these",              0,    88 },
+        { "social",             2,  2124 }, { "consanguinity",      0,  1176 },
+        { "social",             2,  2112 }, { "abuses",             0,   250 },
+        { "social",             2,  2095 }, { "here",               0,  1130 },
+        { "social",             2,  2091 }, { "here",               0,   887 },
+        { "social",             2,  2039 }, { "requires",           0,    73 },
+        { "social",             2,  2035 }, { "Nature's",           0,    61 },
+        { "social",             2,  2024 }, { "oppression",         1,   114 },
+        { "social",             2,  1976 }, { "Laws",               0,   853 },
+        { "social",             2,  1954 }, { "Laws",               0,   808 },
+        { "social",             2,  1652 }, { "Laws",               0,   605 },
+        { "social",             2,  1621 }, { "Laws",               0,   569 },
+        { "social",             2,  1354 }, { "Laws",               0,   417 },
+        { "social",             2,   189 }, { "Laws",               0,   381 },
+        { "social",             1,  1623 }, { "Laws",               0,   363 },
+        { "social",             1,  1435 }, { "Laws",               0,    56 },
+        { "social",             1,  1384 }, { "scarcely",           0,   947 },
+        { "social",             1,  1309 }, { "been",               2,  3211 },
+        { "social",             1,  1222 }, { "been",               2,  3021 },
+        { "social",             1,  1194 }, { "been",               2,  2997 },
+        { "social",             1,   394 }, { "been",               2,   644 },
+        { "social",             1,   180 }, { "been",               1,    81 },
+        { "appealing",          0,  1218 }, { "been",               0,  1167 },
+        { "Prince",             0,  1063 }, { "been",               0,  1090 },
+        { "Assembled",          0,  1217 }, { "been",               0,  1056 },
+        { "Congress",           0,  1216 }, { "been",               0,   291 },
+        { "General",            0,  1215 }, { "sufferable",         0,   230 },
+        { "Representatives",    0,  1207 }, { "Governments",        0,   861 },
+        { "Friends",            0,  1203 }, { "Governments",        0,   202 },
+        { "extensive",          2,  3473 }, { "Governments",        0,   127 },
+        { "Peace",              0,  1311 }, { "instituted",         0,   129 },
+        { "Peace",              0,  1202 }, { "exception",          2,  2703 },
+        { "Enemies",            0,  1198 }, { "one",                2,  3188 },
+        { "rest",               2,  1857 }, { "one",                2,  3040 },
+        { "rest",               1,  1336 }, { "one",                2,  2598 },
+        { "rest",               0,  1195 }, { "one",                2,  1285 },
+        { "Separation",         0,  1187 }, { "one",                2,  1155 },
+        { "denounces",          0,  1185 }, { "one",                2,   521 },
+        { "acquiesce",          0,  1180 }, { "one",                2,   511 },
+        { "emigration",         0,  1127 }, { "one",                2,   487 },
+        { "therefore",          2,  3269 }, { "one",                2,   364 },
+        { "therefore",          2,   323 }, { "one",                1,  1091 },
+        { "therefore",          0,  1205 }, { "one",                1,   981 },
+        { "therefore",          0,  1179 }, { "one",                1,   863 },
+        { "achieve",            1,   197 }, { "one",                1,   728 },
+        { "must",               2,  3334 }, { "one",                1,   713 },
+        { "must",               2,  3161 }, { "one",                1,   669 },
+        { "must",               2,  2606 }, { "one",                1,   584 },
+        { "must",               2,  2278 }, { "one",                1,   481 },
+        { "must",               2,  1926 }, { "one",                1,   458 },
+        { "must",               2,  1682 }, { "one",                1,   353 },
+        { "must",               2,  1553 }, { "one",                0,    26 },
+        { "must",               2,  1449 }, { "enjoy",              2,  1972 },
+        { "must",               2,   607 }, { "enjoy",              1,  1576 },
+        { "must",               2,   408 }, { "enjoy",              1,  1432 },
+        { "must",               2,   345 }, { "enjoy",              1,   813 },
+        { "must",               0,  1178 }, { "enjoy",              1,    68 },
+        { "They",               2,  3267 }, { "erected",            0,   637 },
+        { "They",               2,  1509 }, { "institute",          0,   168 },
+        { "They",               1,   907 }, { "consent",            2,   620 },
+        { "They",               1,   342 }, { "consent",            2,   418 },
+        { "They",               0,  1164 }, { "consent",            1,   934 },
+        { "opinion",            2,  1366 }, { "consent",            0,   138 },
+        { "opinion",            1,  1047 }, { "governed",           0,   141 },
+        { "opinion",            1,   391 }, { "&",                  0,   945 },
+        { "correspondence",     1,   741 }, { "whenever",           0,   143 },
+        { "correspondence",     0,  1163 }, { "times",              0,   665 },
+        { "connections",        0,  1161 }, { "opposing",           0,   488 },
+        { "spirit",             1,   357 }, { "world",              1,    62 },
+        { "disavow",            0,  1153 }, { "world",              1,    37 },
+        { "whether",            2,  1541 }, { "world",              0,  1225 },
+        { "whether",            1,  1424 }, { "world",              0,   765 },
+        { "whether",            1,   427 }, { "world",              0,   355 },
+        { "kindred",            0,  1151 }, { "relinquish",         0,   430 },
+        { "meaning",            2,  3446 }, { "Government",         0,   886 },
+        { "common",             2,  2578 }, { "Government",         0,   313 },
+        { "common",             2,   241 }, { "Government",         0,   279 },
+        { "common",             2,   107 }, { "Government",         0,   170 },
+        { "common",             2,    30 }, { "Government",         0,   147 },
+        { "common",             1,   254 }, { "We",                 0,  1204 },
+        { "common",             1,   221 }, { "We",                 0,  1177 },
+        { "common",             1,    89 }, { "We",                 0,  1131 },
+        { "common",             0,  1150 }, { "We",                 0,  1118 },
+        { "ties",               0,  1147 }, { "We",                 0,  1098 },
+        { "treatment",          2,  2178 }, { "We",                 0,  1089 },
+        { "treatment",          2,  1318 }, { "We",                 0,  1042 },
+        { "treatment",          2,   498 }, { "We",                 0,    86 },
+        { "treatment",          2,   483 }, { "enlarging",          0,   819 },
+        { "treatment",          1,   493 }, { "alter",              0,   308 },
+        { "conjured",           0,  1143 }, { "alter",              0,   161 },
+        { "magnanimity",        0,  1139 }, { "organizing",         0,   178 },
+        { "justice",            2,  2983 }, { "medical",            2,  2177 },
+        { "justice",            2,    94 }, { "medical",            1,  1380 },
+        { "justice",            1,    32 }, { "competent",          1,   564 },
+        { "justice",            0,  1173 }, { "abolish",            0,   164 },
+        { "justice",            0,  1137 }, { "changed",            0,   208 },
+        { "native",             0,  1136 }, { "Fortunes",           0,  1357 },
+        { "appealed",           0,  1133 }, { "research",           2,   921 },
+        { "settlement",         0,  1129 }, { "Declaration",        1,  1747 },
+        { "end",                2,   171 }, { "Declaration",        1,  1637 },
+        { "end",                1,   266 }, { "Declaration",        1,   544 },
+        { "reminded",           0,  1120 }, { "Declaration",        1,   375 },
+        { "unwarrantable",      0,  1114 }, { "Declaration",        1,   277 },
+        { "interrupt",          0,  1159 }, { "Declaration",        1,     2 },
+        { "extend",             0,  1112 }, { "Declaration",        0,  1337 },
+        { "throw",              0,   276 }, { "Declaration",        0,     7 },
+        { "attempts",           0,  1107 }, { "importance",         1,   232 },
+        { "deaf",               0,  1168 }, { "importance",         0,   386 },
+        { "warned",             0,  1100 }, { "endowed",            1,   344 },
+        { "brethren",           0,  1097 }, { "endowed",            0,   103 },
+        { "Alliances",          0,  1313 }, { "as",                 2,  3561 },
+        { "Brittish",           0,  1096 }, { "as",                 2,  3497 },
+        { "attentions",         0,  1093 }, { "as",                 2,  3487 },
+        { "Nor",                2,  3076 }, { "as",                 2,  3456 },
+        { "Nor",                1,   704 }, { "as",                 2,  3423 },
+        { "Nor",                0,  1087 }, { "as",                 2,  2973 },
+        { "unfit",              0,  1078 }, { "as",                 2,  2868 },
+        { "Tyrant",             0,  1076 }, { "as",                 2,  2440 },
+        { "define",             0,  1074 }, { "as",                 2,  2420 },
+        { "sustainable",        2,  2295 }, { "as",                 2,  2401 },
+        { "sustainable",        2,   152 }, { "as",                 2,  2369 },
+        { "may",                2,  3356 }, { "as",                 2,  2346 },
+        { "may",                2,  2789 }, { "as",                 2,  2323 },
+        { "may",                2,  2589 }, { "as",                 2,  2230 },
+        { "may",                2,  1909 }, { "as",                 2,  2129 },
+        { "may",                2,  1893 }, { "as",                 2,  2046 },
+        { "may",                2,  1510 }, { "as",                 2,  1908 },
+        { "may",                2,  1286 }, { "as",                 2,  1502 },
+        { "may",                2,  1197 }, { "as",                 2,  1348 },
+        { "may",                2,  1156 }, { "as",                 2,  1205 },
+        { "may",                1,  1748 }, { "as",                 2,   457 },
+        { "may",                1,  1726 }, { "as",                 2,   229 },
+        { "may",                1,  1092 }, { "as",                 2,   125 },
+        { "may",                1,   823 }, { "as",                 2,   123 },
+        { "may",                0,  1327 }, { "as",                 1,  1751 },
+        { "may",                0,  1073 }, { "as",                 1,  1681 },
+        { "act",                2,  3574 }, { "as",                 1,  1185 },
+        { "act",                2,  3132 }, { "as",                 1,   974 },
+        { "act",                2,  3053 }, { "as",                 1,   972 },
+        { "act",                1,  1770 }, { "as",                 1,   913 },
+        { "act",                1,   682 }, { "as",                 1,   505 },
+        { "act",                1,   351 }, { "as",                 1,   382 },
+        { "act",                0,  1071 }, { "as",                 1,   252 },
+        { "marked",             0,  1068 }, { "as",                 1,   105 },
+        { "thus",               0,  1067 }, { "as",                 1,    83 },
+        { "essential",          1,   129 }, { "as",                 0,  1298 },
+        { "essential",          1,    94 }, { "as",                 0,  1191 },
+        { "character",          0,  1065 }, { "as",                 0,   823 },
+        { "answered",           0,  1057 }, { "as",                 0,   184 },
+        { "Petitions",          0,  1054 }, { "new",                2,  3294 },
+        { "Presumption",        2,  2986 }, { "new",                0,   588 },
+        { "Our",                0,  1052 }, { "new",                0,   283 },
+        { "humble",             0,  1050 }, { "new",                0,   169 },
+        { "held",               2,  3043 }, { "change",             2,   733 },
+        { "held",               2,   514 }, { "change",             1,  1007 },
+        { "held",               1,  1172 }, { "change",             1,   876 },
+        { "held",               1,   672 }, { "laying",             0,   171 },
+        { "held",               1,   461 }, { "just",               2,  1820 },
+        { "elected",            2,  2382 }, { "just",               1,  1707 },
+        { "elected",            0,   516 }, { "just",               1,  1285 },
+        { "dissolutions",       0,   510 }, { "just",               1,  1252 },
+        { "time",               2,  3138 }, { "just",               0,   134 },
+        { "time",               2,  3090 }, { "man",                1,    96 },
+        { "time",               2,  3071 }, { "its",                2,  2739 },
+        { "time",               2,  2936 }, { "its",                2,  2671 },
+        { "time",               2,  2470 }, { "its",                2,  2635 },
+        { "time",               2,  1694 }, { "its",                2,  2564 },
+        { "time",               2,  1189 }, { "its",                2,  2560 },
+        { "time",               1,   719 }, { "its",                2,  2542 },
+        { "time",               1,   699 }, { "its",                2,   455 },
+        { "time",               0,  1105 }, { "its",                2,    76 },
+        { "time",               0,  1103 }, { "its",                2,    34 },
+        { "time",               0,   923 }, { "its",                1,  1586 },
+        { "time",               0,   540 }, { "its",                1,   920 },
+        { "time",               0,   507 }, { "its",                0,   820 },
+        { "invasions",          0,   493 }, { "its",                0,   179 },
+        { "firmness",           0,   491 }, { "its",                0,   172 },
+        { "manly",              0,   490 }, { "waging",             0,   896 },
+        { "dissolved",          0,  1295 }, { "move",               2,  2772 },
+        { "dissolved",          0,   483 }, { "local",              2,   144 },
+        { "measures",           2,  1646 }, { "most",               0,  1049 },
+        { "measures",           2,  1472 }, { "most",               0,   951 },
+        { "measures",           1,   298 }, { "most",               0,   851 },
+        { "measures",           0,   479 }, { "most",               0,   365 },
+        { "compliance",         2,  2915 }, { "most",               0,   189 },
+        { "compliance",         0,   476 }, { "Prudence",           0,   197 },
+        { "Records",            0,   467 }, { "has",                2,  3209 },
+        { "effect",             0,   192 }, { "has",                2,  3020 },
+        { "having",             2,  2738 }, { "has",                2,  2996 },
+        { "having",             2,  2670 }, { "has",                2,  2904 },
+        { "having",             2,  2634 }, { "has",                2,  2768 },
+        { "having",             0,   332 }, { "has",                2,  2746 },
+        { "depository",         0,   463 }, { "has",                2,  2678 },
+        { "repeatedly",         0,   486 }, { "has",                2,  2642 },
+        { "King",               0,   319 }, { "has",                2,  2547 },
+        { "2",                  2,  3386 }, { "has",                2,  2454 },
+        { "2",                  2,  3287 }, { "has",                2,  2412 },
+        { "2",                  2,  3117 }, { "has",                2,  2338 },
+        { "2",                  2,  3009 }, { "has",                2,  2162 },
+        { "2",                  2,  2783 }, { "has",                2,  1844 },
+        { "2",                  2,  2479 }, { "has",                2,  1826 },
+        { "2",                  2,  2374 }, { "has",                2,  1798 },
+        { "2",                  2,  2078 }, { "has",                2,  1777 },
+        { "2",                  2,  1978 }, { "has",                2,  1138 },
+        { "2",                  2,  1841 }, { "has",                2,  1054 },
+        { "2",                  2,  1534 }, { "has",                2,  1032 },
+        { "2",                  2,  1382 }, { "has",                2,   939 },
+        { "2",                  2,  1283 }, { "has",                2,   845 },
+        { "2",                  2,  1212 }, { "has",                2,   792 },
+        { "2",                  2,  1048 }, { "has",                2,   718 },
+        { "2",                  2,   953 }, { "has",                2,   643 },
+        { "2",                  2,   891 }, { "has",                2,   635 },
+        { "2",                  2,   824 }, { "has",                2,   591 },
+        { "2",                  2,   763 }, { "has",                2,   567 },
+        { "2",                  2,   604 }, { "has",                2,   549 },
+        { "2",                  2,   519 }, { "has",                2,   385 },
+        { "2",                  2,   398 }, { "has",                2,   357 },
+        { "2",                  2,   362 }, { "has",                1,  1646 },
+        { "2",                  2,   351 }, { "has",                1,  1590 },
+        { "2",                  1,  1664 }, { "has",                1,  1562 },
+        { "2",                  1,  1588 }, { "has",                1,  1441 },
+        { "2",                  1,  1486 }, { "has",                1,  1354 },
+        { "2",                  1,  1411 }, { "has",                1,  1332 },
+        { "2",                  1,  1263 }, { "has",                1,  1313 },
+        { "2",                  1,  1122 }, { "has",                1,  1281 },
+        { "2",                  1,  1089 }, { "has",                1,  1268 },
+        { "2",                  1,   979 }, { "has",                1,  1241 },
+        { "2",                  1,   922 }, { "has",                1,  1190 },
+        { "2",                  1,   861 }, { "has",                1,  1124 },
+        { "2",                  1,   820 }, { "has",                1,  1104 },
+        { "2",                  1,   784 }, { "has",                1,  1079 },
+        { "2",                  1,   667 }, { "has",                1,  1041 },
+        { "2",                  1,   361 }, { "has",                1,   992 },
+        { "unusual",            0,   457 }, { "has",                1,   965 },
+        { "at",                 2,  3591 }, { "has",                1,   855 },
+        { "at",                 2,  3576 }, { "has",                1,   806 },
+        { "at",                 2,  3136 }, { "has",                1,   786 },
+        { "at",                 2,  3088 }, { "has",                1,   769 },
+        { "at",                 2,  3069 }, { "has",                1,   751 },
+        { "at",                 2,  2423 }, { "has",                1,   658 },
+        { "at",                 2,  2404 }, { "has",                1,   638 },
+        { "at",                 2,  2349 }, { "has",                1,   555 },
+        { "at",                 2,  2326 }, { "has",                1,   499 },
+        { "at",                 2,  1878 }, { "has",                1,   445 },
+        { "at",                 2,  1746 }, { "has",                1,    80 },
+        { "at",                 2,  1683 }, { "has",                0,  1007 },
+        { "at",                 2,   894 }, { "has",                0,  1000 },
+        { "at",                 2,   858 }, { "has",                0,   965 },
+        { "at",                 2,   441 }, { "has",                0,   902 },
+        { "at",                 2,   140 }, { "has",                0,   884 },
+        { "at",                 2,    72 }, { "has",                0,   694 },
+        { "at",                 1,  1772 }, { "has",                0,   678 },
+        { "at",                 1,  1450 }, { "has",                0,   660 },
+        { "at",                 1,   919 }, { "has",                0,   636 },
+        { "at",                 1,   717 }, { "has",                0,   612 },
+        { "at",                 1,   697 }, { "has",                0,   594 },
+        { "at",                 1,   655 }, { "has",                0,   555 },
+        { "at",                 0,   921 }, { "has",                0,   502 },
+        { "at",                 0,   827 }, { "has",                0,   482 },
+        { "at",                 0,   529 }, { "has",                0,   450 },
+        { "at",                 0,   455 }, { "has",                0,   412 },
+        { "A",                  2,  2263 }, { "has",                0,   403 },
+        { "A",                  2,  2188 }, { "has",                0,   375 },
+        { "A",                  0,  1062 }, { "has",                0,   358 },
+        { "whereby",            0,   517 }, { "has",                0,   290 },
+        { "each",               1,  1217 }, { "indeed",             0,   198 },
+        { "each",               1,   782 }, { "brotherhood",        1,   359 },
+        { "each",               0,  1352 }, { "dictate",            0,   200 },
+        { "bodies",             2,  3243 }, { "accordingly",        0,   215 },
+        { "bodies",             2,  2700 }, { "advancement",        1,  1584 },
+        { "bodies",             2,  2475 }, { "suffer",             0,   226 },
+        { "bodies",             0,   726 }, { "altering",           0,   855 },
+        { "bodies",             0,   454 }, { "speech",             1,    71 },
+        { "his",                2,  2515 }, { "long",               0,   506 },
+        { "his",                2,  2459 }, { "long",               0,   247 },
+        { "his",                2,  1834 }, { "long",               0,   203 },
+        { "his",                2,  1588 }, { "firm",               0,  1340 },
+        { "his",                2,  1579 }, { "Safety",             0,   194 },
+        { "his",                2,  1160 }, { "united",             0,  1210 },
+        { "his",                2,  1148 }, { "united",             0,    11 },
+        { "his",                2,   887 }, { "worth",              1,   161 },
+        { "his",                2,   573 }, { "abolishing",         0,   849 },
+        { "his",                2,   391 }, { "abolishing",         0,   802 },
+        { "his",                1,  1669 }, { "abolishing",         0,   236 },
+        { "his",                1,  1660 }, { "accustomed",         0,   243 },
+        { "his",                1,  1409 }, { "upon",               1,   745 },
+        { "his",                1,  1373 }, { "when",               2,  3261 },
+        { "his",                1,  1327 }, { "when",               2,  3139 },
+        { "his",                1,  1293 }, { "when",               2,  3072 },
+        { "his",                1,  1235 }, { "when",               1,   700 },
+        { "his",                1,  1228 }, { "when",               0,   399 },
+        { "his",                1,  1134 }, { "when",               0,   245 },
+        { "his",                1,  1114 }, { "terms",              0,  1051 },
+        { "his",                1,  1028 }, { "incapable",          0,   521 },
+        { "his",                1,  1008 }, { "purposes",           2,   613 },
+        { "his",                1,   987 }, { "purposes",           1,  1735 },
+        { "his",                1,   877 }, { "purposes",           1,   844 },
+        { "his",                1,   869 }, { "penalty",            2,  3113 },
+        { "his",                1,   800 }, { "penalty",            2,  3111 },
+        { "his",                1,   794 }, { "penalty",            2,  3080 },
+        { "his",                1,   746 }, { "penalty",            2,  1311 },
+        { "his",                1,   736 }, { "penalty",            2,   371 },
+        { "his",                1,   665 }, { "penalty",            1,   708 },
+        { "his",                1,   618 }, { "fellow",             0,   968 },
+        { "his",                0,   893 }, { "returned",           0,   525 },
+        { "his",                0,   714 }, { "person",             2,  3129 },
+        { "his",                0,   617 }, { "person",             2,  2735 },
+        { "his",                0,   602 }, { "person",             2,  2667 },
+        { "his",                0,   492 }, { "person",             2,  2631 },
+        { "his",                0,   478 }, { "person",             2,  2588 },
+        { "his",                0,   393 }, { "person",             2,  2546 },
+        { "his",                0,   377 }, { "person",             2,  2510 },
+        { "his",                0,   360 }, { "person",             2,  2488 },
+        { "Supreme",            0,  1221 }, { "person",             2,  2453 },
+        { "slavery",            2,   516 }, { "person",             2,   623 },
+        { "slavery",            2,   505 }, { "person",             2,   557 },
+        { "slavery",            1,   466 }, { "person",             2,   421 },
+        { "slavery",            1,   463 }, { "person",             2,   382 },
+        { "legislative",        0,   453 }, { "person",             1,  1758 },
+        { "together",           0,   452 }, { "person",             1,   507 },
+        { "voice",              0,  1171 }, { "person",             1,   454 },
+        { "called",             0,   451 }, { "person",             1,   425 },
+        { "participate",        2,  1619 }, { "person",             1,   165 },
+        { "participate",        1,  1567 }, { "exercise",           2,  3324 },
+        { "women",              2,  1448 }, { "exercise",           2,  1063 },
+        { "women",              2,  1443 }, { "exercise",           2,  1011 },
+        { "women",              1,   884 }, { "exercise",           2,   779 },
+        { "women",              1,   174 }, { "exercise",           2,   704 },
+        { "districts",          0,   423 }, { "exercise",           1,  1667 },
+        { "traditions",         2,   237 }, { "exercise",           0,   533 },
+        { "traditions",         2,   117 }, { "remaining",          0,   536 },
+        { "large",              0,   925 }, { "Trade",              0,   759 },
+        { "large",              0,   725 }, { "protected",          2,  1936 },
+        { "large",              0,   530 }, { "protected",          2,  1217 },
+        { "large",              0,   422 }, { "protected",          2,   349 },
+        { "Representative",     0,   484 }, { "protected",          1,   120 },
+        { "accommodation",      0,   420 }, { "mean",               0,   539 },
+        { "giving",             0,   713 }, { "sciences",           2,   916 },
+        { "rectitude",          0,  1228 }, { "But",                0,   244 },
+        { "other",              2,  1365 }, { "exposed",            0,   541 },
+        { "other",              2,  1314 }, { "reason",             2,  1996 },
+        { "other",              2,   627 }, { "reason",             1,   346 },
+        { "other",              2,   311 }, { "When",               0,    15 },
+        { "other",              1,  1402 }, { "dangers",            0,   545 },
+        { "other",              1,  1306 }, { "engage",             2,  3566 },
+        { "other",              1,   815 }, { "engage",             2,  1036 },
+        { "other",              1,   438 }, { "engage",             2,  1027 },
+        { "other",              1,   399 }, { "engage",             1,  1762 },
+        { "other",              1,   390 }, { "invasion",           0,   547 },
+        { "other",              0,  1353 }, { "substance",          0,   657 },
+        { "other",              0,  1320 }, { "hither",             0,   645 },
+        { "other",              0,   416 }, { "hither",             0,   582 },
+        { "powers",             2,  3306 }, { "commit",             0,   747 },
+        { "powers",             2,  3286 }, { "without",            2,  1903 },
+        { "powers",             2,   213 }, { "without",            2,  1403 },
+        { "powers",             0,   609 }, { "without",            2,   815 },
+        { "powers",             0,   520 }, { "without",            1,  1265 },
+        { "powers",             0,   180 }, { "without",            1,  1057 },
+        { "powers",             0,   135 }, { "without",            1,   888 },
+        { "powers",             0,    44 }, { "without",            1,   522 },
+        { "neglected",          0,   405 }, { "without",            1,   376 },
+        { "utterly",            0,   404 }, { "without",            0,   772 },
+        { "till",               0,   392 }, { "without",            0,   670 },
+        { "operation",          1,  1207 }, { "without",            0,   549 },
+        { "operation",          1,   200 }, { "ruler",              0,  1082 },
+        { "operation",          0,   391 }, { "convulsions",        0,   551 },
+        { "United",             1,  1740 }, { "within",             2,  3412 },
+        { "United",             1,  1532 }, { "within",             2,  3216 },
+        { "United",             1,   849 }, { "within",             2,  2933 },
+        { "United",             1,   203 }, { "within",             2,  2776 },
+        { "United",             1,   144 }, { "within",             2,  2467 },
+        { "United",             0,  1252 }, { "within",             2,  2084 },
+        { "suspended",          0,   401 }, { "within",             2,  1675 },
+        { "suspended",          0,   388 }, { "within",             1,   778 },
+        { "among",              2,    19 }, { "within",             0,   552 },
+        { "among",              1,  1518 }, { "begun",              0,   940 },
+        { "among",              1,   320 }, { "paralleled",         0,   948 },
+        { "among",              1,   312 }, { "prevent",            2,  3468 },
+        { "among",              0,   730 }, { "prevent",            2,  1466 },
+        { "among",              0,   662 }, { "prevent",            0,   558 },
+        { "among",              0,   130 }, { "obstructing",        0,   567 },
+        { "among",              0,   112 }, { "Naturalization",     0,   571 },
+        { "among",              0,    42 }, { "encourage",          0,   579 },
+        { "insurrections",      0,  1003 }, { "wanting",            0,  1091 },
+        { "pressing",           0,   385 }, { "sole",               0,   470 },
+        { "immediate",          0,   383 }, { "reduce",             0,   262 },
+        { "pass",               0,   576 }, { "intending",          1,   937 },
+        { "pass",               0,   415 }, { "than",               2,  3598 },
+        { "pass",               0,   380 }, { "than",               2,  3083 },
+        { "forbidden",          0,   376 }, { "than",               2,  1897 },
+        { "public",             2,  2931 }, { "than",               1,   711 },
+        { "public",             2,  1544 }, { "than",               0,   231 },
+        { "public",             2,  1167 }, { "raising",            0,   584 },
+        { "public",             2,   818 }, { "maternity",          2,  2047 },
+        { "public",             2,   748 }, { "maternity",          2,  2005 },
+        { "public",             2,   138 }, { "maternity",          2,  1999 },
+        { "public",             1,  1711 }, { "certain",            0,   108 },
+        { "public",             1,  1131 }, { "Appropriations",     0,   589 },
+        { "public",             1,  1023 }, { "which",              2,  3516 },
+        { "public",             1,   653 }, { "which",              2,  3428 },
+        { "public",             1,   606 }, { "which",              2,  3392 },
+        { "public",             0,   466 }, { "which",              2,  3205 },
+        { "public",             0,   371 }, { "which",              2,  3135 },
+        { "refused",            0,   503 }, { "which",              2,  3085 },
+        { "refused",            0,   413 }, { "which",              2,  3056 },
+        { "refused",            0,   359 }, { "which",              2,  2840 },
+        { "expressed",          1,  1155 }, { "which",              2,  2835 },
+        { "He",                 0,   999 }, { "which",              2,  2496 },
+        { "He",                 0,   964 }, { "which",              2,  2431 },
+        { "He",                 0,   919 }, { "which",              2,  2360 },
+        { "He",                 0,   901 }, { "which",              2,  1832 },
+        { "He",                 0,   883 }, { "which",              2,  1524 },
+        { "He",                 0,   693 }, { "which",              2,   870 },
+        { "He",                 0,   677 }, { "which",              2,   642 },
+        { "He",                 0,   659 }, { "which",              1,  1652 },
+        { "He",                 0,   635 }, { "which",              1,  1628 },
+        { "He",                 0,   611 }, { "which",              1,  1611 },
+        { "He",                 0,   593 }, { "which",              1,  1161 },
+        { "He",                 0,   554 }, { "which",              1,   685 },
+        { "He",                 0,   501 }, { "which",              1,   656 },
+        { "He",                 0,   481 }, { "which",              1,   423 },
+        { "He",                 0,   449 }, { "which",              1,    64 },
+        { "He",                 0,   411 }, { "which",              1,    50 },
+        { "He",                 0,   374 }, { "which",              0,  1324 },
+        { "He",                 0,   357 }, { "which",              0,  1184 },
+        { "friendship",         1,  1517 }, { "which",              0,  1156 },
+        { "Foreigners",         0,   573 }, { "which",              0,  1072 },
+        { "constitution",       1,   577 }, { "which",              0,   744 },
+        { "constitution",       0,   707 }, { "which",              0,   304 },
+        { "o",                  2,  2532 }, { "which",              0,   240 },
+        { "o",                  2,  2505 }, { "which",              0,    80 },
+        { "o",                  2,  2483 }, { "which",              0,    54 },
+        { "o",                  2,   464 }, { "which",              0,    33 },
+        { "o",                  2,   446 }, { "Lands",              0,   591 },
+        { "o",                  2,   431 }, { "negotiate",          2,  1741 },
+        { "o",                  2,   413 }, { "society",            2,   188 },
+        { "o",                  0,   998 }, { "society",            1,  1720 },
+        { "o",                  0,   963 }, { "society",            1,  1189 },
+        { "o",                  0,   900 }, { "society",            1,   957 },
+        { "o",                  0,   882 }, { "society",            1,   950 },
+        { "o",                  0,   862 }, { "society",            1,   274 },
+        { "o",                  0,   843 }, { "obstructed",         0,   595 },
+        { "o",                  0,   800 }, { "warfare",            0,  1025 },
+        { "o",                  0,   788 }, { "direct",             2,  2384 },
+        { "o",                  0,   766 }, { "direct",             2,  1575 },
+        { "o",                  0,   754 }, { "direct",             0,   334 },
+        { "o",                  0,   722 }, { "cultures",           2,   115 },
+        { "o",                  0,   692 }, { "causes",             0,   213 },
+        { "o",                  0,   676 }, { "causes",             0,    79 },
+        { "o",                  0,   658 }, { "Administration",     0,   597 },
+        { "o",                  0,   634 }, { "subject",            2,  1181 },
+        { "o",                  0,   610 }, { "subject",            2,   664 },
+        { "o",                  0,   592 }, { "subject",            1,  1676 },
+        { "o",                  0,   553 }, { "subject",            0,   699 },
+        { "o",                  0,   500 }, { "Justice",            2,  2708 },
+        { "o",                  0,   480 }, { "Justice",            2,   287 },
+        { "o",                  0,   448 }, { "Justice",            0,   599 },
+        { "o",                  0,   410 }, { "rule",               2,    65 },
+        { "o",                  0,   373 }, { "rule",               1,   123 },
+        { "o",                  0,   356 }, { "rule",               0,  1023 },
+        { "submitted",          0,   351 }, { "rule",               0,   839 },
+        { "States",             2,  3525 }, { "Judiciary",          0,   608 },
+        { "States",             2,  3259 }, { "made",               2,  3358 },
+        { "States",             2,  2782 }, { "made",               2,  2962 },
+        { "States",             2,  2585 }, { "made",               1,  1469 },
+        { "States",             2,  1092 }, { "made",               1,   406 },
+        { "States",             2,   245 }, { "made",               0,   613 },
+        { "States",             2,   132 }, { "Judges",             0,   614 },
+        { "States",             1,   317 }, { "uncomfortable",      0,   458 },
+        { "States",             1,   192 }, { "dependent",          0,   615 },
+        { "States",             0,  1326 }, { "Colonies",           0,  1253 },
+        { "States",             0,  1302 }, { "Colonies",           0,  1245 },
+        { "States",             0,  1264 }, { "Colonies",           0,   842 },
+        { "States",             0,  1211 }, { "Colonies",           0,   297 },
+        { "States",             0,   753 }, { "abdicated",          0,   885 },
+        { "States",             0,   563 }, { "Will",               0,   618 },
+        { "States",             0,   344 }, { "tenure",             0,   622 },
+        { "States",             0,    12 }, { "Forms",              0,   858 },
+        { "let",                0,   348 }, { "offices",            0,   625 },
+        { "this",               2,  3588 }, { "necessary",          2,  3363 },
+        { "this",               2,  3556 }, { "necessary",          2,  2977 },
+        { "this",               2,  3482 }, { "necessary",          2,  1504 },
+        { "this",               2,  3424 }, { "necessary",          2,  1207 },
+        { "this",               2,  3390 }, { "necessary",          2,   174 },
+        { "this",               2,  3332 }, { "necessary",          1,  1383 },
+        { "this",               2,  3235 }, { "necessary",          1,  1304 },
+        { "this",               2,  2922 }, { "necessary",          1,   663 },
+        { "this",               2,   781 }, { "necessary",          0,   368 },
+        { "this",               2,   170 }, { "necessary",          0,    24 },
+        { "this",               1,  1746 }, { "amount",             0,   628 },
+        { "this",               1,  1636 }, { "derogations",        2,  1920 },
+        { "this",               1,  1151 }, { "indispensable",      1,  1226 },
+        { "this",               1,  1050 }, { "keeping",            1,   275 },
+        { "this",               1,  1002 }, { "payment",            0,   630 },
+        { "this",               1,   543 }, { "salaries",           0,   633 },
+        { "this",               1,   374 }, { "multitude",          0,   639 },
+        { "this",               1,   276 }, { "specified",          2,   612 },
+        { "this",               1,   238 }, { "Offices",            0,   642 },
+        { "this",               0,  1336 }, { "Inhabitants",        0,   750 },
+        { "this",               0,   922 }, { "sent",               0,   644 },
+        { "this",               0,   347 }, { "entitle",            0,    63 },
+        { "barbarous",          1,    48 }, { "swarms",             0,   646 },
+        { "barbarous",          0,   952 }, { "Creator",            0,   106 },
+        { "would",              2,  2497 }, { "Boundaries",         0,   821 },
+        { "would",              2,  1305 }, { "In",                 2,  3420 },
+        { "would",              0,  1157 }, { "In",                 2,  2108 },
+        { "would",              0,   429 }, { "In",                 2,  1535 },
+        { "prove",              0,   346 }, { "In",                 2,   399 },
+        { "To",                 2,  1979 }, { "In",                 1,  1665 },
+        { "To",                 2,   169 }, { "In",                 0,  1036 },
+        { "To",                 0,   345 }, { "New",                0,   641 },
+        { "organization",       1,  1213 }, { "Officers",           0,   648 },
+        { "events",             0,    21 }, { "protection",         2,  3479 },
+        { "Legislative",        0,   519 }, { "protection",         2,  3474 },
+        { "an",                 2,  3202 }, { "protection",         2,  2853 },
+        { "an",                 2,  2938 }, { "protection",         2,  2820 },
+        { "an",                 2,  2908 }, { "protection",         2,  2310 },
+        { "an",                 2,  2882 }, { "protection",         2,  2300 },
+        { "an",                 2,  2608 }, { "protection",         2,  2268 },
+        { "an",                 2,  1861 }, { "protection",         2,  2262 },
+        { "an",                 2,  1022 }, { "protection",         2,  2194 },
+        { "an",                 2,   668 }, { "protection",         2,  2042 },
+        { "an",                 2,    88 }, { "protection",         2,  1991 },
+        { "an",                 2,    15 }, { "protection",         2,  1977 },
+        { "an",                 1,  1295 }, { "protection",         2,  1874 },
+        { "an",                 1,  1098 }, { "protection",         2,  1802 },
+        { "an",                 1,   609 }, { "protection",         2,  1499 },
+        { "an",                 1,   559 }, { "protection",         2,   885 },
+        { "an",                 0,  1113 }, { "protection",         2,   596 },
+        { "an",                 0,  1027 }, { "protection",         2,   178 },
+        { "an",                 0,   829 }, { "protection",         1,  1595 },
+        { "an",                 0,   815 }, { "protection",         1,  1436 },
+        { "an",                 0,   339 }, { "protection",         1,  1325 },
+        { "co",                 1,  1206 }, { "protection",         1,  1310 },
+        { "co",                 1,   199 }, { "protection",         1,  1260 },
+        { "over",               0,  1116 }, { "protection",         1,   955 },
+        { "over",               0,   342 }, { "protection",         1,   756 },
+        { "is",                 2,  3599 }, { "protection",         1,   536 },
+        { "is",                 2,  2976 }, { "protection",         1,   527 },
+        { "is",                 2,  2925 }, { "protection",         0,  1344 },
+        { "is",                 2,  2847 }, { "harrass",            0,   650 },
+        { "is",                 2,  2844 }, { "proclaimed",         1,    82 },
+        { "is",                 2,  2503 }, { "out",                2,   331 },
+        { "is",                 2,  2088 }, { "out",                1,  1428 },
+        { "is",                 2,  1884 }, { "out",                0,   891 },
+        { "is",                 2,  1585 }, { "out",                0,   655 },
+        { "is",                 2,  1503 }, { "us",                 0,  1117 },
+        { "is",                 2,  1331 }, { "us",                 0,  1005 },
+        { "is",                 2,  1297 }, { "us",                 0,   899 },
+        { "is",                 2,  1206 }, { "us",                 0,   890 },
+        { "is",                 2,  1129 }, { "us",                 0,   877 },
+        { "is",                 2,   769 }, { "us",                 0,   791 },
+        { "is",                 2,   536 }, { "us",                 0,   777 },
+        { "is",                 2,   342 }, { "us",                 0,   771 },
+        { "is",                 2,   173 }, { "us",                 0,   731 },
+        { "is",                 2,    56 }, { "us",                 0,   700 },
+        { "is",                 2,    41 }, { "us",                 0,   663 },
+        { "is",                 1,  1662 }, { "assembly",           2,   852 },
+        { "is",                 1,  1619 }, { "assembly",           2,   839 },
+        { "is",                 1,  1613 }, { "assembly",           1,  1086 },
+        { "is",                 1,  1197 }, { "Annihilation",       0,   523 },
+        { "is",                 1,   952 }, { "peace",              1,  1538 },
+        { "is",                 1,   942 }, { "peace",              1,    34 },
+        { "is",                 1,   597 }, { "peace",              0,   667 },
+        { "is",                 1,   363 }, { "Consent",            0,   774 },
+        { "is",                 1,   228 }, { "Consent",            0,   672 },
+        { "is",                 1,   128 }, { "legislatures",       0,   675 },
+        { "is",                 1,    97 }, { "office",             2,  2741 },
+        { "is",                 1,    93 }, { "office",             2,  2673 },
+        { "is",                 1,    27 }, { "office",             2,  2637 },
+        { "is",                 0,  1289 }, { "affected",           0,   679 },
+        { "is",                 0,  1077 }, { "Military",           0,   683 },
+        { "is",                 0,  1066 }, { "independent",        2,  2939 },
+        { "is",                 0,  1026 }, { "independent",        2,   669 },
+        { "is",                 0,   920 }, { "independent",        1,   610 },
+        { "is",                 0,   323 }, { "independent",        1,   430 },
+        { "is",                 0,   300 }, { "independent",        0,   684 },
+        { "is",                 0,   272 }, { "power",              2,  3295 },
+        { "is",                 0,   268 }, { "power",              0,   873 },
+        { "is",                 0,   154 }, { "power",              0,   691 },
+        { "places",             2,    69 }, { "jurisdiction",       1,   327 },
+        { "places",             0,   456 }, { "jurisdiction",       0,  1115 },
+        { "Tyranny",            0,   341 }, { "jurisdiction",       0,   703 },
+        { "establishment",      2,  1067 }, { "foreign",            0,   928 },
+        { "establishment",      2,   168 }, { "foreign",            0,   704 },
+        { "establishment",      0,   337 }, { "care",               2,  2170 },
+        { "principles",         2,  3275 }, { "care",               2,  2160 },
+        { "principles",         2,  3149 }, { "care",               2,  1501 },
+        { "principles",         2,  2577 }, { "care",               1,  1419 },
+        { "principles",         2,   976 }, { "care",               1,  1381 },
+        { "principles",         2,   329 }, { "lives",              0,   915 },
+        { "principles",         2,    60 }, { "unacknowledged",     0,   709 },
+        { "principles",         1,  1737 }, { "legislature",        0,  1110 },
+        { "principles",         1,   846 }, { "pretended",          0,   798 },
+        { "principles",         0,   176 }, { "pretended",          0,   720 },
+        { "injuries",           0,   328 }, { "frontiers",          2,   823 },
+        { "Britain",            0,  1288 }, { "frontiers",          1,  1074 },
+        { "Britain",            0,   322 }, { "frontiers",          0,  1016 },
+        { "7",                  2,   559 }, { "For",                0,   863 },
+        { "7",                  1,   512 }, { "For",                0,   844 },
+        { "unanimous",          0,     6 }, { "For",                0,   801 },
+        { "deriving",           0,   132 }, { "For",                0,   789 },
+        { "superior",           0,   687 }, { "For",                0,   775 },
+        { "migrations",         0,   581 }, { "For",                0,   767 },
+        { "Great",              0,  1287 }, { "For",                0,   755 },
+        { "Great",              0,   321 }, { "For",                0,   732 },
+        { "render",             0,   825 }, { "For",                0,   723 },
+        { "render",             0,   681 }, { "Quartering",         0,   724 },
+        { "natural",            2,  2732 }, { "whatsoever",         0,   881 },
+        { "natural",            2,  2664 }, { "Legislation",        0,   721 },
+        { "natural",            2,  2628 }, { "shall",              2,  3558 },
+        { "natural",            1,   944 }, { "shall",              2,  3484 },
+        { "history",            0,   325 }, { "shall",              2,  3466 },
+        { "history",            0,   315 }, { "shall",              2,  3452 },
+        { "those",              2,  3457 }, { "shall",              2,  3405 },
+        { "those",              2,  3450 }, { "shall",              2,  3268 },
+        { "those",              2,  3417 }, { "shall",              2,  3189 },
+        { "those",              2,  3345 }, { "shall",              2,  3120 },
+        { "those",              2,  2965 }, { "shall",              2,  3114 },
+        { "those",              2,  2137 }, { "shall",              2,  3077 },
+        { "those",              2,  1410 }, { "shall",              2,  3041 },
+        { "those",              2,  1100 }, { "shall",              2,  3023 },
+        { "those",              2,   439 }, { "shall",              2,  2999 },
+        { "those",              2,   198 }, { "shall",              2,  2960 },
+        { "those",              0,   427 }, { "shall",              2,  2948 },
+        { "former",             0,   310 }, { "shall",              2,  2826 },
+        { "citizen",            2,  2822 }, { "shall",              2,  2380 },
+        { "citizen",            2,  2764 }, { "shall",              2,  2303 },
+        { "citizen",            2,  2726 }, { "shall",              2,  2195 },
+        { "citizen",            2,  2658 }, { "shall",              2,  1986 },
+        { "citizen",            2,  2622 }, { "shall",              2,  1971 },
+        { "citizen",            2,  2408 }, { "shall",              2,  1561 },
+        { "citizen",            2,  2334 }, { "shall",              2,  1517 },
+        { "citizen",            2,  1050 }, { "shall",              2,  1493 },
+        { "obtained",           0,   397 }, { "shall",              2,  1464 },
+        { "Acts",               0,  1321 }, { "shall",              2,  1430 },
+        { "Acts",               0,   718 }, { "shall",              2,  1418 },
+        { "constrains",         0,   305 }, { "shall",              2,  1379 },
+        { "now",                0,   301 }, { "shall",              2,  1227 },
+        { "Human",              2,  3536 }, { "shall",              2,  1215 },
+        { "Human",              2,  3440 }, { "shall",              2,  1000 },
+        { "Human",              2,   340 }, { "shall",              2,   929 },
+        { "Human",              2,   338 }, { "shall",              2,   922 },
+        { "Human",              2,   298 }, { "shall",              2,   832 },
+        { "Human",              2,   261 }, { "shall",              2,   801 },
+        { "Human",              1,     4 }, { "shall",              2,   693 },
+        { "sufferance",         0,   294 }, { "shall",              2,   662 },
+        { "Such",               2,  1515 }, { "shall",              2,   522 },
+        { "Such",               2,   605 }, { "shall",              2,   512 },
+        { "Such",               0,   289 }, { "shall",              2,   488 },
+        { "security",           2,  2092 }, { "shall",              2,   365 },
+        { "security",           2,  2036 }, { "shall",              1,  1674 },
+        { "security",           2,  2022 }, { "shall",              1,  1552 },
+        { "security",           2,   555 }, { "shall",              1,  1526 },
+        { "security",           2,   547 }, { "shall",              1,  1512 },
+        { "security",           2,    92 }, { "shall",              1,  1488 },
+        { "security",           1,  1390 }, { "shall",              1,  1475 },
+        { "security",           1,  1195 }, { "shall",              1,  1467 },
+        { "security",           1,   452 }, { "shall",              1,  1460 },
+        { "security",           0,   288 }, { "shall",              1,  1447 },
+        { "perform",            2,  3572 }, { "shall",              1,  1431 },
+        { "perform",            2,   526 }, { "shall",              1,  1170 },
+        { "perform",            1,  1768 }, { "shall",              1,  1162 },
+        { "legitimate",         2,  2522 }, { "shall",              1,  1153 },
+        { "legitimate",         2,   628 }, { "shall",              1,  1142 },
+        { "likely",             2,  1943 }, { "shall",              1,   982 },
+        { "likely",             0,   190 }, { "shall",              1,   924 },
+        { "Systems",            0,   311 }, { "shall",              1,   864 },
+        { "off",                0,   757 }, { "shall",              1,   729 },
+        { "off",                0,   277 }, { "shall",              1,   705 },
+        { "ends",               0,   152 }, { "shall",              1,   670 },
+        { "Despotism",          0,   266 }, { "shall",              1,   585 },
+        { "absolute",           0,   838 }, { "shall",              1,   482 },
+        { "absolute",           0,   340 }, { "shall",              1,   471 },
+        { "absolute",           0,   265 }, { "shall",              1,   459 },
+        { "under",              2,  3408 }, { "shall",              1,   404 },
+        { "under",              2,  3063 }, { "shall",              1,   281 },
+        { "under",              2,  2436 }, { "shall",              1,    67 },
+        { "under",              2,  2365 }, { "shall",              0,   187 },
+        { "under",              2,  2179 }, { "troops",             0,   729 },
+        { "under",              2,  1699 }, { "protecting",         0,   733 },
+        { "under",              2,  1481 }, { "mock",               0,   737 },
+        { "under",              2,  1174 }, { "Trial",              0,   785 },
+        { "under",              1,   692 }, { "Trial",              0,   738 },
+        { "under",              1,   436 }, { "subsidiarity",       2,  3254 },
+        { "under",              1,   325 }, { "subsidiarity",       2,   226 },
+        { "under",              0,   264 }, { "punishment",         2,  3126 },
+        { "Houses",             0,   485 }, { "punishment",         2,  1320 },
+        { "they",               2,  3361 }, { "punishment",         2,   500 },
+        { "they",               2,  3262 }, { "punishment",         2,   485 },
+        { "they",               2,   230 }, { "punishment",         1,   495 },
+        { "they",               0,  1303 }, { "punishment",         0,   740 },
+        { "they",               0,  1266 }, { "parts",              2,   456 },
+        { "they",               0,   745 }, { "parts",              0,   762 },
+        { "they",               0,   241 }, { "depriving",          0,   776 },
+        { "they",               0,   101 }, { "many",               0,   779 },
+        { "they",               0,    75 }, { "cases",              2,  2689 },
+        { "unworthy",           0,   956 }, { "cases",              2,  2044 },
+        { "spiritual",          2,    35 }, { "cases",              2,  1752 },
+        { "amongst",            0,  1004 }, { "cases",              2,  1697 },
+        { "regard",             2,  3249 }, { "cases",              2,  1172 },
+        { "regard",             2,   309 }, { "cases",              0,   880 },
+        { "regard",             2,   210 }, { "cases",              0,   780 },
+        { "design",             0,   260 }, { "benefits",           2,  2093 },
+        { "Free",               0,  1299 }, { "benefits",           2,  2037 },
+        { "Free",               0,  1261 }, { "benefits",           1,  1587 },
+        { "placement",          2,  1785 }, { "benefits",           0,   783 },
+        { "placement",          2,  1774 }, { "least",              1,  1451 },
+        { "reliance",           0,  1341 }, { "leave",              2,  2010 },
+        { "evinces",            0,   258 }, { "leave",              2,  2006 },
+        { "unalienable",        0,   109 }, { "leave",              2,  1866 },
+        { "armed",              0,   728 }, { "leave",              1,   790 },
+        { "Object",             0,   257 }, { "Jury",               0,   787 },
+        { "not",                2,  3467 }, { "imposing",           0,   768 },
+        { "not",                2,  3291 }, { "transporting",       0,   924 },
+        { "not",                2,  3172 }, { "transporting",       0,   790 },
+        { "not",                2,  3162 }, { "Form",               0,   145 },
+        { "not",                2,  3121 }, { "beyond",             1,  1408 },
+        { "not",                2,  3058 }, { "beyond",             0,   792 },
+        { "not",                2,  2848 }, { "unions",             2,   882 },
+        { "not",                2,  1894 }, { "unions",             1,  1322 },
+        { "not",                2,  1465 }, { "tried",              2,  3194 },
+        { "not",                1,   824 }, { "tried",              2,  3175 },
+        { "not",                1,   687 }, { "tried",              0,   796 },
+        { "not",                1,    98 }, { "free",               2,  2389 },
+        { "not",                0,   206 }, { "free",               2,  1784 },
+        { "future",             2,   319 }, { "free",               2,   961 },
+        { "future",             2,    27 }, { "free",               2,   924 },
+        { "future",             0,   287 }, { "free",               2,   415 },
+        { "pursuit",            0,   119 }, { "free",               2,   156 },
+        { "implying",           2,  3562 }, { "free",               1,  1655 },
+        { "implying",           1,  1752 }, { "free",               1,  1449 },
+        { "Governors",          0,   378 }, { "free",               1,  1247 },
+        { "form",               2,   877 }, { "free",               1,  1232 },
+        { "form",               1,  1317 }, { "free",               1,  1179 },
+        { "form",               0,   183 }, { "free",               1,   931 },
+        { "Life",               0,   115 }, { "free",               1,   335 },
+        { "objection",          2,   768 }, { "free",               0,  1085 },
+        { "of",                 2,  3581 }, { "free",               0,   804 },
+        { "of",                 2,  3579 }, { "invariably",         0,   254 },
+        { "of",                 2,  3552 }, { "during",             1,   916 },
+        { "of",                 2,  3550 }, { "System",             0,   805 },
+        { "of",                 2,  3535 }, { "English",            0,   807 },
+        { "of",                 2,  3503 }, { "neighbouring",       0,   811 },
+        { "of",                 2,  3478 }, { "fairly",             2,  2465 },
+        { "of",                 2,  3449 }, { "fairly",             2,   610 },
+        { "of",                 2,  3439 }, { "therein",            0,   814 },
+        { "of",                 2,  3384 }, { "Arbitrary",          0,   816 },
+        { "of",                 2,  3368 }, { "only",               2,  3359 },
+        { "of",                 2,  3353 }, { "only",               2,  3260 },
+        { "of",                 2,  3344 }, { "only",               1,  1677 },
+        { "of",                 2,  3325 }, { "only",               1,   928 },
+        { "of",                 2,  3316 }, { "only",               0,  1058 },
+        { "of",                 2,  3253 }, { "only",               0,   447 },
+        { "of",                 2,  3244 }, { "government",         1,  1150 },
+        { "of",                 2,  3234 }, { "government",         1,  1112 },
+        { "of",                 2,  3159 }, { "government",         0,   817 },
+        { "of",                 2,  3154 }, { "repeated",           0,  1060 },
+        { "of",                 2,  3127 }, { "repeated",           0,  1053 },
+        { "of",                 2,  3101 }, { "repeated",           0,   327 },
+        { "of",                 2,  3051 }, { "example",            0,   830 },
+        { "of",                 2,  3045 }, { "others",             2,  3385 },
+        { "of",                 2,  3033 }, { "others",             2,   745 },
+        { "of",                 2,  3029 }, { "others",             1,  1702 },
+        { "of",                 2,  3017 }, { "others",             1,  1020 },
+        { "of",                 2,  3014 }, { "others",             1,   978 },
+        { "of",                 2,  2991 }, { "others",             0,   697 },
+        { "of",                 2,  2987 }, { "others",             0,   577 },
+        { "of",                 2,  2952 }, { "others",             0,   513 },
+        { "of",                 2,  2899 }, { "introducing",        0,   835 },
+        { "of",                 2,  2871 }, { "Charters",           2,   268 },
+        { "of",                 2,  2860 }, { "Charters",           0,   848 },
+        { "of",                 2,  2839 }, { "sovereignty",        1,   441 },
+        { "of",                 2,  2830 }, { "support",            0,  1334 },
+        { "of",                 2,  2823 }, { "valuable",           0,   852 },
+        { "of",                 2,  2811 }, { "Province",           0,   812 },
+        { "of",                 2,  2803 }, { "arts",               2,   918 },
+        { "of",                 2,  2785 }, { "arts",               2,   914 },
+        { "of",                 2,  2779 }, { "arts",               1,  1578 },
+        { "of",                 2,  2765 }, { "fundamentally",      0,   856 },
+        { "of",                 2,  2760 }, { "suspending",         0,   864 },
+        { "of",                 2,  2757 }, { "Legislatures",       0,   867 },
+        { "of",                 2,  2727 }, { "formidable",         0,   444 },
+        { "of",                 2,  2712 }, { "evident",            0,    93 },
+        { "of",                 2,  2707 }, { "declaring",          0,   889 },
+        { "of",                 2,  2704 }, { "declaring",          0,   869 },
+        { "of",                 2,  2695 }, { "Nothing",            2,  3554 },
+        { "of",                 2,  2690 }, { "Nothing",            2,  3480 },
+        { "of",                 2,  2686 }, { "Nothing",            1,  1744 },
+        { "of",                 2,  2659 }, { "instrument",         0,   833 },
+        { "of",                 2,  2645 }, { "State",              2,  2874 },
+        { "of",                 2,  2623 }, { "State",              2,  2863 },
+        { "of",                 2,  2617 }, { "State",              2,  2838 },
+        { "of",                 2,  2602 }, { "State",              2,  2814 },
+        { "of",                 2,  2599 }, { "State",              2,  2745 },
+        { "of",                 2,  2594 }, { "State",              2,  2677 },
+        { "of",                 2,  2582 }, { "State",              2,  2641 },
+        { "of",                 2,  2569 }, { "State",              2,  2444 },
+        { "of",                 2,  2535 }, { "State",              2,  2429 },
+        { "of",                 2,  2527 }, { "State",              2,  2373 },
+        { "of",                 2,  2524 }, { "State",              2,  2358 },
+        { "of",                 2,  2508 }, { "State",              2,  1294 },
+        { "of",                 2,  2486 }, { "State",              2,  1075 },
+        { "of",                 2,  2476 }, { "State",              1,  1755 },
+        { "of",                 2,  2442 }, { "State",              1,  1218 },
+        { "of",                 2,  2409 }, { "State",              1,   960 },
+        { "of",                 2,  2376 }, { "State",              0,  1285 },
+        { "of",                 2,  2371 }, { "State",              0,   535 },
+        { "of",                 2,  2335 }, { "War",                0,  1309 },
+        { "of",                 2,  2308 }, { "War",                0,  1200 },
+        { "of",                 2,  2294 }, { "War",                0,   897 },
+        { "of",                 2,  2284 }, { "receive",            2,   960 },
+        { "of",                 2,  2275 }, { "receive",            2,   809 },
+        { "of",                 2,  2272 }, { "receive",            1,  1062 },
+        { "of",                 2,  2266 }, { "against",            2,  1937 },
+        { "of",                 2,  2256 }, { "against",            2,  1803 },
+        { "of",                 2,  2226 }, { "against",            1,  1261 },
+        { "of",                 2,  2214 }, { "against",            1,   760 },
+        { "of",                 2,  2203 }, { "against",            1,   627 },
+        { "of",                 2,  2191 }, { "against",            1,   546 },
+        { "of",                 2,  2165 }, { "against",            1,   537 },
+        { "of",                 2,  2061 }, { "against",            1,   111 },
+        { "of",                 2,  2059 }, { "against",            0,   979 },
+        { "of",                 2,  2016 }, { "against",            0,   898 },
+        { "of",                 2,  1889 }, { "plundered",          0,   903 },
+        { "of",                 2,  1882 }, { "burnt",              0,   909 },
+        { "of",                 2,  1875 }, { "proceedings",        2,  3200 },
+        { "of",                 2,  1870 }, { "proceedings",        2,  3181 },
+        { "of",                 2,  1864 }, { "Standing",           0,   668 },
+        { "of",                 2,  1849 }, { "ravaged",            0,   906 },
+        { "of",                 2,  1793 }, { "Coasts",             0,   908 },
+        { "of",                 2,  1780 }, { "destroyed",          0,   913 },
+        { "of",                 2,  1771 }, { "Mercenaries",        0,   929 },
+        { "of",                 2,  1755 }, { "works",              1,  1280 },
+        { "of",                 2,  1753 }, { "works",              0,   933 },
+        { "of",                 2,  1715 }, { "death",              2,  1310 },
+        { "of",                 2,  1661 }, { "death",              2,   370 },
+        { "of",                 2,  1639 }, { "death",              0,   935 },
+        { "of",                 2,  1628 }, { "desolation",         0,   936 },
+        { "of",                 2,  1613 }, { "constrained",        0,   966 },
+        { "of",                 2,  1606 }, { "arising",            1,   833 },
+        { "of",                 2,  1596 }, { "sexes",              0,  1033 },
+        { "of",                 2,  1488 }, { "heavier",            2,  3079 },
+        { "of",                 2,  1479 }, { "heavier",            1,   707 },
+        { "of",                 2,  1471 }, { "DIGNITY",            2,   335 },
+        { "of",                 2,  1462 }, { "tyranny",            1,   112 },
+        { "of",                 2,  1416 }, { "tyranny",            0,   938 },
+        { "of",                 2,  1409 }, { "compleat",           0,   931 },
+        { "of",                 2,  1396 }, { "already",            2,  3210 },
+        { "of",                 2,  1388 }, { "already",            0,   939 },
+        { "of",                 2,  1386 }, { "circumstances",      1,  1407 },
+        { "of",                 2,  1368 }, { "circumstances",      0,  1124 },
+        { "of",                 2,  1273 }, { "circumstances",      0,   942 },
+        { "of",                 2,  1255 }, { "Cruelty",            0,   944 },
+        { "of",                 2,  1247 }, { "Member",             2,  3544 },
+        { "of",                 2,  1240 }, { "Member",             2,  3524 },
+        { "of",                 2,  1236 }, { "Member",             2,  3258 },
+        { "of",                 2,  1195 }, { "Member",             2,  2873 },
+        { "of",                 2,  1159 }, { "Member",             2,  2862 },
+        { "of",                 2,  1145 }, { "Member",             2,  2837 },
+        { "of",                 2,  1103 }, { "Member",             2,  2813 },
+        { "of",                 2,  1101 }, { "Member",             2,  2781 },
+        { "of",                 2,  1089 }, { "Member",             2,  2744 },
+        { "of",                 2,  1078 }, { "Member",             2,  2676 },
+        { "of",                 2,  1066 }, { "Member",             2,  2640 },
+        { "of",                 2,  1051 }, { "Member",             2,  2584 },
+        { "of",                 2,  1012 }, { "Member",             2,  2428 },
+        { "of",                 2,   988 }, { "Member",             2,  2357 },
+        { "of",                 2,   980 }, { "Member",             2,  1091 },
+        { "of",                 2,   925 }, { "Member",             2,  1074 },
+        { "of",                 2,   912 }, { "Member",             2,   244 },
+        { "of",                 2,   906 }, { "Member",             2,   131 },
+        { "of",                 2,   903 }, { "Member",             1,   316 },
+        { "of",                 2,   886 }, { "Member",             1,   191 },
+        { "of",                 2,   874 }, { "attend",             0,   407 },
+        { "of",                 2,   856 }, { "perfidy",            0,   946 },
+        { "of",                 2,   850 }, { "if",                 2,  3360 },
+        { "of",                 2,   841 }, { "if",                 1,  1303 },
+        { "of",                 2,   838 }, { "if",                 1,    95 },
+        { "of",                 2,   829 }, { "ages",               0,  1032 },
+        { "of",                 2,   822 }, { "ages",               0,   953 },
+        { "of",                 2,   797 }, { "totally",            0,  1294 },
+        { "of",                 2,   786 }, { "totally",            0,   955 },
+        { "of",                 2,   780 }, { "authorities",        2,  2859 },
+        { "of",                 2,   723 }, { "authorities",        2,  1545 },
+        { "of",                 2,   711 }, { "authorities",        2,   139 },
+        { "of",                 2,   705 }, { "Head",               0,   958 },
+        { "of",                 2,   638 }, { "civilized",          0,   961 },
+        { "of",                 2,   621 }, { "Allegiance",         0,  1271 },
+        { "of",                 2,   618 }, { "nation",             0,   962 },
+        { "of",                 2,   597 }, { "Citizens",           0,   969 },
+        { "of",                 2,   586 }, { "higher",             1,  1473 },
+        { "of",                 2,   556 }, { "taken",              2,  2504 },
+        { "of",                 2,   504 }, { "taken",              2,  1542 },
+        { "of",                 2,   477 }, { "taken",              2,  1519 },
+        { "of",                 2,   471 }, { "taken",              0,   970 },
+        { "of",                 2,   467 }, { "high",               2,  2306 },
+        { "of",                 2,   461 }, { "high",               2,  2264 },
+        { "of",                 2,   444 }, { "high",               2,  2189 },
+        { "of",                 2,   434 }, { "high",               0,   974 },
+        { "of",                 2,   419 }, { "bear",               0,   977 },
+        { "of",                 2,   402 }, { "Arms",               0,   978 },
+        { "of",                 2,   380 }, { "become",             0,   983 },
+        { "of",                 2,   301 }, { "executioners",       0,   985 },
+        { "of",                 2,   297 }, { "present",            0,   318 },
+        { "of",                 2,   293 }, { "friends",            0,   988 },
+        { "of",                 2,   288 }, { "Brethren",           0,   990 },
+        { "of",                 2,   286 }, { "fall",               0,   993 },
+        { "of",                 2,   283 }, { "excited",            0,  1001 },
+        { "of",                 2,   277 }, { "Court",              2,  2711 },
+        { "of",                 2,   260 }, { "Court",              2,  2706 },
+        { "of",                 2,   225 }, { "Court",              2,   296 },
+        { "of",                 2,   216 }, { "Court",              2,   285 },
+        { "of",                 2,   185 }, { "domestic",           0,  1002 },
+        { "of",                 2,   179 }, { "dignity",            2,  1840 },
+        { "of",                 2,   167 }, { "dignity",            2,  1614 },
+        { "of",                 2,   158 }, { "dignity",            2,   341 },
+        { "of",                 2,   136 }, { "dignity",            2,   339 },
+        { "of",                 2,   129 }, { "dignity",            2,    50 },
+        { "of",                 2,   121 }, { "dignity",            1,  1300 },
+        { "of",                 2,   118 }, { "dignity",            1,  1229 },
+        { "of",                 2,   113 }, { "dignity",            1,   339 },
+        { "of",                 2,   105 }, { "dignity",            1,   159 },
+        { "of",                 2,    90 }, { "dignity",            1,    12 },
+        { "of",                 2,    82 }, { "bring",              0,  1010 },
+        { "of",                 2,    75 }, { "inhabitants",        0,  1013 },
+        { "of",                 2,    66 }, { "known",              0,  1022 },
+        { "of",                 2,    61 }, { "Legislature",        0,   437 },
+        { "of",                 2,    48 }, { "spouses",            1,   938 },
+        { "of",                 2,    33 }, { "undistinguished",    0,  1028 },
+        { "of",                 2,    11 }, { "destruction",        2,  3578 },
+        { "of",                 1,  1777 }, { "destruction",        1,  1774 },
+        { "of",                 1,  1775 }, { "destruction",        0,  1029 },
+        { "of",                 1,  1738 }, { "stage",              0,  1038 },
+        { "of",                 1,  1709 }, { "Petitioned",         0,  1044 },
+        { "of",                 1,  1704 }, { "privacy",            1,   737 },
+        { "of",                 1,  1701 }, { "home",               2,   580 },
+        { "of",                 1,  1690 }, { "home",               1,   739 },
+        { "of",                 1,  1668 }, { "nor",                1,   871 },
+        { "of",                 1,  1659 }, { "nor",                1,   742 },
+        { "of",                 1,  1610 }, { "attacks",            1,   764 },
+        { "of",                 1,  1596 }, { "attacks",            1,   744 },
+        { "of",                 1,  1572 }, { "honour",             1,   747 },
+        { "of",                 1,  1549 }, { "reputation",         1,   749 },
+        { "of",                 1,  1537 }, { "movement",           2,  2786 },
+        { "of",                 1,  1530 }, { "movement",           2,  2758 },
+        { "of",                 1,  1503 }, { "movement",           2,   157 },
+        { "of",                 1,  1495 }, { "movement",           1,   775 },
+        { "of",                 1,  1484 }, { "residence",          2,  2788 },
+        { "of",                 1,  1429 }, { "residence",          2,  2761 },
+        { "of",                 1,  1404 }, { "residence",          1,   777 },
+        { "of",                 1,  1394 }, { "borders",            1,   780 },
+        { "of",                 1,  1372 }, { "state",              1,   783 },
+        { "of",                 1,  1369 }, { "return",             1,   798 },
+        { "of",                 1,  1360 }, { "14",                 2,   933 },
+        { "of",                 1,  1342 }, { "14",                 1,   803 },
+        { "of",                 1,  1326 }, { "seek",               2,  1058 },
+        { "of",                 1,  1308 }, { "seek",               1,  1061 },
+        { "of",                 1,  1298 }, { "seek",               1,   810 },
+        { "of",                 1,  1256 }, { "biology",            2,   405 },
+        { "of",                 1,  1249 }, { "countries",          2,  2805 },
+        { "of",                 1,  1234 }, { "countries",          2,  1080 },
+        { "of",                 1,  1219 }, { "countries",          1,   816 },
+        { "of",                 1,  1216 }, { "asylum",             2,  1226 },
+        { "of",                 1,  1188 }, { "asylum",             2,  1222 },
+        { "of",                 1,  1149 }, { "asylum",             1,   817 },
+        { "of",                 1,  1146 }, { "mind",               1,   280 },
+        { "of",                 1,  1139 }, { "opinions",           2,   806 },
+        { "of",                 1,  1127 }, { "opinions",           1,  1056 },
+        { "of",                 1,  1113 }, { "opinions",           0,    70 },
+        { "of",                 1,  1084 }, { "persecution",        1,   819 },
+        { "of",                 1,  1073 }, { "This",               2,  3464 },
+        { "of",                 1,  1046 }, { "This",               2,  3288 },
+        { "of",                 1,   997 }, { "This",               2,  3118 },
+        { "of",                 1,   986 }, { "This",               2,  2480 },
+        { "of",                 1,   949 }, { "This",               2,   954 },
+        { "of",                 1,   935 }, { "This",               2,   799 },
+        { "of",                 1,   885 }, { "This",               2,   728 },
+        { "of",                 1,   868 }, { "This",               2,   205 },
+        { "of",                 1,   847 }, { "This",               1,   821 },
+        { "of",                 1,   830 }, { "invoked",            1,   826 },
+        { "of",                 1,   781 }, { "case",               2,  2058 },
+        { "of",                 1,   774 }, { "case",               2,   281 },
+        { "of",                 1,   757 }, { "case",               1,  1729 },
+        { "of",                 1,   680 }, { "case",               1,   829 },
+        { "of",                 1,   674 }, { "prosecutions",       1,   831 },
+        { "of",                 1,   623 }, { "genuinely",          2,  3365 },
+        { "of",                 1,   617 }, { "genuinely",          1,   832 },
+        { "of",                 1,   542 }, { "crimes",             1,   837 },
+        { "of",                 1,   528 }, { "contrary",           2,  1586 },
+        { "of",                 1,   453 }, { "contrary",           1,  1732 },
+        { "of",                 1,   440 }, { "contrary",           1,   841 },
+        { "of",                 1,   417 }, { "20",                 2,  1325 },
+        { "of",                 1,   410 }, { "20",                 1,  1076 },
+        { "of",                 1,   378 }, { "15",                 2,  1018 },
+        { "of",                 1,   358 }, { "15",                 1,   852 },
+        { "of",                 1,   323 }, { "nationality",        2,  1417 },
+        { "of",                 1,   315 }, { "nationality",        1,   894 },
+        { "of",                 1,   273 }, { "nationality",        1,   878 },
+        { "of",                 1,   256 }, { "nationality",        1,   870 },
+        { "of",                 1,   237 }, { "nationality",        1,   860 },
+        { "of",                 1,   229 }, { "Nations",            1,  1741 },
+        { "of",                 1,   223 }, { "Nations",            1,  1533 },
+        { "of",                 1,   213 }, { "Nations",            1,   850 },
+        { "of",                 1,   207 }, { "Nations",            1,   204 },
+        { "of",                 1,   185 }, { "Nations",            1,   145 },
+        { "of",                 1,   171 }, { "arbitrarily",        1,   984 },
+        { "of",                 1,   162 }, { "arbitrarily",        1,   866 },
+        { "of",                 1,   142 }, { "deprived",           2,  1158 },
+        { "of",                 1,   134 }, { "deprived",           1,   985 },
+        { "of",                 1,   124 }, { "deprived",           1,   867 },
+        { "of",                 1,    87 }, { "21",                 2,  1337 },
+        { "of",                 1,    70 }, { "21",                 1,  1101 },
+        { "of",                 1,    60 }, { "16",                 2,  1107 },
+        { "of",                 1,    55 }, { "16",                 1,   880 },
+        { "of",                 1,    30 }, { "age",                2,  2054 },
+        { "of",                 1,    23 }, { "age",                2,  1933 },
+        { "of",                 1,    20 }, { "age",                2,  1902 },
+        { "of",                 1,    14 }, { "age",                2,  1888 },
+        { "of",                 1,     9 }, { "age",                2,  1531 },
+        { "of",                 1,     3 }, { "age",                2,  1375 },
+        { "of",                 0,  1345 }, { "age",                1,  1400 },
+        { "of",                 0,  1335 }, { "age",                1,   887 },
+        { "of",                 0,  1328 }, { "due",                2,  3248 },
+        { "of",                 0,  1286 }, { "due",                2,  1231 },
+        { "of",                 0,  1256 }, { "due",                2,   972 },
+        { "of",                 0,  1243 }, { "due",                2,   209 },
+        { "of",                 0,  1239 }, { "due",                1,  1692 },
+        { "of",                 0,  1229 }, { "due",                1,   891 },
+        { "of",                 0,  1223 }, { "candid",             0,   354 },
+        { "of",                 0,  1212 }, { "marry",              2,   685 },
+        { "of",                 0,  1208 }, { "marry",              2,   675 },
+        { "of",                 0,  1196 }, { "marry",              1,   901 },
+        { "of",                 0,  1175 }, { "found",              2,   968 },
+        { "of",                 0,  1172 }, { "found",              2,   690 },
+        { "of",                 0,  1148 }, { "found",              2,   679 },
+        { "of",                 0,  1125 }, { "found",              1,   904 },
+        { "of",                 0,  1122 }, { "another",            1,   354 },
+        { "of",                 0,  1106 }, { "another",            0,    38 },
+        { "of",                 0,  1083 }, { "marriage",           1,   917 },
+        { "of",                 0,  1039 }, { "marriage",           1,   915 },
+        { "of",                 0,  1030 }, { "dissolution",        1,   921 },
+        { "of",                 0,  1024 }, { "Marriage",           1,   923 },
+        { "of",                 0,  1014 }, { "entered",            1,   926 },
+        { "of",                 0,   986 }, { "group",              1,  1756 },
+        { "of",                 0,   959 }, { "group",              1,   947 },
+        { "of",                 0,   943 }, { "unit",               1,   948 },
+        { "of",                 0,   934 }, { "22",                 2,  1422 },
+        { "of",                 0,   927 }, { "22",                 1,  1183 },
+        { "of",                 0,   916 }, { "17",                 2,  1132 },
+        { "of",                 0,   892 }, { "17",                 1,   962 },
+        { "of",                 0,   859 }, { "injury",             0,  1061 },
+        { "of",                 0,   806 }, { "well",               2,  1507 },
+        { "of",                 0,   784 }, { "well",               2,   124 },
+        { "of",                 0,   781 }, { "well",               1,  1367 },
+        { "of",                 0,   763 }, { "well",               1,   973 },
+        { "of",                 0,   751 }, { "SOLIDARITY",         2,  1666 },
+        { "of",                 0,   727 }, { "association",        2,   857 },
+        { "of",                 0,   719 }, { "association",        2,   842 },
+        { "of",                 0,   685 }, { "association",        1,  1099 },
+        { "of",                 0,   673 }, { "association",        1,  1088 },
+        { "of",                 0,   666 }, { "association",        1,   976 },
+        { "of",                 0,   647 }, { "23",                 2,  1438 },
+        { "of",                 0,   640 }, { "23",                 1,  1238 },
+        { "of",                 0,   631 }, { "18",                 2,  1219 },
+        { "of",                 0,   623 }, { "18",                 1,   990 },
+        { "of",                 0,   598 }, { "thought",            2,   724 },
+        { "of",                 0,   590 }, { "thought",            2,   712 },
+        { "of",                 0,   587 }, { "thought",            1,   998 },
+        { "of",                 0,   572 }, { "includes",           2,  2482 },
+        { "of",                 0,   561 }, { "includes",           2,   956 },
+        { "of",                 0,   546 }, { "includes",           2,   730 },
+        { "of",                 0,   522 }, { "includes",           1,  1052 },
+        { "of",                 0,   497 }, { "includes",           1,  1004 },
+        { "of",                 0,   472 }, { "either",             2,   739 },
+        { "of",                 0,   464 }, { "either",             1,  1014 },
+        { "of",                 0,   433 }, { "community",          2,  3153 },
+        { "of",                 0,   424 }, { "community",          2,  1663 },
+        { "of",                 0,   421 }, { "community",          2,   743 },
+        { "of",                 0,   382 }, { "community",          2,   316 },
+        { "of",                 0,   338 }, { "community",          1,  1650 },
+        { "of",                 0,   326 }, { "community",          1,  1574 },
+        { "of",                 0,   320 }, { "community",          1,  1018 },
+        { "of",                 0,   316 }, { "private",            2,  1547 },
+        { "of",                 0,   312 }, { "private",            2,   751 },
+        { "of",                 0,   295 }, { "private",            2,   576 },
+        { "of",                 0,   249 }, { "private",            2,   562 },
+        { "of",                 0,   157 }, { "private",            1,  1025 },
+        { "of",                 0,   150 }, { "manifest",           2,   753 },
+        { "of",                 0,   146 }, { "manifest",           1,  1027 },
+        { "of",                 0,   139 }, { "24",                 2,  1485 },
+        { "of",                 0,   120 }, { "24",                 1,  1330 },
+        { "of",                 0,    71 }, { "19",                 2,  1268 },
+        { "of",                 0,    60 }, { "19",                 1,  1039 },
+        { "of",                 0,    57 }, { "practice",           2,   760 },
+        { "of",                 0,    45 }, { "practice",           1,  1034 },
+        { "of",                 0,    19 }, { "expression",         2,   798 },
+        { "of",                 0,    13 }, { "expression",         2,   787 },
+        { "of",                 0,     8 }, { "expression",         1,  1049 },
+        { "Rights",             2,  3537 }, { "ideas",              2,   814 },
+        { "Rights",             2,  3441 }, { "ideas",              1,  1067 },
+        { "Rights",             2,  3387 }, { "through",            1,  1201 },
+        { "Rights",             2,   299 }, { "through",            1,  1118 },
+        { "Rights",             2,   262 }, { "through",            1,  1068 },
+        { "Rights",             1,     5 }, { "media",              2,   831 },
+        { "Rights",             0,   110 }, { "media",              1,  1070 },
+        { "established",        2,  2944 }, { "stand",              2,  2419 },
+        { "established",        2,  2182 }, { "stand",              2,  2400 },
+        { "established",        0,   204 }, { "stand",              2,  2345 },
+        { "Course",             0,    18 }, { "stand",              2,  2322 },
+        { "by",                 2,  3542 }, { "regardless",         2,   821 },
+        { "by",                 2,  3512 }, { "regardless",         1,  1072 },
+        { "by",                 2,  3505 }, { "peaceful",           2,   851 },
+        { "by",                 2,  3460 }, { "peaceful",           2,    26 },
+        { "by",                 2,  3433 }, { "peaceful",           1,  1085 },
+        { "by",                 2,  3416 }, { "directly",           1,  1116 },
+        { "by",                 2,  3389 }, { "freely",             2,  2775 },
+        { "by",                 2,  3372 }, { "freely",             2,  1514 },
+        { "by",                 2,  3338 }, { "freely",             2,  1043 },
+        { "by",                 2,  3331 }, { "freely",             1,  1565 },
+        { "by",                 2,  3310 }, { "freely",             1,  1119 },
+        { "by",                 2,  3151 }, { "chosen",             2,  1044 },
+        { "by",                 2,  2945 }, { "chosen",             1,  1120 },
+        { "by",                 2,  2937 }, { "representatives",    2,  1681 },
+        { "by",                 2,  2896 }, { "representatives",    1,  1121 },
+        { "by",                 2,  2854 }, { "access",             2,  2981 },
+        { "by",                 2,  2563 }, { "access",             2,  2646 },
+        { "by",                 2,  2559 }, { "access",             2,  2618 },
+        { "by",                 2,  2471 }, { "access",             2,  2513 },
+        { "by",                 2,  2383 }, { "access",             2,  2223 },
+        { "by",                 2,  2183 }, { "access",             2,  2166 },
+        { "by",                 2,  2149 }, { "access",             2,  1781 },
+        { "by",                 2,  2070 }, { "access",             2,  1772 },
+        { "by",                 2,  1704 }, { "access",             2,   947 },
+        { "by",                 2,  1543 }, { "access",             2,   639 },
+        { "by",                 2,  1200 }, { "access",             1,  1129 },
+        { "by",                 2,  1179 }, { "service",            2,  1786 },
+        { "by",                 2,   817 }, { "service",            1,  1132 },
+        { "by",                 2,   667 }, { "authority",          2,   819 },
+        { "by",                 2,   632 }, { "authority",          2,   670 },
+        { "by",                 2,   429 }, { "authority",          1,  1148 },
+        { "by",                 2,   274 }, { "periodic",           1,  1346 },
+        { "by",                 2,   270 }, { "periodic",           1,  1157 },
+        { "by",                 2,   196 }, { "genuine",            1,  1159 },
+        { "by",                 2,    86 }, { "suffrage",           2,  2386 },
+        { "by",                 2,    78 }, { "suffrage",           1,  1168 },
+        { "by",                 1,  1684 }, { "FREEDOMS",           2,   540 },
+        { "by",                 1,  1305 }, { "secret",             2,  2391 },
+        { "by",                 1,  1177 }, { "secret",             1,  1174 },
+        { "by",                 1,  1173 }, { "vote",               2,  2416 },
+        { "by",                 1,  1164 }, { "vote",               2,  2397 },
+        { "by",                 1,   956 }, { "vote",               2,  2342 },
+        { "by",                 1,   608 }, { "vote",               2,  2319 },
+        { "by",                 1,   579 }, { "vote",               1,  1175 },
+        { "by",                 1,   575 }, { "equivalent",         2,  1098 },
+        { "by",                 1,   562 }, { "equivalent",         1,  1178 },
+        { "by",                 1,   296 }, { "voting",             1,  1180 },
+        { "by",                 1,   283 }, { "Taxes",              0,   769 },
+        { "by",                 1,   121 }, { "procedures",         2,   426 },
+        { "by",                 0,  1237 }, { "procedures",         1,  1181 },
+        { "by",                 0,  1145 }, { "member",             1,  1187 },
+        { "by",                 0,  1108 }, { "effort",             1,  1203 },
+        { "by",                 0,  1069 }, { "accordance",         2,  3282 },
+        { "by",                 0,  1059 }, { "accordance",         2,  3220 },
+        { "by",                 0,   995 }, { "accordance",         2,  2793 },
+        { "by",                 0,   888 }, { "accordance",         2,  2573 },
+        { "by",                 0,   786 }, { "accordance",         2,  2290 },
+        { "by",                 0,   735 }, { "accordance",         2,  2239 },
+        { "by",                 0,   710 }, { "accordance",         2,  2143 },
+        { "by",                 0,   600 }, { "accordance",         2,  2098 },
+        { "by",                 0,   235 }, { "accordance",         2,  2064 },
+        { "by",                 0,   104 }, { "accordance",         2,  1807 },
+        { "do",                 0,  1330 }, { "accordance",         2,  1729 },
+        { "do",                 0,  1318 }, { "accordance",         2,  1528 },
+        { "do",                 0,  1232 }, { "accordance",         2,  1259 },
+        { "necessity",          0,  1183 }, { "accordance",         2,  1120 },
+        { "necessity",          0,   303 }, { "accordance",         2,  1004 },
+        { "old",                2,  2053 }, { "accordance",         2,   772 },
+        { "old",                1,  1399 }, { "accordance",         2,   697 },
+        { "non",                1,   835 }, { "accordance",         1,  1210 },
+        { "non",                1,   432 }, { "resources",          2,  2969 },
+        { "created",            0,    98 }, { "resources",          2,  2141 },
+        { "all",                2,  3522 }, { "resources",          1,  1215 },
+        { "all",                2,  2204 }, { "economic",           2,  2228 },
+        { "all",                2,  2136 }, { "economic",           2,  2216 },
+        { "all",                2,  1536 }, { "economic",           2,  1974 },
+        { "all",                2,  1453 }, { "economic",           2,  1938 },
+        { "all",                2,   859 }, { "economic",           1,  1221 },
+        { "all",                1,  1519 }, { "work",               2,  1942 },
+        { "all",                1,  1480 }, { "work",               2,  1925 },
+        { "all",                1,   660 }, { "work",               2,  1879 },
+        { "all",                1,   475 }, { "work",               2,  1457 },
+        { "all",                1,   366 }, { "work",               2,  1085 },
+        { "all",                1,   262 }, { "work",               2,  1061 },
+        { "all",                1,   259 }, { "work",               2,  1038 },
+        { "all",                1,    21 }, { "work",               2,  1029 },
+        { "all",                0,  1319 }, { "work",               1,  1276 },
+        { "all",                0,  1278 }, { "work",               1,  1257 },
+        { "all",                0,  1270 }, { "work",               1,  1245 },
+        { "all",                0,  1031 }, { "choice",             1,  1248 },
+        { "all",                0,   879 }, { "Nature",             0,    58 },
+        { "all",                0,   761 }, { "favourable",         2,  1912 },
+        { "all",                0,   543 }, { "favourable",         1,  1287 },
+        { "all",                0,   331 }, { "favourable",         1,  1254 },
+        { "all",                0,   216 }, { "unemployment",       1,  1395 },
+        { "all",                0,    95 }, { "unemployment",       1,  1262 },
+        { "into",               2,  2281 }, { "pay",                2,  1459 },
+        { "into",               2,  1520 }, { "pay",                1,  1349 },
+        { "into",               1,   927 }, { "pay",                1,  1273 },
+        { "into",               0,   840 }, { "who",                2,  3019 },
+        { "into",               0,   475 }, { "who",                2,  2995 },
+        { "fatiguing",          0,   473 }, { "who",                2,  2966 },
+        { "childhood",          1,  1414 }, { "who",                2,  2138 },
+        { "impel",              0,    81 }, { "who",                2,  1081 },
+        { "kept",               0,   661 }, { "who",                1,  1279 },
+        { "Captive",            0,   971 }, { "remuneration",       1,  1288 },
+        { "That",               0,  1250 }, { "ensuring",           1,  1289 },
+        { "That",               0,   142 }, { "himself",            1,  1370 },
+        { "That",               0,   122 }, { "himself",            1,  1291 },
+        { "such",               2,  2974 }, { "existence",          2,  2134 },
+        { "such",               2,  2045 }, { "existence",          1,  1296 },
+        { "such",               2,  1906 }, { "worthy",             1,  1297 },
+        { "such",               2,  1498 }, { "Civil",              0,   690 },
+        { "such",               2,  1347 }, { "means",              1,  1307 },
+        { "such",               2,  1013 }, { "tribunals",          1,   566 },
+        { "such",               2,   458 }, { "join",               2,   880 },
+        { "such",               1,  1679 }, { "join",               1,  1320 },
+        { "such",               1,   761 }, { "interests",          2,  2523 },
+        { "such",               1,   550 }, { "interests",          2,  1764 },
+        { "such",               1,   381 }, { "interests",          2,  1591 },
+        { "such",               0,   509 }, { "interests",          2,  1552 },
+        { "such",               0,   299 }, { "interests",          2,   890 },
+        { "such",               0,   278 }, { "interests",          1,  1601 },
+        { "such",               0,   182 }, { "interests",          1,  1328 },
+        { "such",               0,   175 }, { "leisure",            1,  1338 },
+        { "seeks",              2,   147 }, { "reasonable",         2,  2935 },
+        { "tyrants",            0,   446 }, { "reasonable",         2,  2469 },
+        { "declare",            0,  1249 }, { "reasonable",         1,  1340 },
+        { "declare",            0,    77 }, { "working",            2,  1928 },
+        { "offences",           2,  3035 }, { "working",            2,  1851 },
+        { "offences",           0,   799 }, { "working",            2,  1830 },
+        { "should",             1,   350 }, { "working",            2,  1821 },
+        { "should",             1,   118 }, { "working",            2,  1096 },
+        { "should",             0,   746 }, { "working",            1,  1343 },
+        { "should",             0,   395 }, { "hours",              2,  1852 },
+        { "should",             0,   205 }, { "hours",              1,  1344 },
+        { "should",             0,    76 }, { "holidays",           1,  1347 },
+        { "refusing",           0,   601 }, { "30",                 2,  1788 },
+        { "refusing",           0,   574 }, { "30",                 1,  1743 },
+        { "seem",               0,   188 }, { "25",                 2,  1593 },
+        { "expressing",         2,   899 }, { "25",                 1,  1351 },
+        { "mankind",            1,    56 }, { "living",             1,  1361 },
+        { "mankind",            0,  1197 }, { "being",              2,  2953 },
+        { "mankind",            0,   221 }, { "being",              2,  1508 },
+        { "mankind",            0,    72 }, { "being",              2,  1185 },
+        { "patient",            0,   293 }, { "being",              1,  1368 },
+        { "respect",            2,  3341 }, { "food",               1,  1376 },
+        { "respect",            2,  3270 }, { "clothing",           1,  1377 },
+        { "respect",            2,  1833 }, { "housing",            2,  2126 },
+        { "respect",            2,  1431 }, { "housing",            1,  1378 },
+        { "respect",            2,  1232 }, { "services",           2,  2225 },
+        { "respect",            2,   973 }, { "services",           2,  2213 },
+        { "respect",            2,   571 }, { "services",           2,  2040 },
+        { "respect",            2,   389 }, { "services",           2,  1775 },
+        { "respect",            1,  1695 }, { "services",           2,  1071 },
+        { "respect",            1,  1504 }, { "services",           2,   161 },
+        { "respect",            1,   289 }, { "services",           1,  1385 },
+        { "respect",            1,   209 }, { "event",              2,  1792 },
+        { "respect",            0,    67 }, { "event",              2,  1272 },
+        { "worship",            2,   758 }, { "event",              1,  1393 },
+        { "worship",            1,  1035 }, { "sickness",           1,  1396 },
+        { "decent",             2,  2133 }, { "DECLARATION",        1,   248 },
+        { "decent",             0,    66 }, { "widowhood",          1,  1398 },
+        { "God",                0,    62 }, { "ensured",            2,  2288 },
+        { "rights",             2,  3583 }, { "ensured",            2,  2197 },
+        { "rights",             2,  3553 }, { "ensured",            2,  1451 },
+        { "rights",             2,  3493 }, { "lack",               2,  2967 },
+        { "rights",             2,  3451 }, { "lack",               2,  2139 },
+        { "rights",             2,  3431 }, { "lack",               1,  1403 },
+        { "rights",             2,  3427 }, { "livelihood",         1,  1405 },
+        { "rights",             2,  3381 }, { "control",            2,   666 },
+        { "rights",             2,  3346 }, { "control",            1,  1410 },
+        { "rights",             2,  3327 }, { "Motherhood",         1,  1412 },
+        { "rights",             2,  3318 }, { "special",            2,  1407 },
+        { "rights",             2,  3272 }, { "special",            1,  1418 },
+        { "rights",             2,  3013 }, { "assistance",         2,  2127 },
+        { "rights",             2,  2892 }, { "assistance",         2,  2025 },
+        { "rights",             2,  1605 }, { "assistance",         1,  1421 },
+        { "rights",             2,  1595 }, { "children",           2,  1883 },
+        { "rights",             2,  1487 }, { "children",           2,  1540 },
+        { "rights",             2,   707 }, { "children",           2,   990 },
+        { "rights",             2,   326 }, { "children",           1,  1557 },
+        { "rights",             2,   303 }, { "children",           1,  1423 },
+        { "rights",             2,   228 }, { "wedlock",            1,  1430 },
+        { "rights",             2,   199 }, { "31",                 2,  1817 },
+        { "rights",             2,   181 }, { "31",                 2,  1248 },
+        { "rights",             1,  1779 }, { "26",                 2,  1626 },
+        { "rights",             1,  1723 }, { "26",                 1,  1438 },
+        { "rights",             1,  1698 }, { "Education",          1,  1487 },
+        { "rights",             1,  1670 }, { "Education",          1,  1446 },
+        { "rights",             1,  1630 }, { "elementary",         1,  1454 },
+        { "rights",             1,  1507 }, { "stages",             1,  1457 },
+        { "rights",             1,  1225 }, { "Elementary",         1,  1458 },
+        { "rights",             1,   912 }, { "Technical",          1,  1463 },
+        { "rights",             1,   619 }, { "professional",       2,  2528 },
+        { "rights",             1,   572 }, { "professional",       2,  1983 },
+        { "rights",             1,   368 }, { "professional",       2,  1966 },
+        { "rights",             1,   341 }, { "professional",       1,  1465 },
+        { "rights",             1,   292 }, { "PROVISIONS",         2,  3227 },
+        { "rights",             1,   225 }, { "generally",          1,  1470 },
+        { "rights",             1,   215 }, { "labour",             2,  1872 },
+        { "rights",             1,   170 }, { "labour",             2,   530 },
+        { "rights",             1,   156 }, { "labour",             2,   508 },
+        { "rights",             1,   117 }, { "available",          2,  2963 },
+        { "rights",             1,    44 }, { "available",          1,  1471 },
+        { "rights",             1,    19 }, { "equally",            1,  1477 },
+        { "rights",             0,   496 }, { "accessible",         1,  1478 },
+        { "rights",             0,   126 }, { "3",                  2,  3419 },
+        { "whose",              2,  2891 }, { "3",                  2,  3156 },
+        { "whose",              0,  1064 }, { "3",                  2,  2544 },
+        { "whose",              0,  1021 }, { "3",                  2,  2107 },
+        { "exile",              1,   593 }, { "3",                  2,  1558 },
+        { "train",              0,   248 }, { "3",                  2,  1076 },
+        { "experience",         0,   217 }, { "3",                  2,   964 },
+        { "destructive",        0,   149 }, { "3",                  2,   657 },
+        { "can",                1,  1638 }, { "3",                  2,   531 },
+        { "assume",             0,    41 }, { "3",                  2,   375 },
+        { "in",                 2,  3587 }, { "3",                  1,  1721 },
+        { "in",                 2,  3567 }, { "3",                  1,  1539 },
+        { "in",                 2,  3555 }, { "3",                  1,  1277 },
+        { "in",                 2,  3499 }, { "3",                  1,  1136 },
+        { "in",                 2,  3481 }, { "3",                  1,   939 },
+        { "in",                 2,  3281 }, { "3",                  1,   443 },
+        { "in",                 2,  3219 }, { "merit",              1,  1485 },
+        { "in",                 2,  3198 }, { "resides",            2,  2435 },
+        { "in",                 2,  3179 }, { "resides",            2,  2364 },
+        { "in",                 2,  2970 }, { "their",              2,  3592 },
+        { "in",                 2,  2921 }, { "their",              2,  3500 },
+        { "in",                 2,  2914 }, { "their",              2,  3284 },
+        { "in",                 2,  2834 }, { "their",              2,  2717 },
+        { "in",                 2,  2827 }, { "their",              2,  2570 },
+        { "in",                 2,  2808 }, { "their",              2,  1960 },
+        { "in",                 2,  2792 }, { "their",              2,  1946 },
+        { "in",                 2,  2742 }, { "their",              2,  1932 },
+        { "in",                 2,  2716 }, { "their",              2,  1763 },
+        { "in",                 2,  2692 }, { "their",              2,  1724 },
+        { "in",                 2,  2674 }, { "their",              2,  1680 },
+        { "in",                 2,  2638 }, { "their",              2,  1650 },
+        { "in",                 2,  2610 }, { "their",              2,  1530 },
+        { "in",                 2,  2597 }, { "their",              2,  1512 },
+        { "in",                 2,  2572 }, { "their",              2,  1506 },
+        { "in",                 2,  2566 }, { "their",              2,  1191 },
+        { "in",                 2,  2430 }, { "their",              2,   994 },
+        { "in",                 2,  2426 }, { "their",              2,   989 },
+        { "in",                 2,  2387 }, { "their",              2,   137 },
+        { "in",                 2,  2359 }, { "their",              1,  1556 },
+        { "in",                 2,  2355 }, { "their",              1,   476 },
+        { "in",                 2,  2289 }, { "their",              1,   326 },
+        { "in",                 2,  2247 }, { "their",              1,   304 },
+        { "in",                 2,  2238 }, { "their",              1,   151 },
+        { "in",                 2,  2233 }, { "their",              0,  1135 },
+        { "in",                 2,  2198 }, { "their",              0,  1109 },
+        { "in",                 2,  2142 }, { "their",              0,   996 },
+        { "in",                 2,  2097 }, { "their",              0,   987 },
+        { "in",                 2,  2063 }, { "their",              0,   980 },
+        { "in",                 2,  2056 }, { "their",              0,   717 },
+        { "in",                 2,  2043 }, { "their",              0,   656 },
+        { "in",                 2,  1806 }, { "their",              0,   632 },
+        { "in",                 2,  1790 }, { "their",              0,   624 },
+        { "in",                 2,  1751 }, { "their",              0,   580 },
+        { "in",                 2,  1728 }, { "their",              0,   532 },
+        { "in",                 2,  1695 }, { "their",              0,   465 },
+        { "in",                 2,  1692 }, { "their",              0,   390 },
+        { "in",                 2,  1658 }, { "their",              0,   309 },
+        { "in",                 2,  1620 }, { "their",              0,   286 },
+        { "in",                 2,  1527 }, { "their",              0,   273 },
+        { "in",                 2,  1477 }, { "their",              0,   269 },
+        { "in",                 2,  1452 }, { "their",              0,   193 },
+        { "in",                 2,  1270 }, { "their",              0,   133 },
+        { "in",                 2,  1258 }, { "their",              0,   105 },
+        { "in",                 2,  1202 }, { "directed",           1,  1490 },
+        { "in",                 2,  1187 }, { "It",                 2,   344 },
+        { "in",                 2,  1170 }, { "It",                 2,    68 },
+        { "in",                 2,  1165 }, { "It",                 1,  1511 },
+        { "in",                 2,  1119 }, { "racial",             1,  1521 },
+        { "in",                 2,  1086 }, { "religious",          2,  1433 },
+        { "in",                 2,  1072 }, { "religious",          2,  1424 },
+        { "in",                 2,  1037 }, { "religious",          2,   995 },
+        { "in",                 2,  1028 }, { "religious",          1,  1523 },
+        { "in",                 2,  1003 }, { "supplemented",       1,  1302 },
+        { "in",                 2,   991 }, { "further",            1,  1527 },
+        { "in",                 2,   863 }, { "acquired",           2,  1152 },
+        { "in",                 2,   861 }, { "activities",         2,  2694 },
+        { "in",                 2,   771 }, { "activities",         2,  2208 },
+        { "in",                 2,   757 }, { "activities",         2,    77 },
+        { "in",                 2,   750 }, { "activities",         1,  1529 },
+        { "in",                 2,   747 }, { "maintenance",        2,  1468 },
+        { "in",                 2,   742 }, { "maintenance",        1,  1536 },
+        { "in",                 2,   696 }, { "Parents",            1,  1540 },
+        { "in",                 2,   533 }, { "prior",              1,  1543 },
+        { "in",                 2,   515 }, { "choose",             2,  1021 },
+        { "in",                 2,   437 }, { "choose",             1,  1546 },
+        { "in",                 2,   411 }, { "given",              1,  1554 },
+        { "in",                 2,   232 }, { "32",                 2,  1868 },
+        { "in",                 2,   202 }, { "27",                 2,  1668 },
+        { "in",                 2,   187 }, { "27",                 1,  1559 },
+        { "in",                 2,   182 }, { "share",              2,    24 },
+        { "in",                 2,    13 }, { "share",              1,  1581 },
+        { "in",                 1,  1763 }, { "restricting",        2,  3488 },
+        { "in",                 1,  1745 }, { "Freedom",            2,  2784 },
+        { "in",                 1,  1727 }, { "Freedom",            2,  2756 },
+        { "in",                 1,  1717 }, { "Freedom",            2,  1108 },
+        { "in",                 1,  1651 }, { "Freedom",            2,  1019 },
+        { "in",                 1,  1635 }, { "Freedom",            2,   911 },
+        { "in",                 1,  1627 }, { "Freedom",            2,   837 },
+        { "in",                 1,  1582 }, { "Freedom",            2,   785 },
+        { "in",                 1,  1568 }, { "Freedom",            2,   710 },
+        { "in",                 1,  1452 }, { "scientific",         2,   920 },
+        { "in",                 1,  1426 }, { "scientific",         2,   192 },
+        { "in",                 1,  1406 }, { "scientific",         1,  1605 },
+        { "in",                 1,  1391 }, { "scientific",         1,  1583 },
+        { "in",                 1,  1209 }, { "innocence",          2,  2988 },
+        { "in",                 1,  1156 }, { "moral",              2,  1952 },
+        { "in",                 1,  1133 }, { "moral",              2,    37 },
+        { "in",                 1,  1110 }, { "moral",              1,  1598 },
+        { "in",                 1,  1032 }, { "material",           1,  1600 },
+        { "in",                 1,  1022 }, { "resulting",          1,  1602 },
+        { "in",                 1,  1017 }, { "literary",           1,  1606 },
+        { "in",                 1,   975 }, { "artistic",           1,  1608 },
+        { "in",                 1,   827 }, { "production",         1,  1609 },
+        { "in",                 1,   814 }, { "author",             1,  1615 },
+        { "in",                 1,   651 }, { "33",                 2,  1963 },
+        { "in",                 1,   614 }, { "separation",         0,    85 },
+        { "in",                 1,   599 }, { "28",                 2,  1713 },
+        { "in",                 1,   540 }, { "28",                 2,  1241 },
+        { "in",                 1,   474 }, { "28",                 1,  1617 },
+        { "in",                 1,   462 }, { "order",              2,  2248 },
+        { "in",                 1,   373 }, { "order",              2,  2109 },
+        { "in",                 1,   355 }, { "order",              1,  1712 },
+        { "in",                 1,   338 }, { "order",              1,  1626 },
+        { "in",                 1,   279 }, { "fully",              1,  1640 },
+        { "in",                 1,   198 }, { "realized",           1,  1641 },
+        { "in",                 1,   187 }, { "duties",             2,  2571 },
+        { "in",                 1,   167 }, { "duties",             2,   307 },
+        { "in",                 1,   157 }, { "duties",             1,  1647 },
+        { "in",                 1,   153 }, { "possible",           1,  1663 },
+        { "in",                 1,   147 }, { "States'",            2,  3545 },
+        { "in",                 1,    63 }, { "everyone",           2,  1985 },
+        { "in",                 1,    47 }, { "everyone",           2,   875 },
+        { "in",                 1,    35 }, { "everyone",           1,  1673 },
+        { "in",                 0,  1233 }, { "inestimable",        0,   440 },
+        { "in",                 0,  1214 }, { "limitations",        2,  3355 },
+        { "in",                 0,  1201 }, { "limitations",        1,  1680 },
+        { "in",                 0,  1199 }, { "solely",             1,  1686 },
+        { "in",                 0,  1181 }, { "securing",           1,  1691 },
+        { "in",                 0,  1092 }, { "meeting",            1,  1705 },
+        { "in",                 0,  1047 }, { "requirements",       1,  1708 },
+        { "in",                 0,   949 }, { "morality",           1,  1710 },
+        { "in",                 0,   878 }, { "general",            2,  3369 },
+        { "in",                 0,   809 }, { "general",            2,  3148 },
+        { "in",                 0,   778 }, { "general",            2,  2576 },
+        { "in",                 0,   664 }, { "general",            2,  2227 },
+        { "in",                 0,   537 }, { "general",            2,  2215 },
+        { "in",                 0,   435 }, { "general",            2,  1210 },
+        { "in",                 0,   389 }, { "general",            1,  1715 },
+        { "in",                 0,   333 }, { "welfare",            1,  1716 },
+        { "in",                 0,   181 }, { "democratic",         2,   975 },
+        { "in",                 0,    16 }, { "democratic",         1,  1719 },
+        { "Guards",             0,   284 }, { "These",              1,  1722 },
+        { "Liberty",            0,   116 }, { "exercised",          2,  3407 },
+        { "or",                 2,  3590 }, { "exercised",          1,  1731 },
+        { "or",                 2,  3570 }, { "interpreted",        2,  3560 },
+        { "or",                 2,  3521 }, { "interpreted",        2,  3486 },
+        { "or",                 2,  3489 }, { "interpreted",        1,  1750 },
+        { "or",                 2,  3399 }, { "activity",           2,  3569 },
+        { "or",                 2,  3375 }, { "activity",           1,  1765 },
+        { "or",                 2,  3304 }, { "aimed",              2,  3575 },
+        { "or",                 2,  3301 }, { "aimed",              1,  1771 },
+        { "or",                 2,  3296 }, { "herein",             2,  3602 },
+        { "or",                 2,  3214 }, { "herein",             1,  1784 },
+        { "or",                 2,  3207 }, { "CHARTER",            2,     0 },
+        { "or",                 2,  3195 }, { "according",          2,  3145 },
+        { "or",                 2,  3176 }, { "according",          2,  3006 },
+        { "or",                 2,  3133 }, { "according",          2,   423 },
+        { "or",                 2,  3066 }, { "according",          1,   648 },
+        { "or",                 2,  3054 }, { "FUNDAMENTAL",        2,     2 },
+        { "or",                 2,  2857 }, { "UNION",              2,     7 },
+        { "or",                 2,  2842 }, { "sexual",             2,  1377 },
+        { "or",                 2,  2737 }, { "PREAMBLE",           2,     8 },
+        { "or",                 2,  2733 }, { "Europe",             2,   278 },
+        { "or",                 2,  2699 }, { "Europe",             2,   122 },
+        { "or",                 2,  2669 }, { "Europe",             2,    12 },
+        { "or",                 2,  2665 }, { "creating",           2,    87 },
+        { "or",                 2,  2633 }, { "creating",           2,    14 },
+        { "or",                 2,  2629 }, { "ever",               2,    16 },
+        { "or",                 2,  2562 }, { "closer",             2,    17 },
+        { "or",                 2,  2516 }, { "union",              2,   866 },
+        { "or",                 2,  2500 }, { "union",              2,    18 },
+        { "or",                 2,  2460 }, { "resolved",           2,    22 },
+        { "or",                 2,  2433 }, { "based",              2,  3394 },
+        { "or",                 2,  2362 }, { "based",              2,  1343 },
+        { "or",                 2,  2052 }, { "based",              2,    57 },
+        { "or",                 2,  2014 }, { "based",              2,    28 },
+        { "or",                 2,  1956 }, { "values",             2,   108 },
+        { "or",                 2,  1953 }, { "values",             2,    47 },
+        { "or",                 2,  1949 }, { "values",             2,    31 },
+        { "or",                 2,  1835 }, { "Conscious",          2,    32 },
+        { "or",                 2,  1723 }, { "heritage",           2,    38 },
+        { "or",                 2,  1679 }, { "Union",              2,  3518 },
+        { "or",                 2,  1589 }, { "Union",              2,  3506 },
+        { "or",                 2,  1580 }, { "Union",              2,  3469 },
+        { "or",                 2,  1546 }, { "Union",              2,  3404 },
+        { "or",                 2,  1469 }, { "Union",              2,  3374 },
+        { "or",                 2,  1376 }, { "Union",              2,  3303 },
+        { "or",                 2,  1363 }, { "Union",              2,  3265 },
+        { "or",                 2,  1360 }, { "Union",              2,  3246 },
+        { "or",                 2,  1353 }, { "Union",              2,  3218 },
+        { "or",                 2,  1319 }, { "Union",              2,  2901 },
+        { "or",                 2,  1316 }, { "Union",              2,  2825 },
+        { "or",                 2,  1313 }, { "Union",              2,  2767 },
+        { "or",                 2,  1303 }, { "Union",              2,  2729 },
+        { "or",                 2,  1290 }, { "Union",              2,  2688 },
+        { "or",                 2,  1276 }, { "Union",              2,  2661 },
+        { "or",                 2,  1161 }, { "Union",              2,  2625 },
+        { "or",                 2,  1149 }, { "Union",              2,  2596 },
+        { "or",                 2,  1045 }, { "Union",              2,  2478 },
+        { "or",                 2,   888 }, { "Union",              2,  2411 },
+        { "or",                 2,   755 }, { "Union",              2,  2337 },
+        { "or",                 2,   749 }, { "Union",              2,  2301 },
+        { "or",                 2,   741 }, { "Union",              2,  2286 },
+        { "or",                 2,   735 }, { "Union",              2,  2258 },
+        { "or",                 2,   648 }, { "Union",              2,  2219 },
+        { "or",                 2,   625 }, { "Union",              2,  2205 },
+        { "or",                 2,   602 }, { "Union",              2,  2117 },
+        { "or",                 2,   574 }, { "Union",              2,  2087 },
+        { "or",                 2,   528 }, { "Union",              2,  2028 },
+        { "or",                 2,   517 }, { "Union",              2,  1633 },
+        { "or",                 2,   499 }, { "Union",              2,  1600 },
+        { "or",                 2,   496 }, { "Union",              2,  1429 },
+        { "or",                 2,   493 }, { "Union",              2,  1401 },
+        { "or",                 2,   484 }, { "Union",              2,  1105 },
+        { "or",                 2,   481 }, { "Union",              2,  1053 },
+        { "or",                 2,   392 }, { "Union",              2,   908 },
+        { "or",                 2,   372 }, { "Union",              2,   895 },
+        { "or",                 1,  1766 }, { "Union",              2,   322 },
+        { "or",                 1,  1757 }, { "Union",              2,   250 },
+        { "or",                 1,  1607 }, { "Union",              2,   221 },
+        { "or",                 1,  1522 }, { "Union",              2,    96 },
+        { "or",                 1,  1427 }, { "Union",              2,    84 },
+        { "or",                 1,  1401 }, { "Union",              2,    40 },
+        { "or",                 1,  1176 }, { "distant",            0,   460 },
+        { "or",                 1,  1117 }, { "founded",            2,    42 },
+        { "or",                 1,  1030 }, { "standards",          1,   184 },
+        { "or",                 1,  1024 }, { "indivisible",        2,    45 },
+        { "or",                 1,  1016 }, { "solidarity",         2,    54 },
+        { "or",                 1,  1010 }, { "democracy",          2,    62 },
+        { "or",                 1,   895 }, { "heart",              2,    74 },
+        { "or",                 1,   838 }, { "citizenship",        2,    81 },
+        { "or",                 1,   763 }, { "area",               2,    89 },
+        { "or",                 1,   740 }, { "contributes",        2,    97 },
+        { "or",                 1,   694 }, { "preservation",       2,   100 },
+        { "or",                 1,   683 }, { "once",               0,   828 },
+        { "or",                 1,   592 }, { "respecting",         2,  2520 },
+        { "or",                 1,   578 }, { "respecting",         2,   110 },
+        { "or",                 1,   494 }, { "diversity",          2,  1436 },
+        { "or",                 1,   491 }, { "diversity",          2,  1427 },
+        { "or",                 1,   487 }, { "diversity",          2,   112 },
+        { "or",                 1,   464 }, { "identities",         2,   128 },
+        { "or",                 1,   435 }, { "organisation",       2,   135 },
+        { "or",                 1,   420 }, { "regional",           2,   142 },
+        { "or",                 1,   414 }, { "levels",             2,  1749 },
+        { "or",                 1,   398 }, { "levels",             2,  1686 },
+        { "or",                 1,   393 }, { "levels",             2,   860 },
+        { "or",                 1,   389 }, { "levels",             2,   145 },
+        { "or",                 0,   991 }, { "balanced",           2,   150 },
+        { "or",                 0,   162 }, { "pluralism",          2,   828 },
+        { "becomes",            0,   148 }, { "from",               2,  2176 },
+        { "becomes",            0,    23 }, { "from",               2,  1992 },
+        { "denied",             1,   872 }, { "from",               2,  1645 },
+        { "People",             0,  1242 }, { "from",               2,   234 },
+        { "People",             0,   528 }, { "from",               1,  1603 },
+        { "People",             0,   159 }, { "from",               1,   839 },
+        { "any",                2,  3580 }, { "from",               1,   834 },
+        { "any",                2,  3573 }, { "from",               1,   818 },
+        { "any",                2,  3568 }, { "from",               1,    76 },
+        { "any",                2,  3563 }, { "from",               0,  1269 },
+        { "any",                2,  3293 }, { "from",               0,  1102 },
+        { "any",                2,  3131 }, { "from",               0,   739 },
+        { "any",                2,  3128 }, { "from",               0,   548 },
+        { "any",                2,  3052 }, { "from",               0,   461 },
+        { "any",                2,  3046 }, { "from",               0,   136 },
+        { "any",                2,  2861 }, { "persons",            2,  1640 },
+        { "any",                2,  2731 }, { "persons",            2,  1629 },
+        { "any",                2,  2663 }, { "persons",            2,   445 },
+        { "any",                2,  2627 }, { "persons",            2,   312 },
+        { "any",                2,  2556 }, { "persons",            2,   159 },
+        { "any",                2,  2493 }, { "goods",              2,   160 },
+        { "any",                2,  1941 }, { "capital",            2,   163 },
+        { "any",                2,  1412 }, { "omission",           2,  3134 },
+        { "any",                2,  1364 }, { "omission",           2,  3055 },
+        { "any",                2,  1345 }, { "omission",           1,   684 },
+        { "any",                2,  1073 }, { "strengthen",         2,   176 },
+        { "any",                1,  1776 }, { "changes",            2,   186 },
+        { "any",                1,  1769 }, { "inhuman",            2,  1315 },
+        { "any",                1,  1764 }, { "inhuman",            2,   495 },
+        { "any",                1,  1759 }, { "inhuman",            2,   480 },
+        { "any",                1,  1754 }, { "inhuman",            1,   490 },
+        { "any",                1,  1604 }, { "technological",      2,   194 },
+        { "any",                1,  1266 }, { "developments",       2,   195 },
+        { "any",                1,  1069 }, { "exploitation",       2,  1939 },
+        { "any",                1,   889 }, { "making",             2,   450 },
+        { "any",                1,   791 }, { "making",             2,   197 },
+        { "any",                1,   681 }, { "reaffirms",          2,   207 },
+        { "any",                1,   675 }, { "tasks",              2,  3308 },
+        { "any",                1,   624 }, { "tasks",              2,   215 },
+        { "any",                1,   547 }, { "elections",          2,  2425 },
+        { "any",                1,   538 }, { "elections",          2,  2406 },
+        { "any",                1,   523 }, { "elections",          2,  2350 },
+        { "any",                1,   437 }, { "elections",          2,  2327 },
+        { "any",                1,   379 }, { "elections",          1,  1160 },
+        { "any",                0,   742 }, { "Community",          2,  3520 },
+        { "any",                0,   144 }, { "Community",          2,  3397 },
+        { "are",                2,  3526 }, { "Community",          2,  3300 },
+        { "are",                2,  3393 }, { "Community",          2,  2800 },
+        { "are",                2,  3362 }, { "Community",          2,  2697 },
+        { "are",                2,  3263 }, { "Community",          2,  2553 },
+        { "are",                2,  3237 }, { "Community",          2,  2246 },
+        { "are",                2,  2902 }, { "Community",          2,  2150 },
+        { "are",                2,  1281 }, { "Community",          2,  2100 },
+        { "are",                2,  1093 }, { "Community",          2,  2071 },
+        { "are",                2,  1082 }, { "Community",          2,  1809 },
+        { "are",                2,    21 }, { "Community",          2,  1731 },
+        { "are",                1,  1682 }, { "Community",          2,  1705 },
+        { "are",                1,  1415 }, { "Community",          2,  1394 },
+        { "are",                1,   908 }, { "Community",          2,  1266 },
+        { "are",                1,   532 }, { "Community",          2,  1122 },
+        { "are",                1,   520 }, { "Community",          2,   272 },
+        { "are",                1,   514 }, { "Community",          2,   252 },
+        { "are",                1,   343 }, { "Community",          2,   218 },
+        { "are",                1,   333 }, { "establishing",       2,  2797 },
+        { "are",                0,  1267 }, { "establishing",       2,  2243 },
+        { "are",                0,  1254 }, { "establishing",       2,  1391 },
+        { "are",                0,   242 }, { "establishing",       2,  1263 },
+        { "are",                0,   229 }, { "establishing",       2,    79 },
+        { "are",                0,   222 }, { "establishing",       0,   813 },
+        { "are",                0,   128 }, { "establishing",       0,   607 },
+        { "are",                0,   114 }, { "principle",          2,  3352 },
+        { "are",                0,   102 }, { "principle",          2,  3252 },
+        { "are",                0,    97 }, { "principle",          2,  2293 },
+        { "it",                 2,  3140 }, { "principle",          2,  1461 },
+        { "it",                 2,  3073 }, { "principle",          2,   224 },
+        { "it",                 2,   655 }, { "result",             2,   231 },
+        { "it",                 2,   172 }, { "particular",         2,   862 },
+        { "it",                 2,   146 }, { "particular",         2,   438 },
+        { "it",                 2,    55 }, { "particular",         2,   412 },
+        { "it",                 1,   701 }, { "particular",         2,   233 },
+        { "it",                 1,   428 }, { "constitutional",     2,   236 },
+        { "it",                 1,   127 }, { "Treaty",             2,  3401 },
+        { "it",                 1,    92 }, { "Treaty",             2,  2796 },
+        { "it",                 0,   826 }, { "Treaty",             2,  2242 },
+        { "it",                 0,   271 }, { "Treaty",             2,  1398 },
+        { "it",                 0,   267 }, { "Treaty",             2,  1390 },
+        { "it",                 0,   165 }, { "Treaty",             2,  1262 },
+        { "it",                 0,   153 }, { "Treaty",             2,   247 },
+        { "it",                 0,    22 }, { "European",           2,  3530 },
+        { "Redress",            0,  1046 }, { "European",           2,  3403 },
+        { "self",               1,   433 }, { "European",           2,  2799 },
+        { "self",               0,    92 }, { "European",           2,  2752 },
+        { "transient",          0,   212 }, { "European",           2,  2648 },
+        { "recognition",        1,  1693 }, { "European",           2,  2378 },
+        { "recognition",        1,   503 }, { "European",           2,  2353 },
+        { "recognition",        1,   308 }, { "European",           2,  2330 },
+        { "recognition",        1,     8 }, { "European",           2,  2245 },
+        { "towns",              0,   911 }, { "European",           2,  2086 },
+        { "strengthening",      1,  1502 }, { "European",           2,  1400 },
+        { "*IN*",               0,     0 }, { "European",           2,  1393 },
+        { "servitude",          2,   518 }, { "European",           2,  1265 },
+        { "servitude",          1,   465 }, { "European",           2,   295 },
+        { "light",              2,   184 }, { "European",           2,   290 },
+        { "light",              0,   210 }, { "European",           2,   255 },
+        { "Right",              2,  3171 }, { "European",           2,   249 },
+        { "Right",              2,  2880 }, { "Treaties",           2,  3418 },
+        { "Right",              2,  2722 }, { "Treaties",           2,  3398 },
+        { "Right",              2,  2616 }, { "Treaties",           2,  3312 },
+        { "Right",              2,  2447 }, { "Treaties",           2,  2604 },
+        { "Right",              2,  2395 }, { "Treaties",           2,  1411 },
+        { "Right",              2,  2317 }, { "Treaties",           2,   253 },
+        { "Right",              2,  1770 }, { "Convention",         2,  3531 },
+        { "Right",              2,  1714 }, { "Convention",         2,  3463 },
+        { "Right",              2,  1220 }, { "Convention",         2,  3435 },
+        { "Right",              2,  1133 }, { "Convention",         2,  1239 },
+        { "Right",              2,   934 }, { "Convention",         2,   256 },
+        { "Right",              2,   673 }, { "Fundamental",        2,  3539 },
+        { "Right",              2,   543 }, { "Fundamental",        2,  3443 },
+        { "Right",              2,   376 }, { "Fundamental",        2,   264 },
+        { "Right",              2,   352 }, { "more",               2,  3472 },
+        { "Right",              0,  1257 }, { "more",               2,  1911 },
+        { "Right",              0,   156 }, { "more",               2,   200 },
+        { "*1776*",             0,     4 }, { "more",               0,   223 },
+        { "alone",              2,   740 }, { "Freedoms",           2,  3540 },
+        { "alone",              1,  1653 }, { "Freedoms",           2,  3444 },
+        { "alone",              1,  1015 }, { "Freedoms",           2,   265 },
+        { "alone",              1,   971 }, { "Social",             2,  2021 },
+        { "alone",              0,   619 }, { "Social",             2,   267 },
+        { "inevitably",         0,  1158 }, { "cruel",              1,   489 },
+        { "her",                2,  2517 }, { "adopted",            2,   269 },
+        { "her",                2,  2501 }, { "Council",            2,  2650 },
+        { "her",                2,  2461 }, { "Council",            2,   276 },
+        { "her",                2,  1836 }, { "Communities",        2,   291 },
+        { "her",                2,  1590 }, { "Indian",             0,  1019 },
+        { "her",                2,  1581 }, { "Enjoyment",          2,   300 },
+        { "her",                2,  1162 }, { "entails",            2,   304 },
+        { "her",                2,  1150 }, { "responsibilities",   2,   305 },
+        { "her",                2,   889 }, { "generations",        2,   320 },
+        { "her",                2,   649 }, { "recognises",         2,  2220 },
+        { "her",                2,   603 }, { "recognises",         2,  2118 },
+        { "her",                2,   575 }, { "recognises",         2,  2029 },
+        { "her",                2,   393 }, { "recognises",         2,  1634 },
+        { "for",                2,  3601 }, { "recognises",         2,  1601 },
+        { "for",                2,  3532 }, { "recognises",         2,   324 },
+        { "for",                2,  3436 }, { "hereafter",          2,   332 },
+        { "for",                2,  3337 }, { "CHAPTER",            2,  3224 },
+        { "for",                2,  3298 }, { "CHAPTER",            2,  2875 },
+        { "for",                2,  3250 }, { "CHAPTER",            2,  2311 },
+        { "for",                2,  3204 }, { "CHAPTER",            2,  1664 },
+        { "for",                2,  3201 }, { "CHAPTER",            2,  1321 },
+        { "for",                2,  3182 }, { "CHAPTER",            2,   538 },
+        { "for",                2,  3130 }, { "CHAPTER",            2,   333 },
+        { "for",                2,  3108 }, { "I",                  2,   334 },
+        { "for",                2,  3011 }, { "evils",              0,   228 },
+        { "for",                2,  2541 }, { "inviolable",         2,   343 },
+        { "for",                2,  2232 }, { "respected",          2,  1002 },
+        { "for",                2,  2135 }, { "respected",          2,   931 },
+        { "for",                2,  1994 }, { "respected",          2,   834 },
+        { "for",                2,  1918 }, { "respected",          2,   410 },
+        { "for",                2,  1703 }, { "respected",          2,   347 },
+        { "for",                2,  1505 }, { "condemned",          2,   367 },
+        { "for",                2,  1474 }, { "health",             2,  2193 },
+        { "for",                2,  1233 }, { "health",             2,  2169 },
+        { "for",                2,  1208 }, { "health",             2,  1948 },
+        { "for",                2,  1190 }, { "health",             2,  1837 },
+        { "for",                2,  1178 }, { "health",             1,  1365 },
+        { "for",                2,   974 }, { "executed",           2,   373 },
+        { "for",                2,   883 }, { "integrity",          2,   397 },
+        { "for",                2,   611 }, { "integrity",          2,   379 },
+        { "for",                2,   572 }, { "impartial",          2,  2941 },
+        { "for",                2,   561 }, { "impartial",          1,   612 },
+        { "for",                2,   390 }, { "physical",           2,  1950 },
+        { "for",                2,   257 }, { "physical",           2,   394 },
+        { "for",                2,   211 }, { "mental",             2,  1951 },
+        { "for",                1,  1753 }, { "mental",             2,   396 },
+        { "for",                1,  1696 }, { "fields",             2,  3502 },
+        { "for",                1,  1687 }, { "fields",             2,   401 },
+        { "for",                1,  1534 }, { "medicine",           2,   403 },
+        { "for",                1,  1505 }, { "following",          2,  2011 },
+        { "for",                1,  1363 }, { "following",          2,   407 },
+        { "for",                1,  1323 }, { "concerned",          2,   624 },
+        { "for",                1,  1290 }, { "concerned",          2,   422 },
+        { "for",                1,  1274 }, { "laid",               2,  3458 },
+        { "for",                1,  1227 }, { "laid",               2,  2919 },
+        { "for",                1,   664 }, { "laid",               2,  2147 },
+        { "for",                1,   567 }, { "laid",               2,  2068 },
+        { "for",                1,   290 }, { "laid",               2,   630 },
+        { "for",                1,   258 }, { "laid",               2,   427 },
+        { "for",                1,   233 }, { "down",               2,  3459 },
+        { "for",                1,   210 }, { "down",               2,  2920 },
+        { "for",                1,    42 }, { "down",               2,  2148 },
+        { "for",                0,  1332 }, { "down",               2,  2069 },
+        { "for",                0,  1226 }, { "down",               2,   631 },
+        { "for",                0,  1045 }, { "down",               2,   428 },
+        { "for",                0,   876 }, { "prohibition",        2,   466 },
+        { "for",                0,   834 }, { "prohibition",        2,   448 },
+        { "for",                0,   797 }, { "prohibition",        2,   433 },
+        { "for",                0,   741 }, { "practices",          2,  2237 },
+        { "for",                0,   620 }, { "practices",          2,  2187 },
+        { "for",                0,   606 }, { "practices",          2,  2156 },
+        { "for",                0,   570 }, { "practices",          2,  2106 },
+        { "for",                0,   564 }, { "practices",          2,  2077 },
+        { "for",                0,   531 }, { "practices",          2,  1815 },
+        { "for",                0,   504 }, { "practices",          2,  1737 },
+        { "for",                0,   487 }, { "practices",          2,  1711 },
+        { "for",                0,   468 }, { "practices",          2,  1128 },
+        { "for",                0,   418 }, { "practices",          2,   436 },
+        { "for",                0,   369 }, { "aiming",             2,   440 },
+        { "for",                0,   285 }, { "selection",          2,   443 },
+        { "for",                0,   209 }, { "body",               2,   453 },
+        { "for",                0,    25 }, { "source",             2,   460 },
+        { "intentions",         0,  1231 }, { "gain",               2,   463 },
+        { "Happiness",          0,   196 }, { "reproductive",       2,   469 },
+        { "Happiness",          0,   121 }, { "cloning",            2,   470 },
+        { "themselves",         1,   318 }, { "Prohibition",        2,  3549 },
+        { "themselves",         1,   195 }, { "Prohibition",        2,  1869 },
+        { "themselves",         0,   994 }, { "Prohibition",        2,   503 },
+        { "themselves",         0,   870 }, { "Prohibition",        2,   476 },
+        { "themselves",         0,   234 }, { "forced",             2,   527 },
+        { "America",            0,  1213 }, { "forced",             2,   507 },
+        { "America",            0,    14 }, { "required",           2,   524 },
+        { "Representation",     0,   434 }, { "Trafficking",        2,   532 },
+        { "trade",              2,   881 }, { "II",                 2,   539 },
+        { "trade",              2,   865 }, { "Respect",            2,  3010 },
+        { "trade",              1,  1321 }, { "Respect",            2,   560 },
+        { "trade",              1,   470 }, { "communications",     2,   582 },
+        { "Murders",            0,   743 }, { "realization",        1,  1200 },
+        { "to",                 2,  3594 }, { "realization",        1,   236 },
+        { "to",                 2,  3571 }, { "personal",           2,  1572 },
+        { "to",                 2,  3565 }, { "personal",           2,   598 },
+        { "to",                 2,  3515 }, { "personal",           2,   587 },
+        { "to",                 2,  3430 }, { "data",               2,   641 },
+        { "to",                 2,  3378 }, { "data",               2,   606 },
+        { "to",                 2,  3350 }, { "data",               2,   599 },
+        { "to",                 2,  3256 }, { "data",               2,   588 },
+        { "to",                 2,  3239 }, { "concerning",         2,   646 },
+        { "to",                 2,  3192 }, { "concerning",         2,   600 },
+        { "to",                 2,  3173 }, { "processed",          2,   609 },
+        { "to",                 2,  3165 }, { "some",               2,   626 },
+        { "to",                 2,  3146 }, { "collected",          2,   645 },
+        { "to",                 2,  3098 }, { "rectified",          2,   656 },
+        { "to",                 2,  3007 }, { "Compliance",         2,   658 },
+        { "to",                 2,  2982 }, { "rules",              2,  2146 },
+        { "to",                 2,  2978 }, { "rules",              2,  2067 },
+        { "to",                 2,  2964 }, { "rules",              2,  1907 },
+        { "to",                 2,  2927 }, { "rules",              2,  1235 },
+        { "to",                 2,  2907 }, { "rules",              2,   661 },
+        { "to",                 2,  2886 }, { "guaranteed",         2,  3432 },
+        { "to",                 2,  2881 }, { "guaranteed",         2,  3317 },
+        { "to",                 2,  2852 }, { "guaranteed",         2,  3025 },
+        { "to",                 2,  2801 }, { "guaranteed",         2,  2895 },
+        { "to",                 2,  2771 }, { "guaranteed",         2,  1688 },
+        { "to",                 2,  2749 }, { "guaranteed",         2,  1229 },
+        { "to",                 2,  2723 }, { "guaranteed",         2,   695 },
+        { "to",                 2,  2683 }, { "informed",           2,   417 },
+        { "to",                 2,  2681 }, { "conscientious",      2,   767 },
+        { "to",                 2,  2647 }, { "recognised",         2,  3586 },
+        { "to",                 2,  2619 }, { "recognised",         2,  3498 },
+        { "to",                 2,  2591 }, { "recognised",         2,  3388 },
+        { "to",                 2,  2579 }, { "recognised",         2,  3371 },
+        { "to",                 2,  2550 }, { "recognised",         2,  3330 },
+        { "to",                 2,  2538 }, { "recognised",         2,  3150 },
+        { "to",                 2,  2514 }, { "recognised",         2,  1130 },
+        { "to",                 2,  2511 }, { "recognised",         2,   770 },
+        { "to",                 2,  2489 }, { "he",                 2,  3206 },
+        { "to",                 2,  2457 }, { "he",                 2,  2841 },
+        { "to",                 2,  2448 }, { "he",                 2,  2432 },
+        { "to",                 2,  2418 }, { "he",                 2,  2361 },
+        { "to",                 2,  2415 }, { "he",                 2,  1302 },
+        { "to",                 2,  2399 }, { "he",                 1,  1612 },
+        { "to",                 2,  2396 }, { "he",                 1,   657 },
+        { "to",                 2,  2351 }, { "he",                 0,   402 },
+        { "to",                 2,  2344 }, { "include",            2,   802 },
+        { "to",                 2,  2341 }, { "civic",              2,   868 },
+        { "to",                 2,  2328 }, { "matters",            2,  1523 },
+        { "to",                 2,  2321 }, { "matters",            2,   869 },
+        { "to",                 2,  2318 }, { "implies",            2,   871 },
+        { "to",                 2,  2249 }, { "Political",          2,   892 },
+        { "to",                 2,  2224 }, { "parties",            2,   893 },
+        { "to",                 2,  2212 }, { "level",              2,  2307 },
+        { "to",                 2,  2174 }, { "level",              2,  2265 },
+        { "to",                 2,  2167 }, { "level",              2,  2190 },
+        { "to",                 2,  2130 }, { "level",              2,   896 },
+        { "to",                 2,  2123 }, { "contribute",         2,   897 },
+        { "to",                 2,  2110 }, { "citizens",           2,  1102 },
+        { "to",                 2,  2090 }, { "citizens",           2,   905 },
+        { "to",                 2,  2034 }, { "constraint",         2,   926 },
+        { "to",                 2,  2008 }, { "Academic",           2,   927 },
+        { "to",                 2,  2003 }, { "training",           2,   952 },
+        { "to",                 2,  1990 }, { "possibility",        2,  2951 },
+        { "to",                 2,  1957 }, { "possibility",        2,   958 },
+        { "to",                 2,  1944 }, { "educational",        2,   969 },
+        { "to",                 2,  1931 }, { "removal",            2,  1274 },
+        { "to",                 2,  1924 }, { "establishments",     2,   970 },
+        { "to",                 2,  1913 }, { "parents",            2,  1582 },
+        { "to",                 2,  1905 }, { "parents",            2,   981 },
+        { "to",                 2,  1891 }, { "ensure",             2,  2979 },
+        { "to",                 2,  1860 }, { "ensure",             2,  2304 },
+        { "to",                 2,  1853 }, { "ensure",             2,  2131 },
+        { "to",                 2,  1847 }, { "ensure",             2,  1649 },
+        { "to",                 2,  1829 }, { "ensure",             2,   983 },
+        { "to",                 2,  1801 }, { "conformity",         2,   992 },
+        { "to",                 2,  1782 }, { "philosophical",      2,   996 },
+        { "to",                 2,  1773 }, { "pedagogical",        2,   998 },
+        { "to",                 2,  1761 }, { "convictions",        2,   999 },
+        { "to",                 2,  1757 }, { "occupation",         2,  1047 },
+        { "to",                 2,  1740 }, { "occupation",         2,  1023 },
+        { "to",                 2,  1671 }, { "accepted",           2,  1046 },
+        { "to",                 2,  1648 }, { "Every",              2,  2821 },
+        { "to",                 2,  1643 }, { "Every",              2,  2763 },
+        { "to",                 2,  1618 }, { "Every",              2,  2587 },
+        { "to",                 2,  1609 }, { "Every",              2,  2545 },
+        { "to",                 2,  1587 }, { "Every",              2,  2452 },
+        { "to",                 2,  1565 }, { "Every",              2,  2407 },
+        { "to",                 2,  1539 }, { "Every",              2,  2333 },
+        { "to",                 2,  1497 }, { "Every",              2,  1842 },
+        { "to",                 2,  1405 }, { "Every",              2,  1824 },
+        { "to",                 2,  1308 }, { "Every",              2,  1796 },
+        { "to",                 2,  1292 }, { "Every",              2,  1559 },
+        { "to",                 2,  1252 }, { "Every",              2,  1049 }
+    };
+    const int numConcordance = sizeof concordance/sizeof *concordance;
+//..
+// Then, we create 'inverseConcordance', an unordered map, and initialize it
+// with values obtained from 'concordance'.
+//..
+    InverseConcordance inverseConcordance;
+
+    for (int idx = 0; idx < numConcordance; ++idx) {
+        const char *word         = concordance[idx].d_word;
+        int         documentCode = concordance[idx].d_documentCode;
+        int         wordOffset   = concordance[idx].d_wordOffset;
+
+        WordLocation                   location(documentCode, wordOffset);
+        InverseConcordanceEntry        entry(location, bsl::string(word));
+        InverseConcordanceInsertStatus status = inverseConcordance.insert(
+                                                                      entry);
+        ASSERT(status.second);
+    }
+//..
+// Notice that we expect every 'insert' to be successful, as the concordance
+// should not show more than one word at any location.
+//
+// Next, suppose we knew the location of the word "unalienable" in the document
+// set (see {'bslstl_unorderedmultimap'|Example 1}) and want to know its
+// context?
+//..
+//  "unalienable",  0,  109
+//..
+// We use the 'find' method of 'inverseConcordance' to determine the words
+// within offset 'delta' of "unalienable".  Note that we must check the
+// validity of the returned interator, in case we probe beyond the boundaries
+// of the document.
+//..
+    const int docCode =   0;
+    const int origin  = 109;
+    const int delta   =  16;
+
+    for (int offset = origin - delta; offset < origin + delta; ++offset) {
+        WordLocation          location(docCode, offset);
+        InverseConcordanceItr itr = inverseConcordance.find(location);
+
+        if (inverseConcordance.end() != itr) {
+if (verbose) {
+            printf("%d %4d: %s\n",
+                   itr->first.first,
+                   itr->first.second,
+                   itr->second.c_str());
+}
+            ASSERT((origin == offset ? bsl::string("unalienable")
+                                     : itr->second) == itr->second);
         }
+    }
+//..
+// Finally, we find on standard output:
+//..
+//  0   93: evident
+//  0   94: that
+//  0   95: all
+//  0   96: men
+//  0   97: are
+//  0   98: created
+//  0   99: equal
+//  0  100: that
+//  0  101: they
+//  0  102: are
+//  0  103: endowed
+//  0  104: by
+//  0  105: their
+//  0  106: Creator
+//  0  107: with
+//  0  108: certain
+//  0  109: unalienable
+//  0  110: Rights
+//  0  111: that
+//  0  112: among
+//  0  113: these
+//  0  114: are
+//  0  115: Life
+//  0  116: Liberty
+//  0  117: and
+//  0  118: the
+//  0  119: pursuit
+//  0  120: of
+//  0  121: Happiness
+//  0  122: That
+//  0  123: to
+//  0  124: secure
+//..
       } break;
       case 1: {
         // --------------------------------------------------------------------

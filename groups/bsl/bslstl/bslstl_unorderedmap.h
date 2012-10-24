@@ -228,6 +228,677 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// In this section we show intended use of this component.
+//
+///Example 1: Gathering Document Statistics
+/// - - - - - - - - - - - - - - - - - - - -
+// Unordered maps are useful in situations when there is no meaningful way to
+// order the key values, when the order of the keys is irrelevant to the
+// problem domain (see {Example 3}), and (even if there is a meaningful
+// ordering) the value of ordering the results is outweighed by the higher
+// performance provided by unordered maps (compared to ordered maps).
+//
+// Suppose one wished to gather statistics on the words appearing in a large
+// set of documents on disk or in a data base.  Gathering those statics is
+// intrusive (as one is competing for access to the documents with the regular
+// users) and must be done as quickly as possible.  Moreover, the set of unique
+// words appearing in those documents may be high.  The English language has in
+// excess of a million words (albeit many appear infrequently), and, if the
+// documents contain serial numbers, or Social Security numbers, or chemical
+// formulas, etc. then the O[log(n)] insertion time of ordered maps may well be
+// inadequate.  The unordered map, having an O[1] average insersion cost, is a
+// viable alternative.  In many problem domains, sorting, if needed, can be
+// done after the data is gathered.
+//
+// This example illustrates the use of 'bsl::unordered_map' to gather one
+// simple statistic (counts of unique words) on a single document.  To avoid
+// irrelevant details of acquiring the data, several modestly sized documents
+// are stored in static arrays:
+//..
+//  static char document0[] =
+//  " IN CONGRESS, July 4, 1776.\n"
+//  "\n"
+//  " The unanimous Declaration of the thirteen united States of America,\n"
+//  "\n"
+//  " When in the Course of human events, it becomes necessary for one\n"
+//  " people to dissolve the political bands which have connected them with\n"
+//  " another, and to assume among the powers of the earth, the separate\n"
+//  " and equal station to which the Laws of Nature and of Nature's God\n"
+//  " entitle them, a decent respect to the opinions of mankind requires\n"
+//  " that they should declare the causes which impel them to the\n"
+//  " separation.  We hold these truths to be self-evident, that all men\n"
+//  " are created equal, that they are endowed by their Creator with\n"
+//  " certain unalienable Rights, that among these are Life, Liberty and\n"
+//  " the pursuit of Happiness.--That to secure these rights, Governments\n"
+//  " are instituted among Men, deriving their just powers from the consent\n"
+//  " of the governed, --That whenever any Form of Government becomes\n"
+//  " destructive of these ends, it is the Right of the People to alter or\n"
+//  " to abolish it, and to institute new Government, laying its foundation\n"
+//  " on such principles and organizing its powers in such form, as to them\n"
+//  " shall seem most likely to effect their Safety and Happiness.\n"
+//  " Prudence, indeed, will dictate that Governments long established\n"
+//  " should not be changed for light and transient causes; and accordingly\n"
+//  " all experience hath shewn, that mankind are more disposed to suffer,\n"
+//  " while evils are sufferable, than to right themselves by abolishing\n"
+//  " the forms to which they are accustomed.  But when a long train of\n"
+//  " abuses and usurpations, pursuing invariably the same Object evinces a\n"
+//  " design to reduce them under absolute Despotism, it is their right, it\n"
+//  " is their duty, to throw off such Government, and to provide new\n"
+//  " Guards for their future security.--Such has been the patient\n"
+//  " sufferance of these Colonies; and such is now the necessity which\n"
+//  " constrains them to alter their former Systems of Government.  The\n"
+//  " history of the present King of Great Britain is a history of repeated\n"
+//  " injuries and usurpations, all having in direct object the\n"
+//  " establishment of an absolute Tyranny over these States.  To prove\n"
+//  " this, let Facts be submitted to a candid world.\n"
+//  "\n"
+//  ": o He has refused his Assent to Laws, the most wholesome and\n"
+//  ":   necessary for the public good.\n"
+//  ":\n"
+//  // ...
+//  " We, therefore, the Representatives of the united States of America,\n"
+//  " in General Congress, Assembled, appealing to the Supreme Judge of the\n"
+//  " world for the rectitude of our intentions, do, in the Name, and by\n"
+//  " Authority of the good People of these Colonies, solemnly publish and\n"
+//  " declare, That these United Colonies are, and of Right ought to be\n"
+//  " Free and Independent States; that they are Absolved from all\n"
+//  " Allegiance to the British Crown, and that all political connection\n"
+//  " between them and the State of Great Britain, is and ought to be\n"
+//  " totally dissolved; and that as Free and Independent States, they have\n"
+//  " full Power to levy War, conclude Peace, contract Alliances, establish\n"
+//  " Commerce, and to do all other Acts and Things which Independent\n"
+//  " States may of right do.  And for the support of this Declaration,\n"
+//  " with a firm reliance on the protection of divine Providence, we\n"
+//  " mutually pledge to each other our Lives, our Fortunes and our sacred\n"
+//  " Honor.\n";
+//
+//  static char document1[] =
+//  "/The Universal Declaration of Human Rights\n"
+//  "/-----------------------------------------\n"
+//  "/Preamble\n"
+//  "/ - - - -\n"
+//  " Whereas recognition of the inherent dignity and of the equal and\n"
+//  " inalienable rights of all members of the human family is the\n"
+//  " foundation of freedom, justice and peace in the world,\n"
+//  "\n"
+//  " Whereas disregard and contempt for human rights have resulted in\n"
+//  " barbarous acts which have outraged the conscience of mankind, and the\n"
+//  " advent of a world in which human beings shall enjoy freedom of speech\n"
+//  " and belief and freedom from fear and want has been proclaimed as the\n"
+//  " highest aspiration of the common people,\n"
+//  "\n"
+//  " Whereas it is essential, if man is not to be compelled to have\n"
+//  " recourse, as a last resort, to rebellion against tyranny and\n"
+//  " oppression, that human rights should be protected by the rule of law,\n"
+//  "\n"
+//  " Whereas it is essential to promote the development of friendly\n"
+//  " relations between nations,\n"
+//  "\n"
+//  " Whereas the peoples of the United Nations have in the Charter\n"
+//  " reaffirmed their faith in fundamental human rights, in the dignity\n"
+//  " and worth of the human person and in the equal rights of men and\n"
+//  " women and have determined to promote social progress and better\n"
+//  " standards of life in larger freedom,\n"
+//  "\n"
+//  " Whereas Member States have pledged themselves to achieve, in\n"
+//  " co-operation with the United Nations, the promotion of universal\n"
+//  " respect for and observance of human rights and fundamental freedoms,\n"
+//  "\n"
+//  " Whereas a common understanding of these rights and freedoms is of the\n"
+//  " greatest importance for the full realization of this pledge, Now,\n"
+//  " Therefore THE GENERAL ASSEMBLY proclaims THIS UNIVERSAL DECLARATION\n"
+//  " OF HUMAN RIGHTS as a common standard of achievement for all peoples\n"
+//  " and all nations, to the end that every individual and every organ of\n"
+//  " society, keeping this Declaration constantly in mind, shall strive by\n"
+//  " teaching and education to promote respect for these rights and\n"
+//  " freedoms and by progressive measures, national and international, to\n"
+//  " secure their universal and effective recognition and observance, both\n"
+//  " among the peoples of Member States themselves and among the peoples\n"
+//  " of territories under their jurisdiction.\n"
+//  "\n"
+//  "/Article 1\n"
+//  "/- - - - -\n"
+//  " All human beings are born free and equal in dignity and rights.  They\n"
+//  " are endowed with reason and conscience and should act towards one\n"
+//  " another in a spirit of brotherhood.\n"
+//  "\n"
+//  // ...
+//  "\n"
+//  "/Article 30\n"
+//  "/ - - - - -\n"
+//  " Nothing in this Declaration may be interpreted as implying for any\n"
+//  " State, group or person any right to engage in any activity or to\n"
+//  " perform any act aimed at the destruction of any of the rights and\n"
+//  " freedoms set forth herein.\n";
+//
+//  static char document2[] =
+//  "/CHARTER OF FUNDAMENTAL RIGHTS OF THE EUROPEAN UNION\n"
+//  "/---------------------------------------------------\n"
+//  " PREAMBLE\n"
+//  "\n"
+//  " The peoples of Europe, in creating an ever closer union among them,\n"
+//  " are resolved to share a peaceful future based on common values.\n"
+//  "\n"
+//  " Conscious of its spiritual and moral heritage, the Union is founded\n"
+//  " on the indivisible, universal values of human dignity, freedom,\n"
+//  " equality and solidarity; it is based on the principles of democracy\n"
+//  " and the rule of law.  It places the individual at the heart of its\n"
+//  " activities, by establishing the citizenship of the Union and by\n"
+//  " creating an area of freedom, security and justice.\n"
+//  "\n"
+//  " The Union contributes to the preservation and to the development of\n"
+//  " these common values while respecting the diversity of the cultures\n"
+//  " and traditions of the peoples of Europe as well as the national\n"
+//  " identities of the Member States and the organisation of their public\n"
+//  " authorities at national, regional and local levels; it seeks to\n"
+//  " promote balanced and sustainable development and ensures free\n"
+//  " movement of persons, goods, services and capital, and the freedom of\n"
+//  " establishment.\n"
+//  "\n"
+//  " To this end, it is necessary to strengthen the protection of\n"
+//  " fundamental rights in the light of changes in society, social\n"
+//  " progress and scientific and technological developments by making\n"
+//  " those rights more visible in a Charter.\n"
+//  "\n"
+//  " This Charter reaffirms, with due regard for the powers and tasks of\n"
+//  " the Community and the Union and the principle of subsidiarity, the\n"
+//  " rights as they result, in particular, from the constitutional\n"
+//  " traditions and international obligations common to the Member States,\n"
+//  " the Treaty on European Union, the Community Treaties, the European\n"
+//  " Convention for the Protection of Human Rights and Fundamental\n"
+//  " Freedoms, the Social Charters adopted by the Community and by the\n"
+//  " Council of Europe and the case-law of the Court of Justice of the\n"
+//  " European Communities and of the European Court of Human Rights.\n"
+//  "\n"
+//  " Enjoyment of these rights entails responsibilities and duties with\n"
+//  " regard to other persons, to the human community and to future\n"
+//  " generations.\n"
+//  "\n"
+//  " The Union therefore recognises the rights, freedoms and principles\n"
+//  " set out hereafter.\n"
+//  "\n"
+//  "/CHAPTER I\n"
+//  "/- - - - -\n"
+//  " DIGNITY\n"
+//  "\n"
+//  "/Article 1\n"
+//  "/  -  -  -\n"
+//  " Human dignity\n"
+//  "\n"
+//  " Human dignity is inviolable.  It must be respected and protected.\n"
+//  "\n"
+//  "/Article 2\n"
+//  "/  -  -  -\n"
+//  " Right to life\n"
+//  "\n"
+//  ": 1 Everyone has the right to life.\n"
+//  ": 2 No one shall be condemned to the death penalty, or executed.\n"
+//  "\n"
+//  // ...
+//  "/Article 54\n"
+//  "/-  -  -  -\n"
+//  " Prohibition of abuse of rights\n"
+//  "\n"
+//  " Nothing in this Charter shall be interpreted as implying any right to\n"
+//  " engage in any activity or to perform any act aimed at the destruction\n"
+//  " of any of the rights and freedoms recognised in this Charter or at\n"
+//  " their limitation to a greater extent than is provided for herein.\n";
+//
+//  static char * const documents[] = { &document0[0],
+//                                      &document1[0],
+//                                      &document2[0]
+//                                    };
+//  const int           numDocuments = sizeof documents / sizeof *documents;
+//..
+// First, we define several aliases to make our code more comprehensible.
+//..
+//  typedef bsl::unordered_map<bsl::string, int> WordTally;
+//  typedef bsl::pair         <bsl::string, int> WordTallyEntry;
+//  typedef bsl::pair<WordTally::iterator, bool> WordTallyInsertStatus;
+//..
+// Next, we (default) create an unordered map to hold our word tallies.  The
+// output from the 'printf' statements will be discussed in {Example 2}.
+//..
+//  WordTally wordTally;
+//
+//  printf("size             %4d initial\n", wordTally.size());
+//  printf("bucket_count     %4d initial\n", wordTally.bucket_count());
+//  printf("load_factor      %f  initial\n", wordTally.load_factor());
+//  printf("max_load_factor  %f  initial\n", wordTally.max_load_factor());
+//..
+// Then, we define the set of characters that define word boundaries:
+//..
+//  const char *delimiters = " \n\t,:;.()[]?!/";
+//..
+// Next, we extract the words from our documents.  Note that 'strtok' modifies
+// the document arrays (which were not made 'const').
+//
+// We tentatively assume that we are seeing each word for the first time and
+// attempt to insert an initial record for that word.  If that succeeds (a
+// 'true' value in the 'second' member of the 'bsl::pair' returned by the
+// 'insert' method), we have correctly recorded that word; otherwise, we are
+// returned an iterator (the 'first' member of the 'bsl::pair' returned) to the
+// entry that had previously been added to the map.  In that case, we increment
+// the data portion (the 'second' member) of that entry.
+//..
+//  for (int idx = 0; idx < numDocuments; ++idx) {
+//      for (char *cur = strtok(documents[idx], delimiters);
+//                 cur;
+//                 cur = strtok(NULL,     delimiters)) {
+//          WordTallyEntry        initialEntry(bsl::string(cur), 1);
+//          WordTallyInsertStatus status = wordTally.insert(initialEntry);
+//          if (!status.second) {
+//              ++status.first->second;
+//          }
+//      }
+//  }
+//..
+// Then, now that the data has been (quickly) gathered, we can indulge in
+// analysis that is more time consuming.  For example, we can define a
+// comparison function, sort the entries, and determine the 20 most commonly
+// used words in the given document:
+//..
+//  struct WordTallyEntryCompare {
+//      static bool lessValue(const WordTallyEntry& a,
+//                            const WordTallyEntry& b) {
+//          return a.second < b.second;
+//      }
+//      static bool moreValue(const WordTallyEntry& a,
+//                            const WordTallyEntry& b) {
+//          return !lessValue(a, b);
+//      }
+//  };
+//
+//  bsl::vector<WordTallyEntry> array(wordTally.begin(), wordTally.end());
+//
+//  std::partial_sort(array.begin(),
+//                    array.begin() + 20,
+//                    array.end(),
+//                    WordTallyEntryCompare::moreValue);
+//..
+// Notice that 'partial_sort' suffices since we seek only the 20 most used
+// words, and not a complete distribution of word counts.
+//
+// Finally, we print the sorted portion of 'array':
+//..
+//  for (bsl::vector<WordTallyEntry>::const_iterator cur  = array.begin(),
+//                                                   end  = cur + 20;
+//                                                   end != cur; ++cur) {
+//      printf("%-10s %4d\n", cur->first.c_str(), cur->second);
+//  }
+//..
+// and standard output shows:
+//..
+//  the         463
+//  -           398
+//  of          361
+//  and         349
+//  to          306
+//  in          141
+//  or          106
+//  right        93
+//  be           90
+//  Article      86
+//  has          79
+//  a            76
+//  shall        69
+//  for          69
+//  by           62
+//  with         50
+//  Everyone     49
+//  rights       44
+//  their        44
+//  is           43
+//..
+// Notice that "-" (used as an header underscore in our markup) appears in the
+// word count.  That could be elimiated by adding '-' to the set of delimiters;
+// however, that would partition hyphenated words into separate words.  In
+// practice, one defines a "stop list" of common words (e.g., "the", "of",
+// "and", "is") that one does not wish to tally.  We could easily add "-" to
+// the stop list.
+//
+///Example 2: Examining and Setting Unordered Map Configuration
+///------------------------------------------------------------
+// The unordered map interfaces provide some insight into and control of its
+// inner workings.  The unordered map is implemented using a hash table (see
+// {'bslstl_hashtable'}), a dynamically sized array of "buckets".  If two
+// elements hash to the same position the the table (the same bucket), then
+// that bucket will house multiple elements.  As elements are added to the
+// unordered map, the number of buckets is increased (and the existing elements
+// redistributed) to keep the average number of elements per bucket (the
+// "loading factor") below the specified maximum (the "maximum load factor", 1
+// by default).
+//
+// First, when 'wordTally' was created in {Example 1}, its metrics were:
+//..
+//  size                0 initial
+//  bucket_count        1 initial
+//  load_factor      0.000000  initial
+//  max_load_factor  1.000000  initial
+//..
+// Notice that even when there are no elements ('size' is 0) there is one
+// bucket.  Since there are no elements, the average number of elements per
+// bucket must be 0 (the 'load_factor').
+//
+// Next, after 'wordTally' has been loaded, we examine its metrics:
+//..
+//  printf("size             %4d\n", wordTally.size());
+//  printf("bucket_count     %4d\n", wordTally.bucket_count());
+//  printf("load_factor      %f\n",  wordTally.load_factor());
+//  printf("max_load_factor  %f\n",  wordTally.max_load_factor());
+//..
+// and find at standard output:
+//..
+//  size             1504
+//  bucket_count     2099
+//  load_factor      0.716532
+//  max_load_factor  1.000000
+//..
+// Notice how the number of buckets has increased.  (Sampling this metric as
+// the map was loaded would show that the increase was done in several stages.)
+//
+// Then, we see that the load factor is indeed below the specified maximum;
+// however we obtain further details of how the buckets are used.
+//
+// The unordered map provides and interface giving the element count of of
+// elements in each bucket, we can easily determine the bucket with the
+// greatest number of elements (i.e., (greatest number of has collisions):
+//..
+//  bsl::vector<int> bucketSizes;
+//  for (int idx = 0; idx < wordTally.bucket_count(); ++idx) {
+//     bucketSizes.push_back(wordTally.bucket_size(idx));
+//  }
+//  int maxBucketSize = *std::max_element(bucketSizes.begin(),
+//                                        bucketSizes.end());
+//  printf("maxBucketSize    %4d\n", maxBucketSize);
+//..
+// and find on standard output:
+//..
+//  maxBucketSize       5
+//..
+// We can also count the number of empty buckets, and the number of buckets at
+// 'maxBucketSize'.
+//..
+//  int numEmptyBuckets = std::count_if(bucketSizes.begin(),
+//                                      bucketSizes.end(),
+//                                      std::bind1st(std::equal_to<int>(), 0));
+//
+//  printf("numEmptyBuckets  %4d\n", numEmptyBuckets);
+//
+//  int numMaxBuckets = std::count_if(
+//                         bucketSizes.begin(),
+//                         bucketSizes.end(),
+//                         std::bind1st(std::equal_to<int>(), maxBucketSize));
+//
+//  printf("numMaxBuckets    %4d\n", numMaxBuckets);
+//..
+// which shows on standard output:
+//..
+//  numEmptyBuckets  1031
+//  numMaxBuckets       3
+//..
+// Suppose we are not satisfied with this distribution.  (Perhaps the load
+// factor is too high.)  We can create a second, differently configured table.
+//
+// Next, create a new table 'wordTally2' with twice the bucket count shown by
+// the first table ('wordTally'), and examine its initial metrics.
+//..
+//  WordTally wordTally2(wordTally.bucket_count() * 2);
+//
+//  printf("size2            %4d initial\n", wordTally2.size());
+//  printf("bucket_count2    %4d initial\n", wordTally2.bucket_count());
+//  printf("load_factor2     %f  initial\n", wordTally2.load_factor());
+//  printf("max_load_factor2 %f  initial\n", wordTally2.max_load_factor());
+//..
+// Standard output shows:
+//..
+//  size2               0 initial
+//  bucket_count2    4201 initial
+//  load_factor2     0.000000  initial
+//  max_load_factor2 1.000000  initial
+//..
+// Notice that although we requested 4198 buckets (2 * 2099), we created a
+// table with 4201 buckets.  (4201 is the smallest prime number greater than
+// 4198).
+//
+// Then, we load our new table and examine its metrics.  For simplicity, we
+// load data from the first table rather than re-tokenize our documents.
+//..
+//  wordTally2.insert(wordTally.begin(), wordTally.end());
+//
+//  printf("size2            %4d\n", wordTally2.size());
+//  printf("bucket_count2    %4d\n", wordTally2.bucket_count());
+//  printf("load_factor2     %f\n",  wordTally2.load_factor());
+//  printf("max_load_factor2 %f\n",  wordTally2.max_load_factor());
+//
+//  bsl::vector<int> bucketSizes2;
+//  for (int idx = 0; idx < wordTally2.bucket_count(); ++idx) {
+//     bucketSizes2.push_back(wordTally2.bucket_size(idx));
+//  }
+//  int maxBucketSize2 = *std::max_element(bucketSizes2.begin(),
+//                                         bucketSizes2.end());
+//
+//  printf("maxBucketSize2   %4d\n", maxBucketSize2);
+//
+//  int numEmptyBuckets2 = std::count_if(
+//                                      bucketSizes2.begin(),
+//                                      bucketSizes2.end(),
+//                                      std::bind1st(std::equal_to<int>(), 0));
+//
+//  printf("numEmptyBuckets2 %4d\n", numEmptyBuckets2);
+//
+//  int numMaxBuckets2 = std::count_if(
+//                         bucketSizes2.begin(),
+//                         bucketSizes2.end(),
+//                         std::bind1st(std::equal_to<int>(), maxBucketSize2));
+//
+//  printf("numMaxBuckets2   %4d\n", numMaxBuckets2);
+//..
+// Finally, we see on standard output:
+//..
+//  size2            1504
+//  bucket_count2    4201
+//  load_factor2     0.358010
+//  max_load_factor2 1.000000
+//  maxBucketSize2      4
+//  numEmptyBuckets2 2971
+//  numMaxBuckets2      5
+//..
+// Notice that the loading factor has been (roughly) cut in half; we have
+// achieved our goal.  Also notice that the bucket count is unchanged since
+// construction; thus, there were no rehashs during the loading this unordered
+// map.  Finally, notice that the number of empty (unused) buckets is
+// significantly higher, and there's been a modest decrease in the largest
+// bucket size, but more instances of them.
+//
+// Thus, the unordered map provides facilities by which we can make trade-offs
+// in performance characteristics of the containers we create.
+//
+///Example 3: Inverse Concordance
+///------------------------------
+// If one has a concordance for a set of documents (an index of the position of
+// every unique word in those documents), then words of interest can be
+// efficiently located.  Suppose after locating a word of interest one also
+// needs the surrounding words (for context).  Searching in the original
+// document requires re-tokenization (time consuming).  Alternatively, one can
+// use the concordance to create an inverse concordance to provide a fast
+// lookup of the words at given locations in a document and then examine words
+// near the word of interest.
+//
+// First, define the types required (and convenient aliases) to create an
+// unordered map from a word location to the corresponding word.  The "key"
+// value will be 'WordLocation', a pair 'int' values: the first being the
+// document code number (arbitrarily assigned), and second the word offset in
+// that document (the first word of the document is at offset 0).  The "value"
+// of each entry is a 'bsl::string' containing the word at that location.
+//..
+//  typedef bsl::pair<int, int> WordLocation;
+//      // Document code number and word offset in that document specify
+//      // a word location.
+//
+//  typedef bsl::pair<WordLocation, bsl::string> InverseConcordanceEntry;
+//      // Entry that maps a 'WordLocation' value to a 'bsl::string' value.
+//..
+// Notice that that 'WordLocation', the type of the key value, has no natural
+// ordering.  The assignment of document codes is arbitrary so there is no
+// reason to consider the words on one document to sort below those in any
+// another.
+//
+// Then, since there is no default hash function for the 'WordLocation' type,
+// we define one.  The document code and the word offset are combined to form a
+// single 'int' value which is then hashed using the default mechanism.
+//..
+//  class WordLocationHash
+//  {
+//    public:
+//      // CREATORS
+//      //! WordLocationHash() = default;
+//          // Create a 'WordLocationHash' object.
+//
+//      //! hash(const WordLocationHash& original) = default;
+//          // Create a 'WordLocationHash' object.  Note that as
+//          // 'WordLocationHash' is an empty (stateless) type, this operation
+//          // will have no observable effect.
+//
+//      //! ~WordLocationHash() = default;
+//          // Destroy this object.
+//
+//      // MANIPULATORS
+//      //! WordLocationHash& operator=(const WordLocationHash& rhs) = default;
+//          // Assign to this object the value of the specified 'rhs' object,
+//          // and return a reference providing modifiable access to this
+//          // object.  Note that as 'WordLocationHash' is an empty (stateless)
+//          // type, this operation will have no observable effect.
+//
+//      // ACCESSORS
+//      std::size_t operator()(WordLocation x) const
+//          // Return a hash value computed using the specified 'x'.
+//      {
+//          return bsl::hash<int>()(x.first * 1000000 + x.second);
+//      }
+//  };
+//..
+// Notice that many of the required methods of the hash type are compiler
+// generated.  (The declaration of those methods are commented out and suffixed
+// by an '= default' comment.)
+//
+// Next, we define the type of the unordered map and associated convenience
+// aliases:
+//..
+//  typedef bsl::unordered_map<WordLocation, bsl::string, WordLocationHash>
+//                                               InverseConcordance;
+//
+//  typedef InverseConcordance::iterator         InverseConcordanceItr;
+//
+//  typedef bsl::pair<InverseConcordanceItr, bool>
+//                                              InverseConcordanceInsertStatus;
+//..
+// Next, obtain a concordance for the document set (see
+// {'bslstl_unorderedmultimap'|Example 1}).  Here, the concordance is provided
+// as a statically initialized array:
+//..
+//  static struct {
+//      const char *d_word;
+//      int         d_documentCode;
+//      int         d_wordOffset;
+//  } concordance[] = {
+//      { "extent",             2,  3597 }, { "to",                 2,  1225 },
+//      { "greater",            2,  3596 }, { "to",                 2,  1221 },
+//      { "abuse",              2,  3551 }, { "to",                 2,  1182 },
+//      { "constitutions",      2,  3546 }, { "to",                 2,  1141 },
+//      { "affecting",          2,  3491 }, { "to",                 2,  1134 },
+//      { "Level",              2,  3477 }, { "to",                 2,  1115 },
+//      { "provision",          2,  3465 }, { "to",                 2,  1109 },
+//      { "to",                 2,  1292 }, { "Every",              2,  1559 },
+//      // ...
+//      { "to",                 2,  1252 }, { "Every",              2,  1049 }
+//  };
+//  const int numConcordance = sizeof concordance/sizeof *concordance;
+//..
+// Then, we create 'inverseConcordance', an unordered map, and initialize it
+// with values obtained from 'concordance'.
+//..
+//  InverseConcordance inverseConcordance;
+//
+//  for (int idx = 0; idx < numConcordance; ++idx) {
+//      const char *word         = concordance[idx].d_word;
+//      int         documentCode = concordance[idx].d_documentCode;
+//      int         wordOffset   = concordance[idx].d_wordOffset;
+//
+//      WordLocation                   location(documentCode, wordOffset);
+//      InverseConcordanceEntry        entry(location, bsl::string(word));
+//      InverseConcordanceInsertStatus status = inverseConcordance.insert(
+//                                                                    entry);
+//      assert(status.second);
+//  }
+//..
+// Notice that we expect every 'insert' to be successful, as the concordance
+// should not show more than one word at any location.
+//
+// Next, suppose we knew the location of the word "unalienable" in the document
+// set (see {'bslstl_unorderedmultimap'|Example 1}) and want to know its
+// context?
+//..
+//  "unalienable",  0,  109
+//..
+// We use the 'find' method of 'inverseConcordance' to determine the words
+// within offset 'delta' of "unalienable".  Note that we must check the
+// validity of the returned interator, in case we probe beyond the boundaries
+// of the document.
+//..
+//  const int docCode =   0;
+//  const int origin  = 109;
+//  const int delta   =  16;
+//
+//  for (int offset = origin - delta; offset < origin + delta; ++offset) {
+//      WordLocation          location(docCode, offset);
+//      InverseConcordanceItr itr = inverseConcordance.find(location);
+//
+//      if (inverseConcordance.end() != itr) {
+//          printf("%d %4d: %s\n",
+//                 itr->first.first,
+//                 itr->first.second,
+//                 itr->second.c_str());
+//          assert((origin == offset ? bsl::string("unalienable")
+//                                  : itr->second) == itr->second);
+//      }
+//  }
+//..
+// Finally, we find on standard output:
+//..
+//  0   93: evident
+//  0   94: that
+//  0   95: all
+//  0   96: men
+//  0   97: are
+//  0   98: created
+//  0   99: equal
+//  0  100: that
+//  0  101: they
+//  0  102: are
+//  0  103: endowed
+//  0  104: by
+//  0  105: their
+//  0  106: Creator
+//  0  107: with
+//  0  108: certain
+//  0  109: unalienable
+//  0  110: Rights
+//  0  111: that
+//  0  112: among
+//  0  113: these
+//  0  114: are
+//  0  115: Life
+//  0  116: Liberty
+//  0  117: and
+//  0  118: the
+//  0  119: pursuit
+//  0  120: of
+//  0  121: Happiness
+//  0  122: That
+//  0  123: to
+//  0  124: secure
+//..
 
 // Prevent 'bslstl' headers from being included directly in 'BSL_OVERRIDES_STD'
 // mode.  Doing so is unsupported, and is likely to cause compilation errors.

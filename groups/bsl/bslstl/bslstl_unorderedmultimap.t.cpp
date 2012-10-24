@@ -582,17 +582,21 @@ int main(int argc, char *argv[])
 //
 ///Example 1: Creating a Concordance
 ///- - - - - - - - - - - - - - - - -
-// Please see {'bslstl_unorderedmap'|Example 1} for a description of why
-// unordered maps are useful in analyzing large set of documents.  That example
-// showed how to tally the number of unique words.  In this example we will use
+// Unordered multimap maps are useful in situations when there is no meaningful
+// way to compare key values, when the order of the keys is irrelevant to the
+// problem domain, and (even if there is a meaningful ordering) the value of
+// ordering the results is outweighed by the higher performance provided by
+// unordered maps (compared to ordered maps).
+//
+// One uses a multi-map (ordered or unordered) when there may be more than one
+// value associated with a key value.  In this example we will use
 // 'bslstl_unorderedmultimap' to create a concordance (an index of where each
 // unique word appears).
 //
-// We will use the same document set (represented by statically initilized
-// arrays) as in the previous example:
+// Our source of documents is a set of statically initialized arrrays:
 //..
     static char document0[] =
-    " *IN* *CONGRESS*, *July* *4*, *1776*.\n"
+    " IN CONGRESS, July 4, 1776.\n"
     "\n"
     " The unanimous Declaration of the thirteen united States of America,\n"
     "\n"
@@ -755,21 +759,7 @@ int main(int argc, char *argv[])
     " States may of right do.  And for the support of this Declaration,\n"
     " with a firm reliance on the protection of divine Providence, we\n"
     " mutually pledge to each other our Lives, our Fortunes and our sacred\n"
-    " Honor.\n"
-    "\n"
-    " Button Gwinnett Lyman Hall George Walton William Hooper Joseph Hewes\n"
-    " John Penn Edward Rutledge Thomas Heyward, Jr.  Thomas Lynch, Jr.\n"
-    " Arthur Middleton John Hancock Maryland: Samuel Chase William Paca\n"
-    " Thomas Stone Charles Carroll of Carrollton George Wythe Richard Henry\n"
-    " Lee Thomas Jefferson Benjamin Harrison Thomas Nelson, Jr.  Francis\n"
-    " Lightfoot Lee Carter Braxton Robert Morris Benjamin Rush Benjamin\n"
-    " Franklin John Morton George Clymer James Smith George Taylor James\n"
-    " Wilson George Ross Caesar Rodney George Read Thomas McKean William\n"
-    " Floyd Philip Livingston Francis Lewis Lewis Morris Richard Stockton\n"
-    " John Witherspoon Francis Hopkinson John Hart Abraham Clark Josiah\n"
-    " Bartlett William Whipple Samuel Adams John Adams Robert Treat Paine\n"
-    " Elbridge Gerry Stephen Hopkins William Ellery Roger Sherman Samuel\n"
-    " Huntington William Williams Oliver Wolcott Matthew Thornton\n";
+    " Honor.\n";
 
     static char document1[] =
     "/The Universal Declaration of Human Rights\n"
@@ -1072,72 +1062,828 @@ int main(int argc, char *argv[])
     " perform any act aimed at the destruction of any of the rights and\n"
     " freedoms set forth herein.\n";
 
-    static char * const documents[] = { &document0[0], &document1[0] };
-    const int          numDocuments = sizeof documents / sizeof *documents;
+    static char document2[] =
+    "/CHARTER OF FUNDAMENTAL RIGHTS OF THE EUROPEAN UNION\n"
+    "/---------------------------------------------------\n"
+    " PREAMBLE\n"
+    "\n"
+    " The peoples of Europe, in creating an ever closer union among them,\n"
+    " are resolved to share a peaceful future based on common values.\n"
+    "\n"
+    " Conscious of its spiritual and moral heritage, the Union is founded\n"
+    " on the indivisible, universal values of human dignity, freedom,\n"
+    " equality and solidarity; it is based on the principles of democracy\n"
+    " and the rule of law.  It places the individual at the heart of its\n"
+    " activities, by establishing the citizenship of the Union and by\n"
+    " creating an area of freedom, security and justice.\n"
+    "\n"
+    " The Union contributes to the preservation and to the development of\n"
+    " these common values while respecting the diversity of the cultures\n"
+    " and traditions of the peoples of Europe as well as the national\n"
+    " identities of the Member States and the organisation of their public\n"
+    " authorities at national, regional and local levels; it seeks to\n"
+    " promote balanced and sustainable development and ensures free\n"
+    " movement of persons, goods, services and capital, and the freedom of\n"
+    " establishment.\n"
+    "\n"
+    " To this end, it is necessary to strengthen the protection of\n"
+    " fundamental rights in the light of changes in society, social\n"
+    " progress and scientific and technological developments by making\n"
+    " those rights more visible in a Charter.\n"
+    "\n"
+    " This Charter reaffirms, with due regard for the powers and tasks of\n"
+    " the Community and the Union and the principle of subsidiarity, the\n"
+    " rights as they result, in particular, from the constitutional\n"
+    " traditions and international obligations common to the Member States,\n"
+    " the Treaty on European Union, the Community Treaties, the European\n"
+    " Convention for the Protection of Human Rights and Fundamental\n"
+    " Freedoms, the Social Charters adopted by the Community and by the\n"
+    " Council of Europe and the case-law of the Court of Justice of the\n"
+    " European Communities and of the European Court of Human Rights.\n"
+    "\n"
+    " Enjoyment of these rights entails responsibilities and duties with\n"
+    " regard to other persons, to the human community and to future\n"
+    " generations.\n"
+    "\n"
+    " The Union therefore recognises the rights, freedoms and principles\n"
+    " set out hereafter.\n"
+    "\n"
+    "/CHAPTER I\n"
+    "/- - - - -\n"
+    " DIGNITY\n"
+    "\n"
+    "/Article 1\n"
+    "/  -  -  -\n"
+    " Human dignity\n"
+    "\n"
+    " Human dignity is inviolable.  It must be respected and protected.\n"
+    "\n"
+    "/Article 2\n"
+    "/  -  -  -\n"
+    " Right to life\n"
+    "\n"
+    ": 1 Everyone has the right to life.\n"
+    ": 2 No one shall be condemned to the death penalty, or executed.\n"
+    "\n"
+    "/Article 3\n"
+    "/  -  -  -\n"
+    " Right to the integrity of the person\n"
+    "\n"
+    ": 1 Everyone has the right to respect for his or her physical and\n"
+    ":   mental integrity.\n"
+    ":\n"
+    ": 2 In the fields of medicine and biology, the following must be\n"
+    ":   respected in particular:\n"
+    ":\n"
+    ":   o the free and informed consent of the person concerned, according\n"
+    ":     to the procedures laid down by law,\n"
+    ":\n"
+    ":   o the prohibition of eugenic practices, in particular those aiming\n"
+    ":     at the selection of persons,\n"
+    ":\n"
+    ":   o the prohibition on making the human body and its parts as such a\n"
+    ":     source of financial gain,\n"
+    ":\n"
+    ":   o the prohibition of the reproductive cloning of human beings.\n"
+    "\n"
+    "/Article 4\n"
+    "/  -  -  -\n"
+    " Prohibition of torture and inhuman or degrading treatment or\n"
+    " punishment\n"
+    "\n"
+    " No one shall be subjected to torture or to inhuman or degrading\n"
+    " treatment or punishment.\n"
+    "\n"
+    "/Article 5\n"
+    "/  -  -  -\n"
+    " Prohibition of slavery and forced labour\n"
+    "\n"
+    ": 1 No one shall be held in slavery or servitude.\n"
+    ": 2 No one shall be required to perform forced or compulsory labour.\n"
+    ": 3 Trafficking in human beings is prohibited.\n"
+    "\n"
+    "/CHAPTER II\n"
+    "/ - - - - -\n"
+    " FREEDOMS\n"
+    "\n"
+    "/Article 6\n"
+    "/  -  -  -\n"
+    " Right to liberty and security\n"
+    "\n"
+    " Everyone has the right to liberty and security of person.\n"
+    "\n"
+    "/Article 7\n"
+    "/  -  -  -\n"
+    " Respect for private and family life\n"
+    "\n"
+    " Everyone has the right to respect for his or her private and family\n"
+    " life, home and communications.\n"
+    "\n"
+    "/Article 8\n"
+    "/  -  -  -\n"
+    " Protection of personal data\n"
+    "\n"
+    ": 1 Everyone has the right to the protection of personal data\n"
+    ":   concerning him or her.\n"
+    ":\n"
+    ": 2 Such data must be processed fairly for specified purposes and on\n"
+    ":   the basis of the consent of the person concerned or some other\n"
+    ":   legitimate basis laid down by law.  Everyone has the right of\n"
+    ":   access to data which has been collected concerning him or her, and\n"
+    ":   the right to have it rectified.\n"
+    ":\n"
+    ": 3 Compliance with these rules shall be subject to control by an\n"
+    ":   independent authority.\n"
+    "\n"
+    "/Article 9\n"
+    "/  -  -  -\n"
+    " Right to marry and right to found a family\n"
+    "\n"
+    " The right to marry and the right to found a family shall be\n"
+    " guaranteed in accordance with the national laws governing the\n"
+    " exercise of these rights.\n"
+    "\n"
+    "/Article 10\n"
+    "/-  -  -  -\n"
+    " Freedom of thought, conscience and religion\n"
+    "\n"
+    ": 1 Everyone has the right to freedom of thought, conscience and\n"
+    ":   religion.  This right includes freedom to change religion or\n"
+    ":   belief and freedom, either alone or in community with others and\n"
+    ":   in public or in private, to manifest religion or belief, in\n"
+    ":   worship, teaching, practice and observance.\n"
+    ":\n"
+    ": 2 The right to conscientious objection is recognised, in accordance\n"
+    ":   with the national laws governing the exercise of this right.\n"
+    "\n"
+    "/Article 11\n"
+    "/-  -  -  -\n"
+    " Freedom of expression and information\n"
+    "\n"
+    ": 1 Everyone has the right to freedom of expression.  This right shall\n"
+    ":   include freedom to hold opinions and to receive and impart\n"
+    ":   information and ideas without interference by public authority and\n"
+    ":   regardless of frontiers.\n"
+    ":\n"
+    ": 2 The freedom and pluralism of the media shall be respected.\n"
+    "\n"
+    "/Article 12\n"
+    "/-  -  -  -\n"
+    " Freedom of assembly and of association\n"
+    "\n"
+    ": 1 Everyone has the right to freedom of peaceful assembly and to\n"
+    ":   freedom of association at all levels, in particular in political,\n"
+    ":   trade union and civic matters, which implies the right of everyone\n"
+    ":   to form and to join trade unions for the protection of his or her\n"
+    ":   interests.\n"
+    ":\n"
+    ": 2 Political parties at Union level contribute to expressing the\n"
+    ":   political will of the citizens of the Union.\n"
+    "\n"
+    "/Article 13\n"
+    "/-  -  -  -\n"
+    " Freedom of the arts and sciences\n"
+    "\n"
+    " The arts and scientific research shall be free of constraint.\n"
+    " Academic freedom shall be respected.\n"
+    "\n"
+    "/Article 14\n"
+    "/-  -  -  -\n"
+    " Right to education\n"
+    "\n"
+    ": 1 Everyone has the right to education and to have access to\n"
+    ":   vocational and continuing training.\n"
+    ":\n"
+    ": 2 This right includes the possibility to receive free compulsory\n"
+    ":   education.\n"
+    ":\n"
+    ": 3 The freedom to found educational establishments with due respect\n"
+    ":   for democratic principles and the right of parents to ensure the\n"
+    ":   education and teaching of their children in conformity with their\n"
+    ":   religious, philosophical and pedagogical convictions shall be\n"
+    ":   respected, in accordance with the national laws governing the\n"
+    ":   exercise of such freedom and right.\n"
+    "\n"
+    "/Article 15\n"
+    "/-  -  -  -\n"
+    " Freedom to choose an occupation and right to engage in work\n"
+    "\n"
+    ": 1 Everyone has the right to engage in work and to pursue a freely\n"
+    ":   chosen or accepted occupation.\n"
+    ":\n"
+    ": 2 Every citizen of the Union has the freedom to seek employment, to\n"
+    ":   work, to exercise the right of establishment and to provide\n"
+    ":   services in any Member State.\n"
+    ":\n"
+    ": 3 Nationals of third countries who are authorised to work in the\n"
+    ":   territories of the Member States are entitled to working\n"
+    ":   conditions equivalent to those of citizens of the Union.\n"
+    "\n"
+    "/Article 16\n"
+    "/-  -  -  -\n"
+    " Freedom to conduct a business\n"
+    "\n"
+    " The freedom to conduct a business in accordance with Community law\n"
+    " and national laws and practices is recognised.\n"
+    "\n"
+    "/Article 17\n"
+    "/-  -  -  -\n"
+    " Right to property\n"
+    "\n"
+    ": 1 Everyone has the right to own, use, dispose of and bequeath his or\n"
+    ":   her lawfully acquired possessions.  No one may be deprived of his\n"
+    ":   or her possessions, except in the public interest and in the cases\n"
+    ":   and under the conditions provided for by law, subject to fair\n"
+    ":   compensation being paid in good time for their loss.  The use of\n"
+    ":   property may be regulated by law in so far as is necessary for the\n"
+    ":   general interest.\n"
+    ":\n"
+    ": 2 Intellectual property shall be protected.\n"
+    "\n"
+    "/Article 18\n"
+    "/-  -  -  -\n"
+    " Right to asylum\n"
+    "\n"
+    " The right to asylum shall be guaranteed with due respect for the\n"
+    " rules of the Geneva Convention of 28 July 1951 and the Protocol of 31\n"
+    " January 1967 relating to the status of refugees and in accordance\n"
+    " with the Treaty establishing the European Community.\n"
+    "\n"
+    "/Article 19\n"
+    "/-  -  -  -\n"
+    " Protection in the event of removal, expulsion or extradition\n"
+    "\n"
+    ": 1 Collective expulsions are prohibited.\n"
+    ":\n"
+    ": 2 No one may be removed, expelled or extradited to a State where\n"
+    ":   there is a serious risk that he or she would be subjected to the\n"
+    ":   death penalty, torture or other inhuman or degrading treatment or\n"
+    ":   punishment.\n"
+    "\n"
+    "/CHAPTER III\n"
+    "/- - - - - -\n"
+    " EQUALITY\n"
+    "\n"
+    "/Article 20\n"
+    "/-  -  -  -\n"
+    " Equality before the law\n"
+    "\n"
+    " Everyone is equal before the law.\n"
+    "\n"
+    "/Article 21\n"
+    "/-  -  -  -\n"
+    " Non-discrimination\n"
+    "\n"
+    ": 1 Any discrimination based on any ground such as sex, race, colour,\n"
+    ":   ethnic or social origin, genetic features, language, religion or\n"
+    ":   belief, political or any other opinion, membership of a national\n"
+    ":   minority, property, birth, disability, age or sexual orientation\n"
+    ":   shall be prohibited.\n"
+    ":\n"
+    ": 2 Within the scope of application of the Treaty establishing the\n"
+    ":   European Community and of the Treaty on European Union, and\n"
+    ":   without prejudice to the special provisions of those Treaties, any\n"
+    ":   discrimination on grounds of nationality shall be prohibited.\n"
+    "\n"
+    "/Article 22\n"
+    "/-  -  -  -\n"
+    " Cultural, religious and linguistic diversity\n"
+    "\n"
+    " The Union shall respect cultural, religious and linguistic diversity.\n"
+    "\n"
+    "/Article 23\n"
+    "/-  -  -  -\n"
+    " Equality between men and women\n"
+    "\n"
+    " Equality between men and women must be ensured in all areas,\n"
+    " including employment, work and pay.  The principle of equality shall\n"
+    " not prevent the maintenance or adoption of measures providing for\n"
+    " specific advantages in favour of the under-represented sex.\n"
+    "\n"
+    "/Article 24\n"
+    "/-  -  -  -\n"
+    " The rights of the child\n"
+    "\n"
+    ": 1 Children shall have the right to such protection and care as is\n"
+    ":   necessary for their well-being.  They may express their views\n"
+    ":   freely.  Such views shall be taken into consideration on matters\n"
+    ":   which concern them in accordance with their age and maturity.\n"
+    ":\n"
+    ": 2 In all actions relating to children, whether taken by public\n"
+    ":   authorities or private institutions, the child's best interests\n"
+    ":   must be a primary consideration.\n"
+    ":\n"
+    ": 3 Every child shall have the right to maintain on a regular basis a\n"
+    ":   personal relationship and direct contact with both his or her\n"
+    ":   parents, unless that is contrary to his or her interests.\n"
+    "\n"
+    "/Article 25\n"
+    "/-  -  -  -\n"
+    " The rights of the elderly\n"
+    "\n"
+    " The Union recognises and respects the rights of the elderly to lead a\n"
+    " life of dignity and independence and to participate in social and\n"
+    " cultural life.\n"
+    "\n"
+    "/Article 26\n"
+    "/-  -  -  -\n"
+    " Integration of persons with disabilities\n"
+    "\n"
+    " The Union recognises and respects the right of persons with\n"
+    " disabilities to benefit from measures designed to ensure their\n"
+    " independence, social and occupational integration and participation\n"
+    " in the life of the community.\n"
+    "\n"
+    "/CHAPTER IV\n"
+    "/ - - - - -\n"
+    " SOLIDARITY\n"
+    "\n"
+    "/Article 27\n"
+    "/-  -  -  -\n"
+    " Workers' right to information and consultation within the undertaking\n"
+    "\n"
+    " Workers or their representatives must, at the appropriate levels, be\n"
+    " guaranteed information and consultation in good time in the cases and\n"
+    " under the conditions provided for by Community law and national laws\n"
+    " and practices.\n"
+    "\n"
+    "/Article 28\n"
+    "/-  -  -  -\n"
+    " Right of collective bargaining and action\n"
+    "\n"
+    " Workers and employers, or their respective organisations, have, in\n"
+    " accordance with Community law and national laws and practices, the\n"
+    " right to negotiate and conclude collective agreements at the\n"
+    " appropriate levels and, in cases of conflicts of interest, to take\n"
+    " collective action to defend their interests, including strike action.\n"
+    "\n"
+    "/Article 29\n"
+    "/-  -  -  -\n"
+    " Right of access to placement services\n"
+    "\n"
+    " Everyone has the right of access to a free placement service.\n"
+    "\n"
+    "/Article 30\n"
+    "/-  -  -  -\n"
+    " Protection in the event of unjustified dismissal\n"
+    "\n"
+    " Every worker has the right to protection against unjustified\n"
+    " dismissal, in accordance with Community law and national laws and\n"
+    " practices.\n"
+    "\n"
+    "/Article 31\n"
+    "/-  -  -  -\n"
+    " Fair and just working conditions\n"
+    "\n"
+    ": 1 Every worker has the right to working conditions which respect his\n"
+    ":   or her health, safety and dignity.\n"
+    ":\n"
+    ": 2 Every worker has the right to limitation of maximum working hours,\n"
+    ":   to daily and weekly rest periods and to an annual period of paid\n"
+    ":   leave.\n"
+    "\n"
+    "/Article 32\n"
+    "/-  -  -  -\n"
+    " Prohibition of child labour and protection of young people at work\n"
+    "\n"
+    " The employment of children is prohibited.  The minimum age of\n"
+    " admission to employment may not be lower than the minimum\n"
+    " school-leaving age, without prejudice to such rules as may be more\n"
+    " favourable to young people and except for limited derogations.  Young\n"
+    " people admitted to work must have working conditions appropriate to\n"
+    " their age and be protected against economic exploitation and any work\n"
+    " likely to harm their safety, health or physical, mental, moral or\n"
+    " social development or to interfere with their education.\n"
+    "\n"
+    "/Article 33\n"
+    "/-  -  -  -\n"
+    " Family and professional life\n"
+    "\n"
+    ": 1 The family shall enjoy legal, economic and social protection.\n"
+    ":\n"
+    ": 2 To reconcile family and professional life, everyone shall have the\n"
+    ":   right to protection from dismissal for a reason connected with\n"
+    ":   maternity and the right to paid maternity leave and to parental\n"
+    ":   leave following the birth or adoption of a child.\n"
+    "\n"
+    "/Article 34\n"
+    "/-  -  -  -\n"
+    " Social security and social assistance\n"
+    "\n"
+    ": 1 The Union recognises and respects the entitlement to social\n"
+    ":   security benefits and social services providing protection in\n"
+    ":   cases such as maternity, illness, industrial accidents, dependency\n"
+    ":   or old age, and in the case of loss of employment, in accordance\n"
+    ":   with the rules laid down by Community law and national laws and\n"
+    ":   practices.\n"
+    ":\n"
+    ": 2 Everyone residing and moving legally within the European Union is\n"
+    ":   entitled to social security benefits and social advantages in\n"
+    ":   accordance with Community law and national laws and practices.\n"
+    ":\n"
+    ": 3 In order to combat social exclusion and poverty, the Union\n"
+    ":   recognises and respects the right to social and housing assistance\n"
+    ":   so as to ensure a decent existence for all those who lack\n"
+    ":   sufficient resources, in accordance with the rules laid down by\n"
+    ":   Community law and national laws and practices.\n"
+    "\n"
+    "/Article 35\n"
+    "/-  -  -  -\n"
+    " Health care\n"
+    "\n"
+    " Everyone has the right of access to preventive health care and the\n"
+    " right to benefit from medical treatment under the conditions\n"
+    " established by national laws and practices.  A high level of human\n"
+    " health protection shall be ensured in the definition and\n"
+    " implementation of all Union policies and activities.\n"
+    "\n"
+    "/Article 36\n"
+    "/-  -  -  -\n"
+    " Access to services of general economic interest\n"
+    "\n"
+    " The Union recognises and respects access to services of general\n"
+    " economic interest as provided for in national laws and practices, in\n"
+    " accordance with the Treaty establishing the European Community, in\n"
+    " order to promote the social and territorial cohesion of the Union.\n"
+    "\n"
+    "/Article 37\n"
+    "/-  -  -  -\n"
+    " Environmental protection\n"
+    "\n"
+    " A high level of environmental protection and the improvement of the\n"
+    " quality of the environment must be integrated into the policies of\n"
+    " the Union and ensured in accordance with the principle of sustainable\n"
+    " development.\n"
+    "\n"
+    "/Article 38\n"
+    "/-  -  -  -\n"
+    " Consumer protection\n"
+    "\n"
+    " Union policies shall ensure a high level of consumer protection.\n"
+    "\n"
+    "/CHAPTER V\n"
+    "/- - - - -\n"
+    " CITIZENS' RIGHTS\n"
+    "\n"
+    "/Article 39\n"
+    "/-  -  -  -\n"
+    " Right to vote and to stand as a candidate at elections to the\n"
+    " European Parliament\n"
+    "\n"
+    ": 1 Every citizen of the Union has the right to vote and to stand as a\n"
+    ":   candidate at elections to the European Parliament in the Member\n"
+    ":   State in which he or she resides, under the same conditions as\n"
+    ":   nationals of that State.\n"
+    ":\n"
+    ": 2 Members of the European Parliament shall be elected by direct\n"
+    ":   universal suffrage in a free and secret ballot.\n"
+    "\n"
+    "/Article 40\n"
+    "/-  -  -  -\n"
+    " Right to vote and to stand as a candidate at municipal elections\n"
+    "\n"
+    " Every citizen of the Union has the right to vote and to stand as a\n"
+    " candidate at municipal elections in the Member State in which he or\n"
+    " she resides under the same conditions as nationals of that State.\n"
+    "\n"
+    "/Article 41\n"
+    "/-  -  -  -\n"
+    " Right to good administration\n"
+    "\n"
+    ": 1 Every person has the right to have his or her affairs handled\n"
+    ":   impartially, fairly and within a reasonable time by the\n"
+    ":   institutions and bodies of the Union.\n"
+    ":\n"
+    ": 2 This right includes:\n"
+    ":\n"
+    ":   o the right of every person to be heard, before any individual\n"
+    ":     measure which would affect him or her adversely is taken;\n"
+    ":\n"
+    ":   o the right of every person to have access to his or her file,\n"
+    ":     while respecting the legitimate interests of confidentiality and\n"
+    ":     of professional and business secrecy;\n"
+    ":\n"
+    ":   o the obligation of the administration to give reasons for its\n"
+    ":     decisions.\n"
+    ":\n"
+    ": 3 Every person has the right to have the Community make good any\n"
+    ":   damage caused by its institutions or by its servants in the\n"
+    ":   performance of their duties, in accordance with the general\n"
+    ":   principles common to the laws of the Member States.\n"
+    ":\n"
+    ": 4 Every person may write to the institutions of the Union in one of\n"
+    ":   the languages of the Treaties and must have an answer in the same\n"
+    ":   language.\n"
+    "\n"
+    "/Article 42\n"
+    "/-  -  -  -\n"
+    " Right of access to documents\n"
+    "\n"
+    " Any citizen of the Union, and any natural or legal person residing or\n"
+    " having its registered office in a Member State, has a right of access\n"
+    " to European Parliament, Council and Commission documents.\n"
+    "\n"
+    "/Article 43\n"
+    "/-  -  -  -\n"
+    " Ombudsman\n"
+    "\n"
+    " Any citizen of the Union and any natural or legal person residing or\n"
+    " having its registered office in a Member State has the right to refer\n"
+    " to the Ombudsman of the Union cases of maladministration in the\n"
+    " activities of the Community institutions or bodies, with the\n"
+    " exception of the Court of Justice and the Court of First Instance\n"
+    " acting in their judicial role.\n"
+    "\n"
+    "/Article 44\n"
+    "/-  -  -  -\n"
+    " Right to petition\n"
+    "\n"
+    " Any citizen of the Union and any natural or legal person residing or\n"
+    " having its registered office in a Member State has the right to\n"
+    " petition the European Parliament.\n"
+    "\n"
+    "/Article 45\n"
+    "/-  -  -  -\n"
+    " Freedom of movement and of residence\n"
+    "\n"
+    ": 1 Every citizen of the Union has the right to move and reside freely\n"
+    ":   within the territory of the Member States.\n"
+    ":\n"
+    ": 2 Freedom of movement and residence may be granted, in accordance\n"
+    ":   with the Treaty establishing the European Community, to nationals\n"
+    ":   of third countries legally resident in the territory of a Member\n"
+    ":   State.\n"
+    "\n"
+    "/Article 46\n"
+    "/-  -  -  -\n"
+    " Diplomatic and consular protection\n"
+    "\n"
+    " Every citizen of the Union shall, in the territory of a third country\n"
+    " in which the Member State of which he or she is a national is not\n"
+    " represented, be entitled to protection by the diplomatic or consular\n"
+    " authorities of any Member State, on the same conditions as the\n"
+    " nationals of that Member State.\n"
+    "\n"
+    "/CHAPTER VI\n"
+    "/ - - - - -\n"
+    " JUSTICE\n"
+    "\n"
+    "/Article 47\n"
+    "/-  -  -  -\n"
+    " Right to an effective remedy and to a fair trial\n"
+    "\n"
+    " Everyone whose rights and freedoms guaranteed by the law of the Union\n"
+    " are violated has the right to an effective remedy before a tribunal\n"
+    " in compliance with the conditions laid down in this Article.\n"
+    " Everyone is entitled to a fair and public hearing within a reasonable\n"
+    " time by an independent and impartial tribunal previously established\n"
+    " by law.  Everyone shall have the possibility of being advised,\n"
+    " defended and represented.  Legal aid shall be made available to those\n"
+    " who lack sufficient resources in so far as such aid is necessary to\n"
+    " ensure effective access to justice.\n"
+    "\n"
+    "/Article 48\n"
+    "/-  -  -  -\n"
+    " Presumption of innocence and right of defence\n"
+    "\n"
+    ": 1 Everyone who has been charged shall be presumed innocent until\n"
+    ":   proved guilty according to law.\n"
+    ":\n"
+    ": 2 Respect for the rights of the defence of anyone who has been\n"
+    ":   charged shall be guaranteed.\n"
+    "\n"
+    "/Article 49\n"
+    "/-  -  -  -\n"
+    " Principles of legality and proportionality of criminal offences and\n"
+    " penalties\n"
+    "\n"
+    ": 1 No one shall be held guilty of any criminal offence on account of\n"
+    ":   any act or omission which did not constitute a criminal offence\n"
+    ":   under national law or international law at the time when it was\n"
+    ":   committed.  Nor shall a heavier penalty be imposed than that which\n"
+    ":   was applicable at the time the criminal offence was committed.\n"
+    ":   If, subsequent to the commission of a criminal offence, the law\n"
+    ":   provides for a lighter penalty, that penalty shall be applicable.\n"
+    ":\n"
+    ": 2 This Article shall not prejudice the trial and punishment of any\n"
+    ":   person for any act or omission which, at the time when it was\n"
+    ":   committed, was criminal according to the general principles\n"
+    ":   recognised by the community of nations.\n"
+    ":\n"
+    ": 3 The severity of penalties must not be disproportionate to the\n"
+    ":   criminal offence.\n"
+    "\n"
+    "/Article 50\n"
+    "/-  -  -  -\n"
+    " Right not to be tried or punished twice in criminal proceedings for\n"
+    " the same criminal offence\n"
+    "\n"
+    " No one shall be liable to be tried or punished again in criminal\n"
+    " proceedings for an offence for which he or she has already been\n"
+    " finally acquitted or convicted within the Union in accordance with\n"
+    " the law.\n"
+    "\n"
+    "/CHAPTER VII\n"
+    "/- - - - - -\n"
+    " GENERAL PROVISIONS\n"
+    "\n"
+    "/Article 51\n"
+    "/-  -  -  -\n"
+    " Scope\n"
+    "\n"
+    ": 1 The provisions of this Charter are addressed to the institutions\n"
+    ":   and bodies of the Union with due regard for the principle of\n"
+    ":   subsidiarity and to the Member States only when they are\n"
+    ":   implementing Union law.  They shall therefore respect the rights,\n"
+    ":   observe the principles and promote the application thereof in\n"
+    ":   accordance with their respective powers.\n"
+    ":\n"
+    ": 2 This Charter does not establish any new power or task for the\n"
+    ":   Community or the Union, or modify powers and tasks defined by the\n"
+    ":   Treaties.\n"
+    "\n"
+    "/Article 52\n"
+    "/-  -  -  -\n"
+    " Scope of guaranteed rights\n"
+    "\n"
+    ": 1 Any limitation on the exercise of the rights and freedoms\n"
+    ":   recognised by this Charter must be provided for by law and respect\n"
+    ":   the essence of those rights and freedoms.  Subject to the\n"
+    ":   principle of proportionality, limitations may be made only if they\n"
+    ":   are necessary and genuinely meet objectives of general interest\n"
+    ":   recognised by the Union or the need to protect the rights and\n"
+    ":   freedoms of others.\n"
+    ":\n"
+    ": 2 Rights recognised by this Charter which are based on the Community\n"
+    ":   Treaties or the Treaty on European Union shall be exercised under\n"
+    ":   the conditions and within the limits defined by those Treaties.\n"
+    ":\n"
+    ": 3 In so far as this Charter contains rights which correspond to\n"
+    ":   rights guaranteed by the Convention for the Protection of Human\n"
+    ":   Rights and Fundamental Freedoms, the meaning and scope of those\n"
+    ":   rights shall be the same as those laid down by the said\n"
+    ":   Convention.  This provision shall not prevent Union law providing\n"
+    ":   more extensive protection.\n"
+    "\n"
+    "/Article 53\n"
+    "/-  -  -  -\n"
+    " Level of protection\n"
+    "\n"
+    " Nothing in this Charter shall be interpreted as restricting or\n"
+    " adversely affecting human rights and fundamental freedoms as\n"
+    " recognised, in their respective fields of application, by Union law\n"
+    " and international law and by international agreements to which the\n"
+    " Union, the Community or all the Member States are party, including\n"
+    " the European Convention for the Protection of Human Rights and\n"
+    " Fundamental Freedoms, and by the Member States' constitutions.\n"
+    "\n"
+    "/Article 54\n"
+    "/-  -  -  -\n"
+    " Prohibition of abuse of rights\n"
+    "\n"
+    " Nothing in this Charter shall be interpreted as implying any right to\n"
+    " engage in any activity or to perform any act aimed at the destruction\n"
+    " of any of the rights and freedoms recognised in this Charter or at\n"
+    " their limitation to a greater extent than is provided for herein.\n";
+
+    static char * const documents[] = { &document0[0],
+                                        &document1[0],
+                                        &document2[0]
+                                      };
+    const int           numDocuments = sizeof documents / sizeof *documents;
 //..
 // First, we define several aliases to make our code more comprehensible.
 //..
     typedef bsl::pair<int, int>                  WordLocation;
-        // Document number (index) and offset in that document specify word
-        // location.
+        // Document code number and word offset in that document specify
+        // a word location.
                         
     typedef bsl::pair<bsl::string, WordLocation> ConcordanceValue;
     typedef bsl::unordered_multimap<bsl::string, WordLocation>
                                                  Concordance;
     typedef Concordance::iterator                ConcordanceItr;
 //..
-// Next, we (default) create an unordered map to hold our word tallies.  The
-// output from the 'printf' statements will be discussed in {Example 2}.
+// Next, we (default) create an unordered map to hold our word tallies.
 //..
     Concordance concordance;
-    printf("size             %4d initial\n", concordance.size());
-    printf("bucket_count     %4d initial\n", concordance.bucket_count());
-    printf("load_factor      %f  initial\n", concordance.load_factor());
-    printf("max_load_factor  %f  initial\n", concordance.max_load_factor());
 //..
 // Then, we define the set of characters that define word boundaries:
 //..
-    const char *delimiters = " \n\t,:;.()[]?!/-";
+    const char *delimiters = " \n\t,:;.()[]?!/";
 //..
-// Next, we extract the words from our documents.  Note that 'strtok'
-// modifies the document arrays (which were not made 'const').
+// Next, we extract the words from our documents.  Note that 'strtok' modifies
+// the document arrays (which were not made 'const').
 //
-// We tentatively assume that we are seeing each word for the first time and
-// attempt to insert an initial record for that word.  If that succeeds (a
-// 'true' value in the 'second' member of the 'bsl::pair' returned by the
-// 'insert' method), we have correctly recorded that word; otherwise, we are
-// returned an iterator (the 'first' member of the 'bsl::pair' returned) to the
-// entry that had previously been added to the map.  In that case, we increment
-// the data portion (the 'second' member) of that entry.
+// As each word is located, we create a map value -- a pair of the word
+// converted to a 'bsl::string' and a 'WordLocation' object (itself a pair of
+// document code and (word) offset of that word in the document) -- and insert
+// the map value into the map.  Note that (unlike maps and unordered maps)
+// there is no status to check; the insertion succeeds even if the key is
+// already present in the (multi) map.
 //..
     for (int idx = 0; idx < numDocuments; ++idx) {
+        int wordCount = 0;
         for (char *cur = strtok(documents[idx], delimiters);
                    cur;
                    cur = strtok(NULL,     delimiters)) {
-            int          offset = cur - documents[idx];
-            WordLocation location(idx, offset); // doc number and offset
+            WordLocation     location(idx, wordCount++);
             ConcordanceValue value(bsl::string(cur), location);
             concordance.insert(value);
         }
     }
-    printf("size             %4d\n", concordance.size());
-    printf("bucket_count     %4d\n", concordance.bucket_count());
-    printf("load_factor      %f \n", concordance.load_factor());
-    printf("max_load_factor  %f \n", concordance.max_load_factor());
 //..
-// 
+// Then, we can readily print a complete concordance by interating through
+// the map.
 //..
-    bsl::pair<ConcordanceItr, ConcordanceItr> found = concordance.equal_range(
-                                                        bsl::string("people"));
-    for (ConcordanceItr itr  = found.first,
-                        end  = found.second;
+    for (ConcordanceItr itr  = concordance.begin(),
+                        end  = concordance.end();
                         end != itr; ++itr) {
-        printf("%s: [%d, %d]\n",
+if (verbose) {
+        printf("\"%s\", %2d, %4d\n",
                itr->first.c_str(),
                itr->second.first,
                itr->second.second);
+}
     }
 //..
+// Standard output shows:
+//..
+//  "extent",  2, 3837
+//  "greater",  2, 3836
+//  "abuse",  2, 3791
+//  "constitutions",  2, 3782
+//  "affecting",  2, 3727
+//  ...
+//  "he",  1, 1746
+//  "he",  1,  714
+//  "he",  0,  401
+//  "include",  2,  847
+//..
+// Next, if we there are some particular words of interest, we seek them out
+// using the 'equal_range' method of the 'concordance' object:
+//..
+    const char *wordsOfInterest[] = { "human",
+                                      "rights",
+                                      "unalienable",
+                                      "inalienable"
+                                    };
+    const int   numWordsOfInterest = sizeof  wordsOfInterest
+                                   / sizeof *wordsOfInterest;
+    for (int idx = 0; idx < numWordsOfInterest; ++idx) {
+       const char                                *wordOfInterest
+                                                        = wordsOfInterest[idx];
+       bsl::pair<ConcordanceItr, ConcordanceItr>  found =
+                          concordance.equal_range(bsl::string(wordOfInterest));
+       for (ConcordanceItr itr  = found.first,
+                           end  = found.second;
+                           end != itr; ++itr) {
+if (verbose) {
+           printf("\"%s\", %2d, %4d\n",
+                  itr->first.c_str(),
+                  itr->second.first,
+                  itr->second.second);
+}
+       }
+if (verbose) {
+       printf("\n");
+}
+    }
+//..
+// Finally, we see on standard output:
+//..
+//  "human",  2, 3492
+//  "human",  2, 2192
+//  "human",  2,  534
+//  ...
+//  "human",  1,   65
+//  "human",  1,   43
+//  "human",  1,   25
+//  "human",  0,   20
+//  
+//  "rights",  2, 3583
+//  "rights",  2, 3553
+//  "rights",  2, 3493
+//  ...
+//  "rights",  1,   44
+//  "rights",  1,   19
+//  "rights",  0,  496
+//  "rights",  0,  126
+//
+//  "unalienable",  0,  109 
+//
+//  "inalienable",  1,   18 
+//
+//..
+// {'bslstl_unorderedmap'|Example 3} shows how to use the concordance to create
+// an inverse concordance, and how to use the inverse concordance to find the
+// context (surrouding words) of a word of interest.
+//
+///Example 2: Examining and Setting Unordered Multi-Map Configuration
+///------------------------------------------------------------------
+// The unordered multi-map interfaces provide some insight into and control of
+// its inner workings.  The syntax and semantics of these interfaces for
+// 'bslstl_unoroderedmultimap' are identical to those of 'bslstl_unorderedmap'.
+// See the material in {'bslstl_unorderedmap'|Example 2}.
         }
       } break;
       case 1: {
