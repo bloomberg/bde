@@ -42,6 +42,8 @@ namespace BloombergLP {
                             // ========================
 
 struct baejsn_ParserUtil {
+        // TBD: We can get overflow in the getValueImp functions.
+
   private:
 
     template <typename TYPE>
@@ -78,9 +80,6 @@ struct baejsn_ParserUtil {
     static int getDouble(bsl::streambuf *streamBuf,
                          double         *value);
 
-    //static int getNumber(bsl::streambuf *streamBuf,
-    //                     double         *value);
-
   public:
     static int skipSpaces(bsl::streambuf *streamBuf);
 
@@ -103,8 +102,6 @@ struct baejsn_ParserUtil {
     template <class TYPE>
     static int getNumber(bsl::streambuf *streamBuf, TYPE *value);
         // TBD make private
-
-    static int putString(bsl::streambuf *streamBuf, const bsl::string& value);
 
     template <typename TYPE>
     static int putValue(bsl::streambuf *streamBuf, const TYPE& value);
@@ -218,6 +215,33 @@ int baejsn_ParserUtil::getValueImp(bsl::streambuf     *streamBuf,
                                    bsls::Types::Int64 *value)
 {
     return getNumericalValue(streamBuf, value);
+//     int ch = streamBuf->sgetc();
+
+//     if (ch == bsl::streambuf::traits_type::eof()) {
+//         return -1;                                                    // RETURN
+//     }
+
+//     bool isNegative;
+
+//     if (ch == '-') {
+//         isNegative = true;
+//         streamBuf->snextc();
+//     }
+//     else {
+//         isNegative = false;
+//     }
+
+//     bsls::Types::Uint64 tmp = 0;
+//     if (0 != getInteger(streamBuf, &tmp)) {
+//         return -1;                                                    // RETURN
+//     }
+//     *value = static_cast<bsls::Types::Int64>(tmp);
+
+//     if (isNegative) {
+//         *value = *value * -1;
+//     }
+
+//     return 0;
 }
 
 inline
@@ -293,22 +317,13 @@ int baejsn_ParserUtil::getValueImp(bsl::streambuf *streamBuf,
     return getDateAndTimeValue(streamBuf, value);
 }
 
-//inline
-//int baejsn_ParserUtil::getNumber(bsl::streambuf *streamBuf,
-//                                 double         *value)
-//{
-//    return getDouble(streamBuf, value);
-//}
-
 template <class TYPE>
 inline
 int baejsn_ParserUtil::getNumber(bsl::streambuf *streamBuf,
                                  TYPE           *value)
 {
-    // TBD: We lose accuraccy for int64.  Does it matter?
-
     double temp;
-    int rc = baejsn_ParserUtil::getDouble(streamBuf, &temp);
+    int rc = getDouble(streamBuf, &temp);
     *value = static_cast<TYPE>(temp);
     return rc;
 }

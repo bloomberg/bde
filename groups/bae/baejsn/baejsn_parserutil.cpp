@@ -12,6 +12,9 @@ BDES_IDENT_RCSID(baejsn_parserutil_cpp,"$Id$ $CSID$")
 #include <bsl_cmath.h>
 #include <bsl_iomanip.h>
 
+// TBD: Remove
+#include <bsl_iostream.h>
+
 namespace BloombergLP {
 
 namespace {
@@ -19,26 +22,25 @@ namespace {
 template <typename TYPE>
 bool matchFloatDecimalPart(bsl::streambuf *streamBuf, TYPE *value)
 {
-    if (streamBuf->sgetc() == '.') {
+    if ('.' == streamBuf->sgetc()) {
         double multiplier = 1.0;
 
         int ch = streamBuf->snextc();
         while (ch != bsl::streambuf::traits_type::eof()
-               && ch >= '0'
-               && ch <= '9') {
+            && ch >= '0'
+            && ch <= '9') {
             multiplier /= 10.0;
 
-            if (ch != '0')
+            if ('0' != ch) {
                 *value += multiplier * static_cast<TYPE>(ch - '0');
+            }
 
             ch = streamBuf->snextc();
         }
 
         if (multiplier == 1.0) {
-            return false;
+            return false;                                             // RETURN
         }
-
-        return true;
     }
     return true;
 }
@@ -61,13 +63,12 @@ bool matchFloatExponantPart(bsl::streambuf *streamBuf, TYPE *value)
         }
 
         if (0 != baejsn_ParserUtil::getInteger(streamBuf, &exponentPart)) {
-            return false;
+            return false;                                             // RETURN
         }
 
         *value *= bsl::pow(static_cast<TYPE>(10),
-                           static_cast<TYPE>(exponentSign) * static_cast<TYPE>(exponentPart));
-
-        return true;
+                           static_cast<TYPE>(exponentSign)
+                                            * static_cast<TYPE>(exponentPart));
     }
     return true;
 }
@@ -80,19 +81,11 @@ bool matchFloatExponantPart(bsl::streambuf *streamBuf, TYPE *value)
 
 int baejsn_ParserUtil::skipSpaces(bsl::streambuf *streamBuf)
 {
-    const char white[] = { ' ', '\t', '\n', '\r', '\f' };
+    const char *whitespace = " \t\n\r\f";
 
     int ch = streamBuf->sgetc();
-    while (ch != bsl::streambuf::traits_type::eof()) {
-        bool isWhite = false;
-
-        for (int i = 0; !isWhite && i < static_cast<int>(sizeof(white)); ++i) {
-            isWhite = (white[i] == ch);
-        }
-
-        if (!isWhite) {
-            return ch;
-        }
+    while (ch != bsl::streambuf::traits_type::eof()
+        && bsl::strchr(whitespace, ch)) {
 
         ch = streamBuf->snextc();
     }
@@ -100,46 +93,46 @@ int baejsn_ParserUtil::skipSpaces(bsl::streambuf *streamBuf)
     return ch;
 }
 
-
 int baejsn_ParserUtil::getDouble(bsl::streambuf *streamBuf, double *value)
 {
     // This implementation is not very good.  It needs a lot of division and
     // loses precision.
 
-    baejsn_ParserUtil::skipSpaces(streamBuf);
+    skipSpaces(streamBuf);
 
     // extract the integer part
+
     int ch = streamBuf->sgetc();
 
     if (ch == bsl::streambuf::traits_type::eof()) {
-        return 1;
+        return -1;                                                    // RETURN
     }
 
     bool negative  = false;
-    if (ch == '-')
-    {
+    if (ch == '-') {
         negative = true;
         streamBuf->snextc();
     }
 
     bsls::Types::Uint64 magnitude = 0;
-    if (0 != getInteger(streamBuf, &magnitude))
-    {
-        return 1;
+    if (0 != getInteger(streamBuf, &magnitude)) {
+        return -1;                                                    // RETURN
     }
+
+    cout << magnitude << endl;
 
     *value = static_cast<double>(magnitude);
 
     // extract the decimal part
-    if (!matchFloatDecimalPart(streamBuf, value)) 
-    {
-        return 1;
+
+    if (!matchFloatDecimalPart(streamBuf, value)) {
+        return -1;                                                    // RETURN
     }
 
-
     // extract the exponent part
+
     if (!matchFloatExponantPart(streamBuf, value)) {
-        return 1;
+        return -1;                                                    // RETURN
     }
 
     if (negative) {
@@ -155,26 +148,25 @@ int baejsn_ParserUtil::getInteger(bsl::streambuf     *streamBuf,
     int ch = streamBuf->sgetc();
 
     if (ch == bsl::streambuf::traits_type::eof()) {
-        return 1;
+        return -1;                                                    // RETURN
     }
 
     bool                negative  = false;
     bsls::Types::Uint64 magnitude = 0;
 
-    if (ch == '-')
-    {
+    if (ch == '-') {
         negative = true;
         streamBuf->snextc();
     }
 
-    if (0 == getInteger(streamBuf, &magnitude))
-    {
+    if (0 == getInteger(streamBuf, &magnitude)) {
         // match int will have moved mPosition
+
         *value = static_cast<int64_t>(magnitude) * (negative ? -1 : 1);
-        return 0;
+        return 0;                                                     // RETURN
     }
 
-    return 1;
+    return -1;
 }
 
 int baejsn_ParserUtil::getInteger(bsl::streambuf      *streamBuf,
@@ -185,8 +177,8 @@ int baejsn_ParserUtil::getInteger(bsl::streambuf      *streamBuf,
     int ch = streamBuf->sgetc();
     bool foundNumberFlag = false;
     while (ch != bsl::streambuf::traits_type::eof()
-           && ch >= '0'
-           && ch <= '9') {
+        && ch >= '0'
+        && ch <= '9') {
         foundNumberFlag = true;
         *value *= 10;
         *value += ch - '0';
@@ -213,32 +205,38 @@ int baejsn_ParserUtil::getString(bsl::streambuf *streamBuf, bsl::string *value)
 
     while (ch != bsl::streambuf::traits_type::eof()) {
         if (escaped) {
-            if (ch == '"' || ch =='\\' || ch == '/') {
+            switch (ch) {
+              case 'b': {
+                *value += '\b';
+              } break;
+              case 'f': {
+                *value += '\f';
+              } break;
+              case 'n': {
+                *value += '\n';
+              } break;
+              case 'r': {
+                *value += '\r';
+              } break;
+              case 't': {
+                *value += '\t';
+              } break;
+
+              case '"'  :                                       // FALL THROUGH
+              case '\\' :                                       // FALL THROUGH
+              case '/'  : {
 
                 // printable characters
 
                 *value += ch;
-            }
-            else if (ch == 'b') {
+                
+              } break;
 
-                // non printables
-
-                *value += '\b';
-            }
-            else if (ch == 'f') {
-                *value += '\f';
-            }
-            else if (ch == 'n') {
-                *value += '\n';
-            }
-            else if (ch == 'r') {
-                *value += '\r';
-            }
-            else if (ch == 't') {
-                *value += '\t';
-            }
-            else if (ch == 'u') {
+              case 'u': {
                 streamBuf->snextc();
+
+                // TBD: This doesnt work
+                BSLS_ASSERT_OPT(0);
 
                 const int SIZE = 4;
                 char buffer[SIZE + 1];
@@ -262,6 +260,11 @@ int baejsn_ParserUtil::getString(bsl::streambuf *streamBuf, bsl::string *value)
                 }
 
                 parser.endParse();
+              } break;
+
+              default: {
+                return -1;                                            // RETURN
+              } break;
             }
 
             escaped = false;
@@ -287,20 +290,19 @@ int baejsn_ParserUtil::getString(bsl::streambuf *streamBuf, bsl::string *value)
 
 int baejsn_ParserUtil::eatToken(bsl::streambuf *streamBuf, const char *token)
 {
-    int ch = streamBuf->sgetc();
-    bsl::streampos pos = streamBuf->pubseekoff(0, bsl::ios_base::cur);
-    const char *ptr = token;
+    int             ch  = streamBuf->sgetc();
+    bsl::streampos  pos = streamBuf->pubseekoff(0, bsl::ios_base::cur);
+    const char     *ptr = token;
 
-    while ('\0' != *ptr)
-    {
+    while ('\0' != *ptr) {
         if (ch == bsl::streambuf::traits_type::eof()) {
             streamBuf->pubseekpos(pos);
-            return 1;
+            return -1;                                                // RETURN
         }
 
         if (ch != *ptr) {
             streamBuf->pubseekpos(pos);
-            return 1;
+            return -1;                                                // RETURN
         }
 
         ++ptr;
@@ -321,86 +323,6 @@ int baejsn_ParserUtil::advancePastWhitespaceAndToken(bsl::streambuf *streamBuf,
         return 0;                                                     // RETURN
     }
     return -1;
-}
-
-int baejsn_ParserUtil::putString(bsl::streambuf     *streamBuf,
-                                 const bsl::string&  value)
-{
-    streamBuf->sputc('"');
-
-    for (std::string::const_iterator it = value.begin(); it != value.end(); ++it)
-    {
-        if (*it == '"' || *it == '\\' || *it == '/') {// printable (but miss-enterpreted)
-            streamBuf->sputc('\\');
-            streamBuf->sputc(*it);
-        }
-        else if (*it == '\b') {
-            // non printable
-            streamBuf->sputc('\\');
-            streamBuf->sputc('b');
-            //streamBuf->sputc("\\b");
-        }
-        else if (*it == '\f') {
-            streamBuf->sputc('\\');
-            streamBuf->sputc('f');
-            //streamBuf->sputc("\\f");
-        }
-        else if (*it == '\n') {
-            streamBuf->sputc('\\');
-            streamBuf->sputc('n');
-            //streamBuf->sputc("\\n");
-        }
-        else if (*it == '\r') {
-            streamBuf->sputc('\\');
-            streamBuf->sputc('r');
-            //streamBuf->sputc("\\r");
-        }
-        else if (*it == '\t') {
-            streamBuf->sputc('\\');
-            streamBuf->sputc('t');
-            //streamBuf->sputc("\\t");
-        }
-        // TBD: Disable mOptions for now.
-        //else if (*it == '\0' && mOptions[Options::useModifiedUtf8])
-        //{
-        //    streamBuf->sputc("\\uc080";
-        //}
-        else if ((static_cast<unsigned int>(*it) & 0xff) < 32) {
-            // Any other control characters as hex.
-
-            // todo add back multi byte support, but unicode >= 0xD800 && unicode <= 0xDBFF checks are required to ensure that
-            //      surrogate encodings are or are not needed when pushing binary as a string
-            //
-            //std::string::const_iterator next = it;
-            //++next;
-
-            bsl::ostringstream str;
-
-            //if (*it == 0 || next == value.end())
-            {
-                str << "\\u00"
-                    << std::hex
-                    << std::setfill('0')
-                    << std::setw(2)
-                    << (static_cast<unsigned int>(*it) & 0xff);
-            }
-            //else
-            //{
-            //    str << "\\u" << std::hex << std::setfill('0') << std::setw(2) << (static_cast<unsigned int>(*it) & 0xff)
-            //                 << std::hex << std::setfill('0') << std::setw(2) << (static_cast<unsigned int>(*next) & 0xff);
-            //    ++it;
-            //}
-
-            streamBuf->sputn(str.str().c_str(), str.str().length());
-        }
-        else
-        {
-            streamBuf->sputc(*it);
-        }
-    }
-
-    streamBuf->sputc('"');
-    return 0;
 }
 
 }  // close namespace BloombergLP

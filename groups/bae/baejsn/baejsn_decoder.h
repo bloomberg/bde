@@ -232,7 +232,7 @@ int baejsn_Decoder::decodeImp(TYPE *value, bdeat_TypeCategory::Sequence)
 
     if (0 != baejsn_ParserUtil::advancePastWhitespaceAndToken(d_streamBuf,
                                                               '}')) {
-        bool hasMore = false;
+        bool hasMore;
         do {
             baejsn_ParserUtil::skipSpaces(d_streamBuf);
 
@@ -416,20 +416,25 @@ int baejsn_Decoder::decodeImp(TYPE *value, bdeat_TypeCategory::Array)
 
         int i = static_cast<int>(bdeat_ArrayFunctions::size(*value));
 
+        bool hasMore = false;
         do {
+            baejsn_ParserUtil::skipSpaces(d_streamBuf);
+
             ++i;
             bdeat_ArrayFunctions::resize(value, i);
 
             baejsn_Decoder_ElementVisitor visitor = { this };
             if (0 != bdeat_ArrayFunctions::manipulateElement(value,
                                                              visitor,
-                                                             i)) {
-                d_logStream << "Could not element '" << i << "\'";
+                                                             i - 1)) {
+                d_logStream << "Could not add element '" << i << "\'";
                 return 1;                                             // RETURN
             }
-        } while (0 != baejsn_ParserUtil::advancePastWhitespaceAndToken(
+            hasMore =
+                0 == baejsn_ParserUtil::advancePastWhitespaceAndToken(
                                                                    d_streamBuf,
-                                                                   ','));
+                                                                   ',');
+        } while (hasMore);
 
         if (0 != baejsn_ParserUtil::advancePastWhitespaceAndToken(d_streamBuf,
                                                                   ']')) {
