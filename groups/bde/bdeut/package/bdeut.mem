@@ -7,3 +7,4 @@ bdeut_stringref
 bdeut_strtokeniter
 bdeut_strtokenrefiter
 bdeut_variant
+bdeut_functionoutputiterator
