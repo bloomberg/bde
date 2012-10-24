@@ -424,10 +424,13 @@ int main(int argc, char *argv[])
                 ASSERT(pid > 0);
                 close(pipes[1]);
                 // (read() returns -1 for error, 0 for EOF or BUF_SZ-r == 0)
-                do { r = read(pipes[0], buf+sz, BUF_SZ-sz);
+                do {
+                    r = read(pipes[0], buf+sz, BUF_SZ-sz);
                 } while (r != 0 && (r > 0 ? (sz+=r) : errno == EINTR));
                 close(pipes[0]);
-                if (sz < BUF_SZ) { buf[sz] = '\0'; }
+                if (sz < BUF_SZ) {
+                    buf[sz] = '\0';
+                }
                 // leaks child process; waitpid() not done; test exits soon
             }
             else {

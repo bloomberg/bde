@@ -646,7 +646,7 @@ int main(int argc, char *argv[])
         timeZone.print(bsl::cout, 1, 3);
     }
 
-    bdesu_FileUtil::remove("test", true);  // TIME_ZONE_DIRECTORY/.. i.e. "test"
+    bdesu_FileUtil::remove("test", true); // TIME_ZONE_DIRECTORY/.. i.e. "test"
 
       } break;
       case 6: {
