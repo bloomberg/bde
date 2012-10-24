@@ -2,6 +2,8 @@
 #include <bslstl_unorderedsetkeyconfiguration.h>
 
 #include <bslmf_isconst.h>
+#include <bslmf_issame.h>
+#include <bslmf_removecv.h>
 
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
@@ -86,6 +88,18 @@ bool isConstObject(TYPE&)
 {
     return bsl::is_const<TYPE>::value;
 }
+
+template <typename CONFIGURED_TYPE>
+struct IsSameType {
+    template <typename OBJECT_TYPE>
+    bool operator ()(const OBJECT_TYPE&) const
+    {
+        typedef typename bsl::remove_cv<CONFIGURED_TYPE>::type  CT;
+        typedef typename bsl::remove_cv<OBJECT_TYPE>::type      OT;
+
+        return bsl::is_same<CT, OT>::value;
+    }
+};
 
 //=============================================================================
 //                             USAGE EXAMPLE
@@ -174,7 +188,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:
-      case 3: {
+      case 4: {
         // --------------------------------------------------------------------
         // USAGE
         //
@@ -315,9 +329,59 @@ int main(int argc, char *argv[])
 //  -2837, -3, 8, 34, 2919, 3728, 18282, 27438
 //..
       } break;
+      case 3: {
+        // --------------------------------------------------------------------
+        // TESTING RESULT HAS EXPECTED TYPE
+        //
+        // Concern:
+        //   That the result of 'extractKey' is always the same type (except
+        //   for cv qualifiers) as passed type:
+        //
+        // Plan:
+        //   Use the 'isSameType' method defined above to verify this.
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("TESTING RESULT IS CONST\n"
+                            "=======================\n");
+
+        int i;
+
+        ASSERT(1 == IsSameType<int>()(i));
+
+        const int j = 4;
+
+        ASSERT(1 == IsSameType<int>()(j));
+
+        FILE file;
+
+        ASSERT(1 == IsSameType<FILE>()(file));
+        ASSERT(0 == IsSameType<int >()(file));
+
+        const FILE cFile = file;
+
+        ASSERT(1 == IsSameType<FILE>()(cFile));
+        ASSERT(0 == IsSameType<int >()(cFile));
+
+        ASSERT(1 == IsSameType<int>()(
+               bslstl::UnorderedSetKeyConfiguration<int>::extractKey(i)));
+        ASSERT(0 == IsSameType<FILE>()(
+               bslstl::UnorderedSetKeyConfiguration<int>::extractKey(i)));
+        ASSERT(1 == IsSameType<int>()(
+               bslstl::UnorderedSetKeyConfiguration<int>::extractKey(j)));
+        ASSERT(0 == IsSameType<FILE>()(
+               bslstl::UnorderedSetKeyConfiguration<int>::extractKey(j)));
+        ASSERT(1 == IsSameType<FILE>()(
+               bslstl::UnorderedSetKeyConfiguration<FILE>::extractKey(file)));
+        ASSERT(0 == IsSameType<int>()(
+               bslstl::UnorderedSetKeyConfiguration<FILE>::extractKey(file)));
+        ASSERT(1 == IsSameType<FILE>()(
+               bslstl::UnorderedSetKeyConfiguration<FILE>::extractKey(cFile)));
+        ASSERT(0 == IsSameType<int>()(
+               bslstl::UnorderedSetKeyConfiguration<FILE>::extractKey(cFile)));
+      } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING RESULT IS CONST
+        // TESTING 'KeyType, 'ValueType', RESULT IS CONST
         //
         // Concern:
         //   That the result of 'extractKey' is always a const value.
@@ -326,8 +390,26 @@ int main(int argc, char *argv[])
         //   Use the 'isConstObject' method defined above to verify this.
         // --------------------------------------------------------------------
 
-        if (verbose) printf("TESTING RESULT IS CONST\n"
-                            "=======================\n");
+        if (verbose) printf(
+                           "TESTING 'KeyType, 'ValueType', RESULT IS CONST\n"
+                           "==============================================\n");
+
+        typedef bslstl::UnorderedSetKeyConfiguration<int>::KeyType    IKT;
+        typedef bslstl::UnorderedSetKeyConfiguration<int>::ValueType  IVT;
+        typedef bslstl::UnorderedSetKeyConfiguration<FILE>::KeyType   FKT;
+        typedef bslstl::UnorderedSetKeyConfiguration<FILE>::ValueType FVT;
+
+        // TBD: Should 'KeyType' & 'ValueType' be const?  They're not.
+
+        ASSERT(0 == bsl::is_const<IKT>::value);
+        ASSERT(0 == bsl::is_const<IVT>::value);
+        ASSERT(0 == bsl::is_const<FKT>::value);
+        ASSERT(0 == bsl::is_const<FVT>::value);
+
+        ASSERT(1 == (bsl::is_same<int,  IKT>::value));
+        ASSERT(1 == (bsl::is_same<int,  IVT>::value));
+        ASSERT(1 == (bsl::is_same<FILE, FKT>::value));
+        ASSERT(1 == (bsl::is_same<FILE, FVT>::value));
 
         int i;
 
