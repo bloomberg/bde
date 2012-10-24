@@ -28,6 +28,85 @@ BSLS_IDENT("$Id: $")
 // iterators.  'DIFFERENCE_TYPE' determines the (standard mandated)
 // 'difference_type' for the iterator, and will typically be supplied by the
 // allocator used by the hash-table being iterated over.
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Iterating a Hash Table Bucket Using 'HashTableIterator'
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// In the following example we create a simple hashtable and then use a
+// 'HashTableBucketIterator' to iterate through the elements in one of its
+// buckets.
+//
+// First, we define a typedef, 'Node', prepresenting a bidirectional node
+// holding an integer value:
+//..
+//  typedef bslalg::BidirectionalNode<int> Node;
+//..
+// Then, we construct a test allocator, and we use it to allocate an array of
+// 'Node' objects, each holding a unique integer value:
+//..
+//  bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
+//
+//  const int NUM_NODES = 5;
+//  const int NUM_BUCKETS = 3;
+//
+//  Node *nodes[NUM_NODES];
+//  for (int i = 0; i < NUM_NODES; ++i) {
+//      nodes[i] = static_cast<Node *>(scratch.allocate(sizeof(Node)));
+//      nodes[i]->value() = i;
+//  }
+//..
+// Next, we use the test allocator to allocate an array of 'HashTableBuckets'
+// objects, and we use the array to construct an empty hash table characterized
+// by a 'HashTableAnchor' object:
+//..
+//  bslalg::HashTableBucket *buckets =
+//      static_cast<bslalg::HashTableBucket *>(
+//            scratch.allocate(sizeof(bslalg::HashTableBucket) * NUM_BUCKETS));
+//
+//  bslalg::HashTableAnchor hashTable(buckets, NUM_BUCKETS, 0);
+//..
+// Then, we insert each node in the array of nodes into the hash table using
+// 'bslalg::HashTableImpUtil', supplying the integer value held by each node as
+// its hash value:
+//..
+//  for (int i = 0; i < NUM_NODES; ++i) {
+//      bslalg::HashTableImpUtil::insertAtFrontOfBucket(&hashTable,
+//                                                      nodes[i],
+//                                                      nodes[i]->value());
+//  }
+//..
+// Next, we define a 'typedef' that is an alias an instance of
+// 'HashTableBucketIterator' that can traverse buckets in a hash table holding
+// integer values.
+//..
+//  typedef bslstl::HashTableBucketIterator<int, ptrdiff_t> Iter;
+//..
+// Now, we create two iterators: one pointing to the start the second bucket in
+// the hash table, and the other representing the end sentinel.  We use the
+// iterators to navigate and print the elements in the hash table bucket:
+//..
+//  Iter iter(&hashTable.bucketArrayAddress()[1]);
+//  Iter end;
+//  for (;iter != end; ++iter) {
+//      printf("%d\n", *iter);
+//  }
+//..
+// Then, we observe the following output:
+//..
+// 1
+// 3
+//..
+// Finally, we deallocate the memory used by the hash table:
+//..
+//  for (int i = 0; i < NUM_NODES; ++i) {
+//      scratch.deallocate(nodes[i]);
+//  }
+//
+//  scratch.deallocate(buckets);
+//..
 
 // Prevent 'bslstl' headers from being included directly in 'BSL_OVERRIDES_STD'
 // mode.  Doing so is unsupported, and is likely to cause compilation errors.

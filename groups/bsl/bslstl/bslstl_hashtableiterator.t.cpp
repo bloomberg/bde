@@ -1091,11 +1091,12 @@ namespace {
 
 void usageExample()
 {
+
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Iterating a Hash Table using 'HashTableIterator'
+///Example 1: Iterating a Hash Table Using 'HashTableIterator'
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // In the following example we create a simple hashtable and then use a
 // 'HashTableIterator' to iterate through its elements.
@@ -1139,15 +1140,15 @@ void usageExample()
                                                         nodes[i]->value());
     }
 //..
-// Then, we define a 'typedef' that is an alias an instance of
+// Next, we define a 'typedef' that is an alias an instance of
 // 'HashTableIterator' that can traverse hash tables holding integer values.
 //..
     typedef bslstl::HashTableIterator<int, ptrdiff_t> Iter;
 //..
 // Now, we create two iterators: one pointing to the start of the bidirectional
-// linked list held by the hash table, and the other pointing to the end of the
-// list.  We use them to navigate the elements of the hash table, printing
-// their values:
+// linked list held by the hash table, and the other representing the end
+// sentinel.  We use the iterators to navigate and print the elements of the
+// hash table:
 //..
     Iter iter(hashTable.listRootAddress());
     Iter end;
@@ -1155,7 +1156,7 @@ void usageExample()
         printf("%d\n", *iter);
     }
 //..
-// Next, we observe the following output:
+// Then, we observe the following output:
 //..
 // 2
 // 4
