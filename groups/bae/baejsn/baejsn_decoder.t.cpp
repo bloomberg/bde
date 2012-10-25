@@ -3632,7 +3632,7 @@ int main(int argc, char *argv[])
         std::vector<baea::FeatureTestMessage> testObjects;
         constructFeatureTestMessage(&testObjects);
 
-        for (int ti = NUM_JSON_TEST_MESSAGES - 1; ti < NUM_JSON_TEST_MESSAGES; ++ti) {
+        for (int ti = 0; ti < NUM_JSON_TEST_MESSAGES; ++ti) {
             const int          LINE     = JSON_TEST_MESSAGES[ti].d_line;
             const bsl::string& jsonText = JSON_TEST_MESSAGES[ti].d_input_p;
             const bool         IS_VALID = JSON_TEST_MESSAGES[ti].d_isValid;
@@ -3649,8 +3649,8 @@ int main(int argc, char *argv[])
             const int rc = decoder.decode(&isb, &value);
 
             if (IS_VALID) {
-                ASSERTV(LINE, 0 == rc);
-//                 ASSERTV(LINE, 0 == isb.length());
+                ASSERTV(LINE, rc, 0 == rc);
+                ASSERTV(LINE, isb.length(), 0 == isb.length());
                 ASSERTV(LINE, EXP, value, EXP == value);
             }
         }

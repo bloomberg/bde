@@ -58,6 +58,9 @@ struct baejsn_ParserUtil {
     template <typename TYPE>
     static int getNumericalValue(bsl::streambuf *streamBuf, TYPE *value);
 
+    static int getUint64(bsl::streambuf      *streamBuf,
+                         bsls::Types::Uint64 *value);
+
     static int getValueImp(bsl::streambuf *streamBuf, bool            *value);
     static int getValueImp(bsl::streambuf *streamBuf, char            *value);
     static int getValueImp(bsl::streambuf *streamBuf, unsigned char   *value);
@@ -234,15 +237,49 @@ inline
 int baejsn_ParserUtil::getValueImp(bsl::streambuf     *streamBuf,
                                    bsls::Types::Int64 *value)
 {
-    return getNumericalValue(streamBuf, value);
-//     return getInteger(streamBuf, value);
+    int ch = streamBuf->sgetc();
+
+    bool isNegative;
+    if ('-' == ch) {
+        isNegative = true;
+        streamBuf->snextc();
+    }
+    else {
+        isNegative = false;
+    }
+
+    bsls::Types::Uint64 tmp = 0;
+    if (0 != getUint64(streamBuf, &tmp)) {
+        return -1;                                                    // RETURN
+    }
+
+    bsls::Types::Int64 tmp2 = static_cast<bsls::Types::Int64>(tmp);
+
+    if (tmp2 < bsl::numeric_limits<bsls::Types::Int64>::min()
+     || tmp2 > bsl::numeric_limits<bsls::Types::Int64>::max()) {
+        return -1;                                                    // RETURN
+    }
+
+    if (isNegative) {
+        *value = tmp2 * -1;
+    }
+    else {
+        *value = tmp2;
+    }
+
+    return 0;
 }
 
 inline
 int baejsn_ParserUtil::getValueImp(bsl::streambuf      *streamBuf,
                                    bsls::Types::Uint64 *value)
 {
-    return getInteger(streamBuf, value);
+    bsls::Types::Uint64 tmp = 0;
+    const int rc = getUint64(streamBuf, &tmp);
+    if (!rc) {
+        *value = tmp;
+    }
+    return rc;
 }
 
 inline

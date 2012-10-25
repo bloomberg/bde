@@ -282,7 +282,6 @@ int baejsn_Decoder::decodeImp(TYPE *value, bdeat_TypeCategory::Sequence)
             return 1;                                                 // RETURN
         }
     }
-
     return 0;
 }
 
@@ -498,6 +497,8 @@ int baejsn_Decoder::decode(bsl::streambuf *streamBuf, TYPE *variable)
     typedef typename bdeat_TypeCategory::Select<TYPE>::Type TypeCategory;
 
     const int rc = decodeImp(variable, TypeCategory());
+
+    d_streamBuf->snextc();
 
     d_streamBuf = 0;
     return rc;
