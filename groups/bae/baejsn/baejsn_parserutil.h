@@ -46,8 +46,6 @@ namespace BloombergLP {
                             // ========================
 
 struct baejsn_ParserUtil {
-        // TBD: We can get overflow in the getValueImp functions.
-
   private:
 
     template <typename TYPE>
@@ -289,8 +287,10 @@ int baejsn_ParserUtil::getValueImp(bsl::streambuf *streamBuf,
                                    float          *value)
 {
     double temp;
-    int rc = getDouble(streamBuf, &temp);
-    *value = static_cast<float>(temp);
+    const int rc = getDouble(streamBuf, &temp);
+    if (!rc) {
+        *value = static_cast<float>(temp);
+    }
     return rc;
 }
 
@@ -367,8 +367,10 @@ int baejsn_ParserUtil::getNumber(bsl::streambuf *streamBuf,
                                  TYPE           *value)
 {
     double temp;
-    int rc = getDouble(streamBuf, &temp);
-    *value = static_cast<TYPE>(temp);
+    const int rc = getDouble(streamBuf, &temp);
+    if (!rc) {
+        *value = static_cast<TYPE>(temp);
+    }
     return rc;
 }
 

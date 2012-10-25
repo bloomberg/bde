@@ -8,20 +8,6 @@ BDES_IDENT_RCSID(baejsn_decoder_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
-namespace {
-
-// BDEM_DATETIME
-// BDEM_DATE
-// BDEM_TIME
-// BDEM_TABLE    // todo need this, its basically an array of sequences
-// BDEM_DATETIMETZ
-// BDEM_DATETZ
-// BDEM_TIMETZ
-// BDEM_ROW
-// BDEM_CHOICE_ARRAY_ITEM
-
-}
-
                    // --------------------
                    // class baejsn_Decoder
                    // --------------------
