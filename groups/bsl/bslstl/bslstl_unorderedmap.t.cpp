@@ -726,7 +726,7 @@ static int my_count_if_equal(bsl::vector<int>::const_iterator begin,
         //! WordLocationHash() = default;
             // Create a 'WordLocationHash' object.
 
-        //! hash(const WordLocationHash& original) = default;
+        //! WordLocationHash(const WordLocationHash& original) = default;
             // Create a 'WordLocationHash' object.  Note that as
             // 'WordLocationHash' is an empty (stateless) type, this operation
             // will have no observable effect.
