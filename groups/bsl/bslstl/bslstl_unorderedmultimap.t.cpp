@@ -1757,7 +1757,7 @@ int main(int argc, char *argv[])
     typedef bsl::pair<int, int>                  WordLocation;
         // Document code number and word offset in that document specify
         // a word location.
-                        
+
     typedef bsl::pair<bsl::string, WordLocation> ConcordanceValue;
     typedef bsl::unordered_multimap<bsl::string, WordLocation>
                                                  Concordance;
@@ -1792,8 +1792,8 @@ int main(int argc, char *argv[])
         }
     }
 //..
-// Then, we can readily print a complete concordance by interating through
-// the map.
+// Then, we can readily print a complete concordance by interating through the
+// map.
 //..
     for (ConcordanceItr itr  = concordance.begin(),
                         end  = concordance.end();
@@ -1859,7 +1859,7 @@ if (verbose) {
 //  "human",  1,   43
 //  "human",  1,   25
 //  "human",  0,   20
-//  
+//
 //  "rights",  2, 3583
 //  "rights",  2, 3553
 //  "rights",  2, 3493
@@ -1869,9 +1869,9 @@ if (verbose) {
 //  "rights",  0,  496
 //  "rights",  0,  126
 //
-//  "unalienable",  0,  109 
+//  "unalienable",  0,  109
 //
-//  "inalienable",  1,   18 
+//  "inalienable",  1,   18
 //
 //..
 // {'bslstl_unorderedmap'|Example 3} shows how to use the concordance to create
@@ -1928,7 +1928,7 @@ if (verbose) {
         testEmptyContainer(mX);
 
         validateIteration(mX);
- 
+
         if (veryVerbose) printf("Prepare a test array of data samples\n");
 
         typedef TestType::value_type BaseValue;

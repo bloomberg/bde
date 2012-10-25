@@ -605,11 +605,14 @@ BSLS_IDENT("$Id: $")
 // greatest number of elements (i.e., (greatest number of has collisions):
 //..
 //  bsl::vector<int> bucketSizes;
+//
 //  for (int idx = 0; idx < wordTally.bucket_count(); ++idx) {
 //     bucketSizes.push_back(wordTally.bucket_size(idx));
 //  }
+//
 //  int maxBucketSize = *std::max_element(bucketSizes.begin(),
 //                                        bucketSizes.end());
+//
 //  printf("maxBucketSize    %4d\n", maxBucketSize);
 //..
 // and find on standard output:
