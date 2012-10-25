@@ -684,6 +684,7 @@ BSL_OVERRIDES_STD mode"
 #define INCLUDED_CSTRING
 #endif
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 #ifndef INCLUDED_EXCEPTION
@@ -695,10 +696,6 @@ BSL_OVERRIDES_STD mode"
 #include <stdexcept>
 #define INCLUDED_STDEXCEPT
 #endif
-
-#endif
-
-#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 // For transitive includes.  This is not placed in 'bsl+stdhdrs' because it
 // causes a cycle within the native standard headers.
@@ -728,6 +725,7 @@ BSL_OVERRIDES_STD mode"
 #endif
 
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 namespace bsl {
 
