@@ -10,10 +10,8 @@ BDES_IDENT_RCSID(baejsn_parserutil_cpp,"$Id$ $CSID$")
 
 #include <bsl_sstream.h>
 #include <bsl_cmath.h>
+#include <bsl_cctype.h>
 #include <bsl_iomanip.h>
-
-// TBD: Remove
-#include <bsl_iostream.h>
 
 namespace BloombergLP {
 
@@ -119,8 +117,6 @@ int baejsn_ParserUtil::getDouble(bsl::streambuf *streamBuf, double *value)
         return -1;                                                    // RETURN
     }
 
-    cout << magnitude << endl;
-
     *value = static_cast<double>(magnitude);
 
     // extract the decimal part
@@ -142,32 +138,79 @@ int baejsn_ParserUtil::getDouble(bsl::streambuf *streamBuf, double *value)
     return 0;
 }
 
-int baejsn_ParserUtil::getInteger(bsl::streambuf     *streamBuf,
-                                  bsls::Types::Int64 *value)
-{
-    int ch = streamBuf->sgetc();
+// int baejsn_ParserUtil::getInt64(bsl::streambuf      *streamBuf,
+//                                 bsls::Types::Uint64 *value)
+// {
+//     // This implementation is not very good.  It needs a lot of division and
+//     // loses precision.
 
-    if (ch == bsl::streambuf::traits_type::eof()) {
-        return -1;                                                    // RETURN
-    }
+//     skipSpaces(streamBuf);
 
-    bool                negative  = false;
-    bsls::Types::Uint64 magnitude = 0;
+//     // extract the integer part
 
-    if (ch == '-') {
-        negative = true;
-        streamBuf->snextc();
-    }
+//     int ch = streamBuf->sgetc();
 
-    if (0 == getInteger(streamBuf, &magnitude)) {
-        // match int will have moved mPosition
+//     if (ch == bsl::streambuf::traits_type::eof()) {
+//         return -1;                                                    // RETURN
+//     }
 
-        *value = static_cast<int64_t>(magnitude) * (negative ? -1 : 1);
-        return 0;                                                     // RETURN
-    }
+//     bool negative  = false;
+//     if (ch == '-') {
+//         negative = true;
+//         streamBuf->snextc();
+//     }
 
-    return -1;
-}
+//     if (0 != getInteger(streamBuf, value)) {
+//         return -1;                                                    // RETURN
+//     }
+
+//     // extract the decimal part
+
+//     bsls::Types::Uint64 tmp = *value;
+    
+//     if (!matchFloatDecimalPart(streamBuf, &tmp)) {
+//         return -1;                                                    // RETURN
+//     }
+
+//     // extract the exponent part
+
+// //     if (!matchFloatExponantPart(streamBuf, value)) {
+// //         return -1;                                                    // RETURN
+// //     }
+
+//     if (negative) {
+//         *value = *value * -1;
+//     }
+
+//     return 0;
+// }
+
+// int baejsn_ParserUtil::getInteger(bsl::streambuf     *streamBuf,
+//                                   bsls::Types::Int64 *value)
+// {
+//     int ch = streamBuf->sgetc();
+
+//     if (ch == bsl::streambuf::traits_type::eof()) {
+//         return -1;                                                    // RETURN
+//     }
+
+//     bool                negative  = false;
+//     bsls::Types::Uint64 magnitude = 0;
+
+//     if (ch == '-') {
+//         negative = true;
+//         streamBuf->snextc();
+//     }
+
+//     if (0 == getInteger(streamBuf, &magnitude)) {
+//         // match int will have moved mPosition
+
+//         *value = static_cast<int64_t>(magnitude) * (negative ? -1 : 1);
+//         return 0;                                                     // RETURN
+//     }
+
+//     return -1;
+// }
 
 int baejsn_ParserUtil::getInteger(bsl::streambuf      *streamBuf,
                                   bsls::Types::Uint64 *value)
@@ -185,6 +228,53 @@ int baejsn_ParserUtil::getInteger(bsl::streambuf      *streamBuf,
 
         ch = streamBuf->snextc();
     }
+
+//     int nextChar = streamBuf->sgetc();
+//     char fractionalBuffer[64]; char *iter = fractionalBuffer;
+
+//     if ('.' == static_cast<char>(nextChar)) {
+
+//         // Drop fractional portion
+
+//         ch = streamBuf->snextc();
+//         while (ch != bsl::streambuf::traits_type::eof()
+//             && ch >= '0'
+//             && ch <= '9') {
+//             *iter = static_cast<char>(ch);
+//             ++iter;
+//             ch = streamBuf->snextc();
+//         }
+
+//         if (iter != fractionalBuffer) {
+//             --iter;
+//         }
+
+//         // TBD: Handle trailing garbage
+//     }
+
+//     if ('E' == static_cast<char>(bsl::toupper(nextChar))) {
+
+//         // extract the exponent part
+
+//         ch = streamBuf->snextc();
+//         if (ch == '-') {
+//             sign = -1;
+//         }
+//         else if ('+' == ch) {
+//             sign = 1;
+//         }
+//         else {
+//             return -1;                                                // RETURN
+//         }
+
+//         streamBuf->snextc();
+
+//         bsls::Types::Uint64 exponent = 0;
+
+//         if (0 != baejsn_ParserUtil::getInteger(streamBuf, &exponentPart)) {
+//             return -1;                                                // RETURN
+//         }
+//     }
 
     return foundNumberFlag ? 0 : 1;
 }
