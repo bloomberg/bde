@@ -2532,10 +2532,10 @@ int main(int argc, char *argv[])
                 {  L_,    "1e-1",            0,      true    },
                 {  L_,    "1E-1",            0,      true    },
 
-                {  L_,    "256",      ERROR_VALUE,      false    },
-                {  L_,    "256.01",   ERROR_VALUE,      false    },
-                {  L_,    "32766",    ERROR_VALUE,      false    },
-                {  L_,    "32766.01", ERROR_VALUE,      false    },
+                {  L_,    "256",      ERROR_VALUE,   false   },
+                {  L_,    "256.01",   ERROR_VALUE,   false   },
+                {  L_,    "32766",    ERROR_VALUE,   false   },
+                {  L_,    "32766.01", ERROR_VALUE,   false   },
 
             };
             const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);

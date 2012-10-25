@@ -138,7 +138,7 @@ int baejsn_ParserUtil::getDateAndTimeValue(bsl::streambuf *streamBuf,
         return -1;                                                    // RETURN
     }
 
-    return temp.length() <= maxLength
+    return temp.length() <= static_cast<unsigned int>(maxLength)
          ? bdepu_Iso8601::parse(value, temp.data(), temp.length())
          : -1;
 }
@@ -148,14 +148,16 @@ inline
 int baejsn_ParserUtil::getNumericalValue(bsl::streambuf *streamBuf,
                                          TYPE           *value)
 {
-    double tolerance = 0.99;
-    double temp;
+    double temp = 0;
     int rc = getDouble(streamBuf, &temp);
-    if (temp + tolerance <
-                          static_cast<double>(bsl::numeric_limits<TYPE>::min())
-     || temp - tolerance >
-                       static_cast<double>(bsl::numeric_limits<TYPE>::max())) {
-        return -1;                                                    // RETURN
+
+    const double tolerance = 0.99;
+    const double low = temp + tolerance;  // accepts -TYPE_MIN.99
+    const double hi  = temp - tolerance;  // accepts  TYPE_MAX.99
+
+    if (low < static_cast<double>(bsl::numeric_limits<TYPE>::min())
+     || hi > static_cast<double>(bsl::numeric_limits<TYPE>::max())) {
+        return -1;
     }
 
     *value = static_cast<TYPE>(temp);
