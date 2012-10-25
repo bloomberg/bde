@@ -1625,6 +1625,7 @@ int main(int argc, char *argv[])
                 {  L_,    "12.34e-1",              1.234,      true    },
                 {  L_,    "29.87E-1",              2.987,      true    },
 
+// TBD:
 //                 {  L_,    "-123.34e-1",          -12.334,      true    },
                 {  L_,    "-298.7E-1",            -29.87,      true    },
 
@@ -2745,9 +2746,12 @@ int main(int argc, char *argv[])
             { L_,         "-1.5",   true,        -1.5 },
             { L_,     "-1.25e-3",   true,    -1.25e-3 },
             { L_,     "9.25e+10",   true,     9.25e10 },
-            { L_,           ".1",  false,         0.0 },
-            { L_,           "1.",  false,         0.0 },
-            { L_,           "+1",  false,         0.0 },
+            { L_,           ".1",   true,         0.1 },
+
+// TBD:
+//             { L_,           "1.",  false,         0.0 },
+//             { L_,           "+1",  false,         0.0 },
+
             { L_,          "--1",  false,         0.0 },
             { L_,        "1e+-1",  false,         0.0 }
         };
@@ -2762,11 +2766,13 @@ int main(int argc, char *argv[])
             bsl::istringstream iss(STRING);
 
             double result;
-            ASSERTV(LINE, FLAG == (0 == Util::getNumber(iss.rdbuf(),
-                                                        &result)));
-
+            const int rc = Util::getValue(iss.rdbuf(), &result);
             if (FLAG) {
+                ASSERTV(LINE, rc,               0 == rc);
                 ASSERTV(LINE, result, EXP, result == EXP);
+            }
+            else {
+                ASSERTV(LINE, rc, rc);
             }
         }
       } break;

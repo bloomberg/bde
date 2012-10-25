@@ -6,6 +6,8 @@ BDES_IDENT_RCSID(baejsn_parserutil_cpp,"$Id$ $CSID$")
 
 #include <baexml_hexparser.h>
 
+#include <bdema_bufferedsequentialallocator.h>
+
 #include <bsl_sstream.h>
 
 #include <bsl_sstream.h>
@@ -15,75 +17,15 @@ BDES_IDENT_RCSID(baejsn_parserutil_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
-namespace {
-
-template <typename TYPE>
-bool matchFloatDecimalPart(bsl::streambuf *streamBuf, TYPE *value)
-{
-    if ('.' == streamBuf->sgetc()) {
-        double multiplier = 1.0;
-
-        int ch = streamBuf->snextc();
-        while (ch != bsl::streambuf::traits_type::eof()
-            && ch >= '0'
-            && ch <= '9') {
-            multiplier /= 10.0;
-
-            if ('0' != ch) {
-                *value += multiplier * static_cast<TYPE>(ch - '0');
-            }
-
-            ch = streamBuf->snextc();
-        }
-
-        if (multiplier == 1.0) {
-            return false;                                             // RETURN
-        }
-    }
-    return true;
-}
-
-template <typename TYPE>
-bool matchFloatExponantPart(bsl::streambuf *streamBuf, TYPE *value)
-{
-    if (streamBuf->sgetc() == 'e' || streamBuf->sgetc() == 'E') {
-        int                 exponentSign = 1;
-        bsls::Types::Uint64 exponentPart = 0;
-
-        int ch = streamBuf->snextc();
-        if (ch == '-') {
-            exponentSign = -1;
-            streamBuf->snextc();
-        }
-        else if (ch == '+') {
-            exponentSign = 1;
-            streamBuf->snextc();
-        }
-
-        if (0 != baejsn_ParserUtil::getInteger(streamBuf, &exponentPart)) {
-            return false;                                             // RETURN
-        }
-
-        *value *= bsl::pow(static_cast<TYPE>(10),
-                           static_cast<TYPE>(exponentSign)
-                                            * static_cast<TYPE>(exponentPart));
-    }
-    return true;
-}
-
-}  // close anonymous namespace
-
                             // ------------------------
                             // struct baejsn_ParserUtil
                             // ------------------------
 
 int baejsn_ParserUtil::skipSpaces(bsl::streambuf *streamBuf)
 {
-    const char *whitespace = " \t\n\r\f";
-
     int ch = streamBuf->sgetc();
     while (ch != bsl::streambuf::traits_type::eof()
-        && bsl::strchr(whitespace, ch)) {
+        && bsl::isspace(ch)) {
 
         ch = streamBuf->snextc();
     }
@@ -93,48 +35,30 @@ int baejsn_ParserUtil::skipSpaces(bsl::streambuf *streamBuf)
 
 int baejsn_ParserUtil::getDouble(bsl::streambuf *streamBuf, double *value)
 {
-    // This implementation is not very good.  It needs a lot of division and
-    // loses precision.
-
     skipSpaces(streamBuf);
 
-    // extract the integer part
+    const int SIZE = 64;
+    char buffer[SIZE];
+
+    bdema_BufferedSequentialAllocator allocator(buffer, SIZE);
+    bsl::string str(&allocator);
 
     int ch = streamBuf->sgetc();
-
-    if (ch == bsl::streambuf::traits_type::eof()) {
+    while (ch != bsl::streambuf::traits_type::eof()
+        && (bsl::isdigit(ch)
+         || '.' == static_cast<char>(ch)
+         || 'E' == static_cast<char>(bsl::toupper(ch))
+         || '+' == static_cast<char>(ch)
+         || '-' == static_cast<char>(ch))) {
+        str += static_cast<char>(ch);
+        ch = streamBuf->snextc();
+    }
+    char *end = 0;
+    double tmp = bsl::strtod(str.c_str(), &end);
+    if (end == str.data() || *end != '\0') {
         return -1;                                                    // RETURN
     }
-
-    bool negative  = false;
-    if (ch == '-') {
-        negative = true;
-        streamBuf->snextc();
-    }
-
-    bsls::Types::Uint64 magnitude = 0;
-    if (0 != getInteger(streamBuf, &magnitude)) {
-        return -1;                                                    // RETURN
-    }
-
-    *value = static_cast<double>(magnitude);
-
-    // extract the decimal part
-
-    if (!matchFloatDecimalPart(streamBuf, value)) {
-        return -1;                                                    // RETURN
-    }
-
-    // extract the exponent part
-
-    if (!matchFloatExponantPart(streamBuf, value)) {
-        return -1;                                                    // RETURN
-    }
-
-    if (negative) {
-        *value = *value * -1;
-    }
-
+    *value = tmp;
     return 0;
 }
 
@@ -201,9 +125,8 @@ int baejsn_ParserUtil::getUint64(bsl::streambuf      *streamBuf,
             }
         }
 
-        bsls::Types::Uint64 exponent = 0;
-
-        if (0 != baejsn_ParserUtil::getInteger(streamBuf, &exponent)) {
+        int exponent = 0;
+        if (0 != getValue(streamBuf, &exponent)) {
             return -1;                                                // RETURN
         }
 
@@ -218,8 +141,8 @@ int baejsn_ParserUtil::getUint64(bsl::streambuf      *streamBuf,
         else {
             while (exponent && numDigits) {
                 int digitValue = *iter - '0';
-                if (*value * 10 + digitValue
-                   < bsl::numeric_limits<bsls::Types::Uint64>::max()) {
+                if (*value * 10 + digitValue <
+                             bsl::numeric_limits<bsls::Types::Uint64>::max()) {
                     *value = *value * 10 + digitValue;
                     --exponent;
                     --numDigits;
@@ -231,8 +154,8 @@ int baejsn_ParserUtil::getUint64(bsl::streambuf      *streamBuf,
             }
 
             while (exponent) {
-                if (*value * 10
-                   < bsl::numeric_limits<bsls::Types::Uint64>::max()) {
+                if (*value * 10 <
+                             bsl::numeric_limits<bsls::Types::Uint64>::max()) {
                     *value *= 10;
                     --exponent;
                 }
@@ -244,26 +167,6 @@ int baejsn_ParserUtil::getUint64(bsl::streambuf      *streamBuf,
     }
 
     return 0;
-}
-
-int baejsn_ParserUtil::getInteger(bsl::streambuf      *streamBuf,
-                                  bsls::Types::Uint64 *value)
-{
-    *value = 0;
-
-    int ch = streamBuf->sgetc();
-    bool foundNumberFlag = false;
-    while (ch != bsl::streambuf::traits_type::eof()
-        && ch >= '0'
-        && ch <= '9') {
-        foundNumberFlag = true;
-        *value *= 10;
-        *value += ch - '0';
-
-        ch = streamBuf->snextc();
-    }
-
-    return foundNumberFlag ? 0 : 1;
 }
 
 int baejsn_ParserUtil::getString(bsl::streambuf *streamBuf, bsl::string *value)

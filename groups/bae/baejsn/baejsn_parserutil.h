@@ -54,7 +54,7 @@ struct baejsn_ParserUtil {
                                    int             maxLength);
 
     template <typename TYPE>
-    static int getNumericalValue(bsl::streambuf *streamBuf, TYPE *value);
+    static int getIntegralValue(bsl::streambuf *streamBuf, TYPE *value);
 
     static int getUint64(bsl::streambuf      *streamBuf,
                          bsls::Types::Uint64 *value);
@@ -81,11 +81,7 @@ struct baejsn_ParserUtil {
     static int getValueImp(bsl::streambuf *streamBuf, bdet_Time       *value);
     static int getValueImp(bsl::streambuf *streamBuf, bdet_TimeTz     *value);
 
-    static int getInteger(bsl::streambuf      *streamBuf,
-                          bsls::Types::Int64  *value);
-
-    static int getDouble(bsl::streambuf *streamBuf,
-                         double         *value);
+    static int getDouble(bsl::streambuf *streamBuf, double *value);
 
   public:
     static int skipSpaces(bsl::streambuf *streamBuf);
@@ -101,17 +97,6 @@ struct baejsn_ParserUtil {
     static int advancePastWhitespaceAndToken(bsl::streambuf *streamBuf,
                                              char            token);
         // TBD
-
-    static int getInteger(bsl::streambuf      *streamBuf,
-                          bsls::Types::Uint64 *value);
-        // TBD make private
-
-    template <class TYPE>
-    static int getNumber(bsl::streambuf *streamBuf, TYPE *value);
-        // TBD make private
-
-    template <typename TYPE>
-    static int putValue(bsl::streambuf *streamBuf, const TYPE& value);
 
     template <typename TYPE>
     static int getValue(bsl::streambuf *streamBuf, TYPE *value);
@@ -142,23 +127,25 @@ int baejsn_ParserUtil::getDateAndTimeValue(bsl::streambuf *streamBuf,
 }
 
 template <typename TYPE>
-inline
-int baejsn_ParserUtil::getNumericalValue(bsl::streambuf *streamBuf,
-                                         TYPE           *value)
+int baejsn_ParserUtil::getIntegralValue(bsl::streambuf *streamBuf,
+                                        TYPE           *value)
 {
-    double temp = 0;
-    int rc = getDouble(streamBuf, &temp);
+    double tmp;
+    int rc = getDouble(streamBuf, &tmp);
+    if (rc) {
+        return -1;                                                    // RETURN
+    }
 
     const double tolerance = 0.99;
-    const double low = temp + tolerance;  // accepts -TYPE_MIN.99
-    const double hi  = temp - tolerance;  // accepts  TYPE_MAX.99
+    const double low       = tmp + tolerance;    // accepts -TYPE_MIN.99
+    const double hi        = tmp - tolerance;    // accepts  TYPE_MAX.99
 
     if (low < static_cast<double>(bsl::numeric_limits<TYPE>::min())
      || hi > static_cast<double>(bsl::numeric_limits<TYPE>::max())) {
-        return -1;
+        return -1;                                                    // RETURN
     }
 
-    *value = static_cast<TYPE>(temp);
+    *value = static_cast<TYPE>(tmp);
     return rc;
 }
 
@@ -197,7 +184,7 @@ inline
 int baejsn_ParserUtil::getValueImp(bsl::streambuf *streamBuf,
                                    unsigned char  *value)
 {
-    return getNumericalValue(streamBuf, value);
+    return getIntegralValue(streamBuf, value);
 }
 
 inline
@@ -210,27 +197,27 @@ int baejsn_ParserUtil::getValueImp(bsl::streambuf *streamBuf,
 inline
 int baejsn_ParserUtil::getValueImp(bsl::streambuf *streamBuf, short *value)
 {
-    return getNumericalValue(streamBuf, value);
+    return getIntegralValue(streamBuf, value);
 }
 
 inline
 int baejsn_ParserUtil::getValueImp(bsl::streambuf *streamBuf,
                                    unsigned short *value)
 {
-    return getNumericalValue(streamBuf, value);
+    return getIntegralValue(streamBuf, value);
 }
 
 inline
 int baejsn_ParserUtil::getValueImp(bsl::streambuf *streamBuf, int *value)
 {
-    return getNumericalValue(streamBuf, value);
+    return getIntegralValue(streamBuf, value);
 }
 
 inline
 int baejsn_ParserUtil::getValueImp(bsl::streambuf *streamBuf,
                                    unsigned int   *value)
 {
-    return getNumericalValue(streamBuf, value);
+    return getIntegralValue(streamBuf, value);
 }
 
 inline
@@ -286,10 +273,10 @@ inline
 int baejsn_ParserUtil::getValueImp(bsl::streambuf *streamBuf,
                                    float          *value)
 {
-    double temp;
-    const int rc = getDouble(streamBuf, &temp);
+    double tmp;
+    const int rc = getDouble(streamBuf, &tmp);
     if (!rc) {
-        *value = static_cast<float>(temp);
+        *value = static_cast<float>(tmp);
     }
     return rc;
 }
@@ -360,18 +347,6 @@ int baejsn_ParserUtil::getValueImp(bsl::streambuf *streamBuf,
     return getDateAndTimeValue(streamBuf,
                                value,
                                bdepu_Iso8601::BDEPU_TIMETZ_STRLEN);
-}
-
-template <class TYPE>
-int baejsn_ParserUtil::getNumber(bsl::streambuf *streamBuf,
-                                 TYPE           *value)
-{
-    double temp;
-    const int rc = getDouble(streamBuf, &temp);
-    if (!rc) {
-        *value = static_cast<TYPE>(temp);
-    }
-    return rc;
 }
 
 template <class TYPE>

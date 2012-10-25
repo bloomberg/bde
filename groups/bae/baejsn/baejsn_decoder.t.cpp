@@ -3618,6 +3618,43 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) {
+      case 4: {
+        // --------------------------------------------------------------------
+        // TESTING COMPLEX MESSAGES
+        //
+        // Concerns:
+        //
+        // Plan:
+        //
+        // Testing:
+        // --------------------------------------------------------------------
+
+        std::vector<baea::FeatureTestMessage> testObjects;
+        constructFeatureTestMessage(&testObjects);
+
+        for (int ti = 0; ti < NUM_JSON_TEST_MESSAGES; ++ti) {
+            const int          LINE     = JSON_TEST_MESSAGES[ti].d_line;
+            const bsl::string& jsonText = JSON_TEST_MESSAGES[ti].d_input_p;
+            const bool         IS_VALID = JSON_TEST_MESSAGES[ti].d_isValid;
+            const baea::FeatureTestMessage& EXP = testObjects[ti];
+
+            if (veryVerbose) {
+                P(LINE) P(jsonText) P(EXP)
+            }
+
+            baea::FeatureTestMessage value;
+
+            baejsn_Decoder decoder;
+            bdesb_FixedMemInStreamBuf isb(jsonText.data(), jsonText.length());
+            const int rc = decoder.decode(&isb, &value);
+
+            if (IS_VALID) {
+                ASSERTV(LINE, rc, 0 == rc);
+                ASSERTV(LINE, isb.length(), 0 == isb.length());
+                ASSERTV(LINE, EXP, value, EXP == value);
+            }
+        }
+      } break;
       case 3: {
         // --------------------------------------------------------------------
         // TESTING COMPLEX MESSAGES
