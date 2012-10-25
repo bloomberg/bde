@@ -1,5 +1,5 @@
 # baejsn.mem
 baejsn_decoder
 baejsn_encoder
-baejsn_parser
 baejsn_parserutil
+baejsn_printutil

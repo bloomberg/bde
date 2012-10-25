@@ -38,11 +38,19 @@
 #include <bdeut_nullableallocatedvalue.h>
 
 #include <iostream>
+#include <limits.h>
+#include <limits>
 
 using namespace BloombergLP;
 using bsl::cout;
 using bsl::cerr;
 using bsl::endl;
+
+// ============================================================================
+//                             TEST PLAN
+// ----------------------------------------------------------------------------
+//                             Overview
+//                             --------
 
 //=============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
@@ -3418,6 +3426,56 @@ void constructFeatureTestMessage(std::vector<baea::FeatureTestMessage>* objects)
     }
 }
 
+template <class TYPE>
+void testNumber()
+{
+    const struct {
+        int   d_line;
+        Int64 d_value;
+    } DATA[] = {
+        //LINE       VAL
+        //----       ---
+        { L_,         -1 },
+        { L_,          0 },
+        { L_,          1 },
+        { L_,  UCHAR_MAX },
+        { L_,   SHRT_MIN },
+        { L_,   SHRT_MAX },
+        { L_,  USHRT_MAX },
+        { L_,    INT_MIN },
+        { L_,    INT_MAX },
+        { L_,   UINT_MAX },
+        { L_,  LLONG_MIN },
+        { L_,  LLONG_MAX },
+        { L_, ULLONG_MAX }
+    };
+    const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+    for (int ti = 0; ti < NUM_DATA; ++ti) {
+        const int  LINE  = DATA[ti].d_line;
+        const TYPE VALUE = (TYPE) DATA[ti].d_value;
+
+        bsl::ostringstream stream;
+        if (bslmf::IsSame<TYPE, unsigned char>::VALUE == true) {
+            // 'unsigned char' is outputted as a number.
+
+            stream << (int)VALUE;
+        }
+        else {
+            stream << VALUE;
+        }
+        const bsl::string EXP = stream.str();
+
+        Obj  encoder;
+        bsl::ostringstream oss;
+        Impl impl(&encoder, oss.rdbuf());
+        ASSERTV(LINE, 0 == impl.encode(VALUE));
+
+        bsl::string result = oss.str();
+        ASSERTV(LINE, result, EXP, result == EXP);
+    }
+}
+
 }  // close anonymous namespace
 
 // ============================================================================
@@ -3436,21 +3494,253 @@ int main(int argc, char *argv[])
     switch (test) { case 0:
       case 14: {
         // --------------------------------------------------------------------
+        // USAGE EXAMPLE
+        //   Extracted from component header file.
+        //
+        // Concerns:
+        //: 1 The usage example provided in the component header file compiles,
+        //:   links, and runs as shown.
+        //
+        // Plan:
+        //: 1 Incorporate usage example from header into test driver, remove
+        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //:   (C-1)
+        //
+        // Testing:
+        //   USAGE EXAMPLE
+        // --------------------------------------------------------------------
+
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Encoding a 'bcem_Aggregate' Object into JSON
+///-------------------------------------------------------
+// Suppose we want to encode a 'bcem_Aggregate' object into JSON.
+//
+// First, we create a schema that we will use to configure a 'bcem_Aggregate':
+//..
+    bcema_SharedPtr<bdem_Schema> schema(new bdem_Schema);
+//
+    bdem_RecordDef *address = schema->createRecord("Address");
+    address->appendField(bdem_ElemType::BDEM_STRING, "street");
+    address->appendField(bdem_ElemType::BDEM_STRING, "city");
+    address->appendField(bdem_ElemType::BDEM_STRING, "state");
+//
+    bdem_RecordDef *employee = schema->createRecord("Employee");
+    employee->appendField(bdem_ElemType::BDEM_STRING, "name");
+    employee->appendField(bdem_ElemType::BDEM_LIST, address, "homeAddress");
+    employee->appendField(bdem_ElemType::BDEM_INT, "age");
+//..
+// Then, we create a 'bcem_Aggregate' object using the schema and populate it
+// with values:
+//..
+    bcem_Aggregate bob(schema, "Employee");
+//
+    bob["name"].setValue("Bob");
+    bob["homeAddress"]["street"].setValue("Some Street");
+    bob["homeAddress"]["city"].setValue("Some City");
+    bob["homeAddress"]["state"].setValue("Some State");
+    bob["age"].setValue(21);
+//..
+// Next, we create a 'baejsn_Encoder':
+//..
+    baejsn_Encoder encoder;
+//..
+// Now, we encode the object.
+//..
+    bsl::ostringstream oss;
+    encoder.encode(oss, bob);
+//..
+// Finally, we print the encoded string:
+//..
+    if (verbose) {
+        cout << oss.str();
+    }
+//..
+// The output should look like the following:
+//..
+//  {"name":"Bob","homeAddress":{"street":"Some Street","city":"Some City",
+//  "state":"Some State"},"age":21}
+//..
+        char jsonText[] =
+            "{"
+                "\"name\":\"Bob\","
+                "\"homeAddress\":{"
+                    "\"street\":\"Some Street\","
+                    "\"city\":\"Some City\","
+                    "\"state\":\"Some State\""
+                "},"
+                "\"age\":21"
+            "}";
+
+
+        ASSERTV(oss.str() == jsonText);
+      } break;
+      case 13: {
+        // --------------------------------------------------------------------
+        // TEST BCEM_AGGREGATE
+        //
+        // Concerns:
+        //: 1 The encoder can be use on 'bcem_Aggregate'
+        //
+        // Plan:
+        //: 1 Create a 'bcem_Aggregate' containing a variety of type and encode
+        //:   the object.
+        //:
+        //: 2 Verify the result is as expected.
+        //
+        // Testing:
+        // --------------------------------------------------------------------
+        bcema_SharedPtr<bdem_Schema> schema(new bdem_Schema);
+
+        bdem_RecordDef *address = schema->createRecord("Address");
+        address->appendField(bdem_ElemType::BDEM_STRING, "street");
+        address->appendField(bdem_ElemType::BDEM_STRING, "city");
+        address->appendField(bdem_ElemType::BDEM_STRING, "state");
+
+        bdem_RecordDef *employee = schema->createRecord("Employee");
+        employee->appendField(bdem_ElemType::BDEM_STRING, "name");
+        employee->appendField(bdem_ElemType::BDEM_LIST, address, "homeAddress");
+        employee->appendField(bdem_ElemType::BDEM_INT, "age");
+
+        bcem_Aggregate bob(schema, "Employee");
+
+        char jsonText[] =
+            "{"
+                "\"name\":\"Bob\","
+                "\"homeAddress\":{"
+                    "\"street\":\"Some Street\","
+                    "\"city\":\"Some City\","
+                    "\"state\":\"Some State\""
+                "},"
+                "\"age\":21"
+            "}";
+
+        //baejsn_Decoder decoder;
+        //bsl::istringstream iss(jsonText);
+
+        //ASSERTV(0 == decoder.decode(iss, &bob));
+
+        bob["name"].setValue("Bob");
+        bob["homeAddress"]["street"].setValue("Some Street");
+        bob["homeAddress"]["city"].setValue("Some City");
+        bob["homeAddress"]["state"].setValue("Some State");
+        bob["age"].setValue(21);
+        //P(bob);
+
+        baejsn_Encoder encoder;
+        bsl::ostringstream oss;
+        ASSERTV(0 == encoder.encode(oss, bob));
+        ASSERTV(oss.str() == jsonText);
+        if (verbose) {
+            P(oss.str());
+        }
+      } break;
+      case 12: {
+        // --------------------------------------------------------------------
+        // COMPLEX TEST MESSAGES
+        //
+        // Concerns:
+        //: 1 Encoder produce expected results for a variety of message.
+        //
+        // Plan:
+        //: 1 Use the 'baea::FeatureTestMessage' and encode a variety of
+        //:   values.
+        //
+        // Testing:
+        //   BREATHING TEST
+        // --------------------------------------------------------------------
+
+        std::vector<baea::FeatureTestMessage> testObjects;
+        constructFeatureTestMessage(&testObjects);
+
+        for (int ti = 0; ti < (int)testObjects.size(); ++ti) {
+            baejsn_Encoder encoder;
+            bsl::ostringstream oss;
+            ASSERTV(0 == encoder.encode(oss, testObjects[ti]));
+
+            ASSERTV(oss.str() == JSON_TEST_MESSAGES[ti]);
+            if (verbose) {
+                P(oss.str());
+            }
+        }
+      } break;
+      case 11: {
+        // --------------------------------------------------------------------
         // Encode test
         //
         // Concerns:
         //: 1 'encode' only works for Choice or Sequence type.
+        //:
+        //: 2 'encode' a bad stream returns an error.
         //
         // Testing:
         //  int encode(const TYPE & value);
         // --------------------------------------------------------------------
+        {
+            Obj encoder;
+            bsl::ostringstream oss;
+            ASSERTV("" == encoder.loggedMessages());
+
+            ASSERTV(oss.good());
+            ASSERTV(0 != encoder.encode(oss, ' '));
+            ASSERTV("" != encoder.loggedMessages());
+            oss.clear();
+            oss.str("");
+
+            ASSERTV(oss.good());
+            ASSERTV(0 != encoder.encode(oss, 0));
+            ASSERTV("" != encoder.loggedMessages());
+            oss.clear();
+            oss.str("");
+
+            ASSERTV(oss.good());
+            ASSERTV(0 != encoder.encode(oss, bsl::vector<int>()));
+            ASSERTV("" != encoder.loggedMessages());
+            oss.clear();
+            oss.str("");
+
+            ASSERTV(oss.good());
+            ASSERTV(0 != encoder.encode(oss, baea::Enumerated::Value()));
+            ASSERTV("" != encoder.loggedMessages());
+
+            oss.str("");
+            ASSERTV(!oss.good());
+            ASSERTV(0 != encoder.encode(oss, baea::VoidSequence()));
+            ASSERTV("" != encoder.loggedMessages());
+
+            oss.clear();
+            oss.str("");
+            ASSERTV(oss.good());
+            ASSERTV(0 == encoder.encode(oss, baea::VoidSequence()));
+            ASSERTV("" == encoder.loggedMessages());
+
+        }
       } break;
-      case 13: {
+      case 10: {
         // --------------------------------------------------------------------
         // Encode Sequence
         //
         // Concerns:
-        //: 1 Empty sequence will be encoded as an object without any member.
+        //: 1 Sequence objects are encoded as name-value pairs.
+        //:
+        //: 2 Null elements are not encoded.
+        //:
+        //: 3 Empty sequence will be encoded as an object without any member.
+        //:
+        //: 4 Error occurred when encoding an element of a sequence causes
+        //:   error in encoding a sequence.
+        //
+        // Plan:
+        //: 1 Encode a void sequence and verify the output is an empty JSON
+        //:   object.
+        //:
+        //: 2 Encode a sequence with some null values an verify only the
+        //:   non-null values are encoded.
+        //:
+        //: 3 Encoded a sequence with an unselected Choice and verify an error
+        //:   is returned.
         // --------------------------------------------------------------------
 
         if (verbose) cout << "Encode empty sequence." << endl;
@@ -3500,6 +3790,7 @@ int main(int argc, char *argv[])
                 bsl::ostringstream oss;
                 Impl impl(&encoder, oss.rdbuf());
                 ASSERTV(0 != impl.encode(X));
+                ASSERTV("" != encoder.loggedMessages());
             }
 
             mX.element4().value().makeSelection1(99);
@@ -3514,7 +3805,7 @@ int main(int argc, char *argv[])
                         "\"element2\":42,"
                         "\"element3\":\"2012-12-31T12:59:59.999-12:00\","
                         "\"element4\":{\"selection1\":99},"
-                        "\"element5\":3.140000000000000e+00"
+                        "\"element5\":3.14"
                     "}";
                 bsl::string result = oss.str();
                 ASSERTV(result, EXP, result == EXP);
@@ -3522,9 +3813,32 @@ int main(int argc, char *argv[])
         }
 
       } break;
-      case 12: {
+      case 9: {
         // --------------------------------------------------------------------
         // Encode Choice
+        //
+        // Concerns:
+        //: 1 Encoding a Choice object results in a JSON object with one
+        //:   name-value pair, where the name is the selection name and value is
+        //:   the selected value.
+        //:
+        //: 2 Unselected Choice returns an error.
+        //:
+        //: 3 Error when encoding the selection is propagated.
+        //
+        // Plan:
+        //: 1 Use a brute force approach:
+        //:
+        //:   1 Encode an unselected Choice object and verify it returns an
+        //:     error.
+        //:
+        //:   2 Encode a selected Choice an verify it reutnrs a name-value
+        //:     pair.
+        //:
+        //:   3 Encode a selected Choice, where the selection is an unselected
+        //:     Choice and verify it returns an error.
+        //
+        // Testing:
         // --------------------------------------------------------------------
         if (verbose) cout << "Encode Choice" << endl;
         {
@@ -3536,6 +3850,7 @@ int main(int argc, char *argv[])
                 bsl::ostringstream oss;
                 Impl impl(&encoder, oss.rdbuf());
                 ASSERTV(0 != impl.encode(X));
+                ASSERTV("" != encoder.loggedMessages());
             }
             {
                 mX.makeSelection1(true);
@@ -3567,6 +3882,7 @@ int main(int argc, char *argv[])
                 bsl::ostringstream oss;
                 Impl impl(&encoder, oss.rdbuf());
                 ASSERTV(0 != impl.encode(X));
+                ASSERTV("" != encoder.loggedMessages());
             }
             {
                 mX.selection3().makeSelection1(42);
@@ -3582,12 +3898,26 @@ int main(int argc, char *argv[])
             }
         }
       } break;
-      case 11: {
+      case 8: {
         // --------------------------------------------------------------------
         // Encode Array
         //
         // Concerns:
-        //: 1 'bsl::vector<char>' is encoded into base64 encoding.
+        //: 1 'bsl::vector<char>' is encoded into as a JSON string type in
+        //:   base64 encoding.
+        //:
+        //: 2 Empty 'bsl::vector<char>' results in an empyt string.
+        //:
+        //: 3 Array of other types will be encoded as a JSON array.
+        //
+        // Plan:
+        //: 1 Use a table-driven approach:
+        //:
+        //:   1 Create a set of values with various length of 'vector<char>'.
+        //:
+        //:   2 Encode each values and verify the result is in base64 format.
+        //:
+        //: 2 Repeat step one with 'vector<int>' instead.
         // --------------------------------------------------------------------
 
         if (verbose) cout << "Encode 'vector<char>'" << endl;
@@ -3668,12 +3998,28 @@ int main(int argc, char *argv[])
             }
         }
       } break;
-      case 10: {
+      case 7: {
         // --------------------------------------------------------------------
         // Encode Nullable
         //
         // Concerns:
         //: 1 Null value is encoded to "null".
+        //:
+        //: 2 Encoding a Nullable object with non-null value is the same as it
+        //:   the encoding is performed on the value directly.
+        //
+        // Plan:
+        //: 1 Use the brute force approach:
+        //:
+        //:   1 Create a Nullable object.
+        //:
+        //:   2 Encode the Nullable object and verify it is encoded as "null".
+        //:
+        //:   3 Make the value non-null.
+        //:
+        //:   4 Encode the value and verify the result is as expected.
+        //
+        // Testing:
         // --------------------------------------------------------------------
 
         if (verbose) cout << "Encode null value" << endl;
@@ -3723,14 +4069,20 @@ int main(int argc, char *argv[])
         }
 
       } break;
-      case 9: {
-        // --------------------------------------------------------------------
-        // Encode Customized
-        // --------------------------------------------------------------------
-      } break;
-      case 8: {
+      case 6: {
         // --------------------------------------------------------------------
         // Encode Enumeration
+        //
+        // Concerns:
+        //: 1 Encoding an Enumeration object result in a JSON string of the
+        //:   string representation of the Enumeration value.
+        //
+        // Plan:
+        //: 1 Use a generated Enumeration type and encode each enumeration
+        //:   value.
+        //:
+        //: 2 Verify that the result is equal the the value of the 'toString'
+        //:   method enclosed in double quotes.
         // --------------------------------------------------------------------
         const int NUM_ENUMERATORS = baea::Enumerated::NUM_ENUMERATORS;
         for (int ti = 0; ti < NUM_ENUMERATORS; ++ti) {
@@ -3750,9 +4102,26 @@ int main(int argc, char *argv[])
             ASSERTV(ti, result, exp, result == exp);
         }
       } break;
-      case 7: {
+      case 5: {
         // --------------------------------------------------------------------
         // Encode Date/Time
+        //
+        // Concerns:
+        //: 1 Date/time are encoded in ISO 8601 format.
+        //:
+        //: 2 Output contains only information contained in the type being
+        //:   encoded.  (i.e., encoding 'bdet_Date' will not print out a time or
+        //:   offset.)
+        //
+        // Plan:
+        //: 1 Use the table-driven technique:
+        //:
+        //:   1 Specify a set of valid values.
+        //:
+        //:   2 Encode each value and verify the output is as expected.
+        //:
+        //: 2 Perform step one for every date/time types.
+        //
         // --------------------------------------------------------------------
         const struct {
             int         d_line;
@@ -3947,9 +4316,26 @@ int main(int argc, char *argv[])
             }
         }
       } break;
-      case 6: {
+      case 4: {
         // --------------------------------------------------------------------
         // Encode Numbers
+        //
+        // Concerns:
+        //: 1 Encoded numbers have the expected precisions.
+        //:
+        //: 2 Encoded numbers used default format.
+        //:
+        //: 3 Encoding 'unsigned char' prints a number instead of string.
+        //
+        // Plan:
+        //: 1 Use the table-driven technique:
+        //:
+        //:   1 Specify a set of valid values, including those that will test
+        //:     the precision of the output.
+        //:
+        //:   2 Encode each value and verify the output is as expected.
+        //
+        // Testing:
         // --------------------------------------------------------------------
         if (verbose) cout << "Encode double" << endl;
         {
@@ -3958,20 +4344,21 @@ int main(int argc, char *argv[])
                 double      d_value;
                 const char *d_result;
             } DATA[] = {
-                //LINE    VAL  RESULT
-                //----    ---  ------
+                //LINE    VAL        RESULT
+                //----    ---        ------
 
-                { L_,     0.0,      "0.000000000000000e+00" },
-                { L_,     0.125,    "1.250000000000000e-01" },
-                { L_,     1.0,      "1.000000000000000e+00" },
-                { L_,    10.0,      "1.000000000000000e+01" },
-                { L_,    -1.5,      "-1.500000000000000e+00" },
-                { L_,    -1.5e1,    "-1.500000000000000e+01" },
-                { L_,    -9.9e100,  "-9.900000000000000e+100" },
-                { L_,    -3.14e300, "-3.140000000000000e+300" },
-                { L_,    3.14e300,  "3.140000000000000e+300" },
-                { L_,    1.0e-1,    "1.000000000000000e-01" },
-                { L_,    2.23e-308, "2.230000000000000e-308" }
+                { L_,     0.0,       "0" },
+                { L_,     0.125,     "0.125" },
+                { L_,     1.0,       "1" },
+                { L_,    10.0,       "10" },
+                { L_,    -1.5,       "-1.5" },
+                { L_,    -1.5e1,     "-15" },
+                { L_,    -9.9e100,   "-9.9e+100" },
+                { L_,    -3.14e300,  "-3.14e+300" },
+                { L_,    3.14e300,   "3.14e+300" },
+                { L_,    1.0e-1,     "0.1" },
+                { L_,    2.23e-308,  "2.23e-308" },
+                { L_,    0.12345678912345, "0.12345678912345" }
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -3979,8 +4366,8 @@ int main(int argc, char *argv[])
                 const int         LINE  = DATA[ti].d_line;
                 const double      VALUE = DATA[ti].d_value;
                 const char *const EXP   = DATA[ti].d_result;
-                Obj  encoder;
 
+                Obj  encoder;
                 bsl::ostringstream oss;
                 Impl impl(&encoder, oss.rdbuf());
                 ASSERTV(LINE, 0 == impl.encode(VALUE));
@@ -3988,40 +4375,41 @@ int main(int argc, char *argv[])
                 bsl::string result = oss.str();
                 ASSERTV(LINE, result, EXP, result == EXP);
             }
+        }
+
+        if (verbose) cout << "Encode invalid double" << endl;
+        {
+            Obj  encoder;
+            bsl::ostringstream oss;
+            Impl impl(&encoder, oss.rdbuf());
+
+            oss.clear();
+            ASSERTV(0 != impl.encode(bsl::numeric_limits<double>::infinity()));
+
+            oss.clear();
+            ASSERTV(0 != impl.encode(
+                                    -bsl::numeric_limits<double>::infinity()));
+
+            oss.clear();
+            ASSERTV(0 != impl.encode(bsl::numeric_limits<double>::quiet_NaN()));
+
+            oss.clear();
+            ASSERTV(0 != impl.encode(
+                                bsl::numeric_limits<double>::signaling_NaN()));
         }
 
         if (verbose) cout << "Encode int" << endl;
         {
-            const struct {
-                int         d_line;
-                Int64       d_value;
-                const char *d_result;
-            } DATA[] = {
-                //LINE    VAL  RESULT
-                //----    ---  ------
-                { L_,      -1, "-1" },
-                { L_,       0, "0" },
-                { L_,       1, "1" },
-                { L_,      42, "42" }
-            };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
-
-            for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int         LINE  = DATA[ti].d_line;
-                const Int64       VALUE = DATA[ti].d_value;
-                const char *const EXP   = DATA[ti].d_result;
-
-                Obj  encoder;
-                bsl::ostringstream oss;
-                Impl impl(&encoder, oss.rdbuf());
-                ASSERTV(LINE, 0 == impl.encode(VALUE));
-
-                bsl::string result = oss.str();
-                ASSERTV(LINE, result, EXP, result == EXP);
-            }
+            testNumber<short>();
+            testNumber<int>();
+            testNumber<Int64>();
+            testNumber<unsigned char>();
+            testNumber<unsigned short>();
+            testNumber<unsigned int>();
+            testNumber<Uint64>();
         }
       } break;
-      case 5: {
+      case 3: {
         // --------------------------------------------------------------------
         // Encode Strings
         //
@@ -4032,10 +4420,20 @@ int main(int argc, char *argv[])
         //:
         //: 3 Control characters are encoded as hex.
         //
+        // Plan:
+        //: 1 Using the table-driven technique:
+        //:
+        //:   1 Specify a set of values that include all escaped characters and
+        //:     some control characters.
+        //:
+        //:   2 Encode the value and verify the results.
+        //:
+        //: 2 Repeat for strings and Customized type.
+        //
         // Testing:
-        //  int encodeSimple(char value);
-        //  int encodeSimple(const bsl::string & value);
-        //  int encodeSimple(const char *value);
+        //  int encode(char value);
+        //  int encode(const bsl::string & value);
+        //  int encode(const char *value);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "Encode char" << endl;
@@ -4097,6 +4495,7 @@ int main(int argc, char *argv[])
                 { L_,  "",     "\"\"" },
                 { L_,  " ",    "\" \"" },
                 { L_,  "~",    "\"~\"" },
+                { L_,  "test", "\"test\"" },
                 { L_,  "A quick brown fox jump over a lazy dog!",
                                "\"A quick brown fox jump over a lazy dog!\"" },
                 { L_,  "\"",   "\"\\\"\"" },
@@ -4108,7 +4507,8 @@ int main(int argc, char *argv[])
                 { L_,  "\r",   "\"\\r\"" },
                 { L_,  "\t",   "\"\\t\"" },
                 { L_,  "\x01", "\"\\u0001\"" },
-                { L_,  "\x1f", "\"\\u001f\"" }
+                { L_,  "\x1f", "\"\\u001f\"" },
+                { L_,  "\\/\b\f\n\r\t",   "\"\\\\\\/\\b\\f\\n\\r\\t\"" },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -4137,12 +4537,35 @@ int main(int argc, char *argv[])
                     bsl::string result = oss.str();
                     ASSERTV(LINE, result, EXP, result == EXP);
                 }
+
+                if (veryVeryVerbose) cout << "Test Customized" << endl;
+                {
+                    bsl::ostringstream oss;
+                    Impl impl(&encoder, oss.rdbuf());
+                    baea::CustomString str;
+                    if (0 == str.fromString(VALUE)) {
+                        ASSERTV(LINE, 0 == impl.encode(str));
+
+                        bsl::string result = oss.str();
+                        ASSERTV(LINE, result, EXP, result == EXP);
+                    }
+                }
             }
         }
       } break;
-      case 4: {
+      case 2: {
         // --------------------------------------------------------------------
         // ENCODE bool
+        //
+        // Concerns:
+        //: 1 'true' is encoded into "true" and 'false' is encoded into
+        //:   "false".
+        //
+        // Plan:
+        //: 1 Use a brute force approach to test both cases.
+        //
+        // Testing:
+        //: int Impl::encode(const bool& value);
         // --------------------------------------------------------------------
         if (verbose) cout << "Encode 'true'" << endl;
         {
@@ -4164,94 +4587,6 @@ int main(int argc, char *argv[])
 
             bsl::string result = oss.str();
             ASSERTV(result, result == "false");
-        }
-      } break;
-      case 3: {
-        // --------------------------------------------------------------------
-        // TEST BCEM_AGGREGATE
-        //
-        // Concerns:
-        //
-        // Plan:
-        //
-        // Testing:
-        // --------------------------------------------------------------------
-        bcema_SharedPtr<bdem_Schema> schema(new bdem_Schema);
-
-        bdem_RecordDef *address = schema->createRecord("Address");
-        address->appendField(bdem_ElemType::BDEM_STRING, "street");
-        address->appendField(bdem_ElemType::BDEM_STRING, "city");
-        address->appendField(bdem_ElemType::BDEM_STRING, "state");
-
-        bdem_RecordDef *employee = schema->createRecord("Employee");
-        employee->appendField(bdem_ElemType::BDEM_STRING, "name");
-        employee->appendField(bdem_ElemType::BDEM_LIST, address, "homeAddress");
-        employee->appendField(bdem_ElemType::BDEM_INT, "age");
-
-        bcem_Aggregate bob(schema, "Employee");
-
-        char jsonText[] =
-            "{"
-                "\"name\":\"Bob\","
-                "\"homeAddress\":{"
-                    "\"street\":\"Some Street\","
-                    "\"city\":\"Some City\","
-                    "\"state\":\"Some State\""
-                "},"
-                "\"age\":21"
-            "}";
-
-        //baejsn_Decoder decoder;
-        //bsl::istringstream iss(jsonText);
-
-        //ASSERTV(0 == decoder.decode(iss, &bob));
-
-        bob["name"].setValue("Bob");
-        bob["homeAddress"]["street"].setValue("Some Street");
-        bob["homeAddress"]["city"].setValue("Some City");
-        bob["homeAddress"]["state"].setValue("Some State");
-        bob["age"].setValue(21);
-        //P(bob);
-
-        baejsn_Encoder encoder;
-        bsl::ostringstream oss;
-        ASSERTV(0 == encoder.encode(oss, bob));
-        ASSERTV(oss.str() == jsonText);
-        if (verbose) {
-            P(oss.str());
-        }
-      } break;
-      case 2: {
-        // --------------------------------------------------------------------
-        // COMPLEX TEST MESSAGES
-        //
-        // Concerns:
-        //
-        // Plan:
-        //
-        // Testing:
-        //   BREATHING TEST
-        // --------------------------------------------------------------------
-        std::vector<baea::FeatureTestMessage> testObjects;
-        constructFeatureTestMessage(&testObjects);
-
-        for (int ti = 0; ti < (int)testObjects.size(); ++ti) {
-            baejsn_Encoder encoder;
-            bsl::ostringstream oss;
-            ASSERTV(0 == encoder.encode(oss, testObjects[ti]));
-
-            ASSERTV(oss.str() == JSON_TEST_MESSAGES[ti]);
-            if (verbose) {
-                P(oss.str());
-            }
-
-            //baejsn_Decoder decoder;
-            //bsl::istringstream iss(oss.str());
-
-            //baea::FeatureTestMessage object;
-            //ASSERTV(ti, 0 == decoder.decode(iss, &object));
-
-            //ASSERTV(ti, testObjects[ti], object, testObjects[ti] == object);
         }
       } break;
       case 1: {
