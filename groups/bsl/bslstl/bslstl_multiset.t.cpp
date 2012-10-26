@@ -2141,7 +2141,15 @@ void TestDriver<KEY, COMP, ALLOC>::testCase18()
                     --BEFORE;
                 }
 
-                if (veryVerbose) { P_(*FIRST) P(*LAST); }
+                if (veryVerbose) {
+                    if (FIRST != X.end()) {
+                        P(*FIRST)
+                    }
+                    if (LAST != X.end()) {
+                        P(*LAST);
+                    }
+                }
+
 
                 bslma::TestAllocatorMonitor oam(&oa);
 
