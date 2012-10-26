@@ -609,7 +609,7 @@ BSLS_IDENT("$Id: $")
 //  for (int idx = 0; idx < wordTally.bucket_count(); ++idx) {
 //     bucketSizes.push_back(wordTally.bucket_size(idx));
 //  }
-//
+//  assert(0 < bucketSizes.size()); 
 //  int maxBucketSize = *std::max_element(bucketSizes.begin(),
 //                                        bucketSizes.end());
 //
@@ -792,6 +792,7 @@ BSLS_IDENT("$Id: $")
 //                                               InverseConcordance;
 //
 //  typedef InverseConcordance::iterator         InverseConcordanceItr;
+//  typedef InverseConcordance::const_iterator   InverseConcordanceConstItr;
 //
 //  typedef bsl::pair<InverseConcordanceItr, bool>
 //                                              InverseConcordanceInsertStatus;
@@ -854,8 +855,8 @@ BSLS_IDENT("$Id: $")
 //  const int delta   =  16;
 //
 //  for (int offset = origin - delta; offset < origin + delta; ++offset) {
-//      WordLocation          location(docCode, offset);
-//      InverseConcordanceItr itr = inverseConcordance.find(location);
+//      WordLocation               location(docCode, offset);
+//      InverseConcordanceConstItr itr = inverseConcordance.find(location);
 //
 //      if (inverseConcordance.end() != itr) {
 //          printf("%d %4d: %s\n",

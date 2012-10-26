@@ -760,6 +760,7 @@ static int my_count_if_equal(bsl::vector<int>::const_iterator begin,
                                                  InverseConcordance;
 
     typedef InverseConcordance::iterator         InverseConcordanceItr;
+    typedef InverseConcordance::const_iterator   InverseConcordanceConstItr;
 
     typedef bsl::pair<InverseConcordanceItr, bool>
                                                 InverseConcordanceInsertStatus;
@@ -2157,6 +2158,7 @@ if (verbose) {
     for (int idx = 0; idx < wordTally.bucket_count(); ++idx) {
        bucketSizes.push_back(wordTally.bucket_size(idx));
     }
+    ASSERT(0 < bucketSizes.size());
     int maxBucketSize = *std::max_element(bucketSizes.begin(),
                                           bucketSizes.end());
 if (verbose) {
@@ -5723,8 +5725,8 @@ if (verbose) {
     const int delta   =  16;
 
     for (int offset = origin - delta; offset < origin + delta; ++offset) {
-        WordLocation          location(docCode, offset);
-        InverseConcordanceItr itr = inverseConcordance.find(location);
+        WordLocation               location(docCode, offset);
+        InverseConcordanceConstItr itr = inverseConcordance.find(location);
 
         if (inverseConcordance.end() != itr) {
 if (verbose) {

@@ -1746,10 +1746,10 @@ int main(int argc, char *argv[])
     " of any of the rights and freedoms recognised in this Charter or at\n"
     " their limitation to a greater extent than is provided for herein.\n";
 
-    static char * const documents[] = { &document0[0],
-                                        &document1[0],
-                                        &document2[0]
-                                      };
+    static char * const documents[]  = { &document0[0],
+                                         &document1[0],
+                                         &document2[0]
+                                       };
     const int           numDocuments = sizeof documents / sizeof *documents;
 //..
 // First, we define several aliases to make our code more comprehensible.
@@ -1762,6 +1762,7 @@ int main(int argc, char *argv[])
     typedef bsl::unordered_multimap<bsl::string, WordLocation>
                                                  Concordance;
     typedef Concordance::iterator                ConcordanceItr;
+    typedef Concordance::const_iterator          ConcordanceConstItr;
 //..
 // Next, we (default) create an unordered map to hold our word tallies.
 //..
@@ -1795,9 +1796,9 @@ int main(int argc, char *argv[])
 // Then, we can readily print a complete concordance by interating through the
 // map.
 //..
-    for (ConcordanceItr itr  = concordance.begin(),
-                        end  = concordance.end();
-                        end != itr; ++itr) {
+    for (ConcordanceConstItr itr  = concordance.begin(),
+                             end  = concordance.end();
+                             end != itr; ++itr) {
 if (verbose) {
         printf("\"%s\", %2d, %4d\n",
                itr->first.c_str(),
@@ -1830,13 +1831,14 @@ if (verbose) {
     const int   numWordsOfInterest = sizeof  wordsOfInterest
                                    / sizeof *wordsOfInterest;
     for (int idx = 0; idx < numWordsOfInterest; ++idx) {
-       const char                                *wordOfInterest
-                                                        = wordsOfInterest[idx];
-       bsl::pair<ConcordanceItr, ConcordanceItr>  found =
-                          concordance.equal_range(bsl::string(wordOfInterest));
-       for (ConcordanceItr itr  = found.first,
-                           end  = found.second;
-                           end != itr; ++itr) {
+       const char                     *wordOfInterest
+                                             = wordsOfInterest[idx];
+       bsl::pair<ConcordanceConstItr,
+                 ConcordanceConstItr>  found = concordance.equal_range(
+                                                  bsl::string(wordOfInterest));
+       for (ConcordanceConstItr itr  = found.first,
+                                end  = found.second;
+                                end != itr; ++itr) {
 if (verbose) {
            printf("\"%s\", %2d, %4d\n",
                   itr->first.c_str(),
