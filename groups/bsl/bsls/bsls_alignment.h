@@ -180,10 +180,6 @@ BSLS_IDENT("$Id: $")
 #include <bsls_alignmenttotype.h>
 #endif
 
-#ifndef INCLUDED_BSLS_ALIGNMENTUTIL
-#include <bsls_alignmentutil.h>
-#endif
-
 #ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
 #endif
