@@ -30,12 +30,6 @@
 #include <cstdlib>
 #include <cstddef>
 
-#ifdef BSLS_PLATFORM_OS_WINDOWS
-#include <windows.h>
-#else
-#include <unistd.h>
-#endif
-
 using namespace BloombergLP;
 using namespace std;
 using namespace bsl;
@@ -8723,13 +8717,10 @@ int main(int argc, char *argv[])
         usageExample2(veryVerbose);
 
         // Erase output files.
-#ifdef BSLS_PLATFORM_OS_WINDOWS
-        DeleteFile("star_data1.txt");
-        DeleteFile("star_data2.txt");
-#else
-        unlink("star_data1.txt");
-        unlink("star_data2.txt");
-#endif
+
+        remove("star_data1.txt");
+        remove("star_data2.txt");
+
       } break;
       case 28: {
         // --------------------------------------------------------------------
