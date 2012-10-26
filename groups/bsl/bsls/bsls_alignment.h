@@ -202,6 +202,11 @@ BSLS_IDENT("$Id: $")
 #define bsls_AlignmentOf bsls::AlignmentFromType
 #endif
 
+// required for some code below wrapped in ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#ifndef INCLUDED_BSLS_ALIGNMENTUTIL
+#include <bsls_alignmentutil.h>
+#endif
+
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 namespace BloombergLP {
