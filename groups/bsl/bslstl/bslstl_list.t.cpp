@@ -30,6 +30,12 @@
 #include <cstdlib>
 #include <cstddef>
 
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+#include <windows.h>
+#else
+#include <unistd.h>
+#endif
+
 using namespace BloombergLP;
 using namespace std;
 using namespace bsl;
