@@ -3110,22 +3110,22 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase2()
 // the results is outweighed by the higher performance provided by unordered
 // sets (compared to ordered sets).
 //
-// Suppose one is analysing data on a set of customers, and each customer is
-// categorized by several attributes: customer type, geographic area, and 
+// Suppose one is analyzing data on a set of customers, and each customer is
+// categorized by several attributes: customer type, geographic area, and
 // (internal) project code; and that each attribute takes on one of a limited
-// set of values.  This data can be handled by creating an enumeration for 
-// each of the attributes:
+// set of values.  This data can be handled by creating an enumeration for each
+// of the attributes:
 //..
     typedef enum {
         REPEAT
       , DISCOUNT
-      , IMPULSE 
+      , IMPULSE
       , NEED_BASED
       , BUSINESS
       , NON_PROFIT
       , INSTITUTE
         // ...
-    } CustomerType;
+    } CustomerCode;
 
     typedef enum {
         USA_EAST
@@ -3150,10 +3150,10 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase2()
         // ...
     } ProjectCode;
 //..
-// For printing these values in a human-readabile form, we define these helper
+// For printing these values in a human-readable form, we define these helper
 // functions:
 //..
-    static const char *toAscii(CustomerType value)
+    static const char *toAscii(CustomerCode value)
     {
         switch (value) {
           case REPEAT:     return "REPEAT";
@@ -3202,11 +3202,11 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase2()
 // The data set (randomly generated for this example) is provided in a
 // statically initialized array:
 //..
-    static const struct Data {
-        CustomerType d_customer;
+    static const struct CustomerProfile {
+        CustomerCode d_customer;
         LocationCode d_location;
         ProjectCode  d_project;
-    } data[] = {
+    } customerProfiles[] = {
         { IMPULSE   , CANADA  , SMITH },
         { NON_PROFIT, USA_EAST, GREEN },
         { INSTITUTE , USA_EAST, TOAST },
@@ -3308,7 +3308,8 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase2()
         { NON_PROFIT, USA_WEST, TIDY  },
         { REPEAT    , MEXICO  , TOAST },
     };
-    const int numData = sizeof data/sizeof *data;
+    const int numCustomerProfiles = sizeof  customerProfiles
+                                  / sizeof *customerProfiles;
 //..
 // Suppose, as the first step in analysis, we wish to determine the number of
 // unique combinations of customer attributes that exist in our data set.  We
@@ -3318,85 +3319,97 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase2()
 // in our data.
 //
 // First, as there are no standard methods for hashing or comparing our user
-// defined types, we define 'DataHash' and 'DataEqual' classes, each a
-// stateless functor.  Note that there is no meaningful ordering of the
-// attribute values, they are merely arbitray code numbers; nothing is lost
-// by using an unordered set instead of an ordered set:
+// defined types, we define 'CustomerProfileHash' and 'CustomerProfileEqual'
+// classes, each a stateless functor.  Note that there is no meaningful
+// ordering of the attribute values, they are merely arbitrary code numbers;
+// nothing is lost by using an unordered set instead of an ordered set:
 //..
-    class DataHash
+    class CustomerProfileHash
     {
       public:
         // CREATORS
-        //! DataHash() = default;
-            // Create a 'DataHash' object.
+        //! CustomerProfileHash() = default;
+            // Create a 'CustomerProfileHash' object.
 
-        //! hash(const DataHash& original) = default;
-            // Create a 'DataHash' object.  Note that as
-            // 'DataHash' is an empty (stateless) type, this operation
-            // will have no observable effect.
+        //! CustomerProfileHash(const CustomerProfileHash& original) = default;
+            // Create a 'CustomerProfileHash' object.  Note that as
+            // 'CustomerProfileHash' is an empty (stateless) type, this
+            // operation will have no observable effect.
 
-        //! ~DataHash() = default;
+        //! ~CustomerProfileHash() = default;
             // Destroy this object.
 
         // MANIPULATORS
-        //! DataHash& operator=(const DataHash& rhs) = default;
+        //! CustomerProfileHash& operator=(const CustomerProfileHash& rhs)
+        //!                                                          = default;
             // Assign to this object the value of the specified 'rhs' object,
             // and return a reference providing modifiable access to this
-            // object.  Note that as 'DataHash' is an empty (stateless)
-            // type, this operation will have no observable effect.
+            // object.  Note that as 'CustomerProfileHash' is an empty
+            // (stateless) type, this operation will have no observable effect.
 
         // ACCESSORS
-        std::size_t operator()(Data x) const
+        std::size_t operator()(CustomerProfile x) const;
             // Return a hash value computed using the specified 'x'.
-        {
-            return bsl::hash<int>()(x.d_location * 100 * 100
-                                  + x.d_customer * 100
-                                  + x.d_project);
-        }
     };
 
-    class DataEqual
+    // ACCESSORS
+    std::size_t CustomerProfileHash::operator()(CustomerProfile x) const
+    {
+        return bsl::hash<int>()(x.d_location * 100 * 100
+                              + x.d_customer * 100
+                              + x.d_project);
+    }
+
+    class CustomerProfileEqual
     {
       public:
         // CREATORS
-        //! DataEqual() = default;
-            // Create a 'DataEqual' object.
+        //! CustomerProfileEqual() = default;
+            // Create a 'CustomerProfileEqual' object.
 
-        //! hash(const DataEqual& original) = default;
-            // Create a 'DataEqual' object.  Note that as
-            // 'DataEqual' is an empty (stateless) type, this operation
-            // will have no observable effect.
+        //! CustomerProfileEqual(const CustomerProfileEqual& original)
+        //!                                                          = default;
+            // Create a 'CustomerProfileEqual' object.  Note that as
+            // 'CustomerProfileEqual' is an empty (stateless) type, this
+            // operation will have no observable effect.
 
-        //! ~DataEqual() = default;
+        //! ~CustomerProfileEqual() = default;
             // Destroy this object.
 
         // MANIPULATORS
-        //! DataEqual& operator=(const DataEqual& rhs) = default;
+        //! CustomerProfileEqual& operator=(const CustomerProfileEqual& rhs)
+        //!                                                          = default;
             // Assign to this object the value of the specified 'rhs' object,
             // and return a reference providing modifiable access to this
-            // object.  Note that as 'DataEqual' is an empty (stateless)
-            // type, this operation will have no observable effect.
+            // object.  Note that as 'CustomerProfileEqual' is an empty
+            // (stateless) type, this operation will have no observable effect.
 
         // ACCESSORS
-        bool operator()(const Data& lhs, const Data& rhs) const
-            // Return 'true' if the specified 'lhs' has the same value as the
+        bool operator()(const CustomerProfile& lhs,
+                        const CustomerProfile& rhs) const;
+            // Return 'true' if the specified 'lhs' have the same value as the
             // specified 'rhs', and 'false' otherwise.
-        {
-            return lhs.d_location == rhs.d_location
-                && lhs.d_customer == rhs.d_customer
-                && lhs.d_project  == rhs.d_project;
-        }
     };
+
+    // ACCESSORS
+    bool CustomerProfileEqual::operator()(const CustomerProfile& lhs,
+                                          const CustomerProfile& rhs) const
+    {
+        return lhs.d_location == rhs.d_location
+            && lhs.d_customer == rhs.d_customer
+            && lhs.d_project  == rhs.d_project;
+    }
 //..
 // Notice that many of the required methods of the hash and comparitor types
 // are compiler generated.  (The declaration of those methods are commented out
 // and suffixed by an '= default' comment.)
 //
-// Next, we define the type of the unordered set and a convenience
-// alias:
+// Next, we define the type of the unordered set and a convenience aliases:
 //..
-    typedef bsl::unordered_set<Data, DataHash, DataEqual> DataCategories;
-    typedef DataCategories::iterator                      DataCategoriesItr;
+    typedef bsl::unordered_set<CustomerProfile,
+                               CustomerProfileHash,
+                               CustomerProfileEqual> ProfileCategories;
+    typedef ProfileCategories::const_iterator        ProfileCategoriesConstItr;
 //..
 
 //=============================================================================
@@ -3678,146 +3691,137 @@ int main(int argc, char *argv[])
 //..
 // Then, we create an unordered set and insert each item of 'data'.
 //..
-    DataCategories dataCategories;
- 
-    for (int idx = 0; idx < numData; ++idx) {
-       dataCategories.insert(data[idx]);
+    ProfileCategories profileCategories;
+
+    for (int idx = 0; idx < numCustomerProfiles; ++idx) {
+       profileCategories.insert(customerProfiles[idx]);
     }
+
+    ASSERT(numCustomerProfiles >= profileCategories.size());
 //..
 // Notice that we ignore the status returned by the 'insert' method.  We fully
 // expect some operations to fail.
 //
-// Now, the size of 'dataCategories' matches the number of unique customer
-// combinations in this data set.
+// Now, the size of 'profileCategories' matches the number of unique customer
+// profiles in this data set.
 //..
-    printf("%d\n", dataCategories.size());
+if (verbose) {
+    printf("%d %d\n", numCustomerProfiles, profileCategories.size());
+}
 //..
 // Standard output shows:
 //..
-//  84
+//  100 84
 //..
 // Finally, we can examine the unique set by iterating through the unordered
-// set and printing each element.  Note that we use the several 'toAscii'
+// set and printing each element.  Note the use of the several 'toAscii'
 // functions defined earlier to make the output comprehensible:
 //..
-    for (DataCategoriesItr cur  = dataCategories.begin(),
-                           end  = dataCategories.end();
-                           end != cur; ++cur) {
-        printf("%-10s, %-8s, %-5s\n",
-               toAscii(cur->d_customer),
-               toAscii(cur->d_location),
-               toAscii(cur->d_project));
+    for (ProfileCategoriesConstItr itr  = profileCategories.begin(),
+                                   end  = profileCategories.end();
+                                   end != itr; ++itr) {
+if (verbose) {
+        printf("%-10s %-8s %-5s\n",
+               toAscii(itr->d_customer),
+               toAscii(itr->d_location),
+               toAscii(itr->d_project));
+}
     }
 //..
 // We find on standard output:
 //..
-//  NON_PROFIT, ENGLAND , FAST 
-//  DISCOUNT  , CANADA  , TIDY 
-//  NEED_BASED, USA_EAST, TOAST
-//  NON_PROFIT, RUSSIA  , TOAST
-//  NEED_BASED, SCOTLAND, TOAST
-//  REPEAT    , USA_EAST, GREEN
-//  DISCOUNT  , FRANCE  , GREEN
-//  INSTITUTE , FRANCE  , SMITH
-//  NON_PROFIT, CANADA  , SMITH
-//  INSTITUTE , RUSSIA  , TOAST
-//  INSTITUTE , USA_WEST, GREEN
-//  DISCOUNT  , RUSSIA  , SMITH
-//  NON_PROFIT, USA_WEST, FAST 
-//  NEED_BASED, MEXICO  , TOAST
-//  IMPULSE   , GERMANY , TIDY 
-//  INSTITUTE , USA_EAST, SMITH
-//  REPEAT    , MEXICO  , PEARL
-//  INSTITUTE , FRANCE  , FAST 
-//  IMPULSE   , FRANCE  , FAST 
-//  REPEAT    , RUSSIA  , SMITH
-//  IMPULSE   , SCOTLAND, SMITH
-//  NON_PROFIT, GERMANY , GREEN
-//  NON_PROFIT, FRANCE  , SMITH
-//  IMPULSE   , GERMANY , FAST 
-//  INSTITUTE , USA_EAST, PEARL
-//  IMPULSE   , RUSSIA  , TOAST
-//  NEED_BASED, CANADA  , FAST 
-//  IMPULSE   , CANADA  , SMITH
-//  INSTITUTE , SCOTLAND, SMITH
-//  IMPULSE   , USA_EAST, TIDY 
-//  REPEAT    , GERMANY , FAST 
-//  DISCOUNT  , RUSSIA  , TIDY 
-//  REPEAT    , GERMANY , PEARL
-//  BUSINESS  , CANADA  , GREEN
-//  REPEAT    , SCOTLAND, FAST 
-//  NEED_BASED, USA_EAST, PEARL
-//  INSTITUTE , GERMANY , TOAST
-//  BUSINESS  , ENGLAND , TIDY 
-//  DISCOUNT  , USA_EAST, PEARL
-//  NON_PROFIT, ENGLAND , PEARL
-//  INSTITUTE , MEXICO  , PEARL
-//  IMPULSE   , MEXICO  , TOAST
-//  NEED_BASED, GERMANY , FAST 
-//  INSTITUTE , MEXICO  , TIDY 
-//  INSTITUTE , USA_EAST, TOAST
-//  BUSINESS  , ENGLAND , PEARL
-//  NON_PROFIT, SCOTLAND, SMITH
-//  NON_PROFIT, USA_WEST, TIDY 
-//  BUSINESS  , GERMANY , FAST 
-//  REPEAT    , USA_WEST, TOAST
-//  REPEAT    , SCOTLAND, TIDY 
-//  NON_PROFIT, CANADA  , PEARL
-//  NON_PROFIT, USA_WEST, TOAST
-//  DISCOUNT  , MEXICO  , TOAST
-//  NEED_BASED, FRANCE  , FAST 
-//  DISCOUNT  , GERMANY , FAST 
-//  NON_PROFIT, FRANCE  , TIDY 
-//  IMPULSE   , USA_WEST, FAST 
-//  REPEAT    , FRANCE  , TOAST
-//  REPEAT    , RUSSIA  , GREEN
-//  BUSINESS  , USA_EAST, GREEN
-//  NON_PROFIT, RUSSIA  , PEARL
-//  IMPULSE   , CANADA  , TIDY 
-//  IMPULSE   , CANADA  , FAST 
-//  IMPULSE   , USA_EAST, FAST 
-//  NON_PROFIT, GERMANY , TIDY 
-//  NON_PROFIT, ENGLAND , GREEN
-//  NON_PROFIT, USA_EAST, TOAST
-//  NON_PROFIT, USA_EAST, FAST 
-//  IMPULSE   , ENGLAND , FAST 
-//  NEED_BASED, ENGLAND , SMITH
-//  NEED_BASED, CANADA  , PEARL
-//  INSTITUTE , CANADA  , SMITH
-//  NON_PROFIT, MEXICO  , TIDY 
-//  NEED_BASED, ENGLAND , TOAST
-//  BUSINESS  , ENGLAND , GREEN
-//  NEED_BASED, SCOTLAND, PEARL
-//  NON_PROFIT, USA_EAST, GREEN
-//  IMPULSE   , FRANCE  , PEARL
-//  REPEAT    , MEXICO  , TOAST
-//  NEED_BASED, USA_WEST, TOAST
-//  IMPULSE   , USA_WEST, GREEN
-//  DISCOUNT  , USA_EAST, GREEN
-//  DISCOUNT  , MEXICO  , SMITH
+//  NON_PROFIT ENGLAND  FAST
+//  DISCOUNT   CANADA   TIDY
+//  NEED_BASED USA_EAST TOAST
+//  NON_PROFIT RUSSIA   TOAST
+//  NEED_BASED SCOTLAND TOAST
+//  REPEAT     USA_EAST GREEN
+//  DISCOUNT   FRANCE   GREEN
+//  INSTITUTE  FRANCE   SMITH
+//  NON_PROFIT CANADA   SMITH
+//  INSTITUTE  RUSSIA   TOAST
+//  INSTITUTE  USA_WEST GREEN
+//  DISCOUNT   RUSSIA   SMITH
+//  NON_PROFIT USA_WEST FAST
+//  NEED_BASED MEXICO   TOAST
+//  IMPULSE    GERMANY  TIDY
+//  INSTITUTE  USA_EAST SMITH
+//  REPEAT     MEXICO   PEARL
+//  INSTITUTE  FRANCE   FAST
+//  IMPULSE    FRANCE   FAST
+//  REPEAT     RUSSIA   SMITH
+//  IMPULSE    SCOTLAND SMITH
+//  NON_PROFIT GERMANY  GREEN
+//  NON_PROFIT FRANCE   SMITH
+//  IMPULSE    GERMANY  FAST
+//  INSTITUTE  USA_EAST PEARL
+//  IMPULSE    RUSSIA   TOAST
+//  NEED_BASED CANADA   FAST
+//  IMPULSE    CANADA   SMITH
+//  INSTITUTE  SCOTLAND SMITH
+//  IMPULSE    USA_EAST TIDY
+//  REPEAT     GERMANY  FAST
+//  DISCOUNT   RUSSIA   TIDY
+//  REPEAT     GERMANY  PEARL
+//  BUSINESS   CANADA   GREEN
+//  REPEAT     SCOTLAND FAST
+//  NEED_BASED USA_EAST PEARL
+//  INSTITUTE  GERMANY  TOAST
+//  BUSINESS   ENGLAND  TIDY
+//  DISCOUNT   USA_EAST PEARL
+//  NON_PROFIT ENGLAND  PEARL
+//  INSTITUTE  MEXICO   PEARL
+//  IMPULSE    MEXICO   TOAST
+//  NEED_BASED GERMANY  FAST
+//  INSTITUTE  MEXICO   TIDY
+//  INSTITUTE  USA_EAST TOAST
+//  BUSINESS   ENGLAND  PEARL
+//  NON_PROFIT SCOTLAND SMITH
+//  NON_PROFIT USA_WEST TIDY
+//  BUSINESS   GERMANY  FAST
+//  REPEAT     USA_WEST TOAST
+//  REPEAT     SCOTLAND TIDY
+//  NON_PROFIT CANADA   PEARL
+//  NON_PROFIT USA_WEST TOAST
+//  DISCOUNT   MEXICO   TOAST
+//  NEED_BASED FRANCE   FAST
+//  DISCOUNT   GERMANY  FAST
+//  NON_PROFIT FRANCE   TIDY
+//  IMPULSE    USA_WEST FAST
+//  REPEAT     FRANCE   TOAST
+//  REPEAT     RUSSIA   GREEN
+//  BUSINESS   USA_EAST GREEN
+//  NON_PROFIT RUSSIA   PEARL
+//  IMPULSE    CANADA   TIDY
+//  IMPULSE    CANADA   FAST
+//  IMPULSE    USA_EAST FAST
+//  NON_PROFIT GERMANY  TIDY
+//  NON_PROFIT ENGLAND  GREEN
+//  NON_PROFIT USA_EAST TOAST
+//  NON_PROFIT USA_EAST FAST
+//  IMPULSE    ENGLAND  FAST
+//  NEED_BASED ENGLAND  SMITH
+//  NEED_BASED CANADA   PEARL
+//  INSTITUTE  CANADA   SMITH
+//  NON_PROFIT MEXICO   TIDY
+//  NEED_BASED ENGLAND  TOAST
+//  BUSINESS   ENGLAND  GREEN
+//  NEED_BASED SCOTLAND PEARL
+//  NON_PROFIT USA_EAST GREEN
+//  IMPULSE    FRANCE   PEARL
+//  REPEAT     MEXICO   TOAST
+//  NEED_BASED USA_WEST TOAST
+//  IMPULSE    USA_WEST GREEN
+//  DISCOUNT   USA_EAST GREEN
+//  DISCOUNT   MEXICO   SMITH
 //..
-#if 0
-// 
 //
-//..
-    DataCategories dataCategories;
-
-    for (int idx = 0; idx < numData; ++idx) {
-        dataCategories.insert(data[idx]);  // ignore return value
-    }
-
-    printf ("size %d\n", dataCategories.size());
-
-    for (DataCategoriesItr cur  = dataCategories.begin(),
-                           end  = dataCategories.end();
-                           end != cur; ++cur) {
-        printf("%d, %d, %d\n", cur->d_location,
-                               cur->d_customer,
-                               cur->d_contract);
-    }
-  
-//..
-#endif
+///Example 2: Examining and Setting Unordered Set Configuration
+///------------------------------------------------------------
+// The unordered set interfaces provide some insight into and control of
+// its inner workings.  The syntax and semantics of these interfaces for
+// 'bslstl_unoroderedset' are identical to those of 'bslstl_unorderedmap'.
+// See the material in {'bslstl_unorderedmap'|Example 2}.
 
       } break;
       case 5: {

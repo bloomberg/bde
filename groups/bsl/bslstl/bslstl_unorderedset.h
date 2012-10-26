@@ -214,11 +214,257 @@ BSLS_IDENT("$Id: $")
 //  | a.resize(k)                                        | Average: O[n]      |
 //  |                                                    | Worst:   O[n^2]    |
 //  +----------------------------------------------------+--------------------+
-//
 //..
 //
 ///Usage
 ///-----
+// In this section we show intended use of this component.
+//
+///Example 1: Categorizing Data
+/// - - - - - - - - - - - - - -
+// Unordered set are useful in situations when there is no meaningful way to
+// order key values, when the order of the values is irrelevant to the problem
+// domain, and (even if there is a meaningful ordering) the value of ordering
+// the results is outweighed by the higher performance provided by unordered
+// sets (compared to ordered sets).
+//
+// Suppose one is analyzing data on a set of customers, and each customer is
+// categorized by several attributes: customer type, geographic area, and
+// (internal) project code; and that each attribute takes on one of a limited
+// set of values.  This data can be handled by creating an enumeration for each
+// of the attributes:
+//..
+//  typedef enum {
+//      REPEAT
+//    , DISCOUNT
+//    , IMPULSE
+//    , NEED_BASED
+//    , BUSINESS
+//    , NON_PROFIT
+//    , INSTITUTE
+//      // ...
+//  } CustomerCode;
+//
+//  typedef enum {
+//      USA_EAST
+//    , USA_WEST
+//    , CANADA
+//    , MEXICO
+//    , ENGLAND
+//    , SCOTLAND
+//    , FRANCE
+//    , GERMANY
+//    , RUSSIA
+//      // ...
+//  } LocationCode;
+//
+//  typedef enum {
+//      TOAST
+//    , GREEN
+//    , FAST
+//    , TIDY
+//    , PEARL
+//    , SMITH
+//      // ...
+//  } ProjectCode;
+//..
+// For printing these values in a human-readable form, we define these helper
+// functions:
+//..
+//  static const char *toAscii(CustomerCode value)
+//  {
+//      switch (value) {
+//        case REPEAT:     return "REPEAT";
+//        case DISCOUNT:   return "DISCOUNT";
+//        case IMPULSE:    return "IMPULSE";
+//        case NEED_BASED: return "NEED_BASED";
+//        case BUSINESS:   return "BUSINESS";
+//        case NON_PROFIT: return "NON_PROFIT";
+//        case INSTITUTE:  return "INSTITUTE";
+//        // ...
+//        default: return "(* UNKNOWN *)";
+//      }
+//  }
+//
+//  static const char *toAscii(LocationCode value)
+//  {
+//      // ...
+//  }
+//
+//  static const char *toAscii(ProjectCode  value)
+//  {
+//      // ...
+//  }
+//..
+// The data set (randomly generated for this example) is provided in a
+// statically initialized array:
+//..
+//  static const struct CustomerProfile {
+//      CustomerCode d_customer;
+//      LocationCode d_location;
+//      ProjectCode  d_project;
+//  } customerProfiles[] = {
+//      { IMPULSE   , CANADA  , SMITH },
+//      { NON_PROFIT, USA_EAST, GREEN },
+//      { IMPULSE   , GERMANY , TIDY  },
+//      // ...
+//      { REPEAT    , MEXICO  , TOAST },
+//  };
+//  const int numCustomerProfiles = sizeof  customerProfiles
+//                                / sizeof *customerProfiles;
+//..
+// Suppose, as the first step in analysis, we wish to determine the number of
+// unique combinations of customer attributes that exist in our data set.  We
+// can do that by inserting each data item into an (unordered) set: the first
+// insert of a combination will succeed, the others will fail, but at the end
+// of the process, the set will contain one entry for every unique combination
+// in our data.
+//
+// First, as there are no standard methods for hashing or comparing our user
+// defined types, we define 'CustomerProfileHash' and 'CustomerProfileEqual'
+// classes, each a stateless functor.  Note that there is no meaningful
+// ordering of the attribute values, they are merely arbitrary code numbers;
+// nothing is lost by using an unordered set instead of an ordered set:
+//..
+//  class CustomerProfileHash
+//  {
+//    public:
+//      // CREATORS
+//      //! CustomerProfileHash() = default;
+//          // Create a 'CustomerProfileHash' object.
+//
+//      //! CustomerProfileHash(const CustomerProfileHash& original) = default;
+//          // Create a 'CustomerProfileHash' object.  Note that as
+//          // 'CustomerProfileHash' is an empty (stateless) type, this
+//          // operation will have no observable effect.
+//
+//      //! ~CustomerProfileHash() = default;
+//          // Destroy this object.
+//
+//      // MANIPULATORS
+//      //! CustomerProfileHash& operator=(const CustomerProfileHash& rhs)
+//      //!                                                          = default;
+//          // Assign to this object the value of the specified 'rhs' object,
+//          // and return a reference providing modifiable access to this
+//          // object.  Note that as 'CustomerProfileHash' is an empty
+//          // (stateless) type, this operation will have no observable effect.
+//
+//      // ACCESSORS
+//      std::size_t operator()(CustomerProfile x) const;
+//          // Return a hash value computed using the specified 'x'.
+//  };
+//
+//  // ACCESSORS
+//  std::size_t CustomerProfileHash::operator()(CustomerProfile x) const
+//  {
+//      return bsl::hash<int>()(x.d_location * 100 * 100
+//                            + x.d_customer * 100
+//                            + x.d_project);
+//  }
+//
+//  class CustomerProfileEqual
+//  {
+//    public:
+//      // CREATORS
+//      //! CustomerProfileEqual() = default;
+//          // Create a 'CustomerProfileEqual' object.
+//
+//      //! CustomerProfileEqual(const CustomerProfileEqual& original)
+//      //!                                                          = default;
+//          // Create a 'CustomerProfileEqual' object.  Note that as
+//          // 'CustomerProfileEqual' is an empty (stateless) type, this
+//          // operation will have no observable effect.
+//
+//      //! ~CustomerProfileEqual() = default;
+//          // Destroy this object.
+//
+//      // MANIPULATORS
+//      //! CustomerProfileEqual& operator=(const CustomerProfileEqual& rhs)
+//      //!                                                          = default;
+//          // Assign to this object the value of the specified 'rhs' object,
+//          // and return a reference providing modifiable access to this
+//          // object.  Note that as 'CustomerProfileEqual' is an empty
+//          // (stateless) type, this operation will have no observable effect.
+//
+//      // ACCESSORS
+//      bool operator()(const CustomerProfile& lhs,
+//                      const CustomerProfile& rhs) const;
+//          // Return 'true' if the specified 'lhs' have the same value as the
+//          // specified 'rhs', and 'false' otherwise.
+//  };
+//
+//  // ACCESSORS
+//  bool CustomerProfileEqual::operator()(const CustomerProfile& lhs,
+//                                        const CustomerProfile& rhs) const
+//  {
+//      return lhs.d_location == rhs.d_location
+//          && lhs.d_customer == rhs.d_customer
+//          && lhs.d_project  == rhs.d_project;
+//  }
+//..
+// Notice that many of the required methods of the hash and comparitor types
+// are compiler generated.  (The declaration of those methods are commented out
+// and suffixed by an '= default' comment.)
+//
+// Next, we define the type of the unordered set and a convenience aliases:
+//..
+//  typedef bsl::unordered_set<CustomerProfile,
+//                             CustomerProfileHash,
+//                             CustomerProfileEqual> ProfileCategories;
+//  typedef ProfileCategories::const_iterator        ProfileCategoriesConstItr;
+//..
+//..
+// Then, we create an unordered set and insert each item of 'data'.
+//..
+//  ProfileCategories profileCategories;
+//
+//  for (int idx = 0; idx < numCustomerProfiles; ++idx) {
+//     profileCategories.insert(customerProfiles[idx]);
+//  }
+//
+//  assert(numCustomerProfiles >= profileCategories.size());
+//..
+// Notice that we ignore the status returned by the 'insert' method.  We fully
+// expect some operations to fail.
+//
+// Now, the size of 'profileCategories' matches the number of unique customer
+// profiles in this data set.
+//..
+//  printf("%d %d\n", numCustomerProfiles, profileCategories.size());
+//..
+// Standard output shows:
+//..
+//  100 84
+//..
+// Finally, we can examine the unique set by iterating through the unordered
+// set and printing each element.  Note the use of the several 'toAscii'
+// functions defined earlier to make the output comprehensible:
+//..
+//  for (ProfileCategoriesConstItr itr  = profileCategories.begin(),
+//                                 end  = profileCategories.end();
+//                                 end != itr; ++itr) {
+//      printf("%-10s %-8s %-5s\n",
+//             toAscii(itr->d_customer),
+//             toAscii(itr->d_location),
+//             toAscii(itr->d_project));
+//  }
+//..
+// We find on standard output:
+//..
+//  NON_PROFIT ENGLAND  FAST
+//  DISCOUNT   CANADA   TIDY
+//  NEED_BASED USA_EAST TOAST
+//  ...
+//  DISCOUNT   USA_EAST GREEN
+//  DISCOUNT   MEXICO   SMITH
+//..
+//
+///Example 2: Examining and Setting Unordered Set Configuration
+///------------------------------------------------------------
+// The unordered set interfaces provide some insight into and control of
+// its inner workings.  The syntax and semantics of these interfaces for
+// 'bslstl_unoroderedset' are identical to those of 'bslstl_unorderedmap'.
+// See the material in {'bslstl_unorderedmap'|Example 2}.
 
 // Prevent 'bslstl' headers from being included directly in 'BSL_OVERRIDES_STD'
 // mode.  Doing so is unsupported, and is likely to cause compilation errors.

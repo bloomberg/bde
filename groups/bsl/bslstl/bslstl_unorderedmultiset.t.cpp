@@ -131,7 +131,7 @@ using namespace BloombergLP;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 2] default construction (only)
-// [  ] USAGE EXAMPLE
+// [ 5] USAGE EXAMPLE
 //
 // TEST APPARATUS: GENERATOR FUNCTIONS
 // [ 3] int ggg(unordered_multiset<T,H,E,A> *o, const char *s, int verbose);
@@ -1818,6 +1818,372 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase2()
         }
     }
 }
+// ============================================================================
+//                              USAGE EXAMPLES
+// ----------------------------------------------------------------------------
+
+///Usage
+///-----
+// In this section we show intended use of this component.
+//
+///Example 1: Categorizing Data
+/// - - - - - - - - - - - - - -
+// Unordered sets are useful in situations when there is no meaningful way to
+// order key values, when the order of the values is irrelevant to the problem
+// domain, and (even if there is a meaningful ordering) the value of ordering
+// the results is outweighed by the higher performance provided by unordered
+// sets (compared to ordered sets).
+//
+// One uses a multi-set (ordered or unordered) when there may be more than one
+// instance of an element of a set and when that multiplicity must be
+// preserved.
+//
+// Note that the data type described below is an augmentation of that used in
+// {'bslstl_unorderedset|Example 1}.  The data itself (randomly generated) is
+// different.
+//
+// Suppose one is analyzing data on a set of customers, and each customer is
+// categorized by several attributes: customer type, geographic area, and
+// (internal) project code; and that each attribute takes on one of a limited
+// set of values.  Additionally, there is some financial data associated with
+// each customer: past sales and pending sales.
+//
+// The several customer attributes are modeled by several enumerations:
+//..
+    typedef enum {
+        REPEAT
+      , DISCOUNT
+      , IMPULSE
+      , NEED_BASED
+      , BUSINESS
+      , NON_PROFIT
+      , INSTITUTE
+        // ...
+    } CustomerCode;
+
+    typedef enum {
+        USA_EAST
+      , USA_WEST
+      , CANADA
+      , MEXICO
+      , ENGLAND
+      , SCOTLAND
+      , FRANCE
+      , GERMANY
+      , RUSSIA
+        // ...
+    } LocationCode;
+
+    typedef enum {
+        TOAST
+      , GREEN
+      , FAST
+      , TIDY
+      , PEARL
+      , SMITH
+        // ...
+    } ProjectCode;
+//..
+// For printing these values in a human-readable form, we define these helper
+// functions:
+//..
+    static const char *toAscii(CustomerCode value)
+    {
+        switch (value) {
+          case REPEAT:     return "REPEAT";
+          case DISCOUNT:   return "DISCOUNT";
+          case IMPULSE:    return "IMPULSE";
+          case NEED_BASED: return "NEED_BASED";
+          case BUSINESS:   return "BUSINESS";
+          case NON_PROFIT: return "NON_PROFIT";
+          case INSTITUTE:  return "INSTITUTE";
+          // ...
+          default: return "(* UNKNOWN *)";
+        }
+    }
+
+    static const char *toAscii(LocationCode value)
+    {
+        switch (value) {
+          case USA_EAST: return "USA_EAST";
+          case USA_WEST: return "USA_WEST";
+          case CANADA:   return "CANADA";
+          case MEXICO:   return "MEXICO";
+          case ENGLAND:  return "ENGLAND";
+          case SCOTLAND: return "SCOTLAND";
+          case FRANCE:   return "FRANCE";
+          case GERMANY:  return "GERMANY";
+          case RUSSIA:   return "RUSSIA";
+          // ...
+          default: return "(* UNKNOWN *)";
+        }
+    }
+
+    static const char *toAscii(ProjectCode  value)
+    {
+        switch (value) {
+          case TOAST: return "TOAST";
+          case GREEN: return "GREEN";
+          case FAST:  return "FAST";
+          case TIDY:  return "TIDY";
+          case PEARL: return "PEARL";
+          case SMITH: return "SMITH";
+          // ...
+          default: return "(* UNKNOWN *)";
+        }
+    }
+//..
+// The data set (randomly generated for this example) is provided in a
+// statically initialized array:
+//..
+    static const struct CustomerDatum {
+        CustomerCode d_customer;
+        LocationCode d_location;
+        ProjectCode  d_project;
+        double       d_past;
+        double       d_pending;
+    } customerData[] = {
+       { REPEAT    , RUSSIA  , SMITH,   75674.00,     455.00 },
+       { REPEAT    , ENGLAND , TOAST,   35033.00,    8377.00 },
+       { BUSINESS  , USA_EAST, SMITH,   53942.00,    2782.00 },
+       { NON_PROFIT, RUSSIA  , TIDY ,   97498.00,    1136.00 },
+       { NON_PROFIT, SCOTLAND, TIDY ,   14490.00,    9648.00 },
+       { INSTITUTE , RUSSIA  , PEARL,   90812.00,    5600.00 },
+       { NEED_BASED, ENGLAND , TIDY ,   86111.00,    1110.00 },
+       { DISCOUNT  , USA_WEST, PEARL,   88588.00,    5330.00 },
+       { INSTITUTE , ENGLAND , TIDY ,   38360.00,    1903.00 },
+       { IMPULSE   , RUSSIA  , SMITH,    4698.00,    5687.00 },
+       { IMPULSE   , ENGLAND , GREEN,   24000.00,    7017.00 },
+       { REPEAT    , USA_EAST, TIDY ,   61027.00,    1883.00 },
+       { IMPULSE   , SCOTLAND, GREEN,   39279.00,    3197.00 },
+       { REPEAT    , RUSSIA  , SMITH,   62097.00,     906.00 },
+       { IMPULSE   , GERMANY , TOAST,    2523.00,    8680.00 },
+       { DISCOUNT  , CANADA  , PEARL,    2862.00,    7786.00 },
+       { IMPULSE   , SCOTLAND, TOAST,   54458.00,    7363.00 },
+       { BUSINESS  , CANADA  , TIDY ,   22851.00,    3691.00 },
+       { NEED_BASED, GERMANY , PEARL,   89616.00,    3799.00 },
+       { IMPULSE   , RUSSIA  , GREEN,   99643.00,    7220.00 },
+       { NEED_BASED, CANADA  , PEARL,   49153.00,    3446.00 },
+       { DISCOUNT  , ENGLAND , GREEN,   59747.00,    6514.00 },
+       { DISCOUNT  , CANADA  , TOAST,   80057.00,    3951.00 },
+       { IMPULSE   , USA_WEST, TOAST,   90030.00,    9840.00 },
+       { NEED_BASED, RUSSIA  , GREEN,    8879.00,    8362.00 },
+       { DISCOUNT  , SCOTLAND, TIDY ,   10474.00,    5305.00 },
+       { REPEAT    , USA_EAST, PEARL,   45020.00,    1496.00 },
+       { BUSINESS  , RUSSIA  , PEARL,   29386.00,    3623.00 },
+       { IMPULSE   , GERMANY , GREEN,   41218.00,    6356.00 },
+       { BUSINESS  , RUSSIA  , TIDY ,    1542.00,    6080.00 },
+       { BUSINESS  , USA_EAST, TOAST,   48644.00,    6414.00 },
+       { REPEAT    , RUSSIA  , GREEN,    4328.00,    5767.00 },
+       { INSTITUTE , GERMANY , TIDY ,   21184.00,    1230.00 },
+       { REPEAT    , RUSSIA  , TOAST,   54475.00,    1823.00 },
+       { NON_PROFIT, ENGLAND , FAST ,   17887.00,    6231.00 },
+       { NEED_BASED, MEXICO  , FAST ,   58513.00,    1832.00 },
+       { REPEAT    , GERMANY , TOAST,   37185.00,    2836.00 },
+       { INSTITUTE , CANADA  , FAST ,   85849.00,    2792.00 },
+       { BUSINESS  , GERMANY , SMITH,   50467.00,    9453.00 },
+       { NON_PROFIT, USA_EAST, SMITH,   44695.00,    4672.00 },
+       { NON_PROFIT, USA_WEST, GREEN,    5561.00,    4756.00 },
+       { NEED_BASED, ENGLAND , FAST ,   74287.00,    9272.00 },
+       { NON_PROFIT, SCOTLAND, SMITH,   17136.00,    4325.00 },
+       { REPEAT    , RUSSIA  , PEARL,   18733.00,    6399.00 },
+       { NEED_BASED, SCOTLAND, TOAST,   26851.00,    9798.00 },
+       { INSTITUTE , CANADA  , TIDY ,   76474.00,    6930.00 },
+       { NEED_BASED, FRANCE  , FAST ,   78430.00,    9171.00 },
+       { INSTITUTE , GERMANY , SMITH,   34939.00,    4734.00 },
+       { NON_PROFIT, SCOTLAND, FAST ,   95477.00,    5591.00 },
+       { INSTITUTE , FRANCE  , FAST ,   19349.00,    3982.00 },
+       { REPEAT    , MEXICO  , TOAST,    7469.00,    5958.00 },
+       { DISCOUNT  , CANADA  , PEARL,     576.00,    9260.00 },
+       { DISCOUNT  , USA_WEST, GREEN,   43456.00,    6305.00 },
+       { IMPULSE   , SCOTLAND, GREEN,   92301.00,    8408.00 },
+       { BUSINESS  , SCOTLAND, FAST ,   24443.00,    4247.00 },
+       { NEED_BASED, RUSSIA  , TIDY ,   50712.00,    8647.00 },
+       { INSTITUTE , CANADA  , TIDY ,   77761.00,    2941.00 },
+       { INSTITUTE , SCOTLAND, TIDY ,   78240.00,    6635.00 },
+       { IMPULSE   , GERMANY , GREEN,   85796.00,    1634.00 },
+       { NEED_BASED, SCOTLAND, TOAST,   27761.00,     371.00 },
+       { INSTITUTE , FRANCE  , PEARL,   47747.00,    3533.00 },
+       { BUSINESS  , USA_WEST, TIDY ,   39360.00,    1132.00 },
+       { DISCOUNT  , ENGLAND , SMITH,   82644.00,    8622.00 },
+       { INSTITUTE , CANADA  , TIDY ,   96349.00,    4296.00 },
+       { BUSINESS  , GERMANY , FAST ,   73965.00,    3527.00 },
+       { REPEAT    , ENGLAND , TIDY ,   57219.00,    8957.00 },
+       { BUSINESS  , ENGLAND , SMITH,   34815.00,    9135.00 },
+       { NEED_BASED, USA_WEST, FAST ,   11387.00,    8332.00 },
+       { IMPULSE   , ENGLAND , TIDY ,   60982.00,    3094.00 },
+       { NEED_BASED, FRANCE  , FAST ,   89053.00,    1622.00 },
+       { NEED_BASED, USA_EAST, TIDY ,   85607.00,    2515.00 },
+       { IMPULSE   , MEXICO  , TIDY ,   42198.00,    1652.00 },
+       { NON_PROFIT, FRANCE  , FAST ,   65512.00,    2502.00 },
+       { INSTITUTE , CANADA  , GREEN,   66175.00,    6099.00 },
+       { NEED_BASED, FRANCE  , PEARL,   19735.00,    2504.00 },
+       { DISCOUNT  , GERMANY , TIDY ,   58853.00,     454.00 },
+       { BUSINESS  , SCOTLAND, SMITH,   66101.00,    4416.00 },
+       { NEED_BASED, ENGLAND , GREEN,   25517.00,    9096.00 },
+       { NON_PROFIT, RUSSIA  , TIDY ,   25109.00,    3813.00 },
+       { DISCOUNT  , MEXICO  , TIDY ,   18660.00,    5430.00 },
+       { REPEAT    , USA_WEST, TIDY ,   83483.00,    6099.00 },
+       { REPEAT    , CANADA  , SMITH,   33225.00,     741.00 },
+       { NEED_BASED, USA_EAST, SMITH,   75453.00,    6297.00 },
+       { DISCOUNT  , FRANCE  , TOAST,   74624.00,    4745.00 },
+       { IMPULSE   , USA_WEST, SMITH,   90923.00,    8314.00 },
+       { NEED_BASED, ENGLAND , TIDY ,   57465.00,    7906.00 },
+       { NEED_BASED, USA_WEST, TIDY ,   23203.00,    1218.00 },
+       { IMPULSE   , MEXICO  , GREEN,   26972.00,    3087.00 },
+       { IMPULSE   , RUSSIA  , GREEN,   73822.00,    7107.00 },
+       { INSTITUTE , MEXICO  , FAST ,   55671.00,    2009.00 },
+       { IMPULSE   , FRANCE  , TIDY ,    3512.00,    7849.00 },
+       { NON_PROFIT, USA_WEST, PEARL,   80276.00,    5940.00 },
+       { NEED_BASED, CANADA  , FAST ,   97479.00,     681.00 },
+       { NEED_BASED, GERMANY , GREEN,   15332.00,    6094.00 },
+       { DISCOUNT  , ENGLAND , TIDY ,   74110.00,    2706.00 },
+       { DISCOUNT  , ENGLAND , FAST ,   68620.00,    9449.00 },
+       { REPEAT    , ENGLAND , SMITH,    4301.00,    4985.00 },
+       { BUSINESS  , GERMANY , TIDY ,   84553.00,    3379.00 },
+       { BUSINESS  , CANADA  , GREEN,   60716.00,    7603.00 },
+       { DISCOUNT  , MEXICO  , GREEN,   99737.00,    3872.00 },
+    };
+    const int numCustomerData = sizeof customerData / sizeof *customerData;
+//..
+// Suppose, as a step in analysis, we wish to determine the average of the past
+// sales and the average of the pending sales for each customer for each unique
+// combination of customer attributes (i.e., for each customer profile in the
+// data set).  To do so, we must aggregate our data items by customer profile
+// but also retain the unique financial data for each item.  The
+// 'bslstl_unorderedmultiset' provides those semantics.
+//
+// First, as there are no standard methods for hashing or comparing our user
+// defined types, we define 'CustomerDatumHash' and 'CustomerDatumEqual'
+// classes, each a stateless functor.  Note that there is no meaningful
+// ordering of the attribute values, they are merely arbitrary code numbers;
+// nothing is lost by using an unordered set instead of an ordered set:
+//..
+    class CustomerDatumHash
+    {
+      public:
+        // CREATORS
+        //! CustomerDatumHash() = default;
+            // Create a 'CustomerDatumHash' object.
+
+        //! hash(const CustomerDatumHash& original) = default;
+            // Create a 'CustomerDatumHash' object.  Note that as
+            // 'CustomerDatumHash' is an empty (stateless) type, this operation
+            // will have no observable effect.
+
+        //! ~CustomerDatumHash() = default;
+            // Destroy this object.
+
+        // MANIPULATORS
+        //! CustomerDatumHash& operator=(const CustomerDatumHash& rhs)
+        //!                                                          = default;
+            // Assign to this object the value of the specified 'rhs' object,
+            // and return a reference providing modifiable access to this
+            // object.  Note that as 'CustomerDatumHash' is an empty
+            // (stateless) type, this operation will have no observable effect.
+
+        // ACCESSORS
+        std::size_t operator()(CustomerDatum x) const;
+            // Return a hash value computed using the specified 'x'.
+    };
+
+    // ACCESSORS
+    std::size_t CustomerDatumHash::operator()(CustomerDatum x) const
+    {
+        return bsl::hash<int>()(x.d_location * 100 * 100
+                              + x.d_customer * 100
+                              + x.d_project);
+    }
+
+    class CustomerDatumEqual
+    {
+      public:
+        // CREATORS
+        //! CustomerDatumEqual() = default;
+            // Create a 'CustomerDatumEqual' object.
+
+        //! CustomerDatumEqual(const CustomerDatumEqual& original) = default;
+            // Create a 'CustomerDatumEqual' object.  Note that as
+            // 'CustomerDatumEqual' is an empty (stateless) type, this
+            // operation will have no observable effect.
+
+        //! ~CustomerDatumEqual() = default;
+            // Destroy this object.
+
+        // MANIPULATORS
+        //! CustomerDatumEqual& operator=(const CustomerDatumEqual& rhs)
+        //!                                                          = default;
+            // Assign to this object the value of the specified 'rhs' object,
+            // and return a reference providing modifiable access to this
+            // object.  Note that as 'CustomerDatumEqual' is an empty
+            // (stateless) type, this operation will have no observable effect.
+
+        // ACCESSORS
+        bool operator()(const CustomerDatum& lhs,
+                        const CustomerDatum& rhs) const;
+    };
+
+    // ACCESSORS
+    bool CustomerDatumEqual::operator()(const CustomerDatum& lhs,
+                                        const CustomerDatum& rhs) const
+    {
+        return lhs.d_location == rhs.d_location
+            && lhs.d_customer == rhs.d_customer
+            && lhs.d_project  == rhs.d_project;
+    }
+//..
+// Notice that many of the required methods of the hash and comparitor types
+// are compiler generated.  (The declaration of those methods are commented out
+// and suffixed by an '= default' comment.)
+//
+// Also notice that the boolean operation provided by 'CustomerDatumEqual' is
+// more properly thought of as "equivalence", not "equality".  There may be
+// more than one data item with the same customer profile (i.e., the same for
+// our purpose here), but they have distinct financial data so the two items
+// are not equal (unless the financial data also happens to match).
+//
+// Next, we define the type of the unordered set and a convenience aliases:
+//..
+    typedef bsl::unordered_multiset<CustomerDatum,
+                                    CustomerDatumHash,
+                                    CustomerDatumEqual> DataByProfile;
+    typedef DataByProfile::const_iterator               DataByProfileConstItr;
+//..
+
+// Now, create a helper function to calculate the average financials for a
+// category of customer profiles within the unordered map.
+//..
+    void processCategory(DataByProfileConstItr  start,
+                         DataByProfileConstItr  end,
+                         FILE                  *out)
+        // Print to the specified 'out' in some human-readable format the
+        // averages of the 'past' and 'pending' attributes of every
+        // 'CustomerInfoData' object from the specified 'start' up to (but not
+        // including) the specified 'end'.  The behavior is undefined unless
+        // 'end != start'.
+    {
+        ASSERT(end != start);
+        ASSERT(out);
+    
+        double sumPast    = 0.0;
+        double sumPending = 0.0;
+        int    count      = 0;
+    
+        for (DataByProfileConstItr itr = start; end != itr; ++itr) {
+            sumPast    += itr->d_past;
+            sumPending += itr->d_pending;
+            ++count;
+        }
+if (g_verbose) {
+        printf("%-10s %-8s %-5s %10.2f %10.2f\n",
+               toAscii(start->d_customer),
+               toAscii(start->d_location),
+               toAscii(start->d_project),
+               sumPast/count,
+               sumPending/count);
+}
+    }
+//..
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -1842,6 +2208,159 @@ int main(int argc, char *argv[])
     bslma::Default::setDefaultAllocator(&testAlloc);
 
     switch (test) { case 0:
+      case 5: {
+        // --------------------------------------------------------------------
+        // USAGE EXAMPLE
+        //
+        // Concerns:
+        //: 1 The usage example provided in the component header file compiles,
+        //:   links, and runs as shown.
+        //
+        // Plan:
+        //: 1 Incorporate usage example from header into test driver, remove
+        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //:   (C-1)
+        //
+        // Testing:
+        //   USAGE EXAMPLE
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nUSAGE EXAMPLE"
+                            "\n=============\n");
+//..
+// Then, we create an unordered set and insert each item of 'data'.
+//..
+    DataByProfile dataByProfile;
+
+    for (int idx = 0; idx < numCustomerData; ++idx) {
+       dataByProfile.insert(customerData[idx]);
+    }
+    ASSERT(numCustomerData == dataByProfile.size());
+//..
+// Finally, to calculate the statistics we need, we must detect the transition
+// between categories as we iterate through 'customerInfoData'.
+//..
+    CustomerDatumEqual    areEquivalent;
+    DataByProfileConstItr end             = dataByProfile.end();
+    DataByProfileConstItr startOfCategory = end;
+
+    for (DataByProfileConstItr itr  = dataByProfile.begin();
+                               end != itr; ++itr) {
+        if (end == startOfCategory) {
+            startOfCategory = itr;
+            continue;
+        }
+
+        if (!areEquivalent(*startOfCategory, *itr)) {
+            processCategory(startOfCategory, itr, stdout);
+            startOfCategory = itr;
+        }
+    }
+    if (end != startOfCategory) {
+        processCategory(startOfCategory, end, stdout);
+    }
+//..
+// We find on standard output:
+//..
+//  BUSINESS   GERMANY  TIDY    84553.00    3379.00
+//  DISCOUNT   ENGLAND  TIDY    74110.00    2706.00
+//  NEED_BASED CANADA   FAST    97479.00     681.00
+//  NON_PROFIT USA_WEST PEARL   80276.00    5940.00
+//  IMPULSE    FRANCE   TIDY     3512.00    7849.00
+//  IMPULSE    MEXICO   GREEN   26972.00    3087.00
+//  DISCOUNT   MEXICO   GREEN   99737.00    3872.00
+//  IMPULSE    USA_WEST SMITH   90923.00    8314.00
+//  DISCOUNT   FRANCE   TOAST   74624.00    4745.00
+//  NEED_BASED USA_EAST SMITH   75453.00    6297.00
+//  NEED_BASED GERMANY  GREEN   15332.00    6094.00
+//  DISCOUNT   MEXICO   TIDY    18660.00    5430.00
+//  NEED_BASED FRANCE   PEARL   19735.00    2504.00
+//  DISCOUNT   ENGLAND  FAST    68620.00    9449.00
+//  BUSINESS   SCOTLAND SMITH   66101.00    4416.00
+//  INSTITUTE  CANADA   GREEN   66175.00    6099.00
+//  IMPULSE    MEXICO   TIDY    42198.00    1652.00
+//  NEED_BASED USA_EAST TIDY    85607.00    2515.00
+//  NON_PROFIT FRANCE   FAST    65512.00    2502.00
+//  NEED_BASED USA_WEST FAST    11387.00    8332.00
+//  BUSINESS   GERMANY  FAST    73965.00    3527.00
+//  BUSINESS   CANADA   GREEN   60716.00    7603.00
+//  REPEAT     CANADA   SMITH   33225.00     741.00
+//  DISCOUNT   ENGLAND  SMITH   82644.00    8622.00
+//  REPEAT     ENGLAND  TIDY    57219.00    8957.00
+//  BUSINESS   USA_WEST TIDY    39360.00    1132.00
+//  NEED_BASED RUSSIA   GREEN    8879.00    8362.00
+//  DISCOUNT   USA_WEST GREEN   43456.00    6305.00
+//  NEED_BASED GERMANY  PEARL   89616.00    3799.00
+//  NEED_BASED CANADA   PEARL   49153.00    3446.00
+//  DISCOUNT   GERMANY  TIDY    58853.00     454.00
+//  IMPULSE    RUSSIA   GREEN   86732.50    7163.50
+//  REPEAT     GERMANY  TOAST   37185.00    2836.00
+//  INSTITUTE  MEXICO   FAST    55671.00    2009.00
+//  IMPULSE    SCOTLAND TOAST   54458.00    7363.00
+//  REPEAT     USA_EAST TIDY    61027.00    1883.00
+//  REPEAT     RUSSIA   GREEN    4328.00    5767.00
+//  DISCOUNT   CANADA   PEARL    1719.00    8523.00
+//  DISCOUNT   ENGLAND  GREEN   59747.00    6514.00
+//  REPEAT     USA_EAST PEARL   45020.00    1496.00
+//  IMPULSE    SCOTLAND GREEN   65790.00    5802.50
+//  NON_PROFIT RUSSIA   TIDY    61303.50    2474.50
+//  NON_PROFIT USA_EAST SMITH   44695.00    4672.00
+//  DISCOUNT   SCOTLAND TIDY    10474.00    5305.00
+//  NEED_BASED USA_WEST TIDY    23203.00    1218.00
+//  BUSINESS   USA_EAST SMITH   53942.00    2782.00
+//  DISCOUNT   CANADA   TOAST   80057.00    3951.00
+//  REPEAT     USA_WEST TIDY    83483.00    6099.00
+//  BUSINESS   CANADA   TIDY    22851.00    3691.00
+//  BUSINESS   ENGLAND  SMITH   34815.00    9135.00
+//  INSTITUTE  GERMANY  SMITH   34939.00    4734.00
+//  INSTITUTE  RUSSIA   PEARL   90812.00    5600.00
+//  IMPULSE    GERMANY  GREEN   63507.00    3995.00
+//  REPEAT     ENGLAND  TOAST   35033.00    8377.00
+//  INSTITUTE  ENGLAND  TIDY    38360.00    1903.00
+//  NEED_BASED ENGLAND  TIDY    71788.00    4508.00
+//  BUSINESS   GERMANY  SMITH   50467.00    9453.00
+//  DISCOUNT   USA_WEST PEARL   88588.00    5330.00
+//  IMPULSE    USA_WEST TOAST   90030.00    9840.00
+//  REPEAT     RUSSIA   SMITH   68885.50     680.50
+//  IMPULSE    RUSSIA   SMITH    4698.00    5687.00
+//  REPEAT     RUSSIA   PEARL   18733.00    6399.00
+//  NON_PROFIT SCOTLAND TIDY    14490.00    9648.00
+//  IMPULSE    ENGLAND  GREEN   24000.00    7017.00
+//  BUSINESS   RUSSIA   TIDY     1542.00    6080.00
+//  BUSINESS   USA_EAST TOAST   48644.00    6414.00
+//  REPEAT     RUSSIA   TOAST   54475.00    1823.00
+//  NEED_BASED ENGLAND  GREEN   25517.00    9096.00
+//  INSTITUTE  GERMANY  TIDY    21184.00    1230.00
+//  IMPULSE    ENGLAND  TIDY    60982.00    3094.00
+//  NON_PROFIT ENGLAND  FAST    17887.00    6231.00
+//  INSTITUTE  CANADA   FAST    85849.00    2792.00
+//  REPEAT     ENGLAND  SMITH    4301.00    4985.00
+//  NON_PROFIT SCOTLAND FAST    95477.00    5591.00
+//  NEED_BASED MEXICO   FAST    58513.00    1832.00
+//  NON_PROFIT USA_WEST GREEN    5561.00    4756.00
+//  NEED_BASED ENGLAND  FAST    74287.00    9272.00
+//  IMPULSE    GERMANY  TOAST    2523.00    8680.00
+//  NON_PROFIT SCOTLAND SMITH   17136.00    4325.00
+//  NEED_BASED SCOTLAND TOAST   27306.00    5084.50
+//  INSTITUTE  CANADA   TIDY    83528.00    4722.33
+//  NEED_BASED FRANCE   FAST    83741.50    5396.50
+//  REPEAT     MEXICO   TOAST    7469.00    5958.00
+//  BUSINESS   SCOTLAND FAST    24443.00    4247.00
+//  INSTITUTE  FRANCE   FAST    19349.00    3982.00
+//  NEED_BASED RUSSIA   TIDY    50712.00    8647.00
+//  INSTITUTE  SCOTLAND TIDY    78240.00    6635.00
+//  BUSINESS   RUSSIA   PEARL   29386.00    3623.00
+//  INSTITUTE  FRANCE   PEARL   47747.00    3533.00
+//..
+//
+///Example 2: Examining and Setting Unordered Multi-Set Configuration
+///------------------------------------------------------------------
+// The unordered multi-set interfaces provide some insight into and control of
+// its inner workings.  The syntax and semantics of these interfaces for
+// 'bslstl_unoroderedmultiset' are identical to those of 'bslstl_unorderedmap'.
+// See the material in {'bslstl_unorderedmap'|Example 2}.
+
+      } break;
       case 4: {
         // --------------------------------------------------------------------
         // BASIC ACCESSORS
