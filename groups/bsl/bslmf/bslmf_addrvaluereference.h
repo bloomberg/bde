@@ -43,7 +43,7 @@ BSLS_IDENT("$Id: $")
 //  assert(false ==
 //       (bsl::is_same<bsl::add_rvalue_reference<int>::type,   int  >::value));
 //  assert(true  ==
-//       (bsl::is_same<bsl::add_rvalue_reference<int&>::type,  int&&>::value));
+//       (bsl::is_same<bsl::add_rvalue_reference<int&>::type,  int& >::value));
 //  assert(true  ==
 //       (bsl::is_same<bsl::add_rvalue_reference<int&&>::type, int&&>::value));
 //#endif
@@ -69,11 +69,13 @@ struct add_rvalue_reference
     typedef TYPE&& type;
 };
 
+#if 0
 template <typename TYPE>
 struct add_rvalue_reference<TYPE&>
 {
     typedef TYPE&& type;
 };
+#endif
 
 #define BSL_DEFINE_ADD_RVALUE_REFERENCE(TYPE, REF_TYPE) \
 template <>                                             \
