@@ -1606,11 +1606,11 @@ int main(int argc, char *argv[])
 
                 {  L_,    "1.1",                     1.1,       true    },
                 {  L_,    "1.5",                     1.5,       true    },
-//                 {  L_,    "1.9",                     1.9,       true    },
+                {  L_,    "1.9",                     1.9,       true    },
 
-//                 {  L_,   "100.123",              100.123,      true    },
+                {  L_,   "100.123",              100.123,      true    },
                 {  L_,   "99.5",                    99.5,      true    },
-//                 {  L_,    "0.86",                   0.86,      true    },
+                {  L_,    "0.86",                   0.86,      true    },
 
                 {  L_,    "1e0",                       1,       true    },
                 {  L_,    "1E0",                       1,       true    },
@@ -1625,8 +1625,7 @@ int main(int argc, char *argv[])
                 {  L_,    "12.34e-1",              1.234,      true    },
                 {  L_,    "29.87E-1",              2.987,      true    },
 
-// TBD:
-//                 {  L_,    "-123.34e-1",          -12.334,      true    },
+                {  L_,    "-123.34e-1",          -12.334,      true    },
                 {  L_,    "-298.7E-1",            -29.87,      true    },
 
                 {  L_,    "1e1",                      10,       true    },
@@ -1635,9 +1634,6 @@ int main(int argc, char *argv[])
                 {  L_,    "1E+1",                     10,       true    },
                 {  L_,    "1e-1",                    0.1,       true    },
                 {  L_,    "1E-1",                    0.1,       true    },
-
-// TBD:
-//                 {  L_,    "4294967296", ERROR_VALUE,      false    },
             };
             const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
 
@@ -1751,9 +1747,6 @@ int main(int argc, char *argv[])
                 {  L_,    "1E+1",                     10,       true    },
                 {  L_,    "1e-1",                    0.1,       true    },
                 {  L_,    "1E-1",                    0.1,       true    },
-
-// TBD:
-//                 {  L_,    "4294967296", ERROR_VALUE,      false    },
             };
             const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
 
@@ -1829,6 +1822,12 @@ int main(int argc, char *argv[])
                 {  L_,   "9223372036854775806",  9223372036854775806LL, true },
                 {  L_,   "9223372036854775807",  9223372036854775807LL, true },
 
+                {  L_,   "9223372036854775806",  9223372036854775806LL, true },
+                {  L_,   "9223372036854775807",  9223372036854775807LL, true },
+
+                {  L_, "18446744073709551614", 18446744073709551614ULL, true },
+                {  L_, "18446744073709551615", 18446744073709551615ULL, true },
+
                 {  L_,    "1.1",                       1,      true    },
                 {  L_,    "1.5",                       1,      true    },
                 {  L_,    "1.9",                       1,      true    },
@@ -1856,9 +1855,6 @@ int main(int argc, char *argv[])
                 {  L_,    "1E+1",                     10,      true    },
                 {  L_,    "1e-1",                      0,      true    },
                 {  L_,    "1E-1",                      0,      true    },
-
-// TBD:
-//                 {  L_,    "4294967296", ERROR_VALUE,      false    },
             };
             const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
 
@@ -1986,9 +1982,6 @@ int main(int argc, char *argv[])
                 {  L_,    "1E+1",                     10,      true    },
                 {  L_,    "1e-1",                      0,      true    },
                 {  L_,    "1E-1",                      0,      true    },
-
-// TBD:
-//                 {  L_,    "4294967296", ERROR_VALUE,      false    },
             };
             const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
 
@@ -2066,8 +2059,7 @@ int main(int argc, char *argv[])
 
                 {  L_, "4294967295.01",       4294967295,      true    },
 
-// TBD:
-//                 {  L_, "4294967295.99",       4294967295,      true    },
+                {  L_, "4294967295.99",       4294967295,      true    },
 
                 {  L_,    "1.1",                       1,      true    },
                 {  L_,    "1.5",                       1,      true    },
@@ -2089,10 +2081,6 @@ int main(int argc, char *argv[])
 
                 {  L_,    "12.34e-1",                  1,      true    },
                 {  L_,    "29.87E-1",                  2,      true    },
-
-// TBD:
-//                 {  L_,    "-123.34e-1",              -12,      true    },
-//                 {  L_,    "-298.7E-1",               -29,      true    },
 
                 {  L_,    "1e1",                      10,      true    },
                 {  L_,    "1E1",                      10,      true    },
@@ -2188,8 +2176,7 @@ int main(int argc, char *argv[])
                 {  L_, "2147483647.99",   2147483647,      true    },
                 {  L_, "-2147483648.01", -2147483648,      true    },
 
-// TBD:
-//                 {  L_, "-2147483648.99", -2147483648,      true    },
+                {  L_, "-2147483648.99", -2147483648,      true    },
 
                 {  L_,    "1.1",                   1,      true    },
                 {  L_,    "1.5",                   1,      true    },
@@ -2748,11 +2735,12 @@ int main(int argc, char *argv[])
             { L_,     "9.25e+10",   true,     9.25e10 },
             { L_,           ".1",   true,         0.1 },
 
+            { L_,           "+1",  false,         0.0 },
+            { L_,          "--1",  false,         0.0 },
+
 // TBD:
 //             { L_,           "1.",  false,         0.0 },
-//             { L_,           "+1",  false,         0.0 },
 
-            { L_,          "--1",  false,         0.0 },
             { L_,        "1e+-1",  false,         0.0 }
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;

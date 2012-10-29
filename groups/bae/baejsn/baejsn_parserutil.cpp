@@ -8,12 +8,8 @@ BDES_IDENT_RCSID(baejsn_parserutil_cpp,"$Id$ $CSID$")
 
 #include <bdema_bufferedsequentialallocator.h>
 
-#include <bsl_sstream.h>
-
-#include <bsl_sstream.h>
 #include <bsl_cmath.h>
 #include <bsl_cctype.h>
-#include <bsl_iomanip.h>
 
 namespace BloombergLP {
 
@@ -21,40 +17,61 @@ namespace BloombergLP {
                             // struct baejsn_ParserUtil
                             // ------------------------
 
-int baejsn_ParserUtil::skipSpaces(bsl::streambuf *streamBuf)
+void baejsn_ParserUtil::skipSpaces(bsl::streambuf *streamBuf)
 {
     int ch = streamBuf->sgetc();
-    while (ch != bsl::streambuf::traits_type::eof()
-        && bsl::isspace(ch)) {
-
+    while (bsl::isspace(ch)) {
         ch = streamBuf->snextc();
     }
-
-    return ch;
 }
 
 int baejsn_ParserUtil::getDouble(bsl::streambuf *streamBuf, double *value)
 {
     skipSpaces(streamBuf);
 
-    const int SIZE = 64;
-    char buffer[SIZE];
-
+    const int                         SIZE = 64;
+    char                              buffer[SIZE];
     bdema_BufferedSequentialAllocator allocator(buffer, SIZE);
-    bsl::string str(&allocator);
+    bsl::string                       str(&allocator);
 
     int ch = streamBuf->sgetc();
-    while (ch != bsl::streambuf::traits_type::eof()
-        && (bsl::isdigit(ch)
-         || '.' == static_cast<char>(ch)
-         || 'E' == static_cast<char>(bsl::toupper(ch))
-         || '+' == static_cast<char>(ch)
-         || '-' == static_cast<char>(ch))) {
+    if ('-' == static_cast<char>(ch)) {
         str += static_cast<char>(ch);
-        ch = streamBuf->snextc();
+        ch   = streamBuf->snextc();
     }
-    char *end = 0;
-    double tmp = bsl::strtod(str.c_str(), &end);
+
+    while (bsl::isdigit(ch)) {
+        str += static_cast<char>(ch);
+        ch   = streamBuf->snextc();
+    }
+
+    if ('.' == static_cast<char>(ch)) {
+        str += static_cast<char>(ch);
+        ch   = streamBuf->snextc();
+
+        while (bsl::isdigit(ch)) {
+            str += static_cast<char>(ch);
+            ch   = streamBuf->snextc();
+        }
+    }
+
+    if ('E' == static_cast<char>(bsl::toupper(ch))) {
+        str += static_cast<char>(ch);
+        ch   = streamBuf->snextc();
+        if ('+' == static_cast<char>(ch) || '-' == static_cast<char>(ch)) {
+            str += static_cast<char>(ch);
+            ch   = streamBuf->snextc();
+        }
+
+        while (bsl::isdigit(ch)) {
+            str += static_cast<char>(ch);
+            ch   = streamBuf->snextc();
+        }
+    }
+
+    char   *end = 0;
+    double  tmp = bsl::strtod(str.c_str(), &end);
+
     if (end == str.data() || *end != '\0') {
         return -1;                                                    // RETURN
     }
@@ -65,46 +82,34 @@ int baejsn_ParserUtil::getDouble(bsl::streambuf *streamBuf, double *value)
 int baejsn_ParserUtil::getUint64(bsl::streambuf      *streamBuf,
                                  bsls::Types::Uint64 *value)
 {
-    // This implementation is not very good.  It needs a lot of division and
-    // loses precision.
+    // TBD: Revisit
 
     skipSpaces(streamBuf);
 
     int ch = streamBuf->sgetc();
-    while (ch != bsl::streambuf::traits_type::eof()
-        && ch >= '0'
-        && ch <= '9') {
+    while (bsl::isdigit(ch)) {
+        if (*value * 10 > bsl::numeric_limits<bsls::Types::Uint64>::max()) {
+            return -1;                                                // RETURN
+        }
         *value *= 10;
         *value += ch - '0';
-
         ch = streamBuf->snextc();
     }
 
-    const int SIZE = 64;
-    char  fractionalBuffer[SIZE];
-    char *iter = fractionalBuffer;
-    char *end  = iter + SIZE;
-    int  numDigits = 0;
+    const int                         SIZE = 64;
+    char                              buffer[SIZE];
+    bdema_BufferedSequentialAllocator allocator(buffer, SIZE);
+    bsl::string                       str(&allocator);
+
     if ('.' == static_cast<char>(ch)) {
 
-        // Adjust or drop fractional portion
+        // Store the fractional portion in 'str'
 
         ch = streamBuf->snextc();
-        while (ch != bsl::streambuf::traits_type::eof()
-            && ch >= '0'
-            && ch <= '9'
-            && iter < end) {
-            *iter = static_cast<char>(ch);
-            ++iter;
-            ch = streamBuf->snextc();
+        while (bsl::isdigit(ch)) {
+            str += static_cast<char>(ch);
+            ch   = streamBuf->snextc();
         }
-
-        if (iter == fractionalBuffer || iter == end) {
-            return -1;                                                // RETURN
-        }
-
-        numDigits = iter - fractionalBuffer;
-        iter = fractionalBuffer;
     }
 
     if ('E' == static_cast<char>(bsl::toupper(ch))) {
@@ -130,42 +135,35 @@ int baejsn_ParserUtil::getUint64(bsl::streambuf      *streamBuf,
             return -1;                                                // RETURN
         }
 
+        int fraction = 0;
         if (isNegative) {
             // ignore fractional portion
 
-            while (exponent && *value) {
-                *value /= 10;
-                --exponent;
-            }
+            *value /=
+                    static_cast<bsls::Types::Uint64>(bsl::pow(10.0, exponent));
+            return 0;                                                 // RETURN
         }
-        else {
-            while (exponent && numDigits) {
-                int digitValue = *iter - '0';
-                if (*value * 10 + digitValue <
-                             bsl::numeric_limits<bsls::Types::Uint64>::max()) {
-                    *value = *value * 10 + digitValue;
-                    --exponent;
-                    --numDigits;
-                    ++iter;
-                }
-                else {
-                    return -1;                                        // RETURN
-                }
+        else if (str.length()) {
+            if (static_cast<unsigned int>(exponent) < str.length()) {
+                str.erase(str.begin() + exponent, str.end());
+            }
+            else {
+                exponent = str.length();
             }
 
-            while (exponent) {
-                if (*value * 10 <
-                             bsl::numeric_limits<bsls::Types::Uint64>::max()) {
-                    *value *= 10;
-                    --exponent;
-                }
-                else {
-                    return -1;                                        // RETURN
-                }
-            }
+            char *end = 0;
+            fraction = static_cast<int>(bsl::strtol(str.c_str(), &end, 10));
         }
+
+        double tmp = *value * bsl::pow(10.0, exponent) + fraction;
+        if (tmp > static_cast<double>(
+                            bsl::numeric_limits<bsls::Types::Uint64>::max())) {
+            return -1;                                                // RETURN
+        }
+
+        *value *= static_cast<bsls::Types::Uint64>(bsl::pow(10.0, exponent));
+        *value += fraction;
     }
-
     return 0;
 }
 
@@ -274,7 +272,7 @@ int baejsn_ParserUtil::eatToken(bsl::streambuf *streamBuf, const char *token)
     bsl::streampos  pos = streamBuf->pubseekoff(0, bsl::ios_base::cur);
     const char     *ptr = token;
 
-    while ('\0' != *ptr) {
+    while (*ptr) {
         if (ch == bsl::streambuf::traits_type::eof()) {
             streamBuf->pubseekpos(pos);
             return -1;                                                // RETURN
@@ -297,8 +295,8 @@ int baejsn_ParserUtil::advancePastWhitespaceAndToken(bsl::streambuf *streamBuf,
 {
     skipSpaces(streamBuf);
 
-    const int nextChar = streamBuf->sgetc();
-    if (nextChar == static_cast<int>(token)) {
+    const char nextChar = static_cast<char>(streamBuf->sgetc());
+    if (nextChar == token) {
         streamBuf->snextc();
         return 0;                                                     // RETURN
     }
