@@ -255,9 +255,9 @@ class bcem_Aggregate;
 namespace test { class Simple; }
 namespace test {
 
-                                // ============                                
-                                // class Simple                                
-                                // ============                                
+                                // ============
+                                // class Simple
+                                // ============
 
 class Simple {
 
@@ -463,9 +463,9 @@ BDEAT_DECL_SEQUENCE_WITH_BITWISEMOVEABLE_TRAITS(test::Simple)
 
 namespace test {
 
-                                // ------------                                
-                                // class Simple                                
-                                // ------------                                
+                                // ------------
+                                // class Simple
+                                // ------------
 
 // CLASS METHODS
 inline
@@ -637,9 +637,9 @@ std::ostream& test::operator<<(
 namespace BloombergLP {
 namespace test {
 
-                                // ------------                                
-                                // class Simple                                
-                                // ------------                                
+                                // ------------
+                                // class Simple
+                                // ------------
 
 // CONSTANTS
 
@@ -1840,7 +1840,7 @@ int main(int argc, char *argv[])
             for (int i = 0; i < s_elementLoaderFn_indexes.size(); ++i) {
                 LOOP_ASSERT(i, s_elementLoaderFn_indexes[i] == INFO[i].d_id);
             }
-                
+
         }
 
         if (verbose) cout << "\nTesting Sequence for decoding" << endl;
