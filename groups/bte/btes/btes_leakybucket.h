@@ -91,12 +91,11 @@
 // time.
 //
 // In the example of FIG. 3 at time 't0' we reserve 4 units.  At time 
-// 't1 = t0 + 5' none the reserved units are drained from the leaky bucket(A)
-// and we submit 3 units from the reserve(B).
-// At time 't2 = t1 + 2' we can see that 2 units have been drained, 1 unit
-// remains in bucket and one - in the reserve(A) and we cancel one reserved
-// unit(B). It is taken out of the reserve without submitting it into the
-// leaky bucket.
+// 't0 + 5' none the reserved units are drained from the leaky bucket,
+// then, at time 't0 + 6' we submit 3 of those units which will be drained
+// from the bucket over time. At t0 + 9 we observe that all but the remaining
+// reserved unit have been drained from the bucket. Finally, at t0 + 10, the
+// reservation for the remaining unit is canceled.
 //..
 // FIG. 3: Capacity = 5 units, Rate = 1 unit / second
 //
@@ -108,12 +107,11 @@
 // c--5|-----|  c--5|-----|  c--5|-----|  c--5|-----|  c--5|-----|
 //    4|#####|     4|#####|     4|~~~~~|     4|     |     4|     |
 //    3|#####|     3|#####|     3|~~~~~|     3|     |     3|     |
-//    2|#####|     2|#####|     2|~~~~~|     2|~~~~~|     2|     |
-//    1|#####|     1|#####|     1|#####|     1|#####|     1|~~~~~|
+//    2|#####|     2|#####|     2|~~~~~|     2|     |     2|     |
+//    1|#####|     1|#####|     1|#####|     1|#####|     1|     |
 //     +-- --+      +-- --+      +-- --+      +-- --+      +-- --+
 //                     A            B            A            B
-//                \______________________/   \____________________/
-// Time: t0              t1 = t0 + 5                t2 = t1 + 2
+// Time: t0         t0 + 5       t0 + 6       t0 + 9       t0 + 10
 //..
 ///Modeling a Network Connection
 ///-----------------------------

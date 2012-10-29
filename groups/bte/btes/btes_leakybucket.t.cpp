@@ -2250,7 +2250,7 @@ int main(int argc, char *argv[]) {
 
   //  LINE    RATE       SUB     RSRV  TCREATE   DRAIN_INT  NDRAIN EXP_UNITS
   //  ----  --------    -------  ----  -------  ----------  ------ ---------
-  /*
+
       {L_,     1000,      1000,    0,  Ti( 0),  Ti(  0.01),   10,    900},
       {L_,     1000,      1500,    0,  Ti( 0),  Ti(   0.5),    5,      0},
       {L_,       10,        10,    0,  Ti(10),  Ti(  0.16),    1,      9},
@@ -2270,7 +2270,7 @@ int main(int argc, char *argv[]) {
 
       // Checking operation at minimum allowed rate.
 
-      {L_,        1,  LLONG_MAX,   0,  Ti( 0),      MAX_TI,       1,      0},*/
+      {L_,        1,  LLONG_MAX,   0,  Ti( 0),      MAX_TI,       1,      0},
       {L_,        1, ULLONG_MAX,   0,  Ti( 0),      MAX_TI,       1, MI_EXP},
 
       {L_,        1,          1,   0,  Ti( 0),  Ti(0, 500),  G/500 -
