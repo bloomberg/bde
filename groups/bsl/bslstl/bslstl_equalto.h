@@ -68,10 +68,7 @@ struct equal_to {
     // specification of 'std::equal_to' that does not require inheriting from
     // 'std::binary_function'.  Note that this class is an empty POD type.
 
-    // TRAITS
-    BSLMF_NESTED_TRAIT_DECLARATION(equal_to, is_trivially_copyable);
-
-    // STANDARD TYPEDEFS
+    // PUBLIC TYPES -- STANDARD TYPEDEFS
     typedef VALUE_TYPE first_argument_type;
     typedef VALUE_TYPE second_argument_type;
     typedef bool       result_type;
@@ -100,18 +97,15 @@ struct equal_to {
         // 'rhs' using the equality-comparison operator, 'lhs == rhs'.
 };
 
-}  // namespace bsl
+}  // close namespace bsl
 
 // ============================================================================
 //                                TYPE TRAITS
 // ============================================================================
 
-// Type traits for STL *sequence* containers:
-//: o A sequence container defines STL iterators.
-//: o A sequence container is bitwise moveable if the allocator is bitwise
-//:     moveable.
-//: o A sequence container uses 'bslma' allocators if the parameterized
-//:     'ALLOCATOR' is convertible from 'bslma::Allocator*'.
+// Type traits for 'equal_to'
+//: o 'equal_to' is an stateless POD, trivially constructible, copyable, and
+//:   moveable.
 
 namespace bsl {
 
@@ -125,7 +119,7 @@ struct is_trivially_copyable<equal_to<VALUE_TYPE> >
 : bsl::true_type
 {};
 
-}
+}  // close namespace bsl
 
 namespace BloombergLP {
 namespace bslmf {
@@ -135,8 +129,8 @@ struct IsBitwiseMoveable<bsl::equal_to<VALUE_TYPE> >
 : bsl::true_type
 {};
 
-}
-}  // namespace BloombergLP
+}  // close namespace bslmf
+}  // close enterprise namespace
 
 namespace bsl {
 

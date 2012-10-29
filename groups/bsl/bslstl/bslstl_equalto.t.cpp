@@ -2,6 +2,8 @@
 
 #include <bslstl_equalto.h>
 
+#include <bslalg_scalarprimitives.h>
+
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
@@ -94,6 +96,105 @@ void aSsErT(bool b, const char *s, int i)
 //                             USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
+template <typename TYPE, typename EQUALS = bsl::equal_to<TYPE> >
+class ListSet {
+    // This class implements a crude implementation of a set, that will keep
+    // a set of values and be able to determine if an element is a member of
+    // the set.  Unlike a 'bsl::set' or 'bsl::unordered_set', no hash function
+    // or transitive 'operator<' is required -- only a transitive 'EQUALS'
+    // operator.
+    //
+    // The 'TYPE' template parameter must have a public copy constructor and
+    // destructor available.
+    //
+    // The 'EQUALS' template parameter must a function with a function whose
+    // signature is
+    //..
+    //  bool operator()(const TYPE& lhs, const TYPE& rhs) const;
+    //..
+    // and which returns 'true' if 'lhs' and 'rhs' are equivalent and 'false'
+    // otherwise.  This equivalence relation must be transitive and symmetric.
+    // The comparator must have a default constructor and destructor which are
+    // public.
+
+    // PRIVATE TYPES
+    struct Node {
+        TYPE  d_value;
+        Node *d_next;
+    };
+
+    // DATA
+    EQUALS            d_comparator;
+    Node             *d_nodeList;
+    bslma::Allocator *d_allocator_p;
+
+  private:
+    // NOT IMPLEMENTED
+    ListSet(const ListSet&);
+    ListSet& operator=(const ListSet&);
+
+  public:
+    // CREATORS
+    explicit
+    ListSet(bslma::Allocator *allocator = 0)
+    : d_comparator()
+    , d_nodeList(0)
+    , d_allocator_p(bslma::Default::allocator(allocator))
+        // Create an empty "ListSet' using the specified 'allocator', or the
+        // default allocator if none is specified.
+    {}
+
+    ~ListSet()
+        // Release all memory used by this 'ListSet'
+    {
+        for (Node *node = d_nodeList; node; ) {
+            Node *toDelete = node;
+            node = node->d_next;
+
+            d_allocator_p->deleteObject(toDelete);
+        }
+    }
+
+    // MANIPULATOR
+    bool insert(const TYPE& value)
+        // If 'value' isn't contained in this 'ListSet', add it and return
+        // 'true', otherwise, return 'false' with no change to the 'ListSet'.
+    {
+        if (count(value)) {
+            return false;                                             // RETURN
+        }
+
+        Node *node = (Node *) d_allocator_p->allocate(sizeof(Node));
+        bslalg::ScalarPrimitives::copyConstruct(&node->d_value,
+                                                value,
+                                                d_allocator_p);
+        node->d_next = d_nodeList;
+        d_nodeList = node;
+
+        return true;
+    }
+
+    int count(const TYPE& value) const
+        // Return the number of nodes whose 'd_value' field is equivalent to
+        // the specified 'value', which will always be 0 or 1.
+    {
+        for (Node *node = d_nodeList; node; node = node->d_next) {
+            if (d_comparator(node->d_value, value)) {
+                return 1;                                             // RETURN
+            }
+        }
+
+        return 0;
+    }
+};
+
+struct StringEquals {
+    bool operator()(const char *lhs, const char *rhs) const
+    {
+        return !strcmp(lhs, rhs);
+    }
+};
+
 // ============================================================================
 //                            MAIN PROGRAM
 // ----------------------------------------------------------------------------
@@ -135,6 +236,39 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nUSAGE EXAMPLE"
                             "\n=============\n");
 
+        {
+            ListSet<int> lsi;
+
+            ASSERT(true  == lsi.insert( 5));
+            ASSERT(false == lsi.insert( 5));
+            ASSERT(true  == lsi.insert(11));
+            ASSERT(true  == lsi.insert(17));
+            ASSERT(true  == lsi.insert(81));
+            ASSERT(true  == lsi.insert(32));
+
+            ASSERT(0 == lsi.count( 7));
+            ASSERT(1 == lsi.count( 5));
+            ASSERT(0 == lsi.count(13));
+            ASSERT(1 == lsi.count(11));
+            ASSERT(0 == lsi.count(33));
+            ASSERT(1 == lsi.count(32));
+        }
+
+        {
+            ListSet<const char *, StringEquals> lss;
+
+            ASSERT(true  == lss.insert("woof"));
+            ASSERT(true  == lss.insert("meow"));
+            ASSERT(true  == lss.insert("arf"));
+            ASSERT(true  == lss.insert("bark"));
+            ASSERT(false == lss.insert("meow"));
+
+            ASSERT(1 == lss.count("meow"));
+            ASSERT(1 == lss.count("woof"));
+            ASSERT(1 == lss.count("arf"));
+            ASSERT(0 == lss.count("woo"));
+            ASSERT(0 == lss.count("chomp"));
+        }
       } break;
       case 6: {
         // --------------------------------------------------------------------
@@ -330,7 +464,7 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // IMPLICITLY DEFINED CONSTRUCTORS, DESTRUCTOR AND ASSIGNMENT OPERATOR
+        // C'TORS, D'TOR AND ASSIGNMENT OPERATOR (IMPLICITLY DEFINED)
         //   Ensure that the four implicitly declared and defined special
         //   member functions are publicly callable and have no unexpected side
         //   effects such as allocating memory.  As there is no observable
