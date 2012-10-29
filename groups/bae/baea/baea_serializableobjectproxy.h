@@ -414,9 +414,9 @@ struct baea_SerializableObjectProxyFunctions {
 
     typedef void (*ElementLoader)(baea_SerializableObjectProxy        *proxy,
                                   const baea_SerializableObjectProxy&  object,
-                                  int                                  index);
+                                  int                                  id);
         // This 'typedef' is an alias for a function that configures the
-        // specified 'proxy' with the element at the specified 'index' of the
+        // specified 'proxy' with the element having the specified 'id' in the
         // specified 'object'.
 
     typedef int (*Chooser)(void *object, int selectionId);
@@ -651,8 +651,8 @@ struct baea_SerializableObjectProxy_SequenceInfo {
 
     Functions::ElementLoader   d_loader;           // address of a function
                                                    // that will create a proxy
-                                                   // for the element at an
-                                                   // index
+                                                   // for the element with an
+                                                   // id
 
     const char                *d_className_p;      // class name, may be 0
 
@@ -1880,7 +1880,7 @@ int baea_SerializableObjectProxy::sequenceManipulateAttributes(
 
     for(int i = 0; i < info.d_numAttributes; ++i)
     {
-        info.d_loader(&elementProxy, *this,
+        info.d_loader(&elementProxy, *this, 
                       info.d_attributeInfo_p[i].d_id);
 
         BSLS_ASSERT_SAFE(elementProxy.isValidForDecoding());
@@ -2080,7 +2080,7 @@ int baea_SerializableObjectProxy::sequenceAccessAttributes(
 
     for(int i = 0; i < info.d_numAttributes; ++i)
     {
-        info.d_loader(&elementProxy, *this,
+        info.d_loader(&elementProxy, *this, 
                       info.d_attributeInfo_p[i].d_id);
 
         BSLS_ASSERT_SAFE(elementProxy.isValidForEncoding());
