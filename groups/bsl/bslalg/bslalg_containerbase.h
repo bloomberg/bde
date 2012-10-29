@@ -314,7 +314,7 @@ class ContainerBase : public
     T *allocateN(T* p, size_type n)
         // Allocate (but do not initialize) 'n' objects of type 'T' using the
         // allocator returned by 'allocator'.  Return a pointer to the raw
-        // memory that was allocated.  The 'T*' argument is used only to
+        // memory that was allocated.  The 'p' argument is used only to
         // determine the type of object being allocated; its value (usually
         // null) is not used.
     {

@@ -28,7 +28,7 @@ BSLS_IDENT("$Id: $")
 // 'BSLS_ASSERT' macro to detect undefined behavior.
 //
 ///Iterator
-/// - - - -
+///--------
 // The requirements of the input iterators as defined by the C++11 standard may
 // not be as tight as the users of the input iterators expected.  Incorrect
 // assumptions about the properties of the input iterator may result in
