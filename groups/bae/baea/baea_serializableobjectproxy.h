@@ -1880,7 +1880,7 @@ int baea_SerializableObjectProxy::sequenceManipulateAttributes(
 
     for(int i = 0; i < info.d_numAttributes; ++i)
     {
-        info.d_loader(&elementProxy, *this, 
+        info.d_loader(&elementProxy, *this,
                       info.d_attributeInfo_p[i].d_id);
 
         BSLS_ASSERT_SAFE(elementProxy.isValidForDecoding());
@@ -2080,7 +2080,7 @@ int baea_SerializableObjectProxy::sequenceAccessAttributes(
 
     for(int i = 0; i < info.d_numAttributes; ++i)
     {
-        info.d_loader(&elementProxy, *this, 
+        info.d_loader(&elementProxy, *this,
                       info.d_attributeInfo_p[i].d_id);
 
         BSLS_ASSERT_SAFE(elementProxy.isValidForEncoding());
