@@ -32,6 +32,7 @@
 #include <bdeu_printmethods.h>
 #include <bdeu_string.h>
 
+#include <bsl_vector.h>
 #include <bsls_assert.h>
 
 #include <iomanip>
@@ -1150,6 +1151,7 @@ baea_SerializableObjectProxy *s_elementLoaderFn_proxy;
 const void                   *s_elementLoaderFn_object;
 int                           s_elementLoaderFn_int;
 int                           s_elementLoaderFn_index;
+bsl::vector<int>              s_elementLoaderFn_indexes;
 void elementLoaderFn(baea_SerializableObjectProxy        *proxy,
                      const baea_SerializableObjectProxy&  object,
                      int                             index)
@@ -1157,6 +1159,7 @@ void elementLoaderFn(baea_SerializableObjectProxy        *proxy,
     s_elementLoaderFn_proxy = proxy;
     s_elementLoaderFn_object = &object;
     s_elementLoaderFn_index = index;
+    s_elementLoaderFn_indexes.push_back(index);
     proxy->loadSimple(&s_elementLoaderFn_int);
 }
 
@@ -1829,6 +1832,15 @@ int main(int argc, char *argv[])
                 ASSERTV(accessor.d_address == &s_elementLoaderFn_int);
                 ASSERTV(accessor.d_info == INFO[ti]);
             }
+
+            SequenceAccessor accessor;
+            s_elementLoaderFn_indexes.clear();
+            ASSERT(0 == bdeat_sequenceAccessAttributes(X, accessor));
+            ASSERT(NUM_INFO == s_elementLoaderFn_indexes.size());
+            for (int i = 0; i < s_elementLoaderFn_indexes.size(); ++i) {
+                LOOP_ASSERT(i, s_elementLoaderFn_indexes[i] == INFO[i].d_id);
+            }
+                
         }
 
         if (verbose) cout << "\nTesting Sequence for decoding" << endl;
@@ -1917,6 +1929,15 @@ int main(int argc, char *argv[])
                 ASSERTV(manipulator.d_address == &s_elementLoaderFn_int);
                 ASSERTV(manipulator.d_info == INFO[ti]);
             }
+
+            SequenceManipulator manipulator;
+            s_elementLoaderFn_indexes.clear();
+            ASSERT(0 == bdeat_sequenceManipulateAttributes(&mX, manipulator));
+            ASSERT(NUM_INFO == s_elementLoaderFn_indexes.size());
+            for (int i = 0; i < s_elementLoaderFn_indexes.size(); ++i) {
+                LOOP_ASSERT(i, s_elementLoaderFn_indexes[i] == INFO[i].d_id);
+            }
+
         }
       } break;
       case 5: {
