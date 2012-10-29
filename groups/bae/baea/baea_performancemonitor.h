@@ -55,18 +55,18 @@
 //                                        process.
 //..
 //
-// Iterator Invalidation
-// ---------------------
+///Iterator Invalidation
+///---------------------
 // Registration of new pids does not invalidate existing iterators.
 // Unregistration of pid only invalidates iterators pointing to the statistics
 // for the pid being unregistered, all other iterators remain valid.
 //
-// Thread Safety
-// -------------
+///Thread Safety
+///-------------
 // This class is completely thread safe.
 //
-// Usage
-// -----
+///Usage
+///-----
 // The following example shows how to monitor the currently executing process
 // and produce a formatted report of the collected measures after a certain
 // interval.

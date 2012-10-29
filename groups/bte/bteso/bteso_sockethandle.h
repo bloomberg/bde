@@ -17,8 +17,8 @@ BDES_IDENT("$Id: $")
 //@DESCRIPTION: This component defines a platform independent socket
 // handle.
 //
-//USAGE
-//-----
+///Usage
+///-----
 //..
 //           bteso_SocketHandle::Handle handle;
 //..
