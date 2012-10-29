@@ -33,7 +33,7 @@ using namespace bsl;
 // Basic Accessors:
 // o 'rate'
 // o 'capacity'
-// o 'timestamp'
+// o 'lastUpdateTime'
 // o 'unitsInBucket'
 // o 'unitsReserved'
 //
@@ -81,7 +81,7 @@ using namespace bsl;
 //  [ 5] bsls_Types::Uint64 capacity() const;
 //  [ 5] bsls_Types::Uint64 unitsInBucket() const;
 //  [ 5] bsls_Types::Uint64 unitsReserved() const;
-//  [ 5] bdet_TimeInterval timestamp() const;
+//  [ 5] bdet_TimeInterval lastUpdateTime() const;
 //  [12] void btes_LeakyBucket::getStatistics(
 //                                      bsls_Types::Uint64* submittedUnits,
 //                                      bsls_Types::Uint64* unusedUnits) const;
@@ -104,7 +104,7 @@ class mock_LB {
     bsls_Types::Uint64 d_unitsInBucket; // number of units currently in the
                                         // bucket
 
-    bdet_TimeInterval d_timestamp;      // time of the last update
+    bdet_TimeInterval d_lastUpdateTime;      // time of the last update
 
     bdet_TimeInterval d_submitInterval; // minimum interval between submitting
                                         // units
@@ -119,14 +119,14 @@ public:
 
     // CREATORS
     mock_LB();
-        // Create a 'mock_LB' object, having rate of 1 unit per second, capacity
-        // of 1 unit, timestamp of 0, submit interval of 0 and such that
-        // 'unitsInBucket == 0'.
+        // Create a 'mock_LB' object, having rate of 1 unit per second,
+        // capacity of 1 unit, lastUpdateTime of 0, submit interval of 0 and
+        // such that 'unitsInBucket == 0'.
 
     mock_LB(bdet_TimeInterval submitInterval, bdet_TimeInterval currentTime);
-        // Create a 'mock_LB' object, having rate of 1 unit per second, capacity
-        // of 1, the specified 'submitInterval' the timestamp of the specified
-        // 'currentTime' and such that 'unitsInBucket == 0'.
+        // Create a 'mock_LB' object, having rate of 1 unit per second,
+        // capacity of 1, the specified 'submitInterval' the lastUpdateTime of
+        // the specified 'currentTime' and such that 'unitsInBucket == 0'.
 
     // MANIPULATORS
     void setRateAndCapacity(bsls_Types::Uint64 newRate, 
@@ -135,7 +135,7 @@ public:
         // the capacity to the specified 'newCapacity'.
 
     void reset(bdet_TimeInterval currentTime);
-        // Set the timestamp of this 'mock_LB' object to the specified
+        // Set the 'lastUpdateTime' of this 'mock_LB' object to the specified
         // 'currentTime' and number of units in bucket to 0.
 
     void submit(bsls_Types::Uint64 numOfUnits);
@@ -163,10 +163,10 @@ public:
     bsls_Types::Uint64 unitsInBucket() const;
         // Return the number of units that are currently in the bucket.
 
-    bdet_TimeInterval timestamp() const;
-        // Return the timestamp of this 'mock_LB' object, as a time interval,
-        // describing the moment in time the bucket was last updated.  The
-        // returned time interval uses the same reference point as the time
+    bdet_TimeInterval lastUpdateTime() const;
+        // Return the time of last update of this 'mock_LB' object, as a time
+        // interval, describing the moment in time the bucket was last updated.
+        // The returned time interval uses the same reference point as the time
         // interval specified during construction or last invocation of the
         // 'reset' method.
 
@@ -186,7 +186,7 @@ public:
 inline 
 mock_LB::mock_LB()
 : d_unitsInBucket(0)
-, d_timestamp(0,0)
+, d_lastUpdateTime(0,0)
 , d_submitInterval(0,0)
 , d_rate(1)
 , d_capacity(1)
@@ -196,7 +196,7 @@ inline
 mock_LB::mock_LB(bdet_TimeInterval submitInterval,
                bdet_TimeInterval currentTime)
 : d_unitsInBucket(0)
-, d_timestamp(currentTime)
+, d_lastUpdateTime(currentTime)
 , d_submitInterval(submitInterval)
 , d_rate(1)
 , d_capacity(1)
@@ -215,7 +215,7 @@ void mock_LB::setRateAndCapacity(bsls_Types::Uint64 newRate,
 inline
 void mock_LB::reset(bdet_TimeInterval currentTime)
 {
-    d_timestamp     = currentTime;
+    d_lastUpdateTime     = currentTime;
     d_unitsInBucket = 0;
 }
 
@@ -229,13 +229,13 @@ inline
 bool mock_LB::wouldOverflow(bsls_Types::Uint64 numOfUnits,
                            bdet_TimeInterval currentTime)
 {
-    bdet_TimeInterval delta = currentTime - d_timestamp;
+    bdet_TimeInterval delta = currentTime - d_lastUpdateTime;
 
     if (delta < d_submitInterval) {
         return true;                                                  // RETURN
     }
     
-    d_timestamp = currentTime;
+    d_lastUpdateTime = currentTime;
 
     return false;
 }
@@ -243,13 +243,13 @@ bool mock_LB::wouldOverflow(bsls_Types::Uint64 numOfUnits,
 inline
 bdet_TimeInterval mock_LB::calculateTimeToSubmit(bdet_TimeInterval currentTime)
 {
-    bdet_TimeInterval delta = currentTime - d_timestamp;
+    bdet_TimeInterval delta = currentTime - d_lastUpdateTime;
 
     if (delta < d_submitInterval) {
         return d_submitInterval - delta;                              // RETURN
     }
 
-    d_timestamp = currentTime;
+    d_lastUpdateTime = currentTime;
 
     return bdet_TimeInterval(0);
 }
@@ -263,9 +263,9 @@ bsls_Types::Uint64 mock_LB::unitsInBucket() const
 }
 
 inline
-bdet_TimeInterval mock_LB::timestamp() const
+bdet_TimeInterval mock_LB::lastUpdateTime() const
 {
-    return d_timestamp;
+    return d_lastUpdateTime;
 }
 
 inline
@@ -469,50 +469,47 @@ int main(int argc, char *argv[]) {
   bdet_TimeInterval  now      = bdetu_SystemTime::now();
 
   btes_LeakyBucket   bucket(rate, capacity, now);
+//
 //..
-// Notice that time intervals specified for all further invocations of
-// 'wouldOverflow()' 'updateState()', and 'calculateTimeToSubmit()', all use
-// the same time origin.
+// Note that, to ensure consistency, all the time intervals further specified,
+// will have the same time origin as 'now'.
 //
 // Next, we define the size of each data chunk, and the total size of the data
 // to transmit:
 //..
   bsls_Types::Uint64 chunkSize  = 256;             // in bytes
   bsls_Types::Uint64 totalSize  = 20 * chunkSize;  // in bytes
-  bsls_Types::Uint64 bytesSent  = 0;               // in bytes
+  bsls_Types::Uint64 dataSent   = 0;               // in bytes
 //..
-//  Then we define a loop in which we test
+// Now, we build a loop and for each iteration we check whether submitting
+// another chunk of data to the bucket would cause overflow.  If not, we can
+// send the data and submit it to the bucket.  The loop terminates when all the
+// data is sent.  Note that 'submit' is invoked only after a successful
+// operation on the resource.
 //..
-  while (bytesSent < totalSize) {
+  while (dataSent < totalSize) {
       now = bdetu_SystemTime::now();
-//..
-// Now, for each iteration we check whether submitting another chunk into the
-// bucket would cause overflow.  If not, we can send the data and submit it to
-// the bucket.  Note that 'submit' is invoked only after a successful operation
-// on the resource.
-//..
       if (!bucket.wouldOverflow(1, now)) {
           if (true == sendData(256)) {
               bucket.submit(256);
-              bytesSent += 256;
+              dataSent += 256;
           }
       }
 //..
-// Finally, in case submitting the data chunk would cause overflow, we invoke
-// the 'calculateTimeToSubmit' method to determine how much time we need to
-// wait before submitting the data chunk without overflowing the bucket.
-// We round up the number of microseconds in time interval.
+// Finally, if it is not possible to submit a new chunk of data without
+// overflowing the bucket, we invoke the 'calculateTimeToSubmit' method to
+// determine how much time is required to submit a new chunk without causing
+// overflow. We round up the number of microseconds in time interval.
 //..
-     else {
+      else {
           bdet_TimeInterval timeToSubmit = bucket.calculateTimeToSubmit(now);
           bsls_Types::Uint64 uS = timeToSubmit.totalMicroseconds() +
-                                  (timeToSubmit.nanoseconds() % 1000) ? 1 : 0;
+                                 (timeToSubmit.nanoseconds() % 1000) ? 1 : 0;
           bcemt_ThreadUtil::microSleep(uS);
-     }
-//..
+      }
+  }
 // Notice that in multi-threaded application it is appropriate to put the
 // thread into the 'sleep' state, in order to avoid busy-waiting.
-  }
 
         } break;
 
@@ -885,7 +882,7 @@ int main(int argc, char *argv[]) {
             //     case.
             //
             //   4 If number of units in the bucket exceeds the capacity,
-            //     the method updates the 'timestamp' time and number of units
+            //     the method updates the 'lastUpdateTime' time and number of units
             //     in the bucket.
             //
             //   5 The manipulator takes number of reserved units into account.
@@ -898,10 +895,10 @@ int main(int argc, char *argv[]) {
             //
             //     1 Define the set of values, containing the values of 'rate'
             //       and 'capacity' attributes, number of units to be submitted
-            //       and reserved, initial timestamp, time of invoking the
+            //       and reserved, initial lastUpdateTime, time of invoking the
             //       'calculateTimeToSubmit' manipulator, expected time
             //       interval before submitting more units and expected values
-            //       of 'unitsInBucket' and 'timestamp' attributes after
+            //       of 'unitsInBucket' and 'lastUpdateTime' attributes after
             //       'calculateTimeToSubmit' invocation.
             //
             //   2 For each row of the table described in P-1
@@ -915,7 +912,7 @@ int main(int argc, char *argv[]) {
             //     3 Invoke the 'calculateTimeToSubmit' manipulator and verify
             //       the returned time interval.  (C-1..3)
             //
-            //     4 Verify the value of 'timestamp' and 'unitsInBucket'
+            //     4 Verify the value of 'lastUpdateTime' and 'unitsInBucket'
             //       attributes.  (C-4)
             //
             //     6 Verify the value of 'unitsReserved' attribute.  (C-6)
@@ -997,7 +994,7 @@ int main(int argc, char *argv[]) {
                 LOOP_ASSERT(LINE, EXPECTED_WAIT == 
                                           x.calculateTimeToSubmit(CHECK_TIME));
 
-                LOOP_ASSERT(LINE, EXPECTED_UPDATE  == x.timestamp());
+                LOOP_ASSERT(LINE, EXPECTED_UPDATE  == x.lastUpdateTime());
                 LOOP_ASSERT(LINE, EXPECTED_UNITS   == x.unitsInBucket());
                 LOOP_ASSERT(LINE, UNITS_TO_RESERVE == x.unitsReserved());
 
@@ -1202,9 +1199,9 @@ int main(int argc, char *argv[]) {
             //     affected by the 'reset' method.
             //
             //   2 'reset' method resets the object to its default-constructed
-            //     state and sets 'timestamp' correctly.
+            //     state and sets 'lastUpdateTime' correctly.
             //
-            //   3 'reset' method  updates the value of 'statisticsTimestamp'
+            //   3 'reset' method  updates the value of 'statisticsCollectionStartTime'
             //     attribute and resets the statistics counter.
             //
             // Plan:
@@ -1300,7 +1297,7 @@ int main(int argc, char *argv[]) {
 
                 LOOP_ASSERT(LINE, 0          == x.unitsInBucket());
                 LOOP_ASSERT(LINE, 0          == x.unitsReserved());
-                LOOP_ASSERT(LINE, RESET_TIME == x.timestamp());
+                LOOP_ASSERT(LINE, RESET_TIME == x.lastUpdateTime());
 
                 // C-3
 
@@ -1308,7 +1305,7 @@ int main(int argc, char *argv[]) {
 
                 LOOP_ASSERT(LINE, 0          == usedUnits);
                 LOOP_ASSERT(LINE, 0          == unusedUnits);
-                LOOP_ASSERT(LINE, RESET_TIME == x.statisticsTimestamp());
+                LOOP_ASSERT(LINE, RESET_TIME == x.statisticsCollectionStartTime());
 
             }
 
@@ -1323,11 +1320,11 @@ int main(int argc, char *argv[]) {
             // Concerns:
             //   1 'resetStatistics' resets unit statistics counter to 0.
             //
-            //   2 'resetStatistics' updates 'statisticsTimestamp' time
+            //   2 'resetStatistics' updates 'statisticsCollectionStartTime' time
             //      correctly.
             //
             //   3 'resetStatistics' does not alter object state except for
-            //     submitted units counter and 'statisticsTimestamp' time.
+            //     submitted units counter and 'statisticsCollectionStartTime' time.
             //
             // Plan:
             //   1 Define the object parameters.
@@ -1342,7 +1339,7 @@ int main(int argc, char *argv[]) {
             //   5 Invoke the 'getStatistics' accessor. Verify returned values.
             //     (C-1)
             //
-            //   6 Verify value of the 'statisticsTimestamp' attribute.  (C-2)
+            //   6 Verify value of the 'statisticsCollectionStartTime' attribute.  (C-2)
             //
             //   7 Verify the values of other object attributes ensure, that
             //     they were not affected by the 'resetStatistics' manipulator.
@@ -1377,7 +1374,7 @@ int main(int argc, char *argv[]) {
             x.getStatistics(&usedUnits, &unusedUnits);
             ASSERT(EXP_USED      == usedUnits);
             ASSERT(EXP_UNUSED    == unusedUnits);
-            ASSERT(CREATION_TIME == x.statisticsTimestamp());
+            ASSERT(CREATION_TIME == x.statisticsCollectionStartTime());
 
             x.submit(UNITS);
             x.resetStatistics();
@@ -1390,13 +1387,13 @@ int main(int argc, char *argv[]) {
 
             // C-2
 
-            ASSERT(UPD_TIME == x.statisticsTimestamp());
+            ASSERT(UPD_TIME == x.statisticsCollectionStartTime());
 
             // C-3
 
             ASSERT(RATE     == x.drainRate());
             ASSERT(CAPACITY == x.capacity());
-            ASSERT(UPD_TIME == x.timestamp());
+            ASSERT(UPD_TIME == x.lastUpdateTime());
             ASSERT(UNITS    == x.unitsInBucket());
 
         } break;
@@ -1421,10 +1418,10 @@ int main(int argc, char *argv[]) {
             //     certain behavior in special build configuration.
             //
             //   5 Statistics is calculated for interval between
-            //     'statisticsTimestamp' and 'timestamp'.
+            //     'statisticsCollectionStartTime' and 'lastUpdateTime'.
             //
             //   6 Statistics is calculated correctly, if time specified to
-            //     'updateState' precedes 'statisticsTimestamp'.
+            //     'updateState' precedes 'statisticsCollectionStartTime'.
             //
             // Plan:
             //   1 Construct the object using the default constructor and
@@ -1456,11 +1453,11 @@ int main(int argc, char *argv[]) {
             //     values returned by the 'getStatistics' method between the
             //     'updateState' invocations.
             //
-            //   7 Create an object specifying timestamp 'T1', submit some
+            //   7 Create an object specifying lastUpdateTime 'T1', submit some
             //     units, invoke the 'updateState' manipulator specifying
-            //     timestamp 'T2', that is before 'T1' and verify the values
+            //     lastUpdateTime 'T2', that is before 'T1' and verify the values
             //     returned by 'getStatistics'. Invoke 'updateState' again,
-            //     specifying timestamp 'T3', that is after 'T2', verify
+            //     specifying lastUpdateTime 'T3', that is after 'T2', verify
             //     the values, returned by 'getStatistics'.
             //
             //   8 Verify that, in appropriate build modes, defensive checks
@@ -1826,7 +1823,7 @@ int main(int argc, char *argv[]) {
             //
             //     1 Define the set of values, the row per each test case,
             //       containing the values for 'rate', 'capacity' and
-            //       'timestamp' attributes, numbers of units to submit and
+            //       'lastUpdateTime' attributes, numbers of units to submit and
             //       reserve, the time interval between checking, whether
             //       submitting more units is allowed at current time, the
             //       expected number of allowed 'submit' operations and the
@@ -1936,14 +1933,14 @@ int main(int argc, char *argv[]) {
             //
             //   2 The method invokes 'updateState', if needed.
             //
-            //   3 The method does not alter the value of 'timestamp' attribute
+            //   3 The method does not alter the value of 'lastUpdateTime' attribute
             //     if there is enough room already.
             //
             //   4 The method does not change the state of object, if the
             //     time has not changed.
             //
             //   5 If specified time is before last update time,
-            //     'wouldOverflow' updates 'timestamp' time and does not
+            //     'wouldOverflow' updates 'lastUpdateTime' time and does not
             //     recalculate number of units.
             //
             //   6 The method takes reserved units into account.
@@ -1960,12 +1957,12 @@ int main(int argc, char *argv[]) {
             //
             //     1 Define the set of values, the row per each test case,
             //       containing the values for 'rate', 'capacity',
-            //       initial value for the 'timestamp' attribute, 
+            //       initial value for the 'lastUpdateTime' attribute, 
             //       and numbers of units to submit and reserve, the time
             //       interval between updating object state, number of units
             //       to be submitted and to be reserved, the time of check,
             //       result of check and the expected values of 'unitsInBucket'
-            //       and 'timestamp' attributes after checking.
+            //       and 'lastUpdateTime' attributes after checking.
             //           
             //   2 For each row in the table, defined in P-1:
             //
@@ -1978,7 +1975,7 @@ int main(int argc, char *argv[]) {
             //       returned value.  (C-1, C-6)
             //
             //     4 Verify the values of 'unitsInBucket', 'unitsReserved'
-            //       and 'timestamp' attributes.  (C-2..5, C-7)
+            //       and 'lastUpdateTime' attributes.  (C-2..5, C-7)
             //
             //   3 Verify that, in appropriate build modes, defensive checks
             //     are triggered for invalid attribute values, but not
@@ -2108,7 +2105,7 @@ int main(int argc, char *argv[]) {
                     LOOP_ASSERT(LINE,
                         RESULT == x.wouldOverflow(CHECK_UNITS, CHECK_TIME));
                     LOOP_ASSERT(LINE, EXPECTED_UNITS    == x.unitsInBucket());
-                    LOOP_ASSERT(LINE, EXPECTED_UPDATE   == x.timestamp());
+                    LOOP_ASSERT(LINE, EXPECTED_UPDATE   == x.lastUpdateTime());
                     LOOP_ASSERT(LINE, UNITS_TO_RESERVE  == x.unitsReserved());
                 }
             }
@@ -2149,7 +2146,7 @@ int main(int argc, char *argv[]) {
             //  based on the specified time, and current state of object.
             //
             // Concerns:
-            //   1 The 'updateState' manipulator sets 'timestamp' attribute
+            //   1 The 'updateState' manipulator sets 'lastUpdateTime' attribute
             //     to the specified value.
             //
             //   2 The 'updateState' manipulator calculates the number of units
@@ -2161,13 +2158,13 @@ int main(int argc, char *argv[]) {
             //     next 'updateState' call.
             //
             //   4 If the specified time is before last update time,
-            //     'updateState' updates timestamp time and does not
+            //     'updateState' updates lastUpdateTime time and does not
             //     recalculate number of units.
             //
             //   5 The manipulator does not affect value of the 'unitsReserved'
             //     attribute.
             //
-            //   6 The manipulator updates value of the 'statisticsTimestamp'
+            //   6 The manipulator updates value of the 'statisticsCollectionStartTime'
             //     attribute if the specified time is before its current
             //     value and does not affect it otherwise.
             //
@@ -2179,7 +2176,7 @@ int main(int argc, char *argv[]) {
             //   2 Using the table-driven technique:
             //
             //     1 Define the set of values, the row per each test case,
-            //       containing the values for 'rate' and 'timestamp'
+            //       containing the values for 'rate' and 'lastUpdateTime'
             //       attributes and numbers of units to submit and reserve,
             //       the time interval between updating object state, number of
             //       'updateState' invocations and the value of 'unitsInBucket'
@@ -2196,7 +2193,7 @@ int main(int argc, char *argv[]) {
             //
             //     3 Execute the inner loop, invoking the 'updateState'
             //       manipulator specified number of times with the specified
-            //       time intervals and verify that the value of 'timestamp'
+            //       time intervals and verify that the value of 'lastUpdateTime'
             //       attribute is updated correctly.
             //
             //     4 Compare the value, returned by the 'unitsInBucket' with
@@ -2207,10 +2204,10 @@ int main(int argc, char *argv[]) {
             //       invocation.  (C-5)
             //
             //   4 Invoke 'updateState', specifying time that is before the
-            //     value of 'timestamp' attribute.  (C-4)
+            //     value of 'lastUpdateTime' attribute.  (C-4)
             //
             //   5 Invoke 'updateState', specifying time that is before the
-            //     value of 'statisticsTimestamp' attribute.  (C-6)
+            //     value of 'statisticsCollectionStartTime' attribute.  (C-6)
             //
             // Testing:
             //   void updateState(const bdet_TimeInterval& currentTime);
@@ -2313,7 +2310,7 @@ int main(int argc, char *argv[]) {
 
                         // C-1
 
-                        LOOP_ASSERT(LINE, x.timestamp() == currentTime);
+                        LOOP_ASSERT(LINE, x.lastUpdateTime() == currentTime);
                     }
 
                     LOOP_ASSERT(LINE, x.unitsInBucket() == EXPECTED_UNITS);
@@ -2324,7 +2321,7 @@ int main(int argc, char *argv[]) {
 
                     // C-6
 
-                    LOOP_ASSERT(LINE, x.statisticsTimestamp() == CREATION_TIME);
+                    LOOP_ASSERT(LINE, x.statisticsCollectionStartTime() == CREATION_TIME);
                 }
             }
 
@@ -2340,15 +2337,15 @@ int main(int argc, char *argv[]) {
                 Obj x(1000, CAPACITY, CURRENT_TIME);
                 x.submit(1000);
 
-                ASSERT(CURRENT_TIME == x.timestamp());
+                ASSERT(CURRENT_TIME == x.lastUpdateTime());
 
                 x.updateState(UPDATE_TIME);
-                ASSERT(UPDATE_TIME == x.timestamp());
+                ASSERT(UPDATE_TIME == x.lastUpdateTime());
                 ASSERT(1000 == x.unitsInBucket());
 
                 // C-6
 
-                ASSERT(UPDATE_TIME == x.statisticsTimestamp());
+                ASSERT(UPDATE_TIME == x.statisticsCollectionStartTime());
             }
 
             // C-5
@@ -2484,7 +2481,7 @@ int main(int argc, char *argv[]) {
 
                 LOOP_ASSERT(LINE, RATE2           == x.drainRate());
                 LOOP_ASSERT(LINE, CAPACITY2       == x.capacity());
-                LOOP_ASSERT(LINE, CREATION_TIME   == x.timestamp());
+                LOOP_ASSERT(LINE, CREATION_TIME   == x.lastUpdateTime());
 
                 // C-2
 
@@ -2765,7 +2762,7 @@ int main(int argc, char *argv[]) {
             //   bsls_Types::Uint64 capacity() const;
             //   bsls_Types::Uint64 unitsInBucket() const;
             //   bsls_Types::Uint64 unitsReserved() const;
-            //   bdet_TimeInterval timestamp() const;
+            //   bdet_TimeInterval lastUpdateTime() const;
             //-----------------------------------------------------------------
 
             if (verbose) cout << endl << "BASIC ACCESSORS"
@@ -2780,8 +2777,8 @@ int main(int argc, char *argv[]) {
             ASSERT(1     == X.capacity());
             ASSERT(0     == X.unitsInBucket());
             ASSERT(0     == X.unitsReserved());
-            ASSERT(Ti(0) == X.timestamp());
-            ASSERT(Ti(0) == X.statisticsTimestamp());
+            ASSERT(Ti(0) == X.lastUpdateTime());
+            ASSERT(Ti(0) == X.statisticsCollectionStartTime());
 
             X.getStatistics(&usedUnits, &unusedUnits);
             ASSERT(0 == usedUnits);
@@ -2823,8 +2820,8 @@ int main(int argc, char *argv[]) {
                 LOOP_ASSERT(LINE, CAPACITY      == X.capacity());
                 LOOP_ASSERT(LINE, 0             == X.unitsInBucket());
                 LOOP_ASSERT(LINE, 0             == X.unitsReserved());
-                LOOP_ASSERT(LINE, CREATION_TIME == X.timestamp());
-                LOOP_ASSERT(LINE, CREATION_TIME == X.statisticsTimestamp());
+                LOOP_ASSERT(LINE, CREATION_TIME == X.lastUpdateTime());
+                LOOP_ASSERT(LINE, CREATION_TIME == X.statisticsCollectionStartTime());
 
                 X.getStatistics(&usedUnits, &unusedUnits);
                 ASSERT(0 == usedUnits);
@@ -2925,9 +2922,9 @@ int main(int argc, char *argv[]) {
 
                     // C-3
 
-                    LOOP_ASSERT(LINE, CR_TIME  == x.timestamp());
+                    LOOP_ASSERT(LINE, CR_TIME  == x.lastUpdateTime());
                     LOOP_ASSERT(LINE, 0        == x.unitsInBucket());
-                    LOOP_ASSERT(LINE, CR_TIME  == x.statisticsTimestamp());
+                    LOOP_ASSERT(LINE, CR_TIME  == x.statisticsCollectionStartTime());
                 }
 
             }
@@ -3008,10 +3005,10 @@ int main(int argc, char *argv[]) {
 
                 ASSERT(1     == x.drainRate())
                 ASSERT(1     == x.capacity());
-                ASSERT(Ti(0) == x.timestamp());
+                ASSERT(Ti(0) == x.lastUpdateTime());
                 ASSERT(0     == x.unitsInBucket());
                 ASSERT(1     == x.capacity());
-                ASSERT(Ti(0) == x.statisticsTimestamp());
+                ASSERT(Ti(0) == x.statisticsCollectionStartTime());
             }
 
             if(verbose) cout << endl << "Testing primary manipulators" << endl;
@@ -3095,11 +3092,11 @@ int main(int argc, char *argv[]) {
             //  5 'setRateAndCapacity' manipulator sets the 'rate' and
             //    'capacity' attributes to the specified values.
             //
-            //  6 'wouldOverflow' manipulator updates the 'timestamp'
+            //  6 'wouldOverflow' manipulator updates the 'lastUpdateTime'
             //    attribute value, if needed.
             //
             //  7 'wouldOverflow' return 'true' if difference between
-            //    'timestamp' and 'currentTime' is less than 'submitInterval'
+            //    'lastUpdateTime' and 'currentTime' is less than 'submitInterval'
             //    and returns 'false' otherwise.
             //
             //  8 'calculateTimeToSubmit' calculates the time interval, that
@@ -3191,7 +3188,7 @@ int main(int argc, char *argv[]) {
                 
                 // C-3
 
-                ASSERT(Ti(0) == x.timestamp());
+                ASSERT(Ti(0) == x.lastUpdateTime());
                 ASSERT(0     == x.unitsInBucket());
 
                 ASSERT(Ti(0) == x.submitInterval());
@@ -3208,7 +3205,7 @@ int main(int argc, char *argv[]) {
 
                 // C-3
 
-                ASSERT(Ti(0) == y.timestamp());
+                ASSERT(Ti(0) == y.lastUpdateTime());
                 ASSERT(0     == y.unitsInBucket());
 
                 ASSERT(Ti( 0, 10000) == y.submitInterval());
@@ -3286,7 +3283,7 @@ int main(int argc, char *argv[]) {
                     ASSERT(DATA_SIZE == x.unitsInBucket());
                     ASSERT(RATE      == x.rate());
                     ASSERT(CAPACITY  == x.capacity());
-                    ASSERT(EXP_DUR   == x.timestamp());
+                    ASSERT(EXP_DUR   == x.lastUpdateTime());
                     
                     ASSERT(EXP_DUR   == dur);
                 }
