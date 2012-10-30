@@ -102,8 +102,8 @@ BDES_IDENT("$Id: $")
 //  "state":"Some State"},"age":21}
 //..
 
-#ifndef INCLUDED_BDESCM_VERSION
-#include <bdescm_version.h>
+#ifndef INCLUDED_BAESCM_VERSION
+#include <baescm_version.h>
 #endif
 
 #ifndef INCLUDED_BAEJSN_PRINTUTIL
@@ -114,16 +114,24 @@ BDES_IDENT("$Id: $")
 #include <bdeat_attributeinfo.h>
 #endif
 
-#ifndef INCLUDED_BDEAT_SEQUENCEFUNCTIONS
-#include <bdeat_sequencefunctions.h>
-#endif
-
 #ifndef INCLUDED_BDEAT_CHOICEFUNCTIONS
 #include <bdeat_choicefunctions.h>
 #endif
 
+#ifndef INCLUDED_BDEAT_CUSTOMIZEDTYPEFUNCTIONS
+#include <bdeat_customizedtypefunctions.h>
+#endif
+
 #ifndef INCLUDED_BDEAT_ENUMFUNCTIONS
 #include <bdeat_enumfunctions.h>
+#endif
+
+#ifndef INCLUDED_BDEAT_CUSTOMIZEDTYPEFUNCTIONS
+#include <bdeat_customizedtypefunctions.h>
+#endif
+
+#ifndef INCLUDED_BDEAT_SEQUENCEFUNCTIONS
+#include <bdeat_sequencefunctions.h>
 #endif
 
 #ifndef INCLUDED_BDEAT_TYPECATEGORY
@@ -227,7 +235,7 @@ class baejsn_Encoder_EncodeImpl {
     // FRIENDS
     friend struct baejsn_Encoder_DynamicTypeDispatcher;
     friend struct baejsn_Encoder_ElementVisitor;
-    friend struct baejsn_Encoder_SequenceVisitor;
+    friend class baejsn_Encoder_SequenceVisitor;
 
   private:
     // PRIVATE MANIPULATORS
@@ -366,6 +374,12 @@ struct baejsn_Encoder_DynamicTypeDispatcher {
                             // --------------------
 
 // PRIVATE MANIPULATORS
+inline
+bsl::ostream& baejsn_Encoder::logStream()
+{
+    return d_logStream;
+}
+
 template <typename TYPE>
 int baejsn_Encoder::encodeObject(bsl::streambuf *streamBuf, const TYPE& value)
 {
@@ -379,6 +393,13 @@ int baejsn_Encoder::encodeObject(bsl::streambuf *streamBuf, const TYPE& value)
     }
     baejsn_Encoder_EncodeImpl encoder(this, streamBuf);
     return encoder.encode(value);
+}
+
+// CREATORS
+inline
+baejsn_Encoder::baejsn_Encoder(bslma::Allocator *basicAllocator)
+: d_logStream(basicAllocator)
+{
 }
 
 // MANIPULATORS
@@ -438,7 +459,7 @@ bsl::ostream& baejsn_Encoder_EncodeImpl::outputStream()
 template <typename TYPE>
 inline
 int baejsn_Encoder_EncodeImpl::encodeImp(const TYPE& value,
-                                  bdeat_TypeCategory::Sequence)
+                                         bdeat_TypeCategory::Sequence)
 {
     outputStream() << '{';
 
@@ -455,11 +476,10 @@ int baejsn_Encoder_EncodeImpl::encodeImp(const TYPE& value,
 template <typename TYPE>
 inline
 int baejsn_Encoder_EncodeImpl::encodeImp(const TYPE& value,
-                                             bdeat_TypeCategory::Choice)
+                                         bdeat_TypeCategory::Choice)
 {
     if (bdeat_ChoiceFunctions::BDEAT_UNDEFINED_SELECTION_ID !=
-                                     bdeat_ChoiceFunctions::selectionId(value))
-    {
+                                   bdeat_ChoiceFunctions::selectionId(value)) {
         outputStream() << '{';
 
         baejsn_Encoder_ElementVisitor visitor = { this };
@@ -479,7 +499,7 @@ int baejsn_Encoder_EncodeImpl::encodeImp(const TYPE& value,
 template <typename TYPE>
 inline
 int baejsn_Encoder_EncodeImpl::encodeImp(const TYPE& value,
-                                  bdeat_TypeCategory::Enumeration)
+                                         bdeat_TypeCategory::Enumeration)
 {
     bsl::string valueString;
     bdeat_EnumFunctions::toString(&valueString, value);
@@ -489,7 +509,7 @@ int baejsn_Encoder_EncodeImpl::encodeImp(const TYPE& value,
 template <typename TYPE>
 inline
 int baejsn_Encoder_EncodeImpl::encodeImp(const TYPE& value,
-                                  bdeat_TypeCategory::CustomizedType)
+                                         bdeat_TypeCategory::CustomizedType)
 {
     return encode(bdeat_CustomizedTypeFunctions::convertToBaseType(value));
 }
@@ -514,22 +534,26 @@ int baejsn_Encoder_EncodeImpl::encodeImp(const TYPE& value,
 
 template <typename TYPE>
 int baejsn_Encoder_EncodeImpl::encodeImp(const TYPE& value,
-                                  bdeat_TypeCategory::Array)
+                                         bdeat_TypeCategory::Array)
 {
     outputStream() << '[';
 
     bsl::size_t size = bdeat_ArrayFunctions::size(value);
 
-    for (bsl::size_t i = 0; i < size; ++i)
-    {
-        if (0 != i) {
-            outputStream() << ',';
-        }
-
+    if (0 < size) {
         baejsn_Encoder_ElementVisitor visitor = { this };
-        int rc = bdeat_ArrayFunctions::accessElement(value, visitor, i);
+
+        int rc = bdeat_ArrayFunctions::accessElement(value, visitor, 0);
         if (0 != rc) {
             return rc;                                                // RETURN
+        }
+
+        for (bsl::size_t i = 1; i < size; ++i) {
+            outputStream() << ',';
+            rc = bdeat_ArrayFunctions::accessElement(value, visitor, i);
+            if (0 != rc) {
+                return rc;                                            // RETURN
+            }
         }
     }
 

@@ -8,22 +8,6 @@ BDES_IDENT_RCSID(baejsn_encoder_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
-                            // --------------------
-                            // class baejsn_Encoder
-                            // --------------------
-
-// PRIVATE MANIPULATORS
-bsl::ostream& baejsn_Encoder::logStream()
-{
-    return d_logStream;
-}
-
-// CREATORS
-baejsn_Encoder::baejsn_Encoder(bslma::Allocator *basicAllocator)
-: d_logStream(basicAllocator)
-{
-}
-
                             // -------------------------------
                             // class baejsn_Encoder_EncodeImpl
                             // -------------------------------

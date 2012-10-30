@@ -19,8 +19,8 @@ BDES_IDENT("$Id: $")
 //@DESCRIPTION: This component provides utility functions for
 // encoding a 'bdeat' Simple type into JSON string.
 
-#ifndef INCLUDED_BDESCM_VERSION
-#include <bdescm_version.h>
+#ifndef INCLUDED_BAESCM_VERSION
+#include <baescm_version.h>
 #endif
 
 #ifndef INCLUDED_BDEPU_ISO8601
@@ -52,6 +52,13 @@ BDES_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
+
+class bdet_Date;
+class bdet_Time;
+class bdet_Datetime;
+class bdet_DateTz;
+class bdet_TimeTz;
+class bdet_DatetimeTz;
 
                         // ======================
                         // class baejsn_PrintUtil
@@ -215,7 +222,7 @@ int baejsn_PrintUtil::printValueImp(bsl::ostream& stream, double value)
 }
 
 inline
-int baejsn_PrintUtil::printValueImp(bsl::ostream& stream, const char * value)
+int baejsn_PrintUtil::printValueImp(bsl::ostream& stream, const char *value)
 {
     return printString(stream, value);
 }

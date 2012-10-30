@@ -86,8 +86,7 @@ int baejsn_PrintUtil::printString(bsl::ostream&            stream,
 
     for (bslstl::StringRef::const_iterator it = value.begin();
          it != value.end();
-         ++it)
-    {
+         ++it) {
         bsl::string str;
 
         char ch = getEscapeChar(*it);
