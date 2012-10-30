@@ -19,8 +19,8 @@ BDES_IDENT("$Id: $")
 //@DESCRIPTION: This component provides utility functions for encoding and
 // decoding of primitive JSON constructs into fundamental C++ types.
 
-#ifndef INCLUDED_BDESCM_VERSION
-#include <bdescm_version.h>
+#ifndef INCLUDED_BAESCM_VERSION
+#include <baescm_version.h>
 #endif
 
 #ifndef INCLUDED_BDEPU_ISO8601

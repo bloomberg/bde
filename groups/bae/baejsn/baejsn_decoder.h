@@ -27,10 +27,6 @@ BDES_IDENT("$Id: $")
 #include <baejsn_parserutil.h>
 #endif
 
-#ifndef INCLUDED_BDEAT_ATTRIBUTEINFO
-#include <bdeat_attributeinfo.h>
-#endif
-
 #ifndef INCLUDED_BDEAT_CHOICEFUNCTIONS
 #include <bdeat_choicefunctions.h>
 #endif
@@ -41,10 +37,6 @@ BDES_IDENT("$Id: $")
 
 #ifndef INCLUDED_BDEAT_ENUMFUNCTIONS
 #include <bdeat_enumfunctions.h>
-#endif
-
-#ifndef INCLUDED_BDEAT_FORMATTINGMODE
-#include <bdeat_formattingmode.h>
 #endif
 
 #ifndef INCLUDED_BDEAT_SEQUENCEFUNCTIONS
@@ -131,7 +123,7 @@ class baejsn_Decoder
 
   public:
     // CREATORS
-    baejsn_Decoder(bslma_Allocator *basicAllocator = 0);
+    explicit baejsn_Decoder(bslma_Allocator *basicAllocator = 0);
         // Construct a decoder object using the optionally specified
         // 'basicAllocator'.  If 'basicAllocator' is 0, the default allocator
         // is used.
@@ -406,7 +398,7 @@ int baejsn_Decoder::decodeImp(TYPE *value, bdeat_TypeCategory::Array)
     if (0 != baejsn_ParserUtil::advancePastWhitespaceAndToken(d_streamBuf,
                                                               ']')) {
 
-        int i = static_cast<int>(bdeat_ArrayFunctions::size(*value));
+        int i = 0;
 
         bool hasMore = false;
         do {
@@ -443,7 +435,7 @@ int baejsn_Decoder::decodeImp(TYPE *value, bdeat_TypeCategory::NullableValue)
     baejsn_ParserUtil::skipSpaces(d_streamBuf);
 
     if (0 == baejsn_ParserUtil::eatToken(d_streamBuf, "null")) {
-        return 0;
+        return 0;                                                     // RETURN
     }
 
     bdeat_NullableValueFunctions::makeValue(value);
@@ -456,8 +448,8 @@ template <typename TYPE, typename ANY_CATEGORY>
 inline
 int baejsn_Decoder::decodeImp(TYPE *, ANY_CATEGORY)
 {
-    BSLS_ASSERT_OPT(0 && "Unreachable");
-    return -1;                                                        // RETURN
+    BSLS_ASSERT_OPT(!"Unreachable");
+    return -1;
 }
 
 // CREATORS

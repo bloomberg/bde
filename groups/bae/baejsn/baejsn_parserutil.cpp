@@ -72,7 +72,10 @@ int baejsn_ParserUtil::getDouble(bsl::streambuf *streamBuf, double *value)
     char   *end = 0;
     double  tmp = bsl::strtod(str.c_str(), &end);
 
-    if (end == str.data() || *end != '\0') {
+    if (end       == str.data()
+     || *end      != '\0'
+     || HUGE_VAL  == tmp
+     || -HUGE_VAL == tmp) {
         return -1;                                                    // RETURN
     }
     *value = tmp;
