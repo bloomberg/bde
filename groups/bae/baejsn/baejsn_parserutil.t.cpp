@@ -1506,7 +1506,7 @@ int main(int argc, char *argv[])
         {
             typedef bsl::string Type;
 
-            const Type ERROR_VALUE = "DEADBEEF";
+            const Type ERROR_VALUE = "";
 
             static const struct {
                 int         d_line;    // line number
@@ -1514,13 +1514,33 @@ int main(int argc, char *argv[])
                 Type        d_exp;     // exp unsigned value
                 bool        d_isValid; // isValid flag
             } DATA[] = {
-                // line   input           exp          isValid
-                // ----   -----           ---          -------
-                {  L_,    "\"\"",         "",           true },
-                {  L_,    "\"ABC\"",      "ABC",        true },
+                // line   input              exp          isValid
+                // ----   -----              ---          -------
+                {  L_,    "\"\"",            "",           true  },
+                {  L_,    "\"ABC\"",         "ABC",        true  },
 
-// TBD:
-//                 {  L_,    "Non-utf string", ERROR_VALUE,      false    },
+                {  L_,     "\"\\\"\"",       "\"",         true  },
+                {  L_,     "\"\\\\\"",       "\\",         true  },
+                {  L_,     "\"\\b\"",        "\b",         true  },
+                {  L_,     "\"\\f\"",        "\f",         true  },
+                {  L_,     "\"\\n\"",        "\n",         true  },
+                {  L_,     "\"\\r\"",        "\r",         true  },
+                {  L_,     "\"\\t\"",        "\t",         true  },
+
+                {  L_,     "\"\\u0020\"",    " ",          true  },
+                {  L_,     "\"\\u002E\"",    ".",          true  },
+                {  L_,     "\"\\u0041\"",    "A",          true  },
+
+                {  L_,     "\"\\U006d\"",    "m",          true  },
+                {  L_,     "\"\\U007E\"",    "~",          true  },
+
+                {  L_,     "\"AB\"",         "AB",         true   },
+
+                {  L_,     "\"\\UX000\"",    ERROR_VALUE,  false  },
+                {  L_,     "\"\\U8000\"",    ERROR_VALUE,  false  },
+                {  L_,     "\"\\U7G00\"",    ERROR_VALUE,  false  },
+                {  L_,     "\"\\U0080\"",    ERROR_VALUE,  false  },
+                {  L_,     "\"\\U007G\"",    ERROR_VALUE,  false  },
             };
             const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
 
@@ -2587,10 +2607,20 @@ int main(int argc, char *argv[])
                 {  L_,     "\"\\r\"",   '\r',           true  },
                 {  L_,     "\"\\t\"",   '\t',           true  },
 
-                {  L_,     "\"AB\"",    ERROR_CHAR,     false },
+                {  L_,     "\"\\u0020\"",   ' ',        true  },
+                {  L_,     "\"\\u002E\"",   '.',        true  },
+                {  L_,     "\"\\u0041\"",   'A',        true  },
 
-                // TBD:
-//                 {  L_,     "\"\\u000a \"",   'a',     true  },
+                {  L_,     "\"\\U006d\"",   'm',        true  },
+                {  L_,     "\"\\U007E\"",   '~',        true  },
+
+                {  L_,     "\"AB\"",        ERROR_CHAR, false },
+
+                {  L_,     "\"\\UX000\"",   ERROR_CHAR, false  },
+                {  L_,     "\"\\U8000\"",   ERROR_CHAR, false  },
+                {  L_,     "\"\\U7G00\"",   ERROR_CHAR, false  },
+                {  L_,     "\"\\U0080\"",   ERROR_CHAR, false  },
+                {  L_,     "\"\\U007G\"",   ERROR_CHAR, false  },
             };
             const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
 

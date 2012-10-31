@@ -92,7 +92,7 @@ class baejsn_Decoder
     friend struct baejsn_Decoder_ElementVisitor;
 
     // PRIVATE MANIPULATORS
-    int decodeBinaryArray(std::vector<char> *value);
+    int decodeBinaryArray(bsl::vector<char> *value);
 
     template <typename TYPE>
     int decodeImp(TYPE *value, bdeat_TypeCategory::DynamicType);
