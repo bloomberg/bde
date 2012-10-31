@@ -681,8 +681,8 @@ namespace bslma {
 
 template <typename T1, typename T2>
 struct UsesBslmaAllocator<bsl::pair<T1, T2> >
-    : bsl::integral_constant<bool, bslma::UsesBslmaAllocator<T1>::value
-                                  || bslma::UsesBslmaAllocator<T2>::value>
+    : bsl::integral_constant<bool, UsesBslmaAllocator<T1>::value
+                                   || UsesBslmaAllocator<T2>::value>
 {};
 
 }  // bslma
