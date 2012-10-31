@@ -15,7 +15,7 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: bsl+stdhdrs
 //
 //@AUTHOR: Arthur Chiu (achiu21), Alisdair Meredith (ameredith1)
-//         Stefano Pacifico (spacifico1)
+//         Stefano Pacifico (spacifico1), Bill Chapman (bchapman2)
 //
 //@DESCRIPTION: This component provides a template unary functor,
 //'bsl::hash', implementing the 'std::hash' functor.  'bsl::hash' applies a C++
@@ -96,7 +96,7 @@ BSLS_IDENT("$Id: $")
 //      //..
 //      // and 'HASHER' must have a publicly available default constructor and
 //      // destructor.
-//  
+//
 //      // DATA
 //      const TYPE       *d_values;             // Array of values table is to
 //                                              // cross-reference.  Held, not
@@ -109,7 +109,7 @@ BSLS_IDENT("$Id: $")
 //      bool              d_valid;              // Object was properly
 //                                              // initialized.
 //      bslma::Allocator *d_allocator_p;        // held, not owned
-//  
+//
 //    private:
 //      // PRIVATE ACCESSORS
 //      bool lookup(size_t      *idx,
@@ -129,10 +129,10 @@ BSLS_IDENT("$Id: $")
 //              }
 //          }
 //          // value was not found in table
-//  
+//
 //          return false;
 //      }
-//  
+//
 //    public:
 //      // CREATORS
 //      HashCrossReference(const TYPE       *valuesArray,
@@ -154,17 +154,17 @@ BSLS_IDENT("$Id: $")
 //          d_bucketArray = (const TYPE **) d_allocator_p->allocate(
 //                                        bucketArrayLength * sizeof(TYPE **));
 //          memset(d_bucketArray,  0, bucketArrayLength * sizeof(TYPE *));
-//  
+//
 //          for (unsigned i = 0; i < numValues; ++i) {
 //              const TYPE& value = d_values[i];
 //              size_t idx;
 //              if (lookup(&idx, value, d_hasher(value))) {
 //                  // Duplicate value.  Fail.
-//  
+//
 //                  printf("Error: entries %u and %u have the same value\n",
 //                              i, (unsigned) (d_bucketArray[idx] - d_values));
 //                  d_valid = false;
-//  
+//
 //                  // don't return, continue reporting other redundant
 //                  // entries.
 //              }
@@ -173,24 +173,24 @@ BSLS_IDENT("$Id: $")
 //              }
 //          }
 //      }
-//  
+//
 //      ~HashCrossReference()
 //          // Free up memory used by this cross-reference.
 //      {
 //          d_allocator_p->deallocate(d_bucketArray);
 //      }
-//  
+//
 //      // ACCESSORS
 //      int count(const TYPE& value) const
 //          // Return 1 if the specified 'value' is found in the cross
 //          // reference and 0 otherwise.
 //      {
 //          BSLS_ASSERT_OPT(d_valid);
-//  
+//
 //          size_t idx;
 //          return lookup(&idx, value, d_hasher(value));
 //      }
-//  
+//
 //      bool isValid() const
 //          // Return 'true' if this cross reference was successfully
 //          // constructed and 'false' otherwise.
@@ -199,9 +199,43 @@ BSLS_IDENT("$Id: $")
 //      }
 //  };
 //..
-// Then, for a later part of the example, we define a 'StringThing' class,
-// which is basically a 'const char *' except that 'operator==' will do the
-// right thing on the strings and properly compare them:
+// Then, In 'main', we will first use our cross-reference to cross-reference a
+// collection of integer values.  We define our array and take its length:
+//..
+//  const int ints[] = { 23, 42, 47, 56, 57, 61, 62, 63, 70, 72, 79 };
+//  enum { NUM_INTS = sizeof ints / sizeof *ints };
+//..
+// Now, we create our cross-reference 'hcri' and verify it constructed
+// properly.  Note that we don't specify the second template parameter 'HASHER'
+// and let it default to 'bsl::hash<int>', which is already defined by
+// bslstl_hash:
+//..
+//  HashCrossReference<int> hcri(ints, NUM_INTS);
+//  assert(hcri.isValid());
+//..
+// Finally, we use 'hcri' to verify numbers that were and were not in the
+// collection:
+//..
+//  assert(1 == hcri.count(23));
+//  assert(1 == hcri.count(42));
+//  assert(1 == hcri.count(47));
+//  assert(1 == hcri.count(56));
+//  assert(0 == hcri.count( 3));
+//  assert(0 == hcri.count(31));
+//  assert(0 == hcri.count(37));
+//  assert(0 == hcri.count(58));
+//..
+//
+///Example 2: Using Our Hash Cross Reference For a Custom Class
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// In Example 1, we demonstrated a hash cross reference for integers, a trivial
+// example.  In Example 2, we want to demonstrate specializing 'hash' for a
+// custom class.  We will re-use the 'HashCrossReference' template class
+// defined in Example 1.
+//
+// First, we define a 'StringThing' class, which is basically a 'const char *'
+// except that 'operator==' will do the right thing on the strings and properly
+// compare them:
 //..
 //  class StringThing {
 //      // This class holds a pointer to zero-terminated string.  It is
@@ -209,17 +243,17 @@ BSLS_IDENT("$Id: $")
 //      // between this type and a 'const char *' is that 'operator==' will
 //      // properly compare two objects of this type for equality of strings
 //      // rather than equality of pointers.
-//  
+//
 //      // DATA
 //      const char *d_string;    // held, not owned
-//  
+//
 //    public:
 //      // CREATOR
 //      StringThing(const char *string)                             // IMPLICIT
 //      : d_string(string)
 //          // Create a 'StringThing' object out of the specified 'string'.
 //      {}
-//  
+//
 //      // ACCESSOR
 //      operator const char *() const
 //          // Implicitly cast this 'StringThing' object to a 'const char *'
@@ -228,24 +262,24 @@ BSLS_IDENT("$Id: $")
 //          return d_string;
 //      }
 //  };
-//  
+//
 //  inline
 //  bool operator==(const StringThing& lhs, const StringThing& rhs)
 //  {
 //      return !strcmp(lhs, rhs);
 //  }
-//  
+//
 //  inline
 //  bool operator!=(const StringThing& lhs, const StringThing& rhs)
 //  {
 //      return !(lhs == rhs);
 //  }
 //..
-// Next, we need a hash function for 'StringThing'.  We can specialize
+// Then, we need a hash function for 'StringThing'.  We can specialize
 // 'bsl::hash' for our 'StringThing' type:
 //..
 //  namespace bsl {
-//  
+//
 //  template <>
 //  struct hash<StringThing> {
 //      // We need to specialize 'hash' for our 'StringThing' type.  If we just
@@ -253,118 +287,91 @@ BSLS_IDENT("$Id: $")
 //      // pointers to two different buffers containing the same sequence of
 //      // chars would hash to different values, which would not be the desired
 //      // behavior.
-//  
+//
 //      size_t operator()(const StringThing& st) const
 //          // Return the hash of the zero-terminated sequence of bytes
 //          // referred to by the specified 'st'.  Note that this is an ad-hoc
 //          // hash function thrown together in a few minutes, it has not been
-//          // exhaustively tested or mathematically analyzed.
+//          // exhaustively tested or mathematically analyzed.  Also note that
+//          // even though most of the default specializations of 'hash' have
+//          // functions that take their arguments by value, there is nothing
+//          // preventing us from chosing to pass it by reference in this case.
 //      {
 //          enum { SHIFT_DOWN = sizeof(size_t) * 8 - 8 };
-//  
+//
 //  #ifdef BSLS_PLATFORM__CPU_64_BIT
 //          const size_t MULTIPLIER = 0x5555555555555555ULL; // 16 '5's
 //  #else
 //          const size_t MULTIPLIER = 0x55555555;            //  8 '5's
 //  #endif
-//  
+//
 //          size_t ret = 0;
 //          unsigned char c;
 //          for (const char *pc = st; (c = *pc); ++pc) {
 //              ret =  MULTIPLIER * (ret + c);
 //              ret += ret >> SHIFT_DOWN;
 //          }
+//
 //          return ret;
 //      }
 //  };
-//  
+//
 //  }  // close namespace bsl
 //..
-// Then, In 'main', we will first use our cross-reference to cross-reference a
-// collection of integer values.  We define our array and take its length:
+// Next, in 'main', we want to use our cross reference on a more complex type,
+// so we'll use the 'StringThing' type we created.  We create an array of
+// unique 'StringThing's and take its length:
 //..
-//  {
-//      const int ints[] = { 23, 42, 47, 56, 57, 61, 62, 63, 70, 72, 79 };
-//      enum { NUM_INTS = sizeof ints / sizeof *ints };
-//..
-// Next, we create our cross-reference 'hcri' and verify it constructed
-// properly.  Note that we don't specify the second template parameter 'HASHER'
-// and let it default to 'bsl::hash<int>', which is already defined by
-// bslstl_hash:
-//..
-//      HashCrossReference<int> hcri(ints, NUM_INTS);
-//      ASSERT(hcri.isValid());
-//..
-// Then, we use 'hcri' to verify numbers that were and were not in the
-// collection:
-//..
-//      ASSERT(1 == hcri.count(23));
-//      ASSERT(1 == hcri.count(42));
-//      ASSERT(1 == hcri.count(47));
-//      ASSERT(1 == hcri.count(56));
-//      ASSERT(0 == hcri.count( 3));
-//      ASSERT(0 == hcri.count(31));
-//      ASSERT(0 == hcri.count(37));
-//      ASSERT(0 == hcri.count(58));
-//  }
-//
-//  {
-//..
-// Next, now we want to use our cross reference on a more complex type, so
-// we'll use the 'StringThing' type we created.  We create an array of unique
-// 'StringThing's and take its length:
-//..
-//      StringThing stringThings[] = { "woof",
-//                                     "meow",
-//                                     "bark",
-//                                     "arf",
-//                                     "bite",
-//                                     "chomp",
-//                                     "gnaw" };
-//      enum { NUM_STRINGTHINGS = sizeof stringThings / sizeof *stringThings };
+//  StringThing stringThings[] = { "woof",
+//                                 "meow",
+//                                 "bark",
+//                                 "arf",
+//                                 "bite",
+//                                 "chomp",
+//                                 "gnaw" };
+//  enum { NUM_STRINGTHINGS = sizeof stringThings / sizeof *stringThings };
 //..
 // Then, we create our cross-reference 'hcrsts' and verify that it constructed
 // properly.  Note we don't pass a second parameter template argument and let
 // 'HASHER' will define to 'bsl::hash<StringThing>', which we have defined
 // above:
 //..
-//      HashCrossReference<StringThing> hcrsts(stringThings,
-//                                             NUM_STRINGTHINGS);
-//      ASSERT(hcrsts.isValid());
+//  HashCrossReference<StringThing> hcrsts(stringThings,
+//                                         NUM_STRINGTHINGS);
+//  assert(hcrsts.isValid());
 //..
 // Next, we verify that each element in our array registers with count:
 //..
-//      ASSERT(1 == hcrsts.count("woof"));
-//      ASSERT(1 == hcrsts.count("meow"));
-//      ASSERT(1 == hcrsts.count("bark"));
-//      ASSERT(1 == hcrsts.count("arf"));
-//      ASSERT(1 == hcrsts.count("bite"));
-//      ASSERT(1 == hcrsts.count("chomp"));
-//      ASSERT(1 == hcrsts.count("gnaw"));
+//  assert(1 == hcrsts.count("woof"));
+//  assert(1 == hcrsts.count("meow"));
+//  assert(1 == hcrsts.count("bark"));
+//  assert(1 == hcrsts.count("arf"));
+//  assert(1 == hcrsts.count("bite"));
+//  assert(1 == hcrsts.count("chomp"));
+//  assert(1 == hcrsts.count("gnaw"));
 //..
 // Now, we verify that strings not in our original array are correctly
 // identified as not being in the set:
 //..
-//      ASSERT(0 == hcrsts.count("buy"));
-//      ASSERT(0 == hcrsts.count("beg"));
-//      ASSERT(0 == hcrsts.count("borrow"));
-//      ASSERT(0 == hcrsts.count("or"));
-//      ASSERT(0 == hcrsts.count("steal"));
+//  assert(0 == hcrsts.count("buy"));
+//  assert(0 == hcrsts.count("beg"));
+//  assert(0 == hcrsts.count("borrow"));
+//  assert(0 == hcrsts.count("or"));
+//  assert(0 == hcrsts.count("steal"));
 //..
 // Finally, to make sure that our lookup is independent of string location, we
 // copy some strings into a buffer and make sure that our results are as
 // expected.
 //..
-//      char buffer[10];
-//      strcpy(buffer, "woof");
-//      ASSERT(1 == hcrsts.count(buffer));
-//      strcpy(buffer, "chomp");
-//      ASSERT(1 == hcrsts.count(buffer));
-//      strcpy(buffer, "buy");
-//      ASSERT(0 == hcrsts.count(buffer));
-//      strcpy(buffer, "steal");
-//      ASSERT(0 == hcrsts.count(buffer));
-//  }
+//  char buffer[10];
+//  strcpy(buffer, "woof");
+//  assert(1 == hcrsts.count(buffer));
+//  strcpy(buffer, "chomp");
+//  assert(1 == hcrsts.count(buffer));
+//  strcpy(buffer, "buy");
+//  assert(0 == hcrsts.count(buffer));
+//  strcpy(buffer, "steal");
+//  assert(0 == hcrsts.count(buffer));
 //..
 
 // Prevent 'bslstl' headers from being included directly in 'BSL_OVERRIDES_STD'
@@ -382,10 +389,6 @@ BSL_OVERRIDES_STD mode"
 #include <bslalg_hashutil.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
-#include <bslmf_isbitwisemoveable.h>
-#endif
-
 #ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
 #include <bslmf_istriviallycopyable.h>
 #endif
@@ -393,7 +396,6 @@ BSL_OVERRIDES_STD mode"
 #ifndef INCLUDED_BSLMF_ISTRIVIALLYDEFAULTCONSTRUCTIBLE
 #include <bslmf_istriviallydefaultconstructible.h>
 #endif
-
 
 #ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include <bsls_compilerfeatures.h>
@@ -437,17 +439,6 @@ struct is_trivially_copyable<hash<TYPE> >
 {};
 
 }  // close namespace bsl
-
-namespace BloombergLP {
-namespace bslmf {
-
-template <class TYPE>
-struct IsBitwiseMoveable<bsl::hash<TYPE> >
-: bsl::true_type
-{};
-
-}  // close namespace bslmf
-}  // close enterprise namespace
 
 namespace bsl {
 

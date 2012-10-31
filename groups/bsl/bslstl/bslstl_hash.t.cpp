@@ -256,9 +256,16 @@ class HashCrossReference {
     }
 };
 
-// Then, for a later part of the example, we define a 'StringThing' class,
-// which is basically a 'const char *' except that 'operator==' will do the
-// right thing on the strings and properly compare them:
+///Example 2: Using Our Hash Cross Reference For a Custom Class
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// In Example 1, we demonstrated a hash cross reference for integers, a trivial
+// example.  In Example 2, we want to demonstrate specializing 'hash' for a
+// custom class.  We will re-use the 'HashCrossReference' template class
+// defined in Example 1.
+
+// First, we define a 'StringThing' class, which is basically a 'const char *'
+// except that 'operator==' will do the right thing on the strings and properly
+// compare them:
 
 class StringThing {
     // This class holds a pointer to zero-terminated string.  It is implicitly
@@ -298,7 +305,7 @@ bool operator!=(const StringThing& lhs, const StringThing& rhs)
     return !(lhs == rhs);
 }
 
-// Next, we need a hash function for 'StringThing'.  We can specialize
+// Then, we need a hash function for 'StringThing'.  We can specialize
 // 'bsl::hash' for our 'StringThing' type:
 
 namespace bsl {
@@ -314,7 +321,10 @@ struct hash<StringThing> {
         // Return the hash of the zero-terminated sequence of bytes referred to
         // by the specified 'st'.  Note that this is an ad-hoc hash function
         // thrown together in a few minutes, it has not been exhaustively
-        // tested or mathematically analyzed.
+        // tested or mathematically analyzed.  Also note that even though most
+        // of the default specializations of 'hash' have functions that take
+        // their arguments by value, there is nothing preventing us from
+        // chosing to pass it by reference in this case.
     {
         enum { SHIFT_DOWN = sizeof(size_t) * 8 - 8 };
 
@@ -330,6 +340,7 @@ struct hash<StringThing> {
             ret =  MULTIPLIER * (ret + c);
             ret += ret >> SHIFT_DOWN;
         }
+
         return ret;
     }
 };
@@ -356,9 +367,9 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:
-      case 8: {
+      case 9: {
         // --------------------------------------------------------------------
-        // USAGE EXAMPLE
+        // USAGE EXAMPLE 2
         //   Extracted from component header file.
         //
         // Concerns:
@@ -374,94 +385,111 @@ int main(int argc, char *argv[])
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nUSAGE EXAMPLE"
-                            "\n=============\n");
+        if (verbose) printf("USAGE EXAMPLE 2\n"
+                            "===============\n");
 
-// Then, In 'main', we will first use our cross-reference to cross-reference a
-// collection of integer values.  We define our array and take its length:
-
-        {
-            const int ints[] = { 23, 42, 47, 56, 57, 61, 62, 63, 70, 72, 79 };
-            enum { NUM_INTS = sizeof ints / sizeof *ints };
-
-// Next, we create our cross-reference 'hcri' and verify it constructed
-// properly.  Note that we don't specify the second template parameter 'HASHER'
-// and let it default to 'bsl::hash<int>', which is already defined by
-// bslstl_hash:
-
-            HashCrossReference<int> hcri(ints, NUM_INTS);
-            ASSERT(hcri.isValid());
-
-// Then, we use 'hcri' to verify numbers that were and were not in the
-// collection:
-
-            ASSERT(1 == hcri.count(23));
-            ASSERT(1 == hcri.count(42));
-            ASSERT(1 == hcri.count(47));
-            ASSERT(1 == hcri.count(56));
-            ASSERT(0 == hcri.count( 3));
-            ASSERT(0 == hcri.count(31));
-            ASSERT(0 == hcri.count(37));
-            ASSERT(0 == hcri.count(58));
-        }
-
-        {
 // Next, now we want to use our cross reference on a more complex type, so
 // we'll use the 'StringThing' type we created.  We create an array of unique
 // 'StringThing's and take its length:
 
-            StringThing stringThings[] = { "woof",
-                                           "meow",
-                                           "bark",
-                                           "arf",
-                                           "bite",
-                                           "chomp",
-                                           "gnaw" };
-            enum { NUM_STRINGTHINGS =
-                                  sizeof stringThings / sizeof *stringThings };
+        StringThing stringThings[] = { "woof",
+                                       "meow",
+                                       "bark",
+                                       "arf",
+                                       "bite",
+                                       "chomp",
+                                       "gnaw" };
+        enum { NUM_STRINGTHINGS =
+                              sizeof stringThings / sizeof *stringThings };
 
 // Then, we create our cross-reference 'hcrsts' and verify that it constructed
 // properly.  Note we don't pass a second parameter template argument and let
 // 'HASHER' will define to 'bsl::hash<StringThing>', which we have defined
 // above:
 
-            HashCrossReference<StringThing> hcrsts(stringThings,
-                                                   NUM_STRINGTHINGS);
-            ASSERT(hcrsts.isValid());
+        HashCrossReference<StringThing> hcrsts(stringThings,
+                                               NUM_STRINGTHINGS);
+        ASSERT(hcrsts.isValid());
 
 // Next, we verify that each element in our array registers with count:
 
-            ASSERT(1 == hcrsts.count("woof"));
-            ASSERT(1 == hcrsts.count("meow"));
-            ASSERT(1 == hcrsts.count("bark"));
-            ASSERT(1 == hcrsts.count("arf"));
-            ASSERT(1 == hcrsts.count("bite"));
-            ASSERT(1 == hcrsts.count("chomp"));
-            ASSERT(1 == hcrsts.count("gnaw"));
+        ASSERT(1 == hcrsts.count("woof"));
+        ASSERT(1 == hcrsts.count("meow"));
+        ASSERT(1 == hcrsts.count("bark"));
+        ASSERT(1 == hcrsts.count("arf"));
+        ASSERT(1 == hcrsts.count("bite"));
+        ASSERT(1 == hcrsts.count("chomp"));
+        ASSERT(1 == hcrsts.count("gnaw"));
 
 // Now, we verify that strings not in our original array are correctly
 // identified as not being in the set:
 
-            ASSERT(0 == hcrsts.count("buy"));
-            ASSERT(0 == hcrsts.count("beg"));
-            ASSERT(0 == hcrsts.count("borrow"));
-            ASSERT(0 == hcrsts.count("or"));
-            ASSERT(0 == hcrsts.count("steal"));
+        ASSERT(0 == hcrsts.count("buy"));
+        ASSERT(0 == hcrsts.count("beg"));
+        ASSERT(0 == hcrsts.count("borrow"));
+        ASSERT(0 == hcrsts.count("or"));
+        ASSERT(0 == hcrsts.count("steal"));
 
 // Finally, to make sure that our lookup is independent of string location, we
 // copy some strings into a buffer and make sure that our results are as
 // expected.
 
-            char buffer[10];
-            strcpy(buffer, "woof");
-            ASSERT(1 == hcrsts.count(buffer));
-            strcpy(buffer, "chomp");
-            ASSERT(1 == hcrsts.count(buffer));
-            strcpy(buffer, "buy");
-            ASSERT(0 == hcrsts.count(buffer));
-            strcpy(buffer, "steal");
-            ASSERT(0 == hcrsts.count(buffer));
-        }
+        char buffer[10];
+        strcpy(buffer, "woof");
+        ASSERT(1 == hcrsts.count(buffer));
+        strcpy(buffer, "chomp");
+        ASSERT(1 == hcrsts.count(buffer));
+        strcpy(buffer, "buy");
+        ASSERT(0 == hcrsts.count(buffer));
+        strcpy(buffer, "steal");
+        ASSERT(0 == hcrsts.count(buffer));
+      } break;
+      case 8: {
+        // --------------------------------------------------------------------
+        // USAGE EXAMPLE 1
+        //   Extracted from component header file.
+        //
+        // Concerns:
+        //: 1 The usage example provided in the component header file compiles,
+        //:   links, and runs as shown.
+        //
+        // Plan:
+        //: 1 Incorporate usage example from header into test driver, remove
+        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //:   (C-1)
+        //
+        // Testing:
+        //   USAGE EXAMPLE
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("USAGE EXAMPLE 1\n"
+                            "===============\n");
+
+// Then, In 'main', we will first use our cross-reference to cross-reference a
+// collection of integer values.  We define our array and take its length:
+
+        const int ints[] = { 23, 42, 47, 56, 57, 61, 62, 63, 70, 72, 79 };
+        enum { NUM_INTS = sizeof ints / sizeof *ints };
+
+// Now, we create our cross-reference 'hcri' and verify it constructed
+// properly.  Note that we don't specify the second template parameter 'HASHER'
+// and let it default to 'bsl::hash<int>', which is already defined by
+// bslstl_hash:
+
+        HashCrossReference<int> hcri(ints, NUM_INTS);
+        ASSERT(hcri.isValid());
+
+// Finally, we use 'hcri' to verify numbers that were and were not in the
+// collection:
+
+        ASSERT(1 == hcri.count(23));
+        ASSERT(1 == hcri.count(42));
+        ASSERT(1 == hcri.count(47));
+        ASSERT(1 == hcri.count(56));
+        ASSERT(0 == hcri.count( 3));
+        ASSERT(0 == hcri.count(31));
+        ASSERT(0 == hcri.count(37));
+        ASSERT(0 == hcri.count(58));
       } break;
       case 7: {
         // --------------------------------------------------------------------
