@@ -239,38 +239,15 @@ bool btes_LeakyBucket::wouldOverflow(bsls_Types::Uint64       numOfUnits,
 
     BSLS_ASSERT_SAFE(numOfUnits > 0);
 
-    if (numOfUnits > ULLONG_MAX - d_unitsInBucket - d_unitsReserved) {
-
-        updateState(currentTime);
-        
-        // 'd_unitsInBucket + d_unitsReserved + numOfUnits' will not be 
-        // calculated if the first part of condition evaluates to 'true'.
-
-                                                                      // RETURN
-
-        return (numOfUnits > ULLONG_MAX - d_unitsInBucket - d_unitsReserved ||
-                d_unitsInBucket + d_unitsReserved + numOfUnits > d_capacity);
-    }
-
-    bsls_Types::Uint64 totalUnits = d_unitsInBucket +
-                                    d_unitsReserved +
-                                    numOfUnits;
-
-    // If there is already room in the bucket, return false immediately
-    // (avoid updating state to improve performance).
-
-    if (totalUnits <= d_capacity) {
-        return false;                                                 // RETURN
-    }
-
-    // the number of 'unitsInBucket' or 'submittedUnits' can not be increase
-    // by 'updateState'. Overflow check is not needed.
-
     updateState(currentTime);
 
-    totalUnits = d_unitsInBucket + d_unitsReserved + numOfUnits;
+    if (numOfUnits > ULLONG_MAX - d_unitsInBucket - d_unitsReserved || 
+        d_unitsInBucket + d_unitsReserved + numOfUnits > d_capacity) {
 
-    return (totalUnits > d_capacity);
+        return true;                                                  // RETURN
+    }
+
+    return false;
 }
 
 bdet_TimeInterval btes_LeakyBucket::calculateTimeToSubmit(
