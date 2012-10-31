@@ -178,12 +178,6 @@ class baejsn_Encoder {
 
   private:
     // PRIVATE MANIPULATORS
-    template <class TYPE>
-    int encodeObject(bsl::streambuf *streamBuf, const TYPE& value);
-        // Verify the specified 'value' of (template parameter) type 'TYPE' is
-        // a Sequence or Choice and encode 'value' into the specified
-        // 'streamBuf'.  Return 0 on success, and a non-zero value otherwise.
-
     bsl::ostream& logStream();
         // Return the stream for logging.  Note the if stream has not
         // been created yet, it will be created during this call.
@@ -380,21 +374,6 @@ bsl::ostream& baejsn_Encoder::logStream()
     return d_logStream;
 }
 
-template <typename TYPE>
-int baejsn_Encoder::encodeObject(bsl::streambuf *streamBuf, const TYPE& value)
-{
-    bdeat_TypeCategory::Value category =
-                                    bdeat_TypeCategoryFunctions::select(value);
-    if (bdeat_TypeCategory::BDEAT_SEQUENCE_CATEGORY != category
-     && bdeat_TypeCategory::BDEAT_CHOICE_CATEGORY != category) {
-        logStream() << "Encoded object must be a Sequence or Choice type."
-                    << bsl::endl;
-        return -1;                                                    // RETURN
-    }
-    baejsn_Encoder_EncodeImpl encoder(this, streamBuf);
-    return encoder.encode(value);
-}
-
 // CREATORS
 inline
 baejsn_Encoder::baejsn_Encoder(bslma::Allocator *basicAllocator)
@@ -404,15 +383,26 @@ baejsn_Encoder::baejsn_Encoder(bslma::Allocator *basicAllocator)
 
 // MANIPULATORS
 template <typename TYPE>
-inline
 int baejsn_Encoder::encode(bsl::streambuf *streamBuf, const TYPE& value)
 {
     BSLS_ASSERT(streamBuf);
 
+    bdeat_TypeCategory::Value category =
+                                    bdeat_TypeCategoryFunctions::select(value);
+    if (bdeat_TypeCategory::BDEAT_SEQUENCE_CATEGORY != category
+     && bdeat_TypeCategory::BDEAT_CHOICE_CATEGORY != category
+     && bdeat_TypeCategory::BDEAT_ARRAY_CATEGORY != category) {
+        logStream()
+                  << "Encoded object must be a Sequence, Choice or Array type."
+                  << bsl::endl;
+        return -1;                                                    // RETURN
+    }
+
     d_logStream.clear();
     d_logStream.str("");
 
-    return encodeObject(streamBuf, value);
+    baejsn_Encoder_EncodeImpl encoderImpl(this, streamBuf);
+    return encoderImpl.encode(value);
 }
 
 template <typename TYPE>

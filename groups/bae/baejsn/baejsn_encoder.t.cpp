@@ -3640,15 +3640,10 @@ int main(int argc, char *argv[])
             oss.str("");
 
             ASSERTV(oss.good());
-            ASSERTV(0 != encoder.encode(oss, bsl::vector<int>()));
-            ASSERTV("" != encoder.loggedMessages());
-            oss.clear();
-            oss.str("");
-
-            ASSERTV(oss.good());
             ASSERTV(0 != encoder.encode(oss, baea::Enumerated::Value()));
             ASSERTV("" != encoder.loggedMessages());
 
+            // Encoding with a bad stream.
             oss.str("");
             ASSERTV(!oss.good());
             ASSERTV(0 != encoder.encode(oss, baea::VoidSequence()));
@@ -3659,7 +3654,6 @@ int main(int argc, char *argv[])
             ASSERTV(oss.good());
             ASSERTV(0 == encoder.encode(oss, baea::VoidSequence()));
             ASSERTV("" == encoder.loggedMessages());
-
         }
       } break;
       case 10: {
