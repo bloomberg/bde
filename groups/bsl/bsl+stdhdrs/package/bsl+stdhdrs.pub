@@ -1,4 +1,4 @@
-# Container headers
+# Standard container headers
 deque           bsl_deque.h         deque.SUNWCCh
 iterator        bsl_iterator.h      iterator.SUNWCCh
 list            bsl_list.h          list.SUNWCCh
@@ -10,6 +10,8 @@ sstream         bsl_sstream.h       sstream.SUNWCCh
 stack           bsl_stack.h         stack.SUNWCCh
 string          bsl_string.h        string.SUNWCCh
 vector          bsl_vector.h        vector.SUNWCCh
+
+# Non-standard container headers
 hash_set        bsl_hash_set.h      hash_set.SUNWCCh
 hash_map        bsl_hash_map.h      hash_map.SUNWCCh
 slist           bsl_slist.h         slist.SUNWCCh

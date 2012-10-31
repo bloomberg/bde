@@ -13,7 +13,7 @@
 
 #undef BSL_OVERRIDES_STD
 
-// Include all standard headers in alphabetical order in dual STL mode
+// Include all standard headers in alphabetical order in dual STL mode.
 
 #include <algorithm>
 #include <bitset>
@@ -66,6 +66,8 @@
 #include <string>
 #include <strstream>
 #include <typeinfo>
+#include <unordered_map>
+#include <unordered_set>
 #include <utility>
 #include <valarray>
 #include <vector>
