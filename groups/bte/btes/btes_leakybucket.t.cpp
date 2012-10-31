@@ -1933,9 +1933,6 @@ int main(int argc, char *argv[]) {
             //
             //   2 The method invokes 'updateState', if needed.
             //
-            //   3 The method does not alter the value of 'lastUpdateTime' attribute
-            //     if there is enough room already.
-            //
             //   4 The method does not change the state of object, if the
             //     time has not changed.
             //
@@ -2040,8 +2037,6 @@ int main(int argc, char *argv[]) {
    // C-4
 
    {L_, 1000, 1000, 1000, 500,  Ti(0),     1,  Ti(  0),   true, 1000, Ti(  0)},
-
-   // C-3
 
    {L_, 1000, 1000,    0,   0,  Ti(0),   500,  Ti(  0),  false,    0, Ti(  0)},
    {L_, 1000, 1000,  500, 250,  Ti(0),   500,  Ti(  1),  false,    0, Ti(  1)},
