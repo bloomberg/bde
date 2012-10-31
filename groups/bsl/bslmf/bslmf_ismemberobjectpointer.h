@@ -12,6 +12,8 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bsl::is_member_object_pointer: standard meta-function
 //
+//@SEE_ALSO: bslmf_integralconstant, bslmf_ismemberfunctionpointer
+//
 //@AUTHOR: Clay Wilson (cwilson9)
 //
 //@DESCRIPTION: This component defines a meta-function,
@@ -57,16 +59,16 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_integralconstant.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_REMOVECV
-#include <bslmf_removecv.h>
+#ifndef INCLUDED_BSLMF_ISMEMBERFUNCTIONPOINTER
+#include <bslmf_ismemberfunctionpointer.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_ISREFERENCE
 #include <bslmf_isreference.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_ISMEMBERFUNCTIONPOINTER
-#include <bslmf_ismemberfunctionpointer.h>
+#ifndef INCLUDED_BSLMF_REMOVECV
+#include <bslmf_removecv.h>
 #endif
 
 namespace BloombergLP {
@@ -76,7 +78,7 @@ namespace bslmf {
                        // struct IsPointerToMemberData_Imp
                        // ================================
 
-template <typename TYPE>
+template <class TYPE>
 struct IsPointerToMemberData_Imp : bsl::false_type {
     // This 'struct' template provides a meta-function to determine whether the
     // (template parameter) 'TYPE' is a pointer type to non-static data member.
@@ -85,9 +87,8 @@ struct IsPointerToMemberData_Imp : bsl::false_type {
     // 'bsl::true_type'.
 };
 
-template <typename TYPE, typename CLASS>
-struct IsPointerToMemberData_Imp<TYPE CLASS::*> : bsl::true_type
-{
+template <class TYPE, class CLASS>
+struct IsPointerToMemberData_Imp<TYPE CLASS::*> : bsl::true_type {
      // This partial specialization of 'IsPointerToMemberData_Imp' derives from
      // 'bsl::true_type' for when the (template parameter) 'TYPE' is a pointer
      // type to non-static data member.
@@ -102,14 +103,13 @@ namespace bsl {
                        // struct is_member_object_pointer
                        // ===============================
 
-template <typename TYPE>
+template <class TYPE>
 struct is_member_object_pointer
     : integral_constant<bool,
                        BloombergLP::bslmf::IsPointerToMemberData_Imp<
                            typename remove_cv<TYPE>::type>::value
                        && !is_member_function_pointer<TYPE>::value
-                       && !is_reference<TYPE>::value>
-{
+                       && !is_reference<TYPE>::value> {
     // This 'struct' template implements the 'is_member_object_pointer'
     // meta-function defined in the C++11 standard [meta.unary.cat] to
     // determine if the (template parameter) 'TYPE' is a pointer type to

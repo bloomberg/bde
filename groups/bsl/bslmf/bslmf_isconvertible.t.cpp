@@ -4,7 +4,7 @@
 #include <bsls_bsltestutil.h>
 #include <bsls_platform.h>
 
-#include <cstdio>
+#include <cstdio>      // 'printf'
 #include <cstdlib>     // 'atoi'
 #include <cstring>     // 'strcmp'
 
@@ -32,7 +32,7 @@ using namespace std;
 // for each possible pair of categorized types.  The two meta-functions are
 // functionally equivalent except 'bsl::is_convertible' only allows complete
 // template parameter types.  We will use the same set of complete types for
-// 'bslmf::IsConvertible as that for 'bsl::is_convertible', and an additional
+// 'bslmf::IsConvertible' as that for 'bsl::is_convertible', and an additional
 // set of incomplete types for testing 'bslmf::IsConvertible' alone.
 //
 //-----------------------------------------------------------------------------
@@ -183,7 +183,13 @@ class my_StlAllocator {
 };
 
 struct my_PlacementNew {
-    void *d_p; my_PlacementNew(void *p) : d_p(p) {}
+    // This class is convertible from 'void*'.
+
+    // DATA
+    void *d_p;
+
+    // CREATORS
+    my_PlacementNew(void *p) : d_p(p) {}
 };
 
 void *operator new(size_t, my_PlacementNew p)
@@ -300,8 +306,8 @@ class MyContainer {
   public:
     // CREATORS
     MyContainer(MyAllocator *allocator)
-    : d_alloc_p(allocator)
-    , d_length(0)
+    : d_length(0)
+    , d_alloc_p(allocator)
     {
         d_array_p
              = reinterpret_cast<TYPE *>(d_alloc_p->allocate(sizeof(TYPE)));
@@ -646,7 +652,7 @@ int main(int argc, char *argv[])
         //:   'FROM_TYPE' and 'TO_TYPE' are basic types.
         //:
         //: 2 'IsConvertible::VALUE' returns the correct value when one of
-        //:   'FROM_TYPE' and 'TO_TYPE' is 'const' type.
+        //:   'FROM_TYPE' and 'TO_TYPE' is a 'const' type.
         //:
         //: 3 'IsConvertible::VALUE' returns the correct value when one of
         //:   'FROM_TYPE' and 'TO_TYPE' is a 'const' pointer or 'const'
@@ -978,7 +984,7 @@ int main(int argc, char *argv[])
         //:   'FROM_TYPE' and 'TO_TYPE' is a 'const' type.
         //:
         //: 3 'is_convertible::value' returns the correct value when one of
-        //:   'FROM_TYPE' and 'TO_TYPE' is  a'const' pointer or 'const'
+        //:   'FROM_TYPE' and 'TO_TYPE' is  a 'const' pointer or 'const'
         //:   reference type.
         //:
         //: 4 'is_convertible::value' returns the correct value when one of
@@ -1236,6 +1242,8 @@ int main(int argc, char *argv[])
         ASSERT(false == (bsl::is_convertible<void*,
                                             my_StlAllocator<my_EnumClass::Type>
                                             >::value));
+        ASSERT(true  == (bsl::is_convertible<void*, my_PlacementNew>::value));
+
 
         // C-8: Test conversion between 'void' type and other types.
 

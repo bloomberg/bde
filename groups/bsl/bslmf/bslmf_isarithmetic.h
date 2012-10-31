@@ -59,12 +59,11 @@ namespace bsl {
                          // struct is_arithmetic
                          // ====================
 
-template <typename TYPE>
+template <class TYPE>
 struct is_arithmetic
     : integral_constant<bool,
                         is_integral<TYPE>::value
-                        || is_floating_point<TYPE>::value>
-{
+                        || is_floating_point<TYPE>::value> {
     // This 'struct' template implements the 'is_arithmetic' meta-function
     // defined in the C++11 standard [meta.unary.comp] to determine if the
     // (template parameter) 'TYPE' is an arithmetic type.  This 'struct'

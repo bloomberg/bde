@@ -1,8 +1,10 @@
 // bslmf_islvaluereference.t.cpp                                      -*-C++-*-
 #include <bslmf_islvaluereference.h>
 
-#include <cstdio>
-#include <cstdlib>
+#include <bsls_bsltestutil.h>
+
+#include <cstdio>   // 'printf'
+#include <cstdlib>  // 'atoi'
 
 using namespace std;
 using namespace BloombergLP;
@@ -13,9 +15,9 @@ using namespace BloombergLP;
 //                                Overview
 //                                --------
 // The component under test defines a meta-function,
-// 'bsl::is_lvalue_reference', which determines whether a template parameter
+// 'bsl::is_lvalue_reference', that determines whether a template parameter
 // type is an lvalue reference type.  Thus, we need to ensure that the value
-// returned by this meta-functions is correct for each possible category of
+// returned by this meta-function is correct for each possible category of
 // types.
 //
 // ----------------------------------------------------------------------------
@@ -163,6 +165,7 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("USAGE EXAMPLE\n"
                             "=============\n");
+
 ///Usage
 ///-----
 // In this section we show intended use of this component.

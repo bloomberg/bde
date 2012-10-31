@@ -52,9 +52,8 @@ namespace bsl {
                            // struct conditional
                            // ==================
 
-template <bool COND, typename TRUE_TYPE, typename FALSE_TYPE>
-struct conditional
-{
+template <bool COND, class TRUE_TYPE, class FALSE_TYPE>
+struct conditional {
     // This 'struct' template implements a meta-function, 'bsl::conditional',
     // that transforms into one of the two given (template parameter) types,
     // 'TRUE_TYPE' and 'FALSE_TYPE', depending on value of the (template
@@ -67,9 +66,8 @@ struct conditional
         // This 'typedef' defines the return type of this meta function.
 };
 
-template <typename TRUE_TYPE, typename FALSE_TYPE>
-struct conditional<false, TRUE_TYPE, FALSE_TYPE>
-{
+template <class TRUE_TYPE, class FALSE_TYPE>
+struct conditional<false, TRUE_TYPE, FALSE_TYPE> {
     // This partial specialization of 'bsl::conditional' defines a return type
     // to 'FALSE_TYPE' when it is instantiated to have the 'false' template
     // parameter value.

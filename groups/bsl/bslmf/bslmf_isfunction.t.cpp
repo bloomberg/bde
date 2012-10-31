@@ -108,7 +108,7 @@ typedef int IntRetNoParamFunctionTestType();
     // 'bsl::is_function'.
 
 typedef int IntRetParamFunctionTestType(int, int);
-    // This function type having 'int' return type and 'int' parameters is
+    // This function type having 'int' return type and two 'int' parameters is
     // intended to be used for testing as the template parameter 'TYPE' of
     // 'bsl::is_function'.
 

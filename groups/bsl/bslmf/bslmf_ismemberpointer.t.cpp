@@ -3,8 +3,8 @@
 
 #include <bsls_bsltestutil.h>
 
-#include <cstdio>
-#include <cstdlib>
+#include <cstdio>   // 'printf'
+#include <cstdlib>  // 'atoi'
 
 using namespace BloombergLP;
 using namespace std;
@@ -144,9 +144,9 @@ struct Incomplete;
 //
 // First, we create a user-defined type 'MyStruct':
 //..
-    struct MyStruct
-    {
-    };
+struct MyStruct
+{
+};
 //..
 
 //=============================================================================

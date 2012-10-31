@@ -212,7 +212,7 @@ namespace bslmf {
 
 struct IsConvertible_Match {
     // This 'struct' provides functions to check for successful conversion
-    // matches.  Sun CC 5.2 requires that this 'struct' is not nested within
+    // matches.  Sun CC 5.2 requires that this 'struct' not be nested within
     // 'IsConvertible_Imp'.
 
     typedef struct { char a;    } yes_type;
@@ -395,7 +395,7 @@ struct IsConvertible_Imp<FROM_TYPE, TO_TYPE, 0, 1>
     : IsConvertible_Imp<FROM_TYPE, double, 0, 0>::type {
     // This partial specialization is instantiated when the (template
     // parameter) 'FROM_TYPE' is a non-fundamental type, and the (template
-    // parameter) 'TO_TYPE' is a non-void fundamental type.  This partial
+    // parameter) 'TO_TYPE' is a non-'void' fundamental type.  This partial
     // specialization derives from 'IsConvertible_Imp<FROM_TYPE, double, 0, 0>'
     // to avoid any compilation warnings in case that the 'FROM_TYPE' is
     // a floating-point type and the 'TO_TYPE' is an integral type.
@@ -405,8 +405,8 @@ template <class FROM_TYPE, class TO_TYPE>
 struct IsConvertible_Imp<FROM_TYPE, TO_TYPE, 1, 0>
     : IsConvertible_Imp<int, TO_TYPE, 0, 0>::type {
     // This partial specialization is instantiated when the (template
-    // parameter) 'FROM_TYPE' is a non-void fundamental type, and the (template
-    // parameter) 'TO_TYPE' is a non-fundamental type.  This partial
+    // parameter) 'FROM_TYPE' is a non-'void' fundamental type, and the
+    // (template parameter) 'TO_TYPE' is a non-fundamental type.  This partial
     // specialization derives from 'IsConvertible_Imp<int, TO_TYPE, 0, 0>' to
     // avoid any compilation warnings in case that the 'FROM_TYPE' is a
     // floating-point type and the 'TO_TYPE' is an integral type.
@@ -438,7 +438,7 @@ struct is_convertible
     // 'TO_TYPE'.  This 'struct' derives from 'bsl::true_type' if the
     // 'FROM_TYPE' is convertible to 'TO_TYPE', and from 'bsl::false_type'
     // otherwise.  Note that both 'FROM_TYPE' and 'TO_TYPE' should be complete
-    // types, arrays of unknown bound, or (possibly cv-qualified) void types.
+    // types, arrays of unknown bound, or (possibly cv-qualified) 'void' types.
 };
 
 template <class FROM_TYPE, class TO_TYPE>
@@ -466,7 +466,7 @@ template <class FROM_TYPE, class TO_TYPE>
 struct is_convertible<volatile FROM_TYPE, TO_TYPE&>
   : BloombergLP::bslmf::IsConvertible_Imp<volatile FROM_TYPE, TO_TYPE&>::type {
     // This partial specialization is instantiated for the case where the
-    // (template parameter) 'FROM_TYPE' is 'volatile' type and the (template
+    // (template parameter) 'FROM_TYPE' is a 'volatile' type and the (template
     // parameter) 'TO_TYPE' is a reference type.
 };
 
@@ -474,7 +474,7 @@ template <class FROM_TYPE>
 struct is_convertible<volatile FROM_TYPE, void> : false_type {
     // This partial specialization deriving from 'bsl::false_type' is
     // instantiated for the case where the (template parameter) 'FROM_TYPE' is
-    // a 'volatile' type and is being converted to 'void' type.
+    // a 'volatile' type and is being converted to the 'void' type.
 };
 
 template <class FROM_TYPE, class TO_TYPE>
@@ -510,15 +510,15 @@ struct is_convertible<void, TO_TYPE> : false_type {
 template <class TO_TYPE>
 struct is_convertible<void, TO_TYPE&> : false_type {
     // This partial specialization deriving from 'bsl::false_type' is
-    // instantiated for the case where 'void' type is being converted to the
-    // (template parameter) 'TO_TYPE', which is a reference type.
+    // instantiated for the case where the 'void' type is being converted to
+    // the (template parameter) 'TO_TYPE', which is a reference type.
 };
 
 template <>
 struct is_convertible<void, void> : true_type {
     // This partial specialization deriving from 'bsl::true_type' is
-    // instantiated for the case where 'void' type is being converted to the
-    // 'void' type.
+    // instantiated for the case where the 'void' type is being converted to
+    // the 'void' type.
 };
 
 }  // close namespace bsl
@@ -538,7 +538,7 @@ struct IsConvertible : bsl::is_convertible<FROM_TYPE, TO_TYPE>::type {
     // parameter) 'TO_TYPE'.  This 'struct' derives from 'bsl::true_type' if
     // the 'FROM_TYPE' is convertible to 'TO_TYPE', and from 'bsl::false_type'
     // otherwise.  Note that both 'FROM_TYPE' and 'TO_TYPE' should be complete
-    // types, arrays of unknown bound, or (possibly cv-qualified) void types.
+    // types, arrays of unknown bound, or (possibly cv-qualified) 'void' types.
 };
 
 }  // close package namespace

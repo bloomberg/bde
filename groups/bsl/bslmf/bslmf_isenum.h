@@ -85,7 +85,7 @@ namespace bslmf {
                       // ==============================
 
 struct IsEnum_AnyArithmeticType {
-    // This struct provides a type that is convertible from any arithmetic
+    // This 'struct' provides a type that is convertible from any arithmetic
     // (i.e., integral or floating-point) type, or any enumerated type.
     // Converting any type to an 'IsEnum_AnyArithmeticType' is a user-defined
     // conversion and cannot be combined with any other implicit user-defined
@@ -103,7 +103,7 @@ struct IsEnum_AnyArithmeticType {
     IsEnum_AnyArithmeticType(unsigned long long);
     IsEnum_AnyArithmeticType(double);
     IsEnum_AnyArithmeticType(long double);
-        // Create an 'IsEnum_AnyArithmeticType' object form a value of one of
+        // Create an 'IsEnum_AnyArithmeticType' object from a value of one of
         // the indicated arithmetic types.  Note that it is not necessary to
         // provide overloads taking 'bool', 'char', or 'short' because they are
         // automatically promoted to 'int'; nor is a 'float' overload needed
@@ -149,7 +149,7 @@ namespace bslmf {
 
 template <class TYPE>
 struct IsEnum : bsl::is_enum<TYPE>::type {
-    // This struct provides a meta-function that computes, at compile time,
+    // This 'struct' provides a meta-function that computes, at compile time,
     // whether the (template parameter) 'TYPE' is an enumerated type.  It
     // derives from 'bsl::true_type' if 'TYPE' is an enumerated type, and from
     // 'bsl::false_type' otherwise.

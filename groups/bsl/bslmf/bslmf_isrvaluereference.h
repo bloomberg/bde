@@ -12,7 +12,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bsl::is_rvalue_reference: standard meta-function for rvalue reference types
 //
-//@SEE_ALSO:
+//@SEE_ALSO: bslmf_integralconstant
 //
 //@AUTHOR:
 //
@@ -63,9 +63,8 @@ namespace bsl {
                           // struct is_rvalue_reference
                           // ==========================
 
-template <typename TYPE>
-struct is_rvalue_reference : false_type
-{
+template <class TYPE>
+struct is_rvalue_reference : false_type {
     // This 'struct' template provides a meta-function to determine whether the
     // (template parameter) 'TYPE' is an (cv-qualified) rvalue reference type.
     // This generic default template derives from 'bsl::false_type'.  A
@@ -75,9 +74,8 @@ struct is_rvalue_reference : false_type
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
 
-template <typename TYPE>
-struct is_rvalue_reference<TYPE &&> : true_type
-{
+template <class TYPE>
+struct is_rvalue_reference<TYPE &&> : true_type {
     // This partial specialization of 'is_rvalue_reference' derives from
     // 'bsl::true_type' for when the (template parameter) 'TYPE' is an rvalue
     // reference type.

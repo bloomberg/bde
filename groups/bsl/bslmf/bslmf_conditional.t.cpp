@@ -5,8 +5,8 @@
 
 #include <bsls_bsltestutil.h>
 
-#include <cstdlib>    // atoi()
-#include <cstdio>
+#include <cstdio>     // 'printf'
+#include <cstdlib>    // 'atoi'
 
 using namespace BloombergLP;
 using namespace std;
@@ -156,6 +156,7 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("USAGE EXAMPLE\n"
                             "=============\n");
+
 ///Usage
 ///-----
 // In this section we show intended use of this component.

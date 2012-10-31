@@ -12,7 +12,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bsl::add_rvalue_reference: standard meta-function for transforming type
 //
-//@SEE_ALSO: bslmf_integralconstant
+//@SEE_ALSO: bslmf_integralconstant, bslmf_addlvaluereference
 //
 //@AUTHOR:
 //
@@ -63,22 +63,19 @@ namespace bsl {
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
 
-template <typename TYPE>
-struct add_rvalue_reference
-{
+template <class TYPE>
+struct add_rvalue_reference {
     typedef TYPE&& type;
 };
 
-template <typename TYPE>
-struct add_rvalue_reference<TYPE&>
-{
+template <class TYPE>
+struct add_rvalue_reference<TYPE&> {
     typedef TYPE&& type;
 };
 
 #define BSL_DEFINE_ADD_RVALUE_REFERENCE(TYPE, REF_TYPE) \
 template <>                                             \
-struct add_rvalue_reference<TYPE>                       \
-{                                                       \
+struct add_rvalue_reference<TYPE> {                     \
     typedef REF_TYPE type;                              \
 }                                                       \
 
