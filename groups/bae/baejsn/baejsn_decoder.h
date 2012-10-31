@@ -84,7 +84,7 @@ namespace BloombergLP {
 class baejsn_Decoder
 {
     // DATA
-    bsl::ostringstream  d_logStream;       // stream to store error message 
+    bsl::ostringstream  d_logStream;       // stream to store error message
     bsl::streambuf     *d_streamBuf;       // held, not owned
 
     // FRIENDS
