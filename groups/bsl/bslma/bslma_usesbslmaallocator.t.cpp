@@ -132,6 +132,10 @@ struct ClassUsingBslmaAllocator
 {
 };
 
+struct DerivedAllocator : bslma::Allocator
+{
+};
+
 }
 
 namespace BloombergLP {
@@ -193,6 +197,8 @@ int main(int argc, char *argv[])
         ASSERT(! bslma::UsesBslmaAllocator<bslma::Allocator *>::value);
         ASSERT(! bslma::UsesBslmaAllocator<bslma::Allocator const *>::value);
         ASSERT(! bslma::UsesBslmaAllocator<bslma::Allocator volatile *>::value);
+
+        ASSERT(! bslma::UsesBslmaAllocator<DerivedAllocator *>::value);
       } break;
 
       default: {

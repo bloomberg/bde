@@ -72,22 +72,22 @@ private:
         // pointer type.
     };
 
-    // Detect if 'TYPE' is 'Allocator*' type.
-    static const bool IS_BSLMA_POINTER
-        = bsl::is_same<
+    enum {
+        // Detect if 'TYPE' is 'Allocator*' type.
+        IS_BSLMA_POINTER
+            = bsl::is_same<
                 Allocator,
                 typename bsl::remove_cv<
-                    typename bsl::remove_pointer<TYPE>::type>::type>::value;
+                    typename bsl::remove_pointer<TYPE>::type>::type>::value,
 
-    // If a pointer to 'Allocator' is convertible to 'T', then 'T' has a
-    // non-explcit constructor taking an allocator.
-    static const bool BSLMA_POINTER_CTOR
-        = bsl::is_convertible<Allocator *, TYPE>::value;
+        // If a pointer to 'Allocator' is convertible to 'T', then 'T' has a
+        // non-explcit constructor taking an allocator.
+        BSLMA_POINTER_CTOR = bsl::is_convertible<Allocator *, TYPE>::value,
 
-    // If a pointer to 'UniqueType' is convertible to 'T', it can only mean
-    // that ANY POINTER is convertible to 'T'.
-    static const bool ANY_POINTER_CTOR
-        = bsl::is_convertible<UniqueType *, TYPE>::value;
+        // If a pointer to 'UniqueType' is convertible to 'T', it can only mean
+        // that ANY POINTER is convertible to 'T'.
+        ANY_POINTER_CTOR = bsl::is_convertible<UniqueType *, TYPE>::value
+    };
 
 public:
     typedef bsl::integral_constant<bool,
