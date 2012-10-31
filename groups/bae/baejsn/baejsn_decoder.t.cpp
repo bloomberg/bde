@@ -31,6 +31,8 @@
 #include <baea_serializableobjectproxy.h>
 #include <baea_serializableobjectproxyutil.h>
 #include <baexml_decoder.h>
+#include <baexml_datautil.h>
+#include <baexml_schemaparser.h>
 #include <baexml_minireader.h>
 #include <baexml_errorinfo.h>
 
@@ -124,7 +126,223 @@ static void aSsErT(int c, const char *s, int i)
 
 typedef baejsn_Decoder Obj;
 
+const char XML_SCHEMA[] =
+"<?xml version='1.0' encoding='UTF-8'?>"
+"<xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'"
+"           xmlns:bdem='http://bloomberg.com/schemas/bdem'"
+"           bdem:package='baea'"
+"           elementFormDefault='qualified'>"
+""
+"<xs:complexType name='Choice1'>"
+"  <xs:choice>"
+"    <xs:element name='selection1' type='xs:int'/>"
+"    <xs:element name='selection2' type='xs:double'/>"
+"    <xs:element name='selection3' type='Sequence4'/>"
+"    <xs:element name='selection4' type='Choice2'/>"
+"  </xs:choice>"
+"</xs:complexType>"
+""
+"<xs:complexType name='Choice2'>"
+"  <xs:choice>"
+"    <xs:element name='selection1' type='xs:boolean'/>"
+"    <xs:element name='selection2' type='xs:string'/>"
+"    <xs:element name='selection3' type='Choice1'/>"
+"  </xs:choice>"
+"</xs:complexType>"
+""
+"<xs:complexType name='Choice3'>"
+"  <xs:choice>"
+"    <xs:element name='selection1' type='Sequence6'/>"
+"    <xs:element name='selection2' type='xs:unsignedByte'/>"
+"    <xs:element name='selection3' type='CustomString'/>"
+"    <xs:element name='selection4' type='CustomInt'/>"
+"  </xs:choice>"
+"</xs:complexType>"
+""
+"<xs:simpleType name='CustomInt'>"
+"  <xs:restriction base='xs:int'>"
+"    <xs:maxInclusive value='1000'/>"
+"  </xs:restriction>"
+"</xs:simpleType>"
+""
+"<xs:simpleType name='CustomString'>"
+"  <xs:restriction base='xs:string'>"
+"    <xs:maxLength value='8'/>"
+"  </xs:restriction>"
+"</xs:simpleType>"
+""
+"<xs:simpleType name='Enumerated' bdem:preserveEnumOrder='true'>"
+"  <xs:restriction base='xs:string'>"
+"     <xs:enumeration value='NEW_YORK'/>"
+"     <xs:enumeration value='NEW_JERSEY'/>"
+"     <xs:enumeration value='LONDON'/>"
+"  </xs:restriction>"
+"</xs:simpleType>"
+""
+"<xs:complexType name='Sequence1'>"
+"  <xs:sequence>"
+"    <xs:element name='element1' type='Choice3' minOccurs='0'/>"
+"    <xs:element name='element2' type='Choice1' minOccurs='0'"
+"                                               maxOccurs='unbounded'/>"
+"    <xs:element name='element3' type='Choice2' />"
+"    <xs:element name='element4' type='Choice3' minOccurs='0'"
+"                                               maxOccurs='unbounded'/>"
+"  </xs:sequence>"
+"</xs:complexType>"
+""
+"<xs:complexType name='Sequence2'>"
+"  <xs:sequence>"
+"    <xs:element name='element1' type='CustomString' />"
+"    <xs:element name='element2' type='xs:unsignedByte' />"
+"    <xs:element name='element3' type='xs:dateTime' />"
+"    <xs:element name='element4' type='Choice1' minOccurs='0'/>"
+"    <xs:element name='element5' type='xs:double' minOccurs='0'/>"
+"  </xs:sequence>"
+"</xs:complexType>"
+""
+"<xs:complexType name='Sequence3'>"
+"  <xs:sequence>"
+"    <xs:element name='element1' type='Enumerated' minOccurs='0'"
+"                                                  maxOccurs='unbounded'/>"
+"    <xs:element name='element2' type='xs:string' minOccurs='0'"
+"                                                 maxOccurs='unbounded'/>"
+"    <xs:element name='element3' type='xs:boolean' minOccurs='0'/>"
+"    <xs:element name='element4' type='xs:string' minOccurs='0'/>"
+"    <xs:element name='element5' type='Sequence5' minOccurs='0'/>"
+"    <xs:element name='element6' type='Enumerated' nillable='true'"
+"                                minOccurs='0' maxOccurs='unbounded'/>"
+"  </xs:sequence>"
+"</xs:complexType>"
+""
+"<xs:complexType name='Sequence4'>"
+"  <xs:sequence>"
+"    <xs:element name='element1' type='Sequence3' minOccurs='0'"
+"                                                 maxOccurs='unbounded'/>"
+"    <xs:element name='element2' type='Choice1' minOccurs='0'"
+"                                                 maxOccurs='unbounded'/>"
+"    <xs:element name='element3' type='xs:hexBinary' minOccurs='0'/>"
+"    <xs:element name='element4' type='xs:int' minOccurs='0'/>"
+"    <xs:element name='element5' type='xs:dateTime' minOccurs='0'/>"
+"    <xs:element name='element6' type='CustomString' minOccurs='0'/>"
+"    <xs:element name='element7' type='Enumerated' minOccurs='0'/>"
+"    <xs:element name='element8' type='xs:boolean' />"
+"    <xs:element name='element9' type='xs:string' />"
+"    <xs:element name='element10' type='xs:double' />"
+"    <xs:element name='element11' type='xs:hexBinary' />"
+"    <xs:element name='element12' type='xs:int' />"
+"    <xs:element name='element13' type='Enumerated' />"
+"    <xs:element name='element14' type='xs:boolean' minOccurs='0'"
+"                                                   maxOccurs='unbounded'/>"
+"    <xs:element name='element15' type='xs:double' minOccurs='0'"
+"                                                  maxOccurs='unbounded'/>"
+"    <xs:element name='element16' type='xs:hexBinary' minOccurs='0'"
+// TBD "                                               maxOccurs='unbounded'/>"
+"                                                                   />"
+"    <xs:element name='element17' type='xs:int' minOccurs='0'"
+"                                               maxOccurs='unbounded'/>"
+"    <xs:element name='element18' type='xs:dateTime' minOccurs='0'"
+"                                                    maxOccurs='unbounded'/>"
+"    <xs:element name='element19' type='CustomString' minOccurs='0'"
+"                                                     maxOccurs='unbounded'/>"
+"  </xs:sequence>"
+"</xs:complexType>"
+""
+"<xs:complexType name='Sequence5'>"
+"  <xs:sequence>"
+"    <xs:element name='element1' type='Sequence3' />"
+"    <xs:element name='element2' type='xs:boolean' nillable='true'"
+"                                        minOccurs='0' maxOccurs='unbounded'/>"
+"    <xs:element name='element3' type='xs:double' nillable='true'"
+"                                        minOccurs='0' maxOccurs='unbounded'/>"
+"    <xs:element name='element4' type='xs:hexBinary' nillable='true'"
+// TBD: "                                minOccurs='0' maxOccurs='unbounded'/>"
+"                                        minOccurs='0'/>"
+"    <xs:element name='element5' type='xs:int' nillable='true' minOccurs='0'"
+"                                              maxOccurs='unbounded'/>"
+"    <xs:element name='element6' type='xs:dateTime' nillable='true'"
+"                                        minOccurs='0' maxOccurs='unbounded'/>"
+"    <xs:element name='element7' type='Sequence3' nillable='true'"
+"                                        minOccurs='0' maxOccurs='unbounded'/>"
+"  </xs:sequence>"
+"</xs:complexType>"
+""
+"<xs:complexType name='Sequence6'>"
+"  <xs:sequence>"
+"    <xs:element name='element1' type='xs:unsignedByte' minOccurs='0'/>"
+"    <xs:element name='element2' type='CustomString' minOccurs='0'/>"
+"    <xs:element name='element3' type='CustomInt' minOccurs='0'/>"
+"    <xs:element name='element4' type='xs:unsignedByte' />"
+"    <xs:element name='element5' type='CustomInt' nillable='true'"
+"                                        minOccurs='0' maxOccurs='unbounded'/>"
+"    <xs:element name='element6' type='CustomString' />"
+"    <xs:element name='element7' type='CustomInt' />"
+"    <xs:element name='element8' type='xs:unsignedByte' minOccurs='0'"
+"                                                      maxOccurs='unbounded'/>"
+"    <xs:element name='element9' type='CustomString' minOccurs='0'"
+"                                                      maxOccurs='unbounded'/>"
+"    <xs:element name='element10' type='xs:unsignedByte' nillable='true'"
+"                                        minOccurs='0' maxOccurs='unbounded'/>"
+"    <xs:element name='element11' type='CustomInt' minOccurs='0'"
+"                                                      maxOccurs='unbounded'/>"
+"  </xs:sequence>"
+"</xs:complexType>"
+""
+"<xs:complexType name='VoidSequence'>"
+"  <xs:sequence/>"
+"</xs:complexType>"
+""
+"<xs:complexType name='UnsignedSequence'>"
+"  <xs:sequence>"
+"    <xs:element name='element1' type='xs:unsignedInt'/>"
+"    <xs:element name='element2' type='xs:unsignedShort'/>"
+"    <xs:element name='element3' type='xs:unsignedLong'/>"
+"  </xs:sequence>"
+"</xs:complexType>"
+""
+"<xs:complexType name='FeatureTestMessage'>"
+"  <xs:choice>"
+"    <xs:element name='selection1'  type='Sequence1'/>"
+"    <xs:element name='selection2'  type='xs:hexBinary'/>"
+"    <xs:element name='selection3'  type='Sequence2'/>"
+"    <xs:element name='selection4'  type='Sequence3'/>"
+"    <xs:element name='selection5'  type='xs:dateTime'/>"
+"    <xs:element name='selection6'  type='CustomString'/>"
+"    <xs:element name='selection7'  type='Enumerated'/>"
+"    <xs:element name='selection8'  type='Choice3'/>"
+"    <xs:element name='selection9'  type='VoidSequence'/>"
+"    <xs:element name='selection10' type='UnsignedSequence'/>"
+"  </xs:choice>"
+"</xs:complexType>"
+""
+"  <xs:complexType name='SimpleRequest'>"
+"    <xs:sequence>"
+"      <xs:element name='data'           type='xs:string'/>"
+"      <xs:element name='responseLength' type='xs:int'/>"
+"    </xs:sequence>"
+"  </xs:complexType>"
+""
+"  <xs:complexType name='Request'>"
+"    <xs:choice>"
+"      <xs:element name='simpleRequest' type='SimpleRequest'/>"
+"      <xs:element name='featureRequest' type='FeatureTestMessage'/>"
+"    </xs:choice>"
+"  </xs:complexType>"
+" "
+"  <xs:complexType name='Response'>"
+"    <xs:choice>"
+"      <xs:element name='responseData'    type='xs:string'/>"
+"      <xs:element name='featureResponse' type='FeatureTestMessage'/>"
+"    </xs:choice>"
+"  </xs:complexType>"
+""
+"  <xs:element name='Obj' type='FeatureTestMessage'/>"
+""
+"</xs:schema>";
+
 static const char* XML_TEST_MESSAGES[] = {
+
+"<Obj xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'><selection1><eleme"
+"nt3><selection1>true</selection1></element3></selection1></Obj>",
 
 "<Obj xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'><selection1><eleme"
 "nt1><selection1><element1>0</element1><element2>custom</element2><element3>99"
@@ -147,9 +365,6 @@ static const char* XML_TEST_MESSAGES[] = {
 "9>custom</element9><element10>0</element10><element10>0</element10><element11"
 ">999</element11><element11>999</element11></selection1></element4></selection"
 "1></Obj>",
-
-"<Obj xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'><selection1><eleme"
-"nt3><selection1>true</selection1></element3></selection1></Obj>",
 
 "<Obj xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'><selection1><eleme"
 "nt1><selection1><element1>255</element1><element4>255</element4><element6>cus"
@@ -1148,11 +1363,23 @@ static const int NUM_XML_TEST_MESSAGES =
                       (sizeof(XML_TEST_MESSAGES) / sizeof(*XML_TEST_MESSAGES));
 
 static const struct {
-    int         d_line;    // line number
-    const char *d_input_p; // input on the stream
-    bool        d_isValid; // isValid flag
+    int         d_line;                        // line number
+    const char *d_input_p;                     // input on the stream
+    bool        d_isValidForGeneratedMessages; // isValid flag for generated
+    bool        d_isValidForAggregate;         // isValid flag for aggregate
 } JSON_TEST_MESSAGES[] = {
 
+{
+
+L_,
+
+"{\"selection1\":{\"element2\":[],\"element3\":{\"selection1\":true},\"elemen"
+"t4\":[]}}}",
+
+true,
+true,
+
+},
 {
 
 L_,
@@ -1172,16 +1399,6 @@ L_,
 "ement11\":[999,999]}}]}}}",
 
 true,
-
-},
-
-{
-
-L_,
-
-"{\"selection1\":{\"element2\":[],\"element3\":{\"selection1\":true},\"elemen"
-"t4\":[]}}}",
-
 true,
 
 },
@@ -1208,6 +1425,7 @@ L_,
 "nt9\":[],\"element10\":[255,255],\"element11\":[]}}]}}}",
 
 true,
+false,
 
 },
 {
@@ -1297,6 +1515,7 @@ L_,
 "lection2\":255},{\"selection2\":255}]}}}",
 
 true,
+false,
 
 },
 {
@@ -1356,6 +1575,7 @@ L_,
 "4\":[{\"selection2\":0},{\"selection2\":0}]}}}",
 
 true,
+false,
 
 },
 {
@@ -1589,6 +1809,7 @@ L_,
 "om\"}]}}}",
 
 true,
+false,
 
 },
 {
@@ -1640,6 +1861,7 @@ L_,
 "on4\":999}]}}}",
 
 true,
+false,
 
 },
 {
@@ -1681,6 +1903,7 @@ L_,
 "\":[],\"element10\":[],\"element11\":[]}}]}}}",
 
 true,
+false,
 
 },
 {
@@ -1801,6 +2024,7 @@ L_,
 "9\":[\"custom\",\"custom\"]}}},\"element4\":[]}}}",
 
 true,
+false,
 
 },
 {
@@ -1821,11 +2045,12 @@ L_,
 "\"custom\"],\"element10\":[0,0],\"element11\":[999,999]}}]}}}",
 
 true,
+true,
 
 },
 {
 
-L_, "{\"selection2\":\"\\/wAB\"}}", true,
+L_, "{\"selection2\":\"\\/wAB\"}}", true, true,
 
 },
 {
@@ -1835,6 +2060,7 @@ L_,
 "{\"selection3\":{\"element1\":\"custom\",\"element2\":255,\"element3\":\"201"
 "2-08-18T13:25:00.000+00:00\"}}}",
 
+true,
 true,
 
 },
@@ -1846,6 +2072,7 @@ L_,
 "08-18T13:25:00.000+00:00\",\"element4\":{\"selection2\":1.500000000000000e+0"
 "0},\"element5\":1.500000000000000e+00}}}",
 
+true,
 true,
 
 },
@@ -1861,6 +2088,7 @@ L_,
 "nt18\":[],\"element19\":[]}}}}}",
 
 true,
+false,
 
 },
 {
@@ -1911,6 +2139,7 @@ L_,
 "000e+00}}}",
 
 true,
+false,
 
 },
 {
@@ -1945,6 +2174,7 @@ L_,
 "ent17\":[],\"element18\":[],\"element19\":[]}}}}}",
 
 true,
+false,
 
 },
 {
@@ -2065,6 +2295,7 @@ L_,
 "\"element5\":1.500000000000000e+00}}}",
 
 true,
+false,
 
 },
 {
@@ -2075,6 +2306,7 @@ L_,
 "2-08-18T13:25:00.000+00:00\",\"element4\":{\"selection4\":{\"selection1\":tr"
 "ue}}}}}",
 
+true,
 true,
 
 },
@@ -2087,6 +2319,7 @@ L_,
 "}},\"element5\":1.500000000000000e+00}}}",
 
 true,
+true,
 
 },
 {
@@ -2097,6 +2330,7 @@ L_,
 "2-08-18T13:25:00.000+00:00\",\"element4\":{\"selection4\":{\"selection2\":\""
 "arbitrary string value\"}}}}}",
 
+true,
 true,
 
 },
@@ -2109,6 +2343,7 @@ L_,
 "0000000000000e+00}}}",
 
 true,
+true,
 
 },
 {
@@ -2117,6 +2352,7 @@ L_,
 
 "{\"selection4\":{\"element1\":[],\"element2\":[],\"element6\":[]}}}",
 
+true,
 true,
 
 },
@@ -2142,6 +2378,7 @@ L_,
 "DON\",\"LONDON\"]}}}",
 
 true,
+false,
 
 },
 {
@@ -2157,21 +2394,23 @@ L_,
 "\":[],\"element7\":[]},\"element6\":[]}}}",
 
 true,
+// TBD: change below to true
+false,
 
 },
 {
 
-L_, "{\"selection5\":\"2012-08-18T13:25:00.000+00:00\"}}", true,
+L_, "{\"selection5\":\"2012-08-18T13:25:00.000+00:00\"}}", true, true,
 
 },
 {
 
-L_, "{\"selection6\":\"custom\"}}", true,
+L_, "{\"selection6\":\"custom\"}}", true, true,
 
 },
 {
 
-L_, "{\"selection7\":\"LONDON\"}}", true,
+L_, "{\"selection7\":\"LONDON\"}}", true, true,
 
 },
 {
@@ -2182,6 +2421,7 @@ L_,
 "\":\"custom\",\"element7\":999,\"element8\":[],\"element9\":[],\"element10\""
 ":[],\"element11\":[]}}}}",
 
+true,
 true,
 
 },
@@ -2195,6 +2435,7 @@ L_,
 "ement10\":[0,0],\"element11\":[999,999]}}}}",
 
 true,
+true,
 
 },
 {
@@ -2206,31 +2447,32 @@ L_,
 "ment9\":[],\"element10\":[255,255],\"element11\":[]}}}}",
 
 true,
+true,
 
 },
 {
 
-L_, "{\"selection8\":{\"selection2\":255}}}", true,
+L_, "{\"selection8\":{\"selection2\":255}}}", true, true,
 
 },
 {
 
-L_, "{\"selection8\":{\"selection2\":0}}}", true,
+L_, "{\"selection8\":{\"selection2\":0}}}", true, true,
 
 },
 {
 
-L_, "{\"selection8\":{\"selection3\":\"custom\"}}}", true,
+L_, "{\"selection8\":{\"selection3\":\"custom\"}}}", true, true,
 
 },
 {
 
-L_, "{\"selection8\":{\"selection4\":999}}}", true,
+L_, "{\"selection8\":{\"selection4\":999}}}", true, true,
 
 },
 {
 
-L_, "{\"selection9\":{}}}", true,
+L_, "{\"selection9\":{}}}", true, true,
 
 },
 {
@@ -2241,6 +2483,7 @@ L_,
 "23372036854785808}}",
 
 true,
+false,
 
 }
 
@@ -3193,7 +3436,7 @@ const bdeat_AttributeInfo *Employee::lookupAttributeInfo(
                 return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_AGE];
             }
         } break;
-        case 4: {
+        case 4:{
             if (bdeu_CharType::toUpper(name[0])=='N'
              && bdeu_CharType::toUpper(name[1])=='A'
              && bdeu_CharType::toUpper(name[2])=='M'
@@ -3593,7 +3836,7 @@ void constructFeatureTestMessage(
                       << bsl::endl;
             rc = 9;
         }
-        BSLS_ASSERT(0 == rc); // test invariant
+        ASSERT(0 == rc); // test invariant
         objects->push_back(object);
     }
 }
@@ -3620,7 +3863,7 @@ int main(int argc, char *argv[])
     switch (test) {
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING COMPLEX MESSAGES
+        // TESTING COMPLEX MESSAGES USING 'bcem_Aggregate'
         //
         // Concerns:
         //
@@ -3629,29 +3872,54 @@ int main(int argc, char *argv[])
         // Testing:
         // --------------------------------------------------------------------
 
-        std::vector<baea::FeatureTestMessage> testObjects;
-        constructFeatureTestMessage(&testObjects);
+        const char                *SCHEMA     = XML_SCHEMA;
+        const int                  SCHEMA_LEN = sizeof(XML_SCHEMA);
+        bdesb_FixedMemInStreamBuf  schema(SCHEMA, SCHEMA_LEN);
+        baexml_MiniReader          reader;
+        baexml_ErrorInfo           errInfo;
+
+        bcema_SharedPtr<bdem_Schema> schemaPtr;
+        schemaPtr.createInplace();
+
+        baexml_SchemaParser schemaParser(&reader, &errInfo);
+        int rc = schemaParser.parse(&schema, schemaPtr.ptr());
+        ASSERT(!rc);
+
+        baexml_DecoderOptions options;
+        baexml_Decoder xmlDecoder(&options, &reader, &errInfo);
 
         for (int ti = 0; ti < NUM_JSON_TEST_MESSAGES; ++ti) {
-            const int          LINE     = JSON_TEST_MESSAGES[ti].d_line;
-            const bsl::string& jsonText = JSON_TEST_MESSAGES[ti].d_input_p;
-            const bool         IS_VALID = JSON_TEST_MESSAGES[ti].d_isValid;
-            const baea::FeatureTestMessage& EXP = testObjects[ti];
+            const int           LINE     = JSON_TEST_MESSAGES[ti].d_line;
+            const bsl::string&  jsonText = JSON_TEST_MESSAGES[ti].d_input_p;
+            const bool          IS_VALID =
+                                  JSON_TEST_MESSAGES[ti].d_isValidForAggregate;
+            const char         *DATA     = XML_TEST_MESSAGES[ti];
+            const int           DATA_LEN = strlen(DATA);
 
-            if (veryVerbose) {
-                P(LINE) P(jsonText) P(EXP)
-            }
+            bdesb_FixedMemInStreamBuf data(DATA, DATA_LEN);
 
-            baea::FeatureTestMessage value;
-
-            baejsn_Decoder decoder;
-            bdesb_FixedMemInStreamBuf isb(jsonText.data(), jsonText.length());
-            const int rc = decoder.decode(&isb, &value);
+            bcem_Aggregate exp(schemaPtr, "Obj");
+            rc = xmlDecoder.decode(&data, &exp);
 
             if (IS_VALID) {
-                ASSERTV(LINE, rc, 0 == rc);
-                ASSERTV(LINE, isb.length(), 0 == isb.length());
-                ASSERTV(LINE, EXP, value, EXP == value);
+                bcem_Aggregate value(schemaPtr, "Obj");
+
+                baejsn_Decoder jsonDecoder;
+                bdesb_FixedMemInStreamBuf isb(jsonText.data(),
+                                              jsonText.length());
+                const int rc = jsonDecoder.decode(&isb, &value);
+
+                ASSERT(!rc);
+                if (rc) {
+                    if (veryVerbose) {
+                        P(jsonDecoder.loggedMessages());
+                    }
+                }
+                else {
+                    ASSERTV(LINE, isb.length(), 0 == isb.length());
+                    ASSERTV(LINE, ti, exp, value,
+                            bcem_Aggregate::areEquivalent(exp, value));
+                }
             }
         }
       } break;
@@ -3672,7 +3940,8 @@ int main(int argc, char *argv[])
         for (int ti = 0; ti < NUM_JSON_TEST_MESSAGES; ++ti) {
             const int          LINE     = JSON_TEST_MESSAGES[ti].d_line;
             const bsl::string& jsonText = JSON_TEST_MESSAGES[ti].d_input_p;
-            const bool         IS_VALID = JSON_TEST_MESSAGES[ti].d_isValid;
+            const bool         IS_VALID =
+                          JSON_TEST_MESSAGES[ti].d_isValidForGeneratedMessages;
             const baea::FeatureTestMessage& EXP = testObjects[ti];
 
             if (veryVerbose) {
