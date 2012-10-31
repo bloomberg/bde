@@ -7,7 +7,7 @@
 #endif
 BDES_IDENT("$Id: $")
 
-//@PURPOSE: Provide a JSON decoder for 'bdeat' compatible types
+//@PURPOSE: Provide a JSON decoder for 'bdeat' compatible types.
 //
 //@CLASSES:
 //  baejsn_Decoder: JSON decoder for 'bdeat' compliant types
@@ -84,7 +84,7 @@ namespace BloombergLP {
 class baejsn_Decoder
 {
     // DATA
-    bsl::ostringstream  d_logStream;       // stream to store error message 
+    bsl::ostringstream  d_logStream;       // stream to store error message
     bsl::streambuf     *d_streamBuf;       // held, not owned
 
     // FRIENDS
@@ -128,6 +128,7 @@ class baejsn_Decoder
         // 'basicAllocator'.  If 'basicAllocator' is 0, the default allocator
         // is used.
 
+    // MANIPULATORS
     template <typename TYPE>
     int decode(bsl::streambuf *streamBuf, TYPE *variable);
         // Decode an object of parameterized 'TYPE' from the specified
@@ -214,7 +215,7 @@ int baejsn_Decoder::decodeImp(TYPE *value, bdeat_TypeCategory::Sequence)
 {
     if (0 != baejsn_ParserUtil::advancePastWhitespaceAndToken(d_streamBuf,
                                                               '{')) {
-        d_logStream << "Could not decode sequence, missing starting {";
+        d_logStream << "Could not decode sequence, missing starting {\n";
         return -1;                                                    // RETURN
     }
 
@@ -228,13 +229,13 @@ int baejsn_Decoder::decodeImp(TYPE *value, bdeat_TypeCategory::Sequence)
             if (0 != baejsn_ParserUtil::getString(d_streamBuf,
                                                   &attributeName)) {
                 d_logStream << "Could not decode sequence, "
-                               "missing element string after ',' or '{'";
+                               "missing element string after ',' or '{'\n";
                 return -1;                                            // RETURN
             }
 
             if (attributeName.empty()) {
                 d_logStream << "Could not decode sequence, "
-                               "empty attribute names are not permitted";
+                               "empty attribute names are not permitted\n";
                 return -1;                                            // RETURN
             }
 
@@ -242,7 +243,7 @@ int baejsn_Decoder::decodeImp(TYPE *value, bdeat_TypeCategory::Sequence)
                                                                    d_streamBuf,
                                                                    ':')) {
                 d_logStream << "Could not decode sequence, "
-                               "missing ':' after attribute name";
+                               "missing ':' after attribute name\n";
                 return -1;                                            // RETURN
             }
 
@@ -252,8 +253,8 @@ int baejsn_Decoder::decodeImp(TYPE *value, bdeat_TypeCategory::Sequence)
                                                      visitor,
                                                      attributeName.data(),
                                                      attributeName.length())) {
-                d_logStream << "Could not decode sequence, "
-                               "unknown attribute id " << attributeName;
+                d_logStream << "Could not decode attribute id '"
+                            << attributeName << "'\n";
                 return -1;                                            // RETURN
             }
 
@@ -266,7 +267,7 @@ int baejsn_Decoder::decodeImp(TYPE *value, bdeat_TypeCategory::Sequence)
         if (0 != baejsn_ParserUtil::advancePastWhitespaceAndToken(d_streamBuf,
                                                                   '}')) {
             d_logStream << "Could not decode sequence, "
-                           "missing terminator '}' or seperator ','";
+                           "missing terminator '}' or seperator ','\n";
             return -1;                                                // RETURN
         }
     }
@@ -278,7 +279,7 @@ int baejsn_Decoder::decodeImp(TYPE *value, bdeat_TypeCategory::Choice)
 {
     if (0 != baejsn_ParserUtil::advancePastWhitespaceAndToken(d_streamBuf,
                                                               '{')) {
-        d_logStream << "Could not decode choice, missing starting {";
+        d_logStream << "Could not decode choice, missing starting {\n";
         return -1;                                                    // RETURN
     }
 
@@ -287,7 +288,7 @@ int baejsn_Decoder::decodeImp(TYPE *value, bdeat_TypeCategory::Choice)
     bsl::string attributeName;
 
     if (0 != baejsn_ParserUtil::getString(d_streamBuf, &attributeName)) {
-        d_logStream << "Could not decode choice, missing attribute name";
+        d_logStream << "Could not decode choice, missing attribute name\n";
         return -1;                                                    // RETURN
     }
 
@@ -295,28 +296,28 @@ int baejsn_Decoder::decodeImp(TYPE *value, bdeat_TypeCategory::Choice)
                                                   attributeName.data(),
                                                   attributeName.length())) {
         d_logStream << "Could not deocde choice, bad attribute name '"
-                    << attributeName << "'";
+                    << attributeName << "'\n";
         return -1;                                                    // RETURN
     }
 
     if (0 != baejsn_ParserUtil::advancePastWhitespaceAndToken(d_streamBuf,
                                                               ':')) {
         d_logStream << "Could not decode choice, "
-                       "missing ':' after selection name";
+                       "missing ':' after selection name\n";
         return -1;                                                    // RETURN
     }
 
     baejsn_Decoder_ElementVisitor visitor = { this };
     if (0 != bdeat_ChoiceFunctions::manipulateSelection(value, visitor)) {
         d_logStream << "Could not decode choice, attribute '"
-                    << attributeName << "' was not decoded";
+                    << attributeName << "' was not decoded\n";
         return -1;                                                    // RETURN
     }
 
     if (0 != baejsn_ParserUtil::advancePastWhitespaceAndToken(d_streamBuf,
                                                               '}')) {
         d_logStream << "Could not decode choice, "
-                       "missing terminator '}' or seperator ','";
+                       "missing terminator '}' or seperator ','\n";
         return -1;                                                    // RETURN
     }
     return 0;
@@ -331,7 +332,7 @@ int baejsn_Decoder::decodeImp(TYPE *value, bdeat_TypeCategory::Enumeration)
     bsl::string valueString;
 
     if (0 != decodeImp(&valueString, bdeat_TypeCategory::Simple())) {
-        d_logStream << "Error decoding enumeration";
+        d_logStream << "Error decoding enumeration\n";
         return -1;                                                    // RETURN
     }
 
@@ -341,7 +342,7 @@ int baejsn_Decoder::decodeImp(TYPE *value, bdeat_TypeCategory::Enumeration)
 
     if (rc) {
         d_logStream << "Could not decode Enum String, value not allowed \""
-                    << valueString << "\"";
+                    << valueString << "\"\n";
         return -1;                                                    // RETURN
     }
     return 0;
@@ -355,7 +356,7 @@ int baejsn_Decoder::decodeImp(TYPE *value, bdeat_TypeCategory::CustomizedType)
     typename bdeat_CustomizedTypeFunctions::BaseType<TYPE>::Type valueBaseType;
 
     if (0 != decodeImp(&valueBaseType, bdeat_TypeCategory::Simple())) {
-        d_logStream << "Error decoding customized type";
+        d_logStream << "Error decoding customized type\n";
         return -1;                                                    // RETURN
     }
 
@@ -364,7 +365,7 @@ int baejsn_Decoder::decodeImp(TYPE *value, bdeat_TypeCategory::CustomizedType)
                                                                 valueBaseType);
     if (rc) {
         d_logStream << "Could not decode Enum Customized, "
-                       "value not allowed \"" << valueBaseType << "\"";
+                       "value not allowed \"" << valueBaseType << "\"\n";
         return -1;                                                    // RETURN
     }
     return 0;
@@ -391,7 +392,7 @@ int baejsn_Decoder::decodeImp(TYPE *value, bdeat_TypeCategory::Array)
 {
     if (0 != baejsn_ParserUtil::advancePastWhitespaceAndToken(d_streamBuf,
                                                               '[')) {
-        d_logStream << "Could not decode vector, missing start [";
+        d_logStream << "Could not decode vector, missing start [\n";
         return -1;                                                    // RETURN
     }
 
@@ -411,7 +412,8 @@ int baejsn_Decoder::decodeImp(TYPE *value, bdeat_TypeCategory::Array)
             if (0 != bdeat_ArrayFunctions::manipulateElement(value,
                                                              visitor,
                                                              i - 1)) {
-                d_logStream << "Could not add element '" << i << "\'";
+                d_logStream << "Could not add array element '" << i - 1
+                            << "\'\n";
                 return -1;                                            // RETURN
             }
             hasMore =
@@ -422,7 +424,7 @@ int baejsn_Decoder::decodeImp(TYPE *value, bdeat_TypeCategory::Array)
 
         if (0 != baejsn_ParserUtil::advancePastWhitespaceAndToken(d_streamBuf,
                                                                   ']')) {
-            d_logStream << "Could not decode vector, missing end ]";
+            d_logStream << "Could not decode vector, missing end ]\n";
             return -1;                                                // RETURN
         }
     }
@@ -449,6 +451,7 @@ inline
 int baejsn_Decoder::decodeImp(TYPE *, ANY_CATEGORY)
 {
     BSLS_ASSERT_OPT(!"Unreachable");
+
     return -1;
 }
 
@@ -468,8 +471,17 @@ int baejsn_Decoder::decode(bsl::streambuf *streamBuf, TYPE *variable)
     BSLS_ASSERT(0 == d_streamBuf);
     BSLS_ASSERT(streamBuf);
     BSLS_ASSERT(variable);
-    BSLMF_ASSERT(bdeat_SequenceFunctions::IsSequence<TYPE>::VALUE
-              || bdeat_ChoiceFunctions::IsChoice<TYPE>::VALUE);
+
+    bdeat_TypeCategory::Value category =
+                                bdeat_TypeCategoryFunctions::select(*variable);
+
+    if (bdeat_TypeCategory::BDEAT_SEQUENCE_CATEGORY != category
+     && bdeat_TypeCategory::BDEAT_CHOICE_CATEGORY   != category
+     && bdeat_TypeCategory::BDEAT_ARRAY_CATEGORY    != category) {
+        d_logStream << "The object being decoded must be a Sequence, "
+                    << "Choice, or Array type\n";
+        return -1;                                                    // RETURN
+    }
 
     d_streamBuf = streamBuf;
 
@@ -539,7 +551,8 @@ template <typename TYPE>
 inline
 int baejsn_Decoder_DecodeImpProxy::operator()(TYPE *, bslmf_Nil)
 {
-    BSLS_ASSERT_OPT(0 && "Unreachable");
+    BSLS_ASSERT_OPT(!"Unreachable");
+
     return -1;
 }
 

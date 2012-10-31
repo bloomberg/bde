@@ -27,6 +27,10 @@ BDES_IDENT("$Id: $")
 #include <bdepu_iso8601.h>
 #endif
 
+#ifndef INCLUDED_BSL_LIMITS
+#include <bsl_limits.h>
+#endif
+
 #ifndef INCLUDED_BSL_STREAMBUF
 #include <bsl_streambuf.h>
 #endif
@@ -44,7 +48,6 @@ class bdet_DateTz;
 class bdet_TimeTz;
 class bdet_DatetimeTz;
 
-
                             // ========================
                             // struct baejsn_ParserUtil
                             // ========================
@@ -52,6 +55,7 @@ class bdet_DatetimeTz;
 struct baejsn_ParserUtil {
   private:
 
+    // PRIVATE CLASS METHODS
     template <typename TYPE>
     static int getDateAndTimeValue(bsl::streambuf *streamBuf,
                                    TYPE           *value,
@@ -88,6 +92,7 @@ struct baejsn_ParserUtil {
     static int getDouble(bsl::streambuf *streamBuf, double *value);
 
   public:
+    // CLASS METHODS
     static void skipSpaces(bsl::streambuf *streamBuf);
         // Read characters from the specified 'streamBuf' until a
         // non-whitespace character is encountered.  Note that the function
@@ -129,7 +134,7 @@ struct baejsn_ParserUtil {
                             // struct baejsn_ParserUtil
                             // ------------------------
 
-// PRIVATE METHODS
+// PRIVATE CLASS METHODS
 template <typename TYPE>
 int baejsn_ParserUtil::getDateAndTimeValue(bsl::streambuf *streamBuf,
                                            TYPE           *value,
@@ -366,6 +371,7 @@ int baejsn_ParserUtil::getValueImp(bsl::streambuf *streamBuf,
     return getDateAndTimeValue(streamBuf, value, MAX_LENGTH);
 }
 
+// CLASS METHODS
 template <class TYPE>
 inline
 int baejsn_ParserUtil::getValue(bsl::streambuf *streamBuf, TYPE *value)

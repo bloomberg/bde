@@ -15,17 +15,18 @@ namespace BloombergLP {
 int baejsn_Decoder::decodeBinaryArray(std::vector<char> *value)
 {
     // TBD: Review
+
     baejsn_ParserUtil::skipSpaces(d_streamBuf);
 
     bsl::string hexString;
     if (0 != baejsn_ParserUtil::getString(d_streamBuf, &hexString)) {
-        d_logStream << "Expected string containing base64";
+        d_logStream << "Expected string containing base64\n";
         return 1;                                                     // RETURN
     }
 
     if (0 != (hexString.length() & 0x03)) {
         d_logStream << "Expected string containing base64, "
-                       "but string length is not a multiple of 4";
+                       "but string length is not a multiple of 4\n";
         return 1;                                                     // RETURN
     }
 

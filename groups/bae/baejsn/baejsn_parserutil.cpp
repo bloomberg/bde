@@ -17,6 +17,7 @@ namespace BloombergLP {
                             // struct baejsn_ParserUtil
                             // ------------------------
 
+// CLASS METHODS
 void baejsn_ParserUtil::skipSpaces(bsl::streambuf *streamBuf)
 {
     int ch = streamBuf->sgetc();
@@ -210,13 +211,13 @@ int baejsn_ParserUtil::getString(bsl::streambuf *streamBuf, bsl::string *value)
                 // printable characters
 
                 *value += ch;
-                
               } break;
 
               case 'u': {
                 streamBuf->snextc();
 
                 // TBD: This doesnt work
+
                 BSLS_ASSERT_OPT(0);
 
                 const int SIZE = 4;

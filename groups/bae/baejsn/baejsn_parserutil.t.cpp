@@ -2572,7 +2572,7 @@ int main(int argc, char *argv[])
                 char        d_exp;     // exp char value
                 bool        d_isValid; // isValid flag
             } DATA[] = {
-                // line    input        exp            isValid  
+                // line    input        exp            isValid
                 // ----    -----        ---            -------
                 {  L_,     "\"0\"",     '0',            true  },
                 {  L_,     "\"1\"",     '1',            true  },
@@ -2589,7 +2589,7 @@ int main(int argc, char *argv[])
 
                 {  L_,     "\"AB\"",    ERROR_CHAR,     false },
 
-                // TBD: 
+                // TBD:
 //                 {  L_,     "\"\\u000a \"",   'a',     true  },
             };
             const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
@@ -2603,7 +2603,7 @@ int main(int argc, char *argv[])
                       char           c        = ERROR_CHAR;
                       signed char    sc       = ERROR_CHAR;
 
-                if (veryVerbose) { P(INPUT) P(C) } 
+                if (veryVerbose) { P(INPUT) P(C) }
 
                 // char values
                 {
