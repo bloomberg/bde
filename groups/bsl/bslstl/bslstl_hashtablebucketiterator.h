@@ -89,7 +89,7 @@ BSLS_IDENT("$Id: $")
 // iterators to navigate and print the elements in the hash table bucket:
 //..
 //  Iter iter(&hashTable.bucketArrayAddress()[1]);
-//  Iter end;
+//  Iter end(0, &hashTable.bucketArrayAddress()[1]);
 //  for (;iter != end; ++iter) {
 //      printf("%d\n", *iter);
 //  }

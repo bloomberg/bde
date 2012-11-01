@@ -212,7 +212,7 @@ class AllocatingIntType {
   public:
 
     // CREATORS
-    AllocatingIntType(bslma::Allocator *allocator)
+    explicit AllocatingIntType(bslma::Allocator *allocator)
     : d_allocator_p(bslma::Default::allocator(allocator))
     {
         d_value_p  = static_cast<int *>(d_allocator_p->allocate(sizeof(int)));
@@ -259,7 +259,7 @@ class NonAllocatingTestType {
 
   public:
     // CREATORS
-    NonAllocatingTestType(const double& arg)
+    explicit NonAllocatingTestType(const double& arg)
     : d_singleFlag(true)
     , d_doubleFlag(false)
     , d_arg1(arg)
@@ -334,9 +334,9 @@ class AllocatingTestType {
 
     }
 
-    AllocatingTestType(const double& arg1,
-                          const double& arg2,
-                          bslma::Allocator *basicAllocator)
+    AllocatingTestType(const double&     arg1,
+                       const double&     arg2,
+                       bslma::Allocator *basicAllocator)
     : d_singleFlag(false)
     , d_doubleFlag(true)
     , d_allocator_p(basicAllocator)
@@ -1799,7 +1799,7 @@ class MyList {
 
   public:
     // CREATORS
-    MyList(const ALLOCATOR& allocator = ALLOCATOR());
+    explicit MyList(const ALLOCATOR& allocator = ALLOCATOR());
         // Create an empty linked list that allocate memory using the specified
         // 'allocator'.
 
@@ -1832,10 +1832,10 @@ class MyList {
 //..
 // CREATORS
 template <class VALUE, class ALLOCATOR>
-MyList<VALUE, ALLOCATOR>::MyList(const ALLOCATOR& basicAllocator)
+MyList<VALUE, ALLOCATOR>::MyList(const ALLOCATOR& allocator)
 : d_head_p(0)
 , d_tail_p(0)
-, d_pool(basicAllocator)
+, d_pool(allocator)
 {
 }
 

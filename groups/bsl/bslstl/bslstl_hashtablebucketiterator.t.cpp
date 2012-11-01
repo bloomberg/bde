@@ -825,6 +825,8 @@ void TestDriver<VALUE>::testCase6()
     //:
     //:11 The equality-comparison operators can be used on objects
     //:   parameterized on both a 'const' and non-'const' value type.
+    //:
+    //:12 QoI: Asserted precondition violations are detected when enabled.
     //
     // Plan:
     //: 1 Use the respective addresses of 'operator==' and 'operator!=' to
@@ -854,6 +856,10 @@ void TestDriver<VALUE>::testCase6()
     //:     3 Verify the commutativity property and the expected return value
     //:       of both '==' and '!=' for each of the sets ('X1', 'Y1'), ('X1',
     //:       'Y2'), ('X2', 'Y1'), and ('X2', 'Y2').  (C-1, 4..6, 11)
+    //:
+    //:     4 Verify that, in appropriate buildmodes, defensive checks are
+    //:       triggered when invoking the equal-comparison operators if
+    //        'M1 != M2'.  (C-13)
     //
     // Testing:
     //   bool operator==(const HashTableIterator& lhs, rhs);
@@ -932,25 +938,48 @@ void TestDriver<VALUE>::testCase6()
             Obj  mY1(NODE2, BUCKET2); const Obj&  Y1 = mY1;
             ObjC mY2(NODE2, BUCKET2); const ObjC& Y2 = mY2;
 
+            if (b1 != b2) {
+                bsls_AssertFailureHandlerGuard hG(
+                                              bsls_AssertTest::failTestDriver);
+                ASSERT_SAFE_FAIL(EXP == (X1 == Y1));
+                ASSERT_SAFE_FAIL(EXP == (Y1 == X1));
+                ASSERT_SAFE_FAIL(EXP == (X1 == Y2));
+                ASSERT_SAFE_FAIL(EXP == (Y2 == X1));
+                ASSERT_SAFE_FAIL(EXP == (X2 == Y1));
+                ASSERT_SAFE_FAIL(EXP == (Y1 == X2));
+                ASSERT_SAFE_FAIL(EXP == (X2 == Y2));
+                ASSERT_SAFE_FAIL(EXP == (Y2 == X2));
+
+                ASSERT_SAFE_FAIL(!EXP == (X1 != Y1));
+                ASSERT_SAFE_FAIL(!EXP == (Y1 != X1));
+                ASSERT_SAFE_FAIL(!EXP == (X1 != Y2));
+                ASSERT_SAFE_FAIL(!EXP == (Y2 != X1));
+                ASSERT_SAFE_FAIL(!EXP == (X2 != Y1));
+                ASSERT_SAFE_FAIL(!EXP == (Y1 != X2));
+                ASSERT_SAFE_FAIL(!EXP == (X2 != Y2));
+                ASSERT_SAFE_FAIL(!EXP == (Y2 != X2));
+            }
+            else {
             // Verify value, commutativity
 
-            ASSERTV(EXP == (X1 == Y1));
-            ASSERTV(EXP == (Y1 == X1));
-            ASSERTV(EXP == (X1 == Y2));
-            ASSERTV(EXP == (Y2 == X1));
-            ASSERTV(EXP == (X2 == Y1));
-            ASSERTV(EXP == (Y1 == X2));
-            ASSERTV(EXP == (X2 == Y2));
-            ASSERTV(EXP == (Y2 == X2));
+                ASSERTV(EXP == (X1 == Y1));
+                ASSERTV(EXP == (Y1 == X1));
+                ASSERTV(EXP == (X1 == Y2));
+                ASSERTV(EXP == (Y2 == X1));
+                ASSERTV(EXP == (X2 == Y1));
+                ASSERTV(EXP == (Y1 == X2));
+                ASSERTV(EXP == (X2 == Y2));
+                ASSERTV(EXP == (Y2 == X2));
 
-            ASSERTV(!EXP == (X1 != Y1));
-            ASSERTV(!EXP == (Y1 != X1));
-            ASSERTV(!EXP == (X1 != Y2));
-            ASSERTV(!EXP == (Y2 != X1));
-            ASSERTV(!EXP == (X2 != Y1));
-            ASSERTV(!EXP == (Y1 != X2));
-            ASSERTV(!EXP == (X2 != Y2));
-            ASSERTV(!EXP == (Y2 != X2));
+                ASSERTV(!EXP == (X1 != Y1));
+                ASSERTV(!EXP == (Y1 != X1));
+                ASSERTV(!EXP == (X1 != Y2));
+                ASSERTV(!EXP == (Y2 != X1));
+                ASSERTV(!EXP == (X2 != Y1));
+                ASSERTV(!EXP == (Y1 != X2));
+                ASSERTV(!EXP == (X2 != Y2));
+                ASSERTV(!EXP == (Y2 != X2));
+            }
         }
         }
     }
@@ -1044,7 +1073,7 @@ void TestDriver<VALUE>::testCase4()
     for (int b = 0; b < M; ++b) {
         Bucket *BUCKET = buckets.bucket(b);
         Obj mX(BUCKET); const Obj& X = mX;
-        Obj end;
+        Obj end(0, BUCKET);
         for (int n = 0; mX != end; ++mX, ++n) {
             Node *NODE = buckets.node(b, n);
             ASSERT(BUCKET == X.bucket());
@@ -1228,7 +1257,7 @@ void TestDriver<VALUE>::testCase2()
         ASSERT(BUCKET == X.bucket());
         ASSERT(BUCKET->d_first_p == X.node());
 
-        Obj end;
+        Obj end(0, BUCKET);
         for (int n = 0; mX != end; ++mX, ++n) {
             Node *NODE = buckets.node(b, n);
             ASSERT(BUCKET == X.bucket());
@@ -1308,7 +1337,7 @@ void usageExample()
 // iterators to navigate and print the elements in the hash table bucket:
 //..
     Iter iter(&hashTable.bucketArrayAddress()[1]);
-    Iter end;
+    Iter end(0, &hashTable.bucketArrayAddress()[1]);
     for (;iter != end; ++iter) {
         printf("%d\n", *iter);
     }

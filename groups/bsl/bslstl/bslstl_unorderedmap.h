@@ -341,7 +341,6 @@ class unordered_map {
     // For terminology see {'bsldoc_glossary'}.
 
   private:
-
     // PRIVATE TYPES
     typedef bsl::allocator_traits<ALLOCATOR> AllocatorTraits;
         // This 'typedef' is an alias for the allocator traits type associated
