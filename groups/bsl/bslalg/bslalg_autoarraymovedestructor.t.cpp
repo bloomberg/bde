@@ -3,7 +3,10 @@
 #include <bslalg_autoarraymovedestructor.h>
 
 #include <bslalg_autoarraydestructor.h>          // for testing only
+#include <bslalg_hastrait.h>                     // for testing only
 #include <bslalg_scalarprimitives.h>             // for testing only
+#include <bslalg_typetraitbitwisemoveable.h>     // for testing only
+#include <bslalg_typetraitusesbslmaallocator.h>  // for testing only
 
 #include <bslma_allocator.h>                     // for testing only
 #include <bslma_default.h>                       // for testing only

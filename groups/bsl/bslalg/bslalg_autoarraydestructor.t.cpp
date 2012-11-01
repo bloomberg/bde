@@ -3,6 +3,8 @@
 #include <bslalg_autoarraydestructor.h>
 
 #include <bslalg_scalarprimitives.h>             // for testing only
+#include <bslalg_usesbslmaallocator.h>           // for testing only
+
 #include <bslma_allocator.h>                     // for testing only
 #include <bslma_deallocatorproctor.h>            // for testing only
 #include <bslma_autodestructor.h>                // for testing only
