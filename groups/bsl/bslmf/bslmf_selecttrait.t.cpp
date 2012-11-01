@@ -124,7 +124,7 @@ template <> struct IsLong<long>     : bsl::true_type { };
 template <class TYPE> struct IsFloat : bsl::false_type { };
 template <> struct IsFloat<float>    : bsl::true_type { };
 
-int whichTrait(bslmf::SelectTraitDefault) 		{ return 0; }
+int whichTrait(bslmf::SelectTraitCase<>) 		{ return 0; }
 int whichTrait(bslmf::SelectTraitCase<IsBool>) 	{ return 1; }
 int whichTrait(bslmf::SelectTraitCase<IsChar>) 	{ return 2; }
 int whichTrait(bslmf::SelectTraitCase<IsShort>) { return 3; }
@@ -331,7 +331,7 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
         copyConstruct(TARGET_TYPE                *address,
                       const TARGET_TYPE&          original,
                       bslma::Allocator           *,
-                      bslmf::SelectTraitDefault)
+                      bslmf::SelectTraitCase<>)
         {
             new (address) TARGET_TYPE(original);
             ++d_noTraitsCounter;

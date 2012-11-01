@@ -157,7 +157,7 @@ BSLS_IDENT("$Id: $")
 //      copyConstruct(TARGET_TYPE                *address,
 //                    const TARGET_TYPE&          original,
 //                    bslma::Allocator           *,
-//                    bslmf::SelectTraitDefault)
+//                    bslmf::SelectTraitCase<>)
 //      {
 //          new (address) TARGET_TYPE(original);
 //          ++d_noTraitsCounter;
@@ -375,11 +375,21 @@ namespace BloombergLP {
 
 namespace bslmf {
 
+                        // ========================
+                        // struct SelectTrait_False
+                        // ========================
+
+template <class>
+struct SelectTrait_False : bsl::false_type
+{
+    // Metafunction that always returns false.
+};
+
                            // ======================
                            // struct SelectTraitCase
                            // ======================
 
-template <template<class T> class TRAIT>
+template <template <class> class TRAIT = SelectTrait_False>
 struct SelectTraitCase
 {
     // This template expresses a class that is unique for the specified
@@ -390,9 +400,12 @@ struct SelectTraitCase
     // similar to the way a pointer-to-function holds (at run-time) the
     // identity of a function.  As in the pointer-to-function case, a
     // 'SelectTraitCase' can also be used indrectly to evaluate 'TRAIT' (at
-    // compile time).
+    // compile time).  Also note that, when 'SelectTraitCase' is specialized
+    // with the default 'TRAIT' type parameter, 'SelectTrait_False', it
+    // essentially means that none of the traits specified to 'SelectTrait'
+    // match.
 
-    template <class T> struct Eval : public TRAIT<T>::type {
+    template <class TYPE> struct Eval : public TRAIT<TYPE>::type {
         // Evaluates 'TRAIT' for the specified (template parameter) 'T' type.
         // The resulting 'Eval<T>' instantiation is derived from 'true_type'
         // if 'TRAIT<T>' is derived from 'true_type' and 'false_type' if
@@ -403,40 +416,21 @@ struct SelectTraitCase
     typedef SelectTraitCase Type;
 };
 
-                        // ========================
-                        // struct SelectTrait_False
-                        // ========================
-
-template <class TYPE>
-struct SelectTrait_False : bsl::false_type
-{
-    // Metafunction that always returns false.
-};
-
-                        // ==========================
-                        // typedef SelectTraitDefault
-                        // ==========================
-
-typedef SelectTraitCase<SelectTrait_False> SelectTraitDefault;
-    // This type is the "compile-time return value" of 'SelectTrait' (see
-    // below) in the case where none of the traits specified to 'SelectTrait'
-    // match.  It can be thought of as a null pointer-to-metafunction.
-
                         // ======================
                         // struct SelectTrait_Imp
                         // ======================
 
 
 template <class TYPE,
-          template <class T> class TRAIT1,
-          template <class T> class TRAIT2,
-          template <class T> class TRAIT3,
-          template <class T> class TRAIT4,
-          template <class T> class TRAIT5,
-          template <class T> class TRAIT6,
-          template <class T> class TRAIT7,
-          template <class T> class TRAIT8,
-          template <class T> class TRAIT9>
+          template <class> class TRAIT1,
+          template <class> class TRAIT2,
+          template <class> class TRAIT3,
+          template <class> class TRAIT4,
+          template <class> class TRAIT5,
+          template <class> class TRAIT6,
+          template <class> class TRAIT7,
+          template <class> class TRAIT8,
+          template <class> class TRAIT9>
 struct SelectTrait_Imp
 {
     enum { ORDINAL = (TRAIT1<TYPE>::value ? 1 :
@@ -449,7 +443,7 @@ struct SelectTrait_Imp
                       TRAIT8<TYPE>::value ? 8 :
                       TRAIT9<TYPE>::value ? 9 : 0) };
 
-    typedef typename Switch<ORDINAL, SelectTraitDefault,
+    typedef typename Switch<ORDINAL, SelectTraitCase<>,
                             SelectTraitCase<TRAIT1>,
                             SelectTraitCase<TRAIT2>,
                             SelectTraitCase<TRAIT3>,
@@ -466,15 +460,15 @@ struct SelectTrait_Imp
                         // ==================
 
 template <class TYPE,
-          template <class T> class TRAIT1,
-          template <class T> class TRAIT2 = SelectTrait_False,
-          template <class T> class TRAIT3 = SelectTrait_False,
-          template <class T> class TRAIT4 = SelectTrait_False,
-          template <class T> class TRAIT5 = SelectTrait_False,
-          template <class T> class TRAIT6 = SelectTrait_False,
-          template <class T> class TRAIT7 = SelectTrait_False,
-          template <class T> class TRAIT8 = SelectTrait_False,
-          template <class T> class TRAIT9 = SelectTrait_False>
+          template <class> class TRAIT1,
+          template <class> class TRAIT2 = SelectTrait_False,
+          template <class> class TRAIT3 = SelectTrait_False,
+          template <class> class TRAIT4 = SelectTrait_False,
+          template <class> class TRAIT5 = SelectTrait_False,
+          template <class> class TRAIT6 = SelectTrait_False,
+          template <class> class TRAIT7 = SelectTrait_False,
+          template <class> class TRAIT8 = SelectTrait_False,
+          template <class> class TRAIT9 = SelectTrait_False>
 struct SelectTrait : SelectTrait_Imp<TYPE,   TRAIT1, TRAIT2, TRAIT3, TRAIT4,
                                      TRAIT5, TRAIT6, TRAIT7, TRAIT8, TRAIT9
                                     >::Type
@@ -484,7 +478,7 @@ struct SelectTrait : SelectTrait_Imp<TYPE,   TRAIT1, TRAIT2, TRAIT3, TRAIT4,
     // from 'SelectTraitCase<TRAITx>', where *x* is '1' if
     // 'TRAIT1<TYPE>::value' is true, '2' if 'TRAIT2<TYPE>::value' is true,
     // etc..  If none of the traits evaluates to true, then inherit from
-    // 'SelectTraitDefault'.
+    // 'SelectTraitCase<>', which means that none of the traits match.
 
 public:
     enum {

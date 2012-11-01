@@ -963,7 +963,7 @@ struct Printer_Helper {
                         const bsl::pair<T1, T2>&   data,
                         int                        level,
                         int                        spacesPerLevel,
-                        bslmf::SelectTraitDefault);
+                        bslmf::SelectTraitCase<>);
 
     template <class TYPE>
     static void printRaw(
@@ -971,7 +971,7 @@ struct Printer_Helper {
                         const TYPE&                data,
                         int                        level,
                         int                        spacesPerLevel,
-                        bslmf::SelectTraitDefault);
+                        bslmf::SelectTraitCase<>);
         // 'PrintRaw': the 'print' method of this class dispatches the actual
         // printing to the appropriate specialized 'printRaw' method for the
         // individual TYPE for printing.
@@ -1282,7 +1282,7 @@ void Printer_Helper::printRaw(bsl::ostream&              stream,
                               const bsl::pair<T1, T2>&   data,
                               int                        level,
                               int                        spacesPerLevel,
-                              bslmf::SelectTraitDefault)
+                              bslmf::SelectTraitCase<>)
 {
     bslim::Printer printer(&stream, level, spacesPerLevel);
     printer.start();
@@ -1297,7 +1297,7 @@ void Printer_Helper::printRaw(bsl::ostream&              stream,
                               const TYPE&                data,
                               int                        level,
                               int                        spacesPerLevel,
-                              bslmf::SelectTraitDefault)
+                              bslmf::SelectTraitCase<>)
 {
     data.print(stream, level, spacesPerLevel);
 }
