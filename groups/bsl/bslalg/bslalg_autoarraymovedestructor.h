@@ -33,8 +33,8 @@ BSLS_IDENT("$Id: $")
 //
 // Legend:
 //..
-//    'A' - 'Z' -- (uppercase) valid elements in array at beginning
-//    'v'       -- (lowercase) copy of specified 'value' being inserted.
+//    'ABCDE'   -- (uppercase) initial array elements.
+//    'v'       -- copy of specified 'value' being inserted.
 //    '.'       -- (period) uninitialized memory.
 //    '^(,)'    -- area guarded by 'AutoArrayMoveDestructor', where:
 //                 '^' -- position of 'guard.destination()'
@@ -42,11 +42,11 @@ BSLS_IDENT("$Id: $")
 //                 ',' -- (comma) position of 'guard.middle()'
 //                 ')' -- position of 'guard.end()'
 //
-// The copy c'tor for the type being inserted may throw, so we need to have a
-// guard object which can allow us to make some guarantee about the state of
-// things after the guard is destroyed.  What we want to guarantee is that
-// there are as many valid objects at the start of the array as before with no
-// other valid objects in existence.
+// The copy constructor for the type being inserted may throw, so we need to
+// have a guard object which can allow us to make some guarantee about the
+// state of things after the guard is destroyed.  What we want to guarantee is
+// that there are as many valid objects at the start of the array as before
+// with no other valid objects in existence.
 //..
 //  1: 'ABCDE.....'      -- initial memory.
 //  2: '.....ABCDE'      -- memory after first 'std::memcpy'.
@@ -61,11 +61,12 @@ BSLS_IDENT("$Id: $")
 //..
 // Now suppose we threw after step 4, destroying 'guard'.
 //..
-//  4b: 'vv^...(AB,CDE)' -- same as step '4' above, before destructor starts
-//  5b: 'vv^CDE(AB,...)' -- memory after 'guard's d'tor moves 'CDE' back to
+//  4: 'vv^...(AB,CDE)' -- same as step '4' above, before destructor starts
+//  5: 'vv^CDE(AB,...)' -- memory after 'guard's destructor moves 'CDE' back to
 //                          their position before we began
-//  6b: 'vv^CDE(..,...)' -- memory after 'guard's d'tor destroys 'A' and 'B'
-//  7b: 'vvCDE.....'     -- memory after 'guard's d'tor completes
+//  6: 'vv^CDE(..,...)' -- memory after 'guard's destructor destroys 'A' and
+//                           'B'
+//  7: 'vvCDE.....'     -- memory after 'guard's destructor completes
 //..
 // We now have 5 valid elements in the beginning of the range, as it was when
 // we started, making the situation predictable for our next d'tor.
@@ -83,13 +84,17 @@ BSLS_IDENT("$Id: $")
 // First, we create the class 'TestType', which is bitwise-movable and
 // allocates memory upon construction:
 //..
+//                                 // ==============
+//                                 // class TestType
+//                                 // ==============
+//
 //  class TestType {
-//..
-// This test type contains a 'char' in some allocated storage.  It counts the
-// number of default and copy constructions, assignments, and destructions.  It
-// has no traits other than using a 'bslma' allocator.  It could have the
-// bit-wise moveable traits but we defer that trait to the 'MoveableTestType'.
-//..
+//      // This test type contains a 'char' in some allocated storage.  It
+//      // counts the number of default and copy constructions, assignments,
+//      // and destructions.  It has no traits other than using a 'bslma'
+//      // allocator.  It could have the bit-wise moveable traits but we defer
+//      // that trait to the 'MoveableTestType'.
+//
 //      char             *d_data_p;
 //      bslma::Allocator *d_allocator_p;
 //
@@ -104,6 +109,7 @@ BSLS_IDENT("$Id: $")
 //      : d_data_p(0)
 //      , d_allocator_p(bslma::Default::allocator(basicAllocator))
 //      {
+//          ++numDefaultCtorCalls;
 //          d_data_p  = (char *)d_allocator_p->allocate(sizeof(char));
 //          *d_data_p = '?';
 //      }
@@ -112,33 +118,58 @@ BSLS_IDENT("$Id: $")
 //      : d_data_p(0)
 //      , d_allocator_p(bslma::Default::allocator(basicAllocator))
 //      {
+//          ++numCharCtorCalls;
 //          d_data_p  = (char *)d_allocator_p->allocate(sizeof(char));
 //          *d_data_p = c;
 //      }
 //
+//      TestType(const TestType&   original,
+//               bslma::Allocator *basicAllocator = 0)
+//      : d_data_p(0)
+//      , d_allocator_p(bslma::Default::allocator(basicAllocator))
+//      {
+//          ++numCopyCtorCalls;
+//          if (&original != this) {
+//              d_data_p  = (char *)d_allocator_p->allocate(sizeof(char));
+//              *d_data_p = *original.d_data_p;
+//          }
+//      }
+//
 //      ~TestType()
 //      {
+//          ++numDestructorCalls;
 //          *d_data_p = '_';
 //          d_allocator_p->deallocate(d_data_p);
 //          d_data_p = 0;
 //      }
 //
 //      // MANIPULATORS
+//      TestType& operator=(const TestType& rhs)
+//      {
+//          ++numAssignmentCalls;
+//          if (&rhs != this) {
+//              char *newData = (char *)d_allocator_p->allocate(sizeof(char));
+//              *d_data_p = '_';
+//              d_allocator_p->deallocate(d_data_p);
+//              d_data_p  = newData;
+//              *d_data_p = *rhs.d_data_p;
+//          }
+//          return *this;
+//      }
+//
 //      void setDatum(char c) { *d_data_p = c; }
 //
 //      // ACCESSORS
 //      char datum() const { return *d_data_p; }
-//
-//      void print() const
-//      {
-//          if (d_data_p) {
-//          assert(isalpha(*d_data_p));
-//              printf("%c (int: %d)\n", *d_data_p, (int)*d_data_p);
-//          } else {
-//              printf("VOID\n");
-//          }
-//      }
 //  };
+//
+//  bool operator==(const TestType& lhs, const TestType& rhs)
+//  {
+//      assert(isalpha(lhs.datum()));
+//      assert(isalpha(rhs.datum()));
+//
+//      return lhs.datum() == rhs.datum();
+//  }
 //..
 // Then, we define the function 'insertItems' which uses
 // 'AutoArrayMoveDestructor' to ensure that if an exception is thrown (e.g.,
@@ -164,28 +195,28 @@ BSLS_IDENT("$Id: $")
 //                               bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
 //      assert((bslalg::HasTrait<TestType,
 //                               bslalg::TypeTraitBitwiseMoveable   >::VALUE));
-//..
-// The range '[ start, divider )' contains valid elements.  The range
-// '[ divider, finish )' is of equal length and contains uninitialized
-// memory.  We want to insert 'divider - start' copies of the specified
-// 'value' at the front half of the range '[ start, finish )', moving the
-// exising elements back to make room for them.  Note that the copy c'tor
-// of 'TestType' allocates memory and may throw, so we have to leave the
-// array in a somewhat predicatable state if we do throw.  What the
-// bslalg::AutoArrayMoveDestructor will do is guarantee that, if it is
-// destroyed before the insertion is complete, the range
-// '[ start, divider )' will contain valid elements, and that no other
-// valid elements will exist.
 //
-// Note that the existing elements, which are bitwise-moveable, may be
-// *moved* about the container without the possibility of throwing an
-// exception, but the newly inserted elements must be copy-constructed
-// (requiring memory allocation).
+//      // The range '[ start, divider )' contains valid elements.  The range
+//      // '[ divider, finish )' is of equal length and contains uninitialized
+//      // memory.  We want to insert 'divider - start' copies of the specified
+//      // 'value' at the front half of the range '[ start, finish )', moving
+//      // the exising elements back to make room for them.  Note that the copy
+//      // c'tor of 'TestType' allocates memory and may throw, so we have to
+//      // leave the array in a somewhat predicatable state if we do throw.
+//      // What the bslalg::AutoArrayMoveDestructor will do is guarantee that,
+//      // if it is destroyed before the insertion is complete, the range
+//      // '[ start, divider )' will contain valid elements, and that no other
+//      // valid elements will exist.
+//      //
+//      // Note that the existing elements, which are bitwise-moveable, may be
+//      // *moved* about the container without the possibility of throwing an
+//      // exception, but the newly inserted elements must be copy-constructed
+//      // (requiring memory allocation).
+//      //
+//      // First, move the valid elements from '[ start, divider )' to
+//      // '[ divider, finish )'.  This can be done without risk of a throw
+//      // occurring.
 //
-// First, move the valid elements from '[ start, divider )' to
-// '[ divider, finish )'.  This can be done without risk of a throw
-// occurring.
-//..
 //      std::memcpy(divider, start, (divider - start) * sizeof(TestType));
 //
 //      bslalg::AutoArrayMoveDestructor<TestType> guard(start,
@@ -212,101 +243,13 @@ BSLS_IDENT("$Id: $")
 //
 //          guard.advance();
 //      }
-//..
-// 'guard.middle() == guard.end()' -- which means that, when 'guard' is
-// destroyed, its destructor will do nothing.
-//..
+//
+//      // 'guard.middle() == guard.end()' -- which means that, when 'guard' is
+//      // destroyed, its destructor will do nothing.
+//
 //      assert(guard.middle()      == guard.end());
 //      assert(guard.destination() == guard.begin());
 //  }
-//..
-// Next, within the 'main' function of our task, we create our 'value' object,
-// whose value with be 'v', to be inserted into the front of our range.
-//..
-//  TestType value('v');
-//..
-// Then, we create a test allocator, and use it to allocate memory for an array
-// of 'TestType' objects:
-//..
-//  bslma::TestAllocator ta;
-
-//  TestType *array = (TestType *) ta.allocate(10 * sizeof(TestType));
-//..
-// Next, we construct the first 5 elements of the array to have the values
-// 'ABCDE'.
-//..
-//  TestType *p = array;
-//  new (p++) TestType('A', &ta);
-//  new (p++) TestType('B', &ta);
-//  new (p++) TestType('C', &ta);
-//  new (p++) TestType('D', &ta);
-//  new (p++) TestType('E', &ta);
-//..
-// Then, we record the number of outstanding blocks in the allocator:
-//..
-//  const int N = ta.numBlocksInUse();
-//..
-// Next, we enter an 'exception test' block, which will repetetively
-// enter a block of code, catching exceptions throw by the test
-// allocator 'ta' on each iteration:
-//..
-//  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(ta)
-//..
-// Then, we observe that even if we've just caught an exception and re-entered
-// the block, the amount of memory outstanding is unchanged from before we
-// entered the block.
-//..
-//      assert(ta.numBlocksInUse() == N);
-//..
-// Note that when we threw, some of the values of the 5 elements of
-// the array may have been changed to 'v', otherwise they will be
-// unchanged.
-//
-// Next, we re-initiailize those elements that have been
-// overwritten in the last pass with 'value' to their values before
-// we entered the block:
-//..
-//      if ('v' == array[0].datum()) array[0].setDatum('A');
-//      if ('v' == array[1].datum()) array[1].setDatum('B');
-//      if ('v' == array[2].datum()) array[2].setDatum('C');
-//      if ('v' == array[3].datum()) array[3].setDatum('D');
-//      if ('v' == array[4].datum()) array[4].setDatum('E');
-//..
-// Then, we call 'insertItems', which may throw:
-//..
-//      insertItems(array, p, value, &ta);
-//..
-// Next, we exit the except testing block.
-//..
-//  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
-//..
-// Now, we verify that, since each 'TestType' object allocates one block and
-// 'insertItems' created 5 more 'TestType' objects, that we have allocated
-// exactly 5 more blocks of memory, and that the values of the elements of the
-// array are as expected.
-//..
-//  assert(ta.numBlocksInUse() == N + 5);
-//
-//  assert('v' == array[0].datum());
-//  assert('v' == array[1].datum());
-//  assert('v' == array[2].datum());
-//  assert('v' == array[3].datum());
-//  assert('v' == array[4].datum());
-//  assert('A' == array[5].datum());
-//  assert('B' == array[6].datum());
-//  assert('C' == array[7].datum());
-//  assert('D' == array[8].datum());
-//  assert('E' == array[9].datum());
-//
-// Finally, we destroy our array and check the allocator to verify no memory
-// was leaked:
-//..
-//  for (int i = 0; i < 10; ++i) {
-//      array[i].~TestType();
-//  }
-//  ta.deallocate(array);
-//
-//  assert(0 == ta.numBytesInUse());
 //..
 
 #ifndef INCLUDED_BSLSCM_VERSION

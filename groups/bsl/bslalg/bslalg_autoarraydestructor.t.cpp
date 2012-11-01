@@ -235,6 +235,23 @@ bool operator==(const TestType& lhs, const TestType& rhs)
 //                                USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
+///Usage
+///-----
+// In this section we show intended use of this component.
+//
+///Example 1: Managing an Array Under Construction
+///- - - - - - - - - - - - - - - - - - - - - - - -
+// In most instances, the use of a 'bslalg::AutoArrayDestructor' could be
+// handled by a 'bslma::AutoDeallocator', but sometimes it is conceptually
+// clearer to frame the problem in terms of a pair of pointers rather than a
+// pointer and an offset.
+//
+// Suppose we have a class, 'UsageType' that allocates a block of memory upon
+// construction, and whose constructor takes a char.  Suppose we want to create
+// an array of elements of such objects in an exception-safe manner.
+//
+// First, we create the type 'UsageType':
+//..
                                // ===============
                                // class UsageType
                                // ===============
@@ -603,83 +620,69 @@ int main(int argc, char *argv[])
         if (verbose) printf("TESTING USAGE\n"
                             "=============\n");
 
-        // In most instances, the use of a 'bslalg::AutoArrayDestructor' could
-        // be handled by a 'bslma::AutoDeallocator', but sometimes it is
-        // conceptually clearer to frame the problem in terms of a pair of
-        // pointers rather than a pointer and an offset.
-
-        // Suppose we have a class, 'UsageType' that allocates a block of
-        // memory upon construction, and whose c'tor takes a char.  Suppose we
-        // want to create an array of elements of such objects in an
-        // exception-safe manner.
-
-        // First, we create the type 'UsageType':
-
-        // Then, we create a 'TestAllocator' to supply memory (and to verify
-        // that no memory is leaked.
+// Then, we create a 'TestAllocator' to supply memory (and to verify that no
+// memory is leaked):
 
         bslma::TestAllocator ta;
 
-        // Next, we create the pointer for our array:
+// Next, we create the pointer for our array:
 
         UsageType *array;
 
-        // Then, we declare a string of chars we will use to initialize the
-        // 'UsageType' objects in our array.
+// Then, we declare a string of chars we will use to initialize the 'UsageType'
+// objects in our array.
 
         const char *DATA = "Hello";
         const int   DATA_LEN = std::strlen(DATA);
 
-        // Next, we enter an 'exception test' block, which will repetetively
-        // enter a block of code, catching exceptions throw by the test
-        // allocator 'ta' each time:
+// Next, we verify that even right after exceptions have been thrown and
+// caught, no memory is outstanding:
 
-        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(ta)
+        ASSERT(0 == ta.numBlocksInUse());
 
-            // Then, we verify that even right after exceptions have been
-            // thrown and caught, no memory is outstanding:
+// Then, we allocate our array and create a guard to free it if a subsequent
+// allocation throws an exception:
 
-            ASSERT(0 == ta.numBlocksInUse());
+        array = (UsageType *) ta.allocate(DATA_LEN * sizeof(UsageType));
+        bslma::DeallocatorProctor<bslma::Allocator> arrayProctor(array, &ta);
 
-            // Next, we allocate our array and create a guard to free it if
-            // we subsequently throw:
+// Next, we establish an 'AutoArrayDestructor' on 'array' to destroy any valid
+// elements in 'array' if an exception is thrown:
 
-            array = (UsageType *) ta.allocate(DATA_LEN * sizeof(UsageType));
-            bslma::DeallocatorProctor<bslma::Allocator> dProctor(array, &ta);
+        bslalg::AutoArrayDestructor<UsageType> arrayElementProctor(
+                                                                 array, array);
 
-            // Then, we establish an 'AutoArrayDestructor' on 'array' to
-            // destroy any valid elements in it if we throw:
+// Note that we pass 'arrayElementProctor' pointers to the beginning and end
+// of the range to be guarded (we start with an empty range since no elements
+// have been constructed yet).
+//
+// Then, we iterate through the valid chars in 'DATA' and use them to construct
+// the elements of the array:
 
-            bslalg::AutoArrayDestructor<UsageType> aadGuard(array, array);
+        UsageType *resultElement = array;
+        for (const char *nextChar = DATA; *nextChar; ++nextChar) {
+//..
+// Next, construct the next element of 'array':
+//..
+            new (resultElement++) UsageType(*nextChar, &ta);
+//..
+// Now, move the end of 'arrayElementProctor' to cover the most recently
+// constructed element:
+//..
+            arrayElementProctor.moveEnd(1);
+        }
 
-            // Next, we iterate through the valid chars in 'DATA'
-            // construct the elements of the array:
+// At this point, we have successfully created our array.
+//
+// Then, release the guards so they won't destroy our work when they go out of
+// scope:
 
-            UsageType *ptt = array;
-            for (const char *pc = DATA; *pc; ++pc) {
-                // Then, construct the next element of 'array':
+        arrayProctor.release();
+        arrayElementProctor.release();
 
-                new (ptt++) UsageType(*pc, &ta);
-
-                // Next, move the end of 'add' to cover the most recently
-                // constructed element:
-
-                aadGuard.moveEnd(1);
-            }
-
-            // At this point, we have successfully created our array.
-
-            // Then, release the guards so they won't destroy our work when
-            // they go out of scope:
-
-            dProctor.release();
-            aadGuard.release();
-
-            // Next, exit the exception testing block:
-
-        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
-
-        // Now, verify that the array we have created is as expected:
+// Next, exit the exception testing block:
+//
+// Then, verify that the array we have created is as expected:
 
         ASSERT('H' == array[0].datum());
         ASSERT('e' == array[1].datum());
@@ -687,8 +690,7 @@ int main(int argc, char *argv[])
         ASSERT('l' == array[3].datum());
         ASSERT('o' == array[4].datum());
 
-        // Finally, destroy & free our work and verify that no memory is
-        // leaked:
+// Finally, destroy & free our work and verify that no memory is leaked:
 
         for (int i = 0; i < DATA_LEN; ++i) {
             array[i].~UsageType();

@@ -120,7 +120,13 @@ bslma::TestAllocator *Z;  // initialized at the start of main()
 
 // Note that the class 'TestType' is used both in the usage example and in
 // some other cases.
-
+//
+///Usage
+///-----
+// In this section we show intended use of this component.
+//
+///Example 1: Doubling the Length of an Array
+/// - - - - - - - - - - - - - - - - - - - - -
 // First, we create the class 'TestType', which is bitwise-movable and
 // allocates memory upon construction:
 
@@ -204,7 +210,7 @@ class TestType {
     void print() const
     {
         if (d_data_p) {
-        ASSERT(isalpha(*d_data_p));
+            ASSERT(isalpha(*d_data_p));
             printf("%c (int: %d)\n", *d_data_p, (int)*d_data_p);
         } else {
             printf("VOID\n");
@@ -329,6 +335,10 @@ int main(int argc, char *argv[])
         // TESTING USAGE EXAMPLE
         //
         // Concerns: That the usage example compiles and runs as expected.
+        //
+        // Note: It was decided not to copy this part of the usage example to
+        // the .h file, but it is useful here for testing that the usage
+        // example works.
         //
         // Testing:
         //   USAGE EXAMPLE
