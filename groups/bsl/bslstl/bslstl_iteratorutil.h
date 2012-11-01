@@ -25,6 +25,27 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Finding the Distance Between Two Random Access Iterators
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Suppose we want to find the number of elements between two random access
+// iterators.
+//
+// First, we create an array of integer values and two pointers (which are
+// considered random access iterators) referring to the beginning and end of a
+// range within that array:
+//..
+//  int values[] = { 1, 2, 3, 4, 5 };
+//  int *begin = &values[0];
+//  int *end   = &values[3];
+//..
+// Now, we use the 'IteratorUtil::insertDistance' class method to calculate the
+// distance of the open range ['begin', 'end'):
+//..
+//  std::size_t distance = IteratorUtil::insertDistance(begin, end);
+//  ASSERT(3 == distance);
+//..
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>

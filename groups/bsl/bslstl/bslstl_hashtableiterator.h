@@ -30,6 +30,83 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Iterating a Hash Table Using 'HashTableIterator'
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// In the following example we create a simple hashtable and then use a
+// 'HashTableIterator' to iterate through its elements.
+//
+// First, we define a typedef, 'Node', prepresenting a bidirectional node
+// holding an integer value:
+//..
+//  typedef bslalg::BidirectionalNode<int> Node;
+//..
+// Then, we construct a test allocator, and we use it to allocate an array of
+// 'Node' objects, each holding a unique integer value:
+//..
+//  bslma::TestAllocator scratch;
+//
+//  const int NUM_NODES = 5;
+//  const int NUM_BUCKETS = 3;
+//
+//  Node *nodes[NUM_NODES];
+//  for (int i = 0; i < NUM_NODES; ++i) {
+//      nodes[i] = static_cast<Node *>(scratch.allocate(sizeof(Node)));
+//      nodes[i]->value() = i;
+//  }
+//..
+// Next, we use the test allocator to allocate an array of 'HashTableBuckets'
+// objects, and we use the array to construct an empty hash table characterized
+// by a 'HashTableAnchor' object:
+//..
+//  bslalg::HashTableBucket *buckets =
+//      static_cast<bslalg::HashTableBucket *>(
+//            scratch.allocate(sizeof(bslalg::HashTableBucket) * NUM_BUCKETS));
+//
+//  bslalg::HashTableAnchor hashTable(buckets, NUM_BUCKETS, 0);
+//..
+// Then, we insert each node in the array of nodes into the hash table using
+// 'bslalg::HashTableImpUtil', supplying the integer value held by each node as
+// its hash value:
+//..
+//  for (int i = 0; i < NUM_NODES; ++i) {
+//      bslalg::HashTableImpUtil::insertAtFrontOfBucket(&hashTable,
+//                                                      nodes[i],
+//                                                      nodes[i]->value());
+//  }
+//..
+// Next, we define a 'typedef' that is an alias an instance of
+// 'HashTableIterator' that can traverse hash tables holding integer values.
+//..
+//  typedef bslstl::HashTableIterator<int, ptrdiff_t> Iter;
+//..
+// Now, we create two iterators: one pointing to the start of the bidirectional
+// linked list held by the hash table, and the other representing the end
+// sentinel.  We use them to navigate and print the elements of the hash table:
+//..
+//  Iter iter(hashTable.listRootAddress());
+//  Iter end;
+//  for (;iter != end; ++iter) {
+//      printf("%d\n", *iter);
+//  }
+//..
+// Then, we observe the following output:
+//..
+// 2
+// 4
+// 1
+// 3
+// 0
+//..
+// Finally, we deallocate the memory used by the hash table:
+//..
+//  for (int i = 0; i < NUM_NODES; ++i) {
+//      scratch.deallocate(nodes[i]);
+//  }
+//
+//  scratch.deallocate(buckets);
+//..
 
 // Prevent 'bslstl' headers from being included directly in 'BSL_OVERRIDES_STD'
 // mode.  Doing so is unsupported, and is likely to cause compilation errors.

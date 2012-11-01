@@ -83,7 +83,6 @@ void aSsErT(bool b, const char *s, int i)
 #define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
 #define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
-
 //=============================================================================
 //             GLOBAL TYPEDEFS, FUNCTIONS AND VARIABLES FOR TESTING
 //-----------------------------------------------------------------------------
@@ -162,10 +161,6 @@ DISTANCE operator-(
 
 }  // close unnamed namespace
 
-//=============================================================================
-//                             USAGE EXAMPLE
-//-----------------------------------------------------------------------------
-
 // ============================================================================
 //                            MAIN PROGRAM
 // ----------------------------------------------------------------------------
@@ -186,6 +181,57 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:
+      case 3: {
+        // --------------------------------------------------------------------
+        // USAGE EXAMPLE
+        //   Extracted from component header file.
+        //
+        // Concerns:
+        //: 1 The usage example provided in the component header file compiles,
+        //:   links, and runs as shown.
+        //
+        // Plan:
+        //: 1 Incorporate usage example from header into test driver, remove
+        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //:   (C-1)
+        //
+        // Testing:
+        //   USAGE EXAMPLE
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nUsage Example"
+                            "\n=============\n");
+
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Finding the Distance Between Two Random Access Iterators
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Suppose we want to find the number of elements between two random access
+// iterators.
+//
+// First, we create an array of integer values and two pointers (which are
+// considered random access iterators) referring to the beginning and end of a
+// range within that array:
+//..
+        int values[] = { 1, 2, 3, 4, 5 };
+        int *begin = &values[0];
+        int *end   = &values[3];
+//..
+// Now, we use the 'IteratorUtil::insertDistance' class method to calculate the
+// distance of the open range ['begin', 'end'):
+//..
+        std::size_t distance = IteratorUtil::insertDistance(begin, end);
+#if defined(BSLS_PLATFORM__CMP_SUN)
+        ASSERT(0 == distance);
+#else
+        ASSERT(3 == distance);
+#endif
+
+//..
+
+      } break;
       case 2: {
         // --------------------------------------------------------------------
         // 'insertDistance'

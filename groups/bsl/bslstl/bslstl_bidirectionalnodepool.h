@@ -107,10 +107,10 @@ BSLS_IDENT("$Id: $")
 //..
 // CREATORS
 //  template <class VALUE, class ALLOCATOR>
-//  MyList<VALUE, ALLOCATOR>::MyList(const ALLOCATOR& basicAllocator)
+//  MyList<VALUE, ALLOCATOR>::MyList(const ALLOCATOR& allocator)
 //  : d_head_p(0)
 //  , d_tail_p(0)
-//  , d_pool(basicAllocator)
+//  , d_pool(allocator)
 //  {
 //  }
 //
@@ -179,6 +179,10 @@ BSLS_IDENT("$Id: $")
 //      d_tail_p = node;
 //  }
 //..
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
+#endif
 
 #ifndef INCLUDED_BSLSTL_ALLOCATORTRAITS
 #include <bslstl_allocatortraits.h>
@@ -307,9 +311,9 @@ class BidirectionalNodePool {
         // uninitialized.
 
     void deleteNode(bslalg::BidirectionalLink *linkNode);
-        // Destroy the 'VALUE' value of the specified 'node' and return the
-        // memory footprint of 'node' to this pool for potential reuse.  The
-        // behavior is undefined unless 'node' refers to a
+        // Destroy the 'VALUE' attribute of the specified 'linkNode' and return
+        // the memory footprint of 'linkNode' to this pool for potential reuse.
+        // The behavior is undefined unless 'node' refers to a
         // 'bslalg::BidirectionalNode<VALUE>' that was allocated by this pool.
 
     void reserveNodes(native_std::size_t numNodes);

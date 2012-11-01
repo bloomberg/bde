@@ -7,6 +7,9 @@
 #include <bsltf_templatetestfacility.h>
 
 #include <bslalg_bidirectionallinklistutil.h>
+#include <bslalg_hashtableanchor.h>
+#include <bslalg_hashtablebucket.h>
+#include <bslalg_hashtableimputil.h>
 
 #include <bslma_testallocator.h>
 
@@ -822,6 +825,8 @@ void TestDriver<VALUE>::testCase6()
     //:
     //:11 The equality-comparison operators can be used on objects
     //:   parameterized on both a 'const' and non-'const' value type.
+    //:
+    //:12 QoI: Asserted precondition violations are detected when enabled.
     //
     // Plan:
     //: 1 Use the respective addresses of 'operator==' and 'operator!=' to
@@ -851,6 +856,10 @@ void TestDriver<VALUE>::testCase6()
     //:     3 Verify the commutativity property and the expected return value
     //:       of both '==' and '!=' for each of the sets ('X1', 'Y1'), ('X1',
     //:       'Y2'), ('X2', 'Y1'), and ('X2', 'Y2').  (C-1, 4..6, 11)
+    //:
+    //:     4 Verify that, in appropriate buildmodes, defensive checks are
+    //:       triggered when invoking the equal-comparison operators if
+    //        'M1 != M2'.  (C-13)
     //
     // Testing:
     //   bool operator==(const HashTableIterator& lhs, rhs);
@@ -929,25 +938,48 @@ void TestDriver<VALUE>::testCase6()
             Obj  mY1(NODE2, BUCKET2); const Obj&  Y1 = mY1;
             ObjC mY2(NODE2, BUCKET2); const ObjC& Y2 = mY2;
 
+            if (b1 != b2) {
+                bsls_AssertFailureHandlerGuard hG(
+                                              bsls_AssertTest::failTestDriver);
+                ASSERT_SAFE_FAIL(EXP == (X1 == Y1));
+                ASSERT_SAFE_FAIL(EXP == (Y1 == X1));
+                ASSERT_SAFE_FAIL(EXP == (X1 == Y2));
+                ASSERT_SAFE_FAIL(EXP == (Y2 == X1));
+                ASSERT_SAFE_FAIL(EXP == (X2 == Y1));
+                ASSERT_SAFE_FAIL(EXP == (Y1 == X2));
+                ASSERT_SAFE_FAIL(EXP == (X2 == Y2));
+                ASSERT_SAFE_FAIL(EXP == (Y2 == X2));
+
+                ASSERT_SAFE_FAIL(!EXP == (X1 != Y1));
+                ASSERT_SAFE_FAIL(!EXP == (Y1 != X1));
+                ASSERT_SAFE_FAIL(!EXP == (X1 != Y2));
+                ASSERT_SAFE_FAIL(!EXP == (Y2 != X1));
+                ASSERT_SAFE_FAIL(!EXP == (X2 != Y1));
+                ASSERT_SAFE_FAIL(!EXP == (Y1 != X2));
+                ASSERT_SAFE_FAIL(!EXP == (X2 != Y2));
+                ASSERT_SAFE_FAIL(!EXP == (Y2 != X2));
+            }
+            else {
             // Verify value, commutativity
 
-            ASSERTV(EXP == (X1 == Y1));
-            ASSERTV(EXP == (Y1 == X1));
-            ASSERTV(EXP == (X1 == Y2));
-            ASSERTV(EXP == (Y2 == X1));
-            ASSERTV(EXP == (X2 == Y1));
-            ASSERTV(EXP == (Y1 == X2));
-            ASSERTV(EXP == (X2 == Y2));
-            ASSERTV(EXP == (Y2 == X2));
+                ASSERTV(EXP == (X1 == Y1));
+                ASSERTV(EXP == (Y1 == X1));
+                ASSERTV(EXP == (X1 == Y2));
+                ASSERTV(EXP == (Y2 == X1));
+                ASSERTV(EXP == (X2 == Y1));
+                ASSERTV(EXP == (Y1 == X2));
+                ASSERTV(EXP == (X2 == Y2));
+                ASSERTV(EXP == (Y2 == X2));
 
-            ASSERTV(!EXP == (X1 != Y1));
-            ASSERTV(!EXP == (Y1 != X1));
-            ASSERTV(!EXP == (X1 != Y2));
-            ASSERTV(!EXP == (Y2 != X1));
-            ASSERTV(!EXP == (X2 != Y1));
-            ASSERTV(!EXP == (Y1 != X2));
-            ASSERTV(!EXP == (X2 != Y2));
-            ASSERTV(!EXP == (Y2 != X2));
+                ASSERTV(!EXP == (X1 != Y1));
+                ASSERTV(!EXP == (Y1 != X1));
+                ASSERTV(!EXP == (X1 != Y2));
+                ASSERTV(!EXP == (Y2 != X1));
+                ASSERTV(!EXP == (X2 != Y1));
+                ASSERTV(!EXP == (Y1 != X2));
+                ASSERTV(!EXP == (X2 != Y2));
+                ASSERTV(!EXP == (Y2 != X2));
+            }
         }
         }
     }
@@ -1041,7 +1073,7 @@ void TestDriver<VALUE>::testCase4()
     for (int b = 0; b < M; ++b) {
         Bucket *BUCKET = buckets.bucket(b);
         Obj mX(BUCKET); const Obj& X = mX;
-        Obj end;
+        Obj end(0, BUCKET);
         for (int n = 0; mX != end; ++mX, ++n) {
             Node *NODE = buckets.node(b, n);
             ASSERT(BUCKET == X.bucket());
@@ -1225,13 +1257,104 @@ void TestDriver<VALUE>::testCase2()
         ASSERT(BUCKET == X.bucket());
         ASSERT(BUCKET->d_first_p == X.node());
 
-        Obj end;
+        Obj end(0, BUCKET);
         for (int n = 0; mX != end; ++mX, ++n) {
             Node *NODE = buckets.node(b, n);
             ASSERT(BUCKET == X.bucket());
             ASSERT(NODE == X.node());
         }
     }
+}
+
+}  // close unnamed namespace
+
+//=============================================================================
+//                                USAGE EXAMPLE
+//-----------------------------------------------------------------------------
+
+namespace {
+
+void usageExample()
+{
+
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Iterating a Hash Table Bucket Using 'HashTableIterator'
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// In the following example we create a simple hashtable and then use a
+// 'HashTableBucketIterator' to iterate through the elements in one of its
+// buckets.
+//
+// First, we define a typedef, 'Node', prepresenting a bidirectional node
+// holding an integer value:
+//..
+    typedef bslalg::BidirectionalNode<int> Node;
+//..
+// Then, we construct a test allocator, and we use it to allocate an array of
+// 'Node' objects, each holding a unique integer value:
+//..
+    bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
+
+    const int NUM_NODES = 5;
+    const int NUM_BUCKETS = 3;
+
+    Node *nodes[NUM_NODES];
+    for (int i = 0; i < NUM_NODES; ++i) {
+        nodes[i] = static_cast<Node *>(scratch.allocate(sizeof(Node)));
+        nodes[i]->value() = i;
+    }
+//..
+// Next, we use the test allocator to allocate an array of 'HashTableBuckets'
+// objects, and we use the array to construct an empty hash table characterized
+// by a 'HashTableAnchor' object:
+//..
+    bslalg::HashTableBucket *buckets =
+        static_cast<bslalg::HashTableBucket *>(
+              scratch.allocate(sizeof(bslalg::HashTableBucket) * NUM_BUCKETS));
+
+    bslalg::HashTableAnchor hashTable(buckets, NUM_BUCKETS, 0);
+//..
+// Then, we insert each node in the array of nodes into the hash table using
+// 'bslalg::HashTableImpUtil', supplying the integer value held by each node as
+// its hash value:
+//..
+    for (int i = 0; i < NUM_NODES; ++i) {
+        bslalg::HashTableImpUtil::insertAtFrontOfBucket(&hashTable,
+                                                        nodes[i],
+                                                        nodes[i]->value());
+    }
+//..
+// Next, we define a 'typedef' that is an alias an instance of
+// 'HashTableBucketIterator' that can traverse buckets in a hash table holding
+// integer values.
+//..
+    typedef bslstl::HashTableBucketIterator<int, ptrdiff_t> Iter;
+//..
+// Now, we create two iterators: one pointing to the start the second bucket in
+// the hash table, and the other representing the end sentinel.  We use the
+// iterators to navigate and print the elements in the hash table bucket:
+//..
+    Iter iter(&hashTable.bucketArrayAddress()[1]);
+    Iter end(0, &hashTable.bucketArrayAddress()[1]);
+    for (;iter != end; ++iter) {
+        printf("%d\n", *iter);
+    }
+//..
+// Then, we observe the following output:
+//..
+// 1
+// 3
+//..
+// Finally, we deallocate the memory used by the hash table:
+//..
+    for (int i = 0; i < NUM_NODES; ++i) {
+        scratch.deallocate(nodes[i]);
+    }
+
+    scratch.deallocate(buckets);
+//..
 }
 
 }  // close unnamed namespace
@@ -1251,6 +1374,30 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:
+      case 14: {
+        // --------------------------------------------------------------------
+        // USAGE EXAMPLE
+        //   Extracted from component header file.
+        //
+        // Concerns:
+        //: 1 The usage example provided in the component header file compiles,
+        //:   links, and runs as shown.
+        //
+        // Plan:
+        //: 1 Incorporate usage example from header into test driver, remove
+        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //:   (C-1)
+        //
+        // Testing:
+        //   USAGE EXAMPLE
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nUsage Example"
+                            "\n=============\n");
+
+        usageExample();
+
+      } break;
       case 13: {
         // --------------------------------------------------------------------
         // TYPE TRAITS
