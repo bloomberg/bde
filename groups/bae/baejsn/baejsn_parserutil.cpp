@@ -8,8 +8,11 @@ BDES_IDENT_RCSID(baejsn_parserutil_cpp,"$Id$ $CSID$")
 
 #include <bsl_cmath.h>
 #include <bsl_cctype.h>
+#include <bsl_limits.h>
 
 namespace BloombergLP {
+
+namespace {
 
 const char hexValueTable[128] =
 {
@@ -143,6 +146,18 @@ const char hexValueTable[128] =
     0    // 127  7f - DEL
 };
 
+inline
+bool isValidNextChar(int nextChar)
+{
+    return bsl::streambuf::traits_type::eof() == nextChar
+        || bsl::isspace(nextChar)
+        || ',' == static_cast<char>(nextChar)
+        || ']' == static_cast<char>(nextChar)
+        || '}' == static_cast<char>(nextChar);
+}
+
+}  // close anonymous namespace
+
                             // ------------------------
                             // struct baejsn_ParserUtil
                             // ------------------------
@@ -200,17 +215,20 @@ int baejsn_ParserUtil::getDouble(bsl::streambuf *streamBuf, double *value)
         }
     }
 
-    char   *end = 0;
-    double  tmp = bsl::strtod(str.c_str(), &end);
+    if (isValidNextChar(streamBuf->sgetc())) {
+        char   *end = 0;
+        double  tmp = bsl::strtod(str.c_str(), &end);
 
-    if (end       == str.data()
-     || *end      != '\0'
-     || HUGE_VAL  == tmp
-     || -HUGE_VAL == tmp) {
-        return -1;                                                    // RETURN
+        if (end       == str.data()
+         || *end      != '\0'
+         || HUGE_VAL  == tmp
+         || -HUGE_VAL == tmp) {
+            return -1;                                                // RETURN
+        }
+        *value = tmp;
+        return 0;                                                     // RETURN
     }
-    *value = tmp;
-    return 0;
+    return -1;
 }
 
 int baejsn_ParserUtil::getUint64(bsl::streambuf      *streamBuf,
@@ -298,7 +316,8 @@ int baejsn_ParserUtil::getUint64(bsl::streambuf      *streamBuf,
         *value *= static_cast<bsls::Types::Uint64>(bsl::pow(10.0, exponent));
         *value += fraction;
     }
-    return 0;
+
+    return isValidNextChar(streamBuf->sgetc()) ? 0 : -1;
 }
 
 int baejsn_ParserUtil::getString(bsl::streambuf *streamBuf, bsl::string *value)

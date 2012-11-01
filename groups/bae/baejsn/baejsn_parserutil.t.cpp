@@ -1654,6 +1654,19 @@ int main(int argc, char *argv[])
                 {  L_,    "1E+1",                     10,       true    },
                 {  L_,    "1e-1",                    0.1,       true    },
                 {  L_,    "1E-1",                    0.1,       true    },
+
+                {  L_,  "Z34.56e1",   ERROR_VALUE,   false   },
+                {  L_,  "3Z4.56e1",   ERROR_VALUE,   false   },
+                {  L_,  "34Z.56e1",   ERROR_VALUE,   false   },
+                {  L_,  "34.Z6e1",    ERROR_VALUE,   false   },
+                {  L_,  "34.5Ze1",    ERROR_VALUE,   false   },
+                {  L_,  "34.56Z1",    ERROR_VALUE,   false   },
+                {  L_,  "34.56eZ",    ERROR_VALUE,   false   },
+
+                {  L_,    "0x12",     ERROR_VALUE,   false   },
+                {  L_,    "0x256",    ERROR_VALUE,   false   },
+                {  L_,    "DEADBEEF", ERROR_VALUE,   false   },
+                {  L_,    "JUNK",     ERROR_VALUE,   false   },
             };
             const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
 
@@ -1767,6 +1780,19 @@ int main(int argc, char *argv[])
                 {  L_,    "1E+1",                     10,       true    },
                 {  L_,    "1e-1",                    0.1,       true    },
                 {  L_,    "1E-1",                    0.1,       true    },
+
+                {  L_,  "Z34.56e1",   ERROR_VALUE,   false   },
+                {  L_,  "3Z4.56e1",   ERROR_VALUE,   false   },
+                {  L_,  "34Z.56e1",   ERROR_VALUE,   false   },
+                {  L_,  "34.Z6e1",    ERROR_VALUE,   false   },
+                {  L_,  "34.5Ze1",    ERROR_VALUE,   false   },
+                {  L_,  "34.56Z1",    ERROR_VALUE,   false   },
+                {  L_,  "34.56eZ",    ERROR_VALUE,   false   },
+
+                {  L_,    "0x12",     ERROR_VALUE,   false   },
+                {  L_,    "0x256",    ERROR_VALUE,   false   },
+                {  L_,    "DEADBEEF", ERROR_VALUE,   false   },
+                {  L_,    "JUNK",     ERROR_VALUE,   false   },
             };
             const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
 
@@ -1875,6 +1901,19 @@ int main(int argc, char *argv[])
                 {  L_,    "1E+1",                     10,      true    },
                 {  L_,    "1e-1",                      0,      true    },
                 {  L_,    "1E-1",                      0,      true    },
+
+                {  L_,  "Z34.56e1",   ERROR_VALUE,   false   },
+                {  L_,  "3Z4.56e1",   ERROR_VALUE,   false   },
+                {  L_,  "34Z.56e1",   ERROR_VALUE,   false   },
+                {  L_,  "34.Z6e1",    ERROR_VALUE,   false   },
+                {  L_,  "34.5Ze1",    ERROR_VALUE,   false   },
+                {  L_,  "34.56Z1",    ERROR_VALUE,   false   },
+                {  L_,  "34.56eZ",    ERROR_VALUE,   false   },
+
+                {  L_,    "0x12",     ERROR_VALUE,   false   },
+                {  L_,    "0x256",    ERROR_VALUE,   false   },
+                {  L_,    "DEADBEEF", ERROR_VALUE,   false   },
+                {  L_,    "JUNK",     ERROR_VALUE,   false   },
             };
             const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
 
@@ -2002,6 +2041,19 @@ int main(int argc, char *argv[])
                 {  L_,    "1E+1",                     10,      true    },
                 {  L_,    "1e-1",                      0,      true    },
                 {  L_,    "1E-1",                      0,      true    },
+
+                {  L_,  "Z34.56e1",   ERROR_VALUE,   false   },
+                {  L_,  "3Z4.56e1",   ERROR_VALUE,   false   },
+                {  L_,  "34Z.56e1",   ERROR_VALUE,   false   },
+                {  L_,  "34.Z6e1",    ERROR_VALUE,   false   },
+                {  L_,  "34.5Ze1",    ERROR_VALUE,   false   },
+                {  L_,  "34.56Z1",    ERROR_VALUE,   false   },
+                {  L_,  "34.56eZ",    ERROR_VALUE,   false   },
+
+                {  L_,    "0x12",     ERROR_VALUE,   false   },
+                {  L_,    "0x256",    ERROR_VALUE,   false   },
+                {  L_,    "DEADBEEF", ERROR_VALUE,   false   },
+                {  L_,    "JUNK",     ERROR_VALUE,   false   },
             };
             const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
 
@@ -2112,6 +2164,19 @@ int main(int argc, char *argv[])
                 {  L_,    "4294967296",      ERROR_VALUE,      false   },
                 {  L_,    "4294967296.01",   ERROR_VALUE,      false   },
                 {  L_,    "4294967296.99",   ERROR_VALUE,      false   },
+
+                {  L_,  "Z34.56e1",   ERROR_VALUE,   false   },
+                {  L_,  "3Z4.56e1",   ERROR_VALUE,   false   },
+                {  L_,  "34Z.56e1",   ERROR_VALUE,   false   },
+                {  L_,  "34.Z6e1",    ERROR_VALUE,   false   },
+                {  L_,  "34.5Ze1",    ERROR_VALUE,   false   },
+                {  L_,  "34.56Z1",    ERROR_VALUE,   false   },
+                {  L_,  "34.56eZ",    ERROR_VALUE,   false   },
+
+                {  L_,    "0x12",     ERROR_VALUE,   false   },
+                {  L_,    "0x256",    ERROR_VALUE,   false   },
+                {  L_,    "DEADBEEF", ERROR_VALUE,   false   },
+                {  L_,    "JUNK",     ERROR_VALUE,   false   },
             };
             const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
 
@@ -2234,11 +2299,29 @@ int main(int argc, char *argv[])
                 {  L_, "2147483648.99",  ERROR_VALUE,     false   },
 
                 {  L_, "2147483649",     ERROR_VALUE,     false   },
+                {  L_, "2147483648.01",  ERROR_VALUE,     false   },
+                {  L_, "2147483648.99",  ERROR_VALUE,     false   },
 
                 {  L_, "-2147483649",    ERROR_VALUE,     false   },
                 {  L_, "-2147483649.01", ERROR_VALUE,     false   },
                 {  L_, "-2147483649.99", ERROR_VALUE,     false   },
 
+                {  L_, "-2147483650",    ERROR_VALUE,     false   },
+                {  L_, "-2147483650.01", ERROR_VALUE,     false   },
+                {  L_, "-2147483650.99", ERROR_VALUE,     false   },
+
+                {  L_,  "Z34.56e1",   ERROR_VALUE,   false   },
+                {  L_,  "3Z4.56e1",   ERROR_VALUE,   false   },
+                {  L_,  "34Z.56e1",   ERROR_VALUE,   false   },
+                {  L_,  "34.Z6e1",    ERROR_VALUE,   false   },
+                {  L_,  "34.5Ze1",    ERROR_VALUE,   false   },
+                {  L_,  "34.56Z1",    ERROR_VALUE,   false   },
+                {  L_,  "34.56eZ",    ERROR_VALUE,   false   },
+
+                {  L_,    "0x12",     ERROR_VALUE,   false   },
+                {  L_,    "0x256",    ERROR_VALUE,   false   },
+                {  L_,    "DEADBEEF", ERROR_VALUE,   false   },
+                {  L_,    "JUNK",     ERROR_VALUE,   false   },
             };
             const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
 
@@ -2339,6 +2422,20 @@ int main(int argc, char *argv[])
 
                 {  L_,   "65537",    ERROR_VALUE,      false   },
                 {  L_,   "65537.01", ERROR_VALUE,      false   },
+                {  L_,   "65537.99", ERROR_VALUE,      false   },
+
+                {  L_,  "Z34.56e1",   ERROR_VALUE,   false   },
+                {  L_,  "3Z4.56e1",   ERROR_VALUE,   false   },
+                {  L_,  "34Z.56e1",   ERROR_VALUE,   false   },
+                {  L_,  "34.Z6e1",    ERROR_VALUE,   false   },
+                {  L_,  "34.5Ze1",    ERROR_VALUE,   false   },
+                {  L_,  "34.56Z1",    ERROR_VALUE,   false   },
+                {  L_,  "34.56eZ",    ERROR_VALUE,   false   },
+
+                {  L_,    "0x12",     ERROR_VALUE,   false   },
+                {  L_,    "0x256",    ERROR_VALUE,   false   },
+                {  L_,    "DEADBEEF", ERROR_VALUE,   false   },
+                {  L_,    "JUNK",     ERROR_VALUE,   false   },
             };
             const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
 
@@ -2450,6 +2547,19 @@ int main(int argc, char *argv[])
                 {  L_,  "-32769.01",  ERROR_VALUE,   false   },
                 {  L_,  "-32769.99",  ERROR_VALUE,   false   },
                 {  L_,  "-65535",     ERROR_VALUE,   false   },
+
+                {  L_,  "Z34.56e1",   ERROR_VALUE,   false   },
+                {  L_,  "3Z4.56e1",   ERROR_VALUE,   false   },
+                {  L_,  "34Z.56e1",   ERROR_VALUE,   false   },
+                {  L_,  "34.Z6e1",    ERROR_VALUE,   false   },
+                {  L_,  "34.5Ze1",    ERROR_VALUE,   false   },
+                {  L_,  "34.56Z1",    ERROR_VALUE,   false   },
+                {  L_,  "34.56eZ",    ERROR_VALUE,   false   },
+
+                {  L_,    "0x12",     ERROR_VALUE,   false   },
+                {  L_,    "0x256",    ERROR_VALUE,   false   },
+                {  L_,    "DEADBEEF", ERROR_VALUE,   false   },
+                {  L_,    "JUNK",     ERROR_VALUE,   false   },
             };
             const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
 
@@ -2542,9 +2652,23 @@ int main(int argc, char *argv[])
 
                 {  L_,    "256",      ERROR_VALUE,   false   },
                 {  L_,    "256.01",   ERROR_VALUE,   false   },
+                {  L_,    "256.99",   ERROR_VALUE,   false   },
                 {  L_,    "32766",    ERROR_VALUE,   false   },
                 {  L_,    "32766.01", ERROR_VALUE,   false   },
+                {  L_,    "32766.99", ERROR_VALUE,   false   },
 
+                {  L_,  "Z34.56e1",   ERROR_VALUE,   false   },
+                {  L_,  "3Z4.56e1",   ERROR_VALUE,   false   },
+                {  L_,  "34Z.56e1",   ERROR_VALUE,   false   },
+                {  L_,  "34.Z6e1",    ERROR_VALUE,   false   },
+                {  L_,  "34.5Ze1",    ERROR_VALUE,   false   },
+                {  L_,  "34.56Z1",    ERROR_VALUE,   false   },
+                {  L_,  "34.56eZ",    ERROR_VALUE,   false   },
+
+                {  L_,    "0x12",     ERROR_VALUE,   false   },
+                {  L_,    "0x256",    ERROR_VALUE,   false   },
+                {  L_,    "DEADBEEF", ERROR_VALUE,   false   },
+                {  L_,    "JUNK",     ERROR_VALUE,   false   },
             };
             const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
 
