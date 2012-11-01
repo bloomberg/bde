@@ -9,7 +9,7 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Support efficient memory allocations from a user-supplied buffer.
 //
-//@DEPRECATED: Use 'bdema_bufferedsequentialallocator' instead.
+//@INTERNAL_DEPRECATED: Use 'bdema_bufferedsequentialallocator' instead.
 //
 //@CLASSES:
 //  bslma::BufferAllocator: memory allocator from user-supplied buffer
