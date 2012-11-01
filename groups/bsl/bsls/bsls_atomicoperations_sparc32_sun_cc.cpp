@@ -2,6 +2,8 @@
 
 #include <bsls_atomicoperations_sparc32_sun_cc.h>
 
+#include <bsls_annotation.h>
+
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
@@ -18,11 +20,16 @@ namespace BloombergLP {
 // Correspondingly, the 32-bit return value should be put into %o0, and the
 // 64-bit return value - into (%o0, %o1) register pair.
 
+static
+void bsls_AtomicOperations_Sparc32_AssemblyContainer() BSLS_ANNOTATION_USED;
+    // Never called, just holds assembly code.
+
 void bsls_AtomicOperations_Sparc32_AssemblyContainer()
 {
     // *** 64 bit operations ***
 
     // Int64 bsls_AtomicOperations_Sparc32_GetInt64(const volatile Int64*);
+
     asm(".global bsls_AtomicOperations_Sparc32_GetInt64\n"
         ".type bsls_AtomicOperations_Sparc32_GetInt64,#function\n"
         "bsls_AtomicOperations_Sparc32_GetInt64:\n"
@@ -40,6 +47,7 @@ void bsls_AtomicOperations_Sparc32_AssemblyContainer()
 
     // Int64 bsls_AtomicOperations_Sparc32_GetInt64Relaxed(
     //                                                  const volatile Int64*);
+
     asm(".global bsls_AtomicOperations_Sparc32_GetInt64Relaxed\n"
         ".type bsls_AtomicOperations_Sparc32_GetInt64Relaxed,#function\n"
         "bsls_AtomicOperations_Sparc32_GetInt64Relaxed:\n"
@@ -55,6 +63,7 @@ void bsls_AtomicOperations_Sparc32_AssemblyContainer()
                                 // 32-bit of %o2 in its low 32-bit.
 
     // void bsls_AtomicOperations_Sparc32_SetInt64(volatile Int64 *, Int64);
+
     asm(".global bsls_AtomicOperations_Sparc32_SetInt64\n"
         ".type bsls_AtomicOperations_Sparc32_SetInt64,#function\n"
         "bsls_AtomicOperations_Sparc32_SetInt64:\n"
@@ -72,6 +81,7 @@ void bsls_AtomicOperations_Sparc32_AssemblyContainer()
 
     // void bsls_AtomicOperations_Sparc32_SetInt64Relaxed(
     //                                                volatile Int64 *, Int64);
+
     asm(".global bsls_AtomicOperations_Sparc32_SetInt64Relaxed\n"
         ".type bsls_AtomicOperations_Sparc32_SetInt64Relaxed,#function\n"
         "bsls_AtomicOperations_Sparc32_SetInt64Relaxed:\n"
@@ -87,6 +97,7 @@ void bsls_AtomicOperations_Sparc32_AssemblyContainer()
         "stx %o1, [%o0]");
 
     // Int64 bsls_AtomicOperations_Sparc32_SwapInt64(volatile Int64 *, Int64);
+
     asm(".global bsls_AtomicOperations_Sparc32_SwapInt64\n"
         ".type bsls_AtomicOperations_Sparc32_SwapInt64,#function\n"
         "bsls_AtomicOperations_Sparc32_SwapInt64:\n"
@@ -116,6 +127,7 @@ void bsls_AtomicOperations_Sparc32_AssemblyContainer()
 
     // Int64 bsls_AtomicOperations_Sparc32_SwapInt64AcqRel(
     //                                                volatile Int64 *, Int64);
+
     asm(".global bsls_AtomicOperations_Sparc32_SwapInt64AcqRel\n"
         ".type bsls_AtomicOperations_Sparc32_SwapInt64AcqRel,#function\n"
         "bsls_AtomicOperations_Sparc32_SwapInt64AcqRel:\n"
@@ -143,6 +155,7 @@ void bsls_AtomicOperations_Sparc32_AssemblyContainer()
 
     // Int64 bsls_AtomicOperations_Sparc32_TestAndSwapInt64(
     //                                         volatile Int64 *, Int64, Int64);
+
     asm(".global bsls_AtomicOperations_Sparc32_TestAndSwapInt64\n"
         ".type bsls_AtomicOperations_Sparc32_TestAndSwapInt64,#function\n"
         "bsls_AtomicOperations_Sparc32_TestAndSwapInt64:\n"
@@ -160,6 +173,7 @@ void bsls_AtomicOperations_Sparc32_AssemblyContainer()
 
     // Int64 bsls_AtomicOperations_Sparc32_TestAndSwapInt64AcqRel(
     //                                         volatile Int64 *, Int64, Int64);
+
     asm(".global bsls_AtomicOperations_Sparc32_TestAndSwapInt64AcqRel\n"
        ".type bsls_AtomicOperations_Sparc32_TestAndSwapInt64AcqRel,#function\n"
         "bsls_AtomicOperations_Sparc32_TestAndSwapInt64AcqRel:\n"
@@ -175,6 +189,7 @@ void bsls_AtomicOperations_Sparc32_AssemblyContainer()
         "srl %o2, 0, %o1");
 
     // Int64 bsls_AtomicOperations_Sparc32_AddInt64(volatile Int64 *, Int64);
+
     asm(".global bsls_AtomicOperations_Sparc32_AddInt64\n"
         ".type bsls_AtomicOperations_Sparc32_AddInt64,#function\n"
         "bsls_AtomicOperations_Sparc32_AddInt64:\n"
@@ -196,6 +211,7 @@ void bsls_AtomicOperations_Sparc32_AssemblyContainer()
 
     // Int64 bsls_AtomicOperations_Sparc32_AddInt64Relaxed(
     //                                                volatile Int64 *, Int64);
+
     asm(".global bsls_AtomicOperations_Sparc32_AddInt64Relaxed\n"
         ".type bsls_AtomicOperations_Sparc32_AddInt64Relaxed,#function\n"
         "bsls_AtomicOperations_Sparc32_AddInt64Relaxed:\n"
@@ -215,7 +231,7 @@ void bsls_AtomicOperations_Sparc32_AssemblyContainer()
         "srlx %o0, 32, %o0");  // a 32-bit %o0/%01 pair
 }
 
-}
+}  // close enterprise namespace
 
 #endif
 
