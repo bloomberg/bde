@@ -32,6 +32,7 @@
 #include <bdeu_printmethods.h>
 #include <bdeu_string.h>
 
+#include <bsl_vector.h>
 #include <bsls_assert.h>
 
 #include <iomanip>
@@ -254,9 +255,9 @@ class bcem_Aggregate;
 namespace test { class Simple; }
 namespace test {
 
-                                // ============                                
-                                // class Simple                                
-                                // ============                                
+                                // ============
+                                // class Simple
+                                // ============
 
 class Simple {
 
@@ -462,9 +463,9 @@ BDEAT_DECL_SEQUENCE_WITH_BITWISEMOVEABLE_TRAITS(test::Simple)
 
 namespace test {
 
-                                // ------------                                
-                                // class Simple                                
-                                // ------------                                
+                                // ------------
+                                // class Simple
+                                // ------------
 
 // CLASS METHODS
 inline
@@ -636,9 +637,9 @@ std::ostream& test::operator<<(
 namespace BloombergLP {
 namespace test {
 
-                                // ------------                                
-                                // class Simple                                
-                                // ------------                                
+                                // ------------
+                                // class Simple
+                                // ------------
 
 // CONSTANTS
 
@@ -1149,14 +1150,16 @@ struct ChoiceManipulator
 baea_SerializableObjectProxy *s_elementLoaderFn_proxy;
 const void                   *s_elementLoaderFn_object;
 int                           s_elementLoaderFn_int;
-int                           s_elementLoaderFn_index;
+int                           s_elementLoaderFn_id;
+bsl::vector<int>              s_elementLoaderFn_indexes;
 void elementLoaderFn(baea_SerializableObjectProxy        *proxy,
                      const baea_SerializableObjectProxy&  object,
-                     int                             index)
+                     int                             id)
 {
     s_elementLoaderFn_proxy = proxy;
     s_elementLoaderFn_object = &object;
-    s_elementLoaderFn_index = index;
+    s_elementLoaderFn_id = id;
+    s_elementLoaderFn_indexes.push_back(id);
     proxy->loadSimple(&s_elementLoaderFn_int);
 }
 
@@ -1772,13 +1775,13 @@ int main(int argc, char *argv[])
                 accessor.d_rc = ti;
                 s_elementLoaderFn_proxy = 0;
                 s_elementLoaderFn_object = 0;
-                s_elementLoaderFn_index = 0;
+                s_elementLoaderFn_id = 0;
 
                 ASSERTV(ti == X.sequenceAccessAttribute(accessor, ID));
 
                 ASSERTV(s_elementLoaderFn_proxy == accessor.d_proxy);
                 ASSERTV(s_elementLoaderFn_object == &X);
-                ASSERTV(s_elementLoaderFn_index == ti);
+                ASSERTV(s_elementLoaderFn_id == ID);
                 ASSERTV(accessor.d_address == &s_elementLoaderFn_int);
                 ASSERTV(accessor.d_info == INFO[ti]);
 
@@ -1786,7 +1789,7 @@ int main(int argc, char *argv[])
                 accessor.d_rc = ti;
                 s_elementLoaderFn_proxy = 0;
                 s_elementLoaderFn_object = 0;
-                s_elementLoaderFn_index = 0;
+                s_elementLoaderFn_id = 0;
 
                 ASSERTV(ti == X.sequenceAccessAttribute(accessor,
                                                         NAME,
@@ -1794,7 +1797,7 @@ int main(int argc, char *argv[])
 
                 ASSERTV(s_elementLoaderFn_proxy == accessor.d_proxy);
                 ASSERTV(s_elementLoaderFn_object == &X);
-                ASSERTV(s_elementLoaderFn_index == ti);
+                ASSERTV(s_elementLoaderFn_id == ID);
                 ASSERTV(accessor.d_address == &s_elementLoaderFn_int);
                 ASSERTV(accessor.d_info == INFO[ti]);
 
@@ -1802,13 +1805,13 @@ int main(int argc, char *argv[])
                 accessor.d_rc = ti;
                 s_elementLoaderFn_proxy = 0;
                 s_elementLoaderFn_object = 0;
-                s_elementLoaderFn_index = 0;
+                s_elementLoaderFn_id = 0;
 
                 ASSERTV(ti == bdeat_sequenceAccessAttribute(X, accessor, ID));
 
                 ASSERTV(s_elementLoaderFn_proxy == accessor.d_proxy);
                 ASSERTV(s_elementLoaderFn_object == &X);
-                ASSERTV(s_elementLoaderFn_index == ti);
+                ASSERTV(s_elementLoaderFn_id == ID);
                 ASSERTV(accessor.d_address == &s_elementLoaderFn_int);
                 ASSERTV(accessor.d_info == INFO[ti]);
 
@@ -1816,7 +1819,7 @@ int main(int argc, char *argv[])
                 accessor.d_rc = ti;
                 s_elementLoaderFn_proxy = 0;
                 s_elementLoaderFn_object = 0;
-                s_elementLoaderFn_index = 0;
+                s_elementLoaderFn_id = 0;
 
                 ASSERTV(ti == bdeat_sequenceAccessAttribute(X,
                                                             accessor,
@@ -1825,10 +1828,19 @@ int main(int argc, char *argv[])
 
                 ASSERTV(s_elementLoaderFn_proxy == accessor.d_proxy);
                 ASSERTV(s_elementLoaderFn_object == &X);
-                ASSERTV(s_elementLoaderFn_index == ti);
+                ASSERTV(s_elementLoaderFn_id == ID);
                 ASSERTV(accessor.d_address == &s_elementLoaderFn_int);
                 ASSERTV(accessor.d_info == INFO[ti]);
             }
+
+            SequenceAccessor accessor;
+            s_elementLoaderFn_indexes.clear();
+            ASSERT(0 == bdeat_sequenceAccessAttributes(X, accessor));
+            ASSERT(NUM_INFO == s_elementLoaderFn_indexes.size());
+            for (int i = 0; i < s_elementLoaderFn_indexes.size(); ++i) {
+                LOOP_ASSERT(i, s_elementLoaderFn_indexes[i] == INFO[i].d_id);
+            }
+
         }
 
         if (verbose) cout << "\nTesting Sequence for decoding" << endl;
@@ -1858,13 +1870,13 @@ int main(int argc, char *argv[])
                 manipulator.d_rc = ti;
                 s_elementLoaderFn_proxy = 0;
                 s_elementLoaderFn_object = 0;
-                s_elementLoaderFn_index = 0;
+                s_elementLoaderFn_id = 0;
 
                 ASSERTV(ti == mX.sequenceManipulateAttribute(manipulator, ID));
 
                 ASSERTV(s_elementLoaderFn_proxy == manipulator.d_proxy);
                 ASSERTV(s_elementLoaderFn_object == &X);
-                ASSERTV(s_elementLoaderFn_index == ti);
+                ASSERTV(s_elementLoaderFn_id == ID);
                 ASSERTV(manipulator.d_address == &s_elementLoaderFn_int);
                 ASSERTV(manipulator.d_info == INFO[ti]);
 
@@ -1872,7 +1884,7 @@ int main(int argc, char *argv[])
                 manipulator.d_rc = ti;
                 s_elementLoaderFn_proxy = 0;
                 s_elementLoaderFn_object = 0;
-                s_elementLoaderFn_index = 0;
+                s_elementLoaderFn_id = 0;
 
                 ASSERTV(ti == mX.sequenceManipulateAttribute(manipulator,
                                                              NAME,
@@ -1880,7 +1892,7 @@ int main(int argc, char *argv[])
 
                 ASSERTV(s_elementLoaderFn_proxy == manipulator.d_proxy);
                 ASSERTV(s_elementLoaderFn_object == &X);
-                ASSERTV(s_elementLoaderFn_index == ti);
+                ASSERTV(s_elementLoaderFn_id == ID);
                 ASSERTV(manipulator.d_address == &s_elementLoaderFn_int);
                 ASSERTV(manipulator.d_info == INFO[ti]);
 
@@ -1888,7 +1900,7 @@ int main(int argc, char *argv[])
                 manipulator.d_rc = ti;
                 s_elementLoaderFn_proxy = 0;
                 s_elementLoaderFn_object = 0;
-                s_elementLoaderFn_index = 0;
+                s_elementLoaderFn_id = 0;
 
                 ASSERTV(ti == bdeat_sequenceManipulateAttribute(&mX,
                                                                 manipulator,
@@ -1896,7 +1908,7 @@ int main(int argc, char *argv[])
 
                 ASSERTV(s_elementLoaderFn_proxy == manipulator.d_proxy);
                 ASSERTV(s_elementLoaderFn_object == &X);
-                ASSERTV(s_elementLoaderFn_index == ti);
+                ASSERTV(s_elementLoaderFn_id == ID);
                 ASSERTV(manipulator.d_address == &s_elementLoaderFn_int);
                 ASSERTV(manipulator.d_info == INFO[ti]);
 
@@ -1904,7 +1916,7 @@ int main(int argc, char *argv[])
                 manipulator.d_rc = ti;
                 s_elementLoaderFn_proxy = 0;
                 s_elementLoaderFn_object = 0;
-                s_elementLoaderFn_index = 0;
+                s_elementLoaderFn_id = 0;
 
                 ASSERTV(ti == bdeat_sequenceManipulateAttribute(&mX,
                                                                 manipulator,
@@ -1913,10 +1925,19 @@ int main(int argc, char *argv[])
 
                 ASSERTV(s_elementLoaderFn_proxy == manipulator.d_proxy);
                 ASSERTV(s_elementLoaderFn_object == &X);
-                ASSERTV(s_elementLoaderFn_index == ti);
+                ASSERTV(s_elementLoaderFn_id == ID);
                 ASSERTV(manipulator.d_address == &s_elementLoaderFn_int);
                 ASSERTV(manipulator.d_info == INFO[ti]);
             }
+
+            SequenceManipulator manipulator;
+            s_elementLoaderFn_indexes.clear();
+            ASSERT(0 == bdeat_sequenceManipulateAttributes(&mX, manipulator));
+            ASSERT(NUM_INFO == s_elementLoaderFn_indexes.size());
+            for (int i = 0; i < s_elementLoaderFn_indexes.size(); ++i) {
+                LOOP_ASSERT(i, s_elementLoaderFn_indexes[i] == INFO[i].d_id);
+            }
+
         }
       } break;
       case 5: {

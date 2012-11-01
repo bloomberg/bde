@@ -69,7 +69,7 @@ BSLS_IDENT("$Id: $")
 // named 'Type' provide the results of type-returning meta-functions.
 //
 ///Usage
-//------
+///-----
 // The following snippets of code illustrate basic use of the 'bslmf::If'
 // meta-function.  The examples make use of the following declarations to
 // identify the type that is selected by a given constant integral expression:

@@ -1,5 +1,4 @@
 // bslstl_unorderedmap.t.cpp                                          -*-C++-*-
-
 #include <bslstl_unorderedmap.h>
 
 #include <bslma_allocator.h>
