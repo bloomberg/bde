@@ -260,16 +260,12 @@ BSLS_IDENT("$Id: $")
 #include <bslalg_arraydestructionprimitives.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_HASTRAIT
-#include <bslalg_hastrait.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITBITWISEMOVEABLE
-#include <bslalg_typetraitbitwisemoveable.h>
-#endif
-
 #ifndef INCLUDED_BSLMF_ASSERT
 #include <bslmf_assert.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
+#include <bslmf_isbitwisemoveable.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ASSERT
@@ -319,7 +315,8 @@ class AutoArrayMoveDestructor {
     OBJECT_TYPE *d_end_p;    // first address beyond last (moved) element in
                              // guarded range
 
-    BSLMF_ASSERT((HasTrait<OBJECT_TYPE, TypeTraitBitwiseMoveable>::VALUE));
+    // CLASS INVARIANT
+    BSLMF_ASSERT(bslmf::IsBitwiseMoveable<OBJECT_TYPE>::value);
 
   private:
     // NOT IMPLEMENTED

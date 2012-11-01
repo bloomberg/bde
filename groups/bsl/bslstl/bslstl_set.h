@@ -85,8 +85,7 @@ BSLS_IDENT("$Id: $")
 // construction (see 'bslma_default').  In addition to directly allocating
 // memory from the indicated 'bslma::Allocator', a set supplies that
 // allocator's address to the constructors of contained objects of the
-// (template parameter) type 'KEY' with the
-// 'bslalg::TypeTraitUsesBslmaAllocator' trait.
+// (template parameter) type 'KEY' with the 'bslma::UsesBslmaAllocator' trait.
 //
 ///Operations
 ///----------
@@ -302,7 +301,7 @@ BSLS_IDENT("$Id: $")
 //
 //      bool operator() (const MyDate& lhs, const MyDate& rhs) const
 //          // Return 'true' if the value of the specified 'lhs' is less than
-//          // (ordered before) the vlaue of the specified 'rhs', and 'false'
+//          // (ordered before) the value of the specified 'rhs', and 'false'
 //          // otherwise.  The 'lhs' value is considered less than the 'rhs'
 //          // value if the date represented by 'lhs' is earlier than the date
 //          // represented by 'rhs' in time.
@@ -516,12 +515,8 @@ BSL_OVERRIDES_STD mode"
 #include <bslalg_rbtreeutil.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BSLSTL_TRAITSGROUPSTLASSOCIATIVECONTAINER
-#include <bslstl_traitsgroupstlassociativecontainer.h>
+#ifndef INCLUDED_BSLALG_TYPETRAITHASSTLITERATORS
+#include <bslalg_typetraithasstliterators.h>
 #endif
 
 #ifndef INCLUDED_FUNCTIONAL
@@ -646,11 +641,6 @@ class set {
         // comparator for this tree.
 
   public:
-    // TRAITS
-    typedef BloombergLP::bslstl::TraitsGroupStlAssociativeContainer<ALLOCATOR>
-                                                               TreeTypeTraits;
-    BSLALG_DECLARE_NESTED_TRAITS(set, TreeTypeTraits);
-
     // CREATORS
     explicit set(const COMPARATOR& comparator = COMPARATOR(),
                  const ALLOCATOR&  allocator  = ALLOCATOR())
@@ -687,12 +677,14 @@ class set {
     set(const set& original);
         // Construct a set having the same value as the specified 'original'.
         // Use a copy of 'original.key_comp()' to order the keys contained in
-        // this set.  Use a default-constructed object of the (template
-        // parameter) type 'ALLOCATOR' to allocate memory.  If the template
-        // parameter 'ALLOCATOR' argument is of type 'bsl::allocator' (the
-        // default), the currently installed default allocator will be used to
-        // supply memory.  This method requires that the (template parameter)
-        // type 'KEY' be "copy-constructible" (see {Requirements on 'KEY'}).
+        // this set.  Use the allocator returned by
+        // 'bsl::allocator_traits<ALLOCATOR>::
+        // select_on_container_copy_construction(original.allocator())' to
+        // allocate memory.  If the (template parameter) type 'ALLOCATOR' is
+        // of type 'bsl::allocator' (the default), the currently installed
+        // default allocator will be used to supply memory.  This method
+        // requires that the (template parameter) type 'KEY' be
+        // "copy-constructible" (see {Requirements on 'KEY'}).
 
     set(const set& original, const ALLOCATOR& allocator);
         // Construct a set having the same value as that of the specified
@@ -1021,6 +1013,43 @@ class set {
 
 };
 
+}  // namespace bsl
+
+// ============================================================================
+//                                TYPE TRAITS
+// ============================================================================
+
+// Type traits for STL *ordered* containers:
+//: o An ordered container defines STL iterators.
+//: o An ordered container uses 'bslma' allocators if the parameterized
+//:     'ALLOCATOR' is convertible from 'bslma::Allocator*'.
+
+namespace BloombergLP {
+namespace bslalg {
+
+template <typename KEY,
+          typename COMPARATOR,
+          typename ALLOCATOR>
+struct HasStlIterators<bsl::set<KEY, COMPARATOR, ALLOCATOR> >
+    : bsl::true_type
+{};
+
+}
+
+namespace bslma {
+
+template <typename KEY,
+          typename COMPARATOR,
+          typename ALLOCATOR>
+struct UsesBslmaAllocator<bsl::set<KEY, COMPARATOR, ALLOCATOR> >
+    : bsl::is_convertible<Allocator*, ALLOCATOR>
+{};
+
+}
+}  // namespace BloombergLP
+
+namespace bsl {
+
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 bool operator==(const set<KEY, COMPARATOR, ALLOCATOR>& lhs,
                 const set<KEY, COMPARATOR, ALLOCATOR>& rhs);
@@ -1225,7 +1254,9 @@ set<KEY, COMPARATOR, ALLOCATOR>::set(INPUT_ITERATOR    first,
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 inline
 set<KEY, COMPARATOR, ALLOCATOR>::set(const set& original)
-: d_compAndAlloc(original.comparator().keyComparator(), ALLOCATOR())
+: d_compAndAlloc(original.comparator().keyComparator(),
+                 AllocatorTraits::select_on_container_copy_construction(
+                                           original.nodeFactory().allocator()))
 , d_tree()
 {
     if (0 < original.size()) {

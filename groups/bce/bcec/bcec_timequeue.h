@@ -86,8 +86,8 @@ BDES_IDENT("$Id: $")
 // would attempt recovery, perhaps by closing and reopening the physical
 // Connection.
 //
-// 'numIndexBits'
-// -------------
+///'numIndexBits'
+///-------------
 // The 'bcec_TimeQueue' component is constructed using a user-supplied
 // 'numIndexBits'.  The number of bits used to store the index controls the
 // range of available indices.
@@ -110,6 +110,7 @@ BDES_IDENT("$Id: $")
 //
 //  }
 //..
+//
 ///struct 'my_Connection'
 ///- - - - - - - - - - -
 // The 'my_Connection' structure is used by 'my_Server' to manage a single
@@ -121,6 +122,7 @@ BDES_IDENT("$Id: $")
 //      my_Session *d_session_p;
 //  };
 //..
+//
 ///Protocol classes
 ///- - - - - - - -
 // Protocol class 'my_Session' provides a pure abstract protocol to manage a

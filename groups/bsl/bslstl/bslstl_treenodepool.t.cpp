@@ -183,6 +183,15 @@ class AllocatingIntType {
     const int& value() const { return *d_value_p; }
 };
 
+namespace BloombergLP {
+namespace bslma {
+
+template <>
+struct UsesBslmaAllocator<AllocatingIntType> : bsl::true_type {};
+
+}
+}
+
 //=============================================================================
 //                               TEST FACILITIES
 //-----------------------------------------------------------------------------
@@ -240,7 +249,7 @@ class Stack
 template <class VALUE>
 class TestDriver {
     // This templatized struct provide a namespace for testing the 'map'
-    // container.  The parameterized 'VALUE' specifies the value type forr this
+    // container.  The parameterized 'VALUE' specifies the value type for this
     // object.  Each "testCase*" method test a specific aspect of
     // 'SimplePool<VALUE>'.  Every test cases should be invoked with various
     // parameterized type to fully test the container.
@@ -376,7 +385,7 @@ void TestDriver<VALUE>::testCase8()
     // Plan:
     //: 1 Using a table-based approach:
     //:
-    //:   1 Create two objects of whick memory has been allocated and
+    //:   1 Create two objects of which memory has been allocated and
     //:     deallocated various number of times.
     //:
     //:   2 Swap the two objects, verify allocator is not changed.  (C-2)
@@ -572,9 +581,8 @@ void TestDriver<VALUE>::testCase7()
                         "\n========================\n");
 
 
-    const int TYPE_ALLOC = bslalg::HasTrait<
-                                    VALUE,
-                                    bslalg::TypeTraitUsesBslmaAllocator>::VALUE;
+    const int TYPE_ALLOC = bslma::UsesBslmaAllocator<
+                                    VALUE>::value;
 
     bslma::TestAllocator oa("object", veryVeryVeryVerbose);
 
@@ -691,9 +699,8 @@ void TestDriver<VALUE>::testCase6()
     if (verbose) printf("\nMANIPULATOR 'reserve'"
                         "\n======================\n");
 
-    const int TYPE_ALLOC = bslalg::HasTrait<
-                                    VALUE,
-                                    bslalg::TypeTraitUsesBslmaAllocator>::VALUE;
+    const int TYPE_ALLOC = bslma::UsesBslmaAllocator<
+                                    VALUE>::value;
 
     for (int ti = 1; ti < 8; ++ti) {
         for(int tj = 0; tj < 8; ++tj) {
@@ -790,9 +797,8 @@ void TestDriver<VALUE>::testCase5()
     if (verbose) printf("\nMANIPULATOR 'deleteNode'"
                         "\n========================");
 
-    const int TYPE_ALLOC = bslalg::HasTrait<
-                                    VALUE,
-                                    bslalg::TypeTraitUsesBslmaAllocator>::VALUE;
+    const int TYPE_ALLOC = bslma::UsesBslmaAllocator<
+                                    VALUE>::value;
 
     struct {
         int         d_line;
@@ -1037,9 +1043,7 @@ void TestDriver<VALUE>::testCase2()
 
     if (verbose) printf("\nTesting with various allocator configurations.\n");
 
-    const int TYPE_ALLOC = bslalg::HasTrait<
-                                    VALUE,
-                                    bslalg::TypeTraitUsesBslmaAllocator>::VALUE;
+    const int TYPE_ALLOC = bslma::UsesBslmaAllocator<VALUE>::value;
 
     for (char cfg = 'a'; cfg <= 'b'; ++cfg) {
 

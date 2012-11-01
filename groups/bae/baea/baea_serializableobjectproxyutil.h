@@ -661,9 +661,9 @@ class baea_SerializableObjectProxyUtil_SequenceLoader<SEQUENCE, false> {
 template<typename ENUMERATION>
 int baea_SerializableObjectProxyUtil::enumSetter(void *object, int intValue)
 {
-    return bslalg_TypeTraits<ENUMERATION>::Wrapper::fromInt(
-                                       reinterpret_cast<ENUMERATION *>(object),
-                                       intValue);
+    return bdeat_BasicEnumerationWrapper<ENUMERATION>::Wrapper::fromInt(
+                                   reinterpret_cast<ENUMERATION *>(object),
+                                   intValue);
 
 }
 
@@ -673,7 +673,7 @@ int baea_SerializableObjectProxyUtil::enumStringSetter(
                                                       const char *stringValue,
                                                       int         stringLength)
 {
-    return bslalg_TypeTraits<ENUMERATION>::Wrapper::fromString(
+    return bdeat_BasicEnumerationWrapper<ENUMERATION>::Wrapper::fromString(
                                        reinterpret_cast<ENUMERATION *>(object),
                                        stringValue,
                                        stringLength);
@@ -754,8 +754,10 @@ void baea_SerializableObjectProxyUtil::makeDecodeProxy(
                       object,
                       &enumSetter<TYPE>,
                       &enumStringSetter<TYPE>,
-                      bslalg_TypeTraits<TYPE>::Wrapper::ENUMERATOR_INFO_ARRAY,
-                      bslalg_TypeTraits<TYPE>::Wrapper::NUM_ENUMERATORS);
+                      bdeat_BasicEnumerationWrapper<TYPE>::Wrapper
+                        ::ENUMERATOR_INFO_ARRAY,
+                      bdeat_BasicEnumerationWrapper<TYPE>::Wrapper
+                        ::NUM_ENUMERATORS);
 }
 
 template<typename TYPE>
@@ -940,8 +942,10 @@ void baea_SerializableObjectProxyUtil::makeEncodeProxy(
     bdeat_EnumFunctions::toInt(&value, *object);
     proxy->loadEnumerationForEncoding(
                        value,
-                       bslalg_TypeTraits<TYPE>::Wrapper::ENUMERATOR_INFO_ARRAY,
-                       bslalg_TypeTraits<TYPE>::Wrapper::NUM_ENUMERATORS);
+                       bdeat_BasicEnumerationWrapper<TYPE>::Wrapper
+                         ::ENUMERATOR_INFO_ARRAY,
+                       bdeat_BasicEnumerationWrapper<TYPE>::Wrapper
+                         ::NUM_ENUMERATORS);
 }
 
 template <typename TYPE>

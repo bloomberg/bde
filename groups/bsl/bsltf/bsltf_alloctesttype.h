@@ -19,7 +19,7 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION: This component provides a single, unconstrained
 // (value-semantic) attribute class, 'AllocTestType', that uses a
 // 'bslma::Allocator' to allocate memory and defines the type trait
-// 'bslalg::TypeTraitUsesBslmaAllocator'.  Furthermore, this class is not
+// 'bslma::UsesBslmaAllocator'.  Furthermore, this class is not
 // bitwise-moveable, and will assert on destruction if it has been moved.  This
 // class is primarily provided to facilitate testing of templates by defining a
 // simple type representative of user-defined types having an allocator.
@@ -48,24 +48,22 @@ BSLS_IDENT("$Id: $")
 //  void printTypeTraits()
 //      // Prints the traits of the parameterized 'TYPE' to the console.
 //  {
-//      if (bslmf::IsConvertible<bslalg_TypeTraits<TYPE>,
-//          bslalg::TypeTraitUsesBslmaAllocator>::VALUE) {
-//          printf("Type defines bslalg::TypeTraitUsesBslmaAllocator.\n");
+//      if (bslma::UsesBslmaAllocator<TYPE>::value) {
+//          printf("Type defines bslma::UsesBslmaAllocator.\n");
 //      }
 //      else {
 //          printf(
-//              "Type does not define bslalg::TypeTraitUsesBslmaAllocator.\n");
+//              "Type does not define bslma::UsesBslmaAllocator.\n");
 //      }
 //
-//      if (bslmf::IsConvertible<bslalg_TypeTraits<TYPE>,
-//          bslalg::TypeTraitBitwiseMoveable>::VALUE) {
-//          printf("Type defines bslalg::TypeTraitBitwiseMoveable.\n");
+//      if (bslmf::IsBitwiseMoveable<TYPE>::value) {
+//          printf("Type defines bslmf::IsBitwiseMoveable.\n");
 //      }
 //      else {
-//          printf("Type does not define bslalg::TypeTraitBitwiseMoveable.\n");
+//          printf("Type does not define bslmf::IsBitwiseMoveable.\n");
 //      }
 //  }
-// ..
+//..
 // Now, we invoke the 'printTypeTraits' function template using
 // 'AllocTestType' as the parameterized 'TYPE':
 //..
@@ -73,13 +71,9 @@ BSLS_IDENT("$Id: $")
 //..
 // Finally, we observe the console output:
 //..
-//  Type defines bslalg::TypeTraitUsesBslmaAllocator.
-//  Type does not define bslalg::TypeTraitBitwiseMoveable.
+//  Type defines bslma::UsesBslmaAllocator.
+//  Type does not define bslmf::IsBitwiseMoveable.
 //..
-
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
 
 #ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
@@ -87,6 +81,14 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLMA_DEFAULT
 #include <bslma_default.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include <bslma_usesbslmaallocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
+#include <bslmf_isbitwisemoveable.h>
 #endif
 
 namespace BloombergLP {
@@ -99,7 +101,7 @@ namespace bsltf {
 class AllocTestType {
     // This unconstrained (value-semantic) attribute class that uses a
     // 'bslma::Allocator' to allocate memory and defines the type trait
-    // 'bslalg::TypeTraitUsesBslmaAllocator'.  This class is primarily provided
+    // 'bslma::UsesBslmaAllocator'.  This class is primarily provided
     // to facilitate testing of templates by defining a simple type
     // representative of user-defined types having an allocator.  See the
     // Attributes section under @DESCRIPTION in the component-level
@@ -115,10 +117,6 @@ class AllocTestType {
                                      // is not bit-wise moved)
 
   public:
-    // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(AllocTestType,
-                                 bslalg::TypeTraitUsesBslmaAllocator);
-
     // CREATORS
     explicit AllocTestType(bslma::Allocator *basicAllocator = 0);
         // Create a 'AllocTestType' object having the (default) attribute
@@ -165,6 +163,17 @@ class AllocTestType {
         // that if no allocator was supplied at construction the currently
         // installed default allocator is used.
 };
+
+}
+
+// TRAITS
+namespace bslma {
+template <>
+struct UsesBslmaAllocator<bsltf::AllocTestType>
+    : bsl::true_type {};
+}
+
+namespace bsltf {
 
 // FREE OPERATORS
 bool operator==(const AllocTestType& lhs, const AllocTestType& rhs);

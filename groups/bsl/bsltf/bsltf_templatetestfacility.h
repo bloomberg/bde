@@ -13,8 +13,7 @@ BSLS_IDENT("$Id: $")
 //  bsltf::TemplateTestFacility: namespace for template-testing utilities
 //
 //@MACROS:
-//  BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(CLASS, METHOD, TYPE...):
-//      invoke CLASS<TYPE>.METHOD for each listed TYPE 
+//  BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(CLASS, METHOD, TYPE...): run all
 //  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE: list of primitive types
 //  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_USER_DEFINED: list user types
 //  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR: list of typical types
@@ -124,19 +123,19 @@ BSLS_IDENT("$Id: $")
 //
 //  AllocTestType                       class that allocates memory, defines
 //                                      the
-//                                      'bslalg::TypeTraitUsesBslmaAllocator'
+//                                      'bslma::UsesBslmaAllocator'
 //                                      trait, and ensures it is not bitwise
 //                                      moved
 //
 //  BitwiseMoveableTestType             class that is bitwise-moveable and
 //                                      defines the
-//                                      'bslalg::TypeTraitBitwiseMoveable'
+//                                      'bslmf::IsBitwiseMoveable'
 //                                      trait
 //
 //  AllocatingBitwiseMoveableTestType   class that allocates memory, is
 //                                      bitwisemoveable, and defines the
-//                                      'bslalg::TypeTraitUsesBslmaAllocator'
-//                                      and 'bslalg::TypeTraitBitwiseMoveable'
+//                                      'bslma::UsesBslmaAllocator'
+//                                      and 'bslmf::IsBitwiseMoveable'
 //                                      traits
 //
 //  NonTypicalOverloadsTestType         class that defines and assert on

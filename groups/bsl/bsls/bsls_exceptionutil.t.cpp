@@ -351,7 +351,7 @@ struct DummyAllocator {
 // at compile time, whether to initialize 'ITERATIONS' to 3 (for exception
 // enabled builds) or 1 (for non-exception enabled builds).  The different
 // values of the 'ITERATOR' ensure the subsequent for-loop calls
-// 'mightThrowFunc' in a way that generates expections for only exception
+// 'mightThrowFunc' in a way that generates exceptions for only exception
 // enabled builds:
 //..
     #ifdef BDE_BUILD_TARGET_EXC
@@ -375,7 +375,7 @@ struct DummyAllocator {
                     mightThrowFunc(i);
 //..
 // Notice that this example is careful to call 'mightThrowFunc' in a way that
-// it will not throw in non-exceptioin builds.  Although the use 'BSLS_TRY',
+// it will not throw in non-exception builds.  Although the use 'BSLS_TRY',
 // 'BSLS_THROW', and 'BSLS_CATCH' ensures the code *compiles* in both
 // exception, and non-exception enabled builds, attempting to 'BSLS_THROW' an
 // exception in a non- exception enabled build will invoke the assert handler

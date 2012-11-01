@@ -1166,7 +1166,7 @@ BSLS_IDENT("$Id: $")
 //
 //          return stream << "(* Invalid 'MyDate' State "
 //                        << d_serialDate
-//                        << " *)" << std::flush;                    // RETURN
+//                        << " *)" << std::flush;                     // RETURN
 //
 //  #endif // BSLS_ASSERT_OPT_IS_ACTIVE
 //
@@ -1181,16 +1181,16 @@ BSLS_IDENT("$Id: $")
 //
 //..
 
+#ifndef INCLUDED_BSLS_ATOMICOPERATIONS
+#include <bsls_atomicoperations.h>
+#endif
+
 #ifndef INCLUDED_BSLS_PERFORMANCEHINT
 #include <bsls_performancehint.h>
 #endif
 
 #ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
-
-#ifndef INCLUDED_BSLS_ATOMICOPERATIONS
-#include <bsls_atomicoperations.h>
 #endif
 
                     // =================================
@@ -1442,13 +1442,14 @@ class AssertFailureHandlerGuard {
     // DATA
     Assert::Handler d_original;  // original (restored at destruction)
 
+  private:
     // NOT IMPLEMENTED
     AssertFailureHandlerGuard(const AssertFailureHandlerGuard&);
     AssertFailureHandlerGuard& operator=(const AssertFailureHandlerGuard&);
 
   public:
     // CREATORS
-    AssertFailureHandlerGuard(Assert::Handler temporary);
+    explicit AssertFailureHandlerGuard(Assert::Handler temporary);
         // Create a guard object that installs the specified 'temporary'
         // failure handler and automatically restores the original handler on
         // destruction.
