@@ -1,10 +1,10 @@
 // bslalg_hashtableanchor.cpp                                         -*-C++-*-
 #include <bslalg_hashtableanchor.h>
 
-#include <bslalg_hashtablebucket.h>        // for testing only
-
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
+
+#include <bslalg_hashtablebucket.h>        // for testing only
 
 namespace BloombergLP
 {

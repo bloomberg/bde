@@ -20,7 +20,7 @@ BDES_IDENT("$Id: $")
 // servers that adheres to 'btesc_TimedChannelAllocator' protocol.  Both timed
 // and non-timed (synchronous) channels can be allocated in a timed and
 // non-timed fashion as indicated by the following table:
-//
+//..
 //       +=============================================================+
 //       |  Result/Operation |        Timed         |    Non-Timed     |
 //       +-------------------------------------------------------------+
@@ -28,7 +28,7 @@ BDES_IDENT("$Id: $")
 //       +-------------------------------------------------------------+
 //       |    Non-Timed      |    'timedAllocate'   |    'allocate'    |
 //       +=============================================================+
-//
+//..
 // The connector has the flexibility of changing the address of the peer server
 // at run-time (and producing channels connected to this end-point) without any
 // effects on the state of managed channels.
@@ -155,7 +155,7 @@ BDES_IDENT("$Id: $")
 //   // Perform proper shut down procedure
 //   channel->invalidate();
 //   connector.deallocate(channel);
-//....
+//..
 
 #ifndef INCLUDED_BTESCM_VERSION
 #include <btescm_version.h>

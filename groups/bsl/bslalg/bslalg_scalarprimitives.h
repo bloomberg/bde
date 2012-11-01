@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Primitive algorithms that operate on single elements.
+//@PURPOSE: Provide primitive algorithms that operate on single elements.
 //
 //@CLASSES:
 //  bslalg::ScalarPrimitives: namespace for algorithms
@@ -104,16 +104,16 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_issame.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_REMOVECVQ
-#include <bslmf_removecvq.h>
-#endif
-
 #ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
 #include <bslmf_istriviallycopyable.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_ISTRIVIALLYDEFAULTCONSTRUCTIBLE
 #include <bslmf_istriviallydefaultconstructible.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_REMOVECVQ
+#include <bslmf_removecvq.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ASSERT
@@ -124,11 +124,6 @@ BSLS_IDENT("$Id: $")
 #include <bsls_util.h>
 #endif
 
-#ifndef INCLUDED_NEW
-#include <new>          // placement 'new'
-#define INCLUDED_NEW
-#endif
-
 #ifndef INCLUDED_CSTDDEF
 #include <cstddef>
 #define INCLUDED_CSTDDEF
@@ -137,6 +132,11 @@ BSLS_IDENT("$Id: $")
 #ifndef INCLUDED_CSTRING
 #include <cstring>
 #define INCLUDED_CSTRING
+#endif
+
+#ifndef INCLUDED_NEW
+#include <new>          // placement 'new'
+#define INCLUDED_NEW
 #endif
 
 namespace BloombergLP {

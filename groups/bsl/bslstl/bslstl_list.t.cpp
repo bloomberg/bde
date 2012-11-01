@@ -2301,7 +2301,9 @@ void TestDriver<TYPE,ALLOC>::testSort()
 
     // Choose a longish string of random values
     const char EH_SPEC[] = "CBHADBAGCBFFADHE";
-    const int EH_SPEC_LEN = sizeof(EH_SPEC) - 1;
+    enum {
+        EH_SPEC_LEN = sizeof(EH_SPEC) - 1
+    };
 
     bool caught_ex = true;
     for (int threshold = 0; caught_ex; ++threshold) {
@@ -2746,9 +2748,11 @@ void TestDriver<TYPE,ALLOC>::testMerge()
     {
         const char X_SPEC[] = "HGFEDCBA";
         const char Y_SPEC[] = "GGEECCBA";
-        const int X_SPEC_LEN = sizeof(X_SPEC) - 1;
-        const int Y_SPEC_LEN = sizeof(Y_SPEC) - 1;
-        const int MERGED_SPEC_LEN = X_SPEC_LEN + Y_SPEC_LEN;
+        enum {
+            X_SPEC_LEN = sizeof(X_SPEC) - 1,
+            Y_SPEC_LEN = sizeof(Y_SPEC) - 1,
+            MERGED_SPEC_LEN = X_SPEC_LEN + Y_SPEC_LEN
+        };
 
         bool caught_ex = true;
         for (int threshold = 0; caught_ex; ++threshold) {

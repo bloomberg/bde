@@ -437,7 +437,7 @@ const char *string::EMPTY_STRING = "";
     }
 //..
 
-}  // close unamed namespace
+}  // close unnamed namespace
 
 //=============================================================================
 //                  CLASSES AND FUNCTIONS USED IN TESTS

@@ -24,7 +24,7 @@ BDES_IDENT("$Id: $")
 // and a non-zero value on failure.
 //
 ///Usage
-//------
+///-----
 // The following snippets of code illustrate how to make a socket non-blocking.
 //..
 //      bteso_SocketHandle::Handle socketHandle;

@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Wrapper for STL-style allocators to encapsulate 'bslma' semantics.
+//@PURPOSE: Provide a wrapper for STL allocators, respecting 'bslma' semantics.
 //
 //@CLASSES:
 //  bslalg::ContainerBase: proxy class for STL-style containers
@@ -82,9 +82,9 @@ BSLS_IDENT("$Id: $")
 //  fixedArray[1] = 2;
 //  fixedArray[2] = 3;
 //
-//  ASSERT(fixedArray[0] == 1);
-//  ASSERT(fixedArray[1] == 2);
-//  ASSERT(fixedArray[2] == 3);
+//  assert(fixedArray[0] == 1);
+//  assert(fixedArray[1] == 2);
+//  assert(fixedArray[2] == 3);
 //..
 
 #ifndef INCLUDED_BSLSCM_VERSION
@@ -125,6 +125,7 @@ class ContainerBase_BslmaBase {
 
     ALLOCATOR d_allocator;
 
+  private:
     // NOT IMPLEMENTED
     ContainerBase_BslmaBase& operator=(const ContainerBase_BslmaBase&);
 
@@ -185,6 +186,7 @@ class ContainerBase_NonBslmaBase : public ALLOCATOR {
     // itself adds no state and will not increase the footprint of subsequently
     // derived classes.
 
+  private:
     // NOT IMPLEMENTED
     ContainerBase_NonBslmaBase& operator=(const ContainerBase_NonBslmaBase&);
 
@@ -255,6 +257,7 @@ class ContainerBase : public
                   ContainerBase_BslmaBase<ALLOCATOR>,
                   ContainerBase_NonBslmaBase<ALLOCATOR> >::type Base;
 
+  private:
     // NOT IMPLEMENTED
     ContainerBase& operator=(const ContainerBase&);
 
@@ -311,7 +314,7 @@ class ContainerBase : public
     T *allocateN(T* p, size_type n)
         // Allocate (but do not initialize) 'n' objects of type 'T' using the
         // allocator returned by 'allocator'.  Return a pointer to the raw
-        // memory that was allocated.  The 'T*' argument is used only to
+        // memory that was allocated.  The 'p' argument is used only to
         // determine the type of object being allocated; its value (usually
         // null) is not used.
     {

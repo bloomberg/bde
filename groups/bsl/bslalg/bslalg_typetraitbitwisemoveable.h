@@ -66,7 +66,7 @@ struct TypeTraitBitwiseMoveable {
     struct NestedTraitDeclaration :
         bslmf::NestedTraitDeclaration<TYPE, bslmf::IsBitwiseMoveable>
     {
-        // This class template ties the 'bslalg::TypeTaitBitwiseMoveable'
+        // This class template ties the 'bslalg::TypeTraitBitwiseMoveable'
         // trait tag to the 'bslmf::IsBitwiseMoveable' trait metafunction.
     };
 
