@@ -84,8 +84,9 @@ struct AtomicOperations_SPARC_SUN_CC_DefaultInt
 {
     typedef Atomic_TypeTraits<IMP> AtomicTypes;
 
-        // *** atomic functions for int ***
+                    // *** atomic functions for int ***
 
+    // CLASS METHODS
     static int getInt(typename AtomicTypes::Int const *atomicInt);
 
     static int getIntAcquire(typename AtomicTypes::Int const *atomicInt);

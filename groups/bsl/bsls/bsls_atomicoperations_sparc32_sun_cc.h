@@ -131,8 +131,9 @@ struct AtomicOperations_SPARC32_SUN_CC
 {
     typedef Atomic_TypeTraits<AtomicOperations_SPARC32_SUN_CC> AtomicTypes;
 
-        // *** atomic functions for Int64 ***
+                    // *** atomic functions for Int64 ***
 
+    // CLASS METHODS
     static Types::Int64 getInt64(const AtomicTypes::Int64 *atomicInt);
 
     static Types::Int64 getInt64Relaxed(const AtomicTypes::Int64 *atomicInt);
