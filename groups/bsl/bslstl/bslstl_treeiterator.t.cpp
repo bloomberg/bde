@@ -60,12 +60,12 @@ using namespace bslstl;
 //: o We do not need to test anything in case 3 and 8, because the value
 //:   constructor will have been already tested as the primary manipulator in
 //:   case 2.
-//: o We do not need to test anything in case 5, becuase this class does not
+//: o We do not need to test anything in case 5, because this class does not
 //:   provide a 'print' method or 'operator<<'.
 //: o We do not need to test anything in case 10, because this class does not
 //:   provide bdex stream operators.
 //: o We will test 'operator*' and 'operator->' together with the 'node' method
-//:   in test case 2, becuase these operator simply provide different ways to
+//:   in test case 2, because these operator simply provide different ways to
 //:   access to the value of the node.
 //
 // Global Concerns:
@@ -927,7 +927,7 @@ int main(int argc, char *argv[])
         //:     as that of 'ZZ'.  (C-1,3)
         //:
         //:   5 Use the copy constructor to create an object having the
-        //:     parameterized 'VALUE_TYPE' decared 'const' ,'X2', supplying it
+        //:     parameterized 'VALUE_TYPE' declared 'const' ,'X2', supplying it
         //:     the 'const' object 'Z'.  (C-2, 4)
         //:
         //:   6 Verify that the newly constructed object 'X2', has the same

@@ -94,8 +94,10 @@ MallocFreeAllocator& MallocFreeAllocator::singleton()
                 initSingleton(&g_mallocFreeAllocatorSingleton));
     }
 
-    return *(bslma::MallocFreeAllocator *)
-       bsls::AtomicOperations::getPtrRelaxed(&g_mallocFreeAllocatorSingleton_p);
+    return *static_cast<bslma::MallocFreeAllocator *>(
+                const_cast<void *>(
+                    bsls::AtomicOperations::getPtrRelaxed(
+                                          &g_mallocFreeAllocatorSingleton_p)));
 }
 
 }  // close package namespace

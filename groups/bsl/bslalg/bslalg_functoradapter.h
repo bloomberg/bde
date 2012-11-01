@@ -129,6 +129,10 @@ BSLS_IDENT("$Id: $")
 //  assert(!functionLessThan10(12));
 //..
 
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_ASSERT
 #include <bslmf_assert.h>
 #endif

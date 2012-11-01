@@ -12,7 +12,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslalg::ConstructorProxy: proxy for constructing and destroying objects
 //
-//@SEE_ALSO: bslma_allocator, bslalg_typetraits
+//@SEE_ALSO: bslma_allocator
 //
 //@AUTHOR: Shezan Baig (sbaig)
 //
@@ -25,7 +25,7 @@ BSLS_IDENT("$Id: $")
 // construction of a proxy, a proxied 'OBJECT_TYPE' instance is also
 // constructed; the 'bslma' allocator supplied to the proxy constructor is
 // passed to the constructor of the proxied object only if 'OBJECT_TYPE'
-// declares the 'bslalg::TypeTraitUsesBslmaAllocator' trait.  If this trait is
+// declares the 'bslma::UsesBslmaAllocator' trait.  If this trait is
 // not declared for 'OBJECT_TYPE', the allocator is ignored.
 //
 // Following construction of the proxied object, it is held by the proxy.
@@ -55,7 +55,7 @@ BSLS_IDENT("$Id: $")
 //      // ... class definition ...
 //  };
 //..
-// 'SomeClass' may optionally declare the 'bslalg::TypeTraitUsesBslmaAllocator'
+// 'SomeClass' may optionally declare the 'bslma::UsesBslmaAllocator'
 // trait.  The following code illustrates how a 'SomeClass' object can be
 // constructed using a constructor proxy which detects this trait:
 //..
@@ -66,7 +66,7 @@ BSLS_IDENT("$Id: $")
 //
 //  SomeClass& myObject = proxy.object();
 //..
-// If 'SomeClass' declares the 'bslalg::TypeTraitUsesBslmaAllocator' trait,
+// If 'SomeClass' declares the 'bslma::UsesBslmaAllocator' trait,
 // then the object of type 'SomeClass' held by 'proxy' will obtain its memory
 // from the supplied 'testAllocator'.  Otherwise, 'testAllocator' will be
 // ignored.
@@ -196,10 +196,6 @@ BSLS_IDENT("$Id: $")
 //      bslma::Allocator *d_allocator_p;
 //
 //    public:
-//      // TRAITS
-//      BSLALG_DECLARE_NESTED_TRAITS(SomeClassUsingAllocator,
-//                                   bslalg::TypeTraitUsesBslmaAllocator);
-//
 //      // CREATORS
 //      explicit SomeClassUsingAllocator(bslma::Allocator *basicAllocator = 0)
 //      : d_allocator_p(bslma::Default::allocator(basicAllocator))
@@ -212,6 +208,15 @@ BSLS_IDENT("$Id: $")
 //          return d_allocator_p;
 //      }
 //  };
+//
+//  // TRAITS
+//  namespace bslma {
+//
+//  template <>
+//  struct UsesBslmaAllocator<SomeClassUsingAllocator> : bsl::true_type
+//  {};
+//
+//  }
 //..
 // The following code will compile and run without an assertion failure:
 //..
@@ -223,22 +228,18 @@ BSLS_IDENT("$Id: $")
 //..
 // Finally, since the 'MyContainer' class uses a 'bslma' allocator to supply
 // memory, it is useful to expose this property.  This is done by declaring the
-// 'bslalg::TypeTraitUsesBslmaAllocator' trait to complete the definition of
+// 'bslma::UsesBslmaAllocator' trait to complete the definition of
 // 'MyContainer':
 //..
 //  template <typename TYPE>
 //  class MyContainer {
 //      // This class contains an object of parameterized 'TYPE' and declares
-//      // the 'bslalg::TypeTraitUsesBslmaAllocator' trait.
+//      // the 'bslma::UsesBslmaAllocator' trait.
 //
 //      // PRIVATE DATA MEMBERS
 //      bslalg::ConstructorProxy<TYPE> d_proxy;
 //
 //    public:
-//      // TRAITS
-//      BSLALG_DECLARE_NESTED_TRAITS(MyContainer,
-//                                   bslalg::TypeTraitUsesBslmaAllocator);
-//
 //      // CREATORS
 //      explicit MyContainer(bslma::Allocator *basicAllocator = 0);
 //          // Construct a container using the specified 'basicAllocator' to
@@ -255,6 +256,15 @@ BSLS_IDENT("$Id: $")
 //
 //      // ... rest of class definition ...
 //  };
+//
+//  // TRAITS
+//  namespace bslma {
+//
+//  template <typename TYPE>
+//  struct UsesBslmaAllocator<MyContainer<TYPE> > : bsl::true_type
+//  {};
+//
+//  }
 //..
 // The following code will also compile and run without an assertion failure:
 //..
@@ -279,8 +289,8 @@ BSLS_IDENT("$Id: $")
 #include <bslalg_scalarprimitives.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include <bslma_usesbslmaallocator.h>
 #endif
 
 #ifndef INCLUDED_BSLS_OBJECTBUFFER
@@ -307,7 +317,7 @@ class ConstructorProxy {
     // parameterized 'OBJECT_TYPE', where 'OBJECT_TYPE' may or may not use a
     // 'bslma' allocator for supplying memory.  The constructors for this proxy
     // class take a 'bslma::Allocator *'.  If 'OBJECT_TYPE' has the
-    // 'TypeTraitUsesBslmaAllocator' trait declared, then the supplied
+    // 'bslma::UsesBslmaAllocator' trait declared, then the supplied
     // allocator will be used to construct the proxied object.  Otherwise, the
     // allocator is ignored.
 
@@ -321,18 +331,12 @@ class ConstructorProxy {
     ConstructorProxy& operator=(const ConstructorProxy&);
 
   public:
-    // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(ConstructorProxy,
-                                 TypeTraitUsesBslmaAllocator);
-        // Declare that the constructors for this class accept a
-        // 'bslma::Allocator *' argument for supplying memory.
-
     // CREATORS
     explicit ConstructorProxy(bslma::Allocator *basicAllocator);
         // Construct a proxy, and a proxied object of parameterized
         // 'OBJECT_TYPE'.  Use the specified 'basicAllocator' to supply memory
         // to the proxied object if 'OBJECT_TYPE' declares the
-        // 'TypeTraitUsesBslmaAllocator' trait, and ignore 'basicAllocator'
+        // 'bslma::UsesBslmaAllocator' trait, and ignore 'basicAllocator'
         // otherwise.
 
     ConstructorProxy(const ConstructorProxy<OBJECT_TYPE>&  original,
@@ -341,7 +345,7 @@ class ConstructorProxy {
         // 'OBJECT_TYPE' having the value of the object held by the specified
         // 'original' proxy.  Use the specified 'basicAllocator' to supply
         // memory to the proxied object if 'OBJECT_TYPE' declares the
-        // 'TypeTraitUsesBslmaAllocator' trait, and ignore 'basicAllocator'
+        // 'bslma::UsesBslmaAllocator' trait, and ignore 'basicAllocator'
         // otherwise.
 
     template <typename SOURCE_TYPE>
@@ -351,7 +355,7 @@ class ConstructorProxy {
         // 'OBJECT_TYPE' having the value of the object of the parameterized
         // 'SOURCE_TYPE' held by the specified 'original' proxy.  Use the
         // specified 'basicAllocator' to supply memory to the proxied object if
-        // 'OBJECT_TYPE' declares the 'TypeTraitUsesBslmaAllocator' trait, and
+        // 'OBJECT_TYPE' declares the 'bslma::UsesBslmaAllocator' trait, and
         // ignore 'basicAllocator' otherwise.  Note that a compilation error
         // will result unless an instance of 'OBJECT_TYPE' can be constructed
         // from an instance of 'SOURCE_TYPE'.
@@ -443,7 +447,7 @@ class ConstructorProxy {
         // 'OBJECT_TYPE' using the specified arguments 'a1' up to 'a14' of the
         // respective parameterized 'ARG1' up to 'ARG14' types.  Use the
         // specified 'basicAllocator' to supply memory to the proxied object if
-        // 'OBJECT_TYPE' declares the 'TypeTraitUsesBslmaAllocator' trait, and
+        // 'OBJECT_TYPE' declares the 'bslma::UsesBslmaAllocator' trait, and
         // ignore 'basicAllocator' otherwise.  If 'basicAllocator' is 0, the
         // currently installed default allocator is used.  Note that a
         // compilation error will result unless 'OBJECT_TYPE' has a constructor
@@ -462,9 +466,26 @@ class ConstructorProxy {
         // Return a reference to the non-modifiable object held by this proxy.
 };
 
+}  // close namespace bslalg
+
+// ============================================================================
+//                                TYPE TRAITS
+// ============================================================================
+
+namespace bslma {
+
+template <typename OBJECT_TYPE>
+struct UsesBslmaAllocator<bslalg::ConstructorProxy<OBJECT_TYPE> >
+    : bsl::true_type
+{};
+
+}  // close namespace bslma
+
 // ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
 // ============================================================================
+
+namespace bslalg {
 
                         // ----------------------
                         // class ConstructorProxy

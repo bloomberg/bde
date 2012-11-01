@@ -66,8 +66,10 @@ struct bdeat_EnumeratorInfo {
     const char *d_annotation_p;  // enumerator annotation
 
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(bdeat_EnumeratorInfo,
-                                 bslalg_TypeTraitsGroupPod);
+    BSLMF_NESTED_TRAIT_DECLARATION(bdeat_EnumeratorInfo,
+                                   bsl::is_trivially_copyable);
+    BSLMF_NESTED_TRAIT_DECLARATION(bdeat_EnumeratorInfo,
+                                   bsl::is_trivially_default_constructible);
 
     // CREATORS
     // The following methods are not defined by design:

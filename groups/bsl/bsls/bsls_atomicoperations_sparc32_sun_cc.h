@@ -2,7 +2,12 @@
 #ifndef INCLUDED_BSLS_ATOMICOPERATIONS_SPARC32_SUN_CC
 #define INCLUDED_BSLS_ATOMICOPERATIONS_SPARC32_SUN_CC
 
-//@PURPOSE: Provide implentations of atomic operations for Sparc/Sun (32bit).
+#ifndef INCLUDED_BSLS_IDENT
+#include <bsls_ident.h>
+#endif
+BSLS_IDENT("$Id: $")
+
+//@PURPOSE: Provide implementations of atomic operations for Sparc/Sun (32bit).
 //
 //@CLASSES:
 //  bsls::AtomicOperations_SPARC32_SUN_CC: atomics for Sparc32/Sun.
@@ -12,16 +17,7 @@
 //@DESCRIPTION: This component provides classes necessary to implement atomics
 // on the Sun Sparc platform in 32bit mode with SunCC compiler.  The classes
 // are for private use only.  See 'bsls_atomicoperations' and 'bsls_atomic' for
-// the public inteface to atomics.
-
-#ifndef INCLUDED_BSLS_IDENT
-#include <bsls_ident.h>
-#endif
-BSLS_IDENT("$Id: $")
-
-#ifndef INCLUDED_BSLS_TYPES
-#include <bsls_types.h>
-#endif
+// the public interface to atomics.
 
 #ifndef INCLUDED_BSLS_ATOMICOPERATIONS_DEFAULT
 #include <bsls_atomicoperations_default.h>
@@ -29,6 +25,14 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLS_ATOMICOPERATIONS_SPARC_SUN_CC_DEFAULT
 #include <bsls_atomicoperations_sparc_sun_cc_default.h>
+#endif
+
+#ifndef INCLUDED_BSLS_PLATFORM
+#include <bsls_platform.h>
+#endif
+
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
 #endif
 
 #if defined(BSLS_PLATFORM_CPU_SPARC_32) \

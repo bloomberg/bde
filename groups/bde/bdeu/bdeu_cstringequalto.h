@@ -31,8 +31,12 @@ BDES_IDENT("$Id: $")
 #include <bdescm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
+#ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
+#include <bslmf_istriviallycopyable.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISTRIVIALLYDEFAULTCONSTRUCTIBLE
+#include <bslmf_istriviallydefaultconstructible.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ASSERT
@@ -54,10 +58,6 @@ struct bdeu_CStringEqualTo {
     // strings, enabling them for use as keys in the standard unordered
     // associative containers such as 'bsl::hash_map' and 'bsl::hash_set'.
     // Note that this class is an empty POD type.
-
-    // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(bdeu_CStringEqualTo,
-                                 bslalg::TypeTraitsGroupPod);
 
     // STANDARD TYPEDEFS
     typedef const char *first_argument_type;
@@ -90,9 +90,26 @@ struct bdeu_CStringEqualTo {
         // point to null-terminated strings.
 };
 
+} // CLose enterprise namespace
+
+// POD TRAITS
+namespace bsl {
+
+template <>
+struct is_trivially_copyable<BloombergLP::bdeu_CStringEqualTo> :
+        bsl::true_type { };
+
+template <>
+struct is_trivially_default_constructible<BloombergLP::bdeu_CStringEqualTo> :
+        bsl::true_type { };
+
+} // Close namespace bsl
+
 // ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
 // ============================================================================
+
+namespace BloombergLP {
 
                        // --------------------------
                        // struct bdeu_CStringEqualTo

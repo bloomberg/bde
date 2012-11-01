@@ -95,7 +95,7 @@ BSLS_IDENT("$Id: $")
 //  };
 //..
 // Note that 'int' is the most alignment-demanding type within 'MyStruct'.
-//..
+//
 // Now, we use 'AlignmentImpCalc' to calculate the alignments of two
 // types, 'short' and the 'MyStruct' we just defined:
 //..
@@ -122,7 +122,7 @@ BSLS_IDENT("$Id: $")
 // both its size and alignment requirement equal to the alignment requirement
 // of a specified template parameter type.  We can use the 'AlignmentImpTag'
 // 'struct' template, the overloads of 'AlignmentImpMatch::match' class method,
-// the 'AiignmentImp_Prioirty' template class, and the
+// the 'AiignmentImp_Priority' template class, and the
 // 'AlignmentImpPrioriityToType' template class to do this calculation.
 //
 // First, we define a class template, 'ConvertAlignmentToType', that provides a
@@ -261,7 +261,7 @@ struct AlignmentImpCalc {
             // Prevent the compiler from automatically generating
             // default & copy constructors and destructor, as this could cause
             // problems if 'TYPE' has constructors / destructor that are
-            // private or unimplmented.
+            // private or unimplemented.
     };
 
   public:
@@ -430,7 +430,7 @@ struct AlignmentImpMatch {
         // size is the 2nd argument of the macro.
 
 # if defined(BSLS_PLATFORM_CPU_X86) && defined(BSLS_PLATFORM_CMP_GNU)
-        // This type only exists, and is only needed, on Linux
+        // This type exists, and is needed, only on Linux
 
     static BSLS_ALIGNMENTIMP_MATCH_FUNC(AlignmentImp8ByteAlignedType,      13);
 #endif
