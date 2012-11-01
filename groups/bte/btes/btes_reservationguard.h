@@ -4,7 +4,7 @@
 //@PURPOSE: Provide a generic proctor for rate controlling objects.
 //
 //@CLASSES:
-//  btes_ReservationGuard
+//  btes_ReservationGuard: a guard for reserving resources from rate limiters.
 //
 //@SEE_ALSO: btes_leakybucket, btes_ratelimiter
 //
@@ -31,7 +31,6 @@
 ///Usage
 ///-----
 // This section illustrates the intended use of this component.
-///-----
 //
 // Use this component to ensure that in the event of an exception or exit from
 // any point in a given scope the reserved units, that are remaining unused
@@ -46,12 +45,12 @@
 // in a buffer over said network interface. In certain case this function may
 // be able to send only a part of required data block. It may also generate
 // exceptions:
-//
+//..
 //  bsls_Types::Uint64 mySendData(size_t dataSize);
-//      Try to send a specified 'dataSize' amount of data over the network
-//      return the amount of data, that was actually sent.
-//      Note that this function throws an exception, if a network failure
-//      is detected.
+//      // Try to send a specified 'dataSize' amount of data over the network
+//      // return the amount of data, that was actually sent.
+//      // Note that this function throws an exception, if a network failure
+//      // is detected.
 //..
 // First we define the size of each data chunk, and the total size of the data
 // to transmit:
@@ -97,9 +96,9 @@
 //          guard.submitReserved(result);
 //..
 // We do not care about the units that possibly remained unused, because they
-// will be cancelled automatically, when the scope of the 'guard' will be left
-// and the destructor will be called. If 'mySendData' throws an exception, all
-// units will be also returned to the 'leakyBucket' object:
+// will be cancelled automatically, when 'guard' goes out of scope and is
+// destroyed. Note that if 'mySendData' throws an exception, all units will be
+// also returned to the 'leakyBucket' object.
 //..
 //      }
 //..
@@ -112,7 +111,7 @@
 //
 //          bdet_TimeInterval timeToSubmit = bucket.calculateTimeToSubmit(now);
 //          bsls_Types::Uint64 uS = timeToSubmit.totalMicroseconds() +
-//                                  (timeToSubmit.nanoseconds() % 1000) ? 1 : 0;
+//                                 (timeToSubmit.nanoseconds() % 1000) ? 1 : 0;
 //          bcemt_ThreadUtil::microSleep(uS);
 //      }
 //  }
@@ -131,7 +130,7 @@ namespace BloombergLP {
                         // class btes_ReservationGuard
                         //============================
 
-template<class T>
+template<class TYPE>
 class btes_ReservationGuard {
     // This class template implements a proctor for reserving and cancelling
     // units, representing resource consumption in the rate controlling
@@ -143,7 +142,7 @@ class btes_ReservationGuard {
     // For terminology see 'bsldoc_glossary'.
 
     // DATA
-    T                  *d_reserve_p;    // Pointer to the object, units are
+    TYPE                  *d_reserve_p;    // Pointer to the object, units are
                                         // reserved in.
 
     bsls_Types::Uint64 d_unitsReserved; // Number of units reserved by this
@@ -151,28 +150,20 @@ class btes_ReservationGuard {
 
     // NOT IMPLEMENTED
     btes_ReservationGuard();
-    btes_ReservationGuard& operator =(const btes_ReservationGuard<T>&);
-    btes_ReservationGuard(const btes_ReservationGuard<T>&);
+    btes_ReservationGuard& operator =(const btes_ReservationGuard<TYPE>&);
+    btes_ReservationGuard(const btes_ReservationGuard<TYPE>&);
 
     public:
 
     // CREATORS
-    btes_ReservationGuard(T* reserve, bsls_Types::Uint64 numOfUnits);
+    btes_ReservationGuard(TYPE* rateLimiter, bsls_Types::Uint64 numOfUnits);
         // Create a 'btes_ReservationGuard' object, guarding the specified
-        // 'reserve' and reserving the specified 'numOfUnits'.
+        // 'rateLimiter' and reserving the specified 'numOfUnits'.
 
     ~btes_ReservationGuard();
         // Destroy this object. Invoke the 'cancelReserved' method for the
         // remaining 'unitsReserved' on the object under management by this
         // proctor.
-
-    // ACCESSORS
-    bsls_Types::Uint64 unitsReserved() const;
-        // Return the number of units that are currently reserved by this
-        // 'btes_ReservationGuard' instance.
-
-    T *ptr() const;
-        // Return pointer to the guarded object
 
     // MANIPULATORS
     void submitReserved(bsls_Types::Uint64 numOfUnits);
@@ -189,6 +180,13 @@ class btes_ReservationGuard {
         // 'numOfUnits'.  The behavior is undefined unless
         // 'numOfUnits <= unitsReserved()'.
 
+    // ACCESSORS
+    bsls_Types::Uint64 unitsReserved() const;
+        // Return the number of units that are currently reserved by this
+        // 'btes_ReservationGuard' instance.
+
+    TYPE *ptr() const;
+        // Return pointer to the guarded object
 };
 
 // ============================================================================
@@ -200,9 +198,9 @@ class btes_ReservationGuard {
                         //----------------------------
 
 // CREATORS
-template <class T>
+template <class TYPE>
 inline
-btes_ReservationGuard<T>::btes_ReservationGuard(T*                 reserve,
+btes_ReservationGuard<TYPE>::btes_ReservationGuard(TYPE*                 reserve,
                                                 bsls_Types::Uint64 numOfUnits)
 {
     BSLS_ASSERT_SAFE(0 != reserve);
@@ -213,32 +211,32 @@ btes_ReservationGuard<T>::btes_ReservationGuard(T*                 reserve,
     d_reserve_p->reserve(numOfUnits);
 }
 
-template <class T>
+template <class TYPE>
 inline
-btes_ReservationGuard<T>::~btes_ReservationGuard()
+btes_ReservationGuard<TYPE>::~btes_ReservationGuard()
 {
     d_reserve_p->cancelReserved(d_unitsReserved);
 }
 
 // ACCESSORS
-template <class T>
+template <class TYPE>
 inline
-bsls_Types::Uint64 btes_ReservationGuard<T>::unitsReserved() const
+bsls_Types::Uint64 btes_ReservationGuard<TYPE>::unitsReserved() const
 {
     return d_unitsReserved;
 }
 
-template <class T>
+template <class TYPE>
 inline
-T *btes_ReservationGuard<T>::ptr() const
+TYPE *btes_ReservationGuard<TYPE>::ptr() const
 {
     return d_reserve_p;
 }
 
 // MANIPULATORS
-template <class T>
+template <class TYPE>
 inline
-void btes_ReservationGuard<T>::cancelReserved(bsls_Types::Uint64 numOfUnits)
+void btes_ReservationGuard<TYPE>::cancelReserved(bsls_Types::Uint64 numOfUnits)
 {
     BSLS_ASSERT_SAFE(numOfUnits <= d_unitsReserved);
 
@@ -246,9 +244,9 @@ void btes_ReservationGuard<T>::cancelReserved(bsls_Types::Uint64 numOfUnits)
     d_unitsReserved -= numOfUnits;
 }
 
-template <class T>
+template <class TYPE>
 inline
-void btes_ReservationGuard<T>::submitReserved(bsls_Types::Uint64 numOfUnits)
+void btes_ReservationGuard<TYPE>::submitReserved(bsls_Types::Uint64 numOfUnits)
 {
     BSLS_ASSERT_SAFE(numOfUnits <= d_unitsReserved);
 

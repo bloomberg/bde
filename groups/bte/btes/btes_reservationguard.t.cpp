@@ -24,6 +24,52 @@
 using namespace BloombergLP;
 using namespace bsl;
 
+//=============================================================================
+//                              TEST PLAN
+//-----------------------------------------------------------------------------
+//                              Overview
+//                              --------
+// The component under test implements a mechanism.
+//
+// Primary Manipulators:
+// o 'submitReserved'
+// o 'cancelReserved'
+//
+// Basic Accessors:
+// o 'ptr'
+// o 'unitsReserved'
+//
+// This class also provides a value constructor capable of creating an object
+// having any parameters.
+//
+// Global Concerns:
+//: o ACCESSOR methods are declared 'const'.
+//: o CREATOR & MANIPULATOR pointer/reference parameters are declared 'const'.
+//: o Precondition violations are detected in appropriate build modes.
+//
+// Global Assumptions:
+//: o ACCESSOR methods are 'const' thread-safe.
+//-----------------------------------------------------------------------------
+//
+// CREATORS
+//  [4] ~btes_ReservationGuard();
+//  [3] btes_ReservationGuard(TYPE* reserve, bsls_Types::Uint64 numOfUnits);
+//
+// MANIPULATORS
+//  [6] void cancelReserved(bsls_Types::Uint64 numOfUnits);
+//  [5] void submitReserved(bsls_Types::Uint64 numOfUnits);
+//
+// ACCESSORS
+//  [3] bsls_Types::Uint64 unitsReserved() const;
+//  [3] TYPE *ptr() const;
+//-----------------------------------------------------------------------------
+// [1] BREATHING TEST
+// [2] TEST APPARATUS
+// [7] USAGE EXAMPLE
+// [3] All accessor methods are declared 'const'.
+// [*] All creator/manipulator ptr./ref. parameters are 'const'.
+//=============================================================================
+
 // ============================================================================
 //                      BTES_RESERVATIOGUARD TEST HELPER
 // ----------------------------------------------------------------------------
@@ -578,9 +624,9 @@ int main(int argc, char *argv[]) {
             //     behavior in specific build configuration.
             //
             // Testing:
-            //   btes_ReservationGuard(T*                 reserve,
+            //   btes_ReservationGuard(TYPE*              reserve,
             //                         bsls_Types::Uint64 numOfUnits);
-            //   T* ptr() const;
+            //   TYPE* ptr() const;
             //   bsls_Types::Uint64 unitsReserved() const;
             //-----------------------------------------------------------------
 

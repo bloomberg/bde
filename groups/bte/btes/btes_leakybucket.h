@@ -36,11 +36,11 @@
 //
 // For example, suppose we have an empty bucket with a drain rate 'd = 5 u/s'
 // and capacity 'c = 5 u'.  As illustrated in FIG. 1,  at time 't0' we submit 5
-// units to the bucket.  At time 't1 = t0 + 4s' the bucket drained 4 units, and
-// we add 2 more. Note that if we added again 5 units we would overflow the
-// capacity of the bucket. At time 't2 = t1 + 6' we are sure that the bucket is
-// empty (because it was not overflown before), so we can add again 5 units
-// without exceeding capacity.
+// units to the bucket.  At time 't0 + 4s' the bucket drained 4 units. Then, at
+// time 't0 + 4s' we add 2 more. Note that if we added again 5 units we would
+// overflow the capacity of the bucket. At time 't0 + 10' we are sure that the
+// bucket is empty (because it was not overflown before), so we can add again
+// 5 units without exceeding capacity.
 //..
 // FIG. 1:  Capacity = 5 units, Rate = 1 unit / second
 //
@@ -54,11 +54,12 @@
 //    2|~~~~~|      2|     |       2|~~~~~|      2|     |
 //    1|~~~~~|      1|~~~~~|       1|~~~~~|      1|     |
 //     +-- --+       +-- --+        +-- --+       +-- --+
-// Time: t0        t1 = t0 + 4    t1'= t0 + 4   t2 = t1 + 6
+//
+// Time: t0          t0 + 4         t0 + 4        t0 + 10
 //..
-// FIG. 2 illustrates the case in which at time 't1' we add 6 more units,
-// exceeding the capacity of the bucket.  At time 't2' we can see that 6 units
-// have been drained, as we do not add any more units.
+// FIG. 2 illustrates the case in which at time 't0 + 4' we add 6 more units,
+// exceeding the capacity of the bucket.  At time 't0 + 10' we can see that 6
+// units have been drained, as we do not add any more units.
 //..
 // FIG. 2: Capacity = 5 units, Rate = 1 unit / second
 //
@@ -72,7 +73,8 @@
 //    2|~~~~~|      2|     |       2|~~~~~|      2|     |
 //    1|~~~~~|      1|~~~~~|       1|~~~~~|      1|~~~~~|
 //     +-- --+       +-- --+        +-- --+       +-- --+
-// Time: t0        t1 = t0 + 4    t1'= t0 + 4    t2 = t1 + 6
+//
+// Time: t0          t0 + 4         t0 + 4        t0 + 10
 //..
 // Note that units are added to a 'btes_LeakyBucket' object by invoking the
 // 'submit' method, and should be added only after the associated resource
@@ -110,7 +112,7 @@
 //    2|#####|     2|#####|     2|~~~~~|     2|     |     2|     |
 //    1|#####|     1|#####|     1|#####|     1|#####|     1|     |
 //     +-- --+      +-- --+      +-- --+      +-- --+      +-- --+
-//                     A            B            A            B
+//
 // Time: t0         t0 + 5       t0 + 6       t0 + 9       t0 + 10
 //..
 ///Modeling a Network Connection

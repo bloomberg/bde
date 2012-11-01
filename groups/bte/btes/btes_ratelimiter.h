@@ -11,17 +11,35 @@
 //
 //@SEE ALSO btes_leakybucket
 //
-//@DESCRIPTION: this component provides a mechanism, 'btes_RateLimiter', to
-// monitor and control that maximum peak and sustained resource consumption
-// rate does not exceed the specified limits over the specified sliding time
-// windows.
-// Peak and sustained rate along with peak rate time window and sutained rate
-// time window respectively define the characteristics of load spikes that are
-// allowed.
-// Rate limiter monitors, how many units are submitted over a period of time
-// and how many units are processed and can be queried, whether submission of
-// additional units, representing load generation, would lead to exceeding
-// the specified resource consumtion rate limits.
+//@DESCRIPTION:
+// This component provides a mechanism, 'btes_RateLimiter', that enables
+// clients to monitor and control the use of a resource such that the peak and
+// sustained resource consumption rates do no exceed configured limits. A
+// 'btes_RateLimiter' object's limits on resource usage are configured through
+// a peak rate and a peak-rate time-window, and a sustained rate and a
+// sustained-rate time-window. The peak-rate time-window indicates a (sliding)
+// time period over which the aggregate resource usage will not be allowed to 
+// exceed the peak-rate, similarly the sustained-rate time-window indicates a 
+// sliding time period over which the aggregate resource usage will not be
+// allowed to exceed the sustained-rate.
+// 'btes_RateLimiter' provides a method 'submit' with which clients report the
+// use of a resource, as well as methods (e.g., 'wouldExceedBandwidth') to
+// determine whether additional resources use will exceed the configured
+// limits. Note that a 'btes_RateLimiter' object does not directly manage any
+// resources, determine its own clock times, or manage its own threads; it
+// serves to advise clients who themselves use a resource, and therefore the
+// limits it helps impose are *approximations* of the rate-limiter's configured
+// limit values.
+
+// This component does not provide internal timers. Timing must be handled by
+// the client. An initial time stamp is specified at creation or when the
+// 'reset' method is invoked, and subsequent times are interpreted using the
+// difference from this initial time point. Since 'btes_RateLimiter' cares only
+// about the difference between a provided time, and the initial time, the
+//  supplied 'bdet_TimeInverval' values may be relative to any arbitrary time
+// origin, though clients are encouraged to use the UNIX epoch time (such as
+// values returned by 'bdetu_systemtime'). To ensure consistency, all time
+// intervals should refer to the same time origin.
 //
 // For example, suppose we have a rate limiter with a peak rate 'Rp = 2 u/s',
 // peak rate time window 'Wp = 2 s', sustained rate 'Rs = 1 u/s', sustained
@@ -36,23 +54,25 @@
 //    moving average counters. The limit 'Lp = 2 * 2 = 4u' is exceeded, and we
 //    can not submit any more units at this time, although the limit 'Ls' is
 //    not exceeded. It means that while still keeping the average rate below
-//    the allowed sustained rate, we are exceeding the allowed peak rate and
+//    the allowed sustained rate, we are exceeding the allowed peak rate we
 //    generate a load spike. 
-//  o At time 't1 = t0 + 2s' the moving totals are recalculated(A), 4 units
+//  o At time 't0 + 2s' the moving totals are recalculated, 4 units
 //    ('Rp * 2 s') are subtracted from the peak rate moving total counter,
 //    2 units ('Rs * 2 s') are subtracted from the sustained rate moving total
 //    rate counter.  Now both limits are not exceeded, and we are free to
-//    submit more units.   We submit 7 units and both limits are exceeded(B).
-//  o At time 't2 = t1 + 2s' the counters are updated in the same way as at
+//    submit more units. 
+//  o Then, at time 't0 + 2s' we submit 7 units and both limits are exceeded
+//    now.
+//  o At time 't0 + 4s' the counters are updated in the same way as at
 //    't1'. The 'Lp' limit is not exceeded, but the moving total counter for
 //    sustained rate still exceeds the 'Ls' limit and no more units may be
 //    submitted.
-//  o At time 't3 = t2 + 2', the counters are updated again, both are not
-//    exceeded now and submitting units is allowed(A).  We submit one unit(B).
-//    The 'Lp' limit is not exceeded, but 'Ls' limit is exceed now.  It means
-//    that we have not generated unallowed load spike, but we have exceed the
-//    specified sustained rate limit and no more units may be submitted at this
-//    time.
+//  o At time 't0 + 6s', the counters are updated again, both are not
+//    exceeded now and submitting units is allowed.
+//  o Then, at time 't0 + 6s' We submit one unit. The 'Lp' limit is not
+//    exceeded, but 'Ls' limit is exceed now.  It means that we have not
+//    generated unallowed load spike, but we have exceed the specified
+//    sustained rate limit and no more units may be submitted at this time.
 //
 //..
 // FIG. 1:  Peak rate      = 2 u/s, Peak rate window      = 2 s
@@ -60,7 +80,6 @@
 //
 //       Submit 5                                       Submit 7
 //
-//      |   |     |   |        |   |      |   |       |   |      |   |
 //      |   |     |   |        |   |      |   |       |   |     7|~~~|
 //    12|   |    6|   |      12|   |     6|   |     12|   |     6|~~~|
 //    11|   |    5|~~~|      11|   |     5|   |     11|   |     5|~~~|
@@ -75,14 +94,12 @@
 //     2|~~~|                 2|~~~|                 2|~~~|
 //     1|~~~|                 1|~~~|                 1|~~~|
 //      +- -+                  +- -+                  +- -+
-//                                     A                     B    
-//                           \_________________________________________/
-// Time:  t0                                t1 = t0 + 2s
+//
+// Time:    t0                     t0 + 2s                  t0 + 2s
 //
 //
 //                                                      Submit 1
 //
-//      |   |      |   |       |   |      |   |       |   |      |   |
 //      |   |     7|   |       |   |     7|   |       |   |     7|   |
 //    12|   |     6|   |     12|   |     6|   |     12|   |     6|   |
 //    11|   |     5|   |     11|   |     5|   |     11|   |     5|   |
@@ -97,19 +114,20 @@
 //     2|~~~|                 2|~~~|                 2|~~~|
 //     1|~~~|                 1|~~~|                 1|~~~|
 //      +- -+                  +- -+                  +- -+
-//                                      A                     B
-//                          \____________________________________________/
-// Time:   t2 = t1 + 2s                      t3 = t2 + 2s
+//
+// Time:    t0 + 4s               t0 + 6s                t0 + 6s
 //..
 //
 ///Time Synchronization
 ///--------------------
-// This component does not provide internal timers.  Timing must be handled
-// by the client. The calculation of the current number of units in the leaky
-// bucket is based on the timestamps (external timing) provided by the client.
-// An initial timestamp is specified at creation or when the 'reset' method is
-// invoked.  The timestamps are represented as time intervals from an arbitrary
-// time origin point (e.g., UNIX epoch).  To ensure consistency, all time
+// This component does not provide internal timers. Timing must be handled by
+// the client. An initial lastUpdateTime is specified at creation or when the
+// 'reset' method is invoked, and subsequent times are interpreted using the
+// difference from this initial time point. Since 'btes_RateLimiter' cares only
+// about the difference between a provided time, and the initial time, the
+// supplied 'bdet_TimeInverval' values may be relative to any arbitrary time
+// origin, though clients are encouraged to use the UNIX epoch time (such as
+// values returned by 'bdetu_systemtime'). To ensure consistency, all time
 // intervals should refer to the same time origin.
 //
 ///Usage
@@ -140,19 +158,22 @@
 //      --------------------------------------------->
 //                                         T (seconds)
 //..
-// We are going to send certain amount of data by chunks, and in order to
-// prevent exceeding allowed bandwidth limits, we need to control traffic
-// generation rate of our application.
+// Notice that the rate limiter does not prevent the rate at any instant from
+// exceeding either of the maximum peak-rate or the maximum sustained rate, but
+// instead prevents the average rate over the peak-rate time-window from
+// exceeding maximum peak-rate, and the average rate over the sustained-rate
+// time-window from exceeding the maximum sustained-rate.
 //
-// Also, assume that we have a function 'sendData', that transmits data
-// contained in a buffer over said network interface:
+// In this example, we are going to send a fixed amount of data in chunks, an
+// use a 'btes_RateLimiter' to prevent our application from overloading its
+// network connection.
 //..
-//  bool mySendData(size_t dataSize)
-//      Send a specified 'dataSize' amount of data over the network
-//      return 'true' if data was sent successfully and 'false' otherwise.
+//  bool sendData(size_t dataSize)
+//      // Send a specified 'dataSize' amount of data over the network
+//      // return 'true' if data was sent successfully and 'false' otherwise.
 //{
 //..
-// For simplicity, 'mySendData' will not actually send any data and will
+// For simplicity, 'sendData' will not actually send any data and will
 // always return 'true'.
 //..
 //   return true;
@@ -166,36 +187,23 @@
 //  bsls_Types::Uint64 sizeOfData = 10 * 1024; // in bytes
 //  bsls_Types::Uint64 chunkSize  = 64;        // in bytes
 //..
-// We assume that one unit represents one byte and define sustained rate and
-// time window for the sustained rate.  We limit sustained rate to 1024
-// units/second and area above this rate to 512 units(see FIG.2).
-// The sustained rate time window may be calculated from the following
-// equation:
-// Rate * T = N
-// where 'Rate' is sustained rate,
-// 'T' is time window to be calculated,
-// 'N' is maximum size of area above the sustained rate.
-// T = 512 / 1024 = 0.5 seconds.
+// Then, we select a sustained-rate time-window, and a peak-rate time window,
+// over which the average rate will not exceed the respective maximum. Note
+// that the sustained-rate is meant to long-term average rate of resource
+// usage, where-as the peak-rate is meant to limit spikes in resource usage,
+// so the sustained-rate time-window is typically significantly longer than the
+// peak-rate time-window:
 //..
 //  bsls_Types::Uint64 sustainedRateLimit = 1024;
 //  bdet_TimeInterval  sustainedRateWindow(0.5);
-//..
-// We define maximum peak rate and time window for the peak rate.
-// As mentioned above, we limit maximum peak rate to 2048 units/second and
-// limit area above the maximum peak rate to 128 units(see FIG.2).
-// We calculate the time window size for peak rate using the same equation, as
-// for the sustained rate
-// T = 128 / 2048 = 0.0625 seconds.
-//..
 //  bsls_Types::Uint64 peakRateLimit = 2048;
 //  bdet_TimeInterval  peakRateWindow(0.0625);
 //..
-// Then we create the btes_RateLimiter object, specifying 'sustainedRateLimit',
-// 'peakRateLimit' and calculated time windows for sustained and peak rates.
-// Note that at creation we specify the time reference point as an interval
-// from UNIX epoch.  Time intervals specified for all further
-// 'wouldExceedBandwidth()', 'updateState()', 'calculateTimeToSubmit()'
-// calls are calculated from the same reference point (UNIX epoch).
+// Next, we create a'btes_RateLimiter' object, providing the
+// 'sustainedRateLimit', 'peakRate', and respective time-windows defined
+// earlier. Note that we provide a starting time stamp that is an interval from
+// the UNIX epoch-time, and subsequent time stamps must be from the same
+// reference point:
 //..
 //  bdet_TimeInterval now = bdetu_SystemTime::now();
 //  btes_RateLimiter  rateLimiter(sustainedRateLimit,
@@ -213,7 +221,7 @@
 //  while (bytesSent < sizeOfData) {
 //      now = bdetu_SystemTime::now();
 //      if (!rateLimiter.wouldExceedBandwidth(now)) {
-//          if (true == mySendData(chunkSize)) {
+//          if (true == sendData(chunkSize)) {
 //              rateLimiter.submit(chunkSize);
 //              bytesSent += chunkSize;
 //          }
@@ -259,8 +267,8 @@ namespace BloombergLP {
                         //=======================
 
 class btes_RateLimiter {
-    // This mechanism is an implementation of the dual leaky bucket rate
-    // controlling algorithm.
+    // This class provides a mechanism for controlling the rate at which a
+    // resource is used.
     // The class invariant are:
     // 'sustainedRateLimit()  > 0'
     // 'sustainedRateWindow() > 0'
@@ -273,13 +281,16 @@ class btes_RateLimiter {
 
     // DATA
     btes_LeakyBucket d_peakRateBucket;      // 'btes_LeakyBucket' object for
-                                            // handling short burst load
+                                            // handling peak load
 
     btes_LeakyBucket d_sustainedRateBucket; // 'btes_LeakyBucket' object for
                                             // handling sustained load
 
+private:
+
     // NOT IMPLEMENTED
-    btes_LeakyBucket& operator=(const btes_LeakyBucket&);
+    btes_RateLimiter& operator=(const btes_RateLimiter&);
+    btes_RateLimiter(const btes_RateLimiter&);
 
 public:
 
@@ -296,23 +307,18 @@ public:
                      const bdet_TimeInterval& peakRateWindow,
                      const bdet_TimeInterval& currentTime);
         // Create a btes_RateLimiter object, having the specified
-        // 'sustainedRateLimit' in units per second, specified
+        // 'sustainedRateLimit' in units per second, the specified
         // 'sustainedRateWindow' size of time window for sustained rate,
-        // specified 'peakRateLimit' in units per second,
+        // the specified 'peakRateLimit' in units per second, the specified
         // 'peakRateWindow' size of time window for peak rate and using
-        // specified 'currentTime' as the timestamp.
+        // the specified 'currentTime' as the lastUpdateTime.
         // The behavior is undefined unless '0 < sustainedRateLimit',
         // '0 < sustainedRateWindow', '0 < peakRateLimit',
-        // '0 < peakRateWindow',
-        // the product of 'sustainedRateLimit' and 'sustainedRateWindow'
-        // can be represented by 64-bit unsigned integral type,
-        // the product of 'peakRateLimit' and 'peakRateWindow'
-        // can be represented by 64-bit unsigned integral type.
-
-    //! btes_RateLimiter(const btes_RateLimiter& original) = default;
-        // Create a 'btes_RateLimiter' object having the parameters and state
-        // of the specified 'original' object.  Note that this method's
-        // definition is compiler generated.
+        // '0 < peakRateWindow', the product of 'sustainedRateLimit' and
+        // 'sustainedRateWindow' can be represented by 64-bit unsigned
+        // integral type and the product of 'peakRateLimit' and
+        // 'peakRateWindow' can be represented by 64-bit unsigned integral
+        // type.
 
 #if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
 
@@ -326,17 +332,19 @@ public:
 
     // MANIPULATORS
     void updateState(const bdet_TimeInterval& currentTime);
-        // Recalculate the number of units available for consumption at the
-        // specified 'currentTime', if 'currentTime' is later than the value,
-        // returned by the 'timestamp' method.  Set the 'timestamp' of
-        // this rate limiter to 'currentTime'.  If 'currentTime' is before the
-        // value, returned by 'statisticsTimestamp' method, set the 
-        // 'statisticsTimestamp' of this rate limiter to 'currentTime'.
+        // Set the 'lastUpdateTime' of this rate limiter to the specified
+        // 'currentTime'.  If the specified 'currentTime' is after
+        // 'lastUpdateTime', then recalculate number of units available for
+        // consumption, based on the 'peakRate', 'sustainedRate' and the time
+        // interval between 'lastUpdateTime' and 'currentTime'.
+        // If 'currentTime' is before the value, returned by 
+        // 'statisticsCollectionStartTime' method, set the
+        // 'statisticsCollectionStartTime' to 'currentTime'.
 
     void resetStatistics();
-        // Reset the used units statistics counter and time interval of
-        // collecting statistics.  Set the reference point for the interval
-        // of collecting statistics to 'timestamp'.
+        // Reset the statics for the number of units used and the number of
+        // units submitted to 0, and set the 'statisticsCollectionStartTime' to
+        // the current 'lastUpdateTime'.
 
     void setRateLimits(bsls_Types::Uint64        newSustainedRateLimit,
                        const bdet_TimeInterval& newSustainedRateWindow,
@@ -351,48 +359,42 @@ public:
         // '0 < sustainedRateLimit', '0 < sustainedRateWindow',
         // '0 < peakRateLimit', '0 < peakRateWindow',
         // the product of 'sustainedRateLimit' and 'sustainedRateWindow'
-        // can be represented by 64-bit unsigned integral type,
+        // can be represented by 64-bit unsigned integral type and
         // the product of 'peakRateLimit' and 'peakRateWindow'
         // can be represented by 64-bit unsigned integral type.
 
     void submit(bsls_Types::Uint64 numOfUnits);
         // Add, unconditionally, the specified 'numOfUnits' to this rate
-        // limiter.  The behavior is undefined unless the sum of units
-        // submitted to the rate limiter and not processed, units to submit and
-        // units reserved can be represented by 64-bit unsigned integral type.
+        // limiter.  The behavior is undefined unless the sum of:
+        // (1) 'numOfUnits', (2) units previously submitted to this rate
+        // limit but not yet used, and (3) 'unitsReserved' can be represented
+        // by a 64-bit unsigned integral type.
 
     void reserve(bsls_Types::Uint64 numOfUnits);
         // Reserve, uncoditionally, the specified 'numOfUnits' for future
-        // usage. The behavior is undefined unless the sum of units
-        // submitted to the rate limiter and not consumed, numder of units to
-        // reserve to reserve and the number of units reserved can
-        // be represented by 64-bit unsigned integral type. Note that the time
-        // interval between invocation of 'reserve' and 'submitReserved' or
-        // 'cancelReserved' should be as short as possible, otherwise it would
-        // make significant error in time interval calculation by
-        // 'calculateTimeToSubmit'.
+        // usage.  The behavior is undefined unless the value
+        // 'unitsReserved() + unitsInBucket() + numOfUnits' can be represented
+        // by 64-bit integral type.  Note that after this operation number of
+        // reserved units may exceed the capacity of the bucket.  Also note
+        // that the time interval between the invocations of 'reserve' and
+        // 'submitReserved' or 'cancelReserved' should be as short as possible,
+        // to avoid long-lasting reservations that may skew results from
+        // operations like 'calculateTimeToSubmit'.
 
     void cancelReserved(bsls_Types::Uint64 numOfUnits);
         // Cancel the reservation of the specified 'numOfUnits' that were
-        // previously reserved.  If more units are cancelled than reserved, set
-        // the number of reserved units to 0.  The behavior is undefined unless
+        // previously reserved.  The behavior is undefined unless
         // 'numOfUnits <= unitsReserved()'.
 
     void submitReserved(bsls_Types::Uint64 numOfUnits);
         // Submit the specified 'numOfUnits' that were previosly reserved.
-        // The behavior is undefined unless the total number of units
-        // submitted to the rate limiter and not consumed, and units to submit
-        // can be represented by 64-bit unsigned integral type and
-        // 'numOfUnits <= unitsReserved()'.
+        // The behavior is undefined unless 'numOfUnits <= unitsReserved'.
 
     bool wouldExceedBandwidth(const bdet_TimeInterval& currentTime);
-        // Check whether submitting any more units at the specified
-        // 'currentTime' would lead to exceeding the defined bandwidth limits.
-        // Return false if submitting at one more unit to the rate limiter
-        // will not lead to exceeding the defined bandwidth limits.
-        // Otherwise, update state of the rate limiter, set 'timestamp' to
-        // 'currentTime' and return false if submitting one more unit will
-        // not lead to exceeding the bandwidth limits.  Return true otherwise.
+        // Update the state of this rate limiter, set 'lastUpdateTime' to the
+        // specified 'currentTime' and return 'true' if submitting one more
+        // unit at the 'currentTime' would exceed the configured limits.
+        // Return 'false' otherwise.
 
     bdet_TimeInterval calculateTimeToSubmit(
                                          const bdet_TimeInterval& currentTime);
@@ -400,18 +402,17 @@ public:
         // specified 'currentTime', until it would be possible to submit one
         // more unit into this rate limiter, without exceeding the capacity.
         // Return an interval of length 0, if one more unit can be submitted
-        // at the specifiled 'currentTime'. Otherwise, update the timestamp of
-        // this rate limiter to 'currentTime' and return the time interval,
-        // that should pass until one more unit can be submitted.
-        // The number of nanoseconds in the time interval is rounded up.
-        // Note that after waiting for the specified interval
-        // 'wouldExceedBandwidth' check should be performed again.
+        // at the specifiled 'currentTime'. Otherwise, set 'lastUpdateTime'
+        // to 'currentTime' and return the time interval, that should pass
+        // until one more unit can be submitted.  The number of nanoseconds in
+        // the time interval is rounded up.  Note that after waiting for the
+        // returned interval, a client should typically check 'wouldOverlow'
+        // before submitting units, as additional units may have been submitted
+        // in the interim.
 
     void reset(const bdet_TimeInterval& currentTime);
         // Reset the rate limiter to its default-constructed state and set the
-        // 'timestamp' of this rate limiter to the specified 'currentTime'.
-        // Note that this function should be used if the rate limiter was
-        // created long before starting to use it.
+        // 'lastUpdateTime' of this rate limiter to the specified 'currentTime'.
 
     // ACCESSORS
     bsls_Types::Uint64 peakRateLimit() const;
@@ -421,42 +422,41 @@ public:
         // Return sustained rate limit in units per second
 
     bdet_TimeInterval peakRateWindow() const;
-        // Return the time-period over which the rate limiter *approximates*
-        // computing a moving-total of submitted units for limiting peak rate.
+        // Return the time-period over which the average rate of resource usage
+        // will be limited to (approximately) the peak rate. Note that this
+        // period is generally significantly shorter than
+        // 'sustainedRateWindow'.
 
     bdet_TimeInterval sustainedRateWindow() const;
-        // Return the time-period over which the rate limiter *approximates*
-        // computing a moving-total of submitted units for limiting sustained
-        // rate.
+        // Return the time-period over which the average rate of resource usage
+        // will be limited to (approximately) the sustained rate. Note that
+        // this period is generally significantly longer than the
+        // 'peakRateWindow'.
 
     bsls_Types::Uint64 unitsReserved() const;
         // Return the number of units that are reserved.
 
-    bdet_TimeInterval timestamp() const;
-        // Return the timestamp of this object, as a time interval,
-        // describing the moment in time the rate limiter was last updated.
-        // The returned time interval uses the same reference point as the time
-        // interval specified during construction or last invocation of the
-        // 'reset' method.
+    bdet_TimeInterval lastUpdateTime() const;
+        // Return the most recent time, as a time interval, that this rate
+        // limiter was updated.  The returned time interval uses the same
+        // reference point as the time interval specified during construction
+        // or last invocation of the 'reset' method.
 
     void getStatistics(bsls_Types::Uint64* submittedUnits,
                        bsls_Types::Uint64* unusedUnits) const;
         // Load, into the specified 'submittedUnits' and 'unusedUnits' the
         // numbers of submitted units and unused units respectively.
-        // The number of submitter units is the total number of units submitted
-        // since the time returned by the 'statisticsTimestamp' method till
-        // the time returned by the 'timestamp' method.  The number of unused
-        // units is the number of additional units that could potentially have
-        // been submitted without exceeding the sustained rate since the time,
-        // returned by the 'statisticsTimestamp' method till the time, returned
-        // by the 'timestamp' method.
+        // The number of submitted units is the total number of units submitted
+        // to this rate-limiter between 'statisticsCollectionStartTime' and
+        // 'lastUpdateTime'.  The number of unused units is the number of
+        // additional units that could have been submitted, but were not,
+        // between 'statisticsCollectionStartTime' and 'lastUpdateTime'.
 
-    bdet_TimeInterval statisticsTimestamp() const;
-        // Return the statistics timestamp, as a time interval, indicating the
-        // start time of the statistics collection for this rate limiter.
-        // The returned time interval uses the same reference point as the time
-        // interval specified during construction or last invocation of the
-        // 'reset' method.
+    bdet_TimeInterval statisticsCollectionStartTime() const;
+        // Return the time when the collection of the statistics (as returned
+        // by 'getStatistics') started.  The returned time interval uses the
+        // same reference point as the time interval specified during
+        // construction or last invocation of the 'reset' method.
 
 };
 
@@ -614,24 +614,24 @@ bdet_TimeInterval btes_RateLimiter::sustainedRateWindow() const
 }
 
 inline
-bdet_TimeInterval btes_RateLimiter::statisticsTimestamp() const
+bdet_TimeInterval btes_RateLimiter::statisticsCollectionStartTime() const
 {
-    return d_sustainedRateBucket.statisticsTimestamp();
+    return d_sustainedRateBucket.statisticsCollectionStartTime();
 }
 
 inline
-bdet_TimeInterval btes_RateLimiter::timestamp() const
+bdet_TimeInterval btes_RateLimiter::lastUpdateTime() const
 {
-    // The 'timestamp' of rate limiter is the 'timestamp' of the leaky bucket,
-    // that was updated last.
-
-    return bsl::max(d_sustainedRateBucket.timestamp(),
-                    d_peakRateBucket.timestamp());
+    return bsl::max(d_sustainedRateBucket.lastUpdateTime(),
+                    d_peakRateBucket.lastUpdateTime());
 }
 
 inline
 bsls_Types::Uint64 btes_RateLimiter::unitsReserved() const
 {
+    BSLS_ASSERT_SAFE(d_sustainedRateBucket.unitsReserved() ==
+                     d_peakRateBucket.unitsReserved());
+
     return d_sustainedRateBucket.unitsReserved();
 }
 

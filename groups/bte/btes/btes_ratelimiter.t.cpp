@@ -103,18 +103,16 @@ typedef unsigned int        uint;
 
 // Function used for testing usage example.
 
-static bool sendData(size_t dataSize)
-    // Send a specified 'dataSize' amount of data over the network
-    // return true if data was sent successfully and false otherwise
-
+bool sendData(size_t dataSize)
+      // Send a specified 'dataSize' amount of data over the network
+      // return 'true' if data was sent successfully and 'false' otherwise.
 {
 //..
-// In our example we don`t deal with actual data sending, so we assume that
-// the function sends data successfully and return true.
+// For simplicity, 'sendData' will not actually send any data and will
+// always return 'true'.
 //..
    return true;
 }
-//..
 
 //=============================================================================
 //                                 MAIN PROGRAM
@@ -147,42 +145,37 @@ int main(int argc, char *argv[]) {
                               << "TESTING USAGE EXAMPLE" << endl
                               << "=====================" << endl;
 
+// In this example, we are going to send a fixed amount of data in chunks, an
+// use a 'btes_RateLimiter' to prevent our application from overloading its
+// network connection.
+//..
+
+//..
 // First we define the size of data we are going to transmit and a counter
 // of data that is actually sent.  We are going to send data by 64 byte
 // chunks.
 //..
   bsls_Types::Uint64 bytesSent  = 0;
   bsls_Types::Uint64 sizeOfData = 10 * 1024; // in bytes
+  bsls_Types::Uint64 chunkSize  = 64;        // in bytes
 //..
-// Next we define sustained rate and time window for the sustained rate.
-// We limit sustained rate to 1024 bytes/second and allow no more than 512
-// bytes to be sent at higher speed, so the time window can be calculated
-// from the following equation:
-// Rate * T = N
-// where 'Rate' is sustained rate,
-// 'T' is time window to be calculated,
-// 'N' is maximum amount of data that is allowed to be sent at higher rate.
-// T = 512 / 1024 = 0.5 seconds.
+// Then, we select a sustained-rate time-window, and a peak-rate time window,
+// over which the average rate will not exceed the respective maximum. Note
+// that the sustained-rate is meant to long-term average rate of resource
+// usage, where-as the peak-rate is meant to limit spikes in resource usage,
+// so the sustained-rate time-window is typically significantly longer than the
+// peak-rate time-window:
 //..
-  bdet_TimeInterval  sustainedRateWindow(0.5);
   bsls_Types::Uint64 sustainedRateLimit = 1024;
-//..
-// Next we define maximum peak rate and time window for the peak rate.
-// As mentioned above, we limit maximum peak rate to 2048 bytes/second and
-// allow no more than 128 bytes to be send at higher rate.
-// We calculate the time window size for peak rate using the same equation, as
-// for the sustained rate
-// T = 128 / 2048 = 0.0625 seconds.
-//..
-  bdet_TimeInterval  peakRateWindow(0.0625);
+  bdet_TimeInterval  sustainedRateWindow(0.5);
   bsls_Types::Uint64 peakRateLimit = 2048;
+  bdet_TimeInterval  peakRateWindow(0.0625);
 //..
-// Then we create the btes_RateLimiter object, specifying 'sustainedRateLimit',
-// 'peakRateLimit' and calculated time windows for sustained and peak rates.
-// Note that at creation we specify the time reference point as an interval
-// from UNIX epoch.  Time intervals specified for all further
-// 'wouldExceedBandwidth()', 'updateState()', 'calculateTimeToSubmit()'
-// calls are calculated from the same reference point (UNIX epoch).
+// Next, we create a'btes_RateLimiter' object, providing the
+// 'sustainedRateLimit', 'peakRate', and respective time-windows defined
+// earlier. Note that we provide a starting time stamp that is an interval from
+// the UNIX epoch-time, and subsequent time stamps must be from the same
+// reference point:
 //..
   bdet_TimeInterval now = bdetu_SystemTime::now();
   btes_RateLimiter  rateLimiter(sustainedRateLimit,
@@ -191,43 +184,37 @@ int main(int argc, char *argv[]) {
                                 peakRateWindow,
                                 now);
 //..
-//  Then we define the loop for sending data
+// Now, we build a loop and for each iteration we check whether submitting
+// another chunk of data to the rate limiter would cause exceeding the defined
+// bandwidth limits.  If not, we can send the data and submit it to the rate
+// limiter.  The loop terminates when all the data is sent.  Note that 'submit'
+// is invoked only after a successful operation on the resource.
 //..
   while (bytesSent < sizeOfData) {
       now = bdetu_SystemTime::now();
-//..
-// Now we must check, if submitting any more units to the rate limiter would
-// exceed rate limits specified for it.  If not, we can send the portion of
-// data.
-//..
       if (!rateLimiter.wouldExceedBandwidth(now)) {
-//..
-// Here we are trying to send a 64-byte data chunk over the network.
-// If operation succeeded, we submit 64 units to the leaky bucket object.
-//..
-          if (true == sendData(64)) {
-              rateLimiter.submit(64);
-              bytesSent += 64;
+          if (true == sendData(chunkSize)) {
+              rateLimiter.submit(chunkSize);
+              bytesSent += chunkSize;
           }
       }
 //..
-// When the 'btes_RateLimiter' object reports, that submitting units would
-// exceed specified bandwith limits, we should not send more data.
-//
-// So, we should query the object about the interval, we should wait for, until
-// more units can be submitted and sending next portion of data is allowed.
-// Then we send out thread to sleep for the time, returned by
-// 'calculateTimeToSubmit()' method
+// Finally, if it is not possible to submit a new chunk of data without
+// exceeding bandwidth, we invoke the 'calculateTimeToSubmit' method to
+// determine how much time is required to submit a new chunk without causing
+// overflow. We round up the number of microseconds in time interval.
 //..
       else {
           bdet_TimeInterval timeToSubmit =
                                       rateLimiter.calculateTimeToSubmit(now);
           bsls_Types::Uint64 uS = timeToSubmit.totalMicroseconds() +
-                                  (timeToSubmit.nanoseconds() % 1000) ? 1 : 0;
+                                 (timeToSubmit.nanoseconds() % 1000) ? 1 : 0;
           bcemt_ThreadUtil::microSleep(uS);
       }
   }
 //..
+// Notice that in a multi-threaded application it is appropriate to put the
+// thread into the 'sleep' state, in order to avoid busy-waiting.
         } break;
 
         case 13: {
@@ -293,7 +280,7 @@ int main(int argc, char *argv[]) {
 
                 // C-3
 
-                {L_,       1000,         3000,                       0},
+                {L_,       1000,         1000,                       0},
                 {L_,       1000,          700,                     300},
                 {L_, ULLONG_MAX, ULLONG_MAX/2, ULLONG_MAX-ULLONG_MAX/2}
             };
@@ -356,11 +343,24 @@ int main(int argc, char *argv[]) {
                     x.cancelReserved(UNITS_TO_CANCEL);
                     x.submit(freeUnits-1);
                     LOOP_ASSERT(LINE, false == x.wouldExceedBandwidth(Ti(0)));
-
                 }
                 else {
                 
                 }
+            }
+
+            if (verbose) cout << endl << "Negative Testing" << endl;
+            {
+                bsls_AssertFailureHandlerGuard hG(
+                                              bsls_AssertTest::failTestDriver);
+
+                Obj y(100, Ti(10), 1000, Ti(1), Ti(0));
+                y.submit(100);
+                y.reserve(100);
+                ASSERT_SAFE_PASS(y.submitReserved(100));
+                ASSERT_SAFE_FAIL(y.submitReserved(1));
+                y.reserve(100);
+                ASSERT_SAFE_FAIL(y.submitReserved(101));
             }
 
         } break;
@@ -373,11 +373,11 @@ int main(int argc, char *argv[]) {
             //   1 The object parameters are not affected by the 'reset'
             //   method.
             //
-            //   2 The object state is set to initial state and 'timestamp'
+            //   2 The object state is set to initial state and 'lastUpdateTime'
             //     is recorded correctly when 'reset' is invoked
             //
             //   3 'reset' method invokes 'resetStatistics' method and
-            //     'statisticsTimestamp' is updated
+            //     'statisticsCollectionStartTime' is updated
             //
             // Plan:
             //
@@ -405,7 +405,6 @@ int main(int argc, char *argv[]) {
 
                 //LINE  CTIME   UNITS TRESET
                 //----  ------- ----- ------
-
                 {  L_,  Ti( 0),    0, Ti( 0) },
                 {  L_,  Ti( 0), 1000, Ti( 0) },
                 {  L_,  Ti( 0), 2000, Ti( 0) },
@@ -440,7 +439,7 @@ int main(int argc, char *argv[]) {
                 // C-2
 
                 LOOP_ASSERT(LINE, 0          == x.unitsReserved());
-                LOOP_ASSERT(LINE, RESET_TIME == x.timestamp());
+                LOOP_ASSERT(LINE, RESET_TIME == x.lastUpdateTime());
 
                 // C-3
 
@@ -448,7 +447,7 @@ int main(int argc, char *argv[]) {
 
                 LOOP_ASSERT(LINE, 0          == usedUnits);
                 LOOP_ASSERT(LINE, 0          == unusedUnits);
-                LOOP_ASSERT(LINE, RESET_TIME == x.statisticsTimestamp());
+                LOOP_ASSERT(LINE, RESET_TIME == x.statisticsCollectionStartTime());
 
             }
 
@@ -461,7 +460,7 @@ int main(int argc, char *argv[]) {
             // Concerns:
             //   1 'resetStatistics' resets unit statistics counter to 0.
             //
-            //   2 'resetStatistics' updates 'statisticsTimestamp' time
+            //   2 'resetStatistics' updates 'statisticsCollectionStartTime' time
             //      correctly.
             //
             //   3 'resetStatistics' does not alter object state except for
@@ -501,7 +500,7 @@ int main(int argc, char *argv[]) {
             x.getStatistics(&usedUnits, &unusedUnits);
             ASSERT(EXP_USED      == usedUnits);
             ASSERT(EXP_UNUSED    == unusedUnits);
-            ASSERT(CREATION_TIME == x.statisticsTimestamp());
+            ASSERT(CREATION_TIME == x.statisticsCollectionStartTime());
 
             x.submit(UNITS);
             x.resetStatistics();
@@ -514,7 +513,7 @@ int main(int argc, char *argv[]) {
 
             // C-2
 
-            ASSERT(UPD_TIME == x.statisticsTimestamp());
+            ASSERT(UPD_TIME == x.statisticsCollectionStartTime());
 
             // C-3
 
@@ -522,7 +521,7 @@ int main(int argc, char *argv[]) {
             ASSERT(S_WND    == x.sustainedRateWindow());
             ASSERT(P_RATE   == x.peakRateLimit());
             ASSERT(P_WND    == x.peakRateWindow());
-            ASSERT(UPD_TIME == x.timestamp());
+            ASSERT(UPD_TIME == x.lastUpdateTime());
             ASSERT(UNITS*2  == x.unitsReserved());
 
         } break;
@@ -547,7 +546,7 @@ int main(int argc, char *argv[]) {
             //     certain behavior in special build configuration.
             //
             //   5 Statistics is calculated for interval between
-            //     'statisticsTimestamp' and 'timestamp'
+            //     'statisticsCollectionStartTime' and 'lastUpdateTime'
             //
             // Plan:
             //
@@ -702,16 +701,16 @@ int main(int argc, char *argv[]) {
             //
             // Concerns:
             //
-            //   1 The method updates 'timestamp'.
+            //   1 The method updates 'lastUpdateTime'.
             //
-            //   2 The method udpdates 'timestamp' if the specified
-            //     'currentTime' precedes 'timestamp'.
+            //   2 The method udpdates 'lastUpdateTime' if the specified
+            //     'currentTime' precedes 'lastUpdateTime'.
             //
-            //   3 The method does not affect 'statisticsTimestamp' if time
+            //   3 The method does not affect 'statisticsCollectionStartTime' if time
             //     does not go backwards.
             //
-            //   4 The method updates 'statisticsTimestamp', if 'timestamp'
-            //     precedes 'statisticsTimestamp'.
+            //   4 The method updates 'statisticsCollectionStartTime', if 'lastUpdateTime'
+            //     precedes 'statisticsCollectionStartTime'.
             //
             // Plan:
             //
@@ -731,14 +730,14 @@ int main(int argc, char *argv[]) {
 
             x.updateState(Ti(15));
 
-            ASSERT(Ti(15) == x.timestamp());
-            ASSERT(Ti(10) == x.statisticsTimestamp()); // C-3
+            ASSERT(Ti(15) == x.lastUpdateTime());
+            ASSERT(Ti(10) == x.statisticsCollectionStartTime()); // C-3
 
             // C-2
 
             x.updateState(Ti(5));
-            ASSERT(Ti(5)  == x.timestamp());
-            ASSERT(Ti(5) == x.statisticsTimestamp()); // C-4
+            ASSERT(Ti(5)  == x.lastUpdateTime());
+            ASSERT(Ti(5) == x.statisticsCollectionStartTime()); // C-4
 
         } break;
 
@@ -976,10 +975,10 @@ int main(int argc, char *argv[]) {
                 LOOP_ASSERT(LINE, EXP_S_WND     == X.sustainedRateWindow());
                 LOOP_ASSERT(LINE, P_RATE        == X.peakRateLimit());
                 LOOP_ASSERT(LINE, EXP_P_WND     == X.peakRateWindow());
-                LOOP_ASSERT(LINE, CREATION_TIME == X.timestamp());
+                LOOP_ASSERT(LINE, CREATION_TIME == X.lastUpdateTime());
 
                 LOOP_ASSERT(LINE,
-                            CREATION_TIME == X.statisticsTimestamp());
+                            CREATION_TIME == X.statisticsCollectionStartTime());
             }
 
             // C-3
@@ -1059,7 +1058,7 @@ int main(int argc, char *argv[]) {
 
                 // C-4
 
-                {L_,       1000,         3000,                       0},
+                {L_,       1000,         1000,                       0},
                 {L_,       1000,          700,                     300},
                 {L_, ULLONG_MAX, ULLONG_MAX/2, ULLONG_MAX-ULLONG_MAX/2}
             };
@@ -1158,7 +1157,6 @@ int main(int argc, char *argv[]) {
                 y3.reserve(1);
                 ASSERT_SAFE_FAIL(y3.submitReserved(ULLONG_MAX));
 
-                y3.submitReserved(ULLONG_MAX/2+1);
                 ASSERT_SAFE_FAIL(y3.submitReserved(ULLONG_MAX/2+1));
             }
 
@@ -1260,10 +1258,10 @@ int main(int argc, char *argv[]) {
                     LOOP_ASSERT(LINE,
                                 LB_RESULT == x.wouldExceedBandwidth(curTime));
 
-                    const Ti LB_TIMESTAMP = bsl::max(sustLB.timestamp(),
-                                                     peakLB.timestamp());
+                    const Ti LB_TIMESTAMP = bsl::max(sustLB.lastUpdateTime(),
+                                                     peakLB.lastUpdateTime());
 
-                    LOOP_ASSERT(LINE, LB_TIMESTAMP == x.timestamp());
+                    LOOP_ASSERT(LINE, LB_TIMESTAMP == x.lastUpdateTime());
                 }
             }
 
@@ -1312,10 +1310,10 @@ int main(int argc, char *argv[]) {
                     LOOP_ASSERT(LINE,
                                 LB_RESULT == x.calculateTimeToSubmit(curTime));
 
-                    const Ti LB_TIMESTAMP = bsl::max(sustLB.timestamp(),
-                                                     peakLB.timestamp());
+                    const Ti LB_TIMESTAMP = bsl::max(sustLB.lastUpdateTime(),
+                                                     peakLB.lastUpdateTime());
 
-                    LOOP_ASSERT(LINE, LB_TIMESTAMP == x.timestamp());
+                    LOOP_ASSERT(LINE, LB_TIMESTAMP == x.lastUpdateTime());
                 }
 
                 const Ti CHECK_TIME = curTime + x.calculateTimeToSubmit(curTime);
@@ -1375,13 +1373,13 @@ int main(int argc, char *argv[]) {
             //   8 'peakRateWindow' returns the value provided
             //     'peakRateWindow' constructor argument.
             //
-            //   9 'timestamp' returns the value provided by the
+            //   9 'lastUpdateTime' returns the value provided by the
             //     'currentTime' constructor argument.
             //
-            //   10 'statisticsTimestamp' is set to 0 during construction
+            //   10 'statisticsCollectionStartTime' is set to 0 during construction
             //      by default CTOR.
             //
-            //   11 'statisticsTimestamp' is set to the value provided
+            //   11 'statisticsCollectionStartTime' is set to the value provided
             //      by the 'currentTime' CTOR argument.
             //
             //   12 The 'sustainedRateWindow' is set to the interval, it
@@ -1418,8 +1416,8 @@ int main(int argc, char *argv[]) {
             //   void getStatistics(bsls_Types::Uint64* submittedUnits,
             //                      bsls_Types::Uint64* unusedUnits) const;
             //
-            //   bdet_TimeInterval timestamp() const;
-            //   bdet_TimeInterval statisticsTimestamp() const;
+            //   bdet_TimeInterval lastUpdateTime() const;
+            //   bdet_TimeInterval statisticsCollectionStartTime() const;
             //-----------------------------------------------------------------
 
             if (verbose) cout << endl << "BOOTSTRAP 'btes_RateLimiter'" << endl
@@ -1433,8 +1431,8 @@ int main(int argc, char *argv[]) {
             ASSERT(Ti(1)  == x.peakRateWindow());
             ASSERT(1      == x.sustainedRateLimit());
             ASSERT(Ti(10) == x.sustainedRateWindow());
-            ASSERT(Ti(0)  == x.timestamp());
-            ASSERT(Ti(0)  == x.statisticsTimestamp()); // C-10
+            ASSERT(Ti(0)  == x.lastUpdateTime());
+            ASSERT(Ti(0)  == x.statisticsCollectionStartTime()); // C-10
             ASSERT(0      == x.unitsReserved());
 
             // C-2
@@ -1498,10 +1496,10 @@ int main(int argc, char *argv[]) {
                     LOOP_ASSERT(LINE, 0             == x.unitsReserved());
                     LOOP_ASSERT(LINE, S_RATE        == X.sustainedRateLimit());
                     LOOP_ASSERT(LINE, P_RATE        == X.peakRateLimit());
-                    LOOP_ASSERT(LINE, CREATION_TIME == X.timestamp());
+                    LOOP_ASSERT(LINE, CREATION_TIME == X.lastUpdateTime());
 
                     LOOP_ASSERT(LINE,
-                                CREATION_TIME == X.statisticsTimestamp());
+                                CREATION_TIME == X.statisticsCollectionStartTime());
 
                     Ti delta = EXP_S_WND - X.sustainedRateWindow();
                     LOOP_ASSERT(LINE, 0 == delta.seconds() &&
@@ -1532,8 +1530,8 @@ int main(int argc, char *argv[]) {
 
                     ASSERT(DATA[0].d_sustRate     == y.sustainedRateLimit());
                     ASSERT(DATA[0].d_peakRate     == y.peakRateLimit());
-                    ASSERT(DATA[0].d_creationTime == y.timestamp());
-                    ASSERT(DATA[0].d_creationTime == y.statisticsTimestamp());
+                    ASSERT(DATA[0].d_creationTime == y.lastUpdateTime());
+                    ASSERT(DATA[0].d_creationTime == y.statisticsCollectionStartTime());
 
                     Ti delta = DATA[0].d_sustWindow - y.sustainedRateWindow();
                     ASSERT(0 == delta.seconds() &&
@@ -1547,8 +1545,8 @@ int main(int argc, char *argv[]) {
 
                     ASSERT(DATA[1].d_sustRate     == z.sustainedRateLimit());
                     ASSERT(DATA[1].d_peakRate     == z.peakRateLimit());
-                    ASSERT(DATA[1].d_creationTime == z.timestamp());
-                    ASSERT(DATA[1].d_creationTime == z.statisticsTimestamp());
+                    ASSERT(DATA[1].d_creationTime == z.lastUpdateTime());
+                    ASSERT(DATA[1].d_creationTime == z.statisticsCollectionStartTime());
 
                     delta = DATA[1].d_sustWindow - z.sustainedRateWindow();
                     ASSERT(0 == delta.seconds() &&
@@ -1635,10 +1633,6 @@ int main(int argc, char *argv[]) {
             x.updateState(currentTime);
 
             x.submit(100);
-
-            Obj y(x);
-            ASSERT(1000  == y.sustainedRateLimit());
-            ASSERT(Ti(1) == y.sustainedRateWindow());
 
         } break;
 
