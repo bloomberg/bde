@@ -118,7 +118,6 @@ bool isTrueType() { return false; }
 template <>
 bool isTrueType<bsl::true_type>() { return true; }
 
-
 template <class PREDICATE>
 bool isMeta0Type() { return false; }
 
@@ -130,7 +129,6 @@ bool isMeta1Type() { return false; }
 
 template <>
 bool isMeta1Type<bslmf::MetaInt<1> >() { return true; }
-
 
 }  // close unnamed namespace
 
@@ -144,7 +142,7 @@ int main(int argc, char *argv[])
     int verbose = argc > 2;
     int veryVerbose = argc > 3;
 
-    setbuf(stdout, 0);  // Use unbuffered output
+    setbuf(stdout, 0);  // Use unbuffered output.
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
@@ -168,6 +166,7 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\nUSAGE EXAMPLE"
                             "\n=============\n");
+
 ///Usage
 ///-----
 // In this section we show intended use of this component.
@@ -426,10 +425,10 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nBREATHING TEST"
                             "\n==============\n");
 
-        ASSERT(bslmf::IsVoid<void>::VALUE);
+        ASSERT( bslmf::IsVoid<void>::VALUE);
         ASSERT(!bslmf::IsVoid<int>::VALUE);
 
-        ASSERT(bsl::is_void<void>::value);
+        ASSERT( bsl::is_void<void>::value);
         ASSERT(!bsl::is_void<int>::value);
 
       } break;
@@ -445,6 +444,7 @@ int main(int argc, char *argv[])
 
     return testStatus;
 }
+
 // ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2012

@@ -17,7 +17,7 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR:
 //
 //@DESCRIPTION: This component defines a meta-function,
-// 'bsl::is_floating_point' , which may be used to query whether a type is a
+// 'bsl::is_floating_point' , that may be used to query whether a type is a
 // (possibly cv-qualified) floating-point type as defined in section 3.9.1.8 of
 // the C++11 standard [basic.fundamental].
 //
@@ -43,7 +43,7 @@ BSLS_IDENT("$Id: $")
 // 'typedef's and assert the 'value' static data member of each instantiation:
 //..
 //  assert(false == bsl::is_floating_point<MyType>::value);
-//  assert(true == bsl::is_floating_point<MyFloatingPointType>::value);
+//  assert(true  == bsl::is_floating_point<MyFloatingPointType>::value);
 //..
 
 #ifndef INCLUDED_BSLSCM_VERSION
@@ -65,30 +65,30 @@ namespace bslmf {
                          // struct IsFloatingPoint_Imp
                          // ==========================
 
-template <typename TYPE>
+template <class TYPE>
 struct IsFloatingPoint_Imp : bsl::false_type {
     // This 'struct' template implements a meta-function to determine whether
     // the (template parameter) 'TYPE' is a floating-point type.  This generic
     // default template derives from 'bsl::false_type'.  Template
-    // specializations are provided (below) that derives from 'bsl::true_type'.
+    // specializations are provided (below) that derive from 'bsl::true_type'.
 };
 
 template <>
 struct IsFloatingPoint_Imp<float> : bsl::true_type {
      // This specialization of 'IsFloatingPoint_Imp', for when the (template
-     // parameter) 'TYPE' is a 'float', derives from 'bsl::true_type'.
+     // parameter) 'TYPE' is 'float', derives from 'bsl::true_type'.
 };
 
 template <>
 struct IsFloatingPoint_Imp<double> : bsl::true_type {
      // This specialization of 'IsFloatingPoint_Imp', for when the (template
-     // parameter) 'TYPE' is a 'double', derives from 'bsl::true_type'.
+     // parameter) 'TYPE' is 'double', derives from 'bsl::true_type'.
 };
 
 template <>
 struct IsFloatingPoint_Imp<long double> : bsl::true_type {
      // This specialization of 'IsFloatingPoint_Imp', for when the (template
-     // parameter) 'TYPE' is a 'long double', derives from 'bsl::true_type'.
+     // parameter) 'TYPE' is 'long double', derives from 'bsl::true_type'.
 };
 
 }
@@ -100,7 +100,7 @@ namespace bsl {
                          // struct is_floating_point
                          // ========================
 
-template <typename TYPE>
+template <class TYPE>
 struct is_floating_point
     : BloombergLP::bslmf::IsFloatingPoint_Imp<
                                 typename remove_cv<TYPE>::type>::type {

@@ -43,7 +43,7 @@ BSLS_IDENT("$Id: $")
 // 'typedef's and assert the 'value' static data member of each instantiation:
 //..
 //  assert(false == bsl::is_integral<MyType>::value);
-//  assert(true == bsl::is_integral<MyIntegralType>::value);
+//  assert(true  == bsl::is_integral<MyIntegralType>::value);
 //..
 
 #ifndef INCLUDED_BSLSCM_VERSION
@@ -54,12 +54,12 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_integralconstant.h>
 #endif
 
-#ifndef INCLUDED_BSLS_TYPES
-#include <bsls_types.h>
-#endif
-
 #ifndef INCLUDED_BSLMF_REMOVECV
 #include <bslmf_removecv.h>
+#endif
+
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
 #endif
 
 namespace BloombergLP {
@@ -167,7 +167,7 @@ namespace bsl {
                          // struct is_integral
                          // ==================
 
-template <typename TYPE>
+template <class TYPE>
 struct is_integral
    : BloombergLP::bslmf::IsIntegral_Imp<typename remove_cv<TYPE>::type>::type {
     // This 'struct' template implements the 'is_integral' meta-function
