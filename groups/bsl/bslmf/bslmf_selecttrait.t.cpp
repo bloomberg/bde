@@ -124,12 +124,12 @@ template <> struct IsLong<long>     : bsl::true_type { };
 template <class TYPE> struct IsFloat : bsl::false_type { };
 template <> struct IsFloat<float>    : bsl::true_type { };
 
-int whichTrait(bsl::false_type)                   { return 0; }
-template <class TYPE> int whichTrait(IsBool<TYPE>)  { return 1; }
-template <class TYPE> int whichTrait(IsChar<TYPE>)  { return 2; }
-template <class TYPE> int whichTrait(IsShort<TYPE>) { return 3; }
-template <class TYPE> int whichTrait(IsLong<TYPE>)  { return 4; }
-template <class TYPE> int whichTrait(IsFloat<TYPE>) { return 5; }
+int whichTrait(bslmf::SelectTraitDefault) 		{ return 0; }
+int whichTrait(bslmf::SelectTraitCase<IsBool>) 	{ return 1; }
+int whichTrait(bslmf::SelectTraitCase<IsChar>) 	{ return 2; }
+int whichTrait(bslmf::SelectTraitCase<IsShort>) { return 3; }
+int whichTrait(bslmf::SelectTraitCase<IsLong>)  { return 4; }
+int whichTrait(bslmf::SelectTraitCase<IsFloat>) { return 5; }
 
 template <class TYPE>
 int breathingTest()
@@ -199,7 +199,7 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
 // This section illustrates the intended usage of this component.
 //
 ///Example 1: Dispatch on traits
-/// - - - - - - - - - - - - - - 
+/// - - - - - - - - - - - - - -
 // We would like to create a function template,
 // 'ScalarPrimitives::copyConstruct', that takes an original object and an
 // allocator constructs a copy of 'original' using the most efficient valid
@@ -295,7 +295,7 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
         copyConstruct(TARGET_TYPE                                 *address,
                       const TARGET_TYPE&                           original,
                       bslma::Allocator                            *allocator,
-                      UsesBslmaAllocator<TARGET_TYPE>)
+                      bslmf::SelectTraitCase<UsesBslmaAllocator>)
         {
             new (address) TARGET_TYPE(original, allocator);
             ++d_usesBslmaAllocatorCounter;
@@ -306,7 +306,7 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
         copyConstruct(TARGET_TYPE                 *address,
                       const TARGET_TYPE&           original,
                       bslma::Allocator            *allocator,
-                      IsPair<TARGET_TYPE>)
+                      bslmf::SelectTraitCase<IsPair>)
         {
             ScalarPrimitives::copyConstruct(&address->first, original.first,
                                             allocator);
@@ -320,7 +320,7 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
         copyConstruct(TARGET_TYPE                             *address,
                       const TARGET_TYPE&                       original,
                       bslma::Allocator                        *,
-                      IsBitwiseCopyable<TARGET_TYPE>)
+                      bslmf::SelectTraitCase<IsBitwiseCopyable>)
         {
             std::memcpy(address, &original, sizeof(original));
             ++d_isBitwiseCopyableCounter;
@@ -331,7 +331,7 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
         copyConstruct(TARGET_TYPE                *address,
                       const TARGET_TYPE&          original,
                       bslma::Allocator           *,
-                      bsl::false_type)
+                      bslmf::SelectTraitDefault)
         {
             new (address) TARGET_TYPE(original);
             ++d_noTraitsCounter;
@@ -357,7 +357,7 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
 //..
         typedef typename bslmf::SelectTrait<TARGET_TYPE,
                                             UsesBslmaAllocator,
-                                            IsBitwiseCopyable, 
+                                            IsBitwiseCopyable,
                                             IsPair>::Type Selection;
 //..
 // Now, we use 'Selection' to choose (at compile time), one of the
