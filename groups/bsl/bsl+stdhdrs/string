@@ -57,10 +57,12 @@ BSLS_IDENT("$Id: $")
 #   endif
 
 #   ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#   ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
         // Permit reliance on transitive includes within robo.
 #   include <cctype>
 #   include <limits>
 #   include <functional>
+#   endif
 #   endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 #   ifndef BSL_INCLUDE_BSL_STRING
