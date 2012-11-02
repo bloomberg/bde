@@ -1211,7 +1211,9 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting indentation." << endl;
         {
             typedef vector<int>                   Type;
-            typedef bslalg::HasStlIterators<Type> BdeuPrintMethod;
+            typedef typename
+                bslmf::SelectTraitCase<bslalg::HasStlIterators>::Type
+                BdeuPrintMethod;
 
             const int ELEMENTS[]   = { 45, 123 };
             const int NUM_ELEMENTS = sizeof ELEMENTS / sizeof *ELEMENTS;
@@ -1362,7 +1364,9 @@ int main(int argc, char *argv[])
                 const int  NUM_ELEMENTS = DATA[i].d_numElements;
 
                 typedef vector<int>                   Type;
-                typedef bslalg::HasStlIterators<Type> BdeuPrintMethod;
+                typedef typename
+                    bslmf::SelectTraitCase<bslalg::HasStlIterators>::Type
+                    BdeuPrintMethod;
 
                 const Type VALUE(ELEMENTS, ELEMENTS + NUM_ELEMENTS);
 
@@ -1410,7 +1414,9 @@ int main(int argc, char *argv[])
         {
             typedef vector<char>                  ElemType;
             typedef vector<ElemType>              Type;
-            typedef bslalg::HasStlIterators<Type> BdeuPrintMethod;
+            typedef typename
+                bslmf::SelectTraitCase<bslalg::HasStlIterators>::Type
+                BdeuPrintMethod;
 
             const char FIRST_DATA[]  = "Hello\r";
             const char SECOND_DATA[] = "World\n";
@@ -1469,7 +1475,9 @@ int main(int argc, char *argv[])
         {
             typedef vector<int>                   ElemType;
             typedef vector<ElemType>              Type;
-            typedef bslalg::HasStlIterators<Type> BdeuPrintMethod;
+            typedef typename
+                bslmf::SelectTraitCase<bslalg::HasStlIterators>::Type
+                BdeuPrintMethod;
 
             const int FIRST_DATA[]  = { 2, 6, 23 };
             const int SECOND_DATA[] = { 54, 2 };
@@ -1535,7 +1543,9 @@ int main(int argc, char *argv[])
         {
             typedef pair<int, double>             ElemType;
             typedef vector<ElemType>              Type;
-            typedef bslalg::HasStlIterators<Type> BdeuPrintMethod;
+            typedef typename
+                bslmf::SelectTraitCase<bslalg::HasStlIterators>::Type
+                BdeuPrintMethod;
 
             const ElemType DATA[] = { ElemType(45, 1.23),
                                       ElemType(21, 97.54) };
@@ -1591,7 +1601,9 @@ int main(int argc, char *argv[])
         {
             typedef TestType_PrintMethod          ElemType;
             typedef vector<ElemType>              Type;
-            typedef bslalg::HasStlIterators<Type> BdeuPrintMethod;
+            typedef typename
+                bslmf::SelectTraitCase<bslalg::HasStlIterators>::Type
+                BdeuPrintMethod;
 
             if (veryVerbose) cout << "\tUsing multiline output." << endl;
             {
@@ -1665,7 +1677,9 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting with invalid stream." << endl;
         {
             typedef vector<int>                   Type;
-            typedef bslalg::HasStlIterators<Type> BdeuPrintMethod;
+            typedef typename
+                bslmf::SelectTraitCase<bslalg::HasStlIterators>::Type
+                BdeuPrintMethod;
 
             const Type VALUE;
 
@@ -1716,7 +1730,9 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting indentation." << endl;
         {
             typedef pair<int, double>    Type;
-            typedef bslmf::IsPair<Type> BdeuPrintMethod;
+            typedef typename
+                bslmf::SelectTraitCase<bslmf::IsPair>::Type
+                BdeuPrintMethod;
 
             const int    INT_VALUE    = 45;
             const double DOUBLE_VALUE = 1.23;
@@ -1837,7 +1853,9 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting with 'vector<char>' elements." << endl;
         {
             typedef pair<vector<char>, vector<char> > Type;
-            typedef bslmf::IsPair<Type>              BdeuPrintMethod;
+            typedef typename
+                bslmf::SelectTraitCase<bslmf::IsPair>::Type
+                BdeuPrintMethod;
 
             const char FIRST_DATA[]  = "Hello\r";
             const char SECOND_DATA[] = "World\n";
@@ -1892,7 +1910,9 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting with 'vector<int>' elements." << endl;
         {
             typedef pair<vector<int>, vector<int> > Type;
-            typedef bslmf::IsPair<Type>            BdeuPrintMethod;
+            typedef typename
+                bslmf::SelectTraitCase<bslmf::IsPair>::Type
+                BdeuPrintMethod;
 
             const int FIRST_DATA[]  = { 2, 6, 23 };
             const int SECOND_DATA[] = { 54, 2 };
@@ -1956,7 +1976,9 @@ int main(int argc, char *argv[])
             typedef pair<int, int>            IntPair;
             typedef pair<double, double>      DoublePair;
             typedef pair<IntPair, DoublePair> Type;
-            typedef bslmf::IsPair<Type>      BdeuPrintMethod;
+            typedef typename
+                bslmf::SelectTraitCase<bslmf::IsPair>::Type
+                BdeuPrintMethod;
 
             const Type VALUE = Type(IntPair(45, 21),
                                     DoublePair(1.23, 97.54));
@@ -2007,7 +2029,9 @@ int main(int argc, char *argv[])
                           << endl;
         {
             typedef pair<TestType_PrintMethod, TestType_PrintMethod> Type;
-            typedef bslmf::IsPair<Type>                       BdeuPrintMethod;
+            typedef typename
+                bslmf::SelectTraitCase<bslmf::IsPair>::Type
+                BdeuPrintMethod;
 
             if (veryVerbose) cout << "\tUsing multiline output." << endl;
             {
@@ -2089,7 +2113,9 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting with invalid stream." << endl;
         {
             typedef pair<int, double>   Type;
-            typedef bslmf::IsPair<Type> BdeuPrintMethod;
+            typedef typename
+                bslmf::SelectTraitCase<bslmf::IsPair>::Type
+                BdeuPrintMethod;
 
             const int    INT_VALUE    = 45;
             const double DOUBLE_VALUE = 1.23;
@@ -2175,7 +2201,9 @@ int main(int argc, char *argv[])
             const int SPACES_PER_LEVEL = DATA[i].d_spacesPerLevel;
 
             typedef TestType_PrintMethod      Type;
-            typedef bdeu_HasPrintMethod<Type> BdeuPrintMethod;
+            typedef typename
+                bslmf::SelectTraitCase<bdeu_HasPrintMethod>::Type
+                BdeuPrintMethod;
 
             const Type VALUE;
 
@@ -2219,7 +2247,7 @@ int main(int argc, char *argv[])
                           << endl;
 
         // false_type == Default == stream operator
-        typedef bsl::false_type BdeuPrintMethod;
+        typedef typename bslmf::SelectTraitCase<>::Type BdeuPrintMethod;
 
         static const struct {
             int         d_lineNum;
