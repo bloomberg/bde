@@ -57,8 +57,10 @@ BSLS_IDENT("$Id: $")
 #   endif
 
 #   ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#   ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
         // Permit reliance on transitive includes within robo.
 #   include <iosfwd>
+#   endif
 #   endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 #   ifndef BSL_INCLUDE_BSL_SSTREAM
@@ -73,3 +75,12 @@ BSLS_IDENT("$Id: $")
 #endif  // BSL_OVERRIDES_STD
 
 #endif  // INCLUDED_NATIVE_SSTREAM
+
+// ----------------------------------------------------------------------------
+// NOTICE:
+//      Copyright (C) Bloomberg L.P., 2012
+//      All Rights Reserved.
+//      Property of Bloomberg L.P.  (BLP)
+//      This software is made available solely pursuant to the
+//      terms of a BLP license agreement which governs its use.
+// ----------------------------- END-OF-FILE ----------------------------------

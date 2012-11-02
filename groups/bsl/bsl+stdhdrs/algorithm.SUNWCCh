@@ -47,9 +47,11 @@ BSLS_IDENT("$Id: $")
 #   include BSL_NATIVE_CPP_LIB_HEADER(algorithm)
 
 #   ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#   ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
         // Permit reliance on transitive includes within robo.
 #   include <functional>
 #   include <memory>
+#   endif
 #   endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 #   include <bsl_algorithm.h>
@@ -67,3 +69,12 @@ BSLS_IDENT("$Id: $")
 
 #endif  // INCLUDED_NATIVE_ALGORITHM
 
+
+// ----------------------------------------------------------------------------
+// NOTICE:
+//      Copyright (C) Bloomberg L.P., 2012
+//      All Rights Reserved.
+//      Property of Bloomberg L.P.  (BLP)
+//      This software is made available solely pursuant to the
+//      terms of a BLP license agreement which governs its use.
+// ----------------------------- END-OF-FILE ----------------------------------

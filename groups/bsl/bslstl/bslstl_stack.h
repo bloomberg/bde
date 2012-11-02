@@ -208,46 +208,46 @@ BSLS_IDENT("$Id: $")
 //  ToDoList toDoList;
 //
 // Next, a few tasks are requested:
-//
+//..
 //  toDoList.enqueueTask("Change the car's oil.");
 //  toDoList.enqueueTask("Pay the bills.");
-//
+//..
 // Then, the husband watches the Yankee's game on TV.  Upon returning to the
 // list he consults the list to see what task is up next:
-//
+//..
 //  assert(!strcmp("Pay the bills.", toDoList.currentTask()));
-//
+//..
 // Next, he sees that he has to pay the bills.  When the bills are finished, he
 // flushes that task from the list:
-//
+//..
 //  assert(false == toDoList.finishTask());
-//
+//..
 // Then, he consults the list for the next task.
-//
+//..
 //  assert(!strcmp("Change the car's oil.", toDoList.currentTask()));
-//
+//..
 // Next, he sees he has to change the car's oil.  Before he can get started,
 // another request comes:
-//
+//..
 //  toDoList.enqueueTask("Get some hot dogs.");
 //  assert(!strcmp("Get some hot dogs.", toDoList.currentTask()));
-//
+//..
 // Then, he drives the car to the convenience store and picks up some hot dogs
 // and buns.  Upon returning home, he gives the hot dogs to his wife, updates
 // the list, and consults it for the next task.
-//
+//..
 //  assert(false == toDoList.finishTask());
 //  assert(!strcmp("Change the car's oil.", toDoList.currentTask()));
-//
+//..
 // Next, he finishes the oil change, updates the list, and consults it for the
 // next task.
-//
+//..
 //  assert(true == toDoList.finishTask());
 //  assert(!strcmp("<EMPTY>", toDoList.currentTask()));
-//
+//..
 // Finally, the wife has now been informed that everything is done, and she
 // makes another request:
-//
+//..
 //  toDoList.enqueueTask("Clean the rain gutters.");
 //..
 
@@ -274,24 +274,16 @@ BSL_OVERRIDES_STD mode"
 #include <bslstl_stdexceptutil.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_PASSTHROUGHTRAIT
-#include <bslalg_passthroughtrait.h>
-#endif
-
 #ifndef INCLUDED_BSLALG_SWAPUTIL
 #include <bslalg_swaputil.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include <bslma_usesbslmaallocator.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_ENABLEIF
 #include <bslmf_enableif.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_METAINT
-#include <bslmf_metaint.h>
 #endif
 
 #ifndef INCLUDED_ALGORITHM
@@ -305,19 +297,21 @@ template <class CONTAINER>
 class Stack_HasAllocatorType {
     // This 'class' computes a public constant 'VALUE', which is 'true' if the
     // passed 'CONTAINER' defines a type 'CONTAINER::allocator_type' and
-    // 'false' otherwise.  This is used in conjunction with 'bslmf::EnableIf'
+    // 'false' otherwise.  This is used in conjunction with 'enable_if'
     // to make methods of 'stack' that take allocator arguments exist if
     // 'CONTAINER::allocator_type' is present, and remove them from the
     // constructor overload set otherwise.
 
+    typedef char YesType;
+    struct NoType { char a[2]; };
+
     template <typename TYPE>
-    static BloombergLP::bslmf::MetaInt<1> match(
-                                        const typename TYPE::allocator_type *);
+    static YesType match(const typename TYPE::allocator_type *);
     template <typename TYPE>
-    static BloombergLP::bslmf::MetaInt<0> match(...);
+    static NoType match(...);
 
   public:
-    enum { VALUE = BSLMF_METAINT_TO_BOOL(match<CONTAINER>(0)) };
+    enum { VALUE = (1 == sizeof(match<CONTAINER>(0))) };
 };
 
 template <class VALUE, class CONTAINER = deque<VALUE> >
@@ -353,10 +347,10 @@ class stack {
 
   public:
     // TRAITS
-    typedef typename BloombergLP::bslalg::PassthroughTrait<
-                 container_type,
-                 BloombergLP::bslalg::TypeTraitUsesBslmaAllocator>::Type Trait;
-    BSLALG_DECLARE_NESTED_TRAITS(stack, Trait);
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(
+        stack,
+        BloombergLP::bslma::UsesBslmaAllocator,
+        BloombergLP::bslma::UsesBslmaAllocator<container_type>::value);
 
   private:
     // FRIENDS
@@ -383,7 +377,7 @@ class stack {
     template <class ALLOCATOR>
     explicit
     stack(const ALLOCATOR& allocator,
-          typename BloombergLP::bslmf::EnableIf<
+          typename enable_if<
                                       Stack_HasAllocatorType<CONTAINER>::VALUE,
                                       ALLOCATOR>::type * = 0);
         // Construct an empty stack, and use 'allocator' to supply memory.  If
@@ -398,9 +392,8 @@ class stack {
     template <class ALLOCATOR>
     stack(const CONTAINER& container,
           const ALLOCATOR& allocator,
-          typename BloombergLP::bslmf::EnableIf<
-                                      Stack_HasAllocatorType<CONTAINER>::VALUE,
-                                      ALLOCATOR>::type * = 0);
+          typename enable_if<Stack_HasAllocatorType<CONTAINER>::VALUE,
+                             ALLOCATOR>::type * = 0);
         // Construct a stack whose underlying container has the value of the
         // specified 'container', and use the specified 'allocator' to supply
         // memory.  If 'CONTAINER::allocator_type' does not exist, this
@@ -412,9 +405,8 @@ class stack {
     template <class ALLOCATOR>
     stack(const stack&     original,
           const ALLOCATOR& allocator,
-          typename BloombergLP::bslmf::EnableIf<
-                                      Stack_HasAllocatorType<CONTAINER>::VALUE,
-                                      ALLOCATOR>::type * = 0);
+          typename enable_if<Stack_HasAllocatorType<CONTAINER>::VALUE,
+                             ALLOCATOR>::type * = 0);
         // Construct a stack having the same value as the specified stack
         // 'original', and use the specified 'allocator' to supply memory.  If
         // 'CONTAINER::allocator_type' does not exist, this constructor may not
@@ -427,9 +419,8 @@ class stack {
     template <class ALLOCATOR>
     stack(CONTAINER&&      container,
           const ALLOCATOR& allocator,
-          typename BloombergLP::bslmf::EnableIf<
-                                      Stack_HasAllocatorType<CONTAINER>::VALUE,
-                                      ALLOCATOR>::type * = 0);
+          typename enable_if<Stack_HasAllocatorType<CONTAINER>::VALUE,
+                             ALLOCATOR>::type * = 0);
         // TBD
 
     explicit
@@ -439,9 +430,8 @@ class stack {
     template <class ALLOCATOR>
     stack(stack&&          original,
           const ALLOCATOR& allocator,
-          typename BloombergLP::bslmf::EnableIf<
-                                      Stack_HasAllocatorType<CONTAINER>::VALUE,
-                                      ALLOCATOR>::type * = 0);
+          typename enable_if<Stack_HasAllocatorType<CONTAINER>::VALUE,
+                             ALLOCATOR>::type * = 0);
         // TBD
 #endif
 
@@ -577,7 +567,7 @@ template <class VALUE, class CONTAINER>
 template <class ALLOCATOR>
 inline
 stack<VALUE, CONTAINER>::stack(const ALLOCATOR& allocator,
-                               typename BloombergLP::bslmf::EnableIf<
+                               typename enable_if<
                                       Stack_HasAllocatorType<CONTAINER>::VALUE,
                                       ALLOCATOR>::type *)
 : d_container(allocator)
@@ -597,7 +587,7 @@ inline
 stack<VALUE, CONTAINER>::stack(
                            const CONTAINER& container,
                            const ALLOCATOR& allocator,
-                           typename BloombergLP::bslmf::EnableIf<
+                           typename enable_if<
                                       Stack_HasAllocatorType<CONTAINER>::VALUE,
                                       ALLOCATOR>::type *)
 : d_container(container, allocator)
@@ -617,7 +607,7 @@ inline
 stack<VALUE, CONTAINER>::stack(
                            const stack&     original,
                            const ALLOCATOR& allocator,
-                           typename BloombergLP::bslmf::EnableIf<
+                           typename enable_if<
                                       Stack_HasAllocatorType<CONTAINER>::VALUE,
                                       ALLOCATOR>::type *)
 : d_container(original.d_container, allocator)
@@ -639,7 +629,7 @@ inline
 stack<VALUE, CONTAINER>::stack(
                            CONTAINER&&                               container,
                            const ALLOCATOR& allocator,
-                           typename BloombergLP::bslmf::EnableIf<
+                           typename enable_if<
                                       Stack_HasAllocatorType<CONTAINER>::VALUE,
                                       ALLOCATOR>::type *)
 : d_container(std::move(container), allocator)
@@ -659,7 +649,7 @@ inline
 stack<VALUE, CONTAINER>::stack(
                            stack&&          original,
                            const ALLOCATOR& allocator,
-                           typename BloombergLP::bslmf::EnableIf<
+                           typename enable_if<
                                       Stack_HasAllocatorType<CONTAINER>::VALUE,
                                       ALLOCATOR>::type *)
 : d_container(std::move(original.d_container), allocator)

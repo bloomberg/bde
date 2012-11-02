@@ -10,11 +10,11 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide forward declarations for Standard stream classes.
 //
 //@CLASSES:
-//  bsl::streambuf: specialization for bsl::basic_stringbuf<char>
+//  bsl::stringbuf: specialization for bsl::basic_stringbuf<char>
 //  bsl::istringstream: specialization for bsl::basic_istringstream<char>
 //  bsl::ostringstream: specialization for bsl::basic_ostringstream<char>
 //  bsl::stringstream: specialization for bsl::basic_stringstream<char>
-//  bsl::wstreambuf: specialization for bsl::basic_stringbuf<wchar_t>
+//  bsl::wstringbuf: specialization for bsl::basic_stringbuf<wchar_t>
 //  bsl::wistringstream: specialization for bsl::basic_istringstream<wchar_t>
 //  bsl::wostringstream: specialization for bsl::basic_ostringstream<wchar_t>
 //  bsl::wstringstream: specialization for bsl::basic_stringstream<wchar_t>
@@ -32,9 +32,13 @@ BSLS_IDENT("$Id: $")
 #undef std
 #endif
 
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
+#endif
+
 namespace std {
 
-template <typename CHAR_TYPE> struct char_traits;
+template <class CHAR_TYPE> struct char_traits;
 
 }  // close namespace std
 
@@ -44,20 +48,20 @@ using std::char_traits;
 
 template <class TYPE> class allocator;
 
-template <class _CharT, class _Traits = char_traits<_CharT>,
-          class _Alloc = allocator<_CharT> >
+template <class CHAR_TYPE, class CHAR_TRAITS = char_traits<CHAR_TYPE>,
+          class ALLOCATOR = allocator<CHAR_TYPE> >
 class basic_stringbuf;
 
-template <class _CharT, class _Traits = char_traits<_CharT>,
-          class _Alloc = allocator<_CharT> >
+template <class CHAR_TYPE, class CHAR_TRAITS = char_traits<CHAR_TYPE>,
+          class ALLOCATOR = allocator<CHAR_TYPE> >
 class basic_istringstream;
 
-template <class _CharT, class _Traits = char_traits<_CharT>,
-          class _Alloc = allocator<_CharT> >
+template <class CHAR_TYPE, class CHAR_TRAITS = char_traits<CHAR_TYPE>,
+          class ALLOCATOR = allocator<CHAR_TYPE> >
 class basic_ostringstream;
 
-template <class _CharT, class _Traits = char_traits<_CharT>,
-          class _Alloc = allocator<_CharT> >
+template <class CHAR_TYPE, class CHAR_TRAITS = char_traits<CHAR_TYPE>,
+          class ALLOCATOR = allocator<CHAR_TYPE> >
 class basic_stringstream;
 
 typedef basic_stringbuf    <char, char_traits<char>,

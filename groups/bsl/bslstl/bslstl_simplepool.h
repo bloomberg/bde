@@ -26,7 +26,7 @@ BSLS_IDENT("$Id: $")
 // Whenever the linked list of free memory blocks is depleted,
 // 'bslstl::SimplePool' replenishes the list by first allocating a large,
 // contiguous "chunk" of memory, then splitting the chunk into multiple memory
-// blocks eah having the 'sizeof' the simple pool's parameterized type.  A
+// blocks each having the 'sizeof' the simple pool's parameterized type.  A
 // chunk and its constituent memory blocks can be depicted visually:
 //..
 //     +-----+--- memory blocks of uniform size for parameterized type
@@ -407,7 +407,7 @@ SimplePool<VALUE, ALLOCATOR>::allocateChunk(std::size_t size)
                     AllocatorTraits::allocate(allocator(), numMaxAlignedType));
 
     BSLS_ASSERT_SAFE(0 ==
-              reinterpret_cast<bsls_Types::UintPtr>(chunkPtr) % sizeof(Chunk));
+             reinterpret_cast<bsls::Types::UintPtr>(chunkPtr) % sizeof(Chunk));
 
     chunkPtr->d_next_p = d_chunkList_p;
     d_chunkList_p      = chunkPtr;

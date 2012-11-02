@@ -83,8 +83,10 @@ NewDeleteAllocator& NewDeleteAllocator::singleton()
                 initSingleton(&g_newDeleteAllocatorSingleton));
     }
 
-    return *(bslma::NewDeleteAllocator *)
-       bsls::AtomicOperations::getPtrRelaxed(&g_newDeleteAllocatorSingleton_p);
+    return *static_cast<bslma::NewDeleteAllocator *>(
+                const_cast<void *>(
+                    bsls::AtomicOperations::getPtrRelaxed(
+                                           &g_newDeleteAllocatorSingleton_p)));
 }
 
 // CREATORS
