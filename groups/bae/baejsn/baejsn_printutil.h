@@ -73,7 +73,7 @@ class baejsn_PrintUtil {
         // output the result to the specified 'stream'.
 
     template <typename TYPE>
-    static int printDecimal(bsl::ostream& stream, TYPE value);
+    static int printFloatingPoint(bsl::ostream& stream, TYPE value);
         // Encode the specified floating point 'value' into JSON and output the
         // result to the specified 'stream'.
 
@@ -82,32 +82,26 @@ class baejsn_PrintUtil {
         // Encode the specified string 'value' into JSON format and output the
         // result to the specified 'stream'.
 
-    static int printValueImp(bsl::ostream& stream, bool value);
-    static int printValueImp(bsl::ostream& stream, short value);
-    static int printValueImp(bsl::ostream& stream, int value);
-    static int printValueImp(bsl::ostream& stream, bsls::Types::Int64 value);
-    static int printValueImp(bsl::ostream& stream, unsigned char value);
-    static int printValueImp(bsl::ostream& stream, unsigned short value);
-    static int printValueImp(bsl::ostream& stream, unsigned int value);
-    static int printValueImp(bsl::ostream& stream, bsls::Types::Uint64 value);
-    static int printValueImp(bsl::ostream& stream, float value);
-    static int printValueImp(bsl::ostream& stream, double value);
-    static int printValueImp(bsl::ostream& stream, const bsl::string & value);
-    static int printValueImp(bsl::ostream& stream, const char *value);
-    static int printValueImp(bsl::ostream& stream, char value);
-    static int printValueImp(bsl::ostream& stream, const bdet_Time& value);
-    static int printValueImp(bsl::ostream& stream, const bdet_Date& value);
-    static int printValueImp(bsl::ostream& stream, const bdet_Datetime& value);
-    static int printValueImp(bsl::ostream& stream, const bdet_TimeTz& value);
-    static int printValueImp(bsl::ostream& stream, const bdet_DateTz& value);
-    static int printValueImp(bsl::ostream&          stream,
-                             const bdet_DatetimeTz& value);
-        // Encode the specified 'value' into JSON format and output the result
-        // to the specified 'stream'.
-
   public:
-    template <class TYPE>
-    static int printValue(bsl::ostream& stream, const TYPE& value);
+    static int printValue(bsl::ostream& stream, bool value);
+    static int printValue(bsl::ostream& stream, short value);
+    static int printValue(bsl::ostream& stream, int value);
+    static int printValue(bsl::ostream& stream, bsls::Types::Int64 value);
+    static int printValue(bsl::ostream& stream, unsigned char value);
+    static int printValue(bsl::ostream& stream, unsigned short value);
+    static int printValue(bsl::ostream& stream, unsigned int value);
+    static int printValue(bsl::ostream& stream, bsls::Types::Uint64 value);
+    static int printValue(bsl::ostream& stream, float value);
+    static int printValue(bsl::ostream& stream, double value);
+    static int printValue(bsl::ostream& stream, const bsl::string & value);
+    static int printValue(bsl::ostream& stream, const char *value);
+    static int printValue(bsl::ostream& stream, char value);
+    static int printValue(bsl::ostream& stream, const bdet_Time& value);
+    static int printValue(bsl::ostream& stream, const bdet_Date& value);
+    static int printValue(bsl::ostream& stream, const bdet_Datetime& value);
+    static int printValue(bsl::ostream& stream, const bdet_TimeTz& value);
+    static int printValue(bsl::ostream& stream, const bdet_DateTz& value);
+    static int printValue(bsl::ostream& stream, const bdet_DatetimeTz& value);
         // Encode the specified 'value' into JSON format and output the result
         // to the specified 'stream'.
 };
@@ -127,11 +121,11 @@ int baejsn_PrintUtil::printDateAndTime(bsl::ostream& stream, const TYPE& value)
 {
     char buffer[bdepu_Iso8601::BDEPU_MAX_DATETIME_STRLEN + 1];
     bdepu_Iso8601::generate(buffer, value, sizeof buffer);
-    return printValueImp(stream, buffer);
+    return printValue(stream, buffer);
 }
 
 template <typename TYPE>
-int baejsn_PrintUtil::printDecimal(bsl::ostream& stream, TYPE value)
+int baejsn_PrintUtil::printFloatingPoint(bsl::ostream& stream, TYPE value)
 {
     if (isnan(value)
      || value == bsl::numeric_limits<TYPE>::infinity()
@@ -152,137 +146,134 @@ int baejsn_PrintUtil::printDecimal(bsl::ostream& stream, TYPE value)
 }
 
 inline
-int baejsn_PrintUtil::printValueImp(bsl::ostream& stream, bool value)
+int baejsn_PrintUtil::printValue(bsl::ostream& stream, bool value)
 {
     stream << (value ? "true" : "false");
     return 0;
 }
 
 inline
-int baejsn_PrintUtil::printValueImp(bsl::ostream& stream, short value)
+int baejsn_PrintUtil::printValue(bsl::ostream& stream, short value)
 {
     stream << value;
     return 0;
 }
 
 inline
-int baejsn_PrintUtil::printValueImp(bsl::ostream& stream, int value)
+int baejsn_PrintUtil::printValue(bsl::ostream& stream, int value)
 {
     stream << value;
     return 0;
 }
 
 inline
-int baejsn_PrintUtil::printValueImp(bsl::ostream&      stream,
-                                    bsls::Types::Int64 value)
+int baejsn_PrintUtil::printValue(bsl::ostream&      stream,
+                                 bsls::Types::Int64 value)
 {
     stream << value;
     return 0;
 }
 
 inline
-int baejsn_PrintUtil::printValueImp(bsl::ostream& stream, unsigned char value)
+int baejsn_PrintUtil::printValue(bsl::ostream& stream, unsigned char value)
 {
     stream << static_cast<int>(value);
     return 0;
 }
 
 inline
-int baejsn_PrintUtil::printValueImp(bsl::ostream& stream, unsigned short value)
+int baejsn_PrintUtil::printValue(bsl::ostream& stream, unsigned short value)
 {
     stream << value;
     return 0;
 }
 
 inline
-int baejsn_PrintUtil::printValueImp(bsl::ostream& stream, unsigned int value)
+int baejsn_PrintUtil::printValue(bsl::ostream& stream, unsigned int value)
 {
     stream << value;
     return 0;
 }
 
 inline
-int baejsn_PrintUtil::printValueImp(bsl::ostream&       stream,
-                                    bsls::Types::Uint64 value)
+int baejsn_PrintUtil::printValue(bsl::ostream&       stream,
+                                 bsls::Types::Uint64 value)
 {
     stream << value;
     return 0;
 }
 
 inline
-int baejsn_PrintUtil::printValueImp(bsl::ostream& stream, float value)
+int baejsn_PrintUtil::printValue(bsl::ostream& stream, float value)
 {
-    return printDecimal(stream, value);
+    return printFloatingPoint(stream, value);
 }
 
 inline
-int baejsn_PrintUtil::printValueImp(bsl::ostream& stream, double value)
+int baejsn_PrintUtil::printValue(bsl::ostream& stream, double value)
 {
-    return printDecimal(stream, value);
+    return printFloatingPoint(stream, value);
 }
 
 inline
-int baejsn_PrintUtil::printValueImp(bsl::ostream& stream, const char *value)
+int baejsn_PrintUtil::printValue(bsl::ostream& stream, const char *value)
 {
     return printString(stream, value);
 }
 
 inline
-int baejsn_PrintUtil::printValueImp(bsl::ostream&      stream,
-                                    const bsl::string& value)
+int baejsn_PrintUtil::printValue(bsl::ostream& stream, char value)
+{
+    return printString(stream, bslstl::StringRef(&value, 1));
+}
+
+inline
+int baejsn_PrintUtil::printValue(bsl::ostream&      stream,
+                                 const bsl::string& value)
 {
     return printString(stream, value);
 }
 
 inline
-int baejsn_PrintUtil::printValueImp(bsl::ostream&    stream,
-                                    const bdet_Time& value)
+int baejsn_PrintUtil::printValue(bsl::ostream&    stream,
+                                 const bdet_Time& value)
 {
     return printDateAndTime(stream, value);
 }
 
 inline
-int baejsn_PrintUtil::printValueImp(bsl::ostream&    stream,
-                                    const bdet_Date& value)
+int baejsn_PrintUtil::printValue(bsl::ostream&    stream,
+                                 const bdet_Date& value)
 {
     return printDateAndTime(stream, value);
 }
 
 inline
-int baejsn_PrintUtil::printValueImp(bsl::ostream&        stream,
-                                    const bdet_Datetime& value)
+int baejsn_PrintUtil::printValue(bsl::ostream&        stream,
+                                 const bdet_Datetime& value)
 {
     return printDateAndTime(stream, value);
 }
 
 inline
-int baejsn_PrintUtil::printValueImp(bsl::ostream&      stream,
-                                    const bdet_TimeTz& value)
+int baejsn_PrintUtil::printValue(bsl::ostream&      stream,
+                                 const bdet_TimeTz& value)
 {
     return printDateAndTime(stream, value);
 }
 
 inline
-int baejsn_PrintUtil::printValueImp(bsl::ostream&      stream,
-                                    const bdet_DateTz& value)
+int baejsn_PrintUtil::printValue(bsl::ostream&      stream,
+                                 const bdet_DateTz& value)
 {
     return printDateAndTime(stream, value);
 }
 
 inline
-int baejsn_PrintUtil::printValueImp(bsl::ostream&          stream,
-                                    const bdet_DatetimeTz& value)
+int baejsn_PrintUtil::printValue(bsl::ostream&          stream,
+                                 const bdet_DatetimeTz& value)
 {
     return printDateAndTime(stream, value);
-}
-
-
-// CLASS METHODS
-template <class TYPE>
-int baejsn_PrintUtil::printValue(bsl::ostream& stream,
-                                 const TYPE&   value)
-{
-    return printValueImp(stream, value);
 }
 
 }  // close namespace BloombergLP

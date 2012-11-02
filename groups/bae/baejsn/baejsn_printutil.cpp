@@ -38,7 +38,7 @@ char getEscapeChar(char value)
         return 't';                                                   // RETURN
       }
       default: {
-        if (value < 32) {
+        if (static_cast<unsigned char>(value) < 32) {
             // control characters
 
             return 'u';                                               // RETURN
@@ -53,31 +53,6 @@ char getEscapeChar(char value)
                            // ----------------------
                            // class baejsn_PrintUtil
                            // ----------------------
-
-int baejsn_PrintUtil::printValueImp(bsl::ostream& stream, char value)
-{
-    bsl::string str = "\"";
-
-    char ch = getEscapeChar(value);
-    if (0 != ch) {
-        str += '\\';
-        str += ch;
-        if ('u' == ch) {
-            str += "00";
-            bsl::ostringstream oss;
-            oss << bsl::hex << bsl::setfill('0') << bsl::setw(2)
-                << (static_cast<unsigned int>(value) & 0xff);
-            str += oss.str();
-        }
-    }
-    else {
-        str += value;
-    }
-    str += '"';
-
-    stream << str;
-    return 0;
-}
 
 int baejsn_PrintUtil::printString(bsl::ostream&            stream,
                                   const bslstl::StringRef& value)
@@ -94,25 +69,11 @@ int baejsn_PrintUtil::printString(bsl::ostream&            stream,
             str += '\\';
             str += ch;
             if ('u' == ch) {
-                bslstl::StringRef::const_iterator next = it;
-                ++next;
-
                 bsl::ostringstream oss;
 
-                if (*it == 0 || next == value.end())
-                {
-                    oss << "00"
-                        << bsl::hex << bsl::setfill('0') << bsl::setw(2)
-                        << (static_cast<unsigned int>(*it) & 0xff);
-                }
-                else
-                {
-                    oss << bsl::hex << bsl::setfill('0') << bsl::setw(2)
-                        << (static_cast<unsigned int>(*it) & 0xff)
-                        << bsl::hex << bsl::setfill('0') << bsl::setw(2)
-                        << (static_cast<unsigned int>(*next) & 0xff);
-                    ++it;
-                }
+                oss << "00"
+                    << bsl::hex << bsl::setfill('0') << bsl::setw(2)
+                    << (static_cast<unsigned int>(*it) & 0xff);
                 str += oss.str();
             }
         }

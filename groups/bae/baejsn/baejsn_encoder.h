@@ -22,13 +22,13 @@ BDES_IDENT("$Id: $")
 // encodes a specified 'bdeat' object into a specified stream.  There are two
 // overloaded versions of this function:
 //..
-//    o writes to an 'bsl::streambuf'
-//    o writes to an 'bsl::ostream'
+//: o writes to an 'bsl::streambuf'
+//: o writes to an 'bsl::ostream'
 //..
 //
-///Encoding Format for Simple Type
-///-------------------------------
-// The following table describes how various Simple type is encoded.
+///Encoding Format for s Simple Type
+///---------------------------------
+// The following table describes how various Simple types are encoded.
 //..
 //  Simple Type          JSON Type  Notes
 //  -----------          ---------  -----
@@ -179,8 +179,7 @@ class baejsn_Encoder {
   private:
     // PRIVATE MANIPULATORS
     bsl::ostream& logStream();
-        // Return the stream for logging.  Note the if stream has not
-        // been created yet, it will be created during this call.
+        // Return the stream for logging.
 
   public:
     // CREATORS
@@ -195,13 +194,13 @@ class baejsn_Encoder {
     // MANIPULATORS
     template <typename TYPE>
     int encode(bsl::streambuf *streamBuf, const TYPE& value);
-        // Encode the specified 'value' of parameterized 'TYPE' into the
+        // Encode the specified 'value' of (template parameter) 'TYPE' into the
         // specified 'streamBuf'.  Return 0 on success, and a non-zero value
         // otherwise.
 
     template <typename TYPE>
     int encode(bsl::ostream& stream, const TYPE& value);
-        // Encode the specified 'value' of parameterized 'TYPE' into the
+        // Encode the specified 'value' of (template parameter) 'TYPE' into the
         // specified 'streamBuf'.  Return 0 on success, and a non-zero value
         // otherwise.  Note that 'stream' will be invalidated if the encoding
         // failed.
@@ -234,8 +233,7 @@ class baejsn_Encoder_EncodeImpl {
   private:
     // PRIVATE MANIPULATORS
     bsl::ostream& logStream();
-        // Return the stream for logging.  Note that if stream has not been
-        // created yet, it will be created during this call.
+        // Return the stream for logging.
 
     bsl::ostream& outputStream();
         // Return the stream for output.
@@ -641,29 +639,11 @@ int baejsn_Encoder_SequenceVisitor::operator()(const TYPE& value,
     if (!d_firstElementFlag) {
         d_encoder->outputStream() << ',';
     }
-    int rc = d_encoder->encode(info.name());
-    if (0 != rc) {
-        d_encoder->logStream()
-            << "Unable to encode the name of the attribute '"
-            << info.name()
-            << "'."
-            << bsl::endl;
-        return rc;                                                    // RETURN
-    }
-    d_encoder->outputStream() << ':';
-    rc = d_encoder->encode(value);
-    if (0 != rc) {
-        d_encoder->logStream()
-            << "Unable to encode the value of the attribute '"
-            << info.name()
-            << "'."
-            << bsl::endl;
-        return rc;                                                    // RETURN
-    }
 
     d_firstElementFlag = false;
 
-    return 0;
+    baejsn_Encoder_ElementVisitor visitor = { d_encoder };
+    return visitor(value, info);
 }
 
                     // ------------------------------------
