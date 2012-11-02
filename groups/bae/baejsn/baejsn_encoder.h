@@ -26,7 +26,7 @@ BDES_IDENT("$Id: $")
 //: o writes to an 'bsl::ostream'
 //..
 //
-///Encoding Format for s Simple Type
+///Encoding Format for a Simple Type
 ///---------------------------------
 // The following table describes how various Simple types are encoded.
 //..

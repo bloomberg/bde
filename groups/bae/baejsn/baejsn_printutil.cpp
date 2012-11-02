@@ -38,7 +38,7 @@ char getEscapeChar(char value)
         return 't';                                                   // RETURN
       }
       default: {
-        if (static_cast<unsigned char>(value) < 32) {
+        if (0 <= value && value < 32) {
             // control characters
 
             return 'u';                                               // RETURN
