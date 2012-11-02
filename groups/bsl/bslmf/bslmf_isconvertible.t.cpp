@@ -221,118 +221,77 @@ static char C13[1 + bslmf::IsConvertible<int,   int *>::VALUE];    // sz=1
 //
 ///Example 1: Select Function Based on Type Convertibility
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// The 'bsl::is_convertible' meta-function can be used to select an
-// appropriate function (at compile time) based on the convertibility of one
-// type to another without causing a compiler error by actually trying the
-// conversion.  This implementation technique is especially useful when
-// building generic containers that use an allocator protocol to acquire
-// resources.  As a design goal, we want to pass the container's allocator to
-// contained types if they provide an appropriate constructor.
+// The 'bsl::is_convertible' meta-function can be used to select an appropriate
+// function (at compile time) based on the convertibility of one type to
+// another without causing a compiler error by actually trying the conversion.
 //
-// Suppose we are implementing some container's 'addObject' method that adds a
-// new object (in its default state) of the container's template parameter
-// 'TYPE'.  The method calls an overloaded function, 'createObject', to create
-// a new object of the template parameter type in its internal array.  The idea
-// is to invoke one version of 'createObject' if the type provides a
-// constructor that takes a pointer to an allocator as its sole argument, and
-// another version if the type provides only a default constructor.
+// Suppose we are implementing a 'convertToInt' template method that converts a
+// given object of the (template parameter) 'TYPE' to 'int' type, and returns
+// the integer value.  If the given object can not convert to 'int', return 0.
+// The method calls an overloaded function, 'getIntValue', to get the converted
+// integer value.  The idea is to invoke one version of 'getIntValue' if the
+// type provides a conversion operator that returns an integer value, and
+// another version if the type does not provide such an operator.
 //
-// First, we define the allocator to be used:
+// First, we define two 'struct's, 'Foo' and 'Bar'.  The 'Foo' class has a
+// conversion operator that returns an integer value while the 'Bar' class does
+// not:
 //..
-struct MyAllocator {
-    // This is a user-defined allocator.
-
-    void *allocate(std::size_t sz)
-    {
-        return ::operator new(sz);
-    }
-
-    void  deallocate(void *address)
-    {
-        ::operator delete(address);
-    }
-};
-//..
-// Then, we define two 'struct's, 'Foo' and 'Bar'.  The constructor of 'Foo'
-// takes a 'MyAllocator' object pointer while that of 'Bar' does not:
-//..
-struct Foo {
-    Foo(MyAllocator *) {}
-};
-
-struct Bar {
-    Bar() {}
-};
-//..
-// Next, we define the first 'createObject' function that takes a
-// 'bsl::false_type' as its last argument, whereas the second 'createObject'
-// function takes a 'bsl::true_type' object.  The result of the
-// 'bsl::is_convertible' meta-function (i.e., its 'type' member) is used to
-// create the last argument passed to 'createObject'.  Neither version of
-// 'createObject' makes use of this argument -- it is used only to
-// differentiate the argument list so we can overload the function.
-//..
-template <class TYPE>
-void createObject(TYPE *space, MyAllocator *, bsl::false_type)
-{
-    // Create an object of the (template parameter) 'TYPE' using its
-    // default constructor at the specified memory address 'space'.
-
-    new (space) TYPE();
-}
-
-template <class TYPE>
-void createObject(TYPE *space, MyAllocator *allocator, bsl::true_type)
-{
-    // Create an object of the (template parameter) 'TYPE' using the
-    // specified 'allocator' at the specified memory address 'space'.
-
-    new (space) TYPE(allocator);
-}
-//..
-// Now, we define our 'MyContainer' type and implement its 'addObject' method:
-//..
-template <class TYPE>
-class MyContainer {
+class Foo {
     // DATA
-    TYPE        *d_array_p;  // underlying array
-    int          d_length;   // logical length of array
-    MyAllocator *d_alloc_p;  // allocator protocol
-
-    // ...
-
-    void resizeInternalArrayIfNeeded() { /* ... */ };
+    int d_value;
 
   public:
     // CREATORS
-    MyContainer(MyAllocator *allocator)
-    : d_length(0)
-    , d_alloc_p(allocator)
-    {
-        d_array_p
-             = reinterpret_cast<TYPE *>(d_alloc_p->allocate(sizeof(TYPE)));
-    }
+    explicit Foo(int value) : d_value(value) {}
 
-    ~MyContainer()
-    {
-        d_alloc_p->deallocate(d_array_p);
-    }
-
-    // MANIPULATORS
-    void addObject()
-    {
-        resizeInternalArrayIfNeeded();
-
-        typedef typename bsl::is_convertible<MyAllocator *, TYPE>::type
-                                                            TakesAllocator;
-        createObject(d_array_p + d_length, d_alloc_p, TakesAllocator());
-        ++d_length;
-    }
+    // ACCESSORS
+    operator int() const { return d_value; }
 };
+
+struct Bar {};
 //..
-// Notice that in the 'addObject' method we use 'bsl::is_convertible' to get a
-// 'bsl::false_type' or 'bsl::true_type', and then call the corresponding
-// overloaded 'createObject' method.
+// Then, we define the first 'getIntValue' function that takes a
+// 'bsl::false_type' as its last argument, whereas the second 'getIntValue'
+// function takes a 'bsl::true_type' object.  The result of the
+// 'bsl::is_convertible' meta-function (i.e., its 'type' member) is used to
+// create the last argument passed to 'getIntValue'.  Neither version of
+// 'getIntValue' makes use of this argument -- it is used only to differentiate
+// the argument list so we can overload the function.
+//..
+template <class TYPE>
+inline
+int getIntValue(TYPE *object, bsl::false_type)
+{
+    // Return 0 because the specified 'object' of the (template parameter)
+    // 'TYPE' is not convertible to the 'int' type.
+
+    return 0;
+}
+
+template <class TYPE>
+inline
+int getIntValue(TYPE *object, bsl::true_type)
+{
+    // Return the integer value converted from the specified 'object' of
+    // the (template parameter) 'TYPE'.
+
+    return int(*object);
+}
+//..
+// Now, we define our 'convertToInt' method:
+//..
+template <class TYPE>
+inline
+int convertToInt(TYPE *object)
+{
+    typedef typename bsl::is_convertible<TYPE, int>::type CanConvertToInt;
+    return getIntValue(object, CanConvertToInt());
+}
+//..
+// Notice that we use 'bsl::is_convertible' to get a 'bsl::false_type' or
+// 'bsl::true_type', and then call the corresponding overloaded 'getIntValue'
+// method.
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -379,16 +338,13 @@ int main(int argc, char *argv[])
                             "\n=============\n");
 
 //
-// Finally, we instantiate 'MyContainer' with both 'Foo' and 'Bar' types, and
-// call 'addObject' on both containers:
+// Finally, we call 'convertToInt' with both 'Foo' and 'Bar' classes:
 //..
-    MyAllocator a;
+    Foo foo(99);
+    Bar bar;
 
-    MyContainer<Foo> fc(&a);
-    fc.addObject();
-
-    MyContainer<Bar> bc(&a);
-    bc.addObject();
+    printf("%d\n", convertToInt(&foo));
+    printf("%d\n", convertToInt(&bar));
 //..
 
       } break;
@@ -798,9 +754,6 @@ int main(int argc, char *argv[])
         ASSERT(0 == (bslmf::IsConvertible<int*, int>::VALUE));
         ASSERT(0 == (bslmf::IsConvertible<int, int*>::VALUE));
 
-        ASSERT(1 == (bslmf::IsConvertible<MyAllocator*, MyAllocator*>::VALUE));
-        ASSERT(0 == (bslmf::IsConvertible<MyAllocator*, int*>::VALUE));
-
         ASSERT(1 == (bslmf::IsConvertible<my_Class, my_Class>::VALUE));
         ASSERT(1 == (bslmf::IsConvertible<my_Class, const my_Class>::VALUE));
         ASSERT(1 == (bslmf::IsConvertible<my_Class, const my_Class&>::VALUE));
@@ -1144,11 +1097,6 @@ int main(int argc, char *argv[])
 
         ASSERT(false == (bsl::is_convertible<int*, int>::value));
         ASSERT(false == (bsl::is_convertible<int, int*>::value));
-
-        ASSERT(true  ==
-                     (bsl::is_convertible<MyAllocator*, MyAllocator*>::value));
-        ASSERT(false ==
-                     (bsl::is_convertible<MyAllocator*, int*        >::value));
 
         ASSERT(true  ==
                (bsl::is_convertible<      my_Class,        my_Class >::value));
