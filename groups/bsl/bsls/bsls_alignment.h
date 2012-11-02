@@ -166,6 +166,8 @@ BSLS_IDENT("$Id: $")
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
 #ifndef INCLUDED_BSLS_ALIGNMENTFROMTYPE
 #include <bsls_alignmentfromtype.h>
 #endif
@@ -178,10 +180,6 @@ BSLS_IDENT("$Id: $")
 #include <bsls_alignmenttotype.h>
 #endif
 
-#ifndef INCLUDED_BSLS_ALIGNMENTUTIL
-#include <bsls_alignmentutil.h>
-#endif
-
 #ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
 #endif
@@ -191,11 +189,18 @@ BSLS_IDENT("$Id: $")
 #define INCLUDED_CSTDDEF
 #endif
 
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
 // Temporarily define the legacy 'bsls_AlignmentOf' to refer to its
 // replacement, 'bsls::AlignmentFromType'.
 
 #ifndef bsls_AlignmentOf
 #define bsls_AlignmentOf bsls::AlignmentFromType
+#endif
+
+// required for some code below wrapped in ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#ifndef INCLUDED_BSLS_ALIGNMENTUTIL
+#include <bsls_alignmentutil.h>
 #endif
 
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
