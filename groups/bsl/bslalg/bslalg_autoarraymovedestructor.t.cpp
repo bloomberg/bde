@@ -5,13 +5,13 @@
 #include <bslalg_autoarraydestructor.h>          // for testing only
 #include <bslalg_hastrait.h>                     // for testing only
 #include <bslalg_scalarprimitives.h>             // for testing only
-#include <bslalg_typetraitbitwisemoveable.h>     // for testing only
-#include <bslalg_typetraitusesbslmaallocator.h>  // for testing only
 
 #include <bslma_allocator.h>                     // for testing only
 #include <bslma_default.h>                       // for testing only
 #include <bslma_testallocator.h>                 // for testing only
 #include <bslma_testallocatorexception.h>        // for testing only
+#include <bslma_usesbslmaallocator.h>            // for testing only
+#include <bslmf_isbitwisemoveable.h>             // for testing only
 #include <bsls_alignmentutil.h>                  // for testing only
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>                     // for testing only
@@ -216,13 +216,15 @@ class TestType {
 // TRAITS
 namespace BloombergLP {
 namespace bslma {
-template <> struct UsesBslmaAllocator<TestType> : bsl::true_type {};
-}
+template <>
+struct UsesBslmaAllocator<TestType> : bsl::true_type {};
+}  // close package namespace
 
 namespace bslmf {
-template <> struct IsBitwiseMoveable<TestType> : bsl::true_type {};
-}
-}
+template <>
+struct IsBitwiseMoveable<TestType> : bsl::true_type {};
+}  // close package namespace
+}  // close enterprise namespace
 
 bool operator==(const TestType& lhs, const TestType& rhs)
 {
@@ -256,10 +258,8 @@ void insertItems(TestType         *start,
 {
     TestType *finish = divider + (divider - start);
 
-    ASSERT((bslalg::HasTrait<TestType,
-                             bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
-    ASSERT((bslalg::HasTrait<TestType,
-                             bslalg::TypeTraitBitwiseMoveable   >::VALUE));
+    ASSERT(bslmf::IsBitwiseMoveable< TestType>::value);
+    ASSERT(bslma::UsesBslmaAllocator<TestType>::value);
 
     // The range '[ start, divider )' contains valid elements.  The range
     // '[ divider, finish )' is of equal length and contains uninitialized

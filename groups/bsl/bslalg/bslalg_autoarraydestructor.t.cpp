@@ -3,8 +3,6 @@
 #include <bslalg_autoarraydestructor.h>
 
 #include <bslalg_scalarprimitives.h>             // for testing only
-#include <bslalg_typetraits.h>                   // for testing only
-#include <bslalg_typetraitusesbslmaallocator.h>  // for testing only
 
 #include <bslma_allocator.h>                     // for testing only
 #include <bslma_deallocatorproctor.h>            // for testing only
@@ -13,6 +11,7 @@
 #include <bslma_default.h>                       // for testing only
 #include <bslma_testallocator.h>                 // for testing only
 #include <bslma_testallocatorexception.h>        // for testing only
+#include <bslma_usesbslmaallocator.h>            // for testing only
 #include <bsls_alignmentutil.h>                  // for testing only
 #include <bsls_assert.h>                         // for testing only
 #include <bsls_asserttest.h>                     // for testing only
@@ -222,9 +221,10 @@ class TestType {
 // TRAITS
 namespace BloombergLP {
 namespace bslma {
-template <> struct UsesBslmaAllocator<TestType> : bsl::true_type {};
-}
-}
+template <>
+struct UsesBslmaAllocator<TestType> : bsl::true_type {};
+}  // close package namespace
+}  // close enterprise namespace
 
 bool operator==(const TestType& lhs, const TestType& rhs)
 {
@@ -267,10 +267,6 @@ class UsageType {
     bslma::Allocator *d_allocator_p;    // allocator (held, not owned)
 
   public:
-    // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(UsageType,
-                                 bslalg::TypeTraitUsesBslmaAllocator);
-
     // CREATORS
     explicit UsageType(char c, bslma::Allocator *basicAllocator = 0)
     : d_data_p(0)
@@ -293,6 +289,15 @@ class UsageType {
         return *d_data_p;
     }
 };
+
+namespace BloombergLP {
+namespace bslma {
+
+template <>
+struct UsesBslmaAllocator<UsageType> : bsl::true_type {};
+
+}  // close package namespace
+}  // close enterprise namespace
 
 //=============================================================================
 //                            OBSOLETE USAGE EXAMPLE

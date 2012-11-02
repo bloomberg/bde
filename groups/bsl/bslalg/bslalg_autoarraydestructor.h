@@ -56,10 +56,6 @@ BSLS_IDENT("$Id: $")
 //      bslma::Allocator *d_allocator_p;    // allocator (held, not owned)
 //
 //    public:
-//      // TRAITS
-//      BSLALG_DECLARE_NESTED_TRAITS(UsageType,
-//                                   bslalg::TypeTraitUsesBslmaAllocator);
-//
 //      // CREATORS
 //      explicit UsageType(char c, bslma::Allocator *basicAllocator = 0)
 //      : d_data_p(0)
@@ -82,6 +78,15 @@ BSLS_IDENT("$Id: $")
 //          return *d_data_p;
 //      }
 //  };
+//
+//  namespace BloombergLP {
+//  namespace bslma {
+//
+//  template <>
+//  struct UsesBslmaAllocator<UsageType> : bsl::true_type {};
+//
+//  }  // close package namespace
+//  }  // close enterprise namespace
 //..
 // Then, in 'main', we create a 'TestAllocator' to supply memory (and to verify
 // that no memory is leaked):
