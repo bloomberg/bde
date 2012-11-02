@@ -526,7 +526,7 @@ int baejsn_Encoder_EncodeImpl::encodeImp(const TYPE& value,
 {
     outputStream() << '[';
 
-    bsl::size_t size = bdeat_ArrayFunctions::size(value);
+    int size = static_cast<int>(bdeat_ArrayFunctions::size(value));
 
     if (0 < size) {
         baejsn_Encoder_ElementVisitor visitor = { this };
@@ -536,7 +536,7 @@ int baejsn_Encoder_EncodeImpl::encodeImp(const TYPE& value,
             return rc;                                                // RETURN
         }
 
-        for (bsl::size_t i = 1; i < size; ++i) {
+        for (int i = 1; i < size; ++i) {
             outputStream() << ',';
             rc = bdeat_ArrayFunctions::accessElement(value, visitor, i);
             if (0 != rc) {
