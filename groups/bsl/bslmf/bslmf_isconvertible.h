@@ -65,7 +65,7 @@ BSLS_IDENT("$Id: $")
 // type provides a conversion operator that returns an integer value, and
 // another version if the type does not provide such an operator.
 //
-// First, we define two 'struct's, 'Foo' and 'Bar'.  The 'Foo' class has a
+// First, we define two classes, 'Foo' and 'Bar'.  The 'Foo' class has a
 // conversion operator that returns an integer value while the 'Bar' class does
 // not:
 //..
@@ -81,7 +81,7 @@ BSLS_IDENT("$Id: $")
 //      operator int() const { return d_value; }
 //  };
 //
-//  struct Bar {};
+//  class Bar {};
 //..
 // Then, we define the first 'getIntValue' function that takes a
 // 'bsl::false_type' as its last argument, whereas the second 'getIntValue'
