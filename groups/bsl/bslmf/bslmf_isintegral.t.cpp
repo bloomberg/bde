@@ -76,7 +76,7 @@ enum EnumTestType {
 };
 
 typedef int (*RetIntegralFunctionPtrType) ();
-    // This pointer to function member type that returns an integral type is
+    // This pointer to function type that returns an integral type is
     // used for testing.
 
 }  // close unnamed namespace
@@ -138,7 +138,7 @@ int main(int argc, char *argv[])
 // 'typedef's and assert the 'value' static data member of each instantiation:
 //..
         ASSERT(false == bsl::is_integral<MyType>::value);
-        ASSERT(true == bsl::is_integral<MyIntegralType>::value);
+        ASSERT(true  == bsl::is_integral<MyIntegralType>::value);
 //..
 
       } break;
