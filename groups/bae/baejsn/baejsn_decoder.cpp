@@ -16,8 +16,8 @@ int baejsn_Decoder::decodeBinaryArray(bsl::vector<char> *value)
 {
     baejsn_ParserUtil::skipSpaces(d_streamBuf);
 
-    bsl::string hexString;
-    if (0 != baejsn_ParserUtil::getString(d_streamBuf, &hexString)) {
+    bsl::string base64String;
+    if (0 != baejsn_ParserUtil::getString(d_streamBuf, &base64String)) {
         d_logStream << "Expected string containing base64\n";
         return -1;                                                    // RETURN
     }
@@ -28,7 +28,8 @@ int baejsn_Decoder::decodeBinaryArray(bsl::vector<char> *value)
         return -1;                                                    // RETURN
     }
 
-    if (0 != base64Parser.pushCharacters(hexString.begin(), hexString.end())) {
+    if (0 != base64Parser.pushCharacters(base64String.begin(),
+                                         base64String.end())) {
         return -1;                                                    // RETURN
     }
 
