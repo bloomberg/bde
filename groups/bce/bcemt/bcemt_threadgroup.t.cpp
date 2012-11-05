@@ -410,7 +410,11 @@ int main(int argc, char *argv[])
         bslma_TestAllocator ta(veryVeryVeryVerbose);
         {
             const int NUM_ITERATIONS               = 10000;
+#ifdef BSLS_PLATFORM__OS_LINUX
+            const int NUM_THREADS_ADDED_PER_THREAD = 2;
+#else
             const int NUM_THREADS_ADDED_PER_THREAD = 3;
+#endif
             const int NUM_ADDING_THREADS           = 16;
 
             int value = 0;
