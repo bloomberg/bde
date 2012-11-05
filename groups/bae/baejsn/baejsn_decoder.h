@@ -81,11 +81,11 @@ namespace BloombergLP {
                         // class baejsn_Decoder
                         // ====================
 
-class baejsn_Decoder
-{
+class baejsn_Decoder {
+
     // DATA
-    bsl::ostringstream  d_logStream;       // stream to store error message
-    bsl::streambuf     *d_streamBuf;       // held, not owned
+    bsl::ostringstream  d_logStream;  // stream to store error message
+    bsl::streambuf     *d_streamBuf;  // held, not owned
 
     // FRIENDS
     friend struct baejsn_Decoder_DecodeImpProxy;
@@ -131,7 +131,7 @@ class baejsn_Decoder
     // MANIPULATORS
     template <typename TYPE>
     int decode(bsl::streambuf *streamBuf, TYPE *variable);
-        // Decode an object of parameterized 'TYPE' from the specified
+        // Decode an object of (template parameter) 'TYPE' from the specified
         // 'streamBuf' and load the result into the specified modifiable
         // 'variable'.  Return 0 on success, and a non-zero value otherwise.
 
@@ -285,18 +285,24 @@ int baejsn_Decoder::decodeImp(TYPE *value, bdeat_TypeCategory::Choice)
 
     baejsn_ParserUtil::skipSpaces(d_streamBuf);
 
-    bsl::string attributeName;
+    bsl::string selectionName;
 
-    if (0 != baejsn_ParserUtil::getString(d_streamBuf, &attributeName)) {
-        d_logStream << "Could not decode choice, missing attribute name\n";
+    if (0 != baejsn_ParserUtil::getString(d_streamBuf, &selectionName)) {
+        d_logStream << "Could not decode choice, missing selection name\n";
+        return -1;                                                    // RETURN
+    }
+
+    if (selectionName.empty()) {
+        d_logStream << "Could not decode choice, "
+                       "empty selection names are not permitted\n";
         return -1;                                                    // RETURN
     }
 
     if (0 != bdeat_ChoiceFunctions::makeSelection(value,
-                                                  attributeName.data(),
-                                                  attributeName.length())) {
-        d_logStream << "Could not deocde choice, bad attribute name '"
-                    << attributeName << "'\n";
+                                                  selectionName.data(),
+                                                  selectionName.length())) {
+        d_logStream << "Could not deocde choice, bad selection name '"
+                    << selectionName << "'\n";
         return -1;                                                    // RETURN
     }
 
@@ -309,8 +315,8 @@ int baejsn_Decoder::decodeImp(TYPE *value, bdeat_TypeCategory::Choice)
 
     baejsn_Decoder_ElementVisitor visitor = { this };
     if (0 != bdeat_ChoiceFunctions::manipulateSelection(value, visitor)) {
-        d_logStream << "Could not decode choice, attribute '"
-                    << attributeName << "' was not decoded\n";
+        d_logStream << "Could not decode choice, selection '"
+                    << selectionName << "' was not decoded\n";
         return -1;                                                    // RETURN
     }
 

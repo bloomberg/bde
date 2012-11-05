@@ -1535,6 +1535,7 @@ int main(int argc, char *argv[])
                 {  L_,     "\"\\U007E\"",    "~",          true  },
 
                 {  L_,     "\"AB\"",         "AB",         true   },
+                {  L_,     "    \"AB\"",     "AB",         true   },
 
                 {  L_,     "\"\\UX000\"",    ERROR_VALUE,  false  },
                 {  L_,     "\"\\U8000\"",    ERROR_VALUE,  false  },
@@ -1892,8 +1893,12 @@ int main(int argc, char *argv[])
                 {  L_,    "1.234e+1",                 12,      true    },
                 {  L_,    "1.987E+1",                 19,      true    },
 
+                {  L_,    "1.23e+4",                 12300,      true    },
+                {  L_,    "1.23e+10",          12300000000LL,    true    },
+
                 {  L_,    "12.34e-1",                  1,      true    },
                 {  L_,    "29.87E-1",                  2,      true    },
+                {  L_,    "29.87E-10",                 0,      true    },
 
                 {  L_,    "1e1",                      10,      true    },
                 {  L_,    "1E1",                      10,      true    },
@@ -1914,6 +1919,8 @@ int main(int argc, char *argv[])
                 {  L_,    "0x256",    ERROR_VALUE,   false   },
                 {  L_,    "DEADBEEF", ERROR_VALUE,   false   },
                 {  L_,    "JUNK",     ERROR_VALUE,   false   },
+
+                {  L_,    "1e1e1",    ERROR_VALUE,   false   },
             };
             const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
 
