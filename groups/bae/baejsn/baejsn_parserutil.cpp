@@ -191,7 +191,7 @@ int getUnicodeChar(bsl::streambuf *streamBuf, bsl::string *value)
     return 0;
 }
 
-}  // close anonymous namespace
+}  // close unnamed namespace
 
                             // ------------------------
                             // struct baejsn_ParserUtil

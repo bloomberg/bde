@@ -287,7 +287,7 @@ int baejsn_ParserUtil::getValue(bsl::streambuf     *streamBuf,
 
 inline
 int baejsn_ParserUtil::getValue(bsl::streambuf      *streamBuf,
-                                   bsls::Types::Uint64 *value)
+                                bsls::Types::Uint64 *value)
 {
     bsls::Types::Uint64 tmp = 0;
     const int rc = getUint64(streamBuf, &tmp);

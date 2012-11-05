@@ -137,10 +137,10 @@ class baejsn_Decoder {
 
     template <typename TYPE>
     int decode(bsl::istream& stream, TYPE *variable);
-        // Decode an object of parameterized 'TYPE' from the specified 'stream'
-        // and load the result into the specified modifiable 'variable'.
-        // Return 0 on success, and a non-zero value otherwise.  Note that
-        // 'stream' will be invalidated if the decoding fails.
+        // Decode an object of (template parameter) 'TYPE' from the specified
+        // 'stream' and load the result into the specified modifiable
+        // 'variable'.  Return 0 on success, and a non-zero value otherwise.
+        // Note that 'stream' will be invalidated if the decoding fails.
 
     // ACCESSORS
     bsl::string loggedMessages() const;
