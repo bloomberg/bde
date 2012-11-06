@@ -148,7 +148,7 @@ int baejsn_ParserUtil::getDateAndTimeValue(bsl::streambuf *streamBuf,
     return valueString.length() <= static_cast<unsigned int>(maxLength)
          ? bdepu_Iso8601::parse(value,
                                 valueString.data(),
-                                valueString.length())
+                                static_cast<int>(valueString.length()))
          : -1;
 }
 

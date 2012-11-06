@@ -249,10 +249,10 @@ int baejsn_Decoder::decodeImp(TYPE *value, bdeat_TypeCategory::Sequence)
 
             baejsn_Decoder_ElementVisitor visitor = { this };
             if (0 != bdeat_SequenceFunctions::manipulateAttribute(
-                                                     value,
-                                                     visitor,
-                                                     attributeName.data(),
-                                                     attributeName.length())) {
+                                   value,
+                                   visitor,
+                                   attributeName.data(),
+                                   static_cast<int>(attributeName.length()))) {
                 d_logStream << "Could not decode attribute id '"
                             << attributeName << "'\n";
                 return -1;                                            // RETURN
@@ -298,9 +298,10 @@ int baejsn_Decoder::decodeImp(TYPE *value, bdeat_TypeCategory::Choice)
         return -1;                                                    // RETURN
     }
 
-    if (0 != bdeat_ChoiceFunctions::makeSelection(value,
-                                                  selectionName.data(),
-                                                  selectionName.length())) {
+    if (0 != bdeat_ChoiceFunctions::makeSelection(
+                                   value,
+                                   selectionName.data(),
+                                   static_cast<int>(selectionName.length()))) {
         d_logStream << "Could not deocde choice, bad selection name '"
                     << selectionName << "'\n";
         return -1;                                                    // RETURN
@@ -342,9 +343,10 @@ int baejsn_Decoder::decodeImp(TYPE *value, bdeat_TypeCategory::Enumeration)
         return -1;                                                    // RETURN
     }
 
-    const int rc = bdeat_EnumFunctions::fromString(value,
-                                                   valueString.data(),
-                                                   valueString.length());
+    const int rc = bdeat_EnumFunctions::fromString(
+                                       value,
+                                       valueString.data(),
+                                       static_cast<int>(valueString.length()));
 
     if (rc) {
         d_logStream << "Could not decode Enum String, value not allowed \""
