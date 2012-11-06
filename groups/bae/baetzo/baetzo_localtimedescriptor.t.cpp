@@ -22,26 +22,6 @@
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 
-// ============================================================================
-//                          ADL SWAP TEST HELPER
-// ----------------------------------------------------------------------------
-
-// TBD move this into its own component?
-template <class TYPE>
-void invokeAdlSwap(TYPE& a, TYPE& b)
-    // Exchange the values of the specified 'a' and 'b' objects using the
-    // 'swap' method found by ADL (Argument Dependent Lookup).  The behavior
-    // is undefined unless 'a' and 'b' were created with the same allocator.
-{
-    BSLS_ASSERT_OPT(a.allocator() == b.allocator());
-
-    using namespace bsl;
-    swap(a, b);
-}
-
-// The following 'using' directives must come *after* the definition of
-// 'invokeAdlSwap' (above).
-
 using namespace BloombergLP;
 using namespace bsl;
 
@@ -202,12 +182,6 @@ static void aSsErT(int c, const char *s, int i)
 
 #define ASSERT_SAFE_FAIL(expr) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(expr)
 #define ASSERT_SAFE_PASS(expr) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(expr)
-
-// ============================================================================
-//                  EXCEPTION TEST MACRO ABBREVIATIONS
-// ----------------------------------------------------------------------------
-
-#define EXCEPTION_COUNT bslmaExceptionCounter
 
 // ============================================================================
 //                     GLOBAL TYPEDEFS FOR TESTING
@@ -772,9 +746,6 @@ int main(int argc, char *argv[])
                         LOOP4_ASSERT(LINE1, LINE2,  Z,   X,  Z == X);
                         LOOP4_ASSERT(LINE1, LINE2, mR, &mX, mR == &mX);
 
-                        if ('N' == MEMDST2 && 'Y' == MEMSRC1) {
-                            LOOP2_ASSERT(LINE1, LINE2, 0 < EXCEPTION_COUNT);
-                        }
                     } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
                     LOOP4_ASSERT(LINE1, LINE2, ZZ, Z, ZZ == Z);
@@ -953,7 +924,7 @@ int main(int argc, char *argv[])
         //:     use the copy constructor and a "scratch" allocator to create a
         //:     'const' 'Obj' 'YY' from 'mY'.
         //:
-        //:   5 Use the 'invokeAdlSwap' helper function template to swap the
+        //:   5 Use the 'bslalg_SwapUtil' helper function template to swap the
         //:     values of 'mX' and 'mY', using the free 'swap' function defined
         //:     in this component, then verify that:  (C-6)
         //:
@@ -1063,7 +1034,6 @@ int main(int argc, char *argv[])
 
             for (int tj = 0; tj < NUM_DATA; ++tj) {
                 const int         LINE2   = DATA[tj].d_line;
-                const char        MEM2    = DATA[tj].d_mem;
                 const int         OFFSET2 = DATA[tj].d_utcOffsetInSeconds;
                 const bool        FLAG2   = DATA[tj].d_dstInEffectFlag;
                 const char *const DESC2   = DATA[tj].d_description;
@@ -1134,7 +1104,7 @@ int main(int argc, char *argv[])
 
             bslma_TestAllocatorMonitor oam(&oa);
 
-            invokeAdlSwap(mX, mY);
+            bslalg_SwapUtil::swap(&mX, &mY);
 
             LOOP2_ASSERT(YY, X, YY == X);
             LOOP2_ASSERT(XX, Y, XX == Y);
@@ -1455,6 +1425,7 @@ int main(int argc, char *argv[])
             // attribute capable of allocating memory.
         }
 
+
         if (verbose) cout << "\nTesting with injected exceptions." << endl;
         {
             for (int ti = 0; ti < NUM_DATA; ++ti) {
@@ -1481,9 +1452,6 @@ int main(int argc, char *argv[])
                     Obj obj(Z, &sa);
                     LOOP3_ASSERT(LINE, Z, obj, Z == obj);
 
-                    if ('Y' == MEM) {
-                        LOOP_ASSERT(LINE, 0 < EXCEPTION_COUNT);
-                    }
                 } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
                 LOOP3_ASSERT(LINE, ZZ, Z, ZZ == Z);
@@ -2509,9 +2477,6 @@ int main(int argc, char *argv[])
                     LOOP3_ASSERT(LINE, DESC, obj.description(),
                                  DESC == obj.description());
 
-                    if ('Y' == MEM) {
-                        LOOP_ASSERT(LINE, 0 < EXCEPTION_COUNT);
-                    }
                 } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
                 LOOP2_ASSERT(LINE, da.numBlocksInUse(),
@@ -2814,7 +2779,6 @@ int main(int argc, char *argv[])
                     mX.setDescription(A3);
                     LOOP_ASSERT(CONFIG, tam.isInUseUp());
 
-                    ASSERT(0 < EXCEPTION_COUNT);
                 } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 LOOP_ASSERT(CONFIG, D1 == X.utcOffsetInSeconds());
                 LOOP_ASSERT(CONFIG, D2 == X.dstInEffectFlag());
