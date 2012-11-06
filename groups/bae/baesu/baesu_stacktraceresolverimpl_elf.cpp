@@ -643,8 +643,8 @@ void Local::StackTraceResolver::CurrentSegment::reset()
     d_stringTableSize   = 0;
 
     const int bytesToZero = d_numFrames * (int) sizeof(void *);
-    memset(d_framePtrs_p, 0, bytesToZero);
-    memset(d_addresses_p, 0, bytesToZero);
+    bsl::memset(d_framePtrs_p, 0, bytesToZero);
+    bsl::memset(d_addresses_p, 0, bytesToZero);
 }
 
       // ---------------------------------------------------------------
@@ -729,10 +729,10 @@ int Local::StackTraceResolver::resolveSegment(void       *segmentBaseAddress,
     // .strtab, or, if the file was stripped, .dynsym and .dynstr
 
     Local::ElfSectionHeader symTabHdr, strTabHdr, dynSymHdr, dynStrHdr;
-    memset(&symTabHdr, 0, sizeof(Local::ElfSectionHeader));
-    memset(&strTabHdr, 0, sizeof(Local::ElfSectionHeader));
-    memset(&dynSymHdr, 0, sizeof(Local::ElfSectionHeader));
-    memset(&dynStrHdr, 0, sizeof(Local::ElfSectionHeader));
+    bsl::memset(&symTabHdr, 0, sizeof(Local::ElfSectionHeader));
+    bsl::memset(&strTabHdr, 0, sizeof(Local::ElfSectionHeader));
+    bsl::memset(&dynSymHdr, 0, sizeof(Local::ElfSectionHeader));
+    bsl::memset(&dynStrHdr, 0, sizeof(Local::ElfSectionHeader));
 
     // Possible speedup: read all the section headers at once instead of one
     // at a time.
@@ -775,20 +775,20 @@ int Local::StackTraceResolver::resolveSegment(void       *segmentBaseAddress,
 
         switch (sec->sh_type) {
           case SHT_SYMTAB: {
-            if      (!strcmp(sectionName, ".symtab")) {
+            if      (!bsl::strcmp(sectionName, ".symtab")) {
                 symTabHdr = *sec;
             }
           }  break;
           case SHT_STRTAB: {
-            if      (!strcmp(sectionName, ".strtab")) {
+            if      (!bsl::strcmp(sectionName, ".strtab")) {
                 strTabHdr = *sec;
             }
-            else if (!strcmp(sectionName, ".dynstr")) {
+            else if (!bsl::strcmp(sectionName, ".dynstr")) {
                 dynStrHdr = *sec;
             }
           }  break;
           case SHT_DYNSYM: {
-            if      (!strcmp(sectionName, ".dynsym")) {
+            if      (!bsl::strcmp(sectionName, ".dynsym")) {
                 dynSymHdr = *sec;
             }
           }  break;
@@ -948,7 +948,7 @@ int Local::StackTraceResolver::processLoadedImage(
         // executable file, but those platforms have a standard virtual symlink
         // that points to the executable file name.
 
-        memset(d_scratchBuf_p, 0, Local::SCRATCH_BUF_LEN);
+        bsl::memset(d_scratchBuf_p, 0, Local::SCRATCH_BUF_LEN);
         if (0 < readlink("/proc/self/exe",
                          d_scratchBuf_p,
                          Local::SCRATCH_BUF_LEN)) {
@@ -1116,7 +1116,7 @@ int Local::StackTraceResolver::resolve(
     // work.
 
     shl_descriptor desc;
-    memset(&desc, 0, sizeof(shl_descriptor));
+    bsl::memset(&desc, 0, sizeof(shl_descriptor));
 
     // 'programHeaders' will point to a segment of memory we will allocate and
     // reallocated to the needed size indicated by the 'ElfHeader's we
