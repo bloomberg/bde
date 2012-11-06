@@ -47,8 +47,16 @@ BDES_IDENT("$Id: $")
 #include <bsl_limits.h>
 #endif
 
+#ifndef INCLUDED_BSLS_PLATFORM
+#include <bsls_platform.h>
+#endif
+
 #ifndef INCLUDED_BSL_C_MATH
-#include <bsl_c_math.h>
+#include <bsl_c_math.h>  // for 'isnan' on Unix
+#endif
+
+#ifndef INCLUDED_BSL_C_FLOAT
+#include <bsl_c_float.h>  // for '_isnan' on Windows
 #endif
 
 namespace BloombergLP {
@@ -127,7 +135,12 @@ int baejsn_PrintUtil::printDateAndTime(bsl::ostream& stream, const TYPE& value)
 template <typename TYPE>
 int baejsn_PrintUtil::printFloatingPoint(bsl::ostream& stream, TYPE value)
 {
-    if (isnan(value)
+#if defined(BSLS_PLATFORM__CMP_MSVC)
+    bool nanFlag = _isnan(value);
+#else
+    bool nanFlag = isnan(value);
+#endif
+    if (nanFlag
      || value == bsl::numeric_limits<TYPE>::infinity()
      || value == -bsl::numeric_limits<TYPE>::infinity()) {
         return -1;                                                    // RETURN
