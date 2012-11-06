@@ -11,6 +11,7 @@ BDES_IDENT_RCSID(baejsn_parserutil_cpp,"$Id$ $CSID$")
 #include <bsl_cctype.h>
 #include <bsl_cerrno.h>
 #include <bsl_cstdlib.h>
+#include <bsl_iosfwd.h>
 #include <bsl_limits.h>
 
 namespace BloombergLP {

@@ -5,6 +5,7 @@
 #include <bdem_recorddef.h>
 
 #include <bsl_string.h>
+#include <bsl_vector.h>
 #include <bdeat_attributeinfo.h>
 #include <bdeat_choicefunctions.h>
 #include <bdeat_enumeratorinfo.h>
