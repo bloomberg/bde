@@ -37,9 +37,10 @@
 #include <bdeut_nullablevalue.h>
 #include <bdeut_nullableallocatedvalue.h>
 
-#include <iostream>
-#include <limits.h>
-#include <limits>
+#include <bsl_vector.h>
+#include <bsl_iostream.h>
+#include <bsl_c_limits.h>
+#include <bsl_limits.h>
 
 using namespace BloombergLP;
 using bsl::cout;
@@ -3302,7 +3303,7 @@ const int& Employee::age() const
 namespace {
 
 #if 0
-void constructTestAggregate(std::vector<bcem_Aggregate>* objects)
+void constructTestAggregate(bsl::vector<bcem_Aggregate>* objects)
 {
     baexml_MiniReader reader;
     baexml_DecoderOptions options;
@@ -3311,7 +3312,7 @@ void constructTestAggregate(std::vector<bcem_Aggregate>* objects)
 
     for (int i = 0; i < NUM_XML_TEST_MESSAGES; ++i) {
         bcem_Aggregate object;
-        std::istringstream ss(XML_TEST_MESSAGES[i]);
+        bsl::istringstream ss(XML_TEST_MESSAGES[i]);
 
         baexml_MiniReader reader;
         baexml_DecoderOptions options;
@@ -3331,7 +3332,7 @@ void constructTestAggregate(std::vector<bcem_Aggregate>* objects)
 }
 #endif
 
-void constructFeatureTestMessage(std::vector<baea::FeatureTestMessage>* objects)
+void constructFeatureTestMessage(bsl::vector<baea::FeatureTestMessage>* objects)
 {
     baexml_MiniReader reader;
     baexml_DecoderOptions options;
@@ -3340,7 +3341,7 @@ void constructFeatureTestMessage(std::vector<baea::FeatureTestMessage>* objects)
 
     for (int i = 0; i < NUM_XML_TEST_MESSAGES; ++i) {
         baea::FeatureTestMessage object;
-        std::istringstream ss(XML_TEST_MESSAGES[i]);
+        bsl::istringstream ss(XML_TEST_MESSAGES[i]);
 
         // Use 'baea_SerializableObjectProxy' to speed up compile time.
         baea_SerializableObjectProxy sop;
@@ -3596,7 +3597,7 @@ int main(int argc, char *argv[])
         //   BREATHING TEST
         // --------------------------------------------------------------------
 
-        std::vector<baea::FeatureTestMessage> testObjects;
+        bsl::vector<baea::FeatureTestMessage> testObjects;
         constructFeatureTestMessage(&testObjects);
 
         for (int ti = 0; ti < (int)testObjects.size(); ++ti) {

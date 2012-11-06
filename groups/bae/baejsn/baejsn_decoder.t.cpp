@@ -36,7 +36,8 @@
 #include <baexml_minireader.h>
 #include <baexml_errorinfo.h>
 
-#include <iostream>
+#include <bsl_vector.h>
+#include <bsl_iostream.h>
 
 using namespace BloombergLP;
 using bsl::cout;
@@ -3816,7 +3817,7 @@ void constructFeatureTestMessage(
 
     for (int i = 0; i < NUM_XML_TEST_MESSAGES; ++i) {
         baea::FeatureTestMessage object;
-        std::istringstream       ss(XML_TEST_MESSAGES[i]);
+        bsl::istringstream       ss(XML_TEST_MESSAGES[i]);
 
         // Use 'baea_SerializableObjectProxy' to speed up compile time.
         baea_SerializableObjectProxy sop;
@@ -3934,7 +3935,7 @@ int main(int argc, char *argv[])
         // Testing:
         // --------------------------------------------------------------------
 
-        std::vector<baea::FeatureTestMessage> testObjects;
+        bsl::vector<baea::FeatureTestMessage> testObjects;
         constructFeatureTestMessage(&testObjects);
 
         for (int ti = 0; ti < NUM_JSON_TEST_MESSAGES; ++ti) {

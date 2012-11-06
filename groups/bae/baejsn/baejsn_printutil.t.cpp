@@ -11,7 +11,7 @@
 #include <bdet_datetime.h>
 #include <bdet_datetimetz.h>
 
-#include <iostream>
+#include <bsl_iostream.h>
 
 using namespace BloombergLP;
 using bsl::cout;
