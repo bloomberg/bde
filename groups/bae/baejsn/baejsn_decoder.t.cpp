@@ -5,6 +5,7 @@
 #include <bdem_recorddef.h>
 
 #include <bsl_string.h>
+#include <bsl_vector.h>
 #include <bdeat_attributeinfo.h>
 #include <bdeat_choicefunctions.h>
 #include <bdeat_enumeratorinfo.h>
@@ -3816,7 +3817,7 @@ void constructFeatureTestMessage(
 
     for (int i = 0; i < NUM_XML_TEST_MESSAGES; ++i) {
         baea::FeatureTestMessage object;
-        std::istringstream       ss(XML_TEST_MESSAGES[i]);
+        bsl::istringstream       ss(XML_TEST_MESSAGES[i]);
 
         // Use 'baea_SerializableObjectProxy' to speed up compile time.
         baea_SerializableObjectProxy sop;
@@ -3934,7 +3935,7 @@ int main(int argc, char *argv[])
         // Testing:
         // --------------------------------------------------------------------
 
-        std::vector<baea::FeatureTestMessage> testObjects;
+        bsl::vector<baea::FeatureTestMessage> testObjects;
         constructFeatureTestMessage(&testObjects);
 
         for (int ti = 0; ti < NUM_JSON_TEST_MESSAGES; ++ti) {
