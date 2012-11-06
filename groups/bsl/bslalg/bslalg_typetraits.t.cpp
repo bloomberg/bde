@@ -224,7 +224,7 @@ struct my_Class1
 
 namespace BloombergLP {
 namespace bslma {
- 
+
 template <> struct UsesBslmaAllocator<my_Class1> : bsl::true_type { };
 
 }  // close bslma namespace
@@ -394,7 +394,7 @@ namespace BSLALG_TYPETRAITS_USAGE_EXAMPLE {
         template <class TYPE>
         static void copyConstruct(TYPE             *location,
                                   const TYPE&       value,
-                                  bslma::Allocator */* allocator */,
+                                  bslma::Allocator * /* allocator */,
                                   bslalg::TypeTraitNil)
             // Create a copy of the specified 'value' at the specified
             // 'location'.  Note that the specified 'allocator' is ignored.
@@ -478,7 +478,7 @@ namespace BSLALG_TYPETRAITS_USAGE_EXAMPLE {
 // its contained instance with a very simple test apparatus, consisting of two
 // classes which have exactly the same signature and implementation except that
 // one has the 'bslalg::TypeTraitUsesBslmaAllocator' trait and the other
-// hasn't: 
+// hasn't:
 //..
     bslma::Allocator *allocSlot;
 
