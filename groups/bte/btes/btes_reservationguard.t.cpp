@@ -120,8 +120,8 @@ public:
 
 inline
 my_Reserve::my_Reserve()
-: d_unitsReserved(0)
-, d_unitsSubmitted(0)
+: d_unitsSubmitted(0)
+, d_unitsReserved(0)
 {
 }
 
@@ -282,8 +282,8 @@ int main(int argc, char *argv[]) {
 
     int             test = argc > 1 ? atoi(argv[1]) : 0;
     bool         verbose = argc > 2;
-    bool     veryVerbose = argc > 3;
-    bool veryVeryVerbose = argc > 4;
+    // bool     veryVerbose = argc > 3;
+    // bool veryVeryVerbose = argc > 4;
 
     switch (test) {
 
@@ -303,9 +303,9 @@ int main(int argc, char *argv[]) {
 // First we define the size of each data chunk, and the total size of the data
 // to transmit:
 //..
-  const bsls_Types::Uint64 CHUNK_SIZE = 256;
-  bsls_Types::Uint64 bytesSent        = 0;
-  bsls_Types::Uint64 sizeOfData       = 10 * 1024; // in bytes
+  const unsigned int CHUNK_SIZE = 256;
+  bsls_Types::Uint64 bytesSent  = 0;
+  bsls_Types::Uint64 sizeOfData = 10 * 1024; // in bytes
 //..
 // Next, we create a 'btes_LeakyBucket' object having the required parameters:
 //..
@@ -325,7 +325,7 @@ int main(int argc, char *argv[]) {
 // Now, for each iteration we check whether submitting another chunk into the
 // bucket would cause overflow:
 //..
-      if (!bucket.wouldOverflow(CHUNK_SIZE,now)) {
+      if (!bucket.wouldOverflow(CHUNK_SIZE, now)) {
 //..
 // If sending data is allowed, we reserve units in the leaky bucket for one
 // data chunk.  We create a 'btes_ReservationGuard' object, specifying the
@@ -418,7 +418,7 @@ int main(int argc, char *argv[]) {
                 {
                     Obj x(&h, RESERVE);
 
-                    for (int i = 1; i <= N_CANCELS; i++) {
+                    for (unsigned int i = 1; i <= N_CANCELS; i++) {
 
                         bsls_Types::Uint64 expGuardReserve =
                                (i*CANCEL > RESERVE ? 0 : (RESERVE - i*CANCEL));
@@ -508,7 +508,7 @@ int main(int argc, char *argv[]) {
                 {
                     Obj x(&h, RESERVE);
 
-                    for (int i = 1; i <= N_SUBMITS; i++) {
+                    for (unsigned int i = 1; i <= N_SUBMITS; i++) {
 
                         bsls_Types::Uint64 expReserve =
                                  i*SUBMIT > RESERVE ? 0 : (RESERVE - i*SUBMIT);

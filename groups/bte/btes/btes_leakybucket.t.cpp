@@ -229,6 +229,8 @@ inline
 bool mock_LB::wouldOverflow(bsls_Types::Uint64 numOfUnits,
                            bdet_TimeInterval currentTime)
 {
+    (void)(numOfUnits);
+
     bdet_TimeInterval delta = currentTime - d_lastUpdateTime;
 
     if (delta < d_submitInterval) {
@@ -420,6 +422,7 @@ static bool sendData(size_t dataSize)
     // return true if data was sent successfully and false otherwise
 
 {
+    (void)(dataSize);
 //..
 // In our example we don`t deal with actual data sending, so we assume that
 // the function sends data successfully and return true.
@@ -436,8 +439,8 @@ int main(int argc, char *argv[]) {
 
     int             test = argc > 1 ? atoi(argv[1]) : 0;
     bool         verbose = argc > 2;
-    bool     veryVerbose = argc > 3;
-    bool veryVeryVerbose = argc > 4;
+    // bool     veryVerbose = argc > 3;
+    // bool veryVeryVerbose = argc > 4;
 
     switch (test) {
 
@@ -798,7 +801,6 @@ int main(int argc, char *argv[]) {
                               << "============================" << endl;
 
             const Uint64 MAX_R = ULLONG_MAX;
-            const Uint64 M     = 1000000;
             const Uint64 G     = 1000000000;
 
             // Numbers of units to be consumed during different intervals
@@ -1068,7 +1070,6 @@ int main(int argc, char *argv[]) {
             const Uint64 Gb    = 1 << 30;
             const Uint64 G     = 1000000000;
             const Uint64 M     = 1000000;
-            const Uint64 K     = 1000;
 
             const Ti MNS_T(0, 999999999);
             const Ti MNS2_T = Ti(MNS_T).addNanoseconds(999999999);
@@ -1076,8 +1077,6 @@ int main(int argc, char *argv[]) {
             // Numbers of units to be consumed during different intervals
             // at maximum rate.
 
-            const Uint64 U_1S   = ULLONG_MAX;
-            const Uint64 U_2NS  = (MAX_R / G) * 2 + ((MAX_R % G) * 2) / G;
             const Uint64 U_5NS  = (MAX_R / G) * 5 + ((MAX_R % G) * 5) / G;
             const Uint64 U_20NS = (MAX_R / G) * 20 + ((MAX_R % G) * 20) / G;
             const Uint64 U_MNS  = (MAX_R / G) * 999999999 + 
@@ -1148,18 +1147,18 @@ int main(int argc, char *argv[]) {
            { L_,    ULLONG_MAX,  ULLONG_MAX -
                                  1 - U_5NS,       Ti(          0, 999999995)},
 
-           { L_,          G+1,   ULLONG_MAX,      Ti(18446744055, 262807560)},
-           { L_,          G-1,   ULLONG_MAX,      Ti(18446744092, 156295708)},
-           { L_,            G,   ULLONG_MAX,      Ti(18446744073, 709551615)},
+           { L_,          G+1,   ULLONG_MAX,      Ti(18446744055LL,262807560)},
+           { L_,          G-1,   ULLONG_MAX,      Ti(18446744092LL,156295708)},
+           { L_,            G,   ULLONG_MAX,      Ti(18446744073LL,709551615)},
 
-           { L_,          Gb+1,  ULLONG_MAX,      Ti(17179869168,        14)},
-           { L_,          Gb-1,  ULLONG_MAX,      Ti(17179869200,        14)},
+           { L_,          Gb+1,  ULLONG_MAX,      Ti(17179869168LL,      14)},
+           { L_,          Gb-1,  ULLONG_MAX,      Ti(17179869200LL,      14)},
            { L_,          Gb+1,     50*Gb+1,      Ti(         49, 999999955)},
            { L_,          Gb+1,     50*Gb+5,      Ti(         49, 999999959)},
            { L_,          Gb-1,     50*Gb+1,      Ti(         50,        48)},
            { L_,          Gb-1,     50*Gb+5,      Ti(         50,        52)},
            { L_,          Gb-42,    50*Gb+1,      Ti(         50,      1957)},
-           { L_,          Gb+42,    50*Gb+5,      Ti(         49,  999998049)}
+           { L_,          Gb+42,    50*Gb+5,      Ti(         49, 999998049)}
 
 
                 };
@@ -1364,8 +1363,8 @@ int main(int argc, char *argv[]) {
             const Uint64 EXP_USED  = UNITS;
 
             const Uint64 EXP_UNUSED =
-                floor((UPD_TIME - CREATION_TIME).totalSecondsAsDouble()*RATE) -
-                EXP_USED;
+        (Uint64)floor((UPD_TIME - CREATION_TIME).totalSecondsAsDouble()*RATE) -
+        EXP_USED;
 
             Obj x(RATE, CAPACITY, CREATION_TIME);
             x.submit(UNITS);
@@ -1480,8 +1479,6 @@ int main(int argc, char *argv[]) {
 
             const Uint64 MAX_R = ULLONG_MAX;
             const Uint64 G     = 1000000000;
-            const Uint64 M     = 1000000;
-            const Uint64 K     = 1000;
 
             const Ti MNS_T(0, 999999999);
             const Ti MNS2_T = Ti(MNS_T).addNanoseconds(999999999);
@@ -1490,7 +1487,6 @@ int main(int argc, char *argv[]) {
             // at maximum rate.
 
             const Uint64 U_1S   = ULLONG_MAX;
-            const Uint64 U_2NS  = (MAX_R / G) * 2 + ((MAX_R % G) * 2) / G;
             const Uint64 U_5NS  = (MAX_R / G) * 5 + ((MAX_R % G) * 5) / G;
             const Uint64 U_20NS = (MAX_R / G) * 20 + ((MAX_R % G) * 20) / G;
             const Uint64 U_MNS  = (MAX_R / G) * 999999999 + 
@@ -1901,7 +1897,7 @@ int main(int argc, char *argv[]) {
 
                     Obj x(RATE, CAPACITY, CREATION_TIME);
                     Ti  currentCheck(CREATION_TIME);
-                    int i = 0;
+                    unsigned int i = 0;
                     x.reserve(UNITS_TO_RESERVE);
 
                     while(!x.wouldOverflow(UNITS,currentCheck)) {
@@ -2003,10 +1999,6 @@ int main(int argc, char *argv[]) {
                 // Number of units, drained during 1 ns at maximum allowed rate
 
                 const Uint64 U_NS = MAX_U / 1000000000;
-
-                // Number of units, drained during 1 us at maximum allowed rate
-
-                const Uint64 U_US = MAX_U / 1000000;
 
                 // Number of units, drained during 1 ms at maximum allowed rate
 
@@ -3225,7 +3217,6 @@ int main(int argc, char *argv[]) {
 
             if (verbose) cout << endl << "testing TestLB" << endl;
             {
-                const Uint64 MAX_R = ULLONG_MAX;
                 const Uint64 M     = 1000000;
                 const Uint64 G     = 1000000000;
 
@@ -3275,10 +3266,10 @@ int main(int argc, char *argv[]) {
                                             CHUNK_SIZE,
                                             Ti(0));
 
-                    ASSERT(DATA_SIZE == x.unitsInBucket());
-                    ASSERT(RATE      == x.rate());
-                    ASSERT(CAPACITY  == x.capacity());
-                    ASSERT(EXP_DUR   == x.lastUpdateTime());
+                    LOOP_ASSERT(LINE, DATA_SIZE == x.unitsInBucket());
+                    LOOP_ASSERT(LINE, RATE      == x.rate());
+                    LOOP_ASSERT(LINE, CAPACITY  == x.capacity());
+                    LOOP_ASSERT(LINE, EXP_DUR   == x.lastUpdateTime());
                     
                     ASSERT(EXP_DUR   == dur);
                 }

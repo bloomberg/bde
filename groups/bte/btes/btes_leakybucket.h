@@ -208,7 +208,7 @@
 // Next, we define the size of each data chunk, and the total size of the data
 // to transmit:
 //..
-//  bsls_Types::Uint64 chunkSize  = 256;             // in bytes
+//  unsigned int       chunkSize  = 256;             // in bytes
 //  bsls_Types::Uint64 totalSize  = 20 * chunkSize;  // in bytes
 //  bsls_Types::Uint64 dataSent   = 0;               // in bytes
 //..
