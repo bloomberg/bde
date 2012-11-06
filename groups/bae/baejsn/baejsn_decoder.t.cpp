@@ -36,7 +36,7 @@
 #include <baexml_minireader.h>
 #include <baexml_errorinfo.h>
 
-#include <iostream>
+#include <bsl_iostream.h>
 
 using namespace BloombergLP;
 using bsl::cout;
