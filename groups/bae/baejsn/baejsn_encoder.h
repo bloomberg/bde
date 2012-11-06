@@ -170,7 +170,7 @@ namespace BloombergLP {
 
 class baejsn_Encoder {
     // FRIENDS
-    friend struct baejsn_Encoder_EncodeImpl;
+    friend class baejsn_Encoder_EncodeImpl;
 
   private:
     // DATA
