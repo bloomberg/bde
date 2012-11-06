@@ -1,4 +1,4 @@
-//btes_leakybucket.t.cpp                                              -*-C++-*-
+//btes_reservationguard.t.cpp                                              -*-C++-*-
 
 #include <btes_reservationguard.h>
 

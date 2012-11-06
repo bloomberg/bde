@@ -27,18 +27,17 @@ using namespace bsl;
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-////                              Overview
-//                              --------
 // The component under test implements a mechanism.
 //
 // Primary Manipulators:
-//: o 'setRateAndCapacity'
+//: o 'setRateLimits'
 //
 // Basic Accessors:
-// o 'rate'
-// o 'capacity'
+// o 'peakRateLimit'
+// o 'sustainedRateLimit'
+// o 'peakRateWindow'
+// o 'sustainedRateWindow'
 // o 'lastUpdateTime'
-// o 'unitsInBucket'
 // o 'unitsReserved'
 //
 // This class also provides a value constructor capable of creating an object
@@ -172,11 +171,12 @@ bool sendData(size_t dataSize)
       // Send a specified 'dataSize' amount of data over the network
       // return 'true' if data was sent successfully and 'false' otherwise.
 {
+    (void)(dataSize);
 //..
 // For simplicity, 'sendData' will not actually send any data and will
 // always return 'true'.
 //..
-   return true;
+    return true;
 }
 
 //=============================================================================
@@ -187,8 +187,8 @@ int main(int argc, char *argv[]) {
 
     int             test = argc > 1 ? atoi(argv[1]) : 0;
     bool         verbose = argc > 2;
-    bool     veryVerbose = argc > 3;
-    bool veryVeryVerbose = argc > 4;
+    //bool     veryVerbose = argc > 3;
+    //bool veryVeryVerbose = argc > 4;
 
     switch (test) {
 
@@ -554,8 +554,8 @@ int main(int argc, char *argv[]) {
             const Uint64 EXP_USED  = UNITS;
 
             const Uint64 EXP_UNUSED =
-                floor((UPD_TIME - CREATION_TIME).totalSecondsAsDouble()*S_RATE)-
-                EXP_USED;
+    (Uint64)floor((UPD_TIME - CREATION_TIME).totalSecondsAsDouble()*S_RATE) -
+    EXP_USED;
 
             Obj x(S_RATE, S_WND, P_RATE, P_WND, CREATION_TIME);
             x.submit(UNITS);
@@ -897,7 +897,7 @@ int main(int argc, char *argv[]) {
 
                 Ti curTime = CREATION_TIME;
 
-                for(int i = 0; i < N_SUBMITS; i++) {
+                for(unsigned int i = 0; i < N_SUBMITS; i++) {
 
                     curTime += SUBMIT_INTERVAL;
                     x.submit(UNITS);
@@ -1306,7 +1306,7 @@ int main(int argc, char *argv[]) {
 
                 Ti curTime = CREATION_TIME;
 
-                for(int i = 0; i < N_SUBMITS; i++) {
+                for(unsigned int i = 0; i < N_SUBMITS; i++) {
 
                     curTime += SUBMIT_INTERVAL;
 
@@ -1357,7 +1357,7 @@ int main(int argc, char *argv[]) {
 
                 Ti curTime = CREATION_TIME;
 
-                for(int i = 0; i < N_SUBMITS; i++) {
+                for(unsigned int i = 0; i < N_SUBMITS; i++) {
 
                     curTime += SUBMIT_INTERVAL;
 
