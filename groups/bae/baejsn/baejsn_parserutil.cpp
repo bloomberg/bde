@@ -272,10 +272,12 @@ int baejsn_ParserUtil::getUint64(bsl::streambuf      *streamBuf,
 {
     skipSpaces(streamBuf);
 
-    const int                         SIZE = 128;
-    char                              buffer[SIZE];
-    bdema_BufferedSequentialAllocator allocator(buffer, SIZE);
+    const int                         BUF_SIZE   = 128;
+    const int                         STRING_LEN =  56;
+    char                              buffer[BUF_SIZE];
+    bdema_BufferedSequentialAllocator allocator(buffer, BUF_SIZE);
     bsl::string                       str(&allocator);
+    str.reserve(STRING_LEN);
 
     int ch = streamBuf->sgetc();
     while (bsl::isdigit(ch)) {
@@ -284,6 +286,8 @@ int baejsn_ParserUtil::getUint64(bsl::streambuf      *streamBuf,
     }
 
     bsl::string fractionalStr(&allocator);
+    fractionalStr.reserve(STRING_LEN);
+
     if ('.' == static_cast<char>(ch)) {
 
         // Store the fractional portion in 'fractionalStr'

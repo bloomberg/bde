@@ -8,6 +8,10 @@
 #include <bsl_iostream.h>
 #include <bdepu_typesparser.h>
 
+#include <bslma_default.h>
+#include <bslma_defaultallocatorguard.h>
+#include <bslma_testallocator.h>
+
 #include <bdesb_memoutstreambuf.h>            // for testing only
 #include <bdesb_fixedmemoutstreambuf.h>       // for testing only
 #include <bdesb_fixedmeminstreambuf.h>        // for testing only
@@ -138,6 +142,9 @@ int main(int argc, char *argv[])
     bool veryVeryVerbose = argc > 4;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
+
+    bslma_TestAllocator          globalAllocator("global", veryVeryVerbose);
+    bslma_Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 20: {
@@ -1678,7 +1685,11 @@ int main(int argc, char *argv[])
                 const bool   IS_VALID = DATA[i].d_isValid;
                       Type   value    = ERROR_VALUE;
 
-                bdesb_FixedMemInStreamBuf isb(INPUT.data(), INPUT.length());
+                bdesb_FixedMemInStreamBuf    isb(INPUT.data(), INPUT.length());
+
+                bslma::TestAllocator         da("default", veryVeryVerbose);
+                bslma::DefaultAllocatorGuard dag(&da);
+
                 const int rc = Util::getValue(&isb, &value);
                 if (IS_VALID) {
                     LOOP2_ASSERT(LINE, rc,           0 == rc);
@@ -1688,6 +1699,8 @@ int main(int argc, char *argv[])
                     LOOP2_ASSERT(LINE, rc, rc);
                 }
                 LOOP3_ASSERT(LINE, EXP, value, EXP == value);
+
+                ASSERTV(LINE, da.numBlocksTotal(), 0 == da.numBlocksTotal());
             }
         }
       } break;
@@ -1804,7 +1817,11 @@ int main(int argc, char *argv[])
                 const bool   IS_VALID = DATA[i].d_isValid;
                       Type   value    = ERROR_VALUE;
 
-                bdesb_FixedMemInStreamBuf isb(INPUT.data(), INPUT.length());
+                bdesb_FixedMemInStreamBuf    isb(INPUT.data(), INPUT.length());
+
+                bslma::TestAllocator         da("default", veryVeryVerbose);
+                bslma::DefaultAllocatorGuard dag(&da);
+
                 const int rc = Util::getValue(&isb, &value);
                 if (IS_VALID) {
                     LOOP2_ASSERT(LINE, rc,           0 == rc);
@@ -1814,6 +1831,8 @@ int main(int argc, char *argv[])
                     LOOP2_ASSERT(LINE, rc, rc);
                 }
                 LOOP3_ASSERT(LINE, EXP, value, EXP == value);
+
+                ASSERTV(LINE, da.numBlocksTotal(), 0 == da.numBlocksTotal());
             }
         }
       } break;
@@ -1932,6 +1951,10 @@ int main(int argc, char *argv[])
                       Type   value    = ERROR_VALUE;
 
                 bdesb_FixedMemInStreamBuf isb(INPUT.data(), INPUT.length());
+
+                bslma::TestAllocator         da("default", veryVeryVerbose);
+                bslma::DefaultAllocatorGuard dag(&da);
+
                 const int rc = Util::getValue(&isb, &value);
                 if (IS_VALID) {
                     LOOP2_ASSERT(LINE, rc,           0 == rc);
@@ -1941,6 +1964,8 @@ int main(int argc, char *argv[])
                     LOOP2_ASSERT(LINE, rc, rc);
                 }
                 LOOP3_ASSERT(LINE, EXP, value, EXP == value);
+
+                ASSERTV(LINE, da.numBlocksTotal(), 0 == da.numBlocksTotal());
             }
         }
       } break;
@@ -2072,6 +2097,10 @@ int main(int argc, char *argv[])
                       Type   value    = ERROR_VALUE;
 
                 bdesb_FixedMemInStreamBuf isb(INPUT.data(), INPUT.length());
+
+                bslma::TestAllocator         da("default", veryVeryVerbose);
+                bslma::DefaultAllocatorGuard dag(&da);
+
                 const int rc = Util::getValue(&isb, &value);
                 if (IS_VALID) {
                     LOOP2_ASSERT(LINE, rc,           0 == rc);
@@ -2081,6 +2110,8 @@ int main(int argc, char *argv[])
                     LOOP2_ASSERT(LINE, rc, rc);
                 }
                 LOOP3_ASSERT(LINE, EXP, value, EXP == value);
+
+                ASSERTV(LINE, da.numBlocksTotal(), 0 == da.numBlocksTotal());
             }
         }
       } break;
@@ -2195,6 +2226,10 @@ int main(int argc, char *argv[])
                       Type   value    = ERROR_VALUE;
 
                 bdesb_FixedMemInStreamBuf isb(INPUT.data(), INPUT.length());
+
+                bslma::TestAllocator         da("default", veryVeryVerbose);
+                bslma::DefaultAllocatorGuard dag(&da);
+
                 const int rc = Util::getValue(&isb, &value);
                 if (IS_VALID) {
                     LOOP2_ASSERT(LINE, rc,           0 == rc);
@@ -2204,6 +2239,8 @@ int main(int argc, char *argv[])
                     LOOP2_ASSERT(LINE, rc, rc);
                 }
                 LOOP3_ASSERT(LINE, EXP, value, EXP == value);
+
+                ASSERTV(LINE, da.numBlocksTotal(), 0 == da.numBlocksTotal());
             }
         }
       } break;
@@ -2343,6 +2380,10 @@ int main(int argc, char *argv[])
                       Type   value    = ERROR_VALUE;
 
                 bdesb_FixedMemInStreamBuf isb(INPUT.data(), INPUT.length());
+
+                bslma::TestAllocator         da("default", veryVeryVerbose);
+                bslma::DefaultAllocatorGuard dag(&da);
+
                 const int rc = Util::getValue(&isb, &value);
                 if (IS_VALID) {
                     LOOP2_ASSERT(LINE, rc,           0 == rc);
@@ -2352,6 +2393,8 @@ int main(int argc, char *argv[])
                     LOOP2_ASSERT(LINE, rc, rc);
                 }
                 LOOP3_ASSERT(LINE, EXP, value, EXP == value);
+
+                ASSERTV(LINE, da.numBlocksTotal(), 0 == da.numBlocksTotal());
             }
         }
       } break;
@@ -2457,6 +2500,10 @@ int main(int argc, char *argv[])
                       Type   value    = ERROR_VALUE;
 
                 bdesb_FixedMemInStreamBuf isb(INPUT.data(), INPUT.length());
+
+                bslma::TestAllocator         da("default", veryVeryVerbose);
+                bslma::DefaultAllocatorGuard dag(&da);
+
                 const int rc = Util::getValue(&isb, &value);
                 if (IS_VALID) {
                     LOOP2_ASSERT(LINE, rc,           0 == rc);
@@ -2466,6 +2513,8 @@ int main(int argc, char *argv[])
                     LOOP2_ASSERT(LINE, rc, rc);
                 }
                 LOOP3_ASSERT(LINE, EXP, value, EXP == value);
+
+                ASSERTV(LINE, da.numBlocksTotal(), 0 == da.numBlocksTotal());
             }
         }
       } break;
@@ -2584,6 +2633,10 @@ int main(int argc, char *argv[])
                       Type   value    = ERROR_VALUE;
 
                 bdesb_FixedMemInStreamBuf isb(INPUT.data(), INPUT.length());
+
+                bslma::TestAllocator         da("default", veryVeryVerbose);
+                bslma::DefaultAllocatorGuard dag(&da);
+
                 const int rc = Util::getValue(&isb, &value);
                 if (IS_VALID) {
                     LOOP2_ASSERT(LINE, rc,           0 == rc);
@@ -2593,6 +2646,8 @@ int main(int argc, char *argv[])
                     LOOP2_ASSERT(LINE, rc, rc);
                 }
                 LOOP3_ASSERT(LINE, EXP, value, EXP == value);
+
+                ASSERTV(LINE, da.numBlocksTotal(), 0 == da.numBlocksTotal());
             }
         }
       } break;
@@ -2695,6 +2750,10 @@ int main(int argc, char *argv[])
                       Type   value    = ERROR_VALUE;
 
                 bdesb_FixedMemInStreamBuf isb(INPUT.data(), INPUT.length());
+
+                bslma::TestAllocator         da("default", veryVeryVerbose);
+                bslma::DefaultAllocatorGuard dag(&da);
+
                 const int rc = Util::getValue(&isb, &value);
                 if (IS_VALID) {
                     LOOP2_ASSERT(LINE, rc,           0 == rc);
@@ -2704,6 +2763,8 @@ int main(int argc, char *argv[])
                     LOOP2_ASSERT(LINE, rc, rc);
                 }
                 LOOP3_ASSERT(LINE, EXP, value, EXP == value);
+
+                ASSERTV(LINE, da.numBlocksTotal(), 0 == da.numBlocksTotal());
             }
         }
       } break;
@@ -2938,6 +2999,11 @@ int main(int argc, char *argv[])
         testStatus = -1;
       }
     }
+
+    // CONCERN: In no case does memory come from the global/default allocator.
+
+    LOOP_ASSERT(globalAllocator.numBlocksTotal(),
+                0 == globalAllocator.numBlocksTotal());
 
     if (testStatus > 0) {
         cerr << "Error, non-zero test status = " << testStatus << "." << endl;
