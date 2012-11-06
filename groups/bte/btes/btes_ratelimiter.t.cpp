@@ -27,6 +27,71 @@ using namespace bsl;
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
+////                              Overview
+//                              --------
+// The component under test implements a mechanism.
+//
+// Primary Manipulators:
+//: o 'setRateAndCapacity'
+//
+// Basic Accessors:
+// o 'rate'
+// o 'capacity'
+// o 'lastUpdateTime'
+// o 'unitsInBucket'
+// o 'unitsReserved'
+//
+// This class also provides a value constructor capable of creating an object
+// having any parameters.
+//
+// Global Concerns:
+//: o ACCESSOR methods are declared 'const'.
+//: o CREATOR & MANIPULATOR pointer/reference parameters are declared 'const'.
+//: o Precondition violations are detected in appropriate build modes.
+//
+// Global Assumptions:
+//: o ACCESSOR methods are 'const' thread-safe.
+//-----------------------------------------------------------------------------
+//
+// CREATORS
+//  [3] btes_RateLimiter();
+//  [3] btes_RateLimiter(bsls_Types::Uint64       sustainedRateLimit,
+//                       const bdet_TimeInterval& sustainedRateWindow,
+//                       bsls_Types::Uint64       peakRateLimit,
+//                       const bdet_TimeInterval& peakRateWindow,
+//                       const bdet_TimeInterval& currentTime);
+//
+// MANIPULATORS
+//  [ 6]     void setRateLimits(bsls_Types::Uint64        newSustainedRateLimit,
+//                              const bdet_TimeInterval& newSustainedRateWindow,
+//                              bsls_Types::Uint64       newPeakRateLimit,
+//                              const bdet_TimeInterval& newPeakRateWindow);
+//  [ 4] void submit(bsls_Types::Uint64 numOfUnits);
+//  [ 5] void reserve(bsls_Types::Uint64 numOfUnits);
+//  [ 8] void updateState(const bdet_TimeInterval& currentTime);
+//  [ 4] bool wouldExceedBandwidth(const bdet_TimeInterval& currentTime);
+//  [ 5] void submitReserved(bsls_Types::Unit64 numOfUnits);
+//  [12] void cancelReserved(bsls_Types::Unit64 numOfUnits);
+//  [10] void resetStatistics();
+//  [11] void reset(const bdet_TimeInterval& currentTime);
+//  [ 7] bdet_TimeInterval calculateTimeToSubmit(
+//                                       const bdet_TimeInterval& currentTime);
+// ACCESSORS
+//  [ 3] bsls_Types::Uint64 peakRateLimit() const;
+//  [ 3] bsls_Types::Uint64 sustainedRateLimit() const;
+//  [ 3] bdet_TimeInterval peakRateWindow() const;
+//  [ 3] bdet_TimeInterval sustainedRateWindow() const;
+//  [ 5] bsls_Types::Uint64 unitsReserved() const;
+//  [ 3] bdet_TimeInterval lastUpdateTime() const;
+//  [ 9] void getStatistics(bsls_Types::Uint64* submittedUnits,
+//                          bsls_Types::Uint64* unusedUnits) const;
+//  [ 3] bdet_TimeInterval statisticsCollectionStartTime() const;
+//
+//-----------------------------------------------------------------------------
+// [ 1] BREATHING TEST
+// [14] USAGE EXAMPLE
+// [ 3] All accessor methods are declared 'const'.
+// [ *] All creator/manipulator ptr./ref. parameters are 'const'.
 //=============================================================================
 
 //=============================================================================
@@ -1164,11 +1229,9 @@ int main(int argc, char *argv[]) {
 
         case 4: {
             // ----------------------------------------------------------------
-            // CLASS METHOD 'submit', 'wouldExceedBandwidth',
-            //              'calculateTimeToSubmit'
+            // 'submit', 'wouldExceedBandwidth', 'calculateTimeToSubmit'
             //
             // Concerns:
-            //  TODO: revise concerns
             //
             //   1 'wouldExceedBandwidth' has the same behavior, when compared
             //      to the pair of 'btes_LeakyBucket' objects.
@@ -1348,7 +1411,9 @@ int main(int argc, char *argv[]) {
 
         case 3: {
             // ----------------------------------------------------------------
-            // PRIMARY MANIPULATOR (BOOSTRAP)
+            // 'sustainedRateLimit', 'sustainedRateWindow', 'peakRateLimit',
+            // 'peakRateWindow', 'lastUpdateTime',
+            // 'statisticsCollectionStartTime'.
             //
             // Concerns:
             //
