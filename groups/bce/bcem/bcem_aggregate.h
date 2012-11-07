@@ -1676,7 +1676,7 @@ class bcem_Aggregate {
         // 'true'.  Note that this function should rarely be needed; generally
         // 'isNul2()' should be used instead; 'isUnset()' will be removed in a
         // future release.
-#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
     int errorCode() const;
         // Return a negative error code describing the the status of this
