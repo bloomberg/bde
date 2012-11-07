@@ -44,7 +44,7 @@ BSLS_IDENT("$Id: $")
 // distance of the open range ['begin', 'end'):
 //..
 //  std::size_t distance = IteratorUtil::insertDistance(begin, end);
-//  ASSERT(3 == distance);
+//  assert(3 == distance);
 //..
 
 #ifndef INCLUDED_BSLSCM_VERSION
@@ -79,7 +79,6 @@ struct IteratorUtil {
     // This utility struct provides a namespace for functions on iterators and
     // iterator ranges.
 
-    // generic utility that needs a non-template hosted home
     template <class InputIterator>
     static native_std::size_t insertDistance(InputIterator first,
                                              InputIterator last);
@@ -87,8 +86,12 @@ struct IteratorUtil {
         // to the standard input-iterator category, otherwise return the number
         // of elements that is reachable from the specified 'first' to (but not
         // including) the specified 'last'.  The behavior is undefined unless
-        // 'last' is reachable from 'first' by (possibly repeatedly)
-        // incrementing 'first'.
+        // 'last' is reachable from 'first'.  This function has a constant-time
+        // complexity if the iterator category of 'InputIterator' is a strictly
+        // a standard input iterator, or is a random access iterator, otherwise
+        // it is linear in the length of the range ['first', 'last').  Note
+        // that this function always returns 0 when compiled with the Sun
+        // compiler, while we work around issues in the Sun standard library.
 };
 
 // ============================================================================
@@ -106,6 +109,7 @@ native_std::size_t IteratorUtil::insertDistance(InputIterator first,
 #if defined(BSLS_PLATFORM__CMP_SUN)
     // Need to work around Sun library broken treatment of iterator tag
     // dispatch.
+
     return 0;
 #else
     struct impl {
