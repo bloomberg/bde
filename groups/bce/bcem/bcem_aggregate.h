@@ -1667,7 +1667,7 @@ class bcem_Aggregate {
         // Return 'true' if the data referenced by this aggregate can be made
         // null, and 'false' otherwise.
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
     bool isUnset() const;
         // Return 'true' if the data referenced by this aggregate has the
         // "unset" value for its type (i.e., is an "unset" scalar as defined in
@@ -1676,7 +1676,7 @@ class bcem_Aggregate {
         // 'true'.  Note that this function should rarely be needed; generally
         // 'isNul2()' should be used instead; 'isUnset()' will be removed in a
         // future release.
-#endif
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
     int errorCode() const;
         // Return a negative error code describing the the status of this

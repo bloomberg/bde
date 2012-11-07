@@ -912,7 +912,7 @@ const bcem_Aggregate bcem_Aggregate::makeSelectionById(int id) const
     }
 }
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 bool bcem_Aggregate::isUnset() const
 {
     bool isUnsetFlag;
@@ -963,7 +963,7 @@ bool bcem_Aggregate::isUnset() const
     }
     return isUnsetFlag;
 }
-#endif // !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
 const bcem_Aggregate
 bcem_Aggregate::clone(bslma_Allocator *basicAllocator) const
