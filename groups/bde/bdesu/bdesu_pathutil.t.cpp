@@ -250,14 +250,14 @@ int main(int argc, char *argv[])
 #ifdef BSLS_PLATFORM_OS_WINDOWS
         leafless2 = "\\\\.\\pipe";
 #else
-        leafless2 = "/bb/data/tmp/"; // not really leafless but let's do
-                                     // SOMEthing on unix for this part
+        leafless2 = "/var/tmp/"; // not really leafless but let's do
+                                 // SOMEthing on unix for this part
 #endif
         ASSERT( 0 == bdesu_PathUtil::appendIfValid(&leafless2, "hello") );
 #ifdef BSLS_PLATFORM_OS_WINDOWS
         LOOP_ASSERT(leafless2, "\\\\.\\pipe\\hello" == leafless2);
 #else
-        LOOP_ASSERT(leafless2, "/bb/data/tmp/hello" == leafless2);
+        LOOP_ASSERT(leafless2, "/var/tmp/hello" == leafless2);
 #endif
       } break;
       case 2: {

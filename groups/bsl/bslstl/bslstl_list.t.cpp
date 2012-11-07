@@ -8716,6 +8716,9 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nusageExample2\n");
         usageExample2(veryVerbose);
 
+        remove("star_data1.txt");
+        remove("star_data2.txt");
+
       } break;
       case 28: {
         // --------------------------------------------------------------------

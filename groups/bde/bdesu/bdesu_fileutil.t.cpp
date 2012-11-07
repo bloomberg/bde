@@ -1998,7 +1998,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == bdesu_FileUtil::unmap(p, pageSize));
 
 #if 0
-        bdesu_FileUtil::FileDescriptor fd =
+        bdesu_FileUtil::FileDescriptor fd =  // /bb/data is Bloomberg-specific
                        bdesu_FileUtil::open("/bb/data/tmp/blahblah.tmp", 1, 0);
         int pageSize = bdesu_FileUtil::pageSize();
         int nPages = 1024*1024*1024 / pageSize;
