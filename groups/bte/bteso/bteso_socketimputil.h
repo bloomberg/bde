@@ -23,7 +23,7 @@ BDES_IDENT("$Id: $")
 // specific behavior is documented for sockets in blocking and non-blocking
 // mode.
 //
-///SYNOPSIS
+///Synopsis
 ///--------
 // The table below lists the functions of this component, and summarizes their
 // behavior.  Where the behavior for sockets in blocking and non-blocking mode
@@ -173,8 +173,8 @@ BDES_IDENT("$Id: $")
 // of times.  However, the 'cleanup' function must invoked the same number
 // of times.
 //
-///USAGE
-//------
+///Usage
+///-----
 // This component supports inter-process communication functionality, and so
 // possible usage within a single process would consist of half of a dialog,
 // either the "client" or the "server".  Note that the 'shutDown' operation
@@ -233,6 +233,7 @@ BDES_IDENT("$Id: $")
 //  sockets      | cleanup() |                   | cleanup() | sockets
 //  environment  +-----------+                   +-----------+ environment
 //..
+//
 ///Typical Server Usage
 ///- - - - - - - - - -
 // The following snippets of code illustrate a simple single user echo server
@@ -285,6 +286,7 @@ BDES_IDENT("$Id: $")
 //                                      &errCode);        assert(0 == rc);
 //      rc = bteso_SocketImpUtil::cleanup(&errCode);      assert(0 == rc);
 //..
+//
 ///Typical Client Usage
 ///- - - - - - - - - -
 // The following snippets of code illustrate a simple client implemented using
@@ -355,7 +357,7 @@ BDES_IDENT("$Id: $")
 #include <bsls_platform.h>
 #endif
 
-#ifdef BTESO_PLATFORM__WIN_SOCKETS
+#ifdef BTESO_PLATFORM_WIN_SOCKETS
     #ifndef INCLUDED_WINSOCK2
     #include <winsock2.h>                    // for WSABUF
     #define INCLUDED_WINSOCK2
@@ -366,7 +368,7 @@ BDES_IDENT("$Id: $")
     #endif
 #endif
 
-#ifdef BTESO_PLATFORM__BSD_SOCKETS
+#ifdef BTESO_PLATFORM_BSD_SOCKETS
 
     #ifndef INCLUDED_SYS_TYPES
     #include <sys/types.h>
@@ -415,11 +417,11 @@ struct bteso_SocketImpUtil {
             // fixed maximum length).
         BTESO_SOCKET_RAW = SOCK_RAW
             // Provides raw network protocol access.
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , SOCKET_STREAM   = BTESO_SOCKET_STREAM
       , SOCKET_DATAGRAM = BTESO_SOCKET_DATAGRAM
       , SOCKET_RAW      = BTESO_SOCKET_RAW
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     enum ShutDownType {
@@ -435,11 +437,11 @@ struct bteso_SocketImpUtil {
         BTESO_SHUTDOWN_BOTH
             // shut down both halves of the full-duplex connection associated
             // with the specified 'socket'.
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , SHUTDOWN_RECEIVE = BTESO_SHUTDOWN_RECEIVE
       , SHUTDOWN_SEND    = BTESO_SHUTDOWN_SEND
       , SHUTDOWN_BOTH    = BTESO_SHUTDOWN_BOTH
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     template <class ADDRESS>
@@ -829,24 +831,24 @@ struct bteso_SocketImpUtil_Util {
 
     // The type for the length of the sockaddr structure differs by platform
     // create a type that is platform independent here.
-#if defined(BTESO_PLATFORM__WIN_SOCKETS) \
-    || defined(BSLS_PLATFORM__OS_HPUX)
+#if defined(BTESO_PLATFORM_WIN_SOCKETS) \
+    || defined(BSLS_PLATFORM_OS_HPUX)
     typedef int ADDRLEN_T;
 
 #else
     typedef socklen_t ADDRLEN_T;
 #endif
 
-#ifdef BTESO_PLATFORM__WIN_SOCKETS
+#ifdef BTESO_PLATFORM_WIN_SOCKETS
     enum {
         BTESO_INVALID_SOCKET_HANDLE = INVALID_SOCKET
 #else
     enum {
         BTESO_INVALID_SOCKET_HANDLE = -1
 #endif
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , INVALID_SOCKET_HANDLE = BTESO_INVALID_SOCKET_HANDLE
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
         // The platform-specific value returned by a socket call that creates
         // a new socket indicating failure to create a socket.
@@ -1501,7 +1503,7 @@ int bteso_SocketImpUtil_Imp<ADDRESS>::writevTo(
                                 int                                numBuffs,
                                 int                               *errorCode)
 {
-#if defined(BTESO_PLATFORM__BSD_SOCKETS)
+#if defined(BTESO_PLATFORM_BSD_SOCKETS)
     int rc;
 
     bteso_SocketImpUtil_Address<ADDRESS> sockAddress(toAddress);
@@ -1510,7 +1512,7 @@ int bteso_SocketImpUtil_Imp<ADDRESS>::writevTo(
     // set unused fields to 0 portably
     memset(&msg, 0, sizeof msg);
 
-#if defined(BSLS_PLATFORM__OS_HPUX)
+#if defined(BSLS_PLATFORM_OS_HPUX)
     msg.msg_name = (caddr_t) &sockAddress.d_address;
 #else
     msg.msg_name = (sockaddr *) &sockAddress.d_address;
@@ -1528,7 +1530,7 @@ int bteso_SocketImpUtil_Imp<ADDRESS>::writevTo(
           bteso_SocketImpUtil_Util::mapErrorCode(errorNumber) : rc;
 #endif
 
-#if defined(BTESO_PLATFORM__WIN_SOCKETS)
+#if defined(BTESO_PLATFORM_WIN_SOCKETS)
     // On platforms which don't have sendmsg we use the writeTo method
     // and copy data if necessary.
     const int maxPacket = 1500; // Assume MTU size of 1500

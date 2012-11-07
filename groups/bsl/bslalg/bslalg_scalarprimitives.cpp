@@ -4,7 +4,7 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 // IMPLEMENTATION NOTES: The 'bslalg::TypeTraitPair' trait is slated to
 // disappear, as a pair is like any other type w.r.t. the constructors and
 // 'bslma::Allocator'.  Nevertheless, it is used for different purposes in
@@ -18,7 +18,7 @@ BSLS_IDENT("$Id$ $CSID$")
 // these reasons, we have retained the trait and support it in the
 // implementations of 'bslalg::ScalarPrimitives::construct' and
 // 'copyConstruct'.
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 // ---------------------------------------------------------------------------
 // NOTICE:

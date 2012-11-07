@@ -32,6 +32,11 @@ BSLS_IDENT("$Id: $")
 // measure the overhead of the loop separately and subtract that time from the
 // over-all time interval.
 //
+///Accuracy on Windows
+///- - - - - - - - - -
+// 'bsls::Stopwatch' may be slow or inconsistent on some Windows machines.  See
+// the 'Accuracy and Precision' section of 'bsls_timeutil.h'.
+//
 ///Usage
 ///-----
 // The following snippets of code illustrate basic use of a 'bsls::Stopwatch'
@@ -113,7 +118,8 @@ class Stopwatch {
     Types::Int64 d_startUserTime;          // user time when
                                            // started (nanoseconds)
 
-    Types::Int64 d_startWallTime;          // wall time when
+    TimeUtil::OpaqueNativeTime d_startWallTime;
+                                           // wall time when
                                            // started (nanoseconds)
 
     Types::Int64 d_accumulatedSystemTime;  // accumulated system
@@ -136,6 +142,7 @@ class Stopwatch {
                                                        // (for nanoseconds to
                                                        // seconds)
 
+  private:
     // NOT IMPLEMENTED
     Stopwatch(const Stopwatch&);
     Stopwatch& operator=(const Stopwatch&);
@@ -146,12 +153,16 @@ class Stopwatch {
         // Update the CPU times accumulated but this stopwatch.
 
     // PRIVATE ACCESSORS
-    void accumulatedTimesRaw(Types::Int64 *systemTime,
-                             Types::Int64 *userTime,
-                             Types::Int64 *wallTime) const;
+    void accumulatedTimesRaw(Types::Int64               *systemTime,
+                             Types::Int64               *userTime,
+                             TimeUtil::OpaqueNativeTime *wallTime) const;
         // Load into the specified 'systemTime', 'userTime', and 'wallTime' the
         // values of the system time, user time, and wall time (in
         // nanoseconds), respectively, as provided by 'TimeUtil'.
+
+    Types::Int64 elapsedWallTime(TimeUtil::OpaqueNativeTime rawWallTime) const;
+        // Return the elapsed time, in nanoseconds, between the current
+        // 'd_startWallTime' and the specified 'rawWallTime'.
 
   public:
     // CREATORS
@@ -228,13 +239,22 @@ class Stopwatch {
 
 // PRIVATE ACCESSORS
 inline
-void Stopwatch::accumulatedTimesRaw(Types::Int64 *systemTime,
-                                    Types::Int64 *userTime,
-                                    Types::Int64 *wallTime) const
+void Stopwatch::accumulatedTimesRaw(Types::Int64               *systemTime,
+                                    Types::Int64               *userTime,
+                                    TimeUtil::OpaqueNativeTime *wallTime) const
 {
     TimeUtil::getProcessTimers(systemTime, userTime);
-    *wallTime = TimeUtil::getTimer();
+    TimeUtil::getTimerRaw(wallTime);
 }
+
+inline
+Types::Int64 Stopwatch::elapsedWallTime(
+                                  TimeUtil::OpaqueNativeTime rawWallTime) const
+{
+    return TimeUtil::convertRawTime(rawWallTime)
+         - TimeUtil::convertRawTime(d_startWallTime);
+}
+
 
 // CREATORS
 inline
@@ -269,7 +289,7 @@ void Stopwatch::start(bool collectCpuTimes)
                                 &d_startWallTime);
         }
         else {
-            d_startWallTime =  TimeUtil::getTimer();
+            TimeUtil::getTimerRaw(&d_startWallTime);
         }
         d_isRunning = true;
     }
@@ -283,8 +303,9 @@ void Stopwatch::stop()
             updateTimes();
         }
         else {
-            d_accumulatedWallTime +=
-                                   TimeUtil::getTimer() - d_startWallTime;
+            TimeUtil::OpaqueNativeTime now;
+            TimeUtil::getTimerRaw(&now);
+            d_accumulatedWallTime += elapsedWallTime(now);
         }
         d_isRunning = false;
     }
@@ -295,47 +316,45 @@ inline
 double Stopwatch::accumulatedSystemTime() const
 {
     if (!d_collectCpuTimesFlag) {
-        return 0.0;
+        return 0.0;                                                   // RETURN
     }
 
     if (d_isRunning) {
         return (double)(d_accumulatedSystemTime
                   + TimeUtil::getProcessSystemTimer() - d_startSystemTime)
                                                       / s_nanosecondsPerSecond;
+                                                                      // RETURN
     }
-    else {
-        return (double)d_accumulatedSystemTime / s_nanosecondsPerSecond;
-    }
+    return (double)d_accumulatedSystemTime / s_nanosecondsPerSecond;
 }
 
 inline
 double Stopwatch::accumulatedUserTime() const
 {
     if (!d_collectCpuTimesFlag) {
-        return 0.0;
+        return 0.0;                                                   // RETURN
     }
 
     if (d_isRunning) {
         return (double)(d_accumulatedUserTime
                       + TimeUtil::getProcessUserTimer() - d_startUserTime)
                                                       / s_nanosecondsPerSecond;
+                                                                      // RETURN
     }
-    else {
-        return (double)d_accumulatedUserTime / s_nanosecondsPerSecond;
-    }
+    return (double)d_accumulatedUserTime / s_nanosecondsPerSecond;
 }
 
 inline
 double Stopwatch::accumulatedWallTime() const
 {
     if (d_isRunning) {
-        return (double)(d_accumulatedWallTime
-                                 + TimeUtil::getTimer() - d_startWallTime)
+        TimeUtil::OpaqueNativeTime now;
+        TimeUtil::getTimerRaw(&now);
+        return (double)(d_accumulatedWallTime + elapsedWallTime(now))
                                                       / s_nanosecondsPerSecond;
+                                                                      // RETURN
     }
-    else {
-        return (double)d_accumulatedWallTime / s_nanosecondsPerSecond;
-    }
+    return (double)d_accumulatedWallTime / s_nanosecondsPerSecond;
 }
 
 inline
@@ -352,12 +371,14 @@ bool Stopwatch::isRunning() const
 
 }  // close package namespace
 
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
 
 typedef bsls::Stopwatch bsls_Stopwatch;
     // This alias is defined for backward compatibility.
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

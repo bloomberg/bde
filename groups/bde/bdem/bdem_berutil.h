@@ -110,6 +110,14 @@ BDES_IDENT("$Id: $")
 #include <bdem_berencoderoptions.h>
 #endif
 
+#ifndef INCLUDED_BDEPU_ISO8601
+#include <bdepu_iso8601.h>
+#endif
+
+#ifndef INCLUDED_BDEUT_VARIANT
+#include <bdeut_variant.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_ASSERT
 #include <bslmf_assert.h>
 #endif
@@ -184,9 +192,9 @@ struct bdem_BerUtil {
         BDEM_INDEFINITE_LENGTH = -1  // used to indicate that the length is
                                      // indefinite
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , INDEFINITE_LENGTH = BDEM_INDEFINITE_LENGTH
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     // CLASS METHODS
@@ -287,6 +295,48 @@ struct bdem_BerUtil_Imp {
     // This 'struct' contains implementation functions used by the namespace
     // 'bdem_BerUtil'.
 
+  private:
+    // CONSTANTS
+    enum {
+        // This 'enum' lists constants that are used for encoding date and
+        // time types in a binary encoding format.
+
+        MAX_BINARY_DATE_LENGTH             = 3,
+        MAX_BINARY_TIME_LENGTH             = 4,
+        MAX_BINARY_DATETIME_LENGTH         = 6,
+
+        MIN_BINARY_DATETZ_LENGTH           = MAX_BINARY_DATE_LENGTH + 1,
+        MIN_BINARY_TIMETZ_LENGTH           = MAX_BINARY_TIME_LENGTH + 1,
+        MIN_BINARY_DATETIMETZ_LENGTH       = MAX_BINARY_DATETIME_LENGTH + 1,
+
+        MAX_BINARY_DATETZ_LENGTH           = 5,
+        MAX_BINARY_TIMETZ_LENGTH           = 6,
+        MAX_BINARY_DATETIMETZ_LENGTH       = 9
+    };
+
+    struct BinaryDateTimeFormat {
+        // This 'struct' provides a function that specifies the maximum length
+        // required to encode an object in the binary BER (octet string)
+        // format.
+
+        template <typename TYPE>
+        static int maxLength();
+            // Return the maximum length, in bytes, required to encode an
+            // object of the templated 'TYPE' in the binary ber format.
+    };
+
+    struct StringDateTimeFormat {
+        // This 'struct' provides a function that specifies the maximum length
+        // required to encode an object in the ISO 8601 BER (visible string)
+        // format.
+
+        template <typename TYPE>
+        static int maxLength();
+            // Return the maximum length, in bytes, required to encode an
+            // object of the templated 'TYPE' in the ISO 8601 format.
+    };
+
+  public:
     enum {
         INDEFINITE_LENGTH       = bdem_BerUtil::BDEM_INDEFINITE_LENGTH,
         BITS_PER_OCTET          = 8,
@@ -358,6 +408,10 @@ struct bdem_BerUtil_Imp {
     static int getValue(bsl::streambuf *streamBuf,
                         bdet_TimeTz    *value,
                         int             length);
+    template <typename TYPE, typename TYPETZ>
+    static int getValue(bsl::streambuf               *streamBuf,
+                        bdeut_Variant2<TYPE, TYPETZ> *value,
+                        int                           length);
 
     static int numBytesToStream(short value);
     static int numBytesToStream(int value);
@@ -468,6 +522,91 @@ struct bdem_BerUtil_Imp {
                             // -------------------
                             // struct bdem_BerUtil
                             // -------------------
+
+// PRIVATE CLASS METHODS
+template <>
+inline
+int bdem_BerUtil_Imp::BinaryDateTimeFormat::maxLength<bdet_Date>()
+{
+    return MAX_BINARY_DATE_LENGTH;
+}
+
+template <>
+inline
+int bdem_BerUtil_Imp::BinaryDateTimeFormat::maxLength<bdet_Time>()
+{
+    return MAX_BINARY_TIME_LENGTH;
+}
+
+template <>
+inline
+int bdem_BerUtil_Imp::BinaryDateTimeFormat::maxLength<bdet_Datetime>()
+{
+    return MAX_BINARY_DATETIME_LENGTH;
+}
+
+template <>
+inline
+int bdem_BerUtil_Imp::BinaryDateTimeFormat::maxLength<bdet_DateTz>()
+{
+    return MAX_BINARY_DATETZ_LENGTH;
+}
+
+template <>
+inline
+int bdem_BerUtil_Imp::BinaryDateTimeFormat::maxLength<bdet_TimeTz>()
+{
+    return MAX_BINARY_TIMETZ_LENGTH;
+}
+
+template <>
+inline
+int bdem_BerUtil_Imp::BinaryDateTimeFormat::maxLength<bdet_DatetimeTz>()
+{
+    return MAX_BINARY_DATETIMETZ_LENGTH;
+}
+
+template <>
+inline
+int bdem_BerUtil_Imp::StringDateTimeFormat::maxLength<bdet_Date>()
+{
+    return bdepu_Iso8601::BDEPU_DATE_STRLEN;
+}
+
+template <>
+inline
+int bdem_BerUtil_Imp::StringDateTimeFormat::maxLength<bdet_Time>()
+{
+    return bdepu_Iso8601::BDEPU_TIME_STRLEN;
+}
+
+template <>
+inline
+int bdem_BerUtil_Imp::StringDateTimeFormat::maxLength<bdet_Datetime>()
+{
+    return bdepu_Iso8601::BDEPU_DATETIME_STRLEN;
+}
+
+template <>
+inline
+int bdem_BerUtil_Imp::StringDateTimeFormat::maxLength<bdet_DateTz>()
+{
+    return bdepu_Iso8601::BDEPU_DATETZ_STRLEN;
+}
+
+template <>
+inline
+int bdem_BerUtil_Imp::StringDateTimeFormat::maxLength<bdet_TimeTz>()
+{
+    return bdepu_Iso8601::BDEPU_TIMETZ_STRLEN;
+}
+
+template <>
+inline
+int bdem_BerUtil_Imp::StringDateTimeFormat::maxLength<bdet_DatetimeTz>()
+{
+    return bdepu_Iso8601::BDEPU_DATETIMETZ_STRLEN;
+}
 
 // CLASS METHODS
 inline
@@ -711,6 +850,42 @@ int bdem_BerUtil_Imp::getValue(bsl::streambuf *streamBuf,
     return bdem_BerUtil_Imp::getDoubleValue(streamBuf, value, length);
 }
 
+template <typename TYPE, typename TYPETZ>
+int bdem_BerUtil_Imp::getValue(bsl::streambuf               *streamBuf,
+                               bdeut_Variant2<TYPE, TYPETZ> *value,
+                               int                           length)
+{
+    BSLMF_ASSERT((bslmf_IsSame<bdet_Date, TYPE>::VALUE
+               && bslmf_IsSame<bdet_DateTz, TYPETZ>::VALUE)
+              || (bslmf_IsSame<bdet_Time, TYPE>::VALUE
+               && bslmf_IsSame<bdet_TimeTz, TYPETZ>::VALUE)
+              || (bslmf_IsSame<bdet_Datetime, TYPE>::VALUE
+               && bslmf_IsSame<bdet_DatetimeTz, TYPETZ>::VALUE));
+
+    const int MAX_BINARY_TYPETZ_LENGTH =
+                                     BinaryDateTimeFormat::maxLength<TYPETZ>();
+    const int MAX_BINARY_TYPE_LENGTH = BinaryDateTimeFormat::maxLength<TYPE>();
+    const int MAX_STRING_TYPE_LENGTH = StringDateTimeFormat::maxLength<TYPE>();
+
+    bool doesNotHaveTzOffset = length > MAX_BINARY_TYPETZ_LENGTH
+                             ? length <= MAX_STRING_TYPE_LENGTH
+                             : length <= MAX_BINARY_TYPE_LENGTH;
+
+    if (doesNotHaveTzOffset) {
+        // Decode into TYPE
+
+        value->template createInPlace<TYPE>();
+        return getValue(streamBuf,
+                        &value->template the<TYPE>(),
+                        length);                                      // RETURN
+    }
+
+    // Decode into TYPETZ
+
+    value->template createInPlace<TYPETZ>();
+    return getValue(streamBuf, &value->template the<TYPETZ>(), length);
+}
+
 template <typename TYPE>
 int bdem_BerUtil_Imp::numBytesToStream(TYPE value)
 {
@@ -788,7 +963,7 @@ int bdem_BerUtil_Imp::putIntegerGivenLength(bsl::streambuf *streamBuf,
         return BDEM_FAILURE;                                          // RETURN
     }
 
-#if BSLS_PLATFORMUTIL__IS_BIG_ENDIAN
+#if BSLS_PLATFORMUTIL_IS_BIG_ENDIAN
     return length == streamBuf->sputn((char *) &value + sizeof(TYPE) - length,
                                       length)
          ? BDEM_SUCCESS

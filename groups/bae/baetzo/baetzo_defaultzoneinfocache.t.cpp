@@ -521,7 +521,7 @@ static const char unsigned AMERICA_NEW_YORK_DATA[] = {
     , 0x2e, 0x30, 0x0a
 };
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
 static const char *GMT_FILE              = "defaultzictest\\GMT";
 static const char *ETC_UTC_FILE          = "defaultzictest\\Etc\\UTC";
 static const char *AMERICA_NEW_YORK_FILE = "defaultzictest\\America\\New_York";
@@ -574,7 +574,7 @@ int main(int argc, char *argv[])
         defaultAllocator.setVerbose(true);
     }
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
     _putenv((char *) "BDE_ZONEINFO_ROOT_PATH=.\\defaultzictest");
 #else
     putenv((char *) "BDE_ZONEINFO_ROOT_PATH=./defaultzictest");
@@ -937,7 +937,7 @@ int main(int argc, char *argv[])
                           << "==============================================="
                           << endl;
 
-#ifndef BSLS_PLATFORM__OS_WINDOWS
+#ifndef BSLS_PLATFORM_OS_WINDOWS
         if (verbose) cout << "Testing with 'BDE_ZONEINFO_ROOT_PATH' set"
                           << endl;
         {
@@ -969,6 +969,7 @@ int main(int argc, char *argv[])
             // TBD: find a better way to determine which path will be returned
             // on a build machine.
 
+            // /bb/data/datetime/zoneinfo is Bloomberg-specific
             LOOP2_ASSERT( L_, RESULT,
                         0 == strcmp(RESULT, "/bb/data/datetime/zoneinfo/")
                      || 0 == strcmp(RESULT, "/usr/share/lib/zoneinfo/")
@@ -1063,7 +1064,7 @@ int main(int argc, char *argv[])
             // LINE   EXP_PATH
             // ----   --------
 
-            L_,       "/bb/data/datetime/zoneinfo/",
+            L_,       "/bb/data/datetime/zoneinfo/",  // Bloomberg-specific
             L_,       "/usr/share/lib/zoneinfo/",
         };
         const int NUM_VALUES = sizeof(VALUES) / sizeof(*VALUES);
@@ -1083,7 +1084,7 @@ int main(int argc, char *argv[])
             LOOP2_ASSERT(L_, defaultAllocator.numBytesInUse(),
                          DA_NUM_BYTES == defaultAllocator.numBytesInUse());
 
-#ifndef BSLS_PLATFORM__OS_WINDOWS
+#ifndef BSLS_PLATFORM_OS_WINDOWS
             // Make sure 'locations' contains the same number of paths as
             // expected.
 
@@ -1204,6 +1205,12 @@ int main(int argc, char *argv[])
     if (testStatus > 0) {
         cerr << "Error, non-zero test status = " << testStatus << "." << endl;
     }
+
+    // TBD: multiple test cases use the same path and so cleanup can not occur
+    //      after each test case ends, or else there is a race condition when
+    //      multiple test cases are run in parallel
+    //bdesu_FileUtil::remove("defaultzictest", true);
+
     return testStatus;
 }
 

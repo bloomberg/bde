@@ -596,7 +596,7 @@ bsl::ostream& printDecimalImpl(bsl::ostream& stream,
 
     char buffer[DBL_MAX_10_EXP + DBL_DIG + 4];  // buffer with headroom
 
-#if defined(BSLS_PLATFORM__CMP_MSVC)
+#if defined(BSLS_PLATFORM_CMP_MSVC)
 #pragma warning(push)
 #pragma warning(disable:4996)     // suppress 'sprintf' deprecation warning
 #endif
@@ -605,7 +605,7 @@ bsl::ostream& printDecimalImpl(bsl::ostream& stream,
     const int len = ::sprintf(buffer, "%-#1.*f", precision, object);
     BSLS_ASSERT(len < (int) sizeof buffer);
 
-#if defined(BSLS_PLATFORM__CMP_MSVC)
+#if defined(BSLS_PLATFORM_CMP_MSVC)
 #pragma warning(pop)
 #endif
 
@@ -680,7 +680,7 @@ bsl::ostream& printDecimalWithOptions(bsl::ostream& stream,
         maxFractionDigits = maxTotalDigits - 1;
     }
 
-#if defined(BSLS_PLATFORM__CMP_MSVC)
+#if defined(BSLS_PLATFORM_CMP_MSVC)
 #pragma warning(push)
 #pragma warning(disable:4996)     // suppress 'sprintf' deprecation warning
 #endif
@@ -689,7 +689,7 @@ bsl::ostream& printDecimalWithOptions(bsl::ostream& stream,
     const int len = ::sprintf(buffer, "%-#1.*f", maxFractionDigits, object);
     BSLS_ASSERT(len < (int) sizeof buffer);
 
-#if defined(BSLS_PLATFORM__CMP_MSVC)
+#if defined(BSLS_PLATFORM_CMP_MSVC)
 #pragma warning(pop)
 #endif
 
@@ -919,7 +919,7 @@ bsl::ostream& baexml_TypesPrintUtil_Imp::printDefault(
 
         char buffer[FLT_DIG + 20];  // buffer with headroom
 
-#if defined(BSLS_PLATFORM__CMP_MSVC)
+#if defined(BSLS_PLATFORM_CMP_MSVC)
 #pragma warning(push)
 #pragma warning(disable:4996)     // suppress 'sprintf' deprecation warning
 #endif
@@ -928,7 +928,7 @@ bsl::ostream& baexml_TypesPrintUtil_Imp::printDefault(
                                      (double) object);
         BSLS_ASSERT(len < (int) sizeof buffer);
 
-#if defined(BSLS_PLATFORM__CMP_MSVC)
+#if defined(BSLS_PLATFORM_CMP_MSVC)
 #pragma warning(pop)
 #endif
 
@@ -965,7 +965,7 @@ bsl::ostream& baexml_TypesPrintUtil_Imp::printDefault(
 
         char buffer[DBL_DIG + 20];  // buffer with headroom
 
-#if defined(BSLS_PLATFORM__CMP_MSVC)
+#if defined(BSLS_PLATFORM_CMP_MSVC)
 #pragma warning(push)
 #pragma warning(disable:4996)     // suppress 'sprintf' deprecation warning
 #endif
@@ -973,7 +973,7 @@ bsl::ostream& baexml_TypesPrintUtil_Imp::printDefault(
         const int len = ::sprintf(buffer, "%.*g", DBL_DIG + 1, object);
         BSLS_ASSERT(len < (int) sizeof buffer);
 
-#if defined(BSLS_PLATFORM__CMP_MSVC)
+#if defined(BSLS_PLATFORM_CMP_MSVC)
 #pragma warning(pop)
 #endif
 

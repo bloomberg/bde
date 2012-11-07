@@ -30,7 +30,7 @@
 
 #include <bsl_cstdlib.h>      // atoi()
 #include <bsl_cstring.h>      // strlen(), memset(), memcpy(), memcmp()
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
 #include <unistd.h>     // getpid()
 #endif
 
@@ -209,7 +209,7 @@ static int valCharToIndex(char val)
 
 static int getPid()
 {
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
     return getpid();
 #else
     return 0;
@@ -1958,14 +1958,14 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\t\tWith exceptions." << endl;
         {
-#if !defined(BSLS_PLATFORM__CMP_MSVC) || defined(BDE_BUILD_TARGET_OPT)
+#if !defined(BSLS_PLATFORM_CMP_MSVC) || defined(BDE_BUILD_TARGET_OPT)
           BEGIN_BSLMA_EXCEPTION_TEST {
 #endif
             if (veryVerbose) cout <<
                 "\tTesting Exceptions In Default Ctor" << endl;
             const Obj X(&testAllocator);
             if (veryVerbose) { cout << "\t\t"; P(X); }
-#if !defined(BSLS_PLATFORM__CMP_MSVC) || defined(BDE_BUILD_TARGET_OPT)
+#if !defined(BSLS_PLATFORM_CMP_MSVC) || defined(BDE_BUILD_TARGET_OPT)
           } END_BSLMA_EXCEPTION_TEST
 #endif
         }
@@ -1988,14 +1988,14 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\t\tWith exceptions." << endl;
         {
-#if !defined(BSLS_PLATFORM__CMP_MSVC) || defined(BDE_BUILD_TARGET_OPT)
+#if !defined(BSLS_PLATFORM_CMP_MSVC) || defined(BDE_BUILD_TARGET_OPT)
           BEGIN_BSLMA_EXCEPTION_TEST {
 #endif
             if (veryVerbose) cout <<
                 "\tTesting Exceptions In Ctor" << endl;
             const Obj X(FB, XU, &testAllocator);
             if (veryVerbose) { cout << "\t\t"; P(X); }
-#if !defined(BSLS_PLATFORM__CMP_MSVC) || defined(BDE_BUILD_TARGET_OPT)
+#if !defined(BSLS_PLATFORM_CMP_MSVC) || defined(BDE_BUILD_TARGET_OPT)
           } END_BSLMA_EXCEPTION_TEST
 #endif
         }
@@ -2067,7 +2067,7 @@ int main(int argc, char *argv[])
             bslma_TestAllocator testAllocatorX(veryVeryVerbose);
             bslma_TestAllocator testAllocatorY(veryVeryVerbose);
             bslma_TestAllocator testAllocatorZ(veryVeryVerbose);
-#if !defined(BSLS_PLATFORM__CMP_MSVC) || defined(BDE_BUILD_TARGET_OPT)
+#if !defined(BSLS_PLATFORM_CMP_MSVC) || defined(BDE_BUILD_TARGET_OPT)
           BEGIN_BSLMA_EXCEPTION_TEST {
 #endif
             if (veryVerbose) cout <<
@@ -2097,7 +2097,7 @@ int main(int argc, char *argv[])
             mX.setFixedFields(FC);             ASSERT(mX.fixedFields() == FC);
             mX.setUserFields(YU);              ASSERT(mX.userFields()  == YU);
             ASSERT(mX == mZ);
-#if !defined(BSLS_PLATFORM__CMP_MSVC) || defined(BDE_BUILD_TARGET_OPT)
+#if !defined(BSLS_PLATFORM_CMP_MSVC) || defined(BDE_BUILD_TARGET_OPT)
           } END_BSLMA_EXCEPTION_TEST
 #endif
         }

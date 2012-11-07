@@ -650,13 +650,13 @@ class bdex_TestInStream {
         // fails to extract a valid value, this stream is marked invalid and
         // the value of 'variable' is undefined.
 
-// TBD #if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+// TBD #ifndef BDE_OMIT_DEPRECATED
 
     template <typename TYPE>
     bdex_TestInStream& get(TYPE& variable);
         // TBD
 
-// TBD #endif
+// TBD #endif  // BDE_OMIT_DEPRECATED
 
                         // *** scalar integer values ***
 
@@ -1124,7 +1124,7 @@ class bdex_TestInStream {
 };
 
 // FREE OPERATORS
-// TBD #if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+// TBD #ifndef BDE_OMIT_DEPRECATED
 
 template <typename VALUE>
 inline
@@ -1144,7 +1144,7 @@ bdex_TestInStream& operator>>(bdex_TestInStream& stream, VALUE& value);
     // which case this operator calls the appropriate 'get' method from this
     // component.
 
-// TBD #endif
+// TBD #endif  // BDE_OMIT_DEPRECATED
 
 bsl::ostream& operator<<(bsl::ostream&            stream,
                          const bdex_TestInStream& obj);
@@ -1262,7 +1262,7 @@ void bdex_TestInStream::reset()
     d_formatter.reset();
 }
 
-// TBD #if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+// TBD #ifndef BDE_OMIT_DEPRECATED
 
 template <typename TYPE>
 inline
@@ -1271,7 +1271,7 @@ bdex_TestInStream& bdex_TestInStream::get(TYPE& variable)
     return bdex_InStreamMethodsUtil::streamInVersionAndObject(*this, variable);
 }
 
-// TBD #endif
+// TBD #endif  // BDE_OMIT_DEPRECATED
 
 // ACCESSORS
 inline
@@ -1316,7 +1316,7 @@ int bdex_TestInStream::inputLimit() const
     return d_formatter.inputLimit();
 }
 
-// TBD #if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+// TBD #ifndef BDE_OMIT_DEPRECATED
 
 template <typename VALUE>
 inline
@@ -1325,7 +1325,7 @@ bdex_TestInStream& operator>>(bdex_TestInStream& stream, VALUE& value)
     return stream.get(value);
 }
 
-// TBD #endif
+// TBD #endif  // BDE_OMIT_DEPRECATED
 
 }  // close namespace BloombergLP
 

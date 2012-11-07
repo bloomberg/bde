@@ -7,7 +7,7 @@
 #endif
 BDES_IDENT("$Id: $")
 
-//@PURPOSE: Provide a stream buffer initialized with a file descriptor
+//@PURPOSE: Provide a stream buffer initialized with a file descriptor.
 //
 //@CLASSES:
 //   bdesu_FdStreamBuf: stream buffer constructed with file descriptor
@@ -95,7 +95,7 @@ BDES_IDENT("$Id: $")
 //..
 //  char fileNameBuffer[100];
 //  bsl::sprintf(fileNameBuffer,
-//#ifdef BSLS_PLATFORM__OS_UNIX
+//#ifdef BSLS_PLATFORM_OS_UNIX
 //               "/tmp/bdesu_FdStreamBuf.usage.1.%d.txt",
 //#else // windows
 //               "C:\\TEMP\\bdesu_FdStreamBuf.usage.1.%d.txt";
@@ -163,7 +163,7 @@ BDES_IDENT("$Id: $")
 //          is >> bsl::noskipws >> *pc++;
 //      } while ('\n' != pc[-1]);
 //
-//#ifdef BSLS_PLATFORM__OS_UNIX
+//#ifdef BSLS_PLATFORM_OS_UNIX
 //      assert(!bsl::strcmp("Five times nine point five = 47.5\n", buf));
 //#else
 //      //On Windows we see a CRLF ('\r\n') instead of a simple LF '\n'
@@ -203,7 +203,7 @@ BDES_IDENT("$Id: $")
 //..
 //
 ///Example 2: streambuf
-/// - - - - - - - - - - 
+/// - - - - - - - - - -
 // For our second example we will create a 'bdesu_FdStreamBuf' associated with
 // a temporary file, and then use the public methods of the base class
 // interface, including 'sputn', 'sgetn' and 'pubseekpos', to do some I/O and
@@ -223,7 +223,7 @@ BDES_IDENT("$Id: $")
 //..
 //  char fileNameBuffer[100];
 //  bsl::sprintf(fileNameBuffer,
-//#ifdef BSLS_PLATFORM__OS_UNIX
+//#ifdef BSLS_PLATFORM_OS_UNIX
 //               "/tmp/bdesu_FdStreamBuf.usage.2.%d.txt",
 //#else // windows
 //               "C:\\TEMP\\bdesu_FdStreamBuf.usage.2.%d.txt",
@@ -451,7 +451,7 @@ class bdesu_FdStreamBuf_FileHandler {
 
   private:
     // PRIVATE MANIPULATORS
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
     int windowsWriteText(const char *buffer, int numChars);
         // Write the specified 'numChars' characters from the specified
         // 'buffer' to this object's file descriptor.  Return the number of
@@ -906,6 +906,14 @@ class bdesu_FdStreamBuf : public bsl::streambuf {
         // Set the locale for this object.  This method has no effect.  The
         // behavior is undefined unless 'locale == bsl::locale()'.
 
+    virtual bsl::streamsize showmanyc();
+        // If this object is in putback mode, return the number of characters
+        // remaining to be read in the putback buffer, and otherwise the
+        // number of characters remaining in the file to be read.  Return a
+        // non-negative number of characters on success and a negative value
+        // otherwise.  The behavior is undefined unless this object is in input
+        // mode and the file descriptor is associated with a regular file.
+
     virtual bsl::streamsize xsgetn(char *buffer, bsl::streamsize numBytes);
         // Read up to the specified 'numBytes' characters from the file
         // descriptor into the specified 'buffer' and return the number of
@@ -923,15 +931,6 @@ class bdesu_FdStreamBuf : public bsl::streambuf {
         // the file at a later time.  Also note that on a Windows text file, a
         // '\n' will be written to the file as '\r\n' (counted as a single
         // character).
-
-    // PROTECTED ACCESSORS
-    virtual bsl::streamsize showmanyc();
-        // If this object is in putback mode, return the number of characters
-        // remaining to be read in the putback buffer, and otherwise the
-        // number of characters remaining in the file to be read.  Return a
-        // non-negative number of characters on success and a negative value
-        // otherwise.  The behavior is undefined unless this object is in input
-        // mode and the file descriptor is associated with a regular file.
 
   private:
     // NOT IMPLEMENTED
@@ -1072,7 +1071,7 @@ bdesu_FdStreamBuf_FileHandler::getOffset(char *first, char *last) const
 inline
 bool bdesu_FdStreamBuf_FileHandler::isInBinaryMode() const
 {
-#if defined(BSLS_PLATFORM__OS_UNIX)
+#if defined(BSLS_PLATFORM_OS_UNIX)
     return true;
 # else
     // Windows

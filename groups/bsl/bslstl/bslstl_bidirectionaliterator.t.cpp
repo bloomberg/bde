@@ -6,7 +6,7 @@
 #include <bslmf_issame.h>
 #include <bsls_unspecifiedbool.h>
 
-#include <climits>
+#include <cstdio>
 #include <cstdlib>
 #include <iostream>
 #include <sstream>
@@ -657,8 +657,8 @@ int main(int argc, char *argv[])
         // Testing:
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
-        if (verbose) printf("\nUSAGE EXAMPLE"
-                            "\n=============");
+        if (verbose) cout << ("\nUSAGE EXAMPLE"
+                              "\n=============");
 
         using namespace testcontainer;
 
@@ -1442,23 +1442,23 @@ int main(int argc, char *argv[])
         //  Assert iterator_traits finds the expected typedefs
         typedef bsl::iterator_traits<iter_type>  IterTraits;
         typedef bsl::iterator_traits<const_iter_type>  ConstIterTraits;
-        ASSERT((bslmf::IsSame<IterTraits::difference_type,
-                              std::ptrdiff_t>::VALUE));
-        ASSERT((bslmf::IsSame<IterTraits::value_type, int>::VALUE));
-        ASSERT((bslmf::IsSame<IterTraits::pointer, int *>::VALUE));
-        ASSERT((bslmf::IsSame<IterTraits::reference, int &>::VALUE));
-        ASSERT((bslmf::IsSame<IterTraits::iterator_category,
-                              std::bidirectional_iterator_tag>::VALUE));
+        ASSERT((bsl::is_same<IterTraits::difference_type,
+                              std::ptrdiff_t>::value));
+        ASSERT((bsl::is_same<IterTraits::value_type, int>::value));
+        ASSERT((bsl::is_same<IterTraits::pointer, int *>::value));
+        ASSERT((bsl::is_same<IterTraits::reference, int &>::value));
+        ASSERT((bsl::is_same<IterTraits::iterator_category,
+                              std::bidirectional_iterator_tag>::value));
 
-        ASSERT((bslmf::IsSame<ConstIterTraits::difference_type,
-                              std::ptrdiff_t>::VALUE));
-        ASSERT((bslmf::IsSame<ConstIterTraits::value_type,
-                              const int>::VALUE));
-        ASSERT((bslmf::IsSame<ConstIterTraits::pointer, const int *>::VALUE));
-        ASSERT((bslmf::IsSame<ConstIterTraits::reference,
-                              const int &>::VALUE));
-        ASSERT((bslmf::IsSame<ConstIterTraits::iterator_category,
-                              std::bidirectional_iterator_tag>::VALUE));
+        ASSERT((bsl::is_same<ConstIterTraits::difference_type,
+                              std::ptrdiff_t>::value));
+        ASSERT((bsl::is_same<ConstIterTraits::value_type,
+                              const int>::value));
+        ASSERT((bsl::is_same<ConstIterTraits::pointer, const int *>::value));
+        ASSERT((bsl::is_same<ConstIterTraits::reference,
+                              const int &>::value));
+        ASSERT((bsl::is_same<ConstIterTraits::iterator_category,
+                              std::bidirectional_iterator_tag>::value));
 
         if (verbose) cout << "\nPopulate the test list." << std::endl;
         int i;

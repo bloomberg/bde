@@ -54,7 +54,7 @@ struct Parameters {
     bool d_isRelative;
     bool d_isValidRaw;
 } parameters[] = {
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
    {L_, "", "", 0, 0,
          0, 1, 0},
    {L_, "\\", "\\", 0, 0,
@@ -184,7 +184,7 @@ int main(int argc, char *argv[])
         if (verbose) {
             cout << "Special path parsing test" << endl;
         }
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
         int rootEnd = bdesu_PathUtil::getRootEnd("\\\\machine\\dir\\");
         LOOP_ASSERT(rootEnd, 14 == rootEnd);
 #endif
@@ -207,7 +207,7 @@ int main(int argc, char *argv[])
            LEAFLESS_EXPECTED = 3
         };
         const char *absolute[] = {
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
             "\\\\machine\\dir\\logs",
             "\\\\machine\\dir\\logs\\hello",
             "\\\\machine\\dir\\",
@@ -220,7 +220,7 @@ int main(int argc, char *argv[])
 #endif
         };
         const char *relative[] = {
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
             "logs",
             "logs\\hello",
             "",
@@ -247,17 +247,17 @@ int main(int argc, char *argv[])
         }
 
         string leafless2;
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
         leafless2 = "\\\\.\\pipe";
 #else
-        leafless2 = "/bb/data/tmp/"; // not really leafless but let's do
-                                     // SOMEthing on unix for this part
+        leafless2 = "/var/tmp/"; // not really leafless but let's do
+                                 // SOMEthing on unix for this part
 #endif
         ASSERT( 0 == bdesu_PathUtil::appendIfValid(&leafless2, "hello") );
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
         LOOP_ASSERT(leafless2, "\\\\.\\pipe\\hello" == leafless2);
 #else
-        LOOP_ASSERT(leafless2, "/bb/data/tmp/hello" == leafless2);
+        LOOP_ASSERT(leafless2, "/var/tmp/hello" == leafless2);
 #endif
       } break;
       case 2: {
@@ -362,7 +362,7 @@ int main(int argc, char *argv[])
         if (verbose) {
            cout << "Usage Example Test" << endl;
         }
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
         bsl::string tempPath  = "c:\\windows\\temp";
         bsl::string otherPath = "22jan08\\log.txt";
 #else
@@ -382,7 +382,7 @@ int main(int argc, char *argv[])
         bdesu_PathUtil::popLeaf(&tempPath);
         bdesu_PathUtil::appendRaw(&tempPath, "log2.txt");
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
         ASSERT("c:\\windows\\temp\\myApp\\logs\\22jan08\\log2.txt" ==
                 tempPath);
 #else
@@ -396,7 +396,7 @@ int main(int argc, char *argv[])
         // bdesu_PathUtil::append(&otherPath, tempPath);
         // UNDEFINED BEHAVIOR!
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
         LOOP_ASSERT(otherPath,
                      "22jan08\\log.txt\\22jan08\\log.txt" == otherPath);
 #else
@@ -406,7 +406,7 @@ int main(int argc, char *argv[])
 
         ASSERT(0 == bdesu_PathUtil::appendIfValid(&otherPath,
                                                    otherPath.c_str()));
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
         LOOP_ASSERT(otherPath,
                    "22jan08\\log.txt\\"
                    "22jan08\\log.txt\\"
@@ -422,7 +422,7 @@ int main(int argc, char *argv[])
 
         ASSERT(0 == bdesu_PathUtil::appendIfValid(&otherPath,
                                                    otherPath.c_str() + 56));
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
         LOOP_ASSERT(otherPath,
                     "22jan08\\log.txt\\"
                     "22jan08\\log.txt\\"

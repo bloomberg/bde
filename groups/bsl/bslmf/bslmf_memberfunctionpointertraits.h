@@ -15,9 +15,9 @@ BSLS_IDENT("$Id: $")
 //  bslmf::IsMemberFunctionPointer: meta-function to determine if a type is
 //  a member function pointer
 //
-//@AUTHOR: Ilougino Rocha (irocha)
-//
 //@SEE_ALSO: bslmf_functionpointertraits
+//
+//@AUTHOR: Ilougino Rocha (irocha)
 //
 //@DESCRIPTION: This component provides meta-functions for determining the
 // traits of a member function pointer.  Two meta-functions are provided:
@@ -47,27 +47,27 @@ BSLS_IDENT("$Id: $")
 //  template <class TYPE>
 //  void checkNotMemberFunctionPointer(TYPE object)
 //  {
-//      assert(0 == bslmf::IsMemberFunctionPointer<TYPE>::VALUE);
+//      assert(0 == bslmf::IsMemberFunctionPointer<TYPE>::value);
 //  }
 //
 //  template <class BSLMF_RETURN, class ARGS, class TYPE>
 //  void checkMemberFunctionPointer(TYPE object)
 //  {
-//      assert(1 == bslmf::IsMemberFunctionPointer<TYPE>::VALUE);
+//      assert(1 == bslmf::IsMemberFunctionPointer<TYPE>::value);
 //      typedef typename bslmf::MemberFunctionPointerTraits<TYPE>::ResultType
 //          ResultType;
 //      typedef typename bslmf::MemberFunctionPointerTraits<TYPE>::ArgumentList
 //          ArgumentList;
-//      assert(1 == (bslmf::IsSame<ResultType, BSLMF_RETURN>::VALUE));
-//      assert(1 == (bslmf::IsSame<ArgumentList, ARGS>::VALUE));
+//      assert(1 == (bslmf::IsSame<ResultType, BSLMF_RETURN>::value));
+//      assert(1 == (bslmf::IsSame<ArgumentList, ARGS>::value));
 //  }
 //..
 // The following program should compile and run without errors:
 //..
 //  void usageExample()
 //  {
-//      assert(0 == bslmf::IsMemberFunctionPointer<int>::VALUE);
-//      assert(0 == bslmf::IsMemberFunctionPointer<int>::VALUE);
+//      assert(0 == bslmf::IsMemberFunctionPointer<int>::value);
+//      assert(0 == bslmf::IsMemberFunctionPointer<int>::value);
 //
 //      checkNotMemberFunctionPointer(&MyTestClass::voidFunc0);
 //      checkMemberFunctionPointer<int, bslmf::TypeList1<int> >(
@@ -81,12 +81,12 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_IF
-#include <bslmf_if.h>
+#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
+#include <bslmf_integralconstant.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_METAINT
-#include <bslmf_metaint.h>
+#ifndef INCLUDED_BSLMF_IF
+#include <bslmf_if.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_TYPELIST
@@ -115,17 +115,19 @@ struct MemberFunctionPointerTraits
                     // =============================
 
 template <class PROTOTYPE>
-struct IsMemberFunctionPointer : MetaInt<
-        MemberFunctionPointerTraits<PROTOTYPE>::IS_MEMBER_FUNCTION_PTR> {
+struct IsMemberFunctionPointer
+    : bsl::integral_constant<
+            bool,
+            MemberFunctionPointerTraits<PROTOTYPE>::IS_MEMBER_FUNCTION_PTR> {
     // This template determines if the specified 'PROTOTYPE' is a member
-    // function pointer.  VALUE is defined as 1 if the specified 'PROTOTYPE' is
-    // a member function, and a zero value otherwise.
+    // function pointer.  'value' is defined as 1 if the specified 'PROTOTYPE'
+    // is a member function, and a zero value otherwise.
 };
 
 // ---- Anything below this line is implementation specific.  Do not use. ----
 
              // --------------------------------------------
-             // class MemberFunctionPointerTraits__ClassType
+             // class MemberFunctionPointerTraits_ClassType
              // --------------------------------------------
 
 template <class PROTOTYPE,
@@ -136,7 +138,7 @@ template <class PROTOTYPE,
           class ARG7  = int, class ARG8  = int, class ARG9  = int,
           class ARG10 = int, class ARG11 = int, class ARG12 = int,
           class ARG13 = int, class ARG14 = int>
-class MemberFunctionPointerTraits__ClassType {
+class MemberFunctionPointerTraits_ClassType {
     // This 'struct' determines whether the specified 'PROTOTYPE' is a const or
     // non-const member function of the specified 'TYPE'.
 
@@ -214,11 +216,11 @@ class MemberFunctionPointerTraits__ClassType {
 };
 
              // -------------------------------------------
-             // class MemberFunctionPointerTraits__NonConst
+             // class MemberFunctionPointerTraits_NonConst
              // -------------------------------------------
 
 template <class PROTOTYPE>
-struct MemberFunctionPointerTraits__NonConst {
+struct MemberFunctionPointerTraits_NonConst {
     // This template is specialized to determine the traits of the specified
     // 'PROTOTYPE'.  'PROTOTYPE' is expected to be of the form
     // 'BSLMF_RETURN (TYPE::*)(ARG1,ARG2,...) const'.
@@ -229,7 +231,7 @@ struct MemberFunctionPointerTraits__NonConst {
 };
 
 template <class BSLMF_RETURN, class TYPE>
-struct MemberFunctionPointerTraits__NonConst<BSLMF_RETURN (TYPE::*)()> {
+struct MemberFunctionPointerTraits_NonConst<BSLMF_RETURN (TYPE::*)()> {
     // Specialization to determine the traits of member functions that return
     // 'BSLMF_RETURN' and accept 0 arguments.
 
@@ -242,7 +244,7 @@ struct MemberFunctionPointerTraits__NonConst<BSLMF_RETURN (TYPE::*)()> {
 };
 
 template <class BSLMF_RETURN, class TYPE, class ARG1>
-struct MemberFunctionPointerTraits__NonConst<
+struct MemberFunctionPointerTraits_NonConst<
                                                 BSLMF_RETURN (TYPE::*)(ARG1)> {
     // Specialization to determine the traits of member functions that return
     // 'BSLMF_RETURN' and accept 1 arguments.
@@ -256,7 +258,7 @@ struct MemberFunctionPointerTraits__NonConst<
 };
 
 template <class BSLMF_RETURN, class TYPE, class ARG1, class ARG2>
-struct MemberFunctionPointerTraits__NonConst<
+struct MemberFunctionPointerTraits_NonConst<
                                            BSLMF_RETURN (TYPE::*)(ARG1,ARG2)> {
     // Specialization to determine the traits of member functions that return
     // 'BSLMF_RETURN' and accept 2 arguments.
@@ -270,7 +272,7 @@ struct MemberFunctionPointerTraits__NonConst<
 };
 
 template <class BSLMF_RETURN, class TYPE, class ARG1, class ARG2, class ARG3>
-struct MemberFunctionPointerTraits__NonConst<
+struct MemberFunctionPointerTraits_NonConst<
                                       BSLMF_RETURN (TYPE::*)(ARG1,ARG2,ARG3)> {
     // Specialization to determine the traits of member functions that return
     // 'BSLMF_RETURN' and accept 3 arguments.
@@ -285,7 +287,7 @@ struct MemberFunctionPointerTraits__NonConst<
 
 template <class BSLMF_RETURN, class TYPE, class ARG1, class ARG2, class ARG3,
           class ARG4>
-struct MemberFunctionPointerTraits__NonConst<
+struct MemberFunctionPointerTraits_NonConst<
                                  BSLMF_RETURN (TYPE::*)(ARG1,ARG2,ARG3,ARG4)> {
     // Specialization to determine the traits of member functions that return
     // 'BSLMF_RETURN' and accept 4 arguments.
@@ -300,7 +302,7 @@ struct MemberFunctionPointerTraits__NonConst<
 
 template <class BSLMF_RETURN, class TYPE, class ARG1, class ARG2, class ARG3,
           class ARG4, class ARG5>
-struct MemberFunctionPointerTraits__NonConst<
+struct MemberFunctionPointerTraits_NonConst<
                             BSLMF_RETURN (TYPE::*)(ARG1,ARG2,ARG3,ARG4,ARG5)> {
     // Specialization to determine the traits of member functions that return
     // 'BSLMF_RETURN' and accept 5 arguments.
@@ -315,7 +317,7 @@ struct MemberFunctionPointerTraits__NonConst<
 
 template <class BSLMF_RETURN, class TYPE, class ARG1, class ARG2, class ARG3,
           class ARG4, class ARG5, class ARG6>
-struct MemberFunctionPointerTraits__NonConst<
+struct MemberFunctionPointerTraits_NonConst<
                        BSLMF_RETURN (TYPE::*)(ARG1,ARG2,ARG3,ARG4,ARG5,ARG6)> {
     // Specialization to determine the traits of member functions that return
     // 'BSLMF_RETURN' and accept 6 arguments.
@@ -330,7 +332,7 @@ struct MemberFunctionPointerTraits__NonConst<
 
 template <class BSLMF_RETURN, class TYPE, class ARG1, class ARG2, class ARG3,
           class ARG4, class ARG5, class ARG6, class ARG7>
-struct MemberFunctionPointerTraits__NonConst<
+struct MemberFunctionPointerTraits_NonConst<
                   BSLMF_RETURN (TYPE::*)(ARG1,ARG2,ARG3,ARG4,ARG5,ARG6,ARG7)> {
     // Specialization to determine the traits of member functions that return
     // 'BSLMF_RETURN' and accept 7 arguments.
@@ -345,7 +347,7 @@ struct MemberFunctionPointerTraits__NonConst<
 
 template <class BSLMF_RETURN, class TYPE, class ARG1, class ARG2, class ARG3,
           class ARG4, class ARG5, class ARG6, class ARG7, class ARG8>
-struct MemberFunctionPointerTraits__NonConst<
+struct MemberFunctionPointerTraits_NonConst<
              BSLMF_RETURN (TYPE::*)(ARG1,ARG2,ARG3,ARG4,ARG5,ARG6,ARG7,ARG8)> {
     // Specialization to determine the traits of member functions that return
     // 'BSLMF_RETURN' and accept 8 arguments.
@@ -361,7 +363,7 @@ struct MemberFunctionPointerTraits__NonConst<
 template <class BSLMF_RETURN, class TYPE, class ARG1, class ARG2, class ARG3,
           class ARG4, class ARG5, class ARG6, class ARG7, class ARG8,
           class ARG9>
-struct MemberFunctionPointerTraits__NonConst<
+struct MemberFunctionPointerTraits_NonConst<
         BSLMF_RETURN (TYPE::*)(ARG1,ARG2,ARG3,ARG4,ARG5,ARG6,ARG7,ARG8,ARG9)> {
     // Specialization to determine the traits of member functions that return
     // 'BSLMF_RETURN' and accept 9 arguments.
@@ -378,7 +380,7 @@ struct MemberFunctionPointerTraits__NonConst<
 template <class BSLMF_RETURN, class TYPE, class ARG1, class ARG2, class ARG3,
           class ARG4, class ARG5, class ARG6, class ARG7, class ARG8,
           class ARG9, class ARG10>
-struct MemberFunctionPointerTraits__NonConst<
+struct MemberFunctionPointerTraits_NonConst<
   BSLMF_RETURN (TYPE::*)(ARG1,ARG2,ARG3,ARG4,ARG5,ARG6,ARG7,ARG8,ARG9,ARG10)> {
     // Specialization to determine the traits of member functions that return
     // 'BSLMF_RETURN' and accept 10 arguments.
@@ -395,7 +397,7 @@ struct MemberFunctionPointerTraits__NonConst<
 template <class BSLMF_RETURN, class TYPE, class ARG1, class ARG2, class ARG3,
           class ARG4, class ARG5,  class ARG6, class ARG7, class ARG8,
           class ARG9, class ARG10, class ARG11>
-struct MemberFunctionPointerTraits__NonConst<
+struct MemberFunctionPointerTraits_NonConst<
                      BSLMF_RETURN (TYPE::*)(ARG1,ARG2,ARG3,ARG4,ARG5,ARG6,ARG7,
                                             ARG8,ARG9,ARG10,ARG11)> {
     // Specialization to determine the traits of member functions that return
@@ -413,7 +415,7 @@ struct MemberFunctionPointerTraits__NonConst<
 template <class BSLMF_RETURN, class TYPE,  class ARG1, class ARG2, class ARG3,
           class ARG4, class ARG5,  class ARG6, class ARG7, class ARG8,
           class ARG9, class ARG10, class ARG11, class ARG12>
-struct MemberFunctionPointerTraits__NonConst<
+struct MemberFunctionPointerTraits_NonConst<
                      BSLMF_RETURN (TYPE::*)(ARG1,ARG2,ARG3,ARG4,ARG5,ARG6,ARG7,
                                             ARG8,ARG9,ARG10,ARG11,ARG12)> {
     // Specialization to determine the traits of member functions that return
@@ -431,7 +433,7 @@ struct MemberFunctionPointerTraits__NonConst<
 template <class BSLMF_RETURN, class TYPE, class ARG1, class ARG2, class ARG3,
           class ARG4, class ARG5,  class ARG6,  class ARG7,  class ARG8,
           class ARG9, class ARG10, class ARG11, class ARG12, class ARG13>
-struct MemberFunctionPointerTraits__NonConst<
+struct MemberFunctionPointerTraits_NonConst<
                   BSLMF_RETURN (TYPE::*)(ARG1,ARG2,ARG3,ARG4,ARG5,ARG6,ARG7,
                                          ARG8,ARG9, ARG10,ARG11,ARG12,ARG13)> {
     // Specialization to determine the traits of member functions that return
@@ -450,7 +452,7 @@ template <class BSLMF_RETURN, class TYPE, class ARG1, class ARG2, class ARG3,
           class ARG4, class ARG5, class ARG6, class ARG7, class ARG8,
           class ARG9, class ARG10, class ARG11, class ARG12, class ARG13,
           class ARG14>
-struct MemberFunctionPointerTraits__NonConst<
+struct MemberFunctionPointerTraits_NonConst<
              BSLMF_RETURN (TYPE::*)(ARG1,ARG2,ARG3,ARG4,ARG5,ARG6,ARG7,
                                     ARG8,ARG9,ARG10,ARG11,ARG12,ARG13,ARG14)> {
     // Specialization to determine the traits of member functions that return
@@ -471,7 +473,7 @@ struct MemberFunctionPointerTraits__NonConst<
 
 template <class PROTOTYPE, class TEST_PROTOTYPE>
 struct MemberFunctionPointerTraitsImp :
-    public MemberFunctionPointerTraits__NonConst<PROTOTYPE> {
+    public MemberFunctionPointerTraits_NonConst<PROTOTYPE> {
     // This template is specialized to determine the traits of the specified
     // 'PROTOTYPE'.  'PROTOTYPE' is expected to be of the form
     // 'BSLMF_RETURN (TYPE::*)(ARG1,ARG2,...)' or
@@ -492,7 +494,7 @@ struct MemberFunctionPointerTraitsImp<PROTOTYPE,
     enum {
         IS_MEMBER_FUNCTION_PTR = 1
     };
-    typedef typename MemberFunctionPointerTraits__ClassType<
+    typedef typename MemberFunctionPointerTraits_ClassType<
                                PROTOTYPE,BSLMF_RETURN,TYPE>::Type ClassType;
     typedef BSLMF_RETURN                                          ResultType;
     typedef TypeList0                                             ArgumentList;
@@ -508,7 +510,7 @@ struct MemberFunctionPointerTraitsImp<PROTOTYPE,
         IS_MEMBER_FUNCTION_PTR = 1
     };
     typedef typename
-        MemberFunctionPointerTraits__ClassType<PROTOTYPE, BSLMF_RETURN,
+        MemberFunctionPointerTraits_ClassType<PROTOTYPE, BSLMF_RETURN,
                 TYPE, ARG1>::Type ClassType;
     typedef BSLMF_RETURN          ResultType;
     typedef TypeList1<ARG1>       ArgumentList;
@@ -525,7 +527,7 @@ struct MemberFunctionPointerTraitsImp<PROTOTYPE,
         IS_MEMBER_FUNCTION_PTR = 1
     };
     typedef typename
-        MemberFunctionPointerTraits__ClassType<PROTOTYPE, BSLMF_RETURN,
+        MemberFunctionPointerTraits_ClassType<PROTOTYPE, BSLMF_RETURN,
             TYPE, ARG1, ARG2>::Type    ClassType;
     typedef BSLMF_RETURN               ResultType;
     typedef TypeList2<ARG1,ARG2>       ArgumentList;
@@ -542,7 +544,7 @@ struct MemberFunctionPointerTraitsImp<PROTOTYPE,
         IS_MEMBER_FUNCTION_PTR = 1
     };
     typedef typename
-        MemberFunctionPointerTraits__ClassType<PROTOTYPE, BSLMF_RETURN,
+        MemberFunctionPointerTraits_ClassType<PROTOTYPE, BSLMF_RETURN,
             TYPE, ARG1, ARG2, ARG3>::Type   ClassType;
     typedef BSLMF_RETURN                    ResultType;
     typedef TypeList3<ARG1,ARG2,ARG3>       ArgumentList;
@@ -559,7 +561,7 @@ struct MemberFunctionPointerTraitsImp<PROTOTYPE,
         IS_MEMBER_FUNCTION_PTR = 1
     };
     typedef typename
-        MemberFunctionPointerTraits__ClassType<PROTOTYPE, BSLMF_RETURN,
+        MemberFunctionPointerTraits_ClassType<PROTOTYPE, BSLMF_RETURN,
             TYPE, ARG1, ARG2, ARG3, ARG4>::Type  ClassType;
     typedef BSLMF_RETURN                         ResultType;
     typedef TypeList4<ARG1,ARG2,ARG3,ARG4>       ArgumentList;
@@ -577,7 +579,7 @@ struct MemberFunctionPointerTraitsImp<
         IS_MEMBER_FUNCTION_PTR = 1
     };
     typedef typename
-        MemberFunctionPointerTraits__ClassType<PROTOTYPE, BSLMF_RETURN,
+        MemberFunctionPointerTraits_ClassType<PROTOTYPE, BSLMF_RETURN,
             TYPE, ARG1, ARG2, ARG3, ARG4, ARG5>::Type ClassType;
     typedef BSLMF_RETURN                              ResultType;
     typedef TypeList5<ARG1,ARG2,ARG3,ARG4,ARG5>       ArgumentList;
@@ -596,7 +598,7 @@ struct MemberFunctionPointerTraitsImp<
         IS_MEMBER_FUNCTION_PTR = 1
     };
     typedef typename
-        MemberFunctionPointerTraits__ClassType<PROTOTYPE, BSLMF_RETURN,
+        MemberFunctionPointerTraits_ClassType<PROTOTYPE, BSLMF_RETURN,
            TYPE, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6>::Type ClassType;
     typedef BSLMF_RETURN                                   ResultType;
     typedef TypeList6<ARG1,ARG2,ARG3,ARG4,ARG5,ARG6>       ArgumentList;
@@ -615,7 +617,7 @@ struct MemberFunctionPointerTraitsImp<
         IS_MEMBER_FUNCTION_PTR = 1
     };
     typedef typename
-        MemberFunctionPointerTraits__ClassType<PROTOTYPE, BSLMF_RETURN,
+        MemberFunctionPointerTraits_ClassType<PROTOTYPE, BSLMF_RETURN,
                                       TYPE, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6,
                                             ARG7>::Type         ClassType;
     typedef BSLMF_RETURN                                        ResultType;
@@ -636,7 +638,7 @@ struct MemberFunctionPointerTraitsImp<
         IS_MEMBER_FUNCTION_PTR = 1
     };
     typedef typename
-        MemberFunctionPointerTraits__ClassType<PROTOTYPE, BSLMF_RETURN,
+        MemberFunctionPointerTraits_ClassType<PROTOTYPE, BSLMF_RETURN,
                 TYPE, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7, ARG8>::Type
                                                                 ClassType;
     typedef BSLMF_RETURN                                        ResultType;
@@ -658,7 +660,7 @@ struct MemberFunctionPointerTraitsImp<
         IS_MEMBER_FUNCTION_PTR = 1
     };
     typedef typename
-        MemberFunctionPointerTraits__ClassType<PROTOTYPE, BSLMF_RETURN,
+        MemberFunctionPointerTraits_ClassType<PROTOTYPE, BSLMF_RETURN,
                                 TYPE, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7,
                                 ARG8, ARG9>::Type               ClassType;
     typedef BSLMF_RETURN                                        ResultType;
@@ -680,7 +682,7 @@ struct MemberFunctionPointerTraitsImp<
         IS_MEMBER_FUNCTION_PTR = 1
     };
     typedef typename
-        MemberFunctionPointerTraits__ClassType<PROTOTYPE, BSLMF_RETURN,
+        MemberFunctionPointerTraits_ClassType<PROTOTYPE, BSLMF_RETURN,
                                 TYPE, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7,
                                       ARG8, ARG9, ARG10>::Type   ClassType;
     typedef BSLMF_RETURN                                         ResultType;
@@ -703,7 +705,7 @@ struct MemberFunctionPointerTraitsImp<
         IS_MEMBER_FUNCTION_PTR = 1
     };
     typedef typename
-        MemberFunctionPointerTraits__ClassType<PROTOTYPE, BSLMF_RETURN,
+        MemberFunctionPointerTraits_ClassType<PROTOTYPE, BSLMF_RETURN,
                               TYPE, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7,
                               ARG8, ARG9, ARG10, ARG11> ::Type   ClassType;
     typedef BSLMF_RETURN                                         ResultType;
@@ -726,7 +728,7 @@ struct MemberFunctionPointerTraitsImp<
         IS_MEMBER_FUNCTION_PTR = 1
     };
     typedef typename
-        MemberFunctionPointerTraits__ClassType<PROTOTYPE, BSLMF_RETURN,
+        MemberFunctionPointerTraits_ClassType<PROTOTYPE, BSLMF_RETURN,
                        TYPE, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7,
                        ARG8, ARG9, ARG10, ARG11, ARG12>::Type    ClassType;
     typedef BSLMF_RETURN                                         ResultType;
@@ -749,7 +751,7 @@ struct MemberFunctionPointerTraitsImp<
         IS_MEMBER_FUNCTION_PTR = 1
     };
     typedef typename
-        MemberFunctionPointerTraits__ClassType<PROTOTYPE, BSLMF_RETURN,
+        MemberFunctionPointerTraits_ClassType<PROTOTYPE, BSLMF_RETURN,
                   TYPE, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7,
                   ARG8, ARG9, ARG10, ARG11, ARG12, ARG13>::Type  ClassType;
     typedef BSLMF_RETURN                                         ResultType;
@@ -772,7 +774,7 @@ struct MemberFunctionPointerTraitsImp<
         IS_MEMBER_FUNCTION_PTR = 1
     };
     typedef typename
-        MemberFunctionPointerTraits__ClassType<PROTOTYPE, BSLMF_RETURN,
+        MemberFunctionPointerTraits_ClassType<PROTOTYPE, BSLMF_RETURN,
             TYPE, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7,
             ARG8, ARG9, ARG10, ARG11, ARG12, ARG13, ARG14>::Type ClassType;
     typedef BSLMF_RETURN                                         ResultType;
@@ -782,6 +784,7 @@ struct MemberFunctionPointerTraitsImp<
 
 }  // close package namespace
 
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
@@ -803,6 +806,7 @@ struct MemberFunctionPointerTraitsImp<
 #endif
 #define bslmf_MemberFunctionPointerTraitsImp bslmf::MemberFunctionPointerTraitsImp
     // This alias is defined for backward compatibility.
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

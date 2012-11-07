@@ -13,9 +13,9 @@ BSLS_IDENT("$Id: $")
 //           bsltf::TestValuesArray: container for values used for testing.
 //   bsltf::TestValuesArrayIterator: iterators for the container
 //
-//@AUTHOR: Raymond Chiu (schiu49)
+//@SEE_ALSO: bsltf_testfacility
 //
-//@SEE ALSO: bsltf_testfacility
+//@AUTHOR: Raymond Chiu (schiu49)
 //
 //@DESCRIPTION: This component defines a class 'TestValuesArray' providing a
 // a uniform interface for creating and accessing an array of test values of
@@ -28,7 +28,7 @@ BSLS_IDENT("$Id: $")
 // 'BSLS_ASSERT' macro to detect undefined behavior.
 //
 ///Iterator
-/// - - - -
+///--------
 // The requirements of the input iterators as defined by the C++11 standard may
 // not be as tight as the users of the input iterators expected.  Incorrect
 // assumptions about the properties of the input iterator may result in

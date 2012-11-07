@@ -365,10 +365,6 @@ BDES_IDENT("$Id: $")
 #include <bcema_sharedptr.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_PASSTHROUGHTRAIT
-#include <bslalg_passthroughtrait.h>
-#endif
-
 #ifndef INCLUDED_BSLALG_TYPETRAITBITWISEMOVEABLE
 #include <bslalg_typetraitbitwisemoveable.h>
 #endif
@@ -406,10 +402,6 @@ class bcema_BlobBuffer {
     // pre-existing instance, the container is left in a valid state, but its
     // value is undefined.  In no event is memory leaked.
 
-    // PRIVATE TYPES
-    typedef bslalg_PassthroughTrait<bcema_SharedPtr<char>,
-                                 bslalg_TypeTraitBitwiseMoveable> NestedTraits;
-
     // DATA
     bcema_SharedPtr<char> d_buffer;  // shared buffer
     int                   d_size;    // buffer size (in bytes)
@@ -422,9 +414,6 @@ class bcema_BlobBuffer {
                            const bcema_BlobBuffer&);
 
   public:
-    // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(bcema_BlobBuffer, NestedTraits);
-
     // CREATORS
     bcema_BlobBuffer();
         // Create a blob buffer representing a null buffer.  Note that the
@@ -484,6 +473,16 @@ class bcema_BlobBuffer {
         // interface compatibility only and are effectively ignored.
 };
 
+// TYPE TRAITS
+namespace bslmf {
+
+template <>
+struct IsBitwiseMoveable<BloombergLP::bcema_BlobBuffer>
+    : IsBitwiseMoveable<BloombergLP::bcema_SharedPtr<char> >::type
+{};
+
+}
+
 // FREE OPERATORS
 bool operator==(const bcema_BlobBuffer& lhs, const bcema_BlobBuffer& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' blob buffers have the
@@ -529,11 +528,6 @@ class bcema_Blob {
     // instance, the container is left in a valid state, but its value is
     // undefined.  In no event is memory leaked.
 
-    // PRIVATE TYPES
-    typedef bslalg_PassthroughTrait<
-                                 bsl::vector<bcema_BlobBuffer>,
-                                 bslalg_TypeTraitBitwiseMoveable> NestedTraits;
-
     // DATA
     bsl::vector<bcema_BlobBuffer>  d_buffers;             // buffer sequence
 
@@ -569,9 +563,6 @@ class bcema_Blob {
         // Assert the invariants of this object and return 0 on success.
 
   public:
-    // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(bcema_BlobBuffer, NestedTraits);
-
     // CREATORS
     explicit bcema_Blob(bslma_Allocator *basicAllocator = 0);
         // Create an empty blob having no factory to allocate blob buffers.
@@ -748,6 +739,20 @@ class bcema_Blob {
         // Return the sum of the sizes of all blob buffers in this blob (i.e.,
         // the capacity of this blob).
 };
+
+// TYPE TRAITS
+namespace bslmf {
+template <>
+struct IsBitwiseMoveable<BloombergLP::bcema_Blob>
+    : IsBitwiseMoveable<bsl::vector<BloombergLP::bcema_BlobBuffer> >::type
+{};
+}
+
+namespace bslma {
+template <>
+struct UsesBslmaAllocator<BloombergLP::bcema_Blob> : bsl::true_type
+{};
+}
 
 // FREE OPERATORS
 bool operator==(const bcema_Blob& lhs, const bcema_Blob& rhs);

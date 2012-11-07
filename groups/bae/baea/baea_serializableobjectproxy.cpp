@@ -99,7 +99,7 @@ int baea_SerializableObjectProxy::loadSequenceElementProxy(
     const SequenceInfo& info = d_objectInfo.the<SequenceInfo>();
     for(int i = 0; i < info.d_numAttributes; ++i) {
         if (info.d_attributeInfo_p[i].id() == elementId) {
-            info.d_elementLoader(proxy, *this, i);
+            info.d_elementLoader(proxy, *this, elementId);
             *attrInfo = info.d_attributeInfo_p + i;
             return 0;                                                 // RETURN
         }
@@ -124,7 +124,7 @@ int baea_SerializableObjectProxy::loadSequenceElementProxy(
                      elementNameLength,
                      (*attrInfo)->name(),
                      (*attrInfo)->nameLength())) {
-            info.d_elementLoader(proxy, *this, i);
+            info.d_elementLoader(proxy, *this, (*attrInfo)->id());
             return 0;                                                 // RETURN
         }
     }

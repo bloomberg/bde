@@ -21,7 +21,7 @@
 // The following is added so that this component does not need a dependency
 // on bdesu_processutil, since 'getProcessId' is only used to create unique
 // file names.
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
 #include <windows.h>
 #else
 #include <unistd.h>
@@ -133,7 +133,7 @@ int diskLength(const char *string)
     // Given a string without \r's, calculate the length it would be if the
     // \n's were translated to \r\n's.
 {
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
     return bsl::strlen(string);
 #else
     int unixLen = bsl::strlen(string);
@@ -162,7 +162,7 @@ int doRead(ObjFileHandler *fh, char *buf, int len)
 
 int getProcessId()
 {
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
     return static_cast<int>(GetCurrentProcessId());
 #else
     return static_cast<int>(getpid());
@@ -192,7 +192,7 @@ int digits(bsls_Types::Int64 n)
 
     for (int i = 9; i >= 0; --i) {
         if (n >= TENS[i].d_cutOff) {
-            return TENS[i].d_digits;
+            return TENS[i].d_digits;                                  // RETURN
         }
     }
 
@@ -217,18 +217,19 @@ int main(int argc, char *argv[])
     int veryVerbose = argc > 3;
     //  int veryVeryVerbose = argc > 4;
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
     char tmpDirName[] = "C:\\TEMP";
 #else
     char tmpDirName[] = "/tmp";
 #endif
 
-    ASSERT(FileUtil::exists(tmpDirName) && FileUtil::isDirectory(tmpDirName));
+    ASSERT(FileUtil::exists(tmpDirName) && FileUtil::isDirectory(tmpDirName,
+                                                                 true));
 
     bslma_TestAllocator ta;
     bslma_DefaultAllocatorGuard guard(&ta);
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
     const char *fileNameTemplate = "/tmp/bdesu_FdStreamBuf.%s.%d.txt";
 #else
     const char *fileNameTemplate = "C:\\TEMP\\bdesu_FdStreamBuf.%s.%d.txt";
@@ -273,7 +274,7 @@ int main(int argc, char *argv[])
 
         char fileNameBuffer[100];
         bsl::sprintf(fileNameBuffer,
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
                      "/tmp/bdesu_FdStreamBuf.usage.2.%d.txt",
 #else // windows
                      "C:\\TEMP\\bdesu_FdStreamBuf.usage.2.%d.txt",
@@ -426,7 +427,7 @@ int main(int argc, char *argv[])
 
         char fileNameBuffer[100];
         bsl::sprintf(fileNameBuffer,
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
                      "/tmp/bdesu_FdStreamBuf.usage.1.%d.txt",
 #else // windows
                      "C:\\TEMP\\bdesu_FdStreamBuf.usage.1.%d.txt",
@@ -492,7 +493,7 @@ int main(int argc, char *argv[])
                 is >> bsl::noskipws >> *pc++;
             } while ('\n' != pc[-1]);
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
             ASSERT(!bsl::strcmp("Five times nine point five = 47.5\n", buf));
 #else
             //On Windows we see a CRLF ('\r\n') instead of a simple LF '\n'
@@ -621,7 +622,7 @@ int main(int argc, char *argv[])
 
         // peek buffer now full
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
         ASSERT(lengthR + 1 ==
                      FileUtil::seek(fd, 0, FileUtil::BDESU_SEEK_FROM_CURRENT));
 #endif
@@ -696,7 +697,7 @@ int main(int argc, char *argv[])
 
         // we're at end of file
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
         buf[0] = 0x1a;    // ctrl-Z
         ASSERT(0 == fh.write(buf, 1));
 
@@ -895,7 +896,7 @@ int main(int argc, char *argv[])
         const int len1 = bsl::strlen(line1);
         const int len2 = bsl::strlen(line2);
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
         const char dLine1[] = "To be or not to be, that is the question.\r\n";
         const char dLine2[] =
                          "There are more things in heaven and earth,\r\n"
@@ -978,7 +979,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == ::stat(fnBuf, &s));
         ASSERT(dLen1 + dLen2 == s.st_size);
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
         ASSERT(bsl::strlen(dLine1) == dLen1);
         ASSERT(bsl::strlen(dLine2) == dLen2);
 
@@ -1066,7 +1067,7 @@ int main(int argc, char *argv[])
         const int len1 = bsl::strlen(line1);
         const int len2 = bsl::strlen(line2);
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
         const char dLine1[] = "To be or not to be, that is the question.\r\n";
         const char dLine2[] =
                          "There are more things in heaven and earth,\r\n"
@@ -1147,7 +1148,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == ::stat(fnBuf, &s));
         ASSERT(dLen1 + dLen2 == s.st_size);
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
         ASSERT(bsl::strlen(dLine1) == dLen1);
         ASSERT(bsl::strlen(dLine2) == dLen2);
 
@@ -2668,7 +2669,7 @@ int main(int argc, char *argv[])
             P(sizeof(bsl::streamsize));
         }
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
         const char slash = '/';
 #else
         const char slash = '\\';
@@ -2822,7 +2823,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "5G file with stream I/O test\n"
                              "============================\n";
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
         const char slash = '/';
         const char *nl = " \n";
 #else
@@ -2890,7 +2891,7 @@ int main(int argc, char *argv[])
                 mileStone += deltaMileStone;
             }
         }
-        
+
         ASSERT(!sb.clear());
 
         LOOP2_ASSERT(bytesWritten, FileUtil::getFileSize(fn),
@@ -2920,7 +2921,7 @@ int main(int argc, char *argv[])
         }
 
         ASSERT(0 == FileUtil::close(fd));
-        
+
         FileUtil::remove(fn);
       } break;
       case -4: {
@@ -2935,7 +2936,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "5G file with fstream I/O test, no FdStreamBuf\n"
                              "=============================================\n";
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
         const char slash = '/';
         const char *nl = " \n";
 #else

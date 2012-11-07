@@ -8,7 +8,7 @@
 
 //@PURPOSE: Provide a forward-declaration for the corresponding BDE type.
 //
-//@SEE_ALSO: bslfwd_buildtarget.h
+//@SEE_ALSO: bslfwd_buildtarget
 //
 //@AUTHOR: Alexei Zakharov (azakharov7)
 //
@@ -24,10 +24,10 @@
 
 namespace BloombergLP {
     namespace bslmf {
-        class AnyType;
+        class MatchAnyType;
     }
 
-    typedef bslmf::AnyType bslmf_AnyType;
+    typedef bslmf::MatchAnyType bslmf_AnyType;
 }
 
 #else

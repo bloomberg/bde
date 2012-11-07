@@ -12,9 +12,9 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //   bsltf::EnumeratedTestType: enumerated test type
 //
-//@AUTHOR: Chen He (che2)
+//@SEE_ALSO: bsltf_templatetestfacility
 //
-//@SEE ALSO: bsltf_templatetestfacility
+//@AUTHOR: Chen He (che2)
 //
 //@DESCRIPTION: This component provides an enumeration type,
 //'EnumeratedTestType', to facilitate the testing of templates.
@@ -37,10 +37,6 @@ BSLS_IDENT("$Id: $")
 // EnumeratedTestType::Enum last = EnumeratedTestType::LAST;
 // assert(static_cast<int>(last) == 127);
 //..
-
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
 
 namespace BloombergLP {
 

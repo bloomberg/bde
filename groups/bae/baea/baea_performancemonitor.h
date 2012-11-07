@@ -55,18 +55,18 @@
 //                                        process.
 //..
 //
-// Iterator Invalidation
-// ---------------------
+///Iterator Invalidation
+///---------------------
 // Registration of new pids does not invalidate existing iterators.
 // Unregistration of pid only invalidates iterators pointing to the statistics
 // for the pid being unregistered, all other iterators remain valid.
 //
-// Thread Safety
-// -------------
+///Thread Safety
+///-------------
 // This class is completely thread safe.
 //
-// Usage
-// -----
+///Usage
+///-----
 // The following example shows how to monitor the currently executing process
 // and produce a formatted report of the collected measures after a certain
 // interval.
@@ -188,19 +188,19 @@ class baea_PerformanceMonitor {
     // bdes_platform component.  This type alias is used to specifically select
     // a particular template specialization of the 'Collector' template.
 
-#if defined(BSLS_PLATFORM__OS_LINUX)
+#if defined(BSLS_PLATFORM_OS_LINUX)
     typedef bsls_Platform::OsLinux   OsType;
-#elif defined(BDES_PLATFORM__OS_FREEBSD)
+#elif defined(BDES_PLATFORM_OS_FREEBSD)
     typedef bsls_Platform::OsFreeBsd OsType;
-#elif defined(BDES_PLATFORM__OS_DARWIN)
+#elif defined(BDES_PLATFORM_OS_DARWIN)
     typedef bsls_Platform::OsDarwin OsType;
 /*
-#elif defined(BSLS_PLATFORM__OS_HPUX)
+#elif defined(BSLS_PLATFORM_OS_HPUX)
 typedef bsls_Platform::OsHpUx OsType;
 */
-#elif defined(BSLS_PLATFORM__OS_UNIX)
+#elif defined(BSLS_PLATFORM_OS_UNIX)
     typedef bsls_Platform::OsUnix    OsType;
-#elif defined(BSLS_PLATFORM__OS_WINDOWS)
+#elif defined(BSLS_PLATFORM_OS_WINDOWS)
     typedef bsls_Platform::OsWindows OsType;
 #endif
 
@@ -268,7 +268,7 @@ typedef bsls_Platform::OsHpUx OsType;
         BAEA_NUM_PAGEFAULTS,    // number of pagefaults (major + minor)
         BAEA_VIRTUAL_SIZE,      // number of MBs in the heap
         BAEA_NUM_MEASURES
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , CPU_TIME        = BAEA_CPU_TIME
       , CPU_TIME_USER   = BAEA_CPU_TIME_USER
       , CPU_TIME_SYSTEM = BAEA_CPU_TIME_SYSTEM
@@ -280,7 +280,7 @@ typedef bsls_Platform::OsHpUx OsType;
       , NUM_PAGEFAULTS  = BAEA_NUM_PAGEFAULTS
       , VIRTUAL_SIZE    = BAEA_VIRTUAL_SIZE
       , NUM_MEASURES    = BAEA_NUM_MEASURES
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     class Statistics {

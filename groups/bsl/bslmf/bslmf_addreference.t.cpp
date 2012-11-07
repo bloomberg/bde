@@ -3,6 +3,7 @@
 #include <bslmf_addreference.h>
 
 #include <bslmf_issame.h>
+#include <bslmf_addrvaluereference.h>
 #include <bsls_bsltestutil.h>
 
 #include <stdio.h>    // atoi()
@@ -56,7 +57,7 @@ static void aSsErT(bool b, const char *s, int i) {
 //                  SEMI-STANDARD TEST OUTPUT MACROS
 //-----------------------------------------------------------------------------
 
-#define ASSERT_SAME(X, Y) ASSERT((bslmf_IsSame<X, Y>::VALUE))
+#define ASSERT_SAME(X, Y) ASSERT((bslmf::IsSame<X, Y>::value))
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -262,7 +263,7 @@ int main(int argc, char *argv[])
         //   that its 'Type' typedef is set to a non-reference type.
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nbslmf_AddReference"
+        if (verbose) printf("\nbslmf::AddReference"
                             "\n==================\n");
 
         ASSERT_SAME(bslmf::AddReference<int       >::Type, int&);
@@ -310,6 +311,122 @@ int main(int argc, char *argv[])
         ASSERT_SAME(bslmf::AddReference<void volatile>::Type, volatile void);
         ASSERT_SAME(bslmf::AddReference<void const volatile>::Type,
                     const volatile void);
+
+        if (verbose) printf("\nbsl::add_lvalue_reference"
+                            "\n=========================\n");
+
+        ASSERT_SAME(bsl::add_lvalue_reference<int       >::type, int&);
+        ASSERT_SAME(bsl::add_lvalue_reference<int&      >::type, int&);
+        ASSERT_SAME(bsl::add_lvalue_reference<int const >::type, const int&);
+        ASSERT_SAME(bsl::add_lvalue_reference<int const&>::type, const int&);
+
+        ASSERT_SAME(bsl::add_lvalue_reference<void *          >::type,
+                    void *&);
+        ASSERT_SAME(bsl::add_lvalue_reference<void *&         >::type,
+                    void *&);
+        ASSERT_SAME(bsl::add_lvalue_reference<void volatile *&>::type,
+                    volatile void *&);
+        ASSERT_SAME(bsl::add_lvalue_reference<char const *const&>::type,
+                    const char *const&);
+
+        ASSERT_SAME(bsl::add_lvalue_reference<Enum        >::type, Enum&);
+        ASSERT_SAME(bsl::add_lvalue_reference<Enum&       >::type, Enum&);
+        ASSERT_SAME(bsl::add_lvalue_reference<Struct      >::type, Struct&);
+        ASSERT_SAME(bsl::add_lvalue_reference<Struct&     >::type, Struct&);
+        ASSERT_SAME(bsl::add_lvalue_reference<Union       >::type, Union&);
+        ASSERT_SAME(bsl::add_lvalue_reference<Union&      >::type, Union&);
+        ASSERT_SAME(bsl::add_lvalue_reference<Class       >::type, Class&);
+        ASSERT_SAME(bsl::add_lvalue_reference<const Class&>::type,
+                    const Class&);
+
+        ASSERT_SAME(bsl::add_lvalue_reference<INT >::type, int&);
+        ASSERT_SAME(bsl::add_lvalue_reference<INT&>::type, int&);
+
+        ASSERT_SAME(bsl::add_lvalue_reference<int Class::* >::type,
+                    int Class::*&);
+        ASSERT_SAME(bsl::add_lvalue_reference<int Class::*&>::type,
+                    int Class::*&);
+
+        ASSERT_SAME(bsl::add_lvalue_reference<  F>::type,  F&);
+        ASSERT_SAME(bsl::add_lvalue_reference< RF>::type,  F&);
+        ASSERT_SAME(bsl::add_lvalue_reference< PF>::type, PF&);
+        ASSERT_SAME(bsl::add_lvalue_reference<RPF>::type, PF&);
+
+        ASSERT_SAME(bsl::add_lvalue_reference< Fi >::type, Fi&);
+        ASSERT_SAME(bsl::add_lvalue_reference<RFi >::type, Fi&);
+        ASSERT_SAME(bsl::add_lvalue_reference< FRi>::type, FRi&);
+        ASSERT_SAME(bsl::add_lvalue_reference<RFRi>::type, FRi&);
+
+        ASSERT_SAME(bsl::add_lvalue_reference< A>::type, A&);
+        ASSERT_SAME(bsl::add_lvalue_reference<RA>::type, A&);
+
+        ASSERT_SAME(bsl::add_lvalue_reference<void         >::type,
+                    void);
+        ASSERT_SAME(bsl::add_lvalue_reference<void const   >::type,
+                    const void);
+        ASSERT_SAME(bsl::add_lvalue_reference<void volatile>::type,
+                    volatile void);
+        ASSERT_SAME(bsl::add_lvalue_reference<void const volatile>::type,
+                    const volatile void);
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+        if (verbose) printf("\nbsl::add_rvalue_reference"
+                            "\n=========================\n");
+
+        ASSERT_SAME(bsl::add_rvalue_reference<int       >::type, int&&);
+        ASSERT_SAME(bsl::add_rvalue_reference<int&      >::type, int&);
+        ASSERT_SAME(bsl::add_rvalue_reference<int const >::type, const int&&);
+        ASSERT_SAME(bsl::add_rvalue_reference<int const&>::type, const int&);
+
+        ASSERT_SAME(bsl::add_rvalue_reference<void *          >::type,
+                    void *&&);
+        ASSERT_SAME(bsl::add_rvalue_reference<void *&         >::type,
+                    void *&);
+        ASSERT_SAME(bsl::add_rvalue_reference<void volatile *&>::type,
+                    volatile void *&);
+        ASSERT_SAME(bsl::add_rvalue_reference<char const *const&>::type,
+                    const char *const&);
+
+        ASSERT_SAME(bsl::add_rvalue_reference<Enum        >::type, Enum&&);
+        ASSERT_SAME(bsl::add_rvalue_reference<Enum&       >::type, Enum&);
+        ASSERT_SAME(bsl::add_rvalue_reference<Struct      >::type, Struct&&);
+        ASSERT_SAME(bsl::add_rvalue_reference<Struct&     >::type, Struct&);
+        ASSERT_SAME(bsl::add_rvalue_reference<Union       >::type, Union&&);
+        ASSERT_SAME(bsl::add_rvalue_reference<Union&      >::type, Union&);
+        ASSERT_SAME(bsl::add_rvalue_reference<Class       >::type, Class&&);
+        ASSERT_SAME(bsl::add_rvalue_reference<const Class&>::type,
+                    const Class&);
+
+        ASSERT_SAME(bsl::add_rvalue_reference<INT >::type, int&&);
+        ASSERT_SAME(bsl::add_rvalue_reference<INT&>::type, int&);
+
+        ASSERT_SAME(bsl::add_rvalue_reference<int Class::* >::type,
+                    int Class::*&&);
+        ASSERT_SAME(bsl::add_rvalue_reference<int Class::*&>::type,
+                    int Class::*&);
+
+        ASSERT_SAME(bsl::add_rvalue_reference<  F>::type,  F&&);
+        ASSERT_SAME(bsl::add_rvalue_reference< RF>::type,  F&);
+        ASSERT_SAME(bsl::add_rvalue_reference< PF>::type, PF&&);
+        ASSERT_SAME(bsl::add_rvalue_reference<RPF>::type, PF&);
+
+        ASSERT_SAME(bsl::add_rvalue_reference< Fi >::type, Fi&&);
+        ASSERT_SAME(bsl::add_rvalue_reference<RFi >::type, Fi&);
+        ASSERT_SAME(bsl::add_rvalue_reference< FRi>::type, FRi&&);
+        ASSERT_SAME(bsl::add_rvalue_reference<RFRi>::type, FRi&);
+
+        ASSERT_SAME(bsl::add_rvalue_reference< A>::type, A&&);
+        ASSERT_SAME(bsl::add_rvalue_reference<RA>::type, A&);
+
+        ASSERT_SAME(bsl::add_rvalue_reference<void         >::type,
+                    void);
+        ASSERT_SAME(bsl::add_rvalue_reference<void const   >::type,
+                    const void);
+        ASSERT_SAME(bsl::add_rvalue_reference<void volatile>::type,
+                    volatile void);
+        ASSERT_SAME(bsl::add_rvalue_reference<void const volatile>::type,
+                    const volatile void);
+#endif
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);

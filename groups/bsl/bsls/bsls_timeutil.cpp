@@ -1,18 +1,19 @@
 // bsls_timeutil.cpp                                                  -*-C++-*-
 #include <bsls_timeutil.h>
 
+#include <bsls_bsltestutil.h>  // for testing only
+
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
-#include <bsls_platform.h>     // BSLS_PLATFORM__OS_UNIX, etc.
+#include <bsls_platform.h>     // BSLS_PLATFORM_OS_UNIX, etc.
 #include <bsls_atomicoperations.h>
 
-#if defined BSLS_PLATFORM__OS_UNIX
+#if defined BSLS_PLATFORM_OS_UNIX
     #include <time.h>      // NOTE: <ctime> conflicts with <sys/time.h>
-    #include <sys/time.h>  // gethrtime()
     #include <sys/times.h> // struct tms, times()
     #include <unistd.h>    // sysconf(), _SC_CLK_TCK
-#elif defined BSLS_PLATFORM__OS_WINDOWS
+#elif defined BSLS_PLATFORM_OS_WINDOWS
     #include <windows.h>
     #include <winbase.h>   // QueryPerformanceCounter(), GetProcessTimes()
     #include <sys/timeb.h> // ftime(struct timeb *)
@@ -20,11 +21,15 @@ BSLS_IDENT("$Id$ $CSID$")
     #error "Don't know how to get nanosecond time for this platform"
 #endif
 
+#if defined(BSLS_PLATFORM_OS_SOLARIS) || defined(BSLS_PLATFORM_OS_HPUX)
+    #include <sys/time.h>  // gethrtime()
+#endif
+
 namespace BloombergLP {
 
 namespace {
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
 struct UnixTimerUtil {
     // Provides access to UNIX process user and system timers.
 
@@ -72,7 +77,7 @@ void UnixTimerUtil::systemProcessTimers(clock_t *systemTimer,
     if (-1 == ::times(&processTimes)) {
         *systemTimer = 0;
         *userTimer   = 0;
-        return;
+        return;                                                       // RETURN
     }
 
     *systemTimer = processTimes.tms_stime;
@@ -133,7 +138,7 @@ void UnixTimerUtil::processTimers(bsls::Types::Int64 *systemTimer,
 }
 #endif
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
 struct WindowsTimerUtil {
     // Provides access to Windows process user and system timers.
 
@@ -150,6 +155,20 @@ struct WindowsTimerUtil {
                                                 // frequency of the
                                                 // Windows hardware
                                                 // timer
+
+    static bsls::AtomicOperations::AtomicTypes::Int64 s_highPartDivisionFactor;
+                                                // cached, frequency-dependent
+                                                // factor for calculating the
+                                                // high part's contribution
+                                                // to a nanosecond time
+
+    static bsls::AtomicOperations::AtomicTypes::Int64
+                                                     s_highPartRemainderFactor;
+                                                // cached, frequency-dependent
+                                                // factor for calculating the
+                                                // high part's remainder's
+                                                // contribution to a
+                                                // nanosecond time
 
     static const bsls::Types::Int64 s_nsecsPerUnit;
                                                 // size in nanoseconds
@@ -188,6 +207,20 @@ struct WindowsTimerUtil {
     static bsls::Types::Int64 wallTimer();
         // Return converted to nanoseconds current value of wall time as per
         // Windows hardware timer, if available, uses ::ftime otherwise.
+
+    static bsls::Types::Int64 getTimerRaw();
+        // Return a machine-dependent value representing the current time.
+        // 'timeValue' must be converted by the 'convertRawTime' method to
+        // conventional units (nanoseconds).  This method is intended to
+        // facilitate accurate timing of small segments of code, and care must
+        // be used in interpreting the results.  Note that this method is
+        // thread-safe only if 'initialize' has been called before.
+
+    static bsls::Types::Int64 convertRawTime(bsls::Types::Int64 rawTime);
+        // Convert the specified 'rawTime' to a value in nanoseconds,
+        // referenced to an arbitrary but fixed origin, and return the result
+        // of the conversion.  Note that this method is thread-safe only if
+        // 'initialize' has been called before.
 };
 
 bsls::AtomicOperations::AtomicTypes::Int
@@ -196,6 +229,10 @@ bsls::AtomicOperations::AtomicTypes::Int64
                                      WindowsTimerUtil::s_initialTime    = {-1};
 bsls::AtomicOperations::AtomicTypes::Int64
                                      WindowsTimerUtil::s_timerFrequency = {-1};
+bsls::AtomicOperations::AtomicTypes::Int64
+                            WindowsTimerUtil::s_highPartDivisionFactor  = {-1};
+bsls::AtomicOperations::AtomicTypes::Int64
+                            WindowsTimerUtil::s_highPartRemainderFactor = {-1};
 const bsls::Types::Int64             WindowsTimerUtil::s_nsecsPerUnit   = 100;
 
 inline
@@ -211,7 +248,7 @@ void WindowsTimerUtil::systemProcessTimers(PULARGE_INTEGER systemTimer,
                            &userTm)) {
         systemTimer->QuadPart = 0;
         userTimer->QuadPart   = 0;
-        return;
+        return;                                                       // RETURN
     }
 
     systemTimer->LowPart  = krnlTm.dwLowDateTime;
@@ -223,8 +260,11 @@ void WindowsTimerUtil::systemProcessTimers(PULARGE_INTEGER systemTimer,
 inline
 void WindowsTimerUtil::initialize()
 {
-    if (bsls::AtomicOperations::getIntRelaxed(&s_initRequired)) {
-        bsls::AtomicOperations::setIntRelaxed(&s_initRequired, 0);
+    const bsls::Types::Int64 K = 1000;
+    const bsls::Types::Int64 G = K * K * K;
+    const bsls::Types::Int64 HIGH_DWORD_MULTIPLIER = G * (1LL << 32);
+
+    if (bsls::AtomicOperations::getIntAcquire(&s_initRequired)) {
 
         LARGE_INTEGER t;
         bsls::AtomicOperations::setInt64Relaxed(
@@ -232,9 +272,27 @@ void WindowsTimerUtil::initialize()
                 ::QueryPerformanceCounter(&t) ? t.QuadPart : 0);
 
         LARGE_INTEGER f;
-        bsls::AtomicOperations::setInt64Relaxed(
-                &s_timerFrequency,
-                ::QueryPerformanceFrequency(&f) ? f.QuadPart : 0);
+        if (::QueryPerformanceFrequency(&f)) {
+            bsls::AtomicOperations::setInt64Relaxed(&s_timerFrequency,
+                                                    f.QuadPart);
+
+            bsls::AtomicOperations::setInt64Relaxed(
+                &s_highPartDivisionFactor, HIGH_DWORD_MULTIPLIER / f.QuadPart);
+
+            bsls::AtomicOperations::setInt64Relaxed(
+               &s_highPartRemainderFactor, HIGH_DWORD_MULTIPLIER % f.QuadPart);
+        }
+        else {
+            bsls::AtomicOperations::setInt64Relaxed(&s_timerFrequency, 0);
+
+            bsls::AtomicOperations::setInt64Relaxed(&s_highPartDivisionFactor,
+                                                    0);
+
+            bsls::AtomicOperations::setInt64Relaxed(&s_highPartRemainderFactor,
+                                                    0);
+        }
+
+        bsls::AtomicOperations::setIntRelease(&s_initRequired, 0);
     }
 }
 
@@ -272,30 +330,121 @@ void WindowsTimerUtil::processTimers(bsls::Types::Int64 *systemTimer,
 inline
 bsls::Types::Int64 WindowsTimerUtil::wallTimer()
 {
+    return convertRawTime(getTimerRaw());
+}
+
+inline
+bsls::Types::Int64 WindowsTimerUtil::convertRawTime(bsls::Types::Int64 rawTime)
+{
     initialize();
 
     const bsls::Types::Int64 K = 1000;
-    const bsls::Types::Int64 M = 1000000;
+    const bsls::Types::Int64 M = K * K;
+    const bsls::Types::Int64 G = K * K * K;
+    const bsls::Types::Uint64 LOW_MASK = 0x00000000ffffffff;
+
     bsls::Types::Int64 initialTime
         = bsls::AtomicOperations::getInt64Relaxed(&s_initialTime);
-    bsls::Types::Int64 timerFrequency
-        = bsls::AtomicOperations::getInt64Relaxed(&s_timerFrequency);
 
     if (0 != initialTime) {
-        LARGE_INTEGER t;
-        ::QueryPerformanceCounter(&t);
-        return (((t.QuadPart - initialTime) * M) / timerFrequency) * K;
+        // Not implemented: Assert that rawTime - initialTime will fit in an
+        // Int64, when expressed as nanoseconds (~292 days).
+        //
+        // N.B. This assert is not implemented because:
+        // A) Cannot use BSLS_ASSERT because bsls_assert has an indirect
+        // (and testing only) dependency on bsls_timeutil.
+        // B) Cannot use std::numeric_limits.
+        //
+        // If it were implemented, it would look like the following:
+        // BSLS_ASSERT(((rawTime - initialTime) / timerFrequency)
+        //             < std::numeric_limits<bsls::Types::Int64>::max() / G)
+
+        bsls::Types::Int64 timerFrequency
+            = bsls::AtomicOperations::getInt64Relaxed(&s_timerFrequency);
+
+        bsls::Types::Int64 highPartDivisionFactor
+            = bsls::AtomicOperations::getInt64Relaxed(
+                                                    &s_highPartDivisionFactor);
+        bsls::Types::Int64 highPartRemainderFactor
+            = bsls::AtomicOperations::getInt64Relaxed(
+                                                   &s_highPartRemainderFactor);
+
+        rawTime -= initialTime;
+
+        // Outline for improved-precision nanosecond calculation with integer
+        // arithmetic:
+
+        // Treat the high-dword and low-dword contributions to the counter as
+        // separate 64-bit values.  Since all known timerFrequency values fit
+        // inside 32 unsigned bits, the high-dword contribution will retain 32
+        // significant bits after being divided by the timerFrequency.
+        // Therefore the calculation can be done on the high-dword contribution
+        // by dividing first by the frequency and then multiplying by one
+        // billion.  Then the remainder of the division by frequency can be
+        // calculated and added back to the low part of the result, for
+        // complete accuracy down to the nanosecond.  Similarly, one billion
+        // fits inside signed 32 bits, so the low-dword contribution can be
+        // multiplied by one billion without overflowing.  Therefore, the
+        // calculation can be done on the low-dword contribution by multiplying
+        // first by one billion, and then dividing by the frequency.  Finally,
+        // the whole calculation can be sped up by pre-calculating the parts of
+        // the calculation that involve frequency and constants, and caching
+        // the results at initialization time.
+
+        const bsls::Types::Int64 high32Bits =
+            static_cast<bsls::Types::Int64>(rawTime >> 32);
+        const bsls::Types::Int64 low32Bits  =
+            static_cast<bsls::Types::Uint64> (rawTime & LOW_MASK);
+
+        return high32Bits * highPartDivisionFactor +
+             ((high32Bits * highPartRemainderFactor + low32Bits * G)
+                                                  / timerFrequency);  // RETURN
+
+        // Note that this code runs as fast as the original implementation.  It
+        // works for counters representing time values up to 292 years (the
+        // upper limit for representing nanoseconds in 64 bits), and for any
+        // frequency that fits in 32 bits.  The original implementation broke
+        // down on counter values over ~9x10^12, which could be as little as 50
+        // minutes with a 3GHz clock.
+
+        // Another alternative is to use floating-point arithmetic.  This is
+        // just as fast as the integer arithmetic on my development machine.
+        // On the other hand, it is accurate to only 15 decimal places, which
+        // will affect our resolution on timers that have been running for more
+        // than 11 days.
+
+        // return static_cast<bsls::Types::Int64>(
+        //     static_cast<double>(t.QuadPart) * G) /
+        //     static_cast<double>(timerFrequency));
     }
     else {
+        return rawTime * M;                                           // RETURN
+    }
+}
+
+inline
+bsls::Types::Int64 WindowsTimerUtil::getTimerRaw()
+{
+    const bsls::Types::Int64 K = 1000;
+
+    initialize();
+
+    bsls::Types::Int64 initialTime
+        = bsls::AtomicOperations::getInt64Relaxed(&s_initialTime);
+
+    if (0 != initialTime) {
+        LARGE_INTEGER counter;
+        ::QueryPerformanceCounter(&counter);
+        return counter.QuadPart;                                      // RETURN
+    } else {
         timeb t;
         ::ftime(&t);
 
-        bsls::Types::Int64 t0;
-        t0 = (static_cast<bsls::Types::Int64>(t.time) * K + t.millitm) * M;
-
-        return t0;
+        return static_cast<bsls::Types::Int64>(t.time)                // RETURN
+            * K + t.millitm;
     }
 }
+
 #endif
 
 }  // close unnamed namespace
@@ -309,9 +458,9 @@ namespace bsls {
 // CLASS METHODS
 void TimeUtil::initialize()
 {
-#if defined BSLS_PLATFORM__OS_UNIX
+#if defined BSLS_PLATFORM_OS_UNIX
     UnixTimerUtil::initialize();
-#elif defined BSLS_PLATFORM__OS_WINDOWS
+#elif defined BSLS_PLATFORM_OS_WINDOWS
     WindowsTimerUtil::initialize();
 #else
     #error "Don't know how to get nanosecond time for this platform"
@@ -321,35 +470,38 @@ void TimeUtil::initialize()
 Types::Int64
 TimeUtil::convertRawTime(TimeUtil::OpaqueNativeTime rawTime)
 {
-#if defined BSLS_PLATFORM__OS_SOLARIS
+#if defined BSLS_PLATFORM_OS_SOLARIS
 
     return rawTime.d_opaque;
 
-#elif defined BSLS_PLATFORM__OS_AIX
+#elif defined BSLS_PLATFORM_OS_AIX
+
+    // Imp Note:
+    // 'time_base_to_time' takes much more time (~1.2 usec) than actually
+    // collecting the raw time in the first place (<100 nsec).
 
     const Types::Int64 G = 1000000000;
     time_base_to_time(&rawTime, TIMEBASE_SZ);
     return (Types::Int64) rawTime.tb_high * G + rawTime.tb_low;
 
-#elif defined BSLS_PLATFORM__OS_HPUX
+#elif defined BSLS_PLATFORM_OS_HPUX
 
     return rawTime.d_opaque;
 
-#elif defined BSLS_PLATFORM__OS_LINUX
+#elif defined BSLS_PLATFORM_OS_LINUX
 
     const Types::Int64 G = 1000000000;
     return ((Types::Int64) rawTime.tv_sec * G + rawTime.tv_nsec);
 
-#elif defined BSLS_PLATFORM__OS_UNIX
+#elif defined BSLS_PLATFORM_OS_UNIX
 
     const Types::Int64 K = 1000;
     const Types::Int64 M = 1000000;
-    return ((Types::Int64) rawTime.tv_sec * M
-              + rawTime.tv_usec) * K;
+    return ((Types::Int64) rawTime.tv_sec * M + rawTime.tv_usec) * K;
 
-#elif defined BSLS_PLATFORM__OS_WINDOWS
+#elif defined BSLS_PLATFORM_OS_WINDOWS
 
-    return rawTime.d_opaque;
+    return WindowsTimerUtil::convertRawTime(rawTime.d_opaque);
 
 #else
     #error "Don't know how to get nanosecond time for this platform"
@@ -357,6 +509,33 @@ TimeUtil::convertRawTime(TimeUtil::OpaqueNativeTime rawTime)
 }
 
 Types::Int64 TimeUtil::getTimer()
+{
+#if defined BSLS_PLATFORM_OS_SOLARIS
+
+    // Call the platform-specific function directly, since it is reliable and
+    // requires no conversion.
+
+    return gethrtime();
+
+#elif defined BSLS_PLATFORM_OS_AIX   || \
+      defined BSLS_PLATFORM_OS_HPUX  || \
+      defined BSLS_PLATFORM_OS_LINUX || \
+      defined BSLS_PLATFORM_OS_UNIX
+
+    TimeUtil::OpaqueNativeTime rawTime;
+    getTimerRaw(&rawTime);
+    return convertRawTime(rawTime);
+
+#elif defined BSLS_PLATFORM_OS_WINDOWS
+
+    return WindowsTimerUtil::wallTimer();
+
+#else
+    #error "Don't know how to get nanosecond time for this platform"
+#endif
+}
+
+void TimeUtil::getTimerRaw(TimeUtil::OpaqueNativeTime *timeValue)
 {
     // Historical Note: Older Sun machines (e.g., sundev2 circa 2003) exhibited
     // intermittent non-compliant (i.e., non-monotonic) behavior for function
@@ -376,28 +555,24 @@ Types::Int64 TimeUtil::getTimer()
     // two successive *calls* may yield *the same* return value, and so a new
     // return value may need to be explicitly confirmed.
 
-#if defined BSLS_PLATFORM__OS_SOLARIS
+#if defined BSLS_PLATFORM_OS_SOLARIS
 
     // 'gethrtime' has not been observed to fail on any 'sundev' machine.
 
-    return gethrtime();
+    timeValue->d_opaque = gethrtime();
 
-#elif defined BSLS_PLATFORM__OS_AIX
+#elif defined BSLS_PLATFORM_OS_AIX
 
     // Imp Note:
     // 'read_wall_time' is very fast (<100 nsec), and guaranteed monotonic per
     // http://publib.boulder.ibm.com/infocenter/systems doc.  (It has not been
     // observed to be non-monotonic when tested to better than 3 parts in 10^10
-    // on ibm2.)  'time_base_to_time' is much slower (~1.2 usec).
+    // on ibm2.)  Converting the time to nanoseconds is much slower
+    // (~1.2 usec).
 
-    const Types::Int64 G = 1000000000;
-    timebasestruct_t t;
-    read_wall_time(&t, TIMEBASE_SZ);
-    time_base_to_time(&t, TIMEBASE_SZ);
+    read_wall_time(timeValue, TIMEBASE_SZ);
 
-    return (Types::Int64) t.tb_high * G + t.tb_low;
-
-#elif defined BSLS_PLATFORM__OS_HPUX
+#elif defined BSLS_PLATFORM_OS_HPUX
 
     // The following Imp Note applies to behavior observed on 'hp2' in late
     // July and early August of 2004.
@@ -413,9 +588,9 @@ Types::Int64 TimeUtil::getTimer()
 
     Types::Int64 t1 = (Types::Int64) gethrtime();
     Types::Int64 t2 = (Types::Int64) gethrtime();
-    return t2 > t1 ? t2 : t1;
+    timeValue->d_opaque = t2 > t1 ? t2 : t1;
 
-#elif defined BSLS_PLATFORM__OS_LINUX
+#elif defined BSLS_PLATFORM_OS_LINUX
 
     // The call to 'clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &ts)' has never
     // been observed to be non-monotonic when tested at better than 1 parts in
@@ -432,89 +607,22 @@ Types::Int64 TimeUtil::getTimer()
     // CLOCK_MONOTONIC                  ~1.8  usec
     //..
 
-    const Types::Int64 G = 1000000000;
-    timespec ts;
+    clock_gettime(CLOCK_MONOTONIC, timeValue);         // significantly slower
+                                                       // ~1.8 usec
 
-    clock_gettime(CLOCK_MONOTONIC, &ts);  // significantly slower ~1.8 usec
-
-    return (Types::Int64) ts.tv_sec * G + ts.tv_nsec;
-
-#elif defined BSLS_PLATFORM__OS_UNIX
+#elif defined BSLS_PLATFORM_OS_UNIX
 
     // A generic implementation having microsecond resolution is used.  There
-    // is no attempt to defend against possible non-monotonic behavior.  The
-    // imp would cause bsls_stopwatch to profile at ~1.40 usec on AIX when
-    // compiled with /bb/util/version10-062009/usr/vacpp/bin/xlC_r.  Other
-    // implementations are left in place as comments for historical reference.
-
-    timeval tv;
-    gettimeofday(&tv, 0);
-    const Types::Int64 K = 1000;
-    const Types::Int64 M = 1000000;
-    return ((Types::Int64) tv.tv_sec * M + tv.tv_usec) * K;
-
-    // The below imp would cause bsls_stopwatch to profile at ~1.45 usec on AIX
-    // when compiled with /bb/util/version10-062009/usr/vacpp/bin/xlC_r
-    //..
-    //  const Types::Int64 G = 1000000000;
-    //  timespec ts;
-    //  clock_gettime(CLOCK_REALTIME, &ts);
-    //  return = (Types::Int64) ts.tv_sec * G + ts.tv_nsec;
-    //..
-
-    // Historic workaround for non-monotonic clock behavior.
-    //..
-    //  const Types::Int64 K = 1000;
-    //  const Types::Int64 M = 1000000;
-    //  timeval t;
-    //  Types::Int64 t0, t1, t2;
-    //  gettimeofday(&t, 0);
-    //  t0 = ((Types::Int64) t.tv_sec * M + t.tv_usec) * K;
-    //  do {
-    //      gettimeofday(&t, 0);
-    //      t1 = ((Types::Int64) t.tv_sec * M + t.tv_usec) * K;
-    //  } while (t1 == t0);
-    //  do {
-    //      gettimeofday(&t, 0);
-    //      t2 = ((Types::Int64) t.tv_sec * M + t.tv_usec) * K;
-    //  } while (t2 == t1);
-    //  return t2 < t1 || t2 < t1 + 10 * M ? t2 : t1;
-    //..
-
-#elif defined BSLS_PLATFORM__OS_WINDOWS
-
-    return WindowsTimerUtil::wallTimer();
-
-#else
-    #error "Don't know how to get nanosecond time for this platform"
-#endif
-}
-
-void TimeUtil::getTimerRaw(TimeUtil::OpaqueNativeTime *timeValue)
-{
-#if defined BSLS_PLATFORM__OS_SOLARIS
-
-    timeValue->d_opaque = gethrtime();
-
-#elif defined BSLS_PLATFORM__OS_AIX
-
-    read_wall_time(timeValue, TIMEBASE_SZ);
-
-#elif defined BSLS_PLATFORM__OS_HPUX
-
-    timeValue->d_opaque = gethrtime();
-
-#elif defined BSLS_PLATFORM__OS_LINUX
-
-    clock_gettime(CLOCK_MONOTONIC, timeValue);
-
-#elif defined BSLS_PLATFORM__OS_UNIX
+    // is no attempt to defend against possible non-monotonic
+    // behavior. Together with the arithmetic to convert 'timeValue' to
+    // nanoseconds, the imp would cause bsls_stopwatch to profile at ~1.40 usec
+    // on AIX when compiled with /bb/util/version10-062009/usr/vacpp/bin/xlC_r.
 
     gettimeofday(timeValue, 0);
 
-#elif defined BSLS_PLATFORM__OS_WINDOWS
+#elif defined BSLS_PLATFORM_OS_WINDOWS
 
-    timeValue->d_opaque = WindowsTimerUtil::wallTimer();
+    timeValue->d_opaque = WindowsTimerUtil::getTimerRaw();
 
 #else
     #error "Don't know how to get nanosecond time for this platform"
@@ -523,9 +631,9 @@ void TimeUtil::getTimerRaw(TimeUtil::OpaqueNativeTime *timeValue)
 
 Types::Int64 TimeUtil::getProcessSystemTimer()
 {
-#if defined BSLS_PLATFORM__OS_UNIX
+#if defined BSLS_PLATFORM_OS_UNIX
     return UnixTimerUtil::systemTimer();
-#elif defined BSLS_PLATFORM__OS_WINDOWS
+#elif defined BSLS_PLATFORM_OS_WINDOWS
     return WindowsTimerUtil::systemTimer();
 #else
     #error "Don't know how to get nanosecond time for this platform"
@@ -534,9 +642,9 @@ Types::Int64 TimeUtil::getProcessSystemTimer()
 
 Types::Int64 TimeUtil::getProcessUserTimer()
 {
-#if defined BSLS_PLATFORM__OS_UNIX
+#if defined BSLS_PLATFORM_OS_UNIX
     return UnixTimerUtil::userTimer();
-#elif defined BSLS_PLATFORM__OS_WINDOWS
+#elif defined BSLS_PLATFORM_OS_WINDOWS
     return WindowsTimerUtil::userTimer();
 #else
     #error "Don't know how to get nanosecond time for this platform"
@@ -546,9 +654,9 @@ Types::Int64 TimeUtil::getProcessUserTimer()
 void TimeUtil::getProcessTimers(Types::Int64 *systemTimer,
                                 Types::Int64 *userTimer)
 {
-#if defined BSLS_PLATFORM__OS_UNIX
+#if defined BSLS_PLATFORM_OS_UNIX
     UnixTimerUtil::processTimers(systemTimer, userTimer);
-#elif defined BSLS_PLATFORM__OS_WINDOWS
+#elif defined BSLS_PLATFORM_OS_WINDOWS
     WindowsTimerUtil::processTimers(systemTimer, userTimer);
 #else
     #error "Don't know how to get nanosecond time for this platform"

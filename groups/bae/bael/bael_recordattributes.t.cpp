@@ -17,7 +17,7 @@
 
 #include <bsl_cstdlib.h>      // atoi()
 #include <bsl_cstring.h>      // strlen(), memset(), memcpy(), memcmp()
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
 #include <unistd.h>     // getpid()
 #endif
 
@@ -373,7 +373,7 @@ int main(int argc, char *argv[])
             bdet_Datetime now;
             bdetu_Datetime::convertFromTimeT(&now, time(0));
             attributes.setTimestamp(now);
-            #ifdef BSLS_PLATFORM__OS_UNIX
+            #ifdef BSLS_PLATFORM_OS_UNIX
             attributes.setProcessID(getpid());
             #endif
             attributes.setThreadID(-1);        // pthread_self()

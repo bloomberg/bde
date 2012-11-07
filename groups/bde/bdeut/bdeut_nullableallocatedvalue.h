@@ -110,7 +110,7 @@ BDES_IDENT("$Id: $")
 #include <bdex_versionfunctions.h>
 #endif
 
-#ifdef BSLS_PLATFORM__CMP_IBM
+#ifdef BSLS_PLATFORM_CMP_IBM
 // This is a temporary workaround for a bug that occurs when using AIX xlC
 // compiler.  When compiling a CPP file that uses a nullable value, the AIX xlC
 // compiler incorrectly gives an error that 'bdex_ByteInStreamFormatter' and
@@ -140,12 +140,6 @@ BDES_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-struct bdeut_NullableAllocatedValue_Traits
-                                          : bslalg_TypeTraitUsesBslmaAllocator,
-                                             bdeu_TypeTraitHasPrintMethod
-{
-};
-
                   // ========================================
                   // class bdeut_NullableAllocatedValue<TYPE>
                   // ========================================
@@ -163,8 +157,10 @@ class bdeut_NullableAllocatedValue {
     typedef TYPE ValueType;
 
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(bdeut_NullableAllocatedValue,
-                                 bdeut_NullableAllocatedValue_Traits);
+    BSLMF_NESTED_TRAIT_DECLARATION(bdeut_NullableAllocatedValue,
+                                   bslma::UsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(bdeut_NullableAllocatedValue,
+                                   bdeu_HasPrintMethod);
 
     // CREATORS
     explicit bdeut_NullableAllocatedValue(bslma_Allocator *basicAllocator = 0);

@@ -12,15 +12,15 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //   bsltf::AllocBitwiseMoveableTestType: allocating bitwise-moveable class
 //
-//@AUTHOR: Chen He (che2)
+//@SEE_ALSO: bsltf_templatetestfacility
 //
-//@SEE ALSO: bsltf_templatetestfacility
+//@AUTHOR: Chen He (che2)
 //
 //@DESCRIPTION: This component provides a single, unconstrained
 // (value-semantic) attribute class, 'AllocBitwiseMoveableTestType', that is
 // bitwise-moveable, uses a 'bslma::Allocator' to allocate memory, and defines
-// the type traits 'bslalg::TypeTraitUsesBslmaAllocator' and
-// 'bslalg::TypeTraitBitwiseMoveable'.
+// the type traits 'bslma::UsesBslmaAllocator' and
+// 'bslmf::IsBitwiseMoveable'.
 //
 ///Attributes
 ///----------
@@ -46,24 +46,22 @@ BSLS_IDENT("$Id: $")
 //  void printTypeTraits()
 //      // Prints the traits of the parameterized 'TYPE' to the console.
 //  {
-//      if (bslmf::IsConvertible<bslalg_TypeTraits<TYPE>,
-//          bslalg::TypeTraitUsesBslmaAllocator>::VALUE) {
-//          printf("Type defines bslalg::TypeTraitUsesBslmaAllocator.\n");
+//      if (bslma::UsesBslmaAllocator<TYPE>::value) {
+//          printf("Type defines bslma::UsesBslmaAllocator.\n");
 //      }
 //      else {
 //          printf(
-//              "Type does not define bslalg::TypeTraitUsesBslmaAllocator.\n");
+//              "Type does not define bslma::UsesBslmaAllocator.\n");
 //      }
 //
-//      if (bslmf::IsConvertible<bslalg_TypeTraits<TYPE>,
-//          bslalg::TypeTraitBitwiseMoveable>::VALUE) {
-//          printf("Type defines bslalg::TypeTraitBitwiseMoveable.\n");
+//      if (bslmf::IsBitwiseMoveable<TYPE>::value) {
+//          printf("Type defines bslmf::IsBitwiseMoveable.\n");
 //      }
 //      else {
-//          printf("Type does not define bslalg::TypeTraitBitwiseMoveable.\n");
+//          printf("Type does not define bslmf::IsBitwiseMoveable.\n");
 //      }
 //  }
-// ..
+//..
 // Now, we invoke the 'printTypeTraits' function template using
 // 'AllocBitwiseMoveableTestType' as the parameterized 'TYPE':
 //..
@@ -71,13 +69,9 @@ BSLS_IDENT("$Id: $")
 //..
 // Finally, we observe the console output:
 //..
-//  Type defines bslalg::TypeTraitUsesBslmaAllocator.
-//  Type defines bslalg::TypeTraitBitwiseMoveable.
+//  Type defines bslma::UsesBslmaAllocator.
+//  Type defines bslmf::IsBitwiseMoveable.
 //..
-
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
 
 #ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
@@ -85,6 +79,14 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLMA_DEFAULT
 #include <bslma_default.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include <bslma_usesbslmaallocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
+#include <bslmf_isbitwisemoveable.h>
 #endif
 
 namespace BloombergLP {
@@ -97,8 +99,8 @@ namespace bsltf {
 class AllocBitwiseMoveableTestType {
     // This unconstrained (value-semantic) attribute class that is
     // bitwise-moveable, uses a 'bslma::Allocator' to allocate memory, and
-    // defines the type traits 'bslalg::TypeTraitUsesBslmaAllocator' and
-    // 'bslalg::TypeTraitBitwiseMoveable'.  See the Attributes section under
+    // defines the type traits 'bslma::UsesBslmaAllocator' and
+    // 'bslmf::IsBitwiseMoveable'.  See the Attributes section under
     // @DESCRIPTION in the component-level documentation for information on the
     // class attributes.
 
@@ -109,11 +111,6 @@ class AllocBitwiseMoveableTestType {
                                      // not owned)
 
   public:
-    // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS2(AllocBitwiseMoveableTestType,
-                                  bslalg::TypeTraitUsesBslmaAllocator,
-                                  bslalg::TypeTraitBitwiseMoveable);
-
     // CREATORS
     explicit AllocBitwiseMoveableTestType(
                                          bslma::Allocator *basicAllocator = 0);
@@ -166,6 +163,23 @@ class AllocBitwiseMoveableTestType {
         // that if no allocator was supplied at construction the currently
         // installed default allocator is used.
 };
+
+}
+
+// TRAITS
+namespace bslma {
+template <>
+struct UsesBslmaAllocator<bsltf::AllocBitwiseMoveableTestType>
+    : bsl::true_type {};
+}
+
+namespace bslmf {
+template <>
+struct IsBitwiseMoveable<bsltf::AllocBitwiseMoveableTestType>
+    : bsl::true_type {};
+}
+
+namespace bsltf {
 
 // FREE OPERATORS
 bool operator==(const AllocBitwiseMoveableTestType& lhs,

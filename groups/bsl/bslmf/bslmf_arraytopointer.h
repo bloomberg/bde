@@ -13,9 +13,9 @@ BSLS_IDENT("$Id: $")
 //  bslmf::ArrayToPointer: convert an array type to a pointer type
 //  bslmf::ArrayToConstPointer: convert an array type to a 'const' pointer type
 //
-//@AUTHOR: Ilougino Rocha (irocha)
-//
 //@SEE_ALSO: bslmf_isarray, bslmf_forwardingtype
+//
+//@AUTHOR: Ilougino Rocha (irocha)
 //
 //@DESCRIPTION: This component provides a meta function for converting array
 // types to pointer types.  The utility is generally used for in templates that
@@ -34,11 +34,11 @@ BSLS_IDENT("$Id: $")
 // For example:
 //..
 //  assert(1 == bslmf::IsSame<bslmf::ArrayToPointer<int[5]>::Type
-//                          , int *>::VALUE);
+//                          , int *>::value);
 //  assert(1 == bslmf::IsSame<bslmf::ArrayToPointer<int *>::Type
-//                          , int *>::VALUE);
+//                          , int *>::value);
 //  assert(0 == bslmf::IsSame<bslmf::ArrayToPointer<int (*)[5]>::Type]
-//                          , int **>::VALUE);
+//                          , int **>::value);
 //..
 
 #ifndef INCLUDED_BSLSCM_VERSION
@@ -106,6 +106,7 @@ struct ArrayToPointer_Imp<TYPE [], UNUSED> {
 
 }  // close package namespace
 
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
@@ -121,6 +122,7 @@ struct ArrayToPointer_Imp<TYPE [], UNUSED> {
 #endif
 #define bslmf_ArrayToPointer bslmf::ArrayToPointer
     // This alias is defined for backward compatibility.
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

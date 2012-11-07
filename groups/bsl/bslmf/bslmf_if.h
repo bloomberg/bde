@@ -12,9 +12,9 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslmf::If: meta-function for compile-time selection of one of two types
 //
-//@AUTHOR: Oleg Grunin (ogrunin)
-//
 //@SEE_ALSO: bslmf_assert, bslmf_nil
+//
+//@AUTHOR: Oleg Grunin (ogrunin)
 //
 //@DESCRIPTION: This component contains the template class meta-function
 // 'bslmf::If' that is parameterized on three arguments.  The first argument is
@@ -69,7 +69,7 @@ BSLS_IDENT("$Id: $")
 // named 'Type' provide the results of type-returning meta-functions.
 //
 ///Usage
-//------
+///-----
 // The following snippets of code illustrate basic use of the 'bslmf::If'
 // meta-function.  The examples make use of the following declarations to
 // identify the type that is selected by a given constant integral expression:
@@ -107,6 +107,10 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_nil.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_CONDITIONAL
+#include <bslmf_conditional.h>
+#endif
+
 namespace BloombergLP {
 
 namespace bslmf {
@@ -119,20 +123,17 @@ template <int   CONDITION,
           class IF_TRUE_TYPE = Nil, class IF_FALSE_TYPE = Nil>
 struct If {
     // This meta-function selects 'IF_TRUE_TYPE' if 'CONDITION' is non-zero.
+    // and 'IF_FALSE_TYPE' otherwise.
 
-    typedef IF_TRUE_TYPE Type;
-};
-
-template <class IF_TRUE_TYPE, class IF_FALSE_TYPE>
-struct If<0, IF_TRUE_TYPE, IF_FALSE_TYPE> {
-    // This specialization of 'If' selects 'IF_FALSE_TYPE' if 'CONDITION' is
-    // zero.
-
-    typedef IF_FALSE_TYPE Type;
+    typedef typename bsl::conditional<CONDITION,
+                                      IF_TRUE_TYPE,
+                                      IF_FALSE_TYPE>::type
+            Type;
 };
 
 }  // close package namespace
 
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
@@ -142,6 +143,7 @@ struct If<0, IF_TRUE_TYPE, IF_FALSE_TYPE> {
 #endif
 #define bslmf_If bslmf::If
     // This alias is defined for backward compatibility.
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 
@@ -149,7 +151,7 @@ struct If<0, IF_TRUE_TYPE, IF_FALSE_TYPE> {
 
 // ---------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2004
+//      Copyright (C) Bloomberg L.P., 2012
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the

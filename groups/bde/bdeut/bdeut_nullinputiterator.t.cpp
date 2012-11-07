@@ -91,7 +91,7 @@ class my_Class {
 // and sum the elements.
 //..
     template <class IN_ITER>
-#if defined(BSLS_PLATFORM__CMP_SUN) && (__SUNPRO_CC < 0x550)
+#if defined(BSLS_PLATFORM_CMP_SUN) && (__SUNPRO_CC < 0x550)
     int
 #else
     typename bsl::iterator_traits<IN_ITER>::value_type

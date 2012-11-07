@@ -11,10 +11,11 @@ BSLS_IDENT("$Id$ $CSID$")
 //
 //@CLASSES:
 //  bslalg::RbTreeUtil: namespace for red-black tree functions
-//
-//@AUTHOR: Henry Verschell (hverschell)
+//  bslalg::RbTreeUtilTreeProctor: proctor to manage all nodes in a tree
 //
 //@SEE_ALSO: bslalg_rbtreenode
+//
+//@AUTHOR: Henry Verschell (hverschell)
 //
 //@DESCRIPTION: This component provides a variety of algorithms that operate
 // on nodes forming a red-black binary search tree.
@@ -680,12 +681,12 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_RBTREENODE
-#include <bslalg_rbtreenode.h>
-#endif
-
 #ifndef INCLUDED_BSLALG_RBTREEANCHOR
 #include <bslalg_rbtreeanchor.h>
+#endif
+
+#ifndef INCLUDED_BSLALG_RBTREENODE
+#include <bslalg_rbtreenode.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ASSERT
@@ -714,6 +715,7 @@ struct RbTreeUtil {
     // otherwise (see 'bsldoc_glossary').  'copyTree' provides the *strong*
     // guarantee.
 
+    // CLASS METHODS
                                  // Navigation
 
     static const RbTreeNode *leftmost(const RbTreeNode *subtree);
@@ -1049,6 +1051,7 @@ struct RbTreeUtil {
         // the sentinel node as the root of the tree.
 
                                  // Testing
+
     static void printTreeStructure(
                     FILE                   *file,
                     const RbTreeNode       *subtree,
@@ -1204,12 +1207,12 @@ struct RbTreeUtil_Validator {
         // 'RbTreeUtil::isWellFormed').
 };
 
-                        // =============================
-                        // struct RbTreeUtil_TreeProctor
-                        // =============================
+                        // ============================
+                        // struct RbTreeUtilTreeProctor
+                        // ============================
 
 template <class DELETER>
-class RbTreeUtil_TreeProctor {
+class RbTreeUtilTreeProctor {
     // This class implements a proctor that, unless 'release' is called,
     // invokes the parameterized 'DELETER' on each node in the tree supplied at
     // construction.
@@ -1222,12 +1225,12 @@ class RbTreeUtil_TreeProctor {
 
   public:
     // CREATORS
-    RbTreeUtil_TreeProctor(RbTreeAnchor *tree, DELETER *deleter);
+    RbTreeUtilTreeProctor(RbTreeAnchor *tree, DELETER *deleter);
         // Create a proctor object that, unless 'release' is called, will,
         // on destruction, invoke the specified 'deleter' on each node in
         // 'tree'.
 
-    ~RbTreeUtil_TreeProctor();
+    ~RbTreeUtilTreeProctor();
         // Unless 'release' has been called, invoke the deleter supplied at
         // construction on each node in the tree supplied at construction.
 
@@ -1381,7 +1384,7 @@ void RbTreeUtil::copyTree(RbTreeAnchor        *result,
     RbTreeNode   *copiedRoot = nodeFactory->createNode(*originalNode);
     RbTreeAnchor  tree(copiedRoot, 0, 1);
 
-    RbTreeUtil_TreeProctor<FACTORY> proctor(&tree, nodeFactory);
+    RbTreeUtilTreeProctor<FACTORY> proctor(&tree, nodeFactory);
 
     RbTreeNode *copiedNode = copiedRoot;
 
@@ -1835,14 +1838,14 @@ int RbTreeUtil_Validator::validateRbTree(
           : leftDepth;
 }
 
-                        // -----------------------------
-                        // struct RbTreeUtil_TreeProctor
-                        // -----------------------------
+                        // ----------------------------
+                        // struct RbTreeUtilTreeProctor
+                        // ----------------------------
 
 template <class DELETER>
 inline
-RbTreeUtil_TreeProctor<DELETER>::RbTreeUtil_TreeProctor(RbTreeAnchor *tree,
-                                                        DELETER      *deleter)
+RbTreeUtilTreeProctor<DELETER>::RbTreeUtilTreeProctor(RbTreeAnchor *tree,
+                                                      DELETER      *deleter)
 : d_tree_p(tree)
 , d_deleter_p(deleter)
 {
@@ -1851,7 +1854,7 @@ RbTreeUtil_TreeProctor<DELETER>::RbTreeUtil_TreeProctor(RbTreeAnchor *tree,
 
 template <class DELETER>
 inline
-RbTreeUtil_TreeProctor<DELETER>::~RbTreeUtil_TreeProctor()
+RbTreeUtilTreeProctor<DELETER>::~RbTreeUtilTreeProctor()
 {
     if (d_tree_p && d_tree_p->rootNode()) {
         d_tree_p->rootNode()->setParent(d_tree_p->sentinel());
@@ -1863,7 +1866,7 @@ RbTreeUtil_TreeProctor<DELETER>::~RbTreeUtil_TreeProctor()
 
 template <class DELETER>
 inline
-void RbTreeUtil_TreeProctor<DELETER>::release()
+void RbTreeUtilTreeProctor<DELETER>::release()
 {
     d_tree_p = 0;
 }

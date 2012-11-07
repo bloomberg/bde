@@ -123,7 +123,7 @@ static const char *INVALID_PATH = "! INVALID_FILE_PATH !";
 #define TEST_DIRECTORY_NAME "testDirectory"
 static const char *TEST_DIRECTORY = TEST_DIRECTORY_NAME;
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
 static const char *TEST_GMT_FILE = TEST_DIRECTORY_NAME "\\GMT";
 static const char *AMERICA_NEW_YORK_FILE
                                    = TEST_DIRECTORY_NAME "\\America\\New_York";
@@ -575,7 +575,7 @@ int main(int argc, char *argv[])
 // identifier for Bangkok and "Asia/Bangkok" also serves as a path (relative
 // to our "./test" sub-directory) to that data file.
 //..
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
     const char *TIME_ZONE_DIRECTORY = "test\\Asia";
     const char *TIME_ZONE_FILE      = "test\\Asia\\Bangkok";
 #else
@@ -645,6 +645,8 @@ int main(int argc, char *argv[])
     if (verbose) {
         timeZone.print(bsl::cout, 1, 3);
     }
+
+    bdesu_FileUtil::remove("test", true); // TIME_ZONE_DIRECTORY/.. i.e. "test"
 
       } break;
       case 6: {
@@ -830,7 +832,7 @@ int main(int argc, char *argv[])
             //LINE  ROOT    TZ_ID   RESULT
             //----  ----    -----   ------
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
             { L_,   "",     "",     "" },
             { L_,   "",     "C",    "C" },
             { L_,   "A",    "C/D",  "A\\C\\D" },
@@ -875,7 +877,7 @@ int main(int argc, char *argv[])
                 const char *d_result;
             } DATA [] = {
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
             { L_, "Africa/Cairo",           ROOT "\\Africa\\Cairo" },
             { L_, "Africa/Johannesburg",    ROOT "\\Africa\\Johannesburg" },
             { L_, "Atlantic/South_Georgia", ROOT "\\Atlantic\\South_Georgia" },
@@ -1265,14 +1267,14 @@ int main(int argc, char *argv[])
 
             bsl::string path(Z);
             ASSERT(0 == X.loadTimeZoneFilePath(&path, "America/New_York"));
-#ifndef BSLS_PLATFORM__OS_WINDOWS
+#ifndef BSLS_PLATFORM_OS_WINDOWS
             ASSERT(path == "./America/New_York");
 #else
             ASSERT(path == ".\\America\\New_York");
 #endif
 
             ASSERT(0 == X.loadTimeZoneFilePath(&path, "Pacific/Fiji"));
-#ifndef BSLS_PLATFORM__OS_WINDOWS
+#ifndef BSLS_PLATFORM_OS_WINDOWS
             ASSERT(path == "./Pacific/Fiji");
 #else
             ASSERT(path == ".\\Pacific\\Fiji");
@@ -1308,6 +1310,12 @@ int main(int argc, char *argv[])
     if (testStatus > 0) {
         cerr << "Error, non-zero test status = " << testStatus << "." << endl;
     }
+
+    // TBD: multiple test cases use the same path and so cleanup can not occur
+    //      after each test case ends, or else there is a race condition when
+    //      multiple test cases are run in parallel
+    //bdesu_FileUtil::remove(TEST_DIRECTORY, true);
+
     return testStatus;
 }
 

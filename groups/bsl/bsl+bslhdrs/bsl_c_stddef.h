@@ -33,7 +33,7 @@ BSLS_IDENT("$Id: $")
 #include <bsls_platform.h>
 #endif
 
-#ifdef BSLS_PLATFORM__CMP_SUN
+#ifdef BSLS_PLATFORM_CMP_SUN
 
 // It is valid to include a C header inside an 'extern "C"' block, so C++ code
 // within C files should be wrapped around an 'extern "C++"' block.
@@ -48,7 +48,7 @@ namespace bsl
 
 }
 
-#endif  // BSLS_PLATFORM__CMP_SUN
+#endif  // BSLS_PLATFORM_CMP_SUN
 
 #endif  // __cplusplus
 

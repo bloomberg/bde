@@ -52,7 +52,7 @@
 #include <bsl_c_stdio.h>     // tempnam()
 #include <bsl_c_stdlib.h>    // rand_r()
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
     #include <sys/types.h>
     #include <sys/stat.h>
     #include <fcntl.h>
@@ -60,7 +60,7 @@
 #endif
 
 // Note: on Windows -> WinGDI.h:#define ERROR 0
-#if defined(BSLS_PLATFORM__CMP_MSVC) && defined(ERROR)
+#if defined(BSLS_PLATFORM_CMP_MSVC) && defined(ERROR)
 #undef ERROR
 #endif
 
@@ -1645,7 +1645,7 @@ int main(int argc, char *argv[])
          record4->fixedFields().messageStreamBuf().sputn(
                                                "No Logger\0 Manager\0 6!", 22);
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
          fflush(stderr);
          bsl::string filename = tempnam(0, "bael_loggermanager");
          int fd = creat(filename.c_str(), 0777);
@@ -1665,7 +1665,7 @@ int main(int argc, char *argv[])
          Obj::logMessage(bael_Severity::BAEL_ERROR, record5);
          Obj::logMessage(bael_Severity::BAEL_FATAL, record6);
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
          fflush(stderr);
          dup2(saved_stderr_fd, 2);
 

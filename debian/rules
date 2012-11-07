@@ -4,7 +4,8 @@ MAKE_JOBS:=4
 PATH:=/bbshr/bde/bde-tools/bin:/usr/bin:/bin
 TMPDIR:=/tmp
 SHELL:=/bin/bash
-RSSUITE:=$(shell cat debian/RSSUITE.version)
+RSSUITE_TOOLS=/bbsrc/rssuite-tools
+RSSUITE:=$(shell cat $(RSSUITE_TOOLS)/RSSUITE.version)
 PRODUCEMAKE:=/bbsrc/bin/prod/bin/producemake
 UNAME:=$(shell uname)
 ifeq ($(UNAME),HP-UX)
@@ -35,6 +36,7 @@ empty:=
 space:= $(empty) $(empty)
 
 clean:
+	cat debian/control.in | perl -pi -e 's/\$$\{shlib\:RSSUITE\}/$(RSSUITE)/g' > debian/control
 	rm -rf debian/lib{bae,bce,bde,bsl,bte}-dev debian/libbsl-rs
 	rm -f debian/*files debian/files
 	rm -f debian/build-stamp
@@ -154,8 +156,8 @@ else
 	ln -sf lib$(1).$(DEFAULT_STATIC_FLAVOR_32bit).a debian/lib$(1)-dev/bb/lib/lib$(1).a
 	ln -sf lib$(1).$(DEFAULT_STATIC_FLAVOR_64bit).a debian/lib$(1)-dev/bb/lib64/lib$(1).a
 endif
-	mkdir -p debian/lib$(1)-dev/bb/include/00deployed
-	cp $$(GROUP_$(1)_INSTALL_HEADERS) debian/lib$(1)-dev/bb/include/00deployed
+	mkdir -p debian/lib$(1)-dev/bb/include
+	cp $$(GROUP_$(1)_INSTALL_HEADERS) debian/lib$(1)-dev/bb/include/
 
 ALL_DEV_PACKAGES+=lib$(1)-dev-binary
 lib$(1)-dev-binary: lib$(1)-dev
