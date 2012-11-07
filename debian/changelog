@@ -1,3 +1,9 @@
+bde-core (2.15.0.2) unstable; urgency=low
+
+  * Produce -bdemeta package with the bde metadata
+
+ -- Daniel Ruoso <druoso@bloomberg.net>  Wed, 07 Nov 2012 17:21:41 -0500
+
 bde-core (2.15.0.1) unstable; urgency=low
 
   * Remove reference to 00deployed
