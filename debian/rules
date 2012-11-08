@@ -37,7 +37,7 @@ space:= $(empty) $(empty)
 
 clean:
 	cat debian/control.in | perl -pi -e 's/\$$\{shlib\:RSSUITE\}/$(RSSUITE)/g' > debian/control
-	rm -rf debian/lib{bae,bce,bde,bsl,bte}-dev debian/libbsl-rs
+	rm -rf debian/lib{bae,bce,bde,bsl,bte}-dev debian/libbsl-rs debian/bde-core-bdemeta
 	rm -f debian/*files debian/files
 	rm -f debian/build-stamp
 	rm -f debian/binary-stamp
@@ -169,6 +169,16 @@ endef
 
 $(foreach group,$(GROUPS),$(eval $(call GROUPdev_template,$(group))))
 
+debian/bde-core-bdemeta.stamp:
+	mkdir -p debian/bde-core-bdemeta/DEBIAN
+	find groups -type d \( -name 'package' -or -name 'group' \) \
+	  -exec mkdir -p debian/bde-core-bdemeta/bb/bdemeta/{} \; \
+	  -exec sh -c "cp "{}"/* debian/bde-core-bdemeta/bb/bdemeta/"{}"/" \;
+	dpkg-gencontrol -pbde-core-bdemeta \
+	     -Pdebian/bde-core-bdemeta
+	dpkg-deb -b debian/bde-core-bdemeta ../
+	touch debian/bde-core-bdemeta.stamp
+
 ##################################
 # build is the main build part.
 # binary is the governing rule for the packaging
@@ -182,6 +192,6 @@ build-arch: $(foreach group,$(GROUPS),lib/$(UPLID)/$(group).stamp )
 
 binary: binary-arch binary-indep
 
-binary-indep:
+binary-indep: debian/bde-core-bdemeta.stamp
 
 binary-arch: $(ALL_DEV_PACKAGES) $(ALL_SO_PACKAGES)
