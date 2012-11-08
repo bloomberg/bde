@@ -166,7 +166,7 @@ class my_IncompleteClass2;  // incomplete class
 enum my_Enum { MY_VAL0, MY_VAL1 };
 
 class my_EnumClass {
-    // This class defines nested 'enum' type.
+    // This class defines a nested 'enum' type.
   public:
     enum Type { VAL0, VAL1 };
 };
