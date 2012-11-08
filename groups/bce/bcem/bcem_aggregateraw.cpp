@@ -1674,8 +1674,6 @@ int bcem_AggregateRaw::length() const
         result = ((bdem_ChoiceArray *)d_value_p)->length();
       } break;
       default: {
-        BSLS_ASSERT_SAFE(bdem_ElemType::isArrayType(d_dataType));
-
         bcem_AggregateRaw_ArraySizer sizer;
         result = bcem_AggregateRaw_Util::visitArray(d_value_p,
                                                     d_dataType,

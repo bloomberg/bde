@@ -2677,7 +2677,6 @@ void bdeat_arrayResize(bcem_AggregateRaw *array, int newSize)
 {
     bcem_ErrorAttributes dummy;
     int rc = array->resize(&dummy, newSize);
-    BSLS_ASSERT_SAFE(0 == rc);
     (void) rc; // avoid compiler warning in non-safe mode
 }
 
