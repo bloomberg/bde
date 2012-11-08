@@ -3996,10 +3996,10 @@ No match
     bca
 No match
     
-/abc/F>testsavedregex
+/abc/>testsavedregex
 Compiled regex written to testsavedregex
 <testsavedregex
-Compiled regex (byte-inverted) loaded from testsavedregex
+Compiled regex loaded from testsavedregex
 No study data
     abc
  0: abc
