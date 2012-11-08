@@ -191,7 +191,7 @@ BSLS_IDENT("$Id: $")
     #endif
 #endif
 
-#ifdef BSLS_PLATFORM_OS_AIX
+#if defined(BSLS_PLATFORM_OS_AIX) || defined(BSLS_PLATFORM_OS_FREEBSD)
     #ifndef INCLUDED_SYS_TIME
     #include <sys/time.h>
     #define INCLUDED_SYS_TIME
