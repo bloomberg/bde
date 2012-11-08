@@ -23,7 +23,7 @@ BDES_IDENT("$Id: $")
 //
 ///Thread-Safety
 ///-------------
-// All methods of 'bcem_AggregateUtil' are 'const' Thread-Safe.
+// All methods of 'bcem_AggregateUtil' are thread-safe.
 //
 ///Usage Example
 ///-------------
