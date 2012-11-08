@@ -1,6 +1,11 @@
 #ifndef BTES_RESERVATIONGUARD
 #define BTES_RESERVATIONGUARD
 
+#ifndef INCLUDED_BDES_IDENT
+#include <bdes_ident.h>
+#endif
+BDES_IDENT("$Id: $")
+
 //@PURPOSE: Provide a generic proctor for rate controlling objects.
 //
 //@CLASSES:
@@ -118,6 +123,10 @@
 
 #ifndef INCLUDED_BDET_TIMEINTERVAL
 #include <bdet_timeinterval.h>
+#endif
+
+#ifndef INCLUDED_BTES_LEAKYBUCKET
+#include <btes_leakybucket.h>
 #endif
 
 #ifndef INCLUDED_BSLS_TYPES

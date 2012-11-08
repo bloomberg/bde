@@ -2,6 +2,11 @@
 #ifndef INCLUDED_BTES_LEAKYBUCKET
 #define INCLUDED_BTES_LEAKYBUCKET
 
+#ifndef INCLUDED_BDES_IDENT
+#include <bdes_ident.h>
+#endif
+BDES_IDENT("$Id: $")
+
 //@PURPOSE: Control the consumption rate of a resource.
 //
 //@CLASSES:

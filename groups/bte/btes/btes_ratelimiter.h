@@ -2,6 +2,11 @@
 #ifndef INCLUDED_BTES_RATELIMITER
 #define INCLUDED_BTES_RATELIMITER
 
+#ifndef INCLUDED_BDES_IDENT
+#include <bdes_ident.h>
+#endif
+BDES_IDENT("$Id: $")
+
 //@PURPOSE: Limit peak and sustained consumption rate of a resource.
 //
 //@CLASSES:
@@ -145,16 +150,16 @@
 //..
 // FIG.2
 //     ^ Rate (Units per second)
-//     |                             _____
-//     |                            /  B  \
+//     |                             _____         .
+//     |                            /  B  \        . 
 // 2048|---------------------------/-------\--------R2 (Maximum peak rate)
-//     |           __             /         \
-//     |          /  \           /    A2     \
-//     |         / A1 \         /             \
+//     |           __             /         \      .
+//     |          /  \           /    A2     \     .
+//     |         / A1 \         /             \    .
 // 1024|--------/------\ ------/---------------\----R1 (Maximum sustained rate)
-//     |   __  /        \     /                 \___
-//     |__/  \/          \___/
-//     |
+//     |   __  /        \     /                 \__.
+//     |__/  \/          \___/                     .
+//     |                                           .
 //      --------------------------------------------->
 //                                         T (seconds)
 //..
