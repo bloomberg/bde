@@ -8,7 +8,7 @@ Standards-Version: 3.8.4
 Package: bde-core-bdemeta
 Architecture: all
 Description: bde-core bde metadata
- bde metadat for the bde-core source package
+ bde metadata for the bde-core source package
 
 Package: libbae-dev
 Depends: libbsl-dev (= ${binary:Version}), libbce-dev (= ${binary:Version}), libbde-dev (= ${binary:Version})
