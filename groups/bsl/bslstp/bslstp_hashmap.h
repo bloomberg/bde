@@ -409,73 +409,6 @@ public:
   }
 };
 
-}  // namespace bsl
-
-// ============================================================================
-//                                TYPE TRAITS
-// ============================================================================
-
-// Type traits for STL *ordered* containers:
-//: o An ordered container defines STL iterators.
-//: o An ordered container uses 'bslma' allocators if the parameterized
-//:     '_Alloc' is convertible from 'bslma::Allocator*'.
-
-namespace BloombergLP {
-namespace bslalg {
-
-template <class _Key,
-          class _Tp,
-          class _HashFcn,
-          class _EqualKey,
-          class _Alloc>
-struct HasStlIterators<bsl::hash_map<_Key, _Tp, _HashFcn, _EqualKey, _Alloc> >
-    : bsl::true_type
-{};
-
-}
-
-namespace bslma {
-
-template <class _Key,
-          class _Tp,
-          class _HashFcn,
-          class _EqualKey,
-          class _Alloc>
-struct UsesBslmaAllocator<bsl::hash_map<_Key, _Tp, _HashFcn, _EqualKey, _Alloc> >
-    : bsl::is_convertible<Allocator*, _Alloc>
-{};
-
-}
-
-namespace bslalg {
-
-template <class _Key,
-          class _Tp,
-          class _HashFcn,
-          class _EqualKey,
-          class _Alloc>
-struct HasStlIterators<bsl::hash_multimap<_Key, _Tp, _HashFcn, _EqualKey, _Alloc> >
-    : bsl::true_type
-{};
-
-}
-
-namespace bslma {
-
-template <class _Key,
-          class _Tp,
-          class _HashFcn,
-          class _EqualKey,
-          class _Alloc>
-struct UsesBslmaAllocator<bsl::hash_multimap<_Key, _Tp, _HashFcn, _EqualKey, _Alloc> >
-    : bsl::is_convertible<Allocator*, _Alloc>
-{};
-
-}
-}  // namespace BloombergLP
-
-namespace bsl {
-
 template <class _Key, class _Tp, class _HashFcn, class _EqualKey, class _Alloc>
 inline
 void swap(hash_multimap<_Key, _Tp, _HashFcn, _EqualKey, _Alloc>& lhs,
@@ -588,6 +521,72 @@ public:
 };
 
 }  // close namespace std
+
+// ============================================================================
+//                                TYPE TRAITS
+// ============================================================================
+
+// Type traits for STL *ordered* containers:
+//: o An ordered container defines STL iterators.
+//: o An ordered container uses 'bslma' allocators if the parameterized
+//:     '_Alloc' is convertible from 'bslma::Allocator*'.
+
+namespace BloombergLP {
+
+namespace bslalg {
+
+template <class _Key,
+          class _Tp,
+          class _HashFcn,
+          class _EqualKey,
+          class _Alloc>
+struct HasStlIterators<bsl::hash_map<_Key, _Tp, _HashFcn, _EqualKey, _Alloc> >
+    : bsl::true_type
+{};
+
+}  // close package namespace
+
+namespace bslma {
+
+template <class _Key,
+          class _Tp,
+          class _HashFcn,
+          class _EqualKey,
+          class _Alloc>
+struct UsesBslmaAllocator<bsl::hash_map<_Key, _Tp, _HashFcn, _EqualKey, _Alloc> >
+    : bsl::is_convertible<Allocator*, _Alloc>
+{};
+
+}  // close package namespace
+
+namespace bslalg {
+
+template <class _Key,
+          class _Tp,
+          class _HashFcn,
+          class _EqualKey,
+          class _Alloc>
+struct HasStlIterators<bsl::hash_multimap<_Key, _Tp, _HashFcn, _EqualKey, _Alloc> >
+    : bsl::true_type
+{};
+
+}  // close package namespace
+
+namespace bslma {
+
+template <class _Key,
+          class _Tp,
+          class _HashFcn,
+          class _EqualKey,
+          class _Alloc>
+struct UsesBslmaAllocator<bsl::hash_multimap<_Key, _Tp, _HashFcn, _EqualKey, _Alloc> >
+    : bsl::is_convertible<Allocator*, _Alloc>
+{};
+
+}  // close package namespace
+
+}  // close enterprise namespace
+
 
 #ifdef BSLSTP_DEFINE_STD
 #undef BSLSTP_DEFINE_STD

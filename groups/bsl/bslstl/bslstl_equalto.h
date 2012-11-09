@@ -100,8 +100,6 @@ struct equal_to {
         // 'rhs' using the equality-comparison operator, 'lhs == rhs'.
 };
 
-}  // namespace bsl
-
 // ============================================================================
 //                                TYPE TRAITS
 // ============================================================================
@@ -110,10 +108,6 @@ struct equal_to {
 //: o A sequence container defines STL iterators.
 //: o A sequence container is bitwise moveable if the allocator is bitwise
 //:     moveable.
-//: o A sequence container uses 'bslma' allocators if the parameterized
-//:     'ALLOCATOR' is convertible from 'bslma::Allocator*'.
-
-namespace bsl {
 
 template<class VALUE_TYPE>
 struct is_trivially_default_constructible<equal_to<VALUE_TYPE> >
@@ -124,21 +118,6 @@ template<class VALUE_TYPE>
 struct is_trivially_copyable<equal_to<VALUE_TYPE> >
 : bsl::true_type
 {};
-
-}
-
-namespace BloombergLP {
-namespace bslmf {
-
-template<class VALUE_TYPE>
-struct IsBitwiseMoveable<bsl::equal_to<VALUE_TYPE> >
-: bsl::true_type
-{};
-
-}
-}  // namespace BloombergLP
-
-namespace bsl {
 
 // ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
@@ -158,6 +137,25 @@ bool equal_to<VALUE_TYPE>::operator()(const VALUE_TYPE& lhs,
 }
 
 }  // close namespace bsl
+
+// ============================================================================
+//                                TYPE TRAITS
+// ============================================================================
+
+// Type traits for STL *sequence* containers:
+//: o A sequence container uses 'bslma' allocators if the parameterized
+//:     'ALLOCATOR' is convertible from 'bslma::Allocator*'.
+
+namespace BloombergLP {
+namespace bslmf {
+
+template<class VALUE_TYPE>
+struct IsBitwiseMoveable<bsl::equal_to<VALUE_TYPE> >
+: bsl::true_type
+{};
+
+}  // close package namespace
+}  // close enterprise namespace
 
 #endif
 

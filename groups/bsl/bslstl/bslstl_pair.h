@@ -559,24 +559,6 @@ class pair : private Pair_Imp<T1, T2,
         // field is no-throw.
 };
 
-}  // namespace bsl
-
-// ===========================================================================
-//                                TYPE TRAITS
-// ===========================================================================
-
-namespace BloombergLP {
-namespace bslmf {
-
-template <typename T1, typename T2>
-struct IsPair<bsl::pair<T1, T2> > : bsl::true_type
-{};
-
-}
-}
-
-namespace bsl {
-
 // FREE OPERATORS
 template <typename T1, typename T2>
 inline
@@ -636,13 +618,9 @@ void swap(pair<T1, T2>& a, pair<T1, T2>& b);
     // each of the 'first' and 'second' pair fields.  Note that this method is
     // no-throw only if 'swap' on each field is no-throw.
 
-}  // close namespace bsl
-
 // ===========================================================================
 //                                TYPE TRAITS
 // ===========================================================================
-
-namespace bsl {
 
 template <typename T1, typename T2>
 struct is_trivially_copyable<pair<T1, T2> >
@@ -656,45 +634,10 @@ struct is_trivially_default_constructible<bsl::pair<T1, T2> >
                             && is_trivially_default_constructible<T2>::value>
 {};
 
-}
-
-namespace BloombergLP {
-namespace bslmf {
-
-template <typename T1, typename T2>
-struct IsBitwiseMoveable<bsl::pair<T1, T2> >
-    : bsl::integral_constant<bool, bslmf::IsBitwiseMoveable<T1>::value
-                                  && bslmf::IsBitwiseMoveable<T2>::value>
-{};
-
-template <typename T1, typename T2>
-struct IsBitwiseEqualityComparable<bsl::pair<T1, T2> >
-: bsl::integral_constant<bool, bslmf::IsBitwiseEqualityComparable<T1>::value
-                            && bslmf::IsBitwiseEqualityComparable<T2>::value
-                            && sizeof(T1) + sizeof(T2) ==
-                                           sizeof(bsl::Pair_Imp<T1, T2, 0, 0>)>
-{};
-
-}  // bslmf
-
-namespace bslma {
-
-template <typename T1, typename T2>
-struct UsesBslmaAllocator<bsl::pair<T1, T2> >
-    : bsl::integral_constant<bool, bslma::UsesBslmaAllocator<T1>::value
-                                  || bslma::UsesBslmaAllocator<T2>::value>
-{};
-
-}  // bslma
-
-}  // BloombergLP
-
 // ===========================================================================
 //                      INLINE FUNCTION DEFINITIONS
 // ===========================================================================
 // See IMPLEMENTATION NOTES in the .cpp before modifying anything below.
-
-namespace bsl {
 
                            // ---------------
                            // struct Pair_Imp
@@ -1023,6 +966,46 @@ void swap(pair<T1, T2>& a, pair<T1, T2>& b)
 }
 
 }  // close namespace bsl
+
+// ===========================================================================
+//                                TYPE TRAITS
+// ===========================================================================
+
+namespace BloombergLP {
+
+namespace bslmf {
+
+template <typename T1, typename T2>
+struct IsPair<bsl::pair<T1, T2> > : bsl::true_type
+{};
+
+template <typename T1, typename T2>
+struct IsBitwiseMoveable<bsl::pair<T1, T2> >
+    : bsl::integral_constant<bool, bslmf::IsBitwiseMoveable<T1>::value
+                                  && bslmf::IsBitwiseMoveable<T2>::value>
+{};
+
+template <typename T1, typename T2>
+struct IsBitwiseEqualityComparable<bsl::pair<T1, T2> >
+: bsl::integral_constant<bool, bslmf::IsBitwiseEqualityComparable<T1>::value
+                            && bslmf::IsBitwiseEqualityComparable<T2>::value
+                            && sizeof(T1) + sizeof(T2) ==
+                                           sizeof(bsl::Pair_Imp<T1, T2, 0, 0>)>
+{};
+
+}  // close package namespace
+
+namespace bslma {
+
+template <typename T1, typename T2>
+struct UsesBslmaAllocator<bsl::pair<T1, T2> >
+    : bsl::integral_constant<bool, bslma::UsesBslmaAllocator<T1>::value
+                                  || bslma::UsesBslmaAllocator<T2>::value>
+{};
+
+}  // close package namespace
+
+}  // close enterprise namespace
 
 #endif
 

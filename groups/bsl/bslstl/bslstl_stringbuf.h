@@ -476,23 +476,6 @@ typedef basic_stringbuf<char, char_traits<char>, allocator<char> >   stringbuf;
 typedef basic_stringbuf<wchar_t, char_traits<wchar_t>, allocator<wchar_t> >
                                                                     wstringbuf;
 
-}
-
-// TYPE TRAITS
-namespace BloombergLP {
-namespace bslma {
-
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
-struct UsesBslmaAllocator<
-        bsl::basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR> >
-    : bsl::true_type
-{};
-
-}
-}
-
-namespace bsl {
-
                       // =========================
                       // struct StringBufContainer
                       // =========================
@@ -1062,6 +1045,22 @@ typename basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::StringType
 }
 
 }  // close namespace bsl
+
+// ============================================================================
+//                                TYPE TRAITS
+// ============================================================================
+
+namespace BloombergLP {
+namespace bslma {
+
+template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+struct UsesBslmaAllocator<
+        bsl::basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR> >
+    : bsl::true_type
+{};
+
+}  // close package namespace
+}  // close enterprise namespace
 
 #endif
 

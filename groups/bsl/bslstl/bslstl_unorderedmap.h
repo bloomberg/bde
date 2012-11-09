@@ -832,46 +832,10 @@ void swap(unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>& a,
     // behavior is undefined is unless either this object was created with the
     // same allocator as 'other' or 'propagate_on_container_swap' is 'true'.
 
-}  // close namespace bsl
-
-// ============================================================================
-//                                TYPE TRAITS
-// ============================================================================
-
-// Type traits for STL *unordered* *associative* containers:
-//: o An unordered associative container defines STL iterators.
-//: o An unordered associative container is bitwise moveable if the both
-//:      functors and the allocator are bitwise moveable.
-//: o An unordered associative container uses 'bslma' allocators if the
-//:   parameterized 'ALLOCATOR' is convertible from 'bslma::Allocator*'.
-
-namespace BloombergLP {
-namespace bslalg {
-
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
-struct HasStlIterators<bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR> >
-     : bsl::true_type
-{};
-
-}  // close namespace bslalg
-
-namespace bslma {
-
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
-struct UsesBslmaAllocator<bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOC> >
-     : bsl::is_convertible<Allocator*, ALLOC>::type
-{};
-
-}  // close namespace bslma
-
-}  // close namespace BloombergLP
-
 // ===========================================================================
 //                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
 // ===========================================================================
 
-namespace bsl
-{
                         //--------------------
                         // class unordered_map
                         //--------------------
@@ -1451,6 +1415,38 @@ bsl::swap(bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>& a,
     a.swap(b);
 }
 
+// ============================================================================
+//                                TYPE TRAITS
+// ============================================================================
+
+// Type traits for STL *unordered* *associative* containers:
+//: o An unordered associative container defines STL iterators.
+//: o An unordered associative container is bitwise moveable if the both
+//:      functors and the allocator are bitwise moveable.
+//: o An unordered associative container uses 'bslma' allocators if the
+//:   parameterized 'ALLOCATOR' is convertible from 'bslma::Allocator*'.
+
+namespace BloombergLP {
+
+namespace bslalg {
+
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+struct HasStlIterators<bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR> >
+     : bsl::true_type
+{};
+
+}  // close package namespace
+
+namespace bslma {
+
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
+struct UsesBslmaAllocator<bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOC> >
+     : bsl::is_convertible<Allocator*, ALLOC>::type
+{};
+
+}  // close package namespace
+
+}  // close enterprise namespace
 
 #endif
 

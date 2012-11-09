@@ -220,24 +220,7 @@ typedef basic_istringstream<char, char_traits<char>, allocator<char> >
 typedef basic_istringstream<wchar_t, char_traits<wchar_t>, allocator<wchar_t> >
                                                                 wistringstream;
 
-}
-
-// TYPE TRAITS
-namespace BloombergLP {
-namespace bslma {
-
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
-struct UsesBslmaAllocator<
-        bsl::basic_istringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR> >
-    : bsl::true_type
-{};
-
-}
-}
-
-namespace bsl {
-
-// ==========================================================================
+// ============================================================================
 //                       TEMPLATE FUNCTION DEFINITIONS
 // ============================================================================
 
@@ -314,6 +297,22 @@ basic_istringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::rdbuf() const
 }
 
 }  // close namespace bsl
+
+// ============================================================================
+//                                TYPE TRAITS
+// ============================================================================
+
+namespace BloombergLP {
+namespace bslma {
+
+template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+struct UsesBslmaAllocator<
+        bsl::basic_istringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR> >
+    : bsl::true_type
+{};
+
+}  // close package namespace
+}  // close enterprise namespace
 
 #endif
 

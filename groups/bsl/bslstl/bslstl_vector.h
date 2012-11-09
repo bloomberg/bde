@@ -1489,49 +1489,6 @@ class vector< VALUE_TYPE *, ALLOCATOR >
         { return (VALUE_TYPE *const *)Base::data(); }
 };
 
-}  // namespace bsl
-
-// ============================================================================
-//                                TYPE TRAITS
-// ============================================================================
-
-// Type traits for STL *sequence* containers:
-//: o A sequence container defines STL iterators.
-//: o A sequence container is bitwise moveable if the allocator is bitwise
-//:     moveable.
-//: o A sequence container uses 'bslma' allocators if the parameterized
-//:     'ALLOCATOR' is convertible from 'bslma::Allocator*'.
-
-namespace BloombergLP {
-namespace bslalg {
-
-template <typename VALUE_TYPE, typename ALLOCATOR>
-struct HasStlIterators<bsl::vector<VALUE_TYPE, ALLOCATOR> > : bsl::true_type
-{};
-
-}
-
-namespace bslmf {
-
-template <typename VALUE_TYPE, typename ALLOCATOR>
-struct IsBitwiseMoveable<bsl::vector<VALUE_TYPE, ALLOCATOR> >
-    : IsBitwiseMoveable<ALLOCATOR>
-{};
-
-}
-
-namespace bslma {
-
-template <typename VALUE_TYPE, typename ALLOCATOR>
-struct UsesBslmaAllocator<bsl::vector<VALUE_TYPE, ALLOCATOR> >
-    : bsl::is_convertible<Allocator*, ALLOCATOR>::type
-{};
-
-}
-}  // namespace BloombergLP
-
-namespace bsl {
-
 // FREE OPERATORS
 template <class VALUE_TYPE, class ALLOCATOR>
 bool operator==(const vector<VALUE_TYPE *,ALLOCATOR>& lhs,
@@ -3179,6 +3136,47 @@ void swap(vector<const VALUE_TYPE *, ALLOCATOR>& a,
 }
 
 }  // close namespace bsl
+
+// ============================================================================
+//                                TYPE TRAITS
+// ============================================================================
+
+// Type traits for STL *sequence* containers:
+//: o A sequence container defines STL iterators.
+//: o A sequence container is bitwise moveable if the allocator is bitwise
+//:     moveable.
+//: o A sequence container uses 'bslma' allocators if the parameterized
+//:     'ALLOCATOR' is convertible from 'bslma::Allocator*'.
+
+namespace BloombergLP {
+
+namespace bslalg {
+
+template <typename VALUE_TYPE, typename ALLOCATOR>
+struct HasStlIterators<bsl::vector<VALUE_TYPE, ALLOCATOR> > : bsl::true_type
+{};
+
+}  // close package namespace
+
+namespace bslmf {
+
+template <typename VALUE_TYPE, typename ALLOCATOR>
+struct IsBitwiseMoveable<bsl::vector<VALUE_TYPE, ALLOCATOR> >
+    : IsBitwiseMoveable<ALLOCATOR>
+{};
+
+}  // close package namespace
+
+namespace bslma {
+
+template <typename VALUE_TYPE, typename ALLOCATOR>
+struct UsesBslmaAllocator<bsl::vector<VALUE_TYPE, ALLOCATOR> >
+    : bsl::is_convertible<Allocator*, ALLOCATOR>::type
+{};
+
+}  // close package namespace
+
+}  // close enterprise namespace
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE
 extern template class bsl::Vector_ImpBase<bool>;
