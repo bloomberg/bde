@@ -385,7 +385,7 @@ TreeIterator<VALUE, NODE, DIFFERENCE_TYPE>::operator->() const
 {
     BSLS_ASSERT_SAFE(d_node_p);
 
-    return bsls_Util::addressOf(static_cast<NODE *>(d_node_p)->value());
+    return bsls::Util::addressOf(static_cast<NODE *>(d_node_p)->value());
 }
 
 template <class VALUE, class NODE, class DIFFERENCE_TYPE>
