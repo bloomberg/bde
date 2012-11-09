@@ -51,8 +51,10 @@ typedef YesExcBuildTarget ExcBuildTarget;
 
 }  // close package namespace
 
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 typedef bsls::YesExcBuildTarget bsls_YesExcBuildTarget;
     // This alias is defined for backward compatibility.
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 #else
 
@@ -69,8 +71,10 @@ typedef NoExcBuildTarget ExcBuildTarget;
 
 }  // close package namespace
 
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 typedef bsls::NoExcBuildTarget bsls_NoExcBuildTarget;
     // This alias is defined for backward compatibility.
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 #endif
 
@@ -90,8 +94,10 @@ typedef YesMtBuildTarget MtBuildTarget;
 
 }  // close package namespace
 
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 typedef bsls::YesMtBuildTarget bsls_YesMtBuildTarget;
     // This alias is defined for backward compatibility.
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 #else
 
@@ -108,8 +114,10 @@ typedef NoMtBuildTarget MtBuildTarget;
 
 }  // close package namespace
 
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 typedef bsls::NoMtBuildTarget bsls_NoMtBuildTarget;
     // This alias is defined for backward compatibility.
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 #endif
 
@@ -123,10 +131,12 @@ struct Yes64BitBuildTarget {
 
 }  // close package namespace
 
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 typedef bsls::Yes64BitBuildTarget bsls_64BitBuildTarget;
 
 typedef bsls::Yes64BitBuildTarget bsls_Yes64BitBuildTarget;
     // This alias is defined for backward compatibility.
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 #else
 
@@ -138,10 +148,12 @@ struct No64BitBuildTarget {
 
 }  // close package namespace
 
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 typedef bsls::No64BitBuildTarget bsls_64BitBuildTarget;
 
 typedef bsls::No64BitBuildTarget bsls_No64BitBuildTarget;
     // This alias is defined for backward compatibility.
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 #endif
 

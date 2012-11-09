@@ -103,7 +103,8 @@
 BSLS_IDENT_RCSID(sysutil_ident_h,"$Id: $")
 #endif
 
-// Enabling BSLS_IDENT by default causes significant bloat - see DRQS 29644737.
+// Enabling BSLS_IDENT by default causes significant bloat - see internal
+// ticket 29644737.
 #ifndef BSLS_IDENT_ON
 #ifndef BSLS_IDENT_OFF
 #define BSLS_IDENT_OFF

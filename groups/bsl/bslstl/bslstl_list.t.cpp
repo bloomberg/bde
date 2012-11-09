@@ -63,8 +63,8 @@ using namespace bsl;
 // Abbreviations:
 // --------------
 // Throughout this test driver, we use
-//     T            _Tp (template argument, no default)
-//     A            _Alloc (template argument, default: bsl::allocator<T>)
+//     T            VALUE (template argument, no default)
+//     A            ALLOCATOR (template argument, default: bsl::allocator<T>)
 //     list<T,A>    bsl::list<VALUE_TYPE,ALLOCATOR>
 //     list         list<T,A>
 //     Args...      shorthand for a family of templates <A1>, <A1,A2>, etc.
