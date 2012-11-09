@@ -41,24 +41,10 @@
 :    Provides macros for relative paths to native STL headers.
 :
 
- The other headers of this package have one of two purposes:
-
-: o Provide backwards compatibility for STLPort header
-:   o 'exception.h'
-:   o 'fstream.h'
-:   o 'iomanip.h'
-:   o 'iosfwd.h'
-:   o 'ios.h'
-:   o 'iostream.h'
-:   o 'istream.h'
-:   o 'memory.h'
-:   o 'new.h'
-:   o 'ostream.h'
-:   o 'streambuf.h'
-:   o 'strstream.h'
-:   o 'typeinfo.h'
-:
-: o Provide functionality of the corresponding C++ Standard header
+A majority of the other headers of this package provide the functionality
+of the corresponding C++ Standard headers. In addition, there are a set of
+POSIX standard headers (most of which simply forward to the platform's
+supplied header):
 :   o 'assert.h'
 :   o 'ctype.h'
 :   o 'errno.h'
@@ -116,20 +102,17 @@
  Bloomberg currently provides its own implementation for eighteen class
  templates:
 ..
-  vector    pair(*)     map             hash_set (**)
-  string    set         priority_queue  hash_multimap (**)
-  deque     multiset    bitset          hash_multiset (**)
+  vector    pair(*)     map             unordered_set
+  string    set         priority_queue  unordered_multimap
+  deque     multiset    bitset          unordered_multiset
   list      multimap    stringstream
-  queue     stack       hash_map (**)
+  queue     stack       unordered_map
 ..
 
  (*) Note that Bloomberg provides an implementation of 'pair', but not
  'make_pair'.  'bsl::make_pair' refers to the native compiler-supplied
  implementation of 'make_pair'.  (The rationale of this design decision can be
  found in the implementation file of 'bslstl_pair'.)
-
- (**) Note that 'hash_map', 'hash_set', 'hash_multimap', 'hash_multiset' are
- not part of the C++ standard library.
 
 /BDE-STL Mode
 / - - - - - -
@@ -196,14 +179,7 @@
 
 /bslstl
 / - - -
- 'bslstl' contains Bloomberg's implementation of allocators, STL containers,
- and some extensions adopted from STLport.
-
-/bslstp
-/ - - -
- 'bslstp' contains implementations for some container types adopted from
- STLport 4.6.  These will eventually be deprecated and replaced by components
- in 'bslstl'.
+ 'bslstl' contains Bloomberg's implementation of allocators and STL containers.
 
 /bsl+bslhdrs
 /- - - - - -
