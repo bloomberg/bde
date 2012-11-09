@@ -456,13 +456,21 @@ struct bcemt_ThreadUtil {
         // specified 'microseconds' and the optionally specified 'seconds'
         // (relative time).  Note that the actual time suspended depends on
         // many factors including system scheduling and system timer
-        // resolution, and may be significantly longer than the time requested.
+        // resolution, and may be significantly longer than the time
+        // requested.
 
     static void sleep(const bdet_TimeInterval& time);
         // Suspend execution of the current thread for a period of at least the
         // specified 'time' (relative time).  Note that the actual time
         // suspended depends on many factors including system scheduling and
         // system timer resolution.
+
+    static void sleepUntil(const bdet_TimeInterval& absoluteTime);        
+        // Suspend execution of the current thread until the specified
+        // 'absoluteTime' (expressed as the !ABSOLUTE! time from 00:00:00 UTC,
+        // January 1, 1970).  Note that the actual time suspended depends on
+        // many factors including system scheduling and system timer
+        // resolution.
 
     static void yield();
         // Move the current thread to the end of the scheduler's queue and
@@ -657,6 +665,13 @@ void bcemt_ThreadUtil::microSleep(int microseconds, int seconds)
 {
     Imp::microSleep(microseconds, seconds);
 }
+
+inline
+void bcemt_ThreadUtil::microSleep(int microseconds, int seconds)
+{
+    Imp::microSleep(microseconds, seconds);
+}
+
 
 inline
 void bcemt_ThreadUtil::sleep(const bdet_TimeInterval& sleepTime)
