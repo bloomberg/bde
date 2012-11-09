@@ -41,9 +41,10 @@
 :    Provides macros for relative paths to native STL headers.
 :
 
- The other headers of this package have one of two purposes:
-
-: o Provide functionality of the corresponding C++ Standard header
+A majority of the other headers of this package have one Provide functionality
+of the corresponding C++ Standard headers.  In addition there are a set of 
+POSIX standard headers (most of which simply forward to the platform's 
+supplied header):
 :   o 'assert.h'
 :   o 'ctype.h'
 :   o 'errno.h'
