@@ -2758,9 +2758,6 @@ void ArrayPrimitives_Imp::rotate(TARGET_TYPE                *begin,
         remainder = t;
     }
 
-    // This algorithm is directly taken from stlport's implementation for
-    // RandomAccessIterator.
-
     // Key to the transformation diagrams:
     //..
     //  A...D   Contents of the current cycle
