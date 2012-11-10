@@ -1,0 +1,278 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+
+# (simplistic)
+# Note: after regenerating .gyps from metadata, re-apply patch of customizations
+# From the root of the tree: $ patch -p1 < tools/bde_meta_to_gyp.patch
+
+# Note: .defs and .opts metadata files are not handled here
+# Customizations (which should be minimal) should be added to .patch above.
+
+@ARGV == 1 || die "Usage: bde_meta_to_gyp <uor>\n";
+-f "group/$ARGV[0].dep" || die "expecting current dir is package group\n";
+# TODO: add support for isolated packages
+# TODO: add more robust error checking
+my $libname = shift @ARGV;
+my @libpkgs = sort split(' ',`grep -v '^#' group/$libname.mem | sed 's/,/ /g'`);
+my @grpdeps = sort split(' ',`grep -v '^#' group/$libname.dep | sed 's/,/ /g'`);
+my @libhdrs;
+foreach my $pkgname (@libpkgs) {
+  # TODO: check against filesystem instead of assuming .h and .cpp and .t.cpp
+  my @members = 
+   sort split(' ',`grep -v '^#' $pkgname/package/$pkgname.mem | sed 's/,/ /g'`);
+  my @pkg_files = map { ( "$_.cpp", "$_.t.cpp" ) } @members;
+  my @pkg_deps =
+   sort split(' ',`grep -v '^#' $pkgname/package/$pkgname.dep | sed 's/,/ /g'`);
+  if ($pkgname !~ /^\Q$libname\E[+~]/) {  # compliant package
+   push @libhdrs, map { "$pkgname/$_.h" } @members;
+  }
+  elsif ($pkgname ne "bsl+stdhdrs") {     # non-compliant package
+    my @pub = (! -f "$pkgname/package/$pkgname.pub") ? () :
+    sort split(' ',`grep -v '^#' $pkgname/package/$pkgname.pub| sed 's/,/ /g'`);
+    if (@pub) {
+     push @libhdrs, map { "$pkgname/$_" } @pub;
+    }
+    else {              # glob all .h for non-compliant pkg w/ empty .pub
+     push @libhdrs, glob( "$pkgname/*.h" );
+    }
+    if (!@pkg_files) {  # glob all .c, .cpp for non-compliant pkg w/ empty .mem
+     push @pkg_files, glob( "$pkgname/*.c" ), glob( "$pkgname/*.cpp" );
+     map { s|^\Q$pkgname\E/||; } @pkg_files;
+    }
+  }
+  create_groupedpkg_gyps($libname, $pkgname, \@pkg_files, \@pkg_deps);
+}
+create_group_gyps($libname, \@libpkgs, \@libhdrs, \@grpdeps);
+
+
+
+sub create_group_gyps {
+
+  my($libname,$libpkgs,$libhdrs,$grpdeps) = @_;
+  
+  my %subst_hash = (
+    libname => $libname,
+    lib_grpdeps     => join ("\n",
+      map { "        '../$_/$_.gyp:$_'," } @$grpdeps ),
+      # XXX: currently valid only for other package groups
+    lib_headers     => join ("\n",
+      map { "        '$_'," } @$libhdrs ),
+    lib_packages    => join ("\n",
+      map { "        '$_'," } @$libpkgs ),
+    lib_sources     => join ("\n",
+      map { "              '$_/$_.gyp:${_}_sources'," } @$libpkgs ),
+    lib_tests_build => join ("\n",
+      map { "                '$_/$_.gyp:${_}_tests_build'," } @$libpkgs ),
+    lib_tests_run   => join ("\n",
+      map { "                '$_/$_.gyp:${_}_tests_run'," } @$libpkgs )
+  );
+
+  my $BDE_GROUP_GYP_TEMPLATE = <<'BDE_GROUP_GYP_TEMPLATE';
+{
+    'variables': {
+      '@@libname@@_packages': [
+@@lib_packages@@
+      ],
+      '@@libname@@_headers': [
+@@lib_headers@@
+      ],
+    },
+
+    'targets': [
+        {
+            'target_name': '@@libname@@_all',
+            'type': 'none',
+            'dependencies': [
+                '@@libname@@',
+                '@@libname@@_tests_build',
+                '@@libname@@_tests_run',
+            ],
+        },
+        {
+            'target_name': '@@libname@@',
+            'type': '<(library)',
+            'product_dir': '<(product_rollup_path)/<(CONFIGURATION_NAME)/lib',
+
+            'dependencies': [
+              '@@libname@@_deps.gyp:@@libname@@_grpdeps',
+@@lib_sources@@
+            ],
+
+            'copies': [
+              {
+                'files': [ '<@(@@libname@@_headers)' ],
+                'destination': '<(product_rollup_path)/include',
+              },
+            ],
+            'all_dependent_settings': {
+                'include_dirs': [ '<(product_rollup_path)/include' ]
+            },
+        },
+        {
+            'target_name': '@@libname@@_tests_build',
+            'type': 'none',
+            'dependencies': [
+@@lib_tests_build@@
+            ],
+        },
+        {
+            'target_name': '@@libname@@_tests_run',
+            'type': 'none',
+            'dependencies': [
+@@lib_tests_run@@
+            ],
+        },
+    ],
+}
+BDE_GROUP_GYP_TEMPLATE
+
+  my $BDE_GROUPDEPS_GYP_TEMPLATE = <<'BDE_GROUPDEPS_GYP_TEMPLATE';
+{
+  'targets': [
+    {
+      'target_name': '@@libname@@_grpdeps',
+      'type': 'none',
+      'dependencies': [
+@@lib_grpdeps@@
+      ],
+    },
+  ],
+}
+BDE_GROUPDEPS_GYP_TEMPLATE
+
+  my $gyp_output  = $BDE_GROUP_GYP_TEMPLATE;
+  $gyp_output     =~ s/\@\@([^@]+)\@\@/$subst_hash{$1}/eg;
+  my $gypd_output = $BDE_GROUPDEPS_GYP_TEMPLATE;
+  $gypd_output    =~ s/\@\@([^@]+)\@\@/$subst_hash{$1}/eg;
+  
+  my $FH;
+  open($FH,">","$libname.gyp")  || die "open $libname.gyp: $!\n";
+  print $FH $gyp_output;
+  close $FH;
+  # (was $libname.gypi, but gyp generator/xcode.py barfed if not .gyp extension)
+  open($FH,">","${libname}_deps.gyp") || die "open ${libname}_deps.gyp: $!\n";
+  print $FH $gypd_output;
+  close $FH;
+
+}  # create_group_gyps()
+
+
+
+sub create_groupedpkg_gyps {
+
+  my($libname,$pkgname,$pkg_files,$pkg_deps) = @_;
+  
+  my @pkg_tests_sources = grep /\.t\.[^.]+$/, @$pkg_files;
+  my @pkg_tests = @pkg_tests_sources;
+  map { s/\.t\.[^.]+$/.t/; } @pkg_tests;
+
+  my %subst_hash = (
+    libname => $libname,
+    pkgname => $pkgname,
+    pkg_deps        => join ("\n",
+      map { "      '../$_/$_.gyp:$_'," } @$pkg_deps ),
+    pkg_sources     => join ("\n",
+      map { "      '$_'," } grep /(?<!\.t)\.(?:c|cpp)$/, @$pkg_files ), #limited
+    pkg_tests       => join ("\n",
+      map { "      '$_'," } @pkg_tests ),
+    pkg_tests_paths => join ("\n",
+      map { "      '<(PRODUCT_DIR)/$_'," } @pkg_tests ),
+    target_type     => (scalar @$pkg_files ? '<(library)' : 'none')
+  );
+
+  my $BDE_GROUPEDPKG_GYP_TEMPLATE = <<'BDE_GROUPEDPKG_GYP_TEMPLATE';
+{
+  'variables': {
+    '@@pkgname@@_sources': [
+@@pkg_sources@@
+    ],
+    '@@pkgname@@_tests': [
+@@pkg_tests@@
+    ],
+    '@@pkgname@@_tests_paths': [
+@@pkg_tests_paths@@
+    ],
+    '@@pkgname@@_pkgdeps': [
+@@pkg_deps@@
+    ],
+  },
+  'targets': [
+    {
+      'target_name': '@@pkgname@@_sources',
+      'type': 'none',
+      'direct_dependent_settings': {
+        'sources': [ '<@(@@pkgname@@_sources)' ],
+        'include_dirs': [ '.' ],
+      },
+    },
+    {
+      'target_name': '@@pkgname@@_tests_build',
+      'type': 'none',
+      'dependencies': [ '<@(@@pkgname@@_tests)' ],
+    },
+    {
+      'target_name': '@@pkgname@@_tests_run',
+      'type': 'none',
+      'dependencies': [ '@@pkgname@@_tests_build' ],
+      'sources': [ '<@(@@pkgname@@_tests_paths)' ],
+      'rules': [
+        {
+          'rule_name': 'run_unit_tests',
+          'extension': 't',
+          'inputs': [ '<@(@@pkgname@@_tests_paths)' ],
+          'outputs': [ '<(INTERMEDIATE_DIR)/<(RULE_INPUT_ROOT).t.ran' ],
+          'action': [ '<(python_path)', '<(DEPTH)/tools/run_unit_tests.py',
+                      '<(RULE_INPUT_PATH)',
+                      '<@(_outputs)',
+                      '--abi=<(ABI_bits)',
+                      '--lib=<(library)'
+          ],
+          'msvs_cygwin_shell': 0,
+        },
+      ],
+    },
+    {
+      'target_name': '@@pkgname@@',
+      'type': '@@target_type@@',
+      'dependencies': [ '../@@libname@@_deps.gyp:@@libname@@_grpdeps',
+                        '<@(@@pkgname@@_pkgdeps)',
+                        '@@pkgname@@_sources', ],
+      'export_dependent_settings': [ '<@(@@pkgname@@_pkgdeps)' ],
+      'direct_dependent_settings': { 'include_dirs': [ '.' ] },
+      # Mac OS X empty LD_DYLIB_INSTALL_NAME causes executable and shared
+      # libraries linking against dylib to store same path for use at runtime
+      'xcode_settings': { 'LD_DYLIB_INSTALL_NAME': '' },
+    },
+BDE_GROUPEDPKG_GYP_TEMPLATE
+
+  my $t;
+  foreach my $t_src (@pkg_tests_sources) {
+    ($t = $t_src) =~ s/\.t\.[^.]+$/.t/;
+    $BDE_GROUPEDPKG_GYP_TEMPLATE .= "
+    {
+      'target_name': '$t',
+      'type': 'executable',
+      'dependencies': [ '../${libname}_deps.gyp:${libname}_grpdeps',
+                        '<\@(${pkgname}_pkgdeps)', '$pkgname' ],
+      'include_dirs': [ '.' ],
+      'sources': [ '$t_src' ],
+    },";
+  }
+
+  $BDE_GROUPEDPKG_GYP_TEMPLATE .= <<'BDE_GROUPEDPKG_GYP_TEMPLATE';
+
+  ],
+}
+BDE_GROUPEDPKG_GYP_TEMPLATE
+
+  my $gyp_output = $BDE_GROUPEDPKG_GYP_TEMPLATE;
+  $gyp_output    =~ s/\@\@([^@]+)\@\@/$subst_hash{$1}/eg;
+
+  my $FH;
+  open($FH,">","$pkgname/$pkgname.gyp")||die "open $pkgname/$pkgname.gyp: $!\n";
+  print $FH $gyp_output;
+  close $FH;
+
+}  # create_groupedpkg_gyps()

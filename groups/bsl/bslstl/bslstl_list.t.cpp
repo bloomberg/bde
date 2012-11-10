@@ -1,5 +1,4 @@
 // bslstl_list.t.cpp                                                  -*-C++-*-
-
 #include <bslstl_list.h>
 #include <bslstl_iterator.h>
 
@@ -9292,6 +9291,7 @@ int main(int argc, char *argv[])
             LimA a;
             a.setMaxSize(LIMIT);
 
+#ifndef BSLS_PLATFORM_CMP_IBM
             list<int,LimA> X(a);
             // LimitAllocator will return the same 'max_size' regardless of the
             // type on which it is instantiated.  Thus, it will report that it
@@ -9301,6 +9301,7 @@ int main(int argc, char *argv[])
             // overhead.
             ASSERT(LIMIT     >= (int) X.max_size());
             ASSERT(LIMIT - 1 <= (int) X.max_size());
+#endif
         }
 
         if (verbose) printf("\nTesting 'resize'.\n");

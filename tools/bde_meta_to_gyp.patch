@@ -1,0 +1,146 @@
+diff -ru bde.old/groups/bsl/bslalg/bslalg.gyp bde/groups/bsl/bslalg/bslalg.gyp
+--- bde.old/groups/bsl/bslalg/bslalg.gyp	2012-10-05 13:13:21.772312000 -0400
++++ bde/groups/bsl/bslalg/bslalg.gyp	2012-10-05 11:38:06.904064000 -0400
+@@ -241,6 +241,11 @@
+                         '<@(bslalg_pkgdeps)', 'bslalg' ],
+       'include_dirs': [ '.' ],
+       'sources': [ 'bslalg_constructorproxy.t.cpp' ],
++      # required for bslalg_constructorproxy.t linked against bsls .o's
++      # XXX: track down what results in this requirement (likely in bsls)
++      'conditions': [
++        [ 'compiler_tag == "xlC"', { 'cflags_cc': [ '-qalias=noansi' ] } ],
++      ],
+     },
+     {
+       'target_name': 'bslalg_containerbase.t',
+diff -ru bde.old/groups/bsl/bsl_deps.gyp bde/groups/bsl/bsl_deps.gyp
+--- bde.old/groups/bsl/bsl_deps.gyp	2012-10-05 13:13:21.811300000 -0400
++++ bde/groups/bsl/bsl_deps.gyp	2012-10-05 11:38:06.906046000 -0400
+@@ -6,6 +6,10 @@
+       'dependencies': [
+ 
+       ],
++      # XXX: when generating .gyp from bde metadata, need to special-case
++      'conditions': [  # (bsls_timeutil uses POSIX realtime API clock_gettime())
++        [ 'OS == "linux"', { 'link_settings': { 'libraries': [ '-lrt' ] } } ],
++      ],
+     },
+   ],
+ }
+diff -ru bde.old/groups/bsl/bsl.gyp bde/groups/bsl/bsl.gyp
+--- bde.old/groups/bsl/bsl.gyp	2012-10-05 13:13:21.810306000 -0400
++++ bde/groups/bsl/bsl.gyp	2012-10-05 11:38:06.908043000 -0400
+@@ -352,8 +352,17 @@
+               },
+             ],
+             'all_dependent_settings': {
+-                'include_dirs': [ '<(product_rollup_path)/include' ]
++                'include_dirs': [ '<(product_rollup_path)/include' ],
++                # XXX: track down source of requirement (see immediately below)
++                'conditions': [
++                  ['compiler_tag=="xlC"',{ 'cflags_cc': [ '-qalias=noansi' ] }],
++                ],
+             },
++            # required for bslalg_constructorproxy.t linked against bsls .o's
++            # XXX: track down what results in this requirement (likely in bsls)
++            'conditions': [
++              [ 'compiler_tag == "xlC"', { 'cflags_cc': [ '-qalias=noansi' ] }],
++            ],
+         },
+         {
+             'target_name': 'bsl_tests_build',
+diff -ru bde.old/groups/bsl/bslma/bslma.gyp bde/groups/bsl/bslma/bslma.gyp
+--- bde.old/groups/bsl/bslma/bslma.gyp	2012-10-05 13:13:21.786295000 -0400
++++ bde/groups/bsl/bslma/bslma.gyp	2012-10-05 12:44:27.667469000 -0400
+@@ -213,6 +213,10 @@
+                         '<@(bslma_pkgdeps)', 'bslma' ],
+       'include_dirs': [ '.' ],
+       'sources': [ 'bslma_mallocfreeallocator.t.cpp' ],
++      'conditions': [
++        [ 'OS == "aix" and library == "shared_library"',
++          { 'ldflags': [ '-bexpfull' ] } ],
++      ],
+     },
+     {
+       'target_name': 'bslma_managedallocator.t',
+@@ -229,6 +233,10 @@
+                         '<@(bslma_pkgdeps)', 'bslma' ],
+       'include_dirs': [ '.' ],
+       'sources': [ 'bslma_newdeleteallocator.t.cpp' ],
++      'conditions': [
++        [ 'OS == "aix" and library == "shared_library"',
++          { 'ldflags': [ '-bexpfull' ] } ],
++      ],
+     },
+     {
+       'target_name': 'bslma_rawdeleterguard.t',
+@@ -253,6 +261,10 @@
+                         '<@(bslma_pkgdeps)', 'bslma' ],
+       'include_dirs': [ '.' ],
+       'sources': [ 'bslma_testallocator.t.cpp' ],
++      'conditions': [
++        [ 'OS == "aix" and library == "shared_library"',
++          { 'ldflags': [ '-bexpfull' ] } ],
++      ],
+     },
+     {
+       'target_name': 'bslma_testallocatorexception.t',
+diff -ru bde.old/groups/bsl/bsls/bsls.gyp bde/groups/bsl/bsls/bsls.gyp
+--- bde.old/groups/bsl/bsls/bsls.gyp	2012-10-05 13:13:21.795305000 -0400
++++ bde/groups/bsl/bsls/bsls.gyp	2012-10-05 11:38:06.912051000 -0400
+@@ -186,6 +186,11 @@
+       # Mac OS X empty LD_DYLIB_INSTALL_NAME causes executable and shared
+       # libraries linking against dylib to store same path for use at runtime
+       'xcode_settings': { 'LD_DYLIB_INSTALL_NAME': '' },
++      # required for bslalg_constructorproxy.t linked against bsls .o's
++      # XXX: track down what results in this requirement (likely in bsls)
++      'conditions': [
++        [ 'compiler_tag == "xlC"', { 'cflags_cc': [ '-qalias=noansi' ] } ],
++      ],
+     },
+ 
+     {
+@@ -419,6 +424,11 @@
+                         '<@(bsls_pkgdeps)', 'bsls' ],
+       'include_dirs': [ '.' ],
+       'sources': [ 'bsls_byteorder.t.cpp' ],
++      # XXX: when generating .gyp from bde metadata, need to special-case
++      'conditions': [
++        # ws2_32.lib required only to portably test htonl ntohl htons ntohs
++        [ 'OS == "win"',  {'link_settings': {'libraries': [ 'ws2_32.lib'] } } ],
++      ],
+     },
+     {
+       'target_name': 'bsls_compilerfeatures.t',
+diff -ru bde.old/groups/bsl/bsl+stdhdrs/bsl+stdhdrs.gyp bde/groups/bsl/bsl+stdhdrs/bsl+stdhdrs.gyp
+--- bde.old/groups/bsl/bsl+stdhdrs/bsl+stdhdrs.gyp	2012-10-05 13:13:21.767318000 -0400
++++ bde/groups/bsl/bsl+stdhdrs/bsl+stdhdrs.gyp	2012-10-05 11:38:06.914054000 -0400
+@@ -21,8 +21,13 @@
+       'type': 'none',
+       'direct_dependent_settings': {
+         'sources': [ '<@(bsl+stdhdrs_sources)' ],
+-        'include_dirs': [ '.' ],
+       },
++      # one-off workaround bug in Sun Studio C++ requiring abs path to .SUNWCCh
++      'conditions': [
++        [ 'OS == "solaris"',
++          { 'direct_dependent_settings': { 'include_dirs': [ '<!(pwd)' ] } },
++          { 'direct_dependent_settings': { 'include_dirs': [ '.' ] } } ],
++      ],
+     },
+     {
+       'target_name': 'bsl+stdhdrs_tests_build',
+@@ -55,7 +60,12 @@
+                         '<@(bsl+stdhdrs_pkgdeps)',
+                         'bsl+stdhdrs_sources', ],
+       'export_dependent_settings': [ '<@(bsl+stdhdrs_pkgdeps)' ],
+-      'direct_dependent_settings': { 'include_dirs': [ '.' ] },
++      # one-off workaround bug in Sun Studio C++ requiring abs path to .SUNWCCh
++      'conditions': [
++        [ 'OS == "solaris"',
++          { 'direct_dependent_settings': { 'include_dirs': [ '<!(pwd)' ] } },
++          { 'direct_dependent_settings': { 'include_dirs': [ '.' ] } } ],
++      ],
+       # Mac OS X empty LD_DYLIB_INSTALL_NAME causes executable and shared
+       # libraries linking against dylib to store same path for use at runtime
+       'xcode_settings': { 'LD_DYLIB_INSTALL_NAME': '' },

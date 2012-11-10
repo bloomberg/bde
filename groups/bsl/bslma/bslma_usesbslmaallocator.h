@@ -34,6 +34,10 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_assert.h>
 #endif
 
+#ifndef INCLUDED_BSLS_PLATFORM
+#include <bsls_platform.h>
+#endif
+
 namespace BloombergLP {
 
 namespace bslma {

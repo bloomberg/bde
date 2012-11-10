@@ -1,0 +1,10 @@
+.*.sw?
+unix-*
+windows-*
+include/
+lib/
+build/
+documentation/
+logs/
+*.xcodeproj/
+.DS_store
