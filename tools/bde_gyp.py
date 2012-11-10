@@ -28,7 +28,12 @@ if __name__ == '__main__':
     args.append('-Gdefault_target=all_libs');
     args.append('--depth=' + root);
     args.extend(['-D', 'product_rollup_path=' + build]);
-    args.extend(['-D', 'python_path=' + sys.executable]);
+
+    if (platform.uname()[0] == "Windows"):
+        args.extend(['-D', 'python_path="' + sys.executable + '"']);
+    else:
+        args.extend(['-D', 'python_path=' + sys.executable]);
+        
     # override 64-bit default builds to be 32-bit builds on IA-32 x86 platforms
     mach = (platform.uname())[4];
     if (mach == 'i386' or mach == 'i686' or mach == 'x86'):
