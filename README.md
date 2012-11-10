@@ -2,7 +2,7 @@
 BDE (Beta)
 ==========
 * [Online Library Documentation]()
-* [Quick-Start Guide](https://github.com/bloomberg/bde/wiki/Getting-Started)
+* [Quick-Start Guide](https://github.com/bloomberg/bsl/wiki/Getting-Started)
 
 What is BDE?
 ============
@@ -21,14 +21,14 @@ Goals and Benefits of BDE
 =========================
 BDE aims to provide libraries that meet superior standards in terms of their
 design, documentation, and testing
-(see [Mission Statement](https://github.com/bloomberg/bde/wiki/Mission-Statement)). 
+(see [Mission Statement](https://github.com/bloomberg/bsl/wiki/Mission-Statement)). 
 Every component (i.e., .h/.cpp file-pair) provides thorough component, class, and
 method level documentation 
 (see [Online Library Documentation]())
 , including a compilable example for using that type.  Every component also
 has a thorough test-driver that tests every public method of that component 
 through a comprehensive range of input 
-(see [bslstl_map.t.cpp](https://github.com/bloomberg/bde/blob/master/groups/bsl/bslstl/bslstl_map.t.cpp)).
+(see [bslstl_map.t.cpp](https://github.com/bloomberg/bsl/blob/master/groups/bsl/bslstl/bslstl_map.t.cpp)).
 
 These libraries, along with the tools and methodology that accompany them, 
 are meant to enable developers to create their own C++ software that meets 
@@ -63,14 +63,14 @@ Getting Started
 The best place to get started is to read our introduction to building BDE and creating a
 "Hello World" application using that built library:
 
-* [Getting started](https://github.com/bloomberg/bde/wiki/Getting-Started)
+* [Getting started](https://github.com/bloomberg/bsl/wiki/Getting-Started)
 
 Some other introductory material includes:
-* The list of platforms on which BDE is supported can be found [here](https://github.com/bloomberg/bde/wiki/Supported-Platforms)
-* Introduction to BDE [memory allocators](https://github.com/bloomberg/bde/wiki/BDE-Allocator-model)
-* Introduction to the [physical organization of the libraries](https://github.com/bloomberg/bde/wiki/physical-code-organization)
-* [BSL and STL](https://github.com/bloomberg/bde/wiki/BSL-and-STL)
-* [Introduction to BDE Coding Standards](https://github.com/bloomberg/bde/wiki/Introduction-to-BDE-Coding-Standards)
+* The list of platforms on which BDE is supported can be found [here](https://github.com/bloomberg/bsl/wiki/Supported-Platforms)
+* Introduction to BDE [memory allocators](https://github.com/bloomberg/bsl/wiki/BDE-Allocator-model)
+* Introduction to the [physical organization of the libraries](https://github.com/bloomberg/bsl/wiki/physical-code-organization)
+* [BSL and STL](https://github.com/bloomberg/bsl/wiki/BSL-and-STL)
+* [Introduction to BDE Coding Standards](https://github.com/bloomberg/bsl/wiki/Introduction-to-BDE-Coding-Standards)
 
 One of the key elements of the BDE libraries is the extensive header
 (i.e., component-level) documentation. Doxygen for the BSL library can be
@@ -85,7 +85,7 @@ We hope to enlist the software developers who share our goals in extending
 the BDE libraries.  One of the key goals of these libraries is to
 maintain a high level quality and a high degree of *uniformity* in documentation,
 testing, and implementation, so contributors should read over the 
-[style conventions](https://github.com/bloomberg/bde/wiki/Introduction-to-BDE-Coding-Standards) 
+[style conventions](https://github.com/bloomberg/bsl/wiki/Introduction-to-BDE-Coding-Standards) 
 used in the libraries, as well as the rigorous testing required for any changes.
 
 Finally, note that the BDE libraries are in active use within Bloomberg, and we
