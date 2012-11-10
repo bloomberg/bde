@@ -1,0 +1,29 @@
+ bslim.txt
+
+@PURPOSE: Provide implementation mechanisms.
+
+@MNEMONIC: Basic Standard Library Implementation Mechanisms (bslim)
+
+@DESCRIPTION: The 'bslim' package provides implementation mechanisms that are
+ typically used to implement functionality provided by other components.  For
+ example, 'bslim_printer' greatly simplifies the implementation of standard BDE
+ 'print' methods having this interface:
+..
+  bsl::ostream& print(bsl::ostream& stream,
+                      int           level          = 0,
+                      int           spacesPerLevel = 4) const;
+..
+
+/Hierarchical Synopsis
+/---------------------
+ The 'bslim' package currently has 1 component (having 1 level of physical
+ dependency).
+..
+  1. bslim_printer
+..
+
+/Component Synopsis
+/------------------
+: 'bslim_printer':
+:      Provide a mechanism to implement standard 'print' methods.
+

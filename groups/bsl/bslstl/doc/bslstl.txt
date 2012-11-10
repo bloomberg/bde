@@ -1,0 +1,174 @@
+ bslstl.txt
+
+@PURPOSE: Provide replacement classes for STL constructs.
+
+@MNEMONIC: Basic Standard Library STL (bslstl)
+
+@DESCRIPTION: This package mainly provides replacement classes for STL
+ constructs that required substantial modification to (inter)operate with BDE
+ libraries.  In addition to STL replacement classes, this package also provides
+ helper components for the STL implementation classes.  Finally, SGI extensions
+ that are widely used within Bloomberg can also be found in this package.
+
+ In general, the components in this package conform to the STL interface.
+ However, the components (and hence the headers) are intended for private use
+ only.  Clients should use the standard headers directly (e.g., include
+ '<bsl_vector.h>' instead of '<bslstl_vector.h>').
+
+/Hierarchical Synopsis
+/---------------------
+ The 'bslstl' package currently has 36 components having 7 levels of physical
+ dependency.  The table below shows the hierarchical ordering of the
+ components.  The order of components within each level is not architecturally
+ significant, just alphabetical.
+..
+  7. bslstl_map
+     bslstl_multimap
+     bslstl_multiset
+     bslstl_queue
+     bslstl_set
+     bslstl_stack
+
+  6. bslstl_deque
+     bslstl_mapcomparator
+     bslstl_setcomparator
+     bslstl_treenodepool
+
+  5. bslstl_bitset
+     bslstl_priorityqueue
+     bslstl_randomaccessiterator
+     bslstl_stringref
+     bslstl_treenode
+
+  4. bslstl_bidirectionaliterator
+     bslstl_string
+     bslstl_vector
+
+  3. bslstl_containerbase
+     bslstl_forwarditerator
+     bslstl_list
+     bslstl_treeiterator
+
+  2. bslstl_allocatorproxy
+     bslstl_iterator
+     bslstl_simplepool
+
+  1. bslstl_allocator
+     bslstl_allocatortraits
+     bslstl_hash
+     bslstl_pair
+     bslstl_stdexceptutil
+     bslstl_stringrefdata
+     bslstl_traitsgroupstlassociativecontainer
+     bslstl_traitsgroupstlsequencecontainer
+     bslstl_traitsgroupstlunorderedcontainer
+     bslstl_util
+..
+
+/Component Synopsis
+/------------------
+: 'bslstl_allocator':
+:      Provide an STL-compatible proxy for 'bslma::Allocator' objects.
+:
+: 'bslstl_allocatorproxy':
+:      Wrapper for STL-style allocators to encapsulate 'bslma' semantics.
+:
+: 'bslstl_allocatortraits':
+:      Provide a uniform interface to standard allocator types.
+:
+: 'bslstl_bidirectionaliterator':
+:      Provide a template to create STL-compliant bidirectional iterators.
+:
+: 'bslstl_bitset':
+:      Provide an STL-compliant bitset class.
+:
+: 'bslstl_containerbase':
+:      Base class for STL-style containers.
+:
+: 'bslstl_deque':
+:      Provide an STL-compliant deque class.
+:
+: 'bslstl_forwarditerator':
+:      Provide a template to create STL-compliant forward iterators.
+:
+: 'bslstl_hash':
+:      Provide a namespace for hash functions
+:
+: 'bslstl_iterator':
+:      Provide basic iterator traits, adaptors, and utilities.
+:
+: 'bslstl_list':
+:      Provide an STL-compliant list class.
+:
+: 'bslstl_map':
+:      Provide an STL-compliant map class.
+:
+: 'bslstl_mapcomparator':
+:      Provide a comparator for 'TreeNode' objects and a lookup key.
+:
+: 'bslstl_multimap':
+:      Provide an STL-compliant multimap class.
+:
+: 'bslstl_multiset':
+:      Provide an STL-compliant multiset class.
+:
+: 'bslstl_pair':
+:      Provide a simple 'struct' with two members that may use allocators.
+:
+: 'bslstl_priorityqueue':
+:      Provide container adapter class template 'priority_queue'.
+:
+: 'bslstl_queue':
+:      Provide container adapter class template 'queue'.
+:
+: 'bslstl_randomaccessiterator':
+:      Provide a template to create STL-compliant random access iterators.
+:
+: 'bslstl_set':
+:      Provide an STL-compliant set class.
+:
+: 'bslstl_setcomparator':
+:      Provide a comparator for 'TreeNode' objects and a lookup key.
+:
+: 'bslstl_simplepool':
+:      Provide efficient allocation of memory blocks for a specific type.
+:
+: 'bslstl_stack':
+:      Provide an STL-compliant stack class.
+:
+: 'bslstl_stdexceptutil':
+:      Provide a utility to throw standard exceptions.
+:
+: 'bslstl_string':
+:      Provide a standard-compliant 'basic_string' class template.
+:
+: 'bslstl_stringref':
+:      Provide a reference to a 'const' string.
+:
+: 'bslstl_stringrefdata':
+:      Provide an attribute-only base class for 'bslstl::StringRef'.
+:
+: 'bslstl_traitsgroupstlassociativecontainer':
+:      Provide facilities for grouping types with compile-time traits.
+:
+: 'bslstl_traitsgroupstlsequencecontainer':
+:      Provide facilities for grouping types with compile-time traits.
+:
+: 'bslstl_traitsgroupstlunorderedcontainer':
+:      Provide facilities for grouping types with compile-time traits.
+:
+: 'bslstl_treeiterator':
+:      Provide an STL compliant iterator for a tree of 'TreeNode' objects.
+:
+: 'bslstl_treenode':
+:      Provide a POD-like tree node type holding a parameterized value.
+:
+: 'bslstl_treenodepool':
+:      Provide efficient creation of nodes used in tree-based container.
+:
+: 'bslstl_util':
+:      Provide a namespace for utility functions for STL functionality.
+:
+: 'bslstl_vector':
+:      Provide an STL-compliant vector class.
+

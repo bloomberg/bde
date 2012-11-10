@@ -1,0 +1,172 @@
+ bslalg.txt
+
+@PURPOSE: Provide algorithms and traits used by the BDE STL implementation.
+
+@MNEMONIC: Basic Standard Library ALgorithms (bslalg)
+
+@DESCRIPTION: The 'bsl' library relies on several traits to identify properties
+ of types, such as whether they use a memory allocator to supply memory
+ resources, have a trivial default constructor, are POD types, etc.  This
+ package provides distinct traits types used to tag user-defined (client) types
+ according to these properties and to select implementation of primitive
+ algorithms customized to these properties.
+
+ In addition to the various traits "tag" types, this package also provide
+ implementations of said primitive algorithms (used to implement STL containers
+ and other standard components in the 'bslstl' package) that take advantage of
+ these traits.
+
+ This package group documentation is a stem.  It should be expanded with a
+ lesson in the usage of type traits.  For now, please consult the individual
+ component-level documentations.
+
+/Hierarchical Synopsis
+/---------------------
+ The 'bslalg' package currently has 32 components having 12 levels of physical
+ dependency.  The table below shows the hierarchical ordering of the
+ components.  The order of components within each level is not architecturally
+ significant, just alphabetical.
+..
+  12. bslalg_dequeprimitives
+      bslalg_rbtreeutil
+
+  11. bslalg_arrayprimitives
+
+  10. bslalg_autoarraymovedestructor
+
+   9. bslalg_autoarraydestructor
+
+   8. bslalg_arraydestructionprimitives
+      bslalg_constructorproxy
+      bslalg_dequeiterator
+
+   7. bslalg_scalarprimitives
+
+   6. bslalg_autoscalardestructor
+      bslalg_rangecompare
+
+   5. bslalg_bitwiseeqpassthroughtrait
+      bslalg_passthroughtrait
+      bslalg_scalardestructionprimitives
+      bslalg_selecttrait
+
+   4. bslalg_hastrait
+
+   3. bslalg_typetraits
+
+   2. bslalg_rbtreeanchor
+      bslalg_typetraitsgrouppod
+
+   1. bslalg_dequeimputil
+      bslalg_functoradapter
+      bslalg_rbtreenode
+      bslalg_swaputil
+      bslalg_typetraitbitwisecopyable
+      bslalg_typetraitbitwiseequalitycomparable
+      bslalg_typetraitbitwisemoveable
+      bslalg_typetraithaspointersemantics
+      bslalg_typetraithasstliterators
+      bslalg_typetraithastrivialdefaultconstructor
+      bslalg_typetraitnil
+      bslalg_typetraitpair
+      bslalg_typetraitusesbslmaallocator
+..
+
+/Component Synopsis
+/------------------
+: 'bslalg_arraydestructionprimitives':
+:      Provide primitive algorithms that destroy arrays.
+:
+: 'bslalg_arrayprimitives':
+:      Provide primitive algorithms that operate on arrays.
+:
+: 'bslalg_autoarraydestructor':
+:      Provide a proctor for destroying arrays.
+:
+: 'bslalg_autoarraymovedestructor':
+:      Provide a proctor for destroying arrays.
+:
+: 'bslalg_autoscalardestructor':
+:      Provide a proctor for destroying an object.
+:
+: 'bslalg_bitwiseeqpassthroughtrait':
+:      Provide facilities for computing compile-time traits.
+:
+: 'bslalg_constructorproxy':
+:      Provide a proxy for constructing and destroying objects.
+:
+: 'bslalg_dequeimputil':
+:      Provide basic parameters and primitive data structures for deques.
+:
+: 'bslalg_dequeiterator':
+:      Provide primitive data structures for implementing deques.
+:
+: 'bslalg_dequeprimitives':
+:      Provide primitive algorithms that operate on deques.
+:
+: 'bslalg_functoradapter':
+:      Provide an utility that adapts callable objects to functors.
+:
+: 'bslalg_hastrait':
+:      Provide facilities for checking compile-time trait.
+:
+: 'bslalg_passthroughtrait':
+:      Provide facilities for computing compile-time traits.
+:
+: 'bslalg_rangecompare':
+:      Compare elements in an iterator range for equality or ordering.
+:
+: 'bslalg_rbtreeanchor':
+:      Encapsulate root, first, and last nodes of a tree with a count.
+:
+: 'bslalg_rbtreenode':
+:      Provide a base class for a red-black binary tree node.
+:
+: 'bslalg_rbtreeutil':
+:      Provide a suite of primitive algorithms on red-black trees.
+:
+: 'bslalg_scalardestructionprimitives':
+:      Provide primitive algorithms that destroy scalars.
+:
+: 'bslalg_scalarprimitives':
+:      Primitive algorithms that operate on single elements.
+:
+: 'bslalg_selecttrait':
+:      Provide facilities for selecting compile-time trait.
+:
+: 'bslalg_swaputil':
+:      Provide a simple to use 'swap' algorithm.
+:
+: 'bslalg_typetraitbitwisecopyable':
+:      Provide a primitive type trait for bit-wise copyable classes.
+:
+: 'bslalg_typetraitbitwiseequalitycomparable':
+:      Provide a primitive type trait for bit-wise eq.-comparable classes.
+:
+: 'bslalg_typetraitbitwisemoveable':
+:      Provide a primitive type trait for bit-wise moveable classes.
+:
+: 'bslalg_typetraithaspointersemantics':
+:      Provide a primitive type trait for classes with pointer semantics.
+:
+: 'bslalg_typetraithasstliterators':
+:      Provide a primitive type trait for classes with STL-like iterators.
+:
+: 'bslalg_typetraithastrivialdefaultconstructor':
+:      Provide a primitive type trait for class with trivial default ctor.
+:
+: 'bslalg_typetraitnil':
+:      Provide a primitive type trait for bit-wise copyable classes.
+:
+: 'bslalg_typetraitpair':
+:      Provide facilities for identifying 'std::pair'-like classes.
+:
+: 'bslalg_typetraits':
+:      Provide facilities for associating types with compile-time traits.
+:
+: 'bslalg_typetraitsgrouppod':
+:      Provide pre-grouped compile-time traits for POD classes.
+:
+: 'bslalg_typetraitusesbslmaallocator':
+:      Provide a primitive trait for types that use 'bslma' allocators.
+
