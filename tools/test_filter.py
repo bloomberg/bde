@@ -1,5 +1,4 @@
 {
-    'bslmf_addreference': [ {'OS': 'Windows'} ],
     'bslstl_iteratorutil': [ {'OS': 'SunOS'} ],
     'bslstl_unorderedmultiset': [ {'OS': 'SunOS'} ],
     'bsls_atomic' : [
