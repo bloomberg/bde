@@ -1,4 +1,4 @@
-# Container headers
+# Standard Container headers
 deque           deque.SUNWCCh
 iterator        iterator.SUNWCCh
 list            list.SUNWCCh
@@ -10,6 +10,8 @@ sstream         sstream.SUNWCCh
 stack           stack.SUNWCCh
 string          string.SUNWCCh
 vector          vector.SUNWCCh
+
+# Non-standard container headers
 hash_set        hash_set.SUNWCCh
 hash_map        hash_map.SUNWCCh
 slist           slist.SUNWCCh
