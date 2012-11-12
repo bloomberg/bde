@@ -1,0 +1,992 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<title>BDE 2.16 BETA</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javaScript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css"/>
+    <style>
+      div.hanging {
+        padding-left: 0.75in;
+        text-indent: -0.50in;
+      }
+      div.unhanging {
+        text-indent:     0in;
+      }
+      a.glossary {
+        font-weight: bold;
+        font-style: italic;
+      }
+    </style>
+    <script>
+
+var CELL_IDX_GRP_BUTTON = 0;
+var CELL_IDX_GRP_NAME   = 1;
+var CELL_IDX_PKG_BUTTON = 2;
+var CELL_IDX_PKG_NAME   = 3;
+var CELL_IDX_CMP_NAME   = 4;
+var CELL_IDX_PURPOSE    = 5;
+
+function bdedox_showRow(rowObj)
+{
+    rowObj.style.display = 'table-row';
+}
+
+function bdedox_hideRow(rowObj)
+{
+    rowObj.style.display = 'none';
+}
+
+function bdedox_setButtonToExpanded(buttonObj)
+{
+    buttonObj.innerHTML = '-';
+}
+
+function bdedox_setButtonToCollapsed(buttonObj)
+{
+    buttonObj.innerHTML = '+';
+}
+
+function bdedox_buttonShowsExpanded(buttonObj)
+{
+    return "-" == buttonObj.innerHTML;
+}
+
+function bdedox_buttonShowsCollapsed(buttonObj)
+{
+    return "+" == buttonObj.innerHTML;
+}
+
+function bdedox_buttonShowsEmpty(buttonObj)
+{
+    return "." == buttonObj.innerHTML;
+}
+
+function bdedox_isEmptyNameCell(cellObj)
+{
+    return '&nbsp;' == cellObj.innerHTML;
+}
+
+function bdedox_isRowWithExpandedGroupButton(rowObj)
+{
+    var grpButtonCellObj = rowObj.cells[CELL_IDX_GRP_BUTTON];
+    var   grpNameCellObj = rowObj.cells[CELL_IDX_GRP_NAME];
+    var     grpButtonObj = grpButtonCellObj.childNodes[0];
+
+    return bdedox_buttonShowsExpanded(grpButtonObj)
+}
+
+function bdedox_isRowObj(obj)
+{
+    return "TR".toLowerCase() == obj.nodeName.toLowerCase();
+}
+
+function bdedox_isButtonObj(obj)
+{
+    return "BUTTON".toLowerCase() == obj.nodeName.toLowerCase();
+}
+
+
+function bdedox_getPrevRow(rowObj)
+{
+    if (null == rowObj) {
+        return null;                                                  // RETURN
+    }
+
+    var candidateRow;
+    for (candidateRow  = rowObj.previousSibling;
+         candidateRow != null;
+         candidateRow  = candidateRow.previousSibling)
+    {
+         if (bdedox_isRowObj(candidateRow)) {
+             break;
+         }
+    }
+    return candidateRow;
+}
+
+function bdedox_getNextRow(rowObj)
+{
+    if (null == rowObj) {
+        return null;                                                  // RETURN
+    }
+
+    var candidateRow;
+    for (candidateRow  = rowObj.nextSibling;
+         candidateRow != null;
+         candidateRow  = candidateRow.nextSibling)
+    {
+         if (bdedox_isRowObj(candidateRow)) {
+             break;
+         }
+    }
+    return candidateRow;
+}
+
+function bdedox_cagButtonOnClick(cagButtonObj, tableId)
+    // Collapse all group rows (thereby hiding all component and package rows)
+    // in the table having the specified 'tableId' when the specified
+    // 'cagButtonObj' is clicked.  Clicking the button when the table is
+    // already collapsed has no effect.
+{
+    var tableObj          = document.getElementById(tableId);
+    var rowObjsOfInterest = new Array();
+
+    for (var rowObj  = tableObj.rows[1];
+             rowObj != null;
+             rowObj  = bdedox_getNextRow(rowObj))
+    {
+        if (bdedox_isRowWithExpandedGroupButton(rowObj)) {
+            rowObjsOfInterest.push(rowObj);
+        }
+    }
+
+    while (0 < rowObjsOfInterest.length) {
+        var           rowObj = rowObjsOfInterest.pop();
+        var grpButtonCellObj = rowObj.cells[CELL_IDX_GRP_BUTTON];
+        var   grpNameCellObj = rowObj.cells[CELL_IDX_GRP_NAME];
+        var     grpButtonObj = grpButtonCellObj.childNodes[0];
+
+        bdedox_grpButtonOnClick(grpButtonObj);
+    }
+}
+
+function bdedox_eapButtonOnClick(eapButtonObj, tableId)
+    // Display all component rows (by expanding all group group and package
+    // rows) in the table having the specified 'tableId' when the specified
+    // 'eapButtonObj' is clicked.  Clicking the button when the table is
+    // already expanded has no effect.
+{
+    var tableObj = document.getElementById(tableId);
+
+    for (var rowObj  = tableObj.rows[1];
+             rowObj != null;
+             rowObj  = bdedox_getNextRow(rowObj))
+    {
+        var grpButtonColumnCellObj = rowObj.cells[CELL_IDX_GRP_BUTTON];
+        var   grpNameColumnCellObj = rowObj.cells[CELL_IDX_GRP_NAME];
+        var                    obj = grpButtonColumnCellObj.childNodes[0];
+
+        if (bdedox_isButtonObj(obj)) {
+            if (bdedox_buttonShowsCollapsed(obj)) {
+                bdedox_grpButtonOnClick(obj)
+            }
+        } else {
+            var pkgButtonColumnCellObj = rowObj.cells[CELL_IDX_PKG_BUTTON];
+            var                    obj = pkgButtonColumnCellObj.childNodes[0];
+
+            if (bdedox_isButtonObj(obj)) {
+                if (bdedox_buttonShowsCollapsed(obj)) {
+                    rowObj = bdedox_pkgButtonOnClick(obj);
+                }
+            }
+         }
+    }
+}
+
+function bdedox_grpButtonOnClick(grpButtonObj)
+    // Expand (collapse) the package rows following the row containing the
+    // specified 'grpButtonObj' if the current state of that object shows that
+    // it is collapsed (expanded).  Return the the highest indexed row object
+    // expanded (collapsed) or 'null'.  When a group is expanded (collapsed)
+    // the rows are made visible (invisible) from top-to-bottom
+    // (bottom-to-top).
+{
+    var  cellObj = grpButtonObj.parentNode;
+    var   rowObj =      cellObj.parentNode;
+    var tbodyObj =       rowObj.parentNode;
+    var tableObj =     tbodyObj.parentNode;
+
+    var cellIdxOfClickedButton = cellObj.cellIndex;
+    var  rowIdxOfClickedButton =  rowObj.rowIndex;
+
+    var returnedRowObj = null;
+    var amCollapsing   = bdedox_buttonShowsExpanded(grpButtonObj);
+
+    if (amCollapsing) {
+        bdedox_setButtonToCollapsed(grpButtonObj);
+
+        var rowObjsOfInterest = new Array();
+
+        for (var rowObj  = tableObj.rows[rowIdxOfClickedButton + 1];
+                 rowObj != null;
+                 rowObj  = bdedox_getNextRow(rowObj))
+        {
+            var grpNameCellObj = rowObj.cells[cellIdxOfClickedButton + 1]
+
+            if (!bdedox_isEmptyNameCell(grpNameCellObj)) {
+                break;
+            }
+
+            var pkgNameCellObj = rowObj.cells[cellIdxOfClickedButton + 3]
+            if (bdedox_isEmptyNameCell(pkgNameCellObj)) {
+                continue;
+            }
+
+            rowObjsOfInterest.push(rowObj);
+            returnedRowObj = rowObj;
+        }
+
+
+        while (0 < rowObjsOfInterest.length) {
+            var           rowObj = rowObjsOfInterest.pop();
+            var pkgButtonCellObj = rowObj.cells[cellIdxOfClickedButton + 2]
+            var     pkgButtonObj = pkgButtonCellObj.childNodes[0];
+
+            if (bdedox_buttonShowsExpanded(pkgButtonObj)) {
+                bdedox_pkgButtonOnClick(pkgButtonObj);
+            }
+            bdedox_hideRow(rowObj);
+        }
+    } else {
+        bdedox_setButtonToExpanded(grpButtonObj);
+
+        for (var rowObj  = tableObj.rows[rowIdxOfClickedButton + 1];
+                 rowObj != null;
+                 rowObj  = bdedox_getNextRow(rowObj))
+        {
+            var grpNameCellObj = rowObj.cells[cellIdxOfClickedButton + 1]
+
+            if (!bdedox_isEmptyNameCell(grpNameCellObj)) {
+                break;
+            }
+
+            var pkgButtonColumnCellObj =
+                                    rowObj.cells[ cellIdxOfClickedButton + 2];
+            var obj                    = pkgButtonColumnCellObj.childNodes[0];
+
+            if (bdedox_isButtonObj(obj)) {
+                bdedox_showRow(rowObj);
+            }
+            returnedRowObj = rowObj;
+        }
+    }
+
+    return returnedRowObj;
+}
+
+function bdedox_pkgButtonOnClick(pkgButtonObj)
+    // Expand (collapse) the component rows following the row containing the
+    // specified 'pkgButtonObj' if the current state of that object shows that
+    // it is collapsed (expanded).  Return the the highest indexed row object
+    // expanded (collapsed) or 'null'.  When a package is expanded (collapsed)
+    // the rows are made visible (invisible) from top-to-bottom
+    // (bottom-to-top).
+{
+    var  cellObj = pkgButtonObj.parentNode;
+    var   rowObj =      cellObj.parentNode;
+    var tbodyObj =       rowObj.parentNode;
+    var tableObj =     tbodyObj.parentNode;
+
+    var cellIdxOfClickedButton = cellObj.cellIndex;
+    var  rowIdxOfClickedButton =  rowObj.rowIndex;
+
+    if (bdedox_buttonShowsEmpty(pkgButtonObj)) {
+        return null;
+    }
+
+    var returnedRowObj = null;
+    var amCollapsing   = bdedox_buttonShowsExpanded(pkgButtonObj);
+
+    if (amCollapsing) {
+        bdedox_setButtonToCollapsed(pkgButtonObj);
+
+        // Identify range of rows of interest.
+        for (var rowObj  = tableObj.rows[rowIdxOfClickedButton + 1];
+                 rowObj != null;
+                 rowObj  = bdedox_getNextRow(rowObj))
+        {
+            var cmpNameCellObj = rowObj.cells[cellIdxOfClickedButton + 2]
+
+            if (bdedox_isEmptyNameCell(cmpNameCellObj)) {
+                break;
+            }
+            returnedRowObj = rowObj;
+        }
+
+        // Change rows of interest, from bottom-to-top.
+        var initialRowObj = tableObj.rows[rowIdxOfClickedButton + 0];
+        for (var rowObj  = returnedRowObj;
+                 rowObj !=  initialRowObj;
+                 rowObj  = bdedox_getPrevRow(rowObj))
+        {
+            bdedox_hideRow(rowObj);
+        }
+
+    } else {
+        bdedox_setButtonToExpanded(pkgButtonObj);
+
+        for (var rowObj  = tableObj.rows[rowIdxOfClickedButton + 1];
+                 rowObj != null;
+                 rowObj  = bdedox_getNextRow(rowObj))
+        {
+            var cmpNameCellObj = rowObj.cells[cellIdxOfClickedButton + 2]
+
+            if (bdedox_isEmptyNameCell(cmpNameCellObj)) {
+                bdedox_showRow(rowObj);
+                break;
+            }
+            bdedox_showRow(rowObj);
+            returnedRowObj = rowObj;
+        }
+    }
+
+    return returnedRowObj;
+}
+
+function bdedox_buttonOnMouseOver(object)
+{
+    object.className='over';
+}
+
+function bdedox_buttonOnMouseOut(object)
+{
+    object.className='out';
+}
+
+function bdedox_cagButtonOnMouseOut(object)
+{
+    object.className='outButtonTable';
+}
+
+function bdedox_cagButtonOnMouseOver(object)
+{
+    object.className='overButtonTable';
+}
+
+function bdedox_eapButtonOnMouseOut(object)
+{
+    object.className='outButtonTable';
+}
+
+function bdedox_eapButtonOnMouseOver(object)
+{
+    object.className='overButtonTable';
+}
+
+function bdedox_pageLoaded(tableInitiallyCollapsed)
+{
+    if (tableInitiallyCollapsed) {
+        var cagButtonObj = document.getElementById("cagButton");
+        bdedox_cagButtonOnClick(cagButtonObj, "myTable");
+    }
+}
+    </script>
+   <style type="text/css">
+    BUTTON.over {
+        background-color:rgb(210,187,46);
+        padding-top: 2px;
+        padding-bottom:2px;
+        font-family:"Courier New";
+        vertical-alignment: middle;
+        height: 25;
+    }
+    BUTTON.out  {
+        background-color:rgb(149,179,215);
+        padding-top: 2px;
+        padding-bottom:2px;
+        font-family:"Courier New";
+        vertical-alignment: middle;
+        height: 25px;
+    }
+
+    <!-- match grp row color -->
+    BUTTON.overButtonTable  {
+        background-color:#DAD6AC; padding-top: 2px; padding-bottom:2px;
+    }
+    <!-- match pkg row color -->
+    BUTTON.outButtonTable  {
+        background-color:#CAC589; padding-top: 2px; padding-bottom:2px;
+    }
+
+   th.cmpTableHeader {
+    font-size:  medium;
+    text-align: left;
+    background-color: #EBEFF6;
+    font-weight: bold;
+    border: 1px solid #C4CFE5;
+    margin: 2px 0px 2px 0;
+    padding: 2px 10px;
+   }
+
+   </style>
+</head>
+<!--
+<body onload='searchBox.OnSelectItem(0);'>
+-->
+<body>
+
+<table border=0 cellspacing=0 cellpadding=0 align=center>
+<tr>
+ <td valign=top align=center>
+ <p align=center><b><i>Quick Links:</i></b></p>
+ </td>
+ <td valign=top align=center>
+ <p align=center>
+<a class="qindex" href="group__bsl__P__bslhdrs.html">bsl+bslhdrs</a> | <a class="qindex" href="group__bsl__P__stdhdrs.html">bsl+stdhdrs</a> | <a class="qindex" href="group__bslalg.html">bslalg</a> | <a class="qindex" href="group__bsldoc.html">bsldoc</a> | <a class="qindex" href="group__bslim.html">bslim</a> | <a class="qindex" href="group__bslma.html">bslma</a> | <a class="qindex" href="group__bslmf.html">bslmf</a> | <a class="qindex" href="group__bsls.html">bsls</a> | <a class="qindex" href="group__bslscm.html">bslscm</a> | <a class="qindex" href="group__bslstl.html">bslstl</a> | <a class="qindex" href="group__bsltf.html">bsltf</a>
+ </td>
+ </tr>
+ </table>
+
+  </div>
+<!-- Generated by Doxygen 1.7.1 -->
+<div class="navigation" id="top">
+  <div class="tabs">
+    <ul class="tablist">
+      <li><a href="main.html"><span>Main&nbsp;Page</span></a></li>
+      <li class="current"><a href="components.html"><span>Components</span></a></li>
+      <li><a href="namespaces.html"><span>Namespaces</span></a></li>
+      <li><a href="annotated.html"><span>Classes</span></a></li>
+      <li><a href="files.html"><span>Files</span></a></li>
+    </ul>
+  </div>
+</div>
+<div class="header">
+  <div class="headertitle">
+<h1>Components</h1>  </div>
+</div>
+<div class="contents">
+<p>Here is a table of all package groups (a.k.a., groups), packages, and components:</p>
+ <table id='bdedox_componentsButtonTable_top' border=0>
+  <col width='050'>
+  <col width='050'>
+  <col width='050'>
+  <tbody>
+  <tr id="buttonRow">
+   <td id="cagButton">
+    <button class="outButtonTable"
+          onClick="bdedox_cagButtonOnClick    (this, 'bdedox_componentsTable')"
+      onMouseOver="bdedox_cagButtonOnMouseOver(this)"
+       onMouseOut="bdedox_cagButtonOnMouseOut (this)"
+    >Collapse All Groups
+    </button>
+   </td>
+   <td id="eapButton">
+    <button class="outButtonTable"
+          onClick="bdedox_eapButtonOnClick    (this, 'bdedox_componentsTable')"
+      onMouseOver="bdedox_eapButtonOnMouseOver(this)"
+       onMouseOut="bdedox_eapButtonOnMouseOut (this)"
+    >Expand All Packages
+    </button>
+   </td>
+  </tr>
+  </tbody>
+ </table>
+<p>&nbsp;</p>
+<table id="bdedox_componentsTable">
+<tr>
+<th class="cmpTableHeader">&nbsp</th>        <!-- grp button -->
+<th class="cmpTableHeader">Group</th>        <!-- grp name   -->
+<th class="cmpTableHeader">&nbsp</th>        <!-- pkg button -->
+<th class="cmpTableHeader">Package</th>      <!-- pkg name   -->
+<th class="cmpTableHeader">Component</th>    <!-- cmp name   -->
+<th class="cmpTableHeader">Purpose</th>      <!-- purpose    -->
+</tr>
+
+<tr style="display: table-row;"><td class="indexkey" style="padding: 2px 2px;" style="background-color:#CAC589;"><button class="out"     onClick="bdedox_grpButtonOnClick (this)" onMouseOver="bdedox_buttonOnMouseOver(this)"  onMouseOut="bdedox_buttonOnMouseOut (this)">+</button></td></td><td class="indexkey" style="background-color:#CAC589;"><a class="el" href="group__bsl.html">bsl</a></td><td style="background-color:#CAC589;">&nbsp;</td><td style="background-color:#CAC589;">&nbsp;</td><td style="background-color:#CAC589;">&nbsp;</td><td class="indexvalue" style="background-color:#CAC589;">Provide a comprehensive foundation for component-based development</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey" style="padding: 2px 0px;" style="background-color:#DAD6AC;"><button class="out"     onClick="bdedox_pkgButtonOnClick (this)" onMouseOver="bdedox_buttonOnMouseOver(this)"  onMouseOut="bdedox_buttonOnMouseOut (this)" style="background-color:#BEBEBE;">.</button></td></td><td class="indexkey" style="background-color:#DAD6AC;"><a class="el" href="group__bsl__P__bslhdrs.html">bsl+bslhdrs</a></td><td style="background-color:#DAD6AC;">&nbsp;</td><td class="indexvalue" style="background-color:#DAD6AC;">Provide a compatibility layer to enable BDE-STL mode in Bloomberg</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey" style="padding: 2px 0px;" style="background-color:#DAD6AC;"><button class="out"     onClick="bdedox_pkgButtonOnClick (this)" onMouseOver="bdedox_buttonOnMouseOver(this)"  onMouseOut="bdedox_buttonOnMouseOut (this)" style="background-color:#BEBEBE;">.</button></td></td><td class="indexkey" style="background-color:#DAD6AC;"><a class="el" href="group__bsl__P__stdhdrs.html">bsl+stdhdrs</a></td><td style="background-color:#DAD6AC;">&nbsp;</td><td class="indexvalue" style="background-color:#DAD6AC;">Provide a compatibility layer to enable BDE-STL mode in Bloomberg</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey" style="padding: 2px 0px;" style="background-color:#DAD6AC;"><button class="out"     onClick="bdedox_pkgButtonOnClick (this)" onMouseOver="bdedox_buttonOnMouseOver(this)"  onMouseOut="bdedox_buttonOnMouseOut (this)">+</button></td></td><td class="indexkey" style="background-color:#DAD6AC;"><a class="el" href="group__bslalg.html">bslalg</a></td><td style="background-color:#DAD6AC;">&nbsp;</td><td class="indexvalue" style="background-color:#DAD6AC;">Provide algorithms and traits used by the BDE STL implementation</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslalg__arraydestructionprimitives.html">bslalg_arraydestructionprimitives</a></td><td class="indexvalue">Provide primitive algorithms that destroy arrays</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslalg__arrayprimitives.html">bslalg_arrayprimitives</a></td><td class="indexvalue">Provide primitive algorithms that operate on arrays</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslalg__autoarraydestructor.html">bslalg_autoarraydestructor</a></td><td class="indexvalue">Provide a proctor for destroying arrays</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslalg__autoarraymovedestructor.html">bslalg_autoarraymovedestructor</a></td><td class="indexvalue">Provide a proctor for destroying arrays</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslalg__autoscalardestructor.html">bslalg_autoscalardestructor</a></td><td class="indexvalue">Provide a proctor for destroying an object</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslalg__bidirectionallink.html">bslalg_bidirectionallink</a></td><td class="indexvalue">Provide a basic link type for building doubly-linked lists</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslalg__bidirectionallinklistutil.html">bslalg_bidirectionallinklistutil</a></td><td class="indexvalue">Provide utilities to maintain bidirectional list data structures</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslalg__bidirectionalnode.html">bslalg_bidirectionalnode</a></td><td class="indexvalue">Provide a node holding a value in a doubly-linked list</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslalg__constructorproxy.html">bslalg_constructorproxy</a></td><td class="indexvalue">Provide a proxy for constructing and destroying objects</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslalg__containerbase.html">bslalg_containerbase</a></td><td class="indexvalue">Provide a wrapper for STL allocators, respecting <code>bslma</code> semantics</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslalg__dequeimputil.html">bslalg_dequeimputil</a></td><td class="indexvalue">Provide basic parameters and primitive data structures for deques</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslalg__dequeiterator.html">bslalg_dequeiterator</a></td><td class="indexvalue">Provide primitive data structures for implementing deques</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslalg__dequeprimitives.html">bslalg_dequeprimitives</a></td><td class="indexvalue">Provide primitive algorithms that operate on deques</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslalg__functoradapter.html">bslalg_functoradapter</a></td><td class="indexvalue">Provide an utility that adapts callable objects to functors</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslalg__hashtableanchor.html">bslalg_hashtableanchor</a></td><td class="indexvalue">Provide a type holding the constituent parts of a hash table</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslalg__hashtablebucket.html">bslalg_hashtablebucket</a></td><td class="indexvalue">Provide a bucket representation for hash table data structures</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslalg__hashtableimputil.html">bslalg_hashtableimputil</a></td><td class="indexvalue">Provide algorithms for implementing a hash table</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslalg__hashutil.html">bslalg_hashutil</a></td><td class="indexvalue">Provide a utility of hash functions</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslalg__hastrait.html">bslalg_hastrait</a></td><td class="indexvalue">Provide facilities for checking compile-time trait</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslalg__rangecompare.html">bslalg_rangecompare</a></td><td class="indexvalue">Provide algorithms to compare iterator-ranges of elements</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslalg__rbtreeanchor.html">bslalg_rbtreeanchor</a></td><td class="indexvalue">Encapsulate root, first, and last nodes of a tree with a count</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslalg__rbtreenode.html">bslalg_rbtreenode</a></td><td class="indexvalue">Provide a base class for a red-black binary tree node</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslalg__rbtreeutil.html">bslalg_rbtreeutil</a></td><td class="indexvalue">Provide a suite of primitive algorithms on red-black trees</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslalg__scalardestructionprimitives.html">bslalg_scalardestructionprimitives</a></td><td class="indexvalue">Provide primitive algorithms that destroy scalars</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslalg__scalarprimitives.html">bslalg_scalarprimitives</a></td><td class="indexvalue">Provide primitive algorithms that operate on single elements</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslalg__selecttrait.html">bslalg_selecttrait</a></td><td class="indexvalue">Provide facilities for selecting compile-time trait</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslalg__swaputil.html">bslalg_swaputil</a></td><td class="indexvalue">Provide a simple to use <code>swap</code> algorithm</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslalg__typetraitbitwisecopyable.html">bslalg_typetraitbitwisecopyable</a></td><td class="indexvalue">Provide a primitive type trait for bit-wise copyable classes</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslalg__typetraitbitwiseequalitycomparable.html">bslalg_typetraitbitwiseequalitycomparable</a></td><td class="indexvalue">Provide a primitive type trait for bit-wise eq.-comparable classes</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslalg__typetraitbitwisemoveable.html">bslalg_typetraitbitwisemoveable</a></td><td class="indexvalue">Provide a primitive type trait for bit-wise moveable classes</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslalg__typetraithaspointersemantics.html">bslalg_typetraithaspointersemantics</a></td><td class="indexvalue">Provide a primitive type trait for classes with pointer semantics</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslalg__typetraithasstliterators.html">bslalg_typetraithasstliterators</a></td><td class="indexvalue">Provide a primitive type trait for classes with STL-like iterators</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslalg__typetraithastrivialdefaultconstructor.html">bslalg_typetraithastrivialdefaultconstructor</a></td><td class="indexvalue">Provide a primitive type trait for class with trivial default ctor</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslalg__typetraitnil.html">bslalg_typetraitnil</a></td><td class="indexvalue">Provide a primitive trait for classes that have no other traits</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslalg__typetraitpair.html">bslalg_typetraitpair</a></td><td class="indexvalue">Provide facilities for identifying <code>std::pair</code>-like classes</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslalg__typetraits.html">bslalg_typetraits</a></td><td class="indexvalue">Provide facilities for associating types with compile-time traits</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslalg__typetraitusesbslmaallocator.html">bslalg_typetraitusesbslmaallocator</a></td><td class="indexvalue">Provide a primitive trait for types that use <code>bslma</code> allocators</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey" style="padding: 2px 0px;" style="background-color:#DAD6AC;"><button class="out"     onClick="bdedox_pkgButtonOnClick (this)" onMouseOver="bdedox_buttonOnMouseOver(this)"  onMouseOut="bdedox_buttonOnMouseOut (this)">+</button></td></td><td class="indexkey" style="background-color:#DAD6AC;"><a class="el" href="group__bsldoc.html">bsldoc</a></td><td style="background-color:#DAD6AC;">&nbsp;</td><td class="indexvalue" style="background-color:#DAD6AC;">Provide documentation of terms and concepts used throughout BDE</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bsldoc__glossary.html">bsldoc_glossary</a></td><td class="indexvalue">Provide definitions for terms used throughout BDE documentation</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey" style="padding: 2px 0px;" style="background-color:#DAD6AC;"><button class="out"     onClick="bdedox_pkgButtonOnClick (this)" onMouseOver="bdedox_buttonOnMouseOver(this)"  onMouseOut="bdedox_buttonOnMouseOut (this)">+</button></td></td><td class="indexkey" style="background-color:#DAD6AC;"><a class="el" href="group__bslim.html">bslim</a></td><td style="background-color:#DAD6AC;">&nbsp;</td><td class="indexvalue" style="background-color:#DAD6AC;">Provide implementation mechanisms</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslim__printer.html">bslim_printer</a></td><td class="indexvalue">Provide a mechanism to implement standard <code>print</code> methods</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey" style="padding: 2px 0px;" style="background-color:#DAD6AC;"><button class="out"     onClick="bdedox_pkgButtonOnClick (this)" onMouseOver="bdedox_buttonOnMouseOver(this)"  onMouseOut="bdedox_buttonOnMouseOut (this)">+</button></td></td><td class="indexkey" style="background-color:#DAD6AC;"><a class="el" href="group__bslma.html">bslma</a></td><td style="background-color:#DAD6AC;">&nbsp;</td><td class="indexvalue" style="background-color:#DAD6AC;">Provide allocators, guards, and other memory-management tools</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslma__allocator.html">bslma_allocator</a></td><td class="indexvalue">Provide a pure abstract interface for memory-allocation mechanisms</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslma__autodeallocator.html">bslma_autodeallocator</a></td><td class="indexvalue">Provide a range proctor to managed a block of memory</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslma__autodestructor.html">bslma_autodestructor</a></td><td class="indexvalue">Provide a range proctor to manage an array of objects</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslma__autorawdeleter.html">bslma_autorawdeleter</a></td><td class="indexvalue">Provide a range proctor to manage a sequence objects</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslma__deallocatorguard.html">bslma_deallocatorguard</a></td><td class="indexvalue">Provide a guard to unconditionally manage a block of memory</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslma__deallocatorproctor.html">bslma_deallocatorproctor</a></td><td class="indexvalue">Provide a proctor to conditionally manage a block memory</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslma__default.html">bslma_default</a></td><td class="indexvalue">Provide utilities to set/fetch the default and global allocators</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslma__defaultallocatorguard.html">bslma_defaultallocatorguard</a></td><td class="indexvalue">Provide scoped guard to temporarily change the default allocator</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslma__deleterhelper.html">bslma_deleterhelper</a></td><td class="indexvalue">Provide namespace for functions used to delete objects</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslma__destructorguard.html">bslma_destructorguard</a></td><td class="indexvalue">Provide a guard to unconditionally manage an object</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslma__destructorproctor.html">bslma_destructorproctor</a></td><td class="indexvalue">Provide a proctor to conditionally manage an object</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslma__mallocfreeallocator.html">bslma_mallocfreeallocator</a></td><td class="indexvalue">Provide malloc/free adaptor to <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code> protocol</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslma__newdeleteallocator.html">bslma_newdeleteallocator</a></td><td class="indexvalue">Provide singleton new/delete adaptor to <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code> protocol</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslma__rawdeleterguard.html">bslma_rawdeleterguard</a></td><td class="indexvalue">Provide a guard to unconditionally manage an object</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslma__rawdeleterproctor.html">bslma_rawdeleterproctor</a></td><td class="indexvalue">Provide a proctor to conditionally manage an object</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslma__testallocator.html">bslma_testallocator</a></td><td class="indexvalue">Provide instrumented malloc/free allocator to track memory usage</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslma__testallocatorexception.html">bslma_testallocatorexception</a></td><td class="indexvalue">Provide an exception class for memory allocation operations</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslma__testallocatormonitor.html">bslma_testallocatormonitor</a></td><td class="indexvalue">Provide a mechanism to summarize <code><a class="el" href="classbslma_1_1TestAllocator.html">bslma::TestAllocator</a></code> object use</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslma__usesbslmaallocator.html">bslma_usesbslmaallocator</a></td><td class="indexvalue">Provide a metafunction that indicates the use of bslma allocators</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey" style="padding: 2px 0px;" style="background-color:#DAD6AC;"><button class="out"     onClick="bdedox_pkgButtonOnClick (this)" onMouseOver="bdedox_buttonOnMouseOver(this)"  onMouseOut="bdedox_buttonOnMouseOut (this)">+</button></td></td><td class="indexkey" style="background-color:#DAD6AC;"><a class="el" href="group__bslmf.html">bslmf</a></td><td style="background-color:#DAD6AC;">&nbsp;</td><td class="indexvalue" style="background-color:#DAD6AC;">Provide meta-function versions of useful coding constructs</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslmf__addconst.html">bslmf_addconst</a></td><td class="indexvalue">Provide a meta-function for adding a top-level <code>const</code>-qualifier</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslmf__addcv.html">bslmf_addcv</a></td><td class="indexvalue">Provide a meta-function for adding a top-level cv-qualifier</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslmf__addlvaluereference.html">bslmf_addlvaluereference</a></td><td class="indexvalue">Provide a compile-time type transformation to lvalue reference</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslmf__addpointer.html">bslmf_addpointer</a></td><td class="indexvalue">Transform a type to a pointer to that type</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslmf__addreference.html">bslmf_addreference</a></td><td class="indexvalue">Provide a meta-function for adding "reference-ness" to a type</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslmf__addrvaluereference.html">bslmf_addrvaluereference</a></td><td class="indexvalue">Provide a compile-time type transformation to rvalue reference</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslmf__addvolatile.html">bslmf_addvolatile</a></td><td class="indexvalue">Provide a meta-function for adding a top-level <code>volatile</code>-qualifier</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslmf__arraytopointer.html">bslmf_arraytopointer</a></td><td class="indexvalue">Provide a meta-function to convert array types to pointer types</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslmf__assert.html">bslmf_assert</a></td><td class="indexvalue">Provide a compile-time assertion facility</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslmf__conditional.html">bslmf_conditional</a></td><td class="indexvalue">Provide a compile-time conditional type selection</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslmf__detectnestedtrait.html">bslmf_detectnestedtrait</a></td><td class="indexvalue">Provide meta-function to test for nested trait</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslmf__enableif.html">bslmf_enableif</a></td><td class="indexvalue">Provide a utility to set up SFINAE conditions in type deduction</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslmf__forwardingtype.html">bslmf_forwardingtype</a></td><td class="indexvalue">Provide a meta-function for determining an optimal forwarding type</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslmf__functionpointertraits.html">bslmf_functionpointertraits</a></td><td class="indexvalue">Provide a meta-function for determining function pointer traits</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslmf__haspointersemantics.html">bslmf_haspointersemantics</a></td><td class="indexvalue">Provide a type trait for pointer semantics</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslmf__if.html">bslmf_if</a></td><td class="indexvalue">Provide a compile-time <code>if/else</code> (conditional) meta-function</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslmf__integralconstant.html">bslmf_integralconstant</a></td><td class="indexvalue">Provide a mapping from integral constants to unique types</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslmf__isarithmetic.html">bslmf_isarithmetic</a></td><td class="indexvalue">Provide a compile-time check for arithmetic types</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslmf__isarray.html">bslmf_isarray</a></td><td class="indexvalue">Provide a compile-time check for array types</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslmf__isbitwiseequalitycomparable.html">bslmf_isbitwiseequalitycomparable</a></td><td class="indexvalue">Provide a type trait for bitwise equality</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslmf__isbitwisemoveable.html">bslmf_isbitwisemoveable</a></td><td class="indexvalue">Provide a primitive type trait for bit-wise moveable classes</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslmf__isclass.html">bslmf_isclass</a></td><td class="indexvalue">Provide a compile-time check for class types</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslmf__isconst.html">bslmf_isconst</a></td><td class="indexvalue">Provide a compile-time check for <code>const</code>-qualified types</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslmf__isconvertible.html">bslmf_isconvertible</a></td><td class="indexvalue">Provide a compile-time type conversion checker</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslmf__isenum.html">bslmf_isenum</a></td><td class="indexvalue">Provide compile-time detection of enumerated types</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslmf__isfloatingpoint.html">bslmf_isfloatingpoint</a></td><td class="indexvalue">Provide a compile-time check for floating-point types</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslmf__isfunction.html">bslmf_isfunction</a></td><td class="indexvalue">Provide a compile-time check for function types</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslmf__isfundamental.html">bslmf_isfundamental</a></td><td class="indexvalue">Provide a compile-time check for fundamental types</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslmf__isintegral.html">bslmf_isintegral</a></td><td class="indexvalue">Provide a compile-time check for integral types</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslmf__islvaluereference.html">bslmf_islvaluereference</a></td><td class="indexvalue">Provide a compile-time check for lvalue reference types</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslmf__ismemberfunctionpointer.html">bslmf_ismemberfunctionpointer</a></td><td class="indexvalue">Provide a compile-time check for member function pointer types</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslmf__ismemberobjectpointer.html">bslmf_ismemberobjectpointer</a></td><td class="indexvalue">Provide a compile-time check for member object pointer types</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslmf__ismemberpointer.html">bslmf_ismemberpointer</a></td><td class="indexvalue">Provide a compile-time check for non-static member pointer types</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslmf__ispair.html">bslmf_ispair</a></td><td class="indexvalue">Provide a compile-time check for the <a class="el" href="classbsl_1_1pair.html">bsl::pair</a> type</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslmf__ispointer.html">bslmf_ispointer</a></td><td class="indexvalue">Provide a compile-time check for pointer types</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslmf__ispointertomember.html">bslmf_ispointertomember</a></td><td class="indexvalue">Provide a compile-time check for pointer-to-member types</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslmf__ispolymorphic.html">bslmf_ispolymorphic</a></td><td class="indexvalue">Provide a compile-time check for polymorphic types</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslmf__isreference.html">bslmf_isreference</a></td><td class="indexvalue">Provide a compile-time check for reference types</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslmf__isrvaluereference.html">bslmf_isrvaluereference</a></td><td class="indexvalue">Provide a compile-time check for rvalue reference types</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslmf__issame.html">bslmf_issame</a></td><td class="indexvalue">Provide a meta-function for checking if two types are the same</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslmf__istriviallycopyable.html">bslmf_istriviallycopyable</a></td><td class="indexvalue">Provide a meta-function for determining trivially copyable types</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslmf__istriviallydefaultconstructible.html">bslmf_istriviallydefaultconstructible</a></td><td class="indexvalue">Check for whether a type is trivially default-constructible</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslmf__isvoid.html">bslmf_isvoid</a></td><td class="indexvalue">Provide a compile-time check for <code>void</code> types</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslmf__isvolatile.html">bslmf_isvolatile</a></td><td class="indexvalue">Provide a compile-time check for <code>volatile</code>-qualified types</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslmf__matchanytype.html">bslmf_matchanytype</a></td><td class="indexvalue">Provide a generic type to which any type can be converted</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslmf__matcharithmetictype.html">bslmf_matcharithmetictype</a></td><td class="indexvalue">Provide a class supporting "do-the-right-thing clause" dispatch</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslmf__memberfunctionpointertraits.html">bslmf_memberfunctionpointertraits</a></td><td class="indexvalue">Provide meta-functions to detect member function pointer traits</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslmf__metaint.html">bslmf_metaint</a></td><td class="indexvalue">Provide a meta-function to map integral constants to unique types</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslmf__nestedtraitdeclaration.html">bslmf_nestedtraitdeclaration</a></td><td class="indexvalue">Provide a way within a class to associate the class with traits</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslmf__nil.html">bslmf_nil</a></td><td class="indexvalue">Provide a nil type</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslmf__removeconst.html">bslmf_removeconst</a></td><td class="indexvalue">Provide a meta-function for removing top-level <code>const</code>-qualifier</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslmf__removecv.html">bslmf_removecv</a></td><td class="indexvalue">Provide a meta-function for removing top-level cv-qualifier</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslmf__removecvq.html">bslmf_removecvq</a></td><td class="indexvalue">Provide a meta-function for removing <code>const</code>/<code>volatile</code> qualifiers</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslmf__removepointer.html">bslmf_removepointer</a></td><td class="indexvalue">Transform a pointer type to type pointed by pointer type</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslmf__removereference.html">bslmf_removereference</a></td><td class="indexvalue">Provide a meta-function for removing reference-ness from types</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslmf__removevolatile.html">bslmf_removevolatile</a></td><td class="indexvalue">Provide a meta-function for removing top-level <code>volatile</code>-qualifier</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslmf__selecttrait.html">bslmf_selecttrait</a></td><td class="indexvalue">Provide a meta-function for overload dispatch per trait</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslmf__switch.html">bslmf_switch</a></td><td class="indexvalue">Provide a compile-time <code>switch</code> meta-function</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslmf__tag.html">bslmf_tag</a></td><td class="indexvalue">Provide an integral-constant-to-type conversion</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslmf__typelist.html">bslmf_typelist</a></td><td class="indexvalue">Provide a typelist component</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey" style="padding: 2px 0px;" style="background-color:#DAD6AC;"><button class="out"     onClick="bdedox_pkgButtonOnClick (this)" onMouseOver="bdedox_buttonOnMouseOver(this)"  onMouseOut="bdedox_buttonOnMouseOut (this)">+</button></td></td><td class="indexkey" style="background-color:#DAD6AC;"><a class="el" href="group__bsls.html">bsls</a></td><td style="background-color:#DAD6AC;">&nbsp;</td><td class="indexvalue" style="background-color:#DAD6AC;">Provide system-level utilities for <code>bsl</code></td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bsls__alignedbuffer.html">bsls_alignedbuffer</a></td><td class="indexvalue">Provide raw buffers with user-specified size and alignment</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bsls__alignment.html">bsls_alignment</a></td><td class="indexvalue">Provide a namespace for enumerating memory alignment strategies</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bsls__alignmentfromtype.html">bsls_alignmentfromtype</a></td><td class="indexvalue">Provide a meta-function that maps a <code>TYPE</code> to its alignment</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bsls__alignmentimp.html">bsls_alignmentimp</a></td><td class="indexvalue">Provide implementation meta-functions for alignment computation</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bsls__alignmenttotype.html">bsls_alignmenttotype</a></td><td class="indexvalue">Provide a meta-function mapping an <code>ALIGNMENT</code> to a primitive type</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bsls__alignmentutil.html">bsls_alignmentutil</a></td><td class="indexvalue">Provide constants, types, and operations related to alignment</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bsls__annotation.html">bsls_annotation</a></td><td class="indexvalue">Provide support for compiler annotations for compile-time safety</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bsls__assert.html">bsls_assert</a></td><td class="indexvalue">Provide build-specific, runtime-configurable assertion macros</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bsls__asserttest.html">bsls_asserttest</a></td><td class="indexvalue">Provide a test facility for assertion macros</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bsls__asserttestexception.html">bsls_asserttestexception</a></td><td class="indexvalue">Provide an exception type to support testing for failed assertions</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bsls__atomic.html">bsls_atomic</a></td><td class="indexvalue">Provide types with atomic operations</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bsls__atomicoperations.html">bsls_atomicoperations</a></td><td class="indexvalue">Provide platform-independent atomic operations</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bsls__atomicoperations__default.html">bsls_atomicoperations_default</a></td><td class="indexvalue">Provide default implementation for atomic operations</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bsls__atomicoperations__ia64__hp__acc.html">bsls_atomicoperations_ia64_hp_acc</a></td><td class="indexvalue">Provide implementations of atomic operations for HPUX/IA64</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bsls__atomicoperations__powerpc32__aix__xlc.html">bsls_atomicoperations_powerpc32_aix_xlc</a></td><td class="indexvalue">Provide implementations of atomic operations for PowerPC/AIX-32bit</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bsls__atomicoperations__powerpc64__aix__xlc.html">bsls_atomicoperations_powerpc64_aix_xlc</a></td><td class="indexvalue">Provide implementations of atomic operations for PowerPC/AIX-64bit</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bsls__atomicoperations__powerpc__aix__gcc.html">bsls_atomicoperations_powerpc_aix_gcc</a></td><td class="indexvalue">Provide implementations of atomic operations for PowerPC/AIX/GCC</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bsls__atomicoperations__powerpc__aix__xlc__default.html">bsls_atomicoperations_powerpc_aix_xlc_default</a></td><td class="indexvalue">Provide default base implementations of atomics for PowerPC/AIX</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bsls__atomicoperations__sparc32__sun__cc.html">bsls_atomicoperations_sparc32_sun_cc</a></td><td class="indexvalue">Provide implementations of atomic operations for Sparc/Sun (32bit)</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bsls__atomicoperations__sparc64__sun__cc.html">bsls_atomicoperations_sparc64_sun_cc</a></td><td class="indexvalue">Provide implementations of atomic operations for Sparc/Sun (64bit)</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bsls__atomicoperations__sparc__sun__cc__default.html">bsls_atomicoperations_sparc_sun_cc_default</a></td><td class="indexvalue">Provide default base implementations of atomics for Sparc/Sun</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bsls__atomicoperations__x64__all__gcc.html">bsls_atomicoperations_x64_all_gcc</a></td><td class="indexvalue">Provide implementations of atomic operations for X86_64/GCC</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bsls__atomicoperations__x64__win__msvc.html">bsls_atomicoperations_x64_win_msvc</a></td><td class="indexvalue">Provide implementations of atomic operations for X86_64/MSVC/Win64</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bsls__atomicoperations__x86__all__gcc.html">bsls_atomicoperations_x86_all_gcc</a></td><td class="indexvalue">Provide implementations of atomic operations for X86/GCC</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bsls__atomicoperations__x86__win__msvc.html">bsls_atomicoperations_x86_win_msvc</a></td><td class="indexvalue">Provide implementations of atomic operations for X86/MSVC/Windows</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bsls__blockgrowth.html">bsls_blockgrowth</a></td><td class="indexvalue">Provide a namespace for memory block growth strategies</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bsls__bsltestutil.html">bsls_bsltestutil</a></td><td class="indexvalue">Provide test utilities for <code>bsl</code> that do not use &lt;iostream&gt;</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bsls__buildtarget.html">bsls_buildtarget</a></td><td class="indexvalue">Provide build-target information in the object file</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bsls__byteorder.html">bsls_byteorder</a></td><td class="indexvalue">Provide byte-order manipulation macros</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bsls__compilerfeatures.html">bsls_compilerfeatures</a></td><td class="indexvalue">Provide macros to identify compiler support for C++0x features</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bsls__exceptionutil.html">bsls_exceptionutil</a></td><td class="indexvalue">Provide simplified exception constructs for non-exception builds</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bsls__ident.html">bsls_ident</a></td><td class="indexvalue">Provide macros for inserting SCM Ids into source files</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bsls__macroincrement.html">bsls_macroincrement</a></td><td class="indexvalue">Provide a macro to increment preprocessor numbers</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bsls__nativestd.html">bsls_nativestd</a></td><td class="indexvalue">Define the namespace <code>native_std</code> as an alias for <code>::std</code></td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bsls__nullptr.html">bsls_nullptr</a></td><td class="indexvalue">Provide a distinct type for null pointer literals</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bsls__objectbuffer.html">bsls_objectbuffer</a></td><td class="indexvalue">Provide raw buffer with size and alignment of user-specified type</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bsls__performancehint.html">bsls_performancehint</a></td><td class="indexvalue">Provide performance hints for code optimization</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bsls__platform.html">bsls_platform</a></td><td class="indexvalue">Provide compile-time support for platform/attribute identification</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bsls__protocoltest.html">bsls_protocoltest</a></td><td class="indexvalue">Provide classes and macros for testing abstract protocols</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bsls__stopwatch.html">bsls_stopwatch</a></td><td class="indexvalue">Provide access to user, system, and wall times of current process</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bsls__timeutil.html">bsls_timeutil</a></td><td class="indexvalue">Provide a platform-neutral functional interface to system clocks</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bsls__types.html">bsls_types</a></td><td class="indexvalue">Provide a consistent interface for platform-dependent types</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bsls__unspecifiedbool.html">bsls_unspecifiedbool</a></td><td class="indexvalue">Provide a class supporting the <code>unspecified bool</code> idiom</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bsls__util.html">bsls_util</a></td><td class="indexvalue">Provide essential, low-level support for portable generic code</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey" style="padding: 2px 0px;" style="background-color:#DAD6AC;"><button class="out"     onClick="bdedox_pkgButtonOnClick (this)" onMouseOver="bdedox_buttonOnMouseOver(this)"  onMouseOut="bdedox_buttonOnMouseOut (this)">+</button></td></td><td class="indexkey" style="background-color:#DAD6AC;"><a class="el" href="group__bslscm.html">bslscm</a></td><td style="background-color:#DAD6AC;">&nbsp;</td><td class="indexvalue" style="background-color:#DAD6AC;">Provide versioning information for BDE library components</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslscm__version.html">bslscm_version</a></td><td class="indexvalue">Provide source control management (versioning) information</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslscm__versiontag.html">bslscm_versiontag</a></td><td class="indexvalue">Provide versioning information for the <code>bsl</code> package group</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey" style="padding: 2px 0px;" style="background-color:#DAD6AC;"><button class="out"     onClick="bdedox_pkgButtonOnClick (this)" onMouseOver="bdedox_buttonOnMouseOver(this)"  onMouseOut="bdedox_buttonOnMouseOut (this)">+</button></td></td><td class="indexkey" style="background-color:#DAD6AC;"><a class="el" href="group__bslstl.html">bslstl</a></td><td style="background-color:#DAD6AC;">&nbsp;</td><td class="indexvalue" style="background-color:#DAD6AC;">Provide replacement classes for STL constructs</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslstl__allocator.html">bslstl_allocator</a></td><td class="indexvalue">Provide an STL-compatible proxy for <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code> objects</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslstl__allocatortraits.html">bslstl_allocatortraits</a></td><td class="indexvalue">Provide a uniform interface to standard allocator types</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslstl__bidirectionaliterator.html">bslstl_bidirectionaliterator</a></td><td class="indexvalue">Provide a template to create STL-compliant bidirectional iterators</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslstl__bidirectionalnodepool.html">bslstl_bidirectionalnodepool</a></td><td class="indexvalue">Provide efficient creation of nodes used in node-based container</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslstl__deque.html">bslstl_deque</a></td><td class="indexvalue">Provide an STL-compliant deque class</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslstl__equalto.html">bslstl_equalto</a></td><td class="indexvalue">Provide a binary functor conforming to the C++11 <code>equal_to</code> spec</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslstl__forwarditerator.html">bslstl_forwarditerator</a></td><td class="indexvalue">Provide a template to create STL-compliant forward iterators</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslstl__hash.html">bslstl_hash</a></td><td class="indexvalue">Provide a namespace for hash functions</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslstl__hashtable.html">bslstl_hashtable</a></td><td class="indexvalue">Provide a hash-container with support for duplicate values</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslstl__hashtablebucketiterator.html">bslstl_hashtablebucketiterator</a></td><td class="indexvalue">Provide an STL compliant iterator over hash table buckets</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslstl__hashtableiterator.html">bslstl_hashtableiterator</a></td><td class="indexvalue">Provide an STL compliant iterator for hash tables</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslstl__iosfwd.html">bslstl_iosfwd</a></td><td class="indexvalue">Provide forward declarations for Standard stream classes</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslstl__istringstream.html">bslstl_istringstream</a></td><td class="indexvalue">Provide a C++03-compatible <code>istringstream</code> class</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslstl__iterator.html">bslstl_iterator</a></td><td class="indexvalue">Provide basic iterator traits, adaptors, and utilities</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslstl__iteratorutil.html">bslstl_iteratorutil</a></td><td class="indexvalue">Provide utilities operating on iterators and iterator ranges</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslstl__list.html">bslstl_list</a></td><td class="indexvalue">Provide an STL-compliant list class</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslstl__map.html">bslstl_map</a></td><td class="indexvalue">Provide an STL-compliant map class</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslstl__mapcomparator.html">bslstl_mapcomparator</a></td><td class="indexvalue">Provide a comparator for <code>TreeNode</code> objects and a lookup key</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslstl__multimap.html">bslstl_multimap</a></td><td class="indexvalue">Provide an STL-compliant multimap class</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslstl__multiset.html">bslstl_multiset</a></td><td class="indexvalue">Provide an STL-compliant multiset class</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslstl__ostringstream.html">bslstl_ostringstream</a></td><td class="indexvalue">Provide a C++03-compatible <code>ostringstream</code> class</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslstl__pair.html">bslstl_pair</a></td><td class="indexvalue">Provide a simple <code>struct</code> with two members that may use allocators</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslstl__priorityqueue.html">bslstl_priorityqueue</a></td><td class="indexvalue">Provide container adapter class template <code>priority_queue</code></td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslstl__queue.html">bslstl_queue</a></td><td class="indexvalue">Provide container adapter class template <code>queue</code></td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslstl__randomaccessiterator.html">bslstl_randomaccessiterator</a></td><td class="indexvalue">Provide a template to create STL-compliant random access iterators</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslstl__set.html">bslstl_set</a></td><td class="indexvalue">Provide an STL-compliant set class</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslstl__setcomparator.html">bslstl_setcomparator</a></td><td class="indexvalue">Provide a comparator for <code>TreeNode</code> objects and a lookup key</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslstl__simplepool.html">bslstl_simplepool</a></td><td class="indexvalue">Provide efficient allocation of memory blocks for a specific type</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslstl__sstream.html">bslstl_sstream</a></td><td class="indexvalue">Provide C++03-compatible <code>stringstream</code> classes</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslstl__stack.html">bslstl_stack</a></td><td class="indexvalue">Provide an STL-compliant stack class</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslstl__stdexceptutil.html">bslstl_stdexceptutil</a></td><td class="indexvalue">Provide a utility to throw standard exceptions</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslstl__string.html">bslstl_string</a></td><td class="indexvalue">Provide a standard-compliant <code>basic_string</code> class template</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslstl__stringbuf.html">bslstl_stringbuf</a></td><td class="indexvalue">Provide a C++03-compatible <code>stringbuf</code> class</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslstl__stringref.html">bslstl_stringref</a></td><td class="indexvalue">Provide a reference to a <code>const</code> string</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslstl__stringrefdata.html">bslstl_stringrefdata</a></td><td class="indexvalue">Provide an attribute-only base class for <code><a class="el" href="namespacebslstl.html#a10921a5e7fd9377149df174a1a12324f">bslstl::StringRef</a></code></td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslstl__stringstream.html">bslstl_stringstream</a></td><td class="indexvalue">Provide a C++03-compatible <code>stringstream</code> class</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslstl__treeiterator.html">bslstl_treeiterator</a></td><td class="indexvalue">Provide an STL compliant iterator for a tree of <code>TreeNode</code> objects</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslstl__treenode.html">bslstl_treenode</a></td><td class="indexvalue">Provide a POD-like tree node type holding a parameterized value</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslstl__treenodepool.html">bslstl_treenodepool</a></td><td class="indexvalue">Provide efficient creation of nodes used in tree-based container</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslstl__unorderedmap.html">bslstl_unorderedmap</a></td><td class="indexvalue">Provide an STL-compliant unordered_map class</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslstl__unorderedmapkeyconfiguration.html">bslstl_unorderedmapkeyconfiguration</a></td><td class="indexvalue">Provide a class template to extract keys as the <code>first</code> attribute</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslstl__unorderedmultimap.html">bslstl_unorderedmultimap</a></td><td class="indexvalue">Provide an STL-compliant unordered_multimap class</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslstl__unorderedmultiset.html">bslstl_unorderedmultiset</a></td><td class="indexvalue">Provide an STL-compliant unordered_multiset class</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslstl__unorderedset.html">bslstl_unorderedset</a></td><td class="indexvalue">Provide an STL-compliant unordered_set class</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslstl__unorderedsetkeyconfiguration.html">bslstl_unorderedsetkeyconfiguration</a></td><td class="indexvalue">Provide a configuration class to use a whole object as its own key</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bslstl__vector.html">bslstl_vector</a></td><td class="indexvalue">Provide an STL-compliant vector class</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey" style="padding: 2px 0px;" style="background-color:#DAD6AC;"><button class="out"     onClick="bdedox_pkgButtonOnClick (this)" onMouseOver="bdedox_buttonOnMouseOver(this)"  onMouseOut="bdedox_buttonOnMouseOut (this)">+</button></td></td><td class="indexkey" style="background-color:#DAD6AC;"><a class="el" href="group__bsltf.html">bsltf</a></td><td style="background-color:#DAD6AC;">&nbsp;</td><td class="indexvalue" style="background-color:#DAD6AC;">Provide a set of utilities and types to help with testing</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bsltf__allocbitwisemoveabletesttype.html">bsltf_allocbitwisemoveabletesttype</a></td><td class="indexvalue">Provide a class that allocates memory and is bitwise-moveable</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bsltf__alloctesttype.html">bsltf_alloctesttype</a></td><td class="indexvalue">Provide a class for testing that allocates with <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code></td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bsltf__bitwisemoveabletesttype.html">bsltf_bitwisemoveabletesttype</a></td><td class="indexvalue">Provide a bitwise-moveable test class</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bsltf__enumeratedtesttype.html">bsltf_enumeratedtesttype</a></td><td class="indexvalue">Provide an enumerated test type</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bsltf__nonassignabletesttype.html">bsltf_nonassignabletesttype</a></td><td class="indexvalue">Provide an attribute class to which can not be assigned</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bsltf__noncopyconstructibletesttype.html">bsltf_noncopyconstructibletesttype</a></td><td class="indexvalue">Provide an attribute class that is not copy constructable</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bsltf__nondefaultconstructibletesttype.html">bsltf_nondefaultconstructibletesttype</a></td><td class="indexvalue">Provide an attribute class that is not default constructible</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bsltf__nonequalcomparabletesttype.html">bsltf_nonequalcomparabletesttype</a></td><td class="indexvalue">Provide an attribute class that is not equal comparable</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bsltf__nontypicaloverloadstesttype.html">bsltf_nontypicaloverloadstesttype</a></td><td class="indexvalue">Provide a class that overloads the non-typical operators</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bsltf__simpletesttype.html">bsltf_simpletesttype</a></td><td class="indexvalue">Provide a non-allocating test class without type traits</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bsltf__stdtestallocator.html">bsltf_stdtestallocator</a></td><td class="indexvalue">Provide a minimal standard compliant allocator</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bsltf__templatetestfacility.html">bsltf_templatetestfacility</a></td><td class="indexvalue">Provide utilities to help with testing templates</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bsltf__testvaluesarray.html">bsltf_testvaluesarray</a></td><td class="indexvalue">Provide a container for values used for testing</td></tr>
+
+<tr style="display: none;"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="indexkey"><a class="el" href="group__bsltf__uniontesttype.html">bsltf_uniontesttype</a></td><td class="indexvalue">Provide an union test type</td></tr>
+
+</table>
+<p>&nbsp;</p>
+ <table id='bdedox_componentsButtonTable_bottom' border=0>
+  <col width='050'>
+  <col width='050'>
+  <col width='050'>
+  <tbody>
+  <tr id="buttonRow">
+   <td id="cagButton">
+    <button class="outButtonTable"
+          onClick="bdedox_cagButtonOnClick    (this, 'bdedox_componentsTable')"
+      onMouseOver="bdedox_cagButtonOnMouseOver(this)"
+       onMouseOut="bdedox_cagButtonOnMouseOut (this)"
+    >Collapse All Groups
+    </button>
+   </td>
+   <td id="eapButton">
+    <button class="outButtonTable"
+          onClick="bdedox_eapButtonOnClick    (this, 'bdedox_componentsTable')"
+      onMouseOver="bdedox_eapButtonOnMouseOver(this)"
+       onMouseOut="bdedox_eapButtonOnMouseOut (this)"
+    >Expand All Packages
+    </button>
+   </td>
+  </tr>
+  </tbody>
+ </table>
+</div>
+<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 12 2012 13:19:44 for BDE Release 2.16 Open Source "BETA" by&nbsp;
+<a href="http://www.doxygen.org/index.html">
+<img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
+</body>
+</html>

@@ -1,0 +1,120 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 2.16 BETA</title>
+<html>
+<pre>
+// bslalg_typetraitpair.h                                             -*-C++-*-
+#ifndef INCLUDED_BSLALG_TYPETRAITPAIR
+#define INCLUDED_BSLALG_TYPETRAITPAIR
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide facilities for identifying &#39;std::pair&#39;-like classes.
+//
+//@DEPRECATED: Do not use.
+//
+//@CLASSES:
+//  bslalg::TypeTraitPair: for &#39;std::pair&#39;-like classes
+//
+//@SEE_ALSO: bslalg_typetraits
+//
+//@DESCRIPTION: This component provides a single traits class,
+// &#39;bslalg::TypeTraitPair&#39;.  A &#39;TYPE&#39; that has this trait fulfills the
+// following requirements, where &#39;mX&#39; is a modifiable object and &#39;X&#39; a
+// non-modifiable object of &#39;TYPE&#39;:
+//..
+//  Valid expression     Type
+//  ----------------     ----
+//  TYPE::first_type
+//  TYPE::second_type
+//
+//  mX.first             first_type
+//  mX.second            second
+//  X.first              const first_type
+//  X.second             const second_type
+//..
+// Note that &#39;first&#39; and &#39;second&#39; are *not* member functions, but data members.
+
+//TDB #ifdef BDE_OMIT_DEPRECATED // DEPRECATED
+//TBD #error &quot;bslalg_typetraitpair is deprecated&quot;
+//TBD #endif
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include &lt;bslscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_DETECTNESTEDTRAIT
+#include &lt;bslmf_detectnestedtrait.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
+#include &lt;bslmf_integralconstant.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_ISPAIR
+#include &lt;bslmf_ispair.h&gt;
+#endif
+
+namespace BloombergLP {
+
+namespace bslalg {
+
+                        // ====================
+                        // struct TypeTraitPair
+                        // ====================
+
+struct TypeTraitPair {
+    // A type, &#39;T&#39;, with this trait has two data members, &#39;first&#39; and &#39;second&#39;
+    // of types &#39;T::first_type&#39; and &#39;T::second_type&#39;, respectively.
+    // Metafunctions can be used to probe and combine the traits of the
+    // individual pair members.  For example, the pair is bitwise moveable only
+    // if both &#39;first_type&#39; and &#39;second_type&#39; have the
+    // &#39;TypeTraitBitwiseMoveable&#39; trait.  User-defined types will rarely need
+    // this trait.
+
+    template &lt;class TYPE&gt;
+    struct NestedTraitDeclaration :
+        bslmf::NestedTraitDeclaration&lt;TYPE, bslmf::IsPair&gt;
+    {
+        // This class template ties the &#39;bslalg::TypeTraitPair&#39; trait tag to
+        // the &#39;bslmf::IsPair&#39; trait metafunction.
+    };
+
+    template &lt;class TYPE&gt;
+    struct Metafunction : bslmf::IsPair&lt;TYPE&gt;::type { };
+};
+
+}  // close package namespace
+
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright (C) 2012 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the &quot;Software&quot;), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

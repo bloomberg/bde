@@ -1,0 +1,234 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 2.16 BETA</title>
+<html>
+<pre>
+// bslmf_istriviallydefaultconstructible.h                            -*-C++-*-
+#ifndef INCLUDED_BSLMF_ISTRIVIALLYDEFAULTCONSTRUCTIBLE
+#define INCLUDED_BSLMF_ISTRIVIALLYDEFAULTCONSTRUCTIBLE
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Check for whether a type is trivially default-constructible.
+//
+//@CLASSES:
+//  bsl::is_trivially_default_constructible: traits meta-function
+//
+//@SEE_ALSO: bslmf_integerconstant, bslmf_nestedtraitdeclaration
+//
+//@DESCRIPTION: This component defines a meta-function,
+// &#39;bsl::is_trivially_default_constructible&#39;, which may be used to query
+// whether a type has a trivial default constructor as defined in section
+// 12.1.5 of the C++11 standard [class.ctor].
+//
+// &#39;bsl::is_trivially_default_constructible&#39; has the same syntax as the
+// &#39;is_trivially_default_constructible&#39; template from the C++11 standard
+// [meta.unary.prop].  However, unlike the template defined in the C++11
+// standard, which can determine the correct value for all types without
+// requiring specialization, &#39;bsl::is_trivially_default_constructible&#39; can only
+// by default determine the value for the following type categories:
+//..
+//  Type Category        Has Trivial Default Constructor
+//  -------------        -------------------------------
+//  reference types      false
+//  fundamental types    true
+//  enums                true
+//  pointers             true
+//  pointers to members  true
+//..
+// For all other types, &#39;bsl::is_trivially_default_constructible&#39; returns
+// false, unless the type is explicitly specified to be trivially
+// default-constructible, which can be done in two ways:
+//
+//: 1 Define a template specialization for
+//:   &#39;bsl::is_trivially_default_constructible&#39; having the type as the template
+//:   parameter that inherits directly from &#39;bsl::true_type&#39;.
+//:
+//: 2 Use the &#39;BSLMF_NESTED_TRAIT_DECLARATION&#39; macro to define
+//:   &#39;bsl::is_trivially_default_constructible&#39; as the trait in the class
+//:   definition of the type.
+//
+///Usage
+///-----
+// In this section we show intended use of this component.
+//
+///Example 1: Verify Whether Types are Trivially Default-Constructible
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Suppose that we want to assert whether a type is trivially
+// default-constructible.
+//
+// First, we define a set types to evaluate:
+//..
+//  typedef int MyFundamentalType;
+//  typedef int&amp; MyFundamentalTypeReference;
+//
+//  class MyTriviallyDefaultConstructibleType {
+//  };
+//
+//  struct MyNonTriviallyDefaultConstructibleType {
+//
+//      int d_data;
+//
+//      MyNonTriviallyDefaultConstructibleType()
+//      : d_data(1)
+//      {
+//      }
+//  };
+//..
+// Then, since user-defined types can not be automatically evaluated by
+// &#39;is_trivially_default_constructible&#39;, we define a template specialization to
+// specify that &#39;MyTriviallyDefaultConstructibleType&#39; is trivially
+// default-constructible:
+//..
+//  namespace bsl {
+//
+//  template &lt;&gt;
+//  struct is_trivially_default_constructible&lt;
+//                      MyTriviallyDefaultConstructibleType&gt; : bsl::true_type {
+//      // This template specialization for
+//      // &#39;is_trivially_default_constructible&#39; indicates that
+//      // &#39;MyTriviallyDefaultConstructibleType&#39; is a trivially
+//      // default-constructible type.
+//  };
+//
+//  }  // close namespace bsl
+//..
+// Now, we verify whether each type is trivially default-constructible using
+// &#39;bsl::is_trivially_default_constructible&#39;:
+//..
+//  assert(true ==
+//          bsl::is_trivially_default_constructible&lt;MyFundamentalType&gt;::value);
+//  assert(false ==
+//      bsl::is_trivially_default_constructible&lt;
+//                                         MyFundamentalTypeReference&gt;::value);
+//  assert(true ==
+//      bsl::is_trivially_default_constructible&lt;
+//                                MyTriviallyDefaultConstructibleType&gt;::value);
+//  assert(false ==
+//      bsl::is_trivially_default_constructible&lt;
+//                             MyNonTriviallyDefaultConstructibleType&gt;::value);
+//..
+
+#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
+#include &lt;bslmf_integralconstant.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_ISFUNDAMENTAL
+#include &lt;bslmf_isfundamental.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_ISENUM
+#include &lt;bslmf_isenum.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_ISPOINTER
+#include &lt;bslmf_ispointer.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_ISPOINTERTOMEMBER
+#include &lt;bslmf_ispointertomember.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_DETECTNESTEDTRAIT
+#include &lt;bslmf_detectnestedtrait.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_REMOVECV
+#include &lt;bslmf_removecv.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_ISREFERENCE
+#include &lt;bslmf_isreference.h&gt;
+#endif
+
+namespace bsl {
+
+template &lt;typename TYPE&gt;
+struct is_trivially_default_constructible;
+
+}  // close namespace bsl
+
+namespace BloombergLP {
+namespace bslmf {
+
+template &lt;typename TYPE&gt;
+
+                         // ==========================================
+                         // struct IsTriviallyDefaultConstructible_Imp
+                         // ==========================================
+
+struct IsTriviallyDefaultConstructible_Imp
+: bsl::integral_constant&lt;
+                     bool,
+                     !bsl::is_reference&lt;TYPE&gt;::value
+                     &amp;&amp; (  IsFundamental&lt;TYPE&gt;::value
+                        || IsEnum&lt;TYPE&gt;::value
+                        || bsl::is_pointer&lt;TYPE&gt;::value
+                        || bslmf::IsPointerToMember&lt;TYPE&gt;::value
+                        || DetectNestedTrait&lt;TYPE,
+                            bsl::is_trivially_default_constructible&gt;::value)&gt; {
+    // This &#39;struct&#39; template implement a meta-function to determine whether
+    // the (non-cv-qualified) template parameter &#39;TYPE&#39; is trivially
+    // default-constructible.
+};
+
+}  // close package namespace
+}  // close enterprise namespace
+
+namespace bsl {
+
+                         // =========================================
+                         // struct is_trivially_default_constructible
+                         // =========================================
+
+template &lt;typename TYPE&gt;
+struct is_trivially_default_constructible
+    : BloombergLP::bslmf::IsTriviallyDefaultConstructible_Imp&lt;
+                                              typename remove_cv&lt;TYPE&gt;::type&gt; {
+    // This &#39;struct&#39; template implements a meta-function to determine whether
+    // the (template parameter) &#39;TYPE&#39; is trivially default-constructible.
+    // This &#39;struct&#39; derives from &#39;bsl::true_type&#39;, if the &#39;TYPE&#39; is trivially
+    // defaul-constructible, and &#39;bsl::false_type&#39; otherwise.  This
+    // meta-function has the same syntax as the
+    // &#39;is_trivially_default_constructible&#39; meta-function defined in the C++11
+    // standard [meta.unary.prop]; however, this meta-function can only
+    // automatically determine the value for the following types: reference
+    // types, fundamental types, enums, pointers to members, and types declared
+    // to have the &#39;bsl::is_trivially_default_constructible&#39; trait using the
+    // &#39;BSLMF_NESTED_TRAIT_DECLARATION&#39; macro (and the value for other types
+    // defaults to &#39;false&#39;).  To support other trivially default-constructible
+    // types, this template must be specialized to inherit from
+    // &#39;bsl::true_type&#39; for them.
+};
+
+}  // close namespace bsl
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright (C) 2012 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the &quot;Software&quot;), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

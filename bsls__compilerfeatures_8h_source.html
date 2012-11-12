@@ -1,0 +1,195 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 2.16 BETA</title>
+<html>
+<pre>
+// bsls_compilerfeatures.h                                            -*-C++-*-
+#ifndef INCLUDED_BSLS_COMPILERFEATURES
+#define INCLUDED_BSLS_COMPILERFEATURES
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide macros to identify compiler support for C++0x features.
+//
+//@CLASSES:
+//
+//@MACROS
+//  BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE: flag for &#39;extern template&#39;
+//  BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT: flag for &#39;static_assert&#39;
+//
+//@SEE_ALSO: bsls_platform
+//
+//@DESCRIPTION: This component provides a suite of preprocessor macros to
+// identify compiler-specific support of language features that may not be
+// available on all compilers in use across an organization.  For example, as
+// new C++0x language facilities become more broadly available, such as
+// &#39;extern template&#39;, macros will be defined here to indicate whether the
+// current platform/compiler combination supports the corresponding language
+// features.  Note that in some cases, support for a given feature may need to
+// be explicitly enabled by using an appropriate compiler command-line option.
+//
+///Macro Summary
+///-------------
+// The following are the macros provided by this component.  Note that they are
+// not defined for all platform/compiler combinations.
+//
+//: &#39;BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE&#39;
+//:     This macro is defined if &#39;extern template&#39; is supported by the current
+//:     compiler settings for this platform.
+//:
+//: &#39;BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT&#39;
+//:    This macro is defined if &#39;static_assert&#39; is supported by the current
+//:    compiler settings for this platform.
+//
+///Usage
+///-----
+// The following code snippets illustrate use of this component.
+//
+// Suppose that we wish to &quot;preinstantiate&quot; &#39;bsl::basic_string&#39; for a given
+// character type, say, &#39;char&#39;, on platforms that support &#39;extern template&#39;.
+// To accomplish this, we would do the following in the &#39;.h&#39; and &#39;.cpp&#39; files
+// of the &#39;bslstl_string&#39; component:
+//..
+//  // bslstl_string.h
+//  // ...
+//  #ifdef BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE
+//  extern template class bsl::String_Imp&lt;char, bsl::string::size_type&gt;;
+//  extern template class bsl::basic_string&lt;char&gt;;
+//  #endif
+//  // ...
+//
+//  // bslstl_string.cpp
+//  // ...
+//  #ifdef BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE
+//  template class bsl::String_Imp&lt;char, bsl::string::size_type&gt;;
+//  template class bsl::basic_string&lt;char&gt;;
+//  #endif
+//  // ...
+//..
+
+#ifndef INCLUDED_BSLS_PLATFORM
+#include &lt;bsls_platform.h&gt;
+#endif
+
+             // BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+
+// GCC 4.7 has support with &#39;-std=c++0x&#39;.
+#if defined(BSLS_PLATFORM_CMP_GNU) &amp;&amp; BSLS_PLATFORM_CMP_VER_MAJOR &gt;= 40700\
+ &amp;&amp; defined(__GXX_EXPERIMENTAL_CXX0X__)
+#define BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+#endif
+
+             // BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
+
+// Microsoft VC2010 always supports the feature (it cannot be disabled).
+#if defined(BSLS_PLATFORM_CMP_MSVC) &amp;&amp; BSLS_PLATFORM_CMP_VER_MAJOR &gt;= 1600
+#define BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
+
+// GCC 4.3 has support with &#39;-std=c++0x&#39;.
+#elif defined(BSLS_PLATFORM_CMP_GNU) &amp;&amp; BSLS_PLATFORM_CMP_VER_MAJOR &gt;= 40300\
+   &amp;&amp; defined(__GXX_EXPERIMENTAL_CXX0X__)
+#define BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
+#endif
+
+             // BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE
+
+// IBM xlC compiler has support
+#if defined(BSLS_PLATFORM_CMP_IBM)
+#define BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE
+
+// GCC 4.7 has support with &#39;-std=c++0x&#39;.
+#elif defined(BSLS_PLATFORM_CMP_GNU) &amp;&amp; BSLS_PLATFORM_CMP_VER_MAJOR &gt;= 40700\
+   &amp;&amp; defined(__GXX_EXPERIMENTAL_CXX0X__)
+#define BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE
+#endif
+
+             // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+
+// Microsoft VC2010 always supports the feature (it cannot be disabled).
+#if defined(BSLS_PLATFORM_CMP_MSVC) &amp;&amp; BSLS_PLATFORM_CMP_VER_MAJOR &gt;= 1600
+#   define BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+
+// GCC 4.5 has support with &#39;-std=c++0x&#39; (earlier versions are broken)
+#elif defined(BSLS_PLATFORM_CMP_GNU) &amp;&amp; BSLS_PLATFORM_CMP_VER_MAJOR &gt;= 40500\
+   &amp;&amp; defined(__GXX_EXPERIMENTAL_CXX0X__)
+#define BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+#endif
+
+             // BSLS_COMPILERFEATURES_SUPPORT_NULLPTR
+
+// Microsoft VC2010 always supports the feature (it cannot be disabled).
+#if defined(BSLS_PLATFORM_CMP_MSVC) &amp;&amp; BSLS_PLATFORM_CMP_VER_MAJOR &gt;= 1600
+#define BSLS_COMPILERFEATURES_SUPPORT_NULLPTR
+
+// GCC 4.6 has support with &#39;-std=c++0x&#39;.
+#elif defined(BSLS_PLATFORM_CMP_GNU) &amp;&amp; BSLS_PLATFORM_CMP_VER_MAJOR &gt;= 40600\
+   &amp;&amp; defined(__GXX_EXPERIMENTAL_CXX0X__)
+#define BSLS_COMPILERFEATURES_SUPPORT_NULLPTR
+#endif
+
+             // BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
+
+// Microsoft VC2010 always supports the feature (it cannot be disabled).
+#if defined(BSLS_PLATFORM_CMP_MSVC) &amp;&amp; BSLS_PLATFORM_CMP_VER_MAJOR &gt;= 1600
+#define BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
+
+// IBM XL C++ 11 has support in &#39;0x&#39; mode, or if explicitly activated.  Note
+// that &#39;__IBMCPP_STATIC_ASSERT&#39; was not available until xlC 11, so no version
+// check is needed.
+#elif defined(BSLS_PLATFORM_CMP_IBM) &amp;&amp; defined(__IBMCPP_STATIC_ASSERT)
+#define BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
+
+// HP-UX aCC 6.25 has support with &#39;-Ax&#39;.
+#elif defined(BSLS_PLATFORM_CMP_HP) &amp;&amp; BSLS_PLATFORM_CMP_VER_MAJOR &gt;= 62500 \
+   &amp;&amp; defined(_HP_CXX0x_SOURCE)
+#define BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
+
+// GCC 4.3 has support with &#39;-std=c++0x&#39;.
+#elif defined(BSLS_PLATFORM_CMP_GNU) &amp;&amp; BSLS_PLATFORM_CMP_VER_MAJOR &gt;= 40300\
+   &amp;&amp; defined(__GXX_EXPERIMENTAL_CXX0X__)
+#define BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
+#endif
+
+             // BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
+
+// IBM XL C++ 11 has support in &#39;0x&#39; mode, or if explicitly activated.  Note
+// that &#39;__IBMCPP_VARIADIC_TEMPLATES&#39; was not available until xlC 11, so no
+// version check is needed.
+#if defined(BSLS_PLATFORM_CMP_IBM) &amp;&amp; defined(__IBMCPP_VARIADIC_TEMPLATES)
+#define BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
+
+// GCC 4.3 has support with &#39;-std=c++0x&#39;.
+#elif defined(BSLS_PLATFORM_CMP_GNU) &amp;&amp; BSLS_PLATFORM_CMP_VER_MAJOR &gt;= 40300\
+   &amp;&amp; defined(__GXX_EXPERIMENTAL_CXX0X__)
+#define BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
+#endif
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright (C) 2012 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the &quot;Software&quot;), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

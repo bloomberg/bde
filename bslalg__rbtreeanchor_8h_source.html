@@ -1,0 +1,565 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 2.16 BETA</title>
+<html>
+<pre>
+// bslalg_rbtreeanchor.h                                              -*-C++-*-
+#ifndef INCLUDED_BSLALG_RBTREEANCHOR
+#define INCLUDED_BSLALG_RBTREEANCHOR
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id$ $CSID$&quot;)
+
+//@PURPOSE: Encapsulate root, first, and last nodes of a tree with a count.
+//
+//@CLASSES:
+//  bslalg::RbTreeAnchor: (in-core) node-addresses and node count
+//
+//@SEE_ALSO: bslalg_rbtreenode, bslalg_rbtreeutil
+//
+//@DESCRIPTION: This component defines a single class, &#39;RbTreeAnchor&#39;,
+// providing access to the addresses of the root, first, and sentinel nodes of
+// a tree, as well as the count of the number of nodes.  A sentinel node is a
+// value-less node, owned by the &#39;RbTreeAnchor&#39; for the tree, that is used as
+// the end-point for iteration over the nodes in a tree.  &#39;RbTreeAnchor&#39;
+// provides modifiers for the &#39;firstNode&#39;, &#39;rootNode&#39;, and &#39;numNodes&#39;
+// properties, however the the sentinel node for a tree is located at a fixed
+// address and cannot be modified.  An &#39;RbTreeAnchor&#39; is similar to an in-core
+// unconstrained attribute class, except that it does not supply
+// equality-comparison, copy-construction, and copy-assignment operations.
+//
+///Sentinel Node
+///-------------
+// The sentinel node is an &#39;RbTreeNode&#39; object which does not have a value, and
+// provides a fixed end-point for navigation over the tree.  However, a
+// sentinel node&#39;s attributes have different interpretations than those of
+// other &#39;RbTreeNode&#39; objects.  Specifically, a sentinel node&#39;s &#39;leftChild&#39;
+// refers to the root of the tree, and its &#39;rightChild&#39; refers to the first
+// node of the tree.  The following diagram shows the composition of a tree
+// with &#39;RbTreeAnchor&#39; and &#39;RbTreeNode&#39;:
+//..
+//                        .------------------------.
+//                 .------|      RbTreeAnchor      |-------.
+//                 |      |                        |       |
+//       firstNode |      |    .--------------.    |       | rootNode
+//                 |      |    |  RbTreeNode  |    |       |
+//                 |      |    |  (sentinel)  |    |       |
+//                 |      |    `--------------&#39;    |       |
+//                 |      |      /    ^      \     |       |
+//                 |      `-----/-----|-------\----&#39;       |
+//                 V           /      |        \           V
+//                  __________/       |         \__________
+//                 |                  |                    |
+//                 |                  |                    |
+//        sentinel |             root |                    | sentinel
+//   *right*-child |       parentNode |                    | *left*-child
+//                 |                  |                    |
+//                 |           .--------------.            |
+//                 |           |  RbTreeNode  | &lt;----------&#39;
+//                 |           |    (root)    |
+//                 |           `--------------&#39;
+//                 |                /   \.
+//                 |     .------------. .------------.
+//                 |     | RbTreeNode | | RbTreeNode |
+//                 |     `------------&#39; `------------&#39;
+//                 |         /                \.
+//                 |    .-----------------------------.
+//                 |    |                             |
+//                 |    |    [Tree of RbTreeNodes]    |
+//                 |    |                             |
+//                 |    |_____________________________|
+//                 V   /                               \.
+//        .------------.                                .------------.
+//        | RbTreeNode |                                | RbTreeNode |
+//        |   (first)  |                                |   (last)   |
+//        `------------&#39;                                `------------&#39;
+//..
+// Notice that, counter-intuitively, the sentinel&#39;s right-child refers to the
+// left-most (first) node of the tree.  Also notice that &#39;RbTreeAnchor&#39;
+// doesn&#39;t hold a direct reference to the last (i.e., the right-most) node of
+// the tree.
+//
+///Usage
+///-----
+// This section illustrates intended usage of this component.
+//
+///Example 1: Creating a Simple Tree
+///- - - - - - - - - - - - - - - - -
+// This example demonstrates creating a simple tree of integer values using
+// &#39;RbTreeAnchor&#39;.  Note that, in practice, clients should use associated
+// utilities to manage such a tree (see &#39;bslalg_rbtreeutil&#39;).
+//
+// First, we define a node-type, &#39;IntTreeNode&#39;, that inherits from
+// &#39;RbTreeNode&#39;:
+//..
+//  struct IntTreeNode : public RbTreeNode {
+//      // A red-black tree node containing an integer data-value.
+//
+//      int d_value;  // &quot;payload&quot; value represented by the node
+//  };
+//..
+// Then, we define &#39;main&#39; for our example, and create three nodes that we&#39;ll
+// use to construct a tree:
+//..
+//  int main(int argc, const char *argv[])
+//  {
+//      IntTreeNode A, B, C;
+//..
+// Next, we create an &#39;RbTreeAnchor&#39;, &#39;myTree&#39;, which will hold the addresses
+// of the root node and the first node of our tree along with a count of nodes,
+// and then verify the attribute values of the default constructed object:
+//..
+//      RbTreeAnchor myTree;
+//      assert(0                 == myTree.rootNode());
+//      assert(myTree.sentinel() == myTree.firstNode());
+//      assert(0                 == myTree.numNodes());
+//..
+// Then, we describe the structure of the tree we wish to construct.
+//..
+//
+//          A (value: 2, BLACK)
+//              /       \.
+//             /         \.
+//  B (value: 1, RED)   C ( value: 5, RED )
+//..
+// Next, we set the properties for the nodes &#39;A&#39;, &#39;B&#39;, and &#39;C&#39; to form a valid
+// tree whose structure matches that description:
+//..
+//      A.d_value = 2;
+//      A.makeBlack();
+//      A.setParent(myTree.sentinel());
+//      A.setLeftChild(&amp;B);
+//      A.setRightChild(&amp;C);
+//
+//      B.d_value = 1;
+//      B.makeRed();
+//      B.setParent(&amp;A);
+//      B.setLeftChild(0);
+//      B.setRightChild(0);
+//
+//      C.d_value = 3;
+//      C.makeRed();
+//      C.setParent(&amp;A);
+//      C.setLeftChild(0);
+//      C.setRightChild(0);
+//..
+// Now, we assign the address of &#39;A&#39; and &#39;B&#39; as the root node and the first
+// node of &#39;myTree&#39; respectively and set the number of nodes to 3:
+//..
+//      myTree.reset(&amp;A, &amp;B, 3);
+//..
+// Finally, we verify the attributes of &#39;myTree&#39;:
+//..
+//      assert(&amp;A == myTree.rootNode());
+//      assert(&amp;B == myTree.firstNode());
+//      assert(3  == myTree.numNodes());
+//..
+//
+///Example 2: Creating an Insert Function for a Binary Tree
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// This example demonstrates creating a function that inserts elements into a
+// binary search tree.  Note that, for simplicity, this function does *not*
+// create a balanced red-black tree (see &#39;bslalg_rbtreeutil&#39;).
+//
+// First, we define a comparison functor for &#39;IntTreeNode&#39; objects used by the
+// insertion function:
+//..
+//  struct IntTreeNodeComparator {
+//      // This class defines a comparator providing a comparison operation
+//      // between two &#39;IntTreeNode&#39; objects.
+//
+//      bool operator()(const RbTreeNode&amp; lhs, const RbTreeNode&amp; rhs)  const
+//      {
+//          return static_cast&lt;const IntTreeNode&amp;&gt;(lhs).d_value &lt;
+//                 static_cast&lt;const IntTreeNode&amp;&gt;(rhs).d_value;
+//      }
+//  };
+//..
+// Then, we declare the signature of a function &#39;insertNode&#39;, which takes
+// three arguments: (1) the anchor of the tree in which to insert the node (2)
+// the new node to insert into the tree, and (3) a comparator, which is used to
+// compare the payload values of the tree nodes.  Note that the parameterized
+// comparator is needed because a node&#39;s value is not accessible through the
+// supplied &#39;RbTreeNode&#39;.
+//..
+//  template &lt;class NODE_COMPARATOR&gt;
+//  void insertNode(RbTreeAnchor           *searchTree,
+//                  RbTreeNode             *newNode,
+//                  const NODE_COMPARATOR&amp;  comparator)
+//      // Insert into the specified &#39;searchTree&#39;, ordered according to the
+//      // specified &#39;comparator&#39;, the specified &#39;newNode&#39;.  If there are
+//      // multiple nodes having the same value as &#39;newNode&#39;, insert &#39;newNode&#39;
+//      // in the last position according to an infix traversal of the tree.
+//      // The behavior is undefined unless the &#39;comparator&#39; provides a
+//      // strict weak ordering on the nodes in the tree.
+//  {
+//..
+// Next, we find the location where &#39;newNode&#39; can be inserted into &#39;searchTree&#39;
+// without violating the ordering imposed by &#39;comparator&#39;, and then updates
+// &#39;searchTree&#39; with a potentially updated root node and first node.
+//..
+//      RbTreeNode *parent = searchTree-&gt;sentinel();
+//      RbTreeNode *node   = searchTree-&gt;rootNode();
+//      bool        isLeftChild;
+//
+//      newNode-&gt;setLeftChild(0);
+//      newNode-&gt;setRightChild(0);
+//
+//      if (!node) {
+//..
+// If the root node of &#39;searchTree&#39; is 0, we use the &#39;reset&#39; function set the
+// root node and the first node of &#39;searchTree&#39; to &#39;newNode&#39; and set the number
+// of nodes to 1:
+//..
+//          searchTree-&gt;reset(newNode, newNode, 1);
+//          newNode-&gt;setParent(parent);
+//          return;                                                   // RETURN
+//      }
+//
+//      // Find the leaf node that would be a valid parent of &#39;newNode&#39;.
+//
+//      do {
+//          parent = node;
+//          isLeftChild = comparator(*newNode, *node);
+//          if (isLeftChild) {
+//              node = parent-&gt;leftChild();
+//          }
+//          else {
+//              node = parent-&gt;rightChild();
+//          }
+//      } while (node);
+//
+//      // Insert &#39;newNode&#39; into &#39;searchTree&#39; and the location that&#39;s been
+//      // found.
+//..
+// Then, we insert &#39;newNode&#39; into the appropriate position by setting it as a
+// child of &#39;parent&#39;:
+//..
+//      if (isLeftChild) {
+//          // If &#39;newNode&#39; is a left-child, it may be the new first node, but
+//          // cannot be the new last node.
+//
+//          parent-&gt;setLeftChild(newNode);
+//          newNode-&gt;setParent(parent);
+//          if (parent == searchTree-&gt;firstNode()) {
+//              searchTree-&gt;setFirstNode(newNode);
+//          }
+//      }
+//      else {
+//          parent-&gt;setRightChild(newNode);
+//          newNode-&gt;setParent(parent);
+//      }
+//..
+// Next, we complete the insert function by incrementing the number of nodes in
+// the tree:
+//..
+//      searchTree-&gt;incrementNumNodes();
+//  }
+//..
+// Now, we create 5 &#39;IntTreeNode&#39; objects and insert them into a tree using the
+// &#39;insertNode&#39; function.
+//..
+//  IntTreeNode nodes[5];
+//
+//  nodes[0].d_value = 3;
+//  nodes[1].d_value = 1;
+//  nodes[2].d_value = 5;
+//  nodes[3].d_value = 2;
+//  nodes[4].d_value = 0;
+//
+//  IntTreeNodeComparator comparator;
+//
+//  RbTreeAnchor anchor;
+//  for (int i = 0; i &lt; 5; ++i) {
+//      insertNode(&amp;anchor, nodes + i, comparator);
+//  }
+//..
+// Finally, we verify that the &#39;RbTreeAnchor&#39; refers to the correct &#39;TreeNode&#39;
+// with its &#39;firstNode&#39; and &#39;rootNode&#39; attributes.
+//..
+//  assert(0 == static_cast&lt;IntTreeNode *&gt;(anchor.firstNode())-&gt;d_value);
+//  assert(3 == static_cast&lt;IntTreeNode *&gt;(anchor.rootNode())-&gt;d_value);
+//..
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include &lt;bslscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLALG_RBTREENODE
+#include &lt;bslalg_rbtreenode.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_ASSERT
+#include &lt;bslmf_assert.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include &lt;bsls_assert.h&gt;
+#endif
+
+namespace BloombergLP {
+namespace bslalg {
+
+                        // ==================
+                        // class RbTreeAnchor
+                        // ==================
+
+class RbTreeAnchor {
+    // An &#39;RbTreeAnchor&#39; provides the addresses of the first and root nodes of
+    // a binary search tree.  An &#39;RbTreeAnchor&#39; is similar to an in-core
+    // simply constrained (value-semantic) attribute class, except that it
+    // does not supply equality-comparison, copy-construction, and
+    // copy-assignment operations.  Note that a node may not be copied because
+    // &#39;sentinel&#39; returns an address unique to each &#39;RbTreeAnchor&#39; object.
+    //
+    // This class:
+    //: o is *exception-neutral*
+    //: o is *alias-safe*
+    //: o is &#39;const&#39; *thread-safe*
+    // For terminology see &#39;bsldoc_glossary&#39;.
+
+    // DATA
+    RbTreeNode  d_sentinel;  // sentinel for the tree, holding the root,
+                             // first and last tree nodes
+
+    int         d_numNodes;  // number of nodes
+
+  private:
+    // NOT IMPLEMENTED
+    RbTreeAnchor(const RbTreeAnchor&amp;);
+    RbTreeAnchor&amp; operator=(const RbTreeAnchor&amp;);
+
+  public:
+    // CREATORS
+    RbTreeAnchor();
+        // Create a &#39;RbTree&#39; object having the (default) attribute values:
+        //..
+        //  rootNode()  == 0
+        //  firstNode() == sentinel()
+        //  numNodes()  == 0
+        //..
+
+    RbTreeAnchor(RbTreeNode *rootNode,
+                 RbTreeNode *firstNode,
+                 int         numNodes);
+        // Create a &#39;RbTreeAnchor&#39; object having the specified &#39;rootNode&#39;,
+        // &#39;firstNode&#39;, and &#39;numNodes&#39; attribute values.
+
+#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
+    // The following destructor is generated by the compiler, except in &quot;SAFE&quot;
+    // build modes (e.g., to enable the checking of class invariants).
+
+    ~RbTreeAnchor();
+        // Destroy this object.
+#endif
+
+
+    // MANIPULATORS
+    void reset(RbTreeNode *rootNode,
+               RbTreeNode *firstNode,
+               int         numNodes);
+        // Set the &#39;rootNode&#39;, &#39;firstNode&#39;, and &#39;numNodes&#39;
+        // attributes to the specified &#39;rootNodeValue&#39;, &#39;firstNodeValue&#39;,
+        // and &#39;numNodes&#39; respectively.
+
+    void setFirstNode(RbTreeNode *value);
+        // Set the &#39;firstNode&#39; attribute of this object to the specified
+        // &#39;value&#39;.
+
+    void setRootNode(RbTreeNode *value);
+        // Set the &#39;rootNode&#39; attribute of this object to the specified
+        // &#39;value&#39;.
+
+    void setNumNodes(int value);
+        // Set the &#39;numNodes&#39; attribute of this object to the specified
+        // &#39;value&#39;.  The behavior is undefined unless &#39;0 &lt;= value&#39;.
+
+    void incrementNumNodes();
+        // Increment, by 1, the &#39;numNodes&#39; attribute of this object.  The
+        // behavior is undefined unless &#39;numNodes &lt;= INT_MAX - 1&#39;.
+
+    void decrementNumNodes();
+        // Decrement, by 1, the &#39;numNodes&#39; attribute of this object.  The
+        // behavior is undefined unless &#39;1 &lt;= numNodes&#39;.
+
+    RbTreeNode *rootNode();
+        // Return the address of the (modifiable) node referred to by the
+        // &#39;rootNode&#39; attribute of this object.
+
+    RbTreeNode *firstNode();
+        // Return the address of the (modifiable) node referred to by the
+        // &#39;firstNode&#39; attribute of this object.
+
+    RbTreeNode *sentinel();
+        // Return the address of the (modifiable) node referred to by the
+        // &#39;sentinel&#39; node for this tree.
+
+    // ACCESSORS
+    const RbTreeNode *firstNode() const;
+        // Return the address referred to by the &#39;firstNode&#39; attribute of this
+        // object.
+
+    const RbTreeNode *rootNode() const;
+        // Return the address referred to by the &#39;rootNode&#39; attribute of this
+        // object.
+
+    const RbTreeNode *sentinel() const;
+        // Return the address referred to by the &#39;sentinel&#39; node for this tree.
+
+    int numNodes() const;
+        // Return the &#39;numNodes&#39; attribute of this object.
+};
+
+// ============================================================================
+//                      INLINE FUNCTION DEFINITIONS
+// ============================================================================
+
+                        // ------------------
+                        // class RbTreeAnchor
+                        // ------------------
+
+// CREATORS
+inline
+RbTreeAnchor::RbTreeAnchor()
+: d_numNodes(0)
+{
+    d_sentinel.setRightChild(&amp;d_sentinel);
+    d_sentinel.setLeftChild(0);
+}
+
+inline
+RbTreeAnchor::RbTreeAnchor(RbTreeNode *rootNode,
+                           RbTreeNode *firstNode,
+                           int         numNodes)
+: d_numNodes(numNodes)
+{
+    d_sentinel.setRightChild(firstNode);
+    d_sentinel.setLeftChild(rootNode);
+}
+
+#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
+inline
+RbTreeAnchor::~RbTreeAnchor()
+{
+    BSLS_ASSERT_SAFE(sentinel()-&gt;leftChild() == rootNode());
+    BSLS_ASSERT_SAFE(sentinel()-&gt;rightChild() == firstNode());
+}
+#endif
+
+// MANIPULATORS
+inline
+void RbTreeAnchor::reset(RbTreeNode *rootNode,
+                         RbTreeNode *firstNode,
+                         int         numNodes)
+{
+    d_sentinel.setLeftChild(rootNode);
+    d_sentinel.setRightChild(firstNode);
+    d_numNodes = numNodes;
+}
+
+inline
+void RbTreeAnchor::setFirstNode(RbTreeNode *value)
+{
+    d_sentinel.setRightChild(value);
+}
+
+inline
+void RbTreeAnchor::setRootNode(RbTreeNode *value)
+{
+    d_sentinel.setLeftChild(value);
+}
+
+inline
+void RbTreeAnchor::setNumNodes(int value)
+{
+    BSLS_ASSERT_SAFE(0 &lt;= value);
+
+    d_numNodes = value;
+}
+
+inline
+void RbTreeAnchor::incrementNumNodes()
+{
+    ++d_numNodes;
+}
+
+inline
+void RbTreeAnchor::decrementNumNodes()
+{
+    --d_numNodes;
+}
+
+inline
+RbTreeNode *RbTreeAnchor::firstNode()
+{
+    return d_sentinel.rightChild();
+}
+
+inline
+RbTreeNode *RbTreeAnchor::rootNode()
+{
+    return d_sentinel.leftChild();
+}
+
+inline
+RbTreeNode *RbTreeAnchor::sentinel()
+{
+    return &amp;d_sentinel;
+}
+
+// ACCESSORS
+inline
+const RbTreeNode *RbTreeAnchor::firstNode() const
+{
+    return d_sentinel.rightChild();
+}
+
+inline
+const RbTreeNode *RbTreeAnchor::rootNode() const
+{
+    return d_sentinel.leftChild();
+}
+
+inline
+int RbTreeAnchor::numNodes() const
+{
+    return d_numNodes;
+}
+
+inline
+const RbTreeNode *RbTreeAnchor::sentinel() const
+{
+    return &amp;d_sentinel;
+}
+
+}  // close package namespace
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright (C) 2012 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the &quot;Software&quot;), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

@@ -1,0 +1,147 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 2.16 BETA</title>
+<html>
+<pre>
+// bslmf_isfloatingpoint.h                                            -*-C++-*-
+#ifndef INCLUDED_BSLMF_ISFLOATINGPOINT
+#define INCLUDED_BSLMF_ISFLOATINGPOINT
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a compile-time check for floating-point types.
+//
+//@CLASSES:
+//  bsl::is_floating_point: meta-function for determining floating-point types
+//
+//@SEE_ALSO: bslmf_integralconstant
+//
+//@DESCRIPTION: This component defines a meta-function,
+// &#39;bsl::is_floating_point&#39; , which may be used to query whether a type is a
+// (possibly cv-qualified) floating-point type as defined in section 3.9.1.8 of
+// the C++11 standard [basic.fundamental].
+//
+// &#39;bsl::is_floating_point&#39; meets the requirements of the &#39;is_floating_point&#39;
+// template defined in the C++11 standard [meta.unary.cat].
+//
+///Usage
+///-----
+// In this section we show intended use of this component.
+//
+///Example 1: Verify Floating-Point Types
+///- - - - - - - - - - - - - - - -
+// Suppose that we want to assert whether a particular type is a floating-point
+// type.
+//
+// First, we create two &#39;typedef&#39;s -- a floating-point type and a
+// non-floating-point type:
+//..
+//  typedef void MyType;
+//  typedef float  MyFloatingPointType;
+//..
+// Now, we instantiate the &#39;bsl::is_floating_point&#39; template for each of the
+// &#39;typedef&#39;s and assert the &#39;value&#39; static data member of each instantiation:
+//..
+//  assert(false == bsl::is_floating_point&lt;MyType&gt;::value);
+//  assert(true == bsl::is_floating_point&lt;MyFloatingPointType&gt;::value);
+//..
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include &lt;bslscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
+#include &lt;bslmf_integralconstant.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_REMOVECV
+#include &lt;bslmf_removecv.h&gt;
+#endif
+
+namespace BloombergLP {
+namespace bslmf {
+
+                         // ==========================
+                         // struct IsFloatingPoint_Imp
+                         // ==========================
+
+template &lt;typename TYPE&gt;
+struct IsFloatingPoint_Imp : bsl::false_type {
+    // This &#39;struct&#39; template provides a meta-function to determine whether the
+    // (template parameter) &#39;TYPE&#39; is a floating-point type.  This generic
+    // default template derives from &#39;bsl::false_type&#39;.  Template
+    // specializations are provided (below) that derives from &#39;bsl::true_type&#39;.
+};
+
+template &lt;&gt;
+struct IsFloatingPoint_Imp&lt;float&gt; : bsl::true_type {
+     // This specialization of &#39;IsFloatingPoint_Imp&#39; derives from
+     // &#39;bsl::true_type&#39; for when the (template parameter) &#39;TYPE&#39; is a
+     // floating-point type.
+};
+
+template &lt;&gt;
+struct IsFloatingPoint_Imp&lt;double&gt; : bsl::true_type {
+     // This specialization of &#39;IsFloatingPoint_Imp&#39; derives from
+     // &#39;bsl::true_type&#39; for when the (template parameter) &#39;TYPE&#39; is a
+     // floating-point type.
+};
+
+template &lt;&gt;
+struct IsFloatingPoint_Imp&lt;long double&gt; : bsl::true_type {
+     // This specialization of &#39;IsFloatingPoint_Imp&#39; derives from
+     // &#39;bsl::true_type&#39; for when the (template parameter) &#39;TYPE&#39; is a
+     // floating-point type.
+};
+
+}
+}
+
+namespace bsl {
+
+                         // ========================
+                         // struct is_floating_point
+                         // ========================
+
+template &lt;typename TYPE&gt;
+struct is_floating_point
+    : BloombergLP::bslmf::IsFloatingPoint_Imp&lt;
+                                typename remove_cv&lt;TYPE&gt;::type&gt;::type {
+    // This &#39;struct&#39; template implements the &#39;is_floating_point&#39; meta-function
+    // defined in the C++11 standard [meta.unary.cat] to determine if the
+    // (template parameter) &#39;TYPE&#39; is a floating-point type.  This &#39;struct&#39;
+    // derives from &#39;bsl::true_type&#39; if the &#39;TYPE&#39; is a floating-point type and
+    // &#39;bsl::false_type&#39; otherwise.
+};
+
+}
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright (C) 2012 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the &quot;Software&quot;), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

@@ -1,0 +1,340 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 2.16 BETA</title>
+<html>
+<pre>
+// bsls_alignmenttotype.h                                             -*-C++-*-
+#ifndef INCLUDED_BSLS_ALIGNMENTTOTYPE
+#define INCLUDED_BSLS_ALIGNMENTTOTYPE
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a meta-function mapping an &#39;ALIGNMENT&#39; to a primitive type.
+//
+//@CLASSES:
+//  bsls::AlignmentToType: maps &#39;ALIGNMENT&#39; to a so-aligned primitive type
+//
+//@SEE_ALSO: bsls_alignmentfromtype
+//
+//@DESCRIPTION: This component provides a meta-function,
+// &#39;bsls::AlignmentToType&#39;, parameterized on an integral &#39;ALIGNMENT&#39;, that
+// declares a &#39;typedef&#39; (&#39;Type&#39;), which is an alias for a primitive type having
+// the indicated &#39;ALIGNMENT&#39; requirement.
+//
+///Usage
+///-----
+// Consider a parameterized type, &#39;my_AlignedBuffer&#39;, that provides aligned
+// memory to store a user-defined type.  A &#39;my_AlignedBuffer&#39; object is useful
+// in situations where efficient (e.g., stack-based) storage is required.
+//
+// The &#39;my_AlignedBuffer&#39; &#39;union&#39; (defined below) takes a &#39;TYPE&#39; and the
+// &#39;ALIGNMENT&#39; requirements for that type as template parameters, and provides
+// an appropriately sized and aligned block of memory via the &#39;buffer&#39;
+// functions.  Note that &#39;my_AlignedBuffer&#39; ensures that the returned memory is
+// aligned correctly for the specified size by using
+// &#39;bsls::AlignmentToType&lt;ALIGNMENT&gt;::Type&#39;, which provides a primitive type
+// having the &#39;ALIGNMENT&#39; requirement.  The class definition of
+// &#39;my_AlignedBuffer&#39; is as follows:
+//..
+//  template &lt;class TYPE, int ALIGNMENT&gt;
+//  union my_AlignedBuffer {
+//    private:
+//      // DATA
+//      char                                           d_buffer[sizeof(TYPE)];
+//      typename bsls::AlignmentToType&lt;ALIGNMENT&gt;::Type d_align;  // force
+//                                                                // alignment
+//
+//    public:
+//      // MANIPULATORS
+//      char *buffer();
+//          // Return the address of the modifiable first byte of memory
+//          // contained by this object as a &#39;char *&#39; pointer.
+//
+//      TYPE&amp; object();
+//          // Return a reference to the modifiable &#39;TYPE&#39; object stored in
+//          // this buffer.  The referenced object has an undefined state
+//          // unless a valid &#39;TYPE&#39; object has been constructed in this
+//          // buffer.
+//
+//      // ACCESSORS
+//      const char *buffer() const;
+//          // Return the address of the non-modifiable first byte of memory
+//          // contained by this object as a &#39;const char *&#39; pointer.
+//
+//      const TYPE&amp; object() const;
+//          // Return a reference to the non-modifiable &#39;TYPE&#39; object stored in
+//          // this buffer.  The referenced object has an undefined state
+//          // unless a valid &#39;TYPE&#39; object has been constructed in this
+//          // buffer.
+//  };
+//..
+// The function definitions of &#39;my_AlignedBuffer&#39; are as follows:
+//..
+//  // MANIPULATORS
+//  template &lt;class TYPE, int ALIGNMENT&gt;
+//  inline
+//  char *my_AlignedBuffer&lt;TYPE, ALIGNMENT&gt;::buffer()
+//  {
+//      return d_buffer;
+//  }
+//
+//  template &lt;class TYPE, int ALIGNMENT&gt;
+//  inline
+//  TYPE&amp; my_AlignedBuffer&lt;TYPE, ALIGNMENT&gt;::object()
+//  {
+//      return *reinterpret_cast&lt;TYPE *&gt;(this);
+//  }
+//
+//  // ACCESSORS
+//  template &lt;class TYPE, int ALIGNMENT&gt;
+//  inline
+//  const char *my_AlignedBuffer&lt;TYPE, ALIGNMENT&gt;::buffer() const
+//  {
+//      return d_buffer;
+//  }
+//
+//  template &lt;class TYPE, int ALIGNMENT&gt;
+//  inline
+//  const TYPE&amp; my_AlignedBuffer&lt;TYPE, ALIGNMENT&gt;::object() const
+//  {
+//      return *reinterpret_cast&lt;const TYPE *&gt;(this);
+//  }
+//..
+// &#39;my_AlignedBuffer&#39; can be used to construct buffers for different types and
+// with varied alignment requirements.  Consider that we want to construct an
+// object that stores the response of a floating-point operation.  If the
+// operation is successful, then the response object stores a &#39;double&#39; result;
+// otherwise, it stores an error string of type &#39;string&#39;, which is based on the
+// standard type &#39;string&#39; (see &#39;bslstl_string&#39;).  For the sake of brevity, the
+// implementation of &#39;string&#39; is not explored here.  Here is the definition for
+// the &#39;Response&#39; class:
+//..
+//  class Response {
+//..
+// To create a &#39;my_AlignedBuffer&#39; object we must specify the alignment value
+// for our types.  For simplicity, we use a maximum alignment value for all
+// types (assumed to be 8 here):
+//..
+//      enum { MAX_ALIGNMENT = 8 };
+//..
+// Note that we use &#39;my_AlignedBuffer&#39; to allocate sufficient, aligned memory
+// to store the result of the operation or an error message:
+//..
+//  private:
+//    union {
+//        my_AlignedBuffer&lt;double, MAX_ALIGNMENT&gt;      d_result;
+//        my_AlignedBuffer&lt;string, MAX_ALIGNMENT&gt; d_errorMessage;
+//    };
+//..
+// The &#39;isError&#39; flag indicates whether the response object stores valid data
+// or an error message:
+//..
+//  bool d_isError;
+//..
+// Below we provide a simple public interface suitable for illustration only:
+//..
+//  public:
+//    // CREATORS
+//    Response(double result);
+//        // Create a response object that stores the specified &#39;result&#39;.
+//
+//    Response(const string&amp; errorMessage);
+//        // Create a response object that stores the specified
+//        // &#39;errorMessage&#39;.
+//
+//    ~Response();
+//        // Destroy this response object.
+//..
+// The manipulator functions allow clients to update the response object to
+// store either a &#39;double&#39; result or an error message:
+//..
+//  // MANIPULATORS
+//  void setResult(double result);
+//      // Update this object to store the specified &#39;result&#39;.  After this
+//      // operation &#39;isError&#39; returns &#39;false&#39;.
+//
+//  void setErrorMessage(const string&amp; errorMessage);
+//      // Update this object to store the specified &#39;errorMessage&#39;.  After
+//      // this operation &#39;isError&#39; returns &#39;true&#39;.
+//..
+// The &#39;isError&#39; function informs clients whether a response object stores a
+// result value or an error message:
+//..
+//      // ACCESSORS
+//      bool isError() const;
+//          // Return &#39;true&#39; if this object stores an error message, and
+//          // &#39;false&#39; otherwise.
+//
+//      double result() const;
+//          // Return the result value stored by this object.  The behavior is
+//          // undefined unless &#39;false == isError()&#39;.
+//
+//      const string&amp; errorMessage() const;
+//          // Return a reference to the non-modifiable error message stored by
+//          // this object.  The behavior is undefined unless
+//          // &#39;true == isError()&#39;.
+//  };
+//..
+// Below we provide the function definitions.  Note that we use the
+// &#39;my_AlignedBuffer::buffer&#39; function to access correctly aligned memory.
+// Also note that &#39;my_AlignedBuffer&#39; just provides the memory for an object;
+// therefore, the &#39;Response&#39; class is responsible for the construction and
+// destruction of the specified objects.  Since our &#39;Response&#39; class is for
+// illustration purposes only, we ignore exception-safety concerns; nor do we
+// supply an allocator to the string constructor, allowing the default
+// allocator to be used instead:
+//..
+//  // CREATORS
+//  Response::Response(double result)
+//  {
+//      new (d_result.buffer()) double(result);
+//      d_isError = false;
+//  }
+//
+//  Response::Response(const string&amp; errorMessage)
+//  {
+//      new (d_errorMessage.buffer()) string(errorMessage);
+//      d_isError = true;
+//  }
+//
+//  Response::~Response()
+//  {
+//      if (d_isError) {
+//          typedef string Type;
+//          d_errorMessage.object().~Type();
+//      }
+//  }
+//
+//  // MANIPULATORS
+//  void Response::setResult(double result)
+//  {
+//      if (!d_isError) {
+//          d_result.object() = result;
+//      }
+//      else {
+//          typedef string Type;
+//          d_errorMessage.object().~Type();
+//          new (d_result.buffer()) double(result);
+//          d_isError = false;
+//      }
+//  }
+//
+//  void Response::setErrorMessage(const string&amp; errorMessage)
+//  {
+//      if (d_isError) {
+//          d_errorMessage.object() = errorMessage;
+//      }
+//      else {
+//          new (d_errorMessage.buffer()) string(errorMessage);
+//          d_isError = true;
+//      }
+//  }
+//
+//  // ACCESSORS
+//  bool Response::isError() const
+//  {
+//      return d_isError;
+//  }
+//
+//  double Response::result() const
+//  {
+//      assert(!d_isError);
+//
+//      return d_result.object();
+//  }
+//
+//  const string&amp; Response::errorMessage() const
+//  {
+//      assert(d_isError);
+//
+//      return d_errorMessage.object();
+//  }
+//..
+// Clients of the &#39;Response&#39; class can use it as follows:
+//..
+//  double value1 = 111.2, value2 = 92.5;
+//
+//  if (0 == value2) {
+//      Response response(&quot;Division by 0&quot;);
+//
+//      // Return erroneous response
+//  }
+//  else {
+//      Response response(value1 / value2);
+//
+//      // Process response object
+//  }
+//..
+
+#ifndef INCLUDED_BSLS_ALIGNMENTIMP
+#include &lt;bsls_alignmentimp.h&gt;
+#endif
+
+namespace BloombergLP {
+
+namespace bsls {
+
+                         // ======================
+                         // struct AlignmentToType
+                         // ======================
+
+template &lt;int ALIGNMENT&gt;
+struct AlignmentToType {
+    // This &#39;struct&#39; provides a &#39;typedef&#39;, &#39;Type&#39;, that aliases a primitive
+    // type having the specified &#39;ALIGNMENT&#39; requirement.
+
+  private:
+    // PRIVATE TYPES
+    typedef typename AlignmentImpMatch::MaxPriority MaxPriority;
+    typedef          AlignmentImpTag&lt;ALIGNMENT&gt;     Tag;
+
+    enum {
+        // Compute the priority of the primitive type corresponding to the
+        // specified &#39;ALIGNMENT&#39;.
+
+        PRIORITY = sizeof(AlignmentImpMatch::match(Tag(),
+                                                   Tag(),
+                                                   MaxPriority()))
+    };
+
+  public:
+    // TYPES
+    typedef typename AlignmentImpPriorityToType&lt;PRIORITY&gt;::Type Type;
+        // Alias for a primitive type that has the specified &#39;ALIGNMENT&#39;
+        // requirement.
+};
+
+}  // close package namespace
+
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright (C) 2012 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the &quot;Software&quot;), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

@@ -1,0 +1,107 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 2.16 BETA</title>
+<html>
+<pre>
+// bslstl_unorderedsetkeyconfiguration.h                              -*-C++-*-
+#ifndef INCLUDED_BSLSTL_UNORDEREDSETKEYCONFIGURATION
+#define INCLUDED_BSLSTL_UNORDEREDSETKEYCONFIGURATION
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a configuration class to use a whole object as its own key.
+//
+//@CLASSES:
+//
+//@SEE_ALSO: bslalg_hashtableimputil
+//
+//@DESCRIPTION: This component provides an identity transformation.
+// &#39;bslalg::HashTableImpUtil&#39; has a static &#39;extractKey&#39; function template
+// that, given a &#39;value type&#39;, will represent objects stored in a data
+// structure, will abstract out the &#39;key type&#39; portion of that object.  In the
+// case of the &#39;unordered_set&#39; data structure, the &#39;key type&#39; and the
+// &#39;value type&#39; are one and the same, so the &#39;extractKey&#39; transformation is a
+// trivial identity transformation.
+//
+///Usage
+///-----
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include &lt;bslscm_version.h&gt;
+#endif
+
+namespace BloombergLP {
+
+namespace bslstl {
+
+                       // ===================================
+                       // struct UnorderedSetKeyConfiguration
+                       // ===================================
+
+template &lt;class VALUE_TYPE&gt;
+struct UnorderedSetKeyConfiguration {
+  public:
+    typedef VALUE_TYPE ValueType;
+    typedef ValueType  KeyType;
+
+    // Choosing to implement for each configuration, to reduce the template
+    // mess.  With only two policies, not much is saved using a shared
+    // dependent base class to provide a common implementation.
+
+    // CLASS METHODS
+    static const KeyType&amp; extractKey(const VALUE_TYPE&amp; object);
+        // Given a specified &#39;object&#39;, return a reference to the &#39;KeyType&#39;
+        // contained within that object.  In this case, the &#39;KeyType&#39; returned
+        // is simply the object itself.
+};
+
+// ===========================================================================
+//                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
+// ===========================================================================
+
+                      //------------------------------------
+                      // struct UnorderedSetKeyConfiguration
+                      //------------------------------------
+
+
+template &lt;class VALUE_TYPE&gt;
+inline
+const typename UnorderedSetKeyConfiguration&lt;VALUE_TYPE&gt;::KeyType&amp;
+UnorderedSetKeyConfiguration&lt;VALUE_TYPE&gt;::extractKey(const VALUE_TYPE&amp; object)
+{
+    return object;
+}
+
+}  // close namespace bslalg
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright (C) 2012 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the &quot;Software&quot;), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

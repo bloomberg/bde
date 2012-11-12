@@ -1,0 +1,331 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 2.16 BETA</title>
+<html>
+<pre>
+// bslmf_metaint.h                                                    -*-C++-*-
+#ifndef INCLUDED_BSLMF_METAINT
+#define INCLUDED_BSLMF_METAINT
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a meta-function to map integral constants to unique types.
+//
+//@DEPRECATED: Use &#39;bslstt_integral_constant&#39; instead.
+//
+//@CLASSES:
+//  bslmf::MetaInt: meta-function mapping integral constants to C++ types
+//
+//@DESCRIPTION: This component defines a simple template structure used to map
+// an integral constant to a C++ type.  &#39;bslmf::MetaInt&lt;int&gt;&#39; defines a
+// different type for each distinct compile-time constant integral parameter.
+// That is, instantiations with different integer values form distinct types,
+// so that &#39;bslmf::MetaInt&lt;0&gt;&#39; is a distinct type from &#39;bslmf::MetaInt&lt;1&gt;&#39;,
+// which is also distinct from &#39;bslmf::MetaInt&lt;2&gt;&#39;, and so on.
+//
+///Usage
+///-----
+// This section illustates intended usage of this component
+//
+///Example 1: Compile-Time Function Dispatching
+/// - - - - - - - - - - - - - - - - - - - - - -
+// The most common use of this structure is to perform static function
+// dispatching based on a compile-time calculation.  Often the calculation is
+// nothing more than a simple predicate, allowing us to select one of two
+// functions.  The following function, &#39;doSomething&#39;, uses a fast
+// implementation (e.g., &#39;memcpy&#39;) if the parameterized type allows for such
+// operations, otherwise it will use a more generic and slower implementation
+// (e.g., copy constructor).
+//..
+//  template &lt;class T&gt;
+//  void doSomethingImp(T *t, bslmf::MetaInt&lt;0&gt;)
+//  {
+//      // slow generic implementation
+//      (void) t;
+//      // ...
+//  }
+//
+//  template &lt;class T&gt;
+//  void doSomethingImp(T *t, bslmf::MetaInt&lt;1&gt;)
+//  {
+//      // fast implementation (works only for some T&#39;s)
+//      (void) t;
+//      // ...
+//  }
+//
+//  template &lt;class T, bool IsFast&gt;
+//  void doSomething(T *t)
+//  {
+//      doSomethingImp(t, bslmf::MetaInt&lt;IsFast&gt;());
+//  }
+//..
+// The power of this approach is that the compiler will compile only the
+// implementation selected by the &#39;MetaInt&#39; argument.  For some parameter
+// types, the fast version of &#39;doSomethingImp&#39; would be ill-formed.  This kind
+// of compile-time dispatch prevents the ill-formed version from ever being
+// instantiated.
+//..
+//  int main()
+//  {
+//      int i;
+//      doSomething&lt;int, true&gt;(&amp;i); // fast version selected for int
+//
+//      double m;
+//      doSomething&lt;double, false&gt;(&amp;m); // slow version selected for double
+//
+//      return 0;
+//  }
+//..
+///Example 2: Reading the &#39;VALUE&#39; member
+/// - - - - - - - - - - - - - - - - - -
+// In addition to forming new types, the value of the integral paramameter to
+// &#39;MetaInt&#39; is &quot;saved&quot; in the enum member &#39;VALUE&#39;, and is accessible for use
+// in compile-time or run-time operations.
+//..
+//  template &lt;int V&gt;
+//  unsigned g()
+//  {
+//      bslmf::MetaInt&lt;V&gt; i;
+//      assert(V == i.VALUE);
+//      assert(V == bslmf::MetaInt&lt;V&gt;::VALUE);
+//      return bslmf::MetaInt&lt;V&gt;::VALUE;
+//  }
+//
+//  int main()
+//  {
+//      int v = g&lt;1&gt;();
+//      assert(1 == v);
+//      return 0;
+//  }
+//..
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include &lt;bslscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_TAG
+#include &lt;bslmf_tag.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
+#include &lt;bslmf_integralconstant.h&gt;
+#endif
+
+namespace BloombergLP {
+
+namespace bslmf {
+
+                           // ==============
+                           // struct MetaInt
+                           // ==============
+
+template &lt;int INT_VALUE&gt;
+struct MetaInt : public bsl::integral_constant&lt;int, INT_VALUE&gt; {
+    // Instantiating this template produces a distinct type for each
+    // non-negative integer value.  This template has been deprecated in favor
+    // of the standard &#39;integral_constant&#39; template.
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT)
+    static_assert(INT_VALUE &gt;= 0, &quot;INT_VALUE must be non-negative&quot;);
+#endif
+
+    // TYPES
+    typedef MetaInt&lt;INT_VALUE&gt;    Type;
+    typedef bslmf::Tag&lt;INT_VALUE&gt; Tag;
+
+    enum { VALUE = INT_VALUE };
+
+    // CREATORS
+    MetaInt();
+        // Does nothing (&#39;MetaInt&#39; is stateless).
+
+    MetaInt(bsl::integral_constant&lt;int, INT_VALUE&gt;);
+        // Convert from a &#39;bsl::integral_constant&lt;int, INT_VALUE&gt;&#39;.
+
+    //! MetaInt(const MetaInt&amp;) = default;
+    //! MetaInt&amp; operator=(const MetaInt&amp;) = default;
+    //! ~MetaInt() = default;
+
+    // CLASS METHODS
+    static Tag&amp; tag();
+        // Declared but not defined.  Meta-function use only.  The tag can be
+        // used to recover meta-information from an expression.  Example:
+        // &#39;sizeof(f(expr).tag())&#39; returns a different compile-time value
+        // depending on the type of the result of calling the &#39;f&#39; function but
+        // does not actually call the &#39;f&#39; function or the &#39;tag&#39; method at
+        // run-time.  Note that &#39;f(expr)::VALUE&#39; or &#39;sizeof(f(expr)::Type)&#39;
+        // would be ill-formed and that &#39;f(expr).value&#39; is not a compile-time
+        // expression.
+};
+
+template &lt;&gt;
+struct MetaInt&lt;0&gt; : public bsl::false_type {
+    // This specialization of &#39;MetaInt&#39; has a &#39;VAL&#39; of zero and is convertible
+    // to and from &#39;bsl::false_type&#39;.
+
+    // TYPES
+    typedef MetaInt&lt;0&gt;    Type;
+    typedef bslmf::Tag&lt;0&gt; Tag;
+
+    enum { VALUE = 0 };
+
+    // CREATORS
+    MetaInt();
+        // Does nothing (&#39;MetaInt&#39; is stateless).
+
+    MetaInt(bsl::false_type);
+        // Convert from a &#39;bsl::false_type&#39;.
+
+    //! MetaInt(const MetaInt&amp;) = default;
+    //! MetaInt&amp; operator=(const MetaInt&amp;) = default;
+    //! ~MetaInt() = default;
+
+    // CLASS METHODS
+    static Tag&amp; tag();
+        // Declared but not defined.  Meta-function use only.  The tag can be
+        // used to recover meta-information from an expression.  Example:
+        // &#39;sizeof(f(expr).tag())&#39; returns a different compile-time value
+        // depending on the type of the result of calling the &#39;f&#39; function but
+        // does not actually call the &#39;f&#39; function or the &#39;tag&#39; method at
+        // run-time.  Note that &#39;f(expr)::VALUE&#39; or &#39;sizeof(f(expr)::Type)&#39;
+        // would be ill-formed and that &#39;f(expr).value&#39; is not a compile-time
+        // expression.
+
+    // ACCESSORS
+    operator bool() const;
+        // Return &#39;false&#39;.  (This operator is conversion operator to &#39;bool&#39;.)
+};
+
+template &lt;&gt;
+struct MetaInt&lt;1&gt; : public bsl::true_type {
+    // This specialization of &#39;MetaInt&#39; has a &#39;VAL&#39; of one and is convertible
+    // to and from &#39;bsl::true_type&#39;.
+
+    // TYPES
+    typedef MetaInt&lt;1&gt;    Type;
+    typedef bslmf::Tag&lt;1&gt; Tag;
+
+    enum { VALUE = 1 };
+
+    // CREATORS
+    MetaInt();
+        // Does nothing (&#39;MetaInt&#39; is stateless).
+
+    MetaInt(bsl::true_type);
+        // Convert from a &#39;bsl::true_type&#39;.
+
+    //! MetaInt(const MetaInt&amp;) = default;
+    //! MetaInt&amp; operator=(const MetaInt&amp;) = default;
+    //! ~MetaInt() = default;
+
+    // CLASS METHODS
+    static Tag&amp; tag();
+        // Declared but not defined.  Meta-function use only.  The tag can be
+        // used to recover meta-information from an expression.  Example:
+        // &#39;sizeof(f(expr).tag())&#39; returns a different compile-time value
+        // depending on the type of the result of calling the &#39;f&#39; function but
+        // does not actually call the &#39;f&#39; function or the &#39;tag&#39; method at
+        // run-time.  Note that &#39;f(expr)::VALUE&#39; or &#39;sizeof(f(expr)::Type)&#39;
+        // would be ill-formed and that &#39;f(expr).value&#39; is not a compile-time
+        // expression.
+
+    // ACCESSORS
+    operator bool() const;
+        // Return &#39;true&#39;.  (This operator is conversion operator to &#39;bool&#39;.)
+};
+
+#define BSLMF_METAINT_TO_INT(expr)  BSLMF_TAG_TO_INT((expr).tag())
+    // Given an integral value, &#39;V&#39;, and an expression, &#39;expr&#39;, of type
+    // &#39;bslmf::MetaInt&lt;V&gt;&#39;, this macro returns a compile-time constant with
+    // value, &#39;V&#39;.  The expression, &#39;expr&#39;, is not evaluated at run-time.
+
+#define BSLMF_METAINT_TO_BOOL(expr) BSLMF_TAG_TO_BOOL((expr).tag())
+    // Given an integral value, &#39;V&#39;, and an expression, &#39;expr&#39;, of type
+    // &#39;bslmf::MetaInt&lt;V&gt;&#39;, this macro returns a compile-time constant with
+    // value, &#39;true&#39; or &#39;false&#39;, according to the Boolean value of &#39;V&#39;.  The
+    // expression, &#39;expr&#39;, is not evaluated at run-time.
+
+
+// ===========================================================================
+//                            INLINE FUNCTIONS
+// ===========================================================================
+
+// CREATORS
+template &lt;int INT_VALUE&gt;
+inline
+MetaInt&lt;INT_VALUE&gt;::MetaInt()
+{
+}
+
+template &lt;int INT_VALUE&gt;
+inline
+MetaInt&lt;INT_VALUE&gt;::MetaInt(bsl::integral_constant&lt;int, INT_VALUE&gt;)
+{
+}
+
+inline
+MetaInt&lt;0&gt;::MetaInt()
+{
+}
+
+inline
+MetaInt&lt;0&gt;::MetaInt(bsl::false_type)
+{
+}
+
+inline
+MetaInt&lt;1&gt;::MetaInt()
+{
+}
+
+inline
+MetaInt&lt;1&gt;::MetaInt(bsl::true_type)
+{
+}
+
+// ACCESSORS
+inline
+MetaInt&lt;0&gt;::operator bool() const
+{
+    return false;
+}
+
+inline
+MetaInt&lt;1&gt;::operator bool() const
+{
+    return true;
+}
+
+}  // close package namespace
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright (C) 2012 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the &quot;Software&quot;), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

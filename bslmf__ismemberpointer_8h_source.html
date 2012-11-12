@@ -1,0 +1,117 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 2.16 BETA</title>
+<html>
+<pre>
+// bslmf_ismemberpointer.h                                            -*-C++-*-
+#ifndef INCLUDED_BSLMF_ISMEMBERPOINTER
+#define INCLUDED_BSLMF_ISMEMBERPOINTER
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a compile-time check for non-static member pointer types.
+//
+//@CLASSES:
+//  bsl::is_member_pointer: standard meta-function for member pointer types
+//
+//@SEE_ALSO: bslmf_ismemberfunctionpointer, bslmf_ismemberobjectpointer
+//
+//@DESCRIPTION: This component defines a meta-function,
+// &#39;bsl::is_member_pointer&#39;, which may be used to query whether a type is a
+// pointer type to non-static data member.
+//
+// &#39;bsl::is_member_pointer&#39; meets the requirements of the &#39;is_member_pointer&#39;
+// template defined in the C++11 standard [meta.unary.comp].
+//
+///Example 1: Verify Member Pointer Types
+/// - - - - - - - - - - - - - - - - - - -
+// Suppose that we want to assert whether a particular type is a class type.
+//
+// First, we create a user-defined type &#39;MyStruct&#39;:
+//..
+//  struct MyStruct
+//  {
+//      // DATA
+//      int memData;  // a member data
+//  };
+//..
+// Now, we create three &#39;typedef&#39;s -- a data member object pointer, a member
+// function pointer type and a general function pointer type:
+//..
+//  typedef int MyStruct::* DataMemPtr;
+//  typedef int (MyStruct::*MyStructMethodPtr) ();
+//  typedef int (*MyFunctionPtr) ();
+//..
+// Finally, we instantiate the &#39;bsl::is_member_pointer&#39; template for various
+// types and assert the &#39;value&#39; static data member of each instantiation:
+//..
+//  assert(false == bsl::is_member_pointer&lt;int*&gt;::value);
+//  assert(false == bsl::is_member_pointer&lt;MyFunctionPtr&gt;::value);
+//  assert(true  == bsl::is_member_pointer&lt;DataMemPtr&gt;::value);
+//  assert(true  == bsl::is_member_pointer&lt;MyStructMethodPtr&gt;::value);
+//..
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include &lt;bslscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
+#include &lt;bslmf_integralconstant.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_REMOVECVQ
+#include &lt;bslmf_removecv.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_ISREFERENCE
+#include &lt;bslmf_isreference.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_ISMEMBERFUNCTIONPOINTER
+#include &lt;bslmf_ismemberfunctionpointer.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_ISMEMBEROBJECTPOINTER
+#include &lt;bslmf_ismemberobjectpointer.h&gt;
+#endif
+
+namespace bsl {
+
+template &lt;typename TYPE&gt;
+struct is_member_pointer
+    : integral_constant&lt;bool,
+                        is_member_object_pointer&lt;TYPE&gt;::value
+                        || bsl::is_member_function_pointer&lt;TYPE&gt;::value&gt;
+{};
+
+}  // close namespace bsl
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright (C) 2012 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the &quot;Software&quot;), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

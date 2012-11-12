@@ -1,0 +1,249 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 2.16 BETA</title>
+<html>
+<pre>
+// bslalg_arraydestructionprimitives.h                                -*-C++-*-
+#ifndef INCLUDED_BSLALG_ARRAYDESTRUCTIONPRIMITIVES
+#define INCLUDED_BSLALG_ARRAYDESTRUCTIONPRIMITIVES
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide primitive algorithms that destroy arrays.
+//
+//@CLASSES:
+//  bslalg::ArrayDestructionPrimitives: namespace for array algorithms
+//
+//@SEE_ALSO: bslalg_scalarprimitives, bslalg_typetraits
+//
+//@DESCRIPTION: This component provides utilies to destroy arrays with a
+// uniform interface, but selecting a different implementation according to the
+// traits possessed by the underlying type.
+//
+// The traits under consideration by this component are:
+//..
+//  Trait                             Note
+//  -----                             -------------------------------------
+//   bsl::is_trivially_copyable       Expressed in English as &quot;TYPE has the
+//                                    bit-wise copyable trait&quot;, or &quot;TYPE is
+//                                    bit-wise copyable&quot;, this trait also
+//                                    implies that destructor calls can be
+//                                    elided with no effect on observable
+//                                    behavior.
+//
+//..
+///Usage
+///-----
+// In this section we show intended use of this component.  Note that this
+// component is for use by the &#39;bslstl&#39; package.  Other clients should use the
+// STL algorithms (in header &#39;&lt;algorithm&gt;&#39; and &#39;&lt;memory&gt;&#39;).
+//
+///Example 1: Destroy Arrays of &#39;int&#39; and &#39;Integer&#39; Wrapper Objects
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// In this example, we will use &#39;bslalg::ArrayDestructionPrimitives&#39; to destroy
+// both an array of integer scalars and an array of &#39;MyInteger&#39; objects.
+// Calling the &#39;destroy&#39; method on an array of integers is a no-op while
+// calling the &#39;destroy&#39; method on an array of objects of &#39;MyInteger&#39; class
+// invokes the destructor of each of the objects in the array.
+//
+// First, we define a &#39;MyInteger&#39; class that contains an integer value:
+//..
+//  class MyInteger {
+//      // This class represents an integer value.
+//
+//      int d_intValue;  // integer value
+//
+//    public:
+//      // CREATORS
+//      MyInteger();
+//          // Create a &#39;MyInteger&#39; object having integer value &#39;0&#39;.
+//
+//      explicit MyInteger(int value);
+//          // Create a &#39;MyInteger&#39; object having the specified &#39;value&#39;.
+//
+//      ~MyInteger();
+//          // Destroy this object.
+//
+//      // ACCESSORS
+//      int getValue() const;
+//          // Return the integer value contained in this object.
+//  };
+//..
+// Then, we create an array of of objects, &#39;myIntegers&#39;, of type &#39;MyInteger&#39;
+// (note that we &#39;bsls::ObjectBuffer&#39; to allow us to safely invoke the
+// destructor explicitly):
+//..
+//  bsls::ObjectBuffer&lt;MyInteger&gt; arrayBuffer[5];
+//  MyInteger *myIntegers = &amp;arrayBuffer[0].object();
+//  for (int i = 0;i &lt; 5; ++i) {
+//      new (myIntegers + i) MyInteger(i);
+//  }
+//..
+// Now, we define a primitive integer array:
+//..
+//  int scalarIntegers[] = { 0, 1, 2, 3, 4 };
+//..
+// Finally, we use the uniform &#39;bslalg::ArrayDestructionPrimitives:destroy&#39;
+// method to destroy both &#39;myIntegers&#39; and &#39;scalarIntegers&#39;:
+//..
+//  bslalg::ArrayDestructionPrimitives::destroy(myIntegers, myIntegers + 5);
+//  bslalg::ArrayDestructionPrimitives::destroy(scalarIntegers,
+//                                              scalarIntegers + 5);
+//..
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include &lt;bslscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include &lt;bsls_assert.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_TYPES
+#include &lt;bsls_types.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
+#include &lt;bslmf_istriviallycopyable.h&gt;
+#endif
+
+#ifndef INCLUDED_CSTDDEF
+#include &lt;cstddef&gt;  // size_t
+#define INCLUDED_CSTDDEF
+#endif
+
+#ifndef INCLUDED_CSTRING
+#include &lt;cstring&gt;  // memset, memcpy, memmove
+#define INCLUDED_CSTRING
+#endif
+
+namespace BloombergLP {
+
+namespace bslalg {
+
+                  // =================================
+                  // struct ArrayDestructionPrimitives
+                  // =================================
+
+struct ArrayDestructionPrimitives {
+    // This &#39;struct&#39; provides a namespace for a suite of utility functions that
+    // destroy arrays of elements of the parameterized type &#39;TARGET_TYPE&#39;.
+    // Depending on the traits of &#39;TARGET_TYPE&#39;, the destructor may be invoked,
+    // or not (optimized away by no-op).
+
+    // PRIVATE CLASS METHODS
+    template &lt;class TARGET_TYPE&gt;
+    static void destroy(TARGET_TYPE        *begin,
+                        TARGET_TYPE        *end,
+                        bsl::true_type);
+    template &lt;class TARGET_TYPE&gt;
+    static void destroy(TARGET_TYPE        *begin,
+                        TARGET_TYPE        *end,
+                        bsl::false_type);
+        // Destroy each instance of &#39;TARGET_TYPE&#39; in the array beginning at the
+        // specified &#39;begin&#39; address and ending immediately before the
+        // specified &#39;end&#39; address.  Use the destructor of the parameterized
+        // &#39;TARGET_TYPE&#39;, or do nothing if the &#39;TARGET_TYPE&#39; is bit-wise
+        // copyable (i.e., if the last argument is of type
+        // &#39;bsl::true_type&#39;).  Note that the last argument is for
+        // overloading resolution only and its value is ignored.
+
+  public:
+    // CLASS METHODS
+    template &lt;class TARGET_TYPE&gt;
+    static void destroy(TARGET_TYPE *begin, TARGET_TYPE *end);
+        // Destroy of the elements in the segment of an array of parameterized
+        // &#39;TARGET_TYPE&#39; beginning at the specified &#39;begin&#39; address and ending
+        // immediately before the specified &#39;end&#39; address, as if by calling the
+        // destructor on each object.  If &#39;begin == 0&#39; and &#39;end == 0&#39; this
+        // function has no effect.  The behavior is undefined unless either (1)
+        // &#39;begin &lt;= end&#39;, &#39;begin != 0&#39;, and &#39;end != 0&#39;, or (2)
+        // &#39;begin == 0 &amp;&amp; end == 0&#39;.  Note that this method does not deallocate
+        // any memory (except memory deallocated by the element destructor
+        // calls).
+};
+
+// ===========================================================================
+//                      INLINE FUNCTION DEFINITIONS
+// ===========================================================================
+
+                  // ---------------------------------
+                  // struct ArrayDestructionPrimitives
+                  // ---------------------------------
+
+// PRIVATE CLASS METHODS
+template &lt;class TARGET_TYPE&gt;
+inline
+void ArrayDestructionPrimitives::destroy(TARGET_TYPE       *begin,
+                                         TARGET_TYPE       *end,
+                                         bsl::true_type)
+{
+    // &#39;BitwiseCopyable&#39; is a valid surrogate for &#39;HasTrivialDestructor&#39;.
+
+#ifdef BDE_BUILD_TARGET_SAFE
+    bsls::Types::size_type numBytes = (const char*)end - (const char*)begin;
+    std::memset(begin, 0xa5, numBytes);
+#else
+    (void)begin;
+    (void)end;
+#endif
+}
+
+template &lt;class TARGET_TYPE&gt;
+void ArrayDestructionPrimitives::destroy(TARGET_TYPE       *begin,
+                                         TARGET_TYPE       *end,
+                                         bsl::false_type)
+{
+    for (; begin != end; ++begin) {
+        begin-&gt;~TARGET_TYPE();
+    }
+}
+
+// CLASS METHODS
+template &lt;class TARGET_TYPE&gt;
+inline
+void ArrayDestructionPrimitives::destroy(TARGET_TYPE *begin,
+                                         TARGET_TYPE *end)
+{
+    BSLS_ASSERT_SAFE(begin || !end);
+    BSLS_ASSERT_SAFE(end   || !begin);
+    BSLS_ASSERT_SAFE(begin &lt;= end);
+
+    destroy(begin, end,
+            typename bsl::is_trivially_copyable&lt;TARGET_TYPE&gt;::type());
+}
+
+}  // close package namespace
+
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright (C) 2012 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the &quot;Software&quot;), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

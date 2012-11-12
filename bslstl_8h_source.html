@@ -1,0 +1,226 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 2.16 BETA</title>
+<html>
+<pre>
+ bslstl.txt
+
+@PURPOSE: Provide replacement classes for STL constructs.
+
+@MNEMONIC: Basic Standard Library STL (bslstl)
+
+@DESCRIPTION: This package mainly provides replacement classes for STL
+ constructs that required substantial modification to (inter)operate with BDE
+ libraries.  In addition to STL replacement classes, this package also provides
+ helper components for the STL implementation classes.  Finally, SGI extensions
+ that are widely used within Bloomberg can also be found in this package.
+
+ In general, the components in this package conform to the STL interface.
+ However, the components (and hence the headers) are intended for private use
+ only.  Clients should use the standard headers directly (e.g., include
+ &#39;&lt;bsl_vector.h&gt;&#39; instead of &#39;&lt;bslstl_vector.h&gt;&#39;).
+
+/Hierarchical Synopsis
+/---------------------
+ The &#39;bslstl&#39; package currently has 46 components having 7 levels of physical
+ dependency.  The table below shows the hierarchical ordering of the
+ components.  The order of components within each level is not architecturally
+ significant, just alphabetical.
+..
+  7. bslstl_queue
+     bslstl_stack
+
+  6. bslstl_deque
+     bslstl_map
+     bslstl_multimap
+     bslstl_multiset
+     bslstl_set
+     bslstl_sstream
+
+  5. bslstl_istringstream
+     bslstl_mapcomparator
+     bslstl_ostringstream
+     bslstl_randomaccessiterator
+     bslstl_setcomparator
+     bslstl_stringstream
+     bslstl_treenodepool
+     bslstl_unorderedmap
+     bslstl_unorderedmultimap
+     bslstl_unorderedmultiset
+     bslstl_unorderedset
+
+  4. bslstl_bidirectionaliterator
+     bslstl_hashtable
+     bslstl_hashtablebucketiterator
+     bslstl_hashtableiterator
+     bslstl_priorityqueue
+     bslstl_stringbuf
+     bslstl_stringref
+     bslstl_treenode
+
+  3. bslstl_bidirectionalnodepool
+     bslstl_forwarditerator
+     bslstl_iteratorutil
+     bslstl_list
+     bslstl_string
+     bslstl_treeiterator
+     bslstl_vector
+
+  2. bslstl_iterator
+     bslstl_simplepool
+
+  1. bslstl_allocator
+     bslstl_allocatortraits
+     bslstl_equalto
+     bslstl_hash
+     bslstl_iosfwd
+     bslstl_pair
+     bslstl_stdexceptutil
+     bslstl_stringrefdata
+     bslstl_unorderedmapkeyconfiguration
+     bslstl_unorderedsetkeyconfiguration
+..
+
+/Component Synopsis
+/------------------
+: &#39;bslstl_allocator&#39;:
+:      Provide an STL-compatible proxy for &#39;bslma::Allocator&#39; objects.
+:
+: &#39;bslstl_allocatortraits&#39;:
+:      Provide a uniform interface to standard allocator types.
+:
+: &#39;bslstl_bidirectionaliterator&#39;:
+:      Provide a template to create STL-compliant bidirectional iterators.
+:
+: &#39;bslstl_bidirectionalnodepool&#39;:
+:      Provide efficient creation of nodes used in node-based container.
+:
+: &#39;bslstl_deque&#39;:
+:      Provide an STL-compliant deque class.
+:
+: &#39;bslstl_equalto&#39;:
+:      Provide a binary functor conforming to the C++11 &#39;equal_to&#39; spec.
+:
+: &#39;bslstl_forwarditerator&#39;:
+:      Provide a template to create STL-compliant forward iterators.
+:
+: &#39;bslstl_hash&#39;:
+:      Provide a namespace for hash functions.
+:
+: &#39;bslstl_hashtable&#39;:
+:      Provide a hash-container with support for duplicate values.
+:
+: &#39;bslstl_hashtablebucketiterator&#39;:
+:      Provide an STL compliant iterator over hash table buckets.
+:
+: &#39;bslstl_hashtableiterator&#39;:
+:      Provide an STL compliant iterator for hash tables.
+:
+: &#39;bslstl_iosfwd&#39;:
+:      Provide forward declarations for Standard stream classes.
+:
+: &#39;bslstl_istringstream&#39;:
+:      Provide a C++03-compatible &#39;istringstream&#39; class.
+:
+: &#39;bslstl_iterator&#39;:
+:      Provide basic iterator traits, adaptors, and utilities.
+:
+: &#39;bslstl_iteratorutil&#39;:
+:      Provide utilities operating on iterators and iterator ranges.
+:
+: &#39;bslstl_list&#39;:
+:      Provide an STL-compliant list class.
+:
+: &#39;bslstl_map&#39;:
+:      Provide an STL-compliant map class.
+:
+: &#39;bslstl_mapcomparator&#39;:
+:      Provide a comparator for &#39;TreeNode&#39; objects and a lookup key.
+:
+: &#39;bslstl_multimap&#39;:
+:      Provide an STL-compliant multimap class.
+:
+: &#39;bslstl_multiset&#39;:
+:      Provide an STL-compliant multiset class.
+:
+: &#39;bslstl_ostringstream&#39;:
+:      Provide a C++03-compatible &#39;ostringstream&#39; class.
+:
+: &#39;bslstl_pair&#39;:
+:      Provide a simple &#39;struct&#39; with two members that may use allocators.
+:
+: &#39;bslstl_priorityqueue&#39;:
+:      Provide container adapter class template &#39;priority_queue&#39;.
+:
+: &#39;bslstl_queue&#39;:
+:      Provide container adapter class template &#39;queue&#39;.
+:
+: &#39;bslstl_randomaccessiterator&#39;:
+:      Provide a template to create STL-compliant random access iterators.
+:
+: &#39;bslstl_set&#39;:
+:      Provide an STL-compliant set class.
+:
+: &#39;bslstl_setcomparator&#39;:
+:      Provide a comparator for &#39;TreeNode&#39; objects and a lookup key.
+:
+: &#39;bslstl_simplepool&#39;:
+:      Provide efficient allocation of memory blocks for a specific type.
+:
+: &#39;bslstl_sstream&#39;:
+:      Provide C++03-compatible &#39;stringstream&#39; classes.
+:
+: &#39;bslstl_stack&#39;:
+:      Provide an STL-compliant stack class.
+:
+: &#39;bslstl_stdexceptutil&#39;:
+:      Provide a utility to throw standard exceptions.
+:
+: &#39;bslstl_string&#39;:
+:      Provide a standard-compliant &#39;basic_string&#39; class template.
+:
+: &#39;bslstl_stringbuf&#39;:
+:      Provide a C++03-compatible &#39;stringbuf&#39; class.
+:
+: &#39;bslstl_stringref&#39;:
+:      Provide a reference to a &#39;const&#39; string.
+:
+: &#39;bslstl_stringrefdata&#39;:
+:      Provide an attribute-only base class for &#39;bslstl::StringRef&#39;.
+:
+: &#39;bslstl_stringstream&#39;:
+:      Provide a C++03-compatible &#39;stringstream&#39; class.
+:
+: &#39;bslstl_treeiterator&#39;:
+:      Provide an STL compliant iterator for a tree of &#39;TreeNode&#39; objects.
+:
+: &#39;bslstl_treenode&#39;:
+:      Provide a POD-like tree node type holding a parameterized value.
+:
+: &#39;bslstl_treenodepool&#39;:
+:      Provide efficient creation of nodes used in tree-based container.
+:
+: &#39;bslstl_unorderedmap&#39;:
+:      Provide an STL-compliant unordered_map class.
+:
+: &#39;bslstl_unorderedmapkeyconfiguration&#39;:
+:      Provide a class template to extract keys as the &#39;first&#39; attribute.
+:
+: &#39;bslstl_unorderedmultimap&#39;:
+:      Provide an STL-compliant unordered_multimap class.
+:
+: &#39;bslstl_unorderedmultiset&#39;:
+:      Provide an STL-compliant unordered_multiset class.
+:
+: &#39;bslstl_unorderedset&#39;:
+:      Provide an STL-compliant unordered_set class.
+:
+: &#39;bslstl_unorderedsetkeyconfiguration&#39;:
+:      Provide a configuration class to use a whole object as its own key.
+:
+: &#39;bslstl_vector&#39;:
+:      Provide an STL-compliant vector class.
+
+</pre>
+</body>
+</html>

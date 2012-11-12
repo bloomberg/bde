@@ -1,0 +1,267 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 2.16 BETA</title>
+<html>
+<pre>
+// bsls_atomicoperations_powerpc_aix_xlc_default.h                    -*-C++-*-
+#ifndef INCLUDED_BSLS_ATOMICOPERATIONS_POWERPC_AIX_XLC_DEFAULT
+#define INCLUDED_BSLS_ATOMICOPERATIONS_POWERPC_AIX_XLC_DEFAULT
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide default base implementations of atomics for PowerPC/AIX.
+//
+//@CLASSES:
+//  bsls::AtomicOperations_POWERPC_AIX_XLC_Default32: default base for 32bit.
+//  bsls::AtomicOperations_POWERPC_AIX_XLC_Default64: default base for 64bit.
+//
+//@DESCRIPTION: This component provides default base classes necessary to
+// implement atomics on the AIX PowerPC platform with the xlC compiler.  The
+// classes are for private use only.  See &#39;bsls_atomicoperations&#39; and
+// &#39;bsls_atomic&#39; for the public interface to atomics.
+
+#ifndef INCLUDED_BSLS_ATOMICOPERATIONS_DEFAULT
+#include &lt;bsls_atomicoperations_default.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_PLATFORM
+#include &lt;bsls_platform.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_TYPES
+#include &lt;bsls_types.h&gt;
+#endif
+
+#if defined(BSLS_PLATFORM_CPU_POWERPC) &amp;&amp; defined(BSLS_PLATFORM_CMP_IBM)
+
+#include &lt;builtins.h&gt;
+
+namespace BloombergLP {
+
+namespace bsls {
+
+    // *** functions implemented in assembly for both 32bit and 64bit ***
+
+int AtomicOperations_Powerpc_GetInt(const volatile int *atomicInt);
+int AtomicOperations_Powerpc_GetIntAcquire(const volatile int *atomicInt);
+void AtomicOperations_Powerpc_SetInt(volatile int *atomicInt, int value);
+void AtomicOperations_Powerpc_SetIntRelease(volatile int *atomicInt,
+                                            int value);
+int AtomicOperations_Powerpc_SwapInt(volatile int *atomicInt,
+                                     int swapValue);
+int AtomicOperations_Powerpc_SwapIntAcqRel(volatile int *atomicInt,
+                                           int swapValue);
+int AtomicOperations_Powerpc_TestAndSwapInt(volatile int *atomicInt,
+                                            int compareValue,
+                                            int swapValue);
+int AtomicOperations_Powerpc_TestAndSwapIntAcqRel(volatile int *atomicInt,
+                                                  int compareValue,
+                                                  int swapValue);
+int AtomicOperations_Powerpc_AddInt(volatile int *atomicInt, int value);
+int AtomicOperations_Powerpc_AddIntAcqRel(volatile int *atomicInt,
+                                          int value);
+
+             // ==================================================
+             // struct AtomicOperations_POWERPC_AIX_XLC_DefaultInt
+             // ==================================================
+
+template &lt;typename IMP&gt;
+struct AtomicOperations_POWERPC_AIX_XLC_DefaultInt
+    : AtomicOperations_DefaultInt&lt;IMP&gt;
+{
+    typedef Atomic_TypeTraits&lt;IMP&gt; AtomicTypes;
+
+        // *** atomic functions for int ***
+
+    static int getInt(typename AtomicTypes::Int const *atomicInt);
+
+    static int getIntAcquire(typename AtomicTypes::Int const *atomicInt);
+
+    static void setInt(typename AtomicTypes::Int *atomicInt, int value);
+
+    static void setIntRelease(typename AtomicTypes::Int *atomicInt, int value);
+
+    static int swapInt(typename AtomicTypes::Int *atomicInt, int swapValue);
+
+    static int swapIntAcqRel(typename AtomicTypes::Int *atomicInt, int swapValue);
+
+    static int testAndSwapInt(typename AtomicTypes::Int *atomicInt,
+                              int compareValue,
+                              int swapValue);
+
+    static int testAndSwapIntAcqRel(typename AtomicTypes::Int *atomicInt,
+                                    int compareValue,
+                                    int swapValue);
+
+    static int addIntNv(typename AtomicTypes::Int *atomicInt, int value);
+
+    static int addIntNvRelaxed(typename AtomicTypes::Int *atomicInt, int value);
+
+    static int addIntNvAcqRel(typename AtomicTypes::Int *atomicInt, int value);
+};
+
+              // =================================================
+              // struct AtomicOperations_POWERPC_AIX_XLC_Default32
+              // =================================================
+
+template &lt;typename IMP&gt;
+struct AtomicOperations_POWERPC_AIX_XLC_Default32
+    : AtomicOperations_POWERPC_AIX_XLC_DefaultInt&lt;IMP&gt;
+    , AtomicOperations_DefaultInt64&lt;IMP&gt;
+    , AtomicOperations_DefaultPointer32&lt;IMP&gt;
+{};
+
+              // =================================================
+              // struct AtomicOperations_POWERPC_AIX_XLC_Default64
+              // =================================================
+
+template &lt;typename IMP&gt;
+struct AtomicOperations_POWERPC_AIX_XLC_Default64
+    : AtomicOperations_POWERPC_AIX_XLC_DefaultInt&lt;IMP&gt;
+    , AtomicOperations_DefaultInt64&lt;IMP&gt;
+    , AtomicOperations_DefaultPointer64&lt;IMP&gt;
+{};
+
+// ===========================================================================
+//                        INLINE FUNCTION DEFINITIONS
+// ===========================================================================
+
+             // --------------------------------------------------
+             // struct AtomicOperations_POWERPC_AIX_XLC_DefaultInt
+             // --------------------------------------------------
+
+template &lt;typename IMP&gt;
+inline
+int AtomicOperations_POWERPC_AIX_XLC_DefaultInt&lt;IMP&gt;::
+    getInt(typename AtomicTypes::Int const *atomicInt)
+{
+    return AtomicOperations_Powerpc_GetInt(&amp;atomicInt-&gt;d_value);
+}
+
+template &lt;typename IMP&gt;
+inline
+int AtomicOperations_POWERPC_AIX_XLC_DefaultInt&lt;IMP&gt;::
+    getIntAcquire(typename AtomicTypes::Int const *atomicInt)
+{
+    return AtomicOperations_Powerpc_GetIntAcquire(&amp;atomicInt-&gt;d_value);
+}
+
+template &lt;typename IMP&gt;
+inline
+void AtomicOperations_POWERPC_AIX_XLC_DefaultInt&lt;IMP&gt;::
+    setInt(typename AtomicTypes::Int *atomicInt, int value)
+{
+    AtomicOperations_Powerpc_SetInt(&amp;atomicInt-&gt;d_value, value);
+}
+
+template &lt;typename IMP&gt;
+inline
+void AtomicOperations_POWERPC_AIX_XLC_DefaultInt&lt;IMP&gt;::
+    setIntRelease(typename AtomicTypes::Int *atomicInt, int value)
+{
+    AtomicOperations_Powerpc_SetIntRelease(&amp;atomicInt-&gt;d_value, value);
+}
+
+template &lt;typename IMP&gt;
+inline
+int AtomicOperations_POWERPC_AIX_XLC_DefaultInt&lt;IMP&gt;::
+    swapInt(typename AtomicTypes::Int *atomicInt, int swapValue)
+{
+    return AtomicOperations_Powerpc_SwapInt(&amp;atomicInt-&gt;d_value,
+                                            swapValue);
+}
+
+template &lt;typename IMP&gt;
+inline
+int AtomicOperations_POWERPC_AIX_XLC_DefaultInt&lt;IMP&gt;::
+    swapIntAcqRel(typename AtomicTypes::Int *atomicInt, int swapValue)
+{
+    return AtomicOperations_Powerpc_SwapIntAcqRel(&amp;atomicInt-&gt;d_value,
+                                                  swapValue);
+}
+
+template &lt;typename IMP&gt;
+inline
+int AtomicOperations_POWERPC_AIX_XLC_DefaultInt&lt;IMP&gt;::
+    testAndSwapInt(typename AtomicTypes::Int *atomicInt,
+                   int compareValue,
+                   int swapValue)
+{
+    return AtomicOperations_Powerpc_TestAndSwapInt(&amp;atomicInt-&gt;d_value,
+                                                   compareValue,
+                                                   swapValue);
+}
+
+template &lt;typename IMP&gt;
+inline
+int AtomicOperations_POWERPC_AIX_XLC_DefaultInt&lt;IMP&gt;::
+    testAndSwapIntAcqRel(typename AtomicTypes::Int *atomicInt,
+                         int compareValue,
+                         int swapValue)
+{
+    return AtomicOperations_Powerpc_TestAndSwapIntAcqRel(
+                                                    &amp;atomicInt-&gt;d_value,
+                                                    compareValue,
+                                                    swapValue);
+}
+
+template &lt;typename IMP&gt;
+inline
+int AtomicOperations_POWERPC_AIX_XLC_DefaultInt&lt;IMP&gt;::
+    addIntNv(typename AtomicTypes::Int *atomicInt, int value)
+{
+    return AtomicOperations_Powerpc_AddInt(&amp;atomicInt-&gt;d_value, value);
+}
+
+template &lt;typename IMP&gt;
+inline
+int AtomicOperations_POWERPC_AIX_XLC_DefaultInt&lt;IMP&gt;::
+    addIntNvRelaxed(typename AtomicTypes::Int *atomicInt, int value)
+{
+    return __fetch_and_add(&amp;atomicInt-&gt;d_value, value) + value;
+}
+
+template &lt;typename IMP&gt;
+inline
+int AtomicOperations_POWERPC_AIX_XLC_DefaultInt&lt;IMP&gt;::
+    addIntNvAcqRel(typename AtomicTypes::Int *atomicInt, int value)
+{
+    return AtomicOperations_Powerpc_AddIntAcqRel(&amp;atomicInt-&gt;d_value,
+                                                 value);
+}
+
+}  // close package namespace
+
+}  // close enterprise namespace
+
+#endif
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright (C) 2012 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the &quot;Software&quot;), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

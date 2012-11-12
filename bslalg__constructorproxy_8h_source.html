@@ -1,0 +1,780 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 2.16 BETA</title>
+<html>
+<pre>
+// bslalg_constructorproxy.h                                          -*-C++-*-
+#ifndef INCLUDED_BSLALG_CONSTRUCTORPROXY
+#define INCLUDED_BSLALG_CONSTRUCTORPROXY
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a proxy for constructing and destroying objects.
+//
+//@CLASSES:
+//  bslalg::ConstructorProxy: proxy for constructing and destroying objects
+//
+//@SEE_ALSO: bslma_allocator
+//
+//@DESCRIPTION: This component provides a proxy for constructing and
+// automatically destroying objects.  The proxy class
+// &#39;bslalg::ConstructorProxy&#39; is parameterized on a &#39;OBJECT_TYPE&#39;, where
+// &#39;OBJECT_TYPE&#39; may or may not use a &#39;bslma&#39; allocator to supply memory.  Upon
+// construction of a proxy, a proxied &#39;OBJECT_TYPE&#39; instance is also
+// constructed; the &#39;bslma&#39; allocator supplied to the proxy constructor is
+// passed to the constructor of the proxied object only if &#39;OBJECT_TYPE&#39;
+// declares the &#39;bslma::UsesBslmaAllocator&#39; trait.  If this trait is
+// not declared for &#39;OBJECT_TYPE&#39;, the allocator is ignored.
+//
+// Following construction of the proxied object, it is held by the proxy.
+// Modifiable and non-modifiable access to the proxied object may be obtained
+// using the overloaded &#39;object&#39; methods.  When the proxy is destroyed, the
+// proxied object is automatically destroyed.
+//
+// This proxy is useful in situations where an object of a given type must be
+// constructed, but it is not known whether the object&#39;s constructor takes a
+// &#39;bslma&#39; allocator to supply memory.  This occurs frequently in generic
+// programming.
+//
+// See the &#39;bslma&#39; package-level documentation for more information about using
+// &#39;bslma&#39; allocators.
+//
+///Usage
+///-----
+// The snippets of code in the first usage example below illustrate very basic
+// use of the constructor proxy.  The second usage example provides a more
+// extended illustration of a scenario that can occur in generic programming.
+//
+///Example 1
+///- - - - -
+// Suppose we have an arbitrary class:
+//..
+//  class SomeClass {
+//      // ... class definition ...
+//  };
+//..
+// &#39;SomeClass&#39; may optionally declare the &#39;bslma::UsesBslmaAllocator&#39;
+// trait.  The following code illustrates how a &#39;SomeClass&#39; object can be
+// constructed using a constructor proxy which detects this trait:
+//..
+//  using namespace BloombergLP;
+//
+//  bslma::TestAllocator                testAllocator;
+//  bslalg::ConstructorProxy&lt;SomeClass&gt; proxy(&amp;testAllocator);
+//
+//  SomeClass&amp; myObject = proxy.object();
+//..
+// If &#39;SomeClass&#39; declares the &#39;bslma::UsesBslmaAllocator&#39; trait,
+// then the object of type &#39;SomeClass&#39; held by &#39;proxy&#39; will obtain its memory
+// from the supplied &#39;testAllocator&#39;.  Otherwise, &#39;testAllocator&#39; will be
+// ignored.
+//
+///Example 2
+///- - - - -
+// The following snippets of code illustrate a use of this component in a more
+// typical scenario.
+//
+// The &#39;MyContainer&#39; class below contains an object of a parameterized &#39;TYPE&#39;:
+//..
+//  template &lt;typename TYPE&gt;
+//  class MyContainer {
+//      // This class contains an object of parameterized &#39;TYPE&#39;.
+//
+//      // PRIVATE DATA MEMBERS
+//      TYPE d_object;  // contained object
+//
+//    public:
+//      // CREATORS
+//      explicit MyContainer(bslma::Allocator *basicAllocator = 0);
+//          // Construct a container using the specified &#39;basicAllocator&#39; to
+//          // supply memory.  If &#39;basicAllocator&#39; is 0, the currently
+//          // installed default allocator is used.
+//
+//      ~MyContainer();
+//          // Destroy this container.
+//
+//      // ACCESSORS
+//      const TYPE&amp; getObject() const;
+//          // Return a reference to the non-modifiable object stored in this
+//          // container.
+//
+//      // ... rest of class definition ...
+//  };
+//..
+// The implementation for the &#39;MyContainer&#39; constructor is a little tricky
+// without a constructor proxy.  One possible implementation is as follows:
+//..
+//  template &lt;typename TYPE&gt;
+//  MyContainer&lt;TYPE&gt;::MyContainer(bslma::Allocator *basicAllocator)
+//  {
+//  }
+//..
+// This implementation will compile successfully for each &#39;TYPE&#39; that has a
+// default constructor, but it will not behave as documented.  In particular,
+// the specified &#39;basicAllocator&#39; will not be used to supply memory.
+//
+// Another possible implementation for the &#39;MyContainer&#39; constructor is as
+// follows:
+//..
+//  template &lt;typename TYPE&gt;
+//  MyContainer&lt;TYPE&gt;::MyContainer(bslma::Allocator *basicAllocator)
+//  : d_object(basicAllocator)
+//  {
+//  }
+//..
+// This implementation behaves as documented, but it will not compile unless
+// &#39;TYPE&#39; has a constructor taking a &#39;bslma::Allocator *&#39;.  For example, the
+// following declaration of &#39;container&#39; will fail to compile:
+//..
+//  bslma::TestAllocator testAllocator;
+//
+//  MyContainer&lt;int&gt; container(&amp;testAllocator);
+//..
+// The solution to this problem is to use the constructor proxy provided by
+// this component.  The following definition of &#39;MyContainer&#39; uses a
+// constructor proxy for the contained object of parameterized &#39;TYPE&#39;:
+//..
+//  template &lt;typename TYPE&gt;
+//  class MyContainer {
+//      // This class contains an object of parameterized &#39;TYPE&#39;.
+//
+//      // PRIVATE DATA MEMBERS
+//      bslalg::ConstructorProxy&lt;TYPE&gt; d_proxy;
+//
+//    public:
+//      // CREATORS
+//      explicit MyContainer(bslma::Allocator *basicAllocator = 0);
+//          // Construct a container using the specified &#39;basicAllocator&#39; to
+//          // supply memory.  If &#39;basicAllocator&#39; is 0, the currently
+//          // installed default allocator is used.
+//
+//      ~MyContainer();
+//          // Destroy this container.
+//
+//      // ACCESSORS
+//      const TYPE&amp; getObject() const;
+//          // Return a reference to the non-modifiable object stored in this
+//          // container.
+//
+//      // ... rest of class definition ...
+//  };
+//..
+// The constructor for &#39;MyContainer&#39; can now be implemented as follows:
+//..
+//  template &lt;typename TYPE&gt;
+//  MyContainer&lt;TYPE&gt;::MyContainer(bslma::Allocator *basicAllocator)
+//  : d_proxy(basicAllocator)
+//  {
+//  }
+//..
+// The &#39;getObject&#39; method of &#39;MyContainer&#39; is implemented as follows:
+//..
+//  template &lt;typename TYPE&gt;
+//  const TYPE&amp; MyContainer&lt;TYPE&gt;::getObject() const
+//  {
+//      return d_proxy.object();
+//  }
+//..
+// Now the following code, which previously did not compile, *will* compile
+// successfully:
+//..
+//  bslma::TestAllocator testAllocator;
+//
+//  MyContainer&lt;int&gt; container(&amp;testAllocator);
+//..
+// The specified &#39;testAllocator&#39; will simply be ignored because &#39;int&#39; does not
+// use a &#39;bslma&#39; allocator to supply memory.
+//
+// Next suppose we have a class defined as follows:
+//..
+//  class SomeClassUsingAllocator {
+//      // This class uses a &#39;bslma&#39; allocator.
+//
+//      // PRIVATE DATA MEMBERS
+//      bslma::Allocator *d_allocator_p;
+//
+//    public:
+//      // CREATORS
+//      explicit SomeClassUsingAllocator(bslma::Allocator *basicAllocator = 0)
+//      : d_allocator_p(bslma::Default::allocator(basicAllocator))
+//      {
+//      }
+//
+//      // ACCESSORS
+//      bslma::Allocator *getAllocator() const
+//      {
+//          return d_allocator_p;
+//      }
+//  };
+//
+//  // TRAITS
+//  namespace bslma {
+//
+//  template &lt;&gt;
+//  struct UsesBslmaAllocator&lt;SomeClassUsingAllocator&gt; : bsl::true_type
+//  {};
+//
+//  }
+//..
+// The following code will compile and run without an assertion failure:
+//..
+//  bslma::TestAllocator testAllocator;
+//
+//  MyContainer&lt;SomeClassUsingAllocator&gt; container(&amp;testAllocator);
+//
+//  assert(&amp;testAllocator == container.getObject().getAllocator());
+//..
+// Finally, since the &#39;MyContainer&#39; class uses a &#39;bslma&#39; allocator to supply
+// memory, it is useful to expose this property.  This is done by declaring the
+// &#39;bslma::UsesBslmaAllocator&#39; trait to complete the definition of
+// &#39;MyContainer&#39;:
+//..
+//  template &lt;typename TYPE&gt;
+//  class MyContainer {
+//      // This class contains an object of parameterized &#39;TYPE&#39; and declares
+//      // the &#39;bslma::UsesBslmaAllocator&#39; trait.
+//
+//      // PRIVATE DATA MEMBERS
+//      bslalg::ConstructorProxy&lt;TYPE&gt; d_proxy;
+//
+//    public:
+//      // CREATORS
+//      explicit MyContainer(bslma::Allocator *basicAllocator = 0);
+//          // Construct a container using the specified &#39;basicAllocator&#39; to
+//          // supply memory.  If &#39;basicAllocator&#39; is 0, the currently
+//          // installed default allocator is used.
+//
+//      ~MyContainer();
+//          // Destroy this container.
+//
+//      // ACCESSORS
+//      const TYPE&amp; getObject() const;
+//          // Return a reference to the non-modifiable object stored in this
+//          // container.
+//
+//      // ... rest of class definition ...
+//  };
+//
+//  // TRAITS
+//  namespace bslma {
+//
+//  template &lt;typename TYPE&gt;
+//  struct UsesBslmaAllocator&lt;MyContainer&lt;TYPE&gt; &gt; : bsl::true_type
+//  {};
+//
+//  }
+//..
+// The following code will also compile and run without an assertion failure:
+//..
+//  bslma::TestAllocator testAllocator;
+//
+//  MyContainer&lt;MyContainer&lt;SomeClassUsingAllocator&gt; &gt;
+//                                          containedContainer(&amp;testAllocator);
+//
+//  assert(&amp;testAllocator
+//               == containedContainer.getObject().getObject().getAllocator());
+//..
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include &lt;bslscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLALG_SCALARDESTRUCTIONPRIMITIVES
+#include &lt;bslalg_scalardestructionprimitives.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLALG_SCALARPRIMITIVES
+#include &lt;bslalg_scalarprimitives.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include &lt;bslma_usesbslmaallocator.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_OBJECTBUFFER
+#include &lt;bsls_objectbuffer.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_UTIL
+#include &lt;bsls_util.h&gt;
+#endif
+
+namespace BloombergLP {
+
+namespace bslma { class Allocator; }
+
+namespace bslalg {
+
+                        // ======================
+                        // class ConstructorProxy
+                        // ======================
+
+template &lt;typename OBJECT_TYPE&gt;
+class ConstructorProxy {
+    // This class acts as a proxy for constructing and destroying an object of
+    // parameterized &#39;OBJECT_TYPE&#39;, where &#39;OBJECT_TYPE&#39; may or may not use a
+    // &#39;bslma&#39; allocator for supplying memory.  The constructors for this proxy
+    // class take a &#39;bslma::Allocator *&#39;.  If &#39;OBJECT_TYPE&#39; has the
+    // &#39;bslma::UsesBslmaAllocator&#39; trait declared, then the supplied
+    // allocator will be used to construct the proxied object.  Otherwise, the
+    // allocator is ignored.
+
+    // DATA
+    bsls::ObjectBuffer&lt;OBJECT_TYPE&gt; d_objectBuffer;  // footprint of proxied
+                                                     // object (raw buffer)
+
+  private:
+    // NOT IMPLEMENTED
+    ConstructorProxy(const ConstructorProxy&amp;);
+    ConstructorProxy&amp; operator=(const ConstructorProxy&amp;);
+
+  public:
+    // CREATORS
+    explicit ConstructorProxy(bslma::Allocator *basicAllocator);
+        // Construct a proxy, and a proxied object of parameterized
+        // &#39;OBJECT_TYPE&#39;.  Use the specified &#39;basicAllocator&#39; to supply memory
+        // to the proxied object if &#39;OBJECT_TYPE&#39; declares the
+        // &#39;bslma::UsesBslmaAllocator&#39; trait, and ignore &#39;basicAllocator&#39;
+        // otherwise.
+
+    ConstructorProxy(const ConstructorProxy&lt;OBJECT_TYPE&gt;&amp;  original,
+                     bslma::Allocator                     *basicAllocator);
+        // Construct a proxy, and a proxied object of parameterized
+        // &#39;OBJECT_TYPE&#39; having the value of the object held by the specified
+        // &#39;original&#39; proxy.  Use the specified &#39;basicAllocator&#39; to supply
+        // memory to the proxied object if &#39;OBJECT_TYPE&#39; declares the
+        // &#39;bslma::UsesBslmaAllocator&#39; trait, and ignore &#39;basicAllocator&#39;
+        // otherwise.
+
+    template &lt;typename SOURCE_TYPE&gt;
+    ConstructorProxy(const ConstructorProxy&lt;SOURCE_TYPE&gt;&amp;  original,
+                     bslma::Allocator                     *basicAllocator);
+        // Construct a proxy, and a proxied object of the parameterized
+        // &#39;OBJECT_TYPE&#39; having the value of the object of the parameterized
+        // &#39;SOURCE_TYPE&#39; held by the specified &#39;original&#39; proxy.  Use the
+        // specified &#39;basicAllocator&#39; to supply memory to the proxied object if
+        // &#39;OBJECT_TYPE&#39; declares the &#39;bslma::UsesBslmaAllocator&#39; trait, and
+        // ignore &#39;basicAllocator&#39; otherwise.  Note that a compilation error
+        // will result unless an instance of &#39;OBJECT_TYPE&#39; can be constructed
+        // from an instance of &#39;SOURCE_TYPE&#39;.
+
+    template &lt;typename ARG1&gt;
+    ConstructorProxy(const ARG1&amp; a1, bslma::Allocator *basicAllocator);
+    template &lt;typename ARG1, typename ARG2&gt;
+    ConstructorProxy(const ARG1&amp; a1, const ARG2&amp; a2,
+                     bslma::Allocator *basicAllocator);
+    template &lt;typename ARG1, typename ARG2, typename ARG3&gt;
+    ConstructorProxy(const ARG1&amp; a1, const ARG2&amp; a2, const ARG3&amp; a3,
+                     bslma::Allocator *basicAllocator);
+    template &lt;typename ARG1, typename ARG2, typename ARG3, typename ARG4&gt;
+    ConstructorProxy(const ARG1&amp; a1, const ARG2&amp; a2, const ARG3&amp; a3,
+                     const ARG4&amp; a4, bslma::Allocator *basicAllocator);
+    template &lt;typename ARG1, typename ARG2, typename ARG3, typename ARG4,
+              typename ARG5&gt;
+    ConstructorProxy(const ARG1&amp; a1, const ARG2&amp; a2, const ARG3&amp; a3,
+                     const ARG4&amp; a4, const ARG5&amp; a5,
+                     bslma::Allocator *basicAllocator);
+    template &lt;typename ARG1, typename ARG2, typename ARG3, typename ARG4,
+              typename ARG5, typename ARG6&gt;
+    ConstructorProxy(const ARG1&amp; a1, const ARG2&amp; a2, const ARG3&amp; a3,
+                     const ARG4&amp; a4, const ARG5&amp; a5, const ARG6&amp; a6,
+                     bslma::Allocator *basicAllocator);
+    template &lt;typename ARG1, typename ARG2, typename ARG3, typename ARG4,
+              typename ARG5, typename ARG6, typename ARG7&gt;
+    ConstructorProxy(const ARG1&amp; a1, const ARG2&amp; a2, const ARG3&amp; a3,
+                     const ARG4&amp; a4, const ARG5&amp; a5, const ARG6&amp; a6,
+                     const ARG7&amp; a7, bslma::Allocator *basicAllocator);
+    template &lt;typename ARG1, typename ARG2, typename ARG3, typename ARG4,
+              typename ARG5, typename ARG6, typename ARG7, typename ARG8&gt;
+    ConstructorProxy(const ARG1&amp; a1, const ARG2&amp; a2, const ARG3&amp; a3,
+                     const ARG4&amp; a4, const ARG5&amp; a5, const ARG6&amp; a6,
+                     const ARG7&amp; a7, const ARG8&amp; a8,
+                     bslma::Allocator *basicAllocator);
+    template &lt;typename ARG1, typename ARG2, typename ARG3, typename ARG4,
+              typename ARG5, typename ARG6, typename ARG7, typename ARG8,
+              typename ARG9&gt;
+    ConstructorProxy(const ARG1&amp; a1, const ARG2&amp; a2, const ARG3&amp; a3,
+                     const ARG4&amp; a4, const ARG5&amp; a5, const ARG6&amp; a6,
+                     const ARG7&amp; a7, const ARG8&amp; a8, const ARG9&amp; a9,
+                     bslma::Allocator *basicAllocator);
+    template &lt;typename ARG1, typename ARG2, typename ARG3, typename ARG4,
+              typename ARG5, typename ARG6, typename ARG7, typename ARG8,
+              typename ARG9, typename ARG10&gt;
+    ConstructorProxy(const ARG1&amp;  a1, const ARG2&amp; a2, const ARG3&amp; a3,
+                     const ARG4&amp;  a4, const ARG5&amp; a5, const ARG6&amp; a6,
+                     const ARG7&amp;  a7, const ARG8&amp; a8, const ARG9&amp; a9,
+                     const ARG10&amp; a10, bslma::Allocator *basicAllocator);
+    template &lt;typename ARG1, typename ARG2, typename ARG3, typename ARG4,
+              typename ARG5, typename ARG6, typename ARG7, typename ARG8,
+              typename ARG9, typename ARG10, typename ARG11&gt;
+    ConstructorProxy(const ARG1&amp;  a1, const ARG2&amp; a2,  const ARG3&amp; a3,
+                     const ARG4&amp;  a4, const ARG5&amp; a5,  const ARG6&amp; a6,
+                     const ARG7&amp;  a7, const ARG8&amp; a8,  const ARG9&amp; a9,
+                     const ARG10&amp; a10, const ARG11&amp; a11,
+                     bslma::Allocator *basicAllocator);
+    template &lt;typename ARG1, typename ARG2, typename ARG3, typename ARG4,
+              typename ARG5, typename ARG6, typename ARG7, typename ARG8,
+              typename ARG9, typename ARG10, typename ARG11, typename ARG12&gt;
+    ConstructorProxy(const ARG1&amp;  a1,  const ARG2&amp;  a2,  const ARG3&amp; a3,
+                     const ARG4&amp;  a4,  const ARG5&amp;  a5,  const ARG6&amp; a6,
+                     const ARG7&amp;  a7,  const ARG8&amp;  a8,  const ARG9&amp; a9,
+                     const ARG10&amp; a10, const ARG11&amp; a11,
+                     const ARG12&amp; a12, bslma::Allocator *basicAllocator);
+    template &lt;typename ARG1, typename ARG2,  typename ARG3,  typename ARG4,
+              typename ARG5, typename ARG6,  typename ARG7,  typename ARG8,
+              typename ARG9, typename ARG10, typename ARG11, typename ARG12,
+              typename ARG13&gt;
+    ConstructorProxy(const ARG1&amp;  a1,  const ARG2&amp;  a2, const ARG3&amp;  a3,
+                     const ARG4&amp;  a4,  const ARG5&amp;  a5, const ARG6&amp;  a6,
+                     const ARG7&amp;  a7,  const ARG8&amp;  a8, const ARG9&amp;  a9,
+                     const ARG10&amp; a10, const ARG11&amp; a11,
+                     const ARG12&amp; a12, const ARG13&amp; a13,
+                     bslma::Allocator *basicAllocator);
+    template &lt;typename ARG1, typename ARG2,  typename ARG3,  typename ARG4,
+              typename ARG5, typename ARG6,  typename ARG7,  typename ARG8,
+              typename ARG9, typename ARG10, typename ARG11, typename ARG12,
+              typename ARG13, typename ARG14&gt;
+    ConstructorProxy(const ARG1&amp;  a1,  const ARG2&amp;  a2, const ARG3&amp;  a3,
+                     const ARG4&amp;  a4,  const ARG5&amp;  a5, const ARG6&amp;  a6,
+                     const ARG7&amp;  a7,  const ARG8&amp;  a8, const ARG9&amp;  a9,
+                     const ARG10&amp; a10, const ARG11&amp; a11,
+                     const ARG12&amp; a12, const ARG13&amp; a13,
+                     const ARG14&amp; a14,
+                     bslma::Allocator *basicAllocator);
+        // Construct a proxy, and a proxied object of the parameterized
+        // &#39;OBJECT_TYPE&#39; using the specified arguments &#39;a1&#39; up to &#39;a14&#39; of the
+        // respective parameterized &#39;ARG1&#39; up to &#39;ARG14&#39; types.  Use the
+        // specified &#39;basicAllocator&#39; to supply memory to the proxied object if
+        // &#39;OBJECT_TYPE&#39; declares the &#39;bslma::UsesBslmaAllocator&#39; trait, and
+        // ignore &#39;basicAllocator&#39; otherwise.  If &#39;basicAllocator&#39; is 0, the
+        // currently installed default allocator is used.  Note that a
+        // compilation error will result unless &#39;OBJECT_TYPE&#39; has a constructor
+        // of signature compatible with
+        // &#39;OBJECT_TYPE(ARG1 const&amp;, ARG2 const&amp;, ...)&#39;.
+
+    ~ConstructorProxy();
+        // Destroy this proxy and the object held by this proxy.
+
+    // MANIPULATORS
+    OBJECT_TYPE&amp; object();
+        // Return a reference to the modifiable object held by this proxy.
+
+    // ACCESSORS
+    const OBJECT_TYPE&amp; object() const;
+        // Return a reference to the non-modifiable object held by this proxy.
+};
+
+}  // close namespace bslalg
+
+// ============================================================================
+//                                TYPE TRAITS
+// ============================================================================
+
+namespace bslma {
+
+template &lt;typename OBJECT_TYPE&gt;
+struct UsesBslmaAllocator&lt;bslalg::ConstructorProxy&lt;OBJECT_TYPE&gt; &gt;
+    : bsl::true_type
+{};
+
+}  // close namespace bslma
+
+// ============================================================================
+//                      INLINE FUNCTION DEFINITIONS
+// ============================================================================
+
+namespace bslalg {
+
+                        // ----------------------
+                        // class ConstructorProxy
+                        // ----------------------
+
+// CREATORS
+template &lt;typename OBJECT_TYPE&gt;
+inline
+ConstructorProxy&lt;OBJECT_TYPE&gt;::ConstructorProxy(
+                                              bslma::Allocator *basicAllocator)
+{
+    ScalarPrimitives::defaultConstruct(
+                                  BSLS_UTIL_ADDRESSOF(d_objectBuffer.object()),
+                                  basicAllocator);
+}
+
+template &lt;typename OBJECT_TYPE&gt;
+inline
+ConstructorProxy&lt;OBJECT_TYPE&gt;::ConstructorProxy(
+                          const ConstructorProxy&lt;OBJECT_TYPE&gt;&amp;  original,
+                          bslma::Allocator                     *basicAllocator)
+{
+    ScalarPrimitives::copyConstruct(
+                                  BSLS_UTIL_ADDRESSOF(d_objectBuffer.object()),
+                                  original.object(),
+                                  basicAllocator);
+}
+
+template &lt;typename OBJECT_TYPE&gt;
+template &lt;typename SOURCE_TYPE&gt;
+inline
+ConstructorProxy&lt;OBJECT_TYPE&gt;::ConstructorProxy(
+                          const ConstructorProxy&lt;SOURCE_TYPE&gt;&amp;  original,
+                          bslma::Allocator                     *basicAllocator)
+{
+    ScalarPrimitives::construct(BSLS_UTIL_ADDRESSOF(d_objectBuffer.object()),
+                                original.object(),
+                                basicAllocator);
+}
+
+template &lt;typename OBJECT_TYPE&gt;
+template &lt;typename ARG1&gt;
+inline
+ConstructorProxy&lt;OBJECT_TYPE&gt;::ConstructorProxy(
+                              const ARG1&amp; a1, bslma::Allocator *basicAllocator)
+{
+    ScalarPrimitives::construct(BSLS_UTIL_ADDRESSOF(d_objectBuffer.object()),
+                                a1,
+                                basicAllocator);
+}
+
+template &lt;typename OBJECT_TYPE&gt;
+template &lt;typename ARG1, typename ARG2&gt;
+inline
+ConstructorProxy&lt;OBJECT_TYPE&gt;::ConstructorProxy(
+              const ARG1&amp; a1, const ARG2&amp; a2, bslma::Allocator *basicAllocator)
+{
+    ScalarPrimitives::construct(BSLS_UTIL_ADDRESSOF(d_objectBuffer.object()),
+                                a1, a2,
+                                basicAllocator);
+}
+
+template &lt;typename OBJECT_TYPE&gt;
+template &lt;typename ARG1, typename ARG2, typename ARG3&gt;
+inline
+ConstructorProxy&lt;OBJECT_TYPE&gt;::ConstructorProxy(
+                                const ARG1&amp; a1, const ARG2&amp; a2, const ARG3&amp; a3,
+                                bslma::Allocator *basicAllocator)
+{
+    ScalarPrimitives::construct(BSLS_UTIL_ADDRESSOF(d_objectBuffer.object()),
+                                a1, a2, a3,
+                                basicAllocator);
+}
+
+template &lt;typename OBJECT_TYPE&gt;
+template &lt;typename ARG1, typename ARG2, typename ARG3, typename ARG4&gt;
+inline
+ConstructorProxy&lt;OBJECT_TYPE&gt;::ConstructorProxy(
+                const ARG1&amp; a1, const ARG2&amp; a2, const ARG3&amp; a3, const ARG4&amp; a4,
+                bslma::Allocator *basicAllocator)
+{
+    ScalarPrimitives::construct(BSLS_UTIL_ADDRESSOF(d_objectBuffer.object()),
+                                a1, a2, a3, a4,
+                                basicAllocator);
+}
+
+template &lt;typename OBJECT_TYPE&gt;
+template &lt;typename ARG1, typename ARG2, typename ARG3, typename ARG4,
+          typename ARG5&gt;
+inline
+ConstructorProxy&lt;OBJECT_TYPE&gt;::ConstructorProxy(
+                const ARG1&amp; a1, const ARG2&amp; a2, const ARG3&amp; a3, const ARG4&amp; a4,
+                const ARG5&amp; a5, bslma::Allocator *basicAllocator)
+{
+    ScalarPrimitives::construct(BSLS_UTIL_ADDRESSOF(d_objectBuffer.object()),
+                                a1, a2, a3, a4, a5,
+                                basicAllocator);
+}
+
+template &lt;typename OBJECT_TYPE&gt;
+template &lt;typename ARG1, typename ARG2, typename ARG3, typename ARG4,
+          typename ARG5, typename ARG6&gt;
+inline
+ConstructorProxy&lt;OBJECT_TYPE&gt;::ConstructorProxy(
+              const ARG1&amp; a1, const ARG2&amp; a2, const ARG3&amp; a3, const ARG4&amp; a4,
+              const ARG5&amp; a5, const ARG6&amp; a6, bslma::Allocator *basicAllocator)
+{
+    ScalarPrimitives::construct(BSLS_UTIL_ADDRESSOF(d_objectBuffer.object()),
+                                a1, a2, a3, a4, a5, a6,
+                                basicAllocator);
+}
+
+template &lt;typename OBJECT_TYPE&gt;
+template &lt;typename ARG1, typename ARG2, typename ARG3, typename ARG4,
+          typename ARG5, typename ARG6, typename ARG7&gt;
+inline
+ConstructorProxy&lt;OBJECT_TYPE&gt;::ConstructorProxy(
+                const ARG1&amp; a1, const ARG2&amp; a2, const ARG3&amp; a3, const ARG4&amp; a4,
+                const ARG5&amp; a5, const ARG6&amp; a6, const ARG7&amp; a7,
+                bslma::Allocator *basicAllocator)
+{
+    ScalarPrimitives::construct(BSLS_UTIL_ADDRESSOF(d_objectBuffer.object()),
+                                a1, a2, a3, a4, a5, a6, a7,
+                                basicAllocator);
+}
+
+template &lt;typename OBJECT_TYPE&gt;
+template &lt;typename ARG1, typename ARG2, typename ARG3, typename ARG4,
+          typename ARG5, typename ARG6, typename ARG7, typename ARG8&gt;
+inline
+ConstructorProxy&lt;OBJECT_TYPE&gt;::ConstructorProxy(
+                const ARG1&amp; a1, const ARG2&amp; a2, const ARG3&amp; a3, const ARG4&amp; a4,
+                const ARG5&amp; a5, const ARG6&amp; a6, const ARG7&amp; a7, const ARG8&amp; a8,
+                bslma::Allocator *basicAllocator)
+{
+    ScalarPrimitives::construct(BSLS_UTIL_ADDRESSOF(d_objectBuffer.object()),
+                                a1, a2, a3, a4, a5, a6, a7, a8,
+                                basicAllocator);
+}
+
+template &lt;typename OBJECT_TYPE&gt;
+template &lt;typename ARG1, typename ARG2, typename ARG3, typename ARG4,
+          typename ARG5, typename ARG6, typename ARG7, typename ARG8,
+          typename ARG9&gt;
+inline
+ConstructorProxy&lt;OBJECT_TYPE&gt;::ConstructorProxy(
+                const ARG1&amp; a1, const ARG2&amp; a2, const ARG3&amp; a3, const ARG4&amp; a4,
+                const ARG5&amp; a5, const ARG6&amp; a6, const ARG7&amp; a7, const ARG8&amp; a8,
+                const ARG9&amp; a9, bslma::Allocator *basicAllocator)
+{
+    ScalarPrimitives::construct(BSLS_UTIL_ADDRESSOF(d_objectBuffer.object()),
+                                a1, a2, a3, a4, a5, a6, a7, a8, a9,
+                                basicAllocator);
+}
+
+template &lt;typename OBJECT_TYPE&gt;
+template &lt;typename ARG1, typename ARG2, typename ARG3, typename ARG4,
+          typename ARG5, typename ARG6, typename ARG7, typename ARG8,
+          typename ARG9, typename ARG10&gt;
+inline
+ConstructorProxy&lt;OBJECT_TYPE&gt;::ConstructorProxy(
+            const ARG1&amp; a1, const ARG2&amp; a2, const ARG3&amp; a3, const ARG4&amp; a4,
+            const ARG5&amp; a5, const ARG6&amp; a6, const ARG7&amp; a7, const ARG8&amp; a8,
+            const ARG9&amp; a9, const ARG10&amp; a10, bslma::Allocator *basicAllocator)
+{
+    ScalarPrimitives::construct(BSLS_UTIL_ADDRESSOF(d_objectBuffer.object()),
+                                a1, a2, a3, a4, a5, a6, a7, a8, a9, a10,
+                                basicAllocator);
+}
+
+template &lt;typename OBJECT_TYPE&gt;
+template &lt;typename ARG1, typename ARG2,  typename ARG3, typename ARG4,
+          typename ARG5, typename ARG6,  typename ARG7, typename ARG8,
+          typename ARG9, typename ARG10, typename ARG11&gt;
+inline
+ConstructorProxy&lt;OBJECT_TYPE&gt;::ConstructorProxy(
+                const ARG1&amp; a1, const ARG2&amp; a2, const ARG3&amp; a3, const ARG4&amp; a4,
+                const ARG5&amp; a5, const ARG6&amp; a6, const ARG7&amp; a7, const ARG8&amp; a8,
+                const ARG9&amp; a9, const ARG10&amp; a10, const ARG11&amp; a11,
+                bslma::Allocator *basicAllocator)
+{
+    ScalarPrimitives::construct(BSLS_UTIL_ADDRESSOF(d_objectBuffer.object()),
+                                a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11,
+                                basicAllocator);
+}
+
+template &lt;typename OBJECT_TYPE&gt;
+template &lt;typename ARG1, typename ARG2,  typename ARG3, typename ARG4,
+          typename ARG5, typename ARG6,  typename ARG7, typename ARG8,
+          typename ARG9, typename ARG10, typename ARG11, typename ARG12&gt;
+inline
+ConstructorProxy&lt;OBJECT_TYPE&gt;::ConstructorProxy(
+          const ARG1&amp; a1, const ARG2&amp;  a2,  const ARG3&amp;  a3,  const ARG4&amp;  a4,
+          const ARG5&amp; a5, const ARG6&amp;  a6,  const ARG7&amp;  a7,  const ARG8&amp;  a8,
+          const ARG9&amp; a9, const ARG10&amp; a10, const ARG11&amp; a11, const ARG12&amp; a12,
+          bslma::Allocator *basicAllocator)
+{
+    ScalarPrimitives::construct(BSLS_UTIL_ADDRESSOF(d_objectBuffer.object()),
+                                a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11,
+                                a12, basicAllocator);
+}
+
+template &lt;typename OBJECT_TYPE&gt;
+template &lt;typename ARG1, typename  ARG2,  typename ARG3, typename  ARG4,
+          typename ARG5, typename  ARG6,  typename ARG7, typename  ARG8,
+          typename ARG9, typename  ARG10, typename ARG11, typename ARG12,
+          typename ARG13&gt;
+inline
+ConstructorProxy&lt;OBJECT_TYPE&gt;::ConstructorProxy(
+          const ARG1&amp; a1, const ARG2&amp; a2, const ARG3&amp; a3, const ARG4&amp; a4,
+          const ARG5&amp; a5, const ARG6&amp; a6, const ARG7&amp; a7, const ARG8&amp; a8,
+          const ARG9&amp; a9, const ARG10&amp; a10, const ARG11&amp; a11, const ARG12&amp; a12,
+          const ARG13&amp; a13, bslma::Allocator *basicAllocator)
+{
+    ScalarPrimitives::construct(BSLS_UTIL_ADDRESSOF(d_objectBuffer.object()),
+                                a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11,
+                                a12, a13, basicAllocator);
+}
+
+template &lt;typename OBJECT_TYPE&gt;
+template &lt;typename ARG1, typename ARG2, typename ARG3, typename ARG4,
+          typename ARG5, typename ARG6, typename ARG7, typename ARG8,
+          typename ARG9, typename ARG10, typename ARG11, typename ARG12,
+          typename ARG13, typename ARG14&gt;
+inline
+ConstructorProxy&lt;OBJECT_TYPE&gt;::ConstructorProxy(
+          const ARG1&amp; a1, const ARG2&amp; a2, const ARG3&amp; a3, const ARG4&amp; a4,
+          const ARG5&amp; a5, const ARG6&amp; a6, const ARG7&amp; a7, const ARG8&amp; a8,
+          const ARG9&amp; a9, const ARG10&amp; a10, const ARG11&amp; a11, const ARG12&amp; a12,
+          const ARG13&amp; a13, const ARG14&amp; a14, bslma::Allocator *basicAllocator)
+{
+    ScalarPrimitives::construct(BSLS_UTIL_ADDRESSOF(d_objectBuffer.object()),
+                                a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11,
+                                a12, a13, a14, basicAllocator);
+}
+
+template &lt;typename OBJECT_TYPE&gt;
+inline
+ConstructorProxy&lt;OBJECT_TYPE&gt;::~ConstructorProxy()
+{
+    ScalarDestructionPrimitives::destroy(
+                                 BSLS_UTIL_ADDRESSOF(d_objectBuffer.object()));
+}
+
+// MANIPULATORS
+template &lt;typename OBJECT_TYPE&gt;
+inline
+OBJECT_TYPE&amp; ConstructorProxy&lt;OBJECT_TYPE&gt;::object()
+{
+    return d_objectBuffer.object();
+}
+
+// ACCESSORS
+template &lt;typename OBJECT_TYPE&gt;
+inline
+const OBJECT_TYPE&amp; ConstructorProxy&lt;OBJECT_TYPE&gt;::object() const
+{
+    return d_objectBuffer.object();
+}
+
+}  // close package namespace
+
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright (C) 2012 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the &quot;Software&quot;), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

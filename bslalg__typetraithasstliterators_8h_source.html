@@ -1,0 +1,120 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 2.16 BETA</title>
+<html>
+<pre>
+// bslalg_typetraithasstliterators.h                                  -*-C++-*-
+#ifndef INCLUDED_BSLALG_TYPETRAITHASSTLITERATORS
+#define INCLUDED_BSLALG_TYPETRAITHASSTLITERATORS
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a primitive type trait for classes with STL-like iterators.
+//
+//@CLASSES:
+//  bslalg::TypeTraitHasStlIterators: has STL-like iterators
+//
+//@SEE_ALSO: bslmf_typetraits
+//
+//@DESCRIPTION: This component provides a single traits class,
+// &#39;bslalg::TypeTraitHasStlIterators&#39;.  A &#39;TYPE&#39; that has this trait fulfills
+// the following requirements, where &#39;mX&#39; is a modifiable object and &#39;X&#39; a
+// non-modifiable object of &#39;TYPE&#39;:
+//..
+//  Valid expression     Type              Note
+//  ----------------     ----              ----
+//  TYPE::iterator                         Iterator type (has &#39;operator-&gt;&#39;,
+//                                         &#39;operator*&#39;, and possibly more
+//                                         depending on the iterator
+//                                         category).
+//
+//  TYPE::iterator                         Iterator type (has &#39;operator-&gt;&#39;,
+//                                         &#39;operator*&#39;, and possibly more
+//                                         depending on the iterator
+//                                         category).  The value type of this
+//                                         iterator is not modifiable.
+//
+//  mX.begin()           iterator          Similar to standard containers
+//  mX.end()             iterator
+//  X.begin()            const_iterator
+//  X.end()              const_iterator
+//  X.cbegin()           const_iterator
+//  X.cend()             const_iterator
+//..
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include &lt;bslscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_DETECTNESTEDTRAIT
+#include &lt;bslmf_detectnestedtrait.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
+#include &lt;bslmf_integralconstant.h&gt;
+#endif
+
+namespace BloombergLP {
+
+namespace bslalg {
+
+template &lt;typename TYPE&gt;
+struct HasStlIterators : bslmf::DetectNestedTrait&lt;TYPE, HasStlIterators&gt;
+{
+};
+
+                        //================================
+                        // struct TypeTraitHasStlIterators
+                        //================================
+
+struct TypeTraitHasStlIterators {
+    // A type with this trait defines (at minimum) the nested types &#39;iterator&#39;
+    // and &#39;const_iterator&#39; and the functions &#39;begin()&#39; and &#39;end()&#39; having the
+    // standard STL semantics.
+
+    template &lt;class TYPE&gt;
+    struct NestedTraitDeclaration :
+        bslmf::NestedTraitDeclaration&lt;TYPE, HasStlIterators&gt;
+    {
+        // This class template ties the &#39;bslalg::TypeTraitHasStlIterators&#39;
+        // trait tag to the &#39;bslmf::HasStlIterators&#39; trait metafunction.
+    };
+
+    template &lt;class TYPE&gt;
+    struct Metafunction : HasStlIterators&lt;TYPE&gt;::type { };
+};
+
+}  // close package namespace
+
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright (C) 2012 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the &quot;Software&quot;), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

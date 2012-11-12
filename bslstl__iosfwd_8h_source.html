@@ -1,0 +1,120 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 2.16 BETA</title>
+<html>
+<pre>
+// bslstl_iosfwd.h                                                    -*-C++-*-
+#ifndef INCLUDED_BSLSTL_IOSFWD
+#define INCLUDED_BSLSTL_IOSFWD
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide forward declarations for Standard stream classes.
+//
+//@CLASSES:
+//  bsl::stringbuf: specialization for bsl::basic_stringbuf&lt;char&gt;
+//  bsl::istringstream: specialization for bsl::basic_istringstream&lt;char&gt;
+//  bsl::ostringstream: specialization for bsl::basic_ostringstream&lt;char&gt;
+//  bsl::stringstream: specialization for bsl::basic_stringstream&lt;char&gt;
+//  bsl::wstringbuf: specialization for bsl::basic_stringbuf&lt;wchar_t&gt;
+//  bsl::wistringstream: specialization for bsl::basic_istringstream&lt;wchar_t&gt;
+//  bsl::wostringstream: specialization for bsl::basic_ostringstream&lt;wchar_t&gt;
+//  bsl::wstringstream: specialization for bsl::basic_stringstream&lt;wchar_t&gt;
+//
+//@SEE_ALSO: bslstl_stringbuf, bslstl_istringstream, bslstl_ostringstream,
+//           bslstl_stringstream
+//
+//@DESCRIPTION: This component is for internal use only.  Please include
+// &#39;&lt;bsl_iosfwd.h&gt;&#39; instead.
+
+#if defined(std)
+#define BSLSTL_IOSFWD_STD std
+#undef std
+#endif
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include &lt;bslscm_version.h&gt;
+#endif
+
+namespace std {
+
+template &lt;class CHAR_TYPE&gt; struct char_traits;
+
+}  // close namespace std
+
+namespace bsl {
+
+using std::char_traits;
+
+template &lt;class TYPE&gt; class allocator;
+
+template &lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;,
+          class ALLOCATOR = allocator&lt;CHAR_TYPE&gt; &gt;
+class basic_stringbuf;
+
+template &lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;,
+          class ALLOCATOR = allocator&lt;CHAR_TYPE&gt; &gt;
+class basic_istringstream;
+
+template &lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;,
+          class ALLOCATOR = allocator&lt;CHAR_TYPE&gt; &gt;
+class basic_ostringstream;
+
+template &lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;,
+          class ALLOCATOR = allocator&lt;CHAR_TYPE&gt; &gt;
+class basic_stringstream;
+
+typedef basic_stringbuf    &lt;char, char_traits&lt;char&gt;,
+                                               allocator&lt;char&gt; &gt;     stringbuf;
+typedef basic_istringstream&lt;char, char_traits&lt;char&gt;,
+                                               allocator&lt;char&gt; &gt; istringstream;
+typedef basic_ostringstream&lt;char, char_traits&lt;char&gt;,
+                                               allocator&lt;char&gt; &gt; ostringstream;
+typedef basic_stringstream &lt;char, char_traits&lt;char&gt;,
+                                               allocator&lt;char&gt; &gt;  stringstream;
+
+typedef basic_stringbuf    &lt;wchar_t, char_traits&lt;wchar_t&gt;,
+                                           allocator&lt;wchar_t&gt; &gt;     wstringbuf;
+typedef basic_istringstream&lt;wchar_t, char_traits&lt;wchar_t&gt;,
+                                           allocator&lt;wchar_t&gt; &gt; wistringstream;
+typedef basic_ostringstream&lt;wchar_t, char_traits&lt;wchar_t&gt;,
+                                           allocator&lt;wchar_t&gt; &gt; wostringstream;
+typedef basic_stringstream &lt;wchar_t, char_traits&lt;wchar_t&gt;,
+                                           allocator&lt;wchar_t&gt; &gt;  wstringstream;
+
+}  // close namespace bsl
+
+#if defined(BSLSTL_IOSFWD_STD)
+#define std BSLSTL_IOSFWD_STD
+#undef BSLSTL_IOSFWD_STD
+#endif
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright (C) 2012 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the &quot;Software&quot;), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

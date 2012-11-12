@@ -1,0 +1,119 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 2.16 BETA</title>
+<html>
+<pre>
+// bslmf_detectnestedtrait.h                  -*-C++-*-
+#ifndef INCLUDED_BSLMF_DETECTNESTEDTRAIT
+#define INCLUDED_BSLMF_DETECTNESTEDTRAIT
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide meta-function to test for nested trait.
+//
+//@CLASSES:
+//   bslmf::DetectNestedTrait: meta-function
+//
+//@SEE_ALSO:
+//
+//@DESCRIPTION:
+//
+///Usage
+///-----
+
+#ifndef INCLUDED_BSLMF_MATCHANYTYPE
+#include &lt;bslmf_matchanytype.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include &lt;bslmf_nestedtraitdeclaration.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
+#include &lt;bslmf_integralconstant.h&gt;
+#endif
+
+namespace BloombergLP {
+
+namespace bslmf {
+
+                        // =======================
+                        // class DetectNestedTrait
+                        // =======================
+
+template &lt;class TYPE, template &lt;class T&gt; class TRAIT&gt;
+class DetectNestedTrait_Imp {
+    // Implementation of class to detect whether the specified &#39;TRAIT&#39;
+    // parameter is associated with the specified &#39;TYPE&#39; parameter using the
+    // nested type trait mechanism.  The &#39;VALUE&#39; constant will be true iff
+    // &#39;TYPE&#39; is convertible to &#39;NestedTraitDeclaration&lt;TYPE, TRAIT&gt;&#39;.
+
+  private:
+    static char check(NestedTraitDeclaration&lt;TYPE, TRAIT&gt;, int);
+        // Declared but not defined.  This overload is selected if called with
+        // a type convertible to &#39;NestedTraitDeclaration&lt;TYPE, TRAIT&gt;&#39;
+
+    static int check(MatchAnyType, ...);
+        // Declared but not defined.  This overload is selected if called with
+        // a type not convertible to &#39;NestedTraitDeclaration&lt;TYPE, TRAIT&gt;&#39;
+
+    // Not constructible
+    DetectNestedTrait_Imp();
+    DetectNestedTrait_Imp(const DetectNestedTrait_Imp&amp;);
+    ~DetectNestedTrait_Imp();
+
+  public:
+    // PUBLIC CONSTANTS
+
+    enum { VALUE = (1 == sizeof(check(TypeRep&lt;TYPE&gt;::rep(), 0))) };
+        // Non-zero if &#39;TRAIT&#39; is associated with &#39;TYPE&#39; using the nested type
+        // trait mechanism; otherwise zero.
+
+    typedef bsl::integral_constant&lt;bool, VALUE&gt; Type;
+        // Type representing the result of this metafunction.  Equivalent to
+        // &#39;true_type&#39; if &#39;TRAIT&#39; is associated with &#39;TYPE&#39; using the nested
+        // type trait mechanism; otherwise &#39;false_type&#39;.
+};
+
+template &lt;class TYPE, template &lt;class T&gt; class TRAIT&gt;
+struct DetectNestedTrait : DetectNestedTrait_Imp&lt;TYPE, TRAIT&gt;::Type {
+    // Metafunction to detect whether the specified &#39;TRAIT&#39; parameter is
+    // associated with the specified &#39;TYPE&#39; parameter using the nested type
+    // trait mechanism.  Inherits from &#39;true_type&#39; iff &#39;TYPE&#39; is convertible
+    // to &#39;NestedTraitDeclaration&lt;TYPE, TRAIT&gt;&#39; and from &#39;false_type&#39;
+    // otherwise.
+};
+
+}  // close package namespace
+
+}  // close enterprise namespace
+
+#endif // ! defined(INCLUDED_BSLMF_DETECTNESTEDTRAIT)
+
+// ----------------------------------------------------------------------------
+// Copyright (C) 2012 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the &quot;Software&quot;), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

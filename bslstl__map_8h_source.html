@@ -1,0 +1,1921 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 2.16 BETA</title>
+<html>
+<pre>
+// bslstl_map.h                                                       -*-C++-*-
+#ifndef INCLUDED_BSLSTL_MAP
+#define INCLUDED_BSLSTL_MAP
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide an STL-compliant map class.
+//
+//@CLASSES:
+//   bsl::map: STL-compliant map template
+//
+//@SEE_ALSO: bslstl_multimap, bslstl_set
+//
+//@DESCRIPTION: This component defines a single class template &#39;map&#39;,
+// implementing the standard container holding an ordered sequence of key-value
+// pairs (having unique keys), and presenting a mapping from the keys (of a
+// template parameter type, &#39;KEY&#39;) to their associated values (of another
+// template parameter type, &#39;VALUE&#39;).
+//
+// An instantiation of &#39;map&#39; is an allocator-aware, value-semantic type whose
+// salient attributes are its size (number of key-value pairs) and the ordered
+// sequence of key-value pairs the map contains.  If &#39;map&#39; is instantiated with
+// either a key type or mapped-value type that is not itself value-semantic,
+// then it will not retain all of its value-semantic qualities.  In particular,
+// if a either the key or value type cannot be tested for equality, then a
+// &#39;map&#39; containing that type cannot be tested for equality.  It is even
+// possible to instantiate &#39;map&#39; with a key or mapped-value type that does not
+// have a copy-constructor, in which case the &#39;map&#39; will not be copyable.
+//
+// A map meets the requirements of an associative container with bidirectional
+// iterators in the C++ standard [23.2.4].  The &#39;map&#39; implemented here adheres
+// to the C++11 standard, except that it does not have interfaces that take
+// rvalue references, &#39;initializer_lists&#39;, &#39;emplace&#39;, or operations taking a
+// variadic number of template parameters.  Note that excluded C++11 features
+// are those that require (or are greatly simplified by) C++11 compiler
+// support.
+//
+///Requirements on &#39;KEY&#39; and &#39;VALUE&#39;
+///---------------------------------
+// A &#39;map&#39; is a fully &quot;Value-Semantic Type&quot; (see {&#39;bsldoc_glossary&#39;}) only if
+// the supplied &#39;KEY&#39; and &#39;VALUE&#39; template parameters are themselves fully
+// value-semantic.  It is possible to instantiate a &#39;map&#39; with &#39;KEY&#39; and
+// &#39;VALUE&#39; parameter arguments that do not provide a full set of value-semantic
+// operations, but then some methods of the container may not be instantiable.
+// The following terminology, adopted from the C++11 standard, is used in the
+// function documentation of &#39;map&#39; to describe a function&#39;s requirements for
+// the &#39;KEY&#39; and &#39;VALUE&#39; template parameters.  These terms are also defined in
+// section [17.6.3.1] of the C++11 standard.  Note that, in the context of a
+// &#39;map&#39; instantiation, the requirements apply specifically to the map&#39;s entry
+// type, &#39;value_type&#39;, which is an alias for &#39;bsl::pair&lt;KEY, VALUE&gt;&#39;.
+//
+//: &quot;default-constructible&quot;: The type provides a default constructor.
+//:
+//: &quot;copy-constructible&quot;: The type provides a copy constructor.
+//:
+//: &quot;equality-comparable&quot;: The type provides an equality-comparison operator
+//:     that defines an equivalence relationship and is both reflexive and
+//:     transitive.
+//:
+//: &quot;less-than-comparable&quot;: The type provides a less-than operator, which
+//:     defines a strict weak ordering relation on values of the type.
+//
+///Memory Allocation
+///-----------------
+// The type supplied as a map&#39;s &#39;ALLOCATOR&#39; template parameter determines how
+// that map will allocate memory.  The &#39;map&#39; template supports allocators
+// meeting the requirements of the C++11 standard [17.6.3.5].  In addition, it
+// supports scoped-allocators derived from the &#39;bslma::Allocator&#39; memory
+// allocation protocol.  Clients intending to use &#39;bslma&#39; style allocators
+// should use the template&#39;s default &#39;ALLOCATOR&#39; type: The default type for the
+// &#39;ALLOCATOR&#39; template parameter, &#39;bsl::allocator&#39;, provides a C++11
+// standard-compatible adapter for a &#39;bslma::Allocator&#39; object.
+//
+///&#39;bslma&#39;-Style Allocators
+/// - - - - - - - - - - - -
+// If the (template parameter) type &#39;ALLOCATOR&#39; of an &#39;map&#39; instantiation&#39; is
+// &#39;bsl::allocator&#39;, then objects of that map type will conform to the standard
+// behavior of a &#39;bslma&#39;-allocator-enabled type.  Such a map accepts an
+// optional &#39;bslma::Allocator&#39; argument at construction.  If the address of a
+// &#39;bslma::Allocator&#39; object is explicitly supplied at construction, it will be
+// used to supply memory for the map throughout its lifetime; otherwise, the
+// map will use the default allocator installed at the time of the map&#39;s
+// construction (see &#39;bslma_default&#39;).  In addition to directly allocating
+// memory from the indicated &#39;bslma::Allocator&#39;, a map supplies that
+// allocator&#39;s address to the constructors of contained objects of the
+// (template parameter) type &#39;KEY&#39; and &#39;VALUE&#39;, if respectively, the types
+// define the &#39;bslma::UsesBslmaAllocator&#39; trait.
+//
+///Operations
+///----------
+// This section describes the run-time complexity of operations on instances
+// of &#39;map&#39;:
+//..
+//  Legend
+//  ------
+//  &#39;K&#39;             - (template parameter) type &#39;KEY&#39; of the map
+//  &#39;V&#39;             - (template parameter) type &#39;VALUE&#39; of the map
+//  &#39;a&#39;, &#39;b&#39;        - two distinct objects of type &#39;map&lt;K, V&gt;&#39;
+//  &#39;n&#39;, &#39;m&#39;        - number of elements in &#39;a&#39; and &#39;b&#39; respectively
+//  &#39;value_type&#39;    - map&lt;K, V&gt;::value_type
+//  &#39;c&#39;             - comparator providing an ordering for objects of type &#39;K&#39;
+//  &#39;al             - an STL-style memory allocator
+//  &#39;i1&#39;, &#39;i2&#39;      - two iterators defining a sequence of &#39;value_type&#39; objects
+//  &#39;k&#39;             - an object of type &#39;K&#39;
+//  &#39;v&#39;             - an object of type &#39;V&#39;
+//  &#39;p1&#39;, &#39;p2&#39;      - two iterators belonging to &#39;a&#39;
+//  distance(i1,i2) - the number of elements in the range [i1, i2)
+//
+//  +----------------------------------------------------+--------------------+
+//  | Operation                                          | Complexity         |
+//  +====================================================+====================+
+//  | map&lt;K, V&gt; a;    (default construction)             | O[1]               |
+//  | map&lt;K, V&gt; a(al);                                   |                    |
+//  | map&lt;K, V&gt; a(c, al);                                |                    |
+//  +----------------------------------------------------+--------------------+
+//  | map&lt;K, V&gt; a(b); (copy construction)                | O[n]               |
+//  | map&lt;K, V&gt; a(b, al);                                |                    |
+//  +----------------------------------------------------+--------------------+
+//  | map&lt;K, V&gt; a(i1, i2);                               | O[N] if [i1, i2)   |
+//  | map&lt;K, V&gt; a(i1, i2, al);                           | is sorted with     |
+//  | map&lt;K, V&gt; a(i1, i2, c, al);                        | &#39;a.value_comp()&#39;,  |
+//  |                                                    | O[N * log(N)]      |
+//  |                                                    | otherwise, where N |
+//  |                                                    | is distance(i1,i2) |
+//  +----------------------------------------------------+--------------------+
+//  | a.~map&lt;K, V&gt;(); (destruction)                      | O[n]               |
+//  +----------------------------------------------------+--------------------+
+//  | a = b;          (assignment)                       | O[n]               |
+//  +----------------------------------------------------+--------------------+
+//  | a.begin(), a.end(), a.cbegin(), a.cend(),          | O[1]               |
+//  | a.rbegin(), a.rend(), a.crbegin(), a.crend()       |                    |
+//  +----------------------------------------------------+--------------------+
+//  | a == b, a != b                                     | O[n]               |
+//  +----------------------------------------------------+--------------------+
+//  | a &lt; b, a &lt;= b, a &gt; b, a &gt;= b                       | O[n]               |
+//  +----------------------------------------------------+--------------------+
+//  | a.swap(b), swap(a,b)                               | O[1] if &#39;a&#39; and    |
+//  |                                                    | &#39;b&#39; use the same   |
+//  |                                                    | allocator,         |
+//  |                                                    | O[n + m] otherwise |
+//  +----------------------------------------------------+--------------------+
+//  | a.size()                                           | O[1]               |
+//  +----------------------------------------------------+--------------------+
+//  | a.max_size()                                       | O[1]               |
+//  +----------------------------------------------------+--------------------+
+//  | a.empty()                                          | O[1]               |
+//  +----------------------------------------------------+--------------------+
+//  | get_allocator()                                    | O[1]               |
+//  +----------------------------------------------------+--------------------+
+//  | a[k]                                               | O[log(n)]          |
+//  +----------------------------------------------------+--------------------+
+//  | a.at(k)                                            | O[log(n)]          |
+//  +----------------------------------------------------+--------------------+
+//  | a.insert(value_type(k, v))                         | O[log(n)]          |
+//  +----------------------------------------------------+--------------------+
+//  | a.insert(p1, value_type(k, v))                     | amortized constant |
+//  |                                                    | if the value is    |
+//  |                                                    | inserted right     |
+//  |                                                    | before p1,         |
+//  |                                                    | O[log(n)]          |
+//  |                                                    | otherwise          |
+//  +----------------------------------------------------+--------------------+
+//  | a.insert(i1, i2)                                   | O[log(N) *         |
+//  |                                                    |   distance(i1,i2)] |
+//  |                                                    |                    |
+//  |                                                    | where N is         |
+//  |                                                    | n + distance(i1,i2)|
+//  +----------------------------------------------------+--------------------+
+//  | a.erase(p1)                                        | amortized constant |
+//  +----------------------------------------------------+--------------------+
+//  | a.erase(k)                                         | O[log(n) +         |
+//  |                                                    | a.count(k)]        |
+//  +----------------------------------------------------+--------------------+
+//  | a.erase(p1, p2)                                    | O[log(n) +         |
+//  |                                                    | distance(p1, p2)]  |
+//  +----------------------------------------------------+--------------------+
+//  | a.erase(p1, p2)                                    | O[log(n) +         |
+//  |                                                    | distance(p1, p2)]  |
+//  +----------------------------------------------------+--------------------+
+//  | a.clear()                                          | O[n]               |
+//  +----------------------------------------------------+--------------------+
+//  | a.key_comp()                                       | O[1]               |
+//  +----------------------------------------------------+--------------------+
+//  | a.value_comp()                                     | O[1]               |
+//  +----------------------------------------------------+--------------------+
+//  | a.find(k)                                          | O[log(n)]          |
+//  +----------------------------------------------------+--------------------+
+//  | a.count(k)                                         | O[log(n) +         |
+//  |                                                    | a.count(k)]        |
+//  +----------------------------------------------------+--------------------+
+//  | a.lower_bound(k)                                   | O[log(n)]          |
+//  +----------------------------------------------------+--------------------+
+//  | a.upper_bound(k)                                   | O[log(n)]          |
+//  +----------------------------------------------------+--------------------+
+//  | a.equal_range(k)                                   | O[log(n)]          |
+//  +----------------------------------------------------+--------------------+
+//..
+//
+///Usage
+///-----
+// In this section we show intended use of this component.
+//
+///Example 1: Creating a Trade Matching System
+///- - - - - - - - - - - - - - - - - - - - - -
+// In this example, we will utilize &#39;bsl::map&#39; to define and implement a class,
+// &#39;TradeMatcher&#39;, that provides a simple trade matching system for a single
+// stock.  The manipulators of &#39;TradeMatcher&#39; will allow clients to place buy
+// orders and sell orders, and the accessors of &#39;TradeMatcher&#39; will allow
+// clients to retrieve active orders and past executions.
+//
+// First, we define the public interface for &#39;TradeMatcher&#39;:
+//..
+//  class TradeMatcher {
+//      // This class provides a mechanism that characterizes a simple trade
+//      // matching system for one stock.  An object of this class allows
+//      // clients to place orders and view the active orders.
+//..
+// Here, we create two type aliases, &#39;SellOrdersMap&#39; and &#39;BuyOrdersMap&#39;, for
+// two &#39;bsl::map&#39; instantiations that maps the price of an order (type
+// &#39;double&#39;) to the quantity of the order (type &#39;int&#39;).  &#39;SellOrdersMap&#39; uses
+// the default &#39;bsl::less&#39; comparator to store the sequence of sell orders in
+// ascending price order.  &#39;BuyOrderMap&#39; uses the &#39;bsl::greater&#39; comparator to
+// store the sequence of buy orders in descending price order.  Also note that
+// we use the default &#39;ALLOCATOR&#39; template parameter for both aliases as we
+// intend to provide memory with &#39;bslma&#39; style allocators:
+//..
+//      // PRIVATE TYPES
+//      typedef bsl::map&lt;double, int&gt; SellOrdersMap;
+//          // This &#39;typedef&#39; is an alias for a mapping between the price and
+//          // quantity of an order in ascending price order.
+//
+//      typedef bsl::map&lt;double, int, std::greater&lt;double&gt; &gt; BuyOrdersMap;
+//          // This &#39;typedef&#39; is an alias for a mapping between the price and
+//          // quantity of an order in descending price order.
+//
+//
+//      // DATA
+//      SellOrdersMap   d_sellOrders;  // current sell orders
+//      BuyOrdersMap    d_buyOrders;   // current buy orders
+//
+//    private:
+//      // This class does not support copy-construction and copy-assignment.
+//      TradeMatcher&amp; operator=(const TradeMatcher&amp;);
+//      TradeMatcher(const TradeMatcher&amp;);
+//
+//    public:
+//      // PUBLIC TYPES
+//      typedef SellOrdersMap::const_iterator SellOrdersConstIterator;
+//          // This &#39;typedef&#39; provides an alias for the type of an iterator
+//          // providing non-modifiable access to sell orders in a
+//          // &#39;TradeMatcher&#39;.
+//
+//      typedef BuyOrdersMap::const_iterator BuyOrdersConstIterator;
+//          // This &#39;typedef&#39; provides an alias for the type of an iterator
+//          // providing non-modifiable access to buy orders in a
+//          // &#39;TradeMatcher&#39;.
+//
+//      // CREATORS
+//      TradeMatcher(bslma::Allocator *basicAllocator = 0);
+//          // Create an empty &#39;TradeMatcher&#39; object.  Optionally specify a
+//          // &#39;basicAllocator&#39; used to supply memory.  If &#39;basicAllocator&#39; is
+//          // 0, the currently installed default allocator is used.
+//
+//      //! ~TradeMatcher() = default;
+//          // Destroy this object.
+//
+//      // MANIPULATORS
+//      void placeBuyOrder(double price, int numShares);
+//          // Place an order to buy the specified &#39;numShares&#39; at the specified
+//          // &#39;price&#39;.  The placed buy order will (possibly partially) execute
+//          // when active sale orders exist in the system at or below &#39;price&#39;.
+//          // The behavior is undefined unless &#39;0 &lt; price&#39; and &#39;0 &lt;
+//          // numShares&#39;.
+//
+//      void placeSellOrder(double price, int numShares);
+//          // Place an order to sell the specified &#39;numShares&#39; at the
+//          // specified &#39;price&#39;.  The placed sell order will (possibly
+//          // partially) execute when active buy orders exist in the system at
+//          // or above &#39;price&#39;.  The behavior is undefined unless &#39;0 &lt; price&#39;
+//          // and &#39;0 &lt; numShares&#39;.
+//
+//      // ACCESSORS
+//      SellOrdersConstIterator beginSellOrders() const;
+//          // Return an iterator providing non-modifiable access to the active
+//          // sell order at the lowest price in the ordered sequence (from low
+//          // price to high price) of sell orders maintained by this object.
+//
+//      SellOrdersConstIterator endSellOrders() const;
+//          // Return an iterator providing non-modifiable access to the
+//          // past-the-end sell order in the ordered sequence (from low price
+//          // to high price) of sell orders maintained by this object.
+//
+//      BuyOrdersConstIterator beginBuyOrders() const;
+//          // Return an iterator providing non-modifiable access to the active
+//          // buy order at the highest price in the ordered sequence (from
+//          // high price to low price) of buy orders maintained by this
+//          // object.
+//
+//      BuyOrdersConstIterator endBuyOrders() const;
+//          // Return an iterator providing non-modifiable access to the
+//          // past-the-end buy order in the ordered sequence (from high price
+//          // to low price) of buy orders maintained by this object.
+//  };
+//..
+// Now, we define the implementations methods of the &#39;TradeMatcher&#39; class:
+//..
+//  // CREATORS
+//  TradeMatcher::TradeMatcher(bslma::Allocator *basicAllocator)
+//  : d_sellOrders(basicAllocator)
+//  , d_buyOrders(basicAllocator)
+//  {
+//  }
+//..
+// Notice that, on construction, we pass the contained &#39;bsl::map&#39; objects the
+// &#39;bsl::Allocator&#39; supplied at construction&#39;.
+//..
+//  // MANIPULATORS
+//  void TradeMatcher::placeBuyOrder(double price, int numShares)
+//  {
+//      BSLS_ASSERT(0 &lt; price);
+//      BSLS_ASSERT(0 &lt; numShares);
+//
+//      // Buy shares from sellers from the one with the lowest price up to but
+//      // not including the first seller with a price greater than the
+//      // specified &#39;price&#39;.
+//
+//      SellOrdersMap::iterator itr = d_sellOrders.begin();
+//
+//      while (numShares &amp;&amp; itr != d_sellOrders.upper_bound(price))
+//      {
+//          if (itr-&gt;second &gt; numShares) {
+//              itr-&gt;second -= numShares;
+//              numShares = 0;
+//              break;
+//          }
+//
+//          itr = d_sellOrders.erase(itr);
+//          numShares -= itr-&gt;second;
+//      }
+//
+//      if (numShares &gt; 0) {
+//          d_buyOrders[price] += numShares;
+//      }
+//  }
+//
+//  void TradeMatcher::placeSellOrder(double price, int numShares)
+//  {
+//      BSLS_ASSERT(0 &lt; price);
+//      BSLS_ASSERT(0 &lt; numShares);
+//
+//      // Sell shares to buyers from the one with the highest price up to but
+//      // not including the first buyer with a price smaller than the
+//      // specified &#39;price&#39;.
+//
+//      BuyOrdersMap::iterator itr = d_buyOrders.begin();
+//
+//      while (numShares &amp;&amp; itr != d_buyOrders.upper_bound(price))
+//      {
+//          if (itr-&gt;second &gt; numShares) {
+//              itr-&gt;second -= numShares;
+//              numShares = 0;
+//              break;
+//          }
+//
+//          itr = d_buyOrders.erase(itr);
+//          numShares -= itr-&gt;second;
+//      }
+//
+//      if (numShares &gt; 0) {
+//          d_sellOrders[price] += numShares;
+//      }
+//  }
+//
+//  // ACCESSORS
+//  TradeMatcher::SellOrdersConstIterator TradeMatcher::beginSellOrders() const
+//  {
+//      return d_sellOrders.begin();
+//  }
+//
+//  TradeMatcher::SellOrdersConstIterator TradeMatcher::endSellOrders() const
+//  {
+//      return d_sellOrders.end();
+//  }
+//
+//  TradeMatcher::BuyOrdersConstIterator TradeMatcher::beginBuyOrders() const
+//  {
+//      return d_buyOrders.begin();
+//  }
+//
+//  TradeMatcher::BuyOrdersConstIterator TradeMatcher::endBuyOrders() const
+//  {
+//      return d_buyOrders.end();
+//  }
+//..
+
+#if defined(BSL_OVERRIDES_STD) &amp;&amp; !defined(BSL_STDHDRS_PROLOGUE_IN_EFFECT)
+#error &quot;include &lt;bsl_map.h&gt; instead of &lt;bslstl_map.h&gt; in \
+BSL_OVERRIDES_STD mode&quot;
+#endif
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include &lt;bslscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLSTL_ALLOCATOR
+#include &lt;bslstl_allocator.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLSTL_PAIR
+#include &lt;bslstl_pair.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLSTL_MAPCOMPARATOR
+#include &lt;bslstl_mapcomparator.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLSTL_STDEXCEPTUTIL
+#include &lt;bslstl_stdexceptutil.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLSTL_TREEITERATOR
+#include &lt;bslstl_treeiterator.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLSTL_TREENODE
+#include &lt;bslstl_treenode.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLSTL_TREENODEPOOL
+#include &lt;bslstl_treenodepool.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLALG_SWAPUTIL
+#include &lt;bslalg_swaputil.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLALG_RANGECOMPARE
+#include &lt;bslalg_rangecompare.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLALG_RBTREEANCHOR
+#include &lt;bslalg_rbtreeanchor.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLALG_RBTREENODE
+#include &lt;bslalg_rbtreenode.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLALG_RBTREEUTIL
+#include &lt;bslalg_rbtreeutil.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLALG_TYPETRAITHASSTLITERATORS
+#include &lt;bslalg_typetraithasstliterators.h&gt;
+#endif
+
+#ifndef INCLUDED_FUNCTIONAL
+#include &lt;functional&gt;
+#define INCLUDED_FUNCTIONAL
+#endif
+
+namespace bsl {
+
+                             // =========
+                             // class map
+                             // =========
+
+template &lt;class KEY,
+          class VALUE,
+          class COMPARATOR = std::less&lt;KEY&gt;,
+          class ALLOCATOR  = allocator&lt;bsl::pair&lt;const KEY, VALUE&gt; &gt; &gt;
+class map {
+    // This class template implements a value-semantic container type holding
+    // an ordered sequence of key-value pairs having unique keys that provide a
+    // mapping from keys (of the template parameter type, &#39;KEY&#39;) to their
+    // associated values (of another template parameter type, &#39;VALUE&#39;).
+    //
+    // This class:
+    //: o supports a complete set of *value-semantic* operations
+    //:   o except for &#39;bdex&#39; serialization
+    //: o is *exception-neutral* (agnostic except for the &#39;at&#39; method)
+    //: o is *alias-safe*
+    //: o is &#39;const&#39; *thread-safe*
+    // For terminology see {&#39;bsldoc_glossary&#39;}.
+
+    // PRIVATE TYPES
+    typedef pair&lt;const KEY, VALUE&gt; ValueType;
+        // This typedef is an alias for the type of key-value pair objects
+        // maintained by this map.
+
+    typedef BloombergLP::bslstl::MapComparator&lt;KEY, VALUE, COMPARATOR&gt;
+                                                                    Comparator;
+        // This typedef is an alias for the comparator used internally by this
+        // map.
+
+    typedef BloombergLP::bslstl::TreeNode&lt;ValueType&gt; Node;
+        // This typedef is an alias for the type of nodes held by the tree (of
+        // nodes) used to implement this map.
+
+    typedef BloombergLP::bslstl::TreeNodePool&lt;ValueType, ALLOCATOR&gt;
+                                                                   NodeFactory;
+        // This typedef is an alias for the factory type used to create and
+        // destroy &#39;Node&#39; objects.
+
+    typedef typename bsl::allocator_traits&lt;ALLOCATOR&gt; AllocatorTraits;
+        // This typedef is an alias for the allocator traits type associated
+        // with this container.
+
+    struct DataWrapper : public Comparator {
+        // This struct is wrapper around the comparator and allocator data
+        // members.  It takes advantage of the empty-base optimization (EBO) so
+        // that if the allocator is stateless, it takes up no space.
+        //
+        // TBD: This struct should eventually be replaced by the use of a
+        // general EBO-enabled component that provides a &#39;pair&#39;-like
+        // interface or a &#39;tuple&#39;.
+
+        NodeFactory d_pool;  // pool of &#39;Node&#39; objects
+
+        explicit DataWrapper(const COMPARATOR&amp;  comparator,
+                             const ALLOCATOR&amp;   allocator);
+            // Create a &#39;DataWrapper&#39; object with the specified &#39;comparator&#39;
+            // and &#39;allocator&#39;.
+    };
+
+    // DATA
+    DataWrapper                       d_compAndAlloc;
+                                               // comparator and pool of &#39;Node&#39;
+                                               // objects
+
+    BloombergLP::bslalg::RbTreeAnchor d_tree;  // balanced tree of &#39;Node&#39;
+                                               // objects
+
+  public:
+    // PUBLIC TYPES
+    typedef KEY                                        key_type;
+    typedef VALUE                                      mapped_type;
+    typedef bsl::pair&lt;const KEY, VALUE&gt;                value_type;
+    typedef COMPARATOR                                 key_compare;
+    typedef ALLOCATOR                                  allocator_type;
+    typedef value_type&amp;                                reference;
+    typedef const value_type&amp;                          const_reference;
+
+    typedef typename AllocatorTraits::size_type        size_type;
+    typedef typename AllocatorTraits::difference_type  difference_type;
+    typedef typename AllocatorTraits::pointer          pointer;
+    typedef typename AllocatorTraits::const_pointer    const_pointer;
+
+    typedef BloombergLP::bslstl::TreeIterator&lt;
+                                   value_type, Node, difference_type&gt; iterator;
+    typedef BloombergLP::bslstl::TreeIterator&lt;
+                       const value_type, Node, difference_type&gt; const_iterator;
+    typedef bsl::reverse_iterator&lt;iterator&gt;            reverse_iterator;
+    typedef bsl::reverse_iterator&lt;const_iterator&gt;      const_reverse_iterator;
+
+    class value_compare {
+        // This nested class defines a mechanism for comparing two objects of
+        // &#39;value_type&#39; using the (template parameter) type &#39;COMPARATOR&#39;.  Note
+        // that this class exactly matches its definition in the C++11 standard
+        // [23.4.4.1]; otherwise we would have implemented it as a separate
+        // component-local class.
+
+        // FRIENDS
+        friend class map;
+
+      protected:
+        COMPARATOR comp;  // we would not have elected to make this data
+                          // member protected ourselves
+
+        value_compare(COMPARATOR comparator) : comp(comparator) {}
+            // Create a &#39;value_compare&#39; object that will delegate to the
+            // specified &#39;comparator&#39; for comparisons.
+
+      public:
+        typedef bool result_type;
+            // This &#39;typedef&#39; is an alias for the result type of a call to
+            // the overload of &#39;operator()&#39; (the comparison function) provided
+            // by a &#39;map::value_compare&#39; object.
+
+        typedef value_type first_argument_type;
+            // This &#39;typedef&#39; is an alias for the type of the first parameter
+            // of the overload of &#39;operator()&#39; (the comparison function)
+            // provided by a &#39;map::value_compare&#39; object.
+
+        typedef value_type second_argument_type;
+            // This &#39;typedef&#39; is an alias for the type of the second parameter
+            // of the overload of &#39;operator()&#39; (the comparison function)
+            // provided by a &#39;map::value_compare&#39; object.
+
+        bool operator()(const value_type&amp; x, const value_type&amp; y) const
+            // Return &#39;true&#39; if the specified &#39;x&#39; object is ordered before the
+            // specified &#39;y&#39; object, as determined by the comparator supplied
+            // at construction.
+        {
+            return comp(x.first, y.first);
+        }
+    };
+
+  private:
+    // PRIVATE CLASS METHODS
+    static Node *toNode(BloombergLP::bslalg::RbTreeNode *node);
+        // Return an address providing modifiable access to the specified
+        // &#39;node&#39;.  The behavior is undefined unless &#39;node&#39; is the address of
+        // a &#39;Node&#39; object.
+
+    static const Node *toNode(const BloombergLP::bslalg::RbTreeNode *node);
+        // Return an address providing non-modifiable access to the specified
+        // &#39;node&#39;.  The behavior is undefined unless &#39;node&#39; is the address of
+        // a &#39;Node&#39; object.
+
+    // PRIVATE MANIPULATORS
+    NodeFactory&amp; nodeFactory();
+        // Return a reference providing modifiable access to the
+        // node allocator for this map.
+
+    Comparator&amp; comparator();
+        // Return a reference providing modifiable access to the
+        // comparator for this map.
+
+    void quickSwap(map&amp; other);
+        // Efficiently exchange the value and comparator of this object with
+        // the value of the specified &#39;other&#39; object.  This method provides
+        // the no-throw exception-safety guarantee.  The behavior is undefined
+        // unless this object was created with the same allocator as &#39;other&#39;.
+
+    // PRIVATE ACCESSORS
+    const NodeFactory&amp; nodeFactory() const;
+        // Return a reference providing non-modifiable access to the
+        // node allocator for this map.
+
+    const Comparator&amp; comparator() const;
+        // Return a reference providing non-modifiable access to the
+        // comparator for this map.
+
+  public:
+    // CREATORS
+    explicit map(const COMPARATOR&amp; comparator = COMPARATOR(),
+                 const ALLOCATOR&amp;  allocator  = ALLOCATOR())
+        // Construct an empty map.  Optionally specify a &#39;comparator&#39; used to
+        // order key-value pairs contained in this object.  If &#39;comparator&#39; is
+        // not supplied, a default-constructed object of the (template
+        // parameter) type &#39;COMPARATOR&#39; is used.  Optionally specify an
+        // &#39;allocator&#39; used to supply memory.  If &#39;allocator&#39; is not supplied,
+        // a default-constructed object of the (template parameter) type
+        // &#39;ALLOCATOR&#39; is used.  If the &#39;ALLOCATOR&#39; is &#39;bsl::allocator&#39; (the
+        // default), then &#39;allocator&#39;, if supplied, shall be convertible to
+        // &#39;bslma::Allocator *&#39;.  If the &#39;ALLOCATOR&#39; is &#39;bsl::allocator&#39; and
+        // &#39;allocator&#39; is not supplied, the currently installed default
+        // allocator will be used to supply memory.
+    : d_compAndAlloc(comparator, allocator)
+    , d_tree()
+    {
+        // The implementation is placed here in the class definition to
+        // workaround an AIX compiler bug, where the constructor can fail to
+        // compile because it is unable to find the definition of the default
+        // argument.  This occurs when a templatized class wraps around the
+        // container and the comparator is defined after the new class.
+    }
+
+    explicit map(const ALLOCATOR&amp; allocator);
+        // Construct an empty map that will use the specified &#39;allocator&#39; to
+        // supply memory.  Use a default-constructed object of the (template
+        // parameter) type &#39;COMPARATOR&#39; to order the key-value pairs contained
+        // in this map.  If the (template parameter) type &#39;ALLOCATOR&#39; is of
+        // &#39;bsl::allocator&#39; (the default) then &#39;allocator&#39; shall be convertible
+        // to &#39;bslma::Allocator *&#39;.
+
+    map(const map&amp; original);
+        // Construct a map having the same value as the specified &#39;original&#39;.
+        // Use a copy of &#39;original.key_comp()&#39; to order the key-value pairs
+        // contained in this map.  Use the allocator returned by
+        // &#39;bsl::allocator_traits&lt;ALLOCATOR&gt;::
+        // select_on_container_copy_construction(original.allocator())&#39; to
+        // allocate memory.  If the (template parameter) type &#39;ALLOCATOR&#39; is
+        // of type &#39;bsl::allocator&#39; (the default), the currently installed
+        // default allocator will be used to supply memory.  This method
+        // requires that the (template parameter) types &#39;KEY&#39; and &#39;VALUE&#39;
+        // both be &quot;copy-constructible&quot; (see {Requirements on &#39;KEY&#39; and
+        // &#39;VALUE&#39;}).
+
+    map(const map&amp; original, const ALLOCATOR&amp; allocator);
+        // Construct a map having the same value as that of the specified
+        // &#39;original&#39; that will use the specified &#39;allocator&#39; to supply memory.
+        // Use a copy of &#39;original.key_comp()&#39; to order the key-value pairs
+        // contained in this map.  If the (template parameter) type &#39;ALLOCATOR&#39;
+        // is &#39;bsl::allocator&#39; (the default) then &#39;allocator&#39; shall be
+        // convertible to &#39;bslma::Allocator *&#39;.  This method requires that the
+        // (template parameter) types &#39;KEY&#39; and &#39;VALUE&#39; types both be
+        // &quot;copy-constructible&quot; (see {Requirements on &#39;KEY&#39; and &#39;VALUE&#39;}).
+
+    template &lt;class INPUT_ITERATOR&gt;
+    map(INPUT_ITERATOR    first,
+        INPUT_ITERATOR    last,
+        const COMPARATOR&amp; comparator = COMPARATOR(),
+        const ALLOCATOR&amp;  allocator  = ALLOCATOR());
+        // Construct a map, and insert each &#39;value_type&#39; object in the sequence
+        // starting at the specified &#39;first&#39; element, and ending immediately
+        // before the specified &#39;last&#39; element, ignoring those pairs having a
+        // key that appears earlier in the sequence.  Optionally specify a
+        // &#39;comparator&#39; used to order key-value pairs contained in this object.
+        // If &#39;comparator&#39; is not supplied, a default-constructed object of the
+        // (template parameter) type &#39;COMPARATOR&#39; is used.  Optionally specify
+        // a &#39;allocator&#39; used to supply memory.  If &#39;allocator&#39; is not
+        // supplied, a default-constructed object of the (template parameter)
+        // type &#39;ALLOCATOR&#39; is used.  If the type &#39;ALLOCATOR&#39; is
+        // &#39;bsl::allocator&#39; (the default) then &#39;allocator&#39;, if supplied, shall
+        // be convertible to &#39;bslma::Allocator *&#39;.  If the type &#39;ALLOCATOR&#39; is
+        // &#39;bsl::allocator&#39; and &#39;allocator&#39; is not supplied, the currently
+        // installed default allocator will be used to supply memory.  If the
+        // sequence &#39;first&#39; and &#39;last&#39; is ordered according to the identified
+        // &#39;comparator&#39; then this operation will have O[N] complexity, where N
+        // is the number of elements between &#39;first&#39; and &#39;last&#39;, otherwise this
+        // operation will have O[N * log(N)] complexity.  The (template
+        // parameter) type &#39;INPUT_ITERATOR&#39; shall meet the requirements of an
+        // input iterator defined in the C++11 standard [24.2.3] providing
+        // access to values of a type convertible to &#39;value_type&#39;.  The
+        // behavior is undefined unless &#39;first&#39; and &#39;last&#39; refer to a sequence
+        // of valid values where &#39;first&#39; is at a position at or before &#39;last&#39;.
+        // This method requires that the (template parameter) types &#39;KEY&#39; and
+        // &#39;VALUE&#39; both be &quot;copy-constructible&quot; (see {Requirements on &#39;KEY&#39; and
+        // &#39;VALUE&#39;}).
+
+    ~map();
+        // Destroy this object.
+
+    // MANIPULATORS
+    map&amp; operator=(const map&amp; rhs);
+        // Assign to this object the value and comparator of the specified
+        // &#39;rhs&#39; object, propagate to this object the allocator of &#39;rhs&#39; if the
+        // &#39;ALLOCATOR&#39; type has trait &#39;propagate_on_container_copy_assignment&#39;,
+        // and return a reference providing modifiable access to this object.
+        // This method requires that the (template parameter types) &#39;KEY&#39; and
+        // &#39;VALUE&#39; both be &quot;copy-constructible&quot; (see {Requirements on &#39;KEY&#39; and
+        // &#39;VALUE&#39;}).
+
+    VALUE&amp; operator[](const key_type&amp; key);
+        // Return a reference providing modifiable access to the mapped-value
+        // associated with the specified &#39;key&#39;; if this &#39;map&#39; does not already
+        // contain a &#39;value_type&#39; object with &#39;key&#39;, first insert a new
+        // &#39;value_type&#39; object having &#39;key&#39; and a default-constructed &#39;VALUE&#39;
+        // object, and return a reference to the mapped value.  This method
+        // requires that the (template parameter) types &#39;KEY&#39; and &#39;VALUE&#39; both
+        // be &quot;default-constructible&quot; (see {Requirements on &#39;KEY&#39; and
+        // &#39;VALUE&#39;}).
+
+    VALUE&amp; at(const key_type&amp; key);
+        // Return a reference providing modifiable access to the mapped-value
+        // associated with the specified &#39;key&#39;, if such an entry exists;
+        // otherwise throw an &#39;std::out_of_range&#39; exception.  Note that this
+        // method is not exception agnostic.
+
+    iterator begin();
+        // Return an iterator providing modifiable access to the first
+        // &#39;value_type&#39; object in the ordered sequence of &#39;value_type&#39; objects
+        // maintained by this map, or the &#39;end&#39; iterator if this map is empty.
+
+    iterator end();
+        // Return an iterator providing modifiable access to the past-the-end
+        // element in the ordered sequence of &#39;value_type&#39; objects maintained
+        // by this map.
+
+    reverse_iterator rbegin();
+        // Return a reverse iterator providing modifiable access to the last
+        // &#39;value_type&#39; object in the ordered sequence of &#39;value_type&#39; objects
+        // maintained by this map, or &#39;rend&#39; if this map is empty.
+
+    reverse_iterator rend();
+        // Return a reverse iterator providing modifiable access to the
+        // prior-to-the-beginning element in the ordered sequence of
+        // &#39;value_type&#39; objects maintained by this map.
+
+    bsl::pair&lt;iterator, bool&gt; insert(const value_type&amp; value);
+        // Insert the specified &#39;value&#39; into this map if the key (the &#39;first&#39;
+        // element) of the &#39;value&#39; does not already exist in this map;
+        // otherwise, if a &#39;value_type&#39; object having the same key as &#39;value&#39;
+        // already exists in this map, this method has no effect.  Return a
+        // pair whose &#39;first&#39; member is an iterator referring to the (possibly
+        // newly inserted) &#39;value_type&#39; object in this map whose key is the
+        // same as that of &#39;value&#39;, and whose &#39;second&#39; member is &#39;true&#39; if a
+        // new value was inserted, and &#39;false&#39; if the value was already
+        // present.  This method requires that the (template parameter) types
+        // &#39;KEY&#39; and &#39;VALUE&#39; types both be &quot;copy-constructible&quot; (see
+        // {Requirements on &#39;KEY&#39; and &#39;VALUE&#39;}).
+
+    iterator insert(const_iterator hint, const value_type&amp; value);
+        // Insert the specified &#39;value&#39; into this map (in amortized constant
+        // time if the specified &#39;hint&#39; is a valid immediate successor to the
+        // key of &#39;value&#39;), if the key (the &#39;first&#39; element) of the &#39;value&#39;
+        // does not already exist in this map; otherwise, if a &#39;value_type&#39;
+        // object having the same key as &#39;value&#39; already exists in this map,
+        // this method has no effect.  Return an iterator referring to the
+        // (possibly newly inserted) &#39;value_type&#39; object in this map whose key
+        // is the same as that of &#39;value&#39;.  If &#39;hint&#39; is not a valid immediate
+        // successor to the key of &#39;value&#39;, this operation will have O[log(N)]
+        // complexity, where &#39;N&#39; is the size of this map.  The behavior is
+        // undefined unless &#39;hint&#39; is a valid iterator into this map.  This
+        // method requires that the (template parameter) types &#39;KEY&#39; and
+        // &#39;VALUE&#39; both be &quot;copy-constructible&quot; (see {Requirements on &#39;KEY&#39; and
+        // &#39;VALUE&#39;}).
+
+    template &lt;class INPUT_ITERATOR&gt;
+    void insert(INPUT_ITERATOR first, INPUT_ITERATOR last);
+        // Insert into this map the value of each &#39;value_type&#39; object in the
+        // range starting at the specified &#39;first&#39; iterator and ending
+        // immediately before the specified &#39;last&#39; iterator, whose key is not
+        // already contained in this map.  The (template parameter) type
+        // &#39;INPUT_ITERATOR&#39; shall meet the requirements of an input iterator
+        // defined in the C++11 standard [24.2.3] providing access to values of
+        // a type convertible to &#39;value_type&#39;.  This method requires that the
+        // (template parameter) types &#39;KEY&#39; and &#39;VALUE&#39; both be
+        // &quot;copy-constructible&quot; (see {Requirements on &#39;KEY&#39; and &#39;VALUE&#39;}).
+
+    iterator erase(const_iterator position);
+        // Remove from this map the &#39;value_type&#39; object at the specified
+        // &#39;position&#39;, and return an iterator referring to the element
+        // immediately following the removed element, or to the past-the-end
+        // position if the removed element was the last element in the
+        // sequence of elements maintained by this map.  The behavior is
+        // undefined unless &#39;position&#39; refers to a &#39;value_type&#39; object in this
+        // map.
+
+    size_type erase(const key_type&amp; key);
+        // Remote from this map the &#39;value_type&#39; object having the specified
+        // &#39;key&#39;, if it exists, and return 1; otherwise, if there is no
+        // &#39;value_type&#39; object having &#39;key&#39;, return 0 with no other
+        // effect.
+
+    iterator erase(const_iterator first, const_iterator last);
+        // Remove from this map the &#39;value_type&#39; objects starting at the
+        // specified &#39;first&#39; position up to, but including the specified &#39;last&#39;
+        // position, and return &#39;last&#39;.  The behavior is undefined unless
+        // &#39;first&#39; and &#39;last&#39; either refer to elements in this map or are the
+        // &#39;end&#39; iterator, and the &#39;first&#39; position is at or before the &#39;last&#39;
+        // position in the ordered sequence provided by this container.
+
+    void swap(map&amp; other);
+        // Exchange the value of this object as well as its comparator with
+        // those of the specified &#39;other&#39; object.  Additionally if
+        // &#39;bslstl::AllocatorTraits&lt;ALLOCATOR&gt;::propagate_on_container_swap&#39; is
+        // &#39;true&#39; then exchange the allocator of this object with that of the
+        // &#39;other&#39; object, and do not modify either allocator otherwise.  This
+        // method provides the no-throw exception-safety guarantee and
+        // guarantees O[1] complexity.  The behavior is undefined is unless
+        // either this object was created with the same allocator as &#39;other&#39; or
+        // &#39;propagate_on_container_swap&#39; is &#39;true&#39;.
+
+    void clear();
+        // Remove all entries from this map.  Note that the map is empty after
+        // this call, but allocated memory may be retained for future use.
+
+    iterator find(const key_type&amp; key);
+        // Return an iterator providing modifiable access to the &#39;value_type&#39;
+        // object in this map having the specified &#39;key&#39;, if such an entry
+        // exists, and the past-the-end (&#39;end&#39;) iterator otherwise.
+
+    iterator lower_bound(const key_type&amp; key);
+        // Return an iterator providing modifiable access to the first (i.e.,
+        // ordered least) &#39;value_type&#39; object in this map whose key is
+        // greater-than or equal-to the specified &#39;key&#39;, and the past-the-end
+        // iterator if this map does not contain a &#39;value_type&#39; object whose
+        // key is greater-than or equal-to &#39;key&#39;.  Note that this function
+        // returns the *first* position before which a &#39;value_type&#39; object
+        // having &#39;key&#39; could be inserted into the ordered sequence maintained
+        // by this map, while preserving its ordering.
+
+    iterator upper_bound(const key_type&amp; key);
+        // Return an iterator providing modifiable access to the first (i.e.,
+        // ordered least) &#39;value_type&#39; object in this map whose key is greater
+        // than the specified &#39;key&#39;, and the past-the-end iterator if this map
+        // does not contain a &#39;value_type&#39; object whose key is greater-than
+        // &#39;key&#39;.  Note that this function returns the *last* position before
+        // which a &#39;value_type&#39; object having &#39;key&#39; could be inserted into the
+        // ordered sequence maintained by this map, while preserving its
+        // ordering.
+
+    bsl::pair&lt;iterator,iterator&gt; equal_range(const key_type&amp; key);
+        // Return a pair of iterators providing modifiable access to the
+        // sequence of &#39;value_type&#39; objects in this map having the specified
+        // &#39;key&#39;, where the the first iterator is positioned at the start of
+        // the sequence, and the second is positioned one past the end of the
+        // sequence.  The first returned iterator will be &#39;lower_bound(key)&#39;;
+        // the second returned iterator will be &#39;upper_bound(key)&#39;; and, if
+        // this map contains no &#39;value_type&#39; objects having &#39;key&#39;, then the two
+        // returned iterators will have the same value.  Note that since a map
+        // maintains unique keys, the range will contain at most one element.
+
+    // ACCESSORS
+    allocator_type get_allocator() const;
+        // Return (a copy of) the allocator used for memory allocation by this
+        // map.
+
+    const_iterator begin() const;
+        // Return an iterator providing non-modifiable access to the first
+        // &#39;value_type&#39; object in the ordered sequence of &#39;value_type&#39; objects
+        // maintained by this map, or the &#39;end&#39; iterator if this map is empty.
+
+    const_iterator end() const;
+        // Return an iterator providing non-modifiable access to the
+        // past-the-end element in the ordered sequence of &#39;value_type&#39;
+        // objects maintained by this map.
+
+    const_reverse_iterator rbegin() const;
+        // Return a reverse iterator providing non-modifiable access to the
+        // last &#39;value_type&#39; object in the ordered sequence of &#39;value_type&#39;
+        // objects maintained by this map, or &#39;rend&#39; if this map is empty.
+
+    const_reverse_iterator rend() const;
+        // Return a reverse iterator providing non-modifiable access to the
+        // prior-to-the-beginning element in the ordered sequence of
+        // &#39;value_type&#39; objects maintained by this map.
+
+    const_iterator cbegin() const;
+        // Return an iterator providing non-modifiable access to the first
+        // &#39;value_type&#39; object in the ordered sequence of &#39;value_type&#39; objects
+        // maintained by this map, or the &#39;cend&#39; iterator if this map is empty.
+
+    const_iterator cend() const;
+        // Return an iterator providing non-modifiable access to the
+        // past-the-end element in the ordered sequence of &#39;value_type&#39; objects
+        // maintained by this map.
+
+    const_reverse_iterator crbegin() const;
+        // Return a reverse iterator providing non-modifiable access to the
+        // last &#39;value_type&#39; object in the ordered sequence of &#39;value_type&#39;
+        // objects maintained by this map, or &#39;crend&#39; if this set is empty.
+
+    const_reverse_iterator crend() const;
+        // Return a reverse iterator providing non-modifiable access to the
+        // prior-to-the-beginning element in the ordered sequence of
+        // &#39;value_type&#39; objects maintained by this map.
+
+    bool empty() const;
+        // Return &#39;true&#39; if this map contains no elements, and &#39;false&#39;
+        // otherwise.
+
+    size_type size() const;
+        // Return the number of elements in this map.
+
+    size_type max_size() const;
+        // Return a theoretical upper bound on the largest number of elements
+        // that this map could possibly hold.  Note that there is no guarantee
+        // that the map can successfully grow to the returned size, or even
+        // close to that size without running out of resources.
+
+    const VALUE&amp; at(const key_type&amp; key) const;
+        // Return a reference providing non-modifiable access to the
+        // mapped-value associated with the specified &#39;key&#39;, if such an entry
+        // exists; otherwise throw an &#39;std::out_of_range&#39; exception.  Note
+        // that this method is not exception agnostic.
+
+    key_compare key_comp() const;
+        // Return the key-comparison functor (or function pointer) used by
+        // this map; if a comparator was supplied at construction, return its
+        // value, otherwise return a default constructed &#39;key_compare&#39;
+        // object.  Note that this comparator compares objects of type &#39;KEY&#39;,
+        // which is the key part of the &#39;value_type&#39; objects contained in this
+        // map.
+
+    value_compare value_comp() const;
+        // Return a functor for comparing two &#39;value_type&#39; objects by comparing
+        // their respective keys using &#39;key_comp()&#39;.   Note that this
+        // comparator compares objects of type &#39;value_type&#39; (i.e.,
+        // &#39;bsl::pair&lt;KEY, VALUE&gt;&#39;).
+
+    const_iterator find(const key_type&amp; key) const;
+        // Return an iterator providing non-modifiable access to the
+        // &#39;value_type&#39; object in this map having the specified &#39;key&#39;, if such
+        // an entry exists, and the past-the-end (&#39;end&#39;) iterator otherwise.
+
+    size_type count(const key_type&amp; key) const;
+        // Return the number of &#39;value_type&#39; objects within this map having the
+        // specified &#39;key&#39;.  Note that since a map maintains unique keys,
+        // the returned value will be either 0 or 1.
+
+    const_iterator lower_bound(const key_type&amp; key) const;
+        // Return an iterator providing non-modifiable access to the first
+        // (i.e., ordered least) &#39;value_type&#39; object in this map whose key is
+        // greater-than or equal-to the specified &#39;key&#39;, and the past-the-end
+        // iterator if this map does not contain a &#39;value_type&#39; object whose
+        // key is greater-than or equal-to &#39;key&#39;.  Note that this function
+        // returns the *first* position before which a &#39;value_type&#39; object
+        // having &#39;key&#39; could be inserted into the ordered sequence maintained
+        // by this map, while preserving its ordering.
+
+    const_iterator upper_bound(const key_type&amp; key) const;
+        // Return an iterator providing non-modifiable access to the first
+        // (i.e., ordered least) &#39;value_type&#39; object in this map whose key is
+        // greater than the specified &#39;key&#39;, and the past-the-end iterator if
+        // this map does not contain a &#39;value_type&#39; object whose key is
+        // greater-than &#39;key&#39;.  Note that this function returns the *last*
+        // position before which a &#39;value_type&#39; object having &#39;key&#39; could be
+        // inserted into the ordered sequence maintained by this map, while
+        // preserving its ordering.
+
+    bsl::pair&lt;const_iterator,const_iterator&gt; equal_range(
+                                                    const key_type&amp; key) const;
+        // Return a pair of iterators providing non-modifiable access to the
+        // sequence of &#39;value_type&#39; objects in this map having the specified
+        // &#39;key&#39;, where the the first iterator is positioned at the start of
+        // the sequence and the second iterator is positioned one past the end
+        // of the sequence.  The first returned iterator will be
+        // &#39;lower_bound(key)&#39;, the second returned iterator will be
+        // &#39;upper_bound(key)&#39;, and if this map contains no &#39;value_type&#39; objects
+        // having &#39;key&#39; then the two returned iterators will have the same
+        // value.  Note that since a map maintains unique keys, the range will
+        // contain at most one element.
+
+    // NOT IMPLEMENTED
+        // The following methods are defined by the C++11 standard, but they
+        // are not implemented as they require some level of C++11 compiler
+        // support not currently available on all supported platforms.
+
+    // map(map&amp;&amp;, const ALLOCATOR&amp;);
+
+    // map(initializer_list&lt;value_type&gt;,
+    //     const COMPARATOR&amp; = COMPARATOR(),
+    //     const ALLOCATOR&amp; = ALLOCATOR());
+
+    // map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;&amp;
+    // operator=(map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;&amp;&amp; rhs);
+
+    // map&amp; operator=(initializer_list&lt;value_type&gt;);
+
+    // T&amp; operator[](key_type&amp;&amp; x);
+
+    // template &lt;class... Args&gt; pair&lt;iterator, bool&gt; emplace(Args&amp;&amp;... args);
+
+    // template &lt;class... Args&gt; iterator emplace_hint(const_iterator position,
+    //                                                Args&amp;&amp;... args);
+
+    // template &lt;class P&gt; pair&lt;iterator, bool&gt; insert(P&amp;&amp; value);
+
+    // template &lt;class P&gt;
+    // iterator insert(const_iterator position, P&amp;&amp;);
+
+    // void insert(initializer_list&lt;value_type&gt;);
+};
+
+}  // namespace bsl
+
+// ============================================================================
+//                                TYPE TRAITS
+// ============================================================================
+
+// Type traits for STL *ordered* containers:
+//: o An ordered container defines STL iterators.
+//: o An ordered container uses &#39;bslma&#39; allocators if the parameterized
+//:     &#39;ALLOCATOR&#39; is convertible from &#39;bslma::Allocator*&#39;.
+
+namespace BloombergLP {
+namespace bslalg {
+
+template &lt;typename KEY,
+          typename VALUE,
+          typename COMPARATOR,
+          typename ALLOCATOR&gt;
+struct HasStlIterators&lt;bsl::map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt; &gt;
+    : bsl::true_type
+{};
+
+}
+
+namespace bslma {
+
+template &lt;typename KEY,
+          typename VALUE,
+          typename COMPARATOR,
+          typename ALLOCATOR&gt;
+struct UsesBslmaAllocator&lt;bsl::map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt; &gt;
+    : bsl::is_convertible&lt;Allocator*, ALLOCATOR&gt;
+{};
+
+}
+}  // namespace BloombergLP
+
+namespace bsl {
+
+template &lt;class KEY, class VALUE, class COMPARATOR, class ALLOCATOR&gt;
+bool operator==(const map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;&amp; lhs,
+                const map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; objects have the same
+    // value, and &#39;false&#39; otherwise.  Two &#39;map&#39; objects have the same value if
+    // they have the same number of key-value pairs, and each key-value pair
+    // that is contained in one of the objects is also contained in the other
+    // object.  This method requires that the (template parameter) types &#39;KEY&#39;
+    // and &#39;VALUE&#39; both be &quot;equality-comparable&quot; (see {Requirements on &#39;KEY&#39;
+    // and &#39;VALUE&#39;}).
+
+template &lt;class KEY,  class VALUE,  class COMPARATOR,  class ALLOCATOR&gt;
+bool operator!=(const map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;&amp; lhs,
+                const map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; objects do not have the
+    // same value, and &#39;false&#39; otherwise.  Two &#39;map&#39; objects do not have the
+    // same value if they do not have the same number of key-value pairs, or
+    // some key-value pair that is contained in one of the objects is not also
+    // contained in the other object.  This method requires that the (template
+    // parameter) types &#39;KEY&#39; and &#39;VALUE&#39; both be &quot;equality-comparable&quot; (see
+    // {Requirements on &#39;KEY&#39; and &#39;VALUE&#39;}).
+
+template &lt;class KEY,  class VALUE,  class COMPARATOR,  class ALLOCATOR&gt;
+bool operator&lt;(const map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;&amp; lhs,
+               const map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; value is less than the specified
+    // &#39;rhs&#39; value, and &#39;false&#39; otherwise.  A map, &#39;lhs&#39;, has a value that is
+    // less than that of &#39;rhs&#39;, if, for the first non-equal corresponding
+    // key-value pairs in their respective sequences, the &#39;lhs&#39; key-value pair
+    // is less than the &#39;rhs&#39; pair, or, if the keys of all of their
+    // corresponding key-value pairs compare equal, &#39;lhs&#39; has fewer key-value
+    // pairs than &#39;rhs&#39;.  This method requires that the (template parameter)
+    // types &#39;KEY&#39; and &#39;VALUE&#39; both be &quot;less-than-comparable&quot; (see
+    // {Requirements on &#39;KEY&#39; and &#39;VALUE&#39;}).
+
+template &lt;class KEY,  class VALUE,  class COMPARATOR,  class ALLOCATOR&gt;
+bool operator&gt;(const map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;&amp; lhs,
+               const map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; value is greater than the specified
+    // &#39;rhs&#39; value, and &#39;false&#39; otherwise.  A map, &#39;lhs&#39;, has a value that is
+    // greater than that of &#39;rhs&#39;, if, for the first non-equal corresponding
+    // key-value pairs in their respective sequences, the &#39;lhs&#39; key-value pair
+    // is greater than the &#39;rhs&#39; pair, or, if the keys of all of their
+    // corresponding key-value pairs compare equal, &#39;lhs&#39; has more key-value
+    // pairs than &#39;rhs&#39;.  This method requires that the (template parameter)
+    // types &#39;KEY&#39; and &#39;VALUE&#39; both be &quot;less-than-comparable&quot; (see
+    // {Requirements on &#39;KEY&#39; and &#39;VALUE&#39;}).
+
+template &lt;class KEY,  class VALUE,  class COMPARATOR,  class ALLOCATOR&gt;
+bool operator&lt;=(const map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;&amp; lhs,
+                const map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; value is less-than or equal-to the
+    // specified &#39;rhs&#39; value, and &#39;false&#39; otherwise.  A map, &#39;lhs&#39;, has a value
+    // that is less-than or equal-to that of &#39;rhs&#39;, if, for the first non-equal
+    // corresponding key-value pairs in their respective sequences, the &#39;lhs&#39;
+    // key-value pair is less than the &#39;rhs&#39; pair, or, if the keys of all of
+    // their corresponding key-value pairs compare equal, &#39;lhs&#39; has less-than
+    // or equal number of key-value pairs as &#39;rhs&#39;.  This method requires that
+    // the (template parameter) types &#39;KEY&#39; and &#39;VALUE&#39; both be
+    // &quot;less-than-comparable&quot; (see {Requirements on &#39;KEY&#39; and &#39;VALUE&#39;}).
+
+template &lt;class KEY,  class VALUE,  class COMPARATOR,  class ALLOCATOR&gt;
+bool operator&gt;=(const map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;&amp; lhs,
+                const map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; value is greater-than or equal-to
+    // the specified &#39;rhs&#39; value, and &#39;false&#39; otherwise.  A map, &#39;lhs&#39;, has a
+    // value that is greater-than or equal-to that of &#39;rhs&#39;, if, for the first
+    // non-equal corresponding key-value pairs in their respective sequences,
+    // the &#39;lhs&#39; key-value pair is greater than the &#39;rhs&#39; pair, or, if the keys
+    // of all of their corresponding key-value pairs compare equal, &#39;lhs&#39; has
+    // greater-than or equal number of key-value pairs as &#39;rhs&#39;.  This method
+    // requires that the (template parameter) types &#39;KEY&#39; and &#39;VALUE&#39; both be
+    // &quot;less-than-comparable&quot; (see {Requirements on &#39;KEY&#39; and &#39;VALUE&#39;}).
+
+template &lt;class KEY,  class VALUE,  class COMPARATOR,  class ALLOCATOR&gt;
+void swap(map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;&amp; a,
+          map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;&amp; b);
+    // Swap both the value and the comparator of the specified &#39;a&#39; object with
+    // the value and comparator of the specified &#39;b&#39; object.  Additionally if
+    // &#39;bslstl::AllocatorTraits&lt;ALLOCATOR&gt;::propagate_on_container_swap&#39; is
+    // &#39;true&#39; then exchange the allocator of &#39;a&#39; with that of &#39;b&#39;, and do not
+    // modify either allocator otherwise.  This method provides the no-throw
+    // exception-safety guarantee and guarantees O[1] complexity.  The
+    // behavior is undefined is unless either this object was created with the
+    // same allocator as &#39;other&#39; or &#39;propagate_on_container_swap&#39; is &#39;true&#39;.
+
+
+// ===========================================================================
+//                      INLINE FUNCTION DEFINITIONS
+// ===========================================================================
+
+                             // -----------------
+                             // class DataWrapper
+                             // -----------------
+
+// CREATORS
+template &lt;class KEY, class VALUE, class COMPARATOR, class ALLOCATOR&gt;
+inline
+map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::DataWrapper::DataWrapper(
+                                                  const COMPARATOR&amp; comparator,
+                                                  const ALLOCATOR&amp;  allocator)
+: ::bsl::map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::Comparator(comparator)
+, d_pool(allocator)
+{
+}
+
+                             // ---------
+                             // class map
+                             // ---------
+
+// PRIVATE CLASS METHODS
+template &lt;class KEY, class VALUE, class COMPARATOR, class ALLOCATOR&gt;
+inline
+typename map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::Node *
+map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::toNode(
+                                         BloombergLP::bslalg::RbTreeNode *node)
+{
+    return static_cast&lt;Node *&gt;(node);
+}
+
+template &lt;class KEY, class VALUE, class COMPARATOR, class ALLOCATOR&gt;
+inline
+const typename map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::Node *
+map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::toNode(
+                                   const BloombergLP::bslalg::RbTreeNode *node)
+{
+    return static_cast&lt;const Node *&gt;(node);
+}
+
+// PRIVATE MANIPULATORS
+template &lt;class KEY, class VALUE, class COMPARATOR, class ALLOCATOR&gt;
+inline
+typename map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::NodeFactory&amp;
+map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::nodeFactory()
+{
+    return d_compAndAlloc.d_pool;
+}
+
+template &lt;class KEY, class VALUE, class COMPARATOR, class ALLOCATOR&gt;
+inline
+typename map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::Comparator&amp;
+map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::comparator()
+{
+    return d_compAndAlloc;
+}
+
+template &lt;class KEY, class VALUE, class COMPARATOR, class ALLOCATOR&gt;
+inline
+void map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::quickSwap(map&amp; other)
+{
+    BloombergLP::bslalg::RbTreeUtil::swap(&amp;d_tree, &amp;other.d_tree);
+    nodeFactory().swap(other.nodeFactory());
+
+    // Work around to avoid the 1-byte swap problem on AIX for an empty class
+    // under empty-base optimization.
+
+    if (sizeof(NodeFactory) != sizeof(DataWrapper)) {
+        comparator().swap(other.comparator());
+    }
+}
+
+// PRIVATE ACCESSORS
+template &lt;class KEY, class VALUE, class COMPARATOR, class ALLOCATOR&gt;
+inline
+const typename map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::NodeFactory&amp;
+map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::nodeFactory() const
+{
+    return d_compAndAlloc.d_pool;
+}
+
+template &lt;class KEY, class VALUE, class COMPARATOR, class ALLOCATOR&gt;
+inline
+const typename map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::Comparator&amp;
+map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::comparator() const
+{
+    return d_compAndAlloc;
+}
+
+// CREATORS
+template &lt;class KEY, class VALUE, class COMPARATOR, class ALLOCATOR&gt;
+inline
+map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::map(const ALLOCATOR&amp; allocator)
+: d_compAndAlloc(COMPARATOR(), allocator)
+, d_tree()
+{
+}
+
+template &lt;class KEY, class VALUE, class COMPARATOR, class ALLOCATOR&gt;
+inline
+map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::map(const map&amp; original)
+: d_compAndAlloc(original.comparator().keyComparator(),
+                 AllocatorTraits::select_on_container_copy_construction(
+                                           original.nodeFactory().allocator()))
+, d_tree()
+{
+    if (0 &lt; original.size()) {
+        nodeFactory().reserveNodes(original.size());
+        BloombergLP::bslalg::RbTreeUtil::copyTree(&amp;d_tree,
+                                                  original.d_tree,
+                                                  &amp;nodeFactory());
+    }
+}
+
+template &lt;class KEY, class VALUE, class COMPARATOR, class ALLOCATOR&gt;
+inline
+map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::map(const map&amp;       original,
+                                            const ALLOCATOR&amp; allocator)
+: d_compAndAlloc(original.comparator().keyComparator(), allocator)
+, d_tree()
+{
+    if (0 &lt; original.size()) {
+        nodeFactory().reserveNodes(original.size());
+        BloombergLP::bslalg::RbTreeUtil::copyTree(&amp;d_tree,
+                                                  original.d_tree,
+                                                  &amp;nodeFactory());
+    }
+}
+
+template &lt;class KEY, class VALUE, class COMPARATOR, class ALLOCATOR&gt;
+template &lt;class INPUT_ITERATOR&gt;
+inline
+map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::map(INPUT_ITERATOR    first,
+                                            INPUT_ITERATOR    last,
+                                            const COMPARATOR&amp; comparator,
+                                            const ALLOCATOR&amp;  allocator)
+: d_compAndAlloc(comparator, allocator)
+, d_tree()
+{
+    if (first != last) {
+        BloombergLP::bslalg::RbTreeUtilTreeProctor&lt;NodeFactory&gt; proctor(
+                                                               &amp;d_tree,
+                                                               &amp;nodeFactory());
+
+        // The following loop guarantees amortized linear time to insert an
+        // ordered sequence of values (as required by the standard).   If the
+        // values are in sorted order, we are guaranteed the next node can be
+        // inseted as the right child of the previous node, and can call
+        // &#39;insertAt&#39; without &#39;findUniqueInsertLocation&#39;.
+
+        insert(*first);
+        BloombergLP::bslalg::RbTreeNode *prevNode = d_tree.rootNode();
+        while (++first != last) {
+            // The values are not in order, so insert them normally.
+
+            const value_type&amp; value = *first;
+            if (this-&gt;comparator()(value.first, *prevNode)) {
+                insert(value);
+                insert(++first, last);
+                break;
+            }
+
+            if (this-&gt;comparator()(*prevNode, value.first)) {
+                BloombergLP::bslalg::RbTreeNode *node =
+                                               nodeFactory().createNode(value);
+                BloombergLP::bslalg::RbTreeUtil::insertAt(&amp;d_tree,
+                                                          prevNode,
+                                                          false,
+                                                          node);
+                prevNode = node;
+            }
+        }
+        proctor.release();
+    }
+}
+
+template &lt;class KEY, class VALUE, class COMPARATOR, class ALLOCATOR&gt;
+inline
+map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::~map()
+{
+    clear();
+}
+
+
+// MANIPULATORS
+template &lt;class KEY, class VALUE, class COMPARATOR, class ALLOCATOR&gt;
+inline
+map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;&amp;
+map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::operator=(const map&amp; rhs)
+{
+    if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(this != &amp;rhs)) {
+
+        if (AllocatorTraits::propagate_on_container_copy_assignment::VALUE) {
+            map other(rhs, rhs.nodeFactory().allocator());
+            BloombergLP::bslalg::SwapUtil::swap(
+                                             &amp;nodeFactory().allocator(),
+                                             &amp;other.nodeFactory().allocator());
+            quickSwap(other);
+        }
+        else {
+            map other(rhs, nodeFactory().allocator());
+            quickSwap(other);
+        }
+    }
+    return *this;
+}
+
+template &lt;class KEY, class VALUE, class COMPARATOR, class ALLOCATOR&gt;
+inline
+VALUE&amp; map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::operator[](const key_type&amp; key)
+{
+    BloombergLP::bslalg::RbTreeNode *node =
+        BloombergLP::bslalg::RbTreeUtil::find(d_tree, this-&gt;comparator(), key);
+    if (d_tree.sentinel() == node) {
+        return insert(iterator(node), value_type(key, VALUE()))-&gt;second;
+                                                                      // RETURN
+    }
+    return toNode(node)-&gt;value().second;
+}
+
+template &lt;class KEY, class VALUE, class COMPARATOR, class ALLOCATOR&gt;
+VALUE&amp; map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::at(const key_type&amp; key)
+{
+    BloombergLP::bslalg::RbTreeNode *node =
+        BloombergLP::bslalg::RbTreeUtil::find(d_tree, this-&gt;comparator(), key);
+    if (d_tree.sentinel() == node) {
+        BloombergLP::bslstl::StdExceptUtil::throwOutOfRange(
+                                 &quot;map&lt;...&gt;::at(key_type): invalid key value&quot;);
+    }
+    return toNode(node)-&gt;value().second;
+}
+
+template &lt;class KEY, class VALUE, class COMPARATOR, class ALLOCATOR&gt;
+inline
+typename map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::iterator
+map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::begin()
+{
+    return iterator(d_tree.firstNode());
+}
+
+template &lt;class KEY, class VALUE, class COMPARATOR, class ALLOCATOR&gt;
+inline
+typename map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::iterator
+map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::end()
+{
+    return iterator(d_tree.sentinel());
+}
+
+template &lt;class KEY, class VALUE, class COMPARATOR, class ALLOCATOR&gt;
+inline
+typename map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::reverse_iterator
+map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::rbegin()
+{
+    return reverse_iterator(end());
+}
+
+template &lt;class KEY, class VALUE, class COMPARATOR, class ALLOCATOR&gt;
+inline
+typename map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::reverse_iterator
+map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::rend()
+{
+    return reverse_iterator(begin());
+}
+
+template &lt;class KEY, class VALUE, class COMPARATOR, class ALLOCATOR&gt;
+inline
+bsl::pair&lt;typename map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::iterator, bool&gt;
+map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::insert(const value_type&amp; value)
+{
+    int comparisonResult;
+    BloombergLP::bslalg::RbTreeNode *insertLocation =
+        BloombergLP::bslalg::RbTreeUtil::findUniqueInsertLocation(
+                                                            &amp;comparisonResult,
+                                                            &amp;d_tree,
+                                                            this-&gt;comparator(),
+                                                            value.first);
+    if (!comparisonResult) {
+        return bsl::pair&lt;iterator, bool&gt;(iterator(insertLocation), false);
+                                                                      // RETURN
+    }
+    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().createNode(value);
+    BloombergLP::bslalg::RbTreeUtil::insertAt(&amp;d_tree,
+                                              insertLocation,
+                                              comparisonResult &lt; 0,
+                                              node);
+    return bsl::pair&lt;iterator, bool&gt;(iterator(node), true);
+}
+
+template &lt;class KEY, class VALUE, class COMPARATOR, class ALLOCATOR&gt;
+template &lt;class INPUT_ITERATOR&gt;
+inline
+void map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::insert(INPUT_ITERATOR first,
+                                                    INPUT_ITERATOR last)
+{
+    while (first != last) {
+        insert(*first);
+        ++first;
+    }
+}
+
+template &lt;class KEY, class VALUE, class COMPARATOR, class ALLOCATOR&gt;
+inline
+typename map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::iterator
+map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::insert(const_iterator    position,
+                                               const value_type&amp; value)
+{
+    BloombergLP::bslalg::RbTreeNode *hintNode =
+                const_cast&lt;BloombergLP::bslalg::RbTreeNode *&gt;(position.node());
+    int comparisonResult;
+    BloombergLP::bslalg::RbTreeNode *insertLocation =
+        BloombergLP::bslalg::RbTreeUtil::findUniqueInsertLocation(
+                                                            &amp;comparisonResult,
+                                                            &amp;d_tree,
+                                                            this-&gt;comparator(),
+                                                            value.first,
+                                                            hintNode);
+    if (!comparisonResult) {
+        return iterator(insertLocation);                              // RETURN
+    }
+
+    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().createNode(value);
+    BloombergLP::bslalg::RbTreeUtil::insertAt(&amp;d_tree,
+                                              insertLocation,
+                                              comparisonResult &lt; 0,
+                                              node);
+    return iterator(node);
+}
+
+template &lt;class KEY, class VALUE, class COMPARATOR, class ALLOCATOR&gt;
+inline
+typename map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::iterator
+map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::erase(const_iterator position)
+{
+    BSLS_ASSERT_SAFE(position != end());
+
+    BloombergLP::bslalg::RbTreeNode *node =
+                const_cast&lt;BloombergLP::bslalg::RbTreeNode *&gt;(position.node());
+    BloombergLP::bslalg::RbTreeNode *result =
+                                   BloombergLP::bslalg::RbTreeUtil::next(node);
+    BloombergLP::bslalg::RbTreeUtil::remove(&amp;d_tree, node);
+    nodeFactory().deleteNode(node);
+    return iterator(result);
+}
+
+template &lt;class KEY, class VALUE, class COMPARATOR, class ALLOCATOR&gt;
+inline
+typename map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::size_type
+map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::erase(const key_type&amp; key)
+{
+    const_iterator it = find(key);
+    if (it == end()) {
+        return 0;                                                     // RETURN
+    }
+    erase(it);
+    return 1;
+}
+
+template &lt;class KEY, class VALUE, class COMPARATOR, class ALLOCATOR&gt;
+inline
+typename map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::iterator
+map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::erase(const_iterator first,
+                                              const_iterator last)
+{
+    while (first != last) {
+        first = erase(first);
+    }
+    return iterator(last.node());
+}
+
+template &lt;class KEY, class VALUE, class COMPARATOR, class ALLOCATOR&gt;
+inline
+void map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::swap(map&amp; other)
+{
+    if (AllocatorTraits::propagate_on_container_swap::VALUE) {
+        BloombergLP::bslalg::SwapUtil::swap(&amp;nodeFactory().allocator(),
+                                           &amp;other.nodeFactory().allocator());
+        quickSwap(other);
+    }
+    else {
+        // C++11 behavior: undefined for unequal allocators
+        // BSLS_ASSERT(allocator() == other.allocator());
+
+        // backward compatible behavior: swap with copies
+        if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
+               nodeFactory().allocator() == other.nodeFactory().allocator())) {
+            quickSwap(other);
+        }
+        else {
+            BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+            map thisCopy(*this, other.nodeFactory().allocator());
+            map otherCopy(other, nodeFactory().allocator());
+
+            quickSwap(otherCopy);
+            other.quickSwap(thisCopy);
+        }
+    }
+}
+
+template &lt;class KEY, class VALUE, class COMPARATOR, class ALLOCATOR&gt;
+inline
+void map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::clear()
+{
+    BSLS_ASSERT_SAFE(d_tree.firstNode());
+
+    if (d_tree.rootNode()) {
+        BSLS_ASSERT_SAFE(0 &lt; d_tree.numNodes());
+        BSLS_ASSERT_SAFE(d_tree.firstNode() != d_tree.sentinel());
+
+        BloombergLP::bslalg::RbTreeUtil::deleteTree(&amp;d_tree, &amp;nodeFactory());
+    }
+#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
+    else {
+        BSLS_ASSERT_SAFE(0 == d_tree.numNodes());
+        BSLS_ASSERT_SAFE(d_tree.firstNode() == d_tree.sentinel());
+    }
+#endif
+}
+
+template &lt;class KEY, class VALUE, class COMPARATOR, class ALLOCATOR&gt;
+inline
+typename map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::iterator
+map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::find(const key_type&amp; key)
+{
+    return iterator(BloombergLP::bslalg::RbTreeUtil::find(d_tree,
+                                                          this-&gt;comparator(),
+                                                          key));
+}
+
+template &lt;class KEY, class VALUE, class COMPARATOR, class ALLOCATOR&gt;
+inline
+typename map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::iterator
+map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::lower_bound(const key_type&amp; key)
+{
+    return iterator(BloombergLP::bslalg::RbTreeUtil::lowerBound(
+                                                            d_tree,
+                                                            this-&gt;comparator(),
+                                                            key));
+}
+
+template &lt;class KEY, class VALUE, class COMPARATOR, class ALLOCATOR&gt;
+inline
+typename map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::iterator
+map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::upper_bound(const key_type&amp; key)
+{
+    return iterator(BloombergLP::bslalg::RbTreeUtil::upperBound(
+                                                            d_tree,
+                                                            this-&gt;comparator(),
+                                                            key));
+}
+
+template &lt;class KEY, class VALUE, class COMPARATOR, class ALLOCATOR&gt;
+inline
+bsl::pair&lt;typename map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::iterator,
+          typename map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::iterator&gt;
+map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::equal_range(const key_type&amp; key)
+{
+    iterator startIt = lower_bound(key);
+    iterator endIt   = startIt;
+    if (endIt != end() &amp;&amp; !comparator()(key, *endIt.node())) {
+        ++endIt;
+    }
+    return bsl::pair&lt;iterator, iterator&gt;(startIt, endIt);
+}
+
+// ACCESSORS
+template &lt;class KEY, class VALUE, class COMPARATOR, class ALLOCATOR&gt;
+inline
+typename map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::allocator_type
+map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::get_allocator() const
+{
+    return nodeFactory().allocator();
+}
+
+template &lt;class KEY, class VALUE, class COMPARATOR, class ALLOCATOR&gt;
+inline
+typename map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::const_iterator
+map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::begin() const
+{
+    return cbegin();
+}
+
+template &lt;class KEY, class VALUE, class COMPARATOR, class ALLOCATOR&gt;
+inline
+typename map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::const_iterator
+map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::end() const
+{
+    return cend();
+}
+
+template &lt;class KEY, class VALUE, class COMPARATOR, class ALLOCATOR&gt;
+inline
+typename map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::const_reverse_iterator
+map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::rbegin() const
+{
+    return crbegin();
+}
+
+template &lt;class KEY, class VALUE, class COMPARATOR, class ALLOCATOR&gt;
+inline
+typename map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::const_reverse_iterator
+map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::rend() const
+{
+    return crend();
+}
+
+template &lt;class KEY, class VALUE, class COMPARATOR, class ALLOCATOR&gt;
+inline
+typename map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::const_iterator
+map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::cbegin() const
+{
+    return const_iterator(d_tree.firstNode());
+}
+
+template &lt;class KEY, class VALUE, class COMPARATOR, class ALLOCATOR&gt;
+inline
+typename map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::const_iterator
+map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::cend() const
+{
+    return const_iterator(d_tree.sentinel());
+}
+
+template &lt;class KEY, class VALUE, class COMPARATOR, class ALLOCATOR&gt;
+inline
+typename map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::const_reverse_iterator
+map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::crbegin() const
+{
+    return const_reverse_iterator(end());
+}
+
+template &lt;class KEY, class VALUE, class COMPARATOR, class ALLOCATOR&gt;
+inline
+typename map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::const_reverse_iterator
+map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::crend() const
+{
+    return const_reverse_iterator(begin());
+}
+
+// capacity:
+template &lt;class KEY, class VALUE, class COMPARATOR, class ALLOCATOR&gt;
+inline
+bool map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::empty() const
+{
+    return 0 == d_tree.numNodes();
+}
+
+template &lt;class KEY, class VALUE, class COMPARATOR, class ALLOCATOR&gt;
+inline
+typename map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::size_type
+map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::size() const
+{
+    return d_tree.numNodes();
+}
+
+
+template &lt;class KEY, class VALUE, class COMPARATOR, class ALLOCATOR&gt;
+inline
+typename map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::size_type
+map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::max_size() const
+{
+    return AllocatorTraits::max_size(get_allocator());
+}
+
+template &lt;class KEY, class VALUE, class COMPARATOR, class ALLOCATOR&gt;
+const VALUE&amp; map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::at(
+                                                     const key_type&amp; key) const
+{
+    const BloombergLP::bslalg::RbTreeNode *node =
+                      BloombergLP::bslalg::RbTreeUtil::find(d_tree,
+                                                            this-&gt;comparator(),
+                                                            key);
+    if (d_tree.sentinel() == node) {
+        BloombergLP::bslstl::StdExceptUtil::throwOutOfRange(
+                                 &quot;map&lt;...&gt;::at(key_type): invalid key value&quot;);
+    }
+    return toNode(node)-&gt;value().second;
+}
+
+template &lt;class KEY, class VALUE, class COMPARATOR, class ALLOCATOR&gt;
+inline
+typename map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::key_compare
+map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::key_comp() const
+{
+    return comparator().keyComparator();
+}
+
+template &lt;class KEY, class VALUE, class COMPARATOR, class ALLOCATOR&gt;
+inline
+typename map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::value_compare
+map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::value_comp() const
+{
+    return value_compare(key_comp());
+}
+
+template &lt;class KEY, class VALUE, class COMPARATOR, class ALLOCATOR&gt;
+inline
+typename map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::const_iterator
+map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::find(const key_type&amp; key) const
+{
+    return const_iterator(
+       BloombergLP::bslalg::RbTreeUtil::find(d_tree, this-&gt;comparator(), key));
+}
+
+template &lt;class KEY, class VALUE, class COMPARATOR, class ALLOCATOR&gt;
+inline
+typename map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::size_type
+map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::count(const key_type&amp; key) const
+{
+    return (find(key) != end()) ? 1 : 0;
+}
+
+template &lt;class KEY, class VALUE, class COMPARATOR, class ALLOCATOR&gt;
+inline
+typename map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::const_iterator
+map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::lower_bound(const key_type&amp; key) const
+{
+    return iterator(BloombergLP::bslalg::RbTreeUtil::lowerBound(
+                                                            d_tree,
+                                                            this-&gt;comparator(),
+                                                            key));
+}
+
+template &lt;class KEY, class VALUE, class COMPARATOR, class ALLOCATOR&gt;
+inline
+typename map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::const_iterator
+map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::upper_bound(const key_type&amp; key) const
+{
+    return const_iterator(BloombergLP::bslalg::RbTreeUtil::upperBound(
+                                                            d_tree,
+                                                            this-&gt;comparator(),
+                                                            key));
+}
+
+template &lt;class KEY, class VALUE, class COMPARATOR, class ALLOCATOR&gt;
+inline
+bsl::pair&lt;typename map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::const_iterator,
+          typename map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::const_iterator&gt;
+map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::equal_range(const key_type&amp; key) const
+{
+    const_iterator startIt = lower_bound(key);
+    const_iterator endIt   = startIt;
+    if (endIt != end() &amp;&amp; !comparator()(key, *endIt.node())) {
+        ++endIt;
+    }
+    return bsl::pair&lt;const_iterator, const_iterator&gt;(startIt, endIt);
+}
+
+}  // close namespace bsl
+
+template &lt;class KEY, class VALUE, class COMPARATOR, class ALLOCATOR&gt;
+inline
+bool bsl::operator==(
+                    const bsl::map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;&amp; lhs,
+                    const bsl::map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;&amp; rhs)
+{
+    return BloombergLP::bslalg::RangeCompare::equal(lhs.begin(),
+                                                    lhs.end(),
+                                                    lhs.size(),
+                                                    rhs.begin(),
+                                                    rhs.end(),
+                                                    rhs.size());
+}
+
+template &lt;class KEY,  class VALUE,  class COMPARATOR,  class ALLOCATOR&gt;
+inline
+bool bsl::operator!=(
+                    const bsl::map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;&amp; lhs,
+                    const bsl::map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;&amp; rhs)
+{
+    return !(lhs == rhs);
+}
+
+template &lt;class KEY,  class VALUE,  class COMPARATOR,  class ALLOCATOR&gt;
+inline
+bool bsl::operator&lt;(
+                    const bsl::map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;&amp; lhs,
+                    const bsl::map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;&amp; rhs)
+{
+    return 0 &gt; BloombergLP::bslalg::RangeCompare::lexicographical(lhs.begin(),
+                                                                  lhs.end(),
+                                                                  lhs.size(),
+                                                                  rhs.begin(),
+                                                                  rhs.end(),
+                                                                  rhs.size());
+}
+
+template &lt;class KEY,  class VALUE,  class COMPARATOR,  class ALLOCATOR&gt;
+inline
+bool bsl::operator&gt;(
+                    const bsl::map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;&amp; lhs,
+                    const bsl::map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;&amp; rhs)
+{
+    return rhs &lt; lhs;
+}
+
+template &lt;class KEY,  class VALUE,  class COMPARATOR,  class ALLOCATOR&gt;
+inline
+bool bsl::operator&lt;=(
+                    const bsl::map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;&amp; lhs,
+                    const bsl::map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;&amp; rhs)
+{
+    return !(rhs &lt; lhs);
+}
+
+
+template &lt;class KEY,  class VALUE,  class COMPARATOR,  class ALLOCATOR&gt;
+inline
+bool bsl::operator&gt;=(
+                    const bsl::map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;&amp; lhs,
+                    const bsl::map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;&amp; rhs)
+{
+    return !(lhs &lt; rhs);
+}
+
+template &lt;class KEY,  class VALUE,  class COMPARATOR,  class ALLOCATOR&gt;
+inline
+void bsl::swap(bsl::map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;&amp; a,
+               bsl::map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;&amp; b)
+{
+    a.swap(b);
+}
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright (C) 2012 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the &quot;Software&quot;), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

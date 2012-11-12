@@ -1,0 +1,279 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 2.16 BETA</title>
+<html>
+<pre>
+// bsltf_nontypicaloverloadstesttype.h                                -*-C++-*-
+#ifndef INCLUDED_BSLSTL_NONTYPICALOVERLOADSTESTTYPE
+#define INCLUDED_BSLSTL_NONTYPICALOVERLOADSTESTTYPE
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a class that overloads the non-typical operators.
+//
+//@CLASSES:
+//   bsltf::NonTypicalOverloadsTestType: test class that non-typical operators
+//
+//@DESCRIPTION: This component provides a single, unconstrained
+// (value-semantic) attribute class, &#39;NonTypicalOverloadsTestType&#39;, that
+// defines overloads to some non-typically-overloaded operators (&#39;operator
+// new&#39;, &#39;operator delete&#39;, and &#39;operator&amp;&#39;) to ensure that they do not get
+// invoked.
+//
+///Attributes
+///----------
+//..
+//  Name                Type         Default
+//  ------------------  -----------  -------
+//  data                int          0
+//..
+//: o &#39;data&#39;: representation of the class value
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Demonstrating Calling Operator New/Delete Induce Assertions
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Suppose that we wanted to show that calling &#39;operator new&#39; and
+// &#39;operator delete on &#39;NonTypicalOverloadsTestType&#39; causes an assertion.
+//
+// First, we verify that calling &#39;operator new&#39; will result in an
+// assertion:
+//..
+//  bsls::AssertFailureHandlerGuard g(bsls::AssertTest::failTestDriver);
+//  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(new NonTypicalOverloadsTestType());
+//..
+// Finally, we verify that calling &#39;operator delete&#39; will result in an
+// assertion:
+//..
+//  NonTypicalOverloadsTestType obj;
+//  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(delete obj);
+//..
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include &lt;bsls_assert.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_PLATFORM
+#include &lt;bsls_platform.h&gt;
+#endif
+
+#ifndef INCLUDED_CSTDDEF
+#include &lt;cstddef&gt;       // for &#39;std::size_t&#39;
+#define INCLUDED_CSTDDEF
+#endif
+
+namespace BloombergLP {
+namespace bsltf {
+
+                        // =================================
+                        // class NonTypicalOverloadsTestType
+                        // =================================
+
+class NonTypicalOverloadsTestType {
+    // This unconstrained (value-semantic) attribute class ensures that the
+    // operator new member and operator delete member never gets called by
+    // overloading and asserting in them.  See the Attributes section under
+    // @DESCRIPTION in the component-level documentation for information on the
+    // class attributes.
+
+    // DATA
+    int d_data;
+
+  public:
+    // CLASS METHODS
+    static void* operator new(std::size_t size);
+        // Overload &#39;operator new&#39; and assert this method is not called.
+
+    static void* operator new(std::size_t size, void *ptr);
+        // Overload in place &#39;new&#39; and assert this method is not called.
+
+    static void operator delete(void *ptr);
+        // Overload &#39;operator delete&#39; and assert this method is not called.
+
+    // CREATORS
+    explicit NonTypicalOverloadsTestType();
+        // Create a &#39;NonTypicalOverloadsTestType&#39; object having the (default)
+        // attribute values:
+        //..
+        //  data() == 0
+        //..
+
+    NonTypicalOverloadsTestType(int data);
+        // Create a &#39;NonTypicalOverloadsTestType&#39; object having the specified
+        // &#39;data&#39; attribute value.
+
+    NonTypicalOverloadsTestType(const NonTypicalOverloadsTestType&amp; original);
+        // Create a &#39;NonTypicalOverloadsTestType&#39; object having the same value
+        // as the specified &#39;original&#39; object.
+
+    // ~NonTypicalOverloadsTestType() = default;
+        // Destroy this object.
+
+    // MANIPULATORS
+    NonTypicalOverloadsTestType&amp; operator=(
+                                       const NonTypicalOverloadsTestType&amp; rhs);
+        // Assign to this object the value of the specified &#39;rhs&#39; object, and
+        // return a reference providing modifiable access to this object.
+
+
+    void setData(int value);
+        // Set the &#39;data&#39; attribute of this object to the specified &#39;value&#39;.
+
+
+#ifdef BSLS_PLATFORM_CMP_MSVC
+    // ACCESSORS
+    NonTypicalOverloadsTestType* operator&amp;();
+        // Overload &#39;operator&amp;&#39; and assert this method is not called.  This is
+        // defined only on the Microsoft platform, because we in general do not
+        // support types that overrides &#39;operator&amp;&#39; in our standard containers
+        // implementation except on Windows.  See the component-level
+        // documentation of bsls_util for more information.
+#endif
+
+    int data() const;
+        // Return the value of the &#39;data&#39; attribute of this object.
+};
+
+// FREE OPERATORS
+bool operator==(const NonTypicalOverloadsTestType&amp; lhs,
+                const NonTypicalOverloadsTestType&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; objects have the same
+    // value, and &#39;false&#39; otherwise.  Two &#39;NonTypicalOverloadsTestType&#39; objects
+    // have the same if their &#39;data&#39; attributes are the same.
+
+bool operator!=(const NonTypicalOverloadsTestType&amp; lhs,
+                const NonTypicalOverloadsTestType&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; objects do not have the
+    // same value, and &#39;false&#39; otherwise.  Two &#39;NonTypicalOverloadsTestType&#39;
+    // objects do not have the same value if their &#39;data&#39; attributes are not
+    // the same.
+
+// ===========================================================================
+//                  INLINE AND TEMPLATE FUNCTION IMPLEMENTATIONS
+// ===========================================================================
+
+                        // ---------------------------------
+                        // class NonTypicalOverloadsTestType
+                        // ---------------------------------
+
+// CLASS METHODS
+inline
+void* NonTypicalOverloadsTestType::operator new(std::size_t size)
+{
+    BSLS_ASSERT_OPT(0);
+    return ::operator new(size);
+}
+
+inline
+void* NonTypicalOverloadsTestType::operator new(std::size_t, void *ptr)
+{
+    BSLS_ASSERT_OPT(0);
+    return ptr;
+}
+
+inline
+void NonTypicalOverloadsTestType::operator delete(void *)
+{
+    BSLS_ASSERT_OPT(0);
+}
+
+// CREATORS
+inline
+NonTypicalOverloadsTestType::NonTypicalOverloadsTestType()
+: d_data(0)
+{
+}
+
+inline
+NonTypicalOverloadsTestType::NonTypicalOverloadsTestType(int data)
+: d_data(data)
+{
+}
+
+inline
+NonTypicalOverloadsTestType::NonTypicalOverloadsTestType(
+                                   const NonTypicalOverloadsTestType&amp; original)
+: d_data(original.d_data)
+{
+}
+
+// MANIPULATORS
+inline
+NonTypicalOverloadsTestType&amp; NonTypicalOverloadsTestType::operator=(
+                                        const NonTypicalOverloadsTestType&amp; rhs)
+{
+    d_data = rhs.d_data;
+    return *this;
+}
+
+inline
+void NonTypicalOverloadsTestType::setData(int value)
+{
+    d_data = value;
+}
+
+#ifdef BSLS_PLATFORM_CMP_MSVC
+// ACCESSORS
+inline
+NonTypicalOverloadsTestType* NonTypicalOverloadsTestType::operator&amp;()
+{
+    BSLS_ASSERT_OPT(0);
+    return 0;
+}
+#endif
+
+inline
+int NonTypicalOverloadsTestType::data() const
+{
+    return d_data;
+}
+
+// FREE OPERATORS
+inline
+bool operator==(const NonTypicalOverloadsTestType&amp; lhs,
+                const NonTypicalOverloadsTestType&amp; rhs)
+{
+    return lhs.data() == rhs.data();
+}
+
+inline
+bool operator!=(const NonTypicalOverloadsTestType&amp; lhs,
+                const NonTypicalOverloadsTestType&amp; rhs)
+{
+    return lhs.data() != rhs.data();
+}
+
+}  // close package namespace
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright (C) 2012 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the &quot;Software&quot;), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

@@ -1,0 +1,655 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 2.16 BETA</title>
+<html>
+<pre>
+// bslstl_queue.h                                                     -*-C++-*-
+#ifndef INCLUDED_BSLSTL_QUEUE
+#define INCLUDED_BSLSTL_QUEUE
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+
+//@PURPOSE: Provide container adapter class template &#39;queue&#39;.
+//
+//@CLASSES:
+//   bslstl::queue: class template of a first-in-first-out data structure
+//
+//@SEE_ALSO: bslstl_priorityqueue, bslstl_stack
+//
+//@DESCRIPTION: This component defines a class template, &#39;bsl::queue&#39;, holding
+// a container (of a parameterized type &#39;CONTAINER&#39; containing elements of
+// another parameterized type &#39;VALUE&#39;), and adapting it to provide a
+// first-in-first-out queue data structure.
+//
+// An instantiation of &#39;queue&#39; is an allocator-aware, value-semantic type whose
+// salient attributes are its size (number of elements held) and the sequence
+// of values (of held elements) in the order that they were pushed into the
+// &#39;queue&#39;.  If &#39;queue&#39; is instantiated with a parameterized type &#39;VALUE&#39; that
+// is not itself value-semantic, then it will not retain all of its
+// value-semantic qualities.
+//
+// &#39;queue&#39; meets the requirements of a container adapter in the C++ standard
+// [23.6].  The &#39;queue&#39; implemented here adheres to the C++11 standard, except
+// that it does not have methods that take rvalue references and
+// &#39;initializer_lists&#39;.  Note that excluded C++11 features are those that
+// require C++11 compiler support.
+//
+///Memory Allocation
+///-----------------
+// The type supplied as &#39;ALLOCATOR&#39; template parameter in some of &#39;queue&#39;
+// constructors determines how the held container (of parameterized
+// &#39;CONTAINER&#39;) will allocate memory.  A &#39;queue&#39; supports
+// allocators meeting the requirements of the C++11 standard [17.6.3.5] as long
+// as the held container does.  In addition it supports scoped-allocators
+// derived from the &#39;bslma_Allocator&#39; memory allocation protocol.  Clients
+// intending to use &#39;bslma&#39; style allocators should use &#39;bsl::allocator&#39; as the
+// &#39;ALLOCATOR&#39; template parameter, providing a C++11 standard-compatible
+// adapter for a &#39;bslma_Allocator&#39; object.
+//
+///Operations
+///----------
+// The C++11 standard [23.6.3.1] declares any container type supporting
+// operations &#39;front&#39;, &#39;back&#39;, &#39;push_back&#39; and &#39;pop_front&#39; can be used to
+// instantiate the parameterized type &#39;CONTAINER&#39;.  Below is a list of public
+// methods of &#39;queue&#39; class that effectively forward their implementations to
+// corresponding operations in the held container (referenced as &#39;c&#39;).
+//  +--------------------------------------+---------------------------+
+//  | Public methods in &#39;queue&#39;            | Operation in &#39;CONTAINER&#39;  |
+//  +======================================+===========================+
+//  | void push(const value_type&amp; value);  | c.push_back(value);       |
+//  | void pop();                          | c.pop_front();            |
+//  | reference front();                   | c.front();                |
+//  | reference back();                    | c.back();                 |
+//  +--------------------------------------+---------------------------+
+//  | bool empty() const;                  | c.empty();                |
+//  | size_type size() const;              | c.size();                 |
+//  | const_reference front() const;       | c.front();                |
+//  | const_reference back()  const;       | c.back();                 |
+//  +--------------------------------------+---------------------------+
+//
+///Usage
+///-----
+// In this section we show intended use of this component.
+//
+///Example 1: Messages Queue
+///- - - - - - - - - - - - -
+// In this example, we will use the &#39;bsl::queue&#39; container adapter to implement
+// a message processor in a server program that receives and displays messages
+// from clients.
+//
+// Suppose we want to write a server program that has two threads: one thread
+// (receiving thread) receives messages from clients, passing them to a message
+// processor; the other thread (processing thread) runs the message processor,
+// printing the messages to the console in the same order as they were
+// received.  To accomplish this task, we can use &#39;bsl::queue&#39; in the message
+// processor to buffer received, but as yet unprinted, messages.  The message
+// processor pushes newly received messages onto the queue in the receiving
+// thread, and pops them off the queue in the processing thread.
+//
+// First, we define a &#39;Message&#39; type:
+//..
+//  struct Message {
+//      int         d_msgId;  // message identifier given by client
+//      const char *d_msg_p;  // message content (C-style string, not owned)
+//  };
+//..
+// Then, we define the class &#39;MessageProcessor&#39;, which provides methods to
+// receive and process messages:
+//..
+//  class MessageProcessor {
+//      // This class receives and processes messages from clients.
+//..
+// Here, we define a private data member of &#39;bsl::queue&lt;Message&gt;&#39; type, which
+// is an instantiation of &#39;bsl::queue&#39; that uses &#39;Message&#39; for its &#39;VALUE&#39;
+// (template parameter) type and (by default) &#39;bsl::deque&lt;Message&gt;&#39; for its
+// &#39;CONTAINER&#39; (template parameter) type:
+//..
+//      // DATA
+//      bsl::queue&lt;Message&gt; d_msgQueue;  // queue holding received but
+//                                       // unprocessed messages
+//      // ...
+//
+//    public:
+//      // CREATORS
+//      explicit MessageProcessor(bslma::Allocator *basicAllocator = 0);
+//          // Create a message processor object.  Optionally specify a
+//          // &#39;basicAllocator&#39; used to supply memory.  If &#39;basicAllocator&#39; is
+//          // 0, the currently installed default allocator is used.
+//
+//      // MANIPULATORS
+//      void receiveMessage(const Message &amp;message);
+//          // Enqueue the specified &#39;message&#39; onto this message processor.
+//
+//      void processMessages(int verbose);
+//          // Dequeue all messages currently contained by this processor,
+//          // and print them to the console if the specified &#39;verbose&#39; flag
+//          // is not 0.
+//  };
+//..
+// Next, we implement the &#39;MessageProcessor&#39; constructor:
+//..
+//  MessageProcessor::MessageProcessor(bslma::Allocator *basicAllocator)
+//  : d_msgQueue(basicAllocator)
+//  {
+//  }
+//..
+// Notice that we pass to the contained &#39;d_msgQueue&#39; object the
+// &#39;bslma::Allocator*&#39; supplied to the &#39;MessageProcessor&#39; at construction.
+//
+// Now, we implement the &#39;receiveMessage&#39; method, which pushes the given
+// message onto the queue object:
+//..
+//  void MessageProcessor::receiveMessage(const Message &amp;message)
+//  {
+//      // ... (some synchronization)
+//
+//      d_msgQueue.push(message);
+//
+//      // ...
+//  }
+//..
+// Finally, we implement the &#39;processMessages&#39; method, which pops all messages
+// off the queue object:
+//..
+//  void MessageProcessor::processMessages(int verbose)
+//  {
+//      // ... (some synchronization)
+//
+//      while (!d_msgQueue.empty()) {
+//          const Message&amp; message = d_msgQueue.front();
+//          if (verbose) {
+//              printf(&quot;Msg %d: %s\n&quot;, message.d_msgId, message.d_msg_p);
+//          }
+//          d_msgQueue.pop();
+//      }
+//
+//      // ...
+//  }
+//..
+// Note that the sequence of messages popped from the queue will be in exactly
+// the same order in which they were pushed, due to the first-in-first-out
+// property of the queue.
+
+#ifndef INCLUDED_BSLSTL_ALLOCATOR
+#include &lt;bslstl_allocator.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLSTL_DEQUE
+#include &lt;bslstl_deque.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLALG_SWAPUTIL
+#include &lt;bslalg_swaputil.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_ENABLEIF
+#include &lt;bslmf_enableif.h&gt;
+#endif
+
+#ifndef INCLUDED_FUNCTIONAL
+#include &lt;functional&gt;
+#define INCLUDED_FUNCTIONAL
+#endif
+
+namespace BloombergLP {
+
+namespace bslstl {
+
+template &lt;class CONTAINER, class ALLOCATOR&gt;
+struct Queue_HasAllocatorType {
+  private:
+    typedef char YesType;
+    struct NoType { char a[2]; };
+
+  public:
+    template &lt;typename TYPE&gt;
+    static YesType match(const typename TYPE::allocator_type *);
+    template &lt;typename TYPE&gt;
+    static NoType match(...);
+
+    enum { VALUE = (sizeof(YesType) == sizeof(match&lt;CONTAINER&gt;(0))) };
+};
+
+}  // close package namespace
+
+}  // close enterprise namespace
+
+
+namespace bsl {
+
+                             // ===========
+                             // class queue
+                             // ===========
+
+template &lt;class VALUE, class CONTAINER = deque&lt;VALUE&gt; &gt;
+class queue
+    // This class is a value-semantic class template, having a container of the
+    // parameterized &#39;CONTAINER&#39; type that holds elements of the parameterized
+    // &#39;VALUE&#39; type, to provide a first-in-first-out queue data structure.  The
+    // container object held by a &#39;queue&#39; class object is referenced as &#39;c&#39; in
+    // the following documentation.
+{
+    // FRIENDS
+    template &lt;class VALUE2, class CONTAINER2&gt;
+    friend bool operator==(const queue&lt;VALUE2, CONTAINER2&gt;&amp;,
+                           const queue&lt;VALUE2, CONTAINER2&gt;&amp;);
+
+    template &lt;class VALUE2, class CONTAINER2&gt;
+    friend bool operator!=(const queue&lt;VALUE2, CONTAINER2&gt;&amp;,
+                           const queue&lt;VALUE2, CONTAINER2&gt;&amp;);
+
+    template &lt;class VALUE2, class CONTAINER2&gt;
+    friend bool operator&lt; (const queue&lt;VALUE2, CONTAINER2&gt;&amp;,
+                           const queue&lt;VALUE2, CONTAINER2&gt;&amp;);
+
+    template &lt;class VALUE2, class CONTAINER2&gt;
+    friend bool operator&gt; (const queue&lt;VALUE2, CONTAINER2&gt;&amp;,
+                           const queue&lt;VALUE2, CONTAINER2&gt;&amp;);
+
+    template &lt;class VALUE2, class CONTAINER2&gt;
+    friend bool operator&lt;=(const queue&lt;VALUE2, CONTAINER2&gt;&amp;,
+                           const queue&lt;VALUE2, CONTAINER2&gt;&amp;);
+
+    template &lt;class VALUE2, class CONTAINER2&gt;
+    friend bool operator&gt;=(const queue&lt;VALUE2, CONTAINER2&gt;&amp;,
+                           const queue&lt;VALUE2, CONTAINER2&gt;&amp;);
+
+  public:
+    // TYPES
+    typedef typename CONTAINER::value_type      value_type;
+    typedef typename CONTAINER::reference       reference;
+    typedef typename CONTAINER::const_reference const_reference;
+    typedef typename CONTAINER::size_type       size_type;
+    typedef          CONTAINER                  container_type;
+
+  protected:
+    // DATA
+    CONTAINER c;    // container of elements that the queue holds, protected as
+                    // required by C++11
+
+  public:
+    // CREATORS
+    explicit queue();
+        // Construct an empty queue having a container of the parameterized
+        // &#39;CONTAINER&#39; type.
+
+    explicit queue(const CONTAINER&amp; container);
+        // Construct a queue having the specified &#39;container&#39; that holds
+        // elements of the parameterized &#39;VALUE&#39; type.
+
+    queue(const queue&amp; original);
+        // Construct a queue having the same value as that of the specified
+        // &#39;original&#39;.
+
+    template &lt;class ALLOCATOR&gt;
+    explicit
+    queue(const ALLOCATOR&amp; allocator,
+          typename enable_if&lt;
+              BloombergLP::bslstl::Queue_HasAllocatorType&lt;
+                           CONTAINER,
+                           ALLOCATOR&gt;::VALUE&gt;::type * = 0);
+        // Construct an empty queue that holds a default-constructed container
+        // of the parameterized &#39;CONTAINER&#39; type, and will use the specified
+        // &#39;allocator&#39; to supply memory.  Note that the &#39;ALLOCATOR&#39; parameter
+        // type has to be convertible to the allocator of the &#39;CONTAINER&#39;
+        // parameter type, &#39;CONTAINER::allocator_type&#39;.  Otherwise this
+        // constructor is disabled.
+
+    template &lt;class ALLOCATOR&gt;
+    queue(const CONTAINER&amp; container,
+          const ALLOCATOR&amp; allocator,
+          typename enable_if&lt;
+              BloombergLP::bslstl::Queue_HasAllocatorType&lt;
+                           CONTAINER,
+                           ALLOCATOR&gt;::VALUE&gt;::type * = 0);
+        // Construct an empty queue that holds the specified &#39;container&#39;, and
+        // will use the specified &#39;allocator&#39; to supply memory.  Note that the
+        // &#39;ALLOCATOR&#39; parameter type has to be convertible to the allocator of
+        // the &#39;CONTAINER&#39; parameter type, &#39;CONTAINER::allocator_type&#39;.
+        // Otherwise this constructor is disabled.
+
+    template &lt;class ALLOCATOR&gt;
+    queue(const queue&amp; original,
+          const ALLOCATOR&amp; allocator,
+          typename enable_if&lt;
+              BloombergLP::bslstl::Queue_HasAllocatorType&lt;
+                           CONTAINER,
+                           ALLOCATOR&gt;::VALUE&gt;::type * = 0);
+        // Construct a queue having the same value as that of the specified
+        // &#39;original&#39; that will use the specified &#39;allocator&#39; to supply memory.
+        // Note that the &#39;ALLOCATOR&#39; parameter type has to be convertible to
+        // the allocator of the &#39;CONTAINER&#39; parameter type,
+        // &#39;CONTAINER::allocator_type&#39;.  Otherwise this constructor is
+        // disabled.
+
+    // MANIPULATORS
+    void push(const value_type&amp; value);
+        // Insert a new element having the specified &#39;value&#39; to the back of
+        // this &#39;queue&#39; object.  In effect, performs &#39;c.push_back(value);&#39;.
+
+    void pop();
+        // Remove the front (the earliest pushed) element from this &#39;queue&#39;
+        // object.  In effect, performs &#39;c.pop_front();&#39;.
+
+    void swap(queue&amp; other);
+        // Efficiently exchange the value of this object with the value of the
+        // specified &#39;other&#39; object.  In effect, performs
+        // &#39;using bsl::swap; swap(c, other.c);&#39;.
+
+    reference front();
+        // Return the mutable reference to the front (the earliest pushed)
+        // element from this &#39;queue&#39; object.  In effect, performs
+        // &#39;return c.front();&#39;.
+
+    reference back();
+        // Return the mutable reference to the back (the latest pushed) element
+        // of this &#39;queue&#39; object.  In effect, performs &#39;return c.back();&#39;.
+
+
+    // ACCESSORS
+    bool empty() const;
+        // Return &#39;true&#39; if this &#39;queue&#39; object contains no elements, and
+        // &#39;false&#39; otherwise.  In effect, performs &#39;return c.empty();&#39;.
+
+    size_type size() const;
+        // Return &#39;true&#39; if this &#39;queue&#39; object contains no elements, and
+        // &#39;false&#39; otherwise.  In effect, performs &#39;return c.size();&#39;.
+
+    const_reference front() const;
+        // Return the immutable front (the earliest pushed) element from this
+        // &#39;queue&#39; object.  In effect, performs &#39;c.front()&#39;.
+
+    const_reference back() const;
+        // Return the immutable back (the latest pushed) element from this
+        // &#39;queue&#39; object.  In effect, performs &#39;c.back()&#39;.
+};
+
+// FREE FUNCTIONS
+template &lt;class VALUE, class CONTAINER&gt;
+inline
+bool operator==(const queue&lt;VALUE, CONTAINER&gt;&amp; lhs,
+                const queue&lt;VALUE, CONTAINER&gt;&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; objects have the same
+    // value, and &#39;false&#39; otherwise.  Two &#39;queue&#39; objects have the same value
+    // if the containers they adapt are compared equal.
+
+template &lt;class VALUE, class CONTAINER&gt;
+inline
+bool operator!=(const queue&lt;VALUE, CONTAINER&gt;&amp; lhs,
+                const queue&lt;VALUE, CONTAINER&gt;&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; objects do not have the
+    // same value, and &#39;false&#39; otherwise.  Two &#39;queue&#39; objects do not have the
+    // same value if the containers they adapt are not compared equal.
+
+template &lt;class VALUE, class CONTAINER&gt;
+inline
+bool operator&lt; (const queue&lt;VALUE, CONTAINER&gt;&amp; lhs,
+                const queue&lt;VALUE, CONTAINER&gt;&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; queue is lexicographically less
+    // than the specified &#39;rhs&#39; queue, and &#39;false&#39; otherwise.  A queue &#39;lhs&#39;
+    // is lexicographically less than another queue &#39;rhs&#39; if the container
+    // adapted by &#39;lhs&#39; is lexicographically less than that adapted by &#39;rhs&#39;.
+
+template &lt;class VALUE, class CONTAINER&gt;
+inline
+bool operator&gt; (const queue&lt;VALUE, CONTAINER&gt;&amp; lhs,
+                const queue&lt;VALUE, CONTAINER&gt;&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; queue is lexicographically greater
+    // than the specified &#39;rhs&#39; queue, and &#39;false&#39; otherwise.  A queue &#39;lhs&#39;
+    // is lexicographically greater than another queue &#39;rhs&#39; if the container
+    // adapted by &#39;lhs&#39; is lexicographically greater than that adapted by
+    // &#39;rhs&#39;.
+
+template &lt;class VALUE, class CONTAINER&gt;
+inline
+bool operator&gt;=(const queue&lt;VALUE, CONTAINER&gt;&amp; lhs,
+                const queue&lt;VALUE, CONTAINER&gt;&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; queue is lexicographically
+    // greater-than or equal-to the specified &#39;rhs&#39; queue, and &#39;false&#39;
+    // otherwise.  A queue &#39;lhs&#39; is lexicographically greater-than or equal-to
+    // another queue &#39;rhs&#39; if the container adapted by &#39;lhs&#39; is
+    // lexicographically greater-than or equal-to that adapted by &#39;rhs&#39;.
+
+template &lt;class VALUE, class CONTAINER&gt;
+inline
+bool operator&lt;=(const queue&lt;VALUE, CONTAINER&gt;&amp; lhs,
+                const queue&lt;VALUE, CONTAINER&gt;&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; queue is lexicographically
+    // less-than or equal-to the specified &#39;rhs&#39; queue, and &#39;false&#39; otherwise.
+    // A queue &#39;lhs&#39; is lexicographically less-than or equal-to another queue
+    // &#39;rhs&#39; if the container adapted by &#39;lhs&#39; is lexicographically less-than
+    // or equal-to that adapted by &#39;rhs&#39;.
+
+template &lt;class VALUE, class CONTAINER&gt;
+inline
+void swap(queue&lt;VALUE, CONTAINER&gt;&amp; lhs,
+          queue&lt;VALUE, CONTAINER&gt;&amp; rhs);
+    // Swap the value of the specified &#39;lhs&#39; queue with the value of the
+    // specified &#39;rhs&#39; queue.
+
+// ==========================================================================
+//                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
+// ===========================================================================
+
+                              // -----------
+                              // class queue
+                              // -----------
+
+// CREATORS
+template &lt;class VALUE, class CONTAINER&gt;
+inline
+queue&lt;VALUE, CONTAINER&gt;::queue()
+{
+}
+
+template &lt;class VALUE, class CONTAINER&gt;
+inline
+queue&lt;VALUE, CONTAINER&gt;::queue(const CONTAINER&amp; container)
+: c(container)
+{
+}
+
+template &lt;class VALUE, class CONTAINER&gt;
+inline
+queue&lt;VALUE, CONTAINER&gt;::queue(const queue&amp; original)
+: c(original.c)
+{
+}
+
+template &lt;class VALUE, class CONTAINER&gt;
+template &lt;class ALLOCATOR&gt;
+inline
+queue&lt;VALUE, CONTAINER&gt;::queue(const ALLOCATOR&amp; allocator,
+                               typename enable_if&lt;
+                                   BloombergLP::bslstl::Queue_HasAllocatorType&lt;
+                                                    CONTAINER,
+                                                    ALLOCATOR&gt;::VALUE&gt;::type *)
+: c(allocator)
+{
+}
+
+template &lt;class VALUE, class CONTAINER&gt;
+template &lt;class ALLOCATOR&gt;
+inline
+queue&lt;VALUE, CONTAINER&gt;::queue(const CONTAINER&amp; container,
+                               const ALLOCATOR&amp; allocator,
+                               typename enable_if&lt;
+                                   BloombergLP::bslstl::Queue_HasAllocatorType&lt;
+                                                    CONTAINER,
+                                                    ALLOCATOR&gt;::VALUE&gt;::type *)
+: c(container, allocator)
+{
+}
+
+template &lt;class VALUE, class CONTAINER&gt;
+template &lt;class ALLOCATOR&gt;
+inline
+queue&lt;VALUE, CONTAINER&gt;::queue(const queue&amp;     queue,
+                               const ALLOCATOR&amp; allocator,
+                               typename enable_if&lt;
+                                   BloombergLP::bslstl::Queue_HasAllocatorType&lt;
+                                                    CONTAINER,
+                                                    ALLOCATOR&gt;::VALUE&gt;::type *)
+: c(queue.c, allocator)
+{
+}
+
+// MANIPULATORS
+template &lt;class VALUE, class CONTAINER&gt;
+inline
+void queue&lt;VALUE, CONTAINER&gt;::push(const value_type&amp; value)
+{
+    c.push_back(value);
+}
+
+template &lt;class VALUE, class CONTAINER&gt;
+inline
+void queue&lt;VALUE, CONTAINER&gt;::pop()
+{
+    c.pop_front();
+}
+
+template &lt;class VALUE, class CONTAINER&gt;
+inline
+void queue&lt;VALUE, CONTAINER&gt;::swap(queue&amp; q)
+{
+    BloombergLP::bslalg::SwapUtil::swap(&amp;c, &amp;q.c);
+}
+
+// ACCESSORS
+template &lt;class VALUE, class CONTAINER&gt;
+inline
+bool queue&lt;VALUE, CONTAINER&gt;::empty() const
+{
+    return c.empty();
+}
+
+template &lt;class VALUE, class CONTAINER&gt;
+inline
+typename queue&lt;VALUE, CONTAINER&gt;::size_type
+queue&lt;VALUE, CONTAINER&gt;::size() const
+{
+    return c.size();
+}
+
+template &lt;class VALUE, class CONTAINER&gt;
+inline
+typename queue&lt;VALUE, CONTAINER&gt;::reference
+queue&lt;VALUE, CONTAINER&gt;::front()
+{
+    return c.front();
+}
+
+template &lt;class VALUE, class CONTAINER&gt;
+inline
+typename queue&lt;VALUE, CONTAINER&gt;::const_reference
+queue&lt;VALUE, CONTAINER&gt;::front() const
+{
+    return c.front();
+}
+
+template &lt;class VALUE, class CONTAINER&gt;
+inline
+typename queue&lt;VALUE, CONTAINER&gt;::reference
+queue&lt;VALUE, CONTAINER&gt;::back()
+{
+    return c.back();
+}
+
+template &lt;class VALUE, class CONTAINER&gt;
+inline
+typename queue&lt;VALUE, CONTAINER&gt;::const_reference
+queue&lt;VALUE, CONTAINER&gt;::back() const
+{
+    return c.back();
+}
+
+// FREE OPERATORS
+template &lt;class VALUE, class CONTAINER&gt;
+inline
+bool operator==(const queue&lt;VALUE, CONTAINER&gt;&amp; lhs,
+                const queue&lt;VALUE, CONTAINER&gt;&amp; rhs)
+{
+    return lhs.c == rhs.c;
+}
+
+template &lt;class VALUE, class CONTAINER&gt;
+inline
+bool operator&lt; (const queue&lt;VALUE, CONTAINER&gt;&amp; lhs,
+                const queue&lt;VALUE, CONTAINER&gt;&amp; rhs)
+{
+    return lhs.c &lt; rhs.c;
+}
+
+template &lt;class VALUE, class CONTAINER&gt;
+inline
+bool operator!=(const queue&lt;VALUE, CONTAINER&gt;&amp; lhs,
+                const queue&lt;VALUE, CONTAINER&gt;&amp; rhs)
+{
+    return lhs.c != rhs.c;
+}
+
+template &lt;class VALUE, class CONTAINER&gt;
+inline
+bool operator&gt; (const queue&lt;VALUE, CONTAINER&gt;&amp; lhs,
+                const queue&lt;VALUE, CONTAINER&gt;&amp; rhs)
+{
+    return lhs.c &gt; rhs.c;
+}
+
+template &lt;class VALUE, class CONTAINER&gt;
+inline
+bool operator&gt;=(const queue&lt;VALUE, CONTAINER&gt;&amp; lhs,
+                const queue&lt;VALUE, CONTAINER&gt;&amp; rhs)
+{
+    return lhs.c &gt;= rhs.c;
+}
+
+template &lt;class VALUE, class CONTAINER&gt;
+inline
+bool operator&lt;=(const queue&lt;VALUE, CONTAINER&gt;&amp; lhs,
+                const queue&lt;VALUE, CONTAINER&gt;&amp; rhs)
+{
+    return lhs.c &lt;= rhs.c;
+}
+
+template &lt;class VALUE, class CONTAINER&gt;
+inline
+void swap(queue&lt;VALUE, CONTAINER&gt;&amp; lhs,
+          queue&lt;VALUE, CONTAINER&gt;&amp; rhs)
+{
+    lhs.swap(rhs);
+}
+
+}  // close namespace bsl
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright (C) 2012 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the &quot;Software&quot;), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

@@ -1,0 +1,882 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 2.16 BETA</title>
+<html>
+<pre>
+// bslstl_allocator.h                                                 -*-C++-*-
+#ifndef INCLUDED_BSLSTL_ALLOCATOR
+#define INCLUDED_BSLSTL_ALLOCATOR
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide an STL-compatible proxy for &#39;bslma::Allocator&#39; objects.
+//
+//@CLASSES:
+//  bsl::allocator: STL-compatible allocator template
+//  bsl::Allocator_BslalgTypeTraits: type traits for &#39;bsl::allocator&#39;
+//
+//@SEE_ALSO: bslma_allocator
+//
+//@DESCRIPTION: This component is for internal use only.  Please include
+// &#39;&lt;bsl_memory.h&gt;&#39; instead and use &#39;bsl::allocator&#39; directly.  This component
+// provides an STL-compatible proxy for any allocator class derived from
+// &#39;bslma::Allocator&#39;.  The proxy class, &#39;bsl::allocator&#39; is a template that
+// adheres to the allocator requirements defined in section 20.1.5
+// [lib.allocator.requirements] of the C++ standard.  &#39;bsl::allocator&#39; may be
+// used to instantiate any class template that is parameterized by a standard
+// allocator.  The container is expected to allocate memory for its own use
+// through the allocator.  Different types of allocator use different
+// allocation mechanisms, so this mechanism gives the programmer control over
+// how the container obtains memory.
+//
+// The &#39;bsl::allocator&#39; template is intended to solve a problem created by the
+// C++ standard allocator protocol.  Since, in STL, the allocator type is
+// specified as a container template parameter, the allocation mechanism
+// becomes an explicit part of the resulting container type.  Two containers
+// cannot be of the same type unless they are instantiated with the same
+// allocator type, and therefore the same allocation mechanism.
+// &#39;bsl::allocator&#39; breaks the connection between allocator type and allocation
+// mechanism.  The allocation mechanism is chosen at *run-time* by
+// *initializing* (contrast with *instantiating*) the &#39;bsl::allocator&#39; with a
+// pointer to a *mechanism* *object* derived from &#39;bslma::Allocator&#39;.  Each
+// class derived from &#39;bslma::Allocator&#39; implements a specific allocation
+// mechanism and is thus called a *mechanism* *class* within this component.
+// The &#39;bsl::allocator&#39; object forwards calls made through the standard
+// allocator interface to the mechanism object with which it was initialized.
+// In this way, two containers instantiated with &#39;bsl::allocator&#39; can utilize
+// different allocation mechanisms even though they have the same compile-time
+// type.  The default mechanism object, if none is supplied to the
+// &#39;bsl::allocator&#39; constructor, is &#39;bslma::Default::defaultAllocator()&#39;.
+//
+// Instantiations of &#39;bsl::allocator&#39; have full value semantics (well-behaved
+// copy construction, assignment, and tests for equality).  Note, however, that
+// a &#39;bsl::allocator&#39; object does not &quot;own&quot; the &#39;bslma::Allocator&#39; with which
+// it is initialized.  In practice , this means that copying a &#39;bsl::allocator&#39;
+// object does not copy its mechanism object and destroying a &#39;bsl::allocator&#39;
+// does not destroy its mechanism object.  Two &#39;bsl::allocator&#39; objects compare
+// equal if and only if they share the same mechanism object.
+//
+///Restrictions on Allocator Usage
+///-------------------------------
+// The allocator requirements section of the C++ standard (section 20.1.5
+// [lib.allocator.requirements]) permits containers to assume that two
+// allocators of the same type always compare equal.  This assumption is
+// incorrect for instantiations of &#39;bsl::allocator&#39;.  Therefore, any container
+// (or other facility) that can use &#39;bsl::allocator&#39; must operate correctly in
+// the presence of non-equal &#39;bsl::allocator&#39; objects.  In practice, this means
+// that a container cannot transfer ownership of allocated memory to another
+// container unless the two containers use equal allocators.  Two
+// &#39;bsl::allocator&#39; objects will compare equal if and only if they were
+// initialized with the same mechanism object.
+//
+///Usage
+///-----
+// We first show how to define a container type parameterized with an STL-style
+// allocator template parameter.  For simplicity, we choose a fixed-size array
+// to avoid issues concerning reallocation, dynamic growth, etc.  Furthermore,
+// we do not assume the &#39;bslma&#39; allocation protocol, which would dictate that
+// we pass-through the allocator to the parameterized &#39;T&#39; contained type (see
+// the &#39;bslma_allocator&#39; component and &#39;bslalg&#39; package).  The interface would
+// be as follows:
+//..
+//  // my_fixedsizearray.h
+//  // ...
+//
+//                             // =======================
+//                             // class my_FixedSizeArray
+//                             // =======================
+//
+//  template &lt;class T, class ALLOC&gt;
+//  class my_FixedSizeArray {
+//      // This class provides an array of the parameterized &#39;T&#39; type passed of
+//      // fixed length at construction, using an object of the parameterized
+//      // &#39;ALLOC&#39; type to supply memory.
+//
+//      // DATA
+//      ALLOC  d_allocator;
+//      int    d_length;
+//      T     *d_array;
+//
+//    public:
+//      // TYPES
+//      typedef ALLOC  allocator_type;
+//      typedef T      value_type;
+//
+//      // CREATORS
+//      my_FixedSizeArray(int length, const ALLOC&amp; allocator = ALLOC());
+//          // Create a fixed-size array of the specified &#39;length&#39;, using the
+//          // optionally specified &#39;allocator&#39; to supply memory.  If
+//          // &#39;allocator&#39; is not specified, a default-constructed object of
+//          // the parameterized &#39;ALLOC&#39; type is used.  Note that all the
+//          // elements in that array are default-constructed.
+//
+//      my_FixedSizeArray(const my_FixedSizeArray&amp; original,
+//                        const ALLOC&amp;             allocator = ALLOC());
+//          // Create a copy of the specified &#39;original&#39; fixed-size array,
+//          // using the optionally specified &#39;allocator&#39; to supply memory.  If
+//          // &#39;allocator&#39; is not specified, a default-constructed object of
+//          // the parameterized &#39;ALLOC&#39; type is used.
+//
+//      ~my_FixedSizeArray();
+//          // Destroy this fixed size array.
+//
+//      // MANIPULATORS
+//      T&amp; operator[](int index);
+//          // Return a reference to the modifiable element at the specified
+//          // &#39;index&#39; position in this fixed size array.
+//
+//      // ACCESSORS
+//      const T&amp; operator[](int index) const;
+//          // Return a reference to the modifiable element at the specified
+//          // &#39;index&#39; position in this fixed size array.
+//
+//      int length() const;
+//          // Return the length specified at construction of this fixed size
+//          // array.
+//
+//      const ALLOC&amp; allocator() const;
+//          // Return a reference to the non-modifiable allocator used by this
+//          // fixed size array to supply memory.  This is here for
+//          // illustrative purposes.  We should not generally have an accessor
+//          // to return the allocator.
+//  };
+//
+//  // FREE OPERATORS
+//  template&lt;class T, class ALLOC&gt;
+//  bool operator==(const my_FixedSizeArray&lt;T,ALLOC&gt;&amp; lhs,
+//                  const my_FixedSizeArray&lt;T,ALLOC&gt;&amp; rhs)
+//      // Return &#39;true&#39; if the specified &#39;lhs&#39; fixed-size array has the same
+//      // value as the specified &#39;rhs&#39; fixed-size array, and &#39;false&#39;
+//      // otherwise.  Two fixed-size arrays have the same value if they have
+//      // the same length and if the element at any index in &#39;lhs&#39; has the
+//      // same value as the corresponding element at the same index in &#39;rhs&#39;.
+//..
+// The implementation is straightforward
+//..
+//  // my_fixedsizearray.cpp
+//  // ...
+//                         // -----------------------
+//                         // class my_FixedSizeArray
+//                         // -----------------------
+//
+//  // CREATORS
+//  template&lt;class T, class ALLOC&gt;
+//  my_FixedSizeArray&lt;T,ALLOC&gt;::my_FixedSizeArray(int          length,
+//                                                const ALLOC&amp; alloc)
+//  : d_allocator(alloc), d_length(length)
+//  {
+//      d_array = d_allocator.allocate(d_length);  // sizeof(T)*d_length bytes
+//
+//      // Default construct each element of the array:
+//      for (int i = 0; i &lt; d_length; ++i) {
+//          d_allocator.construct(&amp;d_array[i], T());
+//      }
+//  }
+//
+//  template&lt;class T, class ALLOC&gt;
+//  my_FixedSizeArray&lt;T,ALLOC&gt;::my_FixedSizeArray(
+//                                              const my_FixedSizeArray&amp; rhs,
+//                                              const ALLOC&amp;             alloc)
+//  : d_allocator(alloc), d_length(rhs.d_length)
+//  {
+//      d_array = d_allocator.allocate(d_length);  // sizeof(T)*d_length bytes
+//
+//      // copy construct each element of the array:
+//      for (int i = 0; i &lt; d_length; ++i) {
+//          d_allocator.construct(&amp;d_array[i], rhs.d_array[i]);
+//      }
+//  }
+//
+//  template&lt;class T, class ALLOC&gt;
+//  my_FixedSizeArray&lt;T,ALLOC&gt;::~my_FixedSizeArray()
+//  {
+//      // Call destructor for each element
+//      for (int i = 0; i &lt; d_length; ++i) {
+//          d_allocator.destroy(&amp;d_array[i]);
+//      }
+//
+//      // Return memory to allocator.
+//      d_allocator.deallocate(d_array, d_length);
+//  }
+//
+//  // MANIPULATORS
+//  template&lt;class T, class ALLOC&gt;
+//  inline T&amp; my_FixedSizeArray&lt;T,ALLOC&gt;::operator[](int i)
+//  {
+//      return d_array[i];
+//  }
+//
+//  // ACCESSORS
+//  template&lt;class T, class ALLOC&gt;
+//  inline
+//  const T&amp; my_FixedSizeArray&lt;T,ALLOC&gt;::operator[](int i) const
+//  {
+//      return d_array[i];
+//  }
+//
+//  template&lt;class T, class ALLOC&gt;
+//  inline int my_FixedSizeArray&lt;T,ALLOC&gt;::length() const
+//  {
+//      return d_length;
+//  }
+//
+//  template&lt;class T, class ALLOC&gt;
+//  inline
+//  const ALLOC&amp; my_FixedSizeArray&lt;T,ALLOC&gt;::allocator() const
+//  {
+//      return d_allocator;
+//  }
+//
+//  // FREE OPERATORS
+//  template&lt;class T, class ALLOC&gt;
+//  bool operator==(const my_FixedSizeArray&lt;T,ALLOC&gt;&amp; lhs,
+//                  const my_FixedSizeArray&lt;T,ALLOC&gt;&amp; rhs)
+//  {
+//      if (lhs.length() != rhs.length()) {
+//          return false;
+//      }
+//      for (int i = 0; i &lt; lhs.length(); ++i) {
+//          if (lhs[i] != rhs[i]) {
+//              return false;
+//          }
+//      }
+//      return true;
+//  }
+//..
+// Now we declare an allocator mechanism.  Our mechanism will be to simply call
+// global &#39;operator new&#39; and &#39;operator delete&#39; functions, and count the number
+// of blocks outstanding (allocated but not deallocated).  Note that a more
+// reusable implementation would take an underlying mechanism at construction.
+// We keep things simple only for the sake of this example.
+//..
+//  // my_countingallocator.h
+//
+//                           // ==========================
+//                           // class my_CountingAllocator
+//                           // ==========================
+//
+//  class my_CountingAllocator : public bslma::Allocator {
+//      // This concrete implementation of the &#39;bslma::Allocator&#39; protocol
+//      // maintains some statistics of the number of blocks outstanding (i.e.,
+//      // allocated but not yet deallocated).
+//
+//      // DATA
+//      int d_blocksOutstanding;
+//
+//    public:
+//      // CREATORS
+//      my_CountingAllocator();
+//      // Create a counting allocator that uses the operators &#39;new&#39; and
+//      // &#39;delete&#39; to supply and free memory.
+//
+//      // MANIPULATORS
+//      virtual void *allocate(size_type size);
+//          // Return a pointer to an uninitialized memory of the specified
+//          // &#39;size (in bytes).
+//
+//      virtual void deallocate(void *address);
+//          // Return the memory at the specified &#39;address&#39; to this allocator.
+//
+//      // ACCESSORS
+//      int blocksOutstanding() const;
+//          // Return the number of blocks outstanding (i.e., allocated but not
+//          // yet deallocated by this counting allocator).
+//  };
+//..
+// The implementation is really straightforward:
+//..
+//  // my_countingallocator.cpp
+//
+//                           // --------------------------
+//                           // class my_CountingAllocator
+//                           // --------------------------
+//
+//  // CREATORS
+//  my_CountingAllocator::my_CountingAllocator()
+//  : d_blocksOutstanding(0)
+//  {
+//  }
+//
+//  // MANIPULATORS
+//  void *my_CountingAllocator::allocate(size_type size)
+//  {
+//      ++d_blocksOutstanding;
+//      return operator new(size);
+//  }
+//
+//  void my_CountingAllocator::deallocate(void *address)
+//  {
+//      --d_blocksOutstanding;
+//      operator delete(address);
+//  }
+//
+//  // ACCESSORS
+//  int my_CountingAllocator::blocksOutstanding() const
+//  {
+//      return d_blocksOutstanding;
+//  }
+//..
+// Now we can create array objects with different allocator mechanisms.  First
+// we create an array, &#39;a1&#39;, using the default allocator and fill it with the
+// values &#39;[ 1 .. 5 ]&#39;:
+//..
+//  int main() {
+//
+//      my_FixedSizeArray&lt;int, bsl::allocator&lt;int&gt; &gt; a1(5);
+//      assert(5 == a1.length());
+//      assert(bslma::Default::defaultAllocator() == a1.allocator());
+//
+//      for (int i = 0; i &lt; a1.length(); ++i) {
+//          a1[i] = i + 1;
+//      }
+//..
+// Then we create a copy of &#39;a1&#39; using the counting allocator.  The values of
+// &#39;a1&#39; and &#39;a2&#39; are equal, even though they have different allocation
+// mechanisms.
+//..
+//      my_CountingAllocator countingAlloc;
+//      my_FixedSizeArray&lt;int, bsl::allocator&lt;int&gt; &gt; a2(a1,&amp;countingAlloc);
+//      assert(a1 == a2);
+//      assert(a1.allocator() != a2.allocator());
+//      assert(&amp;countingAlloc == a2.allocator());
+//      assert(1 == countingAlloc.blocksOutstanding())
+//  }
+//..
+
+// Prevent &#39;bslstl&#39; headers from being included directly in &#39;BSL_OVERRIDES_STD&#39;
+// mode.  Doing so is unsupported, and is likely to cause compilation errors.
+#if defined(BSL_OVERRIDES_STD) &amp;&amp; !defined(BSL_STDHDRS_PROLOGUE_IN_EFFECT)
+#error &quot;include &lt;bsl_memory.h&gt; instead of &lt;bslstl_allocator.h&gt; in \
+BSL_OVERRIDES_STD mode&quot;
+#endif
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include &lt;bslscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include &lt;bslma_allocator.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMA_DEFAULT
+#include &lt;bslma_default.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include &lt;bslmf_nestedtraitdeclaration.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
+#include &lt;bslmf_istriviallycopyable.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
+#include &lt;bslmf_isbitwisemoveable.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_ISBITWISEEQUALITYCOMPARABLE
+#include &lt;bslmf_isbitwiseequalitycomparable.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_PLATFORM
+#include &lt;bsls_platform.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_UTIL
+#include &lt;bsls_util.h&gt;
+#endif
+
+#ifndef INCLUDED_NEW
+#include &lt;new&gt;
+#define INCLUDED_NEW
+#endif
+
+#ifndef INCLUDED_CLIMITS
+#include &lt;climits&gt;
+#define INCLUDED_CLIMITS
+#endif
+
+#ifndef INCLUDED_CSTDDEF
+#include &lt;cstddef&gt;
+#define INCLUDED_CSTDDEF
+#endif
+
+namespace bsl {
+
+                             // ===============
+                             // class allocator
+                             // ===============
+
+template &lt;class T&gt;
+class allocator {
+    // An STL-compatible allocator that forwards allocation calls to an
+    // underlying mechanism object of a type derived from &#39;bslma::Allocator&#39;.
+    // This class template adheres to the allocator requirements defined in
+    // section 20.1.5 [lib.allocator.requirements] of the C++ standard and may
+    // be used to instantiate any [container] class template that follows the
+    // STL allocator protocol.  The allocation mechanism is chosen at run-time,
+    // giving the programmer run-time control over how a container allocates
+    // and frees memory.
+
+    // DATA
+    BloombergLP::bslma::Allocator *d_mechanism;
+
+  public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(allocator, bsl::is_trivially_copyable);
+    BSLMF_NESTED_TRAIT_DECLARATION(allocator,
+                                   BloombergLP::bslmf::IsBitwiseMoveable);
+    BSLMF_NESTED_TRAIT_DECLARATION(allocator,
+                              BloombergLP::bslmf::IsBitwiseEqualityComparable);
+        // Declare nested type traits for this class.
+
+    // PUBLIC TYPES
+    typedef std::size_t     size_type;
+    typedef std::ptrdiff_t  difference_type;
+    typedef T              *pointer;
+    typedef const T        *const_pointer;
+    typedef T&amp;              reference;
+    typedef const T&amp;        const_reference;
+    typedef T               value_type;
+
+    template &lt;class U&gt; struct rebind
+    {
+        // This nested &#39;struct&#39; template, parameterized by some type &#39;U&#39;,
+        // provides a namespace for an &#39;other&#39; type alias, which is an
+        // allocator type following the same template as this one but that
+        // allocates elements of type &#39;U&#39;.  Note that this allocator type is
+        // convertible to and from &#39;other&#39; for any type &#39;U&#39; including &#39;void&#39;.
+
+        typedef allocator&lt;U&gt; other;
+    };
+
+    // CREATORS
+    allocator();
+        // Construct a proxy object which will forward allocation calls to the
+        // object pointed to by &#39;bslma::Default::defaultAllocator()&#39;.
+        // Postcondition:
+        //..
+        //  this-&gt;mechanism() == bslma::Default::defaultAllocator();
+        //..
+
+    allocator(BloombergLP::bslma::Allocator *mechanism);
+        // Convert a &#39;bslma::Allocator&#39; pointer to a &#39;allocator&#39; object which
+        // forwards allocation calls to the object pointed to by the specified
+        // &#39;mechanism&#39;.  If &#39;mechanism&#39; is 0, then the currently installed
+        // default allocator is used instead.  Postcondition:
+        // &#39;0 == mechanism || this-&gt;mechanism() == mechanism&#39;.
+
+    allocator(const allocator&amp; rhs);
+        // Copy construct a proxy object using the same mechanism as rhs.
+        // Postcondition: &#39;this-&gt;mechanism() == rhs.mechanism()&#39;.
+
+    template &lt;class U&gt;
+    allocator(const allocator&lt;U&gt;&amp; rhs);
+        // Construct a proxy object sharing the same mechanism object as &#39;rhs&#39;.
+        // The newly constructed allocator will compare equal to rhs, even
+        // though they are instantiated on different types.  Postcondition:
+        // &#39;this-&gt;mechanism() == rhs.mechanism()&#39;.
+
+    //! ~allocator();
+        // Destroy this object.  Note that this does not delete the object
+        // pointed to by &#39;mechanism()&#39;.  Also note that this method&#39;s
+        // definition is compiler generated.
+
+    //! allocator&amp; operator=(const allocator&amp; rhs);
+        // Assign this object the value of the specified &#39;rhs&#39;.  Postcondition:
+        // &#39;this-&gt;mechanism() == rhs-&gt;mechanism()&#39;.  Note that this does not
+        // delete the object pointed to by the previous value of &#39;mechanism()&#39;.
+        // Also note that this method&#39;s definition is compiler generated.
+
+    // MANIPULATORS
+    pointer allocate(size_type n, const void *hint = 0);
+        // Allocate enough (properly aligned) space for &#39;n&#39; objects of type &#39;T&#39;
+        // by calling &#39;allocate&#39; on the mechanism object.  The &#39;hint&#39; argument
+        // is ignored by this allocator type.  The behavior is undefined unless
+        // &#39;n &lt;= max_size()&#39;.
+
+    void deallocate(pointer p, size_type n = 1);
+        // Return memory previously allocated with &#39;allocate&#39; to the underlying
+        // mechanism object by calling &#39;deallocate&#39; on the the mechanism
+        // object.  The &#39;n&#39; argument is ignored by this allocator type.
+
+    void construct(pointer p, const T&amp; val);
+        // Copy-construct a &#39;T&#39; object at the memory address specified by &#39;p&#39;.
+        // Do not directly allocate memory.  Undefined if &#39;p&#39; is not properly
+        // aligned for &#39;T&#39;.
+
+    void destroy(pointer p);
+        // Call the &#39;T&#39; destructor for the object pointed to by &#39;p&#39;.  Do not
+        // directly deallocate any memory.
+
+    // ACCESSORS
+    BloombergLP::bslma::Allocator *mechanism() const;
+        // Return a pointer to the mechanism object to which this proxy
+        // forwards allocation and deallocation calls.
+
+    pointer address(reference x) const;
+        // Return the address of &#39;x&#39;.
+
+    const_pointer address(const_reference x) const;
+        // Return the address of &#39;x&#39;.
+
+    size_type max_size() const;
+        // Return the maximum number of elements of type &#39;T&#39; that can be
+        // allocated using this allocator.  Note that there is no guarantee
+        // that attempts at allocating less elements than the value returned by
+        // &#39;max_size&#39; will not throw.
+};
+
+                          // =====================
+                          // class allocator&lt;void&gt;
+                          // =====================
+
+template &lt;&gt;
+class allocator&lt;void&gt; {
+    // Specialization of &#39;allocator&lt;T&gt;&#39; where &#39;T&#39; is &#39;void&#39;.  Does not contain
+    // members that are unrepresentable for &#39;void&#39;
+
+    // DATA
+    BloombergLP::bslma::Allocator *d_mechanism;
+
+  public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(allocator, bsl::is_trivially_copyable);
+    BSLMF_NESTED_TRAIT_DECLARATION(allocator,
+                                   BloombergLP::bslmf::IsBitwiseMoveable);
+    BSLMF_NESTED_TRAIT_DECLARATION(allocator,
+                              BloombergLP::bslmf::IsBitwiseEqualityComparable);
+        // Declare nested type traits for this class.
+    // PUBLIC TYPES
+    typedef std::size_t     size_type;
+    typedef std::ptrdiff_t  difference_type;
+    typedef void           *pointer;
+    typedef const void     *const_pointer;
+    typedef void            value_type;
+
+    template &lt;class U&gt; struct rebind
+    {
+        typedef allocator&lt;U&gt; other;
+    };
+
+    // CREATORS
+    allocator();
+        // Construct a proxy object which will forward allocation calls to the
+        // object pointed to by &#39;bslma::Default::defaultAllocator()&#39;.
+
+    allocator(BloombergLP::bslma::Allocator *mechanism);
+        // Convert a &#39;bslma::Allocator&#39; pointer to a &#39;allocator&#39; object which
+        // forwards allocation calls to the object pointed to by the specified
+        // &#39;mechanism&#39;.  If &#39;mechanism&#39; is 0, then the current default
+        // allocator is used instead.  Postcondition:
+        // &#39;0 == mechanism || this-&gt;mechanism() == mechanism&#39;.
+
+    allocator(const allocator&amp; rhs);
+        // Copy construct a proxy object using the same mechanism as rhs.
+        // Postcondition: &#39;this-&gt;mechanism() == rhs.mechanism()&#39;.
+
+    template &lt;class U&gt;
+    allocator(const allocator&lt;U&gt;&amp; rhs);
+        // Construct a proxy object sharing the same mechanism object as &#39;rhs&#39;.
+        // The newly constructed allocator will compare equal to rhs, even
+        // though they are instantiated on different types.  Postcondition:
+        // &#39;this-&gt;mechanism() == rhs.mechanism()&#39;.
+
+    //! ~allocator();
+        // Destroy this object.  Note that this does not delete the object
+        // pointed to by &#39;mechanism()&#39;.  Also note that this method&#39;s
+        // definition is compiler generated.
+
+    // MANIPULATORS
+    //! allocator&amp; operator=(const allocator&amp; rhs);
+        // Assign this object the value of the specified &#39;rhs&#39;.  Postcondition:
+        // &#39;this-&gt;mechanism() == rhs-&gt;mechanism()&#39;.  Note that this does not
+        // delete the object pointed to by the previous value of &#39;mechanism()&#39;.
+        // Also note that this method&#39;s definition is compiler generated.
+
+    // ACCESSORS
+    BloombergLP::bslma::Allocator *mechanism() const;
+        // Return a pointer to the mechanism object to which this proxy
+        // forwards allocation and deallocation calls.
+};
+
+// FREE OPERATORS
+template &lt;class T1, class T2&gt;
+inline
+bool operator==(const allocator&lt;T1&gt;&amp; lhs,
+                const allocator&lt;T2&gt;&amp; rhs);
+    // Return true &#39;lhs&#39; and &#39;rhs&#39; are proxies for the same &#39;bslma::Allocator&#39;
+    // object.  This is a practical implementation of the STL requirement that
+    // two allocators compare equal if and only if memory allocated from one
+    // can be deallocated from the other.  Note that the two allocators need
+    // not be instantiated on the same type in order to compare equal.
+
+template &lt;class T1, class T2&gt;
+inline
+bool operator!=(const allocator&lt;T1&gt;&amp; lhs,
+                const allocator&lt;T2&gt;&amp; rhs);
+    // Return &#39;!(lhs == rhs)&#39;.
+
+template &lt;class T&gt;
+inline
+bool operator==(const allocator&lt;T&gt;&amp;                  lhs,
+                const BloombergLP::bslma::Allocator *rhs);
+    // Return true if &#39;lhs.mechanism() == rhs&#39;.
+
+template &lt;class T&gt;
+inline
+bool operator!=(const allocator&lt;T&gt;&amp;                  lhs,
+                const BloombergLP::bslma::Allocator *rhs);
+    // Return &#39;!(lhs == rhs)&#39;.
+
+template &lt;class T&gt;
+inline
+bool operator==(const BloombergLP::bslma::Allocator *lhs,
+                const allocator&lt;T&gt;&amp;                  rhs);
+    // Return true if &#39;lhs == rhs.mechanism()&#39;.
+
+template &lt;class T&gt;
+inline
+bool operator!=(const BloombergLP::bslma::Allocator *lhs,
+                const allocator&lt;T&gt;&amp;                  rhs);
+    // Return &#39;!(lhs == rhs)&#39;.
+
+// ===========================================================================
+//                      INLINE FUNCTION DEFINITIONS
+// ===========================================================================
+
+                             // ---------------
+                             // class allocator
+                             // ---------------
+
+// LOW-LEVEL ACCESSORS
+template &lt;class T&gt;
+inline
+BloombergLP::bslma::Allocator *allocator&lt;T&gt;::mechanism() const
+{
+    return d_mechanism;
+}
+
+// CREATORS
+template &lt;class T&gt;
+inline
+allocator&lt;T&gt;::allocator()
+: d_mechanism(BloombergLP::bslma::Default::defaultAllocator())
+{
+}
+
+template &lt;class T&gt;
+inline
+allocator&lt;T&gt;::allocator(BloombergLP::bslma::Allocator *mechanism)
+: d_mechanism(BloombergLP::bslma::Default::allocator(mechanism))
+{
+}
+
+template &lt;class T&gt;
+inline
+allocator&lt;T&gt;::allocator(const allocator&amp; rhs)
+: d_mechanism(rhs.mechanism())
+{
+}
+
+template &lt;class T&gt;
+template &lt;class U&gt;
+inline
+allocator&lt;T&gt;::allocator(const allocator&lt;U&gt;&amp; rhs)
+: d_mechanism(rhs.mechanism())
+{
+}
+
+// MANIPULATORS
+template &lt;class T&gt;
+inline
+typename allocator&lt;T&gt;::pointer
+allocator&lt;T&gt;::allocate(typename allocator::size_type  n,
+                       const void                    *hint)
+{
+    // Both &#39;bslma::Allocator::size_type&#39; and &#39;allocator&lt;T&gt;::size_type&#39; have
+    // the same width; however, the former is signed, but the latter is not.
+    // Hence the cast in the argument of &#39;allocate&#39; below.
+
+    (void) hint;  // suppress warning
+    return static_cast&lt;pointer&gt;(d_mechanism-&gt;allocate(
+                     BloombergLP::bslma::Allocator::size_type(n * sizeof(T))));
+}
+
+template &lt;class T&gt;
+inline
+void allocator&lt;T&gt;::deallocate(typename allocator::pointer   p,
+                              typename allocator::size_type n)
+{
+    (void) n;  // suppress warning
+    d_mechanism-&gt;deallocate(p);
+}
+
+template &lt;class T&gt;
+inline
+void allocator&lt;T&gt;::construct(typename allocator::pointer p,
+                             const T&amp;                    val)
+{
+    new(static_cast&lt;void*&gt;(p)) T(val);
+}
+
+template &lt;class T&gt;
+inline
+void allocator&lt;T&gt;::destroy(typename allocator::pointer p)
+{
+    p-&gt;~T();
+}
+
+// ACCESSORS
+template &lt;class T&gt;
+inline
+typename allocator&lt;T&gt;::size_type allocator&lt;T&gt;::max_size() const
+{
+    // Return the largest value, &#39;v&#39;, such that &#39;v * sizeof(T)&#39; fits in a
+    // &#39;size_type&#39;.
+
+    // TBD Should these &#39;const&#39; variables be declared &#39;static&#39;?
+    static const bool BSLMA_SIZE_IS_SIGNED =
+                              ~BloombergLP::bslma::Allocator::size_type(0) &lt; 0;
+    static const std::size_t MAX_NUM_BYTES        =
+                              ~std::size_t(0) / (BSLMA_SIZE_IS_SIGNED ? 2 : 1);
+    static const std::size_t MAX_NUM_ELEMENTS     =
+                              std::size_t(MAX_NUM_BYTES) / sizeof(T);
+
+    return MAX_NUM_ELEMENTS;
+}
+
+template &lt;class T&gt;
+inline
+typename allocator&lt;T&gt;::pointer allocator&lt;T&gt;::address(reference x) const
+{
+    return BSLS_UTIL_ADDRESSOF(x);
+}
+
+template &lt;class T&gt;
+inline
+typename allocator&lt;T&gt;::const_pointer allocator&lt;T&gt;::address(const_reference x)
+                                                                          const
+{
+    return BSLS_UTIL_ADDRESSOF(x);
+}
+
+                          // ---------------------
+                          // class allocator&lt;void&gt;
+                          // ---------------------
+
+// LOW-LEVEL ACCESSORS
+inline
+BloombergLP::bslma::Allocator *allocator&lt;void&gt;::mechanism() const
+{
+    return d_mechanism;
+}
+
+// CREATORS
+inline
+allocator&lt;void&gt;::allocator()
+: d_mechanism(BloombergLP::bslma::Default::defaultAllocator())
+{
+}
+
+inline
+allocator&lt;void&gt;::allocator(BloombergLP::bslma::Allocator *mechanism)
+: d_mechanism(BloombergLP::bslma::Default::allocator(mechanism))
+{
+}
+
+// &#39;template &lt;&gt;&#39; is needed only for versions of xlC prior to 9
+#if defined(__xlC__) &amp;&amp; __xlC__&lt;0x900
+template &lt;&gt;
+#endif
+inline
+allocator&lt;void&gt;::allocator(const allocator&lt;void&gt;&amp; rhs)
+: d_mechanism(rhs.mechanism())
+{
+}
+
+template &lt;class U&gt;
+inline
+allocator&lt;void&gt;::allocator(const allocator&lt;U&gt;&amp; rhs)
+: d_mechanism(rhs.mechanism())
+{
+}
+
+// FREE OPERATORS
+template &lt;class T1, class T2&gt;
+inline
+bool operator==(const allocator&lt;T1&gt;&amp; lhs, const allocator&lt;T2&gt;&amp; rhs)
+{
+    return lhs.mechanism() == rhs.mechanism();
+}
+
+template &lt;class T1, class T2&gt;
+inline
+bool operator!=(const allocator&lt;T1&gt;&amp; lhs, const allocator&lt;T2&gt;&amp; rhs)
+{
+    return ! (lhs == rhs);
+}
+
+template &lt;class T&gt;
+inline
+bool operator==(const allocator&lt;T&gt;&amp;                  lhs,
+                const BloombergLP::bslma::Allocator *rhs)
+{
+    return lhs.mechanism() == rhs;
+}
+
+template &lt;class T&gt;
+inline
+bool operator!=(const allocator&lt;T&gt;&amp;                  lhs,
+                const BloombergLP::bslma::Allocator *rhs)
+{
+    return ! (lhs == rhs);
+}
+
+template &lt;class T&gt;
+inline
+bool operator==(const BloombergLP::bslma::Allocator *lhs,
+                const allocator&lt;T&gt;&amp;                  rhs)
+{
+    return lhs == rhs.mechanism();
+}
+
+template &lt;class T&gt;
+inline
+bool operator!=(const BloombergLP::bslma::Allocator *lhs,
+                const allocator&lt;T&gt;&amp;                  rhs)
+{
+    return ! (lhs == rhs);
+}
+
+}  // close namespace bsl
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright (C) 2012 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the &quot;Software&quot;), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

@@ -1,0 +1,140 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 2.16 BETA</title>
+<html>
+<pre>
+// bslmf_arraytopointer.h                                             -*-C++-*-
+#ifndef INCLUDED_BSLMF_ARRAYTOPOINTER
+#define INCLUDED_BSLMF_ARRAYTOPOINTER
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a meta-function to convert array types to pointer types.
+//
+//@CLASSES:
+//  bslmf::ArrayToPointer: convert an array type to a pointer type
+//  bslmf::ArrayToConstPointer: convert an array type to a &#39;const&#39; pointer type
+//
+//@SEE_ALSO: bslmf_isarray, bslmf_forwardingtype
+//
+//@DESCRIPTION: This component provides a meta function for converting array
+// types to pointer types.  The utility is generally used for in templates that
+// require forwarding or storage of arguments that are passed a arrays(e.g.,
+// &quot;string literals&quot;).  For non array types, the type is left unmodified.  Note
+// that &#39;bslmf::ArrayToPointer&#39; and &#39;bslmf::ArrayToConstPointer&#39; retain the CV
+// qualifiers of the original type.  In other words, if the original array type
+// was &#39;const&#39; or &#39;volatile&#39;, or &#39;const volatile&#39;, the converted pointer type
+// will also be &#39;const&#39;, &#39;volatile&#39;, or &#39;const volatile&#39; respectively.
+//
+// When an explicit const pointer pointer type is needed(such as when accepting
+// as argument, then &#39;bslmf::ArrayToConstPointer&#39; should be used.
+//
+///Usage
+///-----
+// For example:
+//..
+//  assert(1 == bslmf::IsSame&lt;bslmf::ArrayToPointer&lt;int[5]&gt;::Type
+//                          , int *&gt;::value);
+//  assert(1 == bslmf::IsSame&lt;bslmf::ArrayToPointer&lt;int *&gt;::Type
+//                          , int *&gt;::value);
+//  assert(0 == bslmf::IsSame&lt;bslmf::ArrayToPointer&lt;int (*)[5]&gt;::Type]
+//                          , int **&gt;::value);
+//..
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include &lt;bslscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_CSTDDEF
+#include &lt;cstddef&gt;       // for &#39;std::size_t&#39;
+#define INCLUDED_CSTDDEF
+#endif
+
+namespace BloombergLP {
+
+namespace bslmf {
+
+                            // =====================
+                            // struct ArrayToPointer
+                            // =====================
+
+template &lt;typename TYPE, typename ORIGINAL_TYPE&gt;
+struct ArrayToPointer_Imp;
+
+template &lt;typename TYPE&gt;
+struct ArrayToPointer {
+    typedef typename ArrayToPointer_Imp&lt;TYPE, TYPE&gt;::Type Type;
+};
+
+template &lt;typename TYPE&gt;
+struct ArrayToPointer&lt;TYPE &amp;&gt; {
+    typedef typename ArrayToPointer_Imp&lt;TYPE, TYPE &amp;&gt;::Type Type;
+};
+
+                          // ==========================
+                          // struct ArrayToConstPointer
+                          // ==========================
+
+template &lt;typename TYPE&gt;
+struct ArrayToConstPointer {
+    typedef typename ArrayToPointer_Imp&lt;const TYPE, TYPE&gt;::Type Type;
+};
+
+template &lt;typename TYPE&gt;
+struct ArrayToConstPointer&lt;TYPE &amp;&gt; {
+    typedef typename ArrayToPointer_Imp&lt;const TYPE, TYPE &amp;&gt;::Type Type;
+};
+
+                         // =========================
+                         // struct ArrayToPointer_Imp
+                         // =========================
+
+template &lt;typename TYPE, typename ORIGINAL_TYPE&gt;
+struct ArrayToPointer_Imp {
+    typedef ORIGINAL_TYPE Type;
+};
+
+template &lt;typename TYPE, std::size_t NUM_ELEMENTS, typename UNUSED&gt;
+struct ArrayToPointer_Imp&lt;TYPE [NUM_ELEMENTS], UNUSED&gt; {
+    typedef TYPE *Type;
+};
+
+template &lt;typename TYPE, typename UNUSED&gt;
+struct ArrayToPointer_Imp&lt;TYPE [], UNUSED&gt; {
+    typedef TYPE *Type;
+};
+
+}  // close package namespace
+
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright (C) 2012 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the &quot;Software&quot;), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

@@ -1,0 +1,1504 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 2.16 BETA</title>
+<html>
+<pre>
+// bsls_atomic.h                                                      -*-C++-*-
+#ifndef INCLUDED_BSLS_ATOMIC
+#define INCLUDED_BSLS_ATOMIC
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide types with atomic operations.
+//
+//@CLASSES:
+//  bsls::AtomicInt: atomic 32-bit integer type
+//  bsls::AtomicInt64: atomic 64-bit integer types
+//  bsls::AtomicPointer: parameterized atomic pointer type
+//
+//@SEE_ALSO: bsls_atomicoperations
+//
+//@DESCRIPTION: This component provides classes with atomic operations for
+// &#39;int&#39;, &#39;Int64&#39;, and pointer types.  These classes are based on atomic
+// operations supplied by the &#39;bsls_atomicoperations&#39; component.  The
+// &#39;bsls::AtomicInt&#39; and &#39;bsls::AtomicInt64&#39; classes represent the
+// corresponding atomic integer types, and provide overloaded operators and
+// functions for common arithmetic operations.  The &#39;bsls::AtomicPointer&#39; class
+// represents the atomic pointer type, and provides atomic operations to
+// manipulate and dereference a pointer.
+//
+///Memory Order and Consistency Guarantees of Atomic Operations
+///------------------------------------------------------------
+// Atomic operations provided by this component ensure various memory ordering
+// consistency guarantees.  Memory ordering guarantees of atomic operations are
+// designed to ensure visibility and synchronization order of memory reads and
+// writes between threads that perform atomic operations.  The operations on
+// objects of the provided classes ensure the most strict consistency
+// guarantee, sequential consistency (described below), unless explicitly
+// qualified with a less strict consistency guarantee (i.e., Acquire, Release,
+// Acquire/Release or Relaxed).
+//
+// This component implements memory order and consistency guarantees as defined
+// in the C++ 2011 Standard (sections: [intro.multithreaded], [atomics.order]).
+//
+// The following memory ordering guarantees are supported:
+//:
+//: o relaxed - the operation does not provide any memory consistency guarantee
+//:
+//: o release - the operation performs a release operation on the affected
+//:   memory location, thus making preceding regular memory writes of the
+//:   calling thread visible to other threads through the atomic variable to
+//:   which it is applied (generally available for operations that write to a
+//:   memory location).
+//:
+//: o acquire - the operation performs an acquire operation on the affected
+//:   memory location, thus making regular memory writes in other threads
+//:   released through the atomic variable to which it is applied visible to
+//:   the current thread (generally available for operations that read from a
+//:   memory location).
+//:
+//: o acquire/release - the operation has both acquire and release semantics
+//:   (generally available for operations that both read and write a memory
+//:   location).
+//:
+//: o sequential consistency - the operation has both acquire and release
+//:   guarantees, and further guarantees that all sequentially consistent
+//:   operations performed by the process will be observed to occur in a
+//:   single global total order (regardless of the thread from which they are
+//:   observed).
+//
+///Acquire and Release Memory Consistency Guarantees
+///- - - - - - - - - - - - - - - - - - - - - - - - -
+// Operations providing acquire and release guarantees are essential to
+// synchronizing the memory state between multiple threads.  For example,
+// consider two threads, A and B, that perform store and load operations to
+// shared memory locations.  Without any synchronization, store operations in
+// thread A can be freely reordered with load operations in thread B, i.e,
+// thread A can perform two store operations to two memory locations in a
+// certain order and thread B can see those operations done in a different
+// order due to such effects as: compiler or processor optimizations of store
+// and load operations, and cache synchronization between processors and cores.
+//
+// However, stores in thread A can be ordered with loads in thread B using a
+// combination of store-release and load-acquire operations.  A store-release
+// operations in thread A followed by a load-acquire operation in thread B
+// to *the* *same* *memory* *location* guarantees that thread B sees all other
+// stores done in thread A prior to the store-release operation.  The
+// store-release in thread A effectively synchronizes the memory state with the
+// load-acquire in thread A.
+//
+// An acquire-release operation is a load-modify-store operation that, if
+// performed in both threads A and B on the same memory location, synchronizes
+// stores and loads between threads A and B in both directions.
+//
+///Sequential Consistency Memory Consistency Guarantee
+///- - - - - - - - - - - - - - - - - - - - - - - - - -
+// Finally, load and store operations with sequential consistency are
+// guaranteed to performed in a global total order among all threads in the
+// process.  To illustrate the total order, let&#39;s consider the so-called
+// &quot;independent reads of independent writes&quot; example:
+//..
+//  bsls::AtomicInt x(0);
+//  bsls::AtomicInt y(0);
+//  int r1, r2, r3, r4;
+//
+//  void thread1() {
+//      x = 1;  // sequential consistency store
+//  }
+//
+//  void thread2() {
+//      y = 1;  // sequential consistency store
+//  }
+//
+//  void thread3() {
+//      r1 = x;  // sequential consistency load
+//      r2 = y;  // sequential consistency load
+//  }
+//
+//  void thread4() {
+//      r3 = y;  // sequential consistency load
+//      r4 = x;  // sequential consistency load
+//  }
+//..
+// Where &#39;threadN&#39; functions are executed concurrently by different threads
+// (note that values &#39;x&#39; and &#39;y&#39; are written by independent threads).
+// Sequential consistency guarantees that if &#39;thread3&#39; observes values &#39;x&#39; and
+// &#39;y&#39; as &#39;r1 == 1 &amp;&amp; r2 == 0&#39;, then &#39;thread4&#39; can&#39;t observe values &#39;x&#39; and
+// &#39;y&#39; in a different order, i.e., &#39;r3 == 1 &amp;&amp; r4 == 0&#39;.
+//
+///Usage
+///------
+// This section illustrates intended use of this component.
+//
+///Example 1: Usage Statistics on a Thread Pool
+///- - - - - - - - - - - - - - - - - - - - - -
+// This example demonstrates a common use of atomic integer types for
+// statistics counters.  The program creates a series of threads to process
+// transactions.  As each thread completes a transaction, it atomically
+// increments the transaction counters.
+//
+// For this example, we assume the existence of the functions
+// &#39;processNextTransaction&#39;, &#39;createWorkerThread&#39;, and &#39;waitAllThreads&#39;.  The
+// function &#39;createWorkerThread&#39; spawns a new thread, which executes the
+// &#39;workerThread&#39; function.  &#39;waitAllThreads&#39; blocks until all the worker
+// thread complete.
+//
+// First, we declare the shared counters (note that, in contrast to the raw
+// types defined in &#39;bsls_atomicoperations&#39;, these atomic types are
+// zero-initialized at construction):
+//..
+//  static bsls::AtomicInt64 transactionCount;
+//  static bsls::AtomicInt64 successCount;
+//  static bsls::AtomicInt64 failureCount;
+//..
+// Next, for each transaction processed, we atomically increment either the
+// success or the failure counter as well as the total transaction count:
+//..
+//  static void workerThread(int *stop)
+//  {
+//      while (!(*stop)) {
+//          if (processNextTransaction()) {
+//              ++failureCount;
+//          } else {
+//              ++successCount;
+//          }
+//          ++transactionCount;
+//      }
+//  }
+//..
+// Finally, we write function, &#39;serverMain&#39;, that provides the overall control
+// logic for the server.  This function spawns the threads and then waits for
+// all work to be completed; when all of the threads have finished, this
+// function returns normally:
+//..
+//  void serverMain()
+//  {
+//      const int num_threads = 10;
+//      for (int i = 0; i &lt; num_threads; ++i) {
+//          createWorkerThread();
+//      }
+//      waitAllThreads();
+//  }
+//..
+// Note that functions &#39;createWorkerThread&#39; and &#39;waitAllThreads&#39; can be
+// implemented using any thread-support package.
+//
+///Example 2: Thread-safe Counted Handle
+///- - - - - - - - - - - - - - - - - - -
+// The following example demonstrates the use of atomic integer operations to
+// implement a thread-safe ref-counted handle similar to a shared pointer.
+// Each handle (of type &#39;my_CountedHandle&#39;) maintains a pointer to a
+// representation object, &#39;my_CountedHandleRep&#39;, which in turn, stores both a
+// pointer to the managed object and a reference counter.
+//
+// Both the handle class and the representation class are template classes with
+// two template parameters.  The template parameter, &#39;INSTANCE&#39;, represents the
+// type of the &quot;instance&quot;, or managed object.
+//
+// A representation object can be shared by several handle objects.  When a
+// handle object is assigned to a second handle object, the address of the
+// representation is copied to the second handle, and the reference count on
+// the representation is atomically incremented.  When a handle releases its
+// reference to the representation, it atomically decrements the reference
+// count.  If the resulting reference count becomes 0 (and there are no more
+// references to the object), the handle deletes the representation object and
+// the representation object, in turn, deletes the managed object (&#39;INSTANCE&#39;).
+//
+///Class &#39;my_CountedHandleRep&#39;
+/// -  -  -  -  -  -  -  -  -
+// First, we define class &#39;my_CountedHandleRep&#39;.  This class manages a single
+// &#39;INSTANCE&#39; object on behalf of multiple &quot;handle&quot; objects; since different
+// &quot;handle&quot; objects may be active in different threads, class
+// &#39;my_CountedHandleRep&#39; must be (fully) thread-safe.  Specifically, methods
+// &#39;increment&#39; and &#39;decrement&#39; must work atomically.
+//
+// The class declaration for &#39;my_CountedHandleRep&#39; is identical to the same
+// class in component &#39;bsls_atomicoperations&#39;, with a single exception: member
+// &#39;d_count&#39; is of type &#39;bsls::AtomicInt&#39;, rather than
+// &#39;bsls::AtomicOperations::Int&#39;.  Whereas &#39;bsls::AtomicOperations::Int&#39; is
+// merely a &#39;typedef&#39; for a platform-specific data type to be used in atomic
+// integer operations, &#39;bsls::AtomicInt&#39; encapsulates those atomic operations
+// as member functions and operator overloads.  Class &#39;my_CountedHandleRep&#39;
+// will benefit from this encapsulation: Its method implementations will be
+// able to operate on &#39;d_count&#39; as if it were a standard integer.
+//
+// Note that, as in the example in component &#39;bsls_atomicoperations&#39;, this rep
+// class is intended to be used only by class &#39;my_CountedHandle&#39;, and thus all
+// methods of class &#39;my_CountedHandleRep&#39; are declared private, and &#39;friend&#39;
+// status is granted to class &#39;my_CountedHandle&#39;:
+//..
+//                          // =========================
+//                          // class my_CountedHandleRep
+//                          // =========================
+//
+//  template &lt;class INSTANCE&gt;
+//  class my_CountedHandle;
+//
+//  template &lt;class INSTANCE&gt;
+//  class my_CountedHandleRep {
+//
+//      // DATA
+//      bsls::AtomicInt  d_count;        // number of active references
+//      INSTANCE        *d_instance_p;   // address of managed instance
+//
+//      // FRIENDS
+//      friend class my_CountedHandle&lt;INSTANCE&gt;;
+//
+//      // NOT IMPLEMENTED
+//      my_CountedHandleRep(const my_CountedHandleRep&amp;);
+//      my_CountedHandleRep&amp; operator=(const my_CountedHandleRep&amp;);
+//
+//    private:
+//      // PRIVATE CLASS METHODS
+//      static void
+//      deleteObject(my_CountedHandleRep&lt;INSTANCE&gt; *object);
+//
+//      // PRIVATE CREATORS
+//      my_CountedHandleRep(INSTANCE *instance);
+//      ~my_CountedHandleRep();
+//
+//      // PRIVATE MANIPULATORS
+//      void increment();
+//      int decrement();
+//  };
+//..
+///Class &#39;my_CountedHandle&#39;
+///-  -  -  -  -  -  -  - -
+// Then, we create class &#39;my_CountedHandle&#39; that provides an individual handle
+// to the shared, reference-counted object.  Each &#39;my_CountedHandle&#39; object
+// acts as a smart pointer, supplying an overloaded &#39;operator-&gt;&#39; that provides
+// access to the underlying &#39;INSTANCE&#39; object via pointer semantics.
+//
+// &#39;my_CountedHandle&#39; can also be copied freely; the copy constructor will use
+// the &#39;increment&#39; method from &#39;my_CountedHandleRep&#39; to note the extra copy.
+// Similarly, the destructor will call &#39;my_CountedHandleRep::decrement&#39; to note
+// that there is one fewer handle the underlying &#39;INSTANCE&#39; has, and delete the
+// &quot;rep&quot; object when its reference count is reduced to zero.
+//
+// Similar to &#39;my_CountedHandleRep&#39;, the class declaration for
+// &#39;my_CountedHandle&#39; is identical to that in &#39;bsls_atomicoperations&#39;:
+//..
+//                          // ======================
+//                          // class my_CountedHandle
+//                          // ======================
+//
+//  template &lt;class INSTANCE&gt;
+//  class my_CountedHandle {
+//
+//      // DATA
+//      my_CountedHandleRep&lt;INSTANCE&gt; *d_rep_p;  // shared rep.
+//
+//    public:
+//      // CREATORS
+//      my_CountedHandle();
+//      my_CountedHandle(INSTANCE        *instance);
+//
+//      my_CountedHandle(const my_CountedHandle&lt;INSTANCE&gt;&amp; other);
+//
+//      ~my_CountedHandle();
+//
+//      // ACCESSORS
+//      INSTANCE *operator-&gt;() const;
+//      int numReferences() const;
+//  };
+//..
+///Function Definitions for &#39;my_CountedHandleRep&#39;
+///-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
+// Next, we provide a definition for the &#39;static&#39; &#39;deleteObject&#39; method, which
+// is called by the destructor for class &#39;my_CountedHandle&#39; for the last
+// instance of &#39;my_CountedHandle&#39; using the given &quot;rep&quot; object:
+//..
+//  template &lt;class INSTANCE&gt;
+//  inline
+//  void my_CountedHandleRep&lt;INSTANCE&gt;::deleteObject(
+//                                       my_CountedHandleRep&lt;INSTANCE&gt; *object)
+//  {
+//      delete object;
+//  }
+//..
+// Then, we define the constructor for the &#39;my_CountedHandleRep&lt;INSTANCE&gt;&#39;
+// class.  Member &#39;d_count&#39; is initialized to 1, reflecting the fact that this
+// constructor will be called by a new instance of &#39;my_CountedHandle&#39;, which
+// instance is our first and only handle when this constructor is called:
+// notice that &#39;d_count&#39; (of type &#39;bsls::AtomicInt&#39;) is initialized as if it
+// were a simple integer; its constructor guarantees that the initialization is
+// done atomically.
+//..
+//  template &lt;class INSTANCE&gt;
+//  inline
+//  my_CountedHandleRep&lt;INSTANCE&gt;:: my_CountedHandleRep(INSTANCE *instance)
+//  : d_instance_p(instance)
+//  , d_count(1)
+//  {
+//  }
+//..
+// Then, we define the destructor, which just deletes &#39;my_CountedHandle&#39;
+// &#39;d_instance_p&#39;:
+//..
+//  template &lt;class INSTANCE&gt;
+//  inline
+//  my_CountedHandleRep&lt;INSTANCE&gt;::~my_CountedHandleRep()
+//  {
+//      delete d_instance_p;
+//  }
+//..
+// Next, we define method &#39;increment&#39;, which is called by &#39;my_CountedHandle&#39;
+// to add a new reference to the current &quot;rep&quot; object, which simply increments
+// &#39;d_count&#39;, using the prefix &#39;operator++&#39;:
+//..
+//  // MANIPULATORS
+//  template &lt;class INSTANCE&gt;
+//  inline
+//  void my_CountedHandleRep&lt;INSTANCE&gt;::increment()
+//  {
+//      ++d_count;
+//  }
+//..
+// The above operation must be done atomically in a multi-threaded context;
+// class &#39;bsls::AtomicInt&#39; provides this guarantee for all its overloaded
+// operators, and &#39;my_CountedHandleRep&#39; relies upon this guarantee.
+//
+// Then, we implement method &#39;decrement&#39;, which is called by &#39;my_CountedHandle&#39;
+// when a reference to the current &quot;rep&quot; object is being deleted:
+//..
+//  template &lt;class INSTANCE&gt;
+//  inline
+//  int my_CountedHandleRep&lt;INSTANCE&gt;::decrement()
+//  {
+//      return --d_count;
+//  }
+//..
+// This method atomically decrements the number of references to this
+// &#39;my_CountedHandleRep&#39; and, once again, atomicity is guaranteed by the
+// underlying type of &#39;d_count&#39;.
+//
+///Function Definitions for &#39;my_CountedHandle&#39;
+///-  -  -  -  -  -  -  -  -  -  -  -  -  -  -
+// Next, we define the first constructor for &#39;my_CountedHandle&#39;, which is used
+// when creating a handle for a new &#39;INSTANCE&#39;; note that the &#39;INSTANCE&#39; is
+// constructed separately, and a pointer to that object is passed as the first
+// argument (&#39;object&#39;):
+//..
+//                          // ----------------------
+//                          // class my_CountedHandle
+//                          // ----------------------
+//
+//  // CREATORS
+//  template &lt;class INSTANCE&gt;
+//  inline
+//  my_CountedHandle&lt;INSTANCE&gt;::my_CountedHandle(INSTANCE *instance)
+//  {
+//      d_rep_p = new my_CountedHandleRep&lt;INSTANCE&gt;(instance);
+//  }
+//..
+// Then, we define the copy constructor; the new object copies the underlying
+// &#39;my_CountedHandleRep&#39; and then increments its counter:
+//..
+//  template &lt;class INSTANCE&gt;
+//  inline
+//  my_CountedHandle&lt;INSTANCE&gt;::my_CountedHandle(
+//                                     const my_CountedHandle&lt;INSTANCE&gt;&amp; other)
+//  : d_rep_p(other.d_rep_p)
+//  {
+//      if (d_rep_p) {
+//          d_rep_p-&gt;increment();
+//      }
+//  }
+//..
+// Next, we define the destructor which decrements the &quot;rep&quot; object&#39;s reference
+// count using the &#39;decrement&#39; method.  The &#39;decrement&#39; method returns the
+// object&#39;s reference count after the decrement is completed, and
+// &#39;my_CountedHandle&#39; uses this value to determine whether the &quot;rep&quot; object
+// should be deleted:
+//..
+//  template &lt;class INSTANCE&gt;
+//  inline
+//  my_CountedHandle&lt;INSTANCE&gt;::~my_CountedHandle()
+//  {
+//      if (d_rep_p &amp;&amp; 0 == d_rep_p-&gt;decrement()) {
+//          my_CountedHandleRep&lt;INSTANCE&gt;::deleteObject(d_rep_p);
+//      }
+//  }
+//..
+// Now, we define member &#39;operator-&gt;()&#39;, which provides basic pointer semantics
+// for &#39;my_CountedHandle&#39;:
+//..
+//  // ACCESSORS
+//  template &lt;class INSTANCE&gt;
+//  inline
+//  INSTANCE *my_CountedHandle&lt;INSTANCE&gt;::operator-&gt;() const
+//  {
+//      return d_rep_p-&gt;d_instance_p;
+//  }
+//..
+// Finally, we define method &#39;numReferences&#39;, which returns the value of the
+// reference counter:
+//..
+//  template &lt;class INSTANCE&gt;
+//  inline
+//  int my_CountedHandle&lt;INSTANCE&gt;::numReferences() const
+//  {
+//      return d_rep_p ? d_rep_p-&gt;d_count : 0;
+//  }
+//..
+// Note that, while class &#39;my_CountedHandleRep&#39; is itself fully thread-safe, it
+// does not guarantee thread safety for the &#39;INSTANCE&#39; object.  In order to
+// provide thread safety for the &#39;INSTANCE&#39; in the general case, the &quot;rep&quot;
+// would need to use a more general concurrency mechanism such as a mutex.
+//
+///Example 3: Thread-Safe Lock-Free Singly-Linked List
+///- - - - - - - - - - - - - - - - - - - - - - - - - -
+// This example demonstrates the use of atomic pointers to implement a fast and
+// thread-aware, singly-linked list.  The example class, &#39;my_PtrStack&#39;, is a
+// templatized pointer stack, supporting &#39;push&#39; and &#39;pop&#39; methods.  The class
+// is implemented using a single-linked list.  Nodes in the list are linked
+// together using atomic operations.  Instance of this structure are allocated
+// using the provided allocator.  When nodes are freed, they are cached on a
+// free list.  This free list is also implemented as a single-linked list,
+// using atomic pointer operations.
+//
+// This example parallels the third usage example given for component
+// &#39;bsls_atomicoperations&#39;, presenting a different implementation of
+// &#39;my_PtrStack&lt;T&gt;&#39;, with an identical public interface.  Note that, where the
+// &#39;bsls_atomicoperations&#39; example uses the basic data type
+// &#39;bsls::AtomicOperations::AtomicTypes::Pointer&#39; for members &#39;d_list&#39; and
+// &#39;d_freeList&#39;, this implementation uses instead the higher-level type
+// &#39;bsls::AtomicPointer&lt;T&gt;&#39;.
+//
+// First, we create class template, &#39;my_PtrStack&#39;, parameterized by &#39;TYPE&#39;.
+// Instances of this template maintain a list of nodes and a free-node list.
+// Each node has a pointer to a data item, &#39;d_item_p&#39;, a link to the next node
+// in the list, &#39;d_next_p&#39; and an atomic flag, &#39;d_inUseFlag&#39;, intended for
+// lock-free list manipulation.  The definition of the &#39;my_PtrStack&#39; class is
+// provided below:
+//..
+//  template &lt;class TYPE&gt;
+//  class my_PtrStack {
+//      // TYPES
+//      struct Node {
+//          TYPE                 *d_item_p;
+//          Node                 *d_next_p;
+//          bsls::AtomicInt       d_inUseFlag; // used to lock this node
+//      };
+//
+//      // DATA
+//      bsls::AtomicPointer&lt;Node&gt; d_list;
+//      bsls::AtomicPointer&lt;Node&gt; d_freeList;
+//
+//      // PRIVATE MANIPULATORS
+//      Node *allocateNode();
+//      void freeNode(Node *node);
+//      void deleteNodes(Node *node);
+//
+//    public:
+//      // CREATORS
+//      my_PtrStack();
+//     ~my_PtrStack();
+//
+//      // MANIPULATORS
+//      void push(TYPE *item);
+//      TYPE *pop();
+//  };
+//..
+// Then, we write a constructor that default-initializes the stack.  In the
+// corresponding example in &#39;bsls_atomicoperations&#39;, the constructor must also
+// initialize the atomic pointer &#39;d_freeList&#39;.  Since this example uses the
+// encapsulated type &#39;bsls::AtomicPointer&#39;, initialization of these member
+// variables is done in their default constructors.  Hence, no explicit code is
+// required in this constructor:
+//..
+//  // CREATORS
+//  template &lt;class TYPE&gt;
+//  inline my_PtrStack&lt;TYPE&gt;::my_PtrStack()
+//  {
+//  }
+//..
+// Next, we define the &#39;deleteNodes&#39; and the destructor function to delete
+// nodes that the &#39;my_PtrStack&#39; object owns.  Note that we don&#39;t need to worry
+// about the concurrent access to node lists in the destructor, as destructor
+// can be executed in only a single thread:
+//..
+//  template &lt;class TYPE&gt;
+//  inline void my_PtrStack&lt;TYPE&gt;::deleteNodes(Node *node)
+//  {
+//      while (node) {
+//          Node *next = node-&gt;d_next_p;
+//          delete node;
+//          node = next;
+//      }
+//  }
+//
+//  template &lt;class TYPE&gt;
+//  inline my_PtrStack&lt;TYPE&gt;::~my_PtrStack()
+//  {
+//      deleteNodes(d_list);
+//      deleteNodes(d_freeList);
+//  }
+//..
+// Then, we define method &#39;allocateNode&#39; to get a node from the free list in
+// the thread-safe manner by leveraging atomic operations to ensure proper
+// thread synchronization:
+//..
+//  // PRIVATE MANIPULATORS
+//  template &lt;class TYPE&gt;
+//  typename my_PtrStack&lt;TYPE&gt;::Node *my_PtrStack&lt;TYPE&gt;::allocateNode()
+//  {
+//      Node *node;
+//      while (1) {
+//          node = d_freeList; // get the current head
+//          if (!node) {
+//              break;
+//          }
+//..
+// Next, we try locking the node, and start over if locking fails:
+//..
+//          if (node-&gt;d_inUseFlag.swapInt(1)) {
+//              continue;
+//          }
+//..
+// Then, we atomically modify the head if it has not changed.  &#39;testAndSwap&#39;
+// compares &#39;d_freeList&#39; to &#39;node&#39;, replacing &#39;node&#39; with &#39;node-&gt;d_next_p&#39; only
+// if it matches &#39;d_freeList&#39;.  If &#39;d_freeList&#39; did not match &#39;node&#39;, then the
+// free list has been changed on another thread, between its assignment to the
+// &#39;node&#39; and the call to &#39;testAndSwap&#39;.  If the list head has changed, then
+// try again:
+//..
+//          if (d_freeList.testAndSwap(node, node-&gt;d_next_p) == node) {
+//              break;
+//          }
+//
+//          // Unlock the node.
+//          node-&gt;d_inUseFlag = 0;
+//      }
+//..
+// Next, we allocate a new node if there were no nodes in the free node list:
+//..
+//      if (!node) {
+//          node = new Node();  // should allocate with &#39;d_allocator_p&#39;, but
+//                              // here we use &#39;new&#39; directly for simplicity
+//          node-&gt;d_inUseFlag = 1;
+//      }
+//
+//      return node;
+//  }
+//..
+// Note that the &#39;node&#39; is returned in the locked state and remained
+// locked until it is added to the free list.
+//
+// Then, we define the &#39;freeNode&#39; method to add a given &#39;node&#39; to the free
+// list; &#39;freeNode&#39; also needs to be synchronized using atomic operations:
+//..
+//  template &lt;class TYPE&gt;
+//  inline void my_PtrStack&lt;TYPE&gt;::freeNode(Node *node)
+//  {
+//      if (!node) {
+//          return;
+//      }
+//
+//      while (1) {
+//          node-&gt;d_next_p = d_freeList;
+//          // Atomically test and swap the head of the list with the
+//          // new node.  If the list head has been changed (by another
+//          // thread), try again.
+//          if (d_freeList.testAndSwap(node-&gt;d_next_p, node) == node-&gt;d_next_p)
+//          {
+//              break;
+//          }
+//      }
+//
+//      // unlock the &#39;node&#39;
+//      node-&gt;d_inUseFlag = 0;
+//  }
+//..
+// Now, we begin to define the public &quot;stack-like&quot; interface for &#39;my_PtrStack&#39;.
+// Note that the &#39;push&#39; method is similar to &#39;freeNode&#39;, except that it assigns
+// an item value and operates on &#39;d_list&#39;, which maintains the list of active
+// nodes:
+//..
+//  // MANIPULATORS
+//  template &lt;class TYPE&gt;
+//  void my_PtrStack&lt;TYPE&gt;::push(TYPE *item)
+//  {
+//      Node *node = allocateNode();
+//      node-&gt;d_item_p = item;
+//      while (1) {
+//          node-&gt;d_next_p = d_list;
+//          if (d_list.testAndSwap(node-&gt;d_next_p, node) == node-&gt;d_next_p) {
+//              break;
+//          }
+//      }
+//
+//      node-&gt;d_inUseFlag = 0;
+//  }
+//..
+// Finally, we define the &#39;pop&#39; method which removes the node from the top
+// of active node list, &#39;d_list&#39;, adds it to the free-node list, and returns
+// the data item contained in the node to the caller:
+//..
+//  template &lt;class TYPE&gt;
+//  TYPE *my_PtrStack&lt;TYPE&gt;::pop()
+//  {
+//      Node *node;
+//      while (1) {
+//          node = d_list;
+//          if (!node) {
+//              break;
+//          }
+//
+//          if (node-&gt;d_inUseFlag.swapInt(1)) {
+//              continue;  // node is locked
+//          }
+//
+//          if (d_list.testAndSwap(node, node-&gt;d_next_p) == node) {
+//              break;  // node list is being modified in another thread
+//          }
+//
+//          node-&gt;d_inUseFlag = 0;
+//      }
+//
+//      TYPE *item = node ? node-&gt;d_item_p : 0;
+//      if (node) {
+//          freeNode(node);
+//      }
+//      return item;
+//  }
+//..
+// Notice that if the stack was empty, a NULL pointer is returned.
+
+#ifndef INCLUDED_BSLS_ATOMICOPERATIONS
+#include &lt;bsls_atomicoperations.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_TYPES
+#include &lt;bsls_types.h&gt;
+#endif
+
+namespace BloombergLP {
+
+namespace bsls {
+
+                               // ===============
+                               // class AtomicInt
+                               // ===============
+
+class AtomicInt {
+    // This class implements an atomic integer, which supports common integer
+    // operations in a way that is guaranteed to be atomic.  Operations on
+    // objects of this class provide the sequential consistency memory ordering
+    // guarantee unless explicitly qualified with a less strict consistency
+    // guarantee suffix (i.e., Acquire, Release, AcqRel or Relaxed).
+
+    // DATA
+    AtomicOperations::AtomicTypes::Int d_value;
+
+  private:
+    // NOT IMPLEMENTED
+    AtomicInt(const AtomicInt&amp;);               // = delete
+    AtomicInt&amp; operator=(const AtomicInt&amp; );   // = delete
+        // Note that the copy constructor and the copy-assignment operator
+        // are not implemented because they cannot be done atomically.
+
+  public:
+    // CREATORS
+    AtomicInt();
+        // Create an atomic integer object having the default value 0.
+
+    AtomicInt(int value);
+        // Create an atomic integer object having the specified &#39;value&#39;.
+
+    //! ~AtomicInt() = default;
+        // Destroy this atomic integer object.
+
+    // MANIPULATORS
+    AtomicInt&amp; operator=(int value);
+        // Atomically assign the specified &#39;value&#39; to this object, and return a
+        // modifiable reference to &#39;this&#39; object.
+
+    int operator+=(int value);
+        // Atomically add the specified &#39;value&#39; to this object, and return the
+        // resulting value.
+
+    int operator-=(int value);
+        // Atomically subtract the specified &#39;value&#39; from this object, and
+        // return the resulting value.
+
+    int operator++();
+        // Atomically increment the value of this object by 1 and return the
+        // resulting value.
+
+    int operator++(int);
+        // Atomically increment the value of this object by 1 and return the
+        // value prior to being incremented.
+
+    int operator--();
+        // Atomically decrement the value of this object by 1 and return the
+        // resulting value.
+
+    int operator--(int);
+        // Atomically decrement the value of this object by 1 and return the
+        // value prior to being decremented.
+
+    int add(int value);
+        // Atomically add the specified &#39;value&#39; to this object and return the
+        // resulting value.
+
+    int addRelaxed(int value);
+        // Atomically add the specified &#39;value&#39; to this object and return the
+        // resulting value, providing the relaxed memory ordering guarantee.
+
+    int addAcqRel(int value);
+        // Atomically add the specified &#39;value&#39; to this object and return the
+        // resulting value, providing the acquire/release memory ordering
+        // guarantee.
+
+    void storeRelaxed(int value);
+        // Atomically assign the specified &#39;value&#39; to this object, providing
+        // the relaxed memory ordering guarantee.
+
+    void storeRelease(int value);
+        // Atomically assign the specified &#39;value&#39; to this object, providing
+        // the release memory ordering guarantee.
+
+    int swap(int swapValue);
+        // Atomically set the value of this object to the specified &#39;swapValue&#39;
+        // and return its previous value.
+
+    int swapAcqRel(int swapValue);
+        // Atomically set the value of this object to the specified &#39;swapValue&#39;
+        // and return its previous value, providing the acquire/release memory
+        // ordering guarantee.
+
+    int testAndSwap(int compareValue, int swapValue);
+        // Compare the value of this object to the specified &#39;compareValue&#39;.
+        // If they are equal, set the value of this atomic integer to the
+        // specified &#39;swapValue&#39;, otherwise leave this value unchanged.  Return
+        // the previous value of this atomic integer, whether or not the swap
+        // occurred.  Note that the entire test-and-swap operation is performed
+        // atomically.
+
+    int testAndSwapAcqRel(int compareValue, int swapValue);
+        // Compare the value of this object to the specified &#39;compareValue&#39;.
+        // If they are equal, set the value of this atomic integer to the
+        // specified &#39;swapValue&#39;, otherwise leave this value unchanged.  Return
+        // the previous value of this atomic integer, whether or not the swap
+        // occurred.  Note that the entire test-and-swap operation is performed
+        // atomically and it provides the acquire/release memory ordering
+        // guarantee.
+
+    // ACCESSORS
+    operator int() const;
+        // Return the current value of this object.
+
+    int load() const;
+        // Return the current value of this object.
+
+    int loadRelaxed() const;
+        // Return the current value of this object, providing the relaxed
+        // memory ordering guarantee.
+
+    int loadAcquire() const;
+        // Return the current value of this object, providing the acquire
+        // memory ordering guarantee.
+};
+
+                              // =================
+                              // class AtomicInt64
+                              // =================
+
+class AtomicInt64 {
+    // This class is implements an atomic 64-bit integer, which supports common
+    // integer operations in a way that is guaranteed to be atomic.  Operations
+    // on objects of this class provide the sequential consistency memory
+    // ordering guarantee unless explicitly qualified with a less strict
+    // consistency guarantee suffix (i.e., Acquire, Release, AcqRel or
+    // Relaxed).
+
+    // DATA
+    AtomicOperations::AtomicTypes::Int64 d_value;
+
+  private:
+    // NOT IMPLEMENTED
+    AtomicInt64(const AtomicInt64&amp;);              // = delete
+    AtomicInt64&amp; operator=(const AtomicInt64&amp;);   // = delete
+        // Note that the copy constructor and the copy-assignment operator
+        // are not implemented because they cannot be done atomically.
+
+  public:
+    // CREATORS
+    AtomicInt64();
+        // Create an atomic 64-bit integer object having the default value 0.
+
+    AtomicInt64(Types::Int64 value);
+        // Create an atomic 64-bit integer object having the specified &#39;value&#39;.
+
+    //! ~AtomicInt64() = default;
+        // Destroy this atomic 64-bit integer object.
+
+    // MANIPULATORS
+    AtomicInt64&amp; operator=(Types::Int64 value);
+        // Atomically assign the specified &#39;value&#39; to this object, and return a
+        // modifiable reference to &#39;this&#39; object.
+
+    Types::Int64 operator+=(Types::Int64 value);
+        // Atomically add the specified &#39;value&#39; to this object, and return the
+        // resulting value.
+
+    Types::Int64 operator-=(Types::Int64 value);
+        // Atomically subtract the specified &#39;value&#39; from this object, and
+        // return the resulting value.
+
+    Types::Int64 operator++();
+        // Atomically increment the value of this object by 1 and return the
+        // resulting value.
+
+    Types::Int64 operator++(int);
+        // Atomically increment the value of this object by 1 and return the
+        // value prior to being incremented.
+
+    Types::Int64 operator--();
+        // Atomically decrement the value of this object by 1 and return the
+        // resulting value.
+
+    Types::Int64 operator--(int);
+        // Atomically decrement the value of this object by 1 and return the
+        // value prior to being decremented.
+
+    Types::Int64 add(Types::Int64 value);
+        // Atomically add the specified &#39;value&#39; to this object and return the
+        // resulting value.
+
+    Types::Int64 addRelaxed(Types::Int64 value);
+        // Atomically add the specified &#39;value&#39; to this object and return the
+        // resulting value, providing the relaxed memory ordering guarantee.
+
+    Types::Int64 addAcqRel(Types::Int64 value);
+        // Atomically add the specified &#39;value&#39; to this object and return the
+        // resulting value, providing the acquire/release memory ordering
+        // guarantee.
+
+    void storeRelaxed(Types::Int64 value);
+        // Atomically assign the specified &#39;value&#39; to this object, providing
+        // the relaxed memory ordering guarantee.
+
+    void storeRelease(Types::Int64 value);
+        // Atomically assign the specified &#39;value&#39; to this object, providing
+        // the release memory ordering guarantee.
+
+    Types::Int64 swap(Types::Int64 swapValue);
+        // Atomically set the value of this object to the specified &#39;swapValue&#39;
+        // and return its previous value.
+
+    Types::Int64 swapAcqRel(Types::Int64 swapValue);
+        // Atomically set the value of this object to the specified &#39;swapValue&#39;
+        // and return its previous value, providing the acquire/release memory
+        // ordering guarantee.
+
+    Types::Int64 testAndSwap(Types::Int64 compareValue,
+                             Types::Int64 swapValue);
+        // Compare the value of this object to the specified &#39;compareValue&#39;.
+        // If they are equal, set the value of this atomic integer to the
+        // specified &#39;swapValue&#39;, otherwise leave this value unchanged.  Return
+        // the previous value of this atomic integer, whether or not the swap
+        // occurred.  Note that the entire test-and-swap operation is performed
+        // atomically.
+
+    Types::Int64 testAndSwapAcqRel(Types::Int64 compareValue,
+                                   Types::Int64 swapValue);
+        // Compare the value of this object to the specified &#39;compareValue&#39;.
+        // If they are equal, set the value of this atomic integer to the
+        // specified &#39;swapValue&#39;, otherwise leave this value unchanged.  Return
+        // the previous value of this atomic integer, whether or not the swap
+        // occurred.  Note that the entire test-and-swap operation is performed
+        // atomically and it provides the acquire/release memory ordering
+        // guarantee.
+
+    // ACCESSORS
+    operator Types::Int64() const;
+        // Return the current value of this object.
+
+    Types::Int64 load() const;
+        // Return the current value of this object.
+
+    Types::Int64 loadRelaxed() const;
+        // Return the current value of this object, providing the relaxed
+        // memory ordering guarantee.
+
+    Types::Int64 loadAcquire() const;
+        // Return the current value of this object, providing the acquire
+        // memory ordering guarantee.
+};
+
+                             // ===================
+                             // class AtomicPointer
+                             // ===================
+
+template &lt;class TYPE&gt;
+class AtomicPointer {
+    // This class implements an atomic pointer to a parameterized &#39;TYPE&#39;, which
+    // supports common pointer operations in a way that is guaranteed to be
+    // atomic.  Operations on objects of this class provide the sequential
+    // consistency memory ordering guarantee unless explicitly qualified with
+    // a less strict consistency guarantee suffix (i.e., Acquire, Release,
+    // AcqRel or Relaxed).
+
+    // DATA
+    AtomicOperations::AtomicTypes::Pointer d_value;
+
+    typedef char AtomicPointer_PointerSizeCheck[
+        sizeof(TYPE *) == sizeof(void *) ? 1 : -1];
+        // Static assert that a &#39;TYPE*&#39; pointer is binary compatible with a
+        // &#39;void*&#39; pointer.  The implementation of &#39;AtomicPointer&#39; uses
+        // &#39;reinterpret_cast&#39; to convert between &#39;TYPE*&#39; and &#39;void*&#39; because
+        // function pointers are not implicitly convertible to &#39;void*&#39;, and
+        // this assert makes sure that such a cast is safe.  Note that
+        // &#39;bslmf_Assert&#39; can&#39;t be used here because of package dependency
+        // rules.
+
+  private:
+    // NOT IMPLEMENTED
+    AtomicPointer(const AtomicPointer&lt;TYPE&gt;&amp;);                  // = delete
+    AtomicPointer&lt;TYPE&gt;&amp; operator=(const AtomicPointer&lt;TYPE&gt;&amp;); // = delete
+        // Note that the copy constructor and the copy-assignment operator
+        // are not implemented because they cannot be done atomically.
+
+  public:
+    // CREATORS
+    AtomicPointer();
+        // Create an atomic pointer object having the default value NULL.
+
+    AtomicPointer(TYPE *value);
+        // Create an atomic pointer object having the specified &#39;value&#39;.
+
+    //! ~AtomicPointer() = default;
+        // Destroy this atomic pointer.
+
+    // MANIPULATORS
+    AtomicPointer&lt;TYPE&gt;&amp; operator=(TYPE *value);
+        // Atomically assign the specified &#39;value&#39; to this object, and return a
+        // modifiable reference to &#39;this&#39; object.
+
+    void storeRelaxed(TYPE *value);
+        // Atomically assign the specified &#39;value&#39; to this object, providing
+        // the relaxed memory ordering guarantee.
+
+    void storeRelease(TYPE *value);
+        // Atomically assign the specified &#39;value&#39; to this object, providing
+        // the release memory ordering guarantee.
+
+    TYPE *swap(TYPE *swapValue);
+        // Atomically set the value of this object to the specified &#39;swapValue&#39;
+        // and return its previous value.
+
+    TYPE *swapAcqRel(TYPE *swapValue);
+        // Atomically set the value of this object to the specified &#39;swapValue&#39;
+        // and return its previous value, providing the acquire/release memory
+        // ordering guarantee.
+
+    TYPE *testAndSwap(const TYPE *compareValue, TYPE *swapValue);
+        // Compare the value of this object to the specified &#39;compareValue&#39;.
+        // If they are equal, set the value of this atomic integer to the
+        // specified &#39;swapValue&#39;, otherwise leave this value unchanged.  Return
+        // the previous value of this atomic integer, whether or not the swap
+        // occurred.  Note that the entire test-and-swap operation is performed
+        // atomically.
+
+    TYPE *testAndSwapAcqRel(const TYPE *compareValue, TYPE *swapValue);
+        // Compare the value of this object to the specified &#39;compareValue&#39;.
+        // If they are equal, set the value of this atomic integer to the
+        // specified &#39;swapValue&#39;, otherwise leave this value unchanged.  Return
+        // the previous value of this atomic integer, whether or not the swap
+        // occurred.  Note that the entire test-and-swap operation is performed
+        // atomically and it provides the acquire/release memory ordering
+        // guarantee.
+
+    // ACCESSORS
+    TYPE&amp; operator*() const;
+        // Return a reference to the value currently pointed to by this object.
+        // The behavior is undefined if this pointer has a value of 0.
+
+    TYPE *operator-&gt;() const;
+        // Return the current value of this object.
+
+    operator TYPE*() const;
+        // Return the current value of this object.
+
+    TYPE *load() const;
+        // Return the current value of this object.
+
+    TYPE *loadRelaxed() const;
+        // Return the current value of this object, providing the relaxed
+        // memory ordering guarantee.
+
+    TYPE *loadAcquire() const;
+        // Return the current value of this object, providing the acquire
+        // memory ordering guarantee.
+};
+
+}  // close package namespace
+
+namespace bsls {
+
+// ===========================================================================
+//                        INLINE FUNCTION DEFINITIONS
+// ===========================================================================
+
+                               // ---------------
+                               // class AtomicInt
+                               // ---------------
+
+// CREATORS
+inline
+AtomicInt::AtomicInt()
+{
+    AtomicOperations_Imp::initInt(&amp;d_value, 0);
+}
+
+inline
+AtomicInt::AtomicInt(int value)
+{
+    AtomicOperations_Imp::initInt(&amp;d_value, value);
+}
+
+// MANIPULATORS
+inline
+AtomicInt&amp; AtomicInt::operator=(int value)
+{
+    AtomicOperations_Imp::setInt(&amp;d_value, value);
+    return *this;
+}
+
+inline
+int AtomicInt::operator+=(int value)
+{
+    return AtomicOperations_Imp::addIntNv(&amp;d_value, value);
+}
+
+inline
+int AtomicInt::operator-=(int value)
+{
+    return AtomicOperations_Imp::addIntNv(&amp;d_value, -value);
+}
+
+inline
+int AtomicInt::operator++()
+{
+    return AtomicOperations_Imp::incrementIntNv(&amp;d_value);
+}
+
+inline
+int AtomicInt::operator++(int)
+{
+    return AtomicOperations_Imp::incrementIntNv(&amp;d_value) - 1;
+}
+
+inline
+int AtomicInt::operator--()
+{
+    return AtomicOperations_Imp::decrementIntNv(&amp;d_value);
+}
+
+inline
+int AtomicInt::operator--(int)
+{
+    return AtomicOperations_Imp::decrementIntNv(&amp;d_value) + 1;
+}
+
+inline
+int AtomicInt::add(int value)
+{
+    return AtomicOperations_Imp::addIntNv(&amp;d_value, value);
+}
+
+inline
+int AtomicInt::addRelaxed(int value)
+{
+    return AtomicOperations_Imp::addIntNvRelaxed(&amp;d_value, value);
+}
+
+inline
+int AtomicInt::addAcqRel(int value)
+{
+    return AtomicOperations_Imp::addIntNvAcqRel(&amp;d_value, value);
+}
+
+inline
+void AtomicInt::storeRelaxed(int value)
+{
+    AtomicOperations_Imp::setIntRelaxed(&amp;d_value, value);
+}
+
+inline
+void AtomicInt::storeRelease(int value)
+{
+    AtomicOperations_Imp::setIntRelease(&amp;d_value, value);
+}
+
+inline
+int AtomicInt::swap(int swapValue)
+{
+    return AtomicOperations_Imp::swapInt(&amp;d_value, swapValue);
+}
+
+inline
+int AtomicInt::swapAcqRel(int swapValue)
+{
+    return AtomicOperations_Imp::swapIntAcqRel(&amp;d_value, swapValue);
+}
+
+inline
+int AtomicInt::testAndSwap(int compareValue, int swapValue)
+{
+    return AtomicOperations_Imp::testAndSwapInt(&amp;d_value,
+                                                     compareValue,
+                                                     swapValue);
+}
+
+inline
+int AtomicInt::testAndSwapAcqRel(int compareValue, int swapValue)
+{
+    return AtomicOperations_Imp::testAndSwapIntAcqRel(&amp;d_value,
+                                                      compareValue,
+                                                      swapValue);
+}
+
+// ACCESSORS
+
+inline
+AtomicInt::operator int() const
+{
+    return AtomicOperations_Imp::getInt(&amp;d_value);
+}
+
+inline
+int AtomicInt::load() const
+{
+    return this-&gt;operator int();
+}
+
+inline
+int AtomicInt::loadRelaxed() const
+{
+    return AtomicOperations_Imp::getIntRelaxed(&amp;d_value);
+}
+
+inline
+int AtomicInt::loadAcquire() const
+{
+    return AtomicOperations_Imp::getIntAcquire(&amp;d_value);
+}
+
+                              // -----------------
+                              // class AtomicInt64
+                              // -----------------
+
+// CREATORS
+inline
+AtomicInt64::AtomicInt64()
+{
+    AtomicOperations_Imp::initInt64(&amp;d_value, 0);
+}
+
+inline
+AtomicInt64::AtomicInt64(Types::Int64 value)
+{
+    AtomicOperations_Imp::initInt64(&amp;d_value, value);
+}
+
+// MANIPULATORS
+inline
+AtomicInt64&amp; AtomicInt64::operator=(Types::Int64 value)
+{
+    AtomicOperations_Imp::setInt64(&amp;d_value, value);
+    return *this;
+}
+
+inline
+Types::Int64 AtomicInt64::operator+=(Types::Int64 value)
+{
+    return AtomicOperations_Imp::addInt64Nv(&amp;d_value, value);
+}
+
+inline
+Types::Int64 AtomicInt64::operator-=(Types::Int64 value)
+{
+    return AtomicOperations_Imp::addInt64Nv(&amp;d_value, -value);
+}
+
+inline
+Types::Int64 AtomicInt64::operator++()
+{
+    return AtomicOperations_Imp::incrementInt64Nv(&amp;d_value);
+}
+
+inline
+Types::Int64 AtomicInt64::operator++(int)
+{
+    return AtomicOperations_Imp::incrementInt64Nv(&amp;d_value) - 1;
+}
+
+inline
+Types::Int64 AtomicInt64::operator--()
+{
+    return AtomicOperations_Imp::decrementInt64Nv(&amp;d_value);
+}
+
+inline
+Types::Int64 AtomicInt64::operator--(int)
+{
+    return AtomicOperations_Imp::decrementInt64Nv(&amp;d_value) + 1;
+}
+
+inline
+Types::Int64 AtomicInt64::add(Types::Int64 value)
+{
+    return AtomicOperations_Imp::addInt64Nv(&amp;d_value, value);
+}
+
+inline
+Types::Int64 AtomicInt64::addRelaxed(Types::Int64 value)
+{
+    return AtomicOperations_Imp::addInt64NvRelaxed(&amp;d_value, value);
+}
+
+inline
+Types::Int64 AtomicInt64::addAcqRel(Types::Int64 value)
+{
+    return AtomicOperations_Imp::addInt64NvAcqRel(&amp;d_value, value);
+}
+
+inline
+void AtomicInt64::storeRelaxed(Types::Int64 value)
+{
+    AtomicOperations_Imp::setInt64Relaxed(&amp;d_value, value);
+}
+
+inline
+void AtomicInt64::storeRelease(Types::Int64 value)
+{
+    AtomicOperations_Imp::setInt64Release(&amp;d_value, value);
+}
+
+inline
+Types::Int64 AtomicInt64::swap(Types::Int64 swapValue)
+{
+    return AtomicOperations_Imp::swapInt64(&amp;d_value, swapValue);
+}
+
+inline
+Types::Int64 AtomicInt64::swapAcqRel(Types::Int64 swapValue)
+{
+    return AtomicOperations_Imp::swapInt64AcqRel(&amp;d_value, swapValue);
+}
+
+inline
+Types::Int64
+AtomicInt64::testAndSwap(Types::Int64 compareValue,
+                              Types::Int64 swapValue)
+{
+    return AtomicOperations_Imp::testAndSwapInt64(&amp;d_value,
+                                                       compareValue,
+                                                       swapValue);
+}
+
+inline
+Types::Int64
+AtomicInt64::testAndSwapAcqRel(Types::Int64 compareValue,
+                                    Types::Int64 swapValue)
+{
+    return AtomicOperations_Imp::testAndSwapInt64AcqRel(&amp;d_value,
+                                                        compareValue,
+                                                        swapValue);
+}
+
+// ACCESSORS
+inline
+AtomicInt64::operator Types::Int64() const
+{
+    return AtomicOperations_Imp::getInt64(&amp;d_value);
+}
+
+inline
+Types::Int64 AtomicInt64::load() const
+{
+    return this-&gt;operator Types::Int64();
+}
+
+inline
+Types::Int64 AtomicInt64::loadRelaxed() const
+{
+    return AtomicOperations_Imp::getInt64Relaxed(&amp;d_value);
+}
+
+inline
+Types::Int64 AtomicInt64::loadAcquire() const
+{
+    return AtomicOperations_Imp::getInt64Acquire(&amp;d_value);
+}
+
+                             // -------------------
+                             // class AtomicPointer
+                             // -------------------
+
+// CREATORS
+template &lt;class TYPE&gt;
+inline
+AtomicPointer&lt;TYPE&gt;::AtomicPointer()
+{
+    AtomicOperations_Imp::initPointer(&amp;d_value, 0);
+}
+
+template &lt;class TYPE&gt;
+inline
+AtomicPointer&lt;TYPE&gt;::AtomicPointer(TYPE *value)
+{
+    AtomicOperations_Imp::initPointer(&amp;d_value,
+                                      reinterpret_cast&lt;const void *&gt;(value));
+}
+
+// MANIPULATORS
+template &lt;class TYPE&gt;
+inline
+AtomicPointer&lt;TYPE&gt;&amp;
+AtomicPointer&lt;TYPE&gt;::operator=(TYPE *value)
+{
+    AtomicOperations_Imp::setPtr(&amp;d_value,
+                                 reinterpret_cast&lt;const void *&gt;(value));
+    return *this;
+}
+
+template &lt;class TYPE&gt;
+inline
+void AtomicPointer&lt;TYPE&gt;::storeRelaxed(TYPE *value)
+{
+    AtomicOperations_Imp::setPtrRelaxed(&amp;d_value,
+                                        reinterpret_cast&lt;const void *&gt;(value));
+}
+
+template &lt;class TYPE&gt;
+inline
+void AtomicPointer&lt;TYPE&gt;::storeRelease(TYPE *value)
+{
+    AtomicOperations_Imp::setPtrRelease(&amp;d_value,
+                                        reinterpret_cast&lt;const void *&gt;(value));
+}
+
+template &lt;class TYPE&gt;
+inline
+TYPE *AtomicPointer&lt;TYPE&gt;::swap(TYPE *swapValue)
+{
+    return reinterpret_cast&lt;TYPE *&gt;(
+        AtomicOperations_Imp::swapPtr(
+            &amp;d_value,
+            reinterpret_cast&lt;const void *&gt;(swapValue)));
+}
+
+template &lt;class TYPE&gt;
+inline
+TYPE *AtomicPointer&lt;TYPE&gt;::swapAcqRel(TYPE *swapValue)
+{
+    return reinterpret_cast&lt;TYPE *&gt;(
+        AtomicOperations_Imp::swapPtrAcqRel(
+            &amp;d_value,
+            reinterpret_cast&lt;const void *&gt;(swapValue)));
+}
+
+template &lt;class TYPE&gt;
+inline
+TYPE *AtomicPointer&lt;TYPE&gt;::testAndSwap(const TYPE *compareValue,
+                                       TYPE       *swapValue)
+{
+    return reinterpret_cast&lt;TYPE *&gt;(
+        AtomicOperations_Imp::testAndSwapPtr(
+            &amp;d_value,
+            reinterpret_cast&lt;const void *&gt;(compareValue),
+            reinterpret_cast&lt;const void *&gt;(swapValue)));
+}
+
+template &lt;class TYPE&gt;
+inline
+TYPE *AtomicPointer&lt;TYPE&gt;::testAndSwapAcqRel(const TYPE *compareValue,
+                                             TYPE       *swapValue)
+{
+    return reinterpret_cast&lt;TYPE *&gt;(
+        AtomicOperations_Imp::testAndSwapPtrAcqRel(
+            &amp;d_value,
+            reinterpret_cast&lt;const void *&gt;(compareValue),
+            reinterpret_cast&lt;const void *&gt;(swapValue)));
+}
+
+// ACCESSORS
+template &lt;class TYPE&gt;
+inline
+AtomicPointer&lt;TYPE&gt;::operator TYPE*() const
+{
+    return (TYPE *) AtomicOperations_Imp::getPtr(&amp;d_value);
+}
+
+template &lt;class TYPE&gt;
+inline
+TYPE *AtomicPointer&lt;TYPE&gt;::load() const
+{
+    return this-&gt;operator TYPE*();
+}
+
+template &lt;class TYPE&gt;
+inline
+TYPE&amp; AtomicPointer&lt;TYPE&gt;::operator*() const
+{
+    return *((TYPE *) AtomicOperations_Imp::getPtr(&amp;d_value));
+}
+
+template &lt;class TYPE&gt;
+inline
+TYPE *AtomicPointer&lt;TYPE&gt;::operator-&gt;() const
+{
+    return (TYPE *) AtomicOperations_Imp::getPtr(&amp;d_value);
+}
+
+template &lt;class TYPE&gt;
+inline
+TYPE *AtomicPointer&lt;TYPE&gt;::loadRelaxed() const
+{
+    return (TYPE *) AtomicOperations_Imp::getPtrRelaxed(&amp;d_value);
+}
+
+template &lt;class TYPE&gt;
+inline
+TYPE *AtomicPointer&lt;TYPE&gt;::loadAcquire() const
+{
+    return (TYPE *) AtomicOperations_Imp::getPtrAcquire(&amp;d_value);
+}
+
+}  // close package namespace
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright (C) 2012 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the &quot;Software&quot;), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

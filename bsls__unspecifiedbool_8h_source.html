@@ -1,0 +1,226 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 2.16 BETA</title>
+<html>
+<pre>
+// bsls_unspecifiedbool.h                                             -*-C++-*-
+#ifndef INCLUDED_BSLS_UNSPECIFIEDBOOL
+#define INCLUDED_BSLS_UNSPECIFIEDBOOL
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a class supporting the &#39;unspecified bool&#39; idiom.
+//
+//@CLASSES:
+//  bsls::UnspecifiedBool: class template for the &#39;unspecified bool&#39; idiom.
+//
+//@DESCRIPTION: This component should *not* be used outside of the &#39;bsl&#39;
+// package at this time.
+//
+// This component provides a class template that can be used to manufacture an
+// &quot;unspecified boolean type&quot; that is distinct for each class that instantiates
+// it.  Note that classes supplying an implicit conversion to an unspecified
+// bool type will be equality comparable (using &#39;operator==&#39; and &#39;operator!=&#39;)
+// through this conversion.  Private equality and inequality operators should
+// be added to the class definition unless this comparison is desired.  It is
+// important that each class produces a distinct unspecified bool type, as
+// otherwise objects of different class types would compare equal through this
+// same conversion.  Note that this component should become redundant when all
+// of our compilers support &quot;explicit conversion operators&quot;, a new feature of
+// C++11.  An &#39;explicit operator bool()&#39; conversion operator is superior to
+// this C++98 idiom in all ways.
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: A Simple Smart Pointer
+///- - - - - - - - - - - - - - - - -
+// A common requirement for &quot;smart pointer&quot; types is to emulate the native
+// pointer types and, in particular, support testing for &quot;null&quot; or &quot;empty&quot;
+// pointer values as a simple boolean conversion in &#39;if&#39; and &#39;while&#39; clauses.
+// We here demonstrate how to create a simple smart pointer type, &#39;SimplePtr&#39;,
+// using this component to implement a safe the boolean conversion.
+//
+// An object of type &#39;SimplePtr&#39; holds a pointer value, but does not claim
+// ownership or any responsibility for the lifetime of the referenced object.
+// A &#39;SimplePtr&#39; object acts as a &quot;simple&quot; native pointer.
+//
+// First, we create the &#39;SimplePtr&#39; class, define its data members, creators
+// and manipulators:
+//..
+//  template &lt;class TYPE&gt;
+//  class SimplePtr
+//  {
+//      // This class holds a pointer to a single object, and provides a subset
+//      // of the regular pointer operators.  For example, objects of this
+//      // class can be dereferenced with &#39;operator*&#39; and tested as a boolean
+//      // value to determine if null.  Conversely, this class does not support
+//      // pointer arithmetic.
+//
+//    private:
+//      // DATA
+//      TYPE *d_ptr_p;  // address of the referenced object
+//
+//      // PRIVATE ACCESSORS
+//      bool operator==(const SimplePtr &amp;);  // = delete;
+//      bool operator!=(const SimplePtr &amp;);  // = delete;
+//          // Suppress equality comparison operations on objects of this
+//          // class.
+//
+//    public:
+//      // CREATORS
+//      explicit SimplePtr(TYPE *ptr = 0) : d_ptr_p(ptr) {}
+//          // Create a &#39;SimplePtr&#39; having the value of the specified &#39;ptr&#39;.
+//
+//      //! ~SimplePtr() = default;
+//          // Destroy this object.
+//
+//      // ACCESSORS
+//      TYPE&amp; operator*() const  { return *d_ptr_p; }
+//          // Return a reference to the object pointed to by this
+//          // &#39;SimplePtr&#39;.
+//
+//      TYPE *operator-&gt;() const { return d_ptr_p; }
+//          // Return the held &#39;d_ptr_p&#39;.
+//..
+// Next, we define, for convenience, an alias for a unique type that is
+// implicitly convertible to &#39;bool&#39; (note that we pass the current template
+// instantiation to the &#39;bsls::UnspecifiedBool&#39; template to guarantee a unique
+// name, even for different instantiations of this same &#39;SimplePtr&#39; template):
+//..
+//  // TYPES
+//  typedef typename bsls::UnspecifiedBool&lt;SimplePtr&gt;::BoolType BoolType;
+//..
+// Now, we can define a boolean conversion operator that tests whether or not
+// this &#39;SimplePtr&#39; object is holding a null pointer, or a valid address:
+//..
+//      operator BoolType() const {
+//          return bsls::UnspecifiedBool&lt;SimplePtr&gt;::makeValue(d_ptr_p);
+//      }
+//  }; // class SimplePtr
+//..
+// Note that we do not need to define &#39;operator!&#39; as this single boolean
+// conversion operator is invoked with the correct semantics when the user
+// tries that operator.
+//
+// Finally, we write a simple test function, creating a couple of &#39;SimplePtr&#39;
+// objects, one &quot;null&quot;, and the other with a well-defined address.
+//..
+//  void runTests() {
+//      SimplePtr&lt;int&gt; p1;  // default ctor sets to null
+//      assert(!p1);
+//
+//      int            i = 3;
+//      SimplePtr&lt;int&gt; p2(&amp;i);
+//
+//      if (p2) {
+//          assert(3 == *p2);
+//      }
+//  }
+//..
+// Notice that &#39;SimplePtr&#39; objects behave as native pointers.  They should be
+// tested before dereferencing (as they could be null).
+
+namespace BloombergLP {
+
+namespace bsls {
+
+                         // =====================
+                         // class UnspecifiedBool
+                         // =====================
+
+template&lt;class BSLS_HOST_TYPE&gt;
+class UnspecifiedBool {
+    // This class provides a member, &#39;d_member&#39;, whose pointer-to-member may be
+    // used as an &quot;unspecified boolean type&quot; for implicit conversion operators.
+
+  private:
+    // DATA
+    int d_member;   // This data member is used solely for taking its address
+                    // to return a non-null pointer-to-member.  Note that the
+                    // *value* of &#39;d_member&#39; is not used.
+
+  public:
+    // TYPES
+    typedef int UnspecifiedBool::* BoolType;
+        // Alias of a distinct type that is implicitly convertible to &#39;bool&#39;,
+        // but does not promote to &#39;int&#39;.
+
+    // CLASS METHODS
+    static BoolType falseValue();
+        // Return a value that converts to the &#39;bool&#39; value &#39;false&#39;.
+
+    static BoolType trueValue();
+        // Return a value that converts to the &#39;bool&#39; value &#39;true&#39;.
+
+    static BoolType makeValue(bool predicate);
+        // Return a value that converts to the &#39;bool&#39; value &#39;true&#39; if the
+        // specified predicate is &#39;true&#39;, and the &#39;bool&#39; value &#39;false&#39;
+        // otherwise.
+};
+
+
+// ============================================================================
+//                        INLINE FUNCTION DEFINITIONS
+// ============================================================================
+
+// CLASS METHODS
+template&lt;class BSLS_HOST_TYPE&gt;
+inline
+typename UnspecifiedBool&lt;BSLS_HOST_TYPE&gt;::BoolType
+UnspecifiedBool&lt;BSLS_HOST_TYPE&gt;::falseValue()
+{
+    return 0;
+}
+
+template&lt;class BSLS_HOST_TYPE&gt;
+inline
+typename UnspecifiedBool&lt;BSLS_HOST_TYPE&gt;::BoolType
+UnspecifiedBool&lt;BSLS_HOST_TYPE&gt;::trueValue()
+{
+    return &amp;UnspecifiedBool::d_member;
+}
+
+template&lt;class BSLS_HOST_TYPE&gt;
+inline
+typename UnspecifiedBool&lt;BSLS_HOST_TYPE&gt;::BoolType
+UnspecifiedBool&lt;BSLS_HOST_TYPE&gt;::makeValue(bool predicate)
+{
+    return predicate ? trueValue() : falseValue();
+}
+
+}  // close package namespace
+
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright (C) 2012 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the &quot;Software&quot;), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

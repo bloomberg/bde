@@ -1,0 +1,242 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 2.16 BETA</title>
+<html>
+<pre>
+// bslma_deleterhelper.h                                              -*-C++-*-
+#ifndef INCLUDED_BSLMA_DELETERHELPER
+#define INCLUDED_BSLMA_DELETERHELPER
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide namespace for functions used to delete objects.
+//
+//@CLASSES:
+//  bslma::DeleterHelper: non-primitive pure procedures for deleting objects
+//
+//@SEE_ALSO: bslma_rawdeleterguard, bslmf_ispolymporphic
+//
+//@DESCRIPTION: This component provides non-primitive procedures used to delete
+// objects of parameterized &#39;TYPE&#39; by first calling the destructor of the
+// object, and then freeing the memory footprint of the object using a
+// parameterized &#39;ALLOCATOR&#39; (allocator or pool) provided as a second argument.
+// The &quot;raw&quot; method (&#39;deleteObjectRaw&#39;) should be used only if we are sure that
+// the supplied object is !not! of a type that is a secondary base class --
+// i.e., the object&#39;s address is (numerically) the same as when it was
+// originally dispensed by &#39;ALLOCATOR&#39;.  The non-&quot;raw&quot; &#39;deleteObject&#39; has no
+// such restriction.  Note that this component will fail to compile when
+// instantiated for a class that gives a false-positive for the type trait
+// &#39;bslmf::IsPolymorphic&#39;.  See the &#39;bslmf_ispolymporphic&#39; component for more
+// details.
+//
+///Usage
+///-----
+// The following &#39;my_RawDeleterGuard&#39; class defines a guard that
+// unconditionally deletes a managed object upon destruction.  Via the
+// &#39;deleteObjectRaw&#39; method supplied by this component, the guard&#39;s destructor
+// first destroys the managed object, then deallocates the footprint of the
+// object.  The declaration of &#39;my_RawDeleterGuard&#39; follows:
+//..
+//  template &lt;class TYPE, class ALLOCATOR&gt;
+//  class my_RawDeleterGuard {
+//      // This class implements a guard that unconditionally deletes a managed
+//      // object upon destruction by first invoking the object&#39;s destructor,
+//      // and then invoking the &#39;deallocate&#39; method of an allocator (or pool)
+//      // of parameterized &#39;ALLOCATOR&#39; type supplied at construction.
+//
+//      // DATA
+//      TYPE      *d_object_p;     // managed object
+//      ALLOCATOR *d_allocator_p;  // allocator or pool (held, not owned)
+//
+//      // NOT IMPLEMENTED
+//      my_RawDeleterGuard(const my_RawDeleterGuard&amp;);
+//      my_RawDeleterGuard&amp; operator=(const my_RawDeleterGuard&amp;);
+//
+//    public:
+//      // CREATORS
+//      my_RawDeleterGuard(TYPE *object, ALLOCATOR *allocator);
+//          // Create a raw deleter guard that unconditionally manages the
+//          // specified &#39;object&#39;, and that uses the specified &#39;allocator&#39; to
+//          // delete &#39;object&#39; upon the destruction of this guard.  The
+//          // behavior is undefined unless &#39;object&#39; and &#39;allocator&#39; are
+//          // non-zero, and &#39;allocator&#39; supplied the memory for &#39;object&#39;.
+//          // Note that &#39;allocator&#39; must remain valid throughout the lifetime
+//          // of this guard.
+//
+//      ~my_RawDeleterGuard();
+//          // Destroy this raw deleter guard and delete the object it manages
+//          // by first invoking the destructor of the (managed) object, and
+//          // then invoking the &#39;deallocate&#39; method of the allocator (or pool)
+//          // that was supplied with the object at construction.
+//  };
+//..
+// The &#39;deleteObjectRaw&#39; method is used in the destructor as follows:
+//..
+//  template &lt;class TYPE, class ALLOCATOR&gt;
+//  inline
+//  my_RawDeleterGuard&lt;TYPE, ALLOCATOR&gt;::~my_RawDeleterGuard()
+//  {
+//      bslma::DeleterHelper::deleteObjectRaw(d_object_p, d_allocator_p);
+//  }
+//..
+// Note that we have denoted our guard to be a &quot;raw&quot; guard in keeping with this
+// use of &#39;deleteObjectRaw&#39; (as opposed to &#39;deleteObject&#39;).
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include &lt;bslscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_ISPOLYMORPHIC
+#include &lt;bslmf_ispolymorphic.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include &lt;bsls_assert.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_PLATFORM
+#include &lt;bsls_platform.h&gt;
+#endif
+
+namespace BloombergLP {
+
+namespace bslma {
+
+             // =================================
+             // local struct DeleterHelper_Helper
+             // =================================
+
+template &lt;int IS_POLYMORPHIC&gt;
+struct DeleterHelper_Helper {
+    template &lt;typename TYPE&gt;
+    static void *caster(const TYPE *object)
+    {
+        return static_cast&lt;void *&gt;(const_cast&lt;TYPE *&gt;(object));
+    }
+};
+
+template &lt;&gt;
+struct DeleterHelper_Helper&lt;1&gt; {
+    template &lt;typename TYPE&gt;
+    static void *caster(const TYPE *object)
+    {
+        return dynamic_cast&lt;void *&gt;(const_cast&lt;TYPE *&gt;(object));
+    }
+};
+
+                           // ====================
+                           // struct DeleterHelper
+                           // ====================
+
+struct DeleterHelper {
+    // This struct provides a namespace for helper functions used for deleting
+    // objects in various pools and allocators.
+
+    // CLASS METHODS
+    template &lt;class TYPE, class ALLOCATOR&gt;
+    static void deleteObject(const TYPE *object, ALLOCATOR *allocator);
+        // Destroy the specified &#39;object&#39; based on its dynamic type and then
+        // use the specified &#39;allocator&#39; to deallocate its memory footprint.
+        // Do nothing if &#39;object&#39; is a null pointer.  The behavior is undefined
+        // unless &#39;allocator&#39; is non-null, and &#39;object&#39;, when cast
+        // appropriately to &#39;void *&#39;, was allocated using &#39;allocator&#39; and has
+        // not already been deallocated.  Note that
+        // &#39;dynamic_cast&lt;void *&gt;(object)&#39; is applied if &#39;TYPE&#39; is polymorphic,
+        // and &#39;static_cast&lt;void *&gt;(object)&#39; is applied otherwise.
+
+    template &lt;class TYPE, class ALLOCATOR&gt;
+    static void deleteObjectRaw(const TYPE *object, ALLOCATOR *allocator);
+        // Destroy the specified &#39;object&#39; and then use the specified
+        // &#39;allocator&#39; to deallocate its memory footprint.  Do nothing if
+        // &#39;object&#39; is a null pointer.  The behavior is undefined unless
+        // &#39;allocator&#39; is non-null, &#39;object&#39; is !not! a secondary base class
+        // pointer (i.e., the address is (numerically) the same as when it was
+        // originally dispensed by &#39;allocator&#39;), and &#39;object&#39; was allocated
+        // using &#39;allocator&#39; and has not already been deallocated.
+};
+
+// ============================================================================
+//                      TEMPLATE FUNCTION DEFINITIONS
+// ============================================================================
+
+                           // --------------------
+                           // struct DeleterHelper
+                           // --------------------
+
+// CLASS METHODS
+template &lt;class TYPE, class ALLOCATOR&gt;
+inline
+void DeleterHelper::deleteObject(const TYPE *object,
+                                 ALLOCATOR  *allocator)
+{
+    BSLS_ASSERT_SAFE(allocator);
+
+    if (0 != object) {
+        void *address = DeleterHelper_Helper&lt;
+                            bslmf::IsPolymorphic&lt;TYPE&gt;::value&gt;::caster(object);
+        BSLS_ASSERT_OPT(address);
+
+#ifndef BSLS_PLATFORM_CMP_SUN
+        object-&gt;~TYPE();
+#else
+        const_cast&lt;TYPE *&gt;(object)-&gt;~TYPE();
+#endif
+
+        allocator-&gt;deallocate(address);
+    }
+}
+
+template &lt;class TYPE, class ALLOCATOR&gt;
+inline
+void DeleterHelper::deleteObjectRaw(const TYPE *object,
+                                    ALLOCATOR  *allocator)
+{
+    BSLS_ASSERT_SAFE(allocator);
+
+    if (0 != object) {
+        void *address = const_cast&lt;TYPE *&gt;(object);
+
+#ifndef BSLS_PLATFORM_CMP_SUN
+        object-&gt;~TYPE();
+#else
+        const_cast&lt;TYPE *&gt;(object)-&gt;~TYPE();
+#endif
+
+        allocator-&gt;deallocate(address);
+    }
+}
+
+}  // close package namespace
+
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright (C) 2012 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the &quot;Software&quot;), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

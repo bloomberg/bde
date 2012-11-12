@@ -1,0 +1,469 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 2.16 BETA</title>
+<html>
+<pre>
+// bslmf_matcharithmetictype.h                                        -*-C++-*-
+#ifndef INCLUDED_BSLMF_MATCHARITHMETICTYPE
+#define INCLUDED_BSLMF_MATCHARITHMETICTYPE
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a class supporting &quot;do-the-right-thing clause&quot; dispatch.
+//
+//@CLASSES:
+//  bslmf::MatchArithmeticType: implicit conversion of arithmetic types
+//
+//@SEE_ALSO: bslmf_matchanytype, bslstl_deque, bslstl_string, bslstl_vector
+//
+//@DESCRIPTION: This component defines a class, &#39;bslmf::MatchArithmeticType&#39;,
+// to which any arithmetic type can be implicitly converted.  A class with that
+// conversion property is useful for meeting the certain requirements of the
+// standard sequential containers (e.g., &#39;bsl::vector&#39;, &#39;bsl::deque&#39;,
+// &#39;bsl::string&#39;).
+//
+// Sequential containers have several overloaded method templates that accept a
+// pair of input iterators (e.g., constructors, &#39;insert&#39; and &#39;append&#39; methods),
+// but which must *not* accept arithmetic types (e.g., &#39;bool&#39;, &#39;char&#39;, &#39;short&#39;,
+// &#39;int&#39;, &#39;double&#39;).  See &quot;ISO/IEC 14882:2011 Programming Language C++&quot; (see
+// &#39;http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2011/n3242.pdf&#39;),
+// &quot;Section 23.2.3 [sequence.reqmts]&quot;, paragraphs 14-15.  This requirement is
+// informally known as the &quot;do-the-right-thing clause&quot;.  See
+// &#39;http://gcc.gnu.org/onlinedocs/libstdc++/ext/lwg-defects.html#438&#39;.
+//
+// The convertibility of arguments to &#39;bslmf::MatchArithmeticType&#39; is used to
+// dispatch calls with arithmetic arguments to the appropriate methods.  Note
+// that this technique (a variation of &quot;tag dispatch&quot;) can be compromised if
+// one uses a class that defines a conversion operator to
+// &#39;bslmf::MatchArithmeticType&#39; (or a conversion operator to
+// &#39;bslmf::MatchAnyType&#39;) but otherwise do not behave as arithmetic types.
+//
+// Enumerations (not arithmetic types themselves) are implicitly convertible to
+// &#39;blsmf::MatchArithmeticType&#39;, and will dispatch as some integer (a sub-set
+// of arithmetic) type.
+//
+///Usage
+///-----
+// In this section we show intended use of this component.
+//
+///Example 1: &quot;Do-the-Right-Thing&quot; Clause Dispatch
+///- - - - - - - - - - - - - - - - - - - - - - - -
+// Suppose we want to create a container with two constructors:
+//
+//: o one constructor providing initialization with multiple copies of a single
+//:   value (a &quot;repeated value constructor&quot;), and
+//:
+//: o the other providing initialization from a sequence of values delimited by
+//:   a pair of iterators (a &quot;range constructor&quot;).
+//
+// A naive implementation can result in common usage situations in which
+// arguments meaningful to the former constructor are provided but where the
+// compiler resolves the overload to the latter constructor.
+//
+// For example, the &#39;MyProblematicContainer&#39; class outlined below provides two
+// such constructors.  Note that each is atypically embellished with a
+// &#39;message&#39; parameter, allowing us to trace the call flow.
+//..
+//                      // ============================
+//                      // class MyProblematicContainer
+//                      // ============================
+//
+//  template &lt;class VALUE_TYPE&gt;
+//  class MyProblematicContainer {
+//
+//      // ...
+//
+//    public:
+//      // CREATORS
+//      MyProblematicContainer(std::size_t        numElements,
+//                             const VALUE_TYPE&amp;  value,
+//                             const char        *message);
+//          // Create a &#39;MyProblematicContainer&#39; object containing the
+//          // specified &#39;numElements&#39; of the specified &#39;value&#39;, and write to
+//          // standard output the specified &#39;message&#39;.
+//
+//      template &lt;class INPUT_ITER&gt;
+//      MyProblematicContainer(INPUT_ITER  first,
+//                             INPUT_ITER  last,
+//                             const char *message);
+//          // Create a &#39;MyProblematicContainer&#39; object containing the values
+//          // in the range starting at the specified &#39;first&#39; iterator and
+//          // ending immediately before the specified &#39;last&#39; iterator of the
+//          // &#39;INPUT_ITER&#39; type, and write to standard output the specified
+//          // &#39;message&#39;.
+//
+//      // ...
+//
+//  };
+//
+//  // ========================================================================
+//  //                      INLINE FUNCTION DEFINITIONS
+//  // ========================================================================
+//
+//                      // ============================
+//                      // class MyProblematicContainer
+//                      // ============================
+//
+//  // CREATORS
+//  template &lt;class VALUE_TYPE&gt;
+//  MyProblematicContainer&lt;VALUE_TYPE&gt;::MyProblematicContainer(
+//                                              std::size_t        numElements,
+//                                              const VALUE_TYPE&amp;  value,
+//                                              const char        *message)
+//  {
+//      assert(message);
+//      printf(&quot;CTOR: repeated value: %s\n&quot;, message);
+//      // ...
+//  }
+//
+//  template &lt;class VALUE_TYPE&gt;
+//  template &lt;class INPUT_ITER&gt;
+//  MyProblematicContainer&lt;VALUE_TYPE&gt;::MyProblematicContainer(
+//                                                         INPUT_ITER  first,
+//                                                         INPUT_ITER  last,
+//                                                         const char *message)
+//  {
+//      assert(message);
+//      printf(&quot;CTOR: range         : %s\n&quot;, message);
+//      // ...
+//  }
+//..
+// The problem with the &#39;MyProblematicContainer&#39; class becomes manifest when
+// we create several objects:
+//..
+//      const char                   input[] = &quot;How now brown cow?&quot;;
+//      MyProblematicContainer&lt;char&gt; initFromPtrPair(
+//                                                input,
+//                                                input + sizeof(input),
+//                                                &quot;Called with pointer pair.&quot;);
+//
+//      MyProblematicContainer&lt;char&gt; initFromIntAndChar(
+//                                            5,
+//                                            &#39;A&#39;,
+//                                            &quot;Called with &#39;int&#39; and &#39;char&#39;.&quot;);
+//
+//      MyProblematicContainer&lt;char&gt; initFromIntAndInt(
+//                                            5,
+//                                            65, // &#39;A&#39;
+//                                            &quot;Called with &#39;int&#39; and &#39;int&#39;.&quot;);
+//..
+// Standard output shows:
+//..
+//  CTOR: range         : Called with pointer pair.
+//  CTOR: repeated value: Called with &#39;int&#39; and &#39;char&#39;.
+//  CTOR: range         : Called with &#39;int&#39; and &#39;int&#39;.
+//..
+// Notice that the range constructor, not the repeated value constructor, is
+// invoked for the creation of &#39;initFromIntAndInt&#39;, the third object.
+//
+// The range constructor is chosen to resolve that overload because its match
+// of two arguments of the same type (&#39;int&#39; in this usage) without conversion
+// is better than that provided by the repeated value constructor, which
+// requires conversions of two different arguments.
+//
+// Note that, in practice, range constructors (expecting iterators) dereference
+// their arguments, and so fail to compile when instantiated with arithmetic
+// types.
+//
+// If we are fortunate, range constructor code will fail to compile; otherwise,
+// dereferencing integer values (i.e., using them as pointers) leads to
+// undefined behavior.
+//
+// Note that, in many other situations, overloading resolution issues can be
+// avoided by function renaming; however, as these are constructors, we do not
+// have that option.
+//
+// Instead, we redesign our class (&#39;MyContainer&#39; is the redesigned class) so
+// that the calls to the range constructor with two &#39;int&#39; arguments (or pairs
+// of the same integer types) are routed to the repeated value constructor.
+// The &#39;bslmf::MatchArithmeticType&#39; class is used to distinguish between
+// integer types and other types.
+//
+// First, we define the &#39;MyContainer&#39; class to have constructors taking
+// the same arguments as the constructors of &#39;MyProblematicContainer&#39;:
+//..
+//                      // =================
+//                      // class MyContainer
+//                      // =================
+//
+//  template &lt;class VALUE_TYPE&gt;
+//  class MyContainer {
+//
+//      // ...
+//
+//    public:
+//      // CREATORS
+//      MyContainer(std::size_t        numElements,
+//                  const VALUE_TYPE&amp;  value,
+//                  const char        *message);
+//          // Create a &#39;MyProblematicContainer&#39; object containing the
+//          // specified &#39;numElements&#39; of the specified &#39;value&#39;, and write to
+//          // standard output the specified &#39;message&#39;.
+//
+//      template &lt;class INPUT_ITER&gt;
+//      MyContainer(INPUT_ITER  first, INPUT_ITER  last, const char *message);
+//          // Create a &#39;MyProblematicContainer&#39; object containing the values
+//          // in the range starting at the specified &#39;first&#39; and ending
+//          // immediately before the specified &#39;last&#39; iterators of the type
+//          // &#39;INPUT_ITER&#39;, and write to standard output the specified
+//          // &#39;message&#39;.
+//
+//      // ...
+//
+// };
+//..
+// Then, we isolate the essential actions of our two constructors into two
+// private, non-creator methods.  This allows us to achieve the results of
+// either constructor, as appropriate, from the context of the range
+// constructor.  The two &#39;privateInit*&#39; methods are:
+//..
+//    private:
+//      // PRIVATE MANIPULATORS
+//      void privateInit(std::size_t        numElements,
+//                       const VALUE_TYPE&amp;  value,
+//                       const char        *message);
+//          // Initialize a &#39;MyContainer&#39; object containing the specified
+//          // &#39;numElements&#39; of the specified &#39;value&#39;, and write to standard
+//          // output the specified &#39;message&#39;.
+//
+//      template &lt;class INPUT_ITER&gt;
+//      void privateInit(INPUT_ITER  first,
+//                       INPUT_ITER  last,
+//                       const char *message);
+//          // Initialize a &#39;MyContainer&#39; object containing the values in the
+//          // range starting at the specified &#39;first&#39; and ending immediately
+//          // before the specified &#39;last&#39; iterators of the type &#39;INPUT_ITER&#39;,
+//          // and write to standard output the specified &#39;message&#39;.
+//..
+// Note that, as in the constructors of the &#39;MyProblematic&#39; class, the
+// &#39;privateInit*&#39; methods provide display a message so we can trace the call
+// path.
+//..
+//  // PRIVATE MANIPULATORS
+//  template &lt;class VALUE_TYPE&gt;
+//  void MyContainer&lt;VALUE_TYPE&gt;::privateInit(std::size_t        numElements,
+//                                            const VALUE_TYPE&amp;  value,
+//                                            const char        *message)
+//  {
+//      assert(message);
+//      printf(&quot;INIT: repeated value: %s\n&quot;, message);
+//      // ...
+//  }
+//
+//  template &lt;class VALUE_TYPE&gt;
+//  template &lt;class INPUT_ITER&gt;
+//  void MyContainer&lt;VALUE_TYPE&gt;::privateInit(INPUT_ITER  first,
+//                                            INPUT_ITER  last,
+//                                            const char *message)
+//  {
+//      assert(message);
+//      printf(&quot;INIT: range         : %s\n&quot;, message);
+//      // ...
+//  }
+//..
+// Now, we define two overloaded &#39;privateInitDispatch&#39; methods, each taking
+// two parameters (the last two) which serve no run-time purpose.  As we shall
+// see, they exist only to guide overload resolution at compile-time.
+//..
+//      template &lt;class INTEGER_TYPE&gt;
+//      void privateInitDispatch(INTEGER_TYPE                numElements,
+//                               INTEGER_TYPE                value,
+//                               const char                 *message,
+//                               bslmf::MatchArithmeticType  ,
+//                               bslmf::Nil                  );
+//          // Initialize a &#39;MyContainer&#39; object containing the specified
+//          // &#39;numElements&#39; of the specified &#39;value&#39;, and write to standard
+//          // output the specified &#39;message&#39;.  The last two arguments are used
+//          // only for overload resolution.
+//
+//      template &lt;class INPUT_ITER&gt;
+//      void privateInitDispatch(INPUT_ITER           first,
+//                               INPUT_ITER           last,
+//                               const char          *message,
+//                               bslmf::MatchAnyType  ,
+//                               bslmf::MatchAnyType  );
+//          // Initialize a &#39;MyContainer&#39; object containing the values in the
+//          // range starting at the specified &#39;first&#39; and ending immediately
+//          // before the specified &#39;last&#39; iterators of the type &#39;INPUT_ITER&#39;,
+//          // and write to standard output the specified &#39;message&#39;.  The last
+//          // two arguments are used only for overload resolution.
+//..
+// Notice that the first overload has strict requirements on the last two
+// arguments, but the second overload (accepting &#39;bslmf::MatchAnyType&#39; in those
+// positions) will match all contexts in which the first fails to match.
+//
+// Then, we implement the two &#39;privateInitDispatch&#39; overloads so that
+// each invokes a different overload of the &#39;privateInit&#39; methods:
+//
+//: o The &#39;privateInit&#39; corresponding to repeated value constructor is invoked
+//:   from the &quot;strict&quot; overload of &#39;privateInitDispatch&#39;.
+//:
+//: o The &#39;privateInit&#39; for range construction is invoked from the other
+//:   &#39;privateInitDispatch&#39; overload.
+//..
+//  template &lt;class VALUE_TYPE&gt;
+//  template &lt;class INTEGER_TYPE&gt;
+//  void MyContainer&lt;VALUE_TYPE&gt;::privateInitDispatch(
+//                                     INTEGER_TYPE                numElements,
+//                                     INTEGER_TYPE                value,
+//                                     const char                 *message,
+//                                     bslmf::MatchArithmeticType  ,
+//                                     bslmf::Nil                  )
+//  {
+//      (void)message;
+//
+//      privateInit(static_cast&lt;std::size_t&gt;(numElements),
+//                  static_cast&lt;VALUE_TYPE&gt;(value),
+//                  &quot;Called via &#39;privateInitDispatch&#39;.&quot;);
+//  }
+//
+//  template &lt;class VALUE_TYPE&gt;
+//  template &lt;class INPUT_ITER&gt;
+//  void MyContainer&lt;VALUE_TYPE&gt;::privateInitDispatch(
+//                                                INPUT_ITER           first,
+//                                                INPUT_ITER           last,
+//                                                const char          *message,
+//                                                bslmf::MatchAnyType  ,
+//                                                bslmf::MatchAnyType  )
+//  {
+//      privateInit(first, last, message);
+//  }
+//..
+// Next, we use overloaded &#39;privateInitDispatch&#39; method in the range
+// constructor of &#39;MyContainer&#39;.  Note that we always supply a &#39;bslmf::Nil&#39;
+// object (an exact type match) as the final argument, the choice of overload
+// will be govered according to the type of &#39;first&#39;.  Consequently, if &#39;first&#39;
+// is implicitly convertible to &#39;bslmf::MatchArithmeticType&#39;, then the overload
+// leading to repeated value construction is used; otherwise, the overload
+// leading to range construction is used.
+//..
+//  template &lt;class VALUE_TYPE&gt;
+//  template &lt;class INPUT_ITER&gt;
+//  MyContainer&lt;VALUE_TYPE&gt;::MyContainer(INPUT_ITER  first,
+//                                       INPUT_ITER  last,
+//                                       const char *message)
+//  {
+//      privateInitDispatch(first, last, message, first, bslmf::Nil());
+//  }
+//..
+// Notice that this design is safe for iterators that themselves happen to have
+// a conversion to &#39;int&#39;.  Such types would require two user-defined
+// conversions, which are disallowed by the C++ compiler, to match the
+// &#39;bslmf::MatchArithmeticType&#39; parameter of the &quot;strict&quot; &#39;privateInitDispatch&#39;
+// overload.
+//
+// Then, we implement the repeated value constructor using a direct call
+// to the repeated value private initializer:
+//..
+//  // CREATORS
+//  template &lt;class VALUE_TYPE&gt;
+//  MyContainer&lt;VALUE_TYPE&gt;::MyContainer(std::size_t        numElements,
+//                                       const VALUE_TYPE&amp;  value,
+//                                       const char        *message)
+//  {
+//      privateInit(numElements, value, message);
+//  }
+//..
+// Finally, we create three objects of &#39;MyContainer&#39;, using the same arguments
+// as we used for the three &#39;MyProblematicContainer&#39; objects.
+//..
+//      const char        input[] = &quot;How now brown cow?&quot;;
+//      MyContainer&lt;char&gt; initFromPtrPair(input,
+//                                        input + sizeof(input),
+//                                        &quot;Called with pointer pair.&quot;);
+//
+//      MyContainer&lt;char&gt; initFromIntAndChar(5,
+//                                           &#39;A&#39;,
+//                                           &quot;Called with &#39;int&#39; and &#39;char&#39;.&quot;);
+//
+//      MyContainer&lt;char&gt; initFromIntAndInt(5,
+//                                          65, // &#39;A&#39;
+//                                          &quot;Called with &#39;int&#39; and &#39;int&#39;.&quot;);
+//..
+// Standard output shows:
+//..
+//  INIT: range         : Called with pointer pair.
+//  INIT: repeated value: Called with &#39;int&#39; and &#39;char&#39;.
+//  INIT: repeated value: Called via &#39;privateInitDispatch&#39;.
+//..
+// Notice that the repeated value &#39;privateInit&#39; method is called directly
+// for the second object, but called via &#39;privateInitDispatch&#39; for the
+// third object.
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include &lt;bslscm_version.h&gt;
+#endif
+
+namespace BloombergLP {
+
+namespace bslmf {
+
+                        // =========================
+                        // class MatchArithmeticType
+                        // =========================
+
+class MatchArithmeticType {
+    // This copy-constructible mechanism can be used as a formal parameter for
+    // functions where an arithmetic type can be confused with an iterator
+    // type.  A copy-constructbile mechanism is needed so that such objects can
+    // be used as function arguments.
+    //
+    // Note that if a type has a user-defined conversion to arithmetic value,
+    // this will *not* match because passing such an object would require two
+    // user-defined conversions.
+
+  public:
+    // CREATORS
+    MatchArithmeticType(int);                                       // IMPLICIT
+        // Conversion constructor.  Does nothing.
+
+    //! MatchArithmeticType(const MatchArithmeticType&amp;) = default;
+        // Create a &#39;MatchArithmeticType&#39; object.  Note that as
+        // &#39;MatchArithmeticType&#39; is an empty (stateless) type, this operation
+        // has no observable effect.
+
+    //! ~MatchArithmeticType() = default;
+        // Destroy this object.
+};
+
+// ===========================================================================
+//                      INLINE FUNCTION DEFINITIONS
+// ===========================================================================
+
+inline
+MatchArithmeticType::MatchArithmeticType(int)
+{
+}
+
+}  // close package namespace
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright (C) 2012 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the &quot;Software&quot;), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

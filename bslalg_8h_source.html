@@ -1,0 +1,190 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 2.16 BETA</title>
+<html>
+<pre>
+ bslalg.txt
+
+@PURPOSE: Provide algorithms and traits used by the BDE STL implementation.
+
+@MNEMONIC: Basic Standard Library ALgorithms (bslalg)
+
+@DESCRIPTION: The &#39;bsl&#39; library relies on several traits to identify properties
+ of types, such as whether they use a memory allocator to supply memory
+ resources, have a trivial default constructor, are POD types, etc.  This
+ package provides distinct traits types used to tag user-defined (client) types
+ according to these properties and to select implementation of primitive
+ algorithms customized to these properties.
+
+ In addition to the various traits &quot;tag&quot; types, this package also provide
+ implementations of said primitive algorithms (used to implement STL containers
+ and other standard components in the &#39;bslstl&#39; package) that take advantage of
+ these traits.
+
+ This package group documentation is a stem.  It should be expanded with a
+ lesson in the usage of type traits.  For now, please consult the individual
+ component-level documentations.
+
+/Hierarchical Synopsis
+/---------------------
+ The &#39;bslalg&#39; package currently has 36 components having 9 levels of physical
+ dependency.  The table below shows the hierarchical ordering of the
+ components.  The order of components within each level is not architecturally
+ significant, just alphabetical.
+..
+  9. bslalg_dequeprimitives
+     bslalg_rbtreeutil
+
+  8. bslalg_arrayprimitives
+
+  7. bslalg_autoarraymovedestructor
+
+  6. bslalg_autoarraydestructor
+     bslalg_hashtableimputil
+
+  5. bslalg_arraydestructionprimitives
+     bslalg_constructorproxy
+     bslalg_dequeiterator
+     bslalg_hashtableanchor
+
+  4. bslalg_hashtablebucket
+     bslalg_scalarprimitives
+
+  3. bslalg_autoscalardestructor
+     bslalg_bidirectionallinklistutil
+     bslalg_bidirectionalnode
+     bslalg_rangecompare
+     bslalg_rbtreeanchor
+     bslalg_selecttrait
+
+  2. bslalg_bidirectionallink
+     bslalg_containerbase
+     bslalg_dequeimputil
+     bslalg_functoradapter
+     bslalg_hashutil
+     bslalg_hastrait
+     bslalg_rbtreenode
+     bslalg_scalardestructionprimitives
+     bslalg_swaputil
+     bslalg_typetraitbitwisecopyable
+     bslalg_typetraitbitwiseequalitycomparable
+     bslalg_typetraitbitwisemoveable
+     bslalg_typetraithaspointersemantics
+     bslalg_typetraithasstliterators
+     bslalg_typetraithastrivialdefaultconstructor
+     bslalg_typetraitnil
+     bslalg_typetraitusesbslmaallocator
+
+  1. bslalg_typetraits
+..
+
+/Component Synopsis
+/------------------
+: &#39;bslalg_arraydestructionprimitives&#39;:
+:      Provide primitive algorithms that destroy arrays.
+:
+: &#39;bslalg_arrayprimitives&#39;:
+:      Provide primitive algorithms that operate on arrays.
+:
+: &#39;bslalg_autoarraydestructor&#39;:
+:      Provide a proctor for destroying arrays.
+:
+: &#39;bslalg_autoarraymovedestructor&#39;:
+:      Provide a proctor for destroying arrays.
+:
+: &#39;bslalg_autoscalardestructor&#39;:
+:      Provide a proctor for destroying an object.
+:
+: &#39;bslalg_bidirectionallink&#39;:
+:      Provide a basic link type for building doubly-linked lists.
+:
+: &#39;bslalg_bidirectionallinklistutil&#39;:
+:      Provide utilities to maintain bidirectional list data structures.
+:
+: &#39;bslalg_bidirectionalnode&#39;:
+:      Provide a node holding a value in a doubly-linked list.
+:
+: &#39;bslalg_constructorproxy&#39;:
+:      Provide a proxy for constructing and destroying objects.
+:
+: &#39;bslalg_containerbase&#39;:
+:      Provide a wrapper for STL allocators, respecting &#39;bslma&#39; semantics.
+:
+: &#39;bslalg_dequeimputil&#39;:
+:      Provide basic parameters and primitive data structures for deques.
+:
+: &#39;bslalg_dequeiterator&#39;:
+:      Provide primitive data structures for implementing deques.
+:
+: &#39;bslalg_dequeprimitives&#39;:
+:      Provide primitive algorithms that operate on deques.
+:
+: &#39;bslalg_functoradapter&#39;:
+:      Provide an utility that adapts callable objects to functors.
+:
+: &#39;bslalg_hashtableanchor&#39;:
+:      Provide a type holding the constituent parts of a hash table.
+:
+: &#39;bslalg_hashtablebucket&#39;:
+:      Provide a bucket representation for hash table data structures.
+:
+: &#39;bslalg_hashtableimputil&#39;:
+:      Provide algorithms for implementing a hash table.
+:
+: &#39;bslalg_hashutil&#39;:
+:      Provide a utility of hash functions.
+:
+: &#39;bslalg_hastrait&#39;:
+:      Provide facilities for checking compile-time trait.
+:
+: &#39;bslalg_rangecompare&#39;:
+:      Provide algorithms to compare iterator-ranges of elements.
+:
+: &#39;bslalg_rbtreeanchor&#39;:
+:      Encapsulate root, first, and last nodes of a tree with a count.
+:
+: &#39;bslalg_rbtreenode&#39;:
+:      Provide a base class for a red-black binary tree node.
+:
+: &#39;bslalg_rbtreeutil&#39;:
+:      Provide a suite of primitive algorithms on red-black trees.
+:
+: &#39;bslalg_scalardestructionprimitives&#39;:
+:      Provide primitive algorithms that destroy scalars.
+:
+: &#39;bslalg_scalarprimitives&#39;:
+:      Provide primitive algorithms that operate on single elements.
+:
+: &#39;bslalg_selecttrait&#39;:
+:      Provide facilities for selecting compile-time trait.
+:
+: &#39;bslalg_swaputil&#39;:
+:      Provide a simple to use &#39;swap&#39; algorithm.
+:
+: &#39;bslalg_typetraitbitwisecopyable&#39;:
+:      Provide a primitive type trait for bit-wise copyable classes.
+:
+: &#39;bslalg_typetraitbitwiseequalitycomparable&#39;:
+:      Provide a primitive type trait for bit-wise eq.-comparable classes.
+:
+: &#39;bslalg_typetraitbitwisemoveable&#39;:
+:      Provide a primitive type trait for bit-wise moveable classes.
+:
+: &#39;bslalg_typetraithaspointersemantics&#39;:
+:      Provide a primitive type trait for classes with pointer semantics.
+:
+: &#39;bslalg_typetraithasstliterators&#39;:
+:      Provide a primitive type trait for classes with STL-like iterators.
+:
+: &#39;bslalg_typetraithastrivialdefaultconstructor&#39;:
+:      Provide a primitive type trait for class with trivial default ctor.
+:
+: &#39;bslalg_typetraitnil&#39;:
+:      Provide a primitive trait for classes that have no other traits.
+:
+: &#39;bslalg_typetraitusesbslmaallocator&#39;:
+:      Provide a primitive trait for types that use &#39;bslma&#39; allocators.
+
+</pre>
+</body>
+</html>

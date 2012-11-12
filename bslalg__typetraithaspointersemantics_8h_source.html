@@ -1,0 +1,104 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 2.16 BETA</title>
+<html>
+<pre>
+// bslalg_typetraithaspointersemantics.h                              -*-C++-*-
+#ifndef INCLUDED_BSLALG_TYPETRAITHASPOINTERSEMANTICS
+#define INCLUDED_BSLALG_TYPETRAITHASPOINTERSEMANTICS
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a primitive type trait for classes with pointer semantics.
+//
+//@CLASSES:
+//  bslalg::TypeTraitHasPointerSemantics: has pointer semantics
+//
+//@SEE_ALSO: bslmf_typetraits
+//
+//@DESCRIPTION: This component provides a single traits class,
+// &#39;bslalg::TypeTraitHasPointerSemantics&#39;.  A type with this trait is said to
+// have &quot;pointer semantics&quot;.  That is the type behaves as if it were a
+// fundamental pointer type.  The type must define(at a minimum) &#39;operator*&#39;
+// and &#39;operator-&gt;&#39;.
+//
+///Usage
+///-----
+// TBD
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include &lt;bslscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_HASPOINTERSEMANTICS
+#include &lt;bslmf_haspointersemantics.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include &lt;bslmf_nestedtraitdeclaration.h&gt;
+#endif
+
+namespace BloombergLP {
+
+namespace bslalg {
+
+                 //====================================
+                 // struct TypeTraitHasPointerSemantics
+                 //====================================
+
+struct TypeTraitHasPointerSemantics {
+    // A type with this trait is said to have &quot;pointer semantics&quot;.  That is the
+    // type behaves as if it were a fundamental pointer type.  The type must
+    // define(at a minimum) &#39;operator*&#39; and &#39;operator-&gt;&#39;.  Note that simply
+    // providing the above operators does not imply that a type has pointer
+    // semantics.  This trait is intended for &quot;wrapper&quot; types that behave as
+    // pointers.  Some examples of such types include &#39;std::auto_ptr&#39;, and
+    // &#39;bslma::ManagedPtr&#39;.  This trait is generally used by objects that
+    // invoke the wrapped type.
+
+    template &lt;class TYPE&gt;
+    struct NestedTraitDeclaration :
+        bslmf::NestedTraitDeclaration&lt;TYPE, bslmf::HasPointerSemantics&gt;
+    {
+        // This class template ties the &#39;bslalg::TypeTraitHasPointerSemantics&#39;
+        // trait tag to the &#39;bslmf::HasPointerSemantics&#39; trait metafunction.
+    };
+
+    template &lt;class TYPE&gt;
+    struct Metafunction : bslmf::HasPointerSemantics&lt;TYPE&gt;::type { };
+};
+
+}  // close package namespace
+
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright (C) 2012 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the &quot;Software&quot;), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

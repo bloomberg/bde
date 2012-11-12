@@ -1,0 +1,599 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 2.16 BETA</title>
+<html>
+<pre>
+// bslalg_hashtableimputil.h                                          -*-C++-*-
+#ifndef INCLUDED_BSLALG_HASHTABLEIMPUTIL
+#define INCLUDED_BSLALG_HASHTABLEIMPUTIL
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide algorithms for implementing a hash table.
+//
+
+//@CLASSES:
+//  bslalg::HashTableImpUtil: functions used to implement a hash table
+//
+//@SEE_ALSO: bslalg_bidirectionallinklistutil, bslalg_hashtableanchor,
+//           bslstl_hashtable
+//
+//@DESCRIPTION: This component provides a namespace for utility functions used
+// to implement a hash table container.  Almost all the functions provided by
+// this component operate on a &#39;HashTableAnchor&#39;, a type encapsulating the key
+// data members of a hash table.
+//
+///Hash Table Structure
+///--------------------
+// The utilities provided by this component are used to create and manipulate
+// a hash table that resolves collisions using a linked-list of elements
+// (i.e., chaining).  Many of the operations provided by &#39;HashTableImpUtil&#39;
+// operate on a &#39;HashTableAnchor&#39;, which encapsulates the key data members of a
+// hash table.  A &#39;HashTableAnchor&#39; has the address of a single, doubly linked
+// list holding all the elements in the hash table, as well as the address of
+// an array of buckets.  Each bucket holds a reference to the first and last
+// element in the linked-list whose *adjusted* *hash* *value* is equal to the
+// index of the bucket.  Further, the functions in this component ensure (and
+// require) that all elements that fall within a bucket form a contiguous
+// sequence in the linked list, as can be seen in the
+// diagram below:
+//..
+//  FIG 1: a hash table holding 5 elements
+//
+//  Hash Function:  h(n) -&gt; n  [identity function]
+//  F: First Element
+//  L: Last Element
+//
+//                     0       1       2       3       4
+//                 +-------+-------+-------+-------+-------+--
+//  bucket array   |  F L  |  F L  |  F L  |  F L  |  F L  |  ...
+//                 +--+-+--+-------+-------+--+-+--+-------+--
+//                    | \___         _________/ /
+//                     \    \       /          |
+//                     V     V     V           V
+//                    ,-.   ,-.   ,-.   ,-.   ,-.
+//  doubly        |---|0|---|0|---|3|---|3|---|3|--|
+//  linked-list       `-&#39;   `-&#39;   `-&#39;   `-&#39;   `-&#39;
+//..
+//
+///Hash Function and the Adjusted Hash Value
+///-----------------------------------------
+// The C++11 standard defines a hash function as a function &#39;h(k)&#39; returning
+// (integral) values of type &#39;size_t&#39;, such that, for two different values of
+// &#39;k1&#39; and &#39;k2&#39;, the probability that &#39;h(k1) == h(k2)&#39; is true should approach
+// &#39;1.0 / numeric_limits&lt;size_t&gt;::max()&#39; (see 17.6.3.4 [hash.requirements]).
+// Such a function &#39;h(k)&#39; may return values within the entire range of values
+// that can be described using &#39;size_t&#39;, [0 ..  numeric_limits&lt;size_t&gt;::max()],
+// however the array of buckets maintained by a hash table is typically
+// significantly smaller than &#39;number_limits&lt;size_t&gt;::max()&#39;, therefore a
+// hash-table implementation must adjust the returned hash function so that it
+// falls in the valid range of bucket indices (typically either using an
+// integer division or modulo operation) -- we refer to this as the *adjusted*
+// *hash* *value*.  Note that currently &#39;HashTableImpUtil&#39; adjusts the value
+// returned by a supplied hash function using &#39;operator%&#39; (modulo), which
+// is more resilient to pathological behaviors when used in conjunction with a
+// hash function that may produce contiguous hash values (with the &#39;div&#39; method
+// lower order bits do not participate to the final adjusted value); however,
+// the means of adjustment may change in the future.
+//
+///
+///Well-Formed &#39;HashTableAnchor&#39; Objects
+///--------------------------------------
+// Many of the algorithms defined in this component operate on
+// &#39;HashTableAnchor&#39; objects, which describe the attributes of a hash table.
+// The &#39;HashTableAnchor&#39; objects supplied to &#39;HashTableImpUtil&#39; are required
+// to meet a series of constraints that are not enforced by the
+// &#39;HashTableAnchor&#39; type itself.  A &#39;HashTableAnchor&#39; object meeting these
+// requirements is said to be &quot;well-formed&quot; and the method
+// &#39;HashTableImpUtil::isWellFormed&#39; returns &#39;true&#39; for such an object.  A
+// &#39;HastTableAnchor&#39; is considered well-formed for a particular key policy,
+// &#39;KEY_CONFIG&#39;, and hash functor, &#39;HASHER&#39;, if all of the following are true:
+//
+//: 1 The list refers to a well-formed doubly linked list (see
+//:   &#39;bslalg_bidirectionallinklistutil&#39;).
+//:
+//: 2 Each link in the list is an object of type
+//:   &#39;BidirectionalNode&lt;KEY_CONFIG::ValueType&gt;&#39;
+//:
+//: 3 Links in the doubly linked list having the same adjusted hash value are
+//:   contiguous, where the adjusted hash value is the value returned by
+//:   &#39;HashTableImpUtil::computeBucketIndex&#39;, for
+//:   &#39;HashTableImpUtil::extractKey&lt;KEY_CONFIG&gt;(link)&#39; and the size of the
+//:   bucket array.
+//:
+//: 4 The first and last links in each bucket in the bucket array refer to a
+//:   the first and last element in the doubly linked list having an adjusted
+//:   hash value equal to that buckets index.  If no values in the doubly
+//:   linked list have an adjust hash value equal to a bucket&#39;s index, then
+//:   the addresses of the first and last links for that bucket are 0.
+//
+///&#39;KEY_CONFIG&#39; Template Parameter
+///-------------------------------
+// Several of the operations provided by &#39;HashTableImpUtil&#39; are template
+// functions parametrized on the typename &#39;KEY_CONFIG&#39;.
+//
+///&#39;KEY_CONFIG&#39;
+/// - - - - - -
+// The &#39;KEY_CONFIG&#39; template parameter must provide the the following type
+// aliases and functions:
+//..
+//  typedef &lt;VALUE_TYPE&gt; ValueType;
+//     // Alias for the type of the values stored by the &#39;BidirectionalNode&#39;
+//     // elements in the hash table.
+//
+//  typedef &lt;KEY_TYPE&gt;   KeyType;
+//     // Alias for the type of the key value extracted from the &#39;ValueType&#39;
+//     // stored in the &#39;BidirectionalNode&#39; elements of a hash table.
+//
+//  static const KeyType&amp; extractKey(const ValueType&amp; obj);
+//      // Return the &#39;KeyType&#39; information associated with the specified
+//      // &#39;object&#39;.
+//..
+//
+///Usage
+///-----
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include &lt;bslscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLALG_BIDIRECTIONALLINK
+#include &lt;bslalg_bidirectionallink.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLALG_BIDIRECTIONALLINKLISTUTIL
+#include &lt;bslalg_bidirectionallinklistutil.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLALG_BIDIRECTIONALNODE
+#include &lt;bslalg_bidirectionalnode.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLALG_HASHTABLEANCHOR
+#include &lt;bslalg_hashtableanchor.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLALG_HASHTABLEBUCKET
+#include &lt;bslalg_hashtablebucket.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include &lt;bsls_assert.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_NATIVESTD
+#include &lt;bsls_nativestd.h&gt;
+#endif
+
+#ifndef INCLUDED_CSTDDEF
+#include &lt;cstddef&gt;
+#define INCLUDED_CSTDDEF
+#endif
+
+namespace BloombergLP {
+namespace bslalg {
+
+                          // ======================
+                          // class HashTableImpUtil
+                          // ======================
+
+
+struct HashTableImpUtil {
+    // This &#39;struct&#39; provides a namespace for a suite of utility functions
+    // for creating and manipulating a hash table.
+
+  private:
+    // PRIVATE CLASS METHODS
+    static HashTableBucket *findBucketForHashCode(
+                                              const HashTableAnchor&amp; anchor,
+                                              native_std::size_t     hashCode);
+        // Return the address of the &#39;HashTableBucket&#39; in the array of buckets
+        // referred to by the specified hash-table &#39;anchor&#39; whose index is the
+        // adjusted value of the specified &#39;hashCode&#39; (see
+        // &#39;computeBucketIndex&#39;).  The behavior is undefined if &#39;anchor&#39;
+        // has 0 buckets.
+
+
+
+    static void spliceListIntoBucket(HashTableAnchor    *anchor,
+                                     native_std::size_t  bucketIndex,
+                                     BidirectionalLink  *first,
+                                     BidirectionalLink  *last);
+         // Move into the bucket at the specified &#39;bucketIndex&#39;, in the
+         // specified &#39;anchor&#39;, the list of elements in the closed range
+         // &#39;[first, last]&#39;.  The behavior is undefined unless &#39;bucketIndex&#39; is
+         // the adjusted hash value of all the elements held by the links in
+         // the closed range &#39;[first, last]&#39;, and unless the linked list
+         // identified by the closed range &#39;[first, last]&#39; is well formed (see
+         // &#39;bslalg::BidirectionalLink::isWellFormed&#39;).
+
+    static bool bucketContainsLink(const HashTableBucket&amp;  bucket,
+                                   BidirectionalLink      *linkAddress);
+        // Return &#39;true&#39; if the specified &#39;linkAddress&#39; is the address of one
+        // of the links in the list of elements in the closed range
+        // &#39;[bucket.first(), bucket.last()]&#39;.
+
+  public:
+    // CLASS METHODS
+    template&lt;class KEY_CONFIG&gt;
+    static const typename KEY_CONFIG::KeyType&amp; extractKey(
+                                                const BidirectionalLink *link);
+        // Return a reference providing non-modifiable access to the
+        // key (of type &#39;KEY_CONFIG::KeyType&#39;) held by the specified
+        // &#39;link&#39;.  The behavior is undefined unless &#39;link&#39; refers to a node
+        // of type &#39;BidirectionalNode&lt;KEY_CONFIG::ValueType&gt;&#39;.  &#39;KEY_CONFIG&#39;
+        // shall be a namespace providing the type names &#39;KeyType&#39; and
+        // &#39;ValueType&#39;, as well as a function that can be called as if it had
+        // the following signature:
+        //..
+        //  const KeyType&amp; extractKey(const ValueType&amp; obj);
+        //..
+
+    template &lt;class KEY_CONFIG&gt;
+    static typename KEY_CONFIG::ValueType&amp; extractValue(
+                                                      BidirectionalLink *link);
+        // Return a reference providing non-modifiable access to the
+        // value (of type &#39;KEY_CONFIG::ValueType&#39;) held by the specified
+        // &#39;link&#39;.  The behavior is undefined unless &#39;link&#39; refers to a node
+        // of type &#39;BidirectionalNode&lt;KEY_CONFIG::ValueType&gt;&#39;.  &#39;KEY_CONFIG&#39;
+        // shall be a namespace providing the type name &#39;ValueType&#39;.
+
+
+    template &lt;class KEY_CONFIG, class HASHER&gt;
+    static bool isWellFormed(const HashTableAnchor&amp; anchor);
+        // Return &#39;true&#39; if the specified &#39;anchor&#39; is well-formed.  For a
+        // &#39;HastTableAnchor&#39; to be considered well-formed for a particular key
+        // policy, &#39;KEY_CONFIG&#39;, and hash functor, &#39;HASHER&#39;, all of the
+        // following must be true:
+        //
+        //: 1 The &#39;anchor.listRootAddress()&#39; is the address of a
+        //:   well-formed doubly linked list (see
+        //:   &#39;bslalg_bidirectionallinklistutil&#39;).
+        //:
+        //: 2 Each link in the list is an object of
+        //:   &#39;BidirectionalNode&lt;KEY_CONFIG::ValueType&gt;&#39;
+        //:
+        //: 3 Links in the doubly linked list having the same adjusted hash
+        //:   value are contiguous, where the adjusted hash value is the value
+        //:   returned by &#39;computeBucketIndex&#39;, for
+        //:   &#39;extractKey&lt;KEY_CONFIG&gt;(link)&#39; and &#39;anchor.bucketArraySize()&#39;.
+        //:
+        //: 4 The first and last links in each bucket (in the bucket array,
+        //:   anchor.bucketArrayAddress()&#39;) refer to a the first and last
+        //:   element in the doubly linked list having an adjusted hash value
+        //:   equal to that bucket&#39;s array index.  If no values in the doubly
+        //:   linked list have an adjusted hash value equal to a bucket&#39;s
+        //:   index, then the addresses of the first and last links for that
+        //:   bucket are 0.
+
+    static native_std::size_t computeBucketIndex(
+                                                native_std::size_t hashCode,
+                                                native_std::size_t numBuckets);
+        // Return the index of the bucket referring to the elements whose
+        // adjusted hash codes are the same as the adjusted value of the
+        // specified &#39;hashCode&#39;, where &#39;hashCode&#39; (and the
+        // hash-codes of the elements) are adjusted for the specified
+        // &#39;numBuckets&#39;.  The behavior is undefined if &#39;numBuckets&#39; is 0.
+
+    static void insertAtFrontOfBucket(HashTableAnchor    *anchor,
+                                      BidirectionalLink  *link,
+                                      native_std::size_t  hashCode);
+        // Insert the specified &#39;link&#39;, having the specified (non-adjusted)
+        // &#39;hashCode&#39;,  into the the specified &#39;anchor&#39;, at the front of the
+        // bucket with index
+        // &#39;computeBucketIndex(hashCode, anchor-&gt;bucketArraySize()&#39;.  The
+        // behavior is undefined unless &#39;anchor&#39; is well-formed (see
+        // &#39;isWellFormed&#39;) for some combination of &#39;KEY_CONFIG&#39; and
+        // &#39;HASHER&#39; such that &#39;link&#39; refers to a node of type
+        // &#39;BidirectionalNode&lt;KEY_CONFIG::ValueType&gt;&#39; and
+        // &#39;HASHER(extractKey&lt;KEY_CONFIG&gt;(link))&#39; returns &#39;hashCode&#39;.
+
+    static void insertAtPosition(HashTableAnchor    *anchor,
+                                 BidirectionalLink  *link,
+                                 native_std::size_t  hashCode,
+                                 BidirectionalLink  *position);
+        // Insert the specified &#39;link&#39;, having the specified (non-adjusted)
+        // &#39;hashCode&#39;, into the specified &#39;anchor&#39; immediately before the
+        // specified &#39;position&#39; in the bi-directional linked list of &#39;anchor&#39;.
+        // The behavior is undefined unless position is in the bucket having
+        // index &#39;computeBucketIndex(hashCode, anchor-&gt;bucketArraySize())&#39; and
+        // anchor&#39; is well-formed (see &#39;isWellFormed&#39;) for some combination of
+        // &#39;KEY_CONFIG&#39; and &#39;HASHER&#39; such that &#39;link&#39; refers to a node of type
+        // &#39;BidirectionalNode&lt;KEY_CONFIG::ValueType&gt;&#39; and
+        // &#39;HASHER(extractKey&lt;KEY_CONFIG&gt;(link))&#39; returns &#39;hashCode&#39;.
+
+    static void remove(HashTableAnchor    *anchor,
+                       BidirectionalLink  *link,
+                       native_std::size_t  hashCode);
+        // Remove the specified &#39;link&#39;, having the specified (non-adjusted)
+        // &#39;hashCode&#39;, from the specified &#39;anchor&#39;.  The behavior is undefined
+        // unless &#39;anchor&#39; is well-formed (see &#39;isWellFormed&#39;) for some
+        // combination of &#39;KEY_CONFIG&#39; and &#39;HASHER&#39; such that &#39;link&#39; refers to
+        // a node of type &#39;BidirectionalNode&lt;KEY_CONFIG::ValueType&gt;&#39; and
+        // &#39;HASHER(extractKey&lt;KEY_CONFIG&gt;(link))&#39; returns &#39;hashCode&#39;.
+
+    template &lt;class KEY_CONFIG, class KEY_EQUAL&gt;
+    static BidirectionalLink *find(
+                           const HashTableAnchor&amp;              anchor,
+                           const typename KEY_CONFIG::KeyType&amp; key,
+                           const KEY_EQUAL&amp;                    equalityFunctor,
+                           native_std::size_t                  hashCode);
+        // Return the address of the first link in the list element of
+        // the specified &#39;anchor&#39;, having a value matching (according to the
+        // specified &#39;equalityFunctor&#39;) the specified &#39;key&#39; in the bucket that
+        // holds elements with the specified &#39;hashCode&#39; if such a link exists,
+        // and return 0 otherwise.  The behavior is undefined unless, for the
+        // provided &#39;KEY_CONFIG&#39; and some hash function, &#39;HASHER&#39;, &#39;anchor&#39; is
+        // well-formed (see &#39;isWellFormed&#39;) and &#39;HASHER(key)&#39; returns
+        // &#39;hashCode&#39;.  &#39;KEY_CONFIG&#39; shall be a
+        // namespace providing the type names &#39;KeyType&#39; and &#39;ValueType&#39;, as
+        // well as a function that can be called as if it had the following
+        // signature:
+        //..
+        //  const KeyType&amp; extractKey(const ValueType&amp; obj);
+        //..
+        // &#39;KEY_EQUAL&#39; shall be a functor that can be called as if it had the
+        // following signature:
+        //..
+        //  bool operator()(const KEY_CONFIG::KeyType&amp; key1,
+        //                  const KEY_CONFIG::KeyType&amp; key2)
+        //..
+
+    template &lt;class KEY_CONFIG, class HASHER&gt;
+    static void rehash(HashTableAnchor   *newAnchor,
+                       BidirectionalLink *elementList,
+                       const HASHER&amp;      hasher);
+        // Populate the specified &#39;newHashTable&#39; with all the elements
+        // in the specified &#39;elementList&#39;, using the specified &#39;hasher&#39; to
+        // determine the (non-adjusted) hash code for each element.  This
+        // operation provides the strong exception guarantee unless the
+        // supplied &#39;hasher&#39; throws, in which case it provides no exception
+        // safety guarantee.  The behavior is undefined unless, &#39;newHashTable&#39;
+        // holds no elements and has one or more (empty) buckets, and
+        // &#39;elementList&#39; is a well-formed bi-directional list (see
+        // &#39;BidirectionalLinkListUtil::isWellFormed&#39;) whose nodes are each of
+        // type &#39;BidirectionalNode&lt;KEY_CONFIG::ValueType&gt;&#39;, the previous
+        // address of the first node and the next address of the last node are
+        // 0.
+};
+
+// ===========================================================================
+//                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
+// ===========================================================================
+
+                        //-----------------------
+                        // class HashTableImpUtil
+                        //-----------------------
+
+// PRIVATE CLASS METHODS
+inline
+HashTableBucket *HashTableImpUtil::findBucketForHashCode(
+                                               const HashTableAnchor&amp; anchor,
+                                               native_std::size_t     hashCode)
+{
+    BSLS_ASSERT_SAFE(anchor.bucketArrayAddress());
+    BSLS_ASSERT_SAFE(anchor.bucketArraySize());
+
+    native_std::size_t bucketId = HashTableImpUtil::computeBucketIndex(
+                                                     hashCode,
+                                                     anchor.bucketArraySize());
+    return &amp;(anchor.bucketArrayAddress()[bucketId]);
+}
+
+inline
+native_std::size_t HashTableImpUtil::computeBucketIndex(
+                                                 native_std::size_t hashCode,
+                                                 native_std::size_t numBuckets)
+{
+    BSLS_ASSERT_SAFE(0 != numBuckets);
+
+    return hashCode % numBuckets;
+}
+
+inline
+bool HashTableImpUtil::bucketContainsLink(const HashTableBucket&amp;   bucket,
+                                          BidirectionalLink       *linkAddress)
+    // Return true the specified &#39;link&#39; is contained in the specified &#39;bucket&#39;
+    // and false otherwise.
+{
+    BSLS_ASSERT_SAFE(!bucket.first() == !bucket.last());
+
+    if(!bucket.first()) {
+        return false;                                                 // RETURN
+    }
+
+    const BidirectionalLink *cursor = bucket.first();
+    while (bucket.last()-&gt;nextLink() != cursor) {
+        if (cursor == linkAddress) {
+            return true;                                              // RETURN
+        }
+        cursor = cursor-&gt;nextLink();
+    }
+    return false;
+}
+
+// CLASS METHODS
+template&lt;class KEY_CONFIG&gt;
+inline
+typename KEY_CONFIG::ValueType&amp; HashTableImpUtil::extractValue(
+                                                       BidirectionalLink *link)
+{
+    BSLS_ASSERT_SAFE(link);
+
+    typedef BidirectionalNode&lt;typename KEY_CONFIG::ValueType&gt; BNode;
+    return static_cast&lt;BNode *&gt;(link)-&gt;value();
+}
+
+template&lt;class KEY_CONFIG&gt;
+inline
+const typename KEY_CONFIG::KeyType&amp; HashTableImpUtil::extractKey(
+                                                 const BidirectionalLink *link)
+{
+    BSLS_ASSERT_SAFE(link);
+
+    typedef BidirectionalNode&lt;typename KEY_CONFIG::ValueType&gt; BNode;
+
+    const BNode *node = static_cast&lt;const BNode *&gt;(link);
+    return KEY_CONFIG::extractKey(node-&gt;value());
+}
+
+    // lookup
+template &lt;class KEY_CONFIG, class KEY_EQUAL&gt;
+inline
+BidirectionalLink *HashTableImpUtil::find(
+                           const HashTableAnchor&amp;              anchor,
+                           const typename KEY_CONFIG::KeyType&amp; key,
+                           const KEY_EQUAL&amp;                    equalityFunctor,
+                           native_std::size_t                  hashCode)
+{
+    BSLS_ASSERT_SAFE(anchor.bucketArrayAddress());
+    BSLS_ASSERT_SAFE(anchor.bucketArraySize());
+
+    const native_std::size_t bucketId = computeBucketIndex(
+                                                     hashCode,
+                                                     anchor.bucketArraySize());
+    const HashTableBucket&amp; bucket = anchor.bucketArrayAddress()[bucketId];
+
+    // Odd loop structure as we must test on both first/last before terminating
+    // the loop as not-found.
+
+    if (BidirectionalLink *cursor = bucket.first()) {
+        for ( ; ; cursor = cursor-&gt;nextLink() ) {
+            if (equalityFunctor(key, extractKey&lt;KEY_CONFIG&gt;(cursor))) {
+                return cursor;                                        // RETURN
+            }
+            if (cursor == bucket.last()) {
+                break;
+            }
+        }
+    }
+
+    return 0;
+}
+
+template &lt;class KEY_CONFIG, class HASHER&gt;
+inline
+void HashTableImpUtil::rehash(HashTableAnchor   *newAnchor,
+                              BidirectionalLink *elementList,
+                              const HASHER&amp;      hasher)
+{
+    BSLS_ASSERT_SAFE(newAnchor);
+    BSLS_ASSERT_SAFE(0 != newAnchor-&gt;bucketArraySize());
+    BSLS_ASSERT_SAFE(elementList);          // empty lists do not need a rehash
+    BSLS_ASSERT_SAFE(!elementList-&gt;previousLink());  // otherwise, not a &#39;root&#39;
+
+    const native_std::size_t bucketArraySize = newAnchor-&gt;bucketArraySize();
+
+    do {
+        BidirectionalLink *first = elementList;
+        native_std::size_t  bucketIndex= computeBucketIndex(
+                                        hasher(extractKey&lt;KEY_CONFIG&gt;(first)),
+                                        bucketArraySize);
+
+        BidirectionalLink *last  = first;
+
+        // Walk list of nodes that will rehash to the same bucket
+        // This will advance the list extraction point *before* we splice
+
+        while ((elementList = elementList-&gt;nextLink()) &amp;&amp;
+                bucketIndex == computeBucketIndex(
+                                   hasher(extractKey&lt;KEY_CONFIG&gt;(elementList)),
+                                   bucketArraySize)) {
+             last = elementList;
+        }
+
+        spliceListIntoBucket(newAnchor, bucketIndex, first, last);
+    }
+    while (elementList);
+}
+
+template &lt;class KEY_CONFIG, class HASHER&gt;
+inline
+bool HashTableImpUtil::isWellFormed(const HashTableAnchor&amp; anchor)
+{
+    HashTableBucket    *array = anchor.bucketArrayAddress();
+    native_std::size_t  size  = anchor.bucketArraySize();
+    BidirectionalLink  *root  = anchor.listRootAddress();
+
+    // Check that all nodes are in the correct bucket.
+
+    if (size) {
+        BidirectionalLink *cursor = anchor.listRootAddress();
+        while (cursor) {
+            size_t hash  = HASHER()(extractKey&lt;KEY_CONFIG&gt;(cursor));
+            size_t index = computeBucketIndex(hash, size);
+            if (!bucketContainsLink(array[index], cursor)) {
+                return false;                                         // RETURN
+            }
+            cursor = cursor-&gt;nextLink();
+        }
+    }
+
+
+    // Check that all the buckets have consistent &#39;first&#39; and &#39;last&#39;, and that
+    // &#39;first&#39; and &#39;last&#39;, if not 0, are part of the list of elements.
+
+    for (size_t i = 0; i &lt; size; ++i) {
+
+        HashTableBucket&amp; bucket = array[i];
+
+        if (!bucket.first() != !bucket.last()) {  // &#39;first&#39; XOR &#39;second
+            return false;                                             // RETURN
+        }
+
+        if (bucket.first()) {
+            if (   !bslalg::BidirectionalLinkListUtil::isWellFormed(
+                                                                root,
+                                                                bucket.first())
+                || !bslalg::BidirectionalLinkListUtil::isWellFormed(
+                                                                root,
+                                                                bucket.last()))
+            {
+                return false;                                         // RETURN
+            }
+            BidirectionalLink *cursor = bucket.first();
+            while (cursor != bucket.last()-&gt;nextLink()) {
+                size_t hash  = HASHER()(extractKey&lt;KEY_CONFIG&gt;(cursor));
+                size_t index = computeBucketIndex(hash, size);
+                if (!bucketContainsLink(array[index], cursor)) {
+                    return false;                                     // RETURN
+                }
+                cursor = cursor-&gt;nextLink();
+            }
+        }
+    }
+    return true;
+}
+
+}  // close namespace BloombergLP::bslalg
+}  // close namespace BloombergLP
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright (C) 2012 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the &quot;Software&quot;), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

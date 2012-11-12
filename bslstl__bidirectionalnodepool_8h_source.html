@@ -1,0 +1,342 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 2.16 BETA</title>
+<html>
+<pre>
+// bslstl_bidirectionalnodepool.h                                     -*-C++-*-
+#ifndef INCLUDED_BSLSTL_BIDIRECTIONALNODEPOOL
+#define INCLUDED_BSLSTL_BIDIRECTIONALNODEPOOL
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide efficient creation of nodes used in node-based container.
+//
+//@CLASSES:
+//   bslstl:: memory manager to allocate hash table nodes
+//
+//@SEE_ALSO: bslstl_simplepool
+//
+//@DESCRIPTION: This component implements a mechanism that creates and deletes
+// &#39;bslalg::BidirectionalListNode&#39; objects for the parameterized &#39;VALUE&#39; type
+// for use in hash-table-based containers.
+// A &#39;bslstl::BidirectionalNodePool&#39; contains a memory pool provided by the
+// &#39;bslstl_simplepool&#39; component to provide memory for the nodes (see
+// &#39;bslstl_simplepool&#39;).  When the pool is empty, a number of memory blocks is
+// allocated and added to the pool, where each block is large enough to contain
+// a &#39;bslstl::BidirectionalNodePool&#39;  The first allocation contains one
+// memory block.  Subsequent allocations double the number of memory blocks of
+// the previous allocation up to an implementation defined maximum number of
+// blocks.
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
+
+
+#ifndef INCLUDED_BSLSTL_ALLOCATORTRAITS
+#include &lt;bslstl_allocatortraits.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLSTL_SIMPLEPOOL
+#include &lt;bslstl_simplepool.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLALG_BIDIRECTIONALLINK
+#include &lt;bslalg_bidirectionallink.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLALG_BIDIRECTIONALNODE
+#include &lt;bslalg_bidirectionalnode.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMA_DEALLOCATORPROCTOR
+#include &lt;bslma_deallocatorproctor.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_UTIL
+#include &lt;bsls_util.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_NATIVESTD
+#include &lt;bsls_nativestd.h&gt;
+#endif
+
+#ifndef INCLUDED_CSTDDEF
+#include &lt;cstddef&gt;
+#define INCLUDED_CSTDDEF
+#endif
+
+namespace BloombergLP {
+namespace bslstl {
+
+                       // ===========================
+                       // class BidirectionalNodePool
+                       // ===========================
+
+template &lt;class VALUE, class ALLOCATOR&gt;
+class BidirectionalNodePool {
+    // This class provides methods for creating and deleting nodes using the
+    // appropriate allocator-traits of the parameterized &#39;ALLOCATOR&#39;.  This
+    // type is intended to be used as a private base-class for a node-based
+    // container, in order to take advantage of the empty-base-class
+    // optimization in the case where the base-class has 0 size (as may the
+    // case if the parameterized &#39;ALLOCATOR&#39; is not a &#39;bslma::Allocator&#39;).
+
+    typedef SimplePool&lt;bslalg::BidirectionalNode&lt;VALUE&gt;, ALLOCATOR&gt;       Pool;
+        // Alias for the memory pool allocator.
+
+    typedef typename Pool::AllocatorTraits AllocatorTraits;
+        // Alias for the allocator traits defined by &#39;SimplePool&#39;.
+
+    // DATA
+    Pool d_pool;  // pool for allocating memory
+
+  private:
+    // NOT IMPLEMENTED
+    BidirectionalNodePool&amp; operator=(const BidirectionalNodePool&amp;);
+    BidirectionalNodePool(const BidirectionalNodePool&amp;);
+
+  public:
+    // PUBLIC TYPE
+    typedef typename Pool::AllocatorType AllocatorType;
+        // Alias for the allocator type defined by &#39;SimplePool&#39;.
+
+  public:
+    // CREATORS
+    explicit BidirectionalNodePool(const ALLOCATOR&amp; allocator);
+        // Create a node-allocator that will use the specified &#39;allocator&#39; to
+        // supply memory for allocated node objects.
+
+    // MANIPULATORS
+    AllocatorType&amp; allocator();
+        // Return a reference providing modifiable access to the rebound
+        // allocator traits for the node-type.  Note that this operation
+        // returns a base-class (&#39;NodeAlloc&#39;) reference to this object.
+
+    bslalg::BidirectionalLink *createNode();
+        // Allocate a node object having a default constructed &#39;VALUE&#39;, and
+        // return its address.  Note that the &#39;next&#39; and &#39;prev&#39; attributes of
+        // the returned node will be uninitialized.
+
+    template &lt;class SOURCE&gt;
+    bslalg::BidirectionalLink *createNode(const SOURCE&amp; value);
+        // Allocate a node object and return its address.  This operation will
+        // construct a &#39;VALUE&#39; into the returned node passing the specified
+        // &#39;value&#39; to the constructor call.  Note that the &#39;next&#39; and &#39;prev&#39;
+        // attributes of the returned node will be uninitialized.
+
+    template &lt;class FIRST_ARG, class SECOND_ARG&gt;
+    bslalg::BidirectionalLink *createNode(const FIRST_ARG&amp;  first,
+                                          const SECOND_ARG&amp; second);
+        // Allocate a node object and return its address.  This operation will
+        // construct a &#39;VALUE&#39; into the returned node passing the specified
+        // &#39;first&#39; and &#39;second&#39; arguments to the constructor call.  Note that
+        // the &#39;next&#39; and &#39;prev&#39; attributes of the returned node will be
+        // uninitialized.
+
+    bslalg::BidirectionalLink *cloneNode(
+                                    const bslalg::BidirectionalLink&amp; original);
+        // Allocate a node object having a copy-constructed &#39;VALUE&#39; of
+        // &#39;value()&#39; of the specified &#39;original&#39;, and return its address.  The
+        // behavior is undefined unless &#39;original&#39; refers to a
+        // &#39;bslalg::BidirectionalNode&lt;VALUE&gt;&#39;.  Note that the &#39;next&#39; and &#39;prev&#39;
+        // attributes of the returned node will be uninitialized.
+
+    void deleteNode(bslalg::BidirectionalLink *linkNode);
+        // Destroy the &#39;VALUE&#39; value of the specified &#39;node&#39; and return the
+        // memory footprint of &#39;node&#39; to this pool for potential reuse.  The
+        // behavior is undefined unless &#39;node&#39; refers to a
+        // &#39;bslalg::BidirectionalNode&lt;VALUE&gt;&#39; that was allocated by this pool.
+
+    void reserveNodes(native_std::size_t numNodes);
+        // Reserve memory from this pool to satisfy memory requests for at
+        // least the specified &#39;numNodes&#39; before the pool replenishes.  The
+        // behavior is undefined unless &#39;0 &lt; numBlocks&#39;.
+
+    void swap(BidirectionalNodePool&amp; other);
+        // Efficiently exchange the management of nodes of this object and
+        // the specified &#39;other&#39; object.  The behavior is undefined unless the
+        // underlying mechanisms of &#39;allocator()&#39; unless
+        // &#39;allocator() == other.allocator()&#39;.
+
+    // ACCESSORS
+    const AllocatorType&amp; allocator() const;
+        // Return a reference providing non-modifiable access to the rebound
+        // allocator for the node-type.  Note that this operation returns a
+        // base-class (&#39;NodeAlloc&#39;) reference to this object.
+};
+
+// FREE FUNCTIONS
+template &lt;class VALUE, class ALLOCATOR&gt;
+void swap(BidirectionalNodePool&lt;VALUE, ALLOCATOR&gt;&amp; a,
+          BidirectionalNodePool&lt;VALUE, ALLOCATOR&gt;&amp; b);
+    // Swap... TBD.
+
+// ===========================================================================
+//                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
+// ===========================================================================
+
+// CREATORS
+template &lt;class VALUE, class ALLOCATOR&gt;
+inline
+BidirectionalNodePool&lt;VALUE, ALLOCATOR&gt;::BidirectionalNodePool(
+                                                    const ALLOCATOR&amp; allocator)
+: d_pool(allocator)
+{
+}
+
+// MANIPULATORS
+template &lt;class VALUE, class ALLOCATOR&gt;
+inline
+typename SimplePool&lt;bslalg::BidirectionalNode&lt;VALUE&gt;, ALLOCATOR&gt;::
+                                                                 AllocatorType&amp;
+BidirectionalNodePool&lt;VALUE, ALLOCATOR&gt;::allocator()
+{
+    return d_pool.allocator();
+}
+
+template &lt;class VALUE, class ALLOCATOR&gt;
+inline
+bslalg::BidirectionalLink *
+BidirectionalNodePool&lt;VALUE, ALLOCATOR&gt;::createNode()
+{
+    bslalg::BidirectionalNode&lt;VALUE&gt; *node = d_pool.allocate();
+    bslma::DeallocatorProctor&lt;Pool&gt; proctor(node, &amp;d_pool);
+
+    AllocatorTraits::construct(allocator(),
+                               BSLS_UTIL_ADDRESSOF(node-&gt;value()));
+
+    proctor.release();
+    return node;
+}
+
+template &lt;class VALUE, class ALLOCATOR&gt;
+template &lt;class SOURCE&gt;
+inline
+bslalg::BidirectionalLink *
+BidirectionalNodePool&lt;VALUE, ALLOCATOR&gt;::createNode(const SOURCE&amp; value)
+{
+    bslalg::BidirectionalNode&lt;VALUE&gt; *node = d_pool.allocate();
+    bslma::DeallocatorProctor&lt;Pool&gt; proctor(node, &amp;d_pool);
+
+    AllocatorTraits::construct(allocator(),
+                               BSLS_UTIL_ADDRESSOF(node-&gt;value()),
+                               value);
+    proctor.release();
+    return node;
+}
+
+template &lt;class VALUE, class ALLOCATOR&gt;
+template &lt;class FIRST_ARG, class SECOND_ARG&gt;
+inline
+bslalg::BidirectionalLink *
+BidirectionalNodePool&lt;VALUE, ALLOCATOR&gt;::createNode(const FIRST_ARG&amp;  first,
+                                                    const SECOND_ARG&amp; second)
+{
+    bslalg::BidirectionalNode&lt;VALUE&gt; *node = d_pool.allocate();
+    bslma::DeallocatorProctor&lt;Pool&gt; proctor(node, &amp;d_pool);
+
+    AllocatorTraits::construct(allocator(),
+                               BSLS_UTIL_ADDRESSOF(node-&gt;value()),
+                               first,
+                               second);
+    proctor.release();
+    return node;
+}
+
+template &lt;class VALUE, class ALLOCATOR&gt;
+inline
+bslalg::BidirectionalLink *
+BidirectionalNodePool&lt;VALUE, ALLOCATOR&gt;::cloneNode(
+                                     const bslalg::BidirectionalLink&amp; original)
+{
+    return createNode(static_cast&lt;const bslalg::BidirectionalNode&lt;VALUE&gt;&amp;&gt;
+                                                           (original).value());
+}
+
+template &lt;class VALUE, class ALLOCATOR&gt;
+inline
+void BidirectionalNodePool&lt;VALUE, ALLOCATOR&gt;::deleteNode(
+                                           bslalg::BidirectionalLink *linkNode)
+{
+    BSLS_ASSERT(linkNode);
+
+    bslalg::BidirectionalNode&lt;VALUE&gt; *node =
+                     static_cast&lt;bslalg::BidirectionalNode&lt;VALUE&gt; *&gt;(linkNode);
+    AllocatorTraits::destroy(allocator(),
+                             BSLS_UTIL_ADDRESSOF(node-&gt;value()));
+    d_pool.deallocate(node);
+}
+
+template &lt;class VALUE, class ALLOCATOR&gt;
+inline
+void BidirectionalNodePool&lt;VALUE, ALLOCATOR&gt;::reserveNodes(
+                                                   native_std::size_t numNodes)
+{
+    BSLS_ASSERT_SAFE(0 &lt; numNodes);
+
+    d_pool.reserve(numNodes);
+}
+
+template &lt;class VALUE, class ALLOCATOR&gt;
+inline
+void BidirectionalNodePool&lt;VALUE, ALLOCATOR&gt;::swap(
+                                BidirectionalNodePool&lt;VALUE, ALLOCATOR&gt;&amp; other)
+{
+    BSLS_ASSERT_SAFE(allocator() == other.allocator());
+
+    d_pool.swap(other.d_pool);
+}
+
+// ACCESSORS
+template &lt;class VALUE, class ALLOCATOR&gt;
+inline
+const typename
+              SimplePool&lt;bslalg::BidirectionalNode&lt;VALUE&gt;, ALLOCATOR&gt;::
+                                                                 AllocatorType&amp;
+BidirectionalNodePool&lt;VALUE, ALLOCATOR&gt;::allocator() const
+{
+    return d_pool.allocator();
+}
+
+}  // close namespace bslstl
+
+template &lt;class VALUE, class ALLOCATOR&gt;
+inline
+void bslstl::swap(bslstl::BidirectionalNodePool&lt;VALUE, ALLOCATOR&gt;&amp; a,
+                  bslstl::BidirectionalNodePool&lt;VALUE, ALLOCATOR&gt;&amp; b)
+{
+    a.swap(b);
+}
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright (C) 2012 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the &quot;Software&quot;), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

@@ -1,0 +1,348 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 2.16 BETA</title>
+<html>
+<pre>
+// bslmf_functionpointertraits.h                                      -*-C++-*-
+#ifndef INCLUDED_BSLMF_FUNCTIONPOINTERTRAITS
+#define INCLUDED_BSLMF_FUNCTIONPOINTERTRAITS
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a meta-function for determining function pointer traits.
+//
+//@CLASSES:
+//  bslmf::FunctionPointerTraits: meta-function for detecting function pointer
+//                                traits
+//  bslmf::IsFunctionPointer: meta-function to determine if a type is a
+//                            function pointer
+//
+//@SEE_ALSO: bslmf_memberfunctionpointertraits
+//
+//@DESCRIPTION: This component provides meta-functions for determining whether
+// a type is a pointer to either a free function or a class method (but not to
+// a member function, see the component &#39;bslmf_memberfunctionpointertraits&#39;
+// component for that), and some information about this function type.  The
+// meta-function &#39;bslmf::IsFunctionPointer&#39; provides an enumerated &#39;value&#39;
+// which can be either 1 or 0 depending on whether or not the template argument
+// &#39;PROTOTYPE&#39; is a pointer to a free function or class method.  In the
+// affirmative, the class &#39;bslmf::FunctionPointerTraits&#39; also provides
+// information regarding the function type, such as its argument list type and
+// its return type.
+//
+// Note that there is no reference to function traits, since whether &#39;FUNC&#39; is
+// a reference to function type can be very easily obtained using the
+// meta-function call &#39;bslmf::IsFunctionPointer&lt;FUNC *&gt;&#39;.
+//
+///Usage
+///-----
+// Define the following function types:
+//..
+//  typedef int  (*IntFunctionIntIntPtr)(int, int);
+//  typedef void (*VoidFunc0)();
+//..
+// The following program should compile and run without errors:
+//..
+//  int main()
+//  {
+//      assert(0 == bslmf::IsFunctionPointer&lt;int&gt;::value);
+//      assert(0 == bslmf::IsFunctionPointer&lt;int&gt;::value);
+//
+//      assert(1 == bslmf::IsFunctionPointer&lt;IntFunctionIntIntPtr&gt;::value);
+//      typedef bslmf::FunctionPointerTraits&lt;IntFunctionIntIntPtr&gt;::ResultType
+//          ResultType1;
+//      assert(1 == (bslmf::IsSame&lt;ResultType1, int&gt;::value));
+//
+//      assert(1 == bslmf::IsFunctionPointer&lt;VoidFunc0&gt;::value);
+//      typedef bslmf::FunctionPointerTraits&lt;VoidFunc0&gt;::ResultType
+//          ResultType0;
+//      typedef bslmf::FunctionPointerTraits&lt;VoidFunc0&gt;::ArgumentList
+//          ArgList0;
+//      assert(1 == (bslmf::IsSame&lt;ResultType0, void&gt;::value));
+//      assert(1 == (bslmf::IsSame&lt;ArgList0, bslmf::TypeList0&gt;::value));
+//  }
+//..
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include &lt;bslscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_METAINT
+#include &lt;bslmf_metaint.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
+#include &lt;bslmf_integralconstant.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_TYPELIST
+#include &lt;bslmf_typelist.h&gt;
+#endif
+
+namespace BloombergLP {
+
+namespace bslmf {
+
+struct FunctionPointerCPlusPlusLinkage {
+    // C++ function pointer linkage tag.
+};
+
+struct FunctionPointerCLinkage {
+    // C function pointer linkage tag.
+};
+
+                   // ===========================
+                   // class FunctionPointerTraits
+                   // ===========================
+
+template &lt;class PROTOTYPE&gt;
+struct FunctionPointerTraits {
+    // This class gives information about the specified &#39;PROTOTYPE&#39;.  The
+    // general definition gives no information, but specializations for
+    // function pointers types define nested types &#39;ResultType&#39;,
+    // &#39;ArgumentList&#39;, and &#39;Linkage&#39;.
+
+    enum { IS_FUNCTION_POINTER = 0 };
+};
+
+                   // =======================
+                   // class IsFunctionPointer
+                   // =======================
+
+template &lt;class PROTOTYPE&gt;
+struct IsFunctionPointer
+: bsl::integral_constant&lt;bool,
+                         BloombergLP::bslmf::FunctionPointerTraits&lt;PROTOTYPE&gt;
+                                                       ::IS_FUNCTION_POINTER&gt; {
+    // This template determines if the specified &#39;PROTOTYPE&#39; is a free (i.e.,
+    // non-member) function pointer.  &#39;value&#39; is defined as 1 if the specified
+    // &#39;PROTOTYPE&#39; is a function pointer type, and a zero value otherwise.
+};
+
+// ---- Anything below this line is implementation specific.  Do not use. ----
+
+// SPECIALIZATIONS
+template &lt;class BSLMF_RETURN&gt;
+struct FunctionPointerTraits&lt;BSLMF_RETURN (*)()&gt; {
+    // Specialization for function pointers that return &#39;BSLMF_RETURN&#39; and
+    // accept zero arguments.
+
+    enum { IS_FUNCTION_POINTER = 1 };
+    typedef BSLMF_RETURN                    ResultType;
+    typedef TypeList0                       ArgumentList;
+    typedef FunctionPointerCPlusPlusLinkage Linkage;
+};
+
+template &lt;class BSLMF_RETURN, class A1&gt;
+struct FunctionPointerTraits&lt;BSLMF_RETURN (*)(A1)&gt; {
+    // Specialization for function pointers that return &#39;BSLMF_RETURN&#39; and
+    // accept one argument.
+
+    enum { IS_FUNCTION_POINTER = 1 };
+    typedef BSLMF_RETURN                    ResultType;
+    typedef TypeList1&lt;A1&gt;                   ArgumentList;
+    typedef FunctionPointerCPlusPlusLinkage Linkage;
+};
+
+template &lt;class BSLMF_RETURN, class A1, class A2&gt;
+struct FunctionPointerTraits&lt;BSLMF_RETURN (*)(A1,A2)&gt; {
+    // Specialization for function pointers that return &#39;BSLMF_RETURN&#39; and
+    // accept two arguments.
+
+    enum { IS_FUNCTION_POINTER = 1 };
+    typedef BSLMF_RETURN                    ResultType;
+    typedef TypeList2&lt;A1,A2&gt;                ArgumentList;
+    typedef FunctionPointerCPlusPlusLinkage Linkage;
+};
+
+template &lt;class BSLMF_RETURN, class A1, class A2, class A3&gt;
+struct FunctionPointerTraits&lt;BSLMF_RETURN (*)(A1,A2,A3)&gt; {
+    // Specialization for function pointers that return &#39;BSLMF_RETURN&#39; and
+    // accept three arguments.
+
+    enum { IS_FUNCTION_POINTER = 1 };
+    typedef BSLMF_RETURN                    ResultType;
+    typedef TypeList3&lt;A1,A2,A3&gt;             ArgumentList;
+    typedef FunctionPointerCPlusPlusLinkage Linkage;
+};
+
+template &lt;class BSLMF_RETURN, class A1, class A2, class A3, class A4&gt;
+struct FunctionPointerTraits&lt;BSLMF_RETURN (*)(A1,A2,A3,A4)&gt; {
+    // Specialization for function pointers that return &#39;BSLMF_RETURN&#39; and
+    // accept four arguments.
+
+    enum { IS_FUNCTION_POINTER = 1 };
+    typedef BSLMF_RETURN                    ResultType;
+    typedef TypeList4&lt;A1,A2,A3,A4&gt;          ArgumentList;
+    typedef FunctionPointerCPlusPlusLinkage Linkage;
+};
+
+template &lt;class BSLMF_RETURN, class A1, class A2, class A3, class A4, class A5&gt;
+struct FunctionPointerTraits&lt;BSLMF_RETURN (*)(A1,A2,A3,A4,A5)&gt; {
+    // Specialization for function pointers that return &#39;BSLMF_RETURN&#39; and
+    // accept five arguments.
+
+    enum { IS_FUNCTION_POINTER = 1 };
+    typedef BSLMF_RETURN                    ResultType;
+    typedef TypeList5&lt;A1,A2,A3,A4,A5&gt;       ArgumentList;
+    typedef FunctionPointerCPlusPlusLinkage Linkage;
+};
+
+template &lt;class BSLMF_RETURN, class A1, class A2, class A3, class A4, class A5,
+                              class A6&gt;
+struct FunctionPointerTraits&lt;BSLMF_RETURN (*)(A1,A2,A3,A4,A5,A6)&gt; {
+    // Specialization for function pointers that return &#39;BSLMF_RETURN&#39; and
+    // accept six arguments.
+
+    enum { IS_FUNCTION_POINTER = 1 };
+    typedef BSLMF_RETURN                    ResultType;
+    typedef TypeList6&lt;A1,A2,A3,A4,A5,A6&gt;    ArgumentList;
+    typedef FunctionPointerCPlusPlusLinkage Linkage;
+};
+
+template &lt;class BSLMF_RETURN, class A1, class A2, class A3, class A4, class A5,
+                              class A6, class A7&gt;
+struct FunctionPointerTraits&lt;BSLMF_RETURN (*)(A1,A2,A3,A4,A5,A6,A7)&gt; {
+    // Specialization for function pointers that return &#39;BSLMF_RETURN&#39; and
+    // accept seven arguments.
+
+    enum { IS_FUNCTION_POINTER = 1 };
+    typedef BSLMF_RETURN                    ResultType;
+    typedef TypeList7&lt;A1,A2,A3,A4,A5,A6,A7&gt; ArgumentList;
+    typedef FunctionPointerCPlusPlusLinkage Linkage;
+};
+
+template &lt;class BSLMF_RETURN, class A1, class A2, class A3, class A4, class A5,
+                              class A6, class A7, class A8&gt;
+struct FunctionPointerTraits&lt;BSLMF_RETURN (*)(A1,A2,A3,A4,A5,A6,A7,A8)&gt; {
+    // Specialization for function pointers that return &#39;BSLMF_RETURN&#39; and
+    // accept eight arguments.
+
+    enum { IS_FUNCTION_POINTER = 1 };
+    typedef BSLMF_RETURN                       ResultType;
+    typedef TypeList8&lt;A1,A2,A3,A4,A5,A6,A7,A8&gt; ArgumentList;
+    typedef FunctionPointerCPlusPlusLinkage    Linkage;
+};
+
+template &lt;class BSLMF_RETURN, class A1, class A2, class A3, class A4, class A5,
+                              class A6, class A7, class A8, class A9&gt;
+struct FunctionPointerTraits&lt;BSLMF_RETURN (*)(A1,A2,A3,A4,A5,A6,A7,A8,
+                                                    A9)&gt; {
+    // Specialization for function pointers that return &#39;BSLMF_RETURN&#39; and
+    // accept nine arguments.
+
+    enum { IS_FUNCTION_POINTER = 1 };
+    typedef BSLMF_RETURN                          ResultType;
+    typedef TypeList9&lt;A1,A2,A3,A4,A5,A6,A7,A8,A9&gt; ArgumentList;
+    typedef FunctionPointerCPlusPlusLinkage       Linkage;
+};
+
+template &lt;class BSLMF_RETURN, class A1, class A2, class A3, class A4, class A5,
+                              class A6, class A7, class A8, class A9,
+                              class A10&gt;
+struct FunctionPointerTraits&lt;BSLMF_RETURN (*)(A1,A2,A3,A4,A5,A6,A7,A8,A9,
+                                                    A10)&gt; {
+    // Specialization for function pointers that return &#39;BSLMF_RETURN&#39; and
+    // accept ten arguments.
+
+    enum { IS_FUNCTION_POINTER = 1 };
+    typedef BSLMF_RETURN                               ResultType;
+    typedef TypeList10&lt;A1,A2,A3,A4,A5,A6,A7,A8,A9,A10&gt; ArgumentList;
+    typedef FunctionPointerCPlusPlusLinkage            Linkage;
+};
+
+template &lt;class BSLMF_RETURN, class A1,  class A2,  class A3,  class A4,
+                              class A5,  class A6,  class A7,  class A8,
+                              class A9,  class A10, class A11&gt;
+struct FunctionPointerTraits&lt;BSLMF_RETURN (*)(A1,A2,A3,A4,A5,A6,A7,A8,A9,
+                                                    A10,A11)&gt; {
+    // Specialization for function pointers that return &#39;BSLMF_RETURN&#39; and
+    // accept eleven arguments.
+
+    enum { IS_FUNCTION_POINTER = 1 };
+    typedef BSLMF_RETURN                                   ResultType;
+    typedef TypeList11&lt;A1,A2,A3,A4,A5,A6,A7,A8,A9,A10,A11&gt; ArgumentList;
+    typedef FunctionPointerCPlusPlusLinkage                Linkage;
+};
+
+template &lt;class BSLMF_RETURN, class A1,  class A2,  class A3,  class A4,
+                              class A5,  class A6,  class A7,  class A8,
+                              class A9,  class A10, class A11, class A12&gt;
+struct FunctionPointerTraits&lt;BSLMF_RETURN (*)(A1,A2,A3,A4,A5,A6,A7,A8,A9,
+                                                    A10,A11,A12)&gt; {
+    // Specialization for function pointers that return &#39;BSLMF_RETURN&#39; and
+    // accept twelve arguments.
+
+    enum { IS_FUNCTION_POINTER = 1 };
+    typedef BSLMF_RETURN                    ResultType;
+    typedef TypeList12&lt;A1,A2,A3,A4,A5,A6,A7,A8,A9,A10,A11,A12&gt;
+                                            ArgumentList;
+    typedef FunctionPointerCPlusPlusLinkage Linkage;
+};
+
+template &lt;class BSLMF_RETURN, class A1,  class A2,  class A3,  class A4,
+                              class A5,  class A6,  class A7,  class A8,
+                              class A9,  class A10, class A11, class A12,
+                              class A13&gt;
+struct FunctionPointerTraits&lt;BSLMF_RETURN (*)(A1,A2,A3,A4,A5,A6,A7,A8,A9,
+                                                    A10,A11,A12,A13)&gt; {
+    // Specialization for function pointers that return &#39;BSLMF_RETURN&#39; and
+    // accept thirteen arguments.
+
+    enum { IS_FUNCTION_POINTER = 1 };
+    typedef BSLMF_RETURN                    ResultType;
+    typedef TypeList13&lt;A1,A2,A3,A4,A5,A6,A7,A8,A9,A10,A11,A12,A13&gt;
+                                            ArgumentList;
+    typedef FunctionPointerCPlusPlusLinkage Linkage;
+};
+
+template &lt;class BSLMF_RETURN, class A1,  class A2,  class A3,  class A4,
+                              class A5,  class A6,  class A7,  class A8,
+                              class A9,  class A10, class A11, class A12,
+                              class A13, class A14&gt;
+struct FunctionPointerTraits&lt;BSLMF_RETURN (*)(A1,A2,A3,A4,A5,A6,A7,A8,A9,
+                                                    A10,A11,A12,A13,A14)&gt; {
+    // Specialization for function pointers that return &#39;BSLMF_RETURN&#39; and
+    // accept fourteen arguments.
+
+    enum { IS_FUNCTION_POINTER = 1 };
+    typedef BSLMF_RETURN                    ResultType;
+    typedef TypeList14&lt;A1,A2,A3,A4,A5,A6,A7,A8,A9,A10,A11,A12,A13,A14&gt;
+                                            ArgumentList;
+    typedef FunctionPointerCPlusPlusLinkage Linkage;
+};
+
+}  // close package namespace
+
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright (C) 2012 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the &quot;Software&quot;), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

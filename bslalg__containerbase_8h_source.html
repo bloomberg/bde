@@ -1,0 +1,558 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 2.16 BETA</title>
+<html>
+<pre>
+// bslalg_containerbase.h                                             -*-C++-*-
+#ifndef INCLUDED_BSLALG_CONTAINERBASE
+#define INCLUDED_BSLALG_CONTAINERBASE
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a wrapper for STL allocators, respecting &#39;bslma&#39; semantics.
+//
+//@CLASSES:
+//  bslalg::ContainerBase: proxy class for STL-style containers
+//
+//@SEE_ALSO: bslstl_allocator
+//
+//@DESCRIPTION: This component provides a single, mechanism class,
+// &#39;bslalg::ContainerBase&#39;, that can used as a common base class for all
+// STL-style containers.  A container should derive from this class to take
+// advantage of empty-base optimization when a non-&#39;bslma&#39; allocator is used.
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Creating a Fixed-Size Array with &#39;bslalg::ContainerBase&#39;
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Suppose we would like to implement a fixed-size array that allocates memory
+// on the heap at construction.
+//
+// First, we define the interface of the container, &#39;MyFixedSizeArray&#39;, that
+// derives from &#39;ContainerBase&#39;.  The implementation is elided for brevity:
+//..
+//  template &lt;class VALUE, class ALLOCATOR&gt;
+//  class MyFixedSizeArray : private bslalg::ContainerBase&lt;ALLOCATOR&gt;
+//      // This class implements a container that contains a fixed number of
+//      // elements of the parameterized type &#39;VALUE&#39; using the parameterized
+//      // &#39;ALLOCATOR&#39; to allocate memory.  The number of elements is specified
+//      // on construction.
+//  {
+//..
+// Notice that to use this component, a class should derive from
+// &#39;ContainerBase&#39; in order to take advantage of empty-base optimization.
+//..
+//      // DATA
+//      VALUE     *d_array;  // head pointer to the array of elements
+//      const int  d_size;   // (fixed) number of elements in &#39;d_array&#39;
+//
+//    public:
+//      // CREATORS
+//      MyFixedSizeArray(int size, const ALLOCATOR&amp; allocator = ALLOCATOR());
+//          // Create a &#39;MyFixedSizeArray&#39; object having the specified &#39;size&#39;
+//          // elements, and using the specified &#39;allocator&#39; to supply memory.
+//
+//      MyFixedSizeArray(const MyFixedSizeArray&amp; original,
+//                       const ALLOCATOR&amp;        allocator = ALLOCATOR());
+//          // Create a &#39;MyFixedSizeArray&#39; object having same number of
+//          // elements as that of the specified &#39;original&#39;, the same value of
+//          // each element as that of corresponding element in &#39;original&#39;, and
+//          // using the specified &#39;allocator&#39; to supply memory.
+//
+//      ~MyFixedSizeArray();
+//          // Destroy this object.
+//
+//      // MANIPULATORS
+//      VALUE&amp; operator[](int i);
+//          // Return the reference of the specified &#39;i&#39;th element of this
+//          // object.  The behavior is undefined unless &#39;i &lt; size()&#39;.
+//
+//      // ACCESSORS
+//      int size() const;
+//          // Return the number of elements contained in this object.
+//  };
+//..
+// Finally, assuming we have a STL compliant allocator named &#39;Allocator&#39;, we
+// can create a &#39;MyFixedSizeArray&#39; object and populate it with data.
+//..
+//  MyFixedSizeArray&lt;int, Allocator&lt;int&gt; &gt; fixedArray(3);
+//  fixedArray[0] = 1;
+//  fixedArray[1] = 2;
+//  fixedArray[2] = 3;
+//
+//  assert(fixedArray[0] == 1);
+//  assert(fixedArray[1] == 2);
+//  assert(fixedArray[2] == 3);
+//..
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include &lt;bslscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include &lt;bslma_allocator.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_CONDITIONAL
+#include &lt;bslmf_conditional.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_ISCONVERTIBLE
+#include &lt;bslmf_isconvertible.h&gt;
+#endif
+
+namespace BloombergLP {
+
+namespace bslma { class Allocator; }
+
+namespace bslalg {
+
+                        // =============================
+                        // class ContainerBase_BslmaBase
+                        // =============================
+
+template &lt;class ALLOCATOR&gt;
+class ContainerBase_BslmaBase {
+    // One of two possible base classes for &#39;ContainerBase&#39;.  This class
+    // should only be used for allocators that are based on &#39;bslma::Allocator&#39;.
+    // Provides access to the allocator.  Since &#39;ALLOCATOR&#39; always has state
+    // (at least a &#39;bslma::Allocator *&#39;), there is no empty-base initialization
+    // opportunity, so we don&#39;t inherit from &#39;ALLOCATOR&#39; the way
+    // &#39;ContainerBase_NonBslmaBase&#39; does, below.  (Inheritance of this type can
+    // cause ambiguous conversions and should be avoided or insulated.)
+
+    ALLOCATOR d_allocator;
+
+  private:
+    // NOT IMPLEMENTED
+    ContainerBase_BslmaBase&amp; operator=(const ContainerBase_BslmaBase&amp;);
+
+  public:
+    // TYPES
+    typedef ALLOCATOR AllocatorType;
+
+    typedef bslma::Allocator *bslmaAllocatorPtr;
+        // Pointer type returned by &#39;ALLOCATOR::mechanism&#39;.  This type differs
+        // in specializations of this class for non &#39;bslma&#39;-based allocators.
+
+    // CREATORS
+    explicit
+    ContainerBase_BslmaBase(const ALLOCATOR&amp; allocator);
+        // Construct this object using the specified &#39;allocator&#39; of the
+        // &#39;ALLOCATOR&#39; parameterized type.
+
+    ContainerBase_BslmaBase(const ContainerBase_BslmaBase&amp; original);
+        // Construct this object using the default allocator.  The &#39;original&#39;
+        // argument is ignored.  NOTE: This is obviously not a copy constructor
+        // as is does not do any copying.  It does implement BSL-style
+        // allocator semantics, whereby a newly created object must either have
+        // an explicitly-specified allocator or else it uses the default
+        // allocator object.  Under no circumstances is a BSL-style allocator
+        // copied during copy construction or assignment.
+
+    ~ContainerBase_BslmaBase();
+        // Destroy this object.
+
+    // MANIPULATORS
+    ALLOCATOR&amp; allocator();
+        // Return a reference to the modifiable allocator used to construct
+        // this object.
+
+    // ACCESSORS
+    const ALLOCATOR&amp; allocator() const;
+        // Return a reference to the non-modifiable allocator used to construct
+        // this object.
+
+    bslmaAllocatorPtr bslmaAllocator() const;
+        // Return &#39;allocator().mechanism()&#39;.
+};
+
+                        // ================================
+                        // class ContainerBase_NonBslmaBase
+                        // ================================
+
+template &lt;class ALLOCATOR&gt;
+class ContainerBase_NonBslmaBase : public ALLOCATOR {
+    // One of two possible base classes for &#39;ContainerBase&#39;.  This class is
+    // for allocators that are not based on &#39;bslma::Allocator&#39;.  Provides
+    // access to the allocator.
+    //
+    // Because this class inherits from &#39;ALLOCATOR&#39; it can take advantage of
+    // empty-base optimization.  In other words, if &#39;ALLOCATOR&#39; has no state
+    // then it will not contribute to the footprint of the
+    // &#39;ContainerBase_NonBslmaBase&#39; object.  &#39;ContainerBase_NonBslmaBase&#39;
+    // itself adds no state and will not increase the footprint of subsequently
+    // derived classes.
+
+  private:
+    // NOT IMPLEMENTED
+    ContainerBase_NonBslmaBase&amp; operator=(const ContainerBase_NonBslmaBase&amp;);
+
+  public:
+    // TYPES
+    typedef ALLOCATOR AllocatorType;
+
+    typedef void *bslmaAllocatorPtr;
+        // Generically, a pointer to the &#39;bslma::Allocator&#39; mechanism type for
+        // &#39;ALLOCATOR&#39;.  Since the &#39;ALLOCATOR&#39; type specified in this template
+        // does not use the &#39;bslma::Allocator&#39; mechanism, &#39;bslmaAllocatorPtr&#39;
+        // is simply &#39;void*&#39;.  This can be used for overloading functions based
+        // on whether a container uses a &#39;bslma&#39;-based allocator or not.  (See
+        // the &#39;bslalg_scalarprimitives&#39; and &#39;bslalg_arrayprimitives&#39;
+        // components.)
+
+    // CREATORS
+    ContainerBase_NonBslmaBase(const ALLOCATOR&amp; allocator);
+        // Construct this object using the specified &#39;allocator&#39; or the
+        // parameterized &#39;ALLOCATOR&#39; type.
+
+    ContainerBase_NonBslmaBase(const ContainerBase_NonBslmaBase&amp; rhs);
+        // Construct this object by copying the allocator from rhs.  NOTE:
+        // Although this constructor does copy the allocator, the copy
+        // constructor in the &#39;bslma&#39;-specific &#39;ContainerBase_BslmaBase&#39; class
+        // (above) does not.
+
+    ~ContainerBase_NonBslmaBase();
+        // Destroy this object.
+
+    // MANIPULATORS
+    ALLOCATOR&amp; allocator();
+        // Return a reference to the modifiable allocator used to construct
+        // this object.
+
+    // ACCESSORS
+    const ALLOCATOR&amp; allocator() const;
+        // Return a reference to the non-modifiable allocator used to construct
+        // this object.
+
+    bslmaAllocatorPtr bslmaAllocator() const;
+        // Return a null pointer.  (This container&#39;s allocator does not use
+        // &#39;bslma&#39;).  Note that the return type for this function differs from
+        // the (typedef&#39;ed) return type for the same function in the
+        // &#39;ContainerBase_BslmaBase&#39; class and can thus be used to choose one
+        // overloaded function over another.
+};
+
+                        // ====================
+                        // class ContainerBase
+                        // ====================
+
+template &lt;class ALLOCATOR&gt;
+class ContainerBase : public
+    bsl::conditional&lt;bsl::is_convertible&lt;bslma::Allocator*, ALLOCATOR&gt;::value,
+                     ContainerBase_BslmaBase&lt;ALLOCATOR&gt;,
+                     ContainerBase_NonBslmaBase&lt;ALLOCATOR&gt; &gt;::type {
+    // Allocator proxy class for STL-style containers.  Provides access to the
+    // allocator.  Implements the entire STL allocator interface, redirecting
+    // allocation and deallocation calls to the proxied allocator.  One of two
+    // possible base classes is chosen depending on whether &#39;ALLOCATOR&#39; is
+    // constructed from &#39;bslma::Allocator*&#39;.
+
+    // PRIVATE TYPES
+    typedef typename
+        bsl::conditional&lt;
+                  bsl::is_convertible&lt;bslma::Allocator*, ALLOCATOR&gt;::value,
+                  ContainerBase_BslmaBase&lt;ALLOCATOR&gt;,
+                  ContainerBase_NonBslmaBase&lt;ALLOCATOR&gt; &gt;::type Base;
+
+  private:
+    // NOT IMPLEMENTED
+    ContainerBase&amp; operator=(const ContainerBase&amp;);
+
+  private:
+    // PRIVATE MANIPULATORS
+    template &lt;class T&gt;
+    typename ALLOCATOR::template rebind&lt;T&gt;::other
+    rebindAllocator(T*)
+        // Return &#39;this-&gt;allocator()&#39; rebound for type &#39;T&#39;.  The &#39;T*&#39; argument
+        // is used only for template parameter deduction and is ignored.
+    {
+        typedef typename ALLOCATOR::template rebind&lt;T&gt;::other Rebound;
+        return Rebound(this-&gt;allocator());
+    }
+
+  public:
+    // PUBLIC TYPES
+    typedef typename Base::AllocatorType            AllocatorType;
+
+    typedef typename AllocatorType::size_type       size_type;
+    typedef typename AllocatorType::difference_type difference_type;
+    typedef typename AllocatorType::pointer         pointer;
+    typedef typename AllocatorType::const_pointer   const_pointer;
+    typedef typename AllocatorType::reference       reference;
+    typedef typename AllocatorType::const_reference const_reference;
+    typedef typename AllocatorType::value_type      value_type;
+        // Restate required allocator types.  (Reduces use of &#39;typename&#39; in
+        // interface.)
+
+    // CREATORS
+    ContainerBase(const ALLOCATOR&amp; allocator);
+        // Construct this object using the specified &#39;allocator&#39; of the
+        // parameterized &#39;ALLOCATOR&#39; type.
+
+    ContainerBase(const ContainerBase&amp; rhs);
+        // Initialize this container base with rhs.  NOTE: This is not a true
+        // copy constructor.  The allocator does not get copied if the
+        // allocator is &#39;bslma&#39;-based.  Using BSL allocator semantics, the
+        // &#39;bslma&#39;-style allocator must be supplied explicitly (i.e., not
+        // copied from rhs) or else it is given a default value.  Non-&#39;bslma&#39;
+        // allocators ARE copied because that is the way the ISO standard is
+        // currently written.
+
+    ~ContainerBase();
+        // Destroy this object.
+
+    // MANIPULATORS
+    pointer allocate(size_type n, const void *hint = 0);
+        // Allocate enough (properly aligned) space for &#39;n&#39; objects of type &#39;T&#39;
+        // by calling &#39;allocate&#39; on the mechanism object.  The &#39;hint&#39; argument
+        // is ignored by this allocator type.
+
+    template &lt;class T&gt;
+    T *allocateN(T* p, size_type n)
+        // Allocate (but do not initialize) &#39;n&#39; objects of type &#39;T&#39; using the
+        // allocator returned by &#39;allocator&#39;.  Return a pointer to the raw
+        // memory that was allocated.  The &#39;p&#39; argument is used only to
+        // determine the type of object being allocated; its value (usually
+        // null) is not used.
+    {
+        return rebindAllocator(p).allocate(n);
+    }
+
+    void construct(pointer p, const value_type&amp; val);
+        // Copy-construct a &#39;T&#39; object at the memory address specified by &#39;p&#39;.
+        // Do not directly allocate memory.  The behavior is undefined if &#39;p&#39;
+        // is not properly aligned for &#39;T&#39;.
+
+    void deallocate(pointer p, size_type n = 1);
+        // Return memory previously allocated with &#39;allocate&#39; to the underlying
+        // mechanism object by calling &#39;deallocate&#39; on the mechanism object.
+        // The &#39;n&#39; argument is ignored by this allocator type.
+
+    template &lt;class T&gt;
+    void deallocateN(T *p, size_type n)
+        // Return &#39;n&#39; objects of type &#39;T&#39;, starting at &#39;p&#39; to the allocator
+        // returned by &#39;allocator&#39;.  Does not call destructors on the
+        // deallocated objects.
+    {
+        rebindAllocator(p).deallocate(p, n);
+    }
+
+    void destroy(pointer p);
+        // Call the &#39;T&#39; destructor for the object pointed to by &#39;p&#39;.  Do not
+        // directly deallocate any memory.
+
+    // ACCESSORS
+    bool equalAllocator(const ContainerBase&amp; rhs) const;
+        // Returns &#39;this-&gt;allocator() == rhs.allocator()&#39;.
+};
+
+// ===========================================================================
+//                      INLINE FUNCTION DEFINITIONS
+// ===========================================================================
+
+                  // -----------------------------
+                  // class ContainerBase_BslmaBase
+                  // -----------------------------
+
+// CREATORS
+template &lt;class ALLOCATOR&gt;
+inline
+ContainerBase_BslmaBase&lt;ALLOCATOR&gt;::
+ContainerBase_BslmaBase(const ALLOCATOR&amp; allocator)
+: d_allocator(allocator)
+{
+}
+
+template &lt;class ALLOCATOR&gt;
+inline
+ContainerBase_BslmaBase&lt;ALLOCATOR&gt;::
+ContainerBase_BslmaBase(const ContainerBase_BslmaBase&amp;)
+: d_allocator()
+{
+}
+
+template &lt;class ALLOCATOR&gt;
+inline
+ContainerBase_BslmaBase&lt;ALLOCATOR&gt;::~ContainerBase_BslmaBase()
+{
+}
+
+// MANIPULATORS
+template &lt;class ALLOCATOR&gt;
+inline
+ALLOCATOR&amp; ContainerBase_BslmaBase&lt;ALLOCATOR&gt;::allocator()
+{
+    return d_allocator;
+}
+
+// ACCESSORS
+template &lt;class ALLOCATOR&gt;
+inline
+const ALLOCATOR&amp; ContainerBase_BslmaBase&lt;ALLOCATOR&gt;::allocator() const
+{
+    return d_allocator;
+}
+
+template &lt;class ALLOCATOR&gt;
+inline
+typename ContainerBase_BslmaBase&lt;ALLOCATOR&gt;::bslmaAllocatorPtr
+ContainerBase_BslmaBase&lt;ALLOCATOR&gt;::bslmaAllocator() const
+{
+    return d_allocator.mechanism();
+}
+
+                        // --------------------------------
+                        // class ContainerBase_NonBslmaBase
+                        // --------------------------------
+
+// CREATORS
+template &lt;class ALLOCATOR&gt;
+inline
+ContainerBase_NonBslmaBase&lt;ALLOCATOR&gt;::
+ContainerBase_NonBslmaBase(const ALLOCATOR&amp; allocator)
+: ALLOCATOR(allocator)
+{
+}
+
+template &lt;class ALLOCATOR&gt;
+inline
+ContainerBase_NonBslmaBase&lt;ALLOCATOR&gt;::
+ContainerBase_NonBslmaBase(const ContainerBase_NonBslmaBase&amp; rhs)
+: ALLOCATOR(rhs.allocator())
+{
+}
+
+template &lt;class ALLOCATOR&gt;
+inline
+ContainerBase_NonBslmaBase&lt;ALLOCATOR&gt;::~ContainerBase_NonBslmaBase()
+{
+}
+
+// MANIPULATORS
+template &lt;class ALLOCATOR&gt;
+inline
+ALLOCATOR&amp; ContainerBase_NonBslmaBase&lt;ALLOCATOR&gt;::allocator()
+{
+    return *this;
+}
+
+// ACCESSORS
+template &lt;class ALLOCATOR&gt;
+inline
+const ALLOCATOR&amp;
+ContainerBase_NonBslmaBase&lt;ALLOCATOR&gt;::allocator() const
+{
+    return *this;
+}
+
+template &lt;class ALLOCATOR&gt;
+inline
+typename ContainerBase_NonBslmaBase&lt;ALLOCATOR&gt;::bslmaAllocatorPtr
+ContainerBase_NonBslmaBase&lt;ALLOCATOR&gt;::bslmaAllocator() const
+{
+    return 0;
+}
+
+                        // --------------------
+                        // class ContainerBase
+                        // --------------------
+
+// CREATORS
+template &lt;class ALLOCATOR&gt;
+inline
+ContainerBase&lt;ALLOCATOR&gt;::
+ContainerBase(const ALLOCATOR&amp; allocator)
+: Base(allocator)
+{
+}
+
+template &lt;class ALLOCATOR&gt;
+inline
+ContainerBase&lt;ALLOCATOR&gt;::
+ContainerBase(const ContainerBase&lt;ALLOCATOR&gt;&amp; rhs)
+: Base(rhs)
+{
+}
+
+template &lt;class ALLOCATOR&gt;
+inline
+ContainerBase&lt;ALLOCATOR&gt;::~ContainerBase()
+{
+}
+
+// MANIPULATORS
+template &lt;class ALLOCATOR&gt;
+inline
+typename ContainerBase&lt;ALLOCATOR&gt;::pointer
+ContainerBase&lt;ALLOCATOR&gt;::allocate(size_type n, const void *hint)
+{
+    return this-&gt;allocator().allocate(n, hint);
+}
+
+template &lt;class ALLOCATOR&gt;
+inline
+void ContainerBase&lt;ALLOCATOR&gt;::deallocate(pointer p, size_type n)
+{
+    this-&gt;allocator().deallocate(p, n);
+}
+
+template &lt;class ALLOCATOR&gt;
+inline
+void ContainerBase&lt;ALLOCATOR&gt;::construct(pointer           p,
+                                         const value_type&amp; val)
+{
+    this-&gt;allocator().construct(p, val);
+}
+
+template &lt;class ALLOCATOR&gt;
+inline
+void ContainerBase&lt;ALLOCATOR&gt;::destroy(pointer p)
+{
+    this-&gt;allocator().destroy(p);
+}
+
+// ACCESSORS
+template &lt;class ALLOCATOR&gt;
+inline
+bool ContainerBase&lt;ALLOCATOR&gt;::equalAllocator(const ContainerBase&amp; rhs) const
+{
+    return this-&gt;allocator() == rhs.allocator();
+}
+
+}  // close package namespace
+
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright (C) 2012 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the &quot;Software&quot;), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

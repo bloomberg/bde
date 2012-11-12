@@ -1,0 +1,1006 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 2.16 BETA</title>
+<html>
+<pre>
+// bslmf_typelist.h                                                   -*-C++-*-
+#ifndef INCLUDED_BSLMF_TYPELIST
+#define INCLUDED_BSLMF_TYPELIST
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a typelist component
+//
+//@CLASSES:
+//  bslmf::TypeList: Typelist of up to 20 types
+//  bslmf::TypeListTypeOf: Meta-function to get the type of a typelist member
+//  bslmf::TypeList0: Typelist of 0 types
+//  bslmf::TypeList1: Typelist of 1 type
+//  bslmf::TypeList2: Typelist of 2 types
+//  bslmf::TypeList3: Typelist of 3 types
+//  bslmf::TypeList4: Typelist of 4 types
+//  bslmf::TypeList5: Typelist of 5 types
+//  bslmf::TypeList6: Typelist of 6 types
+//  bslmf::TypeList7: Typelist of 7 types
+//  bslmf::TypeList8: Typelist of 8 types
+//  bslmf::TypeList9: Typelist of 9 types
+//  bslmf::TypeList10: Typelist of 10 types
+//  bslmf::TypeList11: Typelist of 11 types
+//  bslmf::TypeList12: Typelist of 12 types
+//  bslmf::TypeList13: Typelist of 13 types
+//  bslmf::TypeList14: Typelist of 14 types
+//  bslmf::TypeList15: Typelist of 15 types
+//  bslmf::TypeList16: Typelist of 16 types
+//  bslmf::TypeList17: Typelist of 17 types
+//  bslmf::TypeList18: Typelist of 18 types
+//  bslmf::TypeList19: Typelist of 19 types
+//  bslmf::TypeList20: Typelist of 20 types
+//
+//@DESCRIPTION: &#39;bslmf::TypeList&#39; provides a compile time list that holds up to
+// 20 types.  Users can access the different types the list contains (by
+// index), and the length of the typelist.  A &#39;bslmf::TypeList&#39; is typically
+// used when writing templatized classes that can store a variable amount of
+// types, such as a bind or variant class.
+//
+///Usage
+///-----
+// The following usage example demonstrates how to retrieve information from a
+// &#39;bslmf::TypeList&#39;:
+//..
+//  typedef bslmf::TypeList&lt;int, double, char&gt; List;
+//..
+// We can access the length of the list using the &#39;LENGTH&#39; member:
+//..
+//  assert(3 == List::LENGTH);  // accessing the length of the list
+//..
+// We can also access the different types stored in the typelist using
+// predefined type members &#39;TypeN&#39; (where &#39;1 &lt;= N &lt;= 20&#39;), or another
+// meta-function &#39;bslmf::TypeListTypeOf&#39;:
+//..
+//  assert(1 == bslmf::IsSame&lt;int,    List::Type1&gt;::value)
+//  assert(1 == bslmf::IsSame&lt;double, List::Type2&gt;::value)
+//  assert(1 == bslmf::IsSame&lt;char,   List::Type3&gt;::value)
+//
+//  typedef bslmf::TypeListTypeOf&lt;1, List&gt;::Type my_Type1;
+//  typedef bslmf::TypeListTypeOf&lt;2, List&gt;::Type my_Type2;
+//  typedef bslmf::TypeListTypeOf&lt;3, List&gt;::Type my_Type3;
+//
+//  assert(1 == bslmf::IsSame&lt;int,    my_Type1&gt;::value)
+//  assert(1 == bslmf::IsSame&lt;double, my_Type2&gt;::value)
+//  assert(1 == bslmf::IsSame&lt;char,   my_Type3&gt;::value)
+//..
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include &lt;bslscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_NIL
+#include &lt;bslmf_nil.h&gt;
+#endif
+
+namespace BloombergLP {
+
+namespace bslmf {
+
+// For backwards compatibility.
+typedef Nil TypeListNil;
+
+template &lt;class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9,  class A10, class A11, class A12,
+          class A13, class A14, class A15, class A16, class A17, class A18,
+          class A19, class A20&gt;
+struct TypeList20;
+
+                            // ===============
+                            // struct TypeList
+                            // ===============
+
+template &lt;class A1=Nil,  class A2=Nil,  class A3=Nil,
+          class A4=Nil,  class A5=Nil,  class A6=Nil,
+          class A7=Nil,  class A8=Nil,  class A9=Nil,
+          class A10=Nil, class A11=Nil, class A12=Nil,
+          class A13=Nil, class A14=Nil, class A15=Nil,
+          class A16=Nil, class A17=Nil, class A18=Nil,
+          class A19=Nil, class A20=Nil&gt;
+struct TypeList: public TypeList20&lt;A1,A2,A3,A4,A5,A6,A7,A8,A9,A10,
+                                  A11,A12,A13,A14,A15,A16,A17,A18,A19,A20&gt; {
+    // This template declares a typelist of 0-20 types.  For each type
+    // specified, a corresponding type will be declared as &quot;Type&lt;N&gt;&quot; where
+    // where &#39;N&#39; is the Nth parameter to this typelist(relative to 1).
+    // Additionally, the enumeration &#39;LENGTH&#39; is declared with a value equal to
+    // the length of this typelist.  Each typelist also declares a member
+    // template &#39;TypeOf&#39; such that &#39;TypeOf&lt;N&gt;::Type&#39; evaluates to the type of
+    // the Nth the in this typelist.  The the type &#39;Type&#39; is also declared a
+    // length specific version of this typelist.
+};
+
+                         // =====================
+                         // struct TypeListTypeOf
+                         // =====================
+
+template &lt;int INDEX, class LIST, class DEFAULTTYPE=Nil,
+          int INRANGE=((INDEX &gt; 0 &amp;&amp; INDEX &lt;= (int)LIST::LENGTH) ? 1 : 0)&gt;
+struct TypeListTypeOf {
+    // This template is specialized below to return the type the &#39;INDEX&#39;th
+    // member of the typelist &#39;LIST&#39;.  If &#39;0 &gt; INDEX &lt;= LIST::LENGTH&#39; then
+    // &#39;Type&#39; will be defined as the type of the member.  Note that INDEX is
+    // relative to 1.
+
+    // PUBLIC TYPES
+    typedef LIST ListType;
+    enum {LENGTH = ListType::LENGTH};
+
+    typedef DEFAULTTYPE TypeOrDefault;
+};
+
+// ==================================
+// VARIABLE NUMBER OF ARGUMENTS LISTS
+// ==================================
+
+                            // ================
+                            // struct TypeList*
+                            // ================
+
+struct TypeList0 {
+    // List of 0 types
+    typedef TypeList0 ListType;
+    enum {LENGTH = 0};
+    template &lt;int INDEX&gt; struct TypeOf :
+        public TypeListTypeOf&lt;INDEX,ListType&gt;{ };
+    typedef ListType Type;
+};
+
+template &lt;class A1&gt;
+struct TypeList1  {
+    // List of a single type &#39;A1&#39; types
+    typedef TypeList1&lt;A1&gt; ListType;
+    enum {LENGTH = 1};
+
+    typedef A1 Type1;
+
+    template &lt;int INDEX&gt; struct TypeOf :
+        public TypeListTypeOf&lt;INDEX,ListType&gt;{ };
+
+    typedef ListType Type;
+};
+
+template &lt;class A1, class A2&gt;
+struct TypeList2 {
+    // List of a two types &#39;A1&#39;, &#39;A2&#39; types
+    typedef TypeList2&lt;A1,A2&gt; ListType;
+    enum {LENGTH = 2};
+
+    typedef A1  Type1;
+    typedef A2  Type2;
+
+    template &lt;int INDEX&gt; struct TypeOf :
+        public TypeListTypeOf&lt;INDEX,ListType&gt;{ };
+
+    typedef ListType Type;
+};
+
+template &lt;class A1, class A2, class A3&gt;
+struct TypeList3 {
+    // List of a three types &#39;A1&#39;, &#39;A2&#39;, &#39;A3&#39; types
+
+    typedef TypeList3&lt;A1,A2,A3&gt; ListType;
+
+    enum {LENGTH = 3}; // Length of this list
+
+    typedef A1  Type1;
+    typedef A2  Type2;
+    typedef A3  Type3;
+
+    template &lt;int INDEX&gt; struct TypeOf :
+        public TypeListTypeOf&lt;INDEX,ListType&gt;{ };
+
+    typedef ListType Type;
+};
+
+template &lt;class A1, class A2, class A3, class A4&gt;
+struct TypeList4 {
+    typedef TypeList4&lt;A1,A2,A3,A4&gt; ListType;
+    enum {LENGTH = 4};
+
+    typedef A1  Type1;
+    typedef A2  Type2;
+    typedef A3  Type3;
+    typedef A4  Type4;
+
+    template &lt;int INDEX&gt; struct TypeOf :
+        public TypeListTypeOf&lt;INDEX,ListType&gt;{ };
+
+    typedef ListType Type;
+};
+
+template &lt;class A1, class A2, class A3, class A4, class A5&gt;
+struct TypeList5 {
+    typedef TypeList5&lt;A1,A2,A3,A4,A5&gt; ListType;
+    enum {LENGTH = 5};
+
+    typedef A1  Type1;
+    typedef A2  Type2;
+    typedef A3  Type3;
+    typedef A4  Type4;
+    typedef A5  Type5;
+
+    template &lt;int INDEX&gt; struct TypeOf :
+        public TypeListTypeOf&lt;INDEX,ListType&gt;{ };
+
+    typedef ListType Type;
+};
+
+template &lt;class A1, class A2, class A3, class A4, class A5, class A6&gt;
+struct TypeList6 {
+    typedef TypeList6&lt;A1,A2,A3,A4,A5,A6&gt; ListType;
+    enum {LENGTH = 6};
+
+    typedef A1  Type1;
+    typedef A2  Type2;
+    typedef A3  Type3;
+    typedef A4  Type4;
+    typedef A5  Type5;
+    typedef A6  Type6;
+
+    template &lt;int INDEX&gt; struct TypeOf :
+        public TypeListTypeOf&lt;INDEX,ListType&gt;{ };
+
+    typedef ListType Type;
+};
+
+template &lt;class A1, class A2, class A3, class A4, class A5, class A6,
+          class A7&gt;
+struct TypeList7 {
+    typedef TypeList7&lt;A1,A2,A3,A4,A5,A6,A7&gt; ListType;
+    enum {LENGTH = 7};
+
+    typedef A1  Type1;
+    typedef A2  Type2;
+    typedef A3  Type3;
+    typedef A4  Type4;
+    typedef A5  Type5;
+    typedef A6  Type6;
+    typedef A7  Type7;
+
+    template &lt;int INDEX&gt; struct TypeOf :
+        public TypeListTypeOf&lt;INDEX,ListType&gt;{ };
+
+    typedef ListType Type;
+};
+
+template &lt;class A1, class A2, class A3, class A4, class A5, class A6,
+          class A7, class A8&gt;
+struct TypeList8 {
+    typedef TypeList8&lt;A1,A2,A3,A4,A5,A6,A7,A8&gt; ListType;
+    enum {LENGTH = 8};
+
+    typedef A1  Type1;
+    typedef A2  Type2;
+    typedef A3  Type3;
+    typedef A4  Type4;
+    typedef A5  Type5;
+    typedef A6  Type6;
+    typedef A7  Type7;
+    typedef A8  Type8;
+
+    template &lt;int INDEX&gt; struct TypeOf :
+        public TypeListTypeOf&lt;INDEX,ListType&gt;{ };
+
+    typedef ListType Type;
+};
+
+template &lt;class A1, class A2, class A3, class A4, class A5, class A6,
+          class A7, class A8, class A9&gt;
+struct TypeList9 {
+    typedef TypeList9&lt;A1,A2,A3,A4,A5,A6,A7,A8,A9&gt; ListType;
+    enum {LENGTH = 9};
+
+    typedef A1  Type1;
+    typedef A2  Type2;
+    typedef A3  Type3;
+    typedef A4  Type4;
+    typedef A5  Type5;
+    typedef A6  Type6;
+    typedef A7  Type7;
+    typedef A8  Type8;
+    typedef A9  Type9;
+
+    template &lt;int INDEX&gt; struct TypeOf :
+        public TypeListTypeOf&lt;INDEX,ListType&gt;{ };
+
+    typedef ListType Type;
+};
+
+template &lt;class A1, class A2, class A3, class A4, class A5, class A6,
+          class A7, class A8, class A9, class A10&gt;
+struct TypeList10 {
+    typedef TypeList10&lt;A1,A2,A3,A4,A5,A6,A7,A8,A9,A10&gt; ListType;
+    enum {LENGTH = 10};
+
+    typedef A1  Type1;
+    typedef A2  Type2;
+    typedef A3  Type3;
+    typedef A4  Type4;
+    typedef A5  Type5;
+    typedef A6  Type6;
+    typedef A7  Type7;
+    typedef A8  Type8;
+    typedef A9  Type9;
+    typedef A10 Type10;
+
+    template &lt;int INDEX&gt; struct TypeOf :
+        public TypeListTypeOf&lt;INDEX,ListType&gt;{ };
+
+    typedef ListType Type;
+};
+
+template &lt;class A1, class A2, class A3, class A4,  class A5, class A6,
+          class A7, class A8, class A9, class A10, class A11&gt;
+struct TypeList11 {
+    typedef TypeList11&lt;A1,A2,A3,A4,A5,A6,A7,A8,A9,A10,A11&gt; ListType;
+    enum {LENGTH = 11};
+
+    typedef A1  Type1;
+    typedef A2  Type2;
+    typedef A3  Type3;
+    typedef A4  Type4;
+    typedef A5  Type5;
+    typedef A6  Type6;
+    typedef A7  Type7;
+    typedef A8  Type8;
+    typedef A9  Type9;
+    typedef A10 Type10;
+    typedef A11 Type11;
+
+    template &lt;int INDEX&gt; struct TypeOf :
+        public TypeListTypeOf&lt;INDEX,ListType&gt;{ };
+
+    typedef ListType Type;
+};
+
+template &lt;class A1, class A2, class A3, class A4,  class A5,  class A6,
+          class A7, class A8, class A9, class A10, class A11, class A12&gt;
+struct TypeList12 {
+    typedef TypeList12&lt;A1,A2,A3,A4,A5,A6,A7,A8,A9,A10,A11,A12&gt; ListType;
+    enum {LENGTH = 12};
+
+    typedef A1  Type1;
+    typedef A2  Type2;
+    typedef A3  Type3;
+    typedef A4  Type4;
+    typedef A5  Type5;
+    typedef A6  Type6;
+    typedef A7  Type7;
+    typedef A8  Type8;
+    typedef A9  Type9;
+    typedef A10 Type10;
+    typedef A11 Type11;
+    typedef A12 Type12;
+
+    template &lt;int INDEX&gt; struct TypeOf :
+        public TypeListTypeOf&lt;INDEX,ListType&gt;{ };
+
+    typedef ListType Type;
+};
+
+template &lt;class A1, class A2, class A3, class A4,  class A5,  class A6,
+          class A7, class A8, class A9, class A10, class A11, class A12,
+          class A13&gt;
+struct TypeList13 {
+    typedef TypeList13&lt;A1,A2,A3,A4,A5,A6,A7,A8,A9,A10,A11,A12,A13&gt;
+        ListType;
+    enum {LENGTH = 13};
+
+    typedef A1  Type1;
+    typedef A2  Type2;
+    typedef A3  Type3;
+    typedef A4  Type4;
+    typedef A5  Type5;
+    typedef A6  Type6;
+    typedef A7  Type7;
+    typedef A8  Type8;
+    typedef A9  Type9;
+    typedef A10 Type10;
+    typedef A11 Type11;
+    typedef A12 Type12;
+    typedef A13 Type13;
+
+    template &lt;int INDEX&gt; struct TypeOf :
+        public TypeListTypeOf&lt;INDEX,ListType&gt;{ };
+
+    typedef ListType Type;
+};
+
+template &lt;class A1,  class A2, class A3, class A4,  class A5,  class A6,
+          class A7,  class A8, class A9, class A10, class A11, class A12,
+          class A13, class A14&gt;
+struct TypeList14 {
+    typedef TypeList14&lt;A1,A2,A3,A4,A5,A6,A7,A8,A9,A10,A11,A12,A13,
+                             A14&gt; ListType;
+    enum {LENGTH = 14};
+
+    typedef A1  Type1;
+    typedef A2  Type2;
+    typedef A3  Type3;
+    typedef A4  Type4;
+    typedef A5  Type5;
+    typedef A6  Type6;
+    typedef A7  Type7;
+    typedef A8  Type8;
+    typedef A9  Type9;
+    typedef A10 Type10;
+    typedef A11 Type11;
+    typedef A12 Type12;
+    typedef A13 Type13;
+    typedef A14 Type14;
+
+    template &lt;int INDEX&gt; struct TypeOf :
+        public TypeListTypeOf&lt;INDEX,ListType&gt;{ };
+
+    typedef ListType Type;
+};
+
+template &lt;class A1,  class A2,  class A3, class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9, class A10, class A11, class A12,
+          class A13, class A14, class A15&gt;
+struct TypeList15 {
+    typedef TypeList15&lt;A1,A2,A3,A4,A5,A6,A7,A8,A9,A10,A11,A12,A13,
+                             A14,A15&gt; ListType;
+    enum {LENGTH = 15};
+
+    typedef A1  Type1;
+    typedef A2  Type2;
+    typedef A3  Type3;
+    typedef A4  Type4;
+    typedef A5  Type5;
+    typedef A6  Type6;
+    typedef A7  Type7;
+    typedef A8  Type8;
+    typedef A9  Type9;
+    typedef A10 Type10;
+    typedef A11 Type11;
+    typedef A12 Type12;
+    typedef A13 Type13;
+    typedef A14 Type14;
+    typedef A15 Type15;
+
+    template &lt;int INDEX&gt; struct TypeOf :
+        public TypeListTypeOf&lt;INDEX,ListType&gt;{ };
+
+    typedef ListType Type;
+};
+
+template &lt;class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9,  class A10, class A11, class A12,
+          class A13, class A14, class A15, class A16 &gt;
+struct TypeList16 {
+    typedef TypeList16&lt;A1,A2,A3,A4,A5,A6,A7,A8,A9,A10,A11,A12,A13,
+                             A14,A15,A16&gt; ListType;
+    enum {LENGTH = 16};
+
+    typedef A1  Type1;
+    typedef A2  Type2;
+    typedef A3  Type3;
+    typedef A4  Type4;
+    typedef A5  Type5;
+    typedef A6  Type6;
+    typedef A7  Type7;
+    typedef A8  Type8;
+    typedef A9  Type9;
+    typedef A10 Type10;
+    typedef A11 Type11;
+    typedef A12 Type12;
+    typedef A13 Type13;
+    typedef A14 Type14;
+    typedef A15 Type15;
+    typedef A16 Type16;
+
+    template &lt;int INDEX&gt; struct TypeOf :
+        public TypeListTypeOf&lt;INDEX,ListType&gt;{ };
+
+    typedef ListType Type;
+};
+
+template &lt;class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9,  class A10, class A11, class A12,
+          class A13, class A14, class A15, class A16, class A17&gt;
+struct TypeList17 {
+    typedef TypeList17&lt;A1,A2,A3,A4,A5,A6,A7,A8,A9,A10,A11,A12,A13,
+                             A14,A15,A16,A17&gt; ListType;
+    enum {LENGTH = 17};
+
+    typedef A1  Type1;
+    typedef A2  Type2;
+    typedef A3  Type3;
+    typedef A4  Type4;
+    typedef A5  Type5;
+    typedef A6  Type6;
+    typedef A7  Type7;
+    typedef A8  Type8;
+    typedef A9  Type9;
+    typedef A10 Type10;
+    typedef A11 Type11;
+    typedef A12 Type12;
+    typedef A13 Type13;
+    typedef A14 Type14;
+    typedef A15 Type15;
+    typedef A16 Type16;
+    typedef A17 Type17;
+
+    template &lt;int INDEX&gt; struct TypeOf :
+        public TypeListTypeOf&lt;INDEX,ListType&gt;{ };
+
+    typedef ListType Type;
+};
+
+template &lt;class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9,  class A10, class A11, class A12,
+          class A13, class A14, class A15, class A16, class A17, class A18&gt;
+struct TypeList18 {
+    typedef TypeList18&lt;A1,A2,A3,A4,A5,A6,A7,A8,A9,A10,A11,A12,A13,
+                             A14,A15,A16,A17,A18&gt; ListType;
+    enum {LENGTH = 18};
+
+    typedef A1  Type1;
+    typedef A2  Type2;
+    typedef A3  Type3;
+    typedef A4  Type4;
+    typedef A5  Type5;
+    typedef A6  Type6;
+    typedef A7  Type7;
+    typedef A8  Type8;
+    typedef A9  Type9;
+    typedef A10 Type10;
+    typedef A11 Type11;
+    typedef A12 Type12;
+    typedef A13 Type13;
+    typedef A14 Type14;
+    typedef A15 Type15;
+    typedef A16 Type16;
+    typedef A17 Type17;
+    typedef A18 Type18;
+
+    template &lt;int INDEX&gt; struct TypeOf :
+        public TypeListTypeOf&lt;INDEX,ListType&gt;{ };
+
+    typedef ListType Type;
+};
+
+template &lt;class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9,  class A10, class A11, class A12,
+          class A13, class A14, class A15, class A16, class A17, class A18,
+          class A19&gt;
+struct TypeList19 {
+    typedef TypeList19&lt;A1,A2,A3,A4,A5,A6,A7,A8,A9,A10,A11,A12,A13,
+                             A14,A15,A16,A17,A18,A19&gt; ListType;
+    enum {LENGTH = 19};
+
+    typedef A1  Type1;
+    typedef A2  Type2;
+    typedef A3  Type3;
+    typedef A4  Type4;
+    typedef A5  Type5;
+    typedef A6  Type6;
+    typedef A7  Type7;
+    typedef A8  Type8;
+    typedef A9  Type9;
+    typedef A10 Type10;
+    typedef A11 Type11;
+    typedef A12 Type12;
+    typedef A13 Type13;
+    typedef A14 Type14;
+    typedef A15 Type15;
+    typedef A16 Type16;
+    typedef A17 Type17;
+    typedef A18 Type18;
+    typedef A19 Type19;
+
+    template &lt;int INDEX&gt; struct TypeOf :
+        public TypeListTypeOf&lt;INDEX,ListType&gt;{ };
+
+    typedef ListType Type;
+};
+
+template &lt;class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9,  class A10, class A11, class A12,
+          class A13, class A14, class A15, class A16, class A17, class A18,
+          class A19, class A20&gt;
+struct TypeList20 {
+    typedef TypeList20&lt;A1,A2,A3,A4,A5,A6,A7,A8,A9,A10,A11,A12,A13,A14,
+                             A15,A16,A17,A18,A19,A20&gt; ListType;
+    enum {LENGTH = 20};
+
+    typedef A1  Type1;
+    typedef A2  Type2;
+    typedef A3  Type3;
+    typedef A4  Type4;
+    typedef A5  Type5;
+    typedef A6  Type6;
+    typedef A7  Type7;
+    typedef A8  Type8;
+    typedef A9  Type9;
+    typedef A10 Type10;
+    typedef A11 Type11;
+    typedef A12 Type12;
+    typedef A13 Type13;
+    typedef A14 Type14;
+    typedef A15 Type15;
+    typedef A16 Type16;
+    typedef A17 Type17;
+    typedef A18 Type18;
+    typedef A19 Type19;
+    typedef A20 Type20;
+
+    template &lt;int INDEX&gt; struct TypeOf :
+        public TypeListTypeOf&lt;INDEX,ListType&gt;{ };
+
+    typedef ListType Type;
+};
+
+                            // ---------------
+                            // struct TypeList
+                            // ---------------
+
+// SPECIALIZATIONS
+template &lt;&gt;
+struct TypeList&lt;Nil, Nil, Nil,
+    Nil, Nil, Nil, Nil,
+    Nil, Nil, Nil, Nil,
+    Nil, Nil, Nil, Nil,
+    Nil, Nil, Nil, Nil,
+    Nil&gt;
+:  public TypeList0 {
+    // This template provides a specialization of &#39;TypeList&#39; of 0 types.
+};
+
+template &lt;class A1&gt;
+struct TypeList&lt;A1,
+    Nil, Nil, Nil, Nil,
+    Nil, Nil, Nil, Nil,
+    Nil, Nil, Nil, Nil,
+    Nil, Nil, Nil, Nil,
+    Nil, Nil, Nil&gt;
+:  public TypeList1&lt;A1&gt; {
+    // This template provides a specialization of &#39;TypeList&#39; of 1 type.
+};
+
+template &lt;class A1, class A2&gt;
+struct TypeList&lt;A1, A2,
+    Nil, Nil, Nil, Nil,
+    Nil, Nil, Nil, Nil,
+    Nil, Nil, Nil, Nil,
+    Nil, Nil, Nil, Nil,
+    Nil, Nil&gt;
+:  public TypeList2&lt;A1,A2&gt; {
+    // This template provides a specialization of &#39;TypeList&#39; of 2 types.
+};
+
+template &lt;class A1, class A2, class A3&gt;
+struct TypeList&lt;A1 ,A2, A3,
+    Nil, Nil, Nil, Nil,
+    Nil, Nil, Nil, Nil,
+    Nil, Nil, Nil, Nil,
+    Nil, Nil, Nil, Nil,
+    Nil&gt;
+: public TypeList3&lt;A1,A2,A3&gt; {
+    // This template provides a specialization of &#39;TypeList&#39; of 3 types.
+};
+
+template &lt;class A1, class A2, class A3, class A4&gt;
+struct TypeList&lt;A1, A2, A3, A4,
+    Nil, Nil, Nil, Nil,
+    Nil, Nil, Nil, Nil,
+    Nil, Nil, Nil, Nil,
+    Nil, Nil, Nil, Nil&gt;
+: public TypeList4&lt;A1,A2,A3,A4&gt; {
+    // This template provides a specialization of &#39;TypeList&#39; of 4 types.
+};
+
+template &lt;class A1, class A2, class A3, class A4, class A5&gt;
+struct TypeList&lt;A1, A2, A3, A4, A5,
+    Nil, Nil, Nil, Nil,
+    Nil, Nil, Nil, Nil,
+    Nil, Nil, Nil, Nil,
+    Nil, Nil, Nil&gt;
+: public TypeList5&lt;A1,A2,A3,A4,A5&gt; {
+    // This template provides a specialization of &#39;TypeList&#39; of 5 types.
+};
+
+template &lt;class A1, class A2, class A3, class A4, class A5, class A6&gt;
+struct TypeList&lt;A1, A2, A3, A4, A5, A6,
+    Nil, Nil, Nil, Nil,
+    Nil, Nil, Nil, Nil,
+    Nil, Nil, Nil, Nil,
+    Nil, Nil&gt;
+: public TypeList6&lt;A1,A2,A3,A4,A5,A6&gt; {
+    // This template provides a specialization of &#39;TypeList&#39; of 6 types.
+};
+
+template &lt;class A1, class A2, class A3, class A4, class A5, class A6,
+          class A7&gt;
+struct TypeList&lt;A1, A2, A3, A4, A5, A6, A7,
+    Nil, Nil, Nil, Nil,
+    Nil, Nil, Nil, Nil,
+    Nil, Nil, Nil, Nil,
+    Nil&gt;
+: public TypeList7&lt;A1,A2,A3,A4,A5,A6,A7&gt; {
+    // This template provides a specialization of &#39;TypeList&#39; of 7 types.
+};
+
+template &lt;class A1, class A2, class A3, class A4, class A5, class A6,
+          class A7, class A8&gt;
+struct TypeList&lt;A1, A2, A3, A4, A5, A6, A7, A8,
+    Nil, Nil, Nil, Nil,
+    Nil, Nil, Nil, Nil,
+    Nil, Nil, Nil, Nil&gt;
+: public TypeList8&lt;A1,A2,A3,A4,A5,A6,A7,A8&gt; {
+    // This template provides a specialization of &#39;TypeList&#39; of 8 types.
+};
+
+template &lt;class A1, class A2, class A3, class A4, class A5, class A6,
+          class A7, class A8, class A9&gt;
+struct TypeList&lt;A1, A2, A3, A4, A5, A6, A7, A8, A9,
+    Nil, Nil, Nil, Nil,
+    Nil, Nil, Nil, Nil,
+    Nil, Nil, Nil&gt;
+: public TypeList9&lt;A1,A2,A3,A4,A5,A6,A7,A8,A9&gt; {
+    // This template provides a specialization of &#39;TypeList&#39; of 9 types.
+};
+
+template &lt;class A1, class A2, class A3, class A4, class A5, class A6,
+          class A7, class A8, class A9, class A10&gt;
+struct TypeList&lt;A1, A2, A3, A4, A5, A6, A7, A8, A9, A10,
+    Nil, Nil, Nil, Nil,
+    Nil, Nil, Nil, Nil,
+    Nil, Nil&gt;
+: public TypeList10&lt;A1,A2,A3,A4,A5,A6,A7,A8,A9,A10&gt; {
+    // This template provides a specialization of &#39;TypeList&#39; of 10 types.
+};
+
+template &lt;class A1, class A2, class A3, class A4, class A5, class A6,
+          class A7, class A8, class A9, class A10, class A11&gt;
+struct TypeList&lt;A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11,
+    Nil, Nil, Nil, Nil,
+    Nil, Nil, Nil, Nil,
+    Nil&gt;
+: public TypeList11&lt;A1,A2,A3,A4,A5,A6,A7,A8,A9,A10,A11&gt; {
+    // This template provides a specialization of &#39;TypeList&#39; of 11 types.
+};
+
+template &lt;class A1, class A2, class A3, class A4, class A5, class A6,
+          class A7, class A8, class A9, class A10, class A11, class A12&gt;
+struct TypeList&lt;A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12,
+    Nil, Nil, Nil, Nil,
+    Nil, Nil, Nil, Nil&gt;
+: public TypeList12&lt;A1,A2,A3,A4,A5,A6,A7,A8,A9,A10,A11,A12&gt; {
+    // This template provides a specialization of &#39;TypeList&#39; of 12 types.
+};
+
+template &lt;class A1, class A2, class A3, class A4, class A5, class A6,
+          class A7, class A8, class A9, class A10, class A11, class A12,
+          class A13&gt;
+struct TypeList&lt;A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13,
+    Nil, Nil, Nil, Nil,
+    Nil, Nil, Nil&gt;
+: public TypeList13&lt;A1,A2,A3,A4,A5,A6,A7,A8,A9,A10,A11,A12,A13&gt; {
+    // This template provides a specialization of &#39;TypeList&#39; of 13 types.
+};
+
+template &lt;class A1, class A2, class A3, class A4, class A5, class A6,
+          class A7, class A8, class A9, class A10, class A11, class A12,
+          class A13, class A14&gt;
+struct TypeList&lt;A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13,
+    A14, Nil, Nil, Nil, Nil, Nil, Nil&gt;
+: public TypeList14&lt;A1,A2,A3,A4,A5,A6,A7,A8,A9,A10,A11,A12,A13,A14&gt; {
+    // This template provides a specialization of &#39;TypeList&#39; of 14 types.
+};
+
+template &lt;class A1, class A2, class A3, class A4, class A5, class A6,
+          class A7, class A8, class A9, class A10, class A11, class A12,
+          class A13, class A14, class A15&gt;
+struct TypeList&lt;A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13,
+    A14, A15, Nil, Nil, Nil, Nil, Nil&gt;
+: public TypeList15&lt;A1,A2,A3,A4,A5,A6,A7,A8,A9,A10,A11,A12,A13,A14,A15&gt; {
+    // This template provides a specialization of &#39;TypeList&#39; of 15 types.
+};
+
+template &lt;class A1, class A2, class A3, class A4, class A5, class A6,
+          class A7, class A8, class A9, class A10, class A11, class A12,
+          class A13, class A14, class A15, class A16&gt;
+struct TypeList&lt;A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13,
+    A14, A15, A16, Nil, Nil, Nil, Nil&gt;
+: public TypeList16&lt;A1,A2,A3,A4,A5,A6,A7,A8,A9,A10,A11,A12,A13,A14,A15,
+                          A16&gt;{
+    // This template provides a specialization of &#39;TypeList&#39; of 16 types.
+};
+
+template &lt;class A1, class A2, class A3, class A4, class A5, class A6,
+          class A7, class A8, class A9, class A10, class A11, class A12,
+          class A13, class A14, class A15, class A16, class A17&gt;
+struct TypeList&lt;A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13,
+    A14, A15, A16, A17, Nil, Nil, Nil&gt;
+: public TypeList17&lt;A1,A2,A3,A4,A5,A6,A7,A8,A9,A10,A11,A12,A13,A14,A15,
+                          A16,A17&gt; {
+    // This template provides a specialization of &#39;TypeList&#39; of 17 types.
+};
+
+template &lt;class A1, class A2, class A3, class A4, class A5, class A6,
+          class A7, class A8, class A9, class A10, class A11, class A12,
+          class A13, class A14, class A15, class A16, class A17, class A18&gt;
+struct TypeList&lt;A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13,
+    A14, A15, A16, A17, A18, Nil, Nil&gt;
+: public TypeList18&lt;A1,A2,A3,A4,A5,A6,A7,A8,A9,A10,A11,A12,A13,A14,A15,
+                          A16,A17,A18&gt; {
+    // This template provides a specialization of &#39;TypeList&#39; of 18 types.
+};
+
+template &lt;class A1, class A2, class A3, class A4, class A5, class A6,
+          class A7, class A8, class A9, class A10, class A11, class A12,
+          class A13, class A14, class A15, class A16, class A17, class A18,
+          class A19&gt;
+struct TypeList&lt;A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13,
+              A14, A15, A16, A17, A18, A19, Nil&gt;
+: public TypeList19&lt;A1,A2,A3,A4,A5,A6,A7,A8,A9,A10,A11,A12,A13,A14,A15,
+                          A16,A17,A18,A19&gt; {
+    // This template provides a specialization of &#39;TypeList&#39; of 19 types.
+};
+
+                         // ---------------------
+                         // struct TypeListTypeOf
+                         // ---------------------
+
+// SPECIALIZATIONS
+template &lt;class LIST, class DEFAULTTYPE&gt;
+struct TypeListTypeOf&lt;1,LIST,DEFAULTTYPE,1&gt; {
+    typedef typename LIST::Type1 Type;
+    typedef typename LIST::Type1 TypeOrDefault;
+};
+
+template &lt;class LIST, class DEFAULTTYPE&gt;
+struct TypeListTypeOf&lt;2,LIST,DEFAULTTYPE,1&gt; {
+    typedef typename LIST::Type2 Type;
+    typedef typename LIST::Type2 TypeOrDefault;
+};
+
+template &lt;class LIST, class DEFAULTTYPE&gt;
+struct TypeListTypeOf&lt;3,LIST,DEFAULTTYPE,1&gt; {
+    typedef typename LIST::Type3 Type;
+    typedef typename LIST::Type3 TypeOrDefault;
+};
+
+template &lt;class LIST, class DEFAULTTYPE&gt;
+struct TypeListTypeOf&lt;4,LIST,DEFAULTTYPE,1&gt; {
+    typedef typename LIST::Type4 Type;
+    typedef typename LIST::Type4 TypeOrDefault;
+};
+
+template &lt;class LIST, class DEFAULTTYPE&gt;
+struct TypeListTypeOf&lt;5,LIST,DEFAULTTYPE,1&gt; {
+    typedef typename LIST::Type5 Type;
+    typedef typename LIST::Type5 TypeOrDefault;
+};
+
+template &lt;class LIST, class DEFAULTTYPE&gt;
+struct TypeListTypeOf&lt;6,LIST,DEFAULTTYPE,1&gt; {
+    typedef typename LIST::Type6 Type;
+    typedef typename LIST::Type6 TypeOrDefault;
+};
+
+template &lt;class LIST, class DEFAULTTYPE&gt;
+struct TypeListTypeOf&lt;7,LIST,DEFAULTTYPE,1&gt; {
+    typedef typename LIST::Type7 Type;
+    typedef typename LIST::Type7 TypeOrDefault;
+};
+
+template &lt;class LIST, class DEFAULTTYPE&gt;
+struct TypeListTypeOf&lt;8,LIST,DEFAULTTYPE,1&gt; {
+    typedef typename LIST::Type8 Type;
+    typedef typename LIST::Type8 TypeOrDefault;
+};
+
+template &lt;class LIST, class DEFAULTTYPE&gt;
+struct TypeListTypeOf&lt;9,LIST,DEFAULTTYPE,1&gt; {
+    typedef typename LIST::Type9 Type;
+    typedef typename LIST::Type9 TypeOrDefault;
+};
+
+template &lt;class LIST, class DEFAULTTYPE&gt;
+struct TypeListTypeOf&lt;10,LIST,DEFAULTTYPE,1&gt; {
+    typedef typename LIST::Type10 Type;
+    typedef typename LIST::Type10 TypeOrDefault;
+};
+
+template &lt;class LIST, class DEFAULTTYPE&gt;
+struct TypeListTypeOf&lt;11,LIST,DEFAULTTYPE,1&gt; {
+    typedef typename LIST::Type11 Type;
+    typedef typename LIST::Type11 TypeOrDefault;
+};
+
+template &lt;class LIST, class DEFAULTTYPE&gt;
+struct TypeListTypeOf&lt;12,LIST,DEFAULTTYPE,1&gt; {
+    typedef typename LIST::Type12 Type;
+    typedef typename LIST::Type12 TypeOrDefault;
+};
+
+template &lt;class LIST, class DEFAULTTYPE&gt;
+struct TypeListTypeOf&lt;13,LIST,DEFAULTTYPE,1&gt; {
+    typedef typename LIST::Type13 Type;
+    typedef typename LIST::Type13 TypeOrDefault;
+};
+
+template &lt;class LIST, class DEFAULTTYPE&gt;
+struct TypeListTypeOf&lt;14,LIST,DEFAULTTYPE,1&gt; {
+    typedef typename LIST::Type14 Type;
+    typedef typename LIST::Type14 TypeOrDefault;
+};
+
+template &lt;class LIST, class DEFAULTTYPE&gt;
+struct TypeListTypeOf&lt;15,LIST,DEFAULTTYPE,1&gt; {
+    typedef typename LIST::Type15 Type;
+    typedef typename LIST::Type15 TypeOrDefault;
+};
+
+template &lt;class LIST, class DEFAULTTYPE&gt;
+struct TypeListTypeOf&lt;16,LIST,DEFAULTTYPE,1&gt; {
+    typedef typename LIST::Type16 Type;
+    typedef typename LIST::Type16 TypeOrDefault;
+};
+
+template &lt;class LIST, class DEFAULTTYPE&gt;
+struct TypeListTypeOf&lt;17,LIST,DEFAULTTYPE,1&gt; {
+    typedef typename LIST::Type17 Type;
+    typedef typename LIST::Type17 TypeOrDefault;
+};
+
+template &lt;class LIST, class DEFAULTTYPE&gt;
+struct TypeListTypeOf&lt;18,LIST,DEFAULTTYPE,1&gt; {
+    typedef typename LIST::Type18 Type;
+    typedef typename LIST::Type18 TypeOrDefault;
+};
+
+template &lt;class LIST, class DEFAULTTYPE&gt;
+struct TypeListTypeOf&lt;19,LIST,DEFAULTTYPE,1&gt; {
+    typedef typename LIST::Type19 Type;
+    typedef typename LIST::Type19 TypeOrDefault;
+};
+
+template &lt;class LIST, class DEFAULTTYPE&gt;
+struct TypeListTypeOf&lt;20,LIST,DEFAULTTYPE,1&gt; {
+    typedef typename LIST::Type20 Type;
+    typedef typename LIST::Type20 TypeOrDefault;
+};
+
+}  // close package namespace
+
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright (C) 2012 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the &quot;Software&quot;), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

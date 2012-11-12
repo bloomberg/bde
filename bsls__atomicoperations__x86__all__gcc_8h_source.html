@@ -1,0 +1,438 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 2.16 BETA</title>
+<html>
+<pre>
+// bsls_atomicoperations_x86_all_gcc.h                                -*-C++-*-
+#ifndef INCLUDED_BSLS_ATOMICOPERATIONS_X86_ALL_GCC
+#define INCLUDED_BSLS_ATOMICOPERATIONS_X86_ALL_GCC
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide implementations of atomic operations for X86/GCC.
+//
+//@CLASSES:
+//  bsls::AtomicOperations_X86_ALL_GCC: implementation of atomics for X86/GCC.
+//
+//@DESCRIPTION: This component provides classes necessary to implement atomics
+// on the Linux X86 platform with GCC.  The classes are for private use only.
+// See &#39;bsls_atomicoperations&#39; and &#39;bsls_atomic&#39; for the public interface to
+// atomics.
+
+#ifndef INCLUDED_BSLS_ATOMICOPERATIONS_DEFAULT
+#include &lt;bsls_atomicoperations_default.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_PLATFORM
+#include &lt;bsls_platform.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_TYPES
+#include &lt;bsls_types.h&gt;
+#endif
+
+#if defined(BSLS_PLATFORM_CPU_X86) &amp;&amp; defined(BSLS_PLATFORM_CMP_GNU)
+
+namespace BloombergLP {
+
+namespace bsls {
+
+struct AtomicOperations_X86_ALL_GCC;
+typedef AtomicOperations_X86_ALL_GCC  AtomicOperations_Imp;
+
+           // ======================================================
+           // struct Atomic_TypeTraits&lt;AtomicOperations_X86_ALL_GCC&gt;
+           // ======================================================
+
+template &lt;&gt;
+struct Atomic_TypeTraits&lt;AtomicOperations_X86_ALL_GCC&gt;
+{
+    struct Int
+    {
+        volatile int d_value __attribute__((__aligned__(sizeof(int))));
+    };
+
+    struct Int64
+    {
+        volatile Types::Int64 d_value
+                       __attribute__((__aligned__(sizeof(Types::Int64))));
+    };
+
+    struct Pointer
+    {
+        void const * volatile d_value
+                                  __attribute__((__aligned__(sizeof(void *))));
+    };
+};
+
+                     // ===================================
+                     // struct AtomicOperations_X86_ALL_GCC
+                     // ===================================
+
+struct AtomicOperations_X86_ALL_GCC
+    : AtomicOperations_Default32&lt;AtomicOperations_X86_ALL_GCC&gt;
+{
+    typedef Atomic_TypeTraits&lt;AtomicOperations_X86_ALL_GCC&gt; AtomicTypes;
+
+        // *** atomic functions for int ***
+
+    static int getInt(const AtomicTypes::Int *atomicInt);
+
+    static int getIntAcquire(const AtomicTypes::Int *atomicInt);
+
+    static void setInt(AtomicTypes::Int *atomicInt, int value);
+
+    static void setIntRelease(AtomicTypes::Int *atomicInt, int value);
+
+    static int swapInt(AtomicTypes::Int *atomicInt, int swapValue);
+
+    static int testAndSwapInt(AtomicTypes::Int *atomicInt,
+                              int compareValue,
+                              int swapValue);
+
+    static int addIntNv(AtomicTypes::Int *atomicInt, int value);
+
+        // *** atomic functions for Int64 ***
+
+    static Types::Int64 getInt64(const AtomicTypes::Int64 *atomicInt);
+
+    static void setInt64(AtomicTypes::Int64 *atomicInt, Types::Int64 value);
+
+    static Types::Int64 swapInt64(AtomicTypes::Int64  *atomicInt,
+                                  Types::Int64 swapValue);
+
+    static Types::Int64 testAndSwapInt64(AtomicTypes::Int64 *atomicInt,
+                                         Types::Int64 compareValue,
+                                         Types::Int64 swapValue);
+
+    static Types::Int64 addInt64Nv(AtomicTypes::Int64 *atomicInt,
+                                   Types::Int64 value);
+};
+
+// ===========================================================================
+//                        INLINE FUNCTION DEFINITIONS
+// ===========================================================================
+
+                     // -----------------------------------
+                     // struct AtomicOperations_X86_ALL_GCC
+                     // -----------------------------------
+
+inline
+int AtomicOperations_X86_ALL_GCC::
+    getInt(const AtomicTypes::Int *atomicInt)
+{
+    int result;
+
+#ifdef __SSE2__
+    asm volatile (
+        &quot;       mfence                  \n\t&quot;
+        &quot;       movl %[obj], %[res]     \n\t&quot;
+
+                : [res] &quot;=r&quot; (result)
+                : [obj] &quot;m&quot;  (*atomicInt)
+                : &quot;memory&quot;);
+#else
+    asm volatile (
+        &quot;       lock addl $0, 0(%%esp)  \n\t&quot;
+        &quot;       movl %[obj], %[res]     \n\t&quot;
+
+                : [res] &quot;=r&quot; (result)
+                : [obj] &quot;m&quot;  (*atomicInt)
+                : &quot;memory&quot;, &quot;cc&quot;);
+#endif
+
+    return result;
+}
+
+inline
+int AtomicOperations_X86_ALL_GCC::
+    getIntAcquire(const AtomicTypes::Int *atomicInt)
+{
+    int result;
+
+    asm volatile (
+        &quot;       movl %[obj], %[res]     \n\t&quot;
+
+                : [res] &quot;=r&quot; (result)
+                : [obj] &quot;m&quot;  (*atomicInt)
+                : &quot;memory&quot;);
+
+    return result;
+}
+
+inline
+void AtomicOperations_X86_ALL_GCC::
+    setInt(AtomicTypes::Int *atomicInt, int value)
+{
+#ifdef __SSE2__
+    asm volatile (
+        &quot;       movl %[val], %[obj]     \n\t&quot;
+        &quot;       mfence                  \n\t&quot;
+
+                : [obj] &quot;=m&quot; (*atomicInt)
+                : [val] &quot;r&quot;  (value)
+                : &quot;memory&quot;);
+#else
+    asm volatile (
+        &quot;       movl %[val], %[obj]     \n\t&quot;
+        &quot;       lock addl $0, 0(%%esp)  \n\t&quot;
+
+                : [obj] &quot;=m&quot; (*atomicInt)
+                : [val] &quot;r&quot;  (value)
+                : &quot;memory&quot;, &quot;cc&quot;);
+#endif
+}
+
+inline
+void AtomicOperations_X86_ALL_GCC::
+    setIntRelease(AtomicTypes::Int *atomicInt, int value)
+{
+    asm volatile (
+        &quot;       movl %[val], %[obj]     \n\t&quot;
+
+                : [obj] &quot;=m&quot; (*atomicInt)
+                : [val] &quot;r&quot;  (value)
+                : &quot;memory&quot;);
+}
+
+inline
+int AtomicOperations_X86_ALL_GCC::
+    swapInt(AtomicTypes::Int *atomicInt, int swapValue)
+{
+    asm volatile (
+        &quot;       lock xchgl %[val], %[obj]   \n\t&quot;
+
+                : [obj] &quot;=m&quot; (*atomicInt),
+                  [val] &quot;=r&quot; (swapValue)
+                : &quot;1&quot; (swapValue), &quot;m&quot; (*atomicInt)
+                : &quot;memory&quot;);
+
+    return swapValue;
+}
+
+inline
+int AtomicOperations_X86_ALL_GCC::
+    testAndSwapInt(AtomicTypes::Int *atomicInt,
+                   int compareValue,
+                   int swapValue)
+{
+    asm volatile (
+        &quot;       lock cmpxchgl %[val], %[obj]    \n\t&quot;
+
+                : [cmp] &quot;+a&quot; (compareValue)
+                : [val] &quot;r&quot;  (swapValue),
+                  [obj] &quot;m&quot;  (*atomicInt)
+                : &quot;memory&quot;, &quot;cc&quot;);
+
+    return compareValue;
+}
+
+inline
+int AtomicOperations_X86_ALL_GCC::
+    addIntNv(AtomicTypes::Int *atomicInt, int value)
+{
+#if BSLS_PLATFORM_CMP_VER_MAJOR &gt;= 40100 // gcc &gt;= 4.1
+    return __sync_add_and_fetch(&amp;atomicInt-&gt;d_value, value);
+#else
+    const int orig = value;
+
+    asm volatile (
+        &quot;       lock xaddl %[val], %[obj]   \n\t&quot;
+
+                : [val] &quot;=r&quot; (value),
+                  [obj] &quot;+m&quot; (*atomicInt)
+                : &quot;0&quot; (value)
+                : &quot;memory&quot;, &quot;cc&quot;);
+
+    return orig + value;
+#endif
+}
+
+inline
+Types::Int64 AtomicOperations_X86_ALL_GCC::
+    getInt64(const AtomicTypes::Int64 *atomicInt)
+{
+    Types::Int64 result;
+
+    asm volatile (
+#ifdef __PIC__
+        &quot;       pushl %%ebx                 \n\t&quot;
+#endif
+        &quot;       movl %%ebx, %%eax           \n\t&quot;
+        &quot;       movl %%ecx, %%edx           \n\t&quot;
+#if __GNUC__ != 3
+        &quot;       lock cmpxchg8b %[obj]       \n\t&quot;
+#else
+        // gcc 3.4 seems to think that it can take edx as %1.
+        &quot;       lock cmpxchg8b (%[obj])     \n\t&quot;
+#endif
+#ifdef __PIC__
+        &quot;       popl %%ebx                  \n\t&quot;
+#endif
+                : [res] &quot;=&amp;A&quot; (result)
+                :
+#if __GNUC__ != 3
+                  [obj] &quot;m&quot; (*atomicInt),
+#else
+                  [obj] &quot;S&quot; (atomicInt),
+#endif
+                  &quot;0&quot; (0)
+                :
+#ifndef __PIC__
+                  &quot;ebx&quot;,
+#endif
+                  &quot;ecx&quot;, &quot;cc&quot;, &quot;memory&quot;);
+    return result;
+}
+
+inline
+void AtomicOperations_X86_ALL_GCC::
+    setInt64(AtomicTypes::Int64 *atomicInt, Types::Int64 value)
+{
+    swapInt64(atomicInt, value);
+}
+
+inline
+Types::Int64 AtomicOperations_X86_ALL_GCC::
+    swapInt64(AtomicTypes::Int64 *atomicInt,
+              Types::Int64 swapValue)
+{
+    Types::Int64 result;
+
+    asm volatile (
+#ifdef __PIC__
+        &quot;       pushl %%ebx             \n\t&quot;
+        &quot;       movl  %[val], %%ebx     \n\t&quot;
+#endif
+        &quot;1:                             \n\t&quot;
+        &quot;       lock cmpxchg8b %[obj]   \n\t&quot;
+        &quot;       jnz 1b                  \n\t&quot;
+#ifdef __PIC__
+        &quot;       popl %%ebx              \n\t&quot;
+#endif
+                : [res] &quot;=A&quot; (result),
+                  [obj] &quot;+m&quot; (*atomicInt)
+                :
+#ifdef __PIC__
+                  [val] &quot;g&quot; ((unsigned int) swapValue),
+#else
+                  [val] &quot;b&quot; ((unsigned int) swapValue),
+#endif
+                  &quot;c&quot; ((int) (swapValue &gt;&gt; 32)),
+                  &quot;A&quot; (*atomicInt)
+                :
+#if defined(BSLS_PLATFORM_CMP_CLANG) &amp;&amp; defined(__PIC__)
+                  &quot;ebx&quot;,    // Clang wants to reuse &#39;ebx&#39; even in PIC mode
+                            // and generates invalid code.
+                            // Mark &#39;ebx&#39; as clobbered to prevent that.
+#endif
+                  &quot;memory&quot;, &quot;cc&quot;);
+
+    return result;
+}
+
+inline
+Types::Int64 AtomicOperations_X86_ALL_GCC::
+    testAndSwapInt64(AtomicTypes::Int64 *atomicInt,
+                     Types::Int64 compareValue,
+                     Types::Int64 swapValue)
+{
+    asm volatile (
+#ifdef __PIC__
+        &quot;       pushl   %%ebx               \n\t&quot;
+        &quot;       movl    %[val], %%ebx       \n\t&quot;
+#endif
+        &quot;       lock cmpxchg8b %[obj]       \n\t&quot;
+#ifdef __PIC__
+        &quot;       popl    %%ebx               \n\t&quot;
+#endif
+                : [cmp] &quot;=A&quot; (compareValue),
+                  [obj] &quot;+m&quot; (*atomicInt)
+                :
+#ifdef __PIC__
+                  [val] &quot;g&quot; ((unsigned int) swapValue),
+#else
+                  [val] &quot;b&quot; ((unsigned int) swapValue),
+#endif
+                  &quot;c&quot; ((int) (swapValue &gt;&gt; 32)),
+                  &quot;0&quot; (compareValue)
+                : &quot;memory&quot;, &quot;cc&quot;);
+
+    return compareValue;
+}
+
+inline
+Types::Int64 AtomicOperations_X86_ALL_GCC::
+    addInt64Nv(AtomicTypes::Int64 *atomicInt,
+               Types::Int64 value)
+{
+#if BSLS_PLATFORM_CMP_VER_MAJOR &gt;= 40100 // gcc &gt;= 4.1
+    return __sync_add_and_fetch(&amp;atomicInt-&gt;d_value, value);
+#else
+    Types::Int64 result;
+
+    asm volatile (
+#   ifdef __PIC__
+        &quot;       pushl %%ebx             \n\t&quot;
+#   endif
+        &quot;1:                             \n\t&quot;
+        &quot;       movl %%eax, %%ebx       \n\t&quot;
+        &quot;       movl %%edx, %%ecx       \n\t&quot;
+        &quot;       addl (%[val]), %%ebx    \n\t&quot;
+        &quot;       adcl 4(%[val]), %%ecx   \n\t&quot;
+        &quot;       lock cmpxchg8b (%[obj]) \n\t&quot;
+        &quot;       jnz 1b                  \n\t&quot;
+        &quot;       movl %%ebx, %%eax       \n\t&quot;
+        &quot;       movl %%ecx, %%edx       \n\t&quot;
+#   ifdef __PIC__
+        &quot;       popl %%ebx              \n\t&quot;
+#   endif
+                : [res] &quot;=&amp;A&quot; (result),
+                  [obj] &quot;+D&quot;  (atomicInt)// should be m, but it breaks gcc 4
+                : [val] &quot;S&quot;   (&amp;value),  // should be m, but it breaks gcc 3
+                  &quot;0&quot; (*atomicInt)
+                :
+#   ifndef __PIC__
+                  &quot;ebx&quot;,
+#   endif
+                  &quot;ecx&quot;,&quot;cc&quot;,&quot;memory&quot;);
+
+   return result;
+#endif
+}
+
+}  // close package namespace
+
+}  // close enterprise namespace
+
+#endif  // defined(BSLS_PLATFORM_CPU_X86) &amp;&amp; defined(BSLS_PLATFORM_CMP_GNU)
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright (C) 2012 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the &quot;Software&quot;), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

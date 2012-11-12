@@ -1,0 +1,291 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 2.16 BETA</title>
+<html>
+<pre>
+// bslalg_functoradapter.h                                            -*-C++-*-
+#ifndef INCLUDED_BSLALG_FUNCTORADAPTER
+#define INCLUDED_BSLALG_FUNCTORADAPTER
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide an utility that adapts callable objects to functors.
+//
+//@CLASSES:
+//   bslalg::FunctorAdapter: utility for using callable objects as functors
+//
+//@SEE_ALSO: bslstl_setcomparator, bslstl_mapcomparator
+//
+//@DESCRIPTION: This component provides a single utility template,
+// &#39;FunctorAdapter&#39;, that adapts a parameterized adaptee type, which can be any
+// callable object type, to a target functor type.  This adaptation enables a
+// client to inherit from the target functor type even if the adaptee callable
+// object type is a function pointer type.  This is particularly useful if the
+// client of the callable object type wants to take advantage of the empty-base
+// optimization to avoid paying storage cost when the callable object type is a
+// functor type with no data members.
+//
+// &#39;FunctorAdapter&#39; defines an alias to the target functor type.  If the
+// adaptee type is a functor type, the target type is an alias to the adaptee
+// type.  If the adaptee type is a function pointer type, the target type is a
+// functor type that delegates to a function referred to by a function pointer
+// of the adaptee type.
+//
+///Usage
+///-----
+// This section illustrates the intended use of this component.
+//
+///Example 1: Using function pointer base for an empty-base optimized class
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Suppose that we wanted to define a binder that binds a binary predicate of a
+// parameterized type to a value passed on construction.  Also suppose that we
+// wanted to use the empty-base optimization to avoid paying storage cost when
+// the predicate type is a functor type with no data members.  Unfortunately,
+// the binary predicate type may be a function pointer type, which cannot serve
+// as a base class.  The solution is to have the binder inherit from
+// &#39;FunctorAdapter::Type&#39;, which adapts a function pointer type to a functor
+// type that is a suitable base class.
+//
+// First, we define the class &#39;Bind2ndInteger&#39;, which inherits from
+// &#39;FunctorAdapter::Type&#39; to take advantage of the empty-base optimization:
+//..
+//  template &lt;class BINARY_PREDICATE&gt;
+//  class Bind2ndInteger : private FunctorAdapter&lt;BINARY_PREDICATE&gt;::Type {
+//      // This class provides a functor that delegate its function-call
+//      // operator to the parameterized &#39;BINARY_PREDICATE&#39;, passing the user
+//      // supplied parameter as the first argument and the integer value
+//      // passed on construction as the second argument.
+//
+//      // DATA
+//      int d_bondValue;  // the bound value
+//
+//      // NOT IMPLEMENTED
+//      Bind2ndInteger(const Bind2ndInteger&amp;);
+//      Bind2ndInteger&amp; operator=(const Bind2ndInteger&amp;);
+//
+//    public:
+//      // CREATORS
+//      Bind2ndInteger(int value, const BINARY_PREDICATE&amp; predicate);
+//          // Create a &#39;Bind2ndInteger&#39; object that will bind the second
+//          // parameter of the specified &#39;predicate&#39; with the specified
+//          // integer &#39;value&#39;.
+//
+//      // ~Bind2ndInteger() = default;
+//          // Destroy this object.
+//
+//      // ACCESSORS
+//      bool operator() (const int value) const;
+//          // Return the result of calling the parameterized
+//          // &#39;BINARY_PREDICATE&#39; passing the specified &#39;value&#39; as the first
+//          // argument and the integer value passed on construction as the
+//          // second argument.
+//  };
+//..
+//  Then, we implement the methods of the &#39;Bind2ndInteger&#39; class:
+//..
+//  template &lt;class BINARY_PREDICATE&gt;
+//  Bind2ndInteger&lt;BINARY_PREDICATE&gt;::Bind2ndInteger(int value,
+//                                          const BINARY_PREDICATE&amp; predicate)
+//  : FunctorAdapter&lt;BINARY_PREDICATE&gt;::Type(predicate), d_bondValue(value)
+//  {
+//  }
+//..
+// Here, we implement the &#39;operator()&#39; member function that simply delegates to
+// &#39;BINARY_PREDICATE&#39;
+//..
+//  template &lt;class BINARY_PREDICATE&gt;
+//  bool Bind2ndInteger&lt;BINARY_PREDICATE&gt;::operator() (const int value) const
+//  {
+//      const BINARY_PREDICATE&amp; predicate = *this;
+//      return predicate(value, d_bondValue);
+//  }
+//..
+// Next, we define a function, &#39;intCompareFunction&#39;, that compares two
+// integers:
+//..
+//  bool intCompareFunction(const int lhs, const int rhs)
+//  {
+//      return lhs &lt; rhs;
+//  }
+//..
+// Now, we define a &#39;Bind2ndInteger&#39; object &#39;functorLessThan10&#39; using the
+// &#39;std::less&lt;int&gt;&#39; functor as the parameterized &#39;BINARY_PREDICATE&#39; and invoke
+// the function call operator:
+//..
+//  Bind2ndInteger&lt;native_std::less&lt;int&gt; &gt; functorLessThan10(10,
+//                                                    native_std::less&lt;int&gt;());
+//
+//  assert(functorLessThan10(1));
+//  assert(!functorLessThan10(12));
+//..
+// Finally, we define a &#39;Bind2ndInteger&#39; object &#39;functionLessThan10&#39; passing
+// the address of &#39;intCompareFunction&#39; on construction and invoke the function
+// call operator:
+//..
+//  Bind2ndInteger&lt;bool (*)(const int, const int)&gt;
+//                                 functionLessThan10(10, &amp;intCompareFunction);
+//
+//  assert(functionLessThan10(1));
+//  assert(!functionLessThan10(12));
+//..
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include &lt;bslscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_ASSERT
+#include &lt;bslmf_assert.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_FUNCTIONPOINTERTRAITS
+#include &lt;bslmf_functionpointertraits.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include &lt;bsls_assert.h&gt;
+#endif
+
+namespace BloombergLP {
+namespace bslalg {
+
+                    // ====================================
+                    // class FunctorAdapter_FunctionPointer
+                    // ====================================
+
+template &lt;class FUNCTION_POINTER&gt;
+class FunctorAdapter_FunctionPointer {
+    // This class provides a functor that delegates to the function referred to
+    // by a function pointer supplied on construction.  Delegation is supported
+    // through the conversion operator, which implicitly returns a reference to
+    // the parameterized &#39;FUNCTION_POINTER&#39;.
+
+  private:
+    // DATA
+    FUNCTION_POINTER d_function_p;  // the pointer to the function
+
+  public:
+    // CREATORS
+    explicit FunctorAdapter_FunctionPointer(FUNCTION_POINTER functionPtr);
+        // Create a &#39;FunctorAdapter_FunctionPointer&#39; object that will delegate
+        // to the function referred to by the specified &#39;functionPtr&#39;.
+
+    // MANIPULATORS
+    operator FUNCTION_POINTER&amp; ();
+        // Convert this object to the parametrized &#39;FUNCTION_POINTER&#39; by
+        // returning the function pointer supplied on construction.
+
+    // ACCESSORS
+    operator const FUNCTION_POINTER&amp; () const;
+        // Convert this object to the parametrized &#39;FUNCTION_POINTER&#39; by
+        // returning the function pointer supplied on construction.
+};
+
+                    // ====================
+                    // class FunctorAdapter
+                    // ====================
+
+template &lt;class CALLABLE_OBJECT&gt;
+class FunctorAdapter {
+    // This class provides a metafunction that defines an alias &#39;Type&#39; for the
+    // parameterized &#39;CALLABLE_OBJECT&#39;.  &#39;Type&#39; is functor type that provides
+    // the same operation as the parameterized &#39;CALLABLE_OBJECT&#39;.  Note that
+    // function pointers are supported through a specialization of this
+    // template.
+
+  public:
+    // PUBLIC TYPES
+    typedef CALLABLE_OBJECT Type;
+        // This &#39;typedef&#39; is an alias for the functor.
+};
+
+                    // ====================
+                    // class FunctorAdapter
+                    // ====================
+
+template &lt;class FUNCTION&gt;
+class FunctorAdapter&lt;FUNCTION*&gt; {
+    // This specialization of &#39;FunctorAdapter&#39; defines an alias &#39;Type&#39; for a
+    // functor that delegates to a function pointer matching the parameterized
+    // &#39;FUNCTION&#39; type.
+
+    BSLMF_ASSERT(bslmf::IsFunctionPointer&lt;FUNCTION*&gt;::VALUE);
+        // This &#39;BSLMF_ASSERT&#39; statement ensures that the parameter &#39;FUNCTION&#39;
+        // must be a function pointer.
+
+  public:
+    // PUBLIC TYPES
+    typedef FunctorAdapter_FunctionPointer&lt;FUNCTION*&gt; Type;
+        // This &#39;typedef&#39; is an alias for a functor that delegates to the
+        // function referred to by the function pointer matching the
+        // parameterized &#39;FUNCTION&#39; type.
+};
+
+
+// ===========================================================================
+//                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
+// ===========================================================================
+
+                    // ------------------------------------
+                    // class FunctorAdapter_FunctionPointer
+                    // ------------------------------------
+
+// CREATORS
+template &lt;class FUNCTION_POINTER&gt;
+inline
+FunctorAdapter_FunctionPointer&lt;FUNCTION_POINTER&gt;
+::FunctorAdapter_FunctionPointer(FUNCTION_POINTER functionPtr)
+:d_function_p(functionPtr)
+{
+}
+
+// MANIPULATORS
+template &lt;class FUNCTION_POINTER&gt;
+inline
+FunctorAdapter_FunctionPointer&lt;FUNCTION_POINTER&gt;
+::operator FUNCTION_POINTER&amp; ()
+{
+    return d_function_p;
+}
+
+// ACCESSORS
+template &lt;class FUNCTION_POINTER&gt;
+inline
+FunctorAdapter_FunctionPointer&lt;FUNCTION_POINTER&gt;
+::operator const FUNCTION_POINTER&amp; () const
+{
+    return d_function_p;
+}
+
+}  // close package namespace
+}  // close enterprise namespace
+
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright (C) 2012 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the &quot;Software&quot;), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

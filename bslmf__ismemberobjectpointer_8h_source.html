@@ -1,0 +1,128 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 2.16 BETA</title>
+<html>
+<pre>
+// bslmf_ismemberobjectpointer.h                                      -*-C++-*-
+#ifndef INCLUDED_BSLMF_ISMEMBEROBJECTPOINTER
+#define INCLUDED_BSLMF_ISMEMBEROBJECTPOINTER
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a compile-time check for member object pointer types.
+//
+//@CLASSES:
+//  bsl::is_member_object_pointer: standard meta-function
+//
+//@DESCRIPTION: This component defines a meta-function,
+// &#39;bsl::is_member_object_pointer&#39;, which may be used to query whether a type
+// is a pointer to non-static member object.
+//
+// &#39;bsl::is_member_object_pointer&#39; meets the requirements of the
+// &#39;is_member_object_pointer&#39; template defined in the C++11 standard
+// [meta.unary.cat].
+//
+///Usage
+///-----
+// In this section we show intended use of this component.
+//
+///Example 1: Verify Member Function Pointer Types
+///- - - - - - - - - - - - - - - - - - - - - - - -
+// Suppose that we want to assert whether a particular type is a class type.
+//
+// First, we create a user-defined type &#39;MyStruct&#39;:
+//..
+//  struct MyStruct
+//  {
+//      // DATA
+//      int memData;  // a member data
+//  };
+//..
+// Now, we create a &#39;typedef&#39; for a member object pointer type:
+//..
+//  typedef int MyStruct::* DataMemPtr;
+//..
+// Finally, we instantiate the &#39;bsl::is_member_object_pointer&#39; template for a
+// non-member data type and the &#39;MyStructDataPtr&#39; type, and assert the &#39;value&#39;
+// static data member of each instantiation:
+//..
+//  assert(false == bsl::is_member_object_pointer&lt;int&gt;::value);
+//  assert(true  == bsl::is_member_object_pointer&lt;DataMemPtr&gt;::value);
+//..
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include &lt;bslscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
+#include &lt;bslmf_integralconstant.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_REMOVECV
+#include &lt;bslmf_removecv.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_ISREFERENCE
+#include &lt;bslmf_isreference.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_ISMEMBERFUNCTIONPOINTER
+#include &lt;bslmf_ismemberfunctionpointer.h&gt;
+#endif
+
+namespace BloombergLP {
+namespace bslmf {
+
+template &lt;typename TYPE&gt;
+struct IsPointerToMemberData_Imp : bsl::false_type {
+};
+
+template &lt;typename TYPE, typename CLASS&gt;
+struct IsPointerToMemberData_Imp&lt;TYPE CLASS::*&gt; : bsl::true_type {
+};
+
+}  // close package namespace
+}  // close enterprise namespace
+
+namespace bsl {
+
+template &lt;typename TYPE&gt;
+struct is_member_object_pointer
+    : integral_constant&lt;bool,
+                       BloombergLP::bslmf::IsPointerToMemberData_Imp&lt;
+                           typename remove_cv&lt;TYPE&gt;::type&gt;::value
+                       &amp;&amp; !is_member_function_pointer&lt;TYPE&gt;::value
+                       &amp;&amp; !is_reference&lt;TYPE&gt;::value&gt;
+{};
+
+}  // close namespace bsl
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright (C) 2012 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the &quot;Software&quot;), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

@@ -1,0 +1,178 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 2.16 BETA</title>
+<html>
+<pre>
+// bslmf_isarray.h                                                    -*-C++-*-
+#ifndef INCLUDED_BSLMF_ISARRAY
+#define INCLUDED_BSLMF_ISARRAY
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a compile-time check for array types.
+//
+//@CLASSES:
+//  bslmf::IsArray: meta-function for detecting array types
+//
+//@DESCRIPTION: This component defines two meta-functions, &#39;bsl::is_array&#39; and
+// &#39;BloombergLP::bslmf::IsArray&#39;, both of which may be used to query whether a
+// type is an array type.
+//
+// &#39;bsl::is_array&#39; meets the requirements of the &#39;is_array&#39; template defined in
+// the C++11 standard [meta.unary.cat], while &#39;bslmf::IsArray&#39; was devised
+// before &#39;is_array&#39; was standardized.
+//
+// The two meta-functions are functionally equivalent.  The major difference
+// between them is that the result for &#39;bsl::is_array&#39; is indicated by the
+// class member &#39;value&#39;, while the result for &#39;bslmf::IsArray&#39; is indicated by
+// the class member &#39;VALUE&#39;.
+//
+// Note that &#39;bsl::is_array&#39; should be preferred over &#39;bslmf::IsArray&#39;, and in
+// general, should be used by new components.
+//
+///Usage
+///-----
+// In this section we show intended use of this component.
+//
+///Example 1: Verify Array Types
+///- - - - - - - - - - - - - - - -
+// Suppose that we want to assert whether a particular type is an Array type.
+//
+// First, we create two &#39;typedef&#39;s -- an array type and a non-array type:
+//..
+//  typedef int   MyType;
+//  typedef int[] MyArrayType;
+//..
+// Now, we instantiate the &#39;bsl::is_array&#39; template for each of the
+// &#39;typedef&#39;s and assert the &#39;value&#39; static data member of each instantiation:
+//..
+//  assert(false == bsl::is_array&lt;MyType&gt;::value);
+//  assert(true == bsl::is_array&lt;MyArrayType&gt;::value);
+//..
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include &lt;bslscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_METAINT
+#include &lt;bslmf_metaint.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
+#include &lt;bslmf_integralconstant.h&gt;
+#endif
+
+#ifndef INCLUDED_CSTDDEF
+#include &lt;cstddef&gt;       // &#39;std::size_t&#39;
+#define INCLUDED_CSTDDEF
+#endif
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
+#ifndef INCLUDED_CSTDLIB
+#include &lt;cstdlib&gt;  // TBD Robo transitively needs this for &#39;bsl::atoi&#39;, etc.
+#define INCLUDED_CSTDLIB
+#endif
+
+#endif
+
+namespace bsl {
+
+                         // ===============
+                         // struct is_array
+                         // ===============
+
+template &lt;typename TYPE&gt;
+struct is_array : false_type {
+    // This &#39;struct&#39; template implements the &#39;is_array&#39; meta-function defined
+    // in the C++11 standard [meta.unary.cat] to determine if the (template
+    // parameter) &#39;TYPE&#39; is an array type.  This &#39;struct&#39; derives from
+    // &#39;bsl::true_type&#39; if the &#39;TYPE&#39; is an array type and &#39;bsl::false_type&#39;
+    // otherwise.
+};
+
+                         // ====================================
+                         // struct is_array&lt;TYPE [NUM_ELEMENTS]&gt;
+                         // ====================================
+
+template &lt;typename TYPE, std::size_t NUM_ELEMENTS&gt;
+struct is_array&lt;TYPE [NUM_ELEMENTS]&gt; : true_type {
+     // This specialization of &#39;is_array&#39; derives from &#39;bsl::true_type&#39; for
+     // when the (template parameter) &#39;TYPE&#39; is a an array type.
+};
+
+                         // ========================
+                         // struct is_array&lt;TYPE []&gt;
+                         // ========================
+
+template &lt;typename TYPE&gt;
+struct is_array&lt;TYPE []&gt; : true_type {
+     // This specialization of &#39;is_array&#39; derives from &#39;bsl::true_type&#39; for
+     // when the (template parameter) &#39;TYPE&#39; is a an array type.
+};
+
+                         // =======================
+                         // struct is_array&lt;TYPE &amp;&gt;
+                         // =======================
+
+template &lt;typename TYPE&gt;
+struct is_array&lt;TYPE &amp;&gt; : is_array&lt;TYPE&gt;::type {
+     // This partial specialization of &#39;is_array&#39; strip the reference-ness from
+     // the (template parameter) &#39;TYPE&#39;.
+};
+
+}
+
+namespace BloombergLP {
+
+namespace bslmf {
+
+                         // ==============
+                         // struct IsArray
+                         // ==============
+
+template &lt;typename TYPE&gt;
+struct IsArray  : bsl::is_array&lt;TYPE&gt;::type {
+    // This &#39;struct&#39; template implements a meta-function to determine if the
+    // (template parameter) &#39;TYPE&#39; is an array type.  This &#39;struct&#39; derives
+    // from &#39;bslmf::MetaInt&lt;1&gt;&#39; if the &#39;TYPE&#39; is an array type (but not a
+    // pointer to non-static member), and &#39;bslmf::MetaInt&lt;0&gt;&#39; otherwise.
+    //
+    // Note that although this &#39;struct&#39; is functionally equivalent to
+    // &#39;bsl::is_array&#39;, the use of &#39;bsl::is_array&#39; should be preferred.
+};
+
+}  // close package namespace
+
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright (C) 2012 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the &quot;Software&quot;), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

@@ -1,0 +1,119 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 2.16 BETA</title>
+<html>
+<pre>
+// bslmf_isbitwiseequalitycomparable.h                  -*-C++-*-
+#ifndef INCLUDED_BSLMF_ISBITWISEEQUALITYCOMPARABLE
+#define INCLUDED_BSLMF_ISBITWISEEQUALITYCOMPARABLE
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a type trait for bitwise equality.
+//
+//@CLASSES:
+//  bslmf::IsBitwiseEqualityComparable: trait metafunction
+//
+//@DESCRIPTION:
+
+#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
+#include &lt;bslmf_integralconstant.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_ISFUNDAMENTAL
+#include &lt;bslmf_isfundamental.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_ISENUM
+#include &lt;bslmf_isenum.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_ISPOINTER
+#include &lt;bslmf_ispointer.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_ISPOINTERTOMEMBER
+#include &lt;bslmf_ispointertomember.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_DETECTNESTEDTRAIT
+#include &lt;bslmf_detectnestedtrait.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_REMOVECV
+#include &lt;bslmf_removecv.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_ISREFERENCE
+#include &lt;bslmf_isreference.h&gt;
+#endif
+
+namespace BloombergLP {
+
+namespace bslmf {
+
+template &lt;typename TYPE&gt;
+struct IsBitwiseEqualityComparable;
+
+template &lt;typename TYPE&gt;
+struct IsBitwiseEqualityComparable_Imp
+    : bsl::integral_constant&lt;bool,
+                             !bsl::is_reference&lt;TYPE&gt;::value
+                          &amp;&amp; (  IsFundamental&lt;TYPE&gt;::value
+                             || IsEnum&lt;TYPE&gt;::value
+                             || bsl::is_pointer&lt;TYPE&gt;::value
+                             || bslmf::IsPointerToMember&lt;TYPE&gt;::value
+                             || DetectNestedTrait&lt;TYPE,
+                                          IsBitwiseEqualityComparable&gt;::value)&gt;
+{};
+
+                     // ==================================
+                     // struct IsBitwiseEqualityComparable
+                     // ==================================
+
+template &lt;typename TYPE&gt;
+struct IsBitwiseEqualityComparable
+    : IsBitwiseEqualityComparable_Imp&lt;typename bsl::remove_cv&lt;TYPE&gt;::type&gt;
+{
+    // Trait metafunction that determines whether the specified parameter
+    // &#39;TYPE&#39; is bit-wise EqualityComparable.  If
+    // &#39;IsBitwiseEqualityComparable&lt;TYPE&gt;&#39; is derived from &#39;true_type&#39; then
+    // &#39;TYPE&#39; is bit-wise EqualityComparable.  Otherwise, bit-wise moveability
+    // cannot be inferred for &#39;TYPE&#39;.  This trait can be associated with a
+    // bit-wise EqualityComparable user-defined class by specializing this
+    // class or by using the &#39;BSLMF_DECLARE_NESTED_TRAIT&#39; macro.
+};
+
+}  // close package namespace
+
+}  // close namespace BloombergLP
+
+#endif // ! defined(INCLUDED_BSLMF_ISBITWISECOPYABLE)
+
+// ----------------------------------------------------------------------------
+// Copyright (C) 2012 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the &quot;Software&quot;), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

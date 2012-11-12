@@ -1,0 +1,1319 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 2.16 BETA</title>
+<html>
+<pre>
+// bsls_atomicoperations_default.h                                    -*-C++-*-
+#ifndef INCLUDED_BSLS_ATOMICOPERATIONS_DEFAULT
+#define INCLUDED_BSLS_ATOMICOPERATIONS_DEFAULT
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide default implementation for atomic operations.
+//
+//@CLASSES:
+//  bsls::AtomicOperations_DefaultInt: defaults for atomic operations on int
+//  bsls::AtomicOperations_DefaultInt64: defaults for Int64
+//  bsls::AtomicOperations_DefaultPointer32: defaults for 32-bit pointer
+//  bsls::AtomicOperations_DefaultPointer64: defaults for 64-bit pointer
+//  bsls::AtomicOperations_Default32: all atomics for a generic 32-bit platform
+//  bsls::AtomicOperations_Default64: all atomics for a generic 64-bit platform
+//
+//@DESCRIPTION: [!PRIVATE!] This component provides classes having default
+// implementations of atomic operations independent of a any specific platform.
+// The purpose of these classes is for them to be combined with
+// platform-specific implementations of atomic operations to form a full set of
+// atomic operations.
+//
+// [!WARNING!] This component should not be used directly by client code.  It
+// is subject to change without warning.
+//
+// The implementation of atomic operations splits the set of operations into
+// two groups: essential (core) operations and non-essential operations.  The
+// essential core operations, such as &#39;getInt&#39;, &#39;setInt&#39;, &#39;swapInt&#39;,
+// &#39;testAndSwapInt&#39;, must be implemented on every target platform.  The
+// non-essential operations, such as &#39;incrementInt&#39;, &#39;decrementInt&#39;, have
+// default implementations written in terms of the core operations (though the
+// default implementation may be overriden for a target platform).
+//
+// This component provides the default implementations for non-essential atomic
+// operations.  For the essential core operations, it provides only function
+// prototypes without any concrete implementation.  The concrete implementation
+// for core operations on each platform are provided by a platform-specific
+// implementation component.
+//
+///Design of Components Providing Atomic Operations
+///------------------------------------------------
+// There are about 70 different atomic operations we provide in this atomics
+// library.  Only a fraction of these operations (about 10-15) have
+// implementations specific to a target platform.  These are the core atomic
+// operations.  Other operations have implementations that are independent of
+// the platform, and are defined in terms of those core operations.
+//
+// A primary design objective for this implementation of atomic operations is
+// to provide a single common implementation for the platform-independent,
+// non-essential, atomic operations.  This way, each platform-specific
+// implementation of atomics needs to provide only the 10-15 core operations,
+// and may obtain the remaining 60 atomic operations automatically from this
+// default implementation component.
+//
+// The implementation technique used to achieve this goal is called the
+// Curiously Recurring Template Pattern, or CRTP.
+//
+// In the CRTP a derived class inherits from the base class, but the base class
+// is parameterized with the derived class template parameter.  In the context
+// of atomic operations, the CRTP allows the non-essential base class methods
+// to be accessed through the platform specific derived class, while the
+// template parametrization of the base class allows the implementations for
+// platform-independent (non-essential) operations in the base class to be
+// implemented in terms of the core operations implemented in the
+// platform-specific derived class.
+//
+// Let&#39;s illustrate this idea with an example.  The base class, &#39;AtomicsBase&#39;,
+// will provide an implementation for a single non-essential atomic operation,
+// &#39;getIntAcquire&#39;, whose implementation delegates to the platform-specific
+// implementation of another, (core) atomic operation, &#39;getInt&#39;:
+//..
+//  template &lt;class IMP&gt;
+//  struct AtomicsBase&lt;IMP&gt;
+//  {
+//      // static
+//      // int getInt(int volatile *);
+//      //   Implemented in the derived class, &#39;IMP&#39;.
+//
+//      static
+//      int getIntAcquire(int volatile *obj)
+//          // Platform-independent; implemented in terms of the derived
+//          // &#39;getInt&#39;.
+//      {
+//          return IMP::getInt(obj);
+//      }
+//  };
+//..
+// Now we define a platform-specific implementation of the atomics class for
+// the x86 platform providing the core operation &#39;getInt&#39;:
+//..
+//  struct AtomicsX86 : AtomicsBase&lt;AtomicsX86&gt;
+//  {
+//      static
+//      int getInt(int volatile *obj)
+//          // Platform-specific implementation.
+//      {
+//          // ...whatever is necessary for this atomic operation on x86
+//      }
+//  };
+//..
+// To get an idea what the effective interface and the implementation of the
+// &#39;AtomicsX86&#39; class looks like, we can flatten the hierarchy of &#39;AtomicsX86&#39;
+// and remove the &#39;AtomicsBase&#39; class from the picture, as if we implemented
+// &#39;AtomicsX86&#39; without the help of &#39;AtomicsBase&#39;.  The effective interface and
+// the implementation of &#39;AtomicsX86&#39; is as follows:
+//..
+//  struct AtomicsX86Flattened
+//  {
+//      static
+//      int getInt(int volatile *obj)
+//          // Platform-specific implementation.
+//      {
+//          // ...whatever is necessary for this atomic operation on x86
+//      }
+//
+//      static
+//      int getIntAcquire(int volatile *obj)
+//          // Platform-independent; implemented in terms of &#39;getInt&#39;.
+//      {
+//          return getInt(obj);
+//      }
+//  };
+//..
+// The above code shows that the design goal is achieved: Platform-independent
+// atomic operations are factored out into easily reusable &#39;AtomicsBase&#39; which,
+// when combined with platform-specific atomic operations, produces the
+// complete set of atomic operations for a given target-platform.
+//
+///Component and Class Hierarchy for Atomic Operations
+///---------------------------------------------------
+// This section describes the hierarchy of components and types that implement
+// atomic operations.  Below is the list of base classes providing default
+// implementations of platform-independent, non-essential atomic operations.
+// Atomic operations for different data types are factored into their own base
+// classes:
+//: o bsls::AtomicOperations_DefaultInt - provides atomic operations for int
+//: o bsls::AtomicOperations_DefaultInt64 - for Int64
+//: o bsls::AtomicOperations_DefaultPointer32 - for 32-bit pointer
+//: o bsls::AtomicOperations_DefaultPointer64 - for 64-bit pointer
+//
+// The platform-specific core atomic operations are left unimplemented in these
+// default implementation classes.  The implementations for those operations
+// have to be provided by a platform-specific derived classes.
+//
+// The above default implementation classes are combined (using inheritance)
+// into more specialized base classes that provide nearly complete set of
+// atomic operations for a generic platform:
+//
+//: o bsls::AtomicOperations_Default32 - a set of atomic operations for a
+//:   generic 32-bit platform
+//:
+//: o bsls::AtomicOperations_Default64 - a set of atomic operations for a
+//:   generic 64-bit platform
+//
+// This is how the generic platform base classes are composed:
+//: o bsls::AtomicOperations_Default32 : AtomicOperations_DefaultInt,
+//:                                      AtomicOperations_DefaultInt64,
+//:                                      AtomicOperations_DefaultPointer32
+//: o bsls::AtomicOperations_Default64 : AtomicOperations_DefaultInt,
+//:                                      AtomicOperations_DefaultInt64,
+//:                                      AtomicOperations_DefaultPointer64
+//
+// A typical derived class implementing platform-specific atomic operations
+// needs to derive from either &#39;bsls::AtomicOperations_Default32&#39; (if the
+// platform is 32-bit) or &#39;bsls::AtomicOperations_Default64&#39; (if the platform
+// is 64-bit).
+//
+// For example, let&#39;s take the X86_64 platform with GCC compiler.  The derived
+// class for this platform, &#39;bsls::AtomicOperations_X64_ALL_GCC&#39;, inherits from
+// &#39;bsls::AtomicOperations_Default64&#39; and implements all platform-specific
+// atomic operations:
+//..
+//  struct bsls::AtomicOperations_X64_ALL_GCC
+//      : bsls::AtomicOperations_Default64&lt;bsls::AtomicOperations_X64_ALL_GCC&gt;
+//  {
+//      typedef bsls::Atomic_TypeTraits&lt;bsls::AtomicOperations_X64_ALL_GCC&gt;
+//          AtomicTypes;   // for explanation of atomic type traits see below
+//
+//          // *** atomic functions for int ***
+//      static int getInt(const AtomicTypes::Int *atomicInt);
+//      static void setInt(AtomicTypes::Int *atomicInt, int value);
+//      // ...
+//
+//          // *** atomic functions for Int64 ***
+//      static bsls::Types::Int64 getInt64(
+//                  AtomicTypes::Int64 const *atomicInt);
+//      static void setInt64(
+//                  AtomicTypes::Int64 *atomicInt, bsls::Types::Int64 value);
+//      // ...
+//  };
+//..
+// A derived class can also override some default atomic implementations from a
+// base class.  For example, &#39;bsls::AtomicOperations_X64_ALL_GCC&#39; can provide a
+// better implementation for &#39;getIntAcquire&#39; than the one provided by the
+// &#39;bsls::AtomicOperations_DefaultInt&#39; base class.  So
+// &#39;bsls::AtomicOperations_X64_ALL_GCC&#39; implements its own &#39;getIntAcquire&#39; with
+// the same signature as in the base class:
+//..
+//  struct bsls::AtomicOperations_X64_ALL_GCC
+//      : bsls::AtomicOperations_Default64&lt;bsls::AtomicOperations_X64_ALL_GCC&gt;
+//  {
+//          // *** atomic functions for int ***
+//      static int getIntAcquire(const AtomicTypes::Int *atomicInt);
+//      // ...
+//  };
+//..
+// Technically speaking, this is not overriding, but hiding the respective
+// methods of the base class, but for our purpose, it works as if the methods
+// were overriden.
+//
+// Platform-specific atomic operations for other platforms are implemented in a
+// similar manner.  Here is a conceptual diagram of relationships between
+// classes that provide the default atomic operations and platform-specific
+// atomic operations (the bsls::AtomicOperations_ prefix is omitted for
+// brevity):
+//..
+//  DefaultPointer32      DefaultInt         DefaultInt64    DefaultPointer64
+//          ^                  ^                   ^                 ^
+//          |                  |                   |                 |
+//          +---------------+  +-------------------+  +--------------+
+//                          |  |                   |  |
+//                        Default32              Default64
+//                            ^                      ^
+//                            |                      |
+//              X86_ALL_GCC --+                      +-- X64_ALL_GCC
+//                            |                      |
+//             X86_WIN_MSVC --+                      +-- X64_WIN_MSVC
+//                            |                      |
+//        POWERPC32_AIX_XLC --+                      +-- POWERPC64_AIX_XLC
+//                            |                      |
+//           SPARC32_SUN_CC --+                      +-- SPARC64_SUN_CC
+//                                                   |
+//                                                   +-- IA64_HP_ACC
+//..
+//
+// The last part of the implementation is the atomic type traits class.  We
+// need a special representation for atomic primitive types to ensure
+// conformance to size and alignment requirements for each platform.  For
+// example, the atomic primitive type for &#39;int&#39; is usually a 4-byte aligned
+// &#39;volatile int&#39;.  Since the alignment is specified differently for different
+// platforms and compilers, the atomic type traits class allows us to abstract
+// the rest of the implementation of atomics from those differences.
+//
+// This default implementation component provides only a declaration of a
+// generic atomic type traits class:
+//..
+//  template &lt;class IMP&gt;
+//  struct bsls::Atomic_TypeTraits;
+//..
+// Each platform-specific implementation has to provide its own specialization
+// of the type traits class.  For example, the specialization for the x86_64
+// platform defined by the &#39;bsls::AtomicOperations_X64_ALL_GCC&#39; class might
+// look like:
+//..
+//  template &lt;&gt;
+//  struct bsls::Atomic_TypeTraits&lt;bsls::AtomicOperations_X64_ALL_GCC&gt;
+//  {
+//      struct Int
+//      {
+//          volatile int d_value __attribute__((__aligned__(sizeof(int))));
+//      };
+//
+//      struct Int64
+//      {
+//          volatile bsls::Types::Int64 d_value
+//                    __attribute__((__aligned__(sizeof(bsls::Types::Int64))));
+//      };
+//
+//      struct Pointer
+//      {
+//          void const * volatile d_value
+//                                __attribute__((__aligned__(sizeof(void *))));
+//      };
+//  };
+//..
+//
+///Usage
+///-----
+// This component is a private implementation type of &#39;bsls_atomicoperations&#39;;
+// see &#39;bsls_atomicoperations&#39; for a usage example.
+
+#ifndef INCLUDED_BSLS_TYPES
+#include &lt;bsls_types.h&gt;
+#endif
+
+namespace BloombergLP {
+
+namespace bsls {
+
+                     // ==================================
+                     // struct AtomicOperations_DefaultInt
+                     // ==================================
+
+template &lt;class IMP&gt;
+struct Atomic_TypeTraits;
+
+template &lt;class IMP&gt;
+struct AtomicOperations_DefaultInt
+    // This class provides default implementations of non-essential atomic
+    // operations for the 32-bit integer type independent on any specific
+    // platform.  It also provides prototypes for the atomic operations for the
+    // 32-bit integer type that have to be implemented separately for each
+    // specific platform.  These platform-independent and platform-specific
+    // atomic operations together form a full set of atomic operations for the
+    // 32-bit integer type.
+{
+  public:
+    // PUBLIC TYPES
+    typedef Atomic_TypeTraits&lt;IMP&gt; AtomicTypes;
+
+  private:
+    // The following are signatures for the core atomics interface, the
+    // implementation of which must be provided by a derived platform-specific
+    // &#39;IMP&#39; class.
+
+    // NOT IMPLEMENTED
+    static int getInt(typename AtomicTypes::Int const *atomicInt);
+
+    static void setInt(typename AtomicTypes::Int *atomicInt, int value);
+
+    static int swapInt(typename AtomicTypes::Int *atomicInt, int swapValue);
+
+    static int testAndSwapInt(typename AtomicTypes::Int *atomicInt,
+                              int compareValue,
+                              int swapValue);
+
+    static int addIntNv(typename AtomicTypes::Int *atomicInt, int value);
+
+  public:
+    // CLASS METHODS
+    static void initInt(typename AtomicTypes::Int *atomicInt,
+                        int initialValue = 0);
+
+    static int getIntRelaxed(typename AtomicTypes::Int const *atomicInt);
+
+    static int getIntAcquire(typename AtomicTypes::Int const *atomicInt);
+
+    static void setIntRelaxed(typename AtomicTypes::Int *atomicInt, int value);
+
+    static void setIntRelease(typename AtomicTypes::Int *atomicInt, int value);
+
+    static int swapIntAcqRel(typename AtomicTypes::Int *atomicInt,
+                             int swapValue);
+
+    static int testAndSwapIntAcqRel(typename AtomicTypes::Int *atomicInt,
+                                    int compareValue,
+                                    int swapValue);
+
+    static int addIntNvRelaxed(typename AtomicTypes::Int *atomicInt,
+                               int value);
+
+    static int addIntNvAcqRel(typename AtomicTypes::Int *atomicInt, int value);
+
+    static void addInt(typename AtomicTypes::Int *atomicInt, int value);
+
+    static void addIntRelaxed(typename AtomicTypes::Int *atomicInt, int value);
+
+    static void addIntAcqRel(typename AtomicTypes::Int *atomicInt, int value);
+
+    static int incrementIntNv(typename AtomicTypes::Int *atomicInt);
+
+    static int incrementIntNvAcqRel(typename AtomicTypes::Int *atomicInt);
+
+    static void incrementInt(typename AtomicTypes::Int *atomicInt);
+
+    static void incrementIntAcqRel(typename AtomicTypes::Int *atomicInt);
+
+    static int decrementIntNv(typename AtomicTypes::Int *atomicInt);
+
+    static int decrementIntNvAcqRel(typename AtomicTypes::Int *atomicInt);
+
+    static void decrementInt(typename AtomicTypes::Int *atomicInt);
+
+    static void decrementIntAcqRel(typename AtomicTypes::Int *atomicInt);
+};
+
+                    // ====================================
+                    // struct AtomicOperations_DefaultInt64
+                    // ====================================
+
+template &lt;class IMP&gt;
+struct AtomicOperations_DefaultInt64
+    // This class provides default implementations of non-essential atomic
+    // operations for the 64-bit integer type independent on any specific
+    // platform.  It also provides prototypes for the atomic operations for the
+    // 64-bit integer type that have to be implemented separately for each
+    // specific platform.  These platform-independent and platform-specific
+    // atomic operations together form a full set of atomic operations for the
+    // 64-bit integer type.
+{
+  public:
+    // PUBLIC TYPES
+    typedef Atomic_TypeTraits&lt;IMP&gt; AtomicTypes;
+
+  private:
+    // The following are signatures for the core atomics interface, the
+    // implementation of which must be provided by a derived platform-specific
+    // &#39;IMP&#39; class.
+
+    // NOT IMPLEMENTED
+    static Types::Int64 getInt64(typename AtomicTypes::Int64 const *atomicInt);
+
+    static void setInt64(typename AtomicTypes::Int64 *atomicInt,
+                         Types::Int64 value);
+
+    static Types::Int64 swapInt64(typename AtomicTypes::Int64 *atomicInt,
+                                  Types::Int64 swapValue);
+
+    static Types::Int64 testAndSwapInt64(
+                                        typename AtomicTypes::Int64 *atomicInt,
+                                        Types::Int64 compareValue,
+                                        Types::Int64 swapValue);
+
+    static Types::Int64 addInt64Nv(typename AtomicTypes::Int64 *atomicInt,
+                                   Types::Int64 value);
+
+  public:
+    // CLASS METHODS
+    static void initInt64(typename AtomicTypes::Int64  *atomicInt,
+                          Types::Int64  initialValue = 0);
+
+    static Types::Int64 getInt64Relaxed(
+                                 typename AtomicTypes::Int64 const *atomicInt);
+
+    static Types::Int64 getInt64Acquire(
+                                 typename AtomicTypes::Int64 const *atomicInt);
+
+    static void setInt64Relaxed(typename AtomicTypes::Int64 *atomicInt,
+                                Types::Int64 value);
+
+    static void setInt64Release(typename AtomicTypes::Int64 *atomicInt,
+                                Types::Int64 value);
+
+    static Types::Int64 swapInt64AcqRel(typename AtomicTypes::Int64 *atomicInt,
+                                        Types::Int64 swapValue);
+
+    static Types::Int64 testAndSwapInt64AcqRel(
+                                      typename AtomicTypes::Int64 *atomicInt,
+                                      Types::Int64 compareValue,
+                                      Types::Int64 swapValue);
+
+    static Types::Int64 addInt64NvRelaxed(
+                                        typename AtomicTypes::Int64 *atomicInt,
+                                        Types::Int64 value);
+
+    static Types::Int64 addInt64NvAcqRel(
+                                        typename AtomicTypes::Int64 *atomicInt,
+                                        Types::Int64 value);
+
+    static void addInt64(typename AtomicTypes::Int64 *atomicInt,
+                         Types::Int64 value);
+
+    static void addInt64Relaxed(typename AtomicTypes::Int64 *atomicInt,
+                                Types::Int64 value);
+
+    static void addInt64AcqRel(typename AtomicTypes::Int64 *atomicInt,
+                               Types::Int64 value);
+
+    static void incrementInt64(typename AtomicTypes::Int64 *atomicInt);
+
+    static void incrementInt64AcqRel(typename AtomicTypes::Int64 *atomicInt);
+
+    static Types::Int64 incrementInt64Nv(
+                                       typename AtomicTypes::Int64 *atomicInt);
+
+    static Types::Int64 incrementInt64NvAcqRel(
+                                       typename AtomicTypes::Int64 *atomicInt);
+
+    static void decrementInt64(typename AtomicTypes::Int64 *atomicInt);
+
+    static void decrementInt64AcqRel(typename AtomicTypes::Int64 *atomicInt);
+
+    static Types::Int64 decrementInt64Nv(
+                                       typename AtomicTypes::Int64 *atomicInt);
+
+    static Types::Int64 decrementInt64NvAcqRel(
+                                       typename AtomicTypes::Int64 *atomicInt);
+};
+
+                  // ========================================
+                  // struct AtomicOperations_DefaultPointer32
+                  // ========================================
+
+template &lt;class IMP&gt;
+struct AtomicOperations_DefaultPointer32
+    // This class provides default implementations of non-essential atomic
+    // operations for the 32-bit pointer type independent on any specific
+    // platform.  It also provides prototypes for the atomic operations for the
+    // pointer type that have to be implemented separately for each specific
+    // platform.  These platform-independent and platform-specific atomic
+    // operations combined together form a full set of atomic operations for
+    // the pointer type.
+    //
+    // Note that &#39;AtomicOperations_DefaultPointer32&#39; is implemented in
+    // terms of the following atomic operations on the integer type which must
+    // be provided by the &#39;IMP&#39; template parameter.
+    //..
+    //  static int getInt(typename AtomicTypes::Int const *atomicInt);
+    //  static int getIntRelaxed(typename AtomicTypes::Int const *atomicInt);
+    //  static int getIntAcquire(typename AtomicTypes::Int const *atomicInt);
+    //  static void setInt(typename AtomicTypes::Int *atomicInt, int value);
+    //  static void setIntRelaxed(typename AtomicTypes::Int *atomicInt,
+    //                            int value);
+    //  static void setIntRelease(typename AtomicTypes::Int *atomicInt,
+    //                            int value);
+    //  static int swapInt(typename AtomicTypes::Int *atomicInt,
+    //                     int swapValue);
+    //  static int swapIntAcqRel(typename AtomicTypes::Int *atomicInt,
+    //                           int swapValue);
+    //  static int testAndSwapInt(typename AtomicTypes::Int *atomicInt,
+    //                            int compareValue,
+    //                            int swapValue);
+    //  static int testAndSwapIntAcqRel(typename AtomicTypes::Int *atomicInt,
+    //                                  int compareValue,
+    //                                  int swapValue);
+    //..
+{
+    // PUBLIC TYPES
+    typedef Atomic_TypeTraits&lt;IMP&gt; AtomicTypes;
+
+    // CLASS METHODS
+    static void initPointer(typename AtomicTypes::Pointer *atomicPtr,
+                            const void *initialValue = 0);
+
+    static const void *getPtr(typename AtomicTypes::Pointer const *atomicPtr);
+
+    static const void *getPtrRelaxed(
+                               typename AtomicTypes::Pointer const *atomicPtr);
+
+    static const void *getPtrAcquire(
+                               typename AtomicTypes::Pointer const *atomicPtr);
+
+    static void setPtr(typename AtomicTypes::Pointer *atomicPtr,
+                       const void *value);
+
+    static void setPtrRelaxed(typename AtomicTypes::Pointer *atomicPtr,
+                              const void *value);
+
+    static void setPtrRelease(typename AtomicTypes::Pointer *atomicPtr,
+                              const void *value);
+
+    static void *swapPtr(typename AtomicTypes::Pointer *atomicPtr,
+                         const void *swapValue);
+
+    static void *swapPtrAcqRel(typename AtomicTypes::Pointer *atomicPtr,
+                               const void *swapValue);
+
+    static void *testAndSwapPtr(typename AtomicTypes::Pointer *atomicPtr,
+                                const void *compareValue,
+                                const void *swapValue);
+
+    static void *testAndSwapPtrAcqRel(typename AtomicTypes::Pointer *atomicPtr,
+                                      const void *compareValue,
+                                      const void *swapValue);
+};
+
+                  // ========================================
+                  // struct AtomicOperations_DefaultPointer64
+                  // ========================================
+
+template &lt;class IMP&gt;
+struct AtomicOperations_DefaultPointer64
+    // This class provides default implementations of non-essential atomic
+    // operations for the 64-bit pointer type independent on any specific
+    // platform.  It also provides prototypes for the atomic operations for the
+    // pointer type that have to be implemented separately for each specific
+    // platform.  These platform-independent and platform-specific atomic
+    // operations combined together form a full set of atomic operations for
+    // the pointer type.
+    //
+    // Note that &#39;AtomicOperations_DefaultPointer64&#39; is implemented in
+    // terms of the following atomic operations on the Int64 type which must be
+    // provided by the &#39;IMP&#39; template parameter.
+    //..
+    //  static Types::Int64 getInt64(
+    //                           typename AtomicTypes::Int64 const *atomicInt);
+    //  static Types::Int64 getInt64Relaxed(
+    //                           typename AtomicTypes::Int64 const *atomicInt);
+    //  static Types::Int64 getInt64Acquire(
+    //                           typename AtomicTypes::Int64 const *atomicInt);
+    //  static void setInt64(typename AtomicTypes::Int64 *atomicInt,
+    //                       Types::Int64 value);
+    //  static void setInt64Relaxed(typename AtomicTypes::Int64 *atomicInt,
+    //                              Types::Int64 value);
+    //  static void setInt64Release(typename AtomicTypes::Int64 *atomicInt,
+    //                              Types::Int64 value);
+    //  static Types::Int64 swapInt64(typename AtomicTypes::Int64 *atomicInt,
+    //                                Types::Int64 swapValue);
+    //  static Types::Int64 swapInt64AcqRel(
+    //                                  typename AtomicTypes::Int64 *atomicInt,
+    //                                  Types::Int64 swapValue);
+    //  static Types::Int64 testAndSwapInt64(
+    //                                  typename AtomicTypes::Int64 *atomicInt,
+    //                                  Types::Int64 compareValue,
+    //                                  Types::Int64 swapValue);
+    //  static Types::Int64 testAndSwapInt64AcqRel(
+    //                                  typename AtomicTypes::Int64 *atomicInt,
+    //                                  Types::Int64 compareValue,
+    //                                  Types::Int64 swapValue);
+    //..
+{
+    // PUBLIC TYPES
+    typedef Atomic_TypeTraits&lt;IMP&gt; AtomicTypes;
+
+    // CLASS METHODS
+    static void initPointer(typename AtomicTypes::Pointer *atomicPtr,
+                            const void *initialValue = 0);
+
+    static const void *getPtr(typename AtomicTypes::Pointer const *atomicPtr);
+
+    static const void *getPtrRelaxed(
+                               typename AtomicTypes::Pointer const *atomicPtr);
+
+    static const void *getPtrAcquire(
+                               typename AtomicTypes::Pointer const *atomicPtr);
+
+    static void setPtr(typename AtomicTypes::Pointer *atomicPtr,
+                       const void *value);
+
+    static void setPtrRelaxed(typename AtomicTypes::Pointer *atomicPtr,
+                              const void *value);
+
+    static void setPtrRelease(typename AtomicTypes::Pointer *atomicPtr,
+                              const void *value);
+
+    static void *swapPtr(typename AtomicTypes::Pointer *atomicPtr,
+                         const void *swapValue);
+
+    static void *swapPtrAcqRel(typename AtomicTypes::Pointer *atomicPtr,
+                               const void *swapValue);
+
+    static void *testAndSwapPtr(typename AtomicTypes::Pointer   *atomicPtr,
+                                const void *compareValue,
+                                const void *swapValue);
+
+    static void *testAndSwapPtrAcqRel(typename AtomicTypes::Pointer *atomicPtr,
+                                      const void *compareValue,
+                                      const void *swapValue);
+};
+
+                      // =================================
+                      // struct AtomicOperations_Default32
+                      // =================================
+
+template &lt;class IMP&gt;
+struct AtomicOperations_Default32
+: AtomicOperations_DefaultInt&lt;IMP&gt;
+, AtomicOperations_DefaultInt64&lt;IMP&gt;
+, AtomicOperations_DefaultPointer32&lt;IMP&gt;
+    // This class provides default implementations of non-essential atomic
+    // operations for the 32-bit integer, 64-bit integer and 32-bit pointer
+    // type for a generic 32-bit platform.
+{
+};
+
+                      // =================================
+                      // struct AtomicOperations_Default64
+                      // =================================
+
+template &lt;class IMP&gt;
+struct AtomicOperations_Default64
+: AtomicOperations_DefaultInt&lt;IMP&gt;
+, AtomicOperations_DefaultInt64&lt;IMP&gt;
+, AtomicOperations_DefaultPointer64&lt;IMP&gt;
+    // This class provides default implementations of non-essential atomic
+    // operations for the 32-bit integer, 64-bit integer and 64-bit pointer
+    // type for a generic 64-bit platform.
+{
+};
+
+// ===========================================================================
+//                        INLINE FUNCTION DEFINITIONS
+// ===========================================================================
+
+                     // ----------------------------------
+                     // struct AtomicOperations_DefaultInt
+                     // ----------------------------------
+
+// CLASS METHODS
+template &lt;class IMP&gt;
+inline
+void AtomicOperations_DefaultInt&lt;IMP&gt;::
+    initInt(typename AtomicTypes::Int *atomicInt, int initialValue)
+{
+    atomicInt-&gt;d_value = initialValue;
+}
+
+template &lt;class IMP&gt;
+inline
+int AtomicOperations_DefaultInt&lt;IMP&gt;::
+    getIntRelaxed(typename AtomicTypes::Int const *atomicInt)
+{
+    return atomicInt-&gt;d_value;
+}
+
+template &lt;class IMP&gt;
+inline
+int AtomicOperations_DefaultInt&lt;IMP&gt;::
+    getIntAcquire(typename AtomicTypes::Int const *atomicInt)
+{
+    return IMP::getInt(atomicInt);
+}
+
+template &lt;class IMP&gt;
+inline
+void AtomicOperations_DefaultInt&lt;IMP&gt;::
+    setIntRelaxed(typename AtomicTypes::Int *atomicInt, int value)
+{
+    atomicInt-&gt;d_value = value;
+}
+
+template &lt;class IMP&gt;
+inline
+void AtomicOperations_DefaultInt&lt;IMP&gt;::
+    setIntRelease(typename AtomicTypes::Int *atomicInt, int value)
+{
+    IMP::setInt(atomicInt, value);
+}
+
+template &lt;class IMP&gt;
+inline
+int AtomicOperations_DefaultInt&lt;IMP&gt;::
+    swapIntAcqRel(typename AtomicTypes::Int *atomicInt, int swapValue)
+{
+    return IMP::swapInt(atomicInt, swapValue);
+}
+
+template &lt;class IMP&gt;
+inline
+int AtomicOperations_DefaultInt&lt;IMP&gt;::
+    testAndSwapIntAcqRel(typename AtomicTypes::Int *atomicInt,
+                         int compareValue,
+                         int swapValue)
+{
+    return IMP::testAndSwapInt(atomicInt, compareValue, swapValue);
+}
+
+template &lt;class IMP&gt;
+inline
+int AtomicOperations_DefaultInt&lt;IMP&gt;::
+    addIntNvRelaxed(typename AtomicTypes::Int *atomicInt, int value)
+{
+    return IMP::addIntNvAcqRel(atomicInt, value);
+}
+
+template &lt;class IMP&gt;
+inline
+int AtomicOperations_DefaultInt&lt;IMP&gt;::
+    addIntNvAcqRel(typename AtomicTypes::Int *atomicInt, int value)
+{
+    return IMP::addIntNv(atomicInt, value);
+}
+
+template &lt;class IMP&gt;
+inline
+void AtomicOperations_DefaultInt&lt;IMP&gt;::
+    addInt(typename AtomicTypes::Int *atomicInt, int value)
+{
+    IMP::addIntNv(atomicInt, value);
+}
+
+template &lt;class IMP&gt;
+inline
+void AtomicOperations_DefaultInt&lt;IMP&gt;::
+    addIntRelaxed(typename AtomicTypes::Int *atomicInt, int value)
+{
+    IMP::addIntNvRelaxed(atomicInt, value);
+}
+
+template &lt;class IMP&gt;
+inline
+void AtomicOperations_DefaultInt&lt;IMP&gt;::
+    addIntAcqRel(typename AtomicTypes::Int *atomicInt, int value)
+{
+    IMP::addIntNvAcqRel(atomicInt, value);
+}
+
+template &lt;class IMP&gt;
+inline
+int AtomicOperations_DefaultInt&lt;IMP&gt;::
+    incrementIntNv(typename AtomicTypes::Int *atomicInt)
+{
+    return IMP::addIntNv(atomicInt, 1);
+}
+
+template &lt;class IMP&gt;
+inline
+int AtomicOperations_DefaultInt&lt;IMP&gt;::
+    incrementIntNvAcqRel(typename AtomicTypes::Int *atomicInt)
+{
+    return IMP::addIntNvAcqRel(atomicInt, 1);
+}
+
+template &lt;class IMP&gt;
+inline
+void AtomicOperations_DefaultInt&lt;IMP&gt;::
+    incrementInt(typename AtomicTypes::Int *atomicInt)
+{
+    IMP::addInt(atomicInt, 1);
+}
+
+template &lt;class IMP&gt;
+inline
+void AtomicOperations_DefaultInt&lt;IMP&gt;::
+    incrementIntAcqRel(typename AtomicTypes::Int *atomicInt)
+{
+    IMP::addIntAcqRel(atomicInt, 1);
+}
+
+template &lt;class IMP&gt;
+inline
+int AtomicOperations_DefaultInt&lt;IMP&gt;::
+    decrementIntNv(typename AtomicTypes::Int *atomicInt)
+{
+    return IMP::addIntNv(atomicInt, -1);
+}
+
+template &lt;class IMP&gt;
+inline
+int AtomicOperations_DefaultInt&lt;IMP&gt;::
+    decrementIntNvAcqRel(typename AtomicTypes::Int *atomicInt)
+{
+    return IMP::addIntNvAcqRel(atomicInt, -1);
+}
+
+template &lt;class IMP&gt;
+inline
+void AtomicOperations_DefaultInt&lt;IMP&gt;::
+    decrementInt(typename AtomicTypes::Int *atomicInt)
+{
+    IMP::addInt(atomicInt, -1);
+}
+
+template &lt;class IMP&gt;
+inline
+void AtomicOperations_DefaultInt&lt;IMP&gt;::
+    decrementIntAcqRel(typename AtomicTypes::Int *atomicInt)
+{
+    IMP::addIntAcqRel(atomicInt, -1);
+}
+
+                    // ------------------------------------
+                    // struct AtomicOperations_DefaultInt64
+                    // ------------------------------------
+
+// CLASS METHODS
+template &lt;class IMP&gt;
+inline
+void AtomicOperations_DefaultInt64&lt;IMP&gt;::
+    initInt64(typename AtomicTypes::Int64  *atomicInt,
+              Types::Int64 initialValue)
+{
+    atomicInt-&gt;d_value = initialValue;
+}
+
+template &lt;class IMP&gt;
+inline
+Types::Int64 AtomicOperations_DefaultInt64&lt;IMP&gt;::
+    getInt64Relaxed(typename AtomicTypes::Int64 const *atomicInt)
+{
+    return atomicInt-&gt;d_value;
+}
+
+template &lt;class IMP&gt;
+inline
+Types::Int64 AtomicOperations_DefaultInt64&lt;IMP&gt;::
+    getInt64Acquire(typename AtomicTypes::Int64 const *atomicInt)
+{
+    return IMP::getInt64(atomicInt);
+}
+
+template &lt;class IMP&gt;
+inline
+void AtomicOperations_DefaultInt64&lt;IMP&gt;::
+    setInt64Relaxed(typename AtomicTypes::Int64 *atomicInt,
+                    Types::Int64 value)
+{
+    atomicInt-&gt;d_value = value;
+}
+
+template &lt;class IMP&gt;
+inline
+void AtomicOperations_DefaultInt64&lt;IMP&gt;::
+    setInt64Release(typename AtomicTypes::Int64 *atomicInt,
+                    Types::Int64 value)
+{
+    IMP::setInt64(atomicInt, value);
+}
+
+template &lt;class IMP&gt;
+inline
+Types::Int64 AtomicOperations_DefaultInt64&lt;IMP&gt;::
+    swapInt64AcqRel(typename AtomicTypes::Int64 *atomicInt,
+                    Types::Int64 swapValue)
+{
+    return IMP::swapInt64(atomicInt, swapValue);
+}
+
+template &lt;class IMP&gt;
+inline
+Types::Int64 AtomicOperations_DefaultInt64&lt;IMP&gt;::
+    testAndSwapInt64AcqRel(typename AtomicTypes::Int64 *atomicInt,
+                           Types::Int64 compareValue,
+                           Types::Int64 swapValue)
+{
+    return IMP::testAndSwapInt64(atomicInt, compareValue, swapValue);
+}
+
+template &lt;class IMP&gt;
+inline
+Types::Int64 AtomicOperations_DefaultInt64&lt;IMP&gt;::
+    addInt64NvRelaxed(typename AtomicTypes::Int64 *atomicInt,
+                      Types::Int64 value)
+{
+    return IMP::addInt64NvAcqRel(atomicInt, value);
+}
+
+template &lt;class IMP&gt;
+inline
+Types::Int64 AtomicOperations_DefaultInt64&lt;IMP&gt;::
+    addInt64NvAcqRel(typename AtomicTypes::Int64 *atomicInt,
+                     Types::Int64 value)
+{
+    return IMP::addInt64Nv(atomicInt, value);
+}
+
+template &lt;class IMP&gt;
+inline
+void AtomicOperations_DefaultInt64&lt;IMP&gt;::
+    addInt64(typename AtomicTypes::Int64 *atomicInt,
+             Types::Int64 value)
+{
+    IMP::addInt64Nv(atomicInt, value);
+}
+
+template &lt;class IMP&gt;
+inline
+void AtomicOperations_DefaultInt64&lt;IMP&gt;::
+    addInt64Relaxed(typename AtomicTypes::Int64 *atomicInt,
+                    Types::Int64 value)
+{
+    IMP::addInt64NvRelaxed(atomicInt, value);
+}
+
+template &lt;class IMP&gt;
+inline
+void AtomicOperations_DefaultInt64&lt;IMP&gt;::
+    addInt64AcqRel(typename AtomicTypes::Int64 *atomicInt,
+                   Types::Int64 value)
+{
+    IMP::addInt64NvAcqRel(atomicInt, value);
+}
+
+template &lt;class IMP&gt;
+inline
+void AtomicOperations_DefaultInt64&lt;IMP&gt;::
+    incrementInt64(typename AtomicTypes::Int64 *atomicInt)
+{
+    IMP::addInt64(atomicInt, 1);
+}
+
+template &lt;class IMP&gt;
+inline
+void AtomicOperations_DefaultInt64&lt;IMP&gt;::
+    incrementInt64AcqRel(typename AtomicTypes::Int64 *atomicInt)
+{
+    IMP::addInt64AcqRel(atomicInt, 1);
+}
+
+template &lt;class IMP&gt;
+inline
+Types::Int64 AtomicOperations_DefaultInt64&lt;IMP&gt;::
+    incrementInt64Nv(typename AtomicTypes::Int64 *atomicInt)
+{
+    return IMP::addInt64Nv(atomicInt, 1);
+}
+
+template &lt;class IMP&gt;
+inline
+Types::Int64 AtomicOperations_DefaultInt64&lt;IMP&gt;::
+    incrementInt64NvAcqRel(typename AtomicTypes::Int64 *atomicInt)
+{
+    return IMP::addInt64NvAcqRel(atomicInt, 1);
+}
+
+template &lt;class IMP&gt;
+inline
+void AtomicOperations_DefaultInt64&lt;IMP&gt;::
+    decrementInt64(typename AtomicTypes::Int64 *atomicInt)
+{
+    IMP::addInt64(atomicInt, -1);
+}
+
+template &lt;class IMP&gt;
+inline
+void AtomicOperations_DefaultInt64&lt;IMP&gt;::
+    decrementInt64AcqRel(typename AtomicTypes::Int64 *atomicInt)
+{
+    IMP::addInt64AcqRel(atomicInt, -1);
+}
+
+template &lt;class IMP&gt;
+inline
+Types::Int64 AtomicOperations_DefaultInt64&lt;IMP&gt;::
+    decrementInt64Nv(typename AtomicTypes::Int64 *atomicInt)
+{
+    return IMP::addInt64Nv(atomicInt, -1);
+}
+
+template &lt;class IMP&gt;
+inline
+Types::Int64 AtomicOperations_DefaultInt64&lt;IMP&gt;::
+    decrementInt64NvAcqRel(typename AtomicTypes::Int64 *atomicInt)
+{
+    return IMP::addInt64NvAcqRel(atomicInt, -1);
+}
+
+                  // ----------------------------------------
+                  // struct AtomicOperations_DefaultPointer32
+                  // ----------------------------------------
+
+// CLASS METHODS
+template &lt;class IMP&gt;
+inline
+void AtomicOperations_DefaultPointer32&lt;IMP&gt;::
+    initPointer(typename AtomicTypes::Pointer *atomicPtr,
+                const void *initialValue)
+{
+    atomicPtr-&gt;d_value = initialValue;
+}
+
+template &lt;class IMP&gt;
+inline
+const void *AtomicOperations_DefaultPointer32&lt;IMP&gt;::
+    getPtr(typename AtomicTypes::Pointer const *atomicPtr)
+{
+    return reinterpret_cast&lt;const void *&gt;(
+             IMP::getInt(
+                reinterpret_cast&lt;typename AtomicTypes::Int const *&gt;(
+                    atomicPtr)));
+}
+
+template &lt;class IMP&gt;
+inline
+const void *AtomicOperations_DefaultPointer32&lt;IMP&gt;::
+    getPtrRelaxed(typename AtomicTypes::Pointer const *atomicPtr)
+{
+    return reinterpret_cast&lt;const void *&gt;(
+             IMP::getIntRelaxed(
+                reinterpret_cast&lt;typename AtomicTypes::Int const *&gt;(
+                    atomicPtr)));
+}
+
+template &lt;class IMP&gt;
+inline
+const void *AtomicOperations_DefaultPointer32&lt;IMP&gt;::
+    getPtrAcquire(typename AtomicTypes::Pointer const *atomicPtr)
+{
+    return reinterpret_cast&lt;const void *&gt;(
+             IMP::getIntAcquire(
+                reinterpret_cast&lt;typename AtomicTypes::Int const *&gt;(
+                    atomicPtr)));
+}
+
+template &lt;class IMP&gt;
+inline
+void AtomicOperations_DefaultPointer32&lt;IMP&gt;::
+    setPtr(typename AtomicTypes::Pointer *atomicPtr,
+           const void *value)
+{
+    IMP::setInt(
+        reinterpret_cast&lt;typename AtomicTypes::Int *&gt;(atomicPtr),
+        reinterpret_cast&lt;Types::IntPtr&gt;(value));
+}
+
+template &lt;class IMP&gt;
+inline
+void AtomicOperations_DefaultPointer32&lt;IMP&gt;::
+    setPtrRelaxed(typename AtomicTypes::Pointer *atomicPtr,
+                  const void *value)
+{
+    IMP::setIntRelaxed(
+        reinterpret_cast&lt;typename AtomicTypes::Int *&gt;(atomicPtr),
+        reinterpret_cast&lt;Types::IntPtr&gt;(value));
+}
+
+template &lt;class IMP&gt;
+inline
+void AtomicOperations_DefaultPointer32&lt;IMP&gt;::
+    setPtrRelease(typename AtomicTypes::Pointer *atomicPtr,
+                  const void              *value)
+{
+    IMP::setIntRelease(
+        reinterpret_cast&lt;typename AtomicTypes::Int *&gt;(atomicPtr),
+        reinterpret_cast&lt;Types::IntPtr&gt;(value));
+}
+
+template &lt;class IMP&gt;
+inline
+void *AtomicOperations_DefaultPointer32&lt;IMP&gt;::
+    swapPtr(typename AtomicTypes::Pointer *atomicPtr,
+            const void *swapValue)
+{
+    return reinterpret_cast&lt;void *&gt;(
+            IMP::swapInt(
+                reinterpret_cast&lt;typename AtomicTypes::Int *&gt;(atomicPtr),
+                reinterpret_cast&lt;Types::IntPtr&gt;(swapValue)));
+}
+
+template &lt;class IMP&gt;
+inline
+void *AtomicOperations_DefaultPointer32&lt;IMP&gt;::
+    swapPtrAcqRel(typename AtomicTypes::Pointer *atomicPtr,
+                  const void *swapValue)
+{
+    return reinterpret_cast&lt;void *&gt;(
+            IMP::swapIntAcqRel(
+                reinterpret_cast&lt;typename AtomicTypes::Int *&gt;(atomicPtr),
+                reinterpret_cast&lt;Types::IntPtr&gt;(swapValue)));
+}
+
+template &lt;class IMP&gt;
+inline
+void *AtomicOperations_DefaultPointer32&lt;IMP&gt;::
+    testAndSwapPtr(typename AtomicTypes::Pointer *atomicPtr,
+                   const void *compareValue,
+                   const void *swapValue)
+{
+    return reinterpret_cast&lt;void *&gt;(
+            IMP::testAndSwapInt(
+                reinterpret_cast&lt;typename AtomicTypes::Int *&gt;(atomicPtr),
+                reinterpret_cast&lt;Types::IntPtr&gt;(compareValue),
+                reinterpret_cast&lt;Types::IntPtr&gt;(swapValue)));
+}
+
+template &lt;class IMP&gt;
+inline
+void *AtomicOperations_DefaultPointer32&lt;IMP&gt;::
+    testAndSwapPtrAcqRel(typename AtomicTypes::Pointer *atomicPtr,
+                         const void *compareValue,
+                         const void *swapValue)
+{
+    return reinterpret_cast&lt;void *&gt;(
+            IMP::testAndSwapIntAcqRel(
+                reinterpret_cast&lt;typename AtomicTypes::Int *&gt;(atomicPtr),
+                reinterpret_cast&lt;Types::IntPtr&gt;(compareValue),
+                reinterpret_cast&lt;Types::IntPtr&gt;(swapValue)));
+}
+
+                  // ----------------------------------------
+                  // struct AtomicOperations_DefaultPointer64
+                  // ----------------------------------------
+
+// CLASS METHODS
+template &lt;class IMP&gt;
+inline
+void AtomicOperations_DefaultPointer64&lt;IMP&gt;::
+    initPointer(typename AtomicTypes::Pointer *atomicPtr,
+                const void *initialValue)
+{
+    atomicPtr-&gt;d_value = initialValue;
+}
+
+template &lt;class IMP&gt;
+inline
+const void *AtomicOperations_DefaultPointer64&lt;IMP&gt;::
+    getPtr(typename AtomicTypes::Pointer const *atomicPtr)
+{
+    return reinterpret_cast&lt;const void *&gt;(
+             IMP::getInt64(
+                reinterpret_cast&lt;typename AtomicTypes::Int64 const *&gt;(
+                    atomicPtr)));
+}
+
+template &lt;class IMP&gt;
+inline
+const void *AtomicOperations_DefaultPointer64&lt;IMP&gt;::
+    getPtrRelaxed(typename AtomicTypes::Pointer const *atomicPtr)
+{
+    return reinterpret_cast&lt;const void *&gt;(
+             IMP::getInt64Relaxed(
+                reinterpret_cast&lt;typename AtomicTypes::Int64 const *&gt;(
+                    atomicPtr)));
+}
+
+template &lt;class IMP&gt;
+inline
+const void *AtomicOperations_DefaultPointer64&lt;IMP&gt;::
+    getPtrAcquire(typename AtomicTypes::Pointer const *atomicPtr)
+{
+    return reinterpret_cast&lt;const void *&gt;(
+             IMP::getInt64Acquire(
+                reinterpret_cast&lt;typename AtomicTypes::Int64 const *&gt;(
+                    atomicPtr)));
+}
+
+template &lt;class IMP&gt;
+inline
+void AtomicOperations_DefaultPointer64&lt;IMP&gt;::
+    setPtr(typename AtomicTypes::Pointer *atomicPtr,
+           const void *value)
+{
+    IMP::setInt64(
+        reinterpret_cast&lt;typename AtomicTypes::Int64 *&gt;(atomicPtr),
+        reinterpret_cast&lt;Types::IntPtr&gt;(value));
+}
+
+template &lt;class IMP&gt;
+inline
+void AtomicOperations_DefaultPointer64&lt;IMP&gt;::
+    setPtrRelaxed(typename AtomicTypes::Pointer *atomicPtr,
+                  const void              *value)
+{
+    IMP::setInt64Relaxed(
+        reinterpret_cast&lt;typename AtomicTypes::Int64 *&gt;(atomicPtr),
+        reinterpret_cast&lt;Types::IntPtr&gt;(value));
+}
+
+template &lt;class IMP&gt;
+inline
+void AtomicOperations_DefaultPointer64&lt;IMP&gt;::
+    setPtrRelease(typename AtomicTypes::Pointer *atomicPtr,
+                  const void *value)
+{
+    IMP::setInt64Release(
+        reinterpret_cast&lt;typename AtomicTypes::Int64 *&gt;(atomicPtr),
+        reinterpret_cast&lt;Types::IntPtr&gt;(value));
+}
+
+template &lt;class IMP&gt;
+inline
+void *AtomicOperations_DefaultPointer64&lt;IMP&gt;::
+    swapPtr(typename AtomicTypes::Pointer *atomicPtr,
+            const void *swapValue)
+{
+    return reinterpret_cast&lt;void *&gt;(
+            IMP::swapInt64(
+                reinterpret_cast&lt;typename AtomicTypes::Int64 *&gt;(atomicPtr),
+                reinterpret_cast&lt;Types::IntPtr&gt;(swapValue)));
+}
+
+template &lt;class IMP&gt;
+inline
+void *AtomicOperations_DefaultPointer64&lt;IMP&gt;::
+    swapPtrAcqRel(typename AtomicTypes::Pointer *atomicPtr,
+                  const void *swapValue)
+{
+    return reinterpret_cast&lt;void *&gt;(
+            IMP::swapInt64AcqRel(
+                reinterpret_cast&lt;typename AtomicTypes::Int64 *&gt;(atomicPtr),
+                reinterpret_cast&lt;Types::IntPtr&gt;(swapValue)));
+}
+
+template &lt;class IMP&gt;
+inline
+void *AtomicOperations_DefaultPointer64&lt;IMP&gt;::
+    testAndSwapPtr(typename AtomicTypes::Pointer   *atomicPtr,
+                   const void *compareValue,
+                   const void *swapValue)
+{
+    return reinterpret_cast&lt;void *&gt;(
+            IMP::testAndSwapInt64(
+                reinterpret_cast&lt;typename AtomicTypes::Int64 *&gt;(atomicPtr),
+                reinterpret_cast&lt;Types::IntPtr&gt;(compareValue),
+                reinterpret_cast&lt;Types::IntPtr&gt;(swapValue)));
+}
+
+template &lt;class IMP&gt;
+inline
+void *AtomicOperations_DefaultPointer64&lt;IMP&gt;::
+    testAndSwapPtrAcqRel(typename AtomicTypes::Pointer *atomicPtr,
+                         const void *compareValue,
+                         const void *swapValue)
+{
+    return reinterpret_cast&lt;void *&gt;(
+            IMP::testAndSwapInt64AcqRel(
+                reinterpret_cast&lt;typename AtomicTypes::Int64 *&gt;(atomicPtr),
+                reinterpret_cast&lt;Types::IntPtr&gt;(compareValue),
+                reinterpret_cast&lt;Types::IntPtr&gt;(swapValue)));
+}
+
+}  // close package namespace
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright (C) 2012 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the &quot;Software&quot;), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

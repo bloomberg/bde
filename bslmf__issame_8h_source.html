@@ -1,0 +1,139 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 2.16 BETA</title>
+<html>
+<pre>
+// bslmf_issame.h                                                     -*-C++-*-
+#ifndef INCLUDED_BSLMF_ISSAME
+#define INCLUDED_BSLMF_ISSAME
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a meta-function for checking if two types are the same.
+//
+//@CLASSES:
+//  bsl::is_same: standard meta-function for checking two same types
+//  bslmf::IsSame: meta-function evaluating whether two types are the same
+//
+//@DESCRIPTION: This component defines two meta-functions, &#39;bsl::is_same&#39;
+// and &#39;BloombergLP::bslmf::IsSame&#39;, both of which may be used to query whether
+// two types are same.
+//
+// &#39;bsl::is_same&#39; meets the requirements of the &#39;is_same&#39; template defined in
+// the C++11 standard [meta.rel], while &#39;bslmf::IsSame&#39; was devised before
+// &#39;is_same&#39; was standardized.
+//
+// The two meta-functions are functionally equivalent.  The major difference
+// between them is that the result for &#39;bsl::is_same&#39; is indicated by the class
+// member &#39;value&#39;, while the result for &#39;bslmf::IsSame&#39; is indicated by the
+// class member &#39;VALUE&#39;.
+//
+// Note that &#39;bsl::is_same&#39; should be preferred over &#39;bslmf::IsSame&#39;, and in
+// general, should be used by new components.
+//
+///Usage
+///-----
+// In this section we show intended use of this component.
+//
+///Example 1: Determine Same Types
+///- - - - - - - - - - - - - - - -
+// Suppose that we have a couple of pairs of types and want to assert whether
+// the types in each pair are same.
+//
+// First, we create some &#39;typedef&#39;s to define some types:
+//..
+//  typedef       int    INT;
+//  typedef       double DOUBLE;
+//  typedef       short  SHORT;
+//  typedef const short  CONST_SHORT;
+//  typedef       int    INT;
+//  typedef       int&amp;   INT_REF;
+//..
+// Now, we instantiate the &#39;bsl::is_same&#39; template for each pair of the
+// &#39;typedef&#39;s and assert the &#39;value&#39; static data member of each instantiation:
+//..
+//  assert(1 == (bsl::is_same&lt;INT, INT&gt;::value));
+//  assert(0 == (bsl::is_same&lt;INT, DOUBLE&gt;::value));
+//..
+// Note that a &#39;const&#39;-qualified type is considered distinct from the
+// non-&#39;const&#39; (but otherwise identical) type:
+//..
+//  assert(0 == (bsl::is_same&lt;SHORT, CONST_SHORT&gt;::value));
+//..
+// Similarly, a &#39;TYPE&#39; and a reference to &#39;TYPE&#39; (&#39;TYPE&amp;&#39;) are distinct:
+//..
+//  assert(0 == (bsl::is_same&lt;INT, INT_REF&gt;::value));
+//..
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include &lt;bslscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_METAINT
+#include &lt;bslmf_metaint.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
+#include &lt;bslmf_integralconstant.h&gt;
+#endif
+
+namespace bsl {
+
+template &lt;typename TYPE1, typename TYPE2&gt;
+struct is_same : false_type
+{};
+
+template &lt;typename TYPE&gt;
+struct is_same&lt;TYPE, TYPE&gt; : true_type
+{};
+
+}  // close namespace bsl
+
+namespace BloombergLP {
+
+namespace bslmf {
+
+                            // =============
+                            // struct IsSame
+                            // =============
+
+template &lt;typename U, typename V&gt;
+struct IsSame : bsl::is_same&lt;U, V&gt;::type
+{
+    // Meta function with &#39;value == 0&#39; unless &#39;U&#39; and &#39;V&#39; are the same type.
+};
+
+}  // close package namespace
+
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright (C) 2012 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the &quot;Software&quot;), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

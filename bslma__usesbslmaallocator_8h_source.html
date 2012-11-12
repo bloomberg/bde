@@ -1,0 +1,185 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 2.16 BETA</title>
+<html>
+<pre>
+// bslma_usesbslmaallocator.h                  -*-C++-*-
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#define INCLUDED_BSLMA_USESBSLMAALLOCATOR
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a metafunction that indicates the use of bslma allocators
+//
+//@CLASSES: bslma::UsesBslmaAllocator&lt;TYPE&gt;
+//
+//@SEE_ALSO:
+//
+//@DESCRIPTION:
+//
+///Usage
+///-----
+
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include &lt;bslma_allocator.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_DETECTNESTEDTRAIT
+#include &lt;bslmf_detectnestedtrait.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_ISCONVERTIBLE
+#include &lt;bslmf_isconvertible.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_ASSERT
+#include &lt;bslmf_assert.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_PLATFORM
+#include &lt;bsls_platform.h&gt;
+#endif
+
+namespace BloombergLP {
+
+namespace bslma {
+
+                        // ========================
+                        // class UsesBslmaAllocator
+                        // ========================
+
+template &lt;class TYPE, bool IS_NESTED&gt;
+struct UsesBslmaAllocator_Imp : bsl::integral_constant&lt;bool, IS_NESTED&gt;
+{
+};
+
+template &lt;class TYPE&gt;
+struct UsesBslmaAllocator_Imp&lt;TYPE, false&gt; : bsl::false_type
+{
+private:
+    typedef struct UniqueType {
+        // A class convertible from this type must have a templated
+        // constructor or a &#39;void*&#39; which makes it convertible from EVERY
+        // pointer type.
+    } *UniquePtrType;
+
+#ifndef BSLS_PLATFORM_OS_AIX
+    // The following test, which is intended to catch older code relying on
+    // a deprecated idiom for testing whether a type accepts an allocator,
+    // causes compilation failures on AIX for several components. 
+
+    enum {
+        // If a pointer to &#39;Allocator&#39; is convertible to &#39;T&#39;, then &#39;T&#39; has a
+        // non-explcit constructor taking an allocator.
+        BSLMA_POINTER_CTOR = bslmf::IsConvertible&lt;Allocator*, TYPE&gt;::value,
+
+        // If a pointer to &#39;UniqueType&#39; is convertible to &#39;T&#39;, it can only mean
+        // that ANY POINTER is convertible to &#39;T&#39;.
+        ANY_POINTER_CTOR = bslmf::IsConvertible&lt;UniqueType*, TYPE&gt;::VALUE,
+
+        // &#39;SNIFFED_BSLMA_IDIOM&#39; will be true if the old traits mechanism
+        // would have detected an idiomatic type through trait sniffing.
+        SNIFFED_BSLMA_IDIOM = BSLMA_POINTER_CTOR &amp;&amp; ! ANY_POINTER_CTOR
+    };
+
+public:
+    // If &#39;UsesBslmaAllocator&#39; is not specialized for &#39;TYPE&#39; and is not
+    // declared as a nested trait within &#39;TYPE&#39;, then return &#39;false_type&#39;.
+    // However, the following static assertion will fire if the user makes the
+    // dangerous assumption that having a conversion from &#39;Allocator*&#39; to
+    // &#39;TYPE&#39; will result in the &#39;UsesBslmaAllocator&#39; trait being
+    // automatically associated with &#39;TYPE&#39;; such sniffing is no longer
+    // supported.
+    BSLMF_ASSERT(! SNIFFED_BSLMA_IDIOM);
+#endif
+};
+
+template &lt;class TYPE&gt;
+struct UsesBslmaAllocator : UsesBslmaAllocator_Imp&lt;TYPE,
+    bslmf::DetectNestedTrait&lt;TYPE, UsesBslmaAllocator&gt;::VALUE&gt;::type
+{
+    // This metafunction is derived from &#39;true_type&#39; if &#39;TYPE&#39; adheres to the
+    // &#39;bslma&#39; allocator usage idiom and &#39;false_type&#39; otherwise.  Note that
+    // this trait must be explicitly associated with a type in order for this
+    // metafunction to return true; simply havng a constructor that implicitly
+    // converts &#39;bslma::Allocator*&#39; to &#39;TYPE&#39; is no longer sufficient for
+    // considering a type follow the idiom.
+};
+
+template &lt;class TYPE&gt;
+struct UsesBslmaAllocator&lt;const TYPE&gt; : UsesBslmaAllocator&lt;TYPE&gt;::type
+{
+    // Specialization that associates the same trait with &#39;const TYPE&#39; as with
+    // unqualified &#39;TYPE&#39;.
+};
+
+template &lt;class TYPE&gt;
+struct UsesBslmaAllocator&lt;volatile TYPE&gt; : UsesBslmaAllocator&lt;TYPE&gt;::type
+{
+    // Specialization that associates the same trait with &#39;volatile TYPE&#39; as
+    // with unqualified &#39;TYPE&#39;.
+};
+
+template &lt;class TYPE&gt;
+struct UsesBslmaAllocator&lt;const volatile TYPE&gt; : UsesBslmaAllocator&lt;TYPE&gt;::type
+{
+    // Specialization that associates the same trait with &#39;const volatile
+    // TYPE&#39; as with unqualified &#39;TYPE&#39;.
+};
+
+template &lt;&gt;
+struct UsesBslmaAllocator&lt;Allocator *&gt; : bsl::false_type
+{
+    // Specialization that defines the &#39;Allocator&#39; pointer as not adhering
+    // to the allocator protocol, because it&#39;s the allocator type itself.
+};
+
+// FREE OPERATORS
+
+}  // close package namespace
+
+// ===========================================================================
+//                      INLINE FUNCTION DEFINITIONS
+// ===========================================================================
+
+// CLASS METHODS
+
+// CREATORS
+
+// MANIPULATORS
+
+// ACCESSORS
+
+// FREE OPERATORS
+
+}  // close enterprise namespace
+
+#endif // ! defined(INCLUDED_BSLMA_USESBSLMAALLOCATOR)
+
+// ----------------------------------------------------------------------------
+// Copyright (C) 2012 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the &quot;Software&quot;), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

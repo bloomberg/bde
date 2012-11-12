@@ -1,0 +1,190 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 2.16 BETA</title>
+<html>
+<pre>
+// bslmf_addreference.h                                               -*-C++-*-
+#ifndef INCLUDED_BSLMF_ADDREFERENCE
+#define INCLUDED_BSLMF_ADDREFERENCE
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a meta-function for adding &quot;reference-ness&quot; to a type.
+//
+//@CLASSES:
+//  bslmf::AddReference: meta-function to form a reference to a type
+//
+//@DESCRIPTION: This component defines a simple template &#39;struct&#39;,
+// &#39;bslmf::AddReference&#39;, that is used to define a reference type from the type
+// supplied as its single template type parameter.  Types that are &#39;void&#39; or
+// already reference types are unmodified.
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: A Simple Wrapper Class
+///- - - - - - - - - - - - - - - - -
+// First, let us write a simple class that can wrap any other type:
+//..
+//  template &lt;class TYPE&gt;
+//  class Wrapper {
+//    private:
+//      // DATA
+//      TYPE d_data;
+//
+//    public:
+//      // TYPES
+//      typedef typename bslmf::AddReference&lt;TYPE&gt;::Type WrappedType;
+//
+//      // CREATORS
+//      Wrapper(TYPE value) : d_data(value) {}
+//          // Create a &#39;Wrapper&#39; object having the specified &#39;value&#39;.
+//
+//      //! ~Wrapper() = default;
+//          // Destroy this object.
+//..
+// Then, we would like to expose access to the wrapped element through a method
+// that returns a reference to the data member &#39;d_data&#39;.  However, there would
+// be a problem if the user supplied a parameterized type &#39;TYPE&#39; that is a
+// reference type, as references-to-references were not permitted by the
+// language (prior the C++11 standard).  We can resolve such problems using the
+// meta-function &#39;bslmf::AddReference&#39;.
+//..
+//  // MANIPULATORS
+//  typename bslmf::AddReference&lt;TYPE&gt;::Type value()
+//  {
+//      return d_data;
+//  }
+//..
+// Next, we supply an accessor function, &#39;value&#39;, that similarly wraps the
+// parameterized type &#39;TYPE&#39; with the &#39;bslmf::AddReference&#39; meta-function.  In
+// this case we must remember to const-quality &#39;TYPE&#39; before passing it on to
+// the meta-function.
+//..
+//      // ACCESSORS
+//      typename bslmf::AddReference&lt;const TYPE&gt;::Type value() const
+//      {
+//          return d_data;
+//      }
+//  };
+//..
+// Now, we write a test function, &#39;runTest&#39;, to verify our simple wrapper type.
+// We start by wrapping a simple &#39;int&#39; value:
+//..
+//  void runTests()
+//  {
+//      int i = 42;
+//
+//      Wrapper&lt;int&gt; ti(i);  const Wrapper&lt;int&gt;&amp; TI = ti;
+//      assert(42 == i);
+//      assert(42 == TI.value());
+//
+//      ti.value() = 13;
+//      assert(42 == i);
+//      assert(13 == TI.value());
+//..
+// Finally, we test &#39;Wrapper&#39; with a reference type:
+//..
+//      Wrapper&lt;int&amp;&gt; tr(i);  const Wrapper&lt;int&amp;&gt;&amp; TR = tr;
+//      assert(42 == i);
+//      assert(42 == TR.value());
+//
+//      tr.value() = 13;
+//      assert(13 == i);
+//      assert(13 == TR.value());
+//
+//      i = 42;
+//      assert(42 == i);
+//      assert(42 == TR.value());
+//  }
+//..
+///Example 2: Expected Results
+///- - - - - - - - - - - - - -
+// For this example, the associated comments below indicate the expected type
+// of &#39;bslmf::AddReference::Type&#39; for a broad range of parameterized types:
+//..
+//  struct MyType {};
+//  typedef MyType&amp; MyTypeRef;
+//
+//  bslmf::AddReference&lt;int             &gt;::Type x1; // int&amp;
+//  bslmf::AddReference&lt;int&amp;            &gt;::Type x2; // int&amp;
+//  bslmf::AddReference&lt;int volatile    &gt;::Type x3; // volatile int&amp;
+//  bslmf::AddReference&lt;int volatile&amp;   &gt;::Type x4; // volatile int&amp;
+//
+//  bslmf::AddReference&lt;MyType          &gt;::Type     // MyType&amp;
+//  bslmf::AddReference&lt;MyType&amp;         &gt;::Type     // MyType&amp;
+//  bslmf::AddReference&lt;MyTypeRef       &gt;::Type     // MyType&amp;
+//  bslmf::AddReference&lt;MyType const    &gt;::Type     // const MyType&amp;
+//  bslmf::AddReference&lt;MyType const&amp;   &gt;::Type     // const MyType&amp;
+//  bslmf::AddReference&lt;const MyTypeRef &gt;::Type     // MyType&amp;
+//  bslmf::AddReference&lt;const MyTypeRef&amp;&gt;::Type     // MyType&amp; (REQUIRES C++11)
+//
+//  bslmf::AddReference&lt;void            &gt;::Type     // void
+//  bslmf::AddReference&lt;void *          &gt;::Type     // void *&amp;
+//..
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include &lt;bslscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_ADDLVALUEREFERENCE
+#include &lt;bslmf_addlvaluereference.h&gt;
+#endif
+
+namespace BloombergLP {
+
+namespace bslmf {
+
+                        // ===================
+                        // struct AddReference
+                        // ===================
+
+
+template &lt;class TYPE&gt;
+struct AddReference {
+    // This meta-function class defines a typedef, &#39;Type&#39;, that is an alias for
+    // a reference to the parameterized &#39;TYPE&#39;.  References to cv-qualified
+    // &#39;void&#39; will produce the original &#39;void&#39; type and not a reference (see
+    // specializations below).  References-to-references &quot;collapse&quot; to produce
+    // an alias to the original reference type, which is the revised rule
+    // according to the C++11 standard.  Note that there is no requirement that
+    // the parameterized &#39;TYPE&#39; be a complete type.
+
+    typedef typename bsl::add_lvalue_reference&lt;TYPE&gt;::type Type;
+};
+
+}  // close package namespace
+
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright (C) 2012 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the &quot;Software&quot;), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

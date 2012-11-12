@@ -1,0 +1,119 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 2.16 BETA</title>
+<html>
+<pre>
+// bslalg_typetraitusesbslmaallocator.h                               -*-C++-*-
+#ifndef INCLUDED_BSLALG_TYPETRAITUSESBSLMAALLOCATOR
+#define INCLUDED_BSLALG_TYPETRAITUSESBSLMAALLOCATOR
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a primitive trait for types that use &#39;bslma&#39; allocators.
+//
+//@CLASSES:
+//  bslalg::TypeTraitUsesBslmaAllocator: uses &#39;bslma&#39; allocators
+//
+//@SEE_ALSO: bslmf_typetraits, bslalg_constructorproxy
+//
+//@DESCRIPTION: This component provides a single traits class,
+// &#39;bslalg::TypeTraitUsesBslmaAllocator&#39;.  A type &#39;T&#39; with this trait uses an
+// allocator derived from &#39;bslma::Allocator&#39; to allocate memory.  Such a type
+// *must* have a &quot;copy&quot; constructor with prototype
+// &#39;T(const T&amp;, bslma::Allocator*)&#39;.  It usually also has a &quot;default&quot;
+// constructor with prototype &#39;T(bslma::Allocator*)&#39;, and it may also have
+// additional constructors with various numbers of arguments, that take an
+// optional &#39;bslma::Allocator*&#39; last argument.
+//
+// This component is used by virtually all &#39;bslalg&#39; components for providing
+// primitives that ensure that a &#39;bslma&#39; allocator is always passed through
+// properly to a class creator if that class has the &#39;bslma&#39; allocator trait.
+//
+///Usage
+///-----
+// TBD
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include &lt;bslscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include &lt;bslma_usesbslmaallocator.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include &lt;bslmf_nestedtraitdeclaration.h&gt;
+#endif
+
+namespace BloombergLP {
+
+namespace bslalg {
+
+                 //==========================================
+                 // struct TypeTraitUsesBslmaAllocator
+                 //==========================================
+
+struct TypeTraitUsesBslmaAllocator {
+    // A type &#39;T&#39; with this trait uses an allocator derived from
+    // &#39;bslma::Allocator&#39; to allocate memory.  Such a type *must* have a &quot;copy&quot;
+    // constructor with prototype &#39;T(const T&amp;, bslma::Allocator*)&#39;.  It usually
+    // also has a &quot;default&quot; constructor with prototype &#39;T(bslma::Allocator*)&#39;,
+    // and it may also have additional constructors with various numbers of
+    // arguments, that take an optional &#39;bslma::Allocator*&#39; last argument.  The
+    // allocator argument is usually defaulted, so that these two constructors
+    // operate as true copy and default constructors.  The default constructor
+    // is usually declared &#39;explicit&#39; to avoid implicit conversion from
+    // &#39;bslma::Allocator*&#39;.  Generic containers use this trait to determine if
+    // their contained elements use allocators.  Types that use
+    // &#39;bslma::Allocator&#39; should always have this trait defined.  (Note that
+    // container classes instantiated with &#39;std::allocator&#39; should also be
+    // assigned this trait, since &#39;std::allocator&#39; is built on
+    // &#39;bslma::Allocator&#39;.  )
+
+    template &lt;class TYPE&gt;
+    struct NestedTraitDeclaration :
+        bslmf::NestedTraitDeclaration&lt;TYPE, bslma::UsesBslmaAllocator&gt;
+    {
+        // This class template ties the &#39;bslalg::TypeTraitBitwiseMoveable&#39;
+        // trait tag to the &#39;bslma::UsesBslmaAllocator&#39; trait metafunction.
+    };
+
+    template &lt;class TYPE&gt;
+    struct Metafunction : bslma::UsesBslmaAllocator&lt;TYPE&gt; { };
+};
+
+}  // close package namespace
+
+
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright (C) 2012 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the &quot;Software&quot;), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

@@ -1,0 +1,379 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 2.16 BETA</title>
+<html>
+<pre>
+// bslstl_setcomparator.h                                             -*-C++-*-
+#ifndef INCLUDED_BSLSTL_SETCOMPARATOR
+#define INCLUDED_BSLSTL_SETCOMPARATOR
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a comparator for &#39;TreeNode&#39; objects and a lookup key.
+//
+//@CLASSES:
+//   bslstl::SetComparator: comparator for &#39;TreeNode&#39; objects and key objects
+//
+//@SEE_ALSO: bslstl_set, bslstl_treenode, bslalg_rbtreeutil
+//
+//@DESCRIPTION: This component provides a functor adapter, &#39;SetComparator&#39;,
+// that adapts a parameterized &#39;COMPARATOR&#39; comparing objects of a
+// parameterized &#39;KEY&#39; type into a functor comparing a object of &#39;KEY&#39; type
+// with a object of &#39;bslstl::TreeNode&#39; type holding a object of &#39;KEY&#39; type.
+// Note that this functor was designed to be supplied to functions in
+// &#39;bslalg::RbTreeUtil&#39; primarily for the purpose of implementing a &#39;set&#39;
+// container.
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Create a Simple Tree of &#39;TreeNode&#39; Objects
+///- - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Suppose that we want to create a tree of &#39;TreeNode&#39; objects arranged
+// according to a functor that we supply.
+//
+// First, we create an array of &#39;bslstl::TreeNode&#39; objects, each holding a pair
+// of integers:
+//..
+//  typedef bsl::allocator&lt;TreeNode&lt;int&gt; &gt; Alloc;
+//
+//  bslma::TestAllocator oa;
+//  Alloc allocator(&amp;oa);
+//
+//  enum { NUM_NODES = 5 };
+//
+//  TreeNode&lt;int&gt;*       nodes[NUM_NODES];
+//
+//  for (int i = 0; i &lt; NUM_NODES; ++i) {
+//      nodes[i] = allocator.allocate(1);
+//      nodes[i]-&gt;value() = i;
+//  }
+//..
+// Then, we define a &#39;SetComparator&#39; object, &#39;comparator&#39;, for comparing
+// &#39;bslstl::TreeNode&lt;int&gt;&#39; objects with integers.
+//..
+//  SetComparator&lt;int, std::less&lt;int&gt; &gt; comparator;
+//..
+// Now, we can use the functions in &#39;bslalg::RbTreeUtil&#39; to arrange our tree:
+//..
+//  bslalg::RbTreeAnchor tree;
+//
+//  for (int i = 0; i &lt; NUM_NODES; ++i) {
+//      int comparisonResult;
+//      bslalg::RbTreeNode *insertLocation =
+//          bslalg::RbTreeUtil::findUniqueInsertLocation(
+//              &amp;comparisonResult,
+//              &amp;tree,
+//              comparator,
+//              nodes[i]-&gt;value());
+//
+//      assert(0 != comparisonResult);
+//
+//      bslalg::RbTreeUtil::insertAt(&amp;tree,
+//                                   insertLocation,
+//                                   comparisonResult &lt; 0,
+//                                   nodes[i]);
+//  }
+//
+//  assert(5 == tree.numNodes());
+//..
+// Then, we use &#39;bslalg::RbTreeUtil::next()&#39; to navigate the elements of the
+// tree, printing their values:
+//..
+//  const bslalg::RbTreeNode *nodeIterator = tree.firstNode();
+//
+//  while (nodeIterator != tree.sentinel()) {
+//      printf(&quot;Node value: %d\n&quot;,
+//             static_cast&lt;const TreeNode&lt;int&gt; *&gt;(nodeIterator)-&gt;value());
+//      nodeIterator = bslalg::RbTreeUtil::next(nodeIterator);
+//  }
+//..
+// Next, we destroy and deallocate each of the &#39;bslstl::TreeNode&#39; objects:
+//..
+//  for (int i = 0; i &lt; NUM_NODES; ++i) {
+//      allocator.deallocate(nodes[i], 1);
+//  }
+//..
+// Finally, we observe the console output:
+//..
+//  Node value: 0
+//  Node value: 1
+//  Node value: 2
+//  Node value: 3
+//  Node value: 4
+//..
+
+// Prevent &#39;bslstl&#39; headers from being included directly in &#39;BSL_OVERRIDES_STD&#39;
+// mode.  Doing so is unsupported, and is likely to cause compilation errors.
+#if defined(BSL_OVERRIDES_STD) &amp;&amp; !defined(BSL_STDHDRS_PROLOGUE_IN_EFFECT)
+#error &quot;&lt;bslstl_setcomparator.h&gt; header can&#39;t be included directly in \
+BSL_OVERRIDES_STD mode&quot;
+#endif
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include &lt;bslscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLSTL_PAIR
+#include &lt;bslstl_pair.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLSTL_TREENODE
+#include &lt;bslstl_treenode.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLALG_FUNCTORADAPTER
+#include &lt;bslalg_functoradapter.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLALG_SWAPUTIL
+#include &lt;bslalg_swaputil.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_PLATFORM
+#include &lt;bsls_platform.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_UTIL
+#include &lt;bsls_util.h&gt;
+#endif
+
+namespace BloombergLP {
+namespace bslstl {
+
+                       // ===================
+                       // class SetComparator
+                       // ===================
+
+template &lt;class KEY, class COMPARATOR&gt;
+#ifdef BSLS_PLATFORM_CMP_MSVC
+// Visual studio compiler fails to resolve the conversion operator in
+// &#39;bslalg::FunctorAdapter_FunctionPointer&#39; when using private inheritance.
+// Below is a workaround until a more suitable way the resolve this issue can
+// be found.
+class SetComparator : public bslalg::FunctorAdapter&lt;COMPARATOR&gt;::Type {
+#else
+class SetComparator : private bslalg::FunctorAdapter&lt;COMPARATOR&gt;::Type {
+#endif
+    // This class overloads the function-call operator to compare a referenced
+    // &#39;bslalg::RbTreeNode&#39; object with a object of the parameterized &#39;KEY&#39;
+    // type, assuming the reference to &#39;bslalg::RbTreeNode&#39; is a base of a
+    // &#39;bslstl::TreeNode&#39; holding an integer, using a functor of the
+    // parameterized &#39;COMPARATOR&#39; type.
+
+  private:
+    // This class does not support assignment.
+
+    SetComparator&amp; operator=(const SetComparator&amp;);  // Declared but not
+                                                     // defined
+
+  public:
+    // TYPES
+    typedef TreeNode&lt;KEY&gt; NodeType;
+        // This alias represents the type of node holding a &#39;KEY&#39; object.
+
+    // CREATORS
+    SetComparator();
+        // Create a &#39;SetComparator&#39; object that will use a default constructed
+        // &#39;COMPARATOR&#39;.
+
+    explicit SetComparator(const COMPARATOR&amp; keyComparator);
+        // Create a &#39;SapComparator&#39; object holding a copy of the specified
+        // &#39;keyComparator&#39;.
+
+    // SetComparator(const SetComparator&amp;) = default;
+        // Create a &#39;SapComparator&#39; object with the &#39;COMPARATOR&#39; object of the
+        // specified &#39;original&#39; object.
+
+    // ~SapComparator() = default;
+        // Destroy this object.
+
+    // MANIPULATORS
+    bool operator()(const KEY&amp;                lhs,
+                    const bslalg::RbTreeNode&amp; rhs);
+        // Return &#39;true&#39; if the specified &#39;lhs&#39; is less than (ordered before,
+        // according to the comparator held by this object) &#39;value()&#39; of the
+        // specified &#39;rhs&#39; after being cast to &#39;NodeType&#39;, and &#39;false&#39;
+        // otherwise.  The behavior is undefined unless &#39;rhs&#39; can be safely
+        // cast to &#39;NodeType&#39;.
+
+    bool operator()(const bslalg::RbTreeNode&amp; lhs,
+                    const KEY&amp;                rhs);
+        // Return &#39;true&#39; if &#39;value()&#39; of the specified &#39;lhs&#39; after
+        // being cast to &#39;NodeType&#39; is less than (ordered before, according to
+        // the comparator held by this object) the specified &#39;rhs&#39;, and &#39;false&#39;
+        // otherwise.  The behavior is undefined unless &#39;rhs&#39; can be safely
+        // cast to &#39;NodeType&#39;.
+
+    void swap(SetComparator&amp; other);
+        // Efficiently exchange the value of this object with the value of the
+        // specified &#39;other&#39; object.  This method provides the no-throw
+        // exception-safety guarantee.
+
+    // ACCESSORS
+    bool operator()(const KEY&amp;                lhs,
+                    const bslalg::RbTreeNode&amp; rhs) const;
+        // Return &#39;true&#39; if the specified &#39;lhs&#39; is less than (ordered before,
+        // according to the comparator held by this object) &#39;value()&#39; of the
+        // specified &#39;rhs&#39; after being cast to &#39;NodeType&#39;, and &#39;false&#39;
+        // otherwise.  The behavior is undefined unless &#39;rhs&#39; can be safely
+        // cast to &#39;NodeType&#39;.
+
+    bool operator()(const bslalg::RbTreeNode&amp; lhs,
+                    const KEY&amp;                rhs) const;
+        // Return &#39;true&#39; if &#39;value()&#39; of the specified &#39;lhs&#39; after
+        // being cast to &#39;NodeType&#39; is less than (ordered before, according to
+        // the comparator held by this object) the specified &#39;rhs&#39;, and &#39;false&#39;
+        // otherwise.  The behavior is undefined unless &#39;rhs&#39; can be safely
+        // cast to &#39;NodeType&#39;.
+
+    COMPARATOR&amp; keyComparator();
+        // Return a reference providing modifiable access to the function
+        // pointer or functor to which this comparator delegates comparison
+        // operations.
+
+    const COMPARATOR&amp; keyComparator() const;
+        // Return a reference providing non-modifiable access to the function
+        // pointer or functor to which this comparator delegates comparison
+        // operations.
+};
+
+
+// FREE FUNCTIONS
+template &lt;class KEY,  class COMPARATOR&gt;
+void swap(SetComparator&lt;KEY, COMPARATOR&gt;&amp; a,
+          SetComparator&lt;KEY, COMPARATOR&gt;&amp; b);
+    // Efficiently exchange the values of the specified &#39;a&#39; and &#39;b&#39; objects.
+    // This function provides the no-throw exception-safety guarantee.
+
+// ===========================================================================
+//                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
+// ===========================================================================
+
+                    // -------------------
+                    // class SetComparator
+                    // -------------------
+
+// CREATORS
+template &lt;class KEY, class COMPARATOR&gt;
+inline
+SetComparator&lt;KEY, COMPARATOR&gt;::SetComparator()
+: bslalg::FunctorAdapter&lt;COMPARATOR&gt;::Type()
+{
+}
+
+template &lt;class KEY, class COMPARATOR&gt;
+inline
+SetComparator&lt;KEY, COMPARATOR&gt;::
+SetComparator(const COMPARATOR&amp; valueComparator)
+: bslalg::FunctorAdapter&lt;COMPARATOR&gt;::Type(valueComparator)
+{
+}
+
+// MANIPULATORS
+template &lt;class KEY, class COMPARATOR&gt;
+inline
+bool SetComparator&lt;KEY, COMPARATOR&gt;::operator()(
+                                           const KEY&amp;                lhs,
+                                           const bslalg::RbTreeNode&amp; rhs)
+{
+    return keyComparator()(lhs, static_cast&lt;const NodeType&amp;&gt;(rhs).value());
+}
+
+template &lt;class KEY, class COMPARATOR&gt;
+inline
+bool SetComparator&lt;KEY, COMPARATOR&gt;::operator()(
+                                           const bslalg::RbTreeNode&amp; lhs,
+                                           const KEY&amp;                rhs)
+
+{
+    return keyComparator()(static_cast&lt;const NodeType&amp;&gt;(lhs).value(), rhs);
+}
+
+template &lt;class KEY, class COMPARATOR&gt;
+inline
+void SetComparator&lt;KEY, COMPARATOR&gt;::swap(
+                                         SetComparator&lt;KEY, COMPARATOR&gt;&amp; other)
+{
+    bslalg::SwapUtil::swap(
+      static_cast&lt;typename bslalg::FunctorAdapter&lt;COMPARATOR&gt;::Type*&gt;(this),
+      static_cast&lt;typename bslalg::FunctorAdapter&lt;COMPARATOR&gt;::Type*&gt;(
+                                                  BSLS_UTIL_ADDRESSOF(other)));
+}
+
+// ACCESSORS
+template &lt;class KEY, class COMPARATOR&gt;
+inline
+bool SetComparator&lt;KEY, COMPARATOR&gt;::operator()(
+                                           const KEY&amp;                lhs,
+                                           const bslalg::RbTreeNode&amp; rhs) const
+{
+    return keyComparator()(lhs, static_cast&lt;const NodeType&amp;&gt;(rhs).value());
+}
+
+template &lt;class KEY, class COMPARATOR&gt;
+inline
+bool SetComparator&lt;KEY, COMPARATOR&gt;::operator()(
+                                           const bslalg::RbTreeNode&amp; lhs,
+                                           const KEY&amp;                rhs) const
+
+{
+    return keyComparator()(static_cast&lt;const NodeType&amp;&gt;(lhs).value(), rhs);
+}
+
+template &lt;class KEY, class COMPARATOR&gt;
+inline
+COMPARATOR&amp; SetComparator&lt;KEY, COMPARATOR&gt;::keyComparator()
+{
+    return *this;
+}
+
+template &lt;class KEY, class COMPARATOR&gt;
+inline
+const COMPARATOR&amp; SetComparator&lt;KEY, COMPARATOR&gt;::keyComparator() const
+{
+    return *this;
+}
+
+// FREE FUNCTIONS
+template &lt;class KEY,  class COMPARATOR&gt;
+inline
+void swap(SetComparator&lt;KEY, COMPARATOR&gt;&amp; a,
+          SetComparator&lt;KEY, COMPARATOR&gt;&amp; b)
+{
+    a.swap(b);
+}
+
+}  // close package namespace
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright (C) 2012 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the &quot;Software&quot;), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

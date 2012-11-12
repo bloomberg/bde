@@ -1,0 +1,1211 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 2.16 BETA</title>
+<html>
+<pre>
+// bsltf_templatetestfacility.h                                       -*-C++-*-
+#ifndef INCLUDED_BSLTF_TEMPLATETESTFACILITY
+#define INCLUDED_BSLTF_TEMPLATETESTFACILITY
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide utilities to help with testing templates.
+//
+//@CLASSES:
+//  bsltf::TemplateTestFacility: namespace for template-testing utilities
+//
+//@MACROS:
+//  BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(CLASS, METHOD, TYPE...): run all
+//  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE: list of primitive types
+//  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_USER_DEFINED: list user types
+//  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR: list of typical types
+//  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_AWKWARD: list of atypical types
+//  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL: list all &#39;bslmf&#39; types
+//
+//@SEE_ALSO: bsltf_simpletesttype, bslstl_map
+//
+//@DESCRIPTION: When testing a container template having a type parameter, we
+// need to ensure that the template supports its contractually specified
+// categories of parameter types.  The &#39;bsltf&#39; package provides a
+// representative set of types intended for testing that can be used as
+// template parameters for doing this kind of verification.
+//
+// Creating a separate test for each category of types supported by a template
+// would be cumbersome.  Instead, writing a single templatized test is usually
+// preferable.  Unfortunately, different types often require different syntaxes
+// for constructing an object and getting an object&#39;s value.  This
+// inconsistency makes writing generic code rather difficult.
+//
+// This component provides a solution with a utility &#39;struct&#39;,
+// &#39;TemplateTestFacility&#39;, that defines two class method templates, &#39;create&#39;
+// and &#39;getIdentifier&#39;, that respectively have consistent syntaxes for creating
+// objects and getting a integer value representing the state of objects of a
+// parameterized type.
+//
+// This component also provides a macro,
+// &#39;BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE&#39;, that serves as a convenient way
+// to instantiate and invoke a template (for testing) having a type parameter
+// for a specified list of types.  In addition, this component provides a set
+// of macros referring to commonly useful lists of types intended for testing
+// that can be used as arguments to &#39;BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE&#39;.
+//
+// The utilities and macros provided by this component, along with the types
+// defined in the &#39;bsltf&#39; package, are explained in more detail in the
+// following sections.
+//
+///&#39;TemplateTestFacility&#39;
+///----------------------
+// The &#39;TemplateTestFacility&#39; &#39;struct&#39; provides the following static (class)
+// method templates to construct objects and get the states of objects of a
+// supported parameterized type (supported types are those types intended for
+// testing defined in the &#39;bsltf&#39; package):
+//
+//: o &#39;create&#39;:    Return an object of the parameterized &#39;TYPE&#39; whose value is
+//:                uniquely associated with a specified integer identifier.
+//
+//: o &#39;getIdentifier&#39;: Return the integer identifier used to create a specified
+//:                    object of the parameterized &#39;TYPE&#39;.
+//
+///Macros and Test Types
+///---------------------
+// The &#39;BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE&#39; macro instantiates a
+// specified class template for a specified list of types and call a specified
+// class method of each instantiation.  The macro takes in arguments in the
+// following order:
+//
+//: o The name of the class template to be instantiated
+//:
+//: o The name of the class method to be invoked
+//:
+//: o The names of the types for which the class template will be instantiated
+//:   (up 20)
+//
+// This component also defines a set of macros, each providing a list of types,
+// that can be used as the last argument to
+// &#39;BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE&#39;.  The following is a brief
+// synopsis of these macros (note that all macros names have the
+// &#39;BSLTF_TEMPLATETESTFACILITY_&#39; prefix, which is omitted for layout
+// efficiency):
+//
+//: o &#39;TEST_TYPES_PRIMITIVE&#39;:     list of primitive types
+//: o &#39;TEST_TYPES_USER_DEFINED&#39;:  list of user-defined types
+//: o &#39;TEST_TYPES_REGULAR&#39;:       list of typically used types
+//: o &#39;TEST_TYPES_AWKWARD&#39;:       list of types with odd behaviors
+//: o &#39;TEST_TYPES_ALL&#39;:           list of all of the types
+//
+// The &#39;BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE&#39; macro refers to a
+// representative set of primivite types that are useful for testing:
+//..
+//  Type                                Description
+//  ----                                -----------
+//  signed char                         signed character
+//
+//  size_t                              signed integral type
+//
+//  TemplateTestFacility::ObjectPtr     pointer to an object
+//
+//  TemplateTestFacility::FunctionPtr   pointer to a function
+//
+//  TemplateTestFacility::MethodPtr     pointer to a method
+//..
+// The &#39;BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_USER_DEFINED&#39; macro refers to a
+// representative set of user-defined types that are useful for testing (note
+// that all types described here belong to the &#39;bsltf&#39; namespace, which is not
+// explicitly qualified for layout efficiency):
+//..
+//  Type                                Description
+//  ----                                -----------
+//  EnumeratedTestType::Enum            an enumeration
+//
+//  UnionTestType                       a union
+//
+//  SimpleTestType                      class with no special traits defined
+//
+//  AllocTestType                       class that allocates memory, defines
+//                                      the
+//                                      &#39;bslma::UsesBslmaAllocator&#39;
+//                                      trait, and ensures it is not bitwise
+//                                      moved
+//
+//  BitwiseMoveableTestType             class that is bitwise-moveable and
+//                                      defines the
+//                                      &#39;bslmf::IsBitwiseMoveable&#39;
+//                                      trait
+//
+//  AllocatingBitwiseMoveableTestType   class that allocates memory, is
+//                                      bitwisemoveable, and defines the
+//                                      &#39;bslma::UsesBslmaAllocator&#39;
+//                                      and &#39;bslmf::IsBitwiseMoveable&#39;
+//                                      traits
+//
+//  NonTypicalOverloadsTestType         class that defines and assert on
+//                                      invocation of certain
+//                                      non-typically-overloaded operators
+//                                      (&#39;operator new&#39;, &#39;operator delete&#39;,
+//                                      &#39;operator&amp;&#39;) to ensure that they are
+//                                      not called
+//..
+//
+// The &#39;BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR&#39; macro refers to the
+// union of the types provided by
+// &#39;BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE&#39; and
+// &#39;BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_USER_DEFINED&#39;.  These types are
+// designed to work within the regular operating conditions of a typical
+// template.  Typically, a test driver for a template instantiates its tests
+// (using the &#39;BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE&#39; macro) for all of the
+// types refered by &#39;BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR&#39;.
+//
+// The &#39;BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_AWKWARD&#39; macro refers to a set of
+// types that have certain attributes that make them unlikely to work for all
+// of the operations of a template.  Typically, not all methods of a template
+// are instantiable with these types, so these types are most often used
+// independently in tests explicitly designed for a (single) type.
+//..
+//  Type                                Description
+//  ----                                -----------
+//  NonAssignableTestType               class having no assignment operator
+//
+//  NonCopyConstructibleTestType        class having no copy constructor (Note
+//                                      that this class can not be created with
+//                                      &#39;TemplateTestFacility::create&#39; because
+//                                      the class method returns the newly
+//                                      constructed object by value.)
+//
+//  NonDefaultConstructibleTestType     class having no default constructor
+//
+//  NonEqualComparableTestType          class having no equality comparison
+//                                      operators
+//..
+// The &#39;BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL&#39; refers to all the test types
+// provided in the &#39;bsltf&#39; package.
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Using the &#39;BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE&#39; Macro
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// In this example, we demonstrate how to use
+// &#39;BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE&#39; to call a class method of a
+// template for a list of types.
+//
+// First, we define a &#39;struct&#39; template &#39;TestTemplate&#39; taking in a
+// parameterized &#39;TYPE&#39; that has a class method, &#39;printTypeName&#39;:
+//..
+//  template &lt;class TYPE&gt;
+//  struct TestTemplate {
+//      // This &#39;struct&#39; provides a namespace for a simple test method.
+//
+//      // CLASS METHODS
+//      static void printTypeName();
+//          // Prints the name of the parameterized &#39;TYPE&#39; to the console.
+//  };
+//
+//  template &lt;&gt;
+//  void TestTemplate&lt;int&gt;::printTypeName()
+//  {
+//      printf(&quot;int\n&quot;);
+//  }
+//
+//  template &lt;&gt;
+//  void TestTemplate&lt;char&gt;::printTypeName()
+//  {
+//      printf(&quot;char\n&quot;);
+//  }
+//
+//  template &lt;&gt;
+//  void TestTemplate&lt;double&gt;::printTypeName()
+//  {
+//      printf(&quot;double\n&quot;);
+//  }
+//..
+// Now, we can instantiate the &#39;TestTemplate&#39; class for each of the types
+// &#39;int&#39;, &#39;char&#39;, and &#39;double&#39;, and call the &#39;printTypeName&#39; class method of
+// each instantiation using the &#39;BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE&#39;
+// macro:
+//..
+//  BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(TestTemplate,
+//                                           printTypeName,
+//                                           int, char, double);
+//..
+// Finally, we observe the console output:
+//..
+//  int
+//  char
+//  double
+//..
+//
+///Example 2: Writing a Type Independent Test Driver
+///- - - - - - - - - - - - - - - - - - - - - - - - -
+// In this example, we demonstrate using the &#39;TemplateTestFacility&#39; &#39;struct&#39;
+// and the macros provided by this component to test the default constructor
+// and primary manipulator of a class template in the context of a typical
+// BDE-style test driver.  Note that a goal of the demonstrated test is to
+// validate the class template with a broad range of types emulating those with
+// which the template might be instantiated.
+//
+// First, we define a simple class template, &#39;MyNullableValue&#39;, that we will
+// later need to test:
+//..
+//  template &lt;class TYPE&gt;
+//  class MyNullableValue {
+//      // This (value-semantic) class template extends the parameterized
+//      // &#39;TYPE&#39; to include the notion of a &quot;null&quot; value.
+//
+//      // DATA
+//      TYPE d_value;     // non-null value
+//      bool d_nullFlag;  // flag to indicate if the value is null
+//
+//    public:
+//      MyNullableValue()
+//          // Create a &#39;MyNullableValue&#39; that initially has a value of null.
+//      : d_nullFlag(true)
+//      {
+//      }
+//
+//      bool isNull() const
+//          // Return &#39;true&#39; if this object is null, and &#39;false&#39; otherwise.
+//      {
+//          return d_nullFlag;
+//      }
+//
+//      void makeNull()
+//          // Set this object to the null value.
+//      {
+//          d_nullFlag = true;
+//      }
+//
+//      const TYPE&amp; value() const {
+//          // Return a reference providing non-modifiable access to the
+//          // underlying object of the parameterized &#39;TYPE&#39;.  The behavior is
+//          // undefined if the object is null.
+//          return d_value;
+//      }
+//
+//      void makeValue(const TYPE&amp; value)
+//          // Set the value of this object to be that of the specified &#39;value&#39;
+//          // of the parameterized &#39;TYPE&#39;.
+//      {
+//          d_nullFlag = false;
+//          d_value = value;
+//      }
+//  };
+//..
+// Then, we define some aliases for the micros that will be used by the test
+// driver:
+//..
+//  #define RUN_EACH_TYPE BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE
+//  #define TEST_TYPES_REGULAR BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR
+//..
+// Next, we define a &#39;struct&#39; template, &#39;MyTestDriver&#39;, that provides a
+// namespace containing the test cases (here, only &#39;testCase2&#39; is defined for
+// brevity) of the test driver:
+//..
+//  template &lt;class TYPE&gt;
+//  struct MyTestDriver {
+//      // This &#39;struct&#39; provides a namespace for the class methods used to
+//      // implement the test driver.
+//
+//      // TYPES
+//      typedef MyNullableValue&lt;TYPE&gt; Obj;
+//          // This &#39;typedef&#39; provides an alias to the type under testing.
+//
+//      static void testCase2();
+//          // Test primary manipulators.
+//  };
+//..
+// Now, we define the implementation of &#39;MyTestDriver::testCase2&#39;:
+//..
+//  template &lt;class TYPE&gt;
+//  void MyTestDriver&lt;TYPE&gt;::testCase2()
+//  {
+//      // --------------------------------------------------------------------
+//      // DEFAULT CTOR, PRIMARY MANIPULATORS, AND DTOR
+//      //   Ensure that we can use the default constructor to create an
+//      //   object (having the default-constructed value), use the primary
+//      //   manipulators to put that object into any state relevant for
+//      //   thorough testing, and use the destructor to destroy it safely.
+//      //
+//      // Concerns:
+//      //: 1 An object created using the default constructor (with or without
+//      //:   a supplied allocator) has the contractually specified value.
+//      //:
+//      //: 2 The &#39;makeValue&#39; method sets the value of a object to any
+//      //:   specified value.
+//      //:
+//      //: 3 The &#39;makeNull&#39; method set the value of a object to null.
+//      //:
+//      //: 4 Objects of different values can coexist.
+//      //:
+//      //: 5 The destructor does not modify other objects.
+//      //
+//      // Plan:
+//      //: 1 Default-construct an object and use the (as yet unproven) salient
+//      //:   attribute accessors to verify that the value of the object is the
+//      //:   null value.  (C-1)
+//      //:
+//      //: 2 Default-construct another object, and use the &#39;makeValue&#39; method,
+//      //:   to set the value of the object to a non-null value.  Use the (as
+//      //:   yet unproven) salient attribute accessors to verify that the new
+//      //:   object has the expected value and the object created in P-1 still
+//      //:   has the same value.  (C-2, 4)
+//      //:
+//      //: 3 Using the loop-based approach, for each identifier in a range of
+//      //:   integer identifieres:
+//      //:
+//      //:   1 Default-construct a modifiable object, &#39;mL&#39;, and use the (as
+//      //:     yet unproven) salient attribute accessors to verify the value
+//      //:     of the default constructed object is the null value.  (C-1)
+//      //:
+//      //:   2 Create an object of the parameterized &#39;TYPE&#39;, &#39;LV&#39;, using the
+//      //:     &#39;TemplateTestFacility::create&#39; class method template,
+//      //:     specifying the integer loop identifier.
+//      //:
+//      //:   3 Use the &#39;makeValue&#39; method to set the value of &#39;mL&#39; to &#39;LV&#39;.
+//      //:     Use the (as yet unproven) salient attribute accessors to verify
+//      //:     &#39;mL&#39; has the expected value.  (C-2)
+//      //:
+//      //:   4 Invoke the &#39;makeNull&#39; method of &#39;mL&#39;.  Use the attribute
+//      //:     accessors to verify the value of the object is now null.  (C-3)
+//      //:
+//      //: 4 Create an object in a nested block.  Below the block, verify the
+//      //:   objects created in P-1 and P-2 still have the same value.  (C-5)
+//      //
+//      // Testing:
+//      //   MyNullableValue();
+//      //   ~MyNullableValue();
+//      //   void makeNull();
+//      //   void MakeValue(const TYPE&amp; value);
+//      // --------------------------------------------------------------------
+//
+//      if (verbose)
+//                  printf(&quot;\nDEFAULT CTOR, PRIMARY MANIPULATORS, AND DTOR&quot;
+//                         &quot;\n============================================\n&quot;);
+//
+//
+//      if (verbose) printf(&quot;\nTesting default constructor.\n&quot;);
+//
+//      Obj mW; const Obj&amp; W = mW;
+//      ASSERT(true == W.isNull());
+//
+//      Obj mX; const Obj&amp; X = mX;
+//      const TYPE XV = TemplateTestFacility::create&lt;TYPE&gt;(1);
+//      mX.makeValue(XV);
+//      ASSERT(1 == TemplateTestFacility::getIdentifier&lt;TYPE&gt;(X.value()));
+//
+//      if (verbose) printf(&quot;\nTesting primary manipulators.\n&quot;);
+//
+//      for (size_t ti = 0; ti &lt; 10; ++ti) {
+//
+//          if (veryVerbose) { T_ P(ti) }
+//
+//          Obj mL; const Obj&amp; L = mL;
+//          ASSERT(true == L.isNull());
+//
+//          const TYPE LV = TemplateTestFacility::create&lt;TYPE&gt;(ti);
+//
+//          mL.makeValue(LV);
+//          ASSERT(false == L.isNull());
+//          ASSERT(LV == L.value());
+//
+//          mL.makeNull();
+//          ASSERT(true == L.isNull());
+//      }
+//
+//      if (verbose) printf(&quot;\nTesting destructor.\n&quot;);
+//      {
+//          Obj Z;
+//      }
+//
+//      ASSERT(true == W.isNull());
+//      ASSERT(XV == X.value());
+//  }
+//..
+// Notice that, we create objects of the parameterized &#39;TYPE&#39; using the
+// &#39;TemplateTestFacility::create&#39; class method template specifying an integer
+// identifier; the created object has a value that is uniquely associated with
+// the integer identifier.
+//
+// Also notice that we verified that an object of the parameterized &#39;TYPE&#39; has
+// the expected value in two ways:
+//
+//: 1 By equal comparing (1) the integer identifier returned from calling the
+//:   &#39;TemplateTestFacility::getIdentifier&#39; class method template (specifying
+//:   the object), and (2) the integer identifier uniquely associated with the
+//:   expected state of the object.
+//:
+//: 2 By directly using the equality comparison operator for the parameterized
+//:   &#39;TYPE&#39;.  Note that the equality comparison operator is defined for all
+//:   types intended for testing in the &#39;bsltf&#39; package except for
+//:   &#39;bsltf::NonEqualComparableTestType&#39;.
+//
+// Finally, we use the &#39;BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE&#39; macro to
+// instantiate &#39;MyTestDriver&#39; for each of the types listed in
+// &#39;BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR&#39; and invoke the &#39;testCase2&#39;
+// class method of each instantiation:
+//..
+//  case 2: {
+//    // ----------------------------------------------------------------------
+//    // DEFAULT CTOR &amp; PRIMARY MANIPULATORS
+//    // ----------------------------------------------------------------------
+//
+//    if (verbose) printf(&quot;\nDEFAULT CTOR &amp; PRIMARY MANIPULATORS&quot;
+//                        &quot;\n===================================\n&quot;);
+//
+//    RUN_EACH_TYPE(MyTestDriver, testCase2, TEST_TYPES_REGULAR);
+//  } break;
+//..
+
+#ifndef INCLUDED_BSLTF_ALLOCBITWISEMOVEABLETESTTYPE
+#include &lt;bsltf_allocbitwisemoveabletesttype.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLTF_ALLOCTESTTYPE
+#include &lt;bsltf_alloctesttype.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLTF_BITWISEMOVEABLETESTTYPE
+#include &lt;bsltf_bitwisemoveabletesttype.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLTF_ENUMERATEDTESTTYPE
+#include &lt;bsltf_enumeratedtesttype.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLTF_NONASSIGNABLETESTTYPE
+#include &lt;bsltf_nonassignabletesttype.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLTF_NONDEFAULTCONSTRUCTIBLETESTTYPE
+#include &lt;bsltf_nondefaultconstructibletesttype.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLTF_NONEQUALCOMPARABLETESTTYPE
+#include &lt;bsltf_nonequalcomparabletesttype.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLTF_NONTYPICALOVERLOADSTESTTYPE
+#include &lt;bsltf_nontypicaloverloadstesttype.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLTF_SIMPLETESTTYPE
+#include &lt;bsltf_simpletesttype.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLTF_UNIONTESTTYPE
+#include &lt;bsltf_uniontesttype.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_TYPES
+#include &lt;bsls_types.h&gt;
+#endif
+
+#ifndef INCLUDED_CSTDDEF
+#include &lt;stddef.h&gt;  // for &#39;size_t&#39;
+#define INCLUDED_CSTDDEF
+#endif
+
+#ifndef INCLUDED_CSTDIO
+#include &lt;stdio.h&gt;  // for &#39;printf&#39;
+#define INCLUDED_CSTDIO
+#endif
+
+namespace BloombergLP {
+namespace bsltf {
+
+                        // ====================================
+                        // class TemplateTestFacility_StubClass
+                        // ====================================
+
+class TemplateTestFacility_StubClass {
+    // This class provides a single method template, &#39;method&#39;, that simply
+    // returns the parameterized integer &#39;IDENTIFIER&#39;.  Note that the purpose
+    // of this class is to serve as a stub class and method to be referred by
+    // &#39;TemplateTestFacility::ObjectPtr&#39; and &#39;TemplateTestFacility::MethodPtr&#39;
+    // respectively.
+
+  public:
+    template &lt;int IDENTIFIER&gt;
+    int method();
+        // Return the parameterized &#39;IDENTIFIER&#39;.
+};
+
+                        // ===========================
+                        // struct TemplateTestFacility
+                        // ===========================
+
+struct TemplateTestFacility {
+    // This &#39;struct&#39; provides a namespace that contains three aliases for types
+    // intended to be used as template parameters for testing templates.  The
+    // namespace also contain two class method templates, &#39;create&#39; and
+    // &#39;getIdentifier&#39;, that respectively provides a consistent interface to
+    // (1) create a specified object of a parameterized type from an integer
+    // identifier and (2) get the identifier value of a specified object.  The
+    // identifier value returned from the &#39;getIdentifier&#39; method is undefined
+    // unless the specified object was originally created with the &#39;create&#39;
+    // class method template.
+
+    // PUBLIC TYPES
+    typedef TemplateTestFacility_StubClass *ObjectPtr;
+        // This &#39;typedef&#39; is an alias for a pointer to a
+        // &#39;TemplateTestFacility_StubClass&#39; object.
+
+    typedef void (*FunctionPtr) ();
+        // This &#39;typedef&#39; is an alias for a pointer to a function pointer.
+
+    typedef int (TemplateTestFacility_StubClass::*MethodPtr) ();
+        // This &#39;typedef&#39; is an alias for a pointer to a method of
+        // &#39;TemplateTestFacility_StubClass&#39; taking no arguments and returning
+        // an &#39;int&#39;.
+
+    // CLASS METHODS
+    template &lt;class TYPE&gt;
+    static TYPE create(int identifier);
+        // Return a new object of the parameterized &#39;TYPE&#39; whose state is
+        // unique for the specified &#39;identifier&#39;.  The behavior is undefined
+        // unless &#39;0 &lt;= value &lt; 128&#39; and &#39;TYPE&#39; is contained in the macro
+        // &#39;BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL&#39;.
+
+    template &lt;class TYPE&gt;
+    static int getIdentifier(const TYPE&amp; object);
+        // Return the integer identifier that uniquely identifies the specified
+        // &#39;object&#39;.  The behavior is undefined unless &#39;object&#39; could be
+        // created from the &#39;TemplateTestFacility::create&#39; class method
+        // template.
+};
+
+// FREE FUNCTIONS
+void debugprint(const EnumeratedTestType::Enum&amp; obj);
+void debugprint(const UnionTestType&amp; obj);
+void debugprint(const SimpleTestType&amp; obj);
+void debugprint(const AllocTestType&amp; obj);
+void debugprint(const BitwiseMoveableTestType&amp; obj);
+void debugprint(const AllocBitwiseMoveableTestType&amp; obj);
+void debugprint(const NonTypicalOverloadsTestType&amp; obj);
+void debugprint(const NonDefaultConstructibleTestType&amp; obj);
+    // Print the value of the specified &#39;obj&#39; to the console.  Note that this
+    // free function is provided to allow &#39;bsls_bsltestutil&#39; to support these
+    // types intended for testing.  See the component-level documentation for
+    // &#39;bsls_bsltestutil&#39; for more details.
+
+                       // =================
+                       // Macro Definitions
+                       // =================
+
+#define BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE                       \
+        signed char,                                                          \
+        size_t,                                                               \
+        bsltf::TemplateTestFacility::ObjectPtr,                               \
+        bsltf::TemplateTestFacility::FunctionPtr,                             \
+        bsltf::TemplateTestFacility::MethodPtr
+    // This macro refers to all of the primitive test types defined in this
+    // package.  Note that it can be used as the last argument to the
+    // &#39;BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE&#39; macro.
+
+#define BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_USER_DEFINED                    \
+    bsltf::EnumeratedTestType::Enum,                                          \
+    bsltf::UnionTestType,                                                     \
+    bsltf::SimpleTestType,                                                    \
+    bsltf::AllocTestType,                                                     \
+    bsltf::BitwiseMoveableTestType,                                           \
+    bsltf::AllocBitwiseMoveableTestType,                                      \
+    bsltf::NonTypicalOverloadsTestType
+    // This macro refers to all of the user-defined test types defined in this
+    // package.  Note that the macro can be used as the last argument to the
+    // &#39;BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE&#39; macro.
+
+#define BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR                         \
+        BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE,                      \
+        BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_USER_DEFINED
+    // This macro refers to all of the regular test types defined in this
+    // package.  Note that the macro can be used as the last argument to the
+    // &#39;BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE&#39; macro.
+
+#define BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_AWKWARD                         \
+        bsltf::NonAssignableTestType,                                         \
+        bsltf::NonDefaultConstructibleTestType,                               \
+        bsltf::NonEqualComparableTestType
+    // This macro refers to all of the awkward test types defined in this
+    // package.  Note that the macro can be used as the last argument to the
+    // &#39;BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE&#39; macro.
+
+#define BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL                             \
+        BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,                        \
+        BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_AWKWARD
+    // This macro refers to all of the test types defined in this package.
+    // Note that the macro can be used as the last argument to the
+    // &#39;BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE&#39; macro.
+
+
+#define BSLTF_TEMPLATETESTFACILITY_NUM_ARGS_IMPL(X20, X19, X18, X17, X16,     \
+                                                 X15, X14, X13, X12, X11,     \
+                                                 X10,  X9,  X8,  X7,  X6,     \
+                                                  X5,  X4,  X3,  X2,  X1,     \
+                                                   N, ...)                    \
+        N
+
+// The &#39;BSLTF_TEMPLATETESTFACILITY_EXPAND&#39; macro is required to workaround a
+// pre-proccessor issue on windows that prevents __VA_ARGS__ to be expanded in
+// the definition of some macros.
+#define BSLTF_TEMPLATETESTFACILITY_EXPAND(X)                                  \
+        X
+
+#define BSLTF_TEMPLATETESTFACILITY_NUM_ARGS(...)                              \
+        BSLTF_TEMPLATETESTFACILITY_EXPAND(                                    \
+        BSLTF_TEMPLATETESTFACILITY_NUM_ARGS_IMPL(__VA_ARGS__,                 \
+                                                 20, 19, 18, 17, 16, 15, 14,  \
+                                                 13, 12, 11, 10,  9,  8,  7,  \
+                                                 6, 5, 4, 3, 2, 1, 0))
+
+#define BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE_IMPL1(C, M, T1)              \
+        C&lt;T1&gt;::M();
+
+#define BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE_IMPL2(C, M, T1, T2)          \
+        C&lt;T1&gt;::M(); C&lt;T2&gt;::M();
+
+#define BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE_IMPL3(C, M, T1, T2, T3)      \
+        C&lt;T1&gt;::M(); C&lt;T2&gt;::M(); C&lt;T3&gt;::M();
+
+#define BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE_IMPL4(C, M, T1, T2, T3, T4)  \
+        C&lt;T1&gt;::M(); C&lt;T2&gt;::M(); C&lt;T3&gt;::M(); C&lt;T4&gt;::M();
+
+#define BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE_IMPL5(C, M, T1, T2, T3, T4,  \
+                                                       T5)                    \
+        C&lt;T1&gt;::M(); C&lt;T2&gt;::M(); C&lt;T3&gt;::M(); C&lt;T4&gt;::M(); C&lt;T5&gt;::M();
+
+#define BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE_IMPL6(C, M, T1, T2, T3, T4,  \
+                                                       T5, T6)                \
+        C&lt;T1&gt;::M(); C&lt;T2&gt;::M(); C&lt;T3&gt;::M(); C&lt;T4&gt;::M(); C&lt;T5&gt;::M();           \
+        C&lt;T6&gt;::M();
+
+#define BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE_IMPL7(C, M, T1, T2, T3, T4,  \
+                                                       T5, T6, T7)            \
+        C&lt;T1&gt;::M(); C&lt;T2&gt;::M(); C&lt;T3&gt;::M(); C&lt;T4&gt;::M(); C&lt;T5&gt;::M();           \
+        C&lt;T6&gt;::M(); C&lt;T7&gt;::M();
+
+#define BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE_IMPL8(C, M, T1, T2, T3, T4,  \
+                                                       T5, T6, T7, T8)        \
+        C&lt;T1&gt;::M(); C&lt;T2&gt;::M(); C&lt;T3&gt;::M(); C&lt;T4&gt;::M(); C&lt;T5&gt;::M();           \
+        C&lt;T6&gt;::M(); C&lt;T7&gt;::M(); C&lt;T8&gt;::M();
+
+#define BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE_IMPL9(C, M, T1, T2, T3, T4,  \
+                                                       T5, T6, T7, T8, T9)    \
+        C&lt;T1&gt;::M(); C&lt;T2&gt;::M(); C&lt;T3&gt;::M(); C&lt;T4&gt;::M(); C&lt;T5&gt;::M();           \
+        C&lt;T6&gt;::M(); C&lt;T7&gt;::M(); C&lt;T8&gt;::M(); C&lt;T9&gt;::M();
+
+#define BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE_IMPL10(C, M, T1, T2, T3, T4, \
+                                                        T5, T6, T7, T8, T9,   \
+                                                        T10)                  \
+        C&lt;T1&gt;::M(); C&lt;T2&gt;::M(); C&lt;T3&gt;::M(); C&lt;T4&gt;::M(); C&lt;T5&gt;::M();           \
+        C&lt;T6&gt;::M(); C&lt;T7&gt;::M(); C&lt;T8&gt;::M(); C&lt;T9&gt;::M(); C&lt;T10&gt;::M();
+
+#define BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE_IMPL11(C, M, T1, T2, T3, T4, \
+                                                        T5, T6, T7, T8, T9,   \
+                                                        T10, T11)             \
+        C&lt;T1&gt;::M(); C&lt;T2&gt;::M(); C&lt;T3&gt;::M(); C&lt;T4&gt;::M(); C&lt;T5&gt;::M();           \
+        C&lt;T6&gt;::M(); C&lt;T7&gt;::M(); C&lt;T8&gt;::M(); C&lt;T9&gt;::M(); C&lt;T10&gt;::M();          \
+        C&lt;T11&gt;::M();
+
+#define BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE_IMPL12(C, M, T1, T2, T3, T4, \
+                                                        T5, T6, T7, T8, T9,   \
+                                                        T10, T11, T12)        \
+        C&lt;T1&gt;::M(); C&lt;T2&gt;::M(); C&lt;T3&gt;::M(); C&lt;T4&gt;::M(); C&lt;T5&gt;::M();           \
+        C&lt;T6&gt;::M(); C&lt;T7&gt;::M(); C&lt;T8&gt;::M(); C&lt;T9&gt;::M(); C&lt;T10&gt;::M();          \
+        C&lt;T11&gt;::M(); C&lt;T12&gt;::M();
+
+#define BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE_IMPL13(C, M, T1, T2, T3, T4, \
+                                                        T5, T6, T7, T8, T9,   \
+                                                        T10, T11, T12, T13)   \
+        C&lt;T1&gt;::M(); C&lt;T2&gt;::M(); C&lt;T3&gt;::M(); C&lt;T4&gt;::M(); C&lt;T5&gt;::M();           \
+        C&lt;T6&gt;::M(); C&lt;T7&gt;::M(); C&lt;T8&gt;::M(); C&lt;T9&gt;::M(); C&lt;T10&gt;::M();          \
+        C&lt;T11&gt;::M(); C&lt;T12&gt;::M(); C&lt;T13&gt;::M();
+
+#define BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE_IMPL14(C, M, T1, T2, T3, T4, \
+                                                        T5, T6, T7, T8, T9,   \
+                                                        T10, T11, T12, T13,   \
+                                                        T14)                  \
+        C&lt;T1&gt;::M(); C&lt;T2&gt;::M(); C&lt;T3&gt;::M(); C&lt;T4&gt;::M(); C&lt;T5&gt;::M();           \
+        C&lt;T6&gt;::M(); C&lt;T7&gt;::M(); C&lt;T8&gt;::M(); C&lt;T9&gt;::M(); C&lt;T10&gt;::M();          \
+        C&lt;T11&gt;::M(); C&lt;T12&gt;::M(); C&lt;T13&gt;::M(); C&lt;T14&gt;::M();
+
+#define BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE_IMPL15(C, M, T1, T2, T3, T4, \
+                                                        T5, T6, T7, T8, T9,   \
+                                                        T10, T11, T12, T13,   \
+                                                        T14, T15)             \
+        C&lt;T1&gt;::M(); C&lt;T2&gt;::M(); C&lt;T3&gt;::M(); C&lt;T4&gt;::M(); C&lt;T5&gt;::M();           \
+        C&lt;T6&gt;::M(); C&lt;T7&gt;::M(); C&lt;T8&gt;::M(); C&lt;T9&gt;::M(); C&lt;T10&gt;::M();          \
+        C&lt;T11&gt;::M(); C&lt;T12&gt;::M(); C&lt;T13&gt;::M(); C&lt;T14&gt;::M(); C&lt;T15&gt;::M();
+
+#define BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE_IMPL16(C, M, T1, T2, T3, T4, \
+                                                        T5, T6, T7, T8, T9,   \
+                                                        T10, T11, T12, T13,   \
+                                                        T14, T15, T16)        \
+        C&lt;T1&gt;::M(); C&lt;T2&gt;::M(); C&lt;T3&gt;::M(); C&lt;T4&gt;::M(); C&lt;T5&gt;::M();           \
+        C&lt;T6&gt;::M(); C&lt;T7&gt;::M(); C&lt;T8&gt;::M(); C&lt;T9&gt;::M(); C&lt;T10&gt;::M();          \
+        C&lt;T11&gt;::M(); C&lt;T12&gt;::M(); C&lt;T13&gt;::M(); C&lt;T14&gt;::M(); C&lt;T15&gt;::M();      \
+        C&lt;T16&gt;::M();
+
+#define BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE_IMPL17(C, M, T1, T2, T3, T4, \
+                                                        T5, T6, T7, T8, T9,   \
+                                                        T10, T11, T12, T13,   \
+                                                        T14, T15, T16, T17)   \
+        C&lt;T1&gt;::M(); C&lt;T2&gt;::M(); C&lt;T3&gt;::M(); C&lt;T4&gt;::M(); C&lt;T5&gt;::M();           \
+        C&lt;T6&gt;::M(); C&lt;T7&gt;::M(); C&lt;T8&gt;::M(); C&lt;T9&gt;::M(); C&lt;T10&gt;::M();          \
+        C&lt;T11&gt;::M(); C&lt;T12&gt;::M(); C&lt;T13&gt;::M(); C&lt;T14&gt;::M(); C&lt;T15&gt;::M();      \
+        C&lt;T16&gt;::M(); C&lt;T17&gt;::M();
+
+#define BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE_IMPL18(C, M, T1, T2, T3, T4, \
+                                                        T5, T6, T7, T8, T9,   \
+                                                        T10, T11, T12, T13,   \
+                                                        T14, T15, T16, T17,   \
+                                                        T18)                  \
+        C&lt;T1&gt;::M(); C&lt;T2&gt;::M(); C&lt;T3&gt;::M(); C&lt;T4&gt;::M(); C&lt;T5&gt;::M();           \
+        C&lt;T6&gt;::M(); C&lt;T7&gt;::M(); C&lt;T8&gt;::M(); C&lt;T9&gt;::M(); C&lt;T10&gt;::M();          \
+        C&lt;T11&gt;::M(); C&lt;T12&gt;::M(); C&lt;T13&gt;::M(); C&lt;T14&gt;::M(); C&lt;T15&gt;::M();      \
+        C&lt;T16&gt;::M(); C&lt;T17&gt;::M(); C&lt;T18&gt;::M();
+
+#define BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE_IMPL19(C, M, T1, T2, T3, T4, \
+                                                        T5, T6, T7, T8, T9,   \
+                                                        T10, T11, T12, T13,   \
+                                                        T14, T15, T16, T17,   \
+                                                        T18, T19)             \
+        C&lt;T1&gt;::M(); C&lt;T2&gt;::M(); C&lt;T3&gt;::M(); C&lt;T4&gt;::M(); C&lt;T5&gt;::M();           \
+        C&lt;T6&gt;::M(); C&lt;T7&gt;::M(); C&lt;T8&gt;::M(); C&lt;T9&gt;::M(); C&lt;T10&gt;::M();          \
+        C&lt;T11&gt;::M(); C&lt;T12&gt;::M(); C&lt;T13&gt;::M(); C&lt;T14&gt;::M(); C&lt;T15&gt;::M();      \
+        C&lt;T16&gt;::M(); C&lt;T17&gt;::M(); C&lt;T18&gt;::M(); C&lt;T19&gt;::M();
+
+#define BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE_IMPL20(C, M, T1, T2, T3, T4, \
+                                                        T5, T6, T7, T8, T9,   \
+                                                        T10, T11, T12, T13,   \
+                                                        T14, T15, T16, T17,   \
+                                                        T18, T19, T20)        \
+        C&lt;T1&gt;::M(); C&lt;T2&gt;::M(); C&lt;T3&gt;::M(); C&lt;T4&gt;::M(); C&lt;T5&gt;::M();           \
+        C&lt;T6&gt;::M(); C&lt;T7&gt;::M(); C&lt;T8&gt;::M(); C&lt;T9&gt;::M(); C&lt;T10&gt;::M();          \
+        C&lt;T11&gt;::M(); C&lt;T12&gt;::M(); C&lt;T13&gt;::M(); C&lt;T14&gt;::M(); C&lt;T15&gt;::M();      \
+        C&lt;T16&gt;::M(); C&lt;T17&gt;::M(); C&lt;T18&gt;::M(); C&lt;T19&gt;::M(); C&lt;T20&gt;::M();
+
+#define BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE_IMPL(C, M, N, ...)           \
+        BSLTF_TEMPLATETESTFACILITY_EXPAND(                                    \
+         BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE_IMPL ## N(C, M, __VA_ARGS__))
+
+#define BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE_(C, M, N, ...)               \
+        BSLTF_TEMPLATETESTFACILITY_EXPAND(                                    \
+           BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE_IMPL(C, M, N, __VA_ARGS__))
+
+#define BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(CLASS, METHOD, ...)          \
+        BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE_(                            \
+                            CLASS,                                            \
+                            METHOD,                                           \
+                            BSLTF_TEMPLATETESTFACILITY_NUM_ARGS(__VA_ARGS__), \
+                            __VA_ARGS__)                                      \
+        // Instantiates the specified &#39;CLASS&#39; for each of the types specified
+        // in the third to last arguments of this macro.  Call the specified
+        // class &#39;METHOD&#39; of each instantiation.  The compilation will fail if
+        // the number of specified types is more than 20.
+
+#define BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_DEFINE_DBG_PRINT(TYPE)          \
+        inline void dbg_print(const TYPE&amp; val)                                \
+       { printf(&quot;%d&quot;, bsltf::TemplateTestFacility::getIdentifier&lt;TYPE&gt;(val)); }
+
+#define BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_DEFINE_DBG_PRINTS()             \
+        BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_DEFINE_DBG_PRINT(               \
+                                             bsltf::EnumeratedTestType::Enum) \
+                                                                              \
+        BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_DEFINE_DBG_PRINT(               \
+                                                        bsltf::UnionTestType) \
+                                                                              \
+        BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_DEFINE_DBG_PRINT(               \
+                                                       bsltf::SimpleTestType) \
+                                                                              \
+        BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_DEFINE_DBG_PRINT(               \
+                                                        bsltf::AllocTestType) \
+                                                                              \
+        BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_DEFINE_DBG_PRINT(               \
+                                              bsltf::BitwiseMoveableTestType) \
+                                                                              \
+        BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_DEFINE_DBG_PRINT(               \
+                                         bsltf::AllocBitwiseMoveableTestType) \
+                                                                              \
+        BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_DEFINE_DBG_PRINT(               \
+                                          bsltf::NonTypicalOverloadsTestType) \
+                                                                              \
+        BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_DEFINE_DBG_PRINT(               \
+                                      bsltf::NonDefaultConstructibleTestType)
+    // Defines a list of &#39;dbg_print&#39; overloads for use in the test driver.
+    // FIXME: Change this to integrate with Alisdair&#39;s test driver print
+    // facility once its ready.
+
+// ============================================================================
+//                      INLINE FUNCTION DEFINITIONS
+// ============================================================================
+
+                        // ------------------------------------
+                        // class TemplateTestFacility_StubClass
+                        // ------------------------------------
+
+template &lt;int IDENTIFIER&gt;
+int TemplateTestFacility_StubClass::method()
+{
+    return IDENTIFIER;
+}
+
+                        // ---------------------------
+                        // struct TemplateTestFacility
+                        // ---------------------------
+
+// CLASS METHODS
+template &lt;class TYPE&gt;
+inline
+TYPE TemplateTestFacility::create(int identifier)
+{
+    return TYPE(identifier);
+}
+
+template &lt;&gt;
+inline
+EnumeratedTestType::Enum TemplateTestFacility::create&lt;
+                                      EnumeratedTestType::Enum&gt;(int identifier)
+{
+    return static_cast&lt;EnumeratedTestType::Enum&gt;(identifier);
+}
+
+template &lt;&gt;
+inline
+TemplateTestFacility::MethodPtr TemplateTestFacility::create&lt;
+                               TemplateTestFacility::MethodPtr&gt;(int identifier)
+{
+    BSLS_ASSERT(0 &lt;= identifier);  BSLS_ASSERT(identifier &lt; 128);
+
+    switch (identifier) {
+      case 0:   return &amp;TemplateTestFacility_StubClass::method&lt;0&gt;;
+      case 1:   return &amp;TemplateTestFacility_StubClass::method&lt;1&gt;;
+      case 2:   return &amp;TemplateTestFacility_StubClass::method&lt;2&gt;;
+      case 3:   return &amp;TemplateTestFacility_StubClass::method&lt;3&gt;;
+      case 4:   return &amp;TemplateTestFacility_StubClass::method&lt;4&gt;;
+      case 5:   return &amp;TemplateTestFacility_StubClass::method&lt;5&gt;;
+      case 6:   return &amp;TemplateTestFacility_StubClass::method&lt;6&gt;;
+      case 7:   return &amp;TemplateTestFacility_StubClass::method&lt;7&gt;;
+      case 8:   return &amp;TemplateTestFacility_StubClass::method&lt;8&gt;;
+      case 9:   return &amp;TemplateTestFacility_StubClass::method&lt;9&gt;;
+      case 10:  return &amp;TemplateTestFacility_StubClass::method&lt;10&gt;;
+      case 11:  return &amp;TemplateTestFacility_StubClass::method&lt;11&gt;;
+      case 12:  return &amp;TemplateTestFacility_StubClass::method&lt;12&gt;;
+      case 13:  return &amp;TemplateTestFacility_StubClass::method&lt;13&gt;;
+      case 14:  return &amp;TemplateTestFacility_StubClass::method&lt;14&gt;;
+      case 15:  return &amp;TemplateTestFacility_StubClass::method&lt;15&gt;;
+      case 16:  return &amp;TemplateTestFacility_StubClass::method&lt;16&gt;;
+      case 17:  return &amp;TemplateTestFacility_StubClass::method&lt;17&gt;;
+      case 18:  return &amp;TemplateTestFacility_StubClass::method&lt;18&gt;;
+      case 19:  return &amp;TemplateTestFacility_StubClass::method&lt;19&gt;;
+      case 20:  return &amp;TemplateTestFacility_StubClass::method&lt;20&gt;;
+      case 21:  return &amp;TemplateTestFacility_StubClass::method&lt;21&gt;;
+      case 22:  return &amp;TemplateTestFacility_StubClass::method&lt;22&gt;;
+      case 23:  return &amp;TemplateTestFacility_StubClass::method&lt;23&gt;;
+      case 24:  return &amp;TemplateTestFacility_StubClass::method&lt;24&gt;;
+      case 25:  return &amp;TemplateTestFacility_StubClass::method&lt;25&gt;;
+      case 26:  return &amp;TemplateTestFacility_StubClass::method&lt;26&gt;;
+      case 27:  return &amp;TemplateTestFacility_StubClass::method&lt;27&gt;;
+      case 28:  return &amp;TemplateTestFacility_StubClass::method&lt;28&gt;;
+      case 29:  return &amp;TemplateTestFacility_StubClass::method&lt;29&gt;;
+      case 30:  return &amp;TemplateTestFacility_StubClass::method&lt;30&gt;;
+      case 31:  return &amp;TemplateTestFacility_StubClass::method&lt;31&gt;;
+      case 32:  return &amp;TemplateTestFacility_StubClass::method&lt;32&gt;;
+      case 33:  return &amp;TemplateTestFacility_StubClass::method&lt;33&gt;;
+      case 34:  return &amp;TemplateTestFacility_StubClass::method&lt;34&gt;;
+      case 35:  return &amp;TemplateTestFacility_StubClass::method&lt;35&gt;;
+      case 36:  return &amp;TemplateTestFacility_StubClass::method&lt;36&gt;;
+      case 37:  return &amp;TemplateTestFacility_StubClass::method&lt;37&gt;;
+      case 38:  return &amp;TemplateTestFacility_StubClass::method&lt;38&gt;;
+      case 39:  return &amp;TemplateTestFacility_StubClass::method&lt;39&gt;;
+      case 40:  return &amp;TemplateTestFacility_StubClass::method&lt;40&gt;;
+      case 41:  return &amp;TemplateTestFacility_StubClass::method&lt;41&gt;;
+      case 42:  return &amp;TemplateTestFacility_StubClass::method&lt;42&gt;;
+      case 43:  return &amp;TemplateTestFacility_StubClass::method&lt;43&gt;;
+      case 44:  return &amp;TemplateTestFacility_StubClass::method&lt;44&gt;;
+      case 45:  return &amp;TemplateTestFacility_StubClass::method&lt;45&gt;;
+      case 46:  return &amp;TemplateTestFacility_StubClass::method&lt;46&gt;;
+      case 47:  return &amp;TemplateTestFacility_StubClass::method&lt;47&gt;;
+      case 48:  return &amp;TemplateTestFacility_StubClass::method&lt;48&gt;;
+      case 49:  return &amp;TemplateTestFacility_StubClass::method&lt;49&gt;;
+      case 50:  return &amp;TemplateTestFacility_StubClass::method&lt;50&gt;;
+      case 51:  return &amp;TemplateTestFacility_StubClass::method&lt;51&gt;;
+      case 52:  return &amp;TemplateTestFacility_StubClass::method&lt;52&gt;;
+      case 53:  return &amp;TemplateTestFacility_StubClass::method&lt;53&gt;;
+      case 54:  return &amp;TemplateTestFacility_StubClass::method&lt;54&gt;;
+      case 55:  return &amp;TemplateTestFacility_StubClass::method&lt;55&gt;;
+      case 56:  return &amp;TemplateTestFacility_StubClass::method&lt;56&gt;;
+      case 57:  return &amp;TemplateTestFacility_StubClass::method&lt;57&gt;;
+      case 58:  return &amp;TemplateTestFacility_StubClass::method&lt;58&gt;;
+      case 59:  return &amp;TemplateTestFacility_StubClass::method&lt;59&gt;;
+      case 60:  return &amp;TemplateTestFacility_StubClass::method&lt;60&gt;;
+      case 61:  return &amp;TemplateTestFacility_StubClass::method&lt;61&gt;;
+      case 62:  return &amp;TemplateTestFacility_StubClass::method&lt;62&gt;;
+      case 63:  return &amp;TemplateTestFacility_StubClass::method&lt;63&gt;;
+      case 64:  return &amp;TemplateTestFacility_StubClass::method&lt;64&gt;;
+      case 65:  return &amp;TemplateTestFacility_StubClass::method&lt;65&gt;;
+      case 66:  return &amp;TemplateTestFacility_StubClass::method&lt;66&gt;;
+      case 67:  return &amp;TemplateTestFacility_StubClass::method&lt;67&gt;;
+      case 68:  return &amp;TemplateTestFacility_StubClass::method&lt;68&gt;;
+      case 69:  return &amp;TemplateTestFacility_StubClass::method&lt;69&gt;;
+      case 70:  return &amp;TemplateTestFacility_StubClass::method&lt;70&gt;;
+      case 71:  return &amp;TemplateTestFacility_StubClass::method&lt;71&gt;;
+      case 72:  return &amp;TemplateTestFacility_StubClass::method&lt;72&gt;;
+      case 73:  return &amp;TemplateTestFacility_StubClass::method&lt;73&gt;;
+      case 74:  return &amp;TemplateTestFacility_StubClass::method&lt;74&gt;;
+      case 75:  return &amp;TemplateTestFacility_StubClass::method&lt;75&gt;;
+      case 76:  return &amp;TemplateTestFacility_StubClass::method&lt;76&gt;;
+      case 77:  return &amp;TemplateTestFacility_StubClass::method&lt;77&gt;;
+      case 78:  return &amp;TemplateTestFacility_StubClass::method&lt;78&gt;;
+      case 79:  return &amp;TemplateTestFacility_StubClass::method&lt;79&gt;;
+      case 80:  return &amp;TemplateTestFacility_StubClass::method&lt;80&gt;;
+      case 81:  return &amp;TemplateTestFacility_StubClass::method&lt;81&gt;;
+      case 82:  return &amp;TemplateTestFacility_StubClass::method&lt;82&gt;;
+      case 83:  return &amp;TemplateTestFacility_StubClass::method&lt;83&gt;;
+      case 84:  return &amp;TemplateTestFacility_StubClass::method&lt;84&gt;;
+      case 85:  return &amp;TemplateTestFacility_StubClass::method&lt;85&gt;;
+      case 86:  return &amp;TemplateTestFacility_StubClass::method&lt;86&gt;;
+      case 87:  return &amp;TemplateTestFacility_StubClass::method&lt;87&gt;;
+      case 88:  return &amp;TemplateTestFacility_StubClass::method&lt;88&gt;;
+      case 89:  return &amp;TemplateTestFacility_StubClass::method&lt;89&gt;;
+      case 90:  return &amp;TemplateTestFacility_StubClass::method&lt;90&gt;;
+      case 91:  return &amp;TemplateTestFacility_StubClass::method&lt;91&gt;;
+      case 92:  return &amp;TemplateTestFacility_StubClass::method&lt;92&gt;;
+      case 93:  return &amp;TemplateTestFacility_StubClass::method&lt;93&gt;;
+      case 94:  return &amp;TemplateTestFacility_StubClass::method&lt;94&gt;;
+      case 95:  return &amp;TemplateTestFacility_StubClass::method&lt;95&gt;;
+      case 96:  return &amp;TemplateTestFacility_StubClass::method&lt;96&gt;;
+      case 97:  return &amp;TemplateTestFacility_StubClass::method&lt;97&gt;;
+      case 98:  return &amp;TemplateTestFacility_StubClass::method&lt;98&gt;;
+      case 99:  return &amp;TemplateTestFacility_StubClass::method&lt;99&gt;;
+      case 100: return &amp;TemplateTestFacility_StubClass::method&lt;100&gt;;
+      case 101: return &amp;TemplateTestFacility_StubClass::method&lt;101&gt;;
+      case 102: return &amp;TemplateTestFacility_StubClass::method&lt;102&gt;;
+      case 103: return &amp;TemplateTestFacility_StubClass::method&lt;103&gt;;
+      case 104: return &amp;TemplateTestFacility_StubClass::method&lt;104&gt;;
+      case 105: return &amp;TemplateTestFacility_StubClass::method&lt;105&gt;;
+      case 106: return &amp;TemplateTestFacility_StubClass::method&lt;106&gt;;
+      case 107: return &amp;TemplateTestFacility_StubClass::method&lt;107&gt;;
+      case 108: return &amp;TemplateTestFacility_StubClass::method&lt;108&gt;;
+      case 109: return &amp;TemplateTestFacility_StubClass::method&lt;109&gt;;
+      case 110: return &amp;TemplateTestFacility_StubClass::method&lt;110&gt;;
+      case 111: return &amp;TemplateTestFacility_StubClass::method&lt;111&gt;;
+      case 112: return &amp;TemplateTestFacility_StubClass::method&lt;112&gt;;
+      case 113: return &amp;TemplateTestFacility_StubClass::method&lt;113&gt;;
+      case 114: return &amp;TemplateTestFacility_StubClass::method&lt;114&gt;;
+      case 115: return &amp;TemplateTestFacility_StubClass::method&lt;115&gt;;
+      case 116: return &amp;TemplateTestFacility_StubClass::method&lt;116&gt;;
+      case 117: return &amp;TemplateTestFacility_StubClass::method&lt;117&gt;;
+      case 118: return &amp;TemplateTestFacility_StubClass::method&lt;118&gt;;
+      case 119: return &amp;TemplateTestFacility_StubClass::method&lt;119&gt;;
+      case 120: return &amp;TemplateTestFacility_StubClass::method&lt;120&gt;;
+      case 121: return &amp;TemplateTestFacility_StubClass::method&lt;121&gt;;
+      case 122: return &amp;TemplateTestFacility_StubClass::method&lt;122&gt;;
+      case 123: return &amp;TemplateTestFacility_StubClass::method&lt;123&gt;;
+      case 124: return &amp;TemplateTestFacility_StubClass::method&lt;124&gt;;
+      case 125: return &amp;TemplateTestFacility_StubClass::method&lt;125&gt;;
+      case 126: return &amp;TemplateTestFacility_StubClass::method&lt;126&gt;;
+      case 127: return &amp;TemplateTestFacility_StubClass::method&lt;127&gt;;
+    }
+    return 0;
+}
+
+template &lt;class TYPE&gt;
+inline
+int TemplateTestFacility::getIdentifier(const TYPE&amp; object)
+{
+    return int(object);
+}
+
+template &lt;&gt;
+inline
+int TemplateTestFacility::getIdentifier&lt;bsltf::EnumeratedTestType::Enum&gt;(
+                                 const bsltf::EnumeratedTestType::Enum&amp; object)
+{
+    return static_cast&lt;int&gt;(object);
+}
+
+template &lt;&gt;
+inline
+int TemplateTestFacility::getIdentifier&lt;
+    bsltf::TemplateTestFacility::ObjectPtr&gt;(
+                             const bsltf::TemplateTestFacility::ObjectPtr&amp; ptr)
+{
+
+    bsls::Types::IntPtr value = reinterpret_cast&lt;bsls::Types::IntPtr&gt;(ptr);
+    return static_cast&lt;int&gt;(value);
+}
+
+template &lt;&gt;
+inline
+int TemplateTestFacility::getIdentifier&lt;
+    bsltf::TemplateTestFacility::FunctionPtr&gt;(
+                           const bsltf::TemplateTestFacility::FunctionPtr&amp; ptr)
+{
+    bsls::Types::IntPtr value = reinterpret_cast&lt;bsls::Types::IntPtr&gt;(ptr);
+    return static_cast&lt;int&gt;(value);
+}
+
+template &lt;&gt;
+inline
+int TemplateTestFacility::getIdentifier&lt;
+    bsltf::TemplateTestFacility::MethodPtr&gt;(
+                             const bsltf::TemplateTestFacility::MethodPtr&amp; ptr)
+{
+    TemplateTestFacility_StubClass object;
+    return (object.*ptr)();
+}
+
+template &lt;&gt;
+inline
+int TemplateTestFacility::getIdentifier&lt;bsltf::UnionTestType&gt;(
+                                            const bsltf::UnionTestType&amp; object)
+{
+    return object.data();
+}
+
+template &lt;&gt;
+inline
+int TemplateTestFacility::getIdentifier&lt;bsltf::SimpleTestType&gt;(
+                                           const bsltf::SimpleTestType&amp; object)
+{
+    return object.data();
+}
+
+template &lt;&gt;
+inline
+int TemplateTestFacility::getIdentifier&lt;bsltf::AllocTestType&gt;(
+                                            const bsltf::AllocTestType&amp; object)
+{
+    return object.data();
+}
+
+template &lt;&gt;
+inline
+int TemplateTestFacility::getIdentifier&lt;bsltf::BitwiseMoveableTestType&gt;(
+                                  const bsltf::BitwiseMoveableTestType&amp; object)
+{
+    return object.data();
+}
+
+template &lt;&gt;
+inline
+int TemplateTestFacility::getIdentifier&lt;bsltf::AllocBitwiseMoveableTestType&gt;(
+                             const bsltf::AllocBitwiseMoveableTestType&amp; object)
+{
+    return object.data();
+}
+
+template &lt;&gt;
+inline
+int TemplateTestFacility::getIdentifier&lt;bsltf::NonTypicalOverloadsTestType&gt;(
+                              const bsltf::NonTypicalOverloadsTestType&amp; object)
+{
+    return object.data();
+}
+
+template &lt;&gt;
+inline
+int TemplateTestFacility::getIdentifier&lt;bsltf::NonAssignableTestType&gt;(
+                             const bsltf::NonAssignableTestType&amp; object)
+{
+    return object.data();
+}
+
+template &lt;&gt;
+inline
+int TemplateTestFacility::getIdentifier&lt;
+    bsltf::NonDefaultConstructibleTestType&gt;(
+                          const bsltf::NonDefaultConstructibleTestType&amp; object)
+{
+    return object.data();
+}
+
+template &lt;&gt;
+inline
+int TemplateTestFacility::getIdentifier&lt;bsltf::NonEqualComparableTestType&gt;(
+                               const bsltf::NonEqualComparableTestType&amp; object)
+{
+    return object.data();
+}
+
+// FREE FUNCTIONS
+inline
+void debugprint(const EnumeratedTestType::Enum&amp; obj)
+{
+    printf(&quot;%d&quot;, bsltf::TemplateTestFacility::getIdentifier(obj));
+}
+
+inline
+void debugprint(const UnionTestType&amp; obj)
+{
+    printf(&quot;%d&quot;, bsltf::TemplateTestFacility::getIdentifier(obj));
+}
+
+inline
+void debugprint(const SimpleTestType&amp; obj)
+{
+    printf(&quot;%d&quot;, bsltf::TemplateTestFacility::getIdentifier(obj));
+}
+
+inline
+void debugprint(const AllocTestType&amp; obj)
+{
+    printf(&quot;%d&quot;, bsltf::TemplateTestFacility::getIdentifier(obj));
+}
+
+inline
+void debugprint(const BitwiseMoveableTestType&amp; obj)
+{
+    printf(&quot;%d&quot;, bsltf::TemplateTestFacility::getIdentifier(obj));
+}
+
+inline
+void debugprint(const AllocBitwiseMoveableTestType&amp; obj)
+{
+    printf(&quot;%d&quot;, bsltf::TemplateTestFacility::getIdentifier(obj));
+}
+
+inline
+void debugprint(const NonTypicalOverloadsTestType&amp; obj)
+{
+    printf(&quot;%d&quot;, bsltf::TemplateTestFacility::getIdentifier(obj));
+}
+
+inline
+void debugprint(const NonDefaultConstructibleTestType&amp; obj)
+{
+    printf(&quot;%d&quot;, bsltf::TemplateTestFacility::getIdentifier(obj));
+}
+
+}  // close package namespace
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright (C) 2012 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the &quot;Software&quot;), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

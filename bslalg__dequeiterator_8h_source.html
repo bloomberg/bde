@@ -1,0 +1,889 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 2.16 BETA</title>
+<html>
+<pre>
+// bslalg_dequeiterator.h                                             -*-C++-*-
+#ifndef INCLUDED_BSLALG_DEQUEITERATOR
+#define INCLUDED_BSLALG_DEQUEITERATOR
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide primitive data structures for implementing deques.
+//
+//@CLASSES:
+//  bslalg::DequeImp: namespace for deque primitive data structures
+//
+//@SEE_ALSO: bslalg_dequeiterator, bslalg_dequeprimitives
+//
+//@DESCRIPTION: This component provides an iterator type for enumerating
+// elements in a deque (implemented in the form of dynamic-array) knowing only
+// its value type and a nominal block size.  Conceptually, a deque is an array
+// of blocks pointers, each block capable of containing a fixed number of
+// objects.  An element in the deque is identified by an iterator which
+// consists of two pointers:
+//: o a pointer to the block pointer array, and
+//: o a pointer to a value within the block referred to by the first pointer.
+//
+// Dereferencing the iterator dereferences the second pointer.  Incrementing or
+// decrementing the iterator consists of incrementing the value pointer, unless
+// the iterator crosses a block boundary in which case it must increment or
+// decrement its pointer to the block pointer.  Computing the distance between
+// two iterators involves figuring out how many block are in between and how
+// the offsets-in-block differ.
+//
+// Note that an iterator is valid as long as the element it points to still
+// belongs to the deque *and* there is no reallocation of the block pointer
+// array.  Inserting elements at either end of the deque usually maintains
+// iterator validity, but inserting enough elements at the end of the queue
+// might force the creating of sufficiently many blocks to trigger a
+// reallocation of the block pointer array and invalidate all iterators into
+// the deque; how many depends on the distances between the front and back of
+// the deque and the first/last iterator in the block pointer array (19 in the
+// picture below).
+//
+// The picture is as follows:
+//..
+//                       v--- Iterator to &#39;I&#39;: ptr to this BlockPtr
+//  +-----+-----+-----+-----+-----+-----+-----+-----+
+//  |  *  |  *  |  *  |  *  |  *  |  *  |  *  |  *  |    BlockPtr array
+//  +-----+-----+--|--+--|--+--|--+--|--+-----+-----+
+//                 |     |     |     |                  Block
+//                 |     |     |     |  +---+---+---+---+---+---+---+---+
+//                 |     |     |     `--| V | W | X | Y | Z |   |   |   |
+//                 |     |     |        +---+---+---+---+---+---+---+---+
+//                 |     |     |                  Block
+//                 |     |     |  +---+---+---+---+---+---+---+---+
+//                 |     |     `--| N | O | P | Q | R | S | T | U |
+//                 |     |        +---+---+---+---+---+---+---+---+
+//                 |     |                v---- Iterator to &#39;I&#39;: ptr to value
+//                 |     |  +---+---+---+---+---+---+---+---+
+//                 |     `--| F | G | H | I | J | K | L | M |
+//                 |        +---+---+---+---+---+---+---+---+
+//                 |                  Block
+//                 |  +---+---+---+---+---+---+---+---+
+//                 `--|   |   |   | A | B | C | D | E |
+//                    +---+---+---+---+---+---+---+---+
+//..
+// Depicted above is a deque consisting of eight block pointers, only four
+// actually used to point to blocks of eight elements.  In the first block, the
+// first three elements are uninitialized, and the twenty six elements follow
+// in sequence across the different blocks.  An iterator to the &#39;I&#39; element
+// consists of a pointer to the fourth block pointer and a pointer to the sixth
+// element of that block.  The value of the corresponding deque would be
+// &#39;[ A, B, C, ... X, Y, Z ]&#39;, its logical length 26, and its capacity would be
+// 19 (the minimum number of prepend/append to force a reallocation of the
+// block pointer array).
+//
+///Usage
+///-----
+// This component is for use by the &#39;bslstl&#39; package.  Other clients should use
+// the STL deque (in header &#39;&lt;deque&gt;&#39;).
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include &lt;bslscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLALG_DEQUEIMPUTIL
+#include &lt;bslalg_dequeimputil.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
+#include &lt;bslmf_istriviallycopyable.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include &lt;bsls_assert.h&gt;
+#endif
+
+#ifndef INCLUDED_CSTDDEF
+#include &lt;cstddef&gt;  // std::size_t, std::ptrdiff_t
+#define INCLUDED_CSTDDEF
+#endif
+
+namespace BloombergLP {
+
+namespace bslalg {
+
+template &lt;class VALUE_TYPE, int BLOCK_LENGTH&gt;
+class DequeIterator;
+
+template &lt;class VALUE_TYPE&gt;
+class DequeIterator&lt;VALUE_TYPE, 1&gt;;
+
+// WARNING: These free operators are declared here as a workaround for windows,
+// because windows gives an ambiguity error if the operator declaration is
+// declared after the friend declaration.
+
+// FREE OPERATORS
+template &lt;class VALUE_TYPE, int BLOCK_LENGTH&gt;
+inline
+bool operator==(const DequeIterator&lt;VALUE_TYPE, BLOCK_LENGTH&gt;&amp; lhs,
+                const DequeIterator&lt;VALUE_TYPE, BLOCK_LENGTH&gt;&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;rhs&#39; iterator points to the same element
+    // in the same block as this iterator, and &#39;false&#39; otherwise.
+
+template &lt;class VALUE_TYPE&gt;
+inline
+bool operator==(const DequeIterator&lt;VALUE_TYPE, 1&gt;&amp; lhs,
+                const DequeIterator&lt;VALUE_TYPE, 1&gt;&amp; rhs);
+    // Specialization for deques having a block length of 1.
+
+template &lt;class VALUE_TYPE, int BLOCK_LENGTH&gt;
+inline
+bool operator!=(const DequeIterator&lt;VALUE_TYPE, BLOCK_LENGTH&gt;&amp; lhs,
+                const DequeIterator&lt;VALUE_TYPE, BLOCK_LENGTH&gt;&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;rhs&#39; iterator points to a different
+    // element as this iterator, and &#39;false&#39; otherwise.
+
+template &lt;class VALUE_TYPE&gt;
+inline
+bool operator!=(const DequeIterator&lt;VALUE_TYPE, 1&gt;&amp; lhs,
+                const DequeIterator&lt;VALUE_TYPE, 1&gt;&amp; rhs);
+    // Specialization for deques having a block length of 1.
+
+template &lt;class VALUE_TYPE, int BLOCK_LENGTH&gt;
+inline
+bool operator&lt;(const DequeIterator&lt;VALUE_TYPE, BLOCK_LENGTH&gt;&amp; lhs,
+               const DequeIterator&lt;VALUE_TYPE, BLOCK_LENGTH&gt;&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;rhs&#39; iterator points to an element in a
+    // previous block or in a previous position in the same block as this
+    // iterator, and &#39;false&#39; otherwise.
+
+template &lt;class VALUE_TYPE&gt;
+inline
+bool operator&lt;(const DequeIterator&lt;VALUE_TYPE, 1&gt;&amp; lhs,
+               const DequeIterator&lt;VALUE_TYPE, 1&gt;&amp; rhs);
+    // Specialization for deques having a block length of 1.
+
+                       // ===================
+                       // class DequeIterator
+                       // ===================
+
+template &lt;class VALUE_TYPE, int BLOCK_LENGTH&gt;
+class DequeIterator {
+    // Implementation of a deque iterator, parameterized by the &#39;VALUE_TYPE&#39;,
+    // for a deque with the parameterized &#39;BLOCK_LENGTH&#39;, and suitable for use
+    // by the &#39;bslstl::RandomAccessIterator&#39; adapter.  Note that &#39;BLOCK_LENGTH&#39;
+    // is the number of items of &#39;VALUE_TYPE&#39; within a block, not the size of a
+    // block in bytes.
+
+    // PRIVATE TYPES
+    typedef bslalg::DequeImpUtil&lt;VALUE_TYPE, BLOCK_LENGTH&gt;  DequeImpUtil;
+    typedef typename DequeImpUtil::BlockPtr                 BlockPtr;
+    typedef DequeIterator&lt;VALUE_TYPE, BLOCK_LENGTH&gt;         IteratorType;
+
+    // DATA
+    BlockPtr   *d_blockPtr_p;
+    VALUE_TYPE *d_value_p;
+
+    // FRIENDS
+    friend bool operator==&lt;VALUE_TYPE, BLOCK_LENGTH&gt;(
+                               const DequeIterator&lt;VALUE_TYPE, BLOCK_LENGTH&gt;&amp;,
+                               const DequeIterator&lt;VALUE_TYPE, BLOCK_LENGTH&gt;&amp;);
+
+    friend bool operator!=&lt;VALUE_TYPE, BLOCK_LENGTH&gt;(
+                               const DequeIterator&lt;VALUE_TYPE, BLOCK_LENGTH&gt;&amp;,
+                               const DequeIterator&lt;VALUE_TYPE, BLOCK_LENGTH&gt;&amp;);
+
+    friend bool operator&lt; &lt;VALUE_TYPE, BLOCK_LENGTH&gt;(
+                               const DequeIterator&lt;VALUE_TYPE, BLOCK_LENGTH&gt;&amp;,
+                               const DequeIterator&lt;VALUE_TYPE, BLOCK_LENGTH&gt;&amp;);
+
+  public:
+    // CREATORS
+    DequeIterator();
+        // Create a singular iterator (i.e., having internal null pointers).
+
+    explicit
+    DequeIterator(BlockPtr *blockPtrPtr);
+        // Create an iterator pointing to the first element in the block
+        // pointed to by the specified &#39;blockPtrPtr&#39;.
+
+    DequeIterator(BlockPtr *blockPtrPtr, VALUE_TYPE *valuePtr);
+        // Create an iterator pointing to the element at the specified
+        // &#39;valuePtr&#39; address in the block pointed to by the specified
+        // &#39;blockPtrPtr&#39;.  The behavior is undefined unless &#39;valuePtr&#39; points
+        // into the block &#39;*blockPtrPtr&#39;.
+
+    // MANIPULATORS
+    void operator++();
+        // Increment this iterator to point to the next element in the
+        // corresponding deque (i.e., the element following the current one in
+        // the same block or, if the current element is the last one in the
+        // block, the first element in the next block).
+
+    void operator--();
+        // Decrement this iterator to point to the previous element in the
+        // corresponding deque (i.e., the element preceding the current one in
+        // the same block or, if the current element is the first one in the
+        // block, the last element in the previous block).
+
+    void operator+=(std::ptrdiff_t offset);
+        // Advance this iterator by the specified &#39;offset&#39;.
+
+    void operator-=(std::ptrdiff_t offset);
+        // Move this iterator backward by the specified &#39;offset&#39;.
+
+    void nextBlock();
+        // Set this iterator to point to the first element of the next block.
+
+    void previousBlock();
+        // Set this iterator to point to the first (not the last) element of
+        // the previous block.
+
+    void setBlock(BlockPtr *blockPtrPtr);
+        // Set this iterator to point to the first element of the block pointed
+        // to by the specified &#39;blockPtrPtr&#39;.
+
+    void valuePtrIncrement();
+        // Increment this iterator to point to the next element in the block of
+        // the corresponding deque.  The behavior is undefined unless this
+        // iterator is pointed to a valid position of the deque.  Note that
+        // this method is used only for optimization purposes in
+        // &#39;bslstl_Deque&#39;, and clients of this package should not use this
+        // directly.
+
+    void valuePtrDecrement();
+        // Decrement this iterator to point to the next element in the block of
+        // the corresponding deque.  The behavior is undefined unless this
+        // iterator is pointed to a valid position of the deque.  Note that
+        // this method is used only for optimization purposes in
+        // &#39;bslstl_Deque&#39;, and clients of this package should not use this
+        // directly.
+
+    // ACCESSORS
+    VALUE_TYPE&amp; operator*() const;
+        // Return a reference to the parameterized &#39;VALUE_TYPE&#39; object pointed
+        // to by this iterator.  Note that this value is modifiable if
+        // &#39;VALUE_TYPE&#39; is modifiable, and non-modifiable if it is not.
+
+    DequeIterator operator+(std::ptrdiff_t offset) const;
+        // Return an iterator pointing the element at the specified &#39;offset&#39;
+        // after this iterator.
+
+    DequeIterator operator-(std::ptrdiff_t offset) const;
+        // Return an iterator pointing the element at the specified &#39;offset&#39;
+        // before this iterator.
+
+    std::ptrdiff_t operator-(const DequeIterator&amp; rhs) const;
+        // Return the distance between this iterator and the specified &#39;rhs&#39;
+        // iterator.
+
+    VALUE_TYPE *blockBegin() const;
+        // Return the address of the first element in the block pointed to by
+        // this iterator.
+
+    VALUE_TYPE *blockEnd() const;
+        // Return the address of (one-past) the last element in the block
+        // pointed to by this iterator.
+
+    BlockPtr *blockPtr() const;
+        // Return the address of the block pointer pointed to by this iterator.
+
+    std::size_t offsetInBlock() const;
+        // Return the offset of the element pointed to by this iterator, from
+        // the beginning of the block containing it.
+
+    std::size_t remainingInBlock() const;
+        // Return the number of elements in the block pointed to by this
+        // iterator, until the end of this block, starting at (and including)
+        // the element pointed to by this iterator.
+
+    VALUE_TYPE *valuePtr() const;
+        // Return the address of the parameterized &#39;VALUE_TYPE&#39; object pointed
+        // to by this iterator.
+};
+
+// PARTIAL SPECIALIZATION
+template &lt;class VALUE_TYPE&gt;
+class DequeIterator&lt;VALUE_TYPE, 1&gt; {
+    // This partial specialization of &#39;DequeIterator&#39; for the case when there
+    // is a single element per block uses simpler storage and a simpler
+    // implementation.
+
+    // PRIVATE TYPES
+    typedef bslalg::DequeImpUtil&lt;VALUE_TYPE, 1&gt; DequeImpUtil;
+    typedef typename DequeImpUtil::BlockPtr     BlockPtr;
+    typedef DequeIterator&lt;VALUE_TYPE, 1&gt;        IteratorType;
+
+    // DATA
+    BlockPtr   *d_blockPtr_p; // pointer to BlockPtr within BlockPtr array
+    VALUE_TYPE *d_value_p;    // pointer to element referenced by iterator
+
+#ifdef BSLS_PLATFORM_CMP_SUN
+    // WARNING: Note that SUN&#39;s compiler complains about function &quot;friend
+    // declaration is incompatible with function template&quot; when xlC, gcc and
+    // windows all accept the form wrapped in the &#39;#else&#39; statement.  Therefore
+    // it is declared differently.
+
+    template &lt;class VALUE_TYPE&gt;
+    friend bool operator==(const DequeIterator&lt;VALUE_TYPE, 1&gt;&amp;,
+                           const DequeIterator&lt;VALUE_TYPE, 1&gt;&amp;);
+
+    template &lt;class VALUE_TYPE&gt;
+    friend bool operator!=(const DequeIterator&lt;VALUE_TYPE, 1&gt;&amp;,
+                           const DequeIterator&lt;VALUE_TYPE, 1&gt;&amp;);
+
+    template &lt;class VALUE_TYPE&gt;
+    friend bool operator&lt; (const DequeIterator&lt;VALUE_TYPE, 1&gt;&amp;,
+                           const DequeIterator&lt;VALUE_TYPE, 1&gt;&amp;);
+#else
+    friend bool operator==&lt;VALUE_TYPE&gt;
+                              (const DequeIterator&lt;VALUE_TYPE, 1&gt;&amp;,
+                               const DequeIterator&lt;VALUE_TYPE, 1&gt;&amp;);
+    friend bool operator!=&lt;VALUE_TYPE&gt;
+                              (const DequeIterator&lt;VALUE_TYPE, 1&gt;&amp;,
+                               const DequeIterator&lt;VALUE_TYPE, 1&gt;&amp;);
+    friend bool operator&lt; &lt;VALUE_TYPE&gt;
+                              (const DequeIterator&lt;VALUE_TYPE, 1&gt;&amp;,
+                               const DequeIterator&lt;VALUE_TYPE, 1&gt;&amp;);
+#endif
+
+  public:
+    // CREATORS
+    DequeIterator();
+    DequeIterator(BlockPtr *blockPtrPtr);
+    DequeIterator(BlockPtr *blockPtrPtr, VALUE_TYPE *valuePtr);
+
+    // MANIPULATORS
+    void operator++();
+    void operator--();
+    void operator+=(std::ptrdiff_t offset);
+    void operator-=(std::ptrdiff_t offset);
+
+    void nextBlock();
+    void previousBlock();
+    void setBlock(BlockPtr *blockPtrPtr);
+    void valuePtrIncrement();
+    void valuePtrDecrement();
+
+    // ACCESSORS
+    VALUE_TYPE&amp; operator*() const;
+    DequeIterator operator+(std::ptrdiff_t offset) const;
+    DequeIterator operator-(std::ptrdiff_t offset) const;
+    std::ptrdiff_t operator-(const DequeIterator&amp; rhs) const;
+    VALUE_TYPE *blockBegin() const;
+    VALUE_TYPE *blockEnd() const;
+    BlockPtr   *blockPtr() const;
+    std::size_t offsetInBlock() const;
+    std::size_t remainingInBlock() const;
+    VALUE_TYPE *valuePtr() const;
+};
+
+}  // close package namespace
+
+}  // close enterprise namespace
+
+// ===========================================================================
+//                                TYPE TRAITS
+// ===========================================================================
+
+namespace bsl {
+
+template &lt;typename VALUE_TYPE, int BLOCK_LENGTH&gt;
+struct is_trivially_copyable&lt;BloombergLP::bslalg::DequeIterator&lt;VALUE_TYPE,
+                                                                BLOCK_LENGTH&gt; &gt;
+    : true_type
+{};
+
+}  // close namespace bsl
+
+namespace BloombergLP {
+
+namespace bslalg {
+
+// ===========================================================================
+//                         INLINE FUNCTION DEFINITIONS
+// ===========================================================================
+
+                         // -------------------
+                         // class DequeIterator
+                         // -------------------
+
+// CREATORS
+template &lt;class VALUE_TYPE, int BLOCK_LENGTH&gt;
+inline
+DequeIterator&lt;VALUE_TYPE, BLOCK_LENGTH&gt;::DequeIterator()
+: d_blockPtr_p(0)
+, d_value_p(0)
+{
+}
+
+template &lt;class VALUE_TYPE, int BLOCK_LENGTH&gt;
+inline
+DequeIterator&lt;VALUE_TYPE, BLOCK_LENGTH&gt;::DequeIterator(BlockPtr *blockPtrPtr)
+: d_blockPtr_p(blockPtrPtr)
+, d_value_p(reinterpret_cast&lt;VALUE_TYPE*&gt;(*blockPtrPtr))
+{
+}
+
+template &lt;class VALUE_TYPE, int BLOCK_LENGTH&gt;
+inline
+DequeIterator&lt;VALUE_TYPE, BLOCK_LENGTH&gt;::DequeIterator(BlockPtr   *blockPtrPtr,
+                                                       VALUE_TYPE *valuePtr)
+: d_blockPtr_p(blockPtrPtr)
+, d_value_p(valuePtr)
+{
+    BSLS_ASSERT_SAFE(blockPtrPtr[0]-&gt;d_data &lt;= valuePtr);
+    BSLS_ASSERT_SAFE(valuePtr &lt; blockPtrPtr[0]-&gt;d_data + BLOCK_LENGTH);
+}
+
+// MANIPULATORS
+template &lt;class VALUE_TYPE, int BLOCK_LENGTH&gt;
+void DequeIterator&lt;VALUE_TYPE, BLOCK_LENGTH&gt;::operator++()
+{
+    if (1 == this-&gt;remainingInBlock()) {
+        ++d_blockPtr_p;
+        d_value_p = this-&gt;blockBegin();
+    }
+    else {
+        ++d_value_p;
+    }
+}
+
+template &lt;class VALUE_TYPE, int BLOCK_LENGTH&gt;
+void DequeIterator&lt;VALUE_TYPE, BLOCK_LENGTH&gt;::operator--()
+{
+    if (0 == this-&gt;offsetInBlock()) {
+        --d_blockPtr_p;
+        d_value_p = this-&gt;blockEnd();
+    }
+    --d_value_p;
+}
+
+template &lt;class VALUE_TYPE, int BLOCK_LENGTH&gt;
+void
+DequeIterator&lt;VALUE_TYPE, BLOCK_LENGTH&gt;::operator+=(std::ptrdiff_t offset)
+{
+    offset += offsetInBlock();
+    if (offset &gt;= 0) {
+        d_blockPtr_p += offset / BLOCK_LENGTH;
+        d_value_p = blockBegin() + (offset % BLOCK_LENGTH);
+    }
+    else {
+        d_blockPtr_p -= (-offset - 1) / BLOCK_LENGTH + 1;
+        d_value_p = blockEnd() - ((-offset - 1) % BLOCK_LENGTH + 1);
+    }
+}
+
+template &lt;class VALUE_TYPE, int BLOCK_LENGTH&gt;
+inline
+void
+DequeIterator&lt;VALUE_TYPE, BLOCK_LENGTH&gt;::operator-=(std::ptrdiff_t offset)
+{
+    this-&gt;operator+=(-offset);
+}
+
+template &lt;class VALUE_TYPE, int BLOCK_LENGTH&gt;
+inline
+void DequeIterator&lt;VALUE_TYPE, BLOCK_LENGTH&gt;::nextBlock()
+{
+    ++d_blockPtr_p;
+    d_value_p = this-&gt;blockBegin();
+}
+
+template &lt;class VALUE_TYPE, int BLOCK_LENGTH&gt;
+inline
+void DequeIterator&lt;VALUE_TYPE, BLOCK_LENGTH&gt;::previousBlock()
+{
+    --d_blockPtr_p;
+    d_value_p = this-&gt;blockBegin();
+}
+
+template &lt;class VALUE_TYPE, int BLOCK_LENGTH&gt;
+inline
+void DequeIterator&lt;VALUE_TYPE, BLOCK_LENGTH&gt;::setBlock(BlockPtr *blockPtrPtr)
+{
+    d_blockPtr_p = blockPtrPtr;
+    d_value_p    = this-&gt;blockBegin();
+}
+
+template &lt;class VALUE_TYPE, int BLOCK_LENGTH&gt;
+inline
+void DequeIterator&lt;VALUE_TYPE, BLOCK_LENGTH&gt;::valuePtrIncrement()
+{
+    BSLS_ASSERT_SAFE(d_blockPtr_p[0]-&gt;d_data &lt;= d_value_p);
+    BSLS_ASSERT_SAFE(d_value_p &lt; d_blockPtr_p[0]-&gt;d_data + BLOCK_LENGTH);
+
+    ++d_value_p;
+}
+
+template &lt;class VALUE_TYPE, int BLOCK_LENGTH&gt;
+inline
+void DequeIterator&lt;VALUE_TYPE, BLOCK_LENGTH&gt;::valuePtrDecrement()
+{
+    BSLS_ASSERT_SAFE(d_blockPtr_p[0]-&gt;d_data &lt;= d_value_p);
+    BSLS_ASSERT_SAFE(d_value_p &lt; d_blockPtr_p[0]-&gt;d_data + BLOCK_LENGTH);
+
+    --d_value_p;
+}
+
+// ACCESSORS
+template &lt;class VALUE_TYPE, int BLOCK_LENGTH&gt;
+inline
+VALUE_TYPE&amp;
+DequeIterator&lt;VALUE_TYPE, BLOCK_LENGTH&gt;::operator*() const
+{
+    return *d_value_p;
+}
+
+template &lt;class VALUE_TYPE, int BLOCK_LENGTH&gt;
+inline
+DequeIterator&lt;VALUE_TYPE, BLOCK_LENGTH&gt;
+DequeIterator&lt;VALUE_TYPE, BLOCK_LENGTH&gt;::operator+(std::ptrdiff_t offset) const
+{
+    DequeIterator ret(*this);
+    ret += offset;
+    return ret;
+}
+
+template &lt;class VALUE_TYPE, int BLOCK_LENGTH&gt;
+inline
+DequeIterator&lt;VALUE_TYPE, BLOCK_LENGTH&gt;
+DequeIterator&lt;VALUE_TYPE, BLOCK_LENGTH&gt;::operator-(std::ptrdiff_t offset) const
+{
+    DequeIterator ret(*this);
+    ret += -offset;
+    return ret;
+}
+
+template &lt;class VALUE_TYPE, int BLOCK_LENGTH&gt;
+std::ptrdiff_t
+DequeIterator&lt;VALUE_TYPE, BLOCK_LENGTH&gt;::operator-(
+                      const DequeIterator&lt;VALUE_TYPE, BLOCK_LENGTH&gt;&amp; rhs) const
+{
+    if (d_blockPtr_p == rhs.d_blockPtr_p) {
+        return d_value_p - rhs.d_value_p;                             // RETURN
+    }
+    else {
+        const int numFullBlocks = static_cast&lt;int&gt;(
+                                    this-&gt;d_blockPtr_p - rhs.d_blockPtr_p - 1);
+        return (numFullBlocks * BLOCK_LENGTH +
+                rhs.remainingInBlock() + this-&gt;offsetInBlock());      // RETURN
+    }
+}
+
+template &lt;class VALUE_TYPE, int BLOCK_LENGTH&gt;
+inline
+VALUE_TYPE *
+DequeIterator&lt;VALUE_TYPE, BLOCK_LENGTH&gt;::blockBegin() const
+{
+    return reinterpret_cast&lt;VALUE_TYPE*&gt;(*d_blockPtr_p);
+}
+
+template &lt;class VALUE_TYPE, int BLOCK_LENGTH&gt;
+inline
+VALUE_TYPE *
+DequeIterator&lt;VALUE_TYPE, BLOCK_LENGTH&gt;::blockEnd() const
+{
+    return reinterpret_cast&lt;VALUE_TYPE*&gt;(*d_blockPtr_p) + BLOCK_LENGTH;
+}
+
+template &lt;class VALUE_TYPE, int BLOCK_LENGTH&gt;
+inline
+typename
+DequeImpUtil&lt;VALUE_TYPE, BLOCK_LENGTH&gt;::BlockPtr *
+DequeIterator&lt;VALUE_TYPE, BLOCK_LENGTH&gt;::blockPtr() const
+{
+    return d_blockPtr_p;
+}
+
+template &lt;class VALUE_TYPE, int BLOCK_LENGTH&gt;
+inline
+std::size_t
+DequeIterator&lt;VALUE_TYPE, BLOCK_LENGTH&gt;::offsetInBlock() const
+{
+    return d_value_p - blockBegin();
+}
+
+template &lt;class VALUE_TYPE, int BLOCK_LENGTH&gt;
+inline
+std::size_t
+DequeIterator&lt;VALUE_TYPE, BLOCK_LENGTH&gt;::remainingInBlock() const
+{
+    return blockBegin() + BLOCK_LENGTH - d_value_p;
+}
+
+template &lt;class VALUE_TYPE, int BLOCK_LENGTH&gt;
+inline
+VALUE_TYPE *
+DequeIterator&lt;VALUE_TYPE, BLOCK_LENGTH&gt;::valuePtr() const
+{
+    return d_value_p;
+}
+
+                  // ---------------------------------
+                  // class DequeIterator&lt;VALUE_TYPE,1&gt;
+                  // ---------------------------------
+
+// CREATORS
+template &lt;class VALUE_TYPE&gt;
+inline
+DequeIterator&lt;VALUE_TYPE, 1&gt;::DequeIterator()
+: d_blockPtr_p(0)
+, d_value_p(0)
+{
+}
+
+template &lt;class VALUE_TYPE&gt;
+inline
+DequeIterator&lt;VALUE_TYPE, 1&gt;::DequeIterator(BlockPtr *blockPtrPtr)
+: d_blockPtr_p(blockPtrPtr)
+, d_value_p(reinterpret_cast&lt;VALUE_TYPE*&gt;(*blockPtrPtr))
+{
+}
+
+template &lt;class VALUE_TYPE&gt;
+inline
+DequeIterator&lt;VALUE_TYPE, 1&gt;::DequeIterator(BlockPtr   *blockPtrPtr,
+                                            VALUE_TYPE *valuePtr)
+: d_blockPtr_p(blockPtrPtr)
+, d_value_p(valuePtr)
+{
+    BSLS_ASSERT_SAFE((*blockPtrPtr)-&gt;d_data == valuePtr);
+}
+
+// MANIPULATORS
+template &lt;class VALUE_TYPE&gt;
+inline
+void DequeIterator&lt;VALUE_TYPE, 1&gt;::operator++()
+{
+    ++d_blockPtr_p;
+    d_value_p = reinterpret_cast&lt;VALUE_TYPE*&gt;(*d_blockPtr_p);
+}
+
+template &lt;class VALUE_TYPE&gt;
+inline
+void DequeIterator&lt;VALUE_TYPE, 1&gt;::operator--()
+{
+    --d_blockPtr_p;
+    d_value_p = reinterpret_cast&lt;VALUE_TYPE*&gt;(*d_blockPtr_p);
+}
+
+template &lt;class VALUE_TYPE&gt;
+inline
+void DequeIterator&lt;VALUE_TYPE, 1&gt;::operator+=(std::ptrdiff_t offset)
+{
+    d_blockPtr_p += offset;
+    d_value_p     = reinterpret_cast&lt;VALUE_TYPE*&gt;(*d_blockPtr_p);
+}
+
+template &lt;class VALUE_TYPE&gt;
+inline
+void DequeIterator&lt;VALUE_TYPE, 1&gt;::operator-=(std::ptrdiff_t offset)
+{
+    this-&gt;operator+=(-offset);
+}
+
+template &lt;class VALUE_TYPE&gt;
+inline
+void DequeIterator&lt;VALUE_TYPE, 1&gt;::nextBlock()
+{
+    ++d_blockPtr_p;
+    d_value_p = reinterpret_cast&lt;VALUE_TYPE*&gt;(*d_blockPtr_p);
+}
+
+template &lt;class VALUE_TYPE&gt;
+inline
+void DequeIterator&lt;VALUE_TYPE, 1&gt;::previousBlock()
+{
+    --d_blockPtr_p;
+    d_value_p = reinterpret_cast&lt;VALUE_TYPE*&gt;(*d_blockPtr_p);
+}
+
+template &lt;class VALUE_TYPE&gt;
+inline
+void DequeIterator&lt;VALUE_TYPE, 1&gt;::setBlock(BlockPtr *blockPtrPtr)
+{
+    d_blockPtr_p = blockPtrPtr;
+    d_value_p    = reinterpret_cast&lt;VALUE_TYPE*&gt;(*d_blockPtr_p);
+}
+
+template &lt;class VALUE_TYPE&gt;
+inline
+void DequeIterator&lt;VALUE_TYPE, 1&gt;::valuePtrIncrement()
+{
+    // This should never be called for &#39;BLOCK_LENGTH&#39; of 1
+    BSLS_ASSERT_SAFE(0);
+}
+
+template &lt;class VALUE_TYPE&gt;
+inline
+void DequeIterator&lt;VALUE_TYPE, 1&gt;::valuePtrDecrement()
+{
+    // This should never be called for &#39;BLOCK_LENGTH&#39; of 1
+    BSLS_ASSERT_SAFE(0);
+}
+
+// ACCESSORS
+template &lt;class VALUE_TYPE&gt;
+inline
+VALUE_TYPE&amp; DequeIterator&lt;VALUE_TYPE, 1&gt;::operator*() const
+{
+    return *d_value_p;
+}
+
+template &lt;class VALUE_TYPE&gt;
+inline
+DequeIterator&lt;VALUE_TYPE, 1&gt;
+DequeIterator&lt;VALUE_TYPE, 1&gt;::operator+(std::ptrdiff_t offset) const
+{
+    return DequeIterator&lt;VALUE_TYPE, 1&gt;(d_blockPtr_p + offset);
+}
+
+template &lt;class VALUE_TYPE&gt;
+inline
+DequeIterator&lt;VALUE_TYPE, 1&gt;
+DequeIterator&lt;VALUE_TYPE, 1&gt;::operator-(std::ptrdiff_t offset) const
+{
+    return DequeIterator&lt;VALUE_TYPE, 1&gt;(d_blockPtr_p - offset);
+}
+
+template &lt;class VALUE_TYPE&gt;
+inline
+std::ptrdiff_t
+DequeIterator&lt;VALUE_TYPE, 1&gt;::operator-(
+                                 const DequeIterator&lt;VALUE_TYPE, 1&gt;&amp; rhs) const
+{
+    return d_blockPtr_p - rhs.d_blockPtr_p;
+}
+
+template &lt;class VALUE_TYPE&gt;
+inline
+VALUE_TYPE *
+DequeIterator&lt;VALUE_TYPE, 1&gt;::blockBegin() const
+{
+    return reinterpret_cast&lt;VALUE_TYPE*&gt;(*d_blockPtr_p);
+}
+
+template &lt;class VALUE_TYPE&gt;
+inline
+VALUE_TYPE *
+DequeIterator&lt;VALUE_TYPE, 1&gt;::blockEnd() const
+{
+    return reinterpret_cast&lt;VALUE_TYPE*&gt;(*d_blockPtr_p) + 1;
+}
+
+template &lt;class VALUE_TYPE&gt;
+inline
+typename
+DequeImpUtil&lt;VALUE_TYPE, 1&gt;::BlockPtr *
+DequeIterator&lt;VALUE_TYPE, 1&gt;::blockPtr() const
+{
+    return d_blockPtr_p;
+}
+
+template &lt;class VALUE_TYPE&gt;
+inline
+std::size_t
+DequeIterator&lt;VALUE_TYPE, 1&gt;::offsetInBlock() const
+{
+    return 0;
+}
+
+template &lt;class VALUE_TYPE&gt;
+inline
+std::size_t
+DequeIterator&lt;VALUE_TYPE, 1&gt;::remainingInBlock() const
+{
+    return 1;
+}
+
+template &lt;class VALUE_TYPE&gt;
+inline
+VALUE_TYPE *
+DequeIterator&lt;VALUE_TYPE, 1&gt;::valuePtr() const
+{
+    return d_value_p;
+}
+
+}  // close package namespace
+
+// FREE OPERATORS
+template &lt;class VALUE_TYPE, int BLOCK_LENGTH&gt;
+inline
+bool bslalg::operator==(const DequeIterator&lt;VALUE_TYPE, BLOCK_LENGTH&gt;&amp; lhs,
+                        const DequeIterator&lt;VALUE_TYPE, BLOCK_LENGTH&gt;&amp; rhs)
+{
+    return lhs.d_value_p == rhs.d_value_p;
+}
+
+template &lt;class VALUE_TYPE&gt;
+inline
+bool bslalg::operator==(const DequeIterator&lt;VALUE_TYPE, 1&gt;&amp; lhs,
+                        const DequeIterator&lt;VALUE_TYPE, 1&gt;&amp; rhs)
+{
+    return lhs.d_blockPtr_p == rhs.d_blockPtr_p;
+}
+
+template &lt;class VALUE_TYPE, int BLOCK_LENGTH&gt;
+inline
+bool bslalg::operator!=(const DequeIterator&lt;VALUE_TYPE, BLOCK_LENGTH&gt;&amp; lhs,
+                        const DequeIterator&lt;VALUE_TYPE, BLOCK_LENGTH&gt;&amp; rhs)
+{
+    return !(lhs == rhs);
+}
+
+template &lt;class VALUE_TYPE&gt;
+inline
+bool bslalg::operator!=(const DequeIterator&lt;VALUE_TYPE, 1&gt;&amp; lhs,
+                        const DequeIterator&lt;VALUE_TYPE, 1&gt;&amp; rhs)
+{
+    return !(lhs == rhs);
+}
+
+
+template &lt;class VALUE_TYPE, int BLOCK_LENGTH&gt;
+inline
+bool bslalg::operator&lt;(const DequeIterator&lt;VALUE_TYPE, BLOCK_LENGTH&gt;&amp; lhs,
+                       const DequeIterator&lt;VALUE_TYPE, BLOCK_LENGTH&gt;&amp; rhs)
+{
+    if (lhs.d_blockPtr_p == rhs.d_blockPtr_p) {
+        return lhs.d_value_p &lt; rhs.d_value_p;                         // RETURN
+    }
+    else {
+        return lhs.d_blockPtr_p &lt; rhs.d_blockPtr_p;                   // RETURN
+    }
+}
+
+template &lt;class VALUE_TYPE&gt;
+inline
+bool bslalg::operator&lt;(const DequeIterator&lt;VALUE_TYPE, 1&gt;&amp; lhs,
+                       const DequeIterator&lt;VALUE_TYPE, 1&gt;&amp; rhs)
+{
+    return lhs.d_blockPtr_p &lt; rhs.d_blockPtr_p;
+}
+
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright (C) 2012 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the &quot;Software&quot;), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

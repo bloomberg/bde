@@ -1,0 +1,185 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 2.16 BETA</title>
+<html>
+<pre>
+// bslmf_removecvq.h                                                  -*-C++-*-
+#ifndef INCLUDED_BSLMF_REMOVECVQ
+#define INCLUDED_BSLMF_REMOVECVQ
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a meta-function for removing &#39;const&#39;/&#39;volatile&#39; qualifiers.
+//
+//@CLASSES:
+//  bslmf::RemoveCvq: meta-function for stripping &#39;const&#39;/&#39;volatile&#39; qualifiers
+//
+//@DESCRIPTION: This component defines a simple template structure used to
+// strip of any top-level &#39;const&#39;/&#39;volatile&#39; qualifiers from it&#39;s single
+// template parameter.  The un-qualified type can be accessed via the &#39;Type&#39;
+// member defined in &#39;bslmf::RemoveCvq&#39;.
+//..
+//  struct MyType {};
+//
+//  bslmf::RemoveCvq&lt;int              &gt;::Type i1; // int i1;
+//  bslmf::RemoveCvq&lt;const int        &gt;::Type i2; // int i2;
+//  bslmf::RemoveCvq&lt;volatile int     &gt;::Type i3; // int i3;
+//  bslmf::RemoveCvq&lt;int *            &gt;::Type i4; // int *i4;
+//  bslmf::RemoveCvq&lt;int **           &gt;::Type i5; // int **i5;
+//  bslmf::RemoveCvq&lt;int *const       &gt;::Type i6; // int *i6;
+//  bslmf::RemoveCvq&lt;int *const *     &gt;::Type i7; // int *const *i7;
+//  bslmf::RemoveCvq&lt;int *const *const&gt;::Type i8; // int *const *i8;
+//  bslmf::RemoveCvq&lt;MyType           &gt;::Type m1; // MyType m1;
+//  bslmf::RemoveCvq&lt;MyType const     &gt;::Type m2; // MyType m2;
+//..
+///Usage Example
+///-------------
+// We can make a simple template function that shows whether two objects are
+// the same type, ignoring &#39;const&#39; and &#39;volatile&#39; qualifiers.
+//
+// First, we create a template that will determine whether two objects are
+// EXACTLY the same type:
+//..
+//  template &lt;typename TYPE&gt;
+//  bool isSame(TYPE&amp; a, TYPE&amp; b) { return true; }
+//  template &lt;typename TYPEA, typename TYPEB&gt;
+//  bool isSame(TYPEA&amp; a, TYPEB&amp; b) { return false; }
+//..
+// Next, we combine that template function with the use of &#39;bslmf::RemoveCvq&#39;
+// to create a template that will determine whether two objects are the same
+// type, ignoring &#39;const&#39; and &#39;volatile&#39; qualifiers:
+//..
+//  template &lt;typename TYPEA, typename TYPEB&gt;
+//  bool isSortaSame(TYPEA&amp; a, TYPEB&amp; b)
+//  {
+//      typename bslmf::RemoveCvq&lt;TYPEA&gt;::Type aa = a;
+//      typename bslmf::RemoveCvq&lt;TYPEB&gt;::Type bb = b;
+//
+//      return isSame(aa, bb);
+//  }
+//..
+// Next, we use the templates
+//..
+//  int i = 0, j = 0;
+//  const int ci = 0, cj = 0;
+//  volatile int vi = 0, vj = 0;
+//  const volatile int cvi = 0, cvj = 0;
+//
+//  double x = 0, y = 0;
+//
+//  assert(  isSame(i, j));
+//  assert(  isSame(ci, cj));
+//  assert(  isSame(vi, vj));
+//  assert(  isSame(cvi, cvj));
+//  assert(  isSame(x, y));
+//
+//  assert(! isSame(i, x));
+//  assert(! isSame(i, ci));
+//  assert(! isSame(i, vi));
+//  assert(! isSame(i, cvi));
+//  assert(! isSame(ci, vi));
+//  assert(! isSame(ci, cvi));
+//  assert(! isSame(vi, cvi));
+//
+//  assert(! isSortaSame(i, x));
+//  assert(  isSortaSame(i, ci));
+//  assert(  isSortaSame(i, vi));
+//  assert(  isSortaSame(i, cvi));
+//  assert(  isSortaSame(ci, vi));
+//  assert(  isSortaSame(ci, vi));
+//  assert(  isSortaSame(ci, cvi));
+//  assert(  isSortaSame(vi, cvi));
+//..
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include &lt;bslscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_REMOVECV
+#include &lt;bslmf_removecv.h&gt;
+#endif
+
+namespace BloombergLP {
+
+namespace bslmf {
+
+template &lt;typename TYPE&gt;
+struct Remove_NonCvPointer
+{
+    typedef TYPE Type;
+};
+
+template &lt;typename TYPE&gt;
+struct Remove_NonCvPointer&lt;TYPE *&gt;
+{
+    typedef TYPE Type;
+};
+
+                              // ================
+                              // struct RemoveCvq
+                              // ================
+
+template &lt;typename TYPE&gt;
+struct RemovePtrCvq
+    // This class implements a meta-function for stripping &#39;const&#39; and
+    // &#39;volatile&#39; qualifiers from the type pointed to by it&#39;s parameter type.
+    // It also returns, in &#39;ValueType&#39;, the (non-cvq) type pointed to by its
+    // parameter.  This class has no body -- it is specialized below for
+    // pointers to const, volatile, and const volatile.  IMPLEMENTATION NOTE:
+    // The Sun Workshop 6 C++ 5.2 compiler works with these pointer
+    // specializations, but does not work with direct specialization on T, T
+    // const, and T volatile.  Thus, &#39;RemoveCvq&#39;, below, is implemented
+    // indirectly in terms of &#39;RemovePtrCvq&#39;.
+{
+    typedef typename bsl::remove_cv&lt;TYPE&gt;::type                      Type;
+    typedef typename Remove_NonCvPointer&lt;typename bsl::remove_cv&lt;TYPE&gt;::type&gt;::Type
+                                                                     ValueType;
+};
+
+                           // ================
+                           // struct RemoveCvq
+                           // ================
+
+template &lt;typename TYPE&gt;
+struct RemoveCvq
+{
+    // This class implements a meta-function for stripping top-level
+    // const/volatile qualifiers from it&#39;s parameter type.
+
+    typedef typename bsl::remove_cv&lt;TYPE&gt;::type Type;
+};
+
+}  // close package namespace
+
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright (C) 2012 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the &quot;Software&quot;), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

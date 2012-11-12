@@ -1,0 +1,244 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 2.16 BETA</title>
+<html>
+<pre>
+// bsls_alignment.h                                                   -*-C++-*-
+#ifndef INCLUDED_BSLS_ALIGNMENT
+#define INCLUDED_BSLS_ALIGNMENT
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a namespace for enumerating memory alignment strategies.
+//
+//@CLASSES:
+//  bsls::Alignment: namespace for enumerated alignment strategy values
+//
+//@SEE_ALSO: bsls_alignmentutil
+//
+//@DESCRIPTION: This component provides a namespace, &#39;bsls::Alignment&#39;, for
+// enumerating alignment strategies, and provides a function, &#39;toAscii&#39;, that
+// converts each of the enumerators to its corresponding string representation.
+//
+// *Note:* This component has been factored into multiple components (it is now
+// simply an enumeration); types and values previously provided are now defined
+// in other components.  Specifically, clients using the previously named
+// &#39;bsls_AlignmentOf&#39;, &#39;bsls::AlignmentToType&#39;, and &#39;bsls::Alignment&#39; types
+// should now use the components &#39;bsls_alignmentfromtype&#39;,
+// &#39;bsls_alignmenttotype&#39;, and &#39;bsls_alignmentutil&#39;, respectively.  Similarly,
+// the enumerator value &#39;bsls::Alignment::MAX_ALIGNMENT&#39; and the
+// &#39;bsls::Alignment::MaxAlignedType&#39; &#39;typedef&#39; are now provided by
+// &#39;bsls_alignmentutil&#39;.
+//
+///Alignment Strategy
+///------------------
+// This component supports two alignment strategies: 1) MAXIMUM ALIGNMENT and
+// 2) NATURAL ALIGNMENT.
+//..
+//  MAXIMUM ALIGNMENT: This strategy, as indicated by the enumerator
+//  &#39;BSLS_MAXIMUM&#39;, specifies that a memory block be aligned as per the most
+//  restrictive alignment requirement on the host platform.
+//
+//  NATURAL ALIGNMENT: This strategy, as indicated by the enumerator
+//  &#39;BSLS_NATURAL&#39;, specifies that a memory block be aligned based on the
+//  size (in bytes) of that block.  An object of a fundamental type (&#39;int&#39;,
+//  etc.) is *naturally* *aligned* when it&#39;s size evenly divides its
+//  address.  An object of an aggregate type has natural alignment if the
+//  alignment of the most-restrictively aligned sub-object evenly divides
+//  the address of the aggregate.  Natural alignment is always at least as
+//  restrictive as the compiler&#39;s required alignment.
+//..
+///Usage
+///-----
+// Suppose that we want to create a static function, &#39;allocateFromBuffer&#39;, that
+// takes a buffer, the size of the buffer, a cursor indicating a position
+// within the buffer, an allocation request size, and a memory alignment
+// strategy; &#39;allocateFromBuffer&#39; returns a pointer to a block of memory,
+// wholly contained within the buffer, having the specified size and alignment.
+// As a side-effect, the cursor is updated to refer to the next available free
+// byte in the buffer.  Such a function could be used by a memory manager to
+// satisfy allocate requests from internally-managed buffers.  Clients of this
+// function indicate which alignment strategy to use based on their specific
+// requirements.
+//
+// Our &#39;allocateFromBuffer&#39; function depends on an alignment utility,
+// &#39;my_AlignmentUtil&#39;, whose minimal interface is limited to that required by
+// this usage example.  (See the &#39;bsls_alignmentutil&#39; component for a more
+// realistic alignment utility.):
+//..
+//  struct my_AlignmentUtil {
+//      // This &#39;struct&#39; provides a namespace for basic types and utilities
+//      // related to memory alignment.
+//
+//      // TYPES
+//      enum {
+//          MY_MAX_PLATFORM_ALIGNMENT = 8
+//      };
+//          // Provide the *minimal* value that satisfies the alignment
+//          // requirements for *all* types on the host platform.  Note that 8
+//          // is used for illustration purposes only; an actual implementation
+//          // would employ template meta-programming to deduce the value at
+//          // compile time.
+//
+//      // CLASS METHODS
+//      static int calculateAlignmentFromSize(int size);
+//          // Calculate a usable alignment for a memory block of the specified
+//          // &#39;size&#39; (in bytes) in the absence of compile-time knowledge of
+//          // the block&#39;s alignment requirements.  Return the largest power of
+//          // two that evenly divides &#39;size&#39;, up to a maximum of
+//          // &#39;MY_MAX_PLATFORM_ALIGNMENT&#39;.  It is guaranteed that a block of
+//          // &#39;size&#39; bytes can be safely aligned on the return value.   The
+//          // behavior is undefined unless &#39;0 &lt; size&#39;.
+//
+//      static int calculateAlignmentOffset(const void *address,
+//                                          int         alignment);
+//          // Return the smallest non-negative offset (in bytes) that, when
+//          // added to the specified &#39;address&#39;, yields the specified
+//          // &#39;alignment&#39;.  The behavior is undefined unless &#39;0 != alignment&#39;
+//          // and &#39;alignment&#39; is a non-negative, integral power of 2.
+//  };
+//..
+// The definition of our &#39;allocateFromBuffer&#39; function is as follows:
+//..
+//  static void *allocateFromBuffer(int                      *cursor,
+//                                  char                     *buffer,
+//                                  int                       bufferSize,
+//                                  int                       size,
+//                                  bsls::Alignment::Strategy strategy)
+//      // Allocate a memory block of the specified &#39;size&#39; (in bytes) from the
+//      // specified &#39;buffer&#39; having the specified &#39;bufferSize&#39; at the
+//      // specified &#39;cursor&#39; position, using the specified alignment
+//      // &#39;strategy&#39;.  Return the address of the allocated memory block if
+//      // &#39;buffer&#39; contains sufficient available memory, and 0 otherwise.  The
+//      // &#39;cursor&#39; is set to the first byte position immediately after the
+//      // allocated memory (which might be 1 byte past the end of &#39;buffer&#39;) if
+//      // there is sufficient memory, and is not modified otherwise.  The
+//      // behavior is undefined unless &#39;0 &lt;= bufferSize&#39;, &#39;0 &lt; size&#39;, and
+//      // &#39;cursor&#39; refers to a valid position in &#39;buffer&#39;.
+//  {
+//..
+// First we assert the function pre-conditions:
+//..
+//  assert(cursor);
+//  assert(buffer);
+//  assert(0 &lt;= bufferSize);
+//  assert(0 &lt; size);
+//..
+// Then, based on the alignment &#39;strategy&#39;, we calculate the alignment value
+// that can satisfy the allocation request.  In the case of
+// &#39;bsls::Alignment::BSLS_NATURAL&#39;, we calculate the alignment from &#39;size&#39;; for
+// &#39;bsls::Alignment::BSLS_MAXIMUM&#39;, we use the platform-dependent
+// &#39;my_AlignmentUtil::MY_MAX_PLATFORM_ALIGNMENT&#39; value:
+//..
+//  const int alignment =
+//                     strategy == bsls::Alignment::BSLS_NATURAL
+//                     ? my_AlignmentUtil::calculateAlignmentFromSize(size)
+//                     : my_AlignmentUtil::MY_MAX_PLATFORM_ALIGNMENT;
+//..
+// Now we calculate the offset from the current &#39;cursor&#39; value that can satisfy
+// the &#39;alignment&#39; requirements:
+//..
+//  const int offset = my_AlignmentUtil::calculateAlignmentOffset(
+//                                                        buffer + *cursor,
+//                                                        alignment);
+//
+//..
+// Next we check if the available free memory in &#39;buffer&#39; can satisfy the
+// allocation request; 0 is returned if the request cannot be satisfied:
+//..
+//  if (*cursor + offset + size &gt; bufferSize) {
+//      return 0;                                                     // RETURN
+//  }
+//
+//  void *result = &amp;buffer[*cursor + offset];
+//  *cursor += offset + size;
+//
+//..
+// Finally, return the address of the correctly aligned memory block:
+//..
+//      return result;
+//  }
+//..
+// The &#39;allocateFromBuffer&#39; function may be used by a memory manager that needs
+// to appropriately align memory blocks that are allocated from
+// internally-managed buffers.  For an example, see the &#39;bslma_bufferimputil&#39;
+// component.
+
+
+namespace BloombergLP {
+
+namespace bsls {
+
+                        // ================
+                        // struct Alignment
+                        // ================
+
+struct Alignment {
+    // This &#39;struct&#39; provides a namespace for enumerating the set of strategies
+    // for aligning arbitrary blocks of memory.
+
+    // TYPES
+    enum Strategy {
+        // Types of alignment strategy.
+
+        BSLS_MAXIMUM = 0,
+            // Align memory block based on the most restrictive alignment
+            // requirements of the host platform.
+
+        BSLS_NATURAL = 1
+            // Align memory block on an address that is the largest power of
+            // two that evenly divides the size (in bytes) of the block.
+    };
+
+
+    // CLASS METHODS
+    static const char *toAscii(Alignment::Strategy value);
+        // Return the string representation of the specified enumerator
+        // &#39;value&#39;.  The string representation of &#39;value&#39; matches its
+        // corresponding enumerator name with the &quot;BSLS_&quot; prefix elided.  For
+        // example:
+        //..
+        //  bsl::cout &lt;&lt; Alignment::toAscii(Alignment::BSLS_NATURAL);
+        //..
+        // will print the following on standard output:
+        //..
+        //  NATURAL
+        //..
+
+};
+
+}  // close package namespace
+
+
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright (C) 2012 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the &quot;Software&quot;), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

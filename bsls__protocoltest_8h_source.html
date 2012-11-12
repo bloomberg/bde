@@ -1,0 +1,788 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 2.16 BETA</title>
+<html>
+<pre>
+// bsls_protocoltest.h                                                -*-C++-*-
+#ifndef INCLUDED_BSLS_PROTOCOLTEST
+#define INCLUDED_BSLS_PROTOCOLTEST
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide classes and macros for testing abstract protocols.
+//
+//@CLASSES:
+//  bsls::ProtocolTestImp: provides a framework for testing protocol classes
+//  bsls::ProtocolTest: provides tests for protocol class concerns
+//
+//@MACROS:
+//  BSLS_PROTOCOLTEST_ASSERT: macro for testing protocol methods
+//
+//@DESCRIPTION: This component provides classes and macros that simplify the
+// creation of test drivers for protocol (i.e., pure abstract interface)
+// classes.
+//
+// The purpose of a test driver for a protocol class is to verify concerns for
+// that protocol&#39;s definition.  Although each protocol is different and
+// requires its own test driver, there is a common set of concerns that apply
+// to all protocol classes.  This component allows us to verify those concerns
+// in a generic manner.
+//
+// Each protocol class has to satisfy the following set of requirements
+// (concerns):
+//: o The protocol is abstract: no objects of it can be created.
+//: o The protocol has no data members.
+//: o The protocol has a virtual destructor.
+//: o All methods of the protocol are pure virtual.
+//: o All methods of the protocol are publicly accessible.
+//
+// This protocol test component is intended to verify conformance to these
+// requirements; however, it is not possible to verify all protocol
+// requirements fully within the framework of the C++ language.  The following
+// aspects of the above requirements are not verified by this component:
+//: o Non-creator methods of the protocol are *pure* virtual.
+//: o There are no methods in the protocol other than the ones being tested.
+//
+// Additionally some coding guidelines related to protocols are also not
+// verified:
+//: o The destructor is not pure virtual.
+//: o The destructor is not implemented inline.
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Testing a Protocol Class.
+///- - - - - - - - - - - - - - - - - - - - - -
+// This example demonstrates how to test a protocol class, &#39;ProtocolClass&#39;,
+// using this protocol test component.  Our &#39;ProtocolClass&#39; provides two of
+// pure virtual methods (&#39;foo&#39; and &#39;bar&#39;), along with a virtual destructor:
+//..
+//  struct ProtocolClass {
+//      virtual ~ProtocolClass();
+//      virtual const char *bar(char const *, char const *) = 0;
+//      virtual int foo(int) const = 0;
+//  };
+//
+//  ProtocolClass::~ProtocolClass()
+//  {
+//  }
+//..
+// First, we define a test class derived from this protocol, and implement its
+// virtual methods.  Rather than deriving the test class from &#39;ProtocolClass&#39;
+// directly, the test class is derived from
+// &#39;bsls::ProtocolTestImp&lt;ProtocolClass&gt;&#39; (which, in turn, is derived
+// automatically from &#39;ProtocolClass&#39;).  This special base class implements
+// boilerplate code and provides useful functionality for testing of protocols.
+//..
+//  // ========================================================================
+//  //                  GLOBAL CLASSES/TYPEDEFS FOR TESTING
+//  // ------------------------------------------------------------------------
+//
+//  struct ProtocolClassTestImp : bsls::ProtocolTestImp&lt;ProtocolClass&gt; {
+//      const char *bar(char const *, char const *) { return markDone(); }
+//      int foo(int) const                          { return markDone(); }
+//  };
+//..
+// Notice that in &#39;ProtocolClassTestImp&#39; we must provide an implementation for
+// every protocol method except for the destructor.  The implementation of each
+// method calls the (protected) &#39;markDone&#39; which is provided by the base class
+// for the purpose of verifying that the method from which it&#39;s called is
+// declared as virtual in the protocol class.
+//
+// Then, in our protocol test case we describe the concerns we have for the
+// protocol class and the plan to test those concerns:
+//..
+//  // ------------------------------------------------------------------------
+//  // PROTOCOL TEST:
+//  //   Ensure this class is a properly defined protocol.
+//  //
+//  // Concerns:
+//  //: 1 The protocol is abstract: no objects of it can be created.
+//  //:
+//  //: 2 The protocol has no data members.
+//  //:
+//  //: 3 The protocol has a virtual destructor.
+//  //:
+//  //: 4 All methods of the protocol are pure virtual.
+//  //:
+//  //: 5 All methods of the protocol are publicly accessible.
+//  //
+//  // Plan:
+//  //: 1 Define a concrete derived implementation, &#39;ProtocolClassTestImp&#39;,
+//  //:   of the protocol.
+//  //:
+//  //: 2 Create an object of the &#39;bsls::ProtocolTest&#39; class template
+//  //:   parameterized by &#39;ProtocolClassTestImp&#39;, and use it to verify
+//  //:   that:
+//  //:
+//  //:   1 The protocol is abstract. (C-1)
+//  //:
+//  //:   2 The protocol has no data members. (C-2)
+//  //:
+//  //:   3 The protocol has a virtual destructor. (C-3)
+//  //:
+//  //: 3 Use the &#39;BSLS_PROTOCOLTEST_ASSERT&#39; macro to verify that
+//  //:   non-creator methods of the protocol are:
+//  //:
+//  //:   1 virtual, (C-4)
+//  //:
+//  //:   2 publicly accessible. (C-5)
+//  //
+//  // Testing:
+//  //   virtual ~ProtocolClass();
+//  //   virtual const char *bar(char const *, char const *) = 0;
+//  //   virtual int foo(int) const = 0;
+//  // ------------------------------------------------------------------------
+//..
+// Next we print the banner for this test case:
+//..
+//  if (verbose) printf(&quot;\nPROTOCOL TEST&quot;
+//                      &quot;\n=============\n&quot;);
+//..
+// Then, we create an object of type
+// &#39;bsls::ProtocolTest&lt;ProtocolClassTestImp&gt;&#39;, &#39;testObj&#39;:
+//..
+//  if (verbose) printf(&quot;\nCreate a test object.\n&quot;);
+//
+//  bsls::ProtocolTest&lt;ProtocolClassTestImp&gt; testObj(veryVerbose);
+//..
+// Now we use the &#39;testObj&#39; to test some general concerns about the protocol
+// class.
+//..
+//  if (verbose) printf(&quot;\nVerify that the protocol is abstract.\n&quot;);
+//
+//  ASSERT(testObj.testAbstract());
+//
+//  if (verbose) printf(&quot;\nVerify that there are no data members.\n&quot;);
+//
+//  ASSERT(testObj.testNoDataMembers());
+//
+//  if (verbose) printf(&quot;\nVerify that the destructor is virtual.\n&quot;);
+//
+//  ASSERT(testObj.testVirtualDestructor());
+//..
+// Finally we use the &#39;testObj&#39; to test concerns for each individual method of
+// the protocol class.  To test a protocol method we need to call it from
+// inside the &#39;BSLS_PROTOCOLTEST_ASSERT&#39; macro, and also pass the &#39;testObj&#39;:
+//..
+//  if (verbose) printf(&quot;\nVerify that methods are public and virtual.\n&quot;);
+//
+//  BSLS_PROTOCOLTEST_ASSERT(testObj, foo(77));
+//  BSLS_PROTOCOLTEST_ASSERT(testObj, bar(&quot;&quot;, &quot;&quot;));
+//..
+// These steps conclude the protocol testing.  If there are any failures, they
+// will be reported via standard test driver assertions (i.e., the standard
+// &#39;ASSERT&#39; macro).
+
+#ifndef INCLUDED_CSTDIO
+#include &lt;cstdio&gt;
+#define INCLUDED_CSTDIO
+#endif
+
+namespace BloombergLP {
+
+namespace bsls {
+
+                    // =============================
+                    // class ProtocolTest_IsAbstract
+                    // =============================
+
+template &lt;class T&gt;
+struct ProtocolTest_IsAbstract {
+    // This class template is a compile-time meta-function, parameterized with
+    // type &#39;T&#39;, the output of which is &#39;VALUE&#39;, which will be &#39;true&#39; if &#39;T&#39; is
+    // abstract and &#39;false&#39; otherwise.  The &#39;IsAbstract&#39; test makes use of the
+    // fact that a type &#39;an array of objects of an abstract type&#39; (e.g.,
+    // &#39;U (*)[1]&#39;) cannot exist.  Note that it is only an approximation,
+    // because this is also true for an incomplete type.  But this
+    // approximation is good enough for the purpose of testing protocol
+    // classes.
+
+    typedef char                    YesType;
+    typedef struct { char a[2]; }   NoType;
+
+    template &lt;class U&gt;
+    static NoType test(U (*)[1]);
+
+    template &lt;class U&gt;
+    static YesType test(...);
+
+    enum { VALUE = sizeof(test&lt;T&gt;(0)) == sizeof(YesType) };
+};
+
+                 // ===================================
+                 // class ProtocolTest_MethodReturnType
+                 // ===================================
+
+struct ProtocolTest_MethodReturnType {
+    // This class is a proxy for a return type designed to simplify testing
+    // implementations of protocol methods.
+    // &#39;ProtocolTest_MethodReturnType&#39; can be converted to any
+    // non-reference type (i.e., the type can be either a value or pointer
+    // type, but not a reference type).  When an object of this class is
+    // returned from a test implementation of a protocol method, it is
+    // implicitly converted to the return type of the protocol method.
+
+    // ACCESSORS
+    template &lt;class T&gt;
+    operator T() const;
+        // Return a temporary value of type &#39;T&#39;.  The returned object is valid
+        // but it does not have any meaningful value so it should not be used.
+        // Type &#39;T&#39; is required to be default-constructible.
+};
+
+                // ======================================
+                // class ProtocolTest_MethodReturnRefType
+                // ======================================
+
+struct ProtocolTest_MethodReturnRefType {
+    // This class is a proxy for a return type designed to simplify testing
+    // implementations of protocol methods.
+    // &#39;ProtocolTest_MethodReturnRefType&#39; can be converted to any
+    // reference type.  When an object of this class is returned from a test
+    // implementation of a protocol method, it is implicitly converted to
+    // the return type of the protocol method.
+
+    // ACCESSORS
+    template &lt;class T&gt;
+    operator T&amp;() const;
+        // Return a &#39;T&amp;&#39; reference to an invalid object.  The returned value
+        // cannot be used and should be immediately discarded.
+};
+
+                       // =======================
+                       // class ProtocolTest_Dtor
+                       // =======================
+
+template &lt;class BSLS_TESTIMP&gt;
+struct ProtocolTest_Dtor : BSLS_TESTIMP {
+    // This class template is a helper protocol-test implementation class that
+    // tests that a protocol destructor is declared &#39;virtual&#39;, which it does by
+    // calling the &#39;markDone&#39; function from its destructor.  The destructor
+    // will be executed if the protocol&#39;s destructor is declared &#39;virtual&#39; and
+    // not executed otherwise.  Note that the &#39;BSLS_TESTIMP&#39; template parameter
+    // is required to be a type derived from &#39;ProtocolTestImp&#39; class.
+
+    // CREATORS
+    ~ProtocolTest_Dtor();
+        // Destroy this object and call the &#39;markDone&#39; method, indicating that
+        // the base class&#39;s destructor was declared &#39;virtual&#39;.
+};
+
+                      // =========================
+                      // class ProtocolTest_Status
+                      // =========================
+
+class ProtocolTest_Status {
+    // This class keeps track of the test status, which includes the status of
+    // the last test and the number of failures across all tests.
+
+  private:
+    // DATA
+    int  d_failures;   // number of test failures encountered so far
+    bool d_last;       // result of the last test (&#39;true&#39; indicates success)
+
+  public:
+    // CREATORS
+    ProtocolTest_Status();
+        // Create an object of the &#39;ProtocolTest_Status&#39; class with the
+        // default state in which &#39;failures() == 0&#39; and &#39;last() == true&#39;.
+
+    // MANIPULATORS
+    void resetLast();
+        // Reset the status of the last test to &#39;true&#39;.
+
+    void fail();
+        // Record a test failure by increasing the number of &#39;failures&#39; and
+        // setting the status of the last test to &#39;false&#39;.
+
+    // ACCESSORS
+    int failures() const;
+        // Return the number of failures encountered during testing of a
+        // protocol class, which is 0 if all tests succeeded or if no tests
+        // ran.
+
+    bool last() const;
+        // Return &#39;true&#39; if the last test completed successfully (or no test
+        // has yet completed), and &#39;false&#39; if it failed.
+};
+
+                          // =====================
+                          // class ProtocolTestImp
+                          // =====================
+
+template &lt;class BSLS_PROTOCOL&gt;
+class ProtocolTestImp : public BSLS_PROTOCOL {
+    // This mechanism class template is a base class for a test implementation
+    // of a protocol class defined by the &#39;BSLS_PROTOCOL&#39; template parameter.
+    // Its purpose is to reduce the boilerplate test code required to verify
+    // that derived virtual methods are called.  It provides &#39;markDone&#39; member
+    // functions one of which should be called from each method of the protocol
+    // class test implementation to indicate that the virtual method is
+    // correctly overridden.  It also overloads &#39;operator-&gt;&#39; to serve as a
+    // proxy to &#39;BSLS_PROTOCOL&#39; and detect when &#39;BSLS_PROTOCOL&#39; methods are
+    // called.
+
+  private:
+    // DATA
+    ProtocolTest_Status      *d_status;   // test status object for test
+                                          // failure reporting
+
+    bool                      d_entered;  // &#39;true&#39; if this object entered a
+                                          // protocol method call
+
+    bool mutable              d_exited;   // &#39;true&#39; if this object exited a
+                                          // protocol method in the derived
+                                          // class; mutable, so it can be set
+                                          // from &#39;const&#39; methods
+  public:
+    // TYPES
+    typedef BSLS_PROTOCOL ProtocolType;
+
+    // CREATORS
+    ProtocolTestImp();
+        // Create an object of the &#39;ProtocolTestImp&#39; class.
+
+    ~ProtocolTestImp();
+        // Destroy this object and check the status of the test execution
+        // (success or failure).  On test failure, report it to
+        // &#39;ProtocolTest_Status&#39;.
+
+    // MANIPULATORS
+    BSLS_PROTOCOL *operator-&gt;();
+        // Dereference this object as if it were a pointer to &#39;BSLS_PROTOCOL&#39;
+        // in order to call a method on &#39;BSLS_PROTOCOL&#39;.  Also mark this
+        // object as &#39;entered&#39; for the purpose of calling a protocol method.
+
+    void markEnter();
+        // Mark this object as entered for the purpose of calling a protocol
+        // method.  The &#39;entered&#39; property is tested in the destructor to
+        // check for test failures (i.e., if &#39;entered == false&#39; then the test
+        // cannot fail since it never ran).  Note that &#39;markEnter&#39; and
+        // &#39;markDone&#39; calls have to be paired for a protocol-method-call test
+        // to succeed.
+
+    void setTestStatus(ProtocolTest_Status *testStatus);
+        // Connect this protocol test object with the specified &#39;testStatus&#39;
+        // object, which will be used for test failure reporting.
+
+    // ACCESSORS
+    ProtocolTest_MethodReturnType markDone() const;
+        // Return a proxy object convertible to any value or pointer type.
+        // Derived classed should call this method from their implementations
+        // of protocol virtual methods to indicate that virtual methods were
+        // overridden correctly.
+
+    ProtocolTest_MethodReturnRefType markDoneRef() const;
+        // Return a proxy object convertible to any reference type.  Derived
+        // classed should call this method from their implementations of
+        // protocol virtual methods to indicate that virtual methods were
+        // overridden correctly.
+
+    template &lt;class T&gt;
+    T markDoneVal(const T&amp; value) const;
+        // Return the specified &#39;value&#39;.  Derived classes should call this
+        // method from their implementations of protocol virtual methods to
+        // indicate that virtual methods were overridden correctly.
+};
+
+                       // ==================
+                       // class ProtocolTest
+                       // ==================
+
+template &lt;class BSLS_TESTIMP&gt;
+class ProtocolTest {
+    // This mechanism class template provides the implementation of protocol
+    // testing concerns via &#39;test*&#39; methods (for non-method concerns), and via
+    // &#39;operator-&gt;&#39; (for method concerns).  The &#39;BSLS_TESTIMP&#39; template
+    // parameter is required to be a class derived from &#39;ProtocolTestImp&#39;
+    // that provides test implementations of all protocol methods.
+
+  private:
+    // TYPES
+    typedef typename BSLS_TESTIMP::ProtocolType ProtocolType;
+
+    // DATA
+    ProtocolTest_Status d_status;
+    bool                d_verbose;  // print trace messages if &#39;true&#39;
+
+  private:
+    // PRIVATE MANIPULATORS
+    void startTest();
+        // Start a new test by resetting this object to the state before the
+        // test.
+
+    void trace(char const *message) const;
+        // Print a trace &#39;message&#39; if &#39;d_verbose&#39; is &#39;true&#39;.
+
+  public:
+    // CREATORS
+    explicit
+    ProtocolTest(bool verbose = false);
+        // Construct a &#39;ProtocolTest&#39; object.
+
+    // MANIPULATORS
+    BSLS_TESTIMP method(const char *methodDesc = &quot;&quot;);
+        // Return a &#39;BSLS_TESTIMP&#39; object to perform testing of a specific
+        // method which gets called via &#39;operator-&gt;()&#39;.  Note that
+        // &#39;BSLS_TESTIMP&#39; is a proxy to the actual protocol class.
+
+    bool testAbstract();
+        // Return &#39;true&#39; (i.e., the test passed) if the protocol class being
+        // tested is abstract and return &#39;false&#39; (i.e., the test failed)
+        // otherwise.  Increase the count of &#39;failures&#39; and set &#39;lastStatus&#39; to
+        // &#39;false&#39; on failure.
+
+    bool testNoDataMembers();
+        // Return &#39;true&#39; (i.e., the test passed) if the protocol class being
+        // tested contains no data fields and return &#39;false&#39; (i.e., the test
+        // failed) otherwise.  Increase the count of &#39;failures&#39; and set
+        // &#39;lastStatus&#39; to &#39;false&#39; on failure.
+
+    bool testVirtualDestructor();
+        // Return &#39;true&#39; (i.e., the test passed) if the protocol class being
+        // tested has a virtual destructor and return &#39;false&#39; (i.e., the test
+        // failed) otherwise.  Increase the &#39;failures&#39; count and set
+        // &#39;lastStatus&#39; to &#39;false&#39; on failure.
+
+    // ACCESSORS
+    int failures() const;
+        // Return the number of failures encountered during testing of a
+        // protocol class.  The returned value is 0 if all tests succeeded, or
+        // no tests ran.
+
+    bool lastStatus() const;
+        // Return &#39;true&#39; if the last test completed successfully (or no test
+        // has yes completed) and &#39;false&#39; otherwise.
+};
+
+}  // close package namespace
+
+                         // ========================
+                         // BSLS_PROTOCOLTEST_ASSERT
+                         // ========================
+
+// This macro provides a test for method-related concerns of a protocol class.
+// It ensures that a method is publicly accessible and declared &#39;virtual&#39;.  It
+// requires that a standard test driver &#39;ASSERT&#39; macro is defined, which is
+// used to assert the test completion status.
+
+#define BSLS_PROTOCOLTEST_ASSERT(test, methodCall)                            \
+    do {                                                                      \
+        test.method(                                                          \
+                &quot;inside BSLS_PROTOCOLTEST_ASSERT(&quot;#methodCall&quot;)&quot;)-&gt;methodCall;\
+        if (!test.lastStatus()) {                                             \
+            ASSERT(0 &amp;&amp; &quot;Not a virtual method: &quot;#methodCall);                 \
+        }                                                                     \
+    } while (0)
+
+// ============================================================================
+//                        INLINE FUNCTION DEFINITIONS
+// ============================================================================
+
+namespace bsls {
+
+                     // -----------------------------------
+                     // class ProtocolTest_MethodReturnType
+                     // -----------------------------------
+
+// ACCESSORS
+template &lt;class T&gt;
+inline
+ProtocolTest_MethodReturnType::operator T() const
+{
+    return T();
+}
+
+                   // --------------------------------------
+                   // class ProtocolTest_MethodReturnRefType
+                   // --------------------------------------
+
+// ACCESSORS
+template &lt;class T&gt;
+inline
+ProtocolTest_MethodReturnRefType::operator T&amp;() const
+{
+    return *reinterpret_cast&lt;T *&gt;(0);
+}
+
+                       // -----------------------
+                       // class ProtocolTest_Dtor
+                       // -----------------------
+
+// CREATORS
+template &lt;class BSLS_TESTIMP&gt;
+inline
+ProtocolTest_Dtor&lt;BSLS_TESTIMP&gt;::~ProtocolTest_Dtor()
+{
+    this-&gt;markDone();
+}
+
+                      // -------------------------
+                      // class ProtocolTest_Status
+                      // -------------------------
+
+// CREATORS
+inline
+ProtocolTest_Status::ProtocolTest_Status()
+: d_failures(0)
+, d_last(true)
+{
+}
+
+// MANIPULATORS
+inline
+void ProtocolTest_Status::resetLast()
+{
+    d_last = true;
+}
+
+inline
+void ProtocolTest_Status::fail()
+{
+    ++d_failures;
+    d_last = false;
+}
+
+// ACCESSORS
+inline
+int ProtocolTest_Status::failures() const
+{
+    return d_failures;
+}
+
+inline
+bool ProtocolTest_Status::last() const
+{
+    return d_last;
+}
+
+                          // ---------------------
+                          // class ProtocolTestImp
+                          // ---------------------
+
+// CREATORS
+template &lt;class BSLS_PROTOCOL&gt;
+inline
+ProtocolTestImp&lt;BSLS_PROTOCOL&gt;::ProtocolTestImp()
+: d_status(0)
+, d_entered(false)
+, d_exited(false)
+{
+}
+
+template &lt;class BSLS_PROTOCOL&gt;
+inline
+ProtocolTestImp&lt;BSLS_PROTOCOL&gt;::~ProtocolTestImp()
+{
+    if (d_entered &amp;&amp; !d_exited) {
+        d_status-&gt;fail();
+    }
+}
+
+// MANIPULATORS
+template &lt;class BSLS_PROTOCOL&gt;
+inline
+typename ProtocolTestImp&lt;BSLS_PROTOCOL&gt;::ProtocolType *
+ProtocolTestImp&lt;BSLS_PROTOCOL&gt;::operator-&gt;()
+{
+    markEnter();
+    return static_cast&lt;BSLS_PROTOCOL *&gt;(this);
+}
+
+template &lt;class BSLS_PROTOCOL&gt;
+inline
+void ProtocolTestImp&lt;BSLS_PROTOCOL&gt;::setTestStatus(ProtocolTest_Status *status)
+{
+    d_status = status;
+}
+
+template &lt;class BSLS_PROTOCOL&gt;
+inline
+void ProtocolTestImp&lt;BSLS_PROTOCOL&gt;::markEnter()
+{
+    d_entered = true;
+}
+
+// ACCESSORS
+template &lt;class BSLS_PROTOCOL&gt;
+inline
+ProtocolTest_MethodReturnType
+ProtocolTestImp&lt;BSLS_PROTOCOL&gt;::markDone() const
+{
+    d_exited = true;
+    return ProtocolTest_MethodReturnType();
+}
+
+template &lt;class BSLS_PROTOCOL&gt;
+inline
+ProtocolTest_MethodReturnRefType
+ProtocolTestImp&lt;BSLS_PROTOCOL&gt;::markDoneRef() const
+{
+    d_exited = true;
+    return ProtocolTest_MethodReturnRefType();
+}
+
+template &lt;class BSLS_PROTOCOL&gt;
+template &lt;class T&gt;
+inline
+T ProtocolTestImp&lt;BSLS_PROTOCOL&gt;::markDoneVal(const T&amp; value) const
+{
+    d_exited = true;
+    return value;
+}
+
+                       // ------------------
+                       // class ProtocolTest
+                       // ------------------
+
+// PRIVATE MANIPULATORS
+template &lt;class BSLS_TESTIMP&gt;
+inline
+void ProtocolTest&lt;BSLS_TESTIMP&gt;::startTest()
+{
+    d_status.resetLast();
+}
+
+template &lt;class BSLS_TESTIMP&gt;
+inline
+void ProtocolTest&lt;BSLS_TESTIMP&gt;::trace(char const *message) const
+{
+    if (d_verbose) {
+        std::printf(&quot;\t%s\n&quot;, message);
+    }
+}
+
+// CREATORS
+template &lt;class BSLS_TESTIMP&gt;
+inline
+ProtocolTest&lt;BSLS_TESTIMP&gt;::ProtocolTest(bool verbose)
+: d_verbose(verbose)
+{
+}
+
+// MANIPULATORS
+template &lt;class BSLS_TESTIMP&gt;
+inline
+BSLS_TESTIMP ProtocolTest&lt;BSLS_TESTIMP&gt;::method(const char *methodDesc)
+{
+    trace(methodDesc);
+    startTest();
+
+    BSLS_TESTIMP impl;
+    impl.setTestStatus(&amp;d_status);
+    return impl;
+}
+
+template &lt;class BSLS_TESTIMP&gt;
+inline
+bool ProtocolTest&lt;BSLS_TESTIMP&gt;::testAbstract()
+{
+    trace(&quot;inside ProtocolTest::testAbstract()&quot;);
+    startTest();
+
+    if (!ProtocolTest_IsAbstract&lt;ProtocolType&gt;::VALUE) {
+        d_status.fail();
+    }
+
+    return lastStatus();
+}
+
+template &lt;class BSLS_TESTIMP&gt;
+inline
+bool ProtocolTest&lt;BSLS_TESTIMP&gt;::testNoDataMembers()
+{
+    trace(&quot;inside ProtocolTest::testNoDataMembers()&quot;);
+    struct EmptyProtocol
+    {
+        virtual ~EmptyProtocol() {}
+    };
+
+    startTest();
+
+    if (sizeof(EmptyProtocol) != sizeof(ProtocolType)) {
+        d_status.fail();
+    }
+
+    return lastStatus();
+}
+
+template &lt;class BSLS_TESTIMP&gt;
+bool ProtocolTest&lt;BSLS_TESTIMP&gt;::testVirtualDestructor()
+{
+    trace(&quot;inside ProtocolTest::testVirtualDestructor&quot;);
+    startTest();
+
+    // Can&#39;t use an automatic buffer and the placement new for an object of
+    // type ProtocolTest_Dtor&lt;BSLS_TESTIMP&gt; here, because bslma::Allocator
+    // defines its own placement new, making it impossible to test
+    // bslma::Allocator protocol this way.
+
+    // Prepare a test
+    ProtocolTest_Dtor&lt;BSLS_TESTIMP&gt; * obj =
+                                    new ProtocolTest_Dtor&lt;BSLS_TESTIMP&gt;();
+    BSLS_TESTIMP * base = obj;
+    obj-&gt;setTestStatus(&amp;d_status);
+
+    // Run the test.
+    obj-&gt;markEnter();
+    delete base;
+
+    // &#39;ProtocolTest_Dtor::~ProtocolTest_Dtor&#39; will be called only if
+    // the destructor was declared &#39;virtual&#39; in the interface, but
+    // &#39;BSLS_TESTIMP::~BSLS_TESTIMP&#39; is always executed to check if the
+    // derived destructor was called.
+
+    return lastStatus();
+}
+
+// ACCESSORS
+template &lt;class BSLS_TESTIMP&gt;
+inline
+int ProtocolTest&lt;BSLS_TESTIMP&gt;::failures() const
+{
+    return d_status.failures();
+}
+
+template &lt;class BSLS_TESTIMP&gt;
+inline
+bool ProtocolTest&lt;BSLS_TESTIMP&gt;::lastStatus() const
+{
+    return d_status.last();
+}
+
+}  // close package namespace
+
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright (C) 2012 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the &quot;Software&quot;), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

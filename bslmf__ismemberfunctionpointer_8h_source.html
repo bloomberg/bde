@@ -1,0 +1,465 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 2.16 BETA</title>
+<html>
+<pre>
+// bslmf_ismemberfunctionpointer.h                                    -*-C++-*-
+#ifndef INCLUDED_BSLMF_ISMEMBERFUNCTIONPOINTER
+#define INCLUDED_BSLMF_ISMEMBERFUNCTIONPOINTER
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a compile-time check for member function pointer types.
+//
+//@CLASSES:
+//  bsl::is_member_function_pointer: standard meta-function
+//
+//@DESCRIPTION: This component defines a meta-function,
+// &#39;bsl::is_member_function_pointer&#39;, which may be used to query whether a type
+// is a function pointer type to non-static member function.
+//
+// &#39;bsl::is_member_function_pointer&#39; meets the requirements of the
+// &#39;is_member_function_pointer&#39; template defined in the C++11 standard
+// [meta.unary.cat].
+//
+///Usage
+///-----
+// In this section we show intended use of this component.
+//
+///Example 1: Verify Member Function Pointer Types
+///- - - - - - - - - - - - - - - - - - - - - - - -
+// Suppose that we want to assert whether a particular type is a class type.
+//
+// First, we create a user-defined type &#39;MyStruct&#39;:
+//..
+//  struct MyStruct
+//  {
+//  };
+//..
+// Now, we create two &#39;typedef&#39;s -- a function pointer type and a member
+// function pointer type:
+//..
+//  typedef int (MyStruct::*MyStructMethodPtr) ();
+//  typedef int (*MyFunctionPtr) ();
+//..
+// Finally, we instantiate the &#39;bsl::is_member_function_pointer&#39; template for
+// each of the &#39;typedef&#39;s and assert the &#39;value&#39; static data member of each
+// instantiation:
+//..
+//  assert(false == bsl::is_member_function_pointer&lt;MyFunctionPtr    &gt;::value);
+//  assert(true  == bsl::is_member_function_pointer&lt;MyStructMethodPtr&gt;::value);
+//..
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include &lt;bslscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
+#include &lt;bslmf_integralconstant.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_REMOVECV
+#include &lt;bslmf_removecv.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_ISREFERENCE
+#include &lt;bslmf_isreference.h&gt;
+#endif
+
+namespace BloombergLP {
+namespace bslmf {
+
+template &lt;typename PROTOTYPE&gt;
+struct IsPointerToMemberFunction_Imp : bsl::false_type {
+};
+
+template &lt;typename RETURN, typename CLASS&gt;
+struct IsPointerToMemberFunction_Imp&lt;RETURN (CLASS::*)()&gt; : bsl::true_type {
+};
+
+template &lt;typename RETURN, typename CLASS, typename ARG1&gt;
+struct IsPointerToMemberFunction_Imp&lt;RETURN (CLASS::*)(ARG1)&gt; : bsl::true_type
+{
+};
+
+template &lt;typename RETURN, typename CLASS, typename ARG1, typename ARG2&gt;
+struct IsPointerToMemberFunction_Imp&lt;RETURN (CLASS::*)(ARG1, ARG2)&gt;
+: bsl::true_type {
+};
+
+template &lt;typename RETURN, typename CLASS, typename ARG1, typename ARG2,
+                                           typename ARG3&gt;
+struct IsPointerToMemberFunction_Imp&lt;RETURN (CLASS::*)(ARG1, ARG2, ARG3)&gt;
+: bsl::true_type {
+};
+
+template &lt;typename RETURN, typename CLASS, typename ARG1, typename ARG2,
+                                           typename ARG3, typename ARG4&gt;
+struct IsPointerToMemberFunction_Imp&lt;RETURN (CLASS::*)(ARG1, ARG2, ARG3, ARG4)&gt;
+: bsl::true_type {
+};
+
+template &lt;typename RETURN, typename CLASS, typename ARG1, typename ARG2,
+                                           typename ARG3, typename ARG4,
+                                           typename ARG5&gt;
+struct IsPointerToMemberFunction_Imp&lt;
+                               RETURN (CLASS::*)(ARG1, ARG2, ARG3, ARG4, ARG5)&gt;
+: bsl::true_type {
+};
+
+template &lt;typename RETURN, typename CLASS, typename ARG1, typename ARG2,
+                                           typename ARG3, typename ARG4,
+                                           typename ARG5, typename ARG6&gt;
+struct IsPointerToMemberFunction_Imp&lt;
+                         RETURN (CLASS::*)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6)&gt;
+: bsl::true_type {
+};
+
+template &lt;typename RETURN, typename CLASS, typename ARG1, typename ARG2,
+                                           typename ARG3, typename ARG4,
+                                           typename ARG5, typename ARG6,
+                                           typename ARG7&gt;
+struct IsPointerToMemberFunction_Imp&lt;
+                   RETURN (CLASS::*)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7)&gt;
+: bsl::true_type {
+};
+
+template &lt;typename RETURN, typename CLASS, typename ARG1, typename ARG2,
+                                           typename ARG3, typename ARG4,
+                                           typename ARG5, typename ARG6,
+                                           typename ARG7, typename ARG8&gt;
+struct IsPointerToMemberFunction_Imp&lt;
+             RETURN (CLASS::*)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7, ARG8)&gt;
+: bsl::true_type {
+};
+
+template &lt;typename RETURN, typename CLASS, typename ARG1, typename ARG2,
+                                           typename ARG3, typename ARG4,
+                                           typename ARG5, typename ARG6,
+                                           typename ARG7, typename ARG8,
+                                           typename ARG9&gt;
+struct IsPointerToMemberFunction_Imp&lt;
+       RETURN (CLASS::*)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7, ARG8, ARG9)&gt;
+: bsl::true_type {
+};
+
+template &lt;typename RETURN, typename CLASS, typename ARG1, typename ARG2,
+                                           typename ARG3, typename ARG4,
+                                           typename ARG5, typename ARG6,
+                                           typename ARG7, typename ARG8,
+                                           typename ARG9, typename ARG10&gt;
+struct IsPointerToMemberFunction_Imp&lt;
+       RETURN (CLASS::*)(ARG1, ARG2, ARG3, ARG4, ARG5,
+                         ARG6, ARG7, ARG8, ARG9, ARG10)&gt; : bsl::true_type {
+};
+
+// Match pointer to const member function:
+template &lt;typename RETURN, typename CLASS&gt;
+struct IsPointerToMemberFunction_Imp&lt;RETURN (CLASS::*)() const&gt;
+: bsl::true_type {
+};
+
+template &lt;typename RETURN, typename CLASS, typename ARG1&gt;
+struct IsPointerToMemberFunction_Imp&lt;RETURN (CLASS::*)(ARG1) const&gt;
+: bsl::true_type {
+};
+
+template &lt;typename RETURN, typename CLASS, typename ARG1, typename ARG2&gt;
+struct IsPointerToMemberFunction_Imp&lt;
+       RETURN (CLASS::*)(ARG1, ARG2) const&gt;
+: bsl::true_type {
+};
+
+template &lt;typename RETURN, typename CLASS, typename ARG1, typename ARG2,
+                                           typename ARG3&gt;
+struct IsPointerToMemberFunction_Imp&lt;
+       RETURN (CLASS::*)(ARG1, ARG2, ARG3) const&gt;
+: bsl::true_type {
+};
+
+template &lt;typename RETURN, typename CLASS, typename ARG1, typename ARG2,
+                                           typename ARG3, typename ARG4&gt;
+struct IsPointerToMemberFunction_Imp&lt;
+       RETURN (CLASS::*)(ARG1, ARG2, ARG3, ARG4) const&gt;
+: bsl::true_type {
+};
+
+template &lt;typename RETURN, typename CLASS, typename ARG1, typename ARG2,
+                                           typename ARG3, typename ARG4,
+                                           typename ARG5&gt;
+struct IsPointerToMemberFunction_Imp&lt;
+       RETURN (CLASS::*)(ARG1, ARG2, ARG3, ARG4, ARG5) const&gt;
+: bsl::true_type {
+};
+
+template &lt;typename RETURN, typename CLASS, typename ARG1, typename ARG2,
+                                           typename ARG3, typename ARG4,
+                                           typename ARG5, typename ARG6&gt;
+struct IsPointerToMemberFunction_Imp&lt;
+       RETURN (CLASS::*)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6) const&gt;
+: bsl::true_type {
+};
+
+template &lt;typename RETURN, typename CLASS, typename ARG1, typename ARG2,
+                                           typename ARG3, typename ARG4,
+                                           typename ARG5, typename ARG6,
+                                           typename ARG7&gt;
+struct IsPointerToMemberFunction_Imp&lt;
+       RETURN (CLASS::*)(ARG1, ARG2, ARG3, ARG4, ARG5,
+                         ARG6, ARG7) const&gt;
+: bsl::true_type {
+};
+
+template &lt;typename RETURN, typename CLASS, typename ARG1, typename ARG2,
+                                           typename ARG3, typename ARG4,
+                                           typename ARG5, typename ARG6,
+                                           typename ARG7, typename ARG8&gt;
+struct IsPointerToMemberFunction_Imp&lt;
+       RETURN (CLASS::*)(ARG1, ARG2, ARG3, ARG4, ARG5,
+                         ARG6, ARG7, ARG8) const&gt;
+: bsl::true_type {
+};
+
+template &lt;typename RETURN, typename CLASS, typename ARG1, typename ARG2,
+                                           typename ARG3, typename ARG4,
+                                           typename ARG5, typename ARG6,
+                                           typename ARG7, typename ARG8,
+                                           typename ARG9&gt;
+struct IsPointerToMemberFunction_Imp&lt;
+       RETURN (CLASS::*)(ARG1, ARG2, ARG3, ARG4, ARG5,
+                         ARG6, ARG7, ARG8, ARG9) const&gt;
+: bsl::true_type {
+};
+
+template &lt;typename RETURN, typename CLASS, typename ARG1, typename ARG2,
+                                           typename ARG3, typename ARG4,
+                                           typename ARG5, typename ARG6,
+                                           typename ARG7, typename ARG8,
+                                           typename ARG9, typename ARG10&gt;
+struct IsPointerToMemberFunction_Imp&lt;
+       RETURN (CLASS::*)(ARG1, ARG2, ARG3, ARG4, ARG5,
+                         ARG6, ARG7, ARG8, ARG9, ARG10) const&gt;
+: bsl::true_type {
+};
+
+// Match pointer to volatile member function:
+template &lt;typename RETURN, typename CLASS&gt;
+struct IsPointerToMemberFunction_Imp&lt;RETURN (CLASS::*)() volatile&gt;
+: bsl::true_type {
+};
+
+template &lt;typename RETURN, typename CLASS, typename ARG1&gt;
+struct IsPointerToMemberFunction_Imp&lt;RETURN (CLASS::*)(ARG1) volatile&gt;
+: bsl::true_type {
+};
+
+template &lt;typename RETURN, typename CLASS, typename ARG1, typename ARG2&gt;
+struct IsPointerToMemberFunction_Imp&lt;
+       RETURN (CLASS::*)(ARG1, ARG2) volatile&gt; : bsl::true_type {
+};
+
+template &lt;typename RETURN, typename CLASS, typename ARG1, typename ARG2,
+                                           typename ARG3&gt;
+struct IsPointerToMemberFunction_Imp&lt;
+       RETURN (CLASS::*)(ARG1, ARG2, ARG3) volatile&gt; : bsl::true_type {
+};
+
+template &lt;typename RETURN, typename CLASS, typename ARG1, typename ARG2,
+                                           typename ARG3, typename ARG4&gt;
+struct IsPointerToMemberFunction_Imp&lt;
+       RETURN (CLASS::*)(ARG1, ARG2, ARG3, ARG4) volatile&gt;
+: bsl::true_type {
+};
+
+template &lt;typename RETURN, typename CLASS, typename ARG1, typename ARG2,
+                                           typename ARG3, typename ARG4,
+                                           typename ARG5&gt;
+struct IsPointerToMemberFunction_Imp&lt;
+       RETURN (CLASS::*)(ARG1, ARG2, ARG3, ARG4, ARG5) volatile&gt;
+: bsl::true_type {
+};
+
+template &lt;typename RETURN, typename CLASS, typename ARG1, typename ARG2,
+                                           typename ARG3, typename ARG4,
+                                           typename ARG5, typename ARG6&gt;
+struct IsPointerToMemberFunction_Imp&lt;
+       RETURN (CLASS::*)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6) volatile&gt;
+: bsl::true_type {
+};
+
+template &lt;typename RETURN, typename CLASS, typename ARG1, typename ARG2,
+                                           typename ARG3, typename ARG4,
+                                           typename ARG5, typename ARG6,
+                                           typename ARG7&gt;
+struct IsPointerToMemberFunction_Imp&lt;
+       RETURN (CLASS::*)(ARG1, ARG2, ARG3, ARG4, ARG5,
+                         ARG6, ARG7) volatile&gt;
+: bsl::true_type {
+};
+
+template &lt;typename RETURN, typename CLASS, typename ARG1, typename ARG2,
+                                           typename ARG3, typename ARG4,
+                                           typename ARG5, typename ARG6,
+                                           typename ARG7, typename ARG8&gt;
+struct IsPointerToMemberFunction_Imp&lt;
+       RETURN (CLASS::*)(ARG1, ARG2, ARG3, ARG4, ARG5,
+                         ARG6, ARG7, ARG8) volatile&gt;
+: bsl::true_type {
+};
+
+template &lt;typename RETURN, typename CLASS, typename ARG1, typename ARG2,
+                                           typename ARG3, typename ARG4,
+                                           typename ARG5, typename ARG6,
+                                           typename ARG7, typename ARG8,
+                                           typename ARG9&gt;
+struct IsPointerToMemberFunction_Imp&lt;
+       RETURN (CLASS::*)(ARG1, ARG2, ARG3, ARG4, ARG5,
+                         ARG6, ARG7, ARG8, ARG9) volatile&gt;
+: bsl::true_type {
+};
+
+template &lt;typename RETURN, typename CLASS, typename ARG1, typename ARG2,
+                                           typename ARG3, typename ARG4,
+                                           typename ARG5, typename ARG6,
+                                           typename ARG7, typename ARG8,
+                                           typename ARG9, typename ARG10&gt;
+struct IsPointerToMemberFunction_Imp&lt;
+       RETURN (CLASS::*)(ARG1, ARG2, ARG3, ARG4, ARG5,
+                         ARG6, ARG7, ARG8, ARG9, ARG10) volatile&gt;
+: bsl::true_type {
+};
+
+// Match pointer to const volatile member function:
+template &lt;typename RETURN, typename CLASS&gt;
+struct IsPointerToMemberFunction_Imp&lt;RETURN (CLASS::*)() const volatile&gt;
+: bsl::true_type {
+};
+
+template &lt;typename RETURN, typename CLASS, typename ARG1&gt;
+struct IsPointerToMemberFunction_Imp&lt;
+       RETURN (CLASS::*)(ARG1) const volatile&gt;
+: bsl::true_type {
+};
+
+template &lt;typename RETURN, typename CLASS, typename ARG1, typename ARG2&gt;
+struct IsPointerToMemberFunction_Imp&lt;
+       RETURN (CLASS::*)(ARG1, ARG2) const volatile&gt;
+: bsl::true_type {
+};
+
+template &lt;typename RETURN, typename CLASS, typename ARG1, typename ARG2,
+                                           typename ARG3&gt;
+struct IsPointerToMemberFunction_Imp&lt;
+       RETURN (CLASS::*)(ARG1, ARG2, ARG3) const volatile&gt;
+: bsl::true_type {
+};
+
+template &lt;typename RETURN, typename CLASS, typename ARG1, typename ARG2,
+                                           typename ARG3, typename ARG4&gt;
+struct IsPointerToMemberFunction_Imp&lt;
+       RETURN (CLASS::*)(ARG1, ARG2, ARG3, ARG4) const volatile&gt;
+: bsl::true_type {
+};
+
+template &lt;typename RETURN, typename CLASS, typename ARG1, typename ARG2,
+                                           typename ARG3, typename ARG4,
+                                           typename ARG5&gt;
+struct IsPointerToMemberFunction_Imp&lt;
+       RETURN (CLASS::*)(ARG1, ARG2, ARG3, ARG4, ARG5) const volatile&gt;
+: bsl::true_type{
+};
+
+template &lt;typename RETURN, typename CLASS, typename ARG1, typename ARG2,
+                                           typename ARG3, typename ARG4,
+                                           typename ARG5, typename ARG6&gt;
+struct IsPointerToMemberFunction_Imp&lt;
+       RETURN (CLASS::*)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6) const volatile&gt;
+: bsl::true_type {
+};
+
+template &lt;typename RETURN, typename CLASS, typename ARG1, typename ARG2,
+                                           typename ARG3, typename ARG4,
+                                           typename ARG5, typename ARG6,
+                                           typename ARG7&gt;
+struct IsPointerToMemberFunction_Imp&lt;
+       RETURN (CLASS::*)(ARG1, ARG2, ARG3, ARG4, ARG5,
+                         ARG6, ARG7) const volatile&gt;
+: bsl::true_type {
+};
+
+template &lt;typename RETURN, typename CLASS, typename ARG1, typename ARG2,
+                                           typename ARG3, typename ARG4,
+                                           typename ARG5, typename ARG6,
+                                           typename ARG7, typename ARG8&gt;
+struct IsPointerToMemberFunction_Imp&lt;
+       RETURN (CLASS::*)(ARG1, ARG2, ARG3, ARG4, ARG5,
+                         ARG6, ARG7, ARG8) const volatile&gt;
+: bsl::true_type {
+};
+
+template &lt;typename RETURN, typename CLASS, typename ARG1, typename ARG2,
+                                           typename ARG3, typename ARG4,
+                                           typename ARG5, typename ARG6,
+                                           typename ARG7, typename ARG8,
+                                           typename ARG9&gt;
+struct IsPointerToMemberFunction_Imp&lt;
+       RETURN (CLASS::*)(ARG1, ARG2, ARG3, ARG4, ARG5,
+                         ARG6, ARG7, ARG8, ARG9) const volatile&gt;
+: bsl::true_type {
+};
+
+template &lt;typename RETURN, typename CLASS, typename ARG1, typename ARG2,
+                                           typename ARG3, typename ARG4,
+                                           typename ARG5, typename ARG6,
+                                           typename ARG7, typename ARG8,
+                                           typename ARG9, typename ARG10&gt;
+struct IsPointerToMemberFunction_Imp&lt;
+       RETURN (CLASS::*)(ARG1, ARG2, ARG3, ARG4, ARG5,
+                         ARG6, ARG7, ARG8, ARG9, ARG10) const volatile&gt;
+: bsl::true_type {
+};
+
+}  // close package namespace
+}  // close enterprise namespace
+
+namespace bsl {
+
+template &lt;typename TYPE&gt;
+struct is_member_function_pointer
+    : integral_constant&lt;bool,
+                        BloombergLP::bslmf::IsPointerToMemberFunction_Imp&lt;
+                            typename remove_cv&lt;TYPE&gt;::type&gt;::value
+                        &amp;&amp; !is_reference&lt;TYPE&gt;::value&gt;
+{};
+
+}  // close namespace bsl
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright (C) 2012 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the &quot;Software&quot;), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

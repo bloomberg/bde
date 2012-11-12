@@ -1,0 +1,167 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 2.16 BETA</title>
+<html>
+<pre>
+// bslmf_if.h                                                         -*-C++-*-
+#ifndef INCLUDED_BSLMF_IF
+#define INCLUDED_BSLMF_IF
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a compile-time &#39;if/else&#39; (conditional) meta-function.
+//
+//@CLASSES:
+//  bslmf::If: meta-function for compile-time selection of one of two types
+//
+//@SEE_ALSO: bslmf_assert, bslmf_nil
+//
+//@DESCRIPTION: This component contains the template class meta-function
+// &#39;bslmf::If&#39; that is parameterized on three arguments.  The first argument is
+// a (compile-time constant) integral expression that is interpreted by the
+// meta-function as a boolean conditional; the other two parameters accept type
+// arguments.  If the value of the first argument is non-zero (true), the
+// meta-function &quot;returns&quot; its second argument (i.e., corresponding to the
+// first type parameter); otherwise it returns its third argument (the second
+// type parameter).  If the selected type argument is not explicitly specified,
+// the meta-function returns the default &#39;bslmf::Nil&#39; type.
+//
+///Meta-Function Return Types and Values
+///-------------------------------------
+// A meta-function is a class template that evaluates, at compile-time, to one
+// or more types and values.  An example of a simple meta-function that adds
+// two (compile-type constant) integer values is the following &#39;Plus&#39; class
+// template:
+//..
+//  template &lt;int A, int B&gt;
+//  struct Plus {
+//      enum { VALUE = A + B };  // &#39;VALUE&#39; is meta-function result
+//  };
+//..
+// The initializer of the &#39;VALUE&#39; enumerator is the compile-time summation of
+// the constant values &#39;A&#39; and &#39;B&#39;.  The result &quot;returned&quot; by &#39;Plus&#39; is
+// provided by the &#39;VALUE&#39; enumerator.
+//
+// An example where a type is returned from a meta-function rather than a value
+// is illustrated by &#39;SelectLarger&#39; below.  The &#39;SelectLarger&#39; meta-function
+// selects the larger of two types.  The result &quot;returned&quot; by &#39;SelectLarger&#39; is
+// provided by the &#39;SelectLarger&lt;...&gt;::Type&#39; &#39;typedef&#39;:
+//..
+//  template &lt;class T1, class T2&gt;
+//  struct SelectLarger {
+//      template &lt;class U1, class U2, bool V = (sizeof(T1) &gt; sizeof(T2))&gt;
+//      struct Impl {
+//          typedef T1 Type;
+//      };
+//      template &lt;class U1, class U2&gt;
+//      struct Impl &lt;U1, U2, false&gt; {
+//          typedef T2 Type;
+//      };
+//
+//      typedef typename Impl&lt;T1, T2&gt;::Type Type;  // &#39;Type&#39; is meta-function
+//                                                 // result
+//  };
+//..
+// The preceding two examples illustrate the naming conventions used throughout
+// &#39;bslmf&#39; to denote the types and values returned by meta-functions.  In
+// particular, enumerators or &#39;static const&#39; integral variables named &#39;VALUE&#39;
+// provide the results of value-returning meta-functions, and nested types
+// named &#39;Type&#39; provide the results of type-returning meta-functions.
+//
+///Usage
+///-----
+// The following snippets of code illustrate basic use of the &#39;bslmf::If&#39;
+// meta-function.  The examples make use of the following declarations to
+// identify the type that is selected by a given constant integral expression:
+//..
+//  enum TypeCode { T_UNKNOWN = 0, T_CHAR = 1, T_INT = 2, T_NIL = 3 };
+//
+//  TypeCode whatType(char)       { return T_CHAR; }
+//  TypeCode whatType(int)        { return T_INT; }
+//  TypeCode whatType(bslmf::Nil) { return T_NIL; }
+//  TypeCode whatType(...)        { return T_UNKNOWN; }
+//..
+// In the following example, the meta-function condition (the first argument to
+// &#39;bslmf::If&#39;) evaluates to true (non-zero).  Thus, &#39;bslmf::If&lt;...&gt;::Type&#39; is
+// a synonym for &#39;int&#39;; i.e., it &quot;evaluates&quot; (at compile time) to &#39;int&#39;:
+//..
+//  typedef int  T1;  assert(1 &lt;  sizeof(T1));
+//  typedef char T2;  assert(1 == sizeof(T2));
+//
+//  typedef bslmf::If&lt;(sizeof(T1) &gt; sizeof(T2)), T1, T2&gt;::Type LargerType;
+//  assert(T_INT == whatType(LargerType()));
+//..
+// In the next example, the condition argument evaluates to false (zero).  In
+// this case, &#39;bslmf::If&lt;...&gt;::Type&#39; evaluates to &#39;bslmf::Nil&#39; since the third
+// template argument (the &quot;else&quot; type) is not explicitly specified:
+//..
+//  typedef bslmf::If&lt;(sizeof(T2) &gt; 1), int&gt;::Type Type2;
+//  assert(T_NIL == whatType(Type2()));
+//..
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include &lt;bslscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_NIL
+#include &lt;bslmf_nil.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_CONDITIONAL
+#include &lt;bslmf_conditional.h&gt;
+#endif
+
+namespace BloombergLP {
+
+namespace bslmf {
+
+                         // =========
+                         // struct If
+                         // =========
+
+template &lt;int   CONDITION,
+          class IF_TRUE_TYPE = Nil, class IF_FALSE_TYPE = Nil&gt;
+struct If {
+    // This meta-function selects &#39;IF_TRUE_TYPE&#39; if &#39;CONDITION&#39; is non-zero.
+    // and &#39;IF_FALSE_TYPE&#39; otherwise.
+
+    typedef typename bsl::conditional&lt;CONDITION,
+                                      IF_TRUE_TYPE,
+                                      IF_FALSE_TYPE&gt;::type
+            Type;
+};
+
+}  // close package namespace
+
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright (C) 2012 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the &quot;Software&quot;), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

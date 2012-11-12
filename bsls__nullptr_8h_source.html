@@ -1,0 +1,258 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 2.16 BETA</title>
+<html>
+<pre>
+// bsls_nullptr.h                                                     -*-C++-*-
+#ifndef INCLUDED_BSLS_NULLPTR
+#define INCLUDED_BSLS_NULLPTR
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a distinct type for null pointer literals.
+//
+//@CLASSES:
+//   bsls::Nullptr: namespace for a type matching only null pointer literals
+//
+//@DESCRIPTION: This component provides a limited emulation of the C++11 type,
+// &#39;std::nullptr_t&#39;, which can be used as a function parameter type to create
+// an overload set where null pointer literals are handled specially.  Note
+// that this component will be deprecated, and ultimately removed, once BDE
+// code can assume support for a C++11 compiler.  On a platform that supports
+// the language feature, a fully-conforming &#39;typedef&#39; is supplied rather than
+// using the emulation layer.
+//
+///Limitations
+///-----------
+// This component provides a simple emulation of the C++11 facility, which
+// cannot be expressed with a pure library solution.  As such it comes with a
+// number of limitations.  The most obvious is that C++11 provides a new
+// null pointer literal, &#39;nullptr&#39;, which is not emulated by this component.
+// The new null pointer literal is an object of a new type, expressed by the
+// alias &#39;nullptr_t&#39;, which this component emulates.  However, as this is a
+// library-only emulation, it does not have any preference in the overloading
+// rules, so will be an equal-rank ambiguous match.  For example, given the
+// following overload set, a call to &#39;myFunction&#39; with a null pointer literal
+// would be ambiguous:
+//..
+//  void myFunction(void *p);
+//  void myFunction(bsl::nullptr_t);
+//
+//  int main() {
+//     myFunction(0);  // ERROR, ambiguous function call
+//  }
+//..
+// However, if the pointer-argument is a pointer whose type is deduced from the
+// function call, then no pointer type can be deduced from the null pointer and
+// this component becomes necessary.
+//..
+//  template&lt;typename T&gt;
+//  void myFunction(T *p);
+//  void myFunction(bsl::nullptr_t);
+//
+//  int main() {
+//     myFunction(0);  // call the &#39;bsl::nullptr_t&#39; method
+//  }
+//..
+// Null pointer values can be created in C++11 by creating objects of type
+// &#39;std::nullptr_t&#39;, and then used to initialize pointer and pointer-to-member
+// objects:
+//..
+//  std::nullptr_t nullLiteral = std::nullptr_t();
+//  int *pI = nullLiteral;
+//..
+// The type of a &#39;bsl::nullptr_t&#39; object cannot be used in such assignments
+// or initializations, unless compiled on a platform that natively supports
+// this C++11 language feature.
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+// Example 1: Constructing a &quot;smart pointer&quot;
+// - - - - - - - - - - - - - - - - - - - - -
+// First we define a smart pointer class template, as a guard to destroy a
+// managed object as the smart pointer leaves scope.  This class will have a
+// constructor template taking a pointer to a type potentially derived from
+// the parameterized type of the smart pointer, and also a deletion-policy
+// function.  By capturing the most-derived type through type-deduction when
+// the smart pointer is constructed, we can ensure the correct destructor is
+// called, even if the destructor of the base class has not been declared as
+// &#39;virtual&#39;.  However, relying on type-deduction means we cannot pass a null
+// pointer to this constructor, as it is not possible to deduce what type a
+// null pointer is supposed to refer to, therefore we must use a special null
+// pointer type, such as &#39;bsls::nullptr_t&#39;.  Note that in real code we would
+// allocate and reclaim memory using a user-specified allocator, but defining
+// such protocols in this low level component would further distract from the
+// &#39;nullptr&#39; usage in this example.
+//..
+//  template&lt;class TARGET_TYPE&gt;
+//  class ScopedPointer {
+//      // This class template is a guard to manage a dynamically created
+//      // object of the parameterized &#39;TARGET_TYPE&#39;.
+//
+//    private:
+//      typedef void DeleterFn(TARGET_TYPE *);  // deleter type
+//
+//      // DATA
+//      TARGET_TYPE *d_target_p;    // wrapped pointer
+//      DeleterFn   *d_deleter_fn;  // deleter function
+//
+//      // Objects of this type cannot be copied.
+//      ScopedPointer(const ScopedPointer&amp;);
+//      ScopedPointer&amp; operator=(const ScopedPointer&amp;);
+//
+//      template&lt;class SOURCE_TYPE&gt;
+//      static void defaultDeleteFn(TARGET_TYPE *ptr);
+//          // Destroy the specified &#39;*ptr&#39; by calling &#39;delete&#39; on the pointer
+//          // cast to the parameterized &#39;SOURCE_TYPE*&#39;.  It is an error to
+//          // instantiate this template with a &#39;SOURCE_TYPE&#39; that is not
+//          // derived from (and cv-compatible with) &#39;TARGET_TYPE&#39;.
+//
+//    public:
+//      template&lt;class SOURCE_TYPE&gt;
+//      ScopedPointer(SOURCE_TYPE *pointer,
+//                    DeleterFn   *fn = &amp;defaultDeleteFn&lt;SOURCE_TYPE&gt;);
+//          // Create a &#39;ScopedPointer&#39; object owning the specified &#39;pointer&#39;
+//          // and using the specified &#39;fn&#39; to destroy the owned pointer when
+//          // this object is destroyed.
+//
+//      ScopedPointer(bsl::nullptr_t = 0);
+//          // Create an empty &#39;ScopedPointer&#39; object that does not own a
+//          // pointer.
+//
+//      ~ScopedPointer();
+//          // Destroy this &#39;ScopedPointer&#39; object and the target object
+//          // that it owns, using the stored deleter function.
+//
+//      // Further methods appropriate to a smart pointer, such as
+//      // &#39;operator*&#39; and &#39;operator-&gt;&#39; elided from this example.
+//  };
+//..
+// Then we provide a definition for each of the methods.
+//..
+//  template&lt;class TARGET_TYPE&gt;
+//  template&lt;class SOURCE_TYPE&gt;
+//  void ScopedPointer&lt;TARGET_TYPE&gt;::defaultDeleteFn(TARGET_TYPE *ptr)
+//  {
+//      delete static_cast&lt;SOURCE_TYPE *&gt;(ptr);
+//  }
+//
+//  template&lt;class TARGET_TYPE&gt;
+//  template&lt;class SOURCE_TYPE&gt;
+//  inline
+//  ScopedPointer&lt;TARGET_TYPE&gt;::ScopedPointer(SOURCE_TYPE *pointer,
+//                                            DeleterFn   *fn)
+//  : d_target_p(pointer)
+//  , d_deleter_fn(fn)
+//  {
+//  }
+//
+//  template&lt;class TARGET_TYPE&gt;
+//  inline
+//  ScopedPointer&lt;TARGET_TYPE&gt;::ScopedPointer(bsl::nullptr_t)
+//  : d_target_p(0)
+//  , d_deleter_fn(0)
+//  {
+//  }
+//
+//  template&lt;class TARGET_TYPE&gt;
+//  inline
+//  ScopedPointer&lt;TARGET_TYPE&gt;::~ScopedPointer()
+//  {
+//      if (d_deleter_fn) {
+//          d_deleter_fn(d_target_p);
+//      }
+//  }
+//..
+// Finally, we can construct a &#39;ScopedPointer&#39; with a null pointer literal,
+// that would otherwise be non-deducible, using our &#39;bsl::nullptr_t&#39; overload.
+//..
+//  void testScopedPointer()
+//  {
+//      ScopedPointer&lt;int&gt; x(0);
+//  }
+//..
+
+#ifndef INCLUDED_BSLS_COMPILERFEATURES
+#include &lt;bsls_compilerfeatures.h&gt;
+#endif
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_NULLPTR)
+#  if !defined(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE)
+    // We currently know of no platform that supports &#39;nullptr&#39; and does not
+    // also support &#39;decltype&#39;.  We conservatively error should such a
+    // surprising platform emerge.
+#  error No support for &#39;std::nullptr_t&#39; unless &#39;decltype&#39; is also available.
+#  else
+#  define BSLS_NULLPTR_USING_NATIVE_NULLPTR_T  // feature detection macro
+namespace bsl
+{
+    // We must define this &#39;typedef&#39; appropriately for platforms that support
+    // &#39;nullptr&#39; to avoid accidental clashes in &#39;BSL_OVERRIDES_STD&#39; mode.
+    typedef decltype(nullptr) nullptr_t;
+}
+#  endif
+#else
+namespace BloombergLP {
+
+namespace bsls
+{
+                       // ===================
+                       // class bsls::Nullptr
+                       // ===================
+
+struct Nullptr_Impl {
+    // This implementation-private &#39;struct&#39; provides an alias for a type that
+    // can match a null pointer literal, but is not a pointer itself.  It
+    // offers a limited emulation of the C++11 &#39;std::nullptr_t&#39; type.
+
+  private:
+    struct Nullptr_ProxyType { int dummy; }; // private class to supply a
+                                             // unique pointer-to-member type.
+
+  public:
+    typedef int Nullptr_ProxyType::* Type;   // alias to an &quot;unspecified&quot; null
+                                             // pointer type.
+};
+
+}  // close namespace bsls
+}  // close namespace BloombergLP
+
+namespace bsl
+{
+    typedef BloombergLP::bsls::Nullptr_Impl::Type nullptr_t;
+        // Alias for a type that can match a null pointer literal, but is not a
+        // pointer type itself.
+}
+#endif
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright (C) 2012 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the &quot;Software&quot;), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

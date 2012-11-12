@@ -1,0 +1,106 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 2.16 BETA</title>
+<html>
+<pre>
+// bslmf_isvolatile.h                                                 -*-C++-*-
+#ifndef INCLUDED_BSLMF_ISVOLATILE
+#define INCLUDED_BSLMF_ISVOLATILE
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include &lt;bslscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
+#include &lt;bslmf_integralconstant.h&gt;
+#endif
+
+//@PURPOSE: Provide a compile-time check for &#39;volatile&#39;-qualified types.
+//
+//@CLASSES:
+//  bsl::is_volatile: meta-function for determining &#39;volatile&#39;-qualified types
+//
+//@SEE_ALSO: bslmf_integralconstant
+//
+//@DESCRIPTION: This component defines a meta-function, &#39;bsl::is_volatile&#39; ,
+// that may be used to query whether a type is &#39;volatile&#39;-qualified as defined
+// in section the C++11 standard [basic.type.qualifier].
+//
+// &#39;bsl::is_volatile&#39; meets the requirements of the &#39;is_volatile&#39; template
+// defined in the C++11 standard [meta.unary.prop].
+//
+///Usage
+///-----
+// In this section we show intended use of this component.
+//
+///Example 1: Verify &#39;Volatile&#39; Types
+///- - - - - - - - - - - - - - - -
+// Suppose that we want to assert whether a particular type is a
+// &#39;volatile&#39;-qualified.
+//
+// First, we create two &#39;typedef&#39;s -- a &#39;volatile&#39;-qualified type and a
+// unqualified type:
+//..
+//  typedef int           MyType;
+//  typedef volatile int  MyVolatileType;
+//..
+// Now, we instantiate the &#39;bsl::is_volatile&#39; template for each of the
+// &#39;typedef&#39;s and assert the &#39;value&#39; static data member of each instantiation:
+//..
+//  assert(false == bsl::is_volatile&lt;MyType&gt;::value);
+//  assert(true == bsl::is_volatile&lt;MyVolatileType&gt;::value);
+//..
+
+namespace bsl {
+
+template &lt;typename TYPE&gt;
+struct is_volatile : false_type {
+    // This &#39;struct&#39; template implements the &#39;is_volatile&#39; meta-function
+    // defined in the C++11 standard [meta.unary.cat] to determine if the
+    // (template parameter) &#39;TYPE&#39; is &#39;volatile&#39;-qualified.  This &#39;struct&#39;
+    // derives from &#39;bsl::true_type&#39; if the &#39;TYPE&#39; is &#39;volatile&#39;-qualified, and
+    // &#39;bsl::false_type&#39; otherwise.  Note that this generic default template
+    // derives from &#39;bsl::false_type&#39;.  A template specialization is provided
+    // (below) that derives from &#39;bsl::true_type&#39;.
+};
+
+template &lt;typename TYPE&gt;
+struct is_volatile&lt;TYPE volatile&gt; : true_type {
+     // This partial specialization of &#39;is_volatile&#39; derives from
+     // &#39;bsl::true_type&#39; for when the (template parameter) &#39;TYPE&#39; is
+     // &#39;volatile&#39;-qualified.
+};
+
+}  // close namespace bsl
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright (C) 2012 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the &quot;Software&quot;), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

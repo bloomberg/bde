@@ -1,0 +1,168 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 2.16 BETA</title>
+<html>
+<pre>
+// bslalg_bidirectionallinklistutil.h                                 -*-C++-*-
+#ifndef INCLUDED_BSLALG_BIDIRECTIONALLINKLISTUTIL
+#define INCLUDED_BSLALG_BIDIRECTIONALLINKLISTUTIL
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide utilities to maintain bidirectional list data structures.
+//
+//@CLASSES:
+//  bslalg::BidirectionalLinkListUtil: utilities to maintain linked lists
+//
+//@SEE_ALSO: bslalg_bidirectionallink, bslalg_hashtableimputil
+//
+//@DESCRIPTION: This component provides a namespace,
+// &#39;bslalg::BidirectionalLinkListUtil&#39;, containing utility functions for
+// operating on doubly linked lists with nodes of type
+// &#39;bslalg::BidirectionalLink&#39;.  The operations assume that the linked lists
+// are either 0 terminated (on both ends) or terminate with sentinel (valid)
+// nodes.  The main operations include insertion and removal of a node from a
+// list of nodes, and the *splicing* of ranges from one list into another one.
+// Splicing is the operation of moving a sub-list, or range, of elements from
+// one linked list and into a second list, at a
+// specified position.
+//
+///Usage
+///-----
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include &lt;bslscm_version.h&gt;
+#endif
+
+namespace BloombergLP
+{
+
+namespace bslalg
+{
+
+class BidirectionalLink;
+
+                        // ========================================
+                        // struct bslalg::BidirectionalLinkListUtil
+                        // ========================================
+
+struct BidirectionalLinkListUtil {
+    // This &#39;struct&#39; provides a namespace for utility functions that manipulate
+    // linked lists based on &#39;bslalg::BidirectionalLink&#39; nodes, including
+    // insertion, removal, and *splicing*.
+
+    // CLASS METHODS
+    static
+    void insertLinkBeforeTarget(BidirectionalLink *newNode,
+                                BidirectionalLink *target);
+        // Insert the specified &#39;newNode&#39; before the specified &#39;target&#39; node in
+        // the linked list that contains &#39;target&#39;.  If &#39;target&#39; is 0, then the
+        // value of the attributes &#39;nextLink&#39; and &#39;previousLink&#39; of &#39;newNode&#39;
+        // is set to 0.  After successful execution of this function the values
+        // of the &#39;previousLink&#39; and &#39;nextLink&#39; attributes of all the links in
+        // the list appropriately reflect the operation.  The behavior is
+        // undefined unless &#39;0 == target-&gt;previousLink()&#39; is true or
+        // &#39;isWellFormed(target-&gt;previousLink(), target)&#39; is true.
+
+    static
+    void insertLinkAfterTarget(BidirectionalLink *newNode,
+                               BidirectionalLink *target);
+        // Insert the specified &#39;newNode&#39; after the specified &#39;target&#39; node in
+        // the linked list that contains &#39;target&#39;.  If the node following
+        // &#39;target&#39; is 0, then set the &#39;nextLink&#39; attribute of &#39;newNode&#39; to 0.
+        // After successful execution of this function the values of the
+        // &#39;previousLink&#39; and &#39;nextLink&#39; attributes of all the links in the
+        // list appropriately reflect the operation.  The behavior is undefined
+        // unless &#39;isWellFormed(target, target-&gt;nextLink())&#39; is true.
+
+    static
+    bool isWellFormed(BidirectionalLink *head, BidirectionalLink *tail);
+        // Return true if the bidirectional list starting from the specified
+        // &#39;head&#39;, and ending with the specified &#39;tail&#39; is well formed.  A
+        // bidirectional list is well formed if &#39;tail == head&#39; (0 values are
+        // allowed) or all of the following conditions are met (note that
+        // &#39;head&#39; is renamed to &#39;h&#39; and &#39;tail&#39; to &#39;t&#39; for brevity):
+        //
+        //: 1 &#39;h&#39; and &#39;t&#39; are valid addresses.
+        //:
+        //: 2 &#39;h-&gt;nextLink()-&gt;previousLink() == h&#39; is true.
+        //:
+        //: 3 &#39;!h-&gt;previousLink() || h-&gt;previousLink()-&gt;nextLink() == h&#39;
+        //:    is true.
+        //:
+        //: 4 &#39;t-&gt;previousLink()-&gt;nextLink() == t&#39; is true.
+        //:
+        //: 5 &#39;!t-&gt;nextLink() || t-&gt;nextLink()-&gt;previousLink() == t&#39;
+        //:    is true.
+        //:
+        //: 6 For each &#39;link&#39; in the list different than &#39;h&#39; and &#39;t&#39; both
+        //:   &#39;link-&gt;nextLink()-&gt;previousLink() == link&#39; and
+        //:   &#39;link-&gt;previousLink()-&gt;nextLink() == link&#39; are true.
+        //
+        // The behavior is undefined unless &#39;tail&#39; can be reached from &#39;head&#39;
+        // following the chain of &#39;nextLink&#39; attributes of all the nodes in the
+        // open range &#39;[head, tail)&#39;.
+
+    static
+    void spliceListBeforeTarget(BidirectionalLink *first,
+                                BidirectionalLink *last,
+                                BidirectionalLink *target);
+        // Unlink and move (splice) the elements of a doubly-linked list
+        // included in the closed range &#39;[first, last]&#39; out of their original
+        // list and into another doubly-linked list before the specified
+        // &#39;target&#39; node.  If &#39;target&#39; is 0, then the the elements are
+        // extracted and form a new list such that &#39;0 == first-&gt;previousLink()&#39;
+        // and &#39;0 == last-&gt;nextLink()&#39; .  After successful execution of this
+        // function the values of the &#39;previousLink&#39; and &#39;nextLink&#39; attributes
+        // of all the links in the origin and destination lists appropriately
+        // reflect the operation.  The behavior is undefined unless both
+        // &#39;first&#39; and &#39;last&#39; are members of the same linked list; &#39;first&#39;
+        // precedes &#39;last&#39; in the list, or &#39;first == last&#39;; &#39;target&#39; is not a
+        // node contained in the closed range &#39;[first, last]&#39;; and
+        // &#39;isWellFormed(first, last)&#39; is true.
+
+    static
+    void unlink(BidirectionalLink *node);
+        // Unlink the specified &#39;node&#39; from the linked list of which it is a
+        // member.  After successful execution of this function the values of
+        // the &#39;previousLink&#39; and &#39;nextLink&#39; attributes of all the links in the
+        // origin and destination lists appropriately reflect the operation
+        // Note that this method does *not* change the value for the &#39;nextLink&#39;
+        // and &#39;previousLink&#39; attributes of &#39;node&#39;.  The behavior is
+        // undefined unless
+        // &#39;isWellFormed(node-&gt;previousLink(), node-&gt;nextLink())&#39; is true.
+};
+
+}  // close namespace BloombergLP::bslalg
+
+}  // close namespace BloombergLP
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright (C) 2012 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the &quot;Software&quot;), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

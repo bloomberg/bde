@@ -1,0 +1,2270 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 2.16 BETA</title>
+<html>
+<pre>
+// bslalg_dequeprimitives.h                                           -*-C++-*-
+#ifndef INCLUDED_BSLALG_DEQUEPRIMITIVES
+#define INCLUDED_BSLALG_DEQUEPRIMITIVES
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide primitive algorithms that operate on deques.
+//
+//@CLASSES:
+//  bslalg::DequePrimitives: namespace for deque algorithms
+//
+//@SEE_ALSO: bslalg_scalarprimitives, bslalg_arrayprimitives
+//
+//@DESCRIPTION: This component provides utilies to initialize, destroy, move,
+// and otherwise perform various primitive manipulations on deques with a
+// uniform interface, but selecting a different implementation according to the
+// various traits possessed by the underlying type, and selecting a simpler
+// implementation when there is only one element per deque block.  See the
+// &#39;bslalg_dequeimputil&#39; and &#39;bslalg_dequeiterator&#39; for a definition and visual
+// depiction of the inner organization of a deque, and of the iterator type
+// used to refer to elements in the deque.
+//
+// The primitives provided by this component are exceptionally useful for
+// implementing generic block-based components such as deques.  A short
+// synopsis is provided below describing the observable behavior and mentioning
+// the relevant traits.  See the full function-level contract for detailed
+// description, including exception-safety guarantees.  In the description
+// below, &#39;Sc&#39; stands for &#39;bslalg::ScalarPrimitives&#39; and &#39;Ar&#39; stands for
+// &#39;bslalg::ArrayPrimitives&#39; (for brevity).  Note that some algorithms are
+// explained in terms of previous algorithms.
+//..
+//  Algorithm                     Short description of observable behavior
+//  ----------------------------  ---------------------------------------------
+//  destruct                      &#39;Sc::destruct&#39; for each element in the target
+//                                range.
+//
+//  erase                         &#39;destruct&#39; for each element in the target
+//                                range, or &#39;no-op&#39; if bit-wise copyable, then
+//                                shift the remaining elements from either the
+//                                front or the back to fill hole.
+//
+//  uninitializedFillNBack        &#39;Ar::uninitializedFillN&#39; for each block at
+//                                the end of the deque
+//
+//  uninitializedFillNFront       &#39;Ar::uninitializedFillN&#39; for each block at
+//                                the front of the deque.
+//
+//  insertAndMoveToBack           &#39;Sc::copyConstruct&#39; each element in the
+//                                target range, or &#39;std::memmove&#39; if type is
+//                                bit-wise moveable, to the back of the deque
+//                                to create a hole, followed by
+//                                &#39;Sc::copyConstruct&#39; or &#39;std::memmove&#39; of
+//                                target value or range to fill the hole.
+//
+//  insertAndMoveToFront          &#39;Sc::copyConstruct&#39; each element in the
+//                                target range, or &#39;std::memmove&#39; if type is
+//                                bit-wise moveable, to the front of the deque
+//                                to create a hole, followed by
+//                                &#39;Sc::copyConstruct&#39; or &#39;std::memmove&#39; of
+//                                target value or range to fill the hole.
+//..
+// The traits under consideration directly or indirectly by this component are:
+//..
+//  Trait                                         English description
+//  -----                                         -------------------
+//  bsl::is_trivially_copyable                    &quot;TYPE has the bit-wise
+//                                                copyable trait&quot;, or
+//                                                &quot;TYPE is bit-wise copyable&quot;
+//
+//  bslmf::IsBitwiseMoveable                      &quot;TYPE has the bit-wise
+//                                                moveable trait&quot;, or
+//                                                &quot;TYPE is bit-wise moveable&quot;
+//..
+///Aliasing
+///--------
+// There are some aliasing concerns in this component, due to the presence of
+// the reference &#39;const VALUE_TYPE&amp; value&#39; argument, which may belong to a
+// range that will be modified during the course of the operation.  All such
+// aliasing concerns are taken care of properly.  Other aliasing concerns due
+// to the copying or a range &#39;[first, last)&#39; are *not* taken care of, since
+// their intended use is for range assignments and insertions in standard
+// containers, for which the standard explicitly says that &#39;first&#39; and &#39;last&#39;
+// shall not be iterators into the container.
+//
+///Usage
+///-----
+// This component is for use by the &#39;bslstl&#39; package.  Other clients should use
+// the STL deque (in header &#39;&lt;deque&gt;&#39;).
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include &lt;bslscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLALG_ARRAYPRIMITIVES
+#include &lt;bslalg_arrayprimitives.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLALG_CONSTRUCTORPROXY
+#include &lt;bslalg_constructorproxy.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLALG_DEQUEIMPUTIL
+#include &lt;bslalg_dequeimputil.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLALG_DEQUEITERATOR
+#include &lt;bslalg_dequeiterator.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLALG_SCALARDESTRUCTIONPRIMITIVES
+#include &lt;bslalg_scalardestructionprimitives.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLALG_SCALARPRIMITIVES
+#include &lt;bslalg_scalarprimitives.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include &lt;bslma_allocator.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_FUNCTIONPOINTERTRAITS
+#include &lt;bslmf_functionpointertraits.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_ISCONVERTIBLE
+#include &lt;bslmf_isconvertible.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_ISFUNDAMENTAL
+#include &lt;bslmf_isfundamental.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_ISPOINTER
+#include &lt;bslmf_ispointer.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include &lt;bsls_assert.h&gt;
+#endif
+
+#ifndef INCLUDED_CSTDDEF
+#include &lt;cstddef&gt;  // std::size_t
+#define INCLUDED_CSTDDEF
+#endif
+
+#ifndef INCLUDED_CSTRING
+#include &lt;cstring&gt;  // memmove
+#define INCLUDED_CSTRING
+#endif
+
+namespace BloombergLP {
+
+namespace {
+        // Workaround for windows.  The windows compiler refuses to recognize
+        // enum declarations within a templated class.
+
+    enum {
+        // These constants are used in the overloads below, when the last
+        // argument is of type &#39;bslmf::MetaInt&lt;N&gt; *&#39;, indicating that
+        // &#39;VALUE_TYPE&#39; has the traits for which the enumerator equal to &#39;N&#39; is
+        // named.
+
+        NIL_TRAITS              = 0,
+        BITWISE_MOVEABLE_TRAITS = 1,
+        BITWISE_COPYABLE_TRAITS = 2,
+        NON_NIL_TRAITS          = 3
+    };
+
+}
+
+namespace bslalg {
+
+template &lt;class VALUE_TYPE, int BLOCK_LENGTH&gt;
+class DequePrimitives_DequeElementGuard;
+
+template &lt;class VALUE_TYPE, int BLOCK_LENGTH&gt;
+class DequePrimitives_DequeMoveGuard;
+
+template &lt;class VALUE_TYPE, int BLOCK_LENGTH&gt;
+class DequePrimitives_ExternalDequeElementGuard;
+
+                        // ======================
+                        // struct DequePrimitives
+                        // ======================
+
+template &lt;class VALUE_TYPE, int BLOCK_LENGTH&gt;
+struct DequePrimitives {
+    // This &#39;struct&#39; provides a namespace for a suite of utility functions that
+    // operate on deques parameterized by the &#39;VALUE_TYPE&#39; and &#39;BLOCK_LENGTH&#39;.
+    // Depending on the traits of &#39;VALUE_TYPE&#39;, the default and copy
+    // constructors, destructor, assignment operators, etc. may not be invoked,
+    // and instead the operation can be optimized using a no-op, bit-wise move
+    // or copy.
+
+    // PUBLIC TYPES
+    typedef std::size_t                                         size_type;
+
+    typedef DequeIterator&lt;VALUE_TYPE, BLOCK_LENGTH&gt;             Iterator;
+
+  private:
+    // PRIVATE TYPES
+    typedef DequeImpUtil&lt;VALUE_TYPE, BLOCK_LENGTH&gt;              ImpUtil;
+
+    typedef DequePrimitives_DequeElementGuard&lt;VALUE_TYPE,
+                                       BLOCK_LENGTH&gt;            Guard;
+
+    typedef DequePrimitives_DequeMoveGuard&lt;VALUE_TYPE,
+                                     BLOCK_LENGTH&gt;              MGuard;
+
+    typedef DequePrimitives_ExternalDequeElementGuard&lt;VALUE_TYPE,
+                                          BLOCK_LENGTH&gt;         EGuard;
+
+  public:
+    // CLASS METHODS
+    static void destruct(Iterator begin, Iterator end);
+        // Call the destructor on each of the elements of a deque of
+        // parameterized &#39;VALUE_TYPE&#39; in the specified range [begin, end).  The
+        // behavior is undefined unless &#39;begin &lt;= end&#39;.  Note that this does
+        // not deallocate any memory (except memory deallocated by the element
+        // destructor calls).
+
+    static void destruct(Iterator begin, Iterator end,
+                         bslmf::MetaInt&lt;NIL_TRAITS&gt; *);
+    static void destruct(Iterator begin, Iterator end,
+                         bslmf::MetaInt&lt;BITWISE_COPYABLE_TRAITS&gt; *);
+        // Call the destructor on each of the elements of a deque of
+        // parameterized &#39;VALUE_TYPE&#39; in the specified range [begin, end).  The
+        // behavior is undefined unless &#39;begin &lt;= end&#39;.  Note that this does
+        // not deallocate any memory (except memory deallocated by the element
+        // destructor calls).  Note that the last argument is for removing
+        // overload ambiguities and is not used.
+
+    template &lt;class ALLOCATOR&gt;
+    static Iterator erase(Iterator  *toBegin,
+                          Iterator  *toEnd,
+                          Iterator   fromBegin,
+                          Iterator   first,
+                          Iterator   last,
+                          Iterator   fromEnd,
+                          ALLOCATOR *allocator);
+        // Call the destructor on each of the elements of a deque of
+        // parameterized &#39;VALUE_TYPE&#39; in the specified range [first, last).
+        // Shift the elements to fill up the empty space after the erasure,
+        // using the smaller of the range defined by [fromBegin, first) and
+        // [last, fromEnd) after the erasure.  Load in the specified &#39;toBegin&#39;
+        // and &#39;toEnd&#39; the new boundaries of the deque after erasure and return
+        // an iterator pointing to the element immediately following the
+        // removed elements.  The behavior is undefined unless
+        // &#39;fromBegin &lt;= first &lt;= last &lt;= fromEnd&#39;.
+
+    template &lt;class ALLOCATOR&gt;
+    static Iterator erase(Iterator                   *toBegin,
+                          Iterator                   *toEnd,
+                          Iterator                    fromBegin,
+                          Iterator                    first,
+                          Iterator                    last,
+                          Iterator                    fromEnd,
+                          ALLOCATOR                  *allocator,
+                          bslmf::MetaInt&lt;NIL_TRAITS&gt; *);
+    template &lt;class ALLOCATOR&gt;
+    static Iterator erase(Iterator                                *toBegin,
+                          Iterator                                *toEnd,
+                          Iterator                                 fromBegin,
+                          Iterator                                 first,
+                          Iterator                                 last,
+                          Iterator                                 fromEnd,
+                          ALLOCATOR                               *allocator,
+                          bslmf::MetaInt&lt;BITWISE_COPYABLE_TRAITS&gt; *);
+        // Call the destructor on each of the elements of a deque of
+        // parameterized &#39;VALUE_TYPE&#39; in the specified range [first, last).
+        // Shift the elements from the smaller of the specified range
+        // [fromBegin, first) and [last, fromEnd) to fill up the empty spaces
+        // after the erasure.  Load in the specified &#39;toBegin&#39; and &#39;toEnd&#39; the
+        // new boundaries of the deque after erasure and return an iterator
+        // pointing to the element immediately following the removed elements.
+        // The behavior is undefined unless
+        // &#39;fromBegin &lt;= first &lt;= last &lt;= fromEnd&#39;.  Note that the last
+        // argument is for removing overload ambiguities and is not used.
+
+    template &lt;class ALLOCATOR&gt;
+    static void insertAndMoveToBack(Iterator          *toEnd,
+                                    Iterator           fromEnd,
+                                    Iterator           position,
+                                    size_type          numElements,
+                                    const VALUE_TYPE&amp;  value,
+                                    ALLOCATOR         *allocator);
+        // Insert the specified &#39;numElements&#39; copies of the specified &#39;value&#39;
+        // at the specified &#39;position&#39;, by moving the elements in the range
+        // [position, fromEnd) forward by &#39;numElements&#39; position.  Pass the
+        // specified &#39;allocator&#39; to the copy constructor if appropriate.  Load
+        // into the specified &#39;toEnd&#39; an iterator to the end of the deque after
+        // insertion (i.e., &#39;fromEnd + numElements&#39;).  The behavior is
+        // undefined unless &#39;fromEnd + numElements&#39; is a valid iterator (i.e.,
+        // the block pointer array holds enough room after the &#39;fromEnd&#39;
+        // position to insert &#39;numElements&#39;).
+
+    template &lt;class ALLOCATOR&gt;
+    static void insertAndMoveToBack(
+                          Iterator                                *toEnd,
+                          Iterator                                 fromEnd,
+                          Iterator                                 position,
+                          size_type                                numElements,
+                          const VALUE_TYPE&amp;                        value,
+                          ALLOCATOR                               *allocator,
+                          bslmf::MetaInt&lt;BITWISE_COPYABLE_TRAITS&gt; *);
+    template &lt;class ALLOCATOR&gt;
+    static void insertAndMoveToBack(
+                          Iterator                                *toEnd,
+                          Iterator                                 fromEnd,
+                          Iterator                                 position,
+                          size_type                                numElements,
+                          const VALUE_TYPE&amp;                        value,
+                          ALLOCATOR                               *allocator,
+                          bslmf::MetaInt&lt;BITWISE_MOVEABLE_TRAITS&gt; *);
+    template &lt;class ALLOCATOR&gt;
+    static void insertAndMoveToBack(Iterator                   *toEnd,
+                                    Iterator                    fromEnd,
+                                    Iterator                    position,
+                                    size_type                   numElements,
+                                    const VALUE_TYPE&amp;           value,
+                                    ALLOCATOR                  *allocator,
+                                    bslmf::MetaInt&lt;NIL_TRAITS&gt; *);
+        // Insert the specified &#39;numElements&#39; copies of the specified &#39;value&#39;
+        // at the specified &#39;position&#39;, by moving the elements in the range
+        // [position, fromEnd) forward by &#39;numElements&#39; position.  Pass the
+        // specified &#39;allocator&#39; to the copy constructor if appropriate.  Load
+        // into the specified &#39;toEnd&#39; an iterator to the end of the deque after
+        // insertion (i.e., &#39;fromEnd + numElements&#39;).  The behavior is
+        // undefined unless &#39;fromEnd + numElements&#39; is a valid iterator (i.e.,
+        // the block pointer array holds enough room after the &#39;fromEnd&#39;
+        // position to insert &#39;numElements&#39;).  Note that the last argument is
+        // for removing overload ambiguities and is not used.
+
+    template &lt;class ALLOCATOR&gt;
+    static void insertAndMoveToFront(Iterator          *toBegin,
+                                     Iterator           fromBegin,
+                                     Iterator           position,
+                                     size_type          numElements,
+                                     const VALUE_TYPE&amp;  value,
+                                     ALLOCATOR         *allocator);
+        // Insert the specified &#39;numElements&#39; copies of the specified &#39;value&#39;
+        // at the specified &#39;position&#39;, by moving the elements in the range
+        // [fromBegin, position) backward by &#39;numElements&#39; position.  Pass the
+        // specified &#39;allocator&#39; to the copy constructor if appropriate.  Load
+        // into the specified &#39;toBegin&#39; an iterator to the beginning of the
+        // data after insertion (i.e., &#39;fromBegin - numElements&#39;).  The
+        // behavior is undefined unless &#39;fromBegin - numElements&#39; is a valid
+        // iterator (i.e., the block pointer array holds enough room before the
+        // &#39;fromBegin&#39; position to insert &#39;numElements&#39;).
+
+    template &lt;class ALLOCATOR&gt;
+    static void insertAndMoveToFront(
+                          Iterator                                *toBegin,
+                          Iterator                                 fromBegin,
+                          Iterator                                 position,
+                          size_type                                numElements,
+                          const VALUE_TYPE&amp;                        value,
+                          ALLOCATOR                               *allocator,
+                          bslmf::MetaInt&lt;BITWISE_COPYABLE_TRAITS&gt; *);
+    template &lt;class ALLOCATOR&gt;
+    static void insertAndMoveToFront(
+                          Iterator                                *toBegin,
+                          Iterator                                 fromBegin,
+                          Iterator                                 position,
+                          size_type                                numElements,
+                          const VALUE_TYPE&amp;                        value,
+                          ALLOCATOR                               *allocator,
+                          bslmf::MetaInt&lt;BITWISE_MOVEABLE_TRAITS&gt; *);
+    template &lt;class ALLOCATOR&gt;
+    static void insertAndMoveToFront(Iterator                   *toBegin,
+                                     Iterator                    fromBegin,
+                                     Iterator                    position,
+                                     size_type                   numElements,
+                                     const VALUE_TYPE&amp;           value,
+                                     ALLOCATOR                  *allocator,
+                                     bslmf::MetaInt&lt;NIL_TRAITS&gt; *);
+        // Insert the specified &#39;numElements&#39; copies of the specified &#39;value&#39;
+        // at the specified &#39;position&#39;, by moving the elements in the range
+        // [fromBegin, position) backward by &#39;numElements&#39; position.  Pass the
+        // specified &#39;allocator&#39; to the copy constructor if appropriate.  Load
+        // into the specified &#39;toBegin&#39; an iterator to the beginning of the
+        // data after insertion (i.e., &#39;fromBegin - numElements&#39;.  The behavior
+        // is undefined unless &#39;fromBegin - numElements&#39; is a valid iterator
+        // (i.e., the block pointer array holds enough room before the
+        // &#39;fromBegin&#39; position to insert &#39;numElements&#39;).  Note that the last
+        // argument is for removing overload ambiguities and is not used.
+
+    template &lt;class FWD_ITER, class ALLOCATOR&gt;
+    static void insertAndMoveToBack(Iterator  *toEnd,
+                                    Iterator   fromEnd,
+                                    Iterator   position,
+                                    FWD_ITER   first,
+                                    FWD_ITER   last,
+                                    size_type  numElements,
+                                    ALLOCATOR *allocator);
+        // Insert the specified &#39;numElements&#39; in the range [first, last) at the
+        // specified &#39;position&#39;, by moving the elements in the range [position,
+        // fromEnd) forward by &#39;numElements&#39; position.  Pass the specified
+        // &#39;allocator&#39; to the copy constructor if appropriate.  Load into the
+        // specified &#39;toEnd&#39; an iterator to the end of the data after insertion
+        // (i.e., &#39;fromEnd + numElements&#39;).  The behavior is undefined unless
+        // &#39;fromEnd + numElements&#39; is a valid iterator (i.e., the block pointer
+        // array holds enough room after the &#39;fromEnd&#39; position to insert
+        // &#39;numElements&#39;).
+
+    template &lt;class FWD_ITER, class ALLOCATOR&gt;
+    static void insertAndMoveToFront(Iterator  *toBegin,
+                                     Iterator   fromBegin,
+                                     Iterator   position,
+                                     FWD_ITER   first,
+                                     FWD_ITER   last,
+                                     size_type  numElements,
+                                     ALLOCATOR *allocator);
+        // Insert the specified &#39;numElements&#39; in the range [first, last) at the
+        // specified &#39;position&#39;, by moving the elements in the range
+        // [fromBegin, position) backward by &#39;numElements&#39; position.  Pass the
+        // specified &#39;allocator&#39; to the copy constructor if appropriate.  Load
+        // into the specified &#39;toBegin&#39; an iterator to the end of the data
+        // after insertion (i.e., &#39;fromBegin - numElements&#39;).  The behavior is
+        // undefined unless &#39;fromBegin - numElements&#39; is a valid iterator
+        // (i.e., the block pointer array holds enough room before the
+        // &#39;fromBefore&#39; position to insert &#39;numElements&#39;).
+
+    static void moveBack(Iterator  *destination,
+                         Iterator  *source,
+                         size_type  numElements);
+        // Move the specified &#39;numElements&#39; from the specified &#39;source&#39; to the
+        // specified &#39;destination&#39; using &#39;std::memmove&#39;.  Also load into
+        // &#39;destination&#39; the value &#39;destination - numElements&#39; and &#39;source&#39; the
+        // value &#39;source - numElements&#39;.  The behavior is undefined unless
+        // &#39;destination &gt;= source&#39;.
+
+    static void moveFront(Iterator  *destination,
+                          Iterator  *source,
+                          size_type  numElements);
+        // Move the specified &#39;numElements&#39; from the specified &#39;source&#39; to the
+        // specified &#39;destination&#39; using &#39;std::memmove&#39;.  Also load into
+        // &#39;destination&#39; the value &#39;destination + numElements&#39; and &#39;source&#39; the
+        // the value &#39;source + numElements&#39;.  The behavior is undefined unless
+        // &#39;destination &lt;= source&#39;.
+
+    template &lt;class ALLOCATOR&gt;
+    static void uninitializedFillNBack(Iterator          *toEnd,
+                                       Iterator           fromEnd,
+                                       size_type          numElements,
+                                       const VALUE_TYPE&amp;  value,
+                                       ALLOCATOR         *allocator);
+        // Append the specified &#39;numElements&#39; copies of the specified &#39;value&#39;
+        // to the deque ending at the specified &#39;fromEnd&#39; iterator, passing the
+        // specified &#39;allocator&#39; through to the new elements, and load into the
+        // specified &#39;toEnd&#39; an iterator pointing to the end of the data after
+        // appending (i.e., &#39;fromEnd + numElements&#39;).  The behavior is
+        // undefined unless &#39;fromEnd + numElements&#39; is a valid iterator (i.e.,
+        // the block pointer array holds enough room after the &#39;fromEnd&#39;
+        // position to insert &#39;numElements&#39;).
+
+    template &lt;class ALLOCATOR&gt;
+    static void uninitializedFillNFront(Iterator          *toBegin,
+                                        Iterator           fromBegin,
+                                        size_type          numElements,
+                                        const VALUE_TYPE&amp;  value,
+                                        ALLOCATOR         *allocator);
+        // Prepend the specified &#39;numElements&#39; copies of the specified &#39;value&#39;
+        // to the deque starting at the specified &#39;fromBegin&#39; iterator, passing
+        // the specified &#39;allocator&#39; through to the new elements, and load into
+        // the specified &#39;toBegin&#39; an iterator pointing to the end of the data
+        // after prepending, i.e., &#39;fromBegin - numElements&#39;.  The behavior is
+        // undefined unless &#39;fromBegin - numElements&#39; is a valid iterator
+        // (i.e., the block pointer array holds enough room before the
+        // &#39;fromBegin&#39; position to insert &#39;numElements&#39;).
+};
+
+// PARTIAL SPECIALIZATION
+template &lt;class VALUE_TYPE&gt;
+struct DequePrimitives&lt;VALUE_TYPE, 1&gt; {
+    // This is a partial specialization of &#39;DequePrimitives&#39; for the case when
+    // there is a single element per block.
+
+    // PUBLIC TYPES
+    typedef std::size_t                                         size_type;
+    typedef DequeImpUtil&lt;VALUE_TYPE, 1&gt;                  ImpUtil;
+    typedef DequeIterator&lt;VALUE_TYPE, 1&gt;                 Iterator;
+    typedef DequePrimitives_DequeElementGuard&lt;VALUE_TYPE, 1&gt;
+                                                                Guard;
+
+    // CLASS METHODS
+    static void destruct(Iterator begin, Iterator end);
+
+    template &lt;class ALLOCATOR&gt;
+    static Iterator erase(Iterator  *toBegin,
+                          Iterator  *toEnd,
+                          Iterator   fromBegin,
+                          Iterator   first,
+                          Iterator   last,
+                          Iterator   fromEnd,
+                          ALLOCATOR *allocator);
+
+    template &lt;class ALLOCATOR&gt;
+    static void insertAndMoveToBack(Iterator          *toEnd,
+                                    Iterator           fromEnd,
+                                    Iterator           position,
+                                    size_type          numElements,
+                                    const VALUE_TYPE&amp;  value,
+                                    ALLOCATOR         *allocator);
+
+    template &lt;class FWD_ITER, class ALLOCATOR&gt;
+    static void insertAndMoveToBack(Iterator  *toEnd,
+                                    Iterator   fromEnd,
+                                    Iterator   position,
+                                    FWD_ITER   first,
+                                    FWD_ITER   last,
+                                    size_type  numElements,
+                                    ALLOCATOR *allocator);
+
+    template &lt;class ALLOCATOR&gt;
+    static void insertAndMoveToFront(Iterator          *toBegin,
+                                     Iterator           fromBegin,
+                                     Iterator           position,
+                                     size_type          numElements,
+                                     const VALUE_TYPE&amp;  value,
+                                     ALLOCATOR         *allocator);
+
+    template &lt;class FWD_ITER, class ALLOCATOR&gt;
+    static void insertAndMoveToFront(Iterator  *toBegin,
+                                     Iterator   fromBegin,
+                                     Iterator   position,
+                                     FWD_ITER   first,
+                                     FWD_ITER   last,
+                                     size_type  numElements,
+                                     ALLOCATOR *allocator);
+
+    template &lt;class ALLOCATOR&gt;
+    static void uninitializedFillNBack(Iterator          *toEnd,
+                                       Iterator           fromEnd,
+                                       size_type          numElements,
+                                       const VALUE_TYPE&amp;  value,
+                                       ALLOCATOR         *allocator);
+    template &lt;class ALLOCATOR&gt;
+    static void uninitializedFillNBack(Iterator                   *toEnd,
+                                       Iterator                    fromEnd,
+                                       size_type                   numElements,
+                                       const VALUE_TYPE&amp;           value,
+                                       ALLOCATOR                  *allocator,
+                                       bslmf::MetaInt&lt;NIL_TRAITS&gt; *);
+    template &lt;class ALLOCATOR&gt;
+    static void uninitializedFillNBack(
+                                   Iterator                       *toEnd,
+                                   Iterator                        fromEnd,
+                                   size_type                       numElements,
+                                   const VALUE_TYPE&amp;               value,
+                                   ALLOCATOR                      *allocator,
+                                   bslmf::MetaInt&lt;NON_NIL_TRAITS&gt; *);
+
+    template &lt;class ALLOCATOR&gt;
+    static void uninitializedFillNFront(Iterator          *toBegin,
+                                        Iterator           fromBegin,
+                                        size_type          numElements,
+                                        const VALUE_TYPE&amp;  value,
+                                        ALLOCATOR         *allocator);
+    template &lt;class ALLOCATOR&gt;
+    static void uninitializedFillNFront(
+                                       Iterator                   *toBegin,
+                                       Iterator                    fromBegin,
+                                       size_type                   numElements,
+                                       const VALUE_TYPE&amp;           value,
+                                       ALLOCATOR                  *allocator,
+                                       bslmf::MetaInt&lt;NIL_TRAITS&gt; *);
+    template &lt;class ALLOCATOR&gt;
+    static void uninitializedFillNFront(
+                                   Iterator                       *toBegin,
+                                   Iterator                        fromBegin,
+                                   size_type                       numElements,
+                                   const VALUE_TYPE&amp;               value,
+                                   ALLOCATOR                      *allocator,
+                                   bslmf::MetaInt&lt;NON_NIL_TRAITS&gt; *);
+};
+
+                    // =======================================
+                    // class DequePrimitives_DequeElementGuard
+                    // =======================================
+
+template &lt;class VALUE_TYPE, int BLOCK_LENGTH&gt;
+class DequePrimitives_DequeElementGuard {
+    // This &#39;class&#39; provides a specialized proctor object that, upon
+    // destruction and unless the &#39;release&#39; method has been called, destroys
+    // the elements in a segment of a deque of parameterized &#39;VALUE_TYPE&#39;.  The
+    // elements destroyed are delimited by the &quot;guarded&quot; range
+    // &#39;[d_begin, d_end )&#39;.
+
+  public:
+    // PUBLIC TYPES
+    typedef DequeIterator&lt;VALUE_TYPE, BLOCK_LENGTH&gt;  Iterator;
+
+  private:
+    // DATA
+    Iterator d_begin;  // iterator of first element in guarded range
+    Iterator d_end;    // iterator beyond last element in guarded range
+
+  private:
+    // NOT IMPLEMENTED
+    DequePrimitives_DequeElementGuard(
+                                     const DequePrimitives_DequeElementGuard&amp;);
+    DequePrimitives_DequeElementGuard&amp; operator=(
+                                     const DequePrimitives_DequeElementGuard&amp;);
+
+  public:
+    // CREATORS
+    DequePrimitives_DequeElementGuard(const Iterator&amp; begin,
+                                      const Iterator&amp; end);
+        // Create a deque exception guard object for the sequence of elements
+        // of the parameterized &#39;VALUE_TYPE&#39; delimited by the specified range
+        // &#39;[ begin, end )&#39;.  The behavior is undefined unless &#39;begin&#39; &lt;= &#39;end&#39;
+        // and unless each element in the range &#39;[ begin, end )&#39; has been
+        // initialized.
+
+    ~DequePrimitives_DequeElementGuard();
+        // Call the destructor on each of the elements of the parameterized
+        // &#39;VALUE_TYPE&#39; delimited by the range &#39;[ begin, end )&#39; and destroy
+        // this array exception guard.
+
+    // MANIPULATORS
+    Iterator&amp; moveBegin(std::ptrdiff_t offset = -1);
+        // Move the begin iterator by the specified &#39;offset&#39;, and return the
+        // new begin iterator.
+
+    Iterator&amp; moveEnd(std::ptrdiff_t offset = 1);
+        // Move the end pointer by the specified &#39;offset&#39;, and return the new
+        // end pointer.
+
+    void release();
+        // Set the range of elements guarded by this object to be empty.  Note
+        // that &#39;d_begin == d_end&#39; following this operation, but the specific
+        // value is unspecified.
+};
+
+                // ===============================================
+                // class DequePrimitives_ExternalDequeElementGuard
+                // ===============================================
+
+template &lt;class VALUE_TYPE, int BLOCK_LENGTH&gt;
+class DequePrimitives_ExternalDequeElementGuard {
+    // This &#39;class&#39; provides a specialized proctor object that, upon
+    // destruction and unless the &#39;release&#39; method has been called, destroys
+    // the elements in a segment of a &#39;bslstl_deque&#39; of parameterized type
+    // &#39;VALUE_TYPE&#39;.  The elements destroyed are delimited by the &quot;guarded&quot;
+    // range &#39;[ *d_begin, *d_end )&#39;.  Note that the range guarded by this
+    // &#39;class&#39; is dynamic and can be changed outside of this &#39;class&#39;.
+
+  public:
+    // PUBLIC TYPES
+    typedef DequeIterator&lt;VALUE_TYPE, BLOCK_LENGTH&gt;  Iterator;
+
+  private:
+    // DATA
+    Iterator *d_begin_p;  // pointer to iterator of first element in guarded
+                          // range
+
+    Iterator *d_end_p;    // pointer to iterator beyond last element in guarded
+                          // range
+
+  private:
+    // NOT IMPLEMENTED
+    DequePrimitives_ExternalDequeElementGuard(
+                             const DequePrimitives_ExternalDequeElementGuard&amp;);
+    DequePrimitives_ExternalDequeElementGuard&amp;
+            operator=(const DequePrimitives_ExternalDequeElementGuard&amp;);
+
+  public:
+    // CREATORS
+    DequePrimitives_ExternalDequeElementGuard(Iterator *begin,
+                                              Iterator *end);
+        // Create a deque exception guard object for the sequence of elements
+        // of the parameterized &#39;VALUE_TYPE&#39; delimited by the specified range
+        // &#39;[ *begin, *end )&#39;.  The behavior is undefined unless &#39;*begin&#39; &lt;=
+        // &#39;*end&#39; and unless each element in the range &#39;[ *begin, *end )&#39; has
+        // been initialized.
+
+    ~DequePrimitives_ExternalDequeElementGuard();
+        // Call the destructor on each of the elements of the parameterized
+        // &#39;VALUE_TYPE&#39; delimited by the range &#39;[ *d_begin_p, *d_end_p )&#39; and
+        // destroy this array exception guard.
+
+    // MANIPULATORS
+    void release();
+        // Set the range of elements guarded by this object to be empty.  Note
+        // that &#39;d_begin_p = d_end_p = 0&#39; following this operation.
+};
+
+                    // ====================================
+                    // class DequePrimitives_DequeMoveGuard
+                    // ====================================
+
+template &lt;class VALUE_TYPE, int BLOCK_LENGTH&gt;
+class DequePrimitives_DequeMoveGuard {
+    // This &#39;class&#39; provides a guard object that, upon destruction and unless
+    // the &#39;release&#39; method has been called, uses &#39;moveBack&#39; or &#39;moveFront&#39; to
+    // move the &quot;guarded&quot; range &#39;[ d_source_p .. d_source_p + d_size - 1 ]&#39;
+    // back to &#39;[ d_destination_p .. d_destination_p + d_size -1 ]&#39;.
+
+  public:
+    // PUBLIC TYPES
+    typedef DequeIterator&lt;VALUE_TYPE,
+                                 BLOCK_LENGTH&gt;         Iterator;
+
+    typedef bslalg::DequePrimitives&lt;VALUE_TYPE,
+                                   BLOCK_LENGTH&gt;       DequePrimitives;
+
+  private:
+    // DATA
+    Iterator         d_destination_p;  // destination of the move
+    Iterator         d_source_p;       // source of the move
+    std::size_t      d_size;           // size of the range being guarded
+    bool             d_front;          // whether to use &#39;moveFront&#39;
+
+  public:
+    // CREATORS
+    DequePrimitives_DequeMoveGuard(Iterator    dest,
+                                   Iterator    src,
+                                   std::size_t size,
+                                   bool        isFront);
+        // Create a guard object that will call &#39;moveBack&#39; or &#39;moveFront&#39;,
+        // depending on the specified &#39;isFront&#39;, on the specified &#39;size&#39;
+        // elements from &#39;src&#39; to &#39;dest&#39; upon destruction unless &#39;release&#39; has
+        // been called.
+
+    ~DequePrimitives_DequeMoveGuard();
+        // Call either &#39;moveBack&#39; or &#39;moveFront&#39; depending on &#39;d_front&#39; upon
+        // destruction unless &#39;release&#39; has been called before this.
+
+    // MANIPULATORS
+    void release();
+        // Set the size of the range guarded by this object to be zero.
+};
+
+// ===========================================================================
+//                      INLINE FUNCTION DEFINITIONS
+// ===========================================================================
+
+                        // ---------------------
+                        // class DequePrimitives
+                        // ---------------------
+
+// CLASS METHODS
+template &lt;class VALUE_TYPE, int BLOCK_LENGTH&gt;
+inline
+void DequePrimitives&lt;VALUE_TYPE, BLOCK_LENGTH&gt;
+                                       ::destruct(Iterator begin, Iterator end)
+{
+    enum {
+        IS_BITWISECOPYABLE  = bsl::is_trivially_copyable&lt;VALUE_TYPE&gt;::value,
+
+        VALUE = IS_BITWISECOPYABLE
+              ? BITWISE_COPYABLE_TRAITS
+              : NIL_TRAITS
+    };
+
+    return destruct(begin, end, (bslmf::MetaInt&lt;VALUE&gt;*) 0);
+}
+
+template &lt;class VALUE_TYPE, int BLOCK_LENGTH&gt;
+void DequePrimitives&lt;VALUE_TYPE, BLOCK_LENGTH&gt;
+                      ::destruct(Iterator                                 ,
+                                 Iterator                                 ,
+                                 bslmf::MetaInt&lt;BITWISE_COPYABLE_TRAITS&gt; *)
+{
+    // No-op.
+}
+
+template &lt;class VALUE_TYPE, int BLOCK_LENGTH&gt;
+void DequePrimitives&lt;VALUE_TYPE, BLOCK_LENGTH&gt;
+                                   ::destruct(
+                                             Iterator                    begin,
+                                             Iterator                    end,
+                                             bslmf::MetaInt&lt;NIL_TRAITS&gt; *)
+{
+    for (; !(begin == end); ++begin) {
+        ScalarDestructionPrimitives::destroy(begin.valuePtr());
+    }
+}
+
+template &lt;class VALUE_TYPE, int BLOCK_LENGTH&gt;
+template &lt;class ALLOCATOR&gt;
+inline
+typename
+DequePrimitives&lt;VALUE_TYPE, BLOCK_LENGTH&gt;::Iterator
+DequePrimitives&lt;VALUE_TYPE, BLOCK_LENGTH&gt;
+                                            ::erase(Iterator  *toBegin,
+                                                    Iterator  *toEnd,
+                                                    Iterator   fromBegin,
+                                                    Iterator   first,
+                                                    Iterator   last,
+                                                    Iterator   fromEnd,
+                                                    ALLOCATOR *allocator)
+{
+    enum {
+        IS_BITWISECOPYABLE  = bsl::is_trivially_copyable&lt;VALUE_TYPE&gt;::value,
+
+        VALUE = IS_BITWISECOPYABLE
+              ? BITWISE_COPYABLE_TRAITS
+              : NIL_TRAITS
+    };
+
+    return erase(toBegin, toEnd, fromBegin, first, last, fromEnd, allocator,
+                 (bslmf::MetaInt&lt;VALUE&gt;*) 0);
+}
+
+template &lt;class VALUE_TYPE, int BLOCK_LENGTH&gt;
+template &lt;class ALLOCATOR&gt;
+typename
+DequePrimitives&lt;VALUE_TYPE, BLOCK_LENGTH&gt;::Iterator
+DequePrimitives&lt;VALUE_TYPE, BLOCK_LENGTH&gt;
+                                  ::erase(
+                                         Iterator                   *toBegin,
+                                         Iterator                   *toEnd,
+                                         Iterator                    fromBegin,
+                                         Iterator                    first,
+                                         Iterator                    last,
+                                         Iterator                    fromEnd,
+                                         ALLOCATOR                  *,
+                                         bslmf::MetaInt&lt;NIL_TRAITS&gt; *)
+{
+    size_type frontSize = first - fromBegin;
+    size_type backSize  = fromEnd - last;
+    Iterator  ret;
+
+    if (frontSize &lt; backSize) {
+        ret = last;
+        for (; 0 &lt; frontSize; --frontSize) {
+            --last;
+            --first;
+            *last = *first;
+        }
+        *toBegin = last;
+        *toEnd   = fromEnd;
+    }
+    else {
+        ret = first;
+        for (; 0 &lt; backSize; --backSize, ++first, ++last) {
+            *first = *last;
+        }
+        *toBegin = fromBegin;
+        *toEnd   = first;
+    }
+    destruct(first, last);
+    return ret;
+}
+
+template &lt;class VALUE_TYPE, int BLOCK_LENGTH&gt;
+template &lt;class ALLOCATOR&gt;
+typename
+DequePrimitives&lt;VALUE_TYPE, BLOCK_LENGTH&gt;::Iterator
+DequePrimitives&lt;VALUE_TYPE, BLOCK_LENGTH&gt;
+                 ::erase(Iterator                                *toBegin,
+                         Iterator                                *toEnd,
+                         Iterator                                 fromBegin,
+                         Iterator                                 first,
+                         Iterator                                 last,
+                         Iterator                                 fromEnd,
+                         ALLOCATOR                               *,
+                         bslmf::MetaInt&lt;BITWISE_COPYABLE_TRAITS&gt; *)
+{
+    size_type frontSize = first - fromBegin;
+    size_type backSize  = fromEnd - last;
+    Iterator  ret;
+
+    if (frontSize &lt; backSize) {
+        ret = last;
+        moveBack(&amp;last, &amp;first, frontSize);
+        *toBegin = last;
+        *toEnd   = fromEnd;
+    }
+    else {
+        ret = first;
+        moveFront(&amp;first, &amp;last, backSize);
+        *toBegin = fromBegin;
+        *toEnd   = first;
+    }
+    // &#39;destruct&#39; is no-op for types with &#39;BITWISE_COPYABLE_TRAITS&#39;.
+    return ret;
+}
+
+template &lt;class VALUE_TYPE, int BLOCK_LENGTH&gt;
+template &lt;class ALLOCATOR&gt;
+inline
+void
+DequePrimitives&lt;VALUE_TYPE, BLOCK_LENGTH&gt;
+                         ::insertAndMoveToBack(Iterator          *toEnd,
+                                               Iterator           fromEnd,
+                                               Iterator           position,
+                                               size_type          numElements,
+                                               const VALUE_TYPE&amp;  value,
+                                               ALLOCATOR         *allocator)
+{
+    enum {
+        IS_BITWISECOPYABLE  = bsl::is_trivially_copyable&lt;VALUE_TYPE&gt;::value,
+        IS_BITWISEMOVEABLE  = bslmf::IsBitwiseMoveable&lt;VALUE_TYPE&gt;::value,
+
+        VALUE = IS_BITWISECOPYABLE
+              ? BITWISE_COPYABLE_TRAITS : IS_BITWISEMOVEABLE
+              ? BITWISE_MOVEABLE_TRAITS : NIL_TRAITS
+    };
+
+    insertAndMoveToBack(toEnd, fromEnd, position, numElements, value,
+                        allocator, (bslmf::MetaInt&lt;VALUE&gt;*)0);
+}
+
+template &lt;class VALUE_TYPE, int BLOCK_LENGTH&gt;
+template &lt;class ALLOCATOR&gt;
+void
+DequePrimitives&lt;VALUE_TYPE, BLOCK_LENGTH&gt;
+   ::insertAndMoveToBack(Iterator                                *toEnd,
+                         Iterator                                 fromEnd,
+                         Iterator                                 position,
+                         size_type                                numElements,
+                         const VALUE_TYPE&amp;                        value,
+                         ALLOCATOR                               *allocator,
+                         bslmf::MetaInt&lt;BITWISE_COPYABLE_TRAITS&gt; *)
+{
+    size_type backSize = fromEnd - position;
+    Iterator  end      = fromEnd;
+    Iterator  dest     = end + numElements;
+
+    ConstructorProxy&lt;VALUE_TYPE&gt;
+                                 tempValue(value, bslma::Default::allocator());
+
+    // No guard needed since all the operations won&#39;t throw due to
+    // bitwisecopyable trait
+    moveBack(&amp;dest, &amp;end, backSize);
+    uninitializedFillNFront(&amp;dest, dest, numElements, tempValue.object(),
+                            allocator);
+
+    *toEnd = fromEnd + numElements;
+}
+
+template &lt;class VALUE_TYPE, int BLOCK_LENGTH&gt;
+template &lt;class ALLOCATOR&gt;
+void
+DequePrimitives&lt;VALUE_TYPE, BLOCK_LENGTH&gt;
+   ::insertAndMoveToBack(Iterator                                *toEnd,
+                         Iterator                                 fromEnd,
+                         Iterator                                 position,
+                         size_type                                numElements,
+                         const VALUE_TYPE&amp;                        value,
+                         ALLOCATOR                               *allocator,
+                         bslmf::MetaInt&lt;BITWISE_MOVEABLE_TRAITS&gt; *)
+{
+    size_type backSize = fromEnd - position;
+    Iterator  end      = fromEnd;
+    Iterator  dest     = end + numElements;
+
+    // In case of aliasing, make a copy of the value.
+    ConstructorProxy&lt;VALUE_TYPE&gt;
+                                 tempValue(value, bslma::Default::allocator());
+
+    // Setup a reverse guard that will reverse the moveBack operation in case
+    // of an exception.
+    MGuard guard(end, dest, backSize, false);
+
+    moveBack(&amp;dest, &amp;end, backSize);
+
+    // Create a guard for &#39;uninitializedFillNBack&#39; because it can throw under
+    // &#39;bitwisemoveable&#39; trait.  Need to use this special guard because
+    // uninitializedFillNFront is not exception safe.
+    Iterator dest2(dest);
+    EGuard eguard(&amp;dest, &amp;dest2);
+
+    uninitializedFillNFront(&amp;dest, dest, numElements, tempValue.object(),
+                            allocator);
+    eguard.release();
+    guard.release();
+    *toEnd = fromEnd + numElements;
+}
+
+template &lt;class VALUE_TYPE, int BLOCK_LENGTH&gt;
+template &lt;class ALLOCATOR&gt;
+void
+DequePrimitives&lt;VALUE_TYPE, BLOCK_LENGTH&gt;
+                  ::insertAndMoveToBack(
+                                       Iterator                   *toEnd,
+                                       Iterator                    fromEnd,
+                                       Iterator                    position,
+                                       size_type                   numElements,
+                                       const VALUE_TYPE&amp;           value,
+                                       ALLOCATOR                  *allocator,
+                                       bslmf::MetaInt&lt;NIL_TRAITS&gt; *)
+{
+    size_type backSize = fromEnd - position;
+    Iterator  end      = fromEnd;
+    Iterator  dest     = end + numElements;
+    size_type numDest;
+
+    // In case of aliasing, make a copy of the value.
+    ConstructorProxy&lt;VALUE_TYPE&gt; tempValue(value, bslma::Default::allocator());
+
+    Guard guard(dest, dest);
+    if (backSize &gt;= numElements) {
+        for (numDest = numElements; 0 &lt; numDest; --numDest) {
+            --dest;
+            --end;
+            ScalarPrimitives::copyConstruct(dest.valuePtr(),
+                                            *end,
+                                            allocator);
+            guard.moveBegin(-1);
+        }
+        for (backSize -= numElements; 0 &lt; backSize; --backSize) {
+            --dest;
+            --end;
+            *dest = *end;
+        }
+        for (numDest = numElements; 0 &lt; numDest; --numDest, ++position) {
+            *position = tempValue.object();
+        }
+    } else {
+        for (numDest = backSize; 0 &lt; numDest; --numDest) {
+            --dest;
+            --end;
+            ScalarPrimitives::copyConstruct(dest.valuePtr(),
+                                            *end,
+                                            allocator);
+            guard.moveBegin(-1);
+        }
+        for (numDest = numElements; backSize &lt; numDest; --numDest) {
+            --dest;
+            ScalarPrimitives::copyConstruct(dest.valuePtr(),
+                                            tempValue.object(),
+                                            allocator);
+            guard.moveBegin(-1);
+        }
+        for (; 0 &lt; numDest; --numDest, ++position) {
+            *position = tempValue.object();
+        }
+    }
+    guard.release();
+
+    *toEnd = fromEnd + numElements;
+}
+
+template &lt;class VALUE_TYPE, int BLOCK_LENGTH&gt;
+template &lt;class FWD_ITER, class ALLOCATOR&gt;
+void
+DequePrimitives&lt;VALUE_TYPE, BLOCK_LENGTH&gt;
+                                  ::insertAndMoveToBack(Iterator  *toEnd,
+                                                        Iterator   fromEnd,
+                                                        Iterator   position,
+                                                        FWD_ITER   first,
+                                                        FWD_ITER   /*last*/,
+                                                        size_type  numElements,
+                                                        ALLOCATOR *allocator)
+{
+    size_type backSize = fromEnd - position;
+    Iterator  end      = fromEnd;
+    Iterator  dest     = end + numElements;
+    size_type numDest;
+
+    Guard guard(dest, dest);
+    if (backSize &gt;= numElements) {
+        for (numDest = numElements; 0 &lt; numDest; --numDest) {
+            --dest;
+            --end;
+            ScalarPrimitives::copyConstruct(dest.valuePtr(),
+                                            *end,
+                                            allocator);
+            guard.moveBegin(-1);
+        }
+        for (numDest = backSize; numElements &lt; numDest; --numDest) {
+            --dest;
+            --end;
+            *dest = *end;
+        }
+        for (; 0 &lt; numDest; ++first, ++position, --numDest) {
+            *position = *first;
+        }
+    } else {
+        for (numDest = backSize; 0 &lt; numDest; --numDest) {
+            --dest;
+            --end;
+            ScalarPrimitives::copyConstruct(dest.valuePtr(),
+                                            *end,
+                                            allocator);
+            guard.moveBegin(-1);
+        }
+        for (numDest = backSize; 0 &lt; numDest; --numDest, ++position, ++first) {
+            *position = *first;
+        }
+        // Second guard needed because we&#39;re guarding from a different range.
+        Guard guard2(position, position);
+        for (numDest = numElements; backSize &lt; numDest; ++first, ++position,
+                                                                   --numDest) {
+            ScalarPrimitives::copyConstruct(position.valuePtr(),
+                                            *first,
+                                            allocator);
+            guard2.moveEnd(1);
+        }
+        guard2.release();
+    }
+    guard.release();
+    *toEnd = fromEnd + numElements;
+}
+
+template &lt;class VALUE_TYPE, int BLOCK_LENGTH&gt;
+template &lt;class ALLOCATOR&gt;
+inline
+void
+DequePrimitives&lt;VALUE_TYPE, BLOCK_LENGTH&gt;
+             ::insertAndMoveToFront(Iterator          *toBegin,
+                                    Iterator           fromBegin,
+                                    Iterator           position,
+                                    size_type          numElements,
+                                    const VALUE_TYPE&amp;  value,
+                                    ALLOCATOR         *allocator)
+{
+    enum {
+        IS_BITWISECOPYABLE  = bsl::is_trivially_copyable&lt;VALUE_TYPE&gt;::value,
+        IS_BITWISEMOVEABLE  = bslmf::IsBitwiseMoveable&lt;VALUE_TYPE&gt;::value,
+
+        VALUE = IS_BITWISECOPYABLE
+              ? BITWISE_COPYABLE_TRAITS : IS_BITWISEMOVEABLE
+              ? BITWISE_MOVEABLE_TRAITS : NIL_TRAITS
+    };
+
+    insertAndMoveToFront(toBegin, fromBegin, position, numElements, value,
+                         allocator, (bslmf::MetaInt&lt;VALUE&gt;*)0);
+}
+
+template &lt;class VALUE_TYPE, int BLOCK_LENGTH&gt;
+template &lt;class ALLOCATOR&gt;
+void
+DequePrimitives&lt;VALUE_TYPE, BLOCK_LENGTH&gt;
+  ::insertAndMoveToFront(Iterator                                *toBegin,
+                         Iterator                                 fromBegin,
+                         Iterator                                 position,
+                         size_type                                numElements,
+                         const VALUE_TYPE&amp;                        value,
+                         ALLOCATOR                               *allocator,
+                         bslmf::MetaInt&lt;BITWISE_COPYABLE_TRAITS&gt; *)
+{
+    size_type frontSize = position - fromBegin;
+    Iterator  begin     = fromBegin;
+    Iterator  dest      = begin - numElements;
+
+    // In case of aliasing, make a copy of the value.
+    ConstructorProxy&lt;VALUE_TYPE&gt;
+                                 tempValue(value, bslma::Default::allocator());
+
+    // No guard needed since all the operations won&#39;t throw due to
+    // bitwisecopyable trait
+    moveFront(&amp;dest, &amp;begin, frontSize);
+    uninitializedFillNBack(&amp;dest, dest, numElements, tempValue.object(),
+                           allocator);
+
+    *toBegin = fromBegin - numElements;
+}
+
+template &lt;class VALUE_TYPE, int BLOCK_LENGTH&gt;
+template &lt;class ALLOCATOR&gt;
+void
+DequePrimitives&lt;VALUE_TYPE, BLOCK_LENGTH&gt;
+    ::insertAndMoveToFront(
+                          Iterator                                *toBegin,
+                          Iterator                                 fromBegin,
+                          Iterator                                 position,
+                          size_type                                numElements,
+                          const VALUE_TYPE&amp;                        value,
+                          ALLOCATOR                               *allocator,
+                          bslmf::MetaInt&lt;BITWISE_MOVEABLE_TRAITS&gt; *)
+{
+    size_type frontSize = position - fromBegin;
+    Iterator  begin     = fromBegin;
+    Iterator  dest      = begin - numElements;;
+
+    // In case of aliasing, make a copy of the value.
+    ConstructorProxy&lt;VALUE_TYPE&gt;
+                                 tempValue(value, bslma::Default::allocator());
+
+    // Create a reverse guard that will reverse the moveFront operation in case
+    // of an exception.
+    MGuard guard(begin, dest, frontSize, true);
+
+    moveFront(&amp;dest, &amp;begin, frontSize);
+
+    // Create a guard for &#39;uninitializedFillNBack&#39; because it can throw under
+    // &#39;bitwisemoveable&#39; trait.  Need to use this special guard because
+    // uninitializedFillNBack is not exception safe.
+    Iterator dest2(dest);
+    EGuard eguard(&amp;dest2, &amp;dest);
+
+    uninitializedFillNBack(&amp;dest, dest, numElements, tempValue.object(),
+                           allocator);
+
+    eguard.release();
+    guard.release();
+    *toBegin = fromBegin - numElements;
+}
+
+template &lt;class VALUE_TYPE, int BLOCK_LENGTH&gt;
+template &lt;class ALLOCATOR&gt;
+void
+DequePrimitives&lt;VALUE_TYPE, BLOCK_LENGTH&gt;
+                 ::insertAndMoveToFront(
+                                       Iterator                   *toBegin,
+                                       Iterator                    fromBegin,
+                                       Iterator                    position,
+                                       size_type                   numElements,
+                                       const VALUE_TYPE&amp;           value,
+                                       ALLOCATOR                  *allocator,
+                                       bslmf::MetaInt&lt;NIL_TRAITS&gt; *)
+{
+    size_type frontSize = position - fromBegin;
+    Iterator  begin     = fromBegin;
+    Iterator  dest      = begin - numElements;;
+    size_type numDest;
+
+    // In case of aliasing, make a copy of the value.
+    ConstructorProxy&lt;VALUE_TYPE&gt;
+                                 tempValue(value, bslma::Default::allocator());
+
+    Guard guard(dest, dest);
+    if (frontSize &gt;= numElements) {
+        for (numDest = numElements; 0 &lt; numDest; --numDest, ++dest, ++begin) {
+            ScalarPrimitives::copyConstruct(dest.valuePtr(),
+                                            *begin,
+                                            allocator);
+            guard.moveEnd(1);
+        }
+        for (frontSize -= numElements; 0 &lt; frontSize;
+                                                --frontSize, ++dest, ++begin) {
+            *dest = *begin;
+        }
+        for (numDest = numElements; 0 &lt; numDest; --numDest, ++dest) {
+            *dest = tempValue.object();
+        }
+    } else {
+        for (numDest = frontSize; 0 &lt; numDest; --numDest, ++dest, ++begin) {
+            ScalarPrimitives::copyConstruct(dest.valuePtr(),
+                                            *begin,
+                                            allocator);
+            guard.moveEnd(1);
+        }
+        for (numDest = numElements; frontSize &lt; numDest; --numDest, ++dest) {
+            ScalarPrimitives::copyConstruct(dest.valuePtr(),
+                                            tempValue.object(),
+                                            allocator);
+            guard.moveEnd(1);
+        }
+        for (; 0 &lt; numDest; --numDest, ++dest) {
+            *dest = tempValue.object();
+        }
+    }
+    guard.release();
+    *toBegin = fromBegin - numElements;
+}
+
+template &lt;class VALUE_TYPE, int BLOCK_LENGTH&gt;
+template &lt;class FWD_ITER, class ALLOCATOR&gt;
+void
+DequePrimitives&lt;VALUE_TYPE, BLOCK_LENGTH&gt;
+                           ::insertAndMoveToFront(Iterator  *toBegin,
+                                                  Iterator   fromBegin,
+                                                  Iterator   position,
+                                                  FWD_ITER   first,
+                                                  FWD_ITER   /*last*/,
+                                                  size_type  numElements,
+                                                  ALLOCATOR *allocator)
+{
+    size_type frontSize = position - fromBegin;
+    Iterator  begin     = fromBegin;
+    Iterator  dest      = begin - numElements;;
+    size_type numDest;
+
+    Guard guard(dest, dest);
+    if (frontSize &gt;= numElements) {
+        for (numDest = numElements; 0 &lt; numDest; --numDest, ++dest, ++begin) {
+            ScalarPrimitives::copyConstruct(dest.valuePtr(),
+                                            *begin,
+                                            allocator);
+            guard.moveEnd(1);
+        }
+        for (frontSize -= numElements; 0 &lt; frontSize;
+                                                --frontSize, ++dest, ++begin) {
+            *dest = *begin;
+        }
+        for (numDest = numElements; 0 &lt; numDest; --numDest, ++dest, ++first) {
+            *dest = *first;
+        }
+    } else {
+        for (numDest = frontSize; 0 &lt; numDest; --numDest, ++dest, ++begin) {
+            ScalarPrimitives::copyConstruct(dest.valuePtr(),
+                                            *begin,
+                                            allocator);
+            guard.moveEnd(1);
+        }
+        for (numDest = numElements; frontSize &lt; numDest;
+                                                  --numDest, ++dest, ++first) {
+            ScalarPrimitives::copyConstruct(dest.valuePtr(),
+                                            *first,
+                                            allocator);
+            guard.moveEnd(1);
+        }
+        for (; 0 &lt; numDest; --numDest, ++dest, ++first) {
+            *dest = *first;
+        }
+    }
+    guard.release();
+    *toBegin = fromBegin - numElements;
+}
+
+template &lt;class VALUE_TYPE, int BLOCK_LENGTH&gt;
+void DequePrimitives&lt;VALUE_TYPE, BLOCK_LENGTH&gt;
+                                       ::moveBack(Iterator  *destination,
+                                                  Iterator  *source,
+                                                  size_type  numElements)
+{
+    if (destination-&gt;offsetInBlock() &gt; numElements
+        &amp;&amp; source-&gt;offsetInBlock() &gt; numElements) {
+            // There is enough room to move everything at once.
+
+        *destination -= numElements;
+        *source      -= numElements;
+        std::memmove(destination-&gt;valuePtr(),
+                     source-&gt;valuePtr(),
+                     numElements * sizeof(VALUE_TYPE));
+
+        return;                                                       // RETURN
+    }
+
+    // Moving the blocks involving segments of 3 different lengths, as
+    // illustrated below.  We need to distinguish whether destination or the
+    // source have more space remaining, and adjust the algorithm accordingly.
+    //..
+    //  [--- n ---]         - segment &#39;n&#39;
+    //  [--- n&#39;---]         - segment with equal length as &#39;n&#39;.
+    //  [--- n ---I-- m --] - two segments, with length &#39;n&#39; and &#39;m&#39;.
+    //   - - - - - - - -
+    //  | | | | | | | | |  - a block in the deque pointed by a &#39;blockPtr&#39;
+    //   - - - - - - - -
+    //..
+    //
+    // Scenario 1: Source has less element than destination has space
+    // ==============================================================
+    // Under this scenario, we have to move all elements from the source block
+    // to the destination block first (segment 1), then fill the destination
+    // block with the remaining elements (segment 2).  After, we alternate
+    // between segments 3 and 2.
+    //..
+    //  [--- 3 ---I- 2&#39;-]   [- 1 -]             [- 2 -I- 1&#39;-]
+    //   - - - - - - - -     - - - - - - - -     - - - - - - - -
+    //  |d|e|f|g|h|i|j|k|   |a|b|c|/| | | | |   | | | | | | | | |
+    //   - - - - - - - -     - - - - - - - -     - - - - - - - -
+    //                             ^                         ^
+    //                  source ____|        destination _____|
+    //..
+    //
+    // Scenario 2: Source has more elements than destination has space
+    // ================================================================
+    // Under this scenario, we can only move some elements (the number of
+    // elements that can fit in the destination block) from the source block to
+    // the destination block first (segment 1), then move the remaining
+    // elements (segment 2) from the source block.  After, we alternate between
+    // segments 3 and 2.
+    //..
+    //                      [---- 3 ----]
+    //      [---- 3&#39; ---]   [-2-I- 1 -] [2&#39; ]   [- 1 -]
+    //   - - - - - - - -     - - - - - - - -     - - - - - - - -
+    //  |d|e|f|g|h|i|j|k|   |a|b|c|d|e|/| | |   | | | | | | | | |
+    //   - - - - - - - -     - - - - - - - -     - - - - - - - -
+    //                                 ^               ^
+    //                     source _____|  destination _|
+    //
+    //  1) Copy segment 1
+    //  2) Copy segment 2
+    //  3) Copy segment 3
+    //  4) Repeat 2, 3 until there&#39;s less than 1 &#39;BLOCK_LENGTH&#39; left
+    //  5) Copy the remaining items over
+    //..
+
+    size_type firstSegment, secondSegment;
+    if (source-&gt;offsetInBlock() &gt; destination-&gt;offsetInBlock()) {
+        firstSegment  = destination-&gt;offsetInBlock();
+        secondSegment = source-&gt;offsetInBlock() - firstSegment;
+    }
+    else {
+        firstSegment  = source-&gt;offsetInBlock();
+        secondSegment = destination-&gt;offsetInBlock() - firstSegment;
+    }
+
+    size_type thirdSegment = BLOCK_LENGTH - secondSegment;
+
+    *destination -= firstSegment;
+    *source      -= firstSegment;
+    numElements  -= firstSegment;
+
+    std::memmove(destination-&gt;valuePtr(),
+                 source-&gt;valuePtr(),
+                 firstSegment * sizeof(VALUE_TYPE));
+
+    for (; numElements &gt;= BLOCK_LENGTH; numElements -= BLOCK_LENGTH) {
+
+        *destination -= secondSegment;
+        *source      -= secondSegment;
+
+        std::memmove(destination-&gt;valuePtr(),
+                     source-&gt;valuePtr(),
+                     secondSegment * sizeof(VALUE_TYPE));
+
+        *destination -= thirdSegment;
+        *source      -= thirdSegment;
+
+        std::memmove(destination-&gt;valuePtr(),
+                     source-&gt;valuePtr(),
+                     thirdSegment * sizeof(VALUE_TYPE));
+    }
+
+    size_type remaining = numElements &gt; secondSegment
+                        ? secondSegment
+                        : numElements;
+
+    *destination -= remaining;
+    *source      -= remaining;
+    numElements  -= remaining;
+
+    std::memmove(destination-&gt;valuePtr(),
+                 source-&gt;valuePtr(),
+                 remaining * sizeof(VALUE_TYPE));
+
+    *destination -= numElements;
+    *source      -= numElements;
+
+    std::memmove(destination-&gt;valuePtr(),
+                 source-&gt;valuePtr(),
+                 numElements * sizeof(VALUE_TYPE));
+}
+
+template &lt;class VALUE_TYPE, int BLOCK_LENGTH&gt;
+void DequePrimitives&lt;VALUE_TYPE, BLOCK_LENGTH&gt;
+                                      ::moveFront(Iterator  *destination,
+                                                  Iterator  *source,
+                                                  size_type  numElements)
+{
+    if (destination-&gt;remainingInBlock() &gt; numElements
+        &amp;&amp; source-&gt;remainingInBlock() &gt; numElements) {
+            // There is enough room to move everything at once
+
+        std::memmove(destination-&gt;valuePtr(),
+                     source-&gt;valuePtr(),
+                     numElements * sizeof(VALUE_TYPE));
+        *destination += numElements;
+        *source      += numElements;
+
+        return;                                                       // RETURN
+    }
+
+    // Moving the blocks involving segments of 3 different lengths, as
+    // illustrated below.  We need to distinguish whether destination or the
+    // source have more space remaining, and adjust the algorithm accordingly.
+    //..
+    //  [--- n ---]         - segment &#39;n&#39;
+    //  [--- n&#39;---]         - segment with equal length as &#39;n&#39;
+    //  [--- n ---I-- m --] - two segments, with length &#39;n&#39; and &#39;m&#39;.
+    //   - - - - - - - -
+    //  | | | | | | | | |   - a block in the deque pointed by a &#39;blockPtr&#39;
+    //   - - - - - - - -
+    //..
+    //
+    // Scenario 1: Source has more elements than destination has space
+    // ===============================================================
+    // Under this scenario, we can only move some elements (the number of
+    // elements that can fit in the destination block) from the source block to
+    // the destination block first (segment 1), then move the remaining
+    // elements (segment 2) from the source block.  After, we alternate between
+    // segments 3 and 2.
+    //..
+    //                          [---- 3 ----]
+    //            [- 1 -]   [ 2&#39;] [- 1&#39;-I-2-]   [---- 3&#39;----]
+    //   - - - - - - - -     - - - - - - - -     - - - - - - - -
+    //  | | | | | | | | |   | | | |a|a|b|c|d|   |e|f|g|h|i|j|k|l|
+    //   - - - - - - - -     - - - - - - - -     - - - - - - - -
+    //             ^               ^
+    //             |_ destination  |____ source
+    //..
+    //
+    // Scenario 2: Source has less elements than destination has space
+    // ===============================================================
+    // Under this scenario, we have to move all elements from the source block
+    // to the destination block first (segment 1), then fill the destination
+    // block with the remaining elements (segment 2).  After, we alternate
+    // between segments 3 and 2.
+    //..
+    //      [- 1&#39;-I- 2 -]   [--- 3&#39;---I- 1 -]   [- 2&#39;-I--- 3 ---]
+    //   - - - - - - - -     - - - - - - - -     - - - - - - - -
+    //  | | | | | | | | |   | | | | | |a|b|c|   |d|e|f|g|h|i|j|k|
+    //   - - - - - - - -     - - - - - - - -     - - - - - - - -
+    //       ^                         ^
+    //       |_ destination            |____ source
+    //
+    //  1) Copy segment 1
+    //  2) Copy segment 2
+    //  3) Copy segment 3
+    //  4) Repeat 2, 3 until there&#39;s less than 1 &#39;BLOCK_LENGTH&#39; left
+    //  5) Copy the remaining items over
+    //..
+
+    size_type firstSegment, secondSegment;
+    if (source-&gt;remainingInBlock() &gt; destination-&gt;remainingInBlock()) {
+        firstSegment  = destination-&gt;remainingInBlock();
+        secondSegment = source-&gt;remainingInBlock() - firstSegment;
+    }
+    else {
+        firstSegment  = source-&gt;remainingInBlock();
+        secondSegment = destination-&gt;remainingInBlock() - firstSegment;
+    }
+
+    size_type thirdSegment = BLOCK_LENGTH - secondSegment;
+
+    std::memmove(destination-&gt;valuePtr(),
+                 source-&gt;valuePtr(),
+                 firstSegment * sizeof(VALUE_TYPE));
+
+    *destination += firstSegment;
+    *source      += firstSegment;
+    numElements  -= firstSegment;
+
+    for (; numElements &gt;= BLOCK_LENGTH; numElements -= BLOCK_LENGTH) {
+
+        std::memmove(destination-&gt;valuePtr(),
+                     source-&gt;valuePtr(),
+                     secondSegment * sizeof(VALUE_TYPE));
+
+        *destination += secondSegment;
+        *source      += secondSegment;
+
+        std::memmove(destination-&gt;valuePtr(),
+                     source-&gt;valuePtr(),
+                     thirdSegment * sizeof(VALUE_TYPE));
+
+        *destination += thirdSegment;
+        *source      += thirdSegment;
+    }
+
+    size_type remaining = numElements &gt; secondSegment
+                        ? secondSegment
+                        : numElements;
+
+    std::memmove(destination-&gt;valuePtr(),
+                 source-&gt;valuePtr(),
+                 remaining * sizeof(VALUE_TYPE));
+
+    *destination += remaining;
+    *source      += remaining;
+    numElements  -= remaining;
+
+    std::memmove(destination-&gt;valuePtr(),
+                 source-&gt;valuePtr(),
+                 numElements * sizeof(VALUE_TYPE));
+
+    *destination += numElements;
+    *source      += numElements;
+}
+
+template &lt;class VALUE_TYPE, int BLOCK_LENGTH&gt;
+template &lt;class ALLOCATOR&gt;
+void
+DequePrimitives&lt;VALUE_TYPE, BLOCK_LENGTH&gt;
+           ::uninitializedFillNBack(Iterator          *toEnd,
+                                    Iterator           fromEnd,
+                                    size_type          numElements,
+                                    const VALUE_TYPE&amp;  value,
+                                    ALLOCATOR         *allocator)
+{
+    if (fromEnd.remainingInBlock() &gt; numElements) {
+        ArrayPrimitives::uninitializedFillN(fromEnd.valuePtr(),
+                                            numElements,
+                                            value,
+                                            allocator);
+        fromEnd += numElements;
+        *toEnd   = fromEnd;
+        return;                                                       // RETURN
+    }
+
+    size_type firstRemaining = fromEnd.remainingInBlock();
+
+    ArrayPrimitives::uninitializedFillN(fromEnd.valuePtr(),
+                                        firstRemaining,
+                                        value,
+                                        allocator);
+
+    numElements -= firstRemaining;
+    fromEnd     += firstRemaining;
+    *toEnd       = fromEnd;
+
+    for ( ; numElements &gt;= BLOCK_LENGTH; numElements -= BLOCK_LENGTH) {
+        ArrayPrimitives::uninitializedFillN(fromEnd.valuePtr(),
+                                            BLOCK_LENGTH,
+                                            value,
+                                            allocator);
+        fromEnd.nextBlock();
+        toEnd-&gt;nextBlock();
+    }
+
+    ArrayPrimitives::uninitializedFillN(fromEnd.valuePtr(),
+                                        numElements,
+                                        value,
+                                        allocator);
+
+    fromEnd += numElements;
+    *toEnd   = fromEnd;
+}
+
+template &lt;class VALUE_TYPE, int BLOCK_LENGTH&gt;
+template &lt;class ALLOCATOR&gt;
+void
+DequePrimitives&lt;VALUE_TYPE, BLOCK_LENGTH&gt;
+          ::uninitializedFillNFront(Iterator          *toBegin,
+                                    Iterator           fromBegin,
+                                    size_type          numElements,
+                                    const VALUE_TYPE&amp;  value,
+                                    ALLOCATOR         *allocator)
+{
+    if (fromBegin.offsetInBlock() &gt; numElements) {
+        fromBegin -= numElements;
+
+        ArrayPrimitives::uninitializedFillN(fromBegin.valuePtr(),
+                                            numElements,
+                                            value,
+                                            allocator);
+        *toBegin = fromBegin;
+        return;                                                       // RETURN
+    }
+
+    size_type firstRemaining = fromBegin.offsetInBlock();
+
+    fromBegin   -= firstRemaining;
+    numElements -= firstRemaining;
+
+    ArrayPrimitives::uninitializedFillN(fromBegin.valuePtr(),
+                                        firstRemaining,
+                                        value,
+                                        allocator);
+
+    *toBegin = fromBegin;  // in case of exception
+
+    for ( ; numElements &gt;= BLOCK_LENGTH; numElements -= BLOCK_LENGTH) {
+        fromBegin.previousBlock();
+        ArrayPrimitives::uninitializedFillN(fromBegin.valuePtr(),
+                                            BLOCK_LENGTH,
+                                            value,
+                                            allocator);
+        *toBegin = fromBegin;
+    }
+
+    fromBegin -= numElements;
+    ArrayPrimitives::uninitializedFillN(fromBegin.valuePtr(),
+                                        numElements,
+                                        value,
+                                        allocator);
+
+    *toBegin = fromBegin;
+}
+
+                 // ------------------------------------
+                 // class DequePrimitives&lt;VALUE_TYPE, 1&gt;
+                 // ------------------------------------
+
+// CLASS METHODS
+template &lt;class VALUE_TYPE&gt;
+template &lt;class ALLOCATOR&gt;
+typename DequePrimitives&lt;VALUE_TYPE, 1&gt;::Iterator
+DequePrimitives&lt;VALUE_TYPE, 1&gt;::erase(Iterator  *toBegin,
+                                      Iterator  *toEnd,
+                                      Iterator   fromBegin,
+                                      Iterator   first,
+                                      Iterator   last,
+                                      Iterator   fromEnd,
+                                      ALLOCATOR * /*allocator*/)
+{
+    size_type frontSize = first - fromBegin;
+    size_type backSize  = fromEnd - last;
+    Iterator  ret;
+
+    if (frontSize &lt; backSize) {
+        ret = last;
+        for (; 0 &lt; frontSize; --frontSize) {
+            --last;
+            --first;
+            *last = *first;
+        }
+        *toBegin = last;
+        *toEnd   = fromEnd;
+    }
+    else {
+        ret = first;
+        for (; 0 &lt; backSize; --backSize, ++first, ++last) {
+            *first = *last;
+        }
+        *toBegin = fromBegin;
+        *toEnd   = first;
+    }
+    destruct(first, last);
+    return ret;
+}
+
+template &lt;class VALUE_TYPE&gt;
+void DequePrimitives&lt;VALUE_TYPE, 1&gt;::destruct(Iterator begin,
+                                              Iterator end)
+{
+    for (; !(begin == end); ++begin) {
+        ScalarDestructionPrimitives::destroy(begin.valuePtr());
+    }
+}
+
+template &lt;class VALUE_TYPE&gt;
+template &lt;class ALLOCATOR&gt;
+void
+DequePrimitives&lt;VALUE_TYPE, 1&gt;
+                        ::insertAndMoveToFront(Iterator          *toBegin,
+                                               Iterator           fromBegin,
+                                               Iterator           position,
+                                               size_type          numElements,
+                                               const VALUE_TYPE&amp;  value,
+                                               ALLOCATOR         *allocator)
+{
+    size_type frontSize = position - fromBegin;
+    Iterator  begin     = fromBegin;
+    Iterator  dest      = begin - numElements;;
+    size_type numDest;
+
+    ConstructorProxy&lt;VALUE_TYPE&gt;
+                                 tempValue(value, bslma::Default::allocator());
+
+    Guard guard(dest, dest);
+    if (frontSize &gt;= numElements) {
+        for (numDest = numElements; 0 &lt; numDest; --numDest, ++dest, ++begin) {
+            ScalarPrimitives::copyConstruct(dest.valuePtr(),
+                                            *begin,
+                                            allocator);
+            guard.moveEnd(1);
+        }
+        for (frontSize -= numElements; 0 &lt; frontSize;
+                                                --frontSize, ++dest, ++begin) {
+            *dest = *begin;
+        }
+        for (numDest = numElements; 0 &lt; numDest; --numDest, ++dest) {
+            *dest = tempValue.object();
+        }
+    } else {
+        for (numDest = frontSize; 0 &lt; numDest; --numDest, ++dest, ++begin) {
+            ScalarPrimitives::copyConstruct(dest.valuePtr(),
+                                            *begin,
+                                            allocator);
+            guard.moveEnd(1);
+        }
+        for (numDest = numElements; frontSize &lt; numDest; --numDest, ++dest) {
+            ScalarPrimitives::copyConstruct(dest.valuePtr(),
+                                            tempValue.object(),
+                                            allocator);
+            guard.moveEnd(1);
+        }
+        for (; 0 &lt; numDest; --numDest, ++dest) {
+            *dest = tempValue.object();
+        }
+    }
+    guard.release();
+    *toBegin = fromBegin - numElements;
+}
+
+template &lt;class VALUE_TYPE&gt;
+template &lt;class FWD_ITER, class ALLOCATOR&gt;
+void
+DequePrimitives&lt;VALUE_TYPE, 1&gt;
+                           ::insertAndMoveToFront(Iterator  *toBegin,
+                                                  Iterator   fromBegin,
+                                                  Iterator   position,
+                                                  FWD_ITER   first,
+                                                  FWD_ITER   /*last*/,
+                                                  size_type  numElements,
+                                                  ALLOCATOR *allocator)
+{
+    size_type frontSize = position - fromBegin;
+    Iterator  begin     = fromBegin;
+    Iterator  dest      = begin - numElements;;
+    size_type numDest;
+
+    Guard guard(dest, dest);
+    if (frontSize &gt;= numElements) {
+        for (numDest = numElements; 0 &lt; numDest; --numDest, ++dest, ++begin) {
+            ScalarPrimitives::copyConstruct(dest.valuePtr(),
+                                            *begin,
+                                            allocator);
+            guard.moveEnd(1);
+        }
+        for (frontSize -= numElements; 0 &lt; frontSize;
+                                                --frontSize, ++dest, ++begin) {
+            *dest = *begin;
+        }
+        for (numDest = numElements; 0 &lt; numDest; --numDest, ++dest, ++first) {
+            *dest = *first;
+        }
+    } else {
+        for (numDest = frontSize; 0 &lt; numDest; --numDest, ++dest, ++begin) {
+            ScalarPrimitives::copyConstruct(dest.valuePtr(),
+                                            *begin,
+                                            allocator);
+            guard.moveEnd(1);
+        }
+        for (numDest = numElements; frontSize &lt; numDest;
+                                                  --numDest, ++dest, ++first) {
+            ScalarPrimitives::copyConstruct(dest.valuePtr(),
+                                            *first,
+                                            allocator);
+            guard.moveEnd(1);
+        }
+        for (; 0 &lt; numDest; --numDest, ++dest, ++first) {
+            *dest = *first;
+        }
+    }
+    guard.release();
+    *toBegin = fromBegin - numElements;
+}
+
+template &lt;class VALUE_TYPE&gt;
+template &lt;class ALLOCATOR&gt;
+void
+DequePrimitives&lt;VALUE_TYPE, 1&gt;::insertAndMoveToBack(
+                                                Iterator          *toEnd,
+                                                Iterator           fromEnd,
+                                                Iterator           position,
+                                                size_type          numElements,
+                                                const VALUE_TYPE&amp;  value,
+                                                ALLOCATOR         *allocator)
+{
+    size_type backSize = fromEnd - position;
+    Iterator  end      = fromEnd;
+    Iterator  dest     = end + numElements;
+    size_type numDest;
+
+    ConstructorProxy&lt;VALUE_TYPE&gt;
+                                 tempValue(value, bslma::Default::allocator());
+
+    Guard guard(dest, dest);
+    if (backSize &gt;= numElements) {
+        for (numDest = numElements; 0 &lt; numDest; --numDest) {
+            --dest;
+            --end;
+            ScalarPrimitives::copyConstruct(dest.valuePtr(),
+                                            *end,
+                                            allocator);
+            guard.moveBegin(-1);
+        }
+        for (backSize -= numElements; 0 &lt; backSize; --backSize) {
+            --dest;
+            --end;
+            *dest = *end;
+        }
+        for (numDest = numElements; 0 &lt; numDest; --numDest, ++position) {
+            *position = tempValue.object();
+        }
+    } else {
+        for (numDest = backSize; 0 &lt; numDest; --numDest) {
+            --dest;
+            --end;
+            ScalarPrimitives::copyConstruct(dest.valuePtr(),
+                                            *end,
+                                            allocator);
+            guard.moveBegin(-1);
+        }
+        for (numDest = numElements; backSize &lt; numDest; --numDest) {
+            --dest;
+            ScalarPrimitives::copyConstruct(dest.valuePtr(),
+                                            tempValue.object(),
+                                            allocator);
+            guard.moveBegin(-1);
+        }
+        for (; 0 &lt; numDest; --numDest, ++position) {
+            *position = tempValue.object();
+        }
+    }
+    guard.release();
+    *toEnd = fromEnd + numElements;
+}
+
+template &lt;class VALUE_TYPE&gt;
+template &lt;class FWD_ITER, class ALLOCATOR&gt;
+void
+DequePrimitives&lt;VALUE_TYPE, 1&gt;::insertAndMoveToBack(Iterator  *toEnd,
+                                                    Iterator   fromEnd,
+                                                    Iterator   position,
+                                                    FWD_ITER   first,
+                                                    FWD_ITER   /*last*/,
+                                                    size_type  numElements,
+                                                    ALLOCATOR *allocator)
+{
+    size_type backSize = fromEnd - position;
+    Iterator  end      = fromEnd;
+    Iterator  dest     = end + numElements;
+    size_type numDest;
+
+    Guard guard(dest, dest);
+    if (backSize &gt;= numElements) {
+        for (numDest = numElements; 0 &lt; numDest; --numDest) {
+            --dest;
+            --end;
+            ScalarPrimitives::copyConstruct(dest.valuePtr(),
+                                            *end,
+                                            allocator);
+            guard.moveBegin(-1);
+        }
+        for (numDest = backSize; numElements &lt; numDest; --numDest) {
+            --dest;
+            --end;
+            *dest = *end;
+        }
+        for (; 0 &lt; numDest; ++first, ++position, --numDest) {
+            *position = *first;
+        }
+    } else {
+        for (numDest = backSize; 0 &lt; numDest; --numDest) {
+            --dest;
+            --end;
+            ScalarPrimitives::copyConstruct(dest.valuePtr(),
+                                            *end,
+                                            allocator);
+            guard.moveBegin(-1);
+        }
+        for (numDest = backSize; 0 &lt; numDest; --numDest, ++position, ++first) {
+            *position = *first;
+        }
+        Guard guard2(position, position);
+        for (numDest = numElements; backSize &lt; numDest; ++first, ++position,
+                                                                   --numDest) {
+            ScalarPrimitives::copyConstruct(position.valuePtr(),
+                                            *first,
+                                            allocator);
+            guard2.moveEnd(1);
+        }
+        guard2.release();
+    }
+    guard.release();
+    *toEnd = fromEnd + numElements;
+}
+
+template &lt;class VALUE_TYPE&gt;
+template &lt;class ALLOCATOR&gt;
+inline
+void
+DequePrimitives&lt;VALUE_TYPE, 1&gt;::uninitializedFillNFront(
+                                                Iterator          *toBegin,
+                                                Iterator           fromBegin,
+                                                size_type          numElements,
+                                                const VALUE_TYPE&amp;  value,
+                                                ALLOCATOR         *allocator)
+{
+    enum {
+        IS_FUNCTION_POINTER = bslmf::IsFunctionPointer&lt;VALUE_TYPE&gt;::VALUE,
+        IS_FUNDAMENTAL      = bslmf::IsFundamental&lt;VALUE_TYPE&gt;::VALUE,
+        IS_POINTER          = bslmf::IsPointer&lt;VALUE_TYPE&gt;::VALUE,
+
+        IS_FUNDAMENTAL_OR_POINTER = IS_FUNDAMENTAL ||
+                                    (IS_POINTER &amp;&amp; !IS_FUNCTION_POINTER),
+
+        IS_BITWISECOPYABLE  = bsl::is_trivially_copyable&lt;VALUE_TYPE&gt;::value,
+
+        VALUE = IS_FUNDAMENTAL_OR_POINTER || IS_BITWISECOPYABLE ?
+                NON_NIL_TRAITS
+              : NIL_TRAITS
+    };
+
+    uninitializedFillNFront(toBegin, fromBegin, numElements, value, allocator,
+                            (bslmf::MetaInt&lt;VALUE&gt;*)0);
+}
+
+template &lt;class VALUE_TYPE&gt;
+template &lt;class ALLOCATOR&gt;
+void
+DequePrimitives&lt;VALUE_TYPE, 1&gt;::uninitializedFillNFront(
+                                       Iterator                   *toBegin,
+                                       Iterator                    fromBegin,
+                                       size_type                   numElements,
+                                       const VALUE_TYPE&amp;           value,
+                                       ALLOCATOR                  *allocator,
+                                       bslmf::MetaInt&lt;NIL_TRAITS&gt; *)
+{
+    Guard guard(fromBegin, fromBegin);
+    for (; 0 &lt; numElements; --numElements) {
+        --fromBegin;
+        ScalarPrimitives::copyConstruct(fromBegin.valuePtr(),
+                                        value,
+                                        allocator);
+        guard.moveBegin(-1);
+    }
+    guard.release();
+    *toBegin = fromBegin;
+}
+
+template &lt;class VALUE_TYPE&gt;
+template &lt;class ALLOCATOR&gt;
+void
+DequePrimitives&lt;VALUE_TYPE, 1&gt;::uninitializedFillNFront(
+                                   Iterator                       *toBegin,
+                                   Iterator                        fromBegin,
+                                   size_type                       numElements,
+                                   const VALUE_TYPE&amp;               value,
+                                   ALLOCATOR                      *allocator,
+                                   bslmf::MetaInt&lt;NON_NIL_TRAITS&gt; *)
+{
+    *toBegin = fromBegin;  // necessary in case &#39;numElements = 0&#39;
+    for ( ; 0 &lt; numElements; --numElements) {
+        --fromBegin;
+        ArrayPrimitives::uninitializedFillN(fromBegin.valuePtr(),
+                                            1,
+                                            value,
+                                            allocator);
+        *toBegin = fromBegin;  // in case of exception
+    }
+}
+
+template &lt;class VALUE_TYPE&gt;
+template &lt;class ALLOCATOR&gt;
+inline
+void
+DequePrimitives&lt;VALUE_TYPE, 1&gt;::uninitializedFillNBack(
+                                                Iterator          *toEnd,
+                                                Iterator           fromEnd,
+                                                size_type          numElements,
+                                                const VALUE_TYPE&amp;  value,
+                                                ALLOCATOR         *allocator)
+{
+    enum {
+        IS_FUNCTION_POINTER = bslmf::IsFunctionPointer&lt;VALUE_TYPE&gt;::VALUE,
+        IS_FUNDAMENTAL      = bslmf::IsFundamental&lt;VALUE_TYPE&gt;::VALUE,
+        IS_POINTER          = bslmf::IsPointer&lt;VALUE_TYPE&gt;::VALUE,
+
+        IS_FUNDAMENTAL_OR_POINTER = IS_FUNDAMENTAL ||
+                                    (IS_POINTER &amp;&amp; !IS_FUNCTION_POINTER),
+
+        IS_BITWISECOPYABLE  = bsl::is_trivially_copyable&lt;VALUE_TYPE&gt;::value,
+
+        VALUE = IS_FUNDAMENTAL_OR_POINTER || IS_BITWISECOPYABLE ?
+                NON_NIL_TRAITS
+              : NIL_TRAITS
+    };
+
+    uninitializedFillNBack(toEnd, fromEnd, numElements, value, allocator,
+                           (bslmf::MetaInt&lt;VALUE&gt;*)0);
+}
+
+template &lt;class VALUE_TYPE&gt;
+template &lt;class ALLOCATOR&gt;
+void
+DequePrimitives&lt;VALUE_TYPE, 1&gt;::uninitializedFillNBack(
+                                       Iterator                   *toEnd,
+                                       Iterator                    fromEnd,
+                                       size_type                   numElements,
+                                       const VALUE_TYPE&amp;           value,
+                                       ALLOCATOR                  *allocator,
+                                       bslmf::MetaInt&lt;NIL_TRAITS&gt; *)
+{
+    Guard guard(fromEnd, fromEnd);
+    for (; 0 &lt; numElements; --numElements) {
+        ScalarPrimitives::copyConstruct(fromEnd.valuePtr(),
+                                        value,
+                                        allocator);
+        ++fromEnd;
+        guard.moveEnd(1);
+    }
+    guard.release();
+    *toEnd = fromEnd;
+}
+
+template &lt;class VALUE_TYPE&gt;
+template &lt;class ALLOCATOR&gt;
+void
+DequePrimitives&lt;VALUE_TYPE, 1&gt;::uninitializedFillNBack(
+                                   Iterator                       *toEnd,
+                                   Iterator                        fromEnd,
+                                   size_type                       numElements,
+                                   const VALUE_TYPE&amp;               value,
+                                   ALLOCATOR                      *allocator,
+                                   bslmf::MetaInt&lt;NON_NIL_TRAITS&gt; *)
+{
+    *toEnd = fromEnd;  // necessary in case &#39;numElements = 0&#39;
+    for ( ; 0 &lt; numElements; --numElements) {
+        ArrayPrimitives::uninitializedFillN(fromEnd.valuePtr(),
+                                            1,
+                                            value,
+                                            allocator);
+        ++fromEnd;
+        *toEnd = fromEnd;
+    }
+}
+
+               // ---------------------------------------
+               // class DequePrimitives_DequeElementGuard
+               // ---------------------------------------
+
+// CREATORS
+template &lt;class VALUE_TYPE, int BLOCK_LENGTH&gt;
+inline
+DequePrimitives_DequeElementGuard&lt;VALUE_TYPE, BLOCK_LENGTH&gt;
+              ::DequePrimitives_DequeElementGuard(const Iterator&amp; begin,
+                                                  const Iterator&amp; end)
+: d_begin(begin),
+  d_end(end)
+{
+}
+
+template &lt;class VALUE_TYPE, int BLOCK_LENGTH&gt;
+inline
+DequePrimitives_DequeElementGuard&lt;VALUE_TYPE, BLOCK_LENGTH&gt;
+                                  ::~DequePrimitives_DequeElementGuard()
+{
+    DequePrimitives&lt;VALUE_TYPE, BLOCK_LENGTH&gt;::
+                                                      destruct(d_begin, d_end);
+}
+
+// MANIPULATORS
+template &lt;class VALUE_TYPE, int BLOCK_LENGTH&gt;
+inline
+typename DequePrimitives_DequeElementGuard
+&lt;VALUE_TYPE, BLOCK_LENGTH&gt;::Iterator&amp;
+DequePrimitives_DequeElementGuard&lt;VALUE_TYPE, BLOCK_LENGTH&gt;
+                                             ::moveBegin(std::ptrdiff_t offset)
+{
+    d_begin += offset;
+    return d_begin;
+}
+
+template &lt;class VALUE_TYPE, int BLOCK_LENGTH&gt;
+inline
+typename DequePrimitives_DequeElementGuard
+&lt;VALUE_TYPE, BLOCK_LENGTH&gt;::Iterator&amp;
+DequePrimitives_DequeElementGuard&lt;VALUE_TYPE, BLOCK_LENGTH&gt;
+                                               ::moveEnd(std::ptrdiff_t offset)
+{
+    d_end += offset;
+    return d_end;
+}
+
+template &lt;class VALUE_TYPE, int BLOCK_LENGTH&gt;
+inline
+void DequePrimitives_DequeElementGuard&lt;VALUE_TYPE, BLOCK_LENGTH&gt;::release()
+{
+    d_begin = d_end;
+}
+
+            // -----------------------------------------------
+            // class DequePrimitives_ExternalDequeElementGuard
+            // -----------------------------------------------
+
+// CREATORS
+template &lt;class VALUE_TYPE, int BLOCK_LENGTH&gt;
+inline
+DequePrimitives_ExternalDequeElementGuard&lt;VALUE_TYPE, BLOCK_LENGTH&gt;
+            ::DequePrimitives_ExternalDequeElementGuard(Iterator *begin,
+                                                        Iterator *end)
+: d_begin_p(begin),
+  d_end_p(end)
+{
+}
+
+template &lt;class VALUE_TYPE, int BLOCK_LENGTH&gt;
+inline
+DequePrimitives_ExternalDequeElementGuard&lt;VALUE_TYPE, BLOCK_LENGTH&gt;
+                          ::~DequePrimitives_ExternalDequeElementGuard()
+{
+    if (d_begin_p != d_end_p) {
+        DequePrimitives&lt;VALUE_TYPE, BLOCK_LENGTH&gt;::
+                                                destruct(*d_begin_p, *d_end_p);
+    }
+}
+
+// MANIPULATORS
+template &lt;class VALUE_TYPE, int BLOCK_LENGTH&gt;
+inline
+void
+DequePrimitives_ExternalDequeElementGuard&lt;VALUE_TYPE, BLOCK_LENGTH&gt;::release()
+{
+    d_begin_p = d_end_p = 0;
+}
+
+                // ------------------------------------
+                // class DequePrimitives_DequeMoveGuard
+                // ------------------------------------
+
+// CREATORS
+template &lt;class VALUE_TYPE, int BLOCK_LENGTH&gt;
+inline
+DequePrimitives_DequeMoveGuard&lt;VALUE_TYPE, BLOCK_LENGTH&gt;
+            ::DequePrimitives_DequeMoveGuard(Iterator    dest,
+                                             Iterator    src,
+                                             std::size_t size,
+                                             bool        isFront)
+: d_destination_p(dest)
+, d_source_p(src)
+, d_size(size)
+, d_front(isFront)
+{
+}
+
+template &lt;class VALUE_TYPE, int BLOCK_LENGTH&gt;
+inline
+DequePrimitives_DequeMoveGuard&lt;VALUE_TYPE, BLOCK_LENGTH&gt;
+                                     ::~DequePrimitives_DequeMoveGuard()
+{
+    if (d_size != 0) {
+        // We need to reverse &#39;moveFront&#39;.
+        if (d_front) {
+            d_destination_p += d_size;
+            d_source_p      += d_size;
+            DequePrimitives::moveBack(&amp;d_destination_p,
+                                      &amp;d_source_p,
+                                      d_size);
+        }
+        // We need to reverse &#39;moveBack&#39;.
+        else {
+            d_destination_p -= d_size;
+            d_source_p      -= d_size;
+            DequePrimitives::moveFront(&amp;d_destination_p,
+                                       &amp;d_source_p,
+                                       d_size);
+        }
+    }
+}
+
+// MANIPULATORS
+template &lt;class VALUE_TYPE, int BLOCK_LENGTH&gt;
+inline
+void DequePrimitives_DequeMoveGuard&lt;VALUE_TYPE, BLOCK_LENGTH&gt;::release()
+{
+    d_size = 0;
+}
+
+}  // close package namespace
+
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright (C) 2012 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the &quot;Software&quot;), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

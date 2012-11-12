@@ -1,0 +1,818 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 2.16 BETA</title>
+<html>
+<pre>
+// bslmf_memberfunctionpointertraits.h                                -*-C++-*-
+#ifndef INCLUDED_BSLMF_MEMBERFUNCTIONPOINTERTRAITS
+#define INCLUDED_BSLMF_MEMBERFUNCTIONPOINTERTRAITS
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide meta-functions to detect member function pointer traits.
+//
+//@CLASSES:
+//  bslmf::MemberFunctionPointerTraits: meta-function for detecting member
+//  function pointer traits
+//  bslmf::IsMemberFunctionPointer: meta-function to determine if a type is
+//  a member function pointer
+//
+//@SEE_ALSO: bslmf_functionpointertraits
+//
+//@DESCRIPTION: This component provides meta-functions for determining the
+// traits of a member function pointer.  Two meta-functions are provided:
+// &#39;bslmf::IsMemberFunctionPointer&#39;, and &#39;bslmf::MemberFunctionPointerTraits&#39;.
+// &#39;bslmf::IsMemberFunctionPointer&#39; tests if a given type is member function
+// pointer.  &#39;bslmf::MemberFunctionPointerTraits&#39; determines the traits of a
+// member function type, including the type of the object that it is a member
+// of, its result type, and the type of its list of arguments.
+//
+///Usage
+///-----
+// Define the following function types:
+//..
+//  typedef void (*VoidFunc0)();
+//..
+// and the following &#39;struct&#39; with the following members:
+//..
+//  struct MyTestClass {
+//      static void voidFunc0() {}
+//      int func1(int) { return 0; }
+//      int func2(int, int) { return 1; }
+//  };
+//..
+// In order to deduce the types of &#39;voidFunc0&#39; and &#39;func1&#39;, we will use the C++
+// template system to get two auxiliary functions:
+//..
+//  template &lt;class TYPE&gt;
+//  void checkNotMemberFunctionPointer(TYPE object)
+//  {
+//      assert(0 == bslmf::IsMemberFunctionPointer&lt;TYPE&gt;::value);
+//  }
+//
+//  template &lt;class BSLMF_RETURN, class ARGS, class TYPE&gt;
+//  void checkMemberFunctionPointer(TYPE object)
+//  {
+//      assert(1 == bslmf::IsMemberFunctionPointer&lt;TYPE&gt;::value);
+//      typedef typename bslmf::MemberFunctionPointerTraits&lt;TYPE&gt;::ResultType
+//          ResultType;
+//      typedef typename bslmf::MemberFunctionPointerTraits&lt;TYPE&gt;::ArgumentList
+//          ArgumentList;
+//      assert(1 == (bslmf::IsSame&lt;ResultType, BSLMF_RETURN&gt;::value));
+//      assert(1 == (bslmf::IsSame&lt;ArgumentList, ARGS&gt;::value));
+//  }
+//..
+// The following program should compile and run without errors:
+//..
+//  void usageExample()
+//  {
+//      assert(0 == bslmf::IsMemberFunctionPointer&lt;int&gt;::value);
+//      assert(0 == bslmf::IsMemberFunctionPointer&lt;int&gt;::value);
+//
+//      checkNotMemberFunctionPointer(&amp;MyTestClass::voidFunc0);
+//      checkMemberFunctionPointer&lt;int, bslmf::TypeList1&lt;int&gt; &gt;(
+//                                                        &amp;MyTestClass::func1);
+//      checkMemberFunctionPointer&lt;int, bslmf::TypeList2&lt;int, int&gt; &gt;(
+//                                                        &amp;MyTestClass::func2);
+//  }
+//..
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include &lt;bslscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
+#include &lt;bslmf_integralconstant.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_IF
+#include &lt;bslmf_if.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_TYPELIST
+#include &lt;bslmf_typelist.h&gt;
+#endif
+
+namespace BloombergLP {
+
+
+namespace bslmf {
+
+template &lt;class PROTOTYPE, class TEST_PROTOTYPE&gt;
+struct MemberFunctionPointerTraitsImp;
+
+                  // =================================
+                  // class MemberFunctionPointerTraits
+                  // =================================
+
+template &lt;class PROTOTYPE&gt;
+struct MemberFunctionPointerTraits
+    : public MemberFunctionPointerTraitsImp&lt;PROTOTYPE,PROTOTYPE&gt; {
+};
+
+                    // =============================
+                    // class IsMemberFunctionPointer
+                    // =============================
+
+template &lt;class PROTOTYPE&gt;
+struct IsMemberFunctionPointer
+    : bsl::integral_constant&lt;
+            bool,
+            MemberFunctionPointerTraits&lt;PROTOTYPE&gt;::IS_MEMBER_FUNCTION_PTR&gt; {
+    // This template determines if the specified &#39;PROTOTYPE&#39; is a member
+    // function pointer.  &#39;value&#39; is defined as 1 if the specified &#39;PROTOTYPE&#39;
+    // is a member function, and a zero value otherwise.
+};
+
+// ---- Anything below this line is implementation specific.  Do not use. ----
+
+             // --------------------------------------------
+             // class MemberFunctionPointerTraits_ClassType
+             // --------------------------------------------
+
+template &lt;class PROTOTYPE,
+          class BSLMF_RETURN,
+          class TYPE,
+          class ARG1  = int, class ARG2  = int, class ARG3  = int,
+          class ARG4  = int, class ARG5  = int, class ARG6  = int,
+          class ARG7  = int, class ARG8  = int, class ARG9  = int,
+          class ARG10 = int, class ARG11 = int, class ARG12 = int,
+          class ARG13 = int, class ARG14 = int&gt;
+class MemberFunctionPointerTraits_ClassType {
+    // This &#39;struct&#39; determines whether the specified &#39;PROTOTYPE&#39; is a const or
+    // non-const member function of the specified &#39;TYPE&#39;.
+
+    struct bslmf_True { char dummy[2]; };
+    struct bslmf_False { char dummy[1]; };
+
+    static bslmf_False test(BSLMF_RETURN(TYPE::*)());
+    static bslmf_False test(BSLMF_RETURN(TYPE::*)(ARG1));
+    static bslmf_False test(BSLMF_RETURN(TYPE::*)(ARG1,ARG2));
+    static bslmf_False test(BSLMF_RETURN(TYPE::*)(ARG1,ARG2,ARG3));
+    static bslmf_False test(BSLMF_RETURN(TYPE::*)(ARG1,ARG2,ARG3,ARG4));
+    static bslmf_False test(BSLMF_RETURN(TYPE::*)(ARG1,ARG2,ARG3,ARG4,ARG5));
+    static bslmf_False test(BSLMF_RETURN(TYPE::*)(ARG1,ARG2,ARG3,ARG4,ARG5,
+                                                  ARG6));
+    static bslmf_False test(BSLMF_RETURN(TYPE::*)(ARG1,ARG2,ARG3,ARG4,ARG5,
+                                                  ARG6,ARG7));
+    static bslmf_False test(BSLMF_RETURN(TYPE::*)(ARG1,ARG2,ARG3,ARG4,ARG5,
+                                                  ARG6,ARG7,ARG8));
+    static bslmf_False test(BSLMF_RETURN(TYPE::*)(ARG1,ARG2,ARG3,ARG4,ARG5,
+                                                  ARG6,ARG7,ARG8,ARG9));
+    static bslmf_False test(BSLMF_RETURN(TYPE::*)(ARG1,ARG2,ARG3,ARG4,ARG5,
+                                                  ARG6,ARG7,ARG8,ARG9,ARG10));
+    static bslmf_False test(BSLMF_RETURN(TYPE::*)(
+                                             ARG1,ARG2,ARG3,ARG4,ARG5,
+                                             ARG6,ARG7,ARG8,ARG9,ARG10,ARG11));
+    static bslmf_False test(BSLMF_RETURN(TYPE::*)(
+                                       ARG1,ARG2,ARG3,ARG4,ARG5,
+                                       ARG6,ARG7,ARG8,ARG9,ARG10,ARG11,ARG12));
+    static bslmf_False test(BSLMF_RETURN(TYPE::*)(
+                                 ARG1,ARG2,ARG3,ARG4,ARG5,
+                                 ARG6,ARG7,ARG8,ARG9,ARG10,ARG11,ARG12,ARG13));
+    static bslmf_False test(BSLMF_RETURN(TYPE::*)(
+                           ARG1,ARG2,ARG3,ARG4,ARG5,
+                           ARG6,ARG7,ARG8,ARG9,ARG10,ARG11,ARG12,ARG13,ARG14));
+
+    static bslmf_True test(BSLMF_RETURN(TYPE::*)() const);
+    static bslmf_True test(BSLMF_RETURN(TYPE::*)(ARG1) const);
+    static bslmf_True test(BSLMF_RETURN(TYPE::*)(ARG1,ARG2) const);
+    static bslmf_True test(BSLMF_RETURN(TYPE::*)(ARG1,ARG2,ARG3) const);
+    static bslmf_True test(BSLMF_RETURN(TYPE::*)(ARG1,ARG2,ARG3,ARG4) const);
+    static bslmf_True test(BSLMF_RETURN(TYPE::*)(ARG1,ARG2,ARG3,ARG4,
+                                                 ARG5) const);
+    static bslmf_True test(BSLMF_RETURN(TYPE::*)(ARG1,ARG2,ARG3,ARG4,ARG5,
+                                                 ARG6) const);
+    static bslmf_True test(BSLMF_RETURN(TYPE::*)(ARG1,ARG2,ARG3,ARG4,ARG5,ARG6,
+                                                 ARG7) const);
+    static bslmf_True test(BSLMF_RETURN(TYPE::*)(ARG1,ARG2,ARG3,ARG4,ARG5,ARG6,
+                                                 ARG7,ARG8) const);
+    static bslmf_True test(BSLMF_RETURN(TYPE::*)(ARG1,ARG2,ARG3,ARG4,ARG5,ARG6,
+                                                 ARG7,ARG8,ARG9) const);
+    static bslmf_True test(BSLMF_RETURN(TYPE::*)(ARG1,ARG2,ARG3,ARG4,ARG5,ARG6,
+                                                 ARG7,ARG8,ARG9,ARG10) const);
+    static bslmf_True test(BSLMF_RETURN(TYPE::*)(
+                                            ARG1,ARG2,ARG3,ARG4,ARG5,ARG6,
+                                            ARG7,ARG8,ARG9,ARG10,ARG11) const);
+    static bslmf_True test(BSLMF_RETURN(TYPE::*)(
+                                      ARG1,ARG2,ARG3,ARG4,ARG5,ARG6,
+                                      ARG7,ARG8,ARG9,ARG10,ARG11,ARG12) const);
+    static bslmf_True test(BSLMF_RETURN(TYPE::*)(
+                                ARG1,ARG2,ARG3,ARG4,ARG5,ARG6,
+                                ARG7,ARG8,ARG9,ARG10,ARG11,ARG12,ARG13) const);
+    static bslmf_True test(BSLMF_RETURN(TYPE::*)(
+                          ARG1,ARG2,ARG3,ARG4,ARG5,ARG6,
+                          ARG7,ARG8,ARG9,ARG10,ARG11,ARG12,ARG13,ARG14) const);
+
+  public:
+    // TYPES
+    enum {
+        IS_CONST = sizeof(test((PROTOTYPE)0)) - sizeof(bslmf_False)
+    };
+
+    typedef typename If&lt;IS_CONST, const TYPE, TYPE&gt;::Type Type;
+        // The underlying class type of the specified &#39;PROTOTYPE&#39;, either
+        // &#39;TYPE&#39; or &#39;const TYPE&#39; as determined by .
+};
+
+             // -------------------------------------------
+             // class MemberFunctionPointerTraits_NonConst
+             // -------------------------------------------
+
+template &lt;class PROTOTYPE&gt;
+struct MemberFunctionPointerTraits_NonConst {
+    // This template is specialized to determine the traits of the specified
+    // &#39;PROTOTYPE&#39;.  &#39;PROTOTYPE&#39; is expected to be of the form
+    // &#39;BSLMF_RETURN (TYPE::*)(ARG1,ARG2,...) const&#39;.
+
+    enum {
+        IS_MEMBER_FUNCTION_PTR = 0
+    };
+};
+
+template &lt;class BSLMF_RETURN, class TYPE&gt;
+struct MemberFunctionPointerTraits_NonConst&lt;BSLMF_RETURN (TYPE::*)()&gt; {
+    // Specialization to determine the traits of member functions that return
+    // &#39;BSLMF_RETURN&#39; and accept 0 arguments.
+
+    enum {
+        IS_MEMBER_FUNCTION_PTR = 1
+    };
+    typedef TYPE            ClassType;
+    typedef BSLMF_RETURN    ResultType;
+    typedef TypeList0       ArgumentList;
+};
+
+template &lt;class BSLMF_RETURN, class TYPE, class ARG1&gt;
+struct MemberFunctionPointerTraits_NonConst&lt;
+                                                BSLMF_RETURN (TYPE::*)(ARG1)&gt; {
+    // Specialization to determine the traits of member functions that return
+    // &#39;BSLMF_RETURN&#39; and accept 1 arguments.
+
+    enum {
+        IS_MEMBER_FUNCTION_PTR = 1
+    };
+    typedef TYPE                  ClassType;
+    typedef BSLMF_RETURN          ResultType;
+    typedef TypeList1&lt;ARG1&gt;       ArgumentList;
+};
+
+template &lt;class BSLMF_RETURN, class TYPE, class ARG1, class ARG2&gt;
+struct MemberFunctionPointerTraits_NonConst&lt;
+                                           BSLMF_RETURN (TYPE::*)(ARG1,ARG2)&gt; {
+    // Specialization to determine the traits of member functions that return
+    // &#39;BSLMF_RETURN&#39; and accept 2 arguments.
+
+    enum {
+        IS_MEMBER_FUNCTION_PTR = 1
+    };
+    typedef TYPE                       ClassType;
+    typedef BSLMF_RETURN               ResultType;
+    typedef TypeList2&lt;ARG1,ARG2&gt;       ArgumentList;
+};
+
+template &lt;class BSLMF_RETURN, class TYPE, class ARG1, class ARG2, class ARG3&gt;
+struct MemberFunctionPointerTraits_NonConst&lt;
+                                      BSLMF_RETURN (TYPE::*)(ARG1,ARG2,ARG3)&gt; {
+    // Specialization to determine the traits of member functions that return
+    // &#39;BSLMF_RETURN&#39; and accept 3 arguments.
+
+    enum {
+        IS_MEMBER_FUNCTION_PTR = 1
+    };
+    typedef TYPE                            ClassType;
+    typedef BSLMF_RETURN                    ResultType;
+    typedef TypeList3&lt;ARG1,ARG2,ARG3&gt;       ArgumentList;
+};
+
+template &lt;class BSLMF_RETURN, class TYPE, class ARG1, class ARG2, class ARG3,
+          class ARG4&gt;
+struct MemberFunctionPointerTraits_NonConst&lt;
+                                 BSLMF_RETURN (TYPE::*)(ARG1,ARG2,ARG3,ARG4)&gt; {
+    // Specialization to determine the traits of member functions that return
+    // &#39;BSLMF_RETURN&#39; and accept 4 arguments.
+
+    enum {
+        IS_MEMBER_FUNCTION_PTR = 1
+    };
+    typedef TYPE                                 ClassType;
+    typedef BSLMF_RETURN                         ResultType;
+    typedef TypeList4&lt;ARG1,ARG2,ARG3,ARG4&gt;       ArgumentList;
+};
+
+template &lt;class BSLMF_RETURN, class TYPE, class ARG1, class ARG2, class ARG3,
+          class ARG4, class ARG5&gt;
+struct MemberFunctionPointerTraits_NonConst&lt;
+                            BSLMF_RETURN (TYPE::*)(ARG1,ARG2,ARG3,ARG4,ARG5)&gt; {
+    // Specialization to determine the traits of member functions that return
+    // &#39;BSLMF_RETURN&#39; and accept 5 arguments.
+
+    enum {
+        IS_MEMBER_FUNCTION_PTR = 1
+    };
+    typedef TYPE                                      ClassType;
+    typedef BSLMF_RETURN                              ResultType;
+    typedef TypeList5&lt;ARG1,ARG2,ARG3,ARG4,ARG5&gt;       ArgumentList;
+};
+
+template &lt;class BSLMF_RETURN, class TYPE, class ARG1, class ARG2, class ARG3,
+          class ARG4, class ARG5, class ARG6&gt;
+struct MemberFunctionPointerTraits_NonConst&lt;
+                       BSLMF_RETURN (TYPE::*)(ARG1,ARG2,ARG3,ARG4,ARG5,ARG6)&gt; {
+    // Specialization to determine the traits of member functions that return
+    // &#39;BSLMF_RETURN&#39; and accept 6 arguments.
+
+    enum {
+        IS_MEMBER_FUNCTION_PTR = 1
+    };
+    typedef TYPE                                           ClassType;
+    typedef BSLMF_RETURN                                   ResultType;
+    typedef TypeList6&lt;ARG1,ARG2,ARG3,ARG4,ARG5,ARG6&gt;       ArgumentList;
+};
+
+template &lt;class BSLMF_RETURN, class TYPE, class ARG1, class ARG2, class ARG3,
+          class ARG4, class ARG5, class ARG6, class ARG7&gt;
+struct MemberFunctionPointerTraits_NonConst&lt;
+                  BSLMF_RETURN (TYPE::*)(ARG1,ARG2,ARG3,ARG4,ARG5,ARG6,ARG7)&gt; {
+    // Specialization to determine the traits of member functions that return
+    // &#39;BSLMF_RETURN&#39; and accept 7 arguments.
+
+    enum {
+        IS_MEMBER_FUNCTION_PTR = 1
+    };
+    typedef TYPE                                                ClassType;
+    typedef BSLMF_RETURN                                        ResultType;
+    typedef TypeList7&lt;ARG1,ARG2,ARG3,ARG4,ARG5,ARG6,ARG7&gt;       ArgumentList;
+};
+
+template &lt;class BSLMF_RETURN, class TYPE, class ARG1, class ARG2, class ARG3,
+          class ARG4, class ARG5, class ARG6, class ARG7, class ARG8&gt;
+struct MemberFunctionPointerTraits_NonConst&lt;
+             BSLMF_RETURN (TYPE::*)(ARG1,ARG2,ARG3,ARG4,ARG5,ARG6,ARG7,ARG8)&gt; {
+    // Specialization to determine the traits of member functions that return
+    // &#39;BSLMF_RETURN&#39; and accept 8 arguments.
+
+    enum {
+        IS_MEMBER_FUNCTION_PTR = 1
+    };
+    typedef TYPE                                                ClassType;
+    typedef BSLMF_RETURN                                        ResultType;
+    typedef TypeList8&lt;ARG1,ARG2,ARG3,ARG4,ARG5,ARG6,ARG7, ARG8&gt; ArgumentList;
+};
+
+template &lt;class BSLMF_RETURN, class TYPE, class ARG1, class ARG2, class ARG3,
+          class ARG4, class ARG5, class ARG6, class ARG7, class ARG8,
+          class ARG9&gt;
+struct MemberFunctionPointerTraits_NonConst&lt;
+        BSLMF_RETURN (TYPE::*)(ARG1,ARG2,ARG3,ARG4,ARG5,ARG6,ARG7,ARG8,ARG9)&gt; {
+    // Specialization to determine the traits of member functions that return
+    // &#39;BSLMF_RETURN&#39; and accept 9 arguments.
+
+    enum {
+        IS_MEMBER_FUNCTION_PTR = 1
+    };
+    typedef TYPE                                                ClassType;
+    typedef BSLMF_RETURN                                        ResultType;
+    typedef TypeList9&lt;ARG1,ARG2,ARG3,ARG4,ARG5,ARG6,ARG7,
+                                                     ARG8,ARG9&gt; ArgumentList;
+};
+
+template &lt;class BSLMF_RETURN, class TYPE, class ARG1, class ARG2, class ARG3,
+          class ARG4, class ARG5, class ARG6, class ARG7, class ARG8,
+          class ARG9, class ARG10&gt;
+struct MemberFunctionPointerTraits_NonConst&lt;
+  BSLMF_RETURN (TYPE::*)(ARG1,ARG2,ARG3,ARG4,ARG5,ARG6,ARG7,ARG8,ARG9,ARG10)&gt; {
+    // Specialization to determine the traits of member functions that return
+    // &#39;BSLMF_RETURN&#39; and accept 10 arguments.
+
+    enum {
+        IS_MEMBER_FUNCTION_PTR = 1
+    };
+    typedef TYPE                              ClassType;
+    typedef BSLMF_RETURN                      ResultType;
+    typedef TypeList10&lt;ARG1,ARG2,ARG3,ARG4,ARG5,ARG6,ARG7,
+                             ARG8,ARG9,ARG10&gt; ArgumentList;
+};
+
+template &lt;class BSLMF_RETURN, class TYPE, class ARG1, class ARG2, class ARG3,
+          class ARG4, class ARG5,  class ARG6, class ARG7, class ARG8,
+          class ARG9, class ARG10, class ARG11&gt;
+struct MemberFunctionPointerTraits_NonConst&lt;
+                     BSLMF_RETURN (TYPE::*)(ARG1,ARG2,ARG3,ARG4,ARG5,ARG6,ARG7,
+                                            ARG8,ARG9,ARG10,ARG11)&gt; {
+    // Specialization to determine the traits of member functions that return
+    // &#39;BSLMF_RETURN&#39; and accept 11 arguments.
+
+    enum {
+        IS_MEMBER_FUNCTION_PTR = 1
+    };
+    typedef TYPE                                                 ClassType;
+    typedef BSLMF_RETURN                                         ResultType;
+    typedef TypeList11&lt;ARG1,ARG2,ARG3,ARG4,ARG5,ARG6,ARG7,
+                                          ARG8,ARG9,ARG10,ARG11&gt; ArgumentList;
+};
+
+template &lt;class BSLMF_RETURN, class TYPE,  class ARG1, class ARG2, class ARG3,
+          class ARG4, class ARG5,  class ARG6, class ARG7, class ARG8,
+          class ARG9, class ARG10, class ARG11, class ARG12&gt;
+struct MemberFunctionPointerTraits_NonConst&lt;
+                     BSLMF_RETURN (TYPE::*)(ARG1,ARG2,ARG3,ARG4,ARG5,ARG6,ARG7,
+                                            ARG8,ARG9,ARG10,ARG11,ARG12)&gt; {
+    // Specialization to determine the traits of member functions that return
+    // &#39;BSLMF_RETURN&#39; and accept 12 arguments.
+
+    enum {
+        IS_MEMBER_FUNCTION_PTR = 1
+    };
+    typedef TYPE                                                 ClassType;
+    typedef BSLMF_RETURN                                         ResultType;
+    typedef TypeList12&lt;ARG1,ARG2,ARG3,ARG4,ARG5,ARG6,ARG7,
+                                    ARG8,ARG9,ARG10,ARG11,ARG12&gt; ArgumentList;
+};
+
+template &lt;class BSLMF_RETURN, class TYPE, class ARG1, class ARG2, class ARG3,
+          class ARG4, class ARG5,  class ARG6,  class ARG7,  class ARG8,
+          class ARG9, class ARG10, class ARG11, class ARG12, class ARG13&gt;
+struct MemberFunctionPointerTraits_NonConst&lt;
+                  BSLMF_RETURN (TYPE::*)(ARG1,ARG2,ARG3,ARG4,ARG5,ARG6,ARG7,
+                                         ARG8,ARG9, ARG10,ARG11,ARG12,ARG13)&gt; {
+    // Specialization to determine the traits of member functions that return
+    // &#39;BSLMF_RETURN&#39; and accept 13 arguments.
+
+    enum {
+        IS_MEMBER_FUNCTION_PTR = 1
+    };
+    typedef TYPE                                                 ClassType;
+    typedef BSLMF_RETURN                                         ResultType;
+    typedef TypeList13&lt;ARG1,ARG2,ARG3,ARG4,ARG5,ARG6,ARG7,
+                             ARG8,ARG9,ARG10,ARG11,ARG12,ARG13&gt;  ArgumentList;
+};
+
+template &lt;class BSLMF_RETURN, class TYPE, class ARG1, class ARG2, class ARG3,
+          class ARG4, class ARG5, class ARG6, class ARG7, class ARG8,
+          class ARG9, class ARG10, class ARG11, class ARG12, class ARG13,
+          class ARG14&gt;
+struct MemberFunctionPointerTraits_NonConst&lt;
+             BSLMF_RETURN (TYPE::*)(ARG1,ARG2,ARG3,ARG4,ARG5,ARG6,ARG7,
+                                    ARG8,ARG9,ARG10,ARG11,ARG12,ARG13,ARG14)&gt; {
+    // Specialization to determine the traits of member functions that return
+    // &#39;BSLMF_RETURN&#39; and accept 14 arguments.
+
+    enum {
+        IS_MEMBER_FUNCTION_PTR = 1
+    };
+    typedef TYPE                                                  ClassType;
+    typedef BSLMF_RETURN                                          ResultType;
+    typedef TypeList14&lt;ARG1,ARG2,ARG3,ARG4,ARG5,ARG6,ARG7,
+                         ARG8,ARG9,ARG10,ARG11,ARG12,ARG13,ARG14&gt; ArgumentList;
+};
+
+                    // ------------------------------------
+                    // class MemberFunctionPointerTraitsImp
+                    // ------------------------------------
+
+template &lt;class PROTOTYPE, class TEST_PROTOTYPE&gt;
+struct MemberFunctionPointerTraitsImp :
+    public MemberFunctionPointerTraits_NonConst&lt;PROTOTYPE&gt; {
+    // This template is specialized to determine the traits of the specified
+    // &#39;PROTOTYPE&#39;.  &#39;PROTOTYPE&#39; is expected to be of the form
+    // &#39;BSLMF_RETURN (TYPE::*)(ARG1,ARG2,...)&#39; or
+    // &#39;BSLMF_RETURN (TYPE::*)(ARG1,ARG2,...) const&#39;.  If a match of the type
+    // &#39;BSLMF_RETURN (TYPE::*)(ARG1,ARG2,...)&#39; is not found,
+    // &#39;MemberFunctionPointerTraitsImp&#39; will be used to attempt to find a const
+    // match.  Note that the const and non-const specialization are separated
+    // since some compilers can&#39;t distinguish the two.
+};
+
+// SPECIALIZATIONS
+template &lt;class PROTOTYPE, class BSLMF_RETURN, class TYPE&gt;
+struct MemberFunctionPointerTraitsImp&lt;PROTOTYPE,
+                                            BSLMF_RETURN (TYPE::*)() const&gt; {
+    // Specialization to determine the traits of const member functions that
+    // return &#39;BSLMF_RETURN&#39; and accept 0 arguments.
+
+    enum {
+        IS_MEMBER_FUNCTION_PTR = 1
+    };
+    typedef typename MemberFunctionPointerTraits_ClassType&lt;
+                               PROTOTYPE,BSLMF_RETURN,TYPE&gt;::Type ClassType;
+    typedef BSLMF_RETURN                                          ResultType;
+    typedef TypeList0                                             ArgumentList;
+};
+
+template &lt;class PROTOTYPE, class BSLMF_RETURN, class TYPE, class ARG1&gt;
+struct MemberFunctionPointerTraitsImp&lt;PROTOTYPE,
+                                          BSLMF_RETURN (TYPE::*)(ARG1) const&gt; {
+    // Specialization to determine the traits of const member functions that
+    // return &#39;BSLMF_RETURN&#39; and accept 1 arguments.
+
+    enum {
+        IS_MEMBER_FUNCTION_PTR = 1
+    };
+    typedef typename
+        MemberFunctionPointerTraits_ClassType&lt;PROTOTYPE, BSLMF_RETURN,
+                TYPE, ARG1&gt;::Type ClassType;
+    typedef BSLMF_RETURN          ResultType;
+    typedef TypeList1&lt;ARG1&gt;       ArgumentList;
+};
+
+template &lt;class PROTOTYPE, class BSLMF_RETURN, class TYPE,
+          class ARG1, class ARG2&gt;
+struct MemberFunctionPointerTraitsImp&lt;PROTOTYPE,
+                                     BSLMF_RETURN (TYPE::*)(ARG1,ARG2) const&gt; {
+    // Specialization to determine the traits of const member functions that
+    // return &#39;BSLMF_RETURN&#39; and accept 2 arguments.
+
+    enum {
+        IS_MEMBER_FUNCTION_PTR = 1
+    };
+    typedef typename
+        MemberFunctionPointerTraits_ClassType&lt;PROTOTYPE, BSLMF_RETURN,
+            TYPE, ARG1, ARG2&gt;::Type    ClassType;
+    typedef BSLMF_RETURN               ResultType;
+    typedef TypeList2&lt;ARG1,ARG2&gt;       ArgumentList;
+};
+
+template &lt;class PROTOTYPE, class BSLMF_RETURN, class TYPE, class ARG1,
+                                               class ARG2, class ARG3&gt;
+struct MemberFunctionPointerTraitsImp&lt;PROTOTYPE,
+                                BSLMF_RETURN (TYPE::*)(ARG1,ARG2,ARG3) const&gt; {
+    // Specialization to determine the traits of const member functions that
+    // return &#39;BSLMF_RETURN&#39; and accept 3 arguments.
+
+    enum {
+        IS_MEMBER_FUNCTION_PTR = 1
+    };
+    typedef typename
+        MemberFunctionPointerTraits_ClassType&lt;PROTOTYPE, BSLMF_RETURN,
+            TYPE, ARG1, ARG2, ARG3&gt;::Type   ClassType;
+    typedef BSLMF_RETURN                    ResultType;
+    typedef TypeList3&lt;ARG1,ARG2,ARG3&gt;       ArgumentList;
+};
+
+template &lt;class PROTOTYPE, class BSLMF_RETURN, class TYPE,
+          class ARG1, class ARG2, class ARG3, class ARG4&gt;
+struct MemberFunctionPointerTraitsImp&lt;PROTOTYPE,
+                           BSLMF_RETURN (TYPE::*)(ARG1,ARG2,ARG3,ARG4) const&gt; {
+    // Specialization to determine the traits of const member functions that
+    // return &#39;BSLMF_RETURN&#39; and accept 4 arguments.
+
+    enum {
+        IS_MEMBER_FUNCTION_PTR = 1
+    };
+    typedef typename
+        MemberFunctionPointerTraits_ClassType&lt;PROTOTYPE, BSLMF_RETURN,
+            TYPE, ARG1, ARG2, ARG3, ARG4&gt;::Type  ClassType;
+    typedef BSLMF_RETURN                         ResultType;
+    typedef TypeList4&lt;ARG1,ARG2,ARG3,ARG4&gt;       ArgumentList;
+};
+
+template &lt;class PROTOTYPE, class BSLMF_RETURN, class TYPE,
+          class ARG1, class ARG2, class ARG3, class ARG4, class ARG5&gt;
+struct MemberFunctionPointerTraitsImp&lt;
+                      PROTOTYPE,
+                      BSLMF_RETURN (TYPE::*)(ARG1,ARG2,ARG3,ARG4,ARG5) const&gt; {
+    // Specialization to determine the traits of const member functions that
+    // return &#39;BSLMF_RETURN&#39; and accept 5 arguments.
+
+    enum {
+        IS_MEMBER_FUNCTION_PTR = 1
+    };
+    typedef typename
+        MemberFunctionPointerTraits_ClassType&lt;PROTOTYPE, BSLMF_RETURN,
+            TYPE, ARG1, ARG2, ARG3, ARG4, ARG5&gt;::Type ClassType;
+    typedef BSLMF_RETURN                              ResultType;
+    typedef TypeList5&lt;ARG1,ARG2,ARG3,ARG4,ARG5&gt;       ArgumentList;
+};
+
+template &lt;class PROTOTYPE, class BSLMF_RETURN, class TYPE,
+          class ARG1, class ARG2, class ARG3, class ARG4, class ARG5,
+          class ARG6&gt;
+struct MemberFunctionPointerTraitsImp&lt;
+                 PROTOTYPE,
+                 BSLMF_RETURN (TYPE::*)(ARG1,ARG2,ARG3,ARG4,ARG5,ARG6) const&gt; {
+    // Specialization to determine the traits of const member functions that
+    // return &#39;BSLMF_RETURN&#39; and accept 6 arguments.
+
+    enum {
+        IS_MEMBER_FUNCTION_PTR = 1
+    };
+    typedef typename
+        MemberFunctionPointerTraits_ClassType&lt;PROTOTYPE, BSLMF_RETURN,
+           TYPE, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6&gt;::Type ClassType;
+    typedef BSLMF_RETURN                                   ResultType;
+    typedef TypeList6&lt;ARG1,ARG2,ARG3,ARG4,ARG5,ARG6&gt;       ArgumentList;
+};
+
+template &lt;class PROTOTYPE, class BSLMF_RETURN, class TYPE,
+          class ARG1, class ARG2, class ARG3, class ARG4, class ARG5,
+          class ARG6, class ARG7&gt;
+struct MemberFunctionPointerTraitsImp&lt;
+            PROTOTYPE,
+            BSLMF_RETURN (TYPE::*)(ARG1,ARG2,ARG3,ARG4,ARG5,ARG6,ARG7) const&gt; {
+    // Specialization to determine the traits of const member functions that
+    // return &#39;BSLMF_RETURN&#39; and accept 7 arguments.
+
+    enum {
+        IS_MEMBER_FUNCTION_PTR = 1
+    };
+    typedef typename
+        MemberFunctionPointerTraits_ClassType&lt;PROTOTYPE, BSLMF_RETURN,
+                                      TYPE, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6,
+                                            ARG7&gt;::Type         ClassType;
+    typedef BSLMF_RETURN                                        ResultType;
+    typedef TypeList7&lt;ARG1,ARG2,ARG3,ARG4,ARG5,ARG6,ARG7&gt;       ArgumentList;
+};
+
+template &lt;class PROTOTYPE, class BSLMF_RETURN, class TYPE,
+          class ARG1, class ARG2, class ARG3, class ARG4, class ARG5,
+          class ARG6, class ARG7, class ARG8&gt;
+struct MemberFunctionPointerTraitsImp&lt;
+                    PROTOTYPE,
+                    BSLMF_RETURN (TYPE::*)(ARG1,ARG2,ARG3,ARG4,ARG5,ARG6,ARG7,
+                                                                ARG8) const &gt; {
+    // Specialization to determine the traits of const member functions that
+    // return &#39;BSLMF_RETURN&#39; and accept 8 arguments.
+
+    enum {
+        IS_MEMBER_FUNCTION_PTR = 1
+    };
+    typedef typename
+        MemberFunctionPointerTraits_ClassType&lt;PROTOTYPE, BSLMF_RETURN,
+                TYPE, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7, ARG8&gt;::Type
+                                                                ClassType;
+    typedef BSLMF_RETURN                                        ResultType;
+    typedef TypeList8&lt;ARG1,ARG2,ARG3,ARG4,ARG5,ARG6,ARG7,
+                                                          ARG8&gt; ArgumentList;
+};
+
+template &lt;class PROTOTYPE, class BSLMF_RETURN, class TYPE,
+          class ARG1, class ARG2, class ARG3, class ARG4, class ARG5,
+          class ARG6, class ARG7, class ARG8, class ARG9&gt;
+struct MemberFunctionPointerTraitsImp&lt;
+                    PROTOTYPE,
+                    BSLMF_RETURN (TYPE::*)(ARG1,ARG2,ARG3,ARG4,ARG5,ARG6,ARG7,
+                                                           ARG8,ARG9) const &gt; {
+    // Specialization to determine the traits of const member functions that
+    // return &#39;BSLMF_RETURN&#39; and accept 9 arguments.
+
+    enum {
+        IS_MEMBER_FUNCTION_PTR = 1
+    };
+    typedef typename
+        MemberFunctionPointerTraits_ClassType&lt;PROTOTYPE, BSLMF_RETURN,
+                                TYPE, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7,
+                                ARG8, ARG9&gt;::Type               ClassType;
+    typedef BSLMF_RETURN                                        ResultType;
+    typedef TypeList9&lt;ARG1,ARG2,ARG3,ARG4,ARG5,ARG6,ARG7,
+                                                     ARG8,ARG9&gt; ArgumentList;
+};
+
+template &lt;class PROTOTYPE, class BSLMF_RETURN, class TYPE,
+          class ARG1, class ARG2, class ARG3, class ARG4, class ARG5,
+          class ARG6, class ARG7, class ARG8, class ARG9, class ARG10&gt;
+struct MemberFunctionPointerTraitsImp&lt;
+                PROTOTYPE,
+                BSLMF_RETURN (TYPE::*)(ARG1,ARG2,ARG3,ARG4,ARG5,ARG6,ARG7,ARG8,
+                                                           ARG9,ARG10) const&gt; {
+    // Specialization to determine the traits of const member functions that
+    // return &#39;BSLMF_RETURN&#39; and accept 10 arguments.
+
+    enum {
+        IS_MEMBER_FUNCTION_PTR = 1
+    };
+    typedef typename
+        MemberFunctionPointerTraits_ClassType&lt;PROTOTYPE, BSLMF_RETURN,
+                                TYPE, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7,
+                                      ARG8, ARG9, ARG10&gt;::Type   ClassType;
+    typedef BSLMF_RETURN                                         ResultType;
+    typedef TypeList10&lt;ARG1,ARG2,ARG3,ARG4,ARG5,ARG6,ARG7,
+                                                ARG8,ARG9,ARG10&gt; ArgumentList;
+};
+
+template &lt;class PROTOTYPE, class BSLMF_RETURN, class TYPE,
+          class ARG1, class ARG2, class ARG3, class ARG4, class ARG5,
+          class ARG6, class ARG7, class ARG8, class ARG9, class ARG10,
+          class ARG11&gt;
+struct MemberFunctionPointerTraitsImp&lt;
+                PROTOTYPE,
+                BSLMF_RETURN (TYPE::*)(ARG1,ARG2,ARG3,ARG4,ARG5,ARG6,ARG7,ARG8,
+                                                     ARG9,ARG10,ARG11) const&gt; {
+    // Specialization to determine the traits of const member functions that
+    // return &#39;BSLMF_RETURN&#39; and accept 11 arguments.
+
+    enum {
+        IS_MEMBER_FUNCTION_PTR = 1
+    };
+    typedef typename
+        MemberFunctionPointerTraits_ClassType&lt;PROTOTYPE, BSLMF_RETURN,
+                              TYPE, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7,
+                              ARG8, ARG9, ARG10, ARG11&gt; ::Type   ClassType;
+    typedef BSLMF_RETURN                                         ResultType;
+    typedef TypeList11&lt;ARG1,ARG2,ARG3,ARG4,ARG5,ARG6,ARG7,
+                                          ARG8,ARG9,ARG10,ARG11&gt; ArgumentList;
+};
+
+template &lt;class PROTOTYPE, class BSLMF_RETURN, class TYPE,
+          class ARG1, class ARG2, class ARG3, class ARG4, class ARG5,
+          class ARG6, class ARG7, class ARG8, class ARG9, class ARG10,
+          class ARG11, class ARG12&gt;
+struct MemberFunctionPointerTraitsImp&lt;
+                   PROTOTYPE,
+                   BSLMF_RETURN (TYPE::*)(ARG1,ARG2,ARG3,ARG4,ARG5,ARG6,ARG7,
+                                          ARG8,ARG9,ARG10,ARG11,ARG12) const&gt; {
+    // Specialization to determine the traits of const member functions that
+    // return &#39;BSLMF_RETURN&#39; and accept 12 arguments.
+
+    enum {
+        IS_MEMBER_FUNCTION_PTR = 1
+    };
+    typedef typename
+        MemberFunctionPointerTraits_ClassType&lt;PROTOTYPE, BSLMF_RETURN,
+                       TYPE, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7,
+                       ARG8, ARG9, ARG10, ARG11, ARG12&gt;::Type    ClassType;
+    typedef BSLMF_RETURN                                         ResultType;
+    typedef TypeList12&lt;ARG1,ARG2,ARG3,ARG4,ARG5,ARG6,ARG7,
+                                    ARG8,ARG9,ARG10,ARG11,ARG12&gt; ArgumentList;
+};
+
+template &lt;class PROTOTYPE, class BSLMF_RETURN, class TYPE,
+          class ARG1, class ARG2, class ARG3, class ARG4, class ARG5,
+          class ARG6, class ARG7, class ARG8, class ARG9, class ARG10,
+          class ARG11, class ARG12, class ARG13&gt;
+struct MemberFunctionPointerTraitsImp&lt;
+                PROTOTYPE,
+                BSLMF_RETURN (TYPE::*)(ARG1,ARG2,ARG3,ARG4,ARG5,ARG6,ARG7,ARG8,
+                                       ARG9,ARG10,ARG11,ARG12,ARG13) const&gt; {
+    // Specialization to determine the traits of const member functions that
+    // return &#39;BSLMF_RETURN&#39; and accept 13 arguments.
+
+    enum {
+        IS_MEMBER_FUNCTION_PTR = 1
+    };
+    typedef typename
+        MemberFunctionPointerTraits_ClassType&lt;PROTOTYPE, BSLMF_RETURN,
+                  TYPE, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7,
+                  ARG8, ARG9, ARG10, ARG11, ARG12, ARG13&gt;::Type  ClassType;
+    typedef BSLMF_RETURN                                         ResultType;
+    typedef TypeList13&lt;ARG1,ARG2,ARG3,ARG4,ARG5,ARG6,ARG7,
+                             ARG8,ARG9,ARG10,ARG11,ARG12,ARG13&gt;  ArgumentList;
+};
+
+template &lt;class PROTOTYPE, class BSLMF_RETURN, class TYPE,
+          class ARG1,  class ARG2,  class ARG3,  class ARG4, class ARG5,
+          class ARG6,  class ARG7,  class ARG8,  class ARG9, class ARG10,
+          class ARG11, class ARG12, class ARG13, class ARG14&gt;
+struct MemberFunctionPointerTraitsImp&lt;
+          PROTOTYPE,
+          BSLMF_RETURN (TYPE::*)(ARG1,ARG2,ARG3,ARG4,ARG5,ARG6,ARG7,ARG8,
+                                 ARG9,ARG10,ARG11,ARG12,ARG13,ARG14) const&gt; {
+    // Specialization to determine the traits of const member functions that
+    // return &#39;BSLMF_RETURN&#39; and accept 14 arguments.
+
+    enum {
+        IS_MEMBER_FUNCTION_PTR = 1
+    };
+    typedef typename
+        MemberFunctionPointerTraits_ClassType&lt;PROTOTYPE, BSLMF_RETURN,
+            TYPE, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7,
+            ARG8, ARG9, ARG10, ARG11, ARG12, ARG13, ARG14&gt;::Type ClassType;
+    typedef BSLMF_RETURN                                         ResultType;
+    typedef TypeList14&lt;ARG1,ARG2,ARG3,ARG4,ARG5,ARG6,ARG7,
+                        ARG8,ARG9,ARG10,ARG11,ARG12,ARG13,ARG14&gt; ArgumentList;
+};
+
+}  // close package namespace
+
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright (C) 2012 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the &quot;Software&quot;), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

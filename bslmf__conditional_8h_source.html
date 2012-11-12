@@ -1,0 +1,94 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 2.16 BETA</title>
+<html>
+<pre>
+// bslmf_conditional.h                                                -*-C++-*-
+#ifndef INCLUDED_BSLMF_CONDITIONAL
+#define INCLUDED_BSLMF_CONDITIONAL
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a compile-time conditional type selection
+//
+//@CLASSES:
+//  bsl::conditional: standard meta-function for conditional type selection
+//
+//@SEE_ALSO: bslmf_integralconstant
+//
+//@DESCRIPTION: This component defines a meta-function, &#39;bsl::conditional&#39;,
+// which may be used to tranform into one of the two given types based on its
+// (template parameter) &#39;bool&#39; type value.
+//
+// &#39;bsl::conditional&#39; meets the requirements of the &#39;conditional&#39; template
+// defined in the C++11 standard [meta.trans.other].
+//
+///Usage
+///-----
+// In this section we show intended use of this component.
+//
+///Example 1: Conditional Type Transformation Based on Boolean Value
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Suppose that we want to select between two types, &#39;int&#39; and &#39;char&#39;, based on
+// &#39;bool&#39; value.  If value is &#39;true&#39;, type &#39;int&#39; is selected.  Otherwise type
+// &#39;char&#39; is selected.
+//
+// Now, we instantiate the &#39;bsl::conditional&#39; template using &#39;int&#39;, &#39;char&#39;, and
+// each of the two &#39;bool&#39; values.  We use the &#39;bsl::is_same&#39; meta-function to
+// assert the &#39;type&#39; static data member of each instantiation:
+//..
+//  assert(true ==
+//      (bsl::is_same&lt;bsl::conditional&lt;true,  int, char&gt;::type, int &gt;::value));
+//  assert(true ==
+//      (bsl::is_same&lt;bsl::conditional&lt;false, int, char&gt;::type, char&gt;::value));
+//..
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include &lt;bslscm_version.h&gt;
+#endif
+
+namespace bsl {
+
+template &lt;bool COND, typename TRUE_TYPE, typename FALSE_TYPE&gt;
+struct conditional
+{
+    typedef TRUE_TYPE type;
+};
+
+template &lt;typename TRUE_TYPE, typename FALSE_TYPE&gt;
+struct conditional&lt;false, TRUE_TYPE, FALSE_TYPE&gt;
+{
+    typedef FALSE_TYPE type;
+};
+
+}  // close namespace bsl
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright (C) 2012 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the &quot;Software&quot;), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

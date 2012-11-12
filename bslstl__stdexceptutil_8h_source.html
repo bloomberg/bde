@@ -1,0 +1,191 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 2.16 BETA</title>
+<html>
+<pre>
+// bslstl_stdexceptutil.h                                             -*-C++-*-
+#ifndef INCLUDED_BSLSTL_STDEXCEPTUTIL
+#define INCLUDED_BSLSTL_STDEXCEPTUTIL
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a utility to throw standard exceptions.
+//
+//@CLASSES:
+//  bslstl::StdExceptUtil: namespace for utilities to throw standard exceptions
+//
+//@SEE_ALSO: stdexcept
+//
+//@DESCRIPTION: This component provides a means to throw standard exceptions
+// without introducing a compile-time dependency on the standard exception
+// classes.  This valuable where header files define function templates or
+// inline functions that may throw these types as exceptions.
+//
+///Usage
+///-----
+// First we declare a function template that wants to throw a standard
+// exception.  Note that the &#39;stdexcept&#39; header is not included at this point.
+//..
+//  #include &lt;bslstl_stdexceptutil.h&gt;
+//
+//  template&lt;typename T&gt;
+//  void testFunction(int selector)
+//      //  Throw a standard exception according to the specified &#39;selector&#39;.
+//  {
+//    switch(selector) {
+//      case 1: bslstl::StdExceptUtil::throwRuntimeError(&quot;sample message 1&quot;);
+//      case 2: bslstl::StdExceptUtil::throwLogicError(&quot;sample message 2&quot;);
+//      default : bslstl::StdExceptUtil::throwInvalidArgument(&quot;ERROR&quot;);
+//    }
+//  }
+//..
+// However, if client code wishes to catch the exception, the &#39;.cpp&#39; file must
+// &#39;#include&#39; the appropriate header.
+//..
+//  #include &lt;stdexcept&gt;
+//
+//  void callTestFunction()
+//  {
+//    try {
+//      testFunction&lt;int&gt;(1);
+//      assert(0 == &quot;Should throw before reaching here.&quot;);
+//    }
+//    catch(const runtime_error&amp; ex) {
+//      assert(0 == std::strcmp(ex.what(), &quot;sample message 1&quot;));
+//    }
+//
+//    try {
+//      testFunction&lt;double&gt;(2);
+//      assert(0 == &quot;Should throw before reaching here.&quot;);
+//    }
+//    catch(const logic_error&amp; ex) {
+//      assert(0 == std::strcmp(ex.what(), &quot;sample message 2&quot;));
+//    }
+//  }
+//..
+
+// Prevent &#39;bslstl&#39; headers from being included directly in &#39;BSL_OVERRIDES_STD&#39;
+// mode.  Doing so is unsupported, and is likely to cause compilation errors.
+#if defined(BSL_OVERRIDES_STD) &amp;&amp; !defined(BSL_STDHDRS_PROLOGUE_IN_EFFECT)
+#error &quot;include &lt;bsl_stdexcept.h&gt; instead of &lt;bslstl_stdexceptutil.h&gt; in \
+BSL_OVERRIDES_STD mode&quot;
+#endif
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include &lt;bslscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_PLATFORM
+#include &lt;bsls_platform.h&gt;
+#endif
+
+#ifdef BSLSTL_STDEXCEPTUTIL_NORETURN
+#error BSLSTL_STDEXCEPTUTIL_NORETURN \
+                             must be a macro scoped locally to this header file
+#endif
+
+// Note that a portable syntax for &#39;noreturn&#39; will be available once we have
+// access to conforming C++0x compilers.
+//# define BSLSTL_STDEXCEPTUTIL_NORETURN [[noreturn]]
+
+#if defined(BSLS_PLATFORM_CMP_MSVC)
+#   define BSLSTL_STDEXCEPTUTIL_NORETURN __declspec(noreturn)
+#else
+#   define BSLSTL_STDEXCEPTUTIL_NORETURN
+#endif
+
+namespace BloombergLP {
+
+namespace bslstl {
+
+                        //====================
+                        // class StdExceptUtil
+                        //====================
+
+struct StdExceptUtil {
+    // This &#39;struct&#39; provides a namespace for &#39;static&#39; utility functions that
+    // throw standard library exceptions.
+
+    // CLASS METHODS
+    BSLSTL_STDEXCEPTUTIL_NORETURN
+    static void throwRuntimeError(const char *message);
+        // Throw a &#39;std::runtime_error&#39; exception supplying the specified
+        // &#39;message&#39; as the sole argument to its constructor.
+
+    BSLSTL_STDEXCEPTUTIL_NORETURN
+    static void throwLogicError(const char *message);
+        // Throw a &#39;std::logic_error&#39; exception supplying the specified
+        // &#39;message&#39; as the sole argument to its constructor.
+
+    BSLSTL_STDEXCEPTUTIL_NORETURN
+    static void throwDomainError(const char *message);
+        // Throw a &#39;std::domain_error&#39; exception supplying the specified
+        // &#39;message&#39; as the sole argument to its constructor.
+
+    BSLSTL_STDEXCEPTUTIL_NORETURN
+    static void throwInvalidArgument(const char *message);
+        // Throw a &#39;std::invalid_argument&#39; exception supplying the specified
+        // &#39;message&#39; as the sole argument to its constructor.
+
+    BSLSTL_STDEXCEPTUTIL_NORETURN
+    static void throwLengthError(const char *message);
+        // Throw a &#39;std::length_error&#39; exception supplying the specified
+        // &#39;message&#39; as the sole argument to its constructor.
+
+    BSLSTL_STDEXCEPTUTIL_NORETURN
+    static void throwOutOfRange(const char *message);
+        // Throw a &#39;std::out_of_range&#39; exception supplying the specified
+        // &#39;message&#39; as the sole argument to its constructor.
+
+    BSLSTL_STDEXCEPTUTIL_NORETURN
+    static void throwRangeError(const char *message);
+        // Throw a &#39;std::range_error&#39; exception supplying the specified
+        // &#39;message&#39; as the sole argument to its constructor.
+
+    BSLSTL_STDEXCEPTUTIL_NORETURN
+    static void throwOverflowError(const char *message);
+        // Throw a &#39;std::overflow_error&#39; exception supplying the specified
+        // &#39;message&#39; as the sole argument to its constructor.
+
+    BSLSTL_STDEXCEPTUTIL_NORETURN
+    static void throwUnderflowError(const char *message);
+        // Throw a &#39;std::underflow_error&#39; exception supplying the specified
+        // &#39;message&#39; as the sole argument to its constructor.
+};
+
+}  // close package namespace
+
+#undef BSLSTL_STDEXCEPTUTIL_NORETURN
+
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright (C) 2012 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the &quot;Software&quot;), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

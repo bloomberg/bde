@@ -1,0 +1,455 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 2.16 BETA</title>
+<html>
+<pre>
+// bslalg_bidirectionallink.h                                         -*-C++-*-
+#ifndef INCLUDED_BSLALG_BIDIRECTIONALLINK
+#define INCLUDED_BSLALG_BIDIRECTIONALLINK
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a basic link type for building doubly-linked lists.
+//
+//@CLASSES:
+//   bslalg::BidirectionalLink : A node in a doubly-linked list
+//
+//@SEE_ALSO: bslalg_bidirectionallinklistutil, bslalg_hashtableimputil
+//
+//@DESCRIPTION: This component provides a single POD-like class,
+// &#39;BidirectionalLink&#39;, used to represent a node in a doubly-linked list.  A
+// &#39;BidirectionalLink&#39; provides the address to its preceding node, and the
+// address of it successor node.  A null-pointer value for either address
+// signifies the end of the list.  &#39;BidirectionalLink&#39; does not, however,
+// contain &quot;payload&quot; data (e.g., a value), as it is intended to work with
+// generalized list operations (see &#39;bslalg_bidirectionallinklistutil&#39;).
+// Clients creating a doubly-linked list must define their own node type that
+// incorporates &#39;BidirectionalLink&#39; (generally via inheritance), and that
+// maintains the &quot;value&quot; stored in that node.
+//
+//-----------------------------------------------------------------------------
+//
+///Usage
+///-----
+// This section illustrates intended usage of this component.
+//
+///Example 1: Creating and Using a List Template Class
+///- - - - - - - - - - - - - - - - - - - - - - - - - -
+// Suppose we want to create a linked list template class, it will be called
+// &#39;MyList&#39;.
+//
+// First, we create the &#39;MyNode&#39; class, which derives from the
+// BidirectionalLink class to carry a &#39;PAYLOAD&#39; object.
+//..
+//  template &lt;typename PAYLOAD&gt;
+//  class MyNode : public bslalg::BidirectionalLink {
+//    public:
+//      // PUBLIC TYPES
+//      typedef PAYLOAD  ValueType;
+//
+//    private:
+//      // DATA
+//      ValueType     d_value;
+//
+//    private:
+//      // NOT IMPLEMENTED
+//      MyNode();
+//      MyNode(const MyNode&amp;);
+//      MyNode&amp; operator=(const MyNode&amp;);
+//
+//    public:
+//      // CREATOR
+//      ~MyNode() {}
+//          // Destroy this object.
+//
+//      // MANIPULATOR
+//      ValueType&amp; value() { return d_value; }
+//          // Return a reference to the modifiable value stored in this node.
+//
+//      // ACCESSOR
+//      const ValueType&amp; value() const { return d_value; }
+//          // Return a reference to the non-modifiable value stored in this
+//          // node.
+//  };
+//..
+// Next, we create the iterator helper class, which will eventually be
+// defined as a nested type within the &#39;MyList&#39; class.
+//..
+//                              // ===============
+//                              // MyList_Iterator
+//                              // ===============
+//
+//  template &lt;typename PAYLOAD&gt;
+//  class MyList_Iterator {
+//      // PRIVATE TYPES
+//      typedef MyNode&lt;PAYLOAD&gt; Node;
+//
+//      // DATA
+//      Node *d_node;
+//
+//      // FRIENDS
+//      template &lt;typename PL&gt;
+//      friend bool operator==(MyList_Iterator&lt;PL&gt;,
+//                             MyList_Iterator&lt;PL&gt;);
+//
+//    public:
+//      // CREATORS
+//      MyList_Iterator() : d_node(0) {}
+//      explicit
+//      MyList_Iterator(Node *node) : d_node(node) {}
+//      //! MyList_Iterator(const MyList_Iterator&amp; original) = default;
+//      //! MyList_Iterator&amp; operator=(const MyList_Iterator&amp; other) = default;
+//      //! ~MyList_Iterator() = default;
+//
+//      // MANIPULATORS
+//      MyList_Iterator operator++();
+//
+//      // ACCESSORS
+//      PAYLOAD&amp; operator*() const { return d_node-&gt;value(); }
+//  };
+//..
+// Then, we define our &#39;MyList&#39; class, with &#39;MyList::Iterator&#39; being a public
+// typedef of &#39;MyList_Iterator&#39;.  For brevity, we will omit a lot of
+// functionality that a full, general-purpose list class would have,
+// implementing only what we will need for this example.
+//..
+//                                  // ======
+//                                  // MyList
+//                                  // ======
+//
+//  template &lt;typename PAYLOAD&gt;
+//  class MyList {
+//      // PRIVATE TYPES
+//      typedef MyNode&lt;PAYLOAD&gt; Node;
+//
+//    public:
+//      // PUBLIC TYPES
+//      typedef PAYLOAD                            ValueType;
+//      typedef MyList_Iterator&lt;ValueType&gt;         Iterator;
+//
+//    private:
+//      // DATA
+//      Node             *d_begin;
+//      Node             *d_end;
+//      bslma::Allocator *d_allocator_p;
+//
+//    public:
+//      // CREATORS
+//      explicit
+//      MyList(bslma::Allocator *basicAllocator)
+//      : d_begin(0)
+//      , d_end(0)
+//      , d_allocator_p(basicAllocator)
+//      {}
+//
+//      ~MyList();
+//
+//      // MANIPULATORS
+//      Iterator begin();
+//      Iterator end();
+//      void pushBack(const ValueType&amp; value);
+//      void popBack();
+//  };
+//..
+// Next, we implement the functions for the iterator type.
+//..
+//                              // ---------------
+//                              // MyList_Iterator
+//                              // ---------------
+//
+//  // MANIPULATORS
+//  template &lt;typename PAYLOAD&gt;
+//  MyList_Iterator&lt;PAYLOAD&gt; MyList_Iterator&lt;PAYLOAD&gt;::operator++()
+//  {
+//      d_node = (Node *) d_node-&gt;nextLink();
+//      return *this;
+//  }
+//
+//  template &lt;typename PAYLOAD&gt;
+//  inline
+//  bool operator==(MyList_Iterator&lt;PAYLOAD&gt; lhs,
+//                  MyList_Iterator&lt;PAYLOAD&gt; rhs)
+//  {
+//      return lhs.d_node == rhs.d_node;
+//  }
+//
+//  template &lt;typename PAYLOAD&gt;
+//  inline
+//  bool operator!=(MyList_Iterator&lt;PAYLOAD&gt; lhs,
+//                  MyList_Iterator&lt;PAYLOAD&gt; rhs)
+//  {
+//      return !(lhs == rhs);
+//  }
+//
+// Then, we implement the functions for the &#39;MyList&#39; class:
+//
+//                                  // ------
+//                                  // MyList
+//                                  // ------
+//
+//  // CREATORS
+//  template &lt;typename PAYLOAD&gt;
+//  MyList&lt;PAYLOAD&gt;::~MyList()
+//  {
+//      for (Node *p = d_begin; p; ) {
+//          Node *condemned = p;
+//          p = (Node *) p-&gt;nextLink();
+//
+//          d_allocator_p-&gt;deleteObjectRaw(condemned);
+//      }
+//  }
+//
+//  // MANIPULATORS
+//  template &lt;typename PAYLOAD&gt;
+//  typename MyList&lt;PAYLOAD&gt;::Iterator MyList&lt;PAYLOAD&gt;::begin()
+//  {
+//      return Iterator(d_begin);
+//  }
+//
+//  template &lt;typename PAYLOAD&gt;
+//  typename MyList&lt;PAYLOAD&gt;::Iterator MyList&lt;PAYLOAD&gt;::end()
+//  {
+//      return Iterator(0);
+//  }
+//
+//  template &lt;typename PAYLOAD&gt;
+//  void MyList&lt;PAYLOAD&gt;::pushBack(const PAYLOAD&amp; value)
+//  {
+//      Node *node = (Node *) d_allocator_p-&gt;allocate(sizeof(Node));
+//      node-&gt;setNextLink(0);
+//      node-&gt;setPreviousLink(d_end);
+//      new (&amp;node-&gt;value()) ValueType(value);
+//
+//      if (d_end) {
+//          BSLS_ASSERT_SAFE(d_begin);
+//
+//          d_end-&gt;setNextLink(node);
+//          d_end = node;
+//      }
+//      else {
+//          BSLS_ASSERT_SAFE(0 == d_begin);
+//
+//          d_begin = d_end = node;
+//      }
+//  }
+//
+//  template &lt;typename PAYLOAD&gt;
+//  void MyList&lt;PAYLOAD&gt;::popBack()
+//  {
+//      BSLS_ASSERT_SAFE(d_begin &amp;&amp; d_end);
+//
+//      Node *condemned = d_end;
+//      d_end = (Node *) d_end-&gt;previousLink();
+//
+//      if (d_begin != condemned) {
+//          BSLS_ASSERT_SAFE(0 != d_end);
+//          d_end-&gt;setNextLink(0);
+//      }
+//      else {
+//          BSLS_ASSERT_SAFE(0 == d_end);
+//          d_begin = 0;
+//      }
+//
+//      condemned-&gt;value().~ValueType();
+//      d_allocator_p-&gt;deallocate(condemned);
+//  }
+//..
+// Next, we have finished implementing our &#39;MyList&#39; class and its &#39;Iterator&#39;
+// type, we will use one to store a fibonacci sequence of ints.  In &#39;main&#39;,
+// We declare the memory allocator that we will use:
+//..
+//          bslma::TestAllocator oa(&quot;oa&quot;);
+//..
+// Then, we enter a block and declare our list &#39;fibonacciList&#39; to contain the
+// sequence:
+//..
+//          {
+//              MyList&lt;int&gt; fibonacciList(&amp;oa);
+//              typedef MyList&lt;int&gt;::Iterator Iterator;
+//
+//              {
+//..
+// Next, we initialize the list to containing the first 2 values, &#39;0&#39; and &#39;1&#39;:
+//..
+//                  fibonacciList.pushBack(0);
+//                  fibonacciList.pushBack(1);
+//..
+// Then, we create iterators &#39;first&#39; and &#39;second&#39; and point them to those first
+// two elements:
+//..
+//                  Iterator first  = fibonacciList.begin();
+//                  Iterator second = first;
+//                  ++second;
+//
+//                  assert(0 == *first);
+//                  assert(1 == *second);
+//..
+// Next, we iterate a dozen times, each time adding a new element to the end of
+// the list containing a value that is the sum of the values of the previous
+// two elements:
+//..
+//                  for (int i = 0; i &lt; 12; ++i, ++first, ++second) {
+//                      fibonacciList.pushBack(*first + *second);
+//                  }
+//              }
+//..
+// Now, we traverse the list and print out its elements:
+//..
+//              if (verbose) printf(&quot;Fibonacci Numbers: &quot;);
+//
+//              const Iterator begin = fibonacciList.begin();
+//              const Iterator end   = fibonacciList.end();
+//              for (Iterator it = begin; end != it; ++it) {
+//                  if (verbose) printf(&quot;%s%d&quot;, begin == it ? &quot;&quot; : &quot;, &quot;, *it);
+//              }
+//              if (verbose) printf(&quot;\n&quot;);
+//          }
+//..
+// Finally, we check the allocator and verify that it&#39;s been used, and that
+// the destruction of &#39;fibonacciList&#39; freed all the memory allocated:
+//..
+//          assert(oa.numBlocksTotal() &gt; 0);
+//          assert(0 == oa.numBlocksInUse());
+//..
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include &lt;bslscm_version.h&gt;
+#endif
+
+namespace BloombergLP {
+namespace bslalg {
+
+                          // =======================
+                          // class BidirectionalLink
+                          // =======================
+
+class BidirectionalLink {
+    // This POD-like &#39;class&#39; describes a node suitable for use in a doubly-
+    // linked (bidirectional) list, holding the addresses of the preceding and
+    // succeeding nodes, either or both of which may be 0.  This class is
+    // &quot;POD-like&quot; to facilitate efficient allocation and use in the context of
+    // a container implementations.  In order to meet the essential
+    // requirements of a POD type, this &#39;class&#39; does not declare a constructor
+    // or destructor.  However its data members are private.  It satisfies the
+    // requirements of a *trivial* type and a *standard* *layout* type defined
+    // by the C++11 standard.  Note that this type does not contain any
+    // &quot;payload&quot; member data: Clients creating a doubly-linked list of data
+    // must define an appropriate node type that incorporates
+    // &#39;BidirectionalLink&#39; (generally via inheritance), and that holds the
+    // &quot;value&quot; of any data stored in that node.
+
+  private:
+    // DATA
+    BidirectionalLink *d_next_p;  // The next node in a list traversal
+    BidirectionalLink *d_prev_p;  // The preceding node in a list traversal
+
+  public:
+    // CREATORS
+    //! BidirectionalLink() = default;
+        // Create a &#39;BidirectionalLink&#39; object having uninitialized values,
+        // or zero-initialized values if value-initialized.
+
+    //! BidirectionalLink(const BidirectionalLink&amp; original) = default;
+        // Create a &#39;BidirectionalLink&#39; object having the same data member
+        // values as the specified &#39;original&#39; object.
+
+    //! ~BidirectionalLink() = default;
+        // Destroy this object.
+
+    // MANIPULATORS
+    //! BidirectionalLink&amp; operator= (const BidirectionalLink&amp; rhs) = default;
+        // Assign to the data members of this object the values of the data
+        // members of the specified &#39;rhs&#39; object, and return a reference
+        // providing modifiable access to this object.
+
+    void setNextLink(BidirectionalLink *next);
+        // Set the successor of this node to be the specified &#39;next&#39; link.
+
+    void setPreviousLink(BidirectionalLink *previous);
+        // Set the predecessor of this node to be the specified &#39;prev&#39; link.
+
+    void reset();
+        // Set the &#39;nextLink&#39; and &#39;previousLink&#39; attributes of this value to 0.
+
+    // ACCESSORS
+    BidirectionalLink *nextLink() const;
+        // Return the address of the next node linked from this node.
+
+    BidirectionalLink *previousLink() const;
+        // Return the address of the preceding node linked from this node.
+
+};
+
+// ===========================================================================
+//                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
+// ===========================================================================
+
+                        //------------------------
+                        // class BidirectionalLink
+                        //------------------------
+
+// MANIPULATORS
+inline
+void BidirectionalLink::setNextLink(BidirectionalLink *next)
+{
+    d_next_p = next;
+}
+
+inline
+void BidirectionalLink::setPreviousLink(BidirectionalLink *previous)
+{
+    d_prev_p = previous;
+}
+
+inline
+void BidirectionalLink::reset()
+{
+    d_prev_p = 0;
+    d_next_p = 0;
+}
+
+// ACCESSORS
+inline
+BidirectionalLink *BidirectionalLink::nextLink() const
+{
+    return d_next_p;
+}
+
+inline
+BidirectionalLink *BidirectionalLink::previousLink() const
+{
+    return d_prev_p;
+}
+
+}  // close namespace bslalg
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright (C) 2012 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the &quot;Software&quot;), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

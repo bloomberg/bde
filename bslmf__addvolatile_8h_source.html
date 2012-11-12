@@ -1,0 +1,156 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 2.16 BETA</title>
+<html>
+<pre>
+// bslmf_addvolatile.h                                                -*-C++-*-
+#ifndef INCLUDED_BSLMF_ADDVOLATILE
+#define INCLUDED_BSLMF_ADDVOLATILE
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a meta-function for adding a top-level &#39;volatile&#39;-qualifier
+//
+//@CLASSES:
+//  bsl::add_volatile: meta-function for adding top-level &#39;volatile&#39;-qualifier
+//
+//@SEE_ALSO: bslmf_removevolatile
+//
+//@DESCRIPTION: This component defines a meta-function, &#39;bsl::remove_volatile&#39;,
+// that may be used to add a top-level &#39;volatile&#39;-qualifier to a type if it is
+// not a reference, function or already &#39;volatile&#39;-qualified at the top-level.
+//
+// &#39;bsl::add_volatile&#39; meets the requirements of the &#39;add_volatile&#39; template
+// defined in the C++11 standard [meta.trans.cv].
+//
+///Usage
+///-----
+// In this section we show intended use of this component.
+//
+///Example 1: Adding The Volatile-Qualifier to A Type
+///- - - - - - - - - - - - - - - - - - - - - - - -
+// Suppose that we want to add the &#39;volatile&#39;-qualifier to a particular type.
+//
+// First, we create two &#39;typedef&#39;s -- a &#39;volatile&#39;-qualified type
+// (&#39;MyVolatileType&#39;) and the same type without the &#39;volatile&#39;-qualifier
+// (&#39;MyType&#39;):
+//..
+//  typedef int          MyType;
+//  typedef volatile int MyVolatileType;
+//..
+// Now, we add the the &#39;volatile&#39;-qualifier to &#39;MyType&#39; using
+// &#39;bsl::add_volatile&#39; and verify that the resulting type is the same as
+// &#39;MyVolatileType&#39;:
+//..
+//  assert(true ==
+//     (bsl::is_same&lt;bsl::add_volatile&lt;MyType&gt;::type, MyVolatileType&gt;::value));
+//..
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include &lt;bslscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_ISREFERENCE
+#include &lt;bslmf_isreference.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_ISVOLATILE
+#include &lt;bslmf_isvolatile.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_ISFUNCTION
+#include &lt;bslmf_isfunction.h&gt;
+#endif
+
+namespace BloombergLP {
+namespace bslmf {
+
+                         // ======================
+                         // struct AddVolatile_Imp
+                         // ======================
+
+template &lt;typename TYPE, bool ADD_VOLATILE&gt;
+struct AddVolatile_Imp {
+    // This &#39;struct&#39; template provides a &#39;typedef&#39; &#39;Type&#39; that is an alias to a
+    // the (template parameter) &#39;TYPE&#39; with the top-level &#39;volatile&#39;-qualifier
+    // added if the (template parameter) &#39;ADD_VOLATILE&#39; is &#39;true&#39;; otherwise,
+    // &#39;Type&#39; is an alias to &#39;TYPE&#39;.  This generic default template adds the
+    // &#39;volatile&#39;-qualifier to &#39;TYPE&#39;.  A template specialization (below) does
+    // not modify &#39;TYPE&#39;.
+
+    typedef TYPE volatile Type;
+        // This &#39;typedef&#39; is an alias to a type that is the same as the
+        // (template parameter) &#39;TYPE&#39; except with &#39;volatile&#39;-qualifier added.
+};
+
+                         // ===================================
+                         // struct AddVolatile_Imp&lt;TYPE, false&gt;
+                         // ===================================
+
+template &lt;typename TYPE&gt;
+struct AddVolatile_Imp&lt;TYPE, false&gt; {
+    // This partial specialization of &#39;AddVolatile_Imp&#39; provides an alias
+    // &#39;Type&#39; that has the same type as &#39;TYPE&#39; for when the (template
+    // parameter) &#39;ADD_VOLATILE&#39; is &#39;false&#39;.
+
+    typedef TYPE Type;
+        // This &#39;typedef&#39; is an alias to the (template parameter) &#39;TYPE&#39;.
+};
+
+}  // close package namespace
+}  // close enterprise namespace
+
+namespace bsl {
+
+                         // ===================
+                         // struct add_volatile
+                         // ===================
+
+template &lt;typename TYPE&gt;
+struct add_volatile {
+    // This &#39;struct&#39; template implements the &#39;add_volatile&#39; meta-function
+    // defined in the C++11 standard [meta.trans.cv] to provide an alias &#39;type&#39;
+    // that has the same type as the (template parameter) &#39;TYPE&#39; except that
+    // the top-level &#39;volatile&#39;-qualifier has been added, unless &#39;TYPE&#39; is a
+    // reference, a function, or already &#39;volatile&#39;-qualified at the top-level.
+
+    typedef typename BloombergLP::bslmf::AddVolatile_Imp&lt;
+                            TYPE,
+                            !is_reference&lt;TYPE&gt;::value
+                            &amp;&amp; !is_function&lt;TYPE&gt;::value
+                            &amp;&amp; !is_volatile&lt;TYPE&gt;::value&gt;::Type type;
+        // This &#39;typedef&#39; to a type that is the same as the (template
+        // parameter) &#39;TYPE&#39; except with &#39;volatile&#39;-qualifier added.
+};
+
+}  // close namespace bsl
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright (C) 2012 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the &quot;Software&quot;), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

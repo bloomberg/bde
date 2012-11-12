@@ -1,0 +1,1324 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 2.16 BETA</title>
+<html>
+<pre>
+// bslim_printer.h                                                    -*-C++-*-
+#ifndef INCLUDED_BSLIM_PRINTER
+#define INCLUDED_BSLIM_PRINTER
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a mechanism to implement standard &#39;print&#39; methods.
+//
+//@CLASSES:
+//  bslim::Printer: mechanism to implement standard &#39;print&#39; methods
+//
+//@DESCRIPTION: This component provides a mechanism class, &#39;Printer&#39;, that, in
+// many cases, simplifies the implementation of types providing a &#39;print&#39;
+// method with the signature:
+//..
+//  bsl::ostream&amp; print(bsl::ostream&amp; stream,
+//                      int           level          = 0,
+//                      int           spacesPerLevel = 4) const;
+//      // Format this object to the specified output &#39;stream&#39; at the (absolute
+//      // value of) the optionally specified indentation &#39;level&#39; and return a
+//      // reference to &#39;stream&#39;.  If &#39;level&#39; is specified, optionally specify
+//      // &#39;spacesPerLevel&#39;, the number of spaces per indentation level for
+//      // this and all of its nested objects.  If &#39;level&#39; is negative,
+//      // suppress indentation of the first line.  If &#39;spacesPerLevel&#39; is
+//      // negative format the entire output on one line, suppressing all but
+//      // the initial indentation (as governed by &#39;level&#39;).  If &#39;stream&#39; is
+//      // not valid on entry, this operation has no effect.
+//..
+// Note that all value-semantic types are expected to provide this method.  Use
+// of the &#39;Printer&#39; mechanism provides a uniform style of output formatting:
+//
+//: o Enclose the object&#39;s salient attributes with square brackets.
+//:
+//: o Prefix each attribute with the attribute&#39;s name, separated by an &quot;equal&quot;
+//:   sign surrounded by space characters (&quot; = &quot;).
+//:
+//: o If the attributes are to be printed on multiple lines, then print them
+//:   with one more level of indentation than that of the enclosing brackets.
+//:   If any of the attributes are compositions, then the composite values
+//:   must be printed with an additional level of indentation.
+//:
+//: o If the attributes are to be printed on a single line, then separate each
+//:   value with a single space character.
+//:
+//: o For small, common types, such as &#39;bdet_Date&#39;, the names of attributes,
+//:   equal sign, and brackets may be omitted, with the entire value
+//:   represented on a single line in a custom format.  For example, the
+//:   &#39;bdet_Date::print&#39; method emits the date value in the format: 01JAN2001.
+//
+// For example, consider a class having two attributes, &quot;ticker&quot;, represented
+// by a &#39;bsl::string&#39;, and &quot;price&quot;, represented by a &#39;double&#39;.  The output for
+// a &#39;print&#39; method that produces standardized output for
+// &#39;print(bsl::cout, 0, -4)&#39; (single-line output) is shown below:
+//..
+//  [ ticker = &quot;ABC&quot; price = 65.89 ]
+//..
+// Output for &#39;print(bsl::cout, 0, 4)&#39; (multi-line output) is shown below:
+//..
+//  [
+//      ticker = &quot;ABC&quot;
+//      price = 65.89
+//  ]
+//..
+// The &#39;Printer&#39; mechanism provides methods and method templates to format data
+// as described above.  &#39;Printer&#39; objects are instantiated with the target
+// stream to be written to, and the values of the indentation level of the
+// data, &#39;level&#39;, and the spaces per level, &#39;spacesPerLevel&#39;.  The methods
+// provided by &#39;Printer&#39;, &#39;printAttribute&#39;, &#39;printValue&#39;, &#39;printOrNull&#39;,
+// &#39;printHexAddr&#39; and &#39;printForeign&#39;, use these values for formatting.  The
+// &#39;start&#39; and &#39;end&#39; methods print the enclosing brackets of the output.  In
+// order to generate the standard output format, &#39;start&#39; should be called
+// before any of the other methods, and &#39;end&#39; should be called after all the
+// other methods have been called.
+//
+///Usage
+///-----
+// In the following examples, we examine the implementation of the &#39;print&#39;
+// method of different types of classes using &#39;Printer&#39;.
+//
+///Example 1: &#39;print&#39; Method for a Value-Semantic Class
+/// - - - - - - - - - - - - - - - - - - - - - - - - - -
+// In this example, we demonstrate how to use &#39;Printer&#39; to implement the
+// standard &#39;print&#39; function of a value-semantic class having multiple
+// attributes.  Suppose we have a class, &#39;RecordAttributes&#39;, that provides a
+// container for a fixed set of attributes.  A &#39;RecordAttributes&#39; object has
+// two attributes, &quot;timestamp&quot;, of type &#39;my::Datetime&#39;, and
+// &quot;processID&quot;, of type &#39;int&#39;:
+//..
+//  class StockTrade {
+//      // This class represents the properties of a stock trace.
+//
+//      // DATA
+//      bsl::string d_ticker;        // ticker symbol
+//      double      d_price;         // stock price
+//      double      d_quantity;      // quanity traded
+//
+//    public:
+//      ...
+//
+//      // ACCESSORS
+//      bsl::ostream&amp; print(bsl::ostream&amp; stream,
+//                          int           level = 0,
+//                          int           spacesPerLevel = 4) const
+//      {
+//          if (stream.bad()) {
+//              return stream;                                        // RETURN
+//          }
+//
+//          bslim::Printer printer(&amp;stream, level, spacesPerLevel);
+//          printer.start();
+//          printer.printAttribute(&quot;ticker&quot;,   d_ticker);
+//          printer.printAttribute(&quot;price&quot;,    d_price);
+//          printer.printAttribute(&quot;quantity&quot;, d_quantity);
+//          printer.end();
+//
+//          return stream;
+//      }
+//  };
+//..
+// Sample output for &#39;StockTrade::print(bsl::cout, 0, -4)&#39;:
+//..
+//  [ ticker = &quot;IBM&quot; price = 107.3 quantity = 200 ]
+//..
+// Sample output for &#39;StockTrade::print(bsl::cout, 0, 4)&#39;:
+//..
+//  [
+//      ticker = &quot;IBM&quot;
+//      price = 107.3
+//      quantity = 200
+//  ]
+//..
+//
+///Example 2: &#39;print&#39; Method for a Mechanism Class
+///- - - - - - - - - - - - - - - - - - - - - - - -
+// In this example, we discuss the implementation of &#39;print&#39; for a mechanism
+// class.  A mechanism class does not have any salient attributes that define
+// its value (as a mechanism does not have a &quot;value&quot;).  However, the &#39;print&#39;
+// method may be implemented to output the internal state of an object of such
+// a type, e.g., for debugging purposes.
+//
+// For example, consider a memory manager class, &#39;BlockList&#39;, that
+// maintains a linked list of memory blocks:
+//..
+//  class BlockList {
+//      // This class implements a low-level memory manager that allocates and
+//      // manages a sequence of memory blocks.
+//
+//      // TYPES
+//      struct Block {
+//          // This &#39;struct&#39; overlays the beginning of each managed block of
+//          // allocated memory, implementing a doubly-linked list of managed
+//          // blocks, and thereby enabling constant-time deletions from, as
+//          // well as additions to, the list of blocks.
+//
+//          Block                               *d_next_p;       // next
+//                                                               // pointer
+//
+//          Block                              **d_addrPrevNext; // enable
+//                                                               // delete
+//
+//          bsls::AlignmentUtil::MaxAlignedType   d_memory;      // force
+//                                                               // alignment
+//      };
+//
+//      // DATA
+//      Block           *d_head_p;      // address of first block of memory
+//                                      // (or 0)
+//
+//      bslma::Allocator *d_allocator_p; // memory allocator; held, but not
+//                                       // owned
+//
+//    public:
+//      // ...
+//      // ACCESSORS
+//      // ...
+//      bsl::ostream&amp; print(bsl::ostream&amp; stream,
+//                          int           level          = 0,
+//                          int           spacesPerLevel = 4) const;
+//  };
+//..
+// For the purposes of debugging, it may be useful to print the starting
+// address of every memory block in a &#39;BlockList&#39;, which can be done using the
+// &#39;printHexAddr&#39; method of the &#39;Printer&#39; class:
+//..
+//  bsl::ostream&amp; BlockList::print(bsl::ostream&amp; stream,
+//                                 int           level,
+//                                 int           spacesPerLevel) const
+//  {
+//      if (stream.bad()) {
+//          return stream;                                            // RETURN
+//      }
+//
+//      bslim::Printer printer(&amp;stream, level, spacesPerLevel);
+//      printer.start();
+//      for (Block *it = d_head_p; it; it = it-&gt;d_next_p) {
+//          printer.printHexAddr(it, 0);
+//      }
+//      printer.end();
+//
+//      return stream;
+//  }
+//..
+// Sample output for &#39;BlockList::print(bsl::cout, 0, -4):
+//..
+//  [ 0x0012fab4 0x0012fab8 ]
+//..
+// Sample output for &#39;BlockList::print(bsl::cout, 0, 4):
+//..
+//  [
+//      0x0012fab4
+//      0x0012fab8
+//  ]
+//..
+//
+///Example 3: Foreign (3rd - Party) Classes, and Printing STL Containers
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// In this example, we use a &#39;Printer&#39; object to help format the properties of
+// a class supplied by a third-party that does not implement the standard
+// &#39;print&#39; method.  Consider a struct, &#39;ThirdPartyStruct&#39;, defined in
+// &#39;/usr/include/thirdparty.h&#39; that has no standard &#39;print&#39; method.  We will be
+// using this struct within another class &#39;Customer&#39;, storing some &#39;Customer&#39;
+// objects in a map, and printing the map.
+//..
+//  struct ThirdPartyStruct {
+//      // Suppose this struct is defined somewhere in
+//      // &#39;/usr/include/thirdparty.h&#39;, we have no control over it and hence
+//      // cannot add a .print method to it.
+//
+//      enum { PRIVATE  = 1,
+//             WRITABLE = 2 };
+//
+//      short pid;              // process id
+//      short access_flags;     // options
+//      char user_id[20];       // userid
+//  };
+//..
+// We create a function &#39;myThirdPartyStructPrintFunction&#39;:
+//..
+//  struct MyThirdPartyStructPrintUtil {
+//      static
+//      bsl::ostream&amp; print(bsl::ostream&amp;           stream,
+//                          const ThirdPartyStruct&amp; data,
+//                          int                     level = 0,
+//                          int                      spacesPerLevel = 4);
+//          // You write this function in your own code to accommodate
+//          // &#39;ThirdPartyStruct&#39;.
+//  };
+//
+//  bsl::ostream&amp; MyThirdPartyStructPrintUtil::print(
+//                                      bsl::ostream&amp;           stream,
+//                                      const ThirdPartyStruct&amp; data,
+//                                      int                     level,
+//                                      int                     spacesPerLevel)
+//  {
+//      bslim::Printer printer(&amp;stream, level, spacesPerLevel);
+//      printer.start();
+//      printer.printAttribute(&quot;pid&quot;,          data.pid);
+//      printer.printAttribute(&quot;access_flags&quot;, data.access_flags);
+//      printer.printAttribute(&quot;user_id&quot;,      data.user_id);
+//      printer.end();
+//
+//      return stream;
+//  }
+//..
+//  We create a class &#39;Customer&#39; that has a &#39;ThirdPartyStruct&#39; in it:
+//..
+//  class Customer {
+//      // DATA
+//      bsl::string      d_companyName;
+//      ThirdPartyStruct d_thirdPartyStruct;
+//      bool             d_loyalCustomer;
+//
+//    public:
+//      // CREATORS
+//      Customer() {}
+//
+//      Customer(const bsl::string&amp; companyName,
+//               short              pid,
+//               short              accessFlags,
+//               const bsl::string&amp; userId,
+//               bool               loyalCustomer)
+//      : d_companyName(companyName)
+//      , d_loyalCustomer(loyalCustomer)
+//      {
+//          d_thirdPartyStruct.pid = pid;
+//          d_thirdPartyStruct.access_flags = accessFlags;
+//          bsl::strcpy(d_thirdPartyStruct.user_id, userId.c_str());
+//      }
+//
+//      // ACCESSORS
+//      void print(bsl::ostream&amp; stream,
+//                 int           level = 0,
+//                 int           spacesPerLevel = 4) const
+//      {
+//          bslim::Printer printer(&amp;stream, level, spacesPerLevel);
+//          printer.start();
+//          printer.printAttribute(&quot;CompanyName&quot;, d_companyName);
+//          printer.printForeign(d_thirdPartyStruct,
+//                               &amp;MyThirdPartyStructPrintUtil::print,
+//                               &quot;ThirdPartyStruct&quot;);
+//          printer.printAttribute(&quot;LoyalCustomer&quot;, d_loyalCustomer);
+//          printer.end();
+//      }
+//  };
+//..
+//  We then create some &#39;Customer&#39; objects and put them in a map:
+//..
+//  void myFunc()
+//  {
+//      bsl::map&lt;int, Customer&gt; myMap;
+//      myMap[7] = Customer(&quot;Honeywell&quot;,
+//                          27,
+//                          ThirdPartyStruct::PRIVATE,
+//                          &quot;hw&quot;,
+//                          true);
+//      myMap[5] = Customer(&quot;IBM&quot;,
+//                          32,
+//                          ThirdPartyStruct::WRITABLE,
+//                          &quot;ibm&quot;,
+//                          false);
+//      myMap[8] = Customer(&quot;Burroughs&quot;,
+//                          45,
+//                          0,
+//                          &quot;burr&quot;,
+//                          true);
+//..
+//  Now we print the map
+//..
+//      bslim::Printer printer(&amp;cout, 0, 4);
+//      printer.start();
+//      printer.printValue(myMap);
+//      printer.end();
+//  }
+//..
+// The following is written to &#39;stdout&#39;:
+//..
+//  [
+//      [
+//          [
+//              5
+//              [
+//                  CompanyName = &quot;IBM&quot;
+//                  ThirdPartyStruct = [
+//                      pid = 32
+//                      access_flags = 2
+//                      user_id = &quot;ibm&quot;
+//                  ]
+//                  LoyalCustomer = false
+//              ]
+//          ]
+//          [
+//              7
+//              [
+//                  CompanyName = &quot;Honeywell&quot;
+//                  ThirdPartyStruct = [
+//                      pid = 27
+//                      access_flags = 1
+//                      user_id = &quot;hw&quot;
+//                  ]
+//                  LoyalCustomer = true
+//              ]
+//          ]
+//          [
+//              8
+//              [
+//                  CompanyName = &quot;Burroughs&quot;
+//                  ThirdPartyStruct = [
+//                      pid = 45
+//                      access_flags = 0
+//                      user_id = &quot;burr&quot;
+//                  ]
+//                  LoyalCustomer = true
+//              ]
+//          ]
+//      ]
+//  ]
+//..
+///Example 4: Printing Ranges, and Typed Pointers
+/// - - - - - - - - - - - - - - - - - - - - - - -
+// In this examples we demonstrate two capabilities of a &#39;bslim::Printer&#39;
+// object: printing a range of elements using iterators and printing a pointer
+// type.
+//
+// The &#39;printValue&#39; or &#39;printAttribute&#39; methods of &#39;bslim::Printer&#39; will print
+// out all of the elements in the range specified by a pair of iterator
+// arguments, which can be of any type that provides appropriately behaving
+// operators &#39;++&#39;, &#39;*&#39;, and &#39;==&#39; (a non-void pointer would qualify).
+//
+// When &#39;bslim&#39; encounters a single pointer of type &#39;TYPE *&#39;, where &#39;TYPE&#39; is
+// neither &#39;void&#39; nor &#39;char&#39;, the pointer value is printed out in hex followed
+// by printing out the value of &#39;TYPE&#39;.  A compile error will occur if bslim is
+// unable to print out &#39;TYPE&#39;.
+//
+// As an example, we print out a range of pointers to sets.
+//
+// First we create 3 sets and populate them with different values.
+//..
+//  typedef bsl::set&lt;int&gt; Set;
+//
+//  Set s0, s1, s2;
+//
+//  s0.insert(0);
+//  s0.insert(1);
+//  s0.insert(2);
+//
+//  s1.insert(4);
+//  s1.insert(5);
+//
+//  s2.insert(8);
+//..
+// Then, we store the addresses to those 3 sets into a fixed-length array:
+//..
+//  const Set *setArray[] = { &amp;s0, &amp;s1, &amp;s2 };
+//  const int NUM_SET_ARRAY = sizeof setArray / sizeof *setArray;
+//..
+// Next we use &#39;printValue&#39; to print a range of values by supplying an iterator
+// to the beginning and end of the range, in the address of &#39;setArray&#39; and the
+// address one past the end of &#39;setArray&#39;:
+//..
+//  bslim::Printer printer(&amp;cout, 0, -1);
+//  printer.printValue(setArray + 0, setArray + NUM_SET_ARRAY);
+//..
+//  The expected output is:
+//..
+//  [ 0xffbfd688 [ 0 1 2 ] 0xffbfd678 [ 4 5 ] 0xffbfd668 [ 8 ] ]
+//..
+///Example 5: &#39;print&#39; Method for a Low-Level Value-Semantic Class
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// For very simple classes, it may be desirable always to format the attributes
+// on a single line.  In this example, we discuss the &#39;print&#39; method formatting
+// for such a low-level value semantic class.
+//
+// Usually, single-line or multi-line formatting options are specified by the
+// value of the &#39;spacesPerLevel&#39; argument, but for a simple class that always
+// prints on a single line, the only difference between the single- and
+// multi-line cases is that a newline character is printed at the end of the
+// output for the multi-line case.  For such classes, the &quot;name&quot; of the
+// attribute and the enclosing brackets may be omitted as well.
+//
+// For example, consider a class, &#39;DateTz&#39;, having as attributes a local date
+// and a time offset:
+//..
+//  class DateTz {
+//      // This &#39;class&#39; represents a date value explicitly in a local time
+//      // zone.  The offset of that time (in minutes) from UTC is also part of
+//      // the value of this class.
+//
+//    private:
+//      // DATA
+//      int d_localDate;  // date in YYYYMMDD format, local to the timezone
+//                        // indicated by &#39;d_offset&#39;
+//
+//      int d_offset;     // offset from UTC (in minutes)
+//
+//    public:
+//      // ...
+//      // ACCESSORS
+//      bsl::ostream&amp; print(bsl::ostream&amp; stream,
+//                          int           level          = 0,
+//                          int           spacesPerLevel = 4) const;
+//      // ...
+//  };
+//..
+// The &#39;Printer&#39; class may be used in this case to print the start and end
+// indentation by passing a &#39;suppressBracket&#39; flag to the &#39;start&#39; and &#39;end&#39;
+// methods.  The value itself can be written to the stream directly without
+// using &#39;Printer&#39;.  Note that to ensure correct formatting of the value in the
+// presence of a call to &#39;setw&#39; on the stream, the output must be written to a
+// &#39;bsl::ostringstream&#39; first; the string containing the output can then be
+// written to the specified &#39;stream&#39;:
+//..
+//  bsl::ostream&amp; DateTz::print(bsl::ostream&amp; stream,
+//                              int           level,
+//                              int           spacesPerLevel) const
+//  {
+//     if (stream.bad()) {
+//         return stream;                                             // RETURN
+//     }
+//
+//     bsl::ostringstream tmp;
+//     tmp &lt;&lt; d_localDate;
+//
+//     const char sign    = d_offset &lt; 0 ? &#39;-&#39; : &#39;+&#39;;
+//     const int  minutes = &#39;-&#39; == sign ? -d_offset : d_offset;
+//     const int  hours   = minutes / 60;
+//
+//     // space usage: +-  hh  mm  nil
+//     const int SIZE = 1 + 2 + 2 + 1;
+//     char buf[SIZE];
+//
+//     // Use at most 2 digits for &#39;hours&#39;
+//     if (hours &lt; 100) {
+//         bsl::sprintf(buf, &quot;%c%02d%02d&quot;, sign, hours, minutes % 60);
+//     }
+//     else {
+//         bsl::sprintf(buf, &quot;%cXX%02d&quot;, sign, minutes % 60);
+//     }
+//
+//     tmp &lt;&lt; buf;
+//
+//     bslim::Printer printer(&amp;stream, level, spacesPerLevel);
+//     printer.start(true);
+//     stream &lt;&lt; tmp.str();
+//     printer.end(true);
+//
+//     return stream &lt;&lt; bsl::flush;
+//  }
+//..
+// Sample output for &#39;DateTz::print(bsl::cout, 0, -4):
+//..
+//  01JAN2011-0500
+//..
+// Sample output for &#39;DateTz::print(bsl::cout, 0, 4):
+//..
+//  01JAN2011-0500&lt;\n&gt;
+//..
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include &lt;bslscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLALG_HASTRAIT
+#include &lt;bslalg_hastrait.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLALG_TYPETRAITHASSTLITERATORS
+#include &lt;bslalg_typetraithasstliterators.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_FUNCTIONPOINTERTRAITS
+#include &lt;bslmf_functionpointertraits.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_ISARRAY
+#include &lt;bslmf_isarray.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_ISFUNDAMENTAL
+#include &lt;bslmf_isfundamental.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_ISPOINTER
+#include &lt;bslmf_ispointer.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include &lt;bsls_assert.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_TYPES
+#include &lt;bsls_types.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_OSTREAM
+#include &lt;bsl_ostream.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_STRING
+#include &lt;bsl_string.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_UTILITY
+#include &lt;bsl_utility.h&gt;
+#endif
+
+namespace BloombergLP {
+namespace bslim {
+
+                        // =============
+                        // class Printer
+                        // =============
+
+class Printer {
+    // This class implements a *mechanism* used to format data as required by
+    // the standard BDE &#39;print&#39; method contract.
+
+    // DATA
+    bsl::ostream *d_stream_p;                  // output stream (held, not
+                                               // owned)
+
+    int           d_level;                     // level used in formatting
+
+    int           d_levelPlusOne;              // &#39;d_level + 1&#39;; useful in
+                                               // implementation
+
+    bool          d_suppressInitialIndentFlag; // formatting flag
+
+    int           d_spacesPerLevel;            // spaces per level used in
+                                               // formatting
+
+  private:
+    // PRIVATE ACCESSORS
+    void printEndIndentation() const;
+        // Print to the output stream supplied at construction
+        // &#39;absLevel() * spacesPerLevel()&#39; blank spaces if
+        // &#39;spacesPerLevel() &gt;= 0&#39;, and print a single blank space otherwise.
+
+    void printIndentation() const;
+        // Print to the output stream supplied at construction
+        // &#39;(absLevel() + 1) * spacesPerLevel()&#39; blank spaces if
+        // &#39;spacesPerLevel() &gt;= 0&#39;, and print a single blank space otherwise.
+
+  private:
+    // NOT IMPLEMENTED
+    Printer&amp; operator=(const Printer&amp;);
+
+  public:
+    // CREATORS
+    Printer(bsl::ostream *stream, int level, int spacesPerLevel);
+        // Create a &#39;Printer&#39; object that will print to the specified &#39;stream&#39;
+        // in a format dictated by the values of the specified &#39;level&#39; and
+        // &#39;spacesPerLevel&#39;, as per the contract of the standard BDE &#39;print&#39;
+        // method.  The behavior is undefined unless &#39;stream&#39; is valid.
+
+    ~Printer();
+        // Destroy this &#39;Printer&#39; object.
+
+    // ACCESSORS
+    int absLevel() const;
+        // Return the absolute value of the formatting level supplied at
+        // construction.
+
+    void end(bool suppressBracket = false) const;
+        // If &#39;spacesPerLevel() &gt;= 0&#39;, print a newline character to the output
+        // stream supplied at construction.  If the optionally specified
+        // &#39;suppressBracket&#39; is false, print a closing square bracket, indented
+        // by &#39;absLevel() * spacesPerLevel()&#39; blank spaces.
+
+
+    template &lt;class TYPE&gt;
+    void printAttribute(const char *name, const TYPE&amp; data) const;
+        // Format to the output stream supplied at construction the specified
+        // &#39;data&#39;, prefixed by the specified &#39;name&#39;.  Format &#39;data&#39; based on
+        // the parameterized &#39;TYPE&#39;:
+        //
+        //: o If &#39;TYPE&#39; is a fundamental type, output &#39;data&#39; to the stream.
+        //:
+        //: o If &#39;TYPE&#39; is a fixed length array (&#39;Element[NUM]&#39;) and not a char
+        //:   array, print out all the elements of the array.
+        //:
+        //: o If &#39;TYPE&#39; is &#39;void * or &#39;const void *&#39;, or function pointer,
+        //:   print the address value of &#39;data&#39; in hexadecimal format if it is
+        //:   not 0, and print the string &quot;NULL&quot; otherwise.
+        //:
+        //: o If &#39;TYPE&#39; is &#39;char *&#39;, &#39;const char *&#39;, &#39;char [*]&#39;, or &#39;const char
+        //:   &#39;[*]&#39; or &#39;bsl::string&#39; print &#39;data&#39; to the stream as a
+        //:   null-terminated C-style string enclosed in quotes if &#39;data&#39; is
+        //:   not 0, and print the string &quot;NULL&quot; otherwise.
+        //:
+        //: o If &#39;TYPE&#39; is a pointer type (other than the, potentially
+        //:   const-qualified,  &#39;char *&#39; or &#39;void *&#39;), print the address
+        //:   value of &#39;data&#39; in hexadecimal format, then format the object at
+        //:   that address if &#39;data&#39; is not 0, and print the string &quot;NULL&quot;
+        //:   otherwise.  There will be a compile-time error if &#39;data&#39; is a
+        //:   pointer to a user-defined type that does not provide a standard
+        //:   &#39;print&#39; method.
+        //:
+        //: o If &#39;TYPE&#39; is a &#39;bsl::pair&#39; object, print out the two elements of
+        //:   the pair.
+        //:
+        //: o If &#39;TYPE&#39; has STL iterators (this includes all STL sequence and
+        //:   associative containers: vector, deque, list, set, map, multiset,
+        //:   multimap, hash_set, hash_map, hash_multiset, and hash_multimap),
+        //:   print all the objects in the container.
+        //:
+        //: o If &#39;TYPE&#39; is any other type, call the standard &#39;print&#39; method on
+        //:   &#39;data&#39;, specifying one additional level of indentation than the
+        //:   current one.  There will be a compile-time error if &#39;TYPE&#39; does
+        //:   not provide a standard &#39;print&#39; method.
+        //
+        // If &#39;spacesPerLevel() &lt; 0&#39;, format &#39;data&#39; on a single line.
+        // If &#39;spacesPerLevel() &gt;= 0&#39;, indent &#39;data&#39; by
+        // &#39;(absLevel() + 1) * spacesPerLevel()&#39; blank spaces.  The behavior is
+        // undefined if &#39;TYPE&#39; is a &#39;char *&#39;, but not a null-terminated string.
+
+    template &lt;class ITERATOR&gt;
+    void printAttribute(const char      *name,
+                        const ITERATOR&amp;  begin,
+                        const ITERATOR&amp;  end) const;
+        // Format to the output stream supplied at construction, the specified
+        // &#39;name&#39; followed by the range of values starting at the specified
+        // &#39;begin&#39; position and ending immediately before the specified &#39;end&#39;
+        // position.  The parameterized &#39;ITERATOR&#39; type must support
+        // &#39;operator++&#39;, &#39;operator*&#39;, and &#39;operator==&#39;.  This function will
+        // call &#39;printValue&#39; on each element in the range &#39;[begin, end)&#39;.
+
+    template &lt;class TYPE, class PRINT_FUNCTOR&gt;
+    void printForeign(const TYPE&amp;           data,
+                      const PRINT_FUNCTOR&amp;  printFunctionObject,
+                      const char           *name) const;
+        // Print to the output stream supplied at construction the specified
+        // &#39;name&#39;, if name is not 0, and then call the specified
+        // &#39;printFunctionObject&#39; with the specified &#39;data&#39;, the &#39;stream&#39;
+        // supplied at construction, &#39;absLevel() + 1&#39;, and &#39;spacesPerLevel()&#39;.
+        // The parameterized &#39;PRINT_FUNCTOR&#39; must be an invocable type whose
+        // arguments match the following function signature:
+        //..
+        //  bsl::ostream&amp; (*)(bsl::ostream&amp; stream,
+        //                    const TYPE&amp;   data,
+        //                    int           level,
+        //                    int           spacesPerLevel)
+        //..
+
+    void printHexAddr(const void *address, const char *name) const;
+        // Write to the output stream supplied at construction the specified
+        // &#39;address&#39; in a hexadecimal format, if &#39;address&#39; is not 0, and print
+        // the string &quot;NULL&quot; otherwise, prefixed by the specified &#39;name&#39; if
+        // &#39;name&#39; is not 0.  If &#39;spacesPerLevel() &lt; 0&#39;, print on a single line.
+        // If &#39;spacesPerLevel() &gt;= 0&#39;, indent by
+        // &#39;(absLevel() + 1) * spacesPerLevel()&#39; blank spaces.
+
+    template &lt;class TYPE&gt;
+    void printOrNull(const TYPE&amp; address, const char *name) const;
+        // Format to the output stream supplied at construction the object at
+        // the specified &#39;address&#39;, if &#39;address&#39; is not 0, and print the string
+        // &quot;NULL&quot; otherwise, prefixed by the specified &#39;name&#39; if &#39;name&#39; is not
+        // 0.  If &#39;spacesPerLevel() &lt; 0&#39;, print on a single line.  If
+        // &#39;spacesPerLevel() &gt;= 0&#39;, indent by
+        // &#39;(absLevel() + 1) * spacesPerLevel()&#39; blank spaces.  The behavior is
+        // undefined unless &#39;TYPE&#39; is a pointer type.
+
+    template &lt;class TYPE&gt;
+    void printValue(const TYPE&amp; data) const;
+        // Format to the output stream supplied at construction the specified
+        // &#39;data&#39;.  Format &#39;data&#39; based on the parameterized &#39;TYPE&#39;:
+        //
+        //: o If &#39;TYPE&#39; is a fundamental type, output &#39;data&#39; to the stream.
+        //:
+        //: o If &#39;TYPE&#39; is a fixed length array (&#39;Element[NUM]&#39;) and not a char
+        //:   array, print out all the elements of the array.
+        //:
+        //: o If &#39;TYPE&#39; is &#39;void * or &#39;const void *&#39;, or function pointer,
+        //:   print the address value of &#39;data&#39; in hexadecimal format if it is
+        //:   not 0, and print the string &quot;NULL&quot; otherwise.
+        //:
+        //: o If &#39;TYPE&#39; is &#39;char *&#39;, &#39;const char *&#39;, &#39;char [*]&#39;, or &#39;const char
+        //:   &#39;[*]&#39; or &#39;bsl::string&#39; print &#39;data&#39; to the stream as a
+        //:   null-terminated C-style string enclosed in quotes if &#39;data&#39; is
+        //:   not 0, and print the string &quot;NULL&quot; otherwise.
+        //:
+        //: o If &#39;TYPE&#39; is a pointer type (other than the, potentially
+        //:   const-qualified,  &#39;char *&#39; or &#39;void *&#39;), print the address
+        //:   value of &#39;data&#39; in hexadecimal format, then format the object at
+        //:   that address if &#39;data&#39; is not 0, and print the string &quot;NULL&quot;
+        //:   otherwise.  There will be a compile-time error if &#39;data&#39; is a
+        //:   pointer to a user-defined type that does not provide a standard
+        //:   &#39;print&#39; method.
+        //:
+        //: o If &#39;TYPE&#39; is a &#39;bsl::pair&#39; object, print out the two elements of
+        //:   the pair.
+        //:
+        //: o If &#39;TYPE&#39; has STL iterators (this includes all STL sequence and
+        //:   associative containers: vector, deque, list, set, map, multiset,
+        //:   multimap, hash_set, hash_map, hash_multiset, and hash_multimap),
+        //:   print all the objects in the container.
+        //:
+        //: o If &#39;TYPE&#39; is any other type, call the standard &#39;print&#39; method on
+        //:   &#39;data&#39;, specifying one additional level of indentation than the
+        //:   current one.  There will be a compile-time error if &#39;TYPE&#39; does
+        //:   not provide a standard &#39;print&#39; method.
+        //
+        // If &#39;spacesPerLevel() &lt; 0&#39;, format &#39;data&#39; on a single line.
+        // If &#39;spacesPerLevel() &gt;= 0&#39;, indent &#39;data&#39; by
+        // &#39;(absLevel() + 1) * spacesPerLevel()&#39; blank spaces.  The behavior is
+        // undefined if &#39;TYPE&#39; is a &#39;char *&#39;, but not a null-terminated string.
+
+    template &lt;class ITERATOR&gt;
+    void printValue(const ITERATOR&amp; begin,
+                    const ITERATOR&amp; end) const;
+        // Format to the output stream supplied at construction, the range of
+        // values starting at the specified &#39;begin&#39; position and ending
+        // immediately before the specified &#39;end&#39; position.  The parameterized
+        // &#39;ITERATOR&#39; type must support &#39;operator++&#39;, &#39;operator*&#39;, and
+        // &#39;operator==&#39;.  This function will call &#39;printValue&#39; on each element
+        // in the range &#39;[begin, end)&#39;.
+
+    int spacesPerLevel() const;
+        // Return the number of whitespace characters to output for each
+        // level of indentation.  The number of whitespace characters for
+        // each level of indentation is configured using the &#39;spacesPerLevel&#39;
+        // supplied at construction.
+
+    void start(bool suppressBracket = false) const;
+        // Print to the output stream supplied at construction
+        // &#39;absLevel() * spacesPerLevel()&#39; blank spaces if the
+        // &#39;suppressInitialIndentFlag&#39; is &#39;false&#39;, and suppress the initial
+        // indentation otherwise.  If the optionally specified
+        // &#39;suppressBracket&#39; is &#39;false&#39;, print an opening square bracket.
+
+    bool suppressInitialIndentFlag() const;
+        // Return &#39;true&#39; if the initial output indentation will be
+        // suppressed, and &#39;false&#39; otherwise.  The initial indentation will be
+        // suppressed if the &#39;level&#39; supplied at construction is negative.
+};
+
+                        // =======================
+                        // struct Printer_Selector
+                        // =======================
+
+struct Printer_Selector {
+    // Enumeration used to discriminate between fundamental and user-defined
+    // types.
+
+    // TYPES
+    enum {
+        BSLIM_FUNDAMENTAL        = 0,    // special case &#39;char&#39;, &#39;bool&#39;,
+                                         // otherwise use &#39;&lt;&lt;&#39;
+
+        BSLIM_FUNCTION_POINTER   = 1,    // handle as &#39;void *&#39;
+
+        BSLIM_POINTER            = 2,    // special case &#39;char *&#39;, &#39;char[N]&#39;,
+                                         // &#39;void *&#39;, otherwise print in hex,
+                                         // then print *p.  Note that arrays
+                                         // must be printed with a range call.
+
+        BSLIM_HAS_STL_ITERATORS  = 3,    // special case bsl::string, otherwise
+                                         // print elements as range
+
+        BSLIM_DEFAULT            = 4     // special case bsl::pair, otherwise
+                                         // call the type&#39;s &#39;.print&#39; method
+    };
+
+    typedef bslmf::MetaInt&lt;BSLIM_FUNDAMENTAL&gt;       Fundamental;
+    typedef bslmf::MetaInt&lt;BSLIM_FUNCTION_POINTER&gt;  FunctionPointer;
+    typedef bslmf::MetaInt&lt;BSLIM_POINTER&gt;           Pointer;
+    typedef bslmf::MetaInt&lt;BSLIM_HAS_STL_ITERATORS&gt; HasStlIterators;
+    typedef bslmf::MetaInt&lt;BSLIM_DEFAULT&gt;           Default;
+};
+
+                        // =========================
+                        // struct Printer_DetectType
+                        // =========================
+
+template &lt;class TYPE&gt;
+class Printer_DetectType {
+    // This struct provides a meta-function to classify a data type as either
+    // a fundamental, pointer, or user-defined type.
+
+    // PRIVATE TYPES
+    typedef bslalg::TypeTraitHasStlIterators HasIterators;
+
+  public:
+    // PUBLIC TYPES
+    enum {
+        VALUE = bslmf::IsFundamental&lt;TYPE&gt;::VALUE || bslmf::IsEnum&lt;TYPE&gt;::VALUE
+                ? Printer_Selector::BSLIM_FUNDAMENTAL
+                : bslmf::IsFunctionPointer&lt;TYPE&gt;::VALUE
+                  ? Printer_Selector::BSLIM_FUNCTION_POINTER
+                  : bslmf::IsPointer&lt;TYPE&gt;::VALUE ||
+                                                 bslmf::IsArray&lt;TYPE&gt;::VALUE
+                    ? Printer_Selector::BSLIM_POINTER
+                    : bslalg::HasTrait&lt;TYPE, HasIterators&gt;::VALUE
+                      ? Printer_Selector::BSLIM_HAS_STL_ITERATORS
+                      : Printer_Selector::BSLIM_DEFAULT
+    };
+
+    typedef bslmf::MetaInt&lt;VALUE&gt; Type;
+};
+
+
+                        // =====================
+                        // struct Printer_Helper
+                        // =====================
+
+struct Printer_Helper {
+    // This struct is an aid to the implementation of the accessors of the
+    // &#39;Printer&#39; mechanism.  It provides a method template, &#39;print&#39;, that
+    // adheres to the BDE &#39;print&#39; method contract.  It is not to be accessed
+    // directly by clients of &#39;bslim&#39;.
+    //
+    // See &#39;Printer_DetectType&#39; for an overview of how this class handles
+    // categories of objects.
+
+    // CLASS METHODS
+    template &lt;class TYPE&gt;
+    static void print(bsl::ostream&amp; stream,
+                      const TYPE&amp;   data,
+                      int           level,
+                      int           spacesPerLevel);
+        // Format the specified &#39;data&#39; to the specified output `stream&#39; at the
+        // (absolute value of) the specified indentation `level&#39;, using the
+        // specified &#39;spacesPerLevel&#39;, the number of spaces per indentation
+        // level for this and all of its nested objects.  Note that this
+        // function dispatches to &#39;printRaw&#39; based on the type of &#39;data&#39;,
+        // as determined by &#39;Printer_DetectType&#39;.
+
+    template &lt;class ITERATOR&gt;
+    static void print(bsl::ostream&amp;   stream,
+                      const ITERATOR&amp; begin,
+                      const ITERATOR&amp; end,
+                      int             level,
+                      int             spacesPerLevel);
+        // Format the container containing the specified range of objects from
+        // &#39;[ begin, end )&#39;, where &#39;ITERATOR&#39; supports the operators &#39;++&#39; and
+        // &#39;*&#39; to access the objects.  Individual objects are printed with
+        // &#39;printValue&#39;.
+
+                      // Fundamental types
+
+    static void printRaw(
+                        bsl::ostream&amp;                  stream,
+                        char                           data,
+                        int                            level,
+                        int                            spacesPerLevel,
+                        Printer_Selector::Fundamental *);
+    static void printRaw(
+                        bsl::ostream&amp;                  stream,
+                        bool                           data,
+                        int                            level,
+                        int                            spacesPerLevel,
+                        Printer_Selector::Fundamental *);
+    template &lt;class TYPE&gt;
+    static void printRaw(
+                        bsl::ostream&amp;                  stream,
+                        const TYPE                     data,
+                        int                            level,
+                        int                            spacesPerLevel,
+                        Printer_Selector::Fundamental *);
+
+                      // Function pointer types
+
+    template &lt;class TYPE&gt;
+    static void printRaw(
+                   bsl::ostream&amp;                      stream,
+                   const TYPE&amp;                        data,
+                   int                                level,
+                   int                                spacesPerLevel,
+                   Printer_Selector::FunctionPointer *);
+
+                      // Pointer types
+
+    static void printRaw(bsl::ostream&amp;              stream,
+                         const char                *data,
+                         int                        level,
+                         int                        spacesPerLevel,
+                         Printer_Selector::Pointer *);
+    static void printRaw(bsl::ostream&amp;              stream,
+                         const void                *data,
+                         int                        level,
+                         int                        spacesPerLevel,
+                         Printer_Selector::Pointer *);
+    template &lt;class TYPE&gt;
+    static void printRaw(bsl::ostream&amp;              stream,
+                         const TYPE                *data,
+                         int                        level,
+                         int                        spacesPerLevel,
+                         Printer_Selector::Pointer *);
+
+                      // Types with STL iterators
+
+    static void printRaw(
+                  bsl::ostream&amp;                      stream,
+                  const bsl::string&amp;                 data,
+                  int                                level,
+                  int                                spacesPerLevel,
+                  Printer_Selector::HasStlIterators *);
+    template &lt;class TYPE&gt;
+    static void printRaw(
+                  bsl::ostream&amp;                      stream,
+                  const TYPE&amp;                        data,
+                  int                                level,
+                  int                                spacesPerLevel,
+                  Printer_Selector::HasStlIterators *);
+
+                      // Default types
+
+    template &lt;class T1, class T2&gt;
+    static void printRaw(
+                      bsl::ostream&amp;              stream,
+                      const bsl::pair&lt;T1, T2&gt;&amp;   data,
+                      int                        level,
+                      int                        spacesPerLevel,
+                      Printer_Selector::Default *);
+
+    template &lt;class TYPE&gt;
+    static void printRaw(
+                      bsl::ostream&amp;              stream,
+                      const TYPE&amp;                data,
+                      int                        level,
+                      int                        spacesPerLevel,
+                      Printer_Selector::Default *);
+        // &#39;PrintRaw&#39;: the &#39;print&#39; method of this class dispatches the actual
+        // printing to the appropriate specialized &#39;printRaw&#39; method for the
+        // individual TYPE for printing.
+};
+
+// ============================================================================
+//                      INLINE FUNCTION DEFINITIONS
+// ============================================================================
+
+
+                             // -------------
+                             // class Printer
+                             // -------------
+
+// ACCESSORS
+
+template &lt;class TYPE&gt;
+void Printer::printAttribute(const char *name, const TYPE&amp; data) const
+{
+    BSLS_ASSERT_SAFE(0 != name);
+
+    printIndentation();
+
+    *d_stream_p &lt;&lt; name &lt;&lt; &quot; = &quot;;
+
+    Printer_Helper::print(*d_stream_p,
+                          data,
+                          -d_levelPlusOne,
+                          d_spacesPerLevel);
+}
+
+template &lt;class ITERATOR&gt;
+void Printer::printAttribute(const char      *name,
+                             const ITERATOR&amp;  begin,
+                             const ITERATOR&amp;  end) const
+{
+    BSLS_ASSERT_SAFE(0 != name);
+
+    printIndentation();
+
+    *d_stream_p &lt;&lt; name &lt;&lt; &quot; = &quot;;
+
+    Printer_Helper::print(*d_stream_p,
+                          begin,
+                          end,
+                          -d_levelPlusOne,
+                          d_spacesPerLevel);
+}
+
+template &lt;class TYPE, class PRINT_FUNCTOR&gt;
+void Printer::printForeign(const TYPE&amp;           data,
+                           const PRINT_FUNCTOR&amp;  printFunctionObject,
+                           const char           *name) const
+{
+    printIndentation();
+
+    if (name) {
+        *d_stream_p &lt;&lt; name &lt;&lt; &quot; = &quot;;
+    }
+
+    printFunctionObject(*d_stream_p,
+                        data,
+                        -d_levelPlusOne,
+                        d_spacesPerLevel);
+}
+
+template &lt;class TYPE&gt;
+void Printer::printOrNull(const TYPE&amp; address, const char *name) const
+{
+    printIndentation();
+
+    if (name) {
+        *d_stream_p &lt;&lt; name &lt;&lt; &quot; = &quot;;
+    }
+
+    if (0 == address) {
+        *d_stream_p &lt;&lt; &quot;NULL&quot;;
+        if (d_spacesPerLevel &gt;= 0) {
+            *d_stream_p &lt;&lt; &#39;\n&#39;;
+        }
+    }
+    else {
+        Printer_Helper::print(*d_stream_p,
+                              *address,
+                              -d_levelPlusOne,
+                              d_spacesPerLevel);
+    }
+}
+
+template &lt;&gt;
+inline
+void Printer::printOrNull&lt;const void *&gt;(const void *const&amp;  address,
+                                        const char         *name) const
+{
+    printIndentation();
+
+    if (name) {
+        *d_stream_p &lt;&lt; name &lt;&lt; &quot; = &quot;;
+    }
+    const void *temp = address;
+
+    Printer_Helper::print(*d_stream_p,
+                          temp,
+                          -d_levelPlusOne,
+                          d_spacesPerLevel);
+}
+
+template &lt;&gt;
+inline
+void Printer::printOrNull&lt;void *&gt;(void *const&amp; address, const char *name) const
+{
+    const void *const&amp; temp = address;
+    printOrNull(temp, name);
+}
+
+template &lt;class TYPE&gt;
+inline
+void Printer::printValue(const TYPE&amp; data) const
+{
+    printIndentation();
+
+    Printer_Helper::print(*d_stream_p,
+                          data,
+                          -d_levelPlusOne,
+                          d_spacesPerLevel);
+}
+
+template &lt;class ITERATOR&gt;
+void Printer::printValue(const ITERATOR&amp; begin,
+                         const ITERATOR&amp; end) const
+{
+    printIndentation();
+
+    Printer_Helper::print(*d_stream_p,
+                          begin,
+                          end,
+                          -d_levelPlusOne,
+                          d_spacesPerLevel);
+}
+
+                        // ---------------------
+                        // struct Printer_Helper
+                        // ---------------------
+
+// CLASS METHODS
+
+// &#39;Printer_Helper::print(stream, data, level, spacesPerLevel)&#39;, though defined
+// first in the struct, is implemented last within this class so it can inline
+// the calls to &#39;printRaw&#39; that it makes.
+
+template &lt;class ITERATOR&gt;
+inline
+void Printer_Helper::print(bsl::ostream&amp;   stream,
+                           const ITERATOR&amp; begin,
+                           const ITERATOR&amp; end,
+                           const int       level,
+                           const int       spacesPerLevel)
+{
+    bslim::Printer printer(&amp;stream, level, spacesPerLevel);
+    printer.start();
+    for (ITERATOR it = begin; end != it; ++it) {
+        printer.printValue(*it);
+    }
+    printer.end();
+}
+
+                      // Fundamental types
+
+template &lt;class TYPE&gt;
+inline
+void Printer_Helper::printRaw(
+                         bsl::ostream&amp;                  stream,
+                         const TYPE                     data,
+                         int                            ,
+                         int                            spacesPerLevel,
+                         Printer_Selector::Fundamental *)
+{
+    stream &lt;&lt; data;
+    if (spacesPerLevel &gt;= 0) {
+        stream &lt;&lt; &#39;\n&#39;;
+    }
+}
+
+                      // Function pointer types
+
+template &lt;class TYPE&gt;
+inline
+void Printer_Helper::printRaw(
+                             bsl::ostream&amp;                      stream,
+                             const TYPE&amp;                        data,
+                             int                                level,
+                             int                                spacesPerLevel,
+                             Printer_Selector::FunctionPointer *)
+{
+    // GCC 3.4.6 does not allow a reinterpret-cast a function pointer directly
+    // to &#39;void *&#39;, so first cast it to an integer data type.
+
+    Printer_Helper::print(stream,
+                          reinterpret_cast&lt;const void *&gt;(
+                                 reinterpret_cast&lt;bsls::Types::UintPtr&gt;(data)),
+                          level,
+                          spacesPerLevel);
+}
+
+                      // Pointer types
+
+template &lt;class TYPE&gt;
+inline
+void Printer_Helper::printRaw(
+                             bsl::ostream&amp;              stream,
+                             const TYPE                *data,
+                             int                        level,
+                             int                        spacesPerLevel,
+                             Printer_Selector::Pointer *)
+{
+    printRaw(stream,
+             static_cast&lt;const void *&gt;(data),
+             level,
+             -1,
+             (Printer_Selector::Pointer *) 0);
+    if (0 == data) {
+        if (spacesPerLevel &gt;= 0) {
+            stream &lt;&lt; &#39;\n&#39;;
+        }
+    }
+    else {
+        stream &lt;&lt; &#39; &#39;;
+        Printer_Helper::print(stream, *data, level, spacesPerLevel);
+    }
+}
+
+                      // Types with STL iterators
+
+inline
+void Printer_Helper::printRaw(
+                             bsl::ostream&amp;                      stream,
+                             const bsl::string&amp;                 data,
+                             int                                level,
+                             int                                spacesPerLevel,
+                             Printer_Selector::HasStlIterators *)
+{
+    printRaw(stream,
+             data.c_str(),
+             level,
+             spacesPerLevel,
+             (Printer_Selector::Pointer *) 0);
+}
+
+template &lt;class TYPE&gt;
+inline
+void Printer_Helper::printRaw(
+                             bsl::ostream&amp;                      stream,
+                             const TYPE&amp;                        data,
+                             int                                level,
+                             int                                spacesPerLevel,
+                             Printer_Selector::HasStlIterators *)
+{
+    print(stream, data.begin(), data.end(), level, spacesPerLevel);
+}
+
+                      // Default types
+
+template &lt;class T1, class T2&gt;
+inline
+void Printer_Helper::printRaw(bsl::ostream&amp;              stream,
+                              const bsl::pair&lt;T1, T2&gt;&amp;   data,
+                              int                        level,
+                              int                        spacesPerLevel,
+                              Printer_Selector::Default *)
+{
+    bslim::Printer printer(&amp;stream, level, spacesPerLevel);
+    printer.start();
+    printer.printValue(data.first);
+    printer.printValue(data.second);
+    printer.end();
+}
+
+template &lt;class TYPE&gt;
+inline
+void Printer_Helper::printRaw(bsl::ostream&amp;              stream,
+                              const TYPE&amp;                data,
+                              int                        level,
+                              int                        spacesPerLevel,
+                              Printer_Selector::Default *)
+{
+    data.print(stream, level, spacesPerLevel);
+}
+
+// This method, though declared first in the struct, is placed last among the
+// methods in &#39;Printer_Helper&#39; so that it can inline the &#39;printRaw&#39; methods it
+// calls.
+
+template &lt;class TYPE&gt;
+inline
+void Printer_Helper::print(bsl::ostream&amp; stream,
+                           const TYPE&amp;   data,
+                           int           level,
+                           int           spacesPerLevel)
+{
+    Printer_Helper::printRaw(stream,
+                             data,
+                             level,
+                             spacesPerLevel,
+                             (typename Printer_DetectType&lt;TYPE&gt;::Type *) 0);
+}
+
+}  // close namespace bslim
+}  // close namespace BloombergLP
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright (C) 2012 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the &quot;Software&quot;), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

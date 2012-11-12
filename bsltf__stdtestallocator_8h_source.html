@@ -1,0 +1,557 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 2.16 BETA</title>
+<html>
+<pre>
+// bsltf_stdtestallocator.h                                           -*-C++-*-
+#ifndef INCLUDED_BSLTF_STDTESTALLOCATOR
+#define INCLUDED_BSLTF_STDTESTALLOCATOR
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a minimal standard compliant allocator.
+//
+//@CLASSES:
+//      bsltf::StdTestAllocatorConfiguration: namespace to configure allocator
+// bsltf::StdTestAllocatorConfigurationGuard: configuration scoped guard
+//                   bsltf::StdTestAllocator: standard compliant allocator
+//
+//@DESCRIPTION: This component provides an allocator, &#39;StdTestAllocator&#39;, that
+// defines the minimal interface to comply with section 20.1.5
+// ([lib.allocator.requirements]) of the C++03 standard.  This type can be used
+// to verify that constructs designed to support a standard-compliant allocator
+// access the allocator only through the standard-defined interface.
+//
+// &#39;StdTestAllocator&#39; delegates its operations to a static &#39;bslma_Allocator&#39;
+// (delegate allocator) that can be configured by the utilities provided in the
+// namespace &#39;StdTestAllocatorConfiguration&#39;.
+// &#39;StdTestAllocatorConfigurationGuard&#39; provides a scoped guard to enable
+// temporary replacement of the delegate allocator.
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Testing The Support for STL-Compliant Allocator
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// In this example we will verify that a type supports the use of a
+// STL-compliant allocator.
+//
+// First we define a simple container type intended to be used with a C++03
+// standard compliant allocator:
+//..
+//  template &lt;class TYPE, class ALLOCATOR&gt;
+//  class MyContainer {
+//      // This container type is parameterized on a standard allocator type
+//      // and contains a single object, always initialized, which can be
+//      // replaced and accessed.
+//
+//      // DATA MEMBERS
+//      ALLOCATOR  d_allocator;  // allocator used to supply memory (held, not
+//                               // owned)
+//
+//      TYPE      *d_object_p;   // pointer to the contained object
+//
+//    public:
+//      // CONSTRUCTORS
+//      MyContainer(const TYPE&amp; object);
+//          // Create an container containing the specified &#39;object&#39;, using the
+//          // parameterized &#39;ALLOCATOR&#39; to allocate memory.
+//
+//      ~MyContainer();
+//          // Destroy this container.
+//
+//      // MANIPULATORS
+//      TYPE&amp; object();
+//          // Return a reference providing modifiable access to the object
+//          // contained in this container.
+//
+//      // ACCESSORS
+//      const TYPE&amp; object() const;
+//          // Return a reference providing non-modifiable access to the object
+//          // contained in this container.
+//  };
+//..
+// Then, we define the member functions of &#39;MyContainer&#39;:
+//..
+//  // CREATORS
+//  template &lt;class TYPE, class ALLOCATOR&gt;
+//  MyContainer&lt;TYPE, ALLOCATOR&gt;::MyContainer(const TYPE&amp; object)
+//  {
+//      d_object_p = d_allocator.allocate(1);
+//      d_allocator.construct(d_object_p, object);
+//  }
+//
+//  template &lt;class TYPE, class ALLOCATOR&gt;
+//  MyContainer&lt;TYPE, ALLOCATOR&gt;::~MyContainer()
+//  {
+//      d_allocator.destroy(d_object_p);
+//      d_allocator.deallocate(d_object_p);
+//  }
+//
+//  // MANIPULATORS
+//  template &lt;class TYPE, class ALLOCATOR&gt;
+//  TYPE&amp; MyContainer&lt;TYPE, ALLOCATOR&gt;::object()
+//  {
+//      return *d_object_p;
+//  }
+//
+//  // ACCESSORS
+//  template &lt;class TYPE, class ALLOCATOR&gt;
+//  const TYPE&amp; MyContainer&lt;TYPE, ALLOCATOR&gt;::object() const
+//  {
+//      return *d_object_p;
+//  }
+//..
+// Now, we use &#39;StdTestAllocator&#39; to implement a simple test for &#39;MyContainer&#39;
+// to verify it correctly uses a parameterized allocator using only the C++03
+// standard methods:
+//..
+//  bslma_TestAllocator oa(&quot;object&quot;, veryVeryVeryVerbose);
+//  StdTestAllocatorConfigurationGuard stag(&amp;oa);
+//  {
+//      typedef MyContainer&lt;int, StdTestAllocator&lt;int&gt; &gt; Obj;
+//
+//      Obj mX(2); const Obj&amp; X = mX;
+//      assert(sizeof(int) == oa.numBytesInUse());
+//
+//      assert(X.object() == 2);
+//
+//      mX.object() = -10;
+//      assert(X.object() == -10);
+//  }
+//
+//  assert(0 == oa.numBytesInUse());
+//..
+
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include &lt;bslma_allocator.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMA_NEWDELETEALLOCATOR
+#include &lt;bslma_newdeleteallocator.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_UTIL
+#include &lt;bsls_util.h&gt;
+#endif
+
+#ifndef INCLUDED_NEW
+#include &lt;new&gt;
+#define INCLUDED_NEW
+#endif
+
+namespace BloombergLP {
+namespace bsltf {
+
+                        // ===================================
+                        // class StdTestAllocatorConfiguration
+                        // ===================================
+
+struct StdTestAllocatorConfiguration {
+    // This &#39;struct&#39; provides a namespace for functions that manipulate and
+    // access the *delegate allocator* for &#39;StdTestAllocator&#39;.  The delegate
+    // allocator is the allocator to which &#39;StdTestAllocator&#39; objects delegate
+    // their operations.  The provided operations are *not* thread-safe.  Note
+    // that this allocator is configured globally as C++03 standard compliant
+    // allocators cannot have individually identifiable state.
+
+  private:
+    // CLASS DATA
+    static bslma::Allocator *s_allocator_p; // the delegate allocator
+
+  public:
+    // CLASS METHODS
+    static void setDelegateAllocatorRaw(bslma::Allocator *basicAllocator);
+        // Set the address of the delegate allocator to the specified
+        // &#39;basicAllocator&#39;.
+
+    static bslma::Allocator* delegateAllocator();
+        // Return the address of the delegate allocator.  Note that, this
+        // method will initially return
+        // &#39;&amp;bslma_NewDeleteAllocator::singleton()&#39; if the
+        // &#39;setDelegatingAllocator&#39; class method has not been called.
+};
+
+                        // ========================================
+                        // class StdTestAllocatorConfigurationGuard
+                        // ========================================
+
+class StdTestAllocatorConfigurationGuard {
+    // Upon construction, an object of this class saves the current *delegate
+    // allocator* for &#39;StdTestAllocator&#39; and and installs the user-specified
+    // allocator as the delegate allocator.  The delegate allocator is the
+    // globally configured allocator to which an &#39;StdTestAllocator&#39; objects
+    // delegate their operations.  On destruction, the original delegate
+    // allocator is restored.
+
+    bslma::Allocator *d_original_p;  // original (restore at destruction)
+
+  private:
+    // NOT IMPLEMENTED
+    StdTestAllocatorConfigurationGuard(
+                                    const StdTestAllocatorConfigurationGuard&amp;);
+    StdTestAllocatorConfigurationGuard&amp; operator=(
+                                    const StdTestAllocatorConfigurationGuard&amp;);
+
+  public:
+    // CREATORS
+    StdTestAllocatorConfigurationGuard(bslma::Allocator *temporaryAllocator);
+        // Create a scoped guard that installs the specified
+        // &#39;temporaryAllocator&#39; as the delegate allocator.
+
+    ~StdTestAllocatorConfigurationGuard();
+        // Restore the delegate allocator that was in place when this scoped
+        // guard was created and destroy this guard.
+};
+
+
+                        // ======================
+                        // class StdTestAllocator
+                        // ======================
+
+template &lt;class TYPE&gt;
+class StdTestAllocator {
+    // This allocator implements the minimal interface to comply with section
+    // 20.1.5 ([lib.allocator.requirements]) of the C++03 standard.  Instances
+    // of this allocator delegate their operations to a globally configured
+    // delegate allocator as C++03 compliant allocators cannot have
+    // individually identifiable state (see &#39;StdTestAllocatorConfiguration&#39; and
+    // &#39;StdTestAllocatorConfigurationGuard).
+
+  public:
+    // PUBLIC TYPES
+    typedef std::size_t     size_type;
+    typedef std::ptrdiff_t  difference_type;
+    typedef TYPE           *pointer;
+    typedef const TYPE     *const_pointer;
+    typedef TYPE&amp;           reference;
+    typedef const TYPE&amp;     const_reference;
+    typedef TYPE            value_type;
+
+    template &lt;class OTHER_TYPE&gt;
+    struct rebind
+    {
+        // This nested &#39;struct&#39; template, parameterized by some &#39;OTHER_TYPE&#39;,
+        // provides a namespace for an &#39;other&#39; type alias, which is an
+        // allocator type following the same template as this one but that
+        // allocates elements of &#39;OTHER_TYPE&#39;.  Note that this allocator type
+        // is convertible to and from &#39;other&#39; for any &#39;OTHER_TYPE&#39; including
+        // &#39;void&#39;.
+
+        typedef StdTestAllocator&lt;OTHER_TYPE&gt; other;
+    };
+
+    // CREATORS
+    StdTestAllocator();
+        // Create a &#39;StdTestAllocator&#39; object.
+
+    // StdTestAllocator(const StdTestAllocator&amp; original) = default;
+        // Create a &#39;StdTestAllocator&#39; object.  Note that this object will
+        // compare equal to the default constructed object, because this type
+        // has no state.
+
+    template &lt;class OTHER_TYPE&gt;
+    StdTestAllocator(const StdTestAllocator&lt;OTHER_TYPE&gt;&amp;);
+        // Create a &#39;StdTestAllocator&#39; object.  Note that this object will
+        // compare equal to the default constructed object, because this type
+        // has no state.
+
+    // ~StdTestAllocator() = default;
+        // Destroy this object.
+
+    // MANIPULATORS
+    // StdTestAllocator&amp; operator=(const StdTestAllocator&amp; rhs) = default;
+        // Assign to this object the value of the specified &#39;rhs&#39; object, and
+        // return a reference providing modifiable access to this object.
+
+    pointer allocate(size_type numElements, const void *hint = 0);
+        // Allocate enough (properly aligned) space for the specified
+        // &#39;numElements&#39; of type &#39;T&#39;.  The &#39;hint&#39; argument is ignored by this
+        // allocator type.  The behavior is undefined unless
+        // &#39;numElements &lt;= max_size()&#39;.
+
+    void deallocate(pointer address, size_type numElements = 1);
+        // Return memory previously at the specified &#39;address&#39; for
+        // &#39;numElements&#39; back to this allocator.  The &#39;numElements&#39; argument is
+        // ignored by this allocator type.  The behavior is undefined unless
+        // &#39;address&#39; was allocated using this allocator object and has not
+        // already been deallocated.
+
+    void construct(pointer address, const TYPE&amp; value);
+        // Copy-construct a &#39;TYPE&#39; object at the specified &#39;address&#39;.  Do not
+        // directly allocate memory.  The behavior is undefined unless
+        // &#39;address&#39; is properly aligned for &#39;TYPE&#39;.
+
+    void destroy(pointer address);
+        // Invoke the &#39;TYPE&#39; destructor for the object at the specified
+        // &#39;address&#39;.
+
+    // ACCESSORS
+    pointer address(reference object) const;
+        // Return the address providing modifiable access to &#39;object&#39;.
+
+    const_pointer address(const_reference object) const;
+        // Return the address providing non-modifiable access to &#39;object&#39;.
+
+    size_type max_size() const;
+        // Return the maximum number of elements of type &#39;TYPE&#39; that can be
+        // allocated using this allocator in a single call to the &#39;allocate&#39;
+        // method.  Note that there is no guarantee that attempts at allocating
+        // less elements than the value returned by &#39;max_size&#39; will not throw.
+};
+
+                          // ============================
+                          // class StdTestAllocator&lt;void&gt;
+                          // ============================
+
+template &lt;&gt;
+class StdTestAllocator&lt;void&gt; {
+    // This specialization of &#39;StdTestAllocator&#39; for &#39;void&#39; type as the
+    // parameterized &#39;TYPE&#39; does not contain members that are unrepresentable
+    // for &#39;void&#39;.
+
+  public:
+    // PUBLIC TYPES
+    typedef std::size_t     size_type;
+    typedef std::ptrdiff_t  difference_type;
+    typedef void           *pointer;
+    typedef const void     *const_pointer;
+    typedef void            value_type;
+
+    template &lt;class OTHER_TYPE&gt;
+    struct rebind
+    {
+        // This nested &#39;struct&#39; template, parameterized by some &#39;OTHER_TYPE&#39;,
+        // provides a namespace for an &#39;other&#39; type alias, which is an
+        // allocator type following the same template as this one but that
+        // allocates elements of &#39;OTHER_TYPE&#39;.  Note that this allocator type
+        // is convertible to and from &#39;other&#39; for any &#39;OTHER_TYPE&#39; including
+        // &#39;void&#39;.
+
+        typedef StdTestAllocator&lt;OTHER_TYPE&gt; other;
+    };
+
+    // CREATORS
+    StdTestAllocator();
+        // Create a &#39;StdTestAllocator&#39; object.
+
+    // StdTestAllocator(const StdTestAllocator&amp; original) = default;
+        // Create a &#39;StdTestAllocator&#39; object.  Note that this object will
+        // compare equal to the default constructed object because, because
+        // this type has no state.
+
+    template &lt;class OTHER_TYPE&gt;
+    StdTestAllocator(const StdTestAllocator&lt;OTHER_TYPE&gt;&amp;);
+        // Create a &#39;StdTestAllocator&#39; object.  Note that this object will
+        // compare equal to the default constructed object because, because
+        // this type has no state.
+
+    // ~StdTestAllocator() = default;
+        // Destroy this object.
+
+    // MANIPULATORS
+    // StdTestAllocator&amp; operator=(
+    //                          const StdTestAllocator&amp; rhs) = default;
+        // Assign to this object the value of the specified &#39;rhs&#39; object, and
+        // return a reference providing modifiable access to this object.
+
+};
+
+// FREE OPERATORS
+template &lt;class TYPE1, class TYPE2&gt;
+bool operator==(const StdTestAllocator&lt;TYPE1&gt;&amp; lhs,
+                const StdTestAllocator&lt;TYPE2&gt;&amp; rhs);
+    // Return &#39;true&#39; because StdTestAllocator does not hold a state.
+
+template &lt;class TYPE1, class TYPE2&gt;
+bool operator!=(const StdTestAllocator&lt;TYPE1&gt;&amp; lhs,
+                const StdTestAllocator&lt;TYPE2&gt;&amp; rhs);
+    // Return &#39;false&#39; because StdTestAllocator does not hold a state.
+
+// ===========================================================================
+//                  INLINE AND TEMPLATE FUNCTION IMPLEMENTATIONS
+// ===========================================================================
+
+                        // -----------------------------------
+                        // class StdTestAllocatorConfiguration
+                        // -----------------------------------
+
+// CLASS METHODS
+inline
+bslma::Allocator* StdTestAllocatorConfiguration::delegateAllocator()
+{
+    return s_allocator_p ?
+                        s_allocator_p : &amp;bslma::NewDeleteAllocator::singleton();
+}
+                        // ----------------------------------------
+                        // class StdTestAllocatorConfigurationGuard
+                        // ----------------------------------------
+
+// CREATORS
+inline
+StdTestAllocatorConfigurationGuard::StdTestAllocatorConfigurationGuard(
+                                                   bslma::Allocator *temporary)
+: d_original_p(StdTestAllocatorConfiguration::delegateAllocator())
+{
+    BSLS_ASSERT(temporary);
+
+    StdTestAllocatorConfiguration::setDelegateAllocatorRaw(temporary);
+}
+
+inline
+StdTestAllocatorConfigurationGuard::~StdTestAllocatorConfigurationGuard()
+{
+    BSLS_ASSERT(d_original_p);
+
+    StdTestAllocatorConfiguration::setDelegateAllocatorRaw(d_original_p);
+}
+
+                        // ----------------------
+                        // class StdTestAllocator
+                        // ----------------------
+
+// CREATORS
+template &lt;class TYPE&gt;
+inline
+StdTestAllocator&lt;TYPE&gt;::StdTestAllocator()
+{
+}
+
+template &lt;class TYPE&gt;
+template &lt;class OTHER&gt;
+StdTestAllocator&lt;TYPE&gt;::StdTestAllocator(const StdTestAllocator&lt;OTHER&gt;&amp;)
+{
+}
+
+// MANIPULATORS
+template &lt;class TYPE&gt;
+inline
+typename StdTestAllocator&lt;TYPE&gt;::pointer
+StdTestAllocator&lt;TYPE&gt;::allocate(
+               typename StdTestAllocator&lt;TYPE&gt;::size_type  numElements,
+               const void *)
+{
+    return static_cast&lt;pointer&gt;(
+        StdTestAllocatorConfiguration::delegateAllocator()-&gt;allocate(
+         BloombergLP::bslma::Allocator::size_type(numElements * sizeof(TYPE))));
+}
+
+template &lt;class TYPE&gt;
+inline
+void StdTestAllocator&lt;TYPE&gt;::deallocate(pointer address, size_type)
+{
+    StdTestAllocatorConfiguration::delegateAllocator()-&gt;deallocate(address);
+}
+
+template &lt;class TYPE&gt;
+inline
+void StdTestAllocator&lt;TYPE&gt;::construct(pointer address, const TYPE&amp; value)
+{
+    new(static_cast&lt;void*&gt;(address)) TYPE(value);
+}
+
+template &lt;class TYPE&gt;
+inline
+void StdTestAllocator&lt;TYPE&gt;::destroy(pointer address)
+{
+    address-&gt;~TYPE();
+}
+
+template &lt;class TYPE&gt;
+inline
+typename StdTestAllocator&lt;TYPE&gt;::pointer
+StdTestAllocator&lt;TYPE&gt;::address(reference object) const
+{
+    return BSLS_UTIL_ADDRESSOF(object);
+}
+
+template &lt;class TYPE&gt;
+inline
+typename StdTestAllocator&lt;TYPE&gt;::const_pointer
+StdTestAllocator&lt;TYPE&gt;::address(const_reference object) const
+{
+    return BSLS_UTIL_ADDRESSOF(object);
+}
+
+template &lt;class TYPE&gt;
+inline
+typename StdTestAllocator&lt;TYPE&gt;::size_type
+StdTestAllocator&lt;TYPE&gt;::max_size() const
+{
+    // Return the largest value, &#39;v&#39;, such that &#39;v * sizeof(T)&#39; fits in a
+    // &#39;size_type&#39; (copied from bslstl_allocator).
+
+    static const bool BSLMA_SIZE_IS_SIGNED =
+                              ~BloombergLP::bslma::Allocator::size_type(0) &lt; 0;
+    static const std::size_t MAX_NUM_BYTES =
+                              ~std::size_t(0) / (BSLMA_SIZE_IS_SIGNED ? 2 : 1);
+    static const std::size_t MAX_NUM_ELEMENTS =
+                                     std::size_t(MAX_NUM_BYTES) / sizeof(TYPE);
+    return MAX_NUM_ELEMENTS;
+}
+
+                        // ----------------------------
+                        // class StdTestAllocator&lt;void&gt;
+                        // ----------------------------
+
+// CREATORS
+inline
+StdTestAllocator&lt;void&gt;::StdTestAllocator()
+{
+}
+
+template &lt;class OTHER&gt;
+StdTestAllocator&lt;void&gt;::StdTestAllocator(const StdTestAllocator&lt;OTHER&gt;&amp;)
+{
+}
+
+// FREE OPERATORS
+template &lt;class TYPE1, class TYPE2&gt;
+inline
+bool operator==(const bsltf::StdTestAllocator&lt;TYPE1&gt;&amp;,
+                const bsltf::StdTestAllocator&lt;TYPE2&gt;&amp;)
+{
+    return true;
+}
+
+template &lt;class TYPE1, class TYPE2&gt;
+inline
+bool operator!=(const bsltf::StdTestAllocator&lt;TYPE1&gt;&amp;,
+                const bsltf::StdTestAllocator&lt;TYPE2&gt;&amp;)
+{
+    return false;
+}
+
+}  // close package namespace
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright (C) 2012 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the &quot;Software&quot;), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

@@ -1,0 +1,1003 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 2.16 BETA</title>
+<html>
+<pre>
+// bslstl_allocatortraits.h                                           -*-C++-*-
+#ifndef INCLUDED_BSLSTL_ALLOCATORTRAITS
+#define INCLUDED_BSLSTL_ALLOCATORTRAITS
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a uniform interface to standard allocator types.
+//
+//@CLASSES:
+//  bsl::allocator_traits: Uniform interface to standard allocator types
+//
+//@SEE_ALSO: bslma_allocator, bslstl_allocator
+//
+//@DESCRIPTION: The standard &#39;allocator_traits&#39; class template is defined in
+// the C++11 standard ([allocator.traits]) as a uniform mechanism for accessing
+// nested types within, and operations on, any standard-conforming allocator.
+// An &#39;allocator_traits&#39; specialization is stateless, and all of its member
+// functions are static.  In most cases, facilities of &#39;allocator_traits&#39;
+// are straight pass-throughs for the same facilities from the &#39;ALLOC&#39;
+// template parameter.  For example, &#39;allocator_traits&lt;X&gt;::pointer&#39; is the
+// same as &#39;X::pointer&#39; and &#39;allocator_traits&lt;X&gt;::allocate(x, n)&#39; is the same
+// as &#39;x.allocate(n)&#39;.  The advantage of using &#39;allocator_traits&#39; instead of
+// directly using the allocator is that the &#39;allocator_traits&#39; interface can
+// supply parts of the interface that are missing from &#39;ALLOC&#39;.  In fact, the
+// most important purpose of &#39;allocator_traits&#39; is to provide implementations
+// of C++11 allocator features that were absent in C++03, thus allowing a
+// C++03 allocator to work with C++11 containers.
+//
+// This component provides a full C++11 interface for &#39;allocator_traits&#39;, but
+// constrains the set of allocator types on which it may be instantiated.
+// Specifically, this implementation does not provide defaults for C++03 types
+// and functions, and has hard-wired implementations of the new C++11
+// features.  Thus, the &#39;allocator_traits&#39; template cannot be instantiated on
+// an allocator type that does not provide a full compliment of types and
+// functions required by the C++03 standard, and it will ignore any special
+// C++11 features specified in &#39;ALLOC&#39;.  This limitation exists because
+// Bloomberg does not need the full functionality of the C++11 model, but needs
+// only to distinguish between C++03 allocators and allocators that implement
+// the BSLMA allocator model (see {&#39;bslstl_allocator&#39;}).  The full feature set
+// of &#39;allocator_traits&#39; would require a lot of resources for implementation
+// and (especially) testing.  Moreover, a full implementation would require
+// metaprogramming that is too advanced for the feature set of the compilers
+// currently in use at Bloomberg.  This interface is useful, however, as a way
+// to future-proof containers against the eventual implementation of the full
+// feature set, and to take advantage of the Bloomberg-specific features
+// described below.
+//
+// There are two important (new) C++11 features provided by the
+// &#39;allocator_traits&#39; interface: the &#39;construct&#39; function having a
+// variable-length argument list (limited to 5 constructor arguments on
+// compilers that don&#39;t support variadic templates) and the
+// allocator-propagation traits.  The implementations of these features within
+// this component are tuned to Bloomberg&#39;s needs.  The &#39;construct&#39; member
+// function will automatically forward the allocator to the constructed object
+// iff the &#39;ALLOC&#39; parameter is convertible from &#39;bslma::Allocator*&#39; and the
+// object being constructed has the &#39;bslma::UsesBslmaAllocator&#39; type
+// trait, as per standard Bloomberg practice.  The
+// &#39;select_on_container_copy_construction&#39; static member will return a
+// default-constructed allocator iff &#39;ALLOC&#39; is convertible from
+// &#39;bslma::Allocator *&#39; because bslma allocators should not be copied when a
+// container is copy-constructed; otherwise this function will return a copy
+// of the allocator, as per C++03 container rules.  The other propagation
+// traits all have a &#39;false&#39; value, so allocators are not propagated on
+// assignment or swap.
+//
+// Note that use of this component will differ from a strict following of the
+// C++03 standard, as the &#39;construct&#39; and &#39;destroy&#39; methods of the
+// parameterized allocator type will not be called.  Rather, the target object
+// will always be constructed at the address specified by the user, by calling
+// the constructor in-place.  Similarly, the destructor will always be called
+// directly, rather than using a parameterized allocator&#39;s &#39;destroy&#39; method.
+// Otherwise, this implementation will fully support the C++03 model, including
+// use of allocators returning &quot;smart pointers&quot; from &#39;allocate&#39;.
+//
+///Usage
+///-----
+// In this section we show intended usage of this component.
+//
+///Example 1: A Container Class
+///- - - - - - - - - - - - - -
+// This example demonstrates the intended use of &#39;allocator_traits&#39; to
+// implement a standard-conforming container class.  First, we create a
+// container class that holds a single object and which meets the requirements
+// both of a standard container and of a Bloomberg container.  I.e., when
+// instantiated with an allocator argument it uses the standard allocator
+// model; otherwise it uses the &#39;bslma&#39; model.  We provide an alias,
+// &#39;AllocTraits&#39;, to the specific &#39;allocator_traits&#39; instantiation to simplify
+// the implementation of each method that must allocate memory, or create or
+// destroy elements.
+//..
+//  #include &lt;bslstl_allocatortraits.h&gt;
+//  #include &lt;bslstl_allocator.h&gt;
+//
+//  using namespace BloombergLP;
+//
+//  template &lt;class TYPE, class ALLOC = bsl::allocator&lt;TYPE&gt; &gt;
+//  class MyContainer {
+//      // This class provides a container that always holds exactly one
+//      // element, dynamically allocated using the specified allocator.
+//
+//      typedef bsl::allocator_traits&lt;ALLOC&gt; AllocTraits;
+//          // Alias for the &#39;allocator_traits&#39; instantiation to use for
+//          // all memory management requests.
+//
+//      // DATA
+//      ALLOC  d_allocator;
+//      TYPE  *d_value_p;
+//
+//    public:
+//      // TRAITS
+//      BSLMF_NESTED_TRAIT_DECLARATION(MyContainer, bslalg::HasStlIterators);
+//      BSLMF_NESTED_TRAIT_DECLARATION_IF(MyContainer,
+//                                        bslma::UsesBslmaAllocator,
+//                                        (bsl::is_convertible&lt;Allocator*,
+//                                                             ALLOC&gt;::value));
+//      BSLMF_NESTED_TRAIT_DECLARATION_IF(MyContainer,
+//                                     bslmf::IsBitwiseMoveable,
+//                                     bslmf::IsBitwiseMoveable&lt;ALLOC&gt;::value);
+//          // Declare nested type traits for this class.
+//
+//      typedef TYPE  value_type;
+//      typedef ALLOC allocator_type;
+//      // etc.
+//
+//      // CREATORS
+//      explicit MyContainer(const ALLOC&amp; a = ALLOC());
+//      explicit MyContainer(const TYPE&amp; v, const ALLOC&amp; a = ALLOC());
+//      MyContainer(const MyContainer&amp; other);
+//      MyContainer(const MyContainer&amp; other, const ALLOC&amp; a);
+//      ~MyContainer();
+//
+//      // MANIPULATORS
+//      ALLOC get_allocator() const { return d_allocator; }
+//
+//      // ACCESSORS
+//      TYPE&amp;       front()       { return *d_value_p; }
+//      const TYPE&amp; front() const { return *d_value_p; }
+//      // etc.
+//  };
+//..
+// Then we implement the constructors, which allocate memory and construct a
+// &#39;TYPE&#39; object in the allocated memory.  Because the allocation and
+// construction are done in two separate steps, we need to create a proctor
+// that will deallocate the allocated memory in case the constructor throws an
+// exception.  The proctor uses the uniform interface provided by
+// &#39;allocator_traits&#39; to access the &#39;pointer&#39; and &#39;deallocate&#39; members of
+// &#39;ALLOC&#39;:
+//..
+//  template &lt;class ALLOC&gt;
+//  class MyContainerProctor {
+//      // This class implements a proctor to release memory allocated during
+//      // the construction of a &#39;MyContainer&#39; object if the constructor for
+//      // the container&#39;s data element throws an exception.  Such a proctor
+//      // should be &#39;release&#39;d once the element is safely constructed.
+//
+//      typedef typename bsl::allocator_traits&lt;ALLOC&gt;::pointer pointer;
+//      ALLOC   d_alloc;
+//      pointer d_data_p;
+//
+//    public:
+//      MyContainerProctor(const ALLOC&amp; a, pointer p)
+//          : d_alloc(a), d_data_p(p) { }
+//
+//      ~MyContainerProctor() {
+//          if (d_data_p) {
+//              bsl::allocator_traits&lt;ALLOC&gt;::deallocate(d_alloc, d_data_p, 1);
+//          }
+//      }
+//
+//      void release() { d_data_p = pointer(); }
+//  };
+//..
+// Next, we perform the actual allocation and construction using the
+// &#39;allocate&#39; and &#39;construct&#39; members of &#39;allocator_traits&#39;, which provide the
+// correct semantic for passing the allocator to the constructed object when
+// appropriate:
+//..
+//  template &lt;class TYPE, class ALLOC&gt;
+//  MyContainer&lt;TYPE, ALLOC&gt;::MyContainer(const ALLOC&amp; a)
+//      : d_allocator(a)
+//  {
+//      d_value_p = AllocTraits::allocate(d_allocator, 1);
+//      MyContainerProctor&lt;ALLOC&gt; proctor(a, d_value_p);
+//      // Call &#39;construct&#39; with no constructor arguments
+//      AllocTraits::construct(d_allocator, d_value_p);
+//      proctor.release();
+//  }
+//
+//  template &lt;class TYPE, class ALLOC&gt;
+//  MyContainer&lt;TYPE, ALLOC&gt;::MyContainer(const TYPE&amp; v, const ALLOC&amp; a)
+//      : d_allocator(a)
+//  {
+//      d_value_p = AllocTraits::allocate(d_allocator, 1);
+//      MyContainerProctor&lt;ALLOC&gt; proctor(a, d_value_p);
+//      // Call &#39;construct&#39; with one constructor argument of type &#39;TYPE&#39;
+//      AllocTraits::construct(d_allocator, d_value_p, v);
+//      proctor.release();
+//  }
+//..
+// Next, the copy constructor for &#39;MyContainer&#39; needs to conditionally copy the
+// allocator from the &#39;other&#39; container.  The copy constructor uses
+// &#39;allocator_traits::select_on_container_copy_construction&#39; to decide whether
+// to copy the &#39;other&#39; allocator (for non-bslma allocators) or to
+// default-construct the allocator (for bslma allocators).
+//..
+//  template &lt;class TYPE, class ALLOC&gt;
+//  MyContainer&lt;TYPE, ALLOC&gt;::MyContainer(const MyContainer&amp; other)
+//      : d_allocator(bsl::allocator_traits&lt;ALLOC&gt;::
+//                    select_on_container_copy_construction(other.d_allocator))
+//  {
+//      d_value_p = AllocTraits::allocate(d_allocator, 1);
+//      MyContainerProctor&lt;ALLOC&gt; proctor(d_allocator, d_value_p);
+//      AllocTraits::construct(d_allocator, d_value_p, *other.d_value_p);
+//      proctor.release();
+//  }
+//..
+// Now, the destructor uses &#39;allocator_traits&#39; functions to destroy and
+// deallocate the value object:
+//..
+//  template &lt;class TYPE, class ALLOC&gt;
+//  MyContainer&lt;TYPE, ALLOC&gt;::~MyContainer()
+//  {
+//      AllocTraits::destroy(d_allocator, d_value_p);
+//      AllocTraits::deallocate(d_allocator, d_value_p, 1);
+//  }
+//..
+// Finally, we perform a simple test of &#39;MyContainer&#39;, instantiating it with
+// element type &#39;int&#39;:
+//..
+//  int usageExample1()
+//  {
+//      bslma::TestAllocator testAlloc;
+//      MyContainer&lt;int&gt; C1(123, &amp;testAlloc);
+//      assert(C1.get_allocator() == bsl::allocator&lt;int&gt;(&amp;testAlloc));
+//      assert(C1.front() == 123);
+//
+//      MyContainer&lt;int&gt; C2(C1);
+//      assert(C2.get_allocator() == bsl::allocator&lt;int&gt;());
+//      assert(C2.front() == 123);
+//
+//      return 0;
+//  }
+//..
+///Example 2: bslma Allocator Propagation
+///- - - - - - - - - - - - - - - - - - -
+// To exercise the propagation of the allocator of &#39;MyContainer&#39; to its
+// elements, we first create a representative element class, &#39;MyType&#39;, that
+// allocates memory using the bslma allocator protocol:
+//..
+//  #include &lt;bslma_default.h&gt;
+//
+//  class MyType {
+//
+//      bslma::Allocator *d_allocator_p;
+//      // etc.
+//    public:
+//      // TRAITS
+//      BSLMF_NESTED_TRAIT_DECLARATION(MyType, bslma::UsesBslmaAllocator);
+//
+//      // CREATORS
+//      explicit MyType(bslma::Allocator* basicAlloc = 0)
+//         : d_allocator_p(bslma::Default::allocator(basicAlloc)) { /* ... */ }
+//      MyType(const MyType&amp; other)
+//          : d_allocator_p(bslma::Default::allocator(0)) { /* ... */ }
+//      MyType(const MyType&amp; other, bslma::Allocator* basicAlloc)
+//         : d_allocator_p(bslma::Default::allocator(basicAlloc)) { /* ... */ }
+//      // etc.
+//
+//      // ACCESSORS
+//      bslma::Allocator *allocator() const { return d_allocator_p; }
+//      // etc.
+//  };
+//..
+// Finally, we instantiate &#39;MyContainer&#39; using &#39;MyType&#39; and verify that, when
+// we provide a the address of an allocator to the constructor of the
+// container, the same address is passed to the constructor of the container&#39;s
+// element.  We also verify that, when the container is copy-constructed, the
+// copy uses the default allocator, not the allocator from the original;
+// moreover, we verify that the element stored in the copy also uses the
+// default allocator.
+//..
+//  #include &lt;bslmf_issame.h&gt;
+//
+//  int usageExample2()
+//  {
+//      bslma::TestAllocator testAlloc;
+//      MyContainer&lt;MyType&gt; C1(&amp;testAlloc);
+//      assert((bsl::is_same&lt;MyContainer&lt;MyType&gt;::allocator_type,
+//              bsl::allocator&lt;MyType&gt; &gt;::VALUE));
+//      assert(C1.get_allocator() == bsl::allocator&lt;MyType&gt;(&amp;testAlloc));
+//      assert(C1.front().allocator() == &amp;testAlloc);
+//
+//      MyContainer&lt;MyType&gt; C2(C1);
+//      assert(C2.get_allocator() != C1.get_allocator());
+//      assert(C2.get_allocator() == bsl::allocator&lt;MyType&gt;());
+//      assert(C2.front().allocator() != &amp;testAlloc);
+//      assert(C2.front().allocator() == bslma::Default::defaultAllocator());
+//
+//      return 0;
+//  }
+//..
+///Example 3: C++03 Allocators
+///- - - - - - - - - - - - - -
+// This example shows that when &#39;MyContainer&#39; is instantiated with a C++03
+// allocator, that the allocator is a) copied on copy construction and b) is
+// not propagated from the container to its elements.  First, we create a
+// C++03-style allocator class template:
+//..
+//  template &lt;class TYPE&gt;
+//  class MyCpp03Allocator {
+//      int d_state;
+//
+//    public:
+//      typedef TYPE        value_type;
+//      typedef TYPE       *pointer;
+//      typedef const TYPE *const_pointer;
+//      typedef unsigned    size_type;
+//      typedef int         difference_type;
+//
+//      template &lt;class U&gt;
+//      struct rebind {
+//          typedef MyCpp03Allocator&lt;U&gt; other;
+//      };
+//
+//      explicit MyCpp03Allocator(int state = 0) : d_state(state) { }
+//
+//      TYPE* allocate(size_type n, const void* = 0)
+//          { return (TYPE*) ::operator new(sizeof(TYPE) * n); }
+//
+//      void deallocate(TYPE* p, size_type) { ::operator delete(p); }
+//
+//      static size_type max_size() { return UINT_MAX / sizeof(TYPE); }
+//
+//      void construct(pointer p, const TYPE&amp; value)
+//          { new((void *)p) TYPE(value); }
+//
+//      void destroy(pointer p) { p-&gt;~TYPE(); }
+//
+//      int state() const { return d_state; }
+//  };
+//
+//  template &lt;class TYPE1, class TYPE2&gt;
+//  inline
+//  bool operator==(const MyCpp03Allocator&lt;TYPE1&gt;&amp; lhs,
+//                  const MyCpp03Allocator&lt;TYPE2&gt;&amp; rhs)
+//  {
+//      return lhs.state() == rhs.state();
+//  }
+//
+//  template &lt;class TYPE1, class TYPE2&gt;
+//  inline
+//  bool operator!=(const MyCpp03Allocator&lt;TYPE1&gt;&amp; lhs,
+//                  const MyCpp03Allocator&lt;TYPE2&gt;&amp; rhs)
+//  {
+//      return ! (lhs == rhs);
+//  }
+//..
+// Finally we instantiate &#39;MyContainer&#39; using this allocator type and verify
+// that elements are constructed using the default allocator (because the
+// allocator is not propagated from the container).  We also verify that the
+// allocator is copied on copy-construction:
+//..
+//  int usageExample3()
+//  {
+//      typedef MyCpp03Allocator&lt;MyType&gt; MyTypeAlloc;
+//      MyContainer&lt;MyType, MyTypeAlloc&gt; C1(MyTypeAlloc(1));
+//      assert((bsl::is_same&lt;MyContainer&lt;MyType, MyTypeAlloc&gt;::allocator_type,
+//                           MyTypeAlloc&gt;::VALUE));
+//      assert(C1.get_allocator() == MyTypeAlloc(1));
+//      assert(C1.front().allocator() == bslma::Default::defaultAllocator());
+//
+//      MyContainer&lt;MyType, MyTypeAlloc&gt; C2(C1);
+//      assert(C2.get_allocator() == C1.get_allocator());
+//      assert(C2.get_allocator() != MyTypeAlloc())
+//      assert(C2.front().allocator() == bslma::Default::defaultAllocator());
+//
+//      return 0;
+//   }
+//..
+
+// Prevent &#39;bslstl&#39; headers from being included directly in &#39;BSL_OVERRIDES_STD&#39;
+// mode.  Doing so is unsupported, and is likely to cause compilation errors.
+#if defined(BSL_OVERRIDES_STD) &amp;&amp; !defined(BSL_STDHDRS_PROLOGUE_IN_EFFECT)
+#error &quot;&lt;bslstl_allocatortraits.h&gt; header can&#39;t be included directly in \
+BSL_OVERRIDES_STD mode&quot;
+#endif
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include &lt;bslscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLALG_SCALARPRIMITIVES
+#include &lt;bslalg_scalarprimitives.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLALG_SCALARDESTRUCTIONPRIMITIVES
+#include &lt;bslalg_scalardestructionprimitives.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include &lt;bslma_allocator.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_ISCONVERTIBLE
+#include &lt;bslmf_isconvertible.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_NATIVESTD
+#include &lt;bsls_nativestd.h&gt;
+#endif
+
+#ifndef INCLUDED_UTILITY
+#include &lt;utility&gt;         // &#39;std::forward&#39;
+#define INCLUDED_UTILITY
+#endif
+
+
+namespace bsl {
+
+                        // ======================
+                        // class allocator_traits
+                        // ======================
+
+template &lt;class ALLOCATOR_TYPE&gt;
+struct allocator_traits {
+    // This class supports the complete interface of the C++11
+    // &#39;allocator_traits&#39; class template, which provides a uniform mechanism
+    // for accessing nested types within, and operations on, any
+    // standard-conforming allocator.  This version of &#39;allocator_traits&#39;
+    // supports Bloomberg&#39;s &#39;bslma&#39; allocator model by automatically detecting
+    // when the parameterized &#39;ALLOCATOR_TYPE&#39; is convertible from
+    // &#39;bslma::Allocator&#39; (called a bslma-compatible allocator).  For
+    // bslma-compatible allocators, the &#39;construct&#39; methods forward the
+    // allocator to the new element&#39;s constructor, when possible, and
+    // &#39;select_on_container_copy_constructor&#39; returns a default-constructed
+    // &#39;ALLOCATOR_TYPE&#39;.  Otherwise, &#39;construct&#39; simply forwards its arguments
+    // to the new element&#39;s constructor unchanged and
+    // &#39;select_on_container_copy_constructor&#39; returns its argument unchanged,
+    // as per C++03 rules.  This implementation supports C++03 allocators and
+    // bslma-compatible allocators; it is not fully-standard-conforming in
+    // that it does not support every combination of propagation traits and
+    // does not deduce data types that are not specified in the allocator.
+
+  private:
+    // &#39;IsBslma&#39; is &#39;true_type&#39; if the parameterized &#39;ALLOCATOR_TYPE&#39; is
+    // constructible from &#39;bslma::Allocator*&#39;.  In other words, its &#39;VALUE&#39; is
+    // true if &#39;ALLOCATOR_TYPE&#39; is a wrapper around &#39;bslma::Allocator*&#39;.
+    typedef typename is_convertible&lt;BloombergLP::bslma::Allocator*,
+                                    ALLOCATOR_TYPE&gt;::type IsBslma;
+
+    static
+    ALLOCATOR_TYPE selectOnCopyConstruct(const ALLOCATOR_TYPE&amp; allocator,
+                                         false_type);
+        // Return &#39;allocator&#39;.  Note that this function is called only when
+        // &#39;ALLOCATOR_TYPE&#39; is not a bslma allocator.
+
+    static
+    ALLOCATOR_TYPE selectOnCopyConstruct(const ALLOCATOR_TYPE&amp;, true_type);
+        // Return a default constructed &#39;ALLOCATOR_TYPE&#39; object.  Note that
+        // this function is called only when &#39;ALLOCATOR_TYPE&#39; is bslma
+        // allocator.
+
+    static void *mechanism(const ALLOCATOR_TYPE&amp;, false_type);
+        // Return a null pointer.  Note that this function is called only when
+        // &#39;ALLOCATOR_TYPE&#39; is not a bslma allocator.
+
+    static
+    BloombergLP::bslma::Allocator *mechanism(const ALLOCATOR_TYPE&amp; allocator,
+                                             true_type);
+        // Return the address of the &#39;bslma::Allocator&#39; that implements the
+        // mechanism for the specified &#39;allocator&#39;, i.e.,
+        // &#39;allocator.mechanism()&#39;.  Note that this function is called only
+        // when &#39;ALLOCATOR_TYPE&#39; is bslma allocator.
+
+  public:
+    // PUBLIC TYPES
+    typedef ALLOCATOR_TYPE                            allocator_type;
+    typedef typename ALLOCATOR_TYPE::value_type       value_type;
+
+    typedef typename ALLOCATOR_TYPE::pointer          pointer;
+    typedef typename ALLOCATOR_TYPE::const_pointer    const_pointer;
+    typedef void                                     *void_pointer;
+    typedef void const                               *const_void_pointer;
+    typedef typename ALLOCATOR_TYPE::difference_type  difference_type;
+    typedef typename ALLOCATOR_TYPE::size_type        size_type;
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+    template &lt;class ELEMENT_TYPE&gt;
+    using rebind_alloc =
+           typename ALLOCATOR_TYPE::template rebind&lt;Alloc,ELEMENT_TYPE&gt;::other;
+
+    template &lt;class ELEMENT_TYPE&gt;
+    using rebind_traits = allocator_traits&lt;rebind_alloc&lt;ELEMENT_TYPE&gt; &gt;;
+#else // !BDE_CXX11_TEMPLATE_ALIASES
+    template &lt;class ELEMENT_TYPE&gt;
+    struct rebind_alloc : ALLOCATOR_TYPE::template rebind&lt;ELEMENT_TYPE&gt;::other
+    {
+    };
+
+    template &lt;class ELEMENT_TYPE&gt;
+    struct rebind_traits : allocator_traits&lt;typename ALLOCATOR_TYPE::template
+                                            rebind&lt;ELEMENT_TYPE&gt;::other&gt;
+    {
+    };
+#endif // !BDE_CXX11_TEMPLATE_ALIASES
+
+    static pointer allocate(ALLOCATOR_TYPE&amp; allocator, size_type n);
+        // Return &#39;allocator.allocate(n)&#39;.
+
+    static pointer allocate(ALLOCATOR_TYPE&amp;    allocator,
+                            size_type          n,
+                            const_void_pointer hint);
+        // Return &#39;allocator.allocate(n, hint)&#39;.
+
+    static void deallocate(ALLOCATOR_TYPE&amp; allocator,
+                           pointer         elementAddr,
+                           size_type       n);
+        // Invoke &#39;allocator.deallocate(elementAddr, n)&#39;.  The behavior is
+        // undefined unless the specified &#39;elementAddr&#39; was returned from
+        // a prior call to the &#39;allocate&#39; method of an allocator that compares
+        // equal to the specified &#39;allocator&#39;, and has not yet been passed to
+        // a &#39;deallocate&#39; call of such an allocator object.
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
+    template &lt;class ELEMENT_TYPE&gt;
+    static void construct(ALLOCATOR_TYPE&amp;  allocator,
+                          ELEMENT_TYPE    *elementAddr);
+        // Default construct an object of the parameterized &#39;ELEMENT_TYPE&#39; at
+        // the specified &#39;elementAddr&#39;.  If the parameterized &#39;ALLOCATOR_TYPE&#39;
+        // is bslma-compatible and &#39;ELEMENT_TYPE&#39; has the
+        // &#39;bslma::UsesBslmaAllocator&#39; trait, then pass the mechanism
+        // from the specified &#39;allocator&#39; as an additional constructor argument
+        // (at the end of the argument list).  The behavior is undefined unless
+        // &#39;elementAddr&#39; refers to valid, uninitialized storage.
+
+#  ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+    template &lt;class ELEMENT_TYPE, class... CTOR_ARGS&gt;
+    static void construct(ALLOCATOR_TYPE&amp;  allocator,
+                          ELEMENT_TYPE    *elementAddr,
+                          CTOR_ARGS&amp;&amp;...   ctorArgs);
+        // Construct an object of the parameterized &#39;ELEMENT_TYPE&#39; at the
+        // specified &#39;elementAddr&#39; using the specified &#39;ctorArgs&#39;.  If the
+        // parameterized &#39;ALLOCATOR_TYPE&#39; is bslma-compatible and
+        // &#39;ELEMENT_TYPE&#39; has the &#39;bslma::UsesBslmaAllocator&#39; trait,
+        // then pass the mechanism from the specified &#39;allocator&#39; as an
+        // additional constructor argument (at the end of the argument list).
+        // The behavior is undefined unless &#39;elementAddr&#39; refers to valid,
+        // uninitialized storage.
+#  else
+    template &lt;class ELEMENT_TYPE, class...     CTOR_ARGS&gt;
+    static void construct(ALLOCATOR_TYPE&amp;      allocator,
+                          ELEMENT_TYPE        *elementAddr,
+                          const CTOR_ARGS&amp;...  ctorArgs);
+        // Construct an object of the parameterized &#39;ELEMENT_TYPE&#39; at the
+        // specified &#39;elementAddr&#39; using the specified &#39;ctorArgs&#39;.  If the
+        // parameterized &#39;ALLOCATOR_TYPE&#39; is bslma-compatible and
+        // &#39;ELEMENT_TYPE&#39; has the &#39;bslma::UsesBslmaAllocator&#39; trait,
+        // then pass the mechanism from the specified &#39;allocator&#39; as an
+        // additional constructor argument (at the end of the argument list).
+        // The behavior is undefined unless &#39;elementAddr&#39; refers to valid,
+        // uninitialized storage.
+#  endif
+#else
+    template &lt;class ELEMENT_TYPE&gt;
+    static void construct(ALLOCATOR_TYPE&amp;   allocator,
+                          ELEMENT_TYPE     *elementAddr);
+        // Construct an object of the parameterized &#39;ELEMENT_TYPE&#39;.  If the
+        // parameterized &#39;ALLOCATOR_TYPE&#39; is bslma-compatible and
+        // &#39;ELEMENT_TYPE&#39; has the &#39;bslma::UsesBslmaAllocator&#39; trait,
+        // then pass the mechanism from the specified &#39;allocator&#39; as the sole
+        // constructor argument; otherwise, invoke the default constructor for
+        // &#39;ELEMENT_TYPE&#39; (passing no arguments).  The behavior is undefined
+        // unless &#39;elementAddr&#39; refers to valid, uninitialized storage.
+
+    template &lt;class ELEMENT_TYPE, class CTOR_ARG1&gt;
+    static void construct(ALLOCATOR_TYPE&amp;   allocator,
+                          ELEMENT_TYPE     *elementAddr,
+                          const CTOR_ARG1&amp;  ctorArg1);
+        // Construct an object of the parameterized &#39;ELEMENT_TYPE&#39; at the
+        // specified &#39;elementAddr&#39; using the specified &#39;ctorArg1&#39; constructor
+        // argument.  If the parameterized &#39;ALLOCATOR_TYPE&#39; is
+        // bslma-compatible and &#39;ELEMENT_TYPE&#39; has the
+        // &#39;bslma::UsesBslmaAllocator&#39; trait, then pass the mechanism
+        // from the specified &#39;allocator&#39; as an additional constructor
+        // argument (at the end of the argument list).  The behavior is
+        // undefined unless &#39;elementAddr&#39; refers to valid, uninitialized
+        // storage.
+
+    template &lt;class ELEMENT_TYPE, class CTOR_ARG1, class CTOR_ARG2&gt;
+    static void construct(ALLOCATOR_TYPE&amp;   allocator,
+                          ELEMENT_TYPE     *elementAddr,
+                          const CTOR_ARG1&amp;  ctorArg1,
+                          const CTOR_ARG2&amp;  ctorArg2);
+        // Construct an object of the parameterized &#39;ELEMENT_TYPE&#39; at the
+        // specified &#39;elementAddr&#39; using the specified &#39;ctorArg1&#39;, and
+        // &#39;ctorArg2&#39; constructor arguments.  If the parameterized
+        // &#39;ALLOCATOR_TYPE&#39; is bslma-compatible and &#39;ELEMENT_TYPE&#39; has the
+        // &#39;bslma::UsesBslmaAllocator&#39; trait, then pass the mechanism
+        // from the specified &#39;allocator&#39; as an additional constructor
+        // argument (at the end of the argument list).  The behavior is
+        // undefined unless &#39;elementAddr&#39; refers to valid, uninitialized
+        // storage.
+
+    template &lt;class ELEMENT_TYPE, class CTOR_ARG1, class CTOR_ARG2,
+              class CTOR_ARG3&gt;
+    static void construct(ALLOCATOR_TYPE&amp;   allocator,
+                          ELEMENT_TYPE     *elementAddr,
+                          const CTOR_ARG1&amp;  ctorArg1,
+                          const CTOR_ARG2&amp;  ctorArg2,
+                          const CTOR_ARG3&amp;  ctorArg3);
+        // Construct an object of the parameterized &#39;ELEMENT_TYPE&#39; at the
+        // specified &#39;elementAddr&#39; using the specified &#39;ctorArg1&#39;, &#39;ctorArg2&#39;,
+        // and &#39;ctorArg3&#39; constructor arguments.  If the parameterized
+        // &#39;ALLOCATOR_TYPE&#39; is bslma-compatible and &#39;ELEMENT_TYPE&#39; has the
+        // &#39;bslma::UsesBslmaAllocator&#39; trait, then pass the mechanism
+        // from the specified &#39;allocator&#39; as an additional constructor
+        // argument (at the end of the argument list).  The behavior is
+        // undefined unless &#39;elementAddr&#39; refers to valid, uninitialized
+        // storage.
+
+    template &lt;class ELEMENT_TYPE, class CTOR_ARG1, class CTOR_ARG2,
+              class CTOR_ARG3, class CTOR_ARG4&gt;
+    static void construct(ALLOCATOR_TYPE&amp;   allocator,
+                          ELEMENT_TYPE     *elementAddr,
+                          const CTOR_ARG1&amp;  ctorArg1,
+                          const CTOR_ARG2&amp;  ctorArg2,
+                          const CTOR_ARG3&amp;  ctorArg3,
+                          const CTOR_ARG4&amp;  ctorArg4);
+        // Construct an object of the parameterized &#39;ELEMENT_TYPE&#39; at the
+        // specified &#39;elementAddr&#39; using the specified &#39;ctorArg1&#39;, &#39;ctorArg2&#39;,
+        // &#39;ctorArg3&#39; and &#39;ctorArg4&#39; constructor arguments.  If the
+        // parameterized &#39;ALLOCATOR_TYPE&#39; is bslma-compatible and
+        // &#39;ELEMENT_TYPE&#39; has the &#39;bslma::UsesBslmaAllocator&#39; trait,
+        // then pass the mechanism from the specified &#39;allocator&#39; as an
+        // additional constructor argument (at the end of the argument list).
+        // The behavior is undefined unless &#39;elementAddr&#39; refers to valid,
+        // uninitialized storage.
+
+    template &lt;class ELEMENT_TYPE, class CTOR_ARG1, class CTOR_ARG2,
+              class CTOR_ARG3, class CTOR_ARG4, class CTOR_ARG5&gt;
+    static void construct(ALLOCATOR_TYPE&amp;   allocator,
+                          ELEMENT_TYPE     *elementAddr,
+                          const CTOR_ARG1&amp;  ctorArg1,
+                          const CTOR_ARG2&amp;  ctorArg2,
+                          const CTOR_ARG3&amp;  ctorArg3,
+                          const CTOR_ARG4&amp;  ctorArg4,
+                          const CTOR_ARG5&amp;  ctorArg5);
+        // Construct an object of the parameterized &#39;ELEMENT_TYPE&#39; at the
+        // specified &#39;elementAddr&#39; using the specified &#39;ctorArg1&#39;, &#39;ctorArg2&#39;,
+        // &#39;ctorArg3&#39;, &#39;ctorArg4&#39; and &#39;ctorArg5&#39; constructor arguments.  If
+        // the parameterized &#39;ALLOCATOR_TYPE&#39; is bslma-compatible and
+        // &#39;ELEMENT_TYPE&#39; has the &#39;bslma::UsesBslmaAllocator&#39; trait,
+        // then pass the mechanism from the specified &#39;allocator&#39; as an
+        // additional constructor argument (at the end of the argument list).
+        // The behavior is undefined unless &#39;elementAddr&#39; refers to valid,
+        // uninitialized storage.
+
+#endif
+
+    template &lt;class ELEMENT_TYPE&gt;
+    static void destroy(ALLOCATOR_TYPE&amp; allocator, ELEMENT_TYPE *elementAddr);
+        // Invoke the destructor for the object at the specified
+        // &#39;elementAddr&#39;; the specified &#39;allocator&#39; (of parameterized
+        // &#39;ALLOCATOR_TYPE&#39;) is ignored.  The behavior is undefined unless
+        // &#39;elementAddr&#39; refers to a valid, constructed object.
+
+    static size_type max_size(const ALLOCATOR_TYPE&amp; allocator);
+        // Return the largest number of &#39;value_type&#39; objects that could
+        // reasonably be returned by a single invocation of &#39;allocate&#39; for the
+        // specified &#39;allocator&#39;, i.e., &#39;allocator.max_size()&#39;.
+
+    // Allocator propagation traits
+    static ALLOCATOR_TYPE
+    select_on_container_copy_construction(const ALLOCATOR_TYPE&amp; rhs);
+        // Return a copy of the allocator that should be used to copy-
+        // construct one container from another container whose allocator is
+        // the specified &#39;rhs&#39;.  If the parameterized &#39;ALLOCATOR_TYPE&#39; is
+        // bslma-compatible, then return &#39;ALLOCATOR_TYPE()&#39; (i.e., do not copy
+        // the allocator to the newly-constructed container); otherwise,
+        // return &#39;rhs&#39; (i.e., do propagate the allocator to the
+        // newly-constructed container).
+
+    typedef false_type propagate_on_container_copy_assignment;
+        // Identical to, or derived from &#39;true_type&#39; if an allocator of
+        // parameterized &#39;ALLOCATOR_TYPE&#39; should be copied when a container
+        // using that &#39;ALLOCATOR_TYPE&#39; is copy-assigned; otherwise identical
+        // to or derived from &#39;false_type&#39;.  In the current
+        // implementation, this type is always &#39;false_type&#39;.  In a fully
+        // standard-compliant implementation, this type would be
+        // &#39;ALLOCATOR_TYPE::propagate_on_container_copy_assignment&#39; if such a
+        // type is defined, and &#39;false_type&#39; otherwise.
+
+    typedef false_type propagate_on_container_move_assignment;
+        // Identical to, or derived from &#39;true_type&#39; if an allocator of
+        // parameterized &#39;ALLOCATOR_TYPE&#39; should be moved when a container
+        // using that &#39;ALLOCATOR_TYPE&#39; is move-assigned; otherwise identical
+        // to or derived from &#39;false_type&#39;.  In the current
+        // implementation, this type is always &#39;false_type&#39;.  In a fully
+        // standard-compliant implementation, this type would be
+        // &#39;ALLOCATOR_TYPE::propagate_on_container_move_assignment&#39; if such a
+        // type is defined, and &#39;false_type&#39; otherwise.
+
+    typedef false_type propagate_on_container_swap;
+        // Identical to, or derived from &#39;true_type&#39; if the allocators
+        // of parameterized &#39;ALLOCATOR_TYPE&#39; should be swapped when containers
+        // using that &#39;ALLOCATOR_TYPE&#39; are swapped; otherwise identical to or
+        // derived from &#39;false_type&#39;.  In the current implementation,
+        // this type is always &#39;false_type&#39;.  In a fully
+        // standard-compliant implementation, this type would be
+        // &#39;ALLOCATOR_TYPE::propagate_on_container_swap&#39; if such a type is
+        // defined, and &#39;false_type&#39; otherwise.
+};
+
+// ===========================================================================
+//          INLINE AND TEMPLATE STATIC MEMBER FUNCTION DEFINITIONS
+// ===========================================================================
+
+template &lt;class ALLOCATOR_TYPE&gt;
+inline
+ALLOCATOR_TYPE allocator_traits&lt;ALLOCATOR_TYPE&gt;::selectOnCopyConstruct(
+                                               const ALLOCATOR_TYPE&amp; allocator,
+                                               false_type)
+{
+    return allocator;
+}
+
+template &lt;class ALLOCATOR_TYPE&gt;
+inline
+ALLOCATOR_TYPE allocator_traits&lt;ALLOCATOR_TYPE&gt;::selectOnCopyConstruct(
+                                                         const ALLOCATOR_TYPE&amp;,
+                                                         true_type)
+{
+    return ALLOCATOR_TYPE();
+}
+
+template &lt;class ALLOCATOR_TYPE&gt;
+inline
+void *
+allocator_traits&lt;ALLOCATOR_TYPE&gt;::mechanism(const ALLOCATOR_TYPE&amp;,
+                                            false_type)
+{
+    return 0;
+}
+
+template &lt;class ALLOCATOR_TYPE&gt;
+inline
+BloombergLP::bslma::Allocator *
+allocator_traits&lt;ALLOCATOR_TYPE&gt;::mechanism(const ALLOCATOR_TYPE&amp; allocator,
+                                            true_type)
+{
+    return allocator.mechanism();
+}
+
+template &lt;class ALLOCATOR_TYPE&gt;
+inline
+typename allocator_traits&lt;ALLOCATOR_TYPE&gt;::pointer
+allocator_traits&lt;ALLOCATOR_TYPE&gt;::allocate(ALLOCATOR_TYPE&amp; allocator,
+                                           size_type n)
+{
+    return allocator.allocate(n, 0);
+}
+
+template &lt;class ALLOCATOR_TYPE&gt;
+inline
+typename allocator_traits&lt;ALLOCATOR_TYPE&gt;::pointer
+allocator_traits&lt;ALLOCATOR_TYPE&gt;::allocate(ALLOCATOR_TYPE&amp;    allocator,
+                                           size_type          n,
+                                           const_void_pointer hint)
+{
+    return allocator.allocate(n, hint);
+}
+
+template &lt;class ALLOCATOR_TYPE&gt;
+inline
+void
+allocator_traits&lt;ALLOCATOR_TYPE&gt;::deallocate(ALLOCATOR_TYPE&amp; allocator,
+                                             pointer         elementAddr,
+                                             size_type       n)
+{
+    allocator.deallocate(elementAddr, n);
+}
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
+template &lt;class ALLOCATOR_TYPE&gt;
+template &lt;class ELEMENT_TYPE&gt;
+inline
+void
+allocator_traits&lt;ALLOCATOR_TYPE&gt;::construct(ALLOCATOR_TYPE&amp;  allocator,
+                                            ELEMENT_TYPE    *elementAddr)
+{
+    BloombergLP::bslalg::ScalarPrimitives::defaultConstruct(
+                                              elementAddr,
+                                              mechanism(allocator, IsBslma()));
+}
+
+#  ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+template &lt;class ALLOCATOR_TYPE&gt;
+template &lt;class ELEMENT_TYPE, class... CTOR_ARGS&gt;
+inline
+void
+allocator_traits&lt;ALLOCATOR_TYPE&gt;::construct(ALLOCATOR_TYPE&amp;  allocator,
+                                            ELEMENT_TYPE    *elementAddr,
+                                            CTOR_ARGS&amp;&amp;...   ctorArgs)
+{
+    BloombergLP::bslalg::ScalarPrimitives::construct(
+                                   elementAddr,
+                                   native_std::forward&lt;CTOR_ARGS&gt;(ctorArgs)...,
+                                   mechanism(allocator, IsBslma()));
+}
+#  else
+template &lt;class ALLOCATOR_TYPE&gt;
+template &lt;class ELEMENT_TYPE, class... CTOR_ARGS&gt;
+inline
+void
+allocator_traits&lt;ALLOCATOR_TYPE&gt;::construct(ALLOCATOR_TYPE&amp;      allocator,
+                                            ELEMENT_TYPE        *elementAddr,
+                                            const CTOR_ARGS&amp;...  ctorArgs)
+{
+    BloombergLP::bslalg::ScalarPrimitives::construct(
+                                              elementAddr,
+                                              ctorArgs...,
+                                              mechanism(allocator, IsBslma()));
+}
+#  endif
+#else
+template &lt;class ALLOCATOR_TYPE&gt;
+template &lt;class ELEMENT_TYPE&gt;
+inline
+void
+allocator_traits&lt;ALLOCATOR_TYPE&gt;::construct(ALLOCATOR_TYPE&amp;  allocator,
+                                            ELEMENT_TYPE    *elementAddr)
+{
+    BloombergLP::bslalg::ScalarPrimitives::defaultConstruct(
+        elementAddr, mechanism(allocator, IsBslma()));
+}
+
+template &lt;class ALLOCATOR_TYPE&gt;
+template &lt;class ELEMENT_TYPE, class CTOR_ARG1&gt;
+inline void
+allocator_traits&lt;ALLOCATOR_TYPE&gt;::construct(ALLOCATOR_TYPE&amp;   allocator,
+                                            ELEMENT_TYPE     *elementAddr,
+                                            const CTOR_ARG1&amp;  ctorArg1)
+{
+    BloombergLP::bslalg::ScalarPrimitives::construct(
+                       elementAddr, ctorArg1, mechanism(allocator, IsBslma()));
+}
+
+template &lt;class ALLOCATOR_TYPE&gt;
+template &lt;class ELEMENT_TYPE, class CTOR_ARG1, class CTOR_ARG2&gt;
+inline
+void
+allocator_traits&lt;ALLOCATOR_TYPE&gt;::construct(ALLOCATOR_TYPE&amp;   allocator,
+                                            ELEMENT_TYPE     *elementAddr,
+                                            const CTOR_ARG1&amp;  ctorArg1,
+                                            const CTOR_ARG2&amp;  ctorArg2)
+{
+    BloombergLP::bslalg::ScalarPrimitives::construct(
+             elementAddr, ctorArg1, ctorArg2, mechanism(allocator, IsBslma()));
+}
+
+template &lt;class ALLOCATOR_TYPE&gt;
+template &lt;class ELEMENT_TYPE,
+          class CTOR_ARG1,
+          class CTOR_ARG2,
+          class CTOR_ARG3&gt;
+inline
+void
+allocator_traits&lt;ALLOCATOR_TYPE&gt;::construct(ALLOCATOR_TYPE&amp;   allocator,
+                                            ELEMENT_TYPE     *elementAddr,
+                                            const CTOR_ARG1&amp;  ctorArg1,
+                                            const CTOR_ARG2&amp;  ctorArg2,
+                                            const CTOR_ARG3&amp;  ctorArg3)
+{
+    BloombergLP::bslalg::ScalarPrimitives::construct(
+                                              elementAddr,
+                                              ctorArg1,
+                                              ctorArg2,
+                                              ctorArg3,
+                                              mechanism(allocator, IsBslma()));
+}
+
+template &lt;class ALLOCATOR_TYPE&gt;
+template &lt;class ELEMENT_TYPE,
+          class CTOR_ARG1,
+          class CTOR_ARG2,
+          class CTOR_ARG3,
+          class CTOR_ARG4&gt;
+inline
+void
+allocator_traits&lt;ALLOCATOR_TYPE&gt;::construct(ALLOCATOR_TYPE&amp;   allocator,
+                                            ELEMENT_TYPE     *elementAddr,
+                                            const CTOR_ARG1&amp;  ctorArg1,
+                                            const CTOR_ARG2&amp;  ctorArg2,
+                                            const CTOR_ARG3&amp;  ctorArg3,
+                                            const CTOR_ARG4&amp;  ctorArg4)
+{
+    BloombergLP::bslalg::ScalarPrimitives::construct(
+                                              elementAddr,
+                                              ctorArg1,
+                                              ctorArg2,
+                                              ctorArg3,
+                                              ctorArg4,
+                                              mechanism(allocator, IsBslma()));
+}
+
+template &lt;class ALLOCATOR_TYPE&gt;
+template &lt;class ELEMENT_TYPE,
+          class CTOR_ARG1,
+          class CTOR_ARG2,
+          class CTOR_ARG3,
+          class CTOR_ARG4,
+          class CTOR_ARG5&gt;
+inline
+void
+allocator_traits&lt;ALLOCATOR_TYPE&gt;::construct(ALLOCATOR_TYPE&amp;   allocator,
+                                            ELEMENT_TYPE     *elementAddr,
+                                            const CTOR_ARG1&amp;  ctorArg1,
+                                            const CTOR_ARG2&amp;  ctorArg2,
+                                            const CTOR_ARG3&amp;  ctorArg3,
+                                            const CTOR_ARG4&amp;  ctorArg4,
+                                            const CTOR_ARG5&amp;  ctorArg5)
+{
+    BloombergLP::bslalg::ScalarPrimitives::construct(
+                                              elementAddr,
+                                              ctorArg1,
+                                              ctorArg2,
+                                              ctorArg3,
+                                              ctorArg4,
+                                              ctorArg5,
+                                              mechanism(allocator, IsBslma()));
+}
+
+#endif // ! BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
+
+template &lt;class ALLOCATOR_TYPE&gt;
+template &lt;class ELEMENT_TYPE&gt;
+inline
+void
+allocator_traits&lt;ALLOCATOR_TYPE&gt;::destroy(ALLOCATOR_TYPE&amp;  /*allocator*/,
+                                          ELEMENT_TYPE    *elementAddr)
+{
+//  For full C++11 compatibility, this should check for the well-formedness of
+//  the allocator-specific code that is commented out below (via some SFINAE
+//  trickery), and switch to the ScalarDestructionPrimitives implementation
+//  only if the &#39;destroy&#39; member function is not available.
+
+//    allocator.destroy(elementAddr);
+    BloombergLP::bslalg::ScalarDestructionPrimitives::destroy(elementAddr);
+}
+
+template &lt;class ALLOCATOR_TYPE&gt;
+inline
+typename allocator_traits&lt;ALLOCATOR_TYPE&gt;::size_type
+allocator_traits&lt;ALLOCATOR_TYPE&gt;::max_size(const ALLOCATOR_TYPE&amp; allocator)
+{
+    return allocator.max_size();
+}
+
+template &lt;class ALLOCATOR_TYPE&gt;
+inline
+ALLOCATOR_TYPE
+allocator_traits&lt;ALLOCATOR_TYPE&gt;::select_on_container_copy_construction(
+                                                     const ALLOCATOR_TYPE&amp; rhs)
+{
+    return selectOnCopyConstruct(rhs, IsBslma());
+}
+
+}  // close namespace bsl
+
+#endif // ! defined(INCLUDED_BSLSTL_ALLOCATORTRAITS)
+
+// ----------------------------------------------------------------------------
+// Copyright (C) 2012 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the &quot;Software&quot;), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

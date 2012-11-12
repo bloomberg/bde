@@ -1,0 +1,306 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 2.16 BETA</title>
+<html>
+<pre>
+// bslma_testallocatorexception.h                                     -*-C++-*-
+#ifndef INCLUDED_BSLMA_TESTALLOCATOREXCEPTION
+#define INCLUDED_BSLMA_TESTALLOCATOREXCEPTION
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide an exception class for memory allocation operations.
+//
+//@CLASSES:
+//  bslma::TestAllocatorException: exception containing allocation information
+//
+//@DESCRIPTION: This component defines a simple exception object for testing
+// exceptions during memory allocation operations.  The exception object
+// &#39;bslma::TestAllocatorException&#39; contains information about the allocation
+// request, which can be queried for by the &quot;catcher&quot; of this exception.
+//
+///Usage
+///-----
+// In the following example, the &#39;bslma::TestAllocatorException&#39; object is
+// thrown by the &#39;allocate&#39; method of the &#39;my_Allocator&#39; object after the
+// number of allocation requests exceeds the allocator&#39;s allocation limit.
+// This example demonstrates how to use a user-defined allocator (e.g.,
+// &#39;my_Allocator&#39;) and &#39;bslma::TestAllocatorException&#39; to verify that an object
+// (e.g., &#39;my_ShortArray&#39;) under test is exception neutral:
+//..
+//  // my_allocator.h
+//  #include &lt;bslma_allocator.h&gt;
+//
+//  class my_Allocator : public bslma::Allocator {
+//      int d_allocationLimit;
+//      // ...
+//
+//    private:
+//      // NOT IMPLEMENTED
+//      my_Allocator(const my_Allocator&amp;);
+//      my_Allocator&amp; operator=(const my_Allocator&amp;);
+//
+//    public:
+//      // CREATORS
+//      my_Allocator() : d_allocationLimit(-1) {}
+//      ~my_Allocator() {}
+//
+//      void *allocate(int size);
+//      void deallocate(void *address) { free(address); }
+//      void setAllocationLimit(int limit){ d_allocationLimit = limit; }
+//      int allocationLimit() const { return d_allocationLimit; }
+//      // ...
+//  };
+//
+//  // my_allocator.cpp
+//  #include &lt;my_allocator.h&gt;
+//
+//  void *my_Allocator::allocate(int size)
+//  {
+//  #ifdef BDE_BUILD_TARGET_EXC
+//      if (0 &lt;= d_allocationLimit) {
+//          --d_allocationLimit;
+//          if (0 &gt; d_allocationLimit) {
+//              throw bslma::TestAllocatorException(size);
+//          }
+//      }
+//  #endif
+//      return (void *)malloc(size);
+//  }
+//..
+// Note that the macro &#39;BDE_BUILD_TARGET_EXC&#39; is defined at compile-time to
+// indicate whether exceptions are enabled.  In the above code, if exceptions
+// are not enabled, the code that throws &#39;bslma::TestAllocatorException&#39; is
+// never executed.  The following is the test driver for &#39;my_ShortArray&#39;.
+//
+// Note that &quot;\$&quot; must be replaced by &quot;\&quot; in the preprocessor macro definitions
+// that follow.  The &quot;$&quot; symbols are present in this header file to avoid a
+// diagnostic elicited by some compilers (e.g., &quot;warning: multi-line comment&quot;).
+//..
+//  // my_shortarray.t.cpp
+//  #include &lt;my_shortarray.h&gt;
+//  #include &lt;my_testallocator.h&gt;
+//  #include &lt;bslma_testallocatorexception.h&gt;
+//
+//  // ...
+//
+//  #ifdef BDE_BUILD_TARGET_EXC
+//  #define BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN {                       \$
+//  {                                                                        \$
+//      static int firstTime = 1;                                            \$
+//      if (veryVerbose &amp;&amp; firstTime) std::cout &lt;&lt;                           \$
+//          &quot;### BSLMA EXCEPTION TEST -- (ENABLED) --&quot; &lt;&lt; std::endl;         \$
+//      firstTime = 0;                                                       \$
+//  }                                                                        \$
+//  if (veryVeryVerbose) std::cout &lt;&lt;                                        \$
+//      &quot;### Begin bslma exception test.&quot; &lt;&lt; std::endl;                      \$
+//  int bslmaExceptionCounter = 0;                                           \$
+//  static int bslmaExceptionLimit = 100;                                    \$
+//  testAllocator.setAllocationLimit(bslmaExceptionCounter);                 \$
+//  do {                                                                     \$
+//      try {
+//
+//  #define BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END                           \$
+//      } catch (bslma::TestAllocatorException&amp; e) {                         \$
+//          if (veryVerbose &amp;&amp; bslmaExceptionLimit || veryVeryVerbose) {     \$
+//              --bslmaExceptionLimit;                                       \$
+//              std::cout &lt;&lt; &quot;(*** &quot; &lt;&lt; bslmaExceptionCounter &lt;&lt; &#39;)&#39;;        \$
+//              if (veryVeryVerbose) { std::cout &lt;&lt; &quot; BSLMA_EXCEPTION: &quot;     \$
+//                  &lt;&lt; &quot;alloc limit = &quot; &lt;&lt; bslmaExceptionCounter &lt;&lt; &quot;, &quot;     \$
+//                  &lt;&lt; &quot;last alloc size = &quot; &lt;&lt; e.numBytes();                 \$
+//              }                                                            \$
+//              else if (0 == bslmaExceptionLimit) {                         \$
+//                  std::cout &lt;&lt; &quot; [ Note: &#39;bslmaExceptionLimit&#39; reached. ]&quot;;\$
+//              }                                                            \$
+//              std::cout &lt;&lt; std::endl;                                      \$
+//          }                                                                \$
+//          testAllocator.setAllocationLimit(++bslmaExceptionCounter);       \$
+//          continue;                                                        \$
+//      }                                                                    \$
+//      testAllocator.setAllocationLimit(-1);                                \$
+//      break;                                                               \$
+//  } while (1);                                                             \$
+//  if (veryVeryVerbose) std::cout &lt;&lt;                                        \$
+//      &quot;### End bslma exception test.&quot; &lt;&lt; std::endl;                        \$
+//  }
+//  #else
+//  #define BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN                         \$
+//  {                                                                        \$
+//      static int firstTime = 1;                                            \$
+//      if (verbose &amp;&amp; firstTime) { std::cout &lt;&lt;                             \$
+//          &quot;### BSLMA EXCEPTION TEST -- (NOT ENABLED) --&quot; &lt;&lt; std::endl;     \$
+//          firstTime = 0;                                                   \$
+//      }                                                                    \$
+//  }
+//  #define BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+//  #endif
+//
+//  // ...
+//
+//  static
+//  bool areEqual(const short *array1, const short *array2, int numElement)
+//      // Return &#39;true&#39; if the specified initial &#39;numElement&#39; in the specified
+//      // &#39;array1&#39; and &#39;array2&#39; have the same values, and &#39;false&#39; otherwise.
+//  {
+//      for (int i = 0; i &lt; numElement; ++i) {
+//          if (array1[i] != array2[i]) return false;
+//      }
+//      return true;
+//  }
+//
+//  int main(int argc, char *argv[]) {
+//      int test = argc &gt; 1 ? atoi(argv[1]) : 0;
+//      int verbose = argc &gt; 2;
+//      int veryVerbose = argc &gt; 3;
+//      int veryVeryVerbose = argc &gt; 4;
+//
+//      my_Allocator testAllocator;
+//
+//      switch (test) { case 0:
+//
+//        // ...
+//
+//        case 6: {
+//          struct {
+//              int d_line;
+//              int d_numElem;
+//              short d_exp[NUM_VALUES];
+//          } DATA[] = {
+//              { L_, 0, {} },
+//              { L_, 1, { V0 } },
+//              { L_, 5, { V0, V1, V2, V3, V4 } }
+//          };
+//
+//          const int NUM_TEST = sizeof DATA / sizeof *DATA;
+//
+//          for (int ti = 0; ti &lt; NUM_TEST; ++ti) {
+//              const int    LINE     = DATA[ti].d_line;
+//              const int    NUM_ELEM = DATA[ti].d_numElem;
+//              const short *EXP      = DATA[ti].d_exp;
+//
+//              BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN {
+//                  my_ShortArray mA(&amp;testAllocator);
+//                  const my_ShortArray&amp; A = mA;
+//                  for (int ei = 0; ei &lt; NUM_ELEM; ++ei) {
+//                      mA.append(VALUES[ei]);
+//                  }
+//                  if (veryVerbose) { P_(ti); P_(NUM_ELEM); P(A); }
+//                  LOOP2_ASSERT(LINE, ti, areEqual(EXP, A, NUM_ELEM));
+//              } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+//          }
+//
+//          if (veryVerbose) std::cout &lt;&lt; testAllocator &lt;&lt; std::endl;
+//        } break;
+//
+//        // ...
+//
+//      }
+//
+//      // ...
+//  }
+//..
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include &lt;bslscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include &lt;bslma_allocator.h&gt;
+#endif
+
+namespace BloombergLP {
+
+namespace bslma {
+
+                        // ============================
+                        // class TestAllocatorException
+                        // ============================
+
+class TestAllocatorException {
+    // This class defines an exception object for memory allocation operations.
+    // Objects of this class contain information about an allocation request.
+
+  public:
+    // PUBLIC TYPES
+    typedef Allocator::size_type size_type;
+        // Alias for the type used by the &#39;Allocator&#39; protocol to request a
+        // memory allocation of a given size.
+
+  private:
+    // DATA
+    size_type d_numBytes;  // number of bytes requested in an allocation
+                           // operation
+
+  public:
+    // CREATORS
+    TestAllocatorException(size_type numBytes);
+        // Create an exception object initialized with the specified &#39;numBytes&#39;
+        // that indicates an allocation request size.
+
+    //! ~TestAllocatorException();
+        // Destroy this object.  Note that this method&#39;s definition is compiler
+        // generated.
+
+    // ACCESSORS
+    size_type numBytes() const;
+        // Return the number of bytes (supplied at construction) that indicates
+        // an allocation request size.
+};
+
+// ===========================================================================
+//                      INLINE FUNCTION DEFINITIONS
+// ===========================================================================
+
+                        // ----------------------------
+                        // class TestAllocatorException
+                        // ----------------------------
+
+// CREATORS
+inline
+TestAllocatorException::TestAllocatorException(size_type numBytes)
+: d_numBytes(numBytes)
+{
+}
+
+// ACCESSORS
+inline
+TestAllocatorException::size_type
+TestAllocatorException::numBytes() const
+{
+    return d_numBytes;
+}
+
+}  // close package namespace
+
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright (C) 2012 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the &quot;Software&quot;), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

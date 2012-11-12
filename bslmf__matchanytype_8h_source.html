@@ -1,0 +1,185 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 2.16 BETA</title>
+<html>
+<pre>
+// bslmf_matchanytype.h                                               -*-C++-*-
+#ifndef INCLUDED_BSLMF_MATCHANYTYPE
+#define INCLUDED_BSLMF_MATCHANYTYPE
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a generic type to which any type can be converted.
+//
+//@CLASSES:
+//  bslmf::MatchAnyType: generic type to which any type can be converted
+//  bslmf::TypeRep: meta-function for providing a reference to &#39;TYPE&#39;
+//
+//@DESCRIPTION: &#39;bslmf::MatchAnyType&#39; is a type to which any type can be
+// implicitly converted.  This is useful for creating an overloaded function
+// that is a catch-all for all types not explicitly provided for in other
+// overloaded functions with the same name.
+//
+// &#39;bslmf::TypeRep&#39; allows one to create a reference to a type.  In complex
+// template programming, one is often dealing with unknown types, about the
+// constructors of which one knows nothing.  One often needs an object of the
+// given type, but since nothing is known about the constructors, one can&#39;t
+// just construct and object of the type.  &#39;bslmf::TypeRep&#39; allows one to
+// create a reference to the type.  Note that the &#39;rep&#39; function in
+// &#39;bslma::TypeRep&#39; is not implemented, it must never be called at run time.
+//
+///Usage Example 1: &#39;bslmf::MatchAnyType&#39;
+///--------------------------------------
+//..
+//  struct X { };
+//  struct Y { };
+//  struct Z : public Y { };
+//
+//  inline bool isY(const bslmf::MatchAnyType&amp;) { return false; }
+//  inline bool isY(const Y&amp;)              { return true;  }
+//
+//  assert(! isY(X()));
+//  assert(  isY(Y()));
+//  assert(  isY(Z()));
+//  assert(! isY(int()));
+//  assert(! isY(4));
+//  assert(! isY(4.0));
+//  assert(! isY(&quot;The king is a fink!&quot;));
+//
+//  X x;
+//  Y y;
+//  Z z;
+//  assert(! isY(x));
+//  assert(  isY(y));
+//  assert(  isY(z));
+//..
+///Usage Example 2: &#39;bslmf::TypeRep&#39;
+///--------------------------------
+//..
+//  struct X {};
+//  struct Y {};
+//
+//  struct HasHorridCtorX : public X {
+//      HasHorridCtorX(int, double, X, char, char *, void *) {}
+//          // It&#39;s inconvenient to actually create an object of this type
+//          // because the constructor takes so many arguments.  It&#39;s also
+//          // impossible because the c&#39;tor is undefined.
+//  };
+//  struct HasHorridCtorY : public Y {
+//      HasHorridCtorY(int, double, X, char, char *, void *) {}
+//          // It&#39;s inconvenient to actually create an object of this type
+//          // because the constructor takes so many arguments.  It&#39;s also
+//          // impossible because the c&#39;tor is undefined.
+//  };
+//
+//  template &lt;int i&gt;
+//  struct MetaInt { char d_array[i + 1]; };
+//
+//  #define METAINT_TO_UINT(metaint)   (sizeof(metaint) - 1)
+//
+//  MetaInt&lt;1&gt; isX(const X&amp;);
+//  MetaInt&lt;0&gt; isX(const bslmf::MatchAnyType&amp;);
+//
+//  assert(1 == METAINT_TO_UINT(isX(X())));
+//  assert(0 == METAINT_TO_UINT(isX(Y())));
+//  assert(1 == METAINT_TO_UINT(isX(bslmf::TypeRep&lt;HasHorridCtorX&gt;::rep())));
+//  assert(0 == METAINT_TO_UINT(isX(bslmf::TypeRep&lt;HasHorridCtorY&gt;::rep())));
+//  assert(0 == METAINT_TO_UINT(isX(3)));
+//  assert(0 == METAINT_TO_UINT(isX(3.0)));
+//  assert(0 == METAINT_TO_UINT(isX(&quot;The king is a fink!&quot;)));
+//..
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include &lt;bslscm_version.h&gt;
+#endif
+
+namespace BloombergLP {
+
+namespace bslmf {
+
+                        // ==================
+                        // class MatchAnyType
+                        // ==================
+
+struct MatchAnyType {
+    // Any type can be converted into this type.
+
+    template &lt;typename TYPE&gt; MatchAnyType(const TYPE&amp;) { }
+        // This constructor will match any rvalue or any non-volatile lvalue.
+        // A non-const version of this constructor is not necessary and will
+        // cause some compilers to complain of ambiguities.
+
+    template &lt;typename TYPE&gt; MatchAnyType(const volatile TYPE&amp;) { }
+        // This constructor will match any volatile lvalue.  According to the
+        // standard, it should NOT match an rvalue.  A non-const version of
+        // this constructor is not necessary and will cause some compilers to
+        // complain of ambiguities.
+};
+
+                        // =============
+                        // class TypeRep
+                        // =============
+
+template &lt;typename TYPE&gt;
+struct TypeRep {
+    // Generate a reference to &#39;TYPE&#39; for use in meta-functions.
+
+    static TYPE&amp; rep();
+        // Provide a reference to a &#39;TYPE&#39; object.  This function has no body
+        // and must never be called at run time.  Thus, it does not matter if
+        // &#39;TYPE&#39; has a default constructor or not.
+};
+
+template &lt;typename TYPE&gt;
+struct TypeRep&lt;TYPE&amp;&gt; {
+    // Generate a reference to &#39;TYPE&#39; for use in meta-functions.  This is a
+    // partial specialization of &#39;TypeRep&#39; instantiated with a reference.
+
+    static TYPE&amp; rep();
+        // Provide a reference to a &#39;TYPE&#39; object.  This function has no body
+        // and must never be called at run time.  Thus, it does not matter if
+        // &#39;TYPE&#39; has a default constructor or not.
+};
+
+struct DummyType {
+};
+
+template &lt;&gt;
+struct TypeRep&lt;void&gt; {
+    static DummyType&amp; rep();
+};
+
+}  // close package namespace
+
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright (C) 2012 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the &quot;Software&quot;), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

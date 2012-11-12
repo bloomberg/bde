@@ -1,0 +1,346 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 2.16 BETA</title>
+<html>
+<pre>
+// bslstl_ostringstream.h                                             -*-C++-*-
+#ifndef INCLUDED_BSLSTL_OSTRINGSTREAM
+#define INCLUDED_BSLSTL_OSTRINGSTREAM
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a C++03-compatible &#39;ostringstream&#39; class.
+//
+//@CLASSES:
+//  bsl::ostringstream: C++03-compatible &#39;ostringstream&#39; class
+//
+//@SEE_ALSO:
+//
+//@DESCRIPTION: This component is for internal use only.  Please include
+// &#39;&lt;bsl_sstream.h&gt;&#39; instead.
+//
+// This component defines a class template, &#39;bsl::basic_ostringstream&#39;,
+// implementing a standard output stream that provides a method for obtaining a
+// &#39;bsl::basic_string&#39;, which contains the characters that have been written to
+// the stream (see 27.8.4 [ostringstream] of the C++11 standard).  This
+// component also defines two standard aliases, &#39;bsl::ostringstream&#39; and
+// &#39;bsl::wostringstream&#39;, that refer to specializations of the
+// &#39;bsl::basic_ostringstream&#39; template for &#39;char&#39; and &#39;wchar_t&#39; types,
+// respectively.  The &#39;bsl::basic_ostringstream&#39; template has three parameters,
+// &#39;CHAR_TYPE&#39;, &#39;CHAR_TRAITS&#39;, and &#39;ALLOCATOR&#39;.  The &#39;CHAR_TYPE&#39; and
+// &#39;CHAR_TRAITS&#39; parameters respectively define the character type for the
+// string-stream and a type providing a set of operations the string-stream
+// will use to manipulate characters of that type, which must meet the
+// character traits requirements defined by the C++11 standard, 21.2
+// [char.traits].  The &#39;ALLOCATOR&#39; template parameter is described in the
+// &quot;Memory Allocation&quot; section below.
+//
+///Memory Allocation
+///-----------------
+// The type supplied as a string-stream&#39;s &#39;ALLOCATOR&#39; template parameter
+// determines how that string-stream will allocate memory.  The
+// &#39;basic_ostringstream&#39; template supports allocators meeting the requirements
+// of the C++11 standard, 17.6.3.5 [allocator.requirements]; in addition, it
+// supports scoped-allocators derived from the &#39;bslma::Allocator&#39; memory
+// allocation protocol.  Clients intending to use &#39;bslma&#39;-style allocators
+// should use &#39;bsl::allocator&#39;, which provides a C++11 standard-compatible
+// adapter for a &#39;bslma::Allocator&#39; object.  Note that the standard aliases
+// &#39;bsl::ostringstream&#39; and &#39;bsl::wostringstream&#39; both use &#39;bsl::allocator&#39;.
+//
+///&#39;bslma&#39;-Style Allocators
+/// - - - - - - - - - - - -
+// If the type supplied for the &#39;ALLOCATOR&#39; template parameter of an
+// &#39;ostringstream&#39; instantiation is &#39;bsl::allocator&#39;, then objects of that
+// string-stream type will conform to the standard behavior of a
+// &#39;bslma&#39;-allocator-enabled type.  Such a string-stream accepts an optional
+// &#39;bslma::Allocator&#39; argument at construction.  If the address of a
+// &#39;bslma::Allocator&#39; object is explicitly supplied at construction, it will be
+// used to supply memory for the string-stream throughout its lifetime;
+// otherwise, the string-stream will use the default allocator installed at the
+// time of the string-stream&#39;s construction (see &#39;bslma_default&#39;).
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Output Operations
+/// - - - - - - - - - - - - - - - - -
+// The following example demonstrates the use of &#39;bsl::ostringstream&#39; to write
+// data of various types into a &#39;bsl::string&#39; object.
+//
+// Suppose we want to implement a simplified converter from a generic type,
+// &#39;TYPE&#39;, to &#39;bsl::string&#39;.  We use &#39;bsl::ostringstream&#39; to implement the
+// &#39;toString&#39; function.  We write the data into the stream with &#39;operator&lt;&lt;&#39;
+// and then use the &#39;str&#39; method to retrieve the resulting string from the
+// stream:
+//..
+//  template &lt;class TYPE&gt;
+//  bsl::string toString(const TYPE&amp; what)
+//  {
+//      bsl::ostringstream out;
+//      out &lt;&lt; what;
+//      return out.str();
+//  }
+//..
+// Finally, we verify that our &#39;toString&#39; function works on some simple test
+// cases:
+//..
+//  assert(toString(1234) == &quot;1234&quot;);
+//
+//  assert(toString&lt;short&gt;(-5) == &quot;-5&quot;);
+//
+//  assert(toString(&quot;abc&quot;) == &quot;abc&quot;);
+//..
+
+// Prevent &#39;bslstl&#39; headers from being included directly in &#39;BSL_OVERRIDES_STD&#39;
+// mode.  Doing so is unsupported, and is likely to cause compilation errors.
+#if defined(BSL_OVERRIDES_STD) &amp;&amp; !defined(BSL_STDHDRS_PROLOGUE_IN_EFFECT)
+#error &quot;include &lt;bsl_sstream.h&gt; instead of &lt;bslstl_ostringstream.h&gt; in \
+BSL_OVERRIDES_STD mode&quot;
+#endif
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include &lt;bslscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLSTL_STRING
+#include &lt;bslstl_string.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLSTL_STRINGBUF
+#include &lt;bslstl_stringbuf.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLALG_TYPETRAITS
+#include &lt;bslalg_typetraits.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLALG_TYPETRAITUSESBSLMAALLOCATOR
+#include &lt;bslalg_typetraitusesbslmaallocator.h&gt;
+#endif
+
+#ifndef INCLUDED_IOS
+#include &lt;ios&gt;
+#define INCLUDED_IOS
+#endif
+
+#ifndef INCLUDED_OSTREAM
+#include &lt;ostream&gt;
+#define INCLUDED_OSTREAM
+#endif
+
+namespace bsl {
+
+                          // =========================
+                          // class basic_ostringstream
+                          // =========================
+
+template &lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt;
+class basic_ostringstream
+    : private StringBufContainer&lt;CHAR_TYPE, CHAR_TRAITS, ALLOCATOR&gt;
+    , public native_std::basic_ostream&lt;CHAR_TYPE, CHAR_TRAITS&gt; {
+    // This class implements a standard output stream that provides an accessor
+    // for obtaining a &#39;bsl::basic_string&#39; containing the sequence of
+    // characters that have been written to the stream.
+
+  private:
+    // PRIVATE TYPES
+    typedef basic_stringbuf&lt;CHAR_TYPE, CHAR_TRAITS, ALLOCATOR&gt;   StreamBufType;
+    typedef StringBufContainer&lt;CHAR_TYPE, CHAR_TRAITS, ALLOCATOR&gt;
+                                                                 BaseType;
+    typedef bsl::basic_string&lt;CHAR_TYPE, CHAR_TRAITS, ALLOCATOR&gt; StringType;
+    typedef native_std::basic_ostream&lt;CHAR_TYPE, CHAR_TRAITS&gt;    BaseStream;
+    typedef native_std::ios_base                                 ios_base;
+
+  private:
+    // NOT IMPLEMENTED
+    basic_ostringstream(const basic_ostringstream&amp;);             // = delete
+    basic_ostringstream&amp; operator=(const basic_ostringstream&amp;);  // = delete
+
+  public:
+    // TYPES
+    typedef CHAR_TYPE                       char_type;
+    typedef CHAR_TRAITS                     traits_type;
+    typedef ALLOCATOR                       allocator_type;
+    typedef typename traits_type::int_type  int_type;
+    typedef typename traits_type::off_type  off_type;
+    typedef typename traits_type::pos_type  pos_type;
+
+    // CREATORS
+    explicit
+    basic_ostringstream(const allocator_type&amp; allocator = allocator_type());
+    explicit
+    basic_ostringstream(ios_base::openmode    modeBitMask,
+                        const allocator_type&amp; allocator = allocator_type());
+    explicit
+    basic_ostringstream(const StringType&amp;     initialString,
+                        const allocator_type&amp; allocator = allocator_type());
+    basic_ostringstream(const StringType&amp;     initialString,
+                        ios_base::openmode    modeBitMask,
+                        const allocator_type&amp; allocator = allocator_type());
+        // Create a &#39;basic_ostringstream&#39; object.  Optionally specify a
+        // &#39;modeBitMask&#39; indicating whether the underlying stream-buffer may
+        // also be read from (&#39;rdbuf&#39; is created using
+        // &#39;modeBitMask | ios_base::out&#39;).  If &#39;modeBitMask&#39; is not supplied,
+        // &#39;rdbuf&#39; will be created using &#39;ios_base::out&#39;.  Optionally specify
+        // an &#39;initialString&#39; indicating the value that will be returned by a
+        // call to &#39;str&#39; prior to any streaming operations performed on this
+        // object.  If &#39;initialString&#39; is not supplied, &#39;str&#39; will initially
+        // return an empty string.  Optionally specify an &#39;allocator&#39; used to
+        // supply memory.  If &#39;allocator&#39; is not supplied, a
+        // default-constructed object of the (template parameter) &#39;ALLOCATOR&#39;
+        // type is used.  If the &#39;ALLOCATOR&#39; argument is of type
+        // &#39;bsl::allocator&#39; (the default), then &#39;allocator&#39;, if supplied, shall
+        // be convertible to &#39;bslma::Allocator *&#39;.  If the &#39;ALLOCATOR&#39; argument
+        // is of type &#39;bsl::allocator&#39; and &#39;allocator&#39; is not supplied, the
+        // currently installed default allocator will be used to supply memory.
+
+    //! ~basic_ostringstream() = default;
+        // Destroy this object.
+
+    // MANIPULATORS
+    void str(const StringType&amp; value);
+        // Reset the internally buffered sequence of characters maintained by
+        // this stream object to the specified &#39;value&#39;.
+
+    // ACCESSORS
+    StringType str() const;
+        // Return the sequence of characters that have been written to this
+        // stream object.
+
+    StreamBufType *rdbuf() const;
+        // Return an address providing modifiable access to the
+        // &#39;basic_stringbuf&#39; object that is internally used by this string
+        // stream to buffer unformatted characters.
+};
+
+// STANDARD TYPEDEFS
+typedef basic_ostringstream&lt;char, char_traits&lt;char&gt;, allocator&lt;char&gt; &gt;
+                                                                 ostringstream;
+typedef basic_ostringstream&lt;wchar_t, char_traits&lt;wchar_t&gt;, allocator&lt;wchar_t&gt; &gt;
+                                                                wostringstream;
+
+}
+
+// TYPE TRAITS
+namespace BloombergLP {
+namespace bslma {
+
+template &lt;typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR&gt;
+struct UsesBslmaAllocator&lt;
+        bsl::basic_ostringstream&lt;CHAR_TYPE, CHAR_TRAITS, ALLOCATOR&gt; &gt;
+    : bsl::true_type
+{};
+
+}
+}
+
+namespace bsl {
+
+// ==========================================================================
+//                       TEMPLATE FUNCTION DEFINITIONS
+// ============================================================================
+
+                          // -------------------------
+                          // class basic_ostringstream
+                          // -------------------------
+
+// CREATORS
+template &lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt;
+inline
+basic_ostringstream&lt;CHAR_TYPE, CHAR_TRAITS, ALLOCATOR&gt;::
+basic_ostringstream(const allocator_type&amp; allocator)
+: BaseType(ios_base::out, allocator)
+, BaseStream(this-&gt;rdbuf())
+{
+}
+
+template &lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt;
+inline
+basic_ostringstream&lt;CHAR_TYPE, CHAR_TRAITS, ALLOCATOR&gt;::
+basic_ostringstream(ios_base::openmode    modeBitMask,
+                    const allocator_type&amp; allocator)
+: BaseType(modeBitMask | ios_base::out, allocator)
+, BaseStream(this-&gt;rdbuf())
+{
+}
+
+template &lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt;
+inline
+basic_ostringstream&lt;CHAR_TYPE, CHAR_TRAITS, ALLOCATOR&gt;::
+basic_ostringstream(const StringType&amp;     initialString,
+                    const allocator_type&amp; allocator)
+: BaseType(initialString, ios_base::out, allocator)
+, BaseStream(this-&gt;rdbuf())
+{
+}
+
+template &lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt;
+inline
+basic_ostringstream&lt;CHAR_TYPE, CHAR_TRAITS, ALLOCATOR&gt;::
+basic_ostringstream(const StringType&amp;     initialString,
+                    ios_base::openmode    modeBitMask,
+                    const allocator_type&amp; allocator)
+: BaseType(initialString, modeBitMask | ios_base::out, allocator)
+, BaseStream(this-&gt;rdbuf())
+{
+}
+
+// MANIPULATORS
+template &lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt;
+inline
+void basic_ostringstream&lt;CHAR_TYPE, CHAR_TRAITS, ALLOCATOR&gt;::str(
+                                                       const StringType&amp; value)
+{
+    this-&gt;rdbuf()-&gt;str(value);
+}
+
+// ACCESSORS
+template &lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt;
+inline
+typename basic_ostringstream&lt;CHAR_TYPE, CHAR_TRAITS, ALLOCATOR&gt;::StringType
+basic_ostringstream&lt;CHAR_TYPE, CHAR_TRAITS, ALLOCATOR&gt;::str() const
+{
+    return this-&gt;rdbuf()-&gt;str();
+}
+
+template &lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt;
+inline
+typename
+       basic_ostringstream&lt;CHAR_TYPE, CHAR_TRAITS, ALLOCATOR&gt;::StreamBufType *
+basic_ostringstream&lt;CHAR_TYPE, CHAR_TRAITS, ALLOCATOR&gt;::rdbuf() const
+{
+    return this-&gt;BaseType::rdbuf();
+}
+
+}  // close namespace bsl
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright (C) 2012 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the &quot;Software&quot;), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

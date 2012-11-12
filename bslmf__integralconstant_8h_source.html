@@ -1,0 +1,277 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 2.16 BETA</title>
+<html>
+<pre>
+// bslmf_integralconstant.h                                           -*-C++-*-
+#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
+#define INCLUDED_BSLMF_INTEGRALCONSTANT
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a mapping from integral constants to unique types.
+//
+//@CLASSES:
+// bsl::integral_constant&lt;TYPE,VAL&gt;: A compile-time type representing &#39;VAL&#39;
+// bsl::false_type: &#39;typedef&#39; for &#39;integral_constant&lt;bool, false&gt;&#39;
+// bsl::true_type: &#39;typedef&#39; for &#39;integral_constant&lt;bool, true&gt;&#39;
+//
+//@SEE_ALSO:
+//
+//@DESCRIPTION: This component describes a simple class template,
+// &#39;integral_constant&#39;, that is used to map an inteeger constant to a C++ type.
+// &#39;integral_constant&lt;TYPE, VAL&gt;&#39; generates a unique type for each distinct
+// compile-time integral &#39;TYPE&#39; and constant integer &#39;VAL&#39; parameter.  That
+// is, instantiations with different integer types and values form distinct
+// types, so that &#39;integral_constant&lt;int, 0&gt;&#39; is a different type from
+// &#39;integral_constant&lt;int, 1&gt;&#39;, which is also distinct from
+// &#39;integral_constant&lt;unsigned, 1&gt;&#39;, and so on.  This mapping of integer values
+// to types allows for &quot;overloading by value&quot;, i.e., multiple functions with
+// the same name can be overloaded on the &quot;value&quot; of an &#39;integral_constant&#39;
+// argument, provided that the value is known at compile-time.
+//
+///Usage
+///-----
+// This section illustates intended usage of this component
+//
+///Example 1: Compile-Time Function Dispatching
+/// - - - - - - - - - - - - - - - - - - - - - - 
+// The most common use of this structure is to perform compile-time function
+// dispatching based on a compile-time calculation.  Often the calculation is
+// nothing more than a simple predicate, allowing us to select one of two
+// functions based on whether the predicate holds.  The following function,
+// &#39;doSomething&#39;, uses a fast implementation (e.g., using &#39;memcpy&#39;) if the
+// parameterized type allows for such operations, otherwise it will use a more
+// generic and slower implementation (e.g., using the copy constructor).  This
+// example uses the types &#39;true_type&#39; and &#39;false_type&#39;, which are simple
+// typedefs for &#39;integral_constant&lt;bool, true&gt;&#39; and
+// &#39;integral_constant&lt;bool, false&gt;&#39;, respectively.
+//..
+//    #include &lt;bslmf_integralconstant.h&gt;
+//    
+//    template &lt;class T&gt;
+//    int doSomethingImp(T *t, bsl::true_type)
+//    {
+//        // slow, generic implementation
+//        // ...
+//        (void) t;
+//        return 11; 
+//    }
+//    
+//    template &lt;class T&gt;
+//    int doSomethingImp(T *t, bsl::false_type)
+//    {
+//        // fast implementation that works only for some types of T
+//        // ...
+//        (void) t;
+//        return 55; 
+//    }
+//    
+//    template &lt;bool IsSlow, class T&gt;
+//    int doSomething(T *t)
+//    {
+//        // Dispatch to an implementation depending on the (compile-time)
+//        // value of &#39;IsSlow&#39;.
+//        return doSomethingImp(t, bsl::integral_constant&lt;bool, IsSlow&gt;());
+//    }
+//..
+// For some parameter types, the fast version of &#39;doSomethingImp&#39; is not
+// legal.  The power of this approach is that the compiler will not attempt
+// semantic anlysis on the implementation that does not match the appropriate
+// &#39;integral_constant&#39; argument.
+//..
+//    int main()
+//    {
+//        int r;
+//    
+//        int i;
+//        r = doSomething&lt;false&gt;(&amp;i);   // select fast version for int
+//        assert(55 == r);
+//    
+//        double m;
+//        r = doSomething&lt;true&gt;(&amp;m); // select slow version for double
+//        assert(11 == r);
+//
+//        return 0;
+//    }
+//..
+///Example 2: Base class for metafunctions
+/// - - - - - - - - - - - - - - - - - - - 
+// Hard-coding the value of an &#39;integral_constant&#39; is not especially useful.
+// Rather, &#39;integral_constant&#39; is typically used as the base class for
+// &quot;metafunction&quot; classes, classes that yield the value of compile-time
+// properties, including properties that are associated with types, rather
+// than with values.  For example, the following metafunction can be used at
+// compile time to determine whether a type is a floating point type:
+//..
+//    template &lt;class TYPE&gt; struct IsFloatingPoint    : bsl::false_type { };
+//    template &lt;&gt; struct IsFloatingPoint&lt;float&gt;       : bsl::true_type { };
+//    template &lt;&gt; struct IsFloatingPoint&lt;double&gt;      : bsl::true_type { };
+//    template &lt;&gt; struct IsFloatingPoint&lt;long double&gt; : bsl::true_type { };
+//..
+// The value &#39;IsFloatingPoint&lt;int&gt;::value&#39; is false and
+// &#39;IsFloatingPoint&lt;double&gt;::value&#39; is true.  The &#39;integral_constant&#39; base
+// class has a member type, &#39;type&#39;, that refers to itself and is inherited by
+// &#39;IsFloatingPoint&#39;. Thus &#39;IsFloatingPoint&lt;float&gt;::type&#39; is &#39;true_type&#39; and
+// &#39;IsFloatingPoint&lt;char&gt;::type&#39; is &#39;false_type&#39;.  &#39;IsFloatingPoint&#39; is an a
+// member of a common category of metafunctions known as &quot;type traits&quot; because
+// they express certain properties (traits) of a type.  Using this
+// metafunction, we can rewrite the &#39;doSomething&#39; function from first example
+// so that it does not require the user to specify the &#39;IsSlow&#39; template
+// argument:
+//..
+//    template &lt;class T&gt;
+//    int doSomething2(T *t)
+//    {
+//        // Automatically detect whether to use slow or fast imp.
+//        const bool isSlow = IsFloatingPoint&lt;T&gt;::value;
+//        return doSomethingImp(t, bsl::integral_constant&lt;bool, isSlow&gt;());
+//    }
+//    
+//    int main()
+//    {
+//        int r;
+//    
+//        int i;
+//        r = doSomething2(&amp;i); // select fast version for int
+//        assert(55 == r);
+//    
+//        double m;
+//        r = doSomething2(&amp;m); // select slow version for double
+//        assert(11 == r);
+//
+//        return 0;
+//    }
+//..
+
+namespace BloombergLP {
+namespace bslmf {
+template &lt;int&gt; struct MetaInt;
+}
+}
+
+namespace bsl {
+
+                        // ================================
+                        // class template integral_constant
+                        // ================================
+
+template &lt;class TYPE, TYPE VAL&gt;
+struct integral_constant {
+    // Generate a unique type for the given &#39;TYPE&#39; and &#39;VAL&#39;.  This &#39;struct&#39;
+    // is used for compile-time dispatch of overloaded functions and as the
+    // base class for many metafunctions.
+
+  public:
+    // CREATORS
+    //! integral_constant() = default;
+    //! integral_constant(const integral_constant&amp;) = default;
+    //! integral_constant operator=(const integral_constant&amp;) = default;
+    //! ~integral_constant() = default;
+
+    // PUBLIC TYPES
+    typedef TYPE              value_type;
+    typedef integral_constant type;
+
+    // PUBLIC CLASS DATA
+    static const TYPE value = VAL;
+
+    // ACCESSORS
+    operator value_type() const;
+        // Return &#39;VAL&#39;.
+};
+
+template &lt;bool VAL&gt;
+struct integral_constant&lt;bool, VAL&gt; {
+  public:
+    // CREATORS
+    //! integral_constant() = default;
+    //! integral_constant(const integral_constant&amp;) = default;
+    //! integral_constant operator=(const integral_constant&amp;) = default;
+    //! ~integral_constant() = default;
+
+    // PUBLIC TYPES
+    typedef bool              value_type;
+    typedef integral_constant type;
+
+    // PUBLIC CLASS DATA
+    static const bool value = VAL;
+
+    // ACCESSORS
+    operator value_type() const;
+        // Return &#39;VAL&#39;.
+
+    // COMPATIBILITY MEMBERS
+    typedef BloombergLP::bslmf::MetaInt&lt;VAL&gt; Type;
+    static const bool VALUE = VAL;
+};
+
+                        // ===============
+                        // type false_type
+                        // ===============
+
+typedef integral_constant&lt;bool, false&gt; false_type;
+
+                        // ===============
+                        // type true_type
+                        // ===============
+
+typedef integral_constant&lt;bool, true&gt; true_type;
+
+}  // close namespace bsl
+
+// ===========================================================================
+//                      INLINE FUNCTION DEFINITIONS
+// ===========================================================================
+
+// STATIC MEMBER VARIABLES
+template &lt;class TYPE, TYPE VAL&gt;
+const TYPE bsl::integral_constant&lt;TYPE, VAL&gt;::value;
+
+template &lt;bool VAL&gt;
+const bool bsl::integral_constant&lt;bool, VAL&gt;::value;
+
+// ACCESSORS
+template &lt;class TYPE, TYPE VAL&gt;
+inline
+bsl::integral_constant&lt;TYPE, VAL&gt;::operator TYPE() const
+{
+    return VAL;
+}
+
+template &lt;bool VAL&gt;
+inline
+bsl::integral_constant&lt;bool, VAL&gt;::operator bool() const
+{
+    return VAL;
+}
+
+#endif // ! defined(INCLUDED_BSLMF_INTEGRALCONSTANT)
+
+// ----------------------------------------------------------------------------
+// Copyright (C) 2012 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the &quot;Software&quot;), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

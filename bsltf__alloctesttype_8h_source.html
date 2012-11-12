@@ -1,0 +1,316 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 2.16 BETA</title>
+<html>
+<pre>
+// bsltf_alloctesttype.h                                              -*-C++-*-
+#ifndef INCLUDED_BSLTF_ALLOCTESTTYPE
+#define INCLUDED_BSLTF_ALLOCTESTTYPE
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a class for testing that allocates with &#39;bslma::Allocator&#39;.
+//
+//@CLASSES:
+//   bsltf::AllocTestType: allocating test class
+//
+//@SEE_ALSO: bsltf_templatetestfacility
+//
+//@DESCRIPTION: This component provides a single, unconstrained
+// (value-semantic) attribute class, &#39;AllocTestType&#39;, that uses a
+// &#39;bslma::Allocator&#39; to allocate memory and defines the type trait
+// &#39;bslma::UsesBslmaAllocator&#39;.  Furthermore, this class is not
+// bitwise-moveable, and will assert on destruction if it has been moved.  This
+// class is primarily provided to facilitate testing of templates by defining a
+// simple type representative of user-defined types having an allocator.
+//
+///Attributes
+///----------
+//..
+//  Name                Type         Default
+//  ------------------  -----------  -------
+//  data                int          0
+//..
+//: o &#39;data&#39;: representation of the object&#39;s value
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Printing the Supported Traits
+/// - - - - - - - - - - - - - - - - - - - -
+// Suppose we wanted to print the supported traits of this test type.
+//
+// First, we create a function template &#39;printTypeTraits&#39; with a parameterized
+// &#39;TYPE&#39;:
+//..
+//  template &lt;class TYPE&gt;
+//  void printTypeTraits()
+//      // Prints the traits of the parameterized &#39;TYPE&#39; to the console.
+//  {
+//      if (bslma::UsesBslmaAllocator&lt;TYPE&gt;::value) {
+//          printf(&quot;Type defines bslma::UsesBslmaAllocator.\n&quot;);
+//      }
+//      else {
+//          printf(
+//              &quot;Type does not define bslma::UsesBslmaAllocator.\n&quot;);
+//      }
+//
+//      if (bslmf::IsBitwiseMoveable&lt;TYPE&gt;::value) {
+//          printf(&quot;Type defines bslmf::IsBitwiseMoveable.\n&quot;);
+//      }
+//      else {
+//          printf(&quot;Type does not define bslmf::IsBitwiseMoveable.\n&quot;);
+//      }
+//  }
+//..
+// Now, we invoke the &#39;printTypeTraits&#39; function template using
+// &#39;AllocTestType&#39; as the parameterized &#39;TYPE&#39;:
+//..
+//  printTypeTraits&lt;AllocTestType&gt;();
+//..
+// Finally, we observe the console output:
+//..
+//  Type defines bslma::UsesBslmaAllocator.
+//  Type does not define bslmf::IsBitwiseMoveable.
+//..
+
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include &lt;bslma_allocator.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMA_DEFAULT
+#include &lt;bslma_default.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include &lt;bslma_usesbslmaallocator.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
+#include &lt;bslmf_isbitwisemoveable.h&gt;
+#endif
+
+namespace BloombergLP {
+namespace bsltf {
+
+                        // ===================
+                        // class AllocTestType
+                        // ===================
+
+class AllocTestType {
+    // This unconstrained (value-semantic) attribute class that uses a
+    // &#39;bslma::Allocator&#39; to allocate memory and defines the type trait
+    // &#39;bslma::UsesBslmaAllocator&#39;.  This class is primarily provided
+    // to facilitate testing of templates by defining a simple type
+    // representative of user-defined types having an allocator.  See the
+    // Attributes section under @DESCRIPTION in the component-level
+    // documentation for information on the class attributes.
+
+    // DATA
+    int             *d_data_p;       // pointer to the data value
+
+    bslma::Allocator *d_allocator_p;  // allocator used to supply memory (held,
+                                     // not owned)
+
+    AllocTestType   *d_self_p;       // pointer to self (to verify this object
+                                     // is not bit-wise moved)
+
+  public:
+    // CREATORS
+    explicit AllocTestType(bslma::Allocator *basicAllocator = 0);
+        // Create a &#39;AllocTestType&#39; object having the (default) attribute
+        // values:
+        //..
+        //  data() == 0
+        //..
+        // Optionally specify a &#39;basicAllocator&#39; used to supply memory.  If
+        // &#39;basicAllocator&#39; is 0, the currently installed default allocator is
+        // used.
+
+    explicit AllocTestType(int data, bslma::Allocator *basicAllocator = 0);
+        // Create a &#39;AllocTestType&#39; object having the specified &#39;data&#39;
+        // attribute value.  Optionally specify a &#39;basicAllocator&#39; used to
+        // supply memory.  If &#39;basicAllocator&#39; is 0, the currently installed
+        // default allocator is used.
+
+    AllocTestType(const AllocTestType&amp;  original,
+                  bslma::Allocator      *basicAllocator = 0);
+        // Create a &#39;AllocTestType&#39; object having the same value as the
+        // specified &#39;original&#39; object.  Optionally specify a &#39;basicAllocator&#39;
+        // used to supply memory.  If &#39;basicAllocator&#39; is 0, the currently
+        // installed default allocator is used.
+
+    ~AllocTestType();
+        // Destroy this object.
+
+    // MANIPULATORS
+    AllocTestType&amp; operator=(const AllocTestType&amp; rhs);
+        // Assign to this object the value of the specified &#39;rhs&#39; object, and
+        // return a reference providing modifiable access to this object.
+
+    void setData(int value);
+        // Set the &#39;data&#39; attribute of this object to the specified &#39;value&#39;.
+
+    // ACCESSORS
+    int data() const;
+        // Return the value of the &#39;data&#39; attribute of this object.
+
+                                  // Aspects
+
+    bslma::Allocator *allocator() const;
+        // Return the allocator used by this object to supply memory.  Note
+        // that if no allocator was supplied at construction the currently
+        // installed default allocator is used.
+};
+
+}
+
+// TRAITS
+namespace bslma {
+template &lt;&gt;
+struct UsesBslmaAllocator&lt;bsltf::AllocTestType&gt;
+    : bsl::true_type {};
+}
+
+namespace bsltf {
+
+// FREE OPERATORS
+bool operator==(const AllocTestType&amp; lhs, const AllocTestType&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; objects have the same
+    // value, and &#39;false&#39; otherwise.  Two &#39;AllocTestType&#39; objects have the same
+    // if their &#39;data&#39; attributes are the same.
+
+bool operator!=(const AllocTestType&amp; lhs, const AllocTestType&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; objects do not have the
+    // same value, and &#39;false&#39; otherwise.  Two &#39;AllocTestType&#39; objects do not
+    // have the same value if their &#39;data&#39; attributes are not the same.
+
+// ===========================================================================
+//                  INLINE AND TEMPLATE FUNCTION IMPLEMENTATIONS
+// ===========================================================================
+
+                        // -------------------
+                        // class AllocTestType
+                        // -------------------
+
+// CREATORS
+inline
+AllocTestType::AllocTestType(bslma::Allocator *basicAllocator)
+: d_allocator_p(bslma::Default::allocator(basicAllocator))
+, d_self_p(this)
+{
+    d_data_p = reinterpret_cast&lt;int *&gt;(d_allocator_p-&gt;allocate(sizeof(int)));
+    *d_data_p = 0;
+}
+
+inline
+AllocTestType::AllocTestType(int data, bslma::Allocator *basicAllocator)
+: d_allocator_p(bslma::Default::allocator(basicAllocator))
+, d_self_p(this)
+{
+    d_data_p = reinterpret_cast&lt;int *&gt;(d_allocator_p-&gt;allocate(sizeof(int)));
+    *d_data_p = data;
+}
+
+inline
+AllocTestType::AllocTestType(const AllocTestType&amp; original,
+                             bslma::Allocator     *basicAllocator)
+: d_allocator_p(bslma::Default::allocator(basicAllocator))
+, d_self_p(this)
+{
+    d_data_p = reinterpret_cast&lt;int *&gt;(d_allocator_p-&gt;allocate(sizeof(int)));
+    *d_data_p = *original.d_data_p;
+}
+
+inline
+AllocTestType::~AllocTestType()
+{
+    d_allocator_p-&gt;deallocate(d_data_p);
+
+    // Ensure that this objects has not been bitwise moved.
+
+    BSLS_ASSERT_OPT(this == d_self_p);
+}
+
+// MANIPULATORS
+inline
+AllocTestType&amp; AllocTestType::operator=(const AllocTestType&amp; rhs)
+{
+    if (&amp;rhs != this)
+    {
+        int *newData = reinterpret_cast&lt;int *&gt;(
+                                         d_allocator_p-&gt;allocate(sizeof(int)));
+        d_allocator_p-&gt;deallocate(d_data_p);
+        d_data_p = newData;
+        *d_data_p = *rhs.d_data_p;
+    }
+    return *this;
+}
+
+inline
+void AllocTestType::setData(int value)
+{
+    *d_data_p = value;
+}
+
+// ACCESSORS
+inline
+int AllocTestType::data() const
+{
+    return *d_data_p;
+}
+
+                                  // Aspects
+
+inline
+bslma::Allocator *AllocTestType::allocator() const
+{
+    return d_allocator_p;
+}
+
+// FREE OPERATORS
+inline
+bool operator==(const AllocTestType&amp; lhs, const AllocTestType&amp; rhs)
+{
+    return lhs.data() == rhs.data();
+}
+
+inline
+bool operator!=(const AllocTestType&amp; lhs, const AllocTestType&amp; rhs)
+{
+    return lhs.data() != rhs.data();
+}
+
+}  // close package namespace
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright (C) 2012 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the &quot;Software&quot;), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

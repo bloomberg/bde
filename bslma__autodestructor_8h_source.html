@@ -1,0 +1,493 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 2.16 BETA</title>
+<html>
+<pre>
+// bslma_autodestructor.h                                             -*-C++-*-
+#ifndef INCLUDED_BSLMA_AUTODESTRUCTOR
+#define INCLUDED_BSLMA_AUTODESTRUCTOR
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a range proctor to manage an array of objects.
+//
+//@CLASSES:
+//  bslma::AutoDestructor: range proctor to manage an array of objects
+//
+//@SEE_ALSO: bslma_destructorguard, bslma_destructorproctor
+//
+//@DESCRIPTION: This component provides a range proctor class template to
+// manage an array of (otherwise-unmanaged) objects of parameterized &#39;TYPE&#39;
+// supplied at construction.  Unless explicitly released, the contiguous
+// managed objects are destroyed automatically when the range proctor goes out
+// of scope by calling each (managed) object&#39;s destructor.  Note that after a
+// proctor object releases its managed objects, the same proctor can be reused
+// to conditionally manage another contiguous sequence of objects by invoking
+// the &#39;reset&#39; method.
+//
+///Usage
+///-----
+// &#39;bslma::AutoDestructor&#39; is normally used to achieve *exception* *safety*
+// in an *exception* *neutral* way by automatically destroying
+// (otherwise-unmanaged) orphaned objects for an &quot;in-place&quot; array should an
+// exception occur.  The following example illustrates the insertion operation
+// for a generic array.  Assume that the array initially contains the following
+// five elements:
+//..
+//     0     1     2     3     4
+//   _____ _____ _____ _____ _____ __
+//  | &quot;A&quot; | &quot;B&quot; | &quot;C&quot; | &quot;D&quot; | &quot;E&quot; |
+//  `=====^=====^=====^=====^=====^==
+//..
+// To insert an element &quot;F&quot; at index position 2, the existing elements at index
+// positions 2, 3, and 4 (i.e., &quot;C&quot;, &quot;D&quot;, and &quot;E&quot;) are first shifted right to
+// create an empty spot at the specified insert destination (we assume here and
+// below that the array has sufficient capacity).  The elements have to be
+// shifted one by one by invoking the copy constructor (immediately followed by
+// destroying the original elements).  However, should any of the copy
+// construction operations throw, all allocated resources from every previous
+// copy construction would be leaked.  Using the &#39;bslma::AutoDestructor&#39;
+// prevents the leak by invoking the destructor of each of the previously
+// copied elements should the proctor go out of scope before the &#39;release&#39;
+// method of the proctor is called (such as when the function exits prematurely
+// due to an exception):
+//..
+//     0     1     2     3     4     5     6
+//   _____ _____ _____ _____ _____ _____ _____
+//  | &quot;A&quot; | &quot;B&quot; | &quot;C&quot; | &quot;D&quot; | &quot;E&quot; |xxxxx|xxxxx|
+//  `=====^=====^=====^=====^=====^=====^=====&#39;
+//  my_Array                            ^----- bslma::AutoDestructor
+//  (length = 5)                           (origin = 6, length = 0)
+//
+//   Note: &quot;xxxxx&quot; denotes uninitialized memory.
+//..
+// As each of the elements at index positions beyond the insertion position is
+// shifted up by one index position, the proctor (i.e., the proctor&#39;s length)
+// is *decremented*, thereby *extending* by one the sequence of elements it
+// manages *below* its origin (note that when the proctor&#39;s length is non-
+// positive, the element at the origin is *not* managed).  At the same time,
+// the array&#39;s length is *decremented* to ensure that each array element is
+// always being managed (during an allocation attempt) either by the proctor or
+// the array itself, but not both:
+//..
+//     0     1     2     3     4     5     6
+//   _____ _____ _____ _____ _____ _____ _____
+//  | &quot;A&quot; | &quot;B&quot; | &quot;C&quot; | &quot;D&quot; |xxxxx| &quot;E&quot; |xxxxx|
+//  `=====^=====^=====^=====^=====^=====^=====&#39;
+//  my_Array                      ^----------- bslma::AutoDestructor
+//  (length = 4)                          (origin = 6, length = -1)
+//
+//   Note: Configuration after shifting up one element.
+//..
+// When all elements are shifted, the &#39;bslma::AutoDestructor&#39; will protect the
+// entire range of shifted objects:
+//..
+//     0     1     2     3     4     5     6
+//   _____ _____ _____ _____ _____ _____ _____
+//  | &quot;A&quot; | &quot;B&quot; |xxxxx| &quot;C&quot; | &quot;D&quot; | &quot;E&quot; |xxxxx|
+//  `=====^=====^=====^=====^=====^=====^=====&#39;
+//  my_Array          ^----------------------- bslma::AutoDestructor
+//  (length = 2)                           (origin = 6, length = -3)
+//
+//    Note: Configuration after shifting up three elements.
+//..
+// Next, a new copy of element &quot;F&quot; must be created.  If, during creation, an
+// allocation fails and an exception is thrown, the array (now of length 2) is
+// in a valid state, while the proctor is responsible for destroying the
+// orphaned elements at index positions 3, 4, and 5.  If no exception is
+// thrown, the proctor&#39;s &#39;release&#39; method is called, releasing its control over
+// the temporarily-managed contents:
+//..
+//  // my_array.h
+//  // ...
+//
+//  template &lt;class TYPE&gt;
+//  class my_Array {
+//      // This class implements an &quot;in-place&quot; array of objects of
+//      // parameterized &#39;TYPE&#39; stored contiguously in memory.
+//
+//      // DATA
+//      TYPE             *d_array_p;      // dynamically allocated array
+//      int               d_length;       // logical length of this array
+//      int               d_size;         // physical capacity of this array
+//      bslma::Allocator *d_allocator_p;  // allocator (held, not owned)
+//
+//    public:
+//      // CREATORS
+//      my_Array(bslma::Allocator *basicAllocator = 0);
+//          // Create a &#39;my_Array&#39; object having an initial length and capacity
+//          // of 0.  Optionally specify a &#39;basicAllocator&#39; used to supply
+//          // memory.  If &#39;basicAllocator&#39; is 0, the currently installed
+//          // default allocator is used.
+//
+//      my_Array(int initialCapacity, bslma::Allocator *basicAllocator = 0);
+//          // Create a &#39;my_Array&#39; object having an initial length of 0 and
+//          // the specified &#39;initialCapacity&#39;.  Optionally specify a
+//          // &#39;basicAllocator&#39; used to supply memory.  If &#39;basicAllocator&#39; is
+//          // 0, the currently installed default allocator is used.
+//
+//      // ...
+//
+//      ~my_Array();
+//          // Destroy this &#39;my_Array&#39; object and all elements currently
+//          // stored.
+//
+//      // MANIPULATORS
+//      // ...
+//
+//      void insert(int dstIndex, const TYPE&amp; object);
+//          // Insert (a copy of) the specified &#39;object&#39; of parameterized
+//          // &#39;TYPE&#39; at the specified &#39;dstIndex&#39; position of this array.  All
+//          // values with initial indices at or above &#39;dstIndex&#39; are shifted
+//          // up by one index position.  The behavior is undefined unless
+//          // &#39;0 &lt;= dstIndex&#39; and &#39;dstIndex&#39; is less than the number of items
+//          // in this array.
+//
+//      // ...
+//  };
+//..
+// Note that the rest of the &#39;my_Array&#39; interface (above) and implementation
+// (below) is omitted as the portion shown is sufficient to demonstrate the use
+// of &#39;bslma::AutoDestructor&#39;.
+//..
+//  // CREATORS
+//  template &lt;class TYPE&gt;
+//  inline
+//  my_Array&lt;TYPE&gt;::my_Array(bslma::Allocator *basicAllocator)
+//  : d_array_p(0)
+//  , d_length(0)
+//  , d_size(0)
+//  , d_allocator_p(bslma::Default::allocator(basicAllocator))
+//  {
+//  }
+//
+//  template &lt;class TYPE&gt;
+//  my_Array&lt;TYPE&gt;::~my_Array()
+//  {
+//      for (int i = 0; i &lt; d_length; ++i) {
+//          d_array_p[i].~TYPE();
+//      }
+//      d_allocator_p-&gt;deallocate(d_array_p);
+//  }
+//..
+// The elided implementation of the following &#39;insert&#39; function (which shows
+// code for the case above, i.e., there is sufficient capacity) is sufficient
+// to illustrate the use of &#39;bslma::AutoDestructor&#39;:
+//..
+//  // MANIPULATORS
+//  template &lt;class TYPE&gt;
+//  void my_Array&lt;TYPE&gt;::insert(int dstIndex, const TYPE&amp; object)
+//  {
+//      BSLS_ASSERT(0 &lt;= dstIndex);
+//      BSLS_ASSERT(dstIndex &lt;= d_length);
+//
+//      if (d_size == d_length) {  // resize needed
+//          // ...
+//      }
+//
+//      const TYPE *tmp = &amp;object;
+//
+//      if ((d_array_p + dstIndex &lt;= &amp;object)
+//       &amp;&amp; (&amp;object &lt; d_array_p + d_length)) {  // self-aliasing
+//          tmp = &amp;object + 1;
+//      }
+//
+//      //**************************************************************
+//      // Note the use of the auto destructor on &#39;d_array_p&#39; (below). *
+//      //**************************************************************
+//
+//      bslma::AutoDestructor&lt;TYPE&gt; autoDtor(&amp;d_array_p[d_length + 1], 0);
+//      int origLen = d_length;
+//      for (int i = d_length - 1; i &gt;= dstIndex; --i, --autoDtor,
+//                                                                --d_length) {
+//          new(&amp;d_array_p[i + 1]) TYPE(d_array_p[i], d_allocator_p);
+//                                                         // copy to new index
+//          d_array_p[i].~TYPE();                          // destroy original
+//      }
+//
+//      new(&amp;d_array_p[dstIndex]) TYPE(*tmp, d_allocator_p);
+//
+//      //*****************************************************
+//      // Note that the auto destructor is released (below). *
+//      //*****************************************************
+//
+//      autoDtor.release();
+//
+//      d_length = origLen + 1;
+//  }
+//..
+// Note that the &#39;insert&#39; method assumes the copy constructor of &#39;TYPE&#39; takes
+// an allocator as a second argument.  In production code, a constructor proxy
+// that checks the traits of &#39;TYPE&#39; (to determine whether &#39;TYPE&#39; indeed uses
+// &#39;bslma::Allocator&#39;) should be used (see &#39;bslalg_constructorproxy&#39;).
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include &lt;bslscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include &lt;bsls_assert.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_PERFORMANCEHINT
+#include &lt;bsls_performancehint.h&gt;
+#endif
+
+namespace BloombergLP {
+
+namespace bslma {
+
+                        // ====================
+                        // class AutoDestructor
+                        // ====================
+
+template &lt;class TYPE&gt;
+class AutoDestructor {
+    // This class implements a range proctor that, unless its &#39;release&#39; method
+    // has previously been invoked, automatically destroys the contiguous
+    // sequence of managed objects upon its own destruction by invoking each
+    // object&#39;s destructor.  If &#39;release&#39; is invoked (see &#39;release&#39;), the
+    // proctor will not destroy any objects upon its own destruction (unless
+    // &#39;reset&#39; is invoked to assign the proctor another contiguous sequence of
+    // objects for management).  Note that when the length of this object is
+    // non-zero, it must refer to a non-null array of objects.
+
+    // DATA
+    TYPE *d_origin_p;  // reference location for the array of managed objects
+    int   d_length;    // number of objects to manage (sign encodes direction)
+
+    // NOT IMPLEMENTED
+    AutoDestructor(const AutoDestructor&amp;);
+    AutoDestructor&amp; operator=(const AutoDestructor&amp;);
+
+  private:
+    // PRIVATE MANIPULATORS
+    void destroy();
+        // Destroy the contiguous sequence of objects managed by this range
+        // proctor (if any) by invoking the destructor of each (managed)
+        // object.  Note that the order in which the managed objects are
+        // destroyed is undefined.  Also note that this method factors out the
+        // destruction logic, which allows the destructor to be declared
+        // &#39;inline&#39; for the common case (the range proctor is released before
+        // being destroyed).
+
+  public:
+    // CREATORS
+    AutoDestructor(TYPE *origin, int length = 0);
+        // Create a range proctor to manage an array of objects at the
+        // specified &#39;origin&#39;.  Optionally specify &#39;length&#39; to define its
+        // range, which by default is empty (i.e., &#39;length = 0&#39;).  The sequence
+        // of objects may extend in either direction from &#39;origin&#39;.  A positive
+        // &#39;length&#39; represents the sequence of objects starting at &#39;origin&#39; and
+        // extending &quot;up&quot; to &#39;length&#39; (*not* including the object at the index
+        // position &#39;origin + length&#39;).  A negative &#39;length&#39; represents the
+        // sequence of objects starting at one position below &#39;origin&#39; and
+        // extending &quot;down&quot; to the absolute value of &#39;length&#39; (including the
+        // object at index position &#39;origin + length&#39;).  If &#39;length&#39; is 0, then
+        // this range proctor manages no objects.  The behavior is undefined
+        // unless both &#39;origin&#39; and &#39;length&#39; are zero, or &#39;origin&#39; is non-zero
+        // and all objects (if any) within the managed range (as defined by
+        // &#39;length&#39;) are valid.  Note that when &#39;length&#39; is non-positive, the
+        // object at the origin is *not* managed by this range proctor.  For
+        // example, if &#39;origin&#39; is at the index position 2, a &#39;length&#39; of 2
+        // signifies that the objects at positions 2 and 3 are managed, whereas
+        // a &#39;length&#39; of -2 signifies that the objects at positions 0 and 1 are
+        // managed:
+        //..
+        //     length = -2                            length = 2
+        //     |&lt;-----&gt;|                              |&lt;-----&gt;|
+        //      ___ ___ ___ ___ ___            ___ ___ ___ ___ ___
+        //     | 0 | 1 | 2 | 3 | 4 |          | 0 | 1 | 2 | 3 | 4 |
+        //     `===^===^===^===^===&#39;          `===^===^===^===^===&#39;
+        //             ^------------ origin           ^------------ origin
+        //..
+
+    ~AutoDestructor();
+        // Destroy this range proctor along with the contiguous sequence of
+        // objects it manages (if any) by invoking the destructor of each
+        // (managed) object.  Note that the order in which the managed objects
+        // are destroyed is undefined.
+
+    // MANIPULATORS
+    void operator++();
+        // Increase by one the (signed) length of the sequence of objects
+        // managed by this range proctor.  The behavior is undefined unless the
+        // origin of the sequence of objects managed by this proctor is
+        // non-zero.  The behavior is undefined unless the origin of this range
+        // proctor is non-zero.  Note that if the length of this proctor is
+        // currently negative, the number of managed objects will decrease by
+        // one, whereas if the length is non-negative, the number of managed
+        // objects will increase by one.
+
+    void operator--();
+        // Decrease by one the (signed) length of the sequence of objects
+        // managed by this range proctor.  The behavior is undefined unless the
+        // origin of the sequence of objects managed by this proctor is
+        // non-zero.  The behavior is undefined unless the origin of this range
+        // proctor is non-zero.  Note that if the length of this proctor is
+        // currently positive, the number of managed objects will decrease by
+        // one, whereas if the length is non-positive, the number of managed
+        // objects will increase by one.
+
+    void release();
+        // Release from management the sequence of objects currently managed by
+        // this range proctor by setting the length of the managed sequence to
+        // 0.  All objects currently under management will become unmanaged
+        // (i.e., when the proctor goes out of scope and it was not assigned
+        // another sequence of objects to manage by invoking &#39;reset&#39;, no
+        // objects will be destroyed).  If no objects are currently being
+        // managed, this method has no effect.  Note that the origin is not
+        // affected.
+
+    void reset(TYPE *origin);
+        // Set the specified &#39;origin&#39; of the sequence of objects managed by
+        // this range proctor.  This method does not destroy the
+        // previously-managed objects or affect the length of the sequence
+        // managed.  The behavior is undefined unless &#39;origin&#39; is non-zero.
+        // Note that &#39;reset&#39; can be called without having previously called
+        // &#39;release&#39; provided that &#39;length&#39; is set appropriately before this
+        // proctor could be destroyed (e.g., via a thrown exception).
+
+    void setLength(int length);
+        // Set the (signed) length of the sequence of objects managed by this
+        // range proctor to the specified &#39;length&#39;.  The behavior is undefined
+        // unless the origin of this range proctor is non-zero.
+
+    // ACCESSORS
+    int length() const;
+        // Return the (signed) length of the sequence of objects managed by
+        // this range proctor.
+};
+
+// ============================================================================
+//                      TEMPLATE FUNCTION DEFINITIONS
+// ============================================================================
+
+                        // --------------------
+                        // class AutoDestructor
+                        // --------------------
+
+// PRIVATE MANIPULATORS
+template &lt;class TYPE&gt;
+void AutoDestructor&lt;TYPE&gt;::destroy()
+{
+    if (0 &lt; d_length) {
+        for (; d_length &gt; 0; --d_length, ++d_origin_p) {
+            d_origin_p-&gt;~TYPE();
+        }
+    }
+    else {
+        --d_origin_p;
+        for (; d_length &lt; 0; ++d_length, --d_origin_p) {
+            d_origin_p-&gt;~TYPE();
+        }
+    }
+}
+
+// CREATORS
+template &lt;class TYPE&gt;
+inline
+AutoDestructor&lt;TYPE&gt;::AutoDestructor(TYPE *origin, int length)
+: d_origin_p(origin)
+, d_length(length)
+{
+    BSLS_ASSERT_SAFE(origin || !length);
+}
+
+template &lt;class TYPE&gt;
+inline
+AutoDestructor&lt;TYPE&gt;::~AutoDestructor()
+{
+    BSLS_ASSERT_SAFE(d_origin_p || !d_length);
+
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(d_length)) {
+        destroy();
+    }
+}
+
+// MANIPULATORS
+template &lt;class TYPE&gt;
+inline
+void AutoDestructor&lt;TYPE&gt;::operator++()
+{
+    BSLS_ASSERT_SAFE(d_origin_p);
+
+    ++d_length;
+}
+
+template &lt;class TYPE&gt;
+inline
+void AutoDestructor&lt;TYPE&gt;::operator--()
+{
+    BSLS_ASSERT_SAFE(d_origin_p);
+
+    --d_length;
+}
+
+template &lt;class TYPE&gt;
+inline
+void AutoDestructor&lt;TYPE&gt;::release()
+{
+    d_length = 0;
+}
+
+template &lt;class TYPE&gt;
+inline
+void AutoDestructor&lt;TYPE&gt;::reset(TYPE *origin)
+{
+    BSLS_ASSERT_SAFE(origin);
+
+    d_origin_p = origin;
+}
+
+template &lt;class TYPE&gt;
+inline
+void AutoDestructor&lt;TYPE&gt;::setLength(int length)
+{
+    BSLS_ASSERT_SAFE(d_origin_p);
+
+    d_length = length;
+}
+
+// ACCESSORS
+template &lt;class TYPE&gt;
+inline
+int AutoDestructor&lt;TYPE&gt;::length() const
+{
+    return d_length;
+}
+
+}  // close package namespace
+
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright (C) 2012 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the &quot;Software&quot;), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

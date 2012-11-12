@@ -1,0 +1,99 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 2.16 BETA</title>
+<html>
+<pre>
+// bsls_nativestd.h                                                   -*-C++-*-
+#ifndef INCLUDED_BSLS_NATIVESTD
+#define INCLUDED_BSLS_NATIVESTD
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Define the namespace &#39;native_std&#39; as an alias for &#39;::std&#39;.
+//
+//@CLASSES:
+//
+//@SEE_ALSO: bsl_stdhdrs_prologue
+//
+//@DESCRIPTION: This component defines a namespace alias, &#39;native_std&#39;, that
+// serves as an alias for the &#39;std&#39; namespace.  The &#39;bsl&#39; package group
+// contains a Bloomberg implementation of the C++ standard library, which, when
+// compiled in bde-stl mode, will override the STL implementation in namespace
+// &#39;std&#39;.  With the &#39;native_std&#39; alias, users can refer to the STL types from
+// the compiler&#39;s native library, even if the &#39;std&#39; is configured to refer to
+// Bloomberg provided STL types.  The &#39;native_std&#39; namespace remains in effect
+// even if &#39;std&#39; is redefined as a preprocessor macro.  Note that this
+// component is mainly provided for code being compiled in bde-stl mode.
+//
+// Note: It is safe to &#39;#include&#39; this header only if &#39;std&#39; is not yet defined
+// as a macro or if &#39;BSL_DEFINED_NATIVE_STD&#39; is already defined.  Any other
+// header that defines the &#39;native_std&#39; namespace should also define the
+// &#39;BSL_DEFINED_NATIVE_STD&#39; macro.  For more info on bde-stl mode, please see
+// &#39;bsl+stdhdrs/doc/bsl+stdhdrs.txt&#39;.
+//
+///Usage
+///-----
+// In the following example we use the &#39;native_std&#39; prefix to access the native
+// implementation of &#39;std::string&#39;, even when the compilation is configured to
+// override the use of native STL types with Bloomberg provided STL types
+// (i.e., bde-stl mode, used by Bloomberg managed code):
+//..
+//  #include &lt;bsls_nativestd.h&gt;
+//  #include &lt;string&gt;
+//
+//  std::string        s1;  // might be &#39;bsl::string&#39;
+//  native_std::string s2;  // guaranteed to be the compiler&#39;s native string
+//..
+
+#ifndef INCLUDED_BSLS_PLATFORM
+#include &lt;bsls_platform.h&gt;
+#endif
+
+// &#39;&lt;bsls_platform.h&gt;&#39; is included early in the header sequence, as it contains
+// several macros that control the configuration of the native STL on the
+// Windows platform, if no other.  The main reason is to disable Microsoft&#39;s
+// deprecation warnings, as they deprecated the entire standard library unless
+// certain configuration macros are defined.  We put those macros into our
+// common platform header, rather than require the user to supply lots of
+// options to every project they create in Visual Studio in order to use BDE.
+
+#ifndef BSL_DEFINED_NATIVE_STD
+
+# ifdef std
+#   error &quot;Cannot include bsls_nativestd.h when &#39;std&#39; is a macro.&quot;
+# endif
+
+namespace std { }
+namespace native_std = ::std;
+
+#endif  // ! defined(BSL_DEFINED_NATIVE_STD)
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright (C) 2012 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the &quot;Software&quot;), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

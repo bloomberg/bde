@@ -1,0 +1,118 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 2.16 BETA</title>
+<html>
+<pre>
+// bslmf_removeconst.h                                                -*-C++-*-
+#ifndef INCLUDED_BSLMF_REMOVECONST
+#define INCLUDED_BSLMF_REMOVECONST
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a meta-function for removing top-level &#39;const&#39;-qualifier
+//
+//@CLASSES:
+//  bsl::remove_const: meta-function for removing top-level &#39;const&#39;-qualifier
+//
+//@SEE_ALSO: bslmf_addconst
+//
+//@DESCRIPTION: This component defines a meta-function, &#39;bsl::remove_const&#39;,
+// that may be used to remove the top-level &#39;const&#39;-qualifier from a type.
+//
+// &#39;bsl::remove_const&#39; meets the requirements of the &#39;remove_const&#39; template
+// defined in the C++11 standard [meta.trans.cv].
+//
+///Usage
+///-----
+// In this section we show intended use of this component.
+//
+///Example 1: Removing The Const-Qualifier of A Type
+///- - - - - - - - - - - - - - - - - - - - - - - - -
+// Suppose that we want to strip the &#39;const&#39;-qualifier from a particular type.
+//
+// First, we create two &#39;typedef&#39;s -- a &#39;const&#39;-qualified type (&#39;MyConstType&#39;)
+// and the same type without the &#39;const&#39;-qualifier (&#39;MyType&#39;):
+//..
+//  typedef int       MyType;
+//  typedef const int MyConstType;
+//..
+// Now, we strip the the &#39;const&#39;-qualifier from &#39;MyConstType&#39; using
+// &#39;bsl::remove_const&#39; and verify that the resulting type is the same as
+// &#39;MyType&#39;:
+//..
+//  assert(true ==
+//        (bsl::is_same&lt;bsl::remove_const&lt;MyConstType&gt;::type, MyType&gt;::value));
+//..
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include &lt;bslscm_version.h&gt;
+#endif
+
+namespace bsl {
+
+                         // ===================
+                         // struct remove_const
+                         // ===================
+
+template &lt;typename TYPE&gt;
+struct remove_const {
+    // This &#39;struct&#39; template implements the &#39;remove_const&#39; meta-function
+    // defined in the C++11 standard [meta.trans.cv].  This &#39;struct&#39; template
+    // provides a &#39;typedef&#39; &#39;type&#39; that has the same type as the (template
+    // parameter) &#39;TYPE&#39; except that any top-level &#39;const&#39;-qualifier has been
+    // removed.  Note that this generic default template provides a &#39;type&#39; that
+    // is an alias to &#39;TYPE&#39; for when &#39;TYPE&#39; is not &#39;const&#39;-qualified.  A
+    // template specialization is provided (below) that strips the
+    // &#39;const&#39;-qualifier for when &#39;TYPE&#39; is &#39;const&#39;-qualified.
+
+    typedef TYPE type;
+        // This &#39;typedef&#39; is an alias to the (template parameter) &#39;TYPE&#39;.
+
+};
+
+                         // ===============================
+                         // struct remove_const&lt;TYPE const&gt;
+                         // ===============================
+
+template &lt;typename TYPE&gt;
+struct remove_const&lt;TYPE const&gt; {
+     // This partial specialization of &#39;bsl::remove_const&#39; provides a &#39;typedef&#39;
+     // &#39;type&#39; that has the &#39;const&#39;-qualifier removed.
+
+    typedef TYPE type;
+        // This &#39;typedef&#39; to a type that is the same as the (template
+        // parameter) &#39;TYPE&#39; except with any &#39;const&#39;-qualifier removed.
+
+};
+
+}  // close namespace bsl
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright (C) 2012 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the &quot;Software&quot;), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

@@ -1,0 +1,433 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 2.16 BETA</title>
+<html>
+<pre>
+// bslstl_treenode.h                                                  -*-C++-*-
+#ifndef INCLUDED_BSLSTL_TREENODE
+#define INCLUDED_BSLSTL_TREENODE
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a POD-like tree node type holding a parameterized value.
+//
+//@CLASSES:
+//   bslstl::TreeNode: a tree node holding a parameterized value
+//
+//@SEE_ALSO: bslstl_treenodefactory, bslstl_set, bslstl_map
+//
+//@DESCRIPTION: This component provides a single POD-like class, &#39;TreeNode&#39;,
+// used to represent a node in a red-black binary search tree holding a value
+// of a parameterized type.  A &#39;TreeNode&#39; inherits from &#39;bslalg::RbTreeNode&#39;,
+// so it may be used with &#39;bslalg::RbTreeUtil&#39; functions, and adds an attribute
+// &#39;value&#39; of the parameterized &#39;VALUE&#39;.  The following inheritance hierarchy
+// diagram shows the classes involved and their methods:
+//..
+//    ,----------------.
+//   ( bslstl::TreeNode )
+//    `----------------&#39;
+//             |       value
+//             V
+//   ,------------------.
+//  ( bslalg::RbTreeNode )
+//   `------------------&#39;
+//                   ctor
+//                   dtor
+//                   makeBlack
+//                   makeRed
+//                   setParent
+//                   setLeftChild
+//                   setRightChild
+//                   setColor
+//                   toggleColor
+//                   parent
+//                   leftChild
+//                   rightChild
+//                   isBlack
+//                   isRed
+//                   color
+//..
+// This class is &quot;POD-like&quot; to facilitate efficient allocation and use in the
+// context of a container implementation.  In order to meet the essential
+// requirements of a POD type, both this &#39;class&#39; and &#39;bslalg::RbTreeNode&#39; do
+// not define a constructor or destructor.  The manipulator, &#39;value&#39;, returns a
+// modifiable reference to the object that may be constructed in-place by the
+// appropriate &#39;bsl::allocator_traits&#39; object.
+//
+///Usage
+///-----
+// In this section we show intended usage of this component.
+//
+///Example 1: Allocating and Deallocating &#39;TreeNode&#39; Objects.
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// In the following example we define a factory class for allocating and
+// destroying &#39;TreeNode&#39; objects.
+//
+// First, we define the interface for the class &#39;NodeFactory&#39;:
+//..
+//  template &lt;class VALUE, class ALLOCATOR&gt;
+//  class NodeFactory {
+//..
+// The parameterized &#39;ALLOCATOR&#39; is intended to allocate objects of the
+// parameterized &#39;VALUE&#39;, so to use it to allocate objects of &#39;TreeNode&lt;VALUE&gt;&#39;
+// we must rebind it to the tree node type.  Note that in general, we use
+// &#39;allocator_traits&#39; to perform actions using an allocator (including the
+// rebind below):
+//..
+//      // PRIVATE TYPES
+//      typedef typename bsl::allocator_traits&lt;ALLOCATOR&gt;::template
+//                             rebind_traits&lt;TreeNode&lt;VALUE&gt; &gt; AllocatorTraits;
+//      typedef typename AllocatorTraits::allocator_type       NodeAllocator;
+//
+//      // DATA
+//      NodeAllocator d_allocator;  // rebound tree-node allocator
+//
+//      // NOT IMPLEMENTED
+//      NodeFactory(const NodeFactory&amp;);
+//      NodeFactory&amp; operator=(const NodeFactory&amp;);
+//
+//    public:
+//      // CREATORS
+//      NodeFactory(const ALLOCATOR&amp; allocator);
+//          // Create a tree node-factory that will use the specified
+//          // &#39;allocator&#39; to supply memory.
+//
+//      // MANIPULATORS
+//      TreeNode&lt;VALUE&gt; *createNode(const VALUE&amp; value);
+//          // Create a new &#39;TreeNode&#39; object holding the specified &#39;value&#39;.
+//
+//      void deleteNode(bslalg::RbTreeNode *node);
+//          // Destroy and deallocate the specified &#39;node&#39;.  The behavior is
+//          // undefined unless &#39;node&#39; is the address of a
+//          // &#39;TreeNode&lt;VALUE&gt;&#39; object.
+//  };
+//..
+// Now, we implement the &#39;NodeFactory&#39; type:
+//..
+//  template &lt;class VALUE, class ALLOCATOR&gt;
+//  inline
+//  NodeFactory&lt;VALUE, ALLOCATOR&gt;::NodeFactory(const ALLOCATOR&amp; allocator)
+//  : d_allocator(allocator)
+//  {
+//  }
+//..
+// We implement the &#39;createNode&#39; function by using the rebound
+// &#39;allocator_traits&#39; for our allocator to in-place copy-construct the
+// supplied &#39;value&#39; into the &#39;value&#39; data member of our &#39;result&#39; node
+// object.  Note that &#39;TreeNode&#39; is a POD-like type, without a constructor, so
+// we do not need to call its constructor here:
+//..
+//  template &lt;class VALUE, class ALLOCATOR&gt;
+//  inline
+//  TreeNode&lt;VALUE&gt; *
+//  NodeFactory&lt;VALUE, ALLOCATOR&gt;::createNode(const VALUE&amp; value)
+//  {
+//      TreeNode&lt;VALUE&gt; *result = AllocatorTraits::allocate(d_allocator, 1);
+//      AllocatorTraits::construct(d_allocator,
+//                                 bsls::Util::addressOf(result-&gt;value()),
+//                                 value);
+//      return result;
+//  }
+//..
+// Finally, we implement the function &#39;deleteNode&#39;.  Again, we use the
+// rebound &#39;allocator_traits&#39; for our tree node type, this time to destroy the
+// &#39;value&#39; date member of node, and then to deallocate its footprint.  Note
+// that &#39;TreeNode&#39; is a POD-like type, so we do not need to call its destructor
+// here:
+//..
+//  template &lt;class VALUE, class ALLOCATOR&gt;
+//  inline
+//  void NodeFactory&lt;VALUE, ALLOCATOR&gt;::deleteNode(bslalg::RbTreeNode *node)
+//  {
+//      TreeNode&lt;VALUE&gt; *treeNode = static_cast&lt;TreeNode&lt;VALUE&gt; *&gt;(node);
+//      AllocatorTraits::destroy(d_allocator,
+//                               bsls::Util::addressOf(treeNode-&gt;value()));
+//      AllocatorTraits::deallocate(d_allocator, treeNode, 1);
+//  }
+//..
+//
+///Example 2: Creating a Simple Tree of &#39;TreeNode&#39; Objects.
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// In the following example we create a container-type &#39;Set&#39; for
+// holding a set of values of a parameterized &#39;VALUE&#39;.
+//
+// First, we define a comparator for &#39;VALUE&#39; of &#39;TreeNode&lt;VALUE&gt;&#39; objects.
+// This type is designed to be supplied to functions in &#39;bslalg::RbTreeUtil&#39;.
+// Note that, for simplicity, this type uses &#39;operator&lt;&#39; to compare values,
+// rather than a client defined comparator type.
+//..
+//  template &lt;class VALUE&gt;
+//  class Comparator {
+//    public:
+//      // CREATORS
+//      Comparator() {}
+//          // Create a node-value comparator.
+//
+//      // ACCESSORS
+//      bool operator()(const VALUE&amp;              lhs,
+//                      const bslalg::RbTreeNode&amp; rhs) const;
+//      bool operator()(const bslalg::RbTreeNode&amp; lhs,
+//                      const VALUE&amp;              rhs) const;
+//          // Return &#39;true&#39; if the specified &#39;lhs&#39; is less than (ordered
+//          // before) the specified &#39;rhs&#39;, and &#39;false&#39; otherwise.  The
+//          // behavior is undefined unless the supplied &#39;bslalg::RbTreeNode&#39;
+//          // object is of the derived &#39;TreeNode&lt;VALUE&gt;&#39; type.
+//  };
+//..
+// Then, we implement the comparison methods of &#39;Comparator&#39;.  Note that the
+// supplied &#39;RbTreeNode&#39; objects must be &#39;static_cast&#39; to
+// &#39;TreeNode&lt;VALUE&gt;&#39; to access their value:
+//..
+//  template &lt;class VALUE&gt;
+//  inline
+//  bool Comparator&lt;VALUE&gt;::operator()(const VALUE&amp;              lhs,
+//                                     const bslalg::RbTreeNode&amp; rhs) const
+//  {
+//      return lhs &lt; static_cast&lt;const TreeNode&lt;VALUE&gt;&amp; &gt;(rhs).value();
+//  }
+//
+//  template &lt;class VALUE&gt;
+//  inline
+//  bool Comparator&lt;VALUE&gt;::operator()(const bslalg::RbTreeNode&amp; lhs,
+//                                     const VALUE&amp;              rhs) const
+//  {
+//      return static_cast&lt;const TreeNode&lt;VALUE&gt;&amp; &gt;(lhs).value() &lt; rhs;
+//  }
+//..
+// Now, having defined the requisite helper types, we define the public
+// interface for &#39;Set&#39;.  Note that for the purposes of illustrating the use of
+// &#39;TreeNode&#39; a number of simplifications have been made.  For example, this
+// implementation provides only &#39;insert&#39;, &#39;remove&#39;, &#39;isMember&#39;, and
+// &#39;numMembers&#39; operations:
+//..
+//  template &lt;class VALUE,
+//            class ALLOCATOR = bsl::allocator&lt;VALUE&gt; &gt;
+//  class Set {
+//      // PRIVATE TYPES
+//      typedef Comparator&lt;VALUE&gt;             ValueComparator;
+//      typedef NodeFactory&lt;VALUE, ALLOCATOR&gt; Factory;
+//
+//      // DATA
+//      bslalg::RbTreeAnchor d_tree;     // tree of node objects
+//      Factory              d_factory;  // allocator for node objects
+//
+//      // NOT IMPLEMENTED
+//      Set(const Set&amp;);
+//      Set&amp; operator=(const Set&amp;);
+//
+//    public:
+//      // CREATORS
+//      Set(const ALLOCATOR&amp; allocator = ALLOCATOR());
+//          // Create an empty set. Optionally specify a &#39;allocator&#39; used to
+//          // supply memory.  If &#39;allocator&#39; is not specified, a default
+//          // constructed &#39;ALLOCATOR&#39; object is used.
+//
+//      ~Set();
+//          // Destroy this set.
+//
+//      // MANIPULATORS
+//      void insert(const VALUE&amp; value);
+//          // Insert the specified value into this set.
+//
+//      bool remove(const VALUE&amp; value);
+//          // If &#39;value&#39; is a member of this set, then remove it and return
+//          // &#39;true&#39;, and return &#39;false&#39; otherwise.
+//
+//      // ACCESSORS
+//      bool isElement(const VALUE&amp; value) const;
+//          // Return &#39;true&#39; if the specified &#39;value&#39; is a member of this set,
+//          // and &#39;false&#39; otherwise.
+//
+//      int numElements() const;
+//          // Return the number of elements in this set.
+//  };
+//..
+// Now, we define the implementation of &#39;Set&#39;:
+//..
+//  // CREATORS
+//  template &lt;class VALUE, class ALLOCATOR&gt;
+//  inline
+//  Set&lt;VALUE, ALLOCATOR&gt;::Set(const ALLOCATOR&amp; allocator)
+//  : d_tree()
+//  , d_factory(allocator)
+//  {
+//  }
+//
+//  template &lt;class VALUE, class ALLOCATOR&gt;
+//  inline
+//  Set&lt;VALUE, ALLOCATOR&gt;::~Set()
+//  {
+//      bslalg::RbTreeUtil::deleteTree(&amp;d_tree, &amp;d_factory);
+//  }
+//
+//  // MANIPULATORS
+//  template &lt;class VALUE, class ALLOCATOR&gt;
+//  void Set&lt;VALUE, ALLOCATOR&gt;::insert(const VALUE&amp; value)
+//  {
+//      int comparisonResult;
+//      ValueComparator comparator;
+//      bslalg::RbTreeNode *parent =
+//          bslalg::RbTreeUtil::findUniqueInsertLocation(&amp;comparisonResult,
+//                                                       &amp;d_tree,
+//                                                       comparator,
+//                                                       value);
+//      if (0 != comparisonResult) {
+//          bslalg::RbTreeNode *node = d_factory.createNode(value);
+//          bslalg::RbTreeUtil::insertAt(&amp;d_tree,
+//                                       parent,
+//                                       comparisonResult &lt; 0,
+//                                       node);
+//      }
+//  }
+//
+//  template &lt;class VALUE, class ALLOCATOR&gt;
+//  bool Set&lt;VALUE, ALLOCATOR&gt;::remove(const VALUE&amp; value)
+//  {
+//      bslalg::RbTreeNode *node =
+//                  bslalg::RbTreeUtil::find(d_tree, ValueComparator(), value);
+//      if (node) {
+//          bslalg::RbTreeUtil::remove(&amp;d_tree, node);
+//          d_factory.deleteNode(node);
+//      }
+//      return node;
+//  }
+//
+//  // ACCESSORS
+//  template &lt;class VALUE, class ALLOCATOR&gt;
+//  inline
+//  bool Set&lt;VALUE, ALLOCATOR&gt;::isElement(const VALUE&amp; value) const
+//  {
+//      ValueComparator comparator;
+//      return bslalg::RbTreeUtil::find(d_tree, comparator, value);
+//  }
+//
+//  template &lt;class VALUE, class ALLOCATOR&gt;
+//  inline
+//  int Set&lt;VALUE, ALLOCATOR&gt;::numElements() const
+//  {
+//      return d_tree.numNodes();
+//  }
+//..
+// Notice that the definition and implementation of &#39;Set&#39; never directly
+// uses the &#39;TreeNode&#39; type, but instead use it indirectly through
+// &#39;Comparator&#39;, and &#39;NodeFactory&#39;, and uses it via its base-class
+// &#39;bslalg::RbTreeNode&#39;.
+//
+// Finally, we test our &#39;Set&#39;.
+//..
+//  Set&lt;int&gt; set;
+//  assert(0 == set.numElements());
+//
+//  set.insert(1);
+//  assert(set.isElement(1));
+//  assert(1 == set.numElements());
+//
+//  set.insert(1);
+//  assert(set.isElement(1));
+//  assert(1 == set.numElements());
+//
+//  set.insert(2);
+//  assert(set.isElement(1));
+//  assert(set.isElement(2));
+//  assert(2 == set.numElements());
+//..
+
+#ifndef INCLUDED_BSLALG_RBTREENODE
+#include &lt;bslalg_rbtreenode.h&gt;
+#endif
+
+namespace BloombergLP {
+namespace bslstl {
+
+                        // ==============
+                        // class TreeNode
+                        // ==============
+
+template &lt;class VALUE&gt;
+class TreeNode : public bslalg::RbTreeNode {
+    // This POD-like &#39;class&#39; describes a node suitable for use in a red-black
+    // binary search tree of values of the parameterized &#39;VALUE&#39;.  This class
+    // is a &quot;POD-like&quot; to facilitate efficient allocation and use in the
+    // context of a container implementation.  In order to meet the essential
+    // requirements of a POD type, this &#39;class&#39; does not define a constructor
+    // or destructor.  The manipulator, &#39;value&#39;, returns a modifiable reference
+    // to &#39;d_value&#39; so that it may be constructed in-place by the appropriate
+    // &#39;bsl::allocator_traits&#39; object.
+
+    // DATA
+    VALUE d_value;  // payload value
+
+  private:
+    // The following functions are not defined because a &#39;TreeNode&#39; should
+    // never be constructed, destructed, or assigned.  The &#39;d_value&#39; member
+    // should be separately constructed and destroyed using an appropriate
+    // &#39;bsl::allocator_traits&#39; object.
+
+    TreeNode();                            // Declared but not defined
+    TreeNode(const TreeNode&amp;);             // Declared but not defined
+    TreeNode&amp; operator=(const TreeNode&amp;);  // Declared but not defined
+    ~TreeNode();                           // Declared but not defined
+
+  public:
+    // MANIPULATORS
+    VALUE&amp; value();
+        // Return a reference providing modifiable access to the &#39;value&#39; of
+        // this object.
+
+    // ACCESSORS
+    const VALUE&amp; value() const;
+        // Return a reference providing non-modifiable access to the &#39;value&#39; of
+        // this object.
+};
+
+// ===========================================================================
+//                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
+// ===========================================================================
+
+template &lt;class VALUE&gt;
+inline
+VALUE&amp; TreeNode&lt;VALUE&gt;::value()
+{
+    return d_value;
+}
+
+template &lt;class VALUE&gt;
+inline
+const VALUE&amp; TreeNode&lt;VALUE&gt;::value() const
+{
+    return d_value;
+}
+
+
+}  // close package namespace
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright (C) 2012 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the &quot;Software&quot;), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

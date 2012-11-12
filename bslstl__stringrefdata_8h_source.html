@@ -1,0 +1,305 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 2.16 BETA</title>
+<html>
+<pre>
+// bslstl_stringrefdata.h                                             -*-C++-*-
+#ifndef INCLUDED_BSLSTL_STRINGREFDATA
+#define INCLUDED_BSLSTL_STRINGREFDATA
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide an attribute-only base class for &#39;bslstl::StringRef&#39;.
+//
+//@CLASSES:
+//  bslstl::StringRefData: attribute class referencing a sub-string.
+//
+//@DESCRIPTION: This component provides a complex-constrained, in-core
+// (value-semantic) attribute class (except for the equality comparison, see
+// below), &#39;bslstl::StringRefData&#39;, that represents a reference to character
+// string data.  Note that &#39;bslstl::StringRefData&#39; is intended for use as a
+// base class for &#39;bslstl::StringRef&#39; and as parameter of &#39;bsl::string&#39;
+// constructor, enabling a conversion from &#39;bslstl::StringRef&#39; to &#39;bsl::string&#39;
+// without having a cyclic dependency among these three classes.
+//
+// The dependencies between these components are shown on the following
+// diagram:
+//..
+//            +-----------------------+
+//            |  ,----------------.  3|
+//            | ( bslstl::StringRef ) |
+//            |  `o-------|-------&#39;   |
+//            +--/--------|-----------+
+//              /         |
+//  +----------/-+        |
+//  |  ,------. 2|        |
+//  | ( string ) |        |
+//  |  `---o--&#39;  |        |
+//  +-------\----+        |
+//           \            |
+//       +----\-----------V----------+
+//       |  ,--------------------.  1|
+//       | ( bslstl::StringRefData ) |
+//       |  `--------------------&#39;   |
+//       +---------------------------+
+//..
+//
+// &#39;bslstl::StringRefData&#39; does not define the equality comparison because its
+// behavior would conflict with the behavior of the equality comparison in the
+// derived &#39;bslstl::StringRef&#39; class.
+//
+// A &#39;bslstl::StringRefData&#39; object holds two pointers; &#39;begin&#39; points to the
+// first character of a contiguous array of characters forming a string, and
+// &#39;end&#39; points to an address one past the last character in the string.  If
+// &#39;begin&#39; and &#39;end&#39; are equal the string is empty.  Note that the referenced
+// string may not be null terminated, and may contain embedded nulls.
+//
+///Attributes
+///----------
+//..
+//  Name   Type               Default  Constraints
+//  -----  -----------------  -------  ------------------------------
+//  begin  const CHAR_TYPE *  0        begin &lt;= end &amp;&amp; !begin == !end
+//  end    const CHAR_TYPE *  0        begin &lt;= end &amp;&amp; !begin == !end
+//..
+//: o begin: a pointer to the first character of the string.
+//:
+//: o end: a pointer to one past the last character of the string.
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Breaking cyclic dependency between string and StringRef classes
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// In this example we demonstrate how &#39;bslstl::StringRefData&#39; allows us to
+// break the cyclic dependency between hypothetical &#39;String&#39; and &#39;StringRef&#39;
+// classes.
+//
+// Objects of our &#39;String&#39; and &#39;StringRef&#39; classes need to be convertible to
+// each other.  However only one of these classes can depend on the definition
+// of the other one, otherwise they will be cyclically dependent.
+//
+// First, we define a hypothetical &#39;String&#39; class, whose implementation is
+// intentionally simple and contains only the essential constructors and
+// accessor methods; the important thing to notice is that &#39;String&#39; does not
+// depend on &#39;StringRef&#39;, which has not been defined yet:
+//..
+//  namespace Usage {
+//
+//  class String {
+//    private:
+//      const char *d_begin_p;
+//      const char *d_end_p;
+//
+//    public:
+//      typedef const char *const_iterator;
+//
+//      String(bslstl::StringRefData&lt;char&gt; const&amp; stringRef)
+//          : d_begin_p(stringRef.begin())
+//          , d_end_p(stringRef.end())
+//      {
+//      }
+//
+//      const_iterator begin() const
+//      {
+//          return d_begin_p;
+//      }
+//
+//      const_iterator end() const
+//      {
+//          return d_end_p;
+//      }
+//  };
+//..
+// Notice that the constructor of &#39;String&#39; takes a &#39;bslstl::StringRefData&#39;
+// argument and then uses its members &#39;begin&#39; and &#39;end&#39; to initialize the
+// string object.
+//
+// Then, we define a hypothetical &#39;StringRef&#39; class, whose can be initialized
+// either with a &#39;String&#39; object (to enable the conversion from &#39;String&#39; to
+// &#39;StringRef&#39;) or with two &#39;const char *&#39; pointers:
+//..
+//  class StringRef : public bslstl::StringRefData&lt;char&gt;
+//  {
+//    public:
+//      StringRef(const char *begin, const char *end)
+//          : bslstl::StringRefData&lt;char&gt;(begin, end)
+//      {}
+//
+//      StringRef(const String&amp; str)
+//          : bslstl::StringRefData&lt;char&gt;(&amp;*str.begin(), &amp;*str.end())
+//      {}
+//  };
+//
+//  }  // close namespace Usage
+//..
+// Note that &#39;StringRef&#39; also derives from &#39;bslstl::StringRefData&#39; so that an
+// object of &#39;StringRef&#39; can be passed to the constructor of &#39;String&#39; as
+// reference to &#39;bslstl::StringRefData&#39;, which enables the conversion from
+// &#39;StringRef&#39; to &#39;String&#39;.
+//
+// Finally, we verify that the conversions between &#39;String&#39; and &#39;StringRef&#39;
+// work:
+//..
+//  using Usage::String;
+//  using Usage::StringRef;
+//
+//  const char str[] = &quot;test string&quot;;
+//  StringRef  strRef(str, str + sizeof(str));
+//
+//  String     strObj = strRef;     // convert &#39;StringRef&#39; to &#39;String&#39;
+//  StringRef  strRf2 = strObj;     // convert &#39;String&#39; to &#39;StringRef&#39;
+//
+//  assert(&amp;*strObj.begin() == strRef.begin());
+//  assert(&amp;*strObj.end()   == strRef.end());
+//  assert(&amp;*strObj.begin() == strRf2.begin());
+//  assert(&amp;*strObj.end()   == strRf2.end());
+//..
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include &lt;bslscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include &lt;bsls_assert.h&gt;
+#endif
+
+namespace BloombergLP {
+
+namespace bslstl {
+
+                         // ===================
+                         // class StringRefData
+                         // ===================
+
+template &lt;typename CHAR_TYPE&gt;
+class StringRefData {
+    // This complex-constrained in-core (value-semantic) attribute class
+    // represents a reference to character string data.  See the Attributes
+    // section under @DESCRIPTION in the component-level documentation for
+    // information on the class attributes.  Note that the class invariants are
+    // identically the constraints on the individual attributes.
+    //
+    // This class:
+    //: o supports a complete set of *value-semantic* operations
+    //:   o except for &#39;bdex&#39; serialization
+    //: o is *exception-neutral* (agnostic)
+    //: o is *alias-safe*
+    //: o is &#39;const&#39; *thread-safe*
+    // For terminology see &#39;bsldoc_glossary&#39;.
+
+    // DATA
+    const CHAR_TYPE *d_begin_p; // address of first character of a string or 0
+
+    const CHAR_TYPE *d_end_p;   // address one past last character of a string
+                                // or 0 if &#39;d_begin_p==0&#39;
+
+  public:
+    // CREATORS
+    StringRefData();
+        // Create a &#39;StringRefData&#39; object having default attribute values:
+        //..
+        //  begin() == 0
+        //  end()   == 0
+        //..
+
+    StringRefData(const CHAR_TYPE *begin, const CHAR_TYPE *end);
+        // Create a &#39;StringRefData&#39; object the specified &#39;begin&#39; and &#39;end&#39;
+        // attribute values.  The behavior is undefined unless &#39;begin &lt;= end&#39;
+        // and &#39;!begin == !end&#39;.
+
+    //! StringRefData(const StringRefData&amp;) = default;
+    //! ~StringRefData() = default;
+
+    // MANIPULATORS
+    //! StringRefData&amp; operator=(const StringRefData&amp;) = default;
+
+    // ACCESSORS
+    const CHAR_TYPE *begin() const;
+        // Return the address of the first character of the string or 0 for
+        // empty string.  Empty string value is represented as (0, 0).
+
+    const CHAR_TYPE *end() const;
+        // Return the address past the end of the string or 0 for empty string.
+        // Empty string value is represented as (0, 0).
+};
+
+// ===========================================================================
+//                       TEMPLATE FUNCTION DEFINITIONS
+// ===========================================================================
+
+                         // -------------------
+                         // class StringRefData
+                         // -------------------
+
+// CREATORS
+template &lt;typename CHAR_TYPE&gt;
+inline
+StringRefData&lt;CHAR_TYPE&gt;::StringRefData()
+: d_begin_p(0)
+, d_end_p(0)
+{
+}
+
+template &lt;typename CHAR_TYPE&gt;
+inline
+StringRefData&lt;CHAR_TYPE&gt;
+    ::StringRefData(const CHAR_TYPE *begin,
+                    const CHAR_TYPE *end)
+: d_begin_p(begin)
+, d_end_p(end)
+{
+    BSLS_ASSERT_SAFE(d_begin_p &lt;= d_end_p);
+    BSLS_ASSERT_SAFE(!d_begin_p == !d_end_p);
+}
+
+// ACCESSORS
+template &lt;typename CHAR_TYPE&gt;
+inline
+const CHAR_TYPE *StringRefData&lt;CHAR_TYPE&gt;::begin() const
+{
+    return d_begin_p;
+}
+
+template &lt;typename CHAR_TYPE&gt;
+inline
+const CHAR_TYPE *StringRefData&lt;CHAR_TYPE&gt;::end() const
+{
+    return d_end_p;
+}
+
+}  // close package namespace
+
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright (C) 2012 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the &quot;Software&quot;), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

@@ -1,0 +1,1905 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 2.16 BETA</title>
+<html>
+<pre>
+// bslalg_rbtreeutil.h                                                -*-C++-*-
+#ifndef INCLUDED_BSLALG_RBTREEUTIL
+#define INCLUDED_BSLALG_RBTREEUTIL
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id$ $CSID$&quot;)
+
+//@PURPOSE: Provide a suite of primitive algorithms on red-black trees.
+//
+//@CLASSES:
+//  bslalg::RbTreeUtil: namespace for red-black tree functions
+//  bslalg::RbTreeUtilTreeProctor: proctor to manage all nodes in a tree
+//
+//@SEE_ALSO: bslalg_rbtreenode
+//
+//@DESCRIPTION: This component provides a variety of algorithms that operate
+// on nodes forming a red-black binary search tree.
+//
+// This implementation is adapted from Cormen, Leiserson, Rivest,
+// &quot;Introduction to Algorithms&quot; [MIT Press, 1997].
+//
+///Summary
+///-------
+// The following section provides a short synopsis describing observable
+// behavior of functions supplied in this component.  See the full
+// function-level contract for detailed description.
+//
+///Navigation
+/// - - - - -
+// The following algorithms search a tree for a value, or iterate over the
+// nodes in a tree:
+//..
+//  leftmost            Return the leftmost node.
+//
+//  rightmost           Return the rightmost node.
+//
+//  next                Return the next node in an in-order traversal.
+//
+//  previous            Return the previous node in an in-order traversal.
+//
+//  find                Find the node with the supplied value.
+//
+//  lowerBound          Find the first node not less-than the supplied value.
+//
+//  upperBound          Find the first node greater than the supplied value.
+//..
+//
+///Modification
+/// - - - - - -
+// The following algorithms are used in the process of manipulating the
+// structure of a tree:
+//..
+//  copyTree            Return a deep-copy of the supplied tree.
+//
+//  deleteTree          Delete all the nodes of the supplied tree.
+//
+//  findInsertLocation  Find the location where a value may be inserted.
+//
+//  findUniqueInsertLocation
+//                      Find the location where a unique value may be inserted.
+//
+//  insert              Insert the supplied node into the tree.
+//
+//  insertAt            Insert the supplied node at the indicated position.
+//
+//  remove              Remove the supplied node from the tree.
+//
+//  swap                Swap the contents of two trees.
+//..
+//
+///Utility
+///- - - -
+// The following algorithms are typically used when implementing higher-level
+// algorithms (and are not generally used by clients):
+//..
+//  isLeftChild         Return &#39;true&#39; if the supplied node is a left child.
+//
+//  isRightChild        Return &#39;true&#39; if the supplied node is a right child.
+//
+//  rotateLeft          Perform a counter-clockwise rotation on a node.
+//
+//  rotateRight         Perform a clockwise rotation on a node.
+//..
+//
+///Testing
+///- - - -
+// The following algorithms are used for testing and debugging, and
+// generally should not be used in production code:
+//..
+//  printTreeStructure  Print, to a file, the structure of the supplied tree.
+//
+//  validateRbTree      Indicate if a tree is a valid red-black tree.
+//
+//  isWellFormed        Indicate if the &#39;RbTreeAnchor&#39; object is well-formed.
+//..
+//
+///Well-Formed &#39;RbTreeAnchor&#39; Objects
+///----------------------------------
+// Many of the algorithms defined in this component operate over a complete
+// tree of nodes, rather than a (possible) subtree referred to through a
+// pointer to a node.  These operations refer to a complete tree through a
+// &#39;RbTreeAnchor&#39; object, which maintains references to the first, root, and
+// sentinel nodes for the tree, as well as a count of the number of nodes in
+// the tree.  &#39;RbTreeAnchor&#39; objects supplied to &#39;RbTreeUtil&#39; are frequently
+// required to meet a series of constraints that are not enforced by the
+// &#39;RbTreeAnchor&#39; type itself.  An &#39;RbTreeAnchor&#39; object meeting these
+// constraints is said to be &quot;well-formed&quot;, and &#39;RbTreeUtil::isWellFormed&#39;
+// will return &#39;true&#39; for such an object.  A &#39;RbTreeAnchor&#39; object is
+// considered well-formed if all of the following are true:
+//
+//: 1 The root node refers to a valid red-black tree (see &#39;validateRbTree&#39;).
+//:
+//: 2 The first node refers to the leftmost node in the tree, or the sentinel
+//:   node if the tree is empty.
+//:
+//: 3 The node count is the number of nodes in the tree (not counting the
+//:   sentinel node).
+//:
+//: 4 The sentinel node refers to the root node as its left child, and the
+//:   root node refers to the sentinel as its parent.
+//:
+//: 5 The root node is either 0 or is colored black.
+//
+// The manipulation functions of &#39;RbTreeUtil&#39; guarantee that these properties
+// are maintained for any supplied tree.  Note that &#39;RbTreeUtil::isWellFormed&#39;
+// has linear complexity with respect to the number of nodes in the tree, and
+// is typically used for debugging and testing purposes only.  Note also that
+// the final condition, that the root node be either 0 or colored black, is
+// not a canonical requirement of a red-black tree but an additional invariant
+// enforced by the methods of &#39;RbTreeUtil&#39; to simplify the implementations.
+//
+///The Sentinel Node
+///- - - - - - - - -
+// The sentinel node is &#39;RbTreeNode&#39; object (unique to an &#39;RbTreeAnchor&#39;
+// instance) which does not have a value, and provides a fixed end-point for
+// navigation over the tree (which is distinct from the &#39;rightmost&#39; node of
+// that tree).  The sentinel node will be returned by &#39;next&#39; if the supplied
+// node is the rightmost node in the tree, as well as by search operations
+// when no nodes meet the supplied search-criteria.  In addition, the sentinel
+// node may be supplied as a &#39;hint&#39; to &#39;findInsertLocation&#39; and
+// &#39;findUniqueInsertLocation&#39;, as well as supplied to &#39;previous&#39; to obtain the
+// rightmost node of a (non-empty) tree.
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Creating and Using a Tree with &#39;RbTreeUtil&#39;
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// This example demonstrates how to create a tree of integers using
+// &#39;RbTreeUtil&#39;.
+//
+// First, we define a type &#39;SimpleIntNode&#39; that will represent a nodes in our
+// tree of integer values.  &#39;SimpleIntNode&#39; contains an &#39;int&#39; payload, and
+// inherits from &#39;RbTreeNode&#39;, allowing it to be operated on by
+// &#39;RbTreeUtil&#39;.
+//..
+//  struct SimpleIntNode : public RbTreeNode {
+//      int d_value;
+//  };
+//..
+// Then, we define a comparison function for &#39;SimpleIntNode&#39; objects (note
+// that we static-cast &#39;RBTreeNode&#39; objects to the actual node type,
+// &#39;SimpleIntNode&#39;, for comparison purposes):
+//..
+//  struct SimpleIntNodeValueComparator {
+//      // This class defines a comparator providing comparison operations
+//      // between &#39;SimpleIntNode&#39; objects, and &#39;int&#39; values.
+//
+//      bool operator()(const RbTreeNode&amp; lhs, int rhs) const
+//      {
+//          return static_cast&lt;const SimpleIntNode&amp;&gt;(lhs).d_value &lt; rhs;
+//      }
+//
+//      bool operator()(int lhs, const RbTreeNode&amp; rhs) const
+//      {
+//          return lhs &lt; static_cast&lt;const SimpleIntNode&amp;&gt;(rhs).d_value;
+//      }
+//  };
+//
+//..
+// Next, we begin to define the example function that will build a tree of
+// nodes holding integer values:
+//..
+//  void createTestTreeExample()
+//  {
+//..
+// Then, within this function, we define a &#39;RbTreeAnchor&#39; object that will
+// hold the root, first, last, and sentinel nodes of tree, as well a count of
+// the number of nodes in the tree:
+//..
+//      RbTreeAnchor tree;
+//..
+// Next, we define an array of 5 &#39;SimpleIntNode&#39; objects that we will insert
+// into the tree; in practice, nodes are more often allocated on the heap (see
+// example 2):
+//..
+//      const int NUM_NODES = 5;
+//      SimpleIntNode nodes[NUM_NODES];
+//..
+// Then, we assign unique values to each of the &#39;nodes&#39;:
+//..
+//      for (int i = 0; i &lt; NUM_NODES; ++i) {
+//          nodes[i].d_value = i;
+//      }
+//..
+// Now, for each node in the tree, we use &#39;RbTreeUtil&#39; to first find the
+// location at which the node should be inserted, and then insert that node
+// into the tree:
+//..
+//      for (int i = 0; i &lt; NUM_NODES; ++i) {
+//          int comparisonResult;
+//          RbTreeNode *insertLocation = RbTreeUtil::findUniqueInsertLocation(
+//                                              &amp;comparisonResult,
+//                                              &amp;tree,
+//                                              SimpleIntNodeValueComparator(),
+//                                              nodes[i].d_value);
+//          BSLS_ASSERT(comparisonResult);
+//          RbTreeUtil::insertAt(&amp;tree,
+//                               insertLocation,
+//                               comparisonResult &lt; 0,
+//                               &amp;nodes[i]);
+//      }
+//..
+// And verify the resulting &#39;tree&#39; holds 5 nodes, the first node has
+// the value 0, and the last node has the value 4:
+//..
+//      assert(5 == tree.numNodes());
+//      assert(0 == static_cast&lt;SimpleIntNode *&gt;(tree.firstNode())-&gt;d_value);
+//      assert(4 == static_cast&lt;SimpleIntNode *&gt;(tree.lastNode())-&gt;d_value);
+//..
+// Finally, we use &#39;RbTreeUtil&#39; to iterate through the nodes of &#39;tree&#39;, and
+// write the value of each node to the console:
+//..
+//      const RbTreeNode *nodeIterator = tree.firstNode();
+//      while (tree.sentinel() != nodeIterator) {
+//          printf(&quot;Node value: %d\n&quot;,
+//                 static_cast&lt;const SimpleIntNode *&gt;(nodeIterator)-&gt;d_value);
+//          nodeIterator = RbTreeUtil::next(nodeIterator);
+//      }
+//  }
+//..
+// Notice that each of the &#39;RbTreeNode&#39; objects must be &#39;static_cast&#39; to the
+// derived type, &#39;SimpleIntNode&#39;, in order to access their values.
+//
+// The resulting output is displayed on the console:
+//..
+//  Node value: 0
+//  Node value: 1
+//  Node value: 2
+//  Node value: 3
+//  Node value: 4
+//..
+//
+///Example 2: Implementing a Set of Integers
+///- - - - - - - - - - - - - - - - - - - - -
+// This example demonstrates how to use &#39;RbTreeUtil&#39; to implement a simple
+// container holding a set of (unique) integer values as a red-black binary
+// search tree.
+//
+// Before defining the &#39;IntSet&#39; class, we need to define a series of
+// associated helper types:
+//: 1 The node-type, for the nodes in the tree.
+//: 2 An iterator, for iterating over nodes in the tree.
+//: 3 A comparison functor for comparing nodes and values.
+//: 4 A factory for creating and destroying nodes.
+//
+// First, we define a type, &#39;IntSet_Node&#39;, that will represent the nodes in our
+// tree of integer values; it contains an &#39;int&#39; payload, and inherits from
+// &#39;RbTreeNode&#39;, allowing it to be operated on by &#39;RbTreeUtil&#39; (note that the
+// underscore &quot;_&quot; indicates that this type is a private implementation type of
+// &#39;IntSet&#39;, and not for use by clients of &#39;IntSet&#39;):
+//..
+//  class IntSet_Node : public RbTreeNode {
+//      // A red-black tree node containing an integer data-value.
+//
+//      // DATA
+//      int d_value;  // actual value represented by the node
+//
+//    public:
+//      // MANIPULATORS
+//      int&amp; value() { return d_value; }
+//          // Return a reference providing modifiable access to the &#39;value&#39; of
+//          // this object.
+//
+//      // ACCESSORS
+//      const int&amp; value() const { return d_value; }
+//          // Return a reference providing non-modifiable access to the
+//          // &#39;value&#39; of this object.
+//  };
+//..
+// Then, we define a iterator over &#39;IntSet_Node&#39; objects.  We use the &#39;next&#39;
+// function of &#39;RbTreeUtil&#39; to increment the iterator (note that, for
+// simplicity, this iterator is *not* a fully STL compliant iterator
+// implementation):
+//..
+//  class IntSetConstIterator {
+//      // This class defines an STL-style iterator over a non-modifiable tree
+//      // of &#39;IntSet_Node&#39; objects.
+//
+//      // DATA
+//      const RbTreeNode *d_node_p;  // current location of this iterator
+//
+//    public:
+//      IntSetConstIterator() : d_node_p(0) {}
+//          // Create an iterator that does not refer to a node.
+//
+//      IntSetConstIterator(const RbTreeNode *node) : d_node_p(node) {}
+//          // Create an iterator referring to the specified &#39;node&#39;.
+//
+//  //  IntSetConstIterator(const IntSetConstIterator&amp;) = default;
+//
+//      // MANIPULATOR
+//  //  IntSetConstIterator&amp; operator=(const IntSetConstIterator&amp;) = default;
+//
+//..
+// Here, we implement the prefix-increment operator using the &#39;next&#39; function
+// of &#39;RbTreeUtil:
+//..
+//      IntSetConstIterator&amp; operator++()
+//         // Advance this iterator to the subsequent value it the &#39;IntSet&#39;,
+//         // and return a reference providing modifiable access to this
+//         // iterator.   The behavior is undefined unless this iterator
+//         // refers to a element in an &#39;IntSet&#39;.
+//      {
+//          d_node_p = RbTreeUtil::next(d_node_p);
+//          return *this;
+//      }
+//
+//      // ACCESSORS
+//      const int&amp; operator*() const
+//          // Return a reference providing non-modifiable access to the value
+//          // referred to by this iterator.
+//      {
+//          return static_cast&lt;const IntSet_Node *&gt;(d_node_p)-&gt;value();
+//      }
+//
+//      const int *operator-&gt;() const
+//          // Return an address providing non-modifiable access to the value
+//          // referred to by this iterator.
+//      {
+//          return &amp;(static_cast&lt;const IntSet_Node *&gt;(d_node_p)-&gt;value());
+//      }
+//
+//      const IntSet_Node *nodePtr() const
+//          // Return the address of the non-modifiable int-set node referred
+//          // to by this iterator
+//      {
+//          return static_cast&lt;const IntSet_Node *&gt;(d_node_p);
+//      }
+//  };
+//
+//  // FREE OPERATORS
+//  bool operator==(const IntSetConstIterator &amp;lhs,
+//                  const IntSetConstIterator &amp;rhs)
+//      // Return &#39;true&#39; if the &#39;lhs&#39; and &#39;rhs&#39; objects have the same value,
+//      // and &#39;false&#39; otherwise.  Two &#39;IntSetConstIterator&#39; objects have the
+//      // same value if they refer to the same node.
+//  {
+//      return lhs.nodePtr() == rhs.nodePtr();
+//  }
+//
+//  bool operator!=(const IntSetConstIterator &amp;lhs,
+//                  const IntSetConstIterator &amp;rhs)
+//      // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; objects do not have
+//      // the same value, and &#39;false&#39; otherwise.  Two &#39;IntSetConstIterator&#39;
+//      // objects do not have the same value if they refer to different nodes.
+//  {
+//      return lhs.nodePtr() != rhs.nodePtr();
+//  }
+//..
+// Next, we define a comparison functor for &#39;IntSet_Node&#39; objects, which will
+// be supplied to &#39;RbTreeUtil&#39; functions that must compare nodes with values
+// -- i.e., those with a &#39;NODE_VALUE_COMPARATOR&#39; template parameter (e.g.,
+// &#39;find&#39; and &#39;findInsertLocation&#39;):
+//..
+//  struct IntSet_NodeValueComparator {
+//      // This class defines a comparator providing comparison operations
+//      // between &#39;IntSet_Node&#39; objects, and &#39;int&#39; values.
+//
+//      bool operator()(const RbTreeNode&amp; lhs, int rhs) const
+//      {
+//          return static_cast&lt;const IntSet_Node&amp;&gt;(lhs).value() &lt; rhs;
+//      }
+//
+//      bool operator()(int lhs, const RbTreeNode&amp; rhs) const
+//      {
+//          return lhs &lt; static_cast&lt;const IntSet_Node&amp;&gt;(rhs).value();
+//      }
+//  };
+//..
+// Notice that we static-cast &#39;RbTreeNode&#39; objects to the actual node type,
+// &#39;IntSet_Node&#39; for comparison.
+//
+// Next, we define a factory for creating and destroying &#39;IntSet_Node&#39;
+// objects.  This factory provides the operations &#39;createNode&#39; and
+// &#39;deleteNode&#39;.  These operations will be used directly by our container
+// implementation, and they are also required by &#39;RbTreeUtil&#39; functions taking
+// a &#39;FACTORY&#39; template parameter (e.g., &#39;copyTree&#39; and &#39;deleteTree&#39;):
+//..
+//  class IntSet_NodeFactory {
+//      // This class defines a creator object, that when invoked, creates a
+//      // new &#39;IntSet_Node&#39; (either from a int value, or an existing
+//      // &#39;IntSet_Node&#39; object) using the allocator supplied at construction.
+//
+//      bslma::Allocator *d_allocator_p;  // allocator, (held, not owned)
+//
+//    public:
+//
+//      IntSet_NodeFactory(bslma::Allocator *allocator)
+//      : d_allocator_p(allocator)
+//      {
+//          BSLS_ASSERT_SAFE(allocator);
+//      }
+//
+//      RbTreeNode *createNode(int value) const
+//      {
+//          IntSet_Node *newNode = new (*d_allocator_p) IntSet_Node;
+//          newNode-&gt;value() = value;
+//          return newNode;
+//      }
+//
+//      RbTreeNode *createNode(const RbTreeNode&amp; node) const
+//      {
+//          IntSet_Node *newNode = new (*d_allocator_p) IntSet_Node;
+//          newNode-&gt;value() = static_cast&lt;const IntSet_Node&amp;&gt;(node).value();
+//          return newNode;
+//      }
+//      void deleteNode(RbTreeNode *node) const
+//      {
+//          d_allocator_p-&gt;deleteObject(static_cast&lt;IntSet_Node *&gt;(node));
+//      }
+//
+//      bslma::Allocator *allocator() const
+//      {
+//          return d_allocator_p;
+//      }
+//  };
+//..
+// Then, having defined the requisite helper types, we define the public
+// interface for our &#39;IntSet&#39; type.  Note that for the purposes of
+// illustrating the use of &#39;RbTreeUtil&#39; a number of simplifications have been
+// made.  For example, this implementation provides only a minimal set of
+// critical operations, and it does not use the empty base-class optimization
+// for the comparator, etc.  We define the interface of &#39;IntSet&#39; as follows:
+//..
+//  class IntSet {
+//      // This class implements a set of (unique) &#39;int&#39; values.
+//
+//      // DATA
+//      RbTreeAnchor           d_tree;         // root, first, and last tree
+//                                             // nodes
+//
+//      IntSet_NodeValueComparator
+//                             d_comparator;   // comparison functor for ints
+//
+//      IntSet_NodeFactory     d_nodeFactory;  // factory for creating and
+//                                             // destroying nodes
+//
+//      // FRIENDS
+//      friend bool operator==(const IntSet&amp; lhs, const IntSet&amp; rhs);
+//
+//    public:
+//      // PUBLIC TYPES
+//      typedef IntSetConstIterator const_iterator;
+//
+//      // CREATORS
+//      IntSet(bslma::Allocator *basicAllocator = 0);
+//          // Create a empty &#39;IntSet&#39;.  Optionally specify a &#39;basicAllocator&#39;
+//          // used to supply memory.  If &#39;basicAllocator&#39; is 0, the currently
+//          // installed default allocator is used.
+//
+//      IntSet(const IntSet&amp; original, bslma::Allocator *basicAllocator = 0);
+//          // Create a &#39;IntSet&#39; object having the same value as the specified
+//          // &#39;original&#39; object.  If &#39;basicAllocator&#39; is 0, the currently
+//          // installed default allocator is used.
+//
+//      ~IntSet();
+//          // Destroy this object.
+//
+//      // MANIPULATORS
+//      IntSet&amp; operator=(const IntSet&amp; rhs);
+//          // Assign to this object the value of the specified &#39;rhs&#39; object,
+//          // and return a reference providing modifiable access to this
+//          // object.
+//
+//      const_iterator insert(int value);
+//          // If the specified &#39;value&#39; is not already a member of this set,
+//          // insert it into this set, returning an iterator referring to the
+//          // newly added value, and return an iterator referring to the
+//          // existing instance of &#39;value&#39; in this set, with no other effect,
+//          // otherwise.
+//
+//      const_iterator erase(const_iterator iterator);
+//          // Remove the value referred to by the specified &#39;iterator&#39; from
+//          // this set, and return an iterator referring to the value
+//          // subsequent to &#39;iterator&#39; (prior to its removal).  The behavior
+//          // is undefined unless &#39;iterator&#39; refers to a valid value in this
+//          // set.
+//
+//      void clear();
+//          // Remove all the elements from this set.
+//
+//      void swap(IntSet&amp; other);
+//          // Efficiently exchange the value of this object with the value of
+//          // the specified &#39;other&#39; object.
+//
+//      // ACCESSORS
+//      const_iterator begin() const;
+//          // Return an iterator referring leftmost node value in this set, or
+//          // &#39;end()&#39; if this set is empty.
+//
+//      const_iterator end() const;
+//          // Return an iterator referring to the value one past the
+//          // rightmost value in this set.
+//
+//      const_iterator find(int value) const;
+//          // Return a iterator referring to the specified &#39;value&#39; in this
+//          // set, or &#39;end()&#39; if &#39;value&#39; is not a member of this set.
+//
+//      int size() const;
+//          // Return the number of elements in this set.
+//  };
+//
+//  // FREE OPERATORS
+//  bool operator==(const IntSet&amp; lhs, const IntSet&amp; rhs);
+//      // Return &#39;true&#39; if the &#39;lhs&#39; and &#39;rhs&#39; objects have the same value,
+//      // and &#39;false&#39; otherwise.  Two &#39;IntSet&#39; objects have the same value if
+//      // they contain the same number of elements, and if for each element
+//      // in &#39;lhs&#39; there is a corresponding element in &#39;rhs&#39; with the same
+//      // value.
+//
+//  bool operator!=(const IntSet&amp; lhs, const IntSet&amp; rhs);
+//      // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; objects do not have
+//      // the same value, and &#39;false&#39; otherwise.  Two &#39;IntSet&#39; objects do not
+//      // have the same value if they differ in the number of elements they
+//      // contain, or if for any element in &#39;lhs&#39; there is not a
+//      // corresponding element in &#39;rhs&#39; with the same value.
+//..
+// Now, we implement the methods of &#39;IntSet&#39; using &#39;RbTreeUtil&#39; and the
+// helper types we defined earlier:
+//..
+//  // CREATORS
+//  IntSet::IntSet(bslma::Allocator *basicAllocator)
+//  : d_tree()
+//  , d_comparator()
+//  , d_nodeFactory(bslma::Default::allocator(basicAllocator))
+//  {
+//  }
+//
+//  IntSet::IntSet(const IntSet&amp; original, bslma::Allocator *basicAllocator)
+//  : d_tree()
+//  , d_comparator()
+//  , d_nodeFactory(bslma::Default::allocator(basicAllocator))
+//  {
+//      if (original.d_tree.rootNode()) {
+//          RbTreeUtil::copyTree(&amp;d_tree, original.d_tree, &amp;d_nodeFactory);
+//      }
+//  }
+//
+//  IntSet::~IntSet()
+//  {
+//      clear();
+//  }
+//
+//  // MANIPULATORS
+//  IntSet&amp; IntSet::operator=(const IntSet&amp; rhs)
+//  {
+//      IntSet temp(rhs, d_nodeFactory.allocator());
+//      swap(temp);
+//      return *this;
+//  }
+//
+//..
+// Here, we implement &#39;insert&#39; by using the &#39;RbTreeUtil&#39; algorithms
+// &#39;findUniqueInsertLocation&#39; and &#39;insertAt&#39;:
+//..
+//  IntSet::const_iterator IntSet::insert(int value)
+//  {
+//      // To insert a value into the tree, we first find the location where
+//      // the node would be added, and whether &#39;value&#39; is unique.  If &#39;value&#39;
+//      // is not unique we do not want to incur the expense of allocating
+//      // memory for a node.
+//
+//      int comparisonResult;
+//      RbTreeNode *insertLocation =
+//                    RbTreeUtil::findUniqueInsertLocation(&amp;comparisonResult,
+//                                                         &amp;d_tree,
+//                                                         d_comparator,
+//                                                         value);
+//      if (0 == comparisonResult) {
+//          // &#39;value&#39; already exists in &#39;d_tree&#39;.
+//
+//          return const_iterator(insertLocation);                    // RETURN
+//      }
+//
+//      // If &#39;value&#39; is unique, we create a new node and supply it to
+//      // &#39;insertAt&#39;, along with the tree location returned by
+//      // &#39;findUniqueInsertLocation&#39;.
+//
+//      RbTreeNode *newNode = d_nodeFactory.createNode(value);
+//      RbTreeUtil::insertAt(&amp;d_tree,
+//                           insertLocation,
+//                           comparisonResult &lt; 0,
+//                           newNode);
+//      return const_iterator(newNode);
+//  }
+//
+//  IntSet::const_iterator IntSet::erase(const_iterator iterator)
+//  {
+//      BSLS_ASSERT(iterator.nodePtr());
+//      IntSet_Node *node = const_cast&lt;IntSet_Node *&gt;(iterator.nodePtr());
+//
+//      // Before removing the node, we first find the subsequent node to which
+//      // we will return an iterator.
+//
+//      RbTreeNode *next = RbTreeUtil::next(node);
+//      RbTreeUtil::remove(&amp;d_tree, node);
+//      d_nodeFactory.deleteNode(node);
+//      return const_iterator(next);
+//  }
+//
+//  void IntSet::clear()
+//  {
+//      if (d_tree.rootNode()) {
+//          RbTreeUtil::deleteTree(&amp;d_tree, &amp;d_nodeFactory);
+//      }
+//  }
+//
+//  void IntSet::swap(IntSet&amp; other) {
+//      BSLS_ASSERT(d_nodeFactory.allocator() ==
+//                  other.d_nodeFactory.allocator());
+//      RbTreeUtil::swap(&amp;d_tree, &amp;other.d_tree);
+//  }
+//
+//  // ACCESSORS
+//  IntSet::const_iterator IntSet::begin() const
+//  {
+//      return const_iterator(d_tree.firstNode());
+//  }
+//
+//  IntSet::const_iterator IntSet::end() const
+//  {
+//      return const_iterator(d_tree.sentinel());
+//  }
+//
+//  IntSet::const_iterator IntSet::find(int value) const
+//  {
+//      return const_iterator(RbTreeUtil::find(d_tree, d_comparator, value));
+//  }
+//
+//  int IntSet::size() const
+//  {
+//      return d_tree.numNodes();
+//  }
+//..
+// Finally, we implement the free operators on &#39;IntSet&#39;:
+//..
+//  // FREE OPERATORS
+//  bool operator==(const IntSet&amp; lhs, const IntSet&amp; rhs)
+//  {
+//      return bslalg::RangeCompare::equal(lhs.begin(),
+//                                        lhs.end(),
+//                                        lhs.size(),
+//                                        rhs.begin(),
+//                                        rhs.end(),
+//                                        rhs.size());
+//  }
+//
+//  bool operator!=(const IntSet&amp; lhs, const IntSet&amp; rhs)
+//  {
+//      return !(lhs == rhs);
+//  }
+//..
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include &lt;bslscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLALG_RBTREEANCHOR
+#include &lt;bslalg_rbtreeanchor.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLALG_RBTREENODE
+#include &lt;bslalg_rbtreenode.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include &lt;bsls_assert.h&gt;
+#endif
+
+#ifndef INCLUDED_STDIO
+#include &lt;stdio.h&gt;
+#define INCLUDED_STDIO
+#endif
+
+namespace BloombergLP {
+namespace bslalg {
+
+                        // ================
+                        // class RbTreeUtil
+                        // ================
+
+struct RbTreeUtil {
+    // This &#39;struct&#39; provides a namespace for a suite of utility functions that
+    // operate on elements of type &#39;RbTreeNode&#39;.
+    //
+    // Each method of this class, other than &#39;copyTree&#39;, provides the
+    // *no-throw* exception guarantee if the the client-supplied comparator
+    // provides the no-throw guarantee, and provides the *strong* guarantee
+    // otherwise (see &#39;bsldoc_glossary&#39;).  &#39;copyTree&#39; provides the *strong*
+    // guarantee.
+
+    // CLASS METHODS
+                                 // Navigation
+
+    static const RbTreeNode *leftmost(const RbTreeNode *subtree);
+    static       RbTreeNode *leftmost(      RbTreeNode *subtree);
+        // Return the address of the leftmost node in the specified &#39;subtree&#39;,
+        // and &#39;subtree&#39; if &#39;subtree&#39; has no left child.  The behavior is
+        // undefined unless &#39;0 != subtree&#39;, and &#39;subtree&#39; refers to a valid
+        // binary tree.  Note that the value held by the returned node will not
+        // compare greater than that of any other node in &#39;subtree&#39; (as
+        // determined by the comparator used to organize the red-black subtree
+        // data).
+
+    static const RbTreeNode *rightmost(const RbTreeNode *subtree);
+    static       RbTreeNode *rightmost(      RbTreeNode *subtree);
+        // Return the address of the rightmost node in the specified
+        // &#39;subtree&#39;, and &#39;subtree&#39; if &#39;subtree&#39; has no right child.  The
+        // behavior is undefined unless &#39;0 != subtree&#39; and &#39;subtree&#39; refers to
+        // a valid binary tree.  Note that the value held by the returned node
+        // will not compare less than that of any other node in &#39;subtree&#39; (as
+        // determined by the comparator used to organize the red-black subtree
+        // data).
+
+    static const RbTreeNode *next(const RbTreeNode *node);
+    static       RbTreeNode *next(      RbTreeNode *node);
+        // Return the address of the node that follows the specified &#39;node&#39; in
+        // an in-order traversal of the binary tree to which &#39;node&#39; belongs, or
+        // the tree&#39;s sentinel node if &#39;node&#39; is the rightmost node in the
+        // tree.  The behavior is undefined unless &#39;node&#39; is a member of a
+        // valid binary tree, and is not a sentinel node.  Note that if the
+        // tree does not contain duplicate values, then the returned node will
+        // have the smallest value greater than that of &#39;node&#39;.
+
+    static const RbTreeNode *previous(const RbTreeNode *node);
+    static       RbTreeNode *previous(      RbTreeNode *node);
+        // Return the address of the node that precedes the specified &#39;node&#39; in
+        // an in-order traversal of the binary tree to which &#39;node&#39; belongs, or
+        // the tree&#39;s rightmost node if &#39;node&#39; is the sentinel node of the
+        // tree.  The behavior is undefined unless or &#39;node&#39; is a non-leftmost
+        // member of a valid binary tree or is a sentinel &#39;node&#39;.  Note that if
+        // the tree does not contain duplicate values, then the returned node
+        // will have the largest value less than that of &#39;node&#39;.
+
+                                 // Search
+
+    template &lt;class NODE_VALUE_COMPARATOR, class VALUE&gt;
+    static const RbTreeNode *find(const RbTreeAnchor&amp;    tree,
+                                  NODE_VALUE_COMPARATOR&amp; comparator,
+                                  const VALUE&amp;           value);
+    template &lt;class NODE_VALUE_COMPARATOR, class VALUE&gt;
+    static       RbTreeNode *find(RbTreeAnchor&amp;          tree,
+                                  NODE_VALUE_COMPARATOR&amp; comparator,
+                                  const VALUE&amp;           value);
+        // Return the address of the leftmost node holding the specified
+        // &#39;value&#39; in the specified &#39;tree&#39; (organized according to the
+        // specified &#39;comparator) if found, and return &#39;tree.sentinel()&#39;
+        // otherwise.  &#39;COMPARATOR&#39; shall be a functor providing two methods
+        // that can be called as if they had the following signatures:
+        //..
+        //  bool operator()(const RbTreeNode&amp;, const VALUE&amp;) const;
+        //  bool operator()(const VALUE&amp;, const RbTreeNode&amp;) const;
+        //..
+        // The behavior is undefined unless &#39;comparator&#39; provides a strict
+        // weak ordering on objects of type &#39;VALUE&#39;, and &#39;tree&#39; is well-formed
+        // (see &#39;isWellFormed&#39;).
+
+    template &lt;class NODE_VALUE_COMPARATOR, class VALUE&gt;
+    static const RbTreeNode *lowerBound(const RbTreeAnchor&amp;    tree,
+                                        NODE_VALUE_COMPARATOR&amp; comparator,
+                                        const VALUE&amp;           value);
+    template &lt;class NODE_VALUE_COMPARATOR, class VALUE&gt;
+    static       RbTreeNode *lowerBound(RbTreeAnchor&amp;         tree,
+                                        NODE_VALUE_COMPARATOR&amp; comparator,
+                                        const VALUE&amp;           value);
+        // Return the address of the leftmost node holding the smallest
+        // value greater-than or equal-to &#39;value&#39; in the specified &#39;tree&#39;
+        // (organized according to the specified &#39;comparator) if found, and
+        // return &#39;tree.sentinel()&#39; if &#39;value&#39; is greater-than the rightmost
+        // node in &#39;tree&#39;.  &#39;COMPARATOR&#39; shall be a functor providing two
+        // methods that can be called as if they had the following signatures:
+        //..
+        //  bool operator()(const RbTreeNode&amp;, const VALUE&amp;) const;
+        //  bool operator()(const VALUE&amp;, const RbTreeNode&amp;) const;
+        //..
+        // The behavior is undefined unless &#39;comparator&#39; provides a strict
+        // weak ordering on objects of type &#39;VALUE&#39;, and &#39;tree&#39; is well-formed
+        // (&#39;isWellFormed&#39;).   Note that this function returns the *first*
+        // position before which &#39;value&#39; could be inserted into &#39;tree&#39; while
+        // preserving its ordering.
+
+    template &lt;class NODE_VALUE_COMPARATOR, class VALUE&gt;
+    static const RbTreeNode *upperBound(const RbTreeAnchor&amp;    tree,
+                                        NODE_VALUE_COMPARATOR&amp; comparator,
+                                        const VALUE&amp;           value);
+    template &lt;class NODE_VALUE_COMPARATOR, class VALUE&gt;
+    static       RbTreeNode *upperBound(RbTreeAnchor&amp;          tree,
+                                        NODE_VALUE_COMPARATOR&amp; comparator,
+                                        const VALUE&amp;           value);
+        // Return the address of the leftmost node holding the smallest
+        // value greater-than &#39;value&#39; in the specified &#39;tree&#39; (organized
+        // according to the specified &#39;comparator) if found, and return
+        // &#39;tree.sentinel()&#39; if &#39;value&#39; is greater-than or equal-to the
+        // rightmost node in &#39;tree&#39;.  &#39;COMPARATOR&#39; shall be a functor
+        // providing two methods that can be called as if they had the
+        // following signatures:
+        //..
+        //  bool operator()(const RbTreeNode&amp;, const VALUE&amp;) const;
+        //  bool operator()(const VALUE&amp;, const RbTreeNode&amp;) const;
+        //..
+        // The behavior is undefined unless &#39;comparator&#39; provides a strict
+        // weak ordering on objects of type &#39;VALUE&#39;, and &#39;tree&#39; is well-formed
+        // (&#39;isWellFormed&#39;).   Note that this function returns the *last*
+        // position before which &#39;value&#39; could be inserted into &#39;tree&#39; while
+        // preserving its ordering.
+
+                                 // Modification
+
+    template &lt;class FACTORY&gt;
+    static void copyTree(RbTreeAnchor        *result,
+                         const RbTreeAnchor&amp;  original,
+                         FACTORY             *nodeFactory);
+        // Load, into the specified &#39;result&#39;, a collection of newly created
+        // nodes having the same red-black tree structure as that of the
+        // specified &#39;original&#39; tree, where each node in the returned tree is
+        // created by invoking &#39;nodeFactory-&gt;createNode&#39; on the corresponding
+        // &#39;original&#39; node; if an exception occurs, use
+        // &#39;nodeFactory-&gt;deleteNode&#39; to destroy any newly created nodes, and
+        // propagate the exception to the caller (i.e., this operation provides
+        // the *strong* exception guarantee).  &#39;FACTORY&#39; shall be a class
+        // providing two methods that can be called as if they had the
+        // following signatures:
+        //..
+        //  RbTreeNode *createNode(const RbTreeNode&amp;);
+        //  void deleteNode(RbTreeNode *);
+        //..
+        // The behavior is undefined unless &#39;result&#39; is an empty tree,
+        // &#39;original&#39; is a well-formed (see &#39;isWellFormed&#39;), and
+        // &#39;nodeFactory-&gt;deleteNode&#39; does not throw.
+
+    template &lt;class FACTORY&gt;
+    static void deleteTree(RbTreeAnchor *tree, FACTORY *nodeFactory);
+        // Call &#39;nodeFactory-&gt;deleteNode&#39; on each node in &#39;tree&#39; and reset
+        // &#39;tree&#39; to an empty state.  &#39;FACTORY&#39; shall be a class providing a
+        // method that can be called as if it has the following signature:
+        //..
+        //  void deleteNode(RbTreeNode *);
+        //..
+        // The behavior is undefined unless &#39;tree&#39; is a valid binary tree, and
+        // &#39;nodeFactory-&gt;deleteNode&#39; does not throw.
+
+    template &lt;class NODE_VALUE_COMPARATOR, class VALUE&gt;
+    static RbTreeNode *findInsertLocation(
+                                 bool                   *insertAsLeftChildFlag,
+                                 RbTreeAnchor           *tree,
+                                 NODE_VALUE_COMPARATOR&amp;  comparator,
+                                 const VALUE&amp;            value);
+    template &lt;class NODE_VALUE_COMPARATOR, class VALUE&gt;
+    static RbTreeNode *findInsertLocation(
+                                 bool                   *insertAsLeftChildFlag,
+                                 RbTreeAnchor           *tree,
+                                 NODE_VALUE_COMPARATOR&amp;  comparator,
+                                 const VALUE&amp;            value,
+                                 RbTreeNode             *hint);
+        // Return the address of the node that would be the parent a node
+        // holding the specified &#39;value&#39;, if it were to be inserted into the
+        // specified &#39;tree&#39; (organized according to the specified
+        // &#39;comparator&#39;), and load, into the specified &#39;insertAsLeftChildFlag&#39;,
+        // &#39;true&#39; if &#39;value&#39; would be held as the returned node&#39;s left child,
+        // and &#39;false&#39; if &#39;value&#39; would be held in its right child, unless
+        // &#39;tree&#39; is empty, in which case return &#39;tree-&gt;sentinel()&#39; and load
+        // &#39;true&#39; into &#39;insertAsLeftChildFlag&#39;.  Optionally specify a &#39;hint&#39;,
+        // suggesting a node in &#39;tree&#39; that might be the immediate successor of
+        // a node holding &#39;value&#39; if it were to be inserted into &#39;tree&#39;.  If
+        // the supplied &#39;hint&#39; is the successor, this operation will take
+        // amortized constant time; otherwise, it will take O(log(N))
+        // operations, where N is the number of nodes in the tree.  If a node
+        // holding &#39;value&#39; is inserted as suggested by this method, the
+        // resulting tree will be an ordered binary tree, but may require
+        // rebalancing (and re-coloring) to again be a valid red-black tree.
+        // &#39;COMPARATOR&#39; shall be a functor providing two methods that can be
+        // called as if they have the following signatures:
+        //..
+        //  bool operator()(const RbTreeNode&amp;, const VALUE&amp;) const;
+        //  bool operator()(const VALUE&amp;, const RbTreeNode&amp;) const;
+        //..
+        // The behavior is undefined unless &#39;comparator&#39; provides a strict
+        // weak ordering on objects of type &#39;VALUE&#39;, &#39;tree&#39; is well-formed
+        // (see &#39;isWellFormed&#39;), and &#39;hint&#39;, if supplied, is a node in &#39;tree&#39;.
+        // Note that this operation is intended to be used in conjunction with
+        // the &#39;insertAt&#39; method.
+
+    template &lt;class NODE_VALUE_COMPARATOR, class VALUE&gt;
+    static RbTreeNode *findUniqueInsertLocation(
+                                      int                    *comparisonResult,
+                                      RbTreeAnchor           *tree,
+                                      NODE_VALUE_COMPARATOR&amp;  comparator,
+                                      const VALUE&amp;            value);
+    template &lt;class NODE_VALUE_COMPARATOR, class VALUE&gt;
+    static RbTreeNode *findUniqueInsertLocation(
+                                      int                    *comparisonResult,
+                                      RbTreeAnchor           *tree,
+                                      NODE_VALUE_COMPARATOR&amp;  comparator,
+                                      const VALUE&amp;            value,
+                                      RbTreeNode             *hint);
+        // Return the address of the node holding the specified &#39;value&#39; in the
+        // specified &#39;tree&#39; (organized according to the specified &#39;comparator&#39;)
+        // if found, and the address of the node that would be the parent for
+        // &#39;value&#39; otherwise; load, into the specified &#39;comparisonResult&#39;, 0 if
+        // &#39;value&#39; is found, a negative number if &#39;value&#39; would be held in its
+        // left child, and a positive number if &#39;value&#39; would be held in its
+        // right child, unless &#39;tree&#39; is empty, in which case load a negative
+        // number into &#39;comparisonResult&#39; and return &#39;tree-&gt;sentinel()&#39;.
+        // Optionally specify a &#39;hint&#39;, suggesting a node in &#39;tree&#39; that might
+        // be the immediate successor of a node holding &#39;value&#39; if it were to
+        // be inserted into &#39;tree&#39;.  If the supplied &#39;hint&#39; is the successor,
+        // this operation will take amortized constant time; otherwise, it will
+        // take O(log(N)) operations, where N is the number of nodes in the
+        // tree.  If a node holding &#39;value&#39; is inserted as suggested by this
+        // method, the resulting tree will be an ordered binary tree, but may
+        // require rebalancing (and re-coloring) to again be a valid red-black
+        // tree.  &#39;COMPARATOR&#39; shall be a functor providing two methods that
+        // can be called as if they have the following signatures:
+        //..
+        //  bool operator()(const RbTreeNode&amp;, const VALUE&amp;) const;
+        //  bool operator()(const VALUE&amp;, const RbTreeNode&amp;) const;
+        //..
+        // The behavior is undefined unless &#39;comparator&#39; provides a strict
+        // weak ordering on objects of type &#39;VALUE&#39;, &#39;tree&#39; is well-formed
+        // (see &#39;isWellFormed&#39;), and &#39;hint&#39;, if supplied, is a node in &#39;tree&#39;.
+        // Note that this operation is intended to be used in conjunction with
+        // the &#39;insertAt&#39; method.
+
+    template &lt;class NODE_COMPARATOR&gt;
+    static void insert(RbTreeAnchor           *tree,
+                       const NODE_COMPARATOR&amp;  comparator,
+                       RbTreeNode             *newNode);
+        // Insert the specified &#39;newNode&#39; into the specified &#39;tree&#39;, organized
+        // according to the specified &#39;comparator&#39;.  The resulting tree will
+        // be well-formed (see &#39;isWellFormed&#39;).  &#39;NODE_COMPARATOR&#39; shall be a
+        // functor providing a method that can be called as if it had the
+        // following signatures:
+        //..
+        //  bool operator()(const RbTreeNode&amp;, const RbTreeNode&amp;) const;
+        //..
+        // The behavior is undefined unless &#39;comparator&#39; provides a strict
+        // weak ordering on objects of type &#39;VALUE&#39;, and &#39;tree&#39; is well-formed
+        // (see &#39;isWellFormed&#39;).
+
+    static void insertAt(RbTreeAnchor *tree,
+                         RbTreeNode   *parentNode,
+                         bool          leftChildFlag,
+                         RbTreeNode   *newNode);
+        // Insert the specified &#39;newNode&#39; into the specified &#39;tree&#39; as either
+        // the left or right child of the specified &#39;parentNode&#39;, as indicated
+        // by the specified &#39;leftChildFlag&#39;, and then rebalance the tree so
+        // that it is a valid red-black tree (see &#39;validateRbTree&#39;).  The
+        // behavior is undefined unless &#39;tree&#39; is well-formed (see
+        // &#39;isWellFormed&#39;), and, if &#39;tree&#39; is empty, &#39;parentNode&#39; is
+        // &#39;tree-&gt;sentinel()&#39; and &#39;leftChildFlag&#39; is &#39;true&#39;, or, if &#39;tree&#39; is
+        // not empty, &#39;parentNode&#39; is a node in &#39;tree&#39; whose left or right
+        // child (as indicated by &#39;leftChildFlag&#39;) is 0 where if &#39;newNode&#39; were
+        // attached as that child (without rebalancing) &#39;tree&#39; would still
+        // form an ordered binary tree (though not necessarily a valid
+        // red-black tree).  Note that this operation is intended to be used in
+        // conjunction with the &#39;findInsertLocation&#39; or
+        // &#39;findUniqueInsertLocation&#39; methods.
+
+    static void remove(RbTreeAnchor *tree, RbTreeNode *node);
+        // Remove the specified &#39;node&#39; from the specified &#39;tree&#39;, and then
+        // rebalance &#39;tree&#39; so that it again forms a valid red-black tree (see
+        // &#39;validateRbTree&#39;).  The behavior is undefined unless &#39;tree&#39; is
+        // well-formed (see &#39;isWellFormed&#39;).
+
+    static void swap(RbTreeAnchor *a, RbTreeAnchor *b);
+        // Efficiently exchange the nodes in the specified &#39;a&#39; tree with the
+        // nodes in the specified &#39;b&#39; tree.  This method provides the no-throw
+        // exception-safety guarantee.  The behavior is undefined unless &#39;a&#39;
+        // and &#39;b&#39; are well-formed (see &#39;isWellFormed&#39;).
+
+                                 // Utility
+
+    static bool isLeftChild(const RbTreeNode *node);
+        // Return &#39;true&#39; if the specified &#39;node&#39; is the left child of its
+        // parent, and &#39;false&#39; otherwise.  The behavior is undefined unless
+        // &#39;0 != node-&gt;parent()&#39;.
+
+    static bool isRightChild(const RbTreeNode *node);
+        // Return &#39;true&#39; if the specified &#39;node&#39; is the left child of its
+        // parent, and &#39;false&#39; otherwise.  The behavior is undefined unless
+        // &#39;0 != node-&gt;parent()&#39;.
+
+    static void rotateLeft(RbTreeNode *node);
+        // Perform counter-clockwise rotation on the specified &#39;node&#39;: Rotate
+        // the node&#39;s right child (the pivot) to be the node&#39;s parent, and
+        // attach the pivot&#39;s left child as the node&#39;s right child.
+        //..
+        //     (node)              (pivot)
+        //     /    \              /     \.
+        //    a   (pivot)  ---&gt;  (node)   c
+        //         /   \         /    \.
+        //        b     c       a      b
+        //..
+        // The behavior is undefined unless &#39;node-&gt;rightChild()&#39; is not 0,
+        // &#39;node-&gt;parent()&#39; is not 0, and node&#39;s parent refers to &#39;node&#39; as one
+        // of its children.  Note that this operation maintains the ordering
+        // of the subtree rooted at &#39;node&#39;.  Also note this operation will
+        // successfully rotate the root node of an unbalanced, but otherwise
+        // well-formed, tree referred to by a &#39;RbTreeAnchor&#39; object (see
+        // &#39;isWellFormed&#39;) because the parent of the root node is the tree&#39;s
+        // sentinel node (i.e., not 0), which refers to the root node as its
+        // left child, and an &#39;RbTreeAnchor&#39; object returns the left child of
+        // the sentinel node as the root of the tree.
+
+    static void rotateRight(RbTreeNode *node);
+        // Perform clockwise rotation on the specified &#39;node&#39;: Rotate the
+        // node&#39;s left child (the pivot) to be the node&#39;s parent, and attach
+        // the pivot&#39;s right child as the node&#39;s left child.
+        //..
+        //       (node)            (pivot)
+        //       /    \            /     \.
+        //   (pivot)   c   ---&gt;   a     (node)
+        //    /  \                      /    \.
+        //   a    b                    b      c
+        //..
+        // The behavior is undefined unless &#39;node-&gt;leftChild()&#39; is not 0,
+        // &#39;node-&gt;parent()&#39; is not 0, and node&#39;s parent refers to &#39;node&#39; as one
+        // of its children.  Note that this operation maintains the ordering
+        // of the subtree rooted at &#39;node&#39;.  Also note this operation will
+        // successfully rotate the root node of an unbalanced, but otherwise
+        // well-formed, tree referred to by a &#39;RbTreeAnchor&#39; object (see
+        // &#39;isWellFormed&#39;) because the parent of the root node is the tree&#39;s
+        // sentinel node (i.e., not 0), which refers to the root node as its
+        // left child, and an &#39;RbTreeAnchor&#39; object returns the left child of
+        // the sentinel node as the root of the tree.
+
+                                 // Testing
+
+    static void printTreeStructure(
+                    FILE                   *file,
+                    const RbTreeNode       *subtree,
+                    void (*printNodeValueCallback)(FILE *, const RbTreeNode *),
+                    int                     level = 0,
+                    int                     spacesPerLevel = 4);
+        // Write a description of the structure of the specified &#39;subtree&#39; to
+        // the specified output &#39;file&#39; in a human-readable format, using the
+        // specified &#39;printValueCallback&#39; to render the value of each node.
+        // Optionally specify an initial indentation &#39;level&#39;, whose absolute
+        // value is incremented recursively for nested objects.  If &#39;level&#39; is
+        // specified, optionally specify &#39;spacesPerLevel&#39;, whose absolute value
+        // indicates the number of spaces per indentation level for this and
+        // all of its nested objects.  If &#39;level&#39; is negative, suppress
+        // indentation of the first line.  If &#39;spacesPerLevel&#39; is negative,
+        // format the entire output on one line, suppressing all but the
+        // initial indentation (as governed by &#39;level&#39;).  The behavior
+        // is undefined unless &#39;node&#39; is 0, or the root of a valid binary
+        // tree.  Note that the implementation of this function is recursive
+        // and expensive to perform, it is intended for debugging purposes
+        // only.  Also note that the format is not fully specified, and can
+        // change without notice.
+
+    template &lt;class NODE_COMPARATOR&gt;
+    static int validateRbTree(const RbTreeNode       *rootNode,
+                              const NODE_COMPARATOR&amp;  comparator);
+    template &lt;class NODE_COMPARATOR&gt;
+    static int validateRbTree(const RbTreeNode       **errorNode,
+                              const char             **errorDescription,
+                              const RbTreeNode        *rootNode,
+                              const NODE_COMPARATOR&amp;   comparator);
+        // Return the (common) number of black nodes on each path from the
+        // specified &#39;rootNode&#39; to a leaf in the tree, 0 if &#39;rootNode&#39; is 0,
+        // and a negative number if &#39;rootNode&#39; does not refer to a valid
+        // red-black binary search tree, ordered according to the specified
+        // &#39;comparator&#39;.  Optionally specify &#39;errorNode&#39; and &#39;errorDescription&#39;
+        // in which to load the address of a node violating a red-black tree
+        // constraint and a description of that violation, respectively.  The
+        // behavior is undefined unless &#39;rootNode&#39; is 0, or refers to a valid
+        // binary tree.
+        //
+        // Each node of a red-black tree is colored either red or black; null
+        // nodes are considered black.  Four requirements must be satisfied
+        // for &#39;rootNode&#39; to refer to a valid red-black binary search tree:
+        //
+        //: 1 For each node in the tree, no descendents to the left of that
+        //:   node would order after that node (according to the &#39;comparator&#39;),
+        //:   and no descendents to the right of that node would order before
+        //:   it.
+        //:
+        //: 2 For each node in the tree, each non-null child of that node
+        //:   refers to that node as its parent.
+        //:
+        //: 3 If a node in the tree is colored red, all its children are
+        //:   colored black or are null (which is considered black).
+        //:
+        //: 4 For each node in the tree, every path from that node to a leaf
+        //:   contains the same number of black nodes, where null children are
+        //:   considered black leaf nodes.
+        //
+        // The behavior is undefined unless &#39;rootNode&#39; is 0, or refers to a
+        // valid binary tree.  Note that the implementation of this function
+        // is recursive and has linear complexity with respect to the the
+        // number of nodes in &#39;tree&#39;, it is intended for debugging purposes
+        // only.
+
+    template &lt;class NODE_COMPARATOR&gt;
+    static bool isWellFormed(const RbTreeAnchor&amp;    tree,
+                             const NODE_COMPARATOR&amp; comparator);
+        // Return &#39;true&#39; if the specified &#39;tree&#39; is well-formed and refers to
+        // a valid red-black tree, and &#39;false&#39; otherwise.  For a
+        // &#39;RbTreeAnchor&#39; to be considered well-formed *all* of the following
+        // must be true:
+        //
+        //: 1 &#39;tree.rootNode()&#39; must refer to a valid red-black tree, whose
+        //:   nodes are organized according to &#39;comparator&#39; (see
+        //:   &#39;validateRbTree&#39;).
+        //:
+        //: 2 &#39;tree.firstNode()&#39; must refer to &#39;tree.sentinel()&#39; if
+        //:   &#39;tree.rootNode()&#39; is 0, and leftmost(tree.rootNode())&#39; otherwise.
+        //:
+        //: 3 &#39;tree.nodeCount()&#39; must be the count of nodes in &#39;tree&#39; (not
+        //:   including the sentinel node).
+        //:
+        //: 4 &#39;tree.sentinel()-&gt;leftchild()&#39; is &#39;tree.rootNode()&#39;, and (if
+        //:   &#39;tree.rootNode()&#39; is not 0) &#39;tree.rootNode()-&gt;parent()&#39; is
+        //:   &#39;tree.sentinel()&#39;.
+        //:
+        //: 5 &#39;tree.rootNode()&#39; is 0 or &#39;tree.rootNode().isBlack()&#39; is &#39;true&#39;
+        //
+        // The behavior is undefined unless &#39;tree.rootNode()&#39; is 0 or refers
+        // to a valid binary tree.  Note that the implementation of this
+        // function is recursive and has linear complexity with respect to the
+        // number of nodes in &#39;tree&#39;, it is intended for debugging purposes
+        // only.  Note also that the final condition, that the root node be
+        // either 0 or colored black, is not a canonical requirement of a
+        // red-black tree but an additional invariant enforced by the methods
+        // of &#39;RbTreeUtil&#39; to simplify the implementations.
+};
+
+                      // ==========================
+                      // class RbTreeUtil_Validator
+                      // ==========================
+
+struct RbTreeUtil_Validator {
+    // This &#39;struct&#39; provides a namespace for auxiliary functions used to
+    // validate a red-black binary search tree.
+
+    // CLASS METHODS
+    template &lt;class NODE_COMPARATOR&gt;
+    static int validateRbTree(const RbTreeNode       **errorNode,
+                              const char             **errorDescription,
+                              const RbTreeNode        *rootNode,
+                              const RbTreeNode        *minNodeValue,
+                              const RbTreeNode        *maxNodeValue,
+                              const NODE_COMPARATOR&amp;   comparator);
+        // Return the (common) number of black nodes on each path from the
+        // specified &#39;rootNode&#39; to a leaf in the tree, 0 if &#39;rootNode&#39; is 0,
+        // and a negative number if &#39;rootNode&#39; does not refer to a valid
+        // red-black binary search tree (ordered according to the specified
+        // &#39;comparator&#39;) that contains no nodes whose value is less than the
+        // specified &#39;minNodeValue&#39; (if not 0) or greater-than the specified
+        // &#39;maxNodeValue&#39; (if not 0).  If &#39;rootNode&#39; does not refer to a valid
+        // red-black tree containing nodes whose values are between the
+        // specified &#39;minNodeValue&#39; and &#39;maxNodeValue&#39; (inclusively) then load
+        // &#39;errorNode&#39; and &#39;errorDescription&#39; with the address of a node
+        // violating a red-black tree constraint and a description of that
+        // violation, respectively.  The behavior is undefined unless
+        // &#39;rootNode&#39; is 0, or refers to a valid binary tree.
+
+    static bool isWellFormedAnchor(const RbTreeAnchor&amp; tree);
+        // Return &#39;true&#39; if the specified &#39;tree&#39; is well-formed, without
+        // confirming that it refers to a valid-red-black tree, and
+        // &#39;false&#39; otherwise.  This method will return &#39;true&#39; if *all* of the
+        // following are true:
+        //
+        //: 1 &#39;tree.firstNode()&#39; must refer to &#39;tree.sentinel()&#39; if
+        //:   &#39;tree.rootNode()&#39; is 0, and leftmost(tree.rootNode())&#39; otherwise.
+        //:
+        //: 2 &#39;tree.nodeCount()&#39; must be the count of nodes in &#39;tree&#39; (not
+        //:   including the sentinel node).
+        //:
+        //: 3 &#39;tree.sentinel()-&gt;leftchild()&#39; is &#39;tree.rootNode()&#39;, and (if
+        //:   &#39;tree.rootNode()&#39; is not 0), &#39;tree.rootNode()-&gt;parent()&#39; is
+        //:   &#39;tree.sentinel().
+        //:
+        //: 4 &#39;tree.rootNode()&#39; is 0 or &#39;tree.rootNode().isBlack()&#39; is &#39;true&#39;
+        //
+        // The behavior is undefined unless &#39;tree.rootNode()&#39; is 0, or refers
+        // to a valid binary tree.  Note that this function provides a
+        // non-templatized implementation for several criteria of a
+        // well-formed tree (but not the complete set verified by
+        // &#39;RbTreeUtil::isWellFormed&#39;).
+};
+
+                        // ============================
+                        // struct RbTreeUtilTreeProctor
+                        // ============================
+
+template &lt;class DELETER&gt;
+class RbTreeUtilTreeProctor {
+    // This class implements a proctor that, unless &#39;release&#39; is called,
+    // invokes the parameterized &#39;DELETER&#39; on each node in the tree supplied at
+    // construction.
+
+    // DATA
+    RbTreeAnchor *d_tree_p;     // address of root node (held, not owned)
+
+    DELETER      *d_deleter_p;  // address of deleter used to destroy each
+                                // node (held, not owned)
+
+  public:
+    // CREATORS
+    RbTreeUtilTreeProctor(RbTreeAnchor *tree, DELETER *deleter);
+        // Create a proctor object that, unless &#39;release&#39; is called, will,
+        // on destruction, invoke the specified &#39;deleter&#39; on each node in
+        // &#39;tree&#39;.
+
+    ~RbTreeUtilTreeProctor();
+        // Unless &#39;release&#39; has been called, invoke the deleter supplied at
+        // construction on each node in the tree supplied at construction.
+
+    // MANIPULATORS
+    void release();
+        // Release from management the tree supplied at construction.
+};
+
+// ============================================================================
+//                      INLINE FUNCTION DEFINITIONS
+// ============================================================================
+
+                        // ----------------
+                        // class RbTreeUtil
+                        // ----------------
+
+// CLASS METHODS
+inline
+RbTreeNode *RbTreeUtil::leftmost(RbTreeNode *subtree)
+{
+    return const_cast&lt;RbTreeNode *&gt;(
+                            leftmost(const_cast&lt;const RbTreeNode *&gt;(subtree)));
+}
+
+inline
+RbTreeNode *RbTreeUtil::rightmost(RbTreeNode *subtree)
+{
+    return const_cast&lt;RbTreeNode *&gt;(
+                           rightmost(const_cast&lt;const RbTreeNode *&gt;(subtree)));
+}
+
+inline
+RbTreeNode *RbTreeUtil::next(RbTreeNode *node)
+{
+    return const_cast&lt;RbTreeNode *&gt;(
+                                   next(const_cast&lt;const RbTreeNode *&gt;(node)));
+}
+
+inline
+RbTreeNode *RbTreeUtil::previous(RbTreeNode *node)
+{
+    return const_cast&lt;RbTreeNode *&gt;(
+                               previous(const_cast&lt;const RbTreeNode *&gt;(node)));
+}
+
+template &lt;class NODE_VALUE_COMPARATOR, class VALUE&gt;
+inline
+RbTreeNode *RbTreeUtil::find(RbTreeAnchor&amp;          tree,
+                             NODE_VALUE_COMPARATOR&amp; comparator,
+                             const VALUE&amp;           value)
+{
+    return const_cast&lt;RbTreeNode *&gt;(
+               find(const_cast&lt;const RbTreeAnchor&amp;&gt;(tree), comparator, value));
+}
+
+template &lt;class NODE_VALUE_COMPARATOR, class VALUE&gt;
+inline
+const RbTreeNode *RbTreeUtil::find(const RbTreeAnchor&amp;    tree,
+                                   NODE_VALUE_COMPARATOR&amp; comparator,
+                                   const VALUE&amp;           value)
+{
+    const RbTreeNode *lowBound = lowerBound(tree, comparator, value);
+
+    // Note that a Solaris compiler bug prevents using a ternary (&#39;?:&#39;)
+    // operator here in certain contexts.
+
+    if (lowBound != tree.sentinel() &amp;&amp; !comparator(value, *lowBound)) {
+        return lowBound;                                              // RETURN
+    }
+    return tree.sentinel();
+}
+
+template &lt;class NODE_VALUE_COMPARATOR, class VALUE&gt;
+RbTreeNode *RbTreeUtil::lowerBound(RbTreeAnchor&amp;          tree,
+                                   NODE_VALUE_COMPARATOR&amp; comparator,
+                                   const VALUE&amp;           value)
+{
+    return const_cast&lt;RbTreeNode *&gt;(
+         lowerBound(const_cast&lt;const RbTreeAnchor&amp;&gt;(tree), comparator, value));
+}
+
+template &lt;class NODE_VALUE_COMPARATOR, class VALUE&gt;
+inline
+const RbTreeNode *RbTreeUtil::lowerBound(const RbTreeAnchor&amp;    tree,
+                                         NODE_VALUE_COMPARATOR&amp; comparator,
+                                         const VALUE&amp;           value)
+{
+    const RbTreeNode *nextLargestNode = tree.sentinel();
+    const RbTreeNode *node            = tree.rootNode();
+    while (node) {
+        if (comparator(*node, value)) {
+            node = node-&gt;rightChild();
+        }
+        else {
+            nextLargestNode = node;
+            node = node-&gt;leftChild();
+        }
+    }
+    return nextLargestNode;
+}
+
+template &lt;class NODE_VALUE_COMPARATOR, class VALUE&gt;
+inline
+RbTreeNode *RbTreeUtil::upperBound(RbTreeAnchor&amp;          tree,
+                                   NODE_VALUE_COMPARATOR&amp; comparator,
+                                   const VALUE&amp;           value)
+{
+    return const_cast&lt;RbTreeNode *&gt;(
+        upperBound(const_cast&lt;const RbTreeAnchor&amp;&gt;(tree), comparator, value));
+}
+
+template &lt;class NODE_VALUE_COMPARATOR, class VALUE&gt;
+inline
+const RbTreeNode *RbTreeUtil::upperBound(const RbTreeAnchor&amp;    tree,
+                                         NODE_VALUE_COMPARATOR&amp; comparator,
+                                         const VALUE&amp;           value)
+{
+    const RbTreeNode *nextLargestNode = tree.sentinel();
+    const RbTreeNode *node            = tree.rootNode();
+    while (node) {
+        if (comparator(value, *node)) {
+            nextLargestNode = node;
+            node = node-&gt;leftChild();
+        }
+        else {
+            node = node-&gt;rightChild();
+        }
+    }
+    return nextLargestNode;
+}
+
+template &lt;class FACTORY&gt;
+void RbTreeUtil::copyTree(RbTreeAnchor        *result,
+                          const RbTreeAnchor&amp;  original,
+                          FACTORY             *nodeFactory)
+{
+    BSLS_ASSERT_SAFE(result);
+    BSLS_ASSERT_SAFE(0 == result-&gt;rootNode());
+    BSLS_ASSERT_SAFE(nodeFactory);
+
+    if (!original.rootNode()) {
+        result-&gt;reset(0, result-&gt;sentinel(), 0);
+        return;                                                       // RETURN
+    }
+
+    // Perform an pre-order traversal of the nodes of the tree, invoking
+    // &#39;nodeFactory-&gt;createNode()&#39; on each node.
+
+    const RbTreeNode *originalNode = original.rootNode();
+
+    RbTreeNode   *copiedRoot = nodeFactory-&gt;createNode(*originalNode);
+    RbTreeAnchor  tree(copiedRoot, 0, 1);
+
+    RbTreeUtilTreeProctor&lt;FACTORY&gt; proctor(&amp;tree, nodeFactory);
+
+    RbTreeNode *copiedNode = copiedRoot;
+
+    copiedNode-&gt;setColor(originalNode-&gt;color());
+    copiedNode-&gt;setParent(result-&gt;sentinel());
+    copiedNode-&gt;setLeftChild(0);
+    copiedNode-&gt;setRightChild(0);
+    do {
+        if (0 != originalNode-&gt;leftChild() &amp;&amp; 0 == copiedNode-&gt;leftChild()) {
+            originalNode = originalNode-&gt;leftChild();
+            RbTreeNode *newNode = nodeFactory-&gt;createNode(*originalNode);
+            copiedNode-&gt;setLeftChild(newNode);
+            newNode-&gt;setColor(originalNode-&gt;color());
+            newNode-&gt;setParent(copiedNode);
+            newNode-&gt;setLeftChild(0);
+            newNode-&gt;setRightChild(0);
+
+            copiedNode = newNode;
+        }
+        else if (0 != originalNode-&gt;rightChild() &amp;&amp;
+                 0 == copiedNode-&gt;rightChild()) {
+            originalNode = originalNode-&gt;rightChild();
+            RbTreeNode *newNode = nodeFactory-&gt;createNode(*originalNode);
+            copiedNode-&gt;setRightChild(newNode);
+            newNode-&gt;setColor(originalNode-&gt;color());
+            newNode-&gt;setParent(copiedNode);
+            newNode-&gt;setLeftChild(0);
+            newNode-&gt;setRightChild(0);
+
+            copiedNode = newNode;
+        }
+        else {
+            originalNode = originalNode-&gt;parent();
+            copiedNode   = copiedNode-&gt;parent();
+        }
+    } while (original.sentinel() != originalNode);
+
+    proctor.release();
+
+    result-&gt;reset(copiedRoot,
+                  leftmost(copiedRoot),
+                  original.numNodes());
+}
+
+template &lt;class FACTORY&gt;
+void RbTreeUtil::deleteTree(RbTreeAnchor *tree, FACTORY *nodeFactory)
+{
+    BSLS_ASSERT_SAFE(tree);
+    BSLS_ASSERT_SAFE(nodeFactory);
+
+    if (0 == tree-&gt;rootNode()) {
+        BSLS_ASSERT_SAFE(tree-&gt;sentinel() == tree-&gt;firstNode());
+        return;                                                       // RETURN
+    }
+
+    // Perform a post-order traversal of the nodes of the tree, invoking
+    // &#39;nodeFactory-&gt;deleteNode()&#39; on each node.
+
+    RbTreeNode *node = tree-&gt;firstNode();
+    do {
+        // At each iteration through this loop, we are at a leftmost (i.e.,
+        // minimum) node of some sub-tree.  Note that &#39;node-&gt;leftChild()&#39; may
+        // not be 0 if we&#39;ve simply deleted the left sub-tree of this node.
+
+        if (node-&gt;rightChild()) {
+            // If this node has a right child, then navigate to the first node
+            // in the subtree to remove, and set &#39;node-&gt;rightChild()&#39; to 0 so
+            // we know this sub-tree has been removed when we iterate back up
+            // parent pointers of the tree to this node.
+
+            RbTreeNode *rightChild = node-&gt;rightChild();
+            node-&gt;setRightChild(0);
+            node = leftmost(rightChild);
+        }
+        else {
+            RbTreeNode *parent = node-&gt;parent();
+            nodeFactory-&gt;deleteNode(node);
+            node = parent;
+        }
+    } while (tree-&gt;sentinel() != node);
+    tree-&gt;reset(0, tree-&gt;sentinel(), 0);
+}
+
+template &lt;class NODE_VALUE_COMPARATOR, class VALUE&gt;
+RbTreeNode *RbTreeUtil::findInsertLocation(
+                                 bool                   *insertAsLeftChildFlag,
+                                 RbTreeAnchor           *tree,
+                                 NODE_VALUE_COMPARATOR&amp;  comparator,
+                                 const VALUE&amp;            value)
+{
+    BSLS_ASSERT_SAFE(insertAsLeftChildFlag);
+    BSLS_ASSERT_SAFE(tree);
+
+    RbTreeNode *parent = tree-&gt;sentinel();
+    RbTreeNode *node   = tree-&gt;rootNode();
+    *insertAsLeftChildFlag = true;
+    while (node) {
+        // Find the leaf node that would be the parent of &#39;newNode&#39;.
+
+        parent = node;
+        *insertAsLeftChildFlag = comparator(value, *node);
+        if (*insertAsLeftChildFlag) {
+            node = node-&gt;leftChild();
+        }
+        else {
+            node = node-&gt;rightChild();
+        }
+    }
+    return parent;
+}
+
+template &lt;class NODE_VALUE_COMPARATOR, class VALUE&gt;
+RbTreeNode *RbTreeUtil::findInsertLocation(
+                                 bool                   *insertAsLeftChildFlag,
+                                 RbTreeAnchor           *tree,
+                                 NODE_VALUE_COMPARATOR&amp;  comparator,
+                                 const VALUE&amp;            value,
+                                 RbTreeNode             *hint)
+{
+    BSLS_ASSERT_SAFE(insertAsLeftChildFlag);
+    BSLS_ASSERT_SAFE(tree);
+    BSLS_ASSERT_SAFE(hint);
+
+    // &#39;hint&#39; is valid if it is equal to, or the smallest value greater than,
+    // &#39;value&#39;.
+
+    if (tree-&gt;sentinel() == hint || !comparator(*hint, value)) {
+        // &#39;hint&#39; is greater-than or equal-to &#39;value&#39;, if the previous node,
+        // &#39;prev&#39; is less-than or equal-to &#39;value&#39;, then we have a valid hint.
+
+        RbTreeNode *prev = (tree-&gt;firstNode() == hint) ? hint : previous(hint);
+        if (tree-&gt;firstNode() == hint || !comparator(value, *prev)) {
+            // There will be an empty position for a child node between every
+            // two consecutive nodes (in an in-order traversal) of a binary
+            // tree.  Determine whether that empty position is the left child
+            // of &#39;hint&#39; or the right child of &#39;prev&#39;.
+
+            if (0 == hint-&gt;leftChild()) {
+                *insertAsLeftChildFlag = true;
+                return hint;                                          // RETURN
+            }
+            BSLS_ASSERT_SAFE(prev);
+            *insertAsLeftChildFlag = false;
+            return prev;                                              // RETURN
+        }
+        // &#39;prev&#39; is greater than &#39;value&#39;, so this is not a valid hint.
+
+    }
+    // If &#39;hint&#39; was less than &#39;value&#39;, it is not a valid hint.
+
+    // The &#39;hint&#39; is not valid, fall-back and search the entire tree.
+
+    return findInsertLocation(insertAsLeftChildFlag, tree, comparator, value);
+}
+
+template &lt;class NODE_VALUE_COMPARATOR, class VALUE&gt;
+RbTreeNode *RbTreeUtil::findUniqueInsertLocation(
+                                      int                    *comparisonResult,
+                                      RbTreeAnchor           *tree,
+                                      NODE_VALUE_COMPARATOR&amp;  comparator,
+                                      const VALUE&amp;            value)
+{
+    BSLS_ASSERT_SAFE(comparisonResult);
+    BSLS_ASSERT_SAFE(tree);
+
+    // Note that &#39;nextSmallestNode&#39; is used, rather than &#39;nextLargestNode&#39; (as
+    // seen in &#39;upperBound&#39; and &#39;lowerBound&#39;) to avoid an unnecessary
+    // negation.
+
+    RbTreeNode *parent           = tree-&gt;sentinel();
+    RbTreeNode *nextSmallestNode = 0;
+    RbTreeNode *node             = tree-&gt;rootNode();
+
+    bool leftChild = true;
+    while (node) {
+        // Find the leaf node that would be the parent of &#39;newNode&#39;.
+
+        parent = node;
+        leftChild = comparator(value, *node);
+        if (leftChild) {
+            node = node-&gt;leftChild();
+        }
+        else {
+            nextSmallestNode = node;
+            node = node-&gt;rightChild();
+        }
+    }
+
+    if (nextSmallestNode &amp;&amp; !comparator(*nextSmallestNode, value)) {
+        *comparisonResult = 0;
+        return nextSmallestNode;                                      // RETURN
+    }
+    *comparisonResult = leftChild ? -1 : 1;
+    return parent;
+}
+
+template &lt;class NODE_VALUE_COMPARATOR, class VALUE&gt;
+RbTreeNode *RbTreeUtil::findUniqueInsertLocation(
+                                      int                    *comparisonResult,
+                                      RbTreeAnchor           *tree,
+                                      NODE_VALUE_COMPARATOR&amp;  comparator,
+                                      const VALUE&amp;            value,
+                                      RbTreeNode             *hint)
+{
+    BSLS_ASSERT_SAFE(comparisonResult);
+    BSLS_ASSERT_SAFE(tree);
+    BSLS_ASSERT_SAFE(hint);
+
+    enum { LEFT_CHILD = -1, NODE_FOUND = 0, RIGHT_CHILD = 1 };
+
+    // &#39;hint&#39; is valid if it is first value greater than &#39;value&#39; in the tree.
+
+    if (tree-&gt;sentinel() == hint || comparator(value, *hint)) {
+        // &#39;hint&#39; is greater than &#39;value&#39;.  If the previous node, &#39;prev&#39; is
+        // less than the value, then we have a valid hint.
+
+        RbTreeNode *prev = (tree-&gt;firstNode() == hint) ? hint : previous(hint);
+        if (tree-&gt;firstNode() == hint || comparator(*prev, value)) {
+            // There will be an empty position for a child node between every
+            // two consecutive nodes (in an in-order traversal) of a binary
+            // tree.  Determine whether that empty position is the left child
+            // of &#39;hint&#39; or the right child of &#39;prev&#39;.
+
+            if (0 == hint-&gt;leftChild()) {
+                *comparisonResult = LEFT_CHILD;
+                return hint;                                          // RETURN
+            }
+
+            BSLS_ASSERT_SAFE(prev);
+            *comparisonResult = RIGHT_CHILD;
+            return prev;                                              // RETURN
+        }
+        // &#39;value&#39; is ordered before &#39;hint&#39;, but &#39;prev&#39; is not ordered before
+        // &#39;value&#39;, so either: (1) &#39;value&#39; is equal to &#39;prev&#39; or (2) &#39;hint&#39; is
+        // not a valid hint.  Optimize for (1), by handling it as a special
+        // case, as this may reasonably occur using &#39;upperBound&#39; on &#39;value&#39; to
+        // determine a hint.
+
+        if (!comparator(value, *prev)) {
+            *comparisonResult = NODE_FOUND;
+            return prev;                                              // RETURN
+        }
+
+        // &#39;prev&#39; is greater than &#39;value&#39;, so this is not a valid hint.
+    }
+    // If &#39;value&#39; is not ordered before &#39;hint&#39;, either: (1) &#39;value&#39; is equal
+    // to &#39;hint&#39;, or (2) &#39;hint&#39; is not a valid hint.  Optimize for (1).
+
+    else if (tree-&gt;sentinel() != hint &amp;&amp; !comparator(*hint, value)) {
+        *comparisonResult = NODE_FOUND;
+        return hint;                                                  // RETURN
+    }
+    // The &#39;hint&#39; is not valid, fall-back and search the entire tree.
+
+    return findUniqueInsertLocation(comparisonResult,
+                                    tree,
+                                    comparator,
+                                    value);
+}
+
+template &lt;class NODE_COMPARATOR&gt;
+void RbTreeUtil::insert(RbTreeAnchor           *tree,
+                        const NODE_COMPARATOR&amp;  comparator,
+                        RbTreeNode             *newNode)
+{
+    BSLS_ASSERT_SAFE(tree);
+    BSLS_ASSERT_SAFE(newNode);
+
+    // Note that the following logic is the same as &#39;findInsertLocation&#39;
+    // except that the comparator required for this operation compares two
+    // nodes, rather than comparing a value to a node.
+
+    RbTreeNode *parent        = tree-&gt;sentinel();
+    RbTreeNode *node          = tree-&gt;rootNode();
+    bool        leftChildFlag = true;
+    while (node) {
+        // Find the leaf node that would be the parent of &#39;newNode&#39;.
+
+        parent = node;
+        leftChildFlag = comparator(*newNode, *node);
+        if (leftChildFlag) {
+            node = node-&gt;leftChild();
+        }
+        else {
+            node = node-&gt;rightChild();
+        }
+    }
+    return insertAt(tree, parent, leftChildFlag, newNode);
+}
+
+inline
+bool RbTreeUtil::isLeftChild(const RbTreeNode *node)
+{
+    BSLS_ASSERT_SAFE(node);
+    BSLS_ASSERT_SAFE(node-&gt;parent());
+
+    return node-&gt;parent()-&gt;leftChild() == node;
+}
+
+inline
+bool RbTreeUtil::isRightChild(const RbTreeNode *node)
+{
+    BSLS_ASSERT_SAFE(node);
+    BSLS_ASSERT_SAFE(node-&gt;parent());
+
+    return node-&gt;parent()-&gt;rightChild() == node;
+}
+
+template &lt;class NODE_COMPARATOR&gt;
+inline
+int RbTreeUtil::validateRbTree(const RbTreeNode       *rootNode,
+                               const NODE_COMPARATOR&amp;  comparator)
+{
+    const RbTreeNode *errorNode;
+    const char       *errorDescription;
+    return validateRbTree(&amp;errorNode, &amp;errorDescription, rootNode, comparator);
+}
+
+template &lt;class NODE_COMPARATOR&gt;
+int RbTreeUtil::validateRbTree(const RbTreeNode       **errorNode,
+                               const char             **errorDescription,
+                               const RbTreeNode        *rootNode,
+                               const NODE_COMPARATOR&amp;   comparator)
+{
+    BSLS_ASSERT(errorNode);
+    BSLS_ASSERT(errorDescription);
+
+    return RbTreeUtil_Validator::validateRbTree(errorNode,
+                                                errorDescription,
+                                                rootNode,
+                                                0,
+                                                0,
+                                                comparator);
+}
+
+template &lt;class NODE_COMPARATOR&gt;
+inline
+bool RbTreeUtil::isWellFormed(const RbTreeAnchor&amp;    tree,
+                              const NODE_COMPARATOR&amp; comparator)
+{
+    if (!RbTreeUtil_Validator::isWellFormedAnchor(tree)) {
+        return false;                                                 // RETURN
+    }
+    return 0 &lt;= validateRbTree(tree.rootNode(), comparator);
+}
+
+                      // --------------------------
+                      // class RbTreeUtil_Validator
+                      // --------------------------
+
+// CLASS METHODS
+template &lt;class NODE_COMPARATOR&gt;
+int RbTreeUtil_Validator::validateRbTree(
+                                     const RbTreeNode       **errorNode,
+                                     const char             **errorDescription,
+                                     const RbTreeNode        *rootNode,
+                                     const RbTreeNode        *minNodeValue,
+                                     const RbTreeNode        *maxNodeValue,
+                                     const NODE_COMPARATOR&amp;   comparator)
+{
+    BSLS_ASSERT_SAFE(errorNode);
+    BSLS_ASSERT_SAFE(errorDescription);
+
+    //: 1 All the descendents to the left of each node are are ordered
+    //:   that at or before that node, and all descendents to the right of
+    //:   each node are ordered at or after that node, as determined by
+    //:   &#39;comparator&#39;.
+    //:
+    //: 2 Both children of every node refer to &#39;node&#39; as a parent.
+    //:
+    //: 3 If a node in the tree has no children, it is black.
+    //:
+    //: 4 If a node in the tree is red, its children are either black or 0.
+    //:
+    //: 5 For each node in the tree, every path from that node to a leaf
+    //:   contains the same number of black nodes.
+
+    enum { INVALID_RBTREE = -1};
+
+    // &#39;NIL&#39; nodes are considered black
+
+    if (!rootNode) {
+        return 0;                                                     // RETURN
+    }
+
+    // Rule 1.
+
+    if ((minNodeValue &amp;&amp; comparator(*rootNode, *minNodeValue)) ||
+        (maxNodeValue &amp;&amp; comparator(*maxNodeValue, *rootNode))) {
+        *errorNode        = rootNode;
+        *errorDescription = &quot;Invalid binary search tree.&quot;;
+        return INVALID_RBTREE;                                        // RETURN
+    }
+
+    const RbTreeNode *left  = rootNode-&gt;leftChild();
+    const RbTreeNode *right = rootNode-&gt;rightChild();
+    if ((left != 0 || right != 0) &amp;&amp; left == right) {
+        *errorNode        = rootNode;
+        *errorDescription = &quot;Invalid children&quot;;
+        return INVALID_RBTREE;                                        // RETURN
+    }
+
+    // Rule 2.
+
+    if ((left  &amp;&amp; left-&gt;parent()  != rootNode) ||
+        (right &amp;&amp; right-&gt;parent() != rootNode)) {
+        *errorNode        = rootNode;
+        *errorDescription = &quot;Invalid parent pointers for children&quot;;
+        return INVALID_RBTREE;                                        // RETURN
+    }
+
+    // Rule 4.
+
+    if (RbTreeNode::BSLALG_RED == rootNode-&gt;color()) {
+        if ((left  &amp;&amp; left-&gt;color()  != RbTreeNode::BSLALG_BLACK) ||
+            (right &amp;&amp; right-&gt;color() != RbTreeNode::BSLALG_BLACK)) {
+            *errorNode        = rootNode;
+            *errorDescription = &quot;Red node with a red child.&quot;;
+            return INVALID_RBTREE;                                    // RETURN
+        }
+    }
+
+    int leftDepth  = validateRbTree(errorNode,
+                                    errorDescription,
+                                    rootNode-&gt;leftChild(),
+                                    minNodeValue,
+                                    rootNode,
+                                    comparator);
+    int rightDepth = validateRbTree(errorNode,
+                                    errorDescription,
+                                    rootNode-&gt;rightChild(),
+                                    rootNode,
+                                    maxNodeValue,
+                                    comparator);
+
+    if (leftDepth &lt; 0 || rightDepth &lt; 0) {
+        return INVALID_RBTREE;                                        // RETURN
+    }
+
+    // Rule 5.
+
+    if (leftDepth != rightDepth) {
+        *errorNode        = rootNode;
+        *errorDescription =
+            &quot;Black violation (unequal black depth from node to leaves).&quot;;
+        return INVALID_RBTREE;                                        // RETURN
+    }
+
+    return (rootNode-&gt;color() == RbTreeNode::BSLALG_BLACK)
+          ? leftDepth + 1
+          : leftDepth;
+}
+
+                        // ----------------------------
+                        // struct RbTreeUtilTreeProctor
+                        // ----------------------------
+
+template &lt;class DELETER&gt;
+inline
+RbTreeUtilTreeProctor&lt;DELETER&gt;::RbTreeUtilTreeProctor(RbTreeAnchor *tree,
+                                                      DELETER      *deleter)
+: d_tree_p(tree)
+, d_deleter_p(deleter)
+{
+    BSLS_ASSERT_SAFE(deleter);
+}
+
+template &lt;class DELETER&gt;
+inline
+RbTreeUtilTreeProctor&lt;DELETER&gt;::~RbTreeUtilTreeProctor()
+{
+    if (d_tree_p &amp;&amp; d_tree_p-&gt;rootNode()) {
+        d_tree_p-&gt;rootNode()-&gt;setParent(d_tree_p-&gt;sentinel());
+
+        d_tree_p-&gt;setFirstNode(RbTreeUtil::leftmost(d_tree_p-&gt;rootNode()));
+        RbTreeUtil::deleteTree(d_tree_p, d_deleter_p);
+    }
+}
+
+template &lt;class DELETER&gt;
+inline
+void RbTreeUtilTreeProctor&lt;DELETER&gt;::release()
+{
+    d_tree_p = 0;
+}
+
+}  // close namespace bslalg
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright (C) 2012 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the &quot;Software&quot;), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

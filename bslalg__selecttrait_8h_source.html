@@ -1,0 +1,128 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 2.16 BETA</title>
+<html>
+<pre>
+// bslalg_selecttrait.h                                               -*-C++-*-
+#ifndef INCLUDED_BSLALG_SELECTTRAIT
+#define INCLUDED_BSLALG_SELECTTRAIT
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide facilities for selecting compile-time trait.
+//
+//@CLASSES:
+//  bslalg::SelectTrait: trait detection mechanism
+//
+//@SEE_ALSO: bslmf_typetraits
+//
+//@DESCRIPTION: This component provides a meta-function, &#39;bslalg::SelectTrait&#39;,
+// for selecting the most appropriate trait from a list of candidate traits for
+// parameterized &#39;TYPE&#39;.
+//
+///Usage
+///-----
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include &lt;bslscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLALG_HASTRAIT
+#include &lt;bslalg_hastrait.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLALG_TYPETRAITNIL
+#include &lt;bslalg_typetraitnil.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_METAINT
+#include &lt;bslmf_metaint.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_SWITCH
+#include &lt;bslmf_switch.h&gt;
+#endif
+
+namespace BloombergLP {
+
+namespace bslalg {
+
+                          // =================
+                          // class SelectTrait
+                          // =================
+
+template &lt;typename TYPE,
+          typename TRAIT1,
+          typename TRAIT2 = TypeTraitNil,
+          typename TRAIT3 = TypeTraitNil,
+          typename TRAIT4 = TypeTraitNil,
+          typename TRAIT5 = TypeTraitNil&gt;
+struct SelectTrait {
+    // Select one trait out of several that the parameterized type &#39;T&#39; may
+    // possess.  If &#39;T&#39; has the parameterized trait &#39;TRAIT1&#39;, then the nested
+    // &#39;Type&#39; is &#39;TRAIT1&#39;, else if &#39;T&#39; has an optionally parameterized
+    // &#39;TRAIT2&#39;, then &#39;Type&#39; is &#39;TRAIT2&#39;, etc.  Also computes an integral
+    // selection constant and meta-value.  If &#39;T&#39; has none of the parameterized
+    // &#39;TRAIT*&#39;, then the nested &#39;Type&#39; is &#39;TypeTraitNil&#39;.
+
+    // PUBLIC TYPES
+    enum {
+        SELECTION = (HasTrait&lt;TYPE, TRAIT1&gt;::VALUE ? 1 :
+                     HasTrait&lt;TYPE, TRAIT2&gt;::VALUE ? 2 :
+                     HasTrait&lt;TYPE, TRAIT3&gt;::VALUE ? 3 :
+                     HasTrait&lt;TYPE, TRAIT4&gt;::VALUE ? 4 :
+                     HasTrait&lt;TYPE, TRAIT5&gt;::VALUE ? 5 :
+                     0)
+            // Integral value indicating which trait was selected: 1 for
+            // &#39;TRAIT1&#39;, 2 for &#39;TRAIT2&#39;, etc. and 0 if none were selected.
+    };
+
+    typedef bslmf::MetaInt&lt;SELECTION&gt; MetaSelection;
+        // A meta-value representing the same thing a &#39;SELECTION&#39;, but as a
+        // type instead of as an integer.
+
+    typedef typename bslmf::Switch&lt;SELECTION,
+                                   TypeTraitNil,
+                                   TRAIT1,
+                                   TRAIT2,
+                                   TRAIT3,
+                                   TRAIT4,
+                                   TRAIT5&gt;::Type Type;
+        // The actual trait that was selected, or &#39;TypeTraitNil&#39; if no trait
+        // was selected.
+};
+
+}  // close package namespace
+
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright (C) 2012 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the &quot;Software&quot;), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

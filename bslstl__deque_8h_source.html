@@ -1,0 +1,3064 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 2.16 BETA</title>
+<html>
+<pre>
+// bslstl_deque.h                                                     -*-C++-*-
+#ifndef INCLUDED_BSLSTL_DEQUE
+#define INCLUDED_BSLSTL_DEQUE
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide an STL-compliant deque class.
+//
+//@CLASSES:
+//  bslstl_Deque: standard-compliant &#39;bsl::deque&#39; implementation
+//
+//@SEE_ALSO: bslstl_vector, bsl+stlhdrs
+//
+//@DESCRIPTION: This component is for internal use only.  Please include
+// &#39;&lt;bsl_deque.h&gt;&#39; instead and use &#39;bsl::deque&#39; directly.  This component
+// implements a dynamic double-ended array class that supports the
+// &#39;bslma::Allocator&#39; model and is suitable for use as an implementation of the
+// &#39;bsl::deque&#39; class template.
+//
+///Exceptional Behavior
+///--------------------
+// Since this component is below the BSL STL, we centralize all the exceptional
+// behavior into a &#39;bslstl::StdExceptUtil&#39; class, which has a dual purpose:
+//
+//: o Remove the dependency of this header on the &#39;&lt;exception&gt;&#39; header, so that
+//:   this implementation can offer an exception handler with the native
+//:   exceptions, and so that all the C-strings may be defined in a single
+//:   library (&#39;bsl&#39;) and not in all the translation units including this
+//:   header.
+//:
+//: o Allow installation of exception handlers at a higher level to throw BSL
+//:   STL exceptions (which differ from the native exceptions) and thus
+//:   establish a full standard compliance for this component when used as
+//:   &#39;bsl::deque&#39; in the BSL STL.
+//
+///Usage
+///-----
+// In this section we show intended usage of this component.
+//
+///Example 1: Using a &#39;deque&#39; to Implement a Laundry Queue
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Suppose we want to define a class to maintain a process queue of names of
+// customers who are dropping off their laundry at a drop-off laundry service.
+// We can accomplish this by defining a new class characterizing a
+// laundry-process queue that uses &#39;bsl::deque&#39; in its implementation.
+//
+// The process queue provides two methods, &#39;push&#39; and &#39;expeditedPush&#39;, for
+// inserting names of customers onto the queue.  When calling the &#39;push&#39;
+// method, the customer&#39;s name will be inserted at the end of the queue -- his
+// laundry will be done after the laundry of customers previously on the queue.
+// The &#39;expeditedPush&#39; method is reserved for customers who have bribed the
+// merchant for expedited service.  When calling the &#39;expeditedPush&#39; method,
+// the customer&#39;s name will be inserted onto the front of the queue -- his
+// laundry will be done before customers previously on the queue.
+//
+// When the workers are ready to do some laundry, they call the &#39;next&#39; method
+// of the queue, which returns the name of the customer whose laundry is to be
+// done next.  For brevity of the usage example, we do not show how customers
+// are track while or after their laundry is being done.
+//
+// In addition, the laundry queue also provides the &#39;find&#39; method, which
+// returns a &#39;bool&#39; to indicate whether a given customer is still in the queue.
+//
+// First, we declare a class &#39;LaundryQueue&#39; based on a deque, to store names of
+// customers at a drop-off laundry:
+//..
+//  class LaundryQueue {
+//      // This &#39;class&#39; keeps track of customers enqueued to have their laundry
+//      // done by a laundromat.
+//
+//      // DATA
+//      bsl::deque&lt;bsl::string&gt; d_queue;
+//
+//    public:
+//      // CREATORS
+//      LaundryQueue(bslma::Allocator *basicAllocator = 0);
+//          // Create a &#39;LaundryQueue&#39; object using the specified
+//          // &#39;basicAllocator&#39;.  If &#39;basicAllocator&#39; is not provided, use the
+//          // default allocator.
+//
+//      // MANIPULATORS
+//      void push(const bsl::string&amp; customerName);
+//          // Add the specified &#39;customerName&#39; to the back of the laundry
+//          // queue.
+//
+//      void expeditedPush(const bsl::string&amp; customerName);
+//          // Add the specified &#39;customerName&#39; to the laundry queue at the
+//          // front.
+//
+//      bsl::string next();
+//          // Return the name from the front of the queue, removing it from
+//          // the queue.  If the queue is empty, return &#39;(* empty *)&#39; which is
+//          // not a valid name for a customer.
+//
+//      // ACCESSORS
+//      bool find(const bsl::string&amp; customerName);
+//          // Return &#39;true&#39; if &#39;customerName&#39; is in the queue, and &#39;false&#39;
+//          // otherwise.
+//  };
+//..
+// Then, we define the implementation of the methods of &#39;LaundryQueue&#39;
+//..
+// CREATORS
+//  LaundryQueue::LaundryQueue(bslma::Allocator *basicAllocator)
+//  : d_queue(basicAllocator)
+//  {
+//      // Note that the allocator is propagated to the underlying &#39;deque&#39;,
+//      // which will use the default allocator is &#39;0 == basicAllocator&#39;.
+//  }
+//
+// MANIPULATORS
+//  void LaundryQueue::push(const bsl::string&amp; customerName)
+//  {
+//      d_queue.push_back(customerName);     // note constant time
+//  }
+//
+//  void LaundryQueue::expeditedPush(const bsl::string&amp; customerName)
+//  {
+//      d_queue.push_front(customerName);    // note constant time
+//  }
+//
+//  bsl::string LaundryQueue::next()
+//  {
+//      if (d_queue.empty()) {
+//          return &quot;(* empty *)&quot;;
+//      }
+//
+//      bsl::string ret = d_queue.front();   // note constant time
+//
+//      d_queue.pop_front();                 // note constant time
+//
+//      return ret;
+//  }
+//
+//  // ACCESSORS
+//  bool LaundryQueue::find(const bsl::string&amp; customerName)
+//  {
+//      // Note &#39;d_queue.empty() || d_queue[0] == d_queue.front()&#39;
+//
+//      for (size_t i = 0; i &lt; d_queue.size(); ++i) {
+//          if (customerName == d_queue[i]) {    // note &#39;[]&#39; is constant time
+//              return true;
+//          }
+//      }
+//
+//      return false;
+//  }
+//..
+
+
+// Prevent &#39;bslstl&#39; headers from being included directly in &#39;BSL_OVERRIDES_STD&#39;
+// mode.  Doing so is unsupported, and is likely to cause compilation errors.
+#if defined(BSL_OVERRIDES_STD) &amp;&amp; !defined(BSL_STDHDRS_PROLOGUE_IN_EFFECT)
+#error &quot;include &lt;bsl_deque.h&gt; instead of &lt;bslstl_deque.h&gt; in \
+BSL_OVERRIDES_STD mode&quot;
+#endif
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include &lt;bslscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLSTL_ALLOCATOR
+#include &lt;bslstl_allocator.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLALG_CONTAINERBASE
+#include &lt;bslalg_containerbase.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLSTL_ITERATOR
+#include &lt;bslstl_iterator.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLSTL_RANDOMACCESSITERATOR
+#include &lt;bslstl_randomaccessiterator.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLSTL_STDEXCEPTUTIL
+#include &lt;bslstl_stdexceptutil.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLALG_DEQUEIMPUTIL
+#include &lt;bslalg_dequeimputil.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLALG_DEQUEITERATOR
+#include &lt;bslalg_dequeiterator.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLALG_DEQUEPRIMITIVES
+#include &lt;bslalg_dequeprimitives.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLALG_RANGECOMPARE
+#include &lt;bslalg_rangecompare.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLALG_SCALARDESTRUCTIONPRIMITIVES
+#include &lt;bslalg_scalardestructionprimitives.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLALG_SCALARPRIMITIVES
+#include &lt;bslalg_scalarprimitives.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLALG_TYPETRAITHASSTLITERATORS
+#include &lt;bslalg_typetraithasstliterators.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_ASSERT
+#include &lt;bslmf_assert.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_ISSAME
+#include &lt;bslmf_issame.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_MATCHANYTYPE
+#include &lt;bslmf_matchanytype.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_MATCHARITHMETICTYPE
+#include &lt;bslmf_matcharithmetictype.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_NIL
+#include &lt;bslmf_nil.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include &lt;bsls_assert.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_PERFORMANCEHINT
+#include &lt;bsls_performancehint.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_UTIL
+#include &lt;bsls_util.h&gt;
+#endif
+
+#ifndef INCLUDED_CSTRING
+#include &lt;cstring&gt;
+#define INCLUDED_CSTRING
+#endif
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
+#ifndef INCLUDED_STDEXCEPT
+#include &lt;stdexcept&gt;
+#define INCLUDED_STDEXCEPT
+#endif
+
+#endif
+
+namespace bsl {
+
+template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
+class Deque_BlockCreator;
+template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
+class Deque_ClearGuard;
+template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
+class Deque_Guard;
+
+                  // =====================================
+                  // struct bsl::Deque_BlockLengthCalcUtil
+                  // =====================================
+
+template &lt;class VALUE_TYPE&gt;
+struct Deque_BlockLengthCalcUtil {
+    // This &#39;struct&#39; provides a namespace for the calculation of block length
+    // (the number of elements per block within a &#39;deque&#39;).  This ensures that
+    // each block in the deque can hold at least 16 elements.
+
+    // TYPES
+    enum {
+        DEFAULT_BLOCK_SIZE = 200,  // number of bytes per block
+        BLOCK_LENGTH       = (16 * sizeof(VALUE_TYPE) &gt;= DEFAULT_BLOCK_SIZE)
+                             ? 16
+                             : (DEFAULT_BLOCK_SIZE / sizeof(VALUE_TYPE))
+                                   // number of elements per block
+    };
+};
+
+                          // ======================
+                          // struct bsl::Deque_Util
+                          // ======================
+
+struct Deque_Util {
+    // This &#39;struct&#39; provides a namespace to implement the &#39;swap&#39; member
+    // function of &#39;deque&lt;VALUE_TYPE, ALLOCATOR&gt;&#39;.  This function can be
+    // implemented irrespective of the &#39;VALUE_TYPE&#39; or &#39;ALLOCATOR&#39; template
+    // parameters which is why we implement it in this non-templated,
+    // non-inlined utility.
+
+    // CLASS METHODS
+    static void move(void *dest, void *src);
+        // Assign the value of the specified &#39;dest&#39; deque to that of the
+        // specified &#39;src&#39; deque, and reset the &#39;src&#39; deque to a raw state.
+
+    static void swap(void *a, void *b);
+        // Exchange the value of the specified &#39;lhs&#39; deque with that of the
+        // specified &#39;rhs&#39; deque.
+};
+
+                        // =====================
+                        // class bsl::Deque_Base
+                        // =====================
+
+template &lt;class VALUE_TYPE&gt;
+class Deque_Base {
+    // This class describes the basic layout for a deque class.  It is
+    // important that this class has the same layout as the deque class
+    // implementation.  It is parameterized by &#39;VALUE_TYPE&#39; only and implements
+    // the portion of &#39;bsl::deque&#39; that does not need to know about its
+    // parameterized &#39;ALLOCATOR&#39; (in order to generate shorter debug strings).
+    // Note that this class must have the same layout as &#39;Deque_Imp&#39; (see
+    // implementation file).
+
+    // PRIVATE TYPES
+    enum {
+        BLOCK_LENGTH = Deque_BlockLengthCalcUtil&lt;VALUE_TYPE&gt;::BLOCK_LENGTH
+    };
+
+    typedef BloombergLP::bslalg::DequeImpUtil&lt;VALUE_TYPE,
+                                              BLOCK_LENGTH&gt;      Imp;
+    typedef typename Imp::Block                                  Block;
+    typedef typename Imp::BlockPtr                               BlockPtr;
+    typedef BloombergLP::bslalg::DequeIterator&lt;VALUE_TYPE,
+                                               BLOCK_LENGTH&gt;     IteratorImp;
+    typedef BloombergLP::
+            bslstl::RandomAccessIterator&lt;VALUE_TYPE, IteratorImp&gt;
+                                                                 Iterator;
+
+    typedef BloombergLP::
+            bslstl::RandomAccessIterator&lt;const VALUE_TYPE, IteratorImp&gt;
+                                                                 ConstIterator;
+
+  public:
+    // PUBLIC TYPES
+    typedef VALUE_TYPE&amp;                             reference;
+    typedef const VALUE_TYPE &amp;                      const_reference;
+    typedef Iterator                                iterator;
+    typedef ConstIterator                           const_iterator;
+    typedef std::size_t                             size_type;
+    typedef std::ptrdiff_t                          difference_type;
+    typedef VALUE_TYPE                              value_type;
+
+    // Even though we&#39;re in bslstl namespace, removing &#39;bsl::&#39; seems to confuse
+    // the compiler.
+
+    typedef bsl::reverse_iterator&lt;Iterator&gt;      reverse_iterator;
+    typedef bsl::reverse_iterator&lt;ConstIterator&gt; const_reverse_iterator;
+
+  protected:
+    // DATA
+    BlockPtr    *d_blocks;       // array of pointer to blocks (owned)
+    std::size_t  d_blocksLength; // length of d_blocks array
+    IteratorImp  d_start;        // iterator to first element
+    IteratorImp  d_finish;       // iterator to one past last element
+
+  public:
+    // MANIPULATORS
+
+    // *** iterators: ***
+
+    iterator begin();
+        // Return an iterator pointing the first element in this modifiable
+        // deque (or the past-the-end iterator if this deque is empty).
+
+    iterator end();
+        // Return the past-the-end iterator for this modifiable deque.
+
+    reverse_iterator rbegin();
+        // Return a reverse iterator pointing the last element in this
+        // modifiable deque (or the past-the-end reverse iterator if this deque
+        // is empty).
+
+    reverse_iterator rend();
+        // Return the past-the-end reverse iterator for this modifiable deque.
+
+    // *** element access: ***
+
+    reference operator[](size_type position);
+        // Return a reference to the modifiable element at the specified
+        // &#39;position&#39; in this deque.  The behavior is undefined unless
+        // &#39;0 &lt;= position &lt; size()&#39;.
+
+    reference at(size_type position);
+        // Return a reference to the modifiable element at the specified
+        // &#39;position&#39;.  Call &#39;StdExceptUtil::throwOutOfRange&#39; if
+        // &#39;position &gt;= size()&#39;.
+
+    reference front();
+        // Return a reference to the modifiable character at the first position
+        // in this deque.  The behavior is undefined if this deque is empty.
+
+    reference back();
+        // Return a reference to the modifiable character at the last position
+        // in this deque.  The behavior is undefined if this deque is empty.
+        // Note that the last position is &#39;size() - 1&#39;.
+
+    // ACCESSORS
+
+    // *** iterators: ***
+
+    const_iterator begin() const;
+    const_iterator cbegin() const;
+        // Return an iterator pointing to the first element in this
+        // non-modifiable deque (or the past-the-end iterator if this deque is
+        // empty).
+
+    const_iterator end() const;
+    const_iterator cend() const;
+        // Return the past-the-end iterator for this non-modifiable deque.
+
+    const_reverse_iterator rbegin() const;
+    const_reverse_iterator crbegin() const;
+        // Return a reverse iterator pointing the last element in this
+        // non-modifiable deque (or the past-the-end reverse iterator if this
+        // deque is empty).
+
+    const_reverse_iterator rend() const;
+    const_reverse_iterator crend() const;
+        // Return the past-the-end reverse iterator for this non-modifiable
+        // deque.
+
+    // *** 23.2.1.2 capacity: ***
+
+    size_type size() const;
+        // Return the length of this deque.
+
+    size_type capacity() const;
+        // Return the sum of the current size plus the minimum number of
+        // &#39;push_front&#39; or &#39;push_back&#39; operations needed to invalidate
+        // iterators in this deque.
+
+    bool empty() const;
+        // Return &#39;true&#39; if this deque has length 0, and &#39;false&#39; otherwise.
+
+    // *** element access: ***
+
+    const_reference operator[](size_type position) const;
+        // Return a reference to the non-modifiable element at the specified
+        // &#39;position&#39; in this deque.  The behavior is undefined unless
+        // &#39;0 &lt;= position &lt; size()&#39;.
+
+    const_reference at(size_type position) const;
+        // Return a reference to the non-modifiable element at the specified
+        // &#39;position&#39;.  Call &#39;bslstl::StdExceptUtil::throwOutOfRange&#39; if
+        // &#39;position &gt;= size()&#39;.
+
+    const_reference front() const;
+        // Return a reference to the non-modifiable character at the first
+        // position in this deque.  The behavior is undefined if this deque is
+        // empty.
+
+    const_reference back() const;
+        // Return a reference to the non-modifiable character at the last
+        // position in this deque.  The behavior is undefined if this deque is
+        // empty.  Note that the last position is &#39;size() - 1&#39;.
+};
+
+                        // ================
+                        // class bsl::Deque
+                        // ================
+
+template &lt;class VALUE_TYPE, class ALLOCATOR = allocator&lt;VALUE_TYPE&gt; &gt;
+class deque : public  Deque_Base&lt;VALUE_TYPE&gt;
+            , private BloombergLP::bslalg::ContainerBase&lt;ALLOCATOR&gt; {
+    // This class template provides an STL-compliant &#39;deque&#39; that conforms to
+    // the &#39;bslma::Allocator&#39; model.  For the requirements of a deque class,
+    // consult the second revision of the ISO/IEC 14882 Programming Language
+    // C++ (Working Paper, 2009).  In particular, this implementation offers
+    // the general rules that:
+    //..
+    //   (1) any method that would result in a deque of length larger than
+    //       the size returned by &#39;max_size&#39; calls
+    //       &#39;bslstl::StdExceptUtil::throwLengthError&#39;, and
+    //   (2) a call to the &#39;at&#39; method that attempts to access a position
+    //       outside the valid range of a deque triggers a call to
+    //       &#39;bslstl::StdExceptUtil::throwOutOfRange&#39;.
+    //..
+    // Note that portions of the standard methods are implemented in
+    // &#39;Deque_Base&#39;, which is parameterized only &#39;VALUE_TYPE&#39;, in order to
+    // generate smaller debug strings.
+    //
+    // More generally, this class supports an almost complete set of *in-core*
+    // *value* *semantic* operations, including copy construction, assignment,
+    // equality comparison (but excluding &#39;ostream&#39; printing since this is
+    // component is below STL).  A precise operational definition of when two
+    // objects have the same value can be found in the description of
+    // &#39;operator==&#39; for the class.  This class is *exception* *neutral* with no
+    // guarantee of rollback: if an exception is thrown during the invocation
+    // of a method on a pre-existing object, the object is left in a valid
+    // state, but its value is undefined.  In addition, the following members
+    // offer a full guarantee of rollback: if an exception is thrown during the
+    // invocation of &#39;insert&#39;, &#39;push_front&#39; or &#39;push_back&#39; on a pre-existing
+    // object, the object is left in a valid state and its value is unchanged.
+    // In no event is memory leaked.  Finally, *aliasing* (e.g., using all or
+    // part of an object as both source and destination) is *not* supported.
+
+    // PRIVATE TYPES
+    enum {
+        BLOCK_LENGTH = Deque_BlockLengthCalcUtil&lt;VALUE_TYPE&gt;::BLOCK_LENGTH
+    };
+
+    typedef Deque_Base&lt;VALUE_TYPE&gt;                             Base;
+
+    typedef BloombergLP::bslalg::ContainerBase&lt;ALLOCATOR&gt;      ContainerBase;
+
+    typedef BloombergLP::bslalg::DequeImpUtil&lt;VALUE_TYPE,
+                                             BLOCK_LENGTH&gt;     Imp;
+    typedef typename Imp::Block                                Block;
+    typedef typename Imp::BlockPtr                             BlockPtr;
+
+    typedef BloombergLP::bslalg::DequeIterator&lt;VALUE_TYPE,
+                                              BLOCK_LENGTH&gt;    IteratorImp;
+
+    typedef BloombergLP::
+            bslstl::RandomAccessIterator&lt;VALUE_TYPE,
+                                        IteratorImp&gt;           Iterator;
+
+    typedef BloombergLP::
+            bslstl::RandomAccessIterator&lt;const VALUE_TYPE,
+                                        IteratorImp&gt;           ConstIterator;
+
+    typedef Deque_BlockCreator&lt;VALUE_TYPE, ALLOCATOR&gt;          BlockCreator;
+    typedef Deque_ClearGuard&lt;VALUE_TYPE, ALLOCATOR&gt;            ClearGuard;
+    typedef Deque_Guard&lt;VALUE_TYPE, ALLOCATOR&gt;                 Guard;
+
+    typedef BloombergLP::bslalg::DequePrimitives&lt;VALUE_TYPE,
+                                                BLOCK_LENGTH&gt;  DequePrimitives;
+
+    enum RawInit { RAW_INIT  = 0 };
+        // Special type (and value) used to create a &quot;raw&quot; deque, which has 0
+        // block length, and null start and finish pointers.
+
+  public:
+    // PUBLIC TYPES
+    typedef typename ALLOCATOR::reference           reference;
+    typedef typename ALLOCATOR::const_reference     const_reference;
+    typedef Iterator                                iterator;
+    typedef ConstIterator                           const_iterator;
+    typedef std::size_t                             size_type;
+    typedef std::ptrdiff_t                          difference_type;
+    typedef VALUE_TYPE                              value_type;
+    typedef ALLOCATOR                               allocator_type;
+    typedef typename ALLOCATOR::pointer             pointer;
+    typedef typename ALLOCATOR::const_pointer       const_pointer;
+
+    // Even though we&#39;re in bslstl namespace, removing &#39;bsl::&#39; seems to confuse
+    // the compiler.
+
+    typedef bsl::reverse_iterator&lt;Iterator&gt;      reverse_iterator;
+    typedef bsl::reverse_iterator&lt;ConstIterator&gt; const_reverse_iterator;
+
+  private:
+    // ASSERTIONS
+
+    BSLMF_ASSERT((is_same&lt;reference, typename Base::reference&gt;::VALUE));
+    BSLMF_ASSERT((is_same&lt;const_reference,
+                  typename Base::const_reference&gt;::VALUE));
+        // This need not necessarily be true as per the C++ standard, but is a
+        // safe assumption for this implementation and allows to implement the
+        // element access within the &#39;Base&#39; type (that is parameterized by
+        // &#39;VALUE_TYPE&#39; only).
+
+    // PRIVATE CREATORS
+    deque(RawInit, const allocator_type&amp; alloc);
+        // Constructs a &quot;raw&quot; deque.  This deque obeys the raw deque invariants
+        // and is destructible.  Postcondition: &#39;d_blocks == 0&#39;
+        // &#39;d_blocksLength == 0&#39;, &#39;d_start&#39; and &#39;d_finish&#39; are singular
+        // iterators (have null internal pointers).  The constructed deque
+        // contains no allocated storage.  The purpose of a raw deque is to
+        // provide an exception-safe repository for intermediate calculations.
+
+    // PRIVATE MANIPULATORS
+    template &lt;class INPUT_ITER&gt;
+    size_type privateAppend(INPUT_ITER                     first,
+                            INPUT_ITER                     last,
+                            std::input_iterator_tag);
+    template &lt;class INPUT_ITER&gt;
+    size_type privateAppend(INPUT_ITER                     first,
+                            INPUT_ITER                     last,
+                            std::random_access_iterator_tag);
+        // Append the elements in the range specified as &#39;[first, last)&#39; to
+        // this deque, and return the number of elements appended.  The third
+        // argument is used for overload resolution.
+
+    void privateAppendRaw(size_type numElements, const VALUE_TYPE&amp; value);
+        // Append the specified &#39;numElements&#39; copies of the specified &#39;value&#39;
+        // to this deque.
+
+    void privateInit(size_type numElements);
+        // Initialize &#39;d_start&#39; and &#39;d_finish&#39; for eventual insertion of the
+        // specified &#39;numElements&#39; elements.  After this call, &#39;*this&#39; object
+        // is fully constructed with memory allocated for &#39;numElements&#39; and
+        // with all member variables obeying the class invariants, and the
+        // deque has length zero.  The behavior is undefined unless &#39;*this&#39;
+        // /object is in a &quot;raw&quot; state before this call.  Note that this
+        // function will throw if the allocator throws.  It must never be
+        // called while constructing the &#39;*this&#39; object (although a constructor
+        // may call it for a temporary object).
+
+    template &lt;class INTEGER_TYPE&gt;
+    void privateInsertDispatch(
+                           const_iterator                          position,
+                           INTEGER_TYPE                            numElements,
+                           INTEGER_TYPE                            value,
+                           BloombergLP::bslmf::MatchArithmeticType ,
+                           BloombergLP::bslmf::Nil                 );
+        // Insert the specified &#39;numElements&#39; copies of the specified &#39;value&#39;
+        // into this deque at the specified &#39;position&#39;.  This overload matches
+        // &#39;privateInsert&#39; when the second and third arguments are of the same
+        // type which happens to be an integral type.  The fourth and fifth
+        // arguments are used only for overload resolution.
+
+    template &lt;class INPUT_ITER&gt;
+    void privateInsertDispatch(const_iterator                   position,
+                               INPUT_ITER                       first,
+                               INPUT_ITER                       last,
+                               BloombergLP::bslmf::MatchAnyType ,
+                               BloombergLP::bslmf::MatchAnyType );
+        // Insert the elements in the range specified as &#39;[first, last)&#39; into
+        // this deque at the specified &#39;position&#39;.  The third and fourth
+        // arguments are used only for overload resolution so that this
+        // function is not called if &#39;first&#39; and &#39;last&#39; are of integral type.
+
+    template &lt;class INPUT_ITER&gt;
+    void privateInsert(const_iterator            position,
+                       INPUT_ITER                first,
+                       INPUT_ITER                last,
+                       std::input_iterator_tag);
+        // Specialized insertion for input iterators.
+
+    template &lt;class INPUT_ITER&gt;
+    void privateInsert(const_iterator                 position,
+                       INPUT_ITER                     first,
+                       INPUT_ITER                     last,
+                       std::random_access_iterator_tag);
+        // Specialized insertion for forward, bidirectional, and random-access
+        // iterators.
+
+    void privateJoinPrepend(deque *other);
+        // Join &#39;*this&#39; and the specified &#39;other&#39; deque into one.  After the
+        // join, &#39;*this&#39; contains the concatenated sequence, in order, of
+        // &#39;*other&#39; and &#39;*this&#39; elements, and &#39;other becomes a raw deque.
+
+    void privateJoinAppend(deque *other);
+        // Join &#39;*this&#39; and the specified &#39;other&#39; deque into one.  After the
+        // join, &#39;*this&#39; contains the concatenated sequence, in order, of
+        // &#39;*this&#39; and &#39;*other&#39; elements, and &#39;other becomes a raw deque.
+
+    template &lt;class INPUT_ITER&gt;
+    size_type privatePrepend(INPUT_ITER                        first,
+                             INPUT_ITER                        last,
+                             std::input_iterator_tag);
+    template &lt;class INPUT_ITER&gt;
+    size_type privatePrepend(INPUT_ITER                        first,
+                             INPUT_ITER                        last,
+                             std::bidirectional_iterator_tag);
+    template &lt;class INPUT_ITER&gt;
+    size_type privatePrepend(INPUT_ITER                        first,
+                             INPUT_ITER                        last,
+                             std::random_access_iterator_tag);
+        // Prepend the elements in the range specified as &#39;[first, last)&#39; to
+        // this deque, and return the number of elements appended.  The third
+        // argument is used only for overload resolution.
+
+    void privatePrependRaw(size_type numElements, const VALUE_TYPE&amp; value);
+        // Prepend the specified &#39;numElements&#39; copies of the specified &#39;value&#39;
+        // to this deque.
+
+    void privateSplit(deque *other, IteratorImp pos);
+        // Split this deque in two.  After the split, &#39;*this&#39; contains elements
+        // formerly in the range &#39;[d_start, pos)&#39; and the specified &#39;other&#39;
+        // contains elements formerly in the range &#39;[pos, d_finish)&#39;.  The
+        // behavior is undefined unless &#39;other&#39; is a raw deque, i.e., the
+        // &#39;RawInit&#39; constructor is used to create &#39;other&#39;.
+
+    // FRIENDS
+    template &lt;class VALUE_TYPE2, class ALLOCATOR2&gt;
+    friend class Deque_BlockCreator;
+
+    template &lt;class VALUE_TYPE2, class ALLOCATOR2&gt;
+    friend class Deque_Guard;
+
+  public:
+    // CREATORS
+
+    // *** 23.2.1.1 construct/copy/destroy: ***
+
+    explicit
+    deque(const ALLOCATOR&amp; allocator = ALLOCATOR());
+        // Create an empty deque.  Optionally specified an &#39;allocator&#39; used to
+        // supply memory.  If &#39;allocator&#39; is not specified, a
+        // default-constructed allocator is used.
+
+    explicit
+    deque(size_type         numElements,
+          const ALLOCATOR&amp;  allocator = ALLOCATOR());
+        // Create a deque of the specified &#39;numElements&#39; length whose every
+        // element is default-constructed.  Optionally specify an &#39;allocator&#39;
+        // used to supply memory.  If &#39;allocator&#39; is not specified, a
+        // default-constructed allocator is used.  Throw &#39;bsl::length_error&#39; if
+        // &#39;numElements &gt; max_size()&#39;.
+
+    deque(size_type         numElements,
+          const VALUE_TYPE&amp; value,
+          const ALLOCATOR&amp;  allocator = ALLOCATOR());
+        // Create a deque of the specified &#39;numElements&#39; length whose every
+        // element equals the specified &#39;value&#39;.  Optionally specify an
+        // &#39;allocator&#39; used to supply memory.  If &#39;allocator&#39; is not specified,
+        // a default-constructed allocator is used.  Throw &#39;bsl::length_error&#39;
+        // if &#39;numElements &gt; max_size()&#39;.
+
+    template &lt;class INPUT_ITER&gt;
+    deque(INPUT_ITER       first,
+          INPUT_ITER       last,
+          const ALLOCATOR&amp; allocator = ALLOCATOR());
+        // Create a deque initially containing copies of the values in the
+        // range starting at the specified &#39;first&#39; and ending immediately
+        // before the specified &#39;last&#39; iterators of the parameterized
+        // &#39;INPUT_ITER&#39; type.  Optionally specify an &#39;allocator&#39; used to supply
+        // memory.  If &#39;allocator&#39; is not specified, a default-constructed
+        // allocator is used.  Throw &#39;bsl::length_error&#39; if the number of
+        // elements in &#39;[ first, last )&#39; exceeds the size returned by
+        // &#39;max_size&#39;.
+
+    deque(const deque&amp;     original);
+    deque(const deque&amp;     original,
+          const ALLOCATOR&amp; allocator);
+        // Create a deque that has the same value as the specified &#39;original&#39;
+        // deque.  Optionally specify an &#39;allocator&#39; used to supply memory.  If
+        // &#39;allocator&#39; is not specified, then if &#39;ALLOCATOR&#39; is convertible
+        // from &#39;bslma::Allocator *&#39;, the currently installed default allocator
+        // is used, otherwise the &#39;original&#39; allocator is used (as mandated per
+        // the ISO standard).
+
+    ~deque();
+        // Destroy this deque object.
+
+    // MANIPULATORS
+    deque&amp; operator=(const deque&amp; rhs);
+        // Assign to this deque the value of the specified &#39;rhs&#39; deque.
+
+    template &lt;class INPUT_ITER&gt;
+    void assign(INPUT_ITER first, INPUT_ITER last);
+        // Assign to this deque the values in the range starting at the
+        // specified &#39;first&#39; and ending immediately before the specified &#39;last&#39;
+        // iterators of the parameterized &#39;INPUT_ITER&#39; type.  Note that this
+        // method offers full guarantee of rollback in case an exception is
+        // thrown other than by the &#39;VALUE_TYPE&#39; copy constructor or assignment
+        // operator.
+
+    void assign(size_type numElements, const VALUE_TYPE&amp; value);
+        // Assign to this deque the value of the string of the specified
+        // &#39;numElements&#39; length whose every elements equal the specified
+        // &#39;value&#39;.  Note that this method offers full guarantee of rollback in
+        // case an exception is thrown other than by the &#39;VALUE_TYPE&#39; copy
+        // constructor or assignment operator.
+
+    // *** 23.2.1.2 capacity: ***
+
+    void reserve(size_type numElements);
+        // Change the capacity of this deque such that existing iterators
+        // remain valid, provided that no more than the specified &#39;numElements&#39;
+        // objects are pushed to the front or back of the deque after this
+        // call.  If &#39;numElements &lt; capacity()&#39;, this method has no effect.
+        // Note that inserting to the deque may still incur memory allocations.
+        // Also note that this method is not part of the C++ standard.
+
+    void resize(size_type newLength);
+    void resize(size_type newLength, VALUE_TYPE value);
+        // Change the length of this deque to the specified &#39;newLength&#39;,
+        // erasing characters at the end if &#39;newLength &lt; size()&#39; or appending
+        // the appropriate number of copies of the optionally specified &#39;value&#39;
+        // at the end if &#39;length() &lt; newLength&#39;.  If &#39;value&#39; is not specified,
+        // a default-constructed &#39;VALUE_TYPE&#39; value is used.  Throw
+        // &#39;bsl::length_error&#39; if &#39;newLength &gt; max_size()&#39;.
+
+    // *** 23.2.1.3 modifiers: ***
+
+    void push_front(const VALUE_TYPE&amp; value);
+        // Append a copy of the specified &#39;value&#39; at the end of this deque.  If
+        // &#39;value&#39; has move semantics, then its value is valid but unspecified
+        // upon returning from this function.  Note that this method offers
+        // full guarantee of rollback in case an exception is thrown other than
+        // by the &#39;VALUE_TYPE&#39; copy constructor or assignment operator.
+
+    void push_back(const VALUE_TYPE&amp; value);
+        // Prepend a copy of the specified &#39;value&#39; before the beginning of this
+        // deque.  If &#39;value&#39; has move semantics, then its value is valid but
+        // unspecified upon returning from this function.  Note that this
+        // method offers full guarantee of rollback in case an exception is
+        // thrown other than by the &#39;VALUE_TYPE&#39; copy constructor or assignment
+        // operator.
+
+    void pop_front();
+        // Erase the first element from this deque.  The behavior is undefined
+        // if this deque is empty.
+
+    void pop_back();
+        // Erase the last element from this deque.  The behavior is undefined
+        // if this deque is empty.
+
+    iterator insert(const_iterator position, const VALUE_TYPE&amp; value);
+        // Insert at the specified &#39;position&#39; in this deque a copy of the
+        // specified &#39;value&#39;, and return an iterator pointing to the newly
+        // inserted element.  If &#39;value&#39; has move semantics, then its value is
+        // valid but unspecified upon returning from this function.  The
+        // behavior is undefined unless &#39;position&#39; is an iterator in the range
+        // &#39;[ begin(), end() ]&#39;.  Note that this method offers full guarantee
+        // of rollback in case an exception is thrown other than by the
+        // &#39;VALUE_TYPE&#39; copy constructor or assignment operator.
+
+    void insert(const_iterator    position,
+                size_type         numElements,
+                const VALUE_TYPE&amp; value);
+        // Insert at the specified &#39;position&#39; in this deque the specified
+        // &#39;numElements&#39; copies of the specified &#39;value&#39;.  The behavior is
+        // undefined unless &#39;position&#39; is an iterator in the range
+        // &#39;[ begin(), end() ]&#39;.  Note that this method offers full guarantee
+        // of rollback in case an exception is thrown other than by the
+        // &#39;VALUE_TYPE&#39; copy constructor or assignment operator.
+
+    template &lt;class INPUT_ITER&gt;
+    void insert(const_iterator position, INPUT_ITER first, INPUT_ITER last);
+        // Insert at the specified &#39;position&#39; in this deque the values in the
+        // range starting at the specified &#39;first&#39; and ending immediately
+        // before the specified &#39;last&#39; iterators of the parameterized
+        // &#39;INPUT_ITER&#39; type.  The behavior is undefined unless &#39;position&#39; is
+        // an iterator in the range &#39;[ begin(), end() ]&#39;.  Note that this
+        // method offers full guarantee of rollback in case an exception is
+        // thrown other than by the &#39;VALUE_TYPE&#39; copy constructor or assignment
+        // operator.
+
+    iterator erase(const_iterator position);
+        // Remove from this deque the element at the specified &#39;position&#39;, and
+        // return an iterator pointing to the element immediately following the
+        // removed element, or the position returned by the method &#39;end&#39; if the
+        // removed element was the last in the sequence.  The behavior is
+        // undefined unless &#39;position&#39; is an iterator in the range
+        // &#39;[ begin(), end() )&#39;.
+
+    iterator erase(const_iterator first, const_iterator last);
+        // Remove from this deque the sequence of elements starting at the
+        // specified &#39;first&#39; position and ending before the specified &#39;last&#39;
+        // position, and return an iterator pointing to the element immediately
+        // following the last removed element, or the position returned by the
+        // method &#39;end&#39; if the removed elements were last in the sequence.  The
+        // behavior is undefined unless &#39;first&#39; is an iterator in the range
+        // &#39;[ begin(), end() ]&#39; and &#39;last&#39; is an iterator in the range
+        // &#39;[ first, end() ]&#39;.
+
+    void swap(deque&lt;VALUE_TYPE,ALLOCATOR&gt;&amp; other);
+        // Exchange the value of this deque with that of the specified &#39;rhs&#39;
+        // deque, such that each deque has upon return the value of the other
+        // deque prior to this call.  Note that this method does not throw or
+        // invalidate iterators if the method &#39;get_allocator&#39; invoked on this
+        // object and &#39;rhs&#39; returns the same value.
+
+    void clear();
+        // Remove all the elements from this deque.  Note that this deque is
+        // empty after this call, but conserves the same capacity.
+
+    // ACCESSORS
+
+    // *** 23.2.1.1 construct/copy/destroy: ***
+
+    allocator_type get_allocator() const;
+        // Return the allocator used by this deque to supply memory.
+
+    size_type max_size() const;
+        // Return the maximum possible length of this deque.  This is largely a
+        // theoretical maximum (such as the maximum size that can be held by
+        // &#39;size_type&#39;).  Note that requests to create a deque longer than this
+        // number of elements are guaranteed to raise a &#39;bsl::length_error&#39;
+        // exception.
+};
+
+}  // namespace bsl
+
+// ============================================================================
+//                                TYPE TRAITS
+// ============================================================================
+
+// Type traits for STL *sequence* containers:
+//: o A sequence container defines STL iterators.
+//: o A sequence container is bitwise moveable if the allocator is bitwise
+//:     moveable.
+//: o A sequence container uses &#39;bslma&#39; allocators if the parameterized
+//:     &#39;ALLOCATOR&#39; is convertible from &#39;bslma::Allocator*&#39;.
+
+namespace BloombergLP {
+namespace bslalg {
+
+template &lt;typename VALUE_TYPE, typename ALLOCATOR&gt;
+struct HasStlIterators&lt;bsl::deque&lt;VALUE_TYPE, ALLOCATOR&gt; &gt; : bsl::true_type
+{};
+
+}
+
+namespace bslmf {
+
+template &lt;typename VALUE_TYPE, typename ALLOCATOR&gt;
+struct IsBitwiseMoveable&lt;bsl::deque&lt;VALUE_TYPE, ALLOCATOR&gt; &gt;
+    : IsBitwiseMoveable&lt;ALLOCATOR&gt;
+{};
+
+}
+
+namespace bslma {
+
+template &lt;typename VALUE_TYPE, typename ALLOCATOR&gt;
+struct UsesBslmaAllocator&lt;bsl::deque&lt;VALUE_TYPE, ALLOCATOR&gt; &gt;
+    : bsl::is_convertible&lt;Allocator*, ALLOCATOR&gt;
+{};
+
+}
+}  // namespace BloombergLP
+
+namespace bsl {
+
+// FREE OPERATORS
+template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
+bool operator==(const deque&lt;VALUE_TYPE,ALLOCATOR&gt;&amp; lhs,
+                const deque&lt;VALUE_TYPE,ALLOCATOR&gt;&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; deque has the same value as the
+    // specified &#39;rhs&#39; deque.  Two deques have the same value if they have the
+    // same number of elements and the same element value at each index
+    // position in the range 0 to &#39;size() - 1&#39;.  This operator may only be used
+    // when the class &#39;VALUE_TYPE&#39; defines the operator:
+    //..
+    //  bool operator==(const VALUE_TYPE&amp; lhs, const VALUE_TYPE&amp; rhs);
+    //..
+
+template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
+inline
+bool operator!=(const deque&lt;VALUE_TYPE,ALLOCATOR&gt;&amp; lhs,
+                const deque&lt;VALUE_TYPE,ALLOCATOR&gt;&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; deque does not have the same value
+    // as the specified &#39;rhs&#39; deque.  Two deques do not have the same value if
+    // they have different numbers of elements or different element values in
+    // at least one index position in the range 0 to &#39;size() - 1&#39;.  This
+    // operator may only be used when the class &#39;VALUE_TYPE&#39; defines the
+    // operator:
+    //..
+    //  bool operator==(const VALUE_TYPE&amp; lhs, const VALUE_TYPE&amp; rhs);
+    //..
+    // Note that this operator returns &#39;!(lhs == rhs)&#39;.
+
+template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
+inline
+bool operator&lt; (const deque&lt;VALUE_TYPE,ALLOCATOR&gt;&amp; lhs,
+                const deque&lt;VALUE_TYPE,ALLOCATOR&gt;&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; deque is lexicographically smaller
+    // than the specified &#39;rhs&#39; deque, and &#39;false&#39; otherwise.  A deque &#39;lhs&#39; is
+    // lexicographically smaller than another deque &#39;rhs&#39; if there exists an
+    // index &#39;i&#39; between 0 and the minimum of &#39;lhs.size()&#39; and &#39;rhs.size()&#39;
+    // such that &#39;lhs[i] == rhs[j]&#39; for every &#39;0 &lt;= j &lt; i&#39;, &#39;i &lt; rhs.size()&#39;,
+    // and either &#39;i == lhs.size()&#39; or &#39;lhs[i] &lt; rhs[i]&#39;.  This operator may
+    // only be used when the class &#39;VALUE_TYPE&#39; defines the operator:
+    //..
+    //  bool operator&lt;(const VALUE_TYPE&amp; lhs, const VALUE_TYPE&amp; rhs);
+    //..
+
+template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
+inline
+bool operator&gt; (const deque&lt;VALUE_TYPE,ALLOCATOR&gt;&amp; lhs,
+                const deque&lt;VALUE_TYPE,ALLOCATOR&gt;&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; deque is lexicographically larger
+    // than the specified &#39;rhs&#39; deque, and &#39;false&#39; otherwise.  This operator
+    // may only be used when the class &#39;VALUE_TYPE&#39; defines the operator:
+    //..
+    //  bool operator&lt;(const VALUE_TYPE&amp; lhs, const VALUE_TYPE&amp; rhs);
+    //..
+    // Note that this operator returns &#39;rhs &lt; lhs&#39;.
+
+template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
+inline
+bool operator&lt;=(const deque&lt;VALUE_TYPE,ALLOCATOR&gt;&amp; lhs,
+                const deque&lt;VALUE_TYPE,ALLOCATOR&gt;&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; deque is lexicographically larger
+    // than or equal to the specified &#39;rhs&#39; deque, and &#39;false&#39; otherwise.  This
+    // operator may only be used when the class &#39;VALUE_TYPE&#39; defines the
+    // operator:
+    //..
+    //  bool operator&lt;(const VALUE_TYPE&amp; lhs, const VALUE_TYPE&amp; rhs);
+    //..
+    // Note that this operator returns &#39;!(rhs &lt; lhs)&#39;.
+
+template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
+inline
+bool operator&gt;=(const deque&lt;VALUE_TYPE,ALLOCATOR&gt;&amp; lhs,
+                const deque&lt;VALUE_TYPE,ALLOCATOR&gt;&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; deque is lexicographically larger
+    // than the specified &#39;rhs&#39; deque, and &#39;false&#39; otherwise.  This operator
+    // may only be used when the class &#39;VALUE_TYPE&#39; defines the operator:
+    //..
+    //  bool operator&lt;(const VALUE_TYPE&amp; lhs, const VALUE_TYPE&amp; rhs);
+    //..
+    // Note that this operator returns &#39;!(lhs &lt; rhs)&#39;.
+
+template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
+inline
+void swap(deque&lt;VALUE_TYPE, ALLOCATOR&gt;&amp; lhs,
+          deque&lt;VALUE_TYPE, ALLOCATOR&gt;&amp; rhs);
+    // Exchange the value of the specified &#39;lhs&#39; and &#39;rhs&#39; deque, such that
+    // each deque has upon return the value of the other deque prior to this
+    // call.  Note that this method does not throw or invalidate iterators if
+    // &#39;lhs.get_allocator()&#39; and &#39;rhs.get_allocator()&#39; have the same value.
+
+                      // =============================
+                      // class bsl::Deque_BlockCreator
+                      // =============================
+
+template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
+class Deque_BlockCreator {
+    // Allocates blocks at the beginning or end of a deque and tentatively adds
+    // them to the deque.  Keeps track of how many of the newly allocated
+    // blocks have actually been used by the deque.  Destructor automatically
+    // frees any unused blocks (e.g., in case an exception is thrown).
+
+    // PRIVATE TYPES
+    enum {
+        BLOCK_LENGTH = Deque_BlockLengthCalcUtil&lt;VALUE_TYPE&gt;::BLOCK_LENGTH
+    };
+
+    typedef BloombergLP::bslalg::DequeImpUtil&lt;VALUE_TYPE,
+                                             BLOCK_LENGTH&gt;       Imp;
+    typedef typename Imp::Block                                  Block;
+    typedef typename Imp::BlockPtr                               BlockPtr;
+    typedef std::size_t                                          size_type;
+
+    // DATA
+    deque&lt;VALUE_TYPE, ALLOCATOR&gt; *d_deque_p;
+    BlockPtr                     *d_boundary;
+
+  public:
+    // CREATORS
+    explicit
+    Deque_BlockCreator(deque&lt;VALUE_TYPE, ALLOCATOR&gt; *deque);
+        // Construct a block allocator for the specified &#39;deque&#39;.
+
+    ~Deque_BlockCreator();
+        // Free any blocks that have been allocated by this allocator but have
+        // not yet been used by the deque.
+
+    // MANIPULATORS
+    void insertAtFront(size_type n);
+        // Allocate the specified &#39;n&#39; blocks at the front of the block array.
+        // Note that this method invalidates all iterators except
+        // &#39;d_deque_p-&gt;d_start&#39; and &#39;d_deque_p-&gt;d_finish&#39;.
+
+    void insertAtBack(size_type n);
+        // Allocate the specified &#39;n&#39; blocks at the back of the block array.
+        // Note that this method invalidates all iterators except
+        // &#39;d_deque_p-&gt;d_start&#39; and &#39;d_deque_p-&gt;d_finish&#39;.
+
+    BlockPtr *reserveBlockSlots(size_type numNewBlocks, bool atFront);
+        // Make room for the specified &#39;numNewBlocks&#39; pointers in the blocks
+        // array.  If the specified &#39;atFront&#39; is true, then make room at the
+        // front of the array, else make room at the end of the array.  Return
+        // a pointer to the insertion point, i.e., the point where new blocks
+        // can be stored into the array, working backwards if &#39;atFront&#39; is
+        // true, or working forwards if &#39;atFront&#39; is false.  Note that this
+        // method invalidates all iterators except &#39;d_deque_p-&gt;d_start&#39; and
+        // &#39;d_deque_p-&gt;d_finish&#39;.
+
+    void release();
+        // Relinquish control over any allocated blocks.  The destructor will
+        // do nothing.
+};
+
+                        // ======================
+                        // class Deque_ClearGuard
+                        // ======================
+
+template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
+class Deque_ClearGuard {
+    // This class provides a proctor which, at destruction, calls &#39;clear&#39; on
+    // the deque passed at construction, unless the guard has been released
+    // prior.
+
+    // DATA
+    deque&lt;VALUE_TYPE, ALLOCATOR&gt; *d_deque_p;
+
+  public:
+    // CREATORS
+    explicit
+    Deque_ClearGuard(deque&lt;VALUE_TYPE, ALLOCATOR&gt; *deque);
+        // Initializes object to guard zero items from the specified &#39;deque&#39;.
+
+    ~Deque_ClearGuard();
+        // Call the method &#39;clear&#39; on the deque supplied at construction,
+        // unless the method &#39;release&#39; has been called before.
+
+    // MANIPULATORS
+    void release();
+        // Release the deque protected by this guard from further management.
+        // Note that this guard destructor will do nothing afterwards.
+};
+
+                        // ======================
+                        // class bsl::Deque_Guard
+                        // ======================
+
+template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
+class Deque_Guard {
+    // This class provides a proctor which maintains a count of the number of
+    // elements constructed at the beginning or end of a deque, but not yet
+    // committed to the deque&#39;s range of valid elements; if the count is
+    // non-zero at destruction, the destructor destroys the elements in the
+    // range &#39;[d_deque_p-&gt;end(), d_deque_p-&gt;end() + d_count)&#39;, or the range
+    // &#39;[d_deque_p-&gt;begin() - d_count, d_deque_p-&gt;begin())&#39;, depending on
+    // whether this proctor guards the end or beginning.  This guard is used to
+    // undo element constructors in the event of an exception.  It is up to the
+    // client code to increment the count whenever a new element is constructed
+    // and to decrement the count whenever &#39;d_start&#39; or &#39;d_finish&#39; of the
+    // guarded deque is moved to incorporate more elements.
+
+    // PRIVATE TYPES
+    enum {
+        BLOCK_LENGTH = Deque_BlockLengthCalcUtil&lt;VALUE_TYPE&gt;::BLOCK_LENGTH
+    };
+
+    typedef BloombergLP::bslalg::DequeIterator&lt;VALUE_TYPE,
+                                              BLOCK_LENGTH&gt;    IteratorImp;
+    typedef BloombergLP::bslalg::DequePrimitives&lt;VALUE_TYPE,
+                                                BLOCK_LENGTH&gt;  DequePrimitives;
+
+    // DATA
+    deque&lt;VALUE_TYPE, ALLOCATOR&gt; *d_deque_p;
+    std::size_t                   d_count;
+    bool                          d_isTail;
+
+  public:
+    // CREATORS
+    Deque_Guard(deque&lt;VALUE_TYPE, ALLOCATOR&gt; *deque,
+                bool                          isTail);
+        // Initializes object to guard zero items from the specified &#39;deque&#39;.
+        // This guards either the tail or the head, as determined by the
+        // specified &#39;isTail&#39; boolean.
+
+    ~Deque_Guard();
+        // Call the parameterized &#39;VALUE_TYPE&#39; destructor on objects in the
+        // range &#39;[d.end(), d.end() + count())&#39; if &#39;isTail&#39; was specified as
+        // &#39;true&#39; during construction, or &#39;[d.start() - count(), d.start()]&#39; if
+        // &#39;isTail&#39; was specified as &#39;false&#39; during construction, where &#39;d&#39; is
+        // the deque used to construct this guard.
+
+    // MANIPULATORS
+    std::size_t operator++();
+        // Increment the count of this guard, and return new count.
+
+    std::size_t operator--();
+        // Decrement the count of this guard, and return new count.
+
+    void release();
+        // Set the count of this tail guard to zero.  Note that this guard
+        // destructor will do nothing if count is not incremented again after
+        // this call.
+
+    // ACCESSORS
+    std::size_t count() const;
+        // Return the current tail count.
+
+    IteratorImp begin() const;
+        // Return a pointer after the item the first item in the guarded range.
+
+    IteratorImp end() const;
+        // Return a pointer after the item the last item in the guarded range.
+};
+
+// ===========================================================================
+//                      INLINE FUNCTION DEFINITIONS
+// ===========================================================================
+// See IMPLEMENTATION NOTES in the .cpp before modifying anything below.
+
+                             // ---------------------
+                             // class bsl::Deque_Base
+                             // ---------------------
+
+// MANIPULATORS
+template &lt;class VALUE_TYPE&gt;
+inline
+typename Deque_Base&lt;VALUE_TYPE&gt;::iterator
+Deque_Base&lt;VALUE_TYPE&gt;::begin()
+{
+    return d_start;
+}
+
+template &lt;class VALUE_TYPE&gt;
+inline
+typename Deque_Base&lt;VALUE_TYPE&gt;::iterator
+Deque_Base&lt;VALUE_TYPE&gt;::end()
+{
+    return d_finish;
+}
+
+template &lt;class VALUE_TYPE&gt;
+inline
+typename Deque_Base&lt;VALUE_TYPE&gt;::reverse_iterator
+Deque_Base&lt;VALUE_TYPE&gt;::rbegin()
+{
+    return reverse_iterator(end());
+}
+
+template &lt;class VALUE_TYPE&gt;
+inline
+typename Deque_Base&lt;VALUE_TYPE&gt;::reverse_iterator
+Deque_Base&lt;VALUE_TYPE&gt;::rend()
+{
+    return reverse_iterator(begin());
+}
+
+template &lt;class VALUE_TYPE&gt;
+inline
+typename Deque_Base&lt;VALUE_TYPE&gt;::reference
+Deque_Base&lt;VALUE_TYPE&gt;::operator[](size_type position)
+{
+    BSLS_ASSERT_SAFE(begin() + position &lt; end());
+
+    // BSLS_ASSERT_SAFE(position &gt;= 0); // &#39;size_type&#39; is &#39;size_t&#39;, always &gt;= 0
+
+    return *(begin() + position);
+}
+
+template &lt;class VALUE_TYPE&gt;
+typename Deque_Base&lt;VALUE_TYPE&gt;::reference
+Deque_Base&lt;VALUE_TYPE&gt;::at(size_type position)
+{
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(position &gt;= size())) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        BloombergLP::bslstl::StdExceptUtil::throwOutOfRange(
+                                 &quot;deque&lt;...&gt;::at(position): invalid position&quot;);
+    }
+    return *(begin() + position);
+}
+
+template &lt;class VALUE_TYPE&gt;
+inline
+typename Deque_Base&lt;VALUE_TYPE&gt;::reference
+Deque_Base&lt;VALUE_TYPE&gt;::front()
+{
+    BSLS_ASSERT_SAFE(!empty());
+
+    return *d_start;
+}
+
+template &lt;class VALUE_TYPE&gt;
+inline
+typename Deque_Base&lt;VALUE_TYPE&gt;::reference
+Deque_Base&lt;VALUE_TYPE&gt;::back()
+{
+    BSLS_ASSERT_SAFE(!empty());
+
+    IteratorImp backIterator = d_finish;
+    --backIterator;
+    return *backIterator;
+}
+
+// ACCESSORS
+template &lt;class VALUE_TYPE&gt;
+inline
+typename Deque_Base&lt;VALUE_TYPE&gt;::const_iterator
+Deque_Base&lt;VALUE_TYPE&gt;::begin() const
+{
+    return d_start;
+}
+
+template &lt;class VALUE_TYPE&gt;
+inline
+typename Deque_Base&lt;VALUE_TYPE&gt;::const_iterator
+Deque_Base&lt;VALUE_TYPE&gt;::cbegin() const
+{
+    return d_start;
+}
+
+template &lt;class VALUE_TYPE&gt;
+inline
+typename Deque_Base&lt;VALUE_TYPE&gt;::const_iterator
+Deque_Base&lt;VALUE_TYPE&gt;::end() const
+{
+    return d_finish;
+}
+
+template &lt;class VALUE_TYPE&gt;
+inline
+typename Deque_Base&lt;VALUE_TYPE&gt;::const_iterator
+Deque_Base&lt;VALUE_TYPE&gt;::cend() const
+{
+    return d_finish;
+}
+
+template &lt;class VALUE_TYPE&gt;
+inline
+typename Deque_Base&lt;VALUE_TYPE&gt;::const_reverse_iterator
+Deque_Base&lt;VALUE_TYPE&gt;::rbegin() const
+{
+    return const_reverse_iterator(end());
+}
+
+template &lt;class VALUE_TYPE&gt;
+inline
+typename Deque_Base&lt;VALUE_TYPE&gt;::const_reverse_iterator
+Deque_Base&lt;VALUE_TYPE&gt;::crbegin() const
+{
+    return const_reverse_iterator(end());
+}
+
+template &lt;class VALUE_TYPE&gt;
+inline
+typename Deque_Base&lt;VALUE_TYPE&gt;::const_reverse_iterator
+Deque_Base&lt;VALUE_TYPE&gt;::rend() const
+{
+    return const_reverse_iterator(begin());
+}
+
+template &lt;class VALUE_TYPE&gt;
+inline
+typename Deque_Base&lt;VALUE_TYPE&gt;::const_reverse_iterator
+Deque_Base&lt;VALUE_TYPE&gt;::crend() const
+{
+    return const_reverse_iterator(begin());
+}
+
+template &lt;class VALUE_TYPE&gt;
+inline
+typename Deque_Base&lt;VALUE_TYPE&gt;::size_type
+Deque_Base&lt;VALUE_TYPE&gt;::size() const
+{
+    return d_finish - d_start;
+}
+
+template &lt;class VALUE_TYPE&gt;
+typename Deque_Base&lt;VALUE_TYPE&gt;::size_type
+Deque_Base&lt;VALUE_TYPE&gt;::capacity() const
+{
+    IteratorImp first(d_blocks);
+    IteratorImp last(d_blocks + d_blocksLength);  // note: not past-the-end
+    size_type numPushFront = d_finish - first;
+    size_type numPushBack  = (last - d_start) + 1;
+    return numPushFront &lt; numPushBack ? numPushFront : numPushBack;
+}
+
+template &lt;class VALUE_TYPE&gt;
+inline
+bool Deque_Base&lt;VALUE_TYPE&gt;::empty() const
+{
+    return d_start == d_finish;
+}
+
+template &lt;class VALUE_TYPE&gt;
+inline
+typename Deque_Base&lt;VALUE_TYPE&gt;::const_reference
+Deque_Base&lt;VALUE_TYPE&gt;::operator[](size_type position) const
+{
+    BSLS_ASSERT_SAFE(begin() + position &lt; end());
+
+    // BSLS_ASSERT_SAFE(position &gt;= 0); // &#39;size_type&#39; is &#39;size_t&#39;, always &gt;= 0
+
+    return *(begin() + position);
+}
+
+template &lt;class VALUE_TYPE&gt;
+typename Deque_Base&lt;VALUE_TYPE&gt;::const_reference
+Deque_Base&lt;VALUE_TYPE&gt;::at(size_type position) const
+{
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(position &gt;= size())) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        BloombergLP::bslstl::StdExceptUtil::throwOutOfRange(
+                           &quot;const deque&lt;...&gt;::at(position): invalid position&quot;);
+    }
+    return *(begin() + position);
+}
+
+template &lt;class VALUE_TYPE&gt;
+inline
+typename Deque_Base&lt;VALUE_TYPE&gt;::const_reference
+Deque_Base&lt;VALUE_TYPE&gt;::front() const
+{
+    BSLS_ASSERT_SAFE(!empty());
+
+    return *d_start;
+}
+
+template &lt;class VALUE_TYPE&gt;
+inline
+typename Deque_Base&lt;VALUE_TYPE&gt;::const_reference
+Deque_Base&lt;VALUE_TYPE&gt;::back() const
+{
+    BSLS_ASSERT_SAFE(!empty());
+
+    IteratorImp backIterator = d_finish;
+    --backIterator;
+    return *backIterator;
+}
+
+                             // ----------------
+                             // class bsl::Deque
+                             // ----------------
+
+// PRIVATE CREATORS
+template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
+inline
+deque&lt;VALUE_TYPE,ALLOCATOR&gt;::deque(RawInit, const ALLOCATOR&amp; allocator)
+: Deque_Base&lt;VALUE_TYPE&gt;()
+, ContainerBase(allocator)
+{
+    this-&gt;d_blocks = 0;
+}
+
+// PRIVATE MANIPULATORS
+template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
+template &lt;class INPUT_ITER&gt;
+typename deque&lt;VALUE_TYPE,ALLOCATOR&gt;::size_type
+deque&lt;VALUE_TYPE,ALLOCATOR&gt;::privateAppend(
+                                          INPUT_ITER                     first,
+                                          INPUT_ITER                     last,
+                                          std::random_access_iterator_tag)
+{
+    BlockCreator newBlocks(this);
+    Guard guard(this, true);
+
+    const size_type numElements = bsl::distance(first, last);
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
+                                    numElements &gt; max_size() - this-&gt;size())) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        BloombergLP::bslstl::StdExceptUtil::throwLengthError(
+                                &quot;deque&lt;...&gt;::insert(pos,n,v): deque too long&quot;);
+    }
+
+    for ( ; first != last; ++first) {
+        IteratorImp insertPoint = guard.end();
+
+        // There must be room for the iterator to be incremented.  Allocate new
+        // block now if necessary.  We cannot wait until after the new element
+        // is constructed or else we won&#39;t be able to increment the guard right
+        // away and there will be a window where an exception will cause a
+        // resource leak.
+
+        if (1 == insertPoint.remainingInBlock()) {
+            newBlocks.insertAtBack(1);
+            insertPoint = guard.end();  // &#39;insertAtBack(1)&#39; invalidated iter
+        }
+        BloombergLP::bslalg::ScalarPrimitives::copyConstruct(
+                                             BSLS_UTIL_ADDRESSOF(*insertPoint),
+                                             *first,
+                                             this-&gt;bslmaAllocator());
+        ++guard;
+    }
+
+    this-&gt;d_finish += guard.count();
+
+    guard.release();
+    return numElements;
+}
+
+template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
+template &lt;class INPUT_ITER&gt;
+typename deque&lt;VALUE_TYPE,ALLOCATOR&gt;::size_type
+deque&lt;VALUE_TYPE,ALLOCATOR&gt;::privateAppend(INPUT_ITER              first,
+                                           INPUT_ITER              last,
+                                           std::input_iterator_tag)
+{
+    BlockCreator newBlocks(this);
+    Guard guard(this, true);
+
+    size_type numElements = 0;
+    size_type maxNumElements = max_size() - this-&gt;size();
+    for ( ; first != last; ++first) {
+        ++numElements;
+        if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
+                                               numElements &gt; maxNumElements)) {
+            BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+            BloombergLP::bslstl::StdExceptUtil::throwLengthError(
+                                &quot;deque&lt;...&gt;::insert(pos,n,v): deque too long&quot;);
+        }
+        IteratorImp insertPoint = guard.end();
+
+        // There must be room for the iterator to be incremented.  Allocate new
+        // block now if necessary.  We cannot wait until after the new element
+        // is constructed or else we won&#39;t be able to increment the guard right
+        // away and there will be a window where an exception will cause a
+        // resource leak.
+
+        if (1 == insertPoint.remainingInBlock()) {
+            newBlocks.insertAtBack(1);
+            insertPoint = guard.end();  // &#39;insertAtBack(1)&#39; invalidated iter
+        }
+        BloombergLP::bslalg::ScalarPrimitives::copyConstruct(
+                                             BSLS_UTIL_ADDRESSOF(*insertPoint),
+                                             *first,
+                                             this-&gt;bslmaAllocator());
+        ++guard;
+    }
+
+    this-&gt;d_finish += guard.count();
+
+    guard.release();
+    return numElements;
+}
+
+template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
+void deque&lt;VALUE_TYPE,ALLOCATOR&gt;::privateAppendRaw(
+                                                 size_type         numElements,
+                                                 const VALUE_TYPE&amp; value)
+{
+    // Create new blocks at back.  In case of exception, any unused blocks are
+    // returned to the allocator.
+
+    size_type numNewBlocks = (this-&gt;d_finish.offsetInBlock() + numElements) /
+                                                                  BLOCK_LENGTH;
+    BlockCreator newBlocks(this);
+    newBlocks.insertAtBack(numNewBlocks);
+
+    DequePrimitives::uninitializedFillNBack(&amp;this-&gt;d_finish,
+                                            this-&gt;d_finish,
+                                            numElements,
+                                            value,
+                                            this-&gt;bslmaAllocator());
+}
+
+template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
+void deque&lt;VALUE_TYPE,ALLOCATOR&gt;::privateInit(size_type numElements)
+{
+    size_type blocksLength = numElements / BLOCK_LENGTH + 1 +
+                                                  2 * Imp::BLOCK_ARRAY_PADDING;
+
+    // Allocate block pointer array.
+
+    this-&gt;d_blocks = this-&gt;allocateN((BlockPtr*) 0, blocksLength);
+    this-&gt;d_blocksLength = blocksLength;
+
+    // Allocate the first block and store its pointer into the array.  Leave a
+    // little room at the front and back of the array for growth.
+
+    BlockPtr *firstBlockPtr = &amp;this-&gt;d_blocks[Imp::BLOCK_ARRAY_PADDING];
+    *firstBlockPtr = this-&gt;allocateN((Block*) 0, 1);
+
+    // Calculate the offset into the first block such that &#39;n&#39; elements will
+    // leave equal space at the front of the first block and at the end of the
+    // last block, remembering that the last element of the last block cannot
+    // be used.  Centering the elements reduces the chance that either
+    // &#39;push_back&#39; or &#39;push_front&#39; will need to allocate a new block.  In case
+    // of an odd number of unused elements, slight preference is given to
+    // &#39;push_back&#39; over &#39;push_front&#39;.
+
+    const int offset = static_cast&lt;int&gt;(
+                          (BLOCK_LENGTH - 1 - numElements % BLOCK_LENGTH) / 2);
+
+    // Initialize the begin and end iterators.
+
+    this-&gt;d_start = this-&gt;d_finish = IteratorImp(
+                                            firstBlockPtr,
+                                            (*firstBlockPtr)-&gt;d_data + offset);
+}
+
+template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
+template &lt;class INTEGRAL_TYPE&gt;
+inline
+void deque&lt;VALUE_TYPE,ALLOCATOR&gt;::privateInsertDispatch(
+                           const_iterator                          position,
+                           INTEGRAL_TYPE                           numElements,
+                           INTEGRAL_TYPE                           value,
+                           BloombergLP::bslmf::MatchArithmeticType ,
+                           BloombergLP::bslmf::Nil                 )
+{
+    insert(position,
+           static_cast&lt;size_type&gt;(numElements),
+           static_cast&lt;VALUE_TYPE&gt;(value));
+}
+
+template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
+template &lt;class INPUT_ITER&gt;
+void deque&lt;VALUE_TYPE,ALLOCATOR&gt;::privateInsertDispatch(
+                                     const_iterator                   position,
+                                     INPUT_ITER                       first,
+                                     INPUT_ITER                       last,
+                                     BloombergLP::bslmf::MatchAnyType ,
+                                     BloombergLP::bslmf::MatchAnyType )
+{
+    typedef typename iterator_traits&lt;INPUT_ITER&gt;::iterator_category Tag;
+
+    if (first == last) {
+        return;                                                       // RETURN
+    }
+
+    if (position == this-&gt;cbegin()) {
+        privatePrepend(first, last, Tag());
+        return;                                                       // RETURN
+    }
+
+    if (position == this-&gt;cend()) {
+        privateAppend(first, last, Tag());
+        return;                                                       // RETURN
+    }
+
+    privateInsert(position, first, last, Tag());
+}
+
+template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
+template &lt;class INPUT_ITER&gt;
+void deque&lt;VALUE_TYPE,ALLOCATOR&gt;::privateInsert(
+                                             const_iterator           position,
+                                             INPUT_ITER               first,
+                                             INPUT_ITER               last,
+                                             std::input_iterator_tag  tag)
+{
+    BSLS_ASSERT(first != last);
+
+    iterator pos(position.imp());
+    size_type currentSize = this-&gt;size();
+    size_type posIdx = pos - this-&gt;begin();
+
+    deque temp(RAW_INIT, this-&gt;get_allocator());
+    privateSplit(&amp;temp, position.imp());
+
+    if (posIdx &lt;= currentSize / 2) {
+        Deque_Util::swap(
+                        static_cast&lt;Base *&gt;(this), static_cast&lt;Base *&gt;(&amp;temp));
+        privatePrepend(first, last, tag);
+        privateJoinPrepend(&amp;temp);
+    }
+    else {
+        privateAppend(first, last, tag);
+        privateJoinAppend(&amp;temp);
+    }
+}
+
+template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
+void deque&lt;VALUE_TYPE,ALLOCATOR&gt;::privateSplit(
+                                           deque&lt;VALUE_TYPE, ALLOCATOR&gt; *other,
+                                           IteratorImp                   pos)
+{
+    // BEFORE:
+    //..
+    //               this-&gt;d_start.valuePtr() -+
+    //                                        V
+    //  this-&gt;d_start.blockPtr() --&gt; H -&gt; __AAA
+    //                                 I -&gt; AAAAA
+    //             pos.blockPtr() -&gt; J -&gt; BBBxx &lt;- pos.valuePtr() (at 1st x)
+    //                                 K -&gt; yyyyy
+    //  this-&gt;d_finish.blockPtr() -&gt; L -&gt; y____
+    //                                       ^
+    //                                       +- this-&gt;d_finish.valuePtr()
+    //
+    // AFTER:
+    //               this-&gt;d_start.valuePtr() -+
+    //                                        V
+    //  this-&gt;d_start.blockPtr() --&gt; H -&gt; __AAA
+    //                                 I -&gt; AAAAA
+    //  this-&gt;d_finish.blockPtr() -&gt; J -&gt; BBB__
+    //                                         ^
+    //                                         +- this-&gt;d_finish.valuePtr()
+    //
+    //               other-&gt;d_start.valuePtr() -+
+    //                                         V
+    // other-&gt;d_start.blockPtr() --&gt; M -&gt; ___xx
+    //                                 K -&gt; yyyyy
+    // other-&gt;d_finish.blockPtr() -&gt; L -&gt; y____
+    //                                       ^
+    //                                       +- other-&gt;d_finish.valuePtr()
+    //
+    // assert(! other.d_blocks);
+    //..
+
+    if (pos.blockPtr() == this-&gt;d_finish.blockPtr()) {
+        // Split point is in last block.  Just copy portion after the split to
+        // new block in &#39;other&#39;.
+
+        difference_type numAfter = this-&gt;d_finish.valuePtr() - pos.valuePtr();
+        other-&gt;privateInit(numAfter);
+        BloombergLP::bslalg::ArrayPrimitives::destructiveMove(
+                                                     other-&gt;d_start.valuePtr(),
+                                                     pos.valuePtr(),
+                                                     this-&gt;d_finish.valuePtr(),
+                                                     this-&gt;bslmaAllocator());
+        other-&gt;d_finish += numAfter;
+        this-&gt;d_finish = pos;
+        return;                                                       // RETURN
+    }
+
+    if (pos.blockPtr() == this-&gt;d_start.blockPtr()) {
+        // Split point is in first block.  Copy portion before the split to new
+        // block in &#39;other&#39; and swap.
+
+        difference_type numBefore = pos.valuePtr() - this-&gt;d_start.valuePtr();
+        other-&gt;privateInit(numBefore);
+        BloombergLP::bslalg::ArrayPrimitives::destructiveMove(
+                                                     other-&gt;d_start.valuePtr(),
+                                                     this-&gt;d_start.valuePtr(),
+                                                     pos.valuePtr(),
+                                                     this-&gt;bslmaAllocator());
+        other-&gt;d_finish += numBefore;
+        this-&gt;d_start = pos;
+        Deque_Util::swap(
+                        static_cast&lt;Base *&gt;(this), static_cast&lt;Base *&gt;(other));
+        return;                                                       // RETURN
+    }
+
+    // Compute number of unsplit blocks to move.
+
+    difference_type numMoveBlocks = this-&gt;d_finish.blockPtr() - pos.blockPtr();
+
+    size_type otherBlocksLength = numMoveBlocks + 1 +
+                                              2 * Imp::BLOCK_ARRAY_PADDING;
+
+    other-&gt;d_blocks = this-&gt;allocateN((BlockPtr *)0, otherBlocksLength);
+    other-&gt;d_blocksLength = otherBlocksLength;
+
+    // Good time to allocate block for exception safety.
+
+    Block *newBlock = this-&gt;allocateN((Block*) 0, 1);
+
+    // The following chunk of code will never throw an exception.  Move unsplit
+    // blocks from &#39;this&#39; to &#39;other&#39;, then adjust the iterators.
+
+    std::memcpy(other-&gt;d_blocks + 1 + Imp::BLOCK_ARRAY_PADDING,
+                pos.blockPtr() + 1,
+                sizeof(BlockPtr) * numMoveBlocks);
+
+    other-&gt;d_start = IteratorImp(&amp;other-&gt;d_blocks[
+                                                1 + Imp::BLOCK_ARRAY_PADDING]);
+    other-&gt;d_finish = IteratorImp(other-&gt;d_start.blockPtr() +
+                                  numMoveBlocks - 1,
+                                  this-&gt;d_finish.valuePtr());
+
+    BlockPtr *newBlockPtr = pos.blockPtr() + 1;
+    *newBlockPtr = newBlock;
+    this-&gt;d_finish = IteratorImp(newBlockPtr);
+
+    // Current situation:
+    //..
+    //               this-&gt;d_start.valuePtr() -+
+    //                                        V
+    //  this-&gt;d_start.blockPtr() --&gt; H -&gt; __AAA
+    //                                 I -&gt; AAAAA
+    //             pos.blockPtr() -&gt; J -&gt; BBBxx &lt;- pos.valuePtr() (1st x)
+    //  this-&gt;d_finish.blockPtr() -+&gt; M -&gt; _____
+    //                              /        ^
+    //                newBlockPtr -+         +- this-&gt;d_finish.valuePtr()
+    //
+    //            other-&gt;d_start.valuePtr() -+
+    //                                      V
+    //  other-&gt;d_start.blockPtr() --&gt; K -&gt; yyyyy
+    //  other-&gt;d_finish.blockPtr() -&gt; L -&gt; y____
+    //                                       ^
+    //                                       +- other-&gt;d_finish.valuePtr()
+    //..
+    // Now we split the block containing &quot;BBBxx&quot; into two blocks, with the &quot;xx&quot;
+    // part going into &#39;*newBlockPtr&#39;.  An exception can safely occur here
+    // because the &#39;bslstl::ArrayPrimitive&#39; functions are exception-neutral and
+    // because all class invariants for both &#39;*this&#39; and &#39;other&#39; hold going in
+    // to this section.
+
+    size_type splitOffset = pos.offsetInBlock();
+    if (splitOffset &gt;= pos.remainingInBlock()) {
+        // Move the tail part of the block into the new block.
+
+        value_type *splitValuePtr = newBlock-&gt;d_data + splitOffset;
+        BloombergLP::bslalg::ArrayPrimitives::destructiveMove(
+                                                       splitValuePtr,
+                                                       pos.valuePtr(),
+                                                       pos.blockEnd(),
+                                                       this-&gt;bslmaAllocator());
+    }
+    else {
+        // Move the head part of the block into the new block, then swap the
+        // blocks within the &#39;d_blocks&#39; array.
+
+        BloombergLP::bslalg::ArrayPrimitives::destructiveMove(
+                                                       newBlock-&gt;d_data,
+                                                       pos.blockBegin(),
+                                                       pos.valuePtr(),
+                                                       this-&gt;bslmaAllocator());
+        *newBlockPtr = *pos.blockPtr();
+        *pos.blockPtr() = newBlock;
+        // bslalg::ScalarPrimitives::swap(*pos.blockPtr(), *newBlockPtr); NOTE:
+        // pos is invalid after swap.
+    }
+
+    // Move block to &#39;other&#39; and adjust the iterators.  This will not throw.
+
+    this-&gt;d_finish = IteratorImp(&amp;newBlockPtr[-1],
+                                 newBlockPtr[-1]-&gt;d_data + splitOffset);
+    other-&gt;d_start.previousBlock();
+    *(other-&gt;d_start.blockPtr()) = *newBlockPtr;
+    other-&gt;d_start = IteratorImp(other-&gt;d_start.blockPtr(),
+                                 other-&gt;d_start.blockBegin() + splitOffset);
+}
+
+template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
+inline
+void deque&lt;VALUE_TYPE,ALLOCATOR&gt;::privateJoinPrepend(
+                                           deque&lt;VALUE_TYPE, ALLOCATOR&gt; *other)
+{
+    privatePrepend(other-&gt;begin(),
+                   other-&gt;end(),
+                   std::random_access_iterator_tag());
+
+    // Make &#39;other&#39; raw again, and free its resources.
+
+    deque&lt;VALUE_TYPE, ALLOCATOR&gt; temp(RAW_INIT, other-&gt;allocator());
+    Deque_Util::move(static_cast&lt;Base *&gt;(&amp;temp), static_cast&lt;Base *&gt;(other));
+}
+
+template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
+inline
+void deque&lt;VALUE_TYPE,ALLOCATOR&gt;::privateJoinAppend(
+                                           deque&lt;VALUE_TYPE, ALLOCATOR&gt; *other)
+{
+    privateAppend(other-&gt;begin(),
+                  other-&gt;end(),
+                  std::random_access_iterator_tag());
+
+    // Make &#39;other&#39; raw again, and free its resources.
+
+    deque&lt;VALUE_TYPE, ALLOCATOR&gt; temp(RAW_INIT, other-&gt;allocator());
+    Deque_Util::move(static_cast&lt;Base *&gt;(&amp;temp), static_cast&lt;Base *&gt;(other));
+}
+
+template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
+template &lt;class INPUT_ITER&gt;
+void deque&lt;VALUE_TYPE,ALLOCATOR&gt;::privateInsert(
+                                           const_iterator            position,
+                                           INPUT_ITER                first,
+                                           INPUT_ITER                last,
+                                           std::random_access_iterator_tag tag)
+{
+    BSLS_ASSERT(first != last);
+
+    if (position == this-&gt;cbegin()) {
+        privatePrepend(first, last, tag);
+        return;                                                       // RETURN
+    }
+
+    if (position == this-&gt;cend()) {
+        privateAppend(first, last, tag);
+        return;                                                       // RETURN
+    }
+
+    const size_type currentSize = this-&gt;size();
+    const size_type numElements = bsl::distance(first, last);
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
+                                     numElements &gt; max_size() - currentSize)) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        BloombergLP::bslstl::StdExceptUtil::throwLengthError(
+                                &quot;deque&lt;...&gt;::insert(pos,n,v): deque too long&quot;);
+    }
+
+    iterator pos(position.imp());
+    size_type posIdx = position - this-&gt;cbegin();
+    if (posIdx &lt;= currentSize / 2) {
+        // Create new blocks at front.  In case of exception, any unused blocks
+        // are returned to the allocator.
+
+        size_type numNewBlocks = (this-&gt;d_start.remainingInBlock()
+                                             + numElements - 1) / BLOCK_LENGTH;
+        BlockCreator newBlocks(this);
+        newBlocks.insertAtFront(numNewBlocks);
+
+        DequePrimitives::insertAndMoveToFront(&amp;this-&gt;d_start,
+                                              this-&gt;d_start,
+                                              this-&gt;d_start + posIdx,
+                                              first,
+                                              last,
+                                              numElements,
+                                              this-&gt;bslmaAllocator());
+    } else {
+        // Create new blocks at front.  In case of exception, any unused blocks
+        // are returned to the allocator.
+
+        size_type numNewBlocks = (this-&gt;d_finish.offsetInBlock() + numElements)
+                                                                / BLOCK_LENGTH;
+        BlockCreator newBlocks(this);
+        newBlocks.insertAtBack(numNewBlocks);
+
+        DequePrimitives::insertAndMoveToBack(&amp;this-&gt;d_finish,
+                                             this-&gt;d_finish,
+                                             this-&gt;d_start + posIdx,
+                                             first,
+                                             last,
+                                             numElements,
+                                             this-&gt;bslmaAllocator());
+    }
+}
+
+template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
+void deque&lt;VALUE_TYPE,ALLOCATOR&gt;::privatePrependRaw(
+                                                 size_type         numElements,
+                                                 const VALUE_TYPE&amp; value)
+{
+    // Create new blocks at front.  In case of exception, any unused blocks are
+    // returned to the allocator.
+
+    size_type numNewBlocks = (this-&gt;d_start.remainingInBlock() +
+                                               numElements - 1) / BLOCK_LENGTH;
+    BlockCreator newBlocks(this);
+    newBlocks.insertAtFront(numNewBlocks);
+
+    DequePrimitives::uninitializedFillNFront(&amp;this-&gt;d_start,
+                                             this-&gt;d_start,
+                                             numElements,
+                                             value,
+                                             this-&gt;bslmaAllocator());
+}
+
+template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
+template &lt;class INPUT_ITER&gt;
+typename deque&lt;VALUE_TYPE,ALLOCATOR&gt;::size_type
+deque&lt;VALUE_TYPE,ALLOCATOR&gt;::privatePrepend(INPUT_ITER              first,
+                                            INPUT_ITER              last,
+                                            std::input_iterator_tag tag)
+{
+    deque temp(RAW_INIT, this-&gt;get_allocator());
+    temp.privateInit(this-&gt;size() + 1);
+    size_type numElements = temp.privateAppend(first, last, tag);
+
+    // Check whether appending or prepending is more economical.
+
+    if (numElements &gt; this-&gt;size()) {
+        Deque_Util::swap((Base *)this, (Base *)&amp;temp);
+        privateJoinAppend(&amp;temp);
+    }
+    else {
+        privateJoinPrepend(&amp;temp);
+    }
+
+    return numElements;
+}
+
+template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
+template &lt;class INPUT_ITER&gt;
+typename deque&lt;VALUE_TYPE,ALLOCATOR&gt;::size_type
+deque&lt;VALUE_TYPE,ALLOCATOR&gt;::privatePrepend(
+                                        INPUT_ITER                       first,
+                                        INPUT_ITER                       last,
+                                        std::bidirectional_iterator_tag)
+{
+
+    BlockCreator newBlocks(this);
+    Guard guard(this, false);
+
+    size_type numElements = 0;
+    size_type maxNumElements = max_size() - this-&gt;size();
+    do {
+        ++numElements;
+        if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
+                                               numElements &gt; maxNumElements)) {
+            BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+            BloombergLP::bslstl::StdExceptUtil::throwLengthError(
+                                &quot;deque&lt;...&gt;::insert(pos,n,v): deque too long&quot;);
+        }
+
+        IteratorImp insertPoint = guard.begin();
+
+        // There must be room for the iterator to be decremented.  Allocate new
+        // block now if necessary, with same caveat as above.
+
+        if (insertPoint.valuePtr() == insertPoint.blockBegin()) {
+            newBlocks.insertAtFront(1);
+            insertPoint = guard.begin();  // &#39;insertAtFront&#39; invalidates
+                                          // &#39;insertPoint&#39;
+        }
+        --insertPoint;
+        BloombergLP::bslalg::ScalarPrimitives::copyConstruct(
+                                             BSLS_UTIL_ADDRESSOF(*insertPoint),
+                                             *--last,
+                                             this-&gt;bslmaAllocator());
+        ++guard;
+    } while (first != last);
+
+    this-&gt;d_start -= guard.count();
+    guard.release();
+    return numElements;
+}
+
+template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
+template &lt;class INPUT_ITER&gt;
+typename deque&lt;VALUE_TYPE,ALLOCATOR&gt;::size_type
+deque&lt;VALUE_TYPE,ALLOCATOR&gt;::privatePrepend(
+                                         INPUT_ITER                      first,
+                                         INPUT_ITER                      last,
+                                         std::random_access_iterator_tag)
+{
+
+    const size_type numElements = bsl::distance(first, last);
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
+                                    numElements &gt; max_size() - this-&gt;size())) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        BloombergLP::bslstl::StdExceptUtil::throwLengthError(
+                                &quot;deque&lt;...&gt;::insert(pos,n,v): deque too long&quot;);
+    }
+
+    BlockCreator newBlocks(this);
+    Guard guard(this, false);
+
+    do {
+        IteratorImp insertPoint = guard.begin();
+
+        // There must be room for the iterator to be decremented.  Allocate new
+        // block now if necessary, with same caveat as above.
+
+        if (insertPoint.valuePtr() == insertPoint.blockBegin()) {
+            newBlocks.insertAtFront(1);
+            insertPoint = guard.begin();  // &#39;insertAtFront&#39; invalidates
+                                          // &#39;insertPoint&#39;
+        }
+        --insertPoint;
+        BloombergLP::bslalg::ScalarPrimitives::copyConstruct(
+                                             BSLS_UTIL_ADDRESSOF(*insertPoint),
+                                             *--last,
+                                             this-&gt;bslmaAllocator());
+        ++guard;
+    } while (first != last);
+
+    this-&gt;d_start -= guard.count();
+    guard.release();
+    return numElements;
+}
+
+// CREATORS
+template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
+deque&lt;VALUE_TYPE,ALLOCATOR&gt;::deque(const ALLOCATOR&amp; allocator)
+: Deque_Base&lt;VALUE_TYPE&gt;()
+, ContainerBase(allocator)
+{
+    deque temp(RAW_INIT, this-&gt;get_allocator());
+    temp.privateInit(0);
+    Deque_Util::move(static_cast&lt;Base*&gt;(this), static_cast&lt;Base *&gt;(&amp;temp));
+}
+
+template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
+deque&lt;VALUE_TYPE,ALLOCATOR&gt;::deque(size_type         numElements,
+                                   const ALLOCATOR&amp;  allocator)
+: Deque_Base&lt;VALUE_TYPE&gt;()
+, ContainerBase(allocator)
+{
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(numElements &gt; max_size())) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        BloombergLP::bslstl::StdExceptUtil::throwLengthError(
+                                       &quot;deque&lt;...&gt;::deque(n): deque too long&quot;);
+    }
+    deque temp(RAW_INIT, this-&gt;get_allocator());
+    temp.privateInit(numElements);
+    temp.privateAppendRaw(numElements, VALUE_TYPE());
+    Deque_Util::move(static_cast&lt;Base*&gt;(this), static_cast&lt;Base *&gt;(&amp;temp));
+}
+
+template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
+deque&lt;VALUE_TYPE,ALLOCATOR&gt;::deque(size_type         numElements,
+                                   const VALUE_TYPE&amp; value,
+                                   const ALLOCATOR&amp;  allocator)
+: Deque_Base&lt;VALUE_TYPE&gt;()
+, ContainerBase(allocator)
+{
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(numElements &gt; max_size())) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        BloombergLP::bslstl::StdExceptUtil::throwLengthError(
+                                     &quot;deque&lt;...&gt;::deque(n,v): deque too long&quot;);
+    }
+    deque temp(RAW_INIT, this-&gt;get_allocator());
+    temp.privateInit(numElements);
+    temp.privateAppendRaw(numElements, value);
+    Deque_Util::move(static_cast&lt;Base*&gt;(this), static_cast&lt;Base *&gt;(&amp;temp));
+}
+
+template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
+template &lt;class INPUT_ITER&gt;
+deque&lt;VALUE_TYPE,ALLOCATOR&gt;::deque(INPUT_ITER       first,
+                                   INPUT_ITER       last,
+                                   const ALLOCATOR&amp; allocator)
+: Deque_Base&lt;VALUE_TYPE&gt;()
+, ContainerBase(allocator)
+{
+    deque temp(RAW_INIT, this-&gt;get_allocator());
+    temp.privateInit(0);
+    temp.insert(temp.begin(), first, last);
+    Deque_Util::move(static_cast&lt;Base*&gt;(this), static_cast&lt;Base *&gt;(&amp;temp));
+}
+
+template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
+deque&lt;VALUE_TYPE,ALLOCATOR&gt;::deque(const deque&lt;VALUE_TYPE,ALLOCATOR&gt;&amp; rhs)
+: Deque_Base&lt;VALUE_TYPE&gt;()
+, ContainerBase(rhs)
+{
+    deque temp(RAW_INIT, this-&gt;get_allocator());
+    temp.privateInit(rhs.size());
+    temp.privateAppend(rhs.begin(),
+                       rhs.end(),
+                       std::random_access_iterator_tag());
+    Deque_Util::move(static_cast&lt;Base*&gt;(this), static_cast&lt;Base *&gt;(&amp;temp));
+}
+
+template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
+deque&lt;VALUE_TYPE,ALLOCATOR&gt;::deque(
+                                  const deque&lt;VALUE_TYPE,ALLOCATOR&gt;&amp; rhs,
+                                  const ALLOCATOR&amp;                   allocator)
+: Deque_Base&lt;VALUE_TYPE&gt;()
+, ContainerBase(allocator)
+{
+    deque temp(RAW_INIT, this-&gt;get_allocator());
+    temp.privateInit(rhs.size());
+    temp.privateAppend(rhs.begin(),
+                       rhs.end(),
+                       std::random_access_iterator_tag());
+    Deque_Util::move(static_cast&lt;Base*&gt;(this), static_cast&lt;Base *&gt;(&amp;temp));
+}
+
+template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
+deque&lt;VALUE_TYPE,ALLOCATOR&gt;::~deque()
+{
+    if (0 == this-&gt;d_blocks) {
+        // Nothing to do when destroying raw deques.
+
+        return;                                                       // RETURN
+    }
+
+    if (0 != this-&gt;d_start.blockPtr()) {
+        // Destroy all elements and deallocate all but one block.
+
+        clear();
+
+        // Deallocate the remaining (empty) block.
+
+        this-&gt;deallocateN(*this-&gt;d_start.blockPtr(), 1);
+    }
+
+    // Deallocate the array of block pointers.
+
+    this-&gt;deallocateN(this-&gt;d_blocks, this-&gt;d_blocksLength);
+}
+
+// MANIPULATORS
+template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
+deque&lt;VALUE_TYPE,ALLOCATOR&gt;&amp;
+deque&lt;VALUE_TYPE,ALLOCATOR&gt;::operator=(const deque&lt;VALUE_TYPE,ALLOCATOR&gt;&amp; rhs)
+{
+    if (this == &amp;rhs) {
+        return *this;                                                 // RETURN
+    }
+
+    size_type origSize = this-&gt;size();
+    size_type rhsSize  = rhs.size();
+    size_type minSize;
+
+    if (origSize &gt; rhsSize) {
+        // Make shorter by deleting excess elements.
+
+        minSize = rhsSize;
+        erase(this-&gt;begin() + minSize, this-&gt;end());
+    }
+    else {
+        // Make longer by appending new elements.
+
+        minSize = origSize;
+        privateAppend(rhs.begin() + minSize,
+                      rhs.end(),
+                      std::random_access_iterator_tag());
+    }
+
+    // Copy the smaller of the number of elements in &#39;rhs&#39; and &#39;*this&#39;.
+
+    IteratorImp from = rhs.d_start;
+    IteratorImp to   = this-&gt;d_start;
+    for (size_type i = 0; i &lt; minSize; ++i) {
+        *to = *from;
+        ++to;
+        ++from;
+    }
+
+    return *this;
+}
+
+template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
+template &lt;class INPUT_ITER&gt;
+void deque&lt;VALUE_TYPE,ALLOCATOR&gt;::assign(INPUT_ITER first,
+                                         INPUT_ITER last)
+{
+    typedef typename iterator_traits&lt;INPUT_ITER&gt;::iterator_category Tag;
+
+    // If anything throws, clear the deque, to simulate standard behavior,
+    // which is &#39;erase(begin(), end()); insert(begin(), first, last);&#39;.
+
+    ClearGuard guard(this);
+
+    // Copy over existing elements.
+
+    IteratorImp i;
+    for (i = this-&gt;d_start; !(i == this-&gt;d_finish) &amp;&amp; first != last;
+                                                                ++i, ++first) {
+        *i = *first;
+    }
+
+    if (!(i == this-&gt;d_finish)) {
+        // Erase elements past the last one copied.
+
+        erase(i, this-&gt;end());
+    }
+    else {
+        // Still more elements to copy.  Append them.
+
+        privateAppend(first, last, Tag());
+    }
+
+    guard.release();
+}
+
+template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
+void deque&lt;VALUE_TYPE,ALLOCATOR&gt;::assign(size_type         numElements,
+                                         const VALUE_TYPE&amp; value)
+{
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(numElements &gt; max_size())) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        BloombergLP::bslstl::StdExceptUtil::throwLengthError(
+                                    &quot;deque&lt;...&gt;::assign(n,v): deque too long&quot;);
+    }
+
+    // If anything throws, clear the deque, to simulate standard behavior,
+    // which is &#39;erase(begin, end(); insert(begin(), first, last);&#39;.
+
+    ClearGuard guard(this);
+
+    size_type origSize = this-&gt;size();
+    size_type minSize;
+
+    if (numElements &lt; origSize) {
+        minSize = numElements;
+        erase(this-&gt;begin() + numElements, this-&gt;end());
+    }
+    else {
+        minSize = origSize;
+        privateAppendRaw(numElements - origSize, value);
+    }
+
+    IteratorImp to = this-&gt;d_start;
+    for (size_type i = 0; i &lt; minSize; ++i) {
+        *to = value;
+        ++to;
+    }
+
+    guard.release();
+}
+
+template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
+void deque&lt;VALUE_TYPE,ALLOCATOR&gt;::reserve(size_type numElements)
+{
+    if (this-&gt;capacity() &gt; numElements) {
+        return;                                                       // RETURN
+    }
+
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(numElements &gt; max_size())) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        BloombergLP::bslstl::StdExceptUtil::throwLengthError(
+                                     &quot;deque&lt;...&gt;::reserve(n): deque too long&quot;);
+    }
+
+    // This number of blocks, when present on both sides of start and finish,
+    // guarantees that iterators won&#39;t get invalidated by &#39;numElements&#39; further
+    // &#39;push_front&#39; or &#39;push_back&#39;.  It is not minimal but it suffices.
+
+    size_type numBlocks = (numElements + BLOCK_LENGTH - 1) / BLOCK_LENGTH
+                      - (this-&gt;d_finish.blockPtr() - this-&gt;d_start.blockPtr());
+
+    // This is inefficient, as it can perform two allocations in the worst
+    // case, but in most cases only one of the &#39;reserveBlockSlots&#39; will
+    // allocate.
+
+    BlockCreator newBlocks(this);
+    newBlocks.reserveBlockSlots(numBlocks, true);
+    newBlocks.reserveBlockSlots(numBlocks, false);
+}
+
+template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
+inline
+void deque&lt;VALUE_TYPE,ALLOCATOR&gt;::resize(size_type  newLength)
+{
+    resize(newLength, VALUE_TYPE());
+}
+
+template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
+void deque&lt;VALUE_TYPE,ALLOCATOR&gt;::resize(size_type  newLength,
+                                         VALUE_TYPE value)
+{
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(newLength &gt; max_size())) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        BloombergLP::bslstl::StdExceptUtil::throwLengthError(
+                                    &quot;deque&lt;...&gt;::resize(n,v): deque too long&quot;);
+    }
+
+    size_type origSize = this-&gt;size();
+
+    if (newLength &lt;= origSize) {
+        erase(this-&gt;begin() + newLength, this-&gt;end());
+    }
+    else {
+        privateAppendRaw(newLength - origSize, value);
+    }
+}
+
+template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
+void deque&lt;VALUE_TYPE,ALLOCATOR&gt;::push_front(const VALUE_TYPE&amp; value)
+{
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(this-&gt;size() &gt;= max_size())) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        BloombergLP::bslstl::StdExceptUtil::throwLengthError(
+                              &quot;deque&lt;...&gt;::push_front(pos,v): deque too long&quot;);
+    }
+
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
+                                         0 == this-&gt;d_start.offsetInBlock())) {
+
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        BlockCreator newBlocks(this);
+        // If this throws, then the value is unmodified, otherwise, we can
+        // always copy construct below.
+
+        newBlocks.insertAtFront(1);
+
+        BloombergLP::bslalg::ScalarPrimitives::copyConstruct(
+                                                (this-&gt;d_start - 1).valuePtr(),
+                                                value,
+                                                this-&gt;bslmaAllocator());
+
+        --this-&gt;d_start;
+    }
+    else {
+        // Since the offset is non-zero, it is safe to directly decrement the
+        // pointer.  This is much quicker than calling &#39;operator--&#39;.
+
+        BloombergLP::bslalg::ScalarPrimitives::copyConstruct(
+                                                  this-&gt;d_start.valuePtr() - 1,
+                                                  value,
+                                                  this-&gt;bslmaAllocator());
+        this-&gt;d_start.valuePtrDecrement();
+    }
+}
+
+template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
+void deque&lt;VALUE_TYPE,ALLOCATOR&gt;::push_back(const VALUE_TYPE&amp; value)
+{
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(this-&gt;size() &gt;= max_size())) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        BloombergLP::bslstl::StdExceptUtil::throwLengthError(
+                               &quot;deque&lt;...&gt;::push_back(pos,v): deque too long&quot;);
+    }
+
+    if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
+                                      1 &lt; this-&gt;d_finish.remainingInBlock())) {
+        BloombergLP::bslalg::ScalarPrimitives::copyConstruct(
+                                                     this-&gt;d_finish.valuePtr(),
+                                                     value,
+                                                     this-&gt;bslmaAllocator());
+        this-&gt;d_finish.valuePtrIncrement();
+    }
+    else {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        BlockCreator newBlocks(this);
+
+        // If this throws, then the value of the deque is unmodified,
+        // otherwise, we can always copy construct below.  Note that &#39;value&#39; is
+        // still a valid reference even if it belongs to this deque.
+
+        newBlocks.insertAtBack(1);
+        BloombergLP::bslalg::ScalarPrimitives::copyConstruct(
+                                                     this-&gt;d_finish.valuePtr(),
+                                                     value,
+                                                     this-&gt;bslmaAllocator());
+        this-&gt;d_finish.nextBlock();
+    }
+}
+
+template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
+void deque&lt;VALUE_TYPE,ALLOCATOR&gt;::insert(const_iterator    position,
+                                         size_type         numElements,
+                                         const VALUE_TYPE&amp; value)
+{
+    BSLS_ASSERT_SAFE(position &gt;= this-&gt;begin());
+    BSLS_ASSERT_SAFE(position &lt;= this-&gt;end());
+
+    if (0 == numElements) {
+        return;                                                       // RETURN
+    }
+
+    const size_type currentSize = this-&gt;size();
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
+                                     numElements &gt; max_size() - currentSize)) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        BloombergLP::bslstl::StdExceptUtil::throwLengthError(
+                                &quot;deque&lt;...&gt;::insert(pos,n,v): deque too long&quot;);
+    }
+
+    if (position == this-&gt;cbegin()) {
+        privatePrependRaw(numElements, value);
+        return;                                                       // RETURN
+    }
+
+    if (position == this-&gt;cend()) {
+        privateAppendRaw(numElements, value);
+        return;                                                       // RETURN
+    }
+
+    size_type posIdx = position.imp() - this-&gt;d_start;
+
+    if (posIdx &lt;= currentSize / 2) {
+        // Create new blocks at front.  In case of exception, any unused blocks
+        // are returned to the allocator.
+
+        size_type numNewBlocks = (this-&gt;d_start.remainingInBlock()
+                                             + numElements - 1) / BLOCK_LENGTH;
+        BlockCreator newBlocks(this);
+        newBlocks.insertAtFront(numNewBlocks);
+
+        DequePrimitives::insertAndMoveToFront(&amp;this-&gt;d_start,
+                                              this-&gt;d_start,
+                                              this-&gt;d_start + posIdx,
+                                              numElements,
+                                              value,
+                                              this-&gt;bslmaAllocator());
+    }
+    else {
+        // Create new blocks at back.  In case of exception, any unused blocks
+        // are returned to the allocator.
+
+        size_type numNewBlocks = (this-&gt;d_finish.offsetInBlock() + numElements)
+                                                                / BLOCK_LENGTH;
+        BlockCreator newBlocks(this);
+        newBlocks.insertAtBack(numNewBlocks);
+
+        DequePrimitives::insertAndMoveToBack(&amp;this-&gt;d_finish,
+                                             this-&gt;d_finish,
+                                             this-&gt;d_start + posIdx,
+                                             numElements,
+                                             value,
+                                             this-&gt;bslmaAllocator());
+    }
+}
+
+template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
+typename deque&lt;VALUE_TYPE,ALLOCATOR&gt;::iterator
+deque&lt;VALUE_TYPE,ALLOCATOR&gt;::insert(const_iterator    position,
+                                    const VALUE_TYPE&amp; value)
+{
+    BSLS_ASSERT_SAFE(position &gt;= this-&gt;begin());
+    BSLS_ASSERT_SAFE(position &lt;= this-&gt;end());
+
+    if (position == this-&gt;cbegin()) {
+        push_front(value);
+        return this-&gt;begin();                                         // RETURN
+    }
+
+    if (position == this-&gt;cend()) {
+        push_back(value);
+        return iterator(this-&gt;d_finish - 1);                          // RETURN
+    }
+
+    // The test is placed here because &#39;push_front&#39; and &#39;push_back&#39; already do
+    // the check.
+
+    const size_type currentSize = this-&gt;size();
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(currentSize &gt;= max_size())) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        BloombergLP::bslstl::StdExceptUtil::throwLengthError(
+                                &quot;deque&lt;...&gt;::insert(pos,n,v): deque too long&quot;);
+    }
+
+    iterator pos(position.imp());
+    size_type posIdx = position - this-&gt;cbegin();
+    if (posIdx &lt;= currentSize / 2) {
+        BlockCreator newBlocks(this);
+        if (this-&gt;d_start.remainingInBlock() == BLOCK_LENGTH) {
+            newBlocks.insertAtFront(1);
+        }
+        DequePrimitives::insertAndMoveToFront(&amp;this-&gt;d_start,
+                                              this-&gt;d_start,
+                                              this-&gt;d_start + posIdx,
+                                              1,
+                                              value,
+                                              this-&gt;bslmaAllocator());
+    }
+    else {
+        BlockCreator newBlocks(this);
+        if (this-&gt;d_finish.offsetInBlock() == BLOCK_LENGTH - 1) {
+            newBlocks.insertAtBack(1);
+        }
+        DequePrimitives::insertAndMoveToBack(&amp;this-&gt;d_finish,
+                                             this-&gt;d_finish,
+                                             this-&gt;d_start + posIdx,
+                                             1,
+                                             value,
+                                             this-&gt;bslmaAllocator());
+    }
+    return this-&gt;begin() + posIdx;
+}
+
+template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
+template &lt;class INPUT_ITER&gt;
+inline
+void deque&lt;VALUE_TYPE,ALLOCATOR&gt;::insert(const_iterator position,
+                                         INPUT_ITER     first,
+                                         INPUT_ITER     last)
+{
+    BSLS_ASSERT_SAFE(position &gt;= this-&gt;begin());
+    BSLS_ASSERT_SAFE(position &lt;= this-&gt;end());
+
+    privateInsertDispatch(position,
+                          first,
+                          last,
+                          first,
+                          BloombergLP::bslmf::Nil());
+}
+
+template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
+void deque&lt;VALUE_TYPE,ALLOCATOR&gt;::pop_front()
+{
+    BSLS_ASSERT_SAFE(!this-&gt;empty());
+
+    BloombergLP::bslalg::ScalarDestructionPrimitives::destroy(
+                                                     this-&gt;d_start.valuePtr());
+
+    if (1 == this-&gt;d_start.remainingInBlock()) {
+        this-&gt;deallocateN(*this-&gt;d_start.blockPtr(), 1);
+        this-&gt;d_start.nextBlock();
+        return;                                                       // RETURN
+    }
+
+    this-&gt;d_start.valuePtrIncrement();
+}
+
+template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
+void deque&lt;VALUE_TYPE,ALLOCATOR&gt;::pop_back()
+{
+    BSLS_ASSERT_SAFE(!this-&gt;empty());
+
+    if (0 == this-&gt;d_finish.offsetInBlock()) {
+        --this-&gt;d_finish;
+        BloombergLP::bslalg::ScalarDestructionPrimitives::destroy(
+                                                    this-&gt;d_finish.valuePtr());
+        this-&gt;deallocateN(this-&gt;d_finish.blockPtr()[1], 1);
+        return;                                                       // RETURN
+    }
+
+    this-&gt;d_finish.valuePtrDecrement();
+    BloombergLP::bslalg::ScalarDestructionPrimitives::destroy(
+                                                    this-&gt;d_finish.valuePtr());
+}
+
+template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
+typename deque&lt;VALUE_TYPE,ALLOCATOR&gt;::iterator
+deque&lt;VALUE_TYPE,ALLOCATOR&gt;::erase(const_iterator first,
+                                   const_iterator last)
+{
+    BSLS_ASSERT_SAFE(first &gt;= this-&gt;begin());
+    BSLS_ASSERT_SAFE(first &lt;= this-&gt;end());
+    BSLS_ASSERT_SAFE(first &lt;= last);
+    BSLS_ASSERT_SAFE(last &lt;= this-&gt;end());
+
+    iterator first_imp = this-&gt;begin() + (first - this-&gt;cbegin());
+    iterator last_imp  = this-&gt;begin() + (last - this-&gt;cbegin());
+    iterator oldStart  = this-&gt;begin();
+    iterator oldFinish = this-&gt;end();
+    iterator result = iterator(DequePrimitives::erase(&amp;this-&gt;d_start,
+                                                      &amp;this-&gt;d_finish,
+                                                      this-&gt;d_start,
+                                                      first_imp.imp(),
+                                                      last_imp.imp(),
+                                                      this-&gt;d_finish,
+                                                      this-&gt;bslmaAllocator()));
+
+    // Deallocate blocks not used anymore.
+
+    for ( ; oldStart.imp().blockPtr() != this-&gt;d_start.blockPtr();
+                                                  oldStart.imp().nextBlock()) {
+        this-&gt;deallocateN(oldStart.imp().blockPtr()[0], 1);
+    }
+    for ( ; oldFinish.imp().blockPtr() != this-&gt;d_finish.blockPtr();
+                                             oldFinish.imp().previousBlock()) {
+        this-&gt;deallocateN(oldFinish.imp().blockPtr()[0], 1);
+    }
+    return result;
+}
+
+template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
+typename deque&lt;VALUE_TYPE,ALLOCATOR&gt;::iterator
+deque&lt;VALUE_TYPE,ALLOCATOR&gt;::erase(const_iterator position)
+{
+    BSLS_ASSERT_SAFE(position &gt;= this-&gt;begin());
+    BSLS_ASSERT_SAFE(position &lt; this-&gt;end());
+
+    if (position == const_iterator(this-&gt;d_start)) {
+        pop_front();
+        return this-&gt;begin();                                         // RETURN
+    }
+
+    if (position + 1 == const_iterator(this-&gt;d_finish)) {
+        pop_back();
+        return this-&gt;end();                                           // RETURN
+    }
+
+    return erase(position, position + 1);
+}
+
+template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
+void deque&lt;VALUE_TYPE,ALLOCATOR&gt;::swap(deque&lt;VALUE_TYPE,ALLOCATOR&gt;&amp; other)
+{
+    if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
+                             this-&gt;get_allocator() == other.get_allocator())) {
+        Deque_Util::swap(static_cast&lt;Base *&gt;(this),
+                         static_cast&lt;Base *&gt;(&amp;other));
+        return;                                                       // RETURN
+    }
+    else {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+
+        deque d1(other, this-&gt;get_allocator());
+        deque d2(*this, other.get_allocator());
+
+        Deque_Util::swap(static_cast&lt;Base *&gt;(&amp;d1), static_cast&lt;Base *&gt;(this));
+        Deque_Util::swap(static_cast&lt;Base *&gt;(&amp;d2),
+                         static_cast&lt;Base *&gt;(&amp;other));
+    }
+}
+
+template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
+void deque&lt;VALUE_TYPE,ALLOCATOR&gt;::clear()
+{
+    DequePrimitives::destruct(this-&gt;d_start, this-&gt;d_finish);
+
+    // Deallocate all blocks except finishBlock.
+
+    BlockPtr *startBlock = this-&gt;d_start.blockPtr();
+    BlockPtr *finishBlock = this-&gt;d_finish.blockPtr();
+    for ( ; startBlock != finishBlock; ++startBlock) {
+        this-&gt;deallocateN(*startBlock, 1);
+    }
+
+    // Reposition in the middle.
+
+    size_type  blockOffset = this-&gt;d_blocksLength / 2;
+    int        offset      = BLOCK_LENGTH / 2;
+    BlockPtr  *blockPtr    = this-&gt;d_blocks + blockOffset;
+
+    *blockPtr = *finishBlock;
+
+    this-&gt;d_start = this-&gt;d_finish = IteratorImp(blockPtr,
+                                                 (*blockPtr)-&gt;d_data + offset);
+}
+
+// ACCESSORS
+template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
+inline
+typename deque&lt;VALUE_TYPE,ALLOCATOR&gt;::allocator_type
+deque&lt;VALUE_TYPE,ALLOCATOR&gt;::get_allocator() const
+{
+    return ContainerBase::allocator();
+}
+
+template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
+inline
+typename deque&lt;VALUE_TYPE,ALLOCATOR&gt;::size_type
+deque&lt;VALUE_TYPE,ALLOCATOR&gt;::max_size() const
+{
+    return this-&gt;get_allocator().max_size();
+}
+
+// FREE OPERATORS
+template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
+bool operator==(const deque&lt;VALUE_TYPE,ALLOCATOR&gt;&amp; lhs,
+                const deque&lt;VALUE_TYPE,ALLOCATOR&gt;&amp; rhs)
+{
+    if (lhs.size() != rhs.size()) {
+        return false;                                                 // RETURN
+    }
+
+    enum {
+        BLOCK_LENGTH = Deque_BlockLengthCalcUtil&lt;VALUE_TYPE&gt;::BLOCK_LENGTH
+    };
+
+    typedef BloombergLP::bslalg::DequeIterator&lt;VALUE_TYPE,
+                                               BLOCK_LENGTH&gt; Iterator;
+
+    Iterator lhsBegin = lhs.begin().imp();
+    Iterator lhsEnd   = lhs.end().imp();
+    Iterator rhsBegin = rhs.begin().imp();
+
+    for (; !(lhsBegin == lhsEnd); ++lhsBegin, ++rhsBegin) {
+        if (!(*lhsBegin == *rhsBegin)) {
+            return false;                                             // RETURN
+        }
+    }
+    return true;
+}
+
+template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
+inline
+bool operator!=(const deque&lt;VALUE_TYPE,ALLOCATOR&gt;&amp; lhs,
+                const deque&lt;VALUE_TYPE,ALLOCATOR&gt;&amp; rhs)
+{
+    return ! (lhs == rhs);
+}
+
+template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
+inline
+bool operator&lt; (const deque&lt;VALUE_TYPE,ALLOCATOR&gt;&amp; lhs,
+                const deque&lt;VALUE_TYPE,ALLOCATOR&gt;&amp; rhs)
+{
+    return 0 &gt; BloombergLP::bslalg::RangeCompare::lexicographical(lhs.begin(),
+                                                                  lhs.end(),
+                                                                  lhs.size(),
+                                                                  rhs.begin(),
+                                                                  rhs.end(),
+                                                                  rhs.size());
+}
+
+template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
+inline
+bool operator&gt; (const deque&lt;VALUE_TYPE,ALLOCATOR&gt;&amp; lhs,
+                const deque&lt;VALUE_TYPE,ALLOCATOR&gt;&amp; rhs)
+{
+    return (rhs &lt; lhs);
+}
+
+template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
+inline
+bool operator&gt;=(const deque&lt;VALUE_TYPE,ALLOCATOR&gt;&amp; lhs,
+                const deque&lt;VALUE_TYPE,ALLOCATOR&gt;&amp; rhs)
+{
+    return ! (lhs &lt; rhs);
+}
+
+template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
+inline
+bool operator&lt;=(const deque&lt;VALUE_TYPE,ALLOCATOR&gt;&amp; lhs,
+                const deque&lt;VALUE_TYPE,ALLOCATOR&gt;&amp; rhs)
+{
+    return ! (rhs &lt; lhs);
+}
+
+template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
+inline
+void swap(deque&lt;VALUE_TYPE, ALLOCATOR&gt;&amp; a,
+          deque&lt;VALUE_TYPE, ALLOCATOR&gt;&amp; b)
+{
+    a.swap(b);
+}
+
+                      // --------------------------------
+                      // class bslstl::Deque_BlockCreator
+                      // --------------------------------
+
+// CREATORS
+template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
+inline
+Deque_BlockCreator&lt;VALUE_TYPE, ALLOCATOR&gt;::Deque_BlockCreator(
+                                           deque&lt;VALUE_TYPE, ALLOCATOR&gt; *deque)
+: d_deque_p(deque)
+, d_boundary(0)
+{
+}
+
+template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
+Deque_BlockCreator&lt;VALUE_TYPE, ALLOCATOR&gt;::~Deque_BlockCreator()
+{
+    if (0 != d_boundary) {
+        BlockPtr *delFirst, *delLast;
+        if (d_boundary &lt;= d_deque_p-&gt;d_start.blockPtr()) {
+            delFirst = d_boundary;
+            delLast = d_deque_p-&gt;d_start.blockPtr();
+        }
+        else {
+            delFirst = d_deque_p-&gt;d_finish.blockPtr() + 1;
+            delLast = d_boundary;
+        }
+
+        for (; delFirst != delLast; ++delFirst) {
+            // Deallocate the block that &#39;*d_start&#39; points to.
+
+            d_deque_p-&gt;deallocateN(*delFirst, 1);
+        }
+    }
+}
+
+// MANIPULATORS
+template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
+void Deque_BlockCreator&lt;VALUE_TYPE, ALLOCATOR&gt;::insertAtFront(size_type n)
+{
+    d_boundary = reserveBlockSlots(n, true);
+    for ( ; n &gt; 0; --n) {
+        d_boundary[-1] = d_deque_p-&gt;allocateN((Block*) 0, 1);
+        --d_boundary;
+    }
+}
+
+template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
+void Deque_BlockCreator&lt;VALUE_TYPE, ALLOCATOR&gt;::insertAtBack(size_type n)
+{
+    d_boundary = reserveBlockSlots(n, false);
+    for ( ; n &gt; 0; --n) {
+        *d_boundary = d_deque_p-&gt;allocateN((Block*) 0, 1);
+        ++d_boundary;
+    }
+}
+
+template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
+typename Deque_BlockCreator&lt;VALUE_TYPE, ALLOCATOR&gt;::BlockPtr *
+Deque_BlockCreator&lt;VALUE_TYPE, ALLOCATOR&gt;::reserveBlockSlots(
+                                                        size_type numNewBlocks,
+                                                        bool      atFront)
+{
+    BlockPtr *blocks = d_deque_p-&gt;d_blocks;
+    size_type blocksLength = d_deque_p-&gt;d_blocksLength;
+
+    BlockPtr *firstSlot = d_deque_p-&gt;d_start.blockPtr();
+    BlockPtr *lastSlot = d_deque_p-&gt;d_finish.blockPtr() + 1;
+
+    if (atFront) {
+        if (d_boundary) {
+            firstSlot = d_boundary;
+        }
+        if (size_type(firstSlot - blocks) &gt;= numNewBlocks) {
+            // Enough room to insert at front.
+
+            return firstSlot;                                         // RETURN
+        }
+    }
+    else {
+        if (d_boundary) {
+            lastSlot = d_boundary;
+        }
+        if (size_type(blocks + blocksLength - lastSlot) &gt;= numNewBlocks) {
+            // Enough room to insert at end.
+
+            return lastSlot;                                          // RETURN
+        }
+    }
+
+    BlockPtr  *newBlocks          = blocks;
+    size_type  newBlocksLength    = blocksLength;
+    size_type  numUsedBlocks      = lastSlot - firstSlot;
+    size_type  blockOffsetStart   = d_deque_p-&gt;d_start.blockPtr() - firstSlot;
+    size_type  numCommittedBlocks = (d_deque_p-&gt;d_finish.blockPtr() -
+                                            d_deque_p-&gt;d_start.blockPtr() + 1);
+    size_type  newNumUsedBlocks   = numUsedBlocks + numNewBlocks;
+
+    if (newNumUsedBlocks &gt; blocksLength) {
+        const size_type newThreshold = newNumUsedBlocks +
+                                                  2 * Imp::BLOCK_ARRAY_PADDING;
+        while (newThreshold &gt; newBlocksLength) {
+            // Insufficient room.  Allocate new blocks array with geometric
+            // growth.  Note that this should never overflow, because there are
+            // at least 16 elements in each block, thus the requested block
+            // array pointer will never be close to &#39;max_size() / 2&#39;.
+
+            newBlocksLength *= 2;
+        }
+        newBlocks = d_deque_p-&gt;allocateN((BlockPtr*)0, newBlocksLength);
+    }
+
+    // Center block pointers within new blocks array.
+
+    BlockPtr *newFirstSlot = newBlocks +
+                                      (newBlocksLength - newNumUsedBlocks) / 2;
+
+    if (atFront) {
+        newFirstSlot += numNewBlocks;
+    }
+
+    // Calculate offset for start and finish.  Need to do this before moving
+    // around blocks.
+
+    std::ptrdiff_t offsetStart  = d_deque_p-&gt;d_start.offsetInBlock();
+    std::ptrdiff_t offsetFinish = d_deque_p-&gt;d_finish.offsetInBlock();
+
+    // Move old block pointers into new position.
+
+    std::memmove(newFirstSlot, firstSlot, numUsedBlocks * sizeof(BlockPtr));
+
+    if (newBlocks != blocks) {
+        // Deallocate old blocks array and install the new one.
+
+        if (blocks) {
+            d_deque_p-&gt;deallocateN(blocks, d_deque_p-&gt;d_blocksLength);
+        }
+        d_deque_p-&gt;d_blocks       = newBlocks;
+        d_deque_p-&gt;d_blocksLength = newBlocksLength;
+    }
+
+    // Adjust start and finish iterators.
+
+    d_deque_p-&gt;d_start.setBlock(newFirstSlot + blockOffsetStart);
+    d_deque_p-&gt;d_start += offsetStart;
+    d_deque_p-&gt;d_finish.setBlock(newFirstSlot + blockOffsetStart +
+                                                       numCommittedBlocks - 1);
+    d_deque_p-&gt;d_finish += offsetFinish;
+
+    BlockPtr *ret = newFirstSlot;
+    if (!atFront) {
+        ret += numUsedBlocks;
+    }
+
+    return ret;
+}
+
+template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
+inline
+void Deque_BlockCreator&lt;VALUE_TYPE, ALLOCATOR&gt;::release()
+{
+    d_boundary = 0;
+}
+
+                    // ---------------------------
+                    // class bsl::Deque_ClearGuard
+                    // ---------------------------
+
+// CREATORS
+template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
+inline
+Deque_ClearGuard&lt;VALUE_TYPE, ALLOCATOR&gt;::Deque_ClearGuard(
+                                           deque&lt;VALUE_TYPE, ALLOCATOR&gt; *deque)
+: d_deque_p(deque)
+{
+}
+
+template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
+inline
+Deque_ClearGuard&lt;VALUE_TYPE, ALLOCATOR&gt;::~Deque_ClearGuard()
+{
+    if (d_deque_p) {
+        d_deque_p-&gt;clear();
+    }
+}
+
+// MANIPULATORS
+template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
+inline
+void Deque_ClearGuard&lt;VALUE_TYPE, ALLOCATOR&gt;::release()
+{
+    d_deque_p = 0;
+}
+
+                    // ----------------------
+                    // class bsl::Deque_Guard
+                    // ----------------------
+
+// CREATORS
+template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
+inline
+Deque_Guard&lt;VALUE_TYPE, ALLOCATOR&gt;::Deque_Guard(
+                                          deque&lt;VALUE_TYPE, ALLOCATOR&gt; *deque,
+                                          bool                          isTail)
+: d_deque_p(deque)
+, d_count(0)
+, d_isTail(isTail)
+{
+}
+
+template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
+Deque_Guard&lt;VALUE_TYPE, ALLOCATOR&gt;::~Deque_Guard()
+{
+    if (d_count == 0) {
+        return;                                                       // RETURN
+    }
+    BSLS_ASSERT_SAFE(d_count &gt; 0);
+
+    IteratorImp begin, end;
+
+    if (d_isTail) {
+        begin = d_deque_p-&gt;d_finish;
+        end   = begin + d_count;
+    }
+    else {
+        end   = d_deque_p-&gt;d_start;
+        begin = end - d_count;
+    }
+
+    DequePrimitives::destruct(begin, end);
+}
+
+// MANIPULATORS
+template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
+inline
+std::size_t Deque_Guard&lt;VALUE_TYPE, ALLOCATOR&gt;::operator++()
+{
+    return ++d_count;
+}
+
+template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
+inline
+std::size_t Deque_Guard&lt;VALUE_TYPE, ALLOCATOR&gt;::operator--()
+{
+    return --d_count;
+}
+
+template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
+inline
+void Deque_Guard&lt;VALUE_TYPE, ALLOCATOR&gt;::release()
+{
+    d_count = 0;
+}
+
+// ACCESSORS
+template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
+inline
+std::size_t Deque_Guard&lt;VALUE_TYPE, ALLOCATOR&gt;::count() const
+{
+    return d_count;
+}
+
+template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
+inline
+typename Deque_Guard&lt;VALUE_TYPE, ALLOCATOR&gt;::IteratorImp
+Deque_Guard&lt;VALUE_TYPE, ALLOCATOR&gt;::begin() const
+{
+    return d_deque_p-&gt;d_start - d_count;
+}
+
+template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
+inline
+typename Deque_Guard&lt;VALUE_TYPE, ALLOCATOR&gt;::IteratorImp
+Deque_Guard&lt;VALUE_TYPE, ALLOCATOR&gt;::end() const
+{
+    return d_deque_p-&gt;d_finish + d_count;
+}
+
+}  // close namespace bsl
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright (C) 2012 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the &quot;Software&quot;), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

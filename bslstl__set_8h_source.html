@@ -1,0 +1,1815 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 2.16 BETA</title>
+<html>
+<pre>
+// bslstl_set.h                                                       -*-C++-*-
+#ifndef INCLUDED_BSLSTL_SET
+#define INCLUDED_BSLSTL_SET
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide an STL-compliant set class.
+//
+//@CLASSES:
+//   bsl::set: STL-compatible set template
+//
+//@SEE_ALSO: bslstl_multiset, bslstl_map
+//
+//@DESCRIPTION: This component defines a single class template &#39;set&#39;,
+// implementing the standard container holding an ordered sequence of
+// unique keys.
+//
+// An instantiation of &#39;set&#39; is an allocator-aware, value-semantic type whose
+// salient attributes are its size (number of keys) and the ordered sequence of
+// keys the &#39;set&#39; contains.  If &#39;set&#39; is instantiated with a key type that is
+// not itself value-semantic, then it will not retain all of its value-semantic
+// qualities.  In particular, if the key type cannot be tested for equality,
+// then a set containing that type cannot be tested for equality.  It is even
+// possible to instantiate &#39;set&#39; with a key type that does not have a
+// copy-constructor, in which case the &#39;set&#39; will not be copyable.
+//
+// A set meets the requirements of an associative container with bidirectional
+// iterators in the C++ standard [23.2.4].  The &#39;set&#39; implemented here adheres
+// to the C++11 standard, except that it does not have interfaces that take
+// rvalue references, &#39;initializer_lists&#39;, &#39;emplace&#39;, or operations taking a
+// variadic number of template parameters.  Note that excluded C++11 features
+// are those that require (or are greatly simplified by) C++11 compiler
+// support.
+//
+///Requirements on &#39;KEY&#39;
+///---------------------
+// A &#39;set&#39; is a fully &quot;Value-Semantic Type&quot; (see {&#39;bsldoc_glossary&#39;}) only if
+// the supplied &#39;KEY&#39; template parameters is fully value-semantic.  It is
+// possible to instantiate a &#39;set&#39; with &#39;KEY&#39; parameter arguments that do not
+// provide a full set of value-semantic operations, but then some methods of
+// the container may not be instantiable.  The following terminology, adopted
+// from the C++11 standard, is used in the function documentation of &#39;set&#39; to
+// describe a function&#39;s requirements for the &#39;KEY&#39; template parameter.  These
+// terms are also defined in section [17.6.3.1] of the C++11 standard.  Note
+// that, in the context of a &#39;set&#39; instantiation, the requirements apply
+// specifically to the set&#39;s entry type, &#39;value_type&#39;, which is an alias for
+// &#39;KEY&#39;.
+//
+//: &quot;default-constructible&quot;: The type provides a default constructor.
+//:
+//: &quot;copy-constructible&quot;: The type provides a copy constructor.
+//:
+//: &quot;equality-comparable&quot;: The type provides an equality-comparison operator
+//:     that defines an equivalence relationship and is both reflexive and
+//:     transitive.
+//:
+//: &quot;less-than-comparable&quot;: The type provides a less-than operator, which
+//:     defines a strict weak ordering relation on values of the type.
+//
+///Memory Allocation
+///-----------------
+// The type supplied as a set&#39;s &#39;ALLOCATOR&#39; template parameter determines how
+// that set will allocate memory.  The &#39;set&#39; template supports allocators
+// meeting the requirements of the C++11 standard [17.6.3.5], in addition it
+// supports scoped-allocators derived from the &#39;bslma::Allocator&#39; memory
+// allocation protocol.  Clients intending to use &#39;bslma&#39; style allocators
+// should use the template&#39;s default &#39;ALLOCATOR&#39; type: The default type for
+// the &#39;ALLOCATOR&#39; template parameter, &#39;bsl::allocator&#39;, provides a C++11
+// standard-compatible adapter for a &#39;bslma::Allocator&#39; object.
+//
+///&#39;bslma&#39;-Style Allocators
+/// - - - - - - - - - - - -
+// If the (template parameter) type &#39;ALLOCATOR&#39; of an &#39;set&#39; instantiation&#39; is
+// &#39;bsl::allocator&#39;, then objects of that set type will conform to the standard
+// behavior of a &#39;bslma&#39;-allocator-enabled type.  Such a set accepts an
+// optional &#39;bslma::Allocator&#39; argument at construction.  If the address of a
+// &#39;bslma::Allocator&#39; object is explicitly supplied at construction, it will be
+// used to supply memory for the set throughout its lifetime; otherwise, the
+// set will use the default allocator installed at the time of the set&#39;s
+// construction (see &#39;bslma_default&#39;).  In addition to directly allocating
+// memory from the indicated &#39;bslma::Allocator&#39;, a set supplies that
+// allocator&#39;s address to the constructors of contained objects of the
+// (template parameter) type &#39;KEY&#39; with the &#39;bslma::UsesBslmaAllocator&#39; trait.
+//
+///Operations
+///----------
+// This section describes the run-time complexity of operations on instances
+// of &#39;set&#39;:
+//..
+//  Legend
+//  ------
+//  &#39;K&#39;             - (template parameter) type &#39;KEY&#39; of the set
+//  &#39;a&#39;, &#39;b&#39;        - two distinct objects of type &#39;set&lt;K&gt;&#39;
+//  &#39;n&#39;, &#39;m&#39;        - number of elements in &#39;a&#39; and &#39;b&#39; respectively
+//  &#39;c&#39;             - comparator providing an ordering for objects of type &#39;K&#39;
+//  &#39;al             - an STL-style memory allocator
+//  &#39;i1&#39;, &#39;i2&#39;      - two iterators defining a sequence of &#39;value_type&#39; objects
+//  &#39;k&#39;             - an object of type &#39;K&#39;
+//  &#39;p1&#39;, &#39;p2&#39;      - two iterators belonging to &#39;a&#39;
+//  distance(i1,i2) - the number of elements in the range [i1, i2)
+//
+//  +----------------------------------------------------+--------------------+
+//  | Operation                                          | Complexity         |
+//  +====================================================+====================+
+//  | set&lt;K&gt; a;    (default construction)                | O[1]               |
+//  | set&lt;K&gt; a(al);                                      |                    |
+//  | set&lt;K&gt; a(c, al);                                   |                    |
+//  +----------------------------------------------------+--------------------+
+//  | set&lt;K&gt; a(b); (copy construction)                   | O[n]               |
+//  | set&lt;K&gt; a(b, al);                                   |                    |
+//  +----------------------------------------------------+--------------------+
+//  | set&lt;K&gt; a(i1, i2);                                  | O[N] if [i1, i2)   |
+//  | set&lt;K&gt; a(i1, i2, al);                              | is sorted with     |
+//  | set&lt;K&gt; a(i1, i2, c, al);                           | &#39;a.value_comp()&#39;,  |
+//  |                                                    | O[N * log(N)]      |
+//  |                                                    | otherwise, where N |
+//  |                                                    | is distance(i1,i2) |
+//  +----------------------------------------------------+--------------------+
+//  | a.~set&lt;K&gt;(); (destruction)                         | O[n]               |
+//  +----------------------------------------------------+--------------------+
+//  | a = b;       (assignment)                          | O[n]               |
+//  +----------------------------------------------------+--------------------+
+//  | a.begin(), a.end(), a.cbegin(), a.cend(),          | O[1]               |
+//  | a.rbegin(), a.rend(), a.crbegin(), a.crend()       |                    |
+//  +----------------------------------------------------+--------------------+
+//  | a == b, a != b                                     | O[n]               |
+//  +----------------------------------------------------+--------------------+
+//  | a &lt; b, a &lt;= b, a &gt; b, a &gt;= b                       | O[n]               |
+//  +----------------------------------------------------+--------------------+
+//  | a.swap(b), swap(a,b)                               | O[1] if &#39;a&#39; and    |
+//  |                                                    | &#39;b&#39; use the same   |
+//  |                                                    | allocator,         |
+//  |                                                    | O[n + m] otherwise |
+//  +----------------------------------------------------+--------------------+
+//  | a.size()                                           | O[1]               |
+//  +----------------------------------------------------+--------------------+
+//  | a.max_size()                                       | O[1]               |
+//  +----------------------------------------------------+--------------------+
+//  | a.empty()                                          | O[1]               |
+//  +----------------------------------------------------+--------------------+
+//  | get_allocator()                                    | O[1]               |
+//  +----------------------------------------------------+--------------------+
+//  | a.insert(k)                                        | O[log(n)]          |
+//  +----------------------------------------------------+--------------------+
+//  | a.insert(p1, k)                                    | amortized constant |
+//  |                                                    | if the value is    |
+//  |                                                    | inserted right     |
+//  |                                                    | before p1,         |
+//  |                                                    | O[log(n)]          |
+//  |                                                    | otherwise          |
+//  +----------------------------------------------------+--------------------+
+//  | a.insert(i1, i2)                                   | O[log(N) *         |
+//  |                                                    |   distance(i1,i2)] |
+//  |                                                    |                    |
+//  |                                                    | where N is         |
+//  |                                                    | n + distance(i1,i2)|
+//  +----------------------------------------------------+--------------------+
+//  | a.erase(p1)                                        | amortized constant |
+//  +----------------------------------------------------+--------------------+
+//  | a.erase(k)                                         | O[log(n) +         |
+//  |                                                    | a.count(k)]        |
+//  +----------------------------------------------------+--------------------+
+//  | a.erase(p1, p2)                                    | O[log(n) +         |
+//  |                                                    | distance(p1, p2)]  |
+//  +----------------------------------------------------+--------------------+
+//  | a.erase(p1, p2)                                    | O[log(n) +         |
+//  |                                                    | distance(p1, p2)]  |
+//  +----------------------------------------------------+--------------------+
+//  | a.clear()                                          | O[n]               |
+//  +----------------------------------------------------+--------------------+
+//  | a.key_comp()                                       | O[1]               |
+//  +----------------------------------------------------+--------------------+
+//  | a.value_comp()                                     | O[1]               |
+//  +----------------------------------------------------+--------------------+
+//  | a.find(k)                                          | O[log(n)]          |
+//  +----------------------------------------------------+--------------------+
+//  | a.count(k)                                         | O[log(n) +         |
+//  |                                                    | a.count(k)]        |
+//  +----------------------------------------------------+--------------------+
+//  | a.lower_bound(k)                                   | O[log(n)]          |
+//  +----------------------------------------------------+--------------------+
+//  | a.upper_bound(k)                                   | O[log(n)]          |
+//  +----------------------------------------------------+--------------------+
+//  | a.equal_range(k)                                   | O[log(n)]          |
+//  +----------------------------------------------------+--------------------+
+//..
+///Usage
+///-----
+// In this section we show intended use of this component.
+//
+///Example 1: Creating a Holiday Calendar
+/// - - - - - - - - - - - - - - - - - - -
+// In this example, we will utilize &#39;bsl::set&#39; to define and implement a class,
+// &#39;HolidayCalendar&#39;, that provides a calendar that allows client to add and
+// remove holiday dates and determine whether a particular date is a holiday.
+//
+// First, we define and implement the methods of a value-semantic type,
+// &#39;MyDate&#39;, that represents a date: (Note that for brevity, we do not
+// explicitly document the invariants of a valid date.)
+//..
+//  class MyDate {
+//      // This class implements a value-semantic attribute class
+//      // characterizing a date according to the (Gregorian) Unix date
+//      // convention.
+//
+//      // DATA
+//      int d_year;
+//      int d_month;
+//      int d_day;
+//
+//    public:
+//      // CREATORS
+//      MyDate(int year, int month, int day)
+//          // Create a &#39;MyDate&#39; object having the value represented by the
+//          // specified &#39;year&#39;, &#39;month&#39;, and &#39;day.  The behavior is undefined
+//          // unless the value represented by &#39;year&#39;, &#39;month&#39;, and &#39;day is
+//          // valid.
+//      : d_year(year), d_month(month), d_day(day)
+//      {
+//      }
+//
+//      MyDate(const MyDate&amp; original)
+//          // Create a &#39;MyDate&#39; object having the same value as the specified
+//          // &#39;original&#39; object.
+//      : d_year(original.d_year)
+//      , d_month(original.d_month)
+//      , d_day(original.d_day)
+//      {
+//      }
+//
+//      // ~MyDate() = default;
+//          // Destroy this object
+//
+//      // MANIPULATORS
+//      MyDate&amp; operator=(const MyDate&amp; rhs)
+//          // Assign to this object the value of the specified &#39;rhs&#39; object,
+//          // and return a reference providing modifiable access to this
+//          // object.
+//      {
+//          d_year = rhs.d_year;
+//          d_month = rhs.d_month;
+//          d_day = rhs.d_day;
+//          return *this;
+//      }
+//
+//      // ACCESSORS
+//      int year() const
+//          // Return the year of this date.
+//      {
+//          return d_year;
+//      }
+//
+//      int month() const
+//          // Return the month of this date.
+//      {
+//          return d_month;
+//      }
+//
+//      int day() const
+//          // Return the day of this date.
+//      {
+//          return d_day;
+//      }
+//
+//  };
+//
+//  // FREE FUNCTIONS
+//  inline
+//  bool operator==(const MyDate&amp; lhs, const MyDate&amp; rhs)
+//      // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; objects have the same
+//      // value, and &#39;false&#39; otherwise.  Two &#39;MyDate&#39; objects have the same
+//      // value if each of their corresponding &#39;year&#39;, &#39;month&#39;, and &#39;day&#39;
+//      // attributes respective have the same value.
+//  {
+//      return lhs.year()  == rhs.year() &amp;&amp;
+//             lhs.month() == rhs.month() &amp;&amp;
+//             lhs.day()   == rhs.day();
+//  }
+//
+//  inline
+//  bool operator!=(const MyDate&amp; lhs, const MyDate&amp; rhs)
+//      // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; objects do not have
+//      // the same value, and &#39;false&#39; otherwise.  Two &#39;MyDate&#39; objects do not
+//      // have the same value if each of their corresponding &#39;year&#39;, &#39;month&#39;,
+//      // and &#39;day&#39; attributes respective do not have the same value.
+//  {
+//      return !(lhs == rhs);
+//  }
+//..
+// Then, we define a comparison functor for &#39;MyDate&#39; objects in order for them
+// to be stored in a &#39;bsl::set&#39; object:
+//..
+//  struct MyDateLess {
+//      // This &#39;struct&#39; defines an ordering on &#39;MyDate&#39; objects, allowing them
+//      // to be included in associative containers such as &#39;bsl::set&#39;.
+//
+//      bool operator() (const MyDate&amp; lhs, const MyDate&amp; rhs) const
+//          // Return &#39;true&#39; if the value of the specified &#39;lhs&#39; is less than
+//          // (ordered before) the value of the specified &#39;rhs&#39;, and &#39;false&#39;
+//          // otherwise.  The &#39;lhs&#39; value is considered less than the &#39;rhs&#39;
+//          // value if the date represented by &#39;lhs&#39; is earlier than the date
+//          // represented by &#39;rhs&#39; in time.
+//      {
+//          if (lhs.year() &lt; rhs.year()) return true;
+//          if (lhs.year() == rhs.year()) {
+//              if (lhs.month() &lt; rhs.month()) return true;
+//              if (lhs.month() == rhs.month()) {
+//                  if (lhs.day() &lt; rhs.day()) return true;
+//              }
+//          }
+//          return false;
+//      }
+//  };
+//..
+// Next, we define &#39;HolidayCalendar&#39;:
+//..
+//  class HolidayCalendar {
+//      // This class provides a value semantic-type that allows clients to
+//      // modify and query a set of dates considered to be holidays.
+//..
+// Here, we create a type alias, &#39;DateSet&#39;, for a &#39;bsl::set&#39; that will serve as
+// the data member for a &#39;HolidayCalendar&#39;.  A &#39;DateSet&#39; has keys of type
+// &#39;MyDate&#39;, and a comparator of type &#39;MyDateLess&#39;.  We use the default
+// &#39;ALLOCATOR&#39; template parameter as we intend to use &#39;HolidayCalendar&#39; with
+// &#39;bslma&#39; style allocators:
+//..
+//      // PRIVATE TYPES
+//      typedef bsl::set&lt;MyDate, MyDateLess&gt; DateSet;
+//          // This &#39;typedef&#39; is an alias for a set of &#39;MyDate&#39; objects.
+//
+//      // DATA
+//      DateSet d_holidayDates;  // set of dates considered to be holidays
+//
+//    public:
+//      // PUBLIC TYPES
+//      typedef DateSet::const_iterator ConstIterator;
+//          // This &#39;typedef&#39; provides an alias for the type of an iterator
+//          // providing non-modifiable access to holiday dates in a
+//          // &#39;HolidayCalendar&#39;.
+//
+//      // CREATORS
+//      HolidayCalendar(bslma::Allocator *basicAllocator = 0);
+//          // Create an empty &#39;HolidayCalendar&#39; object.  Optionally specify a
+//          // &#39;basicAllocator&#39; used to supply memory.  If &#39;basicAllocator&#39; is
+//          // 0, the currently installed default allocator is used.
+//
+//      HolidayCalendar(const HolidayCalendar&amp;  original,
+//                      bslma::Allocator       *basicAllocator = 0);
+//          // Create a &#39;HolidayCalendar&#39; object having the same value as the
+//          // specified &#39;original&#39; object.  Optionally specify a
+//          // &#39;basicAllocator&#39; used to supply memory.  If &#39;basicAllocator&#39; is
+//          // 0, the currently installed default allocator is used.
+//
+//      //! ~HolidayCalendar() = default;
+//          // Destroy this object.
+//
+//      // MANIPULATORS
+//      void addHolidayDate(const MyDate&amp; date);
+//          // Add the specified &#39;date&#39; as a holiday date maintained by this
+//          // calendar.  If &#39;date&#39; is already a holiday date, this method has
+//          // no effect.
+//
+//      void removeHolidayDate(const MyDate&amp; date);
+//          // Remove the specify &#39;date&#39; from the set of holiday dates
+//          // maintained by this calendar.  If &#39;date&#39; is not a holiday date,
+//          // this method has no effect.
+//
+//      // ACCESSORS
+//      bool isHolidayDate(const MyDate&amp; date) const;
+//          // Return &#39;true&#39; if the specified &#39;date&#39; is in the set of holiday
+//          // dates maintained by this calendar, and return &#39;false&#39; otherwise.
+//
+//      ConstIterator beginHolidayDates() const;
+//          // Return an iterator providing non-modifiable access to the first
+//          // date in the ordered sequence of holiday dates maintained by this
+//          // calendar.
+//
+//      ConstIterator endHolidayDates() const;
+//          // Return an iterator providing non-modifiable access to
+//          // past-the-end date in the ordered sequence of holiday dates
+//          // maintained by this calendar.
+//  };
+//..
+// Then, we declare the free operators for &#39;HolidayCalendar&#39;:
+//..
+//  inline
+//  bool operator==(const HolidayCalendar&amp; lhs, const HolidayCalendar&amp; rhs);
+//      // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; objects have the same
+//      // value, and &#39;false&#39; otherwise.  Two &#39;HolidayCalendar&#39; objects have
+//      // the same value if they have the same number of holiday dates, and
+//      // each corresponding holiday date, in their respective ordered
+//      // sequence of dates, is the same.
+//
+//  inline
+//  bool operator!=(const HolidayCalendar&amp; lhs, const HolidayCalendar&amp; rhs);
+//      // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; objects do not have
+//      // the same value, and &#39;false&#39; otherwise.  Two &#39;HolidayCalendar&#39;
+//      // objects do not have the same value if they either differ in their
+//      // number of holiday dates, or if any of the corresponding holiday
+//      // dates, in their respective ordered sequences of dates, is not the
+//      // same.
+//..
+// Now, we define the implementations methods of the &#39;HolidayCalendar&#39; class:
+//..
+//  // CREATORS
+//  HolidayCalendar::HolidayCalendar(bslma::Allocator *basicAllocator)
+//  : d_holidayDates(basicAllocator)
+//  {
+//  }
+//..
+// Notice that, on construction, we pass the &#39;bsl::set&#39; object the specified
+// &#39;bsl::Allocator&#39; object.
+//..
+//  // MANIPULATORS
+//  void HolidayCalendar::addHolidayDate(const MyDate&amp; date)
+//  {
+//      d_holidayDates.insert(date);
+//  }
+//
+//  void HolidayCalendar::removeHolidayDate(const MyDate&amp; date)
+//  {
+//      d_holidayDates.erase(date);
+//  }
+//
+//  // ACCESSORS
+//  bool HolidayCalendar::isHolidayDate(const MyDate&amp; date) const
+//  {
+//      return d_holidayDates.find(date) != d_holidayDates.end();
+//  }
+//
+//  HolidayCalendar::ConstIterator HolidayCalendar::beginHolidayDates() const
+//  {
+//      return d_holidayDates.begin();
+//  }
+//
+//  HolidayCalendar::ConstIterator HolidayCalendar::endHolidayDates() const
+//  {
+//      return d_holidayDates.end();
+//  }
+//..
+// Finally, we implement the free operators for &#39;HolidayCalendar&#39;:
+//..
+//  inline
+//  bool operator==(const HolidayCalendar&amp; lhs, const HolidayCalendar&amp; rhs)
+//  {
+//      return lhs.d_holidayDates == rhs.d_holidayDates;
+//  }
+//
+//  inline
+//  bool operator!=(const HolidayCalendar&amp; lhs, const HolidayCalendar&amp; rhs)
+//  {
+//      return !(lhs == rhs);
+//  }
+//..
+
+#if defined(BSL_OVERRIDES_STD) &amp;&amp; !defined(BSL_STDHDRS_PROLOGUE_IN_EFFECT)
+#error &quot;include &lt;bsl_set.h&gt; instead of &lt;bslstl_set.h&gt; in \
+BSL_OVERRIDES_STD mode&quot;
+#endif
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include &lt;bslscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLSTL_ALLOCATOR
+#include &lt;bslstl_allocator.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLSTL_PAIR
+#include &lt;bslstl_pair.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLSTL_SETCOMPARATOR
+#include &lt;bslstl_setcomparator.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLSTL_STDEXCEPTUTIL
+#include &lt;bslstl_stdexceptutil.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLSTL_TREEITERATOR
+#include &lt;bslstl_treeiterator.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLSTL_TREENODE
+#include &lt;bslstl_treenode.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLSTL_TREENODEPOOL
+#include &lt;bslstl_treenodepool.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLALG_SWAPUTIL
+#include &lt;bslalg_swaputil.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLALG_RANGECOMPARE
+#include &lt;bslalg_rangecompare.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLALG_RBTREEANCHOR
+#include &lt;bslalg_rbtreeanchor.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLALG_RBTREENODE
+#include &lt;bslalg_rbtreenode.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLALG_RBTREEUTIL
+#include &lt;bslalg_rbtreeutil.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLALG_TYPETRAITHASSTLITERATORS
+#include &lt;bslalg_typetraithasstliterators.h&gt;
+#endif
+
+#ifndef INCLUDED_FUNCTIONAL
+#include &lt;functional&gt;
+#define INCLUDED_FUNCTIONAL
+#endif
+
+namespace bsl {
+                             // =========
+                             // class set
+                             // =========
+
+template &lt;class KEY,
+          class COMPARATOR  = std::less&lt;KEY&gt;,
+          class ALLOCATOR = allocator&lt;KEY&gt; &gt;
+class set {
+    // This class template implements a value-semantic container type holding
+    // an ordered sequence of unique keys (of the template parameter type,
+    // &#39;KEY&#39;).
+    //
+    // This class:
+    //: o supports a complete set of *value-semantic* operations
+    //:   o except for &#39;bdex&#39; serialization
+    //: o is *exception-neutral* (agnostic except for the &#39;at&#39; method)
+    //: o is *alias-safe*
+    //: o is &#39;const&#39; *thread-safe*
+    // For terminology see {&#39;bsldoc_glossary&#39;}.
+
+    // PRIVATE TYPES
+    typedef const KEY                                           ValueType;
+        // This typedef is an alias for the type of key objects maintained by
+        // this set.
+
+    typedef BloombergLP::bslstl::SetComparator&lt;KEY, COMPARATOR&gt; Comparator;
+        // This typedef is an alias for the comparator used internally by this
+        // set.
+
+    typedef BloombergLP::bslstl::TreeNode&lt;KEY&gt;                  Node;
+        // This typedef is an alias for the type of nodes held by the tree (of
+        // nodes) used to implement this set.
+
+    typedef BloombergLP::bslstl::TreeNodePool&lt;KEY, ALLOCATOR&gt;   NodeFactory;
+        // This typedef is an alias for the factory type used to create and
+        // destroy &#39;Node&#39; objects.
+
+    typedef bsl::allocator_traits&lt;ALLOCATOR&gt;                   AllocatorTraits;
+        // This typedef is an alias for the allocator traits type associated
+        // with this container.
+
+    struct DataWrapper : public Comparator {
+        // This struct is wrapper around the comparator and allocator data
+        // members.  It takes advantage of the empty-base optimization (EBO) so
+        // that if the allocator is stateless, it takes up no space.
+        //
+        // TBD: This struct should eventually be replaced by the use of a
+        // general EBO-enabled component that provides a &#39;pair&#39;-like
+        // interface or a &#39;tuple&#39;.
+
+        NodeFactory d_pool;  // pool of &#39;Node&#39; objects
+
+        explicit DataWrapper(const COMPARATOR&amp;  comparator,
+                             const ALLOCATOR&amp;   allocator);
+            // Create a &#39;DataWrapper&#39; object with the specified &#39;comparator&#39;
+            // and &#39;allocator&#39;.
+    };
+
+    // DATA
+    DataWrapper                       d_compAndAlloc;
+                                               // comparator and pool of &#39;Node&#39;
+                                               // objects
+
+    BloombergLP::bslalg::RbTreeAnchor d_tree;  // balanced tree of &#39;Node&#39;
+                                               // objects
+
+  public:
+    // PUBLIC TYPES
+    typedef KEY                                        key_type;
+    typedef KEY                                        value_type;
+    typedef COMPARATOR                                 key_compare;
+    typedef COMPARATOR                                 value_compare;
+    typedef ALLOCATOR                                  allocator_type;
+    typedef value_type&amp;                                reference;
+    typedef const value_type&amp;                          const_reference;
+
+    typedef typename AllocatorTraits::size_type        size_type;
+    typedef typename AllocatorTraits::difference_type  difference_type;
+    typedef typename AllocatorTraits::pointer          pointer;
+    typedef typename AllocatorTraits::const_pointer    const_pointer;
+
+    typedef BloombergLP::bslstl::TreeIterator&lt;const value_type,
+                                              Node,
+                                              difference_type&gt; iterator;
+    typedef BloombergLP::bslstl::TreeIterator&lt;const value_type,
+                                              Node,
+                                              difference_type&gt; const_iterator;
+    typedef bsl::reverse_iterator&lt;iterator&gt;            reverse_iterator;
+    typedef bsl::reverse_iterator&lt;const_iterator&gt;      const_reverse_iterator;
+
+  private:
+    // PRIVATE MANIPULATORS
+    NodeFactory&amp; nodeFactory();
+        // Return a reference providing modifiable access to the
+        // node-allocator for this tree.
+
+    Comparator&amp; comparator();
+        // Return a reference providing modifiable access to the
+        // comparator for this tree.
+
+    void quickSwap(set&amp; other);
+        // Efficiently exchange the value and comparator of this object with
+        // the value of the specified &#39;other&#39; object.  This method provides
+        // the no-throw exception-safety guarantee.  The behavior is undefined
+        // unless this object was created with the same allocator as &#39;other&#39;.
+
+    // PRIVATE ACCESSORS
+    const NodeFactory&amp; nodeFactory() const;
+        // Return a reference providing non-modifiable access to the
+        // node-allocator for this tree.
+
+    const Comparator&amp; comparator() const;
+        // Return a reference providing non-modifiable access to the
+        // comparator for this tree.
+
+  public:
+    // CREATORS
+    explicit set(const COMPARATOR&amp; comparator = COMPARATOR(),
+                 const ALLOCATOR&amp;  allocator  = ALLOCATOR())
+        // Construct an empty set.  Optionally specify a &#39;comparator&#39; used to
+        // order keys contained in this object.  If &#39;comparator&#39; is not
+        // supplied, a default-constructed object of the (template parameter)
+        // type &#39;COMPARATOR&#39; is used.  Optionally specify an &#39;allocator&#39; used
+        // to supply memory.  If &#39;allocator&#39; is not supplied, a
+        // default-constructed object of the (template parameter) type
+        // &#39;ALLOCATOR&#39; is used.  If the &#39;ALLOCATOR&#39; argument is of type
+        // &#39;bsl::allocator&#39; (the default), then &#39;allocator&#39;, if supplied, shall
+        // be convertible to &#39;bslma::Allocator *&#39;.  If the &#39;ALLOCATOR&#39;
+        // argument is of type &#39;bsl::allocator&#39; and &#39;allocator&#39; is not
+        // supplied, the currently installed default allocator will be used
+        // to supply memory.
+    : d_compAndAlloc(comparator, allocator)
+    , d_tree()
+    {
+        // The implementation is placed here in the class definition to
+        // workaround an AIX compiler bug, where the constructor can fail to
+        // compile because it is unable to find the definition of the default
+        // argument.  This occurs when a templatized class wraps around the
+        // container and the comparator is defined after the new class.
+    }
+
+    explicit set(const ALLOCATOR&amp; allocator);
+        // Construct an empty set that will use the specified &#39;allocator&#39; to
+        // supply memory.  Use a default-constructed object of the (template
+        // parameter) type &#39;COMPARATOR&#39; to order the keys contained in this
+        // set.  If the template parameter &#39;ALLOCATOR&#39; argument is of type
+        // &#39;bsl::allocator&#39; (the default) then &#39;allocator&#39; shall be convertible
+        // to &#39;bslma::Allocator *&#39;.
+
+    set(const set&amp; original);
+        // Construct a set having the same value as the specified &#39;original&#39;.
+        // Use a copy of &#39;original.key_comp()&#39; to order the keys contained in
+        // this set.  Use the allocator returned by
+        // &#39;bsl::allocator_traits&lt;ALLOCATOR&gt;::
+        // select_on_container_copy_construction(original.allocator())&#39; to
+        // allocate memory.  If the (template parameter) type &#39;ALLOCATOR&#39; is
+        // of type &#39;bsl::allocator&#39; (the default), the currently installed
+        // default allocator will be used to supply memory.  This method
+        // requires that the (template parameter) type &#39;KEY&#39; be
+        // &quot;copy-constructible&quot; (see {Requirements on &#39;KEY&#39;}).
+
+    set(const set&amp; original, const ALLOCATOR&amp; allocator);
+        // Construct a set having the same value as that of the specified
+        // &#39;original&#39; that will use the specified &#39;allocator&#39; to supply memory.
+        // Use a copy of &#39;original.key_comp()&#39; to order the keys contained in
+        // this set.  If the template parameter &#39;ALLOCATOR&#39; argument is of type
+        // &#39;bsl::allocator&#39; (the default) then &#39;allocator&#39; shall be convertible
+        // to &#39;bslma::Allocator *&#39;.  This method requires that the (template
+        // parameter) type &#39;KEY&#39; be &quot;copy-constructible&quot; (see {Requirements on
+        // &#39;KEY&#39;}).
+
+    template &lt;class INPUT_ITERATOR&gt;
+    set(INPUT_ITERATOR    first,
+        INPUT_ITERATOR    last,
+        const COMPARATOR&amp; comparator = COMPARATOR(),
+        const ALLOCATOR&amp;  allocator  = ALLOCATOR());
+        // Construct a set, and insert each &#39;value_type&#39; object in the sequence
+        // starting at the specified &#39;first&#39; element, and ending immediately
+        // before the specified &#39;last&#39; element, ignoring those keys that
+        // appears earlier in the sequence.  Optionally specify a &#39;comparator&#39;
+        // used to order keys contained in this object.  If &#39;comparator&#39; is not
+        // supplied, a default-constructed object of the (template parameter)
+        // type &#39;COMPARATOR&#39; is used.  Optionally specify a &#39;allocator&#39; used to
+        // supply memory.  If &#39;allocator&#39; is not supplied, a
+        // default-constructed object of the (template parameter) type
+        // &#39;ALLOCATOR&#39; is used.  If the template parameter &#39;ALLOCATOR&#39; argument
+        // is of type &#39;bsl::allocator&#39; (the default) then &#39;allocator&#39;, if
+        // supplied, shall be convertible to &#39;bslma::Allocator *&#39;.  If the
+        // template parameter &#39;ALLOCATOR&#39; argument is of type &#39;bsl::allocator&#39;
+        // and &#39;allocator&#39; is not supplied, the currently installed default
+        // allocator will be used to supply memory.  If the sequence &#39;first&#39;
+        // and &#39;last&#39; is ordered according to the identified &#39;comparator&#39; then
+        // this operation will have O[N] complexity, where N is the number of
+        // elements between &#39;first&#39; and &#39;last&#39;, otherwise this operation will
+        // have O[N * log(N)] complexity.  The (template parameter) type
+        // &#39;INPUT_ITERATOR&#39; shall meet the requirements of an input iterator
+        // defined in the C++11 standard [24.2.3] providing access to values of
+        // a type convertible to &#39;value_type&#39;.  The behavior is undefined
+        // unless &#39;first&#39; and &#39;last&#39; refer to a sequence of valid values where
+        // &#39;first&#39; is at a position at or before &#39;last&#39;.  This method requires
+        // that the (template parameter) type &#39;KEY&#39; be &quot;copy-constructible&quot;
+        // (see {Requirements on &#39;KEY&#39;}).
+
+    ~set();
+        // Destroy this object.
+
+    // MANIPULATORS
+    set&amp; operator=(const set&amp; rhs);
+        // Assign to this object the value and comparator of the specified
+        // &#39;rhs&#39; object, propagate to this object the allocator of &#39;rhs&#39; if the
+        // &#39;ALLOCATOR&#39; type has trait &#39;propagate_on_container_copy_assignment&#39;,
+        // and return a reference providing modifiable access to this object.
+        // This method requires that the (template parameter) type &#39;KEY&#39; type
+        // be &quot;copy-constructible&quot; (see {Requirements on &#39;KEY&#39;}).
+
+    iterator begin();
+        // Return an iterator providing modifiable access to the first
+        // &#39;value_type&#39; object in the ordered sequence of &#39;value_type&#39; objects
+        // maintained by this set, or the &#39;end&#39; iterator if this object is
+        // empty.
+
+    iterator end();
+        // Return an iterator providing modifiable access to the past-the-end
+        // element in the ordered sequence of &#39;value_type&#39; objects maintained
+        // by this set.
+
+    reverse_iterator rbegin();
+        // Return a reverse iterator providing modifiable access to the last
+        // &#39;value_type&#39; object in the ordered sequence of &#39;value_type&#39; objects
+        // maintained by this set, or &#39;rend&#39; if this object is empty.
+
+    reverse_iterator rend();
+        // Return a reverse iterator providing modifiable access to the
+        // prior-to-the-beginning element in the ordered sequence of
+        // &#39;value_type&#39; objects maintained by this set.
+
+    pair&lt;iterator, bool&gt; insert(const value_type&amp; value);
+        // Insert the specified &#39;value&#39; into this set if the key (the &#39;first&#39;
+        // element) of the &#39;value&#39; does not already exist in this set;
+        // otherwise, if a &#39;value_type&#39; object the same as &#39;value&#39; already
+        // exists in this set, this method has no effect.  Return a pair whose
+        // &#39;first&#39; member is an iterator referring to the (possibly newly
+        // inserted) &#39;value_type&#39; object in this set whose value is as that of
+        // &#39;value&#39;, and whose &#39;second&#39; member is &#39;true&#39; if a new value was
+        // inserted, and &#39;false&#39; if the value was already present.  This method
+        // requires that the (template parameter) type &#39;KEY&#39; be
+        // &quot;copy-constructible&quot; (see {Requirements on &#39;KEY&#39;}).
+
+    iterator insert(const_iterator hint, const value_type&amp; value);
+        // Insert the specified &#39;value&#39; into this set (in amortized constant
+        // time if the specified &#39;hint&#39; is a valid immediate successor to
+        // &#39;value&#39;), if the &#39;value&#39; does not already exist in this set;
+        // otherwise, if a &#39;value_type&#39; object the same as &#39;value&#39; already
+        // exists in this set, this method has no effect.  Return an iterator
+        // referring to the (possibly newly inserted) &#39;value_type&#39; object that
+        // is the same as &#39;value&#39;.  If &#39;hint&#39; is not a valid immediate
+        // successor to &#39;value&#39;, this operation will have O[log(N)] complexity,
+        // where &#39;N&#39; is the size of this set.  The behavior is undefined unless
+        // &#39;hint&#39; is a valid iterator into this set.  This method requires that
+        // the (template parameter) type &#39;KEY&#39; be &quot;copy-constructible&quot; (see
+        // {Requirements on &#39;KEY&#39;}).
+
+    template &lt;class INPUT_ITERATOR&gt;
+    void insert(INPUT_ITERATOR first, INPUT_ITERATOR last);
+        // Insert into this set the value of each &#39;value_type&#39; object in the
+        // range starting at the specified &#39;first&#39; iterator and ending
+        // immediately before the specified &#39;last&#39; iterator, whose key is not
+        // already contained in this set.  The (template parameter) type
+        // &#39;INPUT_ITERATOR&#39; shall meet the requirements of an input iterator
+        // defined in the C++11 standard [24.2.3] providing access to values of
+        // a type convertible to &#39;value_type&#39;.  This method requires that the
+        // (template parameter) type &#39;KEY&#39; be &quot;copy-constructible&quot; (see
+        // {Requirements on &#39;KEY&#39;}).
+
+    iterator erase(const_iterator position);
+        // Remove from this set the &#39;value_type&#39; object at the specified
+        // &#39;position&#39;, and return an iterator referring to the element
+        // immediately following the removed element, or to the past-the-end
+        // position if the removed element was the last element in the sequence
+        // of elements maintained by this set.  The behavior is undefined
+        // unless &#39;position&#39; refers to a &#39;value_type&#39; object in this set.
+
+    size_type erase(const key_type&amp; key);
+        // Remote from this set the specified &#39;key&#39;, if it exists, and return
+        // 1; otherwise, if there is no &#39;value_type&#39; that is the same as &#39;key&#39;,
+        // return 0 with no other effect.
+
+    iterator erase(const_iterator first, const_iterator last);
+        // Remove from this set the &#39;value_type&#39; objects starting at the
+        // specified &#39;first&#39; position up to, but including the specified &#39;last&#39;
+        // position, and return &#39;last&#39;.  The behavior is undefined unless
+        // &#39;first&#39; and &#39;last&#39; either refer to elements in this set or are the
+        // &#39;end&#39; iterator, and the &#39;first&#39; position is at or before the &#39;last&#39;
+        // position in the ordered sequence provided by this container.
+
+    void swap(set&amp; other);
+        // Exchange the value of this object as well as its comparator with
+        // those of the specified &#39;other&#39; object.  Additionally if
+        // &#39;bslstl::AllocatorTraits&lt;ALLOCATOR&gt;::propagate_on_container_swap&#39; is
+        // &#39;true&#39; then exchange the allocator of this object with that of the
+        // &#39;other&#39; object, and do not modify either allocator otherwise.  This
+        // method provides the no-throw exception-safety guarantee and
+        // guarantees O[1] complexity.  The behavior is undefined is unless
+        // either this object was created with the same allocator as &#39;other&#39; or
+        // &#39;propagate_on_container_swap&#39; is &#39;true&#39;.
+
+    void clear();
+        // Remove all entries from this set.  Note that the set is empty after
+        // this call, but allocated memory may be retained for future use.
+
+    iterator find(const key_type&amp; key);
+        // Return an iterator providing modifiable access to the &#39;value_type&#39;
+        // object in this set that is the same as the specified &#39;key&#39;, if such
+        // an entry exists, and the past-the-end (&#39;end&#39;) iterator otherwise.
+
+    iterator lower_bound(const key_type&amp; key);
+        // Return an iterator providing modifiable access to the first (i.e.,
+        // ordered least) &#39;value_type&#39; object in this set greater-than or
+        // equal-to the specified &#39;key&#39;, and the past-the-end iterator if this
+        // set does not contain a &#39;value_type&#39; greater-than or equal-to &#39;key&#39;.
+        // Note that this function returns the *first* position before which
+        // &#39;key&#39; could be inserted into the ordered sequence maintained by this
+        // set, while preserving its ordering.
+
+    iterator upper_bound(const key_type&amp; key);
+        // Return an iterator providing modifiable access to the first (i.e.,
+        // ordered least) &#39;value_type&#39; object in this set greater than the
+        // specified &#39;key&#39;, and the past-the-end iterator if this set does not
+        // contain a &#39;value_type&#39; object whose key is greater-than &#39;key&#39;.  Note
+        // that this function returns the *last* position before which a &#39;key&#39;
+        // could be inserted into the ordered sequence maintained by this set,
+        // while preserving its ordering.
+
+    pair&lt;iterator, iterator&gt; equal_range(const key_type&amp; key);
+        // Return a pair of iterators providing modifiable access to the
+        // sequence of &#39;value_type&#39; objects in this set the same as the
+        // specified &#39;key&#39;, where the the first iterator is positioned at the
+        // start of the sequence, and the second is positioned one past the end
+        // of the sequence.  The first returned iterator will be
+        // &#39;lower_bound(key)&#39;; the second returned iterator will be
+        // &#39;upper_bound(key)&#39;; and, if this set contains no &#39;value_type&#39;
+        // objects having &#39;key&#39;, then the two returned iterators will have the
+        // same value.  Note that since a set maintains unique keys, the range
+        // will contain at most one element.
+
+    // ACCESSORS
+    allocator_type get_allocator() const;
+        // Return (a copy of) the allocator used for memory allocation by this
+        // set.
+
+    const_iterator begin() const;
+        // Return an iterator providing non-modifiable access to the first
+        // &#39;value_type&#39; object in the ordered sequence of &#39;value_type&#39; objects
+        // maintained by this set, or the &#39;end&#39; iterator if this set is empty.
+
+    const_iterator end() const;
+        // Return an iterator providing non-modifiable access to the
+        // past-the-end element in the ordered sequence of &#39;value_type&#39;
+        // objects maintained by this set.
+
+    const_reverse_iterator rbegin() const;
+        // Return a reverse iterator providing non-modifiable access to the
+        // last &#39;value_type&#39; object in the ordered sequence of &#39;value_type&#39;
+        // objects maintained by this set, or &#39;rend&#39; if this object is empty.
+
+    const_reverse_iterator rend() const;
+        // Return a reverse iterator providing non-modifiable access to the
+        // prior-to-the-beginning element in the ordered sequence of
+        // &#39;value_type&#39; objects maintained by this set.
+
+    const_iterator cbegin() const;
+        // Return an iterator providing non-modifiable access to the first
+        // &#39;value_type&#39; object in the ordered sequence of &#39;value_type&#39; objects
+        // maintained by this set, or the &#39;cend&#39; iterator if this set is empty.
+
+    const_iterator cend() const;
+        // Return an iterator providing non-modifiable access to the
+        // past-the-end element in the ordered sequence of &#39;value_type&#39; objects
+        // maintained by this set.
+
+    const_reverse_iterator crbegin() const;
+        // Return a reverse iterator providing non-modifiable access to the
+        // last &#39;value_type&#39; object in the ordered sequence of &#39;value_type&#39;
+        // objects maintained by this set, or &#39;crend&#39; if this set is empty.
+
+    const_reverse_iterator crend() const;
+        // Return a reverse iterator providing non-modifiable access to the
+        // prior-to-the-beginning element in the ordered sequence of
+        // &#39;value_type&#39; objects maintained by this set.
+
+    bool empty() const;
+        // Return &#39;true&#39; if this set contains no elements, and &#39;false&#39;
+        // otherwise.
+
+    size_type size() const;
+        // Return the number of elements in this set.
+
+    size_type max_size() const;
+        // Return a theoretical upper bound on the largest number of elements
+        // that this set could possibly hold.  Note that there is no
+        // guarantee that the set can successfully grow to the returned size,
+        // or even close to that size without running out of resources.
+
+    key_compare key_comp() const;
+        // Return the key-comparison functor (or function pointer) used by this
+        // set; if a comparator was supplied at construction, return its value,
+        // otherwise return a default constructed &#39;key_compare&#39; object.  Note
+        // that this comparator compares objects of type &#39;KEY&#39;, which is the
+        // type of the &#39;value_type&#39; objects contained in this set.
+
+    value_compare value_comp() const;
+        // Return a functor for comparing two &#39;value_type&#39; objects using
+        // &#39;key_comp()&#39;.  Note that since &#39;value_type&#39; is an alias to &#39;KEY&#39; for
+        // &#39;set&#39;, this method returns the same functor as &#39;key_comp()&#39;.
+
+    const_iterator find(const key_type&amp; key) const;
+        // Return an iterator providing non-modifiable access to the
+        // &#39;value_type&#39; object in this set that is the same as the specified
+        // &#39;key&#39;, if such an entry exists, and the past-the-end (&#39;end&#39;)
+        // iterator otherwise.
+
+    size_type count(const key_type&amp; key) const;
+        // Return the number of &#39;value_type&#39; objects within this set the the
+        // same as the specified &#39;key&#39;.  Note that since a set maintains unique
+        // keys, the returned value will be either 0 or 1.
+
+    const_iterator lower_bound(const key_type&amp; key) const;
+        // Return an iterator providing non-modifiable access to the first
+        // (i.e., ordered least) &#39;value_type&#39; object in this set greater-than
+        // or equal-to the specified &#39;key&#39;, and the past-the-end iterator if
+        // this set does not contain a &#39;value_type&#39; greater-than or equal-to
+        // &#39;key&#39;.  Note that this function returns the *first* position before
+        // which &#39;key&#39; could be inserted into the ordered sequence maintained
+        // by this set, while preserving its ordering.
+
+    const_iterator upper_bound(const key_type&amp; key) const;
+        // Return an iterator providing non-modifiable access to the first
+        // (i.e., ordered least) &#39;value_type&#39; object in this set greater than
+        // the specified &#39;key&#39;, and the past-the-end iterator if this set does
+        // not contain a &#39;value_type&#39; object whose key is greater-than &#39;key&#39;.
+        // Note that this function returns the *last* position before which a
+        // &#39;key&#39; could be inserted into the ordered sequence maintained by this
+        // set, while preserving its ordering.
+
+    pair&lt;const_iterator, const_iterator&gt; equal_range(
+                                                    const key_type&amp; key) const;
+        // Return a pair of iterators providing non-modifiable access to the
+        // sequence of &#39;value_type&#39; objects in this set the same as the
+        // specified &#39;key&#39;, where the the first iterator is positioned at the
+        // start of the sequence, and the second is positioned one past the end
+        // of the sequence.  The first returned iterator will be
+        // &#39;lower_bound(key)&#39;; the second returned iterator will be
+        // &#39;upper_bound(key)&#39;; and, if this set contains no &#39;value_type&#39;
+        // objects having &#39;key&#39;, then the two returned iterators will have the
+        // same value.  Note that since a set maintains unique keys, the range
+        // will contain at most one element.
+
+    // NOT IMPLEMENTED
+        // The following methods are defined by the C++11 standard, but they
+        // are not implemented as they require some level of C++11 compiler
+        // support not currently available on all supported platforms.
+
+//    set(set&lt;KEY, COMPARATOR, ALLOCATOR&gt;&amp;&amp; original);
+
+//    set(set&amp;&amp;, const ALLOCATOR&amp;);
+
+//    set(initializer_list&lt;value_type&gt;,
+//        const COMPARATOR&amp; = COMPARATOR(),
+//        const ALLOCATOR&amp; = ALLOCATOR());
+
+//    set&lt;KEY, COMPARATOR, ALLOCATOR&gt;&amp; operator=(
+//                                        set&lt;KEY, COMPARATOR, ALLOCATOR&gt;&amp;&amp; x);
+
+//    set&amp; operator=(initializer_list&lt;value_type&gt;);
+
+//    template &lt;class... Args&gt; pair&lt;iterator, bool&gt; emplace(Args&amp;&amp;... args);
+
+//    template &lt;class... Args&gt; iterator emplace_hint(const_iterator position,
+//                                                   Args&amp;&amp;... args);
+
+//     pair&lt;iterator, bool&gt; insert(value_type&amp;&amp; value);
+
+//     iterator insert(const_iterator position, value_type&amp;&amp; value);
+
+//     void insert(initializer_list&lt;value_type&gt;);
+
+};
+
+}  // namespace bsl
+
+// ============================================================================
+//                                TYPE TRAITS
+// ============================================================================
+
+// Type traits for STL *ordered* containers:
+//: o An ordered container defines STL iterators.
+//: o An ordered container uses &#39;bslma&#39; allocators if the parameterized
+//:     &#39;ALLOCATOR&#39; is convertible from &#39;bslma::Allocator*&#39;.
+
+namespace BloombergLP {
+namespace bslalg {
+
+template &lt;typename KEY,
+          typename COMPARATOR,
+          typename ALLOCATOR&gt;
+struct HasStlIterators&lt;bsl::set&lt;KEY, COMPARATOR, ALLOCATOR&gt; &gt;
+    : bsl::true_type
+{};
+
+}
+
+namespace bslma {
+
+template &lt;typename KEY,
+          typename COMPARATOR,
+          typename ALLOCATOR&gt;
+struct UsesBslmaAllocator&lt;bsl::set&lt;KEY, COMPARATOR, ALLOCATOR&gt; &gt;
+    : bsl::is_convertible&lt;Allocator*, ALLOCATOR&gt;
+{};
+
+}
+}  // namespace BloombergLP
+
+namespace bsl {
+
+template &lt;class KEY, class COMPARATOR, class ALLOCATOR&gt;
+bool operator==(const set&lt;KEY, COMPARATOR, ALLOCATOR&gt;&amp; lhs,
+                const set&lt;KEY, COMPARATOR, ALLOCATOR&gt;&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; objects have the same
+    // value, and &#39;false&#39; otherwise.  Two &#39;set&#39; objects have the same value if
+    // they have the same number of keys, and each key that is contained in one
+    // of the objects is also contained in the other object.  This method
+    // requires that the (template parameter) type &#39;KEY&#39; be
+    // &quot;equality-comparable&quot; (see {Requirements on &#39;KEY&#39;}).
+
+template &lt;class KEY, class COMPARATOR, class ALLOCATOR&gt;
+bool operator!=(const set&lt;KEY, COMPARATOR, ALLOCATOR&gt;&amp; lhs,
+                const set&lt;KEY, COMPARATOR, ALLOCATOR&gt;&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; objects do not have the
+    // same value, and &#39;false&#39; otherwise.  Two &#39;set&#39; objects do not have the
+    // same value if they do not have the same number of keys, or some keys
+    // that is contained in one of the objects is not also contained in the
+    // other object.  This method requires that the (template parameter) type
+    // &#39;KEY&#39; be &quot;equality-comparable&quot; (see {Requirements on &#39;KEY&#39;}).
+
+template &lt;class KEY, class COMPARATOR, class ALLOCATOR&gt;
+bool operator&lt; (const set&lt;KEY, COMPARATOR, ALLOCATOR&gt;&amp; lhs,
+                const set&lt;KEY, COMPARATOR, ALLOCATOR&gt;&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; value is less than the specified
+    // &#39;rhs&#39; value, and &#39;false&#39; otherwise.  A set, &#39;lhs&#39;, has a value that is
+    // less than that of &#39;rhs&#39;, if, for the first non-equal corresponding key
+    // in their respective sequences, the &#39;lhs&#39; key is less than the &#39;rhs&#39; key,
+    // or, if all their corresponding keys compare equal, &#39;lhs&#39; has fewer keys
+    // than &#39;rhs&#39;.  This method requires that the (template parameter) type
+    // &#39;KEY&#39; be &quot;less-than-comparable&quot; (see {Requirements on &#39;KEY&#39;}).
+
+template &lt;class KEY, class COMPARATOR, class ALLOCATOR&gt;
+bool operator&gt; (const set&lt;KEY, COMPARATOR, ALLOCATOR&gt;&amp; lhs,
+                const set&lt;KEY, COMPARATOR, ALLOCATOR&gt;&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; value is greater than the specified
+    // &#39;rhs&#39; value, and &#39;false&#39; otherwise.  A set, &#39;lhs&#39;, has a value that is
+    // greater than that of &#39;rhs&#39;, if, for the first non-equal corresponding
+    // key in their respective sequences, the &#39;lhs&#39; key is greater than the
+    // &#39;rhs&#39; key, or, if all their keys compare equal, &#39;lhs&#39; has more keys than
+    // &#39;rhs&#39;.  This method requires that the (template parameter) type &#39;KEY&#39; be
+    // &quot;less-than-comparable&quot; (see {Requirements on &#39;KEY&#39;}).
+
+template &lt;class KEY, class COMPARATOR, class ALLOCATOR&gt;
+bool operator&lt;=(const set&lt;KEY, COMPARATOR, ALLOCATOR&gt;&amp; lhs,
+                const set&lt;KEY, COMPARATOR, ALLOCATOR&gt;&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; value is less-than or equal-to the
+    // specified &#39;rhs&#39; value, and &#39;false&#39; otherwise.  A set, &#39;lhs&#39;, has a value
+    // that is less-than or equal-to that of &#39;rhs&#39;, if, for the first non-equal
+    // corresponding key in their respective sequences, the &#39;lhs&#39; key is less
+    // than the &#39;rhs&#39; key, or, if all of their corresponding keys compare
+    // equal, &#39;lhs&#39; has less-than or equal number of keys as &#39;rhs&#39;.  This
+    // method requires that the (template parameter) type &#39;KEY&#39; be
+    // &quot;less-than-comparable&quot; (see {Requirements on &#39;KEY&#39;}).
+
+template &lt;class KEY, class COMPARATOR, class ALLOCATOR&gt;
+bool operator&gt;=(const set&lt;KEY, COMPARATOR, ALLOCATOR&gt;&amp; lhs,
+                const set&lt;KEY, COMPARATOR, ALLOCATOR&gt;&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; value is greater-than or equal-to
+    // the specified &#39;rhs&#39; value, and &#39;false&#39; otherwise.  A set, &#39;lhs&#39;, has a
+    // value that is greater-than or equal-to that of &#39;rhs&#39;, if, for the first
+    // corresponding key in their respective sequences, the &#39;lhs&#39; key is
+    // greater than the &#39;rhs&#39; key, or, if all of their corresponding keys
+    // compare equal, &#39;lhs&#39; has greater-than or equal number of keys &#39;rhs&#39;.
+    // This method requires that the (template parameter) type &#39;KEY&#39; be
+    // &quot;less-than-comparable&quot; (see {Requirements on &#39;KEY&#39;}).
+
+// specialized algorithms:
+template &lt;class KEY, class COMPARATOR, class ALLOCATOR&gt;
+void swap(set&lt;KEY, COMPARATOR, ALLOCATOR&gt;&amp; a,
+          set&lt;KEY, COMPARATOR, ALLOCATOR&gt;&amp; b);
+    // Swap both the value and the comparator of the specified &#39;a&#39; object with
+    // the value and comparator of the specified &#39;b&#39; object.  Additionally if
+    // &#39;bslstl::AllocatorTraits&lt;ALLOCATOR&gt;::propagate_on_container_swap&#39; is
+    // &#39;true&#39; then exchange the allocator of &#39;a&#39; with that of &#39;b&#39;, and do not
+    // modify either allocator otherwise.  This method provides the no-throw
+    // exception-safety guarantee and guarantees O[1] complexity.  The
+    // behavior is undefined is unless either this object was created with the
+    // same allocator as &#39;other&#39; or &#39;propagate_on_container_swap&#39; is &#39;true&#39;.
+
+// ===========================================================================
+//                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
+// ===========================================================================
+
+                             // -----------------
+                             // class DataWrapper
+                             // -----------------
+
+// CREATORS
+template &lt;class KEY, class COMPARATOR, class ALLOCATOR&gt;
+inline
+set&lt;KEY, COMPARATOR, ALLOCATOR&gt;::DataWrapper::DataWrapper(
+                                                  const COMPARATOR&amp; comparator,
+                                                  const ALLOCATOR&amp;  allocator)
+: ::bsl::set&lt;KEY, COMPARATOR, ALLOCATOR&gt;::Comparator(comparator)
+, d_pool(allocator)
+{
+}
+
+                             // ---------
+                             // class set
+                             // ---------
+
+// PRIVATE MANIPULATORS
+template &lt;class KEY, class COMPARATOR, class ALLOCATOR&gt;
+inline
+typename set&lt;KEY, COMPARATOR, ALLOCATOR&gt;::NodeFactory&amp;
+set&lt;KEY, COMPARATOR, ALLOCATOR&gt;::nodeFactory()
+{
+    return d_compAndAlloc.d_pool;
+}
+
+template &lt;class KEY, class COMPARATOR, class ALLOCATOR&gt;
+inline
+typename set&lt;KEY, COMPARATOR, ALLOCATOR&gt;::Comparator&amp;
+set&lt;KEY, COMPARATOR, ALLOCATOR&gt;::comparator()
+{
+    return d_compAndAlloc;
+}
+
+template &lt;class KEY, class COMPARATOR, class ALLOCATOR&gt;
+inline
+void set&lt;KEY, COMPARATOR, ALLOCATOR&gt;::quickSwap(set&amp; other)
+{
+    BloombergLP::bslalg::RbTreeUtil::swap(&amp;d_tree, &amp;other.d_tree);
+    nodeFactory().swap(other.nodeFactory());
+
+    // Work around to avoid the 1-byte swap problem on AIX for an empty class
+    // under empty-base optimization.
+
+    if (sizeof(NodeFactory) != sizeof(DataWrapper)) {
+        comparator().swap(other.comparator());
+    }
+}
+
+// PRIVATE ACCESSORS
+template &lt;class KEY, class COMPARATOR, class ALLOCATOR&gt;
+inline
+const typename set&lt;KEY, COMPARATOR, ALLOCATOR&gt;::NodeFactory&amp;
+set&lt;KEY, COMPARATOR, ALLOCATOR&gt;::nodeFactory() const
+{
+    return d_compAndAlloc.d_pool;
+}
+
+template &lt;class KEY, class COMPARATOR, class ALLOCATOR&gt;
+inline
+const typename set&lt;KEY, COMPARATOR, ALLOCATOR&gt;::Comparator&amp;
+set&lt;KEY, COMPARATOR, ALLOCATOR&gt;::comparator() const
+{
+    return d_compAndAlloc;
+}
+
+// CREATORS
+template &lt;class KEY, class COMPARATOR, class ALLOCATOR&gt;
+template &lt;class INPUT_ITERATOR&gt;
+inline
+set&lt;KEY, COMPARATOR, ALLOCATOR&gt;::set(INPUT_ITERATOR    first,
+                                     INPUT_ITERATOR    last,
+                                     const COMPARATOR&amp; comparator,
+                                     const ALLOCATOR&amp;  allocator)
+: d_compAndAlloc(comparator, allocator)
+, d_tree()
+{
+    if (first != last) {
+        BloombergLP::bslalg::RbTreeUtilTreeProctor&lt;NodeFactory&gt; proctor(
+                                                               &amp;d_tree,
+                                                               &amp;nodeFactory());
+
+        // The following loop guarantees amortized linear time to insert an
+        // ordered sequence of values (as required by the standard).   If the
+        // values are in sorted order, we are guaranteed the next node can be
+        // inseted as the right child of the previous node, and can call
+        // &#39;insertAt&#39; without &#39;findUniqueInsertLocation&#39;.
+
+        insert(*first);
+        BloombergLP::bslalg::RbTreeNode *prevNode = d_tree.rootNode();
+        while (++first != last) {
+            // The values are not in order, so insert them normally.
+
+            const value_type&amp; value = *first;
+            if (this-&gt;comparator()(value, *prevNode)) {
+                insert(value);
+                insert(++first, last);
+                break;
+            }
+
+            if (this-&gt;comparator()(*prevNode, value)) {
+                BloombergLP::bslalg::RbTreeNode *node =
+                                               nodeFactory().createNode(value);
+                BloombergLP::bslalg::RbTreeUtil::insertAt(&amp;d_tree,
+                                                          prevNode,
+                                                          false,
+                                                          node);
+                prevNode = node;
+            }
+        }
+
+        proctor.release();
+    }
+}
+
+
+template &lt;class KEY, class COMPARATOR, class ALLOCATOR&gt;
+inline
+set&lt;KEY, COMPARATOR, ALLOCATOR&gt;::set(const set&amp; original)
+: d_compAndAlloc(original.comparator().keyComparator(),
+                 AllocatorTraits::select_on_container_copy_construction(
+                                           original.nodeFactory().allocator()))
+, d_tree()
+{
+    if (0 &lt; original.size()) {
+        nodeFactory().reserveNodes(original.size());
+        BloombergLP::bslalg::RbTreeUtil::copyTree(&amp;d_tree,
+                                                  original.d_tree,
+                                                  &amp;nodeFactory());
+    }
+}
+
+template &lt;class KEY, class COMPARATOR, class ALLOCATOR&gt;
+inline
+set&lt;KEY, COMPARATOR, ALLOCATOR&gt;::set(const ALLOCATOR&amp; allocator)
+: d_compAndAlloc(COMPARATOR(), allocator)
+, d_tree()
+{
+}
+
+template &lt;class KEY, class COMPARATOR, class ALLOCATOR&gt;
+inline
+set&lt;KEY, COMPARATOR, ALLOCATOR&gt;::set(const set&amp;       original,
+                                     const ALLOCATOR&amp; allocator)
+: d_compAndAlloc(original.comparator().keyComparator(), allocator)
+, d_tree()
+{
+    if (0 &lt; original.size()) {
+        nodeFactory().reserveNodes(original.size());
+        BloombergLP::bslalg::RbTreeUtil::copyTree(&amp;d_tree,
+                                                  original.d_tree,
+                                                  &amp;nodeFactory());
+    }
+}
+
+template &lt;class KEY, class COMPARATOR, class ALLOCATOR&gt;
+inline
+set&lt;KEY, COMPARATOR, ALLOCATOR&gt;::~set()
+{
+    clear();
+}
+
+// MANIPULATORS
+template &lt;class KEY, class COMPARATOR, class ALLOCATOR&gt;
+inline
+set&lt;KEY, COMPARATOR, ALLOCATOR&gt;&amp;
+set&lt;KEY, COMPARATOR, ALLOCATOR&gt;::operator=(const set&amp; rhs)
+{
+    if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(this != &amp;rhs)) {
+
+        if (AllocatorTraits::propagate_on_container_copy_assignment::VALUE) {
+            set other(rhs, rhs.nodeFactory().allocator());
+            BloombergLP::bslalg::SwapUtil::swap(
+                                             &amp;nodeFactory().allocator(),
+                                             &amp;other.nodeFactory().allocator());
+            quickSwap(other);
+        }
+        else {
+            set other(rhs, nodeFactory().allocator());
+            quickSwap(other);
+        }
+    }
+    return *this;
+}
+
+template &lt;class KEY, class COMPARATOR, class ALLOCATOR&gt;
+inline
+typename set&lt;KEY, COMPARATOR, ALLOCATOR&gt;::iterator
+set&lt;KEY, COMPARATOR, ALLOCATOR&gt;::begin()
+{
+    return iterator(d_tree.firstNode());
+}
+
+template &lt;class KEY, class COMPARATOR, class ALLOCATOR&gt;
+inline
+typename set&lt;KEY, COMPARATOR, ALLOCATOR&gt;::iterator
+set&lt;KEY, COMPARATOR, ALLOCATOR&gt;::end()
+{
+    return iterator(d_tree.sentinel());
+}
+
+template &lt;class KEY, class COMPARATOR, class ALLOCATOR&gt;
+inline
+typename set&lt;KEY, COMPARATOR, ALLOCATOR&gt;::reverse_iterator
+set&lt;KEY, COMPARATOR, ALLOCATOR&gt;::rbegin()
+{
+    return reverse_iterator(end());
+}
+
+template &lt;class KEY, class COMPARATOR, class ALLOCATOR&gt;
+inline
+typename set&lt;KEY, COMPARATOR, ALLOCATOR&gt;::reverse_iterator
+set&lt;KEY, COMPARATOR, ALLOCATOR&gt;::rend()
+{
+    return reverse_iterator(begin());
+}
+
+template &lt;class KEY, class COMPARATOR, class ALLOCATOR&gt;
+inline
+pair&lt;typename set&lt;KEY, COMPARATOR, ALLOCATOR&gt;::iterator, bool&gt;
+set&lt;KEY, COMPARATOR, ALLOCATOR&gt;::insert(const value_type&amp; value)
+{
+    int comparisonResult;
+    BloombergLP::bslalg::RbTreeNode *insertLocation =
+        BloombergLP::bslalg::RbTreeUtil::findUniqueInsertLocation(
+                                                            &amp;comparisonResult,
+                                                            &amp;d_tree,
+                                                            this-&gt;comparator(),
+                                                            value);
+    if (!comparisonResult) {
+        return pair&lt;iterator, bool&gt;(iterator(insertLocation), false);
+                                                                      // RETURN
+    }
+    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().createNode(value);
+    BloombergLP::bslalg::RbTreeUtil::insertAt(&amp;d_tree,
+                                              insertLocation,
+                                              comparisonResult &lt; 0,
+                                              node);
+    return pair&lt;iterator, bool&gt;(iterator(node), true);
+}
+
+template &lt;class KEY, class COMPARATOR, class ALLOCATOR&gt;
+inline
+typename set&lt;KEY, COMPARATOR, ALLOCATOR&gt;::iterator
+set&lt;KEY, COMPARATOR, ALLOCATOR&gt;::insert(const_iterator   hint,
+                                       const value_type&amp; value)
+{
+    BloombergLP::bslalg::RbTreeNode *hintNode =
+                const_cast&lt;BloombergLP::bslalg::RbTreeNode *&gt;(hint.node());
+    int comparisonResult;
+    BloombergLP::bslalg::RbTreeNode *insertLocation =
+        BloombergLP::bslalg::RbTreeUtil::findUniqueInsertLocation(
+                                                            &amp;comparisonResult,
+                                                            &amp;d_tree,
+                                                            this-&gt;comparator(),
+                                                            value,
+                                                            hintNode);
+    if (!comparisonResult) {
+        return iterator(insertLocation);                              // RETURN
+    }
+
+    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().createNode(value);
+    BloombergLP::bslalg::RbTreeUtil::insertAt(&amp;d_tree,
+                                              insertLocation,
+                                              comparisonResult &lt; 0,
+                                              node);
+    return iterator(node);
+}
+
+template &lt;class KEY, class COMPARATOR, class ALLOCATOR&gt;
+template &lt;class INPUT_ITERATOR&gt;
+inline
+void set&lt;KEY, COMPARATOR, ALLOCATOR&gt;::insert(INPUT_ITERATOR first,
+                                             INPUT_ITERATOR last)
+{
+    while (first != last) {
+        insert(*first);
+        ++first;
+    }
+}
+
+template &lt;class KEY, class COMPARATOR, class ALLOCATOR&gt;
+inline
+typename set&lt;KEY, COMPARATOR, ALLOCATOR&gt;::iterator
+set&lt;KEY, COMPARATOR, ALLOCATOR&gt;::erase(const_iterator position)
+{
+    BSLS_ASSERT_SAFE(position != end());
+
+    BloombergLP::bslalg::RbTreeNode *node =
+                const_cast&lt;BloombergLP::bslalg::RbTreeNode *&gt;(position.node());
+    BloombergLP::bslalg::RbTreeNode *result =
+                                   BloombergLP::bslalg::RbTreeUtil::next(node);
+    BloombergLP::bslalg::RbTreeUtil::remove(&amp;d_tree, node);
+    nodeFactory().deleteNode(node);
+    return iterator(result);
+}
+
+template &lt;class KEY, class COMPARATOR, class ALLOCATOR&gt;
+inline
+typename set&lt;KEY, COMPARATOR, ALLOCATOR&gt;::size_type
+set&lt;KEY, COMPARATOR, ALLOCATOR&gt;::erase(const key_type&amp; key)
+{
+    const_iterator it = find(key);
+    if (it == end()) {
+        return 0;                                                     // RETURN
+    }
+    erase(it);
+    return 1;
+}
+
+template &lt;class KEY, class COMPARATOR, class ALLOCATOR&gt;
+inline
+typename set&lt;KEY, COMPARATOR, ALLOCATOR&gt;::iterator
+set&lt;KEY, COMPARATOR, ALLOCATOR&gt;::erase(const_iterator first,
+                                       const_iterator last)
+{
+    while (first != last) {
+        first = erase(first);
+    }
+    return iterator(last.node());
+}
+
+template &lt;class KEY, class COMPARATOR, class ALLOCATOR&gt;
+inline
+void set&lt;KEY, COMPARATOR, ALLOCATOR&gt;::swap(set&amp; other)
+{
+    if (AllocatorTraits::propagate_on_container_swap::VALUE) {
+        BloombergLP::bslalg::SwapUtil::swap(&amp;nodeFactory().allocator(),
+                                           &amp;other.nodeFactory().allocator());
+        quickSwap(other);
+    }
+    else {
+        // C++11 behavior: undefined for unequal allocators
+        // BSLS_ASSERT(allocator() == other.allocator());
+
+        // backward compatible behavior: swap with copies
+        if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
+               nodeFactory().allocator() == other.nodeFactory().allocator())) {
+            quickSwap(other);
+        }
+        else {
+            BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+            set thisCopy(*this, other.nodeFactory().allocator());
+            set otherCopy(other, nodeFactory().allocator());
+
+            quickSwap(otherCopy);
+            other.quickSwap(thisCopy);
+        }
+    }
+}
+
+template &lt;class KEY, class COMPARATOR, class ALLOCATOR&gt;
+inline
+void set&lt;KEY, COMPARATOR, ALLOCATOR&gt;::clear()
+{
+    BSLS_ASSERT_SAFE(d_tree.firstNode());
+    if (d_tree.rootNode()) {
+        BSLS_ASSERT_SAFE(0 &lt; d_tree.numNodes());
+        BSLS_ASSERT_SAFE(d_tree.firstNode() != d_tree.sentinel());
+
+        BloombergLP::bslalg::RbTreeUtil::deleteTree(&amp;d_tree, &amp;nodeFactory());
+    }
+#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
+    else {
+        BSLS_ASSERT_SAFE(0 == d_tree.numNodes());
+        BSLS_ASSERT_SAFE(d_tree.firstNode() == d_tree.sentinel());
+    }
+#endif
+}
+
+template &lt;class KEY, class COMPARATOR, class ALLOCATOR&gt;
+inline
+typename set&lt;KEY, COMPARATOR, ALLOCATOR&gt;::iterator
+set&lt;KEY, COMPARATOR, ALLOCATOR&gt;::find(const key_type&amp; key)
+{
+    return iterator(BloombergLP::bslalg::RbTreeUtil::find(d_tree,
+                                             this-&gt;comparator(),
+                                             key));
+}
+
+template &lt;class KEY, class COMPARATOR, class ALLOCATOR&gt;
+inline
+typename set&lt;KEY, COMPARATOR, ALLOCATOR&gt;::iterator
+set&lt;KEY, COMPARATOR, ALLOCATOR&gt;::lower_bound(const key_type&amp; key)
+{
+    return iterator(BloombergLP::bslalg::RbTreeUtil::lowerBound(d_tree,
+                                                   this-&gt;comparator(),
+                                                   key));
+}
+
+template &lt;class KEY, class COMPARATOR, class ALLOCATOR&gt;
+inline
+typename set&lt;KEY, COMPARATOR, ALLOCATOR&gt;::iterator
+set&lt;KEY, COMPARATOR, ALLOCATOR&gt;::upper_bound(const key_type&amp; key)
+{
+    return iterator(BloombergLP::bslalg::RbTreeUtil::upperBound(d_tree,
+                                                   this-&gt;comparator(),
+                                                   key));
+}
+
+template &lt;class KEY, class COMPARATOR, class ALLOCATOR&gt;
+inline
+pair&lt;typename set&lt;KEY, COMPARATOR, ALLOCATOR&gt;::iterator,
+          typename set&lt;KEY, COMPARATOR, ALLOCATOR&gt;::iterator&gt;
+set&lt;KEY, COMPARATOR, ALLOCATOR&gt;::equal_range(const key_type&amp; key)
+{
+    iterator startIt = lower_bound(key);
+    iterator endIt   = startIt;
+    if (endIt != end() &amp;&amp; !comparator()(key, *endIt.node())) {
+        ++endIt;
+    }
+    return pair&lt;iterator, iterator&gt;(startIt, endIt);
+}
+
+// ACCESSORS
+template &lt;class KEY, class COMPARATOR, class ALLOCATOR&gt;
+inline
+typename set&lt;KEY, COMPARATOR, ALLOCATOR&gt;::allocator_type
+set&lt;KEY, COMPARATOR, ALLOCATOR&gt;::get_allocator() const
+{
+    return nodeFactory().allocator();
+}
+
+template &lt;class KEY, class COMPARATOR, class ALLOCATOR&gt;
+inline
+typename set&lt;KEY, COMPARATOR, ALLOCATOR&gt;::const_iterator
+set&lt;KEY, COMPARATOR, ALLOCATOR&gt;::begin() const
+{
+    return cbegin();
+}
+
+template &lt;class KEY, class COMPARATOR, class ALLOCATOR&gt;
+inline
+typename set&lt;KEY, COMPARATOR, ALLOCATOR&gt;::const_iterator
+set&lt;KEY, COMPARATOR, ALLOCATOR&gt;::end() const
+{
+    return cend();
+}
+
+template &lt;class KEY, class COMPARATOR, class ALLOCATOR&gt;
+inline
+typename set&lt;KEY, COMPARATOR, ALLOCATOR&gt;::const_reverse_iterator
+set&lt;KEY, COMPARATOR, ALLOCATOR&gt;::rbegin() const
+{
+    return crbegin();
+}
+
+template &lt;class KEY, class COMPARATOR, class ALLOCATOR&gt;
+inline
+typename set&lt;KEY, COMPARATOR, ALLOCATOR&gt;::const_reverse_iterator
+set&lt;KEY, COMPARATOR, ALLOCATOR&gt;::rend() const
+{
+    return crend();
+}
+
+template &lt;class KEY, class COMPARATOR, class ALLOCATOR&gt;
+inline
+typename set&lt;KEY, COMPARATOR, ALLOCATOR&gt;::const_iterator
+set&lt;KEY, COMPARATOR, ALLOCATOR&gt;::cbegin() const
+{
+    return const_iterator(d_tree.firstNode());
+}
+
+template &lt;class KEY, class COMPARATOR, class ALLOCATOR&gt;
+inline
+typename set&lt;KEY, COMPARATOR, ALLOCATOR&gt;::const_iterator
+set&lt;KEY, COMPARATOR, ALLOCATOR&gt;::cend() const
+{
+    return const_iterator(d_tree.sentinel());
+}
+
+template &lt;class KEY, class COMPARATOR, class ALLOCATOR&gt;
+inline
+typename set&lt;KEY, COMPARATOR, ALLOCATOR&gt;::const_reverse_iterator
+set&lt;KEY, COMPARATOR, ALLOCATOR&gt;::crbegin() const
+{
+    return const_reverse_iterator(end());
+}
+
+template &lt;class KEY, class COMPARATOR, class ALLOCATOR&gt;
+inline
+typename set&lt;KEY, COMPARATOR, ALLOCATOR&gt;::const_reverse_iterator
+set&lt;KEY, COMPARATOR, ALLOCATOR&gt;::crend() const
+{
+    return const_reverse_iterator(begin());
+}
+
+// capacity:
+template &lt;class KEY, class COMPARATOR, class ALLOCATOR&gt;
+inline
+bool set&lt;KEY, COMPARATOR, ALLOCATOR&gt;::empty() const
+{
+    return 0 == d_tree.numNodes();
+}
+
+template &lt;class KEY, class COMPARATOR, class ALLOCATOR&gt;
+inline
+typename set&lt;KEY, COMPARATOR, ALLOCATOR&gt;::size_type
+set&lt;KEY, COMPARATOR, ALLOCATOR&gt;::size() const
+{
+    return d_tree.numNodes();
+}
+
+
+template &lt;class KEY, class COMPARATOR, class ALLOCATOR&gt;
+inline
+typename set&lt;KEY, COMPARATOR, ALLOCATOR&gt;::size_type
+set&lt;KEY, COMPARATOR, ALLOCATOR&gt;::max_size() const
+{
+    return AllocatorTraits::max_size(get_allocator());
+}
+
+template &lt;class KEY, class COMPARATOR, class ALLOCATOR&gt;
+inline
+typename set&lt;KEY, COMPARATOR, ALLOCATOR&gt;::key_compare
+set&lt;KEY, COMPARATOR, ALLOCATOR&gt;::key_comp() const
+{
+    return comparator().keyComparator();
+}
+
+template &lt;class KEY, class COMPARATOR, class ALLOCATOR&gt;
+inline
+typename set&lt;KEY, COMPARATOR, ALLOCATOR&gt;::value_compare
+set&lt;KEY, COMPARATOR, ALLOCATOR&gt;::value_comp() const
+{
+    return value_compare(key_comp());
+}
+
+template &lt;class KEY, class COMPARATOR, class ALLOCATOR&gt;
+inline
+typename set&lt;KEY, COMPARATOR, ALLOCATOR&gt;::const_iterator
+set&lt;KEY, COMPARATOR, ALLOCATOR&gt;::find(const key_type&amp; key) const
+{
+    return const_iterator(
+       BloombergLP::bslalg::RbTreeUtil::find(d_tree, this-&gt;comparator(), key));
+}
+
+template &lt;class KEY, class COMPARATOR, class ALLOCATOR&gt;
+inline
+typename set&lt;KEY, COMPARATOR, ALLOCATOR&gt;::size_type
+set&lt;KEY, COMPARATOR, ALLOCATOR&gt;::count(const key_type&amp; key) const
+{
+    return (find(key) != end()) ? 1 : 0;
+}
+
+template &lt;class KEY, class COMPARATOR, class ALLOCATOR&gt;
+inline
+typename set&lt;KEY, COMPARATOR, ALLOCATOR&gt;::const_iterator
+set&lt;KEY, COMPARATOR, ALLOCATOR&gt;::lower_bound(const key_type&amp; key) const
+{
+    return iterator(BloombergLP::bslalg::RbTreeUtil::lowerBound(d_tree,
+                                                   this-&gt;comparator(),
+                                                   key));
+}
+
+template &lt;class KEY, class COMPARATOR, class ALLOCATOR&gt;
+inline
+typename set&lt;KEY, COMPARATOR, ALLOCATOR&gt;::const_iterator
+set&lt;KEY, COMPARATOR, ALLOCATOR&gt;::upper_bound(const key_type&amp; key) const
+{
+    return const_iterator(BloombergLP::bslalg::RbTreeUtil::upperBound(
+                                                            d_tree,
+                                                            this-&gt;comparator(),
+                                                            key));
+}
+
+template &lt;class KEY, class COMPARATOR, class ALLOCATOR&gt;
+inline
+pair&lt;typename set&lt;KEY, COMPARATOR, ALLOCATOR&gt;::const_iterator,
+          typename set&lt;KEY, COMPARATOR, ALLOCATOR&gt;::const_iterator&gt;
+set&lt;KEY, COMPARATOR, ALLOCATOR&gt;::equal_range(const key_type&amp; key) const
+{
+    const_iterator startIt = lower_bound(key);
+    const_iterator endIt   = startIt;
+    if (endIt != end() &amp;&amp; !comparator()(key, *endIt.node())) {
+        ++endIt;
+    }
+    return pair&lt;const_iterator, const_iterator&gt;(startIt, endIt);
+}
+
+}  // close namespace bsl
+
+template &lt;class KEY, class COMPARATOR, class ALLOCATOR&gt;
+inline
+bool bsl::operator==(const bsl::set&lt;KEY, COMPARATOR, ALLOCATOR&gt;&amp; lhs,
+                     const bsl::set&lt;KEY, COMPARATOR, ALLOCATOR&gt;&amp; rhs)
+{
+    return BloombergLP::bslalg::RangeCompare::equal(lhs.begin(),
+                                                    lhs.end(),
+                                                    lhs.size(),
+                                                    rhs.begin(),
+                                                    rhs.end(),
+                                                    rhs.size());
+}
+
+template &lt;class KEY,  class COMPARATOR,  class ALLOCATOR&gt;
+inline
+bool bsl::operator!=(const bsl::set&lt;KEY, COMPARATOR, ALLOCATOR&gt;&amp; lhs,
+                     const bsl::set&lt;KEY, COMPARATOR, ALLOCATOR&gt;&amp; rhs)
+{
+    return !(lhs == rhs);
+}
+
+template &lt;class KEY,  class COMPARATOR,  class ALLOCATOR&gt;
+inline
+bool bsl::operator&lt;(const bsl::set&lt;KEY, COMPARATOR, ALLOCATOR&gt;&amp; lhs,
+                    const bsl::set&lt;KEY, COMPARATOR, ALLOCATOR&gt;&amp; rhs)
+{
+    return 0 &gt; BloombergLP::bslalg::RangeCompare::lexicographical(lhs.begin(),
+                                                                  lhs.end(),
+                                                                  lhs.size(),
+                                                                  rhs.begin(),
+                                                                  rhs.end(),
+                                                                  rhs.size());
+}
+
+template &lt;class KEY,  class COMPARATOR,  class ALLOCATOR&gt;
+inline
+bool bsl::operator&gt;(const bsl::set&lt;KEY, COMPARATOR, ALLOCATOR&gt;&amp; lhs,
+                    const bsl::set&lt;KEY, COMPARATOR, ALLOCATOR&gt;&amp; rhs)
+{
+    return rhs &lt; lhs;
+}
+
+template &lt;class KEY,  class COMPARATOR,  class ALLOCATOR&gt;
+inline
+bool bsl::operator&lt;=(const bsl::set&lt;KEY, COMPARATOR, ALLOCATOR&gt;&amp; lhs,
+                     const bsl::set&lt;KEY, COMPARATOR, ALLOCATOR&gt;&amp; rhs)
+{
+    return !(rhs &lt; lhs);
+}
+
+
+template &lt;class KEY,  class COMPARATOR,  class ALLOCATOR&gt;
+inline
+bool bsl::operator&gt;=(const bsl::set&lt;KEY, COMPARATOR, ALLOCATOR&gt;&amp; lhs,
+                     const bsl::set&lt;KEY, COMPARATOR, ALLOCATOR&gt;&amp; rhs)
+{
+    return !(lhs &lt; rhs);
+}
+
+template &lt;class KEY,  class COMPARATOR,  class ALLOCATOR&gt;
+inline
+void bsl::swap(bsl::set&lt;KEY, COMPARATOR, ALLOCATOR&gt;&amp; a,
+               bsl::set&lt;KEY, COMPARATOR, ALLOCATOR&gt;&amp; b)
+{
+    a.swap(b);
+}
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright (C) 2012 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the &quot;Software&quot;), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

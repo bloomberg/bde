@@ -1,0 +1,149 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 2.16 BETA</title>
+<html>
+<pre>
+// bslmf_nil.h                                                        -*-C++-*-
+#ifndef INCLUDED_BSLMF_NIL
+#define INCLUDED_BSLMF_NIL
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a nil type.
+//
+//@CLASSES:
+//  bslmf::Nil: class representing a nil (non-existent) type.
+//  bslmf::IsNil: meta-function to test for nil.
+//
+//@DESCRIPTION: &#39;bslmf::Nil&#39; is mainly used for template meta-programming.  It
+// is useful for providing defaults for template parameters and terminating
+// template recursions.  &#39;bslmf::Nil&#39; can also be used to represent an unset
+// state (i.e., nil) in components that require one.
+//
+///Usage
+///-----
+// The following usage illustrates a typical use of &#39;bslmf::Nil&#39; as a default
+// template parameter for another meta-function.
+//..
+//  template &lt;int   CONDITION,
+//            class TRUE_TYPE = bslmf::Nil,
+//            class FALSE_TYPE = bslmf::Nil&gt;
+//  struct my_If {
+//      typedef TRUE_TYPE Type;
+//  };
+//
+//  template &lt;class TRUE_TYPE, class FALSE_TYPE&gt;
+//  struct my_If&lt;0, TRUE_TYPE, FALSE_TYPE&gt; {
+//      typedef FALSE_TYPE Type;
+//  };
+//..
+// Next, we can use the &#39;my_If&#39; meta-function to implement a print function
+// that checks whether a type has a print method (using a fictitious
+// meta-function &#39;my_IsPrintable&#39;), and print the value.  Note the use of
+// &#39;bslmf::Nil&#39; as the type for overloading:
+//..
+//  template &lt;class TYPE&gt;
+//  void print(const TYPE&amp; value, int)
+//  {
+//      bsl::cout &lt;&lt; value &lt;&lt; bsl::endl;
+//  }
+//
+//  template &lt;class TYPE&gt;
+//  void print(const TYPE&amp;, bslmf::Nil)
+//  {
+//      bsl::cout &lt;&lt; &quot;Cannot be printed.&quot; &lt;&lt; bsl::endl;
+//  }
+//
+//  template &lt;class TYPE&gt;
+//  void print(const TYPE&amp; value)
+//  {
+//      my_If&lt;my_IsPrintable&lt;TYPE&gt;::value, int&gt;::Type Type;  // default false
+//                                                           // type is
+//                                                           // &#39;bslmf::Nil&#39;.
+//      print(value, Type());
+//  }
+//..
+// Using the above functions, the following code:
+//..
+//  int         x = 3;
+//  bslmf::Nil nil;
+//..
+// Will print the following to &#39;stdout&#39;:
+//..
+//  3
+//  Cannot be printed.
+//..
+// Finally, the &#39;bslmf::IsNil&#39; meta-function returns true if the type passed to
+// it is &#39;bslmf::Nil&#39;, and false otherwise:
+//..
+//  assert(1 == bslmf::IsNil&lt;bslmf::Nil&gt;::value)
+//  assert(0 == bslmf::IsNil&lt;int&gt;::value)
+//  assert(0 == bslmf::IsNil&lt;char&gt;::value)
+//..
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include &lt;bslscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
+#include &lt;bslmf_integralconstant.h&gt;
+#endif
+
+namespace BloombergLP {
+
+namespace bslmf {
+
+                      // ==========
+                      // struct Nil
+                      // ==========
+
+struct Nil {
+    // This struct is empty and represents a nil type.
+};
+
+                      // ============
+                      // struct IsNil
+                      // ============
+
+template &lt;class T&gt;
+struct IsNil : bsl::false_type {
+};
+
+template &lt;&gt;
+struct IsNil&lt;Nil&gt; : bsl::true_type {
+};
+
+}  // close package namespace
+
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright (C) 2012 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the &quot;Software&quot;), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

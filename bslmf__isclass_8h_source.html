@@ -1,0 +1,172 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 2.16 BETA</title>
+<html>
+<pre>
+// bslmf_isclass.h                                                    -*-C++-*-
+#ifndef INCLUDED_BSLMF_ISCLASS
+#define INCLUDED_BSLMF_ISCLASS
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a compile-time check for class types.
+//
+//@CLASSES:
+//  bsl::is_class: standard meta-function for determining class types
+//  bslmf::IsClass: meta-function for determining class types
+//
+//@DESCRIPTION: This component defines two meta-functions, &#39;bsl::is_class&#39; and
+// &#39;BloombergLP::bslmf::IsClass&#39;, both of which may be used to query whether a
+// type is a &#39;class&#39;, &#39;struct&#39;, or &#39;union&#39;, optionally qualified with &#39;const&#39;
+// or volatile&#39;.
+//
+// &#39;bsl::is_class&#39; meets the requirements of the &#39;is_class&#39; template defined in
+// the C++11 standard [meta.unary.cat], while &#39;bslmf::IsClass&#39; was devised
+// before &#39;is_class&#39; was standardized.
+//
+// The two meta-functions are functionally equivalent.  The major difference
+// between them is that the result for &#39;bsl::is_class&#39; is indicated by the
+// class member &#39;value&#39;, while the result for &#39;bslmf::IsClass&#39; is indicated by
+// the class member &#39;VALUE&#39;.
+//
+// Note that &#39;bsl::is_class&#39; should be preferred over &#39;bslmf::IsClass&#39;, and in
+// general, should be used by new components.
+//
+///Usage
+///-----
+// In this section we show intended use of this component.
+//
+///Example 1: Verify Class Types
+///- - - - - - - - - - - - - - -
+// Suppose that we want to assert whether a particular type is a class type.
+//
+// First, we create a class type &#39;MyClass&#39;:
+//..
+//  class MyClass
+//  {
+//  };
+//..
+// Now, we instantiate the &#39;bsl::is_class&#39; template for both a non-class type
+// and the defined type &#39;MyClass&#39;, and assert the &#39;value&#39; static data member of
+// each instantiation:
+//..
+//  assert(false == bsl::is_class&lt;int&gt;::value);
+//  assert(true  == bsl::is_class&lt;MyClass&gt;::value);
+//..
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include &lt;bslscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
+#include &lt;bslmf_integralconstant.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_REMOVECV
+#include &lt;bslmf_removecv.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_REMOVEREFERENCE
+#include &lt;bslmf_removereference.h&gt;
+#endif
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
+#ifndef INCLUDED_CSTDLIB
+#include &lt;cstdlib&gt;  // TBD Robo transitively needs this for &#39;bsl::atoi&#39;, etc.
+#define INCLUDED_CSTDLIB
+#endif
+
+#endif
+
+namespace BloombergLP {
+namespace bslmf {
+
+template &lt;typename TYPE&gt;
+struct IsClass_Imp {
+    // This &#39;struct&#39; template provides a meta-function to determine whether the
+    // (template parameter) &#39;TYPE&#39; is a class type.
+
+    typedef struct { char a; }    YesType;
+    typedef struct { char a[2]; } NoType;
+
+    template &lt;typename TEST_TYPE&gt;
+    static
+    YesType test(int TEST_TYPE::*);
+
+    template &lt;typename TEST_TYPE&gt;
+    static
+    NoType test(...);
+
+    enum { Value = (sizeof(test&lt;TYPE&gt;(0)) == sizeof(YesType)) };
+};
+
+}  // close package namespace
+}  // close enterprise namespace
+
+namespace bsl {
+
+template &lt;typename TYPE&gt;
+struct is_class : integral_constant&lt;bool,
+                                 BloombergLP::bslmf::IsClass_Imp&lt;
+                                     typename remove_cv&lt;
+                                         typename remove_reference&lt;TYPE&gt;::type&gt;
+                                             ::type&gt;::Value&gt; {
+    // This &#39;struct&#39; template implements the &#39;is_class&#39; meta-function defined
+    // in the C++11 standard [meta.unary.cat] to determine if the (template
+    // parameter) &#39;TYPE&#39; is a class.
+};
+
+}  // close namespace bsl
+
+namespace BloombergLP {
+namespace bslmf {
+
+                         // ==============
+                         // struct IsClass
+                         // ==============
+
+template &lt;typename TYPE&gt;
+struct IsClass : bsl::is_class&lt;TYPE&gt;::type {
+    // This metafunction derives from &#39;bsl::true_type&#39; if the specified &#39;TYPE&#39;
+    // is a class type, or is a reference to a class type, and from
+    // &#39;bsl::false_type&#39; otherwise.
+    //
+    // Note that although this &#39;struct&#39; is functionally identical to
+    // &#39;bsl::is_class&#39;, and the use of &#39;bsl::is_class&#39; should be preferred.
+};
+
+}  // close package namespace
+
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright (C) 2012 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the &quot;Software&quot;), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

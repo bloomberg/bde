@@ -1,0 +1,190 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 2.16 BETA</title>
+<html>
+<pre>
+// bslstl_equalto.h                                                   -*-C++-*-
+#ifndef INCLUDED_BSLSTL_EQUALTO
+#define INCLUDED_BSLSTL_EQUALTO
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a binary functor conforming to the C++11 &#39;equal_to&#39; spec.
+//
+//@CLASSES:
+//  equal_to: C++11-compliant binary functor applying &#39;operator==&#39;
+//
+//@SEE_ALSO: bslstl_unorderedmap, bslstl_unorderedset
+//
+//@DESCRIPTION: This component provides the C+11 standard binary comparison
+// functor, &#39;bsl::equal_to&#39;, that evaluates equality of two &#39;VALUE_TYPE&#39;
+// objects through the &#39;operator==&#39;.  The application of the functor to two
+// different objects &#39;o1&#39; and &#39;o2&#39; returns true if &#39;o1 == o2&#39;.  Note that this
+// the for use as keys in the standard unordered associative containers such as
+// &#39;bsl::unordered_map&#39; and &#39;bsl::unordered_set&#39;.  Also note that this class is
+// an empty POD type.
+//
+///Usage
+///-----
+
+// Prevent &#39;bslstl&#39; headers from being included directly in &#39;BSL_OVERRIDES_STD&#39;
+// mode.  Doing so is unsupported, and is likely to cause compilation errors.
+#if defined(BSL_OVERRIDES_STD) &amp;&amp; !defined(BSL_STDHDRS_PROLOGUE_IN_EFFECT)
+#error &quot;&lt;bslstl_equalto.h&gt; header can&#39;t be included directly in \
+BSL_OVERRIDES_STD mode&quot;
+#endif
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include &lt;bslscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
+#include &lt;bslmf_isbitwisemoveable.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
+#include &lt;bslmf_istriviallycopyable.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_ISTRIVIALLYDEFAULTCONSTRUCTIBLE
+#include &lt;bslmf_istriviallydefaultconstructible.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include &lt;bslmf_nestedtraitdeclaration.h&gt;
+#endif
+
+namespace bsl
+{
+
+                       // ===============
+                       // struct equal_to
+                       // ===============
+
+template&lt;class VALUE_TYPE&gt;
+struct equal_to {
+    // This &#39;struct&#39; defines a binary comparison functor applying &#39;operator==&#39;
+    // to two &#39;VALUE_TYPE&#39; objects.  This class conforms to the C++11 standard
+    // specification of &#39;std::equal_to&#39; that does not require inheriting from
+    // &#39;std::binary_function&#39;.  Note that this class is an empty POD type.
+
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(equal_to, is_trivially_copyable);
+
+    // STANDARD TYPEDEFS
+    typedef VALUE_TYPE first_argument_type;
+    typedef VALUE_TYPE second_argument_type;
+    typedef bool       result_type;
+
+    //! equal_to() = default;
+        // Create a &#39;equal_to&#39; object.
+
+    //! equal_to(const equal_to&amp; original) = default;
+        // Create a &#39;equal_to&#39; object.  Note that as
+        // &#39;equal_to&#39; is an empty (stateless) type, this operation
+        // will have no observable effect.
+
+    //! ~equal_to() = default;
+        // Destroy this object.
+
+    // MANIPULATORS
+    //! equal_to&amp; operator=(const equal_to&amp;) = default;
+        // Assign to this object the value of the specified &#39;rhs&#39; object, and
+        // a return a reference providing modifiable access to this object.
+        // Note that as &#39;equal_to&#39; is an empty (stateless) type,
+        // this operation will have no observable effect.
+
+    // ACCESSORS
+    bool operator()(const VALUE_TYPE&amp; lhs, const VALUE_TYPE&amp; rhs) const;
+        // Return &#39;true&#39; if the specified &#39;lhs&#39; compares equal to the specified
+        // &#39;rhs&#39; using the equality-comparison operator, &#39;lhs == rhs&#39;.
+};
+
+}  // namespace bsl
+
+// ============================================================================
+//                                TYPE TRAITS
+// ============================================================================
+
+// Type traits for STL *sequence* containers:
+//: o A sequence container defines STL iterators.
+//: o A sequence container is bitwise moveable if the allocator is bitwise
+//:     moveable.
+//: o A sequence container uses &#39;bslma&#39; allocators if the parameterized
+//:     &#39;ALLOCATOR&#39; is convertible from &#39;bslma::Allocator*&#39;.
+
+namespace bsl {
+
+template&lt;class VALUE_TYPE&gt;
+struct is_trivially_default_constructible&lt;equal_to&lt;VALUE_TYPE&gt; &gt;
+: bsl::true_type
+{};
+
+template&lt;class VALUE_TYPE&gt;
+struct is_trivially_copyable&lt;equal_to&lt;VALUE_TYPE&gt; &gt;
+: bsl::true_type
+{};
+
+}
+
+namespace BloombergLP {
+namespace bslmf {
+
+template&lt;class VALUE_TYPE&gt;
+struct IsBitwiseMoveable&lt;bsl::equal_to&lt;VALUE_TYPE&gt; &gt;
+: bsl::true_type
+{};
+
+}
+}  // namespace BloombergLP
+
+namespace bsl {
+
+// ============================================================================
+//                      INLINE FUNCTION DEFINITIONS
+// ============================================================================
+
+                       // --------------------
+                       // struct bsl::equal_to
+                       // --------------------
+
+// ACCESSORS
+template&lt;class VALUE_TYPE&gt;
+inline
+bool equal_to&lt;VALUE_TYPE&gt;::operator()(const VALUE_TYPE&amp; lhs,
+                                      const VALUE_TYPE&amp; rhs) const
+{
+    return lhs == rhs;
+}
+
+}  // close namespace bsl
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright (C) 2012 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the &quot;Software&quot;), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

@@ -1,0 +1,268 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 2.16 BETA</title>
+<html>
+<pre>
+// bslalg_autoarraydestructor.h                                       -*-C++-*-
+#ifndef INCLUDED_BSLALG_AUTOARRAYDESTRUCTOR
+#define INCLUDED_BSLALG_AUTOARRAYDESTRUCTOR
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a proctor for destroying arrays.
+//
+//@CLASSES:
+//  bslalg::AutoArrayDestructor: exception-neutrality proctor for arrays
+//
+//@SEE_ALSO: bslma_autodestructor
+//
+//@DESCRIPTION: This component provides a proctor object to manage a contiguous
+// (in-place) sequence of otherwise-unmanaged instances of a user-defined type.
+// If not explicitly released, all objects managed by the proctor object are
+// automatically destroyed by the proctor&#39;s destructor, using the
+// &#39;bslalg_arraydestructionprimitives&#39;.
+//
+///Usage
+///-----
+// The usage example is nearly identical to that of &#39;bslma_autodestructor&#39;, so
+// we will only quote and adapt a small portion of that usage example.  Namely,
+// we will focus on an array that supports arbitrary user-defined types, and
+// suppose that we want to implement insertion of an arbitrary number of
+// elements at some (intermediate) position in the array, taking care that if
+// an element copy constructor or assignment operator throws, the whole array
+// is left in a valid (but unspecified) state.
+//
+// Consider the implementation of the &#39;insert&#39; method for a templatized array
+// below.  The proctor&#39;s *origin* is set (at construction) to refer to the
+// &#39;numItems&#39; position past &#39;array[length]&#39;.  Initially, the proctor manages no
+// objects (i.e., its end is the same as its beginning).
+//..
+//     0     1     2     3     4     5     6     7
+//   _____ _____ _____ _____ _____ _____ _____ _____
+//  | &quot;A&quot; | &quot;B&quot; | &quot;C&quot; | &quot;D&quot; | &quot;E&quot; |xxxxx|xxxxx|xxxxx|
+//  `=====^=====^=====^=====^=====^=====^=====^=====&#39;
+//  my_Array                                  ^----- AutoArrayDestructor
+//  (length = 5)
+//
+//              Figure: Use of proctor for my_Array::insert
+//..
+// As each of the elements at index positions beyond the insertion position is
+// shifted up by two index positions, the proctor&#39;s begin address is
+// *decremented*.  At the same time, the array&#39;s length is *decremented* to
+// ensure that each array element is always being managed (during an allocation
+// attempt) either by the proctor or the array itself, but not both.
+//..
+//     0     1     2     3     4     5     6     7
+//   _____ _____ _____ _____ _____ _____ _____ _____
+//  | &quot;A&quot; | &quot;B&quot; | &quot;C&quot; | &quot;D&quot; |xxxxx|xxxxx| &quot;E&quot; |xxxxx|
+//  `=====^=====^=====^=====^=====^=====^=====^=====&#39;
+//  my_Array                            ^     ^ AutoArrayDestructor::end
+//  (length = 4)                        `---- AutoArrayDestructor::begin
+//
+//              Figure: Configuration after shifting up one element
+//..
+// After the required number of elements have been shifted, the hole is filled
+// (backwards) by copies of the element to be inserted.  The code for the
+// templatized &#39;insert&#39; method is as follows:
+//..
+//  // Assume no aliasing.
+//  template &lt;class TYPE&gt; inline
+//  void my_Array&lt;TYPE&gt;::insert(int dstIndex, const TYPE&amp; item, int numItems)
+//  {
+//      if (d_length &gt;= d_size) {
+//          this-&gt;increaseSize(numItems);
+//      }
+//
+//      int   origLen = d_length;
+//      TYPE *src     = &amp;d_array_p[d_length];
+//      TYPE *src     = &amp;d_array_p[d_length + numItems];
+//      bslalg::AutoArrayDestructor&lt;TYPE&gt; autoDtor(dest, dest);
+//
+//      for (int i = d_length; i &gt; dstIndex; --i, --d_length) {
+//          dest = autoDtor.moveBegin(-1);  // decrement destination
+//          new(dest) TYPE(--src);          // copy to new index
+//          src-&gt;~TYPE();                   // destroy original
+//      }
+//      for (int i = numItems; i &gt; 0; --i) {
+//          dest = autoDtor.moveBegin(-1);  // decrement destination
+//          new(dest) TYPE(item);           // copy new value into hole
+//      }
+//      autoDtor.release();
+//      d_length = origLen + numItems;
+//  }
+//..
+// Note that in the &#39;insert&#39; example above, we illustrate exception neutrality,
+// but not alias safety (i.e., in the case when &#39;item&#39; is a reference into the
+// portion of the array at &#39;dstIndex&#39; or beyond).
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include &lt;bslscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLALG_ARRAYDESTRUCTIONPRIMITIVES
+#include &lt;bslalg_arraydestructionprimitives.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include &lt;bsls_assert.h&gt;
+#endif
+
+#ifndef INCLUDED_CSTDDEF
+#include &lt;cstddef&gt;  // size_t
+#define INCLUDED_CSTDDEF
+#endif
+
+namespace BloombergLP {
+
+namespace bslalg {
+
+                        // =========================
+                        // class AutoArrayDestructor
+                        // =========================
+
+template &lt;class OBJECT_TYPE&gt;
+class AutoArrayDestructor {
+    // This &#39;class&#39; provides a specialized proctor object that, upon
+    // destruction and unless the &#39;release&#39; method has been called, destroys
+    // the elements in a segment of an array of parameterized type
+    // &#39;OBJECT_TYPE&#39;.  The elements destroyed are delimited by the &quot;guarded&quot;
+    // range &#39;[ begin(), end() )&#39;.
+
+    // DATA
+    OBJECT_TYPE *d_begin_p;  // address of first element in guarded range
+
+    OBJECT_TYPE *d_end_p;    // first address beyond last element in guarded
+                             // range
+
+  private:
+    // NOT IMPLEMENTED
+    AutoArrayDestructor(const AutoArrayDestructor&amp;);
+    AutoArrayDestructor&amp; operator=(const AutoArrayDestructor&amp;);
+
+  public:
+    // TYPES
+    typedef std::ptrdiff_t difference_type;
+
+    // CREATORS
+    AutoArrayDestructor(OBJECT_TYPE *begin, OBJECT_TYPE *end);
+        // Create an array exception guard object for the sequence of elements
+        // of the parameterized &#39;OBJECT_TYPE&#39; delimited by the range specified
+        // by &#39;[ begin, end )&#39;.  The behavior is undefined unless
+        // &#39;begin &lt;= end&#39; and each element in the range &#39;[ begin, end )&#39; has
+        // been initialized.
+
+    ~AutoArrayDestructor();
+        // Call the destructor on each of the elements of the parameterized
+        // &#39;OBJECT_TYPE&#39; delimited by the range &#39;[ begin(), end() )&#39; and
+        // destroy this array exception guard.
+
+    // MANIPULATORS
+    OBJECT_TYPE *moveBegin(difference_type offset = -1);
+        // Move the begin pointer by the specified &#39;offset&#39;, and return the new
+        // begin pointer.
+
+    OBJECT_TYPE *moveEnd(difference_type offset = 1);
+        // Move the end pointer by the specified &#39;offset&#39;, and return the new
+        // end pointer.
+
+    void release();
+        // Set the range of elements guarded by this object to be empty.  Note
+        // that &#39;begin() == end()&#39; following this operation, but the specific
+        // value is unspecified.
+};
+
+// ===========================================================================
+//                          INLINE FUNCTION DEFINITIONS
+// ===========================================================================
+
+                      // -------------------------
+                      // class AutoArrayDestructor
+                      // -------------------------
+
+// CREATORS
+template &lt;class OBJECT_TYPE&gt;
+inline
+AutoArrayDestructor&lt;OBJECT_TYPE&gt;::AutoArrayDestructor(OBJECT_TYPE *begin,
+                                                      OBJECT_TYPE *end)
+: d_begin_p(begin)
+, d_end_p(end)
+{
+    BSLS_ASSERT_SAFE(!begin == !end);
+    BSLS_ASSERT_SAFE(begin &lt;= end);
+}
+
+template &lt;class OBJECT_TYPE&gt;
+inline
+AutoArrayDestructor&lt;OBJECT_TYPE&gt;::~AutoArrayDestructor()
+{
+    BSLS_ASSERT_SAFE(!d_begin_p == !d_end_p);
+    BSLS_ASSERT_SAFE(d_begin_p &lt;= d_end_p);
+
+    ArrayDestructionPrimitives::destroy(d_begin_p, d_end_p);
+}
+
+// MANIPULATORS
+template &lt;class OBJECT_TYPE&gt;
+inline
+OBJECT_TYPE *AutoArrayDestructor&lt;OBJECT_TYPE&gt;::moveBegin(
+                                                        difference_type offset)
+{
+    BSLS_ASSERT_SAFE(d_begin_p || 0 == offset);
+    BSLS_ASSERT_SAFE(d_end_p - d_begin_p &gt;= offset);
+
+    d_begin_p += offset;
+    return d_begin_p;
+}
+
+template &lt;class OBJECT_TYPE&gt;
+inline
+OBJECT_TYPE *AutoArrayDestructor&lt;OBJECT_TYPE&gt;::moveEnd(difference_type offset)
+{
+    BSLS_ASSERT_SAFE(d_end_p || 0 == offset);
+    BSLS_ASSERT_SAFE(d_end_p - d_begin_p &gt;= -offset);
+
+    d_end_p += offset;
+    return d_end_p;
+}
+
+template &lt;class OBJECT_TYPE&gt;
+inline
+void AutoArrayDestructor&lt;OBJECT_TYPE&gt;::release()
+{
+    d_begin_p = d_end_p;
+}
+
+}  // close package namespace
+
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright (C) 2012 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the &quot;Software&quot;), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

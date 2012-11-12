@@ -1,0 +1,178 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 2.16 BETA</title>
+<html>
+<pre>
+// bslmf_tag.h                                                        -*-C++-*-
+#ifndef INCLUDED_BSLMF_TAG
+#define INCLUDED_BSLMF_TAG
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide an integral-constant-to-type conversion.
+//
+//@CLASSES:
+//  bslmf::Tag: map integral constants to C++ types
+//
+//@MACROS:
+//: BSLMF_TAG_TO_INT(EXPR): map tag to integral value
+//: BSLMF_TAG_TO_BOOL(EXPR): map tag to boolean value
+//
+//@DESCRIPTION: This component defines a simple template structure used to map
+// an integral constant to a C++ type.  &#39;bslmf::Tag&lt;unsigned&gt;&#39; defines a
+// different type for each distinct compile-time constant integral parameter.
+// That is, instantiations with different integer values form distinct types,
+// so that &#39;bslmf::Tag&lt;0&gt;&#39; is a distinct type from &#39;bslmf::Tag&lt;1&gt;&#39;, which, in
+// turn, is also distinct from &#39;bslmf::Tag&lt;2&gt;&#39;, and so on.
+//
+// This component also provides two macros for mapping a &#39;bslmf::Tag&lt;N&gt;&#39;
+// instance to the integral value &#39;N&#39; (&#39;BSLMF_TAG_TO_INT&#39;), and to the boolean
+// value &#39;N != 0&#39; (&#39;BSLMF_TAG_TO_BOOL&#39;).
+//
+///Macro Summary
+///-------------
+// This section provides a brief description of the macros defined in this
+// component.
+//
+//: &#39;BSLMF_TAG_TO_INT(EXPR)&#39;
+//:     Given an integral value, &#39;V&#39;, and an expression, &#39;EXPR&#39;, of type
+//:     &#39;bslmf::Tag&lt;V&gt;&#39;, this macro returns a compile-time constant with the
+//:     value &#39;V&#39;.  &#39;EXPR&#39; is not evaluated at run-time.
+//:
+//: &#39;BSLMF_TAG_TO_BOOL(EXPR)&#39;
+//:     Given an integral value, &#39;V&#39;, and an expression, &#39;EXPR&#39;, of type
+//:     &#39;bslmf::Tag&lt;V&gt;&#39;, this macro returns a compile-time constant with the
+//:     value &#39;true&#39; or &#39;false&#39;, depending on the boolean value of &#39;V&#39;.  &#39;EXPR&#39;
+//:     is not evaluated at run-time.
+//
+///Usage
+///-----
+// The most common use of this structure is to perform static function
+// dispatching based on a compile-time calculation.  Often the calculation is
+// nothing more than a simple predicate, allowing us to select one of two
+// functions.  The following function, &#39;doSomething&#39;, uses a fast
+// implementation (e.g., &#39;memcpy&#39;) if the parameterized type allows for such
+// operations; otherwise it will use a more generic and slower implementation
+// (e.g., copy constructor).
+//..
+//  template &lt;class T&gt;
+//  void doSomethingImp(T *t, bslmf::Tag&lt;0&gt; *)
+//  {
+//      // slow but generic implementation
+//  }
+//
+//  template &lt;class T&gt;
+//  void doSomethingImp(T *t, bslmf::Tag&lt;1&gt; *)
+//  {
+//      // fast implementation (appropriate for bitwise-movable types)
+//  }
+//
+//  template &lt;class T, bool IsFast&gt;
+//  void doSomething(T *t)
+//  {
+//      doSomethingImp(t, (bslmf::Tag&lt;IsFast&gt; *)0);
+//  }
+//..
+// For some parameter types, the fast version of &#39;doSomethingImp&#39; is not legal.
+// The power of this approach is that the compiler will compile just the
+// implementation selected by the tag argument.
+//..
+//  void f()
+//  {
+//      int i;
+//      doSomething&lt;int, true&gt;(&amp;i);      // fast version selected for &#39;int&#39;
+//
+//      double m;
+//      doSomething&lt;double, false&gt;(&amp;m);  // slow version selected for &#39;double&#39;
+//  }
+//..
+// Note that an alternative design would be to use template partial
+// specialization instead of standard function overloading to avoid the cost of
+// passing a &#39;bslmf::Tag&lt;N&gt;&#39; pointer.
+//
+// The value of the integral parameter supplied to an instantiation of
+// &#39;bslmf::Tag&lt;N&gt;&#39; is &quot;recoverable&quot; by using the &#39;BSLMF_TAG_TO_INT&#39; macro.  For
+// example:
+//..
+//  bslmf::Tag&lt;7&gt; tag;
+//  assert( 7 == BSLMF_TAG_TO_INT(tag));
+//  assert(53 == BSLMF_TAG_TO_INT(bslmf::Tag&lt;50 + 3&gt;()));
+//..
+// The &#39;BSLMF_TAG_TO_BOOL&#39; macro can be used to determine if the parameter is
+// non-zero:
+//..
+//  assert( 1 == BSLMF_TAG_TO_BOOL(tag));
+//  assert( 0 == BSLMF_TAG_TO_BOOL(bslmf::Tag&lt;0&gt;()));
+//..
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include &lt;bslscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_PLATFORM
+#include &lt;bsls_platform.h&gt;
+#endif
+
+namespace BloombergLP {
+
+namespace bslmf {
+
+                           // =============
+                           // struct Tag&lt;N&gt;
+                           // =============
+
+template &lt;unsigned N&gt;
+struct Tag {
+    // This template class is never intended to produce a run-time instance.
+    // The only useful attribute of a tag is its size (which is, of course,
+    // computable at compile time, even if an instance is never created).  Note
+    // that in case of overflow on Linux 64-bit machines, we split the size
+    // into 2 data members.
+
+    // DATA
+    char d_upperSizeArray[(N &gt;&gt; 16)        + 1];
+    char d_lowerSizeArray[(N &amp; 0x0000FFFF) + 1];
+};
+
+}  // close package namespace
+
+#define BSLMF_TAG_TO_UINT(BSLMF_EXPR)                                        \
+                         (((sizeof(BSLMF_EXPR.d_upperSizeArray) - 1) &lt;&lt; 16)  \
+                         | (sizeof(BSLMF_EXPR.d_lowerSizeArray) - 1))
+
+#define BSLMF_TAG_TO_INT(BSLMF_EXPR) ((int)BSLMF_TAG_TO_UINT(BSLMF_EXPR))
+
+#define BSLMF_TAG_TO_BOOL(BSLMF_EXPR) (BSLMF_TAG_TO_INT(BSLMF_EXPR) != 0)
+
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright (C) 2012 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the &quot;Software&quot;), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

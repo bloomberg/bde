@@ -1,0 +1,1375 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 2.16 BETA</title>
+<html>
+<pre>
+// bslstl_unorderedmultiset.h                                         -*-C++-*-
+#ifndef INCLUDED_BSLSTL_UNORDEREDMULTISET
+#define INCLUDED_BSLSTL_UNORDEREDMULTISET
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide an STL-compliant unordered_multiset class.
+//
+//@CLASSES:
+//   bsl::unordered_multiset : hashed-map container
+//
+//@SEE_ALSO: bsl+stdhdrs
+//
+//@DESCRIPTION: This component defines a single class template
+// &#39;unordered_multiset&#39;, implementing the standard container holding a
+// collection of multiple keys with no guarantees on ordering.
+//
+// An instantiation of &#39;unordered_multiset&#39; is an allocator-aware,
+// value-semantic type whose salient attributes are its size (number of keys)
+// and the set of keys the &#39;unordered_multiset&#39; contains, without regard to
+// their order.  If &#39;unordered_multiset&#39; is instantiated with a key type that
+// is not itself value-semantic, then it will not retain all of its
+// value-semantic qualities.  In particular, if the key type cannot be tested
+// for equality, then an &#39;unordered_multiset&#39; containing that type cannot be
+// tested for equality.  It is even possible to instantiate
+// &#39;unordered_multiset&#39; with a key type that does not have an accessible
+// copy-constructor, in which case the &#39;unordered_multiset&#39; will not be
+// copyable.  Note that the equality operator &#39;operator==&#39; for each element is
+// used to determine when two &#39;unordered_multiset&#39; objects have the same value,
+// and not the equality comparator supplied at construction.
+//
+// An &#39;unordered_multiset&#39; meets the requirements of an unordered associative
+// container with forward iterators in the C++11 standard [unord].  The
+// &#39;unordered_multiset&#39; implemented here adheres to the C++11 standard, except
+// that it does not have interfaces that take rvalue references,
+// &#39;initializer_list&#39;, &#39;emplace&#39;, or operations taking a variadic number of
+// template parameters.  Note that excluded C++11 features are those that
+// require (or are greatly simplified by) C++11 compiler support.
+//
+///Requirements on &#39;KEY&#39;
+///---------------------
+// An &#39;unordered_multiset&#39; instantiation is a fully &quot;Value-Semantic Type&quot; (see
+// {&#39;bsldoc_glossary&#39;}) only if the supplied &#39;KEY&#39; template parameters is
+// fully value-semantic.  It is possible to instantiate an &#39;unordered_multiset&#39;
+// with &#39;KEY&#39; parameter arguments that do not provide a full set of
+// value-semantic operations, but then some methods of the container may not be
+// instantiable.  The following terminology, adopted from the C++11 standard,
+// is used in the function documentation of &#39;unordered_multiset&#39; to describe a
+// function&#39;s requirements for the &#39;KEY&#39; template parameter.  These terms are
+// also defined in section [utility.arg.requirements] of the C++11 standard.
+// Note that, in the context of an &#39;unordered_multiset&#39; instantiation, the
+// requirements apply specifically to the &#39;unordered_multiset&#39;s entry type,
+// &#39;value_type&#39;, which is an alias for &#39;KEY&#39;.
+//
+//: &quot;default-constructible&quot;: The type provides an accessible default
+//:                          constructor.
+//:
+//: &quot;copy-constructible&quot;: The type provides an accessible copy constructor.
+//:
+//: &quot;equality-comparable&quot;: The type provides an equality-comparison operator
+//:     that defines an equivalence relationship and is both reflexive and
+//:     transitive.
+//
+///Memory Allocation
+///-----------------
+// The type supplied as a set&#39;s &#39;ALLOCATOR&#39; template parameter determines how
+// that set will allocate memory.  The &#39;unordered_multiset&#39; template supports
+// allocators meeting the requirements of the C++11 standard
+// [allocator.requirements], and in addition it supports scoped-allocators
+// derived from the &#39;bslma::Allocator&#39; memory allocation protocol.  Clients
+// intending to use &#39;bslma&#39; style allocators should use the template&#39;s default
+// &#39;ALLOCATOR&#39; type: The default type for the &#39;ALLOCATOR&#39; template parameter,
+// &#39;bsl::allocator&#39;, provides a C++11 standard-compatible adapter for a
+// &#39;bslma::Allocator&#39; object.
+//
+///&#39;bslma&#39;-Style Allocators
+/// - - - - - - - - - - - -
+// If the parameterized &#39;ALLOCATOR&#39; type of an &#39;unordered_multiset&#39;
+// instantiation is &#39;bsl::allocator&#39;, then objects of that set type will
+// conform to the standard behavior of a &#39;bslma&#39;-allocator-enabled type.  Such
+// a set accepts an optional &#39;bslma::Allocator&#39; argument at construction.  If
+// the address of a &#39;bslma::Allocator&#39; object is explicitly supplied at
+// construction, it will be used to supply memory for the &#39;unordered_multiset&#39;
+// throughout its lifetime; otherwise, the &#39;unordered_multiset&#39; will use the
+// default allocator installed at the time of the &#39;unordered_multiset&#39;s
+// construction (see &#39;bslma_default&#39;).  In addition to directly allocating
+// memory from the indicated &#39;bslma::Allocator&#39;, an &#39;unordered_multiset&#39;
+// supplies that allocator&#39;s address to the constructors of contained objects
+// of the parameterized &#39;KEY&#39; types with the
+// &#39;bslalg::TypeTraitUsesBslmaAllocator&#39; trait.
+//
+///Operations
+///----------
+// This section describes the run-time complexity of operations on instances
+// of &#39;unordered_multiset&#39;:
+//..
+//  Legend
+//  ------
+//  &#39;K&#39;             - parameterized &#39;KEY&#39; type of the unordered multiset
+//  &#39;a&#39;, &#39;b&#39;        - two distinct objects of type &#39;unordered_multiset&lt;K&gt;&#39;
+//  &#39;n&#39;, &#39;m&#39;        - number of elements in &#39;a&#39; and &#39;b&#39; respectively
+//  &#39;w&#39;             - number of buckets of &#39;a&#39;
+//  &#39;value_type&#39;    - unoredered_multiset&lt;K&gt;::value_type
+//  &#39;c&#39;             - comparator providing an ordering for objects of type &#39;K&#39;
+//  &#39;al             - an STL-style memory allocator
+//  &#39;i1&#39;, &#39;i2&#39;      - two iterators defining a sequence of &#39;value_type&#39; objects
+//  &#39;k&#39;             - an object of type &#39;K&#39;
+//  &#39;v&#39;             - an object of type &#39;value_type&#39;
+//  &#39;p1&#39;, &#39;p2&#39;      - two iterators belonging to &#39;a&#39;
+//  distance(i1,i2) - the number of elements in the range [i1, i2)
+//  distance(p1,p2) - the number of elements in the range [p1, p2)
+//
+//  +----------------------------------------------------+--------------------+
+//  | Operation                                          | Complexity         |
+//  +====================================================+====================+
+//  | unordered_multiset&lt;K&gt; a; (default construction)    | O[1]               |
+//  | unordered_multiset&lt;K&gt; a(al);                       |                    |
+//  +----------------------------------------------------+--------------------+
+//  | unordered_multiset&lt;K&gt; a(b); (copy construction)    | Average: O[n]      |
+//  | unordered_multiset&lt;K&gt; a(b, al);                    | Worst:   O[n^2]    |
+//  +----------------------------------------------------+--------------------+
+//  | unordered_multiset&lt;K&gt; a(w);                        | O[n]               |
+//  | unordered_multiset&lt;K&gt; a(w, hf);                    |                    |
+//  | unordered_multiset&lt;K&gt; a(w, hf, eq);                |                    |
+//  | unordered_multiset&lt;K&gt; a(w, hf, eq, al);            |                    |
+//  +----------------------------------------------------+--------------------+
+//  | unordered_multiset&lt;K&gt; a(i1, i2);                   | Average: O[        |
+//  | unordered_multiset&lt;K&gt; a(i1, i2, w)                 |   distance(i1, i2)]|
+//  | unordered_multiset&lt;K&gt; a(i1, i2, w, hf);            | Worst:   O[n^2]    |
+//  | unordered_multiset&lt;K&gt; a(i1, i2, w, hf, eq);        |                    |
+//  | unordered_multiset&lt;K&gt; a(i1, i2, w, hf, eq, al);    |                    |
+//  +----------------------------------------------------+--------------------+
+//  | a.~unordered_multiset&lt;K&gt;(); (destruction)          | O[n]               |
+//  +----------------------------------------------------+--------------------+
+//  | a = b;          (assignment)                       | Average: O[n]      |
+//  |                                                    | Worst:   O[n^2]    |
+//  +----------------------------------------------------+--------------------+
+//  | a.begin(), a.end(), a.cbegin(), a.cend(),          | O[1]               |
+//  +----------------------------------------------------+--------------------+
+//  | a == b, a != b                                     | Best:  O[n]        |
+//  |                                                    | Worst: O[n^2]      |
+//  +----------------------------------------------------+--------------------+
+//  | a.swap(b), swap(a,b)                               | O[1] if &#39;a&#39; and    |
+//  |                                                    | &#39;b&#39; use the same   |
+//  |                                                    | allocator,         |
+//  |                                                    | O[n + m] otherwise |
+//  +----------------------------------------------------+--------------------+
+//  | a.key_eq()                                         | O[1]               |
+//  +----------------------------------------------------+--------------------+
+//  | a.hash_function()                                  | O[1]               |
+//  +----------------------------------------------------+--------------------+
+//  | a.size()                                           | O[1]               |
+//  +----------------------------------------------------+--------------------+
+//  | a.max_size()                                       | O[1]               |
+//  +----------------------------------------------------+--------------------+
+//  | a.empty()                                          | O[1]               |
+//  +----------------------------------------------------+--------------------+
+//  | get_allocator()                                    | O[1]               |
+//  +----------------------------------------------------+--------------------+
+//  | a.insert(v)                                        | Average: O[1]      |
+//  |                                                    | Worst:   O[n]      |
+//  +----------------------------------------------------+--------------------+
+//  | a.insert(p1, v)                                    | Average: O[1]      |
+//  |                                                    | Worst:   O[n]      |
+//  +----------------------------------------------------+--------------------+
+//  | a.insert(i1, i2)                                   | Average O[         |
+//  |                                                    |   distance(i1, i2)]|
+//  |                                                    | Worst:  O[ n *     |
+//  |                                                    |   distance(i1, i2)]|
+//  +----------------------------------------------------+--------------------+
+//  | a.erase(p1)                                        | Average: O[1]      |
+//  |                                                    | Worst:   O[n]      |
+//  +----------------------------------------------------+--------------------+
+//  | a.erase(k)                                         | Average: O[        |
+//  |                                                    |         a.count(k)]|
+//  |                                                    | Worst:   O[n]      |
+//  +----------------------------------------------------+--------------------+
+//  | a.erase(p1, p2)                                    | Average: O[        |
+//  |                                                    |   distance(p1, p2)]|
+//  |                                                    | Worst:   O[n]      |
+//  +----------------------------------------------------+--------------------+
+//  | a.clear()                                          | O[n]               |
+//  +----------------------------------------------------+--------------------+
+//  | a.find(k)                                          | Average: O[1]      |
+//  |                                                    | Worst:   O[n]      |
+//  +----------------------------------------------------+--------------------+
+//  | a.count(k)                                         | Average: O[1]      |
+//  |                                                    | Worst:   O[n]      |
+//  +----------------------------------------------------+--------------------+
+//  | a.equal_range(k)                                   | Average: O[        |
+//  |                                                    |         a.count(k)]|
+//  |                                                    | Worst:   O[n]      |
+//  +----------------------------------------------------+--------------------+
+//  | a.bucket_count()                                   | O[1]               |
+//  +----------------------------------------------------+--------------------+
+//  | a.max_bucket_count()                               | O[1]               |
+//  +----------------------------------------------------+--------------------+
+//  | a.bucket(k)                                        | O[1]               |
+//  +----------------------------------------------------+--------------------+
+//  | a.bucket_size(k)                                   | O[a.bucket_size(k)]|
+//  +----------------------------------------------------+--------------------+
+//  | a.load_factor()                                    | O[1]               |
+//  +----------------------------------------------------+--------------------+
+//  | a.max_load_factor()                                | O[1]               |
+//  | a.max_load_factor(z)                               | O[1]               |
+//  +----------------------------------------------------+--------------------+
+//  | a.rehash(k)                                        | Average: O[n]      |
+//  |                                                    | Worst:   O[n^2]    |
+//  +----------------------------------------------------+--------------------+
+//  | a.resize(k)                                        | Average: O[n]      |
+//  |                                                    | Worst:   O[n^2]    |
+//  +----------------------------------------------------+--------------------+
+//..
+//
+///Usage
+///-----
+
+// Prevent &#39;bslstl&#39; headers from being included directly in &#39;BSL_OVERRIDES_STD&#39;
+// mode.  Doing so is unsupported, and is likely to cause compilation errors.
+#if defined(BSL_OVERRIDES_STD) &amp;&amp; !defined(BSL_STDHDRS_PROLOGUE_IN_EFFECT)
+#error &quot;&lt;bslstl_unorderedmultiset.h&gt; header can&#39;t be included directly in \
+BSL_OVERRIDES_STD mode&quot;
+#endif
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include &lt;bslscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLSTL_ALLOCATOR
+#include &lt;bslstl_allocator.h&gt;  // Can probably escape with a fwd-decl, but not
+#endif                         // very user friendly
+
+#ifndef INCLUDED_BSLSTL_ALLOCATORTRAITS
+#include &lt;bslstl_allocatortraits.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLSTL_EQUALTO
+#include &lt;bslstl_equalto.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLSTL_HASH
+#include &lt;bslstl_hash.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLSTL_HASHTABLE
+#include &lt;bslstl_hashtable.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLSTL_HASHTABLEBUCKETITERATOR
+#include &lt;bslstl_hashtablebucketiterator.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLSTL_HASHTABLEITERATOR
+#include &lt;bslstl_hashtableiterator.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLSTL_ITERATORUTIL
+#include &lt;bslstl_iteratorutil.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLSTL_PAIR
+#include &lt;bslstl_pair.h&gt;  // result type of &#39;equal_range&#39; method
+#endif
+
+#ifndef INCLUDED_BSLSTL_UNORDEREDSETKEYCONFIGURATION
+#include &lt;bslstl_unorderedsetkeyconfiguration.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLALG_BIDIRECTIONALLINK
+#include &lt;bslalg_bidirectionallink.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLALG_BIDIRECTIONALNODE
+#include &lt;bslalg_bidirectionalnode.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLALG_TYPETRAITHASSTLITERATORS
+#include &lt;bslalg_typetraithasstliterators.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include &lt;bslma_usesbslmaallocator.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
+#include &lt;bslmf_isbitwisemoveable.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include &lt;bslmf_nestedtraitdeclaration.h&gt;
+#endif
+
+#ifndef INCLUDED_CSTDDEF
+#include &lt;cstddef&gt;  // for &#39;std::size_t&#39;
+#define INCLUDED_CSTDDEF
+#endif
+
+#ifndef INCLUDED_ITERATOR
+#include &lt;iterator&gt;  // for &#39;std::iterator_traits&#39;
+#define INCLUDED_ITERATOR
+#endif
+
+namespace bsl {
+
+                        // ========================
+                        // class unordered_multiset
+                        // ========================
+
+template &lt;class KEY,
+          class HASH  = bsl::hash&lt;KEY&gt;,
+          class EQUAL = bsl::equal_to&lt;KEY&gt;,
+          class ALLOCATOR = bsl::allocator&lt;KEY&gt; &gt;
+class unordered_multiset
+{
+    // This class template implements a value-semantic container type holding
+    // an unordered multi set of values (of template parameter type &#39;KEY&#39;).
+    //
+    // This class:
+    //: o supports a complete set of *value-semantic* operations
+    //:   o except for &#39;bdex&#39; serialization
+    //: o is *exception-neutral* (agnostic except for the &#39;at&#39; method)
+    //: o is *alias-safe*
+    //: o is &#39;const&#39; *thread-safe*
+    // For terminology see {&#39;bsldoc_glossary&#39;}.
+
+  private:
+
+      // PRIVATE TYPE
+    typedef bsl::allocator_traits&lt;ALLOCATOR&gt; AllocatorTraits;
+        // This typedef is an alias for the allocator traits type associated
+        // with this container.
+
+    typedef KEY ValueType;
+        // This typedef is an alias for the type of values maintained by this
+        // set.
+
+    typedef ::BloombergLP::bslstl::UnorderedSetKeyConfiguration&lt;ValueType&gt;
+                                                             ListConfiguration;
+        // This typedef is an alias for the policy used internally by this
+        // container to extract the &#39;KEY&#39; value from the values maintained by
+        // this multi-set.
+
+    typedef ::BloombergLP::bslstl::HashTable&lt;ListConfiguration,
+                                             HASH,
+                                             EQUAL,
+                                             ALLOCATOR&gt; HashTable;
+        // This typedef is an alias for the template instantiation of the
+        // underlying &#39;bslstl::HashTable&#39; used to implement this multi-set.
+
+    typedef ::BloombergLP::bslalg::BidirectionalLink HashTableLink;
+        // This typedef is an alias for the type of links maintained by the
+        // linked list of elements held by the underlying &#39;bslstl::HashTable&#39;.
+
+    // FRIEND
+    template &lt;class KEY2,
+              class HASH2,
+              class EQUAL2,
+              class ALLOCATOR2&gt;
+    friend bool operator==(
+                const unordered_multiset&lt;KEY2, HASH2, EQUAL2, ALLOCATOR2&gt;&amp;,
+                const unordered_multiset&lt;KEY2, HASH2, EQUAL2, ALLOCATOR2&gt;&amp;);
+
+  public:
+    // PUBLIC TYPES
+    typedef KEY                                        key_type;
+    typedef KEY                                        value_type;
+    typedef HASH                                       hasher;
+    typedef EQUAL                                      key_equal;
+    typedef ALLOCATOR                                  allocator_type;
+
+    typedef typename allocator_type::reference         reference;
+    typedef typename allocator_type::const_reference   const_reference;
+
+    typedef typename AllocatorTraits::size_type        size_type;
+    typedef typename AllocatorTraits::difference_type  difference_type;
+    typedef typename AllocatorTraits::pointer          pointer;
+    typedef typename AllocatorTraits::const_pointer    const_pointer;
+
+  public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(
+                    unordered_multiset,
+                    ::BloombergLP::bslmf::IsBitwiseMoveable,
+                    ::BloombergLP::bslmf::IsBitwiseMoveable&lt;HashTable&gt;::value);
+
+    typedef ::BloombergLP::bslstl::HashTableIterator&lt;
+                                         value_type, difference_type&gt; iterator;
+    typedef ::BloombergLP::bslstl::HashTableIterator&lt;
+                             const value_type, difference_type&gt; const_iterator;
+    typedef ::BloombergLP::bslstl::HashTableBucketIterator&lt;
+                                   value_type, difference_type&gt; local_iterator;
+    typedef ::BloombergLP::bslstl::HashTableBucketIterator&lt;
+                       const value_type, difference_type&gt; const_local_iterator;
+
+  private:
+    // DATA
+    HashTable d_impl;
+
+  public:
+    // CREATORS
+    explicit unordered_multiset(
+                           size_type             initialNumBuckets = 0,
+                           const hasher&amp;         hash = hasher(),
+                           const key_equal&amp;      keyEqual = key_equal(),
+                           const allocator_type&amp; allocator = allocator_type());
+        // Construct an empty unordered multi-set.  Optionally specify an
+        // &#39;initialNumBuckets&#39; indicating the initial size of the array of
+        // buckets of this container.  If &#39;initialNumBuckets&#39; is not supplied,
+        // an implementation defined value is used.  Optionally specify a
+        // &#39;hasher&#39; used to generate the hash values associated to the
+        // keys extracted from the values contained in this object.  If &#39;hash&#39;
+        // is not supplied, a default-constructed object of type &#39;hasher&#39; is
+        // used.  Optionally specify a key-equality functor &#39;keyEqual&#39; used to
+        // verify that two key values are the same.  If &#39;keyEqual&#39; is not
+        // supplied, a default-constructed object of type &#39;key_equal&#39; is used.
+        // Optionally specify an &#39;allocator&#39; used to supply memory.  If
+        // &#39;allocator&#39; is not supplied, a default-constructed object of the
+        // (template parameter) type &#39;allocator_type&#39; is used.  If the
+        // &#39;allocator_type&#39; is &#39;bsl::allocator&#39; (the default), then &#39;allocator&#39;
+        // shall be convertible to &#39;bslma::Allocator *&#39;.  If the &#39;ALLOCATOR&#39; is
+        // &#39;bsl::allocator&#39; and &#39;allocator&#39; is not supplied, the currently
+        // installed default allocator will be used to supply memory.
+
+    explicit unordered_multiset(const allocator_type&amp; allocator);
+        // Construct an empty unordered multi-set that uses the specified
+        // &#39;allocator&#39; to supply memory.  Use a default-constructed object of
+        // type &#39;hasher&#39; to generate hash values for the key extracted from the
+        // values contained in this object.  Also, use a default-constructed
+        // object of type &#39;key_equal&#39; to verify that two key values are the
+        // same.  If the &#39;allocator_type&#39; is &#39;bsl::allocator&#39; (the default),
+        // then &#39;allocator&#39; shall be convertible to &#39;bslma::Allocator *&#39;.
+
+    unordered_multiset(const unordered_multiset&amp; original);
+    unordered_multiset(const unordered_multiset&amp; original,
+                       const allocator_type&amp;     allocator);
+        // Construct an unordered set having the same value as that of the
+        // specified &#39;original&#39;.  Use a default-constructed object of type
+        // &#39;hasher&#39; to generate hash values for the key extracted from the
+        // values contained in this object.  Also, use a default-constructed
+        // object of type &#39;key_equal&#39; to verify that two key values are the
+        // same.  Optionally specify an &#39;allocator&#39; used to supply memory.  If
+        // &#39;allocator&#39; is not supplied, a default-constructed object of type
+        // &#39;allocator_type&#39; is used.  If the &#39;allocator_type&#39; is
+        // &#39;bsl::allocator&#39; (the default), then &#39;allocator&#39; shall be
+        // convertible to &#39;bslma::Allocator *&#39;.
+
+    template &lt;class INPUT_ITERATOR&gt;
+    unordered_multiset(INPUT_ITERATOR        first,
+                       INPUT_ITERATOR        last,
+                       size_type             initialNumBuckets = 0,
+                       const hasher&amp;         hash = hasher(),
+                       const key_equal&amp;      keyEqual = key_equal(),
+                       const allocator_type&amp; allocator = allocator_type());
+        // Construct an empty unordered multi-set and insert each &#39;value_type&#39;
+        // object in the sequence starting at the specified &#39;first&#39; element,
+        // and ending immediately before the specified &#39;last&#39; element, ignoring
+        // those pairs having a key that appears earlier in the sequence.
+        // Optionally specify an &#39;initialNumBuckets&#39; indicating the initial
+        // size of the array of buckets of this container.  If
+        // &#39;initialNumBuckets&#39; is not supplied, an implementation defined value
+        // is used.  Optionally specify a &#39;hasher&#39; used to generate hash values
+        // for the keys extracted from the values contained in this object.  If
+        // &#39;hash&#39; is not supplied, a default-constructed object of type
+        // &#39;hasher&#39; is used.  Optionally specify a key-equality functor
+        // &#39;keyEqual&#39; used to verify that two key values are the same.  If
+        // &#39;keyEqual&#39; is not supplied, a default-constructed object of type
+        // &#39;key_equal&#39; is used.  Optionally specify an &#39;allocator&#39; used to
+        // supply memory.  If &#39;allocator&#39; is not supplied, a
+        // default-constructed object of the (template parameter) type
+        // &#39;allocator_type&#39; is used.  If the &#39;allocator_type&#39; is
+        // &#39;bsl::allocator&#39; (the default), then &#39;allocator&#39; shall be
+        // convertible to &#39;bslma::Allocator *&#39;.  If the &#39;allocator_type&#39; is
+        // &#39;bsl::allocator&#39; and &#39;allocator&#39; is not supplied, the currently
+        // installed default allocator will be used to supply memory.  The
+        // (template parameter) type &#39;INPUT_ITERATOR&#39; shall meet the
+        // requirements of an input iterator defined in the C++11 standard
+        // [24.2.3] providing access to values of a type convertible to
+        // &#39;value_type&#39;.  The behavior is undefined unless &#39;first&#39; and &#39;last&#39;
+        // refer to a sequence of valid values where &#39;first&#39; is at a position
+        // at or before &#39;last&#39;.  This method requires that the (template
+        // parameter) type &#39;KEY&#39; be &quot;copy-constructible&quot; (see {Requirements on
+        // &#39;KEY&#39;}).
+
+    ~unordered_multiset();
+        // Destroy this object.
+
+    // MANIPULATORS
+    unordered_multiset&amp; operator=(const unordered_multiset&amp; rhs);
+        // Assign to this object the value, hasher, and key-equality functor of
+        // the specified &#39;rhs&#39; object, propagate to this object the allocator
+        // of &#39;rhs&#39; if the &#39;ALLOCATOR&#39; type has trait
+        // &#39;propagate_on_container_copy_assignment&#39;, and return a reference
+        // providing modifiable access to this object.  This method requires
+        // that the (template parameter) type &#39;KEY&#39; be &quot;copy-constructible&quot;
+        // (see {Requirements on &#39;KEY&#39;}).
+
+    iterator begin();
+        // Return an iterator providing modifiable access to the first
+        // &#39;value_type&#39; object (in the sequence of &#39;value_type&#39; objects)
+        // maintained by this multi-set, or the &#39;end&#39; iterator if this
+        // multi-set is empty.
+
+    iterator end();
+        // Return an iterator providing modifiable access to the past-the-end
+        // element in the sequence of &#39;value_type&#39; objects maintained by this
+        // set.
+
+    local_iterator begin(size_type index);
+        // Return a local iterator providing modifiable access to the first
+        // &#39;value_type&#39; object in the sequence of &#39;value_type&#39; objects of the
+        // bucket having the specified &#39;index&#39;, in the array of buckets
+        // maintained by this multi-set, or the &#39;end(index)&#39; otherwise.
+
+    local_iterator end(size_type index);
+        // Return a local iterator providing modifiable access to the
+        // past-the-end element in the sequence of &#39;value_type&#39; objects of the
+        // bucket having the specified &#39;index&#39;s, in the array of buckets
+        // maintained by this multi-set.
+
+    void clear();
+        // Remove all entries from this multi-set.  Note that the container is
+        // empty after this call, but allocated memory may be retained for
+        // future use.
+
+    pair&lt;iterator, iterator&gt; equal_range(const key_type&amp; key);
+        // Return a pair of iterators providing modifiable access to the
+        // sequence of &#39;value_type&#39; objects in this multi-set having the
+        // specified &#39;key&#39;, where the the first iterator is positioned at the
+        // start of the sequence, and the second is positioned one past the
+        // end of the sequence.  If this multi-set contains no &#39;value_type&#39;
+        // objects having &#39;key&#39;, then the two returned iterators will have the
+        // same value.
+
+    size_type erase(const key_type&amp; key);
+        // Remove from this multi-set all &#39;value_type&#39; objects having the
+        // specified &#39;key&#39;, if they exist, and return the number of
+        // object erased; otherwise, if there is no &#39;value_type&#39; object having
+        // &#39;key&#39;, return 0 with no other effect.
+
+    iterator erase(const_iterator position);
+        // Remove from this multi-set the &#39;value_type&#39; object at the
+        // specified &#39;position&#39;, and return an iterator referring to the
+        // element immediately following the removed element, or to the
+        // past-the-end position if the removed element was the last element in
+        // the sequence of elements maintained by this multi-set.  The behavior
+        // is undefined unless &#39;position&#39; refers to a &#39;value_type&#39; object in
+        // this multi-set.
+
+    iterator erase(const_iterator first, const_iterator last);
+        // Remove from multi-set the &#39;value_type&#39; objects starting at the
+        // specified &#39;first&#39; position up to, but including the specified &#39;last&#39;
+        // position, and return &#39;last&#39;.  The behavior is undefined unless
+        // &#39;first&#39; and &#39;last&#39; either refer to elements in multi-set or are the
+        // &#39;end&#39; iterator, and the &#39;first&#39; position is at or before the &#39;last&#39;
+        // position in the ordered sequence provided by this container.
+
+    iterator find(const key_type&amp; key);
+        // Return an iterator providing modifiable access to the first
+        // &#39;value_type&#39; objects in the sequence of all the value-elements of
+        // this multi-set having the specified &#39;key&#39;, if such value-elements
+        // exist, and the past-the-end (&#39;end&#39;) iterator otherwise.
+
+    iterator insert(const value_type&amp; value);
+        // Insert the specified &#39;value&#39; into multi-set;  if a &#39;value_type&#39;
+        // object having the same key (according to &#39;key_equal&#39;) as &#39;value&#39;
+        // already exists in multi-set, the operation is guaranteed to insert
+        // &#39;value&#39; in a position contiguous to another value having the same
+        // key.  Return an iterator referring to the &#39;value_type&#39; object
+        // inserted.  This method requires that the (template parameter) type
+        // &#39;KEY&#39; be &quot;copy-constructible&quot; (see {Requirements on &#39;KEY&#39;}).
+
+    iterator insert(const_iterator hint, const value_type&amp; value);
+        // Insert the specified &#39;value&#39; into multi-set (in constant
+        // time if the specified &#39;hint&#39; is a valid element in the bucket to
+        // which &#39;value&#39; belongs);  if a &#39;value_type&#39; object having the same
+        // key (according to &#39;key_equal&#39;) as &#39;value&#39; already exists in this
+        // set, this method is guaranteed to insert &#39;value&#39; in a position
+        // contiguous to another value in the set having the same key.  Return
+        // an iterator referring to the newly inserted &#39;value_type&#39; object.  If
+        // &#39;hint&#39; is not a position in the bucket of the key of &#39;value&#39;, this
+        // operation will have worst case O[N] and average case constant time
+        // complexity, where &#39;N&#39; is the size of multi-set.  The behavior is
+        // undefined unless &#39;hint&#39; is a valid iterator into this unordered
+        // multi set.  This method requires that the (template parameter) type
+        // &#39;KEY&#39; be &quot;copy-constructible&quot; (see {Requirements on &#39;KEY&#39;}).
+
+    template &lt;class INPUT_ITERATOR&gt;
+    void insert(INPUT_ITERATOR first, INPUT_ITERATOR last);
+        // Insert into multi-set the value of each &#39;value_type&#39; object in the
+        // range starting at the specified &#39;first&#39; iterator and ending
+        // immediately before the specified &#39;last&#39; iterator.  The (template
+        // parameter) type &#39;INPUT_ITERATOR&#39; shall meet the requirements of an
+        // input iterator defined in the C++11 standard [24.2.3] providing
+        // access to values of a type convertible to &#39;value_type&#39;.  This method
+        // requires that the (template parameter) type &#39;KEY&#39; be
+        // &quot;copy-constructible&quot; (see {Requirements on &#39;KEY&#39;}).
+
+    void  max_load_factor(float newLoadFactor);
+        // Set the maximum load factor of this container to the specified
+        // &#39;newLoadFactor&#39;.
+
+    void rehash(size_type numBuckets);
+        // Change the size of the array of buckets maintained by this container
+        // to the specified &#39;numBuckets&#39;, and redistribute all the contained
+        // elements into the new sequence of buckets, according to their hash
+        // values.  Note that this operation has no effect if rehashing the
+        // elements into &#39;numBuckets&#39; would cause multi-set to exceed its
+        // &#39;max_load_factor&#39;.
+
+    void reserve(size_type numElements);
+        // Increase the number of buckets of multi-set to a quantity such that
+        // the ratio between the specified &#39;numElements&#39; and this quantity does
+        // not exceed &#39;max_load_factor&#39;.
+
+    void swap(unordered_multiset&amp; other);
+        // Exchange the value of this object as well as its hasher and
+        // key-equality functor with those of the specified &#39;other&#39; object.
+        // Additionally if
+        // &#39;bslstl::AllocatorTraits&lt;ALLOCATOR&gt;::propagate_on_container_swap&#39; is
+        // &#39;true&#39; then exchange the allocator of this object with that of the
+        // &#39;other&#39; object, and do not modify either allocator otherwise.  This
+        // method provides the no-throw exception-safety guarantee and
+        // guarantees O[1] complexity.  The behavior is undefined is unless
+        // either this object was created with the same allocator as &#39;other&#39; or
+        // &#39;propagate_on_container_swap&#39; is &#39;true&#39;.
+
+    // ACCESSORS
+    const_iterator begin() const;
+        // Return an iterator providing non-modifiable access to the first
+        // &#39;value_type&#39; object (in the sequence of &#39;value_type&#39; objects)
+        // maintained by this multi-set, or the &#39;end&#39; iterator if this
+        // multi-set is empty.
+
+    const_iterator end() const;
+        // Return an iterator providing non-modifiable access to the
+        // past-the-end element (in the sequence of &#39;value_type&#39; objects)
+        // maintained by this multi-set.
+
+    const_iterator cbegin() const;
+        // Return an iterator providing non-modifiable access to the first
+        // &#39;value_type&#39; object (in the sequence of &#39;value_type&#39; objects)
+        // maintained by this multi-set, or the &#39;end&#39; iterator if this
+        // multi-set is empty.
+
+    const_iterator cend() const;
+        // Return an iterator providing non-modifiable access to the
+        // past-the-end element (in the sequence of &#39;value_type&#39; objects)
+        // maintained by this multi-set.
+
+    const_local_iterator begin(size_type index) const;
+        // Return a local iterator providing non-modifiable access to the first
+        // &#39;value_type&#39; object (in the sequence of &#39;value_type&#39; objects) of the
+        // bucket having the specified &#39;index&#39; in the array of buckets
+        // maintained by this multi-set, or the &#39;end(index)&#39; otherwise.
+
+    const_local_iterator end(size_type index) const;
+        // Return a local iterator providing non-modifiable access to the
+        // past-the-end element (in the sequence of &#39;value_type&#39; objects) of
+        // the bucket having the specified &#39;index&#39; in the array of buckets
+        // maintained by this multi-set.
+
+    const_local_iterator cbegin(size_type index) const;
+        // Return a local iterator providing non-modifiable access to the first
+        // &#39;value_type&#39; object (in the sequence of &#39;value_type&#39; objects) of the
+        // bucket having the specified &#39;index&#39; in the array of buckets
+        // maintained by multi-set, or the &#39;end(index)&#39; otherwise.
+
+    const_local_iterator cend(size_type index) const;
+        // Return a local iterator providing non-modifiable access to the
+        // past-the-end element (in the sequence of &#39;value_type&#39; objects) of
+        // the bucket having the specified &#39;index&#39; in the array of buckets
+        // maintained by multi-set.
+
+    size_type bucket(const key_type&amp; key) const;
+        // Return the index of the bucket, in the array of buckets of this
+        // container, where values having the specified &#39;key&#39; would be
+        // inserted.
+
+    size_type bucket_count() const;
+        // Return the number of buckets in the array of buckets maintained by
+        // multi-set.
+
+    size_type bucket_size(size_type index) const;
+        // Return the number of elements contained in the bucket at the
+        // specified &#39;index&#39; in the array of buckets maintained by this
+        // container.
+
+    size_type count(const key_type&amp; key) const;
+        // Return the number of &#39;value_type&#39; objects within this map having the
+        // specified &#39;key&#39;.  Note that since an unordered set maintains unique
+        // keys, the returned value will be either 0 or 1.
+
+    bool empty() const;
+        // Return &#39;true&#39; if multi-set contains no elements, and &#39;false&#39;
+        // otherwise.
+
+    pair&lt;const_iterator, const_iterator&gt; equal_range(
+                                                    const key_type&amp; key) const;
+        // Return a pair of iterators providing non-modifiable access to the
+        // sequence of &#39;value_type&#39; objects in this container having the
+        // specified &#39;key&#39;, where the the first iterator is positioned at the
+        // start of the sequence and the second iterator is positioned one past
+        // the end of the sequence.  If multi-set contains no &#39;value_type&#39;
+        // objects having &#39;key&#39; then the two returned iterators will have the
+        // same value.  Note that since a set maintains unique keys, the range
+        // will contain at most one element.
+
+    const_iterator find(const key_type&amp; key) const;
+        // Return an iterator providing non-modifiable access to the first
+        // &#39;value_type&#39; objects in the sequence of value-elements of this
+        // multi-set having the specified &#39;key&#39;, if such value-elements exist,
+        // and the past-the-end (&#39;end&#39;) iterator otherwise.
+
+    allocator_type get_allocator() const;
+        // Return (a copy of) the allocator used for memory allocation by this
+        // set.
+
+    key_equal key_eq() const;
+        // Return (a copy of) the key-equality binary functor that returns
+        // &#39;true&#39; if the value of two &#39;key_type&#39; objects is the same, and
+        // &#39;false&#39; otherwise.
+
+    hasher hash_function() const;
+        // Return (a copy of) the hash unary functor used by multi-set to
+        // generate a hash value (of type &#39;size_t&#39;) for a &#39;key_type&#39; object.
+
+    float load_factor() const;
+        // Return the current ratio between the &#39;size&#39; of this container and
+        // the number of buckets.  The &#39;load_factor&#39; is a measure of how full
+        // the container is, and a higher load factor leads to an increased
+        // number of collisions, thus resulting in a loss performance.
+
+    size_type max_bucket_count() const;
+        // Return a theoretical upper bound on the largest number of buckets
+        // that this container could possibly manage.  Note that there is no
+        // guarantee that the set can successfully grow to the returned size,
+        // or even close to that size without running out of resources.
+
+    float max_load_factor() const;
+        // Return the maximum load factor allowed for this container.  If
+        // an insert operation would cause &#39;load_factor&#39; to exceed
+        // the &#39;max_load_factor&#39;, that same insert operation will increase the
+        // number of buckets and rehash the elements of the container into
+        // those buckets the (see rehash).
+
+    size_type max_size() const;
+        // Return a theoretical upper bound on the largest number of elements
+        // that multi-set could possibly hold.  Note that there is no guarantee
+        // that the set can successfully grow to the returned size, or even
+        // close to that size without running out of resources.
+
+    size_type size() const;
+        // Return the number of elements in multi-set.
+
+    // FRIEND
+    template &lt;class KEY2,
+              class HASH2,
+              class EQUAL2,
+              class ALLOCATOR2&gt;
+    friend bool operator==(
+                const unordered_multiset&lt;KEY2, HASH2, EQUAL2, ALLOCATOR2&gt;&amp;,
+                const unordered_multiset&lt;KEY2, HASH2, EQUAL2, ALLOCATOR2&gt;&amp;);
+
+};
+
+template &lt;class KEY, class HASH, class EQUAL, class ALLOCATOR&gt;
+bool operator==(const unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;&amp; lhs,
+                const unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; objects have the same
+    // value, and &#39;false&#39; otherwise.  Two &#39;unordered_multiset&#39; objects have the
+    // same value if they have the same number of value-elements, and for each
+    // value-element that is contained in &#39;lhs&#39; there is a value-element
+    // contained in &#39;rhs&#39; having the same value, and vice-versa.  This method
+    // requires that the (template parameter) type &#39;KEY&#39; be
+    // &quot;equality-comparable&quot; (see {Requirements on &#39;KEY&#39;}).
+
+template &lt;class KEY, class HASH, class EQUAL, class ALLOCATOR&gt;
+bool operator!=(const unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;&amp; lhs,
+                const unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; objects do not have the
+    // same value, and &#39;false&#39; otherwise.  Two &#39;unordered_multiset&#39; objects do
+    // not have the same value if they do not have the same number of
+    // value-elements, or that for some value-element contained in &#39;lhs&#39; there
+    // is not a value-element in &#39;rhs&#39; having the same value, and vice-versa.
+    // This method requires that the (template parameter) type &#39;KEY&#39; and be
+    // &quot;equality-comparable&quot; (see {Requirements on &#39;KEY&#39;}).
+
+template &lt;class KEY, class HASH, class EQUAL, class ALLOCATOR&gt;
+void swap(unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;&amp; x,
+          unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;&amp; y);
+    // Swap both the value and the comparator of the specified &#39;a&#39; object with
+    // the value and comparator of the specified &#39;b&#39; object.  The behavior is
+    // undefined is unless this object was created with the same allocator as
+    // &#39;other&#39;.  Additionally if
+    // &#39;bslstl::AllocatorTraits&lt;ALLOCATOR&gt;::propagate_on_container_swap&#39; is
+    // &#39;true&#39; then exchange the allocator of &#39;a&#39; with that of &#39;b&#39;, and do not
+    // modify either allocator otherwise.  This method provides the no-throw
+    // exception-safety guarantee and guarantees O[1] complexity.  The behavior
+    // is undefined is unless either this object was created with the same
+    // allocator as &#39;other&#39; or &#39;propagate_on_container_swap&#39; is &#39;true&#39;.
+
+}  // close namespace bsl
+
+// ============================================================================
+//                                TYPE TRAITS
+// ============================================================================
+
+// Type traits for STL *unordered* *associative* containers:
+//: o An unordered associative container defines STL iterators.
+//: o An unordered associative container is bitwise moveable if the both
+//:      functors and the allocator are bitwise moveable.
+//: o An unordered associative container uses &#39;bslma&#39; allocators if the
+//:      parameterized &#39;ALLOCATOR&#39; is convertible from &#39;bslma::Allocator*&#39;.
+
+namespace BloombergLP {
+namespace bslalg {
+
+template &lt;class KEY, class HASH, class EQUAL, class ALLOCATOR&gt;
+struct HasStlIterators&lt;bsl::unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt; &gt;
+     : bsl::true_type
+{};
+
+}  // close namespace bslalg
+
+namespace bslma {
+
+template &lt;class KEY, class HASH, class EQUAL, class ALLOCATOR&gt;
+struct UsesBslmaAllocator&lt;bsl::unordered_multiset&lt;KEY,
+                                                  HASH,
+                                                  EQUAL,
+                                                  ALLOCATOR&gt; &gt;
+    : bsl::is_convertible&lt;Allocator*, ALLOCATOR&gt;::type
+{};
+
+}  // close namespace bslma
+}  // close namespace BloombergLP
+
+// ===========================================================================
+//                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
+// ===========================================================================
+
+namespace bsl
+{
+
+                        //-------------------------
+                        // class unordered_multiset
+                        //-------------------------
+
+// CREATORS
+template &lt;class KEY, class HASH, class EQUAL, class ALLOCATOR&gt;
+unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;::
+unordered_multiset(size_type             initialNumBuckets,
+                   const hasher&amp;         hash,
+                   const key_equal&amp;      keyEqual,
+                   const allocator_type&amp; allocator)
+: d_impl(hash, keyEqual, initialNumBuckets, allocator)
+{
+}
+
+template &lt;class KEY, class HASH, class EQUAL, class ALLOCATOR&gt;
+template &lt;class INPUT_ITERATOR&gt;
+unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;::unordered_multiset(
+                                       INPUT_ITERATOR        first,
+                                       INPUT_ITERATOR        last,
+                                       size_type             initialNumBuckets,
+                                       const hasher&amp;         hash,
+                                       const key_equal&amp;      keyEqual,
+                                       const allocator_type&amp; allocator)
+: d_impl(hash, keyEqual, initialNumBuckets, allocator)
+{
+    this-&gt;insert(first, last);
+}
+
+template &lt;class KEY, class HASH, class EQUAL, class ALLOCATOR&gt;
+unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;::unordered_multiset(
+                                               const allocator_type&amp; allocator)
+: d_impl(HASH(), EQUAL(), 0, allocator)
+{
+}
+
+template &lt;class KEY, class HASH, class EQUAL, class ALLOCATOR&gt;
+unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;::unordered_multiset(
+                                           const unordered_multiset&amp; original,
+                                           const allocator_type&amp;     allocator)
+: d_impl(original.d_impl, allocator)
+{
+}
+
+template &lt;class KEY, class HASH, class EQUAL, class ALLOCATOR&gt;
+unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;::unordered_multiset(
+                                            const unordered_multiset&amp; original)
+: d_impl(original.d_impl,
+         AllocatorTraits::select_on_container_copy_construction(
+                                                     original.get_allocator()))
+{
+}
+
+template &lt;class KEY, class HASH, class EQUAL, class ALLOCATOR&gt;
+unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;::~unordered_multiset()
+{
+    // All memory management is handled by the base &#39;d_impl&#39; member.
+}
+
+template &lt;class KEY, class HASH, class EQUAL, class ALLOCATOR&gt;
+unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;&amp;
+unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;::operator=(
+                                               const unordered_multiset&amp; rhs)
+{
+    // Actually, need to check propagate_on_copy_assign trait
+    unordered_multiset(rhs, get_allocator()).swap(*this);
+    return *this;
+
+}
+
+template &lt;class KEY, class HASH, class EQUAL, class ALLOCATOR&gt;
+ALLOCATOR
+unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;::get_allocator() const
+{
+    return d_impl.allocator();
+}
+
+template &lt;class KEY, class HASH, class EQUAL, class ALLOCATOR&gt;
+bool
+unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;::empty() const
+{
+    return 0 == d_impl.size();
+}
+
+template &lt;class KEY, class HASH, class EQUAL, class ALLOCATOR&gt;
+typename unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;::size_type
+unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;::size() const
+{
+    return d_impl.size();
+}
+
+template &lt;class KEY, class HASH, class EQUAL, class ALLOCATOR&gt;
+typename unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;::size_type
+unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;::max_size() const
+{
+    return d_impl.maxSize();
+}
+
+template &lt;class KEY, class HASH, class EQUAL, class ALLOCATOR&gt;
+typename unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;::iterator
+unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;::begin()
+{
+    return iterator(d_impl.elementListRoot());
+}
+
+template &lt;class KEY, class HASH, class EQUAL, class ALLOCATOR&gt;
+typename unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;::iterator
+unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;::end()
+{
+    return iterator();
+}
+
+template &lt;class KEY, class HASH, class EQUAL, class ALLOCATOR&gt;
+inline
+typename unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;::local_iterator
+unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;::begin(size_type index)
+{
+    BSLS_ASSERT_SAFE(index &lt; this-&gt;bucket_count());
+
+    return local_iterator(&amp;d_impl.bucketAtIndex(index));
+}
+
+template &lt;class KEY, class HASH, class EQUAL, class ALLOCATOR&gt;
+inline
+typename unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;::local_iterator
+unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;::end(size_type index)
+{
+    BSLS_ASSERT_SAFE(index &lt; this-&gt;bucket_count());
+
+    return local_iterator(0, &amp;d_impl.bucketAtIndex(index));
+}
+
+template &lt;class KEY, class HASH, class EQUAL, class ALLOCATOR&gt;
+void
+unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;::clear()
+{
+    d_impl.removeAll();
+}
+
+template &lt;class KEY, class HASH, class EQUAL, class ALLOCATOR&gt;
+typename unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;::iterator
+unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;::find(const key_type&amp; key)
+{
+    return iterator(d_impl.find(key));
+}
+
+template &lt;class KEY, class HASH, class EQUAL, class ALLOCATOR&gt;
+inline
+bsl::pair&lt;typename unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;::iterator,
+          typename unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;::iterator&gt;
+unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;::equal_range(
+                                                           const key_type&amp; key)
+{
+    HashTableLink *first;
+    HashTableLink *last;
+    d_impl.findRange(&amp;first, &amp;last, key);
+    return bsl::pair&lt;iterator, iterator&gt;(iterator(first), iterator(last));
+}
+
+template &lt;class KEY, class HASH, class EQUAL, class ALLOCATOR&gt;
+typename unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;::size_type
+unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;::erase(const key_type&amp; key)
+{
+    typedef ::BloombergLP::bslalg::BidirectionalNode&lt;value_type&gt; BNode;
+
+    if (HashTableLink *target = d_impl.find(key)) {
+        target = d_impl.remove(target);
+        size_type result = 1;
+        while (target &amp;&amp; this-&gt;key_eq()(
+       key,
+       ListConfiguration::extractKey(static_cast&lt;BNode *&gt;(target)-&gt;value()))) {
+            target = d_impl.remove(target);
+            ++result;
+        }
+        return result;                                                // RETURN
+    }
+
+    return 0;
+}
+
+template &lt;class KEY, class HASH, class EQUAL, class ALLOCATOR&gt;
+typename unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;::iterator
+unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;::erase(const_iterator position)
+{
+    BSLS_ASSERT(position != this-&gt;end());
+
+    return iterator(d_impl.remove(position.node()));
+}
+
+template &lt;class KEY, class HASH, class EQUAL, class ALLOCATOR&gt;
+typename unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;::iterator
+unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;::erase(const_iterator first,
+                                                       const_iterator last)
+{
+
+#if defined BDE_BUILD_TARGET_SAFE2
+    if (first != last) {
+        iterator it        = this-&gt;begin();
+        const iterator end = this-&gt;end();
+        for (; it != first; ++it) {
+            BSLS_ASSERT(last != it);
+            BSLS_ASSERT(end  != it);
+        }
+        for (; it != last; ++it) {
+            BSLS_ASSERT(end  != it);
+        }
+    }
+#endif
+
+    while (first != last) {
+        first = this-&gt;erase(first);
+    }
+
+    return iterator(first.node()); // convert from const_iterator
+}
+
+template &lt;class KEY, class HASH, class EQUAL, class ALLOCATOR&gt;
+inline
+typename unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;::iterator
+unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;::insert(
+                                                       const value_type&amp; value)
+{
+    return iterator(d_impl.insert(value));
+}
+
+template &lt;class KEY, class HASH, class EQUAL, class ALLOCATOR&gt;
+typename unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;::iterator
+unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;::insert(
+                                                    const_iterator    hint,
+                                                    const value_type&amp; value)
+{
+    return iterator(d_impl.insert(value, hint.node()));
+}
+
+template &lt;class KEY, class HASH, class EQUAL, class ALLOCATOR&gt;
+template &lt;class INPUT_ITERATOR&gt;
+void
+unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;::insert(INPUT_ITERATOR first,
+                                                        INPUT_ITERATOR last)
+{
+    if (size_t maxInsertions =
+            ::BloombergLP::bslstl::IteratorUtil::insertDistance(first, last)) {
+        this-&gt;reserve(this-&gt;size() + maxInsertions);
+    }
+
+    // Typically will create an un-necessary temporary dereferencing each
+    // iterator and casting to a reference of &#39;const value_type&amp;&#39;.
+    while (first != last) {
+        this-&gt;insert(*first++);
+    }
+}
+
+
+template &lt;class KEY, class HASH, class EQUAL, class ALLOCATOR&gt;
+inline
+void unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;::max_load_factor(
+                                                           float newLoadFactor)
+{
+    d_impl.maxLoadFactor(newLoadFactor);
+}
+
+template &lt;class KEY, class HASH, class EQUAL, class ALLOCATOR&gt;
+inline
+void
+unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;::rehash(size_type numBuckets)
+{
+    return d_impl.rehash(numBuckets);
+}
+
+template &lt;class KEY, class HASH, class EQUAL, class ALLOCATOR&gt;
+inline
+void
+unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;::reserve(size_type numElements)
+{
+    return d_impl.rehashForNumElements(numElements);
+}
+
+template &lt;class KEY, class HASH, class EQUAL, class ALLOCATOR&gt;
+void
+unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;::swap(
+                                                     unordered_multiset&amp; other)
+{
+    d_impl.swap(other.d_impl);
+}
+
+// ACCESSORS
+template &lt;class KEY, class HASH, class EQUAL, class ALLOCATOR&gt;
+typename unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;::const_iterator
+unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;::begin() const
+{
+    return const_iterator(d_impl.elementListRoot());
+}
+
+template &lt;class KEY, class HASH, class EQUAL, class ALLOCATOR&gt;
+typename unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;::const_iterator
+unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;::end() const
+{
+    return const_iterator();
+}
+
+template &lt;class KEY, class HASH, class EQUAL, class ALLOCATOR&gt;
+typename unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;::const_iterator
+unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;::cbegin() const
+{
+    return const_iterator(d_impl.elementListRoot());
+}
+
+template &lt;class KEY, class HASH, class EQUAL, class ALLOCATOR&gt;
+typename unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;::const_iterator
+unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;::cend() const
+{
+    return const_iterator();
+}
+
+template &lt;class KEY, class HASH, class EQUAL, class ALLOCATOR&gt;
+inline
+typename unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;::const_local_iterator
+unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;::begin(size_type index) const
+{
+    BSLS_ASSERT_SAFE(index &lt; this-&gt;bucket_count());
+
+    return const_local_iterator(&amp;d_impl.bucketAtIndex(index));
+}
+
+template &lt;class KEY, class HASH, class EQUAL, class ALLOCATOR&gt;
+inline
+typename
+ unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;::const_local_iterator
+unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;::end(size_type index) const
+{
+    BSLS_ASSERT_SAFE(index &lt; this-&gt;bucket_count());
+
+    return const_local_iterator(0, &amp;d_impl.bucketAtIndex(index));
+}
+
+
+template &lt;class KEY, class HASH, class EQUAL, class ALLOCATOR&gt;
+inline
+typename
+ unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;::const_local_iterator
+unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;::cbegin(size_type index) const
+{
+    BSLS_ASSERT_SAFE(index &lt; this-&gt;bucket_count());
+
+    return const_local_iterator(&amp;d_impl.bucketAtIndex(index));
+}
+
+template &lt;class KEY, class HASH, class EQUAL, class ALLOCATOR&gt;
+inline
+typename unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;::const_local_iterator
+unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;::cend(size_type index) const
+{
+    BSLS_ASSERT_SAFE(index &lt; this-&gt;bucket_count());
+
+    return const_local_iterator(0, &amp;d_impl.bucketAtIndex(index));
+}
+
+template &lt;class KEY, class HASH, class EQUAL, class ALLOCATOR&gt;
+inline
+typename unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;::size_type
+unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;::bucket(
+                                                     const key_type&amp; key) const
+{
+    return d_impl.bucketIndexForKey(key);
+}
+
+template &lt;class KEY, class HASH, class EQUAL, class ALLOCATOR&gt;
+inline
+typename unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;::size_type
+unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;::bucket_count() const
+{
+    return d_impl.numBuckets();
+}
+
+template &lt;class KEY, class HASH, class EQUAL, class ALLOCATOR&gt;
+inline
+typename unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;::size_type
+unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;::bucket_size(
+                                                         size_type index) const
+{
+    BSLS_ASSERT_SAFE(index &lt; this-&gt;bucket_count());
+
+    return d_impl.countElementsInBucket(index);
+}
+
+template &lt;class KEY, class HASH, class EQUAL, class ALLOCATOR&gt;
+typename unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;::size_type
+unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;::count(
+                                                     const key_type&amp; key) const
+{
+    typedef ::BloombergLP::bslalg::BidirectionalNode&lt;value_type&gt; BNode;
+
+    size_type result = 0;
+    for (HashTableLink *cursor = d_impl.find(key);
+         cursor;
+         ++result, cursor = cursor-&gt;nextLink()) {
+
+        BNode *cursorNode = static_cast&lt;BNode *&gt;(cursor);
+        if (!this-&gt;key_eq()(
+                         key,
+                         ListConfiguration::extractKey(cursorNode-&gt;value()))) {
+            break;
+        }
+    }
+    return result;
+}
+
+template &lt;class KEY, class HASH, class EQUAL, class ALLOCATOR&gt;
+typename unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;::const_iterator
+unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;::find(
+                                                     const key_type&amp; key) const
+{
+    return const_iterator(d_impl.find(key));
+}
+
+template &lt;class KEY, class HASH, class EQUAL, class ALLOCATOR&gt;
+typename unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;::hasher
+unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;::hash_function() const
+{
+    return d_impl.hasher();
+}
+
+template &lt;class KEY, class HASH, class EQUAL, class ALLOCATOR&gt;
+typename unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;::key_equal
+unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;::key_eq() const
+{
+    return d_impl.comparator();
+}
+
+template &lt;class KEY, class HASH, class EQUAL, class ALLOCATOR&gt;
+inline
+bsl::pair&lt;
+      typename unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;::const_iterator,
+      typename unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;::const_iterator&gt;
+unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;::equal_range(
+                                                     const key_type&amp; key) const
+{
+    HashTableLink *first;
+    HashTableLink *last;
+    d_impl.findRange(&amp;first, &amp;last, key);
+    return bsl::pair&lt;const_iterator, const_iterator&gt;(const_iterator(first),
+                                                     const_iterator(last));
+}
+
+template &lt;class KEY, class HASH, class EQUAL, class ALLOCATOR&gt;
+inline
+typename unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;::size_type
+unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;::max_bucket_count() const
+{
+    return d_impl.maxNumOfBuckets();
+}
+
+
+template &lt;class KEY, class HASH, class EQUAL, class ALLOCATOR&gt;
+inline
+float unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;::load_factor() const
+{
+    return d_impl.loadFactor();
+}
+
+template &lt;class KEY, class HASH, class EQUAL, class ALLOCATOR&gt;
+inline
+float unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;::max_load_factor() const
+{
+    return d_impl.maxLoadFactor();
+}
+
+}  // close namespace bsl
+
+// FREE FUNCTIONS
+template &lt;class KEY, class HASH, class EQUAL, class ALLOCATOR&gt;
+inline
+bool bsl::operator==(
+              const bsl::unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;&amp; lhs,
+              const bsl::unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;&amp; rhs)
+{
+    return lhs.d_impl == rhs.d_impl;
+}
+
+template &lt;class KEY, class HASH, class EQUAL, class ALLOCATOR&gt;
+inline
+bool bsl::operator!=(
+              const bsl::unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;&amp; lhs,
+              const bsl::unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;&amp; rhs)
+{
+    return !(lhs == rhs);
+}
+
+template &lt;class KEY, class HASH, class EQUAL, class ALLOCATOR&gt;
+inline
+void
+bsl::swap(bsl::unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;&amp; x,
+          bsl::unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;&amp; y)
+{
+    x.swap(y);
+}
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright (C) 2012 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the &quot;Software&quot;), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

@@ -1,0 +1,861 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 2.16 BETA</title>
+<html>
+<pre>
+// bslstl_hash.h                                                      -*-C++-*-
+#ifndef INCLUDED_BSLSTL_HASH
+#define INCLUDED_BSLSTL_HASH
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a namespace for hash functions.
+//
+//@CLASSES:
+//  bsl::hash: hash function for fundamental types
+//
+//@SEE_ALSO: bsl+stdhdrs
+//
+//@DESCRIPTION: This component provides a template unary functor,
+//&#39;bsl::hash&#39;, implementing the &#39;std::hash&#39; functor.  &#39;bsl::hash&#39; applies a C++
+//standard compliant, implementation defined, hash function to fundamental
+//types returning the result of such application.
+//
+/// Standard Hash Function
+// According to the C++ standard the requirements of a standard hash function
+// &#39;h&#39; are:
+//
+//: 1 Return a &#39;size_t&#39; value between 0 and
+//:   &#39;numeric_limits&lt;std::size_t&gt;::max()&#39;
+//:
+//: 2 The value returned must depend only on the argument &#39;k&#39;.  For multiple
+//:   evaluations with the same argument &#39;k&#39;, the value returned must be
+//:   always the same.
+//:
+//: 3 The function should not modify it&#39;s argument.
+//
+///Usage
+///-----
+// This component is for use by the &#39;bsl+stdhdrs&#39; package.
+
+
+// Prevent &#39;bslstl&#39; headers from being included directly in &#39;BSL_OVERRIDES_STD&#39;
+// mode.  Doing so is unsupported, and is likely to cause compilation errors.
+#if defined(BSL_OVERRIDES_STD) &amp;&amp; !defined(BSL_STDHDRS_PROLOGUE_IN_EFFECT)
+#error &quot;&lt;bslstl_hash.h&gt; header can&#39;t be included directly in \
+BSL_OVERRIDES_STD mode&quot;
+#endif
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include &lt;bslscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLALG_HASHUTIL
+#include &lt;bslalg_hashutil.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
+#include &lt;bslmf_isbitwisemoveable.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
+#include &lt;bslmf_istriviallycopyable.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_ISTRIVIALLYDEFAULTCONSTRUCTIBLE
+#include &lt;bslmf_istriviallydefaultconstructible.h&gt;
+#endif
+
+
+#ifndef INCLUDED_BSLS_COMPILERFEATURES
+#include &lt;bsls_compilerfeatures.h&gt;
+#endif
+
+#ifndef INCLUDED_CSTDDEF
+#include &lt;cstddef&gt;  // for &#39;std::size_t&#39;
+#define INCLUDED_CSTDDEF
+#endif
+
+namespace bsl {
+
+                          // ==================
+                          // class bslstl::hash
+                          // ==================
+
+template &lt;class TYPE&gt;
+struct hash;
+    // Empty base class for hashing.  No general hash struct defined, each type
+    // requires a specialization.  Leaving this struct declared but undefined
+    // will generate error messages that are more clear when someone tries to
+    // use a key that does not have a corresponding hash function.
+
+// ============================================================================
+//                                TYPE TRAITS
+// ============================================================================
+
+// Type traits for STL *sequence* containers:
+//: o A sequence container defines STL iterators.
+//: o A sequence container is bitwise moveable if the allocator is bitwise
+//:     moveable.
+//: o A sequence container uses &#39;bslma&#39; allocators if the parameterized
+//:     &#39;ALLOCATOR&#39; is convertible from &#39;bslma::Allocator*&#39;.
+
+template &lt;class TYPE&gt;
+struct is_trivially_default_constructible&lt;hash&lt;TYPE&gt; &gt;
+: bsl::true_type
+{};
+
+template &lt;class TYPE&gt;
+struct is_trivially_copyable&lt;hash&lt;TYPE&gt; &gt;
+: bsl::true_type
+{};
+
+}  // close namespace bsl
+
+namespace BloombergLP {
+namespace bslmf {
+
+template &lt;class TYPE&gt;
+struct IsBitwiseMoveable&lt;bsl::hash&lt;TYPE&gt; &gt;
+: bsl::true_type
+{};
+
+}
+}  // namespace BloombergLP
+
+namespace bsl {
+
+// ============================================================================
+//                  SPECIALIZATIONS FOR FUNDAMENTAL TYPES
+// ============================================================================
+
+template &lt;class BSLSTL_KEY&gt;
+struct hash&lt;const BSLSTL_KEY&gt; : hash&lt;BSLSTL_KEY&gt; {
+    // This class provides hashing functionality for constant key types, by
+    // delegating to the same function for non-constant key types.
+};
+
+template &lt;class TYPE&gt;
+struct hash&lt;TYPE *&gt; {
+    // Specialization of &#39;hash&#39; for pointers.
+
+    // STANDARD TYPEDEFS
+    typedef TYPE *argument_type;
+    typedef std::size_t result_type;
+
+    //! hash() = default;
+        // Create a &#39;hash&#39; object.
+
+    //! hash(const hash&amp; original) = default;
+        // Create a &#39;hash&#39; object.  Note that as &#39;hash&#39; is an empty (stateless)
+        // type, this operation will have no observable effect.
+
+    //! ~hash() = default;
+        // Destroy this object.
+
+    // MANIPULATORS
+    //! hash&amp; operator=(const hash&amp; rhs) = default;
+        // Assign to this object the value of the specified &#39;rhs&#39; object, and
+        // return a reference providing modifiable access to this object.  Note
+        // that as &#39;hash&#39; is an empty (stateless) type, this operation will
+        // have no observable effect.
+
+    // ACCESSORS
+    std::size_t operator()(TYPE *x) const;
+        // Return a hash value computed using the specified &#39;x&#39;.
+};
+
+template &lt;&gt;
+struct hash&lt;bool&gt; {
+    // Specialization of &#39;hash&#39; for &#39;bool&#39; values.
+
+    // STANDARD TYPEDEFS
+    typedef bool argument_type;
+    typedef std::size_t result_type;
+
+    //! hash() = default;
+        // Create a &#39;hash&#39; object.
+
+    //! hash(const hash&amp; original) = default;
+        // Create a &#39;hash&#39; object.  Note that as &#39;hash&#39; is an empty (stateless)
+        // type, this operation will have no observable effect.
+
+    //! ~hash() = default;
+        // Destroy this object.
+
+    // MANIPULATORS
+    //! hash&amp; operator=(const hash&amp; rhs) = default;
+        // Assign to this object the value of the specified &#39;rhs&#39; object, and
+        // return a reference providing modifiable access to this object.  Note
+        // that as &#39;hash&#39; is an empty (stateless) type, this operation will
+        // have no observable effect.
+
+    // ACCESSORS
+    std::size_t operator()(bool x) const;
+        // Return a hash value computed using the specified &#39;x&#39;.
+};
+
+template &lt;&gt;
+struct hash&lt;char&gt; {
+    // Specialization of &#39;hash&#39; for &#39;char&#39; values.
+
+    // STANDARD TYPEDEFS
+    typedef char argument_type;
+    typedef std::size_t result_type;
+
+    //! hash() = default;
+        // Create a &#39;hash&#39; object.
+
+    //! hash(const hash&amp; original) = default;
+        // Create a &#39;hash&#39; object.  Note that as &#39;hash&#39; is an empty (stateless)
+        // type, this operation will have no observable effect.
+
+    //! ~hash() = default;
+        // Destroy this object.
+
+    // MANIPULATORS
+    //! hash&amp; operator=(const hash&amp; rhs) = default;
+        // Assign to this object the value of the specified &#39;rhs&#39; object, and
+        // return a reference providing modifiable access to this object.  Note
+        // that as &#39;hash&#39; is an empty (stateless) type, this operation will
+        // have no observable effect.
+
+    // ACCESSORS
+    std::size_t operator()(char x) const;
+        // Return a hash value computed using the specified &#39;x&#39;.
+};
+
+template &lt;&gt;
+struct hash&lt;signed char&gt; {
+    // Specialization of &#39;hash&#39; for &#39;signed&#39; &#39;char&#39; values.
+
+    // STANDARD TYPEDEFS
+    typedef signed char argument_type;
+    typedef std::size_t result_type;
+
+    //! hash() = default;
+        // Create a &#39;hash&#39; object.
+
+    //! hash(const hash&amp; original) = default;
+        // Create a &#39;hash&#39; object.  Note that as &#39;hash&#39; is an empty (stateless)
+        // type, this operation will have no observable effect.
+
+    //! ~hash() = default;
+        // Destroy this object.
+
+    // MANIPULATORS
+    //! hash&amp; operator=(const hash&amp; rhs) = default;
+        // Assign to this object the value of the specified &#39;rhs&#39; object, and
+        // return a reference providing modifiable access to this object.  Note
+        // that as &#39;hash&#39; is an empty (stateless) type, this operation will
+        // have no observable effect.
+
+    // ACCESSORS
+    std::size_t operator()(signed char x) const;
+        // Return a hash value computed using the specified &#39;x&#39;.
+};
+
+template &lt;&gt;
+struct hash&lt;unsigned char&gt; {
+    // Specialization of &#39;hash&#39; for &#39;unsigned&#39; &#39;char&#39; values.
+
+    // STANDARD TYPEDEFS
+    typedef unsigned char argument_type;
+    typedef std::size_t result_type;
+
+    //! hash() = default;
+        // Create a &#39;hash&#39; object.
+
+    //! hash(const hash&amp; original) = default;
+        // Create a &#39;hash&#39; object.  Note that as &#39;hash&#39; is an empty (stateless)
+        // type, this operation will have no observable effect.
+
+    //! ~hash() = default;
+        // Destroy this object.
+
+    // MANIPULATORS
+    //! hash&amp; operator=(const hash&amp; rhs) = default;
+        // Assign to this object the value of the specified &#39;rhs&#39; object, and
+        // return a reference providing modifiable access to this object.  Note
+        // that as &#39;hash&#39; is an empty (stateless) type, this operation will
+        // have no observable effect.
+
+    // ACCESSORS
+    std::size_t operator()(unsigned char x) const;
+        // Return a hash value computed using the specified &#39;x&#39;.
+};
+
+template &lt;&gt;
+struct hash&lt;wchar_t&gt; {
+    // Specialization of &#39;hash&#39; for &#39;wchar_t&#39; values.
+
+    // STANDARD TYPEDEFS
+    typedef wchar_t argument_type;
+    typedef std::size_t result_type;
+
+    //! hash() = default;
+        // Create a &#39;hash&#39; object.
+
+    //! hash(const hash&amp; original) = default;
+        // Create a &#39;hash&#39; object.  Note that as &#39;hash&#39; is an empty (stateless)
+        // type, this operation will have no observable effect.
+
+    //! ~hash() = default;
+        // Destroy this object.
+
+    // MANIPULATORS
+    //! hash&amp; operator=(const hash&amp; rhs) = default;
+        // Assign to this object the value of the specified &#39;rhs&#39; object, and
+        // return a reference providing modifiable access to this object.  Note
+        // that as &#39;hash&#39; is an empty (stateless) type, this operation will
+        // have no observable effect.
+
+    // ACCESSORS
+    std::size_t operator()(wchar_t x) const;
+        // Return a hash value computed using the specified &#39;x&#39;.
+};
+
+#if defined BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES
+template &lt;&gt;
+struct hash&lt;char16_t&gt; {
+    // Specialization of &#39;hash&#39; for &#39;char16_t&#39; values.
+
+    // STANDARD TYPEDEFS
+    typedef char16_t argument_type;
+    typedef std::size_t result_type;
+
+    //! hash() = default;
+        // Create a &#39;hash&#39; object.
+
+    //! hash(const hash&amp; original) = default;
+        // Create a &#39;hash&#39; object.  Note that as &#39;hash&#39; is an empty (stateless)
+        // type, this operation will have no observable effect.
+
+    //! ~hash() = default;
+        // Destroy this object.
+
+    // MANIPULATORS
+    //! hash&amp; operator=(const hash&amp; rhs) = default;
+        // Assign to this object the value of the specified &#39;rhs&#39; object, and
+        // return a reference providing modifiable access to this object.  Note
+        // that as &#39;hash&#39; is an empty (stateless) type, this operation will
+        // have no observable effect.
+
+    // ACCESSORS
+    std::size_t operator()(char16_t x) const;
+        // Return a hash value computed using the specified &#39;x&#39;.
+};
+
+template &lt;&gt;
+struct hash&lt;char32_t&gt; {
+    // Specialization of &#39;hash&#39; for &#39;char32_t&#39; values.
+
+    // STANDARD TYPEDEFS
+    typedef char32_t argument_type;
+    typedef std::size_t result_type;
+
+    //! hash() = default;
+        // Create a &#39;hash&#39; object.
+
+    //! hash(const hash&amp; original) = default;
+        // Create a &#39;hash&#39; object.  Note that as &#39;hash&#39; is an empty (stateless)
+        // type, this operation will have no observable effect.
+
+    //! ~hash() = default;
+        // Destroy this object.
+
+    // MANIPULATORS
+    //! hash&amp; operator=(const hash&amp; rhs) = default;
+        // Assign to this object the value of the specified &#39;rhs&#39; object, and
+        // return a reference providing modifiable access to this object.  Note
+        // that as &#39;hash&#39; is an empty (stateless) type, this operation will
+        // have no observable effect.
+
+    // ACCESSORS
+    std::size_t operator()(char32_t x) const;
+        // Return a hash value computed using the specified &#39;x&#39;.
+};
+#endif
+
+template &lt;&gt;
+struct hash&lt;short&gt; {
+    // Specialization of &#39;hash&#39; for &#39;short&#39; values.
+
+    // STANDARD TYPEDEFS
+    typedef short argument_type;
+    typedef std::size_t result_type;
+
+    //! hash() = default;
+        // Create a &#39;hash&#39; object.
+
+    //! hash(const hash&amp; original) = default;
+        // Create a &#39;hash&#39; object.  Note that as &#39;hash&#39; is an empty (stateless)
+        // type, this operation will have no observable effect.
+
+    //! ~hash() = default;
+        // Destroy this object.
+
+    // MANIPULATORS
+    //! hash&amp; operator=(const hash&amp; rhs) = default;
+        // Assign to this object the value of the specified &#39;rhs&#39; object, and
+        // return a reference providing modifiable access to this object.  Note
+        // that as &#39;hash&#39; is an empty (stateless) type, this operation will
+        // have no observable effect.
+
+    // ACCESSORS
+    std::size_t operator()(short x) const;
+        // Return a hash value computed using the specified &#39;x&#39;.
+};
+
+template &lt;&gt;
+struct hash&lt;unsigned short&gt; {
+    // Specialization of &#39;hash&#39; for &#39;unsigned&#39; &#39;short&#39; values.
+
+    // STANDARD TYPEDEFS
+    typedef unsigned short argument_type;
+    typedef std::size_t result_type;
+
+    //! hash() = default;
+        // Create a &#39;hash&#39; object.
+
+    //! hash(const hash&amp; original) = default;
+        // Create a &#39;hash&#39; object.  Note that as &#39;hash&#39; is an empty (stateless)
+        // type, this operation will have no observable effect.
+
+    //! ~hash() = default;
+        // Destroy this object.
+
+    // MANIPULATORS
+    //! hash&amp; operator=(const hash&amp; rhs) = default;
+        // Assign to this object the value of the specified &#39;rhs&#39; object, and
+        // return a reference providing modifiable access to this object.  Note
+        // that as &#39;hash&#39; is an empty (stateless) type, this operation will
+        // have no observable effect.
+
+    // ACCESSORS
+    std::size_t operator()(unsigned short x) const;
+        // Return a hash value computed using the specified &#39;x&#39;.
+};
+
+template &lt;&gt;
+struct hash&lt;int&gt; {
+    // Specialization of &#39;hash&#39; for &#39;int&#39; values.
+
+    // STANDARD TYPEDEFS
+    typedef int argument_type;
+    typedef std::size_t result_type;
+
+    //! hash() = default;
+        // Create a &#39;hash&#39; object.
+
+    //! hash(const hash&amp; original) = default;
+        // Create a &#39;hash&#39; object.  Note that as &#39;hash&#39; is an empty (stateless)
+        // type, this operation will have no observable effect.
+
+    //! ~hash() = default;
+        // Destroy this object.
+
+    // MANIPULATORS
+    //! hash&amp; operator=(const hash&amp; rhs) = default;
+        // Assign to this object the value of the specified &#39;rhs&#39; object, and
+        // return a reference providing modifiable access to this object.  Note
+        // that as &#39;hash&#39; is an empty (stateless) type, this operation will
+        // have no observable effect.
+
+    // ACCESSORS
+    std::size_t operator()(int x) const;
+        // Return a hash value computed using the specified &#39;x&#39;.
+};
+
+template &lt;&gt;
+struct hash&lt;unsigned int&gt; {
+    // Specialization of &#39;hash&#39; for &#39;unsigned&#39; &#39;int&#39; values.
+
+    // STANDARD TYPEDEFS
+    typedef unsigned int argument_type;
+    typedef std::size_t result_type;
+
+    //! hash() = default;
+        // Create a &#39;hash&#39; object.
+
+    //! hash(const hash&amp; original) = default;
+        // Create a &#39;hash&#39; object.  Note that as &#39;hash&#39; is an empty (stateless)
+        // type, this operation will have no observable effect.
+
+    //! ~hash() = default;
+        // Destroy this object.
+
+    // MANIPULATORS
+    //! hash&amp; operator=(const hash&amp; rhs) = default;
+        // Assign to this object the value of the specified &#39;rhs&#39; object, and
+        // return a reference providing modifiable access to this object.  Note
+        // that as &#39;hash&#39; is an empty (stateless) type, this operation will
+        // have no observable effect.
+
+    // ACCESSORS
+    std::size_t operator()(unsigned int x) const;
+        // Return a hash value computed using the specified &#39;x&#39;.
+};
+
+template &lt;&gt;
+struct hash&lt;long&gt; {
+    // Specialization of &#39;hash&#39; for &#39;long&#39; values.
+
+    // STANDARD TYPEDEFS
+    typedef long argument_type;
+    typedef std::size_t result_type;
+
+    //! hash() = default;
+        // Create a &#39;hash&#39; object.
+
+    //! hash(const hash&amp; original) = default;
+        // Create a &#39;hash&#39; object.  Note that as &#39;hash&#39; is an empty (stateless)
+        // type, this operation will have no observable effect.
+
+    //! ~hash() = default;
+        // Destroy this object.
+
+    // MANIPULATORS
+    //! hash&amp; operator=(const hash&amp; rhs) = default;
+        // Assign to this object the value of the specified &#39;rhs&#39; object, and
+        // return a reference providing modifiable access to this object.  Note
+        // that as &#39;hash&#39; is an empty (stateless) type, this operation will
+        // have no observable effect.
+
+    // ACCESSORS
+    std::size_t operator()(long x) const;
+        // Return a hash value computed using the specified &#39;x&#39;.
+};
+
+template &lt;&gt;
+struct hash&lt;unsigned long&gt; {
+    // Specialization of &#39;hash&#39; for &#39;unsigned&#39; &#39;long&#39; values.
+
+    // STANDARD TYPEDEFS
+    typedef unsigned long argument_type;
+    typedef std::size_t result_type;
+
+    //! hash() = default;
+        // Create a &#39;hash&#39; object.
+
+    //! hash(const hash&amp; original) = default;
+        // Create a &#39;hash&#39; object.  Note that as &#39;hash&#39; is an empty (stateless)
+        // type, this operation will have no observable effect.
+
+    //! ~hash() = default;
+        // Destroy this object.
+
+    // MANIPULATORS
+    //! hash&amp; operator=(const hash&amp; rhs) = default;
+        // Assign to this object the value of the specified &#39;rhs&#39; object, and
+        // return a reference providing modifiable access to this object.  Note
+        // that as &#39;hash&#39; is an empty (stateless) type, this operation will
+        // have no observable effect.
+
+    // ACCESSORS
+    std::size_t operator()(unsigned long x) const;
+        // Return a hash value computed using the specified &#39;x&#39;.
+};
+
+template &lt;&gt;
+struct hash&lt;long long&gt; {
+    // Specialization of &#39;hash&#39; for &#39;long long&#39; values.
+
+    // STANDARD TYPEDEFS
+    typedef long long argument_type;
+    typedef std::size_t result_type;
+
+    //! hash() = default;
+        // Create a &#39;hash&#39; object.
+
+    //! hash(const hash&amp; original) = default;
+        // Create a &#39;hash&#39; object.  Note that as &#39;hash&#39; is an empty (stateless)
+        // type, this operation will have no observable effect.
+
+    //! ~hash() = default;
+        // Destroy this object.
+
+    // MANIPULATORS
+    //! hash&amp; operator=(const hash&amp; rhs) = default;
+        // Assign to this object the value of the specified &#39;rhs&#39; object, and
+        // return a reference providing modifiable access to this object.  Note
+        // that as &#39;hash&#39; is an empty (stateless) type, this operation will
+        // have no observable effect.
+
+    // ACCESSORS
+    std::size_t operator()(long long x) const;
+        // Return a hash value computed using the specified &#39;x&#39;.
+};
+
+template &lt;&gt;
+struct hash&lt;unsigned long long&gt; {
+    // Specialization of &#39;hash&#39; for &#39;unsigned&#39; &#39;long long&#39; values.
+
+    // STANDARD TYPEDEFS
+    typedef unsigned long long argument_type;
+    typedef std::size_t result_type;
+
+    //! hash() = default;
+        // Create a &#39;hash&#39; object.
+
+    //! hash(const hash&amp; original) = default;
+        // Create a &#39;hash&#39; object.  Note that as &#39;hash&#39; is an empty (stateless)
+        // type, this operation will have no observable effect.
+
+    //! ~hash() = default;
+        // Destroy this object.
+
+    // MANIPULATORS
+    //! hash&amp; operator=(const hash&amp; rhs) = default;
+        // Assign to this object the value of the specified &#39;rhs&#39; object, and
+        // return a reference providing modifiable access to this object.  Note
+        // that as &#39;hash&#39; is an empty (stateless) type, this operation will
+        // have no observable effect.
+
+    // ACCESSORS
+    std::size_t operator()(unsigned long long x) const;
+        // Return a hash value computed using the specified &#39;x&#39;.
+};
+
+template &lt;&gt;
+struct hash&lt;float&gt; {
+    // Specialization of &#39;hash&#39; for &#39;float&#39; values.
+
+    // STANDARD TYPEDEFS
+    typedef float argument_type;
+    typedef std::size_t result_type;
+
+    //! hash() = default;
+        // Create a &#39;hash&#39; object.
+
+    //! hash(const hash&amp; original) = default;
+        // Create a &#39;hash&#39; object.  Note that as &#39;hash&#39; is an empty (stateless)
+        // type, this operation will have no observable effect.
+
+    //! ~hash() = default;
+        // Destroy this object.
+
+    // MANIPULATORS
+    //! hash&amp; operator=(const hash&amp; rhs) = default;
+        // Assign to this object the value of the specified &#39;rhs&#39; object, and
+        // return a reference providing modifiable access to this object.  Note
+        // that as &#39;hash&#39; is an empty (stateless) type, this operation will
+        // have no observable effect.
+
+    // ACCESSORS
+    std::size_t operator()(float x) const;
+        // Return a hash value computed using the specified &#39;x&#39;.
+};
+
+template &lt;&gt;
+struct hash&lt;double&gt; {
+    // Specialization of &#39;hash&#39; for &#39;double&#39; values.
+
+    // STANDARD TYPEDEFS
+    typedef double argument_type;
+    typedef std::size_t result_type;
+
+    //! hash() = default;
+        // Create a &#39;hash&#39; object.
+
+    //! hash(const hash&amp; original) = default;
+        // Create a &#39;hash&#39; object.  Note that as &#39;hash&#39; is an empty (stateless)
+        // type, this operation will have no observable effect.
+
+    //! ~hash() = default;
+        // Destroy this object.
+
+    // MANIPULATORS
+    //! hash&amp; operator=(const hash&amp; rhs) = default;
+        // Assign to this object the value of the specified &#39;rhs&#39; object, and
+        // return a reference providing modifiable access to this object.  Note
+        // that as &#39;hash&#39; is an empty (stateless) type, this operation will
+        // have no observable effect.
+
+    // ACCESSORS
+    std::size_t operator()(double x) const;
+        // Return a hash value computed using the specified &#39;x&#39;.
+};
+
+template &lt;&gt;
+struct hash&lt;long double&gt; {
+    // Specialization of &#39;hash&#39; for &#39;long double&#39; values.
+
+    // STANDARD TYPEDEFS
+    typedef long double argument_type;
+    typedef std::size_t result_type;
+
+    //! hash() = default;
+        // Create a &#39;hash&#39; object.
+
+    //! hash(const hash&amp; original) = default;
+        // Create a &#39;hash&#39; object.  Note that as &#39;hash&#39; is an empty (stateless)
+        // type, this operation will have no observable effect.
+
+    //! ~hash() = default;
+        // Destroy this object.
+
+    // MANIPULATORS
+    //! hash&amp; operator=(const hash&amp; rhs) = default;
+        // Assign to this object the value of the specified &#39;rhs&#39; object, and
+        // return a reference providing modifiable access to this object.  Note
+        // that as &#39;hash&#39; is an empty (stateless) type, this operation will
+        // have no observable effect.
+
+    // ACCESSORS
+    std::size_t operator()(long double x) const;
+        // Return a hash value computed using the specified &#39;x&#39;.
+};
+
+// ===========================================================================
+//                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
+// ===========================================================================
+
+template&lt;typename TYPE&gt;
+inline
+std::size_t hash&lt;TYPE *&gt;::operator()(TYPE *x) const
+{
+    return ::BloombergLP::bslalg::HashUtil::computeHash(x);
+}
+
+inline
+std::size_t hash&lt;bool&gt;::operator()(bool x) const
+{
+    return ::BloombergLP::bslalg::HashUtil::computeHash(x);
+}
+
+inline
+std::size_t hash&lt;char&gt;::operator()(char x) const
+{
+    return ::BloombergLP::bslalg::HashUtil::computeHash(x);
+}
+
+inline
+std::size_t hash&lt;signed char&gt;::operator()(signed char x) const
+{
+    return ::BloombergLP::bslalg::HashUtil::computeHash(x);
+}
+
+inline
+std::size_t hash&lt;unsigned char&gt;::operator()(unsigned char x) const
+{
+    return ::BloombergLP::bslalg::HashUtil::computeHash(x);
+}
+
+inline
+std::size_t hash&lt;wchar_t&gt;::operator()(wchar_t x) const
+{
+    return ::BloombergLP::bslalg::HashUtil::computeHash(x);
+}
+
+#if defined BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES
+inline
+std::size_t hash&lt;char&gt;::operator()(char16_t x) const
+{
+    return ::BloombergLP::bslalg::HashUtil::computeHash(x);
+}
+
+inline
+std::size_t hash&lt;char&gt;::operator()(char32_t x) const
+{
+    return ::BloombergLP::bslalg::HashUtil::computeHash(x);
+}
+#endif
+
+inline
+std::size_t hash&lt;short&gt;::operator()(short x) const
+{
+    return ::BloombergLP::bslalg::HashUtil::computeHash(x);
+}
+
+inline
+std::size_t hash&lt;unsigned short&gt;::operator()(unsigned short x) const
+{
+    return ::BloombergLP::bslalg::HashUtil::computeHash(x);
+}
+
+inline
+std::size_t hash&lt;int&gt;::operator()(int x) const
+{
+    return ::BloombergLP::bslalg::HashUtil::computeHash(x);
+}
+
+inline
+std::size_t hash&lt;unsigned int&gt;::operator()(unsigned int x) const
+{
+    return ::BloombergLP::bslalg::HashUtil::computeHash(x);
+}
+
+inline
+std::size_t hash&lt;long&gt;::operator()(long x) const
+{
+    return ::BloombergLP::bslalg::HashUtil::computeHash(x);
+}
+
+inline
+std::size_t hash&lt;unsigned long&gt;::operator()(unsigned long x) const
+{
+    return ::BloombergLP::bslalg::HashUtil::computeHash(x);
+}
+
+inline
+std::size_t hash&lt;long long&gt;::operator()(long long x) const
+{
+    return ::BloombergLP::bslalg::HashUtil::computeHash(x);
+}
+
+inline
+std::size_t hash&lt;unsigned long long&gt;::operator()(unsigned long long x) const
+{
+    return ::BloombergLP::bslalg::HashUtil::computeHash(x);
+}
+
+inline
+std::size_t hash&lt;float&gt;::operator()(float x) const
+{
+    return ::BloombergLP::bslalg::HashUtil::computeHash(x);
+}
+
+inline
+std::size_t hash&lt;double&gt;::operator()(double x) const
+{
+    return ::BloombergLP::bslalg::HashUtil::computeHash(x);
+}
+
+inline
+std::size_t hash&lt;long double&gt;::operator()(long double x) const
+{
+    return ::BloombergLP::bslalg::HashUtil::computeHash((double)x);
+}
+
+}  // close namespace bsl
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright (C) 2012 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the &quot;Software&quot;), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>
