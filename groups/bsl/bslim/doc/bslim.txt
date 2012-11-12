@@ -16,8 +16,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bslim' package currently has 1 component (having 1 level of physical
- dependency).
+ The 'bslim' package currently has 1 component.
 ..
   1. bslim_printer
 ..

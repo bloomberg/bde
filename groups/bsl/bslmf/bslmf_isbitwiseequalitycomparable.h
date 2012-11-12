@@ -7,6 +7,13 @@
 #endif
 BSLS_IDENT("$Id: $")
 
+//@PURPOSE: Provide a type trait for bitwise equality.
+//
+//@CLASSES:
+//  bslmf::IsBitwiseEqualityComparable: trait metafunction
+//
+//@DESCRIPTION:
+
 #ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
 #include <bslmf_integralconstant.h>
 #endif

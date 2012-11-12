@@ -22,54 +22,55 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bslalg' package currently has 32 components having 12 levels of physical
+ The 'bslalg' package currently has 36 components having 9 levels of physical
  dependency.  The table below shows the hierarchical ordering of the
  components.  The order of components within each level is not architecturally
  significant, just alphabetical.
 ..
-  12. bslalg_dequeprimitives
-      bslalg_rbtreeutil
+  9. bslalg_dequeprimitives
+     bslalg_rbtreeutil
 
-  11. bslalg_arrayprimitives
+  8. bslalg_arrayprimitives
 
-  10. bslalg_autoarraymovedestructor
+  7. bslalg_autoarraymovedestructor
 
-   9. bslalg_autoarraydestructor
+  6. bslalg_autoarraydestructor
+     bslalg_hashtableimputil
 
-   8. bslalg_arraydestructionprimitives
-      bslalg_constructorproxy
-      bslalg_dequeiterator
+  5. bslalg_arraydestructionprimitives
+     bslalg_constructorproxy
+     bslalg_dequeiterator
+     bslalg_hashtableanchor
 
-   7. bslalg_scalarprimitives
+  4. bslalg_hashtablebucket
+     bslalg_scalarprimitives
 
-   6. bslalg_autoscalardestructor
-      bslalg_rangecompare
+  3. bslalg_autoscalardestructor
+     bslalg_bidirectionallinklistutil
+     bslalg_bidirectionalnode
+     bslalg_rangecompare
+     bslalg_rbtreeanchor
+     bslalg_selecttrait
 
-   5. bslalg_bitwiseeqpassthroughtrait
-      bslalg_passthroughtrait
-      bslalg_scalardestructionprimitives
-      bslalg_selecttrait
+  2. bslalg_bidirectionallink
+     bslalg_containerbase
+     bslalg_dequeimputil
+     bslalg_functoradapter
+     bslalg_hashutil
+     bslalg_hastrait
+     bslalg_rbtreenode
+     bslalg_scalardestructionprimitives
+     bslalg_swaputil
+     bslalg_typetraitbitwisecopyable
+     bslalg_typetraitbitwiseequalitycomparable
+     bslalg_typetraitbitwisemoveable
+     bslalg_typetraithaspointersemantics
+     bslalg_typetraithasstliterators
+     bslalg_typetraithastrivialdefaultconstructor
+     bslalg_typetraitnil
+     bslalg_typetraitusesbslmaallocator
 
-   4. bslalg_hastrait
-
-   3. bslalg_typetraits
-
-   2. bslalg_rbtreeanchor
-      bslalg_typetraitsgrouppod
-
-   1. bslalg_dequeimputil
-      bslalg_functoradapter
-      bslalg_rbtreenode
-      bslalg_swaputil
-      bslalg_typetraitbitwisecopyable
-      bslalg_typetraitbitwiseequalitycomparable
-      bslalg_typetraitbitwisemoveable
-      bslalg_typetraithaspointersemantics
-      bslalg_typetraithasstliterators
-      bslalg_typetraithastrivialdefaultconstructor
-      bslalg_typetraitnil
-      bslalg_typetraitpair
-      bslalg_typetraitusesbslmaallocator
+  1. bslalg_typetraits
 ..
 
 /Component Synopsis
@@ -89,11 +90,20 @@
 : 'bslalg_autoscalardestructor':
 :      Provide a proctor for destroying an object.
 :
-: 'bslalg_bitwiseeqpassthroughtrait':
-:      Provide facilities for computing compile-time traits.
+: 'bslalg_bidirectionallink':
+:      Provide a basic link type for building doubly-linked lists.
+:
+: 'bslalg_bidirectionallinklistutil':
+:      Provide utilities to maintain bidirectional list data structures.
+:
+: 'bslalg_bidirectionalnode':
+:      Provide a node holding a value in a doubly-linked list.
 :
 : 'bslalg_constructorproxy':
 :      Provide a proxy for constructing and destroying objects.
+:
+: 'bslalg_containerbase':
+:      Provide a wrapper for STL allocators, respecting 'bslma' semantics.
 :
 : 'bslalg_dequeimputil':
 :      Provide basic parameters and primitive data structures for deques.
@@ -107,14 +117,23 @@
 : 'bslalg_functoradapter':
 :      Provide an utility that adapts callable objects to functors.
 :
+: 'bslalg_hashtableanchor':
+:      Provide a type holding the constituent parts of a hash table.
+:
+: 'bslalg_hashtablebucket':
+:      Provide a bucket representation for hash table data structures.
+:
+: 'bslalg_hashtableimputil':
+:      Provide algorithms for implementing a hash table.
+:
+: 'bslalg_hashutil':
+:      Provide a utility of hash functions.
+:
 : 'bslalg_hastrait':
 :      Provide facilities for checking compile-time trait.
 :
-: 'bslalg_passthroughtrait':
-:      Provide facilities for computing compile-time traits.
-:
 : 'bslalg_rangecompare':
-:      Compare elements in an iterator range for equality or ordering.
+:      Provide algorithms to compare iterator-ranges of elements.
 :
 : 'bslalg_rbtreeanchor':
 :      Encapsulate root, first, and last nodes of a tree with a count.
@@ -129,7 +148,7 @@
 :      Provide primitive algorithms that destroy scalars.
 :
 : 'bslalg_scalarprimitives':
-:      Primitive algorithms that operate on single elements.
+:      Provide primitive algorithms that operate on single elements.
 :
 : 'bslalg_selecttrait':
 :      Provide facilities for selecting compile-time trait.
@@ -156,16 +175,7 @@
 :      Provide a primitive type trait for class with trivial default ctor.
 :
 : 'bslalg_typetraitnil':
-:      Provide a primitive type trait for bit-wise copyable classes.
-:
-: 'bslalg_typetraitpair':
-:      Provide facilities for identifying 'std::pair'-like classes.
-:
-: 'bslalg_typetraits':
-:      Provide facilities for associating types with compile-time traits.
-:
-: 'bslalg_typetraitsgrouppod':
-:      Provide pre-grouped compile-time traits for POD classes.
+:      Provide a primitive trait for classes that have no other traits.
 :
 : 'bslalg_typetraitusesbslmaallocator':
 :      Provide a primitive trait for types that use 'bslma' allocators.

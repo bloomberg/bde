@@ -31,11 +31,6 @@
  physical dependency.  The table below shows the hierarchical ordering of the
  packages.  The order of components within each level is not architecturally
  significant, just alphabetical.
-
- Note that required source control package 'bslscm' depends on 'bsls'; this
- behavior is unique to 'bsl', although it is temporarily also in 'bde' for
- historic reasons, since logically *every* other package should depend on
- 'bslscm'.
 ..
   10. bslim
 
