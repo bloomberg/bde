@@ -1678,7 +1678,7 @@ struct TestDriver {
     typedef typename bslma::UsesBslmaAllocator<TYPE>::type TypeHasBslmaAlloc;
         // true_type if TYPE uses a bslma allocator
 
-    enum { SCOPED_ALLOC = ObjHasBslmaAlloc::VALUE && TypeHasBslmaAlloc::VALUE};
+    enum { SCOPED_ALLOC = ObjHasBslmaAlloc::value && TypeHasBslmaAlloc::value};
         // true if both the container shares its allocator with its contained
         // elements.
 
@@ -6112,7 +6112,7 @@ void TestDriver<TYPE,ALLOC>::testConstructor()
                     Obj x(LENGTH, DEFAULT_VALUE, AL);
 
                     ASSERT(0  == globalAllocator_p->numBlocksInUse());
-                    if (TypeHasBslmaAlloc::VALUE && !ObjHasBslmaAlloc::VALUE) {
+                    if (TypeHasBslmaAlloc::value && !ObjHasBslmaAlloc::value) {
                         // If TYPE uses bslma but Obj does not, then each
                         // element will allocate one block from the default
                         // allocator.
@@ -6155,7 +6155,7 @@ void TestDriver<TYPE,ALLOC>::testConstructor()
                     Obj x(LENGTH, VALUE, AL);
 
                     ASSERT(0  == globalAllocator_p->numBlocksInUse());
-                    if (TypeHasBslmaAlloc::VALUE && !ObjHasBslmaAlloc::VALUE) {
+                    if (TypeHasBslmaAlloc::value && !ObjHasBslmaAlloc::value) {
                         // If TYPE uses bslma but Obj does not, then each
                         // element will allocate one block from the default
                         // allocator.
@@ -6456,7 +6456,7 @@ void TestDriver<TYPE,ALLOC>::testAllocator(bsl::true_type,
     // --------------------------------------------------------------------
 
     // Compile-time assert that this is the correct specialization.
-    BSLMF_ASSERT(ObjHasBslmaAlloc::VALUE);
+    BSLMF_ASSERT(ObjHasBslmaAlloc::value);
 
     bslma::TestAllocator testAllocator(veryVeryVerbose);
 
@@ -6573,7 +6573,7 @@ void TestDriver<TYPE,ALLOC>::testAllocator(bsl::false_type,
     // --------------------------------------------------------------------
 
     // Compile-time assert that this is the correct specialization.
-    BSLMF_ASSERT( !ObjHasBslmaAlloc::VALUE );
+    BSLMF_ASSERT( !ObjHasBslmaAlloc::value );
 
     bslma::TestAllocator  testAllocator(veryVeryVerbose);
     OtherAllocator<char> objAllocator(&testAllocator);
@@ -7233,7 +7233,7 @@ void TestDriver<TYPE,ALLOC>::testCopyCtor()
                 LOOP_ASSERT(SPEC, checkIntegrity(Y0, LENGTH));
                 LOOP_ASSERT(SPEC, W == Y0);
                 LOOP_ASSERT(SPEC, W == X);
-                if (ObjHasBslmaAlloc::VALUE) {
+                if (ObjHasBslmaAlloc::value) {
                     LOOP_ASSERT(SPEC, Y0.get_allocator() == ALLOC());
                 }
                 else {

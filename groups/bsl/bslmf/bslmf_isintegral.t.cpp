@@ -15,10 +15,10 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// The object under test is a meta-functions, 'bsl::is_integral', that
-// determine whether a template parameter type is a integral type.  Thus, we
-// need to ensure that the values returned by the meta-function is correct for
-// each possible category of types.
+// The component under test implements a meta-functions, 'bsl::is_integral',
+// that determine whether a template parameter type is a integral type.  Thus,
+// we need to ensure that the values returned by the meta-function is correct
+// for each possible category of types.
 //
 // ----------------------------------------------------------------------------
 // PUBLIC CLASS DATA
@@ -136,9 +136,8 @@ int main(int argc, char *argv[])
       case 1: {
         // --------------------------------------------------------------------
         // 'bsl::is_integral::value'
-        //   Ensure that the static data member 'value' of 'bsl::is_integral'
-        //   instantiations having various (template parameter) 'TYPES' has the
-        //   correct value.
+        //   Ensure that 'bsl::is_integral' returns the correct values for a
+        //   variety of a variety of template parameter types.
         //
         // Concerns:
         //: 1 'is_integral::value' is 'false' when 'TYPE' is a (possibly
@@ -152,14 +151,14 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Verify that 'bsl::is_integral::value' has the correct value for
-        //   each (template parameter) 'TYPE' in the concerns.
+        //   each concern.
         //
         // Testing:
         //   bsl::is_integral::value
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nbslmf::IsPointer::VALUE\n"
-                            "\n=======================\n");
+        if (verbose) printf("\n'bsl::is_integral::value\n"
+                            "\n========================\n");
 
         // C-1
         TYPE_ASSERT_CVQ(bsl::is_integral, value, double, false);

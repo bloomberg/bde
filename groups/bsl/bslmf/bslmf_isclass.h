@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a compile-time check for class types.
+//@PURPOSE: Provide a compile-time check for determining class types.
 //
 //@CLASSES:
 //  bsl::is_class: standard meta-function for determining class types
@@ -38,7 +38,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Verify Class Types
 ///- - - - - - - - - - - - - - -
-// Suppose that we want to assert whether a particular type is a class type.
+// Suppose that we want to assert whether a set of types are class types.
 //
 // First, we create a class type 'MyClass':
 //..
@@ -66,10 +66,6 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_removecv.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_REMOVEREFERENCE
-#include <bslmf_removereference.h>
-#endif
-
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 #ifndef INCLUDED_CSTDLIB
@@ -81,6 +77,10 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 namespace bslmf {
+
+                             // ==================
+                             // struct IsClass_Imp
+                             // ==================
 
 template <typename TYPE>
 struct IsClass_Imp {
@@ -106,12 +106,14 @@ struct IsClass_Imp {
 
 namespace bsl {
 
+                             // ===============
+                             // struct is_class
+                             // ===============
+
 template <typename TYPE>
 struct is_class : integral_constant<bool,
                                  BloombergLP::bslmf::IsClass_Imp<
-                                     typename remove_cv<
-                                         typename remove_reference<TYPE>::type>
-                                             ::type>::Value> {
+                                     typename remove_cv<TYPE>::type>::Value> {
     // This 'struct' template implements the 'is_class' meta-function defined
     // in the C++11 standard [meta.unary.cat] to determine if the (template
     // parameter) 'TYPE' is a class.
@@ -122,9 +124,9 @@ struct is_class : integral_constant<bool,
 namespace BloombergLP {
 namespace bslmf {
 
-                         // ==============
-                         // struct IsClass
-                         // ==============
+                            // ==============
+                            // struct IsClass
+                            // ==============
 
 template <typename TYPE>
 struct IsClass : bsl::is_class<TYPE>::type {

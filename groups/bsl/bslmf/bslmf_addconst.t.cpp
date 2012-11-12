@@ -18,14 +18,14 @@ using std::fprintf;
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// The object under test is a meta-functions, 'bsl::add_const', that adds the
-// top-level 'const'-qualifier to a template parameter type.  Thus, we need to
-// ensure that the values returned by the meta-function is correct for each
-// possible category of types.
+// The component under test defines a meta-functions, 'bsl::add_const', that
+// adds a top-level 'const'-qualifier to a template parameter type.  Thus, we
+// need to ensure that the values returned by the meta-function is correct for
+// each possible category of types.
 //
 // ----------------------------------------------------------------------------
-// PUBLIC CLASS DATA
-// [ 1] bsl::add_const
+// PUBLIC TYPES
+// [ 1] bsl::add_const::type
 //
 // ----------------------------------------------------------------------------
 // [ 2] USAGE EXAMPLE
@@ -87,8 +87,7 @@ int main(int argc, char *argv[])
     int verbose = argc > 2;
     int veryVerbose = argc > 3;
 
-    (void) verbose;
-    (void) veryVerbose;
+    (void)veryVerbose;
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
@@ -117,9 +116,9 @@ int main(int argc, char *argv[])
 ///-----
 // In this section we show intended use of this component.
 //
-///Example 1: Adding The Const-Qualifier to A Type
-///- - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose that we want to add the 'const'-qualifier to a particular type..
+///Example 1: Adding the 'const'-qualifier to A Type
+///- - - - - - - - - - - - - - - - - - - - - - - - -
+// Suppose that we want to add a 'const'-qualifier to a particular type.
 //
 // First, we create two 'typedef's -- a 'const'-qualified type ('MyConstType')
 // and the same type without the 'const'-qualifier ('MyType'):
@@ -127,7 +126,7 @@ int main(int argc, char *argv[])
         typedef int       MyType;
         typedef const int MyConstType;
 //..
-// Now, we add the the 'const'-qualifier to 'MyType' using 'bsl::add_const' and
+// Now, we add a 'const'-qualifier to 'MyType' using 'bsl::add_const' and
 // verify that the resulting type is the same as 'MyConstType':
 //..
         ASSERT(true ==
@@ -138,26 +137,27 @@ int main(int argc, char *argv[])
       case 1: {
         // --------------------------------------------------------------------
         // 'bsl::add_const'
-        //   Ensure that the 'typedef' 'type' of 'bsl::add_const'
-        //   has the correct type for a variety of template parameter types.
+        //   Ensure that the 'typedef' 'type' of 'bsl::add_const' has the
+        //   correct type for a variety of template parameter types.
         //
         // Concerns:
-        //: 1 'bsl::add_const' only adds top-level 'const'-qualifier to regular
-        //:   types (test primitive, pointers, and userdefined types).
+        //: 1 'bsl::add_const' adds a top-level 'const'-qualifier only to
+        //:   regular types (primitive, pointers, and user-defined types).
         //:
-        //: 2 'bsl::add_const' doesn't add 'const'-qualifier to reference
-        //:   types, function types, and already 'const'-qualified types.
+        //: 2 'bsl::add_const' does not add a 'const'-qualifier to reference
+        //:   types, function types, or type that are already
+        //:   'const'-qualified.
         //
         // Plan:
         //   Verify that 'bsl::add_const::type' has the correct type for each
         //   concern.
         //
         // Testing:
-        //   bsl::add_const
+        //   bsl::add_const::type
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\n'bsl::remove_const'\n"
-                            "\n===================\n");
+        if (verbose) printf("\n'bsl::remove_const::type'\n"
+                            "\n=========================\n");
 
         // C-1
         ASSERT((is_same<add_const<int>::type, int const>::value));
@@ -184,11 +184,12 @@ int main(int argc, char *argv[])
 
     return testStatus;
 }
-// ---------------------------------------------------------------------------
+
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2012
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

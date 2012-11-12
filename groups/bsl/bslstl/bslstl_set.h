@@ -1305,7 +1305,7 @@ set<KEY, COMPARATOR, ALLOCATOR>::operator=(const set& rhs)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(this != &rhs)) {
 
-        if (AllocatorTraits::propagate_on_container_copy_assignment::VALUE) {
+        if (AllocatorTraits::propagate_on_container_copy_assignment::value) {
             set other(rhs, rhs.nodeFactory().allocator());
             BloombergLP::bslalg::SwapUtil::swap(
                                              &nodeFactory().allocator(),
@@ -1461,7 +1461,7 @@ template <class KEY, class COMPARATOR, class ALLOCATOR>
 inline
 void set<KEY, COMPARATOR, ALLOCATOR>::swap(set& other)
 {
-    if (AllocatorTraits::propagate_on_container_swap::VALUE) {
+    if (AllocatorTraits::propagate_on_container_swap::value) {
         BloombergLP::bslalg::SwapUtil::swap(&nodeFactory().allocator(),
                                            &other.nodeFactory().allocator());
         quickSwap(other);

@@ -1,6 +1,8 @@
 // bslalg_rangecompare.cpp                                            -*-C++-*-
 #include <bslalg_rangecompare.h>
 
+#include <bslma_usesbslmaallocator.h>         // for testing only
+
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 

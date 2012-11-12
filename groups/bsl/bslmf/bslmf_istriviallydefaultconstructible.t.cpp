@@ -2,6 +2,8 @@
 
 #include <bslmf_istriviallydefaultconstructible.h>
 
+#include <bslmf_nestedtraitdeclaration.h>
+
 #include <cstdio>
 #include <cstdlib>
 
@@ -13,25 +15,26 @@ using namespace std;
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// The object under test is a meta-function,
+// The component under test defines a meta-function,
 // 'bsl::is_trivially_default_constructible', that determines whether a
-// template parameter type is trivially default-constructible.  The
-// meta-function by default support a set of type categories and can be
-// extended to support other type through either template specialization or a
-// macro.
+// template parameter type is trivially default-constructible.  By default, the
+// meta-function supports a restricted set of type categories, but can be
+// extended to support other types through either template specialization or
+// use of the 'BSLMF_NESTED_TRAIT_DECLARATION'.
 //
-// Thus, we need to ensure that the natively supported types are correctly
-// identified by the meta-function by testing the meta-function with each
-// possible supported category of types.  We also need to verify that the
-// meta-function can be correctly extended to support other types through
-// either of the 2 supported mechanisms.
+// Thus, we need to ensure that the natively-supported types are correctly
+// identified by the meta-function by testing the meta-function with each of
+// the type categories.  We also need to verify that the meta-function can be
+// correctly extended to support other types through either of the two
+// supported mechanisms.
 //
 // ----------------------------------------------------------------------------
-// class methods
-// [ 2] bsl::is_trivially_default_constructible
+// PUBLIC CLASS DATA
+// [ 1] bsl::is_trivially_default_constructible::value
 //
 // ----------------------------------------------------------------------------
 // [ 3] USAGE EXAMPLE
+// [ 2] EXTENDING bsl::is_trivially_default_constructible
 
 //=============================================================================
 //                  STANDARD BDE ASSERT TEST MACRO
@@ -126,13 +129,14 @@ struct is_trivially_default_constructible<
 namespace {
 
 struct UserDefinedTdcTestType {
-    // This user-defined type that is marked to be trivially
-    // default-constructible using specialization is used for testing.
+    // This user-defined type, which is marked to be trivially
+    // default-constructible using template specialization (below), is used for
+    // testing.
 };
 
 struct UserDefinedTdcTestType2 {
-    // This user-defined type that is marked to be trivially
-    // default-constructible using the 'BSLMF_NESTED_TRAIT_DECLARATION' macro
+    // This user-defined type, which is marked to be trivially
+    // default-constructible using the 'BSLMF_NESTED_TRAIT_DECLARATION' macro,
     // is used for testing.
 
     BSLMF_NESTED_TRAIT_DECLARATION(UserDefinedTdcTestType2,
@@ -140,22 +144,22 @@ struct UserDefinedTdcTestType2 {
 };
 
 struct UserDefinedNonTdcTestType {
-    // This user-defined type that is not marked to be trivially
-    // default-constructible is used for testing.
+    // This user-defined type, which is not marked to be trivially
+    // default-constructible, is used for testing.
 };
 
 enum EnumTestType {
     // This 'enum' type is used for testing.
 };
 
-typedef int * PointerTestType;
+typedef int *PointerTestType;
     // This pointer type is used for testing.
 
 typedef int& ReferenceTestType;
     // This reference type is used for testing.
 
 typedef int (UserDefinedNonTdcTestType::*MethodPtrTestType) ();
-    // This non-static function member type is used for testing.
+    // This pointer to non-static function member type is used for testing.
 
 }  // close unnamed namespace
 
@@ -181,8 +185,25 @@ int main(int argc, char *argv[])
 
     switch (test) { case 0:
       case 3: {
+        // --------------------------------------------------------------------
+        // USAGE EXAMPLE
+        //
+        // Concerns:
+        //: 1 The usage example provided in the component header file compiles,
+        //:   links, and runs as shown.
+        //
+        // Plan:
+        //: 1 Incorporate usage example from header into test driver, remove
+        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //:   (C-1)
+        //
+        // Testing:
+        //   USAGE EXAMPLE
+        // --------------------------------------------------------------------
+
           if (verbose) printf("\nUSAGE EXAMPLE"
                               "\n=============\n");
+
 ///Usage
 ///-----
 // In this section we show intended use of this component.
@@ -192,49 +213,74 @@ int main(int argc, char *argv[])
 // Suppose that we want to assert whether a type is trivially
 // default-constructible.
 //
-// First, we define a set of trivially default-constructible types:
+// First, we define a set of types to evaluate:
 //..
           typedef int MyFundamentalType;
           typedef int& MyFundamentalTypeReference;
-
+//
+//  class MyTriviallyDefaultConstructibleType {
+//  };
+//
+//  struct MyNonTriviallyDefaultConstructibleType {
+//
+//      int d_data;
+//
+//      MyNonTriviallyDefaultConstructibleType()
+//      : d_data(1)
+//      {
+//      }
+//  };
 //..
-// Then, since user-defined types can not be automatically determined by the
+// Then, since user-defined types cannot be automatically evaluated by
 // 'is_trivially_default_constructible', we define a template specialization to
 // specify that 'MyTriviallyDefaultConstructibleType' is trivially
 // default-constructible:
 //..
+//  namespace bsl {
+//
+//  template <>
+//  struct is_trivially_default_constructible<
+//                      MyTriviallyDefaultConstructibleType> : bsl::true_type {
+//      // This template specialization for
+//      // 'is_trivially_default_constructible' indicates that
+//      // 'MyTriviallyDefaultConstructibleType' is a trivially
+//      // default-constructible type.
+//  };
+//
+//  }  // close namespace bsl
 //..
-// Now, we verify whether each type is default-constructible using
+// Now, we verify whether each type is trivially default-constructible using
 // 'bsl::is_trivially_default_constructible':
 //..
-          ASSERT(true ==
+          ASSERT(true  ==
             bsl::is_trivially_default_constructible<MyFundamentalType>::value);
           ASSERT(false ==
                  bsl::is_trivially_default_constructible<
                      MyFundamentalTypeReference>::value);
-          ASSERT(true ==
+          ASSERT(true  ==
                  bsl::is_trivially_default_constructible<
                      MyTriviallyDefaultConstructibleType>::value);
           ASSERT(false ==
                  bsl::is_trivially_default_constructible<
                      MyNonTriviallyDefaultConstructibleType>::value);
 //..
+
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // 'bsl::is_trivially_default_constructible' manual
+        // Extending 'bsl::is_trivially_default_constructible'
         //   Ensure the 'bsl::is_trivially_default_constructible' meta-function
         //   returns the correct value for types explicitly specified to be
         //   trivially default-constructible.
         //
         // Concerns:
-        //: 1 The meta-function returns false for normal user-defined types.
+        //: 1 The meta-function returns 'false' for general user-defined types.
         //:
-        //: 2 The meta-function returns true for a user-defined type, if a
+        //: 2 The meta-function returns 'true' for a user-defined type if a
         //:   specialization for 'bsl::is_trivially_default_constructible' on
         //:   that type is defined to inherit from 'bsl::true_type'.
         //:
-        //: 3 The meta-function returns true for a user-defined type that
+        //: 3 The meta-function returns 'true' for a user-defined type that
         //:   specifies it has the trait using the
         //:   'BSLMF_NESTED_TRAIT_DECLARATION' macro.
         //
@@ -243,7 +289,7 @@ int main(int argc, char *argv[])
         //   the correct value for each type listed in the concerns.
         //
         // Testing:
-        //   bsl::is_trivially_default_constructible
+        //   Extending bsl::is_trivially_default_constructible
         // --------------------------------------------------------------------
 
         if (verbose)
@@ -255,11 +301,11 @@ int main(int argc, char *argv[])
                                             UserDefinedNonTdcTestType>::value);
 
         // C-2
-        ASSERT(bsl::is_trivially_default_constructible<
+        ASSERT( bsl::is_trivially_default_constructible<
                                                UserDefinedTdcTestType>::value);
 
         // C-3
-        ASSERT(bsl::is_trivially_default_constructible<
+        ASSERT( bsl::is_trivially_default_constructible<
                                               UserDefinedTdcTestType2>::value);
 
       } break;
@@ -270,22 +316,22 @@ int main(int argc, char *argv[])
         //   returns the correct value for intrinsically supported types.
         //
         // Concerns:
-        //: 1 The meta-function returns false for reference types.
+        //: 1 The meta-function returns 'false' for reference types.
         //:
-        //: 2 The meta-function returns true for fundamental types.
+        //: 2 The meta-function returns 'true' for fundamental types.
         //:
-        //: 3 The meta-function returns true for enum types.
+        //: 3 The meta-function returns 'true' for enum types.
         //:
-        //: 4 The meta-function returns true for pointer types.
+        //: 4 The meta-function returns 'true' for pointer types.
         //:
-        //: 5 The meta-function returns true for pointer to member types.
+        //: 5 The meta-function returns 'true' for pointer to member types.
         //
         // Plan:
-        //   Verify that 'bsl::is_trivially_default_constructible' returns
-        //   the correct value for each type listed in the concerns.
+        //   Verify that 'bsl::is_trivially_default_constructible' returns the
+        //   correct value for each type category listed in the concerns.
         //
         // Testing:
-        //   bsl::is_trivially_default_constructible
+        //   bsl::is_trivially_default_constructible::value
         // --------------------------------------------------------------------
 
         if (verbose)
@@ -297,19 +343,19 @@ int main(int argc, char *argv[])
                                                     ReferenceTestType>::value);
 
         // C-2
-        ASSERT(bsl::is_trivially_default_constructible<int>::value);
-        ASSERT(bsl::is_trivially_default_constructible<char>::value);
-        ASSERT(bsl::is_trivially_default_constructible<void>::value);
+        ASSERT( bsl::is_trivially_default_constructible<int>::value);
+        ASSERT( bsl::is_trivially_default_constructible<char>::value);
+        ASSERT( bsl::is_trivially_default_constructible<void>::value);
 
         // C-3
-        ASSERT(bsl::is_trivially_default_constructible<EnumTestType>::value);
+        ASSERT( bsl::is_trivially_default_constructible<EnumTestType>::value);
 
         // C-4
-        ASSERT(bsl::is_trivially_default_constructible<
+        ASSERT( bsl::is_trivially_default_constructible<
                                                       PointerTestType>::value);
 
         // C-5
-        ASSERT(bsl::is_trivially_default_constructible<
+        ASSERT( bsl::is_trivially_default_constructible<
                                                     MethodPtrTestType>::value);
 
       } break;
@@ -325,11 +371,12 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2012
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------
+

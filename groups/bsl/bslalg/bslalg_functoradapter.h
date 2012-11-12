@@ -208,7 +208,7 @@ class FunctorAdapter<FUNCTION*> {
     // functor that delegates to a function pointer matching the parameterized
     // 'FUNCTION' type.
 
-    BSLMF_ASSERT(bslmf::IsFunctionPointer<FUNCTION*>::VALUE);
+    BSLMF_ASSERT(bslmf::IsFunctionPointer<FUNCTION*>::value);
         // This 'BSLMF_ASSERT' statement ensures that the parameter 'FUNCTION'
         // must be a function pointer.
 

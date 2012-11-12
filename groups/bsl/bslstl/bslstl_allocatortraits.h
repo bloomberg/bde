@@ -291,7 +291,7 @@ BSLS_IDENT("$Id: $")
 //      bslma::TestAllocator testAlloc;
 //      MyContainer<MyType> C1(&testAlloc);
 //      assert((bsl::is_same<MyContainer<MyType>::allocator_type,
-//              bsl::allocator<MyType> >::VALUE));
+//              bsl::allocator<MyType> >::value));
 //      assert(C1.get_allocator() == bsl::allocator<MyType>(&testAlloc));
 //      assert(C1.front().allocator() == &testAlloc);
 //
@@ -370,7 +370,7 @@ BSLS_IDENT("$Id: $")
 //      typedef MyCpp03Allocator<MyType> MyTypeAlloc;
 //      MyContainer<MyType, MyTypeAlloc> C1(MyTypeAlloc(1));
 //      assert((bsl::is_same<MyContainer<MyType, MyTypeAlloc>::allocator_type,
-//                           MyTypeAlloc>::VALUE));
+//                           MyTypeAlloc>::value));
 //      assert(C1.get_allocator() == MyTypeAlloc(1));
 //      assert(C1.front().allocator() == bslma::Default::defaultAllocator());
 //

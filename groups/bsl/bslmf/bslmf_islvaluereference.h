@@ -17,7 +17,7 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR:
 //
 //@DESCRIPTION: This component defines a meta-function,
-// 'bsl::is_lvalue_reference', which may be used to query whether a type is a
+// 'bsl::is_lvalue_reference', which may be used to query whether a type is an
 // lvalue reference type.
 //
 // 'bsl::is_lvalue_reference' meets the requirements of the
@@ -30,12 +30,12 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Verify Lvalue Reference Types
 /// - - - - - - - - - - - - - - - - - - - -
-// Suppose that we want to assert whether a particular type is a lvalue
-// reference type.
+// Suppose that we want to assert whether a set of types are lvalue reference
+// types.
 //
 // Now, we instantiate the 'bsl::is_lvalue_reference' template for both a
-// non-reference type and a reference type, and assert the 'value' static data
-// member of each instantiation:
+// non-reference type and an lvalue reference type, and assert the 'value'
+// static data member of each instantiation:
 //..
 //  assert(false == bsl::is_lvalue_reference<int>::value);
 //  assert(true  == bsl::is_lvalue_reference<int&>::value);
@@ -50,6 +50,10 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace bsl {
+
+                          // ==========================
+                          // struct is_lvalue_reference
+                          // ==========================
 
 template <typename TYPE>
 struct is_lvalue_reference : false_type

@@ -233,7 +233,7 @@ int main(int argc, char *argv[])
             typedef bslalg::SelectTrait<
                         my_BitwiseMoveableClass,
                         bslalg::TypeTraitBitwiseMoveable>::Type TestType;
-            ASSERT((1 == bslmf::IsSame<TestType,
+            ASSERT((1 == bsl::is_same<TestType,
                                     bslalg::TypeTraitBitwiseMoveable>::VALUE));
         }
 
@@ -241,7 +241,7 @@ int main(int argc, char *argv[])
             typedef bslalg::SelectTrait<
                         my_UsesBslmaAllocatorClass,
                         bslalg::TypeTraitUsesBslmaAllocator>::Type TestType;
-            ASSERT((1 == bslmf::IsSame<TestType,
+            ASSERT((1 == bsl::is_same<TestType,
                                  bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
         }
 
@@ -250,7 +250,7 @@ int main(int argc, char *argv[])
                         my_BitwiseMoveableClass,
                         bslalg::TypeTraitUsesBslmaAllocator,
                         bslalg::TypeTraitBitwiseMoveable>::Type TestType;
-            ASSERT((1 == bslmf::IsSame<TestType,
+            ASSERT((1 == bsl::is_same<TestType,
                                     bslalg::TypeTraitBitwiseMoveable>::VALUE));
         }
 
@@ -261,7 +261,7 @@ int main(int argc, char *argv[])
                               bslalg::TypeTraitUsesBslmaAllocator,
                               bslalg::TypeTraitBitwiseMoveable>::Type TestType;
 
-            ASSERT((1 == bslmf::IsSame<TestType,
+            ASSERT((1 == bsl::is_same<TestType,
                                  bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
         }
         {
@@ -269,7 +269,7 @@ int main(int argc, char *argv[])
                            my_BothTraitsClass,
                            bslalg::TypeTraitBitwiseMoveable,
                            bslalg::TypeTraitUsesBslmaAllocator>::Type TestType;
-            ASSERT((1 == bslmf::IsSame<TestType,
+            ASSERT((1 == bsl::is_same<TestType,
                                     bslalg::TypeTraitBitwiseMoveable>::VALUE));
         }
         {
@@ -278,7 +278,7 @@ int main(int argc, char *argv[])
                               bslalg::TypeTraitUsesBslmaAllocator,
                               bslalg::TypeTraitBitwiseMoveable>::Type TestType;
 
-            ASSERT((1 == bslmf::IsSame<TestType,
+            ASSERT((1 == bsl::is_same<TestType,
                                     bslalg::TypeTraitBitwiseMoveable>::VALUE));
         }
         {
@@ -287,7 +287,7 @@ int main(int argc, char *argv[])
                               bslalg::TypeTraitUsesBslmaAllocator,
                               bslalg::TypeTraitUsesBslmaAllocator,
                               bslalg::TypeTraitBitwiseMoveable>::Type TestType;
-            ASSERT((1 == bslmf::IsSame<TestType,
+            ASSERT((1 == bsl::is_same<TestType,
                                     bslalg::TypeTraitBitwiseMoveable>::VALUE));
         }
         {
@@ -297,7 +297,7 @@ int main(int argc, char *argv[])
                               bslalg::TypeTraitUsesBslmaAllocator,
                               bslalg::TypeTraitUsesBslmaAllocator,
                               bslalg::TypeTraitBitwiseMoveable>::Type TestType;
-            ASSERT((1 == bslmf::IsSame<TestType,
+            ASSERT((1 == bsl::is_same<TestType,
                                     bslalg::TypeTraitBitwiseMoveable>::VALUE));
         }
         {
@@ -308,7 +308,7 @@ int main(int argc, char *argv[])
                               bslalg::TypeTraitUsesBslmaAllocator,
                               bslalg::TypeTraitUsesBslmaAllocator,
                               bslalg::TypeTraitBitwiseMoveable>::Type TestType;
-            ASSERT((1 == bslmf::IsSame<TestType,
+            ASSERT((1 == bsl::is_same<TestType,
                                     bslalg::TypeTraitBitwiseMoveable>::VALUE));
         }
 
@@ -318,7 +318,7 @@ int main(int argc, char *argv[])
                            my_NilTraitClass,
                            bslalg::TypeTraitBitwiseMoveable,
                            bslalg::TypeTraitUsesBslmaAllocator>::Type TestType;
-            ASSERT((1 == bslmf::IsSame<TestType,
+            ASSERT((1 == bsl::is_same<TestType,
                                       bslalg::TypeTraitNil>::VALUE));
         }
 
