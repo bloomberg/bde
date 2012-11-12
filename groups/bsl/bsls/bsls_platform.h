@@ -141,11 +141,9 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
-#ifndef __cplusplus
-#error This header should not be included in non-C++ compilation units.
-#endif
-
+#ifdef __cplusplus
 namespace BloombergLP {
+#endif
 
                     // ===========================
                     // struct bsls_Platform_Assert
@@ -815,6 +813,7 @@ struct bsls_Platform_Assert;
     char die[sizeof(bsls_Platform_Assert)];          // if '#error' unsupported
 #endif
 
+#ifdef __cplusplus
 namespace bsls {
 
 // ----------------------------------------------------------------------------
@@ -947,6 +946,7 @@ struct Platform {
 };
 
 }  // close package namespace
+#endif  // __cplusplus
 
 #ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
@@ -1111,6 +1111,7 @@ struct Platform {
 #define BDES_PLATFORM_CPU_X86_64     BSLS_PLATFORM_CPU_X86_64
 #endif
 
+#ifdef __cplusplus
 namespace bdes {
 
 typedef bsls::Platform Platform;
@@ -1123,14 +1124,20 @@ typedef bsls::Platform Platform;
 #endif
 #define bdes_Platform bdes::Platform
     // This alias is defined for backward compatibility.
+#endif  // __cplusplus
 
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 
+#ifdef __cplusplus
 typedef bsls::Platform bsls_Platform;
     // This alias is defined for backward compatibility.
+#endif
+
 #endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
+#ifdef __cplusplus
 }  // close enterprise namespace
+#endif
 
 #if !defined(BSL_DOUBLE_UNDERSCORE_XLAT) || 1 == BSL_DOUBLE_UNDERSCORE_XLAT
 

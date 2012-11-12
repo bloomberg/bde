@@ -23,22 +23,20 @@ BSLS_IDENT("$Id: $")
 #include <bsls_nativestd.h>
 #endif
 
-//#if 0   // Enable this on platforms with native C++11 libraries
 #include <unordered_set>
-//#endif
 
 #ifndef BSL_OVERRIDES_STD
-#include <bslstl_unordered_multiset.h>
-#include <bslstl_unordered_set.h>
+#include <bslstl_unorderedmultiset.h>
+#include <bslstl_unorderedset.h>
 #endif  // BSL_OVERRIDES_STD
 
 #endif  // INCLUDED_BSL_UNORDERED_SET
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2009
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------
