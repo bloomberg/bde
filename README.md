@@ -94,6 +94,15 @@ breaking internal software that depends on these libraries.  We gratefully accep
 contributions, though integration into an official release may take some 
 time as contributions move through our processes.
 
+### Contributor License Agreements
+
+BDE requires all contributors of ideas, code, or documentation to sign a Bloomberg Individual Contributor License Agreement (ICLA).  The purpose of this agreement is to clearly define the terms under which intellectual property has been contributed to BDE and thereby allow us to defend the project should there be a legal dispute regarding the software at some future time.  The e-mail address and name on a signed ICLA must match the e-mail address and name used for git submissions.
+
+Corporations that have employees wishing to contribute to BDE who are covered by employment agreements which assign intellectual property rights must sign a Bloomberg Corporate Contributor License Agreement (CCLA).
+
+* [Individual (ICLA) Agreement](https://github.com/bloomberg/bsl/wiki/Individual-Contributor-License-Agreement-Version-1.0)
+* [Corporate (CCLA) Agreement](https://github.com/bloomberg/bsl/wiki/Corporate-Contributor-License-Agreement-Version-1.0)
+
 Future Plans
 ============
 BDE was started in 2001, and has been in production use for over a decade.
