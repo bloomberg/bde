@@ -696,9 +696,9 @@ static int my_count_if_equal(bsl::vector<int>::const_iterator begin,
 // lookup of the words at given locations in a document and then examine words
 // near the word of interest.
 //
-// First, define the types required (and convenient aliases) to create an
+// First, we define the types required (and convenient aliases) to create an
 // unordered map from a word location to the corresponding word.  The "key"
-// value will be 'WordLocation', a pair 'int' values: the first being the
+// value will be 'WordLocation', a pair of 'int' values: the first being the
 // document code number (arbitrarily assigned), and second the word offset in
 // that document (the first word of the document is at offset 0).  The "value"
 // of each entry is a 'bsl::string' containing the word at that location.
@@ -721,6 +721,9 @@ static int my_count_if_equal(bsl::vector<int>::const_iterator begin,
 //..
     class WordLocationHash
     {
+     private:
+        WordLocationHash& operator=(const WordLocationHash& rhs);
+
       public:
         // CREATORS
         //! WordLocationHash() = default;
@@ -752,6 +755,11 @@ static int my_count_if_equal(bsl::vector<int>::const_iterator begin,
 // Notice that many of the required methods of the hash type are compiler
 // generated.  (The declaration of those methods are commented out and suffixed
 // by an '= default' comment.)
+//
+// In addition to a hash functor, the unordered map requires an equality
+// comparison functor.  In this example, the unordered map uses 'operator=='
+// method of 'std::pair' by default.  If the mapped type has no such method, a
+// equality comparison functor must be provided explicitly.
 //
 // Next, we define the type of the unordered map and associated convenience
 // aliases:
@@ -821,14 +829,14 @@ int main(int argc, char *argv[])
 // performance provided by unordered maps (compared to ordered maps).
 //
 // Suppose one wished to gather statistics on the words appearing in a large
-// set of documents on disk or in a data base.  Gathering those statics is
+// set of documents on disk or in a data base.  Gathering those statistics is
 // intrusive (as one is competing for access to the documents with the regular
 // users) and must be done as quickly as possible.  Moreover, the set of unique
 // words appearing in those documents may be high.  The English language has in
 // excess of a million words (albeit many appear infrequently), and, if the
 // documents contain serial numbers, or Social Security numbers, or chemical
 // formulas, etc. then the O[log(n)] insertion time of ordered maps may well be
-// inadequate.  The unordered map, having an O[1] average insersion cost, is a
+// inadequate.  The unordered map, having an O[1] typical insersion cost, is a
 // viable alternative.  In many problem domains, sorting, if needed, can be
 // done after the data is gathered.
 //
@@ -1988,9 +1996,9 @@ int main(int argc, char *argv[])
     " of any of the rights and freedoms recognised in this Charter or at\n"
     " their limitation to a greater extent than is provided for herein.\n";
 
-    static char * const documents[] = { &document0[0],
-                                        &document1[0],
-                                        &document2[0]
+    static char * const documents[] = { document0,
+                                        document1,
+                                        document2
                                       };
     const int           numDocuments = sizeof documents / sizeof *documents;
 //..
@@ -2000,7 +2008,7 @@ int main(int argc, char *argv[])
     typedef bsl::pair         <bsl::string, int> WordTallyEntry;
     typedef bsl::pair<WordTally::iterator, bool> WordTallyInsertStatus;
 //..
-// Next, we (default) create an unordered map to hold our word tallies.  The
+// Next, we create an (empty) unordered map to hold our word tallies.  The
 // output from the 'printf' statements will be discussed in {Example 2}.
 //..
     WordTally wordTally;
@@ -2039,10 +2047,10 @@ if (verbose) {
         }
     }
 //..
-// Then, now that the data has been (quickly) gathered, we can indulge in
-// analysis that is more time consuming.  For example, we can define a
-// comparison function, sort the entries, and determine the 20 most commonly
-// used words in the given document:
+// Now that the data has been (quickly) gathered, we can indulge in analysis
+// that is more time consuming.  For example, we can define a comparison
+// function, sort the entries, and determine the 20 most commonly used words in
+// the given document:
 //..
     struct WordTallyEntryCompare {
         static bool lessValue(const WordTallyEntry& a,
@@ -2057,12 +2065,14 @@ if (verbose) {
 
     bsl::vector<WordTallyEntry> array(wordTally.begin(), wordTally.end());
 
+    ASSERT(20 <= array.size());
+
     std::partial_sort(array.begin(),
                       array.begin() + 20,
                       array.end(),
                       WordTallyEntryCompare::moreValue);
 //..
-// Notice that 'partial_sort' suffices since we seek only the 20 most used
+// Notice that 'partial_sort' suffices here since we seek only the 20 most used
 // words, and not a complete distribution of word counts.
 //
 // Finally, we print the sorted portion of 'array':
@@ -2126,7 +2136,7 @@ if (verbose) {
 //..
 // Notice that even when there are no elements ('size' is 0) there is one
 // bucket.  Since there are no elements, the average number of elements per
-// bucket must be 0 (the 'load_factor').
+// bucket (the 'load_factor' above) must be 0.
 //
 // Next, after 'wordTally' has been loaded, we examine its metrics:
 //..
@@ -2150,14 +2160,17 @@ if (verbose) {
 // Then, we see that the load factor is indeed below the specified maximum;
 // however we obtain further details of how the buckets are used.
 //
-// The unordered map provides and interface giving the element count of of
-// elements in each bucket, we can easily determine the bucket with the
-// greatest number of elements (i.e., (greatest number of has collisions):
+// Using the 'bucket_count' method, the unordered map's interface for the
+// number of elements in each bucket, we can easily determine the bucket with
+// the greatest number of elements (i.e., the greatest number of collisions):
 //..
     bsl::vector<int> bucketSizes;
+    bucketSizes.reserve(wordTally.bucket_count());
+
     for (int idx = 0; idx < wordTally.bucket_count(); ++idx) {
        bucketSizes.push_back(wordTally.bucket_size(idx));
     }
+
     ASSERT(0 < bucketSizes.size());
     int maxBucketSize = *std::max_element(bucketSizes.begin(),
                                           bucketSizes.end());
@@ -2177,9 +2190,9 @@ if (verbose) {
                                             bucketSizes.end(),
                                             0);
 #else
-    int numEmptyBuckets = std::count_if(bucketSizes.begin(),
-                                        bucketSizes.end(),
-                                        std::bind1st(std::equal_to<int>(), 0));
+    int numEmptyBuckets = std::count(bucketSizes.begin(),
+                                     bucketSizes.end(),
+                                     0);
 #endif
 if (verbose) {
     printf("numEmptyBuckets  %4d\n", numEmptyBuckets);
@@ -2189,10 +2202,9 @@ if (verbose) {
                                           bucketSizes.end(),
                                           maxBucketSize);
 #else
-    int numMaxBuckets = std::count_if(
-                           bucketSizes.begin(),
-                           bucketSizes.end(),
-                           std::bind1st(std::equal_to<int>(), maxBucketSize));
+    int numMaxBuckets = std::count(bucketSizes.begin(),
+                                   bucketSizes.end(),
+                                   maxBucketSize);
 #endif
 if (verbose) {
     printf("numMaxBuckets    %4d\n", numMaxBuckets);
@@ -2232,7 +2244,7 @@ if (verbose) {
 // Then, we load our new table and examine its metrics.  For simplicity, we
 // load data from the first table rather than re-tokenize our documents.
 //..
-    wordTally2.insert(wordTally.begin(), wordTally.end());
+    wordTally2 = wordTally;
 
 if (verbose) {
     printf("size2            %4d\n", wordTally2.size());
@@ -2242,9 +2254,13 @@ if (verbose) {
 }
 
     bsl::vector<int> bucketSizes2;
+    bucketSizes2.reserve(wordTally2.bucket_count());
+
     for (int idx = 0; idx < wordTally2.bucket_count(); ++idx) {
        bucketSizes2.push_back(wordTally2.bucket_size(idx));
     }
+
+    ASSERT(0 < bucketSizes2.size());
     int maxBucketSize2 = *std::max_element(bucketSizes2.begin(),
                                            bucketSizes2.end());
 if (verbose) {
@@ -2256,10 +2272,9 @@ if (verbose) {
                                              bucketSizes2.end(),
                                              0);
 #else
-    int numEmptyBuckets2 = std::count_if(
-                                        bucketSizes2.begin(),
-                                        bucketSizes2.end(),
-                                        std::bind1st(std::equal_to<int>(), 0));
+    int numEmptyBuckets2 = std::count(bucketSizes2.begin(),
+                                      bucketSizes2.end(),
+                                      0);
 #endif
 if (verbose) {
     printf("numEmptyBuckets2 %4d\n", numEmptyBuckets2);
@@ -2269,10 +2284,9 @@ if (verbose) {
                                            bucketSizes2.end(),
                                            maxBucketSize2);
 #else
-    int numMaxBuckets2 = std::count_if(
-                           bucketSizes2.begin(),
-                           bucketSizes2.end(),
-                           std::bind1st(std::equal_to<int>(), maxBucketSize2));
+    int numMaxBuckets2 = std::count(bucketSizes2.begin(),
+                                    bucketSizes2.end(),
+                                    maxBucketSize2);
 #endif
 if (verbose) {
     printf("numMaxBuckets2   %4d\n", numMaxBuckets2);
@@ -2302,7 +2316,7 @@ if (verbose) {
 ///------------------------------
 // continued...
 //
-// Next, obtain a concordance for the document set (see
+// Next, we obtain a concordance for the document set (see
 // {'bslstl_unorderedmultimap'|Example 1}).  Here, the concordance is provided
 // as a statically initialized array:
 //..
