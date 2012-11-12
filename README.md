@@ -1,7 +1,7 @@
 -
 BDE (Beta)
 ==========
-* [Online Library Documentation]()
+* [Online Library Documentation](http://bloomberg.github.com/bsl)
 * [Quick-Start Guide](https://github.com/bloomberg/bsl/wiki/Getting-Started)
 
 What is BDE?
@@ -75,7 +75,7 @@ Some other introductory material includes:
 One of the key elements of the BDE libraries is the extensive header
 (i.e., component-level) documentation. Doxygen for the BSL library can be
 found here: 
-[Online Library Documentation](), 
+[Online Library Documentation](http://bloomberg.github.com/bsl), 
 although the documentation in the headers themselves is intended for 
 reading on its own (without doxygen).
 
