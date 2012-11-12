@@ -272,7 +272,11 @@ class BidirectionalNodePool {
     // MANIPULATORS
     AllocatorType& allocator();
         // Return a reference providing modifiable access to the allocator
-        // supplying memory for the memory pool maintained by this object.
+        // supplying memory for the memory pool maintained by this object.  The
+        // behavior is undefined if the allocator used by this object is
+        // changed with this method.  Note that this method provides modifiable
+        // access to enable a client to call non-'const' methods on the
+        // allocator.
 
     bslalg::BidirectionalLink *createNode();
         // Allocate a node of the type 'BidirectionalNode<VALUE>', and default
@@ -324,6 +328,15 @@ class BidirectionalNodePool {
         // Efficiently exchange the management of nodes of this object and the
         // specified 'other' object.  The behavior is undefined unless
         // 'allocator() == other.allocator()'.
+
+    void quickSwap(BidirectionalNodePool& other, bool swapAllocatorFlag);
+        // Efficiently exchange the management of nodes of this object and the
+        // specified 'other' object.  If the specified 'swapAllocatorFlag' is
+        // 'true', then also exchange the allocators used by this object and
+        // 'other'.  The behavior is undefined unless the 'swapAllocatorFlag'
+        // is 'true' or 'allocator() == other.allocator()'.
+
+    void release() { d_pool.release(); }
 
     // ACCESSORS
     const AllocatorType& allocator() const;
@@ -474,6 +487,15 @@ void BidirectionalNodePool<VALUE, ALLOCATOR>::swap(
     BSLS_ASSERT_SAFE(allocator() == other.allocator());
 
     d_pool.swap(other.d_pool);
+}
+
+template <class VALUE, class ALLOCATOR>
+inline
+void BidirectionalNodePool<VALUE, ALLOCATOR>::quickSwap(
+                                BidirectionalNodePool<VALUE, ALLOCATOR>& other,
+                                bool swapAllocatorFlag)
+{
+    d_pool.quickSwap(other.d_pool, swapAllocatorFlag);
 }
 
 // ACCESSORS

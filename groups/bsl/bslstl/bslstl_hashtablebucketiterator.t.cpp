@@ -18,6 +18,7 @@
 
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
+#include <bsls_util.h>
 
 #include <stddef.h>
 #include <stdio.h>
@@ -1079,7 +1080,7 @@ void TestDriver<VALUE>::testCase4()
             ASSERT(BUCKET == X.bucket());
             ASSERT(NODE == X.node());
             ASSERT(NODE->value() == *X);
-            ASSERT(&NODE->value() == X.operator->());
+            ASSERT(BSLS_UTIL_ADDRESSOF(NODE->value()) == X.operator->());
         }
     }
 }
@@ -1306,14 +1307,14 @@ void usageExample()
         nodes[i]->value() = i;
     }
 //..
-// Next, we use the test allocator to allocate an array of 'HashTableBuckets'
-// objects, and we use the array to construct an empty hash table characterized
-// by a 'HashTableAnchor' object:
+// Next, we create an array of 'HashTableBuckets' objects, and we use the array
+// to construct an empty hash table characterized by a 'HashTableAnchor'
+// object:
 //..
-    bslalg::HashTableBucket *buckets =
-        static_cast<bslalg::HashTableBucket *>(
-              scratch.allocate(sizeof(bslalg::HashTableBucket) * NUM_BUCKETS));
-
+    bslalg::HashTableBucket buckets[NUM_BUCKETS];
+    for (int i = 0; i < NUM_BUCKETS; ++i) {
+        buckets[i].reset();
+    }
     bslalg::HashTableAnchor hashTable(buckets, NUM_BUCKETS, 0);
 //..
 // Then, we insert each node in the array of nodes into the hash table using
@@ -1352,8 +1353,6 @@ void usageExample()
     for (int i = 0; i < NUM_NODES; ++i) {
         scratch.deallocate(nodes[i]);
     }
-
-    scratch.deallocate(buckets);
 //..
 }
 

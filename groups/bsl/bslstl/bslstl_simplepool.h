@@ -211,6 +211,10 @@ BSL_OVERRIDES_STD mode"
 #include <bslstl_allocatortraits.h>
 #endif
 
+#ifndef INCLUDED_BSLALG_SWAPUTIL
+#include <bslalg_swaputil.h>
+#endif
+
 #ifndef INCLUDED_BSLS_ALIGNMENTFROMTYPE
 #include <bsls_alignmentfromtype.h>
 #endif
@@ -374,8 +378,16 @@ class SimplePool : public SimplePool_Type<ALLOCATOR>::AllocatorType {
 
     void swap(SimplePool<VALUE, ALLOCATOR>& other);
         // Efficiently exchange the memory chunks and blocks of this object and
-        // the specified 'other' object.  The behavior is undefined unless the
-        // underlying mechanisms of 'allocator()' refers to the same allocator.
+        // the specified 'other' object.  The behavior is undefined unless
+        // 'allocator() == other.allocator()'.
+
+    void quickSwap(SimplePool<VALUE, ALLOCATOR>& other,
+                   bool swapAllocatorFlag);
+        // Efficiently exchange the memory chunks and blocks of this object and
+        // the specified 'other' object.  If the specified 'swapAllocatorFlag'
+        // is 'true', then also exchange allocators used by this object and
+        // 'other'.  The behavior is undefined unless the 'swapAllocatorFlag'
+        // is 'true' or 'allocator() == other.allocator()'.
 
     // ACCESSORS
     const AllocatorType& allocator() const;
@@ -486,6 +498,19 @@ void SimplePool<VALUE, ALLOCATOR>::swap(SimplePool<VALUE, ALLOCATOR>& other)
     std::swap(d_blocksPerChunk, other.d_blocksPerChunk);
     std::swap(d_freeList_p, other.d_freeList_p);
     std::swap(d_chunkList_p, other.d_chunkList_p);
+}
+
+
+template <class VALUE, class ALLOCATOR>
+inline
+void SimplePool<VALUE, ALLOCATOR>::quickSwap(
+                                           SimplePool<VALUE, ALLOCATOR>& other,
+                                           bool swapAllocatorFlag)
+{
+    if (swapAllocatorFlag) {
+        bslalg::SwapUtil::swap(&this->allocator(), &other.allocator());
+    }
+    swap(other);
 }
 
 template <class VALUE, class ALLOCATOR>

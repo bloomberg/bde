@@ -58,14 +58,14 @@ BSLS_IDENT("$Id: $")
 //      nodes[i]->value() = i;
 //  }
 //..
-// Next, we use the test allocator to allocate an array of 'HashTableBuckets'
-// objects, and we use the array to construct an empty hash table characterized
-// by a 'HashTableAnchor' object:
+// Next, we create an array of 'HashTableBuckets' objects, and we use the array
+// to construct an empty hash table characterized by a 'HashTableAnchor'
+// object:
 //..
-//  bslalg::HashTableBucket *buckets =
-//      static_cast<bslalg::HashTableBucket *>(
-//            scratch.allocate(sizeof(bslalg::HashTableBucket) * NUM_BUCKETS));
-//
+//  bslalg::HashTableBucket buckets[NUM_BUCKETS];
+//  for (int i = 0; i < NUM_BUCKETS; ++i) {
+//      buckets[i].reset();
+//  }
 //  bslalg::HashTableAnchor hashTable(buckets, NUM_BUCKETS, 0);
 //..
 // Then, we insert each node in the array of nodes into the hash table using
@@ -104,8 +104,6 @@ BSLS_IDENT("$Id: $")
 //  for (int i = 0; i < NUM_NODES; ++i) {
 //      scratch.deallocate(nodes[i]);
 //  }
-//
-//  scratch.deallocate(buckets);
 //..
 
 // Prevent 'bslstl' headers from being included directly in 'BSL_OVERRIDES_STD'
