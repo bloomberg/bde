@@ -10,8 +10,8 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide build-target information in the object file.
 //
 //@CLASSES:
-//  bsls::ExcBuildTarget: type name for identifying exception builds
-//  bsls::MtBuildTarget: type name for identifying multi-threaded builds
+//  bsls::BuildTargetExc: type name for identifying exception builds
+//  bsls::BuildTargetMt: type name for identifying multi-threaded builds
 //
 //@MACROS:
 //  BDE_BUILD_TARGET_EXC: flag for exception-enabled builds
@@ -44,15 +44,15 @@ namespace BloombergLP {
 
 namespace bsls {
 
-struct YesExcBuildTarget {
-    static const int d_isExcBuildTarget;
+struct BuildTargetYesExc {
+    static const int s_isBuildTargetExc;
 };
-typedef YesExcBuildTarget ExcBuildTarget;
+typedef BuildTargetYesExc BuildTargetExc;
 
 }  // close package namespace
 
 #ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
-typedef bsls::YesExcBuildTarget bsls_YesExcBuildTarget;
+typedef bsls::BuildTargetYesExc bsls_YesExcBuildTarget;
     // This alias is defined for backward compatibility.
 #endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
@@ -64,15 +64,15 @@ typedef bsls::YesExcBuildTarget bsls_YesExcBuildTarget;
 
 namespace bsls {
 
-struct NoExcBuildTarget {
-    static const int d_isExcBuildTarget;
+struct BuildTargetNoExc {
+    static const int s_isBuildTargetExc;
 };
-typedef NoExcBuildTarget ExcBuildTarget;
+typedef BuildTargetNoExc BuildTargetExc;
 
 }  // close package namespace
 
 #ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
-typedef bsls::NoExcBuildTarget bsls_NoExcBuildTarget;
+typedef bsls::BuildTargetNoExc bsls_NoExcBuildTarget;
     // This alias is defined for backward compatibility.
 #endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
@@ -87,15 +87,15 @@ typedef bsls::NoExcBuildTarget bsls_NoExcBuildTarget;
 
 namespace bsls {
 
-struct YesMtBuildTarget {
-    static const int d_isMtBuildTarget;
+struct BuildTargetYesMt {
+    static const int s_isBuildTargetMt;
 };
-typedef YesMtBuildTarget MtBuildTarget;
+typedef BuildTargetYesMt BuildTargetMt;
 
 }  // close package namespace
 
 #ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
-typedef bsls::YesMtBuildTarget bsls_YesMtBuildTarget;
+typedef bsls::BuildTargetYesMt bsls_YesMtBuildTarget;
     // This alias is defined for backward compatibility.
 #endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
@@ -107,15 +107,15 @@ typedef bsls::YesMtBuildTarget bsls_YesMtBuildTarget;
 
 namespace bsls {
 
-struct NoMtBuildTarget {
-    static const int d_isMtBuildTarget;
+struct BuildTargetNoMt {
+    static const int s_isBuildTargetMt;
 };
-typedef NoMtBuildTarget MtBuildTarget;
+typedef BuildTargetNoMt BuildTargetMt;
 
 }  // close package namespace
 
 #ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
-typedef bsls::NoMtBuildTarget bsls_NoMtBuildTarget;
+typedef bsls::BuildTargetNoMt bsls_NoMtBuildTarget;
     // This alias is defined for backward compatibility.
 #endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
@@ -123,18 +123,21 @@ typedef bsls::NoMtBuildTarget bsls_NoMtBuildTarget;
 
 #ifdef BSLS_PLATFORM_CPU_64_BIT
 
+#ifdef BSLS_PLATFORM_CPU_32_BIT
+#error Do not define both BSLS_PLATFORM_CPU_64_BIT and BSLS_PLATFORM_CPU_32_BIT
+#endif
+
 namespace bsls {
 
-struct Yes64BitBuildTarget {
-    static const int d_is64BitBuildTarget;
+struct BuildTargetYes64Bit {
+    static const int s_isBuildTarget64Bit;
 };
+typedef BuildTargetYes64Bit BuildTarget64Bit;
 
 }  // close package namespace
 
 #ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
-typedef bsls::Yes64BitBuildTarget bsls_64BitBuildTarget;
-
-typedef bsls::Yes64BitBuildTarget bsls_Yes64BitBuildTarget;
+typedef bsls::BuildTargetYes64Bit bsls_Yes64BitBuildTarget;
     // This alias is defined for backward compatibility.
 #endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
@@ -142,16 +145,15 @@ typedef bsls::Yes64BitBuildTarget bsls_Yes64BitBuildTarget;
 
 namespace bsls {
 
-struct No64BitBuildTarget {
-    static const int d_is64BitBuildTarget;
+struct BuildTargetNo64Bit {
+    static const int s_isBuildTarget64Bit;
 };
+typedef BuildTargetNo64Bit BuildTarget64Bit;
 
 }  // close package namespace
 
 #ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
-typedef bsls::No64BitBuildTarget bsls_64BitBuildTarget;
-
-typedef bsls::No64BitBuildTarget bsls_No64BitBuildTarget;
+typedef bsls::BuildTargetNo64Bit bsls_No64BitBuildTarget;
     // This alias is defined for backward compatibility.
 #endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
@@ -161,15 +163,19 @@ typedef bsls::No64BitBuildTarget bsls_No64BitBuildTarget;
 
 #if defined(BSLS_PLATFORM_CMP_IBM)
 static const int *bsls_buildtarget_assertion1 =
-                                     &bsls::ExcBuildTarget::d_isExcBuildTarget;
+                                     &bsls::BuildTargetExc::s_isBuildTargetExc;
 static const int *bsls_buildtarget_assertion2 =
-                                       &bsls::MtBuildTarget::d_isMtBuildTarget;
+                                       &bsls::BuildTargetMt::s_isBuildTargetMt;
+static const int *bsls_buildtarget_assertion3 =
+                                 &bsls::BuildTarget64Bit::s_isBuildTarget64Bit;
 #else
 namespace {
     extern const int *const bsls_buildtarget_assertion1 =
-                                     &bsls::ExcBuildTarget::d_isExcBuildTarget;
+                                     &bsls::BuildTargetExc::s_isBuildTargetExc;
     extern const int *const bsls_buildtarget_assertion2 =
-                                       &bsls::MtBuildTarget::d_isMtBuildTarget;
+                                       &bsls::BuildTargetMt::s_isBuildTargetMt;
+    extern const int *const bsls_buildtarget_assertion3 =
+                                 &bsls::BuildTarget64Bit::s_isBuildTarget64Bit;
 }
 #endif
 
@@ -181,14 +187,21 @@ namespace {
 #ifdef bsls_ExcBuildTarget
 #undef bsls_ExcBuildTarget
 #endif
-#define bsls_ExcBuildTarget bsls::ExcBuildTarget
+#define bsls_ExcBuildTarget bsls::BuildTargetExc
     // This alias is defined for backward compatibility.
 
 #ifdef bsls_MtBuildTarget
 #undef bsls_MtBuildTarget
 #endif
-#define bsls_MtBuildTarget bsls::MtBuildTarget
+#define bsls_MtBuildTarget bsls::BuildTargetMt
     // This alias is defined for backward compatibility.
+
+#ifdef bsls_64BitBuildTarget
+#undef bsls_64BitBuildTarget
+#endif
+#define bsls_64BitBuildTarget bsls::BuildTarget64Bit
+    // This alias is defined for backward compatibility.
+
 #endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
@@ -197,7 +210,7 @@ namespace {
 
 // ---------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2004
+//      Copyright (C) Bloomberg L.P., 2012
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the

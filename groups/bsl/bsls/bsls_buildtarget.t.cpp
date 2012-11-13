@@ -16,9 +16,9 @@ using namespace std;
 // There is nothing to test here except that the constants are defined
 // properly and according to the build-target macros.
 //-----------------------------------------------------------------------------
-// [ 1] bsls::ExcBuildTarget::d_isExcBuildTarget
-// [ 1] bsls::MtBuildTarget::d_isMtBuildTarget
-// [ 1] bsls_64BitBuildTarget::d_is64BitBuildTarget
+// [ 1] bsls::BuildTargetExc::s_isBuildTargetExc
+// [ 1] bsls::BuildTargetMt::s_isBuildTargetMt
+// [ 1] bsls::BuildTarget64Bit::s_isBuildTarget64Bit
 //-----------------------------------------------------------------------------
 
 //==========================================================================
@@ -76,21 +76,21 @@ int main(int argc, char *argv[])
                             "\n==============\n");
 
 #ifdef BDE_BUILD_TARGET_EXC
-        ASSERT(1 == bsls::ExcBuildTarget::d_isExcBuildTarget);
+        ASSERT(1 == bsls::BuildTargetExc::s_isBuildTargetExc);
 #else
-        ASSERT(0 == bsls::ExcBuildTarget::d_isExcBuildTarget);
+        ASSERT(0 == bsls::BuildTargetExc::s_isBuildTargetExc);
 #endif
 
 #ifdef BDE_BUILD_TARGET_MT
-        ASSERT(1 == bsls::MtBuildTarget::d_isMtBuildTarget);
+        ASSERT(1 == bsls::BuildTargetMt::s_isBuildTargetMt);
 #else
-        ASSERT(0 == bsls::MtBuildTarget::d_isMtBuildTarget);
+        ASSERT(0 == bsls::BuildTargetMt::s_isBuildTargetMt);
 #endif
 
 #ifdef BSLS_PLATFORM_CPU_64_BIT
-        ASSERT(1 == bsls_64BitBuildTarget::d_is64BitBuildTarget);
+        ASSERT(1 == bsls::BuildTarget64Bit::s_isBuildTarget64Bit);
 #else
-        ASSERT(0 == bsls_64BitBuildTarget::d_is64BitBuildTarget);
+        ASSERT(0 == bsls::BuildTarget64Bit::s_isBuildTarget64Bit);
 #endif
 
       } break;
@@ -109,7 +109,7 @@ int main(int argc, char *argv[])
 
 // ---------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2004
+//      Copyright (C) Bloomberg L.P., 2012
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
