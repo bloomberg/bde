@@ -253,14 +253,21 @@ int main(int argc, char *argv[]) {
             new (arr) Obj();
             arr[0].~Obj();
 
+#if defined(BDE_BUILD_TARGET_EXC)
+            // When exceptions are disabled, the statement passed to
+            // 'ASSERT_OPT_FAIL' will not execute, leading to a memory leak in
+            // the block below.  So we only run the block when exceptions are
+            // enabled.
+
             {
                 bsls::AssertFailureHandlerGuard hG(
-                                              bsls::AssertTest::failTestDriver);
+                                             bsls::AssertTest::failTestDriver);
 
                 new (arr) Obj();
                 std::memmove(arr+1, arr, sizeof(Obj));
                 ASSERT_OPT_FAIL(arr[1].~Obj());
             }
+#endif
 
             scratch.deallocate(reinterpret_cast<void*>(arr));
         }
