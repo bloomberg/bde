@@ -85,7 +85,8 @@ using namespace bslstl;
 // [ 9] bslalg::BidirectionalLink *cloneNode(const BidirectionalLink&);
 // [ 5] void deleteNode(bslalg::BidirectionalLink *node);
 // [ 6] void reserveNodes(std::size_t numNodes);
-// [10] void swap(BidirectionalNodePool<VALUE, ALLOCATOR>& other);
+// [10] void swapRetainAllocators(other);
+// [10] void swapExchangeAllocators(other);
 //
 // ACCESSORS
 // [ 4] const AllocatorType& allocator() const;
@@ -580,52 +581,61 @@ void TestDriver<VALUE>::testCase10()
     // MANIPULATOR 'swap'
     //
     // Concerns:
-    //: 1 Invoking the 'swap' method or free function exchange the free list
-    //:  and chunk list of the objects.
+    //: 1 Invoking either of the swap methods or the free function exchange the
+    //:  free list and chunk list of the objects.
     //:
-    //: 2 The common object allocator address held by both objects is
-    //:   unchanged.
+    //: 2 The common object allocator address held by both objects is unchanged
+    //:   after 'swapRetainAllocators' or the free 'swap' function is invoked.
     //:
-    //: 3 No memory is allocated from any allocator.
+    //: 3 The object allocator addresses of the two objects are exchanged after
+    //:   'swapExchangeAllocators' is invoked.
     //:
-    //: 4 Swapping an object with itself does not affect the value of the
+    //: 4 No memory is allocated from any allocator.
+    //:
+    //: 5 Swapping an object with itself does not affect the value of the
     //:   object (alias-safety).
     //:
-    //: 5 Memory is deallocated on the destruction of the object.
+    //: 6 Memory is deallocated on the destruction of the object.
     //:
-    //: 6 QoI: Asserted precondition violations are detected when enabled.
+    //: 7 QoI: Asserted precondition violations are detected when enabled.
     //:
-    //: 7 The free 'swap' function is discoverable through ADL (Argument
+    //: 8 The free 'swap' function is discoverable through ADL (Argument
     //:   Dependent Lookup).
     //
     // Plan:
     //: 1 Using a table-based approach:
     //:
     //:   1 Create two objects of which memory has been allocated and
-    //:     deallocated various number of times.
+    //:     deallocated various number of times using the same allocator.
     //:
-    //:   2 Using the 'swap' method to swap the two objects, verify allocator
-    //:     is not changed.  (C-2)
+    //:   2 Using the 'swapRetainAllocators' method to swap the two objects,
+    //:     verify allocator is not changed.  (C-2)
     //:
-    //:   3 Verify no memory is allocated (C-3)
+    //:   3 Verify no memory is allocated (C-4)
     //:
     //:   4 Verify the free list of the objects have been swapped by calling
     //:     'allocate' and checking the address of the allocated memory blocks.
     //:
     //:   5 Delete one of the objects and verify the memory of the other have
-    //:     not been deallocated.  (C-1, 5)
+    //:     not been deallocated.  (C-1, 6)
     //:
     //:   6 Swap an object with itself and verify the object is unchanged.
-    //:     (C-4)
+    //:     (C-5)
+    //:
+    //:   7 Repeat P-1.1..P-1.6 using two object created using unequal
+    //:     allocators, except this time use the 'swapExchangeAllocators'
+    //:     method and verify that the allocators are exchanged.  (C-1, 3..6)
     //:
     //: 2 Verify that, in appropriate build modes, defensive checks are
-    //:   triggered (using the 'BSLS_ASSERTTEST_*' macros).  (C-6)
+    //:   triggered (using the 'BSLS_ASSERTTEST_*' macros).  (C-7)
     //:
     //: 3 Repeat P-1..2, except this time use 'invokeAdlSwap' helper function
-    //:   template instead of the 'swap' method.  (C-1..7)
+    //:   template instead of the 'swapRetainAllocators' method.  (C-1..2,
+    //:   4..8)
     //
     // Testing:
-    //   void swap(BidirectionalNodePool<VALUE, ALLOCATOR>& other);
+    //   void swapRetainAllocators(other);
+    //   void swapExchangeAllocators(other);
     //   void swap(BidirectionalNodePool& a, b);
     // --------------------------------------------------------------------
 
@@ -675,69 +685,147 @@ void TestDriver<VALUE>::testCase10()
                 const int ALLOCS2   = DATA[tj].d_numAlloc;
                 const int DEALLOCS2 = DATA[tj].d_numDealloc;
 
-                bslma::TestAllocator oa("object", veryVeryVeryVerbose);
-
-                Stack usedX;
-                Stack freeX;
-                Obj mX(&oa);
-                const Obj& X = init(&mX, &usedX, &freeX, ALLOCS1, DEALLOCS1);
-
-                Stack usedY;
-                Stack freeY;
                 {
-                    Obj mY(&oa);
-                    const Obj& Y = init(&mY, &usedY, &freeY, ALLOCS2,
-                                        DEALLOCS2);
+                    bslma::TestAllocator oa("object", veryVeryVeryVerbose);
 
-                    if (veryVerbose) { T_ P_(LINE1) P(LINE2) }
+                    Stack usedX;
+                    Stack freeX;
+                    Obj mX(&oa);
+                    const Obj& X = init(&mX,
+                                        &usedX,
+                                        &freeX,
+                                        ALLOCS1,
+                                        DEALLOCS1);
 
-                    bslma::TestAllocatorMonitor oam(&oa);
+                    Stack usedY;
+                    Stack freeY;
+                    {
+                        Obj mY(&oa);
+                        const Obj& Y = init(&mY, &usedY, &freeY, ALLOCS2,
+                                            DEALLOCS2);
 
-                    mX.swap(mY);
+                        if (veryVerbose) { T_ P_(LINE1) P(LINE2) }
 
-                    ASSERTV(LINE1, LINE2, &oa == X.allocator());
-                    ASSERTV(LINE1, LINE2, &oa == Y.allocator());
-                    ASSERTV(LINE1, LINE2, oam.isTotalSame());
-                    ASSERTV(LINE1, LINE2, oam.isInUseSame());
+                        bslma::TestAllocatorMonitor oam(&oa);
 
-                    // Verify the free lists are swapped
+                        mX.swapRetainAllocators(mY);
 
-                    while(!freeX.empty()) {
-                        Link *ptr = mY.createNode();
-                        ASSERTV(LINE1, LINE2, freeX.back() == ptr);
-                        freeX.pop();
-                        usedX.push(ptr);
+                        ASSERTV(LINE1, LINE2, &oa == X.allocator());
+                        ASSERTV(LINE1, LINE2, &oa == Y.allocator());
+                        ASSERTV(LINE1, LINE2, oam.isTotalSame());
+                        ASSERTV(LINE1, LINE2, oam.isInUseSame());
+
+                        // Verify the free lists are swapped
+
+                        while(!freeX.empty()) {
+                            Link *ptr = mY.createNode();
+                            ASSERTV(LINE1, LINE2, freeX.back() == ptr);
+                            freeX.pop();
+                            usedX.push(ptr);
+                        }
+
+                        while(!freeY.empty()) {
+                            Link *ptr = mX.createNode();
+                            ASSERTV(LINE1, LINE2, freeY.back() == ptr);
+                            freeY.pop();
+                            usedY.push(ptr);
+                        }
+
+                        // Cleanup up memory used by the object in the node.
+
+                        while(!usedX.empty()) {
+                            mX.deleteNode(usedX.back());
+                            usedX.pop();
+                        }
                     }
 
-                    while(!freeY.empty()) {
-                        Link *ptr = mX.createNode();
-                        ASSERTV(LINE1, LINE2, freeY.back() == ptr);
-                        freeY.pop();
-                        usedY.push(ptr);
-                    }
+                    // 'Y' is now destroyed, its blocks should be deallocated.
+                    // Verify Blocks in 'X' (which used to be in 'Y' before the
+                    // swap) is not deallocated.
 
-                    // Cleanup up memory used by the object in the node.
+                    char SCRIBBLED_MEMORY[sizeof(VALUE)];
+                    memset(SCRIBBLED_MEMORY, 0xA5, sizeof(VALUE));
+                    while (!usedY.empty()) {
+                        Link *ptr = usedY.back();
+                        ASSERTV(0 != strncmp((char *)ptr,
+                                             SCRIBBLED_MEMORY,
+                                             sizeof(VALUE)));
 
-                    while(!usedX.empty()) {
-                        mX.deleteNode(usedX.back());
-                        usedX.pop();
+                        mX.deleteNode(ptr);
+                        usedY.pop();
                     }
                 }
+                {
+                    bslma::TestAllocator oa1("object1", veryVeryVeryVerbose);
+                    bslma::TestAllocator oa2("object2", veryVeryVeryVerbose);
 
-                // 'Y' is now destroyed, its blocks should be deallocated.
-                // Verify Blocks in 'X' (which used to be in 'Y' before the
-                // swap) is not deallocated.
+                    Stack usedX;
+                    Stack freeX;
+                    Obj mX(&oa1);
+                    const Obj& X = init(&mX,
+                                        &usedX,
+                                        &freeX,
+                                        ALLOCS1,
+                                        DEALLOCS1);
 
-                char SCRIBBLED_MEMORY[sizeof(VALUE)];
-                memset(SCRIBBLED_MEMORY, 0xA5, sizeof(VALUE));
-                while (!usedY.empty()) {
-                    Link *ptr = usedY.back();
-                    ASSERTV(0 != strncmp((char *)ptr,
-                                         SCRIBBLED_MEMORY,
-                                         sizeof(VALUE)));
+                    Stack usedY;
+                    Stack freeY;
+                    {
+                        Obj mY(&oa2);
+                        const Obj& Y = init(&mY, &usedY, &freeY, ALLOCS2,
+                                            DEALLOCS2);
 
-                    mX.deleteNode(ptr);
-                    usedY.pop();
+                        if (veryVerbose) { T_ P_(LINE1) P(LINE2) }
+
+                        bslma::TestAllocatorMonitor oam1(&oa1);
+                        bslma::TestAllocatorMonitor oam2(&oa2);
+
+                        mX.swapExchangeAllocators(mY);
+
+                        ASSERTV(LINE1, LINE2, &oa2 == X.allocator());
+                        ASSERTV(LINE1, LINE2, &oa1 == Y.allocator());
+                        ASSERTV(LINE1, LINE2, oam1.isTotalSame());
+                        ASSERTV(LINE1, LINE2, oam2.isInUseSame());
+
+                        // Verify the free lists are swapped
+
+                        while(!freeX.empty()) {
+                            Link *ptr = mY.createNode();
+                            ASSERTV(LINE1, LINE2, freeX.back() == ptr);
+                            freeX.pop();
+                            usedX.push(ptr);
+                        }
+
+                        while(!freeY.empty()) {
+                            Link *ptr = mX.createNode();
+                            ASSERTV(LINE1, LINE2, freeY.back() == ptr);
+                            freeY.pop();
+                            usedY.push(ptr);
+                        }
+
+                        // Cleanup up memory used by the object in the node.
+
+                        while(!usedX.empty()) {
+                            mX.deleteNode(usedX.back());
+                            usedX.pop();
+                        }
+                    }
+
+                    // 'Y' is now destroyed, its blocks should be deallocated.
+                    // Verify Blocks in 'X' (which used to be in 'Y' before the
+                    // swap) is not deallocated.
+
+                    char SCRIBBLED_MEMORY[sizeof(VALUE)];
+                    memset(SCRIBBLED_MEMORY, 0xA5, sizeof(VALUE));
+                    while (!usedY.empty()) {
+                        Link *ptr = usedY.back();
+                        ASSERTV(0 != strncmp((char *)ptr,
+                                             SCRIBBLED_MEMORY,
+                                             sizeof(VALUE)));
+
+                        mX.deleteNode(ptr);
+                        usedY.pop();
+                    }
                 }
             }
         }
@@ -759,8 +847,8 @@ void TestDriver<VALUE>::testCase10()
                 Obj mA(&oa1);  Obj mB(&oa1);
                 Obj mZ(&oa2);
 
-                ASSERT_SAFE_PASS(mA.swap(mB));
-                ASSERT_SAFE_FAIL(mA.swap(mZ));
+                ASSERT_SAFE_PASS(mA.swapRetainAllocators(mB));
+                ASSERT_SAFE_FAIL(mA.swapRetainAllocators(mZ));
             }
         }
     }

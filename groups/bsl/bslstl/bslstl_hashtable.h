@@ -1148,7 +1148,7 @@ quickSwapRetainAllocators(ImplParameters& other)
                  static_cast<ComparatorBaseType*>(this),
                  static_cast<ComparatorBaseType*>(BSLS_UTIL_ADDRESSOF(other)));
 
-    nodeFactory().quickSwapRetainAllocators(other.nodeFactory());
+    nodeFactory().swapRetainAllocators(other.nodeFactory());
 }
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
@@ -1167,7 +1167,7 @@ quickSwapExchangeAllocators(ImplParameters& other)
                  static_cast<ComparatorBaseType*>(this),
                  static_cast<ComparatorBaseType*>(BSLS_UTIL_ADDRESSOF(other)));
 
-    nodeFactory().quickSwapExchangeAllocators(other.nodeFactory());
+    nodeFactory().swapExchangeAllocators(other.nodeFactory());
 }
 
 // OBSERVERS
