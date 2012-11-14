@@ -325,16 +325,21 @@ class BidirectionalNodePool {
         // least the specified 'numNodes' before the pool replenishes.
 
     void swap(BidirectionalNodePool& other);
-        // Efficiently exchange the management of nodes of this object and the
-        // specified 'other' object.  The behavior is undefined unless
+        // Efficiently exchange the nodes of this object with those of the
+        // specified 'other' object.  This method provides the no-throw
+        // exception-safety guarantee.  The behavior is undefined unless
         // 'allocator() == other.allocator()'.
 
-    void quickSwap(BidirectionalNodePool& other, bool swapAllocatorFlag);
-        // Efficiently exchange the management of nodes of this object and the
-        // specified 'other' object.  If the specified 'swapAllocatorFlag' is
-        // 'true', then also exchange the allocators used by this object and
-        // 'other'.  The behavior is undefined unless the 'swapAllocatorFlag'
-        // is 'true' or 'allocator() == other.allocator()'.
+    void quickSwapRetainAllocators(BidirectionalNodePool& other);
+        // Efficiently exchange the nodes of this object with those of the
+        // specified 'other' object.  This method provides the no-throw
+        // exception-safety guarantee.  The behavior is undefined unless
+        // 'allocator() == other.allocator()'.
+
+    void quickSwapExchangeAllocators(BidirectionalNodePool& other);
+        // Efficiently exchange the nodes and the allocator of this object with
+        // those of the specified 'other' object.  This method provides the
+        // no-throw exception-safety guarantee.
 
     void release() { d_pool.release(); }
 
@@ -491,11 +496,20 @@ void BidirectionalNodePool<VALUE, ALLOCATOR>::swap(
 
 template <class VALUE, class ALLOCATOR>
 inline
-void BidirectionalNodePool<VALUE, ALLOCATOR>::quickSwap(
-                                BidirectionalNodePool<VALUE, ALLOCATOR>& other,
-                                bool swapAllocatorFlag)
+void BidirectionalNodePool<VALUE, ALLOCATOR>::quickSwapRetainAllocators(
+                                BidirectionalNodePool<VALUE, ALLOCATOR>& other)
 {
-    d_pool.quickSwap(other.d_pool, swapAllocatorFlag);
+    BSLS_ASSERT_SAFE(allocator() == other.allocator());
+
+    d_pool.quickSwapRetainAllocators(other.d_pool);
+}
+
+template <class VALUE, class ALLOCATOR>
+inline
+void BidirectionalNodePool<VALUE, ALLOCATOR>::quickSwapExchangeAllocators(
+                                BidirectionalNodePool<VALUE, ALLOCATOR>& other)
+{
+    d_pool.quickSwapExchangeAllocators(other.d_pool);
 }
 
 // ACCESSORS
