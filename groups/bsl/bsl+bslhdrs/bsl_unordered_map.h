@@ -1,4 +1,4 @@
-// bsl_hash_map.h                                                     -*-C++-*-
+// bsl_unordered_map.h                                                -*-C++-*-
 #ifndef INCLUDED_BSL_UNORDERED_MAP
 #define INCLUDED_BSL_UNORDERED_MAP
 
@@ -23,36 +23,36 @@ BSLS_IDENT("$Id: $")
 #include <bsls_nativestd.h>
 #endif
 
-#ifndef BSLS_COMPILERFEATURES_SUPPORT_CPP11_HEADERS
-// If the native library does not support unordered containers, then we must
-// unconditionally include the BDE implementations.
-# include <bslstl_unorderedmap.h>
-# include <bslstl_unorderedmultimap.h>
+#ifdef BSL_OVERRIDES_STD
+// BDE configuration requires 'bsl+stdhdrs' be in the search path, so this
+// #include is guarnateed to succeed
+# include <unordered_map>
 #else
 // The unordered containers are a feature of the C++11 library, rather than
 // C++03, so might not be present in all native libraries on the platforms we
 // support.  Currently the 'BSLS_COMPILERFEATURES_SUPPORT_CPP11_HEADERS' is
 // never defined, but this sketches out our plan for future support.
-# include <unordered_map>
+# ifdef BSLS_COMPILERFEATURES_SUPPORT_CPP11_HEADERS
+#  include <unordered_map>
+# endif
+#endif
 
 // Include Bloomberg's implementation, unless compilation is configured to
 // override native types in the 'std' namespace with Bloomberg's
 // implementation, in which case the implementation file will be included by
 // the Bloomberg supplied standard header file.
-# ifndef BSL_OVERRIDES_STD
-#   include <bslstl_unorderedmap.h>
-#   include <bslstl_unorderedmultimap.h>
-# endif // BSL_OVERRIDES_STD
-
-#endif  // BDE_NATIVE_LIBRARY_HAS_CPP11_HEADERS
+#ifndef BSL_OVERRIDES_STD
+# include <bslstl_unorderedmap.h>
+# include <bslstl_unorderedmultimap.h>
+#endif  // BSL_OVERRIDES_STD
 
 #endif  // INCLUDED_BSL_UNORDERED_MAP
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2012
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------
