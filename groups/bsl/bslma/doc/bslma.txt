@@ -336,7 +336,7 @@
  Characteristics differentiating among 'bslma' memory-allocation objects *in*
  *general* are:
 
-: o Whether or not the object isA 'bslma_Allocator'.
+: o Whether or not the object isA 'bslma::Allocator'.
 :
 : o Whether or not the allocator supports memory reuse.
 :
@@ -478,8 +478,8 @@ The following table categorizes the various components along these dimensions:
  additional computation time to calculate the needed alignment and subsequent
  offset.
 
- See the 'bsls_alignment' component for further information on the various
- alignment strategies.
+ See the {'bsls_alignment'|Alignment Strategy} component for further
+ information on the supported alignment strategies.
 
 /Deallocation
 /------------
