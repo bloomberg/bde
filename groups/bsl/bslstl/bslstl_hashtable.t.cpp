@@ -123,12 +123,12 @@ using namespace BloombergLP;
 //           (          KITS TO INVOKE FOR EACH TEST CASE.          )
 //
 // TYPES
-//*[22] typedef ALLOCATOR                              AllocatorType;
-//*[22] typedef ::bsl::allocator_traits<AllocatorType> AllocatorTraits;
-//*[22] typedef typename KEY_CONFIG::KeyType           KeyType;
-//*[22] typedef typename KEY_CONFIG::ValueType         ValueType;
-//*[22] typedef bslalg::BidirectionalNode<ValueType>   NodeType;
-//*[22] typedef typename AllocatorTraits::size_type    SizeType;
+//*[23] typedef ALLOCATOR                              AllocatorType;
+//*[23] typedef ::bsl::allocator_traits<AllocatorType> AllocatorTraits;
+//*[23] typedef typename KEY_CONFIG::KeyType           KeyType;
+//*[23] typedef typename KEY_CONFIG::ValueType         ValueType;
+//*[23] typedef bslalg::BidirectionalNode<ValueType>   NodeType;
+//*[23] typedef typename AllocatorTraits::size_type    SizeType;
 //
 // CREATORS
 //*[11] HashTable(const ALLOCATOR&  allocator = ALLOCATOR());
@@ -139,15 +139,15 @@ using namespace BloombergLP;
 //
 // MANIPULATORS
 //*[ 9] operator=(const HashTable& rhs);
-//*[15] insert(const SOURCE_TYPE& obj);
-//*[15] insert(const ValueType& obj, const bslalg::BidirectionalLink *hint);
-//*[16] insertIfMissing(bool *isInsertedFlag, const SOURCE_TYPE& obj);
-//*[17] insertIfMissing(const KeyType& key);
+//*[16] insert(const SOURCE_TYPE& obj);
+//*[16] insert(const ValueType& obj, const bslalg::BidirectionalLink *hint);
+//*[17] insertIfMissing(bool *isInsertedFlag, const SOURCE_TYPE& obj);
+//*[18] insertIfMissing(const KeyType& key);
 //*[12] remove(bslalg::BidirectionalLink *node);
 //*[ 2] removeAll();
 //*[13] rehashForNumBuckets(SizeType newNumBuckets);
 //*[13] rehashForNumElements(SizeType numElements);
-//*[ 2] setMaxLoadFactor(float loadFactor);
+//*[15] setMaxLoadFactor(float loadFactor);
 //*[ 8] swap(HashTable& other);
 //
 //      ACCESSORS
@@ -155,18 +155,18 @@ using namespace BloombergLP;
 //*[ 4] comparator() const;
 //*[ 4] hasher() const;
 //*[ 4] size() const;
-//*[21] maxSize() const;
+//*[22] maxSize() const;
 //*[ 4] numBuckets() const;
-//*[21] maxNumBuckets() const;
+//*[22] maxNumBuckets() const;
 //*[14] loadFactor() const;
 //*[ 4] maxLoadFactor() const;
 //*[ 4] elementListRoot() const;
-//*[18] find(const KeyType& key) const;
-//*[19] findRange(BLink **first, BLink **last, const KeyType& k) const;
+//*[19] find(const KeyType& key) const;
+//*[20] findRange(BLink **first, BLink **last, const KeyType& k) const;
 //*[ 6] findEndOfRange(bslalg::BidirectionalLink *first) const;
 //*[ 4] bucketAtIndex(SizeType index) const;
 //*[ 4] bucketIndexForKey(const KeyType& key) const;
-//*[20] countElementsInBucket(SizeType index) const;
+//*[21] countElementsInBucket(SizeType index) const;
 //
 //*[ 6] bool operator==(const HashTable& lhs, const HashTable& rhs);
 //*[ 6] bool operator!=(const HashTable& lhs, const HashTable& rhs);
@@ -907,6 +907,31 @@ bool isValidHashTable(bslalg::BidirectionalLink      *listRoot,
                              listRoot);
     return bslalg::HashTableImpUtil::isWellFormed<KEY_CONFIG, HASHER>(anchor);
 }
+
+template <class KEY_CONFIG, class HASH, class EQUAL, class ALLOC>
+bool setMaxLoadFactorNoRehash(
+                  bslstl::HashTable<KEY_CONFIG, HASH, EQUAL, ALLOC> *hashTable,
+                  float                                              factor)
+    // Set the maximum load factor for the specified 'hashTable' to the
+    // specified 'factor' if 'factor' is greater than the currently computed
+    // load factor for 'hashTable'.  The behavior is undefined unless
+    // '0 < factor'.  Note that this function is used as a primary manipulator
+    // for the value-semantic bootstrap tests, so cannot use the 'loadFactor'
+    // accessor that will not be tested until a much later test case.  It may
+    // use 'size' and 'numBuckets' basic accessors, as these are part of the
+    // boostrap process.
+{
+    BSLS_ASSERT(hashTable);
+    BSLS_ASSERT(0 < factor);
+
+    if (double(hashTable->size()) / hashTable->numBuckets() >= factor) {
+        return false;                                                 // RETURN
+    }
+
+    hashTable->setMaxLoadFactor(factor);
+    return true;
+}
+
 
 }  // close unnamed namespace
 
@@ -2577,10 +2602,14 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase6()
                     Obj mX(HASHER(), COMPARATOR(), LENGTH1, &xa);
                     const Obj& X = gg(&mX, SPEC1);
                     Obj mY(HASHER(), COMPARATOR(), 1 + 0.1 * LENGTH2, &ya);
-                    mY.setMaxLoadFactor(10.0f);
+                    if (!setMaxLoadFactorNoRehash(&mY, 10.0f)) {
+                        ASSERTV(LINE1, LINE2, !"Bad load factor");
+                    }
                     const Obj& Y = gg(&mY, SPEC2);
                     Obj mZ(HASHER(), COMPARATOR(), 1 + 100 * LENGTH2, &za);
-                    mZ.setMaxLoadFactor(0.01f);
+                    if (!setMaxLoadFactorNoRehash(&mZ, 0.01f)) {
+                        ASSERTV(LINE1, LINE2, !"Bad load factor");
+                    }
                     const Obj& Z = gg(&mZ, SPEC2);
 
                     ASSERTV(LINE1, LINE2, CONFIG, LENGTH1, X.size(),
@@ -2820,7 +2849,9 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase4()
                                          ? da
                                          : sa1;
 
-                mX.setMaxLoadFactor(MAX_LOAD_FACTOR);
+                if (!setMaxLoadFactorNoRehash(&mX, MAX_LOAD_FACTOR)) {
+                    ASSERTV(cfg, !"Bad load factor");
+                }
 
                 // --------------------------------------------------------
 
@@ -3186,9 +3217,9 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
     // Testing:
     //*  HashTable(const HASHER&, const COMPARATOR&, SizeType, const ALLOC&)
     //*  ~HashTable();
-    //*  insertElement  (test driver function, proxy for basic manipulator)
+    //*  insertElement      (test driver function, proxy for basic manipulator)
     //*  void removeAll();
-    //*  setMaxLoadFactor(float);
+    //*  setMaxLoadFactorNoRehash     (test driver proxy for basic manipulator)
     // ------------------------------------------------------------------------
 
     typedef typename KEY_CONFIG::ValueType Element;
