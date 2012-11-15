@@ -324,17 +324,16 @@ class BidirectionalNodePool {
         // Reserve memory from this pool to satisfy memory requests for at
         // least the specified 'numNodes' before the pool replenishes.
 
-    void swap(BidirectionalNodePool& other);
-        // Efficiently exchange the management of nodes of this object and the
-        // specified 'other' object.  The behavior is undefined unless
+    void swapRetainAllocators(BidirectionalNodePool& other);
+        // Efficiently exchange the nodes of this object with those of the
+        // specified 'other' object.  This method provides the no-throw
+        // exception-safety guarantee.  The behavior is undefined unless
         // 'allocator() == other.allocator()'.
 
-    void quickSwap(BidirectionalNodePool& other, bool swapAllocatorFlag);
-        // Efficiently exchange the management of nodes of this object and the
-        // specified 'other' object.  If the specified 'swapAllocatorFlag' is
-        // 'true', then also exchange the allocators used by this object and
-        // 'other'.  The behavior is undefined unless the 'swapAllocatorFlag'
-        // is 'true' or 'allocator() == other.allocator()'.
+    void swapExchangeAllocators(BidirectionalNodePool& other);
+        // Efficiently exchange the nodes and the allocator of this object with
+        // those of the specified 'other' object.  This method provides the
+        // no-throw exception-safety guarantee.
 
     void release() { d_pool.release(); }
 
@@ -348,9 +347,10 @@ class BidirectionalNodePool {
 template <class VALUE, class ALLOCATOR>
 void swap(BidirectionalNodePool<VALUE, ALLOCATOR>& a,
           BidirectionalNodePool<VALUE, ALLOCATOR>& b);
-        // Efficiently exchange the management of nodes of the specified 'a'
-        // object and the specified 'b' object.  The behavior is undefined
-        // unless unless 'a.allocator() == b.allocator()'.
+        // Efficiently exchange the nodes of the specified 'a' object with
+        // those of the specified 'b' object.  This method provides the
+        // no-throw exception-safety guarantee.  The behavior is undefined
+        // unless 'a.allocator() == b.allocator()'.
 
 }  // close namespace bslstl
 
@@ -481,21 +481,20 @@ void BidirectionalNodePool<VALUE, ALLOCATOR>::reserveNodes(
 
 template <class VALUE, class ALLOCATOR>
 inline
-void BidirectionalNodePool<VALUE, ALLOCATOR>::swap(
+void BidirectionalNodePool<VALUE, ALLOCATOR>::swapRetainAllocators(
                                 BidirectionalNodePool<VALUE, ALLOCATOR>& other)
 {
     BSLS_ASSERT_SAFE(allocator() == other.allocator());
 
-    d_pool.swap(other.d_pool);
+    d_pool.quickSwapRetainAllocators(other.d_pool);
 }
 
 template <class VALUE, class ALLOCATOR>
 inline
-void BidirectionalNodePool<VALUE, ALLOCATOR>::quickSwap(
-                                BidirectionalNodePool<VALUE, ALLOCATOR>& other,
-                                bool swapAllocatorFlag)
+void BidirectionalNodePool<VALUE, ALLOCATOR>::swapExchangeAllocators(
+                                BidirectionalNodePool<VALUE, ALLOCATOR>& other)
 {
-    d_pool.quickSwap(other.d_pool, swapAllocatorFlag);
+    d_pool.quickSwapExchangeAllocators(other.d_pool);
 }
 
 // ACCESSORS
@@ -516,7 +515,7 @@ inline
 void bslstl::swap(bslstl::BidirectionalNodePool<VALUE, ALLOCATOR>& a,
                   bslstl::BidirectionalNodePool<VALUE, ALLOCATOR>& b)
 {
-    a.swap(b);
+    a.swapRetainAllocators(b);
 }
 
 }  // close enterprise namespace
