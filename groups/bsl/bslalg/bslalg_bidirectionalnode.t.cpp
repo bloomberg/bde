@@ -1,18 +1,26 @@
 // bslalg_bidirectionalnode.t.cpp                                     -*-C++-*-
 #include <bslalg_bidirectionalnode.h>
 
+#include <bslalg_scalardestructionprimitives.h>
+#include <bslalg_scalarprimitives.h>
+
 #include <bslma_allocator.h>
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 
+#include <bslmf_isconst.h>
+
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
+#include <bsls_platform.h>
+#include <bsls_types.h>
 
 #include <new>
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 using namespace BloombergLP;
 
@@ -27,13 +35,13 @@ using namespace BloombergLP;
 //: o No memory is ever allocated.
 //: o Precondition violations are detected in appropriate build modes.
 //-----------------------------------------------------------------------------
-// MANIPULATORS
-// [ 2] VALUE_TYPE& value();
-// [ 2] const VALUE_TYPE& value() const;
+// [ 4] BASE CLASS MANIPULATORS AND ACCESSORS
+// [ 3] BASIC ACCESSORS
+// [ 2] MANIPULATORS: VALUE_TYPE& value();
+// [ 2] MANIPULATORS: const VALUE_TYPE& value() const;
 // ----------------------------------------------------------------------------
+// [ 5] USAGE EXAMPLE
 // [ 1] BREATHING TEST
-// [  ] USAGE EXAMPLE
-// [  ] CONCERN: 'value' can be constructed with 'allocator_traits'.
 
 // ============================================================================
 //                      STANDARD BDE ASSERT TEST MACROS
@@ -122,32 +130,45 @@ class TestType1 {
 
 int TestType1::s_numConstructions = 0;
 
+template <typename TYPE>
+bool isConst(TYPE *)
+{
+    return bsl::is_const<TYPE>::value;
+}
+
 //=============================================================================
 //                              USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
-// Suppose we want to create a linked list template class, it will be called
-// 'MyList'.
+///Usage
+///-----
+// This section illustrates intended usage of this component.
 //
-// First, we create the iterator helper class, which will eventually be
-// defined as a nested type within the 'MyList' class.
-
+///Example 1: Creating and Using a List Template Class
+///- - - - - - - - - - - - - - - - - - - - - - - - - -
+// Suppose we want to create a linked list template class called 'MyList'.
+//
+// First, we create an iterator helper class, which will eventually be defined
+// as a nested type within the 'MyList' class.
+//..
                             // ===============
                             // MyList_Iterator
                             // ===============
-
+//..
 template <typename PAYLOAD>
 class MyList_Iterator {
+    // This iterator is used to refer to positions within a list.
+
     // PRIVATE TYPES
     typedef bslalg::BidirectionalNode<PAYLOAD> Node;
 
     // DATA
-    Node *d_node;
+    Node *d_node;    // Pointer to a node within a list.
 
     // FRIENDS
-    template <typename PL>
-    friend bool operator==(MyList_Iterator<PL>,
-                           MyList_Iterator<PL>);
+    template <typename OTHER_PAYLOAD>
+    friend bool operator==(MyList_Iterator<OTHER_PAYLOAD>,
+                           MyList_Iterator<OTHER_PAYLOAD>);
 
   public:
     // CREATORS
@@ -162,62 +183,33 @@ class MyList_Iterator {
     MyList_Iterator operator++();
 
     // ACCESSORS
-    PAYLOAD& operator*() const { return d_node->value(); }
+    const PAYLOAD& operator*() const { return d_node->value(); }
 };
 
-// Then, we define our 'MyList' class, with 'MyList::Iterator' being a public
-// typedef of 'MyList_Iterator'.  For brevity, we will omit a lot of
-// functionality that a full, general-purpose list class would have,
-// implmenting only what we will need for this example.
-
-                                // ======
-                                // MyList
-                                // ======
+// ============================================================================
+//                                FREE OPERATORS
+// ----------------------------------------------------------------------------
 
 template <typename PAYLOAD>
-class MyList {
-    // PRIVATE TYPES
-    typedef bslalg::BidirectionalNode<PAYLOAD> Node;
+bool operator==(MyList_Iterator<PAYLOAD> lhs,
+                MyList_Iterator<PAYLOAD> rhs);
 
-  public:
-    // PUBLIC TYPES
-    typedef PAYLOAD                            ValueType;
-    typedef MyList_Iterator<ValueType>         Iterator;
-
-    // DATA
-    Node             *d_begin;
-    Node             *d_end;
-    bslma::Allocator *d_allocator_p;
-
-  public:
-    // CREATORS
-    explicit
-    MyList(bslma::Allocator *basicAllocator)
-    : d_begin(0)
-    , d_end(0)
-    , d_allocator_p(basicAllocator)
-    {}
-
-    ~MyList();
-
-    // MANIPULATORS
-    Iterator begin();
-    Iterator end();
-    void pushBack(const ValueType& value);
-    void popBack();
-};
-
-// Next, we implment the functions for the iterator type.
-
-                            // ---------------
-                            // MyList_Iterator
-                            // ---------------
+template <typename PAYLOAD>
+bool operator!=(MyList_Iterator<PAYLOAD> lhs,
+                MyList_Iterator<PAYLOAD> rhs);
+//..
+// Then, we implment the functions for the iterator type.
+//..
+                                // ---------------
+                                // MyList_Iterator
+                                // ---------------
 
 // MANIPULATORS
 template <typename PAYLOAD>
+inline
 MyList_Iterator<PAYLOAD> MyList_Iterator<PAYLOAD>::operator++()
 {
-    d_node = (Node *) d_node->nextLink();
+    d_node = static_cast<Node *>(d_node->nextLink());
     return *this;
 }
 
@@ -236,9 +228,53 @@ bool operator!=(MyList_Iterator<PAYLOAD> lhs,
 {
     return !(lhs == rhs);
 }
+//..
+// Next, we define our 'MyList' class, with 'MyList::Iterator' being a public
+// typedef of 'MyList_Iterator'.  For brevity, we will omit much of te that a
+// full, general-purpose list class would have.
+//..
+                                // ======
+                                // MyList
+                                // ======
 
+template <typename PAYLOAD>
+class MyList {
+    // Doubly-linked list storing objects of type 'PAYLOAD'.
+
+    // PRIVATE TYPES
+    typedef bslalg::BidirectionalNode<PAYLOAD> Node;
+
+  public:
+    // PUBLIC TYPES
+    typedef PAYLOAD                    ValueType;
+    typedef MyList_Iterator<ValueType> Iterator;
+
+    // DATA
+    Node             *d_begin;          // First node, if any, in the list.
+    Node             *d_end;            // Last node, if any, in the list.
+    bslma::Allocator *d_allocator_p;    // Allocator used for allocating and
+                                        // freeing nodes.
+
+  public:
+    // CREATORS
+    explicit
+    MyList(bslma::Allocator *basicAllocator = 0)
+    : d_begin(0)
+    , d_end(0)
+    , d_allocator_p(bslma::Default::allocator(basicAllocator))
+    {}
+
+    ~MyList();
+
+    // MANIPULATORS
+    Iterator begin();
+    Iterator end();
+    void pushBack(const ValueType& value);
+    void popBack();
+};
+//..
 // Then, we implement the functions for the 'MyList' class:
-
+//..
                                 // ------
                                 // MyList
                                 // ------
@@ -247,25 +283,26 @@ bool operator!=(MyList_Iterator<PAYLOAD> lhs,
 template <typename PAYLOAD>
 MyList<PAYLOAD>::~MyList()
 {
-    typedef bslalg::BidirectionalLink BDL;
-
     for (Node *p = d_begin; p; ) {
-        Node *condemned = p;
+        Node *toDelete = p;
         p = (Node *) p->nextLink();
 
-        condemned->value().~ValueType();
-        d_allocator_p->deleteObjectRaw(static_cast<BDL *>(condemned));
+        bslalg::ScalarDestructionPrimitives::destroy(&toDelete->value());
+        d_allocator_p->deleteObjectRaw(
+                           static_cast<bslalg::BidirectionalLink *>(toDelete));
     }
 }
 
 // MANIPULATORS
 template <typename PAYLOAD>
+inline
 typename MyList<PAYLOAD>::Iterator MyList<PAYLOAD>::begin()
 {
     return Iterator(d_begin);
 }
 
 template <typename PAYLOAD>
+inline
 typename MyList<PAYLOAD>::Iterator MyList<PAYLOAD>::end()
 {
     return Iterator(0);
@@ -277,7 +314,9 @@ void MyList<PAYLOAD>::pushBack(const PAYLOAD& value)
     Node *node = (Node *) d_allocator_p->allocate(sizeof(Node));
     node->setNextLink(0);
     node->setPreviousLink(d_end);
-    new (&node->value()) ValueType(value);
+    bslalg::ScalarPrimitives::copyConstruct(&node->value(),
+                                            value,
+                                            d_allocator_p);
 
     if (d_end) {
         BSLS_ASSERT_SAFE(d_begin);
@@ -297,10 +336,10 @@ void MyList<PAYLOAD>::popBack()
 {
     BSLS_ASSERT_SAFE(d_begin && d_end);
 
-    Node *condemned = d_end;
+    Node *toDelete = d_end;
     d_end = (Node *) d_end->previousLink();
 
-    if (d_begin != condemned) {
+    if (d_begin != toDelete) {
         BSLS_ASSERT_SAFE(0 != d_end);
         d_end->setNextLink(0);
     }
@@ -309,10 +348,11 @@ void MyList<PAYLOAD>::popBack()
         d_begin = 0;
     }
 
-    condemned->value().~ValueType();
-    d_allocator_p->deallocate(condemned);
+    bslalg::ScalarDestructionPrimitives::destroy(&toDelete->value());
+    d_allocator_p->deleteObjectRaw(
+                           static_cast<bslalg::BidirectionalLink *>(toDelete));
 }
-
+//..
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -333,7 +373,7 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:
-      case 3: {
+      case 5: {
         // --------------------------------------------------------------------
         // USAGE
         //
@@ -346,66 +386,167 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("USAGE EXAMPLE\n"
                             "=============\n");
+//..
+// Next, in 'main', we use our 'MyList' class to store a list of ints:
+//..
+        MyList<int> intList;
+//..
+// Then, we declare an array of ints to populate it with:
+//..
+        int intArray[] = { 8, 2, 3, 5, 7, 2 };
+        enum { NUM_INTS = sizeof intArray / sizeof *intArray };
+//..
+// Now, we iterate, pushing ints to the list:
+//..
+        for (const int *pInt = intArray; pInt < intArray + NUM_INTS; ++pInt) {
+            intList.pushBack(*pInt);
+        }
+//..
+// Finally, we use our 'Iterator' type to traverse the list and observe its
+// values:
+//..
+        MyList<int>::Iterator it = intList.begin();
+        ASSERT(8 == *it);
+        ASSERT(2 == *++it);
+        ASSERT(3 == *++it);
+        ASSERT(5 == *++it);
+        ASSERT(7 == *++it);
+        ASSERT(2 == *++it);
+        ASSERT(intList.end() == ++it);
+      } break;
+      case 4: {
+        // --------------------------------------------------------------------
+        // BASE CLASS MANIPULATORS AND ACCESSORS
+        //
+        // Concerns:
+        //: 1 That the base class manipulators and accessors are accessible
+        //:   (not private or protected inheritance).
+        //:
+        //: 2 That the base class accessors are const methods.
+        //
+        // Plan:
+        //: 1 Create an object and a const reference to it.  Manipulate the
+        //:   object with the accessors using the non-const object, and observe
+        //:   it via the accessors using the const object.
+        // --------------------------------------------------------------------
 
-// Next, we have finished implmenting our 'MyList' class and its 'Iterator'
-// type, we will use one to store a fibonacci sequence of ints.  We declare the
-// memory allocator that we will use:
+        if (verbose) printf("TESTING BASE CLASS MANIPULATORS & ACCESSORS\n"
+                            "===========================================\n");
 
-        bslma::TestAllocator oa("oa");
 
-// Then, we enter a block and declare our list 'fibonacciList' to contain the
-// sequence:
+        bslma::TestAllocator da("default");
+        bslma::TestAllocator oa("object");
+
+        bslma::DefaultAllocatorGuard defaultGuard(&da);
 
         {
-            MyList<int> fibonacciList(&oa);
-            typedef MyList<int>::Iterator Iterator;
+            typedef bslalg::BidirectionalNode<int> Obj;
 
-            {
-// Next, we initialize the list to containing the first 2 values, '0' and '1':
+            Obj * const K1 = (Obj *) 0xaddc0c0a;
+            Obj * const K2 = (Obj *) 0xbaddeed5;
+            Obj * const K3 = (Obj *) 0x50fabed5;
+            Obj * const K4 = (Obj *)  0x5eaf00d;
 
-                fibonacciList.pushBack(0);
-                fibonacciList.pushBack(1);
+            const int KA_INT = 0xa0a0a0a0;
 
-// Then, we create iterators 'first' and 'second' and point them to those first
-// two elements:
+#ifdef BSLS_PLATFORM__CPU_32_BIT
+            Obj * const KA = (Obj *) KA_INT;
+#else
+            bsls::Types::Uint64 KA_UNSIGNED = 0xa0a0a0a0;
+            Obj * const KA = (Obj *) ((KA_UNSIGNED << 32) | KA_UNSIGNED);
+#endif
 
-                Iterator first  = fibonacciList.begin();
-                Iterator second = first;
-                ++second;
+            Obj *xPtr = (Obj *) oa.allocate(sizeof(Obj));
+            Obj& mX = *xPtr;     const Obj& X = mX;
 
-                ASSERT(0 == *first);
-                ASSERT(1 == *second);
+            memset(xPtr, 0xa0, sizeof(mX));
 
-// Next, we iterate a dozen times, each time adding a new element to the end of
-// the list containing a value that is the sum of the values of the previous
-// two elements:
+            ASSERT(KA_INT == X.value());
+            ASSERT(0  != X.previousLink());
+            ASSERT(0  != X.nextLink());
+            ASSERTV((void *) KA, KA == X.previousLink());
+            ASSERT(KA == X.nextLink());
 
-                for (int i = 0; i < 12; ++i, ++first, ++second) {
-                    fibonacciList.pushBack(*first + *second);
-                }
-            }
+            mX.reset();
+            ASSERT(KA_INT == X.value());// 'reset' affected base class only
+            ASSERT(0 == X.previousLink());
+            ASSERT(0 == X.nextLink());
 
-// Now, we traverse the list and print out its elements:
+            mX.setPreviousLink(K1);
+            mX.setNextLink(    K2);
+            mX.value()       = 5;
+            ASSERT(K1 == X.previousLink());
+            ASSERT(K2 == X.nextLink());
+            ASSERT(5  == X.value());
 
-            if (verbose) printf("Fibonacci Numbers: ");
+            mX.value()       = -1776;
+            mX.setNextLink(    K3);
+            mX.setPreviousLink(K4);
+            ASSERT(-1776 == X.value());
+            ASSERT(K3    == X.nextLink());
+            ASSERT(K4    == X.previousLink());
 
-            const Iterator begin = fibonacciList.begin();
-            const Iterator end   = fibonacciList.end();
-            for (Iterator it = begin; end != it; ++it) {
-                if (verbose) printf("%s%d", begin == it ? "" : ", ", *it);
-            }
-            if (verbose) printf("\n");
+            oa.deallocate(&mX);
         }
+      } break;
+      case 3: {
+        // --------------------------------------------------------------------
+        // BASIC ACCESSORS
+        //   Ensure each basic accessor properly interprets object state.
+        //
+        // Concerns:
+        //: 1 Each accessor returns the value of the corresponding attribute
+        //:    of the object.
+        //:
+        //: 2 Each accessor method is declared 'const'.
+        //
+        // Plan:
+        //: 1 Using the manipulators, set the object to the desired state,
+        //:   and observe the state from the 'const' accessors.
+        // --------------------------------------------------------------------
 
-// Finally, we check the allocator and verify that it's been used, and that
-// the destruction of 'fibonacciList' freed all the memory allocated:
+        if (verbose) printf("TESTING ACCESSORS\n"
+                            "=================\n");
 
-        ASSERT(oa.numBlocksTotal() > 0);
-        ASSERT(0 == oa.numBlocksInUse());
+        bslma::TestAllocator da("default");
+        bslma::TestAllocator oa("object");
+
+        bslma::DefaultAllocatorGuard defaultGuard(&da);
+
+        static struct {
+            int d_line;
+            int d_value;
+        } DATA[] = {
+            { L_,      0 },
+            { L_,      1 },
+            { L_,     -1 },
+            { L_,  56789 },
+            { L_, -98765 } };
+        enum { NUM_DATA = sizeof DATA / sizeof *DATA };
+
+        if (verbose) printf("Table-driven test, re-using object\n");
+        {
+            typedef bslalg::BidirectionalNode<int> Obj;
+
+            Obj *xPtr = (Obj *) oa.allocate(sizeof(Obj));
+            Obj& mX = *xPtr; const Obj& X = mX;
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int LINE  = DATA[i].d_line;
+                const int VALUE = DATA[i].d_value;
+
+                mX.value() = VALUE;
+
+                ASSERT(1 == isConst(&X.value()));
+                ASSERTV(LINE, VALUE == X.value());
+            }
+
+            oa.deallocate(xPtr);
+        }
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // PRIMARY MANIPULATORS AND BASIC ACCESSORS
+        // PRIMARY MANIPULATORS
         //
         // Concerns:
         //: 1 Manipulators can set value.
@@ -444,7 +585,7 @@ int main(int argc, char *argv[])
             Obj& mX = *xPtr; const Obj& X = mX;
 
             ::new (&xPtr->value()) VT(7);
-            ASSERTV(X.value(), 7 == X.value());
+            ASSERTV(X.value(),  7 == X.value());
 
             mX.value() = 5;
             ASSERTV(X.value(),  5 == X.value());
@@ -473,7 +614,7 @@ int main(int argc, char *argv[])
 
             ::new (&xPtr->value()) Obj::ValueType(7);
             ASSERTV(1 == TestType1::numConstructions());
-            ASSERTV(X.value().get(), 7 == X.value().get());
+            ASSERTV(X.value().get(),  7 == X.value().get());
 
             mX.value().set(5);
             ASSERTV(X.value().get(),  5 == X.value().get());
