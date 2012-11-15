@@ -203,7 +203,9 @@ class MmapAllocator : public bslma_Allocator {
 
         return result;
 
-#elif defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_DARWIN)
+#elif defined(BSLS_PLATFORM_OS_LINUX)  \
+   || defined(BSLS_PLATFORM_OS_DARWIN) \
+   || defined(BSLS_PLATFORM_OS_CYGWIN)
         return d_allocator_p->allocate(size);
 #else
 #error Not implemented.
