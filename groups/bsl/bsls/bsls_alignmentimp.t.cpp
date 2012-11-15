@@ -383,6 +383,7 @@ int main(int argc, char *argv[])
             int EXP_S2_ALIGNMENT          = 4;
             int EXP_S3_ALIGNMENT          = 8;
             int EXP_S4_ALIGNMENT          = 2;
+            int EXP_S5_ALIGNMENT          = 8;
             int EXP_U1_ALIGNMENT          = 4;
 
 // Specializations for different architectures
