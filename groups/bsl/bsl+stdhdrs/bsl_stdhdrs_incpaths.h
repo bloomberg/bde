@@ -9,16 +9,14 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Define paths where native headers can be found
+//@PURPOSE: Define paths where native headers can be found.
 //
 //@MACROS:
-// BSL_NATIVE_CPP_LIB_HEADER(filename),
-// BSL_NATIVE_CPP_RUNTIME_HEADER(filename)
-// BSL_NATIVE_CPP_C_HEADER(filename),
-// BSL_NATIVE_CPP_DEPRECATED_HEADER(filename),
-// BSL_NATIVE_C_LIB_HEADER(filename)
-//
-//@SEE_ALSO:
+// BSL_NATIVE_CPP_LIB_HEADER(header):  path to C++ standard header
+// BSL_NATIVE_CPP_RUNTIME_HEADER(header): path to C++ run-time header
+// BSL_NATIVE_CPP_C_HEADER(header): path to C++ versions of C standard header
+// BSL_NATIVE_CPP_DEPRECATED_HEADER(header): path to deprecated C++ STD header
+// BSL_NATIVE_C_LIB_HEADER(header): path to C standard header (end in '.h')
 //
 //@AUTHOR: Pablo Halpern (phalpern), Arthur Chiu (achiu21)
 //
@@ -106,7 +104,7 @@ BSLS_IDENT("$Id: $")
 #include <bsls_platform.h>
 #endif
 
-#if defined(BSLS_PLATFORM__CMP_SUN)
+#if defined(BSLS_PLATFORM_CMP_SUN)
   // Sun CC 5.5 or above
   //
 #   define BSL_NATIVE_SYS_TIME_HEADER(filename) <../include/filename>
@@ -131,56 +129,11 @@ BSLS_IDENT("$Id: $")
                                         BSL_NATIVE_SUN_STLPORT_HEADER(filename)
 #   endif
 
-#elif defined(BSLS_PLATFORM__CMP_CLANG)
-  // Clang (should go before CMP_GNU)
-#   define BSL_NATIVE_CPP_LIB_HEADER(filename) \
-            <../__CLANG_GNUC__.__CLANG_GNUC_MINOR__.__CLANG_GNUC_PATCHLEVEL__/filename>
-#   define BSL_NATIVE_CPP_RUNTIME_HEADER(filename) \
-            <../__CLANG_GNUC__.__CLANG_GNUC_MINOR__.__CLANG_GNUC_PATCHLEVEL__/filename>
-#   define BSL_NATIVE_CPP_DEPRECATED_HEADER(filename) \
-            <../__CLANG_GNUC__.__CLANG_GNUC_MINOR__.__CLANG_GNUC_PATCHLEVEL__/backward/filename>
-#   define BSL_NATIVE_CPP_C_HEADER(filename) \
-            <../__CLANG_GNUC__.__CLANG_GNUC_MINOR__.__CLANG_GNUC_PATCHLEVEL__/filename>
-#   define BSL_NATIVE_CISO646_HEADER(filename) \
-            <../__CLANG_GNUC__.__CLANG_GNUC_MINOR__.__CLANG_GNUC_PATCHLEVEL__/filename>
-#   define BSL_NATIVE_C_LIB_HEADER(filename) <../include/filename>
-#   define BSL_NATIVE_SYS_TIME_HEADER(filename) <../include/filename>
+#elif defined(BSLS_PLATFORM_CMP_CLANG) || defined(BSLS_PLATFORM_CMP_GNU)
 
-#elif defined(BSLS_PLATFORM__CMP_GNU)
-  // gcc 4.1 or above
-#   if defined(BSLS_PLATFORM__OS_CYGWIN)
-#       define BSL_NATIVE_CPP_LIB_HEADER(filename) \
-            <../../../__GNUC__.__GNUC_MINOR__.__GNUC_PATCHLEVEL__/include/c++/filename>
-#       define BSL_NATIVE_CPP_RUNTIME_HEADER(filename) \
-            <../../../__GNUC__.__GNUC_MINOR__.__GNUC_PATCHLEVEL__/include/c++/filename>
-#       define BSL_NATIVE_CPP_DEPRECATED_HEADER(filename) \
-            <../../../__GNUC__.__GNUC_MINOR__.__GNUC_PATCHLEVEL__/include/c++/backward/filename>
-#       define BSL_NATIVE_CPP_C_HEADER(filename) \
-            <../../../__GNUC__.__GNUC_MINOR__.__GNUC_PATCHLEVEL__/include/c++/filename>
-#       define BSL_NATIVE_CISO646_HEADER(filename) \
-            <../../../__GNUC__.__GNUC_MINOR__.__GNUC_PATCHLEVEL__/include/c++/filename>
-#   else
-#       define BSL_NATIVE_CPP_LIB_HEADER(filename) \
-            <../__GNUC__.__GNUC_MINOR__.__GNUC_PATCHLEVEL__/filename>
-#       define BSL_NATIVE_CPP_RUNTIME_HEADER(filename) \
-            <../__GNUC__.__GNUC_MINOR__.__GNUC_PATCHLEVEL__/filename>
-#       define BSL_NATIVE_CPP_DEPRECATED_HEADER(filename) \
-            <../__GNUC__.__GNUC_MINOR__.__GNUC_PATCHLEVEL__/backward/filename>
-#       define BSL_NATIVE_CPP_C_HEADER(filename) \
-            <../__GNUC__.__GNUC_MINOR__.__GNUC_PATCHLEVEL__/filename>
-#       define BSL_NATIVE_CISO646_HEADER(filename) \
-            <../__GNUC__.__GNUC_MINOR__.__GNUC_PATCHLEVEL__/filename>
-#   endif
+  // Clang and GCC use 'include_next'
 
-#   define BSL_NATIVE_C_LIB_HEADER(filename) <../include/filename>
-
-#   if defined(BSLS_PLATFORM__OS_HPUX)
-#       define BSL_NATIVE_SYS_TIME_HEADER(filename) <../include-fixed/filename>
-#   else
-#       define BSL_NATIVE_SYS_TIME_HEADER(filename) <../include/filename>
-#   endif
-
-#elif defined(BSLS_PLATFORM__CMP_HP)
+#elif defined(BSLS_PLATFORM_CMP_HP)
   // HP C/aC++
 #   define BSL_NATIVE_CPP_LIB_HEADER(filename) <../include_std/filename>
 #   define BSL_NATIVE_CPP_RUNTIME_HEADER(filename) <../include_std/filename>
@@ -211,12 +164,12 @@ BSLS_IDENT("$Id: $")
 #endif // ! defined(INCLUDED_BSL_STDHDRS_INCPATHS)
 
 /*
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2011
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------
 */

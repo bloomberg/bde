@@ -4,16 +4,16 @@
 #include <bsls_platform.h>
 #include <bsls_types.h>
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
     #include <time.h>      // NOTE: <ctime> conflicts with <sys/time.h>
     #include <sys/time.h>  // 'gethrtime()'
     #include <unistd.h>    // 'sleep'
-#ifdef BSLS_PLATFORM__OS_SOLARIS   // Solaris OR late SunOS!
+#ifdef BSLS_PLATFORM_OS_SOLARIS   // Solaris OR late SunOS!
     #include <limits.h>    // 'CLK_TCK', for Sun (on FreeBSD, in <sys/time.h>)
 #endif
 #endif
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
 typedef unsigned long DWORD;
 
 extern "C" {
@@ -125,7 +125,7 @@ static Int64 callGetProcessTimersRetUser() {
 }
 
 static void osSleep(unsigned seconds) {
-#if defined(BSLS_PLATFORM__OS_UNIX)
+#if defined(BSLS_PLATFORM_OS_UNIX)
     for(;;) {
         int t = sleep(seconds);
         if (t <= 0) {
@@ -133,7 +133,7 @@ static void osSleep(unsigned seconds) {
         }
         seconds = t;
     }
-#elif defined(BSLS_PLATFORM__OS_WINDOWS)
+#elif defined(BSLS_PLATFORM_OS_WINDOWS)
     Sleep(seconds*1000);  // milliseconds
 #else
     #error "Do not know how to sleep on this platform"
@@ -380,7 +380,7 @@ int main(int argc, char *argv[])
         //   bsls::TimeUtil::getTimer()
         // --------------------------------------------------------------------
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
         Int64 t = TU::getTimer();
         if (verbose) { T_(); P64_(t); }
         ASSERT(t >= 0);
@@ -400,7 +400,7 @@ int main(int argc, char *argv[])
         //   bsls::TimeUtil::getProcessTimers()
         // --------------------------------------------------------------------
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
         Int64 ts, tu; TU::getProcessTimers(&ts, &tu);
         if (verbose) { T_(); P64_(ts); P64_(tu); }
         ASSERT(ts >= 0); ASSERT(tu >= 0);
@@ -420,7 +420,7 @@ int main(int argc, char *argv[])
         //   bsls::TimeUtil::getProcessUserTimer()
         // --------------------------------------------------------------------
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
         Int64 t = TU::getProcessUserTimer();
         if (verbose) { T_(); P64_(t); }
         ASSERT(t >= 0);
@@ -440,7 +440,7 @@ int main(int argc, char *argv[])
         //   bsls::TimeUtil::getProcessSystemTimer()
         // --------------------------------------------------------------------
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
         Int64 t = TU::getProcessSystemTimer();
         if (verbose) { T_(); P64_(t); }
         ASSERT(t >= 0);
@@ -448,7 +448,7 @@ int main(int argc, char *argv[])
 
       } break;
       case 6: {
-#if defined (BSLS_PLATFORM__OS_SOLARIS) || defined (BSLS_PLATFORM__OS_HPUX)
+#if defined (BSLS_PLATFORM_OS_SOLARIS) || defined (BSLS_PLATFORM_OS_HPUX)
         // --------------------------------------------------------------------
         // PERFORMANCE TEST 'gethrtime()' *** Sun and HP ONLY ***
         //   Test whether successive calls ever return non-increasing values.
@@ -542,11 +542,11 @@ int main(int argc, char *argv[])
         //  'timeQuantum' is to be the minimum increment visible in a
         //  timer, expressed as a number of nanoseconds.  POSIX wants it
         //  to be 100 milliseconds.
-#if defined BSLS_PLATFORM__OS_SOLARIS || defined BSLS_PLATFORM__OS_FREEBSD
+#if defined BSLS_PLATFORM_OS_SOLARIS || defined BSLS_PLATFORM_OS_FREEBSD
         const Int64 timeQuantum = nsecsPerSec / CLK_TCK;
-#elif defined BSLS_PLATFORM__OS_LINUX || defined BSLS_PLATFORM__OS_AIX    \
-   || defined BSLS_PLATFORM__OS_HPUX  || defined BSLS_PLATFORM__OS_DARWIN \
-   || defined BSLS_PLATFORM__OS_CYGWIN
+#elif defined BSLS_PLATFORM_OS_LINUX || defined BSLS_PLATFORM_OS_AIX    \
+   || defined BSLS_PLATFORM_OS_HPUX  || defined BSLS_PLATFORM_OS_DARWIN \
+   || defined BSLS_PLATFORM_OS_CYGWIN
         const Int64 timeQuantum = nsecsPerSec / sysconf(_SC_CLK_TCK);
                                         // On our local flavor of Linux, old
                                         // POSIX requirements and immoderate
@@ -556,7 +556,7 @@ int main(int argc, char *argv[])
                                         // and the symbol that is correct
                                         // (CLK_TCK) unavailable.
                                         // (AIX just walks its own path.)
-#elif defined BSLS_PLATFORM__OS_WINDOWS
+#elif defined BSLS_PLATFORM_OS_WINDOWS
         const Int64 timeQuantum = 100;  // Hard-coded from Windows
                                         // documentation.  We need to test
                                         // (not pre-accept)
@@ -622,7 +622,7 @@ int main(int argc, char *argv[])
             // their differences taken, and those differences compared to
             // whatever constants are involved.
 
-#if !defined(BSLS_PLATFORM__OS_WINDOWS)
+#if !defined(BSLS_PLATFORM_OS_WINDOWS)
             ASSERT(wt2 - wt1 >= shortSleep * nsecsPerSec);
 #else
             ASSERT(wt2 - wt1 + windowsFudge >= shortSleep * nsecsPerSec);
@@ -772,7 +772,7 @@ int main(int argc, char *argv[])
 
             ASSERT(st2 - st1 >= 0);     // And system time did not go backward.
 
-#if !defined(BSLS_PLATFORM__OS_WINDOWS)
+#if !defined(BSLS_PLATFORM_OS_WINDOWS)
             ASSERT((wt2 - wt1) - (ut2 - ut1) - (st2 - st1) +
                                                          2 * timeQuantum >= 0);
                                         // And our wall time was greater than

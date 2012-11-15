@@ -43,7 +43,7 @@ BDES_IDENT("$Id: $")
 // In this example, we start with a (relative) native path to a directory
 // containing log files:
 //..
-//  #ifdef BSLS_PLATFORM__OS_WINDOWS
+//  #ifdef BSLS_PLATFORM_OS_WINDOWS
 //    bsl::string logPath = "temp\\logs";
 //  #else
 //    bsl::string logPath = "tmp/logs";
@@ -168,7 +168,7 @@ BDES_IDENT("$Id: $")
 #include <bsl_cstddef.h>
 #endif
 
-#ifndef BSLS_PLATFORM__OS_WINDOWS
+#ifndef BSLS_PLATFORM_OS_WINDOWS
 #ifndef INCLUDED_SYS_TYPES
 #include <sys/types.h>
 #define INCLUDED_SYS_TYPES
@@ -188,7 +188,7 @@ struct bdesu_FileUtil {
     // mechanisms for file system access.
 
     // TYPES
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
     typedef void *HANDLE;
     typedef HANDLE FileDescriptor;
     typedef __int64 Offset;
@@ -196,9 +196,9 @@ struct bdesu_FileUtil {
     static const Offset OFFSET_MIN = _I64_MIN;
 #else
     typedef int     FileDescriptor;
-#if defined(BSLS_PLATFORM__OS_FREEBSD) \
- || defined(BSLS_PLATFORM__OS_DARWIN)  \
- || defined(BSLS_PLATFORM__OS_CYGWIN)
+#if defined(BSLS_PLATFORM_OS_FREEBSD) \
+ || defined(BSLS_PLATFORM_OS_DARWIN)  \
+ || defined(BSLS_PLATFORM_OS_CYGWIN)
     // 'off_t' is 64-bit on Darwin/FreeBSD/cygwin (even when running 32-bit),
     // so they do not have an 'off64_t' type.
 
@@ -206,7 +206,7 @@ struct bdesu_FileUtil {
 #else
     typedef off64_t Offset;
 #endif
-#ifdef BSLS_PLATFORM__CPU_64_BIT
+#ifdef BSLS_PLATFORM_CPU_64_BIT
     static const Offset OFFSET_MAX =  (9223372036854775807L);
     static const Offset OFFSET_MIN = (-9223372036854775807L-1);
 #else

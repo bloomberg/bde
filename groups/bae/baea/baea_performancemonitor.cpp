@@ -28,25 +28,25 @@ BDES_IDENT_RCSID(baea_performancemonitor_cpp,"$Id$ $CSID$")
 #include <bsl_sstream.h>
 #include <bsl_vector.h>
 
-#if defined(BSLS_PLATFORM__OS_UNIX)
+#if defined(BSLS_PLATFORM_OS_UNIX)
 #include <unistd.h>
 #include <fcntl.h>
 #include <dirent.h>
 #include <sys/types.h>
-#if defined(BSLS_PLATFORM__OS_SOLARIS)
+#if defined(BSLS_PLATFORM_OS_SOLARIS)
 #include <procfs.h>
-#elif defined(BSLS_PLATFORM__OS_AIX)
+#elif defined(BSLS_PLATFORM_OS_AIX)
 #include <sys/procfs.h>
-#elif defined(BSLS_PLATFORM__OS_FREEBSD)
+#elif defined(BSLS_PLATFORM_OS_FREEBSD)
 #include <bsl_string.h>
-#elif defined(BSLS_PLATFORM__OS_HPUX)
+#elif defined(BSLS_PLATFORM_OS_HPUX)
 #include <sys/pstat.h>
 #include <sys/param.h>
-#elif defined(BSLS_PLATFORM__OS_LINUX)
+#elif defined(BSLS_PLATFORM_OS_LINUX)
 #include <dirent.h>
 #include <sys/procfs.h>
 #endif
-#elif defined(BSLS_PLATFORM__OS_WINDOWS)
+#elif defined(BSLS_PLATFORM_OS_WINDOWS)
 #include <windows.h>
 #include <pdh.h>
 #include <pdhmsg.h>
@@ -110,12 +110,12 @@ bool nearlyEqual(double lhs, double rhs)
     return bsl::fabs(lhs - rhs) < bsl::numeric_limits<double>::epsilon();
 }
 
-#if defined(BSLS_PLATFORM__OS_UNIX)
+#if defined(BSLS_PLATFORM_OS_UNIX)
 int currentProcessPid()
 {
     return (int) getpid();
 }
-#elif defined(BSLS_PLATFORM__OS_WINDOWS)
+#elif defined(BSLS_PLATFORM_OS_WINDOWS)
 int currentProcessPid()
 {
     return (int) GetCurrentProcessId();
@@ -126,7 +126,7 @@ int currentProcessPid()
 
 // PRIVATE TYPES
 
-#if defined(BSLS_PLATFORM__OS_LINUX) || defined(BSLS_PLATFORM__OS_CYGWIN)
+#if defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_CYGWIN)
 
 template <>
 class baea_PerformanceMonitor::Collector<bsls_Platform::OsLinux> {
@@ -453,7 +453,7 @@ int baea_PerformanceMonitor::Collector<bsls_Platform::OsLinux>::collect(
     return 0;
 }
 
-#elif defined(BSLS_PLATFORM__OS_FREEBSD)
+#elif defined(BSLS_PLATFORM_OS_FREEBSD)
 
 template <>
 class baea_PerformanceMonitor::Collector<bsls_Platform::OsFreeBsd> {
@@ -704,7 +704,7 @@ int baea_PerformanceMonitor::Collector<bsls_Platform::OsFreeBsd>::collect(
     return 0;
 }
 
-#elif defined(BSLS_PLATFORM__OS_DARWIN)
+#elif defined(BSLS_PLATFORM_OS_DARWIN)
 
 template <>
 class baea_PerformanceMonitor::Collector<bsls_Platform::OsDarwin> {
@@ -740,7 +740,7 @@ class baea_PerformanceMonitor::Collector<bsls_Platform::OsDarwin> {
     }
 };
 
-#elif defined(BSLS_PLATFORM__OS_UNIX)
+#elif defined(BSLS_PLATFORM_OS_UNIX)
 
 template <>
 class baea_PerformanceMonitor::Collector<bsls_Platform::OsUnix> {
@@ -790,7 +790,7 @@ int baea_PerformanceMonitor::Collector<bsls_Platform::OsUnix>::initialize(
     stats->d_pid         = pid;
     stats->d_description = description;
 
-#ifndef BSLS_PLATFORM__OS_HPUX
+#ifndef BSLS_PLATFORM_OS_HPUX
     bsl::stringstream procfsInfo;
     procfsInfo << "/proc/" << stats->d_pid << "/psinfo";
 
@@ -853,7 +853,7 @@ int baea_PerformanceMonitor::Collector<bsls_Platform::OsUnix>::collect(
     double cpuTimeU;
     double cpuTimeS;
 
-#ifndef BSLS_PLATFORM__OS_HPUX
+#ifndef BSLS_PLATFORM_OS_HPUX
     int fd;
 
     bsl::stringstream procfsInfo;
@@ -1072,7 +1072,7 @@ int baea_PerformanceMonitor::Collector<bsls_Platform::OsUnix>::collect(
     return 0;
 }
 
-#elif defined(BSLS_PLATFORM__OS_WINDOWS)
+#elif defined(BSLS_PLATFORM_OS_WINDOWS)
 
 template <>
 struct baea_PerformanceMonitor::Collector<bsls_Platform::OsWindows> {

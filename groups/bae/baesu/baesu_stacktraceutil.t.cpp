@@ -36,9 +36,9 @@
 
 #include <ctype.h>
 
-#ifndef BSLS_PLATFORM__OS_CYGWIN
+#ifndef BSLS_PLATFORM_OS_CYGWIN
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
 // for 'EnumWindows'
 
 # pragma comment(lib, "user32.lib")
@@ -141,11 +141,11 @@ typedef baesu_StackTraceUtil           Util;
 #if   defined(BAESU_OBJECTFILEFORMAT_RESOLVER_ELF)
     enum { FORMAT_ELF = 1, FORMAT_WINDOWS = 0, FORMAT_XCOFF = 0 };
 
-# if   defined(BSLS_PLATFORM__OS_SOLARIS)
+# if   defined(BSLS_PLATFORM_OS_SOLARIS)
     enum { PLAT_SUN=1, PLAT_LINUX=0, PLAT_HP=0, PLAT_AIX=0, PLAT_WIN=0 };
-# elif defined(BSLS_PLATFORM__OS_LINUX)
+# elif defined(BSLS_PLATFORM_OS_LINUX)
     enum { PLAT_SUN=0, PLAT_LINUX=1, PLAT_HP=0, PLAT_AIX=0, PLAT_WIN=0 };
-# elif defined(BSLS_PLATFORM__OS_HPUX)
+# elif defined(BSLS_PLATFORM_OS_HPUX)
     enum { PLAT_SUN=0, PLAT_LINUX=0, PLAT_HP=1, PLAT_AIX=0, PLAT_WIN=0 };
 # else
 #   error unknown platform
@@ -168,7 +168,7 @@ typedef baesu_StackTraceUtil           Util;
 #endif
 
 
-#if defined(BSLS_PLATFORM__OS_WINDOWS) && defined(BSLS_PLATFORM__CPU_64_BIT)
+#if defined(BSLS_PLATFORM_OS_WINDOWS) && defined(BSLS_PLATFORM_CPU_64_BIT)
 // On Windows, longs aren't big enough to hold pointers or 'size_t's
 
 #define SIZE_T_CONTROL_STRING "%llx"
@@ -339,7 +339,7 @@ namespace NS_10_3 {
 namespace NS_10_4 {
 
 #undef  BAESU_STACKTRACEUTIL_TEST_10_SYMBOLS
-#if defined(BDE_BUILD_TARGET_DBG) || !defined(BSLS_PLATFORM__OS_WINDOWS)
+#if defined(BDE_BUILD_TARGET_DBG) || !defined(BSLS_PLATFORM_OS_WINDOWS)
 #define BAESU_STACKTRACEUTIL_TEST_10_SYMBOLS
 #endif
 
@@ -495,7 +495,7 @@ void case_8_recurse(int *depth)
                                 // case 7
                                 // ------
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
 // The goal here is to create an identifier > 32,000 bytes
 // and < '((1 << 15) - 64)' bytes long.
 
@@ -670,7 +670,7 @@ void case_5_top(bool demangle, bool useTestAllocator)
         *out_p << cc("User time: ") << sw.accumulatedUserTime() <<
                 cc(", wall time: ") << sw.accumulatedWallTime() << endl;
 
-#if defined(BSLS_PLATFORM__OS_SOLARIS) && !defined(bsls_PLATFORM__CMP_GNU)
+#if defined(BSLS_PLATFORM_OS_SOLARIS) && !defined(bsls_PLATFORM_CMP_GNU)
         demangle = false;    // demangling never happens with Sun CC
 #endif
 

@@ -24,7 +24,7 @@
 #include <bsl_sstream.h>
 #include <bsl_stdexcept.h>
 
-#if defined(BSLS_PLATFORM__OS_UNIX)
+#if defined(BSLS_PLATFORM_OS_UNIX)
 #include <sys/mman.h>
 #include <sys/times.h>
 #endif
@@ -137,7 +137,7 @@ const char LOG_CATEGORY[] = "BAEA.PERFORMANCEMONITOR.TEST";
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
 
-#ifndef BSLS_PLATFORM__OS_WINDOWS
+#ifndef BSLS_PLATFORM_OS_WINDOWS
 namespace test {
 
 class MmapAllocator : public bslma_Allocator {
@@ -156,7 +156,7 @@ class MmapAllocator : public bslma_Allocator {
 
     virtual void *allocate(size_type size)
     {
-#if defined(BSLS_PLATFORM__OS_SOLARIS)
+#if defined(BSLS_PLATFORM_OS_SOLARIS)
         // Run 'pmap -xs <pid>' to see a tabular description of the memory
         // layout of a process.
 
@@ -173,7 +173,7 @@ class MmapAllocator : public bslma_Allocator {
 
         return result;
 
-#elif defined(BSLS_PLATFORM__OS_AIX)
+#elif defined(BSLS_PLATFORM_OS_AIX)
 
         void *result = mmap(0,
                             size,
@@ -188,7 +188,7 @@ class MmapAllocator : public bslma_Allocator {
 
         return result;
 
-#elif defined(BSLS_PLATFORM__OS_HPUX)
+#elif defined(BSLS_PLATFORM_OS_HPUX)
 
         void *result = mmap(0,
                             size,
@@ -203,9 +203,9 @@ class MmapAllocator : public bslma_Allocator {
 
         return result;
 
-#elif defined(BSLS_PLATFORM__OS_LINUX)  \
-   || defined(BSLS_PLATFORM__OS_DARWIN) \
-   || defined(BSLS_PLATFORM__OS_CYGWIN)
+#elif defined(BSLS_PLATFORM_OS_LINUX)  \
+   || defined(BSLS_PLATFORM_OS_DARWIN) \
+   || defined(BSLS_PLATFORM_OS_CYGWIN)
         return d_allocator_p->allocate(size);
 #else
 #error Not implemented.
@@ -214,7 +214,7 @@ class MmapAllocator : public bslma_Allocator {
 
     virtual void deallocate(void *address)
     {
-#if defined(BSLS_PLATFORM__OS_LINUX) || defined(BSLS_PLATFORM__OS_DARWIN)
+#if defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_DARWIN)
         d_allocator_p->deallocate(address);
 #else
         MapType::iterator it = d_map.find(address);
@@ -287,7 +287,7 @@ double wasteCpuTime()
     // Just take up a measurable amount of cpu time.  Try 100 clock ticks (1.0
     // seconds or less).
 {
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
     struct tms tmsBuffer;
     int rc = times(&tmsBuffer);
     BSLS_ASSERT(-1 != rc);
@@ -506,7 +506,7 @@ int main(int argc, char *argv[])
         ASSERT(0  < ta.numAllocations());
         ASSERT(0 == ta.numBytesInUse());
       } break;
-#ifndef BSLS_PLATFORM__OS_WINDOWS
+#ifndef BSLS_PLATFORM_OS_WINDOWS
       case -1:
       case -2: {
         // --------------------------------------------------------------------

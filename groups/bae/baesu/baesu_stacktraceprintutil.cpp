@@ -11,7 +11,7 @@ BDES_IDENT_RCSID(baesu_stacktraceprintutil_cpp,"$Id$ $CSID$")
 #include <bsls_assert.h>
 #include <bsls_platform.h>
 
-#if defined(BSLS_PLATFORM__OS_WINDOWS) && defined(BDE_BUILD_TARGET_OPT)
+#if defined(BSLS_PLATFORM_OS_WINDOWS) && defined(BDE_BUILD_TARGET_OPT)
 #pragma optimize("", off)
 #endif
 
@@ -48,7 +48,7 @@ bsl::ostream& baesu_StackTracePrintUtil::printStackTrace(
 
     void **addresses = (void **) st.allocator()->allocate(
                                                    maxFrames * sizeof(void *));
-#if !defined(BSLS_PLATFORM__OS_CYGWIN)
+#if !defined(BSLS_PLATFORM_OS_CYGWIN)
     int numAddresses = baesu_StackAddressUtil::getStackAddresses(addresses,
                                                                  maxFrames);
 #else

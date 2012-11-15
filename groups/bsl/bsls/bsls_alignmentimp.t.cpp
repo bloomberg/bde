@@ -92,9 +92,9 @@ struct S1 { char d_buff[8]; S1(char); };
 struct S2 { char d_buff[8]; int d_int; S2(); private: S2(const S2&); };
 struct S3 { S1 d_s1; double d_double; short d_short; };
 struct S4 { short d_shorts[5]; char d_c;  S4(int); private: S4(const S4&); };
-#if (defined(BSLS_PLATFORM__OS_LINUX) || defined(BSLS_PLATFORM__OS_DARWIN)  \
-                                      || defined(BSLS_PLATFORM__OS_CYGWIN)) \
- && defined(BSLS_PLATFORM__CPU_X86)
+#if (defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_DARWIN)  \
+                                      || defined(BSLS_PLATFORM_OS_CYGWIN)) \
+ && defined(BSLS_PLATFORM_CPU_X86)
 struct S5 { long long d_longLong __attribute__((__aligned__(8))); };
 #endif
 union  U1 { char d_c; int *d_pointer; };
@@ -198,9 +198,9 @@ int main(int argc, char *argv[])
             S2_ALIGNMENT          = bsls::AlignmentImpCalc<S2>::VALUE,
             S3_ALIGNMENT          = bsls::AlignmentImpCalc<S3>::VALUE,
             S4_ALIGNMENT          = bsls::AlignmentImpCalc<S4>::VALUE,
-#if (defined(BSLS_PLATFORM__OS_LINUX) || defined(BSLS_PLATFORM__OS_DARWIN)  \
-                                      || defined(BSLS_PLATFORM__OS_CYGWIN)) \
- && defined(BSLS_PLATFORM__CPU_X86)
+#if (defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_DARWIN)  \
+                                      || defined(BSLS_PLATFORM_OS_CYGWIN)) \
+ && defined(BSLS_PLATFORM_CPU_X86)
             S5_ALIGNMENT          = bsls::AlignmentImpCalc<S5>::VALUE,
 #endif
             U1_ALIGNMENT          = bsls::AlignmentImpCalc<U1>::VALUE
@@ -230,11 +230,11 @@ int main(int argc, char *argv[])
             int EXP_U1_ALIGNMENT          = 4;
 
 // Specializations for different architectures
-#if (defined(BSLS_PLATFORM__OS_LINUX) || defined(BSLS_PLATFORM__OS_DARWIN)) \
- && defined(BSLS_PLATFORM__CPU_X86)
+#if (defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_DARWIN)) \
+ && defined(BSLS_PLATFORM_CPU_X86)
             EXP_INT64_ALIGNMENT           = 4;
             EXP_DOUBLE_ALIGNMENT          = 4;
-#if defined(BSLS_PLATFORM__OS_LINUX)
+#if defined(BSLS_PLATFORM_OS_LINUX)
             EXP_LONG_DOUBLE_ALIGNMENT     = 4;
 #else
             EXP_LONG_DOUBLE_ALIGNMENT     = 16;
@@ -245,7 +245,7 @@ int main(int argc, char *argv[])
                          EXP_S5_ALIGNMENT == S5_ALIGNMENT);
 #endif
 
-#if defined(BSLS_PLATFORM__CPU_64_BIT)
+#if defined(BSLS_PLATFORM_CPU_64_BIT)
             EXP_LONG_ALIGNMENT            = 8;
             EXP_PTR_ALIGNMENT             = 8;
             EXP_FUNC_PTR_ALIGNMENT        = 8;
@@ -253,8 +253,8 @@ int main(int argc, char *argv[])
             EXP_LONG_DOUBLE_ALIGNMENT     = 16;
 #endif
 
-#if defined(BSLS_PLATFORM__OS_AIX)
-    #if !defined(BSLS_PLATFORM__CPU_64_BIT)
+#if defined(BSLS_PLATFORM_OS_AIX)
+    #if !defined(BSLS_PLATFORM_CPU_64_BIT)
             EXP_WCHAR_T_ALIGNMENT         = 2;
     #endif
             EXP_DOUBLE_ALIGNMENT          = 4;
@@ -262,14 +262,14 @@ int main(int argc, char *argv[])
             EXP_S3_ALIGNMENT              = 4;
 #endif
 
-#if defined(BSLS_PLATFORM__OS_CYGWIN)
+#if defined(BSLS_PLATFORM_OS_CYGWIN)
             EXP_WCHAR_T_ALIGNMENT         = 2;
             EXP_LONG_DOUBLE_ALIGNMENT     = 4;
 #endif
 
-#if defined(BSLS_PLATFORM__OS_WINDOWS)
+#if defined(BSLS_PLATFORM_OS_WINDOWS)
             EXP_WCHAR_T_ALIGNMENT         = 2;
-    #if defined(BSLS_PLATFORM__CPU_64_BIT)
+    #if defined(BSLS_PLATFORM_CPU_64_BIT)
             EXP_LONG_ALIGNMENT            = 4;
             EXP_LONG_DOUBLE_ALIGNMENT     = 8;
     #endif
@@ -362,8 +362,8 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(bsls::AlignmentImpPriorityToType<12>::Type(),
                         sameType(bsls::AlignmentImpPriorityToType<12>::Type(),
                                  char()));
-#if (defined(BSLS_PLATFORM__OS_LINUX) || defined(BSLS_PLATFORM__OS_CYGWIN)) \
-  && defined(BSLS_PLATFORM__CPU_X86)
+#if (defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_CYGWIN)) \
+  && defined(BSLS_PLATFORM_CPU_X86)
             ASSERT(sameType(bsls::AlignmentImpPriorityToType<13>::Type(),
                             bsls::AlignmentImp8ByteAlignedType()));
 #endif

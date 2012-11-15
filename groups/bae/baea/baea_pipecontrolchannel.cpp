@@ -19,7 +19,7 @@ BDES_IDENT_RCSID(baea_pipecontrolchannel_cpp,"$Id$ $CSID$")
 
 #include <bsls_assert.h>
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
 //  Should not be defining project-level configuration macros inside a cpp file
 //#define WIN32_LEAN_AND_MEAN
 //#define NOMINMAX
@@ -29,9 +29,9 @@ BDES_IDENT_RCSID(baea_pipecontrolchannel_cpp,"$Id$ $CSID$")
 #include <bsl_c_errno.h>
 #include <fcntl.h>
 #include <poll.h>
-#if !defined(BDES_PLATFORM__OS_FREEBSD) \
- && !defined(BDES_PLATFORM__OS_DARWIN)  \
- && !defined(BDES_PLATFORM__OS_CYGWIN)
+#if !defined(BDES_PLATFORM_OS_FREEBSD) \
+ && !defined(BDES_PLATFORM_OS_DARWIN)  \
+ && !defined(BDES_PLATFORM_OS_CYGWIN)
 #include <stropts.h>  // not sure what this is necessary on UNIX
 #endif
 #include <sys/file.h>
@@ -46,7 +46,7 @@ namespace {
 
 const char LOG_CATEGORY[] = "BAEA.PIPECONTROLCHANNEL";
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
 bsl::string describeWin32Error(DWORD lastError)
 {
     enum {ERROR_BUFFER_SIZE=128};
@@ -63,7 +63,7 @@ bsl::string describeWin32Error(DWORD lastError)
 
 namespace BloombergLP {
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
 const DWORD MAX_PIPE_BUFFER_LEN = 256; // max "send" message size
 
                        // -----------------------------
@@ -412,7 +412,7 @@ baea_PipeControlChannel::baea_PipeControlChannel(
 , d_isRunningFlag(false)
 , d_isPipeOpen(false)
 {
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
     d_impl.d_windows.d_handle = INVALID_HANDLE_VALUE;
 #else
     d_impl.d_unix.d_readFd    = 0;
@@ -453,7 +453,7 @@ int baea_PipeControlChannel::start(const bsl::string& pipeName)
     if (d_isRunningFlag) {
         return 2;
     }
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
     // See test driver case 9, on windows, createNamedPipe does not
     // fail if the named pipe is already open!!!!!
     // TBD

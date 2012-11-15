@@ -206,9 +206,9 @@ int main(int argc, char *argv[])
                           << "PROPER RESOLVER POLICY DEFINED" << endl
                           << "==============================" << endl;
 
-#if defined(BSLS_PLATFORM__OS_SOLARIS) || \
-    defined(BSLS_PLATFORM__OS_LINUX)   || \
-    defined(BSLS_PLATFORM__OS_HPUX)
+#if defined(BSLS_PLATFORM_OS_SOLARIS) || \
+    defined(BSLS_PLATFORM_OS_LINUX)   || \
+    defined(BSLS_PLATFORM_OS_HPUX)
 
         ASSERT(1 == (bslmf_IsSame<Obj::Policy, Obj::Elf>()));
         ASSERT(0 == (bslmf_IsSame<Obj::Policy, Obj::Xcoff>()));
@@ -216,7 +216,7 @@ int main(int argc, char *argv[])
 
 #endif
 
-#if defined(BSLS_PLATFORM__OS_AIX)
+#if defined(BSLS_PLATFORM_OS_AIX)
 
         ASSERT(0 == (bslmf_IsSame<Obj::Policy, Obj::Elf>()));
         ASSERT(1 == (bslmf_IsSame<Obj::Policy, Obj::Xcoff>()));
@@ -224,7 +224,7 @@ int main(int argc, char *argv[])
 
 #endif
 
-#if defined(BSLS_PLATFORM__OS_WINDOWS)
+#if defined(BSLS_PLATFORM_OS_WINDOWS)
 
         ASSERT(0 == (bslmf_IsSame<Obj::Policy, Obj::Elf>()));
         ASSERT(0 == (bslmf_IsSame<Obj::Policy, Obj::Xcoff>()));
@@ -283,9 +283,9 @@ int main(int argc, char *argv[])
                           << "RESOLVER" << endl
                           << "========" << endl;
 
-#if defined(BSLS_PLATFORM__OS_SOLARIS) || \
-    defined(BSLS_PLATFORM__OS_LINUX)   || \
-    defined(BSLS_PLATFORM__OS_HPUX)
+#if defined(BSLS_PLATFORM_OS_SOLARIS) || \
+    defined(BSLS_PLATFORM_OS_LINUX)   || \
+    defined(BSLS_PLATFORM_OS_HPUX)
 
         ASSERT(1 == BAESU_OBJECTFILEFORMAT_RESOLVER_ELF);
 
@@ -294,7 +294,7 @@ int main(int argc, char *argv[])
 #  error multiple file formats defined
 # endif
 
-#elif defined(BSLS_PLATFORM__OS_AIX)
+#elif defined(BSLS_PLATFORM_OS_AIX)
 
         ASSERT(1 == BAESU_OBJECTFILEFORMAT_RESOLVER_XCOFF);
 
@@ -303,7 +303,7 @@ int main(int argc, char *argv[])
 #  error multiple file formats defined
 # endif
 
-#elif defined(BSLS_PLATFORM__OS_WINDOWS)
+#elif defined(BSLS_PLATFORM_OS_WINDOWS)
 
         ASSERT(1 == BAESU_OBJECTFILEFORMAT_RESOLVER_WINDOWS);
 
@@ -312,7 +312,7 @@ int main(int argc, char *argv[])
 #  error multiple file formats defined
 # endif
 
-#elif defined(BSLS_PLATFORM__OS_CYGWIN)
+#elif defined(BSLS_PLATFORM_OS_CYGWIN)
     // not implemented
 #else
 # error unrecognized platform
