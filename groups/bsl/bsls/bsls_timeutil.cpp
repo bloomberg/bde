@@ -7,6 +7,7 @@
 BSLS_IDENT("$Id$ $CSID$")
 
 #include <bsls_platform.h>     // BSLS_PLATFORM_OS_UNIX, etc.
+#include <bsls_atomicoperations.h>
 
 #if defined BSLS_PLATFORM_OS_UNIX
     #include <time.h>      // NOTE: <ctime> conflicts with <sys/time.h>
@@ -589,7 +590,7 @@ void TimeUtil::getTimerRaw(TimeUtil::OpaqueNativeTime *timeValue)
     Types::Int64 t2 = (Types::Int64) gethrtime();
     timeValue->d_opaque = t2 > t1 ? t2 : t1;
 
-#elif defined BSLS_PLATFORM_OS_LINUX
+#elif defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_CYGWIN)
 
     // The call to 'clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &ts)' has never
     // been observed to be non-monotonic when tested at better than 1 parts in
@@ -612,73 +613,10 @@ void TimeUtil::getTimerRaw(TimeUtil::OpaqueNativeTime *timeValue)
 #elif defined BSLS_PLATFORM_OS_UNIX
 
     // A generic implementation having microsecond resolution is used.  There
-    // is no attempt to defend against possible non-monotonic behavior.  The
-    // imp would cause bsls_stopwatch to profile at ~1.40 usec on AIX when
-    // compiled with /bb/util/version10-062009/usr/vacpp/bin/xlC_r.  Other
-    // implementations are left in place as comments for historical reference.
-
-    timeval tv;
-    gettimeofday(&tv, 0);
-    const Types::Int64 K = 1000;
-    const Types::Int64 M = 1000000;
-    return ((Types::Int64) tv.tv_sec * M + tv.tv_usec) * K;
-
-    // The below imp would cause bsls_stopwatch to profile at ~1.45 usec on AIX
-    // when compiled with /bb/util/version10-062009/usr/vacpp/bin/xlC_r
-    //..
-    //  const Types::Int64 G = 1000000000;
-    //  timespec ts;
-    //  clock_gettime(CLOCK_REALTIME, &ts);
-    //  return = (Types::Int64) ts.tv_sec * G + ts.tv_nsec;
-    //..
-
-    // Historic workaround for non-monotonic clock behavior.
-    //..
-    //  const Types::Int64 K = 1000;
-    //  const Types::Int64 M = 1000000;
-    //  timeval t;
-    //  Types::Int64 t0, t1, t2;
-    //  gettimeofday(&t, 0);
-    //  t0 = ((Types::Int64) t.tv_sec * M + t.tv_usec) * K;
-    //  do {
-    //      gettimeofday(&t, 0);
-    //      t1 = ((Types::Int64) t.tv_sec * M + t.tv_usec) * K;
-    //  } while (t1 == t0);
-    //  do {
-    //      gettimeofday(&t, 0);
-    //      t2 = ((Types::Int64) t.tv_sec * M + t.tv_usec) * K;
-    //  } while (t2 == t1);
-    //  return t2 < t1 || t2 < t1 + 10 * M ? t2 : t1;
-    //..
-
-#elif defined BSLS_PLATFORM_OS_WINDOWS
-
-    return WindowsTimerUtil::wallTimer();
-
-#else
-    #error "Don't know how to get nanosecond time for this platform"
-#endif
-}
-
-void TimeUtil::getTimerRaw(TimeUtil::OpaqueNativeTime *timeValue)
-{
-#if defined BSLS_PLATFORM_OS_SOLARIS
-
-    timeValue->d_opaque = gethrtime();
-
-#elif defined BSLS_PLATFORM_OS_AIX
-
-    read_wall_time(timeValue, TIMEBASE_SZ);
-
-#elif defined BSLS_PLATFORM_OS_HPUX
-
-    timeValue->d_opaque = gethrtime();
-
-#elif defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_CYGWIN)
-
-    clock_gettime(CLOCK_MONOTONIC, timeValue);
-
-#elif defined BSLS_PLATFORM_OS_UNIX
+    // is no attempt to defend against possible non-monotonic
+    // behavior. Together with the arithmetic to convert 'timeValue' to
+    // nanoseconds, the imp would cause bsls_stopwatch to profile at ~1.40 usec
+    // on AIX when compiled with /bb/util/version10-062009/usr/vacpp/bin/xlC_r.
 
     gettimeofday(timeValue, 0);
 
