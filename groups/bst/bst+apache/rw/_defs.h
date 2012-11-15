@@ -197,7 +197,7 @@ _RWSTD_NAMESPACE(_RW)
 #  define _RWSTD_UWCHAR_INT_T ULong
 #endif   // if _RWSTD_WCHAR_MIN == 0
 
-#if defined (__linux__) || defined (__linux)
+#if (defined (__linux__) || defined (__linux)) && !defined (__CYGWIN__)
 #  ifndef _RWSTD_LINUX_RELEASE
 #    error _RWSTD_LINUX_RELEASE is not set
 // #    define _RWSTD_LINUX_RELEASE "generic"

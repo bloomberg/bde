@@ -1,4 +1,4 @@
-// bdesu_fileutil.t.cpp -*-C++-*-
+// bdesu_fileutil.t.cpp                                               -*-C++-*-
 #include <bdesu_fileutil.h>
 
 #include <bdesu_pathutil.h>
@@ -1272,10 +1272,16 @@ int main(int argc, char *argv[])
             int ret = bdesu_FileUtil::createDirectories(dirName, true);
             ASSERT(0 == ret);
 
-            // On UNIX use stat64 as an oracle: the file size of a directory
-            // depends on the file system.
+            // On UNIX use 'stat64' ('stat' on cygwin) as an oracle: the file
+            // size of a directory depends on the file system.
 
-#ifndef BSLS_PLATFORM_OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_CYGWIN
+            struct stat oracleInfo;
+            int rc = ::stat(dirName.c_str(), &oracleInfo);
+            ASSERT(0 == rc);
+
+            bdesu_FileUtil::Offset EXPECTED = oracleInfo.st_size;
+#elif !defined BSLS_PLATFORM_OS_WINDOWS
             struct stat64 oracleInfo;
             int rc = ::stat64(dirName.c_str(), &oracleInfo);
             ASSERT(0 == rc);

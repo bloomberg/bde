@@ -488,7 +488,7 @@ TimeUtil::convertRawTime(TimeUtil::OpaqueNativeTime rawTime)
 
     return rawTime.d_opaque;
 
-#elif defined BSLS_PLATFORM_OS_LINUX
+#elif defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_CYGWIN)
 
     const Types::Int64 G = 1000000000;
     return ((Types::Int64) rawTime.tv_sec * G + rawTime.tv_nsec);
@@ -590,7 +590,7 @@ void TimeUtil::getTimerRaw(TimeUtil::OpaqueNativeTime *timeValue)
     Types::Int64 t2 = (Types::Int64) gethrtime();
     timeValue->d_opaque = t2 > t1 ? t2 : t1;
 
-#elif defined BSLS_PLATFORM_OS_LINUX
+#elif defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_CYGWIN)
 
     // The call to 'clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &ts)' has never
     // been observed to be non-monotonic when tested at better than 1 parts in
