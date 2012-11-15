@@ -18,16 +18,13 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bslma' package currently has 19 components having 6 levels of physical
+ The 'bslma' package currently has 20 components having 6 levels of physical
  dependency.  The table below shows the hierarchical ordering of the
  components.  The order of components within each level is not architecturally
  significant, just alphabetical.
 ..
-  7. bslma_sequentialallocator             [DEPRECATED]
-
   6. bslma_autorawdeleter
      bslma_destructorproctor
-     bslma_sequentialpool                  [DEPRECATED]
      bslma_testallocatormonitor
 
   5. bslma_autodeallocator
@@ -35,7 +32,6 @@
      bslma_defaultallocatorguard
      bslma_deallocatorguard
      bslma_destructorguard
-     bslma_infrequentdeleteblocklist       [DEPRECATED]
      bslma_rawdeleterguard
      bslma_deallocatorproctor
      bslma_rawdeleterproctor
@@ -43,8 +39,7 @@
   4. bslma_default
      bslma_testallocator
 
-  3. bslma_bufferallocator                 [DEPRECATED]   
-     bslma_mallocfreeallocator
+  3. bslma_mallocfreeallocator
      bslma_managedallocator
      bslma_newdeleteallocator
      bslma_usesbslmaallocator
@@ -57,77 +52,65 @@
 
 /Component Synopsis
 /------------------
-: o 'bslma_allocator':
+: 'bslma_allocator':
 :      Provide a pure abstract interface for memory-allocation mechanisms.
 :
-: o 'bslma_autodeallocator':
+: 'bslma_autodeallocator':
 :      Provide a range proctor to managed a block of memory.
 :
-: o 'bslma_autodestructor':
+: 'bslma_autodestructor':
 :      Provide a range proctor to manage an array of objects.
 :
-: o 'bslma_autorawdeleter':
+: 'bslma_autorawdeleter':
 :      Provide a range proctor to manage a sequence objects.
 :
-: o 'bslma_bufferallocator':                                       [DEPRECATED]
-:      Provide an efficient memory allocator that uses a user-supplied buffer.
-:
-: o 'bslma_deallocatorguard':
+: 'bslma_deallocatorguard':
 :      Provide a guard to unconditionally manage a block of memory.
 :
-: o 'bslma_deallocatorproctor':
+: 'bslma_deallocatorproctor':
 :      Provide a proctor to conditionally manage a block memory.
 :
-: o 'bslma_default':
+: 'bslma_default':
 :      Provide utilities to set/fetch the default and global allocators.
 :
-: o 'bslma_defaultallocatorguard':
+: 'bslma_defaultallocatorguard':
 :      Provide scoped guard to temporarily change the default allocator.
 :
-: o 'bslma_deleterhelper':
+: 'bslma_deleterhelper':
 :      Provide namespace for functions used to delete objects.
 :
-: o 'bslma_destructorguard':
+: 'bslma_destructorguard':
 :      Provide a guard to unconditionally manage an object.
 :
-: o 'bslma_destructorproctor':
+: 'bslma_destructorproctor':
 :      Provide a proctor to conditionally manage an object.
 :
-: o 'bslma_infrequentdeleteblocklist':                             [DEPRECATED]
-:      Provide a manager supporting fast memory allocations of varying sizes.
-:
-: o 'bslma_mallocfreeallocator':
+: 'bslma_mallocfreeallocator':
 :      Provide malloc/free adaptor to 'bslma::Allocator' protocol.
 :
-: o 'bslma_managedallocator':
+: 'bslma_managedallocator':
 :      Provide a protocol for memory allocators that support 'release'.
 :
-: o 'bslma_newdeleteallocator':
+: 'bslma_newdeleteallocator':
 :      Provide singleton new/delete adaptor to 'bslma::Allocator' protocol.
 :
-: o 'bslma_rawdeleterguard':
+: 'bslma_rawdeleterguard':
 :      Provide a guard to unconditionally manage an object.
 :
-: o 'bslma_rawdeleterproctor':
+: 'bslma_rawdeleterproctor':
 :      Provide a proctor to conditionally manage an object.
 :
-: o 'bslma_sequentialallocator':                                   [DEPRECATED]
-:      Provide an allocator supporting fast memory allocations of varied sizes.
-:
-: o 'bslma_sequentialpool':                                        [DEPRECATED]
-:      Provide a pool supporting fast memory allocations of varied sizes.
-:
-: o 'bslma_testallocator':
+: 'bslma_testallocator':
 :      Provide instrumented malloc/free allocator to track memory usage.
 :
-: o 'bslma_testallocatorexception':
+: 'bslma_testallocatorexception':
 :      Provide an exception class for memory allocation operations.
 :
-: o 'bslma_testallocatormonitor':
+: 'bslma_testallocatormonitor':
 :      Provide a mechanism to summarize 'bslma::TestAllocator' object use.
 :
-: o 'bslma_usesbslmaallocator':
-:      Provide a metafunction that indicates the use of bslma allocators.
+: 'bslma_usesbslmaallocator':
+:      Provide a metafunction that indicates the use of bslma allocators
 
 /Component Overview
 /------------------
@@ -173,18 +156,6 @@
  allocator (or pool) of parameterized 'ALLOCATOR' type also supplied at
  construction.  This proctor mechanism is useful in guarding against memory
  leaks, e.g., when additional allocations may throw an exception.
-
-/'bslma_bufferallocator'
-/ - - - - - - - - - - -
- 'bslma_bufferallocator' provides an allocator that implements the
- 'bslma::Allocator' protocol and sequentially allocates memory blocks from a
- fixed-size buffer that is supplied by the user at construction.  If an
- allocation request exceeds the remaining space in the buffer, the return
- value is the result of invoking an optional callback function that was
- supplied at construction, or zero if no callback was specified.  This
- component also provides static utility methods for allocating memory directly
- from a user-specified buffer.  This component is *deprecated* and clients
- should use 'bdema_bufferedsequentialallocator' instead.
 
 /'bslma_deallocatorguard'
 / - - - - - - - - - - - -
@@ -248,16 +219,6 @@
  object's destructor.  This proctor mechanism is useful in guarding against
  memory leaks, e.g., when additional allocations may throw an exception.
 
-/'bslma_infrequentdeleteblocklist'
-/ - - - - - - - - - - - - - - - -
- 'bslma_infrequentdeleteblocklist' provides a memory manager that allocates
- and manages a sequence of memory blocks, each potentially of a different size
- as specified in the 'allocate' method's invocation.  The
- 'bslma::InfrequentDeleteBlockList' object's 'release' method deallocates the
- entire sequence of memory blocks, as does its destructor.  This component is
- *deprecated* and clients should use 'bdema_infrequentdeleteblocklist'
- instead.
-
 /'bslma_mallocfreeallocator'
 /- - - - - - - - - - - - - -
  'bslma_mallocfreeallocator' provides a wrapper around 'std::malloc' and
@@ -298,34 +259,6 @@
  parameterized 'ALLOCATOR' (allocator or pool) also supplied at construction.
  This proctor mechanism is useful in guarding against memory leaks, e.g., when
  additional allocations may throw an exception.
-
-/'bslma_sequentialallocator'
-/ - - - - - - - - - - - - -
- 'bslma_sequentialallocator' provides an allocator that dispenses memory
- blocks of any requested size from an internal buffer or an optional
- user-supplied buffer.  If an allocation request exceeds the remaining free
- memory space in the pool, the pool either replenishes its buffer with new
- memory to satisfy the request, or returns a separate memory block, depending
- on whether the request size exceeds an optionally specified maximum buffer
- size.  By default, buffer growth is not capped.  The 'release' method
- releases all memory allocated through this pool, as does the destructor.
- Note, however, that individual allocated blocks of memory cannot be
- separately deallocated.  This component is *deprecated* and clients should
- use 'bdema_sequentialallocator' instead.
-
-/'bslma_sequentialpool'
-/ - - - - - - - - - - -
- 'bslma_sequentialpool' provides a memory pool that dispenses memory blocks of
- any requested size from an internal buffer or an optional user-supplied
- buffer.  If an allocation request exceeds the remaining free memory space in
- the pool, the pool either replenishes its buffer with new memory to satisfy
- the request, or returns a separate memory block, depending on whether the
- request size exceeds an optionally specified maximum buffer size.  By
- default, buffer growth is not capped.  The 'release' method releases all
- memory allocated through this pool, as does the destructor.  Note, however,
- that individual allocated blocks of memory cannot be separately deallocated.
- This component is *deprecated* and clients should use 'bdema_sequentialpool'
- instead.
 
 /'bslma_testallocator'
 /- - - - - - - - - - -
@@ -476,12 +409,14 @@
 
 The following table categorizes the various components along these dimensions:
 
+..
                 Deallocation          Destruction          Deletion
             +--------------------+-------------------+-------------------+
  Proctor    | DeallocatorProctor | DestructorProctor | RawDeleterProctor |
             +--------------------+-------------------+-------------------+
  Guard      | DeallocatorGuard   | DestructorGuard   | RawDeleterGuard   |
             +--------------------+-------------------+-------------------+
+..
 
  Note that the components named "raw" ('bslma_rawdeleterproctor' and
  'bslma_rawdeleterguard') should be used only if we are sure that the supplied
@@ -614,3 +549,435 @@ Allocator         |                       |                         |
  All BDE library objects needing dynamic memory require that an allocator be
  passed to their constructor, which defaults to the allocator currently
  installed as the default allocator.
+
+/Usage
+/-----
+ This section illustrates intended use of components in this package.
+
+/Example 1: Creating a type that uses 'bslma::Allocator'
+/- - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ If objects of a class allocate memory (or contain data members that do) then
+ having all constructors of that class accept the address of a
+ 'bslma::Allocator' object as an argument allows its clients to control how
+ those objects allocate memory.  An example of this is provided by showing the
+ creators of a 'Customer' 'class' that stores the first and last names of a
+ customer as 'bsl::string' objects and the various account numbers of that
+ customer using a 'bsl::vector'.  For simplicity part of the interface is
+ elided.
+
+..
+                        // ==============
+                        // class Customer
+                        // ==============
+
+class Customer {
+    // This simply constrained (value-semantic) attribute class represents the
+    // information about a bank's customer.  A customer's first and last name
+    // are represented as 'bsl::string' objects, the associated accounts are
+    // stored in a 'bsl::vector<int>', and the employee identification number
+    // is represented by an 'int'.  Note that the class invariants are
+    // identically the constraints on the individual attributes.
+    //
+    // This class:
+    //: o supports a complete set of *value-semantic* operations
+    //:   o except for 'bslx' serialization
+    //: o is *exception-neutral* (agnostic)
+    //: o is *alias-safe*
+    //: o is 'const' *thread-safe*
+
+    // DATA
+    bsl::string      d_firstName;       // first name
+    bsl::string      d_lastName;        // last name
+    bsl::vector<int> d_accounts;        // account numbers
+    int              d_id;              // customer identification number
+
+  public:
+..
+ Note that the constructor declarations below all accept the address of a
+ 'bslma::Allocator' argument.
+..
+    // CREATORS
+    Customer(bslma::Allocator *basicAllocator = 0);
+        // Create a 'Customer' object having the (default) attribute values:
+        //..
+        //  firstName() == ""
+        //  lastName()  == ""
+        //  accounts()  == 0
+        //  id()        == 0
+        //..
+        // Optionally specify a 'basicAllocator' used to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.
+
+    Customer(const bslstl::StringRef&  firstName,
+             const bslstl::StringRef&  lastName,
+             const bsl::vector<int>&   accounts,
+             int                       id,
+             bslma::Allocator         *basicAllocator = 0);
+        // Create a 'Customer' object having the specified 'firstName',
+        // 'lastName', 'accounts', and 'id'' attribute values.  Optionally
+        // specify a 'basicAllocator' used to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.
+
+    Customer(const Customer& original, bslma::Allocator *basicAllocator = 0);
+        // Create a 'Customer' object having the same value as the specified
+        // 'original' object.  Optionally specify a 'basicAllocator' used to
+        // supply memory.  If 'basicAllocator' is 0, the currently installed
+        // default allocator is used.
+
+    //! ~Customer() = default;
+        // Destroy this object.
+
+                                  // Aspects
+
+    bslma::Allocator *allocator() const;
+        // Return the allocator used by this object to supply memory.  Note
+        // that if no allocator was supplied at construction the currently
+        // installed default allocator is used.
+
+    ...
+};
+
+..
+ Since the 'Customer' 'class' contains members that allocate memory it can
+ associate the 'UsesBslmaAllocator' trait defined in the 'bslma' package to
+ programmatically inform templated code that it uses an allocator.
+..
+
+// TRAITS
+namespace BloombergLP{
+namespace bslma {
+
+template <> struct UsesBslmaAllocator<Customer> : bsl::true_type {};
+
+}
+}
+
+// ============================================================================
+//                      INLINE FUNCTION DEFINITIONS
+// ============================================================================
+
+                        // --------------
+                        // class Customer
+                        // --------------
+
+..
+ The constructor implementations of 'Customer' can simply forward the
+ basicAllocator argument to its data members.  All BSL containers, including
+ 'bsl::string' and 'bsl::vector', accept a 'bslma::Allocator' constructor
+ argument:
+..
+
+// CREATORS
+inline
+Customer::Customer(bslma::Allocator *basicAllocator)
+: d_firstName(basicAllocator)
+, d_lastName(basicAllocator)
+, d_accounts(basicAllocator)
+, d_id(0)
+{
+}
+
+inline
+Customer::Customer(const bslstl::StringRef&  firstName,
+                   const bslstl::StringRef&  lastName,
+                   const bsl::vector<int>&   accounts,
+                   int                       id,
+                   bslma::Allocator         *basicAllocator)
+: d_firstName(firstName.begin(), firstName.end(), basicAllocator)
+, d_lastName(lastName.begin(), lastName.end(), basicAllocator)
+, d_accounts(accounts, basicAllocator)
+, d_id(id)
+{
+    BSLS_ASSERT_SAFE(!firstName.isEmpty());
+    BSLS_ASSERT_SAFE(!lastName.isEmpty());
+}
+
+inline
+Customer::Customer(const Customer& original, bslma::Allocator *basicAllocator)
+: d_firstName(original.d_firstName, basicAllocator)
+, d_lastName(original.d_lastName, basicAllocator)
+, d_accounts(original.d_accounts, basicAllocator)
+, d_id(original.d_id)
+{
+}
+
+// MANIPULATORS
+inline
+Customer& Customer::operator=(const Customer& rhs)
+{
+    d_firstName = rhs.d_firstName;
+    d_lastName  = rhs.d_lastName;
+    d_accounts  = rhs.d_accounts;
+    d_id        = rhs.d_id;
+    return *this;
+}
+
+                                  // Aspects
+
+inline
+bslma::Allocator *Customer::allocator() const
+{
+    return d_firstName.get_allocator().mechanism();
+}
+
+..
+ Again for simplicity the rest of the implementation is not provided.
+..
+
+/Example 2: Implementing Templates That May Be Supplied Allocating Types
+/- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+ When writing templatized code that may be parameterized on types that
+ allocate memory it is often necessary to decide whether to pass through the
+ user-supplied allocator to individual objects. Such code (and containers) can
+ use the UsesBslmaAllocator trait defined in the bslma package to decide
+ whether to pass the allocator to an object's constructor. An example of using
+ this trait is provided below by showing a simplified parameterized object
+ pool 'class':
+
+..
+                        // ================
+                        // class ObjectPool
+                        // ================
+
+template <typename TYPE>
+class ObjectPool {
+    // This 'class' provides a pool of reusable objects of the parameterized
+    // 'TYPE' and assumes that the parameterized 'TYPE' provides a default
+    // constructor, a destructor, and a 'reset' method.
+
+    // DATA
+    bsl::list<TYPE *>  d_objects;      // list of managed objects
+    bslma::Allocator  *d_allocator_p;  // memory allocator (held, not owned)
+
+    // PRIVATE CLASS METHODS
+    TYPE *createObject(bsl::false_type);
+        // Construct an object of the specified 'TYPE' that *does not*
+        // require an allocator to be passed to its constructor.
+
+    TYPE *createObject(bsl::true_type);
+        // Construct an object of the specified 'TYPE' that *requires* an
+        // allocator to be passed to its constructor.
+
+  public:
+    // CREATORS
+    ObjectPool(bslma::Allocator *basicAllocator = 0);
+        // Create an object pool that invokes the default constructor of the
+        // the parameterized 'TYPE' to construct objects.  The optionally
+        // specified 'basicAllocator' is used to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.
+
+    ~ObjectPool();
+        // Destroy this object pool.  All objects created by this pool are
+        // destroyed (even if some of them are still in use) and memory is
+        // reclaimed.
+
+    // MANIPULATORS
+    TYPE* getObject();
+        // Return an address providing modifiable access to a
+        // default-constructed object of the parameterized 'TYPE'.  If this
+        // pool does not have any free objects then a default-constructed
+        // object is allocated and returned.
+
+    void releaseObject(TYPE *object);
+        // Return the specified 'object' back to this object pool.  Invoke the
+        // 'reset' method on 'object'.
+
+    // The rest of the interface is elided for brevity.
+};
+
+// ============================================================================
+//                      INLINE FUNCTION DEFINITIONS
+// ============================================================================
+
+                        // ----------------
+                        // class ObjectPool
+                        // ----------------
+
+..
+ The 'createObject' private methods below allow an object to be created by
+ specifying an allocator only if it has the 'UsesBslmaAllocator' trait.
+..
+
+// PRIVATE CLASS METHODS
+template <typename TYPE>
+inline
+TYPE *ObjectPool<TYPE>::createObject(bsl::false_type)
+{
+    return new (*d_allocator_p) TYPE();
+}
+
+template <typename TYPE>
+inline
+TYPE *ObjectPool<TYPE>::createObject(bsl::true_type)
+{
+    return new (*d_allocator_p) TYPE(d_allocator_p);
+}
+
+// CREATORS
+template <typename TYPE>
+inline
+ObjectPool<TYPE>::ObjectPool(bslma::Allocator *basicAllocator)
+: d_objects(basicAllocator)
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
+{
+}
+
+template <typename TYPE>
+ObjectPool<TYPE>::~ObjectPool()
+{
+    for (bsl::list<TYPE *>::iterator iter = d_objects.begin();
+         iter != d_objects.end();
+         ++iter) {
+        d_allocator_p->deleteObject(*iter);
+    }
+    d_objects.clear();
+}
+
+// MANIPULATORS
+template <typename TYPE>
+TYPE *ObjectPool<TYPE>::getObject()
+{
+    if (d_objects.size()) {
+        TYPE *object = d_objects.back();
+        d_objects.pop_back();
+        return object;                                                // RETURN
+    }
+
+    return createObject(bslma::UsesBslmaAllocator<TYPE>());
+}
+
+template <typename TYPE>
+inline
+void ObjectPool<TYPE>::releaseObject(TYPE *object)
+{
+    object->reset();
+    d_objects.push_back(object);
+}
+..
+
+/Example 3: Implementing a Customized Allocator
+/- - - - - - - - - - - - - - - - - - - - - - -
+
+ Since bslma::Allocator is a protocol, users can create their own concrete
+ implementations for object-specific situations. A complete example of a
+ concrete implementation that allocates memory from a user-supplied static
+ buffer and reverts to an allocator specified at construction if that buffer is
+ exhausted is provided below:
+
+..
+                        // =====================
+                        // class BufferAllocator
+                        // =====================
+
+using namespace BloombergLP;
+
+class BufferAllocator : public bslma::Allocator {
+    // This 'class' provides a concrete buffer allocator that implements the
+    // 'bslma::Allocator' interface, allocating memory blocks from a fixed-size
+    // buffer that is supplied by the user at construction, or from an
+    // optionally-specified allocator once that buffer is exhausted.
+
+    // DATA
+    char             *d_buffer_p;      // buffer to use for memory allocations
+                                       // (held, not owned)
+    int               d_bufferSize;    // initial buffer size
+    int               d_cursor;        // current cursor
+    bslma::Allocator *d_allocator_p;   // memory allocator to use once
+                                       // 'd_buffer_p' is exhausted (held, not
+                                       // owned)
+
+    // NOT IMPLEMENTED
+    BufferAllocator(const BufferAllocator&);
+    BufferAllocator& operator=(const BufferAllocator&);
+
+  public:
+    // CREATORS
+    BufferAllocator(char             *buffer,
+                    int               bufferSize,
+                    bslma::Allocator *basicAllocator = 0);
+        // Create a buffer allocator for allocating memory blocks from the
+        // specified 'buffer' of the specified 'bufferSize'.  Optionally
+        // specify a 'basicAllocator' used to supply memory after that 'buffer'
+        // is exhausted.  If 'basicAllocator' is 0, the currently installed
+        // default allocator is used.
+
+    virtual ~BufferAllocator();
+        // Destroy this buffer allocator.
+
+    // MANIPULATORS
+    virtual void *allocate(bsls_Types::size_type size);
+        // Return the address of a contiguous block of maximally-aligned memory
+        // of the specified 'size' (in bytes).  If 'size' is 0 no memory is
+        // allocated and 0 is returned.  If the allocation request exceeds the
+        // remaining free memory space in the external buffer supplied at
+        // construction, the allocator specified at construction is used.  The
+        // behavior is undefined unless '0 <= size'.
+
+    virtual void deallocate(void *address);
+        // Deallocate the specified 'address' if it did not come from the
+        // external buffer specified at construction and do nothing otherwise.
+        // Note that if the buffer specified at construction was not exhausted
+        // then no deallocation overhead is incurred.
+};
+
+// ============================================================================
+//                      INLINE FUNCTION DEFINITIONS
+// ============================================================================
+
+                        // ---------------------
+                        // class BufferAllocator
+                        // ---------------------
+
+// CREATORS
+inline
+BufferAllocator::BufferAllocator(char             *buffer,
+                                 int               bufferSize,
+                                 bslma::Allocator *basicAllocator)
+: d_buffer_p(buffer)
+, d_bufferSize(bufferSize)
+, d_cursor(0)
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
+{
+}
+
+inline
+BufferAllocator::~BufferAllocator()
+{
+}
+
+..
+ The function definitions for the 'BufferAllocator' 'class' are provided below:
+..
+
+// MANIPULATORS
+void *BufferAllocator::allocate(bsls_Types::size_type size)
+{
+    BSLS_ASSERT_SAFE(0 <= size);
+
+    // Calculate the appropriate aligned offset
+
+    const int offset = bsls_AlignmentUtil::calculateAlignmentOffset(
+                                  d_buffer_p + d_cursor,
+                                      bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT);
+
+    if (d_cursor + offset + size > d_bufferSize) {
+        return d_allocator_p->allocate(size);                         // RETURN
+    }
+
+    void *result = static_cast<void *>(&d_buffer_p[d_cursor + offset]);
+    d_cursor += offset + size;
+
+    return result;
+}
+
+void BufferAllocator::deallocate(void *address)
+{
+    if (!(d_buffer_p <= address && address < d_buffer_p + d_bufferSize)) {
+        d_allocator_p->deallocate(address);
+    }
+}
+..
