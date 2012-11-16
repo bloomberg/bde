@@ -1699,9 +1699,6 @@ int main(int argc, char *argv[])
         if (verbose) std::printf("\nBREATHING TEST"
                                  "\n==============\n");
 
-        //
-        // Verify that we can obtain a pointer to member to both 'first' and 'second'
-
         bslma::TestAllocator ta1(veryVerbose);
         bslma::TestAllocator ta2(veryVerbose);
 
@@ -1754,30 +1751,6 @@ int main(int argc, char *argv[])
     }
 
     return testStatus;
-}
-
-void compile_test1()
-    // --------------------------------------------------------------------
-    // COMPILATION TEST
-    //
-    // Concerns:
-    // - Can obtain a pointer to member that refers to 'first' and 'second'
-    //
-    // Plan:
-    // - Create pointers to members and obtain the address of
-    //   'first' and 'second'
-    //
-    // Testing:
-    //   Breathing test only.  Exercises basic functionality.
-    // --------------------------------------------------------------------
-    // COMPILATION TEST
-    //
-    //
-    // Compile test, this test need not be run, if the test driver builds
-    // the test passes.
-{
-    int    bsl::pair<int,double>::*p1 = &bsl::pair<int,double>::first;
-    double bsl::pair<int,double>::*p2 = &bsl::pair<int,double>::second;
 }
 
 // ----------------------------------------------------------------------------
