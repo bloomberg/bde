@@ -21,11 +21,27 @@ BSLS_IDENT("$Id: $")
 #include <bsls_nativestd.h>
 #endif
 
-#include <unordered_set>
+#ifdef BSL_OVERRIDES_STD
+// BDE configuration requires 'bsl+stdhdrs' be in the search path, so this
+// #include is guarnateed to succeed
+# include <unordered_set>
+#else
+// The unordered containers are a feature of the C++11 library, rather than
+// C++03, so might not be present in all native libraries on the platforms we
+// support.  Currently the 'BSLS_COMPILERFEATURES_SUPPORT_CPP11_HEADERS' is
+// never defined, but this sketches out our plan for future support.
+# ifdef BSLS_COMPILERFEATURES_SUPPORT_CPP11_HEADERS
+#  include <unordered_set>
+# endif
+#endif
 
+// Include Bloomberg's implementation, unless compilation is configured to
+// override native types in the 'std' namespace with Bloomberg's
+// implementation, in which case the implementation file will be included by
+// the Bloomberg supplied standard header file.
 #ifndef BSL_OVERRIDES_STD
-#include <bslstl_unorderedmultiset.h>
-#include <bslstl_unorderedset.h>
+# include <bslstl_unorderedmultiset.h>
+# include <bslstl_unorderedset.h>
 #endif  // BSL_OVERRIDES_STD
 
 #endif  // INCLUDED_BSL_UNORDERED_SET

@@ -24,6 +24,10 @@ using namespace bslstl;
 //=============================================================================
 //                             TEST PLAN
 //-----------------------------------------------------------------------------
+// 'bslstl::IteratorUtil' provides a namespace for a suite of utility functions
+// for iterator types.  This test driver verify that each of the functions
+// behaves as documented.  Note that only one function, 'insertDistance', is
+// currently defined.
 //-----------------------------------------------------------------------------
 // [ 2] size_t insertDistance(InputIterator, InputIterator)
 // ----------------------------------------------------------------------------
@@ -79,7 +83,13 @@ void aSsErT(bool b, const char *s, int i)
 #define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
 #define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
+//=============================================================================
+//             GLOBAL TYPEDEFS, FUNCTIONS AND VARIABLES FOR TESTING
+//-----------------------------------------------------------------------------
+
 typedef IteratorUtil Obj;
+
+namespace {
 
 template<class CATEGORY,
          class VALUE,
@@ -136,11 +146,20 @@ bool operator!=(
     return !(lhs == rhs);
 }
 
-typedef TestIterator<bsl::input_iterator_tag,   int>  IntTestInputIterator;
-typedef TestIterator<bsl::forward_iterator_tag, int>  IntTestForwardIterator;
-//=============================================================================
-//                             USAGE EXAMPLE
-//-----------------------------------------------------------------------------
+
+template<class CATEGORY,
+         class VALUE,
+         class DISTANCE,
+         class POINTER,
+         class REFERENCE>
+DISTANCE operator-(
+        const TestIterator<CATEGORY, VALUE, DISTANCE, POINTER, REFERENCE>& lhs,
+        const TestIterator<CATEGORY, VALUE, DISTANCE, POINTER, REFERENCE>& rhs)
+{
+    return lhs.d_ptr - rhs.d_ptr;
+}
+
+}  // close unnamed namespace
 
 // ============================================================================
 //                            MAIN PROGRAM
@@ -162,6 +181,194 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:
+      case 3: {
+        // --------------------------------------------------------------------
+        // USAGE EXAMPLE
+        //   Extracted from component header file.
+        //
+        // Concerns:
+        //: 1 The usage example provided in the component header file compiles,
+        //:   links, and runs as shown.
+        //
+        // Plan:
+        //: 1 Incorporate usage example from header into test driver, remove
+        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //:   (C-1)
+        //
+        // Testing:
+        //   USAGE EXAMPLE
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nUsage Example"
+                            "\n=============\n");
+
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Finding the Distance Between Two Random Access Iterators
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Suppose we want to find the number of elements between two random access
+// iterators.
+//
+// First, we create an array of integer values and two pointers (which are
+// considered random access iterators) referring to the beginning and end of a
+// range within that array:
+//..
+        int values[] = { 1, 2, 3, 4, 5 };
+        int *begin = &values[0];
+        int *end   = &values[3];
+//..
+// Now, we use the 'IteratorUtil::insertDistance' class method to calculate the
+// distance of the open range ['begin', 'end'):
+//..
+        std::size_t distance = IteratorUtil::insertDistance(begin, end);
+#if defined(BSLS_PLATFORM__CMP_SUN)
+        ASSERT(0 == distance);
+#else
+        ASSERT(3 == distance);
+#endif
+
+//..
+
+      } break;
+      case 2: {
+        // --------------------------------------------------------------------
+        // 'insertDistance'
+        //
+        // Concerns:
+        //: 1 The function returns 0 for input iterators.
+        //:
+        //: 2 The function always return 0 when compiled on Sun.
+        //:
+        //: 3 The function returns the distance between two iterators if the
+        //:   iterators are either forward, bidirectional, or random-access
+        //:   iterators.
+        //
+        // Plan:
+        //: 1 Create a few pairs of input iterators.  Verify that the function
+        //:   returns 0.  (C-1)
+        //:
+        //: 2 For each of the the iterator types -- forward, bidirectional, and
+        //:   random-access:  (C-2..3)
+        //:
+        //:   1 Verify the function returns 0 for a pair of iterators having an
+        //:     empty range.  (C-2..3)
+        //:
+        //:   2 Create pairs of iterators having non empty ranges.
+        //:
+        //:   3 Verify that on Sun, the function always returns 0.  (C-2)
+        //:
+        //:   4 Verify that on other platforms, the function returns the
+        //:     correct distances.  (C-3)
+        //
+        // Testing:
+        //   size_t insertDistance(InputIterator, InputIterator)
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\n'insertDistance'"
+                            "\n================\n");
+
+        int testData[] = { 42, 13, 56, 72, 39 };
+        int numElements = sizeof(testData) / sizeof(int);
+
+        // Test input iterators.
+        {
+            typedef TestIterator<bsl::input_iterator_tag, int>
+                                                          IntTestInputIterator;
+
+            IntTestInputIterator a; const IntTestInputIterator& A = a;
+            IntTestInputIterator b; const IntTestInputIterator& B = b;
+
+            a.d_ptr = testData;
+
+            for (int ti = 0; ti < numElements; ++ti) {
+                b.d_ptr = testData + ti;
+                size_t DIST = Obj::insertDistance(A, B);
+                ASSERTV(DIST, 0 == DIST);
+            }
+        }
+
+        // Test forward iterators.
+        {
+            typedef TestIterator<bsl::forward_iterator_tag, int>
+                                                        IntTestForwardIterator;
+
+            IntTestForwardIterator a; const IntTestForwardIterator& A = a;
+            IntTestForwardIterator b; const IntTestForwardIterator& B = b;
+
+            a.d_ptr = testData;
+            b.d_ptr = testData;
+
+            size_t DIST = Obj::insertDistance(A, B);
+            ASSERTV(DIST, 0 == DIST);
+
+            for (int ti = 1; ti < numElements; ++ti) {
+                b.d_ptr = testData + ti;
+                size_t DIST = Obj::insertDistance(A, B);
+#if defined(BSLS_PLATFORM__CMP_SUN)
+                ASSERTV(DIST, 0 == DIST);
+#else
+                ASSERTV(DIST, static_cast<size_t>(ti) == DIST);
+#endif
+            }
+        }
+
+        // Test bidirectional iterators.
+        {
+            typedef TestIterator<bsl::bidirectional_iterator_tag, int>
+                                                   IntTestBidrectionalIterator;
+
+            IntTestBidrectionalIterator a;
+            const IntTestBidrectionalIterator& A = a;
+            IntTestBidrectionalIterator b;
+            const IntTestBidrectionalIterator& B = b;
+
+            a.d_ptr = testData;
+            b.d_ptr = testData;
+
+            size_t DIST = Obj::insertDistance(A, B);
+            ASSERTV(DIST, 0 == DIST);
+
+            for (int ti = 1; ti < numElements; ++ti) {
+                b.d_ptr = testData + ti;
+                size_t DIST = Obj::insertDistance(A, B);
+#if defined(BSLS_PLATFORM__CMP_SUN)
+                ASSERTV(DIST, 0 == DIST);
+#else
+                ASSERTV(DIST, static_cast<size_t>(ti) == DIST);
+#endif
+            }
+        }
+
+        // Test bidirectional iterators.
+        {
+            typedef TestIterator<bsl::random_access_iterator_tag, int>
+                                                   IntTestRandomAccessIterator;
+
+            IntTestRandomAccessIterator a;
+            const IntTestRandomAccessIterator& A = a;
+            IntTestRandomAccessIterator b;
+            const IntTestRandomAccessIterator& B = b;
+
+            a.d_ptr = testData;
+            b.d_ptr = testData;
+
+            size_t DIST = Obj::insertDistance(A, B);
+            ASSERTV(DIST, 0 == DIST);
+
+            for (int ti = 1; ti < numElements; ++ti) {
+                b.d_ptr = testData + ti;
+                size_t DIST = Obj::insertDistance(A, B);
+#if defined(BSLS_PLATFORM__CMP_SUN)
+                ASSERTV(DIST, 0 == DIST);
+#else
+                ASSERTV(DIST, static_cast<size_t>(ti) == DIST);
+#endif
+            }
+        }
+
+      } break;
       case 1: {
         // --------------------------------------------------------------------
         // BREATHING TEST
@@ -172,7 +379,7 @@ int main(int argc, char *argv[])
         //:   testing in subsequent test cases.
         //
         // Plan:
-        //: 1 ...
+        //: 1 Perform some ad-hoc tests.
         //
         // Testing:
         //   BREATHING TEST
@@ -181,6 +388,11 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nBREATHING TEST"
                             "\n==============\n");
 
+
+        typedef TestIterator<bsl::input_iterator_tag,   int>
+                                                          IntTestInputIterator;
+        typedef TestIterator<bsl::forward_iterator_tag, int>
+                                                        IntTestForwardIterator;
 
         if (veryVerbose) printf("\n\t\t Test uninitialized input iterators\n");
         {
@@ -230,7 +442,11 @@ int main(int argc, char *argv[])
             b++;
 
             DIST = Obj::insertDistance(A, B);
+#if defined(BSLS_PLATFORM__CMP_SUN)
+            ASSERTV(DIST, 0 == DIST);
+#else
             ASSERTV(DIST, 1 == DIST);
+#endif
             ASSERTV(A.d_ptr, 0 == A.d_ptr);
             ASSERTV(B.d_ptr, A.d_ptr + 1 == B.d_ptr);
 
@@ -250,7 +466,11 @@ int main(int argc, char *argv[])
             const size_t EXP_DIST2 = 4;
 
             const size_t DIST2 = Obj::insertDistance(A, B);
+#if defined(BSLS_PLATFORM__CMP_SUN)
+            ASSERTV(DIST2,   0 == DIST2);
+#else
             ASSERTV(DIST2,   EXP_DIST2 == DIST2);
+#endif
             ASSERTV(A.d_ptr,         0 == A.d_ptr);
             ASSERTV(B.d_ptr,       PTR == B.d_ptr);
         }
