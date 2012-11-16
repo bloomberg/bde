@@ -18,18 +18,28 @@ namespace BloombergLP {
              // class bcemt_SemaphoreImpl<bces_Platform::PosixSemaphore>
              // --------------------------------------------------------
 
+const char *
+bcemt_SemaphoreImpl<bces_Platform::PosixSemaphore>::s_semaphoreName
+    = "bcemt_semaphore_object";
+
 // MANIPULATORS
 void bcemt_SemaphoreImpl<bces_Platform::PosixSemaphore>::post(int number)
 {
     for (int i = 0; i < number; i++) {
-        ::sem_post(&d_sem);
+        post();
     }
 }
 
 void
 bcemt_SemaphoreImpl<bces_Platform::PosixSemaphore>::wait()
 {
-    while (::sem_wait(&d_sem) != 0 && EINTR == errno) {
+#if defined(BSLS_PLATFORM_OS_DARWIN)
+    sem_t * sem_p = d_sem_p;
+#else
+    sem_t * sem_p = &d_sem;
+#endif
+
+    while (::sem_wait(sem_p) != 0 && errno == EINTR) {
         ;
     }
 }
