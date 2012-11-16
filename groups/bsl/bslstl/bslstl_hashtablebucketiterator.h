@@ -219,7 +219,7 @@ class HashTableBucketIterator
         // that this constructor is an implementation detail and is not part of
         // the C++ standard.
 
-    HashTableBucketIterator(const NcIter& original);
+    HashTableBucketIterator(const NcIter& original);                // IMPLICIT
         // Create an iterator at the same position as the specified 'original'
         // iterator.  Note that this constructor enables converting from
         // modifiable to 'const' iterator types.

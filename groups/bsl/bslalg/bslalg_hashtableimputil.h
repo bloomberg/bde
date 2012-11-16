@@ -1,4 +1,3 @@
-
 // bslalg_hashtableimputil.h                                          -*-C++-*-
 #ifndef INCLUDED_BSLALG_HASHTABLEIMPUTIL
 #define INCLUDED_BSLALG_HASHTABLEIMPUTIL
@@ -136,7 +135,7 @@ BSLS_IDENT("$Id: $")
 // use the the 'BidirectionalLinkListUtil' and 'HashTableImpUtil' classes to
 // facilitate building the table:
 //..
-//  template <typename KEY, typename HASHER, typename EQUAL>
+//  template <class KEY, class HASHER, class EQUAL>
 //  class HashSet : public bslalg::HashTableAnchor {
 //      // PRIVATE TYPES
 //      typedef bslalg::BidirectionalLink         Link;
@@ -217,7 +216,7 @@ BSLS_IDENT("$Id: $")
 //  };
 //
 //  // PRIVATE MANIPULATORS
-//  template <typename KEY, typename HASHER, typename EQUAL>
+//  template <class KEY, class HASHER, class EQUAL>
 //  void HashSet<KEY, HASHER, EQUAL>::grow()
 //  {
 //      // 'bucketArraySize' will always be '2^N - 1', so that if hashed values
@@ -236,7 +235,7 @@ BSLS_IDENT("$Id: $")
 //  }
 //
 //  // PRIVATE ACCESSORS
-//  template <typename KEY, typename HASHER, typename EQUAL>
+//  template <class KEY, class HASHER, class EQUAL>
 //  bool HashSet<KEY, HASHER, EQUAL>::checkInvariants() const
 //  {
 //..
@@ -256,7 +255,7 @@ BSLS_IDENT("$Id: $")
 //                  ImpUtil::isWellFormed<Policy, HASHER>(this, d_allocator_p);
 //  }
 //
-//  template <typename KEY, typename HASHER, typename EQUAL>
+//  template <class KEY, class HASHER, class EQUAL>
 //  bslalg::BidirectionalNode<KEY> *HashSet<KEY, HASHER, EQUAL>::find(
 //                                           const KEY&         key,
 //                                           native_std::size_t hashCode) const
@@ -268,7 +267,7 @@ BSLS_IDENT("$Id: $")
 //  }
 //
 //  // CREATORS
-//  template <typename KEY, typename HASHER, typename EQUAL>
+//  template <class KEY, class HASHER, class EQUAL>
 //  HashSet<KEY, HASHER, EQUAL>::HashSet(bslma::Allocator *allocator)
 //  : HashTableAnchor(0, 0, 0)
 //  , d_maxLoadFactor(0.4)
@@ -286,7 +285,7 @@ BSLS_IDENT("$Id: $")
 //      memset(bucketArrayAddress(), 0, bucketArraySizeInBytes);
 //  }
 //
-//  template <typename KEY, typename HASHER, typename EQUAL>
+//  template <class KEY, class HASHER, class EQUAL>
 //  HashSet<KEY, HASHER, EQUAL>::~HashSet()
 //  {
 //      BSLS_ASSERT_SAFE(checkInvariants());
@@ -303,7 +302,7 @@ BSLS_IDENT("$Id: $")
 //  }
 //
 //  // MANIPULATORS
-//  template <typename KEY, typename HASHER, typename EQUAL>
+//  template <class KEY, class HASHER, class EQUAL>
 //  bool HashSet<KEY, HASHER, EQUAL>::erase(const KEY& key)
 //  {
 //      size_t hashCode = d_hasher(key);
@@ -346,7 +345,7 @@ BSLS_IDENT("$Id: $")
 //      return true;
 //  }
 //
-//  template <typename KEY, typename HASHER, typename EQUAL>
+//  template <class KEY, class HASHER, class EQUAL>
 //  bool HashSet<KEY, HASHER, EQUAL>::insert(const KEY& key)
 //  {
 //      size_t hashCode = d_hasher(key);
@@ -376,13 +375,13 @@ BSLS_IDENT("$Id: $")
 //  }
 //
 //  // ACCESSORS
-//  template <typename KEY, typename HASHER, typename EQUAL>
+//  template <class KEY, class HASHER, class EQUAL>
 //  native_std::size_t HashSet<KEY, HASHER, EQUAL>::count(const KEY& key) const
 //  {
 //      return 0 != find(key, d_hasher(key));
 //  }
 //
-//  template <typename KEY, typename HASHER, typename EQUAL>
+//  template <class KEY, class HASHER, class EQUAL>
 //  native_std::size_t HashSet<KEY, HASHER, EQUAL>::size() const
 //  {
 //      return d_numNodes;

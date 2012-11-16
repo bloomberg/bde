@@ -2,29 +2,39 @@
 
 #include <bslalg_hashtableimputil.h>
 
-#include <bslalg_hashtablebucket.h>
-#include <bslalg_bidirectionalnode.h>
 #include <bslalg_bidirectionallinklistutil.h>
-#include <bslalg_scalarprimitives.h>
+#include <bslalg_bidirectionalnode.h>
+#include <bslalg_hashtablebucket.h>
 #include <bslalg_scalardestructionprimitives.h>
+#include <bslalg_scalarprimitives.h>
 
-#include <bslma_testallocatormonitor.h>
-#include <bslma_testallocator.h>
 #include <bslma_defaultallocatorguard.h>
+#include <bslma_testallocator.h>
+#include <bslma_testallocatormonitor.h>
 
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
 
-#include <cstddef>
-#include <climits>
-
+#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
+// To resolve gcc warnings, while printing 'size_t' arguments portably on
+// Windows, we use a macro and string literal concatenation to produce the
+// correct 'printf' format flag.
+#ifdef ZU
+#undef ZU
+#endif
+
+#if defined BSLS_PLATFORM_CMP_MSVC
+#  define ZU "%Iu"
+#else
+#  define ZU "%zu"
+#endif
+
 using namespace BloombergLP;
 using namespace BloombergLP::bslalg;
-using namespace std;
 
 // ============================================================================
 //                             TEST PLAN
@@ -198,12 +208,12 @@ size_t countElements(bslalg::BidirectionalLink *first,
     return result;
 }
 
-template <typename EXPECTED_TYPE>
+template <class EXPECTED_TYPE>
 struct IsExpectedType {
     // Pass argument by pointer rather than by reference to these methods so as
     // not to break BDE rules and upset bdeflag.
 
-    template <typename OBJECT_TYPE>
+    template <class OBJECT_TYPE>
     bool operator()(OBJECT_TYPE *) const
     {
         return false;
@@ -230,7 +240,7 @@ struct IntTestHasherHalf {
     }
 };
 
-template <typename TYPE>
+template <class TYPE>
 struct Equals {
     bool operator()(const TYPE& lhs, const TYPE& rhs) const
     {
@@ -272,7 +282,7 @@ void debugPrint(const HashTableAnchor& anchor)
     }
     else {
         for (size_t n = 0; n < anchor.bucketArraySize(); ++n) {
-            printf("\nBucket [%d]: ", n);
+            printf("\nBucket [" ZU "]: ", n);
             const HashTableBucket& bucket = anchor.bucketArrayAddress()[n];
             if (!bucket.first()) {
                 continue;
@@ -325,7 +335,7 @@ struct Mod8Hasher {
     }
 };
 
-template <typename HASHER, typename POLICY>
+template <class HASHER, class POLICY>
 struct HashNodeUsingHasherAndPolicy {
     HASHER d_hasher;
 
@@ -354,7 +364,7 @@ struct HashNodeUsingHasherAndPolicy {
 // use the the 'BidirectionalLinkListUtil' and 'HashTableImpUtil' classes to
 // facilitate building the table:
 //..
-template <typename KEY, typename HASHER, typename EQUAL>
+template <class KEY, class HASHER, class EQUAL>
 class HashSet : public bslalg::HashTableAnchor {
     // PRIVATE TYPES
     typedef bslalg::BidirectionalLink         Link;
@@ -433,7 +443,7 @@ class HashSet : public bslalg::HashTableAnchor {
 };
 
 // PRIVATE MANIPULATORS
-template <typename KEY, typename HASHER, typename EQUAL>
+template <class KEY, class HASHER, class EQUAL>
 void HashSet<KEY, HASHER, EQUAL>::grow()
 {
     // 'bucketArraySize' will always be '2^N - 1', so that if hashed values
@@ -452,7 +462,7 @@ void HashSet<KEY, HASHER, EQUAL>::grow()
 }
 
 // PRIVATE ACCESSORS
-template <typename KEY, typename HASHER, typename EQUAL>
+template <class KEY, class HASHER, class EQUAL>
 bool HashSet<KEY, HASHER, EQUAL>::checkInvariants() const
 {
     // 'HashTableImpUtil's 'isWellFormed' will verify that all nodes are in
@@ -471,7 +481,7 @@ bool HashSet<KEY, HASHER, EQUAL>::checkInvariants() const
                    ImpUtil::isWellFormed<Policy, HASHER>(*this, d_allocator_p);
 }
 
-template <typename KEY, typename HASHER, typename EQUAL>
+template <class KEY, class HASHER, class EQUAL>
 bslalg::BidirectionalNode<KEY> *HashSet<KEY, HASHER, EQUAL>::find(
                                              const KEY&         key,
                                              native_std::size_t hashCode) const
@@ -483,7 +493,7 @@ bslalg::BidirectionalNode<KEY> *HashSet<KEY, HASHER, EQUAL>::find(
 }
 
 // CREATORS
-template <typename KEY, typename HASHER, typename EQUAL>
+template <class KEY, class HASHER, class EQUAL>
 HashSet<KEY, HASHER, EQUAL>::HashSet(bslma::Allocator *allocator)
 : HashTableAnchor(0, 0, 0)
 , d_maxLoadFactor(0.4)
@@ -500,7 +510,7 @@ HashSet<KEY, HASHER, EQUAL>::HashSet(bslma::Allocator *allocator)
     memset(bucketArrayAddress(), 0, bucketArraySizeInBytes);
 }
 
-template <typename KEY, typename HASHER, typename EQUAL>
+template <class KEY, class HASHER, class EQUAL>
 HashSet<KEY, HASHER, EQUAL>::~HashSet()
 {
     BSLS_ASSERT_SAFE(checkInvariants());
@@ -517,7 +527,7 @@ HashSet<KEY, HASHER, EQUAL>::~HashSet()
 }
 
 // MANIPULATORS
-template <typename KEY, typename HASHER, typename EQUAL>
+template <class KEY, class HASHER, class EQUAL>
 bool HashSet<KEY, HASHER, EQUAL>::erase(const KEY& key)
 {
     size_t hashCode = d_hasher(key);
@@ -560,7 +570,7 @@ bool HashSet<KEY, HASHER, EQUAL>::erase(const KEY& key)
     return true;
 }
 
-template <typename KEY, typename HASHER, typename EQUAL>
+template <class KEY, class HASHER, class EQUAL>
 bool HashSet<KEY, HASHER, EQUAL>::insert(const KEY& key)
 {
     size_t hashCode = d_hasher(key);
@@ -590,13 +600,13 @@ bool HashSet<KEY, HASHER, EQUAL>::insert(const KEY& key)
 }
 
 // ACCESSORS
-template <typename KEY, typename HASHER, typename EQUAL>
+template <class KEY, class HASHER, class EQUAL>
 native_std::size_t HashSet<KEY, HASHER, EQUAL>::count(const KEY& key) const
 {
     return 0 != find(key, d_hasher(key));
 }
 
-template <typename KEY, typename HASHER, typename EQUAL>
+template <class KEY, class HASHER, class EQUAL>
 native_std::size_t HashSet<KEY, HASHER, EQUAL>::size() const
 {
     return d_numNodes;
