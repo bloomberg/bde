@@ -8,8 +8,6 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bslma_default.h>             // for testing only
 #include <bslma_testallocator.h>       // for testing only
 
-#include <bslmf_metaint.h>             // for testing only
-
 // ----------------------------------------------------------------------------
 // Copyright (C) 2012 Bloomberg L.P.
 //

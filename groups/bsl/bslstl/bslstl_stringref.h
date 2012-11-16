@@ -65,7 +65,7 @@ BSLS_IDENT("$Id: $")
 //
 // The 'bsl::hash' template class is specialized for 'bslstl::StringRef' to
 // enable the use of 'bslstl::StringRef' with STL hash containers (e.g.,
-// 'bsl::hash_set' and 'bsl::hash_map').
+// 'bsl::unordered_set' and 'bsl::unordered_map').
 //
 ///Efficiency and Usage Considerations
 ///-----------------------------------
@@ -1347,8 +1347,8 @@ template <typename CHAR_TYPE>
 struct hash<BloombergLP::bslstl::StringRefImp<CHAR_TYPE> > {
     // This template specialization enables use of 'bslstl::StringRefImp'
     // within STL hash containers, for example,
-    // 'bsl::hash_set<bslstl::StringRefImp>' and
-    // 'bsl::hash_map<bslstl::StringRefImp, Type>' for some type 'Type'.
+    // 'bsl::unordered_set<bslstl::StringRefImp>' and
+    // 'bsl::unordered_map<bslstl::StringRefImp, Type>' for some type 'Type'.
 
     // ACCESSORS
     std::size_t

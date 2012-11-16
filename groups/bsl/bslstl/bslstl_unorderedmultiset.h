@@ -387,13 +387,12 @@ class unordered_multiset
                     ::BloombergLP::bslmf::IsBitwiseMoveable<HashTable>::value);
 
     typedef ::BloombergLP::bslstl::HashTableIterator<
-                                         value_type, difference_type> iterator;
-    typedef ::BloombergLP::bslstl::HashTableIterator<
-                             const value_type, difference_type> const_iterator;
+                                   const value_type, difference_type> iterator;
     typedef ::BloombergLP::bslstl::HashTableBucketIterator<
-                                   value_type, difference_type> local_iterator;
-    typedef ::BloombergLP::bslstl::HashTableBucketIterator<
-                       const value_type, difference_type> const_local_iterator;
+                             const value_type, difference_type> local_iterator;
+
+    typedef iterator                                            const_iterator;
+    typedef local_iterator                                const_local_iterator;
 
   private:
     // DATA
@@ -1040,7 +1039,7 @@ unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::erase(const_iterator first,
                                                        const_iterator last)
 {
 
-#if defined BDE_BUILD_TARGET_SAFE2
+#if defined BDE_BUILD_TARGET_SAFE_2
     if (first != last) {
         iterator it        = this->begin();
         const iterator end = this->end();
@@ -1090,13 +1089,10 @@ unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::insert(INPUT_ITERATOR first,
         this->reserve(this->size() + maxInsertions);
     }
 
-    // Typically will create an un-necessary temporary dereferencing each
-    // iterator and casting to a reference of 'const value_type&'.
     while (first != last) {
-        this->insert(*first++);
+        d_impl.insert(*first++);
     }
 }
-
 
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 inline

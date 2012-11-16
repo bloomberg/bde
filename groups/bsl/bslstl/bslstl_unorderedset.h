@@ -378,13 +378,13 @@ class unordered_set
                     ::BloombergLP::bslmf::IsBitwiseMoveable<HashTable>::value);
 
     typedef ::BloombergLP::bslstl::HashTableIterator<
-                                         value_type, difference_type> iterator;
-    typedef ::BloombergLP::bslstl::HashTableIterator<
-                             const value_type, difference_type> const_iterator;
+                                   const value_type, difference_type> iterator;
     typedef ::BloombergLP::bslstl::HashTableBucketIterator<
-                                   value_type, difference_type> local_iterator;
-    typedef ::BloombergLP::bslstl::HashTableBucketIterator<
-                       const value_type, difference_type> const_local_iterator;
+                             const value_type, difference_type> local_iterator;
+
+    typedef iterator                                            const_iterator;
+    typedef local_iterator                                const_local_iterator;
+
   private:
     // DATA
     HashTable  d_impl;
@@ -991,7 +991,7 @@ typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::iterator
 unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::erase(const_iterator first,
                                                   const_iterator last)
 {
-#if defined BDE_BUILD_TARGET_SAFE2
+#if defined BDE_BUILD_TARGET_SAFE_2
     if (first != last) {
         iterator it        = this->begin();
         const iterator end = this->end();
@@ -1062,11 +1062,10 @@ void unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::insert(INPUT_ITERATOR first,
         this->reserve(this->size() + maxInsertions);
     }
 
-    // This loop could be improved with fewer temporaries, we are discarding a
-    // 'pair' returned from each call to 'insert'.
+    bool isInsertedFlag;  // value is not used
 
     while (first != last) {
-        this->insert(*first++);
+        d_impl.insertIfMissing(&isInsertedFlag, *first++);
     }
 }
 

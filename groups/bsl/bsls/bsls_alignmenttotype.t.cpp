@@ -546,6 +546,10 @@ int main(int argc, char *argv[])
         void        *V  = 0;
         long long    LL = 0;
 
+#if defined(BSLS_PLATFORM_OS_CYGWIN)
+        bsls::AlignmentImp8ByteAlignedType _8BAT;
+#endif
+
         LOOP_ASSERT(CHAR_ALIGNMENT,
                     sameType(bsls::AlignmentToType<CHAR_ALIGNMENT>::Type(),
                              char()));
@@ -563,7 +567,7 @@ int main(int argc, char *argv[])
                              int()));
 
 #if (defined(BSLS_PLATFORM_OS_AIX) && !defined(BSLS_PLATFORM_CPU_64_BIT))   \
- || (defined(BSLS_PLATFORM_OS_WINDOWS))
+ ||  defined(BSLS_PLATFORM_OS_WINDOWS) || defined(BSLS_PLATFORM_OS_CYGWIN)
         LOOP_ASSERT(WCHAR_T_ALIGNMENT,
                     sameType(bsls::AlignmentToType<WCHAR_T_ALIGNMENT>::Type(),
                              short()));
@@ -624,8 +628,21 @@ int main(int argc, char *argv[])
                  sameType(bsls::AlignmentToType<LONG_DOUBLE_ALIGNMENT>::Type(),
                            int()));
     #endif
-#else // !defined(BSLS_PLATFORM_OS_AIX) && !defined(BSLS_PLATFORM_OS_LINUX)
-
+#elif defined(BSLS_PLATFORM_OS_CYGWIN)
+    #if defined(BSLS_PLATFORM_CPU_64_BIT)
+        // TBD
+    #else
+       LOOP_ASSERT(INT64_ALIGNMENT,
+                   sameType(bsls::AlignmentToType<INT64_ALIGNMENT>::Type(),
+                            _8BAT));
+       LOOP_ASSERT(DOUBLE_ALIGNMENT,
+                   sameType(bsls::AlignmentToType<DOUBLE_ALIGNMENT>::Type(),
+                            _8BAT));
+       LOOP_ASSERT(LONG_DOUBLE_ALIGNMENT,
+                   sameType(bsls::AlignmentToType<LONG_DOUBLE_ALIGNMENT>::Type(),
+                            int()));
+    #endif
+#else // NOT AIX, Linux, Darwin, or Cygwin
     #if defined(BSLS_PLATFORM_CPU_64_BIT)
         #if defined(BSLS_PLATFORM_OS_WINDOWS)
             LOOP_ASSERT(INT64_ALIGNMENT,

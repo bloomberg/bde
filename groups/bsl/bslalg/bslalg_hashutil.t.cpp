@@ -2,7 +2,6 @@
 
 #include <bslalg_hashutil.h>
 
-
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
@@ -113,10 +112,20 @@ void time_computeHash(const TYPE&   key,
         value += HashUtil::computeHash(key) % LENGTH;
     }
     timer.stop();
-    printf("Hashing 1M values (in seconds): %d\tof type %s\n",
+    printf("Hashing 1M values (in seconds): %g\tof type %s\n",
            timer.elapsedTime(),
            TYPEID);
     (void)value;
+}
+
+int countBits(native_std::size_t value)
+{
+    int ret = 0;
+    for (; value; value >>= 1) {
+        ret += value & 1;
+    }
+
+    return ret;
 }
 
 //=============================================================================
@@ -352,6 +361,11 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //: 1 Perform and ad-hoc test of the primary modifiers and accessors.
+        //:   Verify that small changes to the input value result in many
+        //:   bits being toggled in the output.  Note that the hash function
+        //:   currently only sets the low-order 32 bits of the result.  When
+        //:   this is fixed the asserts should be changed to demand that at
+        //:   least a quarter of the bits in a 'size_t' have chagned.
         //
         // Testing:
         //   BREATHING TEST
@@ -360,81 +374,66 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nBREATHING TEST"
                             "\n==============\n");
 
+        if (verbose) Q(Incrementing integers);
 
-#if 0
-        struct {
-            const int   d_line;
-            const char *d_string;
-        } STRING_DATA[] = {
-            { L_, "" },
-            { L_, "this" },
-            { L_, "is" },
-            { L_, "a" },
-            { L_, "random" },
-            { L_, "collection" },
-            { L_, "of" },
-            { L_, "strings" },
-        };
-        const int NUM_STRING_DATA = sizeof STRING_DATA / sizeof *STRING_DATA;
-
-        for (int i = 0; i < NUM_STRING_DATA; ++i) {
-            const int   LINE   = STRING_DATA[i].d_line;
-            const char *STRING = STRING_DATA[i].d_string;
-            const int   LENGTH = strlen(STRING);
-
-            int sum = 0;
-            if (verbose) {
-                P(LINE);
-                printf("H2: %d\n", HashUtil::computeHash(STRING, LENGTH));
-            } else {
-                // Prevent code to be optimized away in optimized mode.
-                // It's highly unlikely that 'sum' would be zero, and anyway
-                // this is a deterministic test so data can be adjusted if that
-                // should ever be the case.
-                sum += HashUtil::computeHash(STRING, LENGTH);
-                LOOP_ASSERT(i, 0 != sum);
-            }
+        native_std::size_t lastHash = -1;
+        for (int i = 0; i < 100; ++i) {
+            native_std::size_t hash = HashUtil::computeHash(i);
+            unsigned changed = countBits(hash ^ lastHash);
+            ASSERTV(i, changed, hash, lastHash,
+                                           changed > sizeof(unsigned) * 8 / 4);
+            ASSERT(changed > sizeof(unsigned) * 8 / 4);
+            if (verbose) printf(
+                         "%2d: %8x, hash: %8x, lastHash: %8x, changed: %d\n",
+                  i, i, (unsigned) hash, (unsigned) lastHash, changed);
+            lastHash = hash;
         }
 
-        struct {
-            const int d_line;
-            const int d_int;
-        } INT_DATA[] = {
-            { L_, (int)0x00000000  },
-            { L_, (int)0x00000001  },
-            { L_, (int)0x00000002  },
-            { L_, (int)0x0000000f  },
-            { L_, (int)0x000000f0  },
-            { L_, (int)0x00000f00  },
-            { L_, (int)0x0000f000  },
-            { L_, (int)0x000f0000  },
-            { L_, (int)0x00f00000  },
-            { L_, (int)0x0f000000  },
-            { L_, (int)0xf0000000  },
-            { L_, (int)0xffffffff  },
-            { L_,      INT_MAX     },
-        };
-        const int NUM_INT_DATA = sizeof INT_DATA / sizeof *INT_DATA;
+        if (verbose) Q(Shifting Bit);
 
-        for (int i = 0; i < NUM_INT_DATA; ++i) {
-            const int   LINE   = INT_DATA[i].d_line;
-            const char *INT    = reinterpret_cast<const char*>
-                                                          (&INT_DATA[i].d_int);
-            const int   LENGTH = sizeof(int);
-
-            int sum = 0;
-            if (verbose) {
-                P(LINE);
-                printf("H2: %d\n", HashUtil::computeHash(INT, LENGTH));
-            } else {
-                // Prevent code to be optimized away in optimized mode.
-                sum += HashUtil::computeHash(INT, LENGTH);
-                LOOP_ASSERT(i, 0 != sum);
-            }
+        lastHash = -1;
+        long long valueToHash;
+        for (int i = 0; i < 64; ++i) {
+            valueToHash = (long long) 1 << i;
+            native_std::size_t hash = HashUtil::computeHash(valueToHash);
+            unsigned changed = countBits(hash ^ lastHash);
+            ASSERT(changed > sizeof(unsigned) * 8 / 4);
+            if (verbose) printf(
+                        "%2d: %16llx, hash: %8x, lastHash: %8x, changed: %d\n",
+                i, valueToHash, (unsigned) hash, (unsigned) lastHash, changed);
+            lastHash = hash;
         }
-#endif
 
-        if (verbose) printf("\nEnd of test.\n");
+        if (verbose) Q(Setting One Bit at a Time);
+
+        lastHash = -1;
+        valueToHash = 0;
+        for (int i = 0; i < 64; ++i) {
+            valueToHash |= (long long) 1 << i;
+            native_std::size_t hash = HashUtil::computeHash(
+                                                           (long long) 1 << i);
+            unsigned changed = countBits(hash ^ lastHash);
+            ASSERT(changed > sizeof(unsigned) * 8 / 4);
+            if (verbose) printf(
+                        "%2d: %16llx, hash: %8x, lastHash: %8x, changed: %d\n",
+                i, valueToHash, (unsigned) hash, (unsigned) lastHash, changed);
+            lastHash = hash;
+        }
+
+        if (verbose) Q(Clearing One Bit at a Time);
+
+        valueToHash = -1;
+        for (int i = 0; i < 64; ++i) {
+            valueToHash &= ~((long long) 1 << i);
+            native_std::size_t hash = HashUtil::computeHash(
+                                                           (long long) 1 << i);
+            unsigned changed = countBits(hash ^ lastHash);
+            ASSERT(changed > sizeof(unsigned) * 8 / 4);
+            if (verbose) printf(
+                        "%2d: %16llx, hash: %8x, lastHash: %8x, changed: %d\n",
+                i, valueToHash, (unsigned) hash, (unsigned) lastHash, changed);
+            lastHash = hash;
+        }
       } break;
       case -1: {
         // --------------------------------------------------------------------

@@ -15,7 +15,7 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: bslmf_addconst
 //
 //@DESCRIPTION: This component defines a meta-function, 'bsl::remove_const',
-// that may be used to remove the top-level 'const'-qualifier from a type.
+// that may be used to remove any top-level 'const'-qualifier from a type.
 //
 // 'bsl::remove_const' meets the requirements of the 'remove_const' template
 // defined in the C++11 standard [meta.trans.cv].
@@ -24,9 +24,10 @@ BSLS_IDENT("$Id: $")
 ///-----
 // In this section we show intended use of this component.
 //
-///Example 1: Removing The Const-Qualifier of A Type
-///- - - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose that we want to strip the 'const'-qualifier from a particular type.
+///Example 1: Removing the 'const'-qualifier of a Type
+///- - - - - - - - - - - - - - - - - - - - - - - - - -
+// Suppose that we want to remove any top-level 'const'-qualifier from a
+// particular type.
 //
 // First, we create two 'typedef's -- a 'const'-qualified type ('MyConstType')
 // and the same type without the 'const'-qualifier ('MyType'):
@@ -34,7 +35,7 @@ BSLS_IDENT("$Id: $")
 //  typedef int       MyType;
 //  typedef const int MyConstType;
 //..
-// Now, we strip the the 'const'-qualifier from 'MyConstType' using
+// Now, we remove the 'const'-qualifier from 'MyConstType' using
 // 'bsl::remove_const' and verify that the resulting type is the same as
 // 'MyType':
 //..
@@ -55,17 +56,16 @@ namespace bsl {
 template <typename TYPE>
 struct remove_const {
     // This 'struct' template implements the 'remove_const' meta-function
-    // defined in the C++11 standard [meta.trans.cv].  This 'struct' template
-    // provides a 'typedef' 'type' that has the same type as the (template
-    // parameter) 'TYPE' except that any top-level 'const'-qualifier has been
-    // removed.  Note that this generic default template provides a 'type' that
-    // is an alias to 'TYPE' for when 'TYPE' is not 'const'-qualified.  A
-    // template specialization is provided (below) that strips the
-    // 'const'-qualifier for when 'TYPE' is 'const'-qualified.
+    // defined in the C++11 standard [meta.trans.cv], providing an alias,
+    // 'type', that returns the result.  'type' has the same type as the
+    // (template parameter) 'TYPE' except that any top-level 'const'-qualifier
+    // has been removed.  Note that this generic default template provides a
+    // 'type' that is an alias to 'TYPE' for when 'TYPE' is not
+    // 'const'-qualified.  A template specialization is provided (below) that
+    // removes the 'const'-qualifier for when 'TYPE' is 'const'-qualified.
 
     typedef TYPE type;
         // This 'typedef' is an alias to the (template parameter) 'TYPE'.
-
 };
 
                          // ===============================
@@ -74,12 +74,13 @@ struct remove_const {
 
 template <typename TYPE>
 struct remove_const<TYPE const> {
-     // This partial specialization of 'bsl::remove_const' provides a 'typedef'
+     // This partial specialization of 'bsl::remove_const', for when the
+     // (template parameter) 'TYPE' is 'const'-qualified, provides a 'typedef'
      // 'type' that has the 'const'-qualifier removed.
 
     typedef TYPE type;
         // This 'typedef' to a type that is the same as the (template
-        // parameter) 'TYPE' except with any 'const'-qualifier removed.
+        // parameter) 'TYPE' except with the 'const'-qualifier removed.
 
 };
 

@@ -1,11 +1,11 @@
 // bsl_stdhdrs_epilogue.h                                             -*-C++-*-
 
-//@PURPOSE: Provide initial declarations for each C++ standard header file.
+//@PURPOSE: Provide final declarations for each C++ standard header file.
 //
 //@SEE_ALSO: bsl_stdhdrs_prologue, bsl_stdhdrs_epilogue_recursive
 //
 //@DESCRIPTION: This epilogue file is intended to be included at the end of
-// each BSL-supplied C++ standard library header file in "BDE-STL" mode.  This
+// each bsl-supplied C++ standard library header file in "BDE-STL" mode.  This
 // header '#include's bsl versions of some standard components, overriding
 // those symbols included from the native standard library.  This epilogue also
 // defines 'std' as a macro that expands to 'bsl', which contains a blend of

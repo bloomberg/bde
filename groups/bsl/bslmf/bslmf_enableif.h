@@ -432,7 +432,7 @@ namespace bsl {
 template <bool COND, typename TYPE = void>
 struct enable_if {
     // This 'struct' template implements the 'enable_if' meta-function defined
-    // in the C++11 standard [meta.trans.ptr].  This 'struct' template provide
+    // in the C++11 standard [meta.trans.ptr].  This 'struct' template provides
     // a 'typedef' 'type' that is an alias to the (template parameter) 'TYPE'
     // if the (template parameter) 'COND' is 'true'; otherwise, 'type' is not
     // provided.  Note that this generic default template provides 'type' for
@@ -449,10 +449,9 @@ struct enable_if {
 
 template <typename TYPE>
 struct enable_if<false, TYPE> {
-    // This partial specialization of the 'enable_if' meta-function guarantees
-    // that no type 'typedef' 'type' is supplied when the specified boolean
-    // value is 'false'.  Note that this class definition is intentionally
-    // empty.
+    // This partial specialization of the 'enable_if', for when the (template
+    // parameter) 'COND' is 'false', guarantees that no 'typedef' 'type' is
+    // supplied.  Note that this class definition is intentionally empty.
 };
 
 }  // close namespace bsl
@@ -468,18 +467,29 @@ namespace bslmf {
 
 template<bool BSLMA_CONDITION, class BSLMA_TYPE = void>
 struct EnableIf {
-    // This metafunction class defines a type alias, 'type', to the specified
-    // type-parameter 'BSLMA_TYPE' if, and only if, 'BSLMA_CONDITION' is
-    // 'true'.
+    // This 'struct' template implements a meta-function that provides a
+    // 'typedef' 'type' that is an alias to the (template parameter)
+    // 'BSLMA_TYPE' if the (template parameter) 'BSLMA_CONDITION' is 'true';
+    // otherwise, 'type' is not provided.  Note that this generic default
+    // template provides 'type' for when 'BSLMA_COND' is 'true'; a template
+    // specialization is sprovided (below) that omits 'type' for when
+    // 'BSLMA_COND' is 'false'.  Note that this generic default template
+    // provides 'type' for when 'BSLMA_COND' is 'true'; a template
+    // specialization is sprovided (below) that omits 'type' for when
+    // 'BSLMA_COND' is 'false'.
+    //
+    // Note that although this 'struct' is functionally identical to
+    // 'bsl::enable_if', the use of 'bsl::enable_if' should be preferred.
 
     typedef BSLMA_TYPE type;
+        // This 'typedef' is an alias to the (template parameter) 'TYPE'.
 };
 
 template<class BSLMA_TYPE>
 struct EnableIf <false, BSLMA_TYPE> {
-    // This partial specialization of the meta-function class guarantees that
-    // no type alias 'type' is supplied when the specified boolean value is
-    // 'false'.  Note that this class definition is intentionally empty.
+    // This partial specialization of the 'EnableIf', for when the (template
+    // parameter) 'BSLMA_COND' is 'false', guarantees that no 'typedef' 'type'
+    // is supplied.  Note that this class definition is intentionally empty.
 };
 
 }  // close package namespace

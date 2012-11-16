@@ -19,14 +19,17 @@ BSLS_IDENT("$Id: $")
 // 'bsl_stdhdrs_epilogue.h'.  This includes the respective 'bsl' types and
 // places them in the 'std' namespace.
 
+#ifndef INCLUDED_BSLS_COMPILERFEATURES
+#include <bsls_compilerfeatures.h>
+#endif
+
 #ifndef BSL_OVERRIDES_STD
 
 #   ifndef INCLUDED_BSL_STDHDRS_INCPATH
 #   include <bsl_stdhdrs_incpaths.h>
 #   endif
 
-#   if defined(BSLS_PLATFORM__CMP_GNU) && \
-                                        (BSLS_PLATFORM__CMP_VER_MAJOR >= 40300)
+#   if defined(BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT)
 #     include_next <map>
 #   else
 #     include BSL_NATIVE_CPP_LIB_HEADER(map)
@@ -47,8 +50,7 @@ BSLS_IDENT("$Id: $")
 #   include <bsl_stdhdrs_incpaths.h>
 #   endif
 
-#   if defined(BSLS_PLATFORM__CMP_GNU) && \
-                                        (BSLS_PLATFORM__CMP_VER_MAJOR >= 40300)
+#   if defined(BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT)
 #     include_next <map>
 #   else
 #     include BSL_NATIVE_CPP_LIB_HEADER(map)

@@ -48,10 +48,14 @@ BSLS_IDENT("$Id: $")
 // 'typedef's and assert the 'value' static data member of each instantiation:
 //..
 //  assert(false == bsl::is_volatile<MyType>::value);
-//  assert(true == bsl::is_volatile<MyVolatileType>::value);
+//  assert(true  == bsl::is_volatile<MyVolatileType>::value);
 //..
 
 namespace bsl {
+
+                         // ==================
+                         // struct is_volatile
+                         // ==================
 
 template <typename TYPE>
 struct is_volatile : false_type {
@@ -64,11 +68,15 @@ struct is_volatile : false_type {
     // (below) that derives from 'bsl::true_type'.
 };
 
+                         // =================================
+                         // struct is_volatile<TYPE volatile>
+                         // =================================
+
 template <typename TYPE>
 struct is_volatile<TYPE volatile> : true_type {
-     // This partial specialization of 'is_volatile' derives from
-     // 'bsl::true_type' for when the (template parameter) 'TYPE' is
-     // 'volatile'-qualified.
+     // This partial specialization of 'is_volatile', for when the (template
+     // parameter) 'TYPE' is 'volatile'-qualified, derives from
+     // 'bsl::true_type'
 };
 
 }  // close namespace bsl

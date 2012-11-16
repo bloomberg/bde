@@ -2,12 +2,10 @@
 
 #include <bslmf_isenum.h>
 
-#include <bsls_types.h>
 #include <bsls_bsltestutil.h>
 
 #include <cstdio>
 #include <cstdlib>
-#include <iostream>
 
 using namespace BloombergLP;
 using namespace std;
@@ -17,7 +15,7 @@ using namespace std;
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// The objects under test are two meta-functions, 'bsl::is_enum' and
+// The component under test defines two meta-functions, 'bsl::is_enum' and
 // 'bslmf::IsEnum', that determine whether a template parameter type is an
 // enumerated type.  Thus, we need to ensure that the value returned by these
 // meta-functions are correct for each possible category of types.  Since the
@@ -69,55 +67,46 @@ void aSsErT(bool b, const char *s, int i)
 
 namespace {
 
-enum   EnumTestType {
-    // This user-defined 'enum' type is intended to be used during testing as
-    // an argument for the template parameter 'TYPE' of 'bsl::is_enum' and
-    // 'bslmf::IsEnum'.
+enum EnumTestType {
+    // This user-defined 'enum' type is intended to be used for testing as the
+    // template parameter 'TYPE' of 'bsl::is_enum'.
 };
 
 struct StructTestType {
-    // This user-defined 'struct' type is intended to be used during testing as
-    // an argument for the template parameter 'TYPE' of 'bsl::is_enum' and
-    // 'bslmf::IsEnum'.
+    // This user-defined 'struct' type is intended to be used for testing as
+    // the template parameter 'TYPE' of 'bsl::is_enum'.
 };
 
-union  UnionTestType {
-    // This user-defined 'union' type is intended to be used during testing as
-    // an argument for the template parameter 'TYPE' of 'bsl::is_enum' and
-    // 'bslmf::IsEnum'.
+union UnionTestType {
+    // This user-defined 'union' type is intended to be used for testing as the
+    // template parameter 'TYPE' of 'bsl::is_enum'.
 };
 
-class  BaseClassTestType {
-    // This user-defined base class type is intended to be used during testing
-    // as an argument for the template parameter 'TYPE' of 'bsl::is_enum' and
-    // 'bslmf::IsEnum'.
+class BaseClassTestType {
+    // This user-defined base class type is intended to be used for testing as
+    // the template parameter 'TYPE' of 'bsl::is_enum'.
 };
 
-class  DerivedClassTestType : public BaseClassTestType {
-    // This user-defined derived class type is intended to be used during
-    // testing as an argument for the template parameter 'TYPE' of
-    // 'bsl::is_enum' and 'bslmf::IsEnum'.
+class DerivedClassTestType : public BaseClassTestType {
+    // This user-defined derived class type is intended to be used for testing
+    // as the template parameter 'TYPE' of 'bsl::is_enum'.
 };
 
 typedef int (StructTestType::*MethodPtrTestType) ();
-    // This non-static function member type is intended to be used during
-    // testing as an argument for the template parameter 'TYPE' of
-    // 'bsl::is_enum' and 'bslmf::IsEnum'.
+    // This pointer type to non-static function member is intended to be used
+    // for testing as the template parameter 'TYPE' of 'bsl::is_enum'.
 
 typedef void (*FunctionPtrTestType) ();
-    // This function pointer type is intended to be used during testing as an
-    // argument as an argument for the template parameter 'TYPE' of
-    // 'bsl::is_enum' and 'bslmf::IsEnum'.
+    // This function pointer type is intended to be used for testing as the
+    // template parameter 'TYPE' of 'bsl::is_enum'.
 
 typedef int StructTestType::* PMD;
-    // This class public data member pointer type is intended to be used during
-    // testing as an argument as an argument for the template parameter 'TYPE'
-    // of 'bsl::is_enum' and 'bslmf::IsEnum'.
+    // This pointer type to data member is intended to be used for testing as
+    // the template parameter 'TYPE' of 'bsl::is_enum'.
 
 struct Incomplete;
-    // This incomplete 'struct' type is intended to be used during testing as
-    // an argument as an argument for the template parameter 'TYPE' of
-    // 'bsl::is_enum' and 'bslmf::IsEnum'.
+    // This incomplete 'struct' type is intended to be used for testing as the
+    // template parameter 'TYPE' of 'bsl::is_enum'.
 
 }  // close unnamed namespace
 
@@ -155,7 +144,7 @@ struct Incomplete;
 //
 ///Example 1: Verify Enumerated Types
 /// - - - - - - - - - - - - - - - - -
-// Suppose that we want to assert whether a particular type is a class type.
+// Suppose that we want to assert whether a set of types are enum types.
 //
 // First, we create an enumerated type, 'MyEnum', and a non-enumerated class
 // type, 'MyClass':
@@ -201,7 +190,7 @@ int main(int argc, char *argv[])
                             "=============\n");
 
 // Now, we instantiate the 'bsl::is_enum' template for both types we defined
-// previously, asserting the 'value' static data member of each instantiation:
+// previously, and assert the 'value' static data member of each instantiation:
 //..
     ASSERT(true  == bsl::is_enum<MyEnum>::value);
     ASSERT(false == bsl::is_enum<MyClass>::value);

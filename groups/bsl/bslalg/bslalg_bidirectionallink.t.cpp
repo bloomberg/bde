@@ -1,13 +1,13 @@
 // bslalg_bidirectionallink.t.cpp                                     -*-C++-*-
 #include <bslalg_bidirectionallink.h>
 
+#include <bslalg_scalarprimitives.h>
+
 #include <bslma_default.h>
 #include <bslma_testallocator.h>
 
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
-
-#include <new>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -195,12 +195,18 @@ const int DEFAULT_NUM_DATA = sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA;
 //                              USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
+///Usage
+///-----
+// This section illustrates intended usage of this component.
+//
+///Example 1: Creating and Using a List Template Class
+///- - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we want to create a linked list template class, it will be called
 // 'MyList'.
 //
 // First, we create the 'MyNode' class, which derives from the
 // BidirectionalLink class to carry a 'PAYLOAD' object.
-
+//..
 template <typename PAYLOAD>
 class MyNode : public bslalg::BidirectionalLink {
   public:
@@ -230,10 +236,10 @@ class MyNode : public bslalg::BidirectionalLink {
     const ValueType& value() const { return d_value; }
         // Return a reference to the non-modifiable value stored in this node.
 };
-
+//..
 // Next, we create the iterator helper class, which will eventually be
 // defined as a nested type within the 'MyList' class.
-
+//..
                             // ===============
                             // MyList_Iterator
                             // ===============
@@ -266,12 +272,12 @@ class MyList_Iterator {
     // ACCESSORS
     PAYLOAD& operator*() const { return d_node->value(); }
 };
-
+//..
 // Then, we define our 'MyList' class, with 'MyList::Iterator' being a public
 // typedef of 'MyList_Iterator'.  For brevity, we will omit a lot of
 // functionality that a full, general-purpose list class would have,
 // implmenting only what we will need for this example.
-
+//..
                                 // ======
                                 // MyList
                                 // ======
@@ -295,10 +301,10 @@ class MyList {
   public:
     // CREATORS
     explicit
-    MyList(bslma::Allocator *basicAllocator)
+    MyList(bslma::Allocator *basicAllocator = 0)
     : d_begin(0)
     , d_end(0)
-    , d_allocator_p(basicAllocator)
+    , d_allocator_p(bslma::Default::allocator(basicAllocator))
     {}
 
     ~MyList();
@@ -309,9 +315,9 @@ class MyList {
     void pushBack(const ValueType& value);
     void popBack();
 };
-
+//..
 // Next, we implment the functions for the iterator type.
-
+//..
                             // ---------------
                             // MyList_Iterator
                             // ---------------
@@ -339,9 +345,9 @@ bool operator!=(MyList_Iterator<PAYLOAD> lhs,
 {
     return !(lhs == rhs);
 }
-
+//..
 // Then, we implement the functions for the 'MyList' class:
-
+//..
                                 // ------
                                 // MyList
                                 // ------
@@ -351,10 +357,10 @@ template <typename PAYLOAD>
 MyList<PAYLOAD>::~MyList()
 {
     for (Node *p = d_begin; p; ) {
-        Node *condemned = p;
+        Node *toDelete = p;
         p = (Node *) p->nextLink();
 
-        d_allocator_p->deleteObjectRaw(condemned);
+        d_allocator_p->deleteObjectRaw(toDelete);
     }
 }
 
@@ -377,7 +383,9 @@ void MyList<PAYLOAD>::pushBack(const PAYLOAD& value)
     Node *node = (Node *) d_allocator_p->allocate(sizeof(Node));
     node->setNextLink(0);
     node->setPreviousLink(d_end);
-    new (&node->value()) ValueType(value);
+    bslalg::ScalarPrimitives::copyConstruct(&node->value(),
+                                            value,
+                                            d_allocator_p);
 
     if (d_end) {
         BSLS_ASSERT_SAFE(d_begin);
@@ -397,10 +405,10 @@ void MyList<PAYLOAD>::popBack()
 {
     BSLS_ASSERT_SAFE(d_begin && d_end);
 
-    Node *condemned = d_end;
+    Node *toDelete = d_end;
     d_end = (Node *) d_end->previousLink();
 
-    if (d_begin != condemned) {
+    if (d_begin != toDelete) {
         BSLS_ASSERT_SAFE(0 != d_end);
         d_end->setNextLink(0);
     }
@@ -409,8 +417,7 @@ void MyList<PAYLOAD>::popBack()
         d_begin = 0;
     }
 
-    condemned->value().~ValueType();
-    d_allocator_p->deallocate(condemned);
+    d_allocator_p->deleteObject(toDelete);
 }
 
 
@@ -438,6 +445,8 @@ int main(int argc, char *argv[])
     bslma::TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
     bslma::Default::setDefaultAllocator(&defaultAllocator);
 
+    int expectedDefaultAllocations = 0;
+
     switch (test) { case 0:
       case 8: {
         // --------------------------------------------------------------------
@@ -447,61 +456,34 @@ int main(int argc, char *argv[])
         if (verbose) printf("USAGE EXAMPLE\n"
                             "=============\n");
 
-// Next, we have finished implmenting our 'MyList' class and its 'Iterator'
-// type, we will use one to store a fibonacci sequence of ints.  In 'main',
-// We declare the memory allocator that we will use:
-
-        bslma::TestAllocator oa("oa");
-
-// Then, we enter a block and declare our list 'fibonacciList' to contain the
-// sequence:
-
-        {
-            MyList<int> fibonacciList(&oa);
-            typedef MyList<int>::Iterator Iterator;
-
-            {
-// Next, we initialize the list to containing the first 2 values, '0' and '1':
-
-                fibonacciList.pushBack(0);
-                fibonacciList.pushBack(1);
-
-// Then, we create iterators 'first' and 'second' and point them to those first
-// two elements:
-
-                Iterator first  = fibonacciList.begin();
-                Iterator second = first;
-                ++second;
-
-                ASSERT(0 == *first);
-                ASSERT(1 == *second);
-
-// Next, we iterate a dozen times, each time adding a new element to the end of
-// the list containing a value that is the sum of the values of the previous
-// two elements:
-
-                for (int i = 0; i < 12; ++i, ++first, ++second) {
-                    fibonacciList.pushBack(*first + *second);
-                }
-            }
-
-// Now, we traverse the list and print out its elements:
-
-            if (verbose) printf("Fibonacci Numbers: ");
-
-            const Iterator begin = fibonacciList.begin();
-            const Iterator end   = fibonacciList.end();
-            for (Iterator it = begin; end != it; ++it) {
-                if (verbose) printf("%s%d", begin == it ? "" : ", ", *it);
-            }
-            if (verbose) printf("\n");
+        expectedDefaultAllocations = -1;
+//..
+// Next, in 'main', we use our 'MyList' class to store a list of ints:
+//..
+        MyList<int> intList;
+//..
+// Then, we declare an array of ints to populate it with:
+//..
+        int intArray[] = { 8, 2, 3, 5, 7, 2 };
+        enum { NUM_INTS = sizeof intArray / sizeof *intArray };
+//..
+// Now, we iterate, pushing ints to the list:
+//..
+        for (const int *pInt = intArray; pInt < intArray + NUM_INTS; ++pInt) {
+            intList.pushBack(*pInt);
         }
-
-// Finally, we check the allocator and verify that it's been used, and that
-// the destruction of 'fibonacciList' freed all the memory allocated:
-
-        ASSERT(oa.numBlocksTotal() > 0);
-        ASSERT(0 == oa.numBlocksInUse());
+//..
+// Finally, we use our 'Iterator' type to traverse the list and observe its
+// values:
+//..
+        MyList<int>::Iterator it = intList.begin();
+        ASSERT(8 == *it);
+        ASSERT(2 == *++it);
+        ASSERT(3 == *++it);
+        ASSERT(5 == *++it);
+        ASSERT(7 == *++it);
+        ASSERT(2 == *++it);
+        ASSERT(intList.end() == ++it);
       } break;
       case 7: {
         // --------------------------------------------------------------------
@@ -1171,7 +1153,8 @@ int main(int argc, char *argv[])
     // CONCERN: In no case is memory allocated from the default allocator.
 
     ASSERTV(defaultAllocator.numBlocksTotal(),
-            0 == defaultAllocator.numBlocksTotal());
+            expectedDefaultAllocations < 0 || expectedDefaultAllocations ==
+                                      (int) defaultAllocator.numBlocksTotal());
 
     // CONCERN: In no case is memory allocated from the global allocator.
 

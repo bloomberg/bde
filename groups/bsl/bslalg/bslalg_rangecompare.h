@@ -253,8 +253,8 @@ BSLS_IDENT("$Id: $")
 //
 //    public:
 //      // TRAITS
-//      BSLALG_DECLARE_NESTED_TRAITS(MyPoint,
-//                    BloombergLP::bslalg::TypeTraitBitwiseEqualityComparable);
+//      BSLMF_NESTED_TRAIT_DECLARATION(MyPoint,
+//                            BloombergLP::bslmf::IsBitwiseEqualityComparable);
 //
 //      // CREATORS
 //      MyPoint(int x, int y);
@@ -273,7 +273,7 @@ BSLS_IDENT("$Id: $")
 // of its data members, and that no padding is required for alignment.
 // Furthermore, 'MyPoint' has no virtual methods.  Therefore, 'MyPoint' objects
 // are bit-wise comparable, and we can correctly declare the
-// 'bslalg::TypeTraitBitwiseEqualityComparable' trait for the class, as shown
+// 'bslmf::IsBitwiseEqualityComparable' trait for the class, as shown
 // above under the public 'TRAITS' section.
 //
 // Now, we create two 'MyContainer<MyPoint>' objects and compare them using
@@ -296,7 +296,7 @@ BSLS_IDENT("$Id: $")
 // contained in the 'MyContainer<MyPoint>' objects.  This comparison can
 // provide a significant performance boost over the comparison between two
 // 'MyContainer<MyPoint>' objects in which the nested
-// 'TypeTraitBitwiseEqualityComparable' trait is not associated with the
+// 'bslmf::IsBitwiseEqualityComparable' trait is not associated with the
 // 'MyPoint' class.
 //
 // Finally, note that we can instantiate 'MyContainer' with 'int' or any other
@@ -481,14 +481,14 @@ struct RangeCompare_Imp {
                       const VALUE_TYPE  *start2,
                       const VALUE_TYPE  *end2,
                       const VALUE_TYPE&,
-                      bslmf::MetaInt<1>);
+                      bsl::true_type);
     template <typename INPUT_ITER, typename VALUE_TYPE>
     static bool equal(INPUT_ITER         start1,
                       INPUT_ITER         end1,
                       INPUT_ITER         start2,
                       INPUT_ITER         end2,
                       const VALUE_TYPE&,
-                      bslmf::MetaInt<0>);
+                      bsl::false_type);
     template <typename INPUT_ITER, typename VALUE_TYPE>
     static bool equal(INPUT_ITER         start1,
                       INPUT_ITER         end1,
@@ -508,13 +508,13 @@ struct RangeCompare_Imp {
                       INPUT_ITER        end1,
                       INPUT_ITER        start2,
                       const VALUE_TYPE&,
-                      bslmf::MetaInt<1>);
+                      bsl::true_type);
     template <typename INPUT_ITER, typename VALUE_TYPE>
     static bool equal(INPUT_ITER        start1,
                       INPUT_ITER        end1,
                       INPUT_ITER        start2,
                       const VALUE_TYPE&,
-                      bslmf::MatchAnyType);
+                      bsl::false_type);
     template <typename INPUT_ITER, typename VALUE_TYPE>
     static bool equal(INPUT_ITER        start1,
                       INPUT_ITER        end1,
@@ -532,7 +532,7 @@ struct RangeCompare_Imp {
     static bool equalBitwiseEqualityComparable(const VALUE_TYPE  *start1,
                                                const VALUE_TYPE  *end1,
                                                const VALUE_TYPE  *start2,
-                                               bslmf::MetaInt<1>);
+                                               bsl::true_type);
         // Compare the range beginning at the specified 'start1' position and
         // ending immediately before the specified 'end1' position with the
         // range beginning at the specified 'start2' position of the same
@@ -545,7 +545,7 @@ struct RangeCompare_Imp {
     static bool equalBitwiseEqualityComparable(INPUT_ITER        start1,
                                                INPUT_ITER        end1,
                                                INPUT_ITER        start2,
-                                               bslmf::MetaInt<0>);
+                                               bsl::false_type);
         // Compare the range beginning at the specified 'start1' position and
         // ending immediately before the specified 'end1' position with the
         // range beginning at the specified 'start2' position of the same
@@ -561,7 +561,7 @@ struct RangeCompare_Imp {
                                const VALUE_TYPE  *start2,
                                const VALUE_TYPE  *end2,
                                const VALUE_TYPE&,
-                               bslmf::MetaInt<1>);
+                               bsl::true_type);
         // Compare the range beginning at the specified 'start1' position and
         // ending immediately before the specified 'end1' position with the
         // range beginning at the specified 'start2' position and ending
@@ -579,7 +579,7 @@ struct RangeCompare_Imp {
                                INPUT_ITER        start2,
                                INPUT_ITER        end2,
                                const VALUE_TYPE&,
-                               bslmf::MetaInt<0>);
+                               bsl::false_type);
         // Compare each element in the range beginning at the specified
         // 'start1' position and ending immediately before the specified 'end1'
         // position with the corresponding element in the range beginning at
@@ -762,7 +762,7 @@ bool RangeCompare_Imp::equal(const VALUE_TYPE  *start1,
                              const VALUE_TYPE  *start2,
                              const VALUE_TYPE  *end2,
                              const VALUE_TYPE&,
-                             bslmf::MetaInt<1>)
+                             bsl::true_type)
 {
     return RangeCompare::equal(start1,
                                end1,
@@ -778,7 +778,7 @@ bool RangeCompare_Imp::equal(INPUT_ITER        start1,
                              INPUT_ITER        start2,
                              INPUT_ITER        end2,
                              const VALUE_TYPE&,
-                             bslmf::MetaInt<0>)
+                             bsl::false_type)
 {
     for ( ; start1 != end1 && start2 != end2; ++start1, ++start2) {
         if (!(*start1 == *start2)) {
@@ -795,7 +795,7 @@ bool RangeCompare_Imp::equal(INPUT_ITER        start1,
                              INPUT_ITER        end2,
                              const VALUE_TYPE& value)
 {
-    typedef typename bslmf::IsConvertible<INPUT_ITER, const VALUE_TYPE *>::Type
+    typedef typename bsl::is_convertible<INPUT_ITER, const VALUE_TYPE *>::Type
                                                       CanUseLengthOptimization;
 
     return equal(start1,
@@ -812,7 +812,7 @@ bool RangeCompare_Imp::equal(INPUT_ITER        start1,
                              INPUT_ITER        end1,
                              INPUT_ITER        start2,
                              const VALUE_TYPE&,
-                             bslmf::MetaInt<1>)
+                             bsl::true_type)
 {
     // Note: We are forced to call a different function to resolve whether
     // 'INPUT_ITER' is convertible to 'const TARGET_TYPE *' or not, otherwise
@@ -820,7 +820,7 @@ bool RangeCompare_Imp::equal(INPUT_ITER        start1,
     // 'CanUseBitwiseCopyOptimization' is necessary to remove further
     // ambiguities on SunPro).
 
-    typedef typename bslmf::IsConvertible<INPUT_ITER, const VALUE_TYPE *>::Type
+    typedef typename bsl::is_convertible<INPUT_ITER, const VALUE_TYPE *>::Type
                                               CanUseBitwiseCompareOptimization;
 
     return equalBitwiseEqualityComparable(start1,
@@ -834,7 +834,7 @@ bool RangeCompare_Imp::equal(INPUT_ITER        start1,
                              INPUT_ITER        end1,
                              INPUT_ITER        start2,
                              const VALUE_TYPE&,
-                             bslmf::MatchAnyType)
+                             bsl::false_type)
 {
     for ( ; start1 != end1; ++start1, ++start2) {
         if (!(*start1 == *start2)) {
@@ -851,8 +851,8 @@ bool RangeCompare_Imp::equal(INPUT_ITER        start1,
                              INPUT_ITER        start2,
                              const VALUE_TYPE& value)
 {
-    typedef bslmf::MetaInt<
-        bslmf::IsBitwiseEqualityComparable<VALUE_TYPE>::value> Trait;
+    typedef typename
+        bslmf::IsBitwiseEqualityComparable<VALUE_TYPE>::type Trait;
     return equal(start1, end1, start2, value, Trait());
 }
 
@@ -864,7 +864,7 @@ bool RangeCompare_Imp::equalBitwiseEqualityComparable(
                                                      const VALUE_TYPE  *start1,
                                                      const VALUE_TYPE  *end1,
                                                      const VALUE_TYPE  *start2,
-                                                     bslmf::MetaInt<1>)
+                                                     bsl::true_type)
 {
     std::size_t numBytes = reinterpret_cast<const char *>(end1)
                          - reinterpret_cast<const char *>(start1);
@@ -879,11 +879,11 @@ inline
 bool RangeCompare_Imp::equalBitwiseEqualityComparable(INPUT_ITER        start1,
                                                       INPUT_ITER        end1,
                                                       INPUT_ITER        start2,
-                                                      bslmf::MetaInt<0>)
+                                                      bsl::false_type)
 {
     // We can't be as optimized as above.
 
-    return equal(start1, end1, start2, *start1, bslmf::MatchAnyType(0));
+    return equal(start1, end1, start2, *start1, bsl::false_type());
 }
 
                      // *** lexicographical overloads: ***
@@ -895,7 +895,7 @@ int RangeCompare_Imp::lexicographical(const VALUE_TYPE  *start1,
                                       const VALUE_TYPE  *start2,
                                       const VALUE_TYPE  *end2,
                                       const VALUE_TYPE&,
-                                      bslmf::MetaInt<1>)
+                                      bsl::true_type)
 {
     // In this case, we can compute the length directly, and avoid the overhead
     // of the two comparisons in the loop condition (one is enough).
@@ -914,7 +914,7 @@ int RangeCompare_Imp::lexicographical(INPUT_ITER        start1,
                                       INPUT_ITER        start2,
                                       INPUT_ITER        end2,
                                       const VALUE_TYPE&,
-                                      const bslmf::MetaInt<0>)
+                                      const bsl::false_type)
 {
     for ( ; start1 != end1 && start2 != end2; ++start1, ++start2) {
         if (*start1 < *start2) {
@@ -941,7 +941,7 @@ int RangeCompare_Imp::lexicographical(INPUT_ITER        start1,
                                       INPUT_ITER        end2,
                                       const VALUE_TYPE& value)
 {
-    typedef typename bslmf::IsConvertible<INPUT_ITER, const VALUE_TYPE *>::Type
+    typedef typename bsl::is_convertible<INPUT_ITER, const VALUE_TYPE *>::Type
                                                       CanUseLengthOptimization;
 
     return lexicographical(start1, end1, start2, end2, value,

@@ -17,7 +17,7 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION: This component provides a single POD-like class,
 // 'BidirectionalLink', used to represent a node in a doubly-linked list.  A
 // 'BidirectionalLink' provides the address to its preceding node, and the
-// address of it successor node.  A null-pointer value for either address
+// address of its successor node.  A null-pointer value for either address
 // signifies the end of the list.  'BidirectionalLink' does not, however,
 // contain "payload" data (e.g., a value), as it is intended to work with
 // generalized list operations (see 'bslalg_bidirectionallinklistutil').
@@ -109,7 +109,7 @@ BSLS_IDENT("$Id: $")
 // Then, we define our 'MyList' class, with 'MyList::Iterator' being a public
 // typedef of 'MyList_Iterator'.  For brevity, we will omit a lot of
 // functionality that a full, general-purpose list class would have,
-// implementing only what we will need for this example.
+// implmenting only what we will need for this example.
 //..
 //                                  // ======
 //                                  // MyList
@@ -134,10 +134,10 @@ BSLS_IDENT("$Id: $")
 //    public:
 //      // CREATORS
 //      explicit
-//      MyList(bslma::Allocator *basicAllocator)
+//      MyList(bslma::Allocator *basicAllocator = 0)
 //      : d_begin(0)
 //      , d_end(0)
-//      , d_allocator_p(basicAllocator)
+//      , d_allocator_p(bslma::Default::allocator(basicAllocator))
 //      {}
 //
 //      ~MyList();
@@ -149,7 +149,7 @@ BSLS_IDENT("$Id: $")
 //      void popBack();
 //  };
 //..
-// Next, we implement the functions for the iterator type.
+// Next, we implment the functions for the iterator type.
 //..
 //                              // ---------------
 //                              // MyList_Iterator
@@ -178,9 +178,9 @@ BSLS_IDENT("$Id: $")
 //  {
 //      return !(lhs == rhs);
 //  }
-//
+//..
 // Then, we implement the functions for the 'MyList' class:
-//
+//..
 //                                  // ------
 //                                  // MyList
 //                                  // ------
@@ -190,10 +190,10 @@ BSLS_IDENT("$Id: $")
 //  MyList<PAYLOAD>::~MyList()
 //  {
 //      for (Node *p = d_begin; p; ) {
-//          Node *condemned = p;
+//          Node *toDelete = p;
 //          p = (Node *) p->nextLink();
 //
-//          d_allocator_p->deleteObjectRaw(condemned);
+//          d_allocator_p->deleteObjectRaw(toDelete);
 //      }
 //  }
 //
@@ -216,7 +216,9 @@ BSLS_IDENT("$Id: $")
 //      Node *node = (Node *) d_allocator_p->allocate(sizeof(Node));
 //      node->setNextLink(0);
 //      node->setPreviousLink(d_end);
-//      new (&node->value()) ValueType(value);
+//      bslalg::ScalarPrimitives::copyConstruct(&node->value(),
+//                                              value,
+//                                              d_allocator_p);
 //
 //      if (d_end) {
 //          BSLS_ASSERT_SAFE(d_begin);
@@ -236,10 +238,10 @@ BSLS_IDENT("$Id: $")
 //  {
 //      BSLS_ASSERT_SAFE(d_begin && d_end);
 //
-//      Node *condemned = d_end;
+//      Node *toDelete = d_end;
 //      d_end = (Node *) d_end->previousLink();
 //
-//      if (d_begin != condemned) {
+//      if (d_begin != toDelete) {
 //          BSLS_ASSERT_SAFE(0 != d_end);
 //          d_end->setNextLink(0);
 //      }
@@ -248,66 +250,35 @@ BSLS_IDENT("$Id: $")
 //          d_begin = 0;
 //      }
 //
-//      condemned->value().~ValueType();
-//      d_allocator_p->deallocate(condemned);
+//      d_allocator_p->deleteObject(toDelete);
 //  }
 //..
-// Next, we have finished implementing our 'MyList' class and its 'Iterator'
-// type, we will use one to store a fibonacci sequence of ints.  In 'main',
-// We declare the memory allocator that we will use:
+// Next, in 'main', we use our 'MyList' class to store a list of ints:
 //..
-//          bslma::TestAllocator oa("oa");
+//  MyList<int> intList;
 //..
-// Then, we enter a block and declare our list 'fibonacciList' to contain the
-// sequence:
+// Then, we declare an array of ints to populate it with:
 //..
-//          {
-//              MyList<int> fibonacciList(&oa);
-//              typedef MyList<int>::Iterator Iterator;
-//
-//              {
+//  int intArray[] = { 8, 2, 3, 5, 7, 2 };
+//  enum { NUM_INTS = sizeof intArray / sizeof *intArray };
 //..
-// Next, we initialize the list to containing the first 2 values, '0' and '1':
+// Now, we iterate, pushing ints to the list:
 //..
-//                  fibonacciList.pushBack(0);
-//                  fibonacciList.pushBack(1);
+//  for (const int *pInt = intArray; pInt < intArray + NUM_INTS; ++pInt) {
+//      intList.pushBack(*pInt);
+//  }
 //..
-// Then, we create iterators 'first' and 'second' and point them to those first
-// two elements:
+// Finally, we use our 'Iterator' type to traverse the list and observe its
+// values:
 //..
-//                  Iterator first  = fibonacciList.begin();
-//                  Iterator second = first;
-//                  ++second;
-//
-//                  assert(0 == *first);
-//                  assert(1 == *second);
-//..
-// Next, we iterate a dozen times, each time adding a new element to the end of
-// the list containing a value that is the sum of the values of the previous
-// two elements:
-//..
-//                  for (int i = 0; i < 12; ++i, ++first, ++second) {
-//                      fibonacciList.pushBack(*first + *second);
-//                  }
-//              }
-//..
-// Now, we traverse the list and print out its elements:
-//..
-//              if (verbose) printf("Fibonacci Numbers: ");
-//
-//              const Iterator begin = fibonacciList.begin();
-//              const Iterator end   = fibonacciList.end();
-//              for (Iterator it = begin; end != it; ++it) {
-//                  if (verbose) printf("%s%d", begin == it ? "" : ", ", *it);
-//              }
-//              if (verbose) printf("\n");
-//          }
-//..
-// Finally, we check the allocator and verify that it's been used, and that
-// the destruction of 'fibonacciList' freed all the memory allocated:
-//..
-//          assert(oa.numBlocksTotal() > 0);
-//          assert(0 == oa.numBlocksInUse());
+//  MyList<int>::Iterator it = intList.begin();
+//  assert(8 == *it);
+//  assert(2 == *++it);
+//  assert(3 == *++it);
+//  assert(5 == *++it);
+//  assert(7 == *++it);
+//  assert(2 == *++it);
+//  assert(intList.end() == ++it);
 //..
 
 #ifndef INCLUDED_BSLSCM_VERSION

@@ -25,7 +25,9 @@ BSLS_IDENT("$Id: $")
 #   include <bsl_stdhdrs_incpaths.h>
 #   endif
 
+#if 0 // Native STL header disabled until we routinely test for C++11 *libs*
 #   include BSL_NATIVE_CPP_LIB_HEADER(unordered_map)
+#endif
 
 #else
 
@@ -51,7 +53,6 @@ BSLS_IDENT("$Id: $")
 #   include <bsl_stdhdrs_epilogue.h>
 #   endif
 
-#R
 #endif  // BSL_OVERRIDES_STD
 
 #endif  // INCLUDED_NATIVE_UNORDERED_MAP

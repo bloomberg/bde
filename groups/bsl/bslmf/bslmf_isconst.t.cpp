@@ -18,10 +18,10 @@ using std::atoi;
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// The object under test is a meta-functions, 'bsl::is_const', that determine
-// whether a template parameter type is a 'const'-qualified type.  Thus, we
-// need to ensure that the values returned by the meta-function is correct for
-// each possible category of types.
+// The components under test defines a meta-functions, 'bsl::is_const', that
+// determine whether a template parameter type is a 'const'-qualified type.
+// Thus, we need to ensure that the values returned by the meta-function is
+// correct for each possible category of types.
 //
 // ----------------------------------------------------------------------------
 // PUBLIC CLASS DATA
@@ -131,9 +131,8 @@ int main(int argc, char *argv[])
       case 1: {
         // --------------------------------------------------------------------
         // 'bsl::is_const::value'
-        //   Ensure that the static data member 'value' of 'bsl::is_const'
-        //   instantiations having various (template parameter) 'TYPES' has the
-        //   correct value.
+        //   Ensure that 'bsl::is_const' returns the correct values for a
+        //   variety of a variety of template parameter types.
         //
         // Concerns:
         //: 1 'is_const::value' is 'false' when 'TYPE' is a (possibly
@@ -144,7 +143,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Verify that 'bsl::is_const::value' has the correct value for
-        //   each (template parameter) 'TYPE' in the concerns.
+        //   each concern.
         //
         // Testing:
         //   bsl::is_const::value

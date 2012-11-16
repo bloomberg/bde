@@ -1,13 +1,8 @@
 // bslmf_istriviallydefaultconstructible.cpp                          -*-C++-*-
-
 #include <bslmf_istriviallydefaultconstructible.h>
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
-
-namespace BloombergLP {
-
-} // Close namespace BloombergLP
 
 // ----------------------------------------------------------------------------
 // Copyright (C) 2012 Bloomberg L.P.

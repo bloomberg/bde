@@ -1,4 +1,4 @@
-// bsl_hash_map.h                                                     -*-C++-*-
+// bsl_unordered_map.h                                                -*-C++-*-
 #ifndef INCLUDED_BSL_UNORDERED_MAP
 #define INCLUDED_BSL_UNORDERED_MAP
 
@@ -21,15 +21,27 @@ BSLS_IDENT("$Id: $")
 #include <bsls_nativestd.h>
 #endif
 
-//#if 0   // Enable this on platforms with native C++11 libraries
-#include <unordered_map>
-//#endif
+#ifdef BSL_OVERRIDES_STD
+// BDE configuration requires 'bsl+stdhdrs' be in the search path, so this
+// #include is guarnateed to succeed
+# include <unordered_map>
+#else
+// The unordered containers are a feature of the C++11 library, rather than
+// C++03, so might not be present in all native libraries on the platforms we
+// support.  Currently the 'BSLS_COMPILERFEATURES_SUPPORT_CPP11_HEADERS' is
+// never defined, but this sketches out our plan for future support.
+# ifdef BSLS_COMPILERFEATURES_SUPPORT_CPP11_HEADERS
+#  include <unordered_map>
+# endif
+#endif
 
+// Include Bloomberg's implementation, unless compilation is configured to
+// override native types in the 'std' namespace with Bloomberg's
+// implementation, in which case the implementation file will be included by
+// the Bloomberg supplied standard header file.
 #ifndef BSL_OVERRIDES_STD
-
-#include <bslstl_unordered_map.h>
-#include <bslstl_unordered_multimap.h>
-
+# include <bslstl_unorderedmap.h>
+# include <bslstl_unorderedmultimap.h>
 #endif  // BSL_OVERRIDES_STD
 
 #endif  // INCLUDED_BSL_UNORDERED_MAP

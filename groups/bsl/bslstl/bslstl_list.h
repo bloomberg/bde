@@ -2093,7 +2093,7 @@ list<VALUE, ALLOCATOR>& list<VALUE, ALLOCATOR>::operator=(const list& original)
         return *this;                                                 // RETURN
     }
 
-    if (AllocTraits::propagate_on_container_copy_assignment::VALUE &&
+    if (AllocTraits::propagate_on_container_copy_assignment::value &&
         allocator() != original.allocator()) {
         // Completely destroy and rebuild list using new allocator.
 
@@ -2132,7 +2132,7 @@ list<VALUE, ALLOCATOR>& list<VALUE, ALLOCATOR>::operator=(list&& original)
 
         quick_swap(original);
     }
-    else if (AllocTraits::propagate_on_container_move_assignment::VALUE) {
+    else if (AllocTraits::propagate_on_container_move_assignment::value) {
         // Completely destroy and rebuild list using new allocator.
 
         // Create a new list with the new allocator and new contents.  This
@@ -2623,7 +2623,7 @@ void list<VALUE, ALLOCATOR>::swap(list& other)
 {
     using std::swap;
 
-    if (AllocTraits::propagate_on_container_swap::VALUE) {
+    if (AllocTraits::propagate_on_container_swap::value) {
         swap(allocator(), other.allocator());
         quick_swap(other);
     }

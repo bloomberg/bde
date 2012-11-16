@@ -51,7 +51,7 @@ static void aSsErT(int c, const char *s, int i) {
 #define L_ __LINE__                           // current Line number
 #define T_() cout << '\t' << flush;           // Print tab w/o linefeed.
 
-#define ASSERT_SAME(X, Y) ASSERT(1 == (bslmf::IsSame<X, Y>::value))
+#define ASSERT_SAME(X, Y) ASSERT(1 == (bsl::is_same<X, Y>::value))
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -114,25 +114,25 @@ void usageExample()
     typedef MyType&                EXP9;
     typedef MyType*                EXP10;
 
-    ASSERT(1 == (bslmf::IsSame<bslmf::ForwardingType<T1>::Type,
+    ASSERT(1 == (bsl::is_same<bslmf::ForwardingType<T1>::Type,
                                EXP1>::value));
-    ASSERT(1 == (bslmf::IsSame<bslmf::ForwardingType<T2>::Type,
+    ASSERT(1 == (bsl::is_same<bslmf::ForwardingType<T2>::Type,
                                EXP2>::value));
-    ASSERT(1 == (bslmf::IsSame<bslmf::ForwardingType<T3>::Type,
+    ASSERT(1 == (bsl::is_same<bslmf::ForwardingType<T3>::Type,
                                EXP3>::value));
-    ASSERT(1 == (bslmf::IsSame<bslmf::ForwardingType<T4>::Type,
+    ASSERT(1 == (bsl::is_same<bslmf::ForwardingType<T4>::Type,
                                EXP4>::value));
-    ASSERT(1 == (bslmf::IsSame<bslmf::ForwardingType<T5>::Type,
+    ASSERT(1 == (bsl::is_same<bslmf::ForwardingType<T5>::Type,
                                EXP5>::value));
-    ASSERT(1 == (bslmf::IsSame<bslmf::ForwardingType<T6>::Type,
+    ASSERT(1 == (bsl::is_same<bslmf::ForwardingType<T6>::Type,
                                EXP6>::value));
-    ASSERT(1 == (bslmf::IsSame<bslmf::ForwardingType<T7>::Type,
+    ASSERT(1 == (bsl::is_same<bslmf::ForwardingType<T7>::Type,
                                EXP7>::value));
-    ASSERT(1 == (bslmf::IsSame<bslmf::ForwardingType<T8>::Type,
+    ASSERT(1 == (bsl::is_same<bslmf::ForwardingType<T8>::Type,
                                EXP8>::value));
-    ASSERT(1 == (bslmf::IsSame<bslmf::ForwardingType<T9>::Type,
+    ASSERT(1 == (bsl::is_same<bslmf::ForwardingType<T9>::Type,
                                EXP9>::value));
-    ASSERT(1 == (bslmf::IsSame<bslmf::ForwardingType<T10>::Type,
+    ASSERT(1 == (bsl::is_same<bslmf::ForwardingType<T10>::Type,
                                EXP10>::value));
 }
 
@@ -155,7 +155,7 @@ int main(int argc, char *argv[])
       case 3: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
-        //   Simple example illustrating use of 'bslmf::RemoveReference'.
+        //   Simple example illustrating use of 'bsl::remove_reference'.
         //
         // Concerns:
         //
@@ -209,7 +209,7 @@ int main(int argc, char *argv[])
         ASSERT_SAME(bslmf::ConstForwardingType<Struct& >::Type, Struct&);
         ASSERT_SAME(bslmf::ConstForwardingType<Union   >::Type, const Union&);
         ASSERT_SAME(bslmf::ConstForwardingType<Union&  >::Type, Union&);
-        ASSERT(0 == bslmf::IsArray<Class>::value);
+        ASSERT(0 == bsl::is_array<Class>::value);
         ASSERT_SAME(bslmf::ConstForwardingType<Class   >::Type,const Class&);
         if (verbose)
             P(bslmf::ConstForwardingType<Class>::BSLMF_FORWARDING_TYPE_ID);
@@ -266,7 +266,7 @@ int main(int argc, char *argv[])
         ASSERT_SAME(bslmf::ForwardingType<Struct&     >::Type, Struct&);
         ASSERT_SAME(bslmf::ForwardingType<Union       >::Type, const Union&);
         ASSERT_SAME(bslmf::ForwardingType<Union&      >::Type, Union&);
-        ASSERT(0 == bslmf::IsArray<Class>::value);
+        ASSERT(0 == bsl::is_array<Class>::value);
         ASSERT_SAME(bslmf::ForwardingType<Class       >::Type, const Class&);
         if (verbose)
             P(bslmf::ForwardingType<Class>::BSLMF_FORWARDING_TYPE_ID);

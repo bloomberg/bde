@@ -20,14 +20,15 @@ BSLS_IDENT("$Id: $")
 // (bidirectional) list holding a value of a parameterized type.  A
 // 'bslalg::BidirectionalNode' publicly derives from
 // 'bslalg::BidirectionalLink', so it may be used with
-// 'bslalg::BidirectionalListUtil' functions, and adds an attribute 'value' of
-// the parameterized 'VALUE_TYPE'.  The following inheritance hierarchy diagram
-// shows the classes involved and their methods:
+// 'bslalg::BidirectionalLinkListUtil' functions, and adds an attribute 'value'
+// of the template parameter type 'VALUE'.  The following inheritance hierarchy
+// diagram shows the classes involved and their methods:
 //..
 //                  ,-------------------------.
 //                 ( bslalg::BidirectionalNode )
 //                  `-------------------------'
 //                               |      value
+//                               |      (all CREATORS unimplemented)
 //                               V
 //                  ,-------------------------.
 //                 ( bslalg::BidirectionalLink )
@@ -54,28 +55,29 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Creating and Using a List Template Class
 ///- - - - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose we want to create a linked list template class, it will be called
-// 'MyList'.
+// Suppose we want to create a linked list template class called 'MyList'.
 //
-// First, we create the iterator helper class, which will eventually be
-// defined as a nested type within the 'MyList' class.
+// First, we create an iterator helper class, which will eventually be defined
+// as a nested type within the 'MyList' class.
 //..
 //                              // ===============
 //                              // MyList_Iterator
 //                              // ===============
-//
+//..
 //  template <typename PAYLOAD>
 //  class MyList_Iterator {
+//      // This iterator is used to refer to positions within a list.
+//
 //      // PRIVATE TYPES
 //      typedef bslalg::BidirectionalNode<PAYLOAD> Node;
 //
 //      // DATA
-//      Node *d_node;
+//      Node *d_node;    // Pointer to a node within a list.
 //
 //      // FRIENDS
-//      template <typename PL>
-//      friend bool operator==(MyList_Iterator<PL>,
-//                             MyList_Iterator<PL>);
+//      template <typename OTHER_PAYLOAD>
+//      friend bool operator==(MyList_Iterator<OTHER_PAYLOAD>,
+//                             MyList_Iterator<OTHER_PAYLOAD>);
 //
 //    public:
 //      // CREATORS
@@ -90,62 +92,33 @@ BSLS_IDENT("$Id: $")
 //      MyList_Iterator operator++();
 //
 //      // ACCESSORS
-//      PAYLOAD& operator*() const { return d_node->value(); }
+//      const PAYLOAD& operator*() const { return d_node->value(); }
 //  };
-//..
-// Then, we define our 'MyList' class, with 'MyList::Iterator' being a public
-// typedef of 'MyList_Iterator'.  For brevity, we will omit a lot of
-// functionality that a full, general-purpose list class would have,
-// implementing only what we will need for this example.
-//..
-//                                  // ======
-//                                  // MyList
-//                                  // ======
+//
+// ============================================================================
+//                                FREE OPERATORS
+// ----------------------------------------------------------------------------
 //
 //  template <typename PAYLOAD>
-//  class MyList {
-//      // PRIVATE TYPES
-//      typedef bslalg::BidirectionalNode<PAYLOAD> Node;
+//  bool operator==(MyList_Iterator<PAYLOAD> lhs,
+//                  MyList_Iterator<PAYLOAD> rhs);
 //
-//    public:
-//      // PUBLIC TYPES
-//      typedef PAYLOAD                            ValueType;
-//      typedef MyList_Iterator<ValueType>         Iterator;
-//
-//      // DATA
-//      Node             *d_begin;
-//      Node             *d_end;
-//      bslma::Allocator *d_allocator_p;
-//
-//    public:
-//      // CREATORS
-//      explicit
-//      MyList(bslma::Allocator *basicAllocator)
-//      : d_begin(0)
-//      , d_end(0)
-//      , d_allocator_p(basicAllocator)
-//      {}
-//
-//      ~MyList();
-//
-//      // MANIPULATORS
-//      Iterator begin();
-//      Iterator end();
-//      void pushBack(const ValueType& value);
-//      void popBack();
-//  };
+//  template <typename PAYLOAD>
+//  bool operator!=(MyList_Iterator<PAYLOAD> lhs,
+//                  MyList_Iterator<PAYLOAD> rhs);
 //..
-// Next, we implement the functions for the iterator type.
+// Then, we implment the functions for the iterator type.
 //..
-//                              // ---------------
-//                              // MyList_Iterator
-//                              // ---------------
+//                                  // ---------------
+//                                  // MyList_Iterator
+//                                  // ---------------
 //
 //  // MANIPULATORS
 //  template <typename PAYLOAD>
+//  inline
 //  MyList_Iterator<PAYLOAD> MyList_Iterator<PAYLOAD>::operator++()
 //  {
-//      d_node = (Node *) d_node->nextLink();
+//      d_node = static_cast<Node *>(d_node->nextLink());
 //      return *this;
 //  }
 //
@@ -165,6 +138,50 @@ BSLS_IDENT("$Id: $")
 //      return !(lhs == rhs);
 //  }
 //..
+// Next, we define our 'MyList' class, with 'MyList::Iterator' being a public
+// typedef of 'MyList_Iterator'.  For brevity, we will omit much of te that a
+// full, general-purpose list class would have.
+//..
+//                                  // ======
+//                                  // MyList
+//                                  // ======
+//
+//  template <typename PAYLOAD>
+//  class MyList {
+//      // Doubly-linked list storing objects of type 'PAYLOAD'.
+//
+//      // PRIVATE TYPES
+//      typedef bslalg::BidirectionalNode<PAYLOAD> Node;
+//
+//    public:
+//      // PUBLIC TYPES
+//      typedef PAYLOAD                    ValueType;
+//      typedef MyList_Iterator<ValueType> Iterator;
+//
+//      // DATA
+//      Node             *d_begin;          // First node, if any, in the list.
+//      Node             *d_end;            // Last node, if any, in the list.
+//      bslma::Allocator *d_allocator_p;    // Allocator used for allocating
+//                                          // and freeing nodes.
+//
+//    public:
+//      // CREATORS
+//      explicit
+//      MyList(bslma::Allocator *basicAllocator = 0)
+//      : d_begin(0)
+//      , d_end(0)
+//      , d_allocator_p(bslma::Default::allocator(basicAllocator))
+//      {}
+//
+//      ~MyList();
+//
+//      // MANIPULATORS
+//      Iterator begin();
+//      Iterator end();
+//      void pushBack(const ValueType& value);
+//      void popBack();
+//  };
+//..
 // Then, we implement the functions for the 'MyList' class:
 //..
 //                                  // ------
@@ -175,25 +192,26 @@ BSLS_IDENT("$Id: $")
 //  template <typename PAYLOAD>
 //  MyList<PAYLOAD>::~MyList()
 //  {
-//      typedef bslalg::BidirectionalLink BDL;
-//
 //      for (Node *p = d_begin; p; ) {
-//          Node *condemned = p;
+//          Node *toDelete = p;
 //          p = (Node *) p->nextLink();
 //
-//          condemned->value().~ValueType();
-//          d_allocator_p->deleteObjectRaw(static_cast<BDL *>(condemned));
+//          bslalg::ScalarDestructionPrimitives::destroy(&toDelete->value());
+//          d_allocator_p->deleteObjectRaw(
+//                         static_cast<bslalg::BidirectionalLink *>(toDelete));
 //      }
 //  }
 //
 //  // MANIPULATORS
 //  template <typename PAYLOAD>
+//  inline
 //  typename MyList<PAYLOAD>::Iterator MyList<PAYLOAD>::begin()
 //  {
 //      return Iterator(d_begin);
 //  }
 //
 //  template <typename PAYLOAD>
+//  inline
 //  typename MyList<PAYLOAD>::Iterator MyList<PAYLOAD>::end()
 //  {
 //      return Iterator(0);
@@ -205,7 +223,9 @@ BSLS_IDENT("$Id: $")
 //      Node *node = (Node *) d_allocator_p->allocate(sizeof(Node));
 //      node->setNextLink(0);
 //      node->setPreviousLink(d_end);
-//      new (&node->value()) ValueType(value);
+//      bslalg::ScalarPrimitives::copyConstruct(&node->value(),
+//                                              value,
+//                                              d_allocator_p);
 //
 //      if (d_end) {
 //          BSLS_ASSERT_SAFE(d_begin);
@@ -225,10 +245,10 @@ BSLS_IDENT("$Id: $")
 //  {
 //      BSLS_ASSERT_SAFE(d_begin && d_end);
 //
-//      Node *condemned = d_end;
+//      Node *toDelete = d_end;
 //      d_end = (Node *) d_end->previousLink();
 //
-//      if (d_begin != condemned) {
+//      if (d_begin != toDelete) {
 //          BSLS_ASSERT_SAFE(0 != d_end);
 //          d_end->setNextLink(0);
 //      }
@@ -237,70 +257,37 @@ BSLS_IDENT("$Id: $")
 //          d_begin = 0;
 //      }
 //
-//      condemned->value().~ValueType();
-//      d_allocator_p->deallocate(condemned);
+//      bslalg::ScalarDestructionPrimitives::destroy(&toDelete->value());
+//      d_allocator_p->deleteObjectRaw(
+//                         static_cast<bslalg::BidirectionalLink *>(toDelete));
 //  }
 //..
-// Next, in 'main', we have finished implementing our 'MyList' class and its
-// 'Iterator' type, we will use one to store a fibonacci sequence of ints.  We
-// declare the memory allocator that we will use:
+// Next, in 'main', we use our 'MyList' class to store a list of ints:
 //..
-//  bslma::TestAllocator oa("oa");
+//  MyList<int> intList;
 //..
-// Then, we enter a block and declare our list 'fibonacciList' to contain the
-// sequence:
+// Then, we declare an array of ints to populate it with:
 //..
-//  {
-//      MyList<int> fibonacciList(&oa);
-//      typedef MyList<int>::Iterator Iterator;
-//
-//      {
+//  int intArray[] = { 8, 2, 3, 5, 7, 2 };
+//  enum { NUM_INTS = sizeof intArray / sizeof *intArray };
 //..
-// Next, we initialize the list to containing the first 2 values, '0' and '1':
+// Now, we iterate, pushing ints to the list:
 //..
-//          fibonacciList.pushBack(0);
-//          fibonacciList.pushBack(1);
-//..
-// Then, we create iterators 'first' and 'second' and point them to those first
-// two elements:
-//..
-//          Iterator first  = fibonacciList.begin();
-//          Iterator second = first;
-//          ++second;
-//
-//          assert(0 == *first);
-//          assert(1 == *second);
-//..
-// Next, we iterate a dozen times, each time adding a new element to the end of
-// the list containing a value that is the sum of the values of the previous
-// two elements:
-//..
-//          for (int i = 0; i < 12; ++i, ++first, ++second) {
-//              fibonacciList.pushBack(*first + *second);
-//          }
-//      }
-//..
-// Now, we traverse the list and print out its elements:
-//..
-//      if (verbose) printf("Fibonacci Numbers: ");
-//
-//      const Iterator begin = fibonacciList.begin();
-//      const Iterator end   = fibonacciList.end();
-//      for (Iterator it = begin; end != it; ++it) {
-//          if (verbose) printf("%s%d", begin == it ? "" : ", ", *it);
-//      }
-//      if (verbose) printf("\n");
+//  for (const int *pInt = intArray; pInt < intArray + NUM_INTS; ++pInt) {
+//      intList.pushBack(*pInt);
 //  }
 //..
-// Finally, we check the allocator and verify that it's been used, and that
-// the destruction of 'fibonacciList' freed all the memory allocated:
+// Finally, we use our 'Iterator' type to traverse the list and observe its
+// values:
 //..
-//  assert(oa.numBlocksTotal() > 0);
-//  assert(0 == oa.numBlocksInUse());
-//..
-// The above code prints out:
-//..
-//  Fibonacci Numbers: 0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233
+//  MyList<int>::Iterator it = intList.begin();
+//  assert(8 == *it);
+//  assert(2 == *++it);
+//  assert(3 == *++it);
+//  assert(5 == *++it);
+//  assert(7 == *++it);
+//  assert(2 == *++it);
+//  assert(intList.end() == ++it);
 //..
 
 #ifndef INCLUDED_BSLSCM_VERSION
@@ -318,24 +305,24 @@ namespace bslalg {
                         // class BidirectionalNode
                         // =======================
 
-template <class VALUE_TYPE>
+template <class VALUE>
 class BidirectionalNode : public bslalg::BidirectionalLink {
     // This POD-like 'class' describes a node suitable for use in a
-    // doubly-linked list of values of the parameterized 'VALUE'.  This class
-    // is a "POD-like" to facilitate efficient allocation and use in the
-    // context of a container implementation.  In order to meet the essential
-    // requirements of a POD type, this 'class' does not define a constructor
-    // or destructor.  The manipulator, 'value', returns a modifiable reference
-    // to 'd_value' so that it may be constructed in-place by the appropriate
-    // 'bsl::allocator_traits' object.
+    // doubly-linked list of values of the template parameter type 'VALUE'.
+    // This class is a "POD-like" to facilitate efficient allocation and use in
+    // the context of a container implementation.  In order to meet the
+    // essential requirements of a POD type, this 'class' does not define a
+    // constructor or destructor.  The manipulator, 'value', returns a
+    // modifiable reference to 'd_value' so that it may be constructed in-place
+    // by the appropriate 'bsl::allocator_traits' object.
 
   public:
     // PUBLIC TYPES
-    typedef VALUE_TYPE    ValueType;      // payload type
+    typedef VALUE ValueType;      // payload type
 
   private:
     // DATA
-    VALUE_TYPE d_value;      // payload value
+    VALUE d_value;  // payload value
 
     // The following creators are not defined because a 'BidirectionalNode'
     // should never be constructed, destructed, or assigned.  The 'd_value'
@@ -369,16 +356,16 @@ class BidirectionalNode : public bslalg::BidirectionalLink {
                         // class BidirectionalNode
                         // -----------------------
 
-template <class VALUE_TYPE>
+template <class VALUE>
 inline
-VALUE_TYPE& BidirectionalNode<VALUE_TYPE>::value()
+VALUE& BidirectionalNode<VALUE>::value()
 {
     return d_value;
 }
 
-template <class VALUE_TYPE>
+template <class VALUE>
 inline
-const VALUE_TYPE& BidirectionalNode<VALUE_TYPE>::value() const
+const VALUE& BidirectionalNode<VALUE>::value() const
 {
     return d_value;
 }

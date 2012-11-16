@@ -2,7 +2,6 @@
 
 #include <bslmf_isclass.h>
 
-#include <bsls_platform.h>            // for testing only
 #include <bsls_bsltestutil.h>
 
 #include <cstdio>     // printf()
@@ -16,7 +15,7 @@ using namespace std;
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// The objects under test are two meta-functions, 'bsl::is_class' and
+// The component under test are two meta-functions, 'bsl::is_class' and
 // 'bslmf::IsClass', that determine whether a template parameter type is a
 // class type.  Thus, we need to ensure that the value returned by these
 // meta-functions are correct for each possible category of types.  Since the
@@ -154,7 +153,7 @@ struct Incomplete;
 //
 ///Example 1: Verify Class Types
 ///- - - - - - - - - - - - - - -
-// Suppose that we want to assert whether a particular type is a class type.
+// Suppose that we want to assert whether a set of types are class types.
 //
 // First, we create a class type 'MyClass':
 //..
@@ -248,15 +247,15 @@ int main(int argc, char *argv[])
 
         // C-3
         TYPE_ASSERT_CVQ_SUFFIX(bslmf::IsClass, StructTestType,       1);
-        TYPE_ASSERT_CVQ_REF   (bslmf::IsClass, StructTestType,       1);
+        TYPE_ASSERT_CVQ_REF   (bslmf::IsClass, StructTestType,       0);
         TYPE_ASSERT_CVQ_SUFFIX(bslmf::IsClass, UnionTestType,        1);
-        TYPE_ASSERT_CVQ_REF   (bslmf::IsClass, UnionTestType,        1);
+        TYPE_ASSERT_CVQ_REF   (bslmf::IsClass, UnionTestType,        0);
         TYPE_ASSERT_CVQ_SUFFIX(bslmf::IsClass, Incomplete,           1);
-        TYPE_ASSERT_CVQ_REF   (bslmf::IsClass, Incomplete,           1);
+        TYPE_ASSERT_CVQ_REF   (bslmf::IsClass, Incomplete,           0);
         TYPE_ASSERT_CVQ_SUFFIX(bslmf::IsClass, BaseClassTestType,    1);
-        TYPE_ASSERT_CVQ_REF   (bslmf::IsClass, BaseClassTestType,    1);
+        TYPE_ASSERT_CVQ_REF   (bslmf::IsClass, BaseClassTestType,    0);
         TYPE_ASSERT_CVQ_SUFFIX(bslmf::IsClass, DerivedClassTestType, 1);
-        TYPE_ASSERT_CVQ_REF   (bslmf::IsClass, DerivedClassTestType, 1);
+        TYPE_ASSERT_CVQ_REF   (bslmf::IsClass, DerivedClassTestType, 0);
 
         // C-4
         TYPE_ASSERT_CVQ(bslmf::IsClass, int*,                       0);
@@ -335,15 +334,15 @@ int main(int argc, char *argv[])
 
         // C-3
         TYPE_ASSERT_CVQ_SUFFIX(bsl::is_class, StructTestType,       true);
-        TYPE_ASSERT_CVQ_REF   (bsl::is_class, StructTestType,       true);
+        TYPE_ASSERT_CVQ_REF   (bsl::is_class, StructTestType,       false);
         TYPE_ASSERT_CVQ_SUFFIX(bsl::is_class, UnionTestType,        true);
-        TYPE_ASSERT_CVQ_REF   (bsl::is_class, UnionTestType,        true);
+        TYPE_ASSERT_CVQ_REF   (bsl::is_class, UnionTestType,        false);
         TYPE_ASSERT_CVQ_SUFFIX(bsl::is_class, Incomplete,           true);
-        TYPE_ASSERT_CVQ_REF   (bsl::is_class, Incomplete,           true);
+        TYPE_ASSERT_CVQ_REF   (bsl::is_class, Incomplete,           false);
         TYPE_ASSERT_CVQ_SUFFIX(bsl::is_class, BaseClassTestType,    true);
-        TYPE_ASSERT_CVQ_REF   (bsl::is_class, BaseClassTestType,    true);
+        TYPE_ASSERT_CVQ_REF   (bsl::is_class, BaseClassTestType,    false);
         TYPE_ASSERT_CVQ_SUFFIX(bsl::is_class, DerivedClassTestType, true);
-        TYPE_ASSERT_CVQ_REF   (bsl::is_class, DerivedClassTestType, true);
+        TYPE_ASSERT_CVQ_REF   (bsl::is_class, DerivedClassTestType, false);
 
         // C-4
         TYPE_ASSERT_CVQ(bsl::is_class, int*,                       false);
