@@ -130,7 +130,7 @@ class TestType1 {
 
 int TestType1::s_numConstructions = 0;
 
-template <typename TYPE>
+template <class TYPE>
 bool isConst(TYPE *)
 {
     return bsl::is_const<TYPE>::value;
@@ -155,7 +155,7 @@ bool isConst(TYPE *)
                             // MyList_Iterator
                             // ===============
 //..
-template <typename PAYLOAD>
+template <class PAYLOAD>
 class MyList_Iterator {
     // This iterator is used to refer to positions within a list.
 
@@ -166,7 +166,7 @@ class MyList_Iterator {
     Node *d_node;    // Pointer to a node within a list.
 
     // FRIENDS
-    template <typename OTHER_PAYLOAD>
+    template <class OTHER_PAYLOAD>
     friend bool operator==(MyList_Iterator<OTHER_PAYLOAD>,
                            MyList_Iterator<OTHER_PAYLOAD>);
 
@@ -190,11 +190,11 @@ class MyList_Iterator {
 //                                FREE OPERATORS
 // ----------------------------------------------------------------------------
 
-template <typename PAYLOAD>
+template <class PAYLOAD>
 bool operator==(MyList_Iterator<PAYLOAD> lhs,
                 MyList_Iterator<PAYLOAD> rhs);
 
-template <typename PAYLOAD>
+template <class PAYLOAD>
 bool operator!=(MyList_Iterator<PAYLOAD> lhs,
                 MyList_Iterator<PAYLOAD> rhs);
 //..
@@ -205,7 +205,7 @@ bool operator!=(MyList_Iterator<PAYLOAD> lhs,
                                 // ---------------
 
 // MANIPULATORS
-template <typename PAYLOAD>
+template <class PAYLOAD>
 inline
 MyList_Iterator<PAYLOAD> MyList_Iterator<PAYLOAD>::operator++()
 {
@@ -213,7 +213,7 @@ MyList_Iterator<PAYLOAD> MyList_Iterator<PAYLOAD>::operator++()
     return *this;
 }
 
-template <typename PAYLOAD>
+template <class PAYLOAD>
 inline
 bool operator==(MyList_Iterator<PAYLOAD> lhs,
                 MyList_Iterator<PAYLOAD> rhs)
@@ -221,7 +221,7 @@ bool operator==(MyList_Iterator<PAYLOAD> lhs,
     return lhs.d_node == rhs.d_node;
 }
 
-template <typename PAYLOAD>
+template <class PAYLOAD>
 inline
 bool operator!=(MyList_Iterator<PAYLOAD> lhs,
                 MyList_Iterator<PAYLOAD> rhs)
@@ -237,7 +237,7 @@ bool operator!=(MyList_Iterator<PAYLOAD> lhs,
                                 // MyList
                                 // ======
 
-template <typename PAYLOAD>
+template <class PAYLOAD>
 class MyList {
     // Doubly-linked list storing objects of type 'PAYLOAD'.
 
@@ -280,7 +280,7 @@ class MyList {
                                 // ------
 
 // CREATORS
-template <typename PAYLOAD>
+template <class PAYLOAD>
 MyList<PAYLOAD>::~MyList()
 {
     for (Node *p = d_begin; p; ) {
@@ -294,21 +294,21 @@ MyList<PAYLOAD>::~MyList()
 }
 
 // MANIPULATORS
-template <typename PAYLOAD>
+template <class PAYLOAD>
 inline
 typename MyList<PAYLOAD>::Iterator MyList<PAYLOAD>::begin()
 {
     return Iterator(d_begin);
 }
 
-template <typename PAYLOAD>
+template <class PAYLOAD>
 inline
 typename MyList<PAYLOAD>::Iterator MyList<PAYLOAD>::end()
 {
     return Iterator(0);
 }
 
-template <typename PAYLOAD>
+template <class PAYLOAD>
 void MyList<PAYLOAD>::pushBack(const PAYLOAD& value)
 {
     Node *node = (Node *) d_allocator_p->allocate(sizeof(Node));
@@ -331,7 +331,7 @@ void MyList<PAYLOAD>::pushBack(const PAYLOAD& value)
     }
 }
 
-template <typename PAYLOAD>
+template <class PAYLOAD>
 void MyList<PAYLOAD>::popBack()
 {
     BSLS_ASSERT_SAFE(d_begin && d_end);
