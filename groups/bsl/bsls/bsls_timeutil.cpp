@@ -21,8 +21,10 @@ BSLS_IDENT("$Id$ $CSID$")
     #error "Don't know how to get nanosecond time for this platform"
 #endif
 
-#if defined(BSLS_PLATFORM_OS_SOLARIS) || defined(BSLS_PLATFORM_OS_HPUX)
+#if defined(BSLS_PLATFORM_OS_SOLARIS)
     #include <sys/time.h>  // gethrtime()
+#elif defined(BSLS_PLATFORM_OS_DARWIN)
+    #include <sys/time.h>  // gettimeofday()
 #endif
 
 namespace BloombergLP {
@@ -74,7 +76,7 @@ void UnixTimerUtil::systemProcessTimers(clock_t *systemTimer,
                                         clock_t *userTimer)
 {
     struct tms processTimes;
-    if (-1 == ::times(&processTimes)) {
+    if (static_cast<clock_t>(-1) == ::times(&processTimes)) {
         *systemTimer = 0;
         *userTimer   = 0;
         return;                                                       // RETURN
