@@ -21,9 +21,10 @@ BSLS_IDENT("$Id$ $CSID$")
     #error "Don't know how to get nanosecond time for this platform"
 #endif
 
-#if defined(BSLS_PLATFORM_OS_UNIX) && \
-    !(defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_AIX))
-    #include <sys/time.h>  // gethrtime(), gettimeofday()
+#if defined(BSLS_PLATFORM_OS_SOLARIS)
+    #include <sys/time.h>  // gethrtime()
+#elif defined(BSLS_PLATFORM_OS_DARWIN)
+    #include <sys/time.h>  // gettimeofday()
 #endif
 
 namespace BloombergLP {
