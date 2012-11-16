@@ -67,6 +67,7 @@ using namespace BloombergLP;
 //     pair(const pair<U1, U2>& rhs, bslma::Allocator *alloc);
 // [5] void pair::swap(pair& rhs);
 // [5] void swap(pair& lhs, pair& rhs);
+// [7] Pointer to member test
 //-----------------------------------------------------------------------------
 // [1] BREATHING TEST
 // [6] USAGE EXAMPLE
@@ -610,6 +611,31 @@ int main(int argc, char *argv[])
     std::printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 7: {
+        // --------------------------------------------------------------------
+        // Pointer to member
+        //
+        // Concerns:
+        // - We can use pointer to members to access both 'first' and 'second'
+        //
+        // Plan
+        // - Create pointer to member to both 'first' and 'second' and check
+        //   that the behavior is as expected
+        //
+        // Testing:
+        //     Usage Example
+        // --------------------------------------------------------------------
+        if (verbose) std::printf("\nPOINTER TO MEMBER TEST"
+                                 "\n======================\n");
+
+        int bsl::pair<int,const char*>::*pfirst
+                                        = &bsl::pair<int,const char*>::first;
+        const char* bsl::pair<int,const char*>::*psecond
+                                        = &bsl::pair<int,const char*>::second;
+        bsl::pair<int,const char*> p(10, "test7");
+        ASSERT(p.first == (p.*pfirst));
+        ASSERT(p.second == (p.*psecond));
+      } break;
       case 6: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
@@ -1673,6 +1699,9 @@ int main(int argc, char *argv[])
         if (verbose) std::printf("\nBREATHING TEST"
                                  "\n==============\n");
 
+        //
+        // Verify that we can obtain a pointer to member to both 'first' and 'second'
+
         bslma::TestAllocator ta1(veryVerbose);
         bslma::TestAllocator ta2(veryVerbose);
 
@@ -1725,6 +1754,30 @@ int main(int argc, char *argv[])
     }
 
     return testStatus;
+}
+
+void compile_test1()
+    // --------------------------------------------------------------------
+    // COMPILATION TEST
+    //
+    // Concerns:
+    // - Can obtain a pointer to member that refers to 'first' and 'second'
+    //
+    // Plan:
+    // - Create pointers to members and obtain the address of
+    //   'first' and 'second'
+    //
+    // Testing:
+    //   Breathing test only.  Exercises basic functionality.
+    // --------------------------------------------------------------------
+    // COMPILATION TEST
+    //
+    //
+    // Compile test, this test need not be run, if the test driver builds
+    // the test passes.
+{
+    int    bsl::pair<int,double>::*p1 = &bsl::pair<int,double>::first;
+    double bsl::pair<int,double>::*p2 = &bsl::pair<int,double>::second;
 }
 
 // ----------------------------------------------------------------------------
