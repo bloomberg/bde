@@ -1624,16 +1624,16 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::insert(
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 bslalg::BidirectionalLink *
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::insertIfMissing(
-                                               bool             *isInserted,
-                                               const ValueType&  value)
+                                              bool             *isInsertedFlag,
+                                              const ValueType&  value)
 {
-    BSLS_ASSERT(isInserted);
+    BSLS_ASSERT(isInsertedFlag);
 
     const KeyType& key = KEY_CONFIG::extractKey(value);
     size_t hashCode = this->hasher()(key);
     bslalg::BidirectionalLink *position = this->find(key, hashCode);
 
-    *isInserted = (!position);
+    *isInsertedFlag = (!position);
 
     if(!position) {
         if (d_size >= d_capacity) {
@@ -1654,10 +1654,10 @@ template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 template <class SOURCE_TYPE>
 bslalg::BidirectionalLink *
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::insertIfMissing(
-                                               bool               *isInserted,
-                                               const SOURCE_TYPE&  value)
+                                            bool               *isInsertedFlag,
+                                            const SOURCE_TYPE&  value)
 {
-    BSLS_ASSERT(isInserted);
+    BSLS_ASSERT(isInsertedFlag);
 
     typedef bslalg::HashTableImpUtil ImpUtil;
 
@@ -1682,7 +1682,7 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::insertIfMissing(
     size_t hashCode = this->hasher()(key);
     bslalg::BidirectionalLink *position = this->find(key, hashCode);
 
-    *isInserted = (!position);
+    *isInsertedFlag = (!position);
 
     if(!position) {
         if (d_size >= d_capacity) {

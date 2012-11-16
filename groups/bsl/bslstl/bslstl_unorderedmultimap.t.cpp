@@ -8,12 +8,25 @@
 
 #include <bsls_bsltestutil.h>
 
+#include <bsltf_stdtestallocator.h>
 #include <bsltf_templatetestfacility.h>
 #include <bsltf_testvaluesarray.h>
-#include <bsltf_stdtestallocator.h>
 
 #include <stdio.h>
 #include <stdlib.h>
+
+// To resolve gcc warnings, while printing 'size_t' arguments portably on
+// Windows, we use a macro and string literal concatenation to produce the
+// correct 'printf' format flag.
+#ifdef ZU
+#undef ZU
+#endif
+
+#if defined BSLS_PLATFORM_CMP_MSVC
+#  define ZU "%Iu"
+#else
+#  define ZU "%zu"
+#endif
 
 using namespace BloombergLP;
 
@@ -109,7 +122,7 @@ void debugPrint(
             if (s.cbegin(n) == s.cend(n)) {
                 continue;
             }
-            printf("\nBucket [%d]: ", n);
+            printf("\nBucket [" ZU "]: ", n);
             for (LCIter lci = s.cbegin(n); lci != s.cend(n); ++lci) {
                 printf("[%d, %d], ", lci->first, lci->second);
                   //    bsls::BslTestUtil::callDebugprint(
@@ -271,7 +284,7 @@ void fillContainerWithData(CONTAINER&                            x,
     }
 }
 
-template<typename CONTAINER>
+template <class CONTAINER>
 void validateIteration(CONTAINER &c)
 {
     typedef typename CONTAINER::iterator       iterator;

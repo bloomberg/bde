@@ -6,8 +6,8 @@
 #include <bslma_testallocator.h>
 #include <bslma_testallocatormonitor.h>
 
-#include <bslmf_issame.h>
 #include <bslmf_isbitwisemoveable.h>
+#include <bslmf_issame.h>
 #include <bslmf_istriviallycopyable.h>
 #include <bslmf_istriviallydefaultconstructible.h>
 
@@ -140,7 +140,7 @@ void aSsErT(bool b, const char *s, int i)
 // defaults to 'bsl::hash<TYPE>'.  For common types of 'TYPE' such as 'int',
 // a specialization of 'bsl::hash' is already defined:
 
-template <typename TYPE, typename HASHER = bsl::hash<TYPE> >
+template <class TYPE, class HASHER = bsl::hash<TYPE> >
 class HashCrossReference {
     // This table leverages a hash table to provide a fast lookup of an
     // external, non-owned, array of values of configurable type.

@@ -41,7 +41,7 @@ BSLS_IDENT("$Id: $")
 // First, we create the 'MyNode' class, which derives from the
 // BidirectionalLink class to carry a 'PAYLOAD' object.
 //..
-//  template <typename PAYLOAD>
+//  template <class PAYLOAD>
 //  class MyNode : public bslalg::BidirectionalLink {
 //    public:
 //      // PUBLIC TYPES
@@ -79,7 +79,7 @@ BSLS_IDENT("$Id: $")
 //                              // MyList_Iterator
 //                              // ===============
 //
-//  template <typename PAYLOAD>
+//  template <class PAYLOAD>
 //  class MyList_Iterator {
 //      // PRIVATE TYPES
 //      typedef MyNode<PAYLOAD> Node;
@@ -88,7 +88,7 @@ BSLS_IDENT("$Id: $")
 //      Node *d_node;
 //
 //      // FRIENDS
-//      template <typename PL>
+//      template <class PL>
 //      friend bool operator==(MyList_Iterator<PL>,
 //                             MyList_Iterator<PL>);
 //
@@ -117,7 +117,7 @@ BSLS_IDENT("$Id: $")
 //                                  // MyList
 //                                  // ======
 //
-//  template <typename PAYLOAD>
+//  template <class PAYLOAD>
 //  class MyList {
 //      // PRIVATE TYPES
 //      typedef MyNode<PAYLOAD> Node;
@@ -158,14 +158,14 @@ BSLS_IDENT("$Id: $")
 //                              // ---------------
 //
 //  // MANIPULATORS
-//  template <typename PAYLOAD>
+//  template <class PAYLOAD>
 //  MyList_Iterator<PAYLOAD> MyList_Iterator<PAYLOAD>::operator++()
 //  {
 //      d_node = (Node *) d_node->nextLink();
 //      return *this;
 //  }
 //
-//  template <typename PAYLOAD>
+//  template <class PAYLOAD>
 //  inline
 //  bool operator==(MyList_Iterator<PAYLOAD> lhs,
 //                  MyList_Iterator<PAYLOAD> rhs)
@@ -173,7 +173,7 @@ BSLS_IDENT("$Id: $")
 //      return lhs.d_node == rhs.d_node;
 //  }
 //
-//  template <typename PAYLOAD>
+//  template <class PAYLOAD>
 //  inline
 //  bool operator!=(MyList_Iterator<PAYLOAD> lhs,
 //                  MyList_Iterator<PAYLOAD> rhs)
@@ -188,7 +188,7 @@ BSLS_IDENT("$Id: $")
 //                                  // ------
 //
 //  // CREATORS
-//  template <typename PAYLOAD>
+//  template <class PAYLOAD>
 //  MyList<PAYLOAD>::~MyList()
 //  {
 //      for (Node *p = d_begin; p; ) {
@@ -200,19 +200,19 @@ BSLS_IDENT("$Id: $")
 //  }
 //
 //  // MANIPULATORS
-//  template <typename PAYLOAD>
+//  template <class PAYLOAD>
 //  typename MyList<PAYLOAD>::Iterator MyList<PAYLOAD>::begin()
 //  {
 //      return Iterator(d_begin);
 //  }
 //
-//  template <typename PAYLOAD>
+//  template <class PAYLOAD>
 //  typename MyList<PAYLOAD>::Iterator MyList<PAYLOAD>::end()
 //  {
 //      return Iterator(0);
 //  }
 //
-//  template <typename PAYLOAD>
+//  template <class PAYLOAD>
 //  void MyList<PAYLOAD>::pushBack(const PAYLOAD& value)
 //  {
 //      Node *node = (Node *) d_allocator_p->allocate(sizeof(Node));
@@ -235,7 +235,7 @@ BSLS_IDENT("$Id: $")
 //      }
 //  }
 //
-//  template <typename PAYLOAD>
+//  template <class PAYLOAD>
 //  void MyList<PAYLOAD>::popBack()
 //  {
 //      BSLS_ASSERT_SAFE(d_begin && d_end);

@@ -83,7 +83,7 @@ void aSsErT(bool b, const char *s, int i)
 //                GLOBAL TYPEDEFS AND VARIABLES FOR TESTING
 //-----------------------------------------------------------------------------
 
-template <typename FIRST_TYPE, typename SECOND_TYPE>
+template <class FIRST_TYPE, class SECOND_TYPE>
 struct MyPair {
     // PUBLIC TYPES
     typedef FIRST_TYPE  first_type;
@@ -94,15 +94,15 @@ struct MyPair {
     second_type second;
 };
 
-template <typename TYPE>
+template <class TYPE>
 bool isConstObject(TYPE&)
 {
     return bsl::is_const<TYPE>::value;
 }
 
-template <typename CONFIGURED_TYPE>
+template <class CONFIGURED_TYPE>
 struct IsSameType {
-    template <typename OBJECT_TYPE>
+    template <class OBJECT_TYPE>
     bool operator ()(const OBJECT_TYPE&) const
     {
         typedef typename bsl::remove_cv<CONFIGURED_TYPE>::type  CT;
@@ -132,7 +132,7 @@ struct IsSameType {
 // utility class that will extra which part of the objects to be sorted is the
 // key which will drive the sort:
 
-template <typename VALUE_TYPE, typename KEY_EXTRACTOR>
+template <class VALUE_TYPE, class KEY_EXTRACTOR>
 void mySort(VALUE_TYPE *begin, VALUE_TYPE *end, const KEY_EXTRACTOR&)
     // This function provides an order-preserving sort of the items in the
     // range '[ begin, end )', where 'KEY_EXTRACTOR::extractKey' yields the
