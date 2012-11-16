@@ -16,12 +16,25 @@
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
 
+#include <bsltf_stdtestallocator.h>
 #include <bsltf_templatetestfacility.h>
 #include <bsltf_testvaluesarray.h>
-#include <bsltf_stdtestallocator.h>
 
 #include <stdio.h>
 #include <stdlib.h>
+
+// To resolve gcc warnings, while printing 'size_t' arguments portably on
+// Windows, we use a macro and string literal concatenation to produce the
+// correct 'printf' format flag.
+#ifdef ZU
+#undef ZU
+#endif
+
+#if defined BSLS_PLATFORM_CMP_MSVC
+#  define ZU "%Iu"
+#else
+#  define ZU "%zu"
+#endif
 
 // ============================================================================
 //                          ADL SWAP TEST HELPER
@@ -431,7 +444,7 @@ void fillContainerWithData(CONTAINER& x,
     }
 }
 
-template<typename CONTAINER>
+template <class CONTAINER>
 void validateIteration(CONTAINER &c)
 {
     typedef typename CONTAINER::iterator       iterator;
@@ -2097,7 +2110,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase7()
             const size_t      LENGTH = (int) strlen(SPEC);
 
             if (verbose) {
-                printf("\nFor an object of length %d:\n", LENGTH);
+                printf("\nFor an object of length " ZU ":\n", LENGTH);
                 P(SPEC);
             }
 
@@ -2739,7 +2752,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase3()
             Obj mX(&oa);
 
             if ((int)LENGTH != oldLen) {
-                if (verbose) printf("\tof length %d:\n", LENGTH);
+                if (verbose) printf("\tof length " ZU ":\n", LENGTH);
                  ASSERTV(LINE, oldLen <= (int)LENGTH);  // non-decreasing
                 oldLen = LENGTH;
             }
@@ -2934,9 +2947,8 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase2()
             if (veryVerbose) { printf("\n\tTesting 'insert' (bootstrap).\n"); }
 
             if (0 < LENGTH) {
-                if (verbose) {
-                    printf("\t\tOn an object of initial length %d.\n", LENGTH);
-                }
+                if (verbose) printf(
+                       "\t\tOn an object of initial length " ZU ".\n", LENGTH);
 
                 for (size_t tj = 0; tj < LENGTH - 1; ++tj) {
                     if (veryVeryVeryVerbose) {

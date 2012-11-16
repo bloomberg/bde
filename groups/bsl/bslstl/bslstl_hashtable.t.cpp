@@ -2248,7 +2248,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase7()
             const size_t      LENGTH = (int) strlen(SPEC);
 
             if (verbose) {
-                printf("\nFor an object of length %d:\n", LENGTH);
+                printf("\nFor an object of length " ZU ":\n", LENGTH);
                 P(SPEC);
             }
 
@@ -3067,7 +3067,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase3()
             Obj mX(HASHER(), COMPARATOR(), LENGTH, &oa);
 
             if ((int)LENGTH != oldLen) {
-                if (verbose) printf("\tof length %d:\n", LENGTH);
+                if (verbose) printf("\tof length " ZU ":\n", LENGTH);
                  ASSERTV(LINE, oldLen <= (int)LENGTH);  // non-decreasing
                 oldLen = LENGTH;
             }
@@ -3356,9 +3356,8 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
                 printf("\n\tTesting 'insertElement' (bootstrap function).\n");
             }
             if (0 < LENGTH) {
-                if (verbose) {
-                  printf("\t\tOn an object of initial length "ZU".\n", LENGTH);
-                }
+                if (verbose) printf(
+                       "\t\tOn an object of initial length " ZU ".\n", LENGTH);
 
                 for (size_t tj = 0; tj < LENGTH - 1; ++tj) {
                     Link *RESULT = insertElement(&mX, VALUES[tj]);
@@ -3485,9 +3484,8 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
                   "\n\tRepeat testing 'insertElement', with memory checks.\n");
             }
             if (0 < LENGTH) {
-                if (verbose) {
-                  printf("\t\tOn an object of initial length "ZU".\n", LENGTH);
-                }
+                if (verbose) printf(
+                       "\t\tOn an object of initial length " ZU ".\n", LENGTH);
 
                 for (size_t tj = 0; tj < LENGTH - 1; ++tj) {
                     Link *RESULT = insertElement(&mX, VALUES[tj]);

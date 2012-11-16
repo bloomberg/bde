@@ -209,7 +209,7 @@ class HashTableIterator
         // 'bslalg::BidirectionalLink'.  Note that this constructor is an
         // implementation detail and is not part of the C++ standard.
 
-    HashTableIterator(const NcIter& original);
+    HashTableIterator(const NcIter& original);                      // IMPLICIT
         // Create an iterator at the same position as the specified 'original'
         // iterator.  Note that this constructor enables converting from
         // modifiable to 'const' iterator types.

@@ -4,8 +4,6 @@
 #include <bslstl_allocator.h>
 #include <bslstl_bidirectionalnodepool.h>
 
-#include <bsltf_templatetestfacility.h>
-
 #include <bslalg_bidirectionallinklistutil.h>
 #include <bslalg_hashtableanchor.h>
 #include <bslalg_hashtablebucket.h>
@@ -19,6 +17,8 @@
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
 #include <bsls_util.h>
+
+#include <bsltf_templatetestfacility.h>
 
 #include <stddef.h>
 #include <stdio.h>
@@ -188,7 +188,7 @@ class NodePool {
     typedef bslalg::BidirectionalNode<VALUE> Node;
 
     // CREATORS
-    NodePool(bslma::Allocator *basicAllocator)
+    explicit NodePool(bslma::Allocator *basicAllocator)
     : d_pool(basicAllocator)
     {
     }
