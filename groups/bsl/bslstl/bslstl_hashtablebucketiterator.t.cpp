@@ -940,8 +940,8 @@ void TestDriver<VALUE>::testCase6()
             ObjC mY2(NODE2, BUCKET2); const ObjC& Y2 = mY2;
 
             if (b1 != b2) {
-                bsls_AssertFailureHandlerGuard hG(
-                                              bsls_AssertTest::failTestDriver);
+                bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
                 ASSERT_SAFE_FAIL(EXP == (X1 == Y1));
                 ASSERT_SAFE_FAIL(EXP == (Y1 == X1));
                 ASSERT_SAFE_FAIL(EXP == (X1 == Y2));

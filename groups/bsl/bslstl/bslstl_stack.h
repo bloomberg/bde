@@ -73,7 +73,7 @@ BSLS_IDENT("$Id: $")
 // Hence if the underlying container takes 'bsl::allocator', then the 'stack'
 // object can take 'bslma_Allocator *'s to supply memory allocation.  If no
 // allocator is specified, 'allocator()' is used, which winds up using
-// 'bslma_Default::allocator(0)'.
+// 'bslma::Default::allocator(0)'.
 //
 ///Operations
 ///----------
