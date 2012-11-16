@@ -121,44 +121,6 @@ typedef bsls::BuildTargetMtNo bsls_NoMtBuildTarget;
 
 #endif
 
-#ifdef BSLS_PLATFORM_CPU_64_BIT
-
-#ifdef BSLS_PLATFORM_CPU_32_BIT
-#error Do not define both BSLS_PLATFORM_CPU_64_BIT and BSLS_PLATFORM_CPU_32_BIT
-#endif
-
-namespace bsls {
-
-struct BuildTarget64BitYes {
-    static const int s_isBuildTarget64Bit;
-};
-typedef BuildTarget64BitYes BuildTarget64Bit;
-
-}  // close package namespace
-
-#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
-typedef bsls::BuildTarget64BitYes bsls_Yes64BitBuildTarget;
-    // This alias is defined for backward compatibility.
-#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
-
-#else
-
-namespace bsls {
-
-struct BuildTarget64BitNo {
-    static const int s_isBuildTarget64Bit;
-};
-typedef BuildTarget64BitNo BuildTarget64Bit;
-
-}  // close package namespace
-
-#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
-typedef bsls::BuildTarget64BitNo bsls_No64BitBuildTarget;
-    // This alias is defined for backward compatibility.
-#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
-
-#endif
-
 // Force linker to pull in this component's object file.
 
 #if defined(BSLS_PLATFORM_CMP_IBM)
@@ -166,16 +128,12 @@ static const int *bsls_buildtarget_assertion1 =
                                      &bsls::BuildTargetExc::s_isBuildTargetExc;
 static const int *bsls_buildtarget_assertion2 =
                                        &bsls::BuildTargetMt::s_isBuildTargetMt;
-static const int *bsls_buildtarget_assertion3 =
-                                 &bsls::BuildTarget64Bit::s_isBuildTarget64Bit;
 #else
 namespace {
     extern const int *const bsls_buildtarget_assertion1 =
                                      &bsls::BuildTargetExc::s_isBuildTargetExc;
     extern const int *const bsls_buildtarget_assertion2 =
                                        &bsls::BuildTargetMt::s_isBuildTargetMt;
-    extern const int *const bsls_buildtarget_assertion3 =
-                                 &bsls::BuildTarget64Bit::s_isBuildTarget64Bit;
 }
 #endif
 
@@ -188,9 +146,6 @@ typedef bsls::BuildTargetExc bsls_ExcBuildTarget;
     // This alias is defined for backward compatibility.
 
 typedef bsls::BuildTargetMt bsls_MtBuildTarget;
-    // This alias is defined for backward compatibility.
-
-typedef bsls::BuildTarget64Bit bsls_64BitBuildTarget;
     // This alias is defined for backward compatibility.
 
 #endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY

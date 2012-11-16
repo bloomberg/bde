@@ -87,12 +87,6 @@ int main(int argc, char *argv[])
         ASSERT(0 == bsls::BuildTargetMt::s_isBuildTargetMt);
 #endif
 
-#ifdef BSLS_PLATFORM_CPU_64_BIT
-        ASSERT(1 == bsls::BuildTarget64Bit::s_isBuildTarget64Bit);
-#else
-        ASSERT(0 == bsls::BuildTarget64Bit::s_isBuildTarget64Bit);
-#endif
-
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);

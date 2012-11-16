@@ -28,16 +28,6 @@ const int bsls::BuildTargetMtNo::s_isBuildTargetMt = 0;
 
 #endif
 
-#ifdef BSLS_PLATFORM_CPU_64_BIT
-
-const int bsls::BuildTarget64BitYes::s_isBuildTarget64Bit = 1;
-
-#else
-
-const int bsls::BuildTarget64BitNo::s_isBuildTarget64Bit = 0;
-
-#endif
-
 }  // close enterprise namespace
 
 // ---------------------------------------------------------------------------
