@@ -67,91 +67,88 @@ namespace bslmf {
 
 template <typename TYPE>
 struct IsIntegral_Imp : bsl::false_type {
-    // This 'struct' template provides a meta-function to determine whether the
-    // (template parameter) 'TYPE' is a integral type.  This generic default
-    // template derives from 'bsl::false_type'.  Template specializations are
-    // provided (below) that derives from 'bsl::true_type'.
+    // This 'struct' template implements a meta-function to determine whether
+    // the (template parameter) 'TYPE' is a integral type.  This generic
+    // default template derives from 'bsl::false_type'.  Template
+    // specializations are provided (below) that derives from 'bsl::true_type'.
 };
 
 template <>
 struct IsIntegral_Imp<bool> : bsl::true_type {
-     // This partial specialization of 'IsIntegral_Imp' derives from
-     // 'bsl::true_type' for when the (template parameter) 'TYPE' is a integral
-     // type.
+     // This specialization of 'IsIntegral_Imp', for when the (template
+     // parameter) 'TYPE' is a integral type, derives from 'bsl::true_type'.
 };
 
 template <>
 struct IsIntegral_Imp<char> : bsl::true_type {
-     // This specialization of 'IsIntegral_Imp' derives from 'bsl::true_type'
-     // for when the (template parameter) 'TYPE' is a integral type.
+     // This specialization of 'IsIntegral_Imp', for when the (template
+     // parameter) 'TYPE' is a integral type, derives from 'bsl::true_type'.
 };
 
 template <>
 struct IsIntegral_Imp<wchar_t> : bsl::true_type {
-     // This specialization of 'IsIntegral_Imp' derives from 'bsl::true_type'
-     // for when the (template parameter) 'TYPE' is a integral type.
+     // This specialization of 'IsIntegral_Imp', for when the (template
+     // parameter) 'TYPE' is a integral type, derives from 'bsl::true_type'.
 };
 
 template <>
 struct IsIntegral_Imp<signed char> : bsl::true_type {
-     // This specialization of 'IsIntegral_Imp' derives from 'bsl::true_type'
-     // for when the (template parameter) 'TYPE' is a integral type.
+     // This specialization of 'IsIntegral_Imp', for when the (template
+     // parameter) 'TYPE' is a integral type, derives from 'bsl::true_type'.
 };
 
 template <>
 struct IsIntegral_Imp<unsigned char> : bsl::true_type {
-     // This partial specialization of 'IsIntegral_Imp' derives from
-     // 'bsl::true_type' for when the (template parameter) 'TYPE' is a integral
-     // type.
+     // This specialization of 'IsIntegral_Imp', for when the (template
+     // parameter) 'TYPE' is a integral type, derives from 'bsl::true_type'.
 };
 
 template <>
 struct IsIntegral_Imp<short> : bsl::true_type {
-     // This specialization of 'IsIntegral_Imp' derives from 'bsl::true_type'
-     // for when the (template parameter) 'TYPE' is a integral type.
+     // This specialization of 'IsIntegral_Imp', for when the (template
+     // parameter) 'TYPE' is a integral type, derives from 'bsl::true_type'.
 };
 
 template <>
 struct IsIntegral_Imp<unsigned short> : bsl::true_type {
-     // This specialization of 'IsIntegral_Imp' derives from 'bsl::true_type'
-     // for when the (template parameter) 'TYPE' is a integral type.
+     // This specialization of 'IsIntegral_Imp', for when the (template
+     // parameter) 'TYPE' is a integral type, derives from 'bsl::true_type'.
 };
 
 template <>
 struct IsIntegral_Imp<int> : bsl::true_type {
-     // This specialization of 'IsIntegral_Imp' derives from 'bsl::true_type'
-     // for when the (template parameter) 'TYPE' is a integral type.
+     // This specialization of 'IsIntegral_Imp', for when the (template
+     // parameter) 'TYPE' is a integral type, derives from 'bsl::true_type'.
 };
 
 template <>
 struct IsIntegral_Imp<unsigned int> : bsl::true_type {
-     // This partial specialization of 'IsIntegral_Imp' derives from
-     // 'bsl::true_type' for when the (template parameter) 'TYPE' is a integral
-     // type.
+     // This specialization of 'IsIntegral_Imp', for when the (template
+     // parameter) 'TYPE' is a integral type, derives from 'bsl::true_type'.
 };
 
 template <>
 struct IsIntegral_Imp<long int> : bsl::true_type {
-     // This specialization of 'IsIntegral_Imp' derives from 'bsl::true_type'
-     // for when the (template parameter) 'TYPE' is a integral type.
+     // This specialization of 'IsIntegral_Imp', for when the (template
+     // parameter) 'TYPE' is a integral type, derives from 'bsl::true_type'.
 };
 
 template <>
 struct IsIntegral_Imp<unsigned long int> : bsl::true_type {
-     // This specialization of 'IsIntegral_Imp' derives from 'bsl::true_type'
-     // for when the (template parameter) 'TYPE' is a integral type.
+     // This specialization of 'IsIntegral_Imp', for when the (template
+     // parameter) 'TYPE' is a integral type, derives from 'bsl::true_type'.
 };
 
 template <>
 struct IsIntegral_Imp<bsls::Types::Int64> : bsl::true_type {
-     // This specialization of 'IsIntegral_Imp' derives from 'bsl::true_type'
-     // for when the (template parameter) 'TYPE' is a integral type.
+     // This specialization of 'IsIntegral_Imp', for when the (template
+     // parameter) 'TYPE' is a integral type, derives from 'bsl::true_type'.
 };
 
 template <>
 struct IsIntegral_Imp<bsls::Types::Uint64> : bsl::true_type {
-     // This specialization of 'IsIntegral_Imp' derives from 'bsl::true_type'
-     // for when the (template parameter) 'TYPE' is a integral type.
+     // This specialization of 'IsIntegral_Imp', for when the (template
+     // parameter) 'TYPE' is a integral type, derives from 'bsl::true_type'.
 };
 
 }  // close package namespace
@@ -169,7 +166,7 @@ struct is_integral
     // This 'struct' template implements the 'is_integral' meta-function
     // defined in the C++11 standard [meta.unary.cat] to determine if the
     // (template parameter) 'TYPE' is a integral type.  This 'struct' derives
-    // from 'bsl::true_type' if the 'TYPE' is a integral type and
+    // from 'bsl::true_type' if the 'TYPE' is a integral type, and
     // 'bsl::false_type' otherwise.
 };
 

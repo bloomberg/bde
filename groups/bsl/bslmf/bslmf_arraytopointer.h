@@ -31,11 +31,11 @@ BSLS_IDENT("$Id: $")
 ///-----
 // For example:
 //..
-//  assert(1 == bslmf::IsSame<bslmf::ArrayToPointer<int[5]>::Type
+//  assert(1 == bsl::is_same<bslmf::ArrayToPointer<int[5]>::Type
 //                          , int *>::value);
-//  assert(1 == bslmf::IsSame<bslmf::ArrayToPointer<int *>::Type
+//  assert(1 == bsl::is_same<bslmf::ArrayToPointer<int *>::Type
 //                          , int *>::value);
-//  assert(0 == bslmf::IsSame<bslmf::ArrayToPointer<int (*)[5]>::Type]
+//  assert(0 == bsl::is_same<bslmf::ArrayToPointer<int (*)[5]>::Type]
 //                          , int **>::value);
 //..
 

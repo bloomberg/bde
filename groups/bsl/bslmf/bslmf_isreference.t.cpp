@@ -1,22 +1,21 @@
 // bslmf_isreference.t.cpp                                            -*-C++-*-
 #include <bslmf_isreference.h>
 
-#include <iostream>
+#include <cstdio>
 #include <cstdlib>
 
-using namespace std;
-using namespace bsl;
 using namespace BloombergLP;
+using namespace std;
 
 //=============================================================================
 //                                TEST PLAN
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// The object under test is a meta-function, 'bsl::is_reference', which
-// determine whether a template parameter type is a reference type.  Thus, we
-// need to ensure that the value returned by this meta-functions is correct for
-// each possible category of types.
+// The component under test defines a meta-function, 'bsl::is_reference', that
+// determines whether a template parameter type is a (lvalue or rvalue)
+// reference type.  Thus, we need to ensure that the value returned by this
+// meta-functions is correct for each possible category of types.
 //
 // ----------------------------------------------------------------------------
 // PUBLIC CLASS DATA
@@ -28,32 +27,58 @@ using namespace BloombergLP;
 //=============================================================================
 //                  STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
+// NOTE: THIS IS A LOW-LEVEL COMPONENT AND MAY NOT USE ANY C++ LIBRARY
+// FUNCTIONS, INCLUDING IOSTREAMS.
+int testStatus = 0;
 
-static int testStatus = 0;
-
-static void aSsErT(int c, const char *s, int i)
-{
+namespace {
+    void aSsErT(int c, const char *s, int i) {
     if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
-             << "    (failed)" << endl;
+        printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
         if (testStatus >= 0 && testStatus <= 100) ++testStatus;
     }
 }
+}
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+//=============================================================================
+//                  STANDARD BDE LOOP-ASSERT TEST MACROS
 //-----------------------------------------------------------------------------
+// NOTE: This implementation of LOOP_ASSERT macros must use printf since
+//       cout uses new and be called during exception testing.
 #define LOOP_ASSERT(I,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__);}}
+    if (!(X)) { printf("%s: %d\n", #I, I); aSsErT(1, #X, __LINE__); } }
 
 #define LOOP2_ASSERT(I,J,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-        << J << "\n"; aSsErT(1, #X, __LINE__); } }
+    if (!(X)) { printf("%s: %d\t%s: %d\n", #I, I, #J, J); \
+                aSsErT(1, #X, __LINE__); } }
+
+#define LOOP3_ASSERT(I,J,K,X) { \
+    if (!(X)) { printf("%s: %d\t%s: %c\t%s: %c\n", #I, I, #J, J, #K, K); \
+                aSsErT(1, #X, __LINE__); } }
+
+#define LOOP4_ASSERT(I,J,K,L,X) { \
+    if (!(X)) { printf("%s: %d\t%s: %d\t%s: %d\t%s: %d\n", \
+                #I, I, #J, J, #K, K, #L, L); aSsErT(1, #X, __LINE__); } }
+
 //=============================================================================
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", " << flush; // P(X) without '\n'
+//                  SEMI-STANDARD TEST OUTPUT MACROS
+//-----------------------------------------------------------------------------
+// #define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
+#define Q(X) printf("<| " #X " |>\n");  // Quote identifier literally.
+//#define P_(X) cout << #X " = " << (X) << ", " << flush; // P(X) without '\n'
 #define L_ __LINE__                           // current Line number
-#define T_() cout << '\t' << flush;           // Print tab w/o linefeed.
+#define T_ printf("\t");             // Print a tab (w/o newline)
+
+//=============================================================================
+//                  SEMI-STANDARD NEGATIVE-TESTING MACROS
+//-----------------------------------------------------------------------------
+#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
+#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
+#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
+#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
+#define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
+#define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -61,51 +86,46 @@ static void aSsErT(int c, const char *s, int i)
 
 namespace {
 
-enum   EnumTestType {
-    // This user-defined 'enum' type is intended to be used during testing as
-    // an argument for the template parameter 'TYPE' of 'bsl::is_reference'.
+enum EnumTestType {
+    // This user-defined 'enum' type is intended to be used for testing as the
+    // template parameter 'TYPE' of 'bsl::is_reference'.
 };
 
 struct StructTestType {
-    // This user-defined 'struct' type is intended to be used during testing as
-    // an argument for the template parameter 'TYPE' of 'bsl::is_reference'.
+    // This user-defined 'struct' type is intended to be used for testing as
+    // the template parameter 'TYPE' of 'bsl::is_reference'.
 };
 
-union  UnionTestType {
-    // This user-defined 'union' type is intended to be used during testing as
-    // an argument for the template parameter 'TYPE' of 'bsl::is_reference'.
+union UnionTestType {
+    // This user-defined 'union' type is intended to be used for testing as the
+    // template parameter 'TYPE' of 'bsl::is_reference'.
 };
 
-class  BaseClassTestType {
-    // This user-defined base class type is intended to be used during testing
-    // as an argument for the template parameter 'TYPE' of 'bsl::is_reference'.
+class BaseClassTestType {
+    // This user-defined base class type is intended to be used for testing as
+    // the template parameter 'TYPE' of 'bsl::is_reference'.
 };
 
-class  DerivedClassTestType : public BaseClassTestType {
-    // This user-defined derived class type is intended to be used during
-    // testing as an argument for the template parameter 'TYPE' of
-    // 'bsl::is_reference'.
+class DerivedClassTestType : public BaseClassTestType {
+    // This user-defined derived class type is intended to be used for testing
+    // as the template parameter 'TYPE' of 'bsl::is_reference'.
 };
 
 typedef int (StructTestType::*MethodPtrTestType) ();
-    // This non-static function member type is intended to be used during
-    // testing as an argument for the template parameter 'TYPE' of
-    // 'bsl::is_reference'.
+    // This pointer type to non-static function member is intended to be used
+    // for testing as the template parameter 'TYPE' of 'bsl::is_reference'.
 
 typedef void (*FunctionPtrTestType) ();
-    // This function pointer type is intended to be used during testing as an
-    // argument as an argument for the template parameter 'TYPE' of
-    // 'bsl::is_reference'.
+    // This function pointer type is intended to be used for testing as the
+    // template parameter 'TYPE' of 'bsl::is_reference'.
 
 typedef int StructTestType::* PMD;
-    // This class public data member pointer type is intended to be used during
-    // testing as an argument as an argument for the template parameter 'TYPE'
-    // of 'bsl::is_reference'.
+    // This pointer type to data member is intended to be used for testing as
+    // the template parameter 'TYPE' of 'bsl::is_reference'.
 
 struct Incomplete;
-    // This incomplete 'struct' type is intended to be used during testing as
-    // an argument as an argument for the template parameter 'TYPE' of
-    // 'bsl::is_reference'.
+    // This incomplete 'struct' type is intended to be used for testing as the
+    // template parameter 'TYPE' of 'bsl::is_reference'.
 
 }  // close unnamed namespace
 
@@ -139,7 +159,6 @@ struct Incomplete;
     TYPE_ASSERT_CVQ_SUFFIX(metaFunc, member, volatile type, result);          \
     TYPE_ASSERT_CVQ_SUFFIX(metaFunc, member, const volatile type, result);
 
-
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -150,7 +169,7 @@ int main(int argc, char *argv[])
     int verbose = argc > 2;
     int veryVerbose = argc > 3;
 
-    cout << "TEST " << __FILE__ << " CASE " << test << endl;
+    printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:
       case 2: {
@@ -170,17 +189,39 @@ int main(int argc, char *argv[])
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "USAGE EXAMPLE" << endl
-                                  << "=============" << endl;
+        if (verbose) printf("USAGE EXAMPLE\n"
+                            "=============\n");
+
+///Usage
+///-----
+// In this section we show intended use of this component.
+//
+///Example 1: Verify Reference Types
+///- - - - - - - - - - - - - - - - -
+// Suppose that we want to assert whether a set of types are (lvalue or rvalue)
+// reference types.
+//
+// Now, we instantiate the 'bsl::is_reference' template for a non-reference
+// type, a lvalue reference type, and a rvalue reference type, and assert the
+// 'value' static data member of each instantiation:
+//..
+    ASSERT(false == bsl::is_reference<int>::value);
+    ASSERT(true  == bsl::is_reference<int&>::value);
+  #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+    ASSERT(true  == bsl::is_reference<int&&>::value);
+  #endif
+//..
+// Note that rvalue reference is a feature introduced in C++11 standand, and
+// may not be supported by all compilers.
 
 
       } break;
       case 1: {
         // --------------------------------------------------------------------
         // 'bsl::is_reference::value'
-        //   Ensure that the static data member 'value' of
-        //   'bsl::is_reference' instantiations having various (template
-        //   parameter) 'TYPES' has the correct value.
+        //   Ensure that the static data member 'value' of 'bsl::is_reference'
+        //   instantiations having various (template parameter) 'TYPE' has the
+        //   correct value.
         //
         // Concerns:
         //: 1 'is_reference::value' is 'false' when 'TYPE' is a (possibly
@@ -206,9 +247,8 @@ int main(int argc, char *argv[])
         //   bsl::is_reference::value
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "bsl::is_reference::value" << endl
-                          << "========================" << endl;
+        if (verbose) printf("bsl::is_reference::value\n"
+                            "========================\n");
 
         // C-1
         TYPE_ASSERT_CVQ_SUFFIX(bsl::is_reference, value, void, false);
@@ -337,13 +377,13 @@ int main(int argc, char *argv[])
         TYPE_ASSERT_CVQ_PREFIX(bsl::is_reference, value, void (int),  false);
       } break;
       default: {
-        cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
-        testStatus = -1;
+          fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
+          testStatus = -1;
       }
     }
 
     if (testStatus > 0) {
-        cerr << "Error, non-zero test status = " << testStatus << "." << endl;
+        fprintf(stderr, "Error, non-zero test status = %d.\n", testStatus);
     }
 
     return testStatus;

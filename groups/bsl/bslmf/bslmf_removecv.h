@@ -15,7 +15,7 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: bslmf_addcv
 //
 //@DESCRIPTION: This component defines a meta-function, 'bsl::remove_cv', that
-// may be used to remove the top-level cv-qualifier ('const'-qualifier and
+// may be used to remove any top-level cv-qualifiers ('const'-qualifier and
 // 'volatile'-qualifier) from a type.
 //
 // 'bsl::remove_const' meets the requirements of the 'remove_cv' template
@@ -25,18 +25,19 @@ BSLS_IDENT("$Id: $")
 ///-----
 // In this section we show intended use of this component.
 //
-///Example 1: Removing The CV-Qualifier of A Type
-/// - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose that we want to strip the cv-qualifier from a particular type.
+///Example 1: Removing the CV-Qualifiers of a Type
+///- - - - - - - - - - - - - - - - - - - - - - - -
+// Suppose that we want to remove the cv-qualifiers from a particular type.
 //
-// First, we create two 'typedef's -- a cv-qualified type ('MyCvType') and the
-// same type without the cv-qualifier ('MyType'):
+// First, we create two 'typedef's -- a 'const'-qualified and
+// 'volatile'-qualified type ('MyCvType') and the same type without the
+// cv-qualifier ('MyType'):
 //..
 //  typedef int                MyType;
 //  typedef const volatile int MyCvType;
 //..
-// Now, we strip the the cv-qualifier from 'MyCvType' using 'bsl::remove_cv'
-// and verify that the resulting type is the same as 'MyType':
+// Now, we remove the cv-qualifiers from 'MyCvType' using 'bsl::remove_cv' and
+// verify that the resulting type is the same as 'MyType':
 //..
 //  assert(true == (bsl::is_same<bsl::remove_cv<MyCvType>::type,
 //                                                            MyType>::value));
@@ -63,9 +64,10 @@ namespace bsl {
 template <typename TYPE>
 struct remove_cv {
     // This 'struct' template implements the 'remove_cv' meta-function defined
-    // in the C++11 standard [meta.trans.cv] to provide a 'typedef' 'type' that
-    // has the same type as the (template parameter) 'TYPE' except that any
-    // top-level cv-qualifier has been removed.
+    // in the C++11 standard [meta.trans.cv], providing an alias, 'type', that
+    // returns the result.  'type' has the same type as the (template
+    // parameter) 'TYPE' except that any top-level cv-qualifiers has been
+    // removed.
 
     typedef typename remove_const<typename remove_volatile<TYPE>::type>::type
                                                                           type;

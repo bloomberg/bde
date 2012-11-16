@@ -49,15 +49,15 @@ BSLS_IDENT("$Id: $")
 //      assert(1 == bslmf::IsFunctionPointer<IntFunctionIntIntPtr>::value);
 //      typedef bslmf::FunctionPointerTraits<IntFunctionIntIntPtr>::ResultType
 //          ResultType1;
-//      assert(1 == (bslmf::IsSame<ResultType1, int>::value));
+//      assert(1 == (bsl::is_same<ResultType1, int>::value));
 //
 //      assert(1 == bslmf::IsFunctionPointer<VoidFunc0>::value);
 //      typedef bslmf::FunctionPointerTraits<VoidFunc0>::ResultType
 //          ResultType0;
 //      typedef bslmf::FunctionPointerTraits<VoidFunc0>::ArgumentList
 //          ArgList0;
-//      assert(1 == (bslmf::IsSame<ResultType0, void>::value));
-//      assert(1 == (bslmf::IsSame<ArgList0, bslmf::TypeList0>::value));
+//      assert(1 == (bsl::is_same<ResultType0, void>::value));
+//      assert(1 == (bsl::is_same<ArgList0, bslmf::TypeList0>::value));
 //  }
 //..
 

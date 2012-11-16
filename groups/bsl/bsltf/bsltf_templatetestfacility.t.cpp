@@ -979,16 +979,16 @@ int main(int argc, char *argv[]) {
         if (verbose) printf("\nALIASES"
                             "\n=======\n");
 
-          BSLMF_ASSERT((bslmf::IsSame<TemplateTestFacility_StubClass*,
-                                     TemplateTestFacility::ObjectPtr>::VALUE));
+          BSLMF_ASSERT((bsl::is_same<TemplateTestFacility_StubClass*,
+                                     TemplateTestFacility::ObjectPtr>::value));
 
-          BSLMF_ASSERT((bslmf::IsSame<
+          BSLMF_ASSERT((bsl::is_same<
                                    void (*) (),
-                                   TemplateTestFacility::FunctionPtr>::VALUE));
+                                   TemplateTestFacility::FunctionPtr>::value));
 
-          BSLMF_ASSERT((bslmf::IsSame<
+          BSLMF_ASSERT((bsl::is_same<
                                     int (TemplateTestFacility_StubClass::*) (),
-                                    TemplateTestFacility::MethodPtr>::VALUE));
+                                    TemplateTestFacility::MethodPtr>::value));
 
       } break;
       case 1: {

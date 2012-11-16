@@ -34,7 +34,7 @@ static void aSsErT(int c, const char *s, int i) {
     }
 }
 #define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-#define ASSERT_SAME(X,Y) { ASSERT((1==bslmf::IsSame<X,Y>::value)); }
+#define ASSERT_SAME(X,Y) { ASSERT((1==bsl::is_same<X,Y>::value)); }
 //-----------------------------------------------------------------------------
 #define LOOP_ASSERT(I,X) { \
     if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__);}}
@@ -80,7 +80,7 @@ int main(int argc, char *argv[])
       case 3: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
-        //   Simple example illustrating use of 'bslmf::IsArray'.
+        //   Simple example illustrating use of 'bsl::is_array'.
         //
         // Concerns:
         //
@@ -101,11 +101,11 @@ int main(int argc, char *argv[])
 ///-----
 // For example:
 //..
-        ASSERT(1 == (bslmf::IsSame<bslmf::ArrayToPointer<int[5]>::Type
+        ASSERT(1 == (bsl::is_same<bslmf::ArrayToPointer<int[5]>::Type
                                  , int*>::value));
-        ASSERT(1 == (bslmf::IsSame<bslmf::ArrayToPointer<int*>::Type
+        ASSERT(1 == (bsl::is_same<bslmf::ArrayToPointer<int*>::Type
                                  , int*>::value));
-        ASSERT(1 == (bslmf::IsSame<bslmf::ArrayToPointer<int(*)[5]>::Type
+        ASSERT(1 == (bsl::is_same<bslmf::ArrayToPointer<int(*)[5]>::Type
                                  , int(*)[5]>::value));
         P(typeid(bslmf::ArrayToPointer<int(*)[5]>::Type).name());
       } break;

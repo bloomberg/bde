@@ -18,14 +18,14 @@ using std::atoi;
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// The object under test is a meta-functions, 'bsl::add_volatile', that adds
-// the top-level 'volatile'-qualifier to a template parameter type.  Thus, we
-// need to ensure that the values returned by the meta-function is correct for
-// each possible category of types.
+// The component under test defines a meta-function, 'bsl::add_volatile', that
+// adds a top-level 'volatile'-qualifier to a template parameter type.  Thus,
+// we need to ensure that the values returned by the meta-function is correct
+// for each possible category of types.
 //
 // ----------------------------------------------------------------------------
-// PUBLIC CLASS DATA
-// [ 1] bsl::add_volatile
+// PUBLIC TYPES
+// [ 1] bsl::add_volatile::type
 //
 // ----------------------------------------------------------------------------
 // [ 2] USAGE EXAMPLE
@@ -87,8 +87,7 @@ int main(int argc, char *argv[])
     int verbose = argc > 2;
     int veryVerbose = argc > 3;
 
-    (void) verbose;
-    (void) veryVerbose;
+    (void)verbose;
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
@@ -117,9 +116,9 @@ int main(int argc, char *argv[])
 ///-----
 // In this section we show intended use of this component.
 //
-///Example 1: Adding The Volatile-Qualifier to A Type
-///- - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose that we want to add the 'volatile'-qualifier to a particular type..
+///Example 1: Adding a 'volatile'-qualifier to a Type
+/// - - - - - - - - - - - - - - - - - - - - - - - - -
+// Suppose that we want to add a 'volatile'-qualifier to a particular type.
 //
 // First, we create two 'typedef's -- a 'volatile'-qualified type
 // ('MyVolatileType') and the same type without the 'volatile'-qualifier
@@ -128,12 +127,11 @@ int main(int argc, char *argv[])
         typedef int          MyType;
         typedef volatile int MyVolatileType;
 //..
-// Now, we add the the 'volatile'-qualifier to 'MyType' using
-// 'bsl::add_volatile' and verify that the resulting type is the same as
-// 'MyVolatileType':
+// Now, we add a 'volatile'-qualifier to 'MyType' using 'bsl::add_volatile' and
+// verify that the resulting type is the same as 'MyVolatileType':
 //..
-        ASSERT(true ==
-       (bsl::is_same<bsl::add_volatile<MyType>::type, MyVolatileType>::value));
+        ASSERT(true == (bsl::is_same<bsl::add_volatile<MyType>::type,
+                                                      MyVolatileType>::value));
 //..
 
       } break;
@@ -144,18 +142,19 @@ int main(int argc, char *argv[])
         //   has the correct type for a variety of template parameter types.
         //
         // Concerns:
-        //: 1 'bsl::add_volatile' only adds top-level 'volatile'-qualifier to
-        //:   regular types (test primitive, pointers, and userdefined types).
+        //: 1 'bsl::add_volatile' adds a top-level 'volatile'-qualifier only to
+        //:   regular types (primitive, pointers, and user-defined types).
         //:
-        //: 2 'bsl::add_volatile' doesn't add 'volatile'-qualifier to reference
-        //:   types, function types, and already 'volatile'-qualified types.
+        //: 2 'bsl::add_volatile' does not add a 'volatile'-qualifier to
+        //:   reference types, function types, or types that are already
+        //:   'volatile'-qualified.
         //
         // Plan:
         //   Verify that 'bsl::add_volatile::type' has the correct type for
         //   each concern.
         //
         // Testing:
-        //   bsl::add_volatile
+        //   bsl::add_volatile::type
         // --------------------------------------------------------------------
 
         if (verbose) printf("\n'bsl::remove_volatile'\n"

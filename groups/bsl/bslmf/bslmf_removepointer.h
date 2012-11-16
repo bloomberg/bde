@@ -15,8 +15,7 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: bslmf_addpointer
 //
 //@DESCRIPTION: This component defines a meta-function, 'bsl::remove_pointer',
-// that may be used to transform a pointer type to the type pointed to by the
-// pointer type.
+// that may be used to get the type pointed to by a pointer type.
 //
 // 'bsl::remove_pointer' meets the requirements of the 'remove_pointer'
 // template defined in the C++11 standard [meta.trans.ptr].
@@ -25,10 +24,9 @@ BSLS_IDENT("$Id: $")
 ///-----
 // In this section we show intended use of this component.
 //
-///Example 1: Transform Pointer Type to The Type Pointed to By the Pointer Type
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose that we want to transform a pointer type to the type pointed to by
-// that poiner type.
+///Example 1: Get the Type Pointed to by a Pointer Type
+/// - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Suppose that we want to get the type pointed to by a poiner type.
 //
 // First, we create two 'typedef's -- a pointer type ('MyPtrType')
 // and the type pointed to by the pointer type ('MyType'):
@@ -60,12 +58,11 @@ namespace bslmf {
 
 template <typename TYPE>
 struct RemovePointer_Imp {
-    // This 'struct' template provides a 'typedef' 'Type' that is an alias to
-    // the type pointed to by the (template parameter) 'TYPE' if 'TYPE' is a
-    // (non-cv-qualified) pointer type.  Otherwise, 'Type' is an alias to
-    // 'TYPE'.  This generic default's 'Type' is always an alias to 'TYPE'.  A
-    // template specialization (below) that handles the case of when 'TYPE' is
-    // a pointer type.
+    // This 'struct' template provides an alias 'Type' that refers to the type
+    // pointed to by the (template parameter) 'TYPE' if 'TYPE' is a
+    // (non-cv-qualified) pointer type; otherwise, 'Type' refers to 'TYPE'.
+    // This generic default template's 'Type' always refers to 'TYPE'.  A
+    // template specialization (below) handles when 'TYPE' is a pointer type.
 
     typedef TYPE Type;
         // This 'typedef' is an alias to the (template parameter) 'TYPE'.
@@ -77,9 +74,9 @@ struct RemovePointer_Imp {
 
 template <typename TYPE>
 struct RemovePointer_Imp<TYPE *> {
-     // This partial specialization of 'RemovePointer_Imp' for when the
-     // (template parameter) is a pointer 'TYPE' provides a 'typedef' 'TYPE'
-     // that is an alias to the type pointed to by 'TYPE'.
+     // This partial specialization of 'RemovePointer_Imp', for when the
+     // (template parameter) 'TYPE' is a pointer type, provides an alias 'TYPE'
+     // that refers to the type pointed to by 'TYPE'.
 
     typedef TYPE Type;
         // This 'typedef' is an alias to the type pointed to by the (template
@@ -98,17 +95,17 @@ namespace bsl {
 template <typename TYPE>
 struct remove_pointer {
     // This 'struct' template implements the 'remove_pointer' meta-function
-    // defined in the C++11 standard [meta.trans.ptr] to provide a 'typedef'
-    // 'type'.  'type' is an alias to the type pointed to by the (template
-    // parameter) 'TYPE' if 'TYPE' is a (possibly cv-qualified) pointer type.
-    // Otherwise, 'type' is an alias to 'TYPE'.
+    // defined in the C++11 standard [meta.trans.ptr], providing an alias,
+    // 'type' that returns the result.  If the (template parameter) 'TYPE' is a
+    // (possibly cv-qualified) pointer type, then 'type' is an alias to the
+    // type pointed to by 'TYPE'; otherwise, 'type' is an alias to 'TYPE'.
 
     typedef typename BloombergLP::bslmf::RemovePointer_Imp<
                 typename remove_cv<TYPE>::type>::Type
                                                                           type;
         // This 'typedef' is an alias to the type pointed to by the (template
         // parameter) 'TYPE' if 'TYPE' is a (possibly cv-qualified) pointer
-        // type.  Otherwise.  Otherwise, 'type' is an alias to 'TYPE'.
+        // type; otherwise, 'type' is an alias to 'TYPE'.
 };
 
 }  // close namespace bsl

@@ -16,8 +16,8 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component defines a meta-function, 'bsl::add_cv', that may
 // be used to add a top-level 'const'-qualifier and a 'volatile'-qualifier to a
-// type if it is not a reference, a function or already 'const'-qualified and
-// 'volatile'-qualified at the top-level.
+// type if it is not a reference type, nor a function type, nor already
+// 'const'-qualified and 'volatile'-qualified at the top-level.
 //
 // 'bsl::add_cv' meets the requirements of the 'add_cv' template defined in the
 // C++11 standard [meta.trans.cv].
@@ -26,9 +26,9 @@ BSLS_IDENT("$Id: $")
 ///-----
 // In this section we show intended use of this component.
 //
-///Example 1: Adding The 'const'-qualifier and 'volatile'-qualifier to A Type
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose that we want to add the 'const'-qualifier and 'volatile'-qualifier
+///Example 1: Adding a 'const'-qualifier and 'volatile'-qualifier to a Type
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Suppose that we want to add a 'const'-qualifier and a 'volatile'-qualifier
 // to a particular type.
 //
 // First, we create two 'typedef's -- a 'const'-qualified and
@@ -38,12 +38,10 @@ BSLS_IDENT("$Id: $")
 //  typedef int                MyType;
 //  typedef const volatile int MyCvType;
 //..
-// Now, we add the the 'const'-qualifier and the 'volatile'-qualifier to
-// 'MyType' using 'bsl::add_cv' and verify that the resulting type is the
-// same as 'MyCvType':
+// Now, we add a 'const'-qualifier and a 'volatile'-qualifier to 'MyType' using
+// 'bsl::add_cv' and verify that the resulting type is the same as 'MyCvType':
 //..
-//  assert(true ==
-//                 (bsl::is_same<bsl::add_cv<MyType>::type, MyCvType>::value));
+//  assert(true == (bsl::is_same<bsl::add_cv<MyType>::type, MyCvType>::value));
 //..
 
 #ifndef INCLUDED_BSLSCM_VERSION
@@ -67,19 +65,19 @@ namespace bsl {
 template <typename TYPE>
 struct add_cv {
     // This 'struct' template implements the 'add_cv' meta-function defined in
-    // the C++11 standard [meta.trans.cv] to provide a 'typedef' 'type'.  If
-    // the (template parameter) 'TYPE' is not a reference, nor a function, nor
-    // already 'const'-qualified and 'volatile'-qualified, then 'type' is an
-    // alias to the same type as 'TYPE' except that the top-level
-    // 'const'-qualifier and 'volatile'-qualifier has been added; otherwise,
-    // 'type' is an alias to 'TYPE'.
+    // the C++11 standard [meta.trans.cv], providing an alias, 'type', that
+    // returns the result.  If the the (template parameter) 'TYPE' is not a
+    // reference type, nor a function type, nor already 'const'-qualified and
+    // 'volatile'-qualified at the top-level, then 'type' is an alias to 'TYPE'
+    // with the top-level 'const'-qualifier and 'volatile'-qualifier added;
+    // otherwise, 'type' is an alias to 'TYPE'.
 
     typedef typename add_const<typename add_volatile<TYPE>::type>::type type;
-        // This 'typedef' is an alias alias to the same type as the (template
-        // parameter) 'TYPE' except that the top-level 'const'-qualifier and
-        // 'volatile'-qualifier has been added if 'TYPE' is not a reference,
-        // nor a function, nor already 'const'-qualified and
-        // 'volatile'-qualified; otherwise, 'type' is an alias to 'TYPE'.
+        // This 'typedef' is an alias alias to the (template parameter) 'TYPE'
+        // with a top-level 'const'-qualifier and 'volatile'-qualifier added if
+        // 'TYPE' is not a reference type, nor a function type, nor already
+        // 'const'-qualified and 'volatile'-qualified at the top-level;
+        // otherwise, 'type' is an alias to 'TYPE'.
 
 };
 

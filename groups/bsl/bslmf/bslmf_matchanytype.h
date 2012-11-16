@@ -139,14 +139,6 @@ struct TypeRep<TYPE&> {
         // 'TYPE' has a default constructor or not.
 };
 
-struct DummyType {
-};
-
-template <>
-struct TypeRep<void> {
-    static DummyType& rep();
-};
-
 }  // close package namespace
 
 
