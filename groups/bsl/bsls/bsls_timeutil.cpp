@@ -74,7 +74,7 @@ void UnixTimerUtil::systemProcessTimers(clock_t *systemTimer,
                                         clock_t *userTimer)
 {
     struct tms processTimes;
-    if (-1 == ::times(&processTimes)) {
+    if (static_cast<clock_t>(-1) == ::times(&processTimes)) {
         *systemTimer = 0;
         *userTimer   = 0;
         return;                                                       // RETURN
