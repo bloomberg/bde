@@ -9,7 +9,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Define paths where native headers can be found
+//@PURPOSE: Define paths where native headers can be found.
 //
 //@MACROS:
 // BSL_NATIVE_CPP_LIB_HEADER(header):  path to C++ standard header
@@ -127,40 +127,9 @@ BSLS_IDENT("$Id: $")
                                         BSL_NATIVE_SUN_STLPORT_HEADER(filename)
 #   endif
 
-#elif defined(BSLS_PLATFORM_CMP_CLANG)
-  // Clang (should go before CMP_GNU)
-#   define BSL_NATIVE_CPP_LIB_HEADER(filename) \
-            <../__CLANG_GNUC__.__CLANG_GNUC_MINOR__.__CLANG_GNUC_PATCHLEVEL__/filename>
-#   define BSL_NATIVE_CPP_RUNTIME_HEADER(filename) \
-            <../__CLANG_GNUC__.__CLANG_GNUC_MINOR__.__CLANG_GNUC_PATCHLEVEL__/filename>
-#   define BSL_NATIVE_CPP_DEPRECATED_HEADER(filename) \
-            <../__CLANG_GNUC__.__CLANG_GNUC_MINOR__.__CLANG_GNUC_PATCHLEVEL__/backward/filename>
-#   define BSL_NATIVE_CPP_C_HEADER(filename) \
-            <../__CLANG_GNUC__.__CLANG_GNUC_MINOR__.__CLANG_GNUC_PATCHLEVEL__/filename>
-#   define BSL_NATIVE_CISO646_HEADER(filename) \
-            <../__CLANG_GNUC__.__CLANG_GNUC_MINOR__.__CLANG_GNUC_PATCHLEVEL__/filename>
-#   define BSL_NATIVE_C_LIB_HEADER(filename) <../include/filename>
-#   define BSL_NATIVE_SYS_TIME_HEADER(filename) <../include/filename>
+#elif defined(BSLS_PLATFORM_CMP_CLANG) || defined(BSLS_PLATFORM_CMP_GNU)
 
-#elif defined(BSLS_PLATFORM_CMP_GNU)
-  // gcc 4.1 or above
-#   define BSL_NATIVE_CPP_LIB_HEADER(filename) \
-            <../__GNUC__.__GNUC_MINOR__.__GNUC_PATCHLEVEL__/filename>
-#   define BSL_NATIVE_CPP_RUNTIME_HEADER(filename) \
-            <../__GNUC__.__GNUC_MINOR__.__GNUC_PATCHLEVEL__/filename>
-#   define BSL_NATIVE_CPP_DEPRECATED_HEADER(filename) \
-            <../__GNUC__.__GNUC_MINOR__.__GNUC_PATCHLEVEL__/backward/filename>
-#   define BSL_NATIVE_CPP_C_HEADER(filename) \
-            <../__GNUC__.__GNUC_MINOR__.__GNUC_PATCHLEVEL__/filename>
-#   define BSL_NATIVE_CISO646_HEADER(filename) \
-            <../__GNUC__.__GNUC_MINOR__.__GNUC_PATCHLEVEL__/filename>
-#   define BSL_NATIVE_C_LIB_HEADER(filename) <../include/filename>
-
-#   if defined(BSLS_PLATFORM_OS_HPUX)
-#       define BSL_NATIVE_SYS_TIME_HEADER(filename) <../include-fixed/filename>
-#   else
-#       define BSL_NATIVE_SYS_TIME_HEADER(filename) <../include/filename>
-#   endif
+  // Clang and GCC use 'include_next'
 
 #elif defined(BSLS_PLATFORM_CMP_HP)
   // HP C/aC++

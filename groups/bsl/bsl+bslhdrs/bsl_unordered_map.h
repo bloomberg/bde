@@ -1,4 +1,4 @@
-// bsl_hash_map.h                                                     -*-C++-*-
+// bsl_unordered_map.h                                                -*-C++-*-
 #ifndef INCLUDED_BSL_UNORDERED_MAP
 #define INCLUDED_BSL_UNORDERED_MAP
 
@@ -21,15 +21,11 @@ BSLS_IDENT("$Id: $")
 #include <bsls_nativestd.h>
 #endif
 
-//#if 0   // Enable this on platforms with native C++11 libraries
 #include <unordered_map>
-//#endif
 
 #ifndef BSL_OVERRIDES_STD
-
-#include <bslstl_unordered_map.h>
-#include <bslstl_unordered_multimap.h>
-
+#include <bslstl_unorderedmap.h>
+#include <bslstl_unorderedmultimap.h>
 #endif  // BSL_OVERRIDES_STD
 
 #endif  // INCLUDED_BSL_UNORDERED_MAP

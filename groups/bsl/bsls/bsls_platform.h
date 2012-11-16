@@ -139,11 +139,9 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
-#ifndef __cplusplus
-#error This header should not be included in non-C++ compilation units.
-#endif
-
+#ifdef __cplusplus
 namespace BloombergLP {
+#endif
 
                     // ===========================
                     // struct bsls_Platform_Assert
@@ -809,6 +807,7 @@ struct bsls_Platform_Assert;
     char die[sizeof(bsls_Platform_Assert)];          // if '#error' unsupported
 #endif
 
+#ifdef __cplusplus
 namespace bsls {
 
 // ----------------------------------------------------------------------------
@@ -941,9 +940,12 @@ struct Platform {
 };
 
 }  // close package namespace
+#endif  // __cplusplus
 
 
+#ifdef __cplusplus
 }  // close enterprise namespace
+#endif
 
 #if !defined(BSL_DOUBLE_UNDERSCORE_XLAT) || 1 == BSL_DOUBLE_UNDERSCORE_XLAT
 

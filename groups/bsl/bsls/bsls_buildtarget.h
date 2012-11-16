@@ -103,6 +103,30 @@ typedef NoMtBuildTarget MtBuildTarget;
 
 #endif
 
+#ifdef BSLS_PLATFORM_CPU_64_BIT
+
+namespace bsls {
+
+struct Yes64BitBuildTarget {
+    static const int d_is64BitBuildTarget;
+};
+
+}  // close package namespace
+
+
+#else
+
+namespace bsls {
+
+struct No64BitBuildTarget {
+    static const int d_is64BitBuildTarget;
+};
+
+}  // close package namespace
+
+
+#endif
+
 // Force linker to pull in this component's object file.
 
 #if defined(BSLS_PLATFORM_CMP_IBM)
