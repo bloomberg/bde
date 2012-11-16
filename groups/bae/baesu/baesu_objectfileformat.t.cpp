@@ -312,6 +312,8 @@ int main(int argc, char *argv[])
 #  error multiple file formats defined
 # endif
 
+#elif defined(BSLS_PLATFORM_OS_CYGWIN)
+    // not implemented
 #else
 # error unrecognized platform
 #endif

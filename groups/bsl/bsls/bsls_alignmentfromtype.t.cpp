@@ -648,6 +648,11 @@ int main(int argc, char *argv[])
             EXP_S3_ALIGNMENT              = 4;
 #endif
 
+#if defined(BSLS_PLATFORM_OS_CYGWIN)
+            EXP_WCHAR_T_ALIGNMENT         = 2;
+            EXP_LONG_DOUBLE_ALIGNMENT     = 4;
+#endif
+
 #if defined(BSLS_PLATFORM_OS_WINDOWS)
             EXP_WCHAR_T_ALIGNMENT         = 2;
     #if defined(BSLS_PLATFORM_CPU_64_BIT)
@@ -702,6 +707,10 @@ int main(int argc, char *argv[])
             void        *V  = 0;
             long long    LL = 0;
 
+#if defined(BSLS_PLATFORM_OS_CYGWIN)
+            bsls::AlignmentImp8ByteAlignedType _8BAT;
+#endif
+
             ASSERT(sameType(bsls::AlignmentFromType<char>::Type(), char()));
             ASSERT(sameType(bsls::AlignmentFromType<short>::Type(), short()));
             ASSERT(sameType(bsls::AlignmentFromType<int>::Type(), int()));
@@ -709,24 +718,33 @@ int main(int argc, char *argv[])
             ASSERT(sameType(bsls::AlignmentFromType<float>::Type(), int()));
 
 #if (defined(BSLS_PLATFORM_OS_AIX) && !defined(BSLS_PLATFORM_CPU_64_BIT))   \
- || (defined(BSLS_PLATFORM_OS_WINDOWS))
-           ASSERT(sameType(bsls::AlignmentFromType<wchar_t>::Type(), short()));
+ || defined(BSLS_PLATFORM_OS_WINDOWS) || defined(BSLS_PLATFORM_OS_CYGWIN)
+            ASSERT(sameType(bsls::AlignmentFromType<wchar_t>::Type(), short()));
 #else
             ASSERT(sameType(bsls::AlignmentFromType<wchar_t>::Type(), int()));
 #endif
 
-#if defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_DARWIN)
+#if defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_DARWIN) \
+                                    || defined(BSLS_PLATFORM_OS_CYGWIN)
     #if defined(BSLS_PLATFORM_CPU_64_BIT)
             ASSERT(sameType(bsls::AlignmentFromType<long long>::Type(),
                             long()));
             ASSERT(sameType(bsls::AlignmentFromType<double>::Type(), long()));
             ASSERT(sameType(bsls::AlignmentFromType<long double>::Type(), LD));
     #else
+            #if defined(BSLS_PLATFORM_OS_CYGWIN)
+            ASSERT(sameType(bsls::AlignmentFromType<long long>::Type(),
+                            _8BAT));
+            ASSERT(sameType(bsls::AlignmentFromType<double>::Type(),
+                            _8BAT));
+            #else
             ASSERT(sameType(bsls::AlignmentFromType<long long>::Type(),
                             int()));
             ASSERT(sameType(bsls::AlignmentFromType<double>::Type(),
                             int()));
-            #ifdef BSLS_PLATFORM_OS_LINUX
+            #endif
+            #if defined(BSLS_PLATFORM_OS_LINUX) \
+             || defined(BSLS_PLATFORM_OS_CYGWIN)
             ASSERT(
                   sameType(bsls::AlignmentFromType<long double>::Type(),
                            int()));

@@ -44,7 +44,6 @@ BDES_IDENT_RCSID(baea_performancemonitor_cpp,"$Id$ $CSID$")
 #include <sys/pstat.h>
 #include <sys/param.h>
 #elif defined(BSLS_PLATFORM_OS_LINUX)
-#include <bsl_cstdio.h>
 #include <dirent.h>
 #include <sys/procfs.h>
 #endif
@@ -128,7 +127,7 @@ int currentProcessPid()
 
 // PRIVATE TYPES
 
-#if defined(BSLS_PLATFORM_OS_LINUX)
+#if defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_CYGWIN)
 
 template <>
 class baea_PerformanceMonitor::Collector<bsls_Platform::OsLinux> {

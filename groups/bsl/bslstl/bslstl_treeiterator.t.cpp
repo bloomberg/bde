@@ -394,8 +394,8 @@ int main(int argc, char *argv[])
         //   TreeIterator operator--(iter, int);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nPOST-DECREMENT OPERATOR OPERATOR"
-                            "\n================================\n");
+        if (verbose) printf("\nPOST-DECREMENT OPERATOR"
+                            "\n=======================\n");
 
         if (verbose)
             printf("\nAssign the address of the operator to a variable.\n");
@@ -496,8 +496,8 @@ int main(int argc, char *argv[])
         //   TreeIterator operator++(iter, int);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nPRE-DECREMENT OPERATOR OPERATOR"
-                            "\n===============================\n");
+        if (verbose) printf("\nPost-Increment OPERATOR"
+                            "\n=======================\n");
 
         if (verbose)
             printf("\nAssign the address of the operator to a variable.\n");
@@ -525,7 +525,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose)
-            printf("\nTest the pre-decrement operator.\n");
+            printf("\nTest the post-increment operator.\n");
 
         for (int ti = 1; ti < N; ++ti) {
 
@@ -594,8 +594,8 @@ int main(int argc, char *argv[])
         //   TreeIterator operator--();
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nPRE-DECREMENT OPERATOR OPERATOR"
-                            "\n===============================\n");
+        if (verbose) printf("\nPRE-DECREMENT OPERATOR"
+                            "\n======================\n");
 
         if (verbose)
             printf("\nAssign the address of the operator to a variable.\n");
@@ -693,8 +693,8 @@ int main(int argc, char *argv[])
         //   TreeIterator operator++();
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nPRE-DECREMENT OPERATOR OPERATOR"
-                            "\n===============================\n");
+        if (verbose) printf("\nPRE-INCREMENT OPERATOR"
+                            "\n======================\n");
 
         if (verbose)
             printf("\nAssign the address of the operator to a variable.\n");
@@ -722,7 +722,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose)
-            printf("\nTest the pre-decrement operator.\n");
+            printf("\nTest the pre-increment operator.\n");
 
         for (int ti = 0; ti < N; ++ti) {
 
@@ -1006,7 +1006,7 @@ int main(int argc, char *argv[])
         //: 8 Non-modifiable objects can be compared (i.e., objects or
         //:   references providing only non-modifiable access).
         //:
-        //; 9 The equality operator's signature and return type are standard.
+        //: 9 The equality operator's signature and return type are standard.
         //:
         //:10 The inequality operator's signature and return type are standard.
         //
@@ -1277,7 +1277,6 @@ int main(int argc, char *argv[])
 
         Obj D1, D2;
         ASSERTV(D1.node(), D2.node(), D1.node() == D2.node());
-
 
         if (verbose) printf("\nCreate a tree with N nodes.\n");
 

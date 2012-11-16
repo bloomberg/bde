@@ -289,6 +289,8 @@ _RWSTD_DLLIMPORT int (fileno)(FILE*) _LIBC_THROWS ();
 #    define RW_TEST_OS "tru64-unix"
 #  elif defined (__sgi) && defined (__mips)
 #    define RW_TEST_OS "irix"
+#  elif defined (__CYGWIN__)
+#    define RW_TEST_OS "cygwin"
 #  elif defined (__linux__) || defined (__linux)
 #    if defined (__ELF__)
 #      define LINUX_TYPE "linux-elf"
