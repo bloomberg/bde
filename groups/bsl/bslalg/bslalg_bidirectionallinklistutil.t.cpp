@@ -147,7 +147,7 @@ struct Bucket {
 
 void Bucket::clone(const Bucket& bucket, bslma::Allocator *alloc)
 {
-    alloc = bslma_Default::allocator(alloc);
+    alloc = bslma::Default::allocator(alloc);
 
     ASSERT(Obj::isWellFormed(bucket.d_first, bucket.d_last));
 
@@ -176,7 +176,7 @@ void Bucket::clone(const Bucket& bucket, bslma::Allocator *alloc)
 
 void Bucket::destroy(bslma::Allocator *alloc)
 {
-    alloc = bslma_Default::allocator(alloc);
+    alloc = bslma::Default::allocator(alloc);
 
     ASSERT(Obj::isWellFormed(this->d_first, this->d_last));
 
