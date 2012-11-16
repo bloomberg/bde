@@ -29,8 +29,8 @@ namespace BloombergLP {
 
 #ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
     typedef bsls::BuildTargetNoExc bsls_NoExcBuildTarget;
-}
 #endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
+}
 
 #else
 
