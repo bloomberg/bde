@@ -498,8 +498,10 @@ bool PtrHashSet::insert(void *ptr)
 
     if (bucketArraySize() * d_maxLoadFactor < d_numNodes + 1) {
         grow();
+#ifdef BSLS_ASSERT_SAFE_IS_ACTIVE
         bool found = find(&insertionPoint, &bucket, ptr);
         BSLS_ASSERT_SAFE(!found);
+#endif
     }
 
     ++d_numNodes;
