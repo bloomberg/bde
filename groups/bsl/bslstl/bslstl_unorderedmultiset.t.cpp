@@ -2044,6 +2044,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase2()
        { BUSINESS  , CANADA  , GREEN,   60716.00,    7603.00 },
        { DISCOUNT  , MEXICO  , GREEN,   99737.00,    3872.00 },
     };
+
     const int numCustomerData = sizeof customerData / sizeof *customerData;
 //..
 // Suppose, as a step in analysis, we wish to determine the average of the past

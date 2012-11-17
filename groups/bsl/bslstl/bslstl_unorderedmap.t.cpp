@@ -703,12 +703,10 @@ static int my_count_if_equal(bsl::vector<int>::const_iterator begin,
 // that document (the first word of the document is at offset 0).  The "value"
 // of each entry is a 'bsl::string' containing the word at that location.
 //..
-    typedef bsl::pair<int, int> WordLocation;
-        // Document code number and word offset in that document specify
-        // a word location.
-
-    typedef bsl::pair<WordLocation, bsl::string> InverseConcordanceEntry;
-        // Entry that maps a 'WordLocation' value to a 'bsl::string' value.
+    typedef bsl::pair<int, int>                  WordLocation;
+        // Document code number ('first') and word offset ('second') in that
+        // document specify a word location.  The first word in the document
+        // is at word offset 0.
 //..
 // Notice that that 'WordLocation', the type of the key value, has no natural
 // ordering.  The assignment of document codes is arbitrary so there is no
@@ -721,7 +719,7 @@ static int my_count_if_equal(bsl::vector<int>::const_iterator begin,
 //..
     class WordLocationHash
     {
-     private:
+      private:
         WordLocationHash& operator=(const WordLocationHash& rhs);
 
       public:
@@ -2039,8 +2037,8 @@ if (verbose) {
         for (char *cur = strtok(documents[idx], delimiters);
                    cur;
                    cur = strtok(NULL,     delimiters)) {
-            WordTallyEntry        initialEntry(bsl::string(cur), 1);
-            WordTallyInsertStatus status = wordTally.insert(initialEntry);
+            WordTally::value_type initialValue(bsl::string(cur), 1);
+            WordTallyInsertStatus status = wordTally.insert(initialValue);
             if (!status.second) {
                 ++status.first->second;
             }
@@ -2320,8 +2318,8 @@ if (verbose) {
 // {'bslstl_unorderedmultimap'|Example 1}).  Here, the concordance is provided
 // as a statically initialized array:
 //..
-    static struct {
-        const char *d_word;
+    const static struct {
+        bsl::string d_word;
         int         d_documentCode;
         int         d_wordOffset;
     } concordance[] = {
@@ -5709,15 +5707,15 @@ if (verbose) {
     InverseConcordance inverseConcordance;
 
     for (int idx = 0; idx < numConcordance; ++idx) {
-        const char *word         = concordance[idx].d_word;
+        bsl::string word         = concordance[idx].d_word;
         int         documentCode = concordance[idx].d_documentCode;
         int         wordOffset   = concordance[idx].d_wordOffset;
 
         WordLocation                   location(documentCode, wordOffset);
-        InverseConcordanceEntry        entry(location, bsl::string(word));
-        InverseConcordanceInsertStatus status = inverseConcordance.insert(
-                                                                      entry);
-        ASSERT(status.second);
+        InverseConcordance::value_type value(location, word);
+        bool                           status =
+                                       inverseConcordance.insert(value).second;
+        ASSERT(status);
     }
 //..
 // Notice that we expect every 'insert' to be successful, as the concordance
@@ -5749,11 +5747,14 @@ if (verbose) {
                    itr->first.second,
                    itr->second.c_str());
 }
-            ASSERT((origin == offset ? bsl::string("unalienable")
-                                     : itr->second) == itr->second);
+            ASSERT(origin != offset
+                || bsl::string("unalienable") == itr->second);
         }
     }
 //..
+// Notice that the assertion confirms that "unalienable" is found in our
+// inverse location at the location we obtained from the concordance.
+// 
 // Finally, we find on standard output:
 //..
 //  0   93: evident

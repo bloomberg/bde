@@ -582,16 +582,16 @@ int main(int argc, char *argv[])
 //
 ///Example 1: Creating a Concordance
 ///- - - - - - - - - - - - - - - - -
-// Unordered multimap maps are useful in situations when there is no meaningful
+// Unordered multimap are useful in situations when there is no meaningful
 // way to compare key values, when the order of the keys is irrelevant to the
-// problem domain, and (even if there is a meaningful ordering) the value of
+// problem domain, or (even if there is a meaningful ordering) the benefit of
 // ordering the results is outweighed by the higher performance provided by
 // unordered maps (compared to ordered maps).
 //
 // One uses a multi-map (ordered or unordered) when there may be more than one
-// value associated with a key value.  In this example we will use
+// mapped value associated with a key value.  In this example we will use
 // 'bslstl_unorderedmultimap' to create a concordance (an index of where each
-// unique word appears).
+// unique word appears in the set of documents).
 //
 // Our source of documents is a set of statically initialized arrrays:
 //..
@@ -1746,17 +1746,18 @@ int main(int argc, char *argv[])
     " of any of the rights and freedoms recognised in this Charter or at\n"
     " their limitation to a greater extent than is provided for herein.\n";
 
-    static char * const documents[]  = { &document0[0],
-                                         &document1[0],
-                                         &document2[0]
+    static char * const documents[]  = { document0,
+                                         document1,
+                                         document2
                                        };
     const int           numDocuments = sizeof documents / sizeof *documents;
 //..
 // First, we define several aliases to make our code more comprehensible.
 //..
     typedef bsl::pair<int, int>                  WordLocation;
-        // Document code number and word offset in that document specify
-        // a word location.
+        // Document code number ('first') and word offset ('second') in that
+        // document specify a word location.  The first word in the document
+        // is at word offset 0.
 
     typedef bsl::pair<bsl::string, WordLocation> ConcordanceValue;
     typedef bsl::unordered_multimap<bsl::string, WordLocation>
@@ -1764,7 +1765,7 @@ int main(int argc, char *argv[])
     typedef Concordance::iterator                ConcordanceItr;
     typedef Concordance::const_iterator          ConcordanceConstItr;
 //..
-// Next, we (default) create an unordered map to hold our word tallies.
+// Next, we create an (empty) unordered map to hold our word tallies.
 //..
     Concordance concordance;
 //..
@@ -1783,11 +1784,11 @@ int main(int argc, char *argv[])
 // already present in the (multi) map.
 //..
     for (int idx = 0; idx < numDocuments; ++idx) {
-        int wordCount = 0;
+        int wordOffset = 0;
         for (char *cur = strtok(documents[idx], delimiters);
                    cur;
-                   cur = strtok(NULL,     delimiters)) {
-            WordLocation     location(idx, wordCount++);
+                   cur = strtok(NULL,           delimiters)) {
+            WordLocation     location(idx, wordOffset++);
             ConcordanceValue value(bsl::string(cur), location);
             concordance.insert(value);
         }
@@ -1820,22 +1821,21 @@ if (verbose) {
 //  "he",  0,  401
 //  "include",  2,  847
 //..
-// Next, if we there are some particular words of interest, we seek them out
-// using the 'equal_range' method of the 'concordance' object:
+// Next, if there are some particular words of interest, we seek them out using
+// the 'equal_range' method of the 'concordance' object:
 //..
-    const char *wordsOfInterest[] = { "human",
-                                      "rights",
-                                      "unalienable",
-                                      "inalienable"
-                                    };
+    const bsl::string wordsOfInterest[] = { "human",
+                                            "rights",
+                                            "unalienable",
+                                            "inalienable"
+                                          };
     const int   numWordsOfInterest = sizeof  wordsOfInterest
                                    / sizeof *wordsOfInterest;
+
     for (int idx = 0; idx < numWordsOfInterest; ++idx) {
-       const char                     *wordOfInterest
-                                             = wordsOfInterest[idx];
        bsl::pair<ConcordanceConstItr,
-                 ConcordanceConstItr>  found = concordance.equal_range(
-                                                  bsl::string(wordOfInterest));
+                 ConcordanceConstItr> found = concordance.equal_range(
+                                                         wordsOfInterest[idx]);
        for (ConcordanceConstItr itr  = found.first,
                                 end  = found.second;
                                 end != itr; ++itr) {
