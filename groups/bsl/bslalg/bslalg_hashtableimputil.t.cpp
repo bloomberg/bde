@@ -272,7 +272,7 @@ void debugPrint(const HashTableAnchor& anchor)
     }
     else {
         for (size_t n = 0; n < anchor.bucketArraySize(); ++n) {
-            printf("\nBucket [%d]: ", n);
+            printf("\nBucket [%d]: ", (int) n);
             const HashTableBucket& bucket = anchor.bucketArrayAddress()[n];
             if (!bucket.first()) {
                 continue;
