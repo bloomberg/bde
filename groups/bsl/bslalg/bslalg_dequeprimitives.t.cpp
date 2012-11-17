@@ -133,7 +133,7 @@ namespace {
                     printf(" bslma::EXCEPTION:"                            \
                            " alloc limit = %d,"                            \
                            " last alloc size = %d\n",                      \
-                           bslmaExceptionCounter, e.numBytes());           \
+                           bslmaExceptionCounter, (int) e.numBytes());     \
                 }                                                          \
                 else if (0 == bslmaExceptionLimit) {                       \
                     printf(" [ Note: 'bslmaExceptionLimit' reached. ]\n"); \
