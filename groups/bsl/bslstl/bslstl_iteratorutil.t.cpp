@@ -251,8 +251,7 @@ int main(int argc, char *argv[])
         //:
         //:   2 Create pairs of iterators having non empty ranges.
         //:
-        //:   3 Verify that on other platforms, the function returns the
-        //:     correct distances.  (C-3)
+        //:   3 Verify that the function returns the correct distances.  (C-3)
         //
         // Testing:
         //   size_t insertDistance(InputIterator, InputIterator)
