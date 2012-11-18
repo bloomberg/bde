@@ -16,4 +16,4 @@ BSL is distributed under a simple MIT-style license; see the LICENSE file at the
 Question, Comments and Feedback
 ===============================
 If you have questions, comments, suggestions for improvement or any other inquiries regarding BSL, feel free to open an issue
-in the [issue tracker](issues).
+in the [issue tracker](bsl/issues).
