@@ -244,14 +244,14 @@ int main(int argc, char *argv[])
         //:   returns 0.  (C-1)
         //:
         //: 2 For each of the the iterator types -- forward, bidirectional, and
-        //:   random-access:  (C-2..3)
+        //:   random-access:  (C-2)
         //:
         //:   1 Verify the function returns 0 for a pair of iterators having an
-        //:     empty range.  (C-2..3)
+        //:     empty range.  (C-2)
         //:
         //:   2 Create pairs of iterators having non empty ranges.
         //:
-        //:   3 Verify that the function returns the correct distances.  (C-3)
+        //:   3 Verify that the function returns the correct distances.  (C-2)
         //
         // Testing:
         //   size_t insertDistance(InputIterator, InputIterator)
