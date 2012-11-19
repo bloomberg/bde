@@ -3,3 +3,4 @@ baejsn_decoder
 baejsn_encoder
 baejsn_parserutil
 baejsn_printutil
+baejsn_reader

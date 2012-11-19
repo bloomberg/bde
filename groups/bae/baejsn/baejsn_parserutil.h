@@ -124,6 +124,29 @@ struct baejsn_ParserUtil {
         // Load into the specified 'value' the characters read from the
         // specified 'streamBuf'.  Return 0 on success or a non-zero value on
         // failure.
+
+    static int getValue(bool                *value, bslstl::StringRef data);
+    static int getValue(char                *value, bslstl::StringRef data);
+    static int getValue(unsigned char       *value, bslstl::StringRef data);
+    static int getValue(signed char         *value, bslstl::StringRef data);
+    static int getValue(short               *value, bslstl::StringRef data);
+    static int getValue(unsigned short      *value, bslstl::StringRef data);
+    static int getValue(int                 *value, bslstl::StringRef data);
+    static int getValue(unsigned int        *value, bslstl::StringRef data);
+    static int getValue(bsls::Types::Int64  *value, bslstl::StringRef data);
+    static int getValue(bsls::Types::Uint64 *value, bslstl::StringRef data);
+    static int getValue(float               *value, bslstl::StringRef data);
+    static int getValue(double              *value, bslstl::StringRef data);
+    static int getValue(bsl::string         *value, bslstl::StringRef data);
+    static int getValue(bdet_Date           *value, bslstl::StringRef data);
+    static int getValue(bdet_Datetime       *value, bslstl::StringRef data);
+    static int getValue(bdet_DatetimeTz     *value, bslstl::StringRef data);
+    static int getValue(bdet_DateTz         *value, bslstl::StringRef data);
+    static int getValue(bdet_Time           *value, bslstl::StringRef data);
+    static int getValue(bdet_TimeTz         *value, bslstl::StringRef data);
+        // Load into the specified 'value' the characters read from the
+        // specified 'streamBuf'.  Return 0 on success or a non-zero value on
+        // failure.
 };
 
 // ============================================================================
@@ -375,6 +398,21 @@ int baejsn_ParserUtil::getValue(bsl::streambuf *streamBuf,
     enum { MAX_LENGTH = bdepu_Iso8601::BDEPU_TIMETZ_STRLEN };
 
     return getDateAndTimeValue(streamBuf, value, MAX_LENGTH);
+}
+
+inline
+int baejsn_ParserUtil::getValue(bool *value, bslstl::StringRef data)
+{
+    if (0 == bsl::strcmp(data.data(), "true")) {
+        *value = true;
+    }
+    else if (0 == bsl::strcmp(data.data(), "false")) {
+        *value = false;
+    }
+    else {
+        return -1;                                                    // RETURN
+    }
+    return 0;
 }
 
 }  // close namespace BloombergLP

@@ -14,26 +14,24 @@ namespace BloombergLP {
 
 int baejsn_Decoder::decodeBinaryArray(bsl::vector<char> *value)
 {
-    baejsn_ParserUtil::skipSpaces(d_streamBuf);
+    d_reader.advanceToNextToken();
+    if (baejsn_Reader::BAEJSN_VALUE == d_reader.tokenType()) {
+        bslstl::StringRef dataValue = d_reader.value();
 
-    bsl::string base64String;
-    if (0 != baejsn_ParserUtil::getString(d_streamBuf, &base64String)) {
-        d_logStream << "Expected string containing base64\n";
-        return -1;                                                    // RETURN
+        baexml_Base64Parser<bsl::vector<char> > base64Parser;
+
+        if (0 != base64Parser.beginParse(value)) {
+            return -1;                                                // RETURN
+        }
+
+        if (0 != base64Parser.pushCharacters(dataValue.begin(),
+                                             dataValue.end())) {
+            return -1;                                                // RETURN
+        }
+
+        return base64Parser.endParse();                               // RETURN
     }
-
-    baexml_Base64Parser<bsl::vector<char> > base64Parser;
-
-    if (0 != base64Parser.beginParse(value)) {
-        return -1;                                                    // RETURN
-    }
-
-    if (0 != base64Parser.pushCharacters(base64String.begin(),
-                                         base64String.end())) {
-        return -1;                                                    // RETURN
-    }
-
-    return base64Parser.endParse();
+    return -1;
 }
 
 }  // close namespace BloombergLP
