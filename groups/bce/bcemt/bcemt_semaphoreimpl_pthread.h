@@ -46,10 +46,6 @@ BDES_IDENT("$Id: $")
 #include <bsls_assert.h>
 #endif
 
-#ifndef INCLUDED_BSL_C_ERRNO
-#include <bsl_c_errno.h>
-#endif
-
 #ifndef INCLUDED_SEMAPHORE
 #include <semaphore.h>
 #define INCLUDED_SEMAPHORE
@@ -120,29 +116,6 @@ class bcemt_SemaphoreImpl<bces_Platform::PosixSemaphore> {
              // --------------------------------------------------------
 
 // CREATORS
-inline
-bcemt_SemaphoreImpl<bces_Platform::PosixSemaphore>::bcemt_SemaphoreImpl(
-                                                                     int count)
-{
-#if defined(BSLS_PLATFORM_OS_DARWIN)
-    do {
-        d_sem_p = ::sem_open(s_semaphoreName, O_CREAT | O_EXCL, 0600, count);
-    } while (d_sem_p == SEM_FAILED && (errno == EEXIST || errno == EINTR));
-
-    BSLS_ASSERT(d_sem_p != SEM_FAILED);
-
-    // At this point the current thread is the sole owner of the semaphore
-    // with this name.  No other thread can create a semaphore with the
-    // same name until we disassociate the name from the semaphore handle.
-    int result = ::sem_unlink(s_semaphoreName);
-#else
-    int result = ::sem_init(&d_sem, 0, count);
-#endif
-
-    (void) result;
-    BSLS_ASSERT(result == 0);
-}
-
 inline
 bcemt_SemaphoreImpl<bces_Platform::PosixSemaphore>::~bcemt_SemaphoreImpl()
 {
