@@ -22,9 +22,11 @@ namespace BloombergLP {
              // class bcemt_SemaphoreImpl<bces_Platform::PosixSemaphore>
              // --------------------------------------------------------
 
+#if defined(BSLS_PLATFORM_OS_DARWIN)
 const char *
 bcemt_SemaphoreImpl<bces_Platform::PosixSemaphore>::s_semaphoreName
     = "bcemt_semaphore_object";
+#endif
 
 // CREATORS
 bcemt_SemaphoreImpl<bces_Platform::PosixSemaphore>::bcemt_SemaphoreImpl(
