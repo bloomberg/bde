@@ -109,7 +109,7 @@ struct baesu_ObjectFileFormat {
 
     struct Windows {};    // format used on Microsoft Windows platform
 
-    struct Dummy {};      // dummy format (unimiplemented)
+    struct Dummy {};      // dummy format (unimplemented)
 
 #if defined(BSLS_PLATFORM_OS_SOLARIS) || \
     defined(BSLS_PLATFORM_OS_LINUX)   || \
@@ -130,6 +130,7 @@ struct baesu_ObjectFileFormat {
 
 #else
     typedef Dummy Policy;
+#   define BAESU_OBJECTFILEFORMAT_RESOLVER_UNIMPLEMENTED 1
 #endif
 
 };

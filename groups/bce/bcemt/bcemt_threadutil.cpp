@@ -9,6 +9,8 @@ BDES_IDENT_RCSID(bcemt_threadutil_cpp,"$Id$ $CSID$")
 #include <bslma_allocator.h>
 #include <bslma_default.h>
 
+#include <bsls_platform.h>
+
 #include <bsl_cmath.h>
 
 #include <bsl_c_limits.h>
@@ -55,8 +57,17 @@ int bcemt_ThreadUtil::convertToSchedulingPriority(
     BSLS_ASSERT(INT_MIN != minPri);
     BSLS_ASSERT(INT_MIN != maxPri);
 
+#if !defined(BSLS_PLATFORM_OS_CYGWIN)
     double ret = (maxPri - minPri) * normalizedSchedulingPriority +
                                                                   minPri + 0.5;
+#else
+    // On Cygwin, a lower numerical value implies a higher thread priority:
+    //   minSchedPriority = 15, maxSchedPriority = -14
+
+    double ret = - ((minPri - maxPri) * normalizedSchedulingPriority - minPri)
+                                                                         + 0.5;
+#endif
+
     return static_cast<int>(bsl::floor(ret));
 }
 

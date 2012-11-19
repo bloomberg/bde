@@ -1460,7 +1460,9 @@ int main(int argc, char *argv[])
         //   has been written.
         // --------------------------------------------------------------------
 
-#ifdef BSLS_PLATFORM_OS_UNIX
+#if defined(BSLS_PLATFORM_OS_UNIX) && !defined(BSLS_PLATFORM_OS_CYGWIN)
+        // 'setrlimit' is not implemented on Cygwin.
+
         bcema_TestAllocator ta(veryVeryVeryVerbose);
 
         bael_LoggerManagerConfiguration configuration;

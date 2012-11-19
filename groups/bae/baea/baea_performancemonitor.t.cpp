@@ -214,7 +214,9 @@ class MmapAllocator : public bslma_Allocator {
 
     virtual void deallocate(void *address)
     {
-#if defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_DARWIN)
+#if defined(BSLS_PLATFORM_OS_LINUX)  \
+ || defined(BSLS_PLATFORM_OS_DARWIN) \
+ || defined(BSLS_PLATFORM_OS_CYGWIN)
         d_allocator_p->deallocate(address);
 #else
         MapType::iterator it = d_map.find(address);
@@ -424,11 +426,18 @@ int main(int argc, char *argv[])
         ASSERT(0 == perfmon.registerPid(0, "mytask"));
         ASSERT(1 == perfmon.numRegisteredPids());
 
+#if !defined(BSLS_PLATFORM_OS_CYGWIN)
+        // 1 is almost certainly an invalid pid on Cygwin.  Instead, '/proc'
+        // could be searched for a valid pid (one which is distinct from that
+        // of the current process).
+
         ASSERT(0 == perfmon.registerPid(1, "mytask2"));
         ASSERT(2 == perfmon.numRegisteredPids());
 
         ASSERT(0 == perfmon.unregisterPid(1));
         ASSERT(1 == perfmon.numRegisteredPids());
+
+#endif
 
         ASSERT(0 == perfmon.unregisterPid(0));
         ASSERT(0 == perfmon.numRegisteredPids());

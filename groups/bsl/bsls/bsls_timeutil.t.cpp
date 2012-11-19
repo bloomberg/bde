@@ -1357,8 +1357,7 @@ int main(int argc, char *argv[])
 #if defined BSLS_PLATFORM_OS_SOLARIS || defined BSLS_PLATFORM_OS_FREEBSD
         const Int64 timeQuantum = nsecsPerSec / CLK_TCK;
 #elif defined BSLS_PLATFORM_OS_LINUX || defined BSLS_PLATFORM_OS_AIX    \
-   || defined BSLS_PLATFORM_OS_HPUX  || defined BSLS_PLATFORM_OS_DARWIN \
-   || defined BSLS_PLATFORM_OS_CYGWIN
+   || defined BSLS_PLATFORM_OS_HPUX  || defined BSLS_PLATFORM_OS_DARWIN
         const Int64 timeQuantum = nsecsPerSec / sysconf(_SC_CLK_TCK);
                                         // On our local flavor of Linux, old
                                         // POSIX requirements and immoderate
@@ -1368,7 +1367,7 @@ int main(int argc, char *argv[])
                                         // and the symbol that is correct
                                         // (CLK_TCK) unavailable.
                                         // (AIX just walks its own path.)
-#elif defined BSLS_PLATFORM_OS_WINDOWS
+#elif defined BSLS_PLATFORM_OS_WINDOWS || defined BSLS_PLATFORM_OS_CYGWIN
         const Int64 timeQuantum = 100;  // Hard-coded from Windows
                                         // documentation.  We need to test
                                         // (not pre-accept)
@@ -1428,7 +1427,7 @@ int main(int argc, char *argv[])
             // their differences taken, and those differences compared to
             // whatever constants are involved.
 
-#if !defined(BSLS_PLATFORM_OS_WINDOWS)
+#if !defined(BSLS_PLATFORM_OS_WINDOWS) && !defined(BSLS_PLATFORM_OS_CYGWIN)
             ASSERT(wt2 - wt1 >= shortSleep * nsecsPerSec);
 #else
             ASSERT(wt2 - wt1 + windowsFudge >= shortSleep * nsecsPerSec);
@@ -1562,7 +1561,7 @@ int main(int argc, char *argv[])
 
             ASSERT(st2 - st1 >= 0);     // And system time did not go backward.
 
-#if !defined(BSLS_PLATFORM_OS_WINDOWS)
+#if !defined(BSLS_PLATFORM_OS_WINDOWS) && !defined(BSLS_PLATFORM_OS_CYGWIN)
             ASSERT((wt2 - wt1) - (ut2 - ut1) - (st2 - st1) +
                                                          2 * timeQuantum >= 0);
                                         // And our wall time was greater than

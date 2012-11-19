@@ -754,8 +754,10 @@ int main(int argc, char *argv[])
         removeFilesByPrefix(filename.c_str());
       } break;
       case 5: {
-#ifdef BSLS_PLATFORM_OS_UNIX
-        // don't run this if we're in the debugger because the debugger
+#if defined(BSLS_PLATFORM_OS_UNIX) && !defined(BSLS_PLATFORM_OS_CYGWIN)
+        // 'setrlimit' is not implemented on Cygwin.
+
+        // Don't run this if we're in the debugger because the debugger
         // stops and refuses to continue when we hit the file size limit.
 
         if (verbose) cerr << "Testing output when the stream fails"
