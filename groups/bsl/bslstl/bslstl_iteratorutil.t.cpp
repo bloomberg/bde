@@ -223,11 +223,7 @@ int main(int argc, char *argv[])
 // distance of the open range ['begin', 'end'):
 //..
         std::size_t distance = IteratorUtil::insertDistance(begin, end);
-#if defined(BSLS_PLATFORM__CMP_SUN)
-        ASSERT(0 == distance);
-#else
         ASSERT(3 == distance);
-#endif
 
 //..
 
@@ -239,9 +235,7 @@ int main(int argc, char *argv[])
         // Concerns:
         //: 1 The function returns 0 for input iterators.
         //:
-        //: 2 The function always return 0 when compiled on Sun.
-        //:
-        //: 3 The function returns the distance between two iterators if the
+        //: 2 The function returns the distance between two iterators if the
         //:   iterators are either forward, bidirectional, or random-access
         //:   iterators.
         //
@@ -250,17 +244,14 @@ int main(int argc, char *argv[])
         //:   returns 0.  (C-1)
         //:
         //: 2 For each of the the iterator types -- forward, bidirectional, and
-        //:   random-access:  (C-2..3)
+        //:   random-access:  (C-2)
         //:
         //:   1 Verify the function returns 0 for a pair of iterators having an
-        //:     empty range.  (C-2..3)
+        //:     empty range.  (C-2)
         //:
         //:   2 Create pairs of iterators having non empty ranges.
         //:
-        //:   3 Verify that on Sun, the function always returns 0.  (C-2)
-        //:
-        //:   4 Verify that on other platforms, the function returns the
-        //:     correct distances.  (C-3)
+        //:   3 Verify that the function returns the correct distances.  (C-2)
         //
         // Testing:
         //   size_t insertDistance(InputIterator, InputIterator)
@@ -306,11 +297,7 @@ int main(int argc, char *argv[])
             for (int ti = 1; ti < numElements; ++ti) {
                 b.d_ptr = testData + ti;
                 size_t DIST = Obj::insertDistance(A, B);
-#if defined(BSLS_PLATFORM__CMP_SUN)
-                ASSERTV(DIST, 0 == DIST);
-#else
                 ASSERTV(DIST, static_cast<size_t>(ti) == DIST);
-#endif
             }
         }
 
@@ -333,11 +320,7 @@ int main(int argc, char *argv[])
             for (int ti = 1; ti < numElements; ++ti) {
                 b.d_ptr = testData + ti;
                 size_t DIST = Obj::insertDistance(A, B);
-#if defined(BSLS_PLATFORM__CMP_SUN)
-                ASSERTV(DIST, 0 == DIST);
-#else
                 ASSERTV(DIST, static_cast<size_t>(ti) == DIST);
-#endif
             }
         }
 
@@ -360,11 +343,7 @@ int main(int argc, char *argv[])
             for (int ti = 1; ti < numElements; ++ti) {
                 b.d_ptr = testData + ti;
                 size_t DIST = Obj::insertDistance(A, B);
-#if defined(BSLS_PLATFORM__CMP_SUN)
-                ASSERTV(DIST, 0 == DIST);
-#else
                 ASSERTV(DIST, static_cast<size_t>(ti) == DIST);
-#endif
             }
         }
 
@@ -442,11 +421,7 @@ int main(int argc, char *argv[])
             b++;
 
             DIST = Obj::insertDistance(A, B);
-#if defined(BSLS_PLATFORM__CMP_SUN)
-            ASSERTV(DIST, 0 == DIST);
-#else
             ASSERTV(DIST, 1 == DIST);
-#endif
             ASSERTV(A.d_ptr, 0 == A.d_ptr);
             ASSERTV(B.d_ptr, A.d_ptr + 1 == B.d_ptr);
 
@@ -466,11 +441,7 @@ int main(int argc, char *argv[])
             const size_t EXP_DIST2 = 4;
 
             const size_t DIST2 = Obj::insertDistance(A, B);
-#if defined(BSLS_PLATFORM__CMP_SUN)
-            ASSERTV(DIST2,   0 == DIST2);
-#else
             ASSERTV(DIST2,   EXP_DIST2 == DIST2);
-#endif
             ASSERTV(A.d_ptr,         0 == A.d_ptr);
             ASSERTV(B.d_ptr,       PTR == B.d_ptr);
         }
