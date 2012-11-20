@@ -198,11 +198,6 @@ BSLS_IDENT("$Id: $")
 #define INCLUDED_CSTDDEF
 #endif
 
-#ifndef INCLUDED_ITERATOR
-#include <iterator>  // for tag dispatch on iterator traits
-#define INCLUDED_ITERATOR
-#endif
-
 #ifndef INCLUDED_LIMITS
 #include <limits>  // for 'numeric_limits<size_t>'
 #define INCLUDED_LIMITS
@@ -892,8 +887,8 @@ class HashTable_NodeProctor {
                     // ==========================
 
 struct HashTable_ImpDetails {
-    // This utility struct provides a namespace for functions on iterators that
-    // are useful when implementing a hash table.
+    // This utility struct provides a namespace for functions that are useful
+    // when implementing a hash table.
 
     static size_t nextPrime(size_t n);
         // Return the next prime number greater-than or equal to the specified
