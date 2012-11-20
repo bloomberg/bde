@@ -66,6 +66,35 @@ BSLS_IDENT("$Id: $")
 //:     that defines an equivalence relationship and is both reflexive and
 //:     transitive.
 //
+///Requirements on 'HASH' and 'EQUAL'
+///----------------------------------
+// The (template parameter) types 'HASH' and 'EQUAL' must be
+// default-constructable, copy-constructible function-objects.
+//
+// 'HASH' shall support a function call operator compatible with the following
+// statements:
+//..
+//  HASH        hash;
+//  KEY         key;
+//  std::size_t result = hash(key);
+//..
+// where the definition of the called function meets the requirements of a
+// hash function, as specified in {'bslstl_hash|Standard Hash Function'}.
+//
+// 'EQUAL' shall support the a function call operator compatible with the
+//  following statements:
+//..
+//  EQUAL equal;
+//  KEY   key1, key2;
+//  bool  result = equal(key1, key2);
+//..
+// where the definition of the called function defines an equivalence
+// relationship on keys that is both reflexive and transitive.
+//
+// 'HASH' and 'EQUAL' function-objects are further constrained, such for any
+// two objects whose keys compare equal by the comparator, shall produce the
+// same value from the hasher.
+//
 ///Memory Allocation
 ///-----------------
 // The type supplied as a set's 'ALLOCATOR' template parameter determines how
