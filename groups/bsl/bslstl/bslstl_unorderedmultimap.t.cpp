@@ -1879,13 +1879,6 @@ if (verbose) {
 // {'bslstl_unorderedmap'|Example 3} shows how to use the concordance to create
 // an inverse concordance, and how to use the inverse concordance to find the
 // context (surrouding words) of a word of interest.
-//
-///Example 2: Examining and Setting Unordered Multi-Map Configuration
-///------------------------------------------------------------------
-// The unordered multi-map interfaces provide some insight into and control of
-// its inner workings.  The syntax and semantics of these interfaces for
-// 'bslstl_unoroderedmultimap' are identical to those of 'bslstl_unorderedmap'.
-// See the material in {'bslstl_unorderedmap'|Example 2}.
         }
       } break;
       case 1: {

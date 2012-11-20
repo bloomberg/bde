@@ -96,7 +96,6 @@ BSLS_IDENT("$Id: $")
 // of the parameterized 'KEY' types with the
 // 'bslalg::TypeTraitUsesBslmaAllocator' trait.
 //
-//-----------------------------------------------------------------------------
 ///Operations
 ///----------
 // This section describes the run-time complexity of operations on instances
@@ -221,6 +220,15 @@ BSLS_IDENT("$Id: $")
 //  |                                                    | Worst:   O[n^2]    |
 //  +----------------------------------------------------+--------------------+
 //..
+//
+///Unordered Multi-Map Configuration
+///---------------------------------
+// The unordered multi-map has interfaces that can provide insight into and
+// control of its inner workings.  The syntax and semantics of these interfaces
+// for 'bslstl_unoroderedmultimap' are identical to those of
+// 'bslstl_unorderedmap'.  See the discussion in
+// {'bslstl_unorderedmap'|Unordered Map Configuration} and the illustrative
+// material in {'bslstl_unorderedmap'|Example 2}.
 //
 ///Usage
 ///-----
@@ -555,14 +563,7 @@ BSLS_IDENT("$Id: $")
 //..
 // {'bslstl_unorderedmap'|Example 3} shows how to use the concordance to create
 // an inverse concordance, and how to use the inverse concordance to find the
-// context (surrouding words) of a word of interest.
-//
-///Example 2: Examining and Setting Unordered Multi-Map Configuration
-///------------------------------------------------------------------
-// The unordered multi-map interfaces provide some insight into and control of
-// its inner workings.  The syntax and semantics of these interfaces for
-// 'bslstl_unoroderedmultimap' are identical to those of 'bslstl_unorderedmap'.
-// See the material in {'bslstl_unorderedmap'|Example 2}.
+// context (surrouding words) of some particular word.
 
 #if defined(BSL_OVERRIDES_STD) && !defined(BSL_STDHDRS_PROLOGUE_IN_EFFECT)
 // Prevent 'bslstl' headers from being included directly in 'BSL_OVERRIDES_STD'

@@ -217,6 +217,15 @@ BSLS_IDENT("$Id: $")
 //  +----------------------------------------------------+--------------------+
 //..
 //
+///Unordered Multi-Set Configuration
+///---------------------------------
+// The unordered multi-set has interfaces that can provide insight into and
+// control of its inner workings.  The syntax and semantics of these interfaces
+// for 'bslstl_unoroderedmultiset' are identical to those of
+// 'bslstl_unorderedmap'.  See the discussion in
+// {'bslstl_unorderedmap'|Unordered Map Configuration} and the illustrative
+// material in {'bslstl_unorderedmap'|Example 2}.
+//
 ///Usage
 ///-----
 // In this section we show intended use of this component.
@@ -510,13 +519,6 @@ BSLS_IDENT("$Id: $")
 //  BUSINESS   RUSSIA   PEARL   29386.00    3623.00
 //  INSTITUTE  FRANCE   PEARL   47747.00    3533.00
 //..
-//
-///Example 2: Examining and Setting Unordered Multi-Set Configuration
-///------------------------------------------------------------------
-// The unordered multi-set interfaces provide some insight into and control of
-// its inner workings.  The syntax and semantics of these interfaces for
-// 'bslstl_unoroderedmultiset' are identical to those of 'bslstl_unorderedmap'.
-// See the material in {'bslstl_unorderedmap'|Example 2}.
 
 // Prevent 'bslstl' headers from being included directly in 'BSL_OVERRIDES_STD'
 // mode.  Doing so is unsupported, and is likely to cause compilation errors.

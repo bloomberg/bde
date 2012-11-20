@@ -226,6 +226,19 @@ BSLS_IDENT("$Id: $")
 //  +----------------------------------------------------+--------------------+
 //..
 //
+///Unordered Map Configuration
+///---------------------------
+// The unordered map has interfaces that can provide insight into and control
+// of its inner workings.  The unordered map is implemented using a hash table
+// (see {'bslstl_hashtable'}), a dynamically sized array of "buckets".  If two
+// elements hash to the same position the the table (the same bucket), then
+// that bucket will house multiple elements.  As elements are added to the
+// unordered map, the number of buckets is increased (and the existing elements
+// redistributed) to keep the average number of elements per bucket (the
+// "loading factor") below the specified maximum (the "maximum load factor", 1
+// by default).  {Example 2: Examining and Setting Unordered Map Configuration}
+// illustrates the use of these interfaces.
+//
 ///Usage
 ///-----
 // In this section we show intended use of this component.

@@ -1997,14 +1997,9 @@ int main(int argc, char *argv[])
                                       };
     const int           numDocuments = sizeof documents / sizeof *documents;
 //..
-// First, we define several aliases to make our code more comprehensible.
+// First, we define an alias to make our code more comprehensible.
 //..
     typedef bsl::unordered_map<bsl::string, int> WordTally;
-    typedef bsl::pair         <bsl::string, int> WordTallyEntry;
-#if 0
-    typedef WordTally::value_type                WordTallyEntry;
-    typedef bsl::pair<WordTally::iterator, bool> WordTallyInsertStatus;
-#endif
 //..
 // Next, we create an (empty) unordered map to hold our word tallies.  The
 // output from the 'printf' statements will be discussed in {Example 2}.
@@ -2043,9 +2038,14 @@ if (verbose) {
 //..
 // Now that the data has been (quickly) gathered, we can indulge in analysis
 // that is more time consuming.  For example, we can define a comparison
-// function, sort the entries, and determine the 20 most commonly used words in
-// the given document:
+// function, copy the data to another container (e.g., 'bsl::vector'), sort the
+// entries, and determine the 20 most commonly used words in the given
+// documents:
 //..
+    typedef bsl::pair<bsl::string, int> WordTallyEntry;
+        // Assignable equivalent to 'WordTally::value_type'.  Note that
+        // 'bsl::vector' requires assignable types.
+
     struct WordTallyEntryCompare {
         static bool lessValue(const WordTallyEntry& a,
                               const WordTallyEntry& b) {
@@ -2067,7 +2067,7 @@ if (verbose) {
                       WordTallyEntryCompare::moreValue);
 //..
 // Notice that 'partial_sort' suffices here since we seek only the 20 most used
-// words, and not a complete distribution of word counts.
+// words, not a complete distribution of word counts.
 //
 // Finally, we print the sorted portion of 'array':
 //..
@@ -2111,17 +2111,19 @@ if (verbose) {
 //
 ///Example 2: Examining and Setting Unordered Map Configuration
 ///------------------------------------------------------------
-// The unordered map interfaces provide some insight into and control of its
-// inner workings.  The unordered map is implemented using a hash table (see
-// {'bslstl_hashtable'}), a dynamically sized array of "buckets".  If two
-// elements hash to the same position the the table (the same bucket), then
-// that bucket will house multiple elements.  As elements are added to the
-// unordered map, the number of buckets is increased (and the existing elements
-// redistributed) to keep the average number of elements per bucket (the
-// "loading factor") below the specified maximum (the "maximum load factor", 1
-// by default).
+// Suppose we wish to examine (and possibly influence) the performance of an
+// unordered map.  The unordered map provides several interfaces that allow us
+// to do so.  Several of these were used in {Example 1} (code repeated below):
+//..
+//  WordTally wordTally;
 //
-// First, when 'wordTally' was created in {Example 1}, its metrics were:
+//  printf("size             %4d initial\n", wordTally.size());
+//  printf("bucket_count     %4d initial\n", wordTally.bucket_count());
+//  printf("load_factor      %f  initial\n", wordTally.load_factor());
+//  printf("max_load_factor  %f  initial\n", wordTally.max_load_factor());
+//..
+// First, we examine the metrics of of this newly created (empty) unordered
+// map:
 //..
 //  size                0 initial
 //  bucket_count        1 initial

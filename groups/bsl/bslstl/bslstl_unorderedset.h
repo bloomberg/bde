@@ -216,6 +216,14 @@ BSLS_IDENT("$Id: $")
 //  +----------------------------------------------------+--------------------+
 //..
 //
+///Unordered Set Configuration
+///---------------------------
+// The unordered set has interfaces that can provide insight into and control
+// of its inner workings.  The syntax and semantics of these interfaces for
+// 'bslstl_unoroderedset' are identical to those of 'bslstl_unorderedmap'.  See
+// the discussion in {'bslstl_unorderedmap'|Unordered Map Configuration} and
+// the illustrative material in {'bslstl_unorderedmap'|Example 2}.
+//
 ///Usage
 ///-----
 // In this section we show intended use of this component.
@@ -458,13 +466,6 @@ BSLS_IDENT("$Id: $")
 //  DISCOUNT   USA_EAST GREEN
 //  DISCOUNT   MEXICO   SMITH
 //..
-//
-///Example 2: Examining and Setting Unordered Set Configuration
-///------------------------------------------------------------
-// The unordered set interfaces provide some insight into and control of
-// its inner workings.  The syntax and semantics of these interfaces for
-// 'bslstl_unoroderedset' are identical to those of 'bslstl_unorderedmap'.
-// See the material in {'bslstl_unorderedmap'|Example 2}.
 
 // Prevent 'bslstl' headers from being included directly in 'BSL_OVERRIDES_STD'
 // mode.  Doing so is unsupported, and is likely to cause compilation errors.
