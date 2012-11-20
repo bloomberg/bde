@@ -133,7 +133,11 @@ static int initPthreadAttribute(pthread_attr_t                *dest,
 #if defined(BSLS_PLATFORM_OS_DARWIN)
         // Stack size needs to be a multiple of the system page size.
         long pageSize = sysconf(_SC_PAGESIZE);
-        stackSize = pageSize * (stackSize / pageSize + 1);
+
+        // Page size is always a power of 2.
+        BSLS_ASSERT_SAFE(pageSize & (pageSize - 1) == 0);
+
+        stackSize = (stackSize & ~(pageSize - 1)) + pageSize;
 #endif
 
         rc |= pthread_attr_setstacksize(dest, stackSize);
