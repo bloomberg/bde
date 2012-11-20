@@ -94,90 +94,103 @@ using namespace BloombergLP;
 // constructor, manipulator, and accessor in subsequent cases.
 //
 // ----------------------------------------------------------------------------
+// standard typedefs:
+//*[26] typedef ... key_type;
+//*[26] typedef ... value_type;
+//*[26] typedef ... hasher;
+//*[26] typedef ... key_equal;
+//* [26] typedef ... allocator_type;
+//* [26] typedef ... reference;
+//* [26] typedef ... const_reference;
+//* [26] typedef ... size_type;
+//* [26] typedef ... difference_type;
+//* [26] typedef ... pointer;
+//* [26] typedef ... const_pointer;
+//
 // [unord.set] construct/copy/destroy:
-// [  ] unordered_set(size_type, hasher, key_equal, allocator);
-// [  ] unordered_set(ITER, ITER, size_type, hasher, key_equal, allocator);
-// [  ] unordered_set(const unordered_set& original);
-// [  ] unordered_set(const A& allocator);
-// [  ] unordered_set(const unordered_set& original, const A& allocator);
-// [ 2] ~unordered_set();
-// [  ] unordered_set& operator=(const set& rhs);
+//*[ 2] unordered_set(size_type, hasher, key_equal, allocator);
+//*[12] unordered_set(ITER, ITER, size_type, hasher, key_equal, allocator);
+//*[ 7] unordered_set(const unordered_set& original);
+//*[11] unordered_set(const A& allocator);
+//*[ 7] unordered_set(const unordered_set& original, const A& allocator);
+//*[ 2] ~unordered_set();
+//*[ 9] unordered_set& operator=(const unordered_set& rhs);
 //
 // iterators:
-// [  ] iterator begin();
-// [  ] const_iterator begin() const;
-// [  ] iterator end();
-// [  ] const_iterator end() const;
-// [ 4] const_iterator cbegin() const;
-// [ 4] const_iterator cend() const;
+//*[13] iterator begin();
+//*[13] const_iterator begin() const;
+//*[13] iterator end();
+//*[13] const_iterator end() const;
+//*[ 4] const_iterator cbegin() const;
+//*[ 4] const_iterator cend() const;
 //
 // capacity:
-// [  ] bool empty() const;
-// [ 4] size_type size() const;
-// [  ] size_type max_size() const;
+//*[19] bool empty() const;
+//*[ 4] size_type size() const;
+//*[25] size_type max_size() const;
 //
 // modifiers:
-// [  ] bsl::pair<iterator, bool> insert(const value_type& value);
-// [  ] iterator insert(const_iterator position, const value_type& value);
-// [  ] void insert(INPUT_ITERATOR first, INPUT_ITERATOR last);
+//*[ 2] bsl::pair<iterator, bool> insert(const value_type& value);
+//*[17] iterator insert(const_iterator position, const value_type& value);
+//*[18] void insert(INPUT_ITERATOR first, INPUT_ITERATOR last);
 //
-// [  ] iterator erase(const_iterator position);
-// [  ] size_type erase(const key_type& key);
-// [  ] iterator erase(const_iterator first, const_iterator last);
-// [  ] void swap(set& other);
-// [ 2] void clear();
+//*[14] iterator erase(const_iterator position);
+//*[15] size_type erase(const key_type& key);
+//*[16] iterator erase(const_iterator first, const_iterator last);
+//*[ 8] void swap(unordered_set& other);
+//*[ 2] void clear();
 //
 // observers:
-// [  ] hasher hash_function() const;
-// [  ] key_equal key_eq() const;
-// [ 4] allocator_type get_allocator() const;
+//*[ 4] hasher hash_function() const;
+//*[ 4] key_equal key_eq() const;
+//*[ 4] allocator_type get_allocator() const;
 //
 // set operations:
-// [  ] iterator find(const key_type& key);
-// [  ] const_iterator find(const key_type& key) const;
-// [  ] size_type count(const key_type& key) const;
-// [  ] bsl::pair<iterator, iterator> equal_range(const key_type& key);
-// [  ] bsl::pair<const_iter, const_iter> equal_range(const key_type&) const;
+//*[20] iterator find(const key_type& key);
+//*[20] const_iterator find(const key_type& key) const;
+//*[21] size_type count(const key_type& key) const;
+//*[21] bsl::pair<iterator, iterator> equal_range(const key_type& key);
+//*[21] bsl::pair<const_iter, const_iter> equal_range(const key_type&) const;
 //
 // bucket interface:
-// [  ] size_type bucket_count() const;
-// [  ] size_type max_bucket_count() const;
-// [  ] size_type bucket_size(size_type n) const;
-// [  ] size_type bucket(const key_type& k) const;
+//*[22] size_type bucket_count() const;
+//*[25] size_type max_bucket_count() const;
+//*[22] size_type bucket_size(size_type n) const;
+//*[22] size_type bucket(const key_type& k) const;
 //
 // bucket iterators:
-// [  ] local_iterator begin(size_type n);
-// [  ] const_local_iterator begin(size_type n) const;
-// [  ] local_iterator end(size_type n);
-// [  ] const_local_iterator end(size_type n) const;
-// [  ] const_local_iterator cbegin(size_type n) const;
-// [  ] const_local_iterator cend(size_type n) const;
+//*[23] local_iterator begin(size_type n);
+//*[23] const_local_iterator begin(size_type n) const;
+//*[23] local_iterator end(size_type n);
+//*[23] const_local_iterator end(size_type n) const;
+//*[23] const_local_iterator cbegin(size_type n) const;
+//*[23] const_local_iterator cend(size_type n) const;
 //
 // hash policy:
-// [  ] float load_factor() const;
-// [  ] float max_load_factor() const;
-// [  ] void max_load_factor(float z);
-// [  ] void rehash(size_type n);
-// [  ] void reserve(size_type n);
+//*[19] float load_factor() const;
+//*[ 4] float max_load_factor() const;
+//*[ 2] void max_load_factor(float z);
+//*[24] void rehash(size_type n);
+//*[24] void reserve(size_type n);
 //
 // specialized algorithms:
-// [  ] bool operator==(unordered_set<K, H, E, A>, unordered_set<K, H, E, A>);
-// [  ] bool operator!=(unordered_set<K, H, E, A>, unordered_set<K, H, E, A>);
-// [  ] void swap(unordered_set<K, H, E, A>& a, unordered_set<K, H, E, A>& b);
+//*[ 6] bool operator==(unordered_set<K, H, E, A>, unordered_set<K, H, E, A>);
+//*[ 6] bool operator!=(unordered_set<K, H, E, A>, unordered_set<K, H, E, A>);
+//*[ 8] void swap(unordered_set<K, H, E, A>& a, unordered_set<K, H, E, A>& b);
 //
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 2] default construction (only)
-// [  ] USAGE EXAMPLE
+//*[ 2] default construction (only)
+//*[29] USAGE EXAMPLE
 //
 // TEST APPARATUS: GENERATOR FUNCTIONS
-// [ 3] int ggg(unordered_set<K,H,E,A> *object, const char *spec, int verbose);
-// [ 3] unordered_set<K,H,E,A>& gg(unordered_set<K,H,E,A> *, const char *spec);
-// [  ] unordered_set<K,H,E,A> g(const char *spec);
+//*[ 3] int ggg(unordered_set<K,H,E,A> *object, const char *spec, int verbose);
+//*[ 3] unordered_set<K,H,E,A>& gg(unordered_set<K,H,E,A> *, const char *spec);
+//*[ 3] unordered_set<K,H,E,A> g(const char *spec);
 //
-// [  ] CONCERN: The object is compatible with STL allocators.
-// [  ] CONCERN: The object has the necessary type traits
-// [  ] CONCERN: The type provides the full interface defined by the standard.
+//*[27] CONCERN: The object is compatible with STL allocators.
+//*[28] CONCERN: The object has the necessary type traits
+//*[  ] CONCERN: The type provides the full interface defined by the standard.
 
 // ============================================================================
 //                      STANDARD BDE ASSERT TEST MACROS
