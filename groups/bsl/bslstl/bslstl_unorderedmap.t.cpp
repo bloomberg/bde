@@ -714,8 +714,11 @@ static int my_count_if_equal(bsl::vector<int>::const_iterator begin,
 // another.
 //
 // Then, since there is no default hash function for the 'WordLocation' type,
-// we define one.  The document code and the word offset are combined to form a
-// single 'int' value which is then hashed using the default mechanism.
+// we define one.  The document code and the word offset are individually
+// hashed using the default hasher for the 'int' type and those results
+// bitwise exclusive OR-ed for the combined result.  This trivial combination
+// formulae suffices for this problem, but is *not* a general solution for
+// combining hashes.
 //..
     class WordLocationHash
     {
@@ -735,18 +738,12 @@ static int my_count_if_equal(bsl::vector<int>::const_iterator begin,
         //! ~WordLocationHash() = default;
             // Destroy this object.
 
-        // MANIPULATORS
-        //! WordLocationHash& operator=(const WordLocationHash& rhs) = default;
-            // Assign to this object the value of the specified 'rhs' object,
-            // and return a reference providing modifiable access to this
-            // object.  Note that as 'WordLocationHash' is an empty (stateless)
-            // type, this operation will have no observable effect.
-
         // ACCESSORS
         std::size_t operator()(WordLocation x) const
             // Return a hash value computed using the specified 'x'.
         {
-            return bsl::hash<int>()(x.first * 1000000 + x.second);
+            bsl::hash<int> hasher;
+            return hasher(x.first) ^ hasher(x.second);
         }
     };
 //..
@@ -2004,7 +2001,10 @@ int main(int argc, char *argv[])
 //..
     typedef bsl::unordered_map<bsl::string, int> WordTally;
     typedef bsl::pair         <bsl::string, int> WordTallyEntry;
+#if 0
+    typedef WordTally::value_type                WordTallyEntry;
     typedef bsl::pair<WordTally::iterator, bool> WordTallyInsertStatus;
+#endif
 //..
 // Next, we create an (empty) unordered map to hold our word tallies.  The
 // output from the 'printf' statements will be discussed in {Example 2}.
@@ -2025,23 +2025,19 @@ if (verbose) {
 // Next, we extract the words from our documents.  Note that 'strtok' modifies
 // the document arrays (which were not made 'const').
 //
-// We tentatively assume that we are seeing each word for the first time and
-// attempt to insert an initial record for that word.  If that succeeds (a
-// 'true' value in the 'second' member of the 'bsl::pair' returned by the
-// 'insert' method), we have correctly recorded that word; otherwise, we are
-// returned an iterator (the 'first' member of the 'bsl::pair' returned) to the
-// entry that had previously been added to the map.  In that case, we increment
-// the data portion (the 'second' member) of that entry.
+// For each iteration of the inner loop, that method looks for a map entry
+// matchingv the given key value.  On the first occurence of a word, the map
+// has no such entry, so one is created with a default value of the mapped
+// value (0, just what we want in this case) and inserted into the map where is
+// is found on any subsequent occurrences of the word.  The 'operator[]' method
+// returns a reference providing modifiable access to the mapped value.  Here,
+// we  the '++' operator to that reference to maintain a tally for the word.
 //..
     for (int idx = 0; idx < numDocuments; ++idx) {
         for (char *cur = strtok(documents[idx], delimiters);
                    cur;
                    cur = strtok(NULL,     delimiters)) {
-            WordTally::value_type initialValue(bsl::string(cur), 1);
-            WordTallyInsertStatus status = wordTally.insert(initialValue);
-            if (!status.second) {
-                ++status.first->second;
-            }
+            ++wordTally[bsl::string(cur)];
         }
     }
 //..
@@ -2061,7 +2057,7 @@ if (verbose) {
         }
     };
 
-    bsl::vector<WordTallyEntry> array(wordTally.begin(), wordTally.end());
+    bsl::vector<WordTallyEntry> array(wordTally.cbegin(), wordTally.cend());
 
     ASSERT(20 <= array.size());
 
