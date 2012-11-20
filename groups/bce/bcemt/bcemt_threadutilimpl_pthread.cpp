@@ -26,6 +26,8 @@ BDES_IDENT_RCSID(bcemt_threadutilimpl_pthread_cpp,"$Id$ $CSID$")
 # include <unistd.h>       // geteuid
 #endif
 
+#include <errno.h>         // constant EINTR
+
 namespace BloombergLP {
 
 static inline
@@ -317,6 +319,31 @@ int bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::microSleep(
     }
     return result;
 }
+
+void bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::sleepUntil(
+                               const bdet_TimeInterval& absoluteTime,
+                               bool                     returnOnSignalInterupt)
+{
+    // ASSERT that the interval is between January 1, 1970 00:00.000 and
+    // the end of December 31, 9999 (i.e., less than January 1, 10000).
+
+
+    BSLS_ASSERT(absoluteTime >= bdet_TimeInterval(0, 0));
+    BSLS_ASSERT(absoluteTime <  bdet_TimeInterval(253402300800LL, 0));
+
+    timespec clockTime;
+    clockTime.tv_sec  = static_cast<bsl::time_t>(absoluteTime.seconds());
+    clockTime.tv_nsec = static_cast<long>(absoluteTime.nanoseconds());
+
+    int result; 
+    do {
+        result = clock_nanosleep(CLOCK_REALTIME, TIMER_ABSTIME, &clockTime, 0);
+       
+        // All other failures indicate a programming error.
+        BSLS_ASSERT_OPT(0 == result || EINTR == result);
+    } while (0 != result && !returnOnSignalInterupt);
+}
+
 
 }  // close namespace BloombergLP
 

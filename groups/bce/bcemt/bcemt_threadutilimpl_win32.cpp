@@ -17,6 +17,7 @@ BDES_IDENT_RCSID(bcemt_threadutilimpl_win32_cpp,"$Id$ $CSID$")
 
 #include <process.h>      // '_begintthreadex', '_endthreadex'
 
+#include <iostream>
 #if defined(BSLS_PLATFORM_OS_WINDOWS) && defined(BSLS_PLATFORM_CPU_64_BIT)
     // On 64-bit Windows, we have to deal with the fact that Windows ThreadProc
     // thread procedures only return a 32-bit DWORD value.  We use an
@@ -492,6 +493,45 @@ bool bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::areEqual(
             const bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::Handle& b)
 {
     return a.d_id == b.d_id;
+}
+
+inline
+void bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::sleepUntil(
+                                         const bdet_TimeInterval& absoluteTime)
+{
+    // ASSERT that the interval is between January 1, 1970 00:00.000 and
+    // the end of December 31, 9999 (i.e., less than January 1, 10000).
+
+    BSLS_ASSERT(absoluteTime >= bdet_TimeInterval(0, 0));
+    BSLS_ASSERT(absoluteTime <  bdet_TimeInterval(253402300800LL, 0));
+
+    HANDLE timer = CreateWaitableTimer(0, false, 0);
+    if (0 == timer) {
+        bsl::cerr << "CreateWaitableTimer failed: " << GetLastError() 
+                  << bsl::endl;
+        BSLS_ASSERT_OPT(false);
+        return;                                                      // RETURN
+    }
+
+
+    const int HUNDRED_NANOSECS_PER_SEC = 
+                              bdet_TimeInterval::BDET_NANOSECS_PER_SEC / 100;
+    LARGE_INTEGE clockTime;
+    clockTime.QuadPart = absoluteTime.seconds() * HUNDRED_NANOSECS_PER_SEC
+                       + absoluteTime.nanoseconds() / 100
+                             
+    if (!SetWaitableTimer(timer, &clockTime , 0, 0, 0, 0)) {
+        bsl::cerr << "SetWaitableTimer failed: " << GetLastError() 
+                  << bsl::endl;
+        BSLS_ASSERT_OPT(false);
+        return;                                                      // RETURN
+    }
+
+    if (WAIT_OBJECT_0 != WaitForSingleObject(timer, INFINITE)) {
+        bsl::cerr << "WaitForSingleObject failed: " << GetLastError() 
+                  << bsl::endl;
+        BSLS_ASSERT_OPT(false);
+    }    
 }
 
 }  // close namespace BloombergLP

@@ -50,8 +50,8 @@ BDES_IDENT("$Id: $")
 #include <bsls_platform.h>
 #endif
 
-#ifndef INCLUDED_BSLS_PLATFORMUTIL
-#include <bsls_platformutil.h>
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
 #endif
 
 #ifndef INCLUDED_PTHREAD
@@ -151,14 +151,14 @@ struct bcemt_ThreadUtilImpl<bces_Platform::PosixThreads> {
     static int getMinSchedulingPriority(
                               bcemt_ThreadAttributes::SchedulingPolicy policy);
         // Return the minimum available priority for the specified 'policy'.
-        // Note that for some platform / policy cominations,
+        // Note that for some platform / policy combinations,
         // 'getMinSchedulingPriority(policy)' and
         // 'getMaxSchedulingPriority(policy)' return the same value.
 
     static int getMaxSchedulingPriority(
                               bcemt_ThreadAttributes::SchedulingPolicy policy);
         // Return the maximum available priority for the specified 'policy'.
-        // Note that for some platform / policy cominations,
+        // Note that for some platform / policy combinations,
         // 'getMinSchedulingPriority(policy)' and
         // 'getMaxSchedulingPriority(policy)' return the same value.
 
@@ -193,6 +193,23 @@ struct bcemt_ThreadUtilImpl<bces_Platform::PosixThreads> {
         // interrupted by a signal.  Note that the actual time suspended
         // depends on many factors including system scheduling, and system
         // timer resolution.
+
+    static void sleepUntil(
+                       const bdet_TimeInterval& absoluteTime,
+                       bool                     returnOnSignalInterupt = true);
+        // Suspend execution of the current thread until the specified
+        // 'absoluteTime' (expressed as the !ABSOLUTE! time from 00:00:00 UTC,
+        // January 1, 1970).  Optionally specify 'returnOnSignalInterupt'
+        // indicating whether to return to the caller if the operating system
+        // interupts the sleep because of a signal.  If
+        // 'returnOnSignalInterupt' is 'false' an interupt from a signal will
+        // be ignored and the current the thread will be put back to sleep
+        // until 'absoluteTime'.  The behavior is undefined unless
+        // 'absoluteTime' represents a time after January 1, 1970 and before
+        // the end of December 31, 9999 (i.e., a time interval greater than or
+        // equal to 0, and less than 253,402,300,800 seconds).  Note that the
+        // actual time suspended depends on many factors including system
+        // scheduling and system timer resolution.
 
     static void yield();
         // Put the current thread to the end of the scheduler's queue and
@@ -229,7 +246,7 @@ struct bcemt_ThreadUtilImpl<bces_Platform::PosixThreads> {
         // current thread within the current process.  Note that the id is only
         // valid until the thread terminates and may be reused thereafter.
 
-    static bsls_PlatformUtil::Uint64 selfIdAsInt();
+    static bsls::Types::Uint64 selfIdAsInt();
         // Return an integer of the unique identifier of the current thread
         // within the current process.  This representation is particularly
         // useful for logging purposes.  Note that this value is only valid
@@ -237,7 +254,7 @@ struct bcemt_ThreadUtilImpl<bces_Platform::PosixThreads> {
         //
         // DEPRECATED: Use 'selfIdAsUint64' instead.
 
-    static bsls_PlatformUtil::Uint64 selfIdAsUint64();
+    static bsls::Types::Uint64 selfIdAsUint64();
         // Return an integer of the unique identifier of the current thread
         // within the current process.  This representation is particularly
         // useful for logging purposes.  Note that this value is only valid
@@ -355,7 +372,7 @@ bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::idAsInt(const Id& threadId)
     // Our interface is not good if the id is a pointer.  The two casts will
     // avoid a compilation error though.  TBD
 
-    return (int)(bsls_PlatformUtil::IntPtr)threadId;
+    return (int)(bsls::Types::IntPtr)threadId;
 }
 
 inline
@@ -381,17 +398,17 @@ bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::selfId()
 }
 
 inline
-bsls_PlatformUtil::Uint64
+bsls::Types::Uint64
 bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::selfIdAsInt()
 {
-    return (bsls_PlatformUtil::Uint64)selfId();
+    return (bsls::Types::Uint64)selfId();
 }
 
 inline
-bsls_PlatformUtil::Uint64
+bsls::Types::Uint64
 bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::selfIdAsUint64()
 {
-    return (bsls_PlatformUtil::Uint64)selfId();
+    return (bsls::Types::Uint64)selfId();
 }
 
                 // *** Thread-Specific (Local) Storage (TSS or TLS) ***
