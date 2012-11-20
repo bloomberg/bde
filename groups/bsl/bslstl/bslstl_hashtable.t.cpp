@@ -4155,10 +4155,9 @@ int main(int argc, char *argv[])
             int INT_VALUES[]   = { INT_MIN, -2, -1, 0, 1, 2, INT_MAX };
             int NUM_INT_VALUES = sizeof(INT_VALUES) / sizeof(*INT_VALUES);
 
-//            typedef TestMapKeyPolicy<int, int> TestMapIntKeyPolicy;
-            typedef BasicKeyConfig<int> TestMapIntKeyPolicy;
+            typedef BasicKeyConfig<int> BasicSetOfIntPolicy;
 
-            TestDriver<TestMapIntKeyPolicy,
+            TestDriver<BasicSetOfIntPolicy,
                        TestIntHash,
                        TestIntEqual,
                        StlTestIntAllocator >::testCase1(INT_VALUES,
