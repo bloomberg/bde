@@ -362,6 +362,7 @@ int bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::
                          getMinSchedulingPriority(
                                bcemt_ThreadAttributes::SchedulingPolicy policy)
 {
+    (void *)policy;
     return -1;    // priorities not supported on Windows
 }
 
@@ -370,6 +371,7 @@ int bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::
                          getMaxSchedulingPriority(
                                bcemt_ThreadAttributes::SchedulingPolicy policy)
 {
+    (void *)policy;
     return -1;    // priorities not supported on Windows
 }
 

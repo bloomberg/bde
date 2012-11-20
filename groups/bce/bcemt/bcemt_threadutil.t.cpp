@@ -680,18 +680,32 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING: sleepUntil
         //
-        // Note that this is a system-call wrapper, and this tests is intended
-        // to ensure the system call is correctly wrapped, and specifically
-        // not the accuract of the underlying system call.  Also note that
+        // Note that this is a system-call wrapper, and this test is intended
+        // to ensure the system call is correctly called by the 
+        // 'bcem_threadutil'.  This test specifically does *not* test the
+        // accuracy of the underlying system call.  Also note that
         // due to the nature of the system call, testing values at the upper
-        // bound of the range is not reasonable.
+        // bound of the valid range is not reasonable.  Test case -5, has been
+        // created and run by hand to verify (slightly) longer time periods.
         //
         // Concerns:
         //: 1 'sleepUntil' correctly forwards to a reasonable underlying
         //:   system call.
+        //: 
+        //: 2  QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 
+        //: 1 Call 'sleepUntil' for a series of values less than a second in
+        //:   the future, and verify that system time after sleeping is within
+        //:   a reasonable range of the expected target time. (C-1)
+        //:
+        //: 2 Call 'sleepUntil' for a value in the past, and verify that
+        //:   the function returns to the caller in a reasonably small amount
+        //:   of time. (C-1)
+        //:
+        //: 3 Verify that, in appropriate build modes, defensive checks are
+        //:   triggered for invalid time-interval values. (using the
+        //:   'BSLS_ASSERTTEST_*' macros (C-2)
         //
         // Testing:
         //   void sleepUntil(const bdet_TimeInterval& );        
@@ -1538,6 +1552,56 @@ int main(int argc, char *argv[])
         ASSERT(0 == rc);
         rc = bcemt_ThreadUtil::join(handle);
       }  break;
+      case -5: {
+        // --------------------------------------------------------------------
+        // TESTING: sleepUntil (Longer duration)
+        //
+        // Note that this test case is intended to be run manually, and is an 
+        // extension to test case 2 that tests for longer durations than should
+        // be run in a typical build cycle.
+        //
+        // Concerns:
+        //: 1 'sleepUntil' correctly forwards to a reasonable underlying
+        //:   system call (for sleep times > 1s).
+        //
+        // Plan:
+        //: 1 Call 'sleepUntil' for a series of values less than a second in
+        //:   the future, and verify that system time after sleeping is within
+        //:   a reasonable range of the expected target time. (C-1)
+        //
+        // Testing:
+        //   void sleepUntil(const bdet_TimeInterval& );        
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            cout << endl 
+                 << "CLASS METHOD 'sleepUntil'" << endl
+                 << "=========================" << endl;
+
+        if (veryVerbose) {
+            cout << "sleepUntil for times in the future" << endl;
+        }
+
+        for (int i = 0; i < 5; ++i) {
+            if (veryVeryVerbose) {
+                cout << "sleepUntil for " << i * 30 << "s" << endl;
+            }
+
+            bdet_TimeInterval expectedTime = bdetu_SystemTime::now();
+            
+            expectedTime.addSeconds(i * 30);
+            
+            Obj::sleepUntil(expectedTime);
+            
+            bdet_TimeInterval actualTime = bdetu_SystemTime::now();
+            
+            ASSERT(actualTime >= expectedTime);
+            LOOP_ASSERT((actualTime - expectedTime).totalMilliseconds(),
+                        (actualTime - expectedTime).totalMilliseconds() < 50);
+        }
+
+        
+    }  break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
         testStatus = -1;

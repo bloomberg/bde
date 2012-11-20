@@ -17,7 +17,8 @@ BDES_IDENT_RCSID(bcemt_threadutilimpl_win32_cpp,"$Id$ $CSID$")
 
 #include <process.h>      // '_begintthreadex', '_endthreadex'
 
-#include <iostream>
+#include <bsl_iostream.h> // 'stderr'
+
 #if defined(BSLS_PLATFORM_OS_WINDOWS) && defined(BSLS_PLATFORM_CPU_64_BIT)
     // On 64-bit Windows, we have to deal with the fact that Windows ThreadProc
     // thread procedures only return a 32-bit DWORD value.  We use an
@@ -35,6 +36,44 @@ namespace BloombergLP {
 const bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::Handle
     bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::INVALID_HANDLE =
                                                    { INVALID_HANDLE_VALUE, 0 };
+
+class HandleGuard {
+    // This guard mechanism closes thw windows handle (using 'CloseHandle')
+    // when this guard goes out of scope and is destroyed.
+
+    // DATA
+    HANDLE *d_handle;
+  private:
+
+    // NOT IMPLEMENTED
+    HandleGuard(const HandleGuard&);
+    HandleGuard operator=(const HandleGuard&);
+
+  public:
+
+    HandleGuard(HANDLE *handle);
+        // Create a guard for the specified 'handle', that upon going out
+        // of scope and being destroyed, will call 'CloseHandle' on 'handle'.
+
+    ~HandleGuard();
+        // Call 'CloseHandle' on the windows handle supplied at construction.
+};
+
+HandleGuard::HandleGuard(HANDLE *handle) 
+: d_handle(handle)
+{
+    BSLS_ASSERT_SAFE(handle);
+}
+
+HandleGuard::~HandleGuard() 
+{
+    if (!CloseHandle(*d_handle)) {
+        bsl::cerr << "CloseHandle failed: " << GetLastError() 
+                  << bsl::endl;
+        BSLS_ASSERT_OPT(false);
+    }
+}
+
 
 struct ThreadStartupInfo{
     // Control structure used to pass startup information to the thread entry
@@ -495,7 +534,6 @@ bool bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::areEqual(
     return a.d_id == b.d_id;
 }
 
-inline
 void bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::sleepUntil(
                                          const bdet_TimeInterval& absoluteTime)
 {
@@ -512,14 +550,28 @@ void bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::sleepUntil(
         BSLS_ASSERT_OPT(false);
         return;                                                      // RETURN
     }
+    HandleGuard guard(&timer);
 
+    LARGE_INTEGER clockTime;
 
-    const int HUNDRED_NANOSECS_PER_SEC = 
-                              bdet_TimeInterval::BDET_NANOSECS_PER_SEC / 100;
-    LARGE_INTEGE clockTime;
+    // The compuation of clock time is a bit complicated.  As indicated in
+    // the documentation for 'SetWaitableTimer':
+    // http://msdn.microsoft.com/en-us/library/windows/desktop/ms686289
+    // A positive value represents an absolute time in increments of 100 
+    // nanoseconds.  Critcally though, Microsoft's epoch is different
+    // for time values is different from the C run-time (and BDE) epoch
+    // (Januard 1, 1970) -- Microsoft uses January 1, 1601, see:
+    // http://msdn.microsoft.com/en-us/library/windows/desktop/ms724186
+    // The following MSDN page on converting a 'time_t'
+    // to a 'FILETIME' shows the constant, 116444736000000000 in 100ns (or 
+    // 11643609600 seconds) needed to convert between the two epochs:
+    // http://msdn.microsoft.com/en-us/library/windows/desktop/ms724228
+
+    const int HUNDRED_NANOSECS_PER_SEC = 10000000;  // 1 hundred thousand
     clockTime.QuadPart = absoluteTime.seconds() * HUNDRED_NANOSECS_PER_SEC
                        + absoluteTime.nanoseconds() / 100
-                             
+                       + 116444736000000000LL;
+
     if (!SetWaitableTimer(timer, &clockTime , 0, 0, 0, 0)) {
         bsl::cerr << "SetWaitableTimer failed: " << GetLastError() 
                   << bsl::endl;
