@@ -1,4 +1,4 @@
-// bslma_usesbslmaallocator.h                  -*-C++-*-
+// bslma_usesbslmaallocator.h                                         -*-C++-*-
 #ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #define INCLUDED_BSLMA_USESBSLMAALLOCATOR
 
@@ -9,11 +9,12 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a metafunction that indicates the use of bslma allocators
 //
-//@CLASSES: bslma::UsesBslmaAllocator<TYPE>
+//@CLASSES: 
+//  bslma::UsesBslmaAllocator<TYPE> : trait detection metafunction 
 //
-//@SEE_ALSO:
+//@SEE_ALSO: bslalg_typetraitusesblsmaallocator
 //
-//@DESCRIPTION:
+//@DESCRIPTION: 
 //
 ///Usage
 ///-----
@@ -76,6 +77,7 @@ private:
 
     enum {
         // Detect if 'TYPE' is 'Allocator*' type.
+
         IS_BSLMA_POINTER
             = bsl::is_same<
                 Allocator,
@@ -84,10 +86,12 @@ private:
 
         // If a pointer to 'Allocator' is convertible to 'T', then 'T' has a
         // non-explcit constructor taking an allocator.
+
         BSLMA_POINTER_CTOR = bsl::is_convertible<Allocator *, TYPE>::value,
 
         // If a pointer to 'UniqueType' is convertible to 'T', it can only mean
         // that ANY POINTER is convertible to 'T'.
+
         ANY_POINTER_CTOR = bsl::is_convertible<UniqueType *, TYPE>::value
     };
 
@@ -108,7 +112,7 @@ struct UsesBslmaAllocator
     // This metafunction is derived from 'true_type' if 'TYPE' adheres to the
     // 'bslma' allocator usage idiom and 'false_type' otherwise.  Note that
     // this trait must be explicitly associated with a type in order for this
-    // metafunction to return true; simply havng a constructor that implicitly
+    // metafunction to return true; simply having a constructor that implicitly
     // converts 'bslma::Allocator*' to 'TYPE' is no longer sufficient for
     // considering a type follow the idiom.
 };
