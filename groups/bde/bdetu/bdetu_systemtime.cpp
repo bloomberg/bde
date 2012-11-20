@@ -23,7 +23,11 @@ BDES_IDENT_RCSID(bdetu_systemtime_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 
 bdetu_SystemTime::SystemTimeCallback
-bdetu_SystemTime::s_callback_p = bdetu_SystemTime::loadSystemTimeDefault;
+bdetu_SystemTime::s_systime_callback_p
+                                     = bdetu_SystemTime::loadSystemTimeDefault;
+bdetu_SystemTime::LocalTimeOffsetCallback
+bdetu_SystemTime::s_localtimeoffset_callback_p
+                                = bdetu_SystemTime::loadLocalTimeOffsetDefault;
 
                             // ----------------------
                             // class bdetu_SystemTime
@@ -35,7 +39,7 @@ bdet_Datetime bdetu_SystemTime::nowAsDatetimeLocal()
     return nowAsDatetimeUtc() + localTimeOffset();
 }
 
-bdet_DatetimeInterval bdetu_SystemTime::localTimeOffset()
+bdet_DatetimeInterval bdetu_SystemTime::loadLocalTimeOffsetDefault()
 {
     time_t currentTime = time(0);
     struct tm localtm, gmtm;
@@ -87,11 +91,11 @@ void bdetu_SystemTime::loadSystemTimeDefault(bdet_TimeInterval *result)
 
 }  // close namespace BloombergLP
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2003
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

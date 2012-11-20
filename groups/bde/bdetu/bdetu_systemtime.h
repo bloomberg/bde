@@ -29,6 +29,15 @@ BDES_IDENT("$Id: $")
 // implementation will be used.  An application can always use the default
 // implementation by calling the 'loadSystemTimeDefault' method explicitly.
 //
+// This component also provides a similar callback mechanism for users to
+// customize the function that returns the differential between local time and
+// UTC time.  Note that if an application provides its own mechanism to
+// retrieve the local time offset, this mechanism will be used by all calls to
+// 'nowAsDdatetimeLocal' and 'localTimeOffset'.  Otherwise the default
+// implementation will be used.  An application can always use the default
+// implementation by calling the 'loadLocalTimeOffsetDefault' method
+// explicitly.
+//
 ///Usage 1
 ///-------
 // The following snippets of code illustrate how to use this utility component
@@ -48,7 +57,8 @@ BDES_IDENT("$Id: $")
 //    usleep(500);  // to prevent round-off error
 //    bdet_Datetime i1 = bdetu_SystemTime::nowAsDatetimeUtc();
 //    assert(bdetu_Datetime::epoch() < i1);
-//    assert(i0 <= i1);
+//    bdet_DatetimeInterval dti = i1 - bdetu_Epoch::epoch();
+//    assert(i0.totalMilliseconds() <= dti.totalMilliseconds());
 //..
 // Now call the utility function 'loadCurrentTime' to load the system time
 // into i2;
@@ -58,7 +68,8 @@ BDES_IDENT("$Id: $")
 //    usleep(500);  // to prevent round-off error
 //    bdetu_SystemTime::loadCurrentTime(&i2);
 //    assert(0 != i2);
-//    assert(i1 <= i2);   //  Presumably, 0 < i0 < i1 < i2
+//    assert(dti.totalMilliseconds() <= i2.totalMilliseconds());
+//                                             //  Presumably, 0 < i0 < i1 < i2
 //..
 ///Usage 2
 ///-------
@@ -92,44 +103,80 @@ BDES_IDENT("$Id: $")
 ///-------
 // For applications that choose to define there own mechanism for determining
 // system time, the 'bdetu_SystemTime' utility provides the ability to install
-// a custom callback.
+// a custom system-time callback.
 //
-// Store the address of the user-defined callback function 'getClientTime'
-// into 'default_user_ptr1'.
+// First, we define the user-defined callback function 'getClientTime':
 //..
 //    void getClientTime(bdet_TimeInterval *result)
 //    {
 //        result->setInterval(1,1);
 //    }
-//
-//    const bdetu_SystemTime::SystemTimeCallback callback_user_ptr1
-//                                                = &getClientTime;
 //..
-// Then call the utility function 'setSystemTimeCallback' to load the
-// user-defined callback function.
+// Then, store the address of the user-defined callback function
+// 'getClientTime' into 'callback_user_ptr1':
+//..
+//    const bdetu_SystemTime::SystemTimeCallback callback_user_ptr1
+//                                                            = &getClientTime;
+//..
+// Next, call the utility function 'setSystemTimeCallback' to load the
+// user-defined callback function:
 //..
 //    bdetu_SystemTime::setSystemTimeCallback(callback_user_ptr1);
-//    assert(callback_user_ptr1 == bdetu_SystemTime::currentCallback());
+//    assert(callback_user_ptr1
+//                           == bdetu_SystemTime::currentSystemTimeCallback());
 //..
-// Next create object 'i5' and 'i6' of 'bdet_TimeInterval'
+// Then, create object 'i5' and 'i6' of 'bdet_TimeInterval':
 //..
 //    bdet_TimeInterval i5;
 //    assert(0 == i5);
 //    bdet_TimeInterval i6;
 //    assert(0 == i6);
 //..
-// Call the utility function 'now' and get the system time into 'i5'.
+// Now, call the utility function 'now' and get the system time into 'i5':
 //..
 //    i5 = bdetu_SystemTime::now();
 //    assert(1 == i5.seconds());
 //    assert(1 == i5.nanoseconds());
 //..
-// Now call utility function 'loadCurrentTime' to load the system time into
-// 'i6'.
+// Finally, call utility function 'loadCurrentTime' to load the system time
+// into 'i6':
 //..
 //    bdetu_SystemTime::loadCurrentTime(&i6);
 //    assert(1 == i6.seconds());
 //    assert(1 == i6.nanoseconds());
+//..
+///Usage 4
+///-------
+// For applications that choose to define there own mechanism for determining
+// the differential between local time and UTC time, the 'bdetu_SystemTime'
+// utility provides the ability to install a custom local-time-offset callback.
+//
+// First, we define the user-defined callback function 'getLocalTimeOffset':
+//..
+//    bdet_DatetimeInterval getLocalTimeOffset()
+//    {
+//        return bdet_DatetimeInterval(0, 1);  // an hour differential
+//    }
+//..
+// Then, store the address of the user-defined callback function
+// 'getLocalTimeOffset' into 'callback_user_ptr1':
+//..
+//    const bdetu_SystemTime::LocalTimeOffsetCallback callback_user_ptr1
+//                                                       = &getLocalTimeOffset;
+//..
+// Then call the utility function 'setLocalTimeOffsetCallback' to load the
+// user-defined local-time-offset callback function:
+//..
+//    bdetu_SystemTime::setLocalTimeOffsetCallback(callback_user_ptr1);
+//    assert(callback_user_ptr1
+//           == bdetu_SystemTime::currentLocalTimeOffsetCallback());
+//..
+// Next, we call the utility function 'localTimeOffset' to get the current
+// local time offset:
+//..
+//    bdet_DatetimeInterval i7 = bdetu_SystemTime::localTimeOffset();
+//    assert(0 == i7.days());
+//    assert(1 == i7.hours());
 //..
 
 #ifndef INCLUDED_BDESCM_VERSION
@@ -186,8 +233,16 @@ class bdetu_SystemTime {
         // function that returns 'void' and takes as arguments a
         // 'bdet_TimeInterval' object 'result'.
 
+    typedef bdet_DatetimeInterval (*LocalTimeOffsetCallback)();
+        // 'LocalTimeOffsetCallback' is a callback function pointer for a
+        // callback function that returns the time difference between local
+        // time and UTC time.
+
   private:
-    static SystemTimeCallback s_callback_p;  // address of system-time callback
+    static SystemTimeCallback s_systime_callback_p;
+                                       // address of system-time callback
+    static LocalTimeOffsetCallback s_localtimeoffset_callback_p;
+                                       // address of local-time offset callback
 
   public:
     // CLASS METHODS
@@ -222,22 +277,27 @@ class bdetu_SystemTime {
 
     static bdet_DatetimeInterval localTimeOffset();
         // Return a 'bdet_DatetimeInterval' value representing the current
-        // differential between the local time and the UTC time.
+        // differential between the local time and the UTC time.  This method
+        // uses the currently installed local-time-offset callback mechanism.
 
     static void loadCurrentTime(bdet_TimeInterval *result);
         // Load into the specified 'result', the current system time using
-        // the currently installed callback mechanism.
+        // the currently installed system-time callback mechanism.
 
     static void loadSystemTimeDefault(bdet_TimeInterval *result);
-        // Load into the specified 'result', the current system time using
-        // the class default callback mechanism.
-        //
-        // Provides a default implementation for system time retrieval.
-        // The obtained system time is expressed as a time interval between
-        // the current time and '00:00 UTC, January 1, 1970'.  On UNIX
+        // Load into the specified 'result' the current system time.  This is
+        // the default system-time callback implementation for system time
+        // retrieval.  The obtained system time is expressed as a time interval
+        // between the current time and '00:00 UTC, January 1, 1970'.  On UNIX
         // (Solaris, LINUX and DG-UNIX) this function provides a microsecond
         // resolution.  On Windows (NT, WIN2000, 95, 98 etc) it provides a
         // resolution of 100 nanoseconds.
+
+    static bdet_DatetimeInterval loadLocalTimeOffsetDefault();
+        // Return a 'bdet_DatetimeInterval' value representing the current
+        // differential between the local time and the UTC time.  This is the
+        // default local-time-offset callback implementation for local time
+        // offset retrieval.
 
     static SystemTimeCallback
     setSystemTimeCallback(SystemTimeCallback callback);
@@ -246,8 +306,18 @@ class bdetu_SystemTime {
         // will be corrupted unless 'callback' returns an absolute offset since
         // the epoch time 00:00 UTC, January 1, 1970.
 
-    static SystemTimeCallback currentCallback();
+    static LocalTimeOffsetCallback
+    setLocalTimeOffsetCallback(LocalTimeOffsetCallback callback);
+        // Install the user-specified custom 'callback' function to retrieve
+        // the offset between local time and UTC time.  The behavior of other
+        // methods in this component will be corrupted unless 'callback'
+        // returns a correct offset.
+
+    static SystemTimeCallback currentSystemTimeCallback();
         // Return the currently installed 'SystemTimeCallback' function.
+
+    static LocalTimeOffsetCallback currentLocalTimeOffsetCallback();
+        // Return the currently installed 'LocalTimeOffsetCallback' function.
 };
 
 // ==========================================================================
@@ -263,7 +333,7 @@ inline
 bdet_TimeInterval bdetu_SystemTime::now()
 {
     bdet_TimeInterval timeInterval;
-    s_callback_p(&timeInterval);
+    s_systime_callback_p(&timeInterval);
     return timeInterval;
 }
 
@@ -289,9 +359,15 @@ bdet_Datetime bdetu_SystemTime::nowAsDatetimeGMT()
 }
 
 inline
+bdet_DatetimeInterval bdetu_SystemTime::localTimeOffset()
+{
+    return s_localtimeoffset_callback_p();
+}
+
+inline
 void bdetu_SystemTime::loadCurrentTime(bdet_TimeInterval *result)
 {
-    s_callback_p(result);
+    s_systime_callback_p(result);
 }
 
 inline
@@ -299,26 +375,45 @@ bdetu_SystemTime::SystemTimeCallback
 bdetu_SystemTime::setSystemTimeCallback(
                                  bdetu_SystemTime::SystemTimeCallback callback)
 {
-    bdetu_SystemTime::SystemTimeCallback previousCallback = s_callback_p;
-    s_callback_p = callback;
+    bdetu_SystemTime::SystemTimeCallback
+                                       previousCallback = s_systime_callback_p;
+    s_systime_callback_p = callback;
     return previousCallback;
 }
 
 inline
-bdetu_SystemTime::SystemTimeCallback bdetu_SystemTime::currentCallback()
+bdetu_SystemTime::LocalTimeOffsetCallback
+bdetu_SystemTime::setLocalTimeOffsetCallback(LocalTimeOffsetCallback callback)
 {
-    return s_callback_p;
+    bdetu_SystemTime::LocalTimeOffsetCallback
+                               previousCallback = s_localtimeoffset_callback_p;
+    s_localtimeoffset_callback_p = callback;
+    return previousCallback;
+}
+
+inline
+bdetu_SystemTime::SystemTimeCallback
+bdetu_SystemTime::currentSystemTimeCallback()
+{
+    return s_systime_callback_p;
+}
+
+inline
+bdetu_SystemTime::LocalTimeOffsetCallback
+bdetu_SystemTime::currentLocalTimeOffsetCallback()
+{
+    return s_localtimeoffset_callback_p;
 }
 
 }  // close namespace BloombergLP
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2003
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------
