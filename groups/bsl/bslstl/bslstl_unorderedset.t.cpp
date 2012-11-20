@@ -108,6 +108,8 @@ using namespace BloombergLP;
 //*[26] typedef ... const_pointer;
 //*[26] typedef ... iterator
 //*[26] typedef ... const_iterator
+//*[26] typedef ... local_iterator
+//*[26] typedef ... const_local_iterator
 //
 // [unord.set] construct/copy/destroy:
 //*[ 2] unordered_set(size_type, hasher, key_equal, allocator);
