@@ -14,7 +14,7 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslalg_typetraitusesblsmaallocator
 //
-//@DESCRIPTION: 
+//@DESCRIPTION:
 //
 ///Usage
 ///-----
