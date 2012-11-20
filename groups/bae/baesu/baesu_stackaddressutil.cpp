@@ -430,7 +430,7 @@ int baesu_StackAddressUtil::getStackAddresses(void    **buffer,
     stackFrame.AddrStack.Mode = AddrModeFlat;
     int stackFrameIndex;
     HANDLE currentThread = GetCurrentThread();
-    for (stackFrameIndex = 0; stackFrameIndex < maxFrames; ++stackFrameIndex) {
+    for (stackFrameIndex = -1; stackFrameIndex < maxFrames; ++stackFrameIndex) {
         bool rc = baesu_DbghelpDllImpl_Windows::stackWalk64(MACHINE,
                                                             currentThread,
                                                             &stackFrame,
@@ -438,10 +438,12 @@ int baesu_StackAddressUtil::getStackAddresses(void    **buffer,
         if (!rc) {
             break;
         }
-        buffer[stackFrameIndex] = (void *) stackFrame.AddrPC.Offset;
+        if (stackFrameIndex >= 0) {
+            buffer[stackFrameIndex] = (void *) stackFrame.AddrPC.Offset;
+        }
     }
 
-    return stackFrameIndex;
+    return stackFrameIndex < 0 ? 0 : stackFrameIndex;
 }
 
 // WINDOWS
