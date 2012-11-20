@@ -108,8 +108,10 @@ struct bdeat_AttributeInfo {
     int         d_formattingMode;  // formatting mode
 
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(bdeat_AttributeInfo,
-                                 bslalg_TypeTraitsGroupPod);
+    BSLMF_NESTED_TRAIT_DECLARATION(bdeat_AttributeInfo,
+                                   bsl::is_trivially_copyable);
+    BSLMF_NESTED_TRAIT_DECLARATION(bdeat_AttributeInfo,
+                                   bsl::is_trivially_default_constructible);
 
     // CREATORS
     // The following methods are not defined by design:

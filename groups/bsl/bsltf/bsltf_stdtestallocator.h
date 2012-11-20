@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a minimal standard compliant allocator  .
+//@PURPOSE: Provide a minimal standard compliant allocator.
 //
 //@CLASSES:
 //      bsltf::StdTestAllocatorConfiguration: namespace to configure allocator
@@ -123,10 +123,6 @@ BSLS_IDENT("$Id: $")
 //
 //  assert(0 == oa.numBytesInUse());
 //..
-
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
 
 #ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>

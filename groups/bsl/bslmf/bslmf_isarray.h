@@ -14,32 +14,48 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Clay Wilson (cwilson9)
 //
-//@DESCRIPTION: This component defines a simple template structure used to
-// evaluate whether it's single type parameter is of array type.
-// 'bslmf::IsArray' defines a 'VALUE' member that is initialized (at
-// compile-time) to 1 if the parameter is an array type, or is a
-// reference-to-array type, and to 0 otherwise.
+//@DESCRIPTION: This component defines two meta-functions, 'bsl::is_array' and
+// 'BloombergLP::bslmf::IsArray', both of which may be used to query whether a
+// type is an array type.
+//
+// 'bsl::is_array' meets the requirements of the 'is_array' template defined in
+// the C++11 standard [meta.unary.cat], while 'bslmf::IsArray' was devised
+// before 'is_array' was standardized.
+//
+// The two meta-functions are functionally equivalent.  The major difference
+// between them is that the result for 'bsl::is_array' is indicated by the
+// class member 'value', while the result for 'bslmf::IsArray' is indicated by
+// the class member 'VALUE'.
+//
+// Note that 'bsl::is_array' should be preferred over 'bslmf::IsArray', and in
+// general, should be used by new components.
 //
 ///Usage
 ///-----
-// For example:
+// In this section we show intended use of this component.
+//
+///Example 1: Verify Array Types
+///- - - - - - - - - - - - - - - -
+// Suppose that we want to assert whether a particular type is an Array type.
+//
+// First, we create two 'typedef's -- an array type and a non-array type:
 //..
-//  assert(1 == bslmf::IsArray<int    [5]>::VALUE);
-//  assert(0 == bslmf::IsArray<int  *    >::VALUE);
-//  assert(0 == bslmf::IsArray<int (*)[5]>::VALUE);
+//  typedef int   MyType;
+//  typedef int[] MyArrayType;
 //..
-// Note that the 'bslmf::IsArray' meta-function also evaluates to true (i.e.,
-// 1) when applied to references to arrays:
+// Now, we instantiate the 'bsl::is_array' template for each of the
+// 'typedef's and assert the 'value' static data member of each instantiation:
 //..
-//  assert(1 == bslmf::IsArray<int (&)[5]>::VALUE);
+//  assert(false == bsl::is_array<MyType>::value);
+//  assert(true == bsl::is_array<MyArrayType>::value);
 //..
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_METAINT
-#include <bslmf_metaint.h>
+#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
+#include <bslmf_integralconstant.h>
 #endif
 
 #ifndef INCLUDED_CSTDDEF
@@ -56,6 +72,43 @@ BSLS_IDENT("$Id: $")
 
 #endif
 
+namespace bsl {
+
+                         // ===============
+                         // struct is_array
+                         // ===============
+
+template <typename TYPE>
+struct is_array : false_type {
+    // This 'struct' template implements the 'is_array' meta-function defined
+    // in the C++11 standard [meta.unary.cat] to determine if the (template
+    // parameter) 'TYPE' is an array type.  This 'struct' derives from
+    // 'bsl::true_type' if the 'TYPE' is an array type, and 'bsl::false_type'
+    // otherwise.
+};
+
+                         // ====================================
+                         // struct is_array<TYPE [NUM_ELEMENTS]>
+                         // ====================================
+
+template <typename TYPE, std::size_t NUM_ELEMENTS>
+struct is_array<TYPE [NUM_ELEMENTS]> : true_type {
+     // This specialization of 'is_array', for when the (template parameter)
+     // 'TYPE' is an array of known bound type, derives from 'bsl::true_type'
+};
+
+                         // ========================
+                         // struct is_array<TYPE []>
+                         // ========================
+
+template <typename TYPE>
+struct is_array<TYPE []> : true_type {
+     // This specialization of 'is_array', for when the (template parameter)
+     // 'TYPE' is an array of unknown bound type, derives from 'bsl::true_type'
+};
+
+}
+
 namespace BloombergLP {
 
 namespace bslmf {
@@ -65,19 +118,14 @@ namespace bslmf {
                          // ==============
 
 template <typename TYPE>
-struct IsArray  : MetaInt<0> {
-};
-
-template <typename TYPE, std::size_t NUM_ELEMENTS>
-struct IsArray<TYPE [NUM_ELEMENTS]> : MetaInt<1> {
-};
-
-template <typename TYPE>
-struct IsArray<TYPE []> : MetaInt<1> {
-};
-
-template <typename TYPE>
-struct IsArray<TYPE &> : IsArray<TYPE>::Type {
+struct IsArray  : bsl::is_array<TYPE>::type {
+    // This 'struct' template implements a meta-function to determine if the
+    // (template parameter) 'TYPE' is an array type.  This 'struct' derives
+    // from 'bsl::true_type' if the 'TYPE' is an array type, and
+    // 'bsl::false_type' otherwise.
+    //
+    // Note that although this 'struct' is functionally equivalent to
+    // 'bsl::is_array', the use of 'bsl::is_array' should be preferred.
 };
 
 }  // close package namespace
@@ -100,7 +148,7 @@ struct IsArray<TYPE &> : IsArray<TYPE>::Type {
 
 // ---------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2005
+//      Copyright (C) Bloomberg L.P., 2012
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the

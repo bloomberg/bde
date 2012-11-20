@@ -3,9 +3,6 @@
 #include <bslalg_autoarraydestructor.h>
 
 #include <bslalg_scalarprimitives.h>             // for testing only
-#include <bslalg_typetraits.h>                   // for testing only
-#include <bslalg_typetraitusesbslmaallocator.h>  // for testing only
-
 #include <bslma_allocator.h>                     // for testing only
 #include <bslma_deallocatorproctor.h>            // for testing only
 #include <bslma_autodestructor.h>                // for testing only
@@ -139,10 +136,6 @@ class TestType {
     bslma::Allocator *d_allocator_p;
 
   public:
-    // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(TestType,
-                                 bslalg::TypeTraitUsesBslmaAllocator);
-
     // CREATORS
     TestType(bslma::Allocator *ba = 0)
     : d_data_p(0)
@@ -213,6 +206,13 @@ class TestType {
         }
     }
 };
+
+// TRAITS
+namespace BloombergLP {
+namespace bslma {
+template <> struct UsesBslmaAllocator<TestType> : bsl::true_type {};
+}
+}
 
 bool operator==(const TestType& lhs, const TestType& rhs)
 {

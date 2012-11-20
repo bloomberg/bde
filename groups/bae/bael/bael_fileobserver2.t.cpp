@@ -1353,7 +1353,7 @@ int main(int argc, char *argv[])
                     bsl::string fn;
                     ASSERT(1 == mX.isFileLoggingEnabled(&fn));
                     mX.disableFileLogging();
-                    ASSERT(0 == bsl::remove(fn.c_str()));
+                    ASSERT(0 == bdesu_FileUtil::remove(fn.c_str()));
                 }
 
             } while (!X.isFileLoggingEnabled());
@@ -2426,7 +2426,7 @@ int main(int argc, char *argv[])
                             bsl::string fn;
                             ASSERT(1 == mX.isFileLoggingEnabled(&fn));
                             mX.disableFileLogging();
-                            ASSERT(0 == bsl::remove(fn.c_str()));
+                            ASSERT(0 == bdesu_FileUtil::remove(fn.c_str()));
                         }
 
                     } while (!X.isFileLoggingEnabled());

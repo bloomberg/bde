@@ -8,6 +8,7 @@
 #include <bslma_testallocatormonitor.h>
 
 #include <bslalg_hastrait.h>
+#include <bslalg_typetraits.h>
 
 #include <bslmf_issame.h>
 

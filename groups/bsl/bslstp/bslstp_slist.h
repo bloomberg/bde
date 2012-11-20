@@ -61,8 +61,8 @@
 #include <bslstp_slistbase.h>
 #endif
 
-#ifndef INCLUDED_BSLSTL_UTIL
-#include <bslstl_util.h>
+#ifndef INCLUDED_BSLSTP_UTIL
+#include <bslstp_util.h>
 #endif
 
 #ifndef INCLUDED_BSLS_OBJECTBUFFER
@@ -95,6 +95,10 @@
 
 #ifndef INCLUDED_BSLS_UTIL
 #include <bsls_util.h>
+#endif
+
+#ifndef INCLUDED_BSLSTL_ALLOCATOR
+#include <bslstl_allocator.h>
 #endif
 
 #ifndef INCLUDED_ALGORITHM
@@ -302,7 +306,7 @@ public:
   { _M_insert_after_range(&this->_M_head._M_data, __first, __last); }
 
   slist(const _Self& __x)
-  : _Slist_base<_Tp, _Alloc>(BloombergLP::bslstl::Util::copyContainerAllocator(__x.get_allocator()))
+  : _Slist_base<_Tp, _Alloc>(BloombergLP::bslstp::Util::copyContainerAllocator(__x.get_allocator()))
     { insert(begin(), __x.begin(), __x.end()); }
 
   // Copy-construct with alternative allocator.
@@ -340,7 +344,7 @@ public:
     // MODIFIED BY ARTHUR
     // typedef typename _Is_integer<_InputIterator>::_Integral _Integral;
 
-    enum { VALUE = BloombergLP::bslmf::IsFundamental<_InputIterator>::VALUE };
+    enum { VALUE = BloombergLP::bslmf::IsFundamental<_InputIterator>::value };
     _M_assign_dispatch(__first, __last, (BloombergLP::bslmf::MetaInt<VALUE> *)0);
 
   }
@@ -394,7 +398,7 @@ public:
   bool empty() const { return this->_M_head._M_data._M_next == 0; }
 
   void swap(_Self& __x) {
-    BloombergLP::bslstl::Util::swapContainers(*this, __x, QuickSwap());
+    BloombergLP::bslstp::Util::swapContainers(*this, __x, QuickSwap());
   }
 
 public:
@@ -438,7 +442,7 @@ private:
                              _InIter __first, _InIter __last) {
     // MODIFIED BY ARTHUR
     // typedef typename _Is_integer<_InIter>::_Integral _Integral;
-    enum { VALUE = BloombergLP::bslmf::IsFundamental<_InIter>::VALUE };
+    enum { VALUE = BloombergLP::bslmf::IsFundamental<_InIter>::value };
     _M_insert_after_range(__pos, __first, __last, (BloombergLP::bslmf::MetaInt<VALUE> *) 0);
   }
 

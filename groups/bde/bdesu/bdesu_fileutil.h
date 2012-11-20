@@ -10,7 +10,7 @@ BDES_IDENT("$Id: $")
 //@PURPOSE: Provide a set of portable utilities for file system access.
 //
 //@CLASSES:
-//  bdesu_FileUtil: struct that scopes file system utilities
+//  bdesu_FileUtil: struct which scopes file system utilities
 //
 //@SEE_ALSO: bdesu_pathutil
 //
@@ -23,19 +23,14 @@ BDES_IDENT("$Id: $")
 ///--------------------------------------
 // Locking has the following caveats for the following operating systems:
 //:
-//: o On Posix:
+//: o On Posix, closing a file releases all locks on all file descriptors
+//:   referring to that file within the current process.  [Doc 1] [Doc 2]
 //:
-//:   o Closing a file releases all locks on all file descriptors referring to
-//:     that file within the current process.
+//: o On Posix, the child of a fork does not inherit the locks of the parent
+//:   process.  [Doc 1] [Doc 2]
 //:
-//:   o The child of a 'fork' does not inherit the locks of the parent process.
-//:
-//:   o References:
-//:     o 'http://pubs.opengroup.org/onlinepubs/009695399/functions/fcntl.html'
-//:     o 'http://www.manpagez.com/man/2/fcntl'
-//:
-//: o On at least some flavors of Unix, a file descriptor opened in read-only
-//:   mode cannot be locked for writing.
+//: o On at least some flavors of Unix, you can't lock a file for writing using
+//:   file descriptor opened in read-only mode.
 //
 ///Platform-Specific Atomicity Caveats
 ///-----------------------------------
@@ -205,9 +200,10 @@ struct bdesu_FileUtil {
 #else
     typedef int     FileDescriptor;
 #if defined(BSLS_PLATFORM_OS_FREEBSD) \
- || defined(BSLS_PLATFORM_OS_DARWIN)
-    // 'off_t' is 64-bit on Darwin/FreeBSD (even when running 32-bit) so they
-    // do not have a 'off64_t' type.
+ || defined(BSLS_PLATFORM_OS_DARWIN)  \
+ || defined(BSLS_PLATFORM_OS_CYGWIN)
+    // 'off_t' is 64-bit on Darwin/FreeBSD/cygwin (even when running 32-bit),
+    // so they do not have an 'off64_t' type.
 
     typedef off_t Offset;
 #else

@@ -7,18 +7,18 @@
 #endif
 BDES_IDENT("$Id: $")
 
-//@PURPOSE: Enumerate set of errors associated with accessing 'bcem' types.
+//@PURPOSE: Enumerate the set of errors associated with accessing 'bcem' types.
 //
 //@CLASSES:
 //  bcem_ErrorCode: namespace for errors associated with 'bcem' types
 //
-//@SEE_ALSO: bcem_aggregateerror, bcem_aggregate
+//@SEE_ALSO: bcem_errorattributes, bcem_aggregate
 //
 //@AUTHOR: Rohan Bhindwale (rbhindwa)
 //
 //@DESCRIPTION: This component provides a namespace for the 'enum' type
-// 'bcem_ErrorCode::Code', which enumerates the set of error codes
-// that can happen while accessing 'bcem' types.
+// 'bcem_ErrorCode::Code', which enumerates the set of error codes that users
+// can encounter while accessing 'bcem' types.
 //
 ///Enumerators
 ///-----------

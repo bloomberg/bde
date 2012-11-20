@@ -26,7 +26,7 @@ BSLS_IDENT("$Id: $")
 // Whenever the linked list of free memory blocks is depleted,
 // 'bslstl::SimplePool' replenishes the list by first allocating a large,
 // contiguous "chunk" of memory, then splitting the chunk into multiple memory
-// blocks eah having the 'sizeof' the simple pool's parameterized type.  A
+// blocks each having the 'sizeof' the simple pool's parameterized type.  A
 // chunk and its constituent memory blocks can be depicted visually:
 //..
 //     +-----+--- memory blocks of uniform size for parameterized type
@@ -211,6 +211,10 @@ BSL_OVERRIDES_STD mode"
 #include <bslstl_allocatortraits.h>
 #endif
 
+#ifndef INCLUDED_BSLALG_SWAPUTIL
+#include <bslalg_swaputil.h>
+#endif
+
 #ifndef INCLUDED_BSLS_ALIGNMENTFROMTYPE
 #include <bsls_alignmentfromtype.h>
 #endif
@@ -372,10 +376,22 @@ class SimplePool : public SimplePool_Type<ALLOCATOR>::AllocatorType {
     void release();
         // Relinquish all memory currently allocated via this pool object.
 
-    void swap(SimplePool<VALUE, ALLOCATOR>& other);
-        // Efficiently exchange the memory chunks and blocks of this object and
-        // the specified 'other' object.  The behavior is undefined unless the
-        // underlying mechanisms of 'allocator()' refers to the same allocator.
+    void swap(SimplePool& other);
+        // Efficiently exchange the memory blocks of this object with those of
+        // the specified 'other' object.  This method provides the no-throw
+        // exception-safety guarantee.  The behavior is undefined unless
+        // 'allocator() == other.allocator()'.
+
+    void quickSwapRetainAllocators(SimplePool& other);
+        // Efficiently exchange the memory blocks of this object with those of
+        // the specified 'other' object.  This method provides the no-throw
+        // exception-safety guarantee.  The behavior is undefined unless
+        // 'allocator() == other.allocator()'.
+
+    void quickSwapExchangeAllocators(SimplePool& other);
+        // Efficiently exchange the memory blocks and the allocator of this
+        // object with those of the specified 'other' object.  This method
+        // provides the no-throw exception-safety guarantee.
 
     // ACCESSORS
     const AllocatorType& allocator() const;
@@ -407,7 +423,7 @@ SimplePool<VALUE, ALLOCATOR>::allocateChunk(std::size_t size)
                     AllocatorTraits::allocate(allocator(), numMaxAlignedType));
 
     BSLS_ASSERT_SAFE(0 ==
-              reinterpret_cast<bsls_Types::UintPtr>(chunkPtr) % sizeof(Chunk));
+             reinterpret_cast<bsls::Types::UintPtr>(chunkPtr) % sizeof(Chunk));
 
     chunkPtr->d_next_p = d_chunkList_p;
     d_chunkList_p      = chunkPtr;
@@ -483,6 +499,25 @@ void SimplePool<VALUE, ALLOCATOR>::swap(SimplePool<VALUE, ALLOCATOR>& other)
 {
     BSLS_ASSERT_SAFE(allocator() == other.allocator());
 
+    std::swap(d_blocksPerChunk, other.d_blocksPerChunk);
+    std::swap(d_freeList_p, other.d_freeList_p);
+    std::swap(d_chunkList_p, other.d_chunkList_p);
+}
+
+template <class VALUE, class ALLOCATOR>
+inline
+void SimplePool<VALUE, ALLOCATOR>::quickSwapRetainAllocators(
+                                           SimplePool<VALUE, ALLOCATOR>& other)
+{
+    swap(other);
+}
+
+template <class VALUE, class ALLOCATOR>
+inline
+void SimplePool<VALUE, ALLOCATOR>::quickSwapExchangeAllocators(
+                                           SimplePool<VALUE, ALLOCATOR>& other)
+{
+    bslalg::SwapUtil::swap(&this->allocator(), &other.allocator());
     std::swap(d_blocksPerChunk, other.d_blocksPerChunk);
     std::swap(d_freeList_p, other.d_freeList_p);
     std::swap(d_chunkList_p, other.d_chunkList_p);

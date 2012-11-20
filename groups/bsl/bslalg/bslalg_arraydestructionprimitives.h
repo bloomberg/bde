@@ -24,7 +24,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  Trait                             Note
 //  -----                             -------------------------------------
-//  bslalg::TypeTraitBitwiseCopyable  Expressed in English as "TYPE has the
+//   bsl::is_trivially_copyable       Expressed in English as "TYPE has the
 //                                    bit-wise copyable trait", or "TYPE is
 //                                    bit-wise copyable", this trait also
 //                                    implies that destructor calls can be
@@ -34,23 +34,65 @@ BSLS_IDENT("$Id: $")
 //..
 ///Usage
 ///-----
-// This component is for use by the 'bslstl' package.  Other clients should use
-// STL algorithms (in headers '<algorithm>' and '<memory>').
+// In this section we show intended use of this component.  Note that this
+// component is for use by the 'bslstl' package.  Other clients should use the
+// STL algorithms (in header '<algorithm>' and '<memory>').
+//
+///Example 1: Destroy Arrays of 'int' and 'Integer' Wrapper Objects
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// In this example, we will use 'bslalg::ArrayDestructionPrimitives' to destroy
+// both an array of integer scalars and an array of 'MyInteger' objects.
+// Calling the 'destroy' method on an array of integers is a no-op while
+// calling the 'destroy' method on an array of objects of 'MyInteger' class
+// invokes the destructor of each of the objects in the array.
+//
+// First, we define a 'MyInteger' class that contains an integer value:
+//..
+//  class MyInteger {
+//      // This class represents an integer value.
+//
+//      int d_intValue;  // integer value
+//
+//    public:
+//      // CREATORS
+//      MyInteger();
+//          // Create a 'MyInteger' object having integer value '0'.
+//
+//      explicit MyInteger(int value);
+//          // Create a 'MyInteger' object having the specified 'value'.
+//
+//      ~MyInteger();
+//          // Destroy this object.
+//
+//      // ACCESSORS
+//      int getValue() const;
+//          // Return the integer value contained in this object.
+//  };
+//..
+// Then, we create an array of of objects, 'myIntegers', of type 'MyInteger'
+// (note that we 'bsls::ObjectBuffer' to allow us to safely invoke the
+// destructor explicitly):
+//..
+//  bsls::ObjectBuffer<MyInteger> arrayBuffer[5];
+//  MyInteger *myIntegers = &arrayBuffer[0].object();
+//  for (int i = 0;i < 5; ++i) {
+//      new (myIntegers + i) MyInteger(i);
+//  }
+//..
+// Now, we define a primitive integer array:
+//..
+//  int scalarIntegers[] = { 0, 1, 2, 3, 4 };
+//..
+// Finally, we use the uniform 'bslalg::ArrayDestructionPrimitives:destroy'
+// method to destroy both 'myIntegers' and 'scalarIntegers':
+//..
+//  bslalg::ArrayDestructionPrimitives::destroy(myIntegers, myIntegers + 5);
+//  bslalg::ArrayDestructionPrimitives::destroy(scalarIntegers,
+//                                              scalarIntegers + 5);
+//..
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_HASTRAIT
-#include <bslalg_hastrait.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_METAINT
-#include <bslmf_metaint.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ASSERT
@@ -59,6 +101,10 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
+#include <bslmf_istriviallycopyable.h>
 #endif
 
 #ifndef INCLUDED_CSTDDEF
@@ -89,17 +135,17 @@ struct ArrayDestructionPrimitives {
     template <class TARGET_TYPE>
     static void destroy(TARGET_TYPE        *begin,
                         TARGET_TYPE        *end,
-                        bslmf::MetaInt<1>);
+                        bsl::true_type);
     template <class TARGET_TYPE>
     static void destroy(TARGET_TYPE        *begin,
                         TARGET_TYPE        *end,
-                        bslmf::MetaInt<0>);
+                        bsl::false_type);
         // Destroy each instance of 'TARGET_TYPE' in the array beginning at the
         // specified 'begin' address and ending immediately before the
         // specified 'end' address.  Use the destructor of the parameterized
         // 'TARGET_TYPE', or do nothing if the 'TARGET_TYPE' is bit-wise
         // copyable (i.e., if the last argument is of type
-        // 'bslmf::MetaInt<1>').  Note that the last argument is for
+        // 'bsl::true_type').  Note that the last argument is for
         // overloading resolution only and its value is ignored.
 
   public:
@@ -130,7 +176,7 @@ template <class TARGET_TYPE>
 inline
 void ArrayDestructionPrimitives::destroy(TARGET_TYPE       *begin,
                                          TARGET_TYPE       *end,
-                                         bslmf::MetaInt<1>)
+                                         bsl::true_type)
 {
     // 'BitwiseCopyable' is a valid surrogate for 'HasTrivialDestructor'.
 
@@ -146,7 +192,7 @@ void ArrayDestructionPrimitives::destroy(TARGET_TYPE       *begin,
 template <class TARGET_TYPE>
 void ArrayDestructionPrimitives::destroy(TARGET_TYPE       *begin,
                                          TARGET_TYPE       *end,
-                                         bslmf::MetaInt<0>)
+                                         bsl::false_type)
 {
     for (; begin != end; ++begin) {
         begin->~TARGET_TYPE();
@@ -163,9 +209,8 @@ void ArrayDestructionPrimitives::destroy(TARGET_TYPE *begin,
     BSLS_ASSERT_SAFE(end   || !begin);
     BSLS_ASSERT_SAFE(begin <= end);
 
-    typedef typename HasTrait<TARGET_TYPE,
-                              TypeTraitBitwiseCopyable>::Type Trait;
-    destroy(begin, end, Trait());
+    destroy(begin, end,
+            typename bsl::is_trivially_copyable<TARGET_TYPE>::type());
 }
 
 }  // close package namespace

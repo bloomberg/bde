@@ -199,14 +199,12 @@ static int veryVeryVerbose = 0;
 //   LargeStringAlloc - sizeof(bdem_ChoiceHeader)-byte object with
 //                      allocator trait
 
-struct NoBdemaAllocTrait { };
-
 enum {
     SMALL_STRING_BUFSIZE = 16,
     LARGE_STRING_BUFSIZE = 32
 };
 
-template <int FOOTPRINT, typename ALLOC_TRAIT = NoBdemaAllocTrait>
+template <int FOOTPRINT, bool ALLOC_TRAIT = false>
 class FixedString {
 
     // Count constructor and destructor calls.
@@ -230,8 +228,10 @@ class FixedString {
   public:
     enum { MAXLEN = STRING_BUFSIZE - 1 };
 
-    BSLALG_DECLARE_NESTED_TRAITS2(FixedString, ALLOC_TRAIT,
-                                  bslalg_TypeTraitBitwiseMoveable);
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(FixedString,
+                                      bslma::UsesBslmaAllocator,
+                                      ALLOC_TRAIT);
+    BSLMF_NESTED_TRAIT_DECLARATION(FixedString, bslmf::IsBitwiseMoveable);
 
     static int constructorCount();
     static int destructorCount();
@@ -239,7 +239,7 @@ class FixedString {
     static int maxLength();
     static int maxSupportedBdexVersion();
 
-    FixedString(bslma_Allocator *alloc = 0);
+    explicit FixedString(bslma_Allocator *alloc = 0);
     FixedString(const char* s, bslma_Allocator *alloc = 0);
     FixedString(const FixedString& original, bslma_Allocator *alloc = 0);
     ~FixedString();
@@ -258,14 +258,14 @@ class FixedString {
                         int           spacesPerLevel = 4) const;
 };
 
-template <int FOOTPRINT, typename ALLOC_TRAIT>
+template <int FOOTPRINT, bool ALLOC_TRAIT>
 bool operator==(const FixedString<FOOTPRINT, ALLOC_TRAIT>& a,
                 const FixedString<FOOTPRINT, ALLOC_TRAIT>& b)
 {
     return 0 == bsl::strcmp(a.c_str(), b.c_str());
 }
 
-template <int FOOTPRINT, typename ALLOC_TRAIT>
+template <int FOOTPRINT, bool ALLOC_TRAIT>
 inline
 bool operator!=(const FixedString<FOOTPRINT, ALLOC_TRAIT>& a,
                 const FixedString<FOOTPRINT, ALLOC_TRAIT>& b)
@@ -273,55 +273,55 @@ bool operator!=(const FixedString<FOOTPRINT, ALLOC_TRAIT>& a,
     return ! (a == b);
 }
 
-template <int FOOTPRINT, typename ALLOC_TRAIT>
+template <int FOOTPRINT, bool ALLOC_TRAIT>
 bsl::ostream& operator<<(bsl::ostream&                              os,
                          const FixedString<FOOTPRINT, ALLOC_TRAIT>& s)
 {
     return s.print(os, 0, -1);
 }
 
-template <int FOOTPRINT, typename ALLOC_TRAIT>
+template <int FOOTPRINT, bool ALLOC_TRAIT>
 int FixedString<FOOTPRINT, ALLOC_TRAIT>::s_constructorCount = 0;
 
-template <int FOOTPRINT, typename ALLOC_TRAIT>
+template <int FOOTPRINT, bool ALLOC_TRAIT>
 int FixedString<FOOTPRINT, ALLOC_TRAIT>::s_destructorCount = 0;
 
-template <int FOOTPRINT, typename ALLOC_TRAIT>
+template <int FOOTPRINT, bool ALLOC_TRAIT>
 inline
 int FixedString<FOOTPRINT, ALLOC_TRAIT>::constructorCount()
 {
     return s_constructorCount;
 }
 
-template <int FOOTPRINT, typename ALLOC_TRAIT>
+template <int FOOTPRINT, bool ALLOC_TRAIT>
 inline
 int FixedString<FOOTPRINT, ALLOC_TRAIT>::destructorCount()
 {
     return s_destructorCount;
 }
 
-template <int FOOTPRINT, typename ALLOC_TRAIT>
+template <int FOOTPRINT, bool ALLOC_TRAIT>
 inline
 int FixedString<FOOTPRINT, ALLOC_TRAIT>::instanceCount()
 {
     return s_constructorCount - s_destructorCount;
 }
 
-template <int FOOTPRINT, typename ALLOC_TRAIT>
+template <int FOOTPRINT, bool ALLOC_TRAIT>
 inline
 int FixedString<FOOTPRINT, ALLOC_TRAIT>::maxLength()
 {
     return MAXLEN;
 }
 
-template <int FOOTPRINT, typename ALLOC_TRAIT>
+template <int FOOTPRINT, bool ALLOC_TRAIT>
 inline
 int FixedString<FOOTPRINT, ALLOC_TRAIT>::maxSupportedBdexVersion()
 {
     return 1;
 }
 
-template <int FOOTPRINT, typename ALLOC_TRAIT>
+template <int FOOTPRINT, bool ALLOC_TRAIT>
 FixedString<FOOTPRINT, ALLOC_TRAIT>::FixedString(bslma_Allocator *alloc)
 : d_alloc(alloc)
 {
@@ -329,7 +329,7 @@ FixedString<FOOTPRINT, ALLOC_TRAIT>::FixedString(bslma_Allocator *alloc)
     ++s_constructorCount;
 }
 
-template <int FOOTPRINT, typename ALLOC_TRAIT>
+template <int FOOTPRINT, bool ALLOC_TRAIT>
 FixedString<FOOTPRINT, ALLOC_TRAIT>::FixedString(const char      *s,
                                                  bslma_Allocator *alloc)
 : d_alloc(alloc)
@@ -339,7 +339,7 @@ FixedString<FOOTPRINT, ALLOC_TRAIT>::FixedString(const char      *s,
     ++s_constructorCount;
 }
 
-template <int FOOTPRINT, typename ALLOC_TRAIT>
+template <int FOOTPRINT, bool ALLOC_TRAIT>
 FixedString<FOOTPRINT, ALLOC_TRAIT>::FixedString(const FixedString&  original,
                                                  bslma_Allocator    *alloc)
 : d_alloc(alloc)
@@ -348,13 +348,13 @@ FixedString<FOOTPRINT, ALLOC_TRAIT>::FixedString(const FixedString&  original,
     ++s_constructorCount;
 }
 
-template <int FOOTPRINT, typename ALLOC_TRAIT>
+template <int FOOTPRINT, bool ALLOC_TRAIT>
 FixedString<FOOTPRINT, ALLOC_TRAIT>::~FixedString()
 {
     ++s_destructorCount;
 }
 
-template <int FOOTPRINT, typename ALLOC_TRAIT>
+template <int FOOTPRINT, bool ALLOC_TRAIT>
 FixedString<FOOTPRINT, ALLOC_TRAIT>&
 FixedString<FOOTPRINT, ALLOC_TRAIT>::operator=(const FixedString& rhs)
 {
@@ -362,7 +362,7 @@ FixedString<FOOTPRINT, ALLOC_TRAIT>::operator=(const FixedString& rhs)
     return *this;
 }
 
-template <int FOOTPRINT, typename ALLOC_TRAIT>
+template <int FOOTPRINT, bool ALLOC_TRAIT>
 template <class STREAM>
 STREAM&
 FixedString<FOOTPRINT, ALLOC_TRAIT>::bdexStreamIn(STREAM& stream, int version)
@@ -371,7 +371,7 @@ FixedString<FOOTPRINT, ALLOC_TRAIT>::bdexStreamIn(STREAM& stream, int version)
     return stream;
 }
 
-template <int FOOTPRINT, typename ALLOC_TRAIT>
+template <int FOOTPRINT, bool ALLOC_TRAIT>
 template <class STREAM>
 STREAM&
 FixedString<FOOTPRINT, ALLOC_TRAIT>::bdexStreamOut(STREAM& stream,
@@ -381,19 +381,19 @@ FixedString<FOOTPRINT, ALLOC_TRAIT>::bdexStreamOut(STREAM& stream,
     return stream;
 }
 
-template <int FOOTPRINT, typename ALLOC_TRAIT>
+template <int FOOTPRINT, bool ALLOC_TRAIT>
 bslma_Allocator *FixedString<FOOTPRINT, ALLOC_TRAIT>::get_allocator() const
 {
     return d_alloc;
 }
 
-template <int FOOTPRINT, typename ALLOC_TRAIT>
+template <int FOOTPRINT, bool ALLOC_TRAIT>
 const char *FixedString<FOOTPRINT, ALLOC_TRAIT>::c_str() const
 {
     return d_buffer;
 }
 
-template <int FOOTPRINT, typename ALLOC_TRAIT>
+template <int FOOTPRINT, bool ALLOC_TRAIT>
 bsl::ostream&
 FixedString<FOOTPRINT, ALLOC_TRAIT>::print(
                                        bsl::ostream& stream,
@@ -409,10 +409,10 @@ FixedString<FOOTPRINT, ALLOC_TRAIT>::print(
 
 const int SFP = 32;                        // Small Footprint
 const int LFP = sizeof(bdem_ChoiceHeader); // Large Footprint
-typedef FixedString<SFP>                                     SmallString;
-typedef FixedString<SFP, bslalg_TypeTraitUsesBslmaAllocator> SmallStringAlloc;
-typedef FixedString<LFP>                                     LargeString;
-typedef FixedString<LFP, bslalg_TypeTraitUsesBslmaAllocator> LargeStringAlloc;
+typedef FixedString<SFP>       SmallString;
+typedef FixedString<SFP, true> SmallStringAlloc;
+typedef FixedString<LFP>       LargeString;
+typedef FixedString<LFP, true> LargeStringAlloc;
 
 namespace BloombergLP {
 // Specialized null values for FixedString types:
@@ -3137,8 +3137,8 @@ int main(int argc, char *argv[])
         //   1. Objects instantiated from FixedString have the expected
         //      footprint.
         //   2. Objects instantiated from FixedString have
-        //      'bslalg_TypeTraitUsesBslmaAllocator' trait if and only if that
-        //      trait is specified as a template parameter.
+        //      'bslma::IsBslmaAllocator' trait if and only if 'true'
+        //      specified as the 'ALLOC_TRAIT' template parameter.
         //   3. The constructor, destructor, copy-constructor, and assignment
         //      operator work as designed.  Constructors increment the
         //      instance count; destructor decrements the instance count.

@@ -744,6 +744,8 @@ int main(int argc, char *argv[])
         int        dummySelectionNameLength = 5;
         int        dummyVisitor             = 0;
 
+        BSLMF_ASSERT(bdeat_IsBasicChoice<geom::Figure>::value);
+
         globalFlag = 0;
         ASSERT(1 == bdeat_ChoiceFunctions::makeSelection(&mF,
                                                          dummySelectionId));
