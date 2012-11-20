@@ -38,11 +38,12 @@ const bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::Handle
                                                    { INVALID_HANDLE_VALUE, 0 };
 
 class HandleGuard {
-    // This guard mechanism closes thw windows handle (using 'CloseHandle')
+    // This guard mechanism closes the windows handle (using 'CloseHandle')
     // when this guard goes out of scope and is destroyed.
 
     // DATA
     HANDLE *d_handle;
+
   private:
 
     // NOT IMPLEMENTED
@@ -59,21 +60,20 @@ class HandleGuard {
         // Call 'CloseHandle' on the windows handle supplied at construction.
 };
 
-HandleGuard::HandleGuard(HANDLE *handle) 
+HandleGuard::HandleGuard(HANDLE *handle)
 : d_handle(handle)
 {
     BSLS_ASSERT_SAFE(handle);
 }
 
-HandleGuard::~HandleGuard() 
+HandleGuard::~HandleGuard()
 {
     if (!CloseHandle(*d_handle)) {
-        bsl::cerr << "CloseHandle failed: " << GetLastError() 
+        bsl::cerr << "CloseHandle failed: " << GetLastError()
                   << bsl::endl;
         BSLS_ASSERT_OPT(false);
     }
 }
-
 
 struct ThreadStartupInfo{
     // Control structure used to pass startup information to the thread entry
@@ -322,7 +322,7 @@ static unsigned _stdcall ThreadEntry(void *arg)
     }
     LeaveCriticalSection(&s_returnValueMapLock);
 #endif
-    return (unsigned)(bsls_PlatformUtil::IntPtr)ret;
+    return (unsigned)(bsls::Types::IntPtr)ret;
 }
 
             // -------------------------------------------------------
@@ -469,7 +469,7 @@ void bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::exit(void *status)
     }
     LeaveCriticalSection(&s_returnValueMapLock);
 #endif
-    _endthreadex((unsigned)(bsls_PlatformUtil::IntPtr)status);
+    _endthreadex((unsigned)(bsls::Types::IntPtr)status);
 }
 
 int bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::createKey(
@@ -545,7 +545,7 @@ void bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::sleepUntil(
 
     HANDLE timer = CreateWaitableTimer(0, false, 0);
     if (0 == timer) {
-        bsl::cerr << "CreateWaitableTimer failed: " << GetLastError() 
+        bsl::cerr << "CreateWaitableTimer failed: " << GetLastError()
                   << bsl::endl;
         BSLS_ASSERT_OPT(false);
         return;                                                      // RETURN
@@ -557,14 +557,14 @@ void bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::sleepUntil(
     // The compuation of clock time is a bit complicated.  As indicated in
     // the documentation for 'SetWaitableTimer':
     // http://msdn.microsoft.com/en-us/library/windows/desktop/ms686289
-    // A positive value represents an absolute time in increments of 100 
+    // A positive value represents an absolute time in increments of 100
     // nanoseconds.  Critcally though, Microsoft's epoch is different
-    // for time values is different from the C run-time (and BDE) epoch
-    // (Januard 1, 1970) -- Microsoft uses January 1, 1601, see:
+    // for epoch used by the C run-time (and BDE).  BDE uses January 1, 1970,
+    // Microsoft uses January 1, 1601, see:
     // http://msdn.microsoft.com/en-us/library/windows/desktop/ms724186
-    // The following MSDN page on converting a 'time_t'
-    // to a 'FILETIME' shows the constant, 116444736000000000 in 100ns (or 
-    // 11643609600 seconds) needed to convert between the two epochs:
+    // The following page on converting a 'time_t' to a 'FILETIME' shows the
+    // constant, 116444736000000000 in 100ns (or 11643609600 seconds) needed
+    // to convert between the two epochs:
     // http://msdn.microsoft.com/en-us/library/windows/desktop/ms724228
 
     const int HUNDRED_NANOSECS_PER_SEC = 10000000;  // 1 hundred thousand
@@ -573,17 +573,17 @@ void bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::sleepUntil(
                        + 116444736000000000LL;
 
     if (!SetWaitableTimer(timer, &clockTime , 0, 0, 0, 0)) {
-        bsl::cerr << "SetWaitableTimer failed: " << GetLastError() 
+        bsl::cerr << "SetWaitableTimer failed: " << GetLastError()
                   << bsl::endl;
         BSLS_ASSERT_OPT(false);
         return;                                                      // RETURN
     }
 
     if (WAIT_OBJECT_0 != WaitForSingleObject(timer, INFINITE)) {
-        bsl::cerr << "WaitForSingleObject failed: " << GetLastError() 
+        bsl::cerr << "WaitForSingleObject failed: " << GetLastError()
                   << bsl::endl;
         BSLS_ASSERT_OPT(false);
-    }    
+    }
 }
 
 }  // close namespace BloombergLP
