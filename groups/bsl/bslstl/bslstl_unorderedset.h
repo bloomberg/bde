@@ -390,7 +390,12 @@ BSLS_IDENT("$Id: $")
 //      std::size_t operator()(CustomerProfile x) const;
 //          // Return a hash value computed using the specified 'x'.
 //  };
-//
+//..
+// The hash function combines the several enumerated values from the class
+// (each a small 'int' value) into a single, unique 'int' value, and then
+// applying the default hash function for 'int'.  See {Practical Requirements
+// on 'HASH'}.
+//..
 //  // ACCESSORS
 //  std::size_t CustomerProfileHash::operator()(CustomerProfile x) const
 //  {
@@ -435,14 +440,14 @@ BSLS_IDENT("$Id: $")
 // are compiler generated.  (The declaration of those methods are commented out
 // and suffixed by an '= default' comment.)
 //
-// Next, we define the type of the unordered set and a convenience aliases:
+// Then, we define the type of the unordered set and a convenience aliases:
 //..
 //  typedef bsl::unordered_set<CustomerProfile,
 //                             CustomerProfileHash,
 //                             CustomerProfileEqual> ProfileCategories;
 //  typedef ProfileCategories::const_iterator        ProfileCategoriesConstItr;
 //..
-// Then, we create an unordered set and insert each item of 'data'.
+// Next, we create an unordered set and insert each item of 'data'.
 //..
 //  ProfileCategories profileCategories;
 //

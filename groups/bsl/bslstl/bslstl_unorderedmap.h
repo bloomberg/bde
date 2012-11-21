@@ -70,7 +70,12 @@ BSLS_IDENT("$Id: $")
 ///Requirements on 'HASH' and 'EQUAL'
 ///----------------------------------
 // The (template parameter) types 'HASH' and 'EQUAL' shall be
-// default-constructible, copy-constructible function-objects.
+// copy-constructible function-objects.  Note that this requirement is somewhat
+// stronger than the requirement currently in the standard; see the discussion
+// for Issue 2215 (http://cplusplus.github.com/LWG/lwg-active.html#2215);
+//
+// Naturally, if either 'HASH' or 'EQUAL' is to be the default for its type, it
+// must be default-constructible as well.
 //
 // 'HASH' shall support a function call operator compatible with the following
 // statements:
@@ -80,7 +85,7 @@ BSLS_IDENT("$Id: $")
 //  std::size_t result = hash(key);
 //..
 // where the definition of the called function meets the requirements of a
-// hash function, as specified in {'bslstl_hash|Standard Hash Function'}.
+// hash function as specified in {'bslstl_hash|Standard Hash Function'}.
 //
 // 'EQUAL' shall support the a function call operator compatible with the
 //  following statements:
@@ -95,7 +100,7 @@ BSLS_IDENT("$Id: $")
 // 'HASH' and 'EQUAL' function-objects are further constrained, such for any
 // two objects whose keys compare equal by the comparator, shall produce the
 // same value from the hasher.
-// 
+//
 ///Memory Allocation
 ///-----------------
 // The type supplied as the 'ALLOCATOR' template parameter determines how
@@ -676,10 +681,10 @@ BSLS_IDENT("$Id: $")
 //
 // Then, since there is no default hash function for the 'WordLocation' type,
 // we define one.  The document code and the word offset are individually
-// hashed using the default hasher for the 'int' type and those results
-// bitwise exclusive OR-ed for the combined result.  This trivial combination
-// formulae suffices for this problem, but is *not* a general solution for
-// combining hashes.
+// hashed using the default hasher for the 'int' type and those results bitwise
+// exclusive OR-ed a combined result.  This trivial combination formula
+// suffices for this problem, but is *not* a general solution for combining
+// hashes; see {Practical Requirements on 'HASH'}.
 //..
 //  class WordLocationHash
 //  {

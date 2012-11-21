@@ -3343,7 +3343,12 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase2()
         std::size_t operator()(CustomerProfile x) const;
             // Return a hash value computed using the specified 'x'.
     };
-
+//..
+// The hash function combines the several enumerated values from the class
+// (each a small 'int' value) into a single, unique 'int' value, and then
+// applying the default hash function for 'int'.  See {Practical Requirements
+// on 'HASH'}.
+//..
     // ACCESSORS
     std::size_t CustomerProfileHash::operator()(CustomerProfile x) const
     {

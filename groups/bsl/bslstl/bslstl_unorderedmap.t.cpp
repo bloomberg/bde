@@ -715,10 +715,10 @@ static int my_count_if_equal(bsl::vector<int>::const_iterator begin,
 //
 // Then, since there is no default hash function for the 'WordLocation' type,
 // we define one.  The document code and the word offset are individually
-// hashed using the default hasher for the 'int' type and those results
-// bitwise exclusive OR-ed for the combined result.  This trivial combination
-// formulae suffices for this problem, but is *not* a general solution for
-// combining hashes.
+// hashed using the default hasher for the 'int' type and those results bitwise
+// exclusive OR-ed a combined result.  This trivial combination formula
+// suffices for this problem, but is *not* a general solution for combining
+// hashes; see {Practical Requirements on 'HASH'}.
 //..
     class WordLocationHash
     {
