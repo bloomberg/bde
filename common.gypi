@@ -153,7 +153,7 @@
           # XXX: ??? if so, need to fix configs and conditions further below ???
           # (FYI: must omit /RTC1 for optimized debug since /RTC1 disables opt)
           [ 'compiler_tag == "msvs"', {
-            'defines_base': [ 'BDE_HIDE_COMMON_WINDOWS_WARNINGS', #bde-specific
+            'defines_base': [ 'BDE_HIDE_COMMON_WINDOWS_WARNINGS', #BDE-specific
                               'NOGDI', 'NOMINMAX',
                               '_CRT_SECURE_NO_DEPRECATE',
                               '_SCL_SECURE_NO_DEPRECATE', ],

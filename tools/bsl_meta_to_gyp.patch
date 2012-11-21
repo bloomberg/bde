@@ -1,4 +1,4 @@
-diff -ru bde.old/groups/bsl/bslalg/bslalg.gyp bde/groups/bsl/bslalg/bslalg.gyp
+diff -ru bde.old/groups/bsl/bslalg/bslalg.gyp /groups/bsl/bslalg/bslalg.gyp
 --- bde.old/groups/bsl/bslalg/bslalg.gyp	2012-10-05 13:13:21.772312000 -0400
 +++ bde/groups/bsl/bslalg/bslalg.gyp	2012-10-05 11:38:06.904064000 -0400
 @@ -241,6 +241,11 @@
@@ -20,7 +20,7 @@ diff -ru bde.old/groups/bsl/bsl_deps.gyp bde/groups/bsl/bsl_deps.gyp
        'dependencies': [
  
        ],
-+      # XXX: when generating .gyp from bde metadata, need to special-case
++      # XXX: when generating .gyp from bsl metadata, need to special-case
 +      'conditions': [  # (bsls_timeutil uses POSIX realtime API clock_gettime())
 +        [ 'OS == "linux"', { 'link_settings': { 'libraries': [ '-lrt' ] } } ],
 +      ],
@@ -104,7 +104,7 @@ diff -ru bde.old/groups/bsl/bsls/bsls.gyp bde/groups/bsl/bsls/bsls.gyp
                          '<@(bsls_pkgdeps)', 'bsls' ],
        'include_dirs': [ '.' ],
        'sources': [ 'bsls_byteorder.t.cpp' ],
-+      # XXX: when generating .gyp from bde metadata, need to special-case
++      # XXX: when generating .gyp from bsl metadata, need to special-case
 +      'conditions': [
 +        # ws2_32.lib required only to portably test htonl ntohl htons ntohs
 +        [ 'OS == "win"',  {'link_settings': {'libraries': [ 'ws2_32.lib'] } } ],
