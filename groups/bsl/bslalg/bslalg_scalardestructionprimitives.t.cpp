@@ -754,13 +754,13 @@ int main(int argc, char *argv[])
             bsls::AssertFailureHandlerGuard g(
                     bsls::AssertTest::failTestDriver);
 
-#ifdef BSLS_ASSERT_SAFE_IS_ACTIVE
             int * null = 0;
+            (void) null;  // Suppress 'unused variable' warnings in non-SAFE modes
             ASSERT_SAFE_FAIL(Obj::destroy(null));
 
             int x = 0;
+            (void) x;     // Suppress 'unused variable' warnings in non-SAFE modes
             ASSERT_SAFE_PASS(Obj::destroy(&x));
-#endif
         }
       } break;
       case 1: {
