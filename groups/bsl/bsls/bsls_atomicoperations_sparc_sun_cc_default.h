@@ -88,6 +88,9 @@ struct AtomicOperations_SPARC_SUN_CC_DefaultInt
 {
     typedef Atomic_TypeTraits<IMP> AtomicTypes;
 
+    using AtomicOperations_DefaultInt<IMP>::getIntRelaxed;
+    using AtomicOperations_DefaultInt<IMP>::setIntRelaxed;
+
         // *** atomic functions for int ***
 
     static int getInt(typename AtomicTypes::Int const *atomicInt);
