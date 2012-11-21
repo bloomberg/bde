@@ -602,13 +602,15 @@ struct HashTableImpUtil {
         // shall be a namespace providing the type name 'ValueType'.
 
     template <class KEY_CONFIG, class HASHER>
-    static bool isWellFormed(const HashTableAnchor& anchor,
+    static bool isWellFormed(const HashTableAnchor&  anchor,
+                             const HASHER&           hasher,
                              bslma::Allocator       *allocator = 0);
-        // Return 'true' if the specified 'anchor' is well-formed.  Use the
-        // specified 'allocator' for temporary memory, or the default allocator
-        // if none is specified.  For a 'HashTableAnchor' to be considered
-        // well-formed for a particular key policy, 'KEY_CONFIG', and hash
-        // functor, 'HASHER', all of the following must be true:
+        // Return 'true' if the specified 'anchor' is well-formed for the
+        // specified 'hasher'.  Use the specified 'allocator' for temporary
+        // memory, or the default allocator if none is specified.  For a
+        // 'HashTableAnchor' to be considered well-formed for a particular key
+        // policy, 'KEY_CONFIG', and hash functor, 'hasher', all of the
+        // following must be true:
         //
         //: 1 The 'anchor.listRootAddress()' is the address of a
         //:   well-formed doubly linked list (see
@@ -870,12 +872,13 @@ void HashTableImpUtil::rehash(HashTableAnchor   *newAnchor,
     }
 
 #ifdef BDE_BUILD_TARGET_SAFE_2
-    BSLS_ASSERT_SAFE((isWellFormed<KEY_CONFIG, HASHER>(*newAnchor)));
+    BSLS_ASSERT_SAFE((isWellFormed<KEY_CONFIG>(*newAnchor, hasher)));
 #endif
 }
 
 template <class KEY_CONFIG, class HASHER>
 bool HashTableImpUtil::isWellFormed(const HashTableAnchor&  anchor,
+                                    const HASHER&           hasher,
                                     bslma::Allocator       *allocator)
 {
     if (!allocator) {
@@ -900,7 +903,7 @@ bool HashTableImpUtil::isWellFormed(const HashTableAnchor&  anchor,
     for (BidirectionalLink *cursor = root; cursor;
                               prevHash = hash, prevBucketIdx = bucketIdx,
                                  prev = cursor, cursor = cursor->nextLink()) {
-        hash = HASHER()(extractKey<KEY_CONFIG>(cursor));
+        hash = hasher(extractKey<KEY_CONFIG>(cursor));
         bucketIdx = (firstTime || hash != prevHash)
                   ? computeBucketIndex(hash, size)
                   : prevBucketIdx;
