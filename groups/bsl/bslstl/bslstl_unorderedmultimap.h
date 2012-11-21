@@ -271,16 +271,16 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Creating a Concordance
 ///- - - - - - - - - - - - - - - - -
-// Unordered multimap maps are useful in situations when there is no meaningful
+// Unordered multimap are useful in situations when there is no meaningful
 // way to compare key values, when the order of the keys is irrelevant to the
-// problem domain, and (even if there is a meaningful ordering) the value of
+// problem domain, or (even if there is a meaningful ordering) the benefit of
 // ordering the results is outweighed by the higher performance provided by
 // unordered maps (compared to ordered maps).
 //
 // One uses a multi-map (ordered or unordered) when there may be more than one
-// value associated with a key value.  In this example we will use
+// mapped value associated with a key value.  In this example we will use
 // 'bslstl_unorderedmultimap' to create a concordance (an index of where each
-// unique word appears).
+// unique word appears in the set of documents).
 //
 // Our source of documents is a set of statically initialized arrrays:
 //..
@@ -301,41 +301,7 @@ BSLS_IDENT("$Id: $")
 //  " the pursuit of Happiness.--That to secure these rights, Governments\n"
 //  " are instituted among Men, deriving their just powers from the consent\n"
 //  " of the governed, --That whenever any Form of Government becomes\n"
-//  " destructive of these ends, it is the Right of the People to alter or\n"
-//  " to abolish it, and to institute new Government, laying its foundation\n"
-//  " on such principles and organizing its powers in such form, as to them\n"
-//  " shall seem most likely to effect their Safety and Happiness.\n"
-//  " Prudence, indeed, will dictate that Governments long established\n"
-//  " should not be changed for light and transient causes; and accordingly\n"
-//  " all experience hath shewn, that mankind are more disposed to suffer,\n"
-//  " while evils are sufferable, than to right themselves by abolishing\n"
-//  " the forms to which they are accustomed.  But when a long train of\n"
-//  " abuses and usurpations, pursuing invariably the same Object evinces a\n"
-//  " design to reduce them under absolute Despotism, it is their right, it\n"
-//  " is their duty, to throw off such Government, and to provide new\n"
-//  " Guards for their future security.--Such has been the patient\n"
-//  " sufferance of these Colonies; and such is now the necessity which\n"
-//  " constrains them to alter their former Systems of Government.  The\n"
-//  " history of the present King of Great Britain is a history of repeated\n"
-//  " injuries and usurpations, all having in direct object the\n"
-//  " establishment of an absolute Tyranny over these States.  To prove\n"
-//  " this, let Facts be submitted to a candid world.\n"
-//  "\n"
-//  ": o He has refused his Assent to Laws, the most wholesome and\n"
-//  ":   necessary for the public good.\n"
-//  ":\n"
-//  // ...
-//  " We, therefore, the Representatives of the united States of America,\n"
-//  " in General Congress, Assembled, appealing to the Supreme Judge of the\n"
-//  " world for the rectitude of our intentions, do, in the Name, and by\n"
-//  " Authority of the good People of these Colonies, solemnly publish and\n"
-//  " declare, That these United Colonies are, and of Right ought to be\n"
-//  " Free and Independent States; that they are Absolved from all\n"
-//  " Allegiance to the British Crown, and that all political connection\n"
-//  " between them and the State of Great Britain, is and ought to be\n"
-//  " totally dissolved; and that as Free and Independent States, they have\n"
-//  " full Power to levy War, conclude Peace, contract Alliances, establish\n"
-//  " Commerce, and to do all other Acts and Things which Independent\n"
+//  ...
 //  " States may of right do.  And for the support of this Declaration,\n"
 //  " with a firm reliance on the protection of divine Providence, we\n"
 //  " mutually pledge to each other our Lives, our Fortunes and our sacred\n"
@@ -349,49 +315,7 @@ BSLS_IDENT("$Id: $")
 //  " Whereas recognition of the inherent dignity and of the equal and\n"
 //  " inalienable rights of all members of the human family is the\n"
 //  " foundation of freedom, justice and peace in the world,\n"
-//  "\n"
-//  " Whereas disregard and contempt for human rights have resulted in\n"
-//  " barbarous acts which have outraged the conscience of mankind, and the\n"
-//  " advent of a world in which human beings shall enjoy freedom of speech\n"
-//  " and belief and freedom from fear and want has been proclaimed as the\n"
-//  " highest aspiration of the common people,\n"
-//  "\n"
-//  " Whereas it is essential, if man is not to be compelled to have\n"
-//  " recourse, as a last resort, to rebellion against tyranny and\n"
-//  " oppression, that human rights should be protected by the rule of law,\n"
-//  "\n"
-//  " Whereas it is essential to promote the development of friendly\n"
-//  " relations between nations,\n"
-//  "\n"
-//  " Whereas the peoples of the United Nations have in the Charter\n"
-//  " reaffirmed their faith in fundamental human rights, in the dignity\n"
-//  " and worth of the human person and in the equal rights of men and\n"
-//  " women and have determined to promote social progress and better\n"
-//  " standards of life in larger freedom,\n"
-//  "\n"
-//  " Whereas Member States have pledged themselves to achieve, in\n"
-//  " co-operation with the United Nations, the promotion of universal\n"
-//  " respect for and observance of human rights and fundamental freedoms,\n"
-//  "\n"
-//  " Whereas a common understanding of these rights and freedoms is of the\n"
-//  " greatest importance for the full realization of this pledge, Now,\n"
-//  " Therefore THE GENERAL ASSEMBLY proclaims THIS UNIVERSAL DECLARATION\n"
-//  " OF HUMAN RIGHTS as a common standard of achievement for all peoples\n"
-//  " and all nations, to the end that every individual and every organ of\n"
-//  " society, keeping this Declaration constantly in mind, shall strive by\n"
-//  " teaching and education to promote respect for these rights and\n"
-//  " freedoms and by progressive measures, national and international, to\n"
-//  " secure their universal and effective recognition and observance, both\n"
-//  " among the peoples of Member States themselves and among the peoples\n"
-//  " of territories under their jurisdiction.\n"
-//  "\n"
-//  "/Article 1\n"
-//  "/- - - - -\n"
-//  " All human beings are born free and equal in dignity and rights.  They\n"
-//  " are endowed with reason and conscience and should act towards one\n"
-//  " another in a spirit of brotherhood.\n"
-//  "\n"
-//  // ...
+//  ...
 //  "/Article 30\n"
 //  "/ - - - - -\n"
 //  " Nothing in this Declaration may be interpreted as implying for any\n"
@@ -406,63 +330,7 @@ BSLS_IDENT("$Id: $")
 //  "\n"
 //  " The peoples of Europe, in creating an ever closer union among them,\n"
 //  " are resolved to share a peaceful future based on common values.\n"
-//  "\n"
-//  " Conscious of its spiritual and moral heritage, the Union is founded\n"
-//  " on the indivisible, universal values of human dignity, freedom,\n"
-//  " equality and solidarity; it is based on the principles of democracy\n"
-//  " and the rule of law.  It places the individual at the heart of its\n"
-//  " activities, by establishing the citizenship of the Union and by\n"
-//  " creating an area of freedom, security and justice.\n"
-//  "\n"
-//  " The Union contributes to the preservation and to the development of\n"
-//  " these common values while respecting the diversity of the cultures\n"
-//  " and traditions of the peoples of Europe as well as the national\n"
-//  " identities of the Member States and the organisation of their public\n"
-//  " authorities at national, regional and local levels; it seeks to\n"
-//  " promote balanced and sustainable development and ensures free\n"
-//  " movement of persons, goods, services and capital, and the freedom of\n"
-//  " establishment.\n"
-//  "\n"
-//  " To this end, it is necessary to strengthen the protection of\n"
-//  " fundamental rights in the light of changes in society, social\n"
-//  " progress and scientific and technological developments by making\n"
-//  " those rights more visible in a Charter.\n"
-//  "\n"
-//  " This Charter reaffirms, with due regard for the powers and tasks of\n"
-//  " the Community and the Union and the principle of subsidiarity, the\n"
-//  " rights as they result, in particular, from the constitutional\n"
-//  " traditions and international obligations common to the Member States,\n"
-//  " the Treaty on European Union, the Community Treaties, the European\n"
-//  " Convention for the Protection of Human Rights and Fundamental\n"
-//  " Freedoms, the Social Charters adopted by the Community and by the\n"
-//  " Council of Europe and the case-law of the Court of Justice of the\n"
-//  " European Communities and of the European Court of Human Rights.\n"
-//  "\n"
-//  " Enjoyment of these rights entails responsibilities and duties with\n"
-//  " regard to other persons, to the human community and to future\n"
-//  " generations.\n"
-//  "\n"
-//  " The Union therefore recognises the rights, freedoms and principles\n"
-//  " set out hereafter.\n"
-//  "\n"
-//  "/CHAPTER I\n"
-//  "/- - - - -\n"
-//  " DIGNITY\n"
-//  "\n"
-//  "/Article 1\n"
-//  "/  -  -  -\n"
-//  " Human dignity\n"
-//  "\n"
-//  " Human dignity is inviolable.  It must be respected and protected.\n"
-//  "\n"
-//  "/Article 2\n"
-//  "/  -  -  -\n"
-//  " Right to life\n"
-//  "\n"
-//  ": 1 Everyone has the right to life.\n"
-//  ": 2 No one shall be condemned to the death penalty, or executed.\n"
-//  "\n"
-//  // ...
+//  ...
 //  "/Article 54\n"
 //  "/-  -  -  -\n"
 //  " Prohibition of abuse of rights\n"
@@ -472,25 +340,24 @@ BSLS_IDENT("$Id: $")
 //  " of any of the rights and freedoms recognised in this Charter or at\n"
 //  " their limitation to a greater extent than is provided for herein.\n";
 //
-//  static char * const documents[]  = { &document0[0],
-//                                       &document1[0],
-//                                       &document2[0]
+//  static char * const documents[]  = { document0,
+//                                       document1,
+//                                       document2
 //                                     };
 //  const int           numDocuments = sizeof documents / sizeof *documents;
 //..
 // First, we define several aliases to make our code more comprehensible.
 //..
 //  typedef bsl::pair<int, int>                  WordLocation;
-//      // Document code number and word offset in that document specify
-//      // a word location.
+//      // Document code number ('first') and word offset ('second') in that
+//      // document specify a word location.  The first word in the document
+//      // is at word offset 0.
 //
-//  typedef bsl::pair<bsl::string, WordLocation> ConcordanceValue;
 //  typedef bsl::unordered_multimap<bsl::string, WordLocation>
 //                                               Concordance;
-//  typedef Concordance::iterator                ConcordanceItr;
 //  typedef Concordance::const_iterator          ConcordanceConstItr;
 //..
-// Next, we (default) create an unordered map to hold our word tallies.
+// Next, we create an (empty) unordered map to hold our word tallies.
 //..
 //  Concordance concordance;
 //..
@@ -509,12 +376,12 @@ BSLS_IDENT("$Id: $")
 // already present in the (multi) map.
 //..
 //  for (int idx = 0; idx < numDocuments; ++idx) {
-//      int wordCount = 0;
+//      int wordOffset = 0;
 //      for (char *cur = strtok(documents[idx], delimiters);
 //                 cur;
-//                 cur = strtok(NULL,     delimiters)) {
-//          WordLocation     location(idx, wordCount++);
-//          ConcordanceValue value(bsl::string(cur), location);
+//                 cur = strtok(NULL,           delimiters)) {
+//          WordLocation            location(idx, wordOffset++);
+//          Concordance::value_type value(bsl::string(cur), location);
 //          concordance.insert(value);
 //      }
 //  }
@@ -544,22 +411,21 @@ BSLS_IDENT("$Id: $")
 //  "he",  0,  401
 //  "include",  2,  847
 //..
-// Next, if we there are some particular words of interest, we seek them out
-// using the 'equal_range' method of the 'concordance' object:
+// Next, if there are some particular words of interest, we seek them out using
+// the 'equal_range' method of the 'concordance' object:
 //..
-//  const char *wordsOfInterest[] = { "human",
-//                                    "rights",
-//                                    "unalienable",
-//                                    "inalienable"
-//                                  };
+//  const bsl::string wordsOfInterest[] = { "human",
+//                                          "rights",
+//                                          "unalienable",
+//                                          "inalienable"
+//                                        };
 //  const int   numWordsOfInterest = sizeof  wordsOfInterest
 //                                 / sizeof *wordsOfInterest;
+//
 //  for (int idx = 0; idx < numWordsOfInterest; ++idx) {
-//     const char                     *wordOfInterest
-//                                           = wordsOfInterest[idx];
 //     bsl::pair<ConcordanceConstItr,
-//               ConcordanceConstItr>  found = concordance.equal_range(
-//                                                bsl::string(wordOfInterest));
+//               ConcordanceConstItr> found = concordance.equal_range(
+//                                                       wordsOfInterest[idx]);
 //     for (ConcordanceConstItr itr  = found.first,
 //                              end  = found.second;
 //                              end != itr; ++itr) {
@@ -598,7 +464,7 @@ BSLS_IDENT("$Id: $")
 //..
 // {'bslstl_unorderedmap'|Example 3} shows how to use the concordance to create
 // an inverse concordance, and how to use the inverse concordance to find the
-// context (surrouding words) of some particular word.
+// context (surrouding words) of a word of interest.
 
 #if defined(BSL_OVERRIDES_STD) && !defined(BSL_STDHDRS_PROLOGUE_IN_EFFECT)
 // Prevent 'bslstl' headers from being included directly in 'BSL_OVERRIDES_STD'

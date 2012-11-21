@@ -2075,14 +2075,6 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase2()
         //! ~CustomerDatumHash() = default;
             // Destroy this object.
 
-        // MANIPULATORS
-        //! CustomerDatumHash& operator=(const CustomerDatumHash& rhs)
-        //!                                                          = default;
-            // Assign to this object the value of the specified 'rhs' object,
-            // and return a reference providing modifiable access to this
-            // object.  Note that as 'CustomerDatumHash' is an empty
-            // (stateless) type, this operation will have no observable effect.
-
         // ACCESSORS
         std::size_t operator()(CustomerDatum x) const;
             // Return a hash value computed using the specified 'x'.
@@ -2110,14 +2102,6 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase2()
 
         //! ~CustomerDatumEqual() = default;
             // Destroy this object.
-
-        // MANIPULATORS
-        //! CustomerDatumEqual& operator=(const CustomerDatumEqual& rhs)
-        //!                                                          = default;
-            // Assign to this object the value of the specified 'rhs' object,
-            // and return a reference providing modifiable access to this
-            // object.  Note that as 'CustomerDatumEqual' is an empty
-            // (stateless) type, this operation will have no observable effect.
 
         // ACCESSORS
         bool operator()(const CustomerDatum& lhs,
@@ -2150,7 +2134,6 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase2()
                                     CustomerDatumEqual> DataByProfile;
     typedef DataByProfile::const_iterator               DataByProfileConstItr;
 //..
-
 // Now, create a helper function to calculate the average financials for a
 // category of customer profiles within the unordered map.
 //..

@@ -703,7 +703,7 @@ static int my_count_if_equal(bsl::vector<int>::const_iterator begin,
 // that document (the first word of the document is at offset 0).  The "value"
 // of each entry is a 'bsl::string' containing the word at that location.
 //..
-    typedef bsl::pair<int, int>                  WordLocation;
+    typedef bsl::pair<int, int> WordLocation;
         // Document code number ('first') and word offset ('second') in that
         // document specify a word location.  The first word in the document
         // is at word offset 0.
@@ -762,11 +762,7 @@ static int my_count_if_equal(bsl::vector<int>::const_iterator begin,
     typedef bsl::unordered_map<WordLocation, bsl::string, WordLocationHash>
                                                  InverseConcordance;
 
-    typedef InverseConcordance::iterator         InverseConcordanceItr;
     typedef InverseConcordance::const_iterator   InverseConcordanceConstItr;
-
-    typedef bsl::pair<InverseConcordanceItr, bool>
-                                                InverseConcordanceInsertStatus;
 //..
 
 

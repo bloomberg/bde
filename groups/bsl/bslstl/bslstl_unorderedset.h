@@ -331,12 +331,12 @@ BSLS_IDENT("$Id: $")
 //
 //  static const char *toAscii(LocationCode value)
 //  {
-//      // ...
+//      ...
 //  }
 //
 //  static const char *toAscii(ProjectCode  value)
 //  {
-//      // ...
+//      ...
 //  }
 //..
 // The data set (randomly generated for this example) is provided in a
@@ -349,8 +349,10 @@ BSLS_IDENT("$Id: $")
 //  } customerProfiles[] = {
 //      { IMPULSE   , CANADA  , SMITH },
 //      { NON_PROFIT, USA_EAST, GREEN },
-//      { IMPULSE   , GERMANY , TIDY  },
-//      // ...
+//      ...
+//      { INSTITUTE , USA_EAST, TOAST },
+//      { NON_PROFIT, ENGLAND , FAST  },
+//      { NON_PROFIT, USA_WEST, TIDY  },
 //      { REPEAT    , MEXICO  , TOAST },
 //  };
 //  const int numCustomerProfiles = sizeof  customerProfiles
@@ -440,7 +442,6 @@ BSLS_IDENT("$Id: $")
 //                             CustomerProfileEqual> ProfileCategories;
 //  typedef ProfileCategories::const_iterator        ProfileCategoriesConstItr;
 //..
-//..
 // Then, we create an unordered set and insert each item of 'data'.
 //..
 //  ProfileCategories profileCategories;
@@ -480,7 +481,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  NON_PROFIT ENGLAND  FAST
 //  DISCOUNT   CANADA   TIDY
-//  NEED_BASED USA_EAST TOAST
+//  IMPULSE    USA_WEST GREEN
 //  ...
 //  DISCOUNT   USA_EAST GREEN
 //  DISCOUNT   MEXICO   SMITH

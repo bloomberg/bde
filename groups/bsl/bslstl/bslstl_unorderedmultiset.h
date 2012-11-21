@@ -343,12 +343,12 @@ BSLS_IDENT("$Id: $")
 //
 //  static const char *toAscii(LocationCode value)
 //  {
-//      // ...
+//      ...
 //  }
 //
 //  static const char *toAscii(ProjectCode  value)
 //  {
-//      // ...
+//      ...
 //  }
 //..
 // The data set (randomly generated for this example) is provided in a
@@ -367,6 +367,7 @@ BSLS_IDENT("$Id: $")
 //     ...
 //     { DISCOUNT  , MEXICO  , GREEN,   99737.00,    3872.00 },
 //  };
+//
 //  const int numCustomerData = sizeof customerData / sizeof *customerData;
 //..
 // Suppose, as a step in analysis, we wish to determine the average of the past
@@ -397,14 +398,6 @@ BSLS_IDENT("$Id: $")
 //      //! ~CustomerDatumHash() = default;
 //          // Destroy this object.
 //
-//      // MANIPULATORS
-//      //! CustomerDatumHash& operator=(const CustomerDatumHash& rhs)
-//      //!                                                          = default;
-//          // Assign to this object the value of the specified 'rhs' object,
-//          // and return a reference providing modifiable access to this
-//          // object.  Note that as 'CustomerDatumHash' is an empty
-//          // (stateless) type, this operation will have no observable effect.
-//
 //      // ACCESSORS
 //      std::size_t operator()(CustomerDatum x) const;
 //          // Return a hash value computed using the specified 'x'.
@@ -432,14 +425,6 @@ BSLS_IDENT("$Id: $")
 //
 //      //! ~CustomerDatumEqual() = default;
 //          // Destroy this object.
-//
-//      // MANIPULATORS
-//      //! CustomerDatumEqual& operator=(const CustomerDatumEqual& rhs)
-//      //!                                                          = default;
-//          // Assign to this object the value of the specified 'rhs' object,
-//          // and return a reference providing modifiable access to this
-//          // object.  Note that as 'CustomerDatumEqual' is an empty
-//          // (stateless) type, this operation will have no observable effect.
 //
 //      // ACCESSORS
 //      bool operator()(const CustomerDatum& lhs,
@@ -472,7 +457,6 @@ BSLS_IDENT("$Id: $")
 //                                  CustomerDatumEqual> DataByProfile;
 //  typedef DataByProfile::const_iterator               DataByProfileConstItr;
 //..
-//
 // Now, create a helper function to calculate the average financials for a
 // category of customer profiles within the unordered map.
 //..
@@ -541,7 +525,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  BUSINESS   GERMANY  TIDY    84553.00    3379.00
 //  DISCOUNT   ENGLAND  TIDY    74110.00    2706.00
-//  NON_PROFIT SCOTLAND SMITH   17136.00    4325.00
+//  NEED_BASED CANADA   FAST    97479.00     681.00
 //  ...
 //  NEED_BASED SCOTLAND TOAST   27306.00    5084.50
 //  INSTITUTE  CANADA   TIDY    83528.00    4722.33

@@ -1759,10 +1759,8 @@ int main(int argc, char *argv[])
         // document specify a word location.  The first word in the document
         // is at word offset 0.
 
-    typedef bsl::pair<bsl::string, WordLocation> ConcordanceValue;
     typedef bsl::unordered_multimap<bsl::string, WordLocation>
                                                  Concordance;
-    typedef Concordance::iterator                ConcordanceItr;
     typedef Concordance::const_iterator          ConcordanceConstItr;
 //..
 // Next, we create an (empty) unordered map to hold our word tallies.
@@ -1788,8 +1786,8 @@ int main(int argc, char *argv[])
         for (char *cur = strtok(documents[idx], delimiters);
                    cur;
                    cur = strtok(NULL,           delimiters)) {
-            WordLocation     location(idx, wordOffset++);
-            ConcordanceValue value(bsl::string(cur), location);
+            WordLocation            location(idx, wordOffset++);
+            Concordance::value_type value(bsl::string(cur), location);
             concordance.insert(value);
         }
     }
