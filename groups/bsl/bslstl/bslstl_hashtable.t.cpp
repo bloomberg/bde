@@ -312,10 +312,6 @@ static const int DEFAULT_NUM_DATA = sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA;
 
 typedef bslalg::HashTableImpUtil     ImpUtil;
 typedef bslalg::BidirectionalLink    Link;
-typedef bsltf::StdTestAllocator<int> StlTestIntAllocator;
-
-typedef ::bsl::hash<int>     TestIntHash;
-typedef ::bsl::equal_to<int> TestIntEqual;
 
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
@@ -634,6 +630,11 @@ class TestHashFunctor {
 
 template <class KEY>
 class StatefulHash : bsl::hash<KEY> {
+    // This value-semantic class adapts a class meeting the C++11 'Hash'
+    // requirements (C++11 [hash.requirements], 17.6.3.4) with an additional
+    // 'mixer' attribute, that constitutes the value of this class, and is
+    // used to mutate the value returned from the adapted hasher when calling
+    // 'operator()'.
     typedef bsl::hash<KEY> Base;
 
     template <class OTHER_KEY>
@@ -668,6 +669,12 @@ bool operator==(const StatefulHash<KEY>& lhs, const StatefulHash<KEY>& rhs)
     return lhs.d_mixer == rhs.d_mixer;
 }
 
+template <class KEY>
+bool operator!=(const StatefulHash<KEY>& lhs, const StatefulHash<KEY>& rhs)
+{
+    return lhs.d_mixer != rhs.d_mixer;
+}
+
 template <class KEY, class HASHER = ::bsl::hash<int> >
 class TestFacilityHasher : public HASHER { // exploit empty base
     // This test class provides a mechanism that defines a function-call
@@ -691,6 +698,39 @@ class TestFacilityHasher : public HASHER { // exploit empty base
     }
 };
 
+template <class FUNCTOR>
+class DegenerateClass : public FUNCTOR {
+    // This test class template adapts a DefaultConstructible class to offer
+    // a minimal or outright obstructive interface for testing generic code.
+    // We expect to use this to supply Hasher and Comparator classes to test
+    // 'HashTable', which must be CopyConstructible, Swappable, and nothrow
+    // Destructible, and offer the (inherited) function call operator as their
+    // public interface.  No other operation should be usable.  We take
+    // advantage of the fact that defining a copy constructor inhibits the
+    // generation of a default constructor, and that constructors are not
+    // inherited by a derived class.
+
+  private:
+    DegenerateClass(const FUNCTOR& base) : FUNCTOR(base) {}
+
+    void operator&();
+
+    template<class T>
+    void operator,(const T&);
+
+  public:
+    static DegenerateClass cloneBaseObject(const FUNCTOR& base) {
+        return DegenerateClass(base);
+    }
+
+    DegenerateClass(const DegenerateClass& other) : FUNCTOR(other) {}
+    
+};
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+//       test support functions dealing with hash and comparotor functors
+
 void setHasherState(bsl::hash<int> *hasher, int id)
 {
     (void) hasher;
@@ -703,7 +743,7 @@ void setHasherState(StatefulHash<int> *hasher, int id)
 }
 
 bool isEqualHasher(const bsl::hash<int>&, const bsl::hash<int>&)
-    // Provide an overloaded function to compare comparators.  Return 'true'
+    // Provide an overloaded function to compare hash functors.  Return 'true'
     // because 'bsl::hash' is stateless.
 {
     return true;
@@ -711,8 +751,8 @@ bool isEqualHasher(const bsl::hash<int>&, const bsl::hash<int>&)
 
 bool isEqualHasher(const StatefulHash<int>& lhs,
                    const StatefulHash<int>& rhs)
-    // Provide an overloaded function to compare comparators.  Return 'true'
-    // because 'bsl::equal_to' is stateless.
+    // Provide an overloaded function to compare hash functors.  Return
+    // 'lhs == rhs'.
 {
     return lhs == rhs;
 }
@@ -978,6 +1018,21 @@ class CharToPairConverter {
 };
 #endif
 
+
+template <class FUNCTOR>
+struct MakeDefaultFunctor {
+    static FUNCTOR make() { return FUNCTOR(); }
+};
+
+template <class FUNCTOR>
+struct MakeDefaultFunctor<DegenerateClass<FUNCTOR> > {
+    static DegenerateClass<FUNCTOR> make() {
+        return DegenerateClass<FUNCTOR>::cloneBaseObject(FUNCTOR());
+    }
+};
+
+
+
 template <class KEY_CONFIG,
           class HASHER,
           class COMPARATOR,
@@ -1146,6 +1201,32 @@ struct TestDriver_StatefulConfiguation {
 };
 
 template <class ELEMENT>
+struct TestDriver_DegenerateConfiguation {
+    typedef TestDriver< BasicKeyConfig<ELEMENT>
+                      , DegenerateClass<TestFacilityHasher<ELEMENT> >
+                      , DegenerateClass<TestEqualityComparator<ELEMENT> >
+                      , ::bsl::allocator<ELEMENT>
+                      > Type;
+
+    // TEST CASES
+    static void testCase12() { Type::testCase12(); }
+
+    static void testCase11() { Type::testCase11(); }
+
+    static void testCase9() { Type::testCase9(); }
+
+    static void testCase8() { Type::testCase8(); }
+
+    static void testCase7() { Type::testCase7(); }
+
+    static void testCase4() { Type::testCase4(); }
+
+    static void testCase3() { Type::testCase3(); }
+
+    static void testCase2() { Type::testCase2(); }
+};
+
+template <class ELEMENT>
 struct TestCase6_Configuration {
     // Test case 6 (equality comparator) must be run with
     // 'GroupedEqualityComparator'.
@@ -1276,6 +1357,9 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase12()
     const int NUM_DATA                     = DEFAULT_NUM_DATA;
     const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
 
+    const HASHER     HASH    = MakeDefaultFunctor<HASHER>::make();
+    const COMPARATOR COMPARE = MakeDefaultFunctor<COMPARATOR>::make();
+
     for (int ti = 0; ti < NUM_DATA; ++ti) {
         const int         LINE   = DATA[ti].d_line;
         const char *const SPEC   = DATA[ti].d_spec;
@@ -1284,7 +1368,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase12()
         bslma::TestAllocator      oa("object",  veryVeryVeryVerbose);
         bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
-        Obj mZ(HASHER(), COMPARATOR(), LENGTH, &scratch);
+        Obj mZ(HASH, COMPARE, LENGTH, &scratch);
         const Obj& Z = gg(&mZ,  SPEC);
 
         for (int tj = 0; tj < NUM_REHASH_SIZE; ++tj) {
@@ -1629,6 +1713,9 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase9()
     bslma::TestAllocator         da("default", veryVeryVeryVerbose);
     bslma::DefaultAllocatorGuard dag(&da);
 
+    const HASHER     HASH    = MakeDefaultFunctor<HASHER>::make();
+    const COMPARATOR COMPARE = MakeDefaultFunctor<COMPARATOR>::make();
+
     if (verbose) printf("\nCompare each pair of similar and different"
                         " values (u, ua, v, va) in S X A X S X A"
                         " without perturbation.\n");
@@ -1642,9 +1729,9 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase9()
 
             bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
-            Obj mZ(HASHER(), COMPARATOR(), LENGTH1, &scratch);
+            Obj mZ(HASH, COMPARE, LENGTH1, &scratch);
             const Obj& Z  = gg(&mZ,  SPEC1);
-            Obj mZZ(HASHER(), COMPARATOR(), LENGTH1, &scratch);
+            Obj mZZ(HASH, COMPARE, LENGTH1, &scratch);
             const Obj& ZZ = gg(&mZZ, SPEC1);
 
 
@@ -1660,7 +1747,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase9()
                 bslma::TestAllocator oa("object", veryVeryVeryVerbose);
 
                 {
-                    Obj mX(HASHER(), COMPARATOR(), LENGTH2, &oa);
+                    Obj mX(HASH, COMPARE, LENGTH2, &oa);
                     const Obj& X  = gg(&mX,  SPEC2);
 
                     if (veryVerbose) { T_ P_(LINE2) P(X) }
@@ -1701,9 +1788,9 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase9()
             {
                 bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
-                Obj mX(HASHER(), COMPARATOR(), LENGTH1, &oa);
+                Obj mX(HASH, COMPARE, LENGTH1, &oa);
                 const Obj& X  = gg(&mX,  SPEC1);
-                Obj mZZ(HASHER(), COMPARATOR(), LENGTH1, &scratch);
+                Obj mZZ(HASH, COMPARE, LENGTH1, &scratch);
                 const Obj& ZZ  = gg(&mZZ,  SPEC1);
 
                 const Obj& Z = mX;
@@ -1948,6 +2035,9 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase8()
     const int NUM_DATA                     = DEFAULT_NUM_DATA;
     const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
 
+    const HASHER     HASH    = MakeDefaultFunctor<HASHER>::make();
+    const COMPARATOR COMPARE = MakeDefaultFunctor<COMPARATOR>::make();
+
     for (int ti = 0; ti < NUM_DATA; ++ti) {
         const int         LINE1   = DATA[ti].d_line;
         const char *const SPEC1   = DATA[ti].d_spec;
@@ -1956,7 +2046,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase8()
         bslma::TestAllocator      oa("object",  veryVeryVeryVerbose);
         bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
-        Obj mW(HASHER(), COMPARATOR(), LENGTH1, &oa);
+        Obj mW(HASH, COMPARE, LENGTH1, &oa);
         const Obj& W = gg(&mW,  SPEC1);
         const Obj XX(W, &scratch);
 
@@ -1991,7 +2081,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase8()
 
             Obj mX(XX, &oa);  const Obj& X = mX;
 
-            Obj mY(HASHER(), COMPARATOR(), LENGTH2, &oa);
+            Obj mY(HASH, COMPARE, LENGTH2, &oa);
             const Obj& Y = gg(&mY, SPEC2);
             const Obj YY(Y, &scratch);
 
@@ -2025,7 +2115,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase8()
 
             bslma::TestAllocator oaz("z_object", veryVeryVeryVerbose);
 
-            Obj mZ(HASHER(), COMPARATOR(), LENGTH2, &oaz);
+            Obj mZ(HASH, COMPARE, LENGTH2, &oaz);
             const Obj& Z = gg(&mZ, SPEC2);
             const Obj ZZ(Z, &scratch);
 
@@ -2113,10 +2203,10 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase8()
         bslma::TestAllocator      oa("object",  veryVeryVeryVerbose);
         bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
-        Obj mX(HASHER(), COMPARATOR(), 0, &oa);  const Obj& X = mX;
+        Obj mX(HASH, COMPARE, 0, &oa);  const Obj& X = mX;
         const Obj XX(X, &scratch);
 
-        Obj mY(HASHER(), COMPARATOR(), 4, &oa);
+        Obj mY(HASH, COMPARE, 4, &oa);
         const Obj& Y = gg(&mY, "ABC");
         const Obj YY(Y, &scratch);
 
@@ -2223,6 +2313,9 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase7()
          bslalg::HasTrait<KEY, bslalg::TypeTraitUsesBslmaAllocator>::VALUE
          + bslalg::HasTrait<VALUE, bslalg::TypeTraitUsesBslmaAllocator>::VALUE;
 
+    const HASHER     HASH    = MakeDefaultFunctor<HASHER>::make();
+    const COMPARATOR COMPARE = MakeDefaultFunctor<COMPARATOR>::make();
+
     if (verbose)
         printf("\nTesting parameters: TYPE_ALLOC = %d.\n", TYPE_ALLOC);
     {
@@ -2253,13 +2346,13 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase7()
             }
 
             // Create control object w, with space for an extra element.
-            Obj mW(HASHER(), COMPARATOR(), LENGTH + 1);
+            Obj mW(HASH, COMPARE, LENGTH + 1);
             const Obj& W = gg(&mW, SPEC);
 
             ASSERTV(ti, LENGTH == W.size()); // same lengths
             if (veryVerbose) { printf("\tControl Obj: "); P(W); }
 
-            Obj mX(HASHER(), COMPARATOR(), LENGTH, &oa);
+            Obj mX(HASH, COMPARE, LENGTH, &oa);
             const Obj& X = gg(&mX, SPEC);
 
             if (veryVerbose) { printf("\t\tDynamic Obj: "); P(X); }
@@ -2268,7 +2361,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase7()
 
                 if (veryVerbose) { printf("\t\t\tRegular Case :"); }
 
-                Obj *pX = new Obj(HASHER(), COMPARATOR(), LENGTH, &oa);
+                Obj *pX = new Obj(HASH, COMPARE, LENGTH, &oa);
                 gg(pX, SPEC);
 
                 const Obj Y0(*pX);
@@ -2785,7 +2878,8 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase4()
     };
     const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-    const COMPARATOR EQUAL = COMPARATOR();
+    const HASHER     HASH  = MakeDefaultFunctor<HASHER>::make();
+    const COMPARATOR EQUAL = MakeDefaultFunctor<COMPARATOR>::make();
 
     if (verbose) { printf(
                 "\nCreate objects with various allocator configurations.\n"); }
@@ -2798,10 +2892,10 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase4()
             const size_t      NUM_BUCKETS     = DATA[ti].d_numBuckets;
             const TestValues  EXP(DATA[ti].d_results);
 
-            HASHER hash;
-            setHasherState(&hash, ti);
-            COMPARATOR comp;
-            setComparatorState(&comp, ti);
+            HASHER hash = HASH;
+            setHasherState(bsls::Util::addressOf(hash), ti);
+            COMPARATOR comp = EQUAL;
+            setComparatorState(bsls::Util::addressOf(comp), ti);
 
             if (verbose) { P_(LINE) P_(LENGTH) P(SPEC); }
 
@@ -2908,7 +3002,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase4()
 
         if (veryVerbose) printf("\t'bucketAtIndex'\n");
         {
-            Obj mX(HASHER(), COMPARATOR(), 1);  const Obj& X = mX;
+            Obj mX(HASH, EQUAL, 1);  const Obj& X = mX;
             int numBuckets = X.numBuckets();
             ASSERT_SAFE_PASS(X.bucketAtIndex(numBuckets - 1));
             ASSERT_SAFE_FAIL(X.bucketAtIndex(numBuckets));
@@ -2964,7 +3058,8 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase3()
 
     bslma::TestAllocator oa(veryVeryVerbose);
 
-    const COMPARATOR EQUAL = COMPARATOR();
+    const HASHER     HASH  = MakeDefaultFunctor<HASHER>::make();
+    const COMPARATOR EQUAL = MakeDefaultFunctor<COMPARATOR>::make();
 
     if (verbose) printf("\nTesting generator on valid specs.\n");
     {
@@ -2995,7 +3090,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase3()
             const TestValues  EXP(DATA[ti].d_results);
             const int         curLen = (int)strlen(SPEC);
 
-            Obj mX(HASHER(), COMPARATOR(), LENGTH, &oa);
+            Obj mX(HASH, EQUAL, LENGTH, &oa);
             const Obj& X = gg(&mX, SPEC);   // original spec
 
             if (curLen != oldLen) {
@@ -3064,7 +3159,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase3()
             const int         INDEX  = DATA[ti].d_index;
             const size_t      LENGTH = (int)strlen(SPEC);
 
-            Obj mX(HASHER(), COMPARATOR(), LENGTH, &oa);
+            Obj mX(HASH, EQUAL, LENGTH, &oa);
 
             if ((int)LENGTH != oldLen) {
                 if (verbose) printf("\tof length " ZU ":\n", LENGTH);
@@ -3233,8 +3328,8 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
 
     // Probably want to pick these up as values from some injected policy, so
     // that we can test with stateful variants
-    const HASHER     HASH    = HASHER();
-    const COMPARATOR COMPARE = COMPARATOR();
+    const HASHER     HASH    = MakeDefaultFunctor<HASHER>::make();
+    const COMPARATOR COMPARE = MakeDefaultFunctor<COMPARATOR>::make();
 
     const size_t MAX_LENGTH = 9;
 
@@ -3980,6 +4075,10 @@ int main(int argc, char *argv[])
         RUN_EACH_TYPE(TestDriver_StatefulConfiguation,
                       testCase12,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+
+        RUN_EACH_TYPE(TestDriver_DegenerateConfiguation,
+                      testCase12,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
       } break;
       case 11: {
         // --------------------------------------------------------------------
@@ -3997,6 +4096,7 @@ int main(int argc, char *argv[])
                       testCase11,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
 
+        // Degenerate test cases are not available for the default constructor.
       } break;
       case 10: {
         // --------------------------------------------------------------------
@@ -4024,6 +4124,10 @@ int main(int argc, char *argv[])
                       testCase9,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
 
+        RUN_EACH_TYPE(TestDriver_DegenerateConfiguation,
+                      testCase9,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+
       } break;
       case 8: {
         // --------------------------------------------------------------------
@@ -4040,6 +4144,10 @@ int main(int argc, char *argv[])
         RUN_EACH_TYPE(TestDriver_StatefulConfiguation,
                       testCase8,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+
+        RUN_EACH_TYPE(TestDriver_DegenerateConfiguation,
+                      testCase8,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
       } break;
       case 7: {
         // --------------------------------------------------------------------
@@ -4054,6 +4162,10 @@ int main(int argc, char *argv[])
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
 
         RUN_EACH_TYPE(TestDriver_StatefulConfiguation,
+                      testCase7,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+
+        RUN_EACH_TYPE(TestDriver_DegenerateConfiguation,
                       testCase7,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
       } break;
@@ -4095,6 +4207,10 @@ int main(int argc, char *argv[])
         RUN_EACH_TYPE(TestDriver_StatefulConfiguation,
                       testCase4,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+
+        RUN_EACH_TYPE(TestDriver_DegenerateConfiguation,
+                      testCase4,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
       } break;
       case 3: {
         // --------------------------------------------------------------------
@@ -4109,6 +4225,10 @@ int main(int argc, char *argv[])
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
 
         RUN_EACH_TYPE(TestDriver_StatefulConfiguation,
+                      testCase3,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+
+        RUN_EACH_TYPE(TestDriver_DegenerateConfiguation,
                       testCase3,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
 
@@ -4129,6 +4249,10 @@ int main(int argc, char *argv[])
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
 
         RUN_EACH_TYPE(TestDriver_StatefulConfiguation,
+                      testCase2,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+
+        RUN_EACH_TYPE(TestDriver_DegenerateConfiguation,
                       testCase2,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
       } break;
@@ -4155,7 +4279,10 @@ int main(int argc, char *argv[])
             int INT_VALUES[]   = { INT_MIN, -2, -1, 0, 1, 2, INT_MAX };
             int NUM_INT_VALUES = sizeof(INT_VALUES) / sizeof(*INT_VALUES);
 
-            typedef BasicKeyConfig<int> BasicSetOfIntPolicy;
+            typedef BasicKeyConfig<int>          BasicSetOfIntPolicy;
+            typedef bsltf::StdTestAllocator<int> StlTestIntAllocator;
+            typedef ::bsl::hash<int>             TestIntHash;
+            typedef ::bsl::equal_to<int>         TestIntEqual;
 
             TestDriver<BasicSetOfIntPolicy,
                        TestIntHash,

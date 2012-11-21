@@ -1136,12 +1136,12 @@ quickSwapRetainAllocators(ImplParameters& other)
     using native_std::swap;  // otherwise it is hidden by this very definition!
 
     bslalg::SwapUtil::swap(
-                     static_cast<HasherBaseType*>(this),
-                     static_cast<HasherBaseType*>(BSLS_UTIL_ADDRESSOF(other)));
+                   static_cast<HasherBaseType*>(this),
+                   static_cast<HasherBaseType*>(bsls::Util::addressOf(other)));
 
     bslalg::SwapUtil::swap(
-                 static_cast<ComparatorBaseType*>(this),
-                 static_cast<ComparatorBaseType*>(BSLS_UTIL_ADDRESSOF(other)));
+               static_cast<ComparatorBaseType*>(this),
+               static_cast<ComparatorBaseType*>(bsls::Util::addressOf(other)));
 
     nodeFactory().swapRetainAllocators(other.nodeFactory());
 }
@@ -1155,12 +1155,12 @@ quickSwapExchangeAllocators(ImplParameters& other)
     using native_std::swap;  // otherwise it is hidden by this very definition!
 
     bslalg::SwapUtil::swap(
-                     static_cast<HasherBaseType*>(this),
-                     static_cast<HasherBaseType*>(BSLS_UTIL_ADDRESSOF(other)));
+                   static_cast<HasherBaseType*>(this),
+                   static_cast<HasherBaseType*>(bsls::Util::addressOf(other)));
 
     bslalg::SwapUtil::swap(
-                 static_cast<ComparatorBaseType*>(this),
-                 static_cast<ComparatorBaseType*>(BSLS_UTIL_ADDRESSOF(other)));
+               static_cast<ComparatorBaseType*>(this),
+               static_cast<ComparatorBaseType*>(bsls::Util::addressOf(other)));
 
     nodeFactory().swapExchangeAllocators(other.nodeFactory());
 }
