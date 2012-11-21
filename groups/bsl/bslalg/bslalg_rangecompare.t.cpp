@@ -5,6 +5,7 @@
 #include <bslmf_isbitwiseequalitycomparable.h>          // for testing only
 #include <bslma_usesbslmaallocator.h>                   // for testing only
 #include <bslmf_nestedtraitdeclaration.h>               // for testing only
+#include <bsls_annotation.h>                            // for testing only
 
 #include <bslma_allocator.h>
 #include <bslma_default.h>
@@ -278,6 +279,7 @@ void ScalarPrimitives::doCopyConstruct(TARGET_TYPE         *address,
                                        bslma::Allocator    *allocator,
                                        bsl::false_type)
 {
+    bslma::Allocator *unusedAllocator BSLS_ANNOTATION_UNUSED = allocator;
     new (address) TARGET_TYPE(original);
 }
 
@@ -1449,12 +1451,12 @@ void testLexicographicalBuiltin(bool                    verboseFlag,
                        LINE1, LEN1, LINE2, LEN2);
                 printf("LHS = [ ");
                 for (k = 0; k < LHS_LEN; ++k) {
-                    printf("%s", k ? (char*)", " : (char*)"");
+                    printf("%s", k ? ", " : "");
                     dbg_print(LHS_BEGIN[k]);
                 }
                 printf(" ]\nRHS = [ ");
                 for (k = 0; k < RHS_LEN; ++k) {
-                    printf("%s", k ? (char*)", " : (char*)"");
+                    printf("%s", k ? ", " : "");
                     dbg_print(RHS_BEGIN[k]);
                 }
                 printf(" ]\nEXP = %d, result = %d\n", EXP, result);
@@ -1570,7 +1572,7 @@ static const struct {
 };
 const int NUM_DATA_CASE3 = sizeof DATA_CASE3 / sizeof *DATA_CASE3;
 
-void testGenericEqual(bool verboseFlag, bslma::TestAllocator& testAllocator)
+void testGenericEqual(bool verboseFlag)
     // Compare every pair of strings in the 'DATA_CASE3' array, and verify that
     // they are equal according to the generic 'equal' implementation (using
     // four arguments) if and only if they are equal.
@@ -1844,7 +1846,8 @@ void testGG(bool verbose, bool veryVerbose)
             const int         LENGTH = (int)strlen(SPEC);
 
             TEST_TYPE array[MAX_LENGTH];
-            const TEST_TYPE& X = gg(array, SPEC);   // first element
+            const TEST_TYPE& X BSLS_ANNOTATION_UNUSED = gg(array, SPEC);
+                // first element
 
             if (LENGTH != oldLen) {
                 if (verbose) printf("\tof length %d:\n", LENGTH);
@@ -1930,8 +1933,8 @@ void timeEqualAlgorithm(const char *typeName,
     printf("\n\tcompare with '%s'\n", typeName);
     {
         const int bufferSize = rawBufferSize / sizeof(TYPE);
-        TYPE *buffer1 = (TYPE*)rawBuffer1;
-        TYPE *buffer2 = (TYPE*)rawBuffer2;
+        TYPE *buffer1 = (TYPE*)const_cast<char *>(rawBuffer1);
+        TYPE *buffer2 = (TYPE*)const_cast<char *>(rawBuffer2);
 
         for (int j = 0; j < bufferSize; ++j) {
             buffer1[j] = buffer2[j] = TYPE();
@@ -2004,8 +2007,8 @@ void timeLexicographicalAlgorithm(const char *typeName,
     printf("\n\tcompare with '%s'\n", typeName);
     {
         const int bufferSize = rawBufferSize / sizeof(TYPE);
-        TYPE *buffer1 = (TYPE*)rawBuffer1;
-        TYPE *buffer2 = (TYPE*)rawBuffer2;
+        TYPE *buffer1 = (TYPE*)const_cast<char *>(rawBuffer1);
+        TYPE *buffer2 = (TYPE*)const_cast<char *>(rawBuffer2);
 
         for (int j = 0; j < bufferSize; ++j) {
             buffer1[j] = buffer2[j] = TYPE();
@@ -2277,7 +2280,7 @@ int main(int argc, char *argv[])
         if (veryVerbose) printf("\t... generic 'equal' (four arguments).\n");
 
         if (veryVerbose) printf("\t\tUsing pointer type for iterator.\n");
-        testGenericEqual(veryVerbose, testAllocator);
+        testGenericEqual(veryVerbose);
 
         if (veryVerbose) printf("\t... with 'char'.\n");
         {
