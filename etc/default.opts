@@ -422,6 +422,7 @@ unix-AIX-*-*-*-*           _   XLC_SPECIAL_BBINDER_FLAGS   = -bweaklocal -bbigto
 !! unix-*-*-*-gcc-4.5.2     _   GCC_VER = 4.5.2
 !! unix-*-*-*-gcc-4.6.1     _   GCC_VER = 4.6.1
 !! unix-*-*-*-gcc-4.7.0     _   GCC_VER = 4.7.0
+!! unix-*-*-*-gcc-4.7.2     _   GCC_VER = 4.7.2
 
 !! unix-SunOS-*-*-gcc       shr AR      = $(RETRY_ON_EXIT) /bbs/opt/bin/gcc -shared $(SHR_NO_UNDEFINED_SYMBOLS) $(SHR_SONAME_SET) $(SHR_SHLIB_DEPS) -o
 !! unix-SunOS-*-*-gcc-4.*   shr AR      = $(RETRY_ON_EXIT) /opt/swt/install/gcc-$(GCC_VER)/bin/g++ -shared $(SHR_NO_UNDEFINED_SYMBOLS) $(SHR_SONAME_SET) $(SHR_SHLIB_DEPS)  -o
