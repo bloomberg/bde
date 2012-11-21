@@ -69,7 +69,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Requirements on 'HASH' and 'EQUAL'
 ///----------------------------------
-// The (template parameter) types 'HASH' and 'EQUAL' must be
+// The (template parameter) types 'HASH' and 'EQUAL' shall be
 // default-constructible, copy-constructible function-objects.
 //
 // 'HASH' shall support a function call operator compatible with the following
@@ -95,7 +95,7 @@ BSLS_IDENT("$Id: $")
 // 'HASH' and 'EQUAL' function-objects are further constrained, such for any
 // two objects whose keys compare equal by the comparator, shall produce the
 // same value from the hasher.
-//
+// 
 ///Memory Allocation
 ///-----------------
 // The type supplied as the 'ALLOCATOR' template parameter determines how
@@ -260,13 +260,32 @@ BSLS_IDENT("$Id: $")
 // The unordered map has interfaces that can provide insight into and control
 // of its inner workings.  The unordered map is implemented using a hash table
 // (see {'bslstl_hashtable'}), a dynamically sized array of "buckets".  If two
-// elements hash to the same position the the table (the same bucket), then
-// that bucket will house multiple elements.  As elements are added to the
-// unordered map, the number of buckets is increased (and the existing elements
-// redistributed) to keep the average number of elements per bucket (the
-// "loading factor") below the specified maximum (the "maximum load factor", 1
-// by default).  {Example 2: Examining and Setting Unordered Map Configuration}
-// illustrates the use of these interfaces.
+// elements hash to the same bucket (termed a "collision"), then that bucket
+// will house multiple elements.  As elements are added to the unordered map,
+// the number of buckets is increased (and the existing elements redistributed)
+// to keep the average number of elements per bucket (the "loading factor")
+// below the specified maximum (the "maximum load factor", 1 by default).
+// {Example 2: Examining and Setting Unordered Map Configuration} illustrates
+// the use of these interfaces.
+//
+///Practical Requirements on 'HASH'
+///--------------------------------
+// An important factor in the performance an unordered map (and any of the
+// other unordered containers) is the choice of hash function.  In general, one
+// wants the hash function to return uniformly distributed values that can be
+// assigned to buckets (see {Unordered Map Configuration}) with few collisions.
+//
+// The 'bsl' package provides general purpose, default hash functions for
+// 'bsl::string', 'bslstl::StringRef', and the arithmetic types (e.g., 'int');
+// however, custom defined hash functions may do better, especially if one has
+// information about the distribution of keys; there is considerable literature
+// on designing hash functions.
+//
+// When a user-defined class is used as a key, hasher must be provided (and
+// equality functor, if equality is not otherwise defined).  Two examples,
+// {Example 3} and {'bslstl_unorderedset'|Example 1}, address this issue by
+// adapting the existing default hash functions for primitive types, an
+// approach that may not always prove adequate.
 //
 ///Usage
 ///-----

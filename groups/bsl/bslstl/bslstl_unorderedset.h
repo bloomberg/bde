@@ -253,6 +253,12 @@ BSLS_IDENT("$Id: $")
 // the discussion in {'bslstl_unorderedmap'|Unordered Map Configuration} and
 // the illustrative material in {'bslstl_unorderedmap'|Example 2}.
 //
+///Practical Requirements on 'HASH'
+///--------------------------------
+// An important factor in the performance an unordered set (and any of the
+// other unordered containers) is the choice of hash function.  Please see
+// the discussion in {'bslstl_unorderedmap'|Practical Requirements on 'HASH'}.
+//
 ///Usage
 ///-----
 // In this section we show intended use of this component.
@@ -378,14 +384,6 @@ BSLS_IDENT("$Id: $")
 //      //! ~CustomerProfileHash() = default;
 //          // Destroy this object.
 //
-//      // MANIPULATORS
-//      //! CustomerProfileHash& operator=(const CustomerProfileHash& rhs)
-//      //!                                                          = default;
-//          // Assign to this object the value of the specified 'rhs' object,
-//          // and return a reference providing modifiable access to this
-//          // object.  Note that as 'CustomerProfileHash' is an empty
-//          // (stateless) type, this operation will have no observable effect.
-//
 //      // ACCESSORS
 //      std::size_t operator()(CustomerProfile x) const;
 //          // Return a hash value computed using the specified 'x'.
@@ -414,14 +412,6 @@ BSLS_IDENT("$Id: $")
 //
 //      //! ~CustomerProfileEqual() = default;
 //          // Destroy this object.
-//
-//      // MANIPULATORS
-//      //! CustomerProfileEqual& operator=(const CustomerProfileEqual& rhs)
-//      //!                                                          = default;
-//          // Assign to this object the value of the specified 'rhs' object,
-//          // and return a reference providing modifiable access to this
-//          // object.  Note that as 'CustomerProfileEqual' is an empty
-//          // (stateless) type, this operation will have no observable effect.
 //
 //      // ACCESSORS
 //      bool operator()(const CustomerProfile& lhs,

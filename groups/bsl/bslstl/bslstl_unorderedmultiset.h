@@ -255,6 +255,12 @@ BSLS_IDENT("$Id: $")
 // {'bslstl_unorderedmap'|Unordered Map Configuration} and the illustrative
 // material in {'bslstl_unorderedmap'|Example 2}.
 //
+///Practical Requirements on 'HASH'
+///--------------------------------
+// An important factor in the performance an unordered multi-set (and any of
+// the other unordered containers) is the choice of hash function.  Please see
+// the discussion in {'bslstl_unorderedmap'|Practical Requirements on 'HASH'}.
+//
 ///Usage
 ///-----
 // In this section we show intended use of this component.
