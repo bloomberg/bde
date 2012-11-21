@@ -711,20 +711,34 @@ class DegenerateClass : public FUNCTOR {
     // inherited by a derived class.
 
   private:
-    DegenerateClass(const FUNCTOR& base) : FUNCTOR(base) {}
+    explicit DegenerateClass(const FUNCTOR& base) : FUNCTOR(base) {}
+        // Create a 'DegenerateClass' wrapping a copy of the specified
+        // 'base'.
 
-    void operator&();
+    void operator&();  // = delete;
+        // not implemented
 
     template<class T>
-    void operator,(const T&);
+    void operator,(const T&); // = delete;
+        // not implemented
+
+    template<class T>
+    void operator,(T&); // = delete;
+        // not implemented
+
+
+    // DegenerateClass& operator=(const DegenerateClass&);
+    // TBD. Do we require functors be CopyAssigable, Swappable, or customize
+    // availability for test scenario?
 
   public:
     static DegenerateClass cloneBaseObject(const FUNCTOR& base) {
         return DegenerateClass(base);
     }
 
-    DegenerateClass(const DegenerateClass& other) : FUNCTOR(other) {}
-    
+    DegenerateClass(const DegenerateClass& original) : FUNCTOR(original) {}
+        // Create a 'DegenerateClass' having the same value the specified
+        // 'original'.
 };
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -790,22 +804,19 @@ bool isEqualComparator(const TestEqualityComparator<KEY>& lhs,
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-//                         test support functions
+class BoolArray {
+    // This class holds a set of boolean flags, the number of which is
+    // speicifed when such an object is constructed.  This class is a
+    // lightweight alternative to 'vector<bool>' as there is no need to
+    // introduce such a component dependency for a simple test facility.
 
-bool expectPoolToAllocate(int n)
-    // Return 'true' if the memory pool used by the container under test is
-    // expected to allocate memory on the inserting the specified 'n'th
-    // element, and 'false' otherwise.
-{
-    if (n > 32) {
-        return (0 == n % 32);                                         // RETURN
-    }
-    return (((n - 1) & n) == 0);  // Allocate when 'n' is a power of 2
-}
+  private:
+    bool *d_data;
 
-struct BoolArray {
-    // This class holds a set of boolean flags...
-
+    BoolArray(const BoolArray&); // = delete;
+    BoolArray& operator=(const BoolArray&);  // = delete;
+    
+  public:
     explicit BoolArray(size_t n)
     : d_data(new bool[n])
     {
@@ -820,9 +831,23 @@ struct BoolArray {
     }
 
     bool& operator[](size_t index) { return d_data[index]; }
-    bool *d_data;
+
+    bool operator[](size_t index) const { return d_data[index]; }
 };
 
+
+//                         test support functions
+
+bool expectPoolToAllocate(int n)
+    // Return 'true' if the memory pool used by the container under test is
+    // expected to allocate memory on the inserting the specified 'n'th
+    // element, and 'false' otherwise.
+{
+    if (n > 32) {
+        return (0 == n % 32);                                         // RETURN
+    }
+    return (((n - 1) & n) == 0);  // Allocate when 'n' is a power of 2
+}
 
 template<class KEY_CONFIG, class COMPARATOR, class VALUES>
 int verifyListContents(Link              *containerList,
