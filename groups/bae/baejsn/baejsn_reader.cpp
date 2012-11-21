@@ -4,10 +4,13 @@
 #include <bdes_ident.h>
 BDES_IDENT_RCSID(baejsn_reader_cpp,"$Id$ $CSID$")
 
-#include <bdema_bufferedsequentialallocator.h>
 #include <bsl_streambuf.h>
 
 namespace BloombergLP {
+
+namespace {
+    const char *WHITESPACE = " \n\t\v\f\r";
+}
 
 namespace baejsn {
 
@@ -16,86 +19,122 @@ namespace baejsn {
                             // --------------------
 
 // PRIVATE MANIPULATORS
-void baejsn_Reader::reloadData()
+int baejsn_Reader::reloadData()
 {
-    const int numRead = d_streamBuf_p->sgetn(d_begin_p, BAEJSN_BUFSIZE);
-    d_cursor_p = d_begin_p;
-    d_end_p    = d_begin_p + numRead;
+    const int numRead = d_streamBuf_p->sgetn(&d_stringBuffer[0],
+                                              BAEJSN_MAX_STRING_SIZE);
+    d_cursor = 0;
+    d_stringBuffer.resize(numRead);
+    return numRead;
 }
 
-void baejsn_Reader::skipWhitespace()
+int baejsn_Reader::skipWhitespace()
 {
-    while (d_cursor_p < d_end_p && bsl::isspace(*d_cursor_p)) {
-        ++d_cursor_p;
+    while (true) {
+        d_cursor = d_stringBuffer.find_first_not_of(WHITESPACE, d_cursor);
+        if (bsl::string::npos != d_cursor) {
+            break;
+        }
+        const int numRead = reloadData();
+        if (0 == numRead) {
+            return -1;                                                // RETURN
+        }
     }
-    if (d_cursor_p == d_end_p) {
-        reloadData();
-    }
+    return 0;
 }
 
 // MANIPULATORS
 int baejsn_Reader::advanceToNextToken()
 {
-    skipWhitespace();
-
-    if (d_cursor_p != d_end_p) {
-        switch (*d_cursor_p) {
-          case '[': {
-            d_tokenType = BAEJSN_START_ARRAY;
-          } break;
-
-          case ']': {
-            d_tokenType = BAEJSN_END_ARRAY;
-          } break;
-
-          case '{': {
-            d_tokenType = BAEJSN_START_OBJECT;
-          } break;
-
-          case '}': {
-            d_tokenType = BAEJSN_END_OBJECT;
-          } break;
-
-          case ',': {
-            d_tokenType = BAEJSN_COMMA;
-          } break;
-
-          case ':': {
-            d_tokenType = BAEJSN_VALUE;
-          } break;
-
-          default: {
-            d_tokenType = BAEJSN_NAME;
-          } break;
-
+    if (d_cursor >= d_stringBuffer.size()) {
+        const int numRead = reloadData();
+        if (0 == numRead) {
+            return -1;                                                // RETURN
         }
-        ++d_cursor_p;
     }
+
+    const int rc = skipWhitespace();
+    if (!rc) {
+        return -1;                                                    // RETURN
+    }
+
+    switch (d_stringBuffer[d_cursor]) {
+      case '[': {
+        d_tokenType = BAEJSN_START_ARRAY;
+      } break;
+
+      case ']': {
+        d_tokenType = BAEJSN_END_ARRAY;
+      } break;
+
+      case '{': {
+        d_tokenType = BAEJSN_START_OBJECT;
+      } break;
+
+      case '}': {
+        d_tokenType = BAEJSN_END_OBJECT;
+      } break;
+
+      case ',': {
+        d_tokenType = BAEJSN_COMMA;
+      } break;
+
+      case ':': {
+        d_tokenType = BAEJSN_VALUE;
+      } break;
+
+      default: {
+        d_tokenType = BAEJSN_NAME;
+      } break;
+    }
+
+    ++d_cursor;
+    return 0;
 }
 
 // ACCESSORS
 bslstl::StringRef baejsn_Reader::value()
 {
     if (BAEJSN_NAME == d_tokenType || BAEJSN_VALUE == d_tokenType) {
-        while (d_valueEnd_p < d_end_p && !bsl::isspace(*d_valueEnd_p)) {
-            ++d_valueEnd_p;
-        }
-        if (d_valueEnd_p == d_end_p) {
-            char tmpBuffer[BAEJSN_BUFSIZE];
-            const int oldBytes = d_end_p - d_cursor_p;
-            bsl::memcpy(tmpBuffer, d_cursor_p, oldBytes);
-            bsl::memcpy(d_begin_p, tmpBuffer, oldBytes);
-            d_cursor_p = d_begin_p + oldBytes;
-            const int numRead = d_streamBuf_p->sgetn(
-                                                    d_cursor_p,
-                                                    BAEJSN_BUFSIZE - oldBytes);
-            d_end_p = d_cursor_p + numRead;
-            d_valueEnd_p = d_cursor_p;
-            while (d_valueEnd_p < d_end_p && !bsl::isspace(*d_valueEnd_p)) {
-                ++d_valueEnd_p;
+        bsl::size_t pos = d_stringBuffer.find_first_of(WHITESPACE, d_cursor);
+        if (bsl::string::npos == pos) {
+            d_stringBuffer.erase(d_stringBuffer.begin(),
+                                 d_stringBuffer.begin() + d_cursor);
+            d_stringBuffer.resize(BAEJSN_MAX_STRING_SIZE);
+            int numRead = d_streamBuf_p->sgetn(
+                                            &d_stringBuffer[d_cursor],
+                                            BAEJSN_MAX_STRING_SIZE - d_cursor);
+            if (0 == numRead) {
+                d_stringBuffer.resize(d_cursor);
+                return bslstl::StringRef(d_stringBuffer.data(),
+                                         d_stringBuffer.data() + d_cursor);
+                                                                      // RETURN
             }
+
+            do {
+                d_stringBuffer.resize(d_cursor + numRead);
+                pos = d_stringBuffer.find_first_of(WHITESPACE, d_cursor);
+                if (bsl::string::npos == pos) {
+                    numRead = d_streamBuf_p->sgetn(
+                                            &d_stringBuffer[d_cursor],
+                                            BAEJSN_MAX_STRING_SIZE - d_cursor);
+                    if (0 == numRead) {
+                        d_stringBuffer.resize(d_cursor);
+                        return bslstl::StringRef(
+                                          d_stringBuffer.data(),
+                                          d_stringBuffer.data() + d_cursor);
+                                                                      // RETURN
+                    }
+                }
+                else {
+                    break;
+                }
+            } while (1);
         }
-        return bslstl::StringRef(d_cursor_p, d_valueEnd_p);           // RETURN
+
+        d_cursor = pos;
+        return bslstl::StringRef(d_stringBuffer.data(),
+                                 d_stringBuffer.begin() + d_cursor);  // RETURN
     }
     return bslstl::StringRef(0, 0);
 }

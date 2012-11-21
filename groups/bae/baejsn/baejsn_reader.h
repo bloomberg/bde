@@ -21,6 +21,10 @@ BDES_IDENT("$Id: $")
 #include <baescm_version.h>
 #endif
 
+#ifndef INCLUDED_BDEMA_BUFFEREDSEQUENTIALALLOCATOR
+#include <bdema_bufferedsequentialallocator.h>
+#endif
+
 #ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
 #endif
@@ -56,16 +60,17 @@ class Reader {
 
   private:
     enum {
-        BAEJSN_BUFSIZE = 1024
+        BAEJSN_BUFSIZE         = 1024,
+        BAEJSN_MAX_STRING_SIZE = BAEJSN_BUFSIZE - 1
     };
 
-    char            d_buffer[BAEJSN_BUFSIZE];
-    const char     *d_begin_p;
-    const char     *d_cursor_p;
-    const char     *d_end_p;
-    bsl::streambuf *d_streambuf_p;
+    char                               d_buffer[BAEJSN_BUFSIZE];
+    bdema_BufferedSequentialAllocator  d_allocator;
+    bsl::string                        d_stringBuffer;
+    bsl::size_t                        d_cursor;
+    bsl::streambuf                    *d_streambuf_p;
 
-    TokenType       d_tokenType;
+    TokenType                          d_tokenType;
 
     // PRIVATE MANIPULATORS
     void reloadData();
@@ -73,8 +78,8 @@ class Reader {
 
   public:
     // CREATORS
-    Reader();
-        // Create this reader.  TBD: is basicAllocator needed ?
+    Reader(bslma::Allocator *basicAllocator = 0);
+        // Create this reader.
 
     ~Reader();
 
@@ -96,14 +101,14 @@ class Reader {
 
 // CREATORS
 inline
-Reader::Reader(bsl::streambuf *streamBuf)
-: d_begin_p(d_buffer)
-, d_cursor_p(d_buffer)
-, d_end_p(d_buffer)
+Reader::Reader(bslma::Allocator *basicAllocator)
+: d_allocator(d_buffer, BAEJSN_BUFSIZE, basicAllocator)
+, d_stringBuffer(&d_allocator)
+, d_cursor(0)
 , d_streamBuf_p(0)
 , d_tokenType(BAEJSN_BEGIN)
 {
-    *d_begin_p = '\0';
+    d_stringBuffer.reserve(BAEJSN_MAX_STRING_SIZE);
 }
 
 inline
@@ -115,11 +120,9 @@ Reader::~Reader()
 inline
 void baejsn_Reader::reset(bsl::streambuf *streamBuf)
 {
-    d_streamBuf = streamBuf;
-    d_begin_p   = d_buffer;
-    d_cursor_p  = d_buffer;
-    d_end_p     = d_buffer;
-    d_tokenType = BAEJSN_BEGIN;
+    d_streamBuf_p = streamBuf;
+    d_cursor      = 0;
+    d_tokenType   = BAEJSN_BEGIN;
 }
 
 // ACCESSORS

@@ -14,7 +14,7 @@ BDES_IDENT("$Id: $")
 //
 //@SEE_ALSO: baejsn_encoder, baejsn_parserutil
 //
-//@AUTHOR: Raymond Chiu (schiu49)
+//@AUTHOR: Raymond Chiu (schiu49), Rohan Bhindwale (rbhindwa)
 //
 //@DESCRIPTION: This component provides utility functions for decoding a JSON
 // string.
