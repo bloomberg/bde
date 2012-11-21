@@ -285,8 +285,10 @@ int main(int argc, char *argv[]) {
     // bool     veryVerbose = argc > 3;
     // bool veryVeryVerbose = argc > 4;
 
-    switch (test) {
+    cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
+    switch (test) {
+        case 0:
         case 7: {
             // ----------------------------------------------------------------
             // USAGE EXAMPLE
