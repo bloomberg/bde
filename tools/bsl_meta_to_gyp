@@ -5,12 +5,12 @@ use warnings;
 
 # (simplistic)
 # Note: after regenerating .gyps from metadata, re-apply patch of customizations
-# From the root of the tree: $ patch -p1 < tools/bde_meta_to_gyp.patch
+# From the root of the tree: $ patch -p1 < tools/bsl_meta_to_gyp.patch
 
 # Note: .defs and .opts metadata files are not handled here
 # Customizations (which should be minimal) should be added to .patch above.
 
-@ARGV == 1 || die "Usage: bde_meta_to_gyp <uor>\n";
+@ARGV == 1 || die "Usage: bsl_meta_to_gyp <uor>\n";
 -f "group/$ARGV[0].dep" || die "expecting current dir is package group\n";
 # TODO: add support for isolated packages
 # TODO: add more robust error checking
