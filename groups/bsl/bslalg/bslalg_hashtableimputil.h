@@ -850,6 +850,46 @@ void HashTableImpUtil::rehash(HashTableAnchor   *newAnchor,
     BSLS_ASSERT_SAFE(0 != newAnchor->bucketArraySize());
     BSLS_ASSERT_SAFE(!elementList || !elementList->previousLink());
 
+    class Proctor {
+        // An object of this proctor class guarnatees that, on leaving scope,
+        // any remaining elements in the original specified 'elementList' are
+        // spliced to the front of the list rooted in the specified 'newAnchor'
+        // so that there is only one list for the client to clear if an
+        // exception is thrown by a user supplied hash functor.  Note that it
+        // might be possible to avoid creating such a proctor in C++11 if the
+        // hash functor is determined to be 'noexcept'.
+
+      private:
+        BidirectionalLink **d_sourceList;
+        HashTableAnchor    *d_targetAnchor;
+
+        Proctor(const Proctor&); // = delete;
+        Proctor& operator=(const Proctor&); // = delete;
+
+      public:
+        Proctor(BidirectionalLink **sourceList,
+                HashTableAnchor    *targetAnchor)
+        : d_sourceList(sourceList)
+        , d_targetAnchor(targetAnchor)
+        {
+            BSLS_ASSERT(sourceList);
+            BSLS_ASSERT(targetAnchor);
+        }
+
+        ~Proctor()
+        {
+            if (BidirectionalLink *lastLink = *d_sourceList) {
+                for( ; lastLink->nextLink(); lastLink = lastLink->nextLink()) {
+                    // This loop body is intentionally left blank.
+                }
+                BidirectionalLinkListUtil::spliceListBeforeTarget(
+                                           *d_sourceList,
+                                            lastLink,
+                                            d_targetAnchor->listRootAddress());
+            }
+        }
+    };
+
     // The callers of this function should be rewritten to take into account
     // that it is the responsibility of this function, not its callers, to zero
     // out the buckets.
@@ -862,6 +902,8 @@ void HashTableImpUtil::rehash(HashTableAnchor   *newAnchor,
     }
     newAnchor->setListRootAddress(0);
 
+    Proctor enforceSingleListOnExit(&elementList, newAnchor);
+
     while (elementList) {
         BidirectionalLink *nextNode = elementList;
         elementList = elementList->nextLink();
@@ -870,10 +912,6 @@ void HashTableImpUtil::rehash(HashTableAnchor   *newAnchor,
                              nextNode,
                              hasher(extractKey<KEY_CONFIG>(nextNode)));
     }
-
-#ifdef BDE_BUILD_TARGET_SAFE_2
-    BSLS_ASSERT_SAFE((isWellFormed<KEY_CONFIG>(*newAnchor, hasher)));
-#endif
 }
 
 template <class KEY_CONFIG, class HASHER>
