@@ -729,7 +729,7 @@ class DegenerateClass : public FUNCTOR {
         // not implemented
 
 
-    // DegenerateClass& operator=(const DegenerateClass&);
+    DegenerateClass& operator=(const DegenerateClass&);
     // TBD. Do we require functors be CopyAssigable, Swappable, or customize
     // availability for test scenario?
 
@@ -1540,7 +1540,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase11()
             printf("\n\tTesting default constructor.\n");
         }
 
-        Obj                 *objPtr;
+        Obj                  *objPtr;
         bslma::TestAllocator *objAllocatorPtr;
 
         switch (CONFIG) {
@@ -1558,6 +1558,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase11()
           } break;
           default: {
               ASSERTV(CONFIG, !"Bad allocator config.");
+              return;
           } break;
         }
 
@@ -2955,7 +2956,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase4()
 
                 bslma::DefaultAllocatorGuard dag(&da);
 
-                Obj                 *objPtr;
+                Obj                  *objPtr;
                 bslma::TestAllocator *objAllocatorPtr;
 
                 switch (CONFIG) {
@@ -2980,6 +2981,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase4()
                   } break;
                   default: {
                       ASSERTV(CONFIG, !"Bad allocator config.");
+                      return;
                   } break;
                 }
 
@@ -3424,6 +3426,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
               } break;
               default: {
                   ASSERTV(CONFIG, !"Bad allocator config.");
+                  return;
               } break;
             }
 
