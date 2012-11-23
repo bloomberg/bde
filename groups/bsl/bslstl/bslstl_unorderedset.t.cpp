@@ -99,15 +99,15 @@ using namespace BloombergLP;
 //*[26] typedef ... value_type;
 //*[26] typedef ... hasher;
 //*[26] typedef ... key_equal;
-//* [26] typedef ... allocator_type;
-//* [26] typedef ... reference;
-//* [26] typedef ... const_reference;
-//* [26] typedef ... size_type;
-//* [26] typedef ... difference_type;
-//* [26] typedef ... pointer;
-//* [26] typedef ... const_pointer;
-//* [26] typedef ... iterator
-//* [26] typedef ... const_iterator
+//*[26] typedef ... allocator_type;
+//*[26] typedef ... reference;
+//*[26] typedef ... const_reference;
+//*[26] typedef ... size_type;
+//*[26] typedef ... difference_type;
+//*[26] typedef ... pointer;
+//*[26] typedef ... const_pointer;
+//*[26] typedef ... iterator
+//*[26] typedef ... const_iterator
 //
 // [unord.set] construct/copy/destroy:
 //*[ 2] unordered_set(size_type, hasher, key_equal, allocator);
@@ -2532,6 +2532,9 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase4()
     };
     const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
+    const HASH  defaultHasher     = HASH();
+    const EQUAL defaultComparator = EQUAL();
+
     if (verbose) { printf(
                 "\nCreate objects with various allocator configurations.\n"); }
     {
@@ -2553,24 +2556,35 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase4()
 
                 bslma::DefaultAllocatorGuard dag(&da);
 
-                Obj                 *objPtr;
+                Obj                  *objPtr;
                 bslma::TestAllocator *objAllocatorPtr;
 
                 switch (CONFIG) {
                   case 'a': {
-                      objPtr = new (fa) Obj();
+                      objPtr = new (fa) Obj(0,
+                                            defaultHasher,
+                                            defaultComparator);
                       objAllocatorPtr = &da;
                   } break;
                   case 'b': {
-                      objPtr = new (fa) Obj((bslma::Allocator *)0);
+                      objPtr = new (fa) Obj(0,
+                                            defaultHasher,
+                                            defaultComparator,
+                                            (bslma::Allocator *)0);
                       objAllocatorPtr = &da;
                   } break;
                   case 'c': {
-                      objPtr = new (fa) Obj(&sa1);
+                      objPtr = new (fa) Obj(0,
+                                            defaultHasher,
+                                            defaultComparator,
+                                            &sa1);
                       objAllocatorPtr = &sa1;
                   } break;
                   case 'd': {
-                      objPtr = new (fa) Obj(&sa2);
+                      objPtr = new (fa) Obj(0,
+                                            defaultHasher,
+                                            defaultComparator,
+                                            &sa2);
                       objAllocatorPtr = &sa2;
                   } break;
                   default: {
@@ -2581,8 +2595,8 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase4()
                 Obj& mX = *objPtr;  const Obj& X = gg(&mX, SPEC);
                 bslma::TestAllocator&  oa = *objAllocatorPtr;
                 bslma::TestAllocator& noa = ('c' == CONFIG || 'd' == CONFIG)
-                                         ? da
-                                         : sa1;
+                                          ? da
+                                          : sa1;
 
                 // --------------------------------------------------------
 
@@ -2892,9 +2906,19 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase2()
 
     const size_t MAX_LENGTH = 9;
 
+    const HASH  defaultHasher     = HASH();
+    const EQUAL defaultComparator = EQUAL();
+
     for (size_t ti = 0; ti < MAX_LENGTH; ++ti) {
         const size_t LENGTH = ti;
 
+#if 0   // First pass, we want to check no memory is allocated on construction
+        // May run a second pass where we create a default number of buckets,
+        // and allocator usage is harder to compute.
+        const size_t DEFAULT_BUCKETS = ti % 2
+                                     ? ti
+                                     : 0;
+#endif
         if (verbose) {
             printf("\nTesting with various allocator configurations.\n");
         }
@@ -2918,15 +2942,23 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase2()
 
             switch (CONFIG) {
               case 'a': {
-                  objPtr = new (fa) Obj();
+                  objPtr = new (fa) Obj(0,
+                                        defaultHasher,
+                                        defaultComparator);
                   objAllocatorPtr = &da;
               } break;
               case 'b': {
-                  objPtr = new (fa) Obj((bslma::Allocator *)0);
+                  objPtr = new (fa) Obj(0,
+                                        defaultHasher,
+                                        defaultComparator,
+                                        (bslma::Allocator *)0);
                   objAllocatorPtr = &da;
               } break;
               case 'c': {
-                  objPtr = new (fa) Obj(&sa);
+                  objPtr = new (fa) Obj(0,
+                                        defaultHasher,
+                                        defaultComparator,
+                                        &sa);
                   objAllocatorPtr = &sa;
               } break;
               default: {
@@ -3026,7 +3058,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase2()
                     guard.release();
                 } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
-                ASSERTV(LENGTH, CONFIG, LENGTH == X.size());
+                ASSERTV(LENGTH, CONFIG, LENGTH, X.size(), LENGTH == X.size());
 
                 {
                     bool *foundValues = new bool[X.size()];
