@@ -203,6 +203,10 @@ BSLS_IDENT("$Id: $")
 #define INCLUDED_LIMITS
 #endif
 
+
+#include <stdio.h>
+#include <stdlib.h>
+
 namespace BloombergLP {
 
 namespace bslstl {
@@ -1945,6 +1949,59 @@ void
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::rehashForNumBuckets(
                                                         SizeType newNumBuckets)
 {
+    class Proctor {
+        // An object of this proctor class guarnatees that, if an exception
+        // is thrown by a user-supplied hash functor, the container remains in
+        // a valid, useable (but unspecified) state.  In fact, that state will
+        // be an empty, as there is no reliable way to re-index a bucket array
+        // if the hash functor is throwing, and the array is potentially
+        // corrupted following a failed ImpUtil::rehash call.
+
+      private:
+        HashTable               *d_this;
+        bslalg::HashTableAnchor *d_originalAnchor;
+        bslalg::HashTableAnchor *d_newAnchor;
+
+
+        Proctor(const Proctor&); // = delete;
+        Proctor& operator=(const Proctor&); // = delete;
+
+      public:
+        Proctor(HashTable               *table,
+                bslalg::HashTableAnchor *originalAnchor,
+                bslalg::HashTableAnchor *newAnchor)
+        : d_this(table)
+        , d_originalAnchor(originalAnchor)
+        , d_newAnchor(newAnchor)
+        {
+            BSLS_ASSERT(table);
+            BSLS_ASSERT(originalAnchor);
+            BSLS_ASSERT(newAnchor);
+        }
+
+        ~Proctor()
+        {
+            if (d_originalAnchor) {
+                // Not dismissed, and the newAnchor now holds the correct
+                // list-root.
+                d_originalAnchor->setListRootAddress(
+                                               d_newAnchor->listRootAddress());
+                d_this->removeAll();
+            }
+            // Always destroy the spare anchor's bucket array at the end of
+            // scope.  On a non-exceptional run, this will effectively be the
+            // original bucket-array, as the anchors are swapped.
+            HashTable_Util<ALLOCATOR>::destroyBucketArray(
+                                             d_newAnchor->bucketArrayAddress(),
+                                             d_newAnchor->bucketArraySize(),
+                                             d_this->allocator());
+        }
+
+        void dismiss() { d_originalAnchor = 0; }
+    };
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
     if (newNumBuckets > this->numBuckets()) {
         // compute a "good" number of buckets, e.g., pick a prime number
         // from a sorted array of exponentially increasing primes.
@@ -1960,20 +2017,20 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::rehashForNumBuckets(
                                               newNumBuckets,
                                               this->allocator());
 
+        Proctor cleanUpIfUserHashThrows(this, &d_anchor, &newAnchor);
+
         if (d_anchor.listRootAddress()) {
             bslalg::HashTableImpUtil::rehash<KEY_CONFIG>(
                                                     &newAnchor,
                                                     d_anchor.listRootAddress(),
-                                                    hasher());
+                                                    this->hasher());
         }
+
+        cleanUpIfUserHashThrows.dismiss();
+
         d_anchor.swap(newAnchor);
         d_capacity = static_cast<native_std::size_t>(native_std::ceil(
                    static_cast<float>(newNumBuckets) * this->maxLoadFactor()));
-
-        HashTable_Util<ALLOCATOR>::destroyBucketArray(
-                                                newAnchor.bucketArrayAddress(),
-                                                newAnchor.bucketArraySize(),
-                                                this->allocator());
     }
 }
 
