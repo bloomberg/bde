@@ -1275,6 +1275,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase4()
                   } break;
                   default: {
                       ASSERTV(CONFIG, !"Bad allocator config.");
+                      return;
                   } break;
                 }
 
@@ -1638,6 +1639,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase2()
               } break;
               default: {
                   ASSERTV(CONFIG, !"Bad allocator config.");
+                  return;
               } break;
             }
 
