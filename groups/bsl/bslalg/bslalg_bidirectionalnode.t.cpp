@@ -398,7 +398,7 @@ int main(int argc, char *argv[])
 //..
 // Now, we iterate, pushing ints to the list:
 //..
-        for (const int *pInt = intArray; pInt < intArray + NUM_INTS; ++pInt) {
+        for (const int *pInt = intArray; pInt != intArray + NUM_INTS; ++pInt) {
             intList.pushBack(*pInt);
         }
 //..
