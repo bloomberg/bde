@@ -698,6 +698,8 @@ class TestFacilityHasher : public HASHER { // exploit empty base
     }
 };
 
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
 template <class FUNCTOR>
 class DegenerateClass : public FUNCTOR {
     // This test class template adapts a DefaultConstructible class to offer
@@ -739,7 +741,26 @@ class DegenerateClass : public FUNCTOR {
     DegenerateClass(const DegenerateClass& original) : FUNCTOR(original) {}
         // Create a 'DegenerateClass' having the same value the specified
         // 'original'.
+
+    void swap(DegenerateClass& other)
+        // Swap the wrapped 'FUNCTOR' object, using ADL with 'std::swap' in
+        // the lookup set.  Note that this method hides any 'swap' method in
+        // the wrapped 'FUNCTOR' class.  Also note that this overload is needed
+        // only so that the free-function 'swap' can be defined, as the native
+        // std library 'swap' function does will not accept this class on AIX
+        // or Visual C++ prior to VC2010.
+    {
+        using std::swap;
+        swap(static_cast<FUNCTOR&>(*this), static_cast<FUNCTOR&>(other));
+    }
 };
+
+template <class FUNCTOR>
+inline
+void swap(DegenerateClass<FUNCTOR>& lhs, DegenerateClass<FUNCTOR>& rhs)
+{
+    lhs.swap(rhs);
+}
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
