@@ -702,42 +702,19 @@ class unordered_map {
         // this method is not exception agnostic.
 
     const_iterator begin() const;
-        // Return an iterator providing non-modifiable access to the first
-        // 'value_type' object in the sequence of 'value_type' objects
-        // maintained by this unordered map, or the 'end' iterator if this
-        // unordered map is empty.
-
-    const_iterator end() const;
-        // Return an iterator providing non-modifiable access to the
-        // past-the-end element in the sequence of 'value_type' objects
-        // maintained by this unordered map.
-
     const_iterator cbegin() const;
         // Return an iterator providing non-modifiable access to the first
         // 'value_type' object in the sequence of 'value_type' objects
         // maintained by this unordered map, or the 'end' iterator if this
         // unordered map is empty.
 
+    const_iterator end() const;
     const_iterator cend() const;
         // Return an iterator providing non-modifiable access to the
         // past-the-end element in the sequence of 'value_type' objects
         // maintained by this unordered map.
 
     const_local_iterator begin(size_type index) const;
-        // Return a local iterator providing non-modifiable access to the first
-        // 'value_type' object in the sequence of 'value_type' objects of the
-        // bucket having the specified 'index' in the array of buckets
-        // maintained by this unordered map, or the 'end(index)' iterator if
-        // the bucket is empty.  The behavior is undefined unless
-        // 'index < bucket_count()'.
-
-    const_local_iterator end(size_type index) const;
-        // Return a local iterator providing non-modifiable access to the
-        // past-the-end element in the sequence of 'value_type' objects of
-        // the bucket having the specified 'index' in the array of buckets
-        // maintained by this unordered map.  The behavior is undefined unless
-        // 'index < bucket_count()'.
-
     const_local_iterator cbegin(size_type index) const;
         // Return a local iterator providing non-modifiable access to the first
         // 'value_type' object in the sequence of 'value_type' objects of the
@@ -746,9 +723,10 @@ class unordered_map {
         // the bucket is empty.  The behavior is undefined unless
         // 'index < bucket_count()'.
 
+    const_local_iterator end(size_type index) const;
     const_local_iterator cend(size_type index) const;
         // Return a local iterator providing non-modifiable access to the
-        // past-the-end element (in the sequence of 'value_type' objects) of
+        // past-the-end element in the sequence of 'value_type' objects of
         // the bucket having the specified 'index' in the array of buckets
         // maintained by this unordered map.  The behavior is undefined unless
         // 'index < bucket_count()'.
