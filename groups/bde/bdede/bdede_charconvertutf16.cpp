@@ -6,6 +6,7 @@ BSLS_IDENT("$Id$ $CSID$")
 
 #include <bslmf_assert.h>   // 'BSLMF_ASSERT'
 #include <bslmf_issame.h>
+#include <bsls_assert.h>
 
 #include <bsl_climits.h>    // 'CHAR_BIT'
 
@@ -642,20 +643,18 @@ BSLMF_ASSERT(sizeof(bsl::wstring::value_type) >= sizeof(unsigned short));
 
 static
 bsl::size_t utf16BufferLength(const char *srcBuffer)
-{
-    // This routine will calculate the size, in shorts, of the buffer needed
-    // to hold the utf16 translation of the utf8 string 'srcBuffer'.  This
-    // routine will exactly estimate the right size unless an error occurs,
-    // in which case will either still get exactly the right value, or a
-    // slight over estimation.
-    //
-    // This routine will overestimate the size needed in either of two cases:
-    //: o if 'errorCharacter' is 0.  This routine assumes that 'errorCharacter'
-    //:   is non-zero.
+    // Return the number of shorts required to store the translation of the
+    // specified utf8 string 'srcBuffer'.  Note that this routine will exactly
+    // estimate the right size except in two cases, in which case it will
+    // either still return exactly the right value, or a slight over
+    // estimation.  The two cases where this routine will overestimate the size
+    // required are:
+    //: o There are errors and the 'errorCharacter' is 0.  This routine assumes
+    //:   that 'errorCharacter' is non-zero.
     //: o if a four byte sequence is a non-minimal encoding.  This would be
     //:   encoded as a single error character, while we don't decode it so we
     //:   just assume it will result in 2 words output.
-
+{
     bsl::size_t wordsNeeded = 0;
 
     // Working in unsigned makes bit manipulation with widening simpler;
@@ -699,13 +698,13 @@ bsl::size_t utf16BufferLength(const char *srcBuffer)
 template <typename UTF16_CHAR>
 static
 bsl::size_t utf8BufferLength(const UTF16_CHAR *srcBuffer)
+    // This routine will return the length needed in bytes, for a buffer to
+    // hold the zero-terminated utf8 string translated from the specified
+    // zero-terminated utf16 string 'srcBuffer'.  Note that the method will get
+    // the length exactly right unless there are errors and the
+    // 'errorCharacter' is 0, in which case it will slightly over estimate the
+    // necessary length.
 {
-    // This routine estimates the length needed, for a buffer to hold the
-    // zero-terminated utf8 string translated from the zero-terminated utf16
-    // string 'srcBuffer'.
-    //      The method will get the length exactly except if there are errors
-    // and the 'errorCharacter' is 0, in which case it will slightly over
-    // estimate the necessary length.
 
     bsl::size_t bytesNeeded = 0;
 
