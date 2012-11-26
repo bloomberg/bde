@@ -635,45 +635,26 @@ class unordered_multimap
         // multi-map.
 
     const_iterator begin() const;
+    const_iterator cbegin() const;
         // Return an iterator providing non-modifiable access to the first
         // 'value_type' object (in the sequence of 'value_type' objects)
         // maintained by this multi-map, or the 'end' iterator if
         // this multi-map is empty.
 
     const_iterator end() const;
+    const_iterator cend() const;
         // Return an iterator providing non-modifiable access to the
         // past-the-end element (in the sequence of 'value_type' objects)
         // maintained by this multi-map.
 
-    const_iterator cbegin() const;
-        // Return an iterator providing non-modifiable access to the first
-        // 'value_type' object (in the sequence of 'value_type' objects)
-        // maintained by this multi-map, or the 'end' iterator if
-        // this container is empty.
-
-    const_iterator cend() const;
-        // Return an iterator providing non-modifiable access to the
-        // past-the-end element (in the sequence of 'value_type' objects)
-        // maintained by this container.
-
     const_local_iterator begin(size_type index) const;
-        // Return a local iterator providing non-modifiable access to the first
-        // 'value_type' object (in the sequence of 'value_type' objects) of the
-        // bucket having the specified 'index' in the array of buckets
-        // maintained by this container, or the 'end(index)' otherwise.
-
-    const_local_iterator end(size_type index) const;
-        // Return a local iterator providing non-modifiable access to the
-        // past-the-end element (in the sequence of 'value_type' objects) of
-        // the bucket having the specified 'index' in the array of buckets
-        // maintained by this container.
-
     const_local_iterator cbegin(size_type index) const;
         // Return a local iterator providing non-modifiable access to the first
         // 'value_type' object (in the sequence of 'value_type' objects) of the
         // bucket having the specified 'index' in the array of buckets
         // maintained by this container, or the 'end(index)' otherwise.
 
+    const_local_iterator end(size_type index) const;
     const_local_iterator cend(size_type index) const;
         // Return a local iterator providing non-modifiable access to the
         // past-the-end element (in the sequence of 'value_type' objects) of

@@ -630,50 +630,31 @@ class unordered_multiset
 
     // ACCESSORS
     const_iterator begin() const;
-        // Return an iterator providing non-modifiable access to the first
-        // 'value_type' object (in the sequence of 'value_type' objects)
-        // maintained by this multi-set, or the 'end' iterator if this
-        // multi-set is empty.
-
-    const_iterator end() const;
-        // Return an iterator providing non-modifiable access to the
-        // past-the-end element (in the sequence of 'value_type' objects)
-        // maintained by this multi-set.
-
     const_iterator cbegin() const;
         // Return an iterator providing non-modifiable access to the first
         // 'value_type' object (in the sequence of 'value_type' objects)
         // maintained by this multi-set, or the 'end' iterator if this
         // multi-set is empty.
 
+    const_iterator end() const;
     const_iterator cend() const;
         // Return an iterator providing non-modifiable access to the
         // past-the-end element (in the sequence of 'value_type' objects)
         // maintained by this multi-set.
 
     const_local_iterator begin(size_type index) const;
+    const_local_iterator cbegin(size_type index) const;
         // Return a local iterator providing non-modifiable access to the first
         // 'value_type' object (in the sequence of 'value_type' objects) of the
         // bucket having the specified 'index' in the array of buckets
         // maintained by this multi-set, or the 'end(index)' otherwise.
 
     const_local_iterator end(size_type index) const;
-        // Return a local iterator providing non-modifiable access to the
-        // past-the-end element (in the sequence of 'value_type' objects) of
-        // the bucket having the specified 'index' in the array of buckets
-        // maintained by this multi-set.
-
-    const_local_iterator cbegin(size_type index) const;
-        // Return a local iterator providing non-modifiable access to the first
-        // 'value_type' object (in the sequence of 'value_type' objects) of the
-        // bucket having the specified 'index' in the array of buckets
-        // maintained by multi-set, or the 'end(index)' otherwise.
-
     const_local_iterator cend(size_type index) const;
         // Return a local iterator providing non-modifiable access to the
         // past-the-end element (in the sequence of 'value_type' objects) of
         // the bucket having the specified 'index' in the array of buckets
-        // maintained by multi-set.
+        // maintained by this multi-set.
 
     size_type bucket(const key_type& key) const;
         // Return the index of the bucket, in the array of buckets of this
