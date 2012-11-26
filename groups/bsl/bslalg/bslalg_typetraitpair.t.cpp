@@ -2,8 +2,6 @@
 
 #include <bslalg_typetraitpair.h>
 
-#include <bsls_annotation.h>  // for testing
-
 #include <cstdio>
 #include <cstdlib>
 
@@ -121,7 +119,8 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nBREATHING TEST"
                             "\n==============");
 
-        Obj mX BSLS_ANNOTATION_UNUSED;
+        Obj mX;
+        (void) mX;  // Suppress 'unused variable' warnings in non-SAFE modes
 
       } break;
 

@@ -16,7 +16,6 @@
 
 #include <bslmf_assert.h>
 
-#include <bsls_annotation.h>
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_platform.h>
@@ -499,7 +498,8 @@ bool PtrHashSet::insert(void *ptr)
 
     if (bucketArraySize() * d_maxLoadFactor < d_numNodes + 1) {
         grow();
-        bool found BSLS_ANNOTATION_UNUSED = find(&insertionPoint, &bucket, ptr);
+        bool found = find(&insertionPoint, &bucket, ptr);
+        (void) found; // Supress unused variable warnings in non-safe builds.
         BSLS_ASSERT_SAFE(!found);
     }
 
