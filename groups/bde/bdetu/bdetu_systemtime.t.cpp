@@ -226,7 +226,6 @@ int main(int argc, char *argv[])
 //..
 // Next call the utility function 'nowAsDatetimeUtc' to obtain the system time.
 //..
-      usleep(500);  // to prevent round-off error
       bdet_Datetime i1 = bdetu_SystemTime::nowAsDatetimeUtc();
       ASSERT(bdetu_Datetime::epoch() < i1);
       bdet_DatetimeInterval dti = i1 - bdetu_Epoch::epoch();
@@ -237,7 +236,6 @@ int main(int argc, char *argv[])
 //..
       bdet_TimeInterval i2;
       ASSERT(0 == i2);
-      usleep(500);  // to prevent round-off error
       bdetu_SystemTime::loadCurrentTime(&i2);
       ASSERT(0 != i2);
       ASSERT(dti.totalMilliseconds() <= i2.totalMilliseconds());

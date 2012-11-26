@@ -54,7 +54,6 @@ BDES_IDENT("$Id: $")
 //..
 // Next call the utility function 'nowAsDatetimeUtc' to obtain the system time.
 //..
-//    usleep(500);  // to prevent round-off error
 //    bdet_Datetime i1 = bdetu_SystemTime::nowAsDatetimeUtc();
 //    assert(bdetu_Datetime::epoch() < i1);
 //    bdet_DatetimeInterval dti = i1 - bdetu_Epoch::epoch();
@@ -65,7 +64,6 @@ BDES_IDENT("$Id: $")
 //..
 //    bdet_TimeInterval i2;
 //    assert(0 == i2);
-//    usleep(500);  // to prevent round-off error
 //    bdetu_SystemTime::loadCurrentTime(&i2);
 //    assert(0 != i2);
 //    assert(dti.totalMilliseconds() <= i2.totalMilliseconds());
