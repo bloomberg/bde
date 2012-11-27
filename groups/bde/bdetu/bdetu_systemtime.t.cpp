@@ -227,7 +227,7 @@ int main(int argc, char *argv[])
 // Next call the utility function 'nowAsDatetimeUtc' to obtain the system time.
 //..
       bdet_Datetime i1 = bdetu_SystemTime::nowAsDatetimeUtc();
-      ASSERT(bdetu_Datetime::epoch() < i1);
+      ASSERT(bdetu_Epoch::epoch() < i1);
       bdet_DatetimeInterval dti = i1 - bdetu_Epoch::epoch();
       ASSERT(i0.totalMilliseconds() <= dti.totalMilliseconds());
 //..
