@@ -2,6 +2,8 @@
 
 #include <bslstl_unorderedmultiset.h>
 
+#include <bslstl_iterator.h>  // for testing only
+
 #include <bslalg_rangecompare.h>
 
 #include <bslma_allocator.h>
@@ -327,13 +329,9 @@ void testContainerHasData(const CONTAINER&                      x,
         bsl::pair<TestIterator, TestIterator> range =
                               x.equal_range(keyForValue<CONTAINER>(testValue));
 
-#ifndef BSLS_PLATFORM_CMP_SUN
-        const SizeType rangeDist = native_std::distance(range.first, range.second);
+        const SizeType rangeDist = bsl::distance(range.first, range.second);
         LOOP2_ASSERT(countValues,   rangeDist,
                      countValues == rangeDist);
-#else
-        ASSERT(0);
-#endif
 
         ASSERT(range.first == it);
         for(SizeType iterations = nCopies; --iterations; ++it) {
