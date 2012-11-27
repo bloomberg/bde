@@ -296,17 +296,15 @@ class BucketsWrapper {
         d_allocator_p->deallocate(d_buckets);
     }
 
-    // ACCESSORS
-    Bucket * const bucket(int index) const
-        // Return a const pointer referring to the bucket at the specified
-        // 'index'.
+    Bucket * bucket(int index)
+        // Return a pointer referring to the bucket at the specified 'index'.
     {
         return &d_buckets[index];
     }
 
-    Node * const node(int bucketIndex, int position) const
-        // Return a const pointer referring to the node at the specified
-        // 'position' of the bucket at the specified 'bucketIndex'.
+    Node * node(int bucketIndex, int position)
+        // Return a pointer referring to the node at the specified 'position'
+        // of the bucket at the specified 'bucketIndex'.
     {
         Bucket& bucket = d_buckets[bucketIndex];
         Link *link = bucket.d_first_p;
@@ -314,6 +312,25 @@ class BucketsWrapper {
             link = link->nextLink();
         }
         return static_cast<Node *>(link);
+    }
+
+    // ACCESSORS
+    const Bucket * bucket(int index) const
+        // Return a pointer referring to the bucket at the specified 'index'.
+    {
+        return &d_buckets[index];
+    }
+
+    const Node * node(int bucketIndex, int position) const
+        // Return a pointer referring to the node at the specified 'position'
+        // of the bucket at the specified 'bucketIndex'.
+    {
+        const Bucket& bucket = d_buckets[bucketIndex];
+        const Link *link = bucket.d_first_p;
+        for(int p = 0; p < position; ++p) {
+            link = link->nextLink();
+        }
+        return static_cast<const Node *>(link);
     }
 
     int numBuckets() const
