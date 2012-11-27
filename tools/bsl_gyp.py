@@ -14,11 +14,11 @@ import gyp
 def run_gyp(args):
     rc = gyp.main(args)
     if rc != 0:
-        print('bde_gyp.py: error: gyp exited with rc %d' % rc)
+        print('bsl_gyp.py: error: gyp exited with rc %d' % rc)
         sys.exit(rc)
 
 if __name__ == '__main__':
-    main = os.path.join(os.path.abspath(root), 'bde.gyp')
+    main = os.path.join(os.path.abspath(root), 'bsl.gyp')
     common = os.path.join(os.path.abspath(root), 'common.gypi')
     args = sys.argv[1:]
     args.append(main)
