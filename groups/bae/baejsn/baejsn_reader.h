@@ -39,12 +39,11 @@ BDES_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-namespace baejsn {
-                            // ============
-                            // class Reader
-                            // ============
+                            // ===================
+                            // class baejsn_Reader
+                            // ===================
 
-class Reader {
+class baejsn_Reader {
 
   public:
     enum TokenType {
@@ -68,20 +67,21 @@ class Reader {
     bdema_BufferedSequentialAllocator  d_allocator;
     bsl::string                        d_stringBuffer;
     bsl::size_t                        d_cursor;
-    bsl::streambuf                    *d_streambuf_p;
+    bsl::streambuf                    *d_streamBuf_p;
 
+    char                               d_lastChar;
     TokenType                          d_tokenType;
 
     // PRIVATE MANIPULATORS
-    void reloadData();
-    void skipWhitespace();
+    int reloadData();
+    int skipWhitespace();
 
   public:
     // CREATORS
-    Reader(bslma::Allocator *basicAllocator = 0);
+    baejsn_Reader(bslma::Allocator *basicAllocator = 0);
         // Create this reader.
 
-    ~Reader();
+    ~baejsn_Reader();
 
     // MANIPULATORS
 
@@ -90,9 +90,9 @@ class Reader {
     int advanceToNextToken();
 
     // ACCESSORS
-    Type tokenType();
+    TokenType tokenType();
 
-    bslstl::StringRef value();
+    int value(bslstl::StringRef *data);
 };
 
 // ============================================================================
@@ -101,7 +101,7 @@ class Reader {
 
 // CREATORS
 inline
-Reader::Reader(bslma::Allocator *basicAllocator)
+baejsn_Reader::baejsn_Reader(bslma::Allocator *basicAllocator)
 : d_allocator(d_buffer, BAEJSN_BUFSIZE, basicAllocator)
 , d_stringBuffer(&d_allocator)
 , d_cursor(0)
@@ -112,7 +112,7 @@ Reader::Reader(bslma::Allocator *basicAllocator)
 }
 
 inline
-Reader::~Reader()
+baejsn_Reader::~baejsn_Reader()
 {
 }
 
@@ -127,12 +127,11 @@ void baejsn_Reader::reset(bsl::streambuf *streamBuf)
 
 // ACCESSORS
 inline
-Type baejsn_Reader::tokenType()
+baejsn_Reader::TokenType baejsn_Reader::tokenType()
 {
     return d_tokenType;
 }
 
-}  // close package namespace
 }  // close namespace BloombergLP
 
 #endif

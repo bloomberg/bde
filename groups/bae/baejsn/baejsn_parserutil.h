@@ -31,10 +31,6 @@ BDES_IDENT("$Id: $")
 #include <bsl_limits.h>
 #endif
 
-#ifndef INCLUDED_BSL_STREAMBUF
-#include <bsl_streambuf.h>
-#endif
-
 #ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
 #endif
@@ -57,74 +53,25 @@ class bdet_DatetimeTz;
                             // ========================
 
 struct baejsn_ParserUtil {
-  private:
 
+  private:
     // PRIVATE CLASS METHODS
     template <typename TYPE>
-    static int getDateAndTimeValue(bsl::streambuf *streamBuf,
-                                   TYPE           *value,
-                                   int             maxLength);
+    static int getDateAndTimeValue(TYPE              *value,
+                                   bslstl::StringRef  data,
+                                   int                maxLength);
 
     template <typename TYPE>
-    static int getIntegralValue(bsl::streambuf *streamBuf, TYPE *value);
+    static int getIntegralValue(TYPE *value, bslstl::StringRef data);
 
-    static int getUint64(bsl::streambuf      *streamBuf,
-                         bsls::Types::Uint64 *value);
+    static int getUint64(bsls::Types::Uint64 *value, bslstl::StringRef data);
 
-    static int getDouble(bsl::streambuf *streamBuf, double *value);
+    static int getDouble(double *value, bslstl::StringRef data);
+
+    static int getString(bsl::string *value, bslstl::StringRef data);
 
   public:
     // CLASS METHODS
-    static void skipSpaces(bsl::streambuf *streamBuf);
-        // Read characters from the specified 'streamBuf' until a
-        // non-whitespace character is encountered.  Note that the function
-        // also returns if the end of file is reached before a non-whitespace
-        // character.
-
-    static int getString(bsl::streambuf *streamBuf, bsl::string *value);
-        // Load into the specified 'value' the sequence of unicode characters
-        // enclosed within quotes read from the specified 'streamBuf' ignoring
-        // any leading whitespace characters.  Return 0 on success and a
-        // non-zero value otherwise.  Note that an error is returned if the end
-        // of file is reached before the trailing quote.
-
-    static int eatToken(bsl::streambuf *streamBuf, const char *token);
-        // Read the characters in the specified 'token' from the specified
-        // 'streamBuf' and advance the get pointer to the character just after
-        // the matched string, with no effect otherwise.  Return 0 if a match
-        // is found, and a non-zero value otherwise.
-
-    static int advancePastWhitespaceAndToken(bsl::streambuf *streamBuf,
-                                             char            token);
-        // Read characters from the specified 'streamBuf' until the specified
-        // 'token' is encountered and skipping any whitespace characters.
-        // Return 0 on success or a non-zero value on failure.  Note that an
-        // error is returned if either the end of file is encountered or the
-        // first non-whitespace character is not 'token'.
-
-    static int getValue(bsl::streambuf *streamBuf, bool                *value);
-    static int getValue(bsl::streambuf *streamBuf, char                *value);
-    static int getValue(bsl::streambuf *streamBuf, unsigned char       *value);
-    static int getValue(bsl::streambuf *streamBuf, signed char         *value);
-    static int getValue(bsl::streambuf *streamBuf, short               *value);
-    static int getValue(bsl::streambuf *streamBuf, unsigned short      *value);
-    static int getValue(bsl::streambuf *streamBuf, int                 *value);
-    static int getValue(bsl::streambuf *streamBuf, unsigned int        *value);
-    static int getValue(bsl::streambuf *streamBuf, bsls::Types::Int64  *value);
-    static int getValue(bsl::streambuf *streamBuf, bsls::Types::Uint64 *value);
-    static int getValue(bsl::streambuf *streamBuf, float               *value);
-    static int getValue(bsl::streambuf *streamBuf, double              *value);
-    static int getValue(bsl::streambuf *streamBuf, bsl::string         *value);
-    static int getValue(bsl::streambuf *streamBuf, bdet_Date           *value);
-    static int getValue(bsl::streambuf *streamBuf, bdet_Datetime       *value);
-    static int getValue(bsl::streambuf *streamBuf, bdet_DatetimeTz     *value);
-    static int getValue(bsl::streambuf *streamBuf, bdet_DateTz         *value);
-    static int getValue(bsl::streambuf *streamBuf, bdet_Time           *value);
-    static int getValue(bsl::streambuf *streamBuf, bdet_TimeTz         *value);
-        // Load into the specified 'value' the characters read from the
-        // specified 'streamBuf'.  Return 0 on success or a non-zero value on
-        // failure.
-
     static int getValue(bool                *value, bslstl::StringRef data);
     static int getValue(char                *value, bslstl::StringRef data);
     static int getValue(unsigned char       *value, bslstl::StringRef data);
@@ -157,45 +104,18 @@ struct baejsn_ParserUtil {
                             // struct baejsn_ParserUtil
                             // ------------------------
 
-// PRIVATE CLASS METHODS
+// CLASS METHODS
 template <typename TYPE>
-int baejsn_ParserUtil::getDateAndTimeValue(bsl::streambuf *streamBuf,
-                                           TYPE           *value,
-                                           int             maxLength)
+int baejsn_ParserUtil::getIntegralValue(TYPE *value, bslstl::StringRef data)
 {
-    bsl::string valueString;
-    if (0 != getString(streamBuf, &valueString)) {
-        return -1;                                                    // RETURN
-    }
-
-    return valueString.length() <= static_cast<unsigned int>(maxLength)
-         ? bdepu_Iso8601::parse(value,
-                                valueString.data(),
-                                static_cast<int>(valueString.length()))
-         : -1;
-}
-
-template <typename TYPE>
-int baejsn_ParserUtil::getIntegralValue(bsl::streambuf *streamBuf,
-                                        TYPE           *value)
-{
-    // This function is used to decode all integral types except
-    // 'bsls::Types::Int64' and 'bsls::Types::Uint64'.  The current 'getValue'
-    // overload for those two types could be used for all integral types but
-    // the 'getDouble' implementation is much more efficient.
-
-    double tmp;
-    int rc = getDouble(streamBuf, &tmp);
+    bsls::Types::Uint64 tmp;
+    int rc = getUint64(&tmp, data);
     if (rc) {
         return -1;                                                    // RETURN
     }
 
-    const double tolerance = 0.99;
-    const double low       = tmp + tolerance;    // accept -TYPE_MIN.99
-    const double hi        = tmp - tolerance;    // accept  TYPE_MAX.99
-
-    if (low < static_cast<double>(bsl::numeric_limits<TYPE>::min())
-     || hi  > static_cast<double>(bsl::numeric_limits<TYPE>::max())) {
+    if (tmp >
+          static_cast<bsls::Types::Uint64>(bsl::numeric_limits<TYPE>::max())) {
         return -1;                                                    // RETURN
     }
 
@@ -203,14 +123,25 @@ int baejsn_ParserUtil::getIntegralValue(bsl::streambuf *streamBuf,
     return 0;
 }
 
-// CLASS METHODS
-inline
-int baejsn_ParserUtil::getValue(bsl::streambuf *streamBuf, bool *value)
+template <typename TYPE>
+int baejsn_ParserUtil::getDateAndTimeValue(TYPE              *value,
+                                           bslstl::StringRef  data,
+                                           int                maxLength)
 {
-    if (0 == eatToken(streamBuf, "true")) {
+    return data.length() <= static_cast<unsigned int>(maxLength)
+         ? bdepu_Iso8601::parse(value,
+                                data.data(),
+                                static_cast<int>(data.length()))
+         : -1;
+}
+
+inline
+int baejsn_ParserUtil::getValue(bool *value, bslstl::StringRef data)
+{
+    if (0 == bsl::strcmp(data.data(), "true")) {
         *value = true;
     }
-    else if (0 == eatToken(streamBuf, "false")) {
+    else if (0 == bsl::strcmp(data.data(), "false")) {
         *value = false;
     }
     else {
@@ -220,77 +151,60 @@ int baejsn_ParserUtil::getValue(bsl::streambuf *streamBuf, bool *value)
 }
 
 inline
-int baejsn_ParserUtil::getValue(bsl::streambuf *streamBuf,
-                                   char           *value)
+int baejsn_ParserUtil::getValue(unsigned char *value, bslstl::StringRef data)
 {
-    bsl::string valueString;
+    return getIntegralValue(value, data);
+}
 
-    if (0 == getString(streamBuf, &valueString) && 1 == valueString.length()) {
-        *value = valueString[0];
-        return 0;                                                     // RETURN
+inline
+int baejsn_ParserUtil::getValue(signed char *value, bslstl::StringRef data)
+{
+    return getValue((char *) value, data);
+}
+
+inline
+int baejsn_ParserUtil::getValue(short *value, bslstl::StringRef data)
+{
+    return getIntegralValue(value, data);
+}
+
+inline
+int baejsn_ParserUtil::getValue(unsigned short *value, bslstl::StringRef data)
+{
+    return getIntegralValue(value, data);
+}
+
+inline
+int baejsn_ParserUtil::getValue(int *value, bslstl::StringRef data)
+{
+    return getIntegralValue(value, data);
+}
+
+inline
+int baejsn_ParserUtil::getValue(unsigned int *value, bslstl::StringRef data)
+{
+    return getIntegralValue(value, data);
+}
+
+inline
+int baejsn_ParserUtil::getValue(bsls::Types::Int64 *value,
+                                bslstl::StringRef   data)
+{
+    if (0 == data.length()) {
+        return -1;                                                    // RETURN
     }
-    return -1;
-}
-
-inline
-int baejsn_ParserUtil::getValue(bsl::streambuf *streamBuf,
-                                   unsigned char  *value)
-{
-    return getIntegralValue(streamBuf, value);
-}
-
-inline
-int baejsn_ParserUtil::getValue(bsl::streambuf *streamBuf,
-                                   signed char    *value)
-{
-    return getValue(streamBuf, (char *) value);
-}
-
-inline
-int baejsn_ParserUtil::getValue(bsl::streambuf *streamBuf, short *value)
-{
-    return getIntegralValue(streamBuf, value);
-}
-
-inline
-int baejsn_ParserUtil::getValue(bsl::streambuf *streamBuf,
-                                   unsigned short *value)
-{
-    return getIntegralValue(streamBuf, value);
-}
-
-inline
-int baejsn_ParserUtil::getValue(bsl::streambuf *streamBuf, int *value)
-{
-    return getIntegralValue(streamBuf, value);
-}
-
-inline
-int baejsn_ParserUtil::getValue(bsl::streambuf *streamBuf,
-                                   unsigned int   *value)
-{
-    return getIntegralValue(streamBuf, value);
-}
-
-inline
-int baejsn_ParserUtil::getValue(bsl::streambuf     *streamBuf,
-                                   bsls::Types::Int64 *value)
-{
-    skipSpaces(streamBuf);
-
-    int ch = streamBuf->sgetc();
 
     bool isNegative;
-    if ('-' == ch) {
+    if ('-' == data[0]) {
         isNegative = true;
-        streamBuf->snextc();
+        data.assign(data.begin() + 1, data.end());
     }
     else {
         isNegative = false;
     }
 
     bsls::Types::Uint64 tmp = 0;
-    if (0 != getUint64(streamBuf, &tmp)) {
+    if (0 != getUint64(&tmp, data)) {
         return -1;                                                    // RETURN
     }
 
@@ -309,23 +223,17 @@ int baejsn_ParserUtil::getValue(bsl::streambuf     *streamBuf,
 }
 
 inline
-int baejsn_ParserUtil::getValue(bsl::streambuf      *streamBuf,
-                                bsls::Types::Uint64 *value)
+int baejsn_ParserUtil::getValue(bsls::Types::Uint64 *value,
+                                bslstl::StringRef    data)
 {
-    bsls::Types::Uint64 tmp = 0;
-    const int rc = getUint64(streamBuf, &tmp);
-    if (!rc) {
-        *value = tmp;
-    }
-    return rc;
+    return getIntegralValue(value, data);
 }
 
 inline
-int baejsn_ParserUtil::getValue(bsl::streambuf *streamBuf,
-                                   float          *value)
+int baejsn_ParserUtil::getValue(float *value, bslstl::StringRef data)
 {
     double tmp;
-    const int rc = getDouble(streamBuf, &tmp);
+    const int rc = getDouble(&tmp, data);
     if (!rc) {
         *value = static_cast<float>(tmp);
     }
@@ -333,86 +241,63 @@ int baejsn_ParserUtil::getValue(bsl::streambuf *streamBuf,
 }
 
 inline
-int baejsn_ParserUtil::getValue(bsl::streambuf *streamBuf,
-                                   double         *value)
+int baejsn_ParserUtil::getValue(double *value, bslstl::StringRef data)
 {
-    return getDouble(streamBuf, value);
+    return getDouble(value, data);
 }
 
 inline
-int baejsn_ParserUtil::getValue(bsl::streambuf *streamBuf,
-                                bsl::string    *value)
+int baejsn_ParserUtil::getValue(bsl::string *value, bslstl::StringRef data)
 {
-    return getString(streamBuf, value);
+    return getString(value, data);
 }
 
 inline
-int baejsn_ParserUtil::getValue(bsl::streambuf *streamBuf,
-                                   bdet_Date      *value)
+int baejsn_ParserUtil::getValue(bdet_Date *value, bslstl::StringRef data)
 {
     enum { MAX_LENGTH = bdepu_Iso8601::BDEPU_DATE_STRLEN };
 
-    return getDateAndTimeValue(streamBuf, value, MAX_LENGTH);
+    return getDateAndTimeValue(value, data, MAX_LENGTH);
 }
 
 inline
-int baejsn_ParserUtil::getValue(bsl::streambuf *streamBuf,
-                                   bdet_Datetime  *value)
+int baejsn_ParserUtil::getValue(bdet_Datetime *value, bslstl::StringRef data)
 {
     enum { MAX_LENGTH = bdepu_Iso8601::BDEPU_DATETIME_STRLEN };
 
-    return getDateAndTimeValue(streamBuf, value, MAX_LENGTH);
+    return getDateAndTimeValue(value, data, MAX_LENGTH);
 }
 
 inline
-int baejsn_ParserUtil::getValue(bsl::streambuf  *streamBuf,
-                                   bdet_DatetimeTz *value)
+int baejsn_ParserUtil::getValue(bdet_DatetimeTz *value, bslstl::StringRef data)
 {
     enum { MAX_LENGTH = bdepu_Iso8601::BDEPU_DATETIMETZ_STRLEN };
 
-    return getDateAndTimeValue(streamBuf, value, MAX_LENGTH);
+    return getDateAndTimeValue(value, data, MAX_LENGTH);
 }
 
 inline
-int baejsn_ParserUtil::getValue(bsl::streambuf *streamBuf,
-                                   bdet_DateTz    *value)
+int baejsn_ParserUtil::getValue(bdet_DateTz *value, bslstl::StringRef data)
 {
     enum { MAX_LENGTH = bdepu_Iso8601::BDEPU_DATETZ_STRLEN };
 
-    return getDateAndTimeValue(streamBuf, value, MAX_LENGTH);
+    return getDateAndTimeValue(value, data, MAX_LENGTH);
 }
 
 inline
-int baejsn_ParserUtil::getValue(bsl::streambuf *streamBuf,
-                                   bdet_Time      *value)
+int baejsn_ParserUtil::getValue(bdet_Time *value, bslstl::StringRef data)
 {
     enum { MAX_LENGTH = bdepu_Iso8601::BDEPU_TIME_STRLEN };
 
-    return getDateAndTimeValue(streamBuf, value, MAX_LENGTH);
+    return getDateAndTimeValue(value, data, MAX_LENGTH);
 }
 
 inline
-int baejsn_ParserUtil::getValue(bsl::streambuf *streamBuf,
-                                   bdet_TimeTz    *value)
+int baejsn_ParserUtil::getValue(bdet_TimeTz *value, bslstl::StringRef data)
 {
     enum { MAX_LENGTH = bdepu_Iso8601::BDEPU_TIMETZ_STRLEN };
 
-    return getDateAndTimeValue(streamBuf, value, MAX_LENGTH);
-}
-
-inline
-int baejsn_ParserUtil::getValue(bool *value, bslstl::StringRef data)
-{
-    if (0 == bsl::strcmp(data.data(), "true")) {
-        *value = true;
-    }
-    else if (0 == bsl::strcmp(data.data(), "false")) {
-        *value = false;
-    }
-    else {
-        return -1;                                                    // RETURN
-    }
-    return 0;
+    return getDateAndTimeValue(value, data, MAX_LENGTH);
 }
 
 }  // close namespace BloombergLP

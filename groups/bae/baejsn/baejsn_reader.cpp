@@ -12,8 +12,6 @@ namespace {
     const char *WHITESPACE = " \n\t\v\f\r";
 }
 
-namespace baejsn {
-
                             // --------------------
                             // struct baejsn_Reader
                             // --------------------
@@ -22,7 +20,7 @@ namespace baejsn {
 int baejsn_Reader::reloadData()
 {
     const int numRead = d_streamBuf_p->sgetn(&d_stringBuffer[0],
-                                              BAEJSN_MAX_STRING_SIZE);
+                                             BAEJSN_MAX_STRING_SIZE);
     d_cursor = 0;
     d_stringBuffer.resize(numRead);
     return numRead;
@@ -93,8 +91,9 @@ int baejsn_Reader::advanceToNextToken()
 }
 
 // ACCESSORS
-bslstl::StringRef baejsn_Reader::value()
+int baejsn_Reader::value(bslstl::StringRef *data)
 {
+    // TBD: Double check
     if (BAEJSN_NAME == d_tokenType || BAEJSN_VALUE == d_tokenType) {
         bsl::size_t pos = d_stringBuffer.find_first_of(WHITESPACE, d_cursor);
         if (bsl::string::npos == pos) {
@@ -106,9 +105,9 @@ bslstl::StringRef baejsn_Reader::value()
                                             BAEJSN_MAX_STRING_SIZE - d_cursor);
             if (0 == numRead) {
                 d_stringBuffer.resize(d_cursor);
-                return bslstl::StringRef(d_stringBuffer.data(),
-                                         d_stringBuffer.data() + d_cursor);
-                                                                      // RETURN
+                data->assign(d_stringBuffer.data(),
+                             d_stringBuffer.data() + d_cursor);
+                return 0;                                             // RETURN
             }
 
             do {
@@ -119,11 +118,9 @@ bslstl::StringRef baejsn_Reader::value()
                                             &d_stringBuffer[d_cursor],
                                             BAEJSN_MAX_STRING_SIZE - d_cursor);
                     if (0 == numRead) {
-                        d_stringBuffer.resize(d_cursor);
-                        return bslstl::StringRef(
-                                          d_stringBuffer.data(),
-                                          d_stringBuffer.data() + d_cursor);
-                                                                      // RETURN
+                        data->assign(d_stringBuffer.data(),
+                                     d_stringBuffer.data() + d_cursor);
+                        return 0;                                     // RETURN
                     }
                 }
                 else {
@@ -133,13 +130,12 @@ bslstl::StringRef baejsn_Reader::value()
         }
 
         d_cursor = pos;
-        return bslstl::StringRef(d_stringBuffer.data(),
-                                 d_stringBuffer.begin() + d_cursor);  // RETURN
+        data->assign(d_stringBuffer.data(), d_stringBuffer.begin() + d_cursor);
+        return 0;                                                     // RETURN
     }
-    return bslstl::StringRef(0, 0);
+    return -1;
 }
 
-}  // close package namespace
 }  // close namespace BloombergLP
 
 // ---------------------------------------------------------------------------
