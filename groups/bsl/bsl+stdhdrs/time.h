@@ -24,8 +24,8 @@ BSLS_IDENT("$Id: $")
 */
 
 /*
-// Note that 'time.h' is meant for multiple inclusion on Linux, so only the
-// ident is protected by the include guard.
+// Note that 'time.h' is meant for multiple inclusion on some platforms, so
+// only the ident is protected by the include guard.
 */
 
 #endif  /* INCLUDED_NATIVE_C_TIME */
@@ -34,7 +34,11 @@ BSLS_IDENT("$Id: $")
 #include <bsls_compilerfeatures.h>
 #endif
 
-#if !defined(BSL_OVERRIDES_STD) || !defined(__cplusplus)
+#if !defined(BSL_OVERRIDES_STD) || !defined(__cplusplus) \
+    || defined(BSL_STDHDRS_PROLOGUE_IN_EFFECT)
+        // Don't run the prologue/epilogue pair if we're being included when
+        // the prologue is already in effect.  It can happen because 'time.h'
+        // is designed for multiple inclusion.
 
 #   ifndef INCLUDED_BSL_STDHDRS_INCPATHS
 #   include <bsl_stdhdrs_incpaths.h>
