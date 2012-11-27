@@ -26,6 +26,10 @@ BDES_IDENT_RCSID(bcemt_threadutilimpl_pthread_cpp,"$Id$ $CSID$")
 # include <unistd.h>       // geteuid
 #endif
 
+#if defined(BSLS_PLATFORM_OS_DARWIN)
+# include <unistd.h>            // sysconf
+#endif
+
 namespace BloombergLP {
 
 static inline
@@ -101,6 +105,7 @@ static int initPthreadAttribute(pthread_attr_t                *dest,
     if (Attr::BCEMT_UNSET_STACK_SIZE == stackSize) {
         stackSize = bcemt_Configuration::defaultThreadStackSize();
     }
+
     if (Attr::BCEMT_UNSET_STACK_SIZE != stackSize) {
         // Note that if 'stackSize' is still unset, we just leave the '*dest'
         // to its default, initialized state.
@@ -114,6 +119,7 @@ static int initPthreadAttribute(pthread_attr_t                *dest,
 
         stackSize *= 2;
 #endif
+
 #if defined(PTHREAD_STACK_MIN)
         // Note sometimes PTHREAD_STACK_MIN is a function so cache the call to
         // a variable.
@@ -123,6 +129,17 @@ static int initPthreadAttribute(pthread_attr_t                *dest,
             stackSize = pthreadStackMin;
         }
 #endif
+
+#if defined(BSLS_PLATFORM_OS_DARWIN)
+        // Stack size needs to be a multiple of the system page size.
+        long pageSize = sysconf(_SC_PAGESIZE);
+
+        // Page size is always a power of 2.
+        BSLS_ASSERT_SAFE(pageSize & (pageSize - 1) == 0);
+
+        stackSize = (stackSize & ~(pageSize - 1)) + pageSize;
+#endif
+
         rc |= pthread_attr_setstacksize(dest, stackSize);
     }
 

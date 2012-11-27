@@ -176,8 +176,8 @@ BSLS_IDENT("$Id: $")
 // 'ASSERT' macro).
 
 #ifndef INCLUDED_CSTDIO
-#define INCLUDED_CSTDIO
 #include <cstdio>
+#define INCLUDED_CSTDIO
 #endif
 
 namespace BloombergLP {

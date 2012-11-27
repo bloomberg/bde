@@ -62,9 +62,6 @@ struct bdeu_CStringHash {
     // associative containers such as 'bsl::hash_map' and 'bsl::hash_set'.
     // Note that this class is an empty POD type.
 
-    // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(bdeu_CStringHash, bslalg::TypeTraitsGroupPod);
-
     // STANDARD TYPEDEFS
     typedef const char *argument_type;
     typedef bool result_type;
@@ -94,10 +91,27 @@ struct bdeu_CStringHash {
         // unless both 'argument' is a null-terminated strings.
 };
 
+} // CLose enterprese namespace
+
+// POD TRAITS
+namespace bsl {
+
+template <>
+struct is_trivially_copyable<BloombergLP::bdeu_CStringHash> :
+        bsl::true_type { };
+
+template <>
+struct is_trivially_default_constructible<BloombergLP::bdeu_CStringHash>
+    : bsl::true_type { };
+
+} // Close namespace bsl
+
+
 // ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
+namespace BloombergLP {
 
                         // -----------------------
                         // struct bdeu_CStringHash

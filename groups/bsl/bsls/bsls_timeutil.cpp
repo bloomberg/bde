@@ -11,7 +11,6 @@ BSLS_IDENT("$Id$ $CSID$")
 
 #if defined BSLS_PLATFORM_OS_UNIX
     #include <time.h>      // NOTE: <ctime> conflicts with <sys/time.h>
-    #include <sys/time.h>  // gethrtime()
     #include <sys/times.h> // struct tms, times()
     #include <unistd.h>    // sysconf(), _SC_CLK_TCK
 #elif defined BSLS_PLATFORM_OS_WINDOWS
@@ -20,6 +19,12 @@ BSLS_IDENT("$Id$ $CSID$")
     #include <sys/timeb.h> // ftime(struct timeb *)
 #else
     #error "Don't know how to get nanosecond time for this platform"
+#endif
+
+#if defined(BSLS_PLATFORM_OS_SOLARIS)
+    #include <sys/time.h>  // gethrtime()
+#elif defined(BSLS_PLATFORM_OS_DARWIN)
+    #include <sys/time.h>  // gettimeofday()
 #endif
 
 namespace BloombergLP {
@@ -71,7 +76,7 @@ void UnixTimerUtil::systemProcessTimers(clock_t *systemTimer,
                                         clock_t *userTimer)
 {
     struct tms processTimes;
-    if (-1 == ::times(&processTimes)) {
+    if (static_cast<clock_t>(-1) == ::times(&processTimes)) {
         *systemTimer = 0;
         *userTimer   = 0;
         return;                                                       // RETURN
@@ -485,7 +490,7 @@ TimeUtil::convertRawTime(TimeUtil::OpaqueNativeTime rawTime)
 
     return rawTime.d_opaque;
 
-#elif defined BSLS_PLATFORM_OS_LINUX
+#elif defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_CYGWIN)
 
     const Types::Int64 G = 1000000000;
     return ((Types::Int64) rawTime.tv_sec * G + rawTime.tv_nsec);
@@ -587,7 +592,7 @@ void TimeUtil::getTimerRaw(TimeUtil::OpaqueNativeTime *timeValue)
     Types::Int64 t2 = (Types::Int64) gethrtime();
     timeValue->d_opaque = t2 > t1 ? t2 : t1;
 
-#elif defined BSLS_PLATFORM_OS_LINUX
+#elif defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_CYGWIN)
 
     // The call to 'clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &ts)' has never
     // been observed to be non-monotonic when tested at better than 1 parts in

@@ -8,7 +8,7 @@
 BSLS_IDENT("$Id: $")
 
 /*
-//@PURPOSE: Provide functionality of the corresponding C++ Standard header
+//@PURPOSE: Provide functionality of the corresponding C++ Standard header.
 //
 //@SEE_ALSO: package bsl+stdhdrs
 //
@@ -24,11 +24,15 @@ BSLS_IDENT("$Id: $")
 */
 
 /*
-// Note that 'time.h' is meant for multiple inclusion on linux - therefore only
-// the ident is protected by the guard.
+// Note that 'time.h' is meant for multiple inclusion on Linux, so only the
+// ident is protected by the include guard.
 */
 
 #endif  /* INCLUDED_NATIVE_C_TIME */
+
+#ifndef INCLUDED_BSLS_COMPILERFEATURES
+#include <bsls_compilerfeatures.h>
+#endif
 
 #if !defined(BSL_OVERRIDES_STD) || !defined(__cplusplus)
 
@@ -36,8 +40,7 @@ BSLS_IDENT("$Id: $")
 #   include <bsl_stdhdrs_incpaths.h>
 #   endif
 
-#   if defined(BSLS_PLATFORM_CMP_GNU) && \
-                                        (BSLS_PLATFORM_CMP_VER_MAJOR >= 40300)
+#   if defined(BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT)
 #     include_next <time.h>
 #   else
 #     include BSL_NATIVE_C_LIB_HEADER(time.h)
@@ -58,8 +61,7 @@ BSLS_IDENT("$Id: $")
 #   include <bsl_stdhdrs_incpaths.h>
 #   endif
 
-#   if defined(BSLS_PLATFORM_CMP_GNU) && \
-                                        (BSLS_PLATFORM_CMP_VER_MAJOR >= 40300)
+#   if defined(BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT)
 #     include_next <time.h>
 #   else
 #     include BSL_NATIVE_C_LIB_HEADER(time.h)
@@ -77,12 +79,12 @@ BSLS_IDENT("$Id: $")
 #endif  /* BSL_OVERRIDES_STD */
 
 /*
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2009
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------
 */

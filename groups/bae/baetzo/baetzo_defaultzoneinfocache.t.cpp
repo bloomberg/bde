@@ -969,6 +969,7 @@ int main(int argc, char *argv[])
             // TBD: find a better way to determine which path will be returned
             // on a build machine.
 
+            // /bb/data/datetime/zoneinfo is Bloomberg-specific
             LOOP2_ASSERT( L_, RESULT,
                         0 == strcmp(RESULT, "/bb/data/datetime/zoneinfo/")
                      || 0 == strcmp(RESULT, "/usr/share/lib/zoneinfo/")
@@ -1063,7 +1064,7 @@ int main(int argc, char *argv[])
             // LINE   EXP_PATH
             // ----   --------
 
-            L_,       "/bb/data/datetime/zoneinfo/",
+            L_,       "/bb/data/datetime/zoneinfo/",  // Bloomberg-specific
             L_,       "/usr/share/lib/zoneinfo/",
         };
         const int NUM_VALUES = sizeof(VALUES) / sizeof(*VALUES);
@@ -1204,6 +1205,12 @@ int main(int argc, char *argv[])
     if (testStatus > 0) {
         cerr << "Error, non-zero test status = " << testStatus << "." << endl;
     }
+
+    // TBD: multiple test cases use the same path and so cleanup can not occur
+    //      after each test case ends, or else there is a race condition when
+    //      multiple test cases are run in parallel
+    //bdesu_FileUtil::remove("defaultzictest", true);
+
     return testStatus;
 }
 

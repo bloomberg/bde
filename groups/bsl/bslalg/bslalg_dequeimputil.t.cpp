@@ -99,12 +99,12 @@ int main(int argc, char *argv[])
                 typedef bslalg::DequeImpUtil<VALUE_TYPE,                     \
                                             BLOCK_LENGTH> Obj;               \
                                                                              \
-                LOOP_ASSERT(LINE, (bslmf::IsSame<VALUE_TYPE,                 \
-                                                Obj::ValueType>::VALUE));    \
+                LOOP_ASSERT(LINE, (bsl::is_same<VALUE_TYPE,                 \
+                                                Obj::ValueType>::value));    \
                                                                              \
                 LOOP_ASSERT(LINE, Obj::BLOCK_BYTES == sizeof(Obj::Block));   \
-                LOOP_ASSERT(LINE, (bslmf::IsSame<Obj::BlockPtr,              \
-                                               Obj::Block *>::VALUE));       \
+                LOOP_ASSERT(LINE, (bsl::is_same<Obj::BlockPtr,              \
+                                               Obj::Block *>::value));       \
             }
 
         TEST_DEQUE_IMP(L_, char, 1);

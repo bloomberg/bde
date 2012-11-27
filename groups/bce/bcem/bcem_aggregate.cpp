@@ -374,7 +374,7 @@ void bcem_Aggregate::init(
     isNull_sp.createInplace(allocator, 0);
     d_isTopLevelAggregateNullRep_p = isNull_sp.rep();
     d_isTopLevelAggregateNullRep_p->acquireRef();
-    d_aggregateRaw.setTopLevelAggregateNullnessPointer(isNull_sp.ptr());
+    d_aggregateRaw.setTopLevelAggregateNullness(isNull_sp.ptr());
 
     valueRepProtctor.release();
     schemaRepProctor.release();
@@ -411,9 +411,9 @@ void bcem_Aggregate::init(
 
 const bcem_Aggregate
 bcem_Aggregate::makeError(bcem_ErrorCode::Code  errorCode,
-                          const char                *msg, ...) const
+                          const char           *msg, ...) const
 {
-    if (0 == errorCode || isError()) {
+    if (bcem_ErrorCode::BCEM_SUCCESS == errorCode || isError()) {
 
         // Return this object if success is being returned or this object is
         // already an error.
@@ -771,11 +771,13 @@ const bcem_Aggregate bcem_Aggregate::fieldById(int fieldId) const
     }
 }
 
-const bcem_Aggregate bcem_Aggregate::fieldByIndex(int index) const
+const bcem_Aggregate bcem_Aggregate::fieldByIndex(int fieldIndex) const
 {
     bcem_AggregateRaw    field;
     bcem_ErrorAttributes errorDescription;
-    if (0 == d_aggregateRaw.fieldByIndex(&field, &errorDescription, index)) {
+    if (0 == d_aggregateRaw.fieldByIndex(&field,
+                                         &errorDescription,
+                                         fieldIndex)) {
         return bcem_Aggregate(field,
                               d_schemaRep_p,
                               d_valueRep_p,
@@ -785,7 +787,6 @@ const bcem_Aggregate bcem_Aggregate::fieldByIndex(int index) const
         return makeError(errorDescription);                           // RETURN
     }
 }
-
 
 const bcem_Aggregate bcem_Aggregate::anonymousField(int n) const
 {
@@ -1123,8 +1124,7 @@ bcem_Aggregate::cloneData(bslma_Allocator *basicAllocator) const
         bcema_SharedPtr<int> isNull_sp;
         isNull_sp.createInplace(allocator, isNul2());
 
-        returnVal.d_aggregateRaw.setTopLevelAggregateNullnessPointer(
-                                                              isNull_sp.ptr());
+        returnVal.d_aggregateRaw.setTopLevelAggregateNullness(isNull_sp.ptr());
 
         bcema_SharedPtrRep *isNullRep = isNull_sp.rep();
         bsl::swap(returnVal.d_isTopLevelAggregateNullRep_p, isNullRep);

@@ -1356,8 +1356,9 @@ int main(int argc, char *argv[])
         //  to be 100 milliseconds.
 #if defined BSLS_PLATFORM_OS_SOLARIS || defined BSLS_PLATFORM_OS_FREEBSD
         const Int64 timeQuantum = nsecsPerSec / CLK_TCK;
-#elif defined BSLS_PLATFORM_OS_LINUX || defined BSLS_PLATFORM_OS_AIX \
-   || defined BSLS_PLATFORM_OS_HPUX || defined(BSLS_PLATFORM_OS_DARWIN)
+#elif defined BSLS_PLATFORM_OS_LINUX || defined BSLS_PLATFORM_OS_AIX    \
+   || defined BSLS_PLATFORM_OS_HPUX  || defined BSLS_PLATFORM_OS_DARWIN \
+   || defined BSLS_PLATFORM_OS_CYGWIN
         const Int64 timeQuantum = nsecsPerSec / sysconf(_SC_CLK_TCK);
                                         // On our local flavor of Linux, old
                                         // POSIX requirements and immoderate

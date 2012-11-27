@@ -2,8 +2,10 @@
 
 #include <bsls_platform.h>
 
+#include <cstdio>      // 'printf'
 #include <cstdlib>     // 'atoi'
 #include <iostream>
+
 
 using namespace BloombergLP;
 using namespace std;
@@ -114,7 +116,7 @@ int main(int argc, char *argv[])
     switch (test) { case 0:
       case 4: {
         // --------------------------------------------------------------------
-        // DUMPING VALUES OF OLD '__' LITERALS 
+        // DUMPING VALUES OF OLD '__' LITERALS
         //
         // Concerns:
         //   It is hard to tell which old literals are enabled and which

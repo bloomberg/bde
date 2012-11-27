@@ -23,12 +23,17 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// The component under test contains the simple meta-function 'bslmf::If'.  The
-// meta-function is tested by enumeration of all combinations of (1) 'true' and
-// 'false' conditions, and (2) defaulting of zero, one, or two of the type
-// arguments to 'bslmf::Nil'.
+// The objects under test are two meta-functions, 'bsl::enable_if' and
+// 'bslmf::EnableIf', that provides a 'typedef' 'type' only if a (template
+// parameter) condition is 'true'.  Since both meta-functions provides idential
+// functionality, they are both tested by enumeration of all combinations of
+// 'true' and 'false' ocnditions.
 //-----------------------------------------------------------------------------
-// [ 1] bslmf::If<CONDITION, IF_TRUE_TYPE, IF_FALSE_TYPE>
+// [ 2] bsl::enable_if
+// [ 1] bslmf::EnableIf
+//
+// ----------------------------------------------------------------------------
+// [ 5] USAGE EXAMPLE
 
 //=============================================================================
 //                  STANDARD BDE ASSERT TEST MACRO
@@ -66,6 +71,8 @@ static void aSsErT(bool b, const char *s, int i) {
 //                    GLOBAL TEST TYPES AND FUNCTIONS
 //-----------------------------------------------------------------------------
 
+namespace {
+
 class DummyClass {
 };
 
@@ -88,6 +95,26 @@ typename bslmf::EnableIf<!COND, int>::type testMutuallyExclusiveFunction()
     return 2;
 }
 
+template <bool COND>
+void testFunctionBsl() {}
+
+template <bool COND>
+typename bsl::enable_if<COND, void>::type testFunctionBsl(){}
+
+
+template <bool COND>
+typename bsl::enable_if<COND, int>::type testMutuallyExclusiveFunctionBsl()
+{
+    return 1;
+}
+
+template <bool COND>
+typename bsl::enable_if<!COND, int>::type testMutuallyExclusiveFunctionBsl()
+{
+    return 2;
+}
+
+}  // close unnamed namespace
 
 //=============================================================================
 //                GLOBAL TYPES AND FUNCTIONS FOR USAGE EXAMPLE
@@ -95,7 +122,7 @@ typename bslmf::EnableIf<!COND, int>::type testMutuallyExclusiveFunction()
 
 ///Usage
 //------
-// The following snippets of code illustrate basic use of the 'bslmf::EnableIf'
+// The following snippets of code illustrate basic use of the 'bsl::enable_if'
 // meta-function.  We will demonstrate how to use this utility to control
 // overload sets with three increasingly complex examples.
 //
@@ -117,15 +144,14 @@ typename bslmf::EnableIf<!COND, int>::type testMutuallyExclusiveFunction()
 // method:
 //..
     template<class T>
-    struct HasMemberSwap {
+    struct HasMemberSwap : bsl::false_type {
         // This traits class indicates whether the specified template type
         // parameter 'T' has a public 'swap' method to exchange values.
-        static const bool VALUE = false;
     };
 //..
 // Now we can implement a generic 'Swap' function template that will invoke the
 // member swap operation for any type that specialized our trait.  The use of
-// 'bslmf::EnableIf' to declare the result type causes an attempt to deduce the
+// 'bsl::enable_if' to declare the result type causes an attempt to deduce the
 // type 'T' to fail unless the specified condition is 'true', and this falls
 // under the "Substitution Failure Is Not An Error" (SFINAE) clause of the C++
 // standard, so the compiler will look for a more suitable overload rather than
@@ -136,14 +162,14 @@ typename bslmf::EnableIf<!COND, int>::type testMutuallyExclusiveFunction()
 // will ever be present in an overload set.
 //..
     template<class T>
-    typename bslmf::EnableIf<HasMemberSwap<T>::VALUE>::type
+    typename bsl::enable_if<HasMemberSwap<T>::value>::type
     Swap(T& a, T& b)
     {
         a.swap(b);
     }
 
     template<class T>
-    typename bslmf::EnableIf< ! HasMemberSwap<T>::VALUE>::type
+    typename bsl::enable_if< ! HasMemberSwap<T>::value>::type
     Swap(T& a, T& b)
     {
         T temp(a);
@@ -191,8 +217,7 @@ typename bslmf::EnableIf<!COND, int>::type testMutuallyExclusiveFunction()
 // Then we specialize our 'HasMemberSwap' trait for this new container type.
 //..
     template<class T>
-    struct HasMemberSwap<MyContainer<T> > {
-        static const bool VALUE = true;
+    struct HasMemberSwap<MyContainer<T> > : bsl::true_type {
     };
 //..
 // Next we implement the methods of this class:
@@ -255,7 +280,7 @@ typename bslmf::EnableIf<!COND, int>::type testMutuallyExclusiveFunction()
    }
 //..
 // For the next example, we will demonstrate the use of the second template
-// parameter in the 'bslmf::EnableIf' template, which serves as the "result"
+// parameter in the 'bsl::enable_if' template, which serves as the "result"
 // type if the test condition passes.  Assume we want to write a generic
 // function to allow us to cast between pointers of different types.  If the
 // types are polymorphic, we can use 'dynamic_cast' to potentially cast between
@@ -265,8 +290,8 @@ typename bslmf::EnableIf<!COND, int>::type testMutuallyExclusiveFunction()
 //
 //..
     template<class TO, class FROM>
-    typename bslmf::EnableIf<bslmf::IsPolymorphic<FROM>::VALUE &&
-                                               bslmf::IsPolymorphic<TO>::VALUE,
+    typename bsl::enable_if<bsl::is_polymorphic<FROM>::value &&
+                                                bsl::is_polymorphic<TO>::value,
                             TO>::type *
     smart_cast(FROM *from)
         // Returns a pointer to the specified 'TO' type if the specified 'from'
@@ -277,8 +302,8 @@ typename bslmf::EnableIf<!COND, int>::type testMutuallyExclusiveFunction()
     }
 
     template<class TO, class FROM>
-    typename bslmf::EnableIf<not(bslmf::IsPolymorphic<FROM>::VALUE &&
-                                              bslmf::IsPolymorphic<TO>::VALUE),
+    typename bslmf::EnableIf<not(bsl::is_polymorphic<FROM>::value &&
+                                              bsl::is_polymorphic<TO>::value),
                             TO>::type *
     smart_cast(FROM *from)
         // Return the specified 'from' pointer value cast as a pointer to type
@@ -351,7 +376,7 @@ typename bslmf::EnableIf<!COND, int>::type testMutuallyExclusiveFunction()
 // iterator type, forming a valid range.  We need to avoid calling this
 // constructor unless the deduced type really is an iterator, otherwise a
 // compile-error will occur trying to instantiate that constructor with an
-// incompatible argument type.  We use 'bslmf::EnableIf' to create a deduction
+// incompatible argument type.  We use 'bsl::enable_if' to create a deduction
 // context where SFINAE can kick in.  Note that we cannot deduce the '::type'
 // result of a metafunction, and there is no result type (as with a regular
 // function) to decorate, so we add an extra dummy argument using a pointer
@@ -375,8 +400,8 @@ typename bslmf::EnableIf<!COND, int>::type testMutuallyExclusiveFunction()
 
         template<typename FORWARD_ITERATOR>
         MyVector(FORWARD_ITERATOR first, FORWARD_ITERATOR last,
-                    typename bslmf::EnableIf<
-                                 !bslmf::IsFundamental<FORWARD_ITERATOR>::VALUE
+                    typename bsl::enable_if<
+                        !bsl::is_fundamental<FORWARD_ITERATOR>::value
                                                                  >::type * = 0)
             // Create a 'MyVector' object having the same sequence of values as
             // found in range described by the iterators '[first, last)'.
@@ -476,7 +501,7 @@ int main(int argc, char *argv[])
 
 
     switch (test) { case 0:  // Zero is always the leading case.
-     case 4: {
+     case 5: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE 3
         //   This case verifies that the usage example works as advertised.
@@ -498,7 +523,7 @@ int main(int argc, char *argv[])
 
         TestContainerConstructor();
       } break;
-      case 3: {
+      case 4: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE 2
         //   This case verifies that the usage example works as advertised.
@@ -520,7 +545,7 @@ int main(int argc, char *argv[])
 
         TestSmartCast();
       } break;
-      case 2: {
+      case 3: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE 1
         //   This case verifies that the usage example works as advertised.
@@ -542,6 +567,121 @@ int main(int argc, char *argv[])
 
         TestSwap();
       } break;
+      case 2: {
+        // --------------------------------------------------------------------
+        // TESTING 'bsl::enable_if'
+        //   Test the 'bsl::enable_if' meta-function.
+        //
+        // Concerns:
+        //:  1 If the supplied boolean template parameter is true, then
+        //:    'bsl::enable_if' provides a type named 'type' matching the
+        //:    second template parameter.
+        //:
+        //:  2 If the supplied boolean template parameter is 'false', then
+        //:    'bsl::enable_if' does not provide a type named 'type'.
+        //
+        // Plan:
+        //:  1 For a series of possible types, instantiate 'bsl::enable_if'
+        //:    with a first parameter 'true' and the second parameter of the
+        //:    test type.  Verify that 'bsl::enable_if' defines a type 'type'
+        //:    matching the second template parameter type.  (C-1)
+        //:
+        //:  2 Create two instances of a template function parameterized on a
+        //:    boolean, one returning 1, the other returning 2.  If 'true' is
+        //:    supplied as the template parameter, only the first function is
+        //:    part of the overload set, if 'false' is then only the second
+        //:    function is part of the overload set.  Call the template
+        //:    function with both 'true' and 'false', verify that there is no
+        //:    compilation error, and that the return value is 1 and 2
+        //:    respectively (for 'true' and 'false).  (C-2)
+        //:
+        //:  3 Create a two instances of a template function parameterized on a
+        //:    boolean, the first simply returns void, and the second returns a
+        //:    'bsl::enable_if' supplied the boolean parameter value.  (C-2)
+        //:
+        //:    1 Instantiate this template function for 'false' to verify
+        //:      enable-if removes the second implementation from the overload
+        //:      set.
+        //:
+        //:    2 Manually verify that if the template function is instantiated
+        //:      for 'true' that enable-if leaves the second implementation in
+        //:      the overload set, resulting in a compiler diagnostic (for an
+        //:      ambiguous function declaration).
+        //
+        // Testing:
+        //   bsl::enable_if<CONDITION, RESULT_TYPE>
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\n"
+                            "bsl::enable_if\n"
+                            "==============\n");
+
+        if (veryVerbose) printf("\nTest the return type\n");
+
+        {
+            {
+                const bool R =
+                    bslmf::IsSame<bool,
+                                  bsl::enable_if<true, bool>::type >::value;
+                ASSERT(R);
+            }
+            {
+                const bool R =
+                    bslmf::IsSame<int,
+                                  bsl::enable_if<true, int>::type >::value;
+                ASSERT(R);
+            }
+            {
+                const bool R =
+                    bslmf::IsSame<void *,
+                                  bsl::enable_if<true, void *>::type >::value;
+                ASSERT(R);
+            }
+            {
+                const bool R =
+                    bslmf::IsSame<const void *,
+                             bsl::enable_if<true, const void *>::type >::value;
+                ASSERT(R);
+            }
+            {
+                const bool R =
+                    bslmf::IsSame<const volatile void *,
+                    bsl::enable_if<true, const volatile void *>::type >::value;
+                ASSERT(R);
+            }
+            {
+                const bool R =
+                    bslmf::IsSame<DummyClass,
+                               bsl::enable_if<true, DummyClass>::type >::value;
+                ASSERT(R);
+            }
+            {
+                const bool R =
+                    bslmf::IsSame<DummyClass&,
+                              bsl::enable_if<true, DummyClass&>::type >::value;
+                ASSERT(R);
+            }
+        }
+
+        if (veryVerbose) {
+            printf("\nTest whether enabelif modifies the overload set\n");
+        }
+        {
+
+            ASSERT(1 == testMutuallyExclusiveFunctionBsl<true>());
+            ASSERT(2 == testMutuallyExclusiveFunctionBsl<false>());
+        }
+        if (veryVerbose) {
+            printf("\nManually test if enableif modifies the overload set\n");
+        }
+        {
+            testFunctionBsl<false>();
+            // This should fail to compile if un-commented.
+            // testFunctionBsl<true>();
+
+        }
+
+      } break;
       case 1: {
         // --------------------------------------------------------------------
         // TESTING BSLMF_ENABLEIF
@@ -558,20 +698,20 @@ int main(int argc, char *argv[])
         //:  1 For a series of possible types, instantiate 'bslmf::EnableIf'
         //:    with a first parameter 'true' and the second parameter of the
         //:    test type.  Verify that 'bslmf::EnableIf' defines a type 'type'
-        //:    matching the second template parameter type. (C-1)
+        //:    matching the second template parameter type.  (C-1)
         //:
-        //:  2 Create a two instances of a template function parameterized on
-        //:    a boolean, one returning 1, the other returning 2.  If 'true'
-        //:    is supplied as the template parameter, only the first function
-        //:    is part of the overload set, if 'false' is then only the second
+        //:  2 Create two instances of a template function parameterized on a
+        //:    boolean, one returning 1, the other returning 2.  If 'true' is
+        //:    supplied as the template parameter, only the first function is
+        //:    part of the overload set, if 'false' is then only the second
         //:    function is part of the overload set.  Call the template
         //:    function with both 'true' and 'false', verify that there is no
         //:    compilation error, and that the return value is 1 and 2
-        //:    respectively (for 'true' and 'false). (C-2)
+        //:    respectively (for 'true' and 'false).  (C-2)
         //:
         //:  3 Create a two instances of a template function parameterized on
         //:    a boolean, the first simply returns void, and the second returns
-        //:    a 'bslmf::EnableIf' supplied the boolean parameter value. (C-2)
+        //:    a 'bslmf::EnableIf' supplied the boolean parameter value.  (C-2)
         //:
         //:    1 Instantiate this template function for 'false' to verify
         //:      enable-if removes the second implementation from the overload
@@ -595,44 +735,44 @@ int main(int argc, char *argv[])
         {
             {
                 const bool R =
-                    bslmf::IsSame<bool,
-                                  bslmf::EnableIf<true, bool>::type >::VALUE;
+                    bsl::is_same<bool,
+                                  bslmf::EnableIf<true, bool>::type >::value;
                 ASSERT(R);
             }
             {
                 const bool R =
-                    bslmf::IsSame<int,
-                                  bslmf::EnableIf<true, int>::type >::VALUE;
+                    bsl::is_same<int,
+                                  bslmf::EnableIf<true, int>::type >::value;
                 ASSERT(R);
             }
             {
                 const bool R =
-                    bslmf::IsSame<void *,
-                                  bslmf::EnableIf<true, void *>::type >::VALUE;
+                    bsl::is_same<void *,
+                                  bslmf::EnableIf<true, void *>::type >::value;
                 ASSERT(R);
             }
             {
                 const bool R =
-                    bslmf::IsSame<const void *,
-                            bslmf::EnableIf<true, const void *>::type >::VALUE;
+                    bsl::is_same<const void *,
+                            bslmf::EnableIf<true, const void *>::type >::value;
                 ASSERT(R);
             }
             {
                 const bool R =
-                  bslmf::IsSame<const volatile void *,
-                   bslmf::EnableIf<true, const volatile void *>::type >::VALUE;
+                  bsl::is_same<const volatile void *,
+                   bslmf::EnableIf<true, const volatile void *>::type >::value;
                 ASSERT(R);
             }
             {
                 const bool R =
-                  bslmf::IsSame<DummyClass,
-                    bslmf::EnableIf<true, DummyClass>::type >::VALUE;
+                  bsl::is_same<DummyClass,
+                    bslmf::EnableIf<true, DummyClass>::type >::value;
                 ASSERT(R);
             }
             {
                 const bool R =
-                  bslmf::IsSame<DummyClass&,
-                    bslmf::EnableIf<true, DummyClass&>::type >::VALUE;
+                  bsl::is_same<DummyClass&,
+                    bslmf::EnableIf<true, DummyClass&>::type >::value;
                 ASSERT(R);
             }
         }

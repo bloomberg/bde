@@ -191,7 +191,7 @@ BSLS_IDENT("$Id: $")
     #endif
 #endif
 
-#ifdef BSLS_PLATFORM_OS_AIX
+#if defined(BSLS_PLATFORM_OS_AIX) || defined(BSLS_PLATFORM_OS_FREEBSD)
     #ifndef INCLUDED_SYS_TIME
     #include <sys/time.h>
     #define INCLUDED_SYS_TIME
@@ -225,9 +225,9 @@ struct TimeUtil {
 #elif defined BSLS_PLATFORM_OS_AIX
     typedef timebasestruct_t                  OpaqueNativeTime;
 #elif defined BSLS_PLATFORM_OS_HPUX
-    typedef struct { Types::Int64 d_opaque; } OpaqueNativeTime;
-#elif defined BSLS_PLATFORM_OS_LINUX
-    typedef timespec                          OpaqueNativeTime;
+        typedef struct { Types::Int64 d_opaque; } OpaqueNativeTime;
+#elif defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_CYGWIN)
+        typedef timespec                          OpaqueNativeTime;
 #elif defined BSLS_PLATFORM_OS_UNIX
     typedef timeval                           OpaqueNativeTime;
 #elif defined BSLS_PLATFORM_OS_WINDOWS
