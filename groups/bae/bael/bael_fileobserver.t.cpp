@@ -514,7 +514,7 @@ int main(int argc, char *argv[])
             cb.reset();
 
             mX.disableLifetimeRotation();
-            bcemt_ThreadUtil::microSleep(0, 3);
+            bcemt_ThreadUtil::microSleep(0, 6);
             BAEL_LOG_TRACE << "log" << BAEL_LOG_END;
             LOOP_ASSERT(cb.numInvocations(), 0 == cb.numInvocations());
         }
