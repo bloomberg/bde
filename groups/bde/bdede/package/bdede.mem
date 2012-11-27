@@ -6,4 +6,5 @@ bdede_crc32
 bdede_md5
 bdede_quotedprintabledecoder
 bdede_quotedprintableencoder
+bdede_translationstatus
 bdede_utf8util
