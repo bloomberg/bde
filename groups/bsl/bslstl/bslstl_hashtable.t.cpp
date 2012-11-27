@@ -3812,7 +3812,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase1(
     ASSERTV(0 < numValues);
     ASSERTV(8 > numValues);
 
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     if (veryVerbose) {
         printf("Construct an empty HashTable.\n");
@@ -3827,28 +3827,28 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase1(
         ASSERTV(0    == objectAllocator.numBytesInUse());
     }
 
-   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-   if (veryVerbose) {
-       printf("Test use of allocators.\n");
-   }
-   {
-       bslma::TestAllocator objectAllocator1("objectAllocator1");
-       bslma::TestAllocator objectAllocator2("objectAllocator2");
+    if (veryVerbose) {
+        printf("Test use of allocators.\n");
+    }
+    {
+        bslma::TestAllocator objectAllocator1("objectAllocator1");
+        bslma::TestAllocator objectAllocator2("objectAllocator2");
 
-       Obj o1(HASHER(), COMPARATOR(), 0, &objectAllocator1);
-       const Obj& O1 = o1;
-       ASSERTV(&objectAllocator1 == O1.allocator().mechanism());
+        Obj o1(HASHER(), COMPARATOR(), 0, &objectAllocator1);
+        const Obj& O1 = o1;
+        ASSERTV(&objectAllocator1 == O1.allocator().mechanism());
 
-       for (size_t i = 0; i < numValues; ++i) {
+        for (size_t i = 0; i < numValues; ++i) {
 //           o1.insert(Value(testKeys[i], testValues[i]));
-           o1.insert(Value(testKeys[i]));
+            o1.insert(Value(testKeys[i]));
        }
        ASSERTV(numValues == O1.size());
        ASSERTV(0 <  objectAllocator1.numBytesInUse());
        ASSERTV(0 == objectAllocator2.numBytesInUse());
-   }
-   {
+    }
+    {
        bslma::TestAllocator objectAllocator1("objectAllocator1");
        bslma::TestAllocator objectAllocator2("objectAllocator2");
 
@@ -3864,85 +3864,85 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase1(
        ASSERTV(numValues == O1.size());
        ASSERTV(0 <  objectAllocator1.numBytesInUse());
        ASSERTV(0 == objectAllocator2.numBytesInUse());
-   }
-   {
+    }
+    {
 #if defined(TESTING_PAIR_FOR_MAP)
-       bslma::TestAllocator objectAllocator1("objectAllocator1");
-       bslma::TestAllocator objectAllocator2("objectAllocator2");
+        bslma::TestAllocator objectAllocator1("objectAllocator1");
+        bslma::TestAllocator objectAllocator2("objectAllocator2");
 
-       if(veryVerbose) printf("Use a different allocator\n");
-       Obj o1(HASHER(), COMPARATOR(), 0, &objectAllocator1);
-       const Obj& O1 = o1;
-       ASSERTV(&objectAllocator1 == O1.allocator().mechanism());
+        if (veryVerbose) printf("Use a different allocator\n");
+        Obj o1(HASHER(), COMPARATOR(), 0, &objectAllocator1);
+        const Obj& O1 = o1;
+        ASSERTV(&objectAllocator1 == O1.allocator().mechanism());
 
-       for (size_t i = 0; i < numValues; ++i) {
-           o1.insertIfMissing(testKeys[i]);
-       }
+        for (size_t i = 0; i < numValues; ++i) {
+            o1.insertIfMissing(testKeys[i]);
+        }
 
-       ASSERTV(numValues == O1.size());
-       ASSERTV(0 <  objectAllocator1.numBytesInUse());
-       ASSERTV(0 == objectAllocator2.numBytesInUse());
-
-
-       if(veryVerbose) printf("Use a different allocator\n");
-       {
-           bslma::TestAllocatorMonitor monitor(&objectAllocator1);
-           Obj o2(O1, &objectAllocator2); const Obj& O2 = o2;
-           ASSERTV(&objectAllocator2 == O2.allocator().mechanism());
-           ASSERTV(monitor.isInUseSame());
-           ASSERTV(monitor.isTotalSame());
-           ASSERTV(0 <  objectAllocator1.numBytesInUse());
-           ASSERTV(0 <  objectAllocator2.numBytesInUse());
-       }
-       ASSERTV(0 ==  objectAllocator2.numBytesInUse());
+        ASSERTV(numValues == O1.size());
+        ASSERTV(0 <  objectAllocator1.numBytesInUse());
+        ASSERTV(0 == objectAllocator2.numBytesInUse());
 
 
-       if(veryVerbose) printf("Copy construct O2(O1)\n");
+        if (veryVerbose) printf("Use a different allocator\n");
+        {
+            bslma::TestAllocatorMonitor monitor(&objectAllocator1);
+            Obj o2(O1, &objectAllocator2); const Obj& O2 = o2;
+            ASSERTV(&objectAllocator2 == O2.allocator().mechanism());
+            ASSERTV(monitor.isInUseSame());
+            ASSERTV(monitor.isTotalSame());
+            ASSERTV(0 <  objectAllocator1.numBytesInUse());
+            ASSERTV(0 <  objectAllocator2.numBytesInUse());
+        }
+        ASSERTV(0 ==  objectAllocator2.numBytesInUse());
 
-       Obj o2(O1, &objectAllocator1); const Obj& O2 = o2;
 
-       ASSERTV(&objectAllocator1 == O2.allocator().mechanism());
+        if (veryVerbose) printf("Copy construct O2(O1)\n");
 
-       ASSERTV(numValues == O1.size());
-       ASSERTV(numValues == O2.size());
-       ASSERTV(0 <  objectAllocator1.numBytesInUse());
+        Obj o2(O1, &objectAllocator1); const Obj& O2 = o2;
 
-       if(veryVerbose) printf("Default construct O3 and swap with O1\n");
-       Obj o3(HASHER(), COMPARATOR(), 0, &objectAllocator1);
-       const Obj& O3 = o3;
-       ASSERTV(&objectAllocator1 == O3.allocator().mechanism());
+        ASSERTV(&objectAllocator1 == O2.allocator().mechanism());
 
-       ASSERTV(numValues == O1.size());
-       ASSERTV(numValues == O2.size());
-       ASSERTV(0         == O3.size());
-       ASSERTV(0 <  objectAllocator1.numBytesInUse());
+        ASSERTV(numValues == O1.size());
+        ASSERTV(numValues == O2.size());
+        ASSERTV(0 <  objectAllocator1.numBytesInUse());
 
-       bslma::TestAllocatorMonitor monitor1(&objectAllocator1);
-       o1.swap(o3);
-       ASSERTV(0         == O1.size());
-       ASSERTV(numValues == O2.size());
-       ASSERTV(numValues == O3.size());
-       ASSERTV(monitor1.isInUseSame());
-       ASSERTV(monitor1.isTotalSame());
-       ASSERTV(0 <  objectAllocator1.numBytesInUse());
+        if (veryVerbose) printf("Default construct O3 and swap with O1\n");
+        Obj o3(HASHER(), COMPARATOR(), 0, &objectAllocator1);
+        const Obj& O3 = o3;
+        ASSERTV(&objectAllocator1 == O3.allocator().mechanism());
 
-       if(veryVerbose) printf("swap O3 with O2\n");
-       o3.swap(o2);
-       ASSERTV(0         == O1.size());
-       ASSERTV(numValues == O2.size());
-       ASSERTV(numValues == O3.size());
-       ASSERTV(!monitor1.isInUseUp());  // Memory usage may go down depending
+        ASSERTV(numValues == O1.size());
+        ASSERTV(numValues == O2.size());
+        ASSERTV(0         == O3.size());
+        ASSERTV(0 <  objectAllocator1.numBytesInUse());
+
+        bslma::TestAllocatorMonitor monitor1(&objectAllocator1);
+        o1.swap(o3);
+        ASSERTV(0         == O1.size());
+        ASSERTV(numValues == O2.size());
+        ASSERTV(numValues == O3.size());
+        ASSERTV(monitor1.isInUseSame());
+        ASSERTV(monitor1.isTotalSame());
+        ASSERTV(0 <  objectAllocator1.numBytesInUse());
+
+        if (veryVerbose) printf("swap O3 with O2\n");
+        o3.swap(o2);
+        ASSERTV(0         == O1.size());
+        ASSERTV(numValues == O2.size());
+        ASSERTV(numValues == O3.size());
+        ASSERTV(!monitor1.isInUseUp());  // Memory usage may go down depending
                                         // on implementation
-       ASSERTV(!monitor1.isTotalUp());
-       ASSERTV(0 <  objectAllocator1.numBytesInUse());
+        ASSERTV(!monitor1.isTotalUp());
+        ASSERTV(0 <  objectAllocator1.numBytesInUse());
 
-       ASSERTV(&objectAllocator1 == O1.allocator().mechanism());
-       ASSERTV(&objectAllocator1 == O2.allocator().mechanism());
-       ASSERTV(&objectAllocator1 == O3.allocator().mechanism());
+        ASSERTV(&objectAllocator1 == O1.allocator().mechanism());
+        ASSERTV(&objectAllocator1 == O2.allocator().mechanism());
+        ASSERTV(&objectAllocator1 == O3.allocator().mechanism());
 #endif
     }
 
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     if (veryVerbose) {
         printf("Test primary manipulators/accessors on every permutation.\n");
@@ -4033,9 +4033,8 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase1(
         }
     } while (native_std::next_permutation(testKeys,
                                           testKeys + numValues));
-//
-//    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     native_std::random_shuffle(testKeys,  testKeys + numValues);
     if (veryVerbose) {
@@ -4062,12 +4061,19 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase1(
         }
 
         for (size_t i = 0; i < numValues; ++i) {
-            KeyType key = ImpUtil::extractKey<KEY_CONFIG>(x.elementListRoot());
+            Link *const initialRoot = x.elementListRoot();
+            KeyType key = ImpUtil::extractKey<KEY_CONFIG>(initialRoot);
             Link *resIt1 = x.remove(x.elementListRoot());
+            ASSERTV(initialRoot != resIt1);
+            ASSERTV(initialRoot != x.elementListRoot());
+            ASSERTV(x.elementListRoot() == resIt1);
             ASSERTV(x.find(key) == resIt1);
+            
             ASSERTV(X.size(), (2 * numValues - (2 * (i + 1) - 1)) == X.size());
             Link *resIt2 = x.remove(x.elementListRoot());
-            ASSERTV( x.find(key) == 0);
+            ASSERTV(x.elementListRoot() == resIt2);
+            ASSERTV(resIt2 != resIt1);
+            ASSERTV(x.find(key) == 0);
             ASSERTV(X.size(), (2 * numValues - 2 * (i + 1)) == X.size());
         }
     }
