@@ -50,7 +50,7 @@ BSLS_IDENT("$Id: $")
 #endif
 
 #ifndef INCLUDED_BSLSTL_ITERATOR
-#include <bslstl_iterator.h>  // iterator tags
+#include <bslstl_iterator.h>  // iterator tags, distance
 #endif
 
 #ifndef INCLUDED_BSLS_NATIVESTD
@@ -104,12 +104,6 @@ template <class InputIterator>
 native_std::size_t IteratorUtil::insertDistance(InputIterator first,
                                                 InputIterator last)
 {
-#if defined(BSLS_PLATFORM__CMP_SUN)
-    // Need to work around Sun library broken treatment of iterator tag
-    // dispatch.
-
-    return 0;
-#else
     struct impl {
         // This local class provides a utility to estimate the maximum
         // number of elements that may be inserted by a range-insert
@@ -127,14 +121,13 @@ native_std::size_t IteratorUtil::insertDistance(InputIterator first,
                                        InputIterator last,
                                        native_std::forward_iterator_tag)
         {
-            return native_std::distance(first, last);
+            return bsl::distance(first, last);
         }
     };
 
     typedef typename bsl::iterator_traits<InputIterator>::iterator_category
                                                                   IterCategory;
     return impl::calc(first, last, IterCategory());
-#endif
 }
 
 }  // close package namespace

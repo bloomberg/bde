@@ -41,6 +41,7 @@ BSLS_IDENT("$Id: $")
 //                       @_OS_SOLARIS
 //                       @_OS_SUNOS
 //                       @_OS_CYGWIN
+//                       @_OS_DARWIN
 //
 //   @_OS_WINDOWS       @_OS_WIN9X
 //                       @_OS_WINNT

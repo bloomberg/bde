@@ -15,7 +15,7 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: bslmf_typetraits
 //
 //@DESCRIPTION: This component provides a meta-function, 'bslalg::HasTrait',
-// for for macros used to assign traits to user-defined class.  Traits are used
+// for macros used to assign traits to user-defined class.  Traits are used
 // to enable certain optimizations or discriminations at compile-time.  For
 // instance, a class having the trait 'bslalg::TypeTraitBitwiseMoveable' may
 // allow resizing an array of objects by simply calling 'std::memcpy' instead

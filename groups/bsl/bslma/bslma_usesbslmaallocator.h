@@ -1,4 +1,4 @@
-// bslma_usesbslmaallocator.h                  -*-C++-*-
+// bslma_usesbslmaallocator.h                                         -*-C++-*-
 #ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #define INCLUDED_BSLMA_USESBSLMAALLOCATOR
 
@@ -9,9 +9,10 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a metafunction that indicates the use of bslma allocators
 //
-//@CLASSES: bslma::UsesBslmaAllocator<TYPE>
+//@CLASSES: 
+//  bslma::UsesBslmaAllocator<TYPE> : trait detection metafunction 
 //
-//@SEE_ALSO:
+//@SEE_ALSO: bslalg_typetraitusesblsmaallocator
 //
 //@DESCRIPTION:
 //
@@ -44,10 +45,6 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLMF_ASSERT
 #include <bslmf_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PLATFORM
-#include <bsls_platform.h>
 #endif
 
 namespace BloombergLP {
@@ -108,7 +105,7 @@ struct UsesBslmaAllocator
     // This metafunction is derived from 'true_type' if 'TYPE' adheres to the
     // 'bslma' allocator usage idiom and 'false_type' otherwise.  Note that
     // this trait must be explicitly associated with a type in order for this
-    // metafunction to return true; simply havng a constructor that implicitly
+    // metafunction to return true; simply having a constructor that implicitly
     // converts 'bslma::Allocator*' to 'TYPE' is no longer sufficient for
     // considering a type follow the idiom.
 };
