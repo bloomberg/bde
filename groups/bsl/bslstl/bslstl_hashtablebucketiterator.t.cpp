@@ -942,23 +942,25 @@ void TestDriver<VALUE>::testCase6()
             if (b1 != b2) {
                 bsls::AssertFailureHandlerGuard hG(
                                              bsls::AssertTest::failTestDriver);
-                ASSERT_SAFE_FAIL(EXP == (X1 == Y1));
-                ASSERT_SAFE_FAIL(EXP == (Y1 == X1));
-                ASSERT_SAFE_FAIL(EXP == (X1 == Y2));
-                ASSERT_SAFE_FAIL(EXP == (Y2 == X1));
-                ASSERT_SAFE_FAIL(EXP == (X2 == Y1));
-                ASSERT_SAFE_FAIL(EXP == (Y1 == X2));
-                ASSERT_SAFE_FAIL(EXP == (X2 == Y2));
-                ASSERT_SAFE_FAIL(EXP == (Y2 == X2));
+                // Note that the 'ASSERT_XXX_FAIL' macros are testing whether
+                // an assertion is raised, not the result of the expression.
+                ASSERT_SAFE_FAIL(X1 == Y1);
+                ASSERT_SAFE_FAIL(Y1 == X1);
+                ASSERT_SAFE_FAIL(X1 == Y2);
+                ASSERT_SAFE_FAIL(Y2 == X1);
+                ASSERT_SAFE_FAIL(X2 == Y1);
+                ASSERT_SAFE_FAIL(Y1 == X2);
+                ASSERT_SAFE_FAIL(X2 == Y2);
+                ASSERT_SAFE_FAIL(Y2 == X2);
 
-                ASSERT_SAFE_FAIL(!EXP == (X1 != Y1));
-                ASSERT_SAFE_FAIL(!EXP == (Y1 != X1));
-                ASSERT_SAFE_FAIL(!EXP == (X1 != Y2));
-                ASSERT_SAFE_FAIL(!EXP == (Y2 != X1));
-                ASSERT_SAFE_FAIL(!EXP == (X2 != Y1));
-                ASSERT_SAFE_FAIL(!EXP == (Y1 != X2));
-                ASSERT_SAFE_FAIL(!EXP == (X2 != Y2));
-                ASSERT_SAFE_FAIL(!EXP == (Y2 != X2));
+                ASSERT_SAFE_FAIL(X1 != Y1);
+                ASSERT_SAFE_FAIL(Y1 != X1);
+                ASSERT_SAFE_FAIL(X1 != Y2);
+                ASSERT_SAFE_FAIL(Y2 != X1);
+                ASSERT_SAFE_FAIL(X2 != Y1);
+                ASSERT_SAFE_FAIL(Y1 != X2);
+                ASSERT_SAFE_FAIL(X2 != Y2);
+                ASSERT_SAFE_FAIL(Y2 != X2);
             }
             else {
             // Verify value, commutativity
