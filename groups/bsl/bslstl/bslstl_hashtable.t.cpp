@@ -3,7 +3,6 @@
 
 #include <bslstl_equalto.h>
 #include <bslstl_hash.h>
-#include <bslstl_pair.h>
 
 #include <bslalg_bidirectionallink.h>
 
@@ -20,7 +19,6 @@
 #include <bsltf_templatetestfacility.h>
 #include <bsltf_testvaluesarray.h>
 
-//#include <algorithm>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -316,19 +314,6 @@ typedef bslalg::BidirectionalLink    Link;
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
-
-namespace bsl {
-
-template <class FIRST, class SECOND>
-inline
-void debugprint(const bsl::pair<FIRST, SECOND>& p)
-{
-    bsls::BslTestUtil::callDebugprint(p.first);
-    bsls::BslTestUtil::callDebugprint(p.second);
-}
-
-}  // close namespace bsl
-
 
 namespace BloombergLP {
 namespace bslstl {
@@ -1024,46 +1009,6 @@ bool setMaxLoadFactorNoRehash(
 // ============================================================================
 //                         TEST DRIVER HARNESS
 // ----------------------------------------------------------------------------
-#if 0
-template<class KEY, class MAPPED>
-struct TestMapKeyPolicy
-{
-    typedef KEY KeyType;
-    typedef MAPPED MappedType;
-    typedef bsl::pair<const KEY, MAPPED> ValueType;
-
-    static const KEY& extractKey(const ValueType& value) {
-        return value.first;
-    }
-
-//    static const ValueType& extractMappedValue(const ValueType& value) {
-//        return value.second;
-//    }
-        // This method does not appear to be used, YET.
-};
-#endif
-                       // =========================
-                       // class CharToPairConverter
-                       // =========================
-
-#if defined(SPAC)
-template <class KEY, class VALUE>
-class CharToPairConverter {
-    // Convert a 'char' value to a 'bsl::pair' of the parameterized 'KEY' and
-    // 'VALUE' type.
-
-  public:
-    std::pair<const KEY, VALUE> operator()(char value)
-    {
-        // Use different values for 'KEY' and 'VALUE'
-
-        return bsl::pair<const KEY, VALUE> (
-                bsltf::TemplateTestFacility::create<KEY>(value),
-                bsltf::TemplateTestFacility::create<VALUE>(value - 'A' + '0'));
-    }
-};
-#endif
-
 
 template <class FUNCTOR>
 struct MakeDefaultFunctor {
@@ -1103,12 +1048,8 @@ class TestDriver {
     typedef typename Obj::ValueType  ValueType;
         // Shorthands
 
-#if defined(SPAC)
-    typedef bsltf::TestValuesArray<ValueType,
-                          CharToPairConverter<KeyType, ValueType> > TestValues;
-#else
     typedef bsltf::TestValuesArray<ValueType> TestValues;
-#endif
+
   public:
     typedef bsltf::StdTestAllocator<ValueType> StlAlloc;
 
@@ -1174,8 +1115,7 @@ class TestDriver {
 
     static void testCase2();
 
-    static void testCase1(KeyType                        *testKeys,
-                          typename KEY_CONFIG::ValueType *testValues,
+    static void testCase1(typename KEY_CONFIG::ValueType *testValues,
                           size_t                          numValues);
 };
 
@@ -3778,7 +3718,6 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase1(
-                                    KeyType                        *testKeys,
                                     typename KEY_CONFIG::ValueType *testValues,
                                     size_t                          numValues)
 {
@@ -3800,7 +3739,6 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase1(
 
     typedef bslstl::HashTable<KEY_CONFIG, HASHER, COMPARATOR> Obj;
     typedef typename Obj::ValueType  Value;
-    typedef bsl::pair<Link *, bool>  InsertResult;
 
     bslma::TestAllocator defaultAllocator("defaultAllocator");
     bslma::DefaultAllocatorGuard defaultGuard(&defaultAllocator);
@@ -3841,49 +3779,31 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase1(
         ASSERTV(&objectAllocator1 == O1.allocator().mechanism());
 
         for (size_t i = 0; i < numValues; ++i) {
-//           o1.insert(Value(testKeys[i], testValues[i]));
-            o1.insert(Value(testKeys[i]));
-       }
-       ASSERTV(numValues == O1.size());
-       ASSERTV(0 <  objectAllocator1.numBytesInUse());
-       ASSERTV(0 == objectAllocator2.numBytesInUse());
+            o1.insert(testValues[i]);
+        }
+        ASSERTV(numValues == O1.size());
+        ASSERTV(0 <  objectAllocator1.numBytesInUse());
+        ASSERTV(0 == objectAllocator2.numBytesInUse());
     }
     {
-       bslma::TestAllocator objectAllocator1("objectAllocator1");
-       bslma::TestAllocator objectAllocator2("objectAllocator2");
-
-       Obj o1(HASHER(), COMPARATOR(), 0, &objectAllocator1);
-       const Obj& O1 = o1;
-       ASSERTV(&objectAllocator1 == O1.allocator().mechanism());
-
-       for (size_t i = 0; i < numValues; ++i) {
-           bool isInsertedFlag = false;
-           o1.insertIfMissing(&isInsertedFlag, Value(testKeys[i]));
-           ASSERTV(isInsertedFlag, true == isInsertedFlag);
-       }
-       ASSERTV(numValues == O1.size());
-       ASSERTV(0 <  objectAllocator1.numBytesInUse());
-       ASSERTV(0 == objectAllocator2.numBytesInUse());
-    }
-    {
-#if defined(TESTING_PAIR_FOR_MAP)
         bslma::TestAllocator objectAllocator1("objectAllocator1");
         bslma::TestAllocator objectAllocator2("objectAllocator2");
 
-        if (veryVerbose) printf("Use a different allocator\n");
         Obj o1(HASHER(), COMPARATOR(), 0, &objectAllocator1);
         const Obj& O1 = o1;
         ASSERTV(&objectAllocator1 == O1.allocator().mechanism());
 
         for (size_t i = 0; i < numValues; ++i) {
-            o1.insertIfMissing(testKeys[i]);
+            bool isInsertedFlag = false;
+            o1.insertIfMissing(&isInsertedFlag, testValues[i]);
+            ASSERTV(isInsertedFlag, true == isInsertedFlag);
         }
-
         ASSERTV(numValues == O1.size());
         ASSERTV(0 <  objectAllocator1.numBytesInUse());
         ASSERTV(0 == objectAllocator2.numBytesInUse());
 
 
+        // Copied code from below, under evaluation
         if (veryVerbose) printf("Use a different allocator\n");
         {
             bslma::TestAllocatorMonitor monitor(&objectAllocator1);
@@ -3939,7 +3859,6 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase1(
         ASSERTV(&objectAllocator1 == O1.allocator().mechanism());
         ASSERTV(&objectAllocator1 == O2.allocator().mechanism());
         ASSERTV(&objectAllocator1 == O3.allocator().mechanism());
-#endif
     }
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -3948,7 +3867,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase1(
         printf("Test primary manipulators/accessors on every permutation.\n");
     }
 
-    native_std::sort(testKeys, testKeys + numValues);
+    native_std::sort(testValues, testValues + numValues);
     do {
         // For each possible permutation of values, insert values, iterate over
         // the resulting container, find values, and then erase values.
@@ -3956,21 +3875,20 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase1(
         Obj x(HASHER(), COMPARATOR(), 0, &objectAllocator); const Obj& X = x;
         for (size_t i = 0; i < numValues; ++i) {
             Obj y(X, &objectAllocator); const Obj& Y = y;
-            Obj z(X, &objectAllocator); const Obj& Z = z;
             ASSERTV(X == Y);
             ASSERTV(!(X != Y));
 
-            ASSERTV(i, 0 == X.find(testKeys[i]));
+            ASSERTV(i, 0 == X.find(KEY_CONFIG::extractKey(testValues[i])));
 
             // Test 'insert'.
-            Value value(testKeys[i]);
+            Value value(testValues[i]);
             bool isInsertedFlag = false;
             Link *link = x.insertIfMissing(&isInsertedFlag, value);
             ASSERTV(0             != link);
             ASSERTV(true          == isInsertedFlag);
-            ASSERTV(testKeys[i]   == ImpUtil::extractKey<KEY_CONFIG>(link));
-            ASSERTV(Value(testKeys[i]) ==
-                                      ImpUtil::extractValue<KEY_CONFIG>(link));
+            ASSERTV(KEY_CONFIG::extractKey(testValues[i] ==
+                                       ImpUtil::extractKey<KEY_CONFIG>(link)));
+            ASSERTV(testValues[i] == ImpUtil::extractValue<KEY_CONFIG>(link));
 
             // Test size, empty.
             ASSERTV(i + 1 == X.size());
@@ -3978,30 +3896,13 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase1(
 
             // Test insert duplicate key
             ASSERTV(link    == x.insertIfMissing(&isInsertedFlag, value));
-            ASSERTV(false   == isInsertedFlag);;
+            ASSERTV(false   == isInsertedFlag);
             ASSERTV(i + 1   == X.size());
 
-            // Test find, operator[], at.
+            // Test find
+            Link *it     = X.find(KEY_CONFIG::extractKey(testValues[i]));
             ASSERTV(ImpUtil::extractKey<KEY_CONFIG>(link) ==
-                         ImpUtil::extractKey<KEY_CONFIG>(X.find(testKeys[i])));
-            // ASSERTV(testValues[i] == x[testKeys[i]]);
-            // ASSERTV(testValues[i] == x.at(testKeys[i]));
-            // ASSERTV(testValues[i] == X.at(testKeys[i]));
-
-#if 0
-            // This test is supported only for 'std::pair' elements
-            // Test insertIfMissing
-            ASSERTV(!(X == Z));
-            ASSERTV(  X != Z);
-            const Value& V = ImpUtil::extractValue<KEY_CONFIG>(
-                                           z.insertIfMissing(testKeys[i]));
-            ASSERTV(
-                   Value(testKeys[i], typename KEY_CONFIG::MappedType()) == V);
-            //z[testKeys[i]] = testValues[i];
-            //ASSERTV(testValues[i] == z[testKeys[i]]);
-            //ASSERTV( (X == Z));
-            //ASSERTV(!(X != Z));
-#endif
+                    ImpUtil::extractKey<KEY_CONFIG>(it));
 
             ASSERTV(X != Y);
             ASSERTV(!(X == Y));
@@ -4014,36 +3915,34 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase1(
         ASSERTV(0 != objectAllocator.numBytesInUse());
         ASSERTV(0 == defaultAllocator.numBytesInUse());
 
-        // Use erase(iterator) on all the elements.
+        // Use remove(link) on all the elements.
         for (size_t i = 0; i < numValues; ++i) {
-            Link *it     = x.find(testKeys[i]);
+            Link *it     = x.find(KEY_CONFIG::extractKey(testValues[i]));
             Link *nextIt = it->nextLink();
 
             ASSERTV(0       != it);
-            ASSERTV(testKeys[i]   == ImpUtil::extractKey<KEY_CONFIG>(it));
-            ASSERTV(Value(testKeys[i]) ==
-                                        ImpUtil::extractValue<KEY_CONFIG>(it));
+            ASSERTV(KEY_CONFIG::extractKey(testValues[i] ==
+                                         ImpUtil::extractKey<KEY_CONFIG>(it)));
+            ASSERTV(testValues[i] == ImpUtil::extractValue<KEY_CONFIG>(it));
             Link *resIt = x.remove(it);
             ASSERTV(resIt == nextIt);
 
-            Link *resFind = x.find(testKeys[i]);
+            Link *resFind = x.find(KEY_CONFIG::extractKey(testValues[i]));
             ASSERTV(0 == resFind);
 
             ASSERTV(numValues - i - 1 == X.size());
         }
-    } while (native_std::next_permutation(testKeys,
-                                          testKeys + numValues));
+    } while (native_std::next_permutation(testValues,
+                                          testValues + numValues));
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-    native_std::random_shuffle(testKeys,  testKeys + numValues);
-    if (veryVerbose) {
-        printf("Test 'remove(bslalg::BidirectionalLink *)'.\n");
-    }
+    native_std::random_shuffle(testValues,  testValues + numValues);
+    if (veryVerbose) printf("Test 'remove(bslalg::BidirectionalLink *)'.\n");
     {
         Obj x(HASHER(), COMPARATOR(), 0, &objectAllocator); const Obj& X = x;
         for (size_t i = 0; i < numValues; ++i) {
-            Value value(testKeys[i]);
+            Value value(testValues[i]);
             Link *result1 = x.insert(value);
             ASSERTV(0 != result1);
             Link *result2 = x.insert(value);
@@ -4053,10 +3952,10 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase1(
 
             Link *start;
             Link *end;
-            x.findRange(&start, &end, testKeys[i]);
-            ASSERTV(ImpUtil::extractKey<KEY_CONFIG>(start) == testKeys[i]);
-            ASSERTV(ImpUtil::extractKey<KEY_CONFIG>(start->nextLink()) ==
-                                                                  testKeys[i]);
+            const KeyType& key = KEY_CONFIG::extractKey(testValues[i]);
+            x.findRange(&start, &end, key);
+            ASSERTV(ImpUtil::extractKey<KEY_CONFIG>(start) == key);
+            ASSERTV(ImpUtil::extractKey<KEY_CONFIG>(start->nextLink()) == key);
             ASSERTV(start->nextLink()->nextLink() == end);
         }
 
@@ -4343,7 +4242,6 @@ int main(int argc, char *argv[])
                        TestIntHash,
                        TestIntEqual,
                        StlTestIntAllocator >::testCase1(INT_VALUES,
-                                                        INT_VALUES,
                                                         NUM_INT_VALUES);
         }
       } break;

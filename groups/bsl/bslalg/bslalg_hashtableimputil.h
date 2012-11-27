@@ -945,51 +945,48 @@ bool HashTableImpUtil::isWellFormed(const HashTableAnchor&  anchor,
 
     bool firstTime = true;
     for (BidirectionalLink *cursor = root; cursor;
-                              prevHash = hash, prevBucketIdx = bucketIdx,
-                                 prev = cursor, cursor = cursor->nextLink()) {
+                                                 cursor = cursor->nextLink()) {
+        if (cursor->previousLink() != prev) {
+            return false;                                             // RETURN
+        }
+
         hash = hasher(extractKey<KEY_CONFIG>(cursor));
         bucketIdx = (firstTime || hash != prevHash)
                   ? computeBucketIndex(hash, size)
                   : prevBucketIdx;
 
-        if (cursor->previousLink() != prev) {
-            return false;                                             // RETURN
+        if (firstTime || (hash != prevHash && bucketIdx != prevBucketIdx)) {
+            // New bucket
+
+            // We should be the first node in the new bucket, so if this
+            // bucket's been visited before, it's an error.
+
+            if (bucketsUsed[bucketIdx]) {
+                return false;                                         // RETURN
+            }
+            bucketsUsed[bucketIdx] = true;
+
+            // Since we're the first node in the bucket, bucket.first()
+            // should point at us.
+
+            if (array[bucketIdx].first() != cursor) {
+                return false;                                         // RETURN
+            }
+
+            // 'last()' of the previous bucket should point at the
+            // previous node.
+
+            if (!firstTime && array[prevBucketIdx].last() != prev) {
+                return false;                                         // RETURN
+            }
+
+            firstTime = false;
         }
 
-        if (firstTime || hash != prevHash) {
-            if (firstTime || bucketIdx != prevBucketIdx) {
-                // New bucket
-
-                // We should be the first node in the new bucket, so if this
-                // bucket's been visited before, it's an error.
-
-                if (bucketsUsed[bucketIdx]) {
-                    return false;                                     // RETURN
-                }
-                bucketsUsed[bucketIdx] = true;
-
-                // Since we're the first node in the bucket, bucket.first()
-                // should point at us.
-
-                if (array[bucketIdx].first() != cursor) {
-                    return false;                                     // RETURN
-                }
-
-                // 'last()' of the previous bucket should point at the
-                // previous node.
-
-                if (!firstTime && array[prevBucketIdx].last() != prev) {
-                    return false;                                     // RETURN
-                }
-
-                firstTime = false;
-            }
-            else {
-                // old bucket
-
-                BSLS_ASSERT(!firstTime);
-            }
-        }
+        // Set 'prev' variables for next iteration
+        prevHash      = hash;
+        prevBucketIdx = bucketIdx;
+        prev          = cursor;
     }
 
     if (!firstTime && array[prevBucketIdx].last() != prev) {

@@ -391,8 +391,8 @@ namespace {
 class Stack
 {
     enum { CAPACITY = 128 };
-    Link  *d_data[CAPACITY];
-    int      d_size;
+    Link   *d_data[CAPACITY];
+    size_t  d_size;
 
   public:
     // CREATORS
@@ -415,7 +415,7 @@ class Stack
 
     void pop()
     {
-        BSLS_ASSERT(0 != d_size);
+        BSLS_ASSERT_SAFE(0 != d_size);
 
         --d_size;
     }
@@ -427,13 +427,15 @@ class Stack
 
     Link *back() const
     {
-        BSLS_ASSERT(0 != d_size);
+        BSLS_ASSERT_SAFE(0 != d_size);
 
         return d_data[d_size - 1];
     }
 
     Link *operator[] (size_t index) const
     {
+        BSLS_ASSERT_SAFE(index <  d_size);
+
         return d_data[index];
     }
 };
@@ -1905,13 +1907,13 @@ class MyList {
         // Insert the specified 'value' at the end of this linked list.
 
     // ACCESSORS
-    Node * const head() const
+    const Node *head() const
         // Return the node at the beginning of this linked list.
     {
         return d_head_p;
     }
 
-    Node * const tail() const
+    const Node *tail() const
         // Return the node at the end of this linked list.
     {
         return d_tail_p;
@@ -2056,11 +2058,11 @@ int main(int argc, char *argv[])
         typedef bslalg::BidirectionalNode<int> Node;
         typedef bslalg::BidirectionalLink      Link;
 
-        Link *link = list.head();
+        const Link *link = list.head();
         int ti = 0;
         while (link)
         {
-            Node * node = static_cast<Node *>(link);
+            const Node * node = static_cast<const Node *>(link);
             ASSERT(node->value() == DATA[ti++]);
             link = link->nextLink();
         }
