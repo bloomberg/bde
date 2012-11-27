@@ -439,7 +439,7 @@ struct Pair_Imp<T1, T2, 1, 1> {
                         // ==========
 
 template <typename T1, typename T2>
-class pair : private Pair_Imp<T1, T2,
+class pair : public Pair_Imp<T1, T2,
                              BloombergLP::bslma::UsesBslmaAllocator<T1>::value,
                              BloombergLP::bslma::UsesBslmaAllocator<T2>::value>
 {
