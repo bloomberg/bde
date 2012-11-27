@@ -540,6 +540,10 @@ BSLS_IDENT("$Id: $")
 #include <bsls_nativestd.h>
 #endif
 
+#ifndef INCLUDED_BSLS_PLATFORM
+#include <bsls_platform.h>
+#endif
+
 #ifndef INCLUDED_CSTDDEF
 #include <cstddef>
 #define INCLUDED_CSTDDEF
@@ -863,8 +867,10 @@ void HashTableImpUtil::rehash(HashTableAnchor   *newAnchor,
         BidirectionalLink **d_sourceList;
         HashTableAnchor    *d_targetAnchor;
 
-        Proctor(const Proctor&); // = delete;
+#if !defined(BSLS_PLATFORM_CMP_MSVC)           // Microsoft warns if these
+        Proctor(const Proctor&); // = delete;  // methods are declared private.
         Proctor& operator=(const Proctor&); // = delete;
+#endif
 
       public:
         Proctor(BidirectionalLink **sourceList,

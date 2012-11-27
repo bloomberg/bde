@@ -183,6 +183,10 @@ BSLS_IDENT("$Id: $")
 #include <bsls_performancehint.h>
 #endif
 
+#ifndef INCLUDED_BSLS_PLATFORM
+#include <bsls_platform.h>
+#endif
+
 #ifndef INCLUDED_ALGORITHM
 #include <algorithm>  // for swap
 #define INCLUDED_ALGORITHM
@@ -1962,9 +1966,10 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::rehashForNumBuckets(
         bslalg::HashTableAnchor *d_originalAnchor;
         bslalg::HashTableAnchor *d_newAnchor;
 
-
-        Proctor(const Proctor&); // = delete;
+#if !defined(BSLS_PLATFORM_CMP_MSVC)           // Microsoft warns if these
+        Proctor(const Proctor&); // = delete;  // methods are declared private.
         Proctor& operator=(const Proctor&); // = delete;
+#endif
 
       public:
         Proctor(HashTable               *table,
