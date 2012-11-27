@@ -17,8 +17,6 @@ BDES_IDENT_RCSID(bcemt_threadutilimpl_win32_cpp,"$Id$ $CSID$")
 
 #include <process.h>      // '_begintthreadex', '_endthreadex'
 
-#include <bsl_iostream.h> // 'stderr'
-
 #if defined(BSLS_PLATFORM_OS_WINDOWS) && defined(BSLS_PLATFORM_CPU_64_BIT)
     // On 64-bit Windows, we have to deal with the fact that Windows ThreadProc
     // thread procedures only return a 32-bit DWORD value.  We use an
@@ -42,7 +40,7 @@ class HandleGuard {
     // when this guard goes out of scope and is destroyed.
 
     // DATA
-    HANDLE *d_handle;
+    HANDLE d_handle;
 
   private:
 
@@ -52,7 +50,7 @@ class HandleGuard {
 
   public:
 
-    HandleGuard(HANDLE *handle);
+    HandleGuard(HANDLE handle);
         // Create a guard for the specified 'handle', that upon going out
         // of scope and being destroyed, will call 'CloseHandle' on 'handle'.
 
@@ -60,17 +58,14 @@ class HandleGuard {
         // Call 'CloseHandle' on the windows handle supplied at construction.
 };
 
-HandleGuard::HandleGuard(HANDLE *handle)
+HandleGuard::HandleGuard(HANDLE handle)
 : d_handle(handle)
 {
-    BSLS_ASSERT_SAFE(handle);
 }
 
 HandleGuard::~HandleGuard()
 {
-    if (!CloseHandle(*d_handle)) {
-        bsl::cerr << "CloseHandle failed: " << GetLastError()
-                  << bsl::endl;
+    if (!CloseHandle(d_handle)) {
         BSLS_ASSERT_OPT(false);
     }
 }
@@ -534,7 +529,7 @@ bool bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::areEqual(
     return a.d_id == b.d_id;
 }
 
-void bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::sleepUntil(
+int bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::sleepUntil(
                                          const bdet_TimeInterval& absoluteTime)
 {
     // ASSERT that the interval is between January 1, 1970 00:00.000 and
@@ -545,10 +540,7 @@ void bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::sleepUntil(
 
     HANDLE timer = CreateWaitableTimer(0, false, 0);
     if (0 == timer) {
-        bsl::cerr << "CreateWaitableTimer failed: " << GetLastError()
-                  << bsl::endl;
-        BSLS_ASSERT_OPT(false);
-        return;                                                      // RETURN
+        return GetLastError();                                        // RETURN
     }
     HandleGuard guard(&timer);
 
@@ -573,17 +565,14 @@ void bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::sleepUntil(
                        + 116444736000000000LL;
 
     if (!SetWaitableTimer(timer, &clockTime , 0, 0, 0, 0)) {
-        bsl::cerr << "SetWaitableTimer failed: " << GetLastError()
-                  << bsl::endl;
-        BSLS_ASSERT_OPT(false);
-        return;                                                      // RETURN
+
+        return GetLastError();                                        // RETURN
     }
 
     if (WAIT_OBJECT_0 != WaitForSingleObject(timer, INFINITE)) {
-        bsl::cerr << "WaitForSingleObject failed: " << GetLastError()
-                  << bsl::endl;
-        BSLS_ASSERT_OPT(false);
+        return GetLastError();                                        // RETURN
     }
+    return 0;
 }
 
 }  // close namespace BloombergLP

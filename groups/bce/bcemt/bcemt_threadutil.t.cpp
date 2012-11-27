@@ -689,10 +689,13 @@ int main(int argc, char *argv[])
         // created and run by hand to verify (slightly) longer time periods.
         //
         // Concerns:
-        //: 1 'sleepUntil' correctly forwards to a reasonable underlying
-        //:   system call.
+        //: 1 'sleepUntil' suspends the current thread until the indicated
+        //:    time in the future (within some reasonable limit).
         //: 
-        //: 2  QoI: Asserted precondition violations are detected when enabled.
+        //: 2 'sleepUntil' does not suspend the current thread (or suspends it
+        //:    very briefly), for the current time, or times in the past.
+        //:
+        //: 3  QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
         //: 1 Call 'sleepUntil' for a series of values less than a second in
@@ -701,11 +704,11 @@ int main(int argc, char *argv[])
         //:
         //: 2 Call 'sleepUntil' for a value in the past, and verify that
         //:   the function returns to the caller in a reasonably small amount
-        //:   of time. (C-1)
+        //:   of time. (C-2)
         //:
         //: 3 Verify that, in appropriate build modes, defensive checks are
         //:   triggered for invalid time-interval values. (using the
-        //:   'BSLS_ASSERTTEST_*' macros (C-2)
+        //:   'BSLS_ASSERTTEST_*' macros (C-3)
         //
         // Testing:
         //   void sleepUntil(const bdet_TimeInterval& );        
@@ -1561,8 +1564,9 @@ int main(int argc, char *argv[])
         // be run in a typical build cycle.
         //
         // Concerns:
-        //: 1 'sleepUntil' correctly forwards to a reasonable underlying
-        //:   system call (for sleep times > 1s).
+        //: 1 'sleepUntil' suspends the current thread until the indicated
+        //:    time in the future (within some reasonable limit).  For
+        //:    times > 1s in the future.
         //
         // Plan:
         //: 1 Call 'sleepUntil' for a series of values less than a second in

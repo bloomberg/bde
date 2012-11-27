@@ -683,7 +683,9 @@ void bcemt_ThreadUtil::sleep(const bdet_TimeInterval& sleepTime)
 inline
 void bcemt_ThreadUtil::sleepUntil(const bdet_TimeInterval& absoluteTime)
 {
-    Imp::sleepUntil(absoluteTime);
+    int status = Imp::sleepUntil(absoluteTime);
+    (void) status;  // Suppress a unused variable error.
+    BSLS_ASSERT(0 == status);
 }
 
 

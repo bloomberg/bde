@@ -320,17 +320,25 @@ int bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::microSleep(
     return result;
 }
 
-void bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::sleepUntil(
+int bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::sleepUntil(
                                const bdet_TimeInterval& absoluteTime,
-                               bool                     returnOnSignalInterupt)
+                               bool                     retryOnSignalInterupt)
 {
     // ASSERT that the interval is between January 1, 1970 00:00.000 and
     // the end of December 31, 9999 (i.e., less than January 1, 10000).
 
-
     BSLS_ASSERT(absoluteTime >= bdet_TimeInterval(0, 0));
     BSLS_ASSERT(absoluteTime <  bdet_TimeInterval(253402300800LL, 0));
 
+    // POSIX defines 'clock_nanosleep' which is used for most UNIX platforms,
+    // Darwin does not provide that function,and provides the alternative
+    // 'clock_sleep'.
+
+#if defined(BSLS_PLATFORM_OS_DARWIN)
+    // TBD Implement
+    
+    return 0;
+#else
     timespec clockTime;
     clockTime.tv_sec  = static_cast<bsl::time_t>(absoluteTime.seconds());
     clockTime.tv_nsec = static_cast<long>(absoluteTime.nanoseconds());
@@ -339,9 +347,12 @@ void bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::sleepUntil(
     do {
         result = clock_nanosleep(CLOCK_REALTIME, TIMER_ABSTIME, &clockTime, 0);
        
-        // All other failures indicate a programming error.
-        BSLS_ASSERT_OPT(0 == result || EINTR == result);
-    } while (0 != result && !returnOnSignalInterupt);
+    } while (EINTR == result && retryOnSignalInterupt);
+
+    // An signal interrupt is not considered an error.
+
+    return result == EINTR ? 0 : result;
+#endif
 }
 
 

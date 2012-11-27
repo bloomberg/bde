@@ -215,10 +215,11 @@ struct bcemt_ThreadUtilImpl<bces_Platform::Win32Threads> {
         // including system scheduling, and system timer resolution.  On the
         // win32 platform the sleep timer has a resolution of 1 millisecond.
 
-    static void sleepUntil(const bdet_TimeInterval& absoluteTime);
+    static int sleepUntil(const bdet_TimeInterval& absoluteTime);
         // Suspend execution of the current thread until the specified
         // 'absoluteTime' (expressed as the !ABSOLUTE! time from 00:00:00 UTC,
-        // January 1, 1970).  The behavior is undefined unless 'absoluteTime'
+        // January 1, 1970).  Return 0 on success, and a non-zero value
+        // otherwise.  The behavior is undefined unless 'absoluteTime'
         // represents a time after January 1, 1970 and before the end of
         // December 31, 9999 (i.e., a time interval greater than or equal to
         // 0, and less than 253,402,300,800 seconds).  Note that the actual
@@ -360,18 +361,16 @@ bool operator!=(
 inline
 int bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::
                          getMinSchedulingPriority(
-                               bcemt_ThreadAttributes::SchedulingPolicy policy)
+                             bcemt_ThreadAttributes::SchedulingPolicy )
 {
-    (void *)policy;
     return -1;    // priorities not supported on Windows
 }
 
 inline
 int bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::
                          getMaxSchedulingPriority(
-                               bcemt_ThreadAttributes::SchedulingPolicy policy)
+                               bcemt_ThreadAttributes::SchedulingPolicy )
 {
-    (void *)policy;
     return -1;    // priorities not supported on Windows
 }
 

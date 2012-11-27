@@ -194,17 +194,19 @@ struct bcemt_ThreadUtilImpl<bces_Platform::PosixThreads> {
         // depends on many factors including system scheduling, and system
         // timer resolution.
 
-    static void sleepUntil(
-                       const bdet_TimeInterval& absoluteTime,
-                       bool                     returnOnSignalInterupt = true);
+    static int sleepUntil(
+                      const bdet_TimeInterval& absoluteTime,
+                      bool                     retryOnSignalInterrupt = false);
         // Suspend execution of the current thread until the specified
         // 'absoluteTime' (expressed as the !ABSOLUTE! time from 00:00:00 UTC,
-        // January 1, 1970).  Optionally specify 'returnOnSignalInterupt'
-        // indicating whether to return to the caller if the operating system
-        // interupts the sleep because of a signal.  If
-        // 'returnOnSignalInterupt' is 'false' an interupt from a signal will
+        // January 1, 1970).  Optionally specify 'retryOnSignalInterrupt'
+        // indicating whether to put this thread to sleep again if the
+        // operating system interupts the sleep because of a signal.  Return 0
+        // on success, and a non-zero value otherwise.  If
+        // 'retryOnSignalInterrupt' is 'true', an interupt from a signal will 
         // be ignored and the current the thread will be put back to sleep
-        // until 'absoluteTime'.  The behavior is undefined unless
+        // until 'absoluteTime', otherwise this call will return 0 to the
+        // calling thread immediately.  The behavior is undefined unless
         // 'absoluteTime' represents a time after January 1, 1970 and before
         // the end of December 31, 9999 (i.e., a time interval greater than or
         // equal to 0, and less than 253,402,300,800 seconds).  Note that the
