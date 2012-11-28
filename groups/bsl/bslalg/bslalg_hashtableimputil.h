@@ -925,13 +925,30 @@ bool HashTableImpUtil::isWellFormed(const HashTableAnchor&  anchor,
                                     const HASHER&           hasher,
                                     bslma::Allocator       *allocator)
 {
-    if (!allocator) {
-        allocator = bslma::Default::defaultAllocator();
-    }
-
     HashTableBucket    *array = anchor.bucketArrayAddress();
     size_t              size  = anchor.bucketArraySize();
     BidirectionalLink  *root  = anchor.listRootAddress();
+
+    if (!array || !size) {
+        return false;
+    }
+
+    if (!root) {
+        // An empty list, so there should be no pointers set in the bucket
+        // array.
+        for (size_t i = 0; i < size; ++i) {
+            const HashTableBucket& b = array[i];
+            if  (b.first() || b.last()) {
+                return false;                                         // RETURN
+            }
+        }
+
+        return true;                                                  // RETURN
+    }
+
+    if (!allocator) {
+        allocator = bslma::Default::defaultAllocator();
+    }
 
     bool *bucketsUsed = (bool *) allocator->allocate(size);
     bslma::DeallocatorGuard<bslma::Allocator> guard(bucketsUsed, allocator);
@@ -939,23 +956,25 @@ bool HashTableImpUtil::isWellFormed(const HashTableAnchor&  anchor,
         bucketsUsed[i] = false;
     }
 
-    size_t hash,       prevHash;
-    size_t bucketIdx,  prevBucketIdx;
-    BidirectionalLink *prev = 0;
+    size_t hash = hasher(extractKey<KEY_CONFIG>(root));
+    size_t bucketIdx = computeBucketIndex(hash, size);
+    if (array[bucketIdx].first() != root) {
+        return false;                                                 // RETURN
+    }
 
-    bool firstTime = true;
-    for (BidirectionalLink *cursor = root; cursor;
-                                                 cursor = cursor->nextLink()) {
+    bucketsUsed[bucketIdx] = true;
+
+    BidirectionalLink *prev = root;
+    size_t prevBucketIdx    = bucketIdx;
+    while (BidirectionalLink *cursor = prev->nextLink()) {
         if (cursor->previousLink() != prev) {
             return false;                                             // RETURN
         }
 
-        hash = hasher(extractKey<KEY_CONFIG>(cursor));
-        bucketIdx = (firstTime || hash != prevHash)
-                  ? computeBucketIndex(hash, size)
-                  : prevBucketIdx;
+        hash      = hasher(extractKey<KEY_CONFIG>(cursor));
+        bucketIdx = computeBucketIndex(hash, size);
 
-        if (firstTime || (hash != prevHash && bucketIdx != prevBucketIdx)) {
+        if (bucketIdx != prevBucketIdx) {
             // New bucket
 
             // We should be the first node in the new bucket, so if this
@@ -976,20 +995,17 @@ bool HashTableImpUtil::isWellFormed(const HashTableAnchor&  anchor,
             // 'last()' of the previous bucket should point at the
             // previous node.
 
-            if (!firstTime && array[prevBucketIdx].last() != prev) {
+            if (array[prevBucketIdx].last() != prev) {
                 return false;                                         // RETURN
             }
-
-            firstTime = false;
         }
 
         // Set 'prev' variables for next iteration
-        prevHash      = hash;
-        prevBucketIdx = bucketIdx;
         prev          = cursor;
+        prevBucketIdx = bucketIdx;
     }
 
-    if (!firstTime && array[prevBucketIdx].last() != prev) {
+    if (array[prevBucketIdx].last() != prev) {
         return false;                                                 // RETURN
     }
 
