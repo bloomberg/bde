@@ -542,7 +542,7 @@ int bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::sleepUntil(
     if (0 == timer) {
         return GetLastError();                                        // RETURN
     }
-    HandleGuard guard(&timer);
+    HandleGuard guard(timer);
 
     LARGE_INTEGER clockTime;
 
