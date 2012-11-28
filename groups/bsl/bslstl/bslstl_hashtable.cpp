@@ -4,9 +4,11 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
-#include <bslstl_equalto.h>  // for testing only
-#include <bslstl_hash.h>     // for testing only
-#include <bslstl_pair.h>     // for testing only
+#include <bslstl_equalto.h>                      // for testing only
+#include <bslstl_hash.h>                         // for testing only
+#include <bslstl_hashtableiterator.h>            // for testing only
+#include <bslstl_pair.h>                         // for testing only
+#include <bslstl_unorderedsetkeyconfiguration.h> // for testing only
 
 #include <bsls_nativestd.h>
 

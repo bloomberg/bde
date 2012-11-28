@@ -14,7 +14,8 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bsl+stdhdrs
 //
-//@AUTHOR: Alisdair Meredith (ameredith1), Stefano Pacifico (spacifico1)
+//@AUTHOR: Alisdair Meredith (ameredith1), Stefano Pacifico (spacifico1),
+//         Steven Breitstein (sbreitstein)
 //
 //@DESCRIPTION: This component defines a single class template, 'HashTable',
 // implementing a value-semantic container that can be used to easily implement
