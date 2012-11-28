@@ -108,7 +108,7 @@
             'cflags_c_extra%':  [ ],
             'cflags_cc_extra%': [ '-qrtti=all', ],
             'cflags_diags%': [ ],  # XXX: TODO warnings/diagnostics
-            'cflags_abi_32%': [ '-q32' ],
+            'cflags_abi_32%': [ '-q32', '-qdebug=nparseasm' ],
             'cflags_abi_64%': [ '-q64' ],
             'cflags_PIC%': [ '-qpic=large' ],
           }], # compiler_tag == "xlC"
