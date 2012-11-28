@@ -131,14 +131,14 @@ int main(int argc, char *argv[])
 //
 // First, we create two 'typedef's -- an integral type and a non-integral type:
 //..
-        typedef void MyType;
-        typedef int  MyIntegralType;
+    typedef void MyType;
+    typedef int  MyIntegralType;
 //..
 // Now, we instantiate the 'bsl::is_integral' template for each of the
 // 'typedef's and assert the 'value' static data member of each instantiation:
 //..
-        ASSERT(false == bsl::is_integral<MyType>::value);
-        ASSERT(true  == bsl::is_integral<MyIntegralType>::value);
+    ASSERT(false == bsl::is_integral<MyType>::value);
+    ASSERT(true  == bsl::is_integral<MyIntegralType>::value);
 //..
 
       } break;
@@ -179,8 +179,8 @@ int main(int argc, char *argv[])
         //   bsl::is_integral::value
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\n'bsl::is_integral::value\n"
-                            "\n========================\n");
+        if (verbose) printf("\n'bsl::is_integral::value'\n"
+                            "\n=========================\n");
 
         // C-1
         TYPE_ASSERT_CVQ(bsl::is_integral, value, double, false);

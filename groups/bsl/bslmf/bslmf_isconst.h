@@ -59,7 +59,7 @@ namespace bsl {
                          // struct is_const
                          // ===============
 
-template <typename TYPE>
+template <class TYPE>
 struct is_const : false_type {
     // This 'struct' template implements the 'is_const' meta-function defined
     // in the C++11 standard [meta.unary.cat] to determine if the (template
@@ -74,7 +74,7 @@ struct is_const : false_type {
                          // struct is_const<TYPE const>
                          // ===========================
 
-template <typename TYPE>
+template <class TYPE>
 struct is_const<TYPE const> : true_type {
      // This partial specialization of 'is_const', for when the (template
      // parameter) is 'const'-qualified, derives from 'bsl::true_type'.
