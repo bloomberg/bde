@@ -17,7 +17,7 @@ using namespace std;
 // The component under test defines a meta-function,
 // 'bsl::is_rvalue_reference', that determines whether a template parameter
 // type is an rvalue reference type.  Thus, we need to ensure that the value
-// returned by this meta-functions is correct for each possible category of
+// returned by this meta-function is correct for each possible category of
 // types.
 //
 // ----------------------------------------------------------------------------
@@ -170,6 +170,7 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("USAGE EXAMPLE\n"
                             "=============\n");
+
 ///Usage
 ///-----
 // In this section we show intended use of this component.
@@ -209,10 +210,10 @@ int main(int argc, char *argv[])
         //: 3 'is_rvalue_reference::value' is 'false' when 'TYPE' is a
         //:   (possibly cv-qualified) pointer type.
         //:
-        //: 4 'is_rvalue_reference::value' is 'true' when 'TYPE' is an
+        //: 4 'is_rvalue_reference::value' is 'false' when 'TYPE' is a
         //:   (possibly cv-qualified) lvalue reference type.
         //:
-        //: 5 'is_rvalue_reference::value' is 'true' when 'TYPE' is an
+        //: 5 'is_rvalue_reference::value' is 'true' when 'TYPE' is a
         //:   (possibly cv-qualified) rvalue reference type.
         //:
         //: 6 'is_rvalue_reference::value' is 'false' when 'TYPE' is a
@@ -367,14 +368,13 @@ int main(int argc, char *argv[])
         fprintf(stderr, "Error, non-zero test status = %d.\n", testStatus);
     }
     return testStatus;
-
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2012
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------
