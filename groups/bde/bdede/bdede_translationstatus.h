@@ -64,10 +64,10 @@ struct bdede_TranslationStatus {
   public:
     // TYPES
     enum Enum {
-        BDEDE_INVALID_CHARS_MASK = 0x1,     // Invalid chars or sequences of
+        BDEDE_INVALID_CHARS_BIT = 0x1,      // Invalid chars or sequences of
                                             // chars were encountered in the
                                             // input.
-        BDEDE_OUT_OF_SPACE_MASK  = 0x2      // The space provided for the
+        BDEDE_OUT_OF_SPACE_BIT  = 0x2       // The space provided for the
                                             // output was insufficient for the
                                             // translation.
     };
@@ -100,11 +100,11 @@ struct bdede_TranslationStatus {
         // example:
         //..
         //  bsl::cout << baetzo_LocalTimeValidity::toAscii(
-        //                   bdede_TranslationStatus::BDEDE_OUT_OF_SPACE_MASK);
+        //                    bdede_TranslationStatus::BDEDE_OUT_OF_SPACE_BIT);
         //..
         // will print the following on standard output:
         //..
-        //  OUT_OF_SPACE_MASK
+        //  OUT_OF_SPACE_BIT
         //..
         // Note that specifying a 'value' that does not match any of the
         // enumerators will result in a string representation that is distinct

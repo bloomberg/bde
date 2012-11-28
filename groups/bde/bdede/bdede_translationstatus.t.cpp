@@ -172,13 +172,13 @@ int main(int argc, char *argv[])
 // 'enum'.
 //..
         bdede_TranslationStatus::Enum value =
-                             bdede_TranslationStatus::BDEDE_INVALID_CHARS_MASK;
+                              bdede_TranslationStatus::BDEDE_INVALID_CHARS_BIT;
 //..
 // Next, we store a pointer to its ASCII representation in a variable
 // 'asciiValue' of type 'const char *':
 //..
         const char *asciiValue = bdede_TranslationStatus::toAscii(value);
-        ASSERT(0 == bsl::strcmp(asciiValue, "INVALID_CHARS_MASK"));
+        ASSERT(0 == bsl::strcmp(asciiValue, "INVALID_CHARS_BIT"));
 //..
 // Finally, we print 'value' to 'bsl::cout'.
 //..
@@ -188,7 +188,7 @@ int main(int argc, char *argv[])
 //..
 // This statement produces the following output on 'stdout':
 //..
-// INVALID_CHARS_MASK
+// INVALID_CHARS_BIT
 //..
 
       } break;
@@ -246,29 +246,29 @@ int main(int argc, char *argv[])
             const char *d_exp;      // expected result
         } DATA[] = {
 #define NL "\n"
-#define ICM "INVALID_CHARS_MASK"
+#define ICM "INVALID_CHARS_BIT"
 
             //line level spl    enumerator value           expected result
             //---- ----- --- ----------------------       -----------------
-            { L_,    0,   4, Obj::BDEDE_INVALID_CHARS_MASK,
-                                                     "INVALID_CHARS_MASK\n" },
-            { L_,    0,   4, Obj::BDEDE_OUT_OF_SPACE_MASK,
-                                                      "OUT_OF_SPACE_MASK\n" },
+            { L_,    0,   4, Obj::BDEDE_INVALID_CHARS_BIT,
+                                                       "INVALID_CHARS_BIT\n" },
+            { L_,    0,   4, Obj::BDEDE_OUT_OF_SPACE_BIT,
+                                                       "OUT_OF_SPACE_BIT\n" },
 
             { L_,    0,   4, (Enum)(NUM_ENUMERATORS + 1), UNKNOWN_FORMAT NL },
             { L_,    0,   4, (Enum)-1,                    UNKNOWN_FORMAT NL },
             { L_,    0,   4, (Enum)-5,                    UNKNOWN_FORMAT NL },
             { L_,    0,   4, (Enum)99,                    UNKNOWN_FORMAT NL },
 
-            { L_,    0,  -1, Obj::BDEDE_INVALID_CHARS_MASK, ICM },
-            { L_,    0,   0, Obj::BDEDE_INVALID_CHARS_MASK, ICM NL },
-            { L_,    0,   2, Obj::BDEDE_INVALID_CHARS_MASK, ICM NL },
-            { L_,    1,   1, Obj::BDEDE_INVALID_CHARS_MASK, " " ICM NL },
-            { L_,    1,   2, Obj::BDEDE_INVALID_CHARS_MASK, "  " ICM NL },
-            { L_,   -1,   2, Obj::BDEDE_INVALID_CHARS_MASK, ICM NL },
-            { L_,   -2,   1, Obj::BDEDE_INVALID_CHARS_MASK, ICM NL },
-            { L_,    2,   1, Obj::BDEDE_INVALID_CHARS_MASK, "  " ICM NL },
-            { L_,    1,   3, Obj::BDEDE_INVALID_CHARS_MASK, "   " ICM NL },
+            { L_,    0,  -1, Obj::BDEDE_INVALID_CHARS_BIT, ICM },
+            { L_,    0,   0, Obj::BDEDE_INVALID_CHARS_BIT, ICM NL },
+            { L_,    0,   2, Obj::BDEDE_INVALID_CHARS_BIT, ICM NL },
+            { L_,    1,   1, Obj::BDEDE_INVALID_CHARS_BIT, " " ICM NL },
+            { L_,    1,   2, Obj::BDEDE_INVALID_CHARS_BIT, "  " ICM NL },
+            { L_,   -1,   2, Obj::BDEDE_INVALID_CHARS_BIT, ICM NL },
+            { L_,   -2,   1, Obj::BDEDE_INVALID_CHARS_BIT, ICM NL },
+            { L_,    2,   1, Obj::BDEDE_INVALID_CHARS_BIT, "  " ICM NL },
+            { L_,    1,   3, Obj::BDEDE_INVALID_CHARS_BIT, "   " ICM NL },
 #undef ICM
 #undef NL
         };
@@ -335,7 +335,7 @@ int main(int argc, char *argv[])
             const int   LEVEL = DATA[ti].d_level;
             const int   SPL   = DATA[ti].d_spl;
             const Enum  VALUE = DATA[ti].d_value;
-            const char *EXP   = DATA[ti].d_exp;
+            // const char *EXP   = DATA[ti].d_exp;
 
             memcpy(buf, CTRL, SIZE);  // Preset 'buf' to unset 'char' values.
 
@@ -353,6 +353,7 @@ int main(int argc, char *argv[])
             typedef bsl::ostream& (*FuncPtr)(bsl::ostream&, Enum, int, int);
 
             const FuncPtr FP = &Obj::print;
+            if (veryVerbose) (*FP)(cout, Obj::BDEDE_INVALID_CHARS_BIT, 0, 0);
         }
 
       } break;
@@ -397,8 +398,8 @@ int main(int argc, char *argv[])
         } DATA[] = {
             //line       enumerator value              expected result
             //----    ----------------------          -----------------
-            { L_,     Obj::BDEDE_INVALID_CHARS_MASK,  "INVALID_CHARS_MASK" },
-            { L_,     Obj::BDEDE_OUT_OF_SPACE_MASK,   "OUT_OF_SPACE_MASK"  },
+            { L_,     Obj::BDEDE_INVALID_CHARS_BIT,   "INVALID_CHARS_BIT" },
+            { L_,     Obj::BDEDE_OUT_OF_SPACE_BIT,    "OUT_OF_SPACE_BIT"  },
 
             { L_,     (Enum)(NUM_ENUMERATORS + 1),    UNKNOWN_FORMAT     },
             { L_,     (Enum)-1,                       UNKNOWN_FORMAT     },
@@ -445,7 +446,7 @@ int main(int argc, char *argv[])
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int   LINE  = DATA[ti].d_lineNum;
             const Enum  VALUE = DATA[ti].d_value;
-            const char *EXP   = DATA[ti].d_exp;
+            // const char *EXP   = DATA[ti].d_exp;
 
             memcpy(buf, CTRL, SIZE);  // Preset 'buf' to unset 'char' values.
 
@@ -464,7 +465,7 @@ int main(int argc, char *argv[])
 
             const FuncPtr FP = &operator<<;
 
-            if (veryVerbose) (*FP)(cout, Obj::BDEDE_INVALID_CHARS_MASK);
+            if (veryVerbose) (*FP)(cout, Obj::BDEDE_INVALID_CHARS_BIT);
         }
       } break;
       case 1: {
@@ -506,8 +507,8 @@ int main(int argc, char *argv[])
         } DATA[] = {
             // line         enumerator value            expected result
             // ----    ---------------------------     -----------------
-            {  L_,     Obj::BDEDE_INVALID_CHARS_MASK,  "INVALID_CHARS_MASK" },
-            {  L_,     Obj::BDEDE_OUT_OF_SPACE_MASK,   "OUT_OF_SPACE_MASK"  },
+            {  L_,     Obj::BDEDE_INVALID_CHARS_BIT,   "INVALID_CHARS_BIT" },
+            {  L_,     Obj::BDEDE_OUT_OF_SPACE_BIT,    "OUT_OF_SPACE_BIT"  },
 
             {  L_,     (Enum)(NUM_ENUMERATORS + 1),    UNKNOWN_FORMAT     },
             {  L_,     (Enum)-1,                       UNKNOWN_FORMAT     },
@@ -549,7 +550,7 @@ int main(int argc, char *argv[])
 
             const FuncPtr FP = &Obj::toAscii;
 
-            (*FP)(Obj::BDEDE_INVALID_CHARS_MASK);
+            (*FP)(Obj::BDEDE_INVALID_CHARS_BIT);
         }
 
       } break;

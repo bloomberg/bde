@@ -36,11 +36,11 @@ const char *bdede_TranslationStatus::toAscii(
                                            bdede_TranslationStatus::Enum value)
 {
     switch (value) {
-      case BDEDE_INVALID_CHARS_MASK: {
-        return  "INVALID_CHARS_MASK";                                 // RETURN
+      case BDEDE_INVALID_CHARS_BIT: {
+        return  "INVALID_CHARS_BIT";                                  // RETURN
       } break;
-      case BDEDE_OUT_OF_SPACE_MASK: {
-        return  "OUT_OF_SPACE_MASK";                                  // RETURN
+      case BDEDE_OUT_OF_SPACE_BIT: {
+        return  "OUT_OF_SPACE_BIT";                                   // RETURN
       } break;
     }
 

@@ -1,6 +1,8 @@
 // bdede_charconvertutf16.cpp                                         -*-C++-*-
 #include <bdede_charconvertutf16.h>
 
+#include <bdede_translationstatus.h>
+
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
@@ -195,6 +197,13 @@ namespace {
 
 typedef BloombergLP::bdede_CharConvertUtf16 Util;
 
+enum {
+    INVALID_CHARS_BIT =
+                 BloombergLP::bdede_TranslationStatus::BDEDE_INVALID_CHARS_BIT,
+    OUT_OF_SPACE_BIT  =
+                 BloombergLP::bdede_TranslationStatus::BDEDE_OUT_OF_SPACE_BIT
+};
+
 typedef unsigned int Iso10646Char;
     // For storing uncompressed Unicode character (21 bit, 17 plane).
 
@@ -233,7 +242,7 @@ struct NoopCapacity {
     // where we don't want to monitor capacity available in output, all
     // operations on this object are to become no-ops, all if-blocks controled
     // by '<' are 'if '<capacity> < <value>' with no 'else' and will expand to
-    // not happening.
+    // no code.
 
     // CREATORS
     explicit
@@ -306,31 +315,31 @@ struct Utf8 {
     //   the original utf-8 scheme, but not utf-8 as it is used for encoding
     //   iso10646 characters.)
 
-    static inline
+    static
     bool isSingleOctet(OctetType oct)
     {
         return ! (oct & ONE_OCTET_MASK);
     }
 
-    static inline
+    static
     bool isContinuation(OctetType oct)
     {
         return (oct & CONTINUE_MASK) == CONTINUE_TAG;
     }
 
-    static inline
+    static
     bool isTwoOctetHeader(OctetType oct)
     {
         return (oct & TWO_OCTET_MASK) == TWO_OCTET_TAG;
     }
 
-    static inline
+    static
     bool isThreeOctetHeader(OctetType oct)
     {
         return (oct & THREE_OCTET_MASK) == THREE_OCTET_TAG;
     }
 
-    static inline
+    static
     bool isFourOctetHeader(OctetType oct)
     {
         return (oct & FOUR_OCTET_MASK) == FOUR_OCTET_TAG;
@@ -349,14 +358,14 @@ struct Utf8 {
     //    Note also that a single-octet character can be copied directly; no
     //    function is provided to cover this trivial computation.
 
-    static inline
+    static
     void decodeTwoOctets(Iso10646Char *isoBuf, const OctetType *octBuf)
     {
         *isoBuf =  (octBuf[1] & ~CONTINUE_MASK)
                 | ((octBuf[0] & ~TWO_OCTET_MASK) << CONTINUE_CONT_WID);
     }
 
-    static inline
+    static
     void decodeThreeOctets(Iso10646Char *isoBuf, const OctetType *octBuf)
     {
         *isoBuf =  (octBuf[2] & ~CONTINUE_MASK)
@@ -364,7 +373,7 @@ struct Utf8 {
                 | ((octBuf[0] & ~THREE_OCTET_MASK) << 2 * CONTINUE_CONT_WID);
     }
 
-    static inline
+    static
     void decodeFourOctets(Iso10646Char *isoBuf, const OctetType *octBuf)
     {
         *isoBuf =  (octBuf[3] & ~CONTINUE_MASK)
@@ -373,7 +382,7 @@ struct Utf8 {
                 | ((octBuf[0] & ~FOUR_OCTET_MASK) << 3 * CONTINUE_CONT_WID);
     }
 
-    static inline
+    static
     int lookaheadContinuations(const OctetType *octbuf, int n)
         // Return the number of continuation octets beginning at '*octBuf',
         // up to but not greater than 'n'.  Note that a null octet is not a
@@ -398,20 +407,20 @@ struct Utf8 {
     //    character (i.e., that it does not lie in the d800-to-dfff reserved
     //    range).
 
-    static inline
+    static
     bool fitsInSingleOctet(Iso10646Char uc)
     {
         return 0 == (uc & ~Iso10646Char(0) << ONE_OCT_CONT_WID);
     }
 
-    static inline
+    static
     bool fitsInTwoOctets(Iso10646Char uc)
     {
         return 0 == (uc & ~Iso10646Char(0) << (TWO_OCT_CONT_WID +
                                                           CONTINUE_CONT_WID));
     }
 
-    static inline
+    static
     bool fitsInThreeOctets(Iso10646Char uc)
     {
         return 0 == (uc & ~Iso10646Char(0) << (THREE_OCT_CONT_WID +
@@ -430,7 +439,7 @@ struct Utf8 {
     //     given.  Note that the single-byte encoding is accomplished by a
     //     direct copy, for which no function is provided here.
 
-    static inline
+    static
     void encodeTwoOctets(char *octBuf, Iso10646Char isoBuf)
     {
         octBuf[1] = CONTINUE_TAG | (isoBuf & ~CONTINUE_MASK);
@@ -438,7 +447,7 @@ struct Utf8 {
                     ((isoBuf >> CONTINUE_CONT_WID) & ~TWO_OCTET_MASK);
     }
 
-    static inline
+    static
     void encodeThreeOctets(char *octBuf, Iso10646Char isoBuf)
     {
         octBuf[2] = CONTINUE_TAG | (isoBuf & ~CONTINUE_MASK);
@@ -448,7 +457,7 @@ struct Utf8 {
                     ((isoBuf >> 2 * CONTINUE_CONT_WID) & ~THREE_OCTET_MASK);
     }
 
-    static inline
+    static
     void encodeFourOctets(char *octBuf, Iso10646Char isoBuf)
     {
         octBuf[3] = CONTINUE_TAG | (isoBuf & ~CONTINUE_MASK);
@@ -497,28 +506,28 @@ struct Utf16 {
     //    respectively, and 'false' otherwise.
 
     template <typename UTF16_CHAR>
-    static inline
+    static
     bool isSingleUtf8(UTF16_CHAR uc)
     {
         return ! (uc & ~UTF16_CHAR(0) << Utf8::ONE_OCT_CONT_WID);
     }
 
     template <typename UTF16_CHAR>
-    static inline
+    static
     bool isSingleWord(UTF16_CHAR uc)
     {
         return (uc & RESERVED_MASK) != RESERVED_TAG;
     }
 
     template <typename UTF16_CHAR>
-    static inline
+    static
     bool isFirstWord(UTF16_CHAR uc)
     {
         return (uc & HEADER_MASK) == FIRST_TAG;
     }
 
     template <typename UTF16_CHAR>
-    static inline
+    static
     bool isSecondWord(UTF16_CHAR uc)
     {
         return (uc & HEADER_MASK) == SECOND_TAG;
@@ -543,21 +552,21 @@ struct Utf16 {
     //     character in the specied encoding.
 
     template <typename UTF16_CHAR>
-    static inline
+    static
     OctetType getUtf8Value(UTF16_CHAR uc)
     {
         return uc;
     }
 
     template <typename UTF16_CHAR>
-    static inline
+    static
     void decodeSingleWord(Iso10646Char *isoBuf, const UTF16_CHAR *u16Buf)
     {
         *isoBuf = *u16Buf;
     }
 
     template <typename UTF16_CHAR>
-    static inline
+    static
     void decodeTwoWords(Iso10646Char *isoBuf, const UTF16_CHAR *u16Buf)
     {
         *isoBuf = RESERVE_OFFSET
@@ -575,19 +584,19 @@ struct Utf16 {
     //     invalid result for a character that can be encoded in a single
     //     word.
 
-    static inline
+    static
     bool fitsInOneWord(Iso10646Char uc)
     {
         return uc < RESERVE_OFFSET;
     }
 
-    static inline
+    static
     bool isValidOneWord(Iso10646Char uc)
     {
         return (uc & RESERVED_MASK) != RESERVED_TAG;
     }
 
-    static inline
+    static
     bool isValidTwoWords(Iso10646Char uc)
     {
         return uc < UPPER_LIMIT;
@@ -603,14 +612,14 @@ struct Utf16 {
     //    as the second argument is not a valid iso10646 character.
 
     template <typename UTF16_CHAR>
-    static inline
+    static
     void encodeSingleWord(UTF16_CHAR* u16Buf, Iso10646Char uc)
     {
         *u16Buf = uc;
     }
 
     template <typename UTF16_CHAR>
-    static inline
+    static
     void encodeTwoWords(UTF16_CHAR *u16Buf, Iso10646Char uc)
     {
         Iso10646Char v = uc - RESERVE_OFFSET;
@@ -620,7 +629,7 @@ struct Utf16 {
     }
 
     template <typename UTF16_CHAR>
-    static inline
+    static
     bsl::size_t wslen(const UTF16_CHAR *str)
     {
         const UTF16_CHAR *pwc = str;
@@ -652,8 +661,8 @@ bsl::size_t utf16BufferLength(const char *srcBuffer)
     //: o There are errors and the 'errorCharacter' is 0.  This routine assumes
     //:   that 'errorCharacter' is non-zero.
     //: o if a four byte sequence is a non-minimal encoding.  This would be
-    //:   encoded as a single error character, while we don't decode it so we
-    //:   just assume it will result in 2 words output.
+    //:   translated as a single error character, while we don't decode it so
+    //:   we just assume it will result in 2 words output.
 {
     bsl::size_t wordsNeeded = 0;
 
@@ -693,7 +702,6 @@ bsl::size_t utf16BufferLength(const char *srcBuffer)
 
 // Note on the following static templates -- AIX can't find static template
 // functions unless they're fully specialized every time they're called.
-// What a pain.
 
 template <typename UTF16_CHAR>
 static
@@ -744,13 +752,17 @@ int localUtf8ToUtf16(UTF16_CHAR  *dstBuffer,
                      UTF16_CHAR   errorCharacter)
     // This translates from a specified null terminated utf8 buffer 'srcBuffer'
     // to a specifed null termintaed utf16 buffer 'dstBuffer'.  This function
-    // is 'slow' because it does not assume there is enough room in the output
-    // buffer for the result, so it is constantly checking if adequate room
-    // exists in the buffer.
+    // uses type 'CAPACITY_FUNCTOR' to check if there is enough room.  If the
+    // caller isn't certain the output buffer will be big enough,
+    // 'CAPACITY_FUNCTOR' should be 'Capacity' defined in this file, and the
+    // routine will constantly check adequate room for output exists.  If the
+    // caller is certain adequate room exists, 'CAPACITY_FUNCTOR' should be
+    // 'NoopCapacity', which translates all the checking to noops and always
+    // returns that room is adequate, for faster execution.
 {
-    // We need at least room for a null character in the output.
-
     CAPACITY_FUNCTOR dstCapacity(dstBufferSize);
+
+    // We need at least room for a null character in the output.
 
     if (dstCapacity < 1) {
         if (numCharsWritten) {
@@ -759,7 +771,7 @@ int localUtf8ToUtf16(UTF16_CHAR  *dstBuffer,
         if (numWordsWritten) {
             *numWordsWritten = 0;
         }
-        return Util::BDEDE_UTF16_OUT_OF_SPACE_FLAG;                   // RETURN
+        return OUT_OF_SPACE_BIT;                                      // RETURN
     }
 
     UTF16_CHAR *const dstStart = dstBuffer;
@@ -789,7 +801,7 @@ int localUtf8ToUtf16(UTF16_CHAR  *dstBuffer,
             if (dstCapacity < 2) {
                 // Are we out of output room, with only space for the null?
 
-                returnStatus |= Util::BDEDE_UTF16_OUT_OF_SPACE_FLAG;
+                returnStatus |= OUT_OF_SPACE_BIT;
                 break;
             }
 
@@ -807,7 +819,7 @@ int localUtf8ToUtf16(UTF16_CHAR  *dstBuffer,
             // If there is an error character, we'll
             // need at least one output slot.
 
-            returnStatus |= Util::BDEDE_UTF16_OUT_OF_SPACE_FLAG;
+            returnStatus |= OUT_OF_SPACE_BIT;
             break;
         }
 
@@ -819,7 +831,7 @@ int localUtf8ToUtf16(UTF16_CHAR  *dstBuffer,
         if (Utf8::isTwoOctetHeader(*octets)) {
             int nContins = Utf8::lookaheadContinuations(octets + 1, 1);
             if (nContins != 1) {
-                returnStatus |= Util::BDEDE_UTF16_INVALID_CHARS_FLAG;
+                returnStatus |= INVALID_CHARS_BIT;
                 octets += nContins + 1; // Resynchronize past this group.
                 if (errorCharacter) {
                     *dstBuffer++ = errorCharacter;
@@ -832,7 +844,7 @@ int localUtf8ToUtf16(UTF16_CHAR  *dstBuffer,
             Utf8::decodeTwoOctets(&convBuf, octets);
             octets += 2;
             if (Utf8::fitsInSingleOctet(convBuf)) { // Miscoding!  Mischief?
-                returnStatus |= Util::BDEDE_UTF16_INVALID_CHARS_FLAG;
+                returnStatus |= INVALID_CHARS_BIT;
                 if (errorCharacter) {
                     *dstBuffer++ = errorCharacter;
                     --dstCapacity;
@@ -844,7 +856,7 @@ int localUtf8ToUtf16(UTF16_CHAR  *dstBuffer,
         else if (Utf8::isThreeOctetHeader(*octets)) {
             int nContins = Utf8::lookaheadContinuations(octets + 1, 2);
             if (nContins != 2) {
-                returnStatus |= Util::BDEDE_UTF16_INVALID_CHARS_FLAG;
+                returnStatus |= INVALID_CHARS_BIT;
                 octets += nContins + 1; // Resynchronize past this group.
                 if (errorCharacter) {
                     *dstBuffer++ = errorCharacter;
@@ -857,7 +869,7 @@ int localUtf8ToUtf16(UTF16_CHAR  *dstBuffer,
             Utf8::decodeThreeOctets(&convBuf, octets);
             octets += 3;
             if (Utf8::fitsInTwoOctets(convBuf)) { // Miscoding!  Mischief?
-                returnStatus |= Util::BDEDE_UTF16_INVALID_CHARS_FLAG;
+                returnStatus |= INVALID_CHARS_BIT;
                 if (errorCharacter) {
                     *dstBuffer++ = errorCharacter;
                     --dstCapacity;
@@ -869,7 +881,7 @@ int localUtf8ToUtf16(UTF16_CHAR  *dstBuffer,
         else if (Utf8::isFourOctetHeader(*octets)) {
             int nContins = Utf8::lookaheadContinuations(octets + 1, 3);
             if (nContins != 3) {
-                returnStatus |= Util::BDEDE_UTF16_INVALID_CHARS_FLAG;
+                returnStatus |= INVALID_CHARS_BIT;
                 octets += nContins + 1; // Resynchronize past this group.
                 if (errorCharacter) {
                     *dstBuffer++ = errorCharacter;
@@ -882,7 +894,7 @@ int localUtf8ToUtf16(UTF16_CHAR  *dstBuffer,
             Utf8::decodeFourOctets(&convBuf, octets);
             octets += 4;
             if (Utf8::fitsInThreeOctets(convBuf)) { // Miscoding!  Mischief?
-                returnStatus |= Util::BDEDE_UTF16_INVALID_CHARS_FLAG;
+                returnStatus |= INVALID_CHARS_BIT;
                 if (errorCharacter) {
                     *dstBuffer++ = errorCharacter;
                     --dstCapacity;
@@ -897,7 +909,7 @@ int localUtf8ToUtf16(UTF16_CHAR  *dstBuffer,
 
             int nContins = Utf8::lookaheadContinuations(octets + 1, 4);
             octets += nContins + 1;
-            returnStatus |= Util::BDEDE_UTF16_INVALID_CHARS_FLAG;
+            returnStatus |= INVALID_CHARS_BIT;
             if (errorCharacter) {
                 *dstBuffer++ = errorCharacter;
                 --dstCapacity;
@@ -916,7 +928,7 @@ int localUtf8ToUtf16(UTF16_CHAR  *dstBuffer,
 
         if (Utf16::fitsInOneWord(convBuf)) {
             if (! Utf16::isValidOneWord(convBuf)) {
-                returnStatus |= Util::BDEDE_UTF16_INVALID_CHARS_FLAG;
+                returnStatus |= INVALID_CHARS_BIT;
                 if (errorCharacter) {
                     *dstBuffer++ = errorCharacter;
                     --dstCapacity;
@@ -925,7 +937,7 @@ int localUtf8ToUtf16(UTF16_CHAR  *dstBuffer,
                 continue;
             }
             if (dstCapacity < 2) {  // Need room for at least one plus a null.
-                returnStatus |= Util::BDEDE_UTF16_OUT_OF_SPACE_FLAG;
+                returnStatus |= OUT_OF_SPACE_BIT;
                 break;
             }
             Utf16::encodeSingleWord(dstBuffer, convBuf);
@@ -938,7 +950,7 @@ int localUtf8ToUtf16(UTF16_CHAR  *dstBuffer,
             // so test that first.
 
             if (! Utf16::isValidTwoWords(convBuf)) {
-                returnStatus |= Util::BDEDE_UTF16_INVALID_CHARS_FLAG;
+                returnStatus |= INVALID_CHARS_BIT;
                 if (errorCharacter) {
                     *dstBuffer++ = errorCharacter;
                     --dstCapacity;
@@ -947,7 +959,7 @@ int localUtf8ToUtf16(UTF16_CHAR  *dstBuffer,
                 continue;
             }
             if (dstCapacity < 3) {  // Need room for at least two plus a null.
-                returnStatus |= Util::BDEDE_UTF16_OUT_OF_SPACE_FLAG;
+                returnStatus |= OUT_OF_SPACE_BIT;
                 break;
             }
             Utf16::encodeTwoWords(dstBuffer, convBuf);
@@ -989,9 +1001,13 @@ int localUtf16ToUtf8(char             *dstBuffer,
                      char              errorCharacter)
     // This translates from a specified null terminated utf16 buffer
     // 'srcBuffer' to a specifed null termintaed utf8 buffer 'dstBuffer'.  This
-    // function is 'slow' because it does not assume there is enough room in
-    // the output buffer for the result, so it is constantly checking if
-    // adequate room exists in the buffer.
+    // function uses type 'CAPACITY_FUNCTOR' to check if there is enough room.
+    // If the caller isn't certain the output buffer will be big enough,
+    // 'CAPACITY_FUNCTOR' should be 'Capacity' defined in this file, and the
+    // routine will constantly check adequate room for output exists.  If the
+    // caller is certain adequate room exists, 'CAPACITY_FUNCTOR' should be
+    // 'NoopCapacity', which translates all the checking to noops and always
+    // returns that room is adequate, for faster execution.
 {
     CAPACITY_FUNCTOR dstCapacity(dstBufferSize);
 
@@ -1002,7 +1018,7 @@ int localUtf16ToUtf8(char             *dstBuffer,
         if (numBytesWritten) {
             *numBytesWritten = 0;
         }
-        return Util::BDEDE_UTF16_OUT_OF_SPACE_FLAG;                   // RETURN
+        return OUT_OF_SPACE_BIT;                                      // RETURN
     }
 
     char *const dstStart = dstBuffer;
@@ -1028,7 +1044,7 @@ int localUtf16ToUtf8(char             *dstBuffer,
             if (dstCapacity < 2) {
                 // One for the char, one for the null.
 
-                returnStatus |= Util::BDEDE_UTF16_OUT_OF_SPACE_FLAG;
+                returnStatus |= OUT_OF_SPACE_BIT;
                 break;
             }
             *dstBuffer = Utf16::getUtf8Value(*srcBuffer);
@@ -1054,7 +1070,7 @@ int localUtf16ToUtf8(char             *dstBuffer,
                 // Need two spaces plus a null
 
                 if (dstCapacity < 3) {
-                    returnStatus |= Util::BDEDE_UTF16_OUT_OF_SPACE_FLAG;
+                    returnStatus |= OUT_OF_SPACE_BIT;
                     break;
                 }
                 Utf8::encodeTwoOctets(dstBuffer, convBuf);
@@ -1067,7 +1083,7 @@ int localUtf16ToUtf8(char             *dstBuffer,
             // Need three spaces plus a null
 
             if (dstCapacity < 4) {
-                returnStatus |= Util::BDEDE_UTF16_OUT_OF_SPACE_FLAG;
+                returnStatus |= OUT_OF_SPACE_BIT;
                 break;
             }
 
@@ -1085,13 +1101,13 @@ int localUtf16ToUtf8(char             *dstBuffer,
 
             // ( ! isSecondWord() covers the case of null.  )
 
-            returnStatus |= Util::BDEDE_UTF16_INVALID_CHARS_FLAG;
+            returnStatus |= INVALID_CHARS_BIT;
             srcBuffer++;
             if (0 != errorCharacter) {
                 if (dstCapacity < 2) {
                     // One for the char, one for the null.
 
-                    returnStatus |= Util::BDEDE_UTF16_OUT_OF_SPACE_FLAG;
+                    returnStatus |= OUT_OF_SPACE_BIT;
                     break;
                 }
                 *dstBuffer = errorCharacter;
@@ -1105,7 +1121,7 @@ int localUtf16ToUtf8(char             *dstBuffer,
         // Need four octets plus a null
 
         if (dstCapacity < 5) {
-            returnStatus |= Util::BDEDE_UTF16_OUT_OF_SPACE_FLAG;
+            returnStatus |= OUT_OF_SPACE_BIT;
 
             break;
         }
@@ -1139,6 +1155,14 @@ int localUtf16ToUtf8String(bsl::string      *dstString,
                            const UTF16_CHAR *srcBuffer,
                            bsl::size_t      *numCharsWritten,
                            char              errorCharacter)
+    // Translate the UTF-16 encoded, null-terminated sequence in the specified
+    // 'srcBuffer' to the specified 'dstString'.  Note that any pre-existing
+    // contents of 'dstString' are discarded.  Return the number of characters
+    // (not words or bytes) translated to the specified '*numCharsWritten'.  If
+    // error sequences are encountered, substitute the specified
+    // 'errorCharacter', or eliminate the sequence entirely if
+    // '0 == errorCharacter'.  The behavior is undefined if 'srcBuffer' is not
+    // null-terminated, or if 'errorCharacter >= 0x80'.
 {
     bsl::size_t estLength = utf8BufferLength<UTF16_CHAR>(srcBuffer);
     BSLS_ASSERT(estLength > 0);
@@ -1160,10 +1184,10 @@ int localUtf16ToUtf8String(bsl::string      *dstString,
                                                         numCharsWritten,
                                                         &numBytesWritten,
                                                         errorCharacter);
-    BSLS_ASSERT_SAFE(0 == (Util::BDEDE_UTF16_OUT_OF_SPACE_FLAG & rc));
+    BSLS_ASSERT_SAFE(0 == (OUT_OF_SPACE_BIT & rc));
     if (numBytesWritten != estLength) {
         BSLS_ASSERT(numBytesWritten < estLength);
-        BSLS_ASSERT(Util::BDEDE_UTF16_INVALID_CHARS_FLAG & rc);
+        BSLS_ASSERT(INVALID_CHARS_BIT & rc);
         BSLS_ASSERT(0 == errorCharacter);
     }
     BSLS_ASSERT(numBytesWritten <= dstString->length());
@@ -1183,6 +1207,14 @@ int localUtf16ToUtf8Vector(bsl::vector<char> *dstVector,
                            const UTF16_CHAR  *srcBuffer,
                            bsl::size_t       *numCharsWritten,
                            char               errorCharacter)
+    // Translate the UTF-16 encoded, null-terminated sequence in the specified
+    // 'srcBuffer' to the specified 'dstString', null-terminating the result.
+    // Note that any pre-existing contents of 'dstString' are discarded.
+    // Return the number of characters (not words or bytes) translated to the
+    // specified '*numCharsWritten'.  If error sequences are encountered,
+    // substitute the specified 'errorCharacter', or eliminate the sequence
+    // entirely if '0 == errorCharacter'.  The behavior is undefined if
+    // 'srcBuffer' is not null-terminated, or if 'errorCharacter >= 0x80'.
 {
     bsl::size_t estLength = utf8BufferLength<UTF16_CHAR>(srcBuffer);
     BSLS_ASSERT(estLength > 0);
@@ -1199,10 +1231,10 @@ int localUtf16ToUtf8Vector(bsl::vector<char> *dstVector,
                                                         numCharsWritten,
                                                         &numBytesWritten,
                                                         errorCharacter);
-    BSLS_ASSERT_SAFE(0 == (Util::BDEDE_UTF16_OUT_OF_SPACE_FLAG & rc));
+    BSLS_ASSERT_SAFE(0 == (OUT_OF_SPACE_BIT & rc));
     if (numBytesWritten != estLength) {
         BSLS_ASSERT(numBytesWritten < estLength);
-        BSLS_ASSERT(Util::BDEDE_UTF16_INVALID_CHARS_FLAG & rc);
+        BSLS_ASSERT(INVALID_CHARS_BIT & rc);
         BSLS_ASSERT(0 == errorCharacter);
     }
     BSLS_ASSERT(0 == (*dstVector)[numBytesWritten - 1]);
@@ -1222,12 +1254,12 @@ namespace BloombergLP {
 // between args is that one is an 'unsigned short *' while the same arg in the
 // other is 'wchar_t *'.  If we ever port to a platform where 'wchar_t' is just
 // a typedef to 'unsigned short' this will result in the compiler rightfully
-// complaining about routines multiply declared and multiply defined and we
-// will need to '#ifdef' away all the routines taking a 'const wchar_t *'
-// pointer as input on that platform (at which pointer everything will then
-// work).  'wchar_t' is 4 bytes on Linux, Solaris (CC and gcc), HPUX, and
-// Darwin.  On AIX and Windows, 'wchar_t' is unsigned and the size of short,
-// but it is a compiler-defined type considered distinct from 'unsigned short'.
+// complaining about routines multiply defined and we will need to '#ifdef'
+// away all the routines taking a 'const wchar_t *' pointer as input on that
+// platform (at which point everything will then work).  'wchar_t' is 4 bytes
+// on Linux, Solaris (CC and gcc), HP-UX, and Darwin.  On AIX and Windows,
+// 'wchar_t' is unsigned and the size of short, but it is a compiler-defined
+// type considered distinct from 'unsigned short'.
 
 BSLMF_ASSERT(! (bslmf::IsSame<wchar_t, unsigned short>::VALUE));
 
@@ -1260,15 +1292,15 @@ int bdede_CharConvertUtf16::utf8ToUtf16(
                                                             numCharsWritten,
                                                             &numWordsWritten,
                                                             errorCharacter);
-    BSLS_ASSERT_SAFE(0 == (Util::BDEDE_UTF16_OUT_OF_SPACE_FLAG & rc));
+    BSLS_ASSERT_SAFE(0 == (OUT_OF_SPACE_BIT & rc));
     if (numWordsWritten != estLength) {
         BSLS_ASSERT(numWordsWritten < estLength);
-        BSLS_ASSERT(Util::BDEDE_UTF16_INVALID_CHARS_FLAG & rc);
+        BSLS_ASSERT(INVALID_CHARS_BIT & rc);
     }
     BSLS_ASSERT(0 == (*dstVector)[numWordsWritten - 1]);
 
     if (numWordsWritten != dstVector->size()) {
-        BSLS_ASSERT(numWordsWritten <= dstVector->size());
+        BSLS_ASSERT(numWordsWritten < dstVector->size());
 
         dstVector->resize(numWordsWritten);
     }
@@ -1301,10 +1333,10 @@ int bdede_CharConvertUtf16::utf8ToUtf16(bsl::wstring   *dstWstring,
                                                      numCharsWritten,
                                                      &numWordsWritten,
                                                      errorCharacter);
-    BSLS_ASSERT_SAFE(0 == (Util::BDEDE_UTF16_OUT_OF_SPACE_FLAG & rc));
+    BSLS_ASSERT_SAFE(0 == (OUT_OF_SPACE_BIT & rc));
     if (numWordsWritten != estLength) {
         BSLS_ASSERT(numWordsWritten < estLength);
-        BSLS_ASSERT(Util::BDEDE_UTF16_INVALID_CHARS_FLAG & rc);
+        BSLS_ASSERT(INVALID_CHARS_BIT & rc);
     }
     BSLS_ASSERT(0 == (*dstWstring)[numWordsWritten - 1]);
 

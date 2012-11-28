@@ -36,7 +36,8 @@ using namespace bsl;  // automatically added by script
 
 static int testStatus = 0;
 
-static void aSsErT(int c, const char *s, int i) {
+static void aSsErT(int c, const char *s, int i)
+{
     if (c) {
         cout << "Error " << __FILE__ << "(" << i << "): " << s
              << "    (failed)" << endl;
@@ -500,7 +501,7 @@ void checkForExpectedConversionResultsU2ToU8(unsigned short *input,
     }
 
     if (!totalOutputLength) {
-        return;
+        return;                                                       // RETURN
     }
 
     for(int bufSize = 0; bufSize < totalOutputLength; ++bufSize) {
@@ -604,7 +605,7 @@ void buildUpAndTestStringsU2ToU8(int             idx,
             veryVerbose);
 
     if (depth <= 0) {
-        return;
+        return;                                                       // RETURN
     }
 
     struct PrecomputedData const &d = PRECOMPUTED_DATA[idx];
@@ -798,7 +799,7 @@ void perturbUtf8AndCheckConversionFailures(const char     *input,
     }
 
     if (!totalInputLength) {
-        return;
+        return;                                                       // RETURN
     }
 
     // The perturbations we can apply to each UTF-8 input character will depend
@@ -1104,7 +1105,7 @@ void checkForExpectedConversionResultsU8ToU2(const char     *input,
     }
 
     if (!totalInputLength) {
-        return;
+        return;                                                       // RETURN
     }
 
     perturbUtf8AndCheckConversionFailures(input,
@@ -1205,7 +1206,7 @@ void buildUpAndTestStringsU8ToU2(int             idx,
             veryVerbose);
 
     if (depth <= 0) {
-        return;
+        return;                                                       // RETURN
     }
 
     struct PrecomputedData const &d = PRECOMPUTED_DATA[idx];

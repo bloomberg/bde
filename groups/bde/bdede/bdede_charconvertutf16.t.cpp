@@ -2,10 +2,13 @@
 
 #include <bdede_charconvertutf16.h>
 
+#include <bdede_translationstatus.h>
+
 #include <bslma_testallocator.h>
 #include <bsls_platform.h>
 #include <bsls_stopwatch.h>
 
+#include <bsl_algorithm.h>
 #include <bsl_iomanip.h>
 #include <bsl_iostream.h>
 
@@ -219,7 +222,8 @@ bool aSsErT(int c, const char *s, int i)
 //                               GLOBAL TYPEDEFS
 //-----------------------------------------------------------------------------
 
-typedef bdede_CharConvertUtf16 Util;
+typedef bdede_CharConvertUtf16  Util;
+typedef bdede_TranslationStatus Status;
 
 //=============================================================================
 //                           CUSTOM TEST APPARATUS
@@ -4517,10 +4521,13 @@ int main(int argc, char**argv)
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 12: {
+      case 13: {
         // --------------------------------------------------------------------
-        // USAGE EXAMPLE
+        // USAGE EXAMPLE 2
         // --------------------------------------------------------------------
+
+        if (verbose) cout << "USAGE EXAMPLE 2\n"
+                             "===============\n";
 
         // The following snippets of code illustrate a typical use of the
         // 'bdede_CharConvertUtf16' struct's utility functions, first
@@ -4636,6 +4643,98 @@ int main(int argc, char**argv)
 
         ASSERT(EXPECTED_CHARS_WRITTEN == utf8CharsWritten);
         ASSERT(utf16CharsWritten      == utf8CharsWritten);
+      } break;
+      case 12: {
+        // --------------------------------------------------------------------
+        // USAGE EXAMPLE 1
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "USAGE EXAMPLE 1\n"
+                             "===============\n";
+
+// In this example, we will translate a string containing a non-ascii character
+// from UTF-16 to UTF-8 and back.
+
+// First, we create a UTF-16 string spelling 'ecole' in French, which begins
+// with '0xc9', a non-ascii 'e' with an accent over it:
+
+        unsigned short utf16String[] = { 0xc9, 'c', 'o', 'l', 'e', 0 };
+
+// Then, we create a byte buffer to store the UTF-8 result of the translation
+// in, and variables to monitor counts of characters and bytes translated:
+
+        char utf8String[7];
+        bsl::size_t numChars, numBytes;
+        numChars = numBytes = -1;    // garbage
+
+// Next, we call 'utf16ToUtf8' to do the translation:
+
+        int rc = bdede_CharConvertUtf16::utf16ToUtf8(utf8String,
+                                                     sizeof(utf8String),
+                                                     utf16String,
+                                                     &numChars,
+                                                     &numBytes);
+
+// Then, we observe no errors or warnigns occurred, and numbers of chars and
+// bytes were as expected.  note that both 'numChars' and 'numBytes' include
+// the terminating 0.
+
+        ASSERT(0 == rc);
+        ASSERT(6 == numChars);
+        ASSERT(7 == numBytes);
+
+// Next, we examine the length of the translated string:
+
+        ASSERT(numBytes - 1 == bsl::strlen(utf8String));
+
+// Then, we examine the individual bytes of the translated UTF-8:
+
+        ASSERT((char) 0xc3 == utf8String[0]);
+        ASSERT((char) 0x89 == utf8String[1]);
+        ASSERT('c' ==         utf8String[2]);
+        ASSERT('o' ==         utf8String[3]);
+        ASSERT('l' ==         utf8String[4]);
+        ASSERT('e' ==         utf8String[5]);
+        ASSERT(0   ==         utf8String[6]);
+
+// Next, in preparation for translation back to UTF-16, we create a buffer of
+// shorts and the variable 'numWords' to track the number of UTF-16 words
+// occuppied by the result.
+
+        unsigned short secondUtf16String[6];
+        bsl::size_t numWords;
+        numChars = numWords = -1;    // garbage
+
+// Then, we do the reverse translation:
+
+        rc = bdede_CharConvertUtf16::utf8ToUtf16(secondUtf16String,
+                                                 6,
+                                                 utf8String,
+                                                 &numChars,
+                                                 &numWords);
+
+// Next, we observe that no errors or warnings were reported, and that the
+// number of characters and words were as expected.  Note that 'numChars' and
+// 'numWords' both include the terminating 0:
+
+        ASSERT(0 == rc);
+        ASSERT(6 == numChars);
+        ASSERT(6 == numWords);
+
+// Now, we observe that our output is identical to the original UTF-16 string:
+
+        ASSERT(0 == bsl::memcmp(utf16String,
+                                secondUtf16String,
+                                sizeof(utf16String)));
+
+// Finally, we examine the individual words of the the reverse translation:
+
+        ASSERT(0xc9 == secondUtf16String[0]);
+        ASSERT('c'  == secondUtf16String[1]);
+        ASSERT('o'  == secondUtf16String[2]);
+        ASSERT('l'  == secondUtf16String[3]);
+        ASSERT('e'  == secondUtf16String[4]);
+        ASSERT(0    == secondUtf16String[5]);
       } break;
       case 11: {
         // --------------------------------------------------------------------
@@ -4889,7 +4988,7 @@ int main(int argc, char**argv)
         for (int e = 0; e < 2; ++e) {
             char errorChar = 0 == e ? 'x' : 0;
 
-            bsl::size_t numExpectedChars = 
+            bsl::size_t numExpectedChars =
                       errorChar ? NUM_EXPECTED_UTF16 : NUM_EXPECTED_UTF16_ZERO;
             const bsl::wstring expectedW(
                     errorChar ? expectedUtf16
@@ -4909,7 +5008,7 @@ int main(int argc, char**argv)
                                            (const char *) errorUnsignedIn,
                                            &nChars,
                                            errorChar);
-                ASSERT(Util::BDEDE_UTF16_INVALID_CHARS_FLAG == rc);
+                ASSERT(Status::BDEDE_INVALID_CHARS_BIT == rc);
                 LOOP2_ASSERT(nChars, numExpectedChars,
                                                    numExpectedChars == nChars);
                 LOOP2_ASSERT(utf16Wstring.length(), numExpectedChars,
@@ -4936,7 +5035,7 @@ int main(int argc, char**argv)
                                            (const char *) errorUnsignedIn,
                                            &nChars,
                                            errorChar);
-                ASSERT(Util::BDEDE_UTF16_INVALID_CHARS_FLAG == rc);
+                ASSERT(Status::BDEDE_INVALID_CHARS_BIT == rc);
                 LOOP2_ASSERT(nChars, numExpectedChars,
                                                    numExpectedChars == nChars);
                 LOOP2_ASSERT(utf16Vec.size(), numExpectedChars,
@@ -4976,7 +5075,7 @@ int main(int argc, char**argv)
                                            errorUtf16InOrig,
                                            &nChars,
                                            errorChar);
-                ASSERT(Util::BDEDE_UTF16_INVALID_CHARS_FLAG == rc);
+                ASSERT(Status::BDEDE_INVALID_CHARS_BIT == rc);
                 ASSERT(expectedChars == nChars);
                 ASSERT(expectedChars == utf8Vec.size());
 
@@ -4993,7 +5092,7 @@ int main(int argc, char**argv)
                                            errorChar);
                 nBytes = utf8String.length() + 1;
 
-                ASSERT(Util::BDEDE_UTF16_INVALID_CHARS_FLAG == rc);
+                ASSERT(Status::BDEDE_INVALID_CHARS_BIT == rc);
                 ASSERT(expectedChars == nChars);
                 ASSERT(expectedChars == nBytes);
                 ASSERT(expectedChars == utf8String.length() + 1);
@@ -7631,13 +7730,13 @@ cout << R_(iFirst) << R_(wp.end(u16) - wp.begin(u16))
         //     character values (whether single- or multi-byte/word): (5)
         //   TBD: Verify that the source character string has not been
         //   perturbed.
+        //   TBD:CHECK PARAMETER ARRAYS, here or in another test!
         //
         // Plan:
         //   For utf8-to-utf16 and for utf16-to-utf8, generate all legal
         //   characters (in the iso10646 domain supported by utf8 and utf16)
         //   one at a time.  Place each character (of however many bytes/words)
         //   in a source string and apply the conversion functions.
-// CHECK PARAMETER ARRAYS, here or in another test!
         //   Convert the string.  Verify the converted output as well as the
         //   return values generated.  (This will necessarily verify that
         //   each input character's encoding was correctly recognized, and

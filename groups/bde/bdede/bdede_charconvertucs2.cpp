@@ -2,6 +2,8 @@
 
 #include <bdede_charconvertucs2.h>
 
+#include <bdede_translationstatus.h>
+
 #include <bsls_performancehint.h>  // 'BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY'
 
 #include <bsls_ident.h>
@@ -139,8 +141,10 @@ enum {
 
 enum {
     BDEDE_SUCCESS                 = 0,
-    BDEDE_INVALID_INPUT_CHARACTER = 1,
-    BDEDE_OUTPUT_BUFFER_TOO_SMALL = 2
+    BDEDE_INVALID_INPUT_CHARACTER =
+                 BloombergLP::bdede_TranslationStatus::BDEDE_INVALID_CHARS_BIT,
+    BDEDE_OUTPUT_BUFFER_TOO_SMALL =
+                 BloombergLP::bdede_TranslationStatus::BDEDE_OUT_OF_SPACE_BIT
 };
 
 namespace {
@@ -425,6 +429,7 @@ void convertUcs2ToUtf8(unsigned char        **dstBufferPtr,
         //..
         // 0080-07FF | 110xxxxx 10xxxxxx
         //..
+
         dstBuffer[0] = (unsigned char)(RANGE1_BITS
                                          | (*srcString >> RANGE1_BYTE1_SHIFT));
         dstBuffer[1] = (unsigned char)(EXTRA_BITS | (*srcString & EXTRA_MASK));
@@ -459,6 +464,7 @@ void convertUcs2ToUtf8(unsigned char        **dstBufferPtr,
     //..
     // 0800-FFFF | 1110xxxx 10xxxxxx 10xxxxxx
     //..
+
     dstBuffer[0] = (unsigned char)(
                             RANGE2_BITS | (*srcString >> RANGE2_BYTE1_SHIFT));
     dstBuffer[1] = (unsigned char)(
@@ -583,6 +589,7 @@ int bdede_CharConvertUcs2::utf8ToUcs2(
 
     // We're going to work in 'buffer' and only update '*result' when 'buffer'
     // fills up.
+
     unsigned short        buffer[512];
     unsigned short       *dstBuffer   = buffer;
     bsl::size_t           dstCapacity = sizeof buffer / sizeof *buffer;
@@ -593,6 +600,7 @@ int bdede_CharConvertUcs2::utf8ToUcs2(
     while (*src) {
         // This branch is unlikely - this only happens every 510 output
         // characters.
+
         if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(dstBuffer >= bufEnd)) {
             result->insert(result->end(), buffer, dstBuffer);
             dstBuffer   = buffer;
@@ -611,6 +619,7 @@ int bdede_CharConvertUcs2::utf8ToUcs2(
         }
         else {
             // This is a multi-octet character.  Call helper routine.
+
             convertUtf8ToUcs2(&dstBuffer,
                               &dstCapacity,
                               &src,
@@ -621,6 +630,7 @@ int bdede_CharConvertUcs2::utf8ToUcs2(
     }
 
     // Explicitly null-terminate '*result'.
+
     *dstBuffer++ = 0;
 
     result->insert(result->end(), buffer, dstBuffer);
@@ -701,6 +711,7 @@ int bdede_CharConvertUcs2::ucs2ToUtf8(char                 *dstBuffer,
     if (dstCapacity) {
         // If enough space is available, we need to count the 0 byte we're
         // about to terminate the string with.
+
         ++charsWritten;
         ++bytesWritten;
     }
@@ -739,6 +750,7 @@ int bdede_CharConvertUcs2::ucs2ToUtf8(bsl::string          *result,
 
     // We're going to work in 'buffer' and only update '*result' when 'buffer'
     // fills up.
+
     unsigned char        buffer[1024];
     unsigned char       *dstBuffer   = buffer;
     bsl::size_t          dstCapacity = sizeof buffer / sizeof *buffer;
@@ -754,6 +766,7 @@ int bdede_CharConvertUcs2::ucs2ToUtf8(bsl::string          *result,
     while (*srcString) {
         // This branch is unlikely - this only happens about every 1020 output
         // octets.
+
         if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(dstBuffer >= bufEnd)) {
             result->append(buffer, dstBuffer);
             dstBuffer   = buffer;
@@ -793,6 +806,7 @@ int bdede_CharConvertUcs2::ucs2ToUtf8(bsl::string          *result,
 
     if (numCharsWritten) {
         // If nothing was written, pretend a null-terminator was output.
+
         if (!charsWritten) {
             ++charsWritten;
         }

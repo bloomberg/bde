@@ -263,6 +263,10 @@ BDES_IDENT("$Id: $")
 #include <bdescm_version.h>
 #endif
 
+#ifndef INCLUDED_BDEDE_TRANSLATIONSTATUS
+#include <bdede_translationstatus.h>
+#endif
+
 #ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
 #endif
@@ -309,23 +313,21 @@ struct bdede_CharConvertUcs2 {
         // 'errorCharacter' to be substituted for invalid (i.e., not
         // convertible to UCS-2) input characters.  If 'errorCharacter' is 0,
         // invalid input characters are ignored (i.e., produce no corresponding
-        // output characters).  Return 0 on success, and a non-zero 'result' on
-        // failure.  If 'result & 1' is non-zero, an invalid input was
-        // detected.  If 'result & 2' is non-zero, 'dstCapacity' is
-        // insufficient to hold the complete conversion.  'result & 1' is
-        // non-zero if one or more input characters are invalid (in which case
-        // the conversion continues).  'result & 2' is non-zero if the length
-        // of the converted 'srcString' (including the null terminator) is
-        // greater than 'dstCapacity', in which case the maximal
-        // null-terminated prefix of the properly converted result string is
-        // loaded into 'dstBuffer', and (unless null) '*numCharsWritten' is set
-        // to 'dstCapacity'.  The behavior is undefined unless
-        // '0 <= dstCapacity', 'dstBuffer' refers to an array of at least
-        // 'dstCapacity' elements, and 'srcString' is null-terminated.  Note
-        // that if 'dstCapacity' is 0, this function returns exactly 2 and
-        // '*numCharsWritten' (if specified) is loaded with 0 (since there is
-        // insufficient space for the null terminator even for an empty input
-        // string).
+        // output characters).  Return 0 on success and a bitwise-or of the
+        // masks specified by 'bdede_TranslationStatus::Enum' otherwise, with
+        // 'bdede_TranslationStatus::BDEDE_INVALID_CHARS_BIT' set to indicate
+        // that at least one invalid input sequence was encountered, and
+        // 'bdede_TranslationStatus::BDEDE_OUT_OF_SPACE_BIT' set to indicate
+        // that 'dstCapacity' was insufficient to accommodate the output.  If
+        // 'dstCapacity' was insufficient, the maximal null-terminated prefix
+        // of the properly converted result string is loaded into 'dstBuffer',
+        // and (unless null) '*numCharsWritten' is set to 'dstCapacity'.  The
+        // behavior is undefined unless '0 <= dstCapacity', 'dstBuffer' refers
+        // to an array of at least 'dstCapacity' elements, and 'srcString' is
+        // null-terminated.  Note that if 'dstCapacity' is 0, this function
+        // returns exactly 2 and '*numCharsWritten' (if specified) is loaded
+        // with 0 (since there is insufficient space for the null terminator
+        // even for an empty input string).
 
     static int utf8ToUcs2(bsl::vector<unsigned short> *result,
                           const char                  *srcString,
@@ -335,8 +337,10 @@ struct bdede_CharConvertUcs2 {
         // equivalent.  Optionally specify 'errorCharacter' to be substituted
         // for invalid (i.e., not convertible to UCS-2) input characters.  If
         // 'errorCharacter' is 0, invalid input characters are ignored (i.e.,
-        // produce no corresponding output characters).  Return 0 on success,
-        // and a non-zero 'result' on failure.  If 'result & 1' is non-zero,
+        // produce no corresponding output characters).  Return 0 on succees
+        // and 'bdede_TranslationStatus::BDEDE_INVALILD_CHARS_BIT' otherwise,
+        // meaning that at least one sequence of characters were encountered
+        // that could not be translated to UCS-2.  If 'result & 1' is non-zero,
         // one or more input characters are invalid (in which case the
         // conversion continues).  The behavior is undefined unless 'srcString'
         // is null-terminated.  Note that the null-terminating word counts
@@ -355,21 +359,25 @@ struct bdede_CharConvertUcs2 {
         // null terminator) is to be loaded.  Optionally specify
         // 'numBytesWritten' which (if not 0) indicates the modifiable integer
         // into which the number of *bytes* written (including the null
-        // terminator) is to be loaded.  Return 0 on success, and a non-zero
-        // 'result' on failure.  'result & 2' is non-zero if the length of the
-        // converted 'srcString' (including the null terminator) is greater
-        // than 'dstCapacity', in which case the maximal null-terminated prefix
-        // of the properly converted result string is loaded into 'dstBuffer'.
-        // The behavior is undefined unless '0 <= dstCapacity', 'dstBuffer'
-        // refers to an array of at least 'dstCapacity' elements, and
-        // 'srcString' is null-terminated.  Note that if 'dstCapacity' is 0,
-        // this function returns exactly 2 and '*numCharsWritten' and
-        // '*numBytesWritten' (if not null) are loaded with 0 (since there is
-        // insufficient space for the null terminator even for an empty input
-        // string).  Also note that since UTF-8 is a variable-length encoding,
-        // it is possible for 'numBytesWritten' to be greater than
-        // 'numCharsWritten', and therefore that an input 'srcString' of
-        // 'dstCapacity - 1' *characters* may not fit into 'dstBuffer'.
+        // terminator) is to be loaded.  Return 0 on success and a bitwise-or
+        // of the masks specified by 'bdede_TranslationStatus::Enum' otherwise,
+        // with 'bdede_TranslationStatus::BDEDE_INVALID_CHARS_BIT' set to
+        // indicate that at least one invalid input sequence was encountered,
+        // and 'bdede_TranslationStatus::BDEDE_OUT_OF_SPACE_BIT' set to
+        // indicate that 'dstCapacity' was insufficient to accommodate the
+        // output.  If 'dstCapacity' was insufficient, the maximal
+        // null-terminated prefix of the properly converted result string is
+        // loaded into 'dstBuffer'.  The behavior is undefined unless
+        // '0 <= dstCapacity', 'dstBuffer' refers to an array of at least
+        // 'dstCapacity' elements, and 'srcString' is null-terminated.  Note
+        // that if 'dstCapacity' is 0, this function returns exactly 2 and
+        // '*numCharsWritten' and '*numBytesWritten' (if not null) are loaded
+        // with 0 (since there is insufficient space for the null terminator
+        // even for an empty input string).  Also note that since UTF-8 is a
+        // variable-length encoding, it is possible for 'numBytesWritten' to be
+        // greater than 'numCharsWritten', and therefore that an input
+        // 'srcString' of 'dstCapacity - 1' *characters* may not fit into
+        // 'dstBuffer'.
 
     static int ucs2ToUtf8(bsl::string          *result,
                           const unsigned short *srcString,
@@ -379,8 +387,10 @@ struct bdede_CharConvertUcs2 {
         // Optionally specify 'numCharsWritten' which (if not 0) indicates the
         // modifiable integer into which the number of *characters* written
         // (including the null terminator) is to be loaded.  Return 0 on
-        // success and a non-zero value otherwise.  The behavior is undefined
-        // unless 'srcString' is null-terminated.  Note that the
+        // success and 'bdede_TranslationStatus::BDEDE_INVALILD_CHARS_BIT'
+        // otherwise, meaning that at least one sequence of characters were
+        // encountered that could not be translated to UTF-8.  The behavior is
+        // undefined unless 'srcString' is null-terminated.  Note that the
         // null-terminating character is not counted in 'result->length()'.
         // Also note that this function does not currently implement failure
         // modes; however, this could change if UTF-8 input validation is
