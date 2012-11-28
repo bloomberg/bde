@@ -251,7 +251,7 @@ inline
 basic_ostringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
 basic_ostringstream(const allocator_type& allocator)
 : BaseType(ios_base::out, allocator)
-, BaseStream(this->rdbuf())
+, BaseStream(BaseType::rdbuf())
 {
 }
 
@@ -261,7 +261,7 @@ basic_ostringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
 basic_ostringstream(ios_base::openmode    modeBitMask,
                     const allocator_type& allocator)
 : BaseType(modeBitMask | ios_base::out, allocator)
-, BaseStream(this->rdbuf())
+, BaseStream(BaseType::rdbuf())
 {
 }
 
@@ -271,7 +271,7 @@ basic_ostringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
 basic_ostringstream(const StringType&     initialString,
                     const allocator_type& allocator)
 : BaseType(initialString, ios_base::out, allocator)
-, BaseStream(this->rdbuf())
+, BaseStream(BaseType::rdbuf())
 {
 }
 
@@ -282,7 +282,7 @@ basic_ostringstream(const StringType&     initialString,
                     ios_base::openmode    modeBitMask,
                     const allocator_type& allocator)
 : BaseType(initialString, modeBitMask | ios_base::out, allocator)
-, BaseStream(this->rdbuf())
+, BaseStream(BaseType::rdbuf())
 {
 }
 
