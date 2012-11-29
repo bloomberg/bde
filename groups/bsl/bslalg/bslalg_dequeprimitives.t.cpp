@@ -111,53 +111,53 @@ namespace {
 //-----------------------------------------------------------------------------
 
 #ifdef BDE_BUILD_TARGET_EXC
-#define BEGIN_bslma_EXCEPTION_TEST {                                       \
-    {                                                                      \
-        static int firstTime = 1;                                          \
-        if (veryVerbose && firstTime) printf(                              \
-            "### bslma EXCEPTION TEST -- (ENABLED) --\n");                 \
-        firstTime = 0;                                                     \
-    }                                                                      \
-    if (veryVeryVerbose) printf("### Begin bslma exception test.\n");      \
-    int bslmaExceptionCounter = 0;                                         \
-    static int bslmaExceptionLimit = 1000;                                 \
-    testAllocator.setAllocationLimit(bslmaExceptionCounter);               \
-    do {                                                                   \
+#define BEGIN_bslma_EXCEPTION_TEST {                                         \
+    {                                                                        \
+        static int firstTime = 1;                                            \
+        if (veryVerbose && firstTime) printf(                                \
+            "### bslma EXCEPTION TEST -- (ENABLED) --\n");                   \
+        firstTime = 0;                                                       \
+    }                                                                        \
+    if (veryVeryVerbose) printf("### Begin bslma exception test.\n");        \
+    int bslmaExceptionCounter = 0;                                           \
+    static int bslmaExceptionLimit = 1000;                                   \
+    testAllocator.setAllocationLimit(bslmaExceptionCounter);                 \
+    do {                                                                     \
         try {
 
-#define END_bslma_EXCEPTION_TEST                                           \
-        } catch (bslma::TestAllocatorException& e) {                       \
-            if (veryVerbose && bslmaExceptionLimit || veryVeryVerbose) {   \
-                --bslmaExceptionLimit;                                     \
-                printf("(*** %d)", bslmaExceptionCounter);                 \
-                if (veryVeryVerbose) {                                     \
-                    printf(" bslma::EXCEPTION:"                            \
-                           " alloc limit = %d,",                           \
-                           bslmaExceptionCounter);                         \
-                    printf(" last alloc size = ");                         \
-                    bsls::BslTestUtil::callDebugprint(e.numBytes());       \
-                    printf("\n");                                          \
-                }                                                          \
-                else if (0 == bslmaExceptionLimit) {                       \
-                    printf(" [ Note: 'bslmaExceptionLimit' reached. ]\n"); \
-                }                                                          \
-            }                                                              \
-            testAllocator.setAllocationLimit(++bslmaExceptionCounter);     \
-            continue;                                                      \
-        }                                                                  \
-        testAllocator.setAllocationLimit(-1);                              \
-        break;                                                             \
-    } while (1);                                                           \
-    if (veryVeryVerbose) printf("### End bslma exception test.\n");        \
+#define END_bslma_EXCEPTION_TEST                                             \
+        } catch (bslma::TestAllocatorException& e) {                         \
+            if ((veryVerbose && bslmaExceptionLimit) || veryVeryVerbose) {   \
+                --bslmaExceptionLimit;                                       \
+                printf("(*** %d)", bslmaExceptionCounter);                   \
+                if (veryVeryVerbose) {                                       \
+                    printf(" bslma::EXCEPTION:"                              \
+                           " alloc limit = %d,",                             \
+                           bslmaExceptionCounter);                           \
+                    printf(" last alloc size = ");                           \
+                    bsls::BslTestUtil::callDebugprint(e.numBytes());         \
+                    printf("\n");                                            \
+                }                                                            \
+                else if (0 == bslmaExceptionLimit) {                         \
+                    printf(" [ Note: 'bslmaExceptionLimit' reached. ]\n");   \
+                }                                                            \
+            }                                                                \
+            testAllocator.setAllocationLimit(++bslmaExceptionCounter);       \
+            continue;                                                        \
+        }                                                                    \
+        testAllocator.setAllocationLimit(-1);                                \
+        break;                                                               \
+    } while (1);                                                             \
+    if (veryVeryVerbose) printf("### End bslma exception test.\n");          \
 }
 #else
-#define BEGIN_bslma_EXCEPTION_TEST                                         \
-{                                                                          \
-    static int firstTime = 1;                                              \
-    if (verbose && firstTime) { printf(                                    \
-        "### bslma EXCEPTION TEST -- (NOT ENABLED) --\n");                 \
-        firstTime = 0;                                                     \
-    }                                                                      \
+#define BEGIN_bslma_EXCEPTION_TEST                                           \
+{                                                                            \
+    static int firstTime = 1;                                                \
+    if (verbose && firstTime) { printf(                                      \
+        "### bslma EXCEPTION TEST -- (NOT ENABLED) --\n");                   \
+        firstTime = 0;                                                       \
+    }                                                                        \
 }
 #define END_bslma_EXCEPTION_TEST
 #endif
