@@ -444,8 +444,6 @@ int bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::sleepUntil(
     //  kern_return_t host_get_clock_service(host_t, clock_id_t,clock_serv_t *)
     //..
 
-    //    TimeInterval systemBootTime = systemBootTime();
-
     clock_serv_t clock;
 
     // Unfortunately the 'CALENDAR_CLOCK', which is based on unix-epoch time
@@ -453,8 +451,8 @@ int bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::sleepUntil(
     // support 'clock_sleep', but uses the system boot-time as the unix epoch.
 
     kern_return_t status = host_get_clock_service(mach_host_self(),
-                          REALTIME_CLOCK,
-                          &clock);
+                                                  REALTIME_CLOCK,
+                                                  &clock);
     if (0 != status) {
         return status;                                                // RETURN
     }
