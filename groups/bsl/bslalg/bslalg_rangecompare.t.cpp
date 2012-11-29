@@ -1925,11 +1925,11 @@ void generateNonNullValue(TestPairType *value, int j)
 }
 
 template <class TYPE>
-void timeEqualAlgorithm(const char  *typeName,
-                        int          rawBufferSize,
-                        char * const rawBuffer1,
-                        char * const rawBuffer2,
-                        int          numIter)
+void timeEqualAlgorithm(const char *typeName,
+                        int         rawBufferSize,
+                        char       *rawBuffer1,
+                        char       *rawBuffer2,
+                        int         numIter)
 {
     printf("\n\tcompare with '%s'\n", typeName);
     {
@@ -1999,11 +1999,11 @@ void timeEqualAlgorithm(const char  *typeName,
 }
 
 template <class TYPE>
-void timeLexicographicalAlgorithm(const char  *typeName,
-                                  int          rawBufferSize,
-                                  char * const rawBuffer1,
-                                  char * const rawBuffer2,
-                                  int          numIter)
+void timeLexicographicalAlgorithm(const char *typeName,
+                                  int         rawBufferSize,
+                                  char       *rawBuffer1,
+                                  char       *rawBuffer2,
+                                  int         numIter)
 {
     printf("\n\tcompare with '%s'\n", typeName);
     {
