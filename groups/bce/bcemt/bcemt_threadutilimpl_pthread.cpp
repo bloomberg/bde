@@ -187,32 +187,33 @@ static bdet_TimeInterval getDarwinSystemBootTime()
         }
 
         PthreadMutexGuard guard(&mutex);
+        if (!bsls::AtomicOperations::getInt64Relaxed(&bootSecs)) {
+            clock_serv_t calendarClock, realtimeClock;
 
-        clock_serv_t calendarClock, realtimeClock;
+            kern_return_t status1 = host_get_clock_service(mach_host_self(),
+                                                           REALTIME_CLOCK,
+                                                           &realtimeClock);
 
-        kern_return_t status1 = host_get_clock_service(mach_host_self(),
-                                                       REALTIME_CLOCK,
-                                                       &realtimeClock);
+            kern_return_t status2 = host_get_clock_service(mach_host_self(),
+                                                           CALENDAR_CLOCK,
+                                                           &calendarClock);
+            
+            BSLS_ASSERT_OPT(0 == status1);
+            BSLS_ASSERT_OPT(0 == status2);
 
-        kern_return_t status2 = host_get_clock_service(mach_host_self(),
-                                                       CALENDAR_CLOCK,
-                                                       &calendarClock);
+            mach_timespec_t nowCalendar, nowRealtime;
+            
+            clock_get_time(realtimeClock, &nowRealtime);
+            clock_get_time(calendarClock, &nowCalendar);
+            bdet_TimeInterval adjustment =
+                bdet_TimeInterval(nowCalendar.tv_sec, nowCalendar.tv_nsec) -
+                bdet_TimeInterval(nowRealtime.tv_sec, nowRealtime.tv_nsec);
 
-        BSLS_ASSERT_OPT(0 == status1);
-        BSLS_ASSERT_OPT(0 == status2);
-
-        mach_timespec_t nowCalendar, nowRealtime;
-
-        clock_get_time(realtimeClock, &nowRealtime);
-        clock_get_time(calendarClock, &nowCalendar);
-        bdet_TimeInterval adjustment =
-            bdet_TimeInterval(nowCalendar.tv_sec, nowCalendar.tv_nsec) -
-            bdet_TimeInterval(nowRealtime.tv_sec, nowRealtime.tv_nsec);
-
-        bsls::AtomicOperations::setInt64Release(&bootSecs,
-                                                adjustment.seconds());
-        bsls::AtomicOperations::setIntRelease(&bootNanoSecs,
-                                              adjustment.nanoseconds());
+            bsls::AtomicOperations::setInt64Release(&bootSecs,
+                                                    adjustment.seconds());
+            bsls::AtomicOperations::setIntRelease(&bootNanoSecs,
+                                                  adjustment.nanoseconds());
+        }
     }
 
     return bdet_TimeInterval(
