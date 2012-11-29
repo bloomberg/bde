@@ -838,7 +838,7 @@ class BoolArray {
 
     BoolArray(const BoolArray&); // = delete;
     BoolArray& operator=(const BoolArray&);  // = delete;
-    
+
   public:
     explicit BoolArray(size_t n)
     : d_data(new bool[n])
@@ -4110,6 +4110,10 @@ namespace UsageExamples {
 // {'bslstl_unorderedmapkeyconfiguration'} and
 // {'bslstl_unorderedsetkeyconfiguration'}.)
 //..
+                            // ==========================
+                            // struct UseEntireValueAsKey
+                            // ==========================
+
     template <class VALUE_TYPE>
     struct UseEntireValueAsKey {
         // This 'struct' provides a namespace for types and methods that define
@@ -4129,6 +4133,10 @@ namespace UsageExamples {
             // that is 'value' itself.
     };
 
+                            // --------------------------
+                            // struct UseEntireValueAsKey
+                            // --------------------------
+
     template <class VALUE_TYPE>
     inline
     const typename UseEntireValueAsKey<VALUE_TYPE>::KeyType&
@@ -4138,7 +4146,7 @@ namespace UsageExamples {
         return value;
     }
 //..
-// Next, we define our 'MyHashedSet' class with an instance of
+// Next, we define our 'MyHashedSet' class template with an instance of
 // 'bststl::HashTable' (configured using 'UseEntireValueAsKey') as its sole
 // data member.  We provide 'insert' method, to allow us to populate these
 // sets, and the 'find' method to allow us to examine those elements.  We also
@@ -4215,7 +4223,6 @@ namespace UsageExamples {
 // implementations consist mainly in forwarding arguments to and returning
 // values from the underlying 'bslstl::HashTable'.
 //..
-
                             // =================
                             // class MyHashedSet
                             // =================
@@ -4231,7 +4238,10 @@ namespace UsageExamples {
     : d_impl(hash, keyEqual, initialNumBuckets, allocator)
     {
     }
-
+//..
+// Note that the 'insertIfMissing' method of 'bslstl::HashTable' provides
+// the semantics needed for adding values (unique values only) to sets.
+//..
     // MANIPULATORS
     template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
     inline
@@ -4281,6 +4291,7 @@ namespace UsageExamples {
     {
         return d_impl.size();
     }
+
     void main1()
     {
 if (verbose) {
@@ -4290,59 +4301,70 @@ if (verbose) {
 // Finally, we create 'mhs', an instance of 'MyHashedSet', exercise it, and
 // confirm that it behaves as expected.
 //..
-        MyHashedSet<int> mhs;
-        ASSERT( 0    == mhs.size());
-        ASSERT( 1    == mhs.bucket_count());
+    MyHashedSet<int> mhs;
+    ASSERT( 0    == mhs.size());
+    ASSERT( 1    == mhs.bucket_count());
 //..
 // Notice that the newly created set is empty and has a single bucket.
+//
+// Inserting a value (10) succeeds the first time but correctly fails on the
+// second attempt.
 //..
-        bsl::pair<MyHashedSet<int>::const_iterator, bool> status;
-//..
-// Inserting a value (10) succeeds the first time but, as the elements of set
-// must be unique, fails on the second attempt.
-//..
-        status = mhs.insert(10);
-        ASSERT( 1    ==  mhs.size());
-        ASSERT(10    == *status.first)
-        ASSERT(true  ==  status.second);
+    bsl::pair<MyHashedSet<int>::const_iterator, bool> status;
 
-        status = mhs.insert(10);
-        ASSERT( 1    ==  mhs.size());
-        ASSERT(10    == *status.first)
-        ASSERT(false ==  status.second);
-//..
-// We can insert a different value (20) to increase the set size to 2.
-//..
-        status = mhs.insert(20);
-        ASSERT( 2    ==  mhs.size());
-        ASSERT(20    == *status.first)
-        ASSERT(true  ==  status.second);
-//..
-// Each of the known values of the set (10, 20) can be found there.
-//..
-        MyHashedSet<int>::const_iterator itr, end = mhs.cend();
+    status = mhs.insert(10);
+    ASSERT( 1    ==  mhs.size());
+    ASSERT(10    == *status.first)
+    ASSERT(true  ==  status.second);
 
-        itr = mhs.find(10);
-        ASSERT(end !=  itr);
-        ASSERT(10  == *itr);
+    status = mhs.insert(10);
+    ASSERT( 1    ==  mhs.size());
+    ASSERT(10    == *status.first)
+    ASSERT(false ==  status.second);
+//..
+// We can insert a different value (20) and thereby increase the set size to 2.
+//..
+    status = mhs.insert(20);
+    ASSERT( 2    ==  mhs.size());
+    ASSERT(20    == *status.first)
+    ASSERT(true  ==  status.second);
+//..
+// Each of the inserted values (10, 20) can be found in the set.
+//..
+    MyHashedSet<int>::const_iterator itr, end = mhs.cend();
 
-        itr = mhs.find(20);
-        ASSERT(end !=  itr);
-        ASSERT(20  == *itr);
+    itr = mhs.find(10);
+    ASSERT(end !=  itr);
+    ASSERT(10  == *itr);
+
+    itr = mhs.find(20);
+    ASSERT(end !=  itr);
+    ASSERT(20  == *itr);
 //..
-// A value known to absent from the set (0), is correctly reported as not
-// there.
+// However, a value known to absent from the set (0), is correctly reported as
+// not there.
 //..
-        itr = mhs.find(0);
-        ASSERT(end ==  itr);
+    itr = mhs.find(0);
+    ASSERT(end ==  itr);
 //..
     }
 
 ///Example 2: Implementing a Hashed Map Container
 ///----------------------------------------------
+// Suppose we wish to implement, 'MyHashedMap', a greatly simplified version of
+// 'bsl::unordered_map'.  As with 'MyHashedSet' (see {Example 1}), the
+// 'bslstl::HashTable' class template can be used as the basis of our
+// implementation.
+//
+// First, we define 'UseFirstValueOfPairAsKey', a class template we can use to
+// configure 'bslstl::HashTable' to use the 'first' member of each element,
+// each a 'bsl::pair', as the key-value for hashing.  Note that, in practice,
+// developers can use class defined in {'bslstl_unorderedmapkeyconfiguration'}.
+//..
+                            // ===============================
+                            // struct UseFirstValueOfPairAsKey
+                            // ===============================
 
-///Example 2: Hash Value Policy
-/// - - - - - - - - - - - - - -
     template <class VALUE_TYPE>
     struct UseFirstValueOfPairAsKey {
         // This 'struct' provides a namespace for types and methods that define
@@ -4352,7 +4374,7 @@ if (verbose) {
 
         typedef VALUE_TYPE ValueType;
             // Alias for 'VALUE_TYPE', the type stored in the hashed container.
-            // For this polilcy 'ValueType' must define a public member named
+            // For this policy 'ValueType' must define a public member named
             // 'first' of type 'first_type'.
 
         typedef typename ValueType::first_type KeyType;
@@ -4365,6 +4387,9 @@ if (verbose) {
             // that is the value of the 'first' member of 'value'.
     };
 
+                            // -------------------------------
+                            // struct UseFirstValueOfPairAsKey
+                            // -------------------------------
 
     template <class VALUE_TYPE>
     inline
@@ -4374,7 +4399,13 @@ if (verbose) {
     {
         return value.first;
     }
-
+//..
+// Next, we define our 'MyHashedMap' class template with an instance of
+// 'bststl::HashTable' (configured using 'UseFirstValueOfPairAsKey') as its
+// sole data member.  In this example, we choose to implement 'operator[]'
+// (corresponding to the signature method of 'bsl::unordered_map') to allow us
+// to populate our maps and to examine their elements.
+//..
                             // =================
                             // class MyHashedMap
                             // =================
@@ -4423,7 +4454,10 @@ if (verbose) {
             // "copy-constructible" and the (template parameter) 'VALUE' is
             // "default-constructible".
     };
-
+//..
+// Then, we implement the methods 'MyHashedMap'.  The construct need merely
+// forward its arguments to the constructor of 'd_impl',
+//..
                             // =================
                             // class MyHashedMap
                             // =================
@@ -4439,7 +4473,16 @@ if (verbose) {
     : d_impl(hash, keyEqual, initialNumBuckets, allocator)
     {
     }
-
+//..
+// As with 'MyHashedSet', the 'insertIfMissing' method of 'bslst::HashTable'
+// provides the semantics we need: an element is inserted only if no such
+// element (no element with the same key) in the container, and a reference
+// to that element ('node') is returned.  Here, we use 'node' to obtain and
+// return a modifiable reference to the 'second' member of the (possibly newly
+// added) element.  Note that the 'static_cast' from 'HashTableLink *' to
+// 'HashTableNode *' is valid because the nodes derive from the link type (see
+// 'bslalg_bidirectionallink' and 'bslalg_hashtableimputil').
+//..
     // MANIPULATORS
     template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
     inline VALUE& MyHashedMap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::operator[](
@@ -4457,23 +4500,53 @@ if (verbose) {
 if (verbose) {
     printf("Usage Example2\n");
 }
-        MyHashedMap<int, double> mhm;
+//..
+// Finally, we create 'mhm', an instance of 'MyHashedMap', exercise it, and
+// confirm that it behaves as expected.  We can add an element (with key value
+// of 0).
+//..
+    MyHashedMap<int, double> mhm;
 
-        mhm[0] = 1.234;
-        ASSERT(1.234 == mhm[0]);
-        mhm[0] = 4.321;
-        ASSERT(4.321 == mhm[0]);
-
-        mhm[1] = 5.768;
-        ASSERT(5.768 == mhm[1]);
-        ASSERT(4.321 == mhm[0]);
-
-        ASSERT(0.000 == mhm[2]);
+    mhm[0] = 1.234;
+    ASSERT(1.234 == mhm[0]);
+//..
+// We can change the value of the element with key value 0.
+//..
+    mhm[0] = 4.321;
+    ASSERT(4.321 == mhm[0]);
+//..
+// We can add a new element (key value 1), without changing the previously
+// existing element (key value 0).
+//..
+    mhm[1] = 5.768;
+    ASSERT(5.768 == mhm[1]);
+    ASSERT(4.321 == mhm[0]);
+//..
+// Accessing a non-existing element (key value 2) creates that element and
+// populates it with the default value of the mapped value (0.0).
+//..
+    ASSERT(0.000 == mhm[2]);
+//..
     }
 
 ///Example 3: Implementing a Hashed Multi-Map Container
 ///----------------------------------------------------
-
+// Suppose we wish to implement, 'MyHashedMultiMap', a greatly simplified
+// version of 'bsl::unordered_multimap'.  As with 'MyHashedSet' and
+// 'MyHashedMap' (see {Example 1}, and {Example 2}, respectively), the
+// 'bslstl::HashTable' class template can be used as the basis of our
+// implementation.
+//
+// First, we need a class template to configure 'bslstl::HashTable' to extract
+// key values in manner appropriate for maps.  The previously defined
+// 'UseFirstValueOfPairAsKey' class template (see {Example 2}) suits perfectly.
+//
+// Next, we define our 'MyHashedMultiMap' class template with an instance of
+// 'bststl::HashTable' (configured using 'UseFirstValueOfPairAsKey') as its
+// sole data member.  In this example, we choose to implement an 'insert'
+// method to populate our container, and an 'equal_range' method (a signature
+// method of the multi containers) to provide access to those elements.
+//..
                             // ======================
                             // class MyHashedMultiMap
                             // ======================
@@ -4540,7 +4613,10 @@ if (verbose) {
             // contains no 'value_type' objects matching 'key' then the two
             // returned iterators will have the same value.
     };
-
+//..
+// Then, we implement the methods 'MyHashedMultiMap'.  The construct need
+// merely forward its arguments to the constructor of 'd_impl',
+//..
                             // ======================
                             // class MyHashedMultiMap
                             // ======================
@@ -4556,7 +4632,12 @@ if (verbose) {
     : d_impl(hash, keyEqual, initialNumBuckets, allocator)
     {
     }
-
+//..
+// Note that here we forgo use of the 'insertIfMissing' method and use the
+// 'insert' method of 'bslstl::HashTable'.  This method supports the semantics
+// of the multi containers: there can be more than one element with the same
+// key value.
+//..
     // MANIPULATORS
     template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
     template <class SOURCE_TYPE>
@@ -4567,7 +4648,10 @@ if (verbose) {
     {
         return iterator(d_impl.insert(value));
     }
-
+//..
+// The 'equal_range' method need only convert the values returned by the
+// 'findRange' method to the types expected by the caller.
+//..
     // ACCESSORS
     template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
     bsl::pair<typename MyHashedMultiMap<KEY,
@@ -4596,37 +4680,55 @@ if (verbose) {
 if (verbose) {
     printf("Usage Example3\n");
 }
-        MyHashedMultiMap<int, double> mhmm;
+//..
+// Finally, we create 'mhmm', an instance of 'MyHashedMultiMap', exercise it,
+// and confirm that it behaves as expected.
+//
+// We define several aliases to make our code more concise.
+//..
+    typedef MyHashedMultiMap<int, double>::iterator       Iterator;
+    typedef MyHashedMultiMap<int, double>::const_iterator ConstIterator;
+    typedef bsl::pair<ConstIterator, ConstIterator>       ConstRange;
+//..
+// Searching for an element (key value 10) in a newly created, empty container
+// correctly shows the absence of any such element.
+//..
+    MyHashedMultiMap<int, double> mhmm;
 
-        typedef MyHashedMultiMap<int, double>::iterator      Iterator;
-        typedef MyHashedMultiMap<int, double>::const_iterator
-                                                             ConstIterator;
-        typedef bsl::pair<ConstIterator, ConstIterator>      ConstRange;
+    ConstRange range;
+    range = mhmm.equal_range(10);
+    ASSERT(range.first == range.second);
+//..
+// We can insert a value (the pair 10, 100.00) into the container...
+//..
+    bsl::pair<const int, double> value(10, 100.00);
 
-        bsl::pair<const int, double> value(10, 100.00);
+    Iterator itr;
 
-        ConstRange range;
-        range = mhmm.equal_range(10);
-        ASSERT(range.first == range.second);
-
-        Iterator itr;
-
-        itr = mhmm.insert(value);
-        ASSERT(value == *itr);
-
-        itr = mhmm.insert(value);
-        ASSERT(value == *itr);
-
-        range = mhmm.equal_range(10);
-        ASSERT(range.first != range.second);
-
-        int count = 0;
-        for (ConstIterator cur  = range.first,
-                           end  = range.second;
-                           end != cur; ++cur, ++count) {
-            ASSERT(value == *cur);
-        }
-        ASSERT(2 == count);
+    itr = mhmm.insert(value);
+    ASSERT(value == *itr);
+//..
+// ... and we can do so again.
+//..
+    itr = mhmm.insert(value);
+    ASSERT(value == *itr);
+//..
+// We can now find elements with the key value of 10.
+//..
+    range = mhmm.equal_range(10);
+    ASSERT(range.first != range.second);
+//..
+// As expected, there are two such elements, and both are identical in
+// key value (10) and mapped value (100.00).
+//..
+    int count = 0;
+    for (ConstIterator cur  = range.first,
+                       end  = range.second;
+                       end != cur; ++cur, ++count) {
+        ASSERT(value == *cur);
+    }
+    ASSERT(2 == count);
+//..
     }
 
 }  // close usage example namespace

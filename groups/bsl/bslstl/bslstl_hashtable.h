@@ -116,6 +116,627 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+// The 'bslstl::HashTable' class template provides a common foundation for
+// implementing the four standard unordered containers: unordered-set,
+// unordered-map, unordered multi-set, and unordered multi-map.  This example
+// and the subsequent examples in this component use the class to implement
+// several toy container classes, each providing a small but representative
+// sub-set of the functionality of one of the standard unordered containers.
+//
+///Example 1: Implementing a Hashed Set Container
+///----------------------------------------------
+// Suppose we wish to implement, 'MyHashedSet', a greatly simplified version of
+// 'bsl::unordered_set'.  The 'bslstl::HashTable' class template can be used as
+// the basis of that implementation.
+//
+// First, we define 'UseEntireValueAsKey', a class template we can use to
+// configure 'bslstl::HashTable' to use its entire elements as keys for its
+// hasher, a policy suitable for a set container.  (Later, in {Example2}, we
+// will define 'UseFirstValueOfPairAsKey' for use in a map container.  Note
+// that, in practice, developers can use the existing classes in
+// {'bslstl_unorderedmapkeyconfiguration'} and
+// {'bslstl_unorderedsetkeyconfiguration'}.)
+//..
+//                          // ==========================
+//                          // struct UseEntireValueAsKey
+//                          // ==========================
+//
+//  template <class VALUE_TYPE>
+//  struct UseEntireValueAsKey {
+//      // This 'struct' provides a namespace for types and methods that define
+//      // the policy by which the key value of a hashed container (i.e., the
+//      // value passed to the hasher) is extracted from the objects stored in
+//      // the hashed container (the 'value' type).
+//
+//      typedef VALUE_TYPE ValueType;
+//          // Alias for 'VALUE_TYPE', the type stored in the hashed container.
+//
+//      typedef ValueType KeyType;
+//          // Alias for the type passed to the hasher by the hashed container.
+//          // In this policy, that type is 'ValueType'.
+//
+//      static const KeyType& extractKey(const ValueType& value);
+//          // Return the key value for the specified 'value'.  In this policy,
+//          // that is 'value' itself.
+//  };
+//
+//                          // --------------------------
+//                          // struct UseEntireValueAsKey
+//                          // --------------------------
+//
+//  template <class VALUE_TYPE>
+//  inline
+//  const typename UseEntireValueAsKey<VALUE_TYPE>::KeyType&
+//                 UseEntireValueAsKey<VALUE_TYPE>::extractKey(
+//                     const UseEntireValueAsKey<VALUE_TYPE>::ValueType& value)
+//  {
+//      return value;
+//  }
+//..
+// Next, we define our 'MyHashedSet' class template with an instance of
+// 'bststl::HashTable' (configured using 'UseEntireValueAsKey') as its sole
+// data member.  We provide 'insert' method, to allow us to populate these
+// sets, and the 'find' method to allow us to examine those elements.  We also
+// provide 'size' and 'bucket_count' accessor methods to let us check the inner
+// workings of our class.
+//..
+//                          // =================
+//                          // class MyHashedSet
+//                          // =================
+//
+//  template <class KEY,
+//            class HASH      = bsl::hash<KEY>,
+//            class EQUAL     = bsl::equal_to<KEY>,
+//            class ALLOCATOR = bsl::allocator<KEY> >
+//  class MyHashedSet
+//  {
+//    private:
+//      // PRIVATE TYPES
+//      typedef bsl::allocator_traits<ALLOCATOR>          AllocatorTraits;
+//      typedef typename AllocatorTraits::difference_type difference_type;
+//      typedef BloombergLP::bslstl::HashTableIterator<const KEY,
+//                                                     difference_type>
+//                                                        iterator;
+//
+//      // DATA
+//      BloombergLP::bslstl::HashTable<UseEntireValueAsKey<KEY>,
+//                                     HASH,
+//                                     EQUAL,
+//                                     ALLOCATOR> d_impl;
+//    public:
+//      // TYPES
+//      typedef typename AllocatorTraits::size_type size_type;
+//      typedef iterator                            const_iterator;
+//
+//      // CREATORS
+//      explicit MyHashedSet(size_type        initialNumBuckets = 0,
+//                           const HASH&      hash              = HASH(),
+//                           const EQUAL&     keyEqual          = EQUAL(),
+//                           const ALLOCATOR& allocator         = ALLOCATOR());
+//
+//      //! ~MyHashedSet() = default;
+//          // Destroy this object.
+//
+//      // MANIPULATORS
+//      bsl::pair<const_iterator, bool> insert(const KEY& value);
+//          // Insert the specified 'value' into this set if the specified
+//          // 'value' does not already exist in this set; otherwise, this
+//          // method has no effect.  Return a pair whose 'first' member is an
+//          // iterator providing non-modifiable access to the (possibly newly
+//          // inserted) 'KEY' object having 'value' (according to 'EQUAL') and
+//          // whose 'second' member is 'true' if a new value was inserted, and
+//          // 'false' if the value was already present.
+//
+//      // ACCESSORS
+//      size_type bucket_count() const;
+//          // Return the number of buckets in this set.
+//
+//      const_iterator cend() const;
+//          // Return an iterator providing non-modifiable access to the
+//          // past-the-end element (in the sequence of 'KEY' objects)
+//          // maintained by this set.
+//
+//      const_iterator find(const KEY& value) const;
+//          // Return an iterator providing non-modifiable access to the 'KEY'
+//          // object in this set having the specified 'value', if such an
+//          // entry exists, and the iterator returned by the 'cend' method
+//          // otherwise.
+//
+//      size_type size() const;
+//          // Return the number of elements in this set.
+//  };
+//..
+// Then, we implement the methods 'MyHashedSet'.  In many cases, the
+// implementations consist mainly in forwarding arguments to and returning
+// values from the underlying 'bslstl::HashTable'.
+//..
+//                          // =================
+//                          // class MyHashedSet
+//                          // =================
+//
+//  // CREATORS
+//  template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
+//  inline
+//  MyHashedSet<KEY, HASH, EQUAL, ALLOCATOR>::MyHashedSet(
+//                                          size_type        initialNumBuckets,
+//                                          const HASH&      hash,
+//                                          const EQUAL&     keyEqual,
+//                                          const ALLOCATOR& allocator)
+//  : d_impl(hash, keyEqual, initialNumBuckets, allocator)
+//  {
+//  }
+//..
+// Note that the 'insertIfMissing' method of 'bslstl::HashTable' provides
+// the semantics needed for adding values (unique values only) to sets.
+//..
+//  // MANIPULATORS
+//  template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
+//  inline
+//  bsl::pair<typename MyHashedSet<KEY, HASH, EQUAL, ALLOCATOR>::iterator,
+//            bool>    MyHashedSet<KEY, HASH, EQUAL, ALLOCATOR>::insert(
+//                                                            const KEY& value)
+//  {
+//      typedef bsl::pair<iterator, bool> ResultType;
+//
+//      bool                       isInsertedFlag = false;
+//      bslalg::BidirectionalLink *result         = d_impl.insertIfMissing(
+//                                                             &isInsertedFlag,
+//                                                             value);
+//      return ResultType(iterator(result), isInsertedFlag);
+//  }
+//
+//  // ACCESSORS
+//  template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
+//  inline
+//  typename MyHashedSet<KEY, HASH, EQUAL, ALLOCATOR>::size_type
+//           MyHashedSet<KEY, HASH, EQUAL, ALLOCATOR>::bucket_count() const
+//  {
+//      return d_impl.numBuckets();
+//  }
+//
+//  template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
+//  inline
+//  typename MyHashedSet<KEY, HASH, EQUAL, ALLOCATOR>::const_iterator
+//           MyHashedSet<KEY, HASH, EQUAL, ALLOCATOR>::cend() const
+//  {
+//      return const_iterator();
+//  }
+//
+//  template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
+//  inline
+//  typename MyHashedSet<KEY, HASH, EQUAL, ALLOCATOR>::const_iterator
+//           MyHashedSet<KEY, HASH, EQUAL, ALLOCATOR>::find(const KEY& key)
+//                                                                        const
+//  {
+//      return const_iterator(d_impl.find(key));
+//  }
+//
+//  template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
+//  inline
+//  typename MyHashedSet<KEY, HASH, EQUAL, ALLOCATOR>::size_type
+//           MyHashedSet<KEY, HASH, EQUAL, ALLOCATOR>::size() const
+//  {
+//      return d_impl.size();
+//  }
+//..
+// Finally, we create 'mhs', an instance of 'MyHashedSet', exercise it, and
+// confirm that it behaves as expected.
+//..
+//  MyHashedSet<int> mhs;
+//  assert( 0    == mhs.size());
+//  assert( 1    == mhs.bucket_count());
+//..
+// Notice that the newly created set is empty and has a single bucket.
+//
+// Inserting a value (10) succeeds the first time but correctly fails on the
+// second attempt.
+//..
+//  bsl::pair<MyHashedSet<int>::const_iterator, bool> status;
+//
+//  status = mhs.insert(10);
+//  assert( 1    ==  mhs.size());
+//  assert(10    == *status.first)
+//  assert(true  ==  status.second);
+//
+//  status = mhs.insert(10);
+//  assert( 1    ==  mhs.size());
+//  assert(10    == *status.first)
+//  assert(false ==  status.second);
+//..
+// We can insert a different value (20) and thereby increase the set size to 2.
+//..
+//  status = mhs.insert(20);
+//  assert( 2    ==  mhs.size());
+//  assert(20    == *status.first)
+//  assert(true  ==  status.second);
+//..
+// Each of the inserted values (10, 20) can be found in the set.
+//..
+//  MyHashedSet<int>::const_iterator itr, end = mhs.cend();
+//
+//  itr = mhs.find(10);
+//  assert(end !=  itr);
+//  assert(10  == *itr);
+//
+//  itr = mhs.find(20);
+//  assert(end !=  itr);
+//  assert(20  == *itr);
+//..
+// However, a value known to absent from the set (0), is correctly reported as
+// not there.
+//..
+//  itr = mhs.find(0);
+//  assert(end ==  itr);
+//..
+//
+///Example 2: Implementing a Hashed Map Container
+///----------------------------------------------
+// Suppose we wish to implement, 'MyHashedMap', a greatly simplified version of
+// 'bsl::unordered_map'.  As with 'MyHashedSet' (see {Example 1}), the
+// 'bslstl::HashTable' class template can be used as the basis of our
+// implementation.
+//
+// First, we define 'UseFirstValueOfPairAsKey', a class template we can use to
+// configure 'bslstl::HashTable' to use the 'first' member of each element,
+// each a 'bsl::pair', as the key-value for hashing.  Note that, in practice,
+// developers can use class defined in {'bslstl_unorderedmapkeyconfiguration'}.
+//..
+//                          // ===============================
+//                          // struct UseFirstValueOfPairAsKey
+//                          // ===============================
+//
+//  template <class VALUE_TYPE>
+//  struct UseFirstValueOfPairAsKey {
+//      // This 'struct' provides a namespace for types and methods that define
+//      // the policy by which the key value of a hashed container (i.e., the
+//      // value passed to the hasher) is extracted from the objects stored in
+//      // the hashed container (the 'value' type).
+//
+//      typedef VALUE_TYPE ValueType;
+//          // Alias for 'VALUE_TYPE', the type stored in the hashed container.
+//          // For this policy 'ValueType' must define a public member named
+//          // 'first' of type 'first_type'.
+//
+//      typedef typename ValueType::first_type KeyType;
+//          // Alias for the type passed to the hasher by the hashed container.
+//          // In this policy, that type is the type of the 'first' element of
+//          // 'ValueType'.
+//
+//      static const KeyType& extractKey(const ValueType& value);
+//          // Return the key value for the specified 'value'.  In this policy,
+//          // that is the value of the 'first' member of 'value'.
+//  };
+//
+//                          // -------------------------------
+//                          // struct UseFirstValueOfPairAsKey
+//                          // -------------------------------
+//
+//  template <class VALUE_TYPE>
+//  inline
+//  const typename UseFirstValueOfPairAsKey<VALUE_TYPE>::KeyType&
+//                 UseFirstValueOfPairAsKey<VALUE_TYPE>::extractKey(
+//           const UseFirstValueOfPairAsKey<VALUE_TYPE>::ValueType& value)
+//  {
+//      return value.first;
+//  }
+//..
+// Next, we define our 'MyHashedMap' class template with an instance of
+// 'bststl::HashTable' (configured using 'UseFirstValueOfPairAsKey') as its
+// sole data member.  In this example, we choose to implement 'operator[]'
+// (corresponding to the signature method of 'bsl::unordered_map') to allow us
+// to populate our maps and to examine their elements.
+//..
+//                          // =================
+//                          // class MyHashedMap
+//                          // =================
+//
+//  template <class KEY,
+//            class VALUE,
+//            class HASH      = bsl::hash<KEY>,
+//            class EQUAL     = bsl::equal_to<KEY>,
+//            class ALLOCATOR = bsl::allocator<KEY> >
+//  class MyHashedMap
+//  {
+//    private:
+//      // PRIVATE TYPES
+//      typedef bsl::allocator_traits<ALLOCATOR>          AllocatorTraits;
+//
+//      typedef BloombergLP::bslstl::HashTable<
+//                      UseFirstValueOfPairAsKey<bsl::pair<const KEY, VALUE> >,
+//                      HASH,
+//                      EQUAL,
+//                      ALLOCATOR>                     HashTable;
+//
+//      // DATA
+//      HashTable d_impl;
+//
+//    public:
+//      // TYPES
+//      typedef typename AllocatorTraits::size_type size_type;
+//
+//      // CREATORS
+//      explicit MyHashedMap(size_type        initialNumBuckets = 0,
+//                           const HASH&      hash              = HASH(),
+//                           const EQUAL&     keyEqual          = EQUAL(),
+//                           const ALLOCATOR& allocator         = ALLOCATOR());
+//
+//      //! ~MyHashedMap() = default;
+//          // Destroy this object.
+//
+//      // MANIPULATORS
+//      VALUE& operator[](const KEY& key);
+//          // Return a reference providing modifiable access to the
+//          // mapped-value associated with the specified 'key' in this
+//          // unordered map; if this unordered map does not already contain a
+//          // 'value_type' object with 'key', first insert a new 'value_type'
+//          // object having 'key' and a default=constructed 'VALUE' object.
+//          // This method requires that the (template parameter) type 'KEY' is
+//          // "copy-constructible" and the (template parameter) 'VALUE' is
+//          // "default-constructible".
+//  };
+//..
+// Then, we implement the methods 'MyHashedMap'.  The construct need merely
+// forward its arguments to the constructor of 'd_impl',
+//..
+//                          // =================
+//                          // class MyHashedMap
+//                          // =================
+//
+//  // CREATORS
+//  template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+//  inline
+//  MyHashedMap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::MyHashedMap(
+//                                          size_type        initialNumBuckets,
+//                                          const HASH&      hash,
+//                                          const EQUAL&     keyEqual,
+//                                          const ALLOCATOR& allocator)
+//  : d_impl(hash, keyEqual, initialNumBuckets, allocator)
+//  {
+//  }
+//..
+// As with 'MyHashedSet', the 'insertIfMissing' method of 'bslst::HashTable'
+// provides the semantics we need: an element is inserted only if no such
+// element (no element with the same key) in the container, and a reference
+// to that element ('node') is returned.  Here, we use 'node' to obtain and
+// return a modifiable reference to the 'second' member of the (possibly newly
+// added) element.  Note that the 'static_cast' from 'HashTableLink *' to
+// 'HashTableNode *' is valid because the nodes derive from the link type (see
+// 'bslalg_bidirectionallink' and 'bslalg_hashtableimputil').
+//..
+//  // MANIPULATORS
+//  template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+//  inline VALUE& MyHashedMap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::operator[](
+//                                                              const KEY& key)
+//  {
+//      typedef typename HashTable::NodeType           HashTableNode;
+//      typedef BloombergLP::bslalg::BidirectionalLink HashTableLink;
+//
+//      HashTableLink *node = d_impl.insertIfMissing(key);
+//      return static_cast<HashTableNode *>(node)->value().second;
+//  }
+//..
+// Finally, we create 'mhm', an instance of 'MyHashedMap', exercise it, and
+// confirm that it behaves as expected.  We can add an element (with key value
+// of 0).
+//..
+//  MyHashedMap<int, double> mhm;
+//
+//  mhm[0] = 1.234;
+//  assert(1.234 == mhm[0]);
+//..
+// We can change the value of the element with key value 0.
+//..
+//  mhm[0] = 4.321;
+//  assert(4.321 == mhm[0]);
+//..
+// We can add a new element (key value 1), without changing the previously
+// existing element (key value 0).
+//..
+//  mhm[1] = 5.768;
+//  assert(5.768 == mhm[1]);
+//  assert(4.321 == mhm[0]);
+//..
+// Accessing a non-existing element (key value 2) creates that element and
+// populates it with the default value of the mapped value (0.0).
+//..
+//  assert(0.000 == mhm[2]);
+//..
+//
+///Example 3: Implementing a Hashed Multi-Map Container
+///----------------------------------------------------
+// Suppose we wish to implement, 'MyHashedMultiMap', a greatly simplified
+// version of 'bsl::unordered_multimap'.  As with 'MyHashedSet' and
+// 'MyHashedMap' (see {Example 1}, and {Example 2}, respectively), the
+// 'bslstl::HashTable' class template can be used as the basis of our
+// implementation.
+//
+// First, we need a class template to configure 'bslstl::HashTable' to extract
+// key values in manner appropriate for maps.  The previously defined
+// 'UseFirstValueOfPairAsKey' class template (see {Example 2}) suits perfectly.
+//
+// Next, we define our 'MyHashedMultiMap' class template with an instance of
+// 'bststl::HashTable' (configured using 'UseFirstValueOfPairAsKey') as its
+// sole data member.  In this example, we choose to implement an 'insert'
+// method to populate our container, and an 'equal_range' method (a signature
+// method of the multi containers) to provide access to those elements.
+//..
+//                          // ======================
+//                          // class MyHashedMultiMap
+//                          // ======================
+//
+//  template <class KEY,
+//            class VALUE,
+//            class HASH      = bsl::hash<KEY>,
+//            class EQUAL     = bsl::equal_to<KEY>,
+//            class ALLOCATOR = bsl::allocator<KEY> >
+//  class MyHashedMultiMap
+//  {
+//    private:
+//      // PRIVATE TYPES
+//      typedef bsl::pair<const KEY, VALUE>               value_type;
+//      typedef bsl::allocator_traits<ALLOCATOR>          AllocatorTraits;
+//      typedef typename AllocatorTraits::difference_type difference_type;
+//
+//      typedef BloombergLP::bslstl::HashTable<
+//                      UseFirstValueOfPairAsKey<bsl::pair<const KEY, VALUE> >,
+//                      HASH,
+//                      EQUAL,
+//                      ALLOCATOR>                        HashTable;
+//
+//      // DATA
+//      HashTable d_impl;
+//
+//    public:
+//      // TYPES
+//      typedef typename AllocatorTraits::size_type  size_type;
+//
+//      typedef BloombergLP::bslstl::HashTableIterator<value_type,
+//                                                     difference_type>
+//                                                                    iterator;
+//      typedef BloombergLP::bslstl::HashTableIterator<const value_type,
+//                                                     difference_type>
+//                                                              const_iterator;
+//
+//      // CREATORS
+//      explicit MyHashedMultiMap(
+//                           size_type        initialNumBuckets = 0,
+//                           const HASH&      hash              = HASH(),
+//                           const EQUAL&     keyEqual          = EQUAL(),
+//                           const ALLOCATOR& allocator         = ALLOCATOR());
+//
+//      //! ~MyHashedMultiMap() = default;
+//          // Destroy this object.
+//
+//      // MANIPULATORS
+//      template <class SOURCE_TYPE>
+//      iterator insert(const SOURCE_TYPE& value);
+//          // Insert the specified 'value' into this multi-map, and return an
+//          // iterator to the newly inserted element.  This method requires
+//          // that the (template parameter) types 'KEY' and 'VALUE' types both
+//          // be "copy-constructible".
+//
+//      // ACCESSORS
+//      bsl::pair<const_iterator, const_iterator> equal_range(const KEY& key)
+//                                                                       const;
+//          // Return a pair of iterators providing non-modifiable access to
+//          // the sequence of 'value_type' objects in this container matching
+//          // the specified 'key', where the the first iterator is positioned
+//          // at the start of the sequence and the second iterator is
+//          // positioned one past the end of the sequence.  If this container
+//          // contains no 'value_type' objects matching 'key' then the two
+//          // returned iterators will have the same value.
+//  };
+//..
+// Then, we implement the methods 'MyHashedMultiMap'.  The construct need
+// merely forward its arguments to the constructor of 'd_impl',
+//..
+//                          // ======================
+//                          // class MyHashedMultiMap
+//                          // ======================
+//
+//  // CREATORS
+//  template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+//  inline
+//  MyHashedMultiMap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::MyHashedMultiMap(
+//                                         size_type        initialNumBuckets,
+//                                         const HASH&      hash,
+//                                         const EQUAL&     keyEqual,
+//                                         const ALLOCATOR& allocator)
+//  : d_impl(hash, keyEqual, initialNumBuckets, allocator)
+//  {
+//  }
+//..
+// Note that here we forgo use of the 'insertIfMissing' method and use the
+// 'insert' method of 'bslstl::HashTable'.  This method supports the semantics
+// of the multi containers: there can be more than one element with the same
+// key value.
+//..
+//  // MANIPULATORS
+//  template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+//  template <class SOURCE_TYPE>
+//  inline
+//  typename MyHashedMultiMap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator
+//           MyHashedMultiMap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::insert(
+//                                                    const SOURCE_TYPE& value)
+//  {
+//      return iterator(d_impl.insert(value));
+//  }
+//..
+// The 'equal_range' method need only convert the values returned by the
+// 'findRange' method to the types expected by the caller.
+//..
+//  // ACCESSORS
+//  template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+//  bsl::pair<typename MyHashedMultiMap<KEY,
+//                                      VALUE,
+//                                      HASH,
+//                                      EQUAL,
+//                                      ALLOCATOR>::const_iterator,
+//            typename MyHashedMultiMap<KEY,
+//                                      VALUE,
+//                                      HASH,
+//                                      EQUAL, ALLOCATOR>::const_iterator>
+//  MyHashedMultiMap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::equal_range(
+//                                                        const KEY& key) const
+//  {
+//      typedef bsl::pair<const_iterator, const_iterator> ResultType;
+//      typedef BloombergLP::bslalg::BidirectionalLink    HashTableLink;
+//
+//      HashTableLink *first;
+//      HashTableLink *last;
+//      d_impl.findRange(&first, &last, key);
+//      return ResultType(const_iterator(first), const_iterator(last));
+//  }
+//..
+// Finally, we create 'mhmm', an instance of 'MyHashedMultiMap', exercise it,
+// and confirm that it behaves as expected.
+//
+// We define several aliases to make our code more concise.
+//..
+//  typedef MyHashedMultiMap<int, double>::iterator       Iterator;
+//  typedef MyHashedMultiMap<int, double>::const_iterator ConstIterator;
+//  typedef bsl::pair<ConstIterator, ConstIterator>       ConstRange;
+//..
+// Searching for an element (key value 10) in a newly created, empty container
+// correctly shows the absence of any such element.
+//..
+//  MyHashedMultiMap<int, double> mhmm;
+//
+//  ConstRange range;
+//  range = mhmm.equal_range(10);
+//  assert(range.first == range.second);
+//..
+// We can insert a value (the pair 10, 100.00) into the container...
+//..
+//  bsl::pair<const int, double> value(10, 100.00);
+//
+//  Iterator itr;
+//
+//  itr = mhmm.insert(value);
+//  assert(value == *itr);
+//..
+// ... and we can do so again.
+//..
+//  itr = mhmm.insert(value);
+//  assert(value == *itr);
+//..
+// We can now find elements with the key value of 10.
+//..
+//  range = mhmm.equal_range(10);
+//  assert(range.first != range.second);
+//..
+// As expected, there are two such elements, and both are identical in
+// key value (10) and mapped value (100.00).
+//..
+//  int count = 0;
+//  for (ConstIterator cur  = range.first,
+//                     end  = range.second;
+//                     end != cur; ++cur, ++count) {
+//      assert(value == *cur);
+//  }
+//  assert(2 == count);
+//..
 
 // Prevent 'bslstl' headers from being included directly in 'BSL_OVERRIDES_STD'
 // mode.  Doing so is unsupported, and is likely to cause compilation errors.
