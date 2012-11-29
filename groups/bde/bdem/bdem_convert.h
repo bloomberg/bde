@@ -1568,120 +1568,132 @@ int bdem_Convert::fromBdemType(DSTTYPE             *dstAddr,
 
     switch (srcType) {
       case bdem_ElemType::BDEM_CHAR: {
-        result = bdem_Convert::convert(dstAddr, *(char*) srcAddr);
+        result = bdem_Convert::convert(dstAddr, *(const char*) srcAddr);
       } break;
       case bdem_ElemType::BDEM_SHORT: {
-        result = bdem_Convert::convert(dstAddr, *(short*) srcAddr);
+        result = bdem_Convert::convert(dstAddr, *(const short*) srcAddr);
       } break;
       case bdem_ElemType::BDEM_INT: {
-        result = bdem_Convert::convert(dstAddr, *(int*) srcAddr);
+        result = bdem_Convert::convert(dstAddr, *(const int*) srcAddr);
       } break;
       case bdem_ElemType::BDEM_INT64: {
-        result = bdem_Convert::convert(dstAddr, *(Int64*) srcAddr);
+        result = bdem_Convert::convert(dstAddr, *(const Int64*) srcAddr);
       } break;
       case bdem_ElemType::BDEM_FLOAT: {
-        result = bdem_Convert::convert(dstAddr, *(float*) srcAddr);
+        result = bdem_Convert::convert(dstAddr, *(const float*) srcAddr);
       } break;
       case bdem_ElemType::BDEM_DOUBLE: {
-        result = bdem_Convert::convert(dstAddr, *(double*) srcAddr);
+        result = bdem_Convert::convert(dstAddr, *(const double*) srcAddr);
       } break;
       case bdem_ElemType::BDEM_STRING: {
-        result = bdem_Convert::convert(dstAddr, *(bsl::string*) srcAddr);
+        result = bdem_Convert::convert(dstAddr, *(const bsl::string*) srcAddr);
       } break;
       case bdem_ElemType::BDEM_DATETIME: {
-        result = bdem_Convert::convert(dstAddr, *(bdet_Datetime*) srcAddr);
+        result = bdem_Convert::convert(dstAddr,
+                                       *(const bdet_Datetime*) srcAddr);
       } break;
       case bdem_ElemType::BDEM_DATE: {
-        result = bdem_Convert::convert(dstAddr, *(bdet_Date*) srcAddr);
+        result = bdem_Convert::convert(dstAddr, *(const bdet_Date*) srcAddr);
       } break;
       case bdem_ElemType::BDEM_TIME: {
-        result = bdem_Convert::convert(dstAddr, *(bdet_Time*) srcAddr);
+        result = bdem_Convert::convert(dstAddr, *(const bdet_Time*) srcAddr);
       } break;
       case bdem_ElemType::BDEM_CHAR_ARRAY: {
-        result = bdem_Convert::convert(dstAddr, *(bsl::vector<char>*) srcAddr);
+        result = bdem_Convert::convert(dstAddr,
+                                       *(const bsl::vector<char>*) srcAddr);
       } break;
       case bdem_ElemType::BDEM_SHORT_ARRAY: {
         result = bdem_Convert::convert(dstAddr,
-                                       *(bsl::vector<short>*) srcAddr);
+                                       *(const bsl::vector<short>*) srcAddr);
       } break;
       case bdem_ElemType::BDEM_INT_ARRAY: {
-        result = bdem_Convert::convert(dstAddr, *(bsl::vector<int>*) srcAddr);
+        result = bdem_Convert::convert(dstAddr,
+                                       *(const bsl::vector<int>*) srcAddr);
       } break;
       case bdem_ElemType::BDEM_INT64_ARRAY: {
         result = bdem_Convert::convert(dstAddr,
-                                       *(bsl::vector<Int64>*) srcAddr);
+                                       *(const bsl::vector<Int64>*) srcAddr);
       } break;
       case bdem_ElemType::BDEM_FLOAT_ARRAY: {
         result = bdem_Convert::convert(dstAddr,
-                                       *(bsl::vector<float>*) srcAddr);
+                                       *(const bsl::vector<float>*) srcAddr);
       } break;
       case bdem_ElemType::BDEM_DOUBLE_ARRAY: {
         result = bdem_Convert::convert(dstAddr,
-                                       *(bsl::vector<double>*) srcAddr);
+                                       *(const bsl::vector<double>*) srcAddr);
       } break;
       case bdem_ElemType::BDEM_STRING_ARRAY: {
-        result = bdem_Convert::convert(dstAddr,
-                                       *(bsl::vector<bsl::string>*) srcAddr);
+        result = bdem_Convert::convert(
+                                   dstAddr,
+                                   *(const bsl::vector<bsl::string>*) srcAddr);
       } break;
       case bdem_ElemType::BDEM_DATETIME_ARRAY: {
         result = bdem_Convert::convert(
-                                      dstAddr,
-                                      *(bsl::vector<bdet_Datetime>*) srcAddr);
+                                 dstAddr,
+                                 *(const bsl::vector<bdet_Datetime>*) srcAddr);
       } break;
       case bdem_ElemType::BDEM_DATE_ARRAY: {
-        result = bdem_Convert::convert(dstAddr,
-                                       *(bsl::vector<bdet_Date>*) srcAddr);
+        result = bdem_Convert::convert(
+                                     dstAddr,
+                                     *(const bsl::vector<bdet_Date>*) srcAddr);
       } break;
       case bdem_ElemType::BDEM_TIME_ARRAY: {
-        result = bdem_Convert::convert(dstAddr,
-                                       *(bsl::vector<bdet_Time>*) srcAddr);
+        result = bdem_Convert::convert(
+                                     dstAddr,
+                                     *(const bsl::vector<bdet_Time>*) srcAddr);
       } break;
       case bdem_ElemType::BDEM_LIST: {
-        result = bdem_Convert::convert(dstAddr, *(bdem_List*) srcAddr);
+        result = bdem_Convert::convert(dstAddr, *(const bdem_List*) srcAddr);
       } break;
       case bdem_ElemType::BDEM_TABLE: {
-        result = bdem_Convert::convert(dstAddr, *(bdem_Table*) srcAddr);
+        result = bdem_Convert::convert(dstAddr, *(const bdem_Table*) srcAddr);
       } break;
       case bdem_ElemType::BDEM_BOOL: {
-        result = bdem_Convert::convert(dstAddr, *(bool*) srcAddr);
+        result = bdem_Convert::convert(dstAddr, *(const bool*) srcAddr);
       } break;
       case bdem_ElemType::BDEM_DATETIMETZ: {
-        result = bdem_Convert::convert(dstAddr, *(bdet_DatetimeTz*) srcAddr);
+        result = bdem_Convert::convert(dstAddr,
+                                       *(const bdet_DatetimeTz*) srcAddr);
       } break;
       case bdem_ElemType::BDEM_DATETZ: {
-        result = bdem_Convert::convert(dstAddr, *(bdet_DateTz*) srcAddr);
+        result = bdem_Convert::convert(dstAddr, *(const bdet_DateTz*) srcAddr);
       } break;
       case bdem_ElemType::BDEM_TIMETZ: {
-        result = bdem_Convert::convert(dstAddr, *(bdet_TimeTz*) srcAddr);
+        result = bdem_Convert::convert(dstAddr,
+                                       *(const bdet_TimeTz*) srcAddr);
       } break;
       case bdem_ElemType::BDEM_BOOL_ARRAY: {
-        result = bdem_Convert::convert(dstAddr, *(bsl::vector<bool>*) srcAddr);
+        result = bdem_Convert::convert(dstAddr,
+                                       *(const bsl::vector<bool>*) srcAddr);
       } break;
       case bdem_ElemType::BDEM_DATETIMETZ_ARRAY: {
         result = bdem_Convert::convert(
-                                     dstAddr,
-                                     *(bsl::vector<bdet_DatetimeTz>*) srcAddr);
+                               dstAddr,
+                               *(const bsl::vector<bdet_DatetimeTz>*) srcAddr);
       } break;
       case bdem_ElemType::BDEM_DATETZ_ARRAY: {
-        result = bdem_Convert::convert(dstAddr,
-                                       *(bsl::vector<bdet_DateTz>*) srcAddr);
+        result = bdem_Convert::convert(
+                                   dstAddr,
+                                   *(const bsl::vector<bdet_DateTz>*) srcAddr);
       } break;
       case bdem_ElemType::BDEM_TIMETZ_ARRAY: {
-        result = bdem_Convert::convert(dstAddr,
-                                       *(bsl::vector<bdet_TimeTz>*) srcAddr);
+        result = bdem_Convert::convert(
+                                   dstAddr,
+                                   *(const bsl::vector<bdet_TimeTz>*) srcAddr);
       } break;
       case bdem_ElemType::BDEM_CHOICE: {
-        result = bdem_Convert::convert(dstAddr, *(bdem_Choice*) srcAddr);
+        result = bdem_Convert::convert(dstAddr, *(const bdem_Choice*) srcAddr);
       } break;
       case bdem_ElemType::BDEM_CHOICE_ARRAY: {
-        result = bdem_Convert::convert(dstAddr, *(bdem_ChoiceArray*) srcAddr);
+        result = bdem_Convert::convert(dstAddr,
+                                       *(const bdem_ChoiceArray*) srcAddr);
       } break;
       case bdem_ElemType::BDEM_CHOICE_ARRAY_ITEM: {
         result = bdem_Convert::convert(dstAddr,
-                                       *(bdem_ChoiceArrayItem*) srcAddr);
+                                       *(const bdem_ChoiceArrayItem*) srcAddr);
       } break;
       case bdem_ElemType::BDEM_ROW: {
-        result = bdem_Convert::convert(dstAddr, *(bdem_Row*) srcAddr);
+        result = bdem_Convert::convert(dstAddr, *(const bdem_Row*) srcAddr);
       } break;
       case bdem_ElemType::BDEM_VOID:
       default: {
