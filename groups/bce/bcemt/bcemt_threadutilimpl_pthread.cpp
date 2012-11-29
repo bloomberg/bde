@@ -28,14 +28,10 @@ BDES_IDENT_RCSID(bcemt_threadutilimpl_pthread_cpp,"$Id$ $CSID$")
 
 #if defined(BSLS_PLATFORM_OS_DARWIN)
 # include <mach/mach.h>    // clock_sleep
-# include <mach/clock.h>   // clock_sleep TBD
+# include <mach/clock.h>   // clock_sleep
 #endif
 
 #include <errno.h>         // constant EINTR
-
-#include <bdetu_datetimeinterval.h> // TBD
-#include <bdetu_systemtime.h>
-#include <bsl_iostream.h> // TBD
 
 namespace BloombergLP {
 
@@ -156,74 +152,74 @@ class PthreadMutexGuard {
   public:
 
     // CREATORS
-    PthreadMutexGuard(pthread_mutex_t *lock) : d_lock_p(lock) {}
+    explicit PthreadMutexGuard(pthread_mutex_t *lock) : d_lock_p(lock) {}
     ~PthreadMutexGuard()
     {
-      if (0 != pthread_mutex_unlock(d_lock_p)) {
-	BSLS_ASSERT_OPT(false);
-      }
-   }
+        if (0 != pthread_mutex_unlock(d_lock_p)) {
+            BSLS_ASSERT_OPT(false);
+        }
+    }
 };
 
-}
+}  // close unnamed namespace
 
 static bdet_TimeInterval getDarwinSystemBootTime()
-    // Return the system-start time as a time interval from the UNIX epoch 
+    // Return the system-start time as a time interval from the UNIX epoch
     // time, January 1, 1970
 {
+    // TBD: We currently obtain the system start time (the time basis for the
+    // 'REALTIME_CLOCK' by computing the the difference between the
+    // 'REALTIME_CLOCK' and 'CALENDAR_CLOCK'.  This has the potential to be
+    // inaccurate, but after a day of investigation is the best alternative
+    // I've found.  The one other alternative I tested ('sysctl' to obtain the
+    // 'KERN_BOOTTIME'), was, significantly less accurate:
+    // http://stackoverflow.com/questions/11282897/
 
-  // TBD: We currently obtain the system boot time by computing the
-  // the difference between the 'REALTIME_CLOCK' and 'CALENDAR_CLOCK'.
-  // This has the potential to be inaccurate, but after a day of investigation
-  // is the best alternative I've found.  The one alternative I've found
-  // using ('sysctl' to obtain the 'KERN_BOOTTIME'), was, on testing, 
-  // significantly less accurate.
+    static bsls::AtomicOperations::AtomicTypes::Int64 bootSecs     = { 0 };
+    static bsls::AtomicOperations::AtomicTypes::Int   bootNanoSecs = { 0 };
 
+    if (!bsls::AtomicOperations::getInt64Acquire(&bootSecs)) {
 
-  static bsls::AtomicOperations::AtomicTypes::Int64 bootSecs     = { 0 };
-  static bsls::AtomicOperations::AtomicTypes::Int   bootNanoSecs = { 0 };
- 
-  if (!bsls::AtomicOperations::getInt64Acquire(&bootSecs)) {
- 
-    static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+        static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
-    if (0 != pthread_mutex_lock(&mutex)) {
-      BSLS_ASSERT_OPT(false);
+        if (0 != pthread_mutex_lock(&mutex)) {
+            BSLS_ASSERT_OPT(false);
+        }
+
+        PthreadMutexGuard guard(&mutex);
+
+        clock_serv_t calendarClock, realtimeClock;
+
+        kern_return_t status1 = host_get_clock_service(mach_host_self(),
+                                                       REALTIME_CLOCK,
+                                                       &realtimeClock);
+
+        kern_return_t status2 = host_get_clock_service(mach_host_self(),
+                                                       CALENDAR_CLOCK,
+                                                       &calendarClock);
+
+        BSLS_ASSERT_OPT(0 == status1);
+        BSLS_ASSERT_OPT(0 == status2);
+
+        mach_timespec_t nowCalendar, nowRealtime;
+
+        clock_get_time(realtimeClock, &nowRealtime);
+        clock_get_time(calendarClock, &nowCalendar);
+        bdet_TimeInterval adjustment =
+            bdet_TimeInterval(nowCalendar.tv_sec, nowCalendar.tv_nsec) -
+            bdet_TimeInterval(nowRealtime.tv_sec, nowRealtime.tv_nsec);
+
+        bsls::AtomicOperations::setInt64Release(&bootSecs,
+                                                adjustment.seconds());
+        bsls::AtomicOperations::setIntRelease(&bootNanoSecs,
+                                              adjustment.nanoseconds());
     }
 
-    PthreadMutexGuard guard(&mutex);
-    
-    clock_serv_t calendarClock, realtimeClock;
-
-    kern_return_t status1 = host_get_clock_service(mach_host_self(),
-						  REALTIME_CLOCK, 
-						  &realtimeClock);
-
-    kern_return_t status2 = host_get_clock_service(mach_host_self(),
-						   CALENDAR_CLOCK, 
-						   &calendarClock);
-    BSLS_ASSERT_OPT(0 == status1);
-    BSLS_ASSERT_OPT(0 == status2);
-
-
-    mach_timespec_t nowCalendar, nowRealtime;
-
-    clock_get_time(realtimeClock, &nowRealtime);
-    clock_get_time(calendarClock, &nowCalendar);
-    bdet_TimeInterval adjustment =
-               bdet_TimeInterval(nowCalendar.tv_sec, nowCalendar.tv_nsec) -
-               bdet_TimeInterval(nowRealtime.tv_sec, nowRealtime.tv_nsec);
-    
-    bsls::AtomicOperations::setInt64Release(&bootSecs, adjustment.seconds());
-    bsls::AtomicOperations::setIntRelease(&bootNanoSecs, 
-					  adjustment.nanoseconds());
-  }
-    
-  return bdet_TimeInterval(
-			  bsls::AtomicOperations::getInt64Relaxed(&bootSecs),
-			  bsls::AtomicOperations::getIntRelaxed(&bootNanoSecs));
+    return bdet_TimeInterval(
+        bsls::AtomicOperations::getInt64Relaxed(&bootSecs),
+        bsls::AtomicOperations::getIntRelaxed(&bootNanoSecs));
 }
-#endif
+#endif  // defined(BSLS_PLATFORM_OS_DARWIN)
 
             // -------------------------------------------------------
             // class bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>
@@ -346,7 +342,7 @@ int bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::
     int priority = sched_get_priority_max(pPolicy);
 
 # if defined(BSLS_PLATFORM_OS_AIX)
-    // Note that the max prirority returned above is 127 regardless of policy
+    // Note that the max priority returned above is 127 regardless of policy
     // on AIX, yet for non-superusers, thread creation fails if
     // 'priority > 60'.  See AIX doc "http://publib.boulder.ibm.com/
     // infocenter/aix/v6r1/index.jsp?topic=%2Fcom.ibm.aix.basetechref%2F
@@ -357,7 +353,7 @@ int bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::
            MAX_AIX_PRIORITY          = 80 };
 
     if (0 == geteuid()) {
-        // priviledged user
+        // privileged user
 
         // On AIX 5.3 and above, all priorities above 80 are equivalent to 80.
 
@@ -366,7 +362,7 @@ int bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::
         }
     }
     else {
-        // non-priviledged user
+        // non-privileged user
 
         if (priority > MAX_AIX_NON_ROOT_PRIORITY) {
             priority = MAX_AIX_NON_ROOT_PRIORITY;
@@ -429,43 +425,43 @@ int bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::sleepUntil(
     // 'clock_sleep'.
 
 #if defined(BSLS_PLATFORM_OS_DARWIN)
-    // The online documentation for 'clock_sleep' (e.g., 
+    // The online documentation for 'clock_sleep' (e.g.,
     // http://felinemenace.org/~nemo/mach/manpages/) is not very clear, and is
-    // sometimes incorrect or out-of-date.  According 
+    // sometimes incorrect or out-of-date.  According
     // 'mach.h' ('/user/include/mach/') the 'clock_sleep' signature is:
     //..
     //  kern_return_t clock_sleep(
     //        mach_port_t, int, mach_timespec_t, mach_timespec_t *);
     //..
     // According to 'mach_interface.h' mach_timespec_t is a simple struct that
-    // is equivalent to 'timespec' on other UNIX platforms.  Many identifier 
+    // is equivalent to 'timespec' on other UNIX platforms.  Many identifier
     // types used in the mach interface are aliases to 'mach_port_t', including
-    // 'clock_serv_t' which is returned by 'host_get_clock_service'.  The 
+    // 'clock_serv_t' which is returned by 'host_get_clock_service'.  The
     // signature for 'host_get_clock_service' also differs from what is found
     // online.  The signature in 'mach_host.h':
     //..
-    //  kern_return_t host_get_clock_service(host_t, clock_id_t, clock_serv_t *)
+    //  kern_return_t host_get_clock_service(host_t, clock_id_t,clock_serv_t *)
     //..
 
     //    TimeInterval systemBootTime = systemBootTime();
 
     clock_serv_t clock;
 
-    // Unforutunately the 'CALNEDAR_CLOCK', which is based on unix-epoch time
+    // Unfortunately the 'CALENDAR_CLOCK', which is based on unix-epoch time
     // does not provide 'clock_sleep'.  'REALTIME_CLOCK' is guaranteed to
     // support 'clock_sleep', but uses the system boot-time as the unix epoch.
 
     kern_return_t status = host_get_clock_service(mach_host_self(),
-						  REALTIME_CLOCK, 
-						  &clock);
+                          REALTIME_CLOCK,
+                          &clock);
     if (0 != status) {
-      return status;
+        return status;                                                // RETURN
     }
 
     bdet_TimeInterval systemTime = absoluteTime - getDarwinSystemBootTime();
 
     if (systemTime <= bdet_TimeInterval()) {
-      return 0;                                                        // RETURN
+        return 0;                                                     // RETURN
     }
 
     mach_timespec_t clockTime, resultTime;
@@ -482,10 +478,10 @@ int bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::sleepUntil(
     clockTime.tv_sec  = static_cast<bsl::time_t>(absoluteTime.seconds());
     clockTime.tv_nsec = static_cast<long>(absoluteTime.nanoseconds());
 
-    int result; 
+    int result;
     do {
         result = clock_nanosleep(CLOCK_REALTIME, TIMER_ABSTIME, &clockTime, 0);
-       
+
     } while (EINTR == result && retryOnSignalInterupt);
 
     // An signal interrupt is not considered an error.

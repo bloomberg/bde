@@ -43,14 +43,13 @@ class HandleGuard {
     HANDLE d_handle;
 
   private:
-
     // NOT IMPLEMENTED
     HandleGuard(const HandleGuard&);
     HandleGuard operator=(const HandleGuard&);
 
   public:
 
-    HandleGuard(HANDLE handle);
+    explicit HandleGuard(HANDLE handle);
         // Create a guard for the specified 'handle', that upon going out
         // of scope and being destroyed, will call 'CloseHandle' on 'handle'.
 
@@ -546,11 +545,11 @@ int bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::sleepUntil(
 
     LARGE_INTEGER clockTime;
 
-    // The compuation of clock time is a bit complicated.  As indicated in
+    // The computation of clock time is a bit complicated.  As indicated in
     // the documentation for 'SetWaitableTimer':
     // http://msdn.microsoft.com/en-us/library/windows/desktop/ms686289
     // A positive value represents an absolute time in increments of 100
-    // nanoseconds.  Critcally though, Microsoft's epoch is different
+    // nanoseconds.  Critically though, Microsoft's epoch is different
     // for epoch used by the C run-time (and BDE).  BDE uses January 1, 1970,
     // Microsoft uses January 1, 1601, see:
     // http://msdn.microsoft.com/en-us/library/windows/desktop/ms724186
