@@ -144,7 +144,7 @@ static int initPthreadAttribute(pthread_attr_t                *dest,
 namespace {
 
 class PthreadMutexGuard {
-    // A guard for unlocking and *destroying* a 'pthread_mutex_t'
+    // A guard for unlocking a 'pthread_mutex_t'
 
     // DATA
     pthread_mutex_t *d_lock_p;
@@ -162,10 +162,7 @@ class PthreadMutexGuard {
       if (0 != pthread_mutex_unlock(d_lock_p)) {
 	BSLS_ASSERT_OPT(false);
       }
-      if (0 != pthread_mutex_destroy(d_lock_p)) {
-	BSLS_ASSERT_OPT(false);
-      }
-    }
+   }
 };
 
 }
@@ -188,7 +185,7 @@ static bdet_TimeInterval getDarwinSystemBootTime()
  
   if (!bsls::AtomicOperations::getInt64Acquire(&bootSecs)) {
  
-    pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+    static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
     if (0 != pthread_mutex_lock(&mutex)) {
       BSLS_ASSERT_OPT(false);
