@@ -470,7 +470,7 @@ int bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::sleepUntil(
 
     status = clock_sleep(clock, TIME_ABSOLUTE, clockTime, &resultTime);
 
-    return status;
+    return status == KERN_ABORTED ? 0 : status;
 
 #else
     timespec clockTime;
