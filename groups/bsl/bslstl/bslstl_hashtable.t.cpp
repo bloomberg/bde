@@ -685,7 +685,7 @@ class TestFacilityHasher : public HASHER { // exploit empty base
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-template <class FUNCTOR>
+template <class FUNCTOR, bool ENABLE_SWAP = true>
 class DegenerateClass : public FUNCTOR {
     // This test class template adapts a DefaultConstructible class to offer
     // a minimal or outright obstructive interface for testing generic code.
@@ -742,7 +742,8 @@ class DegenerateClass : public FUNCTOR {
 
 template <class FUNCTOR>
 inline
-void swap(DegenerateClass<FUNCTOR>& lhs, DegenerateClass<FUNCTOR>& rhs)
+void swap(DegenerateClass<FUNCTOR, true>& lhs,
+          DegenerateClass<FUNCTOR, true>& rhs)
 {
     lhs.swap(rhs);
 }
@@ -1015,10 +1016,11 @@ struct MakeDefaultFunctor {
     static FUNCTOR make() { return FUNCTOR(); }
 };
 
-template <class FUNCTOR>
-struct MakeDefaultFunctor<DegenerateClass<FUNCTOR> > {
-    static DegenerateClass<FUNCTOR> make() {
-        return DegenerateClass<FUNCTOR>::cloneBaseObject(FUNCTOR());
+template <class FUNCTOR, bool ENABLE_SWAP>
+struct MakeDefaultFunctor<DegenerateClass<FUNCTOR, ENABLE_SWAP> > {
+    static DegenerateClass<FUNCTOR, ENABLE_SWAP> make() {
+        return DegenerateClass<FUNCTOR, ENABLE_SWAP>::cloneBaseObject(
+                                                                    FUNCTOR());
     }
 };
 
@@ -1213,6 +1215,31 @@ struct TestDriver_DegenerateConfiguation {
 };
 
 template <class ELEMENT>
+struct TestDriver_DegenerateConfiguationWithNoSwap {
+    typedef TestDriver<BasicKeyConfig<ELEMENT>,
+                       DegenerateClass<TestFacilityHasher<ELEMENT>, false>,
+                       DegenerateClass<TestEqualityComparator<ELEMENT>, false>,
+                       ::bsl::allocator<ELEMENT> > Type;
+
+    // TEST CASES
+    static void testCase12() { Type::testCase12(); }
+
+    static void testCase11() { Type::testCase11(); }
+
+    static void testCase9() { Type::testCase9(); }
+
+    static void testCase8() { Type::testCase8(); }
+
+    static void testCase7() { Type::testCase7(); }
+
+    static void testCase4() { Type::testCase4(); }
+
+    static void testCase3() { Type::testCase3(); }
+
+    static void testCase2() { Type::testCase2(); }
+};
+
+template <class ELEMENT>
 struct TestCase6_Configuration {
     // Test case 6 (equality comparator) must be run with
     // 'GroupedEqualityComparator'.
@@ -1222,6 +1249,36 @@ struct TestCase6_Configuration {
                       , GroupedEqualityComparator<ELEMENT, 5>
                       , ::bsl::allocator<ELEMENT>
                       > Type;
+
+    // TEST CASES
+    static void testCase6() { Type::testCase6(); }
+};
+
+template <class ELEMENT>
+struct TestCase6_DegenerateConfiguration {
+    // Test case 6 (equality comparator) must be run with
+    // 'GroupedEqualityComparator'.
+
+    typedef TestDriver< 
+                   BasicKeyConfig<ELEMENT>,
+                   DegenerateClass<GroupedHasher<ELEMENT, bsl::hash<int>, 5> >,
+                   DegenerateClass<GroupedEqualityComparator<ELEMENT, 5> >,
+                   ::bsl::allocator<ELEMENT> > Type;
+
+    // TEST CASES
+    static void testCase6() { Type::testCase6(); }
+};
+
+template <class ELEMENT>
+struct TestCase6_DegenerateConfigurationNoSwap {
+    // Test case 6 (equality comparator) must be run with
+    // 'GroupedEqualityComparator'.
+
+    typedef TestDriver< 
+            BasicKeyConfig<ELEMENT>,
+            DegenerateClass<GroupedHasher<ELEMENT, bsl::hash<int>, 5>, false >,
+            DegenerateClass<GroupedEqualityComparator<ELEMENT, 5>, false >,
+            ::bsl::allocator<ELEMENT> > Type;
 
     // TEST CASES
     static void testCase6() { Type::testCase6(); }
@@ -2631,6 +2688,9 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase6()
 
     if (verbose) printf("\nCompare every value with every value.\n");
     {
+        const HASHER     HASH  = MakeDefaultFunctor<HASHER>::make();
+        const COMPARATOR EQUAL = MakeDefaultFunctor<COMPARATOR>::make();
+
         // Create first object
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int         LINE1   = DATA[ti].d_line;
@@ -2644,7 +2704,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase6()
             {
                 bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
-                Obj mX(HASHER(), COMPARATOR(), LENGTH1, &scratch);
+                Obj mX(HASH, EQUAL, LENGTH1, &scratch);
                 const Obj& X = gg(&mX, SPEC1);
 
                 ASSERTV(LINE1, X,   X == X);
@@ -2679,14 +2739,14 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase6()
                     bslma::TestAllocator& ya = 'a' == CONFIG ? oax : oay;
                     bslma::TestAllocator& za = 'a' == CONFIG ? oax : oaz;
 
-                    Obj mX(HASHER(), COMPARATOR(), LENGTH1, &xa);
+                    Obj mX(HASH, EQUAL, LENGTH1, &xa);
                     const Obj& X = gg(&mX, SPEC1);
-                    Obj mY(HASHER(), COMPARATOR(), 1 + 0.1 * LENGTH2, &ya);
+                    Obj mY(HASH, EQUAL, 1 + 0.1 * LENGTH2, &ya);
                     if (!setMaxLoadFactorNoRehash(&mY, 10.0f)) {
                         ASSERTV(LINE1, LINE2, !"Bad load factor");
                     }
                     const Obj& Y = gg(&mY, SPEC2);
-                    Obj mZ(HASHER(), COMPARATOR(), 1 + 100 * LENGTH2, &za);
+                    Obj mZ(HASH, EQUAL, 1 + 100 * LENGTH2, &za);
                     if (!setMaxLoadFactorNoRehash(&mZ, 0.01f)) {
                         ASSERTV(LINE1, LINE2, !"Bad load factor");
                     }
@@ -4033,6 +4093,10 @@ int main(int argc, char *argv[])
         RUN_EACH_TYPE(TestDriver_DegenerateConfiguation,
                       testCase12,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+
+        RUN_EACH_TYPE(TestDriver_DegenerateConfiguationWithNoSwap,
+                      testCase12,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
       } break;
       case 11: {
         // --------------------------------------------------------------------
@@ -4102,6 +4166,7 @@ int main(int argc, char *argv[])
         RUN_EACH_TYPE(TestDriver_DegenerateConfiguation,
                       testCase8,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+
       } break;
       case 7: {
         // --------------------------------------------------------------------
@@ -4122,6 +4187,10 @@ int main(int argc, char *argv[])
         RUN_EACH_TYPE(TestDriver_DegenerateConfiguation,
                       testCase7,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+
+        RUN_EACH_TYPE(TestDriver_DegenerateConfiguationWithNoSwap,
+                      testCase7,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
       } break;
       case 6: {
         // --------------------------------------------------------------------
@@ -4132,6 +4201,14 @@ int main(int argc, char *argv[])
                             "\n==========================\n");
 
         RUN_EACH_TYPE(TestCase6_Configuration,
+                      testCase6,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+
+        RUN_EACH_TYPE(TestCase6_DegenerateConfiguration,
+                      testCase6,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+
+        RUN_EACH_TYPE(TestCase6_DegenerateConfigurationNoSwap,
                       testCase6,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
       } break;
@@ -4165,6 +4242,10 @@ int main(int argc, char *argv[])
         RUN_EACH_TYPE(TestDriver_DegenerateConfiguation,
                       testCase4,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+
+        RUN_EACH_TYPE(TestDriver_DegenerateConfiguationWithNoSwap,
+                      testCase4,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
       } break;
       case 3: {
         // --------------------------------------------------------------------
@@ -4186,6 +4267,9 @@ int main(int argc, char *argv[])
                       testCase3,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
 
+        RUN_EACH_TYPE(TestDriver_DegenerateConfiguationWithNoSwap,
+                      testCase3,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
 
         // Further, need to validate the basic test facilities:
         //   verifyListContents
@@ -4207,6 +4291,10 @@ int main(int argc, char *argv[])
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
 
         RUN_EACH_TYPE(TestDriver_DegenerateConfiguation,
+                      testCase2,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+
+        RUN_EACH_TYPE(TestDriver_DegenerateConfiguationWithNoSwap,
                       testCase2,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
       } break;
