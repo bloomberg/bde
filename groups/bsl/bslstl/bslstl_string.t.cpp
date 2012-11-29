@@ -10069,7 +10069,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase9()
                                 gg(&mV, V_SPEC);
                     // v--------
                     static int firstFew = 2 * NUM_EXTEND * NUM_EXTEND;
-                    if (veryVeryVerbose||veryVerbose && firstFew > 0) {
+                    if (veryVeryVerbose || (veryVerbose && firstFew > 0)) {
                         printf("\t| "); P_(U_N); P_(V_N); P_(U); P(V);
                         --firstFew;
                     }
@@ -10192,7 +10192,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase9()
                         gg(&mV, V_SPEC);
 
                         static int firstFew = 2 * NUM_EXTEND * NUM_EXTEND;
-                        if (veryVeryVerbose||veryVerbose && firstFew > 0) {
+                        if (veryVeryVerbose || (veryVerbose && firstFew > 0)) {
                             printf("\t| "); P_(U_N); P_(V_N); P_(U); P(V);
                             --firstFew;
                         }
