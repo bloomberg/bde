@@ -5959,6 +5959,7 @@ int main(int argc, char *argv[])
                                              bsls::AssertTest::failTestDriver);
 
             RbTreeNode node; const RbTreeNode& NODE = node;
+            (void) node;  // Suppress 'unused variable' warnings in non-SAFE modes
             ASSERT_FAIL(Obj::printTreeStructure(0,
                                                 &NODE,
                                                 printIntNodeValue,
