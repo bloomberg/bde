@@ -166,9 +166,7 @@ void bar()
 
 void testCase1(int argc, bool assert)
 {
-    int verbose = argc > 2;
     int veryVerbose = argc > 3;
-    int veryVeryVerbose = argc > 4;
 
     BloombergLP::bsls::Stopwatch timer;
 
@@ -258,6 +256,9 @@ namespace TestCase3 {
 
 void init(volatile int *arrayA, volatile int *arrayB)
 {
+    (void) arrayA;
+    (void) arrayB;
+
 #if defined(BSLS_PLATFORM_CMP_IBM) && BSLS_PLATFORM_CMP_VER_MAJOR >= 0x0900
     // Only available under xlc 10.
 
@@ -273,15 +274,15 @@ void addWithoutPrefetch(volatile int *arrayA, volatile int *arrayB)
     // without using prefetch.
 {
     for (int i = 0; i < SIZE/8; ++i){
-        *(arrayA++) = *arrayA + *(arrayB++);
-        *(arrayA++) = *arrayA + *(arrayB++);
-        *(arrayA++) = *arrayA + *(arrayB++);
-        *(arrayA++) = *arrayA + *(arrayB++);
+        *(arrayA++) += *(arrayB++);
+        *(arrayA++) += *(arrayB++);
+        *(arrayA++) += *(arrayB++);
+        *(arrayA++) += *(arrayB++);
 
-        *(arrayA++) = *arrayA + *(arrayB++);
-        *(arrayA++) = *arrayA + *(arrayB++);
-        *(arrayA++) = *arrayA + *(arrayB++);
-        *(arrayA++) = *arrayA + *(arrayB++);
+        *(arrayA++) += *(arrayB++);
+        *(arrayA++) += *(arrayB++);
+        *(arrayA++) += *(arrayB++);
+        *(arrayA++) += *(arrayB++);
     }
 }
 
@@ -291,27 +292,25 @@ void addWithPrefetch(volatile int *arrayA, volatile int *arrayB)
 {
     for (int i = 0; i < SIZE/8; ++i){
         BloombergLP::bsls::PerformanceHint::prefetchForWriting(
-                                                          (int *) arrayA + 16);
+                                               const_cast<int *>(arrayA) + 16);
         BloombergLP::bsls::PerformanceHint::prefetchForReading(
-                                                          (int *) arrayB + 16);
+                                               const_cast<int *>(arrayB) + 16);
 
-        *(arrayA++) = *arrayA + *(arrayB++);
-        *(arrayA++) = *arrayA + *(arrayB++);
-        *(arrayA++) = *arrayA + *(arrayB++);
-        *(arrayA++) = *arrayA + *(arrayB++);
+        *(arrayA++) += *(arrayB++);
+        *(arrayA++) += *(arrayB++);
+        *(arrayA++) += *(arrayB++);
+        *(arrayA++) += *(arrayB++);
 
-        *(arrayA++) = *arrayA + *(arrayB++);
-        *(arrayA++) = *arrayA + *(arrayB++);
-        *(arrayA++) = *arrayA + *(arrayB++);
-        *(arrayA++) = *arrayA + *(arrayB++);
+        *(arrayA++) += *(arrayB++);
+        *(arrayA++) += *(arrayB++);
+        *(arrayA++) += *(arrayB++);
+        *(arrayA++) += *(arrayB++);
     }
 }
 
 void testCase3(int argc, bool assert)
 {
-    int verbose = argc > 2;
     int veryVerbose = argc > 3;
-    int veryVeryVerbose = argc > 4;
 
     if (veryVerbose) {
         cout << "Adding with prefetch" << endl;
@@ -391,7 +390,6 @@ int main(int argc, char *argv[])
     int test = argc > 1 ? atoi(argv[1]) : 0;
     int verbose = argc > 2;
     int veryVerbose = argc > 3;
-    int veryVeryVerbose = argc > 4;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
