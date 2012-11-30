@@ -188,7 +188,7 @@ BSLS_IDENT("$Id: $")
 #endif
 
 #ifndef INCLUDED_ALGORITHM
-#include <algorithm>  // for swap
+#include <algorithm>  // for swap, may need <utility> with C++11 libraries
 #define INCLUDED_ALGORITHM
 #endif
 
@@ -206,10 +206,6 @@ BSLS_IDENT("$Id: $")
 #include <limits>  // for 'numeric_limits<size_t>'
 #define INCLUDED_LIMITS
 #endif
-
-
-#include <stdio.h>
-#include <stdlib.h>
 
 namespace BloombergLP {
 
@@ -456,18 +452,20 @@ class HashTable {
     HashTable(const HASHER&     hash,
               const COMPARATOR& compare,
               SizeType          initialNumBuckets,
+              float             initialMaxLoadFactor,
               const ALLOCATOR&  allocator = ALLOCATOR());
         // Create an empty hash-table using the specified 'hash' and
         // 'compare' functors to organize elements in the table, which will
         // initially have at least the specified 'initialNumBuckets' and a
-        // 'maxLoadFactor' of 1.0.  Optionally specify an 'allocator' used to
-        // supply memory.  If 'allocator' is not supplied, a default-
-        // constructed object of the (template parameter) type 'ALLOCATOR' is
-        // used.  If the 'ALLOCATOR' is 'bsl::allocator' (the default), then
-        // 'allocator', if supplied, shall be convertible to
+        // 'maxLoadFactor' of 'initialMaxLoadFactor'.  Optionally specify an
+        // 'allocator' used to supply memory.  If 'allocator' is not supplied,
+        // a default-constructed object of the (template parameter) type
+        // 'ALLOCATOR' is used.  If the 'ALLOCATOR' is 'bsl::allocator' (the
+        // default), then 'allocator', if supplied, shall be convertible to
         // 'bslma::Allocator *'.  If the 'ALLOCATOR' is 'bsl::allocator' and
         // 'allocator' is not supplied, the currently installed default
-        // allocator will be used to supply memory.  Note that more than
+        // allocator will be used to supply memory.   The behavior is
+        // undefined unless '0 < initialMaxLoadFactor'.  Note that more than
         // 'initialNumBuckets' buckets may be created in order to preserve the
         // bucket allocation strategy of the hash-table (but never fewer).
 
@@ -570,21 +568,21 @@ class HashTable {
     void rehashForNumBuckets(SizeType newNumBuckets);
         // Re-organize this hash-table to have at least the specified
         // 'newNumBuckets'.  This operation provides the strong exception
-        // guarantee (see {'bsldoc_glossary'}) unless either 'hasher' or
-        // 'comparator' throws, in which case this operation provides the basic
-        // exception guarantee, leaving the hash-table in a valid, but
-        // otherwise unspecified (and potentially empty), state.  Note that
-        // more buckets than requested may be allocated in order to preserve
-        // the bucket allocation strategy of the hash table (but never fewer).
+        // guarantee (see {'bsldoc_glossary'}) unless the 'hasher' throws, in
+        // which case this operation provides the basic exception guarantee,
+        // leaving the hash-table in a valid, but otherwise unspecified (and
+        // potentially empty), state.  Note that more buckets than requested
+        // may be allocated in order to preserve the bucket allocation strategy
+        // of the hash table (but never fewer).
 
     void rehashForNumElements(SizeType numElements);
         // Re-organize this hash-table to have a sufficient number of buckets
-        // to accommodate the specified 'numElements' without exceeding
-        // 'maxLoadFactor'.  This operation provides the strong exception
-        // guarantee (see {'bsldoc_glossary'}) unless either 'hasher' or
-        // 'comparator' throws, in which case this operation provides the basic
-        // exception guarantee, leaving the hash-table in a valid, but
-        // otherwise unspecified (and potentially empty), state.
+        // to accommodate at least the specified 'numElements' without
+        // exceeding the 'maxLoadFactor'.  This operation provides the strong
+        // exception guarantee (see {'bsldoc_glossary'}) unless the 'hasher'
+        // throws, in which case this operation provides the basic exception
+        // guarantee, leaving the hash-table in a valid, but otherwise
+        // unspecified (and potentially empty), state.
 
     void setMaxLoadFactor(float maxLoadFactor);
         // Set the maximum load factor permitted by this hash table to the
@@ -1272,13 +1270,16 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::
 HashTable(const HASHER&     hash,
           const COMPARATOR& compare,
           SizeType          initialNumBuckets,
+          float             initialMaxLoadFactor,
           const ALLOCATOR&  allocator)
 : d_parameters(hash, compare, allocator)
 , d_anchor(HashTable_ImpDetails::defaultBucketAddress(), 1, 0)
 , d_size()
 , d_capacity(initialNumBuckets)
-, d_maxLoadFactor(1.0)
+, d_maxLoadFactor(initialMaxLoadFactor)
 {
+    BSLS_ASSERT(0.0f < initialMaxLoadFactor);
+
     if (0 != initialNumBuckets) {
         HashTable_Util<ALLOCATOR>::initAnchor(
                             &d_anchor,

@@ -838,7 +838,7 @@ unordered_multiset(size_type             initialNumBuckets,
                    const hasher&         hash,
                    const key_equal&      keyEqual,
                    const allocator_type& allocator)
-: d_impl(hash, keyEqual, initialNumBuckets, allocator)
+: d_impl(hash, keyEqual, initialNumBuckets, 1.0f, allocator)
 {
 }
 
@@ -851,7 +851,7 @@ unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::unordered_multiset(
                                        const hasher&         hash,
                                        const key_equal&      keyEqual,
                                        const allocator_type& allocator)
-: d_impl(hash, keyEqual, initialNumBuckets, allocator)
+: d_impl(hash, keyEqual, initialNumBuckets, 1.0f, allocator)
 {
     this->insert(first, last);
 }
@@ -859,7 +859,7 @@ unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::unordered_multiset(
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::unordered_multiset(
                                                const allocator_type& allocator)
-: d_impl(HASH(), EQUAL(), 0, allocator)
+: d_impl(HASH(), EQUAL(), 0, 1.0f, allocator)
 {
 }
 
