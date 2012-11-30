@@ -7,11 +7,12 @@
 #endif
 BDES_IDENT("$Id: $")
 
-//@PURPOSE:
+//@PURPOSE: Provide a reader for parsing JSON data from a 'streambuf'
 //
 //@CLASSES:
+//  baejsn_Reader: reader for parsing JSON data from a 'streambuf'
 //
-//@SEE_ALSO:
+//@SEE_ALSO: baejsn_decoder
 //
 //@AUTHOR: Rohan Bhindwale (rbhindwa)
 //
@@ -66,15 +67,19 @@ class baejsn_Reader {
     char                               d_buffer[BAEJSN_BUFSIZE];
     bdema_BufferedSequentialAllocator  d_allocator;
     bsl::string                        d_stringBuffer;
-    bsl::size_t                        d_cursor;
     bsl::streambuf                    *d_streamBuf_p;
+
+    bsl::size_t                        d_cursor;
+    bsl::size_t                        d_valueBegin;
+    bsl::size_t                        d_valueEnd;
 
     char                               d_lastChar;
     TokenType                          d_tokenType;
 
     // PRIVATE MANIPULATORS
-    int reloadData();
-    int skipWhitespace();
+    int reloadStringBuffer();
+    int skipWhitespace(bsl::size_t *cursor);
+    int skipNonWhitespace(bsl::size_t *valueEnd);
 
   public:
     // CREATORS
@@ -84,7 +89,6 @@ class baejsn_Reader {
     ~baejsn_Reader();
 
     // MANIPULATORS
-
     void reset(bsl::streambuf *streamBuf);
 
     int advanceToNextToken();
@@ -108,7 +112,7 @@ baejsn_Reader::baejsn_Reader(bslma::Allocator *basicAllocator)
 , d_streamBuf_p(0)
 , d_tokenType(BAEJSN_BEGIN)
 {
-    d_stringBuffer.reserve(BAEJSN_MAX_STRING_SIZE);
+    d_stringBuffer.resize(BAEJSN_MAX_STRING_SIZE);
 }
 
 inline

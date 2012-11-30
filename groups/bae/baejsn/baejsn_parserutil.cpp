@@ -150,8 +150,15 @@ const char hexValueTable[128] =
     0    // 127  7f - DEL
 };
 
-int getUnicodeChar(bsl::string *value, const char *iter)
+int getUnicodeChar(char *value, const char *iter)
 {
+    if ('\0' == iter[0]
+     || '\0' == iter[1]
+     || '\0' == iter[2]
+     || '\0' == iter[3]) {
+        return -1;                                                    // RETURN
+    }
+
     // TBD: Get the code point and insert corresponding UTF-8 chars.  For now
     // we only accept Basic Latin characters (U+0000 - U+007F).
 
@@ -167,73 +174,50 @@ int getUnicodeChar(bsl::string *value, const char *iter)
     const char charValue = (char)(((int)hexValueTable[iter[2]] << 4)
                                 | ((int)hexValueTable[iter[3]]));
 
-    *value += charValue;
+    *value = charValue;
 
     return 0;
 }
 
-int getChar(char *value, const char *iter)
+inline
+bool isValidNextChar(int nextChar)
 {
-    if ('\\' == *iter) {
-        ++iter;
-        switch (*iter) {
-          case 'b': {
-            *value = '\b';
-          } break;
+    return bsl::streambuf::traits_type::eof() == nextChar
+        || bsl::isspace(nextChar)
+        || ',' == static_cast<char>(nextChar)
+        || ']' == static_cast<char>(nextChar)
+        || '}' == static_cast<char>(nextChar);
+}
 
-          case 'f': {
-            *value = '\f';
-          } break;
+int getUnicodeChar(bsl::streambuf *streamBuf, bsl::string *value)
+{
+    const int SIZE = 4;
+    char      buffer[SIZE];
 
-          case 'n': {
-            *value = '\n';
-          } break;
-
-          case 'r': {
-            *value = '\r';
-          } break;
-
-          case 't': {
-            *value = '\t';
-          } break;
-
-          case '"'  :                                           // FALL THROUGH
-          case '\\' :                                           // FALL THROUGH
-          case '/'  : {
-
-            // printable characters
-
-            *value = *iter;
-          } break;
-
-          case 'u':
-          case 'U': {
-
-            ++iter;
-
-            if ((data.end() - iter) < 4) {
-                return -1;                                            // RETURN
-            }
-
-            if (0 != getUnicodeChar(value, iter)) {
-                return -1;                                            // RETURN
-            }
-
-            iter += 4;
-          } break;
-
-          default: {
-            return -1;                                                // RETURN
-          } break;
-        }
+    const int numRead = streamBuf->sgetn(buffer, SIZE);
+    if (SIZE != numRead) {
+        return -1;                                                    // RETURN
     }
-    else if ('"' == *iter) {
-        ++iter;
-        return 0;                                                     // RETURN
+
+    // TBD: Get the code point and insert corresponding UTF-8 chars.  For now
+    // we only accept Basic Latin characters (U+0000 - U+007F).
+
+    if ('0' != buffer[0]
+     || '0' != buffer[1]
+     || !('0' <= buffer[2] && buffer[2] <= '7')
+     || !bsl::isxdigit(buffer[3])) {
+        return -1;                                                    // RETURN
     }
-    else {
-        *value = *iter;
-    }
+
+    // hex encoded, pull the next 4 bytes
+
+    const char charValue = (char)(((int)hexValueTable[buffer[2]] << 4)
+                                | ((int)hexValueTable[buffer[3]]));
+
+    *value += charValue;
+
+    streamBuf->sungetc();
+
     return 0;
 }
 
@@ -246,36 +230,117 @@ int getChar(char *value, const char *iter)
 // CLASS METHODS
 int baejsn_ParserUtil::getString(bsl::string *value, bslstl::StringRef data)
 {
-    value->clear();
+    const char *iter = data.begin();
+    const char *end  = data.end();
 
-    const char *iter = data.data();
-
-    if ('"' != *iter) {
+    if (iter == end || '"' != *iter) {
         return -1;                                                    // RETURN
     }
 
+    value->clear();
+
     ++iter;
-    return -1;
+    while (iter != end) {
+        if ('\\' == *iter) {
+            ++iter;
+            switch (*iter) {
+              case 'b': {
+                *value += '\b';
+              } break;
+              case 'f': {
+                *value += '\f';
+              } break;
+              case 'n': {
+                *value += '\n';
+              } break;
+              case 'r': {
+                *value += '\r';
+              } break;
+              case 't': {
+                *value += '\t';
+              } break;
+              case '"'  :                                       // FALL THROUGH
+              case '\\' :                                       // FALL THROUGH
+              case '/'  : {
+
+                  // printable characters
+
+                *value += *iter;
+              } break;
+              case 'u':
+              case 'U': {
+
+                ++iter;
+
+                char charValue;
+                if (0 != getUnicodeChar(&charValue, iter)) {
+                    return -1;                                        // RETURN
+                }
+
+                *value += charValue;
+
+                // 'iter' is not increased by 4 because 'iter' is incremented
+                // at the end of the function.
+
+                iter += 3;
+              } break;
+              default: {
+                return -1;                                            // RETURN
+              } break;
+            }
+        }
+        else if ('"' != *iter) {
+            *value += *iter;
+        }
+        else {
+            break;
+        }
+        ++iter;
+    }
+
+    return 0;
+}
+
+int baejsn_ParserUtil::getValue(double *value, bslstl::StringRef data)
+{
+    if (0 == data.length()) {
+        return -1;                                                    // RETURN
+    }
+
+    char   *endPtr = 0;
+    errno          = 0;
+    double  tmp    = bsl::strtod(data.data(), &endPtr);
+
+    if (endPtr    != data.data() + data.length()
+     || (0        == tmp && 0 != errno)
+     ||  HUGE_VAL == tmp
+     || -HUGE_VAL == tmp) {
+        return -1;                                                    // RETURN
+    }
+
+    *value = tmp;
+    return 0;
 }
 
 int baejsn_ParserUtil::getUint64(bsls::Types::Uint64 *value,
                                  bslstl::StringRef    data)
 {
-    const char *iter = data.begin();
-    const char *end  = data.end();
+    const char *iter  = data.begin();
+    const char *end   = data.end();
 
+    // Extract significant digits
+
+    const char *valueBegin = iter;
     while (iter < end && bsl::isdigit(*iter)) {
         ++iter;
     }
+    const char *valueEnd = iter;
 
-    const char *valueEnd        = iter;
+    // Extract fractional digits if specified
+
     const char *fractionalBegin = 0;
     const char *fractionalEnd   = 0;
-    const char *expBegin        = 0;
-
     if (iter < end && '.' == *iter) {
-
-        // Store the fractional portion in 'fractionalStr'
 
         fractionalBegin = ++iter;
         while (iter < end && bsl::isdigit(*iter)) {
@@ -284,125 +349,377 @@ int baejsn_ParserUtil::getUint64(bsls::Types::Uint64 *value,
         fractionalEnd = iter;
     }
 
-    const int fractionalLen = fractionalEnd - fractionalBegin;
+    // Extract exponent digits if specified
 
+    int  exponent = 0;
+    bool isExpNegative;
     if ('E' == static_cast<char>(bsl::toupper(*iter))) {
 
         // extract the exponent part
 
         ++iter;
-        char *endPtr = 0;
-        errno = 0;
-        int exponent = static_cast<int>(bsl::strtol(iter, &endPtr, 10));
-
-        if (0 != errno) {
-            return -1;                                                // RETURN
-        }
-
-        if (exponent < 0) {
-            exponent = -exponent;
-            valueEnd = data.begin() + bsl::min(valueEnd - data.begin(),
-                                               exponent);
+        if ('-' == *iter) {
+            isExpNegative = true;
+            ++iter;
         }
         else {
-            if (exponent < fractionalLen) {
+            if ('+' == *iter) {
+                ++iter;
+            }
+            isExpNegative = false;
+        }
+
+        while (iter < end && bsl::isdigit(*iter)) {
+            exponent = exponent * 10 + *iter - '0';
+            ++iter;
+        }
+    }
+
+    if (iter < end && !bsl::isdigit(*iter)) {
+        return -1;                                                    // RETURN
+    }
+
+    int numFractionalDigits = fractionalEnd - fractionalBegin;
+    int numAdditionalDigits = 0;
+    if (isExpNegative) {
+        if (valueEnd - valueBegin >= exponent) {
+            valueEnd -= exponent;
+            exponent = 0;
+        }
+        else {
+            return -1;                                                // RETURN
+        }
+    }
+    else {
+        if (numFractionalDigits > exponent) {
+            numAdditionalDigits  = exponent;
+            exponent             = 0;
+        }
+        else {
+            numAdditionalDigits  = numFractionalDigits;
+            exponent            -= numFractionalDigits;
+        }
+    }
+
+    bsls::Types::Uint64 tmp = 0;
+
+    iter = valueBegin;
+    while (iter != valueEnd) {
+        if (static_cast<bsls::Types::Uint64>(tmp * 10 + *iter - '0') >
+                            bsl::numeric_limits<bsls::Types::Uint64>::max()) {
+            return -1;                                                // RETURN
+        }
+        tmp = tmp * 10 + *iter - '0';
+        ++iter;
+    }
+
+    if (numAdditionalDigits) {
+        // Disallow non-zero fractional digits
+
+        iter = fractionalBegin;
+        for (int i = 0; i < numAdditionalDigits; ++i, ++iter) {
+            if (static_cast<bsls::Types::Uint64>(tmp * 10 + *iter - '0') >
+                            bsl::numeric_limits<bsls::Types::Uint64>::max()) {
                 return -1;                                            // RETURN
             }
+            tmp = tmp * 10 + *iter - '0';
+        }
+        fractionalBegin = iter;
+    }
 
-            exponent -= fractionalLen;
-            bsl::memcpy(const_cast<char *>(valueEnd) + 1,
-                        fractionalBegin,
-                        fractionalLen);
-            valueEnd = fractionalBegin + fractionalLen;
+    while (fractionalBegin < fractionalEnd) {
+        if ('0' != *fractionalBegin) {
+            return -1;                                                // RETURN
+        }
+        ++fractionalBegin;
+    }
+
+    if (exponent) {
+        if (static_cast<double>(tmp * bsl::pow(10.0, exponent) <
+                                         bsl::numeric_limits<double>::max())) {
+            tmp *= static_cast<bsls::Types::Uint64>(bsl::pow(10.0, exponent));
+        }
+        else {
+            return -1;                                                // RETURN
+        }
+    }
+
+    *value = tmp;
+    return 0;
+}
+
+// DEPRECATED CLASS METHODS
+void baejsn_ParserUtil::skipSpaces(bsl::streambuf *streamBuf)
+{
+    int ch = streamBuf->sgetc();
+    while (bsl::isspace(ch)) {
+        ch = streamBuf->snextc();
+    }
+}
+
+int baejsn_ParserUtil::getDouble(bsl::streambuf *streamBuf, double *value)
+{
+    skipSpaces(streamBuf);
+
+    const int                         SIZE = 64;
+    char                              buffer[SIZE];
+    bdema_BufferedSequentialAllocator allocator(buffer, SIZE);
+    bsl::string                       str(&allocator);
+
+    int ch = streamBuf->sgetc();
+    if ('-' == static_cast<char>(ch)) {
+        str += static_cast<char>(ch);
+        ch   = streamBuf->snextc();
+    }
+
+    while (bsl::isdigit(ch)) {
+        str += static_cast<char>(ch);
+        ch   = streamBuf->snextc();
+    }
+
+    if ('.' == static_cast<char>(ch)) {
+        str += static_cast<char>(ch);
+        ch   = streamBuf->snextc();
+
+        while (bsl::isdigit(ch)) {
+            str += static_cast<char>(ch);
+            ch   = streamBuf->snextc();
+        }
+    }
+
+    if ('E' == static_cast<char>(bsl::toupper(ch))) {
+        str += static_cast<char>(ch);
+        ch   = streamBuf->snextc();
+        if ('+' == static_cast<char>(ch) || '-' == static_cast<char>(ch)) {
+            str += static_cast<char>(ch);
+            ch   = streamBuf->snextc();
+        }
+
+        while (bsl::isdigit(ch)) {
+            str += static_cast<char>(ch);
+            ch   = streamBuf->snextc();
+        }
+    }
+
+    if (isValidNextChar(streamBuf->sgetc())) {
+        char   *end = 0;
+        errno       = 0;
+        double  tmp = bsl::strtod(str.c_str(), &end);
+
+        if (end       == str.data()
+         || (0        == tmp && 0 != errno)
+         || HUGE_VAL  == tmp
+         || -HUGE_VAL == tmp) {
+            return -1;                                                // RETURN
+        }
+        *value = tmp;
+        return 0;                                                     // RETURN
+    }
+    return -1;
+}
+
+int baejsn_ParserUtil::getUint64(bsl::streambuf      *streamBuf,
+                                 bsls::Types::Uint64 *value)
+{
+    skipSpaces(streamBuf);
+
+    const int                         BUF_SIZE   = 128;
+    const int                         STRING_LEN =  56;
+    char                              buffer[BUF_SIZE];
+    bdema_BufferedSequentialAllocator allocator(buffer, BUF_SIZE);
+    bsl::string                       str(&allocator);
+    str.reserve(STRING_LEN);
+
+    int ch = streamBuf->sgetc();
+    while (bsl::isdigit(ch)) {
+        str += static_cast<char>(ch);
+        ch   = streamBuf->snextc();
+    }
+
+    bsl::string fractionalStr(&allocator);
+    fractionalStr.reserve(STRING_LEN);
+
+    if ('.' == static_cast<char>(ch)) {
+
+        // Store the fractional portion in 'fractionalStr'
+
+        ch = streamBuf->snextc();
+        while (bsl::isdigit(ch)) {
+            fractionalStr += static_cast<char>(ch);
+            ch             = streamBuf->snextc();
+        }
+    }
+
+    int exponent = 0;
+    if ('E' == static_cast<char>(bsl::toupper(ch))) {
+
+        // extract the exponent part
+
+        ch = streamBuf->snextc();
+        bool isNegative;
+        if ('-' == ch) {
+            isNegative = true;
+            ch = streamBuf->snextc();
+        }
+        else {
+            isNegative = false;
+            if ('+' == ch) {
+                ch = streamBuf->snextc();
+            }
+        }
+
+        while (bsl::isdigit(ch)) {
+            exponent *= 10;
+            exponent += ch - '0';
+            ch = streamBuf->snextc();
+        }
+
+        if (isNegative) {
+            const int newLen =
+                        bsl::max(0, static_cast<int>(str.length()) - exponent);
+            str.resize(newLen);
+        }
+        else {
+            if (static_cast<bsl::size_t>(exponent) < fractionalStr.length()) {
+                fractionalStr.erase(fractionalStr.begin() + exponent,
+                                    fractionalStr.end());
+            }
+            else {
+                fractionalStr.append(exponent - fractionalStr.length(), '0');
+            }
+            str.append(fractionalStr);
         }
     }
 
     *value = 0;
 
-    while (iter != valueEnd) {
-        if (static_cast<bsls::Types::Uint64>(*value * 10 + *iter - '0') >
-                            bsl::numeric_limits<bsls::Types::Uint64>::max()) {
+    bsl::string::const_iterator iter = str.begin();
+    while (iter != str.end()) {
+        if (static_cast<double>(*value * 10 + *iter - '0') >
+            static_cast<double>(
+                            bsl::numeric_limits<bsls::Types::Uint64>::max())) {
             return -1;                                                // RETURN
         }
         *value = *value * 10 + *iter - '0';
         ++iter;
     }
 
-    return 0;
+    return isValidNextChar(streamBuf->sgetc()) ? 0 : -1;
 }
 
-int baejsn_ParserUtil::getValue(char *value, bslstl::StringRef data)
+int baejsn_ParserUtil::getString(bsl::streambuf *streamBuf, bsl::string *value)
 {
-    enum { BAEJSN_MIN_CHAR_LENGTH = 3 };
+    skipSpaces(streamBuf);
 
-    if (data.length() < BAEJSN_EXPECTED_CHAR_LENGTH
-     || '"' != data[0]) {
-        return -1;                                                    // RETURN
+    value->clear();
+
+    int ch = streamBuf->sgetc();
+    if (ch != bsl::streambuf::traits_type::eof()) {
+        if (ch != '"') {
+            return -1;                                                // RETURN
+        }
+        ch = streamBuf->snextc();
+    }
+
+    bool escaped = false;
+    while (ch != bsl::streambuf::traits_type::eof()) {
+        if (escaped) {
+            switch (ch) {
+              case 'b': {
+                *value += '\b';
+              } break;
+              case 'f': {
+                *value += '\f';
+              } break;
+              case 'n': {
+                *value += '\n';
+              } break;
+              case 'r': {
+                *value += '\r';
+              } break;
+              case 't': {
+                *value += '\t';
+              } break;
+
+              case '"'  :                                       // FALL THROUGH
+              case '\\' :                                       // FALL THROUGH
+              case '/'  : {
+
+                // printable characters
+
+                *value += ch;
+              } break;
+
+              case 'u':
+              case 'U': {
+                streamBuf->snextc();
+
+                if (0 != getUnicodeChar(streamBuf, value)) {
+                    return -1;                                        // RETURN
+                }
+              } break;
+
+              default: {
+                return -1;                                            // RETURN
+              } break;
+            }
+
+            escaped = false;
+        }
+        else {
+            if (ch == '\\') {
+                escaped = true;
+            }
+            else if (ch == '"') {
+                streamBuf->snextc();
+                return 0;                                             // RETURN
+            }
+            else {
+                *value += ch;
+            }
+        }
+
+        ch = streamBuf->snextc();
     }
 
     return -1;
 }
 
-int baejsn_ParserUtil::getDouble(double *value, bslstl::StringRef data)
+int baejsn_ParserUtil::eatToken(bsl::streambuf *streamBuf, const char *token)
 {
-    enum {
-        BAEJSN_SUCCESS                  = 0,
-        BAEJSN_NAN_LENGTH               = 3,
-        BAEJSN_INF_LENGTH               = 3,
-        BAEJSN_POSITIVE_INFINITY_LENGTH = 4,
-        BAEJSN_NEGATIVE_INFINITY_LENGTH = 4,
-    };
+    int             ch  = streamBuf->sgetc();
+    bsl::streampos  pos = streamBuf->pubseekoff(0, bsl::ios_base::cur);
+    const char     *ptr = token;
 
-    if (0 == data.length()) {
-        return -1;                                                    // RETURN
+    while (*ptr) {
+        if (ch == bsl::streambuf::traits_type::eof()) {
+            streamBuf->pubseekpos(pos);
+            return -1;                                                // RETURN
+        }
+
+        if (ch != *ptr) {
+            streamBuf->pubseekpos(pos);
+            return -1;                                                // RETURN
+        }
+
+        ++ptr;
+        ch = streamBuf->snextc();
     }
 
-    switch (data[0]) {
-      case 'N': {
-        if (data.length() >= BAEJSN_NAN_LENGTH
-         && 0 == bsl::strcmp(data.data() + 1, "aN")) {
-            *value = bsl::numeric_limits<double>::quiet_NaN();
-            return BAEJSN_SUCCESS;                                    // RETURN
-        }
-      } break;
-      case 'I': {
-        if (data.length() >= BAEJSN_INF_LENGTH
-         && 0 == bsl::strcmp(data.data() + 1, "NF")) {
-            *value = bsl::numeric_limits<double>::infinity();
-            return BAEJSN_SUCCESS;                                    // RETURN
-        }
-      } break;
-      case '+': {
-        if (data.length() >= BAEJSN_POSITIVE_INFINITY_LENGTH
-         && 0 == bsl::strcmp(data.data() + 1, "INF")) {
-            *value = bsl::numeric_limits<double>::infinity();
-            return BAEJSN_SUCCESS;                                    // RETURN
-        }
-      } break;
-      case '-': {
-        if (data.length() >= BAEJSN_NEGATIVE_INFINITY_LENGTH
-         && 0 == bsl::strcmp(data.data() + 1, "INF")) {
-            *value = -bsl::numeric_limits<double>::infinity();
-            return BAEJSN_SUCCESS;                                    // RETURN
-        }
-      } break;
+    return 0;
+}
 
-      default: {
-      } break;
+int baejsn_ParserUtil::advancePastWhitespaceAndToken(bsl::streambuf *streamBuf,
+                                                     char            token)
+{
+    skipSpaces(streamBuf);
+
+    const char nextChar = static_cast<char>(streamBuf->sgetc());
+    if (nextChar == token) {
+        streamBuf->snextc();
+        return 0;                                                     // RETURN
     }
-
-    char   *end = 0;
-    errno       = 0;
-    double  tmp = bsl::strtod(data.data(), &end);
-
-    if ((0        == tmp && 0 != errno)
-     || HUGE_VAL  == tmp
-     || -HUGE_VAL == tmp) {
-        return -1;                                                    // RETURN
-    }
-
-    *value = tmp;
-    return 0;                                                     // RETURN
+    return -1;
 }
 
 }  // close namespace BloombergLP

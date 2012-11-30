@@ -10,6 +10,7 @@ namespace BloombergLP {
 
 namespace {
     const char *WHITESPACE = " \n\t\v\f\r";
+    const char *TOKENS     = "{}[]:";
 }
 
                             // --------------------
@@ -17,7 +18,7 @@ namespace {
                             // --------------------
 
 // PRIVATE MANIPULATORS
-int baejsn_Reader::reloadData()
+int baejsn_Reader::reloadStringBuffer()
 {
     const int numRead = d_streamBuf_p->sgetn(&d_stringBuffer[0],
                                              BAEJSN_MAX_STRING_SIZE);
@@ -26,20 +27,98 @@ int baejsn_Reader::reloadData()
     return numRead;
 }
 
-int baejsn_Reader::skipWhitespace()
+int baejsn_Reader::skipWhitespace(bsl::size_t *cursor)
 {
     while (true) {
-        d_cursor = d_stringBuffer.find_first_not_of(WHITESPACE, d_cursor);
-        if (bsl::string::npos != d_cursor) {
+        bsl::size_t pos = d_stringBuffer.find_first_not_of(WHITESPACE,
+                                                           d_cursor);
+        if (bsl::string::npos != pos) {
+            *cursor = pos;
             break;
         }
-        const int numRead = reloadData();
+
+        const int numRead = reloadStringBuffer();
         if (0 == numRead) {
             return -1;                                                // RETURN
         }
     }
     return 0;
 }
+
+int baejsn_Reader::skipNonWhitespace(bsl::size_t *begin,
+                                     bsl::size_t *end,
+                                     bsl::size_t  cursor)
+{
+    bsl::size_t pos = d_stringBuffer.find_first_of(WHITESPACE, cursor);
+    if (bsl::string::npos != pos) {
+        *begin = cursor;
+        *end   = pos;
+        return 0;                                                     // RETURN
+    }
+
+    d_stringBuffer.erase(d_stringBuffer.begin(),
+                         d_stringBuffer.begin() + cursor);
+    d_stringBuffer.resize(BAEJSN_MAX_STRING_SIZE);
+    pos = BAEJSN_MAX_STRING_SIZE - cursor;
+
+    int numRead = d_streamBuf_p->sgetn(&d_stringBuffer[d_cursor], pos);
+    if (0 == numRead) {
+        return -1;                                                    // RETURN
+    }
+
+    d_stringBuffer.resize(d_cursor + numRead);
+    pos = d_stringBuffer.find_first_of(WHITESPACE, pos);
+    if (bsl::string::npos != pos) {
+        *begin   = 0;
+        *end     = pos;
+        return 0;                                                     // RETURN
+    }
+    return -1;
+}
+
+// int baejsn_Reader::skipTillWhitespace(bsl::size_t *begin,
+//                                       bsl::size_t *end,
+//                                       bsl::size_t  cursor)
+// {
+//     bsl::size_t iter      = cursor;
+//     bsl::size_t length    = d_stringBuffer.length();
+//     bool        firstTime = true;
+
+//     while (true) {
+//         while (iter < length && !bsl::isspace(d_stringBuffer[iter])) {
+//             ++iter;
+//         }
+
+//         if (iter == length) {
+//             if (!firstTime) {
+//                 return -1;                                            // RETURN
+//             }
+
+//             d_stringBuffer.erase(d_stringBuffer.begin(),
+//                                  d_stringBuffer.begin() + cursor);
+//             d_stringBuffer.resize(BAEJSN_MAX_STRING_SIZE);
+//             d_cursor = BAEJSN_MAX_STRING_SIZE - cursor;
+//             int numRead = d_streamBuf_p->sgetn(&d_stringBuffer[d_cursor],
+//                                                cursor);
+//             if (0 == numRead) {
+//                 return -1;                                            // RETURN
+//             }
+
+//             d_stringBuffer.resize(d_cursor + numRead);
+
+//             begin  = 0;
+//             cursor = d_stringBuffer.length();
+//             end    = d_stringBuffer.end();
+//             firstTime = false;
+//         }
+//         else {
+//             *begin = cursor;
+//             *end   = iter;
+//             return 0;                                                 // RETURN
+//         }
+//     }
+//     return 0;
+// }
 
 // MANIPULATORS
 int baejsn_Reader::advanceToNextToken()
@@ -51,7 +130,7 @@ int baejsn_Reader::advanceToNextToken()
         }
     }
 
-    const int rc = skipWhitespace();
+    const int rc = skipWhitespace(&d_cursor);
     if (!rc) {
         return -1;                                                    // RETURN
     }
@@ -59,80 +138,77 @@ int baejsn_Reader::advanceToNextToken()
     switch (d_stringBuffer[d_cursor]) {
       case '[': {
         d_tokenType = BAEJSN_START_ARRAY;
+        ++d_cursor;
       } break;
 
       case ']': {
         d_tokenType = BAEJSN_END_ARRAY;
+        ++d_cursor;
       } break;
 
       case '{': {
         d_tokenType = BAEJSN_START_OBJECT;
+        ++d_cursor;
       } break;
 
       case '}': {
         d_tokenType = BAEJSN_END_OBJECT;
+        ++d_cursor;
       } break;
 
       case ',': {
         d_tokenType = BAEJSN_COMMA;
+        ++d_cursor;
       } break;
 
       case ':': {
         d_tokenType = BAEJSN_VALUE;
+        ++d_cursor;
+
+        const int rc = skipWhitespace(&d_cursor);
+        if (!rc) {
+            return -1;                                                // RETURN
+        }
+
+        d_valueBegin = 0;
+        d_valueEnd   = 0;
+        const int rc = skipNonWhitespace(&d_valueBegin, &d_valueEnd, d_cursor);
+        if (!rc) {
+            return -1;                                                // RETURN
+        }
+
+        d_cursor = d_valueEnd + 1;
       } break;
 
       default: {
-        d_tokenType = BAEJSN_NAME;
+        d_tokenType  = BAEJSN_NAME;
+
+        d_valueBegin = 0;
+        d_valueEnd   = 0;
+        const int rc = skipNonWhitespace(&d_valueBegin, &d_valueEnd, d_cursor);
+        if (!rc) {
+            return -1;                                                // RETURN
+        }
+
+        d_cursor = d_valueEnd + 1;
+        if (d_cursor == d_stringBuffer.length()
+         || ':' != d_stringBuffer[d_cursor]) {
+            return -1;                                                // RETURN
+        }
       } break;
     }
 
-    ++d_cursor;
-    return 0;
+    return skipWhitespace(&d_cursor);
 }
 
 // ACCESSORS
 int baejsn_Reader::value(bslstl::StringRef *data)
 {
-    // TBD: Double check
-    if (BAEJSN_NAME == d_tokenType || BAEJSN_VALUE == d_tokenType) {
-        bsl::size_t pos = d_stringBuffer.find_first_of(WHITESPACE, d_cursor);
-        if (bsl::string::npos == pos) {
-            d_stringBuffer.erase(d_stringBuffer.begin(),
-                                 d_stringBuffer.begin() + d_cursor);
-            d_stringBuffer.resize(BAEJSN_MAX_STRING_SIZE);
-            int numRead = d_streamBuf_p->sgetn(
-                                            &d_stringBuffer[d_cursor],
-                                            BAEJSN_MAX_STRING_SIZE - d_cursor);
-            if (0 == numRead) {
-                d_stringBuffer.resize(d_cursor);
-                data->assign(d_stringBuffer.data(),
-                             d_stringBuffer.data() + d_cursor);
-                return 0;                                             // RETURN
-            }
-
-            do {
-                d_stringBuffer.resize(d_cursor + numRead);
-                pos = d_stringBuffer.find_first_of(WHITESPACE, d_cursor);
-                if (bsl::string::npos == pos) {
-                    numRead = d_streamBuf_p->sgetn(
-                                            &d_stringBuffer[d_cursor],
-                                            BAEJSN_MAX_STRING_SIZE - d_cursor);
-                    if (0 == numRead) {
-                        data->assign(d_stringBuffer.data(),
-                                     d_stringBuffer.data() + d_cursor);
-                        return 0;                                     // RETURN
-                    }
-                }
-                else {
-                    break;
-                }
-            } while (1);
-        }
-
-        d_cursor = pos;
-        data->assign(d_stringBuffer.data(), d_stringBuffer.begin() + d_cursor);
-        return 0;                                                     // RETURN
+    if (BAEJSN_NAME == d_tokenType) {
     }
+    else if (BAEJSN_VALUE == d_tokenType) {
+    }
+    data->assign(d_valueBegin, d_valueEnd);
     return -1;
 }
 

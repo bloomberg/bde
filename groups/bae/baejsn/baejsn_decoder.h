@@ -12,7 +12,7 @@ BDES_IDENT("$Id: $")
 //@CLASSES:
 //  baejsn_Decoder: JSON decoder for 'bdeat' compliant types
 //
-//@SEE_ALSO: baejsn_encoder, baejsn_parserutil
+//@SEE_ALSO: baejsn_encoder, baejsn_parserutil, baejsn_reader
 //
 //@AUTHOR: Raymond Chiu (schiu49), Rohan Bhindwale (rbhindwa)
 //
