@@ -1123,13 +1123,13 @@ struct SequenceManipulator2 {
         return d_rc;
     }
 
-    template <typename TYPE>
-    int operator() (TYPE *, const bdeat_AttributeInfo&)
+    int operator() (baea_SerializableObjectProxy_NullableAdapter *object, 
+                    const bdeat_AttributeInfo& info)
     {
-        // needed to compile due to nullable adapter, but should not be called
-
-        ASSERTV(!"Should be unreachable");
-        return -1;
+        d_proxy = object->d_proxy_p;
+        d_category = object->d_proxy_p->category();
+        d_info = info;
+        return d_rc;
     }
 };
 
@@ -1191,7 +1191,8 @@ baea_SerializableObjectProxy   *s_selectionLoaderFn_proxy;
 void                           *s_selectionLoaderFn_object;
 const bdeat_SelectionInfo      *s_selectionLoaderFn_selectInfoPtr;
 int                             s_selectionLoaderFn_int;
-void selectionLoaderFn(baea_SerializableObjectProxy  *proxy,
+
+int selectionLoaderFn(baea_SerializableObjectProxy  *proxy,
                        void                          *object,
                        const bdeat_SelectionInfo    **selectInfoPtr)
 {
@@ -1199,6 +1200,7 @@ void selectionLoaderFn(baea_SerializableObjectProxy  *proxy,
     s_selectionLoaderFn_object = object;
     *selectInfoPtr = s_selectionLoaderFn_selectInfoPtr;
     proxy->loadSimple(&s_selectionLoaderFn_int);
+    return 0;
 }
 
 int   s_chooserFn_rc = 0;
@@ -1215,6 +1217,7 @@ baea_SerializableObjectProxy *s_elementLoaderFn_proxy;
 const void                   *s_elementLoaderFn_object;
 int                           s_elementLoaderFn_int;
 int                           s_elementLoaderFn_id;
+
 bsl::vector<int>              s_elementLoaderFn_indexes;
 void elementLoaderFn(baea_SerializableObjectProxy        *proxy,
                      const baea_SerializableObjectProxy&  object,
@@ -1225,49 +1228,6 @@ void elementLoaderFn(baea_SerializableObjectProxy        *proxy,
     s_elementLoaderFn_id = id;
     s_elementLoaderFn_indexes.push_back(id);
     proxy->loadSimple(&s_elementLoaderFn_int);
-}
-
-enum {
-    ANONCHOICE_CHOICE_ID = 2, 
-    ANONCHOICE_ELEMENT_ID = 1
-};
-
-const bdeat_SelectionInfo ANONCHOICE_SELINFO[] = {
-    { 4, "SELECTIONA", 10, "a",  0}, 
-    { 3, "SELECTIONB", 10, "ab", 0}
-};
-
-const bdeat_AttributeInfo ANONCHOICE_CHOICEINFO[] = {
-    { ANONCHOICE_CHOICE_ID, "Choice", 6, 
-      "choice", bdeat_FormattingMode::BDEAT_UNTAGGED },
-
-    { ANONCHOICE_ELEMENT_ID, "Element", 7, "element", 0 }
-};
-
-void anonChoiceElementLoaderFn(baea_SerializableObjectProxy        *proxy,
-                               const baea_SerializableObjectProxy&  object,
-                               int                                  id)
-{
-    s_elementLoaderFn_proxy = proxy;
-    s_elementLoaderFn_object = &object;
-    s_elementLoaderFn_id = id;
-    s_elementLoaderFn_indexes.push_back(id);
-
-    const int NUM_SELECTIONS = sizeof ANONCHOICE_SELINFO / 
-        sizeof *ANONCHOICE_SELINFO;
-
-    switch (id) {
-    case ANONCHOICE_ELEMENT_ID:
-        proxy->loadSimple(&s_elementLoaderFn_int);
-        return;
-    case ANONCHOICE_CHOICE_ID:
-        proxy->loadChoiceForDecoding(NUM_SELECTIONS, &s_elementLoaderFn_int,
-                                     ANONCHOICE_SELINFO, 
-                                     &selectionLoaderFn, 
-                                     &chooserFn);
-        return;
-    };
-    ASSERT(!"Unreachable");
 }
 
 baea_SerializableObjectProxy *s_loaderFn_proxy;
@@ -1297,6 +1257,67 @@ void* nullableValueFetcher(void *object)
         return 0;                                                     // RETURN
     }
     return &nullableValue->value();
+}
+
+enum {
+    ANONCHOICE_NULLCHOICE_ID = 3, 
+    ANONCHOICE_CHOICE_ID = 2, 
+    ANONCHOICE_ELEMENT_ID = 1
+};
+
+const bdeat_SelectionInfo ANONCHOICE_SELINFO[] = {
+    { 4, "SELECTIONA", 10, "a",  0}, 
+    { 3, "SELECTIONB", 10, "ab", 0}
+};
+
+const bdeat_AttributeInfo ANONCHOICE_CHOICEINFO[] = {
+    { ANONCHOICE_CHOICE_ID, "Choice", 6, 
+      "choice", bdeat_FormattingMode::BDEAT_UNTAGGED },
+
+    { ANONCHOICE_ELEMENT_ID, "Element", 7, "element", 0 }
+};
+
+const bdeat_AttributeInfo ANONCHOICE_CHOICEINFO_WITHNULL[] = {
+    { ANONCHOICE_CHOICE_ID, "Choice", 6, 
+      "choice", bdeat_FormattingMode::BDEAT_UNTAGGED },
+
+    { ANONCHOICE_NULLCHOICE_ID, "NullChoice", 10, 
+      "nullchoice", bdeat_FormattingMode::BDEAT_UNTAGGED },
+
+    { ANONCHOICE_ELEMENT_ID, "Element", 7, "element", 0 }
+};
+
+void anonChoiceElementLoaderFn(baea_SerializableObjectProxy        *proxy,
+                               const baea_SerializableObjectProxy&  object,
+                               int                                  id)
+{
+    s_elementLoaderFn_proxy = proxy;
+    s_elementLoaderFn_object = &object;
+    s_elementLoaderFn_id = id;
+    s_elementLoaderFn_indexes.push_back(id);
+
+    const int NUM_SELECTIONS = sizeof ANONCHOICE_SELINFO / 
+        sizeof *ANONCHOICE_SELINFO;
+
+    switch (id) {
+    case ANONCHOICE_ELEMENT_ID:
+        proxy->loadSimple(&s_elementLoaderFn_int);
+        return;
+    case ANONCHOICE_NULLCHOICE_ID:
+        proxy->loadNullableForDecoding(
+                            &s_elementLoaderFn_int,
+                            &loaderFn<int>,
+                            &nullableValueMaker<bdeut_NullableValue<int> >,
+                            &nullableValueFetcher<bdeut_NullableValue<int> >);
+        return;
+    case ANONCHOICE_CHOICE_ID:
+        proxy->loadChoiceForDecoding(NUM_SELECTIONS, &s_elementLoaderFn_int,
+                                     ANONCHOICE_SELINFO, 
+                                     &selectionLoaderFn, 
+                                     &chooserFn);
+        return;
+    };
+    ASSERT(!"Unreachable");
 }
 
 void         *s_resizerFn_object  = 0;
@@ -1549,6 +1570,9 @@ int main(int argc, char *argv[])
         //:
         //: 2 sequenceManipulateAttribute accesses the anonymous choice if
         //:   the name of the anonymous choice is specified.  
+        //: 
+        //: 3 in the case of an anonymous nullable choice, 
+        //    sequenceManipulateAttribute accesses the nullable
         //
         // Plan:
         //: 1 Load a Sequence value into a proxy where the AttributeInfo
@@ -1564,8 +1588,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING Sequence" << endl
-                          << "================" << endl;
+                          << "TESTING Anonymous Choices" << endl
+                          << "=========================" << endl;
         const int NUM_INFO = sizeof ANONCHOICE_CHOICEINFO / 
             sizeof *ANONCHOICE_CHOICEINFO;
         
@@ -1602,6 +1626,48 @@ int main(int argc, char *argv[])
                manipulator.d_category);
         ASSERT(0 == bsl::strcmp("Choice", manipulator.d_info.d_name_p));
         manipulator.reset();
+
+        const int NUM_INFO_WITHNULL = sizeof ANONCHOICE_CHOICEINFO_WITHNULL / 
+            sizeof *ANONCHOICE_CHOICEINFO_WITHNULL;
+        
+
+        mX.loadSequence(NUM_INFO_WITHNULL, &dummy, 
+                        ANONCHOICE_CHOICEINFO_WITHNULL, "foo", 
+                        &anonChoiceElementLoaderFn);
+        
+        ASSERT(mX.sequenceHasAttribute("Element", 7));
+        ASSERT(mX.sequenceHasAttribute("SELECTIONA", 10));
+        ASSERT(mX.sequenceHasAttribute("SELECTIONB", 10));
+        ASSERT(mX.sequenceHasAttribute("SELECTIONC", 10));
+
+        ASSERT(0 == mX.sequenceManipulateAttribute(manipulator,
+                                                   "Element", 7));
+        ASSERT(bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY == 
+               manipulator.d_category);
+        ASSERT(0 == bsl::strcmp("Element", manipulator.d_info.d_name_p));
+        manipulator.reset();
+
+        ASSERT(0 == mX.sequenceManipulateAttribute(manipulator,
+                                                   "SELECTIONA", 10));
+        ASSERT(bdeat_TypeCategory::BDEAT_CHOICE_CATEGORY == 
+               manipulator.d_category);
+        ASSERT(0 == bsl::strcmp("Choice", manipulator.d_info.d_name_p));
+        manipulator.reset();
+
+        ASSERT(0 == mX.sequenceManipulateAttribute(manipulator,
+                                                   "SELECTIONB", 10));
+        ASSERT(bdeat_TypeCategory::BDEAT_CHOICE_CATEGORY == 
+               manipulator.d_category);
+        ASSERT(0 == bsl::strcmp("Choice", manipulator.d_info.d_name_p));
+        manipulator.reset();
+
+        ASSERT(0 == mX.sequenceManipulateAttribute(manipulator,
+                                                   "SELECTIONC", 10));
+        ASSERT(bdeat_TypeCategory::BDEAT_NULLABLE_VALUE_CATEGORY == 
+               manipulator.d_category);
+        ASSERT(0 == bsl::strcmp("NullChoice", manipulator.d_info.d_name_p));
+        manipulator.reset();
+        
       } break;
         
       case 8: {

@@ -130,18 +130,30 @@ int baea_SerializableObjectProxy::loadSequenceElementProxy(
         if ((*attrInfo)->formattingMode() 
             & bdeat_FormattingMode::BDEAT_UNTAGGED) {
             untaggedAttrInfo = *attrInfo;
+
+            // maybe an anonymous choice having a selection with this name?
+
+            info.d_loader(proxy, *this, untaggedAttrInfo->id());
+            if (proxy->d_objectInfo.is<ChoiceDecodeInfo>() &&
+                proxy->choiceHasSelection(elementName, elementNameLength)) {
+                // We don't need to "make" the selection here
+                *attrInfo = untaggedAttrInfo;
+                return 0;                                             // RETURN
+            }
         }
     }
 
     if (untaggedAttrInfo) {
-        // maybe an anonymous choice having a selection with this name?
-        
+        // maybe a nullable anonymous choice?
+
         info.d_loader(proxy, *this, untaggedAttrInfo->id());
-        if (proxy->d_objectInfo.is<ChoiceDecodeInfo>() &&
-            proxy->choiceHasSelection(elementName, elementNameLength)) {
-            // We don't need to "make" the selection here
+
+        if (proxy->d_objectInfo.is<NullableDecodeInfo>()) {
+            // No way to check whether this is a nullable choice
+            // without disrupting the decoder, but just return this to 
+            // the decoder and let it try to decode
             *attrInfo = untaggedAttrInfo;
-            return 0;                                                 // RETURN
+            return 0;                                                // RETURN
         }
     }
     return -1;
@@ -626,20 +638,31 @@ bool baea_SerializableObjectProxy::sequenceHasAttribute(
         }
         if (info.d_attributeInfo_p[i].formattingMode() 
             & bdeat_FormattingMode::BDEAT_UNTAGGED) {
+            // maybe an anonymous choice having a selection with this name?
+
             untaggedAttributeId = info.d_attributeInfo_p[i].id();
+
+            baea_SerializableObjectProxy untaggedInfo;
+            info.d_loader(&untaggedInfo, *this, untaggedAttributeId);
+            if (untaggedInfo.d_objectInfo.is<ChoiceDecodeInfo>() &&
+                untaggedInfo.choiceHasSelection(name, nameLength)) {
+                return true; // RETURN
+            }
         }
     }
 
     if (0 <= untaggedAttributeId) {
-        // maybe an anonymous choice having a selection with this name?
-        
+
+        // If it's an untagged nullable, just return 'true' and let the
+        // decoder give it a shot.  We don't have enough info to check whether
+        // the nullable is a Choice and has this selection.  
+
         baea_SerializableObjectProxy untaggedInfo;
         info.d_loader(&untaggedInfo, *this, untaggedAttributeId);
-        if (untaggedInfo.d_objectInfo.is<ChoiceDecodeInfo>()) {
-            return untaggedInfo.choiceHasSelection(name, nameLength); // RETURN
-        }
-        // otherwise -- it's UNTAGGED but not a Choice?  Don't know what
-        // that is but it's not what we're looking for
+            
+        if (untaggedInfo.d_objectInfo.is<NullableDecodeInfo>()) {
+            return true;                                             // RETURN
+        }                                                     
     }
     return false;
 }
