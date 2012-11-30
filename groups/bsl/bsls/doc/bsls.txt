@@ -20,14 +20,13 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bsls' package currently has 33 components having 11 levels of physical
+ The 'bsls' package currently has 31 components having 11 levels of physical
  dependency.  The table below shows the hierarchical ordering of the
  components.  The order of components within each level is not architecturally
  significant, just alphabetical.
 ..
   11. bsls_alignedbuffer
       bsls_alignment
-      bsls_platformutil
 
   10. bsls_alignmentutil
 
@@ -48,7 +47,6 @@
    4. bsls_alignmenttotype
       bsls_atomicoperations
       bsls_byteorder
-      bsls_int64
       bsls_nullptr
 
    3. bsls_alignmentimp
@@ -108,45 +106,6 @@
 : 'bsls_atomicoperations':
 :      Provide platform-independent atomic operations.
 :
-: 'bsls_atomicoperations_default':
-:      Provide default implementation for atomic operations.
-:
-: 'bsls_atomicoperations_ia64_hp_acc':
-:      Provide implentations of atomic operations for HPUX/IA64.
-:
-: 'bsls_atomicoperations_powerpc32_aix_xlc':
-:      Provide implentations of atomic operations for PowerPC/AIX (32bit).
-:
-: 'bsls_atomicoperations_powerpc64_aix_xlc':
-:      Provide implentations of atomic operations for PowerPC/AIX (64bit).
-:
-: 'bsls_atomicoperations_powerpc_aix_gcc':
-:      Provide implentations of atomic operations for PowerPC/AIX/GCC.
-:
-: 'bsls_atomicoperations_powerpc_aix_xlc_default':
-:      Provide default base implentations of atomics for PowerPC/AIX.
-:
-: 'bsls_atomicoperations_sparc32_sun_cc':
-:      Provide implentations of atomic operations for Sparc/Sun (32bit).
-:
-: 'bsls_atomicoperations_sparc64_sun_cc':
-:      Provide implentations of atomic operations for Sparc/Sun (64bit).
-:
-: 'bsls_atomicoperations_sparc_sun_cc_default':
-:      Provide default base implentations of atomics for Sparc/Sun.
-:
-: 'bsls_atomicoperations_x64_all_gcc':
-:      Provide implentations of atomic operations for X86_64/GCC.
-:
-: 'bsls_atomicoperations_x64_win_msvc':
-:      Provide implentations of atomic operations for X86_64/MSVC/Windows.
-:
-: 'bsls_atomicoperations_x86_all_gcc':
-:      Provide implentations of atomic operations for X86/GCC.
-:
-: 'bsls_atomicoperations_x86_win_msvc':
-:      Provide implentations of atomic operations for X86/MSVC/Windows.
-:
 : 'bsls_blockgrowth':
 :      Provide a namespace for memory block growth strategies.
 :
@@ -163,13 +122,10 @@
 :      Provide macros to identify compiler support for C++0x features.
 :
 : 'bsls_exceptionutil':
-:      Simplify exception constructs for non-exception builds
+:      Provide simplified exception constructs for non-exception builds.
 :
 : 'bsls_ident':
 :      Provide macros for inserting SCM Ids into source files.
-:
-: 'bsls_int64':
-:      Provide namespace for platform-dependent 64-bit integer types.
 :
 : 'bsls_macroincrement':
 :      Provide a macro to increment preprocessor numbers.
@@ -188,9 +144,6 @@
 :
 : 'bsls_platform':
 :      Provide compile-time support for platform/attribute identification.
-:
-: 'bsls_platformutil':
-:      Provide consistent interface for platform-dependent functionality.
 :
 : 'bsls_protocoltest':
 :      Provide classes and macros for testing abstract protocols.
