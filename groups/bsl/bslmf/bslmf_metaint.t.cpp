@@ -558,7 +558,7 @@ int main(int argc, char *argv[])
         ASSERT(1 == i1.value);
         ASSERT(2 == i2.value);
 
-        ASSERT(-5 == bslmf::MetaInt<(unsigned)-5>::VALUE);
+        ASSERT(-5 == (int)bslmf::MetaInt<(unsigned)-5>::VALUE);
 
       } break;
       default: {
