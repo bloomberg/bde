@@ -5,7 +5,7 @@
 #ifndef INCLUDED_BDES_IDENT
 #include <bdes_ident.h>
 #endif
-BDES_IDENT_RCSID(baea_serializableobjectproxyutil_h,"$Id$ $CSID$")
+BDES_IDENT_RCSID(baea_serializableobjectproxyutil_h,"$Id: baea_serializableobjectproxyutil.h 415086 2012-08-09 19:16:12Z mgiroux $ $CSID: 50240C4D0895A700FF $")
 BDES_IDENT_PRAGMA_ONCE
 
 //@PURPOSE: Provide utilities for configuring a 'baea_SerializableObjectProxy'.
@@ -334,9 +334,9 @@ class baea_SerializableObjectProxyUtil {
         // of the specified Choice 'object' (assumed to be of the parameterized
         // 'CHOICE'), and load, into the specified 'selectionInfoPtr', the
         // address of the 'bdeat_SelectionInfo' for that selection.  'CHOICE'
-        // shall be a 'bdeat' Choice type.  The behavior is undefined unless
-        // 'object' refers to a 'CHOICE' object.  Note that this is an
-        // implementation of
+        // shall be a 'bdeat' Choice type.  Do nothing if 'object' has no 
+        // selection.  The behavior is undefined unless 'object' refers to a
+        // 'CHOICE' object.  Note that this is an implementation of
         // 'baea_SerializableObjectProxyFunctions::SelectionLoader'.
 
     template<typename CHOICE>
@@ -731,9 +731,10 @@ void baea_SerializableObjectProxyUtil::choiceManipulatorFn(
 {
     baea_SerializableObjectProxyUtil_ChoiceManipulatorProxy
                                                        manipulatorProxy(proxy);
-    bdeat_ChoiceFunctions::accessSelection(*(const TYPE *)object,
-                                           manipulatorProxy);
-    *selectionInfoPtr = manipulatorProxy.selectionInfoPtr();
+    if (0 == bdeat_ChoiceFunctions::accessSelection(*(const TYPE *)object,
+                                                    manipulatorProxy)) {
+        *selectionInfoPtr = manipulatorProxy.selectionInfoPtr();
+    }
 }
 
 template<typename TYPE>

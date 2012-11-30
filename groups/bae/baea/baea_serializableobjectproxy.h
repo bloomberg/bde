@@ -5,7 +5,7 @@
 #ifndef INCLUDED_BDES_IDENT
 #include <bdes_ident.h>
 #endif
-BDES_IDENT_RCSID(baea_serializableobjectproxy_h,"$Id$ $CSID$")
+BDES_IDENT_RCSID(baea_serializableobjectproxy_h,"$Id: baea_serializableobjectproxy.h 443282 2012-10-29 18:52:27Z mgiroux $ $CSID: 508ED0180994E500FF $")
 BDES_IDENT_PRAGMA_ONCE
 
 //@PURPOSE: Provide a dynamically-typed proxy for serializable types.
@@ -402,7 +402,7 @@ struct baea_SerializableObjectProxyFunctions {
 
     typedef void (*Loader)(baea_SerializableObjectProxy *proxy, void *object);
         // This 'typedef' is an alias for a function that configures the
-        // specified 'proxy' with the specified 'object'.
+        // specified 'proxy' with the specified 'object'.    
 
     typedef void (*SelectionLoader)(
                                  baea_SerializableObjectProxy  *proxy,
@@ -410,7 +410,8 @@ struct baea_SerializableObjectProxyFunctions {
                                  const bdeat_SelectionInfo    **selectInfoPtr);
         // This 'typedef' is an alias for a function that configures the
         // specified 'proxy' with the specified 'object' and loads the current
-        // selection to the specified 'selectInfoPtr'.
+        // selection to the specified 'selectInfoPtr'.  If the 'object' is 
+        // an unselected choice, this method has no effect.  
 
     typedef void (*ElementLoader)(baea_SerializableObjectProxy        *proxy,
                                   const baea_SerializableObjectProxy&  object,
@@ -1076,17 +1077,18 @@ class baea_SerializableObjectProxy {
         // Invoke the specified 'manipulator' on a proxy object (populated by
         // the 'loader' function supplied to the 'loadChoiceForDecoding'
         // method) representing the current selection of the Choice object
-        // represented by this proxy, and return the result of that invocation.
-        // 'MANIPULATOR' shall be a functor providing methods that can be
-        // called as if it had the following signatures:
+        // represented by this proxy.  'MANIPULATOR' shall be a functor 
+        // providing methods that can be called as if it had the following
+        // signatures:
         //..
         //  int operator()(baea_SerializableObjectProxy *,
         //                 const bdeat_SelectionInfo&);
         //  int operator()(baea_SerializableObjectProxy_NullableAdapter *,
         //                 const bdeat_SelectionInfo&);
         //..
-        // The behavior is undefined unless this object represents a Choice
-        // object for decoding (i.e., 'loadChoiceForDecoding' was called).
+        // Return -1 if this object represents an unselected Choice, and the 
+        // value returned by 'manipulator' otherwise.  The behavior is 
+        // undefined unless this object represents a Choice object for decoding.
 
     template<typename MANIPULATOR>
     int arrayManipulateElement(MANIPULATOR& manipulator, int index);
@@ -1813,9 +1815,16 @@ int baea_SerializableObjectProxy::choiceManipulateSelection(
 
     info.d_loader(&selectionProxy, d_object_p, &selectionInfoPtr);
 
-    return manipulateContainedElement(&selectionProxy,
-                                      manipulator,
-                                      *selectionInfoPtr);
+    // if there is no selection, 'selectionProxy' will have the default
+    // DYNAMIC category 
+    if (bdeat_TypeCategory::BDEAT_DYNAMIC_CATEGORY != 
+        selectionProxy.category()) 
+    {
+        return manipulateContainedElement(&selectionProxy,
+                                          manipulator,
+                                          *selectionInfoPtr);
+    }
+    return -1;
 }
 
 template<typename MANIPULATOR>

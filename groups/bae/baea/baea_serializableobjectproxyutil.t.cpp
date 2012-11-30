@@ -127,6 +127,34 @@ const char LOG_CATEGORY[] = "BAEA_SERIALIZABLEOBJECTPROXYUTIL.TEST";
 
 #if !(defined(BSLS_PLATFORM_CMP_GNU) && defined(BSLS_PLATFORM_CPU_SPARC))
 
+static const char* BAD_MESSAGES[] = {
+
+    "<foo/>", 
+
+    "<foo/><bar/>", 
+
+    "<selection8/>",
+    
+    "<selection8><foo/><bar/></selection8>",
+
+    "<selection8><foo><selection1/></foo><bar><selection1/></bar></selection8>",
+
+    "<plugh><foo><selection1/></foo><bar><selection1/></bar></plugh>",
+
+    "<selection8><foo><selection1/></foo><foo><selection1/></foo></selection8>",
+
+    "<plugh><foo><selection1/></foo><foo><selection1/></foo></plugh>",
+
+    "<selection1/>",
+
+    "<selection1><element2/></selection1>",
+
+    "<selection1><element2><selection4/></element2></selection1>",
+
+    "<selection1><element2><foo/><bar/></element2></selection1>"
+};
+
+
 static const char* TEST_MESSAGES[] = {
 
 "<Obj xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'><selection1><eleme"
@@ -1568,8 +1596,10 @@ int main(int argc, char *argv[])
                                                       bael_Severity::BAEL_OFF);
 
     switch (test) { case 0: // Zero is always the leading case.
+
+// Compiling these tests on GCC and solaris is very expensive.
 #if !(defined(BSLS_PLATFORM_CMP_GNU) && defined(BSLS_PLATFORM_CPU_SPARC))
-      case 15: {
+      case 16: {
 #else
       case 11: {
 #endif
@@ -1684,6 +1714,37 @@ int main(int argc, char *argv[])
 //..
       } break;
 #if !(defined(BSLS_PLATFORM_CMP_GNU) && defined(BSLS_PLATFORM_CPU_SPARC))
+      case 15: {
+        // --------------------------------------------------------------------
+        // XML decoder error test
+        //
+        // Plan: Decode several invalid documents using
+        // 'baea_SerializableObjectProxy'.  Confirm the stability and 
+        // correctness of the decoder in this case.  
+        // --------------------------------------------------------------------
+
+        const int NUM_MESSAGES = sizeof BAD_MESSAGES / sizeof *BAD_MESSAGES;
+
+        for (int i = 0; i < NUM_MESSAGES; ++i) {
+            
+            bdesb_FixedMemInStreamBuf isb(BAD_MESSAGES[i], 
+                                          strlen(BAD_MESSAGES[i]));
+
+            baexml_MiniReader reader;
+            baexml_DecoderOptions options;
+            baexml_Decoder decoder(&options, &reader);
+
+            baea::FeatureTestMessage decoded;
+
+            baea_SerializableObjectProxy decorator;
+            baea_SerializableObjectProxyUtil::makeDecodeProxy(&decorator,
+                                                         &decoded);
+            
+            decoder.decode(&isb, &decorator);
+            ASSERT(baea::FeatureTestMessage::SELECTION_ID_UNDEFINED == 
+                   decoded.selectionId());
+        }
+      } break;
       case 14: {
         // --------------------------------------------------------------------
         // XML decoder feature test
