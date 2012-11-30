@@ -120,6 +120,7 @@ int main(int argc, char *argv[])
                             "\n==============");
 
         Obj mX;
+        (void) mX;  // Suppress 'unused variable' warnings in non-SAFE modes
 
       } break;
 
