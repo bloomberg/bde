@@ -175,6 +175,8 @@ bool globalVeryVeryVerbose = false;
     template <class T>
     const T& AssertTestVector<T>::operator[](int index) const
     {
+        (void) index;
+
         BSLS_ASSERT_SAFE(0 <= index);
         BSLS_ASSERT_SAFE(     index < d_size);
 
@@ -291,6 +293,11 @@ bool globalVeryVeryVerbose = false;
 
     void MyUtil::f(int a, int b, int c, void *d)
     {
+        (void) a;
+        (void) b;
+        (void) c;
+        (void) d;
+
         BSLS_ASSERT_SAFE(0 <= a);  BSLS_ASSERT_SAFE(a <= 5);
         BSLS_ASSERT     (0 <= b);  BSLS_ASSERT     (b <= 4);
         BSLS_ASSERT_OPT (0 <= c);  BSLS_ASSERT_OPT (c <= 3);
@@ -382,9 +389,9 @@ bool globalVeryVeryVerbose = false;
                 { L_,   "A2",  'F',    0,   0,   0,   (void *)0xBAD },
 
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const size_t NUM_DATA = sizeof DATA / sizeof *DATA;
 
-            for (int ti = 0; ti < NUM_DATA; ++ti) {
+            for (size_t ti = 0; ti < NUM_DATA; ++ti) {
                 const int         LINE   = DATA[ti].d_lineNumber;
                 const char *const TYPE   = DATA[ti].d_assertBuildType;
                 const char        RESULT = DATA[ti].d_expectedResult;
@@ -680,7 +687,7 @@ int main(int argc, char *argv[])
             "/a.h/a.cpp",
             "/*/a.t.cpp",
         };
-        const int NUM_COMPATIBLE_NAMES_A = sizeof COMPATIBLE_NAMES_A /
+        const size_t NUM_COMPATIBLE_NAMES_A = sizeof COMPATIBLE_NAMES_A /
                                                     sizeof *COMPATIBLE_NAMES_A;
 
         static const char * COMPATIBLE_NAMES_ZZ[] = {
@@ -694,7 +701,7 @@ int main(int argc, char *argv[])
             "/a.h/z.z.cpp", // deliberately use "a.h" and not "z.h" in the path
             "/*/z.z.t.cpp",
         };
-        const int NUM_COMPATIBLE_NAMES_ZZ = sizeof COMPATIBLE_NAMES_ZZ /
+        const size_t NUM_COMPATIBLE_NAMES_ZZ = sizeof COMPATIBLE_NAMES_ZZ /
                                                    sizeof *COMPATIBLE_NAMES_ZZ;
 
         // Ideally we would confirm the two sets of compatible names have the
@@ -719,7 +726,7 @@ int main(int argc, char *argv[])
             "a.cpp.h",
             "a.t.cpp.h",
         };
-        const int NUM_INCOMPATIBLE_NAMES = sizeof INCOMPATIBLE_NAMES /
+        const size_t NUM_INCOMPATIBLE_NAMES = sizeof INCOMPATIBLE_NAMES /
                                                     sizeof *INCOMPATIBLE_NAMES;
 
         static const struct {
@@ -733,9 +740,9 @@ int main(int argc, char *argv[])
             { L_,  "0 != x",      13 },
             { L_,  "false",       42 },
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const size_t NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        for (int ti = 0; ti < NUM_DATA; ++ti) {
+        for (size_t ti = 0; ti < NUM_DATA; ++ti) {
             const int         LINE          = DATA[ti].d_lineNumber;
             const char *const EXPRESSION    = DATA[ti].d_expression;
             const int         ASSERTED_LINE = DATA[ti].d_assertedLine;
@@ -1022,9 +1029,9 @@ int main(int argc, char *argv[])
             { L_,   "",         "",       0       },
             { L_,   "Testing",  "foo.h",  123     },
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const size_t NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        for (int ti = 0; ti < NUM_DATA; ++ti) {
+        for (size_t ti = 0; ti < NUM_DATA; ++ti) {
             const int         LINE       = DATA[ti].d_lineNumber;
             const char *const EXPRESSION = DATA[ti].d_expression;
             const char *const FILENAME   = DATA[ti].d_filename;
@@ -1198,9 +1205,9 @@ int main(int argc, char *argv[])
             { L_,   "O2 ", false  },
 
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const size_t NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        for (int ti = 0; ti < NUM_DATA; ++ti) {
+        for (size_t ti = 0; ti < NUM_DATA; ++ti) {
             const int         LINE   = DATA[ti].d_lineNumber;
             const char *const TYPE   = DATA[ti].d_assertBuildType;
             bool              RESULT = DATA[ti].d_expectedResult;
@@ -1352,7 +1359,7 @@ int main(int argc, char *argv[])
             "/a.h/a.cpp",
             "/*/a.t.cpp",
         };
-        const int NUM_COMPATIBLE_NAMES_A = sizeof COMPATIBLE_NAMES_A /
+        const size_t NUM_COMPATIBLE_NAMES_A = sizeof COMPATIBLE_NAMES_A /
                                                     sizeof *COMPATIBLE_NAMES_A;
 
         static const char * COMPATIBLE_NAMES_ZZ[] = {
@@ -1366,7 +1373,7 @@ int main(int argc, char *argv[])
             "/a.h/z.z.cpp", // deliberately use "a.h" and not "z.h" in the path
             "/*/z.z.t.cpp",
         };
-        const int NUM_COMPATIBLE_NAMES_ZZ = sizeof COMPATIBLE_NAMES_ZZ /
+        const size_t NUM_COMPATIBLE_NAMES_ZZ = sizeof COMPATIBLE_NAMES_ZZ /
                                                    sizeof *COMPATIBLE_NAMES_ZZ;
 
         // Ideally we would confirm the two sets of compatible names have the
@@ -1393,7 +1400,7 @@ int main(int argc, char *argv[])
             "a.T.cpp",
             "zz.h.cpp",
          };
-        const int NUM_INCOMPATIBLE_NAMES = sizeof INCOMPATIBLE_NAMES /
+        const size_t NUM_INCOMPATIBLE_NAMES = sizeof INCOMPATIBLE_NAMES /
                                                     sizeof *INCOMPATIBLE_NAMES;
 
         static const char *const INVALID_NAMES[] = {
@@ -1418,7 +1425,7 @@ int main(int argc, char *argv[])
             "a.t.cpP",
             "A.T.CPP",
         };
-        const int NUM_INVALID_NAMES = sizeof INVALID_NAMES /
+        const size_t NUM_INVALID_NAMES = sizeof INVALID_NAMES /
                                                          sizeof *INVALID_NAMES;
 
         static const struct {
@@ -1436,9 +1443,9 @@ int main(int argc, char *argv[])
             { L_,  "0 != x",      13,  true  },
             { L_,  "false",       42,  true  },
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const size_t NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        for (int ti = 0; ti < NUM_DATA; ++ti) {
+        for (size_t ti = 0; ti < NUM_DATA; ++ti) {
             const int         LINE          = DATA[ti].d_lineNumber;
             const char *const EXPRESSION    = DATA[ti].d_expression;
             const int         ASSERTED_LINE = DATA[ti].d_assertedLine;
@@ -1905,9 +1912,9 @@ void TestMacroBSLS_ASSERTTEST_IS_ACTIVE()
             { L_,   "S",  false },
             { L_,   "S2", false },
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const size_t NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        for (int ti = 0; ti < NUM_DATA; ++ti) {
+        for (size_t ti = 0; ti < NUM_DATA; ++ti) {
             const int         LINE   = DATA[ti].d_lineNumber;
             const char *const TYPE   = DATA[ti].d_assertBuildType;
             bool              RESULT = DATA[ti].d_expectedResult;
@@ -2015,9 +2022,9 @@ void TestMacroBSLS_ASSERTTEST_IS_ACTIVE()
             { L_,   "S",  false },
             { L_,   "S2", false },
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const size_t NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        for (int ti = 0; ti < NUM_DATA; ++ti) {
+        for (size_t ti = 0; ti < NUM_DATA; ++ti) {
             const int         LINE   = DATA[ti].d_lineNumber;
             const char *const TYPE   = DATA[ti].d_assertBuildType;
             bool              RESULT = DATA[ti].d_expectedResult;
@@ -2125,9 +2132,9 @@ void TestMacroBSLS_ASSERTTEST_IS_ACTIVE()
             { L_,   "S",  false },
             { L_,   "S2", false },
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const size_t NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        for (int ti = 0; ti < NUM_DATA; ++ti) {
+        for (size_t ti = 0; ti < NUM_DATA; ++ti) {
             const int         LINE   = DATA[ti].d_lineNumber;
             const char *const TYPE   = DATA[ti].d_assertBuildType;
             bool              RESULT = DATA[ti].d_expectedResult;
@@ -2235,9 +2242,9 @@ void TestMacroBSLS_ASSERTTEST_IS_ACTIVE()
             { L_,   "S",  true  },
             { L_,   "S2", true  },
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const size_t NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        for (int ti = 0; ti < NUM_DATA; ++ti) {
+        for (size_t ti = 0; ti < NUM_DATA; ++ti) {
             const int         LINE   = DATA[ti].d_lineNumber;
             const char *const TYPE   = DATA[ti].d_assertBuildType;
             bool              RESULT = DATA[ti].d_expectedResult;
@@ -2345,9 +2352,9 @@ void TestMacroBSLS_ASSERTTEST_IS_ACTIVE()
             { L_,   "S",  false },
             { L_,   "S2", false },
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const size_t NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        for (int ti = 0; ti < NUM_DATA; ++ti) {
+        for (size_t ti = 0; ti < NUM_DATA; ++ti) {
             const int         LINE   = DATA[ti].d_lineNumber;
             const char *const TYPE   = DATA[ti].d_assertBuildType;
             bool              RESULT = DATA[ti].d_expectedResult;
@@ -2454,9 +2461,9 @@ void TestMacroBSLS_ASSERTTEST_IS_ACTIVE()
             { L_,   "S",  false },
             { L_,   "S2", false },
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const size_t NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        for (int ti = 0; ti < NUM_DATA; ++ti) {
+        for (size_t ti = 0; ti < NUM_DATA; ++ti) {
             const int         LINE   = DATA[ti].d_lineNumber;
             const char *const TYPE   = DATA[ti].d_assertBuildType;
             bool              RESULT = DATA[ti].d_expectedResult;
@@ -2563,9 +2570,9 @@ void TestMacroBSLS_ASSERTTEST_IS_ACTIVE()
             { L_,   "S",  false },
             { L_,   "S2", false },
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const size_t NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        for (int ti = 0; ti < NUM_DATA; ++ti) {
+        for (size_t ti = 0; ti < NUM_DATA; ++ti) {
             const int         LINE   = DATA[ti].d_lineNumber;
             const char *const TYPE   = DATA[ti].d_assertBuildType;
             bool              RESULT = DATA[ti].d_expectedResult;
@@ -2672,9 +2679,9 @@ void TestMacroBSLS_ASSERTTEST_IS_ACTIVE()
             { L_,   "S",  true  },
             { L_,   "S2", false },
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const size_t NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        for (int ti = 0; ti < NUM_DATA; ++ti) {
+        for (size_t ti = 0; ti < NUM_DATA; ++ti) {
             const int         LINE   = DATA[ti].d_lineNumber;
             const char *const TYPE   = DATA[ti].d_assertBuildType;
             bool              RESULT = DATA[ti].d_expectedResult;
@@ -2940,32 +2947,38 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
     {
         struct Production {
             static void callAssertOpt(bool pass) {
+                (void) pass;
                 BSLS_ASSERT_OPT(pass);
             }
 
             static void callAssert(bool pass) {
+                (void) pass;
                 BSLS_ASSERT(pass);
             }
 
             static void callAssertSafe(bool pass) {
+                (void) pass;
                 BSLS_ASSERT_SAFE(pass);
             }
         };
 
         struct Safe2 {
             static void callAssertOpt(bool pass) {
+                (void) pass;
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT_OPT(pass);
 #endif
             }
 
             static void callAssert(bool pass) {
+                (void) pass;
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT(pass);
 #endif
             }
 
             static void callAssertSafe(bool pass) {
+                (void) pass;
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT_SAFE(pass);
 #endif
@@ -3024,32 +3037,38 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
     {
         struct Production {
             static void callAssertOpt(bool pass) {
+                (void) pass;
                 BSLS_ASSERT_OPT(pass);
             }
 
             static void callAssert(bool pass) {
+                (void) pass;
                 BSLS_ASSERT(pass);
             }
 
             static void callAssertSafe(bool pass) {
+                (void) pass;
                 BSLS_ASSERT_SAFE(pass);
             }
         };
 
         struct Safe2 {
             static void callAssertOpt(bool pass) {
+                (void) pass;
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT_OPT(pass);
 #endif
             }
 
             static void callAssert(bool pass) {
+                (void) pass;
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT(pass);
 #endif
             }
 
             static void callAssertSafe(bool pass) {
+                (void) pass;
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT_SAFE(pass);
 #endif
@@ -3190,32 +3209,38 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
     {
         struct Production {
             static void callAssertOpt(bool pass) {
+                (void) pass;
                 BSLS_ASSERT_OPT(pass);
             }
 
             static void callAssert(bool pass) {
+                (void) pass;
                 BSLS_ASSERT(pass);
             }
 
             static void callAssertSafe(bool pass) {
+                (void) pass;
                 BSLS_ASSERT_SAFE(pass);
             }
         };
 
         struct Safe2 {
             static void callAssertOpt(bool pass) {
+                (void) pass;
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT_OPT(pass);
 #endif
             }
 
             static void callAssert(bool pass) {
+                (void) pass;
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT(pass);
 #endif
             }
 
             static void callAssertSafe(bool pass) {
+                (void) pass;
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT_SAFE(pass);
 #endif
@@ -3299,32 +3324,38 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
     {
         struct Production {
             static void callAssertOpt(bool pass) {
+                (void) pass;
                 BSLS_ASSERT_OPT(pass);
             }
 
             static void callAssert(bool pass) {
+                (void) pass;
                 BSLS_ASSERT(pass);
             }
 
             static void callAssertSafe(bool pass) {
+                (void) pass;
                 BSLS_ASSERT_SAFE(pass);
             }
         };
 
         struct Safe2 {
             static void callAssertOpt(bool pass) {
+                (void) pass;
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT_OPT(pass);
 #endif
             }
 
             static void callAssert(bool pass) {
+                (void) pass;
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT(pass);
 #endif
             }
 
             static void callAssertSafe(bool pass) {
+                (void) pass;
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT_SAFE(pass);
 #endif
@@ -3491,32 +3522,38 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
     {
         struct Production {
             static void callAssertOpt(bool pass) {
+                (void) pass;
                 BSLS_ASSERT_OPT(pass);
             }
 
             static void callAssert(bool pass) {
+                (void) pass;
                 BSLS_ASSERT(pass);
             }
 
             static void callAssertSafe(bool pass) {
+                (void) pass;
                 BSLS_ASSERT_SAFE(pass);
             }
         };
 
         struct Safe2 {
             static void callAssertOpt(bool pass) {
+                (void) pass;
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT_OPT(pass);
 #endif
             }
 
             static void callAssert(bool pass) {
+                (void) pass;
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT(pass);
 #endif
             }
 
             static void callAssertSafe(bool pass) {
+                (void) pass;
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT_SAFE(pass);
 #endif
@@ -3625,32 +3662,38 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
     {
         struct Production {
             static void callAssertOpt(bool pass) {
+                (void) pass;
                 BSLS_ASSERT_OPT(pass);
             }
 
             static void callAssert(bool pass) {
+                (void) pass;
                 BSLS_ASSERT(pass);
             }
 
             static void callAssertSafe(bool pass) {
+                (void) pass;
                 BSLS_ASSERT_SAFE(pass);
             }
         };
 
         struct Safe2 {
             static void callAssertOpt(bool pass) {
+                (void) pass;
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT_OPT(pass);
 #endif
             }
 
             static void callAssert(bool pass) {
+                (void) pass;
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT(pass);
 #endif
             }
 
             static void callAssertSafe(bool pass) {
+                (void) pass;
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT_SAFE(pass);
 #endif
@@ -3937,32 +3980,38 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
     {
         struct Production {
             static void callAssertOpt(bool pass) {
+                (void) pass;
                 BSLS_ASSERT_OPT(pass);
             }
 
             static void callAssert(bool pass) {
+                (void) pass;
                 BSLS_ASSERT(pass);
             }
 
             static void callAssertSafe(bool pass) {
+                (void) pass;
                 BSLS_ASSERT_SAFE(pass);
             }
         };
 
         struct Safe2 {
             static void callAssertOpt(bool pass) {
+                (void) pass;
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT_OPT(pass);
 #endif
             }
 
             static void callAssert(bool pass) {
+                (void) pass;
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT(pass);
 #endif
             }
 
             static void callAssertSafe(bool pass) {
+                (void) pass;
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT_SAFE(pass);
 #endif
@@ -4021,32 +4070,38 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
     {
         struct Production {
             static void callAssertOpt(bool pass) {
+                (void) pass;
                 BSLS_ASSERT_OPT(pass);
             }
 
             static void callAssert(bool pass) {
+                (void) pass;
                 BSLS_ASSERT(pass);
             }
 
             static void callAssertSafe(bool pass) {
+                (void) pass;
                 BSLS_ASSERT_SAFE(pass);
             }
         };
 
         struct Safe2 {
             static void callAssertOpt(bool pass) {
+                (void) pass;
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT_OPT(pass);
 #endif
             }
 
             static void callAssert(bool pass) {
+                (void) pass;
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT(pass);
 #endif
             }
 
             static void callAssertSafe(bool pass) {
+                (void) pass;
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT_SAFE(pass);
 #endif
@@ -4186,32 +4241,38 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
     {
         struct Production {
             static void callAssertOpt(bool pass) {
+                (void) pass;
                 BSLS_ASSERT_OPT(pass);
             }
 
             static void callAssert(bool pass) {
+                (void) pass;
                 BSLS_ASSERT(pass);
             }
 
             static void callAssertSafe(bool pass) {
+                (void) pass;
                 BSLS_ASSERT_SAFE(pass);
             }
         };
 
         struct Safe2 {
             static void callAssertOpt(bool pass) {
+                (void) pass;
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT_OPT(pass);
 #endif
             }
 
             static void callAssert(bool pass) {
+                (void) pass;
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT(pass);
 #endif
             }
 
             static void callAssertSafe(bool pass) {
+                (void) pass;
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT_SAFE(pass);
 #endif
@@ -4295,32 +4356,38 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
     {
         struct Production {
             static void callAssertOpt(bool pass) {
+                (void) pass;
                 BSLS_ASSERT_OPT(pass);
             }
 
             static void callAssert(bool pass) {
+                (void) pass;
                 BSLS_ASSERT(pass);
             }
 
             static void callAssertSafe(bool pass) {
+                (void) pass;
                 BSLS_ASSERT_SAFE(pass);
             }
         };
 
         struct Safe2 {
             static void callAssertOpt(bool pass) {
+                (void) pass;
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT_OPT(pass);
 #endif
             }
 
             static void callAssert(bool pass) {
+                (void) pass;
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT(pass);
 #endif
             }
 
             static void callAssertSafe(bool pass) {
+                (void) pass;
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT_SAFE(pass);
 #endif
@@ -4486,32 +4553,38 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
     {
         struct Production {
             static void callAssertOpt(bool pass) {
+                (void) pass;
                 BSLS_ASSERT_OPT(pass);
             }
 
             static void callAssert(bool pass) {
+                (void) pass;
                 BSLS_ASSERT(pass);
             }
 
             static void callAssertSafe(bool pass) {
+                (void) pass;
                 BSLS_ASSERT_SAFE(pass);
             }
         };
 
         struct Safe2 {
             static void callAssertOpt(bool pass) {
+                (void) pass;
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT_OPT(pass);
 #endif
             }
 
             static void callAssert(bool pass) {
+                (void) pass;
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT(pass);
 #endif
             }
 
             static void callAssertSafe(bool pass) {
+                (void) pass;
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT_SAFE(pass);
 #endif
@@ -4620,32 +4693,38 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
     {
         struct Production {
             static void callAssertOpt(bool pass) {
+                (void) pass;
                 BSLS_ASSERT_OPT(pass);
             }
 
             static void callAssert(bool pass) {
+                (void) pass;
                 BSLS_ASSERT(pass);
             }
 
             static void callAssertSafe(bool pass) {
+                (void) pass;
                 BSLS_ASSERT_SAFE(pass);
             }
         };
 
         struct Safe2 {
             static void callAssertOpt(bool pass) {
+                (void) pass;
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT_OPT(pass);
 #endif
             }
 
             static void callAssert(bool pass) {
+                (void) pass;
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT(pass);
 #endif
             }
 
             static void callAssertSafe(bool pass) {
+                (void) pass;
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT_SAFE(pass);
 #endif
@@ -4987,32 +5066,38 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
     {
         struct Production {
             static void callAssertOpt(bool pass) {
+                (void) pass;
                 BSLS_ASSERT_OPT(pass);
             }
 
             static void callAssert(bool pass) {
+                (void) pass;
                 BSLS_ASSERT(pass);
             }
 
             static void callAssertSafe(bool pass) {
+                (void) pass;
                 BSLS_ASSERT_SAFE(pass);
             }
         };
 
         struct Safe2 {
             static void callAssertOpt(bool pass) {
+                (void) pass;
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT_OPT(pass);
 #endif
             }
 
             static void callAssert(bool pass) {
+                (void) pass;
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT(pass);
 #endif
             }
 
             static void callAssertSafe(bool pass) {
+                (void) pass;
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT_SAFE(pass);
 #endif
@@ -5071,32 +5156,38 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
     {
         struct Production {
             static void callAssertOpt(bool pass) {
+                (void) pass;
                 BSLS_ASSERT_OPT(pass);
             }
 
             static void callAssert(bool pass) {
+                (void) pass;
                 BSLS_ASSERT(pass);
             }
 
             static void callAssertSafe(bool pass) {
+                (void) pass;
                 BSLS_ASSERT_SAFE(pass);
             }
         };
 
         struct Safe2 {
             static void callAssertOpt(bool pass) {
+                (void) pass;
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT_OPT(pass);
 #endif
             }
 
             static void callAssert(bool pass) {
+                (void) pass;
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT(pass);
 #endif
             }
 
             static void callAssertSafe(bool pass) {
+                (void) pass;
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT_SAFE(pass);
 #endif
@@ -5234,32 +5325,38 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
     {
         struct Production {
             static void callAssertOpt(bool pass) {
+                (void) pass;
                 BSLS_ASSERT_OPT(pass);
             }
 
             static void callAssert(bool pass) {
+                (void) pass;
                 BSLS_ASSERT(pass);
             }
 
             static void callAssertSafe(bool pass) {
+                (void) pass;
                 BSLS_ASSERT_SAFE(pass);
             }
         };
 
         struct Safe2 {
             static void callAssertOpt(bool pass) {
+                (void) pass;
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT_OPT(pass);
 #endif
             }
 
             static void callAssert(bool pass) {
+                (void) pass;
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT(pass);
 #endif
             }
 
             static void callAssertSafe(bool pass) {
+                (void) pass;
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT_SAFE(pass);
 #endif
@@ -5343,32 +5440,38 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
     {
         struct Production {
             static void callAssertOpt(bool pass) {
+                (void) pass;
                 BSLS_ASSERT_OPT(pass);
             }
 
             static void callAssert(bool pass) {
+                (void) pass;
                 BSLS_ASSERT(pass);
             }
 
             static void callAssertSafe(bool pass) {
+                (void) pass;
                 BSLS_ASSERT_SAFE(pass);
             }
         };
 
         struct Safe2 {
             static void callAssertOpt(bool pass) {
+                (void) pass;
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT_OPT(pass);
 #endif
             }
 
             static void callAssert(bool pass) {
+                (void) pass;
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT(pass);
 #endif
             }
 
             static void callAssertSafe(bool pass) {
+                (void) pass;
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT_SAFE(pass);
 #endif
@@ -5531,32 +5634,38 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
     {
         struct Production {
             static void callAssertOpt(bool pass) {
+                (void) pass;
                 BSLS_ASSERT_OPT(pass);
             }
 
             static void callAssert(bool pass) {
+                (void) pass;
                 BSLS_ASSERT(pass);
             }
 
             static void callAssertSafe(bool pass) {
+                (void) pass;
                 BSLS_ASSERT_SAFE(pass);
             }
         };
 
         struct Safe2 {
             static void callAssertOpt(bool pass) {
+                (void) pass;
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT_OPT(pass);
 #endif
             }
 
             static void callAssert(bool pass) {
+                (void) pass;
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT(pass);
 #endif
             }
 
             static void callAssertSafe(bool pass) {
+                (void) pass;
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT_SAFE(pass);
 #endif
@@ -5667,32 +5776,38 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
     {
         struct Production {
             static void callAssertOpt(bool pass) {
+                (void) pass;
                 BSLS_ASSERT_OPT(pass);
             }
 
             static void callAssert(bool pass) {
+                (void) pass;
                 BSLS_ASSERT(pass);
             }
 
             static void callAssertSafe(bool pass) {
+                (void) pass;
                 BSLS_ASSERT_SAFE(pass);
             }
         };
 
         struct Safe2 {
             static void callAssertOpt(bool pass) {
+                (void) pass;
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT_OPT(pass);
 #endif
             }
 
             static void callAssert(bool pass) {
+                (void) pass;
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT(pass);
 #endif
             }
 
             static void callAssertSafe(bool pass) {
+                (void) pass;
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT_SAFE(pass);
 #endif
@@ -5976,32 +6091,38 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
     {
         struct Production {
             static void callAssertOpt(bool pass) {
+                (void) pass;
                 BSLS_ASSERT_OPT(pass);
             }
 
             static void callAssert(bool pass) {
+                (void) pass;
                 BSLS_ASSERT(pass);
             }
 
             static void callAssertSafe(bool pass) {
+                (void) pass;
                 BSLS_ASSERT_SAFE(pass);
             }
         };
 
         struct Safe2 {
             static void callAssertOpt(bool pass) {
+                (void) pass;
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT_OPT(pass);
 #endif
             }
 
             static void callAssert(bool pass) {
+                (void) pass;
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT(pass);
 #endif
             }
 
             static void callAssertSafe(bool pass) {
+                (void) pass;
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT_SAFE(pass);
 #endif
@@ -6060,32 +6181,38 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
     {
         struct Production {
             static void callAssertOpt(bool pass) {
+                (void) pass;
                 BSLS_ASSERT_OPT(pass);
             }
 
             static void callAssert(bool pass) {
+                (void) pass;
                 BSLS_ASSERT(pass);
             }
 
             static void callAssertSafe(bool pass) {
+                (void) pass;
                 BSLS_ASSERT_SAFE(pass);
             }
         };
 
         struct Safe2 {
             static void callAssertOpt(bool pass) {
+                (void) pass;
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT_OPT(pass);
 #endif
             }
 
             static void callAssert(bool pass) {
+                (void) pass;
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT(pass);
 #endif
             }
 
             static void callAssertSafe(bool pass) {
+                (void) pass;
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT_SAFE(pass);
 #endif
@@ -6222,32 +6349,38 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
     {
         struct Production {
             static void callAssertOpt(bool pass) {
+                (void) pass;
                 BSLS_ASSERT_OPT(pass);
             }
 
             static void callAssert(bool pass) {
+                (void) pass;
                 BSLS_ASSERT(pass);
             }
 
             static void callAssertSafe(bool pass) {
+                (void) pass;
                 BSLS_ASSERT_SAFE(pass);
             }
         };
 
         struct Safe2 {
             static void callAssertOpt(bool pass) {
+                (void) pass;
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT_OPT(pass);
 #endif
             }
 
             static void callAssert(bool pass) {
+                (void) pass;
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT(pass);
 #endif
             }
 
             static void callAssertSafe(bool pass) {
+                (void) pass;
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT_SAFE(pass);
 #endif
@@ -6331,32 +6464,38 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
     {
         struct Production {
             static void callAssertOpt(bool pass) {
+                (void) pass;
                 BSLS_ASSERT_OPT(pass);
             }
 
             static void callAssert(bool pass) {
+                (void) pass;
                 BSLS_ASSERT(pass);
             }
 
             static void callAssertSafe(bool pass) {
+                (void) pass;
                 BSLS_ASSERT_SAFE(pass);
             }
         };
 
         struct Safe2 {
             static void callAssertOpt(bool pass) {
+                (void) pass;
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT_OPT(pass);
 #endif
             }
 
             static void callAssert(bool pass) {
+                (void) pass;
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT(pass);
 #endif
             }
 
             static void callAssertSafe(bool pass) {
+                (void) pass;
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT_SAFE(pass);
 #endif
@@ -6518,32 +6657,38 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
     {
         struct Production {
             static void callAssertOpt(bool pass) {
+                (void) pass;
                 BSLS_ASSERT_OPT(pass);
             }
 
             static void callAssert(bool pass) {
+                (void) pass;
                 BSLS_ASSERT(pass);
             }
 
             static void callAssertSafe(bool pass) {
+                (void) pass;
                 BSLS_ASSERT_SAFE(pass);
             }
         };
 
         struct Safe2 {
             static void callAssertOpt(bool pass) {
+                (void) pass;
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT_OPT(pass);
 #endif
             }
 
             static void callAssert(bool pass) {
+                (void) pass;
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT(pass);
 #endif
             }
 
             static void callAssertSafe(bool pass) {
+                (void) pass;
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT_SAFE(pass);
 #endif
@@ -6654,32 +6799,38 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
     {
         struct Production {
             static void callAssertOpt(bool pass) {
+                (void) pass;
                 BSLS_ASSERT_OPT(pass);
             }
 
             static void callAssert(bool pass) {
+                (void) pass;
                 BSLS_ASSERT(pass);
             }
 
             static void callAssertSafe(bool pass) {
+                (void) pass;
                 BSLS_ASSERT_SAFE(pass);
             }
         };
 
         struct Safe2 {
             static void callAssertOpt(bool pass) {
+                (void) pass;
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT_OPT(pass);
 #endif
             }
 
             static void callAssert(bool pass) {
+                (void) pass;
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT(pass);
 #endif
             }
 
             static void callAssertSafe(bool pass) {
+                (void) pass;
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 BSLS_ASSERT_SAFE(pass);
 #endif
