@@ -2245,10 +2245,10 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase7()
 
         for (int ti = 0; ti < NUM_SPECS; ++ti) {
             const char *const SPEC   = SPECS[ti];
-            const size_t      LENGTH = (int) strlen(SPEC);
+            const size_t      LENGTH = strlen(SPEC);
 
             if (verbose) {
-                printf("\nFor an object of length %d:\n", LENGTH);
+                printf("\nFor an object of length %d:\n", (int)LENGTH);
                 P(SPEC);
             }
 
@@ -3062,13 +3062,13 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase3()
             const int         LINE   = DATA[ti].d_line;
             const char *const SPEC   = DATA[ti].d_spec;
             const int         INDEX  = DATA[ti].d_index;
-            const size_t      LENGTH = (int)strlen(SPEC);
+            const size_t      LENGTH = strlen(SPEC);
 
             Obj mX(HASHER(), COMPARATOR(), LENGTH, &oa);
 
             if ((int)LENGTH != oldLen) {
-                if (verbose) printf("\tof length %d:\n", LENGTH);
-                 ASSERTV(LINE, oldLen <= (int)LENGTH);  // non-decreasing
+                if (verbose) printf("\tof length %d:\n", (int)LENGTH);
+                ASSERTV(LINE, oldLen <= (int)LENGTH);  // non-decreasing
                 oldLen = LENGTH;
             }
 
@@ -3698,6 +3698,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase1(
        const Obj& O1 = o1;
        ASSERTV(&objectAllocator1 == O1.allocator().mechanism());
 
+       (void) testValues;  // reference while below insert is commented out
        for (size_t i = 0; i < numValues; ++i) {
 //           o1.insert(Value(testKeys[i], testValues[i]));
            o1.insert(Value(testKeys[i]));
@@ -3814,7 +3815,9 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase1(
         Obj x(HASHER(), COMPARATOR(), 0, &objectAllocator); const Obj& X = x;
         for (size_t i = 0; i < numValues; ++i) {
             Obj y(X, &objectAllocator); const Obj& Y = y;
+#if 0
             Obj z(X, &objectAllocator); const Obj& Z = z;
+#endif
             ASSERTV(X == Y);
             ASSERTV(!(X != Y));
 
@@ -3925,7 +3928,8 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase1(
             ASSERTV(x.find(key) == resIt1);
             ASSERTV(X.size(), (2 * numValues - (2 * (i + 1) - 1)) == X.size());
             Link *resIt2 = x.remove(x.elementListRoot());
-            ASSERTV( x.find(key) == 0);
+            (void) resIt2;
+            ASSERTV(x.find(key) == 0);
             ASSERTV(X.size(), (2 * numValues - 2 * (i + 1)) == X.size());
         }
     }
