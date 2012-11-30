@@ -404,14 +404,15 @@ struct baea_SerializableObjectProxyFunctions {
         // This 'typedef' is an alias for a function that configures the
         // specified 'proxy' with the specified 'object'.    
 
-    typedef void (*SelectionLoader)(
+    typedef int (*SelectionLoader)(
                                  baea_SerializableObjectProxy  *proxy,
                                  void                          *object,
                                  const bdeat_SelectionInfo    **selectInfoPtr);
         // This 'typedef' is an alias for a function that configures the
         // specified 'proxy' with the specified 'object' and loads the current
-        // selection to the specified 'selectInfoPtr'.  If the 'object' is 
-        // an unselected choice, this method has no effect.  
+        // selection to the specified 'selectInfoPtr'.  Return 0 on success,
+        // and a nonzero value if 'object' is an unselected Choice (in which
+        // case the state of 'proxy' and 'selectInfoPtr' is unspecified).  
 
     typedef void (*ElementLoader)(baea_SerializableObjectProxy        *proxy,
                                   const baea_SerializableObjectProxy&  object,
@@ -1813,12 +1814,7 @@ int baea_SerializableObjectProxy::choiceManipulateSelection(
     const ChoiceDecodeInfo& info = d_objectInfo.the<ChoiceDecodeInfo>();
     const bdeat_SelectionInfo *selectionInfoPtr;
 
-    info.d_loader(&selectionProxy, d_object_p, &selectionInfoPtr);
-
-    // if there is no selection, 'selectionProxy' will have the default
-    // DYNAMIC category 
-    if (bdeat_TypeCategory::BDEAT_DYNAMIC_CATEGORY != 
-        selectionProxy.category()) 
+    if (0 == info.d_loader(&selectionProxy, d_object_p, &selectionInfoPtr)) 
     {
         return manipulateContainedElement(&selectionProxy,
                                           manipulator,

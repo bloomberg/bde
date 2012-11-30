@@ -129,29 +129,29 @@ const char LOG_CATEGORY[] = "BAEA_SERIALIZABLEOBJECTPROXYUTIL.TEST";
 
 static const char* BAD_MESSAGES[] = {
 
-    "<foo/>", 
+   "<foo/>", 
 
-    "<foo/><bar/>", 
+   "<foo/><bar/>", 
 
-    "<selection8/>",
-    
-    "<selection8><foo/><bar/></selection8>",
+   "<selection8/>",
+   
+   "<selection8><foo/><bar/></selection8>",
 
-    "<selection8><foo><selection1/></foo><bar><selection1/></bar></selection8>",
+   "<selection8><foo><selection1/></foo><bar><selection1/></bar></selection8>",
 
-    "<plugh><foo><selection1/></foo><bar><selection1/></bar></plugh>",
+   "<plugh><foo><selection1/></foo><bar><selection1/></bar></plugh>",
 
-    "<selection8><foo><selection1/></foo><foo><selection1/></foo></selection8>",
+   "<selection8><foo><selection1/></foo><foo><selection1/></foo></selection8>",
 
-    "<plugh><foo><selection1/></foo><foo><selection1/></foo></plugh>",
+   "<plugh><foo><selection1/></foo><foo><selection1/></foo></plugh>",
 
-    "<selection1/>",
+   "<selection1/>",
 
-    "<selection1><element2/></selection1>",
+   "<selection1><element2/></selection1>",
 
-    "<selection1><element2><selection4/></element2></selection1>",
+   "<selection1><element2><selection4/></element2></selection1>",
 
-    "<selection1><element2><foo/><bar/></element2></selection1>"
+   "<selection1><element2><foo/><bar/></element2></selection1>"
 };
 
 
@@ -1718,9 +1718,19 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // XML decoder error test
         //
-        // Plan: Decode several invalid documents using
-        // 'baea_SerializableObjectProxy'.  Confirm the stability and 
-        // correctness of the decoder in this case.  
+        // Concerns: 
+        //: 1 There are no stability problems (crashes) when the decoder
+        //:   manipulates 'baea_SerializableObjectProxy' for an invalid 
+        //:   document.
+        //:
+        //: 2 The target object is left unmodified when decoding an 
+        //:   invalid document.
+        //
+        // Plan: Decode several invalid XML documents using
+        // 'baea_SerializableObjectProxy' into a 'FeatureTestMessage.'
+        // This is a Choice object, and the "skipUnknownElements" flag is
+        // (by default) set, so the Choice should remain at its default
+        // UNDEFINED selection.  
         // --------------------------------------------------------------------
 
         const int NUM_MESSAGES = sizeof BAD_MESSAGES / sizeof *BAD_MESSAGES;

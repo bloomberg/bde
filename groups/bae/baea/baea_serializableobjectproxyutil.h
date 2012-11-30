@@ -326,7 +326,7 @@ class baea_SerializableObjectProxyUtil {
         // 'baea_SerializableObjectProxyFunctions::ElementLoader'.
 
     template<typename CHOICE>
-    static void choiceManipulatorFn(
+    static int choiceManipulatorFn(
                             baea_SerializableObjectProxy    *proxy,
                             void                            *object,
                             const bdeat_SelectionInfo      **selectionInfoPtr);
@@ -334,9 +334,10 @@ class baea_SerializableObjectProxyUtil {
         // of the specified Choice 'object' (assumed to be of the parameterized
         // 'CHOICE'), and load, into the specified 'selectionInfoPtr', the
         // address of the 'bdeat_SelectionInfo' for that selection.  'CHOICE'
-        // shall be a 'bdeat' Choice type.  Do nothing if 'object' has no 
-        // selection.  The behavior is undefined unless 'object' refers to a
-        // 'CHOICE' object.  Note that this is an implementation of
+        // shall be a 'bdeat' Choice type.  Return 0 on success, and a 
+        // nonzero value if 'object' refers to an unselected Choice.  The 
+        // behavior is undefined unless 'object' refers to a 'CHOICE' object.  
+        // Note that this is an implementation of
         // 'baea_SerializableObjectProxyFunctions::SelectionLoader'.
 
     template<typename CHOICE>
@@ -724,17 +725,18 @@ void baea_SerializableObjectProxyUtil::sequenceManipulatorFn(
 }
 
 template<typename TYPE>
-void baea_SerializableObjectProxyUtil::choiceManipulatorFn(
+int baea_SerializableObjectProxyUtil::choiceManipulatorFn(
                                baea_SerializableObjectProxy  *proxy,
                                void                          *object,
                                const bdeat_SelectionInfo    **selectionInfoPtr)
 {
     baea_SerializableObjectProxyUtil_ChoiceManipulatorProxy
                                                        manipulatorProxy(proxy);
-    if (0 == bdeat_ChoiceFunctions::accessSelection(*(const TYPE *)object,
-                                                    manipulatorProxy)) {
-        *selectionInfoPtr = manipulatorProxy.selectionInfoPtr();
-    }
+    
+    int rc = bdeat_ChoiceFunctions::accessSelection(*(const TYPE *)object,
+                                                    manipulatorProxy);
+    *selectionInfoPtr = manipulatorProxy.selectionInfoPtr();
+    return rc;
 }
 
 template<typename TYPE>
