@@ -470,7 +470,7 @@ BSLS_IDENT("$Id: $")
 //          // mapped-value associated with the specified 'key' in this
 //          // unordered map; if this unordered map does not already contain a
 //          // 'value_type' object with 'key', first insert a new 'value_type'
-//          // object having 'key' and a default=constructed 'VALUE' object.
+//          // object having 'key' and a default-constructed 'VALUE' object.
 //          // This method requires that the (template parameter) type 'KEY' is
 //          // "copy-constructible" and the (template parameter) 'VALUE' is
 //          // "default-constructible".

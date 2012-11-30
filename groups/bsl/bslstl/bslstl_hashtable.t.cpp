@@ -4088,17 +4088,21 @@ namespace UsageExamples {
 
 ///Usage
 ///-----
-// This section illustrates intended use of this component.
-// The 'bslstl::HashTable' class template provides a common foundation for
-// implementing the four standard unordered containers: unordered-set,
-// unordered-map, unordered multi-set, and unordered multi-map.  This example
-// and the subsequent examples in this component use the class to implement
-// several toy container classes, each providing a small but representative
-// sub-set of the functionality of one of the standard unordered containers.
+// This section illustrates intended use of this component.  The
+// 'bslstl::HashTable' class template provides a common foundation for
+// implementing the four standard unordered containers:
+//: o 'bsl::unordered_map'
+//: o 'bsl::unordered_multiset'
+//: o 'bsl::unordered_multimap'
+//: o 'bsl::unordered_set'
+// This and the subsequent examples in this component use the
+// 'bslstl::HashTable' class to implement several model container classes, each
+// providing a small but representative sub-set of the functionality of one of
+// the standard unordered containers.
 //
 ///Example 1: Implementing a Hashed Set Container
 ///----------------------------------------------
-// Suppose we wish to implement, 'MyHashedSet', a greatly simplified version of
+// Suppose we wish to implement, 'MyHashedSet', a greatly abbreviated version of
 // 'bsl::unordered_set'.  The 'bslstl::HashTable' class template can be used as
 // the basis of that implementation.
 //
@@ -4141,7 +4145,7 @@ namespace UsageExamples {
     inline
     const typename UseEntireValueAsKey<VALUE_TYPE>::KeyType&
                    UseEntireValueAsKey<VALUE_TYPE>::extractKey(
-                       const UseEntireValueAsKey<VALUE_TYPE>::ValueType& value)
+                                                        const ValueType& value)
     {
         return value;
     }
@@ -4152,6 +4156,11 @@ namespace UsageExamples {
 // sets, and the 'find' method to allow us to examine those elements.  We also
 // provide 'size' and 'bucket_count' accessor methods to let us check the inner
 // workings of our class.
+//
+// Note that the standard classes define alias for the templated parameters and
+// other types.  In the interest of brevity, this model class (and the classes
+// in the subsequent examples) do not define such aliases except where strictly
+// needed for the example.
 //..
                             // =================
                             // class MyHashedSet
@@ -4186,6 +4195,24 @@ namespace UsageExamples {
                              const HASH&      hash              = HASH(),
                              const EQUAL&     keyEqual          = EQUAL(),
                              const ALLOCATOR& allocator         = ALLOCATOR());
+            // Construct an empty unordered set.  Optionally specify an
+            // 'initialNumBuckets' indicating the initial size of the array of
+            // buckets of this container.  If 'initialNumBuckets' is not
+            // supplied, an implementation defined value is used.  Optionally
+            // specify a 'hash' used to generate the hash values associated to
+            // the keys extracted from the values contained in this object.  If
+            // 'hash' is not supplied, a default-constructed object of type
+            // 'HASH()' is used.  Optionally specify a key-equality functor
+            // 'keyEqual' used to verify that two key values are the same.  If
+            // 'keyEqual' is not supplied, a default-constructed object of type
+            // 'EQUAL' is used.  Optionally specify an 'allocator' used to
+            // supply memory.  If 'allocator' is not supplied, a
+            // default-constructed object of the (template parameter) type
+            // 'ALLOCATOR' is used.  If the 'ALLOCATOR' is 'bsl::allocator'
+            // (the default), then 'allocator' shall be convertible to
+            // 'bslma::Allocator *'.  If the 'ALLOCATOR' is 'bsl::allocator'
+            // and 'allocator' is not supplied, the currently installed default
+            // allocator will be used to supply memory.
 
         //! ~MyHashedSet() = default;
             // Destroy this object.
@@ -4351,8 +4378,8 @@ if (verbose) {
 
 ///Example 2: Implementing a Hashed Map Container
 ///----------------------------------------------
-// Suppose we wish to implement, 'MyHashedMap', a greatly simplified version of
-// 'bsl::unordered_map'.  As with 'MyHashedSet' (see {Example 1}), the
+// Suppose we wish to implement, 'MyHashedMap', a greatly abbreviated version
+// of 'bsl::unordered_map'.  As with 'MyHashedSet' (see {Example 1}), the
 // 'bslstl::HashTable' class template can be used as the basis of our
 // implementation.
 //
@@ -4395,7 +4422,7 @@ if (verbose) {
     inline
     const typename UseFirstValueOfPairAsKey<VALUE_TYPE>::KeyType&
                    UseFirstValueOfPairAsKey<VALUE_TYPE>::extractKey(
-             const UseFirstValueOfPairAsKey<VALUE_TYPE>::ValueType& value)
+                                                        const ValueType& value)
     {
         return value.first;
     }
@@ -4439,6 +4466,26 @@ if (verbose) {
                              const HASH&      hash              = HASH(),
                              const EQUAL&     keyEqual          = EQUAL(),
                              const ALLOCATOR& allocator         = ALLOCATOR());
+        // Create an empty 'MyHashedMap' object.  Optionally specify an
+        // 'initialNumBuckets' indicating the minimum initial size of the array
+        // of buckets of this unordered map.  If 'initialNumBuckets' is not
+        // supplied, one empty bucket shall be used and no memory allocated.
+        // Optionally specify 'hash' to generate the hash values associated
+        // with the key-value pairs contained in this unordered map.  If 'hash'
+        // is not supplied, a default-constructed object of (template
+        // parameter) 'HASH' is used.  Optionally specify a key-equality
+        // functor 'keyEqual' used to determine whether two keys have the same
+        // value.  If 'keyEqual' is not supplied, a default-constructed object
+        // of (template parameter) 'EQUAL' is used.  Optionally specify an
+        // 'allocator' used to supply memory.  If 'allocator' is not supplied,
+        // a default-constructed object of the (template parameter) type
+        // 'ALLOCATOR' is used.  If 'ALLOCATOR' is 'bsl::allocator' (the
+        // default), then 'allocator' shall be convertible to
+        // 'bslma::Allocator *'.  If 'ALLOCATOR' is 'bsl::allocator' and
+        // 'allocator' is not supplied, the currently installed default
+        // allocator will be used to supply memory.  Note that more than
+        // 'initialNumBuckets' buckets may be created in order to preserve the
+        // bucket allocation strategy of the hash-table (but never fewer).
 
         //! ~MyHashedMap() = default;
             // Destroy this object.
@@ -4449,7 +4496,7 @@ if (verbose) {
             // mapped-value associated with the specified 'key' in this
             // unordered map; if this unordered map does not already contain a
             // 'value_type' object with 'key', first insert a new 'value_type'
-            // object having 'key' and a default=constructed 'VALUE' object.
+            // object having 'key' and a default-constructed 'VALUE' object.
             // This method requires that the (template parameter) type 'KEY' is
             // "copy-constructible" and the (template parameter) 'VALUE' is
             // "default-constructible".
@@ -4531,7 +4578,7 @@ if (verbose) {
 
 ///Example 3: Implementing a Hashed Multi-Map Container
 ///----------------------------------------------------
-// Suppose we wish to implement, 'MyHashedMultiMap', a greatly simplified
+// Suppose we wish to implement, 'MyHashedMultiMap', a greatly abbreviated
 // version of 'bsl::unordered_multimap'.  As with 'MyHashedSet' and
 // 'MyHashedMap' (see {Example 1}, and {Example 2}, respectively), the
 // 'bslstl::HashTable' class template can be used as the basis of our
@@ -4590,6 +4637,24 @@ if (verbose) {
                              const HASH&      hash              = HASH(),
                              const EQUAL&     keyEqual          = EQUAL(),
                              const ALLOCATOR& allocator         = ALLOCATOR());
+        // Construct an empty 'MyHashedMultiMap' object.  Optionally specify an
+        // 'initialNumBuckets' indicating the initial size of the array of
+        // buckets of this container.  If 'initialNumBuckets' is not supplied,
+        // an implementation defined value is used.  Optionally specify a
+        // 'hash', a hash-functor used to generate the hash values associated
+        // to the key-value pairs contained in this object.  If 'hash' is not
+        // supplied, a default-constructed object of (template parameter)
+        // 'HASH' type is used.  Optionally specify a key-equality functor
+        // 'keyEqual' used to verify that two key values are the same.  If
+        // 'keyEqual' is not supplied, a default-constructed object of
+        // (template parameter) 'EQUAL' type is used.  Optionally specify an
+        // 'allocator' used to supply memory.  If 'allocator' is not supplied,
+        // a default-constructed object of the (template parameter) 'ALLOCATOR'
+        // type is used.  If 'ALLOCATOR' is 'bsl::allocator' (the default),
+        // then 'allocator' shall be convertible to 'bslma::Allocator *'.  If
+        // the 'ALLOCATOR' is 'bsl::allocator' and 'allocator' is not supplied,
+        // the currently installed default allocator will be used to supply
+        // memory.
 
         //! ~MyHashedMultiMap() = default;
             // Destroy this object.
@@ -4600,7 +4665,9 @@ if (verbose) {
             // Insert the specified 'value' into this multi-map, and return an
             // iterator to the newly inserted element.  This method requires
             // that the (template parameter) types 'KEY' and 'VALUE' types both
-            // be "copy-constructible".
+            // be "copy-constructible", and that the (template parameter)
+            // 'SOURCE_TYPE' be convertible to the (template parameter) 'VALUE'
+            // type.
 
         // ACCESSORS
         bsl::pair<const_iterator, const_iterator> equal_range(const KEY& key)
