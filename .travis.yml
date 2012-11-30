@@ -14,7 +14,7 @@ env:
     - BSL_LIBRARY=shared_library BSL_ABI=32 BSL_SAFE=1 BUILDTYPE=Release
     - BSL_LIBRARY=shared_library BSL_ABI=32 BSL_SAFE=1 BUILDTYPE=Debug
 before_script:
-  - "python ./tools/bde_gyp.py -D library=$BSL_LIBRARY -D ABI_bits=$BSL_ABI -D dbg_safe=$BSL_SAFE"
+  - "python ./tools/bsl_gyp.py -D library=$BSL_LIBRARY -D ABI_bits=$BSL_ABI -D dbg_safe=$BSL_SAFE"
 script:
   - "make -C build all"
 branches:
