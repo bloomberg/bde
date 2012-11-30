@@ -296,17 +296,15 @@ class BucketsWrapper {
         d_allocator_p->deallocate(d_buckets);
     }
 
-    // ACCESSORS
-    Bucket * const bucket(int index) const
-        // Return a const pointer referring to the bucket at the specified
-        // 'index'.
+    Bucket * bucket(int index)
+        // Return a pointer referring to the bucket at the specified 'index'.
     {
         return &d_buckets[index];
     }
 
-    Node * const node(int bucketIndex, int position) const
-        // Return a const pointer referring to the node at the specified
-        // 'position' of the bucket at the specified 'bucketIndex'.
+    Node * node(int bucketIndex, int position)
+        // Return a pointer referring to the node at the specified 'position'
+        // of the bucket at the specified 'bucketIndex'.
     {
         Bucket& bucket = d_buckets[bucketIndex];
         Link *link = bucket.d_first_p;
@@ -314,6 +312,25 @@ class BucketsWrapper {
             link = link->nextLink();
         }
         return static_cast<Node *>(link);
+    }
+
+    // ACCESSORS
+    const Bucket * bucket(int index) const
+        // Return a pointer referring to the bucket at the specified 'index'.
+    {
+        return &d_buckets[index];
+    }
+
+    const Node * node(int bucketIndex, int position) const
+        // Return a pointer referring to the node at the specified 'position'
+        // of the bucket at the specified 'bucketIndex'.
+    {
+        const Bucket& bucket = d_buckets[bucketIndex];
+        const Link *link = bucket.d_first_p;
+        for(int p = 0; p < position; ++p) {
+            link = link->nextLink();
+        }
+        return static_cast<const Node *>(link);
     }
 
     int numBuckets() const
@@ -942,23 +959,25 @@ void TestDriver<VALUE>::testCase6()
             if (b1 != b2) {
                 bsls::AssertFailureHandlerGuard hG(
                                              bsls::AssertTest::failTestDriver);
-                ASSERT_SAFE_FAIL(EXP == (X1 == Y1));
-                ASSERT_SAFE_FAIL(EXP == (Y1 == X1));
-                ASSERT_SAFE_FAIL(EXP == (X1 == Y2));
-                ASSERT_SAFE_FAIL(EXP == (Y2 == X1));
-                ASSERT_SAFE_FAIL(EXP == (X2 == Y1));
-                ASSERT_SAFE_FAIL(EXP == (Y1 == X2));
-                ASSERT_SAFE_FAIL(EXP == (X2 == Y2));
-                ASSERT_SAFE_FAIL(EXP == (Y2 == X2));
+                // Note that the 'ASSERT_XXX_FAIL' macros are testing whether
+                // an assertion is raised, not the result of the expression.
+                ASSERT_SAFE_FAIL(X1 == Y1);
+                ASSERT_SAFE_FAIL(Y1 == X1);
+                ASSERT_SAFE_FAIL(X1 == Y2);
+                ASSERT_SAFE_FAIL(Y2 == X1);
+                ASSERT_SAFE_FAIL(X2 == Y1);
+                ASSERT_SAFE_FAIL(Y1 == X2);
+                ASSERT_SAFE_FAIL(X2 == Y2);
+                ASSERT_SAFE_FAIL(Y2 == X2);
 
-                ASSERT_SAFE_FAIL(!EXP == (X1 != Y1));
-                ASSERT_SAFE_FAIL(!EXP == (Y1 != X1));
-                ASSERT_SAFE_FAIL(!EXP == (X1 != Y2));
-                ASSERT_SAFE_FAIL(!EXP == (Y2 != X1));
-                ASSERT_SAFE_FAIL(!EXP == (X2 != Y1));
-                ASSERT_SAFE_FAIL(!EXP == (Y1 != X2));
-                ASSERT_SAFE_FAIL(!EXP == (X2 != Y2));
-                ASSERT_SAFE_FAIL(!EXP == (Y2 != X2));
+                ASSERT_SAFE_FAIL(X1 != Y1);
+                ASSERT_SAFE_FAIL(Y1 != X1);
+                ASSERT_SAFE_FAIL(X1 != Y2);
+                ASSERT_SAFE_FAIL(Y2 != X1);
+                ASSERT_SAFE_FAIL(X2 != Y1);
+                ASSERT_SAFE_FAIL(Y1 != X2);
+                ASSERT_SAFE_FAIL(X2 != Y2);
+                ASSERT_SAFE_FAIL(Y2 != X2);
             }
             else {
             // Verify value, commutativity
