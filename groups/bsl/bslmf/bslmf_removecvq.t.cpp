@@ -59,9 +59,26 @@ static void aSsErT(int c, const char *s, int i) {
 struct MyType {};
 
 template <typename TYPE>
-bool isSame(TYPE& a, TYPE& b) { return true; }
+bool isSame(TYPE& a, TYPE& b)
+{
+    typename bslmf::RemoveCvq<TYPE>::Type aa = a;
+    typename bslmf::RemoveCvq<TYPE>::Type bb = b;
+    (void) aa;
+    (void) bb;
+
+    return true;
+}
+
 template <typename TYPEA, typename TYPEB>
-bool isSame(TYPEA& a, TYPEB& b) { return false; }
+bool isSame(TYPEA& a, TYPEB& b)
+{
+    typename bslmf::RemoveCvq<TYPEA>::Type aa = a;
+    typename bslmf::RemoveCvq<TYPEB>::Type bb = b;
+    (void) aa;
+    (void) bb;
+
+    return false;
+}
 
 template <typename TYPEA, typename TYPEB>
 bool isSortaSame(TYPEA& a, TYPEB& b)
@@ -164,7 +181,6 @@ int main(int argc, char *argv[])
         int *pi;
         int **ppi;
         int ***pppi;
-        int *const *pcpi;
         int *const **ppcpi;
         MyType *pm;
 
@@ -181,10 +197,6 @@ int main(int argc, char *argv[])
 
         ASSERT(pi && ppi && pppi && ppcpi && pm);
 
-        const int ci = 0;
-        volatile int vi = 1;
-        int *const cpi = &i;
-        int *const *const cpcpi = &cpi;
         const MyType cm = MyType();
 
         // References should remain unchanged.
