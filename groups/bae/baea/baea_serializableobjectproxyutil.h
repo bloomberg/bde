@@ -5,7 +5,7 @@
 #ifndef INCLUDED_BDES_IDENT
 #include <bdes_ident.h>
 #endif
-BDES_IDENT_RCSID(baea_serializableobjectproxyutil_h,"$Id: baea_serializableobjectproxyutil.h 415086 2012-08-09 19:16:12Z mgiroux $ $CSID: 50240C4D0895A700FF $")
+BDES_IDENT("$Id: $")
 BDES_IDENT_PRAGMA_ONCE
 
 //@PURPOSE: Provide utilities for configuring a 'baea_SerializableObjectProxy'.

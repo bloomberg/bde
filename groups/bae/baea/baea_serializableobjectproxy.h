@@ -5,7 +5,7 @@
 #ifndef INCLUDED_BDES_IDENT
 #include <bdes_ident.h>
 #endif
-BDES_IDENT_RCSID(baea_serializableobjectproxy_h,"$Id: baea_serializableobjectproxy.h 443282 2012-10-29 18:52:27Z mgiroux $ $CSID: 508ED0180994E500FF $")
+BDES_IDENT("$Id: $")
 BDES_IDENT_PRAGMA_ONCE
 
 //@PURPOSE: Provide a dynamically-typed proxy for serializable types.
