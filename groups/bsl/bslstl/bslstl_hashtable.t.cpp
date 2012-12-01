@@ -1087,9 +1087,26 @@ struct BsltfConfig {
     typedef int     KeyType;
     typedef ELEMENT ValueType;
 
-    static int extractKey(const ValueType& value)
+    static const int& extractKey(const ValueType& value)
     {
-        return bsltf::TemplateTestFacility::getIdentifier(value);
+        // Note that this function MUST return a reference, but we have no
+        // actual storage to return a reference to.  As we know the specific
+        // usage patterns of this test driver, we can ensure that no two hash
+        // computations happen while the first result is still held as a
+        // reference.  Unfortunately, we have no such guarantee on simultaneous
+        // evalutations in the HashTable facility itself, so we cycle through a
+        // cache of 16 results, as no reference should be so long lived that we
+        // see 16 live references.
+        static int results_cache[16] = {};
+        static int index = -1;
+
+        if (16 == ++index) {
+            index = 0;
+        }
+
+        results_cache[index] =
+                             bsltf::TemplateTestFacility::getIdentifier(value);
+        return results_cache[index];
     }
 };
 
@@ -3844,7 +3861,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
 
             // ----------------------------------------------------------------
 
-            const typename Obj::SizeType bucketCount = X.numBuckets();
+//            const typename Obj::SizeType bucketCount = X.numBuckets();
             if (veryVerbose) { printf(
                   "\n\tRepeat testing 'insertElement', with memory checks.\n");
             }
