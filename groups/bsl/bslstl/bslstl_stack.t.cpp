@@ -2698,6 +2698,7 @@ void TestDriver<CONTAINER>::testCase2()
               } break;
               default: {
                 ASSERTV(CONFIG, !"Bad allocator config.");
+                return;
               } break;
             }
 
@@ -2785,6 +2786,7 @@ void TestDriver<CONTAINER>::testCase2()
                   } break;
                   default: {
                     ASSERTV(CONFIG, !"Bad allocator config.");
+                    return;
                   } break;
                 }
 
@@ -2825,6 +2827,7 @@ void TestDriver<CONTAINER>::testCase2()
                   } break;
                   default: {
                     ASSERTV(CONFIG, !"Bad allocator config.");
+                    return;
                   } break;
                 }
 
