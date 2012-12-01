@@ -389,9 +389,9 @@ bool globalVeryVeryVerbose = false;
                 { L_,   "A2",  'F',    0,   0,   0,   (void *)0xBAD },
 
             };
-            const size_t NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-            for (size_t ti = 0; ti < NUM_DATA; ++ti) {
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int         LINE   = DATA[ti].d_lineNumber;
                 const char *const TYPE   = DATA[ti].d_assertBuildType;
                 const char        RESULT = DATA[ti].d_expectedResult;
@@ -687,7 +687,7 @@ int main(int argc, char *argv[])
             "/a.h/a.cpp",
             "/*/a.t.cpp",
         };
-        const size_t NUM_COMPATIBLE_NAMES_A = sizeof COMPATIBLE_NAMES_A /
+        const int NUM_COMPATIBLE_NAMES_A = sizeof COMPATIBLE_NAMES_A /
                                                     sizeof *COMPATIBLE_NAMES_A;
 
         static const char * COMPATIBLE_NAMES_ZZ[] = {
@@ -701,7 +701,7 @@ int main(int argc, char *argv[])
             "/a.h/z.z.cpp", // deliberately use "a.h" and not "z.h" in the path
             "/*/z.z.t.cpp",
         };
-        const size_t NUM_COMPATIBLE_NAMES_ZZ = sizeof COMPATIBLE_NAMES_ZZ /
+        const int NUM_COMPATIBLE_NAMES_ZZ = sizeof COMPATIBLE_NAMES_ZZ /
                                                    sizeof *COMPATIBLE_NAMES_ZZ;
 
         // Ideally we would confirm the two sets of compatible names have the
@@ -726,7 +726,7 @@ int main(int argc, char *argv[])
             "a.cpp.h",
             "a.t.cpp.h",
         };
-        const size_t NUM_INCOMPATIBLE_NAMES = sizeof INCOMPATIBLE_NAMES /
+        const int NUM_INCOMPATIBLE_NAMES = sizeof INCOMPATIBLE_NAMES /
                                                     sizeof *INCOMPATIBLE_NAMES;
 
         static const struct {
@@ -740,14 +740,14 @@ int main(int argc, char *argv[])
             { L_,  "0 != x",      13 },
             { L_,  "false",       42 },
         };
-        const size_t NUM_DATA = sizeof DATA / sizeof *DATA;
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        for (size_t ti = 0; ti < NUM_DATA; ++ti) {
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int         LINE          = DATA[ti].d_lineNumber;
             const char *const EXPRESSION    = DATA[ti].d_expression;
             const int         ASSERTED_LINE = DATA[ti].d_assertedLine;
 
-            for (size_t i = 0; i != NUM_COMPATIBLE_NAMES_A; ++i) {
+            for (int i = 0; i != NUM_COMPATIBLE_NAMES_A; ++i) {
                 const bsls::AssertTestException EXCEPTION_AI(
                                                          EXPRESSION,
                                                          COMPATIBLE_NAMES_A[i],
@@ -775,7 +775,7 @@ int main(int argc, char *argv[])
                            bsls::AssertTest::catchProbe('F', EXCEPTION_ZZI, 0);
                 LOOP2_ASSERT(LINE, testResult, true == testResult);
 
-                for (size_t j = 0; j != NUM_COMPATIBLE_NAMES_A; ++j) {
+                for (int j = 0; j != NUM_COMPATIBLE_NAMES_A; ++j) {
                     const bsls::AssertTestException EXCEPTION_AJ(
                                                          EXPRESSION,
                                                          COMPATIBLE_NAMES_A[j],
@@ -842,7 +842,7 @@ int main(int argc, char *argv[])
                     LOOP2_ASSERT(LINE, testResult, true == testResult);
                 }
 
-                for (size_t j = 0; j != NUM_INCOMPATIBLE_NAMES; ++j) {
+                for (int j = 0; j != NUM_INCOMPATIBLE_NAMES; ++j) {
                     if (veryVerbose) {
                         P_(EXCEPTION_AI.filename()) P(INCOMPATIBLE_NAMES[j])
                     }
@@ -877,7 +877,7 @@ int main(int argc, char *argv[])
                 }
             }
 
-            for (size_t i = 0; i != NUM_INCOMPATIBLE_NAMES; ++i) {
+            for (int i = 0; i != NUM_INCOMPATIBLE_NAMES; ++i) {
                 const bsls::AssertTestException EXCEPTION_IN(
                                                          EXPRESSION,
                                                          INCOMPATIBLE_NAMES[i],
@@ -892,7 +892,7 @@ int main(int argc, char *argv[])
                                                           0);
                 LOOP_ASSERT(LINE, true == testResult);
 
-                for (size_t j = 0; j != NUM_COMPATIBLE_NAMES_A; ++j) {
+                for (int j = 0; j != NUM_COMPATIBLE_NAMES_A; ++j) {
                     testResult = bsls::AssertTest::catchProbe(
                                                         'P',
                                                         EXCEPTION_IN,
@@ -919,7 +919,7 @@ int main(int argc, char *argv[])
 
                }
 
-                for (size_t j = 0; j != NUM_INCOMPATIBLE_NAMES; ++j) {
+                for (int j = 0; j != NUM_INCOMPATIBLE_NAMES; ++j) {
                     if (veryVerbose) {
                         P_(EXCEPTION_IN.filename()) P(INCOMPATIBLE_NAMES[j])
                     }
@@ -1029,9 +1029,9 @@ int main(int argc, char *argv[])
             { L_,   "",         "",       0       },
             { L_,   "Testing",  "foo.h",  123     },
         };
-        const size_t NUM_DATA = sizeof DATA / sizeof *DATA;
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        for (size_t ti = 0; ti < NUM_DATA; ++ti) {
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int         LINE       = DATA[ti].d_lineNumber;
             const char *const EXPRESSION = DATA[ti].d_expression;
             const char *const FILENAME   = DATA[ti].d_filename;
@@ -1205,9 +1205,9 @@ int main(int argc, char *argv[])
             { L_,   "O2 ", false  },
 
         };
-        const size_t NUM_DATA = sizeof DATA / sizeof *DATA;
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        for (size_t ti = 0; ti < NUM_DATA; ++ti) {
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int         LINE   = DATA[ti].d_lineNumber;
             const char *const TYPE   = DATA[ti].d_assertBuildType;
             bool              RESULT = DATA[ti].d_expectedResult;
@@ -1359,7 +1359,7 @@ int main(int argc, char *argv[])
             "/a.h/a.cpp",
             "/*/a.t.cpp",
         };
-        const size_t NUM_COMPATIBLE_NAMES_A = sizeof COMPATIBLE_NAMES_A /
+        const int NUM_COMPATIBLE_NAMES_A = sizeof COMPATIBLE_NAMES_A /
                                                     sizeof *COMPATIBLE_NAMES_A;
 
         static const char * COMPATIBLE_NAMES_ZZ[] = {
@@ -1373,7 +1373,7 @@ int main(int argc, char *argv[])
             "/a.h/z.z.cpp", // deliberately use "a.h" and not "z.h" in the path
             "/*/z.z.t.cpp",
         };
-        const size_t NUM_COMPATIBLE_NAMES_ZZ = sizeof COMPATIBLE_NAMES_ZZ /
+        const int NUM_COMPATIBLE_NAMES_ZZ = sizeof COMPATIBLE_NAMES_ZZ /
                                                    sizeof *COMPATIBLE_NAMES_ZZ;
 
         // Ideally we would confirm the two sets of compatible names have the
@@ -1400,7 +1400,7 @@ int main(int argc, char *argv[])
             "a.T.cpp",
             "zz.h.cpp",
          };
-        const size_t NUM_INCOMPATIBLE_NAMES = sizeof INCOMPATIBLE_NAMES /
+        const int NUM_INCOMPATIBLE_NAMES = sizeof INCOMPATIBLE_NAMES /
                                                     sizeof *INCOMPATIBLE_NAMES;
 
         static const char *const INVALID_NAMES[] = {
@@ -1425,7 +1425,7 @@ int main(int argc, char *argv[])
             "a.t.cpP",
             "A.T.CPP",
         };
-        const size_t NUM_INVALID_NAMES = sizeof INVALID_NAMES /
+        const int NUM_INVALID_NAMES = sizeof INVALID_NAMES /
                                                          sizeof *INVALID_NAMES;
 
         static const struct {
@@ -1443,15 +1443,15 @@ int main(int argc, char *argv[])
             { L_,  "0 != x",      13,  true  },
             { L_,  "false",       42,  true  },
         };
-        const size_t NUM_DATA = sizeof DATA / sizeof *DATA;
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        for (size_t ti = 0; ti < NUM_DATA; ++ti) {
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int         LINE          = DATA[ti].d_lineNumber;
             const char *const EXPRESSION    = DATA[ti].d_expression;
             const int         ASSERTED_LINE = DATA[ti].d_assertedLine;
             const bool        RESULT        = DATA[ti].d_result;
 
-            for (size_t i = 0; i != NUM_COMPATIBLE_NAMES_A; ++i) {
+            for (int i = 0; i != NUM_COMPATIBLE_NAMES_A; ++i) {
                 if (veryVerbose) {
                     P_(i) P_(EXPRESSION) P_(ASSERTED_LINE) P(RESULT)
                     P_(COMPATIBLE_NAMES_A[i]) P(COMPATIBLE_NAMES_ZZ[i])
@@ -1484,7 +1484,7 @@ int main(int argc, char *argv[])
                            bsls::AssertTest::catchProbe('F', EXCEPTION_ZZI, 0);
                 LOOP3_ASSERT(LINE, RESULT, testResult, RESULT == testResult);
 
-                for (size_t j = 0; j != NUM_COMPATIBLE_NAMES_A; ++j) {
+                for (int j = 0; j != NUM_COMPATIBLE_NAMES_A; ++j) {
                     const bsls::AssertTestException EXCEPTION_AJ(
                                                          EXPRESSION,
                                                          COMPATIBLE_NAMES_A[j],
@@ -1555,7 +1555,7 @@ int main(int argc, char *argv[])
                                  testResult == RESULT);
                 }
 
-                for (size_t j = 0; j != NUM_INCOMPATIBLE_NAMES; ++j) {
+                for (int j = 0; j != NUM_INCOMPATIBLE_NAMES; ++j) {
                     if (veryVerbose) {
                         P_(EXCEPTION_AI.filename()) P(INCOMPATIBLE_NAMES[j])
                     }
@@ -1589,7 +1589,7 @@ int main(int argc, char *argv[])
                     LOOP2_ASSERT(LINE, testResult, false == testResult);
                 }
 
-                for (size_t j = 0; j != NUM_INVALID_NAMES; ++j) {
+                for (int j = 0; j != NUM_INVALID_NAMES; ++j) {
                     if(veryVerbose) {
                         P_(EXCEPTION_AI.filename()) P(INVALID_NAMES[j])
                     }
@@ -1624,7 +1624,7 @@ int main(int argc, char *argv[])
                 }
             }
 
-            for (size_t i = 0; i != NUM_INCOMPATIBLE_NAMES; ++i) {
+            for (int i = 0; i != NUM_INCOMPATIBLE_NAMES; ++i) {
                 const bsls::AssertTestException EXCEPTION_IN(
                                                          EXPRESSION,
                                                          INCOMPATIBLE_NAMES[i],
@@ -1639,7 +1639,7 @@ int main(int argc, char *argv[])
                                                           0);
                 LOOP3_ASSERT(LINE, RESULT, testResult, RESULT == testResult);
 
-                for (size_t j = 0; j != NUM_COMPATIBLE_NAMES_A; ++j) {
+                for (int j = 0; j != NUM_COMPATIBLE_NAMES_A; ++j) {
                     testResult = bsls::AssertTest::catchProbe(
                                                         'P',
                                                         EXCEPTION_IN,
@@ -1666,7 +1666,7 @@ int main(int argc, char *argv[])
 
                }
 
-               for (size_t j = 0; j != NUM_INCOMPATIBLE_NAMES; ++j) {
+               for (int j = 0; j != NUM_INCOMPATIBLE_NAMES; ++j) {
                     const bool FAIL_RESULT = RESULT && (i == j);
                     if(veryVerbose) {
                         P_(i) P_(j) P(FAIL_RESULT)
@@ -1687,7 +1687,7 @@ int main(int argc, char *argv[])
                                                   , FAIL_RESULT == testResult);
                 }
 
-                for (size_t j = 0; j != NUM_INVALID_NAMES; ++j) {
+                for (int j = 0; j != NUM_INVALID_NAMES; ++j) {
                     if(veryVerbose) {
                         P_(EXCEPTION_IN.filename()) P(INVALID_NAMES[j])
                     }
@@ -1706,7 +1706,7 @@ int main(int argc, char *argv[])
                 }
             }
 
-            for (size_t i = 0; i != NUM_INVALID_NAMES; ++i) {
+            for (int i = 0; i != NUM_INVALID_NAMES; ++i) {
                 const bsls::AssertTestException EXCEPTION_IN(EXPRESSION,
                                                              INVALID_NAMES[i],
                                                              ASSERTED_LINE);
@@ -1720,7 +1720,7 @@ int main(int argc, char *argv[])
                                                           0);
                 LOOP2_ASSERT(LINE, testResult, false == testResult);
 
-                for (size_t j = 0; j != NUM_COMPATIBLE_NAMES_A; ++j) {
+                for (int j = 0; j != NUM_COMPATIBLE_NAMES_A; ++j) {
                     testResult = bsls::AssertTest::catchProbe(
                                                         'P',
                                                         EXCEPTION_IN,
@@ -1747,7 +1747,7 @@ int main(int argc, char *argv[])
 
                }
 
-                for (size_t j = 0; j != NUM_INCOMPATIBLE_NAMES; ++j) {
+                for (int j = 0; j != NUM_INCOMPATIBLE_NAMES; ++j) {
                     if(veryVerbose) {
                         P_(EXCEPTION_IN.filename()) P(INCOMPATIBLE_NAMES[j])
                     }
@@ -1765,7 +1765,7 @@ int main(int argc, char *argv[])
                     LOOP2_ASSERT(LINE, testResult, false == testResult);
                 }
 
-                for (size_t j = 0; j != NUM_INVALID_NAMES; ++j) {
+                for (int j = 0; j != NUM_INVALID_NAMES; ++j) {
                     if(veryVerbose) {
                         P_(EXCEPTION_IN.filename()) P(INVALID_NAMES[j])
                     }
@@ -1912,9 +1912,9 @@ void TestMacroBSLS_ASSERTTEST_IS_ACTIVE()
             { L_,   "S",  false },
             { L_,   "S2", false },
         };
-        const size_t NUM_DATA = sizeof DATA / sizeof *DATA;
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        for (size_t ti = 0; ti < NUM_DATA; ++ti) {
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int         LINE   = DATA[ti].d_lineNumber;
             const char *const TYPE   = DATA[ti].d_assertBuildType;
             bool              RESULT = DATA[ti].d_expectedResult;
@@ -2022,9 +2022,9 @@ void TestMacroBSLS_ASSERTTEST_IS_ACTIVE()
             { L_,   "S",  false },
             { L_,   "S2", false },
         };
-        const size_t NUM_DATA = sizeof DATA / sizeof *DATA;
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        for (size_t ti = 0; ti < NUM_DATA; ++ti) {
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int         LINE   = DATA[ti].d_lineNumber;
             const char *const TYPE   = DATA[ti].d_assertBuildType;
             bool              RESULT = DATA[ti].d_expectedResult;
@@ -2132,9 +2132,9 @@ void TestMacroBSLS_ASSERTTEST_IS_ACTIVE()
             { L_,   "S",  false },
             { L_,   "S2", false },
         };
-        const size_t NUM_DATA = sizeof DATA / sizeof *DATA;
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        for (size_t ti = 0; ti < NUM_DATA; ++ti) {
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int         LINE   = DATA[ti].d_lineNumber;
             const char *const TYPE   = DATA[ti].d_assertBuildType;
             bool              RESULT = DATA[ti].d_expectedResult;
@@ -2242,9 +2242,9 @@ void TestMacroBSLS_ASSERTTEST_IS_ACTIVE()
             { L_,   "S",  true  },
             { L_,   "S2", true  },
         };
-        const size_t NUM_DATA = sizeof DATA / sizeof *DATA;
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        for (size_t ti = 0; ti < NUM_DATA; ++ti) {
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int         LINE   = DATA[ti].d_lineNumber;
             const char *const TYPE   = DATA[ti].d_assertBuildType;
             bool              RESULT = DATA[ti].d_expectedResult;
@@ -2352,9 +2352,9 @@ void TestMacroBSLS_ASSERTTEST_IS_ACTIVE()
             { L_,   "S",  false },
             { L_,   "S2", false },
         };
-        const size_t NUM_DATA = sizeof DATA / sizeof *DATA;
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        for (size_t ti = 0; ti < NUM_DATA; ++ti) {
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int         LINE   = DATA[ti].d_lineNumber;
             const char *const TYPE   = DATA[ti].d_assertBuildType;
             bool              RESULT = DATA[ti].d_expectedResult;
@@ -2461,9 +2461,9 @@ void TestMacroBSLS_ASSERTTEST_IS_ACTIVE()
             { L_,   "S",  false },
             { L_,   "S2", false },
         };
-        const size_t NUM_DATA = sizeof DATA / sizeof *DATA;
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        for (size_t ti = 0; ti < NUM_DATA; ++ti) {
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int         LINE   = DATA[ti].d_lineNumber;
             const char *const TYPE   = DATA[ti].d_assertBuildType;
             bool              RESULT = DATA[ti].d_expectedResult;
@@ -2570,9 +2570,9 @@ void TestMacroBSLS_ASSERTTEST_IS_ACTIVE()
             { L_,   "S",  false },
             { L_,   "S2", false },
         };
-        const size_t NUM_DATA = sizeof DATA / sizeof *DATA;
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        for (size_t ti = 0; ti < NUM_DATA; ++ti) {
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int         LINE   = DATA[ti].d_lineNumber;
             const char *const TYPE   = DATA[ti].d_assertBuildType;
             bool              RESULT = DATA[ti].d_expectedResult;
@@ -2679,9 +2679,9 @@ void TestMacroBSLS_ASSERTTEST_IS_ACTIVE()
             { L_,   "S",  true  },
             { L_,   "S2", false },
         };
-        const size_t NUM_DATA = sizeof DATA / sizeof *DATA;
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        for (size_t ti = 0; ti < NUM_DATA; ++ti) {
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int         LINE   = DATA[ti].d_lineNumber;
             const char *const TYPE   = DATA[ti].d_assertBuildType;
             bool              RESULT = DATA[ti].d_expectedResult;
