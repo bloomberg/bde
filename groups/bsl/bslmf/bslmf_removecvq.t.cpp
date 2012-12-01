@@ -180,6 +180,7 @@ int main(int argc, char *argv[])
 
         int *pi;
         int **ppi;
+        int *const *pcpi;
         int ***pppi;
         int *const **ppcpi;
         MyType *pm;
@@ -189,7 +190,7 @@ int main(int argc, char *argv[])
         pi    = &i3;
         ppi   = &i4;
         pppi  = &i5;
-        ppi   = &i6;
+        pcpi  = &i6;
         ppcpi = &i7;
         ppcpi = &i8;
         pm    = &m1;
