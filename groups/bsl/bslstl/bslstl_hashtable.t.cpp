@@ -4102,9 +4102,9 @@ namespace UsageExamples {
 //
 ///Example 1: Implementing a Hashed Set Container
 ///----------------------------------------------
-// Suppose we wish to implement, 'MyHashedSet', a greatly abbreviated version of
-// 'bsl::unordered_set'.  The 'bslstl::HashTable' class template can be used as
-// the basis of that implementation.
+// Suppose we wish to implement, 'MyHashedSet', a greatly abbreviated version
+// of 'bsl::unordered_set'.  The 'bslstl::HashTable' class template can be used
+// as the basis of that implementation.
 //
 // First, we define 'UseEntireValueAsKey', a class template we can use to
 // configure 'bslstl::HashTable' to use its entire elements as keys for its
@@ -4150,7 +4150,93 @@ namespace UsageExamples {
         return value;
     }
 //..
-// Next, we define our 'MyHashedSet' class template with an instance of
+// Next, we define 'MyPair', a class template that can hold a pair of values of
+// arbitrary types.  This will be used to in 'MyHashedSet' to return the status
+// of the 'insert' method, which must provide an iterator to the inserted value
+// and a boolean value indicating if the value is newly inserted if it
+// previously exiting in the set.  The 'MyPair' class template will also appear
+// in {Example 2} and {Example 3}.  Note that in practice, users can use the
+// standard 'bsl::pair' in this role.
+//..
+                        // =============
+                        // struct MyPair
+                        // =============
+
+    template <class FIRST_TYPE, class SECOND_TYPE>
+    struct MyPair {
+        // PUBLIC TYPES
+        typedef  FIRST_TYPE  first_type;
+        typedef SECOND_TYPE second_type;
+
+        // DATA
+        first_type  first;
+        second_type second;
+
+        // CREATORS
+        MyPair();
+            // Create a 'MyPair' object with a defaut constructed 'first'
+            // member and a default constructed 'second' member.
+
+        MyPair(first_type firstValue, second_type secondValue);
+            // Create a 'MyPair' object with a 'first' member equal to the
+            // specified 'firstValue' and the 'second' member equal to the
+            // specified 'secondValue'.
+    };
+
+    // FREE OPERATORS
+    template <class T1, class T2>
+    inline
+    bool operator==(const MyPair<T1, T2>& lhs, const MyPair<T1, T2>& rhs);
+        // Return 'true' if the specified 'lhs' and 'rhs' MyPair objects have
+        // the same value, and 'false' otherwise.  'lhs' has the same value as
+        // 'rhs' if 'lhs.first == rhs.first' and 'lhs.second == rhs.second'.
+
+    template <class T1, class T2>
+    inline
+    bool operator!=(const MyPair<T1, T2>& lhs, const MyPair<T1, T2>& rhs);
+        // Return 'true' if the specified 'lhs' and 'rhs' MyPair objects do not
+        // have the same value, and 'false' otherwise.  'lhs' does not have the
+        // same value as 'rhs' if 'lhs.first != rhs.first' or
+        // 'lhs.second != rhs.second'.
+
+                        // -------------
+                        // struct MyPair
+                        // -------------
+
+    // CREATORS
+    template <class FIRST_TYPE, class SECOND_TYPE>
+    inline
+    MyPair<FIRST_TYPE,SECOND_TYPE>::MyPair()
+    : first()
+    , second()
+    {
+    }
+
+    template <class FIRST_TYPE, class SECOND_TYPE>
+    inline
+    MyPair<FIRST_TYPE,SECOND_TYPE>::MyPair( first_type firstValue,
+                                           second_type secondValue)
+    : first(firstValue)
+    , second(secondValue)
+    {
+    }
+
+    // FREE OPERATORS
+    template <class T1, class T2>
+    inline
+    bool operator==(const MyPair<T1, T2>& lhs, const MyPair<T1, T2>& rhs)
+    {
+        return lhs.first == rhs.first && lhs.second == rhs.second;
+    }
+
+    template <class T1, class T2>
+    inline
+    bool operator!=(const MyPair<T1, T2>& lhs, const MyPair<T1, T2>& rhs)
+    {
+        return lhs.first != rhs.first || lhs.second != rhs.second;
+    }
+//..
+// Then, we define our 'MyHashedSet' class template with an instance of
 // 'bststl::HashTable' (configured using 'UseEntireValueAsKey') as its sole
 // data member.  We provide 'insert' method, to allow us to populate these
 // sets, and the 'find' method to allow us to examine those elements.  We also
@@ -4218,7 +4304,7 @@ namespace UsageExamples {
             // Destroy this object.
 
         // MANIPULATORS
-        bsl::pair<const_iterator, bool> insert(const KEY& value);
+        MyPair<const_iterator, bool> insert(const KEY& value);
             // Insert the specified 'value' into this set if the specified
             // 'value' does not already exist in this set; otherwise, this
             // method has no effect.  Return a pair whose 'first' member is an
@@ -4246,7 +4332,7 @@ namespace UsageExamples {
             // Return the number of elements in this set.
     };
 //..
-// Then, we implement the methods 'MyHashedSet'.  In many cases, the
+// Next, we implement the methods 'MyHashedSet'.  In many cases, the
 // implementations consist mainly in forwarding arguments to and returning
 // values from the underlying 'bslstl::HashTable'.
 //..
@@ -4266,17 +4352,17 @@ namespace UsageExamples {
     {
     }
 //..
-// Note that the 'insertIfMissing' method of 'bslstl::HashTable' provides
-// the semantics needed for adding values (unique values only) to sets.
+// Note that the 'insertIfMissing' method of 'bslstl::HashTable' provides the
+// semantics needed for adding values (unique values only) to sets.
 //..
     // MANIPULATORS
     template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
     inline
-    bsl::pair<typename MyHashedSet<KEY, HASH, EQUAL, ALLOCATOR>::iterator,
-              bool>    MyHashedSet<KEY, HASH, EQUAL, ALLOCATOR>::insert(
+    MyPair<typename MyHashedSet<KEY, HASH, EQUAL, ALLOCATOR>::iterator,
+           bool>    MyHashedSet<KEY, HASH, EQUAL, ALLOCATOR>::insert(
                                                               const KEY& value)
     {
-        typedef bsl::pair<iterator, bool> ResultType;
+        typedef MyPair<iterator, bool> ResultType;
 
         bool                       isInsertedFlag = false;
         bslalg::BidirectionalLink *result         = d_impl.insertIfMissing(
@@ -4337,7 +4423,7 @@ if (verbose) {
 // Inserting a value (10) succeeds the first time but correctly fails on the
 // second attempt.
 //..
-    bsl::pair<MyHashedSet<int>::const_iterator, bool> status;
+    MyPair<MyHashedSet<int>::const_iterator, bool> status;
 
     status = mhs.insert(10);
     ASSERT( 1    ==  mhs.size());
@@ -4385,7 +4471,7 @@ if (verbose) {
 //
 // First, we define 'UseFirstValueOfPairAsKey', a class template we can use to
 // configure 'bslstl::HashTable' to use the 'first' member of each element,
-// each a 'bsl::pair', as the key-value for hashing.  Note that, in practice,
+// each a 'MyPair', as the key-value for hashing.  Note that, in practice,
 // developers can use class defined in {'bslstl_unorderedmapkeyconfiguration'}.
 //..
                             // ===============================
@@ -4449,7 +4535,7 @@ if (verbose) {
         typedef bsl::allocator_traits<ALLOCATOR>          AllocatorTraits;
 
         typedef BloombergLP::bslstl::HashTable<
-                        UseFirstValueOfPairAsKey<bsl::pair<const KEY, VALUE> >,
+                        UseFirstValueOfPairAsKey<MyPair<const KEY, VALUE> >,
                         HASH,
                         EQUAL,
                         ALLOCATOR>                     HashTable;
@@ -4523,16 +4609,17 @@ if (verbose) {
 //..
 // As with 'MyHashedSet', the 'insertIfMissing' method of 'bslst::HashTable'
 // provides the semantics we need: an element is inserted only if no such
-// element (no element with the same key) in the container, and a reference
-// to that element ('node') is returned.  Here, we use 'node' to obtain and
-// return a modifiable reference to the 'second' member of the (possibly newly
-// added) element.  Note that the 'static_cast' from 'HashTableLink *' to
+// element (no element with the same key) in the container, and a reference to
+// that element ('node') is returned.  Here, we use 'node' to obtain and return
+// a modifiable reference to the 'second' member of the (possibly newly added)
+// element.  Note that the 'static_cast' from 'HashTableLink *' to
 // 'HashTableNode *' is valid because the nodes derive from the link type (see
 // 'bslalg_bidirectionallink' and 'bslalg_hashtableimputil').
 //..
     // MANIPULATORS
     template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
-    inline VALUE& MyHashedMap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::operator[](
+    inline
+    VALUE& MyHashedMap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::operator[](
                                                                 const KEY& key)
     {
         typedef typename HashTable::NodeType           HashTableNode;
@@ -4607,15 +4694,15 @@ if (verbose) {
     {
       private:
         // PRIVATE TYPES
-        typedef bsl::pair<const KEY, VALUE>               value_type;
+        typedef MyPair<const KEY, VALUE>                  value_type;
         typedef bsl::allocator_traits<ALLOCATOR>          AllocatorTraits;
         typedef typename AllocatorTraits::difference_type difference_type;
 
         typedef BloombergLP::bslstl::HashTable<
-                        UseFirstValueOfPairAsKey<bsl::pair<const KEY, VALUE> >,
-                        HASH,
-                        EQUAL,
-                        ALLOCATOR>                        HashTable;
+                           UseFirstValueOfPairAsKey<MyPair<const KEY, VALUE> >,
+                           HASH,
+                           EQUAL,
+                           ALLOCATOR>                     HashTable;
 
         // DATA
         HashTable d_impl;
@@ -4670,7 +4757,7 @@ if (verbose) {
             // type.
 
         // ACCESSORS
-        bsl::pair<const_iterator, const_iterator> equal_range(const KEY& key)
+        MyPair<const_iterator, const_iterator> equal_range(const KEY& key)
                                                                          const;
             // Return a pair of iterators providing non-modifiable access to
             // the sequence of 'value_type' objects in this container matching
@@ -4721,20 +4808,20 @@ if (verbose) {
 //..
     // ACCESSORS
     template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
-    bsl::pair<typename MyHashedMultiMap<KEY,
-                                        VALUE,
-                                        HASH,
-                                        EQUAL,
-                                        ALLOCATOR>::const_iterator,
-              typename MyHashedMultiMap<KEY,
-                                        VALUE,
-                                        HASH,
-                                        EQUAL, ALLOCATOR>::const_iterator>
+    MyPair<typename MyHashedMultiMap<KEY,
+                                     VALUE,
+                                     HASH,
+                                     EQUAL,
+                                     ALLOCATOR>::const_iterator,
+           typename MyHashedMultiMap<KEY,
+                                     VALUE,
+                                     HASH,
+                                     EQUAL, ALLOCATOR>::const_iterator>
     MyHashedMultiMap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::equal_range(
                                                           const KEY& key) const
     {
-        typedef bsl::pair<const_iterator, const_iterator> ResultType;
-        typedef BloombergLP::bslalg::BidirectionalLink    HashTableLink;
+        typedef MyPair<const_iterator, const_iterator> ResultType;
+        typedef BloombergLP::bslalg::BidirectionalLink HashTableLink;
 
         HashTableLink *first;
         HashTableLink *last;
@@ -4755,7 +4842,7 @@ if (verbose) {
 //..
     typedef MyHashedMultiMap<int, double>::iterator       Iterator;
     typedef MyHashedMultiMap<int, double>::const_iterator ConstIterator;
-    typedef bsl::pair<ConstIterator, ConstIterator>       ConstRange;
+    typedef MyPair<ConstIterator, ConstIterator>          ConstRange;
 //..
 // Searching for an element (key value 10) in a newly created, empty container
 // correctly shows the absence of any such element.
@@ -4768,7 +4855,7 @@ if (verbose) {
 //..
 // We can insert a value (the pair 10, 100.00) into the container...
 //..
-    bsl::pair<const int, double> value(10, 100.00);
+    MyPair<const int, double> value(10, 100.00);
 
     Iterator itr;
 
@@ -4785,8 +4872,8 @@ if (verbose) {
     range = mhmm.equal_range(10);
     ASSERT(range.first != range.second);
 //..
-// As expected, there are two such elements, and both are identical in
-// key value (10) and mapped value (100.00).
+// As expected, there are two such elements, and both are identical in key
+// value (10) and mapped value (100.00).
 //..
     int count = 0;
     for (ConstIterator cur  = range.first,
@@ -4798,7 +4885,7 @@ if (verbose) {
 //..
     }
 
-}  // close usage example namespace
+}  // close namespace UsageExamples
 
 //=============================================================================
 //                              MAIN PROGRAM

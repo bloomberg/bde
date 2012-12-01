@@ -116,19 +116,23 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// This section illustrates intended use of this component.
-// The 'bslstl::HashTable' class template provides a common foundation for
-// implementing the four standard unordered containers: unordered-set,
-// unordered-map, unordered multi-set, and unordered multi-map.  This example
-// and the subsequent examples in this component use the class to implement
-// several toy container classes, each providing a small but representative
-// sub-set of the functionality of one of the standard unordered containers.
+// This section illustrates intended use of this component.  The
+// 'bslstl::HashTable' class template provides a common foundation for
+// implementing the four standard unordered containers:
+//: o 'bsl::unordered_map'
+//: o 'bsl::unordered_multiset'
+//: o 'bsl::unordered_multimap'
+//: o 'bsl::unordered_set'
+// This and the subsequent examples in this component use the
+// 'bslstl::HashTable' class to implement several model container classes, each
+// providing a small but representative sub-set of the functionality of one of
+// the standard unordered containers.
 //
 ///Example 1: Implementing a Hashed Set Container
 ///----------------------------------------------
-// Suppose we wish to implement, 'MyHashedSet', a greatly simplified version of
-// 'bsl::unordered_set'.  The 'bslstl::HashTable' class template can be used as
-// the basis of that implementation.
+// Suppose we wish to implement, 'MyHashedSet', a greatly abbreviated version
+// of 'bsl::unordered_set'.  The 'bslstl::HashTable' class template can be used
+// as the basis of that implementation.
 //
 // First, we define 'UseEntireValueAsKey', a class template we can use to
 // configure 'bslstl::HashTable' to use its entire elements as keys for its
@@ -169,17 +173,108 @@ BSLS_IDENT("$Id: $")
 //  inline
 //  const typename UseEntireValueAsKey<VALUE_TYPE>::KeyType&
 //                 UseEntireValueAsKey<VALUE_TYPE>::extractKey(
-//                     const UseEntireValueAsKey<VALUE_TYPE>::ValueType& value)
+//                                                      const ValueType& value)
 //  {
 //      return value;
 //  }
 //..
-// Next, we define our 'MyHashedSet' class template with an instance of
+// Next, we define 'MyPair', a class template that can hold a pair of values of
+// arbitrary types.  This will be used to in 'MyHashedSet' to return the status
+// of the 'insert' method, which must provide an iterator to the inserted value
+// and a boolean value indicating if the value is newly inserted if it
+// previously exiting in the set.  The 'MyPair' class template will also appear
+// in {Example 2} and {Example 3}.  Note that in practice, users can use the
+// standard 'bsl::pair' in this role.
+//..
+//                      // =============
+//                      // struct MyPair
+//                      // =============
+//
+//  template <class FIRST_TYPE, class SECOND_TYPE>
+//  struct MyPair {
+//      // PUBLIC TYPES
+//      typedef  FIRST_TYPE  first_type;
+//      typedef SECOND_TYPE second_type;
+//
+//      // DATA
+//      first_type  first;
+//      second_type second;
+//
+//      // CREATORS
+//      MyPair();
+//          // Create a 'MyPair' object with a defaut constructed 'first'
+//          // member and a default constructed 'second' member.
+//
+//      MyPair(first_type firstValue, second_type secondValue);
+//          // Create a 'MyPair' object with a 'first' member equal to the
+//          // specified 'firstValue' and the 'second' member equal to the
+//          // specified 'secondValue'.
+//  };
+//
+//  // FREE OPERATORS
+//  template <class T1, class T2>
+//  inline
+//  bool operator==(const MyPair<T1, T2>& lhs, const MyPair<T1, T2>& rhs);
+//      // Return 'true' if the specified 'lhs' and 'rhs' MyPair objects have
+//      // the same value, and 'false' otherwise.  'lhs' has the same value as
+//      // 'rhs' if 'lhs.first == rhs.first' and 'lhs.second == rhs.second'.
+//
+//  template <class T1, class T2>
+//  inline
+//  bool operator!=(const MyPair<T1, T2>& lhs, const MyPair<T1, T2>& rhs);
+//      // Return 'true' if the specified 'lhs' and 'rhs' MyPair objects do not
+//      // have the same value, and 'false' otherwise.  'lhs' does not have the
+//      // same value as 'rhs' if 'lhs.first != rhs.first' or
+//      // 'lhs.second != rhs.second'.
+//
+//                      // -------------
+//                      // struct MyPair
+//                      // -------------
+//
+//  // CREATORS
+//  template <class FIRST_TYPE, class SECOND_TYPE>
+//  inline
+//  MyPair<FIRST_TYPE,SECOND_TYPE>::MyPair()
+//  : first()
+//  , second()
+//  {
+//  }
+//
+//  template <class FIRST_TYPE, class SECOND_TYPE>
+//  inline
+//  MyPair<FIRST_TYPE,SECOND_TYPE>::MyPair( first_type firstValue,
+//                                         second_type secondValue)
+//  : first(firstValue)
+//  , second(secondValue)
+//  {
+//  }
+//
+//  // FREE OPERATORS
+//  template <class T1, class T2>
+//  inline
+//  bool operator==(const MyPair<T1, T2>& lhs, const MyPair<T1, T2>& rhs)
+//  {
+//      return lhs.first == rhs.first && lhs.second == rhs.second;
+//  }
+//
+//  template <class T1, class T2>
+//  inline
+//  bool operator!=(const MyPair<T1, T2>& lhs, const MyPair<T1, T2>& rhs)
+//  {
+//      return lhs.first != rhs.first || lhs.second != rhs.second;
+//  }
+//..
+// Then, we define our 'MyHashedSet' class template with an instance of
 // 'bststl::HashTable' (configured using 'UseEntireValueAsKey') as its sole
 // data member.  We provide 'insert' method, to allow us to populate these
 // sets, and the 'find' method to allow us to examine those elements.  We also
 // provide 'size' and 'bucket_count' accessor methods to let us check the inner
 // workings of our class.
+//
+// Note that the standard classes define alias for the templated parameters and
+// other types.  In the interest of brevity, this model class (and the classes
+// in the subsequent examples) do not define such aliases except where strictly
+// needed for the example.
 //..
 //                          // =================
 //                          // class MyHashedSet
@@ -214,12 +309,30 @@ BSLS_IDENT("$Id: $")
 //                           const HASH&      hash              = HASH(),
 //                           const EQUAL&     keyEqual          = EQUAL(),
 //                           const ALLOCATOR& allocator         = ALLOCATOR());
+//          // Construct an empty unordered set.  Optionally specify an
+//          // 'initialNumBuckets' indicating the initial size of the array of
+//          // buckets of this container.  If 'initialNumBuckets' is not
+//          // supplied, an implementation defined value is used.  Optionally
+//          // specify a 'hash' used to generate the hash values associated to
+//          // the keys extracted from the values contained in this object.  If
+//          // 'hash' is not supplied, a default-constructed object of type
+//          // 'HASH()' is used.  Optionally specify a key-equality functor
+//          // 'keyEqual' used to verify that two key values are the same.  If
+//          // 'keyEqual' is not supplied, a default-constructed object of type
+//          // 'EQUAL' is used.  Optionally specify an 'allocator' used to
+//          // supply memory.  If 'allocator' is not supplied, a
+//          // default-constructed object of the (template parameter) type
+//          // 'ALLOCATOR' is used.  If the 'ALLOCATOR' is 'bsl::allocator'
+//          // (the default), then 'allocator' shall be convertible to
+//          // 'bslma::Allocator *'.  If the 'ALLOCATOR' is 'bsl::allocator'
+//          // and 'allocator' is not supplied, the currently installed default
+//          // allocator will be used to supply memory.
 //
 //      //! ~MyHashedSet() = default;
 //          // Destroy this object.
 //
 //      // MANIPULATORS
-//      bsl::pair<const_iterator, bool> insert(const KEY& value);
+//      MyPair<const_iterator, bool> insert(const KEY& value);
 //          // Insert the specified 'value' into this set if the specified
 //          // 'value' does not already exist in this set; otherwise, this
 //          // method has no effect.  Return a pair whose 'first' member is an
@@ -247,7 +360,7 @@ BSLS_IDENT("$Id: $")
 //          // Return the number of elements in this set.
 //  };
 //..
-// Then, we implement the methods 'MyHashedSet'.  In many cases, the
+// Next, we implement the methods 'MyHashedSet'.  In many cases, the
 // implementations consist mainly in forwarding arguments to and returning
 // values from the underlying 'bslstl::HashTable'.
 //..
@@ -267,17 +380,17 @@ BSLS_IDENT("$Id: $")
 //  {
 //  }
 //..
-// Note that the 'insertIfMissing' method of 'bslstl::HashTable' provides
-// the semantics needed for adding values (unique values only) to sets.
+// Note that the 'insertIfMissing' method of 'bslstl::HashTable' provides the
+// semantics needed for adding values (unique values only) to sets.
 //..
 //  // MANIPULATORS
 //  template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 //  inline
-//  bsl::pair<typename MyHashedSet<KEY, HASH, EQUAL, ALLOCATOR>::iterator,
-//            bool>    MyHashedSet<KEY, HASH, EQUAL, ALLOCATOR>::insert(
+//  MyPair<typename MyHashedSet<KEY, HASH, EQUAL, ALLOCATOR>::iterator,
+//         bool>    MyHashedSet<KEY, HASH, EQUAL, ALLOCATOR>::insert(
 //                                                            const KEY& value)
 //  {
-//      typedef bsl::pair<iterator, bool> ResultType;
+//      typedef MyPair<iterator, bool> ResultType;
 //
 //      bool                       isInsertedFlag = false;
 //      bslalg::BidirectionalLink *result         = d_impl.insertIfMissing(
@@ -332,7 +445,7 @@ BSLS_IDENT("$Id: $")
 // Inserting a value (10) succeeds the first time but correctly fails on the
 // second attempt.
 //..
-//  bsl::pair<MyHashedSet<int>::const_iterator, bool> status;
+//  MyPair<MyHashedSet<int>::const_iterator, bool> status;
 //
 //  status = mhs.insert(10);
 //  assert( 1    ==  mhs.size());
@@ -372,14 +485,14 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 2: Implementing a Hashed Map Container
 ///----------------------------------------------
-// Suppose we wish to implement, 'MyHashedMap', a greatly simplified version of
-// 'bsl::unordered_map'.  As with 'MyHashedSet' (see {Example 1}), the
+// Suppose we wish to implement, 'MyHashedMap', a greatly abbreviated version
+// of 'bsl::unordered_map'.  As with 'MyHashedSet' (see {Example 1}), the
 // 'bslstl::HashTable' class template can be used as the basis of our
 // implementation.
 //
 // First, we define 'UseFirstValueOfPairAsKey', a class template we can use to
 // configure 'bslstl::HashTable' to use the 'first' member of each element,
-// each a 'bsl::pair', as the key-value for hashing.  Note that, in practice,
+// each a 'MyPair', as the key-value for hashing.  Note that, in practice,
 // developers can use class defined in {'bslstl_unorderedmapkeyconfiguration'}.
 //..
 //                          // ===============================
@@ -416,7 +529,7 @@ BSLS_IDENT("$Id: $")
 //  inline
 //  const typename UseFirstValueOfPairAsKey<VALUE_TYPE>::KeyType&
 //                 UseFirstValueOfPairAsKey<VALUE_TYPE>::extractKey(
-//           const UseFirstValueOfPairAsKey<VALUE_TYPE>::ValueType& value)
+//                                                      const ValueType& value)
 //  {
 //      return value.first;
 //  }
@@ -443,7 +556,7 @@ BSLS_IDENT("$Id: $")
 //      typedef bsl::allocator_traits<ALLOCATOR>          AllocatorTraits;
 //
 //      typedef BloombergLP::bslstl::HashTable<
-//                      UseFirstValueOfPairAsKey<bsl::pair<const KEY, VALUE> >,
+//                      UseFirstValueOfPairAsKey<MyPair<const KEY, VALUE> >,
 //                      HASH,
 //                      EQUAL,
 //                      ALLOCATOR>                     HashTable;
@@ -460,6 +573,26 @@ BSLS_IDENT("$Id: $")
 //                           const HASH&      hash              = HASH(),
 //                           const EQUAL&     keyEqual          = EQUAL(),
 //                           const ALLOCATOR& allocator         = ALLOCATOR());
+//      // Create an empty 'MyHashedMap' object.  Optionally specify an
+//      // 'initialNumBuckets' indicating the minimum initial size of the array
+//      // of buckets of this unordered map.  If 'initialNumBuckets' is not
+//      // supplied, one empty bucket shall be used and no memory allocated.
+//      // Optionally specify 'hash' to generate the hash values associated
+//      // with the key-value pairs contained in this unordered map.  If 'hash'
+//      // is not supplied, a default-constructed object of (template
+//      // parameter) 'HASH' is used.  Optionally specify a key-equality
+//      // functor 'keyEqual' used to determine whether two keys have the same
+//      // value.  If 'keyEqual' is not supplied, a default-constructed object
+//      // of (template parameter) 'EQUAL' is used.  Optionally specify an
+//      // 'allocator' used to supply memory.  If 'allocator' is not supplied,
+//      // a default-constructed object of the (template parameter) type
+//      // 'ALLOCATOR' is used.  If 'ALLOCATOR' is 'bsl::allocator' (the
+//      // default), then 'allocator' shall be convertible to
+//      // 'bslma::Allocator *'.  If 'ALLOCATOR' is 'bsl::allocator' and
+//      // 'allocator' is not supplied, the currently installed default
+//      // allocator will be used to supply memory.  Note that more than
+//      // 'initialNumBuckets' buckets may be created in order to preserve the
+//      // bucket allocation strategy of the hash-table (but never fewer).
 //
 //      //! ~MyHashedMap() = default;
 //          // Destroy this object.
@@ -497,16 +630,17 @@ BSLS_IDENT("$Id: $")
 //..
 // As with 'MyHashedSet', the 'insertIfMissing' method of 'bslst::HashTable'
 // provides the semantics we need: an element is inserted only if no such
-// element (no element with the same key) in the container, and a reference
-// to that element ('node') is returned.  Here, we use 'node' to obtain and
-// return a modifiable reference to the 'second' member of the (possibly newly
-// added) element.  Note that the 'static_cast' from 'HashTableLink *' to
+// element (no element with the same key) in the container, and a reference to
+// that element ('node') is returned.  Here, we use 'node' to obtain and return
+// a modifiable reference to the 'second' member of the (possibly newly added)
+// element.  Note that the 'static_cast' from 'HashTableLink *' to
 // 'HashTableNode *' is valid because the nodes derive from the link type (see
 // 'bslalg_bidirectionallink' and 'bslalg_hashtableimputil').
 //..
 //  // MANIPULATORS
 //  template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
-//  inline VALUE& MyHashedMap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::operator[](
+//  inline
+//  VALUE& MyHashedMap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::operator[](
 //                                                              const KEY& key)
 //  {
 //      typedef typename HashTable::NodeType           HashTableNode;
@@ -545,7 +679,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 3: Implementing a Hashed Multi-Map Container
 ///----------------------------------------------------
-// Suppose we wish to implement, 'MyHashedMultiMap', a greatly simplified
+// Suppose we wish to implement, 'MyHashedMultiMap', a greatly abbreviated
 // version of 'bsl::unordered_multimap'.  As with 'MyHashedSet' and
 // 'MyHashedMap' (see {Example 1}, and {Example 2}, respectively), the
 // 'bslstl::HashTable' class template can be used as the basis of our
@@ -574,15 +708,15 @@ BSLS_IDENT("$Id: $")
 //  {
 //    private:
 //      // PRIVATE TYPES
-//      typedef bsl::pair<const KEY, VALUE>               value_type;
+//      typedef MyPair<const KEY, VALUE>                  value_type;
 //      typedef bsl::allocator_traits<ALLOCATOR>          AllocatorTraits;
 //      typedef typename AllocatorTraits::difference_type difference_type;
 //
 //      typedef BloombergLP::bslstl::HashTable<
-//                      UseFirstValueOfPairAsKey<bsl::pair<const KEY, VALUE> >,
-//                      HASH,
-//                      EQUAL,
-//                      ALLOCATOR>                        HashTable;
+//                         UseFirstValueOfPairAsKey<MyPair<const KEY, VALUE> >,
+//                         HASH,
+//                         EQUAL,
+//                         ALLOCATOR>                     HashTable;
 //
 //      // DATA
 //      HashTable d_impl;
@@ -604,6 +738,24 @@ BSLS_IDENT("$Id: $")
 //                           const HASH&      hash              = HASH(),
 //                           const EQUAL&     keyEqual          = EQUAL(),
 //                           const ALLOCATOR& allocator         = ALLOCATOR());
+//      // Construct an empty 'MyHashedMultiMap' object.  Optionally specify an
+//      // 'initialNumBuckets' indicating the initial size of the array of
+//      // buckets of this container.  If 'initialNumBuckets' is not supplied,
+//      // an implementation defined value is used.  Optionally specify a
+//      // 'hash', a hash-functor used to generate the hash values associated
+//      // to the key-value pairs contained in this object.  If 'hash' is not
+//      // supplied, a default-constructed object of (template parameter)
+//      // 'HASH' type is used.  Optionally specify a key-equality functor
+//      // 'keyEqual' used to verify that two key values are the same.  If
+//      // 'keyEqual' is not supplied, a default-constructed object of
+//      // (template parameter) 'EQUAL' type is used.  Optionally specify an
+//      // 'allocator' used to supply memory.  If 'allocator' is not supplied,
+//      // a default-constructed object of the (template parameter) 'ALLOCATOR'
+//      // type is used.  If 'ALLOCATOR' is 'bsl::allocator' (the default),
+//      // then 'allocator' shall be convertible to 'bslma::Allocator *'.  If
+//      // the 'ALLOCATOR' is 'bsl::allocator' and 'allocator' is not supplied,
+//      // the currently installed default allocator will be used to supply
+//      // memory.
 //
 //      //! ~MyHashedMultiMap() = default;
 //          // Destroy this object.
@@ -614,10 +766,12 @@ BSLS_IDENT("$Id: $")
 //          // Insert the specified 'value' into this multi-map, and return an
 //          // iterator to the newly inserted element.  This method requires
 //          // that the (template parameter) types 'KEY' and 'VALUE' types both
-//          // be "copy-constructible".
+//          // be "copy-constructible", and that the (template parameter)
+//          // 'SOURCE_TYPE' be convertible to the (template parameter) 'VALUE'
+//          // type.
 //
 //      // ACCESSORS
-//      bsl::pair<const_iterator, const_iterator> equal_range(const KEY& key)
+//      MyPair<const_iterator, const_iterator> equal_range(const KEY& key)
 //                                                                       const;
 //          // Return a pair of iterators providing non-modifiable access to
 //          // the sequence of 'value_type' objects in this container matching
@@ -668,20 +822,20 @@ BSLS_IDENT("$Id: $")
 //..
 //  // ACCESSORS
 //  template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
-//  bsl::pair<typename MyHashedMultiMap<KEY,
-//                                      VALUE,
-//                                      HASH,
-//                                      EQUAL,
-//                                      ALLOCATOR>::const_iterator,
-//            typename MyHashedMultiMap<KEY,
-//                                      VALUE,
-//                                      HASH,
-//                                      EQUAL, ALLOCATOR>::const_iterator>
+//  MyPair<typename MyHashedMultiMap<KEY,
+//                                   VALUE,
+//                                   HASH,
+//                                   EQUAL,
+//                                   ALLOCATOR>::const_iterator,
+//         typename MyHashedMultiMap<KEY,
+//                                   VALUE,
+//                                   HASH,
+//                                   EQUAL, ALLOCATOR>::const_iterator>
 //  MyHashedMultiMap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::equal_range(
 //                                                        const KEY& key) const
 //  {
-//      typedef bsl::pair<const_iterator, const_iterator> ResultType;
-//      typedef BloombergLP::bslalg::BidirectionalLink    HashTableLink;
+//      typedef MyPair<const_iterator, const_iterator> ResultType;
+//      typedef BloombergLP::bslalg::BidirectionalLink HashTableLink;
 //
 //      HashTableLink *first;
 //      HashTableLink *last;
@@ -696,7 +850,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  typedef MyHashedMultiMap<int, double>::iterator       Iterator;
 //  typedef MyHashedMultiMap<int, double>::const_iterator ConstIterator;
-//  typedef bsl::pair<ConstIterator, ConstIterator>       ConstRange;
+//  typedef MyPair<ConstIterator, ConstIterator>          ConstRange;
 //..
 // Searching for an element (key value 10) in a newly created, empty container
 // correctly shows the absence of any such element.
@@ -709,7 +863,7 @@ BSLS_IDENT("$Id: $")
 //..
 // We can insert a value (the pair 10, 100.00) into the container...
 //..
-//  bsl::pair<const int, double> value(10, 100.00);
+//  MyPair<const int, double> value(10, 100.00);
 //
 //  Iterator itr;
 //
@@ -726,8 +880,8 @@ BSLS_IDENT("$Id: $")
 //  range = mhmm.equal_range(10);
 //  assert(range.first != range.second);
 //..
-// As expected, there are two such elements, and both are identical in
-// key value (10) and mapped value (100.00).
+// As expected, there are two such elements, and both are identical in key
+// value (10) and mapped value (100.00).
 //..
 //  int count = 0;
 //  for (ConstIterator cur  = range.first,
