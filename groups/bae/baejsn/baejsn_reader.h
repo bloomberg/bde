@@ -73,13 +73,14 @@ class baejsn_Reader {
     bsl::size_t                        d_valueBegin;
     bsl::size_t                        d_valueEnd;
 
-    char                               d_lastChar;
     TokenType                          d_tokenType;
+    TokenType                          d_context;
 
     // PRIVATE MANIPULATORS
     int reloadStringBuffer();
-    int skipWhitespace(bsl::size_t *cursor);
-    int skipNonWhitespace(bsl::size_t *valueEnd);
+    int skipWhitespace();
+    int skipNonWhitespaceOrTillToken();
+    int extractStringValue();
 
   public:
     // CREATORS
@@ -108,11 +109,12 @@ inline
 baejsn_Reader::baejsn_Reader(bslma::Allocator *basicAllocator)
 : d_allocator(d_buffer, BAEJSN_BUFSIZE, basicAllocator)
 , d_stringBuffer(&d_allocator)
-, d_cursor(0)
 , d_streamBuf_p(0)
+, d_cursor(0)
 , d_tokenType(BAEJSN_BEGIN)
+, d_context(BAEJSN_BEGIN)
 {
-    d_stringBuffer.resize(BAEJSN_MAX_STRING_SIZE);
+    d_stringBuffer.reserve(BAEJSN_MAX_STRING_SIZE);
 }
 
 inline
@@ -125,7 +127,10 @@ inline
 void baejsn_Reader::reset(bsl::streambuf *streamBuf)
 {
     d_streamBuf_p = streamBuf;
+    d_stringBuffer.clear();
     d_cursor      = 0;
+    d_valueBegin  = 0;
+    d_valueEnd    = 0;
     d_tokenType   = BAEJSN_BEGIN;
 }
 

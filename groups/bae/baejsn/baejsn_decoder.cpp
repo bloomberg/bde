@@ -14,9 +14,20 @@ namespace BloombergLP {
 
 int baejsn_Decoder::decodeBinaryArray(bsl::vector<char> *value)
 {
-    d_reader.advanceToNextToken();
+    // TBD: Not working
+    enum { BAEJSN_MIN_ENUM_STRING_LENGTH = 2 };
+
     if (baejsn_Reader::BAEJSN_VALUE == d_reader.tokenType()) {
-        bslstl::StringRef dataValue = d_reader.value();
+        bslstl::StringRef dataValue;
+        int rc = d_reader.value(&dataValue);
+        if (rc
+         || dataValue.length() <= BAEJSN_MIN_ENUM_STRING_LENGTH
+         || '"' != dataValue[0]
+         || '"' != dataValue[dataValue.length() - 1]) {
+            return -1;
+        }
+
+        dataValue.assign(dataValue.begin() + 1, dataValue.end() - 1);
 
         baexml_Base64Parser<bsl::vector<char> > base64Parser;
 

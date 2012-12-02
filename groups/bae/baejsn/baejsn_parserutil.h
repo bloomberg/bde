@@ -31,6 +31,10 @@ BDES_IDENT("$Id: $")
 #include <bsl_limits.h>
 #endif
 
+#ifndef INCLUDED_BSL_CSTRING
+#include <bsl_cstring.h>
+#endif
+
 #ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
 #endif
@@ -203,8 +207,7 @@ int baejsn_ParserUtil::getUnsignedIntegralValue(TYPE              *value,
 }
 
 template <typename TYPE>
-int baejsn_ParserUtil::getIntegralValue(TYPE              *value,
-                                        bslstl::StringRef  data)
+int baejsn_ParserUtil::getIntegralValue(TYPE *value, bslstl::StringRef data)
 {
     bool isNegative;
     if ('-' == data[0]) {
@@ -261,10 +264,10 @@ int baejsn_ParserUtil::getDateAndTimeValue(TYPE              *value,
 inline
 int baejsn_ParserUtil::getValue(bool *value, bslstl::StringRef data)
 {
-    if (0 == bsl::strcmp(data.data(), "true")) {
+    if (0 == bsl::strncmp("true", data.data(), data.length())) {
         *value = true;
     }
-    else if (0 == bsl::strcmp(data.data(), "false")) {
+    else if (0 == bsl::strncmp("false", data.data(), data.length())) {
         *value = false;
     }
     else {
@@ -316,7 +319,7 @@ int baejsn_ParserUtil::getValue(unsigned int *value, bslstl::StringRef data)
 }
 
 inline
-int baejsn_ParserUtil::getValue(bsls::Types::Int64 *value,
+int baejsn_ParserUtil::getValue(bsls::Types::Int64 *value, 
                                 bslstl::StringRef   data)
 {
     if (0 == data.length()) {

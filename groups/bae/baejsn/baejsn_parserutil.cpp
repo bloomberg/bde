@@ -240,9 +240,13 @@ int baejsn_ParserUtil::getString(bsl::string *value, bslstl::StringRef data)
     value->clear();
 
     ++iter;
-    while (iter != end) {
+    while (iter < end) {
         if ('\\' == *iter) {
             ++iter;
+            if (iter >= end) {
+                return -1;                                            // RETURN
+            }
+
             switch (*iter) {
               case 'b': {
                 *value += '\b';
@@ -272,6 +276,12 @@ int baejsn_ParserUtil::getString(bsl::string *value, bslstl::StringRef data)
 
                 ++iter;
 
+                enum { NUM_UNICODE_DIGITS = 4 };
+
+                if (iter + NUM_UNICODE_DIGITS >= end) {
+                    return -1;                                        // RETURN
+                }
+
                 char charValue;
                 if (0 != getUnicodeChar(&charValue, iter)) {
                     return -1;                                        // RETURN
@@ -289,16 +299,16 @@ int baejsn_ParserUtil::getString(bsl::string *value, bslstl::StringRef data)
               } break;
             }
         }
-        else if ('"' != *iter) {
-            *value += *iter;
+        else if ('"' == *iter) {
+            return 0;                                                 // RETURN
         }
         else {
-            break;
+            *value += *iter;
         }
         ++iter;
     }
 
-    return 0;
+    return -1;
 }
 
 int baejsn_ParserUtil::getValue(double *value, bslstl::StringRef data)
