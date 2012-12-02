@@ -402,7 +402,7 @@ struct baea_SerializableObjectProxyFunctions {
 
     typedef void (*Loader)(baea_SerializableObjectProxy *proxy, void *object);
         // This 'typedef' is an alias for a function that configures the
-        // specified 'proxy' with the specified 'object'.    
+        // specified 'proxy' with the specified 'object'.
 
     typedef int (*SelectionLoader)(
                                  baea_SerializableObjectProxy  *proxy,
@@ -412,7 +412,7 @@ struct baea_SerializableObjectProxyFunctions {
         // specified 'proxy' with the specified 'object' and loads the current
         // selection to the specified 'selectInfoPtr'.  Return 0 on success,
         // and a nonzero value if 'object' is an unselected Choice (in which
-        // case the state of 'proxy' and 'selectInfoPtr' is unspecified).  
+        // case the state of 'proxy' and 'selectInfoPtr' is unspecified).
 
     typedef void (*ElementLoader)(baea_SerializableObjectProxy        *proxy,
                                   const baea_SerializableObjectProxy&  object,
@@ -1078,7 +1078,7 @@ class baea_SerializableObjectProxy {
         // Invoke the specified 'manipulator' on a proxy object (populated by
         // the 'loader' function supplied to the 'loadChoiceForDecoding'
         // method) representing the current selection of the Choice object
-        // represented by this proxy.  'MANIPULATOR' shall be a functor 
+        // represented by this proxy.  'MANIPULATOR' shall be a functor
         // providing methods that can be called as if it had the following
         // signatures:
         //..
@@ -1087,8 +1087,8 @@ class baea_SerializableObjectProxy {
         //  int operator()(baea_SerializableObjectProxy_NullableAdapter *,
         //                 const bdeat_SelectionInfo&);
         //..
-        // Return -1 if this object represents an unselected Choice, and the 
-        // value returned by 'manipulator' otherwise.  The behavior is 
+        // Return -1 if this object represents an unselected Choice, and the
+        // value returned by 'manipulator' otherwise.  The behavior is
         // undefined unless this object represents a Choice object for decoding.
 
     template<typename MANIPULATOR>
@@ -1814,7 +1814,7 @@ int baea_SerializableObjectProxy::choiceManipulateSelection(
     const ChoiceDecodeInfo& info = d_objectInfo.the<ChoiceDecodeInfo>();
     const bdeat_SelectionInfo *selectionInfoPtr;
 
-    if (0 == info.d_loader(&selectionProxy, d_object_p, &selectionInfoPtr)) 
+    if (0 == info.d_loader(&selectionProxy, d_object_p, &selectionInfoPtr))
     {
         return manipulateContainedElement(&selectionProxy,
                                           manipulator,

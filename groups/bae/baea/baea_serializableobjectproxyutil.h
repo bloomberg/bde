@@ -334,9 +334,9 @@ class baea_SerializableObjectProxyUtil {
         // of the specified Choice 'object' (assumed to be of the parameterized
         // 'CHOICE'), and load, into the specified 'selectionInfoPtr', the
         // address of the 'bdeat_SelectionInfo' for that selection.  'CHOICE'
-        // shall be a 'bdeat' Choice type.  Return 0 on success, and a 
-        // nonzero value if 'object' refers to an unselected Choice.  The 
-        // behavior is undefined unless 'object' refers to a 'CHOICE' object.  
+        // shall be a 'bdeat' Choice type.  Return 0 on success, and a
+        // nonzero value if 'object' refers to an unselected Choice.  The
+        // behavior is undefined unless 'object' refers to a 'CHOICE' object.
         // Note that this is an implementation of
         // 'baea_SerializableObjectProxyFunctions::SelectionLoader'.
 
@@ -732,7 +732,7 @@ int baea_SerializableObjectProxyUtil::choiceManipulatorFn(
 {
     baea_SerializableObjectProxyUtil_ChoiceManipulatorProxy
                                                        manipulatorProxy(proxy);
-    
+
     int rc = bdeat_ChoiceFunctions::accessSelection(*(const TYPE *)object,
                                                     manipulatorProxy);
     *selectionInfoPtr = manipulatorProxy.selectionInfoPtr();

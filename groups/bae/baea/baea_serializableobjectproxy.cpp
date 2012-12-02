@@ -127,7 +127,7 @@ int baea_SerializableObjectProxy::loadSequenceElementProxy(
             info.d_loader(proxy, *this, (*attrInfo)->id());
             return 0;                                                 // RETURN
         }
-        if ((*attrInfo)->formattingMode() 
+        if ((*attrInfo)->formattingMode()
             & bdeat_FormattingMode::BDEAT_UNTAGGED) {
             untaggedAttrInfo = *attrInfo;
 
@@ -150,7 +150,7 @@ int baea_SerializableObjectProxy::loadSequenceElementProxy(
 
         if (proxy->d_objectInfo.is<NullableDecodeInfo>()) {
             // No way to check whether this is a nullable choice
-            // without disrupting the decoder, but just return this to 
+            // without disrupting the decoder, but just return this to
             // the decoder and let it try to decode
             *attrInfo = untaggedAttrInfo;
             return 0;                                                // RETURN
@@ -636,7 +636,7 @@ bool baea_SerializableObjectProxy::sequenceHasAttribute(
         {
             return true;                                              // RETURN
         }
-        if (info.d_attributeInfo_p[i].formattingMode() 
+        if (info.d_attributeInfo_p[i].formattingMode()
             & bdeat_FormattingMode::BDEAT_UNTAGGED) {
             // maybe an anonymous choice having a selection with this name?
 
@@ -655,14 +655,14 @@ bool baea_SerializableObjectProxy::sequenceHasAttribute(
 
         // If it's an untagged nullable, just return 'true' and let the
         // decoder give it a shot.  We don't have enough info to check whether
-        // the nullable is a Choice and has this selection.  
+        // the nullable is a Choice and has this selection.
 
         baea_SerializableObjectProxy untaggedInfo;
         info.d_loader(&untaggedInfo, *this, untaggedAttributeId);
-            
+
         if (untaggedInfo.d_objectInfo.is<NullableDecodeInfo>()) {
             return true;                                             // RETURN
-        }                                                     
+        }
     }
     return false;
 }

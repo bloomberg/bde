@@ -129,12 +129,12 @@ const char LOG_CATEGORY[] = "BAEA_SERIALIZABLEOBJECTPROXYUTIL.TEST";
 
 static const char* BAD_MESSAGES[] = {
 
-   "<foo/>", 
+   "<foo/>",
 
-   "<foo/><bar/>", 
+   "<foo/><bar/>",
 
    "<selection8/>",
-   
+
    "<selection8><foo/><bar/></selection8>",
 
    "<selection8><foo><selection1/></foo><bar><selection1/></bar></selection8>",
@@ -1718,26 +1718,26 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // XML decoder error test
         //
-        // Concerns: 
+        // Concerns:
         //: 1 There are no stability problems (crashes) when the decoder
-        //:   manipulates 'baea_SerializableObjectProxy' for an invalid 
+        //:   manipulates 'baea_SerializableObjectProxy' for an invalid
         //:   document.
         //:
-        //: 2 The target object is left unmodified when decoding an 
+        //: 2 The target object is left unmodified when decoding an
         //:   invalid document.
         //
         // Plan: Decode several invalid XML documents using
         // 'baea_SerializableObjectProxy' into a 'FeatureTestMessage.'
         // This is a Choice object, and the "skipUnknownElements" flag is
         // (by default) set, so the Choice should remain at its default
-        // UNDEFINED selection.  
+        // UNDEFINED selection.
         // --------------------------------------------------------------------
 
         const int NUM_MESSAGES = sizeof BAD_MESSAGES / sizeof *BAD_MESSAGES;
 
         for (int i = 0; i < NUM_MESSAGES; ++i) {
-            
-            bdesb_FixedMemInStreamBuf isb(BAD_MESSAGES[i], 
+
+            bdesb_FixedMemInStreamBuf isb(BAD_MESSAGES[i],
                                           strlen(BAD_MESSAGES[i]));
 
             baexml_MiniReader reader;
@@ -1749,9 +1749,9 @@ int main(int argc, char *argv[])
             baea_SerializableObjectProxy decorator;
             baea_SerializableObjectProxyUtil::makeDecodeProxy(&decorator,
                                                          &decoded);
-            
+
             decoder.decode(&isb, &decorator);
-            ASSERT(baea::FeatureTestMessage::SELECTION_ID_UNDEFINED == 
+            ASSERT(baea::FeatureTestMessage::SELECTION_ID_UNDEFINED ==
                    decoded.selectionId());
         }
       } break;
