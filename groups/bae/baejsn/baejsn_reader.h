@@ -58,6 +58,11 @@ class baejsn_Reader {
         BAEJSN_VALUE
     };
 
+    enum ContextType {
+        BAEJSN_OBJECT,
+        BAEJSN_ARRAY
+    };
+
   private:
     enum {
         BAEJSN_BUFSIZE         = 1024,
@@ -74,7 +79,7 @@ class baejsn_Reader {
     bsl::size_t                        d_valueEnd;
 
     TokenType                          d_tokenType;
-    TokenType                          d_context;
+    ContextType                        d_context;
 
     // PRIVATE MANIPULATORS
     int reloadStringBuffer();
@@ -112,7 +117,7 @@ baejsn_Reader::baejsn_Reader(bslma::Allocator *basicAllocator)
 , d_streamBuf_p(0)
 , d_cursor(0)
 , d_tokenType(BAEJSN_BEGIN)
-, d_context(BAEJSN_BEGIN)
+, d_context(BAEJSN_OBJECT)
 {
     d_stringBuffer.reserve(BAEJSN_MAX_STRING_SIZE);
 }

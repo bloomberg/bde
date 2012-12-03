@@ -90,6 +90,7 @@ class baejsn_Decoder {
     // DATA
     bsl::ostringstream  d_logStream;  // stream to store error message
     baejsn_Reader       d_reader;
+    bsl::string         d_elementName;
 
     // FRIENDS
     friend struct baejsn_Decoder_DecodeImpProxy;
@@ -230,41 +231,48 @@ int baejsn_Decoder::decodeImp(TYPE *value, bdeat_TypeCategory::Sequence)
     }
 
     while (baejsn_Reader::BAEJSN_NAME == d_reader.tokenType()) {
-        // TBD: remove temporary (using lookupAttributeInfo ?
-
-        bslstl::StringRef nameRef;
-        rc = d_reader.value(&nameRef);
+        bslstl::StringRef elementName;
+        rc = d_reader.value(&elementName);
         if (rc) {
-            return -1;
+            d_logStream << "Error reading attribute name after '{'\n";
+            return -1;                                                // RETURN
         }
 
-        bsl::string name = nameRef;
+        d_elementName = elementName;
 
         rc = d_reader.advanceToNextToken();
         if (rc) {
-            d_logStream << "Error\n";
+            d_logStream << "Error reading value for attribute '"
+                        << d_elementName << "' \n";
             return -1;                                                // RETURN
         }
 
         baejsn_Decoder_ElementVisitor visitor = { this };
         if (0 != bdeat_SequenceFunctions::manipulateAttribute(
-                                            value,
-                                            visitor,
-                                            name.data(),
-                                            static_cast<int>(name.length()))) {
-            d_logStream << "Could not decode attribute id '" << name << "'\n";
+                                   value,
+                                   visitor,
+                                   d_elementName.data(),
+                                   static_cast<int>(d_elementName.length()))) {
+            d_logStream << "Could not decode sequence, error decoding element "
+                        << "or bad element name '"
+                        << d_elementName << "' \n";
             return -1;                                                // RETURN
         }
 
         rc = d_reader.advanceToNextToken();
         if (rc) {
-            return -1;
+            d_logStream << "Could not decode sequence, error reading token "
+                        << "after value for attribute '"
+                        << d_elementName << "' \n";
+            return -1;                                                // RETURN
         }
 
         if (baejsn_Reader::BAEJSN_COMMA == d_reader.tokenType()) {
             rc = d_reader.advanceToNextToken();
             if (rc) {
-                return -1;
+                d_logStream << "Error reading element name after attribute '"
+                            << d_elementName << "' \n";
+                return -1;                                            // RETURN
             }
         }
     }
@@ -293,39 +301,39 @@ int baejsn_Decoder::decodeImp(TYPE *value, bdeat_TypeCategory::Choice)
     }
 
     if (baejsn_Reader::BAEJSN_NAME == d_reader.tokenType()) {
-        bslstl::StringRef selectionNameRef;
-        rc = d_reader.value(&selectionNameRef);
+        bslstl::StringRef selectionName;
+        rc = d_reader.value(&selectionName);
         if (rc) {
-            return -1;
+            d_logStream << "Error reading selection name after '{'\n";
+            return -1;                                                // RETURN
         }
-
-        bsl::string selectionName = selectionNameRef;
 
         if (0 != bdeat_ChoiceFunctions::makeSelection(
                                    value,
                                    selectionName.data(),
                                    static_cast<int>(selectionName.length()))) {
-            d_logStream << "Could not deocde choice, bad selection name '"
-                        << selectionName << "'\n";
+            d_logStream << "Could not decode choice, bad selection name '"
+                        << selectionName << "' \n";
             return -1;                                                // RETURN
         }
 
         rc = d_reader.advanceToNextToken();
         if (rc) {
-            d_logStream << "Error\n";
+            d_logStream << "Could not decode choice, error reading value \n";
             return -1;                                                // RETURN
         }
 
         baejsn_Decoder_ElementVisitor visitor = { this };
         if (0 != bdeat_ChoiceFunctions::manipulateSelection(value, visitor)) {
-            d_logStream << "Could not decode choice, selection '"
-                        << selectionName << "' was not decoded\n";
+            d_logStream << "Could not decode choice, selection "
+                        << "was not decoded\n";
             return -1;                                                // RETURN
         }
 
         rc = d_reader.advanceToNextToken();
         if (rc) {
-            d_logStream << "Error\n";
+            d_logStream << "Could not decode sequence, error reading token "
+                        << "after value for selection \n";
             return -1;                                                // RETURN
         }
     }
@@ -344,75 +352,82 @@ int baejsn_Decoder::decodeImp(TYPE *value, bdeat_TypeCategory::Enumeration)
 {
     enum { BAEJSN_MIN_ENUM_STRING_LENGTH = 2 };
 
-    if (baejsn_Reader::BAEJSN_VALUE == d_reader.tokenType()) {
-        bslstl::StringRef dataValue;
-        int rc = d_reader.value(&dataValue);
-        if (rc
-         || dataValue.length() <= BAEJSN_MIN_ENUM_STRING_LENGTH
-         || '"' != dataValue[0]
-         || '"' != dataValue[dataValue.length() - 1]) {
-            return -1;
-        }
+    if (baejsn_Reader::BAEJSN_VALUE != d_reader.tokenType()) {
+        d_logStream << "Error reading enumeration value\n";
+        return -1;                                                    // RETURN
+    }
 
-        dataValue.assign(dataValue.begin() + 1, dataValue.end() - 1);
-        rc = bdeat_EnumFunctions::fromString(
-                                         value,
+    bslstl::StringRef dataValue;
+    int rc = d_reader.value(&dataValue);
+    if (rc
+     || dataValue.length() <= BAEJSN_MIN_ENUM_STRING_LENGTH
+     || '"' != dataValue[0]
+     || '"' != dataValue[dataValue.length() - 1]) {
+        d_logStream << "Error reading enumeration value\n";
+        return -1;                                                    // RETURN
+    }
+
+    dataValue.assign(dataValue.begin() + 1, dataValue.end() - 1);
+    rc = bdeat_EnumFunctions::fromString(value,
                                          dataValue.data(),
                                          static_cast<int>(dataValue.length()));
 
-        if (rc) {
-            d_logStream << "Could not decode Enum String, value not allowed \""
-                        << dataValue << "\"\n";
-        }
-        return rc;                                                    // RETURN
+    if (rc) {
+        d_logStream << "Could not decode Enum String, value not allowed \""
+                    << dataValue << "\"\n";
     }
-    return -1;
+    return rc;
 }
 
 template <typename TYPE>
 int baejsn_Decoder::decodeImp(TYPE *value, bdeat_TypeCategory::CustomizedType)
 {
-    if (baejsn_Reader::BAEJSN_VALUE == d_reader.tokenType()) {
-        bslstl::StringRef dataValue;
-        int rc = d_reader.value(&dataValue);
-        if (rc) {
-            return -1;                                                // RETURN
-        }
-
-        typename bdeat_CustomizedTypeFunctions::BaseType<TYPE>::Type
-                                                                 valueBaseType;
-
-        rc = baejsn_ParserUtil::getValue(&valueBaseType, dataValue);
-        if (rc) {
-            d_logStream << "Could not decode Enum Customized, "
-                           "value not allowed \"" << valueBaseType << "\"\n";
-        }
-
-        rc = bdeat_CustomizedTypeFunctions::convertFromBaseType(value,
-                                                                valueBaseType);
-        if (rc) {
-            d_logStream << "Could not decode Enum Customized, "
-                        << "value not allowed \"" << valueBaseType << "\"\n";
-            return -1;                                                // RETURN
-        }
-        return 0;                                                     // RETURN
+    if (baejsn_Reader::BAEJSN_VALUE != d_reader.tokenType()) {
+        d_logStream << "Error reading customized type value\n";
+        return -1;                                                    // RETURN
     }
-    return -1;
+
+    bslstl::StringRef dataValue;
+    int rc = d_reader.value(&dataValue);
+    if (rc) {
+        d_logStream << "Error reading customized type value\n";
+        return -1;                                                    // RETURN
+    }
+
+    typename bdeat_CustomizedTypeFunctions::BaseType<TYPE>::Type valueBaseType;
+
+    rc = baejsn_ParserUtil::getValue(&valueBaseType, dataValue);
+    if (rc) {
+        d_logStream << "Could not decode Enum Customized, "
+                    << "value not allowed \"" << valueBaseType << "\"\n";
+        return -1;                                                    // RETURN
+    }
+
+    rc = bdeat_CustomizedTypeFunctions::convertFromBaseType(value,
+                                                            valueBaseType);
+    if (rc) {
+        d_logStream << "Could not decode Enum Customized, "
+                    << "value not allowed \"" << valueBaseType << "\"\n";
+    }
+    return rc;
 }
 
 template <typename TYPE>
 int baejsn_Decoder::decodeImp(TYPE *value, bdeat_TypeCategory::Simple)
 {
-    if (baejsn_Reader::BAEJSN_VALUE == d_reader.tokenType()) {
-        bslstl::StringRef dataValue;
-        int rc = d_reader.value(&dataValue);
-        if (rc) {
-            return -1;
-        }
-
-        return baejsn_ParserUtil::getValue(value, dataValue);         // RETURN
+    if (baejsn_Reader::BAEJSN_VALUE != d_reader.tokenType()) {
+        d_logStream << "Error reading simple value\n";
+        return -1;                                                    // RETURN
     }
-    return -1;
+
+    bslstl::StringRef dataValue;
+    int rc = d_reader.value(&dataValue);
+    if (rc) {
+        d_logStream << "Error reading simple value\n";
+        return -1;                                                    // RETURN
+    }
+
+    return baejsn_ParserUtil::getValue(value, dataValue);
 }
 
 template <>
@@ -523,6 +538,8 @@ int baejsn_Decoder::decodeImp(TYPE *, ANY_CATEGORY)
 inline
 baejsn_Decoder::baejsn_Decoder(bslma_Allocator *basicAllocator)
 : d_logStream(basicAllocator)
+, d_reader(basicAllocator)
+, d_elementName(basicAllocator)
 {
 }
 

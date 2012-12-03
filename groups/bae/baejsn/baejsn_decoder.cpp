@@ -4,7 +4,9 @@
 #include <bdes_ident.h>
 BDES_IDENT_RCSID(baejsn_decoder_cpp,"$Id$ $CSID$")
 
-#include <baexml_base64parser.h>
+#include <bdede_base64decoder.h>
+
+#include <bsl_iterator.h>
 
 namespace BloombergLP {
 
@@ -14,7 +16,6 @@ namespace BloombergLP {
 
 int baejsn_Decoder::decodeBinaryArray(bsl::vector<char> *value)
 {
-    // TBD: Not working
     enum { BAEJSN_MIN_ENUM_STRING_LENGTH = 2 };
 
     if (baejsn_Reader::BAEJSN_VALUE == d_reader.tokenType()) {
@@ -29,20 +30,24 @@ int baejsn_Decoder::decodeBinaryArray(bsl::vector<char> *value)
 
         dataValue.assign(dataValue.begin() + 1, dataValue.end() - 1);
 
-        baexml_Base64Parser<bsl::vector<char> > base64Parser;
+        bdede_Base64Decoder base64Decoder(true);
+        bsl::back_insert_iterator<bsl::vector<char> > outputIterator(*value);
 
-        if (0 != base64Parser.beginParse(value)) {
+        rc = base64Decoder.convert(outputIterator,
+                                   dataValue.begin(),
+                                   dataValue.end());
+
+        if (rc) {
             return -1;                                                // RETURN
         }
 
-        if (0 != base64Parser.pushCharacters(dataValue.begin(),
-                                             dataValue.end())) {
+        rc = base64Decoder.endConvert(outputIterator);
+
+        if (rc) {
             return -1;                                                // RETURN
         }
-
-        return base64Parser.endParse();                               // RETURN
     }
-    return -1;
+    return 0;
 }
 
 }  // close namespace BloombergLP
