@@ -211,6 +211,75 @@ namespace BloombergLP {
 
 namespace bslstl {
 
+                           // ===========================
+                           // class HashTable_HashWrapper
+                           // ===========================
+
+template <class FUNCTOR>
+class HashTable_HashWrapper {
+  private:
+    mutable FUNCTOR d_functor;
+
+  public:
+    HashTable_HashWrapper() : d_functor() {}
+
+    HashTable_HashWrapper(const FUNCTOR& fn) : d_functor(fn) {}
+
+    template <class ARG_TYPE>
+    native_std::size_t operator()(const ARG_TYPE& arg) const {
+        return d_functor(arg);
+    }
+
+    const FUNCTOR& functor() const { return d_functor; }
+
+    void swap(HashTable_HashWrapper &other) {
+        using std::swap;
+        swap(d_functor, other.d_functor);
+    }
+};
+
+template <class FUNCTOR>
+void swap(HashTable_HashWrapper<FUNCTOR> &lhs,
+          HashTable_HashWrapper<FUNCTOR> &rhs)
+{
+    lhs.swap(rhs);
+}
+
+                           // =================================
+                           // class HashTable_ComparatorWrapper
+                           // =================================
+
+template <class FUNCTOR>
+class HashTable_ComparatorWrapper {
+  private:
+    mutable FUNCTOR d_functor;
+
+  public:
+    HashTable_ComparatorWrapper() : d_functor() {}
+
+    HashTable_ComparatorWrapper(const FUNCTOR& fn) : d_functor(fn) {}
+
+    template <class ARG1_TYPE, class ARG2_TYPE>
+    native_std::size_t operator()(const ARG1_TYPE& arg1,
+                                  const ARG1_TYPE& arg2) const {
+        return d_functor(arg1, arg2);
+    }
+
+    const FUNCTOR& functor() const { return d_functor; }
+
+    void swap(HashTable_ComparatorWrapper &other) {
+        using std::swap;
+        swap(d_functor, other.d_functor);
+    }
+};
+
+template <class FUNCTOR>
+void swap(HashTable_ComparatorWrapper<FUNCTOR> &lhs,
+          HashTable_ComparatorWrapper<FUNCTOR> &rhs)
+{
+    lhs.swap(rhs);
+}
+
                            // ===============
                            // class HashTable
                            // ===============
@@ -274,9 +343,17 @@ class HashTable {
     typedef typename AllocatorTraits::size_type    SizeType;
 
   private:
+    typedef typename
+                  bslalg::FunctorAdapter<HashTable_HashWrapper<HASHER> >::Type
+                                                                    BaseHasher;
+    typedef typename 
+         bslalg::FunctorAdapter<HashTable_ComparatorWrapper<COMPARATOR> >::Type
+                                                                BaseComparator;
+
     // PRIVATE TYPES
-    struct ImplParameters : private bslalg::FunctorAdapter<HASHER>::Type
-                          , private bslalg::FunctorAdapter<COMPARATOR>::Type
+//    struct ImplParameters : private bslalg::FunctorAdapter<HASHER>::Type
+//                          , private bslalg::FunctorAdapter<COMPARATOR>::Type
+    struct ImplParameters : private BaseHasher, private BaseComparator
     {
         // This class holds all the parameterized parts of a 'HashTable' class,
         // efficiently exploiting the empty base optimization without adding
@@ -295,9 +372,12 @@ class HashTable {
                          rebind_traits<NodeType>::allocator_type NodeAllocator;
 
         // These aliases simplify naming the base classes in the constructor
-        typedef typename bslalg::FunctorAdapter<HASHER>::Type   HasherBaseType;
-        typedef typename bslalg::FunctorAdapter<COMPARATOR>::Type
-                                                            ComparatorBaseType;
+//        typedef typename bslalg::FunctorAdapter<HASHER>::Type   HasherBaseType;
+//        typedef typename bslalg::FunctorAdapter<COMPARATOR>::Type
+//                                                            ComparatorBaseType;
+        typedef BaseHasher     HasherBaseType;
+        typedef BaseComparator ComparatorBaseType;
+
 
         typedef BidirectionalNodePool<typename HashTableType::ValueType,
                                       NodeAllocator>               NodeFactory;
@@ -340,17 +420,32 @@ class HashTable {
             // provides the no-throw exception-safety guarantee.
 
         // ACCESSORS
-        const HASHER&       hasher()      const;
-            // Return a non-modifiable reference to the 'hasher' functor owned
-            // by this object.
-
-        const COMPARATOR&   comparator()  const;
+        const BaseComparator& comparator()  const;
             // Return a non-modifiable reference to the 'comparator' functor
             // owned by this object.
 
-        const NodeFactory&  nodeFactory() const;
+        const BaseHasher&     hasher()      const;
+            // Return a non-modifiable reference to the 'hasher' functor owned
+            // by this object.
+
+        const NodeFactory&    nodeFactory() const;
             // Return a non-modifiable reference to the 'nodeFactory' owned by
             // this object.
+
+        const COMPARATOR&     originalComparator()  const;
+            // Return a non-modifiable reference to the 'comparator' functor
+            // owned by this object.
+
+        const HASHER&         originalHasher()      const;
+            // Return a non-modifiable reference to the 'hasher' functor owned
+            // by this object.
+
+        native_std::size_t    hashCodeForKey(const KeyType& key) const;
+            // Return the hash code for the specified 'key' using a copy of the
+            // hash functor supplied at construction.  Note that this function
+            // is provided as common way to resolve const_cast issues in the
+            // case that the stored hash functor has a function call operator
+            // that is not declared as 'const'.
     };
 
   private:
@@ -815,7 +910,7 @@ class HashTable_ListProctor {
   private:
     // NOT IMPLEMENTED
     HashTable_ListProctor(const HashTable_ListProctor&);
-    HashTable_ListProctor& operator == (const HashTable_ListProctor&);
+    HashTable_ListProctor& operator=(const HashTable_ListProctor&);
 
   public:
     HashTable_ListProctor(FACTORY                   *factory,
@@ -865,7 +960,7 @@ class HashTable_NodeProctor {
   private:
     // NOT IMPLEMENTED
     HashTable_NodeProctor(const HashTable_NodeProctor&);
-    HashTable_NodeProctor& operator == (const HashTable_NodeProctor&);
+    HashTable_NodeProctor& operator=(const HashTable_NodeProctor&);
 
   public:
     HashTable_NodeProctor(FACTORY                   *factory,
@@ -1174,7 +1269,18 @@ quickSwapExchangeAllocators(ImplParameters& other)
 // OBSERVERS
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 inline
-const HASHER&
+const typename HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::
+                                                                BaseComparator&
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::ImplParameters::
+                                                             comparator() const
+{
+    return *this;
+}
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+inline
+const typename HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::
+                                                                    BaseHasher&
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::ImplParameters::
 hasher() const
 {
@@ -1185,9 +1291,29 @@ template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 inline
 const COMPARATOR&
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::ImplParameters::
-                                                             comparator() const
+originalComparator() const
 {
-    return *this;
+    return static_cast<const BaseComparator *>(this)->functor();
+}
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+inline
+const HASHER&
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::ImplParameters::
+originalHasher() const
+{
+    return static_cast<const BaseHasher *>(this)->functor();
+}
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+inline
+native_std::size_t
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::ImplParameters::
+hashCodeForKey(const KeyType& key) const
+{
+//    return static_cast<HASHER *>(const_cast<ImplParameters *>(this))->
+//                                                               operator()(key);
+    return static_cast<const BaseHasher &>(*this)(key);
 }
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
@@ -1486,7 +1612,7 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::hashCodeForNode(
     BSLS_ASSERT_SAFE(node);
 
     const KeyType& k = bslalg::HashTableImpUtil::extractKey<KEY_CONFIG>(node);
-    return hasher()(k);
+    return d_parameters.hashCodeForKey(k);
 }
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
@@ -1562,7 +1688,7 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::insert(
     // Now we can search for the node in the table, being careful to compute
     // the hash value only once.
     const KeyType& key = ImpUtil::extractKey<KEY_CONFIG>(newNode);
-    size_t hashCode = this->hasher()(key);
+    size_t hashCode = this->d_parameters.hashCodeForKey(key);
     bslalg::BidirectionalLink *position = this->find(key, hashCode);
 
     if (!position) {
@@ -1607,7 +1733,7 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::insert(
 
     // Insert logic, first test the hint
     const KeyType& key = ImpUtil::extractKey<KEY_CONFIG>(newNode);
-    size_t hashCode = this->hasher()(key);
+    size_t hashCode = this->d_parameters.hashCodeForKey(key);
     if (!this->comparator()(key, ImpUtil::extractKey<KEY_CONFIG>(hint))) {
         hint = this->find(key, hashCode);
     }
@@ -1634,7 +1760,7 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::insertIfMissing(
     BSLS_ASSERT(isInsertedFlag);
 
     const KeyType& key = KEY_CONFIG::extractKey(value);
-    size_t hashCode = this->hasher()(key);
+    size_t hashCode = this->d_parameters.hashCodeForKey(key);
     bslalg::BidirectionalLink *position = this->find(key, hashCode);
 
     *isInsertedFlag = (!position);
@@ -1683,7 +1809,7 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::insertIfMissing(
 
     // Insert logic, first test the hint
     const KeyType& key = ImpUtil::extractKey<KEY_CONFIG>(newNode);
-    size_t hashCode = this->hasher()(key);
+    size_t hashCode = this->d_parameters.hashCodeForKey(key);
     bslalg::BidirectionalLink *position = this->find(key, hashCode);
 
     *isInsertedFlag = (!position);
@@ -1708,7 +1834,7 @@ bslalg::BidirectionalLink *
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::insertIfMissing(
                                                             const KeyType& key)
 {
-    size_t hashCode = this->hasher()(key);
+    size_t hashCode = this->d_parameters.hashCodeForKey(key);
     bslalg::BidirectionalLink *position = this->find(key, hashCode);
     if (!position) {
         if (d_size >= d_capacity) {
@@ -1802,18 +1928,18 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::swap(HashTable& other)
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 inline
-const HASHER&
-HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::hasher() const
+const COMPARATOR&
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::comparator() const
 {
-    return d_parameters.hasher();
+    return d_parameters.originalComparator();
 }
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 inline
-const COMPARATOR&
-HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::comparator() const
+const HASHER&
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::hasher() const
 {
-    return d_parameters.comparator();
+    return d_parameters.originalHasher();
 }
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
@@ -1830,10 +1956,11 @@ bslalg::BidirectionalLink *
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::find(
                                                       const KeyType& key) const
 {
-    return bslalg::HashTableImpUtil::find<KEY_CONFIG>(d_anchor,
-                                                      key,
-                                                      this->comparator(),
-                                                      this->hasher()(key));
+    return bslalg::HashTableImpUtil::find<KEY_CONFIG>(
+                                             d_anchor,
+                                             key,
+                                             this->comparator(),
+                                             d_parameters.hashCodeForKey(key));
 }
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
@@ -1901,7 +2028,7 @@ typename HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::SizeType
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::bucketIndexForKey(
                                                       const KeyType& key) const
 {
-    size_t hashCode = this->hasher()(key);
+    size_t hashCode = this->d_parameters.hashCodeForKey(key);
     return bslalg::HashTableImpUtil::computeBucketIndex(
                                                    hashCode,
                                                    d_anchor.bucketArraySize());
@@ -2027,9 +2154,10 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::rehashForNumBuckets(
 
         if (d_anchor.listRootAddress()) {
             bslalg::HashTableImpUtil::rehash<KEY_CONFIG>(
-                                                    &newAnchor,
-                                                    d_anchor.listRootAddress(),
-                                                    this->hasher());
+                                              &newAnchor,
+                                              this->d_anchor.listRootAddress(),
+                                              this->d_parameters.hasher());
+//                                                    this->hasher());
         }
 
         cleanUpIfUserHashThrows.dismiss();

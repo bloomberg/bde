@@ -173,8 +173,6 @@ using namespace BloombergLP;
 //// specialized algorithms:
 //*[ 8] void swap(HashTable& a, HashTable& b);
 //
-//*[ 2] insert (bootstrap)
-//
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [  ] USAGE EXAMPLE
@@ -199,7 +197,7 @@ using namespace BloombergLP;
 //*[ 2] insertElement(HashTable<K, H, E, A> *, const K::ValueType&)
 //*[ 3] verifyListContents(Link *, const COMPARATOR&, const VALUES&, size_t);
 //
-// [  ] CONCERN: The type is compatible with STL allocator.
+// [  ] CONCERN: The type employs the expected size optimizations.
 // [  ] CONCERN: The type has the necessary type traits.
 
 // ============================================================================
@@ -347,6 +345,19 @@ struct equal_to< ::BloombergLP::bsltf::NonEqualComparableTestType> {
     }
 };
 
+template <>
+struct hash< ::BloombergLP::bsltf::NonEqualComparableTestType> {
+    typedef ::BloombergLP::bsltf::NonEqualComparableTestType argument_type;
+    typedef size_t                                           result_type;
+
+    size_t operator()(const ::BloombergLP::bsltf::NonEqualComparableTestType&
+                                                                   value) const
+    {
+        static const bsl::hash<int> EVALUATE_HASH = bsl::hash<int>();
+        return EVALUATE_HASH(value.data());
+    }
+};
+
 }
 
 namespace BloombergLP {
@@ -371,6 +382,89 @@ void debugprint(
 }
 
 }  // close namespace BloombergLP::bslstl
+}  // close namespace BloombergLP
+
+
+namespace TestTypes {
+
+class AwkwardMaplikeElement {
+    // This class provides an awkward value-semantic type, designed to be used
+    // with a KEY_CONFIG policy for a HashTable that supplies a non-equality
+    // comparable key-type, using 'data' for the 'extractKey' method, while
+    // the class itself *is* equality-comparable (as required of a value
+    // semantic type) so that a HashTable of these objects should have a well-
+    // defined 'operator=='.  Note that this class is a specific example for a
+    // specific problem, rather than a template providing the general test typee
+    // for keys distinct from values, as the template test facility requires an
+    // explicit specialization of a function template,
+    // 'TemplateTestFacility::getIdentifier<T>', which would require a partial
+    // template specialization if this class were a template, and that is not
+    // supported by the C++ language.
+
+  private:
+    bsltf::NonEqualComparableTestType d_data;
+
+  public:
+    AwkwardMaplikeElement()
+    : d_data()
+    {
+    }
+
+    explicit
+    AwkwardMaplikeElement(int value)
+    : d_data(value)
+    {
+    }
+
+    explicit
+    AwkwardMaplikeElement(const bsltf::NonEqualComparableTestType& value)
+    : d_data(value)
+    {
+    }
+
+    void setData(int value) { d_data.setData(value); }
+        // Set the 'data' attribute of this object to the specified 'value'.
+
+    // ACCESSORS
+    int data() const { return d_data.data(); }
+        // Return the value of the 'data' attribute of this object.
+
+    const bsltf::NonEqualComparableTestType& key() const { return d_data; }
+};
+
+inline
+bool operator==(const AwkwardMaplikeElement& lhs,
+                const AwkwardMaplikeElement& rhs) {
+    return BSL_TF_EQ(lhs.data(), rhs.data());
+}
+
+inline
+bool operator!=(const AwkwardMaplikeElement& lhs,
+                const AwkwardMaplikeElement& rhs) {
+    return !(lhs == rhs);
+}
+
+inline
+void debugprint(const AwkwardMaplikeElement& value)
+{
+    bsls::debugprint(value.data());
+}
+
+} // close namespace TestTypes
+
+
+namespace BloombergLP {
+namespace bsltf {
+    
+template <>
+inline
+int TemplateTestFacility::getIdentifier<TestTypes::AwkwardMaplikeElement>(
+                               const TestTypes::AwkwardMaplikeElement& object)
+{
+    return object.data();
+}
+
+}  // close namespace BloombergLP::bsltf
 }  // close namespace BloombergLP
 
 
@@ -469,7 +563,7 @@ class GroupedHasher : private HASHER{
 
   public:
     // ACCESSORS
-    int operator() (const TYPE& value) const
+    size_t operator() (const TYPE& value) //const
         // Return the hash value of the integer representation of the specified
         // 'value' divided by 'GROUP_SIZE' (rounded down) is equal to than
         // integer representation of the specified 'rhs' divided by
@@ -477,8 +571,10 @@ class GroupedHasher : private HASHER{
     {
         int groupNum = bsltf::TemplateTestFacility::getIdentifier<TYPE>(value)
                      / GROUP_SIZE;
-        return const_cast<HASHER *>(static_cast<const HASHER *>(this))->
-                                                          operator()(groupNum);
+
+        return HASHER::operator()(groupNum);
+//        return const_cast<HASHER *>(static_cast<const HASHER *>(this))->
+//                                                          operator()(groupNum);
     }
 };
 
@@ -1078,6 +1174,7 @@ struct BasicKeyConfig {
     }
 };
 
+
 template <class ELEMENT>
 struct BsltfConfig {
     // This class provides the most primitive possible KEY_CONFIG type that
@@ -1107,6 +1204,20 @@ struct BsltfConfig {
         results_cache[index] =
                              bsltf::TemplateTestFacility::getIdentifier(value);
         return results_cache[index];
+    }
+};
+
+struct TrickyConfig {
+    // This class provides the most primitive possible KEY_CONFIG type that
+    // can support a 'HashTable'.  It might be consistent with use as a 'set'
+    // or a 'multiset' container.
+
+    typedef bsltf::NonEqualComparableTestType KeyType;
+    typedef TestTypes::AwkwardMaplikeElement  ValueType;
+
+    static const KeyType& extractKey(const ValueType& value)
+    {
+        return value.key();
     }
 };
 
@@ -1345,6 +1456,17 @@ struct TestDriver_BsltfConfiguation
 };
 
 
+struct TestDriver_AwkwardMaplike
+     : TestDriver_ForwardTestCasesByConfiguation<
+           TestDriver< TrickyConfig
+                     , ::bsl::hash<TrickyConfig::KeyType>
+                     , ::bsl::equal_to<TrickyConfig::KeyType>
+                     , ::bsl::allocator<TrickyConfig::ValueType>
+                     >
+       > {
+};
+
+
 // - - - - - - - - - - - Special adapters for test case 6 - - - - - - - - - - -
 // As initially written, test case 6 requires special handling with distinct
 // functor classes to demonstrate and test the necessary key-equivalent groups.
@@ -1394,6 +1516,16 @@ struct TestCase6_DegenerateConfigurationNoSwap {
 
     // TEST CASES
     static void testCase6() { Type::testCase6(); }
+};
+
+struct TestDriverForCase6_AwkwardMaplike
+     : TestDriver_ForwardTestCasesByConfiguation<
+           TestDriver< TrickyConfig
+                     , GroupedHasher<TrickyConfig::KeyType, bsl::hash<int>, 5>
+                     , GroupedEqualityComparator<TrickyConfig::KeyType, 5>
+                     , ::bsl::allocator<TrickyConfig::ValueType>
+                     >
+       > {
 };
 
 
@@ -1539,13 +1671,13 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase13()
         const size_t      LENGTH = (int) strlen(SPEC);
 
         for (int tj = 0; tj < DEFAULT_MAX_LOAD_FACTOR_SIZE; ++tj) {
-            const float  MAX_LOAD_FACTOR = DEFAULT_MAX_LOAD_FACTOR[tj];
-            const size_t NUM_BUCKETS     = ceil(LENGTH/MAX_LOAD_FACTOR);
+            const float  MAX_LF      = DEFAULT_MAX_LOAD_FACTOR[tj];
+            const size_t NUM_BUCKETS = ceil(LENGTH / MAX_LF);
 
             bslma::TestAllocator      oa("object",  veryVeryVeryVerbose);
             bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
-            Obj mZ(HASH, COMPARE, NUM_BUCKETS, MAX_LOAD_FACTOR, &scratch);
+            Obj mZ(HASH, COMPARE, NUM_BUCKETS, MAX_LF, &scratch);
             const Obj& Z = gg(&mZ,  SPEC);
 
             for (int tj = 0; tj < NUM_REHASH_SIZE; ++tj) {
@@ -1555,7 +1687,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase13()
 
                 const size_t OLD_NUM_BUCKETS = X.numBuckets();
                 const size_t NEW_NUM_BUCKETS =
-                                         ceil(REHASH_SIZE[tj]/MAX_LOAD_FACTOR);
+                                         ceil(REHASH_SIZE[tj ]/ MAX_LF);
 
                 bslma::TestAllocatorMonitor oam(&oa);
 
@@ -1983,7 +2115,8 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase9()
                         Obj *mR = &(mX = Z);
                         ASSERTV(LINE1, LINE2,  Z,   X,  Z == X);
                         ASSERTV(LINE1, LINE2, mR, &mX, mR == &mX);
-                        ASSERTV(LINE1, LINE2,  Z,   X,
+                        ASSERTV(LINE1, LINE2,
+                                Z.maxLoadFactor(),   X.maxLoadFactor(),
                                 Z.maxLoadFactor() == X.maxLoadFactor());
                     } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
@@ -2572,11 +2705,11 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase7()
 
         for (int lfi = 0; lfi < DEFAULT_MAX_LOAD_FACTOR_SIZE; ++lfi) {
         for (int ti = 0; ti < NUM_SPECS; ++ti) {
-            const float MAX_LOAD_FACTOR = DEFAULT_MAX_LOAD_FACTOR[lfi];
-
+            const float       MAX_LF      = DEFAULT_MAX_LOAD_FACTOR[lfi];
             const char *const SPEC        = SPECS[ti];
+
             const size_t      LENGTH      = strlen(SPEC);
-            const size_t      NUM_BUCKETS = ceil(LENGTH/MAX_LOAD_FACTOR);
+            const size_t      NUM_BUCKETS = ceil(LENGTH / MAX_LF);
 
             if (verbose) {
                 printf("\nFor an object of length " ZU ":\n", LENGTH);
@@ -2584,14 +2717,17 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase7()
             }
 
             // Create control object w, with space for an extra element.
-            Obj mW(HASH, COMPARE, NUM_BUCKETS + 1, MAX_LOAD_FACTOR);
+            Obj mW(HASH, COMPARE, NUM_BUCKETS + 1, MAX_LF);
             const Obj& W = gg(&mW, SPEC);
 
             ASSERTV(ti, LENGTH == W.size()); // same lengths
             if (veryVerbose) { printf("\tControl Obj: "); P(W); }
 
-            Obj mX(HASH, COMPARE, NUM_BUCKETS, MAX_LOAD_FACTOR, &oa);
+            Obj mX(HASH, COMPARE, NUM_BUCKETS, MAX_LF, &oa);
             const Obj& X = gg(&mX, SPEC);
+
+            // Sanity check only, previous test cases established this.
+            ASSERTV(MAX_LF, SPEC, W, X,  W == X);
 
             if (veryVerbose) { printf("\t\tDynamic Obj: "); P(X); }
 
@@ -2599,18 +2735,26 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase7()
 
                 if (veryVerbose) { printf("\t\t\tRegular Case :"); }
 
-                Obj *pX = new Obj(HASH, COMPARE, NUM_BUCKETS, MAX_LOAD_FACTOR, &oa);
+                Obj *pX = new Obj(HASH, COMPARE, NUM_BUCKETS, MAX_LF, &oa);
                 gg(pX, SPEC);
+
+                ASSERTV(MAX_LF, SPEC, *pX, X, *pX == X);
+                ASSERTV(MAX_LF, SPEC, *pX, W, *pX == W);
 
                 const Obj Y0(*pX);
 
-                ASSERTV(SPEC, W, Y0, W == Y0);
-                ASSERTV(SPEC, W, X,  W == X);
-                ASSERTV(SPEC, Y0.allocator() ==
+                ASSERTV(MAX_LF, SPEC, *pX, Y0, *pX == Y0);
+                ASSERTV(MAX_LF, SPEC,   X, Y0,   X == Y0);
+                ASSERTV(MAX_LF, SPEC,   W, Y0,   W == Y0);
+                ASSERTV(MAX_LF, SPEC,   W,  X,   W ==  X);
+
+                ASSERTV(MAX_LF, SPEC, Y0.allocator() ==
                                            bslma::Default::defaultAllocator());
-                ASSERTV(SPEC, Y0.loadFactor() <= Y0.maxLoadFactor());
+                ASSERTV(MAX_LF, SPEC, pX->maxLoadFactor(), Y0.maxLoadFactor(),
+                         pX->maxLoadFactor() == Y0.maxLoadFactor());
+                ASSERTV(MAX_LF, SPEC, Y0.loadFactor() <= Y0.maxLoadFactor());
                 delete pX;
-                ASSERTV(SPEC, W == Y0);
+                ASSERTV(MAX_LF, SPEC, W, Y0, W == Y0);
             }
             {   // Testing concern 5.
 
@@ -2629,29 +2773,33 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase7()
                 }
 
                 if (veryVerbose) {
-                    printf("\t\t\t\tAfter Insert : ");
-                    P(Y1);
+                    printf("\t\t\t\tAfter Insert : "); P(Y1);
                 }
 
-                const size_t EXPECTED_LENGTH = RESULT
-                                             ? LENGTH + 1
-                                             : 0;
+                if (RESULT || 0 != W.size()) {
+                    const size_t EXPECTED_LENGTH = RESULT
+                                                 ? LENGTH + 1
+                                                 : 0;
 
-                ASSERTV(SPEC, Y1.size(), EXPECTED_LENGTH,
-                        Y1.size() == EXPECTED_LENGTH);
-                ASSERTV(SPEC, W != Y1);
-                ASSERTV(SPEC, X != Y1);
+                    ASSERTV(MAX_LF, SPEC, Y1.size(), EXPECTED_LENGTH,
+                            Y1.size() == EXPECTED_LENGTH);
+                    ASSERTV(MAX_LF, SPEC, W, Y1, W != Y1);
+                    ASSERTV(MAX_LF, SPEC, X, Y1, X != Y1);
+                }
 
                 if (RESULT) {
                     RESULT = insertElement(&mW, VALUES['Z' - 'A']);
+                    // Remember we reserved enough space at construction.
                     ASSERT(0 != RESULT);
                 }
                 else {
                     mW.removeAll();
                 }
 
-                ASSERTV(SPEC, W == Y1);
-                ASSERTV(SPEC, X != Y1);
+                ASSERTV(MAX_LF, SPEC, W, Y1, W == Y1);
+                if (RESULT || 0 < X.size()) {
+                    ASSERTV(MAX_LF, SPEC, X, Y1, X != Y1);
+                }
             }
             {   // Testing concern 5 with test allocator.
 
@@ -2664,15 +2812,15 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase7()
                 Obj Y11(X, &oa);
 
                 if (LENGTH == 0) {
-                    ASSERTV(SPEC, oam.isTotalSame());
-                    ASSERTV(SPEC, oam.isInUseSame());
+                    ASSERTV(MAX_LF, SPEC, oam.isTotalSame());
+                    ASSERTV(MAX_LF, SPEC, oam.isInUseSame());
                 }
                 else {
                     //const int TYPE_ALLOCS = TYPE_ALLOC * X.size();
                     //ASSERTV(SPEC, BB, AA, BB + 1 + TYPE_ALLOCS == AA);
                     //ASSERTV(SPEC, B, A, B + 1 + TYPE_ALLOCS ==  A);
-                    ASSERTV(SPEC, oam.isTotalUp());
-                    ASSERTV(SPEC, oam.isInUseUp());
+                    ASSERTV(MAX_LF, SPEC, oam.isTotalUp());
+                    ASSERTV(MAX_LF, SPEC, oam.isInUseUp());
                 }
 
                 oam.reset(&oa);
@@ -2688,10 +2836,10 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase7()
 
                 ASSERTV(SPEC, 0 == Y11.size());
                 if (LENGTH != 0) {
-                    ASSERTV(SPEC, W != Y11 || !W.size());
-                    ASSERTV(SPEC, X != Y11);
+                    ASSERTV(MAX_LF, SPEC, W != Y11 || !W.size());
+                    ASSERTV(MAX_LF, SPEC, X != Y11);
                 }
-                ASSERTV(SPEC, Y11.allocator() == X.allocator());
+                ASSERTV(MAX_LF, SPEC, Y11.allocator() == X.allocator());
             }
             {   // Exception checking.
 
@@ -2703,25 +2851,25 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase7()
                         printf("\t\t\tException Case  :\n");
                         printf("\t\t\t\tObj : "); P(Y2);
                     }
-                    ASSERTV(SPEC, W != Y2);
-                    ASSERTV(SPEC, Y2 == X);
-                    ASSERTV(SPEC, Y2.allocator() == X.allocator());
+                    ASSERTV(MAX_LF, SPEC,  W, Y2, W  != Y2);
+                    ASSERTV(MAX_LF, SPEC, Y2,  X, Y2 ==  X);
+                    ASSERTV(MAX_LF, SPEC, Y2.allocator() == X.allocator());
 #if 0
                     Link *RESULT = insertElement(&Y2, VALUES['Z' - 'A']);
                     if(0 == RESULT) {
                         Y2.removeAll();
                     }
-                    ASSERTV(SPEC, W == Y2);
-                    ASSERTV(SPEC, Y2 != X);
+                    ASSERTV(MAX_LF, SPEC,  W, Y2, W  == Y2);
+                    ASSERTV(MAX_LF, SPEC, Y2,  X, Y2 !=  X);
 #endif
                 } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
                 if (LENGTH == 0) {
-                    ASSERTV(SPEC, oam.isTotalSame());
-                    ASSERTV(SPEC, oam.isInUseSame());
+                    ASSERTV(MAX_LF, SPEC, oam.isTotalSame());
+                    ASSERTV(MAX_LF, SPEC, oam.isInUseSame());
                 }
                 else {
-                    ASSERTV(SPEC, oam.isInUseSame());
+                    ASSERTV(MAX_LF, SPEC, oam.isInUseSame());
                 }
             }
         }
@@ -4496,6 +4644,10 @@ int main(int argc, char *argv[])
         RUN_EACH_TYPE(TestDriver_DegenerateConfiguationWithNoSwap,
                       testCase13,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+
+        // Remaining special cases
+        TestDriver_AwkwardMaplike::testCase13();
+
       } break;
       case 12: {
         // --------------------------------------------------------------------
@@ -4520,6 +4672,10 @@ int main(int argc, char *argv[])
         RUN_EACH_TYPE(TestDriver_DegenerateConfiguationWithNoSwap,
                       testCase12,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+
+        // Remaining special cases
+        TestDriver_AwkwardMaplike::testCase12();
+
       } break;
       case 11: {
         // --------------------------------------------------------------------
@@ -4536,6 +4692,9 @@ int main(int argc, char *argv[])
         RUN_EACH_TYPE(TestDriver_StatefulConfiguation,
                       testCase11,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+
+        // Remaining special cases
+//        TestDriver_AwkwardMaplike::testCase11();
 
         // Degenerate test cases are not available for the default constructor.
       } break;
@@ -4569,6 +4728,9 @@ int main(int argc, char *argv[])
                       testCase9,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
 
+        // Remaining special cases
+        TestDriver_AwkwardMaplike::testCase9();
+
       } break;
       case 8: {
         // --------------------------------------------------------------------
@@ -4590,7 +4752,10 @@ int main(int argc, char *argv[])
                       testCase8,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
 
-      } break;
+        // Remaining special cases
+        TestDriver_AwkwardMaplike::testCase8();
+
+     } break;
       case 7: {
         // --------------------------------------------------------------------
         // COPY CONSTRUCTOR
@@ -4614,6 +4779,10 @@ int main(int argc, char *argv[])
         RUN_EACH_TYPE(TestDriver_DegenerateConfiguationWithNoSwap,
                       testCase7,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+
+        // Remaining special cases
+        TestDriver_AwkwardMaplike::testCase7();
+
       } break;
       case 6: {
         // --------------------------------------------------------------------
@@ -4634,6 +4803,10 @@ int main(int argc, char *argv[])
         RUN_EACH_TYPE(TestCase6_DegenerateConfigurationNoSwap,
                       testCase6,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+
+        // Remaining special cases
+//        TestDriverForCase6_AwkwardMaplike::testCase6();
+
       } break;
       case 5: {
         // --------------------------------------------------------------------
@@ -4669,6 +4842,10 @@ int main(int argc, char *argv[])
         RUN_EACH_TYPE(TestDriver_DegenerateConfiguationWithNoSwap,
                       testCase4,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+
+        // Remaining special cases
+//        TestDriver_AwkwardMaplike::testCase4();
+
       } break;
       case 3: {
         // --------------------------------------------------------------------
@@ -4694,12 +4871,72 @@ int main(int argc, char *argv[])
                       testCase3,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
 
+        // Remaining special cases
+        TestDriver_AwkwardMaplike::testCase3();
+
         // Further, need to validate the basic test facilities:
         //   verifyListContents
       } break;
       case 2: {
         // --------------------------------------------------------------------
         // BOOTSTRAP CONSTRUCTOR AND PRIMARY MANIPULATORS
+        //   This case is implemented as a method of a template test harness,
+        //   where the runtime concerns and test plan are documented.  The test
+        //   harness will be instantiated and run with a variety of types to
+        //   address the template parameter concerns below.  We note that the
+        //   bootstrap case has the widest variety of paraterizing concerns to
+        //   test, as latest test cases may be able to place additional
+        //   requirements on the types that they operate with, but the primary
+        //   bootstrap has to validate bringing any valid container into any
+        //   valid state for any of the later cases.
+        //
+        // Concerns:
+        //: 1 The class bootstraps with the default template arguments for the
+        //:   unordered containers as policy parameters
+        //:
+        //: 2 The class supports a wide variery of troublesome element types,
+        //:   as covered extensively in the template test facility, 'bsltf'.
+        //:
+        //: 3 STL allocators that are not (BDE) polymorphic, and that never
+        //:   propagate on any operations, just like BDE
+        //:
+        //: 4 STL allocators that are not (BDE) polymorphic, and propagate on
+        //:   all possible operations.
+        //:
+        //: 5 functors that do not const-qualify operator()
+        //:
+        //: 6 stateful functors
+        //:
+        //: 7 function pointers as functors
+        //:
+        //: 8 non-default-constructible functors
+        //:
+        //: 9 functors overloading operator&
+        //:
+        //:10 functors overloading operator,
+        //:
+        //:11 functors that cannot be swapped ('swap' is required to support
+        //:   assignment, not bootstrap, default constructor, or most methods)
+        //:
+        //:12 functors whose argument(s) are convertible-form the key-type
+        //:
+        //:13 functors with templated function-call operators
+        //:
+        //:14 support for simple set-like policy
+        //:
+        //:15 support for basic map-like policy, where key is a sub-state of
+        //:   the element's value
+        //:
+        //:16 support for a minimal key type, with equality-comparable element
+        //:   type
+        //
+        // Plan:
+        //: 1 Run the test harness in a variety of configurations that each, in
+        //:   turn, address the concerns and verify that the behavior is as
+        //:   expected.
+        //
+        // Testing:
+        //   BOOTSTRAP
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTesting Primary Manipulators"
@@ -4721,10 +4958,13 @@ int main(int argc, char *argv[])
                       testCase2,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
 
-        // Failing group-contiguity check, suspect multiple keys compare equal
         RUN_EACH_TYPE(TestDriver_BsltfConfiguation,
                       testCase2,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
+
+        // Remaining special cases
+//        TestDriver_AwkwardMaplike::testCase2();
+
       } break;
       case 1: {
         // --------------------------------------------------------------------

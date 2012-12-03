@@ -885,6 +885,7 @@ int TemplateTestFacility_StubClass::method()
                         // ----------------------------------------
 
 template <class TYPE>
+inline
 bool TemplateTestFacility_CompareHelper::areEqual(const TYPE& lhs,
                                                   const TYPE& rhs)
 {
@@ -892,12 +893,14 @@ bool TemplateTestFacility_CompareHelper::areEqual(const TYPE& lhs,
 }
 
 template <class TYPE>
+inline
 bool TemplateTestFacility_CompareHelper::areNotEqual(const TYPE& lhs,
                                                      const TYPE& rhs)
 {
     return lhs != rhs;
 }
 
+inline
 bool TemplateTestFacility_CompareHelper::areEqual(
                                          const NonEqualComparableTestType& lhs,
                                          const NonEqualComparableTestType& rhs)
@@ -905,6 +908,7 @@ bool TemplateTestFacility_CompareHelper::areEqual(
     return lhs.data() == rhs.data();
 }
 
+inline
 bool TemplateTestFacility_CompareHelper::areNotEqual(
                                          const NonEqualComparableTestType& lhs,
                                          const NonEqualComparableTestType& rhs)
