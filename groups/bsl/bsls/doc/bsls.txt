@@ -24,6 +24,7 @@
  significant, just alphabetical.
 ..
   11. bsls_alignedbuffer
+      bsls_alignment
 
   10. bsls_alignmentutil
 
@@ -55,8 +56,7 @@
       bsls_unspecifiedbool
       bsls_util
 
-   2. bsls_alignment
-      bsls_asserttestexception
+   2. bsls_asserttestexception
       bsls_blockgrowth
       bsls_bsltestutil
       bsls_macroincrement

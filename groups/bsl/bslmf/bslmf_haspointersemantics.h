@@ -10,9 +10,11 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a type trait for pointer semantics.
 //
 //@CLASSES:
-//  bslmf::HasPointerSemantics: meta-function for determining pointer-like types
+//  bslmf::HasPointerSemantics: meta-function indicating pointer-like types
 //
 //@SEE_ALSO:
+//
+//@DECRIPTION:
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>

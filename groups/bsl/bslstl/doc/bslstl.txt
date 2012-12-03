@@ -17,7 +17,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bslstl' package currently has 46 components having 7 levels of physical
+ The 'bslstl' package currently has 47 components having 7 levels of physical
  dependency.  The table below shows the hierarchical ordering of the
  components.  The order of components within each level is not architecturally
  significant, just alphabetical.
@@ -45,6 +45,7 @@
      bslstl_unorderedset
 
   4. bslstl_bidirectionaliterator
+     bslstl_bitset
      bslstl_hashtable
      bslstl_hashtablebucketiterator
      bslstl_hashtableiterator
@@ -89,6 +90,9 @@
 :
 : 'bslstl_bidirectionalnodepool':
 :      Provide efficient creation of nodes used in node-based container.
+:
+: 'bslstl_bitset':
+:      Provide an STL-compliant bitset class.
 :
 : 'bslstl_deque':
 :      Provide an STL-compliant deque class.

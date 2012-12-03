@@ -53,7 +53,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bslmf' package currently has 60 components having 10 levels of physical
+ The 'bslmf' package currently has 59 components having 10 levels of physical
  dependency.  The table below shows the hierarchical ordering of the
  components.  The order of components within each level is not architecturally
  significant, just alphabetical.

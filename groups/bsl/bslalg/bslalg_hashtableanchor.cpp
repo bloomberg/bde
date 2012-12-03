@@ -4,7 +4,10 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
-#include <bslalg_hashtablebucket.h>        // for testing only
+#include <bslalg_bidirectionallink.h>         // for testing only
+#include <bslalg_bidirectionallinklistutil.h> // for testing only
+#include <bslalg_bidirectionalnode.h>         // for testing only
+#include <bslalg_hashtablebucket.h>           // for testing only
 
 namespace BloombergLP
 {

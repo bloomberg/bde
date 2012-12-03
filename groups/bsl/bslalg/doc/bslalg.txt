@@ -16,13 +16,9 @@
  and other standard components in the 'bslstl' package) that take advantage of
  these traits.
 
- This package group documentation is a stem.  It should be expanded with a
- lesson in the usage of type traits.  For now, please consult the individual
- component-level documentations.
-
 /Hierarchical Synopsis
 /---------------------
- The 'bslalg' package currently has 36 components having 9 levels of physical
+ The 'bslalg' package currently has 35 components having 9 levels of physical
  dependency.  The table below shows the hierarchical ordering of the
  components.  The order of components within each level is not architecturally
  significant, just alphabetical.
@@ -70,7 +66,8 @@
      bslalg_typetraitnil
      bslalg_typetraitusesbslmaallocator
 
-  1. bslalg_typetraits
+  1. algorithm
+     bslalg_typetraits
 ..
 
 /Component Synopsis
@@ -103,7 +100,7 @@
 :      Provide a proxy for constructing and destroying objects.
 :
 : 'bslalg_containerbase':
-:      Provide a wrapper for STL allocators, respecting 'bslma' semantics.
+:      Wrapper for STL-style allocators to encapsulate 'bslma' semantics.
 :
 : 'bslalg_dequeimputil':
 :      Provide basic parameters and primitive data structures for deques.
@@ -118,10 +115,10 @@
 :      Provide an utility that adapts callable objects to functors.
 :
 : 'bslalg_hashtableanchor':
-:      Provide a type holding the constituent parts of a hash table.
+:      Encapsulate the array of buckets and list of values of a hash table
 :
 : 'bslalg_hashtablebucket':
-:      Provide a bucket representation for hash table data structures.
+:      Provide a bucket represantation for hash table data structures.
 :
 : 'bslalg_hashtableimputil':
 :      Provide algorithms for implementing a hash table.
@@ -133,7 +130,7 @@
 :      Provide facilities for checking compile-time trait.
 :
 : 'bslalg_rangecompare':
-:      Provide algorithms to compare iterator-ranges of elements.
+:      Compare elements in two iterator ranges for equality or ordering.
 :
 : 'bslalg_rbtreeanchor':
 :      Encapsulate root, first, and last nodes of a tree with a count.
@@ -148,7 +145,7 @@
 :      Provide primitive algorithms that destroy scalars.
 :
 : 'bslalg_scalarprimitives':
-:      Provide primitive algorithms that operate on single elements.
+:      Primitive algorithms that operate on single elements.
 :
 : 'bslalg_selecttrait':
 :      Provide facilities for selecting compile-time trait.
@@ -160,7 +157,7 @@
 :      Provide a primitive type trait for bit-wise copyable classes.
 :
 : 'bslalg_typetraitbitwiseequalitycomparable':
-:      Provide a primitive type trait for bit-wise eq.-comparable classes.
+:      Provide a type trait indicating bitwise equality comparability.
 :
 : 'bslalg_typetraitbitwisemoveable':
 :      Provide a primitive type trait for bit-wise moveable classes.
@@ -175,7 +172,7 @@
 :      Provide a primitive type trait for class with trivial default ctor.
 :
 : 'bslalg_typetraitnil':
-:      Provide a primitive trait for classes that have no other traits.
+:      Provide a primitive type trait for classes that have no other traits
 :
 : 'bslalg_typetraitusesbslmaallocator':
 :      Provide a primitive trait for types that use 'bslma' allocators.
