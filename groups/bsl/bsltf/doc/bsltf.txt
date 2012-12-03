@@ -69,7 +69,7 @@
 :      Provide a non-allocating test class without type traits.
 :
 : 'bsltf_stdtestallocator':
-:      Provide a minimal standard compliant allocator  .
+:      Provide a minimal standard compliant allocator.
 :
 : 'bsltf_templatetestfacility':
 :      Provide utilities to help with testing templates.

@@ -42,6 +42,7 @@
      bslma_newdeleteallocator
      bslma_usesbslmaallocator
      bslma_testallocatorexception
+     bslma_usesbslmaallocator
 
   2. bslma_allocator
 

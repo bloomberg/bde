@@ -17,52 +17,64 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bslstl' package currently has 36 components having 7 levels of physical
+ The 'bslstl' package currently has 47 components having 7 levels of physical
  dependency.  The table below shows the hierarchical ordering of the
  components.  The order of components within each level is not architecturally
  significant, just alphabetical.
 ..
-  7. bslstl_map
-     bslstl_multimap
-     bslstl_multiset
-     bslstl_queue
-     bslstl_set
+  7. bslstl_queue
      bslstl_stack
 
   6. bslstl_deque
-     bslstl_mapcomparator
-     bslstl_setcomparator
-     bslstl_treenodepool
+     bslstl_map
+     bslstl_multimap
+     bslstl_multiset
+     bslstl_set
+     bslstl_sstream
 
-  5. bslstl_bitset
-     bslstl_priorityqueue
+  5. bslstl_istringstream
+     bslstl_mapcomparator
+     bslstl_ostringstream
      bslstl_randomaccessiterator
+     bslstl_setcomparator
+     bslstl_stringstream
+     bslstl_treenodepool
+     bslstl_unorderedmap
+     bslstl_unorderedmultimap
+     bslstl_unorderedmultiset
+     bslstl_unorderedset
+
+  4. bslstl_bidirectionaliterator
+     bslstl_bitset
+     bslstl_hashtable
+     bslstl_hashtablebucketiterator
+     bslstl_hashtableiterator
+     bslstl_priorityqueue
+     bslstl_stringbuf
      bslstl_stringref
      bslstl_treenode
 
-  4. bslstl_bidirectionaliterator
+  3. bslstl_bidirectionalnodepool
+     bslstl_forwarditerator
+     bslstl_iteratorutil
+     bslstl_list
      bslstl_string
+     bslstl_treeiterator
      bslstl_vector
 
-  3. bslstl_containerbase
-     bslstl_forwarditerator
-     bslstl_list
-     bslstl_treeiterator
-
-  2. bslstl_allocatorproxy
-     bslstl_iterator
+  2. bslstl_iterator
      bslstl_simplepool
 
   1. bslstl_allocator
      bslstl_allocatortraits
+     bslstl_equalto
      bslstl_hash
+     bslstl_iosfwd
      bslstl_pair
      bslstl_stdexceptutil
      bslstl_stringrefdata
-     bslstl_traitsgroupstlassociativecontainer
-     bslstl_traitsgroupstlsequencecontainer
-     bslstl_traitsgroupstlunorderedcontainer
-     bslstl_util
+     bslstl_unorderedmapkeyconfiguration
+     bslstl_unorderedsetkeyconfiguration
 ..
 
 /Component Synopsis
@@ -70,32 +82,50 @@
 : 'bslstl_allocator':
 :      Provide an STL-compatible proxy for 'bslma::Allocator' objects.
 :
-: 'bslstl_allocatorproxy':
-:      Wrapper for STL-style allocators to encapsulate 'bslma' semantics.
-:
 : 'bslstl_allocatortraits':
 :      Provide a uniform interface to standard allocator types.
 :
 : 'bslstl_bidirectionaliterator':
 :      Provide a template to create STL-compliant bidirectional iterators.
 :
+: 'bslstl_bidirectionalnodepool':
+:      Provide efficient creation of nodes used in node-based container.
+:
 : 'bslstl_bitset':
 :      Provide an STL-compliant bitset class.
 :
-: 'bslstl_containerbase':
-:      Base class for STL-style containers.
-:
 : 'bslstl_deque':
 :      Provide an STL-compliant deque class.
+:
+: 'bslstl_equalto':
+:      Provide a binary functor conforming to the C++11 'equal_to' spec.
 :
 : 'bslstl_forwarditerator':
 :      Provide a template to create STL-compliant forward iterators.
 :
 : 'bslstl_hash':
-:      Provide a namespace for hash functions
+:      Provide a namespace for hash functions.
+:
+: 'bslstl_hashtable':
+:      Provide a hash-container with support for duplicate values.
+:
+: 'bslstl_hashtablebucketiterator':
+:      Provide an STL compliant iterator over hash table buckets.
+:
+: 'bslstl_hashtableiterator':
+:      Provide an STL compliant iterator for hash tables.
+:
+: 'bslstl_iosfwd':
+:      Provide forward declarations for Standard stream classes.
+:
+: 'bslstl_istringstream':
+:      Provide a C++03-compatible 'istringstream' class.
 :
 : 'bslstl_iterator':
 :      Provide basic iterator traits, adaptors, and utilities.
+:
+: 'bslstl_iteratorutil':
+:      Provide utilities operating on iterators and iterator ranges.
 :
 : 'bslstl_list':
 :      Provide an STL-compliant list class.
@@ -111,6 +141,9 @@
 :
 : 'bslstl_multiset':
 :      Provide an STL-compliant multiset class.
+:
+: 'bslstl_ostringstream':
+:      Provide a C++03-compatible 'ostringstream' class.
 :
 : 'bslstl_pair':
 :      Provide a simple 'struct' with two members that may use allocators.
@@ -133,6 +166,9 @@
 : 'bslstl_simplepool':
 :      Provide efficient allocation of memory blocks for a specific type.
 :
+: 'bslstl_sstream':
+:      Provide C++03-compatible 'stringstream' classes.
+:
 : 'bslstl_stack':
 :      Provide an STL-compliant stack class.
 :
@@ -142,20 +178,17 @@
 : 'bslstl_string':
 :      Provide a standard-compliant 'basic_string' class template.
 :
+: 'bslstl_stringbuf':
+:      Provide a C++03-compatible 'stringbuf' class.
+:
 : 'bslstl_stringref':
 :      Provide a reference to a 'const' string.
 :
 : 'bslstl_stringrefdata':
 :      Provide an attribute-only base class for 'bslstl::StringRef'.
 :
-: 'bslstl_traitsgroupstlassociativecontainer':
-:      Provide facilities for grouping types with compile-time traits.
-:
-: 'bslstl_traitsgroupstlsequencecontainer':
-:      Provide facilities for grouping types with compile-time traits.
-:
-: 'bslstl_traitsgroupstlunorderedcontainer':
-:      Provide facilities for grouping types with compile-time traits.
+: 'bslstl_stringstream':
+:      Provide a C++03-compatible 'stringstream' class.
 :
 : 'bslstl_treeiterator':
 :      Provide an STL compliant iterator for a tree of 'TreeNode' objects.
@@ -166,8 +199,23 @@
 : 'bslstl_treenodepool':
 :      Provide efficient creation of nodes used in tree-based container.
 :
-: 'bslstl_util':
-:      Provide a namespace for utility functions for STL functionality.
+: 'bslstl_unorderedmap':
+:      Provide an STL-compliant unordered_map class.
+:
+: 'bslstl_unorderedmapkeyconfiguration':
+:      Provide a class template to extract keys as the 'first' attribute.
+:
+: 'bslstl_unorderedmultimap':
+:      Provide an STL-compliant unordered_multimap class.
+:
+: 'bslstl_unorderedmultiset':
+:      Provide an STL-compliant unordered_multiset class.
+:
+: 'bslstl_unorderedset':
+:      Provide an STL-compliant unordered_set class.
+:
+: 'bslstl_unorderedsetkeyconfiguration':
+:      Provide a configuration class to use a whole object as its own key.
 :
 : 'bslstl_vector':
 :      Provide an STL-compliant vector class.
