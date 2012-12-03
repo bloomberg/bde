@@ -10,6 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a compile-time check for array types.
 //
 //@CLASSES:
+//  bsl::is_array: standard meta-function for detecting array types
 //  bslmf::IsArray: meta-function for detecting array types
 //
 //@AUTHOR: Clay Wilson (cwilson9)
@@ -35,8 +36,8 @@ BSLS_IDENT("$Id: $")
 // In this section we show intended use of this component.
 //
 ///Example 1: Verify Array Types
-///- - - - - - - - - - - - - - - -
-// Suppose that we want to assert whether a particular type is an Array type.
+///- - - - - - - - - - - - - - -
+// Suppose that we want to assert whether a particular type is an array type.
 //
 // First, we create two 'typedef's -- an array type and a non-array type:
 //..
@@ -78,7 +79,7 @@ namespace bsl {
                          // struct is_array
                          // ===============
 
-template <typename TYPE>
+template <class TYPE>
 struct is_array : false_type {
     // This 'struct' template implements the 'is_array' meta-function defined
     // in the C++11 standard [meta.unary.cat] to determine if the (template
@@ -91,33 +92,33 @@ struct is_array : false_type {
                          // struct is_array<TYPE [NUM_ELEMENTS]>
                          // ====================================
 
-template <typename TYPE, std::size_t NUM_ELEMENTS>
+template <class TYPE, std::size_t NUM_ELEMENTS>
 struct is_array<TYPE [NUM_ELEMENTS]> : true_type {
      // This specialization of 'is_array', for when the (template parameter)
-     // 'TYPE' is an array of known bound type, derives from 'bsl::true_type'
+     // 'TYPE' is an array type of known bound, derives from 'bsl::true_type'.
 };
 
                          // ========================
                          // struct is_array<TYPE []>
                          // ========================
 
-template <typename TYPE>
+template <class TYPE>
 struct is_array<TYPE []> : true_type {
      // This specialization of 'is_array', for when the (template parameter)
-     // 'TYPE' is an array of unknown bound type, derives from 'bsl::true_type'
+     // 'TYPE' is an array type of unknown bound, derives from
+     // 'bsl::true_type'.
 };
 
-}
+}  // close namespace bsl
 
 namespace BloombergLP {
-
 namespace bslmf {
 
                          // ==============
                          // struct IsArray
                          // ==============
 
-template <typename TYPE>
+template <class TYPE>
 struct IsArray  : bsl::is_array<TYPE>::type {
     // This 'struct' template implements a meta-function to determine if the
     // (template parameter) 'TYPE' is an array type.  This 'struct' derives
@@ -129,6 +130,7 @@ struct IsArray  : bsl::is_array<TYPE>::type {
 };
 
 }  // close package namespace
+}  // close enterprise namespace
 
 #ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ===========================================================================
@@ -142,15 +144,13 @@ struct IsArray  : bsl::is_array<TYPE>::type {
     // This alias is defined for backward compatibility.
 #endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
-}  // close enterprise namespace
-
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2012
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

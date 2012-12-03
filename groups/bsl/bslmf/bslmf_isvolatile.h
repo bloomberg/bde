@@ -36,7 +36,7 @@ BSLS_IDENT("$Id: $")
 // In this section we show intended use of this component.
 //
 ///Example 1: Verify 'Volatile' Types
-///- - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - -
 // Suppose that we want to assert whether a particular type is a
 // 'volatile'-qualified.
 //
@@ -59,7 +59,7 @@ namespace bsl {
                          // struct is_volatile
                          // ==================
 
-template <typename TYPE>
+template <class TYPE>
 struct is_volatile : false_type {
     // This 'struct' template implements the 'is_volatile' meta-function
     // defined in the C++11 standard [meta.unary.cat] to determine if the
@@ -74,7 +74,7 @@ struct is_volatile : false_type {
                          // struct is_volatile<TYPE volatile>
                          // =================================
 
-template <typename TYPE>
+template <class TYPE>
 struct is_volatile<TYPE volatile> : true_type {
      // This partial specialization of 'is_volatile', for when the (template
      // parameter) 'TYPE' is 'volatile'-qualified, derives from

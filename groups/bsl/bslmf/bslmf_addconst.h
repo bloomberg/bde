@@ -76,7 +76,6 @@ struct AddConst_Imp {
     // adds the 'const'-qualifier to 'TYPE' in the 'Type' alias.  A template
     // specialization (below) leaves 'TYPE' as-is in its 'Type' alias.
 
-
     // PUBLIC TYPES
     typedef TYPE const Type;
         // This 'typedef' is an alias to a type that is the same as the

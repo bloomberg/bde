@@ -17,7 +17,7 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR:
 //
 //@DESCRIPTION: This component defines a meta-function,
-// 'bsl::is_floating_point' , that may be used to query whether a type is a
+// 'bsl::is_floating_point', that may be used to query whether a type is a
 // (possibly cv-qualified) floating-point type as defined in section 3.9.1.8 of
 // the C++11 standard [basic.fundamental].
 //
@@ -91,8 +91,8 @@ struct IsFloatingPoint_Imp<long double> : bsl::true_type {
      // parameter) 'TYPE' is 'long double', derives from 'bsl::true_type'.
 };
 
-}
-}
+}  // close package namespace
+}  // close enterprise namespace
 
 namespace bsl {
 
@@ -111,7 +111,7 @@ struct is_floating_point
     // and 'bsl::false_type' otherwise.
 };
 
-}
+}  // close namespace bsl
 
 #endif
 

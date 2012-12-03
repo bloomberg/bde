@@ -3,8 +3,8 @@
 
 #include <bsls_bsltestutil.h>
 
-#include <cstdlib>
 #include <cstdio>
+#include <cstdlib>
 
 using namespace bsl;
 using namespace BloombergLP;
@@ -66,8 +66,7 @@ void aSsErT(bool b, const char *s, int i)
 namespace {
 
 struct TestType {
-   // This user-defined type is intended to be used during testing as an
-   // argument for the template parameter 'TYPE' of 'bsl::is_const'.
+   // This user-defined type is intended to be used for testing.
 };
 
 }  // close unnamed namespace
@@ -117,14 +116,14 @@ int main(int argc, char *argv[])
 // First, we create two 'typedef's -- a 'const'-qualified type and a
 // unqualified type:
 //..
-        typedef int        MyType;
-        typedef const int  MyConstType;
+    typedef int        MyType;
+    typedef const int  MyConstType;
 //..
 // Now, we instantiate the 'bsl::is_const' template for each of the
 // 'typedef's and assert the 'value' static data member of each instantiation:
 //..
-        ASSERT(false == bsl::is_const<MyType>::value);
-        ASSERT(true == bsl::is_const<MyConstType>::value);
+    ASSERT(false == bsl::is_const<MyType>::value);
+    ASSERT(true  == bsl::is_const<MyConstType>::value);
 //..
 
       } break;
