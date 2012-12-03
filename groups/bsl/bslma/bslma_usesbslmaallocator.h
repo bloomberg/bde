@@ -73,6 +73,7 @@ private:
 
     enum {
         // Detect if 'TYPE' is 'Allocator*' type.
+
         IS_BSLMA_POINTER
             = bsl::is_same<
                 Allocator,
@@ -81,10 +82,12 @@ private:
 
         // If a pointer to 'Allocator' is convertible to 'T', then 'T' has a
         // non-explcit constructor taking an allocator.
+
         BSLMA_POINTER_CTOR = bsl::is_convertible<Allocator *, TYPE>::value,
 
         // If a pointer to 'UniqueType' is convertible to 'T', it can only mean
         // that ANY POINTER is convertible to 'T'.
+
         ANY_POINTER_CTOR = bsl::is_convertible<UniqueType *, TYPE>::value
     };
 
