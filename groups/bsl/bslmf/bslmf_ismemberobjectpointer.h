@@ -17,8 +17,8 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR: Clay Wilson (cwilson9)
 //
 //@DESCRIPTION: This component defines a meta-function,
-// 'bsl::is_member_object_pointer', which may be used to query whether a type
-// is a pointer to non-static member object type.
+// 'bsl::is_member_object_pointer', that may be used to query whether a type is
+// a pointer to non-static member object type.
 //
 // 'bsl::is_member_object_pointer' meets the requirements of the
 // 'is_member_object_pointer' template defined in the C++11 standard
@@ -28,8 +28,8 @@ BSLS_IDENT("$Id: $")
 ///-----
 // In this section we show intended use of this component.
 //
-///Example 1: Verify Member Function Pointer Types
-///- - - - - - - - - - - - - - - - - - - - - - - -
+///Example 1: Verify Member Function Object Types
+/// - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose that we want to assert whether a set of types are pointers to member
 // object types.
 //
@@ -47,7 +47,7 @@ BSLS_IDENT("$Id: $")
 // non-member data type and the 'MyStructDataPtr' type, and assert the 'value'
 // static data member of each instantiation:
 //..
-//  assert(false == bsl::is_member_object_pointer<int>::value);
+//  assert(false == bsl::is_member_object_pointer<int*>::value);
 //  assert(true  == bsl::is_member_object_pointer<DataMemPtr>::value);
 //..
 
@@ -81,7 +81,7 @@ namespace bslmf {
 template <class TYPE>
 struct IsPointerToMemberData_Imp : bsl::false_type {
     // This 'struct' template provides a meta-function to determine whether the
-    // (template parameter) 'TYPE' is a pointer type to non-static data member.
+    // (template parameter) 'TYPE' is a pointer to non-static data member type.
     // This generic default template derives from 'bsl::false_type'.  A
     // template specialization is provided (below) that derives from
     // 'bsl::true_type'.
@@ -91,7 +91,7 @@ template <class TYPE, class CLASS>
 struct IsPointerToMemberData_Imp<TYPE CLASS::*> : bsl::true_type {
      // This partial specialization of 'IsPointerToMemberData_Imp' derives from
      // 'bsl::true_type' for when the (template parameter) 'TYPE' is a pointer
-     // type to non-static data member.
+     // to non-static data member type.
 };
 
 }  // close package namespace
@@ -112,10 +112,10 @@ struct is_member_object_pointer
                        && !is_reference<TYPE>::value> {
     // This 'struct' template implements the 'is_member_object_pointer'
     // meta-function defined in the C++11 standard [meta.unary.cat] to
-    // determine if the (template parameter) 'TYPE' is a pointer type to
-    // non-static data member.  This 'struct' derives from 'bsl::true_type' if
-    // the 'TYPE' is a pointer type to non-static data member, and
-    // from 'bsl::false_type' otherwise.
+    // determine if the (template parameter) 'TYPE' is a pointer to non-static
+    // data member type.  This 'struct' derives from 'bsl::true_type' if the
+    // 'TYPE' is a pointer to non-static data member type, and from
+    // 'bsl::false_type' otherwise.
 };
 
 }  // close namespace bsl

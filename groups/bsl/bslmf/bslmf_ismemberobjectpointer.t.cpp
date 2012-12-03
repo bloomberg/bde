@@ -14,7 +14,7 @@ using namespace std;
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// The component under test is a meta-function,
+// The component under test defines a meta-function,
 // 'bsl::is_member_object_pointer', that determines whether a template
 // parameter type is a pointer to (non-static) member object type.  Thus, we
 // need to ensure that the value returned by this meta-function is correct for
@@ -140,8 +140,8 @@ struct Incomplete;
 ///-----
 // In this section we show intended use of this component.
 //
-///Example 1: Verify Member Function Pointer Types
-///- - - - - - - - - - - - - - - - - - - - - - - -
+///Example 1: Verify Member Function Object Types
+/// - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose that we want to assert whether a set of types are pointers to member
 // object types.
 //
@@ -194,7 +194,7 @@ int main(int argc, char *argv[])
 // non-member data type and the 'MyStructDataPtr' type, and assert the 'value'
 // static data member of each instantiation:
 //..
-    ASSERT(false == bsl::is_member_object_pointer<int>::value);
+    ASSERT(false == bsl::is_member_object_pointer<int*>::value);
     ASSERT(true  == bsl::is_member_object_pointer<DataMemPtr>::value);
 //..
 
@@ -204,7 +204,7 @@ int main(int argc, char *argv[])
         // 'bsl::is_member_object_pointer::value'
         //   Ensure that the static data member 'value' of
         //   'bsl::is_member_object_pointer' instantiations having various
-        //   (template parameter) 'TYPES' has the correct value.
+        //   (template parameter) 'TYPE's has the correct value.
         //
         // Concerns:
         //: 1 'is_member_object_pointer::value' is 'false' when 'TYPE' is a
@@ -232,8 +232,8 @@ int main(int argc, char *argv[])
         //   bsl::is_member_object_pointer::value
         // --------------------------------------------------------------------
 
-        if (verbose) printf("'bsl::is_member_object_pointer'\n"
-                            "===============================\n");
+        if (verbose) printf("'bsl::is_member_object_pointer::value'\n"
+                            "======================================\n");
 
         // C-1
         TYPE_ASSERT_CVQ_SUFFIX(bsl::is_member_object_pointer, void, false);
