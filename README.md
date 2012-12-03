@@ -1,4 +1,3 @@
-[![build status](https://secure.travis-ci.org/bloomberg/bsl.png)](http://travis-ci.org/bloomberg/bsl)
 Basic Standard Library (BSL)
 ============================
 
