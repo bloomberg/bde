@@ -1,3 +1,7 @@
+//CW why aren't we using package level namespaces?
+//  i.e.  use btes::LeakyBucket instead of btes_LeakyBucket
+//
+
 // btes_leakybucket.h                                                 -*-C++-*-
 #ifndef INCLUDED_BTES_LEAKYBUCKET
 #define INCLUDED_BTES_LEAKYBUCKET
@@ -20,30 +24,58 @@ BDES_IDENT("$Id: $")
 // monitor whether the *capacity* of a resource is consumed at a particular
 // *drain* *rate*
 //
-// This name for this component comes from an analogy of a bucket with
-// a hole: the maximum rate at which the bucket will let water out is a
-// constant, derived from the size of the hole, and does not depend on the rate
-// at which water is poured into the bucket. If more water is continually
-// poured into the bucket than is drained, eventually the bucket will overflow.
+// This name for this component comes from an analogy of a bucket with a hole:
+// the maximum rate at which the bucket will let water out is a constant,
+// derived from the size of the hole, and does not depend on the rate at which
+// water is poured into the bucket.  If more water is continually poured into
+// the bucket than drained, eventually the bucket will overflow.
 //
 // The drain rate, in the context of this component, is the theoretical rate at
+
+//CH do we really need to say "in the context of this components"? I think
+// this is implied.
+// s/in the context of this component/of a leaky bucket
+
+
 // which units are consumed (drained) from the bucket by its associated
-// resource, and it is expressed in 'units/s'. 'unit' is a generic unit of
-// measurement (e.g., bytes, n.o. messages, packets, liters, clock cycles,
+// resource, and it is expressed in 'units/s'.  'unit' is a generic unit of
+
+//CH what does 'associate resources' mean? Clients of this component?
+
+// measurement (e.g., bytes, number of messages, packets, liters, clock cycles,
 // etc.).
 //
 // The capacity, in the context of this component, is the maximum number of
 // units that a 'btes_LeakyBucket' can hold before it "overflows", meaning a
 // call 'wouldOverflow' would return 'true' (note that a clients may submit
-// units to a leaky bucket past its capacity). The capacity also determines
+// units to a leaky bucket past its capacity).
+
+//CH we should probably move the "note that" to the end of the paragraph.
+// The sentence below is also a "note that".
+
+// The capacity also determines
 // the minimum amount of time required to empty a leaky-bucket at its
 // configured drain rate.
 //
 // For example, suppose we have an empty bucket with a drain rate 'd = 5 u/s'
+//CH                                    ^leaky
+//  shouldn't the drain rate be 1u/s?
+
 // and capacity 'c = 5 u'.  As illustrated in FIG. 1,  at time 't0' we submit 5
-// units to the bucket.  At time 't0 + 4s' the bucket drained 4 units. Then, at
-// time 't0 + 4s' we add 2 more. Note that if we added again 5 units we would
-// overflow the capacity of the bucket. At time 't0 + 10' we are sure that the
+//CH                                                               ^,
+
+// units to the bucket.  At time 't0 + 4s' the bucket drained 4 units.  Then,
+// at
+//CH                                      ^,
+// time 't0 + 4s' we add 2 more.  Note that if we added again 5 units we would
+// CH at time 't0 + 4s', we add 2 more units.
+
+// overflow the capacity of the bucket.
+
+//CH not sure why this "note that" is needed (especially we discuss such a cas
+//ein fig 2).  If it is, then we should move it to the end of hte paragraph
+
+// At time 't0 + 10' we are sure that the
 // bucket is empty (because it was not overflown before), so we can add again
 // 5 units without exceeding capacity.
 //..
@@ -65,6 +97,11 @@ BDES_IDENT("$Id: $")
 // FIG. 2 illustrates the case in which at time 't0 + 4' we add 6 more units,
 // exceeding the capacity of the bucket.  At time 't0 + 10' we can see that 6
 // units have been drained, as we do not add any more units.
+
+//CH This doesn't make a lot of sense, are we allowed to go over the capacity?
+// at t0 + 4, we seem to have a container holding 7 units.  (shouldn't units
+// over 5 overflow?)
+
 //..
 // FIG. 2: Capacity = 5 units, Rate = 1 unit / second
 //
@@ -83,26 +120,55 @@ BDES_IDENT("$Id: $")
 //..
 // Note that units are added to a 'btes_LeakyBucket' object by invoking the
 // 'submit' method, and should be added only after the associated resource
-// is actually used. At any point, the leaky bucket can be queried whether
+// is actually used.
+
+//CH what does "added only after the associated resource is actually used"
+//mean? I thought resources are added to the leaky bucket ot be used?
+
+// At any point, the leaky bucket can be queried whether
 // submitting a specified number of units would exceed the capacity of the
 // leaky bucket, via the 'wouldOverflow' method.
+
+//CH At any time, whether or not submitting a specified number of units to a
+// leaky bucket would exceed its capacity can be queried via its
+// 'wouldOverflow' method.
+
 //
 // This component alsoprovides the capability of *reserving* units.
-// The reserved units are excluded from the bucket capacity and are not 
-// drained when the bucket state is updated.  Reserved units may be later 
+
+//CH usage of units and resources are inconsistent.  I think we should use
+// "resources" when talking about the leaky bucket in a general sense, and use
+// "units" when talking about a specific example.  actually the use of "units"
+// is okay, since it had been explained in the beginning of this section that
+// "units" is a generic term that may represent any physical unit.
+
+
+// The reserved units are excluded from the bucket capacity and are not
+// drained when the bucket state is updated.  Reserved units may be later
 // submitted to the leaky bucket or the reservation may be canceled.
+
+//CH Reserved resources may be later canceled (using 'cancelReserved') or
+// submitted to the leaky bucket (using 'submitReserved') at which those
+// resources will no longer be excluded from the leaky bucket's capacity, and,
+// if the reserved resoruces are submitted, the resources are added to the
+// amount of used resources.
+
 // When reserved units are either submitted or canceled (using 'submitReserved'
 // or 'cancelReserved', respectively), those units are no longer excluded from
 // the capacity, and, if the reserved units were submitted, the units are
 // added to the number of used units, which are drained from the bucket over
 // time.
+
 //
-// In the example of FIG. 3 at time 't0' we reserve 4 units.  At time 
-// 't0 + 5' none the reserved units are drained from the leaky bucket,
-// then, at time 't0 + 6' we submit 3 of those units which will be drained
-// from the bucket over time. At t0 + 9 we observe that all but the remaining
-// reserved unit have been drained from the bucket. Finally, at t0 + 10, the
-// reservation for the remaining unit is canceled.
+// In the example of FIG. 3 at time 't0' we reserve 4 units.  At time 't0 + 5'
+// none the reserved units are drained from the leaky bucket, then, at time
+// 't0 + 6' we submit 3 of those units which will be drained from the bucket
+// over time.  At t0 + 9 we observe that all but the remaining reserved unit
+// have been drained from the bucket.  Finally, at t0 + 10, the reservation for
+// the remaining unit is canceled.
+
+//CH reword the above paragraph
+// the description for what happens at 't0 + 5' should be a "Note that".
 //..
 // FIG. 3: Capacity = 5 units, Rate = 1 unit / second
 //
@@ -123,25 +189,40 @@ BDES_IDENT("$Id: $")
 ///Modeling a Network Connection
 ///-----------------------------
 // One of the intended use cases of the 'btes_LeakyBucket' is limiting the rate
-// at which data is written on a network. In this case, the drain rate of the
+
+//CH                               s/btes_LeakyBucket/btes::LeakyBucket
+
+// at which data is written on a network.  In this case, the drain rate of the
 // bucket is corresponding to the *ideal* maximum rate that the client wishes
 // to *enforce* on their outgoing connection.
 // Clients may choose to provide a value related to the physical limitations of
-// their network, or any other arbitrary limit.  The capacity of the bucket
+// their network, or any other arbitrary limit.
+
+
+// The capacity of the bucket
 // does map directly to the analogy of a leaky-bucket as 'btes_leakybucket'
-// does not actually manage the actual resource being modeled. Instead, the
+// does not actually manage the actual resource being modeled.
+//CH the above sentence doesn't make a lot of sense
+
+// Instead, the
 // capacity of the bucket relates to the size of the time period over which
 // the actual rate will not exceed the configured drain rate of the bucket
 // (see 'approximations' section below).
+
+//CH reword and think about the above sentence.
+
 //
 ///Approximations
 ///--------------
-// The 'btes_LeakyBucket' provides an analogy to a leaky bucket, but as a 
-// 'btes_leakybucket' does not manage any resources, there are several 
+// The 'btes_LeakyBucket' provides an analogy to a leaky bucket, but as a
+// 'btes_leakybucket' does not manage any resources, there are several
 // approximations in this model:
 //  1 Units are submitted istantaneously to the leaky bucket, whereas the
+//CH:                     correct spelling
+
 //    resource consumes them over time, depending on the nature and speed
 //    of the resource, at an unspecified rate.
+//
 //  2 The model simulates the drain of units from the buckets by removing units
 //    at the specified drain rate, even though the resource effectively
 //    consumes units at different rate. This guarantees that a resource's usage
@@ -149,6 +230,8 @@ BDES_IDENT("$Id: $")
 //    configured period of time (determined by the capacity of the bucket),
 //    but does not prevent resource usage from spiking above the configured
 //    drain rate for smaller periods.
+//
+//
 //  3 Draining units at the drain rate allows for the approximation of a
 //    *sliding* *window*: as enough units are drained one can imagine the
 //    window sliding to a point in time that excludes previously submitted
@@ -171,7 +254,7 @@ BDES_IDENT("$Id: $")
 // should refer to the same time origin.
 //
 ///Usage
-///-----
+///-----z
 // This section illustrates the intended use of this component.
 //
 ///Example 1: Controlling Network Traffic Generation
@@ -305,7 +388,7 @@ class btes_LeakyBucket {
                                                // submitted since last
                                                // reset
 
-    bsls_Types::Uint64 d_statSubmittedUnitsAtLastUpdate; 
+    bsls_Types::Uint64 d_statSubmittedUnitsAtLastUpdate;
                                                // value of submitted unit
                                                // counter saved during
                                                // last 'lastUpdateTime'
@@ -389,7 +472,7 @@ public:
         // 'currentTime'.  If the specified 'currentTime' is after
         // 'lastUpdateTime', then update 'unitsInBucket' based on the number of
         // drained units between 'lastUpdateTime' and 'currentTime'.
-        // If 'currentTime' is before the value, returned by 
+        // If 'currentTime' is before the value, returned by
         // 'statisticsCollectionStartTime' method, set the
         // 'statisticsCollectionStartTime' to 'currentTime'.
 
@@ -485,7 +568,7 @@ public:
         // Load the specified 'submittedUnits' and 'unusedUnits' with the
         // numbers of submitted units and unused units respectively.
         // The number of used units is the total number of units submitted
-        // to this bucket between 'statisticsCollectionStartTime' and 
+        // to this bucket between 'statisticsCollectionStartTime' and
         // 'lastUpdateTime'.  The number of unused units is the number of units
         // that could have been submited, but were not,
         // 'statisticsCollectionStartTime' and 'lastUpdateTime'.
