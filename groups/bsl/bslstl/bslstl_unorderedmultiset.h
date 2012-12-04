@@ -1082,7 +1082,7 @@ inline
 void unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::max_load_factor(
                                                            float newLoadFactor)
 {
-    d_impl.maxLoadFactor(newLoadFactor);
+    d_impl.setMaxLoadFactor(newLoadFactor);
 }
 
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
