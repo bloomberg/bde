@@ -221,6 +221,11 @@ int getUnicodeChar(bsl::streambuf *streamBuf, bsl::string *value)
     return 0;
 }
 
+const bsls::Types::Uint64 UINT64_MAX_DIVIDED_BY_10 =
+                                              static_cast<bsls::Types::Uint64>(
+                         bsl::numeric_limits<bsls::Types::Uint64>::max() / 10);
+const bsls::Types::Uint64 UINT64_MAX_LAST_DIGIT    = 5;
+
 }  // close unnamed namespace
 
                             // ------------------------
@@ -313,7 +318,9 @@ int baejsn_ParserUtil::getString(bsl::string *value, bslstl::StringRef data)
 
 int baejsn_ParserUtil::getValue(double *value, bslstl::StringRef data)
 {
-    if (0 == data.length()) {
+    if (0 == data.length()
+     || '.' == data[0]
+     || data.length() > 1 && '-' == data[0] && '.' == data[1]) {
         return -1;                                                    // RETURN
     }
 
@@ -345,6 +352,10 @@ int baejsn_ParserUtil::getUint64(bsls::Types::Uint64 *value,
         ++iter;
     }
     const char *valueEnd = iter;
+
+    if (valueBegin == valueEnd) {
+        return -1;                                                    // RETURN
+    }
 
     // Extract fractional digits if specified
 
@@ -415,12 +426,16 @@ int baejsn_ParserUtil::getUint64(bsls::Types::Uint64 *value,
 
     iter = valueBegin;
     while (iter != valueEnd) {
-        if (static_cast<bsls::Types::Uint64>(tmp * 10 + *iter - '0') >
-                            bsl::numeric_limits<bsls::Types::Uint64>::max()) {
+        const int digitValue = *iter - '0';
+        if (tmp < UINT64_MAX_DIVIDED_BY_10
+         || (UINT64_MAX_DIVIDED_BY_10 == tmp
+          && digitValue <= UINT64_MAX_LAST_DIGIT)) {
+            tmp = tmp * 10 + digitValue;
+            ++iter;
+        }
+        else {
             return -1;                                                // RETURN
         }
-        tmp = tmp * 10 + *iter - '0';
-        ++iter;
     }
 
     if (numAdditionalDigits) {
@@ -428,11 +443,15 @@ int baejsn_ParserUtil::getUint64(bsls::Types::Uint64 *value,
 
         iter = fractionalBegin;
         for (int i = 0; i < numAdditionalDigits; ++i, ++iter) {
-            if (static_cast<bsls::Types::Uint64>(tmp * 10 + *iter - '0') >
-                            bsl::numeric_limits<bsls::Types::Uint64>::max()) {
+            const int digitValue = *iter - '0';
+            if (tmp < UINT64_MAX_DIVIDED_BY_10
+             || (UINT64_MAX_DIVIDED_BY_10 == tmp
+              && digitValue <= UINT64_MAX_LAST_DIGIT)) {
+                tmp = tmp * 10 + digitValue;
+            }
+            else {
                 return -1;                                            // RETURN
             }
-            tmp = tmp * 10 + *iter - '0';
         }
         fractionalBegin = iter;
     }
@@ -445,9 +464,10 @@ int baejsn_ParserUtil::getUint64(bsls::Types::Uint64 *value,
     }
 
     if (exponent) {
-        if (static_cast<double>(tmp * bsl::pow(10.0, exponent) <
+        double exponentMultiple = bsl::pow(10.0, exponent);
+        if (static_cast<double>(tmp * exponentMultiple <
                                          bsl::numeric_limits<double>::max())) {
-            tmp *= static_cast<bsls::Types::Uint64>(bsl::pow(10.0, exponent));
+            tmp *= static_cast<bsls::Types::Uint64>(exponentMultiple);
         }
         else {
             return -1;                                                // RETURN
@@ -485,6 +505,10 @@ int baejsn_ParserUtil::getDouble(bsl::streambuf *streamBuf, double *value)
     while (bsl::isdigit(ch)) {
         str += static_cast<char>(ch);
         ch   = streamBuf->snextc();
+    }
+
+    if (0 == str.length() || (1 == str.length() && '-' == str[0])) {
+        return -1;                                                    // RETURN
     }
 
     if ('.' == static_cast<char>(ch)) {
@@ -546,6 +570,10 @@ int baejsn_ParserUtil::getUint64(bsl::streambuf      *streamBuf,
         ch   = streamBuf->snextc();
     }
 
+    if (0 == str.length()) {
+        return -1;                                                    // RETURN
+    }
+
     bsl::string fractionalStr(&allocator);
     fractionalStr.reserve(STRING_LEN);
 
@@ -605,13 +633,16 @@ int baejsn_ParserUtil::getUint64(bsl::streambuf      *streamBuf,
 
     bsl::string::const_iterator iter = str.begin();
     while (iter != str.end()) {
-        if (static_cast<double>(*value * 10 + *iter - '0') >
-            static_cast<double>(
-                            bsl::numeric_limits<bsls::Types::Uint64>::max())) {
+        const int digitValue = *iter - '0';
+        if (*value < UINT64_MAX_DIVIDED_BY_10
+         || (UINT64_MAX_DIVIDED_BY_10 == *value
+          && digitValue <= UINT64_MAX_LAST_DIGIT)) {
+            *value = *value * 10 + digitValue;
+            ++iter;
+        }
+        else {
             return -1;                                                // RETURN
         }
-        *value = *value * 10 + *iter - '0';
-        ++iter;
     }
 
     return isValidNextChar(streamBuf->sgetc()) ? 0 : -1;

@@ -5,6 +5,7 @@
 BDES_IDENT_RCSID(baejsn_printutil_cpp,"$Id$ $CSID$")
 
 #include <bdede_base64encoder.h>
+#include <bdede_utf8util.h>
 #include <bsl_sstream.h>
 
 namespace BloombergLP {
@@ -57,6 +58,11 @@ char getEscapeChar(char value)
 int baejsn_PrintUtil::printString(bsl::ostream&            stream,
                                   const bslstl::StringRef& value)
 {
+
+    if (!bdede_Utf8Util::isValid(value.data(), value.length())) {
+        return -1;                                                    // RETURN
+    }
+
     stream << '"';
 
     for (bslstl::StringRef::const_iterator it = value.begin();

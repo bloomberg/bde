@@ -12,12 +12,89 @@ BDES_IDENT("$Id: $")
 //@CLASSES:
 // baejsn_PrintUtil: JSON print utility class
 //
-//@SEE_ALSO: baejsn_decoder
+//@SEE_ALSO: baejsn_encoder, baejsn_parserutil
 //
 //@AUTHOR: Raymond Chiu (schiu49)
 //
-//@DESCRIPTION: This component provides utility functions for
-// encoding a 'bdeat' Simple type into JSON string.
+//@DESCRIPTION: This component provides utility functions for encoding a
+// 'bdeat' Simple type into JSON string.  The primary method is 'printValue',
+// which encode specified object and is overloaded for all 'bdeat' Simple type.
+// The following table describes how various Simple types are encoded.
+//..
+//  Simple Type          JSON Type  Notes
+//  -----------          ---------  -----
+//  char                 number
+//  unsigned char        number
+//  int                  number
+//  unsigned int         number
+//  bsls::Types::Int64   number
+//  bsls::Types::Uint64  number
+//  float                number
+//  double               number
+//  char *               string
+//  bsl::string          string
+//  bdet_Date            string     ISO 8601 format
+//  bdet_DateTz          string     ISO 8601 format
+//  bdet_Time            string     ISO 8601 format
+//  bdet_TimeTz          string     ISO 8601 format
+//  bdet_DatetimeTz      string     ISO 8601 format
+//  bdet_DatetimeTz      string     ISO 8601 format
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Encoding a Simple 'struct' into JSON
+///-----------------------------------------------
+// Suppose we want to serialize some data into JSON.
+//
+// First, we define a struct, 'Employee', to contain the data:
+//..
+//  struct Employee {
+//      const char *d_firstName;
+//      const char *d_lastName;
+//      int         d_age;
+//  };
+//..
+// Then, we create an 'Employee' object and populate it with data:
+//..
+//  Employee john;
+//  john.d_firstName = "John";
+//  john.d_lastName = "Doe";
+//  john.d_age = 20;
+//..
+//  Now, we create an output stream and manually construct the JSON string
+//  using 'baejsn_PrintUtil':
+//..
+//  bsl::ostringstream oss;
+//  oss << '{' << '\n';
+//  baejsn_PrintUtil::printValue(oss, "firstName");
+//  oss << ':';
+//  baejsn_PrintUtil::printValue(oss, john.d_firstName);
+//  oss << ',' << '\n';
+//  baejsn_PrintUtil::printValue(oss, "lastName");
+//  oss << ':';
+//  baejsn_PrintUtil::printValue(oss, john.d_lastName);
+//  oss << ',' << '\n';
+//  baejsn_PrintUtil::printValue(oss, "age");
+//  oss << ':';
+//  baejsn_PrintUtil::printValue(oss, john.d_age);
+//  oss << '\n' << '}';
+//..
+//  Finally, we print out the JSON string:
+//..
+//  if (verbose) {
+//      std::cout << oss.str();
+//  }
+//..
+//  The output should look like:
+//..
+//  {
+//  "firstName":"John",
+//  "lastName":"Doe",
+//  "age":20
+//  }
+//..
 
 #ifndef INCLUDED_BAESCM_VERSION
 #include <baescm_version.h>
@@ -65,7 +142,9 @@ class bdet_DatetimeTz;
                         // ======================
 
 class baejsn_PrintUtil {
-  private:
+    // This class provides functions for printing objects to output streams in
+    // JSON format.
+
     // PRIVATE CLASS METHODS
     template <class TYPE>
     static int printDateAndTime(bsl::ostream& stream, const TYPE& value);

@@ -32,14 +32,14 @@ BDES_IDENT("$Id: $")
 //..
 //  Simple Type          JSON Type  Notes
 //  -----------          ---------  -----
-//  char                 string     string with 1 character
+//  char                 number     The integer value of the character
 //  unsigned char        number
 //  int                  number
 //  unsigned int         number
 //  bsls::Types::Int64   number
 //  bsls::Types::Uint64  number
-//  float                number     number in scientific notation
-//  double               number     number in scientific notation
+//  float                number
+//  double               number
 //  char *               string
 //  bsl::string          string
 //  bdet_Date            string     ISO 8601 format
@@ -122,12 +122,12 @@ BDES_IDENT("$Id: $")
 #include <bdeat_customizedtypefunctions.h>
 #endif
 
-#ifndef INCLUDED_BDEAT_ENUMFUNCTIONS
-#include <bdeat_enumfunctions.h>
-#endif
-
 #ifndef INCLUDED_BDEAT_CUSTOMIZEDTYPEFUNCTIONS
 #include <bdeat_customizedtypefunctions.h>
+#endif
+
+#ifndef INCLUDED_BDEAT_ENUMFUNCTIONS
+#include <bdeat_enumfunctions.h>
 #endif
 
 #ifndef INCLUDED_BDEAT_SEQUENCEFUNCTIONS
@@ -169,6 +169,9 @@ namespace BloombergLP {
                         // ====================
 
 class baejsn_Encoder {
+    // This class provides a parameterized 'encode' method that encode 'bdeat'
+    // types in XML format.
+
     // FRIENDS
     friend class baejsn_Encoder_EncodeImpl;
 
@@ -665,7 +668,7 @@ int baejsn_Encoder_ElementVisitor::operator()(const TYPE& value,
     int rc = d_encoder->encode(info.name());
     if (0 != rc) {
         d_encoder->logStream()
-            << "Unable to encode the name of the selection, '"
+            << "Unable to encode the name of the element, '"
             << info.name()
             << "'."
             << bsl::endl;
@@ -675,7 +678,7 @@ int baejsn_Encoder_ElementVisitor::operator()(const TYPE& value,
     rc = d_encoder->encode(value);
     if (0 != rc) {
         d_encoder->logStream()
-            << "Unable to encode the value of the selection, '"
+            << "Unable to encode the value of the element, '"
             << info.name()
             << "'."
             << bsl::endl;

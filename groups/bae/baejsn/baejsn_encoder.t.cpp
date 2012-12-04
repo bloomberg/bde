@@ -3375,41 +3375,37 @@ template <class TYPE>
 void testNumber()
 {
     const struct {
-        int   d_line;
-        Int64 d_value;
+        int         d_line;
+        Int64       d_value;
+        const char *d_result;
     } DATA[] = {
-        //LINE       VAL
-        //----       ---
-        { L_,         -1 },
-        { L_,          0 },
-        { L_,          1 },
-        { L_,  UCHAR_MAX },
-        { L_,   SHRT_MIN },
-        { L_,   SHRT_MAX },
-        { L_,  USHRT_MAX },
-        { L_,    INT_MIN },
-        { L_,    INT_MAX },
-        { L_,   UINT_MAX },
-        { L_,  LLONG_MIN },
-        { L_,  LLONG_MAX },
-        { L_, ULLONG_MAX }
+        //LINE     VALUE  RESULT
+        //----     -----  ------
+        { L_,         -1, "-1" },
+        { L_,          0, "0" },
+        { L_,          1, "1" },
+        { L_,  UCHAR_MAX, "255" },
+        { L_,   SHRT_MIN, "-32768" },
+        { L_,   SHRT_MAX, "32767" },
+        { L_,  USHRT_MAX, "65535" },
+        { L_,    INT_MIN, "-2147483648" },
+        { L_,    INT_MAX, "2147483647" },
+        { L_,   UINT_MAX, "4294967295" },
+        { L_,  LLONG_MIN, "-9223372036854775808" },
+        { L_,  LLONG_MAX, "9223372036854775807" },
     };
     const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
     for (int ti = 0; ti < NUM_DATA; ++ti) {
         const int  LINE  = DATA[ti].d_line;
         const TYPE VALUE = (TYPE) DATA[ti].d_value;
+        const char *const EXP = DATA[ti].d_result;
 
-        bsl::ostringstream stream;
-        if (bslmf::IsSame<TYPE, unsigned char>::VALUE == true) {
-            // 'unsigned char' is outputted as a number.
-
-            stream << (int)VALUE;
+        const double testValue = static_cast<double>(DATA[ti].d_value);
+        if (testValue > bsl::numeric_limits<TYPE>::max()
+         || testValue < bsl::numeric_limits<TYPE>::min()) {
+            continue;
         }
-        else {
-            stream << VALUE;
-        }
-        const bsl::string EXP = stream.str();
 
         Obj  encoder;
         bsl::ostringstream oss;
@@ -3431,7 +3427,7 @@ int main(int argc, char *argv[])
 {
     int test = argc > 1 ? atoi(argv[1]) : 0;
     bool verbose = argc > 2;
-    //veryVerbose = argc > 3;
+    bool veryVerbose = argc > 3;
     bool veryVeryVerbose = argc > 4;
     //veryVeryVeryVerbose = argc > 5;
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
@@ -3518,7 +3514,6 @@ int main(int argc, char *argv[])
                 "},"
                 "\"age\":21"
             "}";
-
 
         ASSERTV(oss.str() == jsonText);
       } break;
