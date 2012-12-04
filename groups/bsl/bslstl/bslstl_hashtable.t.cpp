@@ -549,7 +549,7 @@ class GroupedEqualityComparator {
 };
 
 template <class TYPE, class HASHER, int GROUP_SIZE>
-class GroupedHasher : private HASHER{
+class GroupedHasher : private HASHER {
     // This test class provides a mechanism that defines a function-call
     // operator that returns the same hash for multiple values.  The
     // function-call operator invoke the (template parameter) type 'HASHER' on
@@ -563,7 +563,7 @@ class GroupedHasher : private HASHER{
 
   public:
     // ACCESSORS
-    size_t operator() (const TYPE& value) //const
+    size_t operator() (const TYPE& value)
         // Return the hash value of the integer representation of the specified
         // 'value' divided by 'GROUP_SIZE' (rounded down) is equal to than
         // integer representation of the specified 'rhs' divided by
@@ -573,8 +573,6 @@ class GroupedHasher : private HASHER{
                      / GROUP_SIZE;
 
         return HASHER::operator()(groupNum);
-//        return const_cast<HASHER *>(static_cast<const HASHER *>(this))->
-//                                                          operator()(groupNum);
     }
 };
 
@@ -920,7 +918,7 @@ struct MakeDefaultFunctor<DegenerateClass<FUNCTOR, ENABLE_SWAP> > {
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-//       test support functions dealing with hash and comparotor functors
+//       test support functions dealing with hash and comparator functors
 
 void setHasherState(bsl::hash<int> *hasher, int id)
 {
@@ -1370,7 +1368,7 @@ struct TestDriver_ForwardTestCasesByConfiguation {
 
     static void testCase7() { CONFIGURED_DRIVER::testCase7(); }
 
-    static void testCase6() { CONFIGURED_DRIVER::testCase4(); }
+    static void testCase6() { CONFIGURED_DRIVER::testCase6(); }
 
     // there is no testCase5();
 
@@ -1380,7 +1378,7 @@ struct TestDriver_ForwardTestCasesByConfiguation {
 
     static void testCase2() { CONFIGURED_DRIVER::testCase2(); }
 
-    // We do not forward a generic breathing test
+    // We do not forward a generic breathing test, testCase1();
 };
 
 // - - - - - - - - - - Pre-packaged test harness adapters - - - - - - - - - - -
@@ -1459,7 +1457,7 @@ struct TestDriver_BsltfConfiguation
 struct TestDriver_AwkwardMaplike
      : TestDriver_ForwardTestCasesByConfiguation<
            TestDriver< TrickyConfig
-                     , ::bsl::hash<TrickyConfig::KeyType>
+                     , TestFacilityHasher<TrickyConfig::KeyType>
                      , ::bsl::equal_to<TrickyConfig::KeyType>
                      , ::bsl::allocator<TrickyConfig::ValueType>
                      >
@@ -1474,48 +1472,54 @@ struct TestDriver_AwkwardMaplike
 // remaining test cases as well, using the familiar pattern above.
 
 template <class ELEMENT>
-struct TestCase6_Configuration {
-    // Test case 6 (equality comparator) must be run with
-    // 'GroupedEqualityComparator'.
-
-    typedef TestDriver< BasicKeyConfig<ELEMENT>
-                      , GroupedHasher<ELEMENT, bsl::hash<int>, 5>
-                      , GroupedEqualityComparator<ELEMENT, 5>
-                      , ::bsl::allocator<ELEMENT>
-                      > Type;
-
-    // TEST CASES
-    static void testCase6() { Type::testCase6(); }
+struct TestCase_GroupedUniqueKeys
+     : TestDriver_ForwardTestCasesByConfiguation<
+           TestDriver< BasicKeyConfig<ELEMENT>
+                     , GroupedHasher<ELEMENT, bsl::hash<int>, 5>
+                     , ::bsl::equal_to<ELEMENT>
+                     , ::bsl::allocator<ELEMENT>
+                     >
+       > {
+    // This configuration "groups" values into buckets by hashing 5 consecutive
+    // values to the same hash code, but maintaining a unique key value for
+    // each of those cases.  This should lead to a high rate of collisions.
 };
 
 template <class ELEMENT>
-struct TestCase6_DegenerateConfiguration {
-    // Test case 6 (equality comparator) must be run with
-    // 'GroupedEqualityComparator'.
+struct TestCase_GroupedSharedKeys
+     : TestDriver_ForwardTestCasesByConfiguation<
+           TestDriver< BasicKeyConfig<ELEMENT>
+                     , GroupedHasher<ELEMENT, bsl::hash<int>, 5>
+                     , GroupedEqualityComparator<ELEMENT, 5>
+                     , ::bsl::allocator<ELEMENT>
+                     >
+       > {
+    // This configuration "groups" values into buckets by hashing 5 consecutive
+    // values to the same hash code, and similarly arranging for those keys to
+    // compare equal to each other.  This should lead to behavior similar to a
+    // multiset.
+};
 
-    typedef TestDriver< 
+template <class ELEMENT>
+struct TestCase6_DegenerateConfiguration
+     : TestDriver_ForwardTestCasesByConfiguation<
+           TestDriver< 
                    BasicKeyConfig<ELEMENT>,
                    DegenerateClass<GroupedHasher<ELEMENT, bsl::hash<int>, 5> >,
                    DegenerateClass<GroupedEqualityComparator<ELEMENT, 5> >,
-                   ::bsl::allocator<ELEMENT> > Type;
-
-    // TEST CASES
-    static void testCase6() { Type::testCase6(); }
+                   ::bsl::allocator<ELEMENT> >
+       > {
 };
 
 template <class ELEMENT>
-struct TestCase6_DegenerateConfigurationNoSwap {
-    // Test case 6 (equality comparator) must be run with
-    // 'GroupedEqualityComparator'.
-
-    typedef TestDriver< 
+struct TestCase6_DegenerateConfigurationNoSwap
+     : TestDriver_ForwardTestCasesByConfiguation<
+           TestDriver< 
             BasicKeyConfig<ELEMENT>,
             DegenerateClass<GroupedHasher<ELEMENT, bsl::hash<int>, 5>, false >,
             DegenerateClass<GroupedEqualityComparator<ELEMENT, 5>, false >,
-            ::bsl::allocator<ELEMENT> > Type;
-
-    // TEST CASES
-    static void testCase6() { Type::testCase6(); }
+            ::bsl::allocator<ELEMENT> >
+       > {
 };
 
 struct TestDriverForCase6_AwkwardMaplike
@@ -2065,20 +2069,20 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase9()
         // Create first object
         for (int lfi = 0; lfi < DEFAULT_MAX_LOAD_FACTOR_SIZE; ++lfi) {
         for (int ti = 0; ti < NUM_DATA; ++ti) {
-            const float MAX_LOAD_FACTOR1 = DEFAULT_MAX_LOAD_FACTOR[lfi];
+            const float MAX_LF1 = DEFAULT_MAX_LOAD_FACTOR[lfi];
 
             const int         LINE1   = DATA[ti].d_line;
             const int         INDEX1  = DATA[ti].d_index;
             const char *const SPEC1   = DATA[ti].d_spec;
 
             const size_t      LENGTH1 = strlen(SPEC1);
-            const size_t NUM_BUCKETS1 = ceil(LENGTH1 / MAX_LOAD_FACTOR1);
+            const size_t NUM_BUCKETS1 = ceil(LENGTH1 / MAX_LF1);
 
             bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
-            Obj mZ(HASH, COMPARE, NUM_BUCKETS1, MAX_LOAD_FACTOR1, &scratch);
+            Obj mZ(HASH, COMPARE, NUM_BUCKETS1, MAX_LF1, &scratch);
             const Obj& Z  = gg(&mZ,  SPEC1);
-            Obj mZZ(HASH, COMPARE, NUM_BUCKETS1, MAX_LOAD_FACTOR1, &scratch);
+            Obj mZZ(HASH, COMPARE, NUM_BUCKETS1, MAX_LF1, &scratch);
             const Obj& ZZ = gg(&mZZ, SPEC1);
 
 
@@ -2087,19 +2091,19 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase9()
             // Create second object
             for (int lfj = 0; lfj < DEFAULT_MAX_LOAD_FACTOR_SIZE; ++lfj) {
             for (int tj = 0; tj < NUM_DATA; ++tj) {
-                const float MAX_LOAD_FACTOR2 = DEFAULT_MAX_LOAD_FACTOR[lfj];
+                const float MAX_LF2 = DEFAULT_MAX_LOAD_FACTOR[lfj];
 
                 const int         LINE2   = DATA[tj].d_line;
                 const int         INDEX2  = DATA[tj].d_index;
                 const char *const SPEC2   = DATA[tj].d_spec;
 
                 const size_t      LENGTH2 = strlen(SPEC2);
-                const size_t NUM_BUCKETS2 = ceil(LENGTH2 / MAX_LOAD_FACTOR2);
+                const size_t NUM_BUCKETS2 = ceil(LENGTH2 / MAX_LF2);
 
                 bslma::TestAllocator oa("object", veryVeryVeryVerbose);
 
                 {
-                    Obj mX(HASH, COMPARE, NUM_BUCKETS2, MAX_LOAD_FACTOR2, &oa);
+                    Obj mX(HASH, COMPARE, NUM_BUCKETS2, MAX_LF2, &oa);
                     const Obj& X  = gg(&mX,  SPEC2);
 
                     if (veryVerbose) { T_ P_(LINE2) P(X) }
@@ -2127,7 +2131,13 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase9()
 
                     ASSERTV(LINE1, LINE2, sam.isInUseSame());
 
+#if !defined(BDE_BUILD_TARGET_SAFE_2)
+                    // The invariant check in the destructor uses the default
+                    // allocator in SAFE_2 builds.
+                    // Otherwise, no memory should be allocated by the default
+                    // allocator.
                     ASSERTV(LINE1, LINE2, 0 == da.numBlocksTotal());
+#endif
                 }
 
                 // Verify all memory is released on object destruction.
@@ -2145,9 +2155,9 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase9()
             {
                 bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
-                Obj mX(HASH, COMPARE, NUM_BUCKETS1, MAX_LOAD_FACTOR1, &oa);
+                Obj mX(HASH, COMPARE, NUM_BUCKETS1, MAX_LF1, &oa);
                 const Obj& X  = gg(&mX,  SPEC1);
-                Obj mZZ(HASH, COMPARE, NUM_BUCKETS1, MAX_LOAD_FACTOR1, &scratch);
+                Obj mZZ(HASH, COMPARE, NUM_BUCKETS1, MAX_LF1, &scratch);
                 const Obj& ZZ  = gg(&mZZ,  SPEC1);
 
                 const Obj& Z = mX;
@@ -2398,16 +2408,18 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase8()
 
     for (int lfi = 0; lfi < DEFAULT_MAX_LOAD_FACTOR_SIZE; ++lfi) {
     for (int ti = 0; ti < NUM_DATA; ++ti) {
-        const float MAX_LOAD_FACTOR1 = DEFAULT_MAX_LOAD_FACTOR[lfi];
+        const float       MAX_LF1 = DEFAULT_MAX_LOAD_FACTOR[lfi];
 
         const int         LINE1   = DATA[ti].d_line;
         const char *const SPEC1   = DATA[ti].d_spec;
-        const size_t      LENGTH1 = ceil(strlen(SPEC1)/MAX_LOAD_FACTOR1);
+
+        const size_t      LENGTH1      = strlen(SPEC1);
+        const size_t      NUM_BUCKETS1 = ceil(LENGTH1 / MAX_LF1);
 
         bslma::TestAllocator      oa("object",  veryVeryVeryVerbose);
         bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
-        Obj mW(HASH, COMPARE, LENGTH1, MAX_LOAD_FACTOR1, &oa);
+        Obj mW(HASH, COMPARE, NUM_BUCKETS1, MAX_LF1, &oa);
         const Obj& W = gg(&mW,  SPEC1);
         const Obj XX(W, &scratch);
 
@@ -2437,15 +2449,18 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase8()
 
         for (int lfj = 0; lfj < DEFAULT_MAX_LOAD_FACTOR_SIZE; ++lfj) {
         for (int tj = 0; tj < NUM_DATA; ++tj) {
-            const float MAX_LOAD_FACTOR2 = DEFAULT_MAX_LOAD_FACTOR[lfj];
+            const float       MAX_LF2 = DEFAULT_MAX_LOAD_FACTOR[lfj];
 
             const int         LINE2   = DATA[tj].d_line;
             const char *const SPEC2   = DATA[tj].d_spec;
-            const size_t      LENGTH2 = ceil(strlen(SPEC2)/MAX_LOAD_FACTOR2);
+
+            const size_t      LENGTH2      = strlen(SPEC2);
+            const size_t      NUM_BUCKETS2 = ceil(LENGTH2 / MAX_LF2);
+
 
             Obj mX(XX, &oa);  const Obj& X = mX;
 
-            Obj mY(HASH, COMPARE, LENGTH2, MAX_LOAD_FACTOR2, &oa);
+            Obj mY(HASH, COMPARE, NUM_BUCKETS2, MAX_LF2, &oa);
             const Obj& Y = gg(&mY, SPEC2);
             const Obj YY(Y, &scratch);
 
@@ -2479,7 +2494,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase8()
 
             bslma::TestAllocator oaz("z_object", veryVeryVeryVerbose);
 
-            Obj mZ(HASH, COMPARE, LENGTH2, MAX_LOAD_FACTOR2, &oaz);
+            Obj mZ(HASH, COMPARE, NUM_BUCKETS2, MAX_LF2, &oaz);
             const Obj& Z = gg(&mZ, SPEC2);
             const Obj ZZ(Z, &scratch);
 
@@ -2572,7 +2587,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase8()
         Obj mX(HASH, COMPARE, 0, 1.0, &oa);  const Obj& X = mX;
         const Obj XX(X, &scratch);
 
-        Obj mY(HASH, COMPARE, 4, 0.1, &oa);
+        Obj mY(HASH, COMPARE, 40, 0.1, &oa);
         const Obj& Y = gg(&mY, "ABC");
         const Obj YY(Y, &scratch);
 
@@ -2689,7 +2704,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase7()
     {
         static const char *SPECS[] = {
             "",
-            "A"
+            "A",
             "BC",
             "CDE",
             "DEAB",
@@ -2841,12 +2856,17 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase7()
                 }
                 ASSERTV(MAX_LF, SPEC, Y11.allocator() == X.allocator());
             }
+
+            if (0 < X.size())
             {   // Exception checking.
+                // There is nothing to test if 'X' is empty, and several test
+                // conditions would be complicated to allow for 'W == X' in
+                // this state.
 
                 bslma::TestAllocatorMonitor oam(&oa);
 
                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
-                    const Obj Y2(X, &oa);
+                    Obj Y2(X, &oa);
                     if (veryVerbose) {
                         printf("\t\t\tException Case  :\n");
                         printf("\t\t\t\tObj : "); P(Y2);
@@ -2854,14 +2874,14 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase7()
                     ASSERTV(MAX_LF, SPEC,  W, Y2, W  != Y2);
                     ASSERTV(MAX_LF, SPEC, Y2,  X, Y2 ==  X);
                     ASSERTV(MAX_LF, SPEC, Y2.allocator() == X.allocator());
-#if 0
+
                     Link *RESULT = insertElement(&Y2, VALUES['Z' - 'A']);
                     if(0 == RESULT) {
                         Y2.removeAll();
                     }
                     ASSERTV(MAX_LF, SPEC,  W, Y2, W  == Y2);
                     ASSERTV(MAX_LF, SPEC, Y2,  X, Y2 !=  X);
-#endif
+
                 } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
                 if (LENGTH == 0) {
@@ -2937,7 +2957,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase6()
     //: 4 For each row 'R1' in the table of P-3: (C-1..7)
     //:
     //:   1 Create a single object, using a comparator that can be disabled and
-    //:     a"scratch" allocator, and use it to verify the reflexive
+    //:     a "scratch" allocator, and use it to verify the reflexive
     //:     (anti-reflexive) property of equality (inequality) in the presence
     //:     of aliasing.  (C-3..4)
     //:
@@ -3059,11 +3079,16 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase6()
                 ASSERTV(LINE1, X, !(X != X));
             }
 
+            for (int lfj = 0; lfj < DEFAULT_MAX_LOAD_FACTOR_SIZE; ++lfj) {
             for (int tj = 0; tj < NUM_DATA; ++tj) {
+                const float       MAX_LF2  = DEFAULT_MAX_LOAD_FACTOR[lfj];
+
                 const int         LINE2   = DATA[tj].d_line;
                 const int         INDEX2  = DATA[tj].d_index;
                 const char *const SPEC2   = DATA[tj].d_spec;
-                const size_t      LENGTH2 = strlen(SPEC2);
+
+                const size_t      LENGTH2      = strlen(SPEC2);
+                const size_t      NUM_BUCKETS2 = ceil(LENGTH2/MAX_LF2);
 
                 if (veryVerbose) {
                               T_ T_ P_(LINE2) P_(INDEX2) P_(LENGTH2) P(SPEC2) }
@@ -3074,37 +3099,29 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase6()
 
                     const char CONFIG = cfg;  // Determines 'Y's allocator.
 
-                    // Create three distinct test allocators, 'oax', 'oay' and
-                    // 'oaz'.
+                    // Create three distinct test allocators, 'oax' and 'oay'.
 
                     bslma::TestAllocator oax("objectx", veryVeryVeryVerbose);
                     bslma::TestAllocator oay("objecty", veryVeryVeryVerbose);
-                    bslma::TestAllocator oaz("objectz", veryVeryVeryVerbose);
 
                     // Map allocators above to objects 'X' and 'Y' below.
 
                     bslma::TestAllocator& xa = oax;
                     bslma::TestAllocator& ya = 'a' == CONFIG ? oax : oay;
-                    bslma::TestAllocator& za = 'a' == CONFIG ? oax : oaz;
 
-                    Obj mX(HASH, EQUAL, NUM_BUCKETS, MAX_LF1, &xa);
+                    Obj mX(HASH, EQUAL, NUM_BUCKETS,  MAX_LF1, &xa);
                     const Obj& X = gg(&mX, SPEC1);
-                    Obj mY(HASH, EQUAL, 1 + 0.1 * LENGTH2, 10.0f, &ya);
+                    Obj mY(HASH, EQUAL, NUM_BUCKETS2, MAX_LF2, &ya);
                     const Obj& Y = gg(&mY, SPEC2);
-                    Obj mZ(HASH, EQUAL, 1 + 100 * LENGTH2, 0.01f, &za);
-                    const Obj& Z = gg(&mZ, SPEC2);
 
                     ASSERTV(LINE1, LINE2, CONFIG, LENGTH1, X.size(),
                             LENGTH1 == X.size());
+                    ASSERTV(LINE1, LINE2, CONFIG, MAX_LF1, X.maxLoadFactor(),
+                            MAX_LF1 == X.maxLoadFactor());
                     ASSERTV(LINE1, LINE2, CONFIG, LENGTH2, Y.size(),
                             LENGTH2 == Y.size());
-                    ASSERTV(LINE1, LINE2, CONFIG, LENGTH2, Z.size(),
-                            LENGTH2 == Z.size());
-
-                    if (0 < LENGTH2) {
-                        ASSERTV(LINE2, CONFIG, Y.numBuckets(), Z.numBuckets(),
-                                Y.numBuckets() !=  Z.numBuckets());
-                    }
+                    ASSERTV(LINE1, LINE2, CONFIG, MAX_LF2, Y.maxLoadFactor(),
+                            MAX_LF2 == Y.maxLoadFactor());
 
                     if (veryVerbose) { T_ T_ P_(X) P(Y); }
 
@@ -3112,67 +3129,37 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase6()
 
                     bslma::TestAllocatorMonitor oaxm(&xa);
                     bslma::TestAllocatorMonitor oaym(&ya);
-                    bslma::TestAllocatorMonitor oazm(&za);
 
-                    //TestEqualityComparator<KEY>::disableFunctor();
+                    ASSERTV(LINE1, LINE2, CONFIG, X, Y,  EXP == (X == Y));
+                    ASSERTV(LINE1, LINE2, CONFIG, X, Y,  EXP == (Y == X));
 
-                    ASSERTV(LINE1, LINE2, X, Y, CONFIG,  EXP == (X == Y));
-                    ASSERTV(LINE1, LINE2, CONFIG,  EXP == (Y == X));
+                    ASSERTV(LINE1, LINE2, CONFIG, X, Y, !EXP == (X != Y));
+                    ASSERTV(LINE1, LINE2, CONFIG, X, Y, !EXP == (Y != X));
 
-                    ASSERTV(LINE1, LINE2, CONFIG, !EXP == (X != Y));
-                    ASSERTV(LINE1, LINE2, CONFIG, !EXP == (Y != X));
+                    ASSERTV(LINE1, LINE2, CONFIG, X, Y, oaxm.isTotalSame());
+                    ASSERTV(LINE1, LINE2, CONFIG, X, Y, oaym.isTotalSame());
 
-                    ASSERTV(LINE1, LINE2, X, Z, CONFIG,  EXP == (X == Z));
-                    ASSERTV(LINE1, LINE2, CONFIG,  EXP == (Z == X));
-
-                    ASSERTV(LINE1, LINE2, CONFIG, !EXP == (X != Z));
-                    ASSERTV(LINE1, LINE2, CONFIG, !EXP == (Z != X));
-
-                    // confirm values compare equal with differing non-salient
-                    // attributes.
-                    if (!(0 == Y.size())) {
-                        ASSERTV(LINE2, CONFIG, Y.numBuckets(), Z.numBuckets(),
-                                Y.loadFactor() !=  Z.loadFactor());
-
-                        ASSERTV(LINE2, CONFIG, Y.numBuckets(), Z.numBuckets(),
-                                Y.numBuckets() !=  Z.numBuckets());
-                    }
-                    else {
-                        ASSERTV(LINE2, CONFIG, Z.size(), 0 == Z.size());
-                    }
-
-                    ASSERTV(LINE2, Y, Z, CONFIG,  true == (Y == Z));
-                    ASSERTV(LINE2, CONFIG,  true == (Z == Y));
-
-                    ASSERTV(LINE2, CONFIG, false == (Y != Z));
-                    ASSERTV(LINE2, CONFIG, false == (Z != Y));
-
-                    //TestEqualityComparator<KEY>::enableFunctor();
-
-                    ASSERTV(LINE1, LINE2, CONFIG, oaxm.isTotalSame());
-                    ASSERTV(LINE1, LINE2, CONFIG, oaym.isTotalSame());
-                    ASSERTV(LINE1, LINE2, CONFIG, oazm.isTotalSame());
-
-                    if (!HAVE_TESTED_DISTINCT_PERMUTATIONS) {
-                        // Walk the lists of both 'Y' and 'Z' to see if they
+                    if (!HAVE_TESTED_DISTINCT_PERMUTATIONS && EXP) {
+                        // Walk the lists of both 'Y' and 'X' to see if they
                         // they are distinct permutations.
                         Link *yCursor = Y.elementListRoot();
-                        Link *zCursor = Z.elementListRoot();
+                        Link *xCursor = X.elementListRoot();
 
                         while (yCursor) {
-                            ASSERT(zCursor); // lists should be the same length
+                            ASSERT(xCursor); // lists should be the same length
 
                             if (!(ImpUtil::extractValue<KEY_CONFIG>(yCursor) ==
-                                  ImpUtil::extractValue<KEY_CONFIG>(zCursor)))
+                                  ImpUtil::extractValue<KEY_CONFIG>(xCursor)))
                             {
                                 HAVE_TESTED_DISTINCT_PERMUTATIONS = true;
                                 break;
                             }
                             yCursor = yCursor->nextLink();
-                            zCursor = zCursor->nextLink();
+                            xCursor = xCursor->nextLink();
                         }
                     }
                 }
+            }
             }
         }
         }
@@ -3374,8 +3361,12 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase4()
 
                 // Verify no allocation from the non-object allocator.
 
+#if !defined(BDE_BUILD_TARGET_SAFE_2)
+                // The invariant check in the destructor uses the default
+                // allocator in SAFE_2 builds.
                 ASSERTV(LINE, CONFIG, noa.numBlocksTotal(),
                         0 == noa.numBlocksTotal());
+#endif
 
                 // Verify all memory is released on object destruction.
 
@@ -4718,7 +4709,9 @@ int main(int argc, char *argv[])
                             "\n===========================\n");
         RUN_EACH_TYPE(TestDriver_BasicConfiguation,
                       testCase9,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      bsltf::NonAssignableTestType,
+                      bsltf::NonDefaultConstructibleTestType);
 
         RUN_EACH_TYPE(TestDriver_StatefulConfiguation,
                       testCase9,
@@ -4742,7 +4735,9 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE(TestDriver_BasicConfiguation,
                       testCase8,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      bsltf::NonAssignableTestType,
+                      bsltf::NonDefaultConstructibleTestType);
 
         RUN_EACH_TYPE(TestDriver_StatefulConfiguation,
                       testCase8,
@@ -4766,19 +4761,35 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE(TestDriver_BasicConfiguation,
                       testCase7,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      bsltf::NonAssignableTestType,
+                      bsltf::NonDefaultConstructibleTestType);
 
         RUN_EACH_TYPE(TestDriver_StatefulConfiguation,
                       testCase7,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      bsltf::NonAssignableTestType,
+                      bsltf::NonDefaultConstructibleTestType);
 
         RUN_EACH_TYPE(TestDriver_DegenerateConfiguation,
                       testCase7,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      bsltf::NonAssignableTestType,
+                      bsltf::NonDefaultConstructibleTestType);
 
         RUN_EACH_TYPE(TestDriver_DegenerateConfiguationWithNoSwap,
                       testCase7,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      bsltf::NonAssignableTestType,
+                      bsltf::NonDefaultConstructibleTestType);
+
+        // Be sure to bootstrap the special 'grouped' configurations used in
+        // test case 6.
+        RUN_EACH_TYPE(TestCase_GroupedUniqueKeys,
+                      testCase7,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      bsltf::NonAssignableTestType,
+                      bsltf::NonDefaultConstructibleTestType);
 
         // Remaining special cases
         TestDriver_AwkwardMaplike::testCase7();
@@ -4792,20 +4803,58 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTesting Equality Operators"
                             "\n==========================\n");
 
-        RUN_EACH_TYPE(TestCase6_Configuration,
+        // Note that the 'NonEqualComparableTestType' is not appropriate here.
+        RUN_EACH_TYPE(TestDriver_BasicConfiguation,
                       testCase6,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      bsltf::NonAssignableTestType,
+                      bsltf::NonDefaultConstructibleTestType);
+
+        RUN_EACH_TYPE(TestDriver_StatefulConfiguation,
+                      testCase6,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      bsltf::NonAssignableTestType,
+                      bsltf::NonDefaultConstructibleTestType);
+
+        RUN_EACH_TYPE(TestDriver_DegenerateConfiguation,
+                      testCase6,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      bsltf::NonAssignableTestType,
+                      bsltf::NonDefaultConstructibleTestType);
+
+        RUN_EACH_TYPE(TestDriver_DegenerateConfiguationWithNoSwap,
+                      testCase6,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      bsltf::NonAssignableTestType,
+                      bsltf::NonDefaultConstructibleTestType);
+
+        // Grouped tests
+        RUN_EACH_TYPE(TestCase_GroupedUniqueKeys,
+                      testCase6,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      bsltf::NonAssignableTestType,
+                      bsltf::NonDefaultConstructibleTestType);
+
+        RUN_EACH_TYPE(TestCase_GroupedSharedKeys,
+                      testCase6,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      bsltf::NonAssignableTestType,
+                      bsltf::NonDefaultConstructibleTestType);
 
         RUN_EACH_TYPE(TestCase6_DegenerateConfiguration,
                       testCase6,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      bsltf::NonAssignableTestType,
+                      bsltf::NonDefaultConstructibleTestType);
 
         RUN_EACH_TYPE(TestCase6_DegenerateConfigurationNoSwap,
                       testCase6,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      bsltf::NonAssignableTestType,
+                      bsltf::NonDefaultConstructibleTestType);
 
         // Remaining special cases
-//        TestDriverForCase6_AwkwardMaplike::testCase6();
+        TestDriverForCase6_AwkwardMaplike::testCase6();
 
       } break;
       case 5: {
@@ -4829,23 +4878,30 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE(TestDriver_BasicConfiguation,
                       testCase4,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
 
         RUN_EACH_TYPE(TestDriver_StatefulConfiguation,
                       testCase4,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
 
         RUN_EACH_TYPE(TestDriver_DegenerateConfiguation,
                       testCase4,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
 
         RUN_EACH_TYPE(TestDriver_DegenerateConfiguationWithNoSwap,
                       testCase4,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
+
+#if 0
+        // Be sure to bootstrap the special 'grouped' configurations used in
+        // test case 6.
+        RUN_EACH_TYPE(TestCase_GroupedUniqueKeys,
+                      testCase4,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
 
         // Remaining special cases
 //        TestDriver_AwkwardMaplike::testCase4();
-
+#endif
       } break;
       case 3: {
         // --------------------------------------------------------------------
@@ -4857,19 +4913,25 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE(TestDriver_BasicConfiguation,
                       testCase3,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
 
         RUN_EACH_TYPE(TestDriver_StatefulConfiguation,
                       testCase3,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
 
         RUN_EACH_TYPE(TestDriver_DegenerateConfiguation,
                       testCase3,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
 
         RUN_EACH_TYPE(TestDriver_DegenerateConfiguationWithNoSwap,
                       testCase3,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
+
+        // Be sure to bootstrap the special 'grouped' configurations used in
+        // test case 6.
+        RUN_EACH_TYPE(TestCase_GroupedUniqueKeys,
+                      testCase3,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
 
         // Remaining special cases
         TestDriver_AwkwardMaplike::testCase3();
@@ -4962,8 +5024,31 @@ int main(int argc, char *argv[])
                       testCase2,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
 
+
+        // Be sure to bootstrap the special 'grouped' configurations used in
+        // test case 6.
+        RUN_EACH_TYPE(TestCase_GroupedUniqueKeys,
+                      testCase2,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
+
+#if 0
+        // These 3 cases do not have unique keys, which fools the final part of
+        // the basic test case.  Will review test logic later, to re-enable
+        // these tests.
+        RUN_EACH_TYPE(TestCase_GroupedUniqueKeys,
+                      testCase2,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
+
+        RUN_EACH_TYPE(TestCase6_DegenerateConfiguration,
+                      testCase2,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
+
+        RUN_EACH_TYPE(TestCase6_DegenerateConfigurationNoSwap,
+                      testCase2,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
+#endif
         // Remaining special cases
-//        TestDriver_AwkwardMaplike::testCase2();
+        TestDriver_AwkwardMaplike::testCase2();
 
       } break;
       case 1: {

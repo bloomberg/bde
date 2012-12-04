@@ -351,8 +351,6 @@ class HashTable {
                                                                 BaseComparator;
 
     // PRIVATE TYPES
-//    struct ImplParameters : private bslalg::FunctorAdapter<HASHER>::Type
-//                          , private bslalg::FunctorAdapter<COMPARATOR>::Type
     struct ImplParameters : private BaseHasher, private BaseComparator
     {
         // This class holds all the parameterized parts of a 'HashTable' class,
@@ -372,9 +370,6 @@ class HashTable {
                          rebind_traits<NodeType>::allocator_type NodeAllocator;
 
         // These aliases simplify naming the base classes in the constructor
-//        typedef typename bslalg::FunctorAdapter<HASHER>::Type   HasherBaseType;
-//        typedef typename bslalg::FunctorAdapter<COMPARATOR>::Type
-//                                                            ComparatorBaseType;
         typedef BaseHasher     HasherBaseType;
         typedef BaseComparator ComparatorBaseType;
 
@@ -505,7 +500,8 @@ class HashTable {
         // not destroyed.
 
     // PRIVATE ACCESSORS
-    native_std::size_t hashCodeForNode(bslalg::BidirectionalLink *node) const;
+    native_std::size_t hashCodeForNode(const bslalg::BidirectionalLink *node)
+                                                                         const;
         // Return the hash code for the element stored in the specified 'node'
         // using a copy of the hash functor supplied at construction.  The
         // behavior is undefined unless 'node' points to a list node of type
@@ -859,14 +855,13 @@ bool operator!=(
                     // class HashTable_ArrayProctor
                     // ============================
 
-template <class ALLOCATOR>
+template <class FACTORY>
 class HashTable_ArrayProctor {
     // This class probably already exists in 'bslalg'
   private:
     // DATA
-    ALLOCATOR                      d_allocator;
-    bslalg::HashTableBucket       *d_array;
-    typename ALLOCATOR::size_type  d_size;
+    FACTORY                 *d_factory;
+    bslalg::HashTableAnchor *d_anchor;
 
   private:
     // NOT IMPLEMENTED
@@ -874,8 +869,9 @@ class HashTable_ArrayProctor {
     HashTable_ArrayProctor& operator == (const HashTable_ArrayProctor&);
 
   public:
-    HashTable_ArrayProctor(const ALLOCATOR&               allocator,
-                           const bslalg::HashTableAnchor& anchor);
+    HashTable_ArrayProctor(FACTORY                 *factory,
+                           bslalg::HashTableAnchor *anchor);
+
 
     ~HashTable_ArrayProctor();
 
@@ -884,56 +880,6 @@ class HashTable_ArrayProctor {
         // Release from management the object currently managed by this
         // proctor.  If no object is currently being managed, this method has
         // no effect.
-};
-
-                    // ===========================
-                    // class HashTable_ListProctor
-                    // ===========================
-
-template <class FACTORY>
-class HashTable_ListProctor {
-    // This class implements a proctor that, unless its 'release' method has
-    // previously been invoked, automatically deallocates a managed list of
-    // nodes upon destruction by recursively invoking the 'deleteNode'
-    // method of a supplied factory on each node.  The (template parameter)
-    // type 'FACTORY' shall be provide a member function that can be called as
-    // if it had the following signature:
-    //..
-    //  void deleteNode(bslalg::BidirectionalLink *node);
-    //..
-
-  private:
-    // DATA
-    FACTORY                   *d_factory;
-    bslalg::BidirectionalLink *d_root;
-
-  private:
-    // NOT IMPLEMENTED
-    HashTable_ListProctor(const HashTable_ListProctor&);
-    HashTable_ListProctor& operator=(const HashTable_ListProctor&);
-
-  public:
-    HashTable_ListProctor(FACTORY                   *factory,
-                          bslalg::BidirectionalLink *listRoot);
-        // Create a new list-proctor that conditionally manages the list
-        // rooted at the specified 'listRoot' (if non-zero), and that uses the
-        // specified 'factory' to to delete elements of the managed list
-        // (unless released) upon its destruction.  The behavior is undefined
-        // unless all the links in the list rooted at 'listRoot' were created
-        // by the specified 'factory'.
-
-    ~HashTable_ListProctor();
-        // Destroy this list proctor, and delete the nodes in the list that it
-        // manages (if any) by invoking the 'deleteNode' method of the factory
-        // supplied at construction on each node in the list.  If no list is
-        // currently being managed, this method has no effect.  The behavior is
-        // undefined unless all the links in the managed list were created
-        // by the 'factory' specified at construction.
-
-    // MANIPULATORS
-    void release();
-        // Release from management the list currently managed by this proctor.
-        // If no object is currently being managed, this method has no effect.
 };
 
                     // ===========================
@@ -1009,25 +955,14 @@ struct HashTable_ImpDetails {
                     // class HashTable_Util
                     // ====================
 
-template<class ALLOCATOR>
 struct HashTable_Util {
     // This utility 'struct' provide utilities for initializing and destroying
     // bucket lists in anchors that will be managed by a 'HashTable'.
 
-  private:
-    // PRIVATE TYPES
-    typedef typename ::bsl::allocator_traits<ALLOCATOR>::template
-                         rebind_traits<bslalg::HashTableBucket>::allocator_type
-                                                                ArrayAllocator;
-    typedef ::bsl::allocator_traits<ArrayAllocator> ArrayAllocatorTraits;
-
-  public:
-    // PUBLIC TYPES
-    typedef typename ArrayAllocatorTraits::size_type SizeType;
-
     // CLASS METHODS
+    template<class ALLOCATOR>
     static void initAnchor(bslalg::HashTableAnchor *anchor,
-                           SizeType                 bucketArraySize,
+                           native_std::size_t       bucketArraySize,
                            const ALLOCATOR&         allocator);
         // Load into the specified 'anchor' a (contiguous) array of buckets of
         // the specified 'bucketArraySize' using memory supplied by the
@@ -1035,8 +970,9 @@ struct HashTable_Util {
         // '0 < bucketArraySize' and '0 == anchor->bucketArraySize()'.  Note
         // that this operation has no effect on 'anchor->listRootAddress()'.
 
+    template<class ALLOCATOR>
     static void destroyBucketArray(bslalg::HashTableBucket *data,
-                                   SizeType                 bucketArraySize,
+                                   native_std::size_t       bucketArraySize,
                                    const ALLOCATOR&         allocator);
 };
 
@@ -1087,41 +1023,6 @@ struct IsBitwiseMoveable<bslstl::HashTable<KEY_CONFIG,
 namespace bslstl
 {
                     // ---------------------------
-                    // class HashTable_ListProctor
-                    // ---------------------------
-
-// CREATORS
-template <class FACTORY>
-inline
-HashTable_ListProctor<FACTORY>::HashTable_ListProctor(
-                                           FACTORY                   *factory,
-                                           bslalg::BidirectionalLink *listRoot)
-: d_factory(factory)
-, d_root(listRoot)
-{
-    BSLS_ASSERT_SAFE(factory);
-}
-
-template <class FACTORY>
-inline
-HashTable_ListProctor<FACTORY>::~HashTable_ListProctor()
-{
-    while (d_root) {
-        bslalg::BidirectionalLink *next = d_root->nextLink();
-        d_factory->deleteNode(d_root);
-        d_root = next;
-    }
-}
-
-// MANIPULATORS
-template <class FACTORY>
-inline
-void HashTable_ListProctor<FACTORY>::release()
-{
-    d_root = 0;
-}
-
-                    // ---------------------------
                     // class HashTable_NodeProctor
                     // ---------------------------
 
@@ -1159,34 +1060,44 @@ void HashTable_NodeProctor<FACTORY>::release()
                     // ----------------------------
 
 // CREATORS
-template <class ALLOCATOR>
+template <class FACTORY>
 inline
-HashTable_ArrayProctor<ALLOCATOR>::HashTable_ArrayProctor(
-                                      const ALLOCATOR&               allocator,
-                                      const bslalg::HashTableAnchor& anchor)
-: d_allocator(allocator)
-, d_array(anchor.bucketArrayAddress())
-, d_size(anchor.bucketArraySize())
+HashTable_ArrayProctor<FACTORY>::HashTable_ArrayProctor(
+                                           FACTORY                 *factory,
+                                           bslalg::HashTableAnchor *anchor)
+: d_factory(factory)
+, d_anchor(anchor)
 {
+    BSLS_ASSERT_SAFE(factory);
+    BSLS_ASSERT_SAFE(anchor);
 }
 
-template <class ALLOCATOR>
+template <class FACTORY>
 inline
-HashTable_ArrayProctor<ALLOCATOR>::~HashTable_ArrayProctor()
+HashTable_ArrayProctor<FACTORY>::~HashTable_ArrayProctor()
 {
-    if (d_array) {
-        HashTable_Util<ALLOCATOR>::destroyBucketArray(d_array,
-                                                      d_size,
-                                                      d_allocator);
+    if (d_anchor) {
+//        HashTable_Util<ALLOCATOR>::destroyBucketArray(
+        HashTable_Util::destroyBucketArray(
+                                                d_anchor->bucketArrayAddress(),
+                                                d_anchor->bucketArraySize(),
+                                                d_factory->allocator());
+
+        bslalg::BidirectionalLink *root = d_anchor->listRootAddress();
+        while (root) {
+            bslalg::BidirectionalLink *next = root->nextLink();
+            d_factory->deleteNode(root);
+            root = next;
+        }
     }
 }
 
 // MANIPULATORS
-template <class ALLOCATOR>
+template <class FACTORY>
 inline
-void HashTable_ArrayProctor<ALLOCATOR>::release()
+void HashTable_ArrayProctor<FACTORY>::release()
 {
-    d_array = 0;
+    d_anchor = 0;
 }
 
                     // -------------------------------
@@ -1311,8 +1222,6 @@ native_std::size_t
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::ImplParameters::
 hashCodeForKey(const KeyType& key) const
 {
-//    return static_cast<HASHER *>(const_cast<ImplParameters *>(this))->
-//                                                               operator()(key);
     return static_cast<const BaseHasher &>(*this)(key);
 }
 
@@ -1333,14 +1242,19 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::ImplParameters::
 
 template <class ALLOCATOR>
 inline
-void HashTable_Util<ALLOCATOR>::initAnchor(
+void HashTable_Util::initAnchor(
                                       bslalg::HashTableAnchor *anchor,
-                                      SizeType                 bucketArraySize,
+                                      native_std::size_t       bucketArraySize,
                                       const ALLOCATOR&         allocator)
 {
     BSLS_ASSERT_SAFE(anchor);
     BSLS_ASSERT_SAFE(0 != bucketArraySize);
 
+    typedef typename ::bsl::allocator_traits<ALLOCATOR>::template
+                         rebind_traits<bslalg::HashTableBucket>::allocator_type
+                                                                ArrayAllocator;
+    typedef ::bsl::allocator_traits<ArrayAllocator> ArrayAllocatorTraits;
+    
     ArrayAllocator reboundAllocator(allocator);
 
     bslalg::HashTableBucket *data =
@@ -1353,9 +1267,9 @@ void HashTable_Util<ALLOCATOR>::initAnchor(
 
 template <class ALLOCATOR>
 inline
-void HashTable_Util<ALLOCATOR>::destroyBucketArray(
+void HashTable_Util::destroyBucketArray(
                                      bslalg::HashTableBucket  *data,
-                                     SizeType                  bucketArraySize,
+                                     native_std::size_t        bucketArraySize,
                                      const ALLOCATOR&          allocator)
 {
     BSLS_ASSERT_SAFE(data);
@@ -1364,6 +1278,11 @@ void HashTable_Util<ALLOCATOR>::destroyBucketArray(
                      && HashTable_ImpDetails::defaultBucketAddress() != data)
                || (1 == bucketArraySize
                      && HashTable_ImpDetails::defaultBucketAddress() == data));
+
+    typedef typename ::bsl::allocator_traits<ALLOCATOR>::template
+                         rebind_traits<bslalg::HashTableBucket>::allocator_type
+                                                                ArrayAllocator;
+    typedef ::bsl::allocator_traits<ArrayAllocator> ArrayAllocatorTraits;
 
     if (HashTable_ImpDetails::defaultBucketAddress() != data) {
         ArrayAllocator reboundAllocator(allocator);
@@ -1407,7 +1326,7 @@ HashTable(const HASHER&     hash,
     BSLS_ASSERT(0.0f < initialMaxLoadFactor);
 
     if (0 != initialNumBuckets) {
-        HashTable_Util<ALLOCATOR>::initAnchor(
+        HashTable_Util::initAnchor(
                             &d_anchor,
                             HashTable_ImpDetails::nextPrime(initialNumBuckets),
                             allocator);
@@ -1441,7 +1360,7 @@ HashTable(const HashTable& original, const ALLOCATOR& allocator)
 , d_capacity(0)
 , d_maxLoadFactor(original.d_maxLoadFactor)
 {
-    if (d_size > 0) {
+    if (0 < d_size) {
         this->copyDataStructure(original.d_anchor.listRootAddress());
     }
 }
@@ -1450,6 +1369,13 @@ template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 inline
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::~HashTable()
 {
+#if defined(BDE_BUILD_TARGET_SAFE_2)
+    // ASSERT class invariant in SAFE_2 builds.
+    BSLS_ASSERT_SAFE(bslalg::HashTableImpUtil::isWellFormed<KEY_CONFIG>(
+                                                 this->d_anchor,
+                                                 this->d_parameters.hasher()));
+#endif
+
     this->removeAllAndDeallocate();
 }
 
@@ -1459,70 +1385,47 @@ void
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::copyDataStructure(
                                        const bslalg::BidirectionalLink *cursor)
 {
+    BSLS_ASSERT(0 != cursor);
+
+    // This function will completely replace 'this->d_anchor's state.  It is
+    // the caller's responsibility to ensure this will not leak resources owned
+    // only by the previous state, such as the linked list.
+
     // Allocate an appropriate number of buckets
     SizeType numBuckets = HashTable_ImpDetails::nextPrime(
                                                static_cast<native_std::size_t>(
         native_std::ceil(static_cast<float>(d_size) / this->d_maxLoadFactor)));
 
-    HashTable_Util<ALLOCATOR>::initAnchor(&d_anchor,
-                                          numBuckets,
-                                          this->allocator());
-    // create a proctor for d_anchor's allocated array
-    HashTable_ArrayProctor<ALLOCATOR> arrayProctor(this->allocator(),
-                                                   d_anchor);
+    d_anchor.setListRootAddress(0);
+    HashTable_Util::initAnchor(&d_anchor, numBuckets, this->allocator());
 
+    // create a proctor for d_anchor's allocated array, and the list to follow.
+    HashTable_ArrayProctor<typename ImplParameters::NodeFactory>
+                          arrayProctor(&d_parameters.nodeFactory(), &d_anchor);
+
+    // TBD Delegate this to a separate function that allows for integer
+    //     overflow.
     d_capacity = static_cast<native_std::size_t>(
                        static_cast<float>(numBuckets) * this->d_maxLoadFactor);
 
-    bslalg::BidirectionalLink *newNode =
+    do {
+        // Computing hash code depends on user-supplied code, and may throw.
+        // Therefore, obtain the hash code from the node we are about to copy,
+        // before any memory is allocated, so there is no risk of leaking an
+        // object.  The hash code must be the same for both elements.
+        native_std::size_t hashCode = this->hashCodeForNode(cursor);
+        bslalg::BidirectionalLink *newNode =
                                  d_parameters.nodeFactory().cloneNode(*cursor);
 
-    newNode->reset();  // must terminate list before creating proctor
-    HashTable_ListProctor<typename ImplParameters::NodeFactory>
-                             listProctor(&d_parameters.nodeFactory(), newNode);
-
-    d_anchor.setListRootAddress(newNode);
-
-    SizeType curBucketIndex = bslalg::HashTableImpUtil::computeBucketIndex(
-                                                      hashCodeForNode(newNode),
-                                                      numBuckets);
-
-    bslalg::HashTableBucket *curBucket =
-                                        this->getBucketAddress(curBucketIndex);
-
-    curBucket->setFirstAndLast(newNode, newNode);
-    SizeType prevBucketNumber = curBucketIndex;
-    bslalg::BidirectionalLink *prevNode = newNode;
-
-    while ((cursor = cursor->nextLink())) {
-        newNode = d_parameters.nodeFactory().cloneNode(*cursor);
-
-        // Thread the node into the list so the proctor can clean up if the
-        // user-supplied hash functor throws.
-        prevNode->setNextLink(newNode);
-        newNode->setPreviousLink(prevNode);
-        newNode->setNextLink(0); // could defer this to one set at the end
-                                 // of the list copy, but want a 'safe'
-                                 // terminator in case an exception causes us
-                                 // to free the whole list
-
-        curBucketIndex = bslalg::HashTableImpUtil::computeBucketIndex(
-                                                      hashCodeForNode(newNode),
-                                                      numBuckets);
-
-        if (curBucketIndex != prevBucketNumber) {
-            curBucket->setLast(prevNode);
-            curBucket = this->getBucketAddress(curBucketIndex);
-            curBucket->setFirstAndLast(newNode, newNode);
-            prevBucketNumber = curBucketIndex;
-        }
-        prevNode = newNode;
+        // Yuck!  This may change the root of the list, or it might not!
+        // That violates our proctor above.
+        bslalg::HashTableImpUtil::insertAtBackOfBucket(&d_anchor,
+                                                       newNode,
+                                                       hashCode);
     }
+    while ((cursor = cursor->nextLink()));
 
-    curBucket->setLast(prevNode);
-
-    // release the proctors
-    listProctor.release();
+    // release the proctor
     arrayProctor.release();
 }
 
@@ -1607,7 +1510,7 @@ template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 inline
 native_std::size_t
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::hashCodeForNode(
-                                         bslalg::BidirectionalLink *node) const
+                                   const bslalg::BidirectionalLink *node) const
 {
     BSLS_ASSERT_SAFE(node);
 
@@ -1858,10 +1761,9 @@ void
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::removeAllAndDeallocate()
 {
     this->removeAllImp();
-    HashTable_Util<ALLOCATOR>::destroyBucketArray(
-                                                 d_anchor.bucketArrayAddress(),
-                                                 d_anchor.bucketArraySize(),
-                                                 this->allocator());
+    HashTable_Util::destroyBucketArray(d_anchor.bucketArrayAddress(),
+                                       d_anchor.bucketArraySize(),
+                                       this->allocator());
 }
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
@@ -2124,7 +2026,7 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::rehashForNumBuckets(
             // Always destroy the spare anchor's bucket array at the end of
             // scope.  On a non-exceptional run, this will effectively be the
             // original bucket-array, as the anchors are swapped.
-            HashTable_Util<ALLOCATOR>::destroyBucketArray(
+            HashTable_Util::destroyBucketArray(
                                              d_newAnchor->bucketArrayAddress(),
                                              d_newAnchor->bucketArraySize(),
                                              d_this->allocator());
@@ -2146,9 +2048,9 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::rehashForNumBuckets(
         // be replaced with a 'createArrayOfEmptyBuckets' function, and we use
         // the result to construct the 'newAnchor'?
         bslalg::HashTableAnchor newAnchor(0, 0, 0);
-        HashTable_Util<ALLOCATOR>::initAnchor(&newAnchor,
-                                              newNumBuckets,
-                                              this->allocator());
+        HashTable_Util::initAnchor(&newAnchor,
+                                   newNumBuckets,
+                                   this->allocator());
 
         Proctor cleanUpIfUserHashThrows(this, &d_anchor, &newAnchor);
 
@@ -2157,7 +2059,6 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::rehashForNumBuckets(
                                               &newAnchor,
                                               this->d_anchor.listRootAddress(),
                                               this->d_parameters.hasher());
-//                                                    this->hasher());
         }
 
         cleanUpIfUserHashThrows.dismiss();
