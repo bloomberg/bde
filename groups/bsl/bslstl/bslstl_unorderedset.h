@@ -1032,7 +1032,7 @@ unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::insert(const_iterator,
     // the whole bucket looking for duplicates, and the hint is no help in
     // finding the start of a bucket.
 
-    return this->insert(value);
+    return this->insert(value).first;
 }
 
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
@@ -1049,7 +1049,8 @@ void unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::insert(INPUT_ITERATOR first,
     bool isInsertedFlag;  // value is not used
 
     while (first != last) {
-        d_impl.insertIfMissing(&isInsertedFlag, *first++);
+        d_impl.insertIfMissing(&isInsertedFlag, *first);
+        ++first;
     }
 }
 
@@ -1058,7 +1059,7 @@ inline
 void unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::max_load_factor(
                                                            float newLoadFactor)
 {
-    d_impl.maxLoadFactor(newLoadFactor);
+    d_impl.setMaxLoadFactor(newLoadFactor);
 }
 
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
@@ -1275,13 +1276,20 @@ float unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::max_load_factor() const
     return d_impl.maxLoadFactor();
 }
 
-
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 inline
 typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::size_type
 unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::size() const
 {
     return d_impl.size();
+}
+
+template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
+inline
+typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::size_type
+unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::max_size() const
+{
+    return AllocatorTraits::max_size(get_allocator());
 }
 
 }  // close namespace bsl
