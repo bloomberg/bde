@@ -914,7 +914,7 @@ unordered_map(size_type             initialNumBuckets,
               const hasher&         hash,
               const key_equal&      keyEqual,
               const allocator_type& allocator)
-: d_impl(hash, keyEqual, initialNumBuckets, allocator)
+: d_impl(hash, keyEqual, initialNumBuckets, 1.0f, allocator)
 {
 }
 
@@ -927,7 +927,7 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::unordered_map(
                                        const hasher&         hash,
                                        const key_equal&      keyEqual,
                                        const allocator_type& allocator)
-: d_impl(hash, keyEqual, initialNumBuckets, allocator)
+: d_impl(hash, keyEqual, initialNumBuckets, 1.0f, allocator)
 {
     this->insert(first, last);
 }
@@ -946,7 +946,7 @@ template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 inline
 unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::unordered_map(
                                                const allocator_type& allocator)
-: d_impl(HASH(), EQUAL(), 0, allocator)
+: d_impl(HASH(), EQUAL(), 0, 1.0f, allocator)
 {
 }
 

@@ -839,7 +839,7 @@ unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::unordered_multimap(
                                        const hasher&         hash,
                                        const key_equal&      keyEqual,
                                        const allocator_type& allocator)
-: d_impl(hash, keyEqual, initialNumBuckets, allocator)
+: d_impl(hash, keyEqual, initialNumBuckets, 1.0f, allocator)
 {
 }
 
@@ -852,7 +852,7 @@ unordered_multimap(INPUT_ITERATOR        first,
                    const hasher&         hash,
                    const key_equal&      keyEqual,
                    const allocator_type& allocator)
-: d_impl(hash, keyEqual, initialNumBuckets, allocator)
+: d_impl(hash, keyEqual, initialNumBuckets, 1.0f, allocator)
 {
     this->insert(first, last);
 }
@@ -870,7 +870,7 @@ unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::unordered_multimap(
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::unordered_multimap(
                                                const allocator_type& allocator)
-: d_impl(HASH(), EQUAL(), 0, allocator)
+: d_impl(HASH(), EQUAL(), 0, 1.0f, allocator)
 {
 }
 
