@@ -638,15 +638,12 @@ void testErase(CONTAINER& mX)
     cIter = x.begin();
     key = keyForValue<CONTAINER>(*cIter);
     const_iterator next = cIter;
-    while (key == keyForValue<CONTAINER>(*++next)) {
-        cIter = next;
-    }
-    key = keyForValue<CONTAINER>(*next);
-    while (key == keyForValue<CONTAINER>(*++next)) {}
+    size_t bucketA = x.bucket(key);
+    while (bucketA == x.bucket(keyForValue<CONTAINER>(*++next))) {}
     // cIter/next now point to elements either side of a key-range
     // confirm they are not in the same bucket:
-    ASSERT(x.bucket(key) != x.bucket(keyForValue<CONTAINER>(*cIter)));
-    ASSERT(x.bucket(key) != x.bucket(keyForValue<CONTAINER>(*next)));
+    ASSERTV(x.bucket(key)    != x.bucket(*next));
+    ASSERTV(x.bucket(*cIter) != x.bucket(*next));
     size_t erasures = 0;
     while (cIter != next) {
         cIter = mX.erase(cIter);  // compile check for return type
@@ -966,6 +963,7 @@ class TestHashFunctor {
     // DATA
     int         d_id;           // identifier for the functor
     mutable int d_count;        // number of times 'operator()' is called
+    bool        d_shortCircuit; // always returns 0 if true
 
   public:
     // CLASS METHOD
@@ -987,16 +985,19 @@ class TestHashFunctor {
     //! TestHashFunctor(const TestHashFunctor& original) = default;
         // Create a copy of the specified 'original'.
 
-    explicit TestHashFunctor(int id = 0)
+    explicit TestHashFunctor(int id = 0, bool shortCircuit = false)
         // Create a 'TestComparator'.  Optionally, specify 'id' that can be
-        // used to identify the object.
+        // used to identify the object.  Also optionally specify
+        // 'shortCircuit', which, if 'true' indicates that this functor will
+        // always return 0.
     : d_id(id)
     , d_count(0)
+    , d_shortCircuit(shortCircuit)
     {
     }
 
     // ACCESSORS
-    bool operator() (const TYPE& obj) const
+    size_t operator() (const TYPE& obj) const
         // Increment a counter that records the number of times this method is
         // called.   Return 'true' if the integer representation of the
         // specified 'lhs' is less than integer representation of the specified
@@ -1008,7 +1009,9 @@ class TestHashFunctor {
 
         ++d_count;
 
-        return bsltf::TemplateTestFacility::getIdentifier<TYPE>(obj);
+        return d_shortCircuit
+               ? 0
+               : bsltf::TemplateTestFacility::getIdentifier<TYPE>(obj);
     }
 
     bool operator== (const TestHashFunctor& rhs) const
@@ -1139,10 +1142,10 @@ class TestDriver {
 
     static void testCase22();
         // Test STL allocator.
+#endif
 
     static void testCase21();
         // Test comparators.
-#endif
 
     static void testCase20();
         // Test 'max_size' and 'empty'.
@@ -1157,8 +1160,8 @@ class TestDriver {
     static void testCase17();
         // Test range 'insert'.
 
-    //  static void testCase16();
-    //  // Test 'insert' with hint.  Incorporated into case15.
+    static void testCase16();
+        // Test spread of nodes into different buckets
 
     static void testCase15();
         // Test 'insert'.
@@ -1315,6 +1318,264 @@ TestDriver<KEY, HASH, EQUAL, ALLOC>::getIterForIndex(const Obj& obj,
     ASSERTV(idx == i);
 
     return ret;
+}
+
+template <class KEY, class HASH, class EQUAL, class ALLOC>
+void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase21()
+{
+    // ------------------------------------------------------------------------
+    // TESTING 'HASH' and 'EQUAL'
+    //
+    // Concern:
+    //: 1 Both functor and function type can be used.
+    //:
+    //: 2 If a comparator is not supplied, it defaults to 'std::less'.
+    //:
+    //: 3 The comparator is set correctly.
+    //:
+    //: 4 'key_comp' and 'value_comp' return the comparator that was passed in
+    //:   on construction.
+    //:
+    //: 5 The supplied comparator is used in all operations involving
+    //:   comparisons instead of 'operator <'.
+    //:
+    //: 6 Comparator is properly propagated on copy construction, copy
+    //:   assignment, and swap.
+    //:
+    //: 7 Functor with a non-const function call operator can be used -- any
+    //:   non-const operation on the set that utilizes the comparator can be
+    //:   invoked from a non modifiable reference of a set.
+    //
+    // Plan:
+    //: 1 Create default object and verify comparator is 'std::less'.  (C-2)
+    //:
+    //: 2 Create object with a function type comparator.
+    //:
+    //: 3 Create object with functor type comparator for all constructor.
+    //:   (C-1, 3..4)
+    //:
+    //: 4 Using the table-driven technique:
+    //:
+    //:   1 Specify a set of (unique) valid object values.
+    //:
+    //: 5 For each row (representing a distinct object value set, 'V') in the
+    //:   table described in P-4:
+    //:
+    //:   1 Create a comparator object using the greater than operator for
+    //:     comparisons.
+    //:
+    //:   2 Create an object having the value 'V' using the range constructor
+    //:     passing in the the comparator created in P-5.1.  Verify that the
+    //:     object's value.  (P-5)
+    //:
+    //:   3 Copy construct an object passing in the object created in P-5.2,
+    //:     verify that the comparator compare equals to the one created in
+    //:     P-5.1.  (P-6)
+    //:
+    //:   4 Default construct an object and assign to the object from the one
+    //:     created in P-5.2.  Verify that the comparator of the new object
+    //:     compare equals to the one created in P-5.1.  (P-6)
+    //:
+    //:   5 Default construct an object and swap this object with the one
+    //:     created in P-5.2.  Verify that the comparator of the new object
+    //:     compare equals to the one created in P-5.1, and the original object
+    //:     has a default constructed comparator.  (P-6)
+    //:
+    //: 6 Repeat P-5 except with a comparator having non-const function call
+    //:   operator.  (P-7
+    //
+    // Testing:
+    //   key_compare key_comp() const;
+    //   value_compare value_comp() const;
+    // ------------------------------------------------------------------------
+
+    bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
+
+    {
+        bsl::unordered_set<int> X;
+        bsl::hash<int>     hsh = X.hash_function();
+        bsl::equal_to<int> eq  = X.key_eq();
+
+        (void) hsh;    // quash potential compiler warning
+        (void) eq;     // quash potential compiler warning
+    }
+
+    static const int ID[] = { 0, 1, 2 };
+    const int NUM_ID = sizeof ID / sizeof *ID;
+
+    for (int ti = 0; ti < NUM_ID; ++ti) {
+        const HASH  H(ti);
+        const EQUAL E(ti * 7 + 5);
+        {
+            const Obj X(0, H, E);
+            ASSERTV(ti, H.id() == X.hash_function().id());
+            ASSERTV(ti, E.id() == X.key_eq().id());
+            ASSERTV(ti, 0      == X.hash_function().count());
+            ASSERTV(ti, 0      == X.key_eq().count());
+        }
+        {
+            const Obj X(0, H, E, &scratch);
+            ASSERTV(ti, H.id() == X.hash_function().id());
+            ASSERTV(ti, E.id() == X.key_eq().id());
+            ASSERTV(ti, 0      == X.hash_function().count());
+            ASSERTV(ti, 0      == X.key_eq().count());
+        }
+        {
+            const Obj X((KEY *) 0, (KEY *) 0, 0, H, E, &scratch);
+            ASSERTV(ti, H.id() == X.hash_function().id());
+            ASSERTV(ti, E.id() == X.key_eq().id());
+            ASSERTV(ti, 0      == X.hash_function().count());
+            ASSERTV(ti, 0      == X.key_eq().count());
+        }
+    }
+
+#if 0
+    static const struct {
+        int         d_line;             // source line number
+        const char *d_spec;             // spec
+        const char *d_results;
+    } DATA[] = {
+        { L_,  "",           ""          },
+        { L_,  "A",          "A"         },
+        { L_,  "ABC",        "CBA"       },
+        { L_,  "ACBD",       "DCBA"      },
+        { L_,  "BCDAE",      "EDCBA"     },
+        { L_,  "GFEDCBA",    "GFEDCBA"   },
+        { L_,  "ABCDEFGH",   "HGFEDCBA"  },
+        { L_,  "BCDEFGHIA",  "IHGFEDCBA" }
+    };
+    const size_t NUM_DATA = sizeof DATA / sizeof *DATA;
+
+    for (size_t ti = 0; ti < NUM_DATA; ++ti) {
+        const int         LINE   = DATA[ti].d_line;
+        const char *const SPEC   = DATA[ti].d_spec;
+        const size_t      LENGTH = strlen(DATA[ti].d_results);
+        const TestValues  EXP(DATA[ti].d_results, &scratch);
+
+        TestValues CONT(SPEC, &scratch);
+
+        typename TestValues::iterator BEGIN = CONT.begin();
+        typename TestValues::iterator END   = CONT.end();
+
+        bslma::TestAllocator da("default",   veryVeryVeryVerbose);
+
+        bslma::DefaultAllocatorGuard dag(&da);
+
+        const COMP C(1, false);  // create comparator that uses greater than
+
+        {
+            Obj mW(BEGIN, END, C);  const Obj& W = mW;
+
+            ASSERTV(LINE, 0 == verifyContainer(W, EXP, LENGTH));
+            ASSERTV(LINE, C == W.key_comp());
+
+            Obj mX(W);  const Obj& X = mX;
+
+            ASSERTV(LINE, 0 == verifyContainer(X, EXP, LENGTH));
+            ASSERTV(LINE, C == X.key_comp());
+
+            Obj mY;  const Obj& Y = mY;
+            mY = mW;
+            ASSERTV(LINE, 0 == verifyContainer(Y, EXP, LENGTH));
+            ASSERTV(LINE, C == Y.key_comp());
+
+            Obj mZ;  const Obj& Z = mZ;
+            mZ.swap(mW);
+
+            ASSERTV(LINE, 0 == verifyContainer(Z, EXP, LENGTH));
+            ASSERTV(LINE, C == Z.key_comp());
+            ASSERTV(LINE, COMP() == W.key_comp());
+        }
+
+        CONT.resetIterators();
+
+        {
+            Obj mX(C);  const Obj& X = mX;
+            mX.insert(BEGIN, END);
+            ASSERTV(LINE, 0 == verifyContainer(X, EXP, LENGTH));
+        }
+
+        CONT.resetIterators();
+
+        {
+            Obj mX(C);  const Obj& X = mX;
+            for (size_t tj = 0; tj < CONT.size(); ++tj) {
+                bsl::pair<Iter, bool> RESULT = mX.insert(CONT[tj]);
+
+                ASSERTV(LINE, tj, LENGTH, CONT[tj] == *(RESULT.first));
+            }
+            ASSERTV(LINE, 0 == verifyContainer(X, EXP, LENGTH));
+        }
+
+        ASSERTV(LINE, da.numBlocksInUse(), 0 == da.numBlocksInUse());
+    }
+
+    for (size_t ti = 0; ti < NUM_DATA; ++ti) {
+        const int         LINE   = DATA[ti].d_line;
+        const char *const SPEC   = DATA[ti].d_spec;
+        const size_t      LENGTH = strlen(DATA[ti].d_results);
+        const TestValues  EXP(DATA[ti].d_results, &scratch);
+
+        TestValues CONT(SPEC, &scratch);
+
+        typename TestValues::iterator BEGIN = CONT.begin();
+        typename TestValues::iterator END   = CONT.end();
+
+        bslma::TestAllocator da("default",   veryVeryVeryVerbose);
+
+        bslma::DefaultAllocatorGuard dag(&da);
+
+        const NonConstComp C(1, false);  // create non const comparator that
+                                         // uses the greater than operator
+        typedef bsl::set<KEY, NonConstComp> ObjNCC;
+
+        {
+            ObjNCC mW(BEGIN, END, C);  const ObjNCC& W = mW;
+
+            ASSERTV(LINE, 0 == verifyContainer(W, EXP, LENGTH));
+            ASSERTV(LINE, C == W.key_comp());
+
+            ObjNCC mX(W);  const ObjNCC& X = mX;
+
+            ASSERTV(LINE, 0 == verifyContainer(X, EXP, LENGTH));
+            ASSERTV(LINE, C == X.key_comp());
+
+            ObjNCC mY;  const ObjNCC& Y = mY;
+            mY = mW;
+            ASSERTV(LINE, 0 == verifyContainer(Y, EXP, LENGTH));
+            ASSERTV(LINE, C == Y.key_comp());
+
+            ObjNCC mZ;  const ObjNCC& Z = mZ;
+            mZ.swap(mW);
+
+            ASSERTV(LINE, 0 == verifyContainer(Z, EXP, LENGTH));
+            ASSERTV(LINE, C == Z.key_comp());
+            ASSERTV(LINE, NonConstComp() == W.key_comp());
+        }
+
+        CONT.resetIterators();
+
+        {
+            ObjNCC mX(C);  const ObjNCC& X = mX;
+            mX.insert(BEGIN, END);
+            ASSERTV(LINE, 0 == verifyContainer(X, EXP, LENGTH));
+        }
+
+        CONT.resetIterators();
+
+        {
+            ObjNCC mX(C);  const ObjNCC& X = mX;
+            for (size_t tj = 0; tj < CONT.size(); ++tj) {
+                bsl::pair<Iter, bool> RESULT = mX.insert(CONT[tj]);
+
+                ASSERTV(LINE, tj, LENGTH, CONT[tj] == *(RESULT.first));
+            }
+            ASSERTV(LINE, 0 == verifyContainer(X, EXP, LENGTH));
+        }
+
+        ASSERTV(LINE, da.numBlocksInUse(), 0 == da.numBlocksInUse());
+    }
+#endif
 }
 
 template <class KEY, class HASH, class EQUAL, class ALLOC>
@@ -1716,6 +1977,73 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase17()
 
             ASSERTV(LINE, tj, da.numBlocksTotal(), 0 == da.numBlocksTotal());
         }
+    }
+}
+
+template <class KEY, class HASH, class EQUAL, class ALLOC>
+void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase16()
+{
+    // ------------------------------------------------------------------------
+    // TESTING SPREAD
+    //
+    // Concerns:
+    //   That the hash table isn't unintentionally funneling all nodes into
+    //   a few buckets.
+    // ------------------------------------------------------------------------
+
+    if (verbose) printf("Testing Spread\n"
+                        "==============\n");
+
+    TestValues VALUES;
+
+    if (verbose) printf("Test spread\n");
+    {
+        Obj mX;  const Obj& X = mX;
+        // mX.max_load_factor(0.5); TBD
+        gg(&mX, "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+
+        ASSERT(26 == X.size());
+        ASSERT(X.bucket_count() >= 26);
+
+        size_t total = 0;
+        for (size_t ti = 0; ti < X.bucket_count(); ++ti) {
+            size_t bs = X.bucket_size(ti);
+            ASSERTV(ti, bs, bs < 5);
+            total += bs;
+
+            ASSERT((bs != 0) == (X. begin(ti) != X. end(ti)));
+            ASSERT((bs != 0) == (X.cbegin(ti) != X.cend(ti)));
+        }
+
+        ASSERTV(X.size() == total);
+    }
+
+    if (verbose) printf("Test non-spread with delinquent hash function\n");
+    {
+        Obj mX(0, HASH(0, true), EQUAL());  const Obj& X = mX;
+        // mX.max_load_factor(0.5); TBD
+        gg(&mX, "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+
+        ASSERT(26 == X.size());
+        ASSERT(X.bucket_count() >= 26);
+
+        size_t total = 0;
+        for (size_t ti = 0; ti < X.bucket_count(); ++ti) {
+            size_t bs = X.bucket_size(ti);
+            if (0 == ti) {
+                ASSERTV(ti, bs, X.size(), bs == X.size());
+                ASSERT(X. begin(ti) != X. end(ti));
+                ASSERT(X.cbegin(ti) != X.cend(ti));
+            }
+            else {
+                ASSERTV(ti, bs, 0 == bs);
+                ASSERT(X. begin(ti) == X. end(ti));
+                ASSERT(X.cbegin(ti) == X.cend(ti));
+            }
+            total += bs;
+        }
+
+        ASSERTV(X.size() == total);
     }
 }
 
@@ -4339,6 +4667,7 @@ int main(int argc, char *argv[])
                       testCase22,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
       } break;
+#endif
       case 21: {
         // --------------------------------------------------------------------
         // TESTING COMPARATOR
@@ -4347,7 +4676,6 @@ int main(int argc, char *argv[])
                       testCase21,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
       } break;
-#endif
       case 20: {
         // --------------------------------------------------------------------
         // TESTING 'max_size' and 'empty'
@@ -4384,14 +4712,12 @@ int main(int argc, char *argv[])
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
       } break;
       case 16: {
-#if 0
         // --------------------------------------------------------------------
-        // TESTING 'insert' WITH HINT
+        // TESTING SPREAD
         // --------------------------------------------------------------------
         RUN_EACH_TYPE(TestDriver,
                       testCase16,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
-#endif
       } break;
       case 15: {
         // --------------------------------------------------------------------
