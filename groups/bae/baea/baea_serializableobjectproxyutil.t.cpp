@@ -1597,12 +1597,8 @@ int main(int argc, char *argv[])
 
     switch (test) { case 0: // Zero is always the leading case.
 
-// Compiling these tests on GCC and solaris is very expensive.
-#if !(defined(BSLS_PLATFORM_CMP_GNU) && defined(BSLS_PLATFORM_CPU_SPARC))
+
       case 16: {
-#else
-      case 11: {
-#endif
         // --------------------------------------------------------------------
         // Usage Example
         //
@@ -1713,8 +1709,9 @@ int main(int argc, char *argv[])
     ASSERT(13 == decodeMessage.simpleRequest().responseLength());
 //..
       } break;
-#if !(defined(BSLS_PLATFORM_CMP_GNU) && defined(BSLS_PLATFORM_CPU_SPARC))
       case 15: {
+// Compiling this test on GCC and solaris is innordinately expensive.
+#if !(defined(BSLS_PLATFORM_CMP_GNU) && defined(BSLS_PLATFORM_CPU_SPARC))
         // --------------------------------------------------------------------
         // XML decoder error test
         //
@@ -1754,8 +1751,11 @@ int main(int argc, char *argv[])
             ASSERT(baea::FeatureTestMessage::SELECTION_ID_UNDEFINED ==
                    decoded.selectionId());
         }
+#endif // !(defined(BSLS_PLATFORM_CMP_GNU) && defined(BSLS_PLATFORM_CPU_SPARC))
       } break;
       case 14: {
+// Compiling this test on GCC and solaris is innordinately expensive.
+#if !(defined(BSLS_PLATFORM_CMP_GNU) && defined(BSLS_PLATFORM_CPU_SPARC))
         // --------------------------------------------------------------------
         // XML decoder feature test
         //
@@ -1800,9 +1800,11 @@ int main(int argc, char *argv[])
                 break;
             }
         }
-
+#endif // !(defined(BSLS_PLATFORM_CMP_GNU) && defined(BSLS_PLATFORM_CPU_SPARC))
       } break;
       case 13: {
+// Compiling this test on GCC and solaris is innordinately expensive.
+#if !(defined(BSLS_PLATFORM_CMP_GNU) && defined(BSLS_PLATFORM_CPU_SPARC))
         // --------------------------------------------------------------------
         // BER decoder feature test
         //
@@ -1841,9 +1843,11 @@ int main(int argc, char *argv[])
                 break;
             }
         }
-
+#endif // !(defined(BSLS_PLATFORM_CMP_GNU) && defined(BSLS_PLATFORM_CPU_SPARC))
       } break;
       case 12: {
+// Compiling this test on GCC and solaris is innordinately expensive.
+#if !(defined(BSLS_PLATFORM_CMP_GNU) && defined(BSLS_PLATFORM_CPU_SPARC))
         // --------------------------------------------------------------------
         // XML encoder feature test
         //
@@ -1886,9 +1890,11 @@ int main(int argc, char *argv[])
 
             ++i;
         }
-
+#endif // !(defined(BSLS_PLATFORM_CMP_GNU) && defined(BSLS_PLATFORM_CPU_SPARC))
       } break;
       case 11: {
+// Compiling this test on GCC and solaris is innordinately expensive.
+#if !(defined(BSLS_PLATFORM_CMP_GNU) && defined(BSLS_PLATFORM_CPU_SPARC))
         // --------------------------------------------------------------------
         // BER encoder feature test
         //
@@ -1921,8 +1927,8 @@ int main(int argc, char *argv[])
             ASSERT(0 == decoder.decode(&isb, &decoded));
             LOOP2_ASSERT(testObjects[i], decoded, testObjects[i] == decoded);
         }
+#endif // !(defined(BSLS_PLATFORM_CMP_GNU) && defined(BSLS_PLATFORM_CPU_SPARC))
       } break;
-#endif
       case 10: {
         // --------------------------------------------------------------------
         // XML breathing test
