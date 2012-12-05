@@ -261,7 +261,7 @@ class HashTable_ComparatorWrapper {
 
     template <class ARG1_TYPE, class ARG2_TYPE>
     native_std::size_t operator()(const ARG1_TYPE& arg1,
-                                  const ARG1_TYPE& arg2) const {
+                                  const ARG2_TYPE& arg2) const {
         return d_functor(arg1, arg2);
     }
 
@@ -1542,10 +1542,11 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::find(
                                                 const KeyType& key,
                                                 size_t         hashValue) const
 {
-    return bslalg::HashTableImpUtil::find<KEY_CONFIG>(d_anchor,
-                                                      key,
-                                                      this->comparator(),
-                                                      hashValue);
+    return bslalg::HashTableImpUtil::find<KEY_CONFIG>(
+                                                     d_anchor,
+                                                     key,
+                                                     d_parameters.comparator(),
+                                                     hashValue);
 }
 
 // MANIPULATORS
@@ -1643,7 +1644,8 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::insert(
     // Insert logic, first test the hint
     const KeyType& key = ImpUtil::extractKey<KEY_CONFIG>(newNode);
     size_t hashCode = this->d_parameters.hashCodeForKey(key);
-    if (!this->comparator()(key, ImpUtil::extractKey<KEY_CONFIG>(hint))) {
+    if (!d_parameters.comparator()(key,
+                                   ImpUtil::extractKey<KEY_CONFIG>(hint))) {
         hint = this->find(key, hashCode);
     }
 
@@ -1867,7 +1869,7 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::find(
     return bslalg::HashTableImpUtil::find<KEY_CONFIG>(
                                              d_anchor,
                                              key,
-                                             this->comparator(),
+                                             d_parameters.comparator(),
                                              d_parameters.hashCodeForKey(key));
 }
 
@@ -1898,7 +1900,9 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::findEndOfRange(
     typedef bslalg::HashTableImpUtil ImpUtil;
     const KeyType& k = ImpUtil::extractKey<KEY_CONFIG>(first);
     while ((first = first->nextLink()) &&
-           this->comparator()(k,ImpUtil::extractKey<KEY_CONFIG>(first))) {
+           d_parameters.comparator()(k,ImpUtil::extractKey<KEY_CONFIG>(first)))
+    {
+        // This loop body is intentionally left blank.
     }
     return first;
 }
@@ -1957,7 +1961,7 @@ template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 inline
 float HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::loadFactor() const
 {
-    return (double)size() / this->numBuckets();
+    return static_cast<float>((double)size() / this->numBuckets());
 }
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>

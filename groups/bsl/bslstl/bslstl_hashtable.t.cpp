@@ -903,6 +903,23 @@ void swap(DegenerateClass<FUNCTOR, true>& lhs,
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+template <class KEY>
+struct FuntionPointerPolicies {
+    typedef size_t HashFunction(const KEY&);
+    typedef bool   ComparisonFunction(const KEY&, const KEY&);
+
+    static size_t hash(const KEY& k) {
+        static const bsl::hash<KEY> s_hasher;
+        return s_hasher(k);
+    }
+
+    static size_t compare(const KEY& lhs, const KEY& rhs) {
+        return BSL_TF_EQ(lhs, rhs);
+    }
+};
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
 template <class FUNCTOR>
 struct MakeDefaultFunctor {
     static FUNCTOR make() { return FUNCTOR(); }
@@ -913,6 +930,22 @@ struct MakeDefaultFunctor<DegenerateClass<FUNCTOR, ENABLE_SWAP> > {
     static DegenerateClass<FUNCTOR, ENABLE_SWAP> make() {
         return DegenerateClass<FUNCTOR, ENABLE_SWAP>::cloneBaseObject(
                                                                     FUNCTOR());
+    }
+};
+
+template <class KEY>
+struct MakeDefaultFunctor<size_t (*)(const KEY&)> {
+    typedef size_t FunctionType(const KEY&);
+    static FunctionType *make() {
+        return &FuntionPointerPolicies<KEY>::hash;
+    }
+};
+
+template <class KEY>
+struct MakeDefaultFunctor<size_t (*)(const KEY&, KEY&)> {
+    typedef size_t FunctionType(const KEY&);
+    static FunctionType *make() {
+        return &FuntionPointerPolicies<KEY>::compare;
     }
 };
 
@@ -1871,7 +1904,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase11()
 
         ASSERTV(CONFIG, 0 == X.size());
         ASSERTV(CONFIG, 1 == X.numBuckets());
-        ASSERTV(CONFIG, 1.0 == X.maxLoadFactor());
+        ASSERTV(CONFIG, 1.0f == X.maxLoadFactor());
         ASSERTV(CONFIG, 0 == X.elementListRoot());
         ASSERTV(CONFIG, isEqualComparator(COMPARATOR(), X.comparator()));
         ASSERTV(CONFIG, isEqualHasher(HASHER(), X.hasher()));
