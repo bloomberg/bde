@@ -957,7 +957,9 @@ struct HashTable_ImpDetails {
 
 struct HashTable_Util {
     // This utility 'struct' provide utilities for initializing and destroying
-    // bucket lists in anchors that will be managed by a 'HashTable'.
+    // bucket lists in anchors that will be managed by a 'HashTable'.  They
+    // cannot migrate down to 'bslalg::HashTableImpUtil' as they rely on the
+    // standard library 'bslstl_allocatortraits' for their implementation.
 
     // CLASS METHODS
     template<class ALLOCATOR>
@@ -1320,7 +1322,7 @@ HashTable(const HASHER&     hash,
 : d_parameters(hash, compare, allocator)
 , d_anchor(HashTable_ImpDetails::defaultBucketAddress(), 1, 0)
 , d_size()
-, d_capacity(initialNumBuckets)
+, d_capacity(initialNumBuckets) // TBD capacity is wrong: test driver to catch
 , d_maxLoadFactor(initialMaxLoadFactor)
 {
     BSLS_ASSERT(0.0f < initialMaxLoadFactor);
@@ -1404,7 +1406,7 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::copyDataStructure(
                           arrayProctor(&d_parameters.nodeFactory(), &d_anchor);
 
     // TBD Delegate this to a separate function that allows for integer
-    //     overflow.
+    //     overflow, along with picking the number of buckets.
     d_capacity = static_cast<native_std::size_t>(
                        static_cast<float>(numBuckets) * this->d_maxLoadFactor);
 
@@ -1970,11 +1972,14 @@ void HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::setMaxLoadFactor(
     BSLS_ASSERT_SAFE(0.0f < maxLoadFactor);
 
     d_maxLoadFactor = maxLoadFactor;
-    d_capacity = static_cast<native_std::size_t>(native_std::ceil(
+
+    if (d_capacity > 0) {
+        d_capacity = static_cast<native_std::size_t>(native_std::ceil(
                       static_cast<float>(this->numBuckets()) * maxLoadFactor));
 
-    if (d_capacity < d_size) {
-        this->rehashForNumElements(d_size);
+        if (d_capacity < d_size) {
+            this->rehashForNumElements(d_size);
+        }
     }
 }
 
