@@ -25,6 +25,7 @@
 //#include <algorithm>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h> // for 'strcmp'
 
 // To resolve gcc warnings, while printing 'size_t' arguments portably on
 // Windows, we use a macro and string literal concatenation to produce the
@@ -4890,6 +4891,234 @@ if (verbose) {
     ASSERT(2 == count);
 //..
     }
+//
+///Example 4: Implementing a Custom Container
+///------------------------------------------
+// Although the 'bslstl::HashTable' class was created to be a common
+// implementation for the standard unordered classes, this class can also be
+// used in its own right to address other user problems.
+//
+// Suppose we wish to retain a record of sales orders, that each record is
+// characterized by several integer attributes, and that we must be able to
+// find records based on *any* of those attributes.  We can use
+// 'bslstl::HashTable' to implement a custom container supporting multiple
+// key-values.
+//
+// First, we define 'MySalesRecord', our record class:
+//..
+    enum { MAX_DESCRIPTION_SIZE = 16 };
+    typedef struct MySalesRecord {
+        int  orderNumber;                        // unique in the container
+        int  customerId;                         // '0 <= customerId'
+        int  vendorId;                           // '0 <=   vendorId'
+        char description[MAX_DESCRIPTION_SIZE];  // no constraints
+    } MySalesRecord;
+//..
+// Notice that only each 'orderNumber' is unique.  We expect multiple
+// sales to any given customer ('customerId') and multiple sales by any
+// given vendor ('vendorId').
+//
+// We will use a 'bslstl::HashTable' object to implement set semantics based on the
+// unique 'orderNumber', and two auxiliary 'bslsl::HashTable' objects to provide multi-map
+// semantics into that set based on 'customterId' and 'vendorId', respectively.
+//
+// To configure those 'bslstl::HashTable' objects, we will need policy objects to 
+// exract the relevant portion of a 'MySalesRecord' to use as a key-value.
+//
+// Next, define 'UseOrderNumberAsKey', a policy object used in support of the set semantics:
+//..
+                            // ==========================
+                            // struct UseOrderNumberAsKey
+                            // ==========================
+
+    struct UseOrderNumberAsKey {
+        // This 'struct' provides a namespace for types and methods that define
+        // the policy by which the key value of a hashed container (i.e., the
+        // value passed to the hasher) is extracted from the objects stored in
+        // the hashed container (the 'value' type).
+
+        typedef MySalesRecord ValueType;
+            // Alias for 'MySalesRecord', the type stored in the hashed container.
+
+        typedef int KeyType;
+            // Alias for the type passed to the hasher by the hashed container.
+            // In this policy, that type is an 'int', the 'orderNumber' attribute.
+
+        static const KeyType& extractKey(const ValueType& value);
+            // Return the key value for the specified 'value'.  In this policy,
+            // that is 'value' itself.
+    };
+
+                            // --------------------------
+                            // struct UseOrderNumberAsKey
+                            // --------------------------
+
+    inline
+    const UseOrderNumberAsKey::KeyType&
+          UseOrderNumberAsKey::extractKey(const ValueType& value)
+    {
+        return value.orderNumber;
+    }
+//..
+// Next, we define 'MySalesRecordContainer', our customized container:
+//..
+                            // ----------------------------
+                            // class MySalesRecordContainer
+                            // ----------------------------
+
+    class MySalesRecordContainer
+    {
+
+      private:
+        // DATA
+        typedef BloombergLP::bslstl::HashTable<
+                      UseOrderNumberAsKey,
+                      bsl::hash<    UseOrderNumberAsKey::KeyType>,
+                      bsl::equal_to<UseOrderNumberAsKey::KeyType> >
+                                                             SetByOrder;
+        typedef bsl::allocator_traits<
+              bsl::allocator<UseOrderNumberAsKey::ValueType> >
+                                                             AllocatorTraits;
+
+        typedef AllocatorTraits::difference_type             difference_type;
+
+        typedef BloombergLP::bslstl::HashTableIterator<const MySalesRecord,
+                                                       difference_type>
+                                                             iterator;
+
+        // DATA
+        SetByOrder d_setByOrderNumber;
+
+      public:
+        // PUBLIC TYPES
+        typedef iterator  const_iterator;
+
+        // CREATORS
+        explicit MySalesRecordContainer(bslma::Allocator *basicAllocator = 0);
+            // Create an empty 'MySalesRecordContainer' object.  If 'basicAllocator'
+            // is 0, the currently installed default allocator is used.
+ 
+        //! ~MySalesRecordContainer() = default;
+            // Destroy this object.
+
+        // MANIPULATORS
+        MyPair<const_iterator, bool> insert(const MySalesRecord& value);
+            // Insert the specified 'value' into this set if the specified
+            // 'value' does not already exist in this set; otherwise, this
+            // method has no effect.  Return a pair whose 'first' member is an
+            // iterator providing non-modifiable access to the (possibly newly
+            // inserted) 'MySalesRecord' object having 'value' and whose
+            // 'second' member is 'true' if a new value was inserted, and
+            // 'false' if the value was already present.
+
+        // ACCESSORS
+        const_iterator cend() const;
+            // Return an iterator providing non-modifiable access to the
+            // past-the-end element (in the sequence of 'MySalesRecord' objects)
+            // maintained by this set.
+
+        const_iterator find(int orderNumber) const;
+            // Return an iterator providing non-modifiable access to the
+            // 'MySalesRecord' object in this set having the specified
+            // 'orderNumber', if such an entry exists, and the iterator
+            // returned by the 'cend' method otherwise.
+    };
+
+                            // ----------------------------
+                            // class MySalesRecordContainer
+                            // ----------------------------
+
+    // CREATORS
+    inline
+    MySalesRecordContainer::MySalesRecordContainer(
+                                              bslma::Allocator *basicAllocator)
+    : d_setByOrderNumber(basicAllocator)
+    {
+    }
+
+    // MANIPULATORS
+    inline
+    MyPair<MySalesRecordContainer::const_iterator, bool>
+    MySalesRecordContainer::insert(const MySalesRecord& value)
+    {
+        typedef MyPair<iterator, bool> ResultType;
+  
+        bool                       isInsertedFlag = false;
+        bslalg::BidirectionalLink *result         =
+                                            d_setByOrderNumber.insertIfMissing(
+                                                               &isInsertedFlag,
+                                                               value);
+        return ResultType(iterator(result), isInsertedFlag);
+    }
+
+    // ACCESSORS
+    inline
+    MySalesRecordContainer::const_iterator
+    MySalesRecordContainer::cend() const
+    {
+        return const_iterator();
+    }
+
+    inline
+    MySalesRecordContainer::const_iterator
+    MySalesRecordContainer::find(int orderNumber) const
+    {
+        return const_iterator(d_setByOrderNumber.find(orderNumber));
+    }
+
+    void main4()
+    {
+        MySalesRecordContainer msrc;
+
+        const MySalesRecord DATA[] = {
+            { 0, 1, 1, "hello" },
+            { 1, 1, 2, "world" },
+            { 2, 2, 1, "how" },
+            { 3, 2, 2, "are" },
+            { 4, 1, 1, "you" },
+            { 5, 1, 2, "today" }
+        };
+        const int numDATA = sizeof DATA / sizeof *DATA;
+
+        for (int i = 0; i < numDATA; ++i) {
+            const int orderNumber   = DATA[i].orderNumber;
+            const int customerId    = DATA[i].customerId;                      
+            const int vendorId      = DATA[i].vendorId;
+            const char *description = DATA[i].description;
+
+            printf("%d: %d %d %s\n",
+                   orderNumber,
+                   customerId,
+                   vendorId,
+                   description);
+
+            MyPair<MySalesRecordContainer::const_iterator,
+                   bool> status = msrc.insert(DATA[i]);
+            ASSERT(msrc.cend() != status.first);
+            ASSERT(true        == status.second);
+        }
+
+        for (int i = 0; i < numDATA; ++i) {
+            const int orderNumber   = DATA[i].orderNumber;
+            const int customerId    = DATA[i].customerId;                      
+            const int vendorId      = DATA[i].vendorId;
+            const char *description = DATA[i].description;
+
+            printf("%d: %d %d %s\n",
+                   orderNumber,
+                   customerId,
+                   vendorId,
+                   description);
+
+            MySalesRecordContainer::const_iterator itr = msrc.find(
+                                                                  orderNumber);
+            ASSERT(msrc.cend() != itr);
+            ASSERT(orderNumber == itr->orderNumber);
+            ASSERT(customerId  == itr->customerId);
+            ASSERT(vendorId    == itr->vendorId);
+            ASSERT(0 == strcmp(description, itr->description));
+        }
+    };
 
 }  // close namespace UsageExamples
 
@@ -4948,6 +5177,7 @@ int main(int argc, char *argv[])
         UsageExamples::main1();
         UsageExamples::main2();
         UsageExamples::main3();
+        UsageExamples::main4();
 
       } break;
       case 12: {
