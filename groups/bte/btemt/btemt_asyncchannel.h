@@ -139,7 +139,7 @@ class btemt_AsyncChannel {
         // 'numBytes' of data are available after all previous requests have
         // been processed, if any, the specified 'readCallback' will be invoked
         // (with 'BTEMT_SUCCESS').  Return zero on success, and a non-zero
-        // value (in 'btemt::ChannelErrorRead::Enum') on error.  The behavior
+        // value (in 'btemt::ChannelErrorRead::Enum') otherwise.  The behavior
         // is undefined unless this channel was constructed to use a
         // 'ReadCallback'.
 
@@ -151,7 +151,7 @@ class btemt_AsyncChannel {
         // 'numBytes' of data are available after all previous requests have
         // been processed, if any, the specified 'readCallback' will be invoked
         // (with 'BTEMT_SUCCESS').  Return 0 on success, and a non-zero
-        // value (in 'btemt::ChannelErrorRead::Enum') on error.  The behavior
+        // value (in 'btemt::ChannelErrorRead::Enum') otherwise.  The behavior
         // is undefined unless this channel was constructed to use a
         // 'BlobBasedReadCallback'.
 
@@ -167,7 +167,7 @@ class btemt_AsyncChannel {
         // reached, the specified 'readCallback' will be invoked (with either
         // 'BTEMT_SUCCESS' or 'BTEMT_TIMEOUT', respectively).  Return 0 on
         // success, and a non-zero value (in 'btemt::ChannelErrorRead::Enum')
-        // on error.  The behavior is undefined unless this channel was
+        // otherwise.  The behavior is undefined unless this channel was
         // constructed to use a 'ReadCallback'.
 
     virtual int timedRead(int                          numBytes,
@@ -182,7 +182,7 @@ class btemt_AsyncChannel {
         // reached, the specified 'readCallback' will be invoked (with either
         // 'BTEMT_SUCCESS' or 'BTEMT_TIMEOUT', respectively).  Return 0 on
         // success, and a non-zero value (in 'btemt::ChannelErrorRead::Enum')
-        // on error.  The behavior is undefined unless this channel was
+        // otherwise.  The behavior is undefined unless this channel was
         // constructed to use a 'BlobBasedReadCallback'.
 
     virtual int write(const bcema_Blob&    blob,
@@ -193,7 +193,7 @@ class btemt_AsyncChannel {
         // Optionally provide 'highWaterMark' to specify the maximum data size
         // that can be enqueued.  If 'highWaterMark' is not specified then
         // 'INT_MAX' is used.  Return 0 on success, and a non-zero value (in
-        // 'btemt::ChannelErrorWrite::Enum') on error.  Note that success does
+        // 'btemt::ChannelErrorWrite::Enum') otherwise.  Note that success does
         // not imply that the data has been written or will be successfully
         // written to the underlying stream used by this channel.  Also note
         // that in addition to 'highWatermark' the enqueued portion must also
@@ -209,7 +209,7 @@ class btemt_AsyncChannel {
         // Optionally provide 'highWaterMark' to specify the maximum data size
         // that can be enqueued.  If 'highWaterMark' is not specified then
         // 'INT_MAX' is used.  Return 0 on success, and a non-zero value (in
-        // 'btemt::ChannelErrorWrite::Enum') on error.  Note that success does
+        // 'btemt::ChannelErrorWrite::Enum') otherwise.  Note that success does
         // not imply that the data has been written or will be successfully
         // written to the underlying stream used by this channel.  Also note
         // that in addition to 'highWatermark' the enqueued portion must also

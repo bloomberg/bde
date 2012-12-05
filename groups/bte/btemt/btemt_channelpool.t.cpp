@@ -3503,7 +3503,8 @@ void * case22Thread(void * arg)
         MTLOOP_ASSERT(retCode,
                        0 == retCode ||  // o.k.
                       -2 == retCode ||  // reached high-watermark
-                      -3 == retCode);   // channel down or unknown
+                      -3 == retCode ||  // channel down
+                      -5 == retCode);   // channel unknown
 
         if (veryVerbose) {
             if (0 == retCode) {
@@ -6367,7 +6368,7 @@ void runTestCase9(char                                         *progname,
                                        bteso_SocketOptUtil::BTESO_TCPLEVEL,
                                        1, SERVER_ID));
 
-        ASSERT(-3 == mX.write(31312313, (btes_Iovec*)NULL, 0));
+        ASSERT(-5 == mX.write(31312313, (btes_Iovec*)NULL, 0));
         bcema_PooledBufferChainFactory bufferFactory(BUFFER_ALLOC, &ta);
 
         if (veryVerbose)
@@ -8194,7 +8195,7 @@ class TestDriver {
 
     static void testCase38();
         // Test that 'disableRead' when called from dispatcher thread stops
-        // reading from the socket. 
+        // reading from the socket.
 
     static void testCase37();
         // Test usage example 3.
