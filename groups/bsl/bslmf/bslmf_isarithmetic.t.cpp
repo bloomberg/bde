@@ -14,10 +14,10 @@ using namespace std;
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// The object under test is a meta-function, 'bsl::is_arithmetic', which
-// determine whether a template parameter type is a arithmetic type.  Thus, we
-// need to ensure that the value returned by this meta-functions is correct for
-// each possible category of types.
+// The object under test is a meta-function, 'bsl::is_arithmetic', that
+// determines whether a template parameter type is an arithmetic type.  Thus,
+// we need to ensure that the value returned by this meta-functions is correct
+// for each possible category of types.
 //
 // ----------------------------------------------------------------------------
 // PUBLIC CLASS DATA
@@ -180,11 +180,11 @@ int main(int argc, char *argv[])
 /// - - - - - - - - - - - - - - - - -
 // Suppose that we want to assert whether a set of types are arithmetic types.
 //
-// Now, we instantiate the 'bsl::is_arithmetic' template for both a
-// non-arithmetic type and a arithmetic type, and assert the 'value' static
-// data member of each instantiation:
+// Now, we instantiate the 'bsl::is_arithmetic' template for these types, and
+// assert the 'value' static data member of each instantiation:
 //..
     ASSERT(false == bsl::is_arithmetic<int&>::value);
+    ASSERT(false == bsl::is_arithmetic<int*>::value);
     ASSERT(true  == bsl::is_arithmetic<int >::value);
 //..
 
