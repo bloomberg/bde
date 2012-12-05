@@ -4969,30 +4969,30 @@ int main(int argc, char *argv[])
         //: 2 The class supports a wide variery of troublesome element types,
         //:   as covered extensively in the template test facility, 'bsltf'.
         //:
-        //: 3 STL allocators that are not (BDE) polymorphic, and that never
+        //:*3 STL allocators that are not (BDE) polymorphic, and that never
         //:   propagate on any operations, just like BDE
         //:
-        //: 4 STL allocators that are not (BDE) polymorphic, and propagate on
+        //:*4 STL allocators that are not (BDE) polymorphic, and propagate on
         //:   all possible operations.
         //:
-        //: 5 functors that do not const-qualify operator()
+        //: 5 functors that do not const-qualify 'operator()'
         //:
         //: 6 stateful functors
         //:
-        //: 7 function pointers as functors
+        //:*7 function pointers as functors
         //:
         //: 8 non-default-constructible functors
         //:
-        //: 9 functors overloading operator&
+        //: 9 functors overloading 'operator&'
         //:
-        //:10 functors overloading operator,
+        //:10 functors overloading 'operator,'
         //:
         //:11 functors that cannot be swapped ('swap' is required to support
         //:   assignment, not bootstrap, default constructor, or most methods)
         //:
-        //:12 functors whose argument(s) are convertible-form the key-type
+        //:*12 functors whose argument(s) are convertible-form the key-type
         //:
-        //:13 functors with templated function-call operators
+        //:*13 functors with templated function-call operators
         //:
         //:14 support for simple set-like policy
         //:

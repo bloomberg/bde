@@ -6,12 +6,11 @@ BSLS_IDENT("$Id$ $CSID$")
 
 #include <bslstl_equalto.h>  // for testing only
 #include <bslstl_hash.h>     // for testing only
-#include <bslstl_pair.h>     // for testing only
+//#include <bslstl_pair.h>     // for testing only
 
 #include <bsls_nativestd.h>
 
-#include <algorithm>
-#include <cstddef>
+#include <algorithm>         // 'lower_bound'
 
 namespace BloombergLP
 {
@@ -27,7 +26,12 @@ bslalg::HashTableBucket *HashTable_ImpDetails::defaultBucketAddress()
     static bslalg::HashTableBucket s_bucket = {0 , 0};
                                                   // Aggregative initialization
                                                   // of a POD should be thread-
-                                                  // safe static initialization
+                                                  // safe static initializationi
+    // These two tests should not be necessary, but will catch corruption in
+    // components that try to write to the shared bucket.
+    BSLS_ASSERT_SAFE(!s_bucket.first());
+    BSLS_ASSERT_SAFE(!s_bucket.last());
+
     return &s_bucket;
 }
 
