@@ -708,7 +708,7 @@ class TestHashFunctor {
     }
 
     // ACCESSORS
-    bool operator() (const TYPE& obj) const
+    native_std::size_t operator() (const TYPE& obj) const
         // Increment a counter that records the number of times this method is
         // called.   Return 'true' if the integer representation of the
         // specified 'lhs' is less than integer representation of the specified
@@ -4614,7 +4614,7 @@ int main(int argc, char *argv[])
 #endif
       case 13: {
         // --------------------------------------------------------------------
-        // TESTING 'resh...' FUNCTIONS
+        // TESTING 'rehash...' FUNCTIONS
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTesting 'rehash'"
@@ -4622,19 +4622,23 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE(TestDriver_BasicConfiguation,
                       testCase13,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+                      bsltf::NonAssignableTestType,
+                      bsltf::NonDefaultConstructibleTestType);
 
         RUN_EACH_TYPE(TestDriver_StatefulConfiguation,
                       testCase13,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+                      bsltf::NonAssignableTestType,
+                      bsltf::NonDefaultConstructibleTestType);
 
         RUN_EACH_TYPE(TestDriver_DegenerateConfiguation,
                       testCase13,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+                      bsltf::NonAssignableTestType,
+                      bsltf::NonDefaultConstructibleTestType);
 
         RUN_EACH_TYPE(TestDriver_DegenerateConfiguationWithNoSwap,
                       testCase13,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+                      bsltf::NonAssignableTestType,
+                      bsltf::NonDefaultConstructibleTestType);
 
         // Remaining special cases
         TestDriver_AwkwardMaplike::testCase13();
@@ -4678,11 +4682,13 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE(TestDriver_BasicConfiguation,
                       testCase11,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+                      bsltf::NonAssignableTestType,
+                      bsltf::NonDefaultConstructibleTestType);
 
         RUN_EACH_TYPE(TestDriver_StatefulConfiguation,
                       testCase11,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+                      bsltf::NonAssignableTestType,
+                      bsltf::NonDefaultConstructibleTestType);
 
         // Remaining special cases
 //        TestDriver_AwkwardMaplike::testCase11();
@@ -4715,11 +4721,13 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE(TestDriver_StatefulConfiguation,
                       testCase9,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+                      bsltf::NonAssignableTestType,
+                      bsltf::NonDefaultConstructibleTestType);
 
         RUN_EACH_TYPE(TestDriver_DegenerateConfiguation,
                       testCase9,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+                      bsltf::NonAssignableTestType,
+                      bsltf::NonDefaultConstructibleTestType);
 
         // Remaining special cases
         TestDriver_AwkwardMaplike::testCase9();
@@ -4741,11 +4749,13 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE(TestDriver_StatefulConfiguation,
                       testCase8,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+                      bsltf::NonAssignableTestType,
+                      bsltf::NonDefaultConstructibleTestType);
 
         RUN_EACH_TYPE(TestDriver_DegenerateConfiguation,
                       testCase8,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+                      bsltf::NonAssignableTestType,
+                      bsltf::NonDefaultConstructibleTestType);
 
         // Remaining special cases
         TestDriver_AwkwardMaplike::testCase8();

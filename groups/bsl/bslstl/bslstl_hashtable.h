@@ -957,7 +957,9 @@ struct HashTable_ImpDetails {
 
 struct HashTable_Util {
     // This utility 'struct' provide utilities for initializing and destroying
-    // bucket lists in anchors that will be managed by a 'HashTable'.
+    // bucket lists in anchors that will be managed by a 'HashTable'.  They
+    // cannot migrate down to 'bslalg::HashTableImpUtil' as they rely on the
+    // standard library 'bslstl_allocatortraits' for their implementation.
 
     // CLASS METHODS
     template<class ALLOCATOR>
