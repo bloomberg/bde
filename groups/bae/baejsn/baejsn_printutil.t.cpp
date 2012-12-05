@@ -576,6 +576,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "Encode int" << endl;
         {
+            testNumber<char>();
             testNumber<short>();
             testNumber<int>();
             testNumber<Int64>();
@@ -791,6 +792,10 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "Test signed integers" << endl;
         {
+            Obj::printValue(oss, (char) -2);
+            ASSERTV("-2" == oss.str());
+            oss.str("");
+
             Obj::printValue(oss, (short) -2);
             ASSERTV("-2" == oss.str());
             oss.str("");
@@ -823,10 +828,6 @@ int main(int argc, char *argv[])
 
             Obj::printValue(oss, bsl::string("World"));
             ASSERTV("\"World\"" == oss.str());
-            oss.str("");
-
-            Obj::printValue(oss, '!');
-            ASSERTV("\"!\"" == oss.str());
             oss.str("");
         }
 

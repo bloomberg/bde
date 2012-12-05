@@ -303,7 +303,8 @@ int baejsn_PrintUtil::printValue(bsl::ostream& stream, const char *value)
 inline
 int baejsn_PrintUtil::printValue(bsl::ostream& stream, char value)
 {
-    return printString(stream, bslstl::StringRef(&value, 1));
+    stream << static_cast<int>(value);
+    return 0;
 }
 
 inline
