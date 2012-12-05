@@ -1377,6 +1377,10 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::~HashTable()
                                                  this->d_anchor,
                                                  this->d_parameters.hasher()));
 #endif
+    // TBD This forces a check for corruption that should be otherwise picked
+    //     up by a test driver.  It should be removed before releasing the
+    //     final code.
+    BSLS_ASSERT_SAFE(HashTable_ImpDetails::defaultBucketAddress());
 
     this->removeAllAndDeallocate();
 }
