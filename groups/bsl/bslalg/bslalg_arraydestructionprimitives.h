@@ -42,7 +42,7 @@ BSLS_IDENT("$Id: $")
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // In this example, we will use 'bslalg::ArrayDestructionPrimitives' to destroy
 // both an array of integer scalars and an array of 'MyInteger' objects.
-// Calling the 'destory' method on an array of integers is a no-op while
+// Calling the 'destroy' method on an array of integers is a no-op while
 // calling the 'destroy' method on an array of objects of 'MyInteger' class
 // invokes the destructor of each of the objects in the array.
 //

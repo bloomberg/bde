@@ -74,7 +74,7 @@ struct TypeTraitUsesBslmaAllocator {
     struct NestedTraitDeclaration :
         bslmf::NestedTraitDeclaration<TYPE, bslma::UsesBslmaAllocator>
     {
-        // This class template ties the 'bslalg::TypeTaitBitwiseMoveable'
+        // This class template ties the 'bslalg::TypeTraitBitwiseMoveable'
         // trait tag to the 'bslma::UsesBslmaAllocator' trait metafunction.
     };
 

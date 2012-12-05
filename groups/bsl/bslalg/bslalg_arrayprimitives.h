@@ -136,7 +136,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //  template <class TYPE>
 //  class MyVector {
 //      // This class implements a vector of elements of the (template
-//      // parameter) 'TYPE', which must be copy constructable.  Note that for
+//      // parameter) 'TYPE', which must be copy constructible.  Note that for
 //      // the brevity of the usage example, this class does not provide any
 //      // Exception-Safety guarantee.
 //
@@ -261,10 +261,6 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_METAINT
-#include <bslmf_metaint.h>
-#endif
-
 #ifndef INCLUDED_BSLALG_ARRAYDESTRUCTIONPRIMITIVES
 #include <bslalg_arraydestructionprimitives.h>
 #endif
@@ -335,6 +331,10 @@ BSLS_IDENT("$Id$ $CSID$")
 
 #ifndef INCLUDED_BSLMF_MATCHANYTYPE
 #include <bslmf_matchanytype.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_METAINT
+#include <bslmf_metaint.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_REMOVECVQ
@@ -1422,8 +1422,7 @@ void ArrayPrimitives::insert(TARGET_TYPE        *toBegin,
                              size_type           numElements,
                              ALLOCATOR          *allocator)
 {
-    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
-                                                          toEnd));
+    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin, toEnd));
     BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
     if (0 == numElements) {
@@ -1520,7 +1519,7 @@ void ArrayPrimitives::erase(TARGET_TYPE *first,
 
     if (first == middle) { // erasing empty range O(1) versus O(N): Do not
                            // remove!
-        return;
+        return;                                                       // RETURN
     }
 
     enum {
@@ -1846,7 +1845,7 @@ void ArrayPrimitives_Imp::uninitializedFillN(
     BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
     if (0 == numElements) {
-        return;
+        return;                                                       // RETURN
     }
 
     // Important sub-case: When value is identically (bit-wise) 0, such as
@@ -2342,8 +2341,7 @@ void ArrayPrimitives_Imp::insert(
                           bslmf::MetaInt<BITWISE_MOVEABLE_TRAITS> *)
 {
     // 'TARGET_TYPE' is bit-wise moveable.
-    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
-                                                          toEnd));
+    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin, toEnd));
     BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
     if (0 == numElements) {

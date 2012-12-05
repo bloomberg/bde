@@ -111,8 +111,8 @@ BSLS_IDENT("$Id: $")
 #endif
 
 #ifndef INCLUDED_ALGORITHM
-#define INCLUDED_ALGORITHM
 #include <algorithm>
+#define INCLUDED_ALGORITHM
 #endif
 
 namespace BloombergLP {

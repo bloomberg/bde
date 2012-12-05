@@ -85,17 +85,6 @@ struct add_lvalue_reference<TYPE&> {
         // This 'typedef' defines the return type of this meta function.
 };
 
-#else  // defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
-
-template <typename TYPE>
-struct add_lvalue_reference<TYPE&&> {
-    // This partial specialization of 'add_lvalue_reference' defines a return
-    // type when it is instantiated with an rvalue reference type.
-
-    typedef TYPE& type;
-        // This 'typedef' defines the return type of this meta function.
-};
-
 #endif
 
 template <>

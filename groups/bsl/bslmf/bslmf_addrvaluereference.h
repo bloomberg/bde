@@ -68,11 +68,6 @@ struct add_rvalue_reference {
     typedef TYPE&& type;
 };
 
-template <class TYPE>
-struct add_rvalue_reference<TYPE&> {
-    typedef TYPE&& type;
-};
-
 #define BSL_DEFINE_ADD_RVALUE_REFERENCE(TYPE, REF_TYPE) \
 template <>                                             \
 struct add_rvalue_reference<TYPE> {                     \

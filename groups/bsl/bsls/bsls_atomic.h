@@ -386,9 +386,9 @@ BSLS_IDENT("$Id: $")
 //  // CREATORS
 //  template <class INSTANCE>
 //  inline
-//  my_CountedHandle<INSTANCE>::my_CountedHandle(INSTANCE *object)
+//  my_CountedHandle<INSTANCE>::my_CountedHandle(INSTANCE *instance)
 //  {
-//      d_rep_p = new my_CountedHandleRep<INSTANCE>(object);
+//      d_rep_p = new my_CountedHandleRep<INSTANCE>(instance);
 //  }
 //..
 // Then, we define the copy constructor; the new object copies the underlying
@@ -949,7 +949,7 @@ class AtomicPointer {
         // Static assert that a 'TYPE*' pointer is binary compatible with a
         // 'void*' pointer.  The implementation of 'AtomicPointer' uses
         // 'reinterpret_cast' to convert between 'TYPE*' and 'void*' because
-        // function pointers are not implicitly convertable to 'void*', and
+        // function pointers are not implicitly convertible to 'void*', and
         // this assert makes sure that such a cast is safe.  Note that
         // 'bslmf_Assert' can't be used here because of package dependency
         // rules.
@@ -1134,15 +1134,15 @@ void AtomicInt::storeRelease(int value)
 }
 
 inline
-int AtomicInt::swap(int value)
+int AtomicInt::swap(int swapValue)
 {
-    return AtomicOperations_Imp::swapInt(&d_value, value);
+    return AtomicOperations_Imp::swapInt(&d_value, swapValue);
 }
 
 inline
-int AtomicInt::swapAcqRel(int value)
+int AtomicInt::swapAcqRel(int swapValue)
 {
-    return AtomicOperations_Imp::swapIntAcqRel(&d_value, value);
+    return AtomicOperations_Imp::swapIntAcqRel(&d_value, swapValue);
 }
 
 inline
@@ -1279,15 +1279,15 @@ void AtomicInt64::storeRelease(Types::Int64 value)
 }
 
 inline
-Types::Int64 AtomicInt64::swap(Types::Int64 value)
+Types::Int64 AtomicInt64::swap(Types::Int64 swapValue)
 {
-    return AtomicOperations_Imp::swapInt64(&d_value, value);
+    return AtomicOperations_Imp::swapInt64(&d_value, swapValue);
 }
 
 inline
-Types::Int64 AtomicInt64::swapAcqRel(Types::Int64 value)
+Types::Int64 AtomicInt64::swapAcqRel(Types::Int64 swapValue)
 {
-    return AtomicOperations_Imp::swapInt64AcqRel(&d_value, value);
+    return AtomicOperations_Imp::swapInt64AcqRel(&d_value, swapValue);
 }
 
 inline

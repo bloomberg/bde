@@ -67,15 +67,13 @@ BSLS_IDENT("$Id: $")
 #include <bsls_compilerfeatures.h>
 #endif
 
-#if !defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+                         // ======================
+                         // struct RemoveReference
+                         // ======================
 
 namespace bsl {
 
-                         // =======================
-                         // struct remove_reference
-                         // =======================
-
-template <class TYPE>
+template <typename TYPE>
 struct remove_reference {
     // This 'struct' template implements a meta-function to remove the
     // reference-ness of the (template parameter) 'TYPE'.  This generic default
@@ -85,7 +83,7 @@ struct remove_reference {
         // This 'typedef' defines the return type of this meta-function.
 };
 
-template <class TYPE>
+template <typename TYPE>
 struct remove_reference<TYPE &> {
     // This partial specialization of 'remove_reference' defines a return
     // type when it is instantiated with a reference type.
@@ -94,86 +92,17 @@ struct remove_reference<TYPE &> {
         // This 'typedef' defines the return type of this meta-function.
 };
 
-}  // close namespace bsl
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
 
-#else  // !defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
-
-                         // ==========================
-                         // struct RemoveRvalueRef_Imp
-                         // ==========================
-
-namespace BloombergLP {
-namespace bslmf {
-
-template <class TYPE>
-struct RemoveRvalueRef_Imp {
-    // This 'struct' template implements a meta-function to remove the rvalue
-    // reference-ness of the (template parameter) 'TYPE'.  This generic default
-    // template defines a return type when 'TYPE' is not an rvalue reference
-    // type.
-
-    typedef TYPE Type;
-        // This 'typedef' defines the return type of this meta-function.
+template <typename TYPE>
+struct remove_reference<TYPE &&>
+{
+    typedef TYPE type;
 };
-
-template <class TYPE>
-struct RemoveRvalueRef_Imp<TYPE &&> {
-    // This partial specialization of 'RemoveRvalueRef_Imp' defines a return
-    // type when it is instantiated with an rvalue reference type.
-
-    typedef TYPE Type;
-        // This 'typedef' defines the return type of this meta-function.
-};
-
-                         // ===========================
-                         // struct Remove_LvalueRef_Imp
-                         // ===========================
-
-template <class TYPE>
-struct RemoveLvalueRef_Imp {
-    // This 'struct' template implements a meta-function to remove the lvalue
-    // reference-ness of the (template parameter) 'TYPE'.  This generic default
-    // template defines a return type when 'TYPE' is not an lvalue reference
-    // type.
-
-    typedef TYPE Type;
-        // This 'typedef' defines the return type of this meta-function.
-};
-
-template <class TYPE>
-struct RemoveLvalueRef_Imp<TYPE &> {
-    // This partial specialization of 'RemoveLvalueRef_Imp' defines a return
-    // type when it is instantiated with an lvalue reference type.
-
-    typedef TYPE Type;
-        // This 'typedef' defines the return type of this meta function.
-};
-
-}
-}
-
-namespace bsl {
-                         // =======================
-                         // struct remove_reference
-                         // =======================
-
-template <class TYPE>
-struct remove_reference {
-    // This 'struct' template implements a meta-function to remove the
-    // reference-ness of the (template parameter) 'TYPE'.
-
-    typedef typename BloombergLP::bslmf::RemoveLvalueRef_Imp<
-                typename BloombergLP::bslmf::RemoveRvalueRef_Imp<TYPE>::Type
-            >::Type type;
-        // This 'typedef' defines the return type of this meta function.  If
-        // the 'TYPE' is an (lvalue or rvalue) reference to another type
-        // 'TYPE1', then this 'type' returns 'TYPE1'; otherwise it returns
-        // 'TYPE'.
-};
-
-}  // close namespace bsl
 
 #endif
+
+}  // close namespace bsl
 
 namespace BloombergLP {
 namespace bslmf {
@@ -182,7 +111,7 @@ namespace bslmf {
                          // struct RemoveReference
                          // ======================
 
-template <class TYPE>
+template <typename TYPE>
 struct RemoveReference {
     // This 'struct' template implements a meta-function to remove the
     // reference-ness from the (template parameter) 'TYPE'.  Note that although
@@ -212,11 +141,11 @@ struct RemoveReference {
 
 #endif
 
-// ----------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2005
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ----------------------------------
+// ----------------------------- END-OF-FILE ---------------------------------

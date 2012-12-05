@@ -147,7 +147,7 @@ BSLS_IDENT("$Id: $")
 // allocation request; 0 is returned if the request cannot be satisfied:
 //..
 //  if (*cursor + offset + size > bufferSize) {
-//      return 0;                                                 // RETURN
+//      return 0;                                                     // RETURN
 //  }
 //
 //  void *result = &buffer[*cursor + offset];

@@ -191,9 +191,6 @@ struct MetaInt<0> : public bsl::false_type {
         // would be ill-formed and that 'f(expr).value' is not a compile-time
         // expression.
 
-    operator bsl::false_type() const;
-        // Convert '*this' to 'bsl::false_type'.
-
     // ACCESSORS
     operator bool() const;
         // Return 'false'.  (This operator is conversion operator to 'bool'.)
@@ -231,9 +228,6 @@ struct MetaInt<1> : public bsl::true_type {
         // run-time.  Note that 'f(expr)::VALUE' or 'sizeof(f(expr)::Type)'
         // would be ill-formed and that 'f(expr).value' is not a compile-time
         // expression.
-
-    operator bsl::true_type() const;
-        // Convert '*this' to 'bsl::true_type'.
 
     // ACCESSORS
     operator bool() const;
@@ -308,21 +302,9 @@ MetaInt<0>::operator bool() const
 }
 
 inline
-MetaInt<0>::operator bsl::false_type() const
-{
-    return bsl::false_type();
-}
-
-inline
 MetaInt<1>::operator bool() const
 {
     return true;
-}
-
-inline
-MetaInt<1>::operator bsl::true_type() const
-{
-    return bsl::true_type();
 }
 
 }  // close package namespace
