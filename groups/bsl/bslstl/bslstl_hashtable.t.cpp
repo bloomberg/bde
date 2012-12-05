@@ -4968,7 +4968,6 @@ if (verbose) {
 
     class MySalesRecordContainer
     {
-
       private:
         // DATA
         typedef BloombergLP::bslstl::HashTable<
@@ -4985,13 +4984,20 @@ if (verbose) {
         typedef BloombergLP::bslstl::HashTableIterator<const MySalesRecord,
                                                        difference_type>
                                                              iterator;
-
+        typedef BloombergLP::bslstl::HashTable<
+                      UseFirstValueOfPairAsKey<
+                                         MyPair<const int,
+                                                bslalg::BidirectionalLink *> >,
+                                         bsl::hash<int>,
+                                         bsl::equal_to<int> > MultiMapByInt;
         // DATA
-        SetByOrder d_setByOrderNumber;
+        SetByOrder    d_setByOrderNumber;
+        MultiMapByInt d_multiMapByCustomerId;
+        MultiMapByInt d_multiMapByVendorId;
 
       public:
         // PUBLIC TYPES
-        typedef iterator  const_iterator;
+        typedef iterator const_iterator;
 
         // CREATORS
         explicit MySalesRecordContainer(bslma::Allocator *basicAllocator = 0);
@@ -5017,11 +5023,18 @@ if (verbose) {
             // past-the-end element (in the sequence of 'MySalesRecord' objects)
             // maintained by this set.
 
-        const_iterator find(int orderNumber) const;
+        const_iterator findByOrderNumber(int value) const;
             // Return an iterator providing non-modifiable access to the
             // 'MySalesRecord' object in this set having the specified
-            // 'orderNumber', if such an entry exists, and the iterator
+            // 'value', if such an entry exists, and the iterator
             // returned by the 'cend' method otherwise.
+
+        MyPair<const_iterator, const_iterator> findByCustomerId(int value) const;
+        MyPair<const_iterator, const_iterator> findByVendorId(int value) const;
+            // TBD: Need a different kind of iterator here (tentatively named
+            // 'const_idIterator'.  When dereferenced, this iterator takes the
+            // additional indirection between the MultiMapByInt into the 
+            // SetByOrderNumber;
     };
 
                             // ----------------------------
@@ -5048,6 +5061,11 @@ if (verbose) {
                                             d_setByOrderNumber.insertIfMissing(
                                                                &isInsertedFlag,
                                                                value);
+
+        d_multiMapByCustomerId.insert(MultiMapByInt::ValueType(value.customerId,
+                                                               result));
+        d_multiMapByVendorId.insert(  MultiMapByInt::ValueType(value.vendorId,
+                                                               result));
         return ResultType(iterator(result), isInsertedFlag);
     }
 
@@ -5061,9 +5079,23 @@ if (verbose) {
 
     inline
     MySalesRecordContainer::const_iterator
-    MySalesRecordContainer::find(int orderNumber) const
+    MySalesRecordContainer::findByOrderNumber(int value) const
     {
-        return const_iterator(d_setByOrderNumber.find(orderNumber));
+        return const_iterator(d_setByOrderNumber.find(value));
+    }
+
+    inline
+    MyPair<MySalesRecordContainer::const_iterator,
+           MySalesRecordContainer::const_iterator>
+    MySalesRecordContainer::findByCustomerId(int value) const
+    {
+    }
+
+    inline
+    MyPair<MySalesRecordContainer::const_iterator,
+           MySalesRecordContainer::const_iterator>
+    MySalesRecordContainer::findByVendorId(int value) const
+    {
     }
 
     void main4()
@@ -5110,8 +5142,8 @@ if (verbose) {
                    vendorId,
                    description);
 
-            MySalesRecordContainer::const_iterator itr = msrc.find(
-                                                                  orderNumber);
+            MySalesRecordContainer::const_iterator itr =
+                                           msrc.findByOrderNumber(orderNumber);
             ASSERT(msrc.cend() != itr);
             ASSERT(orderNumber == itr->orderNumber);
             ASSERT(customerId  == itr->customerId);
