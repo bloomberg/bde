@@ -1575,7 +1575,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase21()
         ASSERTV(LINE, da.numBlocksInUse(), 0 == da.numBlocksInUse());
     }
 
-#if 0 // TBD non-const comparator
+#if 1 // TBD non-const comparator
     for (size_t ti = 0; ti < NUM_DATA; ++ti) {
         const int         LINE   = DATA[ti].d_line;
         const char *const SPEC   = DATA[ti].d_spec;
