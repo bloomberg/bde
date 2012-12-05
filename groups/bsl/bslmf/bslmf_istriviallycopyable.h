@@ -127,7 +127,7 @@ BSLS_IDENT("$Id: $")
 
 namespace bsl {
 
-template <typename TYPE>
+template <class TYPE>
 struct is_trivially_copyable;
 
 }  // close namespace bsl
@@ -139,7 +139,7 @@ namespace bslmf {
                          // struct IsTriviallyCopyable_Imp
                          // ==============================
 
-template <typename TYPE>
+template <class TYPE>
 struct IsTriviallyCopyable_Imp
     : bsl::integral_constant<
           bool,
@@ -163,7 +163,7 @@ namespace bsl {
                          // struct is_trivially_copyable
                          // ============================
 
-template <typename TYPE>
+template <class TYPE>
 struct is_trivially_copyable
 : BloombergLP::bslmf::IsTriviallyCopyable_Imp<typename remove_cv<TYPE>::type> {
     // This 'struct' template implements a meta-function to determine whether
