@@ -1183,7 +1183,7 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::max_load_factor(
                                                         float newMaxLoadFactor)
 
 {
-    d_impl.maxLoadFactor(newMaxLoadFactor);
+    d_impl.setMaxLoadFactor(newMaxLoadFactor);
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>

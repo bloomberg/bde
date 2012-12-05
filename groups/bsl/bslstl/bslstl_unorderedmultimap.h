@@ -1039,7 +1039,7 @@ inline
 void unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::max_load_factor(
                                                            float newLoadFactor)
 {
-    d_impl.maxLoadFactor(newLoadFactor);
+    d_impl.setMaxLoadFactor(newLoadFactor);
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>

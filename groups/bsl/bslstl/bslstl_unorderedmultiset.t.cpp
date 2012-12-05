@@ -915,7 +915,7 @@ class TestHashFunctor {
     }
 
     // ACCESSORS
-    bool operator() (const TYPE& obj) const
+    size_t operator() (const TYPE& obj) const
         // Increment a counter that records the number of times this method is
         // called.   Return 'true' if the integer representation of the
         // specified 'lhs' is less than integer representation of the specified
