@@ -17,7 +17,8 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR:
 //
 //@DESCRIPTION: This component defines a meta-function, 'bsl::is_arithmetic',
-// that may be used to query whether a type is an arithmetic type.
+// that may be used to query whether a template parameter type is an arithmetic
+// type.
 //
 // 'bsl::is_arithmetic' meets the requirements of the 'is_arithmetic' template
 // defined in the C++11 standard [meta.unary.comp].
@@ -30,11 +31,11 @@ BSLS_IDENT("$Id: $")
 /// - - - - - - - - - - - - - - - - -
 // Suppose that we want to assert whether a set of types are arithmetic types.
 //
-// Now, we instantiate the 'bsl::is_arithmetic' template for both a
-// non-arithmetic type and a arithmetic type, and assert the 'value' static
-// data member of each instantiation:
+// Now, we instantiate the 'bsl::is_arithmetic' template for these types, and
+// assert the 'value' static data member of each instantiation:
 //..
 //  assert(false == bsl::is_arithmetic<int&>::value);
+//  assert(false == bsl::is_arithmetic<int*>::value);
 //  assert(true  == bsl::is_arithmetic<int >::value);
 //..
 
@@ -46,12 +47,12 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_integralconstant.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_ISINTEGRAL
-#include <bslmf_isintegral.h>
-#endif
-
 #ifndef INCLUDED_BSLMF_ISFLOATINGPOINT
 #include <bslmf_isfloatingpoint.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISINTEGRAL
+#include <bslmf_isintegral.h>
 #endif
 
 namespace bsl {
