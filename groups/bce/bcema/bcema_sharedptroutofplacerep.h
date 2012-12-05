@@ -352,7 +352,7 @@ class bcema_SharedPtrOutofplaceRep : public bcema_SharedPtrRep {
         // deallocates this representation object.
 
   public:
-    // MANIPULATORS
+    // CLASS METHODS
     static bcema_SharedPtrOutofplaceRep<TYPE, DELETER> *makeOutofplaceRep(
                                           TYPE            *ptr,
                                           const DELETER&   deleter,
@@ -365,6 +365,7 @@ class bcema_SharedPtrOutofplaceRep : public bcema_SharedPtrRep {
         // parameterized 'DELETER' type will be used to deallocate the memory
         // pointed to by 'ptr'.
 
+    // MANIPULATORS
     virtual void disposeRep();
         // Destroy this representation object and deallocate the associated
         // memory.  This method is automatically invoked by 'releaseRef' and
@@ -410,7 +411,7 @@ class bcema_SharedPtrOutofplaceRep_DeleterDiscriminator_Imp {
            bslalg_HasTrait<DELETER, bslalg_TypeTraitUsesBslmaAllocator>::VALUE,
 
         BCEMA_IS_PTR = bslmf_IsPointer<DELETER>::VALUE
-                   && !bslmf_IsFunctionPointer<DELETER>::VALUE,
+                   && !bslmf_IsFunctionPointer<DELETER>::VALUE
     };
 
     typedef bcema_SharedPtrOutofplaceRep_DeleterType DeleterType;
@@ -495,7 +496,7 @@ struct bcema_SharedPtrOutofplaceRep_DeleterHelper {
         // deleter used to destroy the shared object.
 
   private:
-    // PRIVATE CLASS  METHODS
+    // PRIVATE CLASS METHODS
     template <class TYPE, class DELETER>
     static void deleteObject(TYPE     *ptr,
                              DELETER&  deleter,
