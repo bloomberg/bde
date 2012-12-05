@@ -18,9 +18,9 @@ using std::fprintf;
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// The component under test defines a meta-functions, 'bsl::is_volatile', that
-// determine whether a template parameter type is a 'const'-qualified type.
-// Thus, we need to ensure that the values returned by the meta-function is
+// The component under test defines a meta-function, 'bsl::is_volatile', that
+// determine whether a template parameter type is a 'volatile'-qualified type.
+// Thus, we need to ensure that the value returned by the meta-function is
 // correct for each possible category of types.
 //
 // ----------------------------------------------------------------------------
@@ -110,10 +110,10 @@ int main(int argc, char *argv[])
 //
 ///Example 1: Verify 'Volatile' Types
 /// - - - - - - - - - - - - - - - - -
-// Suppose that we want to assert whether a particular type is a
+// Suppose that we want to assert whether a particular type is
 // 'volatile'-qualified.
 //
-// First, we create two 'typedef's -- a 'volatile'-qualified type and a
+// First, we create two 'typedef's -- a 'volatile'-qualified type and an
 // unqualified type:
 //..
     typedef int           MyType;
@@ -131,7 +131,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // 'bsl::is_volatile::value'
         //   Ensure that 'bsl::is_volatile' returns the correct values for a
-        //   variety of a variety of template parameter types.
+        //   variety of template parameter types.
         //
         // Concerns:
         //: 1 'is_volatile::value' is 'false' when 'TYPE' is a (possibly

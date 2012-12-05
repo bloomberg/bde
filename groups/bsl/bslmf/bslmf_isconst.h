@@ -7,14 +7,6 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-#ifndef INCLUDED_BSLSCM_VERSION
-#include <bslscm_version.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
-#include <bslmf_integralconstant.h>
-#endif
-
 //@PURPOSE: Provide a compile-time check for 'const'-qualified types.
 //
 //@CLASSES:
@@ -24,9 +16,9 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR:
 //
-//@DESCRIPTION: This component defines a meta-function, 'bsl::is_const' , that
-// may be used to query whether a type is 'const'-qualified as defined in
-// section the C++11 standard [basic.type.qualifier].
+//@DESCRIPTION: This component defines a meta-function, 'bsl::is_const', that
+// may be used to query whether a type is 'const'-qualified as defined in the
+// C++11 standard [basic.type.qualifier].
 //
 // 'bsl::is_const' meets the requirements of the 'is_const' template defined in
 // the C++11 standard [meta.unary.prop].
@@ -37,10 +29,10 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Verify 'Const' Types
 ///- - - - - - - - - - - - - - - -
-// Suppose that we want to assert whether a particular type is a
+// Suppose that we want to assert whether a particular type is
 // 'const'-qualified.
 //
-// First, we create two 'typedef's -- a 'const'-qualified type and a
+// First, we create two 'typedef's -- a 'const'-qualified type and an
 // unqualified type:
 //..
 //  typedef int        MyType;
@@ -52,6 +44,14 @@ BSLS_IDENT("$Id: $")
 //  assert(false == bsl::is_const<MyType>::value);
 //  assert(true  == bsl::is_const<MyConstType>::value);
 //..
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
+#include <bslmf_integralconstant.h>
+#endif
 
 namespace bsl {
 
@@ -77,7 +77,7 @@ struct is_const : false_type {
 template <class TYPE>
 struct is_const<TYPE const> : true_type {
      // This partial specialization of 'is_const', for when the (template
-     // parameter) is 'const'-qualified, derives from 'bsl::true_type'.
+     // parameter) TYPE is 'const'-qualified, derives from 'bsl::true_type'.
 };
 
 }  // close namespace bsl
