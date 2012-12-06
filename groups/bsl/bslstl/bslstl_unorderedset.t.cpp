@@ -15,6 +15,7 @@
 
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
+#include <bsls_util.h>
 
 #include <bsltf_stdtestallocator.h>
 #include <bsltf_templatetestfacility.h>
@@ -2569,7 +2570,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase13()
                 ASSERT(isConstValue(*it));
 
                 ASSERT(*it  ==  k);
-                ASSERT(&*it != &k);
+                ASSERT(BSLS_UTIL_ADDRESSOF(*it) != BSLS_UTIL_ADDRESSOF(k));
 
                 ASSERT(1 == mX.count(k));
                 ASSERT(1 ==  X.count(k));
