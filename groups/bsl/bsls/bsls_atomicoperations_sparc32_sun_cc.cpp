@@ -2,10 +2,10 @@
 
 #include <bsls_atomicoperations_sparc32_sun_cc.h>
 
-#include <bsls_annotation.h>
-
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
+
+#include <bsls_annotation.h>
 
 #if defined(BSLS_PLATFORM_CPU_SPARC_32) \
     && (defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_SUN))
