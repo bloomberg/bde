@@ -3,8 +3,8 @@
 
 #include <bsls_bsltestutil.h>
 
-#include <cstdlib>
 #include <cstdio>
+#include <cstdlib>
 
 using namespace bsl;
 using namespace BloombergLP;
@@ -18,9 +18,9 @@ using std::atoi;
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// The components under test defines a meta-functions, 'bsl::is_const', that
-// determine whether a template parameter type is a 'const'-qualified type.
-// Thus, we need to ensure that the values returned by the meta-function is
+// The components under test defines a meta-function, 'bsl::is_const', that
+// determines whether a template parameter type is a 'const'-qualified type.
+// Thus, we need to ensure that the value returned by the meta-function is
 // correct for each possible category of types.
 //
 // ----------------------------------------------------------------------------
@@ -66,8 +66,7 @@ void aSsErT(bool b, const char *s, int i)
 namespace {
 
 struct TestType {
-   // This user-defined type is intended to be used during testing as an
-   // argument for the template parameter 'TYPE' of 'bsl::is_const'.
+   // This user-defined type is intended to be used for testing.
 };
 
 }  // close unnamed namespace
@@ -111,20 +110,20 @@ int main(int argc, char *argv[])
 //
 ///Example 1: Verify 'Const' Types
 ///- - - - - - - - - - - - - - - -
-// Suppose that we want to assert whether a particular type is a
+// Suppose that we want to assert whether a particular type is
 // 'const'-qualified.
 //
-// First, we create two 'typedef's -- a 'const'-qualified type and a
+// First, we create two 'typedef's -- a 'const'-qualified type and an
 // unqualified type:
 //..
-        typedef int        MyType;
-        typedef const int  MyConstType;
+    typedef int        MyType;
+    typedef const int  MyConstType;
 //..
 // Now, we instantiate the 'bsl::is_const' template for each of the
 // 'typedef's and assert the 'value' static data member of each instantiation:
 //..
-        ASSERT(false == bsl::is_const<MyType>::value);
-        ASSERT(true == bsl::is_const<MyConstType>::value);
+    ASSERT(false == bsl::is_const<MyType>::value);
+    ASSERT(true  == bsl::is_const<MyConstType>::value);
 //..
 
       } break;
@@ -132,7 +131,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // 'bsl::is_const::value'
         //   Ensure that 'bsl::is_const' returns the correct values for a
-        //   variety of a variety of template parameter types.
+        //   variety of template parameter types.
         //
         // Concerns:
         //: 1 'is_const::value' is 'false' when 'TYPE' is a (possibly

@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a meta-function for adding a top-level 'const'-qualifier
+//@PURPOSE: Provide a meta-function for adding a top-level 'const'-qualifier.
 //
 //@CLASSES:
 //  bsl::add_const: meta-function for adding a top-level 'const'-qualifier
@@ -28,8 +28,8 @@ BSLS_IDENT("$Id: $")
 ///-----
 // In this section we show intended use of this component.
 //
-///Example 1: Adding the 'const'-qualifier to A Type
-///- - - - - - - - - - - - - - - - - - - - - - - - -
+///Example 1: Adding a 'const'-qualifier to a Type
+///- - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose that we want to add a 'const'-qualifier to a particular type.
 //
 // First, we create two 'typedef's -- a 'const'-qualified type ('MyConstType')
@@ -70,12 +70,13 @@ namespace bslmf {
 
 template <class TYPE, bool ADD_CONST_FLAG>
 struct AddConst_Imp {
-    // This 'struct' template provides an alias 'Type' that add the
+    // This 'struct' template provides an alias 'Type' that adds a
     // 'const'-qualifier to the (template parameter) 'TYPE' if the (template
     // parameter) 'ADD_CONST_FLAG' is 'true'.  This generic default template
-    // adds the 'const' qualifier to 'TYPE' in the 'Type' alias.  A template
+    // adds the 'const'-qualifier to 'TYPE' in the 'Type' alias.  A template
     // specialization (below) leaves 'TYPE' as-is in its 'Type' alias.
 
+    // PUBLIC TYPES
     typedef TYPE const Type;
         // This 'typedef' is an alias to a type that is the same as the
         // (template parameter) 'TYPE' except that a top-level
@@ -92,6 +93,7 @@ struct AddConst_Imp<TYPE, false> {
     // parameter) 'ADD_CONST_FLAG' is 'false', provides an alias 'Type' that
     // has the same type as the (template parameter) 'TYPE'.
 
+    // PUBLIC TYPES
     typedef TYPE Type;
         // This 'typedef' is an alias to the (template parameter) 'TYPE'.
 };
@@ -108,12 +110,13 @@ namespace bsl {
 template <class TYPE>
 struct add_const {
     // This 'struct' template implements the 'add_const' meta-function defined
-    // in the C++11 standard [meta.trans.cv], providing an alias, 'type' that
+    // in the C++11 standard [meta.trans.cv], providing an alias, 'type', that
     // returns the result.  If the (template parameter) 'TYPE' is not a
     // reference type, nor a function type, nor already 'const'-qualified at
     // the top-level, then 'type' is an alias to 'TYPE' with a top-level
     // 'const'-qualifier added; otherwise, 'type' is an alias to 'TYPE'.
 
+    // PUBLIC TYPES
     typedef typename BloombergLP::bslmf::AddConst_Imp<
                             TYPE,
                             !is_reference<TYPE>::value

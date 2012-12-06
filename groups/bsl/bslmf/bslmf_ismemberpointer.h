@@ -17,25 +17,24 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR:
 //
 //@DESCRIPTION: This component defines a meta-function,
-// 'bsl::is_member_pointer', which may be used to query whether a type is a
-// pointer type to non-static data member.
+// 'bsl::is_member_pointer', that may be used to query whether a type is a
+// pointer to non-static member type.
 //
 // 'bsl::is_member_pointer' meets the requirements of the 'is_member_pointer'
 // template defined in the C++11 standard [meta.unary.comp].
 //
 ///Example 1: Verify Member Pointer Types
 /// - - - - - - - - - - - - - - - - - - -
-// Suppose that we want to assert whether a particular type is a class type.
+// Suppose that we want to assert whether a set of types are member pointer
+// types.
 //
 // First, we create a user-defined type 'MyStruct':
 //..
 //  struct MyStruct
 //  {
-//      // DATA
-//      int memData;  // a member data
 //  };
 //..
-// Now, we create three 'typedef's -- a data member object pointer, a member
+// Now, we create three 'typedef's -- a member object pointer type, a member
 // function pointer type and a general function pointer type:
 //..
 //  typedef int MyStruct::* DataMemPtr;
@@ -77,28 +76,31 @@ BSLS_IDENT("$Id: $")
 
 namespace bsl {
 
-template <typename TYPE>
+                         // ========================
+                         // struct is_member_pointer
+                         // ========================
+
+template <class TYPE>
 struct is_member_pointer
     : integral_constant<bool,
                         is_member_object_pointer<TYPE>::value
-                        || bsl::is_member_function_pointer<TYPE>::value>
-{
+                        || bsl::is_member_function_pointer<TYPE>::value> {
     // This 'struct' template implements the 'is_member_pointer' meta-function
     // defined in the C++11 standard [meta.unary.comp] to determine if the
     // (template parameter) 'TYPE' is a member pointer type.  This 'struct'
     // derives from 'bsl::true_type' if the 'TYPE' is a member pointer type,
-    // and 'bsl::false_type' otherwise.
+    // and from 'bsl::false_type' otherwise.
 };
 
 }  // close namespace bsl
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2012
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------
