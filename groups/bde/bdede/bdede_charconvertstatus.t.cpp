@@ -1,6 +1,6 @@
-// bdede_translationstatus.t.cpp                                      -*-C++-*-
+// bdede_charconvertstatus.t.cpp                                      -*-C++-*-
 
-#include <bdede_translationstatus.h>
+#include <bdede_charconvertstatus.h>
 
 #include <bslma_default.h>
 #include <bslma_testallocator.h>
@@ -19,8 +19,9 @@ using namespace bsl;
 // ----------------------------------------------------------------------------
 //                                  Overview
 //                                  --------
-// The component under test implements a single enumeration having sequential
-// enumerator values that start from 0.
+// The component under test implements a single enumeration having enumerator
+// values that specify bits within an integer status to be returned by
+// translation functions.
 //
 // We will therefore follow our standard 3-step approach to testing enumeration
 // types, with certain test cases omitted:
@@ -37,10 +38,10 @@ using namespace bsl;
 //
 // CLASS METHODS
 // [ 3] ostream& print(ostream& s, Enum val, int level = 0, int sPL = 4);
-// [ 1] const char *toAscii(baetzo_LocalTimeValidity::Enum val);
+// [ 1] const char *toAscii(bdede_CharConvertStatus::Enum val);
 //
 // FREE OPERATORS
-// [ 2] operator<<(ostream& s, baetzo_LocalTimeValidity::Enum val);
+// [ 2] operator<<(ostream& s, bdede_CharConvertStatus::Enum val);
 // ----------------------------------------------------------------------------
 // [ 5] USAGE EXAMPLE
 
@@ -106,8 +107,8 @@ static void aSsErT(int c, const char *s, int i)
 //                        GLOBAL TYPEDEFS FOR TESTING
 // -------------------------------------------------------------------------
 
-typedef bdede_TranslationStatus::Enum Enum;
-typedef bdede_TranslationStatus       Obj;
+typedef bdede_CharConvertStatus::Enum Enum;
+typedef bdede_CharConvertStatus       Obj;
 
 // =========================================================================
 //                       GLOBAL CONSTANTS FOR TESTING
@@ -165,19 +166,19 @@ int main(int argc, char *argv[])
 ///Example 1: Basic Syntax
 ///- - - - - - - - - - - -
 // The following snippets of code provide a simple illustration of
-// 'bdede_TranslationStatus' usage.
+// 'bdede_CharConvertStatus' usage.
 //
-// First, we create a variable 'value' of type 'bdede_TranslationStatus::Enum'
+// First, we create a variable 'value' of type 'bdede_CharConvertStatus::Enum'
 // and initialize it with the value 3, which is not a valid value of the
 // 'enum'.
 //..
-        bdede_TranslationStatus::Enum value =
-                              bdede_TranslationStatus::BDEDE_INVALID_CHARS_BIT;
+        bdede_CharConvertStatus::Enum value =
+                              bdede_CharConvertStatus::BDEDE_INVALID_CHARS_BIT;
 //..
 // Next, we store a pointer to its ASCII representation in a variable
 // 'asciiValue' of type 'const char *':
 //..
-        const char *asciiValue = bdede_TranslationStatus::toAscii(value);
+        const char *asciiValue = bdede_CharConvertStatus::toAscii(value);
         ASSERT(0 == bsl::strcmp(asciiValue, "INVALID_CHARS_BIT"));
 //..
 // Finally, we print 'value' to 'bsl::cout'.
@@ -385,7 +386,7 @@ int main(int argc, char *argv[])
         //:   to initialize a variable of the appropriate type.  (C-6)
         //
         // Testing:
-        //   operator<<(ostream& s, baetzo_LocalTimeValidity::Enum val);
+        //   operator<<(ostream& s, bdede_CharConvertStatus::Enum val);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "Testing '<<' operator" << endl
@@ -494,7 +495,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   enum Enum { ... };
-        //   const char *toAscii(baetzo_LocalTimeValidity::Enum val);
+        //   const char *toAscii(bdede_CharConvertStatus::Enum val);
         // -------------------------------------------------------------------
 
         if (verbose) cout << endl << "Testing 'enum' and 'toAscii'" << endl

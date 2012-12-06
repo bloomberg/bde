@@ -1,23 +1,23 @@
-// bdede_translationstatus.h                                          -*-C++-*-
-#ifndef INCLUDED_BDEDE_TRANSLATIONSTATUS
-#define INCLUDED_BDEDE_TRANSLATIONSTATUS
+// bdede_charconvertstatus.h                                          -*-C++-*-
+#ifndef INCLUDED_BDEDE_CHARCONVERTSTATUS
+#define INCLUDED_BDEDE_CHARCONVERTSTATUS
 
 #ifndef INCLUDED_BDES_IDENT
 #include <bdes_ident.h>
 #endif
 BDES_IDENT("$Id: $")
 
-//@PURPOSE: Enumerate masks for interpreting status from translation functions.
+//@PURPOSE: Enumerate masks for interpreting status from charconvert functions.
 //
 //@CLASSES:
-//  bdede_TranslationStatus: namespace for bit-wise mask of translation status.
+//  bdede_CharConvertStatus: namespace for bit-wise mask of charconvert status
 //
 //@SEE_ALSO: bdede_charconvertutf16, bdede_charconvertucs2
 //
 //@AUTHOR: Bill Chapman (bchapman2)
 //
 //@DESCRIPTION: This component provides a namespace for the 'enum' type
-// 'bdede_TranslationStatus::Enum', which enumerates the set of bit-wise masks
+// 'bdede_CharConvertStatus::Enum', which enumerates the set of bit-wise masks
 // that can be used to interpret return values from translation functions in
 // components 'bdede_charconvertutf16' and 'bdede_charconvertucs2'.
 //
@@ -26,8 +26,8 @@ BDES_IDENT("$Id: $")
 //..
 //  Name                      Description
 //  ----------------------    ----------------------------------------
-//  BDEDE_INVALID_CHARS_MASK  Invalid chars or sequences of chars were
-//                            encountered in the input.
+//  BDEDE_INVALID_CHARS_MASK  Invalid characters or sequences of characters
+//                            were encountered in the input.
 //  BDEDE_OUT_OF_SPACE_MASK   The space provided for the output was
 //                            insufficient for the translation.
 //..
@@ -47,10 +47,10 @@ BDES_IDENT("$Id: $")
 namespace BloombergLP {
 
                      // ==============================
-                     // struct bdede_TranslationStatus
+                     // struct bdede_CharConvertStatus
                      // ==============================
 
-struct bdede_TranslationStatus {
+struct bdede_CharConvertStatus {
     // This 'struct' provides a namespace for enumerating the set of mask
     // codes that can be used to interpret 'int' return values from translation
     // functions in BDEDE.
@@ -64,9 +64,9 @@ struct bdede_TranslationStatus {
   public:
     // TYPES
     enum Enum {
-        BDEDE_INVALID_CHARS_BIT = 0x1,      // Invalid chars or sequences of
-                                            // chars were encountered in the
-                                            // input.
+        BDEDE_INVALID_CHARS_BIT = 0x1,      // Invalid characters or sequences
+                                            // of characters were encountered
+                                            // in the input.
         BDEDE_OUT_OF_SPACE_BIT  = 0x2       // The space provided for the
                                             // output was insufficient for the
                                             // translation.
@@ -76,7 +76,7 @@ struct bdede_TranslationStatus {
     // CLASS METHODS
     static bsl::ostream& print(
                             bsl::ostream&                 stream,
-                            bdede_TranslationStatus::Enum value,
+                            bdede_CharConvertStatus::Enum value,
                             int                           level          = 0,
                             int                           spacesPerLevel = 4);
         // Write the string representation of the specified enumeration 'value'
@@ -92,7 +92,7 @@ struct bdede_TranslationStatus {
         // what constitutes the string representation of a
         // 'baetzo_LocalTimeValidity::Enum' value.
 
-    static const char *toAscii(bdede_TranslationStatus::Enum value);
+    static const char *toAscii(bdede_CharConvertStatus::Enum value);
         // Return the non-modifiable string representation corresponding to the
         // specified enumeration 'value', if it exists, and a unique (error)
         // string otherwise.  The string representation of 'value' matches its
@@ -100,7 +100,7 @@ struct bdede_TranslationStatus {
         // example:
         //..
         //  bsl::cout << baetzo_LocalTimeValidity::toAscii(
-        //                    bdede_TranslationStatus::BDEDE_OUT_OF_SPACE_BIT);
+        //                    bdede_CharConvertStatus::BDEDE_OUT_OF_SPACE_BIT);
         //..
         // will print the following on standard output:
         //..
@@ -114,14 +114,14 @@ struct bdede_TranslationStatus {
 
 // FREE OPERATORS
 bsl::ostream& operator<<(bsl::ostream&                 stream,
-                         bdede_TranslationStatus::Enum value);
+                         bdede_CharConvertStatus::Enum value);
     // Write the string representation of the specified enumeration 'value' to
     // the specified output 'stream' in a single-line format, and return a
     // reference to 'stream'.  See 'toAscii' for what constitutes the string
-    // representation of a 'bdede_TranslationStatus::Enum' value.  Note that
+    // representation of a 'bdede_CharConvertStatus::Enum' value.  Note that
     // this method has the same behavior as
     //..
-    //  bdede_TranslationStatus::print(stream, value, 0, -1);
+    //  bdede_CharConvertStatus::print(stream, value, 0, -1);
     //..
 
 // ===========================================================================
@@ -129,15 +129,15 @@ bsl::ostream& operator<<(bsl::ostream&                 stream,
 // ===========================================================================
 
                      // ------------------------------
-                     // struct bdede_TranslationStatus
+                     // struct bdede_CharConvertStatus
                      // ------------------------------
 
 // FREE OPERATORS
 inline
 bsl::ostream& operator<<(bsl::ostream&                 stream,
-                         bdede_TranslationStatus::Enum value)
+                         bdede_CharConvertStatus::Enum value)
 {
-    return bdede_TranslationStatus::print(stream, value, 0, -1);
+    return bdede_CharConvertStatus::print(stream, value, 0, -1);
 }
 
 }  // close namespace BloombergLP

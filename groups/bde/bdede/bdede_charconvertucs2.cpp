@@ -2,7 +2,7 @@
 
 #include <bdede_charconvertucs2.h>
 
-#include <bdede_translationstatus.h>
+#include <bdede_charconvertstatus.h>
 
 #include <bsls_performancehint.h>  // 'BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY'
 
@@ -142,9 +142,9 @@ enum {
 enum {
     BDEDE_SUCCESS                 = 0,
     BDEDE_INVALID_INPUT_CHARACTER =
-                 BloombergLP::bdede_TranslationStatus::BDEDE_INVALID_CHARS_BIT,
+                 BloombergLP::bdede_CharConvertStatus::BDEDE_INVALID_CHARS_BIT,
     BDEDE_OUTPUT_BUFFER_TOO_SMALL =
-                 BloombergLP::bdede_TranslationStatus::BDEDE_OUT_OF_SPACE_BIT
+                 BloombergLP::bdede_CharConvertStatus::BDEDE_OUT_OF_SPACE_BIT
 };
 
 namespace {

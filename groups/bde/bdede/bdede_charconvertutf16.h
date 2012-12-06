@@ -30,20 +30,17 @@ BDES_IDENT("$Id: $")
 // described in detail in RFC 3629 (http://www.ietf.org/rfc/rfc3629.txt).
 //
 // UTF-16 is a 16-bit character encoding that allows Unicode characters up to
-// 0x10FFFF to be encoded using one or two 16-bit values.  Note that UTF-16 is
+// 0x10ffff to be encoded using one or two 16-bit values.  Note that UTF-16 is
 // described in detail in RFC 2781 (http://www.ietf.org/rfc/rfc2781.txt).
 //
 // The functions here that translate to fixed buffers make a single pass
 // through the data.  The functions that translate to 'bsl::string's and STL
 // containers, however, like the 'glib' conversion routines, make two passes: a
 // size estimation pass, after which the output container is sized
-// appropriately if necessary, and then the tanslation pass.
+// appropriately if necessary, and then the translation pass.
 //
 // The methods that output to a 'vector', 'string', or 'wstring' will all grow
-// the output object as necessary to fit the data, and in the end will exactly
-// resize the object to the output, and still make only a single translation
-// pass over the data.  The methods will run faster, however, if passed an
-// output object having sufficient capacity to contain the translated result.
+// the output object as necessary to exactly fit the data.
 //
 // Non-minimal UTF-8 encodings of characters are reported as errors.  Octets
 // and post-conversion characters in the forbidden ranges are treated as errors
@@ -53,24 +50,24 @@ BDES_IDENT("$Id: $")
 ///-------------------
 // UTF-16 (or UTF-8, for that matter) can be stored in 'wstring's, but note
 // that the size of a 'wstring::value_type', also known as a
-// 'wchar_t character', varies across different platforms -- it is 4 bytes on
+// 'wchar_t' character, varies across different platforms -- it is 4 bytes on
 // Solaris, Linux, HP-UX, and Darwin, and 2 bytes on AIX and Windows.  So a
-// file of 'wchar_t' written by one platform may not be readable by another.
-// Byte order is also a consideration.  Another factor is that, since UTF-16
-// words all fit in 2 bytes, using 'wchar_t' to store UTF-16 is very wasteful
-// of space on many platforms.
+// file of 'wchar_t' characters written by one platform may not be readable by
+// another.  Byte order is also a consideration.  Another factor is that, since
+// UTF-16 words all fit in 2 bytes, using 'wchar_t' to store UTF-16 is very
+// wasteful of space on many platforms.
 //
 ///Usage
 ///-----
 // In this section we show intended use of this component.
 //
-///Example 1: Translation to fixed-length buffers
+///Example 1: Translation to Fixed-Length Buffers
 /// - - - - - - - - - - - - - - - - - - - - - - -
-// In this example, we will translate a string containing a non-ascii character
+// In this example, we will translate a string containing a non-ASCII character
 // from UTF-16 to UTF-8 and back.
 //
 // First, we create a UTF-16 string spelling 'ecole' in French, which begins
-// with '0xc9', a non-ascii 'e' with an accent over it:
+// with '0xc9', a non-ASCII 'e' with an accent over it:
 //..
 //  unsigned short utf16String[] = { 0xc9, 'c', 'o', 'l', 'e', 0 };
 //
@@ -89,9 +86,9 @@ BDES_IDENT("$Id: $")
 //                                               &numChars,
 //                                               &numBytes);
 //..
-// Then, we observe no errors or warnigns occurred, and numbers of chars and
-// bytes were as expected.  note that both 'numChars' and 'numBytes' include
-// the terminating 0.
+// Then, we observe no errors or warnings occurred, and numbers of characters
+// and bytes were as expected.  Note that both 'numChars' and 'numBytes'
+// include the terminating 0.
 //..
 //  assert(0 == rc);
 //  assert(6 == numChars);
@@ -112,8 +109,8 @@ BDES_IDENT("$Id: $")
 //  assert(0   ==         utf8String[6]);
 //..
 // Next, in preparation for translation back to UTF-16, we create a buffer of
-// shorts and the variable 'numWords' to track the number of UTF-16 words
-// occuppied by the result.
+// short values and the variable 'numWords' to track the number of UTF-16 words
+// occupied by the result.
 //..
 //  unsigned short secondUtf16String[6];
 //  bsl::size_t numWords;
@@ -161,7 +158,7 @@ BDES_IDENT("$Id: $")
 // triple-, and quadruple-octet characters.
 //..
 //  const char utf8MultiLang[] = {
-//      "Hello"                                         // -- Ascii
+//      "Hello"                                         // -- ASCII
 //      "\xce\x97"         "\xce\x95"       "\xce\xbb"  // -- Greek
 //      "\xe4\xb8\xad"     "\xe5\x8d\x8e"               // -- Chinese
 //      "\xe0\xa4\xad"     "\xe0\xa4\xbe"               // -- Hindi
@@ -212,7 +209,7 @@ BDES_IDENT("$Id: $")
 //  assert(EXPECTED_CHARS_WRITTEN == utf16CharsWritten);
 //..
 // Then, we verify that the number of 16-bit words written was correct.  The
-// quad octet chars each require 2 short words of output
+// quad octet characters each require 2 short words of output
 //..
 //  enum { EXPECTED_UTF16_WORDS_WRITTEN =
 //                  NUM_ASCII_CHARS + NUM_GREEK_CHARS + NUM_CHINESE_CHARS +
@@ -221,11 +218,12 @@ BDES_IDENT("$Id: $")
 //  assert(EXPECTED_UTF16_WORDS_WRITTEN == v16.size());
 //..
 // Next, we calculate and confirm the difference betwen the number of UTF-16
-// words output and the number of bytes input.  The ASCII chars will take 1
-// 16-bit word apiece, the Greek chars are double octets that will become
-// single shorts, the Chinese chars are encoded as UTF-8 triple octets that
-// will turn into single 16-bit words, the same for Hindi chars, and the quad
-// chars are quadruple octets that will turn into double shorts.
+// words output and the number of bytes input.  The ASCII characters will take
+// 1 16-bit word apiece, the Greek characters are double octets that will
+// become single short values, the Chinese characters are encoded as UTF-8
+// triple octets that will turn into single 16-bit words, the same for Hindi
+// characters, and the quad characters are quadruple octets that will turn into
+// double short values.
 //..
 //  enum { SHRINKAGE =
 //                    NUM_ASCII_CHARS   * (1-1) + NUM_GREEK_CHARS * (2-1) +
@@ -267,8 +265,8 @@ BDES_IDENT("$Id: $")
 #include <bdescm_version.h>
 #endif
 
-#ifndef INCLUDED_BDEDE_TRANSLATIONSTATUS
-#include <bdede_translationstatus.h>
+#ifndef INCLUDED_BDEDE_CHARCONVERTSTATUS
+#include <bdede_charconvertstatus.h>
 #endif
 
 #ifndef INCLUDED_BSL_CSTDLIB
@@ -302,60 +300,63 @@ struct bdede_CharConvertUtf16 {
 
     // CLASS METHODS
     static int utf8ToUtf16(bsl::wstring *dstWstring,
-                           const char   *srcBuffer,
+                           const char   *srcString,
                            bsl::size_t  *numCharsWritten = 0,
                            wchar_t       errorCharacter  = '?');
         // Load into the specified 'dstWstring' the result of converting the
-        // specified null-terminated UTF-8 'srcBuffer' to its UTF-16
+        // specified null-terminated UTF-8 'srcString' to its UTF-16
         // equivalent.  Optionally specify 'numCharsWritten' which, if not 0,
         // indicates the location of the modifiable variable into which the
-        // number of UTF-16 characters, including the terminating null
-        // character, written is to be loaded.  Optionally specify
-        // 'errorCharacter' to be substituted, if not 0, for invalid encodings
-        // in the input string.  Return 0 on success and
-        // 'bdede_TranslationStatus::BDEDE_INVALID_CHARS_BIT' otherwise.
+        // number of UTF-16 characters written, including the terminating null
+        // character, is to be loaded.  Optionally specify 'errorCharacter' to
+        // be substituted, if not 0, for invalid encodings in the input string.
+        // Return 0 on success and
+        // 'bdede_CharConvertStatus::BDEDE_INVALID_CHARS_BIT' otherwise.
         // Invalid encodings are multi-byte encoding parts out of sequence,
         // non-minimal UTF-8 encodings of characters, or characters outside the
-        // ranges which UTF-16 can validly encode (1 to D7FF and DE00 to
-        // 10FFFF).  If 'errorCharacter' is 0, invalid encodings are omitted
-        // entirely from the output.  The behavior is undefined unless
+        // ranges which UTF-16 can validly encode (in the range
+        // '[ 1 ..0xd7ff ]' or '[ 0xe000 .. 0x10ffff ]').  If 'errorCharacter'
+        // is 0, invalid input characters are ignored (i.e., produce no
+        // corresponding output characters).  The behavior is undefined unless
         // 'srcString' is null-terminated.  Note that one *character* can
         // occupy multiple 16-bit *words*.
 
     static int utf8ToUtf16(bsl::vector<unsigned short> *dstVector,
-                           const char                  *srcBuffer,
+                           const char                  *srcString,
                            bsl::size_t                 *numCharsWritten = 0,
                            unsigned short               errorCharacter  = '?');
         // Load into the specified 'dstVector' the result of converting the
-        // specified null-terminated UTF-8 'srcBuffer' to its UTF-16
+        // specified null-terminated UTF-8 'srcString' to its UTF-16
         // equivalent.  Optionally specify 'numCharsWritten' which (if not 0)
         // indicates the location of the modifiable variable into which the
         // number of UTF-16 characters (including the null terminator) written
         // is to be loaded.  Optionally specify 'errorCharacter' to be
         // substituted (if not 0) for invalid encodings in the input string.
-        // (Invalid encodings are multibyte encoding parts out of sequence,
+        // Invalid encodings are multibyte encoding parts out of sequence,
         // non-minimal UTF-8 encodings of characters, or characters outside the
-        // ranges which UTF-16 can validly encode (1 to D7FF and DE00 to
-        // 10FFFF).)  If 'errorCharacter' is 0, invalid encodings are omitted
-        // entirely from the output string.  Return 0 on success and
-        // 'bdede_TranslationStatus::BDEDE_INVALID_CHARS_BIT' otherwise.  The
-        // behavior is undefined unless 'srcBuffer' is null-terminated and
+        // ranges which UTF-16 can validly encode (in the range
+        // '[ 1 .. 0xd7ff ]' or '[ 0xe000 .. 0x10ffff ]').  If 'errorCharacter'
+        // is 0, invalid input characters are ignored (i.e., produce no
+        // corresponding output characters).  Any previous contents of the
+        // destination are discarded.  Return 0 on success and
+        // 'bdede_CharConvertStatus::BDEDE_INVALID_CHARS_BIT' otherwise.  The
+        // behavior is undefined unless 'srcString' is null-terminated and
         // 'errorCharacter' is either 0 or a valid single-word encoded UTF-16
-        // character (in the range '[ 1, 0xd7ff ]' or '[ 0xe000, 0xffff ]').
-        // Note that any previous contents of the destination are discarded,
-        // and that one *character* can occupy multiple 16-bit *words*.  Also
-        // note that the size of the result vector is always fitted to exactly
-        // fit the null-terminated result.
+        // character (in the range '[ 1 .. 0xd7ff ]' or
+        // '[ 0xe000 .. 0xffff ]').  Note that a one *character* can occupy
+        // multiple 16-bit *words*.  Also note that the size of the result
+        // vector is always fitted to the null-terminated result, including the
+        // terminating 0.
 
     static int utf8ToUtf16(unsigned short *dstBuffer,
                            bsl::size_t     dstCapacity,
-                           const char     *srcBuffer,
+                           const char     *srcString,
                            bsl::size_t    *numCharsWritten = 0,
                            bsl::size_t    *numWordsWritten = 0,
                            unsigned short  errorCharacter  = '?');
-        // Load into the specified 'dstBuffer' of specified capacity
+        // Load into the specified 'dstBuffer' of the specified capacity
         // 'dstCapacity', the result of converting the specified
-        // null-terminated UTF-8 'srcBuffer' to its UTF-16 equivalent.
+        // null-terminated UTF-8 'srcString' to its UTF-16 equivalent.
         // Optionally specify 'numCharsWritten' which (if not 0) indicates the
         // location of the variable into which the number of UTF-16 characters
         // (including the null terminator) written is to be loaded.  Optionally
@@ -363,45 +364,46 @@ struct bdede_CharConvertUtf16 {
         // the modifiable variable into which the number of 'short' *memory
         // words* written (including the null terminator) is to be loaded.
         // Optionally specify 'errorCharacter' to be substituted (if not 0) for
-        // invalid encodings in the input string.  (Invalid encodings are
+        // invalid encodings in the input string.  Invalid encodings are
         // multibyte encoding parts out of sequence, non-minimal UTF-8
         // encodings of characters, or characters outside the ranges which
-        // UTF-16 can validly encode (1 to D7FF and DE00 to 10FFFF).)  If
-        // 'errorCharacter' is 0, invalid encodings are omitted entirely from
-        // the output string.  Return 0 on success and a bit-wise
-        // or of the bits specified by 'bdede_TranslationStatus::Enum'
-        // otherwise to indicate that there werre invalid char sequences or if
-        // 'dstCapacity' was inadequate to store the output.  If
-        // 'dstCapacity > 0' yet 'dstCapacity' specifies a buffer too small to
-        // hold the output, the maximal null-terminated prefix of the properly
-        // converted result string is loaded into 'dstBuffer'.  The behavior is
-        // undefined unless 'dstBuffer', if specified, refers to an array of at
-        // least 'dstCapacity' elements, 'srcBuffer' is null-terminated, and
+        // UTF-16 can validly encode (in the range '[ 1 .. 0xd7ff ]' or
+        // '[ 0xe000 .. 0x10ffff ]').  If 'errorCharacter' is 0, invalid input
+        // characters are ignored (i.e., produce no corresponding output
+        // characters).  Return 0 on success and a bit-wise or of the bits
+        // specified by 'bdede_CharConvertStatus::Enum' otherwise to indicate
+        // that there were invalid char sequences or if 'dstCapacity' was
+        // inadequate to store the output.  If 'dstCapacity > 0' yet
+        // 'dstCapacity' specifies a buffer too small to hold the output, the
+        // maximal null-terminated prefix of the properly converted result
+        // string is loaded into 'dstBuffer'.  The behavior is undefined unless
+        // 'dstBuffer', if specified, refers to an array of at least
+        // 'dstCapacity' elements, 'srcString' is null-terminated, and
         // 'errorCharacter' is either 0 or a valid single-word encoded UTF-16
-        // character (in the range '[ 1, 0xd7ff ]' or '[ 0xe000, 0xffff ]')
+        // character (in the range '[ 1, 0xd7ff ]' or '[ 0xe000, 0xffff ]').
         // Note that if 'dstCapacity' is 0, '*dstBuffer' is not modified and
-        // this function returns
-        // 'bdede_TranslationStatus::BDEDE_OUT_OF_SPACE_BIT' set and 0 is
+        // this function returns a value with
+        // 'bdede_CharConvertStatus::BDEDE_OUT_OF_SPACE_BIT' set and 0 is
         // written into '*numCharsWritten' and '*numWordsWritten' (if those
         // pointers are not zero), since there is insufficient space for even a
         // null terminator alone.  Also note that one *character* can occupy
         // multiple 16-bit *words*, so that '*numWordsWritten' may be greater
-        // than '*numCharsWritten', and therefore that an input 'srcBuffer' of
+        // than '*numCharsWritten', and therefore that an input 'srcString' of
         // 'dstCapacity' *characters* may not fit into 'dstBuffer', however, an
-        // input 'srcBuffer' of 'dstCapacity' *bytes* (including null
+        // input 'srcString' of 'dstCapacity' *bytes* (including null
         // terminator) will always fit (since the UTF-8 encoding of a character
         // requires at least as many bytes as the UTF-16 encoding requires
         // words).
 
     static int utf8ToUtf16(wchar_t     *dstBuffer,
                            bsl::size_t  dstCapacity,
-                           const char  *srcBuffer,
+                           const char  *srcString,
                            bsl::size_t *numCharsWritten = 0,
                            bsl::size_t *numWordsWritten = 0,
                            wchar_t      errorCharacter  = '?');
-        // Load into the specified 'dstBuffer' of specified capacity
+        // Load into the specified 'dstBuffer' of the specified capacity
         // 'dstCapacity', the result of converting the specified
-        // null-terminated UTF-8 'srcBuffer' to its UTF-16 equivalent.
+        // null-terminated UTF-8 'srcString' to its UTF-16 equivalent.
         // Optionally specify 'numCharsWritten' which (if not 0) indicates the
         // location of the variable into which the number of UTF-16 characters
         // (including the terminating 0) written is to be loaded.  Optionally
@@ -409,146 +411,141 @@ struct bdede_CharConvertUtf16 {
         // the modifiable variable into which the number of 'short' *memory
         // words* written (including the null terminator) is to be loaded.
         // Optionally specify 'errorCharacter' to be substituted (if not 0) for
-        // invalid encodings in the input string.  (Invalid encodings are
+        // invalid encodings in the input string.  Invalid encodings are
         // multibyte encoding parts out of sequence, non-minimal UTF-8
         // encodings of characters, or characters outside the ranges which
-        // UTF-16 can validly encode (1 to D7FF and DE00 to 10FFFF).)  If
-        // 'errorCharacter' is 0, invalid encodings are omitted entirely from
-        // the output string.  Return 0 on success and a bit-wise
-        // or of the bits specified by 'bdede_TranslationStatus::Enum'
-        // otherwise to indicate that there werre invalid char sequences or if
-        // 'dstCapacity' was inadequate to store the output.  If
-        // 'dstCapacity > 0' yet 'dstCapacity' specifies a buffer too small to
-        // hold the output, the maximal null-terminated prefix of the properly
-        // converted result string is loaded into 'dstBuffer'.  The behavior is
-        // undefined unless 'dstBuffer', if specified, refers to an array of at
-        // least 'dstCapacity' elements, 'srcBuffer' is null-terminated, and
+        // UTF-16 can validly encode (in the range '[ 1 .. 0xd7ff ]' or
+        // '[ 0xde00 .. 0x10ffff ]').  If 'errorCharacter' is 0, invalid input
+        // characters are ignored (i.e., produce no corresponding output
+        // characters).  Return 0 on success and a bit-wise or of the bits
+        // specified by 'bdede_CharConvertStatus::Enum' otherwise to indicate
+        // that there were invalid char sequences or if 'dstCapacity' was
+        // inadequate to store the output.  If 'dstCapacity > 0' yet
+        // 'dstCapacity' specifies a buffer too small to hold the output, the
+        // maximal null-terminated prefix of the properly converted result
+        // string is loaded into 'dstBuffer'.  The behavior is undefined unless
+        // 'dstBuffer', if specified, refers to an array of at least
+        // 'dstCapacity' elements, 'srcString' is null-terminated, and
         // 'errorCharacter' is either 0 or a valid single-word encoded UTF-16
-        // character (in the range '[ 1, 0xd7ff ]' or '[ 0xe000, 0xffff ]')
+        // character (in the range '[ 1, 0xd7ff ]' or '[ 0xe000, 0xffff ]').
         // Note that if 'dstCapacity' is 0, '*dstBuffer' is not modified and
-        // this function returns
-        // 'bdede_TranslationStatus::BDEDE_OUT_OF_SPACE_BIT' set and 0 is
+        // this function returns a value with
+        // 'bdede_CharConvertStatus::BDEDE_OUT_OF_SPACE_BIT' set and 0 is
         // written into '*numCharsWritten' and '*numWordsWritten' (if those
         // pointers are not zero), since there is insufficient space for even a
         // null terminator alone.  Also note that one *character* can occupy
         // multiple 16-bit *words*, so that '*numWordsWritten' may be greater
-        // than '*numCharsWritten', and therefore that an input 'srcBuffer' of
+        // than '*numCharsWritten', and therefore that an input 'srcString' of
         // 'dstCapacity' *characters* may not fit into 'dstBuffer'.  However,
-        // an input 'srcBuffer' of 'dstCapacity' *bytes* (including terminating
+        // an input 'srcString' of 'dstCapacity' *bytes* (including terminating
         // 0) will always fit (since the UTF-8 encoding of a character requires
         // at least as many bytes as the UTF-16 encoding requires words).
 
                         // -- UTF-16 to UTF-8 Methods
 
     static int utf16ToUtf8(bsl::string          *dstString,
-                           const unsigned short *srcBuffer,
+                           const unsigned short *srcString,
                            bsl::size_t          *numCharsWritten = 0,
                            char                  errorCharacter  = '?');
         // Load into the specified 'dstString' the result of converting the
-        // specified null-terminated UTF-16 '*srcBuffer' to its UTF-8
+        // specified null-terminated UTF-16 '*srcString' to its UTF-8
         // equivalent.  Optionally specify 'numCharsWritten' which (if not 0)
         // indicates the location of the modifiable variable into which the
         // number of UTF-16 *characters* written, including the null
         // terminator, is to be loaded.  Note that one *character* can occupy
         // multiple *bytes*.  Optionally specify 'errorCharacter' to be
         // substituted (if not 0) for invalid encodings in the input string.
-        // (Invalid encodings are incomplete multi-word encodings or parts of a
-        // two-word encoding out of their proper sequence.)  If
-        // 'errorCharacter' is 0, invalid encodings are omitted entirely from
-        // the output string.  Return 0 on success and
-        // 'bdede_TranslationStatus::BDEDE_INVALID_CHARS_BIT' if one or more
+        // Invalid encodings are incomplete multi-word encodings or parts of a
+        // two-word encoding out of their proper sequence.  If 'errorCharacter'
+        // is 0, invalid input characters are ignored (i.e., produce no
+        // corresponding output characters).  Any previous contents of the
+        // destination are discarded.  Return 0 on success and
+        // 'bdede_CharConvertStatus::BDEDE_INVALID_CHARS_BIT' if one or more
         // invalid character sequences were encountered in the input.  The
-        // behavior is undefined unless 'srcBuffer' is null-terminated and
+        // behavior is undefined unless 'srcString' is null-terminated and
         // 'errorCharacter' is either zero or a valid single-byte encoded UTF-8
-        // character ('0 < errorCharacter < 0x80').  Note that any previous
-        // contents of the destination are discarded.  Also note that the
-        // string length will be exactly sized to the length of the output,
-        // such that 'strlen(dstString->c_str()) == dstString->length()'.
+        // character ('0 < errorCharacter < 0x80').  Also note that the string
+        // length will be sized to the length of the output, such that
+        // 'strlen(dstString->c_str()) == dstString->length()'.
 
     static int utf16ToUtf8(bsl::string   *dstString,
-                           const wchar_t *srcBuffer,
+                           const wchar_t *srcString,
                            bsl::size_t   *numCharsWritten = 0,
                            char           errorCharacter  = '?');
         // Load into the specified 'dstString' the result of converting the
-        // specified null-terminated UTF-16 '*srcBuffer' to its UTF-8
+        // specified null-terminated UTF-16 '*srcString' to its UTF-8
         // equivalent.  Optionally specify 'numCharsWritten' which (if not 0)
         // indicates the location of the modifiable variable into which the
         // number of UTF-16 *characters* written, including the null
         // terminator, is to be loaded.  Note that one *character* can occupy
         // multiple *bytes*.  Optionally specify 'errorCharacter' to be
         // substituted (if not 0) for invalid encodings in the input string.
-        // (Invalid encodings are incomplete multi-word encodings or parts of a
-        // two-word encoding out of their proper sequence.)  If
-        // 'errorCharacter' is 0, invalid encodings are omitted entirely from
-        // the output string.  Return 0 on success and
-        // 'bdede_TranslationStatus::BDEDE_INVALID_CHARS_BIT' if one or more
+        // Invalid encodings are incomplete multi-word encodings or parts of a
+        // two-word encoding out of their proper sequence.  If 'errorCharacter'
+        // is 0, invalid input characters are ignored (i.e., produce no
+        // corresponding output characters).  Any previous contents of the
+        // destination are discarded.  Return 0 on success and
+        // 'bdede_CharConvertStatus::BDEDE_INVALID_CHARS_BIT' if one or more
         // invalid character sequences were encountered in the input.  The
-        // behavior is undefined unless 'srcBuffer' is null-terminated and
+        // behavior is undefined unless 'srcString' is null-terminated and
         // 'errorCharacter' is either zero or a valid single-byte encoded UTF-8
-        // character ('0 < errorCharacter < 0x80').  Note that any previous
-        // contents of the destination are discarded.  Also note that the
-        // string length will be exactly sized to the length of the output,
-        // such that 'strlen(dstString->c_str()) == dstString->length()'.
+        // character ('0 < errorCharacter < 0x80').
 
     static int utf16ToUtf8(bsl::vector<char>    *dstVector,
-                           const unsigned short *srcBuffer,
+                           const unsigned short *srcString,
                            bsl::size_t          *numCharsWritten = 0,
                            char                  errorCharacter  = '?');
         // Load into the specified 'dstVector' the result of converting the
-        // specified null-terminated UTF-16 '*srcBuffer' to its UTF-8
+        // specified null-terminated UTF-16 '*srcString' to its UTF-8
         // equivalent.  Optionally specify 'numCharsWritten' which (if not 0)
         // indicates the location of the modifiable variable into which the
         // number of UTF-16 *characters* written, including the null
         // terminator, is to be loaded.  Note that one *character* can occupy
         // multiple *bytes*.  Optionally specify 'errorCharacter' to be
         // substituted (if not 0) for invalid encodings in the input string.
-        // (Invalid encodings are incomplete multi-word encodings or parts of a
-        // two-word encoding out of their proper sequence.)  If
-        // 'errorCharacter' is 0, invalid encodings are omitted entirely from
-        // the output vector.  Return 0 on success and
-        // 'bdede_TranslationStatus::BDEDE_INVALID_CHARS_BIT' if one or more
+        // Invalid encodings are incomplete multi-word encodings or parts of a
+        // two-word encoding out of their proper sequence.  If 'errorCharacter'
+        // is 0, invalid input characters are ignored (i.e., produce no
+        // corresponding output characters).  Any previous contents of the
+        // destination are discarded.  Return 0 on success and
+        // 'bdede_CharConvertStatus::BDEDE_INVALID_CHARS_BIT' if one or more
         // invalid character sequences were encountered in the input.  The
-        // behavior is undefined unless 'srcBuffer' is null-terminated and
+        // behavior is undefined unless 'srcString' is null-terminated and
         // 'errorCharacter' is either zero or a valid single-byte encoded UTF-8
-        // character ('0 < errorCharacter < 0x80').  Note that any previous
-        // contents of the destination are discarded.  Also note that the
-        // vector length will be exactly sized to the length of the output,
-        // such that 'strlen(dstVector->begin()) + 1 == dstVector->size()'.
+        // character ('0 < errorCharacter < 0x80').
 
     static int utf16ToUtf8(bsl::vector<char> *dstVector,
-                           const wchar_t     *srcBuffer,
+                           const wchar_t     *srcString,
                            bsl::size_t       *numCharsWritten = 0,
                            char               errorCharacter  = '?');
         // Load into the specified 'dstVector' the result of converting the
-        // specified null-terminated UTF-16 '*srcBuffer' to its UTF-8
+        // specified null-terminated UTF-16 '*srcString' to its UTF-8
         // equivalent.  Optionally specify 'numCharsWritten' which (if not 0)
         // indicates the location of the modifiable variable into which the
         // number of UTF-16 *characters* written, including the null
         // terminator, is to be loaded.  Note that one *character* can occupy
         // multiple *bytes*.  Optionally specify 'errorCharacter' to be
         // substituted (if not 0) for invalid encodings in the input string.
-        // (Invalid encodings are incomplete multi-word encodings or parts of a
-        // two-word encoding out of their proper sequence.)  If
-        // 'errorCharacter' is 0, invalid encodings are omitted entirely from
-        // the output vector.  Return 0 on success and
-        // 'bdede_TranslationStatus::BDEDE_INVALID_CHARS_BIT' if one or more
+        // Invalid encodings are incomplete multi-word encodings or parts of a
+        // two-word encoding out of their proper sequence.  If 'errorCharacter'
+        // is 0, invalid input characters are ignored (i.e., produce no
+        // corresponding output characters).  Any previous contents of the
+        // destination are discarded.  Return 0 on success and
+        // 'bdede_CharConvertStatus::BDEDE_INVALID_CHARS_BIT' if one or more
         // invalid character sequences were encountered in the input.  The
-        // behavior is undefined unless 'srcBuffer' is null-terminated and
+        // behavior is undefined unless 'srcString' is null-terminated and
         // 'errorCharacter' is either zero or a valid single-byte encoded UTF-8
-        // character ('0 < errorCharacter < 0x80').  Note that any previous
-        // contents of the destination are discarded.  Also note that the
-        // vector length will be exactly sized to the length of the output,
-        // such that 'strlen(dstVector->begin()) + 1 == dstVector->size()'.
+        // character ('0 < errorCharacter < 0x80').
 
     static int utf16ToUtf8(char                 *dstBuffer,
                            bsl::size_t           dstCapacity,
-                           const unsigned short *srcBuffer,
+                           const unsigned short *srcString,
                            bsl::size_t          *numCharsWritten = 0,
                            bsl::size_t          *numBytesWritten = 0,
                            char                  errorCharacter  = '?');
         // Load, into the specified 'dstBuffer' of the specified 'dstCapacity',
         // the result of converting the specified null-terminated UTF-16
-        // '*srcBuffer' to its UTF-8 equivalent.  Optionally specify
+        // '*srcString' to its UTF-8 equivalent.  Optionally specify
         // 'numCharsWritten' which (if not 0) indicates the location of the
         // modifiable variable into which the number of UTF-16 *characters*
         // (including the terminating 0, if any) written is to be loaded.  Note
@@ -557,27 +554,27 @@ struct bdede_CharConvertUtf16 {
         // the modifiable variable into which the number of bytes written
         // (including the null terminator, if any) is to be loaded.  Optionally
         // specify 'errorCharacter' to be substituted (if not 0) for invalid
-        // encodings in the input string.  (Invalid encodings are incomplete
+        // encodings in the input string.  Invalid encodings are incomplete
         // multi-word encodings or parts of a two-word encoding out of their
-        // proper sequence.)  If 'errorCharacter' is 0, invalid encodings are
-        // omitted entirely from the output string.  Return 0 on success and a
-        // bitwise-or of the masks defined by 'bdede_TranslationStatus::Enum'
-        // otherwise, where 'bdede_TranslationStatus::BDEDE_INVALID_CHARS_BIT'
-        // will be set if one or more invalid character sequences were
-        // encountered in the input, and
-        // 'bdede_TranslationStatus::BDEDE_OUT_OF_SPACE_BIT' will be set if the
-        // output space was exhausted before conversion was complete.  The
-        // behavior is undefined unless 'dstBuffer' refers to an array of at
-        // least 'dstCapacity' elements, 'srcBuffer' is null-terminated, and
-        // 'errorCharacter' is either zero or a valid single-byte encoded UTF-8
-        // character ('0 < errorCharacter < 0x80').  Note that if 'dstCapacity'
-        // is 0, this function returns
-        // 'bdede_TranslationStatus::BDEDE_OUT_OF_SPACE_FLAG' set and 0 is
+        // proper sequence.  If 'errorCharacter' is 0, invalid input characters
+        // are ignored (i.e., produce no corresponding output characters).
+        // Return 0 on success and a bitwise-or of the masks defined by
+        // 'bdede_CharConvertStatus::Enum' otherwise, where
+        // 'bdede_CharConvertStatus::BDEDE_INVALID_CHARS_BIT' will be set if
+        // one or more invalid character sequences were encountered in the
+        // input, and 'bdede_CharConvertStatus::BDEDE_OUT_OF_SPACE_BIT' will be
+        // set if the output space was exhausted before conversion was
+        // complete.  The behavior is undefined unless 'dstBuffer' refers to an
+        // array of at least 'dstCapacity' elements, 'srcString' is
+        // null-terminated, and 'errorCharacter' is either zero or a valid
+        // single-byte encoded UTF-8 character ('0 < errorCharacter < 0x80').
+        // Note that if 'dstCapacity' is 0, this function returns
+        // 'bdede_CharConvertStatus::BDEDE_OUT_OF_SPACE_FLAG' set and 0 is
         // written into '*numCharsWritten' and '*numBytesWritten' (if those
         // pointers are not zero), since there is insufficient space for even a
         // null terminator alone.  Also note that since UTF-8 is a
         // variable-length encoding, 'numBytesWritten' may be up to four times
-        // 'numCharsWritten', and therefore that an input 'srcBuffer' of
+        // 'numCharsWritten', and therefore that an input 'srcString' of
         // 'dstCapacity' *characters* (including terminating 0) may not fit
         // into 'dstBuffer'.  A one-word (two-byte) UTF-16 character will
         // require one to three UTF-8 octets (bytes); a two-word (four-byte)
@@ -590,13 +587,13 @@ struct bdede_CharConvertUtf16 {
 
     static int utf16ToUtf8(char          *dstBuffer,
                            bsl::size_t    dstCapacity,
-                           const wchar_t *srcBuffer,
+                           const wchar_t *srcString,
                            bsl::size_t   *numCharsWritten = 0,
                            bsl::size_t   *numBytesWritten = 0,
                            char           errorCharacter  = '?');
         // Load, into the specified 'dstBuffer' of the specified 'dstCapacity',
         // the result of converting the specified null-terminated UTF-16
-        // '*srcBuffer' to its UTF-8 equivalent.  Optionally specify
+        // '*srcString' to its UTF-8 equivalent.  Optionally specify
         // 'numCharsWritten' which (if not 0) indicates the location of the
         // modifiable variable into which the number of UTF-16 *characters*
         // (including the terminating 0, if any) written is to be loaded.  Note
@@ -605,26 +602,27 @@ struct bdede_CharConvertUtf16 {
         // the modifiable variable into which the number of bytes written
         // (including the null terminator, if any) is to be loaded.  Optionally
         // specify 'errorCharacter' to be substituted (if not 0) for invalid
-        // encodings in the input string.  (Invalid encodings are incomplete
+        // encodings in the input string.  Invalid encodings are incomplete
         // multi-word encodings or parts of a two-word encoding out of their
-        // proper sequence.)  If 'errorCharacter' is 0, invalid encodings are
-        // omitted entirely from the output string.  Return 0 on success and a
-        // bitwise-or of the flags defined by 'bdede_TranslationStatus::Enum'
-        // otherwise.  'bdede_TranslationStatus::BDEDE_INVALID_CHARS_FLAG' will
-        // be set if one or more invalid character sequences were encountered
-        // in the input, and 'bdede_TranslationStatus::BDEDE_OUT_OF_SPACE_FLAG'
-        // will be set if the output space was exhausted before conversion was
+        // proper sequence.  If 'errorCharacter' is 0, invalid input characters
+        // are ignored (i.e., produce no corresponding output characters).
+        // Return 0 on success and a bitwise-or of the flags defined by
+        // 'bdede_CharConvertStatus::Enum' otherwise.
+        // 'bdede_CharConvertStatus::BDEDE_INVALID_CHARS_FLAG' will be set if
+        // one or more invalid character sequences were encountered in the
+        // input, and 'bdede_CharConvertStatus::BDEDE_OUT_OF_SPACE_FLAG' will
+        // be set if the output space was exhausted before conversion was
         // complete.  The behavior is undefined unless 'dstBuffer' refers to an
-        // array of at least 'dstCapacity' elements, 'srcBuffer' is
+        // array of at least 'dstCapacity' elements, 'srcString' is
         // null-terminated, and 'errorCharacter' is either zero or a valid
         // single-byte encoded UTF-8 character ('0 < errorCharacter < 0x80').
         // Note that if 'dstCapacity' is 0, this function returns
-        // 'bdede_TranslationStatus::BDEDE_OUT_OF_SPACE_FLAG' set and 0 is
+        // 'bdede_CharConvertStatus::BDEDE_OUT_OF_SPACE_FLAG' set and 0 is
         // written into '*numCharsWritten' and '*numBytesWritten' (if those
         // pointers are not zero), since there is insufficient space for even a
         // null terminator alone.  Also note that since UTF-8 is a
         // variable-length encoding, 'numBytesWritten' may be up to four times
-        // 'numCharsWritten', and therefore that an input 'srcBuffer' of
+        // 'numCharsWritten', and therefore that an input 'srcString' of
         // 'dstCapacity' *characters* (including terminating 0) may not fit
         // into 'dstBuffer'.  A one-word (two-byte) UTF-16 character will
         // require one to three UTF-8 octets (bytes); a two-word (four-byte)

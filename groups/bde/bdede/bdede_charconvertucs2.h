@@ -263,8 +263,8 @@ BDES_IDENT("$Id: $")
 #include <bdescm_version.h>
 #endif
 
-#ifndef INCLUDED_BDEDE_TRANSLATIONSTATUS
-#include <bdede_translationstatus.h>
+#ifndef INCLUDED_BDEDE_CHARCONVERTSTATUS
+#include <bdede_charconvertstatus.h>
 #endif
 
 #ifndef INCLUDED_BSL_STRING
@@ -314,10 +314,10 @@ struct bdede_CharConvertUcs2 {
         // convertible to UCS-2) input characters.  If 'errorCharacter' is 0,
         // invalid input characters are ignored (i.e., produce no corresponding
         // output characters).  Return 0 on success and a bitwise-or of the
-        // masks specified by 'bdede_TranslationStatus::Enum' otherwise, with
-        // 'bdede_TranslationStatus::BDEDE_INVALID_CHARS_BIT' set to indicate
+        // masks specified by 'bdede_CharConvertStatus::Enum' otherwise, with
+        // 'bdede_CharConvertStatus::BDEDE_INVALID_CHARS_BIT' set to indicate
         // that at least one invalid input sequence was encountered, and
-        // 'bdede_TranslationStatus::BDEDE_OUT_OF_SPACE_BIT' set to indicate
+        // 'bdede_CharConvertStatus::BDEDE_OUT_OF_SPACE_BIT' set to indicate
         // that 'dstCapacity' was insufficient to accommodate the output.  If
         // 'dstCapacity' was insufficient, the maximal null-terminated prefix
         // of the properly converted result string is loaded into 'dstBuffer',
@@ -337,9 +337,9 @@ struct bdede_CharConvertUcs2 {
         // equivalent.  Optionally specify 'errorCharacter' to be substituted
         // for invalid (i.e., not convertible to UCS-2) input characters.  If
         // 'errorCharacter' is 0, invalid input characters are ignored (i.e.,
-        // produce no corresponding output characters).  Return 0 on succees
-        // and 'bdede_TranslationStatus::BDEDE_INVALILD_CHARS_BIT' otherwise,
-        // meaning that at least one sequence of characters were encountered
+        // produce no corresponding output characters).  Return 0 on success
+        // and 'bdede_CharConvertStatus::BDEDE_INVALILD_CHARS_BIT' otherwise,
+        // meaning that at least one sequence of characters was encountered
         // that could not be translated to UCS-2.  If 'result & 1' is non-zero,
         // one or more input characters are invalid (in which case the
         // conversion continues).  The behavior is undefined unless 'srcString'
@@ -360,10 +360,10 @@ struct bdede_CharConvertUcs2 {
         // 'numBytesWritten' which (if not 0) indicates the modifiable integer
         // into which the number of *bytes* written (including the null
         // terminator) is to be loaded.  Return 0 on success and a bitwise-or
-        // of the masks specified by 'bdede_TranslationStatus::Enum' otherwise,
-        // with 'bdede_TranslationStatus::BDEDE_INVALID_CHARS_BIT' set to
+        // of the masks specified by 'bdede_CharConvertStatus::Enum' otherwise,
+        // with 'bdede_CharConvertStatus::BDEDE_INVALID_CHARS_BIT' set to
         // indicate that at least one invalid input sequence was encountered,
-        // and 'bdede_TranslationStatus::BDEDE_OUT_OF_SPACE_BIT' set to
+        // and 'bdede_CharConvertStatus::BDEDE_OUT_OF_SPACE_BIT' set to
         // indicate that 'dstCapacity' was insufficient to accommodate the
         // output.  If 'dstCapacity' was insufficient, the maximal
         // null-terminated prefix of the properly converted result string is
@@ -387,8 +387,8 @@ struct bdede_CharConvertUcs2 {
         // Optionally specify 'numCharsWritten' which (if not 0) indicates the
         // modifiable integer into which the number of *characters* written
         // (including the null terminator) is to be loaded.  Return 0 on
-        // success and 'bdede_TranslationStatus::BDEDE_INVALILD_CHARS_BIT'
-        // otherwise, meaning that at least one sequence of characters were
+        // success and 'bdede_CharConvertStatus::BDEDE_INVALILD_CHARS_BIT'
+        // otherwise, meaning that at least one sequence of characters was
         // encountered that could not be translated to UTF-8.  The behavior is
         // undefined unless 'srcString' is null-terminated.  Note that the
         // null-terminating character is not counted in 'result->length()'.

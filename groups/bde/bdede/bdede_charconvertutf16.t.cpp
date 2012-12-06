@@ -2,7 +2,7 @@
 
 #include <bdede_charconvertutf16.h>
 
-#include <bdede_translationstatus.h>
+#include <bdede_charconvertstatus.h>
 
 #include <bslma_testallocator.h>
 #include <bsls_platform.h>
@@ -223,7 +223,7 @@ bool aSsErT(int c, const char *s, int i)
 //-----------------------------------------------------------------------------
 
 typedef bdede_CharConvertUtf16  Util;
-typedef bdede_TranslationStatus Status;
+typedef bdede_CharConvertStatus Status;
 
 //=============================================================================
 //                           CUSTOM TEST APPARATUS

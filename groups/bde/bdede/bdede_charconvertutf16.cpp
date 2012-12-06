@@ -1,7 +1,7 @@
 // bdede_charconvertutf16.cpp                                         -*-C++-*-
 #include <bdede_charconvertutf16.h>
 
-#include <bdede_translationstatus.h>
+#include <bdede_charconvertstatus.h>
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
@@ -199,9 +199,9 @@ typedef BloombergLP::bdede_CharConvertUtf16 Util;
 
 enum {
     INVALID_CHARS_BIT =
-                 BloombergLP::bdede_TranslationStatus::BDEDE_INVALID_CHARS_BIT,
+                 BloombergLP::bdede_CharConvertStatus::BDEDE_INVALID_CHARS_BIT,
     OUT_OF_SPACE_BIT  =
-                 BloombergLP::bdede_TranslationStatus::BDEDE_OUT_OF_SPACE_BIT
+                 BloombergLP::bdede_CharConvertStatus::BDEDE_OUT_OF_SPACE_BIT
 };
 
 typedef unsigned int Iso10646Char;
@@ -706,9 +706,9 @@ bsl::size_t utf16BufferLength(const char *srcBuffer)
 template <typename UTF16_CHAR>
 static
 bsl::size_t utf8BufferLength(const UTF16_CHAR *srcBuffer)
-    // This routine will return the length needed in bytes, for a buffer to
-    // hold the zero-terminated utf8 string translated from the specified
-    // zero-terminated utf16 string 'srcBuffer'.  Note that the method will get
+    // Return the length needed in bytes, for a buffer to hold the
+    // null-terminated utf8 string translated from the specified
+    // null-terminated utf16 string 'srcBuffer'.  Note that the method will get
     // the length exactly right unless there are errors and the
     // 'errorCharacter' is 0, in which case it will slightly over estimate the
     // necessary length.
@@ -750,10 +750,17 @@ int localUtf8ToUtf16(UTF16_CHAR  *dstBuffer,
                      bsl::size_t *numCharsWritten,
                      bsl::size_t *numWordsWritten,
                      UTF16_CHAR   errorCharacter)
-    // This translates from a specified null terminated utf8 buffer 'srcBuffer'
-    // to a specifed null termintaed utf16 buffer 'dstBuffer'.  This function
-    // uses type 'CAPACITY_FUNCTOR' to check if there is enough room.  If the
-    // caller isn't certain the output buffer will be big enough,
+    // Translate from the specified null-terminated utf8 buffer 'srcBuffer' to
+    // the specifed null-termintaed utf16 buffer 'dstBuffer' of specified
+    // capacity 'dstBufferSize'.  Return the number of unicode characters in
+    // the specified '*numCharsWritten' and the number of 'UTF16_CHAR's written
+    // in '*numWordsWritten'.  The specified 'errorCharacter' is output in
+    // place of any error sequences encountered, or nothing is output in their
+    // place if '0 == errorCharacter'.  Return a bit-wise or of the flags
+    // specified by 'bdede_CharConvertStatus::Enum' to indicate whether error
+    // sequences were encountered and/or whether the translation ran out of
+    // space.  Use type 'CAPACITY_FUNCTOR' to check if there is enough room.
+    // If the caller isn't certain the output buffer will be big enough,
     // 'CAPACITY_FUNCTOR' should be 'Capacity' defined in this file, and the
     // routine will constantly check adequate room for output exists.  If the
     // caller is certain adequate room exists, 'CAPACITY_FUNCTOR' should be
@@ -999,14 +1006,19 @@ int localUtf16ToUtf8(char             *dstBuffer,
                      bsl::size_t      *numCharsWritten,
                      bsl::size_t      *numBytesWritten,
                      char              errorCharacter)
-    // This translates from a specified null terminated utf16 buffer
-    // 'srcBuffer' to a specifed null termintaed utf8 buffer 'dstBuffer'.  This
-    // function uses type 'CAPACITY_FUNCTOR' to check if there is enough room.
-    // If the caller isn't certain the output buffer will be big enough,
-    // 'CAPACITY_FUNCTOR' should be 'Capacity' defined in this file, and the
-    // routine will constantly check adequate room for output exists.  If the
-    // caller is certain adequate room exists, 'CAPACITY_FUNCTOR' should be
-    // 'NoopCapacity', which translates all the checking to noops and always
+    // Translate from the specified null-terminated utf16 buffer 'srcBuffer' to
+    // the specifed null-termintaed utf8 buffer 'dstBuffer' of specified
+    // capacity 'dstBufferSize'.  Return the number of unicode characters
+    // translated in the specified '*numCharsWritten' and the number of bytes
+    // written in the specified '*numBytesWritten'.  Return a bit-wise or of
+    // the flags specified by 'bdede_CharConvertStatus::Enum' to indicate
+    // whether error sequences were encountered and/or whether the translation
+    // ran out of space.  Use type 'CAPACITY_FUNCTOR' to check if there is
+    // enough room.  If the caller isn't certain the output buffer will be big
+    // enough, 'CAPACITY_FUNCTOR' should be 'Capacity' defined in this file,
+    // and the routine will constantly check adequate room for output exists.
+    // If the caller is certain adequate room exists, 'CAPACITY_FUNCTOR' should
+    // be 'NoopCapacity', which translates all the checking to noops and always
     // returns that room is adequate, for faster execution.
 {
     CAPACITY_FUNCTOR dstCapacity(dstBufferSize);
@@ -1156,13 +1168,13 @@ int localUtf16ToUtf8String(bsl::string      *dstString,
                            bsl::size_t      *numCharsWritten,
                            char              errorCharacter)
     // Translate the UTF-16 encoded, null-terminated sequence in the specified
-    // 'srcBuffer' to the specified 'dstString'.  Note that any pre-existing
-    // contents of 'dstString' are discarded.  Return the number of characters
-    // (not words or bytes) translated to the specified '*numCharsWritten'.  If
-    // error sequences are encountered, substitute the specified
-    // 'errorCharacter', or eliminate the sequence entirely if
-    // '0 == errorCharacter'.  The behavior is undefined if 'srcBuffer' is not
-    // null-terminated, or if 'errorCharacter >= 0x80'.
+    // 'srcBuffer' to the specified 'dstString'.  Any pre-existing contents of
+    // 'dstString' are discarded.  Return the number of characters (not words
+    // or bytes) translated to the specified '*numCharsWritten'.  If error
+    // sequences are encountered, substitute the specified 'errorCharacter', or
+    // eliminate the sequence entirely if '0 == errorCharacter'.  The behavior
+    // is undefined if 'srcBuffer' is not null-terminated, or if
+    // 'errorCharacter >= 0x80'.
 {
     bsl::size_t estLength = utf8BufferLength<UTF16_CHAR>(srcBuffer);
     BSLS_ASSERT(estLength > 0);
@@ -1209,12 +1221,12 @@ int localUtf16ToUtf8Vector(bsl::vector<char> *dstVector,
                            char               errorCharacter)
     // Translate the UTF-16 encoded, null-terminated sequence in the specified
     // 'srcBuffer' to the specified 'dstString', null-terminating the result.
-    // Note that any pre-existing contents of 'dstString' are discarded.
-    // Return the number of characters (not words or bytes) translated to the
-    // specified '*numCharsWritten'.  If error sequences are encountered,
-    // substitute the specified 'errorCharacter', or eliminate the sequence
-    // entirely if '0 == errorCharacter'.  The behavior is undefined if
-    // 'srcBuffer' is not null-terminated, or if 'errorCharacter >= 0x80'.
+    // Any pre-existing contents of 'dstString' are discarded.  Return the
+    // number of characters (not words or bytes) translated to the specified
+    // '*numCharsWritten'.  If error sequences are encountered, substitute the
+    // specified 'errorCharacter', or eliminate the sequence entirely if
+    // '0 == errorCharacter'.  The behavior is undefined if 'srcBuffer' is not
+    // null-terminated, or if 'errorCharacter >= 0x80'.
 {
     bsl::size_t estLength = utf8BufferLength<UTF16_CHAR>(srcBuffer);
     BSLS_ASSERT(estLength > 0);

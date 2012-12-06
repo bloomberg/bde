@@ -1,8 +1,8 @@
-// bdede_translationstatus.cpp                                        -*-C++-*-
-#include <bdede_translationstatus.h>
+// bdede_charconvertstatus.cpp                                        -*-C++-*-
+#include <bdede_charconvertstatus.h>
 
 #include <bdes_ident.h>
-BDES_IDENT_RCSID(bdede_translationstatus,"$Id$ $CSID$")
+BDES_IDENT_RCSID(bdede_charconvertstatus,"$Id$ $CSID$")
 
 #include <bdeu_print.h>
 
@@ -11,19 +11,19 @@ BDES_IDENT_RCSID(bdede_translationstatus,"$Id$ $CSID$")
 namespace BloombergLP {
 
                      // ------------------------------
-                     // struct bdede_TranslationStatus
+                     // struct bdede_CharConvertStatus
                      // ------------------------------
 
 // CLASS METHODS
-bsl::ostream& bdede_TranslationStatus::print(
+bsl::ostream& bdede_CharConvertStatus::print(
                                   bsl::ostream&                 stream,
-                                  bdede_TranslationStatus::Enum value,
+                                  bdede_CharConvertStatus::Enum value,
                                   int                           level,
                                   int                           spacesPerLevel)
 {
     bdeu_Print::indent(stream, level, spacesPerLevel);
 
-    stream << bdede_TranslationStatus::toAscii(value);
+    stream << bdede_CharConvertStatus::toAscii(value);
 
     if (spacesPerLevel >= 0) {
         stream << '\n';
@@ -32,8 +32,8 @@ bsl::ostream& bdede_TranslationStatus::print(
     return stream;
 }
 
-const char *bdede_TranslationStatus::toAscii(
-                                           bdede_TranslationStatus::Enum value)
+const char *bdede_CharConvertStatus::toAscii(
+                                           bdede_CharConvertStatus::Enum value)
 {
     switch (value) {
       case BDEDE_INVALID_CHARS_BIT: {
