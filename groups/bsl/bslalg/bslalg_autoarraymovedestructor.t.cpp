@@ -118,9 +118,13 @@ static int numDestructorCalls  = 0;
 
 bslma::TestAllocator *Z;  // initialized at the start of main()
 
+//=============================================================================
+//                            USAGE EXAMPLE
+//-----------------------------------------------------------------------------
+
 // Note that the class 'TestType' is used both in the usage example and in
 // some other cases.
-//
+
 ///Usage
 ///-----
 // In this section we show intended use of this component.
@@ -129,21 +133,21 @@ bslma::TestAllocator *Z;  // initialized at the start of main()
 /// - - - - - - - - - - - - - - - - - - - - -
 // First, we create the class 'TestType', which is bitwise-movable and
 // allocates memory upon construction:
-
+//..
                                // ==============
                                // class TestType
                                // ==============
-
+//
 class TestType {
-    // This test type contains a 'char' in some allocated storage.  It counts
-    // the number of default and copy constructions, assignments, and
-    // destructions.  It has no traits other than using a 'bslma' allocator.
-    // It could have the bit-wise moveable traits but we defer that trait to
-    // the 'MoveableTestType'.
-
+    // This test type contains a 'char' in some allocated storage.  It
+    // counts the number of default and copy constructions, assignments,
+    // and destructions.  It has no traits other than using a 'bslma'
+    // allocator.  It could have the bit-wise moveable traits but we defer
+    // that trait to the 'MoveableTestType'.
+//
     char             *d_data_p;
     bslma::Allocator *d_allocator_p;
-
+//
   public:
     // CREATORS
     explicit TestType(bslma::Allocator *basicAllocator = 0)
@@ -154,7 +158,7 @@ class TestType {
         d_data_p  = (char *)d_allocator_p->allocate(sizeof(char));
         *d_data_p = '?';
     }
-
+//
     explicit TestType(char c, bslma::Allocator *basicAllocator = 0)
     : d_data_p(0)
     , d_allocator_p(bslma::Default::allocator(basicAllocator))
@@ -163,8 +167,9 @@ class TestType {
         d_data_p  = (char *)d_allocator_p->allocate(sizeof(char));
         *d_data_p = c;
     }
-
-    TestType(const TestType& original, bslma::Allocator *basicAllocator = 0)
+//
+    TestType(const TestType&   original,
+             bslma::Allocator *basicAllocator = 0)
     : d_data_p(0)
     , d_allocator_p(bslma::Default::allocator(basicAllocator))
     {
@@ -174,7 +179,7 @@ class TestType {
             *d_data_p = *original.d_data_p;
         }
     }
-
+//
     ~TestType()
     {
         ++numDestructorCalls;
@@ -182,7 +187,7 @@ class TestType {
         d_allocator_p->deallocate(d_data_p);
         d_data_p = 0;
     }
-
+//
     // MANIPULATORS
     TestType& operator=(const TestType& rhs)
     {
@@ -196,9 +201,9 @@ class TestType {
         }
         return *this;
     }
-
+//
     void setDatum(char c) { *d_data_p = c; }
-
+//
     // ACCESSORS
     char datum() const { return *d_data_p; }
 
@@ -212,64 +217,58 @@ class TestType {
         }
     }
 };
-
-// TRAITS
-namespace BloombergLP {
-namespace bslma {
-template <>
-struct UsesBslmaAllocator<TestType> : bsl::true_type {};
-}  // close package namespace
-
-namespace bslmf {
-template <>
-struct IsBitwiseMoveable<TestType> : bsl::true_type {};
-}  // close package namespace
-}  // close enterprise namespace
-
+//
+// FREE OPERATORS
 bool operator==(const TestType& lhs, const TestType& rhs)
 {
-    ASSERT(isalpha(lhs.datum()));
-    ASSERT(isalpha(rhs.datum()));
-
     return lhs.datum() == rhs.datum();
 }
-
-//=============================================================================
-//                            USAGE EXAMPLE
-//-----------------------------------------------------------------------------
-
+//
+// TRAITS
+namespace BloombergLP {
+//
+namespace bslma {
+template <> struct UsesBslmaAllocator<TestType> : bsl::true_type {};
+}  // close package namespace
+//
+namespace bslmf {
+template <> struct IsBitwiseMoveable<TestType> : bsl::true_type {};
+}  // close package namespace
+//
+}  // close enterprise namespace
+//..
 // Then, we define the function 'insertItems' which uses
 // 'AutoArrayMoveDestructor' to ensure that if an exception is thrown (e.g.,
 // when allocating memory), the array will be left in a state where it has the
 // same number of elements, in the same location, as when the function begin
 // (though not necessarily the same value).
-
+//..
 void insertItems(TestType         *start,
                  TestType         *divider,
                  const TestType    value,
                  bslma::Allocator *allocator)
-    // The memory in the specified range '[ start, divider )' contains valid
-    // elements, and the range of valid elements is to be doubled by inserting
-    // 'divider - start' copies of the specified 'value' at 'start', shifting
-    // the existing valid values back in memory.  Assume that following the
-    // pointer 'divider' is sufficient uninitialized memory, and that the type
-    // 'TestType' is bitwise-movable ('AutoArrayMoveDestructor' will only work
-    // bitwise-movable types).
+    // The memory in the specified range '[ start, divider )' contains
+    // valid elements, and the range of valid elements is to be doubled by
+    // inserting 'divider - start' copies of the specified 'value' at
+    // 'start', shifting the existing valid values back in memory.  Assume
+    // that following the pointer 'divider' is sufficient uninitialized
+    // memory, and that the type 'TestType' is bitwise-movable
+    // ('AutoArrayMoveDestructor' will only work bitwise-movable types).
 {
     TestType *finish = divider + (divider - start);
-
-    ASSERT(bslmf::IsBitwiseMoveable< TestType>::value);
-    ASSERT(bslma::UsesBslmaAllocator<TestType>::value);
+//
+    BSLMF_ASSERT(bslmf::IsBitwiseMoveable< TestType>::value);
+    BSLMF_ASSERT(bslma::UsesBslmaAllocator<TestType>::value);
 
     // The range '[ start, divider )' contains valid elements.  The range
     // '[ divider, finish )' is of equal length and contains uninitialized
     // memory.  We want to insert 'divider - start' copies of the specified
-    // 'value' at the front half of the range '[ start, finish )', moving the
-    // exising elements back to make room for them.  Note that the copy c'tor
-    // of 'TestType' allocates memory and may throw, so we have to leave the
-    // array in a somewhat predicatable state if we do throw.  What the
-    // bslalg::AutoArrayMoveDestructor will do is guarantee that, if it is
-    // destroyed before the insertion is complete, the range
+    // 'value' at the front half of the range '[ start, finish )', moving
+    // the exising elements back to make room for them.  Note that the copy
+    // c'tor of 'TestType' allocates memory and may throw, so we have to
+    // leave the array in a somewhat predicatable state if we do throw.
+    // What the bslalg::AutoArrayMoveDestructor will do is guarantee that,
+    // if it is destroyed before the insertion is complete, the range
     // '[ start, divider )' will contain valid elements, and that no other
     // valid elements will exist.
     //
@@ -281,40 +280,26 @@ void insertItems(TestType         *start,
     // First, move the valid elements from '[ start, divider )' to
     // '[ divider, finish )'.  This can be done without risk of a throw
     // occurring.
-
+//
     std::memcpy(divider, start, (divider - start) * sizeof(TestType));
-
+//
     bslalg::AutoArrayMoveDestructor<TestType> guard(start,
                                                     divider,
                                                     divider,
                                                     finish);
-
+//
     while (guard.middle() < guard.end()) {
-        // Test some invariants:
-
-        ASSERT(guard.destination() >= start);
-        ASSERT(guard.destination() <  divider);
-        ASSERT(guard.begin()       == divider);
-        ASSERT(guard.middle()      >= divider);
-        ASSERT(guard.middle()      <  finish);
-        ASSERT(guard.end()         == finish);
-
         // Call the copy c'tor, which may throw.
-
+//
         new (guard.destination()) TestType(value, allocator);
-
+//
         // 'guard.advance()' increments 'guard.destination()' and
         // 'guard.middle()' by one.
-
+//
         guard.advance();
     }
-
-    // 'guard.middle() == guard.end()' -- which means that, when 'guard' is
-    // destroyed, its destructor will do nothing.
-
-    ASSERT(guard.middle()      == guard.end());
-    ASSERT(guard.destination() == guard.begin());
 }
+//..
 
 //=============================================================================
 //                              MAIN PROGRAM

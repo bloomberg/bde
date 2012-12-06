@@ -39,8 +39,8 @@ BSLS_IDENT("$Id: $")
 // pointer and an offset.
 //
 // Suppose we have a class, 'UsageType' that allocates a block of memory upon
-// construction, and whose constructor takes a char.  Suppose we want to create
-// an array of elements of such objects in an exception-safe manner.
+// construction, and whose constructor takes a 'char'.  Suppose we want to
+// create an array of elements of such objects in an exception-safe manner.
 //
 // First, we create the type 'UsageType':
 //..
@@ -97,8 +97,8 @@ BSLS_IDENT("$Id: $")
 //..
 //  UsageType *array;
 //..
-// Then, we declare a string of chars we will use to initialize the 'UsageType'
-// objects in our array.
+// Then, we declare a string of characterss we will use to initialize the
+// 'UsageType' objects in our array.
 //..
 //  const char *DATA = "Hello";
 //  const int   DATA_LEN = std::strlen(DATA);
@@ -119,7 +119,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  bslalg::AutoArrayDestructor<UsageType> arrayElementProctor(array, array);
 //..
-// Note that we pass 'arrayElementProctor' pointers to the beginning and end
+// Notice that we pass 'arrayElementProctor' pointers to the beginning and end
 // of the range to be guarded (we start with an empty range since no elements
 // have been constructed yet).
 //
