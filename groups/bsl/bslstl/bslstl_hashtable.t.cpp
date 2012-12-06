@@ -2492,7 +2492,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase8()
             ASSERTV(LINE1, oam.isTotalSame());
         }
 
-        for (int lfj = 0; lfj < DEFAULT_MAX_LOAD_FACTOR_SIZE; ++lfj) {
+        for (int lfj = 0; lfj != lfi; ++lfj) {
         for (int tj = 0; tj < NUM_DATA; ++tj) {
             const float       MAX_LF2 = DEFAULT_MAX_LOAD_FACTOR[lfj];
 
@@ -3124,7 +3124,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase6()
                 ASSERTV(LINE1, X, !(X != X));
             }
 
-            for (int lfj = lfi; lfj < DEFAULT_MAX_LOAD_FACTOR_SIZE; ++lfj) {
+            for (int lfj = 0; lfj != lfi; ++lfj) {
             for (int tj = 0; tj < NUM_DATA; ++tj) {
                 const float       MAX_LF2  = DEFAULT_MAX_LOAD_FACTOR[lfj];
 
@@ -5036,7 +5036,7 @@ int main(int argc, char *argv[])
         //:
         //: 6 stateful functors
         //:
-        //:*7 function pointers as functors
+        //: 7 function pointers as functors
         //:
         //: 8 non-default-constructible functors
         //:
@@ -5058,6 +5058,9 @@ int main(int argc, char *argv[])
         //:
         //:16 support for a minimal key type, with equality-comparable element
         //:   type
+        //:
+        //:*17 support for comparison functors returning an evil boolean-like
+        //:    type
         //
         // Plan:
         //: 1 Run the test harness in a variety of configurations that each, in
