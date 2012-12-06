@@ -460,6 +460,7 @@ int main(int argc, char *argv[])
 
         testMain();
         myStd::vector<int, DummyAllocator> obj;
+        (void) obj;
 
       } break;
       case 7: {
