@@ -903,6 +903,24 @@ void swap(DegenerateClass<FUNCTOR, true>& lhs,
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+template <class KEY>
+struct FuntionPointerPolicies {
+    typedef size_t HashFunction(const KEY&);
+    typedef bool   ComparisonFunction(const KEY&, const KEY&);
+
+    static size_t hash(const KEY& k) {
+        static
+        const TestFacilityHasher<KEY> s_hasher = TestFacilityHasher<KEY>();
+        return s_hasher(k);
+    }
+
+    static bool compare(const KEY& lhs, const KEY& rhs) {
+        return BSL_TF_EQ(lhs, rhs);
+    }
+};
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
 template <class FUNCTOR>
 struct MakeDefaultFunctor {
     static FUNCTOR make() { return FUNCTOR(); }
@@ -913,6 +931,22 @@ struct MakeDefaultFunctor<DegenerateClass<FUNCTOR, ENABLE_SWAP> > {
     static DegenerateClass<FUNCTOR, ENABLE_SWAP> make() {
         return DegenerateClass<FUNCTOR, ENABLE_SWAP>::cloneBaseObject(
                                                                     FUNCTOR());
+    }
+};
+
+template <class KEY>
+struct MakeDefaultFunctor<size_t (*)(const KEY&)> {
+    typedef size_t FunctionType(const KEY&);
+    static FunctionType *make() {
+        return &FuntionPointerPolicies<KEY>::hash;
+    }
+};
+
+template <class KEY>
+struct MakeDefaultFunctor<bool (*)(const KEY&, const KEY&)> {
+    typedef bool FunctionType(const KEY&, const KEY&);
+    static FunctionType *make() {
+        return &FuntionPointerPolicies<KEY>::compare;
     }
 };
 
@@ -1464,6 +1498,17 @@ struct TestDriver_AwkwardMaplike
        > {
 };
 
+template <class ELEMENT>
+struct TestDriver_FunctionPointers
+     : TestDriver_ForwardTestCasesByConfiguation<
+           TestDriver< BasicKeyConfig<ELEMENT>
+                     , size_t(*)(const ELEMENT&)
+                     , bool(*)(const ELEMENT&,const ELEMENT&)
+                     , ::bsl::allocator<ELEMENT>
+                     >
+       > {
+};
+
 
 // - - - - - - - - - - - Special adapters for test case 6 - - - - - - - - - - -
 // As initially written, test case 6 requires special handling with distinct
@@ -1871,7 +1916,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase11()
 
         ASSERTV(CONFIG, 0 == X.size());
         ASSERTV(CONFIG, 1 == X.numBuckets());
-        ASSERTV(CONFIG, 1.0 == X.maxLoadFactor());
+        ASSERTV(CONFIG, 1.0f == X.maxLoadFactor());
         ASSERTV(CONFIG, 0 == X.elementListRoot());
         ASSERTV(CONFIG, isEqualComparator(COMPARATOR(), X.comparator()));
         ASSERTV(CONFIG, isEqualHasher(HASHER(), X.hasher()));
@@ -2447,7 +2492,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase8()
             ASSERTV(LINE1, oam.isTotalSame());
         }
 
-        for (int lfj = 0; lfj < DEFAULT_MAX_LOAD_FACTOR_SIZE; ++lfj) {
+        for (int lfj = 0; lfj != lfi; ++lfj) {
         for (int tj = 0; tj < NUM_DATA; ++tj) {
             const float       MAX_LF2 = DEFAULT_MAX_LOAD_FACTOR[lfj];
 
@@ -3079,7 +3124,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase6()
                 ASSERTV(LINE1, X, !(X != X));
             }
 
-            for (int lfj = 0; lfj < DEFAULT_MAX_LOAD_FACTOR_SIZE; ++lfj) {
+            for (int lfj = 0; lfj != lfi; ++lfj) {
             for (int tj = 0; tj < NUM_DATA; ++tj) {
                 const float       MAX_LF2  = DEFAULT_MAX_LOAD_FACTOR[lfj];
 
@@ -4943,6 +4988,18 @@ int main(int argc, char *argv[])
                       testCase3,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
 
+        RUN_EACH_TYPE(TestCase_GroupedUniqueKeys,
+                      testCase3,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
+
+        RUN_EACH_TYPE(TestCase6_DegenerateConfiguration,
+                      testCase3,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
+
+        RUN_EACH_TYPE(TestCase6_DegenerateConfigurationNoSwap,
+                      testCase3,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
+
         // Remaining special cases
         TestDriver_AwkwardMaplike::testCase3();
 
@@ -4979,7 +5036,7 @@ int main(int argc, char *argv[])
         //:
         //: 6 stateful functors
         //:
-        //:*7 function pointers as functors
+        //: 7 function pointers as functors
         //:
         //: 8 non-default-constructible functors
         //:
@@ -5001,6 +5058,9 @@ int main(int argc, char *argv[])
         //:
         //:16 support for a minimal key type, with equality-comparable element
         //:   type
+        //:
+        //:*17 support for comparison functors returning an evil boolean-like
+        //:    type
         //
         // Plan:
         //: 1 Run the test harness in a variety of configurations that each, in
@@ -5014,29 +5074,46 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTesting Primary Manipulators"
                             "\n============================\n");
 
+        if (verbose) printf("\nTesting basic configurations"
+                            "\n----------------------------\n");
         RUN_EACH_TYPE(TestDriver_BasicConfiguation,
                       testCase2,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
 
+        if (verbose) printf("\nTesting stateful functors"
+                            "\n-------------------------\n");
         RUN_EACH_TYPE(TestDriver_StatefulConfiguation,
                       testCase2,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
 
+        if (verbose) printf("\nTesting degenerate functors"
+                            "\n---------------------------\n");
         RUN_EACH_TYPE(TestDriver_DegenerateConfiguation,
                       testCase2,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
 
+        if (verbose) printf("\nTesting degenerate functors without swap"
+                            "\n----------------------------------------\n");
         RUN_EACH_TYPE(TestDriver_DegenerateConfiguationWithNoSwap,
                       testCase2,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
 
+        if (verbose) printf("\nTesting 'bsltf' configuration"
+                            "\n-----------------------------\n");
         RUN_EACH_TYPE(TestDriver_BsltfConfiguation,
                       testCase2,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
 
+        if (verbose) printf("\nTesting pointers for functors"
+                            "\n-----------------------------\n");
+        RUN_EACH_TYPE(TestDriver_FunctionPointers,
+                      testCase2,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
 
         // Be sure to bootstrap the special 'grouped' configurations used in
         // test case 6.
+        if (verbose) printf("\nTesting grouped hash with unique key values"
+                            "\n-------------------------------------------\n");
         RUN_EACH_TYPE(TestCase_GroupedUniqueKeys,
                       testCase2,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
@@ -5058,6 +5135,8 @@ int main(int argc, char *argv[])
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
 #endif
         // Remaining special cases
+        if (verbose) printf("\nTesting degenerate map-like"
+                            "\n---------------------------\n");
         TestDriver_AwkwardMaplike::testCase2();
 
       } break;
