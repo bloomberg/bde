@@ -187,13 +187,18 @@ struct bdeu_String {
         // effect if 'string.size() >= numChars'.
 
     static void rtrim(char *string);
-    static void rtrim(char *string, int *length);
     static void rtrim(bsl::string *string);
-        // Remove from the specified 'string' (of the optionally specified
-        // 'length') all trailing whitespace to the right of the last
-        // non-whitespace character in 'string'.  If 'string' has no
-        // non-whitespace characters, 'string' will be empty (i.e., have zero
-        // length) after this operation.
+        // Remove from the specified 'string' all trailing whitespace to the
+        // right of the last non-whitespace character in 'string'.  If 'string'
+        // has no non-whitespace characters, 'string' will be empty (i.e., have
+        // zero length) after this operation.
+
+    static void rtrim(const char *string, int *length);
+        // Load, into the specified 'length', the number of characters from the
+        // left-most character to the right-most character that is not a
+        // whitespace in the specified 'string'.  Note that 'length' will be
+        // set to the length of 'string' if all whitespace characters at the
+        // right edge of 'string' have been removed.
 
     static const char *strstr(const char *string,
                               int         stringLen,

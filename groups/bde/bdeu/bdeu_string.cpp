@@ -206,7 +206,7 @@ void bdeu_String::rtrim(char *string)
     }
 }
 
-void bdeu_String::rtrim(char *string, int *length)
+void bdeu_String::rtrim(const char *string, int *length)
 {
     BSLS_ASSERT(string);
     BSLS_ASSERT(length);
