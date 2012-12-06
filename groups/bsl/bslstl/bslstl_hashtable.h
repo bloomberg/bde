@@ -1963,7 +1963,7 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::rehashForNumElements(
                                                           SizeType numElements)
 {
     const SizeType maxElts = native_std::numeric_limits<SizeType>::max() *
-                                   native_std::min(1.0, this->maxLoadFactor());
+                                  native_std::min(1.0f, this->maxLoadFactor());
     if (numElements > maxElts) {
         bslstl::StdExceptUtil::throwLengthError(
                        "Overflow computing number of buckets for a HashTable");
