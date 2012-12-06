@@ -1004,10 +1004,12 @@ struct HashTable_ImpDetails {
     static size_t nextPrime(size_t n);
         // Return the next prime number greater-than or equal to the specified
         // 'n' in the increasing sequence of primes chosen to disperse hash
-        // codes across buckets as uniformly as possible.  Note that,
-        // typically, prime numbers in the sequence have increasing values
-        // that reflect a growth factor (e.g., each value in the sequence may
-        // be, approximately, two times the preceding value)
+        // codes across buckets as uniformly as possible.  Throw a
+        // 'std::length_error' exception if 'n' is greater than the last prime
+        // number in the sequence.  Note that, typically, prime numbers in the
+        // sequence have increasing values that reflect a growth factor (e.g.,
+        // each value in the sequence may be, approximately, two times the
+        // preceding value).
 
     static bslalg::HashTableBucket *defaultBucketAddress();
         // Return that address of a statically initialized empty bucket that
@@ -1946,8 +1948,15 @@ void
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::rehashForNumBuckets(
                                                         SizeType newNumBuckets)
 {
+    // We do  not support shrinking the bucket array once it has been
+    // allocated, to avoid degenerate "yo-yo" behavior if an application is
+    // always shrinking and growing around a thresh-hold.  When rehashing for a
+    // requested number of buckets, we do not need to worry about load factor
+    // if we already have a "good" number of buckets, as growing the number of
+    // buckets is guaranteed to respect the max load factor.
+
     if (newNumBuckets > this->numBuckets()) {
-        // compute a "good" number of buckets, e.g., pick a prime number
+        // Compute a "good" number of buckets, e.g., pick a prime number
         // from a sorted array of exponentially increasing primes.
 
         newNumBuckets = HashTable_ImpDetails::nextPrime(newNumBuckets);

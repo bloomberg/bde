@@ -3371,9 +3371,12 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase4()
 
                 Obj& mX = *objPtr;  const Obj& X = gg(&mX, SPEC);
                 bslma::TestAllocator&  oa = *objAllocatorPtr;
-                bslma::TestAllocator& noa = ('c' == CONFIG || 'd' == CONFIG)
-                                         ? da
-                                         : sa1;
+#if !defined(BDE_BUILD_TARGET_SAFE_2)
+                const bslma::TestAllocator& noa = ('c' == CONFIG ||
+                                                   'd' == CONFIG)
+                                                ? da
+                                                : sa1;
+#endif
 
                 // --------------------------------------------------------
 

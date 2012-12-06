@@ -6,7 +6,6 @@ BSLS_IDENT("$Id$ $CSID$")
 
 #include <bslstl_equalto.h>  // for testing only
 #include <bslstl_hash.h>     // for testing only
-//#include <bslstl_pair.h>     // for testing only
 
 #include <bsls_nativestd.h>
 
@@ -55,7 +54,14 @@ native_std::size_t HashTable_ImpDetails::nextPrime(native_std::size_t n)
     static const native_std::size_t *const s_beginPrimes = s_primes;
     static const native_std::size_t *const s_endPrimes = s_primes + s_nPrimes;
 
-    return *native_std::lower_bound(s_beginPrimes, s_endPrimes, n);
+    const native_std::size_t *result = native_std::lower_bound(s_beginPrimes,
+                                                               s_endPrimes,
+                                                               n);
+    if (s_endPrimes == result) {
+        StdExceptUtil::throwLengthError("HashTable ran out of prime numbers.");
+    }
+
+    return *result;
 }
 
 }  // close package namespace
