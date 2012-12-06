@@ -29,7 +29,7 @@ BSLS_IDENT("$Id: $")
 // In this section we show intended use of this component.
 //
 ///Example 1: Adding a 'const'-qualifier to a Type
-///- - - - - - - - - - - - - - - - - - - - - - - - -
+///- - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose that we want to add a 'const'-qualifier to a particular type.
 //
 // First, we create two 'typedef's -- a 'const'-qualified type ('MyConstType')

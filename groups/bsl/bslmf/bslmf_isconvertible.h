@@ -203,6 +203,9 @@ struct IsConvertible_Imp {
     // conversion between the (template parameter) 'FROM_TYPE' and the
     // (template parameter) 'TO_TYPE' where the conversion to the 'TO_TYPE' is
     // not necessarily the same as conversion to 'const TO_TYPE&'.
+    //
+    // Note that significant documentation about the details of this
+    // implementation can be found in 'bslmf_isconvertible.cpp'.
 
   private:
     struct Test

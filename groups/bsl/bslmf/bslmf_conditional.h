@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a compile-time conditional type transformation
+//@PURPOSE: Provide a compile-time conditional type transformation.
 //
 //@CLASSES:
 //  bsl::conditional: standard meta-function for conditional type transforming
