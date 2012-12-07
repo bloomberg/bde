@@ -508,7 +508,8 @@ class HashTable {
         // object with those of the specified 'other' object.  This method
         // provides the no-throw exception-safety guarantee.
 
-    void rehashIntoExactlyNumBuckets(SizeType newNumBuckets);
+    void rehashIntoExactlyNumBuckets(SizeType newNumBuckets,
+                                     SizeType capacity);
         // Re-organize this hash-table to have exactly the specified
         // 'newNumBuckets'.  This operation provides the strong exception
         // guarantee (see {'bsldoc_glossary'}) unless the 'hasher' throws, in
@@ -1015,6 +1016,20 @@ struct HashTable_ImpDetails {
         // Return that address of a statically initialized empty bucket that
         // can be shared as the (un-owned) bucket array by all empty hash
         // tables.
+
+
+    static size_t growBucketsForLoadFactor(size_t *capacity,
+                                           size_t  minElements,
+                                           size_t  requestedBuckets,
+                                           double  maxLoadFactor);
+        // Return the suggested number of buckets to index a linked list that
+        // can hold as many as the specified 'minElements' without exceeding
+        // the specified 'maxLoadFactor', and supporting at lead the specified
+        // number of 'requestedBuckets'.  Set the specified '*capactity' to the
+        // maximum length of linked list that the returned number of buckets
+        // could index without exceeding the maxLoadFactor.  The behavior is
+        // undefined unless '0 < maxLoadFactor', '0 < minElements' and
+        // '0 < requestedBuckets'.
 };
 
                     // ====================
@@ -1484,11 +1499,12 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::~HashTable()
     BSLS_ASSERT_SAFE(bslalg::HashTableImpUtil::isWellFormed<KEY_CONFIG>(
                                                  this->d_anchor,
                                                  this->d_parameters.hasher()));
-#endif
+
     // TBD This forces a check for corruption that should be otherwise picked
     //     up by a test driver.  It should be removed before releasing the
     //     final code.
     BSLS_ASSERT_SAFE(HashTable_ImpDetails::defaultBucketAddress());
+#endif
 
     this->removeAllAndDeallocate();
 }
@@ -1500,15 +1516,19 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::copyDataStructure(
                                        const bslalg::BidirectionalLink *cursor)
 {
     BSLS_ASSERT(0 != cursor);
+    BSLS_ASSERT(d_size);
 
     // This function will completely replace 'this->d_anchor's state.  It is
     // the caller's responsibility to ensure this will not leak resources owned
     // only by the previous state, such as the linked list.
 
     // Allocate an appropriate number of buckets
-    SizeType numBuckets = HashTable_ImpDetails::nextPrime(
-                                               static_cast<native_std::size_t>(
-        native_std::ceil(static_cast<float>(d_size) / this->d_maxLoadFactor)));
+    size_t capacity;
+    SizeType numBuckets =
+               HashTable_ImpDetails::growBucketsForLoadFactor(&capacity,
+                                                              d_size,
+                                                              2,
+                                                              d_maxLoadFactor);
 
     d_anchor.setListRootAddress(0);
     HashTable_Util::initAnchor(&d_anchor, numBuckets, this->allocator());
@@ -1517,10 +1537,7 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::copyDataStructure(
     HashTable_ArrayProctor<typename ImplParameters::NodeFactory>
                           arrayProctor(&d_parameters.nodeFactory(), &d_anchor);
 
-    // TBD Delegate this to a separate function that allows for integer
-    //     overflow, along with picking the number of buckets.
-    d_capacity = static_cast<native_std::size_t>(
-                       static_cast<float>(numBuckets) * this->d_maxLoadFactor);
+    d_capacity = capacity;
 
     do {
         // Computing hash code depends on user-supplied code, and may throw.
@@ -1531,8 +1548,6 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::copyDataStructure(
         bslalg::BidirectionalLink *newNode =
                                  d_parameters.nodeFactory().cloneNode(*cursor);
 
-        // Yuck!  This may change the root of the list, or it might not!
-        // That violates our proctor above.
         bslalg::HashTableImpUtil::insertAtBackOfBucket(&d_anchor,
                                                        newNode,
                                                        hashCode);
@@ -1578,7 +1593,7 @@ quickSwapExchangeAllocators(HashTable& other)
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 void
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::
-rehashIntoExactlyNumBuckets(SizeType newNumBuckets)
+rehashIntoExactlyNumBuckets(SizeType newNumBuckets, SizeType capacity)
 {
     class Proctor {
         // An object of this proctor class guarnatees that, if an exception
@@ -1655,10 +1670,7 @@ rehashIntoExactlyNumBuckets(SizeType newNumBuckets)
     cleanUpIfUserHashThrows.dismiss();
 
     d_anchor.swap(newAnchor);
-
-    // TBD d_capacity should not overflow numeric_limits<size_t>::max()
-    d_capacity = static_cast<native_std::size_t>(
-                    static_cast<float>(newNumBuckets) * this->maxLoadFactor());
+    d_capacity = capacity;
 }
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
@@ -1761,7 +1773,7 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::insert(
     // Rehash (if appropriate) first as it will reduce load factor and so
     // potentially improve the 'find' time.
     if (d_size >= d_capacity) {
-        this->rehashForNumBuckets(numBuckets() + 1);
+        this->rehashForNumBuckets(numBuckets() * 2);
     }
 
     // Create a node having the new 'value' we want to insert into the table.
@@ -1808,7 +1820,7 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::insert(
     // Rehash (if appropriate) first as it will reduce load factor and so
     // potentially improve the potential 'find' time later.
     if (d_size >= d_capacity) {
-        this->rehashForNumBuckets(numBuckets() + 1);
+        this->rehashForNumBuckets(numBuckets() * 2);
     }
 
     // Next we must create the node, to avoid making a temporary of 'ValueType'
@@ -1858,7 +1870,7 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::insertIfMissing(
 
     if(!position) {
         if (d_size >= d_capacity) {
-            this->rehashForNumBuckets(numBuckets() + 1);
+            this->rehashForNumBuckets(numBuckets() * 2);
         }
 
         position = d_parameters.nodeFactory().createNode(value);
@@ -1885,7 +1897,7 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::insertIfMissing(
     // Rehash (if appropriate) first as it will reduce load factor and so
     // potentially improve the potential 'find' time later.
     if (d_size >= d_capacity) {
-        this->rehashForNumBuckets(numBuckets() + 1);
+        this->rehashForNumBuckets(numBuckets() * 2);
     }
 
     // Next we must create the node, to avoid making a temporary of 'ValueType'
@@ -1907,7 +1919,7 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::insertIfMissing(
 
     if(!position) {
         if (d_size >= d_capacity) {
-            this->rehashForNumBuckets(numBuckets() + 1);
+            this->rehashForNumBuckets(numBuckets() * 2);
         }
 
         ImpUtil::insertAtFrontOfBucket(&d_anchor, position, hashCode);
@@ -1929,7 +1941,7 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::insertIfMissing(
     bslalg::BidirectionalLink *position = this->find(key, hashCode);
     if (!position) {
         if (d_size >= d_capacity) {
-            this->rehashForNumBuckets(numBuckets() + 1);
+            this->rehashForNumBuckets(numBuckets() * 2);
         }
 
         position = d_parameters.nodeFactory().createNode(
@@ -1948,20 +1960,20 @@ void
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::rehashForNumBuckets(
                                                         SizeType newNumBuckets)
 {
-    // We do  not support shrinking the bucket array once it has been
-    // allocated, to avoid degenerate "yo-yo" behavior if an application is
-    // always shrinking and growing around a thresh-hold.  When rehashing for a
-    // requested number of buckets, we do not need to worry about load factor
-    // if we already have a "good" number of buckets, as growing the number of
-    // buckets is guaranteed to respect the max load factor.
-
     if (newNumBuckets > this->numBuckets()) {
         // Compute a "good" number of buckets, e.g., pick a prime number
         // from a sorted array of exponentially increasing primes.
 
-        newNumBuckets = HashTable_ImpDetails::nextPrime(newNumBuckets);
+        size_t capacity;
+        SizeType numBuckets =
+               HashTable_ImpDetails::growBucketsForLoadFactor(
+                                                   &capacity,
+                                                   native_std::max(d_size, 1u),
+                                                   newNumBuckets,
+                                                   d_maxLoadFactor);
 
-        this->rehashIntoExactlyNumBuckets(newNumBuckets);
+
+        this->rehashIntoExactlyNumBuckets(numBuckets, capacity);
     }
 }
 
@@ -1971,15 +1983,19 @@ void
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::rehashForNumElements(
                                                           SizeType numElements)
 {
-    const SizeType maxElts = native_std::numeric_limits<SizeType>::max() *
-                                  native_std::min(1.0f, this->maxLoadFactor());
-    if (numElements > maxElts) {
-        bslstl::StdExceptUtil::throwLengthError(
-                       "Overflow computing number of buckets for a HashTable");
-    }
+    if (numElements > d_capacity) {
+        // Compute a "good" number of buckets, e.g., pick a prime number
+        // from a sorted array of exponentially increasing primes.
 
-    this->rehashForNumBuckets(static_cast<SizeType>(native_std::ceil(
-                    static_cast<float>(numElements) / this->maxLoadFactor())));
+        size_t capacity;
+        SizeType numBuckets =
+             HashTable_ImpDetails::growBucketsForLoadFactor(&capacity,
+                                                            numElements,
+                                                            this->numBuckets(),
+                                                            d_maxLoadFactor);
+
+        this->rehashIntoExactlyNumBuckets(numBuckets, capacity);
+    }
 }
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
@@ -2008,9 +2024,10 @@ void
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::removeAll()
 {
     this->removeAllImp();
-    native_std::memset(d_anchor.bucketArrayAddress(),
-                0,
-                sizeof(bslalg::HashTableBucket) * d_anchor.bucketArraySize());
+    native_std::memset(
+                 d_anchor.bucketArrayAddress(),
+                 0,
+                 sizeof(bslalg::HashTableBucket) * d_anchor.bucketArraySize());
 
     d_anchor.setListRootAddress(0);
     d_size = 0;
@@ -2023,16 +2040,18 @@ void HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::setMaxLoadFactor(
 {
     BSLS_ASSERT_SAFE(0.0f < maxLoadFactor);
 
-    d_maxLoadFactor = maxLoadFactor;
-
     if (d_capacity > 0) {
-        d_capacity = static_cast<native_std::size_t>(native_std::ceil(
-                      static_cast<float>(this->numBuckets()) * maxLoadFactor));
+        size_t capacity;
+        SizeType numBuckets =
+               HashTable_ImpDetails::growBucketsForLoadFactor(&capacity,
+                                                              d_size,
+                                                              this->numBuckets(),
+                                                              maxLoadFactor);
 
-        if (d_capacity < d_size) {
-            this->rehashForNumElements(d_size);
-        }
+        this->rehashIntoExactlyNumBuckets(numBuckets, capacity);
     }
+
+    d_maxLoadFactor = maxLoadFactor;
 }
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>

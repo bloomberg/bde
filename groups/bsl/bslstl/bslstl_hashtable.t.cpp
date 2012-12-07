@@ -19,6 +19,8 @@
 #include <bsltf_templatetestfacility.h>
 #include <bsltf_testvaluesarray.h>
 
+#include <stdexcept>
+
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -2812,7 +2814,8 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase7()
                                            bslma::Default::defaultAllocator());
                 ASSERTV(MAX_LF, SPEC, pX->maxLoadFactor(), Y0.maxLoadFactor(),
                          pX->maxLoadFactor() == Y0.maxLoadFactor());
-                ASSERTV(MAX_LF, SPEC, Y0.loadFactor() <= Y0.maxLoadFactor());
+                ASSERTV(MAX_LF, SPEC, Y0.loadFactor(), Y0.maxLoadFactor(),
+                        Y0.loadFactor() <= Y0.maxLoadFactor());
                 delete pX;
                 ASSERTV(MAX_LF, SPEC, W, Y0, W == Y0);
             }
@@ -4213,6 +4216,66 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
 
                 ASSERTV(MAX_LF, LENGTH, CONFIG, X.size(), 3 * LENGTH == X.size());
             }
+
+            // ----------------------------------------------------------------
+
+#if defined BDE_BUILD_TARGET_EXC
+            {
+#if 0
+                // This test shows up a non-conformance in 'bsl::allocator'
+                // which has undefined behavior when asked for this many
+                // buckets, rather than simply throwing a 'std::bad_alloc'.
+
+                try {
+                    Obj mX(HASH,
+                           COMPARE,
+                           native_std::numeric_limits<int>::max(),
+                           1e-30);
+                    ASSERT(false);
+                }
+                catch(const native_std::bad_allocr&) {
+                    // This is the expected code path
+                }
+                catch(...) {
+                    ASSERT(!!"The wrong exception type was thrown.");
+                }
+#endif
+
+                try {
+                    Obj mBad(HASH,
+                             COMPARE,
+                             native_std::numeric_limits<SizeType>::max(),
+                             1e-30);
+                    ASSERT(false);
+                }
+                catch(const native_std::length_error&) {
+                    // This is the expected code path
+                }
+                catch(...) {
+                    ASSERT(!!"The wrong exception type was thrown.");
+                }
+
+                Obj mR(HASH,
+                       COMPARE,
+                       3,
+                       1e-30);
+                try {
+                    mR.insert(VALUES[0]);
+
+                    P(mR.numBuckets())
+                    P(mR.size());
+
+                    ASSERT(false);
+                }
+                catch(const native_std::length_error& e) {
+                    // This is the expected code path
+                }
+                catch(...) {
+                    ASSERT(!!"The wrong exception type was thrown.");
+                }
+            
+            }
+#endif
 
             // ----------------------------------------------------------------
 

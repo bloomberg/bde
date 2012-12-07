@@ -3418,8 +3418,11 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase8()
             Obj mY(&oa);  const Obj& Y = gg(&mY, SPEC2);
             const Obj YY(Y, &scratch);
 
-            mX.max_load_factor(2.0);
-            mY.max_load_factor(3.0);
+            mX.max_load_factor(2.0f);
+            mY.max_load_factor(3.0f);
+
+            ASSERT(2.0f == X.max_load_factor());
+            ASSERT(3.0f == Y.max_load_factor());
 
             if (veryVerbose) { T_ P_(LINE2) P_(X) P_(Y) P(YY) }
 
@@ -3429,8 +3432,8 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase8()
 
                 mX.swap(mY);
 
-                ASSERT(3.0 == X.max_load_factor());
-                ASSERT(2.0 == Y.max_load_factor());
+                ASSERT(3.0f == X.max_load_factor());
+                ASSERT(2.0f == Y.max_load_factor());
 
                 ASSERTV(LINE1, LINE2, YY, X, YY == X);
                 ASSERTV(LINE1, LINE2, XX, Y, XX == Y);
@@ -3445,8 +3448,8 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase8()
 
                 swap(mX, mY);
 
-                ASSERT(2.0 == X.max_load_factor());
-                ASSERT(3.0 == Y.max_load_factor());
+                ASSERT(2.0f == X.max_load_factor());
+                ASSERT(3.0f == Y.max_load_factor());
 
                 ASSERTV(LINE1, LINE2, XX, X, XX == X);
                 ASSERTV(LINE1, LINE2, YY, Y, YY == Y);
