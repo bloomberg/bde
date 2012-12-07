@@ -12,6 +12,9 @@
 #include <bslma_usesbslmaallocator.h>
 
 #include <bslmf_issame.h>
+#include <bslmf_haspointersemantics.h>
+#include <bslmf_istriviallycopyable.h>
+#include <bslmf_istriviallydefaultconstructible.h>
 
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
@@ -1195,13 +1198,13 @@ class TestDriver {
 #if 0
     static void testCase24();
         // Test standard interface coverage.
+#endif
 
     static void testCase23();
         // Test type traits.
 
     static void testCase22();
         // Test STL allocator.
-#endif
 
     static void testCase21();
         // Test comparators.
@@ -1377,6 +1380,193 @@ TestDriver<KEY, HASH, EQUAL, ALLOC>::getIterForIndex(const Obj& obj,
     ASSERTV(idx == i);
 
     return ret;
+}
+
+template <class KEY, class HASH, class EQUAL, class ALLOC>
+void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase23()
+{
+    // ------------------------------------------------------------------------
+    // TESTING TYPE TRAITS
+    //
+    // Concern:
+    //: 1 The object has the necessary type traits.
+    //
+    // Plan:
+    //: 1 Use 'BSLMF_ASSERT' to verify all the type traits exists.  (C-1)
+    //
+    // Testing:
+    //   CONCERN: The object has the necessary type traits
+    // ------------------------------------------------------------------------
+
+    // Verify set defines the expected traits.
+    BSLMF_ASSERT((1 ==
+                    bslalg::HasStlIterators<bsl::unordered_set<KEY> >::value));
+    BSLMF_ASSERT((1 ==
+                  bslma::UsesBslmaAllocator<bsl::unordered_set<KEY> >::value));
+
+    // Verify the bslma-allocator trait is not defined for non
+    // bslma-allocators.
+    typedef bsl::unordered_set<KEY, HASH, EQUAL,StlAlloc> ObjStlAlloc;
+    BSLMF_ASSERT((0 == bslma::UsesBslmaAllocator<ObjStlAlloc>::value));
+
+    // Verify unordered_set does not define other common traits.
+#if 0    // TBD
+    BSLMF_ASSERT((0 ==
+                 bsl::is_trivially_copyable<bsl::unordered_set<KEY> >::value));
+
+    BSLMF_ASSERT((0 ==
+         bslmf::IsBitwiseEqualityComparable<bsl::unordered_set<KEY> >::value));
+
+    BSLMF_ASSERT((1 ==
+                   bslmf::IsBitwiseMoveable<bsl::unordered_set<KEY> >::value));
+
+    BSLMF_ASSERT((0 ==
+                 bslmf::HasPointerSemantics<bsl::unordered_set<KEY> >::value));
+
+    BSLMF_ASSERT((0 ==
+               bsl::is_trivially_default_constructible<
+                                            bsl::unordered_set<KEY> >::value));
+#endif
+
+    BSLMF_ASSERT((0 ==
+                 bsl::is_trivially_copyable<bsl::unordered_set<int> >::value));
+
+    BSLMF_ASSERT((0 ==
+         bslmf::IsBitwiseEqualityComparable<bsl::unordered_set<int> >::value));
+
+    BSLMF_ASSERT((1 ==
+                   bslmf::IsBitwiseMoveable<bsl::unordered_set<int> >::value));
+
+    BSLMF_ASSERT((0 ==
+                 bslmf::HasPointerSemantics<bsl::unordered_set<int> >::value));
+
+    BSLMF_ASSERT((0 ==
+               bsl::is_trivially_default_constructible<
+                                            bsl::unordered_set<int> >::value));
+}
+
+template <class KEY, class HASH, class EQUAL, class ALLOC>
+void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase22()
+{
+    // ------------------------------------------------------------------------
+    // TESTING STL ALLOCATOR
+    //
+    // Concern:
+    //: 1 A standard compliant allocator can be used instead of
+    //:   'bsl::allocator'.
+    //:
+    //: 2 Methods that uses the allocator (e.g., variations of constructor,
+    //:   'insert' and 'swap') can successfully populate the object.
+    //:
+    //: 3 'KEY' types that allocate memory uses the default allocator instead
+    //:   of the object allocator.
+    //:
+    //: 4 Every object releases any allocated memory at destruction.
+    //
+    // Plan:
+    //: 1 Using a loop base approach, create a list of specs and their
+    //:   expected value.  For each spec:
+    //:
+    //:   1 Create an object using a standard allocator through multiple ways,
+    //:     including: range-based constructor, copy constructor, range-based
+    //:     insert, multiple inserts, and swap.
+    //:
+    //:   2 Verify the value of each objects is as expected.
+    //:
+    //:   3 For types that allocate memory, verify memory for the elements
+    //:     comes from the default allocator.
+    //
+    // Testing:
+    //  CONCERN: 'set' is compatible with a standard allocator.
+    // ------------------------------------------------------------------------
+
+    const int TYPE_ALLOC = bslma::UsesBslmaAllocator<KEY>::value;
+
+    const size_t NUM_DATA                  = DEFAULT_NUM_DATA;
+    const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
+
+    typedef bsl::unordered_set<KEY, HASH, EQUAL, StlAlloc> ObjStlAlloc;
+
+    bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
+
+    for (size_t ti = 0; ti < NUM_DATA; ++ti) {
+        const int         LINE   = DATA[ti].d_line;
+        const char *const SPEC   = DATA[ti].d_results;
+        const size_t      LENGTH = strlen(DATA[ti].d_results);
+        const TestValues  EXP(DATA[ti].d_results, &scratch);
+
+        TestValues CONT(SPEC, &scratch);
+
+        typename TestValues::iterator BEGIN = CONT.begin();
+        typename TestValues::iterator END   = CONT.end();
+
+        bslma::TestAllocator da("default",   veryVeryVeryVerbose);
+
+        bslma::DefaultAllocatorGuard dag(&da);
+
+        {
+            ObjStlAlloc mX(BEGIN, END);  const ObjStlAlloc& X = mX;
+
+            ASSERTV(LINE, 0 == verifyContainer(X, EXP, LENGTH));
+            ASSERTV(LINE, da.numBlocksInUse(),
+                    TYPE_ALLOC * LENGTH <= da.numBlocksInUse());
+
+            ObjStlAlloc mY(X);  const ObjStlAlloc& Y = mY;
+
+            ASSERTV(LINE, 0 == verifyContainer(Y, EXP, LENGTH));
+            ASSERTV(LINE, da.numBlocksInUse(),
+                    2 * TYPE_ALLOC * LENGTH == da.numBlocksInUse());
+
+            ObjStlAlloc mZ;  const ObjStlAlloc& Z = mZ;
+
+            mZ.swap(mX);
+
+            ASSERTV(LINE, 0 == verifyContainer(Z, EXP, LENGTH));
+            ASSERTV(LINE, da.numBlocksInUse(),
+                    2 * TYPE_ALLOC * LENGTH <= da.numBlocksInUse());
+        }
+
+        CONT.resetIterators();
+
+        {
+            ObjStlAlloc mX;  const ObjStlAlloc& X = mX;
+            mX.insert(BEGIN, END);
+            ASSERTV(LINE, 0 == verifyContainer(X, EXP, LENGTH));
+            ASSERTV(LINE, da.numBlocksInUse(),
+                    TYPE_ALLOC * LENGTH == da.numBlocksInUse());
+        }
+
+        CONT.resetIterators();
+
+        {
+            ObjStlAlloc mX;  const ObjStlAlloc& X = mX;
+            for (size_t tj = 0; tj < CONT.size(); ++tj) {
+                bsl::pair<Iter, bool> RESULT = mX.insert(CONT[tj]);
+
+                ASSERTV(LINE, tj, LENGTH, RESULT.second);
+                ASSERTV(LINE, tj, LENGTH, CONT[tj] == *(RESULT.first));
+            }
+            ASSERTV(LINE, 0 == verifyContainer(X, EXP, LENGTH));
+            ASSERTV(LINE, da.numBlocksInUse(),
+                    TYPE_ALLOC * LENGTH <= da.numBlocksInUse());
+        }
+
+        ASSERTV(LINE, da.numBlocksInUse(), 0 == da.numBlocksInUse());
+    }
+
+    // IBM empty class swap bug test
+
+    {
+        typedef bsl::unordered_set<int,
+                                   TestHashFunctor<int>,
+                                   TestEqualityComparator<int>,
+                                   StlAlloc> TestObjIntStlAlloc;
+
+        TestObjIntStlAlloc mX;
+        mX.insert(1);
+        TestObjIntStlAlloc mY;
+        mY = mX;
+    }
 }
 
 template <class KEY, class HASH, class EQUAL, class ALLOC>
@@ -4732,6 +4922,7 @@ int main(int argc, char *argv[])
         // that defines 'operator<'.
         RUN_EACH_TYPE(TestDriver, testCase24, int, char);
       } break;
+#endif
       case 23: {
         // --------------------------------------------------------------------
         // TESTING TYPE TRAITS
@@ -4748,7 +4939,6 @@ int main(int argc, char *argv[])
                       testCase22,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
       } break;
-#endif
       case 21: {
         // --------------------------------------------------------------------
         // TESTING COMPARATOR
