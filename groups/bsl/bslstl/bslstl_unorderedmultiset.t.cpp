@@ -25,6 +25,19 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+// To resolve gcc warnings, while printing 'size_t' arguments portably on
+// Windows, we use a macro and string literal concatenation to produce the
+// correct 'printf' format flag.
+#ifdef ZU
+#undef ZU
+#endif
+
+#if defined BSLS_PLATFORM_CMP_MSVC
+#  define ZU "%Iu"
+#else
+#  define ZU "%zu"
+#endif
+
 // ============================================================================
 //                          ADL SWAP TEST HELPER
 // ----------------------------------------------------------------------------
@@ -369,7 +382,7 @@ void fillContainerWithData(CONTAINER& x,
     }
 }
 
-template<typename CONTAINER>
+template <class CONTAINER>
 void validateIteration(CONTAINER &c)
 {
     typedef typename CONTAINER::iterator       iterator;
@@ -902,7 +915,7 @@ class TestHashFunctor {
     }
 
     // ACCESSORS
-    bool operator() (const TYPE& obj) const
+    size_t operator() (const TYPE& obj) const
         // Increment a counter that records the number of times this method is
         // called.   Return 'true' if the integer representation of the
         // specified 'lhs' is less than integer representation of the specified
@@ -1262,6 +1275,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase4()
                   } break;
                   default: {
                       ASSERTV(CONFIG, !"Bad allocator config.");
+                      return;
                   } break;
                 }
 
@@ -1454,7 +1468,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase3()
             Obj mX(&oa);
 
             if ((int)LENGTH != oldLen) {
-                if (verbose) printf("\tof length %d:\n", LENGTH);
+                if (verbose) printf("\tof length " ZU ":\n", LENGTH);
                  ASSERTV(LINE, oldLen <= (int)LENGTH);  // non-decreasing
                 oldLen = LENGTH;
             }
@@ -1625,6 +1639,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase2()
               } break;
               default: {
                   ASSERTV(CONFIG, !"Bad allocator config.");
+                  return;
               } break;
             }
 
@@ -1654,9 +1669,8 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase2()
             if (veryVerbose) { printf("\n\tTesting 'insert' (bootstrap).\n"); }
 
             if (0 < LENGTH) {
-                if (verbose) {
-                    printf("\t\tOn an object of initial length %d.\n", LENGTH);
-                }
+                if (verbose) printf(
+                       "\t\tOn an object of initial length " ZU ".\n", LENGTH);
 
                 for (size_t tj = 0; tj < LENGTH - 1; ++tj) {
                     Iter RESULT = mX.insert(VALUES[tj]);
@@ -2059,6 +2073,30 @@ int main(int argc, char *argv[])
         testBuckets(mX);
 
         testErase(mZ);
+
+        if (veryVerbose) printf(
+             "Call any remaining methods to be sure they at least compile.\n");
+
+        mX.insert(1);
+
+        const bsl::allocator<int> alloc   = x.get_allocator();
+        const bsl::hash<int>      hasher  = x.hash_function();
+        const bsl::equal_to<int>  compare = x.key_eq();
+        
+        const size_t maxSize    = x.max_size();
+        const size_t buckets    = x.bucket_count();
+        const float  loadFactor = x.load_factor();
+        const float  maxLF      = x.max_load_factor();
+
+        ASSERT(loadFactor < maxLF);
+
+        mX.rehash(2 * buckets);
+        ASSERTV(x.bucket_count(), 2 * buckets, x.bucket_count() > 2 * buckets);
+        ASSERTV(x.load_factor(), loadFactor, x.load_factor() < loadFactor);
+
+        mX.reserve(0);
+        ASSERTV(x.bucket_count(), 2 * buckets, x.bucket_count() > 2 * buckets);
+        ASSERTV(x.load_factor(), loadFactor, x.load_factor() < loadFactor);
 
         if (veryVerbose)
             printf("Final message to confim the end of the breathing test.\n");

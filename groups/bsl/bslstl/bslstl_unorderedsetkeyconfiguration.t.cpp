@@ -83,15 +83,15 @@ void aSsErT(bool b, const char *s, int i)
 //                         GLOBAL FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
-template <typename TYPE>
+template <class TYPE>
 bool isConstObject(TYPE&)
 {
     return bsl::is_const<TYPE>::value;
 }
 
-template <typename CONFIGURED_TYPE>
+template <class CONFIGURED_TYPE>
 struct IsSameType {
-    template <typename OBJECT_TYPE>
+    template <class OBJECT_TYPE>
     bool operator ()(const OBJECT_TYPE&) const
     {
         typedef typename bsl::remove_cv<CONFIGURED_TYPE>::type  CT;
@@ -121,15 +121,17 @@ struct IsSameType {
 // utility class that will extra which part of the objects to be sorted is the
 // key which will drive the sort:
 
-template <typename VALUE_TYPE, typename KEY_EXTRACTOR>
+template <class VALUE_TYPE, class KEY_EXTRACTOR>
 void mySort(VALUE_TYPE *begin, VALUE_TYPE *end, const KEY_EXTRACTOR&)
     // This function provides an order-preserving sort of the items in the
     // range '[ begin, end )', where 'KEY_EXTRACTOR::extractKey' yields the
     // key being sorted over.  We require that 'VALUE_TYPE' support copy
     // construction and assignment.
 {
-    while (begin < --end) {
-        for (VALUE_TYPE *it = begin; it < end; ++it) {
+    if (begin == end) return;
+
+    while (begin != --end) {
+        for (VALUE_TYPE *it = begin; it != end; ++it) {
             if (KEY_EXTRACTOR::extractKey(it[1]) <
                                             KEY_EXTRACTOR::extractKey(it[0])) {
                 // they're in the wrong order -- swap them
