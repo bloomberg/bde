@@ -1,5 +1,7 @@
 // bslma_managedallocator.t.cpp                                       -*-C++-*-
 
+#ifndef BDE_OMIT_TRANSITIONAL // DEPRECATED
+
 #include <bslma_managedallocator.h>
 
 #include <cstdlib>     // 'atoi'
@@ -660,6 +662,15 @@ int main(int argc, char *argv[])
     }
     return testStatus;
 }
+
+#else
+
+int main(int argc, char *argv[])
+{
+    return -1;
+}
+
+#endif  // BDE_OMIT_TRANSITIONAL -- DEPRECATED
 
 // ---------------------------------------------------------------------------
 // NOTICE:

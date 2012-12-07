@@ -4002,11 +4002,12 @@ class bdef_Bind_MemFnObjectWrapper {
     // DATA
     TYPE *d_object;  // held, not owned
 
+  public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS2(bdef_Bind_MemFnObjectWrapper,
                                   bslalg_TypeTraitHasPointerSemantics,
                                   bslalg_TypeTraitBitwiseMoveable);
-  public:
+
     // CREATORS
     bdef_Bind_MemFnObjectWrapper(TYPE  *object) : d_object(object) {}
     bdef_Bind_MemFnObjectWrapper(TYPE&  object) : d_object(&object) {}

@@ -9,6 +9,8 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a protocol for memory allocators that support 'release'.
 //
+//@INTERNAL_DEPRECATED: use 'bdema_managedallocator' instead.
+//
 //@CLASSES:
 //  bslma::ManagedAllocator: protocol for allocators with 'release' capability
 //
@@ -39,6 +41,10 @@ BSLS_IDENT("$Id: $")
 // low-level helper functions for some implementations.  We have yet to find a
 // suitable real-world example and when one becomes available, it will be
 // added.
+
+#ifdef BDE_OMIT_TRANSITIONAL // DEPRECATED
+#error "bslma_managedallocator is deprecated"
+#endif
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>

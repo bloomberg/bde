@@ -9,8 +9,6 @@ BDES_IDENT("$Id: $")
 
 //@PURPOSE: Provide a protocol for memory allocators that support 'release'.
 //
-//@DEPRECATED: Use 'bslma_managedallocator' instead.
-//
 //@CLASSES:
 //   bdema_ManagedAllocator: protocol for allocators with 'release' capability
 //

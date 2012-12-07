@@ -11,8 +11,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bsldoc' package currently has 1 component (having 1 level of physical
- dependency).
+ The 'bsldoc' package currently has 1 component.
 ..
   1. bsldoc_glossary
 ..

@@ -7,10 +7,10 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provides meta-function to tranform a type to a pointer to that type
+//@PURPOSE: Provide meta-function to transform a type to pointer to that type.
 //
 //@CLASSES:
-//  bsl::add_pointer: meta-function to transform  to a pointer type
+//  bsl::add_pointer: meta-function to transform a type to a pointer type
 //
 //@SEE_ALSO: bslmf_removepointer
 //
@@ -30,8 +30,8 @@ BSLS_IDENT("$Id: $")
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose that we want to transform a type to a pointer type to that type.
 //
-// First, we create two 'typedef's -- a pointer type ('MyPtrType')
-// and the type pointed to by the pointer type ('MyType'):
+// First, we create two 'typedef's -- a pointer type ('MyPtrType') and the type
+// pointed to by the pointer type ('MyType'):
 //..
 //  typedef int   MyType;
 //  typedef int * MyPtrType;
@@ -58,20 +58,20 @@ namespace bsl {
                          // struct add_pointer
                          // ==================
 
-template <typename TYPE>
+template <class TYPE>
 struct add_pointer {
     // This 'struct' template implements the 'add_pointer' meta-function
-    // defined in the C++11 standard [meta.trans.ptr], providing an alias
-    // ,'type', that returns the result.  If the (template parameter) 'TYPE' is
+    // defined in the C++11 standard [meta.trans.ptr], providing an alias,
+    // 'type', that returns the result.  If the (template parameter) 'TYPE' is
     // not a reference type, then 'type' is an alias to a pointer type that
     // points to 'TYPE'; otherwise, 'type' is an alias to a pointer type that
     // points to the type referred to by the reference 'TYPE'.
 
     typedef typename remove_reference<TYPE>::type *type;
         // This 'typedef' is an alias to a pointer type that points to the
-        // (template parameter) 'TYPE' if it's not a reference type; otherwise,
-        // this 'typedef' is an alias to a pointer type that points to the type
-        // referred to by the reference 'TYPE'.
+        // (template parameter) 'TYPE' if it is not a reference type;
+        // otherwise, this 'typedef' is an alias to a pointer type that points
+        // to the type referred to by the reference 'TYPE'.
 };
 
 }  // close namespace bsl

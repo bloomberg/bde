@@ -499,6 +499,7 @@ bool PtrHashSet::insert(void *ptr)
     if (bucketArraySize() * d_maxLoadFactor < d_numNodes + 1) {
         grow();
         bool found = find(&insertionPoint, &bucket, ptr);
+        (void) found; // Supress unused variable warnings in non-safe builds.
         BSLS_ASSERT_SAFE(!found);
     }
 

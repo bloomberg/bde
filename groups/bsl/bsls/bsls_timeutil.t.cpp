@@ -379,22 +379,14 @@ bsls::Types::Int64 fakeConvertRawTime(bsls::Types::Int64 rawTime,
 
         rawTime -= initialTime;
 
-        return (
-                // Divide high part by frequency
-                static_cast<bsls::Types::Int64>(rawTime >> 32)
-                    * highPartDivisionFactor
-                +
-                (
-                 // Restore remainder of high part division
-                 static_cast<bsls::Types::Int64>(rawTime >> 32)
-                    * highPartRemainderFactor
-                 +
-                 // Calculate low part contribution
-                 static_cast<bsls::Types::Uint64>(rawTime & LOW_MASK)
-                    * G
-                )
-                    / timerFrequency
-                );
+        const bsls::Types::Int64 high32Bits =
+            static_cast<bsls::Types::Int64>(rawTime >> 32);
+        const bsls::Types::Uint64 low32Bits  =
+            static_cast<bsls::Types::Uint64> (rawTime & LOW_MASK);
+
+        return high32Bits * highPartDivisionFactor +
+              (high32Bits * highPartRemainderFactor) / timerFrequency +
+              (low32Bits * G) / timerFrequency;
 }
 
 bsls::Types::Int64 getFrequency()
@@ -468,27 +460,23 @@ void compareRealToFakeConvertRawTime(const TU::OpaqueNativeTime& startTime,
                              startTime.d_opaque,
                              frequency);
 
-    // We expect 'realEnd - realStart' to be the same as
-    // 'fakeEnd - fakeStart'.  However, we know that
-    // 'realEnd != fakeEnd' and 'realStart != fakeStart', because
-    // the internal initial time used by 'TU::convertRawTime' is
-    // not the same as 'startTime.d_opaque'.  Because the
-    // calculations of 'realEnd', 'realStart, 'fakeEnd', and
-    // 'fakeStart' all discard fractions of nanoseconds, the
-    // intervals we compare will include a small amount of rounding
-    // error, and therefore 'realEnd - realStart' and
-    // 'fakeEnd - fakeStart' may differ by at most 1.
+    // 'fakeConvertRawTime' and 'TU::convertRawTime' have been calculated with
+    // integer arithmetic, including two division operations.  Due to the loss
+    // of fractional remainders in integer division, the result of either
+    // function will be either floor(v) or floor(v) - 1, where v is the actual
+    // (infinite precision floating point) number of nanoseconds corresponding
+    // to the input.  Similarly, the difference between two results will be in
+    // the range floor(v1 - v2) +- 1, and the difference between two intervals
+    // will be in the range floor((e1 - s1) - (e2 - s2)) +- 2.
 
     LOOP5_ASSERT(offset,
                  realEnd,
                  fakeEnd,
                  (realEnd - realStart),
                  (fakeEnd - fakeStart),
-                 (realEnd - realStart) - (fakeEnd - fakeStart)
-                 <= 1
+                 (realEnd - realStart) + 2 > (fakeEnd - fakeStart) - 2
                  &&
-                 (realEnd - realStart) - (fakeEnd - fakeStart)
-                 >= -1);
+                 (fakeEnd - fakeStart) + 2 > (realEnd - realStart) - 2);
 }
 
 #endif
@@ -892,14 +880,26 @@ int main(int argc, char *argv[])
                     P(OUTPUT)
                 }
 
+                // 'OUTPUT' has been calculated with integer arithmetic,
+                // including one division operation.  Due to the loss of
+                // fractional remainders in integer division, OUTPUT ==
+                // floor(v), where v is the actual (infinite precision floating
+                // point) number of nanoseconds corresponding to the input.
+                // Because 'fakeConvertRawTime' performs two integer divisions,
+                // its result will be either floor(v) or floor(v) - 1.
+
                 LOOP5_ASSERT(LINE,
                              INPUT,
                              INITIAL_TIME,
                              FREQUENCY,
                              OUTPUT,
                              OUTPUT == fakeConvertRawTime(INPUT,
-                                                         INITIAL_TIME,
-                                                         FREQUENCY));
+                                                             INITIAL_TIME,
+                                                             FREQUENCY)
+                             ||
+                             OUTPUT - 1 == fakeConvertRawTime(INPUT,
+                                                              INITIAL_TIME,
+                                                              FREQUENCY));
             }
         }
 
@@ -946,9 +946,10 @@ int main(int argc, char *argv[])
                                           startTime,
                                           limit32Bits - 1 - startTime.d_opaque,
                                           frequency);
-                compareRealToFakeConvertRawTime(startTime,
-                                                limit32Bits - 2,
-                                                frequency);
+                compareRealToFakeConvertRawTime(
+                                              startTime,
+                                              limit32Bits - startTime.d_opaque,
+                                              frequency);
                 compareRealToFakeConvertRawTime(
                                           startTime,
                                           limit32Bits + 1 - startTime.d_opaque,
@@ -1452,7 +1453,7 @@ int main(int argc, char *argv[])
 
             enum { NUM_INTERVALS = 10,
                    NUM_SAMPLES = NUM_INTERVALS + 1 };
-            struct sample {
+            struct Sample {
                 Int64 d_wt;  // wall time
                 Int64 d_ut;  // user time
                 Int64 d_st;  // system time
@@ -1467,8 +1468,8 @@ int main(int argc, char *argv[])
             Int64 uQuantsSpent = 0;
             Int64 sQuantsSpent = 0;
             for (int i = 0; i < NUM_INTERVALS; ++i) {
-                sample& s0 = samples[i];
-                sample& s1 = samples[i+1];
+                Sample& s0 = samples[i];
+                Sample& s1 = samples[i+1];
 
                 s1.d_wt = TU::getTimer();
                 s1.d_ut = TU::getProcessUserTimer();
@@ -1510,8 +1511,8 @@ int main(int argc, char *argv[])
                         samples[0].d_st);
 
                 for (int i = 1; i < NUM_SAMPLES; ++i) {
-                    sample& s0 = samples[i - 1];
-                    sample& s1 = samples[i];
+                    Sample& s0 = samples[i - 1];
+                    Sample& s1 = samples[i];
 
                     printf("%2d: wt: %lld - %lld = %lld\n"
                            "%2d: ut: %lld - %lld = %lld\n"
