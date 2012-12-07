@@ -202,11 +202,11 @@ class TestValuesArrayIterator {
 
   public:
     // TYPES
-    typedef std::forward_iterator_tag iterator_category;
-    typedef VALUE                     value_type;
-    typedef std::ptrdiff_t            difference_type;
-    typedef VALUE*                    pointer;
-    typedef VALUE&                    reference;
+    typedef std::input_iterator_tag iterator_category;
+    typedef VALUE                   value_type;
+    typedef std::ptrdiff_t          difference_type;
+    typedef VALUE*                  pointer;
+    typedef VALUE&                  reference;
         // Standard iterator defined types [24.4.2].
 
   public:

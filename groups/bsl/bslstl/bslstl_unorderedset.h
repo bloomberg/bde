@@ -625,43 +625,25 @@ class unordered_set
 
     // ACCESSORS
     const_iterator begin() const;
-        // Return an iterator providing non-modifiable access to the first
-        // 'value_type' object (in the sequence of 'value_type' objects)
-        // maintained by this set, or the 'end' iterator if this set is empty.
-
-    const_iterator end() const;
-        // Return an iterator providing non-modifiable access to the
-        // past-the-end element (in the sequence of 'value_type' objects)
-        // maintained by this set.
-
     const_iterator cbegin() const;
         // Return an iterator providing non-modifiable access to the first
         // 'value_type' object (in the sequence of 'value_type' objects)
         // maintained by this set, or the 'end' iterator if this set is empty.
 
+    const_iterator end() const;
     const_iterator cend() const;
         // Return an iterator providing non-modifiable access to the
         // past-the-end element (in the sequence of 'value_type' objects)
         // maintained by this set.
 
     const_local_iterator begin(size_type index) const;
-        // Return a local iterator providing non-modifiable access to the first
-        // 'value_type' object (in the sequence of 'value_type' objects) of the
-        // bucket having the specified 'index' in the array of buckets
-        // maintained by this set, or the 'end(index)' otherwise.
-
-    const_local_iterator end(size_type index) const;
-        // Return a local iterator providing non-modifiable access to the
-        // past-the-end element (in the sequence of 'value_type' objects) of
-        // the bucket having the specified 'index' in the array of buckets
-        // maintained by this set.
-
     const_local_iterator cbegin(size_type index) const;
         // Return a local iterator providing non-modifiable access to the first
         // 'value_type' object (in the sequence of 'value_type' objects) of the
         // bucket having the specified 'index' in the array of buckets
         // maintained by this set, or the 'end(index)' otherwise.
 
+    const_local_iterator end(size_type index) const;
     const_local_iterator cend(size_type index) const;
         // Return a local iterator providing non-modifiable access to the
         // past-the-end element (in the sequence of 'value_type' objects) of
@@ -839,7 +821,7 @@ unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::unordered_set(
                                        const hasher&         hash,
                                        const key_equal&      keyEqual,
                                        const allocator_type& allocator)
-: d_impl(hash, keyEqual, initialNumBuckets, allocator)
+: d_impl(hash, keyEqual, initialNumBuckets, 1.0f, allocator)
 {
 }
 
@@ -853,7 +835,7 @@ unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::unordered_set(
                                        const hasher&         hash,
                                        const key_equal&      keyEqual,
                                        const allocator_type& allocator)
-: d_impl(hash, keyEqual, initialNumBuckets, allocator)
+: d_impl(hash, keyEqual, initialNumBuckets, 1.0f, allocator)
 {
     this->insert(first, last);
 }
@@ -862,7 +844,7 @@ template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 inline
 unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::unordered_set(
                                                const allocator_type& allocator)
-: d_impl(HASH(), EQUAL(), 0, allocator)
+: d_impl(HASH(), EQUAL(), 0, 1.0f, allocator)
 {
 }
 
@@ -1050,7 +1032,7 @@ unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::insert(const_iterator,
     // the whole bucket looking for duplicates, and the hint is no help in
     // finding the start of a bucket.
 
-    return this->insert(value);
+    return this->insert(value).first;
 }
 
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
@@ -1067,7 +1049,8 @@ void unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::insert(INPUT_ITERATOR first,
     bool isInsertedFlag;  // value is not used
 
     while (first != last) {
-        d_impl.insertIfMissing(&isInsertedFlag, *first++);
+        d_impl.insertIfMissing(&isInsertedFlag, *first);
+        ++first;
     }
 }
 
@@ -1076,7 +1059,7 @@ inline
 void unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::max_load_factor(
                                                            float newLoadFactor)
 {
-    d_impl.maxLoadFactor(newLoadFactor);
+    d_impl.setMaxLoadFactor(newLoadFactor);
 }
 
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
@@ -1293,13 +1276,20 @@ float unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::max_load_factor() const
     return d_impl.maxLoadFactor();
 }
 
-
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 inline
 typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::size_type
 unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::size() const
 {
     return d_impl.size();
+}
+
+template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
+inline
+typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::size_type
+unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::max_size() const
+{
+    return AllocatorTraits::max_size(get_allocator());
 }
 
 }  // close namespace bsl
