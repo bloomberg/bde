@@ -4669,7 +4669,7 @@ if (verbose) {
     ASSERT(0.000 == mhm[2]);
 //..
     }
-
+//
 ///Example 3: Implementing a Hashed Multi-Map Container
 ///----------------------------------------------------
 // Suppose we wish to implement, 'MyHashedMultiMap', a greatly abbreviated
@@ -4907,25 +4907,28 @@ if (verbose) {
 // First, we define 'MySalesRecord', our record class:
 //..
     enum { MAX_DESCRIPTION_SIZE = 16 };
+
     typedef struct MySalesRecord {
-        int  orderNumber;                        // unique in the container
+        int  orderNumber;                        // '0 <= orderNumber', unique
         int  customerId;                         // '0 <= customerId'
         int  vendorId;                           // '0 <=   vendorId'
-        char description[MAX_DESCRIPTION_SIZE];  // no constraints
+        char description[MAX_DESCRIPTION_SIZE];  // ascii string
     } MySalesRecord;
 //..
 // Notice that only each 'orderNumber' is unique.  We expect multiple
 // sales to any given customer ('customerId') and multiple sales by any
 // given vendor ('vendorId').
 //
-// We will use a 'bslstl::HashTable' object to implement set semantics based on the
-// unique 'orderNumber', and two auxiliary 'bslsl::HashTable' objects to provide multi-map
-// semantics into that set based on 'customterId' and 'vendorId', respectively.
+// We will use a 'bslstl::HashTable' object to implement set semantics based on
+// the unique 'orderNumber', and two auxiliary 'bslsl::HashTable' objects to
+// provide multi-map semantics into that set based on 'customterId' and
+// 'vendorId', respectively.
 //
-// To configure those 'bslstl::HashTable' objects, we will need policy objects to 
-// exract the relevant portion of a 'MySalesRecord' to use as a key-value.
+// To configure those 'bslstl::HashTable' objects, we will need policy objects
+// to exract the relevant portion of a 'MySalesRecord' to use as a key-value.
 //
-// Next, define 'UseOrderNumberAsKey', a policy object used in support of the set semantics:
+// Next, define 'UseOrderNumberAsKey', a policy object used in support of the
+// set semantics:
 //..
                             // ==========================
                             // struct UseOrderNumberAsKey
@@ -4938,15 +4941,17 @@ if (verbose) {
         // the hashed container (the 'value' type).
 
         typedef MySalesRecord ValueType;
-            // Alias for 'MySalesRecord', the type stored in the hashed container.
+            // Alias for 'MySalesRecord', the type stored in the hashed
+            // container.
 
         typedef int KeyType;
             // Alias for the type passed to the hasher by the hashed container.
-            // In this policy, that type is an 'int', the 'orderNumber' attribute.
+            // In this policy, the value passed to the hasher is the
+            // 'orderNumber' attribute, an 'int' type.
 
         static const KeyType& extractKey(const ValueType& value);
             // Return the key value for the specified 'value'.  In this policy,
-            // that is 'value' itself.
+            // that is the 'orderNumber' attribute of 'value'.
     };
 
                             // --------------------------
@@ -4958,6 +4963,76 @@ if (verbose) {
           UseOrderNumberAsKey::extractKey(const ValueType& value)
     {
         return value.orderNumber;
+    }
+
+                            // =========================
+                            // struct UseCustomerIdAsKey
+                            // =========================
+
+    struct UseCustomerIdAsKey {
+        // This 'struct' provides a namespace for types and methods that define
+        // the policy by which the key value of a hashed container (i.e., the
+        // value passed to the hasher) is extracted from the objects stored in
+        // the hashed container (the 'value' type).
+
+        typedef const UseOrderNumberAsKey::ValueType * ValueType;
+            // Alias for 'MySalesRecord', the type stored in the hashed
+            // container.
+
+        typedef int KeyType;
+            // Alias for the type passed to the hasher by the hashed container.
+            // In this policy, the value passed to the hasher is the
+            // 'orderNumber' attribute, an 'int' type.
+
+        static const KeyType& extractKey(const ValueType& value);
+            // Return the key value for the specified 'value'.  In this policy,
+            // that is the 'customerId' attribute of 'value'.
+    };
+
+                            // -------------------------
+                            // struct UseCustomerIdAsKey
+                            // -------------------------
+
+    inline
+    const UseCustomerIdAsKey::KeyType&
+          UseCustomerIdAsKey::extractKey(const ValueType& value)
+    {
+        return value->customerId;
+    }
+
+                            // =======================
+                            // struct UseVendorIdAsKey
+                            // ========================
+
+    struct UseVendorIdAsKey {
+        // This 'struct' provides a namespace for types and methods that define
+        // the policy by which the key value of a hashed container (i.e., the
+        // value passed to the hasher) is extracted from the objects stored in
+        // the hashed container (the 'value' type).
+
+        typedef const UseOrderNumberAsKey::ValueType * ValueType;
+            // Alias for 'MySalesRecord', the type stored in the hashed
+            // container.
+
+        typedef int KeyType;
+            // Alias for the type passed to the hasher by the hashed container.
+            // In this policy, the value passed to the hasher is the
+            // 'vendorId' attribute, an 'int' type.
+
+        static const KeyType& extractKey(const ValueType& value);
+            // Return the key value for the specified 'value'.  In this policy,
+            // that is the 'vendorId' attribute of 'value'.
+    };
+
+                            // -----------------------
+                            // struct UseVendorIdAsKey
+                            // -----------------------
+
+    inline
+    const UseVendorIdAsKey::KeyType&
+          UseVendorIdAsKey::extractKey(const ValueType& value)
+    {
+        return value->vendorId;
     }
 //..
 // Next, we define 'MySalesRecordContainer', our customized container:
@@ -4974,7 +5049,7 @@ if (verbose) {
                       UseOrderNumberAsKey,
                       bsl::hash<    UseOrderNumberAsKey::KeyType>,
                       bsl::equal_to<UseOrderNumberAsKey::KeyType> >
-                                                             SetByOrder;
+                                                          RecordsByOrderNumber;
         typedef bsl::allocator_traits<
               bsl::allocator<UseOrderNumberAsKey::ValueType> >
                                                              AllocatorTraits;
@@ -4983,32 +5058,42 @@ if (verbose) {
 
         typedef BloombergLP::bslstl::HashTableIterator<const MySalesRecord,
                                                        difference_type>
-                                                             iterator;
+                                                             Iterator;
+
+        typedef BloombergLP::bslstl::HashTableIterator<const MySalesRecord *,
+                                                       difference_type>
+                                                             Iterator2;
         typedef BloombergLP::bslstl::HashTable<
-                      UseFirstValueOfPairAsKey<
-                                         MyPair<const int,
-                                                bslalg::BidirectionalLink *> >,
-                                         bsl::hash<int>,
-                                         bsl::equal_to<int> > MultiMapByInt;
+                      UseCustomerIdAsKey,
+                      bsl::hash<    UseCustomerIdAsKey::KeyType>,
+                      bsl::equal_to<UseCustomerIdAsKey::KeyType> >
+                                                       RecordsPtrsByCustomerId;
+        typedef BloombergLP::bslstl::HashTable<
+                      UseVendorIdAsKey,
+                      bsl::hash<    UseVendorIdAsKey::KeyType>,
+                      bsl::equal_to<UseVendorIdAsKey::KeyType> >
+                                                         RecordsPtrsByVendorId;
         // DATA
-        SetByOrder    d_setByOrderNumber;
-        MultiMapByInt d_multiMapByCustomerId;
-        MultiMapByInt d_multiMapByVendorId;
+        RecordsByOrderNumber    d_recordsByOrderNumber;
+        RecordsPtrsByCustomerId d_recordptrsByCustomerId;
+        RecordsPtrsByVendorId   d_recordptrsByVendorId;
 
       public:
         // PUBLIC TYPES
-        typedef iterator const_iterator;
+        typedef Iterator  ConstIterator;
+        typedef Iterator2 ConstIterator2;
 
         // CREATORS
         explicit MySalesRecordContainer(bslma::Allocator *basicAllocator = 0);
-            // Create an empty 'MySalesRecordContainer' object.  If 'basicAllocator'
-            // is 0, the currently installed default allocator is used.
- 
+            // Create an empty 'MySalesRecordContainer' object.  If
+            // 'basicAllocator' is 0, the currently installed default allocator
+            // is used.
+
         //! ~MySalesRecordContainer() = default;
             // Destroy this object.
 
         // MANIPULATORS
-        MyPair<const_iterator, bool> insert(const MySalesRecord& value);
+        MyPair<ConstIterator, bool> insert(const MySalesRecord& value);
             // Insert the specified 'value' into this set if the specified
             // 'value' does not already exist in this set; otherwise, this
             // method has no effect.  Return a pair whose 'first' member is an
@@ -5018,22 +5103,33 @@ if (verbose) {
             // 'false' if the value was already present.
 
         // ACCESSORS
-        const_iterator cend() const;
+        ConstIterator cend() const;
             // Return an iterator providing non-modifiable access to the
             // past-the-end element (in the sequence of 'MySalesRecord' objects)
             // maintained by this set.
 
-        const_iterator findByOrderNumber(int value) const;
+        ConstIterator findByOrderNumber(int value) const;
             // Return an iterator providing non-modifiable access to the
             // 'MySalesRecord' object in this set having the specified
             // 'value', if such an entry exists, and the iterator
             // returned by the 'cend' method otherwise.
-
-        MyPair<const_iterator, const_iterator> findByCustomerId(int value) const;
-        MyPair<const_iterator, const_iterator> findByVendorId(int value) const;
+//..
+// Notice that this interface provides map-like semantics for finding records.
+// We need only specify the 'orderNumber' attribute of the record of interest;
+// however, the return value is set-like: we get access to the record, not the
+// more complicated key-value/record pair that a map would have provided.
+// 
+// Internally, the hash table need only store the records themselves.  A map
+// would have had to manage key-value/record pairts, where the key-value would
+// be a copy of part of the record.
+//..
+        MyPair<ConstIterator2, ConstIterator2> findByCustomerId(int value)
+                                                                         const;
+        MyPair<ConstIterator2, ConstIterator2>   findByVendorId(int value)
+                                                                         const;
             // TBD: Need a different kind of iterator here (tentatively named
-            // 'const_idIterator'.  When dereferenced, this iterator takes the
-            // additional indirection between the MultiMapByInt into the 
+            // 'ConstIterator2'.  When dereferenced, this iterator takes the
+            // additional indirection between the MultiMapByInt into the
             // SetByOrderNumber;
     };
 
@@ -5045,57 +5141,80 @@ if (verbose) {
     inline
     MySalesRecordContainer::MySalesRecordContainer(
                                               bslma::Allocator *basicAllocator)
-    : d_setByOrderNumber(basicAllocator)
+    : d_recordsByOrderNumber(basicAllocator)
+    , d_recordptrsByCustomerId(basicAllocator)
+    , d_recordptrsByVendorId(basicAllocator)
     {
     }
 
     // MANIPULATORS
     inline
-    MyPair<MySalesRecordContainer::const_iterator, bool>
+    MyPair<MySalesRecordContainer::ConstIterator, bool>
     MySalesRecordContainer::insert(const MySalesRecord& value)
     {
-        typedef MyPair<iterator, bool> ResultType;
-  
-        bool                       isInsertedFlag = false;
-        bslalg::BidirectionalLink *result         =
-                                            d_setByOrderNumber.insertIfMissing(
-                                                               &isInsertedFlag,
-                                                               value);
+        // Insert into internal container that will own the record.
 
-        d_multiMapByCustomerId.insert(MultiMapByInt::ValueType(value.customerId,
-                                                               result));
-        d_multiMapByVendorId.insert(  MultiMapByInt::ValueType(value.vendorId,
-                                                               result));
-        return ResultType(iterator(result), isInsertedFlag);
+        bool                                    isInsertedFlag = false;
+        BloombergLP::bslalg::BidirectionalLink *result         =
+                d_recordsByOrderNumber.insertIfMissing(&isInsertedFlag, value);
+
+        // Index by other record attributes
+
+        RecordsByOrderNumber::NodeType *nodePtr = 
+                         static_cast<RecordsByOrderNumber::NodeType *>(result);
+
+        d_recordptrsByCustomerId.insert(&nodePtr->value());
+          d_recordptrsByVendorId.insert(&nodePtr->value());
+
+        // Return of insertion.
+
+        return MyPair<ConstIterator, bool>(ConstIterator(result),
+                                           isInsertedFlag);
     }
 
     // ACCESSORS
     inline
-    MySalesRecordContainer::const_iterator
+    MySalesRecordContainer::ConstIterator
     MySalesRecordContainer::cend() const
     {
-        return const_iterator();
+        return ConstIterator();
     }
 
     inline
-    MySalesRecordContainer::const_iterator
+    MySalesRecordContainer::ConstIterator
     MySalesRecordContainer::findByOrderNumber(int value) const
     {
-        return const_iterator(d_setByOrderNumber.find(value));
+        return ConstIterator(d_recordsByOrderNumber.find(value));
     }
 
     inline
-    MyPair<MySalesRecordContainer::const_iterator,
-           MySalesRecordContainer::const_iterator>
+    MyPair<MySalesRecordContainer::ConstIterator2,
+           MySalesRecordContainer::ConstIterator2>
     MySalesRecordContainer::findByCustomerId(int value) const
     {
+        typedef BloombergLP::bslalg::BidirectionalLink HashTableLink;
+
+        HashTableLink *first;
+        HashTableLink *last;
+        d_recordptrsByCustomerId.findRange(&first, &last, value);
+
+        return MyPair<ConstIterator2, ConstIterator2>(ConstIterator2(first),
+                                                      ConstIterator2(last));
     }
 
     inline
-    MyPair<MySalesRecordContainer::const_iterator,
-           MySalesRecordContainer::const_iterator>
+    MyPair<MySalesRecordContainer::ConstIterator2,
+           MySalesRecordContainer::ConstIterator2>
     MySalesRecordContainer::findByVendorId(int value) const
     {
+        typedef BloombergLP::bslalg::BidirectionalLink HashTableLink;
+
+        HashTableLink *first;
+        HashTableLink *last;
+        d_recordptrsByVendorId.findRange(&first, &last, value);
+
+        return MyPair<ConstIterator2, ConstIterator2>(ConstIterator2(first),
+                                                      ConstIterator2(last));
     }
 
     void main4()
@@ -5112,37 +5231,48 @@ if (verbose) {
         };
         const int numDATA = sizeof DATA / sizeof *DATA;
 
+if (verbose) {
+        printf("Insert sales records into container.\n");
+}
+
         for (int i = 0; i < numDATA; ++i) {
             const int orderNumber   = DATA[i].orderNumber;
-            const int customerId    = DATA[i].customerId;                      
+            const int customerId    = DATA[i].customerId;
             const int vendorId      = DATA[i].vendorId;
             const char *description = DATA[i].description;
 
+if (verbose) {
             printf("%d: %d %d %s\n",
                    orderNumber,
                    customerId,
                    vendorId,
                    description);
+}
 
-            MyPair<MySalesRecordContainer::const_iterator,
+            MyPair<MySalesRecordContainer::ConstIterator,
                    bool> status = msrc.insert(DATA[i]);
             ASSERT(msrc.cend() != status.first);
             ASSERT(true        == status.second);
         }
 
+if (verbose) {
+        printf("Find sales records by order number.\n");
+}
+
         for (int i = 0; i < numDATA; ++i) {
             const int orderNumber   = DATA[i].orderNumber;
-            const int customerId    = DATA[i].customerId;                      
+            const int customerId    = DATA[i].customerId;
             const int vendorId      = DATA[i].vendorId;
             const char *description = DATA[i].description;
 
+if (verbose) {
             printf("%d: %d %d %s\n",
                    orderNumber,
                    customerId,
                    vendorId,
                    description);
-
-            MySalesRecordContainer::const_iterator itr =
+}
+            MySalesRecordContainer::ConstIterator itr =
                                            msrc.findByOrderNumber(orderNumber);
             ASSERT(msrc.cend() != itr);
             ASSERT(orderNumber == itr->orderNumber);
@@ -5150,8 +5280,59 @@ if (verbose) {
             ASSERT(vendorId    == itr->vendorId);
             ASSERT(0 == strcmp(description, itr->description));
         }
-    };
 
+if (verbose) {
+        printf("Find sales records by customer identifer.\n");
+}
+
+        for (int customerId = 1; customerId <= 2; ++customerId) {
+            MyPair<MySalesRecordContainer::ConstIterator2,
+                   MySalesRecordContainer::ConstIterator2> result =
+                                             msrc.findByCustomerId(customerId);
+            int count = std::distance(result.first, result.second);
+if (verbose) {
+            printf("customerId %d, count %d\n", customerId, count);
+}
+
+            for (MySalesRecordContainer::ConstIterator2 itr  = result.first,
+                                                        end  = result.second;
+                                                        end != itr; ++itr) {
+if (verbose) {
+                printf("\t\t%d %d %d %s\n",
+                       (*itr)->orderNumber,
+                       (*itr)->customerId,
+                       (*itr)->vendorId,
+                       (*itr)->description);
+}
+            }
+        }
+
+if (verbose) {
+        printf("Find sales records by vendor identifer.\n");
+}
+
+        for (int customerId = 1; customerId <= 2; ++customerId) {
+            MyPair<MySalesRecordContainer::ConstIterator2,
+                   MySalesRecordContainer::ConstIterator2> result =
+                                             msrc.findByCustomerId(customerId);
+            int count = std::distance(result.first, result.second);
+if (verbose) {
+            printf("customerId %d, count %d\n", customerId, count);
+}
+
+            for (MySalesRecordContainer::ConstIterator2 itr  = result.first,
+                                                        end  = result.second;
+                                                        end != itr; ++itr) {
+if (verbose) {
+                printf("\t\t%d %d %d %s\n",
+                       (*itr)->orderNumber,
+                       (*itr)->customerId,
+                       (*itr)->vendorId,
+                       (*itr)->description);
+}
+            }
+        }
+    }
 }  // close namespace UsageExamples
 
 //=============================================================================
@@ -5266,6 +5447,7 @@ int main(int argc, char *argv[])
         // ASSIGNMENT OPERATOR
         // --------------------------------------------------------------------
 
+#if HIDE_LENGTHY_TEST
         if (verbose) printf("\nTesting Assignment Operator"
                             "\n===========================\n");
         RUN_EACH_TYPE(TestDriver_BasicConfiguation,
@@ -5279,6 +5461,7 @@ int main(int argc, char *argv[])
         RUN_EACH_TYPE(TestDriver_DegenerateConfiguation,
                       testCase9,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+#endif
 
       } break;
       case 8: {
