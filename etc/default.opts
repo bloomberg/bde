@@ -1033,7 +1033,7 @@ unix-                      _   CXX        = $(RETRY_ON_SIGNAL) CC $(CXX64FLAGS)
 !! unix-SunOS-*-*-cc-5.5   _   CXX        = $(SET_TMPDIR) $(RETRY_ON_SIGNAL) /bb/util/common/studio8-v10/SUNWspro/bin/CC $(CXX64FLAGS)
 
 !! unix-SunOS-*-*-cc-5.9   _   STUDIO_LOC = /bb/util/common/studio12-v4
-!! unix-SunOS-*-*-cc-5.10  _   STUDIO_LOC = /bb/util/common/SS12U1-20101214
+!! unix-SunOS-*-*-cc-5.10  _   STUDIO_LOC = /bb/util/common/SS12U1-20120621
 
 !! unix-SunOS-*-*-cc-5.9   _    CC        = $(SET_TMPDIR) $(RETRY_ON_SIGNAL) $(STUDIO_LOC)/SUNWspro/bin/cc $(CC64FLAGS)
 !! unix-SunOS-*-*-cc-5.9   _   CXX        = $(SET_TMPDIR) $(RETRY_ON_SIGNAL) $(STUDIO_LOC)/SUNWspro/bin/CC $(CXX64FLAGS)
