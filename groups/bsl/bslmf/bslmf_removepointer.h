@@ -51,6 +51,10 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_removecvq.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_FUNCTIONPOINTERTRAITS
+#include <bslmf_functionpointertraits.h>
+#endif
+
 namespace BloombergLP {
 namespace bslmf {
 
@@ -88,6 +92,24 @@ struct RemovePointer_Imp<TYPE *> {
         // parameter) 'TYPE'.
 };
 
+#if defined(BSLS_PLATFORM_CMP_AIX)
+template <typename TYPE, bool isFunctionPtr>
+struct RemovePointer_Aix : RemovePointer_Imp<TYPE> {
+    // The implementation of the 'RemovePointer_Imp' for the AIX xlC compiler
+    // which has a bug removing pointer from a function pointer type if the
+    // function has default arguments.  To workaround the bug, this
+    // specialization doesn't remove pointer from function pointer types.  Note
+    // that the workaround has a potential to break some code that needs to
+    // obtain the function type from a function pointer to function correctly.
+    // However, nothing in BDE currently relies on that.
+};
+
+template <typename TYPE>
+struct RemovePointer_Aix<TYPE, true> {
+    typedef TYPE Type;
+};
+#endif
+
 }  // close package namespace
 }  // close enterprise namespace
 
@@ -105,12 +127,19 @@ struct remove_pointer {
     // a (possibly cv-qualified) pointer type, then 'type' is an alias to the
     // type pointed to by 'TYPE'; otherwise, 'type' is an alias to 'TYPE'.
 
-    // PUBLIC TYPES
-    typedef typename BloombergLP::bslmf::RemovePointer_Imp<
-                                    typename remove_cv<TYPE>::type>::Type type;
+    typedef typename remove_cv<TYPE>::type TypeNoCv;
+
+#if defined(BSLS_PLATFORM_CMP_AIX)
+    typedef typename BloombergLP::bslmf::RemovePointer_Aix<TypeNoCv,
+            BloombergLP::bslmf::IsFunctionPointer<TypeNoCv>::VALUE>::Type type;
+#else
+    typedef typename 
+                    BloombergLP::bslmf::RemovePointer_Imp<TypeNoCv>::Type type;
         // This 'typedef' is an alias to the type pointed to by the (template
         // parameter) 'TYPE' if 'TYPE' is a (possibly cv-qualified) pointer
         // type; otherwise, 'type' is an alias to 'TYPE'.
+
+#endif
 };
 
 }  // close namespace bsl
