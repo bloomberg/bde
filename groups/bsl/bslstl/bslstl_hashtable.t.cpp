@@ -5044,7 +5044,7 @@ if (verbose) {
     class MySalesRecordContainer
     {
       private:
-        // DATA
+        // PRIVATE TYPES
         typedef BloombergLP::bslstl::HashTable<
                       UseOrderNumberAsKey,
                       bsl::hash<    UseOrderNumberAsKey::KeyType>,
@@ -5056,13 +5056,14 @@ if (verbose) {
 
         typedef AllocatorTraits::difference_type             difference_type;
 
-        typedef BloombergLP::bslstl::HashTableIterator<const MySalesRecord,
-                                                       difference_type>
-                                                             Iterator;
+        typedef BloombergLP::bslstl::HashTableIterator<
+                                          const UseOrderNumberAsKey::ValueType,
+                                          difference_type>   Iterator;
 
-        typedef BloombergLP::bslstl::HashTableIterator<const MySalesRecord *,
-                                                       difference_type>
-                                                             Iterator2;
+        typedef BloombergLP::bslstl::HashTableIterator<
+                                        const UseOrderNumberAsKey::ValueType *,
+                                        difference_type>     Iterator2;
+
         typedef BloombergLP::bslstl::HashTable<
                       UseCustomerIdAsKey,
                       bsl::hash<    UseCustomerIdAsKey::KeyType>,
