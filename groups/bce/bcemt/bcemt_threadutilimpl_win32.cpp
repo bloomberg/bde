@@ -545,8 +545,7 @@ int bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::sleepUntil(
 
     LARGE_INTEGER clockTime;
 
-    // The computation of clock time is a bit complicated.  As indicated in
-    // the documentation for 'SetWaitableTimer':
+    // As indicated in the documentation for 'SetWaitableTimer':
     // http://msdn.microsoft.com/en-us/library/windows/desktop/ms686289
     // A positive value represents an absolute time in increments of 100
     // nanoseconds.  Critically though, Microsoft's epoch is different

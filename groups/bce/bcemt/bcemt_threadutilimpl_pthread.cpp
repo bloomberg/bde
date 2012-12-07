@@ -161,6 +161,24 @@ class PthreadMutexGuard {
     }
 };
 
+class MachClockGuard {
+   // A guard for releasing a Mach port.
+   
+   // DATA
+   clock_serv_t d_clock;
+
+  private:
+
+    // NOT IMPLEMENTED
+    MachClockGuard(const MachClockGuard&);
+    MachClockGuard operator=(const MachClockGuard&);
+  public:
+
+    // CREATORS
+    explicit MachClockGuard(clock_serv_t clock) : d_clock(clock) {}
+    ~MachClockGuard()  { mach_port_deallocate(mach_task_self(), d_clock); }
+};
+
 }  // close unnamed namespace
 
 static bdet_TimeInterval getDarwinSystemBootTime()
@@ -193,15 +211,17 @@ static bdet_TimeInterval getDarwinSystemBootTime()
             kern_return_t status1 = host_get_clock_service(mach_host_self(),
                                                            REALTIME_CLOCK,
                                                            &realtimeClock);
-
+            MachClockGuard clockGuard(realtimeClock);
             kern_return_t status2 = host_get_clock_service(mach_host_self(),
                                                            CALENDAR_CLOCK,
                                                            &calendarClock);
-            
+            MachClockGuard clockGuard(calendarClock);            
+
             BSLS_ASSERT_OPT(0 == status1);
             BSLS_ASSERT_OPT(0 == status2);
 
-            mach_timespec_t nowCalendar, nowRealtime;
+            mach_timespec_t nowCalendar;
+            mach_timespec_t nowRealtime;
             
             clock_get_time(realtimeClock, &nowRealtime);
             clock_get_time(calendarClock, &nowCalendar);
@@ -426,10 +446,8 @@ int bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::sleepUntil(
     // 'clock_sleep'.
 
 #if defined(BSLS_PLATFORM_OS_DARWIN)
-    // The online documentation for 'clock_sleep' (e.g.,
-    // http://felinemenace.org/~nemo/mach/manpages/) is not very clear, and is
-    // sometimes incorrect or out-of-date.  According
-    // 'mach.h' ('/user/include/mach/') the 'clock_sleep' signature is:
+    // According 'mach.h' ('/user/include/mach/') the 'clock_sleep' signature
+    // is: 
     //..
     //  kern_return_t clock_sleep(
     //        mach_port_t, int, mach_timespec_t, mach_timespec_t *);
@@ -438,11 +456,15 @@ int bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::sleepUntil(
     // is equivalent to 'timespec' on other UNIX platforms.  Many identifier
     // types used in the mach interface are aliases to 'mach_port_t', including
     // 'clock_serv_t' which is returned by 'host_get_clock_service'.  The
-    // signature for 'host_get_clock_service' also differs from what is found
-    // online.  The signature in 'mach_host.h':
+    // signature for 'host_get_clock_service' is in 'mach_host.h':
     //..
     //  kern_return_t host_get_clock_service(host_t, clock_id_t,clock_serv_t *)
     //..
+    // There is little official documentation of these APIs.  Some information
+    // can be found: 
+    //: o http://felinemenace.org/~nemo/mach/manpages/     
+    //: o http://boredzo.org/blog/archives/2006-11-26/how-to-use-mach-clocks/
+    //: o Mac OS X Interals: A Systems Approach (On Safari-Online)
 
     clock_serv_t clock;
 
@@ -463,14 +485,15 @@ int bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::sleepUntil(
         return 0;                                                     // RETURN
     }
 
-    mach_timespec_t clockTime, resultTime;
+    mach_timespec_t clockTime;
+    mach_timespec_t resultTime;
 
     clockTime.tv_sec  = static_cast<bsl::time_t>(systemTime.seconds());
     clockTime.tv_nsec = static_cast<long>(systemTime.nanoseconds());
 
     status = clock_sleep(clock, TIME_ABSOLUTE, clockTime, &resultTime);
 
-    return status == KERN_ABORTED ? 0 : status;
+    return KERN_ABORTED == status ? 0 : status;
 
 #else
     timespec clockTime;

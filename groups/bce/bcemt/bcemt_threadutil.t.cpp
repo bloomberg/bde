@@ -671,7 +671,7 @@ int main(int argc, char *argv[])
     int test = argc > 1 ? atoi(argv[1]) : 0;
     verbose = argc > 2;
     veryVerbose = argc > 3;
-    veryVeryVerbose = argc > 3;
+    veryVeryVerbose = argc > 4;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
@@ -756,7 +756,9 @@ int main(int argc, char *argv[])
                         (actualTime - expectedTime).totalMilliseconds() < 50);
             
         }
-        if (verbose) printf("\nNegative Testing.\n");
+        if (verbose) { 
+            cout << "Negative Testing." << endl;
+        }
         {
             bsls::AssertFailureHandlerGuard hG(
                                              bsls::AssertTest::failTestDriver);
