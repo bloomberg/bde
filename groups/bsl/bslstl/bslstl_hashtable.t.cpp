@@ -19,6 +19,8 @@
 #include <bsltf_templatetestfacility.h>
 #include <bsltf_testvaluesarray.h>
 
+#include <stdexcept>
+
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -2492,7 +2494,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase8()
             ASSERTV(LINE1, oam.isTotalSame());
         }
 
-        for (int lfj = 0; lfj < DEFAULT_MAX_LOAD_FACTOR_SIZE; ++lfj) {
+        for (int lfj = 0; lfj != lfi; ++lfj) {
         for (int tj = 0; tj < NUM_DATA; ++tj) {
             const float       MAX_LF2 = DEFAULT_MAX_LOAD_FACTOR[lfj];
 
@@ -2812,7 +2814,8 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase7()
                                            bslma::Default::defaultAllocator());
                 ASSERTV(MAX_LF, SPEC, pX->maxLoadFactor(), Y0.maxLoadFactor(),
                          pX->maxLoadFactor() == Y0.maxLoadFactor());
-                ASSERTV(MAX_LF, SPEC, Y0.loadFactor() <= Y0.maxLoadFactor());
+                ASSERTV(MAX_LF, SPEC, Y0.loadFactor(), Y0.maxLoadFactor(),
+                        Y0.loadFactor() <= Y0.maxLoadFactor());
                 delete pX;
                 ASSERTV(MAX_LF, SPEC, W, Y0, W == Y0);
             }
@@ -3124,7 +3127,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase6()
                 ASSERTV(LINE1, X, !(X != X));
             }
 
-            for (int lfj = lfi; lfj < DEFAULT_MAX_LOAD_FACTOR_SIZE; ++lfj) {
+            for (int lfj = 0; lfj != lfi; ++lfj) {
             for (int tj = 0; tj < NUM_DATA; ++tj) {
                 const float       MAX_LF2  = DEFAULT_MAX_LOAD_FACTOR[lfj];
 
@@ -3371,9 +3374,12 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase4()
 
                 Obj& mX = *objPtr;  const Obj& X = gg(&mX, SPEC);
                 bslma::TestAllocator&  oa = *objAllocatorPtr;
-                bslma::TestAllocator& noa = ('c' == CONFIG || 'd' == CONFIG)
-                                         ? da
-                                         : sa1;
+#if !defined(BDE_BUILD_TARGET_SAFE_2)
+                const bslma::TestAllocator& noa = ('c' == CONFIG ||
+                                                   'd' == CONFIG)
+                                                ? da
+                                                : sa1;
+#endif
 
                 // --------------------------------------------------------
 
@@ -4213,6 +4219,66 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
 
             // ----------------------------------------------------------------
 
+#if defined BDE_BUILD_TARGET_EXC
+            {
+#if 0
+                // This test shows up a non-conformance in 'bsl::allocator'
+                // which has undefined behavior when asked for this many
+                // buckets, rather than simply throwing a 'std::bad_alloc'.
+
+                try {
+                    Obj mX(HASH,
+                           COMPARE,
+                           native_std::numeric_limits<int>::max(),
+                           1e-30);
+                    ASSERT(false);
+                }
+                catch(const native_std::bad_allocr&) {
+                    // This is the expected code path
+                }
+                catch(...) {
+                    ASSERT(!!"The wrong exception type was thrown.");
+                }
+#endif
+
+                try {
+                    Obj mBad(HASH,
+                             COMPARE,
+                             native_std::numeric_limits<SizeType>::max(),
+                             1e-30);
+                    ASSERT(false);
+                }
+                catch(const native_std::length_error&) {
+                    // This is the expected code path
+                }
+                catch(...) {
+                    ASSERT(!!"The wrong exception type was thrown.");
+                }
+
+                Obj mR(HASH,
+                       COMPARE,
+                       3,
+                       1e-30);
+                try {
+                    mR.insert(VALUES[0]);
+
+                    P(mR.numBuckets())
+                    P(mR.size());
+
+                    ASSERT(false);
+                }
+                catch(const native_std::length_error& e) {
+                    // This is the expected code path
+                }
+                catch(...) {
+                    ASSERT(!!"The wrong exception type was thrown.");
+                }
+            
+            }
+#endif
+
+            // ----------------------------------------------------------------
+
             // Reclaim dynamically allocated object under test.
 
             fa.deleteObject(objPtr);
@@ -5036,7 +5102,7 @@ int main(int argc, char *argv[])
         //:
         //: 6 stateful functors
         //:
-        //:*7 function pointers as functors
+        //: 7 function pointers as functors
         //:
         //: 8 non-default-constructible functors
         //:
@@ -5058,6 +5124,9 @@ int main(int argc, char *argv[])
         //:
         //:16 support for a minimal key type, with equality-comparable element
         //:   type
+        //:
+        //:*17 support for comparison functors returning an evil boolean-like
+        //:    type
         //
         // Plan:
         //: 1 Run the test harness in a variety of configurations that each, in
