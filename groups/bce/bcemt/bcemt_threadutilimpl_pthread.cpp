@@ -211,11 +211,11 @@ static bdet_TimeInterval getDarwinSystemBootTime()
             kern_return_t status1 = host_get_clock_service(mach_host_self(),
                                                            REALTIME_CLOCK,
                                                            &realtimeClock);
-            MachClockGuard clockGuard(realtimeClock);
+            MachClockGuard realTimeClockGuard(realtimeClock);
             kern_return_t status2 = host_get_clock_service(mach_host_self(),
                                                            CALENDAR_CLOCK,
                                                            &calendarClock);
-            MachClockGuard clockGuard(calendarClock);            
+            MachClockGuard calendarClockGuard(calendarClock);            
 
             BSLS_ASSERT_OPT(0 == status1);
             BSLS_ASSERT_OPT(0 == status2);
