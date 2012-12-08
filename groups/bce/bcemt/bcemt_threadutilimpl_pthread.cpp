@@ -475,6 +475,8 @@ int bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::sleepUntil(
     kern_return_t status = host_get_clock_service(mach_host_self(),
                                                   REALTIME_CLOCK,
                                                   &clock);
+    MachClockGuard clockGuard(clock);
+
     if (0 != status) {
         return status;                                                // RETURN
     }
