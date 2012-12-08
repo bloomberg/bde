@@ -12,6 +12,9 @@
 #include <bslma_usesbslmaallocator.h>
 
 #include <bslmf_issame.h>
+#include <bslmf_haspointersemantics.h>
+#include <bslmf_istriviallycopyable.h>
+#include <bslmf_istriviallydefaultconstructible.h>
 
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
@@ -1192,7 +1195,7 @@ class TestDriver {
 
   public:
     // TEST CASES
-#if 0
+
     static void testCase24();
         // Test standard interface coverage.
 
@@ -1201,7 +1204,6 @@ class TestDriver {
 
     static void testCase22();
         // Test STL allocator.
-#endif
 
     static void testCase21();
         // Test comparators.
@@ -1377,6 +1379,559 @@ TestDriver<KEY, HASH, EQUAL, ALLOC>::getIterForIndex(const Obj& obj,
     ASSERTV(idx == i);
 
     return ret;
+}
+
+template <class KEY, class HASH, class EQUAL, class ALLOC>
+void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase24()
+{
+    // ------------------------------------------------------------------------
+    // PRESENCE OF FUNCTION SIGNATURES
+    //
+    // Concern:
+    //   That all functions defined by the standard are at least defined.
+    //
+    // Plan:
+    //   Take pointers to functions and verify they're non-zero.
+    // ------------------------------------------------------------------------
+
+    // TBD: For C++11, fix up all places where 'C++11' appears in comments
+    // below.
+
+    if (verbose) printf("PRESENCE OF FUNCTION SIGNATURES\n"
+                        "===============================\n");
+
+    if (verbose) printf("Establish types exist\n");
+    {
+        typedef typename Obj::key_type Kt;
+        typedef typename Obj::value_type Vt;
+        typedef typename Obj::hasher Ht;
+        typedef typename Obj::key_equal Eq;
+        typedef typename Obj::allocator_type Al;
+        typedef typename Obj::pointer Pt;
+        typedef typename Obj::const_pointer Cpt;
+        typedef typename Obj::reference Ref;
+        typedef typename Obj::const_reference Cref;
+        typedef typename Obj::size_type St;
+        typedef typename Obj::difference_type Dt;
+        typedef typename Obj::iterator It;
+        typedef typename Obj::const_iterator CIt;
+        typedef typename Obj::local_iterator Lit;
+        typedef typename Obj::const_local_iterator CLit;
+    }
+
+    if (verbose) printf("Establish c'tors exist\n");
+
+    const typename Obj::size_type zero = 0;
+
+    {
+        Obj o;
+        (void) o;
+    }
+
+    {
+        Obj o(zero);
+        (void) o;
+    }
+
+    {
+        Obj o(zero,
+              HASH());
+        (void) o;
+    }
+
+    {
+        Obj o(zero,
+              HASH(),
+              EQUAL());
+        (void) o;
+    }
+
+    {
+        Obj o(zero,
+              HASH(),
+              EQUAL(),
+              ALLOC());
+        (void) o;
+    }
+
+    TestValues VALUES;
+
+    {
+        Obj o(VALUES.begin(), VALUES.end());
+        (void) o;
+    }
+
+    VALUES.resetIterators();
+
+    {
+        Obj o(VALUES.begin(), VALUES.end(),
+              zero);
+        (void) o;
+    }
+
+    VALUES.resetIterators();
+
+    {
+        Obj o(VALUES.begin(), VALUES.end(),
+              zero,
+              HASH());
+        (void) o;
+    }
+
+    VALUES.resetIterators();
+
+    {
+        Obj o(VALUES.begin(), VALUES.end(),
+              zero,
+              HASH(),
+              EQUAL());
+        (void) o;
+    }
+
+    VALUES.resetIterators();
+
+    {
+        Obj o(VALUES.begin(), VALUES.end(),
+              zero,
+              HASH(),
+              EQUAL(),
+              ALLOC());
+        (void) o;
+    }
+
+    {
+        Obj o;    const Obj& O = o;
+        Obj o2(O);
+        (void) o2;
+    }
+
+    // unordered_set(unordered_set&&);    // <- C++11
+
+    {
+        typename Obj::allocator_type a;
+        Obj o(a);
+        (void) o;
+    }
+
+    // ~unordered_set();                  // Tested by ALL the above
+
+    if (verbose) printf("Establish member functions exist\n");
+
+    {
+        typedef Obj& (Obj::*MemPtr)(const Obj&);
+        MemPtr mp = &Obj::operator=;
+        (void) mp;
+    }
+
+    // Obj& operator=(Obj&&);             // <- C++11
+
+    // Obj& operator=(initializer_list<Obj::value_type>);    // <- C++11
+
+    {
+        typedef typename Obj::allocator_type (Obj::*MemPtr)() const;
+                                                              // C++11 noexcept
+        MemPtr mp = &Obj::get_allocator;
+        (void) mp;
+    }
+
+    {
+        typedef bool (Obj::*MemPtr)() const;  // C++11 noexcept
+        MemPtr mp = &Obj::empty;
+        (void) mp;
+    }
+
+    {
+        typedef typename Obj::size_type (Obj::*MemPtr)() const;
+                                                              // C++11 noexcept
+        MemPtr mp = &Obj::size;
+        (void) mp;
+        mp = &Obj::max_size;
+        (void) mp;
+    }
+
+    {
+        typedef Iter (Obj::*MemPtr)();  // C++11 noexcept
+        MemPtr mp = &Obj::begin;
+        (void) mp;
+        mp = &Obj::end;
+        (void) mp;
+    }
+
+    {
+        typedef CIter (Obj::*MemPtr)() const;
+                                                              // C++11 noexcept
+        MemPtr mp = &Obj::begin;
+        (void) mp;
+        mp = &Obj::end;
+        (void) mp;
+        mp = &Obj::cbegin;
+        (void) mp;
+        mp = &Obj::cend;
+        (void) mp;
+    }
+
+    // typedef template <class... Args>
+    //                          bsl::pair <Iter, bool> emplace(Args&&... args);
+    //         C++11
+
+    // typedef template <class... Args>
+    //                                Iter emplace_hint(CIter, Args&&... args);
+    //         C++11
+
+    typedef bsl::pair<Iter, bool> InsertPair;
+
+    {
+        typedef InsertPair (Obj::*MemPtr)(const typename Obj::value_type&);
+
+        MemPtr mp = &Obj::insert;
+        (void) mp;
+    }
+
+    //  InsertPair (Obj::*MemPtr)(typename Obj::value_type&&); C++11
+
+    {
+        typedef Iter (Obj::*MemPtr)(CIter, const typename Obj::value_type&);
+        MemPtr mp = &Obj::insert;
+        (void) mp;
+    }
+
+    // Iter (Obj::*MemPtr)(CIter, const Obj::value_type&&); C++11
+
+    {
+        typedef typename bsltf::TestValuesArray<KEY>::iterator InputIterator;
+        typedef void (Obj::*MemPtr)(InputIterator, InputIterator);
+        MemPtr mp = &Obj::insert;
+        (void) mp;
+    }
+
+    // void insert(initializer_list<Obj::value_type>);    C++11
+
+    {
+        typedef Iter (Obj::*MemPtr)(CIter);
+        MemPtr mp = &Obj::erase;
+        (void) mp;
+    }
+
+    {
+        typedef SizeType (Obj::*MemPtr)(const KEY&);
+        MemPtr mp = &Obj::erase;
+        (void) mp;
+    }
+
+    {
+        typedef Iter (Obj::*MemPtr)(CIter, CIter);
+        MemPtr mp = &Obj::erase;
+        (void) mp;
+    }
+
+    {
+        typedef void (Obj::*MemPtr)();                       // C++11 noexcept
+        MemPtr mp = &Obj::clear;
+        (void) mp;
+    }
+
+    {
+        typedef void (Obj::*MemPtr)(Obj&);
+        MemPtr mp = &Obj::swap;
+        (void) mp;
+    }
+
+    {
+        typedef typename Obj::hasher (Obj::*MemPtr)() const;
+        MemPtr mp = &Obj::hash_function;
+        (void) mp;
+    }
+
+    {
+        typedef typename Obj::key_equal (Obj::*MemPtr)() const;
+        MemPtr mp = &Obj::key_eq;
+        (void) mp;
+    }
+
+    {
+        typedef Iter (Obj::*MemPtr)(const KEY&);
+        MemPtr mp = &Obj::find;
+        (void) mp;
+    }
+
+    {
+        typedef CIter (Obj::*MemPtr)(const KEY&) const;
+        MemPtr mp = &Obj::find;
+        (void) mp;
+    }
+
+    {
+        typedef SizeType (Obj::*MemPtr)(const KEY&) const;
+        MemPtr mp = &Obj::count;
+        (void) mp;
+    }
+
+    {
+        typedef bsl::pair<Iter, Iter> (Obj::*MemPtr)(const KEY&);
+        MemPtr mp = &Obj::equal_range;
+        (void) mp;
+    }
+
+    {
+        typedef bsl::pair<CIter, CIter> (Obj::*MemPtr)(const KEY&) const;
+        MemPtr mp = &Obj::equal_range;
+        (void) mp;
+    }
+
+    {
+        typedef SizeType (Obj::*MemPtr)() const;    // C++ noexcept
+        MemPtr mp = &Obj::bucket_count;
+        (void) mp;
+//      mp = &Obj::max_bucket_count;    // TBD: error.  method calls
+//                                      // d_impl.maxNumOfBuckets();
+//                                      // should be
+//                                      // d_impl.maxNumBuckets();
+//      (void) mp;
+    }
+
+    {
+        typedef SizeType (Obj::*MemPtr)(SizeType) const;
+        MemPtr mp = &Obj::bucket_size;
+        (void) mp;
+    }
+
+    {
+        typedef SizeType (Obj::*MemPtr)(const KEY&) const;
+        MemPtr mp = &Obj::bucket;
+        (void) mp;
+    }
+
+    typedef typename Obj::local_iterator       LocalIterator;
+    typedef typename Obj::const_local_iterator ConstLocalIterator;
+
+    {
+        typedef LocalIterator (Obj::*MemPtr)(SizeType);
+        MemPtr mp = &Obj::begin;
+        (void) mp;
+        mp = &Obj::end;
+        (void) mp;
+    }
+
+    {
+        typedef ConstLocalIterator (Obj::*MemPtr)(SizeType) const;
+        MemPtr mp = &Obj::begin;
+        (void) mp;
+        mp = &Obj::end;
+        (void) mp;
+        mp = &Obj::cbegin;
+        (void) mp;
+        mp = &Obj::cend;
+        (void) mp;
+    }
+
+    {
+        typedef float (Obj::*MemPtr)() const;        // C++11 noexcept
+        MemPtr mp = &Obj::load_factor;
+        (void) mp;
+        mp = &Obj::max_load_factor;
+        (void) mp;
+    }
+
+    {
+        typedef void (Obj::*MemPtr)(float);
+        MemPtr mp = &Obj::max_load_factor;
+        (void) mp;
+    }
+
+    {
+        typedef void (Obj::*MemPtr)(SizeType);
+        MemPtr mp = &Obj::rehash;
+        (void) mp;
+        mp = &Obj::reserve;
+        (void) mp;
+    }
+}
+
+template <class KEY, class HASH, class EQUAL, class ALLOC>
+void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase23()
+{
+    // ------------------------------------------------------------------------
+    // TESTING TYPE TRAITS
+    //
+    // Concern:
+    //: 1 The object has the necessary type traits.
+    //
+    // Plan:
+    //: 1 Use 'BSLMF_ASSERT' to verify all the type traits exists.  (C-1)
+    //
+    // Testing:
+    //   CONCERN: The object has the necessary type traits
+    // ------------------------------------------------------------------------
+
+    // Verify set defines the expected traits.
+    BSLMF_ASSERT((1 ==
+                    bslalg::HasStlIterators<bsl::unordered_set<KEY> >::value));
+    BSLMF_ASSERT((1 ==
+                  bslma::UsesBslmaAllocator<bsl::unordered_set<KEY> >::value));
+
+    // Verify the bslma-allocator trait is not defined for non
+    // bslma-allocators.
+    typedef bsl::unordered_set<KEY, HASH, EQUAL,StlAlloc> ObjStlAlloc;
+    BSLMF_ASSERT((0 == bslma::UsesBslmaAllocator<ObjStlAlloc>::value));
+
+    // Verify unordered_set does not define other common traits.
+#if 0    // TBD
+    BSLMF_ASSERT((0 ==
+                 bsl::is_trivially_copyable<bsl::unordered_set<KEY> >::value));
+
+    BSLMF_ASSERT((0 ==
+         bslmf::IsBitwiseEqualityComparable<bsl::unordered_set<KEY> >::value));
+
+    BSLMF_ASSERT((1 ==
+                   bslmf::IsBitwiseMoveable<bsl::unordered_set<KEY> >::value));
+
+    BSLMF_ASSERT((0 ==
+                 bslmf::HasPointerSemantics<bsl::unordered_set<KEY> >::value));
+
+    BSLMF_ASSERT((0 ==
+               bsl::is_trivially_default_constructible<
+                                            bsl::unordered_set<KEY> >::value));
+#endif
+
+    BSLMF_ASSERT((0 ==
+                 bsl::is_trivially_copyable<bsl::unordered_set<int> >::value));
+
+    BSLMF_ASSERT((0 ==
+         bslmf::IsBitwiseEqualityComparable<bsl::unordered_set<int> >::value));
+
+    BSLMF_ASSERT((1 ==
+                   bslmf::IsBitwiseMoveable<bsl::unordered_set<int> >::value));
+
+    BSLMF_ASSERT((0 ==
+                 bslmf::HasPointerSemantics<bsl::unordered_set<int> >::value));
+
+    BSLMF_ASSERT((0 ==
+               bsl::is_trivially_default_constructible<
+                                            bsl::unordered_set<int> >::value));
+}
+
+template <class KEY, class HASH, class EQUAL, class ALLOC>
+void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase22()
+{
+    // ------------------------------------------------------------------------
+    // TESTING STL ALLOCATOR
+    //
+    // Concern:
+    //: 1 A standard compliant allocator can be used instead of
+    //:   'bsl::allocator'.
+    //:
+    //: 2 Methods that uses the allocator (e.g., variations of constructor,
+    //:   'insert' and 'swap') can successfully populate the object.
+    //:
+    //: 3 'KEY' types that allocate memory uses the default allocator instead
+    //:   of the object allocator.
+    //:
+    //: 4 Every object releases any allocated memory at destruction.
+    //
+    // Plan:
+    //: 1 Using a loop base approach, create a list of specs and their
+    //:   expected value.  For each spec:
+    //:
+    //:   1 Create an object using a standard allocator through multiple ways,
+    //:     including: range-based constructor, copy constructor, range-based
+    //:     insert, multiple inserts, and swap.
+    //:
+    //:   2 Verify the value of each objects is as expected.
+    //:
+    //:   3 For types that allocate memory, verify memory for the elements
+    //:     comes from the default allocator.
+    //
+    // Testing:
+    //  CONCERN: 'set' is compatible with a standard allocator.
+    // ------------------------------------------------------------------------
+
+    const int TYPE_ALLOC = bslma::UsesBslmaAllocator<KEY>::value;
+
+    const size_t NUM_DATA                  = DEFAULT_NUM_DATA;
+    const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
+
+    typedef bsl::unordered_set<KEY, HASH, EQUAL, StlAlloc> ObjStlAlloc;
+
+    bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
+
+    for (size_t ti = 0; ti < NUM_DATA; ++ti) {
+        const int         LINE   = DATA[ti].d_line;
+        const char *const SPEC   = DATA[ti].d_results;
+        const size_t      LENGTH = strlen(DATA[ti].d_results);
+        const TestValues  EXP(DATA[ti].d_results, &scratch);
+
+        TestValues CONT(SPEC, &scratch);
+
+        typename TestValues::iterator BEGIN = CONT.begin();
+        typename TestValues::iterator END   = CONT.end();
+
+        bslma::TestAllocator da("default",   veryVeryVeryVerbose);
+
+        bslma::DefaultAllocatorGuard dag(&da);
+
+        {
+            ObjStlAlloc mX(BEGIN, END);  const ObjStlAlloc& X = mX;
+
+            ASSERTV(LINE, 0 == verifyContainer(X, EXP, LENGTH));
+            ASSERTV(LINE, da.numBlocksInUse(),
+                    TYPE_ALLOC * LENGTH <= da.numBlocksInUse());
+
+            ObjStlAlloc mY(X);  const ObjStlAlloc& Y = mY;
+
+            ASSERTV(LINE, 0 == verifyContainer(Y, EXP, LENGTH));
+            ASSERTV(LINE, da.numBlocksInUse(),
+                    2 * TYPE_ALLOC * LENGTH == da.numBlocksInUse());
+
+            ObjStlAlloc mZ;  const ObjStlAlloc& Z = mZ;
+
+            mZ.swap(mX);
+
+            ASSERTV(LINE, 0 == verifyContainer(Z, EXP, LENGTH));
+            ASSERTV(LINE, da.numBlocksInUse(),
+                    2 * TYPE_ALLOC * LENGTH <= da.numBlocksInUse());
+        }
+
+        CONT.resetIterators();
+
+        {
+            ObjStlAlloc mX;  const ObjStlAlloc& X = mX;
+            mX.insert(BEGIN, END);
+            ASSERTV(LINE, 0 == verifyContainer(X, EXP, LENGTH));
+            ASSERTV(LINE, da.numBlocksInUse(),
+                    TYPE_ALLOC * LENGTH == da.numBlocksInUse());
+        }
+
+        CONT.resetIterators();
+
+        {
+            ObjStlAlloc mX;  const ObjStlAlloc& X = mX;
+            for (size_t tj = 0; tj < CONT.size(); ++tj) {
+                bsl::pair<Iter, bool> RESULT = mX.insert(CONT[tj]);
+
+                ASSERTV(LINE, tj, LENGTH, RESULT.second);
+                ASSERTV(LINE, tj, LENGTH, CONT[tj] == *(RESULT.first));
+            }
+            ASSERTV(LINE, 0 == verifyContainer(X, EXP, LENGTH));
+            ASSERTV(LINE, da.numBlocksInUse(),
+                    TYPE_ALLOC * LENGTH <= da.numBlocksInUse());
+        }
+
+        ASSERTV(LINE, da.numBlocksInUse(), 0 == da.numBlocksInUse());
+    }
+
+    // IBM empty class swap bug test
+
+    {
+        typedef bsl::unordered_set<int,
+                                   TestHashFunctor<int>,
+                                   TestEqualityComparator<int>,
+                                   StlAlloc> TestObjIntStlAlloc;
+
+        TestObjIntStlAlloc mX;
+        mX.insert(1);
+        TestObjIntStlAlloc mY;
+        mY = mX;
+    }
 }
 
 template <class KEY, class HASH, class EQUAL, class ALLOC>
@@ -1956,10 +2511,10 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase18()
         {
             const TestValues VALUES;
 
-            Obj mX;  const Obj& X = mX;
+            Obj mX;
             Iter it = mX.insert(mX.end(), VALUES[0]);
 
-            ASSERT_SAFE_FAIL(mX.erase(X.end()));
+            ASSERT_SAFE_FAIL(mX.erase(mX.end()));
             ASSERT_SAFE_PASS(mX.erase(it));
         }
     }
@@ -2655,7 +3210,6 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase12()
                 bsltf::TestValuesArray<KEY> tv(SPEC, &sa);
 
                 Obj *pmX;
-
                 switch (CONFIG) {
                   case 'a': {
                     pmX = new (fa) Obj(tv.begin(), tv.end());
@@ -2684,6 +3238,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase12()
                   } break;
                   default: {
                     ASSERTV(0);
+                    return;                                           // RETURN
                   } break;
                 }
 
@@ -4723,6 +5278,7 @@ int main(int argc, char *argv[])
         }
 
       } break;
+#endif
       case 24: {
         // --------------------------------------------------------------------
         // TESTING STANDARD INTERFACE COVERAGE
@@ -4748,7 +5304,6 @@ int main(int argc, char *argv[])
                       testCase22,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
       } break;
-#endif
       case 21: {
         // --------------------------------------------------------------------
         // TESTING COMPARATOR
