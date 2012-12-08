@@ -163,7 +163,7 @@ class PthreadMutexGuard {
 
 class MachClockGuard {
    // A guard for releasing a Mach port.
-   
+
    // DATA
    clock_serv_t d_clock;
 
@@ -215,14 +215,14 @@ static bdet_TimeInterval getDarwinSystemBootTime()
             kern_return_t status2 = host_get_clock_service(mach_host_self(),
                                                            CALENDAR_CLOCK,
                                                            &calendarClock);
-            MachClockGuard calendarClockGuard(calendarClock);            
+            MachClockGuard calendarClockGuard(calendarClock);
 
             BSLS_ASSERT_OPT(0 == status1);
             BSLS_ASSERT_OPT(0 == status2);
 
             mach_timespec_t nowCalendar;
             mach_timespec_t nowRealtime;
-            
+
             clock_get_time(realtimeClock, &nowRealtime);
             clock_get_time(calendarClock, &nowCalendar);
             bdet_TimeInterval adjustment =
@@ -447,7 +447,7 @@ int bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::sleepUntil(
 
 #if defined(BSLS_PLATFORM_OS_DARWIN)
     // According 'mach.h' ('/user/include/mach/') the 'clock_sleep' signature
-    // is: 
+    // is:
     //..
     //  kern_return_t clock_sleep(
     //        mach_port_t, int, mach_timespec_t, mach_timespec_t *);
@@ -461,8 +461,8 @@ int bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::sleepUntil(
     //  kern_return_t host_get_clock_service(host_t, clock_id_t,clock_serv_t *)
     //..
     // There is little official documentation of these APIs.  Some information
-    // can be found: 
-    //: o http://felinemenace.org/~nemo/mach/manpages/     
+    // can be found:
+    //: o http://felinemenace.org/~nemo/mach/manpages/
     //: o http://boredzo.org/blog/archives/2006-11-26/how-to-use-mach-clocks/
     //: o Mac OS X Interals: A Systems Approach (On Safari-Online)
 
