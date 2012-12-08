@@ -4898,7 +4898,7 @@ if (verbose) {
 // implementation for the standard unordered classes, this class can also be
 // used in its own right to address other user problems.
 //
-// Suppose we wish to retain a record of sales orders, that each record is
+// Suppose that we wish to retain a record of sales orders, that each record is
 // characterized by several integer attributes, and that we must be able to
 // find records based on *any* of those attributes.  We can use
 // 'bslstl::HashTable' to implement a custom container supporting multiple
@@ -4909,9 +4909,9 @@ if (verbose) {
     enum { MAX_DESCRIPTION_SIZE = 16 };
 
     typedef struct MySalesRecord {
-        int  orderNumber;                        // '0 <= orderNumber', unique
-        int  customerId;                         // '0 <= customerId'
-        int  vendorId;                           // '0 <=   vendorId'
+        int  orderNumber;                        // unique
+        int  customerId;                         // no constraint
+        int  vendorId;                           // no constraint
         char description[MAX_DESCRIPTION_SIZE];  // ascii string
     } MySalesRecord;
 //..
@@ -4919,16 +4919,20 @@ if (verbose) {
 // sales to any given customer ('customerId') and multiple sales by any
 // given vendor ('vendorId').
 //
-// We will use a 'bslstl::HashTable' object to implement set semantics based on
-// the unique 'orderNumber', and two auxiliary 'bslsl::HashTable' objects to
-// provide multi-map semantics into that set based on 'customterId' and
-// 'vendorId', respectively.
+// We will use a 'bslstl::HashTable' object (a hashtable) to save record values
+// based on the unique 'orderNumber', and two auxiliary hashtables to provide
+// map 'customerId' and 'vendorId' values to the addresses of the records in
+// the first 'bslstl::HashTable' object.  Note that this implementation relies
+// on the fact that nodes in our hashtables remain stable until they are
+// removed and that in this application we do *not* allow the removal (or
+// modification) of records once they are inserted.
 //
-// To configure those 'bslstl::HashTable' objects, we will need policy objects
-// to exract the relevant portion of a 'MySalesRecord' to use as a key-value.
+// To configure these hashtables, we will need several policy objects to
+// extract relevant portions the 'MySalesRecord' objects for hashing.
 //
-// Next, define 'UseOrderNumberAsKey', a policy object used in support of the
-// set semantics:
+// Next, define 'UseOrderNumberAsKey', a policy class for the hashtable holding
+// the sales record objects.  Note that the 'ValueType' is 'MySalesRecord' and
+// that the 'extractKey' method selects the 'orderNumber' attribute:
 //..
                             // ==========================
                             // struct UseOrderNumberAsKey
@@ -4964,6 +4968,12 @@ if (verbose) {
     {
         return value.orderNumber;
     }
+//..
+// Then, we define 'UseCustomerIdAsKey', the policy class for the hashtable
+// that will multiply map 'customerId' to the addresses of records in the first
+// hashtable.  Note that in this policy class the 'ValueType' is
+// 'const MySalesRecord *'.
+//..
 
                             // =========================
                             // struct UseCustomerIdAsKey
@@ -4999,7 +5009,16 @@ if (verbose) {
     {
         return value->customerId;
     }
-
+//..
+// Notice that, since the values in the second hashtable are addresses,
+// the key-value is extracted by reference.  This second hashtable allows
+// what map-like  semantics, *without* having to store key-values; those reside
+// in the records in the first hashtable.
+//
+// The 'UseVendorIdAsKey' class, the policy class for the hashtable providing
+// an index by 'vendorId', is almost a near clone of 'UseCustomerIdAsKey'.  It
+// is shown for completeness:
+//..
                             // =======================
                             // struct UseVendorIdAsKey
                             // ========================
