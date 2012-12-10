@@ -298,7 +298,9 @@ class bdecs_CalendarCache {
         // calendar was loaded.  Optionally specify a 'basicAllocator' used to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
         // default allocator is used.  The behavior is undefined unless the
-        // loader remains valid throughout the lifetime of this cache.
+        // loader remains valid throughout the lifetime of this cache.  The
+        // behavior is undefined unless 'timeout' is small enough to fit in a
+        // 64-bit integer value in milliseconds.
 
     ~bdecs_CalendarCache();
         // Destroy this object.
