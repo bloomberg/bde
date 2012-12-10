@@ -14,7 +14,7 @@ BDES_IDENT("$Id: $")
 //
 //@SEE_ALSO: baejsn_decoder
 //
-//@AUTHOR: Raymond Chiu (schiu49)
+//@AUTHOR: Raymond Chiu (schiu49), Rohan Bhindwale (rbhindwa)
 //
 //@DESCRIPTION: This component provides utility functions for encoding a
 // 'bdeat'-compliant object into JSON format.  In particular, the
@@ -106,6 +106,10 @@ BDES_IDENT("$Id: $")
 #include <baescm_version.h>
 #endif
 
+#ifndef INCLUDED_BAEJSN_ENCODEROPTIONS
+#include <baejsn_encoderoptions.h>
+#endif
+
 #ifndef INCLUDED_BAEJSN_PRINTUTIL
 #include <baejsn_printutil.h>
 #endif
@@ -140,6 +144,10 @@ BDES_IDENT("$Id: $")
 
 #ifndef INCLUDED_BDEAT_VALUETYPEFUNCTIONS
 #include <bdeat_valuetypefunctions.h>
+#endif
+
+#ifndef INCLUDED_BDEU_PRINT
+#include <bdeu_print.h>
 #endif
 
 #ifndef INCLUDED_BSLS_TYPES
@@ -177,7 +185,8 @@ class baejsn_Encoder {
 
   private:
     // DATA
-    bsl::ostringstream d_logStream;  // stream used for logging
+    bsl::ostringstream           d_logStream;        // stream used for logging
+    const baejsn_EncoderOptions *d_encoderOptions_p; // encoding options
 
   private:
     // PRIVATE MANIPULATORS
@@ -190,6 +199,12 @@ class baejsn_Encoder {
         // Create a encoder object.  Optionally specify a 'basicAllocator' used
         // to supply memory.  If 'basicAllocator' is 0, the currently installed
         // default allocator is used.
+        //
+        // DEPRECATED ?
+
+    baejsn_Encoder(const baejsn_EncoderOptions *options,
+                   bslma_Allocator             *basicAllocator = 0);
+        // TBD
 
     //! ~baejsn_Encoder() = default;
         // Destroy this object.
@@ -225,8 +240,13 @@ class baejsn_Encoder_EncodeImpl {
     // 'bdeat' types in JSON format.
 
     // DATA
-    baejsn_Encoder *d_encoder;       // encoder (held, not owned)
-    bsl::ostream    d_outputStream;  // stream for output
+    baejsn_Encoder              *d_encoder;           // encoder (held,
+                                                      // not owned)
+    bsl::ostream                 d_outputStream;      // stream for output
+
+    baejsn_EncoderOptions::EncodingStyle d_encodingStyle;
+    int                                  d_indentLevel;
+    int                                  d_spacesPerLevel;
 
     // FRIENDS
     friend struct baejsn_Encoder_DynamicTypeDispatcher;
@@ -237,9 +257,6 @@ class baejsn_Encoder_EncodeImpl {
     // PRIVATE MANIPULATORS
     bsl::ostream& logStream();
         // Return the stream for logging.
-
-    bsl::ostream& outputStream();
-        // Return the stream for output.
 
     int encodeImp(const bsl::vector<char>& value, bdeat_TypeCategory::Array);
     template <typename TYPE>
@@ -263,8 +280,9 @@ class baejsn_Encoder_EncodeImpl {
 
   public:
     // CREATORS
-    baejsn_Encoder_EncodeImpl(baejsn_Encoder *encoder,
-                              bsl::streambuf *streambuf);
+    baejsn_Encoder_EncodeImpl(baejsn_Encoder              *encoder,
+                              bsl::streambuf              *streambuf,
+                              const baejsn_EncoderOptions *encoderOptions);
         // Create a 'baejsn_Encoder_EncodeImpl' object.
 
     // MANIPULATORS
@@ -379,6 +397,15 @@ bsl::ostream& baejsn_Encoder::logStream()
 inline
 baejsn_Encoder::baejsn_Encoder(bslma::Allocator *basicAllocator)
 : d_logStream(basicAllocator)
+, d_encoderOptions_p(0)
+{
+}
+
+inline
+baejsn_Encoder::baejsn_Encoder(const baejsn_EncoderOptions *encoderOptions,
+                               bslma_Allocator             *basicAllocator)
+: d_logStream(basicAllocator)
+, d_encoderOptions_p(encoderOptions)
 {
 }
 
@@ -402,7 +429,7 @@ int baejsn_Encoder::encode(bsl::streambuf *streamBuf, const TYPE& value)
     d_logStream.clear();
     d_logStream.str("");
 
-    baejsn_Encoder_EncodeImpl encoderImpl(this, streamBuf);
+    baejsn_Encoder_EncodeImpl encoderImpl(this, streamBuf, d_encoderOptions_p);
     return encoderImpl.encode(value);
 }
 
@@ -441,18 +468,23 @@ bsl::ostream& baejsn_Encoder_EncodeImpl::logStream()
     return d_encoder->logStream();
 }
 
-inline
-bsl::ostream& baejsn_Encoder_EncodeImpl::outputStream()
-{
-    return d_outputStream;
-}
-
 template <typename TYPE>
 inline
 int baejsn_Encoder_EncodeImpl::encodeImp(const TYPE& value,
                                          bdeat_TypeCategory::Sequence)
 {
-    outputStream() << '{';
+    if (baejsn_EncoderOptions::BAEJSN_PRETTY == d_encodingStyle) {
+        // TBD: Special case top-level element
+        d_outputStream << ' ';
+    }
+
+    d_outputStream << '{';
+
+    if (baejsn_EncoderOptions::BAEJSN_PRETTY == d_encodingStyle) {
+        d_outputStream << '\n';
+    }
+
+    ++d_indentLevel;
 
     baejsn_Encoder_SequenceVisitor visitor(this);
     int rc = bdeat_SequenceFunctions::accessAttributes(value, visitor);
@@ -460,7 +492,18 @@ int baejsn_Encoder_EncodeImpl::encodeImp(const TYPE& value,
         return rc;                                                    // RETURN
     }
 
-    outputStream() << '}';
+    if (baejsn_EncoderOptions::BAEJSN_PRETTY == d_encodingStyle) {
+        d_outputStream << '\n';
+    }
+
+    --d_indentLevel;
+
+    if (baejsn_EncoderOptions::BAEJSN_PRETTY == d_encodingStyle) {
+        bdeu_Print::indent(d_outputStream, d_indentLevel, d_spacesPerLevel);
+    }
+
+    d_outputStream << '}';
+
     return 0;
 }
 
@@ -471,14 +514,37 @@ int baejsn_Encoder_EncodeImpl::encodeImp(const TYPE& value,
 {
     if (bdeat_ChoiceFunctions::BDEAT_UNDEFINED_SELECTION_ID !=
                                    bdeat_ChoiceFunctions::selectionId(value)) {
-        outputStream() << '{';
+        if (baejsn_EncoderOptions::BAEJSN_PRETTY == d_encodingStyle) {
+            // TBD: Special case top-level element
+            d_outputStream << ' ';
+        }
+
+        d_outputStream << '{';
+
+        if (baejsn_EncoderOptions::BAEJSN_PRETTY == d_encodingStyle) {
+            d_outputStream << '\n';
+        }
+
+        ++d_indentLevel;
 
         baejsn_Encoder_ElementVisitor visitor = { this };
         if (0 != bdeat_ChoiceFunctions::accessSelection(value, visitor)) {
             return -1;                                                // RETURN
         }
 
-        outputStream() << '}';
+        --d_indentLevel;
+
+        if (baejsn_EncoderOptions::BAEJSN_PRETTY == d_encodingStyle) {
+            bdeu_Print::indent(d_outputStream,
+                               d_indentLevel,
+                               d_spacesPerLevel);
+        }
+
+        d_outputStream << '}';
+
+        if (baejsn_EncoderOptions::BAEJSN_PRETTY == d_encodingStyle) {
+            d_outputStream << '\n';
+        }
     }
     else {
         logStream() << "Undefined selection for Choice object" << bsl::endl;
@@ -520,14 +586,29 @@ inline
 int baejsn_Encoder_EncodeImpl::encodeImp(const TYPE& value,
                                          bdeat_TypeCategory::Simple)
 {
-    return baejsn_PrintUtil::printValue(outputStream(), value);
+    if (baejsn_EncoderOptions::BAEJSN_PRETTY == d_encodingStyle) {
+        d_outputStream << ' ';
+    }
+
+    return baejsn_PrintUtil::printValue(d_outputStream, value);
 }
 
 template <typename TYPE>
 int baejsn_Encoder_EncodeImpl::encodeImp(const TYPE& value,
                                          bdeat_TypeCategory::Array)
 {
-    outputStream() << '[';
+    if (baejsn_EncoderOptions::BAEJSN_PRETTY == d_encodingStyle) {
+        // TBD: Special case top-level element
+        d_outputStream << ' ';
+    }
+
+    d_outputStream << '[';
+
+    if (baejsn_EncoderOptions::BAEJSN_PRETTY == d_encodingStyle) {
+        d_outputStream << '\n';
+    }
+
+    ++d_indentLevel;
 
     int size = static_cast<int>(bdeat_ArrayFunctions::size(value));
 
@@ -540,7 +621,7 @@ int baejsn_Encoder_EncodeImpl::encodeImp(const TYPE& value,
         }
 
         for (int i = 1; i < size; ++i) {
-            outputStream() << ',';
+            d_outputStream << ',';
             rc = bdeat_ArrayFunctions::accessElement(value, visitor, i);
             if (0 != rc) {
                 return rc;                                            // RETURN
@@ -548,7 +629,17 @@ int baejsn_Encoder_EncodeImpl::encodeImp(const TYPE& value,
         }
     }
 
-    outputStream() << ']';
+    --d_indentLevel;
+
+    if (baejsn_EncoderOptions::BAEJSN_PRETTY == d_encodingStyle) {
+        bdeu_Print::indent(d_outputStream, d_indentLevel, d_spacesPerLevel);
+    }
+
+    d_outputStream << ']';
+
+    if (baejsn_EncoderOptions::BAEJSN_PRETTY == d_encodingStyle) {
+        d_outputStream << '\n';
+    }
     return 0;
 }
 
@@ -558,7 +649,7 @@ int baejsn_Encoder_EncodeImpl::encodeImp(const TYPE& value,
                                          bdeat_TypeCategory::NullableValue)
 {
     if (bdeat_NullableValueFunctions::isNull(value)) {
-        outputStream() << "null";
+        d_outputStream << "null";
         return 0;                                                     // RETURN
     }
 
@@ -570,18 +661,30 @@ template <typename TYPE>
 inline
 int baejsn_Encoder_EncodeImpl::encode(const TYPE& value)
 {
-    typedef typename
-    bdeat_TypeCategory::Select<TYPE>::Type TypeCategory;
+    typedef typename bdeat_TypeCategory::Select<TYPE>::Type TypeCategory;
     return encodeImp(value, TypeCategory());
 }
 
 // CREATORS
 inline
-baejsn_Encoder_EncodeImpl::baejsn_Encoder_EncodeImpl(baejsn_Encoder *encoder,
-                                                     bsl::streambuf *streambuf)
+baejsn_Encoder_EncodeImpl::baejsn_Encoder_EncodeImpl(
+                                   baejsn_Encoder              *encoder,
+                                   bsl::streambuf              *streambuf,
+                                   const baejsn_EncoderOptions *encoderOptions)
 : d_encoder(encoder)
 , d_outputStream(streambuf)
 {
+    if (encoderOptions && baejsn_EncoderOptions::BAEJSN_PRETTY ==
+                                             encoderOptions->encodingStyle()) {
+        d_encodingStyle  = encoderOptions->encodingStyle();
+        d_indentLevel    = encoderOptions->initialIndentLevel();
+        d_spacesPerLevel = encoderOptions->spacesPerLevel();
+    }
+    else {
+        d_encodingStyle  = baejsn_EncoderOptions::BAEJSN_COMPACT;
+        d_indentLevel    = 0;
+        d_spacesPerLevel = 0;
+    }
 }
 
                     // -------------------------------------
@@ -640,7 +743,11 @@ int baejsn_Encoder_SequenceVisitor::operator()(const TYPE& value,
     }
 
     if (!d_firstElementFlag) {
-        d_encoder->outputStream() << ',';
+        d_encoder->d_outputStream << ',';
+        if (baejsn_EncoderOptions::BAEJSN_PRETTY ==
+                                                  d_encoder->d_encodingStyle) {
+            d_encoder->d_outputStream << '\n';
+        }
     }
 
     d_firstElementFlag = false;
@@ -665,7 +772,14 @@ inline
 int baejsn_Encoder_ElementVisitor::operator()(const TYPE& value,
                                               const INFO& info)
 {
-    int rc = d_encoder->encode(info.name());
+    if (baejsn_EncoderOptions::BAEJSN_PRETTY == d_encoder->d_encodingStyle) {
+        bdeu_Print::indent(d_encoder->d_outputStream,
+                           d_encoder->d_indentLevel,
+                           d_encoder->d_spacesPerLevel);
+    }
+
+    int rc = baejsn_PrintUtil::printValue(d_encoder->d_outputStream,
+                                          info.name());
     if (0 != rc) {
         d_encoder->logStream()
             << "Unable to encode the name of the element, '"
@@ -674,7 +788,13 @@ int baejsn_Encoder_ElementVisitor::operator()(const TYPE& value,
             << bsl::endl;
         return rc;                                                    // RETURN
     }
-    d_encoder->outputStream() << ':';
+
+    if (baejsn_EncoderOptions::BAEJSN_PRETTY == d_encoder->d_encodingStyle) {
+        d_encoder->d_outputStream << ' ';
+    }
+
+    d_encoder->d_outputStream << ':';
+
     rc = d_encoder->encode(value);
     if (0 != rc) {
         d_encoder->logStream()

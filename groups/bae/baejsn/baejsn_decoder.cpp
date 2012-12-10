@@ -18,7 +18,7 @@ int baejsn_Decoder::decodeBinaryArray(bsl::vector<char> *value)
 {
     enum { BAEJSN_MIN_ENUM_STRING_LENGTH = 2 };
 
-    if (baejsn_Reader::BAEJSN_VALUE == d_reader.tokenType()) {
+    if (baejsn_Reader::BAEJSN_ELEMENT_VALUE == d_reader.tokenType()) {
         bslstl::StringRef dataValue;
         int rc = d_reader.value(&dataValue);
         if (rc

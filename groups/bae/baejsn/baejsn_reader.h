@@ -48,19 +48,18 @@ class baejsn_Reader {
 
   public:
     enum TokenType {
-        BAEJSN_BEGIN,
-        BAEJSN_COMMA,
-        BAEJSN_NAME,
+        BAEJSN_ERROR = 1,
+        BAEJSN_ELEMENT_NAME,
         BAEJSN_START_OBJECT,
         BAEJSN_END_OBJECT,
         BAEJSN_START_ARRAY,
         BAEJSN_END_ARRAY,
-        BAEJSN_VALUE
+        BAEJSN_ELEMENT_VALUE
     };
 
     enum ContextType {
-        BAEJSN_OBJECT,
-        BAEJSN_ARRAY
+        BAEJSN_OBJECT_CONTEXT = 1,
+        BAEJSN_ARRAY_CONTEXT
     };
 
   private:
@@ -116,8 +115,8 @@ baejsn_Reader::baejsn_Reader(bslma::Allocator *basicAllocator)
 , d_stringBuffer(&d_allocator)
 , d_streamBuf_p(0)
 , d_cursor(0)
-, d_tokenType(BAEJSN_BEGIN)
-, d_context(BAEJSN_OBJECT)
+, d_tokenType(BAEJSN_ERROR)
+, d_context(BAEJSN_OBJECT_CONTEXT)
 {
     d_stringBuffer.reserve(BAEJSN_MAX_STRING_SIZE);
 }
@@ -136,7 +135,7 @@ void baejsn_Reader::reset(bsl::streambuf *streamBuf)
     d_cursor      = 0;
     d_valueBegin  = 0;
     d_valueEnd    = 0;
-    d_tokenType   = BAEJSN_BEGIN;
+    d_tokenType   = BAEJSN_ERROR;
 }
 
 // ACCESSORS

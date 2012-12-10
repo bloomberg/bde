@@ -23,12 +23,16 @@ BDES_IDENT("$Id: $")
 #include <baescm_version.h>
 #endif
 
-#ifndef INCLUDED_BAEJSN_READER
-#include <baejsn_reader.h>
+#ifndef INCLUDED_BAEJSN_DECODEROPTIONS
+#include <baejsn_decoderoptions.h>
 #endif
 
 #ifndef INCLUDED_BAEJSN_PARSERUTIL
 #include <baejsn_parserutil.h>
+#endif
+
+#ifndef INCLUDED_BAEJSN_READER
+#include <baejsn_reader.h>
 #endif
 
 #ifndef INCLUDED_BDEAT_CHOICEFUNCTIONS
@@ -88,9 +92,12 @@ namespace BloombergLP {
 class baejsn_Decoder {
 
     // DATA
-    bsl::ostringstream  d_logStream;  // stream to store error message
-    baejsn_Reader       d_reader;
-    bsl::string         d_elementName;
+    bsl::ostringstream           d_logStream;         // stream to store error
+                                                      // message
+    baejsn_Reader                d_reader;            // JSON reader
+    bsl::string                  d_elementName;       // current element name
+    const baejsn_DecoderOptions *d_decoderOptions_p;  // decoder options
+    int                          d_currentDepth;      // current decoding depth
 
     // FRIENDS
     friend struct baejsn_Decoder_DecodeImpProxy;
@@ -132,6 +139,12 @@ class baejsn_Decoder {
         // Construct a decoder object using the optionally specified
         // 'basicAllocator'.  If 'basicAllocator' is 0, the default allocator
         // is used.
+        //
+        // DEPRECATED ?
+
+    baejsn_Decoder(const baejsn_DecoderOptions *options,
+                   bslma_Allocator             *basicAllocator = 0);
+        // TBD
 
     // MANIPULATORS
     template <typename TYPE>
@@ -218,6 +231,14 @@ int baejsn_Decoder::decodeImp(TYPE *value, bdeat_TypeCategory::DynamicType)
 template <typename TYPE>
 int baejsn_Decoder::decodeImp(TYPE *value, bdeat_TypeCategory::Sequence)
 {
+    ++d_currentDepth;
+    if (d_decoderOptions_p
+     && d_decoderOptions_p->maxDepth() > d_currentDepth) {
+        d_logStream << "Maximum allowed decoding depth reached: "
+                    << d_currentDepth << "\n";
+        return -1;                                                    // RETURN
+    }
+
     if (baejsn_Reader::BAEJSN_START_OBJECT != d_reader.tokenType()) {
         d_logStream << "Could not decode sequence, missing starting '{'\n";
         return -1;                                                    // RETURN
@@ -230,12 +251,23 @@ int baejsn_Decoder::decodeImp(TYPE *value, bdeat_TypeCategory::Sequence)
         return -1;                                                    // RETURN
     }
 
-    while (baejsn_Reader::BAEJSN_NAME == d_reader.tokenType()) {
+    while (baejsn_Reader::BAEJSN_ELEMENT_NAME == d_reader.tokenType()) {
         bslstl::StringRef elementName;
         rc = d_reader.value(&elementName);
         if (rc) {
             d_logStream << "Error reading attribute name after '{'\n";
             return -1;                                                // RETURN
+        }
+
+        if (d_decoderOptions_p
+         && d_decoderOptions_p->skipUnknownElements()
+         && false == bdeat_SequenceFunctions::hasAttribute(
+                                     *value,
+                                     elementName.data(),
+                                     static_cast<int>(elementName.length()))) {
+            // TBD: Not complete. Also not the most efficient would like to be
+            // able to just lookupAttribute
+            return 0;
         }
 
         d_elementName = elementName;
@@ -266,15 +298,6 @@ int baejsn_Decoder::decodeImp(TYPE *value, bdeat_TypeCategory::Sequence)
                         << d_elementName << "' \n";
             return -1;                                                // RETURN
         }
-
-        if (baejsn_Reader::BAEJSN_COMMA == d_reader.tokenType()) {
-            rc = d_reader.advanceToNextToken();
-            if (rc) {
-                d_logStream << "Error reading element name after attribute '"
-                            << d_elementName << "' \n";
-                return -1;                                            // RETURN
-            }
-        }
     }
 
     if (baejsn_Reader::BAEJSN_END_OBJECT != d_reader.tokenType()) {
@@ -288,6 +311,14 @@ int baejsn_Decoder::decodeImp(TYPE *value, bdeat_TypeCategory::Sequence)
 template <typename TYPE>
 int baejsn_Decoder::decodeImp(TYPE *value, bdeat_TypeCategory::Choice)
 {
+    ++d_currentDepth;
+    if (d_decoderOptions_p
+     && d_decoderOptions_p->maxDepth() > d_currentDepth) {
+        d_logStream << "Maximum allowed decoding depth reached: "
+                    << d_currentDepth << "\n";
+        return -1;                                                    // RETURN
+    }
+
     if (baejsn_Reader::BAEJSN_START_OBJECT != d_reader.tokenType()) {
         d_logStream << "Could not decode choice, missing starting {\n";
         return -1;                                                    // RETURN
@@ -300,12 +331,24 @@ int baejsn_Decoder::decodeImp(TYPE *value, bdeat_TypeCategory::Choice)
         return -1;                                                    // RETURN
     }
 
-    if (baejsn_Reader::BAEJSN_NAME == d_reader.tokenType()) {
+    if (baejsn_Reader::BAEJSN_ELEMENT_NAME == d_reader.tokenType()) {
         bslstl::StringRef selectionName;
         rc = d_reader.value(&selectionName);
         if (rc) {
             d_logStream << "Error reading selection name after '{'\n";
             return -1;                                                // RETURN
+        }
+
+        if (d_decoderOptions_p
+         && d_decoderOptions_p->skipUnknownElements()
+         && false == bdeat_ChoiceFunctions::hasSelection(
+                                   *value,
+                                   selectionName.data(),
+                                   static_cast<int>(selectionName.length()))) {
+            // TBD: Not complete. Also not the most efficient would like to be
+            // able to just lookupAttribute
+
+            return 0;
         }
 
         if (0 != bdeat_ChoiceFunctions::makeSelection(
@@ -352,7 +395,7 @@ int baejsn_Decoder::decodeImp(TYPE *value, bdeat_TypeCategory::Enumeration)
 {
     enum { BAEJSN_MIN_ENUM_STRING_LENGTH = 2 };
 
-    if (baejsn_Reader::BAEJSN_VALUE != d_reader.tokenType()) {
+    if (baejsn_Reader::BAEJSN_ELEMENT_VALUE != d_reader.tokenType()) {
         d_logStream << "Error reading enumeration value\n";
         return -1;                                                    // RETURN
     }
@@ -361,8 +404,8 @@ int baejsn_Decoder::decodeImp(TYPE *value, bdeat_TypeCategory::Enumeration)
     int rc = d_reader.value(&dataValue);
     if (rc
      || dataValue.length() <= BAEJSN_MIN_ENUM_STRING_LENGTH
-     || '"' != dataValue[0]
-     || '"' != dataValue[dataValue.length() - 1]) {
+     || '"'                != dataValue[0]
+     || '"'                != dataValue[dataValue.length() - 1]) {
         d_logStream << "Error reading enumeration value\n";
         return -1;                                                    // RETURN
     }
@@ -382,7 +425,7 @@ int baejsn_Decoder::decodeImp(TYPE *value, bdeat_TypeCategory::Enumeration)
 template <typename TYPE>
 int baejsn_Decoder::decodeImp(TYPE *value, bdeat_TypeCategory::CustomizedType)
 {
-    if (baejsn_Reader::BAEJSN_VALUE != d_reader.tokenType()) {
+    if (baejsn_Reader::BAEJSN_ELEMENT_VALUE != d_reader.tokenType()) {
         d_logStream << "Error reading customized type value\n";
         return -1;                                                    // RETURN
     }
@@ -415,7 +458,7 @@ int baejsn_Decoder::decodeImp(TYPE *value, bdeat_TypeCategory::CustomizedType)
 template <typename TYPE>
 int baejsn_Decoder::decodeImp(TYPE *value, bdeat_TypeCategory::Simple)
 {
-    if (baejsn_Reader::BAEJSN_VALUE != d_reader.tokenType()) {
+    if (baejsn_Reader::BAEJSN_ELEMENT_VALUE != d_reader.tokenType()) {
         d_logStream << "Error reading simple value\n";
         return -1;                                                    // RETURN
     }
@@ -452,10 +495,11 @@ int baejsn_Decoder::decodeImp(TYPE *value, bdeat_TypeCategory::Array)
     }
 
     int i = 0;
-    while (true) {
+    while (baejsn_Reader::BAEJSN_END_ARRAY != d_reader.tokenType()) {
         // TBD: What about vector<vector<TYPE> > ?
-        if (baejsn_Reader::BAEJSN_VALUE        == d_reader.tokenType()
-         || baejsn_Reader::BAEJSN_START_OBJECT == d_reader.tokenType()) {
+
+        if (baejsn_Reader::BAEJSN_ELEMENT_VALUE == d_reader.tokenType()
+         || baejsn_Reader::BAEJSN_START_OBJECT  == d_reader.tokenType()) {
 
             ++i;
             bdeat_ArrayFunctions::resize(value, i);
@@ -464,32 +508,16 @@ int baejsn_Decoder::decodeImp(TYPE *value, bdeat_TypeCategory::Array)
             if (0 != bdeat_ArrayFunctions::manipulateElement(value,
                                                              visitor,
                                                              i - 1)) {
-                d_logStream << "Could not add array element '" << i - 1
-                            << "\'\n";
+                d_logStream << "Error adding element '" << i - 1 << "'\n";
                 return -1;                                            // RETURN
             }
 
             rc = d_reader.advanceToNextToken();
             if (rc) {
+                d_logStream << "Error reading token after element " << i - 1
+                            << " value\n";
                 return -1;                                            // RETURN
             }
-
-            if (baejsn_Reader::BAEJSN_COMMA == d_reader.tokenType()) {
-                rc = d_reader.advanceToNextToken();
-                if (rc) {
-                    return -1;                                        // RETURN
-                }
-                if (baejsn_Reader::BAEJSN_END_ARRAY == d_reader.tokenType()) {
-                    d_logStream << "Could not decode vector, missing end ]\n";
-                    return -1;                                        // RETURN
-                }
-            }
-            else {
-                break;
-            }
-        }
-        else {
-            break;
         }
     }
 
@@ -506,7 +534,7 @@ int baejsn_Decoder::decodeImp(TYPE *value, bdeat_TypeCategory::NullableValue)
 {
     enum { BAEJSN_NULL_VALUE_LENGTH = 4 };
 
-    if (baejsn_Reader::BAEJSN_VALUE == d_reader.tokenType()) {
+    if (baejsn_Reader::BAEJSN_ELEMENT_VALUE == d_reader.tokenType()) {
         bslstl::StringRef dataValue;
         int rc = d_reader.value(&dataValue);
         if (rc) {
@@ -514,7 +542,7 @@ int baejsn_Decoder::decodeImp(TYPE *value, bdeat_TypeCategory::NullableValue)
         }
 
         if (BAEJSN_NULL_VALUE_LENGTH == dataValue.length()
-            && 0 == bsl::strcmp("null", dataValue.data())) {
+         && 0 == bsl::strcmp("null", dataValue.data())) {
             return 0;                                                 // RETURN
         }
     }
@@ -540,6 +568,19 @@ baejsn_Decoder::baejsn_Decoder(bslma_Allocator *basicAllocator)
 : d_logStream(basicAllocator)
 , d_reader(basicAllocator)
 , d_elementName(basicAllocator)
+, d_decoderOptions_p(0)
+, d_currentDepth(0)
+{
+}
+
+inline
+baejsn_Decoder::baejsn_Decoder(const baejsn_DecoderOptions *decoderOptions,
+                               bslma_Allocator             *basicAllocator)
+: d_logStream(basicAllocator)
+, d_reader(basicAllocator)
+, d_elementName(basicAllocator)
+, d_decoderOptions_p(decoderOptions)
+, d_currentDepth(0)
 {
 }
 

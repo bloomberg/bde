@@ -162,74 +162,73 @@ int baejsn_Reader::advanceToNextToken()
             return -1;                                                // RETURN
         }
 
-//     bsl::cout << d_stringBuffer[d_cursor] << bsl::endl;
+        bsl::cout << d_stringBuffer[d_cursor] << bsl::endl;
 
         switch (d_stringBuffer[d_cursor]) {
           case '[': {
-            if (BAEJSN_COMMA != d_tokenType
-             && BAEJSN_NAME  != d_tokenType
-             && BAEJSN_VALUE != d_tokenType) {
+            if (BAEJSN_ELEMENT_NAME  != d_tokenType
+             && BAEJSN_ELEMENT_VALUE != d_tokenType) {
                 return -1;                                            // RETURN
             }
 
             d_tokenType = BAEJSN_START_ARRAY;
-            d_context   = BAEJSN_ARRAY;
+            d_context   = BAEJSN_ARRAY_CONTEXT;
             ++d_cursor;
           } break;
 
           case ']': {
-            if (BAEJSN_VALUE       != d_tokenType
-             && BAEJSN_START_ARRAY != d_tokenType
-             && BAEJSN_END_OBJECT  != d_tokenType) {
+            if (BAEJSN_ELEMENT_VALUE != d_tokenType
+             && BAEJSN_START_ARRAY   != d_tokenType
+             && BAEJSN_END_OBJECT    != d_tokenType) {
                 return -1;                                            // RETURN
             }
 
             d_tokenType = BAEJSN_END_ARRAY;
-            d_context   = BAEJSN_OBJECT;
+            d_context   = BAEJSN_OBJECT_CONTEXT;
             ++d_cursor;
           } break;
 
           case '{': {
-            if (BAEJSN_VALUE       != d_tokenType
-             && BAEJSN_NAME        != d_tokenType
-             && BAEJSN_COMMA       != d_tokenType
-             && BAEJSN_START_ARRAY != d_tokenType
-             && BAEJSN_BEGIN       != d_tokenType) {
+            if (BAEJSN_ELEMENT_VALUE != d_tokenType
+             && BAEJSN_ELEMENT_NAME  != d_tokenType
+             && BAEJSN_START_ARRAY   != d_tokenType
+             && BAEJSN_END_OBJECT    != d_tokenType
+             && BAEJSN_ERROR         != d_tokenType) {
                 return -1;                                            // RETURN
             }
 
             d_tokenType = BAEJSN_START_OBJECT;
-            d_context   = BAEJSN_OBJECT;
+            d_context   = BAEJSN_OBJECT_CONTEXT;
             ++d_cursor;
           } break;
 
           case '}': {
-            if (BAEJSN_VALUE        != d_tokenType
-             && BAEJSN_START_OBJECT != d_tokenType
-             && BAEJSN_END_OBJECT   != d_tokenType
-             && BAEJSN_END_ARRAY    != d_tokenType) {
+            if (BAEJSN_ELEMENT_VALUE != d_tokenType
+             && BAEJSN_START_OBJECT  != d_tokenType
+             && BAEJSN_END_OBJECT    != d_tokenType
+             && BAEJSN_END_ARRAY     != d_tokenType) {
                 return -1;                                            // RETURN
             }
 
             d_tokenType = BAEJSN_END_OBJECT;
-            d_context   = BAEJSN_OBJECT;
+            d_context   = BAEJSN_OBJECT_CONTEXT;
             ++d_cursor;
           } break;
 
           case ',': {
-            if (BAEJSN_VALUE      != d_tokenType
-             && BAEJSN_END_OBJECT != d_tokenType
-             && BAEJSN_END_ARRAY  != d_tokenType) {
+            if (BAEJSN_ELEMENT_VALUE != d_tokenType
+             && BAEJSN_END_OBJECT    != d_tokenType
+             && BAEJSN_END_ARRAY     != d_tokenType) {
                 return -1;                                            // RETURN
             }
 
-            d_tokenType = BAEJSN_COMMA;
             ++d_cursor;
+            continueFlag = true;
           } break;
 
           case ':': {
-            if (BAEJSN_NAME != d_tokenType) {
-                return -1;                                          // RETURN
+            if (BAEJSN_ELEMENT_NAME != d_tokenType) {
+                return -1;                                            // RETURN
             }
 
             ++d_cursor;
@@ -238,40 +237,34 @@ int baejsn_Reader::advanceToNextToken()
 
           case '"': {
 
-              // Here are the scenarios for a ""':
-              // FOLLOWING TOKEN                    RESULT TOKEN
-              //
-              // BAEJSN_NAME         (':')          BAEJSN_VALUE
-              // BAEJSN_START_OBJECT ('{')          BAEJSN_NAME
-              // BAEJSN_START_ARRAY  ('[')          BAEJSN_VALUE
-              // BAEJSN_COMMA        (',')          BAEJSN_VALUE/NAME
+            // Here are the scenarios for a '"':
+            //
+            // PREVIOUS TOKEN          CONTEXT           RESULT TOKEN
+            // --------------          -------           ------------
+            // START_OBJECT  ('{')                       ELEMENT_NAME
+            // END_OBJECT    ('}')                       ELEMENT_NAME
+            // START_ARRAY   ('[')                       ELEMENT_VALUE
+            // END_ARRAY     (']')                       ELEMENT_VALUE
+            // ELEMENT_NAME  (':')                       ELEMENT_VALUE
+            // ELEMENT_VALUE (   )     OBJECT_CONTEXT    ELEMENT_NAME
+            // ELEMENT_VALUE (   )     ARRAY_CONTEXT     ELEMENT_VALUE
 
-            switch (d_tokenType) {
-              case BAEJSN_START_OBJECT: {
-                d_tokenType = BAEJSN_NAME;
+            if (BAEJSN_START_OBJECT   == d_tokenType
+             || BAEJSN_END_OBJECT     == d_tokenType
+             || BAEJSN_END_ARRAY      == d_tokenType
+             || (BAEJSN_ELEMENT_VALUE == d_tokenType
+                                      && BAEJSN_OBJECT_CONTEXT == d_context)) {
+                d_tokenType = BAEJSN_ELEMENT_NAME;
                 ++d_cursor;
-              } break;
-
-              case BAEJSN_START_ARRAY:                          // FALL THROUGH
-              case BAEJSN_NAME: {
-                d_tokenType = BAEJSN_VALUE;
-              } break;
-
-              case BAEJSN_COMMA: {
-                if (BAEJSN_OBJECT == d_context) {
-                    d_tokenType = BAEJSN_NAME;
-                    ++d_cursor;
-                }
-                else {
-                    BSLS_ASSERT(BAEJSN_ARRAY == d_context);
-
-                    d_tokenType = BAEJSN_VALUE;
-                }
-              } break;
-
-              default: {
+            }
+            else if (BAEJSN_START_ARRAY    == d_tokenType
+                  || BAEJSN_ELEMENT_NAME   == d_tokenType
+                  || (BAEJSN_ELEMENT_VALUE == d_tokenType
+                                       && BAEJSN_ARRAY_CONTEXT == d_context)) {
+                d_tokenType = BAEJSN_ELEMENT_VALUE;
+            }
+            else {
                 return -1;                                            // RETURN
-              } break;
             }
 
             d_valueBegin = 0;
@@ -281,7 +274,7 @@ int baejsn_Reader::advanceToNextToken()
                 return -1;                                            // RETURN
             }
 
-            if (BAEJSN_NAME == d_tokenType) {
+            if (BAEJSN_ELEMENT_NAME == d_tokenType) {
                 d_cursor = d_valueEnd + 1;
             }
             else {
@@ -293,13 +286,13 @@ int baejsn_Reader::advanceToNextToken()
           } break;
 
           default: {
-            if (BAEJSN_START_ARRAY != d_tokenType
-             && BAEJSN_NAME        != d_tokenType
-             && BAEJSN_COMMA       != d_tokenType) {
+            if (BAEJSN_START_ARRAY   != d_tokenType 
+             && BAEJSN_ELEMENT_NAME  != d_tokenType 
+             && BAEJSN_ELEMENT_VALUE != d_tokenType) {
                 return -1;                                            // RETURN
             }
 
-            d_tokenType = BAEJSN_VALUE;
+            d_tokenType = BAEJSN_ELEMENT_VALUE;
 
             d_valueBegin = 0;
             d_valueEnd   = 0;
@@ -318,11 +311,12 @@ int baejsn_Reader::advanceToNextToken()
 // ACCESSORS
 int baejsn_Reader::value(bslstl::StringRef *data)
 {
-    if ((BAEJSN_NAME == d_tokenType || BAEJSN_VALUE == d_tokenType)
+    if ((BAEJSN_ELEMENT_NAME == d_tokenType
+                                        || BAEJSN_ELEMENT_VALUE == d_tokenType)
      && d_valueBegin != d_valueEnd) {
         data->assign(&d_stringBuffer[d_valueBegin],
                      &d_stringBuffer[d_valueEnd]);
-//         bsl::cout << *data  << bsl::endl;
+        bsl::cout << *data  << bsl::endl;
         return 0;                                                     // RETURN
     }
     return -1;

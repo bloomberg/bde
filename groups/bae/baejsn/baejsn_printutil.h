@@ -162,25 +162,25 @@ class baejsn_PrintUtil {
         // result to the specified 'stream'.
 
   public:
-    static int printValue(bsl::ostream& stream, bool value);
-    static int printValue(bsl::ostream& stream, short value);
-    static int printValue(bsl::ostream& stream, int value);
-    static int printValue(bsl::ostream& stream, bsls::Types::Int64 value);
-    static int printValue(bsl::ostream& stream, unsigned char value);
-    static int printValue(bsl::ostream& stream, unsigned short value);
-    static int printValue(bsl::ostream& stream, unsigned int value);
-    static int printValue(bsl::ostream& stream, bsls::Types::Uint64 value);
-    static int printValue(bsl::ostream& stream, float value);
-    static int printValue(bsl::ostream& stream, double value);
-    static int printValue(bsl::ostream& stream, const bsl::string & value);
-    static int printValue(bsl::ostream& stream, const char *value);
-    static int printValue(bsl::ostream& stream, char value);
-    static int printValue(bsl::ostream& stream, const bdet_Time& value);
-    static int printValue(bsl::ostream& stream, const bdet_Date& value);
-    static int printValue(bsl::ostream& stream, const bdet_Datetime& value);
-    static int printValue(bsl::ostream& stream, const bdet_TimeTz& value);
-    static int printValue(bsl::ostream& stream, const bdet_DateTz& value);
-    static int printValue(bsl::ostream& stream, const bdet_DatetimeTz& value);
+    static int printValue(bsl::ostream& stream, bool                    value);
+    static int printValue(bsl::ostream& stream, short                   value);
+    static int printValue(bsl::ostream& stream, int                     value);
+    static int printValue(bsl::ostream& stream, bsls::Types::Int64      value);
+    static int printValue(bsl::ostream& stream, unsigned char           value);
+    static int printValue(bsl::ostream& stream, unsigned short          value);
+    static int printValue(bsl::ostream& stream, unsigned int            value);
+    static int printValue(bsl::ostream& stream, bsls::Types::Uint64     value);
+    static int printValue(bsl::ostream& stream, float                   value);
+    static int printValue(bsl::ostream& stream, double                  value);
+    static int printValue(bsl::ostream& stream, const bsl::string&      value);
+    static int printValue(bsl::ostream& stream, const char             *value);
+    static int printValue(bsl::ostream& stream, char                    value);
+    static int printValue(bsl::ostream& stream, const bdet_Time&        value);
+    static int printValue(bsl::ostream& stream, const bdet_Date&        value);
+    static int printValue(bsl::ostream& stream, const bdet_Datetime&    value);
+    static int printValue(bsl::ostream& stream, const bdet_TimeTz&      value);
+    static int printValue(bsl::ostream& stream, const bdet_DateTz&      value);
+    static int printValue(bsl::ostream& stream, const bdet_DatetimeTz&  value);
         // Encode the specified 'value' into JSON format and output the result
         // to the specified 'stream'.
 };

@@ -3912,10 +3912,9 @@ int main(int argc, char *argv[])
                                               jsonText.length());
                 const int rc = jsonDecoder.decode(&isb, &value);
 
-                ASSERT(!rc);
                 if (rc) {
                     if (veryVerbose) {
-                        P(jsonDecoder.loggedMessages());
+                        P(LINE) P(jsonDecoder.loggedMessages());
                     }
                 }
                 else {
@@ -3951,7 +3950,6 @@ int main(int argc, char *argv[])
                 P(ti) P(LINE) P(jsonText) P(EXP)
             }
 
-            if (2055 == LINE) {
             baea::FeatureTestMessage value;
 
             baejsn_Decoder decoder;
@@ -3963,7 +3961,6 @@ int main(int argc, char *argv[])
                 ASSERTV(LINE, isb.length(), 0 == isb.length());
                 ASSERTV(LINE, decoder.loggedMessages(),
                         EXP, value, EXP == value);
-            }
             }
         }
       } break;

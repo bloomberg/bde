@@ -1185,11 +1185,11 @@ static const char* JSON_TEST_MESSAGES[] = {
 ":255,\"element5\":[],\"element6\":\"custom\",\"element7\":999,\"element8\":["
 "255,255],\"element9\":[],\"element10\":[255,255],\"element11\":[]}},\"elemen"
 "t2\":[{\"selection3\":{\"element1\":[],\"element2\":[],\"element8\":true,\"e"
-"lement9\":\"\",\"element10\":1.5,\"element11\":\"/wAB\",\"element12\":2,\""
+"lement9\":\"\",\"element10\":1.5,\"element11\":\"\\/wAB\",\"element12\":2,\""
 "element13\":\"LONDON\",\"element14\":[],\"element15\":[],\"element16\":[],\""
 "element17\":[],\"element18\":[],\"element19\":[]}},{\"selection3\":{\"elemen"
 "t1\":[],\"element2\":[],\"element8\":true,\"element9\":\"\",\"element10\":1."
-"5,\"element11\":\"/wAB\",\"element12\":2,\"element13\":\"LONDON\",\"elemen"
+"5,\"element11\":\"\\/wAB\",\"element12\":2,\"element13\":\"LONDON\",\"elemen"
 "t14\":[],\"element15\":[],\"element16\":[],\"element17\":[],\"element18\":[]"
 ",\"element19\":[]}}],\"element3\":{\"selection2\":\"arbitrary string value\""
 "},\"element4\":[{\"selection1\":{\"element1\":255,\"element4\":255,\"element"
@@ -1208,11 +1208,11 @@ static const char* JSON_TEST_MESSAGES[] = {
 "lement5\":{\"element1\":{\"element1\":[\"LONDON\",\"LONDON\"],\"element2\":["
 "\"arbitrary string value\",\"arbitrary string value\"],\"element3\":true,\"e"
 "lement4\":\"arbitrary string value\",\"element6\":[\"LONDON\",\"LONDON\"]},"
-"\"element2\":[true,true],\"element3\":[1.5,1.5],\"element4\":[\"/wAB\",\""
-"/wAB\"],\"element5\":[2,2],\"element6\":[\"2012-08-18T13:25:00.000+00:00\","
+"\"element2\":[true,true],\"element3\":[1.5,1.5],\"element4\":[\"\\/wAB\",\""
+"\\/wAB\"],\"element5\":[2,2],\"element6\":[\"2012-08-18T13:25:00.000+00:00\","
 "\"2012-08-18T13:25:00.000+00:00\"],\"element7\":[]},\"element6\":[\"LONDON\","
 "\"LONDON\"]},\"element2\":[true,true],\"element3\":[1.5,1.5],\"element4\":["
-"\"/wAB\",\"/wAB\"],\"element5\":[2,2],\"element6\":[\"2012-08-18T13:25:00"
+"\"\\/wAB\",\"\\/wAB\"],\"element5\":[2,2],\"element6\":[\"2012-08-18T13:25:00"
 ".000+00:00\",\"2012-08-18T13:25:00.000+00:00\"],\"element7\":[]},\"element6"
 "\":[\"LONDON\",\"LONDON\"]},{\"element1\":[\"LONDON\",\"LONDON\"],\"element2"
 "\":[\"arbitrary string value\",\"arbitrary string value\"],\"element3\":true,"
@@ -1222,18 +1222,18 @@ static const char* JSON_TEST_MESSAGES[] = {
 "e\",\"element5\":{\"element1\":{\"element1\":[\"LONDON\",\"LONDON\"],\"eleme"
 "nt2\":[\"arbitrary string value\",\"arbitrary string value\"],\"element3\":t"
 "rue,\"element4\":\"arbitrary string value\",\"element6\":[\"LONDON\",\"LONDO"
-"N\"]},\"element2\":[true,true],\"element3\":[1.5,1.5],\"element4\":[\"/wAB"
-"\",\"/wAB\"],\"element5\":[2,2],\"element6\":[\"2012-08-18T13:25:00.000+00"
+"N\"]},\"element2\":[true,true],\"element3\":[1.5,1.5],\"element4\":[\"\\/wAB"
+"\",\"\\/wAB\"],\"element5\":[2,2],\"element6\":[\"2012-08-18T13:25:00.000+00"
 ":00\",\"2012-08-18T13:25:00.000+00:00\"],\"element7\":[]},\"element6\":[\"LO"
 "NDON\",\"LONDON\"]},\"element2\":[true,true],\"element3\":[1.5,1.5],\"elemen"
-"t4\":[\"/wAB\",\"/wAB\"],\"element5\":[2,2],\"element6\":[\"2012-08-18T1"
+"t4\":[\"\\/wAB\",\"\\/wAB\"],\"element5\":[2,2],\"element6\":[\"2012-08-18T1"
 "3:25:00.000+00:00\",\"2012-08-18T13:25:00.000+00:00\"],\"element7\":[]},\"el"
 "ement6\":[\"LONDON\",\"LONDON\"]}],\"element2\":[{\"selection2\":1.5},{\"sel"
-"ection2\":1.5}],\"element3\":\"/wAB\",\"element4\":2,\"element5\":\"2012-0"
+"ection2\":1.5}],\"element3\":\"\\/wAB\",\"element4\":2,\"element5\":\"2012-0"
 "8-18T13:25:00.000+00:00\",\"element6\":\"custom\",\"element7\":\"LONDON\",\""
 "element8\":true,\"element9\":\"arbitrary string value\",\"element10\":1.5,\""
-"element11\":\"/wAB\",\"element12\":2,\"element13\":\"LONDON\",\"element14"
-"\":[true,true],\"element15\":[1.5,1.5],\"element16\":[\"/wAB\",\"/wAB\"],"
+"element11\":\"\\/wAB\",\"element12\":2,\"element13\":\"LONDON\",\"element14"
+"\":[true,true],\"element15\":[1.5,1.5],\"element16\":[\"\\/wAB\",\"\\/wAB\"],"
 "\"element17\":[2,2],\"element18\":[\"2012-08-18T13:25:00.000+00:00\",\"2012-"
 "08-18T13:25:00.000+00:00\"],\"element19\":[\"custom\",\"custom\"]}},{\"selec"
 "tion3\":{\"element1\":[{\"element1\":[\"LONDON\",\"LONDON\"],\"element2\":["
@@ -1244,11 +1244,11 @@ static const char* JSON_TEST_MESSAGES[] = {
 "\"element5\":{\"element1\":{\"element1\":[\"LONDON\",\"LONDON\"],\"element2"
 "\":[\"arbitrary string value\",\"arbitrary string value\"],\"element3\":true,"
 "\"element4\":\"arbitrary string value\",\"element6\":[\"LONDON\",\"LONDON\"]"
-"},\"element2\":[true,true],\"element3\":[1.5,1.5],\"element4\":[\"/wAB\","
-"\"/wAB\"],\"element5\":[2,2],\"element6\":[\"2012-08-18T13:25:00.000+00:00"
+"},\"element2\":[true,true],\"element3\":[1.5,1.5],\"element4\":[\"\\/wAB\","
+"\"\\/wAB\"],\"element5\":[2,2],\"element6\":[\"2012-08-18T13:25:00.000+00:00"
 "\",\"2012-08-18T13:25:00.000+00:00\"],\"element7\":[]},\"element6\":[\"LONDON"
 "\",\"LONDON\"]},\"element2\":[true,true],\"element3\":[1.5,1.5],\"element4\""
-":[\"/wAB\",\"/wAB\"],\"element5\":[2,2],\"element6\":[\"2012-08-18T13:25"
+":[\"\\/wAB\",\"\\/wAB\"],\"element5\":[2,2],\"element6\":[\"2012-08-18T13:25"
 ":00.000+00:00\",\"2012-08-18T13:25:00.000+00:00\"],\"element7\":[]},\"elemen"
 "t6\":[\"LONDON\",\"LONDON\"]},{\"element1\":[\"LONDON\",\"LONDON\"],\"elemen"
 "t2\":[\"arbitrary string value\",\"arbitrary string value\"],\"element3\":tr"
@@ -1259,17 +1259,17 @@ static const char* JSON_TEST_MESSAGES[] = {
 "ement2\":[\"arbitrary string value\",\"arbitrary string value\"],\"element3"
 "\":true,\"element4\":\"arbitrary string value\",\"element6\":[\"LONDON\",\"LO"
 "NDON\"]},\"element2\":[true,true],\"element3\":[1.5,1.5],\"element4\":[\"\\/"
-"wAB\",\"/wAB\"],\"element5\":[2,2],\"element6\":[\"2012-08-18T13:25:00.000"
+"wAB\",\"\\/wAB\"],\"element5\":[2,2],\"element6\":[\"2012-08-18T13:25:00.000"
 "+00:00\",\"2012-08-18T13:25:00.000+00:00\"],\"element7\":[]},\"element6\":["
 "\"LONDON\",\"LONDON\"]},\"element2\":[true,true],\"element3\":[1.5,1.5],\"ele"
-"ment4\":[\"/wAB\",\"/wAB\"],\"element5\":[2,2],\"element6\":[\"2012-08-1"
+"ment4\":[\"\\/wAB\",\"\\/wAB\"],\"element5\":[2,2],\"element6\":[\"2012-08-1"
 "8T13:25:00.000+00:00\",\"2012-08-18T13:25:00.000+00:00\"],\"element7\":[]},"
 "\"element6\":[\"LONDON\",\"LONDON\"]}],\"element2\":[{\"selection2\":1.5},{\""
-"selection2\":1.5}],\"element3\":\"/wAB\",\"element4\":2,\"element5\":\"201"
+"selection2\":1.5}],\"element3\":\"\\/wAB\",\"element4\":2,\"element5\":\"201"
 "2-08-18T13:25:00.000+00:00\",\"element6\":\"custom\",\"element7\":\"LONDON\""
 ",\"element8\":true,\"element9\":\"arbitrary string value\",\"element10\":1.5"
-",\"element11\":\"/wAB\",\"element12\":2,\"element13\":\"LONDON\",\"element"
-"14\":[true,true],\"element15\":[1.5,1.5],\"element16\":[\"/wAB\",\"/wAB"
+",\"element11\":\"\\/wAB\",\"element12\":2,\"element13\":\"LONDON\",\"element"
+"14\":[true,true],\"element15\":[1.5,1.5],\"element16\":[\"\\/wAB\",\"\\/wAB"
 "\"],\"element17\":[2,2],\"element18\":[\"2012-08-18T13:25:00.000+00:00\",\"20"
 "12-08-18T13:25:00.000+00:00\"],\"element19\":[\"custom\",\"custom\"]}}],\"el"
 "ement3\":{\"selection3\":{\"selection1\":2}},\"element4\":[{\"selection2\":2"
@@ -1290,14 +1290,14 @@ static const char* JSON_TEST_MESSAGES[] = {
 "t7\":[]},\"element6\":[]},\"element2\":[],\"element3\":[],\"element4\":[],\""
 "element5\":[],\"element6\":[],\"element7\":[]},\"element6\":[]}],\"element2"
 "\":[{\"selection3\":{\"element1\":[],\"element2\":[],\"element8\":true,\"elem"
-"ent9\":\"\",\"element10\":1.5,\"element11\":\"/wAB\",\"element12\":2,\"ele"
+"ent9\":\"\",\"element10\":1.5,\"element11\":\"\\/wAB\",\"element12\":2,\"ele"
 "ment13\":\"LONDON\",\"element14\":[],\"element15\":[],\"element16\":[],\"ele"
 "ment17\":[],\"element18\":[],\"element19\":[]}},{\"selection3\":{\"element1"
 "\":[],\"element2\":[],\"element8\":true,\"element9\":\"\",\"element10\":1.5,"
-"\"element11\":\"/wAB\",\"element12\":2,\"element13\":\"LONDON\",\"element14"
+"\"element11\":\"\\/wAB\",\"element12\":2,\"element13\":\"LONDON\",\"element14"
 "\":[],\"element15\":[],\"element16\":[],\"element17\":[],\"element18\":[],\""
 "element19\":[]}}],\"element8\":true,\"element9\":\"\",\"element10\":1.5,\"el"
-"ement11\":\"/wAB\",\"element12\":2,\"element13\":\"LONDON\",\"element14\":"
+"ement11\":\"\\/wAB\",\"element12\":2,\"element13\":\"LONDON\",\"element14\":"
 "[],\"element15\":[],\"element16\":[],\"element17\":[],\"element18\":[],\"ele"
 "ment19\":[]}},{\"selection3\":{\"element1\":[{\"element1\":[],\"element2\":["
 "\"\",\"\"],\"element4\":\"\",\"element5\":{\"element1\":{\"element1\":[],\"e"
@@ -1317,10 +1317,10 @@ static const char* JSON_TEST_MESSAGES[] = {
 "wAB\",\"element12\":2,\"element13\":\"LONDON\",\"element14\":[],\"element15"
 "\":[],\"element16\":[],\"element17\":[],\"element18\":[],\"element19\":[]}},{"
 "\"selection3\":{\"element1\":[],\"element2\":[],\"element8\":true,\"element9"
-"\":\"\",\"element10\":1.5,\"element11\":\"/wAB\",\"element12\":2,\"element"
+"\":\"\",\"element10\":1.5,\"element11\":\"\\/wAB\",\"element12\":2,\"element"
 "13\":\"LONDON\",\"element14\":[],\"element15\":[],\"element16\":[],\"element"
 "17\":[],\"element18\":[],\"element19\":[]}}],\"element8\":true,\"element9\":"
-"\"\",\"element10\":1.5,\"element11\":\"/wAB\",\"element12\":2,\"element13"
+"\"\",\"element10\":1.5,\"element11\":\"\\/wAB\",\"element12\":2,\"element13"
 "\":\"LONDON\",\"element14\":[],\"element15\":[],\"element16\":[],\"element17"
 "\":[],\"element18\":[],\"element19\":[]}}],\"element3\":{\"selection3\":{\"se"
 "lection2\":1.5}},\"element4\":[{\"selection2\":0},{\"selection2\":0}]}}",
@@ -1331,21 +1331,21 @@ static const char* JSON_TEST_MESSAGES[] = {
 "\"LONDON\"],\"element2\":[],\"element3\":true,\"element5\":{\"element1\":{\""
 "element1\":[\"LONDON\",\"LONDON\"],\"element2\":[],\"element3\":true,\"eleme"
 "nt6\":[\"LONDON\",\"LONDON\"]},\"element2\":[true,true],\"element3\":[1.5,1."
-"5],\"element4\":[\"/wAB\",\"/wAB\"],\"element5\":[2,2],\"element6\":[\"2"
+"5],\"element4\":[\"\\/wAB\",\"\\/wAB\"],\"element5\":[2,2],\"element6\":[\"2"
 "012-08-18T13:25:00.000+00:00\",\"2012-08-18T13:25:00.000+00:00\"],\"element7"
 "\":[]},\"element6\":[\"LONDON\",\"LONDON\"]},\"element2\":[true,true],\"elem"
-"ent3\":[1.5,1.5],\"element4\":[\"/wAB\",\"/wAB\"],\"element5\":[2,2],\"e"
+"ent3\":[1.5,1.5],\"element4\":[\"\\/wAB\",\"\\/wAB\"],\"element5\":[2,2],\"e"
 "lement6\":[\"2012-08-18T13:25:00.000+00:00\",\"2012-08-18T13:25:00.000+00:00"
 "\"],\"element7\":[]},\"element6\":[\"LONDON\",\"LONDON\"]},{\"element1\":[\""
 "LONDON\",\"LONDON\"],\"element2\":[],\"element3\":true,\"element5\":{\"eleme"
 "nt1\":{\"element1\":[\"LONDON\",\"LONDON\"],\"element2\":[],\"element3\":tru"
 "e,\"element5\":{\"element1\":{\"element1\":[\"LONDON\",\"LONDON\"],\"element"
 "2\":[],\"element3\":true,\"element6\":[\"LONDON\",\"LONDON\"]},\"element2\":"
-"[true,true],\"element3\":[1.5,1.5],\"element4\":[\"/wAB\",\"/wAB\"],\"el"
+"[true,true],\"element3\":[1.5,1.5],\"element4\":[\"\\/wAB\",\"\\/wAB\"],\"el"
 "ement5\":[2,2],\"element6\":[\"2012-08-18T13:25:00.000+00:00\",\"2012-08-18T"
 "13:25:00.000+00:00\"],\"element7\":[]},\"element6\":[\"LONDON\",\"LONDON\"]}"
-",\"element2\":[true,true],\"element3\":[1.5,1.5],\"element4\":[\"/wAB\",\""
-"/wAB\"],\"element5\":[2,2],\"element6\":[\"2012-08-18T13:25:00.000+00:00\""
+",\"element2\":[true,true],\"element3\":[1.5,1.5],\"element4\":[\"\\/wAB\",\""
+"\\/wAB\"],\"element5\":[2,2],\"element6\":[\"2012-08-18T13:25:00.000+00:00\""
 ",\"2012-08-18T13:25:00.000+00:00\"],\"element7\":[]},\"element6\":[\"LONDON"
 "\",\"LONDON\"]}],\"element2\":[{\"selection3\":{\"element1\":[{\"element1\":["
 "\"LONDON\",\"LONDON\"],\"element2\":[\"arbitrary string value\",\"arbitrary "
@@ -1356,10 +1356,10 @@ static const char* JSON_TEST_MESSAGES[] = {
 "\":[\"LONDON\",\"LONDON\"],\"element2\":[\"arbitrary string value\",\"arbitr"
 "ary string value\"],\"element3\":true,\"element4\":\"arbitrary string value"
 "\",\"element6\":[\"LONDON\",\"LONDON\"]},\"element2\":[true,true],\"element3"
-"\":[1.5,1.5],\"element4\":[\"/wAB\",\"/wAB\"],\"element5\":[2,2],\"elemen"
+"\":[1.5,1.5],\"element4\":[\"\\/wAB\",\"\\/wAB\"],\"element5\":[2,2],\"elemen"
 "t6\":[\"2012-08-18T13:25:00.000+00:00\",\"2012-08-18T13:25:00.000+00:00\"],"
 "\"element7\":[]},\"element6\":[\"LONDON\",\"LONDON\"]},\"element2\":[true,tru"
-"e],\"element3\":[1.5,1.5],\"element4\":[\"/wAB\",\"/wAB\"],\"element5\":"
+"e],\"element3\":[1.5,1.5],\"element4\":[\"\\/wAB\",\"\\/wAB\"],\"element5\":"
 "[2,2],\"element6\":[\"2012-08-18T13:25:00.000+00:00\",\"2012-08-18T13:25:00."
 "000+00:00\"],\"element7\":[]},\"element6\":[\"LONDON\",\"LONDON\"]},{\"eleme"
 "nt1\":[\"LONDON\",\"LONDON\"],\"element2\":[\"arbitrary string value\",\"arb"
@@ -1370,18 +1370,18 @@ static const char* JSON_TEST_MESSAGES[] = {
 "lement1\":[\"LONDON\",\"LONDON\"],\"element2\":[\"arbitrary string value\","
 "\"arbitrary string value\"],\"element3\":true,\"element4\":\"arbitrary string"
 " value\",\"element6\":[\"LONDON\",\"LONDON\"]},\"element2\":[true,true],\"el"
-"ement3\":[1.5,1.5],\"element4\":[\"/wAB\",\"/wAB\"],\"element5\":[2,2],"
+"ement3\":[1.5,1.5],\"element4\":[\"\\/wAB\",\"\\/wAB\"],\"element5\":[2,2],"
 "\"element6\":[\"2012-08-18T13:25:00.000+00:00\",\"2012-08-18T13:25:00.000+00:"
 "00\"],\"element7\":[]},\"element6\":[\"LONDON\",\"LONDON\"]},\"element2\":[t"
-"rue,true],\"element3\":[1.5,1.5],\"element4\":[\"/wAB\",\"/wAB\"],\"elem"
+"rue,true],\"element3\":[1.5,1.5],\"element4\":[\"\\/wAB\",\"\\/wAB\"],\"elem"
 "ent5\":[2,2],\"element6\":[\"2012-08-18T13:25:00.000+00:00\",\"2012-08-18T13"
 ":25:00.000+00:00\"],\"element7\":[]},\"element6\":[\"LONDON\",\"LONDON\"]}],"
 "\"element2\":[{\"selection2\":1.5},{\"selection2\":1.5}],\"element3\":\"\\/w"
 "AB\",\"element4\":2,\"element5\":\"2012-08-18T13:25:00.000+00:00\",\"element"
 "6\":\"custom\",\"element7\":\"LONDON\",\"element8\":true,\"element9\":\"arbi"
-"trary string value\",\"element10\":1.5,\"element11\":\"/wAB\",\"element12"
+"trary string value\",\"element10\":1.5,\"element11\":\"\\/wAB\",\"element12"
 "\":2,\"element13\":\"LONDON\",\"element14\":[true,true],\"element15\":[1.5,1."
-"5],\"element16\":[\"/wAB\",\"/wAB\"],\"element17\":[2,2],\"element18\":["
+"5],\"element16\":[\"\\/wAB\",\"\\/wAB\"],\"element17\":[2,2],\"element18\":["
 "\"2012-08-18T13:25:00.000+00:00\",\"2012-08-18T13:25:00.000+00:00\"],\"eleme"
 "nt19\":[\"custom\",\"custom\"]}},{\"selection3\":{\"element1\":[{\"element1"
 "\":[\"LONDON\",\"LONDON\"],\"element2\":[\"arbitrary string value\",\"arbitra"
@@ -1392,10 +1392,10 @@ static const char* JSON_TEST_MESSAGES[] = {
 "nt1\":[\"LONDON\",\"LONDON\"],\"element2\":[\"arbitrary string value\",\"arb"
 "itrary string value\"],\"element3\":true,\"element4\":\"arbitrary string val"
 "ue\",\"element6\":[\"LONDON\",\"LONDON\"]},\"element2\":[true,true],\"elemen"
-"t3\":[1.5,1.5],\"element4\":[\"/wAB\",\"/wAB\"],\"element5\":[2,2],\"ele"
+"t3\":[1.5,1.5],\"element4\":[\"\\/wAB\",\"\\/wAB\"],\"element5\":[2,2],\"ele"
 "ment6\":[\"2012-08-18T13:25:00.000+00:00\",\"2012-08-18T13:25:00.000+00:00\""
 "],\"element7\":[]},\"element6\":[\"LONDON\",\"LONDON\"]},\"element2\":[true,"
-"true],\"element3\":[1.5,1.5],\"element4\":[\"/wAB\",\"/wAB\"],\"element5"
+"true],\"element3\":[1.5,1.5],\"element4\":[\"\\/wAB\",\"\\/wAB\"],\"element5"
 "\":[2,2],\"element6\":[\"2012-08-18T13:25:00.000+00:00\",\"2012-08-18T13:25:"
 "00.000+00:00\"],\"element7\":[]},\"element6\":[\"LONDON\",\"LONDON\"]},{\"el"
 "ement1\":[\"LONDON\",\"LONDON\"],\"element2\":[\"arbitrary string value\",\""
@@ -1406,46 +1406,46 @@ static const char* JSON_TEST_MESSAGES[] = {
 "\"element1\":[\"LONDON\",\"LONDON\"],\"element2\":[\"arbitrary string value"
 "\",\"arbitrary string value\"],\"element3\":true,\"element4\":\"arbitrary str"
 "ing value\",\"element6\":[\"LONDON\",\"LONDON\"]},\"element2\":[true,true],"
-"\"element3\":[1.5,1.5],\"element4\":[\"/wAB\",\"/wAB\"],\"element5\":[2,2"
+"\"element3\":[1.5,1.5],\"element4\":[\"\\/wAB\",\"\\/wAB\"],\"element5\":[2,2"
 "],\"element6\":[\"2012-08-18T13:25:00.000+00:00\",\"2012-08-18T13:25:00.000+"
 "00:00\"],\"element7\":[]},\"element6\":[\"LONDON\",\"LONDON\"]},\"element2\""
-":[true,true],\"element3\":[1.5,1.5],\"element4\":[\"/wAB\",\"/wAB\"],\"e"
+":[true,true],\"element3\":[1.5,1.5],\"element4\":[\"\\/wAB\",\"\\/wAB\"],\"e"
 "lement5\":[2,2],\"element6\":[\"2012-08-18T13:25:00.000+00:00\",\"2012-08-18"
 "T13:25:00.000+00:00\"],\"element7\":[]},\"element6\":[\"LONDON\",\"LONDON\"]"
 "}],\"element2\":[{\"selection2\":1.5},{\"selection2\":1.5}],\"element3\":\""
-"/wAB\",\"element4\":2,\"element5\":\"2012-08-18T13:25:00.000+00:00\",\"elem"
+"\\/wAB\",\"element4\":2,\"element5\":\"2012-08-18T13:25:00.000+00:00\",\"elem"
 "ent6\":\"custom\",\"element7\":\"LONDON\",\"element8\":true,\"element9\":\"a"
-"rbitrary string value\",\"element10\":1.5,\"element11\":\"/wAB\",\"element"
+"rbitrary string value\",\"element10\":1.5,\"element11\":\"\\/wAB\",\"element"
 "12\":2,\"element13\":\"LONDON\",\"element14\":[true,true],\"element15\":[1.5"
-",1.5],\"element16\":[\"/wAB\",\"/wAB\"],\"element17\":[2,2],\"element18"
+",1.5],\"element16\":[\"\\/wAB\",\"\\/wAB\"],\"element17\":[2,2],\"element18"
 "\":[\"2012-08-18T13:25:00.000+00:00\",\"2012-08-18T13:25:00.000+00:00\"],\"el"
-"ement19\":[\"custom\",\"custom\"]}}],\"element3\":\"/wAB\",\"element4\":2,"
+"ement19\":[\"custom\",\"custom\"]}}],\"element3\":\"\\/wAB\",\"element4\":2,"
 "\"element5\":\"2012-08-18T13:25:00.000+00:00\",\"element6\":\"custom\",\"ele"
 "ment7\":\"LONDON\",\"element8\":true,\"element9\":\"arbitrary string value\""
-",\"element10\":1.5,\"element11\":\"/wAB\",\"element12\":2,\"element13\":\""
+",\"element10\":1.5,\"element11\":\"\\/wAB\",\"element12\":2,\"element13\":\""
 "LONDON\",\"element14\":[true,true],\"element15\":[1.5,1.5],\"element16\":[\""
-"/wAB\",\"/wAB\"],\"element17\":[2,2],\"element18\":[\"2012-08-18T13:25:0"
+"\\/wAB\",\"\\/wAB\"],\"element17\":[2,2],\"element18\":[\"2012-08-18T13:25:0"
 "0.000+00:00\",\"2012-08-18T13:25:00.000+00:00\"],\"element19\":[\"custom\","
 "\"custom\"]}},{\"selection3\":{\"element1\":[{\"element1\":[\"LONDON\",\"LOND"
 "ON\"],\"element2\":[],\"element3\":true,\"element5\":{\"element1\":{\"elemen"
 "t1\":[\"LONDON\",\"LONDON\"],\"element2\":[],\"element3\":true,\"element5\":"
 "{\"element1\":{\"element1\":[\"LONDON\",\"LONDON\"],\"element2\":[],\"elemen"
 "t3\":true,\"element6\":[\"LONDON\",\"LONDON\"]},\"element2\":[true,true],\"e"
-"lement3\":[1.5,1.5],\"element4\":[\"/wAB\",\"/wAB\"],\"element5\":[2,2],"
+"lement3\":[1.5,1.5],\"element4\":[\"\\/wAB\",\"\\/wAB\"],\"element5\":[2,2],"
 "\"element6\":[\"2012-08-18T13:25:00.000+00:00\",\"2012-08-18T13:25:00.000+00"
 ":00\"],\"element7\":[]},\"element6\":[\"LONDON\",\"LONDON\"]},\"element2\":["
-"true,true],\"element3\":[1.5,1.5],\"element4\":[\"/wAB\",\"/wAB\"],\"ele"
+"true,true],\"element3\":[1.5,1.5],\"element4\":[\"\\/wAB\",\"\\/wAB\"],\"ele"
 "ment5\":[2,2],\"element6\":[\"2012-08-18T13:25:00.000+00:00\",\"2012-08-18T1"
 "3:25:00.000+00:00\"],\"element7\":[]},\"element6\":[\"LONDON\",\"LONDON\"]},"
 "{\"element1\":[\"LONDON\",\"LONDON\"],\"element2\":[],\"element3\":true,\"el"
 "ement5\":{\"element1\":{\"element1\":[\"LONDON\",\"LONDON\"],\"element2\":[]"
 ",\"element3\":true,\"element5\":{\"element1\":{\"element1\":[\"LONDON\",\"LO"
 "NDON\"],\"element2\":[],\"element3\":true,\"element6\":[\"LONDON\",\"LONDON"
-"\"]},\"element2\":[true,true],\"element3\":[1.5,1.5],\"element4\":[\"/wAB\""
-",\"/wAB\"],\"element5\":[2,2],\"element6\":[\"2012-08-18T13:25:00.000+00:0"
+"\"]},\"element2\":[true,true],\"element3\":[1.5,1.5],\"element4\":[\"\\/wAB\""
+",\"\\/wAB\"],\"element5\":[2,2],\"element6\":[\"2012-08-18T13:25:00.000+00:0"
 "0\",\"2012-08-18T13:25:00.000+00:00\"],\"element7\":[]},\"element6\":[\"LOND"
 "ON\",\"LONDON\"]},\"element2\":[true,true],\"element3\":[1.5,1.5],\"element4"
-"\":[\"/wAB\",\"/wAB\"],\"element5\":[2,2],\"element6\":[\"2012-08-18T13:"
+"\":[\"\\/wAB\",\"\\/wAB\"],\"element5\":[2,2],\"element6\":[\"2012-08-18T13:"
 "25:00.000+00:00\",\"2012-08-18T13:25:00.000+00:00\"],\"element7\":[]},\"elem"
 "ent6\":[\"LONDON\",\"LONDON\"]}],\"element2\":[{\"selection3\":{\"element1\""
 ":[{\"element1\":[\"LONDON\",\"LONDON\"],\"element2\":[\"arbitrary string val"
@@ -1456,10 +1456,10 @@ static const char* JSON_TEST_MESSAGES[] = {
 "nt1\":{\"element1\":[\"LONDON\",\"LONDON\"],\"element2\":[\"arbitrary string"
 " value\",\"arbitrary string value\"],\"element3\":true,\"element4\":\"arbitr"
 "ary string value\",\"element6\":[\"LONDON\",\"LONDON\"]},\"element2\":[true,"
-"true],\"element3\":[1.5,1.5],\"element4\":[\"/wAB\",\"/wAB\"],\"element5"
+"true],\"element3\":[1.5,1.5],\"element4\":[\"\\/wAB\",\"\\/wAB\"],\"element5"
 "\":[2,2],\"element6\":[\"2012-08-18T13:25:00.000+00:00\",\"2012-08-18T13:25:"
 "00.000+00:00\"],\"element7\":[]},\"element6\":[\"LONDON\",\"LONDON\"]},\"ele"
-"ment2\":[true,true],\"element3\":[1.5,1.5],\"element4\":[\"/wAB\",\"/wAB"
+"ment2\":[true,true],\"element3\":[1.5,1.5],\"element4\":[\"\\/wAB\",\"\\/wAB"
 "\"],\"element5\":[2,2],\"element6\":[\"2012-08-18T13:25:00.000+00:00\",\"201"
 "2-08-18T13:25:00.000+00:00\"],\"element7\":[]},\"element6\":[\"LONDON\",\"LO"
 "NDON\"]},{\"element1\":[\"LONDON\",\"LONDON\"],\"element2\":[\"arbitrary str"
@@ -1470,18 +1470,18 @@ static const char* JSON_TEST_MESSAGES[] = {
 "\"element1\":{\"element1\":[\"LONDON\",\"LONDON\"],\"element2\":[\"arbitrary"
 " string value\",\"arbitrary string value\"],\"element3\":true,\"element4\":"
 "\"arbitrary string value\",\"element6\":[\"LONDON\",\"LONDON\"]},\"element2\""
-":[true,true],\"element3\":[1.5,1.5],\"element4\":[\"/wAB\",\"/wAB\"],\"e"
+":[true,true],\"element3\":[1.5,1.5],\"element4\":[\"\\/wAB\",\"\\/wAB\"],\"e"
 "lement5\":[2,2],\"element6\":[\"2012-08-18T13:25:00.000+00:00\",\"2012-08-18"
 "T13:25:00.000+00:00\"],\"element7\":[]},\"element6\":[\"LONDON\",\"LONDON\"]"
-"},\"element2\":[true,true],\"element3\":[1.5,1.5],\"element4\":[\"/wAB\","
-"\"/wAB\"],\"element5\":[2,2],\"element6\":[\"2012-08-18T13:25:00.000+00:00"
+"},\"element2\":[true,true],\"element3\":[1.5,1.5],\"element4\":[\"\\/wAB\","
+"\"\\/wAB\"],\"element5\":[2,2],\"element6\":[\"2012-08-18T13:25:00.000+00:00"
 "\",\"2012-08-18T13:25:00.000+00:00\"],\"element7\":[]},\"element6\":[\"LONDON"
 "\",\"LONDON\"]}],\"element2\":[{\"selection2\":1.5},{\"selection2\":1.5}],\""
-"element3\":\"/wAB\",\"element4\":2,\"element5\":\"2012-08-18T13:25:00.000+"
+"element3\":\"\\/wAB\",\"element4\":2,\"element5\":\"2012-08-18T13:25:00.000+"
 "00:00\",\"element6\":\"custom\",\"element7\":\"LONDON\",\"element8\":true,\""
 "element9\":\"arbitrary string value\",\"element10\":1.5,\"element11\":\"\\/w"
 "AB\",\"element12\":2,\"element13\":\"LONDON\",\"element14\":[true,true],\"el"
-"ement15\":[1.5,1.5],\"element16\":[\"/wAB\",\"/wAB\"],\"element17\":[2,2"
+"ement15\":[1.5,1.5],\"element16\":[\"\\/wAB\",\"\\/wAB\"],\"element17\":[2,2"
 "],\"element18\":[\"2012-08-18T13:25:00.000+00:00\",\"2012-08-18T13:25:00.000"
 "+00:00\"],\"element19\":[\"custom\",\"custom\"]}},{\"selection3\":{\"element"
 "1\":[{\"element1\":[\"LONDON\",\"LONDON\"],\"element2\":[\"arbitrary string "
@@ -1492,10 +1492,10 @@ static const char* JSON_TEST_MESSAGES[] = {
 "ement1\":{\"element1\":[\"LONDON\",\"LONDON\"],\"element2\":[\"arbitrary str"
 "ing value\",\"arbitrary string value\"],\"element3\":true,\"element4\":\"arb"
 "itrary string value\",\"element6\":[\"LONDON\",\"LONDON\"]},\"element2\":[tr"
-"ue,true],\"element3\":[1.5,1.5],\"element4\":[\"/wAB\",\"/wAB\"],\"eleme"
+"ue,true],\"element3\":[1.5,1.5],\"element4\":[\"\\/wAB\",\"\\/wAB\"],\"eleme"
 "nt5\":[2,2],\"element6\":[\"2012-08-18T13:25:00.000+00:00\",\"2012-08-18T13:"
 "25:00.000+00:00\"],\"element7\":[]},\"element6\":[\"LONDON\",\"LONDON\"]},\""
-"element2\":[true,true],\"element3\":[1.5,1.5],\"element4\":[\"/wAB\",\"\\/"
+"element2\":[true,true],\"element3\":[1.5,1.5],\"element4\":[\"\\/wAB\",\"\\/"
 "wAB\"],\"element5\":[2,2],\"element6\":[\"2012-08-18T13:25:00.000+00:00\",\""
 "2012-08-18T13:25:00.000+00:00\"],\"element7\":[]},\"element6\":[\"LONDON\","
 "\"LONDON\"]},{\"element1\":[\"LONDON\",\"LONDON\"],\"element2\":[\"arbitrary "
@@ -1506,29 +1506,29 @@ static const char* JSON_TEST_MESSAGES[] = {
 "\":{\"element1\":{\"element1\":[\"LONDON\",\"LONDON\"],\"element2\":[\"arbitr"
 "ary string value\",\"arbitrary string value\"],\"element3\":true,\"element4"
 "\":\"arbitrary string value\",\"element6\":[\"LONDON\",\"LONDON\"]},\"element"
-"2\":[true,true],\"element3\":[1.5,1.5],\"element4\":[\"/wAB\",\"/wAB\"],"
+"2\":[true,true],\"element3\":[1.5,1.5],\"element4\":[\"\\/wAB\",\"\\/wAB\"],"
 "\"element5\":[2,2],\"element6\":[\"2012-08-18T13:25:00.000+00:00\",\"2012-08"
 "-18T13:25:00.000+00:00\"],\"element7\":[]},\"element6\":[\"LONDON\",\"LONDON"
-"\"]},\"element2\":[true,true],\"element3\":[1.5,1.5],\"element4\":[\"/wAB"
-"\",\"/wAB\"],\"element5\":[2,2],\"element6\":[\"2012-08-18T13:25:00.000+00:"
+"\"]},\"element2\":[true,true],\"element3\":[1.5,1.5],\"element4\":[\"\\/wAB"
+"\",\"\\/wAB\"],\"element5\":[2,2],\"element6\":[\"2012-08-18T13:25:00.000+00:"
 "00\",\"2012-08-18T13:25:00.000+00:00\"],\"element7\":[]},\"element6\":[\"LON"
 "DON\",\"LONDON\"]}],\"element2\":[{\"selection2\":1.5},{\"selection2\":1.5}]"
-",\"element3\":\"/wAB\",\"element4\":2,\"element5\":\"2012-08-18T13:25:00.0"
+",\"element3\":\"\\/wAB\",\"element4\":2,\"element5\":\"2012-08-18T13:25:00.0"
 "00+00:00\",\"element6\":\"custom\",\"element7\":\"LONDON\",\"element8\":true"
 ",\"element9\":\"arbitrary string value\",\"element10\":1.5,\"element11\":\""
-"/wAB\",\"element12\":2,\"element13\":\"LONDON\",\"element14\":[true,true],"
-"\"element15\":[1.5,1.5],\"element16\":[\"/wAB\",\"/wAB\"],\"element17\":["
+"\\/wAB\",\"element12\":2,\"element13\":\"LONDON\",\"element14\":[true,true],"
+"\"element15\":[1.5,1.5],\"element16\":[\"\\/wAB\",\"\\/wAB\"],\"element17\":["
 "2,2],\"element18\":[\"2012-08-18T13:25:00.000+00:00\",\"2012-08-18T13:25:00."
-"000+00:00\"],\"element19\":[\"custom\",\"custom\"]}}],\"element3\":\"/wAB"
+"000+00:00\"],\"element19\":[\"custom\",\"custom\"]}}],\"element3\":\"\\/wAB"
 "\",\"element4\":2,\"element5\":\"2012-08-18T13:25:00.000+00:00\",\"element6\""
 ":\"custom\",\"element7\":\"LONDON\",\"element8\":true,\"element9\":\"arbitra"
-"ry string value\",\"element10\":1.5,\"element11\":\"/wAB\",\"element12\":2"
+"ry string value\",\"element10\":1.5,\"element11\":\"\\/wAB\",\"element12\":2"
 ",\"element13\":\"LONDON\",\"element14\":[true,true],\"element15\":[1.5,1.5],"
-"\"element16\":[\"/wAB\",\"/wAB\"],\"element17\":[2,2],\"element18\":[\"2"
+"\"element16\":[\"\\/wAB\",\"\\/wAB\"],\"element17\":[2,2],\"element18\":[\"2"
 "012-08-18T13:25:00.000+00:00\",\"2012-08-18T13:25:00.000+00:00\"],\"element1"
 "9\":[\"custom\",\"custom\"]}}],\"element3\":{\"selection3\":{\"selection3\":"
 "{\"element1\":[],\"element2\":[],\"element8\":true,\"element9\":\"\",\"eleme"
-"nt10\":1.5,\"element11\":\"/wAB\",\"element12\":2,\"element13\":\"LONDON\""
+"nt10\":1.5,\"element11\":\"\\/wAB\",\"element12\":2,\"element13\":\"LONDON\""
 ",\"element14\":[],\"element15\":[],\"element16\":[],\"element17\":[],\"eleme"
 "nt18\":[],\"element19\":[]}}},\"element4\":[{\"selection3\":\"custom\"},{\"s"
 "election3\":\"custom\"}]}}",
@@ -1544,10 +1544,10 @@ static const char* JSON_TEST_MESSAGES[] = {
 "DON\",\"LONDON\"],\"element2\":[\"arbitrary string value\",\"arbitrary strin"
 "g value\"],\"element3\":true,\"element4\":\"arbitrary string value\",\"eleme"
 "nt6\":[\"LONDON\",\"LONDON\"]},\"element2\":[true,true],\"element3\":[1.5,1."
-"5],\"element4\":[\"/wAB\",\"/wAB\"],\"element5\":[2,2],\"element6\":[\"2"
+"5],\"element4\":[\"\\/wAB\",\"\\/wAB\"],\"element5\":[2,2],\"element6\":[\"2"
 "012-08-18T13:25:00.000+00:00\",\"2012-08-18T13:25:00.000+00:00\"],\"element7"
 "\":[]},\"element6\":[\"LONDON\",\"LONDON\"]},\"element2\":[true,true],\"elem"
-"ent3\":[1.5,1.5],\"element4\":[\"/wAB\",\"/wAB\"],\"element5\":[2,2],\"e"
+"ent3\":[1.5,1.5],\"element4\":[\"\\/wAB\",\"\\/wAB\"],\"element5\":[2,2],\"e"
 "lement6\":[\"2012-08-18T13:25:00.000+00:00\",\"2012-08-18T13:25:00.000+00:00"
 "\"],\"element7\":[]},\"element6\":[\"LONDON\",\"LONDON\"]},{\"element1\":[\""
 "LONDON\",\"LONDON\"],\"element2\":[\"arbitrary string value\",\"arbitrary st"
@@ -1558,18 +1558,18 @@ static const char* JSON_TEST_MESSAGES[] = {
 ":[\"LONDON\",\"LONDON\"],\"element2\":[\"arbitrary string value\",\"arbitrar"
 "y string value\"],\"element3\":true,\"element4\":\"arbitrary string value\","
 "\"element6\":[\"LONDON\",\"LONDON\"]},\"element2\":[true,true],\"element3\":"
-"[1.5,1.5],\"element4\":[\"/wAB\",\"/wAB\"],\"element5\":[2,2],\"element6"
+"[1.5,1.5],\"element4\":[\"\\/wAB\",\"\\/wAB\"],\"element5\":[2,2],\"element6"
 "\":[\"2012-08-18T13:25:00.000+00:00\",\"2012-08-18T13:25:00.000+00:00\"],\"e"
 "lement7\":[]},\"element6\":[\"LONDON\",\"LONDON\"]},\"element2\":[true,true]"
-",\"element3\":[1.5,1.5],\"element4\":[\"/wAB\",\"/wAB\"],\"element5\":[2"
+",\"element3\":[1.5,1.5],\"element4\":[\"\\/wAB\",\"\\/wAB\"],\"element5\":[2"
 ",2],\"element6\":[\"2012-08-18T13:25:00.000+00:00\",\"2012-08-18T13:25:00.00"
 "0+00:00\"],\"element7\":[]},\"element6\":[\"LONDON\",\"LONDON\"]}],\"element"
-"2\":[{\"selection2\":1.5},{\"selection2\":1.5}],\"element3\":\"/wAB\",\"el"
+"2\":[{\"selection2\":1.5},{\"selection2\":1.5}],\"element3\":\"\\/wAB\",\"el"
 "ement4\":2,\"element5\":\"2012-08-18T13:25:00.000+00:00\",\"element6\":\"cus"
 "tom\",\"element7\":\"LONDON\",\"element8\":true,\"element9\":\"arbitrary str"
-"ing value\",\"element10\":1.5,\"element11\":\"/wAB\",\"element12\":2,\"ele"
+"ing value\",\"element10\":1.5,\"element11\":\"\\/wAB\",\"element12\":2,\"ele"
 "ment13\":\"LONDON\",\"element14\":[true,true],\"element15\":[1.5,1.5],\"elem"
-"ent16\":[\"/wAB\",\"/wAB\"],\"element17\":[2,2],\"element18\":[\"2012-08"
+"ent16\":[\"\\/wAB\",\"\\/wAB\"],\"element17\":[2,2],\"element18\":[\"2012-08"
 "-18T13:25:00.000+00:00\",\"2012-08-18T13:25:00.000+00:00\"],\"element19\":["
 "\"custom\",\"custom\"]}}},\"element4\":[{\"selection4\":999},{\"selection4\":"
 "999}]}}",
@@ -1592,14 +1592,14 @@ static const char* JSON_TEST_MESSAGES[] = {
 "ement6\":[],\"element7\":[]},\"element6\":[]},\"element2\":[],\"element3\":["
 "],\"element4\":[],\"element5\":[],\"element6\":[],\"element7\":[]},\"element"
 "6\":[]}],\"element2\":[{\"selection3\":{\"element1\":[],\"element2\":[],\"el"
-"ement8\":true,\"element9\":\"\",\"element10\":1.5,\"element11\":\"/wAB\","
+"ement8\":true,\"element9\":\"\",\"element10\":1.5,\"element11\":\"\\/wAB\","
 "\"element12\":2,\"element13\":\"LONDON\",\"element14\":[],\"element15\":[],\""
 "element16\":[],\"element17\":[],\"element18\":[],\"element19\":[]}},{\"selec"
 "tion3\":{\"element1\":[],\"element2\":[],\"element8\":true,\"element9\":\"\""
-",\"element10\":1.5,\"element11\":\"/wAB\",\"element12\":2,\"element13\":\""
+",\"element10\":1.5,\"element11\":\"\\/wAB\",\"element12\":2,\"element13\":\""
 "LONDON\",\"element14\":[],\"element15\":[],\"element16\":[],\"element17\":[]"
 ",\"element18\":[],\"element19\":[]}}],\"element8\":true,\"element9\":\"\",\""
-"element10\":1.5,\"element11\":\"/wAB\",\"element12\":2,\"element13\":\"LON"
+"element10\":1.5,\"element11\":\"\\/wAB\",\"element12\":2,\"element13\":\"LON"
 "DON\",\"element14\":[],\"element15\":[],\"element16\":[],\"element17\":[],\""
 "element18\":[],\"element19\":[]}}},\"element4\":[{\"selection1\":{\"element4"
 "\":255,\"element5\":[],\"element6\":\"custom\",\"element7\":999,\"element8\""
@@ -1614,21 +1614,21 @@ static const char* JSON_TEST_MESSAGES[] = {
 "ement1\":{\"element1\":[\"LONDON\",\"LONDON\"],\"element2\":[],\"element3\":"
 "true,\"element5\":{\"element1\":{\"element1\":[\"LONDON\",\"LONDON\"],\"elem"
 "ent2\":[],\"element3\":true,\"element6\":[\"LONDON\",\"LONDON\"]},\"element2"
-"\":[true,true],\"element3\":[1.5,1.5],\"element4\":[\"/wAB\",\"/wAB\"],"
+"\":[true,true],\"element3\":[1.5,1.5],\"element4\":[\"\\/wAB\",\"\\/wAB\"],"
 "\"element5\":[2,2],\"element6\":[\"2012-08-18T13:25:00.000+00:00\",\"2012-08-"
 "18T13:25:00.000+00:00\"],\"element7\":[]},\"element6\":[\"LONDON\",\"LONDON"
-"\"]},\"element2\":[true,true],\"element3\":[1.5,1.5],\"element4\":[\"/wAB\""
-",\"/wAB\"],\"element5\":[2,2],\"element6\":[\"2012-08-18T13:25:00.000+00:0"
+"\"]},\"element2\":[true,true],\"element3\":[1.5,1.5],\"element4\":[\"\\/wAB\""
+",\"\\/wAB\"],\"element5\":[2,2],\"element6\":[\"2012-08-18T13:25:00.000+00:0"
 "0\",\"2012-08-18T13:25:00.000+00:00\"],\"element7\":[]},\"element6\":[\"LOND"
 "ON\",\"LONDON\"]},{\"element1\":[\"LONDON\",\"LONDON\"],\"element2\":[],\"el"
 "ement3\":true,\"element5\":{\"element1\":{\"element1\":[\"LONDON\",\"LONDON"
 "\"],\"element2\":[],\"element3\":true,\"element5\":{\"element1\":{\"element1"
 "\":[\"LONDON\",\"LONDON\"],\"element2\":[],\"element3\":true,\"element6\":[\""
 "LONDON\",\"LONDON\"]},\"element2\":[true,true],\"element3\":[1.5,1.5],\"elem"
-"ent4\":[\"/wAB\",\"/wAB\"],\"element5\":[2,2],\"element6\":[\"2012-08-18"
+"ent4\":[\"\\/wAB\",\"\\/wAB\"],\"element5\":[2,2],\"element6\":[\"2012-08-18"
 "T13:25:00.000+00:00\",\"2012-08-18T13:25:00.000+00:00\"],\"element7\":[]},\""
 "element6\":[\"LONDON\",\"LONDON\"]},\"element2\":[true,true],\"element3\":[1"
-".5,1.5],\"element4\":[\"/wAB\",\"/wAB\"],\"element5\":[2,2],\"element6\""
+".5,1.5],\"element4\":[\"\\/wAB\",\"\\/wAB\"],\"element5\":[2,2],\"element6\""
 ":[\"2012-08-18T13:25:00.000+00:00\",\"2012-08-18T13:25:00.000+00:00\"],\"ele"
 "ment7\":[]},\"element6\":[\"LONDON\",\"LONDON\"]}],\"element2\":[{\"selectio"
 "n3\":{\"element1\":[{\"element1\":[\"LONDON\",\"LONDON\"],\"element2\":[\"ar"
@@ -1639,11 +1639,11 @@ static const char* JSON_TEST_MESSAGES[] = {
 "lement5\":{\"element1\":{\"element1\":[\"LONDON\",\"LONDON\"],\"element2\":["
 "\"arbitrary string value\",\"arbitrary string value\"],\"element3\":true,\"e"
 "lement4\":\"arbitrary string value\",\"element6\":[\"LONDON\",\"LONDON\"]},"
-"\"element2\":[true,true],\"element3\":[1.5,1.5],\"element4\":[\"/wAB\",\"\\"
-"/wAB\"],\"element5\":[2,2],\"element6\":[\"2012-08-18T13:25:00.000+00:00\","
+"\"element2\":[true,true],\"element3\":[1.5,1.5],\"element4\":[\"\\/wAB\",\""
+"\\/wAB\"],\"element5\":[2,2],\"element6\":[\"2012-08-18T13:25:00.000+00:00\","
 "\"2012-08-18T13:25:00.000+00:00\"],\"element7\":[]},\"element6\":[\"LONDON\","
 "\"LONDON\"]},\"element2\":[true,true],\"element3\":[1.5,1.5],\"element4\":["
-"\"/wAB\",\"/wAB\"],\"element5\":[2,2],\"element6\":[\"2012-08-18T13:25:00"
+"\"\\/wAB\",\"\\/wAB\"],\"element5\":[2,2],\"element6\":[\"2012-08-18T13:25:00"
 ".000+00:00\",\"2012-08-18T13:25:00.000+00:00\"],\"element7\":[]},\"element6"
 "\":[\"LONDON\",\"LONDON\"]},{\"element1\":[\"LONDON\",\"LONDON\"],\"element2"
 "\":[\"arbitrary string value\",\"arbitrary string value\"],\"element3\":true,"
@@ -1653,18 +1653,18 @@ static const char* JSON_TEST_MESSAGES[] = {
 "e\",\"element5\":{\"element1\":{\"element1\":[\"LONDON\",\"LONDON\"],\"eleme"
 "nt2\":[\"arbitrary string value\",\"arbitrary string value\"],\"element3\":t"
 "rue,\"element4\":\"arbitrary string value\",\"element6\":[\"LONDON\",\"LONDO"
-"N\"]},\"element2\":[true,true],\"element3\":[1.5,1.5],\"element4\":[\"/wAB"
-"\",\"/wAB\"],\"element5\":[2,2],\"element6\":[\"2012-08-18T13:25:00.000+00"
+"N\"]},\"element2\":[true,true],\"element3\":[1.5,1.5],\"element4\":[\"\\/wAB"
+"\",\"\\/wAB\"],\"element5\":[2,2],\"element6\":[\"2012-08-18T13:25:00.000+00"
 ":00\",\"2012-08-18T13:25:00.000+00:00\"],\"element7\":[]},\"element6\":[\"LO"
 "NDON\",\"LONDON\"]},\"element2\":[true,true],\"element3\":[1.5,1.5],\"elemen"
-"t4\":[\"/wAB\",\"/wAB\"],\"element5\":[2,2],\"element6\":[\"2012-08-18T1"
+"t4\":[\"\\/wAB\",\"\\/wAB\"],\"element5\":[2,2],\"element6\":[\"2012-08-18T1"
 "3:25:00.000+00:00\",\"2012-08-18T13:25:00.000+00:00\"],\"element7\":[]},\"el"
 "ement6\":[\"LONDON\",\"LONDON\"]}],\"element2\":[{\"selection2\":1.5},{\"sel"
-"ection2\":1.5}],\"element3\":\"/wAB\",\"element4\":2,\"element5\":\"2012-0"
+"ection2\":1.5}],\"element3\":\"\\/wAB\",\"element4\":2,\"element5\":\"2012-0"
 "8-18T13:25:00.000+00:00\",\"element6\":\"custom\",\"element7\":\"LONDON\",\""
 "element8\":true,\"element9\":\"arbitrary string value\",\"element10\":1.5,\""
-"element11\":\"/wAB\",\"element12\":2,\"element13\":\"LONDON\",\"element14"
-"\":[true,true],\"element15\":[1.5,1.5],\"element16\":[\"/wAB\",\"/wAB\"],"
+"element11\":\"\\/wAB\",\"element12\":2,\"element13\":\"LONDON\",\"element14"
+"\":[true,true],\"element15\":[1.5,1.5],\"element16\":[\"\\/wAB\",\"\\/wAB\"],"
 "\"element17\":[2,2],\"element18\":[\"2012-08-18T13:25:00.000+00:00\",\"2012-"
 "08-18T13:25:00.000+00:00\"],\"element19\":[\"custom\",\"custom\"]}},{\"selec"
 "tion3\":{\"element1\":[{\"element1\":[\"LONDON\",\"LONDON\"],\"element2\":["
@@ -1675,11 +1675,11 @@ static const char* JSON_TEST_MESSAGES[] = {
 "\"element5\":{\"element1\":{\"element1\":[\"LONDON\",\"LONDON\"],\"element2"
 "\":[\"arbitrary string value\",\"arbitrary string value\"],\"element3\":true,"
 "\"element4\":\"arbitrary string value\",\"element6\":[\"LONDON\",\"LONDON\"]"
-"},\"element2\":[true,true],\"element3\":[1.5,1.5],\"element4\":[\"/wAB\","
-"\"/wAB\"],\"element5\":[2,2],\"element6\":[\"2012-08-18T13:25:00.000+00:00"
+"},\"element2\":[true,true],\"element3\":[1.5,1.5],\"element4\":[\"\\/wAB\","
+"\"\\/wAB\"],\"element5\":[2,2],\"element6\":[\"2012-08-18T13:25:00.000+00:00"
 "\",\"2012-08-18T13:25:00.000+00:00\"],\"element7\":[]},\"element6\":[\"LONDON"
 "\",\"LONDON\"]},\"element2\":[true,true],\"element3\":[1.5,1.5],\"element4\""
-":[\"/wAB\",\"/wAB\"],\"element5\":[2,2],\"element6\":[\"2012-08-18T13:25"
+":[\"\\/wAB\",\"\\/wAB\"],\"element5\":[2,2],\"element6\":[\"2012-08-18T13:25"
 ":00.000+00:00\",\"2012-08-18T13:25:00.000+00:00\"],\"element7\":[]},\"elemen"
 "t6\":[\"LONDON\",\"LONDON\"]},{\"element1\":[\"LONDON\",\"LONDON\"],\"elemen"
 "t2\":[\"arbitrary string value\",\"arbitrary string value\"],\"element3\":tr"
@@ -1690,24 +1690,24 @@ static const char* JSON_TEST_MESSAGES[] = {
 "ement2\":[\"arbitrary string value\",\"arbitrary string value\"],\"element3"
 "\":true,\"element4\":\"arbitrary string value\",\"element6\":[\"LONDON\",\"LO"
 "NDON\"]},\"element2\":[true,true],\"element3\":[1.5,1.5],\"element4\":[\"\\/"
-"wAB\",\"/wAB\"],\"element5\":[2,2],\"element6\":[\"2012-08-18T13:25:00.000"
+"wAB\",\"\\/wAB\"],\"element5\":[2,2],\"element6\":[\"2012-08-18T13:25:00.000"
 "+00:00\",\"2012-08-18T13:25:00.000+00:00\"],\"element7\":[]},\"element6\":["
 "\"LONDON\",\"LONDON\"]},\"element2\":[true,true],\"element3\":[1.5,1.5],\"ele"
-"ment4\":[\"/wAB\",\"/wAB\"],\"element5\":[2,2],\"element6\":[\"2012-08-1"
+"ment4\":[\"\\/wAB\",\"\\/wAB\"],\"element5\":[2,2],\"element6\":[\"2012-08-1"
 "8T13:25:00.000+00:00\",\"2012-08-18T13:25:00.000+00:00\"],\"element7\":[]},"
 "\"element6\":[\"LONDON\",\"LONDON\"]}],\"element2\":[{\"selection2\":1.5},{\""
-"selection2\":1.5}],\"element3\":\"/wAB\",\"element4\":2,\"element5\":\"201"
+"selection2\":1.5}],\"element3\":\"\\/wAB\",\"element4\":2,\"element5\":\"201"
 "2-08-18T13:25:00.000+00:00\",\"element6\":\"custom\",\"element7\":\"LONDON\""
 ",\"element8\":true,\"element9\":\"arbitrary string value\",\"element10\":1.5"
-",\"element11\":\"/wAB\",\"element12\":2,\"element13\":\"LONDON\",\"element"
-"14\":[true,true],\"element15\":[1.5,1.5],\"element16\":[\"/wAB\",\"/wAB"
+",\"element11\":\"\\/wAB\",\"element12\":2,\"element13\":\"LONDON\",\"element"
+"14\":[true,true],\"element15\":[1.5,1.5],\"element16\":[\"\\/wAB\",\"\\/wAB"
 "\"],\"element17\":[2,2],\"element18\":[\"2012-08-18T13:25:00.000+00:00\",\"20"
 "12-08-18T13:25:00.000+00:00\"],\"element19\":[\"custom\",\"custom\"]}}],\"el"
-"ement3\":\"/wAB\",\"element4\":2,\"element5\":\"2012-08-18T13:25:00.000+00"
+"ement3\":\"\\/wAB\",\"element4\":2,\"element5\":\"2012-08-18T13:25:00.000+00"
 ":00\",\"element6\":\"custom\",\"element7\":\"LONDON\",\"element8\":true,\"el"
-"ement9\":\"arbitrary string value\",\"element10\":1.5,\"element11\":\"/wAB"
+"ement9\":\"arbitrary string value\",\"element10\":1.5,\"element11\":\"\\/wAB"
 "\",\"element12\":2,\"element13\":\"LONDON\",\"element14\":[true,true],\"elem"
-"ent15\":[1.5,1.5],\"element16\":[\"/wAB\",\"/wAB\"],\"element17\":[2,2],"
+"ent15\":[1.5,1.5],\"element16\":[\"\\/wAB\",\"\\/wAB\"],\"element17\":[2,2],"
 "\"element18\":[\"2012-08-18T13:25:00.000+00:00\",\"2012-08-18T13:25:00.000+0"
 "0:00\"],\"element19\":[\"custom\",\"custom\"]}}},\"element4\":[]}}",
 
@@ -1724,7 +1724,7 @@ static const char* JSON_TEST_MESSAGES[] = {
 "6\":\"custom\",\"element7\":999,\"element8\":[0,0],\"element9\":[\"custom\","
 "\"custom\"],\"element10\":[0,0],\"element11\":[999,999]}}]}}",
 
-"{\"selection2\":\"/wAB\"}",
+"{\"selection2\":\"\\/wAB\"}",
 
 "{\"selection3\":{\"element1\":\"custom\",\"element2\":255,\"element3\":\"201"
 "2-08-18T13:25:00.000+00:00\"}}",
@@ -1736,7 +1736,7 @@ static const char* JSON_TEST_MESSAGES[] = {
 "{\"selection3\":{\"element1\":\"custom\",\"element2\":255,\"element3\":\"201"
 "2-08-18T13:25:00.000+00:00\",\"element4\":{\"selection3\":{\"element1\":[],"
 "\"element2\":[],\"element8\":true,\"element9\":\"\",\"element10\":1.5,\"eleme"
-"nt11\":\"/wAB\",\"element12\":2,\"element13\":\"LONDON\",\"element14\":[],"
+"nt11\":\"\\/wAB\",\"element12\":2,\"element13\":\"LONDON\",\"element14\":[],"
 "\"element15\":[],\"element16\":[],\"element17\":[],\"element18\":[],\"elemen"
 "t19\":[]}}}}",
 
@@ -1750,10 +1750,10 @@ static const char* JSON_TEST_MESSAGES[] = {
 "\"element1\":[\"LONDON\",\"LONDON\"],\"element2\":[\"arbitrary string value"
 "\",\"arbitrary string value\"],\"element3\":true,\"element4\":\"arbitrary str"
 "ing value\",\"element6\":[\"LONDON\",\"LONDON\"]},\"element2\":[true,true],"
-"\"element3\":[1.5,1.5],\"element4\":[\"/wAB\",\"/wAB\"],\"element5\":[2,2"
+"\"element3\":[1.5,1.5],\"element4\":[\"\\/wAB\",\"\\/wAB\"],\"element5\":[2,2"
 "],\"element6\":[\"2012-08-18T13:25:00.000+00:00\",\"2012-08-18T13:25:00.000+"
 "00:00\"],\"element7\":[]},\"element6\":[\"LONDON\",\"LONDON\"]},\"element2\""
-":[true,true],\"element3\":[1.5,1.5],\"element4\":[\"/wAB\",\"/wAB\"],\"e"
+":[true,true],\"element3\":[1.5,1.5],\"element4\":[\"\\/wAB\",\"\\/wAB\"],\"e"
 "lement5\":[2,2],\"element6\":[\"2012-08-18T13:25:00.000+00:00\",\"2012-08-18"
 "T13:25:00.000+00:00\"],\"element7\":[]},\"element6\":[\"LONDON\",\"LONDON\"]"
 "},{\"element1\":[\"LONDON\",\"LONDON\"],\"element2\":[\"arbitrary string val"
@@ -1764,18 +1764,18 @@ static const char* JSON_TEST_MESSAGES[] = {
 "nt1\":{\"element1\":[\"LONDON\",\"LONDON\"],\"element2\":[\"arbitrary string"
 " value\",\"arbitrary string value\"],\"element3\":true,\"element4\":\"arbitr"
 "ary string value\",\"element6\":[\"LONDON\",\"LONDON\"]},\"element2\":[true,"
-"true],\"element3\":[1.5,1.5],\"element4\":[\"/wAB\",\"/wAB\"],\"element5"
+"true],\"element3\":[1.5,1.5],\"element4\":[\"\\/wAB\",\"\\/wAB\"],\"element5"
 "\":[2,2],\"element6\":[\"2012-08-18T13:25:00.000+00:00\",\"2012-08-18T13:25:"
 "00.000+00:00\"],\"element7\":[]},\"element6\":[\"LONDON\",\"LONDON\"]},\"ele"
-"ment2\":[true,true],\"element3\":[1.5,1.5],\"element4\":[\"/wAB\",\"/wAB"
+"ment2\":[true,true],\"element3\":[1.5,1.5],\"element4\":[\"\\/wAB\",\"\\/wAB"
 "\"],\"element5\":[2,2],\"element6\":[\"2012-08-18T13:25:00.000+00:00\",\"201"
 "2-08-18T13:25:00.000+00:00\"],\"element7\":[]},\"element6\":[\"LONDON\",\"LO"
 "NDON\"]}],\"element2\":[{\"selection2\":1.5},{\"selection2\":1.5}],\"element"
-"3\":\"/wAB\",\"element4\":2,\"element5\":\"2012-08-18T13:25:00.000+00:00\""
+"3\":\"\\/wAB\",\"element4\":2,\"element5\":\"2012-08-18T13:25:00.000+00:00\""
 ",\"element6\":\"custom\",\"element7\":\"LONDON\",\"element8\":true,\"element"
-"9\":\"arbitrary string value\",\"element10\":1.5,\"element11\":\"/wAB\",\""
+"9\":\"arbitrary string value\",\"element10\":1.5,\"element11\":\"\\/wAB\",\""
 "element12\":2,\"element13\":\"LONDON\",\"element14\":[true,true],\"element15"
-"\":[1.5,1.5],\"element16\":[\"/wAB\",\"/wAB\"],\"element17\":[2,2],\"ele"
+"\":[1.5,1.5],\"element16\":[\"\\/wAB\",\"\\/wAB\"],\"element17\":[2,2],\"ele"
 "ment18\":[\"2012-08-18T13:25:00.000+00:00\",\"2012-08-18T13:25:00.000+00:00"
 "\"],\"element19\":[\"custom\",\"custom\"]}},\"element5\":1.5}}",
 
@@ -1795,13 +1795,13 @@ static const char* JSON_TEST_MESSAGES[] = {
 ":[]},\"element2\":[],\"element3\":[],\"element4\":[],\"element5\":[],\"eleme"
 "nt6\":[],\"element7\":[]},\"element6\":[]}],\"element2\":[{\"selection3\":{"
 "\"element1\":[],\"element2\":[],\"element8\":true,\"element9\":\"\",\"element"
-"10\":1.5,\"element11\":\"/wAB\",\"element12\":2,\"element13\":\"LONDON\","
+"10\":1.5,\"element11\":\"\\/wAB\",\"element12\":2,\"element13\":\"LONDON\","
 "\"element14\":[],\"element15\":[],\"element16\":[],\"element17\":[],\"element"
 "18\":[],\"element19\":[]}},{\"selection3\":{\"element1\":[],\"element2\":[],"
-"\"element8\":true,\"element9\":\"\",\"element10\":1.5,\"element11\":\"/wAB"
+"\"element8\":true,\"element9\":\"\",\"element10\":1.5,\"element11\":\"\\/wAB"
 "\",\"element12\":2,\"element13\":\"LONDON\",\"element14\":[],\"element15\":["
 "],\"element16\":[],\"element17\":[],\"element18\":[],\"element19\":[]}}],\"e"
-"lement8\":true,\"element9\":\"\",\"element10\":1.5,\"element11\":\"/wAB\","
+"lement8\":true,\"element9\":\"\",\"element10\":1.5,\"element11\":\"\\/wAB\","
 "\"element12\":2,\"element13\":\"LONDON\",\"element14\":[],\"element15\":[],"
 "\"element16\":[],\"element17\":[],\"element18\":[],\"element19\":[]}}}}",
 
@@ -1811,21 +1811,21 @@ static const char* JSON_TEST_MESSAGES[] = {
 "5\":{\"element1\":{\"element1\":[\"LONDON\",\"LONDON\"],\"element2\":[],\"el"
 "ement3\":true,\"element5\":{\"element1\":{\"element1\":[\"LONDON\",\"LONDON"
 "\"],\"element2\":[],\"element3\":true,\"element6\":[\"LONDON\",\"LONDON\"]},"
-"\"element2\":[true,true],\"element3\":[1.5,1.5],\"element4\":[\"/wAB\",\"\\"
-"/wAB\"],\"element5\":[2,2],\"element6\":[\"2012-08-18T13:25:00.000+00:00\","
+"\"element2\":[true,true],\"element3\":[1.5,1.5],\"element4\":[\"\\/wAB\",\""
+"\\/wAB\"],\"element5\":[2,2],\"element6\":[\"2012-08-18T13:25:00.000+00:00\","
 "\"2012-08-18T13:25:00.000+00:00\"],\"element7\":[]},\"element6\":[\"LONDON\","
 "\"LONDON\"]},\"element2\":[true,true],\"element3\":[1.5,1.5],\"element4\":["
-"\"/wAB\",\"/wAB\"],\"element5\":[2,2],\"element6\":[\"2012-08-18T13:25:00"
+"\"\\/wAB\",\"\\/wAB\"],\"element5\":[2,2],\"element6\":[\"2012-08-18T13:25:00"
 ".000+00:00\",\"2012-08-18T13:25:00.000+00:00\"],\"element7\":[]},\"element6"
 "\":[\"LONDON\",\"LONDON\"]},{\"element1\":[\"LONDON\",\"LONDON\"],\"element2"
 "\":[],\"element3\":true,\"element5\":{\"element1\":{\"element1\":[\"LONDON\","
 "\"LONDON\"],\"element2\":[],\"element3\":true,\"element5\":{\"element1\":{\""
 "element1\":[\"LONDON\",\"LONDON\"],\"element2\":[],\"element3\":true,\"eleme"
 "nt6\":[\"LONDON\",\"LONDON\"]},\"element2\":[true,true],\"element3\":[1.5,1."
-"5],\"element4\":[\"/wAB\",\"/wAB\"],\"element5\":[2,2],\"element6\":[\"2"
+"5],\"element4\":[\"\\/wAB\",\"\\/wAB\"],\"element5\":[2,2],\"element6\":[\"2"
 "012-08-18T13:25:00.000+00:00\",\"2012-08-18T13:25:00.000+00:00\"],\"element7"
 "\":[]},\"element6\":[\"LONDON\",\"LONDON\"]},\"element2\":[true,true],\"elem"
-"ent3\":[1.5,1.5],\"element4\":[\"/wAB\",\"/wAB\"],\"element5\":[2,2],\"e"
+"ent3\":[1.5,1.5],\"element4\":[\"\\/wAB\",\"\\/wAB\"],\"element5\":[2,2],\"e"
 "lement6\":[\"2012-08-18T13:25:00.000+00:00\",\"2012-08-18T13:25:00.000+00:00"
 "\"],\"element7\":[]},\"element6\":[\"LONDON\",\"LONDON\"]}],\"element2\":[{"
 "\"selection3\":{\"element1\":[{\"element1\":[\"LONDON\",\"LONDON\"],\"element"
@@ -1837,10 +1837,10 @@ static const char* JSON_TEST_MESSAGES[] = {
 "ment2\":[\"arbitrary string value\",\"arbitrary string value\"],\"element3\""
 ":true,\"element4\":\"arbitrary string value\",\"element6\":[\"LONDON\",\"LON"
 "DON\"]},\"element2\":[true,true],\"element3\":[1.5,1.5],\"element4\":[\"\\/w"
-"AB\",\"/wAB\"],\"element5\":[2,2],\"element6\":[\"2012-08-18T13:25:00.000+"
+"AB\",\"\\/wAB\"],\"element5\":[2,2],\"element6\":[\"2012-08-18T13:25:00.000+"
 "00:00\",\"2012-08-18T13:25:00.000+00:00\"],\"element7\":[]},\"element6\":[\""
 "LONDON\",\"LONDON\"]},\"element2\":[true,true],\"element3\":[1.5,1.5],\"elem"
-"ent4\":[\"/wAB\",\"/wAB\"],\"element5\":[2,2],\"element6\":[\"2012-08-18"
+"ent4\":[\"\\/wAB\",\"\\/wAB\"],\"element5\":[2,2],\"element6\":[\"2012-08-18"
 "T13:25:00.000+00:00\",\"2012-08-18T13:25:00.000+00:00\"],\"element7\":[]},\""
 "element6\":[\"LONDON\",\"LONDON\"]},{\"element1\":[\"LONDON\",\"LONDON\"],\""
 "element2\":[\"arbitrary string value\",\"arbitrary string value\"],\"element"
@@ -1851,18 +1851,18 @@ static const char* JSON_TEST_MESSAGES[] = {
 "],\"element2\":[\"arbitrary string value\",\"arbitrary string value\"],\"ele"
 "ment3\":true,\"element4\":\"arbitrary string value\",\"element6\":[\"LONDON"
 "\",\"LONDON\"]},\"element2\":[true,true],\"element3\":[1.5,1.5],\"element4\":"
-"[\"/wAB\",\"/wAB\"],\"element5\":[2,2],\"element6\":[\"2012-08-18T13:25:"
+"[\"\\/wAB\",\"\\/wAB\"],\"element5\":[2,2],\"element6\":[\"2012-08-18T13:25:"
 "00.000+00:00\",\"2012-08-18T13:25:00.000+00:00\"],\"element7\":[]},\"element"
 "6\":[\"LONDON\",\"LONDON\"]},\"element2\":[true,true],\"element3\":[1.5,1.5]"
-",\"element4\":[\"/wAB\",\"/wAB\"],\"element5\":[2,2],\"element6\":[\"201"
+",\"element4\":[\"\\/wAB\",\"\\/wAB\"],\"element5\":[2,2],\"element6\":[\"201"
 "2-08-18T13:25:00.000+00:00\",\"2012-08-18T13:25:00.000+00:00\"],\"element7\""
 ":[]},\"element6\":[\"LONDON\",\"LONDON\"]}],\"element2\":[{\"selection2\":1."
-"5},{\"selection2\":1.5}],\"element3\":\"/wAB\",\"element4\":2,\"element5\""
+"5},{\"selection2\":1.5}],\"element3\":\"\\/wAB\",\"element4\":2,\"element5\""
 ":\"2012-08-18T13:25:00.000+00:00\",\"element6\":\"custom\",\"element7\":\"LO"
 "NDON\",\"element8\":true,\"element9\":\"arbitrary string value\",\"element10"
-"\":1.5,\"element11\":\"/wAB\",\"element12\":2,\"element13\":\"LONDON\",\"e"
-"lement14\":[true,true],\"element15\":[1.5,1.5],\"element16\":[\"/wAB\",\""
-"/wAB\"],\"element17\":[2,2],\"element18\":[\"2012-08-18T13:25:00.000+00:00"
+"\":1.5,\"element11\":\"\\/wAB\",\"element12\":2,\"element13\":\"LONDON\",\"e"
+"lement14\":[true,true],\"element15\":[1.5,1.5],\"element16\":[\"\\/wAB\",\""
+"\\/wAB\"],\"element17\":[2,2],\"element18\":[\"2012-08-18T13:25:00.000+00:00"
 "\",\"2012-08-18T13:25:00.000+00:00\"],\"element19\":[\"custom\",\"custom\"]}}"
 ",{\"selection3\":{\"element1\":[{\"element1\":[\"LONDON\",\"LONDON\"],\"elem"
 "ent2\":[\"arbitrary string value\",\"arbitrary string value\"],\"element3\":"
@@ -1873,10 +1873,10 @@ static const char* JSON_TEST_MESSAGES[] = {
 "element2\":[\"arbitrary string value\",\"arbitrary string value\"],\"element"
 "3\":true,\"element4\":\"arbitrary string value\",\"element6\":[\"LONDON\",\""
 "LONDON\"]},\"element2\":[true,true],\"element3\":[1.5,1.5],\"element4\":[\""
-"/wAB\",\"/wAB\"],\"element5\":[2,2],\"element6\":[\"2012-08-18T13:25:00.0"
+"\\/wAB\",\"\\/wAB\"],\"element5\":[2,2],\"element6\":[\"2012-08-18T13:25:00.0"
 "00+00:00\",\"2012-08-18T13:25:00.000+00:00\"],\"element7\":[]},\"element6\":"
 "[\"LONDON\",\"LONDON\"]},\"element2\":[true,true],\"element3\":[1.5,1.5],\"e"
-"lement4\":[\"/wAB\",\"/wAB\"],\"element5\":[2,2],\"element6\":[\"2012-08"
+"lement4\":[\"\\/wAB\",\"\\/wAB\"],\"element5\":[2,2],\"element6\":[\"2012-08"
 "-18T13:25:00.000+00:00\",\"2012-08-18T13:25:00.000+00:00\"],\"element7\":[]}"
 ",\"element6\":[\"LONDON\",\"LONDON\"]},{\"element1\":[\"LONDON\",\"LONDON\"]"
 ",\"element2\":[\"arbitrary string value\",\"arbitrary string value\"],\"elem"
@@ -1887,24 +1887,24 @@ static const char* JSON_TEST_MESSAGES[] = {
 "N\"],\"element2\":[\"arbitrary string value\",\"arbitrary string value\"],\""
 "element3\":true,\"element4\":\"arbitrary string value\",\"element6\":[\"LOND"
 "ON\",\"LONDON\"]},\"element2\":[true,true],\"element3\":[1.5,1.5],\"element4"
-"\":[\"/wAB\",\"/wAB\"],\"element5\":[2,2],\"element6\":[\"2012-08-18T13:"
+"\":[\"\\/wAB\",\"\\/wAB\"],\"element5\":[2,2],\"element6\":[\"2012-08-18T13:"
 "25:00.000+00:00\",\"2012-08-18T13:25:00.000+00:00\"],\"element7\":[]},\"elem"
 "ent6\":[\"LONDON\",\"LONDON\"]},\"element2\":[true,true],\"element3\":[1.5,1"
-".5],\"element4\":[\"/wAB\",\"/wAB\"],\"element5\":[2,2],\"element6\":[\""
+".5],\"element4\":[\"\\/wAB\",\"\\/wAB\"],\"element5\":[2,2],\"element6\":[\""
 "2012-08-18T13:25:00.000+00:00\",\"2012-08-18T13:25:00.000+00:00\"],\"element"
 "7\":[]},\"element6\":[\"LONDON\",\"LONDON\"]}],\"element2\":[{\"selection2\""
-":1.5},{\"selection2\":1.5}],\"element3\":\"/wAB\",\"element4\":2,\"element"
+":1.5},{\"selection2\":1.5}],\"element3\":\"\\/wAB\",\"element4\":2,\"element"
 "5\":\"2012-08-18T13:25:00.000+00:00\",\"element6\":\"custom\",\"element7\":"
 "\"LONDON\",\"element8\":true,\"element9\":\"arbitrary string value\",\"elemen"
-"t10\":1.5,\"element11\":\"/wAB\",\"element12\":2,\"element13\":\"LONDON\","
-"\"element14\":[true,true],\"element15\":[1.5,1.5],\"element16\":[\"/wAB\","
-"\"/wAB\"],\"element17\":[2,2],\"element18\":[\"2012-08-18T13:25:00.000+00:"
+"t10\":1.5,\"element11\":\"\\/wAB\",\"element12\":2,\"element13\":\"LONDON\","
+"\"element14\":[true,true],\"element15\":[1.5,1.5],\"element16\":[\"\\/wAB\","
+"\"\\/wAB\"],\"element17\":[2,2],\"element18\":[\"2012-08-18T13:25:00.000+00:"
 "00\",\"2012-08-18T13:25:00.000+00:00\"],\"element19\":[\"custom\",\"custom\""
-"]}}],\"element3\":\"/wAB\",\"element4\":2,\"element5\":\"2012-08-18T13:25:"
+"]}}],\"element3\":\"\\/wAB\",\"element4\":2,\"element5\":\"2012-08-18T13:25:"
 "00.000+00:00\",\"element6\":\"custom\",\"element7\":\"LONDON\",\"element8\":"
 "true,\"element9\":\"arbitrary string value\",\"element10\":1.5,\"element11\""
-":\"/wAB\",\"element12\":2,\"element13\":\"LONDON\",\"element14\":[true,tru"
-"e],\"element15\":[1.5,1.5],\"element16\":[\"/wAB\",\"/wAB\"],\"element17"
+":\"\\/wAB\",\"element12\":2,\"element13\":\"LONDON\",\"element14\":[true,tru"
+"e],\"element15\":[1.5,1.5],\"element16\":[\"\\/wAB\",\"\\/wAB\"],\"element17"
 "\":[2,2],\"element18\":[\"2012-08-18T13:25:00.000+00:00\",\"2012-08-18T13:25"
 ":00.000+00:00\"],\"element19\":[\"custom\",\"custom\"]}},\"element5\":1.5}}",
 
@@ -1934,11 +1934,11 @@ static const char* JSON_TEST_MESSAGES[] = {
 "nt5\":{\"element1\":{\"element1\":[\"LONDON\",\"LONDON\"],\"element2\":[\"ar"
 "bitrary string value\",\"arbitrary string value\"],\"element3\":true,\"eleme"
 "nt4\":\"arbitrary string value\",\"element6\":[\"LONDON\",\"LONDON\"]},\"ele"
-"ment2\":[true,true],\"element3\":[1.5,1.5],\"element4\":[\"/wAB\",\"/wAB"
+"ment2\":[true,true],\"element3\":[1.5,1.5],\"element4\":[\"\\/wAB\",\"\\/wAB"
 "\"],\"element5\":[2,2],\"element6\":[\"2012-08-18T13:25:00.000+00:00\",\"201"
 "2-08-18T13:25:00.000+00:00\"],\"element7\":[]},\"element6\":[\"LONDON\",\"LO"
 "NDON\"]},\"element2\":[true,true],\"element3\":[1.5,1.5],\"element4\":[\"\\/"
-"wAB\",\"/wAB\"],\"element5\":[2,2],\"element6\":[\"2012-08-18T13:25:00.000"
+"wAB\",\"\\/wAB\"],\"element5\":[2,2],\"element6\":[\"2012-08-18T13:25:00.000"
 "+00:00\",\"2012-08-18T13:25:00.000+00:00\"],\"element7\":[]},\"element6\":["
 "\"LONDON\",\"LONDON\"]}}",
 
@@ -3409,7 +3409,7 @@ void testNumber()
 
         Obj  encoder;
         bsl::ostringstream oss;
-        Impl impl(&encoder, oss.rdbuf());
+        Impl impl(&encoder, oss.rdbuf(), 0);
         ASSERTV(LINE, 0 == impl.encode(VALUE));
 
         bsl::string result = oss.str();
@@ -3685,7 +3685,7 @@ int main(int argc, char *argv[])
 
             Obj  encoder;
             bsl::ostringstream oss;
-            Impl impl(&encoder, oss.rdbuf());
+            Impl impl(&encoder, oss.rdbuf(), 0);
             ASSERTV(0 == impl.encode(X));
 
             bsl::string result = oss.str();
@@ -3703,7 +3703,7 @@ int main(int argc, char *argv[])
             {
                 Obj  encoder;
                 bsl::ostringstream oss;
-                Impl impl(&encoder, oss.rdbuf());
+                Impl impl(&encoder, oss.rdbuf(), 0);
                 ASSERTV(0 == impl.encode(X));
 
                 const char *EXP = 
@@ -3724,7 +3724,7 @@ int main(int argc, char *argv[])
 
                 Obj  encoder;
                 bsl::ostringstream oss;
-                Impl impl(&encoder, oss.rdbuf());
+                Impl impl(&encoder, oss.rdbuf(), 0);
                 ASSERTV(0 != impl.encode(X));
                 ASSERTV("" != encoder.loggedMessages());
             }
@@ -3733,7 +3733,7 @@ int main(int argc, char *argv[])
             {
                 Obj  encoder;
                 bsl::ostringstream oss;
-                Impl impl(&encoder, oss.rdbuf());
+                Impl impl(&encoder, oss.rdbuf(), 0);
                 ASSERTV(0 == impl.encode(X));
                 const char *EXP = 
                     "{"
@@ -3784,7 +3784,7 @@ int main(int argc, char *argv[])
 
                 Obj  encoder;
                 bsl::ostringstream oss;
-                Impl impl(&encoder, oss.rdbuf());
+                Impl impl(&encoder, oss.rdbuf(), 0);
                 ASSERTV(0 != impl.encode(X));
                 ASSERTV("" != encoder.loggedMessages());
             }
@@ -3793,7 +3793,7 @@ int main(int argc, char *argv[])
 
                 Obj  encoder;
                 bsl::ostringstream oss;
-                Impl impl(&encoder, oss.rdbuf());
+                Impl impl(&encoder, oss.rdbuf(), 0);
                 ASSERTV(0 == impl.encode(X));
 
                 bsl::string result = oss.str();
@@ -3804,7 +3804,7 @@ int main(int argc, char *argv[])
 
                 Obj  encoder;
                 bsl::ostringstream oss;
-                Impl impl(&encoder, oss.rdbuf());
+                Impl impl(&encoder, oss.rdbuf(), 0);
                 ASSERTV(0 == impl.encode(X));
 
                 bsl::string result = oss.str();
@@ -3816,7 +3816,7 @@ int main(int argc, char *argv[])
 
                 Obj  encoder;
                 bsl::ostringstream oss;
-                Impl impl(&encoder, oss.rdbuf());
+                Impl impl(&encoder, oss.rdbuf(), 0);
                 ASSERTV(0 != impl.encode(X));
                 ASSERTV("" != encoder.loggedMessages());
             }
@@ -3825,7 +3825,7 @@ int main(int argc, char *argv[])
 
                 Obj  encoder;
                 bsl::ostringstream oss;
-                Impl impl(&encoder, oss.rdbuf());
+                Impl impl(&encoder, oss.rdbuf(), 0);
                 ASSERTV(0 == impl.encode(X));
 
                 bsl::string result = oss.str();
@@ -3887,7 +3887,7 @@ int main(int argc, char *argv[])
 
                 Obj  encoder;
                 bsl::ostringstream oss;
-                Impl impl(&encoder, oss.rdbuf());
+                Impl impl(&encoder, oss.rdbuf(), 0);
                 ASSERTV(LINE, 0 == impl.encode(VALUE));
 
                 bsl::string result = oss.str();
@@ -3926,7 +3926,7 @@ int main(int argc, char *argv[])
 
                 Obj  encoder;
                 bsl::ostringstream oss;
-                Impl impl(&encoder, oss.rdbuf());
+                Impl impl(&encoder, oss.rdbuf(), 0);
                 ASSERTV(LINE, 0 == impl.encode(value));
 
                 bsl::string result = oss.str();
@@ -3966,7 +3966,7 @@ int main(int argc, char *argv[])
             Obj  encoder;
             {
                 bsl::ostringstream oss;
-                Impl impl(&encoder, oss.rdbuf());
+                Impl impl(&encoder, oss.rdbuf(), 0);
                 ASSERTV(0 == impl.encode(X));
 
                 bsl::string result = oss.str();
@@ -3976,7 +3976,7 @@ int main(int argc, char *argv[])
             mX = 0;
             {
                 bsl::ostringstream oss;
-                Impl impl(&encoder, oss.rdbuf());
+                Impl impl(&encoder, oss.rdbuf(), 0);
                 ASSERTV(0 == impl.encode(X));
 
                 bsl::string result = oss.str();
@@ -3986,7 +3986,7 @@ int main(int argc, char *argv[])
             mX = 42;
             {
                 bsl::ostringstream oss;
-                Impl impl(&encoder, oss.rdbuf());
+                Impl impl(&encoder, oss.rdbuf(), 0);
                 ASSERTV(0 == impl.encode(X));
 
                 bsl::string result = oss.str();
@@ -3996,7 +3996,7 @@ int main(int argc, char *argv[])
             mX.reset();
             {
                 bsl::ostringstream oss;
-                Impl impl(&encoder, oss.rdbuf());
+                Impl impl(&encoder, oss.rdbuf(), 0);
                 ASSERTV(0 == impl.encode(X));
 
                 bsl::string result = oss.str();
@@ -4031,7 +4031,7 @@ int main(int argc, char *argv[])
 
             Obj  encoder;
             bsl::ostringstream oss;
-            Impl impl(&encoder, oss.rdbuf());
+            Impl impl(&encoder, oss.rdbuf(), 0);
             ASSERTV(ti, 0 == impl.encode(X));
 
             bsl::string result = oss.str();
@@ -4179,7 +4179,7 @@ int main(int argc, char *argv[])
                 Obj  encoder;
 
                 bsl::ostringstream oss;
-                Impl impl(&encoder, oss.rdbuf());
+                Impl impl(&encoder, oss.rdbuf(), 0);
                 ASSERTV(LINE, 0 == impl.encode(theDate));
 
                 bsl::string result = oss.str();
@@ -4192,7 +4192,7 @@ int main(int argc, char *argv[])
                 Obj  encoder;
 
                 bsl::ostringstream oss;
-                Impl impl(&encoder, oss.rdbuf());
+                Impl impl(&encoder, oss.rdbuf(), 0);
                 ASSERTV(LINE, 0 == impl.encode(theDateTz));
 
                 bsl::string result = oss.str();
@@ -4205,7 +4205,7 @@ int main(int argc, char *argv[])
                 Obj  encoder;
 
                 bsl::ostringstream oss;
-                Impl impl(&encoder, oss.rdbuf());
+                Impl impl(&encoder, oss.rdbuf(), 0);
                 ASSERTV(LINE, 0 == impl.encode(theTime));
 
                 bsl::string result = oss.str();
@@ -4218,7 +4218,7 @@ int main(int argc, char *argv[])
                 Obj  encoder;
 
                 bsl::ostringstream oss;
-                Impl impl(&encoder, oss.rdbuf());
+                Impl impl(&encoder, oss.rdbuf(), 0);
                 ASSERTV(LINE, 0 == impl.encode(theTimeTz));
 
                 bsl::string result = oss.str();
@@ -4231,7 +4231,7 @@ int main(int argc, char *argv[])
                 Obj  encoder;
 
                 bsl::ostringstream oss;
-                Impl impl(&encoder, oss.rdbuf());
+                Impl impl(&encoder, oss.rdbuf(), 0);
                 ASSERTV(LINE, 0 == impl.encode(theDatetime));
 
                 bsl::string result = oss.str();
@@ -4244,7 +4244,7 @@ int main(int argc, char *argv[])
                 Obj  encoder;
 
                 bsl::ostringstream oss;
-                Impl impl(&encoder, oss.rdbuf());
+                Impl impl(&encoder, oss.rdbuf(), 0);
                 ASSERTV(LINE, 0 == impl.encode(theDatetimeTz));
 
                 bsl::string result = oss.str();
@@ -4305,7 +4305,7 @@ int main(int argc, char *argv[])
 
                 Obj  encoder;
                 bsl::ostringstream oss;
-                Impl impl(&encoder, oss.rdbuf());
+                Impl impl(&encoder, oss.rdbuf(), 0);
                 ASSERTV(LINE, 0 == impl.encode(VALUE));
 
                 bsl::string result = oss.str();
@@ -4317,7 +4317,7 @@ int main(int argc, char *argv[])
         {
             Obj  encoder;
             bsl::ostringstream oss;
-            Impl impl(&encoder, oss.rdbuf());
+            Impl impl(&encoder, oss.rdbuf(), 0);
 
             oss.clear();
             ASSERTV(0 != impl.encode(bsl::numeric_limits<double>::infinity()));
@@ -4411,7 +4411,7 @@ int main(int argc, char *argv[])
                 Obj  encoder;
 
                 bsl::ostringstream oss;
-                Impl impl(&encoder, oss.rdbuf());
+                Impl impl(&encoder, oss.rdbuf(), 0);
                 ASSERTV(LINE, 0 == impl.encode(VALUE));
 
                 bsl::string result = oss.str();
@@ -4457,7 +4457,7 @@ int main(int argc, char *argv[])
                 if (veryVeryVerbose) cout << "Test 'char *'" << endl;
                 {
                     bsl::ostringstream oss;
-                    Impl impl(&encoder, oss.rdbuf());
+                    Impl impl(&encoder, oss.rdbuf(), 0);
                     ASSERTV(LINE, 0 == impl.encode(VALUE));
 
                     bsl::string result = oss.str();
@@ -4467,7 +4467,7 @@ int main(int argc, char *argv[])
                 if (veryVeryVerbose) cout << "Test 'string'" << endl;
                 {
                     bsl::ostringstream oss;
-                    Impl impl(&encoder, oss.rdbuf());
+                    Impl impl(&encoder, oss.rdbuf(), 0);
                     ASSERTV(LINE, 0 == impl.encode(bsl::string(VALUE)));
 
                     bsl::string result = oss.str();
@@ -4477,7 +4477,7 @@ int main(int argc, char *argv[])
                 if (veryVeryVerbose) cout << "Test Customized" << endl;
                 {
                     bsl::ostringstream oss;
-                    Impl impl(&encoder, oss.rdbuf());
+                    Impl impl(&encoder, oss.rdbuf(), 0);
                     baea::CustomString str;
                     if (0 == str.fromString(VALUE)) {
                         ASSERTV(LINE, 0 == impl.encode(str));
@@ -4507,7 +4507,7 @@ int main(int argc, char *argv[])
         {
             Obj  encoder;
             bsl::ostringstream oss;
-            Impl impl(&encoder, oss.rdbuf());
+            Impl impl(&encoder, oss.rdbuf(), 0);
             ASSERTV(0 == impl.encode(true));
 
             bsl::string result = oss.str();
@@ -4518,7 +4518,7 @@ int main(int argc, char *argv[])
         {
             Obj  encoder;
             bsl::ostringstream oss;
-            Impl impl(&encoder, oss.rdbuf());
+            Impl impl(&encoder, oss.rdbuf(), 0);
             ASSERTV(0 == impl.encode(false));
 
             bsl::string result = oss.str();
@@ -4542,7 +4542,7 @@ int main(int argc, char *argv[])
 
         test::Employee bob;
 
-        char jsonText[] =
+        char jsonTextCompact[] =
             "{"
                 "\"name\":\"Bob\","
                 "\"homeAddress\":{"
@@ -4553,29 +4553,58 @@ int main(int argc, char *argv[])
                 "\"age\":21"
             "}";
 
-        bsl::istringstream iss(jsonText);
+        char jsonTextPretty[] =
+            " {\n"
+            "        \"name\" : \"Bob\",\n"
+            "        \"homeAddress\" : {\n"
+            "            \"street\" : \"Some Street\",\n"
+            "            \"city\" : \"Some City\",\n"
+            "            \"state\" : \"Some State\"\n"
+            "        },\n"
+            "        \"age\" : 21\n"
+            "    }";
 
-        bob.name() = "Bob";
+        bob.name()                 = "Bob";
         bob.homeAddress().street() = "Some Street";
-        bob.homeAddress().city() = "Some City";
-        bob.homeAddress().state() = "Some State";
-        bob.age() = 21;
+        bob.homeAddress().city()   = "Some City";
+        bob.homeAddress().state()  = "Some State";
+        bob.age()                  = 21;
 
-        ASSERTV(bob.name(), "Bob"         == bob.name());
+        ASSERTV("Bob"        == bob.name());
         ASSERT("Some Street" == bob.homeAddress().street());
         ASSERT("Some City"   == bob.homeAddress().city());
         ASSERT("Some State"  == bob.homeAddress().state());
         ASSERT(21            == bob.age());
 
+        {
+            bsl::istringstream iss(jsonTextCompact);
 
-        baejsn_Encoder encoder;
-        bsl::ostringstream oss;
-        ASSERTV(0 == encoder.encode(oss, bob));
-        ASSERTV(oss.str() == jsonText);
-        if (verbose) {
-            P(oss.str());
+            baejsn_Encoder encoder;
+            bsl::ostringstream oss;
+            ASSERTV(0 == encoder.encode(oss, bob));
+            ASSERTV(oss.str() == jsonTextCompact);
+            if (verbose) {
+                P(oss.str());
+            }
         }
 
+        {
+            bsl::istringstream iss(jsonTextPretty);
+
+            baejsn_EncoderOptions options;
+            options.setEncodingStyle(baejsn_EncoderOptions::BAEJSN_PRETTY);
+            options.setInitialIndentLevel(1);
+            options.setSpacesPerLevel(4);
+
+            baejsn_Encoder encoder(&options);
+            bsl::ostringstream oss;
+
+            ASSERTV(0 == encoder.encode(oss, bob));
+            ASSERTV(oss.str() == jsonTextPretty);
+            if (verbose) {
+                P(oss.str()); P(jsonTextPretty);
+            }
+        }
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

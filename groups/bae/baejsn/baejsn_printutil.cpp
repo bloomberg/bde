@@ -16,10 +16,9 @@ char getEscapeChar(char value)
     // Return the JSON escape character for the specified 'value' if 'value'
     // needs to be escaped, return 0 otherwise.
 {
-
     switch (value) {
-      case '"':
-      case '\\':
+      case '"':                                                 // FALL THROUGH
+      case '\\':                                                // FALL THROUGH
       case '/': {
         return value;                                                 // RETURN
       }
