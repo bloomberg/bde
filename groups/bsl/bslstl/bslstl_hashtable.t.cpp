@@ -259,6 +259,13 @@ void aSsErT(bool b, const char *s, int i)
 #define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
 #define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
+#define ASSERT_SAFE_PASS_RAW(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(EXPR)
+#define ASSERT_SAFE_FAIL_RAW(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL_RAW(EXPR)
+#define ASSERT_PASS_RAW(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS_RAW(EXPR)
+#define ASSERT_FAIL_RAW(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL_RAW(EXPR)
+#define ASSERT_OPT_PASS_RAW(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW(EXPR)
+#define ASSERT_OPT_FAIL_RAW(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL_RAW(EXPR)
+
 bool verbose;
 bool veryVerbose;
 bool veryVeryVerbose;
@@ -523,8 +530,62 @@ struct ExceptionGuard {
     }
 };
 
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+                            // =====================
+                            // class EvilBooleanType
+                            // =====================
+
+struct EvilBooleanType {
+    // This class provides a test type for predicates returning a type that is
+    // convertible-to-bool.  It makes life reasonably difficult by disabling
+    // the address-of and comma operators, but deliberately does not overload
+    // the '&&' and '||' operators, as we hope the standard will be updated to
+    // no longer require such support.  Once C++11 becomes available, this
+    // class would use an 'explicit operator bool()' conversion operator, and
+    // explicitly supply the '==' and '!=' operators, but we use the
+    // convertible-to-pointer-to-member idiom in the meantime.  Implicitly
+    // defined operations fill out the API as needed.
+
+  private:
+    struct ImpDetail { int d_member; };
+
+    typedef int ImpDetail::* BoolResult;
+
+    BoolResult d_value;
+
+  private:
+    void operator&();  // = delete;
+        // not implemented
+
+    template<class T>
+    void operator,(const T&); // = delete;
+        // not implemented
+
+    template<class T>
+    void operator,(T&); // = delete;
+        // not implemented
+
+
+  public:
+    EvilBooleanType(bool value)                                     // IMPLICIT
+    : d_value(!value ? 0 : &ImpDetail::d_member)
+    {
+    }
+
+    operator BoolResult() const { return d_value; }
+
+    EvilBooleanType operator!() const { return !d_value; }
+};
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
 bool g_enableTestEqualityComparator = true;
 bool g_enableTestHashFunctor = true;
+
+                            // ===============================
+                            // class GroupedEqualityComparator
+                            // ===============================
 
 template <class TYPE, int GROUP_SIZE>
 class GroupedEqualityComparator {
@@ -549,6 +610,10 @@ class GroupedEqualityComparator {
         return leftValue == rightValue;
     }
 };
+
+                            // ===================
+                            // class GroupedHasher
+                            // ===================
 
 template <class TYPE, class HASHER, int GROUP_SIZE>
 class GroupedHasher : private HASHER {
@@ -667,6 +732,10 @@ class TestEqualityComparator {
     }
 };
 
+                       // =====================
+                       // class TestHashFunctor
+                       // =====================
+
 template <class TYPE>
 class TestHashFunctor {
     // This test class provides a mechanism that defines a function-call
@@ -743,6 +812,10 @@ class TestHashFunctor {
     }
 };
 
+                       // ==================
+                       // class StatefulHash
+                       // ==================
+
 template <class KEY>
 class StatefulHash : bsl::hash<KEY> {
     // This value-semantic class adapts a class meeting the C++11 'Hash'
@@ -790,6 +863,10 @@ bool operator!=(const StatefulHash<KEY>& lhs, const StatefulHash<KEY>& rhs)
     return lhs.d_mixer != rhs.d_mixer;
 }
 
+                       // ========================
+                       // class TestFacilityHasher
+                       // ========================
+
 template <class KEY, class HASHER = ::bsl::hash<int> >
 class TestFacilityHasher : public HASHER { // exploit empty base
     // This test class provides a mechanism that defines a function-call
@@ -814,6 +891,69 @@ class TestFacilityHasher : public HASHER { // exploit empty base
 };
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+                       // =============================
+                       // class ConvertibleValueWrapper
+                       // =============================
+
+template <class TYPE>
+struct ConvertibleValueWrapper {
+  private:
+    TYPE d_value;
+
+  public:
+    ConvertibleValueWrapper(const TYPE& value) : d_value(value) {}  // IMPLICIT
+
+    operator       TYPE&()       { return d_value; }
+    operator const TYPE&() const { return d_value; }
+};
+
+                       // ================================
+                       // class TestConvertibleValueHasher
+                       // ================================
+
+template <class KEY, class HASHER = ::bsl::hash<int> >
+class TestConvertibleValueHasher : private TestFacilityHasher<KEY, HASHER> {
+    // This test class provides...
+    typedef TestFacilityHasher<KEY, HASHER> Base;
+
+  public:
+    TestConvertibleValueHasher(const HASHER& hash = HASHER())       // IMPLICIT
+    : HASHER(hash)
+    {
+    }
+
+    // ACCESSORS
+    native_std::size_t operator() (const ConvertibleValueWrapper<KEY>& k) const
+        // Return a hash code for the specified 'k' using the wrapped 'HASHER'.
+    {
+        return Base::operator()(k);
+    }
+};
+
+                       // ====================================
+                       // class TestConvertibleValueComparator
+                       // ====================================
+
+template <class KEY>
+class TestConvertibleValueComparator {
+    // This test class provides...
+
+  public:
+    // ACCESSORS
+    EvilBooleanType operator() (const ConvertibleValueWrapper<KEY>& a,
+                                const ConvertibleValueWrapper<KEY>& b) const
+        // Return a hash code for the specified 'k' using the wrapped 'HASHER'.
+    {
+        return BSL_TF_EQ(a, b);
+    }
+};
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+                       // =====================
+                       // class DegenerateClass
+                       // =====================
 
 template <class FUNCTOR, bool ENABLE_SWAP = true>
 class DegenerateClass : public FUNCTOR {
@@ -905,6 +1045,10 @@ void swap(DegenerateClass<FUNCTOR, true>& lhs,
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+                       // ============================
+                       // class FuntionPointerPolicies
+                       // ============================
+
 template <class KEY>
 struct FuntionPointerPolicies {
     typedef size_t HashFunction(const KEY&);
@@ -949,6 +1093,49 @@ struct MakeDefaultFunctor<bool (*)(const KEY&, const KEY&)> {
     typedef bool FunctionType(const KEY&, const KEY&);
     static FunctionType *make() {
         return &FuntionPointerPolicies<KEY>::compare;
+    }
+};
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+                       // =======================
+                       // class GenericComparator
+                       // =======================
+
+class GenericComparator {
+  public:
+    // ACCESSORS
+    template <class ARG1_TYPE, class ARG2_TYPE>
+    EvilBooleanType operator() (const ARG1_TYPE& arg1,
+                                const ARG2_TYPE& arg2) const
+        // Return 'true' if 'arg1' has the same value as 'arg2', for some
+        // unspecified definition that defaults to 'operator==', but may use
+        // some other functionality.
+    {
+        return BSL_TF_EQ(arg1, arg2);
+    }
+};
+
+                       // ===================
+                       // class GenericHasher
+                       // ===================
+
+class GenericHasher {
+    // This test class provides a mechanism that defines a function-call
+    // operator that provides a hash code for objects of the parameterized
+    // 'KEY'.  The function-call operator is implemented by calling the wrapper
+    // functor, 'HASHER', with integers converted from objects of 'KEY' by the
+    // class method 'TemplateTestFacility::getIdentifier'.
+
+  public:
+
+    // ACCESSORS
+    template <class KEY>
+    native_std::size_t operator() (const KEY& k) const
+        // Return a hash code for the specified 'k' using the wrapped 'HASHER'.
+    {
+        static const TestFacilityHasher<KEY> HASHER;
+        return HASHER(k);
     }
 };
 
@@ -1014,6 +1201,10 @@ bool isEqualComparator(const TestEqualityComparator<KEY>& lhs,
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+                       // ===============
+                       // class BoolArray
+                       // ===============
 
 class BoolArray {
     // This class holds a set of boolean flags, the number of which is
@@ -1190,6 +1381,90 @@ bool isValidHashTable(bslalg::BidirectionalLink      *listRoot,
 // ============================================================================
 //                         TEST DRIVER HARNESS
 // ----------------------------------------------------------------------------
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+void testCase3_ValidateEvilBooleanType()
+{
+    // Part of testing-the-test machinery.
+    // This test function splits out the concerns for validating the
+    // 'EvilBooleanType'.  Ideally, this would split out into a separate
+    // test facilility component and be properly tested there as a value-
+    // semantic type.
+
+    const EvilBooleanType falseValue1(false);
+    const EvilBooleanType falseValue2(false);
+    const EvilBooleanType falseValue3 = falseValue2;
+    const EvilBooleanType trueValue1(true);
+    const EvilBooleanType trueValue2(true);
+    const EvilBooleanType trueValue3 = trueValue2;
+
+    ASSERT(!(bool)falseValue1);
+    ASSERT(!(bool)falseValue2);
+    ASSERT(!(bool)falseValue3);
+    ASSERT((bool)trueValue1);
+    ASSERT((bool)trueValue2);
+    ASSERT((bool)trueValue3);
+
+    ASSERT(!falseValue1);
+    ASSERT(!falseValue2);
+    ASSERT(!falseValue3);
+    ASSERT(trueValue1);
+    ASSERT(trueValue2);
+    ASSERT(trueValue3);
+
+    ASSERT(falseValue1 == falseValue1);
+    ASSERT(falseValue1 == falseValue2);
+    ASSERT(falseValue1 == falseValue3);
+
+    ASSERT(falseValue2 == falseValue1);
+    ASSERT(falseValue2 == falseValue2);
+    ASSERT(falseValue2 == falseValue3);
+
+    ASSERT(falseValue3 == falseValue1);
+    ASSERT(falseValue3 == falseValue2);
+    ASSERT(falseValue3 == falseValue3);
+
+    ASSERT(trueValue1 == trueValue1);
+    ASSERT(trueValue1 == trueValue2);
+    ASSERT(trueValue1 == trueValue3);
+
+    ASSERT(trueValue2 == trueValue1);
+    ASSERT(trueValue2 == trueValue2);
+    ASSERT(trueValue2 == trueValue3);
+
+    ASSERT(trueValue3 == trueValue1);
+    ASSERT(trueValue3 == trueValue2);
+    ASSERT(trueValue3 == trueValue3);
+
+    ASSERT(falseValue1 != trueValue1);
+    ASSERT(falseValue1 != trueValue2);
+    ASSERT(falseValue1 != trueValue3);
+
+    ASSERT(falseValue2 != trueValue1);
+    ASSERT(falseValue2 != trueValue2);
+    ASSERT(falseValue2 != trueValue3);
+
+    ASSERT(falseValue3 != trueValue1);
+    ASSERT(falseValue3 != trueValue2);
+    ASSERT(falseValue3 != trueValue3);
+
+    ASSERT(trueValue1 != falseValue1);
+    ASSERT(trueValue1 != falseValue2);
+    ASSERT(trueValue1 != falseValue3);
+
+    ASSERT(trueValue2 != falseValue1);
+    ASSERT(trueValue2 != falseValue2);
+    ASSERT(trueValue2 != falseValue3);
+
+    ASSERT(trueValue3 != falseValue1);
+    ASSERT(trueValue3 != falseValue2);
+    ASSERT(trueValue3 != falseValue3);
+
+    ASSERT(falseValue3 || trueValue3);
+    ASSERT(trueValue3  || falseValue3);
+    ASSERT(trueValue3  && trueValue3);
+}
 
 // - - - - - - Configuration policies to instantiate HashTable with - - - - - -
 
@@ -1506,6 +1781,28 @@ struct TestDriver_FunctionPointers
            TestDriver< BasicKeyConfig<ELEMENT>
                      , size_t(*)(const ELEMENT&)
                      , bool(*)(const ELEMENT&,const ELEMENT&)
+                     , ::bsl::allocator<ELEMENT>
+                     >
+       > {
+};
+
+template <class ELEMENT>
+struct TestDriver_ConvertibleValueConfiguation
+     : TestDriver_ForwardTestCasesByConfiguation<
+           TestDriver< BasicKeyConfig<ELEMENT>
+                     , TestConvertibleValueHasher<ELEMENT>
+                     , TestConvertibleValueComparator<ELEMENT>
+                     , ::bsl::allocator<ELEMENT>
+                     >
+       > {
+};
+
+template <class ELEMENT>
+struct TestDriver_GenericFunctors
+     : TestDriver_ForwardTestCasesByConfiguation<
+           TestDriver< BasicKeyConfig<ELEMENT>
+                     , GenericHasher
+                     , GenericComparator
                      , ::bsl::allocator<ELEMENT>
                      >
        > {
@@ -3624,15 +3921,19 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
     //   any other valid state default constructor, and finally that the object
     //   destroys all its elements and leaks no memory on destruction.  For the
     //   purposes of testing, the default state will be a 'HashTable' having no
-    //   elements, having default constructed hasher, comparator and allocator,
-    //   and initially having no buckets.  The primary manipulators will be a
+    //   elements, having a default-constructed allocator, and having a hasher
+    //   and comparator supplied by the 'makeDefaultFunctor' factory function
+    //   (which provides a default-constructed functor where available, and is
+    //   specialized to provide a standard functor object otherwise), and
+    //   initially having no buckets.  The primary manipulators will be a
     //   free function that inserts an element of a specific type (created for
     //   the purpose of testing) and the 'removeAll' method.
     //
     // Concerns:
     //: 1 An object created with the value constructor (with or without a
-    //:   supplied allocator) has the supplied hasher, comparator, at least the
-    //:   initial number of buckets and allocator.
+    //:   supplied allocator) has the supplied hasher, comparator, allocator
+    //:   and maxLoadFactor, and at least the supplied initial number of
+    //:   buckets.
     //:
     //: 2 The number of buckets is 1 or a prime number.
     //:
@@ -3685,15 +3986,15 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
     //:
     //:19 'removeAll' does not allocate memory.
     //:
-    //:20 'setBootstrapMaxLoadFactor' modifies the 'maxLoadFactor' attribute
-    //:   unless the supplied value is less than or equal to 'loadFactor'.
+    //:20 Any argument can be 'const'.
     //:
-    //:21 'setBootstrapMaxLoadFactor' returns 'true' if it successfully changes
-    //:   the 'maxLoadFactor', and 'false' otherwise.
+    //:21 Any memory allocation is exception neutral.
     //:
-    //:22 Any argument can be 'const'.
+    //:22 The constructor fails by throwing a 'std::length_error' if the
+    //:   initial length of the bucket array cannot be computed.
     //:
-    //:23 Any memory allocation is exception neutral.
+    //:23 The constructor fails by the allocator throwing an exception if the
+    //:   initial bucket array is too large to allocate.
     //
     // Plan:
     //: 1 For each value of increasing length, 'L':
@@ -3748,7 +4049,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
     //
     //
     // Testing:
-    //*  HashTable(const HASHER&, const COMPARATOR&, SizeType, const ALLOC&)
+    //*  HashTable(HASHER, COMPARATOR, SizeType, float, ALLOC)
     //*  ~HashTable();
     //*  void removeAll();
     //*  insertElement      (test driver function, proxy for basic manipulator)
@@ -3989,7 +4290,8 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
                 ASSERTV(MAX_LF, LENGTH, CONFIG, X.size(),
                         LENGTH == X.size());
 
-                ASSERT(0 == verifyListContents<KEY_CONFIG>(X.elementListRoot(),
+                ASSERTV(MAX_LF, LENGTH, CONFIG, X,
+                       0 == verifyListContents<KEY_CONFIG>(X.elementListRoot(),
                                                            COMPARE,
                                                            VALUES,
                                                            LENGTH));
@@ -4293,6 +4595,15 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
                     0 == sa.numBlocksInUse());
         }
     }
+    }
+
+    if (verbose) printf("\nNegative Testing.\n");
+    {
+        bsls::AssertTestHandlerGuard hG;
+
+        ASSERT_SAFE_PASS_RAW(Obj(HASH, COMPARE, 0, 1.0f ))
+        ASSERT_SAFE_FAIL_RAW(Obj(HASH, COMPARE, 0, 0.0f ))
+        ASSERT_SAFE_FAIL_RAW(Obj(HASH, COMPARE, 0, -1.0f))
     }
 }
 
@@ -5029,6 +5340,8 @@ int main(int argc, char *argv[])
         // GENERATOR FUNCTIONS 'gg' and 'ggg'
         // --------------------------------------------------------------------
 
+        testCase3_ValidateEvilBooleanType();
+
         if (verbose) printf("\nTesting 'gg'"
                             "\n============\n");
 
@@ -5113,9 +5426,9 @@ int main(int argc, char *argv[])
         //:11 functors that cannot be swapped ('swap' is required to support
         //:   assignment, not bootstrap, default constructor, or most methods)
         //:
-        //:*12 functors whose argument(s) are convertible-form the key-type
+        //:12 functors whose argument(s) are convertible-form the key-type
         //:
-        //:*13 functors with templated function-call operators
+        //:13 functors with templated function-call operators
         //:
         //:14 support for simple set-like policy
         //:
@@ -5125,7 +5438,7 @@ int main(int argc, char *argv[])
         //:16 support for a minimal key type, with equality-comparable element
         //:   type
         //:
-        //:*17 support for comparison functors returning an evil boolean-like
+        //:17 support for comparison functors returning an evil boolean-like
         //:    type
         //
         // Plan:
@@ -5176,6 +5489,12 @@ int main(int argc, char *argv[])
                       testCase2,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
 
+        if (verbose) printf("\nTesting functors taking generic arguments"
+                            "\n-----------------------------------------\n");
+        RUN_EACH_TYPE(TestDriver_GenericFunctors,
+                      testCase2,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
+
         // Be sure to bootstrap the special 'grouped' configurations used in
         // test case 6.
         if (verbose) printf("\nTesting grouped hash with unique key values"
@@ -5200,6 +5519,7 @@ int main(int argc, char *argv[])
                       testCase2,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
 #endif
+
         // Remaining special cases
         if (verbose) printf("\nTesting degenerate map-like"
                             "\n---------------------------\n");

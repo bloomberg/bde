@@ -662,8 +662,8 @@ class HashTable {
         // 'loadFactor <= maxLoadFactor'.  If this function tries to
         // allocate a number of buckets larger than can be represented by this
         // hash table's 'SizeType', a 'std::length_error' exception will be
-        // thrown.  The behavior is undefined unless
-        // 'hint' points to a node in this hash table.
+        // thrown.  The behavior is undefined unless 'hint' points to a node
+        // in this hash table.
 
     template <class SOURCE_TYPE>
     bslalg::BidirectionalLink *insertIfMissing(
