@@ -15,8 +15,8 @@ namespace BloombergLP {
                                              "." STRINGIFY(BSL_VERSION_MINOR) \
                                              "." STRINGIFY(BSL_VERSION_PATCH)
 
-const char *bslscm::Version::d_ident = "$Id: "BSLSCM_VERSION_STRING" $";
-const char *bslscm::Version::d_what  = "@(#)"BSLSCM_VERSION_STRING;
+const char *bslscm::Version::d_ident = "$Id: " BSLSCM_VERSION_STRING " $";
+const char *bslscm::Version::d_what  = "@(#)"  BSLSCM_VERSION_STRING;
 
 const char *bslscm::Version::BSLSCM_D_VERSION    = BSLSCM_VERSION_STRING;
 const char *bslscm::Version::d_dependencies      = "";
