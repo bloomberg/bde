@@ -139,7 +139,7 @@ int baea_SerializableObjectProxy::loadSequenceElementProxy(
     if (untaggedAttrInfo) {
         // maybe an anonymous choice having a selection with this name?
         
-        info.d_loader(proxy, *this, untaggedAttrInfo->id());
+        info.d_elementLoader(proxy, *this, untaggedAttrInfo->id());
         if (proxy->d_objectInfo.is<ChoiceDecodeInfo>() &&
             proxy->choiceHasSelection(elementName, elementNameLength)) {
             // We don't need to "make" the selection here
@@ -637,7 +637,7 @@ bool baea_SerializableObjectProxy::sequenceHasAttribute(
         // maybe an anonymous choice having a selection with this name?
         
         baea_SerializableObjectProxy untaggedInfo;
-        info.d_loader(&untaggedInfo, *this, untaggedAttributeId);
+        info.d_elementLoader(&untaggedInfo, *this, untaggedAttributeId);
         if (untaggedInfo.d_objectInfo.is<ChoiceDecodeInfo>()) {
             return untaggedInfo.choiceHasSelection(name, nameLength); // RETURN
         }
