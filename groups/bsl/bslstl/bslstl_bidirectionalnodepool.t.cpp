@@ -1744,7 +1744,14 @@ void TestDriver<VALUE>::testCase2()
 
             mX.deleteNode(usedBlocks.back());
 
-            ASSERTV(-TYPE_ALLOC == oam.numBlocksInUseChange());
+            if (TYPE_ALLOC) {
+                ASSERTV(oam.numBlocksInUseChange(),
+                        -1 == oam.numBlocksInUseChange());
+            }
+            else {
+                ASSERTV(oam.numBlocksInUseChange(),
+                         0 == oam.numBlocksInUseChange());
+            }
 
             usedBlocks.pop();
         }
