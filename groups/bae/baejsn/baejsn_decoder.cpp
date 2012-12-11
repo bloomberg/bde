@@ -16,26 +16,21 @@ namespace BloombergLP {
 
 int baejsn_Decoder::decodeBinaryArray(bsl::vector<char> *value)
 {
-    enum { BAEJSN_MIN_ENUM_STRING_LENGTH = 2 };
-
     if (baejsn_Reader::BAEJSN_ELEMENT_VALUE == d_reader.tokenType()) {
         bslstl::StringRef dataValue;
         int rc = d_reader.value(&dataValue);
-        if (rc
-         || dataValue.length() <= BAEJSN_MIN_ENUM_STRING_LENGTH
-         || '"' != dataValue[0]
-         || '"' != dataValue[dataValue.length() - 1]) {
-            return -1;
-        }
 
-        dataValue.assign(dataValue.begin() + 1, dataValue.end() - 1);
+        // TBD: See if we can get rid of temp string
+
+        bsl::string base64String;
+        rc = baejsn_ParserUtil::getValue(&base64String, dataValue);
 
         bdede_Base64Decoder base64Decoder(true);
         bsl::back_insert_iterator<bsl::vector<char> > outputIterator(*value);
 
         rc = base64Decoder.convert(outputIterator,
-                                   dataValue.begin(),
-                                   dataValue.end());
+                                   base64String.begin(),
+                                   base64String.end());
 
         if (rc) {
             return -1;                                                // RETURN

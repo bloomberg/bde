@@ -3947,7 +3947,8 @@ int main(int argc, char *argv[])
             const baea::FeatureTestMessage& EXP = testObjects[ti];
 
             if (veryVerbose) {
-                P(ti) P(LINE) P(jsonText) P(EXP)
+                P(ti) P(LINE) P(jsonText)
+                EXP.print(bsl::cout, 1, 4);
             }
 
             baea::FeatureTestMessage value;

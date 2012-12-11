@@ -162,7 +162,7 @@ int baejsn_Reader::advanceToNextToken()
             return -1;                                                // RETURN
         }
 
-        bsl::cout << d_stringBuffer[d_cursor] << bsl::endl;
+//         bsl::cout << d_stringBuffer[d_cursor] << bsl::endl;
 
         switch (d_stringBuffer[d_cursor]) {
           case '[': {

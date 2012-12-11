@@ -470,7 +470,8 @@ bsl::ostream& baejsn_Encoder_EncodeImpl::logStream()
 
 template <typename TYPE>
 inline
-int baejsn_Encoder_EncodeImpl::encodeImp(const TYPE& value,
+int baejsn_Encoder_EncodeImpl::encodeImp(c
+onst TYPE& value,
                                          bdeat_TypeCategory::Sequence)
 {
     if (baejsn_EncoderOptions::BAEJSN_PRETTY == d_encodingStyle) {
