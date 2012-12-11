@@ -76,6 +76,29 @@ struct TestType {
    // argument for a template parameter.
 };
 
+void funcWithDefaultArg(int arg = 0);
+
+template <typename TYPE>
+void testFuncPtrType(TYPE)
+    // Removing a pointer from some function pointer types can be problematic
+    // for some compilers (e.g. AIX xlC).
+{
+    // First remove the pointer from the function pointer type and make sure it
+    // compiles.
+    typedef typename bsl::remove_pointer<TYPE>::type FUNC_TYPE;
+
+    // Now add the pointer back and verify that we end up with the same type,
+    // unless on a compiler that where removing the pointer didn't produce the
+    // expected result.
+#if !defined(BSLS_PLATFORM_CMP_AIX)
+    ASSERT((bsl::is_same<TYPE, FUNC_TYPE *>::value));
+#endif
+}
+
+void funcWithDefaultArg(int arg)
+{
+}
+
 }  // close unnamed namespace
 
 //=============================================================================
@@ -181,6 +204,9 @@ int main(int argc, char *argv[])
         printf("*: %d\n",
                is_same<bslmf::RemovePointer_Imp<int * const volatile>::Type,
                        int>::value);
+
+        // Test removing a pointer from some function pointer types.
+        testFuncPtrType(&funcWithDefaultArg);
 
       } break;
       default: {
