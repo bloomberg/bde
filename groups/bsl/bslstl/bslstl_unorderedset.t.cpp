@@ -15,7 +15,6 @@
 
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
-#include <bsls_util.h>
 
 #include <bsltf_stdtestallocator.h>
 #include <bsltf_templatetestfacility.h>
@@ -2570,7 +2569,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase13()
                 ASSERT(isConstValue(*it));
 
                 ASSERT(*it  ==  k);
-                ASSERT(BSLS_UTIL_ADDRESSOF(*it) != BSLS_UTIL_ADDRESSOF(k));
+                ASSERT(&*it != &k);
 
                 ASSERT(1 == mX.count(k));
                 ASSERT(1 ==  X.count(k));
@@ -3418,11 +3417,8 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase8()
             Obj mY(&oa);  const Obj& Y = gg(&mY, SPEC2);
             const Obj YY(Y, &scratch);
 
-            mX.max_load_factor(2.0f);
-            mY.max_load_factor(3.0f);
-
-            ASSERT(2.0f == X.max_load_factor());
-            ASSERT(3.0f == Y.max_load_factor());
+            mX.max_load_factor(2.0);
+            mY.max_load_factor(3.0);
 
             if (veryVerbose) { T_ P_(LINE2) P_(X) P_(Y) P(YY) }
 
@@ -3432,8 +3428,8 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase8()
 
                 mX.swap(mY);
 
-                ASSERT(3.0f == X.max_load_factor());
-                ASSERT(2.0f == Y.max_load_factor());
+                ASSERT(3.0 == X.max_load_factor());
+                ASSERT(2.0 == Y.max_load_factor());
 
                 ASSERTV(LINE1, LINE2, YY, X, YY == X);
                 ASSERTV(LINE1, LINE2, XX, Y, XX == Y);
@@ -3448,8 +3444,8 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase8()
 
                 swap(mX, mY);
 
-                ASSERT(2.0f == X.max_load_factor());
-                ASSERT(3.0f == Y.max_load_factor());
+                ASSERT(2.0 == X.max_load_factor());
+                ASSERT(3.0 == Y.max_load_factor());
 
                 ASSERTV(LINE1, LINE2, XX, X, XX == X);
                 ASSERTV(LINE1, LINE2, YY, Y, YY == Y);

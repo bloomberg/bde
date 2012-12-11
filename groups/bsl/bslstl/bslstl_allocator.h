@@ -376,10 +376,6 @@ BSL_OVERRIDES_STD mode"
 #include <bslmf_isbitwiseequalitycomparable.h>
 #endif
 
-#ifndef INCLUDED_BSLS_ASSERT
-#include <bsls_assert.h>
-#endif
-
 #ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
 #endif
@@ -504,8 +500,8 @@ class allocator {
 
     void construct(pointer p, const T& val);
         // Copy-construct a 'T' object at the memory address specified by 'p'.
-        // Do not directly allocate memory.  The behavior is undefined unless
-        // 'p' is not properly aligned for objects of type 'T'.
+        // Do not directly allocate memory.  Undefined if 'p' is not properly
+        // aligned for 'T'.
 
     void destroy(pointer p);
         // Call the 'T' destructor for the object pointed to by 'p'.  Do not
@@ -696,8 +692,6 @@ typename allocator<T>::pointer
 allocator<T>::allocate(typename allocator::size_type  n,
                        const void                    *hint)
 {
-    BSLS_ASSERT_SAFE(n <= this->max_size());
-
     // Both 'bslma::Allocator::size_type' and 'allocator<T>::size_type' have
     // the same width; however, the former is signed, but the latter is not.
     // Hence the cast in the argument of 'allocate' below.

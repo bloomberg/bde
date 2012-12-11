@@ -1088,7 +1088,7 @@ inline
 void
 unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::rehash(size_type numBuckets)
 {
-    d_impl.rehashForNumBuckets(numBuckets);
+    return d_impl.rehash(numBuckets);
 }
 
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
@@ -1096,7 +1096,7 @@ inline
 void
 unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::reserve(size_type numElements)
 {
-    d_impl.rehashForNumElements(numElements);
+    return d_impl.rehashForNumElements(numElements);
 }
 
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>

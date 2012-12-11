@@ -6,6 +6,7 @@ BSLS_IDENT("$Id$ $CSID$")
 
 #include <bslstl_equalto.h>  // for testing only
 #include <bslstl_hash.h>     // for testing only
+//#include <bslstl_pair.h>     // for testing only
 
 #include <bsls_nativestd.h>
 
@@ -54,71 +55,7 @@ native_std::size_t HashTable_ImpDetails::nextPrime(native_std::size_t n)
     static const native_std::size_t *const s_beginPrimes = s_primes;
     static const native_std::size_t *const s_endPrimes = s_primes + s_nPrimes;
 
-    const native_std::size_t *result = native_std::lower_bound(s_beginPrimes,
-                                                               s_endPrimes,
-                                                               n);
-    if (s_endPrimes == result) {
-        StdExceptUtil::throwLengthError("HashTable ran out of prime numbers.");
-    }
-
-    return *result;
-}
-
-size_t HashTable_ImpDetails::growBucketsForLoadFactor(size_t *capacity,
-                                                      size_t  minElements,
-                                                      size_t  requestedBuckets,
-                                                      double  maxLoadFactor)
-{
-    // Return the suggested number of buckets to index a linked list that
-    // can hold as many as the specified 'minElements' without exceeding
-    // the specified 'maxLoadFactor', and supporting at lead the specified
-    // number of 'requestedBuckets'.  Set the specified '*capactity' to the
-    // maximum length of linked list that the returned number of buckets
-    // could index without exceeding the maxLoadFactor.  The behavior is
-    // undefined unless '0 < maxLoadFactor', '0 < minElements' and
-    // '0 < requestedBuckets'.
-
-    BSLS_ASSERT_SAFE(  0 != capacity);
-    BSLS_ASSERT_SAFE(  0  < minElements);
-    BSLS_ASSERT_SAFE(  0  < requestedBuckets);
-    BSLS_ASSERT_SAFE(0.0  < maxLoadFactor);
-
-    static const size_t MAX_SIZE_T = native_std::numeric_limits<size_t>::max();
-    static const double MAX_AS_DBL = static_cast<double>(MAX_SIZE_T);
-
-    struct Impl {
-        static size_t roundToMax(double d) {
-            return d < MAX_AS_DBL
-                 ? static_cast<size_t>(d)
-                 : MAX_SIZE_T;
-        }
-        
-        static size_t throwIfOverMax(double d) {
-            if (d > MAX_AS_DBL) {
-                StdExceptUtil::throwLengthError(
-                                           "The number of buckets overflows.");
-            }
-
-            return static_cast<size_t>(d);
-        }
-    };
-
-
-    size_t result = native_std::max(
-                            requestedBuckets,
-                            Impl::throwIfOverMax(minElements / maxLoadFactor));
-
-    result = nextPrime(result);  // throws if too large
-
-    double newCapacity = static_cast<double>(result) * maxLoadFactor;
-
-    while (minElements > newCapacity ) {
-        result  = nextPrime(2 * result);  // throws if too large
-        newCapacity = static_cast<double>(result) * maxLoadFactor;
-    }
-    
-    *capacity = Impl::roundToMax(newCapacity);
-    return result;
+    return *native_std::lower_bound(s_beginPrimes, s_endPrimes, n);
 }
 
 }  // close package namespace
