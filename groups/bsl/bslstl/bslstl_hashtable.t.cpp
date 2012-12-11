@@ -337,64 +337,11 @@ typedef bslalg::BidirectionalLink    Link;
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
-namespace bsl {
-template <>
-struct equal_to< ::BloombergLP::bsltf::NonEqualComparableTestType> {
-    typedef ::BloombergLP::bsltf::NonEqualComparableTestType
-                                                          first_argument_type;
-    typedef ::BloombergLP::bsltf::NonEqualComparableTestType
-                                                          second_argument_type;
-    typedef bool                                          result_type;
-
-    bool operator()(const ::BloombergLP::bsltf::NonEqualComparableTestType& a,
-                    const ::BloombergLP::bsltf::NonEqualComparableTestType& b)
-                                                                          const
-    {
-        return BSL_TF_EQ(a, b);
-    }
-};
-
-template <>
-struct hash< ::BloombergLP::bsltf::NonEqualComparableTestType> {
-    typedef ::BloombergLP::bsltf::NonEqualComparableTestType argument_type;
-    typedef size_t                                           result_type;
-
-    size_t operator()(const ::BloombergLP::bsltf::NonEqualComparableTestType&
-                                                                   value) const
-    {
-        static const bsl::hash<int> EVALUATE_HASH = bsl::hash<int>();
-        return EVALUATE_HASH(value.data());
-    }
-};
-
-}
-
-namespace BloombergLP {
-namespace bslstl {
-// HashTable-specific print function.
-template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
-void debugprint(
-         const bslstl::HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>& t)
-{
-    if (0 == t.size()) {
-        printf("<empty>");
-    }
-    else {
-        for (Link *it = t.elementListRoot(); it; it = it->nextLink()) {
-            const typename KEY_CONFIG::KeyType& key =
-                                           ImpUtil::extractKey<KEY_CONFIG>(it);
-            bsls::BslTestUtil::callDebugprint(static_cast<char>(
-                             bsltf::TemplateTestFacility::getIdentifier(key)));
-        }
-    }
-    fflush(stdout);
-}
-
-}  // close namespace BloombergLP::bslstl
-}  // close namespace BloombergLP
-
-
 namespace TestTypes {
+
+                            // ===========================
+                            // class AwkwardMaplikeElement
+                            // ===========================
 
 class AwkwardMaplikeElement {
     // This class provides an awkward value-semantic type, designed to be used
@@ -462,7 +409,70 @@ void debugprint(const AwkwardMaplikeElement& value)
 } // close namespace TestTypes
 
 
+namespace bsl {
+
+                    // ============================================
+                    // class template bdl::equal_to specializations
+                    // ============================================
+
+template <>
+struct equal_to< ::BloombergLP::bsltf::NonEqualComparableTestType> {
+    typedef ::BloombergLP::bsltf::NonEqualComparableTestType
+                                                          first_argument_type;
+    typedef ::BloombergLP::bsltf::NonEqualComparableTestType
+                                                          second_argument_type;
+    typedef bool                                          result_type;
+
+    bool operator()(const ::BloombergLP::bsltf::NonEqualComparableTestType& a,
+                    const ::BloombergLP::bsltf::NonEqualComparableTestType& b)
+                                                                          const
+    {
+        return BSL_TF_EQ(a, b);
+    }
+};
+
+                    // ========================================
+                    // class template bdl::hash specializations
+                    // ========================================
+
+template <>
+struct hash< ::BloombergLP::bsltf::NonEqualComparableTestType> {
+    typedef ::BloombergLP::bsltf::NonEqualComparableTestType argument_type;
+    typedef size_t                                           result_type;
+
+    size_t operator()(const ::BloombergLP::bsltf::NonEqualComparableTestType&
+                                                                   value) const
+    {
+        static const bsl::hash<int> EVALUATE_HASH = bsl::hash<int>();
+        return EVALUATE_HASH(value.data());
+    }
+};
+
+} // close namespace bsl
+
 namespace BloombergLP {
+namespace bslstl {
+// HashTable-specific print function.
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+void debugprint(
+         const bslstl::HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>& t)
+{
+    if (0 == t.size()) {
+        printf("<empty>");
+    }
+    else {
+        for (Link *it = t.elementListRoot(); it; it = it->nextLink()) {
+            const typename KEY_CONFIG::KeyType& key =
+                                           ImpUtil::extractKey<KEY_CONFIG>(it);
+            bsls::BslTestUtil::callDebugprint(static_cast<char>(
+                             bsltf::TemplateTestFacility::getIdentifier(key)));
+        }
+    }
+    fflush(stdout);
+}
+
+}  // close namespace BloombergLP::bslstl
+
 namespace bsltf {
     
 template <>
@@ -580,9 +590,6 @@ struct EvilBooleanType {
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-bool g_enableTestEqualityComparator = true;
-bool g_enableTestHashFunctor = true;
-
                             // ===============================
                             // class GroupedEqualityComparator
                             // ===============================
@@ -663,21 +670,6 @@ class TestEqualityComparator {
     mutable int d_count;        // number of times 'operator()' is called
 
   public:
-    // CLASS METHOD
-    static void disableFunctor()
-        // Disable all objects of 'TestComparator' such that an 'ASSERT' will
-        // be triggered if 'operator()' is invoked
-    {
-        g_enableTestEqualityComparator = false;
-    }
-
-    static void enableFunctor()
-        // Enable all objects of 'TestComparator' such that 'operator()' may
-        // be invoked
-    {
-        g_enableTestEqualityComparator = true;
-    }
-
     // CREATORS
     //! TestEqualityComparator(const TestEqualityComparator& original) =
     //                                                                 default;
@@ -704,10 +696,6 @@ class TestEqualityComparator {
         // specified 'lhs' is less than integer representation of the specified
         // 'rhs'.
     {
-        if (!g_enableTestEqualityComparator) {
-            ASSERTV(!"'TestComparator' was invoked when it was disabled");
-        }
-
         ++d_count;
 
         return bsltf::TemplateTestFacility::getIdentifier<TYPE>(lhs)
@@ -751,21 +739,6 @@ class TestHashFunctor {
     mutable int d_count;        // number of times 'operator()' is called
 
   public:
-    // CLASS METHOD
-    static void disableFunctor()
-        // Disable all objects of 'TestComparator' such that an 'ASSERT' will
-        // be triggered if 'operator()' is invoked
-    {
-        g_enableTestHashFunctor = false;
-    }
-
-    static void enableFunctor()
-        // Enable all objects of 'TestComparator' such that 'operator()' may
-        // be invoked
-    {
-        g_enableTestHashFunctor = true;
-    }
-
     // CREATORS
     //! TestHashFunctor(const TestHashFunctor& original) = default;
         // Create a copy of the specified 'original'.
@@ -785,10 +758,6 @@ class TestHashFunctor {
         // specified 'lhs' is less than integer representation of the specified
         // 'rhs'.
     {
-        if (!g_enableTestHashFunctor) {
-            ASSERTV(!"'TestComparator' was invoked when it was disabled");
-        }
-
         ++d_count;
 
         return bsltf::TemplateTestFacility::getIdentifier<TYPE>(obj);
@@ -1353,8 +1322,8 @@ Link* insertElement(
 {
     BSLS_ASSERT(hashTable);
 
-    if ((hashTable->size() + 1)
-        > hashTable->maxLoadFactor() * hashTable->numBuckets() ) {
+    if (static_cast<double>(hashTable->size() + 1) >
+        hashTable->maxLoadFactor() * hashTable->numBuckets() ) {
         return 0;                                                     // RETURN
     }
     return hashTable->insert(value);
@@ -1381,8 +1350,6 @@ bool isValidHashTable(bslalg::BidirectionalLink      *listRoot,
 // ============================================================================
 //                         TEST DRIVER HARNESS
 // ----------------------------------------------------------------------------
-
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 void testCase3_ValidateEvilBooleanType()
 {
