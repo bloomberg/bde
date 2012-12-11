@@ -15,6 +15,7 @@
       ],
       'bsl_headers': [
         'bsl+bslhdrs/bsl_algorithm.h',
+        'bsl+bslhdrs/bsl_bitset.h',
         'bsl+bslhdrs/bsl_c_assert.h',
         'bsl+bslhdrs/bsl_c_ctype.h',
         'bsl+bslhdrs/bsl_c_errno.h',
@@ -253,6 +254,7 @@
         'bslstl/bslstl_allocatortraits.h',
         'bslstl/bslstl_bidirectionaliterator.h',
         'bslstl/bslstl_bidirectionalnodepool.h',
+        'bslstl/bslstl_bitset.h',
         'bslstl/bslstl_deque.h',
         'bslstl/bslstl_equalto.h',
         'bslstl/bslstl_forwarditerator.h',
