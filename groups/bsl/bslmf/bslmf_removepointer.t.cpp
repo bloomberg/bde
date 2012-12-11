@@ -3,8 +3,10 @@
 
 #include <bslmf_issame.h>
 
-#include <cstdlib>
+#include <bsls_bsltestutil.h>
+
 #include <cstdio>
+#include <cstdlib>
 
 using namespace bsl;
 using namespace BloombergLP;
@@ -18,13 +20,13 @@ using std::atoi;
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// The component under test defines a meta-functions, 'bsl::remove_pointer',
+// The component under test defines a meta-function, 'bsl::remove_pointer',
 // that transforms a pointer type to the type pointed to by the pointer type.
-// We need to ensure that the values returned by the meta-function is correct
+// We need to ensure that the values returned by the meta-function are correct
 // for each possible category of types.
 //
 // ----------------------------------------------------------------------------
-// PUBLIC CLASS DATA
+// PUBLIC TYPES
 // [ 1] bsl::remove_pointer::type
 //
 // ----------------------------------------------------------------------------
@@ -63,11 +65,15 @@ void aSsErT(bool b, const char *s, int i)
 #define T_  BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
 #define L_  BSLS_BSLTESTUTIL_L_  // current Line number
 
+//=============================================================================
+//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+//-----------------------------------------------------------------------------
+
 namespace {
 
 struct TestType {
    // This user-defined type is intended to be used during testing as an
-   // argument for a template parameter..
+   // argument for a template parameter.
 };
 
 }  // close unnamed namespace
@@ -82,8 +88,7 @@ int main(int argc, char *argv[])
     int verbose = argc > 2;
     int veryVerbose = argc > 3;
 
-    (void) verbose;
-    (void) veryVerbose;
+    (void)veryVerbose;
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
@@ -114,25 +119,25 @@ int main(int argc, char *argv[])
 //
 ///Example 1: Get the Type Pointed to by a Pointer Type
 /// - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose that we want to get the type pointed to by a poiner type.
+// Suppose that we want to get the type pointed to by a pointer type.
 //
-// First, we create two 'typedef's -- a pointer type ('MyPtrType')
-// and the type pointed to by the pointer type ('MyType'):
+// First, we create two 'typedef's -- a pointer type ('MyPtrType') and the type
+// pointed to by the pointer type ('MyType'):
 //..
-//  typedef int   MyType;
-//  typedef int * MyPtrType;
+    typedef int  MyType;
+    typedef int *MyPtrType;
 //..
 // Now, we get the type pointed to by 'MyPtrType' using 'bsl::remove_pointer'
 // and verify that the resulting type is the same as 'MyType':
 //..
-//  assert((bsl::is_same<bsl::remove_pointer<MyPtrType>::type,
-//                       MyType>::value));
+    ASSERT((bsl::is_same<bsl::remove_pointer<MyPtrType>::type,
+                         MyType>::value));
 //..
 
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // 'bsl::remove_pointer'
+        // 'bsl::remove_pointer::type'
         //   Ensure that the 'typedef' 'type' of 'bsl::remove_pointer' has the
         //   correct type for a variety of template parameter types.
         //
@@ -148,11 +153,11 @@ int main(int argc, char *argv[])
         //   each (template parameter) 'TYPE' in the concerns.
         //
         // Testing:
-        //   bsl::remove_pointer
+        //   bsl::remove_pointer::type
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nbsl::remove_pointer\n"
-                            "\n===================\n");
+        if (verbose) printf("\n'bsl::remove_pointer::type'\n"
+                            "\n===========================\n");
 
         // C-1
         ASSERT((is_same<remove_pointer<int *>::type, int>::value));
@@ -165,10 +170,17 @@ int main(int argc, char *argv[])
                                                                  int>::value));
         ASSERT((is_same<remove_pointer<int const *>::type, int const>::value));
 
-
         // C-2
         ASSERT((is_same<remove_pointer<int>::type, int>::value));
         ASSERT((is_same<remove_pointer<int *&>::type, int *&>::value));
+
+        printf("*: %d\n",
+               is_same<bslmf::RemovePointer_Imp<int * const volatile>::Type,
+                       int * const volatile>::value);
+
+        printf("*: %d\n",
+               is_same<bslmf::RemovePointer_Imp<int * const volatile>::Type,
+                       int>::value);
 
       } break;
       default: {

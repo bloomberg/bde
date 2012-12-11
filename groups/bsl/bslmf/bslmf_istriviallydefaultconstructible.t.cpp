@@ -1,5 +1,4 @@
 // bslmf_istriviallydefaultconstructible.t.cpp                        -*-C++-*-
-
 #include <bslmf_istriviallydefaultconstructible.h>
 
 #include <bslmf_nestedtraitdeclaration.h>
@@ -20,7 +19,7 @@ using namespace std;
 // template parameter type is trivially default-constructible.  By default, the
 // meta-function supports a restricted set of type categories, but can be
 // extended to support other types through either template specialization or
-// use of the 'BSLMF_NESTED_TRAIT_DECLARATION'.
+// use of the 'BSLMF_NESTED_TRAIT_DECLARATION' macro.
 //
 // Thus, we need to ensure that the natively-supported types are correctly
 // identified by the meta-function by testing the meta-function with each of
@@ -163,7 +162,6 @@ typedef int (UserDefinedNonTdcTestType::*MethodPtrTestType) ();
 
 }  // close unnamed namespace
 
-
 namespace bsl {
 
 template <>
@@ -172,6 +170,10 @@ struct is_trivially_default_constructible<
 };
 
 } // close namespace bsl
+
+//=============================================================================
+//                              MAIN PROGRAM
+//-----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
@@ -215,8 +217,8 @@ int main(int argc, char *argv[])
 //
 // First, we define a set of types to evaluate:
 //..
-          typedef int MyFundamentalType;
-          typedef int& MyFundamentalTypeReference;
+    typedef int MyFundamentalType;
+    typedef int& MyFundamentalTypeReference;
 //
 //  class MyTriviallyDefaultConstructibleType {
 //  };
@@ -252,15 +254,15 @@ int main(int argc, char *argv[])
 // Now, we verify whether each type is trivially default-constructible using
 // 'bsl::is_trivially_default_constructible':
 //..
-          ASSERT(true  ==
+    ASSERT(true  ==
             bsl::is_trivially_default_constructible<MyFundamentalType>::value);
-          ASSERT(false ==
+    ASSERT(false ==
                  bsl::is_trivially_default_constructible<
                      MyFundamentalTypeReference>::value);
-          ASSERT(true  ==
+    ASSERT(true  ==
                  bsl::is_trivially_default_constructible<
                      MyTriviallyDefaultConstructibleType>::value);
-          ASSERT(false ==
+    ASSERT(false ==
                  bsl::is_trivially_default_constructible<
                      MyNonTriviallyDefaultConstructibleType>::value);
 //..
@@ -293,8 +295,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose)
-            printf("\n'bsl::is_trivially_default_constructible' manual\n"
-                   "\n================================================\n");
+            printf("\nExtending 'bsl::is_trivially_default_constructible'\n"
+                   "\n===================================================\n");
 
         // C-1
         ASSERT(!bsl::is_trivially_default_constructible<
@@ -311,7 +313,7 @@ int main(int argc, char *argv[])
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // 'bsl::is_trivially_default_constructible' intrinsic
+        // 'bsl::is_trivially_default_constructible::value'
         //   Ensure the 'bsl::is_trivially_default_constructible' meta-function
         //   returns the correct value for intrinsically supported types.
         //
@@ -335,8 +337,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose)
-            printf("\n'bsl::is_trivially_default_constructible' intrinsic\n"
-                   "\n===================================================\n");
+            printf("\n'bsl::is_trivially_default_constructible::value'\n"
+                   "\n================================================\n");
 
         // C-1
         ASSERT(!bsl::is_trivially_default_constructible<

@@ -7,10 +7,10 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a meta-function for adding a top-level cv-qualifier
+//@PURPOSE: Provide a meta-function for adding top-level cv-qualifiers.
 //
 //@CLASSES:
-//  bsl::add_const: meta-function for adding a top-level cv-qualifier
+//  bsl::add_const: meta-function for adding top-level cv-qualifiers
 //
 //@SEE_ALSO: bslmf_removeconst
 //
@@ -72,6 +72,7 @@ struct add_cv {
     // with the top-level 'const'-qualifier and 'volatile'-qualifier added;
     // otherwise, 'type' is an alias to 'TYPE'.
 
+    // PUBLIC TYPES
     typedef typename add_const<typename add_volatile<TYPE>::type>::type type;
         // This 'typedef' is an alias alias to the (template parameter) 'TYPE'
         // with a top-level 'const'-qualifier and 'volatile'-qualifier added if

@@ -16,7 +16,7 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION: This component defines two meta-functions, 'bsl::is_class' and
 // 'BloombergLP::bslmf::IsClass', both of which may be used to query whether a
 // type is a 'class', 'struct', or 'union', optionally qualified with 'const'
-// or volatile'.
+// or 'volatile'.
 //
 // 'bsl::is_class' meets the requirements of the 'is_class' template defined in
 // the C++11 standard [meta.unary.cat], while 'bslmf::IsClass' was devised
@@ -80,7 +80,7 @@ namespace bslmf {
                              // struct IsClass_Imp
                              // ==================
 
-template <typename TYPE>
+template <class TYPE>
 struct IsClass_Imp {
     // This 'struct' template provides a meta-function to determine whether the
     // (template parameter) 'TYPE' is a class type.
@@ -88,11 +88,11 @@ struct IsClass_Imp {
     typedef struct { char a; }    YesType;
     typedef struct { char a[2]; } NoType;
 
-    template <typename TEST_TYPE>
+    template <class TEST_TYPE>
     static
     YesType test(int TEST_TYPE::*);
 
-    template <typename TEST_TYPE>
+    template <class TEST_TYPE>
     static
     NoType test(...);
 
@@ -108,10 +108,10 @@ namespace bsl {
                              // struct is_class
                              // ===============
 
-template <typename TYPE>
+template <class TYPE>
 struct is_class : integral_constant<bool,
                                  BloombergLP::bslmf::IsClass_Imp<
-                                     typename remove_cv<TYPE>::type>::Value> {
+                                      typename remove_cv<TYPE>::type>::Value> {
     // This 'struct' template implements the 'is_class' meta-function defined
     // in the C++11 standard [meta.unary.cat] to determine if the (template
     // parameter) 'TYPE' is a class.
@@ -121,25 +121,23 @@ struct is_class : integral_constant<bool,
 
 namespace BloombergLP {
 namespace bslmf {
-
                             // ==============
                             // struct IsClass
                             // ==============
 
-template <typename TYPE>
+template <class TYPE>
 struct IsClass : bsl::is_class<TYPE>::type {
-    // This metafunction derives from 'bsl::true_type' if the specified 'TYPE'
-    // is a class type, or is a reference to a class type, and from
-    // 'bsl::false_type' otherwise.
+    // This meta-function derives from 'bsl::true_type' if the (template
+    // parameter) 'TYPE' is a class type, or a reference to a class type, and
+    // from 'bsl::false_type' otherwise.
     //
     // Note that although this 'struct' is functionally identical to
-    // 'bsl::is_class', and the use of 'bsl::is_class' should be preferred.
+    // 'bsl::is_class', the use of 'bsl::is_class' should be preferred.
 };
 
 }  // close package namespace
-
-
 }  // close enterprise namespace
+
 
 #endif
 

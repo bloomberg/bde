@@ -4,10 +4,6 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
-namespace BloombergLP {
-
-} // Close namespace BloombergLP
-
 // ----------------------------------------------------------------------------
 // Copyright (C) 2012 Bloomberg L.P.
 //

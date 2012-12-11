@@ -3,26 +3,19 @@
 
 #include <bsls_bsltestutil.h>
 
-#include <iostream>
-#include <cstdio>
-#include <cstdlib>
+#include <cstdio>   // 'printf'
+#include <cstdlib>  // 'atoi'
 
-using namespace bsl;
 using namespace BloombergLP;
-
-using std::cerr;
-using std::endl;
-using std::atoi;
-using std::printf;
-using std::fprintf;
+using namespace std;
 
 //=============================================================================
 //                                TEST PLAN
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// The object under test is a meta-function, 'bsl::is_function', which
-// determine whether a template parameter type is a function type.  Thus, we
+// The component under test defines a meta-function, 'bsl::is_function', that
+// determines whether a template parameter type is a function type.  Thus, we
 // need to ensure that the value returned by this meta-function is correct for
 // each possible category of types.
 //
@@ -71,51 +64,61 @@ void aSsErT(bool b, const char *s, int i)
 
 namespace {
 
-enum   EnumTestType {
-    // This user-defined 'enum' type is intended to be used during testing as
-    // an argument for the template parameter 'TYPE' of 'bsl::is_function'.
+enum EnumTestType {
+    // This user-defined 'enum' type is intended to be used for testing as the
+    // template parameter 'TYPE' of 'bsl::is_function'.
 };
 
 struct StructTestType {
-    // This user-defined 'struct' type is intended to be used during testing as
-    // an argument for the template parameter 'TYPE' of 'bsl::is_function'.
+    // This user-defined 'struct' type is intended to be used for testing as
+    // the template parameter 'TYPE' of 'bsl::is_function'.
 };
 
-union  UnionTestType {
-    // This user-defined 'union' type is intended to be used during testing as
-    // an argument for the template parameter 'TYPE' of 'bsl::is_function'.
+union UnionTestType {
+    // This user-defined 'union' type is intended to be used for testing as the
+    // template parameter 'TYPE' of 'bsl::is_function'.
 };
 
-class  BaseClassTestType {
-    // This user-defined base class type is intended to be used during testing
-    // as an argument for the template parameter 'TYPE' of 'bsl::is_function'.
+class BaseClassTestType {
+    // This user-defined base class type is intended to be used for testing as
+    // the template parameter 'TYPE' of 'bsl::is_function'.
 };
 
-class  DerivedClassTestType : public BaseClassTestType {
-    // This user-defined derived class type is intended to be used during
-    // testing as an argument for the template parameter 'TYPE' of
-    // 'bsl::is_function'.
+class DerivedClassTestType : public BaseClassTestType {
+    // This user-defined derived class type is intended to be used for testing
+    // as the template parameter 'TYPE' of 'bsl::is_function'.
 };
 
 typedef int (StructTestType::*MethodPtrTestType) ();
-    // This non-static function member type is intended to be used during
-    // testing as an argument for the template parameter 'TYPE' of
-    // 'bsl::is_function'.
+    // This pointer to non-static member function type is intended to be used
+    // for testing as the template parameter 'TYPE' of 'bsl::is_function'.
 
 typedef void (*FunctionPtrTestType) ();
-    // This function pointer type is intended to be used during testing as an
-    // argument as an argument for the template parameter 'TYPE' of
+    // This function pointer type is intended to be used for testing as the
+    // template parameter 'TYPE' of 'bsl::is_function'.
+
+typedef void VoidRetNoParamFunctionTestType();
+    // This function type having 'void' return type and no parameters is
+    // intended to be used for testing as the template parameter 'TYPE' of
     // 'bsl::is_function'.
 
-typedef int StructTestType::* PMD;
-    // This class public data member pointer type is intended to be used during
-    // testing as an argument as an argument for the template parameter 'TYPE'
-    // of 'bsl::is_function'.
+typedef int IntRetNoParamFunctionTestType();
+    // This function type having 'int' return type and no parameters is
+    // intended to be used for testing as the template parameter 'TYPE' of
+    // 'bsl::is_function'.
+
+typedef int IntRetParamFunctionTestType(int, int);
+    // This function type having 'int' return type and two 'int' parameters is
+    // intended to be used for testing as the template parameter 'TYPE' of
+    // 'bsl::is_function'.
+
+typedef int StructTestType::*PMD;
+    // This pointer to member object type is intended to be used for testing as
+    // the template parameter 'TYPE' of 'bsl::is_function'.
 
 struct Incomplete;
-    // This incomplete 'struct' type is intended to be used during testing as
-    // an argument as an argument for the template parameter 'TYPE' of
-    // 'bsl::is_function'.
+    // This incomplete 'struct' type is intended to be used for testing as the
+    // template parameter 'TYPE' of 'bsl::is_function'.
 
 }  // close unnamed namespace
 
@@ -182,7 +185,7 @@ int main(int argc, char *argv[])
 //
 ///Example 1: Verify Function Types
 /// - - - - - - - - - - - - - - - -
-// Suppose that we want to assert whether a particular type is a function type.
+// Suppose that we want to assert whether a set of types are function types.
 //
 // Now, we instantiate the 'bsl::is_function' template for a non-function type
 // and a function type, and assert the 'value' static data member of each
@@ -196,7 +199,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // 'bsl::is_function::value'
         //   Ensure that the static data member 'value' of 'bsl::is_function'
-        //   instantiations having various (template parameter) 'TYPES' has the
+        //   instantiations having various (template parameter) 'TYPE's has the
         //   correct value.
         //
         // Concerns:
@@ -207,7 +210,7 @@ int main(int argc, char *argv[])
         //:   cv-qualified) user-defined type.
         //:
         //: 3 'is_function::value' is 'false' when 'TYPE' is a (possibly
-        //:   cv-qualified) pointer type.
+        //:   cv-qualified) pointer or pointer-to-member type.
         //:
         //: 4 'is_function::value' is 'true' when 'TYPE' is a (possibly
         //:   cv-qualified) function type.
@@ -220,8 +223,8 @@ int main(int argc, char *argv[])
         //   bsl::is_function::value
         // --------------------------------------------------------------------
 
-        if (verbose) printf("bsl::is_function::value\n"
-                            "=======================\n");
+        if (verbose) printf("'bsl::is_function::value'\n"
+                            "=========================\n");
 
         // C-1
         TYPE_ASSERT_CVQ_SUFFIX(bsl::is_function, void, false);
@@ -273,15 +276,21 @@ int main(int argc, char *argv[])
         TYPE_ASSERT_CVQ_PREFIX(bsl::is_function, void (void), true);
         TYPE_ASSERT_CVQ_PREFIX(bsl::is_function, int  (void), true);
         TYPE_ASSERT_CVQ_PREFIX(bsl::is_function, void (int),  true);
+        TYPE_ASSERT_CVQ_PREFIX(
+                       bsl::is_function, VoidRetNoParamFunctionTestType, true);
+        TYPE_ASSERT_CVQ_PREFIX(
+                       bsl::is_function, IntRetNoParamFunctionTestType,  true);
+        TYPE_ASSERT_CVQ_PREFIX(
+                       bsl::is_function, IntRetParamFunctionTestType,    true);
       } break;
       default: {
-        cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
-        testStatus = -1;
+          fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
+          testStatus = -1;
       }
     }
 
     if (testStatus > 0) {
-        cerr << "Error, non-zero test status = " << testStatus << "." << endl;
+        fprintf(stderr, "Error, non-zero test status = %d.\n", testStatus);
     }
 
     return testStatus;

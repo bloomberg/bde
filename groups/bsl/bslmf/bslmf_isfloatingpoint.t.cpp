@@ -3,11 +3,10 @@
 
 #include <bsls_bsltestutil.h>
 
-#include <cstdlib>
 #include <cstdio>
+#include <cstdlib>
 
 using namespace std;
-using namespace bsl;
 using namespace BloombergLP;
 
 //=============================================================================
@@ -15,9 +14,9 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// The component under test defines a meta-functions, 'bsl::is_floating_point',
-// that determine whether a template parameter type is a floating-point type.
-// Thus, we need to ensure that the values returned by the meta-functions is
+// The component under test defines a meta-function, 'bsl::is_floating_point',
+// that determines whether a template parameter type is a floating-point type.
+// Thus, we need to ensure that the values returned by the meta-function are
 // correct for each possible category of types.
 //
 // ----------------------------------------------------------------------------
@@ -70,25 +69,28 @@ struct TestType {
     // This user-defined type is used for testing.
 };
 
-typedef int (TestType::*MethodPtrTestType) ();
-    // This pointer to non-static function member type is used for testing.
+enum EnumTestType {
+    // This 'enum' type is used for testing.
+    ENUM_TEST_VALUE0 = 0,
+    ENUM_TEST_VALUE1,
+};
 
-typedef void (*FunctionPtrTestType) ();
-    // This function pointer type is used for testing.
+typedef float (TestType::*RetFloatingPointMethodPtrType) ();
+    // This pointer to function member type that returns an integral type is
+    // used for testing.
+
+typedef double (*RetFloatingPointFunctionPtrType) ();
+    // This pointer to function type that returns an floating-point type
+    // is used for testing.
+
 
 }  // close unnamed namespace
 
-#define TYPE_ASSERT_CVQ(metaFunc, member, type, result)                      \
+#define TYPE_ASSERT_CVQ(metaFunc, member, type, result)                       \
     ASSERT(result == metaFunc<type>::member);                                 \
-    ASSERT(result == metaFunc<type const>::member);                           \
-    ASSERT(result == metaFunc<type volatile>::member);                        \
-    ASSERT(result == metaFunc<type const volatile>::member);
-
-#define TYPE_ASSERT_CVQ_REF(metaFunc, member, type, result)                   \
-    ASSERT(result == metaFunc<type&>::member);                                \
-    ASSERT(result == metaFunc<type const&>::member);                          \
-    ASSERT(result == metaFunc<type volatile&>::member);                       \
-    ASSERT(result == metaFunc<type const volatile&>::member);
+    ASSERT(result == metaFunc<const type>::member);                           \
+    ASSERT(result == metaFunc<volatile type>::member);                        \
+    ASSERT(result == metaFunc<const volatile type>::member);
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -112,7 +114,7 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        //:   links, and runs as shown.z
         //
         // Plan:
         //: 1 Incorporate usage example from header into test driver, remove
@@ -131,21 +133,21 @@ int main(int argc, char *argv[])
 // In this section we show intended use of this component.
 //
 ///Example 1: Verify Floating-Point Types
-///- - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - -
 // Suppose that we want to assert whether a particular type is a floating-point
 // type.
 //
 // First, we create two 'typedef's -- a floating-point type and a
 // non-floating-point type:
 //..
-        typedef void MyType;
-        typedef float  MyFloatingPointType;
+    typedef void  MyType;
+    typedef float MyFloatingPointType;
 //..
 // Now, we instantiate the 'bsl::is_floating_point' template for each of the
 // 'typedef's and assert the 'value' static data member of each instantiation:
 //..
-        ASSERT(false == bsl::is_floating_point<MyType>::value);
-        ASSERT(true == bsl::is_floating_point<MyFloatingPointType>::value);
+    ASSERT(false == bsl::is_floating_point<MyType>::value);
+    ASSERT(true  == bsl::is_floating_point<MyFloatingPointType>::value);
 //..
 
       } break;
@@ -153,16 +155,31 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // 'bsl::is_floating_point::value'
         //   Ensure that 'bsl::is_floating_point' returns the correct values
-        //   for a variety of a variety of template parameter types.
+        //   for a variety of template parameter types.
         //
         // Concerns:
         //: 1 'is_floating_point::value' is 'false' when 'TYPE' is a (possibly
-        //:   cv-qualified) non-integral primitve type.
-        //
+        //:   cv-qualified) non-integral primitive type.
+        //:
         //: 2 'is_floating_point::value' is 'false' when 'TYPE' is a (possibly
         //:   cv-qualified) user-defined type.
         //:
-        //: 3 'is_floating_point::value' is 'true' when 'TYPE' is a (possibly
+        //: 3 'is_floating_point::value' is 'false' when 'TYPE' is a (possibly
+        //:   cv-qualified) enum type.
+        //:
+        //: 4 'is_floating_point::value' is 'false' when 'TYPE' is a pointer to
+        //:   (possibly cv-qualified) floating-point type.
+        //:
+        //: 5 'is_floating_point::value' is 'false' when 'TYPE' is a reference
+        //:   to (possibly cv-qualified) floating-point type.
+        //:
+        //: 6 'is_integral::value' is 'false' when 'TYPE' is a function pointer
+        //:   type returning an integral type.
+        //:
+        //: 7 'is_integral::value' is 'false' when 'TYPE' is a function member
+        //:   pointer type returning an integral type.
+        //:
+        //: 8 'is_floating_point::value' is 'true' when 'TYPE' is a (possibly
         //:   cv-qualified) floating-point type.
         //
         // Plan:
@@ -184,6 +201,31 @@ int main(int argc, char *argv[])
         TYPE_ASSERT_CVQ(bsl::is_floating_point, value, TestType, false);
 
         // C-3
+        TYPE_ASSERT_CVQ(bsl::is_floating_point, value, EnumTestType, false);
+
+        // C-4
+        TYPE_ASSERT_CVQ(bsl::is_floating_point, value, float *, false);
+        TYPE_ASSERT_CVQ(bsl::is_floating_point, value, double *, false);
+        TYPE_ASSERT_CVQ(bsl::is_floating_point, value, long double *, false);
+
+        // C-5
+        TYPE_ASSERT_CVQ(bsl::is_floating_point, value, float&, false);
+        TYPE_ASSERT_CVQ(bsl::is_floating_point, value, double&, false);
+        TYPE_ASSERT_CVQ(bsl::is_floating_point, value, long double&, false);
+
+        // C-6
+        TYPE_ASSERT_CVQ(bsl::is_floating_point,
+                        value,
+                        RetFloatingPointFunctionPtrType,
+                        false);
+
+        // C-7
+        TYPE_ASSERT_CVQ(bsl::is_floating_point,
+                        value,
+                        RetFloatingPointMethodPtrType,
+                        false);
+
+        // C-8
         TYPE_ASSERT_CVQ(bsl::is_floating_point, value, float, true);
         TYPE_ASSERT_CVQ(bsl::is_floating_point, value, double, true);
         TYPE_ASSERT_CVQ(bsl::is_floating_point, value, long double, true);

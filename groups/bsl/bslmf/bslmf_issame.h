@@ -82,9 +82,8 @@ namespace bsl {
                             // struct is_same
                             // ==============
 
-template <typename TYPE1, typename TYPE2>
-struct is_same : false_type
-{
+template <class TYPE1, class TYPE2>
+struct is_same : false_type {
     // This 'struct' template provides a meta-function to determine whether the
     // (template parameter) 'TYPE1' and the (template parameter) 'TYPE2' are
     // same.  This generic default template derives from 'bsl::false_type'.  A
@@ -92,9 +91,8 @@ struct is_same : false_type
     // 'bsl::true_type'.
 };
 
-template <typename TYPE>
-struct is_same<TYPE, TYPE> : true_type
-{
+template <class TYPE>
+struct is_same<TYPE, TYPE> : true_type {
      // This partial specialization of 'is_same' derives from 'bsl::true_type'
      // for when the (template parameter) types are same.
 };
@@ -109,9 +107,8 @@ namespace bslmf {
                             // struct IsSame
                             // =============
 
-template <typename TYPE1, typename TYPE2>
-struct IsSame : bsl::is_same<TYPE1, TYPE2>::type
-{
+template <class TYPE1, class TYPE2>
+struct IsSame : bsl::is_same<TYPE1, TYPE2>::type {
     // This 'struct' template implements a meta-function to determine if the
     // (template parameter) 'TYPE1' and the (template parameter) 'TYPE2' are
     // same.  This 'struct' derives from 'bsl::true_type' if 'TYPE1' and

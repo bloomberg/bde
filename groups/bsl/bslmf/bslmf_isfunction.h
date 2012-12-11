@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a compile-time check for function types.
+//@PURPOSE: Provide a compile-time check for determining function types.
 //
 //@CLASSES:
 //  bsl::is_function: standard meta-function for determining function types
@@ -15,7 +15,8 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: bslmf_integralconstant
 //
 //@DESCRIPTION: This component defines a meta-function, 'bsl::is_function',
-// which may be used to query whether a type is a function type.
+// that may be used to query whether a template parameter type is a function
+// type.
 //
 // 'bsl::is_function' meets the requirements of the 'is_function' template
 // defined in the C++11 standard [meta.unary.cat].
@@ -26,7 +27,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Verify Function Types
 /// - - - - - - - - - - - - - - - -
-// Suppose that we want to assert whether a particular type is a function type.
+// Suppose that we want to assert whether a set of types are function types.
 //
 // Now, we instantiate the 'bsl::is_function' template for both a non-function
 // type and a function type, and assert the 'value' static data member of each
@@ -40,21 +41,25 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
-#include <bslmf_integralconstant.h>
+#ifndef INCLUDED_BSLMF_ADDPOINTER
+#include <bslmf_addpointer.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_FUNCTIONPOINTERTRAITS
 #include <bslmf_functionpointertraits.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_ADDPOINTER
-#include <bslmf_addpointer.h>
+#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
+#include <bslmf_integralconstant.h>
 #endif
 
 namespace bsl {
 
-template <typename TYPE>
+                             // ==================
+                             // struct is_function
+                             // ==================
+
+template <class TYPE>
 struct is_function
     : integral_constant<
             bool,
@@ -62,9 +67,9 @@ struct is_function
                       typename add_pointer<TYPE>::type>::IS_FUNCTION_POINTER> {
     // This 'struct' template implements the 'is_function' meta-function
     // defined in the C++11 standard [meta.unary.cat] to determine if the
-    // (template parameter) 'TYPE' is a function.  This 'struct' derives from
-    // 'bsl::true_type' if the 'TYPE' is a function type, and 'bsl::false_type'
-    // otherwise.
+    // (template parameter) 'TYPE' is a function type.  This 'struct' derives
+    // from 'bsl::true_type' if the 'TYPE' is a function type, and
+    // from 'bsl::false_type' otherwise.
 };
 
 }  // close namespace bsl

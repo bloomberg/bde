@@ -1,9 +1,10 @@
 // bslmf_issame.t.cpp                                                 -*-C++-*-
-
 #include <bslmf_issame.h>
 
-#include <cstdlib>     // atoi()
-#include <cstdio>
+#include <bsls_bsltestutil.h>
+
+#include <cstdio>   // 'printf'
+#include <cstdlib>  // 'atoi'
 
 using namespace BloombergLP;
 using namespace std;
