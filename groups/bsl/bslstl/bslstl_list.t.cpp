@@ -4439,7 +4439,7 @@ void TestDriver<TYPE,ALLOC>::testInsert()
             TestEnum n = TWO, v = NINETYNINE;
 
             x.insert(X.begin(), n, v);
-            ASSERT(X.size()  == n);
+            ASSERT(X.size()  == (size_t)n);
             ASSERT(X.front() == v);
             ASSERT(X.back()  == v);
         }
@@ -6223,7 +6223,7 @@ void TestDriver<TYPE,ALLOC>::testConstructor()
             list<IntWrapper, ALLOC> x(n, v);
             list<IntWrapper, ALLOC>& X = x;
 
-            ASSERT(X.size()  == n);
+            ASSERT(X.size()  == (size_t)n);
             ASSERT(X.front() == v);
             ASSERT(X.back()  == v);
         }
