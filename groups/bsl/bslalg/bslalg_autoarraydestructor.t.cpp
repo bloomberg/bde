@@ -3,12 +3,15 @@
 #include <bslalg_autoarraydestructor.h>
 
 #include <bslalg_scalarprimitives.h>             // for testing only
+
 #include <bslma_allocator.h>                     // for testing only
 #include <bslma_deallocatorproctor.h>            // for testing only
 #include <bslma_autodestructor.h>                // for testing only
+#include <bslma_deallocatorproctor.h>            // for testing only
 #include <bslma_default.h>                       // for testing only
 #include <bslma_testallocator.h>                 // for testing only
 #include <bslma_testallocatorexception.h>        // for testing only
+#include <bslma_usesbslmaallocator.h>            // for testing only
 #include <bsls_alignmentutil.h>                  // for testing only
 #include <bsls_assert.h>                         // for testing only
 #include <bsls_asserttest.h>                     // for testing only
@@ -51,13 +54,15 @@ using namespace std;
 int testStatus = 0;
 
 namespace {
-    void aSsErT(int c, const char *s, int i) {
+void aSsErT(int c, const char *s, int i)
+{
     if (c) {
         printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
         if (testStatus >= 0 && testStatus <= 100) ++testStatus;
     }
 }
-}
+
+}  // close unnamed namespace
 
 # define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 //=============================================================================
@@ -137,6 +142,7 @@ class TestType {
 
   public:
     // CREATORS
+    explicit
     TestType(bslma::Allocator *ba = 0)
     : d_data_p(0)
     , d_allocator_p(bslma::Default::allocator(ba))
@@ -146,6 +152,7 @@ class TestType {
         *d_data_p = '?';
     }
 
+    explicit
     TestType(char c, bslma::Allocator *ba = 0)
     : d_data_p(0)
     , d_allocator_p(bslma::Default::allocator(ba))
@@ -161,12 +168,13 @@ class TestType {
     {
         ++numCopyCtorCalls;
         if (&original != this) {
-        d_data_p  = (char *)d_allocator_p->allocate(sizeof(char));
-        *d_data_p = *original.d_data_p;
-    }
+            d_data_p  = (char *)d_allocator_p->allocate(sizeof(char));
+            *d_data_p = *original.d_data_p;
+        }
     }
 
-    ~TestType() {
+    ~TestType()
+    {
         ++numDestructorCalls;
         *d_data_p = '_';
         d_allocator_p->deallocate(d_data_p);
@@ -178,21 +186,24 @@ class TestType {
     {
         ++numAssignmentCalls;
         if (&rhs != this) {
-        char *newData = (char *)d_allocator_p->allocate(sizeof(char));
-        *d_data_p = '_';
-        d_allocator_p->deallocate(d_data_p);
-        d_data_p  = newData;
-        *d_data_p = *rhs.d_data_p;
+            char *newData = (char *)d_allocator_p->allocate(sizeof(char));
+            *d_data_p = '_';
+            d_allocator_p->deallocate(d_data_p);
+            d_data_p  = newData;
+            *d_data_p = *rhs.d_data_p;
         }
+
         return *this;
     }
 
-    void setDatum(char c) {
+    void setDatum(char c)
+    {
         *d_data_p = c;
     }
 
     // ACCESSORS
-    char datum() const {
+    char datum() const
+    {
         return *d_data_p;
     }
 
@@ -210,9 +221,10 @@ class TestType {
 // TRAITS
 namespace BloombergLP {
 namespace bslma {
-template <> struct UsesBslmaAllocator<TestType> : bsl::true_type {};
-}
-}
+template <>
+struct UsesBslmaAllocator<TestType> : bsl::true_type {};
+}  // close package namespace
+}  // close enterprise namespace
 
 bool operator==(const TestType& lhs, const TestType& rhs)
 {
@@ -223,7 +235,72 @@ bool operator==(const TestType& lhs, const TestType& rhs)
 }
 
 //=============================================================================
-//                            USAGE EXAMPLE
+//                                USAGE EXAMPLE
+//-----------------------------------------------------------------------------
+
+///Usage
+///-----
+// In this section we show intended use of this component.
+//
+///Example 1: Managing an Array Under Construction
+///- - - - - - - - - - - - - - - - - - - - - - - -
+// In most instances, the use of a 'bslalg::AutoArrayDestructor' could be
+// handled by a 'bslma::AutoDeallocator', but sometimes it is conceptually
+// clearer to frame the problem in terms of a pair of pointers rather than a
+// pointer and an offset.
+//
+// Suppose we have a class, 'UsageType' that allocates a block of memory upon
+// construction, and whose constructor takes a char.  Suppose we want to create
+// an array of elements of such objects in an exception-safe manner.
+//
+// First, we create the type 'UsageType':
+//..
+                               // ===============
+                               // class UsageType
+                               // ===============
+
+class UsageType {
+    // This test type contains a 'char' in some allocated storage.  It has no
+    // traits other than using a 'bslma' allocator.
+
+    char             *d_data_p;         // managed single char
+    bslma::Allocator *d_allocator_p;    // allocator (held, not owned)
+
+  public:
+    // CREATORS
+    explicit UsageType(char c, bslma::Allocator *basicAllocator = 0)
+    : d_data_p(0)
+    , d_allocator_p(bslma::Default::allocator(basicAllocator))
+    {
+        d_data_p  = (char *)d_allocator_p->allocate(sizeof(char));
+        *d_data_p = c;
+    }
+
+    ~UsageType()
+    {
+        *d_data_p = '_';
+        d_allocator_p->deallocate(d_data_p);
+        d_data_p = 0;
+    }
+
+    // ACCESSORS
+    char datum() const
+    {
+        return *d_data_p;
+    }
+};
+
+namespace BloombergLP {
+namespace bslma {
+
+template <>
+struct UsesBslmaAllocator<UsageType> : bsl::true_type {};
+
+}  // close package namespace
+}  // close enterprise namespace
+
+//=============================================================================
+//                            OBSOLETE USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
 // my_string.h
@@ -241,19 +318,23 @@ class my_String {
 
   public:
     // CREATORS
+    explicit
     my_String(const char *string);
     my_String(const my_String& original);
     ~my_String();
     // ...
 
-    /// ACCESSORS
-    inline int length() const { return d_length; }
-    inline operator const char *() const { return d_string_p; }
+    // ACCESSORS
+    inline
+    int length() const { return d_length; }
+    inline
+    operator const char *() const { return d_string_p; }
     // ...
 };
 
 // FREE OPERATORS
-inline bool operator==(const my_String& lhs, const char *rhs)
+inline
+bool operator==(const my_String& lhs, const char *rhs)
 {
     return strcmp(lhs, rhs) == 0;
 }
@@ -331,6 +412,7 @@ class my_Array {
 
   public:
     // CREATORS
+    explicit
     my_Array(bslma::Allocator *allocator);
     ~my_Array();
 
@@ -338,8 +420,10 @@ class my_Array {
     void insert(int dstIndex, const TYPE& item, int numItems);
 
     // ACCESSORS
-    inline int length() const { return d_length; }
-    inline const TYPE& operator[](int index) const { return d_array_p[index]; }
+    inline
+    int length() const { return d_length; }
+    inline
+    const TYPE& operator[](int index) const { return d_array_p[index]; }
 };
 
                                // --------------
@@ -347,15 +431,18 @@ class my_Array {
                                // --------------
 
 // CLASS METHODS
-template <class TYPE> inline
-int my_Array<TYPE>::nextSize(int size, int newSize) {
+template <class TYPE>
+inline
+int my_Array<TYPE>::nextSize(int size, int newSize)
+{
     while (size < newSize) {
         size *= GROW_FACTOR;
     }
     return size;
 }
 
-template <class TYPE> inline
+template <class TYPE>
+inline
 void my_Array<TYPE>::reallocate(TYPE             **array,
                                 int               *size,
                                 int                newSize,
@@ -399,7 +486,8 @@ void my_Array<TYPE>::reallocate(TYPE             **array,
 }
 
 // PRIVATE MANIPULATORS
-template <class TYPE> inline
+template <class TYPE>
+inline
 void my_Array<TYPE>::increaseSize(int numElements)
 {
     reallocate(&d_array_p,
@@ -410,7 +498,8 @@ void my_Array<TYPE>::increaseSize(int numElements)
 }
 
 // CREATORS
-template <class TYPE> inline
+template <class TYPE>
+inline
 my_Array<TYPE>::my_Array(bslma::Allocator *allocator)
 : d_size(INITIAL_SIZE)
 , d_length(0)
@@ -419,7 +508,8 @@ my_Array<TYPE>::my_Array(bslma::Allocator *allocator)
     d_array_p = (TYPE *) d_alloc_p->allocate(d_size * sizeof *d_array_p);
 }
 
-template <class TYPE> inline
+template <class TYPE>
+inline
 my_Array<TYPE>::~my_Array()
 {
     for (int i = 0; i < d_length; ++i) {
@@ -474,31 +564,32 @@ my_Array<TYPE>::~my_Array()
 // (backwards) by copies of the element to be inserted.  The code for the
 // templatized 'insert' method is as follows:
 //..
-    // Assume no aliasing.
-    template <class TYPE> inline
-    void my_Array<TYPE>::insert(int dstIndex, const TYPE& item, int numItems)
-    {
-        if (d_length >= d_size) {
-            this->increaseSize(numItems);
-        }
-
-        int   origLen = d_length;
-        TYPE *src     = &d_array_p[d_length];
-        TYPE *dest    = &d_array_p[d_length + numItems];
-        bslalg::AutoArrayDestructor<TYPE> autoDtor(dest, dest);
-
-        for (int i = d_length; i > dstIndex; --i, --d_length) {
-            dest = autoDtor.moveBegin(-1);  // decrement destination
-            new(dest) TYPE(*(--src));       // copy to new index
-            src->~TYPE();                   // destroy original
-        }
-        for (int i = numItems; i > 0; --i) {
-            dest = autoDtor.moveBegin(-1);  // decrement destination
-            new(dest) TYPE(item);           // copy new value into hole
-        }
-        autoDtor.release();
-        d_length = origLen + numItems;
+// Assume no aliasing.
+template <class TYPE>
+inline
+void my_Array<TYPE>::insert(int dstIndex, const TYPE& item, int numItems)
+{
+    if (d_length >= d_size) {
+        this->increaseSize(numItems);
     }
+
+    int   origLen = d_length;
+    TYPE *src     = &d_array_p[d_length];
+    TYPE *dest    = &d_array_p[d_length + numItems];
+    bslalg::AutoArrayDestructor<TYPE> autoDtor(dest, dest);
+
+    for (int i = d_length; i > dstIndex; --i, --d_length) {
+        dest = autoDtor.moveBegin(-1);  // decrement destination
+        new(dest) TYPE(*(--src));       // copy to new index
+        src->~TYPE();                   // destroy original
+    }
+    for (int i = numItems; i > 0; --i) {
+        dest = autoDtor.moveBegin(-1);  // decrement destination
+        new(dest) TYPE(item);           // copy new value into hole
+    }
+    autoDtor.release();
+    d_length = origLen + numItems;
+}
 //..
 // Note that in the 'insert' example above, we illustrate exception
 // neutrality, but not alias safety (i.e., in the case when 'item' is a
@@ -524,7 +615,7 @@ int main(int argc, char *argv[])
     Z = &testAllocator;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 4: {
+      case 5: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //
@@ -534,8 +625,100 @@ int main(int argc, char *argv[])
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING USAGE."
-                            "\n==============\n");
+        if (verbose) printf("TESTING USAGE\n"
+                            "=============\n");
+
+// Then, we create a 'TestAllocator' to supply memory (and to verify that no
+// memory is leaked):
+
+        bslma::TestAllocator ta;
+
+// Next, we create the pointer for our array:
+
+        UsageType *array;
+
+// Then, we declare a string of chars we will use to initialize the 'UsageType'
+// objects in our array.
+
+        const char *DATA = "Hello";
+        const int   DATA_LEN = std::strlen(DATA);
+
+// Next, we verify that even right after exceptions have been thrown and
+// caught, no memory is outstanding:
+
+        ASSERT(0 == ta.numBlocksInUse());
+
+// Then, we allocate our array and create a guard to free it if a subsequent
+// allocation throws an exception:
+
+        array = (UsageType *) ta.allocate(DATA_LEN * sizeof(UsageType));
+        bslma::DeallocatorProctor<bslma::Allocator> arrayProctor(array, &ta);
+
+// Next, we establish an 'AutoArrayDestructor' on 'array' to destroy any valid
+// elements in 'array' if an exception is thrown:
+
+        bslalg::AutoArrayDestructor<UsageType> arrayElementProctor(
+                                                                 array, array);
+
+// Note that we pass 'arrayElementProctor' pointers to the beginning and end
+// of the range to be guarded (we start with an empty range since no elements
+// have been constructed yet).
+//
+// Then, we iterate through the valid chars in 'DATA' and use them to construct
+// the elements of the array:
+
+        UsageType *resultElement = array;
+        for (const char *nextChar = DATA; *nextChar; ++nextChar) {
+//..
+// Next, construct the next element of 'array':
+//..
+            new (resultElement++) UsageType(*nextChar, &ta);
+//..
+// Now, move the end of 'arrayElementProctor' to cover the most recently
+// constructed element:
+//..
+            arrayElementProctor.moveEnd(1);
+        }
+
+// At this point, we have successfully created our array.
+//
+// Then, release the guards so they won't destroy our work when they go out of
+// scope:
+
+        arrayProctor.release();
+        arrayElementProctor.release();
+
+// Next, exit the exception testing block:
+//
+// Then, verify that the array we have created is as expected:
+
+        ASSERT('H' == array[0].datum());
+        ASSERT('e' == array[1].datum());
+        ASSERT('l' == array[2].datum());
+        ASSERT('l' == array[3].datum());
+        ASSERT('o' == array[4].datum());
+
+// Finally, destroy & free our work and verify that no memory is leaked:
+
+        for (int i = 0; i < DATA_LEN; ++i) {
+            array[i].~UsageType();
+        }
+        ta.deallocate(array);
+
+        ASSERT(0 == ta.numBlocksInUse());
+      } break;
+      case 4: {
+        // --------------------------------------------------------------------
+        // TESTING OBSOLETE USAGE EXAMPLE
+        //
+        // Concerns: That the usage example compiles and runs as expected.
+        //
+        // Testing:
+        //   USAGE EXAMPLE
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING OBSOLETE USAGE."
+                            "\n======================\n");
 
         if (verbose)
             printf("Testing 'my_Array::insert' and 'my_Array::remove'.\n");
@@ -590,7 +773,7 @@ int main(int argc, char *argv[])
             char                                d_raw[MAX_SIZE * sizeof(T)];
             bsls::AlignmentUtil::MaxAlignedType d_align;
         } u;
-        T *buf = (T*)&u.d_raw[0];
+        T *buf = (T *) (void *) &u.d_raw[0];
 
         if (verbose) printf("\tWith release.\n");
         {
@@ -642,7 +825,7 @@ int main(int argc, char *argv[])
             char                                d_raw[MAX_SIZE * sizeof(T)];
             bsls::AlignmentUtil::MaxAlignedType d_align;
         } u;
-        T *buf = (T*)&u.d_raw[0];
+        T *buf = (T *) (void *) &u.d_raw[0];
 
         if (verbose)
             printf("\tSimple interface tests (from breathing test).\n");
@@ -674,7 +857,6 @@ int main(int argc, char *argv[])
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
             {
                 bslalg::AutoArrayDestructor<T> mG(&buf[0], &buf[0]);
-                const bslalg::AutoArrayDestructor<T>& G = mG;
 
                 char c = 'a';
                 for (int i = 0; i < MAX_SIZE; ++i, ++c) {
@@ -694,7 +876,6 @@ int main(int argc, char *argv[])
             bsls::AssertFailureHandlerGuard g(
                     bsls::AssertTest::failTestDriver);
 
-            int * null = 0;
             ASSERT_SAFE_PASS(bslalg::AutoArrayDestructor<int>(0, 0));
             int simpleArray[] = { 0, 1, 2, 3, 4 };
             int * begin = simpleArray;
@@ -718,7 +899,6 @@ int main(int argc, char *argv[])
             bsls::AssertFailureHandlerGuard g(
                     bsls::AssertTest::failTestDriver);
 
-            int * null = 0;
             bslalg::AutoArrayDestructor<int> emptyGuard(0, 0);
             ASSERT_SAFE_PASS(emptyGuard.moveBegin(0));
             ASSERT_SAFE_PASS(emptyGuard.moveEnd(0));
@@ -764,7 +944,7 @@ int main(int argc, char *argv[])
                 char d_raw[MAX_SIZE * sizeof(T)];
                 bsls::AlignmentUtil::MaxAlignedType d_align;
             } u;
-            T *buf = (T*)&u.d_raw[0];
+            T *buf = (T *) (void *) &u.d_raw[0];
 
             char c = 'a';
             for (int i = 0; i < MAX_SIZE; ++i, ++c) {
