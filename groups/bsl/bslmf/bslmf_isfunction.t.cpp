@@ -102,6 +102,11 @@ typedef void VoidRetNoParamFunctionTestType();
     // intended to be used for testing as the template parameter 'TYPE' of
     // 'bsl::is_function'.
 
+typedef void VoidRetParamFunctionTestType(int);
+    // This function type having 'void' return type and two 'int' parameters is
+    // intended to be used for testing as the template parameter 'TYPE' of
+    // 'bsl::is_function'.
+
 typedef int IntRetNoParamFunctionTestType();
     // This function type having 'int' return type and no parameters is
     // intended to be used for testing as the template parameter 'TYPE' of
@@ -276,12 +281,14 @@ int main(int argc, char *argv[])
         TYPE_ASSERT_CVQ_PREFIX(bsl::is_function, void (void), true);
         TYPE_ASSERT_CVQ_PREFIX(bsl::is_function, int  (void), true);
         TYPE_ASSERT_CVQ_PREFIX(bsl::is_function, void (int),  true);
-        TYPE_ASSERT_CVQ_PREFIX(
-                       bsl::is_function, VoidRetNoParamFunctionTestType, true);
-        TYPE_ASSERT_CVQ_PREFIX(
-                       bsl::is_function, IntRetNoParamFunctionTestType,  true);
-        TYPE_ASSERT_CVQ_PREFIX(
-                       bsl::is_function, IntRetParamFunctionTestType,    true);
+
+        ASSERT(true == bsl::is_function<IntRetParamFunctionTestType>::value);
+        ASSERT(true == bsl::is_function<VoidRetNoParamFunctionTestType>::value);
+        ASSERT(true == bsl::is_function<IntRetNoParamFunctionTestType>::value);
+        ASSERT(true == bsl::is_function<VoidRetParamFunctionTestType>::value);
+            // The standard does not specify whether or not a typedef of a
+            // function type can be further cv-qualified, therefore only the
+            // unqualified instance is tested.
       } break;
       default: {
           fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
