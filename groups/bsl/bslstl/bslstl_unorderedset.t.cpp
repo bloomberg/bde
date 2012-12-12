@@ -1745,6 +1745,24 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase24()
         mp = &Obj::reserve;
         (void) mp;
     }
+
+    {
+        using namespace bsl;
+
+        {
+            typedef void (*FuncPtr)(Obj&, Obj&);
+            FuncPtr fp = &swap;
+            (void) fp;
+        }
+
+        {
+            typedef bool (*FuncPtr)(const Obj&, const Obj&);
+            FuncPtr fp = &operator==;
+            (void) fp;
+            fp = &operator!=;
+            (void) fp;
+        }
+    }
 }
 
 template <class KEY, class HASH, class EQUAL, class ALLOC>
@@ -5283,15 +5301,22 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING STANDARD INTERFACE COVERAGE
         // --------------------------------------------------------------------
-        // Test only 'int' and 'char' parameter types, because map's
-        // 'operator<' and related operators only support parameterized types
-        // that defines 'operator<'.
-        RUN_EACH_TYPE(TestDriver, testCase24, int, char);
+
+        if (verbose) printf("TESTING STANDARD INTERFACE COVERAGE\n"
+                            "===================================\n");
+
+        RUN_EACH_TYPE(TestDriver,
+                      testCase24,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
       } break;
       case 23: {
         // --------------------------------------------------------------------
         // TESTING TYPE TRAITS
         // --------------------------------------------------------------------
+
+        if (verbose) printf("TESTING TYPE TRAITS\n"
+                            "===================\n");
+
         RUN_EACH_TYPE(TestDriver,
                       testCase23,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
@@ -5300,6 +5325,10 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING STL ALLOCATOR
         // --------------------------------------------------------------------
+
+        if (verbose) printf("TESTING STL ALLOCATOR\n"
+                            "=====================\n");
+
         RUN_EACH_TYPE(TestDriver,
                       testCase22,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
@@ -5308,6 +5337,10 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING COMPARATOR
         // --------------------------------------------------------------------
+
+        if (verbose) printf("Testing 'HASH' and 'EQUAL'\n"
+                            "==========================\n");
+
         RUN_EACH_TYPE(TestDriver,
                       testCase21,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
@@ -5316,6 +5349,10 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING 'max_size' and 'empty'
         // --------------------------------------------------------------------
+
+        if (verbose) printf("Testing 'max_size' and 'empty'\n"
+                            "==============================\n");
+
         RUN_EACH_TYPE(TestDriver,
                       testCase20,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
@@ -5335,6 +5372,10 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING 'erase'
         // --------------------------------------------------------------------
+
+        if (verbose) printf("Testing 'erase'\n"
+                            "===============\n");
+
         RUN_EACH_TYPE(TestDriver,
                       testCase18,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
@@ -5343,6 +5384,10 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING RANGE 'insert'
         // --------------------------------------------------------------------
+
+        if (verbose) printf("Testing 'insert'\n"
+                            "================\n");
+
         RUN_EACH_TYPE(TestDriver,
                       testCase17,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
@@ -5351,6 +5396,10 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING SPREAD
         // --------------------------------------------------------------------
+
+        if (verbose) printf("Testing SPREAD\n"
+                            "==============\n");
+
         RUN_EACH_TYPE(TestDriver,
                       testCase16,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
@@ -5359,6 +5408,10 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING 'insert'
         // --------------------------------------------------------------------
+
+        if (verbose) printf("Testing 'insert'\n"
+                            "================\n");
+
         RUN_EACH_TYPE(TestDriver,
                       testCase15,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
@@ -5367,6 +5420,10 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING ITERATORS
         // --------------------------------------------------------------------
+
+        if (verbose) printf("Testing ITERATORS\n"
+                            "=================\n");
+
         RUN_EACH_TYPE(TestDriver,
                       testCase14,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
@@ -5375,6 +5432,9 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING 'find'
         // --------------------------------------------------------------------
+
+        if (verbose) printf("Testing 'find'\n"
+                            "==============\n");
 
         RUN_EACH_TYPE(TestDriver,
                       testCase13,
@@ -5385,8 +5445,8 @@ int main(int argc, char *argv[])
         // VALUE CONSTRUCTORS
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTesting Value Constructor"
-                            "\n=========================\n");
+        if (verbose) printf("Testing Value Constructor\n"
+                            "=========================\n");
 
         RUN_EACH_TYPE(TestDriver,
                       testCase12,
@@ -5397,8 +5457,8 @@ int main(int argc, char *argv[])
         // GENERATOR FUNCTION 'g'
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTesting 'g'"
-                            "\n===========\n");
+        if (verbose) printf("Testing 'g'\n"
+                            "===========\n");
 
         RUN_EACH_TYPE(TestDriver,
                       testCase11,
@@ -5409,8 +5469,8 @@ int main(int argc, char *argv[])
         // STREAMING FUNCTIONALITY
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTesting Streaming Functionality"
-                            "\n===============================\n");
+        if (verbose) printf("Testing Streaming Functionality\n"
+                            "===============================\n");
 
         if (verbose) printf("There is no streaming for this component.\n");
 
@@ -5420,8 +5480,8 @@ int main(int argc, char *argv[])
         // ASSIGNMENT OPERATOR
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTesting Assignment Operator"
-                            "\n===========================\n");
+        if (verbose) printf("Testing Assignment Operator\n"
+                            "===========================\n");
 
         RUN_EACH_TYPE(TestDriver,
                       testCase9,
@@ -5435,8 +5495,8 @@ int main(int argc, char *argv[])
         // MANIPULATOR AND FREE FUNCTION 'swap'
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nMANIPULATOR AND FREE FUNCTION 'swap'"
-                            "\n====================================\n");
+        if (verbose) printf("MANIPULATOR AND FREE FUNCTION 'swap'\n"
+                            "====================================\n");
 
         RUN_EACH_TYPE(TestDriver,
                       testCase8,
@@ -5450,8 +5510,8 @@ int main(int argc, char *argv[])
         // COPY CONSTRUCTOR
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTesting Copy Constructors"
-                            "\n=========================\n");
+        if (verbose) printf("Testing Copy Constructors\n"
+                            "=========================\n");
 
         RUN_EACH_TYPE(TestDriver,
                       testCase7,
@@ -5462,8 +5522,8 @@ int main(int argc, char *argv[])
         // EQUALITY OPERATORS
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTesting Equality Operators"
-                            "\n==========================\n");
+        if (verbose) printf("Testing Equality Operators\n"
+                            "==========================\n");
 
         RUN_EACH_TYPE(TestDriver,
                       testCase6,
@@ -5474,8 +5534,8 @@ int main(int argc, char *argv[])
         // TESTING OUTPUT (<<) OPERATOR
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTesting Output (<<) Operator"
-                            "\n============================\n");
+        if (verbose) printf("Testing Output (<<) Operator\n"
+                            "============================\n");
 
         if (verbose)
                    printf("There is no output operator for this component.\n");
@@ -5485,8 +5545,8 @@ int main(int argc, char *argv[])
         // BASIC ACCESSORS
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTesting Basic Accessors"
-                            "\n=======================\n");
+        if (verbose) printf("Testing Basic Accessors\n"
+                            "=======================\n");
 
         RUN_EACH_TYPE(TestDriver,
                       testCase4,
@@ -5497,8 +5557,8 @@ int main(int argc, char *argv[])
         // GENERATOR FUNCTIONS 'gg' and 'ggg'
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTesting 'gg'"
-                            "\n============\n");
+        if (verbose) printf("Testing 'gg'\n"
+                            "============\n");
 
         RUN_EACH_TYPE(TestDriver,
                       testCase3,
@@ -5509,8 +5569,8 @@ int main(int argc, char *argv[])
         // PRIMARY MANIPULATORS
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTesting Primary Manipulators"
-                            "\n============================\n");
+        if (verbose) printf("Testing Primary Manipulators\n"
+                            "============================\n");
 
         RUN_EACH_TYPE(TestDriver,
                       testCase2,
@@ -5534,8 +5594,8 @@ int main(int argc, char *argv[])
         //   BREATHING TEST
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nBREATHING TEST"
-                            "\n==============\n");
+        if (verbose) printf("BREATHING TEST\n"
+                            "==============\n");
 
         typedef bsl::unordered_set<int> TestType;
 
