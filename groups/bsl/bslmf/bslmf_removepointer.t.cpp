@@ -90,7 +90,7 @@ void testFuncPtrType(TYPE)
     // Now add the pointer back and verify that we end up with the same type,
     // unless on a compiler that where removing the pointer didn't produce the
     // expected result.
-#if !defined(BSLS_PLATFORM_CMP_AIX)
+#if !defined(BSLS_PLATFORM_CMP_IBM)
     ASSERT((bsl::is_same<TYPE, FUNC_TYPE *>::value));
 #endif
 }

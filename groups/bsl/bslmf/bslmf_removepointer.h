@@ -92,7 +92,7 @@ struct RemovePointer_Imp<TYPE *> {
         // parameter) 'TYPE'.
 };
 
-#if defined(BSLS_PLATFORM_CMP_AIX)
+#if defined(BSLS_PLATFORM_CMP_IBM)
 template <typename TYPE, bool isFunctionPtr>
 struct RemovePointer_Aix : RemovePointer_Imp<TYPE> {
     // The implementation of the 'RemovePointer_Imp' for the AIX xlC compiler
@@ -129,7 +129,7 @@ struct remove_pointer {
 
     typedef typename remove_cv<TYPE>::type TypeNoCv;
 
-#if defined(BSLS_PLATFORM_CMP_AIX)
+#if defined(BSLS_PLATFORM_CMP_IBM)
     typedef typename BloombergLP::bslmf::RemovePointer_Aix<TypeNoCv,
             BloombergLP::bslmf::IsFunctionPointer<TypeNoCv>::VALUE>::Type type;
 #else
