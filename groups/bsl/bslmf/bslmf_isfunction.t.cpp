@@ -217,8 +217,8 @@ int main(int argc, char *argv[])
         //: 3 'is_function::value' is 'false' when 'TYPE' is a (possibly
         //:   cv-qualified) pointer or pointer-to-member type.
         //:
-        //: 4 'is_function::value' is 'true' when 'TYPE' is a (possibly
-        //:   cv-qualified) function type.
+        //: 4 'is_function::value' is 'true' when 'TYPE' is a function type.
+        //:   Note that cv-qualified is irrelevant for a function type.
         //
         // Plan:
         //   Verify that 'bsl::is_function::value' has the correct value for
@@ -277,18 +277,15 @@ int main(int argc, char *argv[])
         TYPE_ASSERT_CVQ_REF(bsl::is_function, FunctionPtrTestType,      false);
 
         // C-4
-        TYPE_ASSERT_CVQ_PREFIX(bsl::is_function, int  (int),  true);
-        TYPE_ASSERT_CVQ_PREFIX(bsl::is_function, void (void), true);
-        TYPE_ASSERT_CVQ_PREFIX(bsl::is_function, int  (void), true);
-        TYPE_ASSERT_CVQ_PREFIX(bsl::is_function, void (int),  true);
+        ASSERT(true == bsl::is_function<int (int)>::value);
+        ASSERT(true == bsl::is_function<void (void)>::value);
+        ASSERT(true == bsl::is_function<int  (void)>::value);
+        ASSERT(true == bsl::is_function<void (int)>::value);
 
         ASSERT(true == bsl::is_function<IntRetParamFunctionTestType>::value);
         ASSERT(true == bsl::is_function<VoidRetNoParamFunctionTestType>::value);
         ASSERT(true == bsl::is_function<IntRetNoParamFunctionTestType>::value);
         ASSERT(true == bsl::is_function<VoidRetParamFunctionTestType>::value);
-            // The standard does not specify whether or not a typedef of a
-            // function type can be further cv-qualified, therefore only the
-            // unqualified instance is tested.
       } break;
       default: {
           fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
