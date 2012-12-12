@@ -277,7 +277,7 @@ int main(int argc, char *argv[])
         TYPE_ASSERT_CVQ_REF(bsl::is_function, FunctionPtrTestType,      false);
 
         // C-4
-        ASSERT(true == bsl::is_function<int (int)>::value);
+        ASSERT(true == bsl::is_function<int  (int)>::value);
         ASSERT(true == bsl::is_function<void (void)>::value);
         ASSERT(true == bsl::is_function<int  (void)>::value);
         ASSERT(true == bsl::is_function<void (int)>::value);
