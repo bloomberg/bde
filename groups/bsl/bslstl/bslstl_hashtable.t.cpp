@@ -4915,9 +4915,9 @@ if (verbose) {
         char description[MAX_DESCRIPTION_SIZE];  // ascii string
     } MySalesRecord;
 //..
-// Notice that only each 'orderNumber' is unique.  We expect multiple
-// sales to any given customer ('customerId') and multiple sales by any
-// given vendor ('vendorId').
+// Notice that only each 'orderNumber' is unique.  We expect multiple sales to
+// any given customer ('customerId') and multiple sales by any given vendor
+// ('vendorId').
 //
 // We will use a 'bslstl::HashTable' object (a hashtable) to save record values
 // based on the unique 'orderNumber', and two auxiliary hashtables to provide
@@ -4945,8 +4945,8 @@ if (verbose) {
         // the hashed container (the 'value' type).
 
         typedef MySalesRecord ValueType;
-            // Alias for 'MySalesRecord', the type stored in the hashed
-            // container.
+            // Alias for 'MySalesRecord', the type stored in the first
+            // hashtable.
 
         typedef int KeyType;
             // Alias for the type passed to the hasher by the hashed container.
@@ -4974,7 +4974,6 @@ if (verbose) {
 // hashtable.  Note that in this policy class the 'ValueType' is
 // 'const MySalesRecord *'.
 //..
-
                             // =========================
                             // struct UseCustomerIdAsKey
                             // =========================
@@ -4985,9 +4984,10 @@ if (verbose) {
         // value passed to the hasher) is extracted from the objects stored in
         // the hashed container (the 'value' type).
 
-        typedef const UseOrderNumberAsKey::ValueType * ValueType;
-            // Alias for 'MySalesRecord', the type stored in the hashed
-            // container.
+        typedef const MySalesRecord *ValueType;
+            // Alias for 'const MySalesRecord *', the type stored in second
+            // hashtable, a pointer to the record stored in the first
+            // hashtable.
 
         typedef int KeyType;
             // Alias for the type passed to the hasher by the hashed container.
@@ -5010,10 +5010,10 @@ if (verbose) {
         return value->customerId;
     }
 //..
-// Notice that, since the values in the second hashtable are addresses,
-// the key-value is extracted by reference.  This second hashtable allows
-// what map-like  semantics, *without* having to store key-values; those reside
-// in the records in the first hashtable.
+// Notice that, since the values in the second hashtable are addresses, the
+// key-value is extracted by reference.  This second hashtable allows what
+// map-like semantics, *without* having to store key-values; those reside in
+// the records in the first hashtable.
 //
 // The 'UseVendorIdAsKey' class, the policy class for the hashtable providing
 // an index by 'vendorId', is almost a near clone of 'UseCustomerIdAsKey'.  It
@@ -5029,9 +5029,10 @@ if (verbose) {
         // value passed to the hasher) is extracted from the objects stored in
         // the hashed container (the 'value' type).
 
-        typedef const UseOrderNumberAsKey::ValueType * ValueType;
-            // Alias for 'MySalesRecord', the type stored in the hashed
-            // container.
+        typedef const MySalesRecord *ValueType;
+            // Alias for 'const MySalesRecord *', the type stored in second
+            // hashtable, a pointer to the record stored in the first
+            // hashtable.
 
         typedef int KeyType;
             // Alias for the type passed to the hasher by the hashed container.
@@ -5070,18 +5071,50 @@ if (verbose) {
                       bsl::equal_to<UseOrderNumberAsKey::KeyType> >
                                                           RecordsByOrderNumber;
         typedef bsl::allocator_traits<
-              bsl::allocator<UseOrderNumberAsKey::ValueType> >
-                                                             AllocatorTraits;
+              bsl::allocator<UseOrderNumberAsKey::ValueType> > AllocatorTraits;
+        typedef AllocatorTraits::difference_type               difference_type;
+//..
+// The 'ItrByOrderNumber' type is used to provide access to the elements of the
+// first hash table, the one that stores the records.
+//..
 
-        typedef AllocatorTraits::difference_type             difference_type;
+        typedef BloombergLP::bslstl::HashTableIterator<const MySalesRecord,
+                                                       difference_type>
+                                                              ItrByOrderNumber;
+//..
+// The 'ItrPtrById' type is used to provide access to the elements of the other
+// hashtables, the ones that store pointers into the first hashtable.
+//..
+        typedef BloombergLP::bslstl::HashTableIterator<const MySalesRecord *,
+                                                       difference_type>
+                                                                    ItrPtrById;
+//..
+// If we were to provide iterators of type 'ItrPtrById' to our users,
+// dereferencing the iterator would provide a 'MySalesRecord' pointer, which
+// would then have to be dereferences.  Instead, we use 'ItrPtrById' to define
+// 'ItrById' in which accessors have been overriden to provide that extra
+// derefernce implicitly.
+//..
+        class ItrById : public ItrPtrById
+        {
+          public:
+            // CREATORS
+            explicit ItrById(bslalg::BidirectionalLink *node)
+            : ItrPtrById(node)
+            {
+            }
 
-        typedef BloombergLP::bslstl::HashTableIterator<
-                                          const UseOrderNumberAsKey::ValueType,
-                                          difference_type>   Iterator;
+            // ACCESSORS
+            const MySalesRecord& operator*() const
+            {
+                return *ItrPtrById::operator*();
+            }
 
-        typedef BloombergLP::bslstl::HashTableIterator<
-                                        const UseOrderNumberAsKey::ValueType *,
-                                        difference_type>     Iterator2;
+            const MySalesRecord *operator->() const
+            {
+                return &(*ItrPtrById::operator*());
+            }
+        };
 
         typedef BloombergLP::bslstl::HashTable<
                       UseCustomerIdAsKey,
@@ -5100,8 +5133,8 @@ if (verbose) {
 
       public:
         // PUBLIC TYPES
-        typedef Iterator  ConstIterator;
-        typedef Iterator2 ConstIterator2;
+        typedef ItrByOrderNumber  ConstItrByOrderNumber;
+        typedef ItrById           ConstItrById;
 
         // CREATORS
         explicit MySalesRecordContainer(bslma::Allocator *basicAllocator = 0);
@@ -5113,7 +5146,7 @@ if (verbose) {
             // Destroy this object.
 
         // MANIPULATORS
-        MyPair<ConstIterator, bool> insert(const MySalesRecord& value);
+        MyPair<ConstItrByOrderNumber, bool> insert(const MySalesRecord& value);
             // Insert the specified 'value' into this set if the specified
             // 'value' does not already exist in this set; otherwise, this
             // method has no effect.  Return a pair whose 'first' member is an
@@ -5123,36 +5156,48 @@ if (verbose) {
             // 'false' if the value was already present.
 
         // ACCESSORS
-        ConstIterator cend() const;
+        ConstItrByOrderNumber cend() const;
             // Return an iterator providing non-modifiable access to the
-            // past-the-end element (in the sequence of 'MySalesRecord' objects)
-            // maintained by this set.
+            // past-the-end element (in the sequence of 'MySalesRecord'
+            // objects) maintained by this set.
 
-        ConstIterator findByOrderNumber(int value) const;
+        ConstItrByOrderNumber findByOrderNumber(int value) const;
             // Return an iterator providing non-modifiable access to the
-            // 'MySalesRecord' object in this set having the specified
-            // 'value', if such an entry exists, and the iterator
-            // returned by the 'cend' method otherwise.
+            // 'MySalesRecord' object in this set having the specified 'value',
+            // if such an entry exists, and the iterator returned by the 'cend'
+            // method otherwise.
 //..
 // Notice that this interface provides map-like semantics for finding records.
 // We need only specify the 'orderNumber' attribute of the record of interest;
 // however, the return value is set-like: we get access to the record, not the
 // more complicated key-value/record pair that a map would have provided.
-// 
+//
 // Internally, the hash table need only store the records themselves.  A map
-// would have had to manage key-value/record pairts, where the key-value would
+// would have had to manage key-value/record pairs, where the key-value would
 // be a copy of part of the record.
 //..
-        MyPair<ConstIterator2, ConstIterator2> findByCustomerId(int value)
-                                                                         const;
-        MyPair<ConstIterator2, ConstIterator2>   findByVendorId(int value)
-                                                                         const;
-            // TBD: Need a different kind of iterator here (tentatively named
-            // 'ConstIterator2'.  When dereferenced, this iterator takes the
-            // additional indirection between the MultiMapByInt into the
-            // SetByOrderNumber;
-    };
+        MyPair<ConstItrById, ConstItrById> findByCustomerId(int value) const;
+            // Return a pair of iterators providing non-modifiable access to
+            // the sequence of 'MySalesRecord' objects in this container having
+            // a 'customerId' attribute equal to the specified 'value' where
+            // the first iterator is positioned at the start of the sequence
+            // and the second iterator is positioned one past the end of the
+            // sequence.  If this container has no such objects, then the two
+            // iterators will be equal.
 
+        MyPair<ConstItrById, ConstItrById> findByVendorId(int value) const;
+            // Return a pair of iterators providing non-modifiable access to
+            // the sequence of 'MySalesRecord' objects in this container having
+            // a 'vendorId' attribute equal to the specified 'value' where the
+            // first iterator is positioned at the start of the sequence and
+            // the second iterator is positioned one past the end of the
+            // sequence.  If this container has no such objects, then the two
+            // iterators will be equal.
+    };
+//..
+// Then, we implement the methods of 'MySalesRecordContainer', our customized
+// container:
+//..
                             // ----------------------------
                             // class MySalesRecordContainer
                             // ----------------------------
@@ -5169,7 +5214,7 @@ if (verbose) {
 
     // MANIPULATORS
     inline
-    MyPair<MySalesRecordContainer::ConstIterator, bool>
+    MyPair<MySalesRecordContainer::ConstItrByOrderNumber, bool>
     MySalesRecordContainer::insert(const MySalesRecord& value)
     {
         // Insert into internal container that will own the record.
@@ -5180,7 +5225,7 @@ if (verbose) {
 
         // Index by other record attributes
 
-        RecordsByOrderNumber::NodeType *nodePtr = 
+        RecordsByOrderNumber::NodeType *nodePtr =
                          static_cast<RecordsByOrderNumber::NodeType *>(result);
 
         d_recordptrsByCustomerId.insert(&nodePtr->value());
@@ -5188,28 +5233,29 @@ if (verbose) {
 
         // Return of insertion.
 
-        return MyPair<ConstIterator, bool>(ConstIterator(result),
-                                           isInsertedFlag);
+        return MyPair<ConstItrByOrderNumber, bool>(
+                                                 ConstItrByOrderNumber(result),
+                                                 isInsertedFlag);
     }
 
     // ACCESSORS
     inline
-    MySalesRecordContainer::ConstIterator
+    MySalesRecordContainer::ConstItrByOrderNumber
     MySalesRecordContainer::cend() const
     {
-        return ConstIterator();
+        return ConstItrByOrderNumber();
     }
 
     inline
-    MySalesRecordContainer::ConstIterator
+    MySalesRecordContainer::ConstItrByOrderNumber
     MySalesRecordContainer::findByOrderNumber(int value) const
     {
-        return ConstIterator(d_recordsByOrderNumber.find(value));
+        return ConstItrByOrderNumber(d_recordsByOrderNumber.find(value));
     }
 
     inline
-    MyPair<MySalesRecordContainer::ConstIterator2,
-           MySalesRecordContainer::ConstIterator2>
+    MyPair<MySalesRecordContainer::ConstItrById,
+           MySalesRecordContainer::ConstItrById>
     MySalesRecordContainer::findByCustomerId(int value) const
     {
         typedef BloombergLP::bslalg::BidirectionalLink HashTableLink;
@@ -5218,13 +5264,13 @@ if (verbose) {
         HashTableLink *last;
         d_recordptrsByCustomerId.findRange(&first, &last, value);
 
-        return MyPair<ConstIterator2, ConstIterator2>(ConstIterator2(first),
-                                                      ConstIterator2(last));
+        return MyPair<ConstItrById, ConstItrById>(ConstItrById(first),
+                                                  ConstItrById(last));
     }
 
     inline
-    MyPair<MySalesRecordContainer::ConstIterator2,
-           MySalesRecordContainer::ConstIterator2>
+    MyPair<MySalesRecordContainer::ConstItrById,
+           MySalesRecordContainer::ConstItrById>
     MySalesRecordContainer::findByVendorId(int value) const
     {
         typedef BloombergLP::bslalg::BidirectionalLink HashTableLink;
@@ -5233,21 +5279,27 @@ if (verbose) {
         HashTableLink *last;
         d_recordptrsByVendorId.findRange(&first, &last, value);
 
-        return MyPair<ConstIterator2, ConstIterator2>(ConstIterator2(first),
-                                                      ConstIterator2(last));
+        return MyPair<ConstItrById, ConstItrById>(ConstItrById(first),
+                                                  ConstItrById(last));
     }
 
     void main4()
     {
+if (verbose) {
+    printf("Usage Example4\n");
+}
+//..
+// Now, create an empty container and load it with some sample data.
+//..
         MySalesRecordContainer msrc;
 
         const MySalesRecord DATA[] = {
-            { 0, 1, 1, "hello" },
-            { 1, 1, 2, "world" },
-            { 2, 2, 1, "how" },
-            { 3, 2, 2, "are" },
-            { 4, 1, 1, "you" },
-            { 5, 1, 2, "today" }
+            { 1000, 100, 10, "hello" },
+            { 1001, 100, 20, "world" },
+            { 1002, 200, 10, "how" },
+            { 1003, 200, 20, "are" },
+            { 1004, 100, 10, "you" },
+            { 1005, 100, 20, "today" }
         };
         const int numDATA = sizeof DATA / sizeof *DATA;
 
@@ -5268,17 +5320,27 @@ if (verbose) {
                    vendorId,
                    description);
 }
-
-            MyPair<MySalesRecordContainer::ConstIterator,
+            MyPair<MySalesRecordContainer::ConstItrByOrderNumber,
                    bool> status = msrc.insert(DATA[i]);
             ASSERT(msrc.cend() != status.first);
             ASSERT(true        == status.second);
         }
-
+//..
+// We find on standard output:
+//..
+//  Insert sales records into container.
+//  1000: 100 10 hello
+//  1001: 100 20 world
+//  1002: 200 10 how
+//  1003: 200 20 are
+//  1004: 100 10 you
+//  1005: 100 20 today
+//..
+// We can search our container by order number and find the expected records.
+//..
 if (verbose) {
         printf("Find sales records by order number.\n");
 }
-
         for (int i = 0; i < numDATA; ++i) {
             const int orderNumber   = DATA[i].orderNumber;
             const int customerId    = DATA[i].customerId;
@@ -5292,7 +5354,7 @@ if (verbose) {
                    vendorId,
                    description);
 }
-            MySalesRecordContainer::ConstIterator itr =
+            MySalesRecordContainer::ConstItrByOrderNumber itr =
                                            msrc.findByOrderNumber(orderNumber);
             ASSERT(msrc.cend() != itr);
             ASSERT(orderNumber == itr->orderNumber);
@@ -5300,58 +5362,99 @@ if (verbose) {
             ASSERT(vendorId    == itr->vendorId);
             ASSERT(0 == strcmp(description, itr->description));
         }
-
+//..
+// We find on standard output:
+//..
+//  Find sales records by order number.
+//  1000: 100 10 hello
+//  1001: 100 20 world
+//  1002: 200 10 how
+//  1003: 200 20 are
+//  1004: 100 10 you
+//  1005: 100 20 today
+//..
+// We can search our container by customer identifier and find the expected
+// records.
+//..
 if (verbose) {
-        printf("Find sales records by customer identifer.\n");
+        printf("Find sales records by customer identifier.\n");
 }
 
-        for (int customerId = 1; customerId <= 2; ++customerId) {
-            MyPair<MySalesRecordContainer::ConstIterator2,
-                   MySalesRecordContainer::ConstIterator2> result =
+        for (int customerId = 100; customerId <= 200; customerId += 100) {
+            MyPair<MySalesRecordContainer::ConstItrById,
+                   MySalesRecordContainer::ConstItrById> result =
                                              msrc.findByCustomerId(customerId);
             int count = std::distance(result.first, result.second);
 if (verbose) {
             printf("customerId %d, count %d\n", customerId, count);
 }
 
-            for (MySalesRecordContainer::ConstIterator2 itr  = result.first,
-                                                        end  = result.second;
-                                                        end != itr; ++itr) {
+            for (MySalesRecordContainer::ConstItrById itr  = result.first,
+                                                      end  = result.second;
+                                                      end != itr; ++itr) {
 if (verbose) {
                 printf("\t\t%d %d %d %s\n",
-                       (*itr)->orderNumber,
-                       (*itr)->customerId,
-                       (*itr)->vendorId,
-                       (*itr)->description);
+                       itr->orderNumber,
+                       itr->customerId,
+                       itr->vendorId,
+                       itr->description);
 }
             }
         }
-
+//..
+// We find on standard output:
+//..
+//  Find sales records by customer identifier.
+//  customerId 100, count 4
+//              1005 100 20 today
+//              1004 100 10 you
+//              1001 100 20 world
+//              1000 100 10 hello
+//  customerId 200, count 2
+//              1003 200 20 are
+//              1002 200 10 how
+//..
+// Lastly, we can search our container by vendor identifier and find the
+// expected records.
+//..
 if (verbose) {
-        printf("Find sales records by vendor identifer.\n");
+        printf("Find sales records by vendor identifier.\n");
 }
 
-        for (int customerId = 1; customerId <= 2; ++customerId) {
-            MyPair<MySalesRecordContainer::ConstIterator2,
-                   MySalesRecordContainer::ConstIterator2> result =
-                                             msrc.findByCustomerId(customerId);
+        for (int vendorId = 10; vendorId <= 20; vendorId += 10) {
+            MyPair<MySalesRecordContainer::ConstItrById,
+                   MySalesRecordContainer::ConstItrById> result =
+                                                 msrc.findByVendorId(vendorId);
             int count = std::distance(result.first, result.second);
 if (verbose) {
-            printf("customerId %d, count %d\n", customerId, count);
+            printf("vendorId %d, count %d\n", vendorId, count);
 }
 
-            for (MySalesRecordContainer::ConstIterator2 itr  = result.first,
-                                                        end  = result.second;
-                                                        end != itr; ++itr) {
+            for (MySalesRecordContainer::ConstItrById itr  = result.first,
+                                                      end  = result.second;
+                                                      end != itr; ++itr) {
 if (verbose) {
                 printf("\t\t%d %d %d %s\n",
-                       (*itr)->orderNumber,
-                       (*itr)->customerId,
-                       (*itr)->vendorId,
-                       (*itr)->description);
+                       (*itr).orderNumber,
+                       (*itr).customerId,
+                       (*itr).vendorId,
+                       (*itr).description);
 }
             }
         }
+//..
+// We find on standard output:
+//..
+//  Find sales records by vendor identifier.
+//  vendorId 10, count 3
+//              1004 100 10 you
+//              1002 200 10 how
+//              1000 100 10 hello
+//  vendorId 20, count 3
+//              1005 100 20 today
+//              1003 200 20 are
+//              1001 100 20 world
+//..
     }
 }  // close namespace UsageExamples
 
