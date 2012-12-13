@@ -93,6 +93,7 @@ struct AtomicOperations_SPARC_SUN_CC_DefaultInt
 
         // *** atomic functions for int ***
 
+    // CLASS METHODS
     static int getInt(typename AtomicTypes::Int const *atomicInt);
 
     static int getIntAcquire(typename AtomicTypes::Int const *atomicInt);

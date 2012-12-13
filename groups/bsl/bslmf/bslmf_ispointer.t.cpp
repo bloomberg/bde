@@ -160,20 +160,20 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // 'bslmf::IsPointer::value' template
+        // 'bslmf::IsPointer::VALUE'
         //   Ensure that the static data member 'VALUE' of 'bslmf::IsPointer'
         //   instantiations having various (template parameter) 'TYPES' has the
         //   correct value.
         //
         // Concerns:
         //: 1 'IsPointer::VALUE' is 0 when 'TYPE' is a (possibly cv-qualified)
-        //:   primitve type.
+        //:   primitive type.
         //
         //: 2 'IsPointer::VALUE' is 0 when 'TYPE' is a (possibly cv-qualified)
         //:   user-defined type.
         //:
-        //: 3 'IsPointer::VALUE' is 0 when 'TYPE' is a pointer to a non-static
-        //:   member.
+        //: 3 'IsPointer::VALUE' is 0 when 'TYPE' is a (possibly cv-qualified)
+        //:   pointer to a (possibly cv-qualified) non-static member.
         //:
         //: 4 'IsPointer::VALUE' is 1 when 'TYPE' is a (possibly cv-qualified)
         //:   pointer to a (possibly cv-qualified) type.
@@ -211,22 +211,22 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // 'bsl::is_pointer::value'
         //   Ensure that the static data member 'value' of 'bsl::is_pointer'
-        //   instantiations having various (template parameter) 'TYPES' has the
+        //   instantiations having various (template parameter) 'TYPE's has the
         //   correct value.
         //
         // Concerns:
         //: 1 'is_pointer::value' is 'false' when 'TYPE' is a (possibly
-        //:   cv-qualified) primitve type.
+        //:   cv-qualified) primitive type.
         //
         //: 2 'is_pointer::value' is 'false' when 'TYPE' is a (possibly
         //:   cv-qualified) user-defined type.
         //:
-        //: 3 'is_pointer::value' is 'false' when 'TYPE' is a pointer to a
-        //:   non-static member (that may be const-qualified or
-        //:   volatile-qualifie.
+        //: 3 'is_pointer::value' is 'false' when 'TYPE' is a (possibly
+        //:   cv-qualified) pointer to a (possibly cv-qualified) non-static
+        //:   member.
         //:
         //: 4 'is_pointer::value' is 'true' when 'TYPE' is a (possibly
-        //:   cv-qualifie) pointer to a (possibly cv-qualifie) type.
+        //:   cv-qualified) pointer to a (possibly cv-qualifie) type.
         //
         // Plan:
         //   Verify that 'bsl::is_pointer::value' has the correct value for

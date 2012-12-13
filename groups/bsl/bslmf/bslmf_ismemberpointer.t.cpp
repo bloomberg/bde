@@ -3,27 +3,20 @@
 
 #include <bsls_bsltestutil.h>
 
-#include <iostream>
-#include <cstdio>
-#include <cstdlib>
+#include <cstdio>   // 'printf'
+#include <cstdlib>  // 'atoi'
 
-using namespace bsl;
 using namespace BloombergLP;
-
-using std::printf;
-using std::fprintf;
-using std::cerr;
-using std::endl;
-using std::atoi;
+using namespace std;
 
 //=============================================================================
 //                                TEST PLAN
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// The object under test is a meta-function, 'bsl::is_member_pointer', which
-// determine whether a template parameter type is a pointer type to non-static
-// data member (object or function).  Thus, we need to ensure that the value
+// The component under test defines a meta-function, 'bsl::is_member_pointer',
+// that determines whether a template parameter type is a pointer to non-static
+// member (object or function).  Thus, we need to ensure that the value
 // returned by this meta-functions is correct for each possible category of
 // types.
 //
@@ -72,52 +65,47 @@ void aSsErT(bool b, const char *s, int i)
 
 namespace {
 
-enum   EnumTestType {
-    // This user-defined 'enum' type is intended to be used during testing as
-    // an argument for the template parameter 'TYPE' of 'bsl::is_arithmetic'.
+enum EnumTestType {
+    // This user-defined 'enum' type is intended to be used for testing as the
+    // template parameter 'TYPE' of 'bsl::is_member_pointer'.
 };
 
 struct StructTestType {
-    // This user-defined 'struct' type is intended to be used during testing as
-    // an argument for the template parameter 'TYPE' of 'bsl::is_arithmetic'.
+    // This user-defined 'struct' type is intended to be used for testing as
+    // the template parameter 'TYPE' of 'bsl::is_member_pointer'.
 };
 
-union  UnionTestType {
-    // This user-defined 'union' type is intended to be used during testing as
-    // an argument for the template parameter 'TYPE' of 'bsl::is_arithmetic'.
+union UnionTestType {
+    // This user-defined 'union' type is intended to be used for testing as the
+    // template parameter 'TYPE' of 'bsl::is_member_pointer'.
 };
 
-class  BaseClassTestType {
-    // This user-defined base class type is intended to be used during testing
-    // as an argument for the template parameter 'TYPE' of
-    // 'bsl::is_arithmetic'.
+class BaseClassTestType {
+    // This user-defined base class type is intended to be used for testing as
+    // the template parameter 'TYPE' of 'bsl::is_member_pointer'.
 };
 
-class  DerivedClassTestType : public BaseClassTestType {
-    // This user-defined derived class type is intended to be used during
-    // testing as an argument for the template parameter 'TYPE' of
-    // 'bsl::is_arithmetic'.
+class DerivedClassTestType : public BaseClassTestType {
+    // This user-defined derived class type is intended to be used for testing
+    // as the template parameter 'TYPE' of 'bsl::is_member_pointer'.
 };
 
 typedef int (StructTestType::*MethodPtrTestType) ();
-    // This non-static function member type is intended to be used during
-    // testing as an argument for the template parameter 'TYPE' of
-    // 'bsl::is_arithmetic'.
+    // This pointer to non-static member function type is intended to be used
+    // for testing as the template parameter 'TYPE' of
+    // 'bsl::is_member_pointer'.
 
 typedef void (*FunctionPtrTestType) ();
-    // This function pointer type is intended to be used during testing as an
-    // argument as an argument for the template parameter 'TYPE' of
-    // 'bsl::is_arithmetic'.
+    // This function pointer type is intended to be used for testing as the
+    // template parameter 'TYPE' of 'bsl::is_member_pointer'.
 
-typedef int StructTestType::* PMD;
-    // This class public data member pointer type is intended to be used during
-    // testing as an argument as an argument for the template parameter 'TYPE'
-    // of 'bsl::is_arithmetic'.
+typedef int StructTestType::*PMD;
+    // This pointer to member object type is intended to be used for testing as
+    // the template parameter 'TYPE' of 'bsl::is_member_pointer'.
 
 struct Incomplete;
-    // This incomplete 'struct' type is intended to be used during testing as
-    // an argument as an argument for the template parameter 'TYPE' of
-    // 'bsl::is_arithmetic'.
+    // This incomplete 'struct' type is intended to be used for testing as the
+    // template parameter 'TYPE' of 'bsl::is_member_pointer'.
 
 }  // close unnamed namespace
 
@@ -151,15 +139,14 @@ struct Incomplete;
 
 ///Example 1: Verify Member Pointer Types
 /// - - - - - - - - - - - - - - - - - - -
-// Suppose that we want to assert whether a particular type is a class type.
+// Suppose that we want to assert whether a set of types are member pointer
+// types.
 //
 // First, we create a user-defined type 'MyStruct':
 //..
-    struct MyStruct
-    {
-        // DATA
-        int memData;  // a member data
-    };
+struct MyStruct
+{
+};
 //..
 
 //=============================================================================
@@ -194,7 +181,8 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("USAGE EXAMPLE\n"
                             "=============\n");
-// Now, we create three 'typedef's -- a data member object pointer, a member
+
+// Now, we create three 'typedef's -- a member object pointer type, a member
 // function pointer type and a general function pointer type:
 //..
     typedef int MyStruct::* DataMemPtr;
@@ -216,7 +204,7 @@ int main(int argc, char *argv[])
         // 'bsl::is_member_pointer::value'
         //   Ensure that the static data member 'value' of
         //   'bsl::is_member_pointer' instantiations having various (template
-        //   parameter) 'TYPE' has the correct value.
+        //   parameter) 'TYPE's has the correct value.
         //
         // Concerns:
         //: 1 'is_member_pointer::value' is 'false' when 'TYPE' is a (possibly
@@ -226,11 +214,11 @@ int main(int argc, char *argv[])
         //:   cv-qualified) user-defined type.
         //:
         //: 3 'is_member_pointer::value' is 'false' when 'TYPE' is a (possibly
-        //:   cv-qualified) pointer type other than a non-static
-        //:   data member pointer.
+        //:   cv-qualified) pointer type other than a pointer to non-static
+        //:   member type.
         //:
         //: 4 'is_member_pointer::value' is 'true' when 'TYPE' is a (possibly
-        //:   cv-qualified) pointer type to non-static data members.
+        //:   cv-qualified) pointer to non-static members type.
         //:
         //: 5 'is_member_pointer::value' is 'false' when 'TYPE' is a (possibly
         //:   cv-qualified) function type.
@@ -341,24 +329,22 @@ int main(int argc, char *argv[])
 
       } break;
       default: {
-        cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
+        fprintf(stderr, "Error, non-zero test status = %d.\n", testStatus);
         testStatus = -1;
       }
     }
 
     if (testStatus > 0) {
-        cerr << "Error, non-zero test status = "
-             << testStatus << "." << endl;
+        fprintf(stderr, "Error, non-zero test status = %d.\n", testStatus);
     }
-
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2012
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

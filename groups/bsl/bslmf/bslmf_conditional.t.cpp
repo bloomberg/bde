@@ -5,8 +5,8 @@
 
 #include <bsls_bsltestutil.h>
 
-#include <cstdlib>    // atoi()
-#include <cstdio>
+#include <cstdio>     // 'printf'
+#include <cstdlib>    // 'atoi'
 
 using namespace BloombergLP;
 using namespace std;
@@ -16,10 +16,10 @@ using namespace std;
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// The object under test is a meta-function, 'bsl::conditional', which
-// transform to one of the two template parameter types based on its 'bool'
+// The component under test defines a meta-function, 'bsl::conditional', that
+// transforms to one of the two template parameter types based on its 'bool'
 // template parameter value.  Thus we need to ensure that the value returned by
-// this meta-functions is correct for each possible category of types.
+// this meta-functions is correct for each possible pair of types.
 //
 // ----------------------------------------------------------------------------
 // PUBLIC CLASS DATA
@@ -61,6 +61,70 @@ void aSsErT(bool b, const char *s, int i)
 #define L_  BSLS_BSLTESTUTIL_L_  // current Line number
 
 //=============================================================================
+//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+//-----------------------------------------------------------------------------
+
+enum   Enum   {};
+struct Struct {};
+union  Union  {};
+class  Class  {};
+
+typedef int INT;
+
+typedef void        F ();
+typedef void (  &  RF)();
+typedef void (*    PF)();
+typedef void (*&  RPF)();
+
+typedef void      Fi  (int);
+typedef void ( & RFi )(int);
+typedef void      FRi (int&);
+typedef void ( & RFRi)(int&);
+
+typedef char      A [5];
+typedef char ( & RA)[5];
+
+#define ASSERT_SAME_CV2(TYPE1, TYPE2)                                         \
+    ASSERT((bsl::is_same<bsl::conditional<true,                               \
+                                          TYPE1,                              \
+                                          TYPE2>::type,                       \
+            TYPE1>::value));                                                  \
+    ASSERT((bsl::is_same<bsl::conditional<true,                               \
+                                          TYPE1,                              \
+                                          const TYPE2>::type,                 \
+            TYPE1>::value));                                                  \
+    ASSERT((bsl::is_same<bsl::conditional<true,                               \
+                                          TYPE1,                              \
+                                          volatile TYPE2>::type,              \
+            TYPE1>::value));                                                  \
+    ASSERT((bsl::is_same<bsl::conditional<true,                               \
+                                          TYPE1,                              \
+                                          const volatile TYPE2>::type,        \
+            TYPE1>::value));                                                  \
+    ASSERT((bsl::is_same<bsl::conditional<false,                              \
+                                          TYPE1,                              \
+                                          TYPE2>::type,                       \
+            TYPE2>::value));                                                  \
+    ASSERT((bsl::is_same<bsl::conditional<false,                              \
+                                          TYPE1,                              \
+                                          const TYPE2>::type,                 \
+            const TYPE2>::value));                                            \
+    ASSERT((bsl::is_same<bsl::conditional<false,                              \
+                                          TYPE1,                              \
+                                          volatile TYPE2>::type,              \
+            volatile TYPE2>::value));                                         \
+    ASSERT((bsl::is_same<bsl::conditional<false,                              \
+                                          TYPE1,                              \
+                                          const volatile TYPE2>::type,        \
+            const volatile TYPE2>::value));
+
+#define ASSERT_SAME_CV(TYPE1, TYPE2)                                          \
+    ASSERT_SAME_CV2(TYPE1, TYPE2)                                             \
+    ASSERT_SAME_CV2(const TYPE1, TYPE2)                                       \
+    ASSERT_SAME_CV2(volatile TYPE1, TYPE2)                                    \
+    ASSERT_SAME_CV2(const volatile TYPE1, TYPE2)
+
+//=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
 
@@ -92,6 +156,7 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("USAGE EXAMPLE\n"
                             "=============\n");
+
 ///Usage
 ///-----
 // In this section we show intended use of this component.
@@ -99,8 +164,8 @@ int main(int argc, char *argv[])
 ///Example 1: Conditional Type Transformation Based on Boolean Value
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose that we want to select between two types, 'int' and 'char', based on
-// 'bool' value.  If value is 'true', type 'int' is selected.  Otherwise type
-// 'char' is selected.
+// 'bool' value.  If the 'bool' value is 'true', the 'int' type is returned;
+// otherwise the 'char' type is returned.
 //
 // Now, we instantiate the 'bsl::conditional' template using 'int', 'char', and
 // each of the two 'bool' values.  We use the 'bsl::is_same' meta-function to
@@ -123,21 +188,32 @@ int main(int argc, char *argv[])
         //: 1 'conditional::type' correctly transforms to one of the two
         //:   template parameter types when a 'true' or 'false' is set as its
         //:   'bool' template parameter type value.
-        //:
         //
         // Plan:
         //   Instantiate 'bsl::conditional' with various types and verify that
-        //   the 'type' member is initialized properly.  (C-1,2)
+        //   the 'type' member is initialized properly.  (C-1)
         //
         // Testing:
         //   bsl::conditional::type
         // --------------------------------------------------------------------
 
+        if (verbose) printf("bsl::conditional::type\n"
+                            "======================\n");
         // C-1
-        ASSERT(
-        (bsl::is_same<bsl::conditional<true,  int, char>::type, int >::value));
-        ASSERT(
-        (bsl::is_same<bsl::conditional<false, int, char>::type, char>::value));
+
+        ASSERT_SAME_CV(   int ,  char);
+        ASSERT_SAME_CV(  void*,  Enum);
+        ASSERT_SAME_CV(  Enum&, Class);
+        ASSERT_SAME_CV( Class*, Union);
+        ASSERT_SAME_CV(     F ,    RF);
+        ASSERT_SAME_CV(    RF ,    PF);
+        ASSERT_SAME_CV(    PF ,   RPF);
+        ASSERT_SAME_CV(   RPF ,    Fi);
+        ASSERT_SAME_CV(    Fi ,   RFi);
+        ASSERT_SAME_CV(   RFi ,   FRi);
+        ASSERT_SAME_CV(   FRi ,  RFRi);
+        ASSERT_SAME_CV(  RFRi ,     A);
+        ASSERT_SAME_CV(     A ,    RA);
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
@@ -152,11 +228,11 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2012
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

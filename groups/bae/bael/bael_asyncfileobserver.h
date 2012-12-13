@@ -593,7 +593,8 @@ class bael_AsyncFileObserver : public bael_Observer {
         // this async file observer attempts perform a log file rotation.  The
         // behavior is undefined if the supplied function calls either
         // 'setOnFileRotationCallback', 'forceRotation', or 'publish' on this
-        // async file observer.
+        // async file observer (i.e., the supplied callback should *not*
+        // attempt to write to the 'bael' log).
 
     void setStdoutThreshold(bael_Severity::Level stdoutThreshold);
         // Set the minimum severity of messages logged to 'stdout' by this file

@@ -510,7 +510,8 @@ struct baea_SerializableObjectProxy_ChoiceDecodeInfo {
                                                   // current selection of the
                                                   // Choice object
 
-    Functions::SelectionLoader  d_loader;         // address of a function that
+    Functions::SelectionLoader  d_selectionLoader;
+                                                  // address of a function that
                                                   // will creates a proxy and
                                                   // gets info for current
                                                   // selection
@@ -658,7 +659,7 @@ struct baea_SerializableObjectProxy_SequenceInfo {
     const bdeat_AttributeInfo *d_attributeInfo_p;  // array of attribute info
                                                    // (held, not owned)
 
-    Functions::ElementLoader   d_loader;           // address of a function
+    Functions::ElementLoader   d_elementLoader;    // address of a function
                                                    // that will create a proxy
                                                    // for the element with an
                                                    // id
@@ -902,6 +903,7 @@ class baea_SerializableObjectProxy {
         //..
         //  int operator()(baea_SerializableObjectProxy *,
         //                 const bdeat_SelectionInfo&)
+        //  int operator()(baea_SerializableObjectProxy_NullableAdapter *,
         //                 const bdeat_SelectionInfo&)
         //..
         // IMPLEMENTATION NOTE: see the .cpp file for a discussion of why this
@@ -927,7 +929,6 @@ class baea_SerializableObjectProxy {
         //..
         //  int operator()(baea_SerializableObjectProxy *,
         //                 const bdeat_AttributeInfo&);
-        //
         //  int operator()(baea_SerializableObjectProxy_NullableAdapter *,
         //                 const bdeat_AttributeInfo&)
         //..
@@ -1615,7 +1616,7 @@ baea_SerializableObjectProxy_ChoiceDecodeInfo
 : d_numSelections(numSelections)
 , d_selectionInfoArray_p(selectionInfoArray)
 , d_currentSelection(bdeat_ChoiceFunctions::BDEAT_UNDEFINED_SELECTION_ID)
-, d_loader(loader)
+, d_selectionLoader(loader)
 , d_chooser(chooser)
 {
 }
@@ -1670,7 +1671,7 @@ baea_SerializableObjectProxy_SequenceInfo
                                       Functions::ElementLoader   loader)
 : d_numAttributes(numAttributes)
 , d_attributeInfo_p(attributeInfo)
-, d_loader(loader)
+, d_elementLoader(loader)
 , d_className_p(className)
 {
 }
@@ -1825,7 +1826,9 @@ int baea_SerializableObjectProxy::choiceManipulateSelection(
     const ChoiceDecodeInfo& info = d_objectInfo.the<ChoiceDecodeInfo>();
     const bdeat_SelectionInfo *selectionInfoPtr;
 
-    if (0 == info.d_loader(&selectionProxy, d_object_p, &selectionInfoPtr)) {
+    if (0 == info.d_selectionLoader(&selectionProxy, 
+                                    d_object_p, 
+                                    &selectionInfoPtr)) {
         return manipulateContainedElement(&selectionProxy,
                                           manipulator,
                                           *selectionInfoPtr);
@@ -1900,8 +1903,9 @@ int baea_SerializableObjectProxy::sequenceManipulateAttributes(
 
     for(int i = 0; i < info.d_numAttributes; ++i)
     {
-        info.d_loader(&elementProxy, *this,
-                      info.d_attributeInfo_p[i].d_id);
+        info.d_elementLoader(&elementProxy,
+                             *this,
+                             info.d_attributeInfo_p[i].d_id);
 
         BSLS_ASSERT_SAFE(elementProxy.isValidForDecoding());
 
@@ -2093,8 +2097,9 @@ int baea_SerializableObjectProxy::sequenceAccessAttributes(
 
     for(int i = 0; i < info.d_numAttributes; ++i)
     {
-        info.d_loader(&elementProxy, *this,
-                      info.d_attributeInfo_p[i].d_id);
+        info.d_elementLoader(&elementProxy,
+                             *this,
+                             info.d_attributeInfo_p[i].d_id);
 
         BSLS_ASSERT_SAFE(elementProxy.isValidForEncoding());
 

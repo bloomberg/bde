@@ -630,50 +630,31 @@ class unordered_multiset
 
     // ACCESSORS
     const_iterator begin() const;
-        // Return an iterator providing non-modifiable access to the first
-        // 'value_type' object (in the sequence of 'value_type' objects)
-        // maintained by this multi-set, or the 'end' iterator if this
-        // multi-set is empty.
-
-    const_iterator end() const;
-        // Return an iterator providing non-modifiable access to the
-        // past-the-end element (in the sequence of 'value_type' objects)
-        // maintained by this multi-set.
-
     const_iterator cbegin() const;
         // Return an iterator providing non-modifiable access to the first
         // 'value_type' object (in the sequence of 'value_type' objects)
         // maintained by this multi-set, or the 'end' iterator if this
         // multi-set is empty.
 
+    const_iterator end() const;
     const_iterator cend() const;
         // Return an iterator providing non-modifiable access to the
         // past-the-end element (in the sequence of 'value_type' objects)
         // maintained by this multi-set.
 
     const_local_iterator begin(size_type index) const;
+    const_local_iterator cbegin(size_type index) const;
         // Return a local iterator providing non-modifiable access to the first
         // 'value_type' object (in the sequence of 'value_type' objects) of the
         // bucket having the specified 'index' in the array of buckets
         // maintained by this multi-set, or the 'end(index)' otherwise.
 
     const_local_iterator end(size_type index) const;
-        // Return a local iterator providing non-modifiable access to the
-        // past-the-end element (in the sequence of 'value_type' objects) of
-        // the bucket having the specified 'index' in the array of buckets
-        // maintained by this multi-set.
-
-    const_local_iterator cbegin(size_type index) const;
-        // Return a local iterator providing non-modifiable access to the first
-        // 'value_type' object (in the sequence of 'value_type' objects) of the
-        // bucket having the specified 'index' in the array of buckets
-        // maintained by multi-set, or the 'end(index)' otherwise.
-
     const_local_iterator cend(size_type index) const;
         // Return a local iterator providing non-modifiable access to the
         // past-the-end element (in the sequence of 'value_type' objects) of
         // the bucket having the specified 'index' in the array of buckets
-        // maintained by multi-set.
+        // maintained by this multi-set.
 
     size_type bucket(const key_type& key) const;
         // Return the index of the bucket, in the array of buckets of this
@@ -857,7 +838,7 @@ unordered_multiset(size_type             initialNumBuckets,
                    const hasher&         hash,
                    const key_equal&      keyEqual,
                    const allocator_type& allocator)
-: d_impl(hash, keyEqual, initialNumBuckets, allocator)
+: d_impl(hash, keyEqual, initialNumBuckets, 1.0f, allocator)
 {
 }
 
@@ -870,7 +851,7 @@ unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::unordered_multiset(
                                        const hasher&         hash,
                                        const key_equal&      keyEqual,
                                        const allocator_type& allocator)
-: d_impl(hash, keyEqual, initialNumBuckets, allocator)
+: d_impl(hash, keyEqual, initialNumBuckets, 1.0f, allocator)
 {
     this->insert(first, last);
 }
@@ -878,7 +859,7 @@ unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::unordered_multiset(
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::unordered_multiset(
                                                const allocator_type& allocator)
-: d_impl(HASH(), EQUAL(), 0, allocator)
+: d_impl(HASH(), EQUAL(), 0, 1.0f, allocator)
 {
 }
 
@@ -1101,7 +1082,7 @@ inline
 void unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::max_load_factor(
                                                            float newLoadFactor)
 {
-    d_impl.maxLoadFactor(newLoadFactor);
+    d_impl.setMaxLoadFactor(newLoadFactor);
 }
 
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
@@ -1109,7 +1090,7 @@ inline
 void
 unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::rehash(size_type numBuckets)
 {
-    return d_impl.rehash(numBuckets);
+    d_impl.rehashForNumBuckets(numBuckets);
 }
 
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
@@ -1117,7 +1098,7 @@ inline
 void
 unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::reserve(size_type numElements)
 {
-    return d_impl.rehashForNumElements(numElements);
+    d_impl.rehashForNumElements(numElements);
 }
 
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
