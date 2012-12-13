@@ -1899,6 +1899,595 @@ TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::gg(Obj        *object,
 
 //- - - - - - - - - - - - - TEST CASE IMPLEMENTATIONS - - - - - - - - - - - - -
 
+#if defined(THE_BEST_IS_YET_TO_COME)
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase13()
+{
+    // ------------------------------------------------------------------------
+    // TESTING 'insert' METHODS
+    //
+    // Concerns:
+    //: 1 ...
+    //:
+    //
+    // Plan:
+    //: 1 For each value of increasing length, 'L':
+    //:
+    //
+    // Testing:
+    //* insert(const SOURCE_TYPE& obj);
+    //* insert(const ValueType& obj, const bslalg::BidirectionalLink *hint);
+    // ------------------------------------------------------------------------
+
+    if (verbose) {
+        printf("\nTesting is not yet implemented.\n");
+    }
+
+
+    typedef typename KEY_CONFIG::ValueType Element;
+    typedef bslalg::HashTableImpUtil       ImpUtil;
+    typedef typename Obj::SizeType         SizeType;
+
+    const bool VALUE_TYPE_USES_ALLOCATOR =
+                                     bslma::UsesBslmaAllocator<Element>::value;
+
+    if (verbose) { P(VALUE_TYPE_USES_ALLOCATOR); }
+
+    const TestValues VALUES;  // contains 52 distinct increasing values
+
+
+    // Probably want to pick these up as values from some injected policy, so
+    // that we can test with stateful variants
+    const HASHER     HASH    = MakeDefaultFunctor<HASHER>::make();
+    const COMPARATOR COMPARE = MakeDefaultFunctor<COMPARATOR>::make();
+
+    const size_t MAX_LENGTH = 9;
+
+    for (int lfi = 0; lfi < DEFAULT_MAX_LOAD_FACTOR_SIZE; ++lfi) {
+    for (size_t ti = 0; ti < MAX_LENGTH; ++ti) {
+        const float    MAX_LF = DEFAULT_MAX_LOAD_FACTOR[lfi];
+        const SizeType LENGTH = ti;
+
+        if (verbose) {
+            printf("\nTesting with various allocator configurations.\n");
+        }
+        for (char cfg = 'a'; cfg <= 'c'; ++cfg) {
+            const char CONFIG = cfg;  // how we specify the allocator
+
+            bslma::TestAllocator da("default",   veryVeryVeryVerbose);
+            bslma::TestAllocator fa("footprint", veryVeryVeryVerbose);
+            bslma::TestAllocator sa("supplied",  veryVeryVeryVerbose);
+
+            bslma::DefaultAllocatorGuard dag(&da);
+
+            ALLOCATOR objAlloc = MakeAllocator<ALLOCATOR>::make(&sa);
+            // ----------------------------------------------------------------
+
+            if (veryVerbose) {
+                printf("\n\tTesting default constructor.\n");
+            }
+
+            Obj                  *objPtr;
+//            bslma::TestAllocator *objAllocatorPtr;
+
+            const size_t NUM_BUCKETS = ceil(3 * LENGTH/MAX_LF);
+
+#if defined(BSLSTL_NOT_TESTING_STD_ALLOCATORS)
+            switch (CONFIG) {
+              case 'a': {
+                  objPtr = new (fa) Obj(HASH, COMPARE, NUM_BUCKETS, MAX_LF);
+                  objAllocatorPtr = &da;
+              } break;
+              case 'b': {
+                  objPtr = new (fa) Obj(HASH,
+                                        COMPARE,
+                                        NUM_BUCKETS,
+                                        MAX_LF,
+                                        (bslma::Allocator *)0);
+                  objAllocatorPtr = &da;
+              } break;
+              case 'c': {
+                  objPtr = new (fa) Obj(HASH,
+                                        COMPARE,
+                                        NUM_BUCKETS,
+                                        MAX_LF,
+                                        &sa);
+                  objAllocatorPtr = &sa;
+              } break;
+              default: {
+                  ASSERTV(CONFIG, !"Bad allocator config.");
+                  return;
+              } break;
+            }
+#else 
+            typedef ObjectMaker<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>
+                                                                         Maker;
+            ALLOCATOR expAllocator = Maker::makeObject( &objPtr
+                                                      , CONFIG
+                                                      , &fa
+                                                      , objAlloc
+                                                      , HASH
+                                                      , COMPARE
+                                                      , NUM_BUCKETS
+                                                      , MAX_LF);
+#endif
+
+            Obj&                   mX = *objPtr;  const Obj& X = mX;
+
+#if defined(BSLSTL_NOT_TESTING_STD_ALLOCATORS)
+            bslma::TestAllocator&  oa = *objAllocatorPtr;
+            bslma::TestAllocator& noa = 'c' != CONFIG ? sa : da;
+
+            // Verify any attribute allocators are installed properly.
+
+            ASSERTV(MAX_LF, LENGTH, CONFIG, &oa == X.allocator());
+#else
+            ASSERTV(MAX_LF, LENGTH, CONFIG, expAllocator == X.allocator());
+#endif
+
+            // QoI: Verify no allocation from the object/non-object allocators
+            // if no buckets are requested (as per the default constructor).
+#if defined(BSLSTL_NOT_TESTING_STD_ALLOCATORS)
+            if (0 == LENGTH) {
+                ASSERTV(MAX_LF, LENGTH, CONFIG, oa.numBlocksTotal(),
+                        0 ==  oa.numBlocksTotal());
+            }
+            ASSERTV(MAX_LF, LENGTH, CONFIG, noa.numBlocksTotal(),
+                    0 == noa.numBlocksTotal());
+#else
+            // What do we check here?!
+#endif
+
+            // Record blocks used by the initial bucket array
+#if defined(BSLSTL_NOT_TESTING_STD_ALLOCATORS)
+            const bsls::Types::Int64 INITIAL_OA_BLOCKS  =  oa.numBlocksTotal();
+#else
+            // What do we store here?!
+#endif
+
+            // Verify attributes of an empty container.
+            // Note that not all of these attributes are salient to value.
+            // None of these accessors are deemed tested until their own test
+            // case, but many witnesses give us some confidence in the state.
+            ASSERTV(MAX_LF, LENGTH, CONFIG, 0 == X.size());
+            ASSERTV(MAX_LF, LENGTH, CONFIG, 0 < X.numBuckets());
+            ASSERTV(MAX_LF, LENGTH, CONFIG, 0 == X.elementListRoot());
+            ASSERTV(MAX_LF, LENGTH, CONFIG, MAX_LF == X.maxLoadFactor());
+            ASSERTV(MAX_LF, LENGTH, CONFIG, 0.0f == X.loadFactor());
+            ASSERTV(MAX_LF, LENGTH, CONFIG, 0 == X.countElementsInBucket(0));
+
+            const bslalg::HashTableBucket& bucket = X.bucketAtIndex(0);
+            ASSERTV(MAX_LF, LENGTH, CONFIG, 0 == bucket.first());
+            ASSERTV(MAX_LF, LENGTH, CONFIG, 0 == bucket.last());
+
+            // Verify that remove-all on a default container has no effect.
+            // Specifically, no memory allocated, and the root of list and
+            // bucket array are unchanged.
+
+            mX.removeAll();
+
+            // Verify no allocation from the object/non-object allocators.
+
+#if defined(BSLSTL_NOT_TESTING_STD_ALLOCATORS)
+            ASSERTV(MAX_LF, LENGTH, CONFIG, oa.numBlocksTotal(),
+                    INITIAL_OA_BLOCKS ==  oa.numBlocksTotal());
+            ASSERTV(MAX_LF, LENGTH, CONFIG, noa.numBlocksTotal(),
+                    0 == noa.numBlocksTotal());
+#else
+            // What do we check here?!
+#endif
+
+            // Verify attributes of an empty container.
+            // Note that not all of these attributes are salient to value.
+
+            ASSERTV(MAX_LF, LENGTH, CONFIG, 0 == X.size());
+            ASSERTV(MAX_LF, LENGTH, CONFIG, 0 < X.numBuckets());
+            ASSERTV(MAX_LF, LENGTH, CONFIG, 0 == X.elementListRoot());
+            ASSERTV(MAX_LF, LENGTH, CONFIG, MAX_LF == X.maxLoadFactor());
+            ASSERTV(MAX_LF, LENGTH, CONFIG, 0.0f == X.loadFactor());
+            ASSERTV(MAX_LF, LENGTH, CONFIG, 0 == X.countElementsInBucket(0));
+
+            const bslalg::HashTableBucket& bucket2 = X.bucketAtIndex(0);
+            ASSERTV(MAX_LF, LENGTH, CONFIG, 0 == bucket.first());
+            ASSERTV(MAX_LF, LENGTH, CONFIG, 0 == bucket.last());
+
+            ASSERTV(MAX_LF, LENGTH, CONFIG, &bucket == &bucket2);
+
+            // ----------------------------------------------------------------
+
+            if (veryVerbose) {
+                printf("\n\tTesting 'insertElement' (bootstrap function).\n");
+            }
+            if (0 < LENGTH) {
+                if (verbose) printf(
+                       "\t\tOn an object of initial length " ZU ".\n", LENGTH);
+
+#if defined(BSLSTL_NOT_TESTING_STD_ALLOCATORS)
+                ASSERTV(MAX_LF, LENGTH, CONFIG,
+                        oa.numBlocksTotal(),   oa.numBlocksInUse(),
+                        oa.numBlocksTotal() == oa.numBlocksInUse());
+#else
+            // What do we check here?!
+#endif
+
+                for (size_t tj = 0; tj < LENGTH - 1; ++tj) {
+                    Link *RESULT = insertElement(&mX, VALUES[tj]);
+                    ASSERT(0 != RESULT);
+                    ASSERTV(MAX_LF, LENGTH, tj, CONFIG,
+                            BSL_TF_EQ(
+                                     KEY_CONFIG::extractKey(VALUES[tj]),
+                                     ImpUtil::extractKey<KEY_CONFIG>(RESULT)));
+                    ASSERTV(MAX_LF, LENGTH, tj, CONFIG,
+                            BSL_TF_EQ(
+                                   VALUES[tj],
+                                   ImpUtil::extractValue<KEY_CONFIG>(RESULT)));
+                }
+
+                ASSERTV(MAX_LF, LENGTH, CONFIG, LENGTH - 1 == X.size());
+                if (veryVerbose) {
+                    printf("\t\t\tBEFORE: ");
+                    P(X);
+                }
+
+                bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
+
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
+                    ExceptionGuard<Obj> guard(&X, L_, &scratch);
+
+                    // This will fail on the initial insert as we must also
+                    // create the bucket array, so there is an extra pass.
+                    // Not sure why that means the block counts get out of
+                    // synch though, is this catching a real bug?
+                    ASSERTV(CONFIG, LENGTH,
+                            oa.numBlocksTotal(),   oa.numBlocksInUse(),
+                            oa.numBlocksTotal() == oa.numBlocksInUse());
+
+
+                    bslma::TestAllocatorMonitor tam(&oa);
+                    Link *RESULT = insertElement(&mX, VALUES[LENGTH - 1]);
+                    ASSERT(0 != RESULT);
+
+                    // These tests assume that the object allocator is used
+                    // only is stored elements also allocate memory.  This
+                    // does not allow for rehashes as the container grows.
+                    if (VALUE_TYPE_USES_ALLOCATOR  ||
+                                                expectPoolToAllocate(LENGTH)) {
+                        ASSERTV(CONFIG, tam.isTotalUp());
+                        ASSERTV(CONFIG, tam.isInUseUp());
+                    }
+                    else {
+                        ASSERTV(CONFIG, tam.isTotalSame());
+                        ASSERTV(CONFIG, tam.isInUseSame());
+                    }
+
+                    // Verify no temporary memory is allocated from the object
+                    // allocator.
+                    // BROKEN TEST CONDITION
+                    // We need to think carefully about how we allow for the
+                    // allocation of the bucket-array
+
+                    ASSERTV(CONFIG, LENGTH,
+                            oa.numBlocksTotal(),   oa.numBlocksInUse(),
+                            oa.numBlocksTotal() == oa.numBlocksInUse());
+
+                    ASSERTV(CONFIG, LENGTH - 1,
+                            KEY_CONFIG::extractKey(VALUES[LENGTH - 1]) ==
+                                      ImpUtil::extractKey<KEY_CONFIG>(RESULT));
+                    ASSERTV(CONFIG, LENGTH - 1,
+                            VALUES[LENGTH - 1] ==
+                                    ImpUtil::extractValue<KEY_CONFIG>(RESULT));
+
+                    guard.release();
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+
+                ASSERTV(MAX_LF, LENGTH, CONFIG, X.size(),
+                        LENGTH == X.size());
+
+                ASSERTV(MAX_LF, LENGTH, CONFIG, X,
+                       0 == verifyListContents<KEY_CONFIG>(X.elementListRoot(),
+                                                           COMPARE,
+                                                           VALUES,
+                                                           LENGTH));
+                // check elements with equivalent keys are contiguous
+                // check expected elements are present in container, with
+                // expected number of duplicates
+                {
+                    int *foundKeys = new int[X.size()];
+                    for (SizeType j = 0;j != X.size(); ++j) {
+                        foundKeys[j] = 0;
+                    }
+
+                    SizeType i = 0;
+                    for (Link *it = X.elementListRoot();
+                         0 != it;
+                         it = it->nextLink(), ++i)
+                    {
+                        for (SizeType j = 0; j != X.size(); ++j) {
+                            if (BSL_TF_EQ(
+                                        KEY_CONFIG::extractKey(VALUES[j]),
+                                        ImpUtil::extractKey<KEY_CONFIG>(it))) {
+                                ASSERTV(MAX_LF, LENGTH, CONFIG, VALUES[j],
+                                        !foundKeys[j]);
+                                ++foundKeys[j];
+                            }
+                        }
+                    }
+                    SizeType missing = 0;
+                    for (SizeType j = 0; j != X.size(); ++j) {
+                        if (!foundKeys[j]) { ++missing; }
+                    }
+                    ASSERTV(MAX_LF, LENGTH, CONFIG, missing, 0 == missing);
+
+                    delete[] foundKeys;
+
+                    ASSERTV(MAX_LF, LENGTH, CONFIG, X.size() == i);
+                }
+            }
+
+            // ----------------------------------------------------------------
+
+            if (veryVerbose) { printf("\n\tTesting 'removeAll'.\n"); }
+            {
+#if defined(BSLSTL_NOT_TESTING_STD_ALLOCATORS)
+                const bsls::Types::Int64 BB = oa.numBlocksTotal();
+#else
+            // What do we check here?!
+#endif
+
+                mX.removeAll();
+
+                ASSERTV(MAX_LF, LENGTH, CONFIG, 0 == X.size());
+                ASSERTV(MAX_LF, LENGTH, CONFIG, 0 < X.numBuckets());
+                ASSERTV(MAX_LF, LENGTH, CONFIG, 0 == X.elementListRoot());
+                ASSERTV(MAX_LF, LENGTH, CONFIG, MAX_LF == X.maxLoadFactor());
+                ASSERTV(MAX_LF, LENGTH, CONFIG, 0.0f == X.loadFactor());
+                ASSERTV(MAX_LF, LENGTH, CONFIG, 0 == X.countElementsInBucket(0));
+
+#if defined(BSLSTL_NOT_TESTING_STD_ALLOCATORS)
+                const bsls::Types::Int64 AA = oa.numBlocksTotal();
+
+                ASSERTV(MAX_LF, LENGTH, CONFIG, BB == AA);
+#else
+            // What do we check here?!
+#endif
+            }
+
+            // ----------------------------------------------------------------
+
+//            const typename Obj::SizeType bucketCount = X.numBuckets();
+            if (veryVerbose) { printf(
+                  "\n\tRepeat testing 'insertElement', with memory checks.\n");
+            }
+            if (0 < LENGTH) {
+                if (verbose) printf(
+                       "\t\tOn an object of initial length " ZU ".\n", LENGTH);
+
+                for (SizeType tj = 0; tj < LENGTH - 1; ++tj) {
+                    Link *RESULT = insertElement(&mX, VALUES[tj]);
+                    ASSERT(0 != RESULT);
+                    ASSERTV(MAX_LF, LENGTH, tj, CONFIG,
+                            BSL_TF_EQ(
+                                     KEY_CONFIG::extractKey(VALUES[tj]),
+                                     ImpUtil::extractKey<KEY_CONFIG>(RESULT)));
+                    ASSERTV(MAX_LF, LENGTH, tj, CONFIG,
+                            BSL_TF_EQ(
+                                   VALUES[tj],
+                                   ImpUtil::extractValue<KEY_CONFIG>(RESULT)));
+                }
+
+                ASSERTV(MAX_LF, LENGTH, CONFIG, LENGTH - 1 == X.size());
+                if (veryVerbose) {
+                    printf("\t\t\tBEFORE: ");
+                    P(X);
+                }
+
+                bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
+
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
+                    ExceptionGuard<Obj> guard(&X, L_, &scratch);
+
+                    bslma::TestAllocatorMonitor tam(&oa);
+                    Link *RESULT = insertElement(&mX, VALUES[LENGTH - 1]);
+                    ASSERT(0 != RESULT);
+
+                    // The number of buckets should not have changed, so no
+                    // reason to allocate a fresh bucket array
+                    ASSERTV(MAX_LF, LENGTH, CONFIG, bucketCount, X.numBuckets(),
+                            bucketCount == X.numBuckets());
+
+                    // These tests assume that the object allocator is used
+                    // only if stored elements also allocate memory.  This
+                    // does not allow for rehashes as the container grows.
+                    // Hence we run the same test sequence a second time after
+                    // clearing the container, so we can validate knowing that
+                    // no rehashes should be necessary, and will in fact show
+                    // up as a memory use error.  'LENGTH' was the high-water
+                    // mark of the initial run on the container before removing
+                    // all elements.
+                    if ((LENGTH < X.size() && expectPoolToAllocate(LENGTH))
+                        || VALUE_TYPE_USES_ALLOCATOR) {
+                        ASSERTV(CONFIG, LENGTH, tam.isTotalUp());
+                        ASSERTV(CONFIG, LENGTH, tam.isInUseUp());
+                    }
+                    else {
+                        ASSERTV(CONFIG, LENGTH, tam.isTotalSame());
+                        ASSERTV(CONFIG, LENGTH, tam.isInUseSame());
+                    }
+
+                    ASSERTV(MAX_LF, LENGTH, CONFIG,
+                            KEY_CONFIG::extractKey(VALUES[LENGTH - 1]) ==
+                                      ImpUtil::extractKey<KEY_CONFIG>(RESULT));
+                    ASSERTV(MAX_LF, LENGTH, CONFIG,
+                            VALUES[LENGTH - 1] ==
+                                    ImpUtil::extractValue<KEY_CONFIG>(RESULT));
+
+                    guard.release();
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+
+                ASSERTV(MAX_LF, LENGTH, CONFIG, LENGTH == X.size());
+
+                // check elements with equivalent keys are contiguous
+                // check expected elements are present in container, with
+                // expected number of duplicates
+                {
+                    int *foundKeys = new int[X.size()];
+                    for (SizeType j = 0; j != X.size(); ++j) {
+                        foundKeys[j] = 0;
+                    }
+
+                    size_t i = 0;
+                    for (Link *it = X.elementListRoot();
+                         0 != it;
+                         it = it->nextLink(), ++i)
+                    {
+                        for (SizeType j = 0; j != X.size(); ++j) {
+                            if (BSL_TF_EQ(
+                                        KEY_CONFIG::extractKey(VALUES[j]),
+                                        ImpUtil::extractKey<KEY_CONFIG>(it))) {
+                                ASSERTV(MAX_LF, LENGTH, CONFIG, VALUES[j],
+                                        !foundKeys[j]);
+                                ++foundKeys[j];
+                            }
+                        }
+                    }
+                    SizeType missing = 0;
+                    for (SizeType j = 0; j != X.size(); ++j) {
+                        if (!foundKeys[j]) { ++missing; }
+                    }
+                    ASSERTV(MAX_LF, LENGTH, CONFIG, missing, 0 == missing);
+
+                    delete[] foundKeys;
+
+                    ASSERTV(MAX_LF, LENGTH, CONFIG, X.size() == i);
+                }
+            }
+
+            // ----------------------------------------------------------------
+
+            if (veryVerbose) { printf(
+                                "\n\tTesting 'insert' duplicated values.\n"); }
+            {
+                Link *ITER[MAX_LENGTH + 1];
+
+                // The first loop adds a duplicate in front of each already
+                // inserted element
+                for (SizeType tj = 0; tj < LENGTH; ++tj) {
+                    ITER[tj] = insertElement(&mX, VALUES[tj]);
+                    ASSERT(0 != ITER[tj]);
+                    ASSERTV(MAX_LF, LENGTH, tj, CONFIG,
+                            BSL_TF_EQ(
+                                   KEY_CONFIG::extractKey(VALUES[tj]),
+                                   ImpUtil::extractKey<KEY_CONFIG>(ITER[tj])));
+                    ASSERTV(MAX_LF, LENGTH, tj, CONFIG,
+                            BSL_TF_EQ(
+                                 VALUES[tj],
+                                 ImpUtil::extractValue<KEY_CONFIG>(ITER[tj])));
+                }
+                ITER[LENGTH] = 0;
+
+                ASSERTV(MAX_LF, LENGTH, CONFIG, X.size(), 2 * LENGTH == X.size());
+
+                // The second loop adds another duplicate in front of each
+                // the items from the previous loop, and not in the middle of
+                // any subranges.
+                for (SizeType tj = 0; tj < LENGTH; ++tj) {
+                    Link *RESULT = insertElement(&mX, VALUES[tj]);
+                    ASSERT(0 != RESULT);
+                    ASSERTV(MAX_LF, LENGTH, tj, CONFIG,
+                            BSL_TF_EQ(
+                                     KEY_CONFIG::extractKey(VALUES[tj]),
+                                     ImpUtil::extractKey<KEY_CONFIG>(RESULT)));
+                    ASSERTV(MAX_LF, LENGTH, tj, CONFIG,
+                            BSL_TF_EQ(
+                                   VALUES[tj],
+                                   ImpUtil::extractValue<KEY_CONFIG>(RESULT)));
+                    ASSERTV(MAX_LF, LENGTH, tj, CONFIG,
+                            ITER[tj] == RESULT->nextLink());
+                }
+
+                ASSERTV(MAX_LF, LENGTH, CONFIG, X.size(), 3 * LENGTH == X.size());
+            }
+
+            // ----------------------------------------------------------------
+
+#if defined BDE_BUILD_TARGET_EXC
+            {
+#if 0
+                // This test shows up a non-conformance in 'bsl::allocator'
+                // which has undefined behavior when asked for this many
+                // buckets, rather than simply throwing a 'std::bad_alloc'.
+
+                try {
+                    Obj mX(HASH,
+                           COMPARE,
+                           native_std::numeric_limits<int>::max(),
+                           1e-30);
+                    ASSERT(false);
+                }
+                catch(const native_std::bad_allocr&) {
+                    // This is the expected code path
+                }
+                catch(...) {
+                    ASSERT(!!"The wrong exception type was thrown.");
+                }
+#endif
+
+                try {
+                    Obj mBad(HASH,
+                             COMPARE,
+                             native_std::numeric_limits<SizeType>::max(),
+                             1e-30);
+                    ASSERT(false);
+                }
+                catch(const native_std::length_error&) {
+                    // This is the expected code path
+                }
+                catch(...) {
+                    ASSERT(!!"The wrong exception type was thrown.");
+                }
+
+                Obj mR(HASH,
+                       COMPARE,
+                       3,
+                       1e-30);
+                try {
+                    mR.insert(VALUES[0]);
+
+                    P(mR.numBuckets())
+                    P(mR.size());
+
+                    ASSERT(false);
+                }
+                catch(const native_std::length_error& e) {
+                    // This is the expected code path
+                }
+                catch(...) {
+                    ASSERT(!!"The wrong exception type was thrown.");
+                }
+            
+            }
+#endif
+
+            // ----------------------------------------------------------------
+
+            // Reclaim dynamically allocated object under test.
+
+            fa.deleteObject(objPtr);
+
+            // Verify all memory is released on object destruction.
+
+            ASSERTV(MAX_LF, LENGTH, CONFIG, da.numBlocksInUse(),
+                    0 == da.numBlocksInUse());
+            ASSERTV(MAX_LF, LENGTH, CONFIG, fa.numBlocksInUse(),
+                    0 == fa.numBlocksInUse());
+            ASSERTV(MAX_LF, LENGTH, CONFIG, sa.numBlocksInUse(),
+                    0 == sa.numBlocksInUse());
+        }
+    }
+    }
+}
+#endif
+
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase13()
 {
@@ -3878,6 +4467,186 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase3()
     }
 }
 
+#if !defined(BSLSTL_NOT_TESTING_STD_ALLOCATORS)
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+struct ObjectMaker {
+    typedef          ALLOCATOR             AllocatorType;
+    typedef typename KEY_CONFIG::KeyType   KeyType;
+    typedef typename KEY_CONFIG::ValueType ValueType;
+    typedef typename bsl::allocator_traits<ALLOCATOR>::size_type SizeType;
+
+    typedef bslstl::HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>   Obj;
+    
+    static
+    ALLOCATOR makeObject(Obj               **obj,
+                         char                config,
+                         bslma::Allocator   *fa,  // "footprint" allocator
+                         const ALLOCATOR&    objectAllocator,
+                         const HASHER        hash,
+                         const COMPARATOR&   compare,
+                         SizeType            initialBuckets,
+                         float               initialMaxLoadFactor);
+    // construct a 'HashTable' object at the specified 'obj' address using the
+    // allocator determined by the specified 'config', and passing the
+    // specified 'hash', 'compare', 'initialBuckets' and 'initialMaxLoadFactor'
+    // to the constructor.  Return an allocator object that will compare equal
+    // to the allocator that is expected to be used to construct the
+    // 'HashTable' object.  The specified 'objectAllocator' may, or may not, be
+    // used to construct the 'HashTable' object according to the specified
+    // 'config':
+    //..
+    //  config   allocator
+    //  'a'      use the default supplied by the constructor
+    //  'b'      explicitly pass a null pointer of type 'bslma::Allocator *'
+    //  'c'      use the specified 'objectAllocator'
+    //..
+};
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR>
+struct ObjectMaker<KEY_CONFIG,
+                   HASHER,
+                   COMPARATOR,
+                   bsl::allocator<typename KEY_CONFIG::ValueType> > {
+    typedef bsl::allocator<typename KEY_CONFIG::ValueType> AllocatorType;
+    typedef typename KEY_CONFIG::KeyType   KeyType;
+    typedef typename KEY_CONFIG::ValueType ValueType;
+    typedef typename bsl::allocator_traits<AllocatorType>::size_type SizeType;
+
+    typedef bslstl::HashTable<KEY_CONFIG, HASHER, COMPARATOR, AllocatorType>
+                                                                           Obj;
+    
+    static
+    AllocatorType makeObject(Obj                  **obj,
+                             char                   config,
+                             bslma::Allocator      *fa, //"footprint" allocator
+                             const AllocatorType&   objectAllocator,
+                             const HASHER           hash,
+                             const COMPARATOR&      compare,
+                             SizeType               initialBuckets,
+                             float                  initialMaxLoadFactor);
+    // construct a 'HashTable' object at the specified 'obj' address using the
+    // allocator determined by the specified 'config', and passing the
+    // specified 'hash', 'compare', 'initialBuckets' and 'initialMaxLoadFactor'
+    // to the constructor.  Return an allocator object that will compare equal
+    // to the allocator that is expected to be used to construct the
+    // 'HashTable' object.  The specified 'objectAllocator' may, or may not, be
+    // used to construct the 'HashTable' object according to the specified
+    // 'config':
+    //..
+    //  config   allocator
+    //  'a'      use the default supplied by the constructor
+    //  'b'      explicitly pass a null pointer of type 'bslma::Allocator *'
+    //  'c'      use the specified 'objectAllocator'
+    //..
+};
+
+template <class ALLOCATOR>
+struct MakeAllocator {
+    static ALLOCATOR make(bslma::Allocator *) {
+        return ALLOCATOR();
+    }
+};
+
+template <class TYPE>
+struct MakeAllocator<bsl::allocator<TYPE> > {
+    static bsl::allocator<TYPE> make(bslma::Allocator *basicAllocator) {
+        return bsl::allocator<TYPE>(basicAllocator);
+    }
+};
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+ALLOCATOR
+ObjectMaker<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::
+makeObject(Obj               **objPtr,
+           char                config,
+           bslma::Allocator   *fa,  // "footprint" allocator
+           const ALLOCATOR&    objectAllocator,
+           const HASHER        hash,
+           const COMPARATOR&   compare,
+           SizeType            initialBuckets,
+           float               initialMaxLoadFactor)
+{
+    switch (config) {
+      case 'a': {
+          *objPtr = new (*fa) Obj(hash,
+                                  compare,
+                                  initialBuckets,
+                                  initialMaxLoadFactor);
+          return ALLOCATOR();
+      } break;
+      case 'b': {
+          ALLOCATOR result = ALLOCATOR();
+          *objPtr = new (*fa) Obj(hash,
+                                 compare,
+                                 initialBuckets,
+                                 initialMaxLoadFactor,
+                                 result);
+          return result;
+      } break;
+      case 'c': {
+          *objPtr = new (*fa) Obj(hash,
+                                 compare,
+                                 initialBuckets,
+                                 initialMaxLoadFactor,
+                                 objectAllocator);
+          return objectAllocator;
+      } break;
+    }
+
+    ASSERTV(config, !"Bad allocator config.");
+    abort();
+}
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR>
+typename
+ObjectMaker<KEY_CONFIG,
+            HASHER,
+            COMPARATOR,
+            bsl::allocator<typename KEY_CONFIG::ValueType> >::AllocatorType
+ObjectMaker<KEY_CONFIG,
+            HASHER,
+            COMPARATOR,
+            bsl::allocator<typename KEY_CONFIG::ValueType> >::
+makeObject(Obj                  **objPtr,
+           char                   config,
+           bslma::Allocator      *fa,  // "footprint" allocator
+           const AllocatorType&   objectAllocator,
+           const HASHER           hash,
+           const COMPARATOR&      compare,
+           SizeType               initialBuckets,
+           float                  initialMaxLoadFactor)
+{
+    switch (config) {
+      case 'a': {
+          *objPtr = new (*fa) Obj(hash,
+                                  compare,
+                                  initialBuckets,
+                                  initialMaxLoadFactor);
+          return AllocatorType(bslma::Default::allocator());
+      } break;
+      case 'b': {
+          *objPtr = new (*fa) Obj(hash,
+                                  compare,
+                                  initialBuckets,
+                                  initialMaxLoadFactor,
+                                  (bslma::Allocator *)0);
+          return AllocatorType(bslma::Default::allocator());
+      } break;
+      case 'c': {
+          *objPtr = new (*fa) Obj(hash,
+                                  compare,
+                                  initialBuckets,
+                                  initialMaxLoadFactor,
+                                  objectAllocator.mechanism());
+          return objectAllocator;
+      } break;
+    }
+
+    ASSERTV(config, !"Bad allocator config.");
+    abort();
+}
+#endif
+
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
 {
@@ -4058,6 +4827,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
 
             bslma::DefaultAllocatorGuard dag(&da);
 
+            ALLOCATOR objAlloc = MakeAllocator<ALLOCATOR>::make(&sa);
             // ----------------------------------------------------------------
 
             if (veryVerbose) {
@@ -4065,10 +4835,11 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
             }
 
             Obj                  *objPtr;
-            bslma::TestAllocator *objAllocatorPtr;
 
             const size_t NUM_BUCKETS = ceil(3 * LENGTH/MAX_LF);
 
+#if defined(BSLSTL_NOT_TESTING_STD_ALLOCATORS)
+            bslma::TestAllocator *objAllocatorPtr;
             switch (CONFIG) {
               case 'a': {
                   objPtr = new (fa) Obj(HASH, COMPARE, NUM_BUCKETS, MAX_LF);
@@ -4095,26 +4866,51 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
                   return;
               } break;
             }
+#else 
+            typedef ObjectMaker<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>
+                                                                         Maker;
+            ALLOCATOR expAllocator = Maker::makeObject( &objPtr
+                                                      , CONFIG
+                                                      , &fa
+                                                      , objAlloc
+                                                      , HASH
+                                                      , COMPARE
+                                                      , NUM_BUCKETS
+                                                      , MAX_LF);
+#endif
 
             Obj&                   mX = *objPtr;  const Obj& X = mX;
+
+#if defined(BSLSTL_NOT_TESTING_STD_ALLOCATORS)
             bslma::TestAllocator&  oa = *objAllocatorPtr;
             bslma::TestAllocator& noa = 'c' != CONFIG ? sa : da;
 
             // Verify any attribute allocators are installed properly.
 
             ASSERTV(MAX_LF, LENGTH, CONFIG, &oa == X.allocator());
+#else
+            ASSERTV(MAX_LF, LENGTH, CONFIG, expAllocator == X.allocator());
+#endif
 
             // QoI: Verify no allocation from the object/non-object allocators
             // if no buckets are requested (as per the default constructor).
+#if defined(BSLSTL_NOT_TESTING_STD_ALLOCATORS)
             if (0 == LENGTH) {
                 ASSERTV(MAX_LF, LENGTH, CONFIG, oa.numBlocksTotal(),
                         0 ==  oa.numBlocksTotal());
             }
             ASSERTV(MAX_LF, LENGTH, CONFIG, noa.numBlocksTotal(),
                     0 == noa.numBlocksTotal());
+#else
+            // What do we check here?!
+#endif
 
             // Record blocks used by the initial bucket array
+#if defined(BSLSTL_NOT_TESTING_STD_ALLOCATORS)
             const bsls::Types::Int64 INITIAL_OA_BLOCKS  =  oa.numBlocksTotal();
+#else
+            // What do we store here?!
+#endif
 
             // Verify attributes of an empty container.
             // Note that not all of these attributes are salient to value.
@@ -4139,10 +4935,14 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
 
             // Verify no allocation from the object/non-object allocators.
 
+#if defined(BSLSTL_NOT_TESTING_STD_ALLOCATORS)
             ASSERTV(MAX_LF, LENGTH, CONFIG, oa.numBlocksTotal(),
                     INITIAL_OA_BLOCKS ==  oa.numBlocksTotal());
             ASSERTV(MAX_LF, LENGTH, CONFIG, noa.numBlocksTotal(),
                     0 == noa.numBlocksTotal());
+#else
+            // What do we check here?!
+#endif
 
             // Verify attributes of an empty container.
             // Note that not all of these attributes are salient to value.
@@ -4169,9 +4969,13 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
                 if (verbose) printf(
                        "\t\tOn an object of initial length " ZU ".\n", LENGTH);
 
+#if defined(BSLSTL_NOT_TESTING_STD_ALLOCATORS)
                 ASSERTV(MAX_LF, LENGTH, CONFIG,
                         oa.numBlocksTotal(),   oa.numBlocksInUse(),
                         oa.numBlocksTotal() == oa.numBlocksInUse());
+#else
+            // What do we check here?!
+#endif
 
                 for (size_t tj = 0; tj < LENGTH - 1; ++tj) {
                     Link *RESULT = insertElement(&mX, VALUES[tj]);
@@ -4186,64 +4990,6 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
                                    ImpUtil::extractValue<KEY_CONFIG>(RESULT)));
                 }
 
-#if 0 // Test for exception safe behavior in full 'insert' test after bootstrap
-                ASSERTV(MAX_LF, LENGTH, CONFIG, LENGTH - 1 == X.size());
-                if (veryVerbose) {
-                    printf("\t\t\tBEFORE: ");
-                    P(X);
-                }
-
-                bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
-
-                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
-                    ExceptionGuard<Obj> guard(&X, L_, &scratch);
-
-                    // This will fail on the initial insert as we must also
-                    // create the bucket array, so there is an extra pass.
-                    // Not sure why that means the block counts get out of
-                    // synch though, is this catching a real bug?
-                    ASSERTV(CONFIG, LENGTH,
-                            oa.numBlocksTotal(),   oa.numBlocksInUse(),
-                            oa.numBlocksTotal() == oa.numBlocksInUse());
-
-
-                    bslma::TestAllocatorMonitor tam(&oa);
-                    Link *RESULT = insertElement(&mX, VALUES[LENGTH - 1]);
-                    ASSERT(0 != RESULT);
-
-                    // These tests assume that the object allocator is used
-                    // only is stored elements also allocate memory.  This
-                    // does not allow for rehashes as the container grows.
-                    if (VALUE_TYPE_USES_ALLOCATOR  ||
-                                                expectPoolToAllocate(LENGTH)) {
-                        ASSERTV(CONFIG, tam.isTotalUp());
-                        ASSERTV(CONFIG, tam.isInUseUp());
-                    }
-                    else {
-                        ASSERTV(CONFIG, tam.isTotalSame());
-                        ASSERTV(CONFIG, tam.isInUseSame());
-                    }
-
-                    // Verify no temporary memory is allocated from the object
-                    // allocator.
-                    // BROKEN TEST CONDITION
-                    // We need to think carefully about how we allow for the
-                    // allocation of the bucket-array
-
-                    ASSERTV(CONFIG, LENGTH,
-                            oa.numBlocksTotal(),   oa.numBlocksInUse(),
-                            oa.numBlocksTotal() == oa.numBlocksInUse());
-
-                    ASSERTV(CONFIG, LENGTH - 1,
-                            KEY_CONFIG::extractKey(VALUES[LENGTH - 1]) ==
-                                      ImpUtil::extractKey<KEY_CONFIG>(RESULT));
-                    ASSERTV(CONFIG, LENGTH - 1,
-                            VALUES[LENGTH - 1] ==
-                                    ImpUtil::extractValue<KEY_CONFIG>(RESULT));
-
-                    guard.release();
-                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
-#else
                 Link *RESULT = insertElement(&mX, VALUES[LENGTH - 1]);
                 ASSERT(0 != RESULT);
                 ASSERTV(MAX_LF, LENGTH, CONFIG,
@@ -4252,7 +4998,6 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
                 ASSERTV(MAX_LF, LENGTH, CONFIG,
                         BSL_TF_EQ(VALUES[LENGTH - 1],
                                   ImpUtil::extractValue<KEY_CONFIG>(RESULT)));
-#endif
 
                 ASSERTV(MAX_LF, LENGTH, CONFIG, X.size(),
                         LENGTH == X.size());
@@ -4302,7 +5047,11 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
 
             if (veryVerbose) { printf("\n\tTesting 'removeAll'.\n"); }
             {
+#if defined(BSLSTL_NOT_TESTING_STD_ALLOCATORS)
                 const bsls::Types::Int64 BB = oa.numBlocksTotal();
+#else
+            // What do we check here?!
+#endif
 
                 mX.removeAll();
 
@@ -4313,9 +5062,13 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
                 ASSERTV(MAX_LF, LENGTH, CONFIG, 0.0f == X.loadFactor());
                 ASSERTV(MAX_LF, LENGTH, CONFIG, 0 == X.countElementsInBucket(0));
 
+#if defined(BSLSTL_NOT_TESTING_STD_ALLOCATORS)
                 const bsls::Types::Int64 AA = oa.numBlocksTotal();
 
                 ASSERTV(MAX_LF, LENGTH, CONFIG, BB == AA);
+#else
+            // What do we check here?!
+#endif
             }
 
             // ----------------------------------------------------------------
@@ -4341,56 +5094,6 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
                                    ImpUtil::extractValue<KEY_CONFIG>(RESULT)));
                 }
 
-#if 0 // Test for exception safe behavior in full 'insert' test after bootstrap
-                ASSERTV(MAX_LF, LENGTH, CONFIG, LENGTH - 1 == X.size());
-                if (veryVerbose) {
-                    printf("\t\t\tBEFORE: ");
-                    P(X);
-                }
-
-                bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
-
-                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
-                    ExceptionGuard<Obj> guard(&X, L_, &scratch);
-
-                    bslma::TestAllocatorMonitor tam(&oa);
-                    Link *RESULT = insertElement(&mX, VALUES[LENGTH - 1]);
-                    ASSERT(0 != RESULT);
-
-                    // The number of buckets should not have changed, so no
-                    // reason to allocate a fresh bucket array
-                    ASSERTV(MAX_LF, LENGTH, CONFIG, bucketCount, X.numBuckets(),
-                            bucketCount == X.numBuckets());
-
-                    // These tests assume that the object allocator is used
-                    // only if stored elements also allocate memory.  This
-                    // does not allow for rehashes as the container grows.
-                    // Hence we run the same test sequence a second time after
-                    // clearing the container, so we can validate knowing that
-                    // no rehashes should be necessary, and will in fact show
-                    // up as a memory use error.  'LENGTH' was the high-water
-                    // mark of the initial run on the container before removing
-                    // all elements.
-                    if ((LENGTH < X.size() && expectPoolToAllocate(LENGTH))
-                        || VALUE_TYPE_USES_ALLOCATOR) {
-                        ASSERTV(CONFIG, LENGTH, tam.isTotalUp());
-                        ASSERTV(CONFIG, LENGTH, tam.isInUseUp());
-                    }
-                    else {
-                        ASSERTV(CONFIG, LENGTH, tam.isTotalSame());
-                        ASSERTV(CONFIG, LENGTH, tam.isInUseSame());
-                    }
-
-                    ASSERTV(MAX_LF, LENGTH, CONFIG,
-                            KEY_CONFIG::extractKey(VALUES[LENGTH - 1]) ==
-                                      ImpUtil::extractKey<KEY_CONFIG>(RESULT));
-                    ASSERTV(MAX_LF, LENGTH, CONFIG,
-                            VALUES[LENGTH - 1] ==
-                                    ImpUtil::extractValue<KEY_CONFIG>(RESULT));
-
-                    guard.release();
-                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
-#else
                 Link *RESULT = insertElement(&mX, VALUES[LENGTH - 1]);
                 ASSERT(0 != RESULT);
                 ASSERTV(MAX_LF, LENGTH, CONFIG,
@@ -4399,8 +5102,6 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
                 ASSERTV(MAX_LF, LENGTH, CONFIG,
                         BSL_TF_EQ(VALUES[LENGTH - 1],
                                   ImpUtil::extractValue<KEY_CONFIG>(RESULT)));
-
-#endif
 
                 ASSERTV(MAX_LF, LENGTH, CONFIG, LENGTH == X.size());
 
