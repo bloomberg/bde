@@ -1,16 +1,16 @@
-// baejsn_reader.h                                                    -*-C++-*-
-#ifndef INCLUDED_BAEJSN_READER
-#define INCLUDED_BAEJSN_READER
+// baejsn_parser.h                                                    -*-C++-*-
+#ifndef INCLUDED_BAEJSN_PARSER
+#define INCLUDED_BAEJSN_PARSER
 
 #ifndef INCLUDED_BDES_IDENT
 #include <bdes_ident.h>
 #endif
 BDES_IDENT("$Id: $")
 
-//@PURPOSE: Provide a reader for parsing JSON data from a 'streambuf'
+//@PURPOSE: Provide a parser for extracting JSON data from a 'streambuf'
 //
 //@CLASSES:
-//  baejsn_Reader: reader for parsing JSON data from a 'streambuf'
+//  baejsn_Parser: parser for parsing JSON data from a 'streambuf'
 //
 //@SEE_ALSO: baejsn_decoder
 //
@@ -41,10 +41,10 @@ BDES_IDENT("$Id: $")
 namespace BloombergLP {
 
                             // ===================
-                            // class baejsn_Reader
+                            // class baejsn_Parser
                             // ===================
 
-class baejsn_Reader {
+class baejsn_Parser {
 
   public:
     enum TokenType {
@@ -88,20 +88,33 @@ class baejsn_Reader {
 
   public:
     // CREATORS
-    baejsn_Reader(bslma::Allocator *basicAllocator = 0);
-        // Create this reader.
+    baejsn_Parser(bslma::Allocator *basicAllocator = 0);
+       // Create a 'baejsn_Reader' object.  Optionally specify a
+       // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
+       // the currently installed default allocator is used.
 
-    ~baejsn_Reader();
+    ~baejsn_Parser();
+        // Destroy this object.
 
     // MANIPULATORS
     void reset(bsl::streambuf *streamBuf);
+        // Reset this parser to read data from the specified 'streamBuf'.  Note
+        // that the reader will not be on a valid node until
+        // 'advanceToNextNode' is called.
 
     int advanceToNextToken();
+        // Move to the next token in the data steam.  Return 0 on success and a
+        // non-zero value otherwise.  Note that each call to
+        // 'advanceToNextToken' invalidates the string references returned by
+        // the 'value' accessor for prior nodes.
 
     // ACCESSORS
-    TokenType tokenType();
+    TokenType tokenType() const;
+        // Return the token type of the current node.
 
-    int value(bslstl::StringRef *data);
+    int value(bslstl::StringRef *data) const;
+        // Load into the specified 'data' the value of the specified token.
+        // Return 0 on success and a non-zero value otherwise.
 };
 
 // ============================================================================
@@ -110,7 +123,7 @@ class baejsn_Reader {
 
 // CREATORS
 inline
-baejsn_Reader::baejsn_Reader(bslma::Allocator *basicAllocator)
+baejsn_Parser::baejsn_Parser(bslma::Allocator *basicAllocator)
 : d_allocator(d_buffer, BAEJSN_BUFSIZE, basicAllocator)
 , d_stringBuffer(&d_allocator)
 , d_streamBuf_p(0)
@@ -122,13 +135,13 @@ baejsn_Reader::baejsn_Reader(bslma::Allocator *basicAllocator)
 }
 
 inline
-baejsn_Reader::~baejsn_Reader()
+baejsn_Parser::~baejsn_Parser()
 {
 }
 
 // MANIPULATORS
 inline
-void baejsn_Reader::reset(bsl::streambuf *streamBuf)
+void baejsn_Parser::reset(bsl::streambuf *streamBuf)
 {
     d_streamBuf_p = streamBuf;
     d_stringBuffer.clear();
@@ -140,7 +153,7 @@ void baejsn_Reader::reset(bsl::streambuf *streamBuf)
 
 // ACCESSORS
 inline
-baejsn_Reader::TokenType baejsn_Reader::tokenType()
+baejsn_Parser::TokenType baejsn_Parser::tokenType() const
 {
     return d_tokenType;
 }

@@ -1,13 +1,71 @@
-// baejsn_reader.cpp                                                  -*-C++-*-
-#include <baejsn_reader.h>
+// baejsn_parser.cpp                                                  -*-C++-*-
+#include <baejsn_parser.h>
 
 #include <bdes_ident.h>
-BDES_IDENT_RCSID(baejsn_reader_cpp,"$Id$ $CSID$")
+BDES_IDENT_RCSID(baejsn_parser_cpp,"$Id$ $CSID$")
 
 #include <bsl_streambuf.h>
 
 // TBD: Remove
 #include <bsl_iostream.h>
+
+// IMPLEMENTATION NOTES
+// --------------------
+
+// This section will provide a little background on how this component is
+// implemented.  This component presents a parser that has the following
+// states:
+//..
+//                                   +---------+
+//         +-------------------------| 'ERROR' |
+//         |                         +---------+
+//         V
+//      +-----+ <--------------------------------------------------- +-----+
+//      | '{' |--------------------------+                           | '[' |
+//      +-----+                          |                           +-----+
+//       ^ | ^                           |                            ^ ^ |
+//       | | |                           V                            | | |
+//       | | |                   +--------+                         | | |
+//       | | +------------------ | 'NAME' |-------------------------+ | |
+//       | |                     +--------+                           | |
+//       | |                             |                            | |
+//       | |                 +-----+     |                            | |
+//       | |                 |     V     V                            | |
+//       | |                 |   +---------+                          | |
+//       | |                 |   | 'VALUE' |<-------------------------+ |
+//       | |                 |   +---------+                            |
+//       | |                 |     | | |                                |
+//   +-+ | |                 +-----+ | |                                |
+//   | V V +-------------------------+ |                                V
+//   |  +-----+                       / \                            +-----+
+//   |  | '}' | <--------------------+   +-------------------------> | ']' |
+//   |  +-----+ <--------------------------------------------------> +-----+
+//   |   |
+//   +---+
+//..
+// For clarity only the trailing words of tokens is used below.
+//
+//   Current Token             Next Character             Following Token
+//   -------------             --------------             ---------------
+//   ERROR, START_ARRAY             '{'                   START_OBJECT
+//   NAME, END_OBJECT
+//
+//   VALUE, START_OBJECT            '}'                   END_OBJECT
+//   END_ARRAY, END_OBJECT
+//
+//   NAME, VALUE                    '['                   START_ARRAY
+//
+//   VALUE, START_ARRAY             ']'                   END_ARRAY
+//
+//   NAME                           ':'                   VALUE, START_OBJECT
+//                                                        START_ARRAY
+//
+//   START_OBJECT                   '"'                   NAME
+//
+//   VALUE, START_ARRAY             '"'                   END_ARRAY
+//
+//   START_ARRAY, NAME, VAlUE       Non '"' character     VALUE
+//..
 
 namespace BloombergLP {
 
@@ -17,11 +75,11 @@ namespace {
 }
 
                             // --------------------
-                            // struct baejsn_Reader
+                            // struct baejsn_Parser
                             // --------------------
 
 // PRIVATE MANIPULATORS
-int baejsn_Reader::reloadStringBuffer()
+int baejsn_Parser::reloadStringBuffer()
 {
     d_stringBuffer.resize(BAEJSN_MAX_STRING_SIZE);
     const int numRead = d_streamBuf_p->sgetn(&d_stringBuffer[0],
@@ -31,7 +89,7 @@ int baejsn_Reader::reloadStringBuffer()
     return numRead;
 }
 
-int baejsn_Reader::skipWhitespace()
+int baejsn_Parser::skipWhitespace()
 {
     while (true) {
         bsl::size_t pos = d_stringBuffer.find_first_not_of(WHITESPACE,
@@ -49,7 +107,7 @@ int baejsn_Reader::skipWhitespace()
     return 0;
 }
 
-int baejsn_Reader::extractStringValue()
+int baejsn_Parser::extractStringValue()
 {
     d_valueBegin          = d_cursor;
     bsl::size_t iter      = d_cursor + 1;
@@ -96,7 +154,7 @@ int baejsn_Reader::extractStringValue()
     return 0;
 }
 
-int baejsn_Reader::skipNonWhitespaceOrTillToken()
+int baejsn_Parser::skipNonWhitespaceOrTillToken()
 {
     d_valueBegin          = d_cursor;
     bsl::size_t iter      = d_cursor + 1;
@@ -144,7 +202,7 @@ int baejsn_Reader::skipNonWhitespaceOrTillToken()
 }
 
 // MANIPULATORS
-int baejsn_Reader::advanceToNextToken()
+int baejsn_Parser::advanceToNextToken()
 {
     if (d_cursor >= d_stringBuffer.size()) {
         const int numRead = reloadStringBuffer();
@@ -154,6 +212,7 @@ int baejsn_Reader::advanceToNextToken()
     }
 
     bool continueFlag;
+    char previousChar = 0;
     do {
         continueFlag = false;
 
@@ -165,74 +224,98 @@ int baejsn_Reader::advanceToNextToken()
 //         bsl::cout << d_stringBuffer[d_cursor] << bsl::endl;
 
         switch (d_stringBuffer[d_cursor]) {
-          case '[': {
-            if (BAEJSN_ELEMENT_NAME  != d_tokenType
-             && BAEJSN_ELEMENT_VALUE != d_tokenType) {
-                return -1;                                            // RETURN
-            }
-
-            d_tokenType = BAEJSN_START_ARRAY;
-            d_context   = BAEJSN_ARRAY_CONTEXT;
-            ++d_cursor;
-          } break;
-
-          case ']': {
-            if (BAEJSN_ELEMENT_VALUE != d_tokenType
-             && BAEJSN_START_ARRAY   != d_tokenType
-             && BAEJSN_END_OBJECT    != d_tokenType) {
-                return -1;                                            // RETURN
-            }
-
-            d_tokenType = BAEJSN_END_ARRAY;
-            d_context   = BAEJSN_OBJECT_CONTEXT;
-            ++d_cursor;
-          } break;
-
           case '{': {
-            if (BAEJSN_ELEMENT_VALUE != d_tokenType
-             && BAEJSN_ELEMENT_NAME  != d_tokenType
-             && BAEJSN_START_ARRAY   != d_tokenType
-             && BAEJSN_END_OBJECT    != d_tokenType
-             && BAEJSN_ERROR         != d_tokenType) {
+            if (BAEJSN_ELEMENT_NAME == d_tokenType
+             || BAEJSN_START_ARRAY  == d_tokenType
+             || (BAEJSN_END_OBJECT  == d_tokenType && ',' == previousChar)
+             || BAEJSN_ERROR        == d_tokenType) {
+
+                d_tokenType  = BAEJSN_START_OBJECT;
+                d_context    = BAEJSN_OBJECT_CONTEXT;
+                previousChar = '{';
+
+                ++d_cursor;
+            }
+            else {
                 return -1;                                            // RETURN
             }
-
-            d_tokenType = BAEJSN_START_OBJECT;
-            d_context   = BAEJSN_OBJECT_CONTEXT;
-            ++d_cursor;
           } break;
 
           case '}': {
-            if (BAEJSN_ELEMENT_VALUE != d_tokenType
-             && BAEJSN_START_OBJECT  != d_tokenType
-             && BAEJSN_END_OBJECT    != d_tokenType
-             && BAEJSN_END_ARRAY     != d_tokenType) {
+            if (BAEJSN_ELEMENT_VALUE == d_tokenType
+             || BAEJSN_START_OBJECT  == d_tokenType
+             || BAEJSN_END_OBJECT    == d_tokenType
+             || BAEJSN_END_ARRAY     == d_tokenType) {
+
+                d_tokenType  = BAEJSN_END_OBJECT;
+                d_context    = BAEJSN_OBJECT_CONTEXT;
+                previousChar = '}';
+
+                ++d_cursor;
+            }
+            else {
                 return -1;                                            // RETURN
             }
+          } break;
 
-            d_tokenType = BAEJSN_END_OBJECT;
-            d_context   = BAEJSN_OBJECT_CONTEXT;
-            ++d_cursor;
+          case '[': {
+            if (BAEJSN_ELEMENT_NAME   == d_tokenType
+             || BAEJSN_START_ARRAY    == d_tokenType
+             || (BAEJSN_ELEMENT_VALUE == d_tokenType && ',' == previousChar)) {
+
+                d_tokenType  = BAEJSN_START_ARRAY;
+                d_context    = BAEJSN_ARRAY_CONTEXT;
+                previousChar = '[';
+
+                ++d_cursor;
+            }
+            else {
+                return -1;                                            // RETURN
+            }
+          } break;
+
+          case ']': {
+            if (BAEJSN_ELEMENT_VALUE == d_tokenType
+             || BAEJSN_START_ARRAY   == d_tokenType
+             || BAEJSN_END_OBJECT    == d_tokenType) {
+
+                d_tokenType = BAEJSN_END_ARRAY;
+                d_context   = BAEJSN_OBJECT_CONTEXT;
+                previousChar = ']';
+
+                ++d_cursor;
+            }
+            else {
+                return -1;                                            // RETURN
+            }
           } break;
 
           case ',': {
-            if (BAEJSN_ELEMENT_VALUE != d_tokenType
-             && BAEJSN_END_OBJECT    != d_tokenType
-             && BAEJSN_END_ARRAY     != d_tokenType) {
+            if (BAEJSN_ELEMENT_VALUE == d_tokenType
+             || BAEJSN_END_OBJECT    == d_tokenType
+             || BAEJSN_END_ARRAY     == d_tokenType) {
+
+                previousChar = ',';
+                continueFlag = true;
+
+                ++d_cursor;
+            }
+            else {
                 return -1;                                            // RETURN
             }
-
-            ++d_cursor;
-            continueFlag = true;
           } break;
 
           case ':': {
-            if (BAEJSN_ELEMENT_NAME != d_tokenType) {
+            if (BAEJSN_ELEMENT_NAME == d_tokenType) {
+
+                previousChar = ':';
+                continueFlag = true;
+
+                ++d_cursor;
+            }
+            else {
                 return -1;                                            // RETURN
             }
-
-            ++d_cursor;
-            continueFlag = true;
           } break;
 
           case '"': {
@@ -283,24 +366,29 @@ int baejsn_Reader::advanceToNextToken()
                 ++d_valueEnd;
                 d_cursor = d_valueEnd;
             }
+
+            previousChar = '"';
           } break;
 
           default: {
-            if (BAEJSN_START_ARRAY   != d_tokenType 
-             && BAEJSN_ELEMENT_NAME  != d_tokenType 
-             && BAEJSN_ELEMENT_VALUE != d_tokenType) {
+            if (BAEJSN_START_ARRAY   == d_tokenType 
+             || BAEJSN_ELEMENT_NAME  == d_tokenType 
+             || BAEJSN_ELEMENT_VALUE == d_tokenType) {
+
+                d_tokenType = BAEJSN_ELEMENT_VALUE;
+
+                d_valueBegin = 0;
+                d_valueEnd   = 0;
+                const int rc = skipNonWhitespaceOrTillToken();
+                if (rc) {
+                    return -1;                                        // RETURN
+                }
+                d_cursor     = d_valueEnd;
+                previousChar = 0;
+            }
+            else {
                 return -1;                                            // RETURN
             }
-
-            d_tokenType = BAEJSN_ELEMENT_VALUE;
-
-            d_valueBegin = 0;
-            d_valueEnd   = 0;
-            const int rc = skipNonWhitespaceOrTillToken();
-            if (rc) {
-                return -1;                                            // RETURN
-            }
-            d_cursor = d_valueEnd;
           } break;
         }
     } while (continueFlag);
@@ -309,14 +397,14 @@ int baejsn_Reader::advanceToNextToken()
 }
 
 // ACCESSORS
-int baejsn_Reader::value(bslstl::StringRef *data)
+int baejsn_Parser::value(bslstl::StringRef *data) const
 {
     if ((BAEJSN_ELEMENT_NAME == d_tokenType
                                         || BAEJSN_ELEMENT_VALUE == d_tokenType)
      && d_valueBegin != d_valueEnd) {
         data->assign(&d_stringBuffer[d_valueBegin],
                      &d_stringBuffer[d_valueEnd]);
-        bsl::cout << *data  << bsl::endl;
+//         bsl::cout << *data  << bsl::endl;
         return 0;                                                     // RETURN
     }
     return -1;

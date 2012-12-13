@@ -16,9 +16,9 @@ namespace BloombergLP {
 
 int baejsn_Decoder::decodeBinaryArray(bsl::vector<char> *value)
 {
-    if (baejsn_Reader::BAEJSN_ELEMENT_VALUE == d_reader.tokenType()) {
+    if (baejsn_Parser::BAEJSN_ELEMENT_VALUE == d_parser.tokenType()) {
         bslstl::StringRef dataValue;
-        int rc = d_reader.value(&dataValue);
+        int rc = d_parser.value(&dataValue);
 
         // TBD: See if we can get rid of temp string
 
