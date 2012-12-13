@@ -283,7 +283,8 @@ int main(int argc, char *argv[])
         ASSERT(true == bsl::is_function<void (int)>::value);
 
         ASSERT(true == bsl::is_function<IntRetParamFunctionTestType>::value);
-        ASSERT(true == bsl::is_function<VoidRetNoParamFunctionTestType>::value);
+        ASSERT(
+              true == bsl::is_function<VoidRetNoParamFunctionTestType>::value);
         ASSERT(true == bsl::is_function<IntRetNoParamFunctionTestType>::value);
         ASSERT(true == bsl::is_function<VoidRetParamFunctionTestType>::value);
       } break;
