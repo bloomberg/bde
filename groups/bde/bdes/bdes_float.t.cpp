@@ -141,11 +141,24 @@ typedef bdes_Float Obj;
 const bool hasFSNan = false;
 const bool hasDSNan = true;
 #elif defined(BSLS_PLATFORM_CPU_X86)
+// Some documentation of SNaN to QNaN conversions on x86 can be found in
+// section 4.8.3.5, Intel 64 Software Developers Manual, Volume 1, 
+// http://download.intel.com/products/processor/manual/253665.pdf
 const bool hasFSNan = false;
 const bool hasDSNan = false;
 #else
 const bool hasFSNan = true;
 const bool hasDSNan = true;
+#endif
+
+#if defined(BSLS_PLATFORM_CPU_X86_64) && defined(BDE_BUILD_TARGET_OPT)
+// Both x86 and AMD processors convert SNaNs to QNaNs when certain operations
+// are performed on SNaNs.  Therefore 'hasFSNan' & 'hasDSNan', above, are
+// 'false'.  But, the Clang optimizer, in certain contexts, avoids using
+// floating point registers and instructions, making the tests for SNaN's
+// non-deterministic.  See internal-ticket D37511035.  
+
+#define OMIT_SNAN_TESTS
 #endif
 
 unsigned int floatToRep(float x)
@@ -446,9 +459,11 @@ int main(int argc, char *argv[])
 { L_, -1.0F / fzero()                     , 0,0,0,1,0,1,0,0,0, NEG_INFINITY  },
 { L_, 2.0F * -fmax()                      , 0,0,0,1,0,1,0,0,0, NEG_INFINITY  },
 { L_, -8388608.0F / fmin()                , 0,0,0,1,0,1,0,0,0, NEG_INFINITY  },
+#if defined(OMIT_SNAN_TESTS)
 { L_, FSNAN1                              , 0,0,0,0,1,X,0,0,1, SNAN          },
 { L_, FSNAN2                              , 0,0,0,0,1,X,0,0,1, SNAN          },
 { L_, FSNAN3                              , 0,0,0,0,1,X,0,0,1, SNAN          },
+#endif
         };
 
         static const int NUM_FDATA = sizeof FDATA / sizeof FDATA[0];
@@ -558,9 +573,11 @@ int main(int argc, char *argv[])
 { L_, -1.0 / dzero()                      , 0,0,0,1,0,1,0,0,0, NEG_INFINITY  },
 { L_, 2.0 * -dmax()                       , 0,0,0,1,0,1,0,0,0, NEG_INFINITY  },
 { L_, 4503599627370496.0 / -dmin()        , 0,0,0,1,0,1,0,0,0, NEG_INFINITY  },
+#if defined(OMIT_SNAN_TESTS)
 { L_, DSNAN1                              , 0,0,0,0,1,X,0,0,1, SNAN          },
 { L_, DSNAN2                              , 0,0,0,0,1,X,0,0,1, SNAN          },
 { L_, DSNAN3                              , 0,0,0,0,1,X,0,0,1, SNAN          },
+#endif
         };
 
         static const int NUM_DDATA = sizeof DDATA / sizeof DDATA[0];
@@ -696,8 +713,10 @@ int main(int argc, char *argv[])
         ASSERT(  Obj::isQuietNan(fnan));
         ASSERT(  Obj::isQuietNan(dnan));
 
+#if defined(OMIT_SNAN_TESTS)
         LOOP_ASSERT(hasFSNan, hasFSNan != Obj::isQuietNan(fsnan));
         LOOP_ASSERT(hasDSNan, hasDSNan != Obj::isQuietNan(dsnan));
+#endif
         ASSERT(! Obj::isQuietNan(f));
         ASSERT(! Obj::isQuietNan(d));
 
@@ -705,9 +724,13 @@ int main(int argc, char *argv[])
         ASSERT(! Obj::isSignalingNan(dinf));
         ASSERT(! Obj::isSignalingNan(fnan));
         ASSERT(! Obj::isSignalingNan(dnan));
+
+#if defined(OMIT_SNAN_TESTS)
         LOOP_ASSERT(hasFSNan, hasFSNan == Obj::isSignalingNan(fsnan));
         LOOP_ASSERT(hasFSNan, hasFSNan == Obj::isSignalingNan(fsnan));
         LOOP_ASSERT(hasDSNan, hasDSNan == Obj::isSignalingNan(dsnan));
+#endif
+
         ASSERT(! Obj::isSignalingNan(f));
         ASSERT(! Obj::isSignalingNan(d));
 
