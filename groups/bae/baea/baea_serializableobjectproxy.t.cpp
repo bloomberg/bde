@@ -15,6 +15,7 @@
 #include <cstdlib>
 
 #include <bslalg_typetraits.h>
+#include <bdeat_typename.h>
 #include <bdeat_attributeinfo.h>
 #include <bdeat_selectioninfo.h>
 #include <bdeat_typetraits.h>
@@ -1806,8 +1807,7 @@ int main(int argc, char *argv[])
                                                   bdeat_typeCategorySelect(X));
             ASSERTV(0 == X.object());
             ASSERTV(0 == X.className());
-            ASSERTV(0 == bdeat_TypeName_Overloadable
-                                                ::bdeat_TypeName_className(X));
+            ASSERTV(0 == bdeat_TypeName::className(X));
             ASSERTV(false == X.isByteArrayValue());
 
             ASSERTV(true == X.isNull());
@@ -1826,8 +1826,7 @@ int main(int argc, char *argv[])
                                                   bdeat_typeCategorySelect(X));
             ASSERTV(&obj == X.object());
             ASSERTV(0 == X.className());
-            ASSERTV(0 == bdeat_TypeName_Overloadable
-                                                ::bdeat_TypeName_className(X));
+            ASSERTV(0 == bdeat_TypeName::className(X));
             ASSERTV(false == X.isByteArrayValue());
 
             ASSERTV(false == X.isNull());
@@ -1976,8 +1975,7 @@ int main(int argc, char *argv[])
                                                   bdeat_typeCategorySelect(X));
             ASSERTV(&obj == X.object());
             ASSERTV(0 == strcmp(CLASSNAME, X.className()));
-            ASSERTV(0 == strcmp(CLASSNAME, bdeat_TypeName_Overloadable
-                                               ::bdeat_TypeName_className(X)));
+            ASSERTV(0 == strcmp(CLASSNAME, bdeat_TypeName::className(X)));
             ASSERTV(false == X.isByteArrayValue());
 
             for (int ti = 0; ti < NUM_INFO; ++ti) {
@@ -2246,8 +2244,7 @@ int main(int argc, char *argv[])
             ASSERTV(&obj == X.object());
             ASSERTV(0 == strcmp(CLASSNAME, X.className()));
             ASSERTV(0 == strcmp(CLASSNAME,
-                                bdeat_TypeName_Overloadable
-                                               ::bdeat_TypeName_className(X)));
+                                bdeat_TypeName::className(X)));
             ASSERTV(false == X.isByteArrayValue());
 
             ASSERTV(ID == X.selectionId());
@@ -2290,8 +2287,7 @@ int main(int argc, char *argv[])
                                                   bdeat_typeCategorySelect(X));
             ASSERTV(&obj == X.object());
             ASSERTV(0 == X.className());
-            ASSERTV(0 ==
-                    bdeat_TypeName_Overloadable::bdeat_TypeName_className(X));
+            ASSERTV(0 == bdeat_TypeName::className(X));
             ASSERTV(false == X.isByteArrayValue());
 
             ASSERTV(false == X.choiceHasSelection(-1));
@@ -2416,8 +2412,7 @@ int main(int argc, char *argv[])
                                                   bdeat_typeCategorySelect(X));
             ASSERTV(obj.data() == X.object());
             ASSERTV(0 == X.className());
-            ASSERTV(0 ==
-                    bdeat_TypeName_Overloadable::bdeat_TypeName_className(X));
+            ASSERTV(0 == bdeat_TypeName::className(X));
             ASSERTV(false == X.isByteArrayValue());
 
             ASSERTV(SIZE  == (int)X.size());
@@ -2464,8 +2459,7 @@ int main(int argc, char *argv[])
                                                   bdeat_typeCategorySelect(X));
             ASSERTV(&obj == X.object());
             ASSERTV(0 == X.className());
-            ASSERTV(0 ==
-                    bdeat_TypeName_Overloadable::bdeat_TypeName_className(X));
+            ASSERTV(0 == bdeat_TypeName::className(X));
             ASSERTV(false == X.isByteArrayValue());
 
             ASSERTV(SIZE == (int)X.size());
@@ -2554,8 +2548,7 @@ int main(int argc, char *argv[])
                                                   bdeat_typeCategorySelect(X));
             ASSERTV(&obj == X.object());
             ASSERTV(0 == X.className());
-            ASSERTV(0 ==
-                    bdeat_TypeName_Overloadable::bdeat_TypeName_className(X));
+            ASSERTV(0 == bdeat_TypeName::className(X));
 
             ASSERTV(true == X.isByteArrayValue());
 
@@ -2640,8 +2633,7 @@ int main(int argc, char *argv[])
                                                   bdeat_typeCategorySelect(X));
             ASSERTV(0 == X.object());
             ASSERTV(0 == X.className());
-            ASSERTV(0 ==
-                    bdeat_TypeName_Overloadable::bdeat_TypeName_className(X));
+            ASSERTV(0 == bdeat_TypeName::className(X));
             ASSERTV(false == X.isByteArrayValue());
 
             ASSERTV(VALUE == X.enumToInt());
@@ -2672,8 +2664,7 @@ int main(int argc, char *argv[])
                                                   bdeat_typeCategorySelect(X));
             ASSERTV(&obj == X.object());
             ASSERTV(0 == X.className());
-            ASSERTV(0 ==
-                    bdeat_TypeName_Overloadable::bdeat_TypeName_className(X));
+            ASSERTV(0 == bdeat_TypeName::className(X));
             ASSERTV(false == X.isByteArrayValue());
 
             for (char cfg = 'a'; cfg <= 'd'; ++cfg) {

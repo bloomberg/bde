@@ -332,6 +332,10 @@ BDES_IDENT_PRAGMA_ONCE
 #include <bdeat_nullablevaluefunctions.h>
 #endif
 
+#ifndef INCLUDED_BDEAT_VALUETYPEFUNCTIONS
+#include <bdeat_valuetypefunctions.h>
+#endif
+
 #ifndef INCLUDED_BDEAT_SELECTIONINFO
 #include <bdeat_selectioninfo.h>
 #endif
@@ -411,8 +415,10 @@ struct baea_SerializableObjectProxyFunctions {
         // This 'typedef' is an alias for a function that configures the
         // specified 'proxy' with the specified 'object' and loads the current
         // selection to the specified 'selectInfoPtr'.  Return 0 on success,
-        // and a nonzero value if 'object' is an unselected Choice (in which
-        // case the state of 'proxy' and 'selectInfoPtr' is unspecified).
+        // and a non-zero value otherwise.  This operation will not succeed 
+        // if 'object' is an unselected Choice.  In the case of an error, 
+        // 'proxy' and 'selectInfoPtr' are left in a valid but unspecified 
+        // state.
 
     typedef void (*ElementLoader)(baea_SerializableObjectProxy        *proxy,
                                   const baea_SerializableObjectProxy&  object,
@@ -446,9 +452,10 @@ struct baea_SerializableObjectProxyFunctions {
         // specified Enumeration 'object' using the specified string, 'value',
         // having the specified 'length'.
 
-    typedef void (*ValueMaker)(void *object);
-        // This 'typedef' is an alias for a function that creates a value for
-        // the specified Nullable 'object', making it non-null.
+    typedef void (*NullToggler)(void *object);
+        // This 'typedef' is an alias for a function "toggles" the null state
+        // of the specified Nullable 'object': it will make the value 
+        // non-null if currently null, and null otherwise.  
 };
 
               // ====================================================
@@ -721,14 +728,14 @@ struct baea_SerializableObjectProxy_NullableDecodeInfo {
     typedef baea_SerializableObjectProxyFunctions Functions;  // for brevity
 
     // PUBLIC DATA
-    Functions::ValueMaker    d_valueMaker; // address of a function that will
-                                           // make the value non-null
+    Functions::NullToggler   d_nullToggler; // address of a function that will
+                                            // toggle null state
 
     Functions::ObjectFetcher d_fetcher;    // address of a function that will
                                            // return address of underlying data
 
     Functions::Loader        d_loader;     // address of a function that will
-                                           // make proxy for underlying data
+                                           // make a proxy for underlying data
 };
 
 typedef baea_SerializableObjectProxyFunctions::Loader
@@ -1047,6 +1054,13 @@ class baea_SerializableObjectProxy {
         // component to populate the 'baea_SerializableObjectProxy' object.
 
     // MANIPULATORS
+    void reset();
+        // Do nothing.  This method is required by 'bdeat'-based decoders but
+        // is generally unnecessary.  Note that because this method is a
+        // no-op, users of 'baea_SerializableObjectProxy' are responsible for
+        // resetting the object represented by this proxy to its default value
+        // when decoding if needed.
+
     void resize(size_t newSize);
         // Change the size of the Array object represented by this proxy to the
         // specified 'newSize'.  The behavior is undefined unless this proxy
@@ -1089,7 +1103,8 @@ class baea_SerializableObjectProxy {
         //..
         // Return -1 if this object represents an unselected Choice, and the
         // value returned by 'manipulator' otherwise.  The behavior is
-        // undefined unless this object represents a Choice object for decoding.
+        // undefined unless this object represents a Choice object for 
+        // decoding.
 
     template<typename MANIPULATOR>
     int arrayManipulateElement(MANIPULATOR& manipulator, int index);
@@ -1212,9 +1227,12 @@ class baea_SerializableObjectProxy {
     void makeValue();
         // Invoke 'makeValue' on the Nullable object represented by this proxy.
         // The behavior is undefined unless this proxy represents a Nullable
-        // value of type for decoding.  Note that the nullable object this
-        // proxy represents is of type 'bdeut_NullableValue' or
-        // 'bdeut_NullableAllocatedValue'.
+        // value for decoding.  
+
+    void makeNull();
+        // Make the Nullable object represented by this proxy null.  
+        // The behavior is undefined unless this proxy represents a Nullable
+        // value for decoding.  
 
     void loadSimple(char               *value);
     void loadSimple(unsigned char      *value);
@@ -1329,17 +1347,19 @@ class baea_SerializableObjectProxy {
     void loadNullableForDecoding(
            void                                                 *object,
            baea_SerializableObjectProxyFunctions::Loader         loader,
-           baea_SerializableObjectProxyFunctions::ValueMaker     valueMaker,
+           baea_SerializableObjectProxyFunctions::NullToggler    nullToggler,
            baea_SerializableObjectProxyFunctions::ObjectFetcher  valueFetcher);
         // Configure this proxy to represent the specified Nullable 'object' so
-        // that it can be used for decoding; the specified 'loader' function
+        // that it can be used for decoding: the specified 'loader' function
         // will be used to configure another 'baea_SerializableObjectProxy' to
         // represent the *contained* object within the nullable value;
-        // specified a 'valueMaker' function to will make 'object' non-null;
-        // and the specified 'valueFetcher' function will be used to return the
-        // address of the contained object.  The behavior is undefined unless
-        // 'object' is the address of an object of type
-        // 'bdeut_NullableAllocatedValue' or 'bdeut_NullableValue'.
+        // the specified 'nullToggler' function will be used to toggle the 
+        // null state of the valuue; and the specified 'valueFetcher' function 
+        // will be used to return the address of the contained object (and 
+        // return 0 if the value is null).  The behavior is undefined unless
+        // 'object' is the address of an object of a type that is an 
+        // instantiation of 'bdeut_NullableAllocatedValue' or 
+        // 'bdeut_NullableValue'.
 
     void loadEnumerationForEncoding(int                         value,
                                     const bdeat_EnumeratorInfo *infoArray,
@@ -1360,15 +1380,6 @@ class baea_SerializableObjectProxy {
         // 'intSetter' function to populate 'object' given an 'int', and
         // specify a 'stringSetter' function to populate 'object' given a
         // string.
-
-    // NO-OP FUNCTIONS FOR INTEGRATION
-
-    void reset();
-        // Do nothing.  This method is required by 'bdeat'-based decoders but
-        // is frequently unnecessary.  Note that because this method is a
-        // no-op, users of 'baea_SerializableObjectProxy' are responsible for
-        // resetting the object represented by this proxy to it default value
-        // when decoding if needed.
 
     // ACCESSORS
     const char *className() const;
@@ -1814,8 +1825,7 @@ int baea_SerializableObjectProxy::choiceManipulateSelection(
     const ChoiceDecodeInfo& info = d_objectInfo.the<ChoiceDecodeInfo>();
     const bdeat_SelectionInfo *selectionInfoPtr;
 
-    if (0 == info.d_loader(&selectionProxy, d_object_p, &selectionInfoPtr))
-    {
+    if (0 == info.d_loader(&selectionProxy, d_object_p, &selectionInfoPtr)) {
         return manipulateContainedElement(&selectionProxy,
                                           manipulator,
                                           *selectionInfoPtr);
@@ -1836,6 +1846,11 @@ int baea_SerializableObjectProxy::arrayManipulateElement(
     loadArrayElementDecodeProxy(&elementProxy, index);
 
     return manipulateContainedElement(&elementProxy, manipulator);
+}
+
+inline
+void baea_SerializableObjectProxy::reset()
+{
 }
 
 template<typename MANIPULATOR>
@@ -1995,13 +2010,6 @@ int baea_SerializableObjectProxy::manipulateNullable(MANIPULATOR& manipulator)
     info.d_loader(&proxy, info.d_fetcher(d_object_p));
 
     return bdeat_TypeCategoryUtil::manipulateByCategory(&proxy, manipulator);
-}
-
-// NO-OP FUNCTIONS FOR INTEGRATION
-
-inline
-void baea_SerializableObjectProxy::reset()
-{
 }
 
 // ACCESSORS
@@ -2572,20 +2580,29 @@ int bdeat_nullableValueAccessValue(
 }
 
 // ============================================================================
+//                       'bdeat_valuetypefunctions' overloads
+// ============================================================================
+inline
+void bdeat_valueTypeReset(
+                          baea_SerializableObjectProxy_NullableAdapter *object)
+{
+    object->d_proxy_p->makeNull();
+}
+
+
+// ============================================================================
 //                       'bdeat_typename' overloads
 // ============================================================================
-namespace bdeat_TypeName_Overloadable {
-
 inline
 const char *bdeat_TypeName_className(
                                    const baea_SerializableObjectProxy& object)
      // Return the type name of the type represented by the specified
      // 'object', or 0 if there is no such name.
-{
+{    
+    // This function must be declared in the BloombergLP namespace to avoid
+    // problems with compilers (like GCC) employing "two-phase" name lookup.  
     return object.className();
 }
-
-}  // close namespace bdeat_TypeName_Overloadable
 
 // ============================================================================
 //           'bdeat_choicefunctions' overloads and specializations
