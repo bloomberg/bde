@@ -20,7 +20,8 @@ std::size_t hash<const char *>::operator()(const char *x) const
     if (firstCall) {
         firstCall = false;
 
-        printf("ERROR: bsl::hash called for 'const char *' strings\n");
+        printf("ERROR: bsl::hash called for 'const char *',"
+               " see {TEAM BDEI:STANDARD HASH<GO}\n");
     }
 
     unsigned long result = 0;
