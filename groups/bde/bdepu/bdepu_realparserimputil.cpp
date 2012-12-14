@@ -226,8 +226,14 @@ int bdepu_RealParserImpUtil::convertBinaryToDouble(double *value,
     int frac = (int)(binFrac & 0x7FF);
     binFrac = binFrac & ~0x7FFuLL;
     //                               sixteen digit num
-    if (frac >= 0x400 && binFrac < 0xFFFFFFFFFFFFF800uLL) {
-        binFrac += 0x800;
+    if (frac >= 0x400) {
+        if (binFrac < 0xFFFFFFFFFFFFF800uLL) {
+            binFrac += 0x800;
+        }
+        else {
+            binFrac = 0x8000000000000000uLL;
+            ++binExp;
+        }
     }
 
     //                            sixteen digit num

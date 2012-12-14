@@ -15,6 +15,9 @@ BDES_IDENT_RCSID(bdepu_typesparserimputil_cpp,"$Id$ $CSID$")
 #include <bsl_cstdio.h>
 #include <bsl_cstring.h>
 
+#include <bsl_cstdlib.h>
+#include <bsl_cmath.h>
+
 namespace BloombergLP {
 
 typedef bdepu_ParserImpUtil       ImpUtil;
@@ -130,6 +133,14 @@ int parseRealAsDecimal(const char                **endPos,
     // incremented whenever frac is multiplied by 10 or 'exp' is increased.
     const int firstDigitPos = 18;
     int       fracDigits    =  0;
+
+
+    // Skip leading '0's.
+    while ('0' == *inputString)
+    {
+        ++inputString;
+        hasDigit = 1;
+    }
 
     while ('0' <= *inputString && *inputString <= '9') {
         if (fracDigits >= firstDigitPos) {
@@ -693,6 +704,11 @@ int bdepu_TypesParserImpUtil::parseDouble(const char **endPos,
     Uint64 binFrac = 0;
     int    binExp  = 0;
 
+    // Note that 'bdepu_RealParserImpUtil::convertDecimalToBinary' converts and
+    // fractional and exponent separately into binary in order to avoid doing
+    // division.  This could result in a loss of precision for numbers less
+    // than '0.1'.
+
     if (bdepu_RealParserImpUtil::convertDecimalToBinary(&binFrac,
                                                         &binExp,
                                                         decFrac,
@@ -736,6 +752,11 @@ int bdepu_TypesParserImpUtil::parseFloat(const char **endPos,
         *result = 0.0;
         return BDEPU_SUCCESS;
     }
+
+    // Note that 'bdepu_RealParserImpUtil::convertDecimalToBinary' converts and
+    // fractional and exponent separately into binary in order to avoid doing
+    // division.  This could result in a loss of precision for numbers less
+    // than '0.1'.
 
     double res;
     bdepu_RealParserImpUtil::convertBinaryToDouble(&res,
