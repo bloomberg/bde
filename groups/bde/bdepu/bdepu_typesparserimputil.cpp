@@ -15,9 +15,6 @@ BDES_IDENT_RCSID(bdepu_typesparserimputil_cpp,"$Id$ $CSID$")
 #include <bsl_cstdio.h>
 #include <bsl_cstring.h>
 
-#include <bsl_cstdlib.h>
-#include <bsl_cmath.h>
-
 namespace BloombergLP {
 
 typedef bdepu_ParserImpUtil       ImpUtil;
@@ -136,8 +133,7 @@ int parseRealAsDecimal(const char                **endPos,
 
 
     // Skip leading '0's.
-    while ('0' == *inputString)
-    {
+    while ('0' == *inputString) {
         ++inputString;
         hasDigit = 1;
     }
