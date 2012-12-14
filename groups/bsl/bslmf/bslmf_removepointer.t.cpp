@@ -90,7 +90,7 @@ void testFuncPtrType(TYPE)
     // Now add the pointer back and verify that we end up with the same type,
     // unless on a compiler that where removing the pointer didn't produce the
     // expected result.
-#if !defined(BSLS_PLATFORM_CMP_AIX)
+#if !defined(BSLS_PLATFORM_CMP_IBM)
     ASSERT((bsl::is_same<TYPE, FUNC_TYPE *>::value));
 #endif
 }
@@ -196,14 +196,6 @@ int main(int argc, char *argv[])
         // C-2
         ASSERT((is_same<remove_pointer<int>::type, int>::value));
         ASSERT((is_same<remove_pointer<int *&>::type, int *&>::value));
-
-        printf("*: %d\n",
-               is_same<bslmf::RemovePointer_Imp<int * const volatile>::Type,
-                       int * const volatile>::value);
-
-        printf("*: %d\n",
-               is_same<bslmf::RemovePointer_Imp<int * const volatile>::Type,
-                       int>::value);
 
         // Test removing a pointer from some function pointer types.
         testFuncPtrType(&funcWithDefaultArg);
