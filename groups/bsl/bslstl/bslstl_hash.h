@@ -1002,7 +1002,7 @@ struct hash<long double> {
         // Return a hash value computed using the specified 'x'.
 };
 
-#ifndef BDE_OMIT_TRANSITIONAL  // DEPRECATED
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // DEPRECATED
 template <>
 struct hash<const char *> {
     // Specialization of 'hash' for 'const char *' strings.  This explicit
@@ -1037,7 +1037,7 @@ struct hash<const char *> {
         // Return a hash value computed for the specified null-terminated
         // string 'x'.
 };
-#endif  // BDE_OMIT_TRANSITIONAL
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
 // ===========================================================================
 //                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
