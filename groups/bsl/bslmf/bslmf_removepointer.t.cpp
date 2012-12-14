@@ -197,14 +197,6 @@ int main(int argc, char *argv[])
         ASSERT((is_same<remove_pointer<int>::type, int>::value));
         ASSERT((is_same<remove_pointer<int *&>::type, int *&>::value));
 
-        printf("*: %d\n",
-               is_same<bslmf::RemovePointer_Imp<int * const volatile>::Type,
-                       int * const volatile>::value);
-
-        printf("*: %d\n",
-               is_same<bslmf::RemovePointer_Imp<int * const volatile>::Type,
-                       int>::value);
-
         // Test removing a pointer from some function pointer types.
         testFuncPtrType(&funcWithDefaultArg);
 
