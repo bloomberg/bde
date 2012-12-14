@@ -4,17 +4,16 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
-#ifndef BDE_OMIT_TRANSITIONAL  // DEPRECATED
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED // DEPRECATED
 
 #include <cstdio>  // for 'std::size_t'
 
-#endif  // BDE_OMIT_TRANSITIONAL
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
 namespace bsl
 {
 
-#ifndef BDE_OMIT_TRANSITIONAL  // DEPRECATED
-inline
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // DEPRECATED
 std::size_t hash<const char *>::operator()(const char *x) const
 {
     static bool firstCall = true;
@@ -32,7 +31,7 @@ std::size_t hash<const char *>::operator()(const char *x) const
 
     return std::size_t(result);
 }
-#endif  // BDE_OMIT_TRANSITIONAL
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
 }  // close namespace bsl
 // ---------------------------------------------------------------------------
