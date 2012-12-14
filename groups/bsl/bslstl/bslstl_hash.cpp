@@ -6,7 +6,7 @@ BSLS_IDENT("$Id$ $CSID$")
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED // DEPRECATED
 
-#include <cstdio>  // for 'std::size_t'
+#include <stdio.h>  // for 'printf'
 
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
@@ -20,7 +20,7 @@ std::size_t hash<const char *>::operator()(const char *x) const
     if (firstCall) {
         firstCall = false;
 
-        std::printf("ERROR: bsl::hash called for 'const char *' strings\n");
+        printf("ERROR: bsl::hash called for 'const char *' strings\n");
     }
 
     unsigned long result = 0;
