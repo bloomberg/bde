@@ -205,6 +205,10 @@ int main(int argc, char *argv[])
         ASSERT_SAME_CV(  void*,  Enum);
         ASSERT_SAME_CV(  Enum&, Class);
         ASSERT_SAME_CV( Class*, Union);
+
+#if defined(BSLS_PLATFORM_CMP_MSVC)
+        // Disable tests for function types due to a bug in MSVC.
+#else
         ASSERT_SAME_CV(     F ,    RF);
         ASSERT_SAME_CV(    RF ,    PF);
         ASSERT_SAME_CV(    PF ,   RPF);
@@ -213,6 +217,8 @@ int main(int argc, char *argv[])
         ASSERT_SAME_CV(   RFi ,   FRi);
         ASSERT_SAME_CV(   FRi ,  RFRi);
         ASSERT_SAME_CV(  RFRi ,     A);
+#endif
+
         ASSERT_SAME_CV(     A ,    RA);
       } break;
       default: {

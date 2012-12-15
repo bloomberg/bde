@@ -258,9 +258,11 @@ int main(int argc, char *argv[])
         ASSERT_REMOVE_REF2(Class&&,  Class);
         ASSERT_REMOVE_REF2(int Class::*&&, int Class::*);
 
+#if !defined(BSLS_PLATFORM_CMP_MSVC)
         ASSERT_SAME2(RRF,   F);
         ASSERT_SAME2(RRPF,  PF);
         ASSERT_SAME2(RRFRi, FRi);
+#endif
 
         ASSERT_SAME2(RRA, A);
 #endif
@@ -305,9 +307,6 @@ int main(int argc, char *argv[])
         ASSERT_SAME(   F,  F);
         ASSERT_SAME(  PF, PF);
 
-        ASSERT_SAME( RFi,  Fi);
-        ASSERT_SAME(RFRi, FRi);
-
         ASSERT_SAME(RA, A);
 
         // C-2
@@ -333,7 +332,7 @@ int main(int argc, char *argv[])
         // breaks for function reference types on MSVC 16: both TYPE& and
         // TYPE&& match, when only TYPE& should.
         ASSERT_SAME( RF,  F);
-        ASSERT_SAME( RFi,  Fi);
+        ASSERT_SAME( RFi, Fi);
         ASSERT_SAME(RFRi, FRi);
 #endif
 
@@ -348,9 +347,11 @@ int main(int argc, char *argv[])
         ASSERT_REMOVE_REF(Class&&,  Class);
         ASSERT_REMOVE_REF(int Class::*&&, int Class::*);
 
+#if !defined(BSLS_PLATFORM_CMP_MSVC)
         ASSERT_SAME(RRF,   F);
         ASSERT_SAME(RRPF,  PF);
         ASSERT_SAME(RRFRi, FRi);
+#endif
 
         ASSERT_SAME(RRA, A);
   #endif
