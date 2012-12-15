@@ -76,7 +76,7 @@ BSLS_IDENT("$Id: $")
 // defaults to 'bsl::hash<TYPE>'.  For common types of 'TYPE' such as 'int',
 // a specialization of 'bsl::hash' is already defined:
 //..
-//  template <typename TYPE, typename HASHER = bsl::hash<TYPE> >
+//  template <class TYPE, class HASHER = bsl::hash<TYPE> >
 //  class HashCrossReference {
 //      // This table leverages a hash table to provide a fast lookup of an
 //      // external, non-owned, array of values of configurable type.

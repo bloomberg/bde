@@ -7,14 +7,6 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-#ifndef INCLUDED_BSLSCM_VERSION
-#include <bslscm_version.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
-#include <bslmf_integralconstant.h>
-#endif
-
 //@PURPOSE: Provide a compile-time check for 'volatile'-qualified types.
 //
 //@CLASSES:
@@ -22,9 +14,9 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslmf_integralconstant
 //
-//@DESCRIPTION: This component defines a meta-function, 'bsl::is_volatile' ,
+//@DESCRIPTION: This component defines a meta-function, 'bsl::is_volatile',
 // that may be used to query whether a type is 'volatile'-qualified as defined
-// in section the C++11 standard [basic.type.qualifier].
+// in the C++11 standard [basic.type.qualifier].
 //
 // 'bsl::is_volatile' meets the requirements of the 'is_volatile' template
 // defined in the C++11 standard [meta.unary.prop].
@@ -34,11 +26,11 @@ BSLS_IDENT("$Id: $")
 // In this section we show intended use of this component.
 //
 ///Example 1: Verify 'Volatile' Types
-///- - - - - - - - - - - - - - - -
-// Suppose that we want to assert whether a particular type is a
+/// - - - - - - - - - - - - - - - - -
+// Suppose that we want to assert whether a particular type is
 // 'volatile'-qualified.
 //
-// First, we create two 'typedef's -- a 'volatile'-qualified type and a
+// First, we create two 'typedef's -- a 'volatile'-qualified type and an
 // unqualified type:
 //..
 //  typedef int           MyType;
@@ -51,13 +43,21 @@ BSLS_IDENT("$Id: $")
 //  assert(true  == bsl::is_volatile<MyVolatileType>::value);
 //..
 
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
+#include <bslmf_integralconstant.h>
+#endif
+
 namespace bsl {
 
                          // ==================
                          // struct is_volatile
                          // ==================
 
-template <typename TYPE>
+template <class TYPE>
 struct is_volatile : false_type {
     // This 'struct' template implements the 'is_volatile' meta-function
     // defined in the C++11 standard [meta.unary.cat] to determine if the
@@ -72,7 +72,7 @@ struct is_volatile : false_type {
                          // struct is_volatile<TYPE volatile>
                          // =================================
 
-template <typename TYPE>
+template <class TYPE>
 struct is_volatile<TYPE volatile> : true_type {
      // This partial specialization of 'is_volatile', for when the (template
      // parameter) 'TYPE' is 'volatile'-qualified, derives from

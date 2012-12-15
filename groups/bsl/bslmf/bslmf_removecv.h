@@ -7,10 +7,10 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a meta-function for removing top-level cv-qualifier
+//@PURPOSE: Provide a meta-function for removing top-level cv-qualifiers.
 //
 //@CLASSES:
-//  bsl::remove_const: meta-function for removing top-level cv-qualifier
+//  bsl::remove_const: meta-function for removing top-level cv-qualifiers
 //
 //@SEE_ALSO: bslmf_addcv
 //
@@ -69,6 +69,7 @@ struct remove_cv {
     // parameter) 'TYPE' except that any top-level cv-qualifiers has been
     // removed.
 
+    // PUBLIC TYPES
     typedef typename remove_const<typename remove_volatile<TYPE>::type>::type
                                                                           type;
         // This 'typedef' is an alias to the same type as the (template

@@ -156,6 +156,7 @@ int main(int argc, char *argv[])
         if (verbose) std::cout << "\nBREATHING TEST"
                                << "\n==============" << std::endl;
 
+        ASSERT(true);  // Reference assert implementation
 
         std::cout << "\nThere is no real runtime test for this component"
                   << std::endl;

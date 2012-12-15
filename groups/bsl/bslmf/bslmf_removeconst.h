@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a meta-function for removing top-level 'const'-qualifier
+//@PURPOSE: Provide a meta-function for removing top-level 'const'-qualifier.
 //
 //@CLASSES:
 //  bsl::remove_const: meta-function for removing top-level 'const'-qualifier
@@ -64,6 +64,7 @@ struct remove_const {
     // 'const'-qualified.  A template specialization is provided (below) that
     // removes the 'const'-qualifier for when 'TYPE' is 'const'-qualified.
 
+    // PUBLIC TYPES
     typedef TYPE type;
         // This 'typedef' is an alias to the (template parameter) 'TYPE'.
 };
@@ -78,6 +79,7 @@ struct remove_const<TYPE const> {
      // (template parameter) 'TYPE' is 'const'-qualified, provides a 'typedef'
      // 'type' that has the 'const'-qualifier removed.
 
+    // PUBLIC TYPES
     typedef TYPE type;
         // This 'typedef' to a type that is the same as the (template
         // parameter) 'TYPE' except with the 'const'-qualifier removed.

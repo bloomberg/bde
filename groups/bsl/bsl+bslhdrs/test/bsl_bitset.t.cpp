@@ -1,9 +1,10 @@
-// bslmf_integralconstant.cpp                                         -*-C++-*-
-
-#include <bslmf_integralconstant.h>
-
-#include <bsls_ident.h>
-BSLS_IDENT("$Id$ $CSID$")
+#include <bsl_bitset.h>
+#include <bitset>
+#ifdef std
+#   error std was not expected to be a macro
+#endif
+namespace std { }
+int main() { return 0; }
 
 // ----------------------------------------------------------------------------
 // Copyright (C) 2012 Bloomberg L.P.

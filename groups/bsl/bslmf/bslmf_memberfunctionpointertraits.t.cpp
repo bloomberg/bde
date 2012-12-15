@@ -238,12 +238,14 @@ typedef void (*TestVoidFunc14)(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11,
     template <class TYPE>
     void checkNotMemberFunctionPointer(TYPE object)
     {
+        (void) object;
         ASSERT(0 == bslmf::IsMemberFunctionPointer<TYPE>::value);
     }
 
     template <class RET, class ARGS, class TYPE>
     void checkMemberFunctionPointer(TYPE object)
     {
+        (void) object;
         ASSERT(1 == bslmf::IsMemberFunctionPointer<TYPE>::value);
         typedef typename bslmf::MemberFunctionPointerTraits<TYPE>::ResultType
             ResultType;

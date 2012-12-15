@@ -700,42 +700,19 @@ class unordered_map {
         // this method is not exception agnostic.
 
     const_iterator begin() const;
-        // Return an iterator providing non-modifiable access to the first
-        // 'value_type' object in the sequence of 'value_type' objects
-        // maintained by this unordered map, or the 'end' iterator if this
-        // unordered map is empty.
-
-    const_iterator end() const;
-        // Return an iterator providing non-modifiable access to the
-        // past-the-end element in the sequence of 'value_type' objects
-        // maintained by this unordered map.
-
     const_iterator cbegin() const;
         // Return an iterator providing non-modifiable access to the first
         // 'value_type' object in the sequence of 'value_type' objects
         // maintained by this unordered map, or the 'end' iterator if this
         // unordered map is empty.
 
+    const_iterator end() const;
     const_iterator cend() const;
         // Return an iterator providing non-modifiable access to the
         // past-the-end element in the sequence of 'value_type' objects
         // maintained by this unordered map.
 
     const_local_iterator begin(size_type index) const;
-        // Return a local iterator providing non-modifiable access to the first
-        // 'value_type' object in the sequence of 'value_type' objects of the
-        // bucket having the specified 'index' in the array of buckets
-        // maintained by this unordered map, or the 'end(index)' iterator if
-        // the bucket is empty.  The behavior is undefined unless
-        // 'index < bucket_count()'.
-
-    const_local_iterator end(size_type index) const;
-        // Return a local iterator providing non-modifiable access to the
-        // past-the-end element in the sequence of 'value_type' objects of
-        // the bucket having the specified 'index' in the array of buckets
-        // maintained by this unordered map.  The behavior is undefined unless
-        // 'index < bucket_count()'.
-
     const_local_iterator cbegin(size_type index) const;
         // Return a local iterator providing non-modifiable access to the first
         // 'value_type' object in the sequence of 'value_type' objects of the
@@ -744,9 +721,10 @@ class unordered_map {
         // the bucket is empty.  The behavior is undefined unless
         // 'index < bucket_count()'.
 
+    const_local_iterator end(size_type index) const;
     const_local_iterator cend(size_type index) const;
         // Return a local iterator providing non-modifiable access to the
-        // past-the-end element (in the sequence of 'value_type' objects) of
+        // past-the-end element in the sequence of 'value_type' objects of
         // the bucket having the specified 'index' in the array of buckets
         // maintained by this unordered map.  The behavior is undefined unless
         // 'index < bucket_count()'.
@@ -934,7 +912,7 @@ unordered_map(size_type             initialNumBuckets,
               const hasher&         hash,
               const key_equal&      keyEqual,
               const allocator_type& allocator)
-: d_impl(hash, keyEqual, initialNumBuckets, allocator)
+: d_impl(hash, keyEqual, initialNumBuckets, 1.0f, allocator)
 {
 }
 
@@ -947,7 +925,7 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::unordered_map(
                                        const hasher&         hash,
                                        const key_equal&      keyEqual,
                                        const allocator_type& allocator)
-: d_impl(hash, keyEqual, initialNumBuckets, allocator)
+: d_impl(hash, keyEqual, initialNumBuckets, 1.0f, allocator)
 {
     this->insert(first, last);
 }
@@ -966,7 +944,7 @@ template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 inline
 unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::unordered_map(
                                                const allocator_type& allocator)
-: d_impl(HASH(), EQUAL(), 0, allocator)
+: d_impl(HASH(), EQUAL(), 0, 1.0f, allocator)
 {
 }
 
@@ -1203,7 +1181,7 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::max_load_factor(
                                                         float newMaxLoadFactor)
 
 {
-    d_impl.maxLoadFactor(newMaxLoadFactor);
+    d_impl.setMaxLoadFactor(newMaxLoadFactor);
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
@@ -1211,7 +1189,7 @@ inline
 void
 unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::rehash(size_type numBuckets)
 {
-    return d_impl.rehash(numBuckets);
+    d_impl.rehashForNumBuckets(numBuckets);
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
@@ -1220,7 +1198,7 @@ void
 unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::reserve(
                                                          size_type numElements)
 {
-    return d_impl.rehashForNumElements(numElements);
+    d_impl.rehashForNumElements(numElements);
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>

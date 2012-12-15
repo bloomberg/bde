@@ -3,15 +3,17 @@
 
 #include <bslmf_issame.h>
 
-#include <cstdlib>
+#include <bsls_bsltestutil.h>
+
 #include <cstdio>
+#include <cstdlib>
 
 using namespace bsl;
 using namespace BloombergLP;
 
 using std::atoi;
-using std::printf;
 using std::fprintf;
+using std::printf;
 
 //=============================================================================
 //                                TEST PLAN
@@ -20,7 +22,7 @@ using std::fprintf;
 //                                --------
 // The component under test defines a meta-functions, 'bsl::add_const', that
 // adds a top-level 'const'-qualifier to a template parameter type.  Thus, we
-// need to ensure that the values returned by the meta-function is correct for
+// need to ensure that the values returned by the meta-function are correct for
 // each possible category of types.
 //
 // ----------------------------------------------------------------------------
@@ -130,22 +132,22 @@ int main(int argc, char *argv[])
 // verify that the resulting type is the same as 'MyConstType':
 //..
         ASSERT(true ==
-             (bsl::is_same<bsl::add_const<MyType>::type, MyConstType>::value));
+               (bsl::is_same<bsl::add_const<MyType>::type, MyConstType>::value));
 //..
 
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // 'bsl::add_const'
+        // 'bsl::add_const::type'
         //   Ensure that the 'typedef' 'type' of 'bsl::add_const' has the
         //   correct type for a variety of template parameter types.
         //
         // Concerns:
         //: 1 'bsl::add_const' adds a top-level 'const'-qualifier only to
-        //:   regular types (primitive, pointers, and user-defined types).
+        //:   primitive types, pointer types, and user-defined types.
         //:
         //: 2 'bsl::add_const' does not add a 'const'-qualifier to reference
-        //:   types, function types, or type that are already
+        //:   types, function types, or types that are already
         //:   'const'-qualified.
         //
         // Plan:
@@ -156,8 +158,8 @@ int main(int argc, char *argv[])
         //   bsl::add_const::type
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\n'bsl::remove_const::type'\n"
-                            "\n=========================\n");
+        if (verbose) printf("\n'bsl::add_const::type'\n"
+                            "\n======================\n");
 
         // C-1
         ASSERT((is_same<add_const<int>::type, int const>::value));

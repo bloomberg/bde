@@ -13,14 +13,27 @@
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
 
+#include <bsltf_stdtestallocator.h>
 #include <bsltf_templatetestfacility.h>
 #include <bsltf_testvaluesarray.h>
-#include <bsltf_stdtestallocator.h>
 
 #include <stdexcept>   // to confirm that the contractual exceptions are thrown
 
 #include <stdio.h>
 #include <stdlib.h>
+
+// To resolve gcc warnings, while printing 'size_t' arguments portably on
+// Windows, we use a macro and string literal concatenation to produce the
+// correct 'printf' format flag.
+#ifdef ZU
+#undef ZU
+#endif
+
+#if defined BSLS_PLATFORM_CMP_MSVC
+#  define ZU "%Iu"
+#else
+#  define ZU "%zu"
+#endif
 
 using namespace BloombergLP;
 
@@ -281,7 +294,7 @@ void fillContainerWithData(CONTAINER& x,
     }
 }
 
-template<class CONTAINER>
+template <class CONTAINER>
 void validateIteration(CONTAINER &c)
 {
     typedef typename CONTAINER::iterator       iterator;
@@ -881,6 +894,31 @@ int main(int argc, char *argv[])
 
         testMapLookup(mX);
         testImplicitInsert(mZ);  // double-check with an empty map
+
+        if (veryVerbose) printf(
+             "Call any remaining methods to be sure they at least compile.\n");
+
+        mX[42] = 13;
+        ASSERT(13 == x.at(42));
+
+        const bsl::allocator<int> alloc   = x.get_allocator();
+        const bsl::hash<int>      hasher  = x.hash_function();
+        const bsl::equal_to<int>  compare = x.key_eq();
+        
+        const size_t maxSize    = x.max_size();
+        const size_t buckets    = x.bucket_count();
+        const float  loadFactor = x.load_factor();
+        const float  maxLF      = x.max_load_factor();
+
+        ASSERT(loadFactor < maxLF);
+
+        mX.rehash(2 * buckets);
+        ASSERTV(x.bucket_count(), 2 * buckets, x.bucket_count() > 2 * buckets);
+        ASSERTV(x.load_factor(), loadFactor, x.load_factor() < loadFactor);
+
+        mX.reserve(0);
+        ASSERTV(x.bucket_count(), 2 * buckets, x.bucket_count() > 2 * buckets);
+        ASSERTV(x.load_factor(), loadFactor, x.load_factor() < loadFactor);
 
         if (veryVerbose)
             printf("Final message to confim the end of the breathing test.\n");

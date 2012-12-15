@@ -2,29 +2,39 @@
 
 #include <bslalg_hashtableimputil.h>
 
-#include <bslalg_hashtablebucket.h>
-#include <bslalg_bidirectionalnode.h>
 #include <bslalg_bidirectionallinklistutil.h>
-#include <bslalg_scalarprimitives.h>
+#include <bslalg_bidirectionalnode.h>
+#include <bslalg_hashtablebucket.h>
 #include <bslalg_scalardestructionprimitives.h>
+#include <bslalg_scalarprimitives.h>
 
-#include <bslma_testallocatormonitor.h>
-#include <bslma_testallocator.h>
 #include <bslma_defaultallocatorguard.h>
+#include <bslma_testallocator.h>
+#include <bslma_testallocatormonitor.h>
 
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
 
-#include <cstddef>
-#include <climits>
-
+#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
+// To resolve gcc warnings, while printing 'size_t' arguments portably on
+// Windows, we use a macro and string literal concatenation to produce the
+// correct 'printf' format flag.
+#ifdef ZU
+#undef ZU
+#endif
+
+#if defined BSLS_PLATFORM_CMP_MSVC
+#  define ZU "%Iu"
+#else
+#  define ZU "%zu"
+#endif
+
 using namespace BloombergLP;
 using namespace BloombergLP::bslalg;
-using namespace std;
 
 // ============================================================================
 //                             TEST PLAN
@@ -198,12 +208,12 @@ size_t countElements(bslalg::BidirectionalLink *first,
     return result;
 }
 
-template <typename EXPECTED_TYPE>
+template <class EXPECTED_TYPE>
 struct IsExpectedType {
     // Pass argument by pointer rather than by reference to these methods so as
     // not to break BDE rules and upset bdeflag.
 
-    template <typename OBJECT_TYPE>
+    template <class OBJECT_TYPE>
     bool operator()(OBJECT_TYPE *) const
     {
         return false;
@@ -230,7 +240,7 @@ struct IntTestHasherHalf {
     }
 };
 
-template <typename TYPE>
+template <class TYPE>
 struct Equals {
     bool operator()(const TYPE& lhs, const TYPE& rhs) const
     {
@@ -272,7 +282,7 @@ void debugPrint(const HashTableAnchor& anchor)
     }
     else {
         for (size_t n = 0; n < anchor.bucketArraySize(); ++n) {
-            printf("\nBucket [%d]: ", n);
+            printf("\nBucket [" ZU "]: ", n);
             const HashTableBucket& bucket = anchor.bucketArrayAddress()[n];
             if (!bucket.first()) {
                 continue;
@@ -325,7 +335,7 @@ struct Mod8Hasher {
     }
 };
 
-template <typename HASHER, typename POLICY>
+template <class HASHER, class POLICY>
 struct HashNodeUsingHasherAndPolicy {
     HASHER d_hasher;
 
@@ -354,7 +364,7 @@ struct HashNodeUsingHasherAndPolicy {
 // use the the 'BidirectionalLinkListUtil' and 'HashTableImpUtil' classes to
 // facilitate building the table:
 //..
-template <typename KEY, typename HASHER, typename EQUAL>
+template <class KEY, class HASHER, class EQUAL>
 class HashSet : public bslalg::HashTableAnchor {
     // PRIVATE TYPES
     typedef bslalg::BidirectionalLink         Link;
@@ -433,7 +443,7 @@ class HashSet : public bslalg::HashTableAnchor {
 };
 
 // PRIVATE MANIPULATORS
-template <typename KEY, typename HASHER, typename EQUAL>
+template <class KEY, class HASHER, class EQUAL>
 void HashSet<KEY, HASHER, EQUAL>::grow()
 {
     // 'bucketArraySize' will always be '2^N - 1', so that if hashed values
@@ -452,7 +462,7 @@ void HashSet<KEY, HASHER, EQUAL>::grow()
 }
 
 // PRIVATE ACCESSORS
-template <typename KEY, typename HASHER, typename EQUAL>
+template <class KEY, class HASHER, class EQUAL>
 bool HashSet<KEY, HASHER, EQUAL>::checkInvariants() const
 {
     // 'HashTableImpUtil's 'isWellFormed' will verify that all nodes are in
@@ -468,10 +478,10 @@ bool HashSet<KEY, HASHER, EQUAL>::checkInvariants() const
     }
 
     return size() == numNodes &&
-                   ImpUtil::isWellFormed<Policy, HASHER>(*this, d_allocator_p);
+                 ImpUtil::isWellFormed<Policy>(*this, HASHER(), d_allocator_p);
 }
 
-template <typename KEY, typename HASHER, typename EQUAL>
+template <class KEY, class HASHER, class EQUAL>
 bslalg::BidirectionalNode<KEY> *HashSet<KEY, HASHER, EQUAL>::find(
                                              const KEY&         key,
                                              native_std::size_t hashCode) const
@@ -483,7 +493,7 @@ bslalg::BidirectionalNode<KEY> *HashSet<KEY, HASHER, EQUAL>::find(
 }
 
 // CREATORS
-template <typename KEY, typename HASHER, typename EQUAL>
+template <class KEY, class HASHER, class EQUAL>
 HashSet<KEY, HASHER, EQUAL>::HashSet(bslma::Allocator *allocator)
 : HashTableAnchor(0, 0, 0)
 , d_maxLoadFactor(0.4)
@@ -500,7 +510,7 @@ HashSet<KEY, HASHER, EQUAL>::HashSet(bslma::Allocator *allocator)
     memset(bucketArrayAddress(), 0, bucketArraySizeInBytes);
 }
 
-template <typename KEY, typename HASHER, typename EQUAL>
+template <class KEY, class HASHER, class EQUAL>
 HashSet<KEY, HASHER, EQUAL>::~HashSet()
 {
     BSLS_ASSERT_SAFE(checkInvariants());
@@ -517,7 +527,7 @@ HashSet<KEY, HASHER, EQUAL>::~HashSet()
 }
 
 // MANIPULATORS
-template <typename KEY, typename HASHER, typename EQUAL>
+template <class KEY, class HASHER, class EQUAL>
 bool HashSet<KEY, HASHER, EQUAL>::erase(const KEY& key)
 {
     size_t hashCode = d_hasher(key);
@@ -560,7 +570,7 @@ bool HashSet<KEY, HASHER, EQUAL>::erase(const KEY& key)
     return true;
 }
 
-template <typename KEY, typename HASHER, typename EQUAL>
+template <class KEY, class HASHER, class EQUAL>
 bool HashSet<KEY, HASHER, EQUAL>::insert(const KEY& key)
 {
     size_t hashCode = d_hasher(key);
@@ -590,13 +600,13 @@ bool HashSet<KEY, HASHER, EQUAL>::insert(const KEY& key)
 }
 
 // ACCESSORS
-template <typename KEY, typename HASHER, typename EQUAL>
+template <class KEY, class HASHER, class EQUAL>
 native_std::size_t HashSet<KEY, HASHER, EQUAL>::count(const KEY& key) const
 {
     return 0 != find(key, d_hasher(key));
 }
 
-template <typename KEY, typename HASHER, typename EQUAL>
+template <class KEY, class HASHER, class EQUAL>
 native_std::size_t HashSet<KEY, HASHER, EQUAL>::size() const
 {
     return d_numNodes;
@@ -809,9 +819,10 @@ int main(int argc, char *argv[])
 
 // Then, we make sure our table is well-formed.  Monitor the default allocator
 // and observe that some default memory is temporarily used and freed:
+        Mod8Hasher hasher;
 
         dam.reset();
-        ASSERT((Obj::isWellFormed<TestPolicy, Mod8Hasher>(anchor)));
+        ASSERT((Obj::isWellFormed<TestPolicy>(anchor, hasher)));
         ASSERT(dam.isTotalUp());
         ASSERT(dam.isInUseSame());
 
@@ -842,7 +853,7 @@ int main(int argc, char *argv[])
         ASSERT(3 == buckets[0].countElements());
         ASSERT(links[000] == buckets[0].first());
         ASSERT(links[004] == buckets[0].last());
-        ASSERT((Obj::isWellFormed<TestPolicy, Mod8Hasher>(anchor)));
+        ASSERT((Obj::isWellFormed<TestPolicy>(anchor, hasher)));
 
 // Then, we insert node '014' back into the table, but in the wrong bucket,
 // and observe that the table is no longer well-formed:
@@ -850,7 +861,7 @@ int main(int argc, char *argv[])
         Obj::insertAtBackOfBucket(&anchor, links[014], 3);
 
         ASSERT(1 == buckets[3].countElements());
-        ASSERT(0 == (Obj::isWellFormed<TestPolicy, Mod8Hasher>(anchor)));
+        ASSERT(0 == (Obj::isWellFormed<TestPolicy>(anchor, hasher)));
 
 // Next, we move it back to the bucket it was originally in, but put it at the
 // front of the bucket, rather than the rear, using 'insertAtFrontOfBucket'.
@@ -865,7 +876,7 @@ int main(int argc, char *argv[])
                                    links[014],
                                    nodeHasher(links[014]));
 
-        ASSERT(4 == Mod8Hasher()(014));
+        ASSERT(4 == hasher(014));
         ASSERT(0 == Obj::computeBucketIndex(nodeHasher(links[014]),
                                             numActiveBuckets));
         ASSERT(4 == buckets[0].countElements());
@@ -874,7 +885,7 @@ int main(int argc, char *argv[])
         ASSERT(links[010] == buckets[0].first()->nextLink()->nextLink());
         ASSERT(links[004] == buckets[0].last());
 
-        ASSERT((Obj::isWellFormed<TestPolicy, Mod8Hasher>(anchor)));
+        ASSERT((Obj::isWellFormed<TestPolicy>(anchor, hasher)));
 
 // Then, we move the node to before node '004', which has the same hash value,
 // so they'll be adjacent and the hash table will be well-formed:
@@ -893,7 +904,7 @@ int main(int argc, char *argv[])
         ASSERT(links[014] == buckets[0].first()->nextLink()->nextLink());
         ASSERT(links[004] == buckets[0].last());
 
-        ASSERT((Obj::isWellFormed<TestPolicy, Mod8Hasher>(anchor)));
+        ASSERT((Obj::isWellFormed<TestPolicy>(anchor, hasher)));
 
 // Now, we grow the table from having 4 buckets to having 8 buckets using
 // 'rehash':
@@ -902,13 +913,11 @@ int main(int argc, char *argv[])
         anchor.setBucketArrayAddressAndSize(anchor.bucketArrayAddress(),
                                             numActiveBuckets);
 
-        Obj::rehash<TestPolicy, Mod8Hasher>(&anchor,
-                                            anchor.listRootAddress(),
-                                            Mod8Hasher());
+        Obj::rehash<TestPolicy>(&anchor, anchor.listRootAddress(), hasher);
 
 // Finally, we observe our grown table in detail, and clean up:
 
-        ASSERT((Obj::isWellFormed<TestPolicy, Mod8Hasher>(anchor)));
+        ASSERT((Obj::isWellFormed<TestPolicy>(anchor, hasher)));
 
         ASSERT(links[000] == buckets[0].first());
         ASSERT(links[010] == buckets[0].last());
@@ -973,6 +982,7 @@ int main(int argc, char *argv[])
         memset(buckets, 0, sizeof(buckets));
 
         Anchor anchor(buckets, 4, 0);
+        Mod8Hasher hasher;
 
         Obj::insertAtBackOfBucket(&anchor, node000, 0);
         Obj::insertAtBackOfBucket(&anchor, node010, 0);
@@ -1019,7 +1029,7 @@ int main(int argc, char *argv[])
         links[034] = node034;
 
         ASSERT(14 == countElements(anchor.listRootAddress()));
-        ASSERT((Obj::isWellFormed<TestPolicy, Mod8Hasher>(anchor)));
+        ASSERT((Obj::isWellFormed<TestPolicy>(anchor, hasher)));
 
         for (int i = 0; i < ARRAY_LENGTH(links); ++i) {
             for (int j = 0; j < 4; ++j) {
@@ -1115,7 +1125,7 @@ int main(int argc, char *argv[])
         }
 
         ASSERT(10 == countElements(anchor.listRootAddress()));
-        ASSERT((Obj::isWellFormed<TestPolicy, Mod8Hasher>(anchor)));
+        ASSERT((Obj::isWellFormed<TestPolicy>(anchor, hasher)));
 
         if (verbose) Q(Remove from the front of the bucket and front of root);
         {
@@ -1135,7 +1145,7 @@ int main(int argc, char *argv[])
         }
 
         ASSERT(9 == countElements(anchor.listRootAddress()));
-        ASSERT((Obj::isWellFormed<TestPolicy, Mod8Hasher>(anchor)));
+        ASSERT((Obj::isWellFormed<TestPolicy>(anchor, hasher)));
 
         if (verbose) Q(Remove from the back of the bucket);
         {
@@ -1153,7 +1163,7 @@ int main(int argc, char *argv[])
         }
 
         ASSERT(8 == countElements(anchor.listRootAddress()));
-        ASSERT((Obj::isWellFormed<TestPolicy, Mod8Hasher>(anchor)));
+        ASSERT((Obj::isWellFormed<TestPolicy>(anchor, hasher)));
 
         if (verbose) Q(Remove from the last link of the bucket);
         {
@@ -1172,7 +1182,7 @@ int main(int argc, char *argv[])
         }
 
         ASSERT(6 == countElements(anchor.listRootAddress()));
-        ASSERT((Obj::isWellFormed<TestPolicy, Mod8Hasher>(anchor)));
+        ASSERT((Obj::isWellFormed<TestPolicy>(anchor, hasher)));
 
 #define DELETE(octal) oa.deallocate(node ## octal)
 
@@ -1240,6 +1250,7 @@ int main(int argc, char *argv[])
         memset(buckets, 0, sizeof(buckets));
 
         Anchor anchor(buckets, 2, 0);    const Anchor& ANCHOR = anchor;
+        Mod8Hasher hasher;
 
         Obj::insertAtBackOfBucket(&anchor, node000, 0);
         Obj::insertAtBackOfBucket(&anchor, node010, 0);
@@ -1267,7 +1278,7 @@ int main(int argc, char *argv[])
         ASSERT(12 == buckets[0].countElements());
         ASSERT(2  == buckets[1].countElements());
 
-        ASSERT((Obj::isWellFormed<TestPolicy, Mod8Hasher>(anchor)));
+        ASSERT((Obj::isWellFormed<TestPolicy>(anchor, hasher)));
 
         {
             Link *matches[] = { node001, node011 };
@@ -1336,7 +1347,7 @@ int main(int argc, char *argv[])
         }
 
         ASSERT(14 == countElements(anchor.listRootAddress()));
-        ASSERT((Obj::isWellFormed<TestPolicy, Mod8Hasher>(anchor)));
+        ASSERT((Obj::isWellFormed<TestPolicy>(anchor, hasher)));
 
         for (int i = 0; i < ARRAY_LENGTH(links); ++i) {
             if (links[i]) {
@@ -1387,11 +1398,13 @@ int main(int argc, char *argv[])
         memset(buckets, 0, sizeof(buckets));
 
         Anchor anchor(buckets, 2, 0);
+        Mod8Hasher hasher;
 
         // Make sure 'rehash' doesn't segfault or anything given an empty
         // list.
 
-        Obj::rehash<TestPolicy, Mod8Hasher>(&anchor, 0, Mod8Hasher());
+        Obj::rehash<TestPolicy>(&anchor, 0, hasher);
+        ASSERT((Obj::isWellFormed<TestPolicy>(anchor, hasher)));
 
         Obj::insertAtBackOfBucket(&anchor, node000, 0);
         Obj::insertAtBackOfBucket(&anchor, node010, 0);
@@ -1419,7 +1432,7 @@ int main(int argc, char *argv[])
         ASSERT(12 == buckets[0].countElements());
         ASSERT(2  == buckets[1].countElements());
 
-        ASSERT((Obj::isWellFormed<TestPolicy, Mod8Hasher>(anchor)));
+        ASSERT((Obj::isWellFormed<TestPolicy>(anchor, hasher)));
 
         {
             Link *matches[] = { node001, node011 };
@@ -1441,7 +1454,8 @@ int main(int argc, char *argv[])
         memset(buckets, 0xa4, sizeof(buckets));
         anchor.setBucketArrayAddressAndSize(buckets, 4);
 
-        Obj::rehash<TestPolicy, Mod8Hasher>(&anchor, root, Mod8Hasher());
+        Obj::rehash<TestPolicy>(&anchor, root, hasher);
+        ASSERT((Obj::isWellFormed<TestPolicy>(anchor, hasher)));
 
         ASSERT(8 == buckets[0].countElements());
         ASSERT(2 == buckets[1].countElements());
@@ -1485,7 +1499,7 @@ int main(int argc, char *argv[])
         }
 
         ASSERT(14 == countElements(anchor.listRootAddress()));
-        ASSERT((Obj::isWellFormed<TestPolicy, Mod8Hasher>(anchor)));
+        ASSERT((Obj::isWellFormed<TestPolicy>(anchor, hasher)));
 
 #define DELETE(octal) oa.deallocate(node ## octal)
 
@@ -1545,6 +1559,8 @@ int main(int argc, char *argv[])
         typedef TestSetKeyPolicy<int>  TestPolicy;
         typedef NodeUtil<int>          IntNodeUtil;
 
+        Mod100Hasher hasher;
+
         if (verbose) Q(Testing empty tables of various lengths);
         {
             const int MAX_BUCKETS = 100;
@@ -1555,7 +1571,7 @@ int main(int argc, char *argv[])
             for (int i = 1; i < MAX_BUCKETS; ++i) {
                 Anchor anchor(buckets, i, 0);
 
-                ASSERT((Obj::isWellFormed<TestPolicy, Mod100Hasher>(anchor)));
+                ASSERT((Obj::isWellFormed<TestPolicy>(anchor, hasher)));
             }
         }
 
@@ -1611,7 +1627,7 @@ int main(int argc, char *argv[])
         }
 
         ASSERT(Util::isWellFormed(node011, node043));
-        ASSERT((Obj::isWellFormed<TestPolicy, Mod100Hasher>(anchor)));
+        ASSERT((Obj::isWellFormed<TestPolicy>(anchor, hasher)));
 
         Obj::insertAtFrontOfBucket(&anchor, node330, 0);
         Obj::insertAtPosition(&anchor,      node230, 0, node330);
@@ -1631,7 +1647,7 @@ int main(int argc, char *argv[])
         ASSERT(node330 == buckets[0].last());
 
         ASSERT(Util::isWellFormed(root, node043));
-        ASSERT((Obj::isWellFormed<TestPolicy, Mod100Hasher>(anchor)));
+        ASSERT((Obj::isWellFormed<TestPolicy>(anchor, hasher)));
 
         Obj::insertAtFrontOfBucket(&anchor, node012, 2);
 
@@ -1649,7 +1665,7 @@ int main(int argc, char *argv[])
 
         root = (IntNode *) anchor.listRootAddress();
         ASSERT(Util::isWellFormed(root, node043));
-        ASSERT((Obj::isWellFormed<TestPolicy, Mod100Hasher>(anchor)));
+        ASSERT((Obj::isWellFormed<TestPolicy>(anchor, hasher)));
 
         // --------------------------------------------------
 
@@ -1660,12 +1676,12 @@ int main(int argc, char *argv[])
         node330->setPreviousLink(node130);
 
         ASSERT(0 == Util::isWellFormed(root, node043));
-        ASSERT(0 == (Obj::isWellFormed<TestPolicy, Mod100Hasher>(anchor)));
+        ASSERT(0 == (Obj::isWellFormed<TestPolicy>(anchor, hasher)));
 
         node330->setPreviousLink(node230);
 
         ASSERT(Util::isWellFormed(root, node043));
-        ASSERT((Obj::isWellFormed<TestPolicy, Mod100Hasher>(anchor)));
+        ASSERT((Obj::isWellFormed<TestPolicy>(anchor, hasher)));
 
         if (verbose) Q(Node in wrong bucket);    // ----------------
 
@@ -1673,13 +1689,13 @@ int main(int argc, char *argv[])
         buckets[2].reset();
 
         ASSERT(Util::isWellFormed(root, node043));
-        ASSERT(0 == (Obj::isWellFormed<TestPolicy, Mod100Hasher>(anchor)));
+        ASSERT(0 == (Obj::isWellFormed<TestPolicy>(anchor, hasher)));
 
         buckets[2].setFirstAndLast(node012, node012);
         buckets[5].reset();
 
         ASSERT(Util::isWellFormed(root, node043));
-        ASSERT((Obj::isWellFormed<TestPolicy, Mod100Hasher>(anchor)));
+        ASSERT((Obj::isWellFormed<TestPolicy>(anchor, hasher)));
 
         if (verbose) Q(Bucket.first() is wrong);    // -----------------
 
@@ -1687,13 +1703,13 @@ int main(int argc, char *argv[])
         ASSERT(buckets[1].first());
 
         ASSERT(Util::isWellFormed(root, node043));
-        ASSERT(0 == (Obj::isWellFormed<TestPolicy, Mod100Hasher>(anchor)));
+        ASSERT(0 == (Obj::isWellFormed<TestPolicy>(anchor, hasher)));
 
         buckets[1].setFirst(buckets[1].first()->nextLink());
         ASSERT(buckets[1].first());
 
         ASSERT(Util::isWellFormed(root, node043));
-        ASSERT((Obj::isWellFormed<TestPolicy, Mod100Hasher>(anchor)));
+        ASSERT((Obj::isWellFormed<TestPolicy>(anchor, hasher)));
 
         if (verbose) Q(Bucket.last() is wrong);    // -----------------
 
@@ -1701,37 +1717,37 @@ int main(int argc, char *argv[])
         ASSERT(buckets[1].last());
 
         ASSERT(Util::isWellFormed(root, node043));
-        ASSERT(0 == (Obj::isWellFormed<TestPolicy, Mod100Hasher>(anchor)));
+        ASSERT(0 == (Obj::isWellFormed<TestPolicy>(anchor, hasher)));
 
         buckets[1].setLast(buckets[1].last()->nextLink());
         ASSERT(buckets[1].last());
 
         ASSERT(Util::isWellFormed(root, node043));
-        ASSERT((Obj::isWellFormed<TestPolicy, Mod100Hasher>(anchor)));
+        ASSERT((Obj::isWellFormed<TestPolicy>(anchor, hasher)));
 
         if (verbose) Q(Orphan node in list -- not in bucket);    // -----------
 
         buckets[1].reset();
 
         ASSERT(Util::isWellFormed(root, node043));
-        ASSERT(0 == (Obj::isWellFormed<TestPolicy, Mod100Hasher>(anchor)));
+        ASSERT(0 == (Obj::isWellFormed<TestPolicy>(anchor, hasher)));
 
         buckets[1].setFirstAndLast(node011, node011);
 
         ASSERT(Util::isWellFormed(root, node043));
-        ASSERT((Obj::isWellFormed<TestPolicy, Mod100Hasher>(anchor)));
+        ASSERT((Obj::isWellFormed<TestPolicy>(anchor, hasher)));
 
         if (verbose) Q(Node in bucket that is not in root list);    // --------
 
         buckets[5].setFirstAndLast(node055, node055);
 
         ASSERT(Util::isWellFormed(root, node043));
-        ASSERT(0 == (Obj::isWellFormed<TestPolicy, Mod100Hasher>(anchor)));
+        ASSERT(0 == (Obj::isWellFormed<TestPolicy>(anchor, hasher)));
 
         buckets[5].reset();
 
         ASSERT(Util::isWellFormed(root, node043));
-        ASSERT((Obj::isWellFormed<TestPolicy, Mod100Hasher>(anchor)));
+        ASSERT((Obj::isWellFormed<TestPolicy>(anchor, hasher)));
 
         if (verbose) Q(Node in right bucket wrong hash sequence - permissible);
 
@@ -1753,14 +1769,14 @@ int main(int argc, char *argv[])
         ASSERT(6 == buckets[0].countElements());
 
         ASSERT(Util::isWellFormed(root, node043));
-        ASSERT((Obj::isWellFormed<TestPolicy, Mod100Hasher>(anchor)));
+        ASSERT((Obj::isWellFormed<TestPolicy>(anchor, hasher)));
 
         Util::unlink(node020);
         Util::insertLinkBeforeTarget(node020, node030);
         ASSERT(6 == buckets[0].countElements());
 
         ASSERT(Util::isWellFormed(root, node043));
-        ASSERT((Obj::isWellFormed<TestPolicy, Mod100Hasher>(anchor)));
+        ASSERT((Obj::isWellFormed<TestPolicy>(anchor, hasher)));
 
         if (verbose) Q(Done testing -- cleanup);    // --------------
 
@@ -2319,7 +2335,9 @@ int main(int argc, char *argv[])
         ASSERTV(om.isInUseSame());
         ASSERTV(dm.isInUseSame());
 
-// [  ] isWellFormed(const Anchor *anchor);
+        IntTestHasherIdent defaultHasher;
+
+        // [  ] isWellFormed(const Anchor *anchor);
         if (veryVerbose) printf("\t\t Testing 'isWellFormed'\n");
         {
             if(veryVeryVerbose) printf("\t\t\t Testing malformed anchor 1\n");
@@ -2353,7 +2371,7 @@ int main(int argc, char *argv[])
             Anchor anchor(badArray, DATA_SIZE, head);
             const Anchor& ANCHOR = anchor;
             const bool IS_VALID =
-                     Obj::isWellFormed<TestPolicy, IntTestHasherIdent>(ANCHOR);
+                          Obj::isWellFormed<TestPolicy>(ANCHOR, defaultHasher);
 
             ASSERTV(!IS_VALID);
             IntNodeUtil::disposeList(head, &oa);
@@ -2373,7 +2391,7 @@ int main(int argc, char *argv[])
             Anchor anchor(goodArray, DATA_SIZE, 0);
             const Anchor& ANCHOR = anchor;
             const bool IS_VALID =
-                     Obj::isWellFormed<TestPolicy, IntTestHasherIdent>(ANCHOR);
+                     Obj::isWellFormed<TestPolicy>(ANCHOR, defaultHasher);
 
             ASSERTV(IS_VALID);
         }
@@ -2416,7 +2434,7 @@ int main(int argc, char *argv[])
             Anchor anchor(goodArray, DATA_SIZE, head);
             const Anchor& ANCHOR = anchor;
             const bool IS_VALID =
-                     Obj::isWellFormed<TestPolicy, IntTestHasherIdent>(ANCHOR);
+                     Obj::isWellFormed<TestPolicy>(ANCHOR, defaultHasher);
 
             ASSERTV(IS_VALID);
             IntNodeUtil::disposeList(head, &oa);
@@ -2457,7 +2475,7 @@ int main(int argc, char *argv[])
             ASSERTV(anchor.bucketArrayAddress()[0].first() == link);
             ASSERTV(anchor.bucketArrayAddress()[0].last() == link);
             bool IS_VALID =
-                     Obj::isWellFormed<TestPolicy, IntTestHasherIdent>(ANCHOR);
+                     Obj::isWellFormed<TestPolicy>(ANCHOR, defaultHasher);
             ASSERTV(IS_VALID);
 
             // After insert 0
@@ -2481,7 +2499,7 @@ int main(int argc, char *argv[])
             ASSERTV(anchor.bucketArrayAddress()[0].first() == 0);
             ASSERTV(anchor.bucketArrayAddress()[0].last() == 0);
             IS_VALID =
-                     Obj::isWellFormed<TestPolicy, IntTestHasherIdent>(ANCHOR);
+                     Obj::isWellFormed<TestPolicy>(ANCHOR, defaultHasher);
             ASSERTV(IS_VALID);
 
             // After remove 0
@@ -2502,7 +2520,7 @@ int main(int argc, char *argv[])
             ASSERTV(anchor.bucketArrayAddress()[0].first() == link);
             ASSERTV(anchor.bucketArrayAddress()[0].last() == link);
             IS_VALID =
-                     Obj::isWellFormed<TestPolicy, IntTestHasherIdent>(ANCHOR);
+                     Obj::isWellFormed<TestPolicy>(ANCHOR, defaultHasher);
             ASSERTV(IS_VALID);
 
             // After insert 0
@@ -2530,7 +2548,7 @@ int main(int argc, char *argv[])
             ASSERTV(anchor.bucketArrayAddress()[1].first() == link2);
             ASSERTV(anchor.bucketArrayAddress()[1].last() == link2);
             IS_VALID =
-                     Obj::isWellFormed<TestPolicy, IntTestHasherIdent>(ANCHOR);
+                     Obj::isWellFormed<TestPolicy>(ANCHOR, defaultHasher);
             ASSERTV(IS_VALID);
 
             // After insert 1
@@ -2562,7 +2580,7 @@ int main(int argc, char *argv[])
             ASSERTV(anchor.bucketArrayAddress()[1].first() == link3);
             ASSERTV(anchor.bucketArrayAddress()[1].last() == link2);
             IS_VALID =
-                     Obj::isWellFormed<TestPolicy, IntTestHasherIdent>(ANCHOR);
+                     Obj::isWellFormed<TestPolicy>(ANCHOR, defaultHasher);
             ASSERTV(IS_VALID);
 
             // After insert again 1
@@ -2595,7 +2613,7 @@ int main(int argc, char *argv[])
             ASSERTV(anchor.bucketArrayAddress()[1].first() == link3);
             ASSERTV(anchor.bucketArrayAddress()[1].last() == link3);
             IS_VALID =
-                     Obj::isWellFormed<TestPolicy, IntTestHasherIdent>(ANCHOR);
+                     Obj::isWellFormed<TestPolicy>(ANCHOR, defaultHasher);
             ASSERTV(IS_VALID);
             IntNodeUtil::destroy(link2, &oa);
 
@@ -2628,7 +2646,7 @@ int main(int argc, char *argv[])
             ASSERTV(anchor.bucketArrayAddress()[1].first() == link4);
             ASSERTV(anchor.bucketArrayAddress()[1].last() == link3);
             IS_VALID =
-                     Obj::isWellFormed<TestPolicy, IntTestHasherIdent>(ANCHOR);
+                     Obj::isWellFormed<TestPolicy>(ANCHOR, defaultHasher);
             ASSERTV(IS_VALID);
 
             // After insert at position 1
@@ -2661,7 +2679,7 @@ int main(int argc, char *argv[])
             ASSERTV(anchor.bucketArrayAddress()[1].first() == link3);
             ASSERTV(anchor.bucketArrayAddress()[1].last() == link3);
             IS_VALID =
-                     Obj::isWellFormed<TestPolicy, IntTestHasherIdent>(ANCHOR);
+                     Obj::isWellFormed<TestPolicy>(ANCHOR, defaultHasher);
             ASSERTV(IS_VALID);
 
             // After remove again 1
@@ -2701,7 +2719,7 @@ int main(int argc, char *argv[])
             ASSERTV(anchor.bucketArrayAddress()[1].first() == link3);
             ASSERTV(anchor.bucketArrayAddress()[1].last() == link3);
             IS_VALID =
-                     Obj::isWellFormed<TestPolicy, IntTestHasherIdent>(ANCHOR);
+                     Obj::isWellFormed<TestPolicy>(ANCHOR, defaultHasher);
             ASSERTV(IS_VALID);
             IntNodeUtil::disposeList(link3, &oa);
         }
@@ -2741,7 +2759,7 @@ int main(int argc, char *argv[])
             Link *link6 = IntNodeUtil::create(DATA[6], &oa);
 
             bool IS_VALID =
-                     Obj::isWellFormed<TestPolicy, IntTestHasherIdent>(ANCHOR);
+                     Obj::isWellFormed<TestPolicy>(ANCHOR, defaultHasher);
             ASSERTV(IS_VALID);
 
             Obj::insertAtFrontOfBucket(&anchor, link0, DATA[0]);
@@ -2787,17 +2805,17 @@ int main(int argc, char *argv[])
             //..
 
             IS_VALID =
-                     Obj::isWellFormed<TestPolicy, IntTestHasherIdent>(ANCHOR);
+                     Obj::isWellFormed<TestPolicy>(ANCHOR, defaultHasher);
             ASSERTV(IS_VALID);
 
             Bucket newArray[DATA_SIZE];
             memset(newArray, 0, sizeof(newArray));
             Anchor newAnchor(newArray, DATA_SIZE, 0);
 
-            Obj::rehash<TestPolicy, IntTestHasherIdent>(
-                                                      &newAnchor,
-                                                      anchor.listRootAddress(),
-                                                      IntTestHasherIdent());
+            Obj::rehash<TestPolicy>(&newAnchor,
+                                    anchor.listRootAddress(),
+                                    defaultHasher);
+            ASSERT((Obj::isWellFormed<TestPolicy>(newAnchor, defaultHasher)));
             for (size_t i = 0; i < DATA_SIZE; ++i) {
                 ASSERTV(i, newArray[i].first() == newArray[i].last());
             }
@@ -2811,7 +2829,7 @@ int main(int argc, char *argv[])
             ASSERTV(newArray[6].first() == link6);
 
             IS_VALID =
-                  Obj::isWellFormed<TestPolicy, IntTestHasherIdent>(newAnchor);
+                  Obj::isWellFormed<TestPolicy>(newAnchor, defaultHasher);
             ASSERTV(IS_VALID);
             IntNodeUtil::disposeList(newAnchor.listRootAddress(), &oa);
         }

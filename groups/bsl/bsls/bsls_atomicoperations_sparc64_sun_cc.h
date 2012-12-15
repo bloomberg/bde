@@ -40,8 +40,9 @@ namespace BloombergLP {
 
 extern "C"
 {
-    // *** 64 bit operations ***
+                         // *** 64 bit operations ***
 
+    // CLASS METHODS
     bsls::Types::Int64 bsls_AtomicOperations_Sparc64_GetInt64(
             const volatile bsls::Types::Int64 *atomicInt);
 
@@ -130,8 +131,9 @@ struct AtomicOperations_SPARC64_SUN_CC
 {
     typedef Atomic_TypeTraits<AtomicOperations_SPARC64_SUN_CC> AtomicTypes;
 
-        // *** atomic functions for Int64 ***
+                    // *** atomic functions for Int64 ***
 
+    // CLASS METHODS
     static Types::Int64 getInt64(const AtomicTypes::Int64 *atomicInt);
 
     static Types::Int64 getInt64Acquire(const AtomicTypes::Int64 *atomicInt);

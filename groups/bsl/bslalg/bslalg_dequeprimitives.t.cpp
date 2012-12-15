@@ -11,6 +11,7 @@
 #include <bslma_testallocator.h>          // for testing only
 #include <bslma_testallocatorexception.h> // for testing only
 #include <bsls_alignmentutil.h>           // for testing only
+#include <bsls_bsltestutil.h>             // for testing only
 #include <bsls_objectbuffer.h>            // for testing only
 #include <bsls_platform.h>                // for testing only
 #include <bsls_stopwatch.h>               // for testing only
@@ -131,9 +132,11 @@ namespace {
                 printf("(*** %d)", bslmaExceptionCounter);                   \
                 if (veryVeryVerbose) {                                       \
                     printf(" bslma::EXCEPTION:"                              \
-                           " alloc limit = %d,"                              \
-                           " last alloc size = %d\n",                        \
-                           bslmaExceptionCounter, e.numBytes());             \
+                           " alloc limit = %d,",                             \
+                           bslmaExceptionCounter);                           \
+                    printf(" last alloc size = ");                           \
+                    bsls::BslTestUtil::callDebugprint(e.numBytes());         \
+                    printf("\n");                                            \
                 }                                                            \
                 else if (0 == bslmaExceptionLimit) {                         \
                     printf(" [ Note: 'bslmaExceptionLimit' reached. ]\n");   \

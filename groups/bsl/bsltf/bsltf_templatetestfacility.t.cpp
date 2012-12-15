@@ -392,6 +392,8 @@ struct TestHelper
     static void test4Helper();
 
     static void test5Helper();
+
+    static void test6Helper();
 };
 
 template <class TYPE>
@@ -606,6 +608,27 @@ void TestHelper<TYPE>::test5Helper()
     }
 }
 
+template <class TYPE>
+void TestHelper<TYPE>::test6Helper()
+{
+    if (veryVerbose)
+        printf("\n==TYPE: %s==\n", typeid(TYPE).name());
+
+    for (int ti = 0; ti <= 127; ++ti) {
+        TYPE X = TemplateTestFacility::create<TYPE>(ti);
+
+        if (verbose) {
+            using bsls::debugprint;  // otherwise the name is hidden by this component
+
+            debugprint(X);
+
+            BSLS_BSLTESTUTIL_P(X);
+
+            ASSERTV(X, true);
+        }
+    }
+}
+
 } // close unnamed namespace
 
 //=============================================================================
@@ -737,6 +760,10 @@ int main(int argc, char *argv[]) {
         BSLS_BSLTESTUTIL_P(o7);
         BSLS_BSLTESTUTIL_P(o8);
 
+        BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(
+                                    TestHelper,
+                                    test6Helper,
+                                    BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
       } break;
       case 5: {
         // --------------------------------------------------------------------

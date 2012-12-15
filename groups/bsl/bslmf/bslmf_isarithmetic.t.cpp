@@ -3,25 +3,21 @@
 
 #include <bsls_bsltestutil.h>
 
-#include <cstdio>
-#include <cstdlib>
+#include <cstdio>   // 'printf'
+#include <cstdlib>  // 'atoi'
 
-using namespace bsl;
 using namespace BloombergLP;
-
-using std::printf;
-using std::fprintf;
-using std::atoi;
+using namespace std;
 
 //=============================================================================
 //                                TEST PLAN
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// The object under test is a meta-function, 'bsl::is_arithmetic', which
-// determine whether a template parameter type is a arithmetic type.  Thus, we
-// need to ensure that the value returned by this meta-functions is correct for
-// each possible category of types.
+// The object under test is a meta-function, 'bsl::is_arithmetic', that
+// determines whether a template parameter type is an arithmetic type.  Thus,
+// we need to ensure that the value returned by this meta-functions is correct
+// for each possible category of types.
 //
 // ----------------------------------------------------------------------------
 // PUBLIC CLASS DATA
@@ -67,52 +63,46 @@ void aSsErT(bool b, const char *s, int i)
 
 namespace {
 
-enum   EnumTestType {
-    // This user-defined 'enum' type is intended to be used during testing as
-    // an argument for the template parameter 'TYPE' of 'bsl::is_arithmetic'.
+enum EnumTestType {
+    // This user-defined 'enum' type is intended to be used for testing as the
+    // template parameter 'TYPE' of 'bsl::is_arithmetic'.
 };
 
 struct StructTestType {
-    // This user-defined 'struct' type is intended to be used during testing as
-    // an argument for the template parameter 'TYPE' of 'bsl::is_arithmetic'.
+    // This user-defined 'struct' type is intended to be used for testing as
+    // the template parameter 'TYPE' of 'bsl::is_arithmetic'.
 };
 
-union  UnionTestType {
-    // This user-defined 'union' type is intended to be used during testing as
-    // an argument for the template parameter 'TYPE' of 'bsl::is_arithmetic'.
+union UnionTestType {
+    // This user-defined 'union' type is intended to be used for testing as the
+    // template parameter 'TYPE' of 'bsl::is_arithmetic'.
 };
 
-class  BaseClassTestType {
-    // This user-defined base class type is intended to be used during testing
-    // as an argument for the template parameter 'TYPE' of
-    // 'bsl::is_arithmetic'.
+class BaseClassTestType {
+    // This user-defined base class type is intended to be used for testing as
+    // the template parameter 'TYPE' of 'bsl::is_arithmetic'.
 };
 
-class  DerivedClassTestType : public BaseClassTestType {
-    // This user-defined derived class type is intended to be used during
-    // testing as an argument for the template parameter 'TYPE' of
-    // 'bsl::is_arithmetic'.
+class DerivedClassTestType : public BaseClassTestType {
+    // This user-defined derived class type is intended to be used for testing
+    // as the template parameter 'TYPE' of 'bsl::is_arithmetic'.
 };
 
 typedef int (StructTestType::*MethodPtrTestType) ();
-    // This non-static function member type is intended to be used during
-    // testing as an argument for the template parameter 'TYPE' of
-    // 'bsl::is_arithmetic'.
+    // This pointer to non-static member function type is intended to be used
+    // for testing as the template parameter 'TYPE' of 'bsl::is_arithmetic'.
 
 typedef void (*FunctionPtrTestType) ();
-    // This function pointer type is intended to be used during testing as an
-    // argument as an argument for the template parameter 'TYPE' of
-    // 'bsl::is_arithmetic'.
+    // This function pointer type is intended to be used for testing as the
+    // template parameter 'TYPE' of 'bsl::is_arithmetic'.
 
-typedef int StructTestType::* PMD;
-    // This class public data member pointer type is intended to be used during
-    // testing as an argument as an argument for the template parameter 'TYPE'
-    // of 'bsl::is_arithmetic'.
+typedef int StructTestType::*PMD;
+    // This pointer to member object type is intended to be used for testing as
+    // the template parameter 'TYPE' of 'bsl::is_arithmetic'.
 
 struct Incomplete;
-    // This incomplete 'struct' type is intended to be used during testing as
-    // an argument as an argument for the template parameter 'TYPE' of
-    // 'bsl::is_arithmetic'.
+    // This incomplete 'struct' type is intended to be used for testing as the
+    // template parameter 'TYPE' of 'bsl::is_arithmetic'.
 
 }  // close unnamed namespace
 
@@ -188,29 +178,29 @@ int main(int argc, char *argv[])
 //
 ///Example 1: Verify Arithmetic Types
 /// - - - - - - - - - - - - - - - - -
-// Suppose that we want to assert whether a particular type is a arithmetic
-// type.
+// Suppose that we want to assert whether a set of types are arithmetic types.
 //
-// Now, we instantiate the 'bsl::is_arithmetic' template for both a
-// non-arithmetic type and a arithmetic type, and assert the 'value' static
-// data member of each instantiation:
+// Now, we instantiate the 'bsl::is_arithmetic' template for these types, and
+// assert the 'value' static data member of each instantiation:
 //..
     ASSERT(false == bsl::is_arithmetic<int&>::value);
+    ASSERT(false == bsl::is_arithmetic<int*>::value);
     ASSERT(true  == bsl::is_arithmetic<int >::value);
 //..
+
       } break;
       case 1: {
         // --------------------------------------------------------------------
         // 'bsl::is_arithmetic::value'
         //   Ensure that the static data member 'value' of
         //   'bsl::is_arithmetic' instantiations having various (template
-        //   parameter) 'TYPES' has the correct value.
+        //   parameter) 'TYPE's has the correct value.
         //
         // Concerns:
         //: 1 'is_arithmetic::value' is 'false' when 'TYPE' is a (possibly
         //:   cv-qualified) primitive type other than arithmetic type.
         //:
-        //: 2 'is_arithmetic::value' is 'true' when 'TYPE' is a (possibly
+        //: 2 'is_arithmetic::value' is 'true' when 'TYPE' is an (possibly
         //:   cv-qualified) arithmetic type.
         //:
         //: 3 'is_arithmetic::value' is 'false' when 'TYPE' is a (possibly
@@ -233,11 +223,11 @@ int main(int argc, char *argv[])
         //   bsl::is_arithmetic::value
         // --------------------------------------------------------------------
 
-        if (verbose) printf("bsl::is_arithmetic::value\n"
-                            "=========================\n");
+        if (verbose) printf("'bsl::is_arithmetic::value'\n"
+                            "===========================\n");
 
         // C-1
-        TYPE_ASSERT_CVQ_SUFFIX(bsl::is_arithmetic, value, void, false);
+        TYPE_ASSERT_CVQ_SUFFIX(bsl::is_arithmetic, value, void,         false);
 
         // C-2
         TYPE_ASSERT_CVQ_SUFFIX(bsl::is_arithmetic, value, char,          true);
@@ -293,7 +283,7 @@ int main(int argc, char *argv[])
                  bsl::is_arithmetic, value, FunctionPtrTestType,        false);
 
         // C-5
-        TYPE_ASSERT_CVQ_REF(bsl::is_arithmetic, value, int,  false);
+        TYPE_ASSERT_CVQ_REF(bsl::is_arithmetic, value, int,             false);
         TYPE_ASSERT_CVQ_REF(
                        bsl::is_arithmetic, value, EnumTestType,         false);
         TYPE_ASSERT_CVQ_REF(
@@ -331,10 +321,10 @@ int main(int argc, char *argv[])
                  bsl::is_arithmetic, value, FunctionPtrTestType,        false);
 
         // C-6
-        TYPE_ASSERT_CVQ_PREFIX(bsl::is_arithmetic, value, int  (int),  false);
-        TYPE_ASSERT_CVQ_PREFIX(bsl::is_arithmetic, value, void (void), false);
-        TYPE_ASSERT_CVQ_PREFIX(bsl::is_arithmetic, value, int  (void), false);
-        TYPE_ASSERT_CVQ_PREFIX(bsl::is_arithmetic, value, void (int),  false);
+        TYPE_ASSERT_CVQ_PREFIX(bsl::is_arithmetic, value, int  (int),   false);
+        TYPE_ASSERT_CVQ_PREFIX(bsl::is_arithmetic, value, void (void),  false);
+        TYPE_ASSERT_CVQ_PREFIX(bsl::is_arithmetic, value, int  (void),  false);
+        TYPE_ASSERT_CVQ_PREFIX(bsl::is_arithmetic, value, void (int),   false);
 
       } break;
       default: {

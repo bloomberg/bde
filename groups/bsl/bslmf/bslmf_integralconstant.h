@@ -33,7 +33,7 @@ BSLS_IDENT("$Id: $")
 // This section illustates intended usage of this component
 //
 ///Example 1: Compile-Time Function Dispatching
-/// - - - - - - - - - - - - - - - - - - - - - - 
+/// - - - - - - - - - - - - - - - - - - - - - -
 // The most common use of this structure is to perform compile-time function
 // dispatching based on a compile-time calculation.  Often the calculation is
 // nothing more than a simple predicate, allowing us to select one of two
@@ -46,25 +46,25 @@ BSLS_IDENT("$Id: $")
 // 'integral_constant<bool, false>', respectively.
 //..
 //    #include <bslmf_integralconstant.h>
-//    
+//
 //    template <class T>
 //    int doSomethingImp(T *t, bsl::true_type)
 //    {
 //        // slow, generic implementation
 //        // ...
 //        (void) t;
-//        return 11; 
+//        return 11;
 //    }
-//    
+//
 //    template <class T>
 //    int doSomethingImp(T *t, bsl::false_type)
 //    {
 //        // fast implementation that works only for some types of T
 //        // ...
 //        (void) t;
-//        return 55; 
+//        return 55;
 //    }
-//    
+//
 //    template <bool IsSlow, class T>
 //    int doSomething(T *t)
 //    {
@@ -81,11 +81,11 @@ BSLS_IDENT("$Id: $")
 //    int main()
 //    {
 //        int r;
-//    
+//
 //        int i;
 //        r = doSomething<false>(&i);   // select fast version for int
 //        assert(55 == r);
-//    
+//
 //        double m;
 //        r = doSomething<true>(&m); // select slow version for double
 //        assert(11 == r);
@@ -94,7 +94,7 @@ BSLS_IDENT("$Id: $")
 //    }
 //..
 ///Example 2: Base class for metafunctions
-/// - - - - - - - - - - - - - - - - - - - 
+/// - - - - - - - - - - - - - - - - - - -
 // Hard-coding the value of an 'integral_constant' is not especially useful.
 // Rather, 'integral_constant' is typically used as the base class for
 // "metafunction" classes, classes that yield the value of compile-time
@@ -125,15 +125,15 @@ BSLS_IDENT("$Id: $")
 //        const bool isSlow = IsFloatingPoint<T>::value;
 //        return doSomethingImp(t, bsl::integral_constant<bool, isSlow>());
 //    }
-//    
+//
 //    int main()
 //    {
 //        int r;
-//    
+//
 //        int i;
 //        r = doSomething2(&i); // select fast version for int
 //        assert(55 == r);
-//    
+//
 //        double m;
 //        r = doSomething2(&m); // select slow version for double
 //        assert(11 == r);

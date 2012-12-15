@@ -279,6 +279,12 @@ Types::Int64 AtomicOperations_X86_ALL_GCC::
 #ifndef __PIC__
                   "ebx",
 #endif
+
+#if defined(BSLS_PLATFORM_CMP_CLANG) && defined(__PIC__)
+                  "ebx",    // Clang wants to reuse 'ebx' even in PIC mode
+                            // and generates invalid code.
+                            // Mark 'ebx' as clobbered to prevent that.
+#endif
                   "ecx", "cc", "memory");
     return result;
 }
@@ -354,7 +360,13 @@ Types::Int64 AtomicOperations_X86_ALL_GCC::
 #endif
                   "c" ((int) (swapValue >> 32)),
                   "0" (compareValue)
-                : "memory", "cc");
+                :
+#if defined(BSLS_PLATFORM_CMP_CLANG) && defined(__PIC__)
+                  "ebx",    // Clang wants to reuse 'ebx' even in PIC mode
+                            // and generates invalid code.
+                            // Mark 'ebx' as clobbered to prevent that.
+#endif
+                  "memory", "cc");
 
     return compareValue;
 }
@@ -393,6 +405,12 @@ Types::Int64 AtomicOperations_X86_ALL_GCC::
 #   ifndef __PIC__
                   "ebx",
 #   endif
+
+#if defined(BSLS_PLATFORM_CMP_CLANG) && defined(__PIC__)
+                  "ebx",    // Clang wants to reuse 'ebx' even in PIC mode
+                            // and generates invalid code.
+                            // Mark 'ebx' as clobbered to prevent that.
+#endif
                   "ecx","cc","memory");
 
    return result;

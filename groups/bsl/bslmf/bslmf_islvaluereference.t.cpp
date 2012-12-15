@@ -1,8 +1,10 @@
 // bslmf_islvaluereference.t.cpp                                      -*-C++-*-
 #include <bslmf_islvaluereference.h>
 
-#include <cstdio>
-#include <cstdlib>
+#include <bsls_bsltestutil.h>
+
+#include <cstdio>   // 'printf'
+#include <cstdlib>  // 'atoi'
 
 using namespace std;
 using namespace BloombergLP;
@@ -13,9 +15,9 @@ using namespace BloombergLP;
 //                                Overview
 //                                --------
 // The component under test defines a meta-function,
-// 'bsl::is_lvalue_reference', which determines whether a template parameter
+// 'bsl::is_lvalue_reference', that determines whether a template parameter
 // type is an lvalue reference type.  Thus, we need to ensure that the value
-// returned by this meta-functions is correct for each possible category of
+// returned by this meta-function is correct for each possible category of
 // types.
 //
 // ----------------------------------------------------------------------------
@@ -89,7 +91,7 @@ class DerivedClassTestType : public BaseClassTestType {
 };
 
 typedef int (StructTestType::*MethodPtrTestType) ();
-    // This pointer type to non-static function member is intended to be used
+    // This pointer to non-static member function type is intended to be used
     // for testing as the template parameter 'TYPE' of
     // 'bsl::is_lvalue_reference'.
 
@@ -97,8 +99,8 @@ typedef void (*FunctionPtrTestType) ();
     // This function pointer type is intended to be used for testing as the
     // template parameter 'TYPE' of 'bsl::is_lvalue_reference'.
 
-typedef int StructTestType::* PMD;
-    // This pointer type to data member is intended to be used for testing as
+typedef int StructTestType::*PMD;
+    // This pointer to member object type is intended to be used for testing as
     // the template parameter 'TYPE' of 'bsl::is_lvalue_reference'.
 
 struct Incomplete;
@@ -163,6 +165,7 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("USAGE EXAMPLE\n"
                             "=============\n");
+
 ///Usage
 ///-----
 // In this section we show intended use of this component.
@@ -186,7 +189,7 @@ int main(int argc, char *argv[])
         // 'bsl::is_lvalue_reference::value'
         //   Ensure that the static data member 'value' of
         //   'bsl::is_lvalue_reference' instantiations having various (template
-        //   parameter) 'TYPE' has the correct value.
+        //   parameter) 'TYPE's has the correct value.
         //
         // Concerns:
         //: 1 'is_lvalue_reference::value' is 'false' when 'TYPE' is a
@@ -212,8 +215,8 @@ int main(int argc, char *argv[])
         //   bsl::is_lvalue_reference::value
         // --------------------------------------------------------------------
 
-        if (verbose)  printf("bsl::is_lvalue_reference::value\n"
-                             "===============================\n");
+        if (verbose)  printf("'bsl::is_lvalue_reference::value'\n"
+                             "=================================\n");
 
         // C-1
         TYPE_ASSERT_CVQ_SUFFIX(bsl::is_lvalue_reference, void, false);

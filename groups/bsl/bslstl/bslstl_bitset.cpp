@@ -1,9 +1,16 @@
-// bslmf_integralconstant.cpp                                         -*-C++-*-
-
-#include <bslmf_integralconstant.h>
+// bslstl_bitset.cpp                                                  -*-C++-*-
+#include <bslstl_bitset.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT("$Id$ $CSID$")
+BSLS_IDENT("$Id: $")
+
+#include <bslmf_assert.h>
+
+namespace BloombergLP {
+
+BSLMF_ASSERT(4 == sizeof(int));
+
+}  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
 // Copyright (C) 2012 Bloomberg L.P.
