@@ -142,10 +142,10 @@ typedef bcep_MultipriorityThreadPool Obj;
 namespace {
 
 // Have the default allocator be of different type than the allocator usually
-// used -- then we can put breakpoints in bslma_TestAllocator code to find
+// used -- then we can put breakpoints in bslma::TestAllocator code to find
 // unintentional uses of the default allocator.
 
-bslma_NewDeleteAllocator taDefault;
+bslma::NewDeleteAllocator taDefault;
 bcema_TestAllocator ta;
 
 int verbose;
@@ -645,8 +645,8 @@ int main(int argc, char *argv[])
     veryVeryVerbose = argc > 4;
     veryVeryVeryVerbose = argc > 5;
 
-    bslma_DefaultAllocatorGuard guard(&taDefault);
-    ASSERT(&taDefault == bslma_Default::defaultAllocator());
+    bslma::DefaultAllocatorGuard guard(&taDefault);
+    ASSERT(&taDefault == bslma::Default::defaultAllocator());
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
@@ -853,8 +853,8 @@ int main(int argc, char *argv[])
 
         using namespace BCEP_MULTIPRIORITYTHREADPOOL_CASE_10;
 
-        bslma_TestAllocator taDefaultLocal;
-        bslma_DefaultAllocatorGuard guard(&taDefaultLocal);
+        bslma::TestAllocator taDefaultLocal;
+        bslma::DefaultAllocatorGuard guard(&taDefaultLocal);
 
         bcec_Queue<Worker> doneQueue(&ta);
         Worker::s_doneQueue = &doneQueue;
@@ -1582,8 +1582,8 @@ int main(int argc, char *argv[])
 
         bcema_TestAllocator taDefault;
 
-        bslma_DefaultAllocatorGuard guard(&taDefault);
-        ASSERT(&taDefault == bslma_Default::defaultAllocator());
+        bslma::DefaultAllocatorGuard guard(&taDefault);
+        ASSERT(&taDefault == bslma::Default::defaultAllocator());
         ASSERT(taDefault.numBytesMax() == 0);
 
         for (int allocS = DEBUG_ALLOC; DEFAULT_ALLOC >= allocS; ++allocS) {
@@ -1830,7 +1830,7 @@ int main(int argc, char *argv[])
 
         {
             bcema_TestAllocator taDefault;
-            bslma_DefaultAllocatorGuard guard(&taDefault);
+            bslma::DefaultAllocatorGuard guard(&taDefault);
             bcema_TestAllocator ta;
             bcep_MultipriorityThreadPool *pool = new (ta)
             bcep_MultipriorityThreadPool(1 /* threads */,

@@ -169,19 +169,19 @@ class TestSharedPtrRep : public bcema_SharedPtrRep {
     // destroys itself if the number of references reaches zero.
 
     // DATA
-    TYPE            *d_dataPtr_p;          // data ptr
+    TYPE             *d_dataPtr_p;          // data ptr
 
-    int              d_disposeRepCount;    // counter storing number of time
-                                           // release is called
+    int               d_disposeRepCount;    // counter storing number of time
+                                            // release is called
 
-    int              d_disposeObjectCount; // counter storing number of time
-                                           // releaseValue is called
+    int               d_disposeObjectCount; // counter storing number of time
+                                            // releaseValue is called
 
-    bslma_Allocator *d_allocator_p;        // allocator
+    bslma::Allocator *d_allocator_p;        // allocator
 
   public:
     // CREATORS
-    TestSharedPtrRep(bslma_Allocator *basicAllocator);
+    TestSharedPtrRep(bslma::Allocator *basicAllocator);
         // Construct a test shared ptr rep object.  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
         // the currently installed default allocator is used.
@@ -217,11 +217,11 @@ class TestSharedPtrRep : public bcema_SharedPtrRep {
 // CREATORS
 template <typename TYPE>
 inline
-TestSharedPtrRep<TYPE>::TestSharedPtrRep(bslma_Allocator *basicAllocator)
+TestSharedPtrRep<TYPE>::TestSharedPtrRep(bslma::Allocator *basicAllocator)
 : d_dataPtr_p(0)
 , d_disposeRepCount(0)
 , d_disposeObjectCount(0)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     d_dataPtr_p = new (*d_allocator_p) TYPE();
 }
@@ -403,7 +403,7 @@ int TestSharedPtrRep<TYPE>::disposeObjectCount() const
 // Suppose we want to implement a peer to peer file sharing system that allows
 // users to search for files that match specific keywords.  A simplistic
 // version of such a system with code not relevant to the usage example
-// elided would have the following parts: 
+// elided would have the following parts:
 //
 // a) A peer manager class that maintains a list of all connected peers and
 // updates the list based on incoming peer requests and disconnecting peers.
@@ -509,7 +509,7 @@ int TestSharedPtrRep<TYPE>::disposeObjectCount() const
 // First we check if the peer is still connected by acquiring a shared pointer
 // to the peer.  If the acquire operation succeeds then we can send the peer a
 // request to send back the file best matching the specified keywords:
-//..            
+//..
             bcema_SharedPtr<Peer> peerSharedPtr = iter->acquireSharedPtr();
             if (peerSharedPtr) {
 
@@ -585,7 +585,7 @@ int main(int argc, char *argv[])
 // pointer and assign a value to the shared 'int':
 //..
     bcema_SharedPtr<int> intPtr;
-    intPtr.createInplace(bslma_Default::allocator());
+    intPtr.createInplace(bslma::Default::allocator());
     *intPtr = 10;
     ASSERT(10 == *intPtr);
 //..
@@ -639,7 +639,7 @@ int main(int argc, char *argv[])
 // Note that the 'User' and 'Alert' classes could typically be used as
 // follows:
 //..
-        bslma_TestAllocator ta;
+        bslma::TestAllocator ta;
         {
             ta.setQuiet(1);
 
@@ -696,7 +696,7 @@ int main(int argc, char *argv[])
                                   << "======================" << endl;
 
         {
-            bslma_TestAllocator ta;
+            bslma::TestAllocator ta;
             TestSharedPtrRep<MyTestObject> rep1(&ta);
             const TestSharedPtrRep<MyTestObject>& REP1 = rep1;
             TestSharedPtrRep<MyTestObject> rep2(&ta);
@@ -748,7 +748,7 @@ int main(int argc, char *argv[])
                                   << "==============" << endl;
 
         {
-            bslma_TestAllocator ta;
+            bslma::TestAllocator ta;
             TestSharedPtrRep<MyTestObject> rep(&ta);
             const TestSharedPtrRep<MyTestObject>& REP = rep;
             MyTestObject *PTR = REP.ptr();
@@ -795,7 +795,7 @@ int main(int argc, char *argv[])
         }
 
         {
-            bslma_TestAllocator ta;
+            bslma::TestAllocator ta;
             TestSharedPtrRep<MyTestObject> rep1(&ta);
             const TestSharedPtrRep<MyTestObject>& REP1 = rep1;
             TestSharedPtrRep<MyTestObject> rep2(&ta);
@@ -882,7 +882,7 @@ int main(int argc, char *argv[])
         }
 
         {
-            bslma_TestAllocator ta;
+            bslma::TestAllocator ta;
             TestSharedPtrRep<MyTestObject> rep(&ta);
             const TestSharedPtrRep<MyTestObject>& REP = rep;
             MyTestObject *PTR = REP.ptr();
@@ -953,7 +953,7 @@ int main(int argc, char *argv[])
         }
 
         {
-            bslma_TestAllocator ta;
+            bslma::TestAllocator ta;
             TestSharedPtrRep<MyTestObject> rep(&ta);
             const TestSharedPtrRep<MyTestObject>& REP = rep;
             LOOP_ASSERT(REP.numReferences(),     1 == REP.numReferences());
@@ -1058,7 +1058,7 @@ int main(int argc, char *argv[])
                           << "Testing assignment from same TYPE" << endl
                           << "---------------------------------" << endl;
         {
-            bslma_TestAllocator ta;
+            bslma::TestAllocator ta;
             TestSharedPtrRep<MyTestObject> rep(&ta);
             const TestSharedPtrRep<MyTestObject>& REP = rep;
             MyTestObject *PTR = REP.ptr();
@@ -1094,7 +1094,7 @@ int main(int argc, char *argv[])
         }
 
         {
-            bslma_TestAllocator ta;
+            bslma::TestAllocator ta;
             TestSharedPtrRep<MyTestObject> rep1(&ta);
             const TestSharedPtrRep<MyTestObject>& REP1 = rep1;
             TestSharedPtrRep<MyTestObject> rep2(&ta);
@@ -1137,7 +1137,7 @@ int main(int argc, char *argv[])
                           << "Testing different TYPE operators" << endl
                           << "--------------------------------" << endl;
         {
-            bslma_TestAllocator ta;
+            bslma::TestAllocator ta;
             TestSharedPtrRep<MyTestDerivedObject> rep(&ta);
             const TestSharedPtrRep<MyTestDerivedObject>& REP = rep;
             MyTestDerivedObject *PTR = REP.ptr();
@@ -1156,7 +1156,7 @@ int main(int argc, char *argv[])
                 BaseWP mY; const BaseWP& Y = mY;
                 ASSERT(0 == X.rep());
                 ASSERT(0 == Y.rep());
-                
+
                 mX = S1;
                 ASSERT(!X.expired());
                 ASSERT(1 == REP.numReferences());
@@ -1184,7 +1184,7 @@ int main(int argc, char *argv[])
                         1 == REP.disposeObjectCount());
         }
         {
-            bslma_TestAllocator ta;
+            bslma::TestAllocator ta;
             TestSharedPtrRep<MyTestDerivedObject> rep1(&ta);
             const TestSharedPtrRep<MyTestDerivedObject>& REP1 = rep1;
             TestSharedPtrRep<MyTestDerivedObject> rep2(&ta);
@@ -1278,7 +1278,7 @@ int main(int argc, char *argv[])
                           << "Testing same TYPE constructors" << endl
                           << "------------------------------" << endl;
         {
-            bslma_TestAllocator ta;
+            bslma::TestAllocator ta;
             TestSharedPtrRep<MyTestObject> rep(&ta);
             const TestSharedPtrRep<MyTestObject>& REP = rep;
             LOOP_ASSERT(REP.numReferences(),     1 == REP.numReferences());
@@ -1328,7 +1328,7 @@ int main(int argc, char *argv[])
                           << "Testing different TYPE constructors" << endl
                           << "-----------------------------------" << endl;
         {
-            bslma_TestAllocator ta;
+            bslma::TestAllocator ta;
             TestSharedPtrRep<MyTestDerivedObject> rep(&ta);
             const TestSharedPtrRep<MyTestDerivedObject>& REP = rep;
             LOOP_ASSERT(REP.numReferences(),     1 == REP.numReferences());
@@ -1379,7 +1379,7 @@ int main(int argc, char *argv[])
                           << "Testing destructor" << endl
                           << "------------------" << endl;
         {
-            bslma_TestAllocator ta;
+            bslma::TestAllocator ta;
             TestSharedPtrRep<MyTestObject> rep(&ta);
             const TestSharedPtrRep<MyTestObject>& REP = rep;
             LOOP_ASSERT(REP.numReferences(),     1 == REP.numReferences());
@@ -1392,7 +1392,7 @@ int main(int argc, char *argv[])
                 {
                     ObjSP mS(PTR, &rep); const ObjSP& S = mS;
                     LOOP_ASSERT(REP.numReferences(), 1 == REP.numReferences());
-                    LOOP_ASSERT(REP.disposeRepCount(), 
+                    LOOP_ASSERT(REP.disposeRepCount(),
                                 0 == REP.disposeRepCount());
                     LOOP_ASSERT(REP.disposeObjectCount(),
                                                 0 == REP.disposeObjectCount());

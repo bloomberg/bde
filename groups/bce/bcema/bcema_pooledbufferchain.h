@@ -13,7 +13,7 @@ BDES_IDENT("$Id: $")
 //        bcema_PooledBufferChain: memory-manager for chained buffers
 // bcema_PooledBufferChainFactory: factory for buffer chains
 //
-//@SEE_ALSO: bcema_pool, bcema_deleter, bdema_allocator
+//@SEE_ALSO: bcema_pool, bcema_deleter, bslma_allocator
 //
 //@AUTHOR: Andrei Basov (abasov)
 //
@@ -93,16 +93,16 @@ BDES_IDENT("$Id: $")
 #include <bcema_pool.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
 #ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
 #endif
 
 #ifndef INCLUDED_BSL_CSTRING
 #include <bsl_cstring.h>
-#endif
-
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
 #endif
 
 namespace BloombergLP {
@@ -258,8 +258,8 @@ class bcema_PooledBufferChainFactory :
                                    const bcema_PooledBufferChainFactory&);
   public:
     // CREATORS
-    bcema_PooledBufferChainFactory(int              bufferSize,
-                                   bslma_Allocator *basicAllocator = 0);
+    bcema_PooledBufferChainFactory(int               bufferSize,
+                                   bslma::Allocator *basicAllocator = 0);
         // Create a factory for the pooled buffer chains with the specified
         // 'bufferSize'.  Optionally specify a 'basicAllocator' used to supply
         // memory.  If 'basicAllocator' is 0, the currently installed default
@@ -352,8 +352,8 @@ int bcema_PooledBufferChain::numBuffers() const
 // CREATORS
 inline
 bcema_PooledBufferChainFactory::bcema_PooledBufferChainFactory(
-                                               int              bufferSize,
-                                               bslma_Allocator *basicAllocator)
+                                              int               bufferSize,
+                                              bslma::Allocator *basicAllocator)
 : d_bufferPool(static_cast<int>(bufferSize + sizeof(char *)), basicAllocator)
 , d_pcbPool(static_cast<int>(sizeof(bcema_PooledBufferChain)), basicAllocator)
 {

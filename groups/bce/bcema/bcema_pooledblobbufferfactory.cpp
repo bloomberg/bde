@@ -12,8 +12,8 @@ namespace BloombergLP {
 
 // CREATORS
 bcema_PooledBlobBufferFactory::bcema_PooledBlobBufferFactory(
-        int              bufferSize,
-        bslma_Allocator *basicAllocator)
+        int               bufferSize,
+        bslma::Allocator *basicAllocator)
 : d_bufferSize(bufferSize)
 , d_spPool(basicAllocator)
 {

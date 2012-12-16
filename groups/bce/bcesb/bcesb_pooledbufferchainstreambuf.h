@@ -210,8 +210,8 @@ class bcesb_PooledBufferChainStreamBufFactory :
 
     // DATA
     bcema_PooledBufferChainFactory
-                    *d_factory_p;    // chain factory (held, not owned)
-    bslma_Allocator *d_allocator_p;  // memory allocator (held, not owned)
+                     *d_factory_p;    // chain factory (held, not owned)
+    bslma::Allocator *d_allocator_p;  // memory allocator (held, not owned)
 
    private:
      // NOT IMPLEMENTED
@@ -224,7 +224,7 @@ class bcesb_PooledBufferChainStreamBufFactory :
      // CREATORS
      bcesb_PooledBufferChainStreamBufFactory(
            bcema_PooledBufferChainFactory *chainFactory,
-           bslma_Allocator                *basicAllocator = 0);
+           bslma::Allocator               *basicAllocator = 0);
          // Create a pooled buffer chain stream buffer factory that uses the
          // specified 'chainFactory' for supplying chains.  Optionally specify
          // a 'basicAllocator' used to supply memory.  If 'basicAllocator' is

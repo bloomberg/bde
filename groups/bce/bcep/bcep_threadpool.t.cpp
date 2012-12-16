@@ -9,9 +9,9 @@
 #include <bdef_bind.h>
 
 #include <bsls_platform.h>
-#include <bsls_platformutil.h>
-#include <bsls_timeutil.h>
 #include <bsls_stopwatch.h>
+#include <bsls_timeutil.h>
+#include <bsls_types.h>
 
 #include <bdetu_systemtime.h> // For test only
 #include <bcemt_barrier.h>    // For test only
@@ -695,7 +695,7 @@ int main(int argc, char *argv[])
             const Obj::Job job(bdef_BindUtil::bind(&testTimingJobFunction,
                                                    verbose ? verbose : 100));
 
-            bsls_Stopwatch timer;  timer.start();
+            bsls::Stopwatch timer;  timer.start();
             for (int i = 0; i < ITERATIONS; ++i) {
                 localX.enqueueJob(job);
                 queueSize += localX.numPendingJobs();
@@ -1119,7 +1119,7 @@ int main(int argc, char *argv[])
 
             while(0 != x.numActiveThreads())
                 bcemt_ThreadUtil::yield();
-            bsls_PlatformUtil::Int64 t1 = bsls_TimeUtil::getTimer();
+            bsls::Types::Int64 t1 = bsls::TimeUtil::getTimer();
 
             bcemt_Barrier startBarrier1(BURST + 1);
             bcemt_Barrier stopBarrier1(BURST + 1);
@@ -1136,8 +1136,8 @@ int main(int argc, char *argv[])
             // compute their remaining time to IDLE.
             // Note: one millisecond has 1000000 nanoseconds.
 
-            bsls_PlatformUtil::Int64 t2 = bsls_TimeUtil::getTimer();
-            bsls_PlatformUtil::Int64 duration = (t2 - t1) / 1000000;
+            bsls::Types::Int64 t2 = bsls::TimeUtil::getTimer();
+            bsls::Types::Int64 duration = (t2 - t1) / 1000000;
             duration = (duration < IDLE) ? IDLE - duration : 0;
 
             // (Allow 30% tolerance)

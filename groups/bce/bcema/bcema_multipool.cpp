@@ -34,18 +34,18 @@ enum {
                       // ---------------------
 
 // PRIVATE MANIPULATORS
-void bcema_Multipool::initialize(bsls_BlockGrowth::Strategy growthStrategy,
-                                 int                        maxBlocksPerChunk)
+void bcema_Multipool::initialize(bsls::BlockGrowth::Strategy growthStrategy,
+                                 int                         maxBlocksPerChunk)
 {
     d_maxBlockSize = MIN_BLOCK_SIZE;
 
     d_pools_p = static_cast<bcema_Pool *>(
                       d_allocAdapter.allocate(d_numPools * sizeof *d_pools_p));
 
-    bslma_DeallocatorProctor<bslma_Allocator> autoPoolsDeallocator(
+    bslma::DeallocatorProctor<bslma::Allocator> autoPoolsDeallocator(
                                                               d_pools_p,
                                                               &d_allocAdapter);
-    bslma_AutoDestructor<bcema_Pool> autoDtor(d_pools_p, 0);
+    bslma::AutoDestructor<bcema_Pool> autoDtor(d_pools_p, 0);
 
     for (int i = 0; i < d_numPools; ++i, ++autoDtor) {
         new (d_pools_p + i) bcema_Pool(d_maxBlockSize + sizeof(Header),
@@ -64,18 +64,18 @@ void bcema_Multipool::initialize(bsls_BlockGrowth::Strategy growthStrategy,
 }
 
 void bcema_Multipool::initialize(
-                         const bsls_BlockGrowth::Strategy *growthStrategyArray,
-                         int                         maxBlocksPerChunk)
+                        const bsls::BlockGrowth::Strategy *growthStrategyArray,
+                        int                                maxBlocksPerChunk)
 {
     d_maxBlockSize = MIN_BLOCK_SIZE;
 
     d_pools_p = static_cast<bcema_Pool *>(
                       d_allocAdapter.allocate(d_numPools * sizeof *d_pools_p));
 
-    bslma_DeallocatorProctor<bslma_Allocator> autoPoolsDeallocator(
+    bslma::DeallocatorProctor<bslma::Allocator> autoPoolsDeallocator(
                                                               d_pools_p,
                                                               &d_allocAdapter);
-    bslma_AutoDestructor<bcema_Pool> autoDtor(d_pools_p, 0);
+    bslma::AutoDestructor<bcema_Pool> autoDtor(d_pools_p, 0);
 
     for (int i = 0; i < d_numPools; ++i, ++autoDtor) {
         new (d_pools_p + i) bcema_Pool(d_maxBlockSize + sizeof(Header),
@@ -94,18 +94,18 @@ void bcema_Multipool::initialize(
 }
 
 void bcema_Multipool::initialize(
-                            bsls_BlockGrowth::Strategy  growthStrategy,
-                            const int                  *maxBlocksPerChunkArray)
+                           bsls::BlockGrowth::Strategy  growthStrategy,
+                           const int                   *maxBlocksPerChunkArray)
 {
     d_maxBlockSize = MIN_BLOCK_SIZE;
 
     d_pools_p = static_cast<bcema_Pool *>(
                       d_allocAdapter.allocate(d_numPools * sizeof *d_pools_p));
 
-    bslma_DeallocatorProctor<bslma_Allocator> autoPoolsDeallocator(
+    bslma::DeallocatorProctor<bslma::Allocator> autoPoolsDeallocator(
                                                               d_pools_p,
                                                               &d_allocAdapter);
-    bslma_AutoDestructor<bcema_Pool> autoDtor(d_pools_p, 0);
+    bslma::AutoDestructor<bcema_Pool> autoDtor(d_pools_p, 0);
 
     for (int i = 0; i < d_numPools; ++i, ++autoDtor) {
         new (d_pools_p + i) bcema_Pool(d_maxBlockSize + sizeof(Header),
@@ -124,18 +124,18 @@ void bcema_Multipool::initialize(
 }
 
 void bcema_Multipool::initialize(
-                      const bsls_BlockGrowth::Strategy *growthStrategyArray,
-                      const int                        *maxBlocksPerChunkArray)
+                     const bsls::BlockGrowth::Strategy *growthStrategyArray,
+                     const int                         *maxBlocksPerChunkArray)
 {
     d_maxBlockSize = MIN_BLOCK_SIZE;
 
     d_pools_p = static_cast<bcema_Pool *>(
                       d_allocAdapter.allocate(d_numPools * sizeof *d_pools_p));
 
-    bslma_DeallocatorProctor<bslma_Allocator> autoPoolsDeallocator(
+    bslma::DeallocatorProctor<bslma::Allocator> autoPoolsDeallocator(
                                                               d_pools_p,
                                                               &d_allocAdapter);
-    bslma_AutoDestructor<bcema_Pool> autoDtor(d_pools_p, 0);
+    bslma::AutoDestructor<bcema_Pool> autoDtor(d_pools_p, 0);
 
     for (int i = 0; i < d_numPools; ++i, ++autoDtor) {
         new (d_pools_p + i) bcema_Pool(d_maxBlockSize + sizeof(Header),
@@ -163,27 +163,27 @@ int bcema_Multipool::findPool(int size) const
 
 // CREATORS
 bcema_Multipool::
-bcema_Multipool(bslma_Allocator *basicAllocator)
+bcema_Multipool(bslma::Allocator *basicAllocator)
 : d_numPools(DEFAULT_NUM_POOLS)
 , d_blockList(basicAllocator)
 , d_allocAdapter(&d_mutex, basicAllocator)
 {
-    initialize(bsls_BlockGrowth::BSLS_GEOMETRIC, DEFAULT_MAX_CHUNK_SIZE);
+    initialize(bsls::BlockGrowth::BSLS_GEOMETRIC, DEFAULT_MAX_CHUNK_SIZE);
 }
 
 bcema_Multipool::
-bcema_Multipool(int              numPools,
-                bslma_Allocator *basicAllocator)
+bcema_Multipool(int               numPools,
+                bslma::Allocator *basicAllocator)
 : d_numPools(numPools)
 , d_blockList(basicAllocator)
 , d_allocAdapter(&d_mutex, basicAllocator)
 {
-    initialize(bsls_BlockGrowth::BSLS_GEOMETRIC, DEFAULT_MAX_CHUNK_SIZE);
+    initialize(bsls::BlockGrowth::BSLS_GEOMETRIC, DEFAULT_MAX_CHUNK_SIZE);
 }
 
 bcema_Multipool::
-bcema_Multipool(bsls_BlockGrowth::Strategy  growthStrategy,
-                bslma_Allocator            *basicAllocator)
+bcema_Multipool(bsls::BlockGrowth::Strategy  growthStrategy,
+                bslma::Allocator            *basicAllocator)
 : d_numPools(DEFAULT_NUM_POOLS)
 , d_blockList(basicAllocator)
 , d_allocAdapter(&d_mutex, basicAllocator)
@@ -192,9 +192,9 @@ bcema_Multipool(bsls_BlockGrowth::Strategy  growthStrategy,
 }
 
 bcema_Multipool::
-bcema_Multipool(int                         numPools,
-                bsls_BlockGrowth::Strategy  growthStrategy,
-                bslma_Allocator            *basicAllocator)
+bcema_Multipool(int                          numPools,
+                bsls::BlockGrowth::Strategy  growthStrategy,
+                bslma::Allocator            *basicAllocator)
 : d_numPools(numPools)
 , d_blockList(basicAllocator)
 , d_allocAdapter(&d_mutex, basicAllocator)
@@ -203,9 +203,9 @@ bcema_Multipool(int                         numPools,
 }
 
 bcema_Multipool::
-bcema_Multipool(int                               numPools,
-                const bsls_BlockGrowth::Strategy *growthStrategyArray,
-                bslma_Allocator                  *basicAllocator)
+bcema_Multipool(int                                numPools,
+                const bsls::BlockGrowth::Strategy *growthStrategyArray,
+                bslma::Allocator                  *basicAllocator)
 : d_numPools(numPools)
 , d_blockList(basicAllocator)
 , d_allocAdapter(&d_mutex, basicAllocator)
@@ -214,10 +214,10 @@ bcema_Multipool(int                               numPools,
 }
 
 bcema_Multipool::
-bcema_Multipool(int                         numPools,
-                bsls_BlockGrowth::Strategy  growthStrategy,
-                int                         maxBlocksPerChunk,
-                bslma_Allocator            *basicAllocator)
+bcema_Multipool(int                          numPools,
+                bsls::BlockGrowth::Strategy  growthStrategy,
+                int                          maxBlocksPerChunk,
+                bslma::Allocator            *basicAllocator)
 : d_numPools(numPools)
 , d_blockList(basicAllocator)
 , d_allocAdapter(&d_mutex, basicAllocator)
@@ -226,10 +226,10 @@ bcema_Multipool(int                         numPools,
 }
 
 bcema_Multipool::
-bcema_Multipool(int                               numPools,
-                const bsls_BlockGrowth::Strategy *growthStrategyArray,
-                int                               maxBlocksPerChunk,
-                bslma_Allocator                  *basicAllocator)
+bcema_Multipool(int                                numPools,
+                const bsls::BlockGrowth::Strategy *growthStrategyArray,
+                int                                maxBlocksPerChunk,
+                bslma::Allocator                  *basicAllocator)
 : d_numPools(numPools)
 , d_blockList(basicAllocator)
 , d_allocAdapter(&d_mutex, basicAllocator)
@@ -238,10 +238,10 @@ bcema_Multipool(int                               numPools,
 }
 
 bcema_Multipool::
-bcema_Multipool(int                         numPools,
-                bsls_BlockGrowth::Strategy  growthStrategy,
-                const int                  *maxBlocksPerChunkArray,
-                bslma_Allocator            *basicAllocator)
+bcema_Multipool(int                          numPools,
+                bsls::BlockGrowth::Strategy  growthStrategy,
+                const int                   *maxBlocksPerChunkArray,
+                bslma::Allocator            *basicAllocator)
 : d_numPools(numPools)
 , d_blockList(basicAllocator)
 , d_allocAdapter(&d_mutex, basicAllocator)
@@ -250,10 +250,10 @@ bcema_Multipool(int                         numPools,
 }
 
 bcema_Multipool::
-bcema_Multipool(int                               numPools,
-                const bsls_BlockGrowth::Strategy *growthStrategyArray,
-                const int                        *maxBlocksPerChunkArray,
-                bslma_Allocator                  *basicAllocator)
+bcema_Multipool(int                                numPools,
+                const bsls::BlockGrowth::Strategy *growthStrategyArray,
+                const int                         *maxBlocksPerChunkArray,
+                bslma::Allocator                  *basicAllocator)
 : d_numPools(numPools)
 , d_blockList(basicAllocator)
 , d_allocAdapter(&d_mutex, basicAllocator)

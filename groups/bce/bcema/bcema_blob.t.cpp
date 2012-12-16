@@ -343,9 +343,9 @@ class TestBlobBufferFactory : public bcema_BlobBufferFactory
     // This class constructs buffers with a size growing in a geometric series
     // or ratio 2, starting with a size specified at construction.
 
-    bslma_Allocator *d_allocator_p;
-    bsl::size_t      d_currentBufferSize;
-    bool             d_growFlag;
+    bslma::Allocator *d_allocator_p;
+    bsl::size_t       d_currentBufferSize;
+    bool              d_growFlag;
 
     private:
     // not implemented
@@ -354,9 +354,9 @@ class TestBlobBufferFactory : public bcema_BlobBufferFactory
 
     public:
     // CREATORS
-    explicit TestBlobBufferFactory(bslma_Allocator *allocator,
-                                   bsl::size_t      currentBufferSize = 4,
-                                   bool             growFlag = true);
+    explicit TestBlobBufferFactory(bslma::Allocator *allocator,
+                                   bsl::size_t       currentBufferSize = 4,
+                                   bool              growFlag = true);
     ~TestBlobBufferFactory();
 
     // MANIPULATORS
@@ -368,9 +368,9 @@ class TestBlobBufferFactory : public bcema_BlobBufferFactory
     bool growFlag() const;
 };
 
-TestBlobBufferFactory::TestBlobBufferFactory(bslma_Allocator *allocator,
-                                             bsl::size_t      currentBufSize,
-                                             bool             growFlag)
+TestBlobBufferFactory::TestBlobBufferFactory(bslma::Allocator *allocator,
+                                             bsl::size_t       currentBufSize,
+                                             bool              growFlag)
 : d_allocator_p(allocator)
 , d_currentBufferSize(currentBufSize)
 , d_growFlag(growFlag)
@@ -431,8 +431,8 @@ class SimpleBlobBufferFactory : public bcema_BlobBufferFactory
     // This factory creates blob buffers of a fixed size specified at
     // construction.  It is part of the usage example.
 
-    bsl::size_t      d_bufferSize;
-    bslma_Allocator *d_allocator_p;
+    bsl::size_t       d_bufferSize;
+    bslma::Allocator *d_allocator_p;
 
     private:
     // not implemented
@@ -441,8 +441,8 @@ class SimpleBlobBufferFactory : public bcema_BlobBufferFactory
 
     public:
     // CREATORS
-    explicit SimpleBlobBufferFactory(int              bufferSize = 1024,
-                                     bslma_Allocator *basicAllocator = 0);
+    explicit SimpleBlobBufferFactory(int               bufferSize = 1024,
+                                     bslma::Allocator *basicAllocator = 0);
     ~SimpleBlobBufferFactory();
 
     // MANIPULATORS
@@ -450,10 +450,10 @@ class SimpleBlobBufferFactory : public bcema_BlobBufferFactory
 };
 
 SimpleBlobBufferFactory::SimpleBlobBufferFactory(
-                                           int              bufferSize,
-                                           bslma_Allocator *basicAllocator)
+                                           int               bufferSize,
+                                           bslma::Allocator *basicAllocator)
 : d_bufferSize(bufferSize)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
 
@@ -552,7 +552,7 @@ void  usageExample() {
 //..
 void prependProlog(bcema_Blob          *blob,
                    const bsl::string&   prolog,
-                   bslma_Allocator     *allocator = 0);
+                   bslma::Allocator    *allocator = 0);
     // Prepend the specified 'prolog' to the specified 'blob', using the
     // specified 'allocator' to supply any memory (or the currently
     // installed default allocator if 'allocator' is 0).  The behavior is
@@ -566,7 +566,7 @@ void composeMessage(bcema_Blob          *blob,
                     const int           *vectorSizes,
                     int                  numVectors,
                     const DELETER&       deleter,
-                    bslma_Allocator     *allocator = 0);
+                    bslma::Allocator    *allocator = 0);
     // Load into the specified 'blob' the data composed of the specified
     // 'prolog' and of the payload in the 'numVectors' buffers pointed to by
     // the specified 'vectors' of the respective 'vectorSizes'.  Ownership
@@ -580,7 +580,7 @@ void composeMessage(bcema_Blob          *blob,
     // to an initialized 'bcema_Blob' instance.
 
 int timestampMessage(bcema_Blob          *blob,
-                     bslma_Allocator     *allocator = 0);
+                     bslma::Allocator    *allocator = 0);
     // Insert a timestamp data buffer immediately after the prolog buffer
     // and prior to any payload buffer.  Return the number of bytes
     // inserted.  Use the specified 'allocator' to supply memory, or the
@@ -593,7 +593,7 @@ int timestampMessage(bcema_Blob          *blob,
 //..
 void prependProlog(bcema_Blob          *blob,
                    const bsl::string&   prolog,
-                   bslma_Allocator     *)
+                   bslma::Allocator    *)
 {
     ASSERT(blob);
 
@@ -633,7 +633,7 @@ void composeMessage(bcema_Blob         *blob,
                     const int          *vectorSizes,
                     int                 numVectors,
                     const DELETER&      deleter,
-                    bslma_Allocator    *allocator)
+                    bslma::Allocator   *allocator)
 {
     ASSERT(blob);
     ASSERT(vectors);
@@ -660,7 +660,7 @@ void composeMessage(bcema_Blob         *blob,
 // this is a somewhat constrained example for exposition only.
 //..
 int timestampMessage(bcema_Blob          *blob,
-                      bslma_Allocator     *allocator)
+                     bslma::Allocator    *allocator)
 {
     ASSERT(blob);
     ASSERT(0 < blob->numDataBuffers());
@@ -706,7 +706,7 @@ int timestampMessage(bcema_Blob          *blob,
 
 void usageExample2()
 {
-    bslma_TestAllocator ta;
+    bslma::TestAllocator ta;
     SimpleBlobBufferFactory fa(1024);
 
     bcema_Blob blob(&ta);
@@ -817,13 +817,13 @@ int main(int argc, char *argv[])
         if (verbose) cout << "TESTING IMPLICIT TRIM\n"
                              "=====================\n";
 
-        bslma_TestAllocator ta;
+        bslma::TestAllocator ta;
 
         {
             // Kevin's McMahon's example from DRQS 30331343
 
-//          bslma_Allocator *allocator = bslma_Default::allocator();
-            bslma_Allocator *allocator = &ta;
+//          bslma::Allocator *allocator = bslma::Default::allocator();
+            bslma::Allocator *allocator = &ta;
 //          bcema_PooledBlobBufferFactory factory(1024);
             SimpleBlobBufferFactory       factory(1024, allocator);
             bcema_Blob blob(&factory);
@@ -958,11 +958,11 @@ int main(int argc, char *argv[])
                           << "TESTING CONCERN: Buffer aliasing" << endl
                           << "================================" << endl;
 
-        bslma_TestAllocator defaultAlloc(veryVeryVerbose);
-        bslma_DefaultAllocatorGuard guard(&defaultAlloc);
-        bslma_TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator defaultAlloc(veryVeryVerbose);
+        bslma::DefaultAllocatorGuard guard(&defaultAlloc);
+        bslma::TestAllocator ta(veryVeryVerbose);
 
-        bslma_TestAllocator& testAllocator = ta;
+        bslma::TestAllocator& testAllocator = ta;
         BEGIN_BSLMA_EXCEPTION_TEST
         {
             typedef bcema_Blob Obj;
@@ -1050,11 +1050,11 @@ int main(int argc, char *argv[])
         bsl::string data2 = "01234567890`~!@#$%^&*()_-+";
 
         typedef bcema_Blob Obj;
-        bslma_TestAllocator defaultAlloc(veryVeryVerbose);
-        bslma_DefaultAllocatorGuard guard(&defaultAlloc);
-        bslma_TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator defaultAlloc(veryVeryVerbose);
+        bslma::DefaultAllocatorGuard guard(&defaultAlloc);
+        bslma::TestAllocator ta(veryVeryVerbose);
 
-//      bslma_TestAllocator& testAllocator = ta;
+//      bslma::TestAllocator& testAllocator = ta;
         for (int bufferSize1 = 1; bufferSize1 <= 6; bufferSize1 += 2) {
         for (int numBuffers1 = 0; numBuffers1 <= 3; ++numBuffers1) {
         for (int dataLength1 = 0;
@@ -1280,11 +1280,11 @@ int main(int argc, char *argv[])
              dataLength <= bufferSize * numBuffers;
              ++dataLength)
         {
-            bslma_TestAllocator defaultAlloc(veryVeryVerbose);
-            bslma_DefaultAllocatorGuard guard(&defaultAlloc);
-            bslma_TestAllocator ta(veryVeryVerbose);
+            bslma::TestAllocator defaultAlloc(veryVeryVerbose);
+            bslma::DefaultAllocatorGuard guard(&defaultAlloc);
+            bslma::TestAllocator ta(veryVeryVerbose);
 
-            bslma_TestAllocator& testAllocator = ta;
+            bslma::TestAllocator& testAllocator = ta;
             BEGIN_BSLMA_EXCEPTION_TEST
             {
                 const int BUFFER_SIZE     = bufferSize;
@@ -1357,11 +1357,11 @@ int main(int argc, char *argv[])
                           << "====================" << endl;
 
         typedef bcema_Blob Obj;
-        bslma_TestAllocator defaultAlloc(veryVeryVerbose);
-        bslma_DefaultAllocatorGuard guard(&defaultAlloc);
-        bslma_TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator defaultAlloc(veryVeryVerbose);
+        bslma::DefaultAllocatorGuard guard(&defaultAlloc);
+        bslma::TestAllocator ta(veryVeryVerbose);
 
-        bslma_TestAllocator& testAllocator = ta;
+        bslma::TestAllocator& testAllocator = ta;
         BEGIN_BSLMA_EXCEPTION_TEST {
         for (int bufferSize = 1; bufferSize < 20; bufferSize +=2) {
         for (int numBuffers = 0; numBuffers < 10; ++numBuffers) {
@@ -1461,11 +1461,11 @@ int main(int argc, char *argv[])
                                                   ++dataLength)
         for (int prependSz   = 1; prependSz   <= 5; ++prependSz)
         {
-            bslma_TestAllocator defaultAlloc(veryVeryVerbose);
-            bslma_DefaultAllocatorGuard guard(&defaultAlloc);
-            bslma_TestAllocator ta(veryVeryVerbose);
+            bslma::TestAllocator defaultAlloc(veryVeryVerbose);
+            bslma::DefaultAllocatorGuard guard(&defaultAlloc);
+            bslma::TestAllocator ta(veryVeryVerbose);
 
-            bslma_TestAllocator& testAllocator = ta;
+            bslma::TestAllocator& testAllocator = ta;
             BEGIN_BSLMA_EXCEPTION_TEST
             {
                 const int BUFFER_SIZE          = bufferSize;
@@ -1558,11 +1558,11 @@ int main(int argc, char *argv[])
                                                   ++dataLength)
         for (int appendSz   = 1; appendSz   <= 5; ++appendSz)
         {
-            bslma_TestAllocator defaultAlloc(veryVeryVerbose);
-            bslma_DefaultAllocatorGuard guard(&defaultAlloc);
-            bslma_TestAllocator ta(veryVeryVerbose);
+            bslma::TestAllocator defaultAlloc(veryVeryVerbose);
+            bslma::DefaultAllocatorGuard guard(&defaultAlloc);
+            bslma::TestAllocator ta(veryVeryVerbose);
 
-            bslma_TestAllocator& testAllocator = ta;
+            bslma::TestAllocator& testAllocator = ta;
             BEGIN_BSLMA_EXCEPTION_TEST
             {
                 const int BUFFER_SIZE          = bufferSize;
@@ -1661,11 +1661,11 @@ int main(int argc, char *argv[])
                                                   ++dataLength)
         for (int removePos  = 0; removePos < numBuffers; ++removePos)
         {
-            bslma_TestAllocator defaultAlloc(veryVeryVerbose);
-            bslma_DefaultAllocatorGuard guard(&defaultAlloc);
-            bslma_TestAllocator ta(veryVeryVerbose);
+            bslma::TestAllocator defaultAlloc(veryVeryVerbose);
+            bslma::DefaultAllocatorGuard guard(&defaultAlloc);
+            bslma::TestAllocator ta(veryVeryVerbose);
 
-            bslma_TestAllocator& testAllocator = ta;
+            bslma::TestAllocator& testAllocator = ta;
             BEGIN_BSLMA_EXCEPTION_TEST
             {
                 const int BUFFER_SIZE          = bufferSize;
@@ -1740,11 +1740,11 @@ int main(int argc, char *argv[])
         for (int dataLength = 0;
              dataLength <= bufferSize * numBuffers; ++dataLength)
         {
-            bslma_TestAllocator defaultAlloc(veryVeryVerbose);
-            bslma_DefaultAllocatorGuard guard(&defaultAlloc);
-            bslma_TestAllocator ta(veryVeryVerbose);
+            bslma::TestAllocator defaultAlloc(veryVeryVerbose);
+            bslma::DefaultAllocatorGuard guard(&defaultAlloc);
+            bslma::TestAllocator ta(veryVeryVerbose);
 
-            bslma_TestAllocator& testAllocator = ta;
+            bslma::TestAllocator& testAllocator = ta;
             BEGIN_BSLMA_EXCEPTION_TEST
             {
                 const int BUFFER_SIZE          = bufferSize;
@@ -1827,11 +1827,11 @@ int main(int argc, char *argv[])
                                                   ++dataLength)
         for (int appendSz   = 0; appendSz   <= 5; ++appendSz)
         {
-            bslma_TestAllocator defaultAlloc(veryVeryVerbose);
-            bslma_DefaultAllocatorGuard guard(&defaultAlloc);
-            bslma_TestAllocator ta(veryVeryVerbose);
+            bslma::TestAllocator defaultAlloc(veryVeryVerbose);
+            bslma::DefaultAllocatorGuard guard(&defaultAlloc);
+            bslma::TestAllocator ta(veryVeryVerbose);
 
-            bslma_TestAllocator& testAllocator = ta;
+            bslma::TestAllocator& testAllocator = ta;
             BEGIN_BSLMA_EXCEPTION_TEST
             {
                 const int BUFFER_SIZE          = bufferSize;
@@ -1928,11 +1928,11 @@ int main(int argc, char *argv[])
         for (int insertPos  = 0; insertPos  <= numBuffers; ++insertPos)
         for (int insertSz   = 0; insertSz   <= 5; ++insertSz)
         {
-            bslma_TestAllocator defaultAlloc(veryVeryVerbose);
-            bslma_DefaultAllocatorGuard guard(&defaultAlloc);
-            bslma_TestAllocator ta(veryVeryVerbose);
+            bslma::TestAllocator defaultAlloc(veryVeryVerbose);
+            bslma::DefaultAllocatorGuard guard(&defaultAlloc);
+            bslma::TestAllocator ta(veryVeryVerbose);
 
-            bslma_TestAllocator& testAllocator = ta;
+            bslma::TestAllocator& testAllocator = ta;
             BEGIN_BSLMA_EXCEPTION_TEST
             {
                 const int BUFFER_SIZE          = bufferSize;
@@ -2036,8 +2036,8 @@ int main(int argc, char *argv[])
         for (int dataLength = 0; dataLength <= bufferSize * numBuffers;
                                                   ++dataLength)
         {
-            bslma_TestAllocator ta(veryVeryVerbose);
-            bslma_DefaultAllocatorGuard guard(&ta);
+            bslma::TestAllocator ta(veryVeryVerbose);
+            bslma::DefaultAllocatorGuard guard(&ta);
             {
                 const int BUFFER_SIZE          = bufferSize;
                 const int DATA_LENGTH          = dataLength;
@@ -2157,11 +2157,11 @@ int main(int argc, char *argv[])
         for (int bufferSize = 1; bufferSize <= 5; ++bufferSize)
         for (int dataLength = 0; dataLength <= 5 * bufferSize; ++dataLength)
         {
-            bslma_TestAllocator defaultAlloc(veryVeryVerbose);
-            bslma_DefaultAllocatorGuard guard(&defaultAlloc);
-            bslma_TestAllocator ta(veryVeryVerbose);
+            bslma::TestAllocator defaultAlloc(veryVeryVerbose);
+            bslma::DefaultAllocatorGuard guard(&defaultAlloc);
+            bslma::TestAllocator ta(veryVeryVerbose);
 
-            bslma_TestAllocator& testAllocator = ta;
+            bslma::TestAllocator& testAllocator = ta;
             BEGIN_BSLMA_EXCEPTION_TEST
             {
                 const int BUFFER_SIZE     = bufferSize;
@@ -2257,8 +2257,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting blob with different buffer sizes.\n";
         {
-            bslma_TestAllocator ta(veryVeryVerbose);
-            bslma_DefaultAllocatorGuard guard(&ta);
+            bslma::TestAllocator ta(veryVeryVerbose);
+            bslma::DefaultAllocatorGuard guard(&ta);
             {
                 typedef bcema_Blob Obj;
                 TestBlobBufferFactory fa(&ta, 1);
@@ -2306,10 +2306,10 @@ int main(int argc, char *argv[])
                           << "TESTING CONSTRUCTORS" << endl
                           << "====================" << endl;
 
-        bslma_TestAllocator         defaultAlloc(veryVeryVerbose);
-        bslma_DefaultAllocatorGuard guard(&defaultAlloc);
-        bslma_TestAllocator         ta(veryVeryVerbose);
-        bslma_TestAllocator&        testAllocator = ta;
+        bslma::TestAllocator         defaultAlloc(veryVeryVerbose);
+        bslma::DefaultAllocatorGuard guard(&defaultAlloc);
+        bslma::TestAllocator         ta(veryVeryVerbose);
+        bslma::TestAllocator&        testAllocator = ta;
 
         const int BUFFER_SIZE = 4;
 
@@ -2318,12 +2318,12 @@ int main(int argc, char *argv[])
         // This component works for *all* targets, including 'opt_exc_mt'.
         // However, portions of this test case fail unless either safe-mode or
         // debug is in effect.  If neither safe-mode nor debug is in effect,
-        // then the 'bdes_assert' macros resolve to no-ops and the guard is
+        // then the 'bsls_assert' macros resolve to no-ops and the guard is
         // ineffective at catching assertion failures.
 
         if (verbose) cout << "\nTesting creating blob without factory.\n";
         {
-            bsls_AssertFailureHandlerGuard guard(&unknownFactoryHandler);
+            bsls::AssertFailureHandlerGuard guard(&unknownFactoryHandler);
             numUnknownFactoryHandlerInvocations = 0;
 
             typedef bcema_Blob Obj;
@@ -2356,7 +2356,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting creating blob with factory.\n";
         BEGIN_BSLMA_EXCEPTION_TEST
         {
-            bsls_AssertFailureHandlerGuard guard(&unknownFactoryHandler);
+            bsls::AssertFailureHandlerGuard guard(&unknownFactoryHandler);
             numUnknownFactoryHandlerInvocations = 0;
 
             typedef bcema_Blob Obj;
@@ -2435,7 +2435,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting creating blob importing buffers.\n";
         BEGIN_BSLMA_EXCEPTION_TEST
         {
-            bsls_AssertFailureHandlerGuard guard(&unknownFactoryHandler);
+            bsls::AssertFailureHandlerGuard guard(&unknownFactoryHandler);
             numUnknownFactoryHandlerInvocations = 0;
 
             typedef bcema_Blob Obj;
@@ -2489,7 +2489,7 @@ int main(int argc, char *argv[])
            cout << "\nTesting creating blob with factory importing buffers.\n";
         BEGIN_BSLMA_EXCEPTION_TEST
         {
-            bsls_AssertFailureHandlerGuard guard(&unknownFactoryHandler);
+            bsls::AssertFailureHandlerGuard guard(&unknownFactoryHandler);
             numUnknownFactoryHandlerInvocations = 0;
 
             typedef bcema_Blob Obj;
@@ -2560,8 +2560,8 @@ int main(int argc, char *argv[])
                           << "BREATHING TEST" << endl
                           << "==============" << endl;
 
-        bslma_TestAllocator ta(veryVeryVerbose);
-        bslma_DefaultAllocatorGuard guard(&ta);
+        bslma::TestAllocator ta(veryVeryVerbose);
+        bslma::DefaultAllocatorGuard guard(&ta);
         NullDeleter deleter;
 
         if (verbose) cout << "\nTesting bcema_BlobBuffer." << endl;

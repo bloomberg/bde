@@ -190,10 +190,10 @@ int bcep_FixedThreadPool::startNewThread()
 // CREATORS
 
 bcep_FixedThreadPool::bcep_FixedThreadPool(
-        const bcemt_Attribute& threadAttributes,
-        int                    numThreads,
-        int                    maxQueueSize,
-        bslma_Allocator       *basicAllocator)
+        const bcemt_Attribute&  threadAttributes,
+        int                     numThreads,
+        int                     maxQueueSize,
+        bslma::Allocator       *basicAllocator)
 : d_queue(maxQueueSize, basicAllocator)
 , d_control(BCEP_STOP)
 , d_gateCount(0)
@@ -211,9 +211,9 @@ bcep_FixedThreadPool::bcep_FixedThreadPool(
 #endif
 }
 
-bcep_FixedThreadPool::bcep_FixedThreadPool(int              numThreads,
-                                           int              maxQueueSize,
-                                           bslma_Allocator *basicAllocator)
+bcep_FixedThreadPool::bcep_FixedThreadPool(int               numThreads,
+                                           int               maxQueueSize,
+                                           bslma::Allocator *basicAllocator)
 : d_queue(maxQueueSize, basicAllocator)
 , d_control(BCEP_STOP)
 , d_gateCount(0)

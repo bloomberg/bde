@@ -83,11 +83,11 @@ static bcemt_Mutex coutMutex;
 
 typedef bcemt_Sluice Obj;
 
-class My_TestAllocator : public bslma_Allocator {
+class My_TestAllocator : public bslma::Allocator{
 
     // DATA
-    bslma_TestAllocator d_allocator;
-    bcemt_Mutex         d_lock;
+    bslma::TestAllocator d_allocator;
+    bcemt_Mutex          d_lock;
 
   public:
     explicit
@@ -200,7 +200,7 @@ int main(int argc, char *argv[])
                                                  &lock,
                                                  &iterations),
                              NUM_WAITING_THREADS));
-        bsls_Stopwatch timer;
+        bsls::Stopwatch timer;
         timer.start();
         while (timer.elapsedTime() < NUM_TEST_SECONDS) {
             mX.signalOne();

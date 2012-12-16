@@ -678,6 +678,10 @@ BDES_IDENT("$Id: $")
 #include <bslalg_typetraits.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 #endif
@@ -708,10 +712,6 @@ BDES_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSL_UTILITY
 #include <bsl_utility.h>   // for 'bsl::pair'
-#endif
-
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
 #endif
 
 namespace BloombergLP {
@@ -776,14 +776,14 @@ class bcem_Aggregate {
     void init(const bcema_SharedPtr<const bdem_Schema>&     schemaPtr,
               const bdem_RecordDef                         *recordDefPtr,
               bdem_ElemType::Type                           elemType,
-              bslma_Allocator                              *basicAllocator);
+              bslma::Allocator                             *basicAllocator);
     void init(const bcema_SharedPtr<const bdem_RecordDef>&  recordDefPtr,
               bdem_ElemType::Type                           elemType,
-              bslma_Allocator                              *basicAllocator);
+              bslma::Allocator                             *basicAllocator);
     void init(const bcema_SharedPtr<const bdem_Schema>&     schemaPtr,
               const char                                   *recordName,
               bdem_ElemType::Type                           elemType,
-              bslma_Allocator                              *basicAllocator);
+              bslma::Allocator                             *basicAllocator);
         // Initialize this object from the specified record definition and
         // element type.  By default, the constructed object is not null.
         // The behavior is undefined if this method is invoked on an
@@ -817,7 +817,7 @@ class bcem_Aggregate {
     // PRIVATE CLASS METHODS
     static bcema_SharedPtr<void> makeValuePtr(
                                     bdem_ElemType::Type  type,
-                                    bslma_Allocator     *basicAllocator = 0);
+                                    bslma::Allocator    *basicAllocator = 0);
         // Return a shared pointer to a newly-created unset value of the
         // specified 'type'.  Optionally specify a 'basicAllocator' used to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
@@ -846,10 +846,10 @@ class bcem_Aggregate {
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS2(bcem_Aggregate,
-                                  bslalg_TypeTraitBitwiseMoveable,
+                                  bslalg::TypeTraitBitwiseMoveable,
                                   bdeu_TypeTraitHasPrintMethod);
         // Note that this class does not have the
-        // 'bslalg_TypeTraitUsesBslmaAllocator' trait.  Although some
+        // 'bslalg::TypeTraitUsesBslmaAllocator' trait.  Although some
         // constructors do take an allocator, the pointer-like semantics do not
         // fully allow the use of the allocator idioms.
 
@@ -917,7 +917,7 @@ class bcem_Aggregate {
     template <typename VALTYPE>
     bcem_Aggregate(const bdem_ElemType::Type  dataType,
                    const VALTYPE&             value,
-                   bslma_Allocator           *basicAllocator = 0);
+                   bslma::Allocator          *basicAllocator = 0);
         // Create an aggregate representing a value of the type specified in
         // 'dataType' and initialize it to the specified 'value'.  Optionally
         // specify a 'basicAllocator' used to supply memory.  If
@@ -943,10 +943,10 @@ class bcem_Aggregate {
 
     explicit bcem_Aggregate(
         const bcema_SharedPtr<const bdem_RecordDef>&  recordDefPtr,
-        bslma_Allocator                              *basicAllocator = 0);
+        bslma::Allocator                             *basicAllocator = 0);
     explicit bcem_Aggregate(
         const bcema_SharedPtr<bdem_RecordDef>&        recordDefPtr,
-        bslma_Allocator                              *basicAllocator = 0);
+        bslma::Allocator                             *basicAllocator = 0);
         // Create an aggregate containing a list or choice object structured
         // according to the record definition pointed to by the specified
         // 'recordDefPtr'.  Optionally specify a 'basicAllocator' used to
@@ -967,11 +967,11 @@ class bcem_Aggregate {
     bcem_Aggregate(
         const bcema_SharedPtr<const bdem_RecordDef>&  recordDefPtr,
         bdem_ElemType::Type                           elemType,
-        bslma_Allocator                              *basicAllocator = 0);
+        bslma::Allocator                             *basicAllocator = 0);
     bcem_Aggregate(
         const bcema_SharedPtr<bdem_RecordDef>&        recordDefPtr,
         bdem_ElemType::Type                           elemType,
-        bslma_Allocator                              *basicAllocator = 0);
+        bslma::Allocator                             *basicAllocator = 0);
         // Create an aggregate containing a list, table, choice, or
         // choice-array object structured according to the record definition
         // specified by 'recordDefPtr'.  Optionally specify a 'basicAllocator'
@@ -999,12 +999,12 @@ class bcem_Aggregate {
  const bcema_SharedPtr<const bdem_Schema>& schemaPtr,
  const bsl::string&                        recordName,
  bdem_ElemType::Type                       elemType = bdem_ElemType::BDEM_VOID,
- bslma_Allocator                          *basicAllocator = 0);
+ bslma::Allocator                         *basicAllocator = 0);
     bcem_Aggregate(
    const bcema_SharedPtr<bdem_Schema>&     schemaPtr,
    const bsl::string&                      recordName,
    bdem_ElemType::Type                     elemType = bdem_ElemType::BDEM_VOID,
-   bslma_Allocator                        *basicAllocator = 0);
+   bslma::Allocator                       *basicAllocator = 0);
         // Create an aggregate containing a list, table, choice, or
         // choice-array object structured according to the record definition
         // identified by the specified 'recordName' within the schema pointed
@@ -1722,7 +1722,7 @@ class bcem_Aggregate {
     char asChar() const;
     short asShort() const;
     int asInt() const;
-    bsls_Types::Int64 asInt64() const;
+    bsls::Types::Int64 asInt64() const;
     float asFloat() const;
     double asDouble() const;
     bdet_Datetime asDatetime() const;
@@ -2013,7 +2013,7 @@ class bcem_Aggregate {
         // field (if any), as per the "Anonymous Fields" section of the
         // 'bcem_aggregate' component-level documentation.
 
-    const bcem_Aggregate clone(bslma_Allocator *basicAllocator = 0) const;
+    const bcem_Aggregate clone(bslma::Allocator *basicAllocator = 0) const;
         // Make an independent copy, using the specified 'basicAllocator', of
         // this aggregate's data and schema and return a new aggregate object
         // holding the copy.  Changes made to the clone's data will have no
@@ -2024,7 +2024,7 @@ class bcem_Aggregate {
         // equivalent, but not identical, error object.  Note that the
         // nullness information is also cloned.
 
-    const bcem_Aggregate cloneData(bslma_Allocator *basicAllocator = 0) const;
+    const bcem_Aggregate cloneData(bslma::Allocator *basicAllocator = 0) const;
         // Make an independent copy, using the specified 'basicAllocator', of
         // the this aggregate's data, but not its schema, and return a new a
         // new aggregate object holding the copy.  The new aggregate will
@@ -2193,7 +2193,7 @@ int bcem_Aggregate::maxSupportedBdexVersion()
 template <typename VALTYPE>
 bcem_Aggregate::bcem_Aggregate(const bdem_ElemType::Type  dataType,
                                const VALTYPE&             value,
-                               bslma_Allocator           *basicAllocator)
+                               bslma::Allocator          *basicAllocator)
 : d_aggregateRaw()
 , d_schemaRep_p(0)
 , d_valueRep_p(0)
@@ -2229,7 +2229,7 @@ bcem_Aggregate::bcem_Aggregate(const bdem_ElemType::Type  dataType,
 inline
 bcem_Aggregate::bcem_Aggregate(
                   const bcema_SharedPtr<const bdem_RecordDef>&  recordDefPtr,
-                  bslma_Allocator                              *basicAllocator)
+                  bslma::Allocator                             *basicAllocator)
 : d_aggregateRaw()
 , d_schemaRep_p(0)
 , d_valueRep_p(0)
@@ -2241,7 +2241,7 @@ bcem_Aggregate::bcem_Aggregate(
 inline
 bcem_Aggregate::bcem_Aggregate(
                         const bcema_SharedPtr<bdem_RecordDef>&  recordDefPtr,
-                        bslma_Allocator                        *basicAllocator)
+                        bslma::Allocator                       *basicAllocator)
 : d_aggregateRaw()
 , d_schemaRep_p(0)
 , d_valueRep_p(0)
@@ -2254,7 +2254,7 @@ inline
 bcem_Aggregate::bcem_Aggregate(
                   const bcema_SharedPtr<const bdem_RecordDef>&  recordDefPtr,
                   bdem_ElemType::Type                           elemType,
-                  bslma_Allocator                              *basicAllocator)
+                  bslma::Allocator                             *basicAllocator)
 : d_aggregateRaw()
 , d_schemaRep_p(0)
 , d_valueRep_p(0)
@@ -2267,7 +2267,7 @@ inline
 bcem_Aggregate::bcem_Aggregate(
                         const bcema_SharedPtr<bdem_RecordDef>&  recordDefPtr,
                         bdem_ElemType::Type                     elemType,
-                        bslma_Allocator                        *basicAllocator)
+                        bslma::Allocator                       *basicAllocator)
 : d_aggregateRaw()
 , d_schemaRep_p(0)
 , d_valueRep_p(0)
@@ -2281,7 +2281,7 @@ bcem_Aggregate::bcem_Aggregate(
                      const bcema_SharedPtr<const bdem_Schema>&  schemaPtr,
                      const bsl::string&                         recordName,
                      bdem_ElemType::Type                        elemType,
-                     bslma_Allocator                           *basicAllocator)
+                     bslma::Allocator                          *basicAllocator)
 : d_aggregateRaw()
 , d_schemaRep_p(0)
 , d_valueRep_p(0)
@@ -2295,7 +2295,7 @@ bcem_Aggregate::bcem_Aggregate(
                            const bcema_SharedPtr<bdem_Schema>&  schemaPtr,
                            const bsl::string&                   recordName,
                            bdem_ElemType::Type                  elemType,
-                           bslma_Allocator                     *basicAllocator)
+                           bslma::Allocator                    *basicAllocator)
 : d_aggregateRaw()
 , d_schemaRep_p(0)
 , d_valueRep_p(0)
@@ -2849,7 +2849,7 @@ int bcem_Aggregate::asInt() const
 }
 
 inline
-bsls_Types::Int64 bcem_Aggregate::asInt64() const
+bsls::Types::Int64 bcem_Aggregate::asInt64() const
 {
     return d_aggregateRaw.asInt64();
 }
@@ -3423,7 +3423,7 @@ void bdeat_valueTypeReset(bcem_Aggregate_NullableAdapter *object)
 namespace bdeat_SequenceFunctions {
 
     // META-FUNCTIONS
-    bslmf_MetaInt<1> isSequenceMetaFunction(const bcem_Aggregate&);
+    bslmf::MetaInt<1> isSequenceMetaFunction(const bcem_Aggregate&);
 
     template <>
     struct IsSequence<bcem_Aggregate> {

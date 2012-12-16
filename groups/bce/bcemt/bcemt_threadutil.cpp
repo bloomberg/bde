@@ -64,7 +64,7 @@ int bcemt_ThreadUtil::create(bcemt_ThreadUtil::Handle           *handle,
                              const bcemt_ThreadAttributes&       attributes,
                              const bcemt_ThreadUtil::Invokable&  function)
 {
-    bslma_Allocator *alloc = bslma_Default::globalAllocator();
+    bslma::Allocator *alloc = bslma::Default::globalAllocator();
 
     bdema_ManagedPtr<Invokable> functionPtr(
                                new (*alloc) Invokable(function, alloc), alloc);
@@ -82,7 +82,7 @@ int bcemt_ThreadUtil::create(bcemt_ThreadUtil::Handle           *handle,
 int bcemt_ThreadUtil::create(bcemt_ThreadUtil::Handle           *handle,
                              const bcemt_ThreadUtil::Invokable&  function)
 {
-    bslma_Allocator *alloc = bslma_Default::globalAllocator();
+    bslma::Allocator *alloc = bslma::Default::globalAllocator();
 
     bdema_ManagedPtr<Invokable> functionPtr(
                               new (*alloc) Invokable(function, alloc), alloc);

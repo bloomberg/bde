@@ -91,7 +91,7 @@ int veryVeryVerbose;
 //                  GLOBAL FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
-bsls_Types::IntPtr intPtrAbs(bsls_Types::IntPtr a)
+bsls::Types::IntPtr intPtrAbs(bsls::Types::IntPtr a)
 {
     return a >= 0 ? a : -a;
 }
@@ -274,12 +274,12 @@ void *configurationTestFunction(void *stackToUse)
 {
     BCEMT_CONFIGURATION_TEST_NAMESPACE::Func func;
 
-    func.d_stackToUse = (int) (bsls_Types::IntPtr) stackToUse;
+    func.d_stackToUse = (int) (bsls::Types::IntPtr) stackToUse;
     func.s_success   = false;
 
     func();
 
-    ASSERT(func.d_stackToUse == (int) (bsls_Types::IntPtr) stackToUse);
+    ASSERT(func.d_stackToUse == (int) (bsls::Types::IntPtr) stackToUse);
     ASSERT(func.s_success);
 
     return 0;
@@ -645,7 +645,7 @@ extern "C" void *secondClearanceTest(void *vStackSize)
     growth = stackGrowthIsNegative(&c) ? -10 : 10;
 
     static int stackSize;
-    stackSize = (int) (bsls_Types::IntPtr) vStackSize;
+    stackSize = (int) (bsls::Types::IntPtr) vStackSize;
 
     static char *pc;
     pc = &c;
@@ -893,9 +893,9 @@ int main(int argc, char *argv[])
         if (verbose) Q(Test C function with no attributes);
         {
             int rc = bcemt_ThreadUtil::create(
-                                     &handle,
-                                     &configurationTestFunction,
-                                     (void *) (bsls_Types::IntPtr) stackToUse);
+                                    &handle,
+                                    &configurationTestFunction,
+                                    (void *) (bsls::Types::IntPtr) stackToUse);
             ASSERT(0 == rc);
 
             rc = bcemt_ThreadUtil::join(handle);
@@ -906,10 +906,10 @@ int main(int argc, char *argv[])
         {
             bcemt_ThreadAttributes attr;
             int rc = bcemt_ThreadUtil::create(
-                                     &handle,
-                                     attr,
-                                     &configurationTestFunction,
-                                     (void *) (bsls_Types::IntPtr) stackToUse);
+                                    &handle,
+                                    attr,
+                                    &configurationTestFunction,
+                                    (void *) (bsls::Types::IntPtr) stackToUse);
             ASSERT(0 == rc);
 
             rc = bcemt_ThreadUtil::join(handle);

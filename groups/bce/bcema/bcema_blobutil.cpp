@@ -348,8 +348,9 @@ bsl::ostream& bcema_BlobUtil::hexDump(bsl::ostream&     stream,
     BufferInfo *buffers = staticBuffers;
     int         numBufferInfo = 0;
 
-    bslma_Allocator *allocator = bslma_Default::defaultAllocator();
-    bslma_DeallocatorProctor<bslma_Allocator> deallocationGuard(0, allocator);
+    bslma::Allocator *allocator = bslma::Default::defaultAllocator();
+    bslma::DeallocatorProctor<bslma::Allocator> deallocationGuard(0,
+                                                                  allocator);
 
     if (source.numDataBuffers() > NUM_STATIC_BUFFERS) {
         // This works because we do not need to call the constructor on a pair

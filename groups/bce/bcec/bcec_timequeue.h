@@ -216,7 +216,7 @@ BDES_IDENT("$Id: $")
 //
 //    public:
 //      // CREATORS
-//      my_Server(int ioTimeout, bslma_Allocator *basicAllocator=0);
+//      my_Server(int ioTimeout, bslma::Allocator *basicAllocator=0);
 //          // Construct a 'my_Server' object with a timeout value of
 //          // 'ioTimeout' seconds.  Use the specified 'basicAllocator' for all
 //          // memory allocation for data members of 'my_Server'.
@@ -231,7 +231,7 @@ BDES_IDENT("$Id: $")
 // The constructor is simple: it initializes the internal 'bcec_TimeQueue' and
 // sets the I/O timeout value.  The virtual destructor does nothing.
 //..
-//  my_Server::my_Server(int ioTimeout, bslma_Allocator *basicAllocator)
+//  my_Server::my_Server(int ioTimeout, bslma::Allocator *basicAllocator)
 //  : d_timeQueue(basicAllocator)
 //  , d_ioTimeout(ioTimeout)
 //  {
@@ -460,7 +460,7 @@ BDES_IDENT("$Id: $")
 //
 //    public:
 //      // CREATORS
-//      my_TestServer(int ioTimeout, bslma_Allocator *basicAllocator=0)
+//      my_TestServer(int ioTimeout, bslma::Allocator *basicAllocator=0)
 //      : my_Server(ioTimeout,basicAllocator)
 //      {
 //      };
@@ -673,12 +673,12 @@ class bcec_TimeQueue {
         // having the same time value.  This struct provides the node in the
         // list.
 
-        int                      d_index;
-        bdet_TimeInterval        d_time;
-        Key                      d_key;
-        Node                    *d_prev_p;
-        Node                    *d_next_p;
-        bsls_ObjectBuffer<DATA>  d_data;
+        int                       d_index;
+        bdet_TimeInterval         d_time;
+        Key                       d_key;
+        Node                     *d_prev_p;
+        Node                     *d_next_p;
+        bsls::ObjectBuffer<DATA>  d_data;
 
         Node(const bdet_TimeInterval& time)
         : d_index(0)
@@ -737,7 +737,7 @@ class bcec_TimeQueue {
                                                // this queue (not necessarily
                                                // equal to d_map.size())
 
-    bslma_Allocator         *d_allocator_p;    // allocator (held, not owned)
+    bslma::Allocator        *d_allocator_p;    // allocator (held, not owned)
 
     // PRIVATE MANIPULATORS
     void freeNode(Node *node);
@@ -764,14 +764,14 @@ class bcec_TimeQueue {
 
   public:
     // CREATORS
-    explicit bcec_TimeQueue(bslma_Allocator *basicAllocator = 0);
-    explicit bcec_TimeQueue(bool             poolTimerMemory,
-                            bslma_Allocator *basicAllocator = 0);
-    explicit bcec_TimeQueue(int              numIndexBits,
-                            bslma_Allocator *basicAllocator = 0);
-    bcec_TimeQueue(int              numIndexBits,
-                   bool             poolTimerMemory,
-                   bslma_Allocator *basicAllocator = 0);
+    explicit bcec_TimeQueue(bslma::Allocator *basicAllocator = 0);
+    explicit bcec_TimeQueue(bool              poolTimerMemory,
+                            bslma::Allocator *basicAllocator = 0);
+    explicit bcec_TimeQueue(int               numIndexBits,
+                            bslma::Allocator *basicAllocator = 0);
+    bcec_TimeQueue(int               numIndexBits,
+                   bool              poolTimerMemory,
+                   bslma::Allocator *basicAllocator = 0);
         // Construct an empty time queue.  Optionally specify 'numIndexBits' to
         // configure the number of index bits used by this object.  If
         // 'numIndexBits' is not specified a default value of 17 is used.
@@ -939,7 +939,7 @@ class bcec_TimeQueueItem {
     typedef typename bcec_TimeQueue<DATA>::Key    Key;
 
     BSLALG_DECLARE_NESTED_TRAITS(bcec_TimeQueueItem,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
   private:
     bdet_TimeInterval             d_time;    // Time value
@@ -949,16 +949,16 @@ class bcec_TimeQueueItem {
 
   public:
     // CREATORS
-    bcec_TimeQueueItem(bslma_Allocator                 *basicAllocator = 0);
+    bcec_TimeQueueItem(bslma::Allocator                *basicAllocator = 0);
     bcec_TimeQueueItem(const bdet_TimeInterval&         time,
                        const DATA&                      data,
                        Handle                           handle,
-                       bslma_Allocator                 *basicAllocator = 0);
+                       bslma::Allocator                *basicAllocator = 0);
     bcec_TimeQueueItem(const bdet_TimeInterval&         time,
                        const DATA&                      data,
                        Handle                           handle,
                        const Key&                       key,
-                       bslma_Allocator                 *basicAllocator = 0);
+                       bslma::Allocator                *basicAllocator = 0);
         // Create time queue item holding a copy of the 'data', optionally with
         // associated 'time', 'handle' and 'key' information.  Optionally
         // specify a 'basicAllocator' used to supply memory.  If
@@ -966,7 +966,7 @@ class bcec_TimeQueueItem {
         // allocator.
 
     bcec_TimeQueueItem(bcec_TimeQueueItem<DATA> const&  original,
-                       bslma_Allocator                 *basicAllocator = 0);
+                       bslma::Allocator                *basicAllocator = 0);
         // Create a copy of the 'original' time queue item.  Optionally
         // specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is zero, then use the currently installed default
@@ -1068,7 +1068,7 @@ void bcec_TimeQueue<DATA>::putFreeNodeList(Node *begin)
 
 // CREATORS
 template <typename DATA>
-bcec_TimeQueue<DATA>::bcec_TimeQueue(bslma_Allocator *basicAllocator)
+bcec_TimeQueue<DATA>::bcec_TimeQueue(bslma::Allocator *basicAllocator)
 : d_numIndexBits(BCEC_NUM_INDEX_BITS_DEFAULT)
 , d_indexMask((1<<d_numIndexBits) - 1)
 , d_indexIterationMask(~(int)d_indexMask)
@@ -1078,13 +1078,13 @@ bcec_TimeQueue<DATA>::bcec_TimeQueue(bslma_Allocator *basicAllocator)
 , d_mapAllocatorPtr(0)
 , d_map(basicAllocator)
 , d_length(0)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
 
 template <typename DATA>
-bcec_TimeQueue<DATA>::bcec_TimeQueue(bool             poolTimerMemory,
-                                     bslma_Allocator *basicAllocator)
+bcec_TimeQueue<DATA>::bcec_TimeQueue(bool              poolTimerMemory,
+                                     bslma::Allocator *basicAllocator)
 : d_numIndexBits(BCEC_NUM_INDEX_BITS_DEFAULT)
 , d_indexMask((1<<d_numIndexBits) - 1)
 , d_indexIterationMask(~(int)d_indexMask)
@@ -1092,20 +1092,20 @@ bcec_TimeQueue<DATA>::bcec_TimeQueue(bool             poolTimerMemory,
 , d_nodeArray(basicAllocator)
 , d_nextFreeNode_p(0)
 , d_mapAllocatorPtr(poolTimerMemory
-                    ? new (*bslma_Default::allocator(basicAllocator))
+                    ? new (*bslma::Default::allocator(basicAllocator))
                                             bcema_PoolAllocator(sizeof(Node),
                                                                 basicAllocator)
                     : 0,
-                    bslma_Default::allocator(basicAllocator))
+                    bslma::Default::allocator(basicAllocator))
 , d_map(poolTimerMemory ? d_mapAllocatorPtr.ptr() : basicAllocator)
 , d_length(0)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
 
 template <typename DATA>
-bcec_TimeQueue<DATA>::bcec_TimeQueue(int              numIndexBits,
-                                     bslma_Allocator *basicAllocator)
+bcec_TimeQueue<DATA>::bcec_TimeQueue(int               numIndexBits,
+                                     bslma::Allocator *basicAllocator)
 : d_numIndexBits(numIndexBits)
 , d_indexMask((1<<d_numIndexBits) - 1)
 , d_indexIterationMask(~d_indexMask)
@@ -1115,16 +1115,16 @@ bcec_TimeQueue<DATA>::bcec_TimeQueue(int              numIndexBits,
 , d_mapAllocatorPtr(0)
 , d_map(basicAllocator)
 , d_length(0)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     BSLS_ASSERT(BCEC_NUM_INDEX_BITS_MIN <= numIndexBits
              && BCEC_NUM_INDEX_BITS_MAX >= numIndexBits);
 }
 
 template <typename DATA>
-bcec_TimeQueue<DATA>::bcec_TimeQueue(int              numIndexBits,
-                                     bool             poolTimerMemory,
-                                     bslma_Allocator *basicAllocator)
+bcec_TimeQueue<DATA>::bcec_TimeQueue(int               numIndexBits,
+                                     bool              poolTimerMemory,
+                                     bslma::Allocator *basicAllocator)
 : d_numIndexBits(numIndexBits)
 , d_indexMask((1<<d_numIndexBits) - 1)
 , d_indexIterationMask(~d_indexMask)
@@ -1132,14 +1132,14 @@ bcec_TimeQueue<DATA>::bcec_TimeQueue(int              numIndexBits,
 , d_nodeArray(basicAllocator)
 , d_nextFreeNode_p(0)
 , d_mapAllocatorPtr(poolTimerMemory
-                    ? new (*bslma_Default::allocator(basicAllocator))
+                    ? new (*bslma::Default::allocator(basicAllocator))
                                             bcema_PoolAllocator(sizeof(Node),
                                                                 basicAllocator)
                     : 0,
-                    bslma_Default::allocator(basicAllocator))
+                    bslma::Default::allocator(basicAllocator))
 , d_map(poolTimerMemory ? d_mapAllocatorPtr.ptr() : basicAllocator)
 , d_length(0)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     BSLS_ASSERT(BCEC_NUM_INDEX_BITS_MIN <= numIndexBits
              && BCEC_NUM_INDEX_BITS_MAX >= numIndexBits);
@@ -1203,9 +1203,9 @@ typename bcec_TimeQueue<DATA>:: Handle bcec_TimeQueue<DATA>::add(
     }
     node->d_time = time;
     node->d_key  = key;
-    bslalg_ScalarPrimitives::copyConstruct(&node->d_data.object(),
-                                           data,
-                                           d_allocator_p);
+    bslalg::ScalarPrimitives::copyConstruct(&node->d_data.object(),
+                                            data,
+                                            d_allocator_p);
 
     {
         MapIter it = d_map.find(time);
@@ -1635,26 +1635,26 @@ int bcec_TimeQueue<DATA>::minTime(bdet_TimeInterval *buffer) const
 
 // CREATORS
 template <typename DATA>
-bcec_TimeQueueItem<DATA>::bcec_TimeQueueItem(bslma_Allocator *basicAllocator)
+bcec_TimeQueueItem<DATA>::bcec_TimeQueueItem(bslma::Allocator *basicAllocator)
 : d_key(0)
 {
-    bslalg_ScalarDestructionPrimitives::destroy(&d_data);
-    bslalg_ScalarPrimitives::defaultConstruct(&d_data, basicAllocator);
+    bslalg::ScalarDestructionPrimitives::destroy(&d_data);
+    bslalg::ScalarPrimitives::defaultConstruct(&d_data, basicAllocator);
 }
 
 template <typename DATA>
 bcec_TimeQueueItem<DATA>::
 bcec_TimeQueueItem(bcec_TimeQueueItem<DATA> const&  original,
-                   bslma_Allocator                 *basicAllocator)
+                   bslma::Allocator                *basicAllocator)
 : d_time(original.d_time)
 // require that 'd_data' be default-constructible, hopefully at no cost
 , d_handle(original.d_handle)
 , d_key(original.d_key)
 {
-    bslalg_ScalarDestructionPrimitives::destroy(&d_data);
-    bslalg_ScalarPrimitives::copyConstruct(&d_data,
-                                           original.d_data,
-                                           basicAllocator);
+    bslalg::ScalarDestructionPrimitives::destroy(&d_data);
+    bslalg::ScalarPrimitives::copyConstruct(&d_data,
+                                            original.d_data,
+                                            basicAllocator);
 }
 
 template <typename DATA>
@@ -1662,16 +1662,16 @@ bcec_TimeQueueItem<DATA>::
 bcec_TimeQueueItem(const bdet_TimeInterval&  time,
                    const DATA&               data,
                    Handle                    handle,
-                   bslma_Allocator          *basicAllocator)
+                   bslma::Allocator         *basicAllocator)
 : d_time(time)
 // require that 'd_data' be default-constructible, hopefully at no cost
 , d_handle(handle)
 , d_key(0)
 {
-    bslalg_ScalarDestructionPrimitives::destroy(&d_data);
-    bslalg_ScalarPrimitives::copyConstruct(&d_data,
-                                           data,
-                                           basicAllocator);
+    bslalg::ScalarDestructionPrimitives::destroy(&d_data);
+    bslalg::ScalarPrimitives::copyConstruct(&d_data,
+                                            data,
+                                            basicAllocator);
 }
 
 template <typename DATA>
@@ -1680,16 +1680,16 @@ bcec_TimeQueueItem(const bdet_TimeInterval&  time,
                    const DATA&               data,
                    Handle                    handle,
                    const Key&                key,
-                   bslma_Allocator          *basicAllocator)
+                   bslma::Allocator         *basicAllocator)
 : d_time(time)
 // require that 'd_data' be default-constructible, hopefully at no cost
 , d_handle(handle)
 , d_key(key)
 {
-    bslalg_ScalarDestructionPrimitives::destroy(&d_data);
-    bslalg_ScalarPrimitives::copyConstruct(&d_data,
-                                           data,
-                                           basicAllocator);
+    bslalg::ScalarDestructionPrimitives::destroy(&d_data);
+    bslalg::ScalarPrimitives::copyConstruct(&d_data,
+                                            data,
+                                            basicAllocator);
 }
 
 // MANIPULATORS

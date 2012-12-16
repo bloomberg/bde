@@ -5,6 +5,7 @@
 #include <bcema_testallocator.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bsls_alignmentutil.h>
+#include <bsls_types.h>
 
 #include <bsl_cstring.h>  // strcmp()
 #include <bsl_cstdlib.h>  // atoi()
@@ -21,8 +22,8 @@ using namespace bsl;  // automatically added by script
 //                             --------
 //-----------------------------------------------------------------------------
 // CREATORS
-// [ 4] bcema_PoolAllocator(size_type size, bslma_Allocator *allocator = 0);
-// [ 4] bcema_PoolAllocator(bslma_Allocator *allocator = 0);
+// [ 4] bcema_PoolAllocator(size_type size, bslma::Allocator *allocator = 0);
+// [ 4] bcema_PoolAllocator(bslma::Allocator *allocator = 0);
 // [ 4] ~bcema_PoolAllocator();
 //
 // MANIPULATORS
@@ -123,10 +124,10 @@ union Header {
     // allocator supplied during construction, and 'd_magicNumber' will be
     // zero.
 
-    int                                d_magicNumber;  // allocation source
-                                                       // and sanity check
+    int                                 d_magicNumber;  // allocation source
+                                                        // and sanity check
 
-    bsls_AlignmentUtil::MaxAlignedType d_dummy;        // dummy padding
+    bsls::AlignmentUtil::MaxAlignedType d_dummy;        // dummy padding
 };
 
 static inline
@@ -134,10 +135,10 @@ int calculateMaxAlignedSize(int totalSize)
 {
     using namespace BloombergLP;
 
-    const int objectAlignmentMin1 = bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT - 1;
-    const int ret = (totalSize + objectAlignmentMin1) & ~(objectAlignmentMin1);
-    BSLS_ASSERT(bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT ==
-                          bsls_AlignmentUtil::calculateAlignmentFromSize(ret));
+    const int objectAlignmentMin = bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT - 1;
+    const int ret = (totalSize + objectAlignmentMin) & ~(objectAlignmentMin);
+    BSLS_ASSERT(bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT ==
+                         bsls::AlignmentUtil::calculateAlignmentFromSize(ret));
     return ret;
 }
 
@@ -178,9 +179,9 @@ struct my2_WorkQueue {
     list<my2_WorkItem>        d_queue;   // queue of work requests
     bcemt_Mutex               d_mx;      // protects the shared queue
     bcemt_Condition           d_cv;      // signals existence of new work
-    bslma_Allocator          *d_alloc_p; // pooled allocator
+    bslma::Allocator         *d_alloc_p; // pooled allocator
 
-    my2_WorkQueue(bslma_Allocator *a) : d_queue(a), d_alloc_p(a) {}
+    my2_WorkQueue(bslma::Allocator *a) : d_queue(a), d_alloc_p(a) {}
 };
 
 extern "C" void *my2_producer(void *arg)
@@ -262,9 +263,9 @@ struct my1_WorkQueue {
     list<my1_WorkItem>        d_queue;   // queue of work requests
     bcemt_Mutex               d_mx;      // protects the shared queue
     bcemt_Condition           d_cv;      // signals existence of new work
-    bslma_Allocator          *d_alloc_p; // pooled allocator
+    bslma::Allocator         *d_alloc_p; // pooled allocator
 
-    my1_WorkQueue(bslma_Allocator *a) : d_alloc_p(a) {}
+    my1_WorkQueue(bslma::Allocator *a) : d_alloc_p(a) {}
 };
 
 extern "C" void *my1_producer(void *arg)
@@ -459,13 +460,13 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         const int SA = 42;
         const int SB = 43;
-        const int SC = SA + bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT;
+        const int SC = SA + bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
 
         if (verbose)
             cout << "bcema_PoolAllocator()" << endl;
         {
             bcema_TestAllocator ta;
-            bslma_DefaultAllocatorGuard g(&ta);
+            bslma::DefaultAllocatorGuard g(&ta);
             Obj x; Obj const &X = x;
             ASSERT(0 == X.blockSize());
 
@@ -488,8 +489,8 @@ int main(int argc, char *argv[])
             cout << "bcema_PoolAllocator(0)" << endl;
         {
             bcema_TestAllocator ta;
-            bslma_DefaultAllocatorGuard g(&ta);
-            Obj x((bsls_PlatformUtil::size_type)0); Obj const &X = x;
+            bslma::DefaultAllocatorGuard g(&ta);
+            Obj x((bsls::Types::size_type)0); Obj const &X = x;
             ASSERT(0 == X.blockSize());
 
             void *p2 = x.allocate(SB);
@@ -511,7 +512,7 @@ int main(int argc, char *argv[])
             cout << "bcema_PoolAllocator(100)" << endl;
         {
             bcema_TestAllocator ta;
-            bslma_DefaultAllocatorGuard g(&ta);
+            bslma::DefaultAllocatorGuard g(&ta);
             Obj x(100); Obj const &X = x;
             ASSERT(100 == X.blockSize());
 
@@ -601,17 +602,17 @@ int main(int argc, char *argv[])
         if (verbose)
             cout << "bcema_PoolAllocator(growthStrategy, allocator)" << endl;
         {
-            bsls_BlockGrowth::Strategy STRATEGY[] = {
-                                            bsls_BlockGrowth::BSLS_GEOMETRIC,
-                                            bsls_BlockGrowth::BSLS_CONSTANT };
+            bsls::BlockGrowth::Strategy STRATEGY[] = {
+                                            bsls::BlockGrowth::BSLS_GEOMETRIC,
+                                            bsls::BlockGrowth::BSLS_CONSTANT };
 
             const int NUM_STRATEGY = sizeof STRATEGY / sizeof *STRATEGY;
 
             for (int i = 0; i < NUM_STRATEGY; ++i) {
-                const bsls_BlockGrowth::Strategy STRAT = STRATEGY[i];
+                const bsls::BlockGrowth::Strategy STRAT = STRATEGY[i];
 
                 if (veryVerbose) {
-                    if (bsls_BlockGrowth::BSLS_GEOMETRIC == STRAT) {
+                    if (bsls::BlockGrowth::BSLS_GEOMETRIC == STRAT) {
                         cout << "\tBSLS_GEOMETRIC" << endl;
                     }
                     else {
@@ -656,17 +657,17 @@ int main(int argc, char *argv[])
         if (verbose)
             cout << "bcema_PoolAllocator(0,growthStrategy,allocator)" << endl;
         {
-            bsls_BlockGrowth::Strategy STRATEGY[] = {
-                                            bsls_BlockGrowth::BSLS_GEOMETRIC,
-                                            bsls_BlockGrowth::BSLS_CONSTANT };
+            bsls::BlockGrowth::Strategy STRATEGY[] = {
+                                            bsls::BlockGrowth::BSLS_GEOMETRIC,
+                                            bsls::BlockGrowth::BSLS_CONSTANT };
 
             const int NUM_STRATEGY = sizeof STRATEGY / sizeof *STRATEGY;
 
             for (int i = 0; i < NUM_STRATEGY; ++i) {
-                const bsls_BlockGrowth::Strategy STRAT = STRATEGY[i];
+                const bsls::BlockGrowth::Strategy STRAT = STRATEGY[i];
 
                 if (veryVerbose) {
-                    if (bsls_BlockGrowth::BSLS_GEOMETRIC == STRAT) {
+                    if (bsls::BlockGrowth::BSLS_GEOMETRIC == STRAT) {
                         cout << "\tBSLS_GEOMETRIC" << endl;
                     }
                     else {
@@ -710,17 +711,17 @@ int main(int argc, char *argv[])
         if (verbose)
             cout<< "bcema_PoolAllocator(100,growthStrategy,allocator)" << endl;
         {
-            bsls_BlockGrowth::Strategy STRATEGY[] = {
-                                            bsls_BlockGrowth::BSLS_GEOMETRIC,
-                                            bsls_BlockGrowth::BSLS_CONSTANT };
+            bsls::BlockGrowth::Strategy STRATEGY[] = {
+                                            bsls::BlockGrowth::BSLS_GEOMETRIC,
+                                            bsls::BlockGrowth::BSLS_CONSTANT };
 
             const int NUM_STRATEGY = sizeof STRATEGY / sizeof *STRATEGY;
 
             for (int i = 0; i < NUM_STRATEGY; ++i) {
-                const bsls_BlockGrowth::Strategy STRAT = STRATEGY[i];
+                const bsls::BlockGrowth::Strategy STRAT = STRATEGY[i];
 
                 if (veryVerbose) {
-                    if (bsls_BlockGrowth::BSLS_GEOMETRIC == STRAT) {
+                    if (bsls::BlockGrowth::BSLS_GEOMETRIC == STRAT) {
                         cout << "\tBSLS_GEOMETRIC" << endl;
                     }
                     else {
@@ -766,19 +767,19 @@ int main(int argc, char *argv[])
                                        "maxBlocksPerChunk, "
                                        "allocator)" << endl;
         {
-            const bsls_BlockGrowth::Strategy STRATEGY[] = {
-                                            bsls_BlockGrowth::BSLS_GEOMETRIC,
-                                            bsls_BlockGrowth::BSLS_CONSTANT };
+            const bsls::BlockGrowth::Strategy STRATEGY[] = {
+                                            bsls::BlockGrowth::BSLS_GEOMETRIC,
+                                            bsls::BlockGrowth::BSLS_CONSTANT };
             const int MBPC[] = { 1, 2, 3, 4, 5, 15, 16, 17, 31, 32, 33 };
 
             const int NUM_STRATEGY = sizeof STRATEGY / sizeof *STRATEGY;
             const int NUM_MBPC     = sizeof MBPC / sizeof *MBPC;
 
             for (int j = 0; j < NUM_STRATEGY; ++j) {
-                const bsls_BlockGrowth::Strategy STRAT = STRATEGY[j];
+                const bsls::BlockGrowth::Strategy STRAT = STRATEGY[j];
 
                 if (veryVerbose) {
-                    if (bsls_BlockGrowth::BSLS_GEOMETRIC == STRAT) {
+                    if (bsls::BlockGrowth::BSLS_GEOMETRIC == STRAT) {
                         cout << "\tBSLS_GEOMETRIC" << endl;
                     }
                     else {
@@ -834,19 +835,19 @@ int main(int argc, char *argv[])
                                        "maxBlocksPerChunk, "
                                        "allocator)" << endl;
         {
-            const bsls_BlockGrowth::Strategy STRATEGY[] = {
-                                            bsls_BlockGrowth::BSLS_GEOMETRIC,
-                                            bsls_BlockGrowth::BSLS_CONSTANT };
+            const bsls::BlockGrowth::Strategy STRATEGY[] = {
+                                            bsls::BlockGrowth::BSLS_GEOMETRIC,
+                                            bsls::BlockGrowth::BSLS_CONSTANT };
             const int MBPC[] = { 1, 2, 3, 4, 5, 15, 16, 17, 31, 32, 33 };
 
             const int NUM_STRATEGY = sizeof STRATEGY / sizeof *STRATEGY;
             const int NUM_MBPC     = sizeof MBPC / sizeof *MBPC;
 
             for (int j = 0; j < NUM_STRATEGY; ++j) {
-                const bsls_BlockGrowth::Strategy STRAT = STRATEGY[j];
+                const bsls::BlockGrowth::Strategy STRAT = STRATEGY[j];
 
                 if (veryVerbose) {
-                    if (bsls_BlockGrowth::BSLS_GEOMETRIC == STRAT) {
+                    if (bsls::BlockGrowth::BSLS_GEOMETRIC == STRAT) {
                         cout << "\tBSLS_GEOMETRIC" << endl;
                     }
                     else {
@@ -902,19 +903,19 @@ int main(int argc, char *argv[])
                                        "maxBlocksPerChunk, "
                                        "allocator)" << endl;
         {
-            const bsls_BlockGrowth::Strategy STRATEGY[] = {
-                                            bsls_BlockGrowth::BSLS_GEOMETRIC,
-                                            bsls_BlockGrowth::BSLS_CONSTANT };
+            const bsls::BlockGrowth::Strategy STRATEGY[] = {
+                                            bsls::BlockGrowth::BSLS_GEOMETRIC,
+                                            bsls::BlockGrowth::BSLS_CONSTANT };
             const int MBPC[] = { 1, 2, 3, 4, 5, 15, 16, 17, 31, 32, 33 };
 
             const int NUM_STRATEGY = sizeof STRATEGY / sizeof *STRATEGY;
             const int NUM_MBPC     = sizeof MBPC / sizeof *MBPC;
 
             for (int j = 0; j < NUM_STRATEGY; ++j) {
-                const bsls_BlockGrowth::Strategy STRAT = STRATEGY[j];
+                const bsls::BlockGrowth::Strategy STRAT = STRATEGY[j];
 
                 if (veryVerbose) {
-                    if (bsls_BlockGrowth::BSLS_GEOMETRIC == STRAT) {
+                    if (bsls::BlockGrowth::BSLS_GEOMETRIC == STRAT) {
                         cout << "\tBSLS_GEOMETRIC" << endl;
                     }
                     else {
@@ -982,7 +983,7 @@ int main(int argc, char *argv[])
 
         for (int i=0; i<1000; i++) {
             bcema_TestAllocator ta;
-            bslma_DefaultAllocatorGuard g(&ta);
+            bslma::DefaultAllocatorGuard g(&ta);
             Obj a[NUM_ALLOCATORS];
 
             bcemt_Attribute attributes;
@@ -1025,7 +1026,7 @@ int main(int argc, char *argv[])
         //   deallocate(void *address);
         // --------------------------------------------------------------------
         bcema_TestAllocator ta;
-        bslma_DefaultAllocatorGuard g(&ta);
+        bslma::DefaultAllocatorGuard g(&ta);
         Obj x; Obj const &X = x;
         ASSERT(0 == X.blockSize());
 
@@ -1063,7 +1064,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         const int SA = 44;
         const int SB = 42;
-        const int SC = SA + bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT;
+        const int SC = SA + bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
 
         Obj x; Obj const &X = x;
         ASSERT(0 == X.blockSize());

@@ -131,7 +131,7 @@ BDES_IDENT("$Id: $")
 // pointer and assign a value to the shared 'int':
 //..
 //  bcema_SharedPtr<int> intPtr;
-//  intPtr.createInplace(bslma_Default::allocator());
+//  intPtr.createInplace(bslma::Default::allocator());
 //  *intPtr = 10;
 //  assert(10 == *intPtr);
 //..
@@ -243,7 +243,7 @@ BDES_IDENT("$Id: $")
 // Note that the 'NewsUser' and 'NewsAlert' classes, as currently defined could
 // easily result in a memory leak under typical use due to a cyclic reference:
 //..
-//  bslma_TestAllocator ta;
+//  bslma::TestAllocator ta;
 //  {
 //      bcema_SharedPtr<NewsUser> userPtr;
 //      userPtr.createInplace(&ta);
@@ -297,7 +297,7 @@ BDES_IDENT("$Id: $")
 // The use of 'NewsUser' and 'NewsAlert' objects no longer causes a memory
 // leak:
 //..
-//  bslma_TestAllocator ta;
+//  bslma::TestAllocator ta;
 //  {
 //      bcema_SharedPtr<NewsAlert> alertPtr;
 //      alertPtr.createInplace(&ta);
@@ -506,7 +506,7 @@ class bcema_WeakPtr {
 
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(bcema_WeakPtr,
-                                 bslalg_TypeTraitBitwiseMoveable);
+                                 bslalg::TypeTraitBitwiseMoveable);
 
     // CREATORS
     bcema_WeakPtr();

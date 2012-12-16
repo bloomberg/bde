@@ -47,7 +47,7 @@ bces_SpinLock coutLock;
 template <class POOL>
 class TestRun
 {
-   bslma_Allocator *d_allocator_p; // held not owned
+   bslma::Allocator *d_allocator_p; // held not owned
    POOL     d_pool;   //held
    vector<double> d_partialRates; //note: count / (time * d_numThread)
    int      d_numThreads;
@@ -62,10 +62,10 @@ class TestRun
 public:
 
    TestRun(int numThreads, int numBlobsPerIteration,
-           int secondsToRun, bslma_Allocator *basicAllocator = 0)
-      : d_allocator_p(bslma_Default::allocator(basicAllocator)),
-        d_pool(bslma_Default::allocator(basicAllocator)),
-        d_partialRates(bslma_Default::allocator(basicAllocator)),
+           int secondsToRun, bslma::Allocator *basicAllocator = 0)
+      : d_allocator_p(bslma::Default::allocator(basicAllocator)),
+        d_pool(bslma::Default::allocator(basicAllocator)),
+        d_partialRates(bslma::Default::allocator(basicAllocator)),
         d_numThreads(numThreads),
         d_numBlobsPerIteration(numBlobsPerIteration),
         d_secondsToRun(secondsToRun),
@@ -90,7 +90,7 @@ public:
 template <class POOL>
 void TestRun<POOL>::threadProc(int id)
 {
-   bsls_Stopwatch timer;
+   bsls::Stopwatch timer;
    timer.start();
 
    for (int count = 0; true; ++count) {
@@ -134,26 +134,26 @@ void TestRun<POOL>::run()
 class SlowerBlobPool {
     bcema_PooledBlobBufferFactory d_blobFactory;  // supply blob buffers
     bcec_ObjectPool<bcema_Blob>   d_blobPool;     // supply blobs
-    bslma_Allocator              *d_allocator_p;  // allocator (held)
+    bslma::Allocator             *d_allocator_p;  // allocator (held)
 
     enum {BUFFER_SIZE=65536};
 
     static void createBlob(void* address, bcema_BlobBufferFactory *factory,
-                    bslma_Allocator *allocator) {
+                           bslma::Allocator *allocator) {
         new (address) bcema_Blob(factory, allocator);
     }
 
   public:
 
-    SlowerBlobPool(bslma_Allocator *basicAllocator = 0)
-      : d_blobFactory(BUFFER_SIZE, bslma_Default::allocator(basicAllocator))
+    SlowerBlobPool(bslma::Allocator *basicAllocator = 0)
+      : d_blobFactory(BUFFER_SIZE, bslma::Default::allocator(basicAllocator))
       , d_blobPool(bdef_BindUtil::bind(
                                     &SlowerBlobPool::createBlob,
                                     bdef_PlaceHolders::_1,
                                     &d_blobFactory,
-                                    bslma_Default::allocator(basicAllocator)),
+                                    bslma::Default::allocator(basicAllocator)),
                    -1, basicAllocator)
-      , d_allocator_p(bslma_Default::allocator(basicAllocator))
+      , d_allocator_p(bslma::Default::allocator(basicAllocator))
 
    {}
 
@@ -174,7 +174,7 @@ class SlowBlobPool {
     enum {BUFFER_SIZE=65536};
 
     static void createBlob(void* address, bcema_BlobBufferFactory *factory,
-                    bslma_Allocator *allocator) {
+                           bslma::Allocator *allocator) {
         new (address) bcema_Blob(factory, allocator);
     }
 
@@ -187,7 +187,7 @@ class SlowBlobPool {
 
   public:
 
-    SlowBlobPool(bslma_Allocator *basicAllocator = 0)
+    SlowBlobPool(bslma::Allocator *basicAllocator = 0)
       : d_spAllocator(basicAllocator)
       , d_blobFactory(BUFFER_SIZE, basicAllocator)
       , d_blobPool(bdef_BindUtil::bind(
@@ -220,13 +220,13 @@ class FastBlobPool {
     enum {BUFFER_SIZE=65536};
 
     static void createBlob(void* address, bcema_BlobBufferFactory *factory,
-                    bslma_Allocator *allocator) {
+                    bslma::Allocator *allocator) {
         new (address) bcema_Blob(factory, allocator);
     }
 
   public:
 
-   FastBlobPool(bslma_Allocator *basicAllocator = 0)
+   FastBlobPool(bslma::Allocator *basicAllocator = 0)
       : d_blobFactory(BUFFER_SIZE, basicAllocator)
       , d_blobPool(bdef_BindUtil::bind(
                                     &FastBlobPool::createBlob,
@@ -255,7 +255,7 @@ struct SpLink
 template <class POOL>
 class LinkTestRun
 {
-   bslma_Allocator *d_allocator_p; // held not owned
+   bslma::Allocator *d_allocator_p; // held not owned
    POOL     d_pool;   //held
    vector<double> d_partialRates; //note: count / (time * d_numThread)
    int      d_numThreads;
@@ -270,10 +270,10 @@ class LinkTestRun
 public:
 
    LinkTestRun(int numThreads, int numLinksPerIteration,
-           int secondsToRun, bslma_Allocator *basicAllocator = 0)
-      : d_allocator_p(bslma_Default::allocator(basicAllocator)),
-        d_pool(bslma_Default::allocator(basicAllocator)),
-        d_partialRates(bslma_Default::allocator(basicAllocator)),
+           int secondsToRun, bslma::Allocator *basicAllocator = 0)
+      : d_allocator_p(bslma::Default::allocator(basicAllocator)),
+        d_pool(bslma::Default::allocator(basicAllocator)),
+        d_partialRates(bslma::Default::allocator(basicAllocator)),
         d_numThreads(numThreads),
         d_numLinksPerIteration(numLinksPerIteration),
         d_secondsToRun(secondsToRun),
@@ -298,7 +298,7 @@ public:
 template <class POOL>
 void LinkTestRun<POOL>::threadProc(int id)
 {
-   bsls_Stopwatch timer;
+   bsls::Stopwatch timer;
    timer.start();
 
    for (int count = 0; true; ++count) {
@@ -433,12 +433,12 @@ static bcemt_Mutex assertMutex; // mutex to protect assert macros
 struct ConstructorTestHelp3
 {
    // PUBLIC DATA
-   bslma_Allocator     *d_allocator_p;
+   bslma::Allocator    *d_allocator_p;
    int d_resetCount;
    int d_startCount;
 
    // CREATORS
-   ConstructorTestHelp3(int startCount, bslma_Allocator *basicAllocator=0)
+   ConstructorTestHelp3(int startCount, bslma::Allocator *basicAllocator=0)
       : d_allocator_p(basicAllocator)
       , d_resetCount(0)
       , d_startCount(startCount)
@@ -462,7 +462,7 @@ struct ConstructorTestHelp3Creator
       : d_count(count)
    {}
 
-   void operator()(void* arena, bslma_Allocator* alloc)
+   void operator()(void* arena, bslma::Allocator * alloc)
    {
       new(arena) ConstructorTestHelp3(d_count, alloc);
    }
@@ -476,18 +476,18 @@ void constructor4(int count, void* arena)
 struct ConstructorTestHelp1a
 {
    // PUBLIC DATA
-   bslma_Allocator      *d_allocator_p; //held
+   bslma::Allocator     *d_allocator_p; //held
    int                   d_resetCount;
 
    // CREATORS
-   ConstructorTestHelp1a(bslma_Allocator *basicAllocator=0)
+   ConstructorTestHelp1a(bslma::Allocator *basicAllocator=0)
       : d_allocator_p(basicAllocator)
       , d_resetCount(0)
    {}
 
    // TRAITS
    BSLALG_DECLARE_NESTED_TRAITS(ConstructorTestHelp1a,
-                                bslalg_TypeTraitUsesBslmaAllocator);
+                                bslalg::TypeTraitUsesBslmaAllocator);
 
    // ACCESSORS
    void reset();
@@ -516,7 +516,7 @@ struct ConstructorTestHelp1aCreator
       : d_count(count)
    {}
 
-   void operator()(void* arena, bslma_Allocator* alloc)
+   void operator()(void* arena, bslma::Allocator * alloc)
    {
       new(arena) ConstructorTestHelp1a(alloc);
       ((ConstructorTestHelp1a*)arena)->d_resetCount = d_count;
@@ -531,7 +531,7 @@ struct ConstructorTestHelp1aCreator2
       : d_count(count)
    {}
 
-   void operator()(void* arena, bslma_Allocator*)
+   void operator()(void* arena, bslma::Allocator *)
    {
       new(arena) ConstructorTestHelp1a;
       ((ConstructorTestHelp1a*)arena)->d_resetCount = d_count;
@@ -584,7 +584,7 @@ void executeInParallel(int numThreads, bcemt_ThreadUtil::ThreadFunction func)
 class StringCreator
 {
   public:
-    void operator() (void *mem, bslma_Allocator* allocator) {
+    void operator() (void *mem, bslma::Allocator * allocator) {
         new (mem) bsl::string(allocator);
     }
 };
@@ -605,7 +605,7 @@ class StringReseter
 
 class SlowLinkPool {
    bcema_PoolAllocator     d_spAllocator;  // allocate shared pointer
-   bcec_ObjectPool<SpLink>   d_linkPool;
+   bcec_ObjectPool<SpLink> d_linkPool;
 
    static void createLink(void* address) {
       new (address) SpLink;
@@ -613,11 +613,11 @@ class SlowLinkPool {
 
 public:
 
-   SlowLinkPool(bslma_Allocator *basicAllocator = 0)
-      : d_spAllocator(bslma_Default::allocator(basicAllocator))
+   SlowLinkPool(bslma::Allocator *basicAllocator = 0)
+      : d_spAllocator(bslma::Default::allocator(basicAllocator))
       , d_linkPool(bdef_BindUtil::bind(&createLink,
                                        bdef_PlaceHolders::_1), -1,
-                   bslma_Default::allocator(basicAllocator))
+                   bslma::Default::allocator(basicAllocator))
    {}
 
    void getLink(bcema_SharedPtr<SpLink> *link_sp) {
@@ -639,7 +639,7 @@ class FastLinkPool {
 
   public:
 
-    FastLinkPool(bslma_Allocator *basicAllocator = 0)
+    FastLinkPool(bslma::Allocator *basicAllocator = 0)
       : d_linkPool(-1, basicAllocator)
    {}
 
@@ -678,7 +678,7 @@ int main(int argc, char *argv[])
             cout <<
           "Constructor form test:\n"
           "\tbcec_SharedObjectPool(int                     numObjects = -1,\n"
-          "\t                      bslma_Allocator        *basicAllocator = 0)"
+          "\t                      bslma::Allocator       *basicAllocator = 0)"
                  << endl;
          }
          bcema_TestAllocator ta;
@@ -738,9 +738,9 @@ int main(int argc, char *argv[])
          if (veryVerbose) {
             cout <<
           "Constructor form test:\n"
-          "\tbcec_SharedObjectPool(const CREATOR&         objectCreator,\n"
+          "\tbcec_SharedObjectPool(const CREATOR&          objectCreator,\n"
           "\t                      int                     numObjects = -1,\n"
-          "\t                      bslma_Allocator        *basicAllocator = 0)"
+          "\t                      bslma::Allocator       *basicAllocator = 0)"
                  << endl;
          }
 
@@ -766,7 +766,7 @@ int main(int argc, char *argv[])
           "\tbcec_SharedObjectPool(const CREATOR&          objectCreator,\n"
           "\t                      const RESETTER&         objectResetter,\n"
           "\t                      int                     numObjects = -1,\n"
-          "\t                      bslma_Allocator        *basicAllocator = 0)"
+          "\t                      bslma::Allocator       *basicAllocator = 0)"
                  << endl;
          }
 
@@ -800,7 +800,7 @@ int main(int argc, char *argv[])
  "\t"
  "                    int                                   numObjects = -1,\n"
  "\t"
- "                    bslma_Allocator                      *basicAllocator=0)"
+ "                    bslma::Allocator                     *basicAllocator=0)"
                  << endl;
          }
 
@@ -865,7 +865,7 @@ int main(int argc, char *argv[])
             cout << "Usage example test" << endl;
          }
 
-         bslma_TestAllocator slowAllocator, fastAllocator;
+         bslma::TestAllocator slowAllocator, fastAllocator;
          {
            SlowBlobPool slowPool(&slowAllocator);
            FastBlobPool fastPool(&fastAllocator);
@@ -958,11 +958,11 @@ int main(int argc, char *argv[])
         bcec_SharedObjectPool<bsl::string, StringCreator, StringReseter> Pool;
 
 
-        bslma_TestAllocator ta1(veryVeryVerbose);
-        bslma_TestAllocator ta2(veryVeryVerbose);
+        bslma::TestAllocator ta1(veryVeryVerbose);
+        bslma::TestAllocator ta2(veryVeryVerbose);
 
         {
-            bslma_DefaultAllocatorGuard allocGuard(&ta1);
+            bslma::DefaultAllocatorGuard allocGuard(&ta1);
             Pool pool(StringCreator(),StringReseter(),-1, &ta2);
             pool.reserveCapacity(10);
             ASSERT(ta1.numBytesInUse()==0);

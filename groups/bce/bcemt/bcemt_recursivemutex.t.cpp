@@ -127,7 +127,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == args.d_retvalSet);
             My_CreateDetachedThread(Case1Thread, &args);
 
-            bsls_Stopwatch sleeptime;
+            bsls::Stopwatch sleeptime;
             sleeptime.start();
             for (int i = 0; 0 == args.d_retvalSet && i < MAX_SLEEP_CYCLES;
                  ++i) {

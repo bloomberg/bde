@@ -18,7 +18,7 @@ BDES_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides an allocator,
 // 'bcema_ProtectableSequentialAllocator', that implements the
-// 'bslma_ManagedAllocator' protocol and provides a sequential allocator that
+// 'bdema_ManagedAllocator' protocol and provides a sequential allocator that
 // can apply access protection to the memory it allocates, preventing the
 // memory from being modified.  This component defines a class,
 // 'bcema_ProtectableSequentialAllocator', that allocates memory blocks of any
@@ -47,13 +47,13 @@ BDES_IDENT("$Id: $")
 //                     |                unprotect
 //                     V
 //         ,----------------------.
-//        ( bslma_ManagedAllocator )
+//        ( bdema_ManagedAllocator )
 //         `----------------------'
 //                     |        release
 //                     V
-//            ,----------------.
-//           (  bslma_Allocator )
-//            `----------------'
+//            ,-----------------.
+//           (  bslma::Allocator )
+//            `-----------------'
 //                             allocate
 //                             deallocate
 //..
@@ -72,7 +72,7 @@ BDES_IDENT("$Id: $")
 //..
 //     MAXIMUM ALIGNMENT: This strategy always allocates memory aligned with
 //     the most restrictive alignment on the host platform.  This value is
-//     defined by 'bsls_Alignment::MAX_ALIGNMENT'.
+//     defined by 'bsls::Alignment::MAX_ALIGNMENT'.
 //
 //     NATURAL ALIGNMENT: This strategy allocates memory whose alignment
 //     depends on the requested number of bytes.  An instance of a fundamental
@@ -83,7 +83,7 @@ BDES_IDENT("$Id: $")
 //     always at least as restrictive as the compiler's required alignment.
 //     When only the size of an aggregate is known, and not its composition,
 //     we compute the alignment by finding the largest integral power of 2 (up
-//     to and including 'bsls_Alignment::MAX_ALIGNMENT') that divides the
+//     to and including 'bsls::Alignment::MAX_ALIGNMENT') that divides the
 //     requested (non-zero) number of bytes.  This computed alignment is at
 //     least as restrictive as natural alignment.
 //..
@@ -217,16 +217,16 @@ BDES_IDENT("$Id: $")
 #include <bcemt_thread.h>
 #endif
 
+#ifndef INCLUDED_BDEMA_MANAGEDALLOCATOR
+#include <bdema_managedallocator.h>
+#endif
+
 #ifndef INCLUDED_BDEMA_PROTECTABLEBLOCKLIST
 #include <bdema_protectableblocklist.h>
 #endif
 
 #ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_MANAGEDALLOCATOR
-#include <bslma_managedallocator.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ALIGNMENT
@@ -245,7 +245,7 @@ class bdema_ProtectableBlockDispenser;
                 // class bcema_ProtectableSequentialAllocator
                 // ==========================================
 
-class bcema_ProtectableSequentialAllocator : public bslma_ManagedAllocator {
+class bcema_ProtectableSequentialAllocator : public bdema_ManagedAllocator {
     // This class defines a thread enabled memory allocator that dispenses
     // arbitrarily-sized blocks of memory from an internal buffer.  The memory
     // allocated by this allocator can be *protected* from modification by
@@ -274,7 +274,7 @@ class bcema_ProtectableSequentialAllocator : public bslma_ManagedAllocator {
 
     int                    d_size;        // total amount of allocated memory
 
-    bsls_Alignment::Strategy
+    bsls::Alignment::Strategy
                            d_strategy;    // strategy to use for alignment
 
     bdema_ProtectableBlockList
@@ -303,10 +303,10 @@ class bcema_ProtectableSequentialAllocator : public bslma_ManagedAllocator {
     bcema_ProtectableSequentialAllocator(
                           bdema_ProtectableBlockDispenser *blockDispenser = 0);
     bcema_ProtectableSequentialAllocator(
-                          bsls_Alignment::Strategy         strategy,
+                          bsls::Alignment::Strategy        strategy,
                           bdema_ProtectableBlockDispenser *blockDispenser = 0);
     bcema_ProtectableSequentialAllocator(
-                          bsls_Alignment::Strategy         strategy,
+                          bsls::Alignment::Strategy        strategy,
                           int                              bufferExpansionSize,
                           bdema_ProtectableBlockDispenser *blockDispenser = 0);
         // Create a sequential allocator that dispenses protectable memory

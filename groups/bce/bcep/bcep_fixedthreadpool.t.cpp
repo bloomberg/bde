@@ -1,19 +1,19 @@
 // bcep_fixedthreadpool.t.cpp          -*-C++-*-
 #include <bcep_fixedthreadpool.h>
 #include <bcema_testallocator.h>
-#include <bslma_defaultallocatorguard.h>
-
-#include <bsls_platform.h>
-#include <bsls_platformutil.h>
-#include <bsls_stopwatch.h>
-#include <bsls_int64.h>
 
 #include <bdeimp_fuzzy.h>
 
-#include <bdetu_systemtime.h> // For test only
-#include <bcemt_barrier.h>    // For test only
-#include <bcemt_lockguard.h>  // For test only
-#include <bcemt_thread.h>     // For test only
+#include <bdetu_systemtime.h>
+#include <bcemt_barrier.h>
+#include <bcemt_lockguard.h>
+#include <bcemt_thread.h>
+
+#include <bslma_defaultallocatorguard.h>
+
+#include <bsls_platform.h>
+#include <bsls_stopwatch.h>
+#include <bsls_types.h>
 
 #include <bsl_cstdio.h>             // For FILE in usage example
 #include <bsl_cstdlib.h>            // for atoi
@@ -438,7 +438,7 @@ class ConcurrencyTest {
     // DATA
     bcep_FixedThreadPool   d_pool;
     bcemt_Barrier          d_barrier;
-    bslma_Allocator       *d_allocator_p;
+    bslma::Allocator      *d_allocator_p;
 
     // PRIVATE MANIPULATORS
     void execute();
@@ -447,8 +447,8 @@ class ConcurrencyTest {
   public:
 
     // CREATORS
-    ConcurrencyTest(int              numThreads,
-                    bslma_Allocator *basicAllocator)
+    ConcurrencyTest(int               numThreads,
+                    bslma::Allocator *basicAllocator)
     : d_pool(numThreads, 1000, basicAllocator)
     , d_barrier(numThreads)
     , d_allocator_p(basicAllocator)
@@ -657,7 +657,7 @@ int main(int argc, char *argv[])
     int veryVerbose = argc > 3;
     int veryVeryVerbose = argc > 4;
 
-    bslma_DefaultAllocatorGuard guard(&taDefault);
+    bslma::DefaultAllocatorGuard guard(&taDefault);
     bcema_TestAllocator  testAllocator(veryVeryVerbose);
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
@@ -677,7 +677,7 @@ int main(int argc, char *argv[])
         using namespace BCEP_FIXEDTHREADPOOL_CASE_14;
 
         bcema_TestAllocator defaultAllocator;
-        bslma_DefaultAllocatorGuard guard(&defaultAllocator);
+        bslma::DefaultAllocatorGuard guard(&defaultAllocator);
 
         bcema_TestAllocator testAllocator;
         for (int numThreads = 1; numThreads < 12; ++numThreads) {
@@ -747,7 +747,8 @@ int main(int argc, char *argv[])
                 threadPools[i]->start();
             }
 
-            bsls_Int64::Int64 pauseUntil = numFertileRabbits + NUM_THREADPOOLS;
+            bsls::Types::Int64 pauseUntil =
+                                           numFertileRabbits + NUM_THREADPOOLS;
 
             for (int i = 0; i < NUM_THREADPOOLS; i += 2) {
                 int sts = threadPools[i]->enqueueJob(EnqueueRabbit(true, i));
@@ -784,7 +785,8 @@ int main(int argc, char *argv[])
                 threadPools[i]->start();
             }
 
-            bsls_Int64::Int64 pauseUntil = numFertileRabbits + NUM_THREADPOOLS;
+            bsls::Types::Int64 pauseUntil =
+                                           numFertileRabbits + NUM_THREADPOOLS;
 
             for (int i = 0; i < NUM_THREADPOOLS; i += 2) {
                 int sts = threadPools[i]->tryEnqueueJob(TryEnqueueRabbit(true,
@@ -1696,7 +1698,7 @@ int main(int argc, char *argv[])
             const int ITERATIONS = 1000 * 1000;
             double queueSize(0); // to avoid overflows and casts
 
-            bsls_Stopwatch timer;  timer.start();
+            bsls::Stopwatch timer;  timer.start();
             xP = &localX;
             STARTPOOL(localX);
             const Obj::Job job(bdef_BindUtil::bind(&testJobFunction4,

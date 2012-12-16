@@ -105,7 +105,7 @@ int main(int argc, char *argv[]) {
                           << endl;
         {
             int destructorFlag;
-            my_Obj *object = new (*bslma_Default::defaultAllocator())
+            my_Obj *object = new (*bslma::Default::defaultAllocator())
                                                        my_Obj(&destructorFlag);
             bcema_DefaultDeleter<my_Obj> deleter;
             bcema_Deleter<my_Obj> *base = &deleter;
@@ -115,7 +115,7 @@ int main(int argc, char *argv[]) {
         if (verbose) cout << "\tUsing user-installed allocator" << endl;
         {
             bcema_TestAllocator testAllocator(veryVeryVerbose);
-            bslma_Allocator *allocator = &testAllocator;
+            bslma::Allocator *allocator = &testAllocator;
             int destructorFlag;
             my_Obj *object =
                 new (testAllocator) my_Obj(&destructorFlag);

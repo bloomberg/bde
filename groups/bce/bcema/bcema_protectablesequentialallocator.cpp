@@ -15,7 +15,7 @@ BDES_IDENT_RCSID(bcema_protectablesequentialallocator_cpp,"$Id$ $CSID$")
 #include <bdema_protectableblocklist.h>
 
 #include <bsls_assert.h>
-#include <bsls_platformutil.h>
+#include <bsls_types.h>
 
 #include <bsl_cstdlib.h>      // for 'bsl::abs'
 
@@ -25,8 +25,8 @@ namespace {
 
 // STATIC HELPER FUNCTIONS
 static inline
-bsls_PlatformUtil::size_type roundUp(bsls_PlatformUtil::size_type value,
-                                     bsls_PlatformUtil::size_type multiple)
+bsls::Types::size_type roundUp(bsls::Types::size_type value,
+                               bsls::Types::size_type multiple)
     // Return the specified 'value' rounded up to the next highest multiple of
     // the specified 'multiple'
 {
@@ -114,7 +114,7 @@ bcema_ProtectableSequentialAllocator(
 , d_bufSize(0)
 , d_geometricGrowthLimit(INT_MAX)
 , d_size(0)
-, d_strategy(bsls_Alignment::BSLS_NATURAL)
+, d_strategy(bsls::Alignment::BSLS_NATURAL)
 , d_blockList(
           blockDispenser ? blockDispenser
                          : &bdema_NativeProtectableBlockDispenser::singleton())
@@ -126,7 +126,7 @@ bcema_ProtectableSequentialAllocator(
 
 bcema_ProtectableSequentialAllocator::
 bcema_ProtectableSequentialAllocator(
-                               bsls_Alignment::Strategy         strategy,
+                               bsls::Alignment::Strategy        strategy,
                                bdema_ProtectableBlockDispenser *blockDispenser)
 : d_cursor(0)
 , d_buffer(0)
@@ -145,7 +145,7 @@ bcema_ProtectableSequentialAllocator(
 
 bcema_ProtectableSequentialAllocator::
 bcema_ProtectableSequentialAllocator(
-                          bsls_Alignment::Strategy         strategy,
+                          bsls::Alignment::Strategy        strategy,
                           int                              bufferExpansionSize,
                           bdema_ProtectableBlockDispenser *blockDispenser)
 : d_cursor(0)

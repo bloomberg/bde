@@ -53,7 +53,7 @@ using namespace bsl;  // automatically added by script
 //  'c_D1-N&' for 'const D1&, const D2&, ... , const DN&'
 //
 //-----------------------------------------------------------------------------
-// [ 2] bcefr_Vfunc1<A1>(bslma_Allocator *ba);
+// [ 2] bcefr_Vfunc1<A1>(bslma::Allocator *ba);
 // [ 2] void increment();
 // [ 2] int decrement();
 // [ 2] void execute(c_A1&) const;
@@ -96,7 +96,7 @@ static int dtorUsageCounter = 0;
 template <class A1>
 class ConcreteDerivedClass : public bcefr_Vfunc1 <A1> {
   public:
-    ConcreteDerivedClass(bslma_Allocator *basicAllocator)
+    ConcreteDerivedClass(bslma::Allocator *basicAllocator)
     : bcefr_Vfunc1<A1>(basicAllocator) { }
 
     virtual void execute(const A1& argument1) const
@@ -247,7 +247,7 @@ int main(int argc, char *argv[])
 
             typedef ConcreteDerivedClass<int> DerivedObj;
             typedef bcefr_Vfunc1<int> Obj;
-            bslma_Allocator *myAllocator = bslma_Default::defaultAllocator();
+            bslma::Allocator *myAllocator = bslma::Default::defaultAllocator();
 
             Obj *x = new(*myAllocator) DerivedObj(myAllocator);
             {
@@ -295,7 +295,7 @@ int main(int argc, char *argv[])
             const int NITERATIONS=10000;
             TestThreadArgs args;
 
-            bslma_Allocator *myAllocator = bslma_Default::defaultAllocator();
+            bslma::Allocator *myAllocator = bslma::Default::defaultAllocator();
 
             args.d_obj_p = new(*myAllocator) DerivedObj(myAllocator);
             args.d_barrier_p = new(*myAllocator) bcemt_Barrier(NTHREADS);
@@ -352,7 +352,7 @@ int main(int argc, char *argv[])
         //        incremented.
         //
         // Testing:
-        //   bcefr_Vfunc1<A1>(bslma_Allocator *ba);
+        //   bcefr_Vfunc1<A1>(bslma::Allocator *ba);
         //   void increment();
         //   int decrement();
         //   void execute(c_A1&) const;

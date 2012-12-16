@@ -183,15 +183,15 @@ class MySharedDatetimeRepImpl : public bcema_SharedPtrRep {
     // Implementation of 'bcema_SharedPtrRep' for in-place object.
 
     // DATA
-    bslma_Allocator *d_allocator_p; // memory allocator (held, not owned)
-    bdet_Datetime    d_instance;    // in-place object
+    bslma::Allocator *d_allocator_p; // memory allocator (held, not owned)
+    bdet_Datetime     d_instance;    // in-place object
 
   public:
     // CREATORS
-    MySharedDatetimeRepImpl(bslma_Allocator *basicAllocator,
-                            int              year,
-                            int              month,
-                            int              day);
+    MySharedDatetimeRepImpl(bslma::Allocator *basicAllocator,
+                            int               year,
+                            int               month,
+                            int               day);
         // Create a shared representation of a 'bdet_Datetime' object
         // having the specified 'year', 'month' and 'day' using the
         // specified 'basicAllocator' to allocate memory.
@@ -219,10 +219,10 @@ class MySharedDatetimeRepImpl : public bcema_SharedPtrRep {
                       // -----------------------------
 
 MySharedDatetimeRepImpl::MySharedDatetimeRepImpl(
-                                               bslma_Allocator *basicAllocator,
-                                               int              year,
-                                               int              month,
-                                               int              day)
+                                              bslma::Allocator *basicAllocator,
+                                              int               year,
+                                              int               month,
+                                              int               day)
 : d_allocator_p(basicAllocator)
 , d_instance(year, month, day)
 {
@@ -274,10 +274,10 @@ class MySharedDatetime {
         // object it might be referring to.
 
     // MANIPULATORS
-    void createInplace(bslma_Allocator *basicAllocator,
-                       int              year,
-                       int              month,
-                       int              day);
+    void createInplace(bslma::Allocator *basicAllocator,
+                       int               year,
+                       int               month,
+                       int               day);
         // Create a new 'MySharedDatetimeRepImpl', using the specified
         // 'basicAllocator' to supply memory, using the specified 'year',
         // 'month' and 'day' to initialize the 'bdet_Datetime' within the
@@ -331,12 +331,12 @@ MySharedDatetime::~MySharedDatetime()
     }
 }
 
-void MySharedDatetime::createInplace(bslma_Allocator *basicAllocator,
-                                     int              year,
-                                     int              month,
-                                     int              day)
+void MySharedDatetime::createInplace(bslma::Allocator *basicAllocator,
+                                     int               year,
+                                     int               month,
+                                     int               day)
 {
-    basicAllocator = bslma_Default::allocator(basicAllocator);
+    basicAllocator = bslma::Default::allocator(basicAllocator);
     MySharedDatetimeRepImpl *rep = new (*basicAllocator)
                                         MySharedDatetimeRepImpl(basicAllocator,
                                                                 year,

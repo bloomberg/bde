@@ -33,7 +33,7 @@ void noOp() { }
 // CREATORS
 inline
 bcep_MultiQueueThreadPool_Queue::bcep_MultiQueueThreadPool_Queue(
-        bslma_Allocator *basicAllocator)
+        bslma::Allocator *basicAllocator)
 : d_list(basicAllocator)
 , d_state(bcep_MultiQueueThreadPool_Queue::BCEP_ENQUEUEING_ENABLED)
 {
@@ -146,7 +146,7 @@ void bcep_MultiQueueThreadPool_Queue::numProcessed(int *numDequeued,
 inline
 bcep_MultiQueueThreadPool_QueueContext::
     bcep_MultiQueueThreadPool_QueueContext(
-        bslma_Allocator *basicAllocator)
+        bslma::Allocator *basicAllocator)
 : d_queue(basicAllocator)
 , d_processingCb(basicAllocator)
 , d_destroyFlag(false)
@@ -312,8 +312,8 @@ bcep_MultiQueueThreadPool::bcep_MultiQueueThreadPool(
         int                    minThreads,
         int                    maxThreads,
         int                    maxIdleTime,
-        bslma_Allocator       *basicAllocator)
-: d_allocator_p(bslma_Default::allocator(basicAllocator))
+        bslma::Allocator      *basicAllocator)
+: d_allocator_p(bslma::Default::allocator(basicAllocator))
 , d_threadPoolIsOwned(true)
 , d_queuePool(-1, basicAllocator)
 , d_queueRegistry(basicAllocator)
@@ -325,9 +325,9 @@ bcep_MultiQueueThreadPool::bcep_MultiQueueThreadPool(
 }
 
 bcep_MultiQueueThreadPool::bcep_MultiQueueThreadPool(
-        bcep_ThreadPool *threadPool,
-        bslma_Allocator *basicAllocator)
-: d_allocator_p(bslma_Default::allocator(basicAllocator))
+        bcep_ThreadPool  *threadPool,
+        bslma::Allocator *basicAllocator)
+: d_allocator_p(bslma::Default::allocator(basicAllocator))
 , d_threadPool_p(threadPool)
 , d_threadPoolIsOwned(false)
 , d_queuePool(-1, basicAllocator)

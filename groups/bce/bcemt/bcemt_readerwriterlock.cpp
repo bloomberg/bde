@@ -21,6 +21,8 @@ BDES_IDENT_RCSID(bcemt_readerwriterlock_cpp,"$Id$ $CSID$")
 #include <bcemt_barrier.h>    // for testing only
 #include <bces_atomictypes.h> // for testing only
 
+#include <bsls_types.h>
+
 #include <bsl_map.h>          // for testing only
 
 namespace BloombergLP {
@@ -43,8 +45,8 @@ const long long bcemt_ReaderWriterLock::READ_BCAST_INC;
 void bcemt_ReaderWriterLock::lockRead()
 {
     int wait;
-    bsls_PlatformUtil::Int64 rwcount;
-    bsls_PlatformUtil::Int64 newrwcount=bces_AtomicUtil::getInt64(d_rwCount);
+    bsls::Types::Int64 rwcount;
+    bsls::Types::Int64 newrwcount=bces_AtomicUtil::getInt64(d_rwCount);
 
     do {
         rwcount = newrwcount;
@@ -75,8 +77,8 @@ void bcemt_ReaderWriterLock::lockRead()
 void bcemt_ReaderWriterLock::lockReadReserveWrite()
 {
     int wait;
-    bsls_PlatformUtil::Int64 rwcount;
-    bsls_PlatformUtil::Int64 newrwcount=bces_AtomicUtil::getInt64(d_rwCount);
+    bsls::Types::Int64 rwcount;
+    bsls::Types::Int64 newrwcount=bces_AtomicUtil::getInt64(d_rwCount);
 
     do {
         rwcount = newrwcount;
@@ -129,8 +131,8 @@ void bcemt_ReaderWriterLock::lockReadReserveWrite()
 
 void bcemt_ReaderWriterLock::lockWrite()
 {
-    bsls_PlatformUtil::Int64 rwcount;
-    bsls_PlatformUtil::Int64 newrwcount=bces_AtomicUtil::getInt64(d_rwCount);
+    bsls::Types::Int64 rwcount;
+    bsls::Types::Int64 newrwcount=bces_AtomicUtil::getInt64(d_rwCount);
     int wait;
 
     do {
@@ -159,8 +161,8 @@ void bcemt_ReaderWriterLock::lockWrite()
 
 int bcemt_ReaderWriterLock::tryLockRead()
 {
-    bsls_PlatformUtil::Int64 rwcount;
-    bsls_PlatformUtil::Int64 newrwcount=bces_AtomicUtil::getInt64(d_rwCount);
+    bsls::Types::Int64 rwcount;
+    bsls::Types::Int64 newrwcount=bces_AtomicUtil::getInt64(d_rwCount);
     do {
         rwcount = newrwcount;
 
@@ -177,8 +179,8 @@ int bcemt_ReaderWriterLock::tryLockRead()
 
 int bcemt_ReaderWriterLock::tryLockWrite()
 {
-    bsls_PlatformUtil::Int64 rwcount;
-    bsls_PlatformUtil::Int64 newrwcount;
+    bsls::Types::Int64 rwcount;
+    bsls::Types::Int64 newrwcount;
     newrwcount = bces_AtomicUtil::getInt64(d_rwCount);
     do {
         rwcount = newrwcount;
@@ -200,8 +202,8 @@ int bcemt_ReaderWriterLock::upgradeToWriteLock()
 {
     int atomic;
     int wait;
-    bsls_PlatformUtil::Int64 rwcount;
-    bsls_PlatformUtil::Int64 newrwcount=bces_AtomicUtil::getInt64(d_rwCount);
+    bsls::Types::Int64 rwcount;
+    bsls::Types::Int64 newrwcount=bces_AtomicUtil::getInt64(d_rwCount);
     bcemt_ThreadUtil::Id me = bcemt_ThreadUtil::selfId();
     bool mine = d_owned && bcemt_ThreadUtil::isEqualId(d_owner, me);
 
@@ -290,8 +292,8 @@ int bcemt_ReaderWriterLock::upgradeToWriteLock()
 int bcemt_ReaderWriterLock::tryUpgradeToWriteLock()
 {
     int wait;
-    bsls_PlatformUtil::Int64 rwcount;
-    bsls_PlatformUtil::Int64 newrwcount=bces_AtomicUtil::getInt64(d_rwCount);
+    bsls::Types::Int64 rwcount;
+    bsls::Types::Int64 newrwcount=bces_AtomicUtil::getInt64(d_rwCount);
     bcemt_ThreadUtil::Id me = bcemt_ThreadUtil::selfId();
     bool mine = d_owned && bcemt_ThreadUtil::isEqualId(d_owner, me);
 
@@ -353,8 +355,8 @@ void bcemt_ReaderWriterLock::unlock()
 {
     enum {SIG_NONE = 0, SIG_READ = 1, SIG_WRITE=2, SIG_UPGRADE=3 };
 
-    bsls_PlatformUtil::Int64 rwcount;
-    bsls_PlatformUtil::Int64 newrwcount=bces_AtomicUtil::getInt64(d_rwCount);
+    bsls::Types::Int64 rwcount;
+    bsls::Types::Int64 newrwcount=bces_AtomicUtil::getInt64(d_rwCount);
     bool mine = d_owned && bcemt_ThreadUtil::isEqualId(d_owner,
                                                    bcemt_ThreadUtil::selfId());
     int sigType;
