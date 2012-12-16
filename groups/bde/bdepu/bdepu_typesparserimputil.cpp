@@ -17,9 +17,9 @@ BDES_IDENT_RCSID(bdepu_typesparserimputil_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
-typedef bdepu_ParserImpUtil       ImpUtil;
-typedef bsls_PlatformUtil::Int64  Int64;
-typedef bsls_PlatformUtil::Uint64 Uint64;
+typedef bdepu_ParserImpUtil ImpUtil;
+typedef bsls::Types::Int64  Int64;
+typedef bsls::Types::Uint64 Uint64;
 
 // WARNING: 'bdepu_TypesParserImpUtil' methods depend on the numeric values
 // of the enum elements.
@@ -96,11 +96,11 @@ static char DIGITS[37] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 // STATIC HELPER FUNCTIONS
 static
-int parseRealAsDecimal(const char                **endPos,
-                       int                        *decSign,
-                       bsls_PlatformUtil::Uint64  *decFrac,
-                       int                        *decExp,
-                       const char                 *inputString)
+int parseRealAsDecimal(const char          **endPos,
+                       int                  *decSign,
+                       bsls::Types::Uint64  *decFrac,
+                       int                  *decExp,
+                       const char           *inputString)
     // Parse the specified 'inputString' for a sequence of characters matching
     // the production rule <DOUBLE> and place into the specified 'decSign',
     // 'decFrac', and 'decExp' the corresponding value.  Store in the specified
@@ -787,11 +787,10 @@ int bdepu_TypesParserImpUtil::parseInt(const char **endPos,
     return rv;
 }
 
-int bdepu_TypesParserImpUtil::parseInt64(
-                                        const char               **endPos,
-                                        bsls_PlatformUtil::Int64  *result,
-                                        const char                *inputString,
-                                        int                        base)
+int bdepu_TypesParserImpUtil::parseInt64(const char         **endPos,
+                                         bsls::Types::Int64  *result,
+                                         const char          *inputString,
+                                         int                  base)
 {
     BSLS_ASSERT(endPos);
     BSLS_ASSERT(result);
@@ -1202,9 +1201,9 @@ int bdepu_TypesParserImpUtil::generateFloat(char  *buffer,
     return copyBuf(buffer, length, tempBuf, strLen);
 }
 
-int bdepu_TypesParserImpUtil::generateInt64(char                     *buffer,
-                                            bsls_PlatformUtil::Int64  value,
-                                            int                       length)
+int bdepu_TypesParserImpUtil::generateInt64(char               *buffer,
+                                            bsls::Types::Int64  value,
+                                            int                 length)
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 <= length);
@@ -1216,10 +1215,10 @@ int bdepu_TypesParserImpUtil::generateInt64(char                     *buffer,
     return copyBuf(buffer, length, strBegin, strLen);
 }
 
-int bdepu_TypesParserImpUtil::generateInt64(char                     *buffer,
-                                            bsls_PlatformUtil::Int64  value,
-                                            int                       length,
-                                            int                       base)
+int bdepu_TypesParserImpUtil::generateInt64(char               *buffer,
+                                            bsls::Types::Int64  value,
+                                            int                 length,
+                                            int                 base)
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 <= length);
@@ -1300,9 +1299,8 @@ int bdepu_TypesParserImpUtil::generateFloatRaw(char *buffer, float value)
     return bsl::sprintf(buffer, "%.6g", (double)value);
 }
 
-int bdepu_TypesParserImpUtil::generateInt64Raw(
-                                              char                     *buffer,
-                                              bsls_PlatformUtil::Int64  value)
+int bdepu_TypesParserImpUtil::generateInt64Raw(char               *buffer,
+                                               bsls::Types::Int64  value)
 {
     BSLS_ASSERT(buffer);
 
@@ -1313,10 +1311,9 @@ int bdepu_TypesParserImpUtil::generateInt64Raw(
     return copyBufRaw(buffer, strBegin, strLen);
 }
 
-int bdepu_TypesParserImpUtil::generateInt64Raw(
-                                              char                     *buffer,
-                                              bsls_PlatformUtil::Int64  value,
-                                              int                       base)
+int bdepu_TypesParserImpUtil::generateInt64Raw(char               *buffer,
+                                               bsls::Types::Int64  value,
+                                               int                 base)
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(2 <= base);
@@ -1623,9 +1620,9 @@ void bdepu_TypesParserImpUtil::generateFloat(bsl::vector<char> *buffer,
     }
 }
 
-void bdepu_TypesParserImpUtil::generateInt64(bsl::vector<char>        *buffer,
-                                             bsls_PlatformUtil::Int64  value,
-                                             int                       base)
+void bdepu_TypesParserImpUtil::generateInt64(bsl::vector<char>  *buffer,
+                                             bsls::Types::Int64  value,
+                                             int                 base)
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(2 <= base);

@@ -10277,7 +10277,7 @@ int runPlainTextPerformanceTest(void)
 
     const int       iterLimit    = 1000;
 
-    bsls_Stopwatch s;
+    bsls::Stopwatch s;
 
     s.start();
 

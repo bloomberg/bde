@@ -86,21 +86,21 @@ BDES_IDENT("$Id: $")
 //  const bdem_Descriptor CHAR_DESC = {
 //      CHAR,
 //      sizeof(char),
-//      bsls_AlignmentOf<char>::VALUE,
+//      bsls::AlignmentOf<char>::VALUE,
 //      0,0,0,0,0,0,0,0,0
 //  };
 //
 //  const bdem_Descriptor SHORT_DESC = {
 //      SHORT,
 //      sizeof(short),
-//      bsls_AlignmentOf<short>::VALUE,
+//      bsls::AlignmentOf<short>::VALUE,
 //      0,0,0,0,0,0,0,0,0
 //  };
 //
 //  const bdem_Descriptor INT_DESC = {
 //      INT,
 //      sizeof(int),
-//      bsls_AlignmentOf<int>::VALUE,
+//      bsls::AlignmentOf<int>::VALUE,
 //      0,0,0,0,0,0,0,0,0
 //  };
 //..
@@ -219,6 +219,10 @@ BDES_IDENT("$Id: $")
 #include <bslalg_typetraits.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 #endif
@@ -237,10 +241,6 @@ BDES_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
-#endif
-
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
 #endif
 
 namespace BloombergLP {
@@ -276,7 +276,7 @@ class bdem_RowLayoutEntry {
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(bdem_RowLayoutEntry,
-                                 bslalg_TypeTraitBitwiseCopyable);
+                                 bslalg::TypeTraitBitwiseCopyable);
 
   private:
     // PRIVATE MANIPULATORS
@@ -360,10 +360,10 @@ class bdem_RowLayout {
 
     // CREATORS
     explicit
-    bdem_RowLayout(bslma_Allocator        *basicAllocator = 0);
+    bdem_RowLayout(bslma::Allocator       *basicAllocator = 0);
     explicit
     bdem_RowLayout(const InitialCapacity&  numElements,
-                   bslma_Allocator        *basicAllocator = 0);
+                   bslma::Allocator       *basicAllocator = 0);
         // Create an empty row layout.  Optionally specify 'numElements' of
         // initial capacity, to create a row layout with sufficient initial
         // capacity to accommodate up to the specified 'numElements' values
@@ -375,7 +375,7 @@ class bdem_RowLayout {
     bdem_RowLayout(const bdem_ElemType::Type     elementTypes[],
                    int                           numElements,
                    const bdem_Descriptor *const  attributesTable[],
-                   bslma_Allocator              *basicAllocator = 0);
+                   bslma::Allocator             *basicAllocator = 0);
         // Create a row layout having the specified 'numElements' of the
         // specified 'elementTypes' using the specified 'attributesTable' to
         // associate the appropriate descriptor for a type.  The offset of each
@@ -388,7 +388,7 @@ class bdem_RowLayout {
     bdem_RowLayout(const bdem_RowLayout&  srcRowLayout,
                    int                    srcIndex,
                    int                    numElements,
-                   bslma_Allocator       *basicAllocator = 0);
+                   bslma::Allocator      *basicAllocator = 0);
         // Create a row layout with each element's values initialized to the
         // specified 'numElements' values of the specified 'srcRowLayout',
         // starting with the entry at the specified 'srcIndex'.  Optionally
@@ -399,7 +399,7 @@ class bdem_RowLayout {
         // 'srcIndex + numElements <= srcRowLayout.length()'.
 
     bdem_RowLayout(const bdem_RowLayout&  original,
-                   bslma_Allocator       *basicAllocator = 0);
+                   bslma::Allocator      *basicAllocator = 0);
         // Create a row layout with each element's type and offset values
         // initialized to the values of the specified 'original' row layout.
         // Optionally specify a 'basicAllocator' used to supply memory.  If
@@ -811,7 +811,7 @@ int bdem_RowLayoutEntry::offset() const
 
 // CREATORS
 inline
-bdem_RowLayout::bdem_RowLayout(bslma_Allocator *basicAllocator)
+bdem_RowLayout::bdem_RowLayout(bslma::Allocator *basicAllocator)
 : d_entries(basicAllocator)
 , d_totalOffset(0)
 {
@@ -819,7 +819,7 @@ bdem_RowLayout::bdem_RowLayout(bslma_Allocator *basicAllocator)
 
 inline
 bdem_RowLayout::bdem_RowLayout(const bdem_RowLayout&  original,
-                               bslma_Allocator       *basicAllocator)
+                               bslma::Allocator      *basicAllocator)
 : d_entries(original.d_entries, basicAllocator)
 , d_totalOffset(original.d_totalOffset)
 {

@@ -129,16 +129,250 @@ BDES_IDENT("$Id: $")
 #endif
 
 
-// Check using legacy macros only if 'BDE_OMIT_INTERNAL_DEPRECATED' is not 
+// Check using legacy macros only if 'BDE_OMIT_INTERNAL_DEPRECATED' is not
 // defined.
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
-    // No symbols or macros are defined here (see 'bsls_platform' component).
-    // No aliases or macros for the 'bdes_Platform' types or 'BDES_PLATFORM_*'
-    // macros are defined here, instead they are defined in 'bsls_platform' so
-    // that clients that rely on these via transitive includes may still have
-    // those aliases or macros defined.
+#ifdef BSLS_PLATFORM_OS_UNIX
+#ifndef BDES_PLATFORM_OS_UNIX
+#define BDES_PLATFORM_OS_UNIX        BSLS_PLATFORM_OS_UNIX
+#endif
+#endif
+
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+#ifndef BDES_PLATFORM_OS_WINDOWS
+#define BDES_PLATFORM_OS_WINDOWS     BSLS_PLATFORM_OS_WINDOWS
+#endif
+#endif
+
+#ifdef BSLS_PLATFORM_OS_VER_MAJOR
+#ifndef BDES_PLATFORM_OS_VER_MAJOR
+#define BDES_PLATFORM_OS_VER_MAJOR   BSLS_PLATFORM_OS_VER_MAJOR
+#endif
+#endif
+
+#ifdef BSLS_PLATFORM_OS_VER_MINOR
+#ifndef BDES_PLATFORM_OS_VER_MINOR
+#define BDES_PLATFORM_OS_VER_MINOR   BSLS_PLATFORM_OS_VER_MINOR
+#endif
+#endif
+
+#ifdef BSLS_PLATFORM_OS_AIX
+#ifndef BDES_PLATFORM_OS_AIX
+#define BDES_PLATFORM_OS_AIX         BSLS_PLATFORM_OS_AIX
+#endif
+#endif
+
+#ifdef BSLS_PLATFORM_OS_CYGWIN
+#ifndef BDES_PLATFORM_OS_CYGWIN
+#define BDES_PLATFORM_OS_CYGWIN      BSLS_PLATFORM_OS_CYGWIN
+#endif
+#endif
+
+#ifdef BSLS_PLATFORM_OS_HPUX
+#ifndef BDES_PLATFORM_OS_HPUX
+#define BDES_PLATFORM_OS_HPUX        BSLS_PLATFORM_OS_HPUX
+#endif
+#endif
+
+#ifdef BSLS_PLATFORM_OS_LINUX
+#ifndef BDES_PLATFORM_OS_LINUX
+#define BDES_PLATFORM_OS_LINUX       BSLS_PLATFORM_OS_LINUX
+#endif
+#endif
+
+#ifdef BSLS_PLATFORM_OS_DARWIN
+#ifndef BDES_PLATFORM_OS_DARWIN
+#define BDES_PLATFORM_OS_DARWIN      BSLS_PLATFORM_OS_DARWIN
+#endif
+#endif
+
+#ifdef BSLS_PLATFORM_OS_FREEBSD
+#ifndef BDES_PLATFORM_OS_FREEBSD
+#define BDES_PLATFORM_OS_FREEBSD     BSLS_PLATFORM_OS_FREEBSD
+#endif
+#endif
+
+#ifdef BSLS_PLATFORM_OS_SOLARIS
+#ifndef BDES_PLATFORM_OS_SOLARIS
+#define BDES_PLATFORM_OS_SOLARIS     BSLS_PLATFORM_OS_SOLARIS
+#endif
+#endif
+
+#ifdef BSLS_PLATFORM_OS_SUNOS
+#ifndef BDES_PLATFORM_OS_SUNOS
+#define BDES_PLATFORM_OS_SUNOS       BSLS_PLATFORM_OS_SUNOS
+#endif
+#endif
+
+#ifdef BSLS_PLATFORM_OS_WIN2K
+#ifndef BDES_PLATFORM_OS_WIN2K
+#define BDES_PLATFORM_OS_WIN2K       BSLS_PLATFORM_OS_WIN2K
+#endif
+#endif
+
+#ifdef BSLS_PLATFORM_OS_WIN9X
+#ifndef BDES_PLATFORM_OS_WIN9X
+#define BDES_PLATFORM_OS_WIN9X       BSLS_PLATFORM_OS_WIN9X
+#endif
+#endif
+
+#ifdef BSLS_PLATFORM_OS_WINNT
+#ifndef BDES_PLATFORM_OS_WINNT
+#define BDES_PLATFORM_OS_WINNT       BSLS_PLATFORM_OS_WINNT
+#endif
+#endif
+
+#ifdef BSLS_PLATFORM_OS_WINXP
+#ifndef BDES_PLATFORM_OS_WINXP
+#define BDES_PLATFORM_OS_WINXP       BSLS_PLATFORM_OS_WINXP
+#endif
+#endif
+
+#ifdef BSLS_PLATFORM_CMP_VER_MAJOR
+#ifndef BDES_PLATFORM_CMP_VER_MAJOR
+#define BDES_PLATFORM_CMP_VER_MAJOR  BSLS_PLATFORM_CMP_VERSION
+#endif
+#endif
+
+#ifdef BSLS_PLATFORM_CMP_IBM
+#ifndef BDES_PLATFORM_CMP_AIX
+#define BDES_PLATFORM_CMP_AIX        BSLS_PLATFORM_CMP_IBM
+#endif
+#endif
+
+#ifdef BSLS_PLATFORM_CMP_EDG
+#ifndef BDES_PLATFORM_CMP_EDG
+#define BDES_PLATFORM_CMP_EDG        BSLS_PLATFORM_CMP_EDG
+#endif
+#endif
+
+#ifdef BSLS_PLATFORM_CMP_GNU
+#ifndef BDES_PLATFORM_CMP_GNU
+#define BDES_PLATFORM_CMP_GNU        BSLS_PLATFORM_CMP_GNU
+#endif
+#endif
+
+#ifdef BSLS_PLATFORM_CMP_HP
+#ifndef BDES_PLATFORM_CMP_HP
+#define BDES_PLATFORM_CMP_HP         BSLS_PLATFORM_CMP_HP
+#endif
+#endif
+
+#ifdef BSLS_PLATFORM_CMP_MSVC
+#ifndef BDES_PLATFORM_CMP_MSVC
+#define BDES_PLATFORM_CMP_MSVC       BSLS_PLATFORM_CMP_MSVC
+#endif
+#endif
+
+#ifdef BSLS_PLATFORM_CMP_SUN
+#ifndef BDES_PLATFORM_CMP_SUN
+#define BDES_PLATFORM_CMP_SUN        BSLS_PLATFORM_CMP_SUN
+#endif
+#endif
+
+#ifdef BSLS_PLATFORM_CPU_VER_MAJOR
+#ifndef BDES_PLATFORM_CPU_VER_MAJOR
+#define BDES_PLATFORM_CPU_VER_MAJOR  BSLS_PLATFORM_CPU_VER_MAJOR
+#endif
+#endif
+
+#ifdef BSLS_PLATFORM_CPU_VER_MINOR
+#ifndef BDES_PLATFORM_CPU_VER_MINOR
+#define BDES_PLATFORM_CPU_VER_MINOR  BSLS_PLATFORM_CPU_VER_MINOR
+#endif
+#endif
+
+#ifdef BSLS_PLATFORM_CPU_64_BIT
+#ifndef BDES_PLATFORM_CPU_64_BIT
+#define BDES_PLATFORM_CPU_64_BIT     BSLS_PLATFORM_CPU_64_BIT
+#endif
+#endif
+
+#ifdef BSLS_PLATFORM_CPU_32_BIT
+#ifndef BDES_PLATFORM_CPU_32_BIT
+#define BDES_PLATFORM_CPU_32_BIT     BSLS_PLATFORM_CPU_32_BIT
+#endif
+#endif
+
+#ifdef BSLS_PLATFORM_CPU_88000
+#ifndef BDES_PLATFORM_CPU_88000
+#define BDES_PLATFORM_CPU_88000      BSLS_PLATFORM_CPU_88000
+#endif
+#endif
+
+#ifdef BSLS_PLATFORM_CPU_ALPHA
+#ifndef BDES_PLATFORM_CPU_ALPHA
+#define BDES_PLATFORM_CPU_ALPHA      BSLS_PLATFORM_CPU_ALPHA
+#endif
+#endif
+
+#ifdef BSLS_PLATFORM_CPU_HPPA
+#ifndef BDES_PLATFORM_CPU_HPPA
+#define BDES_PLATFORM_CPU_HPPA       BSLS_PLATFORM_CPU_HPPA
+#endif
+#endif
+
+#ifdef BSLS_PLATFORM_CPU_IA64
+#ifndef BDES_PLATFORM_CPU_IA64
+#define BDES_PLATFORM_CPU_IA64       BSLS_PLATFORM_CPU_IA64
+#endif
+#endif
+
+#ifdef BSLS_PLATFORM_CPU_INTEL
+#ifndef BDES_PLATFORM_CPU_INTEL
+#define BDES_PLATFORM_CPU_INTEL      BSLS_PLATFORM_CPU_INTEL
+#endif
+#endif
+
+#ifdef BSLS_PLATFORM_CPU_MIPS
+#ifndef BDES_PLATFORM_CPU_MIPS
+#define BDES_PLATFORM_CPU_MIPS       BSLS_PLATFORM_CPU_MIPS
+#endif
+#endif
+
+#ifdef BSLS_PLATFORM_CPU_POWERPC
+#ifndef BDES_PLATFORM_CPU_POWERPC
+#define BDES_PLATFORM_CPU_POWERPC    BSLS_PLATFORM_CPU_POWERPC
+#endif
+#endif
+
+#ifdef BSLS_PLATFORM_CPU_SPARC
+#ifndef BDES_PLATFORM_CPU_SPARC
+#define BDES_PLATFORM_CPU_SPARC      BSLS_PLATFORM_CPU_SPARC
+#endif
+#endif
+
+#ifdef BSLS_PLATFORM_CPU_SPARC_32
+#ifndef BDES_PLATFORM_CPU_SPARC_32
+#define BDES_PLATFORM_CPU_SPARC_32   BSLS_PLATFORM_CPU_SPARC_32
+#endif
+#endif
+
+#ifdef BSLS_PLATFORM_CPU_SPARC_V9
+#ifndef BDES_PLATFORM_CPU_SPARC_V9
+#define BDES_PLATFORM_CPU_SPARC_V9   BSLS_PLATFORM_CPU_SPARC_V9
+#endif
+#endif
+
+#ifdef BSLS_PLATFORM_CPU_X86
+#ifndef BDES_PLATFORM_CPU_X86
+#define BDES_PLATFORM_CPU_X86        BSLS_PLATFORM_CPU_X86
+#endif
+#endif
+
+#ifdef BSLS_PLATFORM_CPU_X86_64
+#ifndef BDES_PLATFORM_CPU_X86_64
+#define BDES_PLATFORM_CPU_X86_64     BSLS_PLATFORM_CPU_X86_64
+#endif
+#endif
+
+#ifdef __cplusplus
+#ifndef bdes_Platform
+#define bdes_Platform bsls::Platform
+#endif
+#endif  // __cplusplus
 
                                  // ==========
                                  // Validation

@@ -170,12 +170,12 @@ struct bdec2_Map_Node {
     // Due to compiler issues (e.g., with IBM AIX and xlC), it is not.  Do not
     // use this class outside of this component.
 
-    bslalg_ConstructorProxy<KEY>    d_keyStorage;
-    bslalg_ConstructorProxy<VALUE>  d_valueStorage;
+    bslalg::ConstructorProxy<KEY>   d_keyStorage;
+    bslalg::ConstructorProxy<VALUE> d_valueStorage;
 
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(bdec2_Map_Node,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
   private:
     // NOT IMPLEMENTED
@@ -183,16 +183,16 @@ struct bdec2_Map_Node {
 
   public:
     // CREATORS
-    bdec2_Map_Node(const KEY&       key,
-                   const VALUE&     value,
-                   bslma_Allocator *allocator)
+    bdec2_Map_Node(const KEY&        key,
+                   const VALUE&      value,
+                   bslma::Allocator *allocator)
     : d_keyStorage(key,     allocator)
     , d_valueStorage(value, allocator)
     {
     }
 
     bdec2_Map_Node(const bdec2_Map_Node<KEY, VALUE>&  original,
-                   bslma_Allocator                   *allocator)
+                   bslma::Allocator                  *allocator)
     : d_keyStorage(original.key(),     allocator)
     , d_valueStorage(original.value(), allocator)
     {
@@ -274,7 +274,7 @@ class bdec2_Map {
     // DATA
     bdeci_Hashtable<bdec2_Map_Node<KEY, VALUE>,
                     bdec2_Map_Node_Hash<KEY, VALUE, HASH> > d_hashtable;
-    bslma_Allocator                *d_allocator_p; // holds memory allocator
+    bslma::Allocator                *d_allocator_p; // holds memory allocator
 
     // FRIENDS
     friend class bdec2_MapIter<KEY, VALUE, HASH>;
@@ -282,7 +282,7 @@ class bdec2_Map {
 
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(bdec2_Map,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
   private:
     // PRIVATE ACCESSORS
@@ -325,13 +325,13 @@ class bdec2_Map {
         // DEPRECATED: replaced by 'maxSupportedBdexVersion()'
 
     // CREATORS
-    explicit bdec2_Map(bslma_Allocator *basicAllocator = 0);
+    explicit bdec2_Map(bslma::Allocator *basicAllocator = 0);
         // Create an empty map.  Optionally specify a 'basicAllocator' used to
         // supply memory.  If 'basicAllocator' is 0, the  currently installed
         // default allocator is used.
 
     explicit bdec2_Map(const InitialCapacity&  numElements,
-                       bslma_Allocator        *basicAllocator = 0);
+                       bslma::Allocator       *basicAllocator = 0);
         // Create an empty map with sufficient initial capacity to accommodate
         // up to the specified 'numElements' values without subsequent
         // reallocation.  Optionally specify a 'basicAllocator' used to
@@ -339,10 +339,10 @@ class bdec2_Map {
         // default allocator is used.  The behavior is undefined unless
         // '0 <= numElements'.
 
-    bdec2_Map(const KEY       *keys,
-              const VALUE     *values,
-              int              numElements,
-              bslma_Allocator *basicAllocator = 0);
+    bdec2_Map(const KEY        *keys,
+              const VALUE      *values,
+              int               numElements,
+              bslma::Allocator *basicAllocator = 0);
         // Create a map initialized to having the specified 'numElements'
         // associations from respective elements of the specified 'keys' array
         // and the specified 'values' array.  Optionally specify a
@@ -352,7 +352,7 @@ class bdec2_Map {
         // unless '0 <= numElements'.
 
     bdec2_Map(const bdec2_Map<KEY, VALUE, HASH>&  original,
-              bslma_Allocator                    *basicAllocator = 0);
+              bslma::Allocator                   *basicAllocator = 0);
         // Create a map initialized to the value of the specified 'original'
         // map.  Optionally specify a 'basicAllocator' used to supply memory.
         // If 'basicAllocator' is 0, the currently installed default allocator
@@ -697,33 +697,33 @@ int bdec2_Map<KEY, VALUE, HASH>::maxSupportedVersion()
 
 // CREATORS
 template <class KEY, class VALUE, class HASH>
-bdec2_Map<KEY, VALUE, HASH>::bdec2_Map(bslma_Allocator *basicAllocator)
+bdec2_Map<KEY, VALUE, HASH>::bdec2_Map(bslma::Allocator *basicAllocator)
 : d_hashtable(basicAllocator)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
 
 template <class KEY, class VALUE, class HASH>
 bdec2_Map<KEY, VALUE, HASH>::bdec2_Map(const InitialCapacity&  numElements,
-                                       bslma_Allocator        *basicAllocator)
+                                       bslma::Allocator       *basicAllocator)
 : d_hashtable((typename bdeci_Hashtable<bdec2_Map_Node<KEY, VALUE>,
                               bdec2_Map_Node_Hash<KEY, VALUE, HASH> >::
                                             InitialCapacity)(numElements.d_i),
               basicAllocator)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
 
 template <class KEY, class VALUE, class HASH>
-bdec2_Map<KEY, VALUE, HASH>::bdec2_Map(const KEY       *keys,
-                                       const VALUE     *values,
-                                       int              numElements,
-                                       bslma_Allocator *basicAllocator)
+bdec2_Map<KEY, VALUE, HASH>::bdec2_Map(const KEY        *keys,
+                                       const VALUE      *values,
+                                       int               numElements,
+                                       bslma::Allocator *basicAllocator)
 : d_hashtable((typename bdeci_Hashtable<bdec2_Map_Node<KEY, VALUE>,
                               bdec2_Map_Node_Hash<KEY, VALUE, HASH> >::
                                                  InitialCapacity)(numElements),
               basicAllocator)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     for (int i = 0; i < numElements; ++i) {
         add(keys[i], values[i]);
@@ -733,12 +733,12 @@ bdec2_Map<KEY, VALUE, HASH>::bdec2_Map(const KEY       *keys,
 template <class KEY, class VALUE, class HASH>
 bdec2_Map<KEY, VALUE, HASH>::
                   bdec2_Map(const bdec2_Map<KEY, VALUE, HASH>&  original,
-                            bslma_Allocator                    *basicAllocator)
+                            bslma::Allocator                   *basicAllocator)
 : d_hashtable((typename bdeci_Hashtable<bdec2_Map_Node<KEY, VALUE>,
                               bdec2_Map_Node_Hash<KEY, VALUE, HASH> >::
                           InitialCapacity)(original.d_hashtable.numElements()),
               basicAllocator)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     d_hashtable = original.d_hashtable;
 }

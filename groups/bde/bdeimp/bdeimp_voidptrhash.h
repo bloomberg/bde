@@ -44,8 +44,8 @@ BDES_IDENT("$Id: $")
 #include <bdeimp_int64hash.h>
 #endif
 
-#ifndef INCLUDED_BSLS_PLATFORMUTIL
-#include <bsls_platformutil.h>
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
 #endif
 
 namespace BloombergLP {
@@ -85,8 +85,8 @@ int bdeimp_VoidPtrHash::hash(const void *value, int modulus)
         return bdeimp_IntHash::hash(*v, modulus);
     }
     else {
-        const bsls_PlatformUtil::Int64 *v =
-                              (const bsls_PlatformUtil::Int64 *)(void *)&value;
+        const bsls::Types::Int64 *v =
+                                    (const bsls::Types::Int64 *)(void *)&value;
         return bdeimp_Int64Hash::hash(*v, modulus);
     }
 }

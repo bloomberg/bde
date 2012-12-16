@@ -51,7 +51,7 @@ BDES_IDENT("$Id: $")
 #endif
 
 #ifndef bdemf_RemoveReference
-#define bdemf_RemoveReference   bslmf_RemoveReference
+#define bdemf_RemoveReference   bslmf::RemoveReference
 #endif
 
 namespace BloombergLP {

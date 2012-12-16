@@ -38,7 +38,7 @@ namespace BloombergLP {
 template <class BDEMA_TYPE, typename BDEMA_FACTORY>
 struct bdema_ManagedPtr_FactoryDeleter {
     // This utility provides a general deleter for objects that provide
-    // a 'deleteObject' operation (e.g., 'bslma_Allocator', 'bdema_Pool').
+    // a 'deleteObject' operation (e.g., 'bslma::Allocator', 'bdema_Pool').
 
     static void deleter(void *object, void *factory);
         // Deleter function that deletes the specified 'object' by invoking

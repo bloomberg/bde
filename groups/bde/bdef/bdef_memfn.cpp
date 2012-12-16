@@ -14,7 +14,7 @@ BDES_IDENT_RCSID(bdef_memfn_cpp,"$Id$ $CSID$")
 // bdef_MemFnInstance: There are two ways to handle instance wrappers around
 // class types that take a 'bslma' allocator.  One is to store the wrapper in a
 // constructor proxy.  The other is to simply disallow it (asserting that
-// 'INSTANCE_WRAPPER' does not have the 'bslalg_TypeTraitUsesBslmaAllocator'
+// 'INSTANCE_WRAPPER' does not have the 'bslalg::TypeTraitUsesBslmaAllocator'
 // trait).  We probably could do the latter because nothing we would usually
 // store in a 'bdef_MemFnInstance' would require it (in all known uses the
 // instance wrapper is a raw pointer, or some kind of smart pointer, to the

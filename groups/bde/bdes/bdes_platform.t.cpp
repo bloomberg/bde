@@ -75,11 +75,8 @@ int main(int argc, char *argv[]) {
         // section of this component's header file.
 
         struct OsCpu {
-            bsls_Platform::Os  osType;
-            bsls_Platform::Cpu cpuType;
-#if BDE_ALLOW_DEPRECATED_bdes_Platform_ALLCAPS_CPU
-            bsls_Platform::CPU CPUType;
-#endif
+            bsls::Platform::Os  osType;
+            bsls::Platform::Cpu cpuType;
         };
 
         if (verbose) {
@@ -96,50 +93,47 @@ int main(int argc, char *argv[]) {
         ASSERT(Y <= X);\
         cout << "\t"#X" = " << X << endl;
 
-            #if defined(BSLS_PLATFORM_CMP_IBM)
-                MACRO_TESTGT(BSLS_PLATFORM_CMP_IBM, 0);
+            #if defined(BDES_PLATFORM_CMP_IBM)
+                MACRO_TESTGT(BDES_PLATFORM_CMP_IBM, 0);
             #endif
-            #if defined(BDES_PLATFORM_CMP_BLP)
-                MACRO_TESTGT(BDES_PLATFORM_CMP_BLP, 0);
+            #if defined(BDES_PLATFORM_CMP_GNU)
+                MACRO_TESTGT(BDES_PLATFORM_CMP_GNU, 0);
             #endif
-            #if defined(BSLS_PLATFORM_CMP_GNU)
-                MACRO_TESTGT(BSLS_PLATFORM_CMP_GNU, 0);
+            #if defined(BDES_PLATFORM_CMP_HP)
+                MACRO_TESTGT(BDES_PLATFORM_CMP_HP, 0);
             #endif
-            #if defined(BSLS_PLATFORM_CMP_HP)
-                MACRO_TESTGT(BSLS_PLATFORM_CMP_HP, 0);
+            #if defined(BDES_PLATFORM_CMP_MSVC)
+                MACRO_TESTGT(BDES_PLATFORM_CMP_MSVC, 0);
             #endif
-            #if defined(BSLS_PLATFORM_CMP_MSVC)
-                MACRO_TESTGT(BSLS_PLATFORM_CMP_MSVC, 0);
+            #if defined(BDES_PLATFORM_CMP_SUN)
+                MACRO_TESTGT(BDES_PLATFORM_CMP_SUN, 0);
             #endif
-            #if defined(BSLS_PLATFORM_CMP_SUN)
-                MACRO_TESTGT(BSLS_PLATFORM_CMP_SUN, 0);
+            #if defined(BDES_PLATFORM_CMP_VER_MAJOR)
+                MACRO_TESTGT(BDES_PLATFORM_CMP_VER_MAJOR, 0);
             #endif
-            #if defined(BSLS_PLATFORM_CMP_VER_MAJOR)
-                MACRO_TESTGT(BSLS_PLATFORM_CMP_VER_MAJOR, 0);
-            #endif
-            #if defined(BSLS_PLATFORM_CMP_VER_MINOR)
-                MACRO_TESTGT(BSLS_PLATFORM_CMP_VER_MINOR, 0);
+            #if defined(BDES_PLATFORM_CMP_VER_MINOR)
+                MACRO_TESTGT(BDES_PLATFORM_CMP_VER_MINOR, 0);
             #endif
 
             cout << endl << "Print OS-related Symbols:" << endl;
 
-            #if defined(BSLS_PLATFORM_OS_UNIX)
-                MACRO_TESTEQ(BSLS_PLATFORM_OS_UNIX, 1);
+            #if defined(BDES_PLATFORM_OS_UNIX)
+                MACRO_TESTEQ(BDES_PLATFORM_OS_UNIX, 1);
             #endif
-            #if defined(BSLS_PLATFORM_OS_AIX)
-                MACRO_TESTEQ(BSLS_PLATFORM_OS_AIX, 1);
+            #if defined(BDES_PLATFORM_OS_AIX)
+                MACRO_TESTEQ(BDES_PLATFORM_OS_AIX, 1);
             #endif
-            #if defined(BSLS_PLATFORM_OS_DGUX)
-                MACRO_TESTEQ(BSLS_PLATFORM_OS_DGUX, 1);
+            #if defined(BDES_PLATFORM_OS_DGUX)
+                MACRO_TESTEQ(BDES_PLATFORM_OS_DGUX, 1);
             #endif
-            #if defined(BSLS_PLATFORM_OS_HPUX)
-                MACRO_TESTEQ(BSLS_PLATFORM_OS_HPUX, 1);
+            #if defined(BDES_PLATFORM_OS_HPUX)
+                MACRO_TESTEQ(BDES_PLATFORM_OS_HPUX, 1);
             #endif
-            #if defined(BSLS_PLATFORM_OS_CYGWIN)
-                MACRO_TESTEQ(BSLS_PLATFORM_OS_CYGWIN, 1);
+            #if defined(BDES_PLATFORM_OS_CYGWIN)
+                MACRO_TESTEQ(BDES_PLATFORM_OS_CYGWIN, 1);
             #endif
-            #if defined(BSLS_PLATFORM_OS_LINUX)
-                MACRO_TESTEQ(BSLS_PLATFORM_OS_LINUX, 1);
+            #if defined(BDES_PLATFORM_OS_LINUX)
+                MACRO_TESTEQ(BDES_PLATFORM_OS_LINUX, 1);
             #endif
             #if defined(BDES_PLATFORM_OS_FREEBSD)
                 MACRO_TESTEQ(BDES_PLATFORM_OS_FREEBSD, 1);
@@ -147,79 +141,79 @@ int main(int argc, char *argv[]) {
             #if defined(BDES_PLATFORM_OS_DARWIN)
                 MACRO_TESTEQ(BDES_PLATFORM_OS_DARWIN, 1);
             #endif
-            #if defined(BSLS_PLATFORM_OS_SOLARIS)
-                MACRO_TESTEQ(BSLS_PLATFORM_OS_SOLARIS, 1);
+            #if defined(BDES_PLATFORM_OS_SOLARIS)
+                MACRO_TESTEQ(BDES_PLATFORM_OS_SOLARIS, 1);
             #endif
-            #if defined(BSLS_PLATFORM_OS_SUNOS)
-                MACRO_TESTEQ(BSLS_PLATFORM_OS_SUNOS, 1);
+            #if defined(BDES_PLATFORM_OS_SUNOS)
+                MACRO_TESTEQ(BDES_PLATFORM_OS_SUNOS, 1);
             #endif
-            #if defined(BSLS_PLATFORM_OS_WINDOWS)
-                MACRO_TESTEQ(BSLS_PLATFORM_OS_WINDOWS, 1);
+            #if defined(BDES_PLATFORM_OS_WINDOWS)
+                MACRO_TESTEQ(BDES_PLATFORM_OS_WINDOWS, 1);
             #endif
-            #if defined(BSLS_PLATFORM_OS_WIN9X)
-                MACRO_TESTEQ(BSLS_PLATFORM_OS_WIN9X, 1);
+            #if defined(BDES_PLATFORM_OS_WIN9X)
+                MACRO_TESTEQ(BDES_PLATFORM_OS_WIN9X, 1);
             #endif
-            #if defined(BSLS_PLATFORM_OS_WINNT)
-                MACRO_TESTEQ(BSLS_PLATFORM_OS_WINNT, 1);
+            #if defined(BDES_PLATFORM_OS_WINNT)
+                MACRO_TESTEQ(BDES_PLATFORM_OS_WINNT, 1);
             #endif
-            #if defined(BSLS_PLATFORM_OS_WIN2K)
-                MACRO_TESTEQ(BSLS_PLATFORM_OS_WIN2K, 1);
+            #if defined(BDES_PLATFORM_OS_WIN2K)
+                MACRO_TESTEQ(BDES_PLATFORM_OS_WIN2K, 1);
             #endif
-            #if defined(BSLS_PLATFORM_OS_WINXP)
-                MACRO_TESTEQ(BSLS_PLATFORM_OS_WINXP, 1);
+            #if defined(BDES_PLATFORM_OS_WINXP)
+                MACRO_TESTEQ(BDES_PLATFORM_OS_WINXP, 1);
             #endif
-            #if defined(BSLS_PLATFORM_OS_VER_MAJOR)
-                MACRO_TESTGT(BSLS_PLATFORM_OS_VER_MAJOR, 0);
+            #if defined(BDES_PLATFORM_OS_VER_MAJOR)
+                MACRO_TESTGT(BDES_PLATFORM_OS_VER_MAJOR, 0);
             #endif
-            #if defined(BSLS_PLATFORM_OS_VER_MINOR)
-                MACRO_TESTGT(BSLS_PLATFORM_OS_VER_MINOR, 0);
+            #if defined(BDES_PLATFORM_OS_VER_MINOR)
+                MACRO_TESTGT(BDES_PLATFORM_OS_VER_MINOR, 0);
             #endif
 
 
             cout << endl << "Print CPU-related Symbols:" << endl;
-            #if defined(BSLS_PLATFORM_CPU_88000)
-                MACRO_TESTEQ(BSLS_PLATFORM_CPU_88000, 1);
+            #if defined(BDES_PLATFORM_CPU_88000)
+                MACRO_TESTEQ(BDES_PLATFORM_CPU_88000, 1);
             #endif
-            #if defined(BSLS_PLATFORM_CPU_ALPHA)
-                MACRO_TESTEQ(BSLS_PLATFORM_CPU_ALPHA, 1);
+            #if defined(BDES_PLATFORM_CPU_ALPHA)
+                MACRO_TESTEQ(BDES_PLATFORM_CPU_ALPHA, 1);
             #endif
-            #if defined(BSLS_PLATFORM_CPU_HPPA)
-                MACRO_TESTEQ(BSLS_PLATFORM_CPU_HPPA, 1);
+            #if defined(BDES_PLATFORM_CPU_HPPA)
+                MACRO_TESTEQ(BDES_PLATFORM_CPU_HPPA, 1);
             #endif
             // Deprecated but still exposed, and used by some
             // components.  Thus, of interest.
-            #if defined(BSLS_PLATFORM_CPU_INTEL)
-                MACRO_TESTEQ(BSLS_PLATFORM_CPU_INTEL, 1);
+            #if defined(BDES_PLATFORM_CPU_INTEL)
+                MACRO_TESTEQ(BDES_PLATFORM_CPU_INTEL, 1);
             #endif
-            #if defined(BSLS_PLATFORM_CPU_X86)
-                MACRO_TESTEQ(BSLS_PLATFORM_CPU_X86, 1);
+            #if defined(BDES_PLATFORM_CPU_X86)
+                MACRO_TESTEQ(BDES_PLATFORM_CPU_X86, 1);
             #endif
-            #if defined(BSLS_PLATFORM_CPU_X86_64)
-                MACRO_TESTEQ(BSLS_PLATFORM_CPU_X86_64, 1);
+            #if defined(BDES_PLATFORM_CPU_X86_64)
+                MACRO_TESTEQ(BDES_PLATFORM_CPU_X86_64, 1);
             #endif
-            #if defined(BSLS_PLATFORM_CPU_IA64)
-                MACRO_TESTEQ(BSLS_PLATFORM_CPU_IA64, 1);
+            #if defined(BDES_PLATFORM_CPU_IA64)
+                MACRO_TESTEQ(BDES_PLATFORM_CPU_IA64, 1);
             #endif
-            #if defined(BSLS_PLATFORM_CPU_MIPS)
-                MACRO_TESTEQ(BSLS_PLATFORM_CPU_MIPS, 1);
+            #if defined(BDES_PLATFORM_CPU_MIPS)
+                MACRO_TESTEQ(BDES_PLATFORM_CPU_MIPS, 1);
             #endif
-            #if defined(BSLS_PLATFORM_CPU_POWERPC)
-                MACRO_TESTEQ(BSLS_PLATFORM_CPU_POWERPC, 1);
+            #if defined(BDES_PLATFORM_CPU_POWERPC)
+                MACRO_TESTEQ(BDES_PLATFORM_CPU_POWERPC, 1);
             #endif
-            #if defined(BSLS_PLATFORM_CPU_SPARC)
-                MACRO_TESTEQ(BSLS_PLATFORM_CPU_SPARC, 1);
+            #if defined(BDES_PLATFORM_CPU_SPARC)
+                MACRO_TESTEQ(BDES_PLATFORM_CPU_SPARC, 1);
             #endif
-            #if defined(BSLS_PLATFORM_CPU_32_BIT)
-                MACRO_TESTEQ(BSLS_PLATFORM_CPU_32_BIT, 1);
+            #if defined(BDES_PLATFORM_CPU_32_BIT)
+                MACRO_TESTEQ(BDES_PLATFORM_CPU_32_BIT, 1);
             #endif
-            #if defined(BSLS_PLATFORM_CPU_64_BIT)
-                MACRO_TESTEQ(BSLS_PLATFORM_CPU_64_BIT, 1);
+            #if defined(BDES_PLATFORM_CPU_64_BIT)
+                MACRO_TESTEQ(BDES_PLATFORM_CPU_64_BIT, 1);
             #endif
-            #if defined(BSLS_PLATFORM_CPU_VER_MAJOR)
-                MACRO_TESTGT(BSLS_PLATFORM_CPU_VER_MAJOR, 0);
+            #if defined(BDES_PLATFORM_CPU_VER_MAJOR)
+                MACRO_TESTGT(BDES_PLATFORM_CPU_VER_MAJOR, 0);
             #endif
-            #if defined(BSLS_PLATFORM_CPU_VER_MINOR)
-                MACRO_TESTGT(BSLS_PLATFORM_CPU_VER_MINOR, 0);
+            #if defined(BDES_PLATFORM_CPU_VER_MINOR)
+                MACRO_TESTGT(BDES_PLATFORM_CPU_VER_MINOR, 0);
             #endif
         }
 

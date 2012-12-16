@@ -37,9 +37,9 @@ void bdesb_OverflowMemOutput::grow(int n)
 
 // CREATORS
 bdesb_OverflowMemOutput::bdesb_OverflowMemOutput(
-                                               char            *buffer,
-                                               int              size,
-                                               bslma_Allocator *basicAllocator)
+                                              char             *buffer,
+                                              int               size,
+                                              bslma::Allocator *basicAllocator)
 : d_dataLength(0)
 , d_put_p(buffer)
 , d_initialBuffer_p(buffer)
@@ -47,7 +47,7 @@ bdesb_OverflowMemOutput::bdesb_OverflowMemOutput(
 , d_inOverflowBufferFlag(false)
 , d_overflowBuffer_p(0)
 , d_overflowBufferSize(0)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 < size);

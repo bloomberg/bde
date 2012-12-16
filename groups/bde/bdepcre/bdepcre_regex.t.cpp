@@ -35,7 +35,7 @@ using namespace bsl;  // automatically added by script
 // usage example from the component's header file.
 //-----------------------------------------------------------------------------
 // CREATORS
-// [ 2] bdepcre_RegEx(bslma_Allocator *basicAllocator = 0);
+// [ 2] bdepcre_RegEx(bslma::Allocator *basicAllocator = 0);
 // [ 2] ~bdepcre_RegEx();
 
 // MANIPULATORS
@@ -521,7 +521,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
-    bslma_TestAllocator testAllocator(veryVeryVerbose);
+    bslma::TestAllocator testAllocator(veryVeryVerbose);
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 11: {
@@ -646,7 +646,7 @@ int main(int argc, char *argv[])
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        bslma_TestAllocator ta;
+        bslma::TestAllocator ta;
         Obj mX(&ta); const Obj& X = mX;   // has 'BDEPCRE_FLAG_DOTMATCHESALL'
         Obj mY(&ta); const Obj& Y = mY;   // !have 'BDEPCRE_FLAG_DOTMATCHESALL'
 
@@ -848,15 +848,15 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting Allocation"
                           << "\n==================" << endl;
 
-        bslma_TestAllocator allocator0(veryVeryVerbose);
-        bslma_TestAllocator allocator1(veryVeryVerbose);
-        bslma_TestAllocator allocator2(veryVeryVerbose);
+        bslma::TestAllocator allocator0(veryVeryVerbose);
+        bslma::TestAllocator allocator1(veryVeryVerbose);
+        bslma::TestAllocator allocator2(veryVeryVerbose);
 
-        bslma_TestAllocator *Z0 = &allocator0;
-        bslma_TestAllocator *Z1 = &allocator1;
-        bslma_TestAllocator *Z2 = &allocator2;
+        bslma::TestAllocator *Z0 = &allocator0;
+        bslma::TestAllocator *Z1 = &allocator1;
+        bslma::TestAllocator *Z2 = &allocator2;
 
-        bslma_DefaultAllocatorGuard allocGuard(Z0);
+        bslma::DefaultAllocatorGuard allocGuard(Z0);
 
         {
             Obj mX(Z1);  const Obj& X = mX;
@@ -1916,7 +1916,7 @@ int main(int argc, char *argv[])
         //   scope.
         //
         // Testing:
-        //   bdepcre_RegEx(bslma_Allocator *basicAllocator);
+        //   bdepcre_RegEx(bslma::Allocator *basicAllocator);
         //   ~bdepcre_RegEx();
         //   void clear();
         //   int prepare(const char *pattern, int flags, ...);

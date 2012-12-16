@@ -15,8 +15,8 @@ namespace BloombergLP {
 
 // COMPILE-TIME ASSERTIONS
 
-BSLMF_ASSERT(8 == sizeof(bsls_Types::Int64));
-BSLMF_ASSERT(8 == sizeof(bsls_Types::Uint64));
+BSLMF_ASSERT(8 == sizeof(bsls::Types::Int64));
+BSLMF_ASSERT(8 == sizeof(bsls::Types::Uint64));
 BSLMF_ASSERT(4 == sizeof(int));
 BSLMF_ASSERT(2 == sizeof(short));
 
@@ -146,7 +146,7 @@ bsl::ostream& bdeut_BigEndianInt64::print(bsl::ostream& stream,
     // We need to cast the return value to ensure proper formatting since the
     // return of 'BSLS_BYTEORDER_HOST_U64_TO_BE' is unsigned.
 
-    stream << static_cast<bsls_Types::Int64>
+    stream << static_cast<bsls::Types::Int64>
                                       (BSLS_BYTEORDER_HOST_U64_TO_BE(d_value));
 
     if (spacesPerLevel >= 0) {

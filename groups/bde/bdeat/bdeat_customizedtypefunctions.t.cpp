@@ -3,13 +3,13 @@
 #include <bdeat_customizedtypefunctions.h>
 #include <bdeat_typetraits.h>
 #include <bslalg_typetraits.h>
+#include <bslma_allocator.h>
 
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 #include <bsl_vector.h>
-#include <bslfwd_bslma_allocator.h>
 
 using namespace BloombergLP;
 using bsl::cout;
@@ -152,20 +152,20 @@ class Cusip {
     typedef bsl::string BaseType;
 
     // CREATORS
-    explicit Cusip(bslma_Allocator *basicAllocator = 0);
+    explicit Cusip(bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'Cusip' having the default value.
         // Use the optionally specified 'basicAllocator' to supply memory.
         // If 'basicAllocator' is 0, the currently installed default allocator
         // is used.
 
-    Cusip(const Cusip& original, bslma_Allocator *basicAllocator = 0);
+    Cusip(const Cusip& original, bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'Cusip' having the value
         // of the specified 'original' object.  Use the optionally specified
         // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0,
         // the currently installed default allocator is used.
 
-    explicit Cusip(const bsl::string& value,
-                   bslma_Allocator *basicAllocator = 0);
+    explicit Cusip(const bsl::string&  value,
+                   bslma::Allocator   *basicAllocator = 0);
         // Create an object of type 'Cusip' having the specified 'value'.
         // Use the optionally specified 'basicAllocator' to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
@@ -232,19 +232,19 @@ bsl::ostream& operator<<(bsl::ostream& stream, const Cusip& rhs);
 // CREATORS
 
 inline
-Cusip::Cusip(bslma_Allocator *basicAllocator)
+Cusip::Cusip(bslma::Allocator *basicAllocator)
 : d_value(basicAllocator)
 {
 }
 
 inline
-Cusip::Cusip(const Cusip& original, bslma_Allocator *basicAllocator)
+Cusip::Cusip(const Cusip& original, bslma::Allocator *basicAllocator)
 : d_value(original.d_value, basicAllocator)
 {
 }
 
 inline
-Cusip::Cusip(const bsl::string& value, bslma_Allocator *basicAllocator)
+Cusip::Cusip(const bsl::string& value, bslma::Allocator *basicAllocator)
 : d_value(value, basicAllocator)
 {
 }
@@ -434,7 +434,7 @@ int main(int argc, char *argv[])
         ASSERT(1 == Obj::IsCustomizedType<Cusip>::VALUE);
 
         typedef Obj::BaseType<Cusip>::Type BaseType;
-        ASSERT(1 == (bslmf_IsSame<BaseType, bsl::string>::VALUE));
+        ASSERT(1 == (bslmf::IsSame<BaseType, bsl::string>::VALUE));
 
       } break;
       case 1: {

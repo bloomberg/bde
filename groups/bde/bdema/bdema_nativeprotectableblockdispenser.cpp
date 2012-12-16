@@ -14,6 +14,7 @@ BDES_IDENT_RCSID(bdema_nativeprotectableblockdispenser_cpp,"$Id$ $CSID$")
 #include <bsls_assert.h>
 #include <bsls_objectbuffer.h>
 #include <bsls_platform.h>
+#include <bsls_types.h>
 
 #include <bsl_new.h>
 
@@ -66,8 +67,7 @@ int getSystemPageSize()
 }
 
 inline
-bsls_PlatformUtil::size_type allocationSize(
-                                    bsls_PlatformUtil::size_type requestedSize)
+bsls::Types::size_type allocationSize(bsls::Types::size_type requestedSize)
 // Return the size to allocate for the specified 'requestedSize' based on the
 // system page size returned by 'getSystemPageSize'.
 {
@@ -86,7 +86,7 @@ bsls_PlatformUtil::size_type allocationSize(
 // PRIVATE CLASS METHODS
 inline
 void *bdema_NativeProtectableBlockDispenser::initSingleton(
-               bsls_ObjectBuffer<bdema_NativeProtectableBlockDispenser> *arena)
+              bsls::ObjectBuffer<bdema_NativeProtectableBlockDispenser> *arena)
 {
     // Thread-safe initialization of singleton.
     //
@@ -106,7 +106,7 @@ void *bdema_NativeProtectableBlockDispenser::initSingleton(
     // thread copies the exact same data over the results of the first
     // thread's copy.)
 
-    typedef bsls_ObjectBuffer<bdema_NativeProtectableBlockDispenser>
+    typedef bsls::ObjectBuffer<bdema_NativeProtectableBlockDispenser>
                                bdema_NativeProtectableBlockDispenser_Singleton;
 
     bdema_NativeProtectableBlockDispenser_Singleton stackTemp;
@@ -114,7 +114,7 @@ void *bdema_NativeProtectableBlockDispenser::initSingleton(
     // needed to make xlC8 work!
     *arena =
            *(static_cast<bdema_NativeProtectableBlockDispenser_Singleton*>(v));
-    // bsls_ObjectBuffer<T> assignment is a bit-wise copy.
+    // bsls::ObjectBuffer<T> assignment is a bit-wise copy.
     return arena;
 }
 
@@ -135,7 +135,7 @@ bdema_NativeProtectableBlockDispenser::singleton()
     // Initializing 'dummy' will cause 'initSingleton' to be called exactly
     // once.  The 'singleton' object itself has a no-op constructor.
 
-    static bsls_ObjectBuffer<bdema_NativeProtectableBlockDispenser> singleton;
+    static bsls::ObjectBuffer<bdema_NativeProtectableBlockDispenser> singleton;
     static void *dummy = initSingleton(&singleton);
     (void) dummy;  // eliminate unused variable warning
     return singleton.object();
@@ -163,7 +163,7 @@ bdema_NativeProtectableBlockDispenser::allocate(size_type size)
     void *ptr = valloc(actualSize);
 
     if (0 == ptr) {
-        bslma_Allocator::throwBadAlloc();
+        bslma::Allocator::throwBadAlloc();
     }
 
     return bdema_MemoryBlockDescriptor(ptr, actualSize);
@@ -211,7 +211,7 @@ bdema_NativeProtectableBlockDispenser::allocate(size_type size)
                              PAGE_READWRITE);
 
     if (0 == ptr) {
-        bslma_Allocator::throwBadAlloc();
+        bslma::Allocator::throwBadAlloc();
     }
 
     return bdema_MemoryBlockDescriptor(ptr, actualSize);

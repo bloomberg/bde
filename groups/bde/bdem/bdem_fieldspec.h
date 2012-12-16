@@ -152,12 +152,12 @@ class bdem_FieldSpec {
 
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(bdem_FieldSpec,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
     explicit
     bdem_FieldSpec(bdem_ElemType::Type  type = bdem_ElemType::BDEM_VOID,
-                   bslma_Allocator     *basicAllocator = 0);
+                   bslma::Allocator    *basicAllocator = 0);
         // Create a field specification.  Optionally specify the 'type' of the
         // field.  Optionally specify the 'basicAllocator' used to supply
         // memory.  If 'basicAllocator' is 0, the currently installed default
@@ -167,7 +167,7 @@ class bdem_FieldSpec {
 
     bdem_FieldSpec(bdem_ElemType::Type   type,
                    const bdem_RecordDef *constraint,
-                   bslma_Allocator      *basicAllocator = 0);
+                   bslma::Allocator     *basicAllocator = 0);
         // Create a field spec having the specified 'type' and
         // 'constraint'.  Optionally specify the 'basicAllocator' used to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
@@ -188,7 +188,7 @@ class bdem_FieldSpec {
 
     bdem_FieldSpec(bdem_ElemType::Type   type,
                    LowPrecedenceEnumPtr  constraint,
-                   bslma_Allocator      *basicAllocator = 0);
+                   bslma::Allocator     *basicAllocator = 0);
         // Create a field spec having the specified 'type'.  If 'type' is
         // 'STRING', 'INT', 'STRING_ARRAY' or 'INT_ARRAY', optionally specify
         // an enumeration 'constraint'.  Optionally specify the
@@ -203,12 +203,12 @@ class bdem_FieldSpec {
                    const bdem_RecordDef *constraint,
                    int                   formattingMode,
                    bool                  nullabilityFlag,
-                   bslma_Allocator      *basicAllocator = 0);
+                   bslma::Allocator     *basicAllocator = 0);
     bdem_FieldSpec(bdem_ElemType::Type   type,
                    LowPrecedenceEnumPtr  constraint,
                    int                   formattingMode,
                    bool                  nullabilityFlag,
-                   bslma_Allocator      *basicAllocator = 0);
+                   bslma::Allocator     *basicAllocator = 0);
         // Create a field spec having the specified 'type', 'constraint',
         // 'formattingMode', and 'nullabilityFlag' attributes, respectively.
         // The behavior is undefined unless one of the following is true: (1)
@@ -223,7 +223,7 @@ class bdem_FieldSpec {
         // returns 'false'.
 
     bdem_FieldSpec(const bdem_FieldSpec&  original,
-                   bslma_Allocator       *basicAllocator = 0);
+                   bslma::Allocator      *basicAllocator = 0);
         // Create a field spec having the value of the specified 'original'
         // field spec.
 
@@ -409,7 +409,7 @@ bool operator!=(const bdem_FieldSpec& lhs, const bdem_FieldSpec& rhs);
 // CREATORS
 inline
 bdem_FieldSpec::bdem_FieldSpec(bdem_ElemType::Type  type,
-                               bslma_Allocator     *basicAllocator)
+                               bslma::Allocator    *basicAllocator)
 : d_attributes(type, basicAllocator)
 , d_recordConstraint_p(0)
 {
@@ -418,7 +418,7 @@ bdem_FieldSpec::bdem_FieldSpec(bdem_ElemType::Type  type,
 inline
 bdem_FieldSpec::bdem_FieldSpec(bdem_ElemType::Type   type,
                                const bdem_RecordDef *constraint,
-                               bslma_Allocator      *basicAllocator)
+                               bslma::Allocator     *basicAllocator)
 : d_attributes(type, basicAllocator)
 , d_recordConstraint_p(constraint)
 {
@@ -427,7 +427,7 @@ bdem_FieldSpec::bdem_FieldSpec(bdem_ElemType::Type   type,
 inline
 bdem_FieldSpec::bdem_FieldSpec(bdem_ElemType::Type   type,
                                LowPrecedenceEnumPtr  constraint,
-                               bslma_Allocator      *basicAllocator)
+                               bslma::Allocator     *basicAllocator)
 : d_attributes(type, basicAllocator)
 , d_enumConstraint_p(constraint.d_ptr)
 {
@@ -438,7 +438,7 @@ bdem_FieldSpec::bdem_FieldSpec(bdem_ElemType::Type   type,
                                const bdem_RecordDef *constraint,
                                int                   formattingMode,
                                bool                  nullabilityFlag,
-                               bslma_Allocator      *basicAllocator)
+                               bslma::Allocator     *basicAllocator)
 : d_attributes(type, nullabilityFlag, formattingMode, basicAllocator)
 , d_recordConstraint_p(constraint)
 {
@@ -449,7 +449,7 @@ bdem_FieldSpec::bdem_FieldSpec(bdem_ElemType::Type   type,
                                LowPrecedenceEnumPtr  constraint,
                                int                   formattingMode,
                                bool                  nullabilityFlag,
-                               bslma_Allocator      *basicAllocator)
+                               bslma::Allocator     *basicAllocator)
 : d_attributes(type, nullabilityFlag, formattingMode, basicAllocator)
 , d_enumConstraint_p(constraint.d_ptr)
 {
@@ -457,7 +457,7 @@ bdem_FieldSpec::bdem_FieldSpec(bdem_ElemType::Type   type,
 
 inline
 bdem_FieldSpec::bdem_FieldSpec(const bdem_FieldSpec&  original,
-                               bslma_Allocator       *basicAllocator)
+                               bslma::Allocator      *basicAllocator)
 : d_attributes(original.d_attributes, basicAllocator)
 , d_recordConstraint_p(original.d_recordConstraint_p)
 {

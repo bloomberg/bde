@@ -166,10 +166,10 @@ int bdepu_NTypesParser::parseInt(const char **endPos,
                                               base);
 }
 
-int bdepu_NTypesParser::parseInt64(const char               **endPos,
-                                   bsls_PlatformUtil::Int64  *result,
-                                   const char                *inputString,
-                                   int                        base)
+int bdepu_NTypesParser::parseInt64(const char         **endPos,
+                                   bsls::Types::Int64  *result,
+                                   const char          *inputString,
+                                   int                  base)
 {
     BSLS_ASSERT(endPos);
     BSLS_ASSERT(result);
@@ -179,7 +179,7 @@ int bdepu_NTypesParser::parseInt64(const char               **endPos,
 
     bdepu_ParserImpUtil::skipWhiteSpace(&inputString, inputString);
     if (0 == bdepu_ParserImpUtil::parseNull(endPos, inputString)) {
-        *result = bdetu_Unset<bsls_PlatformUtil::Int64>::unsetValue();
+        *result = bdetu_Unset<bsls::Types::Int64>::unsetValue();
         return 0;
     }
 
@@ -374,7 +374,7 @@ PARSE_ARRAY(DatetimeTz, bdet_DatetimeTz)
 PARSE_ARRAY(Double, double)
 PARSE_ARRAY(Float, float)
 PARSE_ARRAY(Int, int)
-PARSE_ARRAY(Int64, bsls_PlatformUtil::Int64)
+PARSE_ARRAY(Int64, bsls::Types::Int64)
 PARSE_ARRAY(Short, short)
 PARSE_ARRAY(String, bsl::string)
 PARSE_ARRAY(Time, bdet_Time)
@@ -445,11 +445,10 @@ void bdepu_NTypesParser::generateIntRaw(bsl::vector<char> *buffer,
     }
 }
 
-void bdepu_NTypesParser::generateInt64Raw(
-                                      bsl::vector<char>        *buffer,
-                                      bsls_PlatformUtil::Int64  value,
-                                      int                       level,
-                                      int                       spacesPerLevel)
+void bdepu_NTypesParser::generateInt64Raw(bsl::vector<char>  *buffer,
+                                          bsls::Types::Int64  value,
+                                          int                 level,
+                                          int                 spacesPerLevel)
 {
     BSLS_ASSERT(buffer);
 
@@ -459,7 +458,7 @@ void bdepu_NTypesParser::generateInt64Raw(
                                                  spacesPerLevel);
     }
 
-    if (value == bdetu_Unset<bsls_PlatformUtil::Int64>::unsetValue()) {
+    if (value == bdetu_Unset<bsls::Types::Int64>::unsetValue()) {
         bdepu_ParserImpUtil::generateNull(buffer);
     }
     else {
@@ -711,7 +710,7 @@ GEN_ARRAY_RAW(DatetimeTz, bdet_DatetimeTz)
 GEN_ARRAY_RAW(Double, double)
 GEN_ARRAY_RAW(Float, float)
 GEN_ARRAY_RAW(Int, int)
-GEN_ARRAY_RAW(Int64, bsls_PlatformUtil::Int64)
+GEN_ARRAY_RAW(Int64, bsls::Types::Int64)
 GEN_ARRAY_RAW(Short, short)
 GEN_ARRAY_RAW(String, bsl::string)
 GEN_ARRAY_RAW(Time, bdet_Time)
@@ -741,11 +740,10 @@ void bdepu_NTypesParser::generateInt(bsl::vector<char> *buffer,
     buffer->push_back('\0');
 }
 
-void bdepu_NTypesParser::generateInt64(
-                                      bsl::vector<char>        *buffer,
-                                      bsls_PlatformUtil::Int64  value,
-                                      int                       level,
-                                      int                       spacesPerLevel)
+void bdepu_NTypesParser::generateInt64(bsl::vector<char>  *buffer,
+                                       bsls::Types::Int64  value,
+                                       int                 level,
+                                       int                 spacesPerLevel)
 {
     BSLS_ASSERT(buffer);
 
@@ -916,10 +914,10 @@ void bdepu_NTypesParser::generateIntArray(
 }
 
 void bdepu_NTypesParser::generateInt64Array(
-                  bsl::vector<char>                            *buffer,
-                  const bsl::vector<bsls_PlatformUtil::Int64>&  value,
-                  int                                           level,
-                  int                                           spacesPerLevel)
+                        bsl::vector<char>                      *buffer,
+                        const bsl::vector<bsls::Types::Int64>&  value,
+                        int                                     level,
+                        int                                     spacesPerLevel)
 {
     BSLS_ASSERT(buffer);
 

@@ -1941,8 +1941,8 @@ int main(int argc, char *argv[]) {
                           << "Put/Get 40-Bit Integer Arrays" << endl
                           << "=============================" << endl;
 
-        typedef bsls_PlatformUtil::Int64 T;
-        typedef bsls_PlatformUtil::Uint64 U;
+        typedef bsls::Types::Int64  T;
+        typedef bsls::Types::Uint64 U;
 
         const T A = (( (( (( ( (T)  // POSITIVE NUMBER
                         0x00 << 8) + 0x00 << 8) + 0x00 << 8) + 0x04 << 8)
@@ -2135,8 +2135,8 @@ int main(int argc, char *argv[]) {
                           << "Put/Get 48-Bit Integer Arrays" << endl
                           << "=============================" << endl;
 
-        typedef bsls_PlatformUtil::Int64 T;
-        typedef bsls_PlatformUtil::Uint64 U;
+        typedef bsls::Types::Int64  T;
+        typedef bsls::Types::Uint64 U;
 
         const T A = (( (( (( ( (T)  // POSITIVE NUMBER
                         0x00 << 8) + 0x00 << 8) + 0x03 << 8) + 0x04 << 8)
@@ -2329,8 +2329,8 @@ int main(int argc, char *argv[]) {
                           << "Put/Get 56-Bit Integer Arrays" << endl
                           << "=============================" << endl;
 
-        typedef bsls_PlatformUtil::Int64 T;
-        typedef bsls_PlatformUtil::Uint64 U;
+        typedef bsls::Types::Int64  T;
+        typedef bsls::Types::Uint64 U;
 
         const T A = (( (( (( ( (T)  // POSITIVE NUMBER
                         0x00 << 8) + 0x02 << 8) + 0x03 << 8) + 0x04 << 8)
@@ -2523,8 +2523,8 @@ int main(int argc, char *argv[]) {
                           << "Put/Get 64-Bit Integer Arrays" << endl
                           << "=============================" << endl;
 
-        typedef bsls_PlatformUtil::Int64 T;
-        typedef bsls_PlatformUtil::Uint64 U;
+        typedef bsls::Types::Int64  T;
+        typedef bsls::Types::Uint64 U;
 
         const T A = (( (( (( ( (T)  // POSITIVE NUMBER
                         0x01 << 8) + 0x02 << 8) + 0x03 << 8) + 0x04 << 8)
@@ -3597,8 +3597,8 @@ int main(int argc, char *argv[]) {
                           << "Put/Get 40-Bit Integers" << endl
                           << "=======================" << endl;
 
-        typedef bsls_PlatformUtil::Int64 T;
-        typedef bsls_PlatformUtil::Uint64 U;
+        typedef bsls::Types::Int64  T;
+        typedef bsls::Types::Uint64 U;
 
         const T A = (( (( (( ( (T)  // POSITIVE NUMBER
                         0x00 << 8) + 0x00 << 8) + 0x00 << 8) + 0x01 << 8)
@@ -3722,8 +3722,8 @@ int main(int argc, char *argv[]) {
                           << "Put/Get 48-Bit Integers" << endl
                           << "=======================" << endl;
 
-        typedef bsls_PlatformUtil::Int64 T;
-        typedef bsls_PlatformUtil::Uint64 U;
+        typedef bsls::Types::Int64  T;
+        typedef bsls::Types::Uint64 U;
 
         const T A = (( (( (( ( (T)  // POSITIVE NUMBER
                         0x00 << 8) + 0x00 << 8) + 0x01 << 8) + 0x02 << 8)
@@ -3846,8 +3846,8 @@ int main(int argc, char *argv[]) {
                           << "Put/Get 56-Bit Integers" << endl
                           << "=======================" << endl;
 
-        typedef bsls_PlatformUtil::Int64 T;
-        typedef bsls_PlatformUtil::Uint64 U;
+        typedef bsls::Types::Int64  T;
+        typedef bsls::Types::Uint64 U;
 
         const T A = (( (( (( ( (T)  // POSITIVE NUMBER
                         0x00 << 8) + 0x02 << 8) + 0x03 << 8) + 0x04 << 8)
@@ -3971,8 +3971,8 @@ int main(int argc, char *argv[]) {
                           << "Put/Get 64-Bit Integers" << endl
                           << "=======================" << endl;
 
-        typedef bsls_PlatformUtil::Int64 T;
-        typedef bsls_PlatformUtil::Uint64 U;
+        typedef bsls::Types::Int64  T;
+        typedef bsls::Types::Uint64 U;
 
         const T A = (( (( (( ( (T)  // POSITIVE NUMBER
                         0x01 << 8) + 0x02 << 8) + 0x03 << 8) + 0x04 << 8)

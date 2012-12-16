@@ -93,9 +93,9 @@ BDES_IDENT("$Id: $")
 //      enum Type { MY_INT, MY_DOUBLE };
 //
 //      // CREATORS
-//      my_BufferedIntDoubleArray(char            *buffer,
-//                                int              size,
-//                                bslma_Allocator *basicAllocator = 0);
+//      my_BufferedIntDoubleArray(char             *buffer,
+//                                int               size,
+//                                bslma::Allocator *basicAllocator = 0);
 //          // Create a fast 'int'-'double' array that initially allocates
 //          // memory sequentially from the specified 'buffer' having the
 //          // specified 'size' (in bytes).  Optionally specify a
@@ -154,9 +154,9 @@ BDES_IDENT("$Id: $")
 //
 //  // CREATORS
 //  my_BufferedIntDoubleArray::my_BufferedIntDoubleArray(
-//                                             char            *buffer,
-//                                             int              size,
-//                                             bslma_Allocator *basicAllocator)
+//                                            char             *buffer,
+//                                            int               size,
+//                                            bslma::Allocator *basicAllocator)
 //  : d_length(0)
 //  , d_capacity(INITIAL_SIZE)
 //  , d_pool(buffer, size, basicAllocator)
@@ -212,7 +212,7 @@ BDES_IDENT("$Id: $")
 //..
 ///Example 2: Implementing an Allocator Using 'bdema_BufferedSequentialPool'
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// 'bslma_Allocator' is used throughout the interfaces of BDE components.
+// 'bslma::Allocator' is used throughout the interfaces of BDE components.
 // Suppose we would like to create a fast allocator, 'my_FastAllocator', that
 // allocates memory from a buffer in a similar fashion to
 // 'bdema_BufferedSequentialPool'.  This class can be used directly to
@@ -222,8 +222,8 @@ BDES_IDENT("$Id: $")
 // example.  Please see 'bdema_bufferedsequentialallocator' for full
 // documentation of a similar class.
 //..
-//  class my_FastAllocator : public bslma_Allocator {
-//      // This class implements the 'bslma_Allocator' protocol to provide a
+//  class my_FastAllocator : public bslma::Allocator {
+//      // This class implements the 'bslma::Allocator' protocol to provide a
 //      // fast allocator of heterogeneous blocks of memory (of varying,
 //      // user-specified sizes) from an external buffer whose address and size
 //      // are supplied at construction.
@@ -233,9 +233,9 @@ BDES_IDENT("$Id: $")
 //                                            // memory blocks
 //
 //      // CREATORS
-//      my_FastAllocator(char            *buffer,
-//                       int              size,
-//                       bslma_Allocator *basicAllocator = 0);
+//      my_FastAllocator(char             *buffer,
+//                       int               size,
+//                       bslma::Allocator *basicAllocator = 0);
 //          // Create an allocator for allocating memory blocks from the
 //          // specified external 'buffer' of the specified 'size' (in bytes).
 //          // Optionally specify a 'basicAllocator' used to supply memory
@@ -259,9 +259,9 @@ BDES_IDENT("$Id: $")
 //
 //  // CREATORS
 //  inline
-//  my_FastAllocator::my_FastAllocator(char            *buffer,
-//                                     int              size,
-//                                     bslma_Allocator *basicAllocator)
+//  my_FastAllocator::my_FastAllocator(char             *buffer,
+//                                     int               size,
+//                                     bslma::Allocator *basicAllocator)
 //  : d_pool(buffer, size, basicAllocator)
 //  {
 //  }
@@ -313,8 +313,8 @@ BDES_IDENT("$Id: $")
 #include <bsl_cstddef.h>  // for 'bsl::size_t'
 #endif
 
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
 #endif
 
 namespace BloombergLP {
@@ -345,7 +345,7 @@ class bdema_BufferedSequentialPool {
     bdema_BufferManager  d_buffer;           // memory manager for current
                                              // buffer
 
-    bsls_BlockGrowth::Strategy
+    bsls::BlockGrowth::Strategy
                          d_growthStrategy;   // growth strategy for block list
 
     int                  d_maxBufferSize;    // maximum internal buffer size
@@ -371,25 +371,25 @@ class bdema_BufferedSequentialPool {
   public:
     // CREATORS
     bdema_BufferedSequentialPool(
-                               char                       *buffer,
-                               int                         size,
-                               bslma_Allocator            *basicAllocator = 0);
+                              char                        *buffer,
+                              int                          size,
+                              bslma::Allocator            *basicAllocator = 0);
     bdema_BufferedSequentialPool(
-                               char                       *buffer,
-                               int                         size,
-                               bsls_BlockGrowth::Strategy  growthStrategy,
-                               bslma_Allocator            *basicAllocator = 0);
+                              char                        *buffer,
+                              int                          size,
+                              bsls::BlockGrowth::Strategy  growthStrategy,
+                              bslma::Allocator            *basicAllocator = 0);
     bdema_BufferedSequentialPool(
-                               char                       *buffer,
-                               int                         size,
-                               bsls_Alignment::Strategy    alignmentStrategy,
-                               bslma_Allocator            *basicAllocator = 0);
+                              char                        *buffer,
+                              int                          size,
+                              bsls::Alignment::Strategy    alignmentStrategy,
+                              bslma::Allocator            *basicAllocator = 0);
     bdema_BufferedSequentialPool(
-                               char                       *buffer,
-                               int                         size,
-                               bsls_BlockGrowth::Strategy  growthStrategy,
-                               bsls_Alignment::Strategy    alignmentStrategy,
-                               bslma_Allocator            *basicAllocator = 0);
+                              char                        *buffer,
+                              int                          size,
+                              bsls::BlockGrowth::Strategy  growthStrategy,
+                              bsls::Alignment::Strategy    alignmentStrategy,
+                              bslma::Allocator            *basicAllocator = 0);
         // Create a buffered sequential pool for allocating memory blocks from
         // the specified external 'buffer' having the specified 'size' (in
         // bytes), or from an internal buffer (after the external 'buffer' is
@@ -406,29 +406,29 @@ class bdema_BufferedSequentialPool {
         // bytes of memory in 'buffer' can be used for allocation.
 
     bdema_BufferedSequentialPool(
-                               char                       *buffer,
-                               int                         size,
-                               int                         maxBufferSize,
-                               bslma_Allocator            *basicAllocator = 0);
+                              char                        *buffer,
+                              int                          size,
+                              int                          maxBufferSize,
+                              bslma::Allocator            *basicAllocator = 0);
     bdema_BufferedSequentialPool(
-                               char                       *buffer,
-                               int                         size,
-                               int                         maxBufferSize,
-                               bsls_BlockGrowth::Strategy  growthStrategy,
-                               bslma_Allocator            *basicAllocator = 0);
+                              char                        *buffer,
+                              int                          size,
+                              int                          maxBufferSize,
+                              bsls::BlockGrowth::Strategy  growthStrategy,
+                              bslma::Allocator            *basicAllocator = 0);
     bdema_BufferedSequentialPool(
-                               char                       *buffer,
-                               int                         size,
-                               int                         maxBufferSize,
-                               bsls_Alignment::Strategy    alignmentStrategy,
-                               bslma_Allocator            *basicAllocator = 0);
+                              char                        *buffer,
+                              int                          size,
+                              int                          maxBufferSize,
+                              bsls::Alignment::Strategy    alignmentStrategy,
+                              bslma::Allocator            *basicAllocator = 0);
     bdema_BufferedSequentialPool(
-                               char                       *buffer,
-                               int                         size,
-                               int                         maxBufferSize,
-                               bsls_BlockGrowth::Strategy  growthStrategy,
-                               bsls_Alignment::Strategy    alignmentStrategy,
-                               bslma_Allocator            *basicAllocator = 0);
+                              char                        *buffer,
+                              int                          size,
+                              int                          maxBufferSize,
+                              bsls::BlockGrowth::Strategy  growthStrategy,
+                              bsls::Alignment::Strategy    alignmentStrategy,
+                              bslma::Allocator            *basicAllocator = 0);
         // Create a buffered sequential pool for allocating memory blocks from
         // the specified external 'buffer' having the specified 'size' (in
         // bytes), or from an internal buffer (after the external 'buffer' is
@@ -451,7 +451,7 @@ class bdema_BufferedSequentialPool {
         // this pool is released.
 
     // MANIPULATORS
-    void *allocate(bsls_Types::size_type size);
+    void *allocate(bsls::Types::size_type size);
         // Return the address of a contiguous block of memory of the specified
         // 'size' (in bytes) according to the alignment strategy specified at
         // construction.  If the allocation request exceeds the remaining free
@@ -519,7 +519,7 @@ void *operator new(bsl::size_t                                size,
     // constructor argument:
     //..
     //  my_Type *newMyType(bdema_BufferedSequentialPool *pool,
-    //                     bslma_Allocator              *basicAllocator)
+    //                     bslma::Allocator             *basicAllocator)
     //  {
     //      return new (*pool) my_Type(..., basicAllocator);
     //  }

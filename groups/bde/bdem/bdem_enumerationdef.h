@@ -58,7 +58,7 @@ BDES_IDENT("$Id: $")
 // "COLOR", that will contain an enumeration of color identifiers (e.g., red,
 // green, blue):
 //..
-//  bslma_Allocator           *allocator = bslma_Default::allocator();
+//  bslma::Allocator          *allocator = bslma::Default::allocator();
 //  bdema_SequentialAllocator  seqAllocator(allocator);
 //  bdem_Schema                dummySchema;
 //
@@ -511,7 +511,7 @@ class bdem_EnumerationDef {
         // Return a reference to this enumeration definition's non-modifiable
         // schema (established at construction).
 
-    bslma_Allocator *writeOnceAllocator() const;
+    bslma::Allocator *writeOnceAllocator() const;
         // Return the address of the modifiable write-once allocator supplied
         // when this object was constructed.
 };
@@ -664,7 +664,7 @@ const bdem_Schema& bdem_EnumerationDef::schema() const
 }
 
 inline
-bslma_Allocator *bdem_EnumerationDef::writeOnceAllocator() const
+bslma::Allocator *bdem_EnumerationDef::writeOnceAllocator() const
 {
     return d_enumByNameMap.get_allocator().mechanism();
 }

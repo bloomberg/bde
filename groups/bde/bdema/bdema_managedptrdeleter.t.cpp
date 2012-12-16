@@ -264,7 +264,7 @@ const int DEFAULT_NUM_DATA = sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA;
 //                          TESTING TYPE TRAITS
 // ----------------------------------------------------------------------------
 
-BSLMF_ASSERT((bslalg_HasTrait<Obj, bslalg_TypeTraitBitwiseMoveable>::VALUE));
+BSLMF_ASSERT((bslalg::HasTrait<Obj, bslalg::TypeTraitBitwiseMoveable>::VALUE));
 
 // ============================================================================
 //                              MAIN PROGRAM
@@ -1000,15 +1000,15 @@ int main(int argc, char *argv[])
              "\nCreate a table of distinct value/format combinations." << endl;
 
         static const struct {
-            int                 d_line;           // source line number
-            int                 d_level;
-            int                 d_spacesPerLevel;
+            int                   d_line;           // source line number
+            int                   d_level;
+            int                   d_spacesPerLevel;
 
-            bsls_Types::UintPtr d_object;  // enter unsigned numbers into the
-            bsls_Types::UintPtr d_factory; // table, as we cannot enter pointer
-            bsls_Types::UintPtr d_deleter; // constants.  Convert later.
+            bsls::Types::UintPtr  d_object;  // enter unsigned numbers into the
+            bsls::Types::UintPtr  d_factory; // table, as we cannot enter ptr.
+            bsls::Types::UintPtr  d_deleter; // constants; convert later
 
-            const char         *d_expected_p;
+            const char           *d_expected_p;
         } DATA[] = {
 
 #define NL "\n"
@@ -1373,7 +1373,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bsls_AssertFailureHandlerGuard hG(bsls_AssertTest::failTestDriver);
+            bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
 
             //if (veryVerbose) cout << "\t'timeout'" << endl;
             //{
@@ -1498,7 +1499,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bsls_AssertFailureHandlerGuard hG(bsls_AssertTest::failTestDriver);
+            bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
 
             Obj obj;
 

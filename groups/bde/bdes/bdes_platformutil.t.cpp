@@ -715,9 +715,9 @@ int main(int argc, char *argv[])
 #endif
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-    typedef U::MaxAlign                        LegacyMaxAlign;
+    typedef U::MaxAlign                         LegacyMaxAlign;
 #else
-    typedef bsls_AlignmentUtil::MaxAlignedType LegacyMaxAlign;
+    typedef bsls::AlignmentUtil::MaxAlignedType LegacyMaxAlign;
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
         struct MaxAlignAlign    { char c; LegacyMaxAlign d_maxAlign;};

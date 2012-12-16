@@ -21,6 +21,8 @@
 #include <bdex_byteoutstreamformatter.h>
 #include <bdex_outstreamfunctions.h>
 
+#include <bslma_allocator.h>
+
 #include <bsls_objectbuffer.h>
 #include <bsls_stopwatch.h>
 #include <bsls_types.h>
@@ -30,11 +32,10 @@
 
 #include <bsl_cstdlib.h>
 #include <bsl_cctype.h>
-#include <bsl_bitset.h>
 
 #include <bsl_climits.h>
 #include <bsl_fstream.h>
-#include <bslfwd_bslma_allocator.h>
+
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
 
@@ -472,12 +473,12 @@ class MyChoice {
 
   private:
     union {
-        bsls_ObjectBuffer< int >         d_selection1;
-        bsls_ObjectBuffer< bsl::string > d_selection2;
+        bsls::ObjectBuffer< int >         d_selection1;
+        bsls::ObjectBuffer< bsl::string > d_selection2;
     };
 
-    int              d_selectionId;
-    bslma_Allocator *d_allocator_p;
+    int               d_selectionId;
+    bslma::Allocator *d_allocator_p;
 
   public:
     // TYPES
@@ -529,14 +530,14 @@ class MyChoice {
         // exists, and 0 otherwise.
 
     // CREATORS
-    explicit MyChoice(bslma_Allocator *basicAllocator = 0);
+    explicit MyChoice(bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'MyChoice' having the default value.  Use
         // the optionally specified 'basicAllocator' to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
     MyChoice(const MyChoice& original,
-            bslma_Allocator *basicAllocator = 0);
+            bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'MyChoice' having the value of the
         // specified 'original' object.  Use the optionally specified
         // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
@@ -750,14 +751,14 @@ class MySequenceWithNullable {
         // exists, and 0 otherwise.
 
     // CREATORS
-    explicit MySequenceWithNullable(bslma_Allocator *basicAllocator = 0);
+    explicit MySequenceWithNullable(bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'MySequenceWithNullable' having the default
         // value.  Use the optionally specified 'basicAllocator' to supply
         // memory.  If 'basicAllocator' is 0, the currently installed default
         // allocator is used.
 
     MySequenceWithNullable(const MySequenceWithNullable& original,
-                           bslma_Allocator *basicAllocator = 0);
+                           bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'MySequenceWithNullable' having the value
         // of the specified 'original' object.  Use the optionally specified
         // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
@@ -979,14 +980,14 @@ class Address {
         // exists, and 0 otherwise.
 
     // CREATORS
-    explicit Address(bslma_Allocator *basicAllocator = 0);
+    explicit Address(bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'Address' having the default value.  Use
         // the optionally specified 'basicAllocator' to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
     Address(const Address& original,
-            bslma_Allocator *basicAllocator = 0);
+            bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'Address' having the value of the specified
         // 'original' object.  Use the optionally specified 'basicAllocator' to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
@@ -1208,14 +1209,14 @@ class MySequence {
         // exists, and 0 otherwise.
 
     // CREATORS
-    explicit MySequence(bslma_Allocator *basicAllocator = 0);
+    explicit MySequence(bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'MySequence' having the default value.  Use
         // the optionally specified 'basicAllocator' to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
     MySequence(const MySequence& original,
-               bslma_Allocator *basicAllocator = 0);
+               bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'MySequence' having the value of the
         // specified 'original' object.  Use the optionally specified
         // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
@@ -1434,14 +1435,14 @@ class MySequenceWithNillable {
         // exists, and 0 otherwise.
 
     // CREATORS
-    explicit MySequenceWithNillable(bslma_Allocator *basicAllocator = 0);
+    explicit MySequenceWithNillable(bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'MySequenceWithNillable' having the default
         // value.  Use the optionally specified 'basicAllocator' to supply
         // memory.  If 'basicAllocator' is 0, the currently installed default
         // allocator is used.
 
     MySequenceWithNillable(const MySequenceWithNillable& original,
-                           bslma_Allocator *basicAllocator = 0);
+                           bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'MySequenceWithNillable' having the value
         // of the specified 'original' object.  Use the optionally specified
         // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
@@ -1939,21 +1940,21 @@ class CustomizedString {
         // the name of this class (i.e., "CustomizedString")
 
     // CREATORS
-    explicit CustomizedString(bslma_Allocator *basicAllocator = 0);
+    explicit CustomizedString(bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'CustomizedString' having the default
         // value.  Use the optionally specified 'basicAllocator' to supply
         // memory.  If 'basicAllocator' is 0, the currently installed default
         // allocator is used.
 
     CustomizedString(const CustomizedString& original,
-                    bslma_Allocator *basicAllocator = 0);
+                    bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'CustomizedString' having the value
         // of the specified 'original' object.  Use the optionally specified
         // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0,
         // the currently installed default allocator is used.
 
     explicit CustomizedString(const bsl::string& value,
-                             bslma_Allocator *basicAllocator = 0);
+                             bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'CustomizedString' having the specified
         // 'value'.  Use the optionally specified 'basicAllocator' to supply
         // memory.  If 'basicAllocator' is 0, the currently installed default
@@ -2117,14 +2118,14 @@ class BasicRecord {
         // exists, and 0 otherwise.
 
     // CREATORS
-    explicit BasicRecord(bslma_Allocator *basicAllocator = 0);
+    explicit BasicRecord(bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'BasicRecord' having the default value.
         // Use the optionally specified 'basicAllocator' to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
     BasicRecord(const BasicRecord& original,
-                bslma_Allocator *basicAllocator = 0);
+                bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'BasicRecord' having the value of the
         // specified 'original' object.  Use the optionally specified
         // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
@@ -2350,14 +2351,14 @@ class MySequenceWithArray {
         // exists, and 0 otherwise.
 
     // CREATORS
-    explicit MySequenceWithArray(bslma_Allocator *basicAllocator = 0);
+    explicit MySequenceWithArray(bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'MySequenceWithArray' having the default
         // value.  Use the optionally specified 'basicAllocator' to supply
         // memory.  If 'basicAllocator' is 0, the currently installed default
         // allocator is used.
 
     MySequenceWithArray(const MySequenceWithArray& original,
-                        bslma_Allocator *basicAllocator = 0);
+                        bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'MySequenceWithArray' having the value of
         // the specified 'original' object.  Use the optionally specified
         // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
@@ -2523,12 +2524,12 @@ class MySequenceWithAnonymousChoiceChoice {
 
   private:
     union {
-        bsls_ObjectBuffer< int >         d_myChoice1;
-        bsls_ObjectBuffer< bsl::string > d_myChoice2;
+        bsls::ObjectBuffer< int >         d_myChoice1;
+        bsls::ObjectBuffer< bsl::string > d_myChoice2;
     };
 
-    int              d_selectionId;
-    bslma_Allocator *d_allocator_p;
+    int               d_selectionId;
+    bslma::Allocator *d_allocator_p;
 
   public:
     // TYPES
@@ -2581,7 +2582,7 @@ class MySequenceWithAnonymousChoiceChoice {
 
     // CREATORS
     explicit MySequenceWithAnonymousChoiceChoice(
-                                          bslma_Allocator *basicAllocator = 0);
+                                         bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'MySequenceWithAnonymousChoiceChoice'
         // having the default value.  Use the optionally specified
         // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
@@ -2589,7 +2590,7 @@ class MySequenceWithAnonymousChoiceChoice {
 
     MySequenceWithAnonymousChoiceChoice(
                            const MySequenceWithAnonymousChoiceChoice& original,
-                           bslma_Allocator *basicAllocator = 0);
+                           bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'MySequenceWithAnonymousChoiceChoice'
         // having the value of the specified 'original' object.  Use the
         // optionally specified 'basicAllocator' to supply memory.  If
@@ -2814,14 +2815,14 @@ class Employee {
         // exists, and 0 otherwise.
 
     // CREATORS
-    explicit Employee(bslma_Allocator *basicAllocator = 0);
+    explicit Employee(bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'Employee' having the default value.  Use
         // the optionally specified 'basicAllocator' to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
     Employee(const Employee& original,
-             bslma_Allocator *basicAllocator = 0);
+             bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'Employee' having the value of the
         // specified 'original' object.  Use the optionally specified
         // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
@@ -3042,14 +3043,14 @@ class BigRecord {
         // exists, and 0 otherwise.
 
     // CREATORS
-    explicit BigRecord(bslma_Allocator *basicAllocator = 0);
+    explicit BigRecord(bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'BigRecord' having the default value.  Use
         // the optionally specified 'basicAllocator' to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
     BigRecord(const BigRecord& original,
-              bslma_Allocator *basicAllocator = 0);
+              bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'BigRecord' having the value of the
         // specified 'original' object.  Use the optionally specified
         // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
@@ -3269,7 +3270,7 @@ class MySequenceWithAnonymousChoice {
 
     // CREATORS
     explicit MySequenceWithAnonymousChoice(
-                                          bslma_Allocator *basicAllocator = 0);
+                                         bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'MySequenceWithAnonymousChoice' having the
         // default value.  Use the optionally specified 'basicAllocator' to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
@@ -3277,7 +3278,7 @@ class MySequenceWithAnonymousChoice {
 
     MySequenceWithAnonymousChoice(
                                  const MySequenceWithAnonymousChoice& original,
-                                 bslma_Allocator *basicAllocator = 0);
+                                 bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'MySequenceWithAnonymousChoice' having the
         // value of the specified 'original' object.  Use the optionally
         // specified 'basicAllocator' to supply memory.  If 'basicAllocator' is
@@ -3453,13 +3454,13 @@ class TimingRequest {
 
   private:
     union {
-        bsls_ObjectBuffer< Sqrt >        d_sqrt;
-        bsls_ObjectBuffer< BasicRecord > d_basic;
-        bsls_ObjectBuffer< BigRecord >   d_big;
+        bsls::ObjectBuffer< Sqrt >        d_sqrt;
+        bsls::ObjectBuffer< BasicRecord > d_basic;
+        bsls::ObjectBuffer< BigRecord >   d_big;
     };
 
-    int              d_selectionId;
-    bslma_Allocator *d_allocator_p;
+    int               d_selectionId;
+    bslma::Allocator *d_allocator_p;
 
   public:
     // TYPES
@@ -3515,14 +3516,14 @@ class TimingRequest {
         // exists, and 0 otherwise.
 
     // CREATORS
-    explicit TimingRequest(bslma_Allocator *basicAllocator = 0);
+    explicit TimingRequest(bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'TimingRequest' having the default value.
         // Use the optionally specified 'basicAllocator' to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
     TimingRequest(const TimingRequest& original,
-                 bslma_Allocator *basicAllocator = 0);
+                 bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'TimingRequest' having the value of the
         // specified 'original' object.  Use the optionally specified
         // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
@@ -3728,18 +3729,18 @@ int MyChoice::maxSupportedBdexVersion()
 
 // CREATORS
 inline
-MyChoice::MyChoice(bslma_Allocator *basicAllocator)
+MyChoice::MyChoice(bslma::Allocator *basicAllocator)
 : d_selectionId(SELECTION_ID_UNDEFINED)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
 
 inline
 MyChoice::MyChoice(
     const MyChoice& original,
-    bslma_Allocator *basicAllocator)
+    bslma::Allocator *basicAllocator)
 : d_selectionId(original.d_selectionId)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     switch (d_selectionId) {
       case SELECTION_ID_SELECTION1: {
@@ -4073,7 +4074,8 @@ int MySequenceWithNullable::maxSupportedBdexVersion()
 
 // CREATORS
 inline
-MySequenceWithNullable::MySequenceWithNullable(bslma_Allocator *basicAllocator)
+MySequenceWithNullable::MySequenceWithNullable(
+                                              bslma::Allocator *basicAllocator)
 : d_attribute1()
 , d_attribute2(basicAllocator)
 {
@@ -4082,7 +4084,7 @@ MySequenceWithNullable::MySequenceWithNullable(bslma_Allocator *basicAllocator)
 inline
 MySequenceWithNullable::MySequenceWithNullable(
         const MySequenceWithNullable& original,
-        bslma_Allocator *basicAllocator)
+        bslma::Allocator *basicAllocator)
 : d_attribute1(original.d_attribute1)
 , d_attribute2(original.d_attribute2, basicAllocator)
 {
@@ -4306,7 +4308,7 @@ int Address::maxSupportedBdexVersion()
 
 // CREATORS
 inline
-Address::Address(bslma_Allocator *basicAllocator)
+Address::Address(bslma::Allocator *basicAllocator)
 : d_street(basicAllocator)
 , d_city(basicAllocator)
 , d_state(basicAllocator)
@@ -4316,7 +4318,7 @@ Address::Address(bslma_Allocator *basicAllocator)
 inline
 Address::Address(
         const Address& original,
-        bslma_Allocator *basicAllocator)
+        bslma::Allocator *basicAllocator)
 : d_street(original.d_street, basicAllocator)
 , d_city(original.d_city, basicAllocator)
 , d_state(original.d_state, basicAllocator)
@@ -4568,7 +4570,7 @@ int MySequence::maxSupportedBdexVersion()
 
 // CREATORS
 inline
-MySequence::MySequence(bslma_Allocator *basicAllocator)
+MySequence::MySequence(bslma::Allocator *basicAllocator)
 : d_attribute1()
 , d_attribute2(basicAllocator)
 {
@@ -4577,7 +4579,7 @@ MySequence::MySequence(bslma_Allocator *basicAllocator)
 inline
 MySequence::MySequence(
         const MySequence& original,
-        bslma_Allocator *basicAllocator)
+        bslma::Allocator *basicAllocator)
 : d_attribute1(original.d_attribute1)
 , d_attribute2(original.d_attribute2, basicAllocator)
 {
@@ -4798,7 +4800,8 @@ int MySequenceWithNillable::maxSupportedBdexVersion()
 
 // CREATORS
 inline
-MySequenceWithNillable::MySequenceWithNillable(bslma_Allocator *basicAllocator)
+MySequenceWithNillable::MySequenceWithNillable(
+                                              bslma::Allocator *basicAllocator)
 : d_attribute1()
 , d_myNillable(basicAllocator)
 , d_attribute2(basicAllocator)
@@ -4808,7 +4811,7 @@ MySequenceWithNillable::MySequenceWithNillable(bslma_Allocator *basicAllocator)
 inline
 MySequenceWithNillable::MySequenceWithNillable(
         const MySequenceWithNillable& original,
-        bslma_Allocator *basicAllocator)
+        bslma::Allocator *basicAllocator)
 : d_attribute1(original.d_attribute1)
 , d_myNillable(original.d_myNillable, basicAllocator)
 , d_attribute2(original.d_attribute2, basicAllocator)
@@ -5348,21 +5351,21 @@ int CustomizedString::checkRestrictions(const bsl::string& value)
 }
 
 inline
-CustomizedString::CustomizedString(bslma_Allocator *basicAllocator)
+CustomizedString::CustomizedString(bslma::Allocator *basicAllocator)
 : d_value(basicAllocator)
 {
 }
 
 inline
 CustomizedString::CustomizedString(const CustomizedString& original,
-                                   bslma_Allocator *basicAllocator)
+                                   bslma::Allocator *basicAllocator)
 : d_value(original.d_value, basicAllocator)
 {
 }
 
 inline
 CustomizedString::CustomizedString(const bsl::string& value,
-                                   bslma_Allocator *basicAllocator)
+                                   bslma::Allocator *basicAllocator)
 : d_value(value, basicAllocator)
 {
     BSLS_ASSERT_SAFE(checkRestrictions(value) == 0);
@@ -5456,7 +5459,7 @@ int BasicRecord::maxSupportedBdexVersion()
 
 // CREATORS
 inline
-BasicRecord::BasicRecord(bslma_Allocator *basicAllocator)
+BasicRecord::BasicRecord(bslma::Allocator *basicAllocator)
 : d_i1()
 , d_i2()
 , d_dt()
@@ -5467,7 +5470,7 @@ BasicRecord::BasicRecord(bslma_Allocator *basicAllocator)
 inline
 BasicRecord::BasicRecord(
         const BasicRecord& original,
-        bslma_Allocator *basicAllocator)
+        bslma::Allocator *basicAllocator)
 : d_i1(original.d_i1)
 , d_i2(original.d_i2)
 , d_dt(original.d_dt)
@@ -5750,7 +5753,7 @@ int MySequenceWithArray::maxSupportedBdexVersion()
 
 // CREATORS
 inline
-MySequenceWithArray::MySequenceWithArray(bslma_Allocator *basicAllocator)
+MySequenceWithArray::MySequenceWithArray(bslma::Allocator *basicAllocator)
 : d_attribute1()
 , d_attribute2(basicAllocator)
 {
@@ -5759,7 +5762,7 @@ MySequenceWithArray::MySequenceWithArray(bslma_Allocator *basicAllocator)
 inline
 MySequenceWithArray::MySequenceWithArray(
         const MySequenceWithArray& original,
-        bslma_Allocator *basicAllocator)
+        bslma::Allocator *basicAllocator)
 : d_attribute1(original.d_attribute1)
 , d_attribute2(original.d_attribute2, basicAllocator)
 {
@@ -5981,18 +5984,18 @@ int MySequenceWithAnonymousChoiceChoice::maxSupportedBdexVersion()
 // CREATORS
 inline
 MySequenceWithAnonymousChoiceChoice::MySequenceWithAnonymousChoiceChoice(
-                                               bslma_Allocator *basicAllocator)
+                                              bslma::Allocator *basicAllocator)
 : d_selectionId(SELECTION_ID_UNDEFINED)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
 
 inline
 MySequenceWithAnonymousChoiceChoice::MySequenceWithAnonymousChoiceChoice(
     const MySequenceWithAnonymousChoiceChoice& original,
-    bslma_Allocator *basicAllocator)
+    bslma::Allocator *basicAllocator)
 : d_selectionId(original.d_selectionId)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     switch (d_selectionId) {
       case SELECTION_ID_MY_CHOICE1: {
@@ -6334,7 +6337,7 @@ int Employee::maxSupportedBdexVersion()
 
 // CREATORS
 inline
-Employee::Employee(bslma_Allocator *basicAllocator)
+Employee::Employee(bslma::Allocator *basicAllocator)
 : d_name(basicAllocator)
 , d_homeAddress(basicAllocator)
 , d_age()
@@ -6344,7 +6347,7 @@ Employee::Employee(bslma_Allocator *basicAllocator)
 inline
 Employee::Employee(
         const Employee& original,
-        bslma_Allocator *basicAllocator)
+        bslma::Allocator *basicAllocator)
 : d_name(original.d_name, basicAllocator)
 , d_homeAddress(original.d_homeAddress, basicAllocator)
 , d_age(original.d_age)
@@ -6597,7 +6600,7 @@ int BigRecord::maxSupportedBdexVersion()
 
 // CREATORS
 inline
-BigRecord::BigRecord(bslma_Allocator *basicAllocator)
+BigRecord::BigRecord(bslma::Allocator *basicAllocator)
 : d_name(basicAllocator)
 , d_array(basicAllocator)
 {
@@ -6606,7 +6609,7 @@ BigRecord::BigRecord(bslma_Allocator *basicAllocator)
 inline
 BigRecord::BigRecord(
         const BigRecord& original,
-        bslma_Allocator *basicAllocator)
+        bslma::Allocator *basicAllocator)
 : d_name(original.d_name, basicAllocator)
 , d_array(original.d_array, basicAllocator)
 {
@@ -6822,7 +6825,7 @@ int MySequenceWithAnonymousChoice::maxSupportedBdexVersion()
 // CREATORS
 inline
 MySequenceWithAnonymousChoice::MySequenceWithAnonymousChoice(
-                                               bslma_Allocator *basicAllocator)
+                                              bslma::Allocator *basicAllocator)
 : d_attribute1()
 , d_choice(basicAllocator)
 , d_attribute2(basicAllocator)
@@ -6832,7 +6835,7 @@ MySequenceWithAnonymousChoice::MySequenceWithAnonymousChoice(
 inline
 MySequenceWithAnonymousChoice::MySequenceWithAnonymousChoice(
         const MySequenceWithAnonymousChoice& original,
-        bslma_Allocator *basicAllocator)
+        bslma::Allocator *basicAllocator)
 : d_attribute1(original.d_attribute1)
 , d_choice(original.d_choice, basicAllocator)
 , d_attribute2(original.d_attribute2, basicAllocator)
@@ -7098,18 +7101,18 @@ int TimingRequest::maxSupportedBdexVersion()
 
 // CREATORS
 inline
-TimingRequest::TimingRequest(bslma_Allocator *basicAllocator)
+TimingRequest::TimingRequest(bslma::Allocator *basicAllocator)
 : d_selectionId(SELECTION_ID_UNDEFINED)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
 
 inline
 TimingRequest::TimingRequest(
     const TimingRequest& original,
-    bslma_Allocator *basicAllocator)
+    bslma::Allocator *basicAllocator)
 : d_selectionId(original.d_selectionId)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     switch (d_selectionId) {
       case SELECTION_ID_SQRT: {
@@ -10674,8 +10677,8 @@ int main(int argc, char *argv[])
             const signed   long   XK1 = LONG_MIN;
             const          long   XL1 = LONG_MAX;
 
-            const bsls_Types::Int64  XM1 = 0xff34567890123456LL;
-            const bsls_Types::Uint64 XN1 = 0x1234567890123456LL;
+            const bsls::Types::Int64  XM1 = 0xff34567890123456LL;
+            const bsls::Types::Uint64 XN1 = 0x1234567890123456LL;
 
             const          bool   XO1 = true;
 
@@ -10994,7 +10997,7 @@ int main(int argc, char *argv[])
         bdesb_MemOutStreamBuf sb;
         sb.reserveCapacity(MAX_BUF_SIZE);
 
-        bsls_Stopwatch stopwatch;
+        bsls::Stopwatch stopwatch;
 
         stopwatch.reset();
         stopwatch.start();

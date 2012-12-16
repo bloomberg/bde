@@ -237,7 +237,7 @@ class bdem_BerDecoder {
 
       public:
         // CREATORS
-        MemOutStream(bslma_Allocator *basicAllocator = 0);
+        MemOutStream(bslma::Allocator *basicAllocator = 0);
             // Create a new stream using the specified 'basicAllocator'.
             // if 'basicAllocator' is 0, the default allocator is used.
 
@@ -273,9 +273,9 @@ class bdem_BerDecoder {
   private:
     // DATA
     const bdem_BerDecoderOptions    *d_options;      // held, not owned
-    bslma_Allocator                 *d_allocator;    // held, not owned
+    bslma::Allocator                *d_allocator;    // held, not owned
 
-    bsls_ObjectBuffer<MemOutStream>  d_logArea;      // placeholder for
+    bsls::ObjectBuffer<MemOutStream> d_logArea;      // placeholder for
                                                      // MemOutStream
 
     MemOutStream                    *d_logStream;    // if not zero,
@@ -318,7 +318,7 @@ class bdem_BerDecoder {
   public:
     // CREATORS
     bdem_BerDecoder(const bdem_BerDecoderOptions *options = 0,
-                    bslma_Allocator              *basicAllocator = 0);
+                    bslma::Allocator             *basicAllocator = 0);
         // Construct a decoder object using the optionally specified 'options',
         // and 'basicAllocator'.  If 'basicAllocator' is 0, the default
         // allocator is used.
@@ -459,7 +459,7 @@ class bdem_BerDecoder_Node {
 
     // MANIPULATORS
     template <typename TYPE>
-    int operator()(TYPE *object, bslmf_Nil);
+    int operator()(TYPE *object, bslmf::Nil);
 
     template <typename TYPE, typename ANY_CATEGORY>
     int operator()(TYPE *object, ANY_CATEGORY category);
@@ -643,9 +643,9 @@ class bdem_BerDecoder_Zeroer {
 
 // CREATORS
 inline
-bdem_BerDecoder::MemOutStream::MemOutStream(bslma_Allocator *basicAllocator)
+bdem_BerDecoder::MemOutStream::MemOutStream(bslma::Allocator *basicAllocator)
 : bsl::ostream(0)
-, d_sb(bslma_Default::allocator(basicAllocator))
+, d_sb(bslma::Default::allocator(basicAllocator))
 {
     rdbuf(&d_sb);
 }
@@ -905,7 +905,7 @@ void bdem_BerDecoder_Node::setFieldName(const char *name)
 
 template <typename TYPE>
 inline
-int bdem_BerDecoder_Node::operator()(TYPE *, bslmf_Nil)
+int bdem_BerDecoder_Node::operator()(TYPE *, bslmf::Nil)
 {
     BSLS_ASSERT(0 && "Should never execute this function");
     return -1;

@@ -4,8 +4,6 @@
 #include <bdes_ident.h>
 BDES_IDENT_RCSID(bdeimp_voidptrhash_cpp,"$Id$ $CSID$")
 
-#include <bsls_platformutil.h>                  // for testing only
-
 namespace BloombergLP {
 
 struct bdeimp_VoidPtrHash_Assertions {

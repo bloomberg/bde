@@ -252,7 +252,7 @@ BDES_IDENT("$Id: $")
 //
 //    public:
 //      // CREATORS
-//      my_MessageFactory(bslma_Allocator *basicAllocator = 0);
+//      my_MessageFactory(bslma::Allocator *basicAllocator = 0);
 //          // Create a message factory.  Optionally specify a 'basicAllocator'
 //          // used to supply memory.  If 'basicAllocator' is 0, the currently
 //          // installed default allocator is used.
@@ -312,7 +312,7 @@ BDES_IDENT("$Id: $")
 // Continuing on with the usage example:
 //..
 //  // CREATORS
-//  my_MessageFactory::my_MessageFactory(bslma_Allocator *basicAllocator)
+//  my_MessageFactory::my_MessageFactory(bslma::Allocator *basicAllocator)
 //  : d_multipool(basicAllocator)
 //  {
 //  }
@@ -361,7 +361,7 @@ BDES_IDENT("$Id: $")
 //
 ///Example 2: Implementing an Allocator Using 'bdema_Multipool'
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// 'bslma_Allocator' is used throughout the interfaces of BDE components.
+// 'bslma::Allocator' is used throughout the interfaces of BDE components.
 // Suppose we would like to create a multipool allocator,
 // 'my_MultipoolAllocator', that allocates memory from multiple 'bdema_Pool'
 // objects in a similar fashion to 'bdema_Multipool'.  This class can be used
@@ -371,8 +371,8 @@ BDES_IDENT("$Id: $")
 // example.  Please see 'bdema_multipoolallocator' for full documentation of a
 // similar class.
 //..
-//  class my_MultipoolAllocator : public bslma_Allocator {
-//      // This class implements the 'bslma_Allocator' protocol to provide an
+//  class my_MultipoolAllocator : public bslma::Allocator {
+//      // This class implements the 'bslma::Allocator' protocol to provide an
 //      // allocator that manages a set of memory pools, each dispensing memory
 //      // blocks of a unique size, with each successive pool's block size
 //      // being twice that of the previous one.
@@ -383,7 +383,7 @@ BDES_IDENT("$Id: $")
 //
 //    public:
 //      // CREATORS
-//      my_MultipoolAllocator(bslma_Allocator *basicAllocator = 0);
+//      my_MultipoolAllocator(bslma::Allocator *basicAllocator = 0);
 //          // Create a multipool allocator.  Optionally specify a
 //          // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
 //          // 0, the currently installed default allocator is used.
@@ -410,7 +410,7 @@ BDES_IDENT("$Id: $")
 //  // CREATORS
 //  inline
 //  my_MultipoolAllocator::my_MultipoolAllocator(
-//                                            bslma_Allocator *basicAllocator)
+//                                            bslma::Allocator *basicAllocator)
 //  : d_multiPool(basicAllocator)
 //  {
 //  }
@@ -449,16 +449,16 @@ BDES_IDENT("$Id: $")
 #include <bslma_deleterhelper.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
 #ifndef INCLUDED_BSLS_ALIGNMENTUTIL
 #include <bsls_alignmentutil.h>
 #endif
 
 #ifndef INCLUDED_BSLS_BLOCKGROWTH
 #include <bsls_blockgrowth.h>
-#endif
-
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
 #endif
 
 namespace BloombergLP {
@@ -490,7 +490,7 @@ class bdema_Multipool {
             int                    d_poolIdx;  // pool used for this memory
                                                // block
 
-            bsls_AlignmentUtil::MaxAlignedType
+            bsls::AlignmentUtil::MaxAlignedType
                                    d_dummy;    // force maximum alignment
         } d_header;
     };
@@ -508,18 +508,18 @@ class bdema_Multipool {
     bdema_BlockList  d_blockList;     // memory manager for "large" memory
                                       // blocks.
 
-    bslma_Allocator *d_allocator_p;   // holds (but does not own) allocator
+    bslma::Allocator *d_allocator_p;   // holds (but does not own) allocator
 
   private:
     // PRIVATE MANIPULATORS
-    void initialize(bsls_BlockGrowth::Strategy        growthStrategy,
-                    int                               maxBlocksPerChunk);
-    void initialize(const bsls_BlockGrowth::Strategy *growthStrategyArray,
-                    int                               maxBlocksPerChunk);
-    void initialize(bsls_BlockGrowth::Strategy        growthStrategy,
-                    const int                        *maxBlocksPerChunkArray);
-    void initialize(const bsls_BlockGrowth::Strategy *growthStrategyArray,
-                    const int                        *maxBlocksPerChunkArray);
+    void initialize(bsls::BlockGrowth::Strategy        growthStrategy,
+                    int                                maxBlocksPerChunk);
+    void initialize(const bsls::BlockGrowth::Strategy *growthStrategyArray,
+                    int                                maxBlocksPerChunk);
+    void initialize(bsls::BlockGrowth::Strategy        growthStrategy,
+                    const int                         *maxBlocksPerChunkArray);
+    void initialize(const bsls::BlockGrowth::Strategy *growthStrategyArray,
+                    const int                         *maxBlocksPerChunkArray);
         // Initialize this multipool with the specified 'growthStrategy[Array]'
         // and 'maxBlocksPerChunk[Array]'.  If an array is used, each
         // individual 'bdema_Pool' maintained by this multipool is initialized
@@ -540,18 +540,18 @@ class bdema_Multipool {
 
   public:
     // CREATORS
-    bdema_Multipool(bslma_Allocator                  *basicAllocator = 0);
-    bdema_Multipool(int                               numPools,
-                    bslma_Allocator                  *basicAllocator = 0);
-    bdema_Multipool(bsls_BlockGrowth::Strategy        growthStrategy,
-                    bslma_Allocator                  *basicAllocator = 0);
-    bdema_Multipool(int                               numPools,
-                    bsls_BlockGrowth::Strategy        growthStrategy,
-                    bslma_Allocator                  *basicAllocator = 0);
-    bdema_Multipool(int                               numPools,
-                    bsls_BlockGrowth::Strategy        growthStrategy,
-                    int                               maxBlocksPerChunk,
-                    bslma_Allocator                  *basicAllocator = 0);
+    bdema_Multipool(bslma::Allocator                  *basicAllocator = 0);
+    bdema_Multipool(int                                numPools,
+                    bslma::Allocator                  *basicAllocator = 0);
+    bdema_Multipool(bsls::BlockGrowth::Strategy        growthStrategy,
+                    bslma::Allocator                  *basicAllocator = 0);
+    bdema_Multipool(int                                numPools,
+                    bsls::BlockGrowth::Strategy        growthStrategy,
+                    bslma::Allocator                  *basicAllocator = 0);
+    bdema_Multipool(int                                numPools,
+                    bsls::BlockGrowth::Strategy        growthStrategy,
+                    int                                maxBlocksPerChunk,
+                    bslma::Allocator                  *basicAllocator = 0);
         // Create a multipool memory manager.  Optionally specify 'numPools',
         // indicating the number of internally created 'bdema_Pool' objects;
         // the block size of the first pool is 8 bytes, with the block size of
@@ -577,27 +577,27 @@ class bdema_Multipool {
         // pool managing memory block of sufficient size exists.  The behavior
         // is undefined unless '1 <= numPools' and '1 <= maxBlocksPerChunk'.
         // Note that, on platforms where
-        // '8 < bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT', excess memory may be
+        // '8 < bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT', excess memory may be
         // allocated for pools managing smaller blocks.  Also note that
         // 'maxBlocksPerChunk' need not be an integral power of 2; if geometric
         // growth would exceed the maximum value, the chunk size is capped at
         // that value).
 
-    bdema_Multipool(int                               numPools,
-                    const bsls_BlockGrowth::Strategy *growthStrategyArray,
-                    bslma_Allocator                  *basicAllocator = 0);
-    bdema_Multipool(int                               numPools,
-                    const bsls_BlockGrowth::Strategy *growthStrategyArray,
-                    int                               maxBlocksPerChunk,
-                    bslma_Allocator                  *basicAllocator = 0);
-    bdema_Multipool(int                               numPools,
-                    bsls_BlockGrowth::Strategy        growthStrategy,
-                    const int                        *maxBlocksPerChunkArray,
-                    bslma_Allocator                  *basicAllocator = 0);
-    bdema_Multipool(int                               numPools,
-                    const bsls_BlockGrowth::Strategy *growthStrategyArray,
-                    const int                        *maxBlocksPerChunkArray,
-                    bslma_Allocator                  *basicAllocator = 0);
+    bdema_Multipool(int                                numPools,
+                    const bsls::BlockGrowth::Strategy *growthStrategyArray,
+                    bslma::Allocator                  *basicAllocator = 0);
+    bdema_Multipool(int                                numPools,
+                    const bsls::BlockGrowth::Strategy *growthStrategyArray,
+                    int                                maxBlocksPerChunk,
+                    bslma::Allocator                  *basicAllocator = 0);
+    bdema_Multipool(int                                numPools,
+                    bsls::BlockGrowth::Strategy        growthStrategy,
+                    const int                         *maxBlocksPerChunkArray,
+                    bslma::Allocator                  *basicAllocator = 0);
+    bdema_Multipool(int                                numPools,
+                    const bsls::BlockGrowth::Strategy *growthStrategyArray,
+                    const int                         *maxBlocksPerChunkArray,
+                    bslma::Allocator                  *basicAllocator = 0);
         // Create a multipool memory manager having the specified 'numPools',
         // indicating the number of internally created 'bdema_Pool' objects;
         // the block size of the first pool is 8 bytes, with the block size of
@@ -629,7 +629,7 @@ class bdema_Multipool {
         // least 'numPools' strategies, '1 <= maxBlocksPerChunk' and
         // 'maxBlocksPerChunkArray' have at least 'numPools' positive values.
         // Note that, on platforms where
-        // '8 < bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT', excess memory may be
+        // '8 < bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT', excess memory may be
         // allocated for pools managing smaller blocks.  Also note that the
         // maximum need not be an integral power of 2; if geometric growth
         // would exceed a maximum value, the chunk size is capped at that
@@ -711,14 +711,14 @@ template <class TYPE>
 inline
 void bdema_Multipool::deleteObject(const TYPE *object)
 {
-    bslma_DeleterHelper::deleteObject(object, this);
+    bslma::DeleterHelper::deleteObject(object, this);
 }
 
 template <class TYPE>
 inline
 void bdema_Multipool::deleteObjectRaw(const TYPE *object)
 {
-    bslma_DeleterHelper::deleteObjectRaw(object, this);
+    bslma::DeleterHelper::deleteObjectRaw(object, this);
 }
 
 // ACCESSORS

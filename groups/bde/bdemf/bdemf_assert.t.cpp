@@ -3,7 +3,6 @@
 #include <bdemf_assert.h>
 #include <bsls_compilerfeatures.h>
 #include <bsls_platform.h>
-#include <bsls_platformutil.h>
 
 #include <bsl_cstdlib.h>     // atoi()
 #include <bsl_cstring.h>     // strcmp()

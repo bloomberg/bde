@@ -131,7 +131,7 @@ bool globalDestructorInvoked = false;
 // actually get aligned on 4-byte boundary.  To fix this, create a static
 // buffer instead.
 enum { BUFFER_SIZE = 256 };
-static bsls_AlignedBuffer<BUFFER_SIZE> bufferStorage;
+static bsls::AlignedBuffer<BUFFER_SIZE> bufferStorage;
 
 //=============================================================================
 //                          HELPER CLASS FOR TESTING
@@ -235,7 +235,7 @@ class my_Class {
                                                          int numNodes)
     {
         return tableSize * sizeof(my_Node *) + numNodes * sizeof(my_Node)
-                                      + bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT;
+                                     + bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
     }
 //..
 // Note that, in case the allocated buffer is not aligned, the size calculation
@@ -312,13 +312,13 @@ class my_Class {
 // default allocator, as we only need a single dynamic allocation, versus
 // dynamic allocations for every single node:
 //..
-        bslma_Allocator *alloc = bslma_Default::defaultAllocator();
+        bslma::Allocator *alloc = bslma::Default::defaultAllocator();
         char *buffer = static_cast<char *>(alloc->allocate(MAX_SIZE));
 //..
-// We can use a 'bslma_DeallocatorGuard' to automatically deallocate the buffer
-// when the function ends:
+// We can use a 'bslma::DeallocatorGuard' to automatically deallocate the
+// buffer when the function ends:
 //..
-        bslma_DeallocatorGuard<bslma_Allocator> guard(buffer, alloc);
+        bslma::DeallocatorGuard<bslma::Allocator> guard(buffer, alloc);
 
         bdema_BufferManager bufferManager(buffer, MAX_SIZE);
         my_IntegerCountingHashTable table(length, &bufferManager);
@@ -411,14 +411,14 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "TRUNCATE TEST" << endl
                                   << "==============" << endl;
 
-        typedef bsls_Alignment::Strategy St;
+        typedef bsls::Alignment::Strategy St;
 
-        enum { MAX_ALIGN = bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT };
+        enum { MAX_ALIGN = bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT };
 
         char *buffer = bufferStorage.buffer();
 
-#define NAT bsls_Alignment::BSLS_NATURAL
-#define MAX bsls_Alignment::BSLS_MAXIMUM
+#define NAT bsls::Alignment::BSLS_NATURAL
+#define MAX bsls::Alignment::BSLS_MAXIMUM
 
         if (verbose) cout << "\nTesting 'truncate'." << endl;
 
@@ -542,14 +542,14 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "EXPAND TEST" << endl
                                   << "===========" << endl;
 
-        typedef bsls_Alignment::Strategy St;
+        typedef bsls::Alignment::Strategy St;
 
-        enum { MAX_ALIGN   = bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT };
+        enum { MAX_ALIGN   = bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT };
 
         char *buffer = bufferStorage.buffer();
 
-#define NAT bsls_Alignment::BSLS_NATURAL
-#define MAX bsls_Alignment::BSLS_MAXIMUM
+#define NAT bsls::Alignment::BSLS_NATURAL
+#define MAX bsls::Alignment::BSLS_MAXIMUM
 
         if (verbose) cout << "\nTesting 'expand'." << endl;
 
@@ -907,14 +907,14 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "ALLOCATE TEST" << endl
                                   << "=============" << endl;
 
-        typedef bsls_Alignment::Strategy St;
+        typedef bsls::Alignment::Strategy St;
 
-        enum { MAX_ALIGN   = bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT };
+        enum { MAX_ALIGN   = bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT };
 
         char *buffer = bufferStorage.buffer();
 
-#define NAT bsls_Alignment::BSLS_NATURAL
-#define MAX bsls_Alignment::BSLS_MAXIMUM
+#define NAT bsls::Alignment::BSLS_NATURAL
+#define MAX bsls::Alignment::BSLS_MAXIMUM
 
         if (verbose) cout << "\nTesting 'allocate' and 'allocateRaw'." << endl;
         {
@@ -1227,7 +1227,7 @@ int main(int argc, char *argv[])
                                   << "=====================" << endl;
 
         enum { BUFFER_SIZE = 256, ALLOC_SIZE1 = 1, ALLOC_SIZE2 = 4 };
-        enum { MAX_ALIGN   = bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT };
+        enum { MAX_ALIGN   = bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT };
         char buffer[BUFFER_SIZE];
 
         if (verbose) cout << "\nTesting ctor and accessors." << endl;
@@ -1249,20 +1249,20 @@ int main(int argc, char *argv[])
         {
             Obj bufferObject1(buffer, BUFFER_SIZE);
             Obj bufferObject2(buffer, BUFFER_SIZE,
-                              bsls_Alignment::BSLS_MAXIMUM);
+                              bsls::Alignment::BSLS_MAXIMUM);
 
             const int NAT_OFFSET =
-                bsls_AlignmentUtil::calculateAlignmentOffset(
+                bsls::AlignmentUtil::calculateAlignmentOffset(
                                             &buffer[ALLOC_SIZE1], ALLOC_SIZE2);
 
             const int MAX_OFFSET1 =
-                bsls_AlignmentUtil::calculateAlignmentOffset(
-                           &buffer[0], bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT);
+                bsls::AlignmentUtil::calculateAlignmentOffset(
+                          &buffer[0], bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT);
 
             const int MAX_OFFSET2 =
-                bsls_AlignmentUtil::calculateAlignmentOffset(
-                                       &buffer[ALLOC_SIZE1 + MAX_OFFSET1],
-                                       bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT);
+                bsls::AlignmentUtil::calculateAlignmentOffset(
+                                      &buffer[ALLOC_SIZE1 + MAX_OFFSET1],
+                                      bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT);
 
             void *addr = bufferObject1.allocate(ALLOC_SIZE1);
             LOOP2_ASSERT(&buffer[0], addr, &buffer[0] == addr);

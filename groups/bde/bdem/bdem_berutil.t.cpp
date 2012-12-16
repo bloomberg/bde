@@ -10,11 +10,9 @@
 #include <bdeat_typetraits.h>
 #include <bdeat_valuetypefunctions.h>
 
-#include <bsls_platformutil.h>
-
 #include <bsls_objectbuffer.h>
-#include <bsls_platformutil.h>
 #include <bsls_stopwatch.h>
+#include <bsls_types.h>
 
 #include <bdeimp_dateutil.h>
 #include <bdeimp_prolepticdateutil.h>
@@ -38,8 +36,6 @@
 #include <bsl_string.h>
 #include <bsl_climits.h>
 #include <bsl_cstdlib.h>
-
-#include <bsl_bitset.h>
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
@@ -112,15 +108,15 @@ static void aSsErT(int c, const char *s, int i) {
 enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
 enum { SUCCESS = 0, FAILURE = -1 };
 
-typedef bsls_PlatformUtil::Int64  Int64;
-typedef bsls_PlatformUtil::Uint64 Uint64;
+typedef bsls::Types::Int64  Int64;
+typedef bsls::Types::Uint64 Uint64;
 
 static int verbose = 0;
 static int veryVerbose = 0;
 static int veryVeryVerbose = 0;
 
 typedef bdem_BerUtil Util;
-typedef bslstl_StringRef StringRef;
+typedef bslstl::StringRef StringRef;
 
 typedef bdeimp_ProlepticDateUtil ProlepticDateUtil;
 typedef bdeimp_DateUtil          DateUtil;
@@ -4258,7 +4254,7 @@ int main(int argc, char *argv[])
       } break;
       case 14: {
         // --------------------------------------------------------------------
-        // TESTING 'putValue' & 'getValue' for 'bslstl_StringRef'
+        // TESTING 'putValue' & 'getValue' for 'bslstl::StringRef'
         //
         // Concerns:
         //
@@ -6097,7 +6093,7 @@ int main(int argc, char *argv[])
             maxIter = bsl::atoi(argv[2]);
         }
 
-        bsls_Stopwatch timer;
+        bsls::Stopwatch timer;
 
         char buffer[64];
         bdesb_FixedMemOutStreamBuf osb(buffer, 64);

@@ -1,15 +1,15 @@
-// bdex_byteoutstreamformatter.cpp               -*-C++-*-
+// bdex_byteoutstreamformatter.cpp                                    -*-C++-*-
 #include <bdex_byteoutstreamformatter.h>
 
 #include <bdes_ident.h>
 BDES_IDENT_RCSID(bdex_byteoutstreamformatter_cpp,"$Id$ $CSID$")
 
-#include <bsls_platformutil.h>
 #include <bslmf_assert.h>
+#include <bsls_types.h>
 
 namespace BloombergLP {
 
-BSLMF_ASSERT(8 == sizeof(bsls_PlatformUtil::Int64));
+BSLMF_ASSERT(8 == sizeof(bsls::Types::Int64));
 BSLMF_ASSERT(4 == sizeof(int));
 BSLMF_ASSERT(2 == sizeof(short));
 BSLMF_ASSERT(8 == sizeof(double));

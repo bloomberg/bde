@@ -478,7 +478,7 @@ bdesu_FdStreamBuf::bdesu_FdStreamBuf(
                           bool                            writableFlag,
                           bool                            willCloseOnResetFlag,
                           bool                            binaryModeFlag,
-                          bslma_Allocator                *basicAllocator)
+                          bslma::Allocator               *basicAllocator)
 : bsl::streambuf()
 , d_fileHandler()
 , d_mode(BDESU_NULL_MODE)
@@ -491,7 +491,7 @@ bdesu_FdStreamBuf::bdesu_FdStreamBuf(
 , d_savedEgptr_p(0)
 , d_mmapBase_p(0)
 , d_mmapLen(0)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     reset(fileDescriptor, writableFlag, willCloseOnResetFlag, binaryModeFlag);
 }

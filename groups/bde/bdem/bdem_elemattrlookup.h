@@ -32,7 +32,7 @@ BDES_IDENT("$Id: $")
 // The following function tests the functionality of one of the bdem types:
 //..
 //  void testType(bdem_ElemType::Type objType, const void *otherObj) {
-//      bslma_TestAllocator testAlloc;
+//      bslma::TestAllocator testAlloc;
 //..
 // First, we look up the descriptor for 'objType' in the 'bdem_ElemAttrLookup'
 // lookup table:
@@ -175,7 +175,7 @@ template <class STREAM>
 const bdem_DescriptorStreamIn<STREAM> *
 bdem_ElemStreamInAttrLookup<STREAM>::lookupTable()
 {
-    typedef bsls_Types::Int64 Int64;
+    typedef bsls::Types::Int64 Int64;
 
     static const bdem_DescriptorStreamIn<STREAM>
         table[bdem_ElemType::BDEM_NUM_TYPES] =
@@ -224,7 +224,7 @@ template <class STREAM>
 const bdem_DescriptorStreamOut<STREAM> *
 bdem_ElemStreamOutAttrLookup<STREAM>::lookupTable()
 {
-    typedef bsls_Types::Int64 Int64;
+    typedef bsls::Types::Int64 Int64;
 
     static const bdem_DescriptorStreamOut<STREAM>
         table[bdem_ElemType::BDEM_NUM_TYPES] =

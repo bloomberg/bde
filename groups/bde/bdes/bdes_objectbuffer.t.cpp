@@ -12,11 +12,6 @@
 using namespace BloombergLP;
 using namespace bsl;
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-#else
-#define bdes_ObjectBuffer bsls_ObjectBuffer
-#endif  // BDE_OMIT_INTERNAL_DEPRECATED
-
 //=============================================================================
 //                             TEST PLAN
 //-----------------------------------------------------------------------------
@@ -431,8 +426,8 @@ int main(int argc, char *argv[])
         //   For a representative set of TYPE template parameters
         //   instantiate bdes_ObjectBuffer<TYPE> (a.k.a. Buff) and
         //   verify that:
-        //   - bsls_AlignmentFromType<Buff>::VALUE ==
-        //                                  bsls_AlignmentFromType<TYPE>::VALUE
+        //   - bsls::AlignmentFromType<Buff>::VALUE ==
+        //                                 bsls::AlignmentFromType<TYPE>::VALUE
         //   - sizeof(Buff) == sizeof(TYPE)
         //
         // Testing:
@@ -445,8 +440,8 @@ int main(int argc, char *argv[])
 #       define TEST_INVARIANTS(TYPE) \
             do { \
                 typedef bdes_ObjectBuffer<TYPE> Buff;  \
-                ASSERT((int) bsls_AlignmentFromType<Buff>::VALUE == \
-                       (int) bsls_AlignmentFromType<TYPE>::VALUE); \
+                ASSERT((int) bsls::AlignmentFromType<Buff>::VALUE == \
+                       (int) bsls::AlignmentFromType<TYPE>::VALUE); \
                 ASSERT(sizeof(Buff) == sizeof(TYPE)); \
             } while (false)
 

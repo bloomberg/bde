@@ -89,7 +89,7 @@ BDES_IDENT("$Id: $")
 // define a 'PrintValue' function class:
 //..
 //  #include <bdeat_nullablevaluefunctions.h>
-//  #include <bslmf_If.h>
+//  #include <bslmf::If.h>
 //
 //  #include <ostream>
 //
@@ -165,7 +165,7 @@ BDES_IDENT("$Id: $")
 //      int operator()(const TYPE& value)
 //      {
 //          typedef typename
-//          bslmf_If<
+//          bslmf::If<
 //              bdeat_NullableValueFunctions::IsNullableValueType<TYPE>::VALUE,
 //              IsNullableValueType,
 //              IsNotNullableValueType>::Type Toggle;
@@ -224,7 +224,7 @@ BDES_IDENT("$Id: $")
 //      int operator()(const TYPE& value)
 //      {
 //          typedef typename
-//          bslmf_If<
+//          bslmf::If<
 //              bdeat_NullableValueFunctions::IsNullableValue<TYPE>::VALUE,
 //              IsNullableValueType,
 //              IsNotNullableValueType>::Type Toggle;
@@ -299,7 +299,7 @@ namespace bdeat_NullableValueFunctions {
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
     template <typename TYPE>
-    bslmf_MetaInt<0> isNullableValueMetaFunction(const TYPE&);
+    bslmf::MetaInt<0> isNullableValueMetaFunction(const TYPE&);
         // This function can be overloaded to support partial specialization
         // (Sun5.2 compiler is unable to partially specialize the 'struct'
         // below).  Note that this function is has no definition and should not
@@ -319,7 +319,7 @@ namespace bdeat_NullableValueFunctions {
             VALUE = 0
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
                  || BSLMF_METAINT_TO_BOOL(isNullableValueMetaFunction(
-                                                   bslmf_TypeRep<TYPE>::rep()))
+                                                  bslmf::TypeRep<TYPE>::rep()))
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
         };
     };

@@ -6,10 +6,10 @@
 #include <bdex_testinstream.h>                  // for testing only
 #include <bdex_testinstreamexception.h>         // for testing only
 
-#include <bsls_platform.h>                      // for testing only
-#include <bsls_platformutil.h>                  // for testing only
-#include <bslma_testallocator.h>                // for testing only
-#include <bslma_testallocatorexception.h>       // for testing only
+#include <bslma_testallocator.h>
+#include <bslma_testallocatorexception.h>
+
+#include <bsls_platform.h>
 
 #include <bsl_cstdio.h>       // printf()
 #include <bsl_cstdlib.h>      // atoi()
@@ -135,7 +135,7 @@ class testLoader : public bdecs_CalendarLoader {
     bdet_Date d_firstDate;
 
  public:
-    testLoader(bslma_Allocator *basicAllocator = 0);
+    testLoader(bslma::Allocator *basicAllocator = 0);
     ~testLoader();
 
     int load(bdecs_PackedCalendar *result, const char *calendarName);
@@ -143,7 +143,7 @@ class testLoader : public bdecs_CalendarLoader {
 };
 
 inline
-testLoader::testLoader(bslma_Allocator *basicAllocator)
+testLoader::testLoader(bslma::Allocator *basicAllocator)
 {
 }
 
@@ -195,7 +195,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    bslma_TestAllocator testAllocator(veryVeryVerbose);
+    bslma::TestAllocator testAllocator(veryVeryVerbose);
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 5: {

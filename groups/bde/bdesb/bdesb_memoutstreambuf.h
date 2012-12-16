@@ -186,8 +186,8 @@ class bdesb_MemOutStreamBuf : public bsl::streambuf {
     };
 
     // DATA
-    bslma_Allocator *d_allocator_p;  // memory source for buffer memory
-                                     // (held, not owned)
+    bslma::Allocator *d_allocator_p;  // memory source for buffer memory
+                                      // (held, not owned)
 
     // NOT IMPLEMENTED
     bdesb_MemOutStreamBuf(const bdesb_MemOutStreamBuf&);
@@ -252,14 +252,14 @@ class bdesb_MemOutStreamBuf : public bsl::streambuf {
   public:
     // CREATORS
     explicit
-    bdesb_MemOutStreamBuf(bslma_Allocator *basicAllocator = 0);
+    bdesb_MemOutStreamBuf(bslma::Allocator *basicAllocator = 0);
         // Create an empty stream buffer.  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
         // the currently installed default allocator is used.
 
     explicit
-    bdesb_MemOutStreamBuf(int              numElements,
-                          bslma_Allocator *basicAllocator = 0);
+    bdesb_MemOutStreamBuf(int               numElements,
+                          bslma::Allocator *basicAllocator = 0);
         // Create an empty stream buffer with sufficient initial capacity to
         // accommodate up to the specified 'numElements' characters without
         // subsequent reallocation.  If 'numElements <= 0', an implementation-
@@ -305,16 +305,16 @@ int bdesb_MemOutStreamBuf::capacity() const
 
 // CREATORS
 inline
-bdesb_MemOutStreamBuf::bdesb_MemOutStreamBuf(bslma_Allocator *basicAllocator)
-: d_allocator_p(bslma_Default::allocator(basicAllocator))
+bdesb_MemOutStreamBuf::bdesb_MemOutStreamBuf(bslma::Allocator *basicAllocator)
+: d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     setp(0, 0);
 }
 
 inline
-bdesb_MemOutStreamBuf::bdesb_MemOutStreamBuf(int              numElements,
-                                             bslma_Allocator *basicAllocator)
-: d_allocator_p(bslma_Default::allocator(basicAllocator))
+bdesb_MemOutStreamBuf::bdesb_MemOutStreamBuf(int               numElements,
+                                             bslma::Allocator *basicAllocator)
+: d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     setp(0, 0);
     reserveCapacity(numElements <= 0

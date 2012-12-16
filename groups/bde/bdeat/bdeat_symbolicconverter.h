@@ -672,7 +672,7 @@ struct bdeat_SymbolicConverter_Imp_resolveDynamicRhsProxy {
     // FUNCTIONS
     template <typename TYPE>
     inline
-    int operator()(const TYPE&, bslmf_Nil)
+    int operator()(const TYPE&, bslmf::Nil)
     {
         BSLS_ASSERT_SAFE(0);
         return -2;
@@ -708,7 +708,7 @@ struct bdeat_SymbolicConverter_Imp_resolveDynamicLhsProxy {
     // FUNCTIONS
     template <typename TYPE>
     inline
-    int operator()(TYPE *object, bslmf_Nil)
+    int operator()(TYPE *object, bslmf::Nil)
     {
         BSLS_ASSERT_SAFE(0);
         return -3;

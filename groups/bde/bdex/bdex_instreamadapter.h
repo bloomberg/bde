@@ -459,8 +459,8 @@ BDES_IDENT("$Id: $")
 #include <bsls_assert.h>
 #endif
 
-#ifndef INCLUDED_BSLS_PLATFORMUTIL
-#include <bsls_platformutil.h>
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
 #endif
 
 #ifndef INCLUDED_BSL_STRING
@@ -533,7 +533,7 @@ class bdex_InStreamAdapter : public bdex_InStream {
 
                         // *** scalar integer values ***
 
-    virtual bdex_InStream& getInt64(bsls_PlatformUtil::Int64& variable);
+    virtual bdex_InStream& getInt64(bsls::Types::Int64& variable);
         // Consume a 64-bit signed integer value from this input stream, place
         // that value in the specified 'variable', and return a reference to
         // this modifiable stream.  If this stream is initially invalid, this
@@ -546,7 +546,7 @@ class bdex_InStreamAdapter : public bdex_InStream {
         // the bit pattern is sign extended on platforms where 'variable' is
         // more than 64 bits.
 
-    virtual bdex_InStream& getUint64(bsls_PlatformUtil::Uint64& variable);
+    virtual bdex_InStream& getUint64(bsls::Types::Uint64& variable);
         // Consume a 64-bit unsigned integer value from this input stream,
         // place that value in the specified 'variable', and return a reference
         // to this modifiable stream.  If this stream is initially invalid,
@@ -559,7 +559,7 @@ class bdex_InStreamAdapter : public bdex_InStream {
         // the bit pattern is zero extended on platforms where 'variable' is
         // more than 64 bits.
 
-    virtual bdex_InStream& getInt56(bsls_PlatformUtil::Int64& variable);
+    virtual bdex_InStream& getInt56(bsls::Types::Int64& variable);
         // Consume a 56-bit signed integer value from this input stream, place
         // that value in the specified 'variable', and return a reference to
         // this modifiable stream.  If this stream is initially invalid, this
@@ -570,7 +570,7 @@ class bdex_InStreamAdapter : public bdex_InStream {
         // Consume seven bytes interpreted as a sign extended 64-bit signed
         // integer in network byte order to provide the value for 'variable'.
 
-    virtual bdex_InStream& getUint56(bsls_PlatformUtil::Uint64& variable);
+    virtual bdex_InStream& getUint56(bsls::Types::Uint64& variable);
         // Consume a 56-bit unsigned integer value from this input stream,
         // place that value in the specified 'variable', and return a reference
         // to this modifiable stream.  If this stream is initially invalid,
@@ -581,7 +581,7 @@ class bdex_InStreamAdapter : public bdex_InStream {
         // Consume seven bytes interpreted as a zero extended 64-bit unsigned
         // integer in network byte order to provide the value for 'variable'.
 
-    virtual bdex_InStream& getInt48(bsls_PlatformUtil::Int64& variable);
+    virtual bdex_InStream& getInt48(bsls::Types::Int64& variable);
         // Consume a 48-bit signed integer value from this input stream, place
         // that value in the specified 'variable', and return a reference to
         // this modifiable stream.  If this stream is initially invalid, this
@@ -592,7 +592,7 @@ class bdex_InStreamAdapter : public bdex_InStream {
         // Consume six bytes interpreted as a sign extended 64-bit signed
         // integer in network byte order to provide the value for 'variable'.
 
-    virtual bdex_InStream& getUint48(bsls_PlatformUtil::Uint64& variable);
+    virtual bdex_InStream& getUint48(bsls::Types::Uint64& variable);
         // Consume a 48-bit unsigned integer value from this input stream,
         // place that value in the specified 'variable', and return a reference
         // to this modifiable stream.  If this stream is initially invalid,
@@ -603,7 +603,7 @@ class bdex_InStreamAdapter : public bdex_InStream {
         // Consume six bytes interpreted as a zero extended 64-bit unsigned
         // integer in network byte order to provide the value for 'variable'.
 
-    virtual bdex_InStream& getInt40(bsls_PlatformUtil::Int64& variable);
+    virtual bdex_InStream& getInt40(bsls::Types::Int64& variable);
         // Consume a 40-bit signed integer value from this input stream, place
         // that value in the specified 'variable', and return a reference to
         // this modifiable stream.  If this stream is initially invalid, this
@@ -614,7 +614,7 @@ class bdex_InStreamAdapter : public bdex_InStream {
         // Consume five bytes interpreted as a sign extended 64-bit signed
         // integer in network byte order to provide the value for 'variable'.
 
-    virtual bdex_InStream& getUint40(bsls_PlatformUtil::Uint64& variable);
+    virtual bdex_InStream& getUint40(bsls::Types::Uint64& variable);
         // Consume a 40-bit unsigned integer value from this input stream,
         // place that value in the specified 'variable', and return a reference
         // to this modifiable stream.  If this stream is initially invalid,
@@ -770,8 +770,8 @@ class bdex_InStreamAdapter : public bdex_InStream {
 
                         // *** arrays of integer values ***
 
-    virtual bdex_InStream& getArrayInt64(bsls_PlatformUtil::Int64 *array,
-                                         int                       length);
+    virtual bdex_InStream& getArrayInt64(bsls::Types::Int64 *array,
+                                         int                 length);
         // Consume the 64-bit signed integer array of the specified 'length'
         // from this input stream, place that value in the specified 'array',
         // and return a reference to this modifiable stream.  If this stream is
@@ -783,11 +783,11 @@ class bdex_InStreamAdapter : public bdex_InStream {
         // For each of the 'length' elements of 'array', consume eight bytes
         // interpreted as a 64-bit signed integer in network byte order to
         // provide the value for that element.  Note that the bit pattern is
-        // sign extended on platforms where 'bsls_PlatformUtil::Int64' is more
+        // sign extended on platforms where 'bsls::Types::Int64' is more
         // than 64 bits.
 
-    virtual bdex_InStream& getArrayUint64(bsls_PlatformUtil::Uint64 *array,
-                                          int                        length);
+    virtual bdex_InStream& getArrayUint64(bsls::Types::Uint64 *array,
+                                          int                  length);
         // Consume the 64-bit unsigned integer array of the specified 'length'
         // from this input stream, place that value in the specified 'array',
         // and return a reference to this modifiable stream.  If this stream is
@@ -799,11 +799,11 @@ class bdex_InStreamAdapter : public bdex_InStream {
         // For each of the 'length' elements of 'array', consume eight bytes
         // interpreted as a 64-bit unsigned integer in network byte order to
         // provide the value for that element.  Note that the bit pattern is
-        // zero extended on platforms where 'bsls_PlatformUtil::Uint64' is more
+        // zero extended on platforms where 'bsls::Types::Uint64' is more
         // than 64 bits.
 
-    virtual bdex_InStream& getArrayInt56(bsls_PlatformUtil::Int64 *array,
-                                         int                       length);
+    virtual bdex_InStream& getArrayInt56(bsls::Types::Int64 *array,
+                                         int                 length);
         // Consume the 56-bit signed integer array of the specified 'length'
         // from this input stream, place that value in the specified 'array',
         // and return a reference to this modifiable stream.  If this stream is
@@ -816,8 +816,8 @@ class bdex_InStreamAdapter : public bdex_InStream {
         // interpreted as a sign extended 64-bit signed integer in network byte
         // order to provide the value for that element.
 
-    virtual bdex_InStream& getArrayUint56(bsls_PlatformUtil::Uint64 *array,
-                                          int                        length);
+    virtual bdex_InStream& getArrayUint56(bsls::Types::Uint64 *array,
+                                          int                  length);
         // Consume the 56-bit unsigned integer array of the specified 'length'
         // from this input stream, place that value in the specified 'array',
         // and return a reference to this modifiable stream.  If this stream is
@@ -830,8 +830,8 @@ class bdex_InStreamAdapter : public bdex_InStream {
         // interpreted as a zero extended 64-bit unsigned integer in network
         // byte order to provide the value for that element.
 
-    virtual bdex_InStream& getArrayInt48(bsls_PlatformUtil::Int64 *array,
-                                         int                       length);
+    virtual bdex_InStream& getArrayInt48(bsls::Types::Int64 *array,
+                                         int                 length);
         // Consume the 48-bit signed integer array of the specified 'length'
         // from this input stream, place that value in the specified 'array',
         // and return a reference to this modifiable stream.  If this stream is
@@ -844,8 +844,8 @@ class bdex_InStreamAdapter : public bdex_InStream {
         // interpreted as a sign extended 64-bit signed integer in network byte
         // order to provide the value for that element.
 
-    virtual bdex_InStream& getArrayUint48(bsls_PlatformUtil::Uint64 *array,
-                                          int                        length);
+    virtual bdex_InStream& getArrayUint48(bsls::Types::Uint64 *array,
+                                          int                  length);
         // Consume the 48-bit unsigned integer array of the specified 'length'
         // from this input stream, place that value in the specified 'array',
         // and return a reference to this modifiable stream.  If this stream is
@@ -858,8 +858,8 @@ class bdex_InStreamAdapter : public bdex_InStream {
         // interpreted as a zero extended 64-bit unsigned integer in network
         // byte order to provide the value for that element.
 
-    virtual bdex_InStream& getArrayInt40(bsls_PlatformUtil::Int64 *array,
-                                         int                       length);
+    virtual bdex_InStream& getArrayInt40(bsls::Types::Int64 *array,
+                                         int                 length);
         // Consume the 40-bit signed integer array of the specified 'length'
         // from this input stream, place that value in the specified 'array',
         // and return a reference to this modifiable stream.  If this stream is
@@ -872,8 +872,8 @@ class bdex_InStreamAdapter : public bdex_InStream {
         // interpreted as a sign extended 64-bit signed integer in network byte
         // order to provide the value for that element.
 
-    virtual bdex_InStream& getArrayUint40(bsls_PlatformUtil::Uint64 *array,
-                                          int                        length);
+    virtual bdex_InStream& getArrayUint40(bsls::Types::Uint64 *array,
+                                          int                  length);
         // Consume the 40-bit unsigned integer array of the specified 'length'
         // from this input stream, place that value in the specified 'array',
         // and return a reference to this modifiable stream.  If this stream is
@@ -1100,7 +1100,7 @@ bdex_InStream& bdex_InStreamAdapter<STREAM>::getVersion(int& variable)
 
 template <class STREAM>
 bdex_InStream&
-bdex_InStreamAdapter<STREAM>::getInt64(bsls_PlatformUtil::Int64& variable)
+bdex_InStreamAdapter<STREAM>::getInt64(bsls::Types::Int64& variable)
 {
     d_stream_p->getInt64(variable);
     return *this;
@@ -1108,7 +1108,7 @@ bdex_InStreamAdapter<STREAM>::getInt64(bsls_PlatformUtil::Int64& variable)
 
 template <class STREAM>
 bdex_InStream&
-bdex_InStreamAdapter<STREAM>::getUint64(bsls_PlatformUtil::Uint64& variable)
+bdex_InStreamAdapter<STREAM>::getUint64(bsls::Types::Uint64& variable)
 {
     d_stream_p->getUint64(variable);
     return *this;
@@ -1116,7 +1116,7 @@ bdex_InStreamAdapter<STREAM>::getUint64(bsls_PlatformUtil::Uint64& variable)
 
 template <class STREAM>
 bdex_InStream&
-bdex_InStreamAdapter<STREAM>::getInt56(bsls_PlatformUtil::Int64& variable)
+bdex_InStreamAdapter<STREAM>::getInt56(bsls::Types::Int64& variable)
 {
     d_stream_p->getInt56(variable);
     return *this;
@@ -1124,7 +1124,7 @@ bdex_InStreamAdapter<STREAM>::getInt56(bsls_PlatformUtil::Int64& variable)
 
 template <class STREAM>
 bdex_InStream&
-bdex_InStreamAdapter<STREAM>::getUint56(bsls_PlatformUtil::Uint64& variable)
+bdex_InStreamAdapter<STREAM>::getUint56(bsls::Types::Uint64& variable)
 {
     d_stream_p->getUint56(variable);
     return *this;
@@ -1132,7 +1132,7 @@ bdex_InStreamAdapter<STREAM>::getUint56(bsls_PlatformUtil::Uint64& variable)
 
 template <class STREAM>
 bdex_InStream&
-bdex_InStreamAdapter<STREAM>::getInt48(bsls_PlatformUtil::Int64& variable)
+bdex_InStreamAdapter<STREAM>::getInt48(bsls::Types::Int64& variable)
 {
     d_stream_p->getInt48(variable);
     return *this;
@@ -1140,7 +1140,7 @@ bdex_InStreamAdapter<STREAM>::getInt48(bsls_PlatformUtil::Int64& variable)
 
 template <class STREAM>
 bdex_InStream&
-bdex_InStreamAdapter<STREAM>::getUint48(bsls_PlatformUtil::Uint64& variable)
+bdex_InStreamAdapter<STREAM>::getUint48(bsls::Types::Uint64& variable)
 {
     d_stream_p->getUint48(variable);
     return *this;
@@ -1148,7 +1148,7 @@ bdex_InStreamAdapter<STREAM>::getUint48(bsls_PlatformUtil::Uint64& variable)
 
 template <class STREAM>
 bdex_InStream&
-bdex_InStreamAdapter<STREAM>::getInt40(bsls_PlatformUtil::Int64& variable)
+bdex_InStreamAdapter<STREAM>::getInt40(bsls::Types::Int64& variable)
 {
     d_stream_p->getInt40(variable);
     return *this;
@@ -1156,7 +1156,7 @@ bdex_InStreamAdapter<STREAM>::getInt40(bsls_PlatformUtil::Int64& variable)
 
 template <class STREAM>
 bdex_InStream&
-bdex_InStreamAdapter<STREAM>::getUint40(bsls_PlatformUtil::Uint64& variable)
+bdex_InStreamAdapter<STREAM>::getUint40(bsls::Types::Uint64& variable)
 {
     d_stream_p->getUint40(variable);
     return *this;
@@ -1256,8 +1256,8 @@ bdex_InStream& bdex_InStreamAdapter<STREAM>::getString(bsl::string& variable)
 
 template <class STREAM>
 bdex_InStream&
-bdex_InStreamAdapter<STREAM>::getArrayInt64(bsls_PlatformUtil::Int64 *array,
-                                            int                       length)
+bdex_InStreamAdapter<STREAM>::getArrayInt64(bsls::Types::Int64 *array,
+                                            int                 length)
 {
     BSLS_ASSERT_SAFE(array);
     BSLS_ASSERT_SAFE(0 <= length);
@@ -1268,8 +1268,8 @@ bdex_InStreamAdapter<STREAM>::getArrayInt64(bsls_PlatformUtil::Int64 *array,
 
 template <class STREAM>
 bdex_InStream&
-bdex_InStreamAdapter<STREAM>::getArrayUint64(bsls_PlatformUtil::Uint64 *array,
-                                             int                        length)
+bdex_InStreamAdapter<STREAM>::getArrayUint64(bsls::Types::Uint64 *array,
+                                             int                  length)
 {
     BSLS_ASSERT_SAFE(array);
     BSLS_ASSERT_SAFE(0 <= length);
@@ -1280,8 +1280,8 @@ bdex_InStreamAdapter<STREAM>::getArrayUint64(bsls_PlatformUtil::Uint64 *array,
 
 template <class STREAM>
 bdex_InStream&
-bdex_InStreamAdapter<STREAM>::getArrayInt56(bsls_PlatformUtil::Int64 *array,
-                                            int                       length)
+bdex_InStreamAdapter<STREAM>::getArrayInt56(bsls::Types::Int64 *array,
+                                            int                 length)
 {
     BSLS_ASSERT_SAFE(array);
     BSLS_ASSERT_SAFE(0 <= length);
@@ -1292,8 +1292,8 @@ bdex_InStreamAdapter<STREAM>::getArrayInt56(bsls_PlatformUtil::Int64 *array,
 
 template <class STREAM>
 bdex_InStream&
-bdex_InStreamAdapter<STREAM>::getArrayUint56(bsls_PlatformUtil::Uint64 *array,
-                                             int                        length)
+bdex_InStreamAdapter<STREAM>::getArrayUint56(bsls::Types::Uint64 *array,
+                                             int                  length)
 {
     BSLS_ASSERT_SAFE(array);
     BSLS_ASSERT_SAFE(0 <= length);
@@ -1304,8 +1304,8 @@ bdex_InStreamAdapter<STREAM>::getArrayUint56(bsls_PlatformUtil::Uint64 *array,
 
 template <class STREAM>
 bdex_InStream&
-bdex_InStreamAdapter<STREAM>::getArrayInt48(bsls_PlatformUtil::Int64 *array,
-                                            int                       length)
+bdex_InStreamAdapter<STREAM>::getArrayInt48(bsls::Types::Int64 *array,
+                                            int                 length)
 {
     BSLS_ASSERT_SAFE(array);
     BSLS_ASSERT_SAFE(0 <= length);
@@ -1316,8 +1316,8 @@ bdex_InStreamAdapter<STREAM>::getArrayInt48(bsls_PlatformUtil::Int64 *array,
 
 template <class STREAM>
 bdex_InStream&
-bdex_InStreamAdapter<STREAM>::getArrayUint48(bsls_PlatformUtil::Uint64 *array,
-                                             int                        length)
+bdex_InStreamAdapter<STREAM>::getArrayUint48(bsls::Types::Uint64 *array,
+                                             int                  length)
 {
     BSLS_ASSERT_SAFE(array);
     BSLS_ASSERT_SAFE(0 <= length);
@@ -1328,8 +1328,8 @@ bdex_InStreamAdapter<STREAM>::getArrayUint48(bsls_PlatformUtil::Uint64 *array,
 
 template <class STREAM>
 bdex_InStream&
-bdex_InStreamAdapter<STREAM>::getArrayInt40(bsls_PlatformUtil::Int64 *array,
-                                            int                       length)
+bdex_InStreamAdapter<STREAM>::getArrayInt40(bsls::Types::Int64 *array,
+                                            int                 length)
 {
     BSLS_ASSERT_SAFE(array);
     BSLS_ASSERT_SAFE(0 <= length);
@@ -1340,8 +1340,8 @@ bdex_InStreamAdapter<STREAM>::getArrayInt40(bsls_PlatformUtil::Int64 *array,
 
 template <class STREAM>
 bdex_InStream&
-bdex_InStreamAdapter<STREAM>::getArrayUint40(bsls_PlatformUtil::Uint64 *array,
-                                             int                        length)
+bdex_InStreamAdapter<STREAM>::getArrayUint40(bsls::Types::Uint64 *array,
+                                             int                  length)
 {
     BSLS_ASSERT_SAFE(array);
     BSLS_ASSERT_SAFE(0 <= length);

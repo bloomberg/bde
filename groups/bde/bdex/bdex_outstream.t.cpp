@@ -242,7 +242,7 @@ class MyOutStream : public bdex_OutStream {
     MyOutStream() { }
     ~MyOutStream() { }
 
-    typedef bsls_PlatformUtil::Int64 Int64;
+    typedef bsls::Types::Int64 Int64;
 
     bdex_OutStream& putLength(int length)   { d_fun =  10; return *this; }
     bdex_OutStream& putVersion(int version) { d_fun =  11; return *this; }
@@ -267,7 +267,7 @@ class MyOutStream : public bdex_OutStream {
     bdex_OutStream& putFloat64(double value){ d_fun = 164; return *this; }
     bdex_OutStream& putFloat32(float value) { d_fun = 132; return *this; }
 
-    typedef bsls_PlatformUtil::Uint64 Uint64;
+    typedef bsls::Types::Uint64 Uint64;
 
     bdex_OutStream& putArrayInt64(const Int64 *array, int count)
                                             { d_fun = -1064; return *this; }
@@ -382,8 +382,8 @@ int main(int argc, char *argv[]) {
 
         if (verbose) cout << "\nTesting scalar output operators." << endl;
 
-        bsls_PlatformUtil::Int64  i64 = 0;
-        bsls_PlatformUtil::Uint64 ui64 = 0;
+        bsls::Types::Int64  i64 = 0;
+        bsls::Types::Uint64 ui64 = 0;
         int                       i = 0;
         unsigned int              ui = 0;
         short int                 si = 0;
@@ -538,8 +538,8 @@ int main(int argc, char *argv[]) {
 
         if (verbose) cout << "\nTesting arrayed output functions." << endl;
 
-        bsls_PlatformUtil::Int64 ai64[1];
-        bsls_PlatformUtil::Uint64 aui64[1];
+        bsls::Types::Int64 ai64[1];
+        bsls::Types::Uint64 aui64[1];
         int ai[1];
         unsigned int aui[1];
         short as[1];

@@ -58,7 +58,7 @@ using namespace bsl;  // automatically added by script
 // [ 2] char& theChar(int index);
 // [ 2] short& theShort(int index);
 // [ 2] int& theInt(int index);
-// [ 2] bsls_Types::Int64& theInt64(int index);
+// [ 2] bsls::Types::Int64& theInt64(int index);
 // [ 2] float& theFloat(int index);
 // [ 2] double& theDouble(int index);
 // [ 2] bsl::string& theString(int index);
@@ -72,7 +72,7 @@ using namespace bsl;  // automatically added by script
 // [ 2] bsl::vector<char>& theCharArray(int index);
 // [ 2] bsl::vector<short>& theShortArray(int index);
 // [ 2] bsl::vector<int>& theIntArray(int index);
-// [ 2] bsl::vector<bsls_Types::Int64>& theInt64Array(int index);
+// [ 2] bsl::vector<bsls::Types::Int64>& theInt64Array(int index);
 // [ 2] bsl::vector<float>& theFloatArray(int index);
 // [ 2] bsl::vector<double>& theDoubleArray(int index);
 // [ 2] bsl::vector<bsl::string>& theStringArray(int index);
@@ -128,7 +128,7 @@ using namespace bsl;  // automatically added by script
 // [ 2] const char& theChar(int index) const;
 // [ 2] const short& theShort(int index) const;
 // [ 2] const int& theInt(int index) const;
-// [ 2] const bsls_Types::Int64& theInt64(int index) const;
+// [ 2] const bsls::Types::Int64& theInt64(int index) const;
 // [ 2] const float& theFloat(int index) const;
 // [ 2] const double& theDouble(int index) const;
 // [ 2] const bsl::string& theString(int index) const;
@@ -223,9 +223,9 @@ static void aSsErT(int c, const char *s, int i) {
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-typedef bsls_Types::Int64 Int64;
-typedef bdem_RowData      RowData;
-typedef bdem_RowLayout    RowLayout;
+typedef bsls::Types::Int64 Int64;
+typedef bdem_RowData       RowData;
+typedef bdem_RowLayout     RowLayout;
 
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
@@ -353,18 +353,18 @@ int main(int argc, char *argv[])
     bdem_RowLayout mRL(ETA,         // array of element type enumerators
                        4,           // length of row
                        EDA,         // (sparse) array of element descriptors
-                       bslma_Default::defaultAllocator());
+                       bslma::Default::defaultAllocator());
 //..
 // Given 'mRL', we now instantiate two (modifiable) row definitions, 'mRD1' and
 // 'mRD2':
 //..
     bdem_RowData mRD1(&mRL,
                       bdem_AggregateOption::BDEM_PASS_THROUGH,
-                      bslma_Default::defaultAllocator());
+                      bslma::Default::defaultAllocator());
 
     bdem_RowData mRD2(&mRL,
                       bdem_AggregateOption::BDEM_PASS_THROUGH,
-                      bslma_Default::defaultAllocator());
+                      bslma::Default::defaultAllocator());
 
 //..
 // By design, a 'bdem_Row' contains exactly one data member of type
@@ -514,7 +514,7 @@ if (verbose)
         //   const char& theChar(int index) const;
         //   const short& theShort(int index) const;
         //   const int& theInt(int index) const;
-        //   const bsls_Types::Int64& theInt64(int index) const;
+        //   const bsls::Types::Int64& theInt64(int index) const;
         //   const float& theFloat(int index) const;
         //   const double& theDouble(int index) const;
         //   const bsl::string& theString(int index) const;
@@ -553,7 +553,7 @@ if (verbose)
         //   char& theModifiableChar(int index);
         //   short& theModifiableShort(int index);
         //   int& theModifiableInt(int index);
-        //   bsls_Types::Int64& theModifiableInt64(int index);
+        //   bsls::Types::Int64& theModifiableInt64(int index);
         //   float& theModifiableFloat(int index);
         //   double& theModifiableDouble(int index);
         //   bsl::string& theModifiableString(int index);
@@ -567,7 +567,7 @@ if (verbose)
         //   bsl::vector<char>& theModifiableCharArray(int index);
         //   bsl::vector<short>& theModifiableShortArray(int index);
         //   bsl::vector<int>& theModifiableIntArray(int index);
-        //   bsl::vector<bsls_Types::Int64>&
+        //   bsl::vector<bsls::Types::Int64>&
         //                                  theModifiableInt64Array(int index);
         //   bsl::vector<float>& theModifiableFloatArray(int index);
         //   bsl::vector<double>& theModifiableDoubleArray(int index);
@@ -600,7 +600,7 @@ if (verbose)
         const bdem_AggregateOption::AllocationStrategy S =
             bdem_AggregateOption::BDEM_PASS_THROUGH;
 
-        bslma_Allocator *const NDA = bslma_Default::defaultAllocator();
+        bslma::Allocator *const NDA = bslma::Default::defaultAllocator();
 
         if (verbose) cout << "\nCreate an empty Row" << endl;
         {

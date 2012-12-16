@@ -1,12 +1,14 @@
-// bdema_protectableblocklist.t.cpp  -*-C++-*-
+// bdema_protectableblocklist.t.cpp                                   -*-C++-*-
 
 #include <bdema_protectableblocklist.h>
 
 #include <bdema_protectableblockdispenser.h>
 #include <bdema_testprotectableblockdispenser.h>  // for testing only
-#include <bslma_testallocatorexception.h>         // for testing only
+
+#include <bslma_testallocatorexception.h>
 
 #include <bsls_alignmentutil.h>
+#include <bsls_types.h>
 
 #include <bsl_cstdlib.h>     // atoi()
 #include <bsl_cstring.h>     // memcpy()
@@ -99,7 +101,7 @@ static void aSsErT(int c, const char *s, int i) {
         try {
 
 #define END_BDEMA_EXCEPTION_TEST                                          \
-        } catch (bslma_TestAllocatorException& e) {                       \
+        } catch (bslma::TestAllocatorException& e) {                      \
             if (veryVerbose && bdemaExceptionLimit || veryVeryVerbose) {  \
                 --bdemaExceptionLimit;                                    \
                 cout << "(*** " << bdemaExceptionCounter << ')';          \
@@ -297,16 +299,17 @@ int main(int argc, char *argv[])
     int BLOCK_HEADER_SIZE = Obj::blockHeaderSize();
 
     struct TestBlock {
-        TestBlock                          *d_next_p;        // next block
-        TestBlock                         **d_addrPrevNext;  // prev block
-                                                             // next ptr
-        int                                 d_size;          // size of
-                                                             // allocation
-        bsls_AlignmentUtil::MaxAlignedType  d_memory;        // force alignment
+        TestBlock                            *d_next_p;        // next block
+        TestBlock                           **d_addrPrevNext;  // prev block
+                                                               // next ptr
+        int                                   d_size;          // size of
+                                                               // allocation
+        bsls::AlignmentUtil::MaxAlignedType   d_memory;        // force
+                                                               // alignment
     };
 
     bdema_TestProtectableBlockDispenser testDispenser(PG_SIZE,
-                                                            veryVeryVerbose);
+                                                      veryVeryVerbose);
     switch (test) { case 0:
       case 8: {
         // --------------------------------------------------------------------
@@ -337,8 +340,8 @@ int main(int argc, char *argv[])
         ASSERT(0 == bsl::strcmp(protectedB, valueB));
 
         TestBlock block;
-        const int HEADER_SIZE = ((bsls_PlatformUtil::size_type)&block.d_memory)
-                              - (bsls_PlatformUtil::size_type)&block;
+        const int HEADER_SIZE = ((bsls::Types::size_type)&block.d_memory)
+                              - (bsls::Types::size_type)&block;
         ASSERT(2 == testDispenser.numBlocksInUse());
         ASSERT(testDispenser.numBlocksProtected() ==
                testDispenser.numBlocksInUse());
@@ -677,14 +680,14 @@ int main(int argc, char *argv[])
               }
 
               struct Test {
-                  void                                *d_ptr;
-                  void                               **d_backPtr;
-                  int                                  d_size;
-                  bsls_AlignmentUtil::MaxAlignedType   d_memory;
+                  void                                 *d_ptr;
+                  void                                **d_backPtr;
+                  int                                   d_size;
+                  bsls::AlignmentUtil::MaxAlignedType   d_memory;
               };
 
               int expectedSize = sizeof(Test) -
-                                 sizeof(bsls_AlignmentUtil::MaxAlignedType);
+                                 sizeof(bsls::AlignmentUtil::MaxAlignedType);
               ASSERT(expectedSize == Obj::blockHeaderSize());
           }
       } break;

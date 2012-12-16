@@ -51,7 +51,7 @@ using namespace bsl;  // automatically added by script
 // to facilitate perturbation of internal state (e.g.  capacity).  Note that
 // each manipulator must support aliasing, and those that perform memory
 // allocation must be tested for exception neutrality via the
-// 'bdema_testallocator' component.  Exception neutrality involving streaming
+// 'bslma_testallocator' component.  Exception neutrality involving streaming
 // is verified using 'bdex_testinstream' (and 'bdex_testoutstream').
 //
 // Note further that the 'bdem_RowLayout' is a parameterized type therefore
@@ -64,7 +64,7 @@ using namespace bsl;  // automatically added by script
 // (i.e., the cursor position).
 //
 //-----------------------------------------------------------------------------
-// [ 2] bdem_RowLayout(bslma_Allocator *ba = 0);
+// [ 2] bdem_RowLayout(bslma::Allocator *ba = 0);
 // [16] bdem_RowLayout(const InitialCapacity& ne, *ba = 0);
 // [11] bdem_RowLayout(const my_ElemTypeArray& sa, *ba = 0);
 // [ 7] bdem_RowLayout(const bdem_RowLayout& original, *ba = 0);
@@ -173,7 +173,7 @@ static void aSsErT(int c, const char *s, int i)
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-typedef bsls_Types::Int64 Int64;
+typedef bsls::Types::Int64 Int64;
 
 typedef bdem_RowLayout         Obj;
 typedef const bdem_Descriptor *Element;
@@ -214,10 +214,10 @@ struct PoolRep {
 };
 
 struct ChoiceHeaderRep {
-    void                                   *d_catalog_p;
-    int                                     d_selector;
-    AggregateOptionRep::Strategy            d_allocMode;
-    bsls_AlignedBuffer<14 * sizeof(void*)>  d_selectionBuf;
+    void                                    *d_catalog_p;
+    int                                      d_selector;
+    AggregateOptionRep::Strategy             d_allocMode;
+    bsls::AlignedBuffer<14 * sizeof(void*)>  d_selectionBuf;
 };
 
 struct AllocatorContainerRep {
@@ -268,7 +268,7 @@ bdem_Descriptor ElemAttGenerator<e,t>::s =
 {
     e,
     sizeof(t),
-    bsls_AlignmentFromType<t>::VALUE,
+    bsls::AlignmentFromType<t>::VALUE,
     0,0,0,0,0,0,0,0,0
 };
 
@@ -557,7 +557,7 @@ Obj& gg(Obj *obj, const char *spec)
 Obj g(const char *spec)
     // Return, by value, a new object corresponding to the specified 'spec'.
 {
-    Obj object((bslma_Allocator *)0);
+    Obj object((bslma::Allocator *)0);
     return gg(&object, spec);
 }
 
@@ -575,8 +575,8 @@ int main(int argc, char *argv[])
 
     my_ElemTypeArray eta;
     my_ElemTypeArray eta2;
-    bslma_TestAllocator  testAllocator(veryVeryVerbose);
-    bslma_Allocator     *Z = &testAllocator;
+    bslma::TestAllocator  testAllocator(veryVeryVerbose);
+    bslma::Allocator     *Z = &testAllocator;
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 20: {
@@ -1393,13 +1393,13 @@ int main(int argc, char *argv[])
         //   objects with increasing initial capacity.  Verify that each object
         //   has the same value as a control default object.  Then, append as
         //   many values as the requested initial capacity, and use
-        //   'bslma_TestAllocator' to verify that no additional allocations
+        //   'bslma::TestAllocator' to verify that no additional allocations
         //   have occurred.  Perform each test in the standard 'bdema'
         //   exception-testing macro block.
         //
         //   Repeat the constructor test initially specifying no allocator and
         //   again, specifying a static buffer allocator.  These tests (without
-        //   specifying a 'bslma_TestAllocator') cannot confirm correct
+        //   specifying a 'bslma::TestAllocator') cannot confirm correct
         //   capacity-reserving behavior, but can test for rudimentary correct
         //   object behavior via the destructor and Purify, and, in
         //   'veryVerbose' mode, via the print statements.
@@ -1410,7 +1410,7 @@ int main(int argc, char *argv[])
         //   of elements, and confirm that the test object has the same value
         //   as a separately constructed control object.  Then, append as many
         //   values as required to bring the test object's length to the
-        //   specified number of elements, and use 'bslma_TestAllocator' to
+        //   specified number of elements, and use 'bslma::TestAllocator' to
         //   verify that no additional allocations have occurred.  Perform
         //   each test in the standard 'bdema' exception-testing macro block.
         //
@@ -1427,7 +1427,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout <<
             "\nTesting 'bdem_RowLayout(capacity, ba)' Constructor" << endl;
-        if (verbose) cout << "\twith a 'bslma_TestAllocator':" << endl;
+        if (verbose) cout << "\twith a 'bslma::TestAllocator':" << endl;
         {
             const Obj W(&testAllocator);  // control value
             const int MAX_NUM_ELEMS = 9;
@@ -3301,7 +3301,7 @@ int main(int argc, char *argv[])
         //   For each constructor we will create objects
         //    - With and without passing in an allocator.
         //    - In the presence of exceptions during memory allocations using
-        //      a 'bslma_TestAllocator' and varying its *allocation* *limit*.
+        //      a 'bslma::TestAllocator' and varying its *allocation* *limit*.
         //    - Where the object is constructed entirely in static memory
         //      (using a 'bdema_BufferedSequentialAllocator') and never
         //      destroyed.  and use direct accessors to verify
@@ -3439,7 +3439,7 @@ int main(int argc, char *argv[])
         // Plan:
         //   Enumerate through all of the 32 fundamental types defined, and
         //   assert that each of the types' alignment and size corresponds to
-        //   the values returned by bsls_AlignmentFromType<Type>::VALUE meta
+        //   the values returned by bsls::AlignmentFromType<Type>::VALUE meta
         //   metafunction and sizeof(TYPE) function respectively.
         //
         // Testing:
@@ -3454,7 +3454,7 @@ int main(int argc, char *argv[])
             for (int ti = 0; ti < NUM_TYPES; ++ti) {
               switch (bdemType[ti]) {  // AB...UVab..gh
                 case 'A': {
-                  ASSERT(bsls_AlignmentFromType<char>::VALUE ==
+                  ASSERT(bsls::AlignmentFromType<char>::VALUE ==
                          typesLookupTable[
                                               bdem_ElemType::BDEM_CHAR
                                          ]->d_alignment);
@@ -3464,13 +3464,13 @@ int main(int argc, char *argv[])
                       P(typesLookupTable[
                                              bdem_ElemType::BDEM_CHAR
                                         ]->d_alignment);
-                      T_(); P(bsls_AlignmentFromType<char>::VALUE);
+                      T_(); P(bsls::AlignmentFromType<char>::VALUE);
                       P(typesLookupTable[bdem_ElemType::BDEM_CHAR]->d_size);
                       T_(); P(sizeof(char));
                   }
                 } break;
                 case 'B': {
-                  ASSERT(bsls_AlignmentFromType<short>::VALUE ==
+                  ASSERT(bsls::AlignmentFromType<short>::VALUE ==
                          typesLookupTable[
                                               bdem_ElemType::BDEM_SHORT
                                          ]->d_alignment);
@@ -3480,13 +3480,13 @@ int main(int argc, char *argv[])
                       P(typesLookupTable[
                                              bdem_ElemType::BDEM_SHORT
                                         ]->d_alignment);
-                      T_(); P(bsls_AlignmentFromType<short>::VALUE);
+                      T_(); P(bsls::AlignmentFromType<short>::VALUE);
                       P(typesLookupTable[bdem_ElemType::BDEM_SHORT]->d_size);
                       T_(); P(sizeof(short));
                   }
                 } break;
                 case 'C': {
-                  ASSERT(bsls_AlignmentFromType<int>::VALUE ==
+                  ASSERT(bsls::AlignmentFromType<int>::VALUE ==
                          typesLookupTable[
                                               bdem_ElemType::BDEM_INT
                                          ]->d_alignment);
@@ -3496,13 +3496,13 @@ int main(int argc, char *argv[])
                       P(typesLookupTable[
                                              bdem_ElemType::BDEM_INT
                                         ]->d_alignment);
-                      T_(); P(bsls_AlignmentFromType<int>::VALUE);
+                      T_(); P(bsls::AlignmentFromType<int>::VALUE);
                       P(typesLookupTable[bdem_ElemType::BDEM_INT]->d_size);
                       T_(); P(sizeof(int));
                   }
                 } break;
                 case 'D': {
-                  ASSERT(bsls_AlignmentFromType<Int64>::VALUE ==
+                  ASSERT(bsls::AlignmentFromType<Int64>::VALUE ==
                          typesLookupTable[
                                               bdem_ElemType::BDEM_INT64
                                          ]->d_alignment);
@@ -3512,13 +3512,13 @@ int main(int argc, char *argv[])
                       P(typesLookupTable[
                                              bdem_ElemType::BDEM_INT64
                                         ]->d_alignment);
-                      T_(); P(bsls_AlignmentFromType<Int64>::VALUE);
+                      T_(); P(bsls::AlignmentFromType<Int64>::VALUE);
                       P(typesLookupTable[bdem_ElemType::BDEM_INT64]->d_size);
                       T_(); P(sizeof(Int64));
                   }
                 } break;
                 case 'E': {
-                  ASSERT(bsls_AlignmentFromType<float>::VALUE ==
+                  ASSERT(bsls::AlignmentFromType<float>::VALUE ==
                          typesLookupTable[
                                               bdem_ElemType::BDEM_FLOAT
                                          ]->d_alignment);
@@ -3528,13 +3528,13 @@ int main(int argc, char *argv[])
                       P(typesLookupTable[
                                              bdem_ElemType::BDEM_FLOAT
                                         ]->d_alignment);
-                      T_(); P(bsls_AlignmentFromType<float>::VALUE);
+                      T_(); P(bsls::AlignmentFromType<float>::VALUE);
                       P(typesLookupTable[bdem_ElemType::BDEM_FLOAT]->d_size);
                                       T_(); P(sizeof(float));
                   }
                 } break;
                 case 'F': {
-                  ASSERT(bsls_AlignmentFromType<double>::VALUE ==
+                  ASSERT(bsls::AlignmentFromType<double>::VALUE ==
                          typesLookupTable[
                                               bdem_ElemType::BDEM_DOUBLE
                                          ]->d_alignment);
@@ -3544,13 +3544,13 @@ int main(int argc, char *argv[])
                       P(typesLookupTable[
                                              bdem_ElemType::BDEM_DOUBLE
                                         ]->d_alignment);
-                      T_(); P(bsls_AlignmentFromType<double>::VALUE);
+                      T_(); P(bsls::AlignmentFromType<double>::VALUE);
                       P(typesLookupTable[bdem_ElemType::BDEM_DOUBLE]->d_size);
                       T_(); P(sizeof(double));
                   }
                 } break;
                 case 'G': {
-                  ASSERT(bsls_AlignmentFromType<bsl::string>::VALUE ==
+                  ASSERT(bsls::AlignmentFromType<bsl::string>::VALUE ==
                          typesLookupTable[
                                               bdem_ElemType::BDEM_STRING
                                          ]->d_alignment);
@@ -3560,13 +3560,13 @@ int main(int argc, char *argv[])
                       P(typesLookupTable[
                                              bdem_ElemType::BDEM_STRING
                                         ]->d_alignment);
-                      T_(); P(bsls_AlignmentFromType<bsl::string>::VALUE);
+                      T_(); P(bsls::AlignmentFromType<bsl::string>::VALUE);
                       P(typesLookupTable[bdem_ElemType::BDEM_STRING]->d_size);
                       T_(); P(sizeof(bsl::string));
                   }
                 } break;
                 case 'H': {
-                  ASSERT(bsls_AlignmentFromType<bdet_Datetime>::VALUE ==
+                  ASSERT(bsls::AlignmentFromType<bdet_Datetime>::VALUE ==
                        typesLookupTable[
                                             bdem_ElemType::BDEM_DATETIME
                                        ]->d_alignment);
@@ -3578,7 +3578,7 @@ int main(int argc, char *argv[])
                       P(typesLookupTable[
                                              bdem_ElemType::BDEM_DATETIME
                                         ]->d_alignment);
-                      T_(); P(bsls_AlignmentFromType<bdet_Datetime>::VALUE);
+                      T_(); P(bsls::AlignmentFromType<bdet_Datetime>::VALUE);
                       P(typesLookupTable[
                                              bdem_ElemType::BDEM_DATETIME
                                         ]->d_size);
@@ -3586,7 +3586,7 @@ int main(int argc, char *argv[])
                   }
                 } break;
                 case 'I': {
-                  ASSERT(bsls_AlignmentFromType<bdet_Date>::VALUE ==
+                  ASSERT(bsls::AlignmentFromType<bdet_Date>::VALUE ==
                          typesLookupTable[
                                               bdem_ElemType::BDEM_DATE
                                          ]->d_alignment);
@@ -3596,13 +3596,13 @@ int main(int argc, char *argv[])
                       P(typesLookupTable[
                                              bdem_ElemType::BDEM_DATE
                                         ]->d_alignment);
-                      T_(); P(bsls_AlignmentFromType<bdet_Date>::VALUE);
+                      T_(); P(bsls::AlignmentFromType<bdet_Date>::VALUE);
                       P(typesLookupTable[bdem_ElemType::BDEM_DATE]->d_size);
                       T_(); P(sizeof(bdet_Date));
                   }
                 } break;
                 case 'J': {
-                  ASSERT(bsls_AlignmentFromType<bdet_Time>::VALUE ==
+                  ASSERT(bsls::AlignmentFromType<bdet_Time>::VALUE ==
                          typesLookupTable[
                                               bdem_ElemType::BDEM_TIME
                                          ]->d_alignment);
@@ -3612,13 +3612,13 @@ int main(int argc, char *argv[])
                       P(typesLookupTable[
                                              bdem_ElemType::BDEM_TIME
                                         ]->d_alignment);
-                      T_(); P(bsls_AlignmentFromType<bdet_Time>::VALUE);
+                      T_(); P(bsls::AlignmentFromType<bdet_Time>::VALUE);
                       P(typesLookupTable[bdem_ElemType::BDEM_TIME]->d_size);
                       T_(); P(sizeof(bdet_Time));
                   }
                 } break;
                 case 'K': {
-                  ASSERT(bsls_AlignmentFromType<bsl::vector<char> >::VALUE ==
+                  ASSERT(bsls::AlignmentFromType<bsl::vector<char> >::VALUE ==
                      typesLookupTable[
                                           bdem_ElemType::BDEM_CHAR_ARRAY
                                      ]->d_alignment);
@@ -3631,7 +3631,7 @@ int main(int argc, char *argv[])
                                              bdem_ElemType::BDEM_CHAR_ARRAY
                                         ]->d_alignment);
                       T_();
-                      P(bsls_AlignmentFromType<bsl::vector<char> >::VALUE);
+                      P(bsls::AlignmentFromType<bsl::vector<char> >::VALUE);
                       P(typesLookupTable[
                                              bdem_ElemType::BDEM_CHAR_ARRAY
                                         ]->d_size);
@@ -3639,7 +3639,7 @@ int main(int argc, char *argv[])
                   }
                 } break;
                 case 'L': {
-                  ASSERT(bsls_AlignmentFromType<bsl::vector<short> >::VALUE ==
+                  ASSERT(bsls::AlignmentFromType<bsl::vector<short> >::VALUE ==
                     typesLookupTable[
                                          bdem_ElemType::BDEM_SHORT_ARRAY
                                     ]->d_alignment);
@@ -3652,7 +3652,7 @@ int main(int argc, char *argv[])
                                              bdem_ElemType::BDEM_SHORT_ARRAY
                                         ]->d_alignment);
                       T_();
-                      P(bsls_AlignmentFromType<bsl::vector<short> >::VALUE);
+                      P(bsls::AlignmentFromType<bsl::vector<short> >::VALUE);
                       P(typesLookupTable[
                                              bdem_ElemType::BDEM_SHORT_ARRAY
                                         ]->d_size);
@@ -3660,7 +3660,7 @@ int main(int argc, char *argv[])
                   }
                 } break;
                 case 'M': {
-                  ASSERT(bsls_AlignmentFromType<bsl::vector<int> >::VALUE ==
+                  ASSERT(bsls::AlignmentFromType<bsl::vector<int> >::VALUE ==
                       typesLookupTable[
                                            bdem_ElemType::BDEM_INT_ARRAY
                                       ]->d_alignment);
@@ -3673,7 +3673,7 @@ int main(int argc, char *argv[])
                                              bdem_ElemType::BDEM_INT_ARRAY
                                         ]->d_alignment);
                       T_();
-                      P(bsls_AlignmentFromType<bsl::vector<int> >::VALUE);
+                      P(bsls::AlignmentFromType<bsl::vector<int> >::VALUE);
                       P(typesLookupTable[
                                              bdem_ElemType::BDEM_INT_ARRAY
                                         ]->d_size);
@@ -3681,7 +3681,7 @@ int main(int argc, char *argv[])
                   }
                 } break;
                 case 'N': {
-                  ASSERT(bsls_AlignmentFromType<bsl::vector<Int64> >::VALUE ==
+                  ASSERT(bsls::AlignmentFromType<bsl::vector<Int64> >::VALUE ==
                     typesLookupTable[
                                          bdem_ElemType::BDEM_INT64_ARRAY
                                     ]->d_alignment);
@@ -3694,7 +3694,7 @@ int main(int argc, char *argv[])
                                              bdem_ElemType::BDEM_INT64_ARRAY
                                         ]->d_alignment);
                       T_();
-                      P(bsls_AlignmentFromType<bsl::vector<Int64> >::VALUE);
+                      P(bsls::AlignmentFromType<bsl::vector<Int64> >::VALUE);
                       P(typesLookupTable[
                                              bdem_ElemType::BDEM_INT64_ARRAY
                                         ]->d_size);
@@ -3702,7 +3702,7 @@ int main(int argc, char *argv[])
                   }
                 } break;
                 case 'O': {
-                  ASSERT(bsls_AlignmentFromType<bsl::vector<float> >::VALUE ==
+                  ASSERT(bsls::AlignmentFromType<bsl::vector<float> >::VALUE ==
                     typesLookupTable[
                                          bdem_ElemType::BDEM_FLOAT_ARRAY
                                     ]->d_alignment);
@@ -3715,7 +3715,7 @@ int main(int argc, char *argv[])
                                              bdem_ElemType::BDEM_FLOAT_ARRAY
                                         ]->d_alignment);
                       T_();
-                      P(bsls_AlignmentFromType<bsl::vector<float> >::VALUE);
+                      P(bsls::AlignmentFromType<bsl::vector<float> >::VALUE);
                       P(typesLookupTable[
                                              bdem_ElemType::BDEM_FLOAT_ARRAY
                                         ]->d_size);
@@ -3723,7 +3723,7 @@ int main(int argc, char *argv[])
                   }
                 } break;
                 case 'P': {
-                  ASSERT(bsls_AlignmentFromType<bsl::vector<double> >::VALUE ==
+                 ASSERT(bsls::AlignmentFromType<bsl::vector<double> >::VALUE ==
                    typesLookupTable[
                                         bdem_ElemType::BDEM_DOUBLE_ARRAY
                                    ]->d_alignment);
@@ -3736,7 +3736,7 @@ int main(int argc, char *argv[])
                                              bdem_ElemType::BDEM_DOUBLE_ARRAY
                                         ]->d_alignment);
                       T_();
-                      P(bsls_AlignmentFromType<bsl::vector<double> >::VALUE);
+                      P(bsls::AlignmentFromType<bsl::vector<double> >::VALUE);
                       P(typesLookupTable[
                                              bdem_ElemType::BDEM_DOUBLE_ARRAY
                                         ]->d_size);
@@ -3745,7 +3745,7 @@ int main(int argc, char *argv[])
                 } break;
                 case 'Q': {
                   ASSERT(
-                    bsls_AlignmentFromType<bsl::vector<bsl::string> >::VALUE ==
+                   bsls::AlignmentFromType<bsl::vector<bsl::string> >::VALUE ==
                          typesLookupTable[
                                               bdem_ElemType::BDEM_STRING_ARRAY
                                          ]->d_alignment);
@@ -3757,7 +3757,7 @@ int main(int argc, char *argv[])
                       P(typesLookupTable[
                                              bdem_ElemType::BDEM_STRING_ARRAY
                                         ]->d_alignment);
-                      T_(); P(bsls_AlignmentFromType<
+                      T_(); P(bsls::AlignmentFromType<
                                                   bsl::vector<bsl::string>
                                               >::VALUE);
                       P(typesLookupTable[
@@ -3768,7 +3768,7 @@ int main(int argc, char *argv[])
                 } break;
                 case 'R': {
                   ASSERT(
-                    bsls_AlignmentFromType<bsl::vector<bdet_Datetime> >::VALUE
+                    bsls::AlignmentFromType<bsl::vector<bdet_Datetime> >::VALUE
                      == typesLookupTable[bdem_ElemType::BDEM_DATETIME_ARRAY]->
                                                                   d_alignment);
                   ASSERT(sizeof(bsl::vector<bdet_Datetime>) ==
@@ -3780,7 +3780,7 @@ int main(int argc, char *argv[])
                                                                   d_alignment);
                       T_();
                       P(
-                   bsls_AlignmentFromType<bsl::vector<bdet_Datetime> >::VALUE);
+                  bsls::AlignmentFromType<bsl::vector<bdet_Datetime> >::VALUE);
                       P(typesLookupTable[bdem_ElemType::BDEM_DATETIME_ARRAY]->
                                                                        d_size);
                       T_(); P(sizeof(bsl::vector<bdet_Datetime>));
@@ -3788,7 +3788,7 @@ int main(int argc, char *argv[])
                 } break;
                 case 'S': {
                   ASSERT(
-                     bsls_AlignmentFromType<bsl::vector<bdet_Date> >::VALUE ==
+                     bsls::AlignmentFromType<bsl::vector<bdet_Date> >::VALUE ==
                          typesLookupTable[bdem_ElemType::BDEM_DATE_ARRAY]->
                                                                   d_alignment);
                   ASSERT(sizeof(bsl::vector<bdet_Date>) ==
@@ -3798,7 +3798,7 @@ int main(int argc, char *argv[])
                   if (veryVerbose) {
                       P(typesLookupTable[bdem_ElemType::BDEM_DATE_ARRAY]->
                               d_alignment);
-                      T_(); P(bsls_AlignmentFromType<
+                      T_(); P(bsls::AlignmentFromType<
                                                   bsl::vector<bdet_Date>
                                               >::VALUE);
                       P(typesLookupTable[
@@ -3809,7 +3809,7 @@ int main(int argc, char *argv[])
                 } break;
                 case 'T': {
                   ASSERT(
-                      bsls_AlignmentFromType<bsl::vector<bdet_Time> >::VALUE ==
+                     bsls::AlignmentFromType<bsl::vector<bdet_Time> >::VALUE ==
                          typesLookupTable[bdem_ElemType::BDEM_TIME_ARRAY]->
                                                                   d_alignment);
                   ASSERT(sizeof(bsl::vector<bdet_Time>) ==
@@ -3819,7 +3819,7 @@ int main(int argc, char *argv[])
                   if (veryVerbose) {
                       P(typesLookupTable[bdem_ElemType::BDEM_TIME_ARRAY]->
                               d_alignment);
-                      T_(); P(bsls_AlignmentFromType<
+                      T_(); P(bsls::AlignmentFromType<
                                                    bsl::vector<bdet_Time>
                                               >::VALUE);
                       P(typesLookupTable[
@@ -3829,7 +3829,7 @@ int main(int argc, char *argv[])
                   }
                 } break;
                 case 'U': {
-                  ASSERT(bsls_AlignmentFromType<ListRep>::VALUE ==
+                  ASSERT(bsls::AlignmentFromType<ListRep>::VALUE ==
                          typesLookupTable[
                                               bdem_ElemType::BDEM_LIST
                                          ]->d_alignment);
@@ -3839,13 +3839,13 @@ int main(int argc, char *argv[])
                       P(typesLookupTable[
                                              bdem_ElemType::BDEM_LIST
                                         ]->d_alignment);
-                      T_(); P(bsls_AlignmentFromType<ListRep>::VALUE);
+                      T_(); P(bsls::AlignmentFromType<ListRep>::VALUE);
                       P(typesLookupTable[bdem_ElemType::BDEM_LIST]->d_size);
                       T_(); P(sizeof(ListRep));
                   }
                 } break;
                 case 'V': {
-                  ASSERT(bsls_AlignmentFromType<TableRep>::VALUE ==
+                  ASSERT(bsls::AlignmentFromType<TableRep>::VALUE ==
                          typesLookupTable[
                                               bdem_ElemType::BDEM_TABLE
                                          ]->d_alignment);
@@ -3855,13 +3855,13 @@ int main(int argc, char *argv[])
                       P(typesLookupTable[
                                              bdem_ElemType::BDEM_TABLE
                                         ]->d_alignment);
-                      T_(); P(bsls_AlignmentFromType<TableRep>::VALUE);
+                      T_(); P(bsls::AlignmentFromType<TableRep>::VALUE);
                       P(typesLookupTable[bdem_ElemType::BDEM_TABLE]->d_size);
                       T_(); P(sizeof(TableRep));
                   }
                 } break;
                 case 'a': {
-                  ASSERT(bsls_AlignmentFromType<bool>::VALUE ==
+                  ASSERT(bsls::AlignmentFromType<bool>::VALUE ==
                          typesLookupTable[
                                               bdem_ElemType::BDEM_BOOL
                                          ]->d_alignment);
@@ -3871,13 +3871,13 @@ int main(int argc, char *argv[])
                       P(typesLookupTable[
                                              bdem_ElemType::BDEM_BOOL
                                         ]->d_alignment);
-                      T_(); P(bsls_AlignmentFromType<bool>::VALUE);
+                      T_(); P(bsls::AlignmentFromType<bool>::VALUE);
                       P(typesLookupTable[bdem_ElemType::BDEM_BOOL]->d_size);
                       T_(); P(sizeof(bool));
                   }
                 } break;
                 case 'b': {
-                  ASSERT(bsls_AlignmentFromType<bdet_DatetimeTz>::VALUE ==
+                  ASSERT(bsls::AlignmentFromType<bdet_DatetimeTz>::VALUE ==
                          typesLookupTable[bdem_ElemType::BDEM_DATETIMETZ]->
                                                                   d_alignment);
                   ASSERT(sizeof(bdet_DatetimeTz) ==
@@ -3889,7 +3889,7 @@ int main(int argc, char *argv[])
                                              bdem_ElemType::BDEM_DATETIMETZ
                                         ]->d_alignment);
                       T_();
-                      P(bsls_AlignmentFromType<bdet_DatetimeTz>::VALUE);
+                      P(bsls::AlignmentFromType<bdet_DatetimeTz>::VALUE);
                       P(typesLookupTable[
                                              bdem_ElemType::BDEM_DATETIMETZ
                                         ]->d_size);
@@ -3897,7 +3897,7 @@ int main(int argc, char *argv[])
                   }
                 } break;
                 case 'c': {
-                  ASSERT(bsls_AlignmentFromType<bdet_DateTz>::VALUE ==
+                  ASSERT(bsls::AlignmentFromType<bdet_DateTz>::VALUE ==
                          typesLookupTable[
                                               bdem_ElemType::BDEM_DATETZ
                                          ]->d_alignment);
@@ -3907,13 +3907,13 @@ int main(int argc, char *argv[])
                       P(typesLookupTable[
                                              bdem_ElemType::BDEM_DATETZ
                                         ]->d_alignment);
-                      T_(); P(bsls_AlignmentFromType<bdet_DateTz>::VALUE);
+                      T_(); P(bsls::AlignmentFromType<bdet_DateTz>::VALUE);
                       P(typesLookupTable[bdem_ElemType::BDEM_DATETZ]->d_size);
                       T_(); P(sizeof(bdet_DateTz));
                   }
                 } break;
                 case 'd': {
-                  ASSERT(bsls_AlignmentFromType<bdet_TimeTz>::VALUE ==
+                  ASSERT(bsls::AlignmentFromType<bdet_TimeTz>::VALUE ==
                          typesLookupTable[
                                               bdem_ElemType::BDEM_TIMETZ
                                          ]->d_alignment);
@@ -3923,13 +3923,13 @@ int main(int argc, char *argv[])
                       P(typesLookupTable[
                                              bdem_ElemType::BDEM_TIMETZ
                                         ]->d_alignment);
-                      T_(); P(bsls_AlignmentFromType<bdet_TimeTz>::VALUE);
+                      T_(); P(bsls::AlignmentFromType<bdet_TimeTz>::VALUE);
                       P(typesLookupTable[bdem_ElemType::BDEM_TIMETZ]->d_size);
                       T_(); P(sizeof(bdet_TimeTz));
                   }
                 } break;
                 case 'e': {
-                  ASSERT(bsls_AlignmentFromType<bsl::vector<bool> >::VALUE ==
+                  ASSERT(bsls::AlignmentFromType<bsl::vector<bool> >::VALUE ==
                          typesLookupTable[bdem_ElemType::BDEM_BOOL_ARRAY]->
                                                                   d_alignment);
                   ASSERT(sizeof(bsl::vector<bool>) ==
@@ -3941,7 +3941,7 @@ int main(int argc, char *argv[])
                                              bdem_ElemType::BDEM_BOOL_ARRAY
                                         ]->d_alignment);
                       T_();
-                      P(bsls_AlignmentFromType<
+                      P(bsls::AlignmentFromType<
                                             bsl::vector<bool>
                                         >::VALUE);
                       P(typesLookupTable[
@@ -3952,7 +3952,7 @@ int main(int argc, char *argv[])
                 } break;
                 case 'f': {
                   ASSERT(
-                      bsls_AlignmentFromType<bsl::vector<bdet_DatetimeTz> >::
+                      bsls::AlignmentFromType<bsl::vector<bdet_DatetimeTz> >::
                                                                        VALUE ==
                          typesLookupTable[
                                            bdem_ElemType::BDEM_DATETIMETZ_ARRAY
@@ -3966,7 +3966,7 @@ int main(int argc, char *argv[])
                                            bdem_ElemType::BDEM_DATETIMETZ_ARRAY
                                         ]->d_alignment);
                       T_();
-                      P(bsls_AlignmentFromType<
+                      P(bsls::AlignmentFromType<
                                             bsl::vector<bdet_DatetimeTz>
                                         >::VALUE);
                       P(typesLookupTable[
@@ -3977,7 +3977,7 @@ int main(int argc, char *argv[])
                 } break;
                 case 'g': {
                   ASSERT(
-                    bsls_AlignmentFromType<bsl::vector<bdet_DateTz> >::VALUE ==
+                   bsls::AlignmentFromType<bsl::vector<bdet_DateTz> >::VALUE ==
                          typesLookupTable[bdem_ElemType::BDEM_DATETZ_ARRAY]->
                                                                   d_alignment);
                   ASSERT(sizeof(bsl::vector<bdet_DateTz>) ==
@@ -3988,7 +3988,7 @@ int main(int argc, char *argv[])
                                              bdem_ElemType::BDEM_DATETZ_ARRAY
                                         ]->d_alignment);
                       T_();
-                      P(bsls_AlignmentFromType<bsl::vector<bdet_DateTz> >
+                      P(bsls::AlignmentFromType<bsl::vector<bdet_DateTz> >
                               ::VALUE);
                       P(typesLookupTable[
                                              bdem_ElemType::BDEM_DATETZ_ARRAY
@@ -3998,7 +3998,7 @@ int main(int argc, char *argv[])
                 } break;
                 case 'h': {
                   ASSERT(
-                    bsls_AlignmentFromType<bsl::vector<bdet_TimeTz> >::VALUE ==
+                   bsls::AlignmentFromType<bsl::vector<bdet_TimeTz> >::VALUE ==
                          typesLookupTable[bdem_ElemType::BDEM_TIMETZ_ARRAY]->
                                                                   d_alignment);
                   ASSERT(sizeof(bsl::vector<bdet_TimeTz>) ==
@@ -4009,7 +4009,7 @@ int main(int argc, char *argv[])
                               d_alignment);
                       T_();
                       P(
-                     bsls_AlignmentFromType<bsl::vector<bdet_TimeTz> >::VALUE);
+                    bsls::AlignmentFromType<bsl::vector<bdet_TimeTz> >::VALUE);
                       P(typesLookupTable[
                                              bdem_ElemType::BDEM_TIMETZ_ARRAY
                                         ]->d_size);
@@ -4017,7 +4017,7 @@ int main(int argc, char *argv[])
                   }
                 } break;
                 case 'i': {
-                  ASSERT(bsls_AlignmentFromType<ChoiceRep>::VALUE ==
+                  ASSERT(bsls::AlignmentFromType<ChoiceRep>::VALUE ==
                          typesLookupTable[
                                               bdem_ElemType::BDEM_CHOICE
                                          ]->d_alignment);
@@ -4030,13 +4030,13 @@ int main(int argc, char *argv[])
                                              bdem_ElemType::BDEM_CHOICE
                                         ]->d_alignment);
                       T_();
-                      P(bsls_AlignmentFromType<ChoiceRep>::VALUE);
+                      P(bsls::AlignmentFromType<ChoiceRep>::VALUE);
                       P(typesLookupTable[bdem_ElemType::BDEM_CHOICE]->d_size);
                       T_(); P(sizeof(ChoiceRep));
                   }
                 } break;
                 case 'j': {
-                  ASSERT(bsls_AlignmentFromType<ChoiceArrayRep>::VALUE ==
+                  ASSERT(bsls::AlignmentFromType<ChoiceArrayRep>::VALUE ==
                          typesLookupTable[bdem_ElemType::BDEM_CHOICE_ARRAY]->
                                                                   d_alignment);
                   ASSERT(sizeof(ChoiceArrayRep) ==
@@ -4047,7 +4047,7 @@ int main(int argc, char *argv[])
                       P(typesLookupTable[bdem_ElemType::BDEM_CHOICE_ARRAY]->
                               d_alignment);
                       T_();
-                      P(bsls_AlignmentFromType<ChoiceArrayRep>::VALUE);
+                      P(bsls::AlignmentFromType<ChoiceArrayRep>::VALUE);
                       P(typesLookupTable[
                                              bdem_ElemType::BDEM_CHOICE_ARRAY
                                         ]->d_size);
@@ -4345,11 +4345,11 @@ int main(int argc, char *argv[])
         //
         //   To address concern 5, we will perform each of the above tests in
         //   the presence of exceptions during memory allocations using a
-        //   'bslma_TestAllocator' and varying its *allocation* *limit*.
+        //   'bslma::TestAllocator' and varying its *allocation* *limit*.
         //
         //   To address concern 6, we will repeat the above tests:
         //     - When passing in no allocator.
-        //     - When passing in a null pointer: (bslma_Allocator *)0.
+        //     - When passing in a null pointer: (bslma::Allocator *)0.
         //     - When passing in a test allocator (see concern 5).
         //     - Where the object is constructed entirely in static memory
         //       (using a 'bdema_BufferedSequentialAllocator') and never
@@ -4416,7 +4416,7 @@ int main(int argc, char *argv[])
                     }
 
                     {                                   // Null allocator.
-                        const Obj Y1(X, (bslma_Allocator *) 0);
+                        const Obj Y1(X, (bslma::Allocator *) 0);
                         if (veryVerbose) { cout << "\t\t\t"; P(Y1); }
                         LOOP2_ASSERT(SPEC, N, W == Y1);
                         LOOP2_ASSERT(SPEC, N, W == X);
@@ -5308,7 +5308,7 @@ int main(int argc, char *argv[])
         //   a) Create an offset map using the default constructor:
         //        - With and without passing in an allocator.
         //        - In the presence of exceptions during memory allocations
-        //          using a 'bslma_TestAllocator' and varying its *allocation*
+        //          using a 'bslma::TestAllocator' and varying its *allocation*
         //          *limit*.
         //        - Where the object is constructed entirely in static memory
         //          (using a 'bdema_BufferedSequentialAllocator') and never
@@ -5341,7 +5341,7 @@ int main(int argc, char *argv[])
         //          * Verify that the total offset is 0.
         //
         // Testing:
-        //   bdem_RowLayout(bslma_Allocator *ba = 0);
+        //   bdem_RowLayout(bslma::Allocator *ba = 0);
         //   ~bdem_RowLayout();
         //   void removeAll();
         //   BOOTSTRAP: void insert(int di, bdem_ElemType::Type item);
@@ -5356,7 +5356,7 @@ int main(int argc, char *argv[])
             << "\nTesting 'bdem_RowLayout()' Constructor." << endl;
         if (verbose) cout << "\tWithout passing in an allocator." << endl;
         {
-            const Obj X((bslma_Allocator *)0);
+            const Obj X((bslma::Allocator *)0);
             if (veryVerbose) { T_(); T_(); PS(X); }
             ASSERT(0 == X.length());
         }

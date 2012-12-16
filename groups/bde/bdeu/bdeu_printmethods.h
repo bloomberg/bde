@@ -39,8 +39,8 @@ BDES_IDENT("$Id: $")
 // by this component:
 //..
 //  bdeu_TypeTraitHasPrintMethod       ( highest precedence )
-//  bslalg_TypeTraitHasStlIterators
-//  bslalg_TypeTraitPair               ( lowest precedence  )
+//  bslalg::TypeTraitHasStlIterators
+//  bslalg::TypeTraitPair              ( lowest precedence  )
 //..
 // Since a class may declare multiple traits (see the component-level
 // documentation of 'bslalg_typetraits' for information about declaring
@@ -72,9 +72,9 @@ BDES_IDENT("$Id: $")
 //  'stream' is not valid on entry, this operation has no effect.
 //..
 //
-///Affect of 'bslalg_TypeTraitHasStlIterators' Trait
+///Affect of 'bslalg::TypeTraitHasStlIterators' Trait
 ///- - - - - - - - - - - - - - - - - - - - - - - - -
-// If a class 'X' declares the 'bslalg_TypeTraitHasStlIterators' trait, then
+// If a class 'X' declares the 'bslalg::TypeTraitHasStlIterators' trait, then
 // it must provide access to iterators using the standard STL protocol.  The
 // BDE implementation of STL declares this trait for all STL container types
 // that have STL iterators.  Other containers that provide STL iterators should
@@ -89,9 +89,9 @@ BDES_IDENT("$Id: $")
 // its own print method, and with an indentation level one higher than that of
 // the container.
 //
-///Affect of 'bslalg_TypeTraitPair' Trait
+///Affect of 'bslalg::TypeTraitPair' Trait
 /// - - - - - - - - - - - - - - - - - - -
-// If a class 'X' declares the 'bslalg_TypeTraitPair' trait, then the class
+// If a class 'X' declares the 'bslalg::TypeTraitPair' trait, then the class
 // must contain two 'public' data members named 'first' and 'second'.  The
 // BDE implementation of STL declares this trait for the 'bsl::pair' 'struct'.
 // Other classes that have 'public' 'first' and 'second' data members may
@@ -410,7 +410,7 @@ struct bdeu_PrintMethods_Imp<TYPE,
 
 template <typename TYPE>
 struct bdeu_PrintMethods_Imp<TYPE,
-                             bslmf::SelectTraitCase<bslalg::HasStlIterators> > {
+                            bslmf::SelectTraitCase<bslalg::HasStlIterators> > {
     // Component-private 'struct'.  Do not use outside of this component.  This
     // 'struct' provides a 'print' function that prints objects of the
     // parameterized 'TYPE' that have the 'bslalg::StlIterators'

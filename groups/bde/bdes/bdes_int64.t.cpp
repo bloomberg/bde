@@ -28,8 +28,8 @@ using namespace bsl;  // automatically added by script
 //-----------------------------------------------------------------------------
 // [ 2] Int64
 // [ 2] Uint64
-// [ 4] operator<<(ostream&, const bsls_PlatformUtil::Uint64&);
-// [ 3] operator<<(ostream&, const bsls_PlatformUtil::Int64&);
+// [ 4] operator<<(ostream&, const bsls::PlatformUtil::Uint64&);
+// [ 3] operator<<(ostream&, const bsls::PlatformUtil::Int64&);
 //=============================================================================
 //                       STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------

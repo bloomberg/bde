@@ -77,7 +77,7 @@ BDES_IDENT("$Id: $")
 //      // DATA
 //      char                    *d_buffer;       // initial buffer (owned)
 //      bdesb_OverflowMemOutput *d_streamBuf;    // stream buffer (owned)
-//      bslma_Allocator         *d_allocator_p;  // allocator (held, not owned)
+//      bslma::Allocator        *d_allocator_p;  // allocator (held, not owned)
 //
 //      // FRIENDS
 //      friend
@@ -92,10 +92,10 @@ BDES_IDENT("$Id: $")
 //    public:
 //      // TRAITS
 //      BSLALG_DECLARE_NESTED_TRAITS(my_CapitalizingStream,
-//                                   bslalg_TypeTraitUsesBslmaAllocator);
+//                                   bslalg::TypeTraitUsesBslmaAllocator);
 //
 //      // CREATORS
-//      my_CapitalizingStream(bslma_Allocator *allocator = 0);
+//      my_CapitalizingStream(bslma::Allocator *allocator = 0);
 //          // Create a stream that capitalizes everything.
 //
 //      ~my_CapitalizingStream();
@@ -127,8 +127,8 @@ BDES_IDENT("$Id: $")
 //
 //  // CREATORS
 //  my_CapitalizingStream::my_CapitalizingStream(
-//                                             bslma_Allocator *basicAllocator)
-//  : d_allocator_p(bslma_Default::allocator(basicAllocator))
+//                                            bslma::Allocator *basicAllocator)
+//  : d_allocator_p(bslma::Default::allocator(basicAllocator))
 //  {
 //      d_buffer = reinterpret_cast<char*>(
 //                                d_allocator_p->allocate(STREAMBUF_CAPACITY));
@@ -250,7 +250,7 @@ class bdesb_OverflowMemOutStreamBuf : public bsl::streambuf {
 
     int   d_overflowBufferSize;    // size of 'd_overflowBuffer_p' buffer
 
-    bslma_Allocator
+    bslma::Allocator
          *d_allocator_p;           // memory allocator (held, not owned)
 
     // NOT IMPLEMENTED
@@ -343,9 +343,9 @@ class bdesb_OverflowMemOutStreamBuf : public bsl::streambuf {
 
   public:
     // CREATORS
-    bdesb_OverflowMemOutStreamBuf(char            *buffer,
-                                  int              length,
-                                  bslma_Allocator *basicAllocator = 0);
+    bdesb_OverflowMemOutStreamBuf(char             *buffer,
+                                  int               length,
+                                  bslma::Allocator *basicAllocator = 0);
         // Create an empty stream buffer that uses the specified 'buffer' as an
         // initial output buffer of the specified 'length' (in bytes).
         // Optionally specify a 'basicAllocator' used to supply memory.  If

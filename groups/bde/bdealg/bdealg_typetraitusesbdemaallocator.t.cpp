@@ -10,7 +10,7 @@ using namespace bsl;
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
 #else
-typedef bslalg_TypeTraitUsesBslmaAllocator bdealg_TypeTraitUsesBdemaAllocator;
+typedef bslalg::TypeTraitUsesBslmaAllocator bdealg_TypeTraitUsesBdemaAllocator;
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
 //=============================================================================

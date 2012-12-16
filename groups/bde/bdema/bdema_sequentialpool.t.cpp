@@ -7,6 +7,7 @@
 
 #include <bsls_alignedbuffer.h>
 #include <bsls_alignment.h>
+#include <bsls_types.h>
 
 #include <bsl_cstdlib.h>
 #include <bsl_iostream.h>
@@ -33,7 +34,7 @@ using namespace bsl;
 // correctness of 'allocate', and the second verifies the size of the first
 // allocation and the memory alignment strategy.
 //
-// We make heavy use of the 'bslma_TestAllocator' to ensure that:
+// We make heavy use of the 'bslma::TestAllocator' to ensure that:
 //
 // (1) The growth rate of the internal block list matches the specified growth
 //     strategy and constrained by the specified maximum buffer size.
@@ -50,20 +51,20 @@ using namespace bsl;
 // had been released by the destructor of the pool.
 //-----------------------------------------------------------------------------
 // // CREATORS
-// [ 3] bdema_SequentialPool(bslma_Allocator *a = 0)
-// [ 3] bdema_SequentialPool(GS g, bslma_Allocator *a = 0)
-// [ 3] bdema_SequentialPool(AS a, bslma_Allocator *a = 0)
-// [ 3] bdema_SequentialPool(GS g, AS a, bslma_Allocator *a = 0)
+// [ 3] bdema_SequentialPool(bslma::Allocator *a = 0)
+// [ 3] bdema_SequentialPool(GS g, bslma::Allocator *a = 0)
+// [ 3] bdema_SequentialPool(AS a, bslma::Allocator *a = 0)
+// [ 3] bdema_SequentialPool(GS g, AS a, bslma::Allocator *a = 0)
 //
-// [ 3] bdema_SequentialPool(int i, bslma_Allocator *a = 0)
-// [ 3] bdema_SequentialPool(int i, GS g, bslma_Allocator *a = 0)
-// [ 3] bdema_SequentialPool(int i, AS a, bslma_Allocator *a = 0)
-// [ 3] bdema_SequentialPool(int i, GS g, AS a, bslma_Allocator *a = 0)
+// [ 3] bdema_SequentialPool(int i, bslma::Allocator *a = 0)
+// [ 3] bdema_SequentialPool(int i, GS g, bslma::Allocator *a = 0)
+// [ 3] bdema_SequentialPool(int i, AS a, bslma::Allocator *a = 0)
+// [ 3] bdema_SequentialPool(int i, GS g, AS a, bslma::Allocator *a = 0)
 //
-// [ 3] bdema_SequentialPool(int i, int m, bslma_Allocator *a = 0)
-// [ 3] bdema_SequentialPool(int i, int m, GS g, bslma_Allocator *a = 0)
-// [ 3] bdema_SequentialPool(int i, int m, AS a, bslma_Allocator *a = 0)
-// [ 3] bdema_SequentialPool(int i, int m, GS g, AS a, bslma_Allocator *a = 0)
+// [ 3] bdema_SequentialPool(int i, int m, bslma::Allocator *a = 0)
+// [ 3] bdema_SequentialPool(int i, int m, GS g, bslma::Allocator *a = 0)
+// [ 3] bdema_SequentialPool(int i, int m, AS a, bslma::Allocator *a = 0)
+// [ 3] bdema_SequentialPool(int i, int m, GS g, AS a, bslma::Allocator *a = 0)
 //
 // [  ] ~bdema_SequentialPool()
 //
@@ -167,8 +168,8 @@ struct InfrequentDeleteBlock {
     // This type is copied from the 'bdema_infrequentdeleteblocklist.h' for
     // testing purposes.
 
-    InfrequentDeleteBlock              *d_next_p;
-    bsls_AlignmentUtil::MaxAlignedType  d_memory;  // force alignment
+    InfrequentDeleteBlock               *d_next_p;
+    bsls::AlignmentUtil::MaxAlignedType  d_memory;  // force alignment
 };
 
 //=============================================================================
@@ -183,7 +184,7 @@ static int blockSize(int numBytes)
 
     if (numBytes) {
         numBytes += sizeof(InfrequentDeleteBlock) - 1;
-        numBytes &= ~(bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT - 1);
+        numBytes &= ~(bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT - 1);
     }
 
     return numBytes;
@@ -257,7 +258,7 @@ static int calculateNextSize(int currSize, int size)
         enum Type { MY_INT, MY_DOUBLE };
 
         // CREATORS
-        my_IntDoubleArray(bslma_Allocator *basicAllocator = 0);
+        my_IntDoubleArray(bslma::Allocator *basicAllocator = 0);
             // Create an 'int'-'double' array.  Optionally specify a
             // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
             // 0, the currently installed default allocator is used.
@@ -308,7 +309,7 @@ static int calculateNextSize(int currSize, int size)
     }
 
     // CREATORS
-    my_IntDoubleArray::my_IntDoubleArray(bslma_Allocator *basicAllocator)
+    my_IntDoubleArray::my_IntDoubleArray(bslma::Allocator *basicAllocator)
     : d_length(0)
     , d_capacity(INITIAL_SIZE)
     , d_pool(basicAllocator)
@@ -364,7 +365,7 @@ static int calculateNextSize(int currSize, int size)
 //..
 ///Example 2: Implementing an Allocator Using 'bdema_SequentialPool'
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// 'bslma_Allocator' is used throughout the interfaces of BDE components.
+// 'bslma::Allocator' is used throughout the interfaces of BDE components.
 // Suppose we would like to create a fast allocator, 'my_FastAllocator', that
 // allocates memory from a buffer in a similar fashion to
 // 'bdema_SequentialPool'.  This class can be used directly to implement such
@@ -374,8 +375,8 @@ static int calculateNextSize(int currSize, int size)
 // example.  Please see 'bdema_sequentialallocator' for full documentation of a
 // similar class.
 //..
-    class my_SequentialAllocator : public bslma_Allocator {
-        // This class implements the 'bslma_Allocator' protocol to provide a
+    class my_SequentialAllocator : public bslma::Allocator {
+        // This class implements the 'bslma::Allocator' protocol to provide a
         // fast allocator of heterogeneous blocks of memory (of varying,
         // user-specified sizes) from dynamically-allocated internal buffers.
 
@@ -385,7 +386,7 @@ static int calculateNextSize(int currSize, int size)
 
       public:
         // CREATORS
-        my_SequentialAllocator(bslma_Allocator *basicAllocator = 0);
+        my_SequentialAllocator(bslma::Allocator *basicAllocator = 0);
             // Create an allocator for allocating memory blocks from
             // dynamically-allocated internal buffers.  Optionally specify a
             // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
@@ -408,7 +409,7 @@ static int calculateNextSize(int currSize, int size)
     // CREATORS
     inline
     my_SequentialAllocator::my_SequentialAllocator(
-                                               bslma_Allocator *basicAllocator)
+                                              bslma::Allocator *basicAllocator)
     : d_pool(basicAllocator)
     {
     }
@@ -450,19 +451,19 @@ int main(int argc, char *argv[])
     // three test allocators.
 
     // Object Test Allocator.
-    bslma_TestAllocator objectAllocator("Object Allocator",
-                                        veryVeryVeryVerbose);
+    bslma::TestAllocator objectAllocator("Object Allocator",
+                                         veryVeryVeryVerbose);
 
     // Default Test Allocator.
-    bslma_TestAllocator defaultAllocator("Default Allocator",
-                                         veryVeryVeryVerbose);
-    bslma_DefaultAllocatorGuard guard(&defaultAllocator);
+    bslma::TestAllocator defaultAllocator("Default Allocator",
+                                          veryVeryVeryVerbose);
+    bslma::DefaultAllocatorGuard guard(&defaultAllocator);
 
     // Global Test Allocator.
-    bslma_TestAllocator  globalAllocator("Global Allocator",
+    bslma::TestAllocator globalAllocator("Global Allocator",
                                          veryVeryVeryVerbose);
-    bslma_Allocator *originalGlobalAllocator =
-                           bslma_Default::setGlobalAllocator(&globalAllocator);
+    bslma::Allocator *originalGlobalAllocator =
+                          bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:
       case 11: {
@@ -631,12 +632,12 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "TRUNCATE TEST" << endl
                                   << "=============" << endl;
 
-        typedef bsls_Alignment::Strategy St;
+        typedef bsls::Alignment::Strategy St;
 
-        enum { MAX_ALIGN = bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT };
+        enum { MAX_ALIGN = bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT };
 
-#define NAT bsls_Alignment::BSLS_NATURAL
-#define MAX bsls_Alignment::BSLS_MAXIMUM
+#define NAT bsls::Alignment::BSLS_NATURAL
+#define MAX bsls::Alignment::BSLS_MAXIMUM
 
         if (verbose) cout << "\nTesting 'truncate'." << endl;
 
@@ -767,12 +768,12 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "'allocateAndExpand' TEST" << endl
                                   << "========================" << endl;
 
-        typedef bsls_Alignment::Strategy St;
+        typedef bsls::Alignment::Strategy St;
 
-        enum { MAX_ALIGN = bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT };
+        enum { MAX_ALIGN = bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT };
 
-#define NAT bsls_Alignment::BSLS_NATURAL
-#define MAX bsls_Alignment::BSLS_MAXIMUM
+#define NAT bsls::Alignment::BSLS_NATURAL
+#define MAX bsls::Alignment::BSLS_MAXIMUM
 
         if (verbose) cout << "\nTesting 'expand'." << endl;
 
@@ -837,17 +838,17 @@ int main(int argc, char *argv[])
                                               objectAllocator.numBytesInUse());
             ASSERT(1 == objectAllocator.numBlocksInUse());
 
-            bsls_PlatformUtil::size_type size = 1;
+            bsls::Types::size_type size = 1;
             void *addr2 = pool.allocateAndExpand(&size);
 
             // Check for correct memory address.
-            if (bsls_Alignment::BSLS_NATURAL == STRAT) {
+            if (bsls::Alignment::BSLS_NATURAL == STRAT) {
                 ASSERT((char *)addr1 + INITIALSIZE == (char *)addr2);
             }
             else {
-                int offset = bsls_AlignmentUtil::calculateAlignmentOffset(
-                                       (char *)addr1 + INITIALSIZE,
-                                       bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT);
+                int offset = bsls::AlignmentUtil::calculateAlignmentOffset(
+                                      (char *)addr1 + INITIALSIZE,
+                                      bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT);
                 ASSERT((char *)addr1 + INITIALSIZE + offset == (char *)addr2);
             }
 
@@ -871,7 +872,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == objectAllocator.numBytesInUse());
             ASSERT(0 == objectAllocator.numBlocksInUse());
 
-            bsls_PlatformUtil::size_type size = 1;
+            bsls::Types::size_type size = 1;
             pool.allocateAndExpand(&size);
 
             ASSERT(blockSize(DEFAULT_SIZE * 2) ==
@@ -997,13 +998,13 @@ int main(int argc, char *argv[])
 
             // Try each test using both maximum and natural alignment
 
-            typedef bsls_Alignment::Strategy AlignmentStrategy;
+            typedef bsls::Alignment::Strategy AlignmentStrategy;
             AlignmentStrategy strategy;
-            for (strategy = bsls_Alignment::BSLS_MAXIMUM;
-                 strategy <= bsls_Alignment::BSLS_NATURAL;
+            for (strategy = bsls::Alignment::BSLS_MAXIMUM;
+                 strategy <= bsls::Alignment::BSLS_NATURAL;
                  strategy = (AlignmentStrategy) (strategy + 1)) {
 
-                bslma_TestAllocator ta(veryVeryVerbose);
+                bslma::TestAllocator ta(veryVeryVerbose);
 
                 Obj pool(BUFSIZE, strategy, &ta);
                 ASSERT(1 == ta.numBlocksInUse());
@@ -1071,8 +1072,8 @@ int main(int argc, char *argv[])
                                511, 512, 1023, 1024, 1025 };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        bsls_Alignment::Strategy MAX = bsls_Alignment::BSLS_MAXIMUM;
-        bsls_Alignment::Strategy NAT = bsls_Alignment::BSLS_NATURAL;
+        bsls::Alignment::Strategy MAX = bsls::Alignment::BSLS_MAXIMUM;
+        bsls::Alignment::Strategy NAT = bsls::Alignment::BSLS_NATURAL;
 
         if (verbose) cout << "\nTesting constructor without allocation."
                           << endl;
@@ -1080,7 +1081,7 @@ int main(int argc, char *argv[])
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int SIZE = DATA[i];
 
-                bslma_TestAllocator ta(veryVeryVerbose),
+                bslma::TestAllocator ta(veryVeryVerbose),
                                     tb(veryVeryVerbose),
                                     tc(veryVeryVerbose);
                 Obj mX(&ta);
@@ -1126,10 +1127,10 @@ int main(int argc, char *argv[])
                 const int INITIAL_SIZES[] = { SIZE - 1, SIZE, SIZE + 1,
                                               SIZE - 1, SIZE, SIZE + 1 };
 
-#define GEO bsls_BlockGrowth::BSLS_GEOMETRIC
-#define CON bsls_BlockGrowth::BSLS_CONSTANT
+#define GEO bsls::BlockGrowth::BSLS_GEOMETRIC
+#define CON bsls::BlockGrowth::BSLS_CONSTANT
 
-                const bsls_BlockGrowth::Strategy STRAT[] = { GEO, GEO, GEO,
+                const bsls::BlockGrowth::Strategy STRAT[] = { GEO, GEO, GEO,
                                                              CON, CON, CON };
 
 #undef CON
@@ -1140,9 +1141,9 @@ int main(int argc, char *argv[])
 
                 for (int j = 0; j < NUM_INITIAL_SIZES; ++j) {
                     const int INITIAL_SIZE = INITIAL_SIZES[j];
-                    const bsls_BlockGrowth::Strategy STRATEGY = STRAT[j];
+                    const bsls::BlockGrowth::Strategy STRATEGY = STRAT[j];
 
-                    bslma_TestAllocator ta(veryVeryVerbose),
+                    bslma::TestAllocator ta(veryVeryVerbose),
                                         tb(veryVeryVerbose),
                                         tc(veryVeryVerbose);
 
@@ -1167,7 +1168,7 @@ int main(int argc, char *argv[])
                         LOOP_ASSERT(i, NB == tb.numBytesInUse());
                         LOOP_ASSERT(i, NC == tc.numBytesInUse());
                     }
-                    else if (bsls_BlockGrowth::BSLS_GEOMETRIC == STRAT[j]) {
+                    else if (bsls::BlockGrowth::BSLS_GEOMETRIC == STRAT[j]) {
                         int nextSize = calculateNextSize(INITIAL_SIZE, SIZE);
                         LOOP3_ASSERT(i, NA + blockSize(nextSize),
                                      ta.numBytesInUse(),
@@ -1214,10 +1215,10 @@ int main(int argc, char *argv[])
                 const int INITIAL_SIZES[] = { SIZE - 1, SIZE, SIZE + 1,
                                               SIZE - 1, SIZE, SIZE + 1 };
 
-#define GEO bsls_BlockGrowth::BSLS_GEOMETRIC
-#define CON bsls_BlockGrowth::BSLS_CONSTANT
+#define GEO bsls::BlockGrowth::BSLS_GEOMETRIC
+#define CON bsls::BlockGrowth::BSLS_CONSTANT
 
-                const bsls_BlockGrowth::Strategy STRATEGIES[] = {
+                const bsls::BlockGrowth::Strategy STRATEGIES[] = {
                                                               GEO, GEO, GEO,
                                                               CON, CON, CON };
 
@@ -1230,9 +1231,9 @@ int main(int argc, char *argv[])
 
                 for (int j = 0; j < NUM_INITIAL_SIZES; ++j) {
                     const int INITIAL_SIZE = INITIAL_SIZES[j];
-                    const bsls_BlockGrowth::Strategy STRATEGY = STRATEGIES[j];
+                    const bsls::BlockGrowth::Strategy STRATEGY = STRATEGIES[j];
 
-                    bslma_TestAllocator ta(veryVeryVerbose),
+                    bslma::TestAllocator ta(veryVeryVerbose),
                                         tb(veryVeryVerbose),
                                         tc(veryVeryVerbose);
 
@@ -1277,7 +1278,7 @@ int main(int argc, char *argv[])
                                 LOOP_ASSERT(i, NB == tb.numBytesInUse());
                                 LOOP_ASSERT(i, NC == tc.numBytesInUse());
                             }
-                            else if (bsls_BlockGrowth::BSLS_GEOMETRIC ==
+                            else if (bsls::BlockGrowth::BSLS_GEOMETRIC ==
                                                                     STRATEGY) {
                                 if (ALLOC_SIZE < MAX_SIZE) {
                                     int nextSize = calculateNextSize(
@@ -1347,29 +1348,29 @@ int main(int argc, char *argv[])
         // Plan:
         //
         // Testing:
-        //  *bdema_SequentialPool(bslma_Allocator *a = 0)
-        //   bdema_SequentialPool(GS g, bslma_Allocator *a = 0)
-        //  *bdema_SequentialPool(AS a, bslma_Allocator *a = 0)
-        //   bdema_SequentialPool(GS g, AS a, bslma_Allocator *a = 0)
+        //  *bdema_SequentialPool(bslma::Allocator *a = 0)
+        //   bdema_SequentialPool(GS g, bslma::Allocator *a = 0)
+        //  *bdema_SequentialPool(AS a, bslma::Allocator *a = 0)
+        //   bdema_SequentialPool(GS g, AS a, bslma::Allocator *a = 0)
         //
-        //  *bdema_SequentialPool(int i, bslma_Allocator *a = 0)
-        //   bdema_SequentialPool(int i, GS g, bslma_Allocator *a = 0)
-        //   bdema_SequentialPool(int i, AS a, bslma_Allocator *a = 0)
-        //  *bdema_SequentialPool(int i, GS g, AS a, bslma_Allocator *a = 0)
+        //  *bdema_SequentialPool(int i, bslma::Allocator *a = 0)
+        //   bdema_SequentialPool(int i, GS g, bslma::Allocator *a = 0)
+        //   bdema_SequentialPool(int i, AS a, bslma::Allocator *a = 0)
+        //  *bdema_SequentialPool(int i, GS g, AS a, bslma::Allocator *a = 0)
         //
-        //  *bdema_SequentialPool(int i, int m, bslma_Allocator *a = 0)
-        //   bdema_SequentialPool(int i, int m, GS g, bslma_Allocator *a = 0)
-        //   bdema_SequentialPool(int i, int m, AS a, bslma_Allocator *a = 0)
-        //  *bdema_SequentialPool(int, int, GS g, AS a, bslma_Allocator *a = 0)
+        //  *bdema_SequentialPool(int i, int m, bslma::Allocator *a = 0)
+        //   bdema_SequentialPool(int i, int m, GS g, bslma::Allocator *a = 0)
+        //   bdema_SequentialPool(int i, int m, AS a, bslma::Allocator *a = 0)
+        //  *bdema_SequentialPool(int, int, GS g, AS a, bslma::Allocator *a= 0)
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "CTOR TEST" << endl
                                   << "=========" << endl;
 
-#define GEO bsls_BlockGrowth::BSLS_GEOMETRIC
-#define CON bsls_BlockGrowth::BSLS_CONSTANT
-#define NAT bsls_Alignment::BSLS_NATURAL
-#define MAX bsls_Alignment::BSLS_MAXIMUM
+#define GEO bsls::BlockGrowth::BSLS_GEOMETRIC
+#define CON bsls::BlockGrowth::BSLS_CONSTANT
+#define NAT bsls::Alignment::BSLS_NATURAL
+#define MAX bsls::Alignment::BSLS_MAXIMUM
         const int INITIAL_SIZE = 64;
         const int MAX_BUFFER   = 256;
 
@@ -1586,8 +1587,8 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting specification of alignment strategy."
                           << endl;
         {
-            typedef bsls_Alignment::Strategy St;
-            enum { MAX_ALIGN = bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT };
+            typedef bsls::Alignment::Strategy St;
+            enum { MAX_ALIGN = bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT };
 
             static const struct {
                 int d_line;       // line number
@@ -1744,7 +1745,7 @@ int main(int argc, char *argv[])
         const int DATA[] = { 0, 1, 5, 12, 24, 64, 1000 };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        bslma_TestAllocator a(veryVeryVerbose);
+        bslma::TestAllocator a(veryVeryVerbose);
         bdema_InfrequentDeleteBlockList bl(&a);
         for (int i = 0; i < NUM_DATA; ++i) {
             const int SIZE = DATA[i];
@@ -1781,7 +1782,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   First, initialize a 'bdema_SequentialPool' with a
-        //   'bslma_TestAllocator' (concern 1).  Then, allocate a block of
+        //   'bslma::TestAllocator' (concern 1).  Then, allocate a block of
         //   memory, and verify that it comes from the test allocator.
         //   Allocate another block of memory, and verify that no dynamic
         //   allocation is triggered (concern 3).  Verify the alignment and

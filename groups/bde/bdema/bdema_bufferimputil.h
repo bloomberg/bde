@@ -12,7 +12,7 @@ BDES_IDENT("$Id: $")
 //@CLASSES:
 //  bdema_BufferImpUtil: pure procedures for allocating memory from a buffer
 //
-//@SEE_ALSO: bdema_buffer
+//@SEE_ALSO: bdema_buffermanager
 //
 //@AUTHOR: Arthur Chiu (achiu21)
 //
@@ -40,7 +40,7 @@ BDES_IDENT("$Id: $")
 // 'allocateFromBuffer':
 //..
 //  allocateFromBuffer(&cursor, buffer, bufferSize, 1
-//                                       bsls_AlignmentStrategy::BSLS_NATURAL);
+//                                      bsls::AlignmentStrategy::BSLS_NATURAL);
 //..
 // The cursor will be advanced as follows:
 //..
@@ -55,7 +55,7 @@ BDES_IDENT("$Id: $")
 // Suppose 'allocateFromBuffer' is then used to allocate 2 bytes:
 //..
 //  allocateFromBuffer(&cursor, buffer, bufferSize, 2,
-//                                       bsls_AlignmentStrategy::BSLS_NATURAL);
+//                                      bsls::AlignmentStrategy::BSLS_NATURAL);
 //..
 // The cursor will be advanced as follows (after taking into consideration the
 // alignment strategy used):
@@ -114,7 +114,7 @@ BDES_IDENT("$Id: $")
 //
 //    public:
 //      // CREATORS
-//      my_SequentialPool(bslma_Allocator *basicAllocator = 0);
+//      my_SequentialPool(bslma::Allocator *basicAllocator = 0);
 //          // Create a memory pool that dispenses user-specified-sized blocks
 //          // of memory.  Optionally specify a 'basicAllocator' used to supply
 //          // memory.  If 'basicAllocator' is 0, the currently installed
@@ -136,11 +136,11 @@ BDES_IDENT("$Id: $")
 //  void *my_SequentialPool::allocate(int size)
 //  {
 //      void *address = bdema_BufferImpUtil::allocateFromBuffer(
-//                                               &d_cursor,
-//                                               d_buffer_p,
-//                                               d_bufferSize,
-//                                               size,
-//                                               bsls_Alignment::BSLS_NATURAL);
+//                                              &d_cursor,
+//                                              d_buffer_p,
+//                                              d_bufferSize,
+//                                              size,
+//                                              bsls::Alignment::BSLS_NATURAL);
 //..
 // Note that if there is insufficient space in 'd_buffer_p',
 // 'allocateFromBuffer' returns 0:
@@ -152,10 +152,10 @@ BDES_IDENT("$Id: $")
 //      replenishBuffer(size);
 //
 //      return bdema_BufferImpUtil::allocateFromBufferRaw(
-//                                               &d_cursor,
-//                                               d_buffer_p,
-//                                               size,
-//                                               bsls_Alignment::BSLS_NATURAL);
+//                                              &d_cursor,
+//                                              d_buffer_p,
+//                                              size,
+//                                              bsls::Alignment::BSLS_NATURAL);
 //  }
 //..
 // Note that the *raw* version is used because the contract of
@@ -181,11 +181,11 @@ struct bdema_BufferImpUtil {
     // for allocating memory from a buffer.
 
     // CLASS METHODS
-    static void *allocateFromBuffer(int                      *cursor,
-                                    char                     *buffer,
-                                    int                       bufferSize,
-                                    int                       size,
-                                    bsls_Alignment::Strategy  strategy);
+    static void *allocateFromBuffer(int                       *cursor,
+                                    char                      *buffer,
+                                    int                        bufferSize,
+                                    int                        size,
+                                    bsls::Alignment::Strategy  strategy);
         // Allocate a memory block of the specified 'size' (in bytes) from the
         // specified 'buffer' having the specified 'bufferSize' at the
         // specified 'cursor' position, using the specified alignment
@@ -196,10 +196,10 @@ struct bdema_BufferImpUtil {
         // otherwise.  The behavior is undefined unless '0 <= bufferSize',
         // '0 < size', '0 <= *cursor', and '*cursor <= bufferSize'.
 
-    static void *allocateFromBufferRaw(int                      *cursor,
-                                       char                     *buffer,
-                                       int                       size,
-                                       bsls_Alignment::Strategy  strategy);
+    static void *allocateFromBufferRaw(int                       *cursor,
+                                       char                      *buffer,
+                                       int                        size,
+                                       bsls::Alignment::Strategy  strategy);
         // Allocate a memory block of the specified 'size' (in bytes) from the
         // specified 'buffer' at the specified 'cursor' position, using the
         // specified alignment 'strategy'.  Return the address of the allocated

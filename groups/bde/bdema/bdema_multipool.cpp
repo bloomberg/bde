@@ -32,8 +32,8 @@ enum {
                       // ---------------------
 
 // PRIVATE MANIPULATORS
-void bdema_Multipool::initialize(bsls_BlockGrowth::Strategy growthStrategy,
-                                 int                        maxBlocksPerChunk)
+void bdema_Multipool::initialize(bsls::BlockGrowth::Strategy growthStrategy,
+                                 int                         maxBlocksPerChunk)
 {
     BSLS_ASSERT(1 <= maxBlocksPerChunk);
 
@@ -42,10 +42,10 @@ void bdema_Multipool::initialize(bsls_BlockGrowth::Strategy growthStrategy,
     d_pools_p = static_cast<bdema_Pool *>(
                       d_allocator_p->allocate(d_numPools * sizeof *d_pools_p));
 
-    bslma_DeallocatorProctor<bslma_Allocator> autoPoolsDeallocator(
+    bslma::DeallocatorProctor<bslma::Allocator> autoPoolsDeallocator(
                                                                d_pools_p,
                                                                d_allocator_p);
-    bslma_AutoDestructor<bdema_Pool> autoDtor(d_pools_p, 0);
+    bslma::AutoDestructor<bdema_Pool> autoDtor(d_pools_p, 0);
 
     for (int i = 0; i < d_numPools; ++i, ++autoDtor) {
         new (d_pools_p + i) bdema_Pool(d_maxBlockSize + sizeof(Header),
@@ -64,8 +64,8 @@ void bdema_Multipool::initialize(bsls_BlockGrowth::Strategy growthStrategy,
 }
 
 void bdema_Multipool::initialize(
-                         const bsls_BlockGrowth::Strategy *growthStrategyArray,
-                         int                               maxBlocksPerChunk)
+                        const bsls::BlockGrowth::Strategy *growthStrategyArray,
+                        int                                maxBlocksPerChunk)
 {
     BSLS_ASSERT(growthStrategyArray);
     BSLS_ASSERT(1 <= maxBlocksPerChunk);
@@ -75,10 +75,10 @@ void bdema_Multipool::initialize(
     d_pools_p = static_cast<bdema_Pool *>(
                       d_allocator_p->allocate(d_numPools * sizeof *d_pools_p));
 
-    bslma_DeallocatorProctor<bslma_Allocator> autoPoolsDeallocator(
+    bslma::DeallocatorProctor<bslma::Allocator> autoPoolsDeallocator(
                                                                d_pools_p,
                                                                d_allocator_p);
-    bslma_AutoDestructor<bdema_Pool> autoDtor(d_pools_p, 0);
+    bslma::AutoDestructor<bdema_Pool> autoDtor(d_pools_p, 0);
 
     for (int i = 0; i < d_numPools; ++i, ++autoDtor) {
         new (d_pools_p + i) bdema_Pool(d_maxBlockSize + sizeof(Header),
@@ -97,8 +97,8 @@ void bdema_Multipool::initialize(
 }
 
 void bdema_Multipool::initialize(
-                            bsls_BlockGrowth::Strategy  growthStrategy,
-                            const int                  *maxBlocksPerChunkArray)
+                           bsls::BlockGrowth::Strategy  growthStrategy,
+                           const int                   *maxBlocksPerChunkArray)
 {
     BSLS_ASSERT(maxBlocksPerChunkArray);
 
@@ -107,10 +107,10 @@ void bdema_Multipool::initialize(
     d_pools_p = static_cast<bdema_Pool *>(
                       d_allocator_p->allocate(d_numPools * sizeof *d_pools_p));
 
-    bslma_DeallocatorProctor<bslma_Allocator> autoPoolsDeallocator(
+    bslma::DeallocatorProctor<bslma::Allocator> autoPoolsDeallocator(
                                                                d_pools_p,
                                                                d_allocator_p);
-    bslma_AutoDestructor<bdema_Pool> autoDtor(d_pools_p, 0);
+    bslma::AutoDestructor<bdema_Pool> autoDtor(d_pools_p, 0);
 
     for (int i = 0; i < d_numPools; ++i, ++autoDtor) {
         new (d_pools_p + i) bdema_Pool(d_maxBlockSize + sizeof(Header),
@@ -129,8 +129,8 @@ void bdema_Multipool::initialize(
 }
 
 void bdema_Multipool::initialize(
-                      const bsls_BlockGrowth::Strategy *growthStrategyArray,
-                      const int                        *maxBlocksPerChunkArray)
+                     const bsls::BlockGrowth::Strategy *growthStrategyArray,
+                     const int                         *maxBlocksPerChunkArray)
 {
     BSLS_ASSERT(growthStrategyArray);
     BSLS_ASSERT(maxBlocksPerChunkArray);
@@ -140,10 +140,10 @@ void bdema_Multipool::initialize(
     d_pools_p = static_cast<bdema_Pool *>(
                       d_allocator_p->allocate(d_numPools * sizeof *d_pools_p));
 
-    bslma_DeallocatorProctor<bslma_Allocator> autoPoolsDeallocator(
+    bslma::DeallocatorProctor<bslma::Allocator> autoPoolsDeallocator(
                                                                d_pools_p,
                                                                d_allocator_p);
-    bslma_AutoDestructor<bdema_Pool> autoDtor(d_pools_p, 0);
+    bslma::AutoDestructor<bdema_Pool> autoDtor(d_pools_p, 0);
 
     for (int i = 0; i < d_numPools; ++i, ++autoDtor) {
         new (d_pools_p + i) bdema_Pool(d_maxBlockSize + sizeof(Header),
@@ -173,40 +173,40 @@ int bdema_Multipool::findPool(int size) const
 }
 
 // CREATORS
-bdema_Multipool::bdema_Multipool(bslma_Allocator *basicAllocator)
+bdema_Multipool::bdema_Multipool(bslma::Allocator *basicAllocator)
 : d_numPools(DEFAULT_NUM_POOLS)
 , d_blockList(basicAllocator)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
-    initialize(bsls_BlockGrowth::BSLS_GEOMETRIC, DEFAULT_MAX_CHUNK_SIZE);
+    initialize(bsls::BlockGrowth::BSLS_GEOMETRIC, DEFAULT_MAX_CHUNK_SIZE);
 }
 
 bdema_Multipool::bdema_Multipool(int              numPools,
-                                 bslma_Allocator *basicAllocator)
+                                 bslma::Allocator *basicAllocator)
 : d_numPools(numPools)
 , d_blockList(basicAllocator)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     BSLS_ASSERT(1 <= numPools);
 
-    initialize(bsls_BlockGrowth::BSLS_GEOMETRIC, DEFAULT_MAX_CHUNK_SIZE);
+    initialize(bsls::BlockGrowth::BSLS_GEOMETRIC, DEFAULT_MAX_CHUNK_SIZE);
 }
 
-bdema_Multipool::bdema_Multipool(bsls_BlockGrowth::Strategy  growthStrategy,
-                                 bslma_Allocator            *basicAllocator)
+bdema_Multipool::bdema_Multipool(bsls::BlockGrowth::Strategy  growthStrategy,
+                                 bslma::Allocator            *basicAllocator)
 : d_numPools(DEFAULT_NUM_POOLS)
 , d_blockList(basicAllocator)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     initialize(growthStrategy, DEFAULT_MAX_CHUNK_SIZE);
 }
 
-bdema_Multipool::bdema_Multipool(int                         numPools,
-                                 bsls_BlockGrowth::Strategy  growthStrategy,
-                                 bslma_Allocator            *basicAllocator)
+bdema_Multipool::bdema_Multipool(int                          numPools,
+                                 bsls::BlockGrowth::Strategy  growthStrategy,
+                                 bslma::Allocator            *basicAllocator)
 : d_numPools(numPools)
 , d_blockList(basicAllocator)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     BSLS_ASSERT(1 <= numPools);
 
@@ -214,12 +214,12 @@ bdema_Multipool::bdema_Multipool(int                         numPools,
 }
 
 bdema_Multipool::bdema_Multipool(
-                         int                               numPools,
-                         const bsls_BlockGrowth::Strategy *growthStrategyArray,
-                         bslma_Allocator                  *basicAllocator)
+                        int                                numPools,
+                        const bsls::BlockGrowth::Strategy *growthStrategyArray,
+                        bslma::Allocator                  *basicAllocator)
 : d_numPools(numPools)
 , d_blockList(basicAllocator)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     BSLS_ASSERT(1 <= numPools);
     BSLS_ASSERT(growthStrategyArray);
@@ -227,13 +227,14 @@ bdema_Multipool::bdema_Multipool(
     initialize(growthStrategyArray, DEFAULT_MAX_CHUNK_SIZE);
 }
 
-bdema_Multipool::bdema_Multipool(int                         numPools,
-                                 bsls_BlockGrowth::Strategy  growthStrategy,
-                                 int                         maxBlocksPerChunk,
-                                 bslma_Allocator            *basicAllocator)
+bdema_Multipool::bdema_Multipool(
+                                int                          numPools,
+                                bsls::BlockGrowth::Strategy  growthStrategy,
+                                int                          maxBlocksPerChunk,
+                                bslma::Allocator            *basicAllocator)
 : d_numPools(numPools)
 , d_blockList(basicAllocator)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     BSLS_ASSERT(1 <= numPools);
     BSLS_ASSERT(1 <= maxBlocksPerChunk);
@@ -242,13 +243,13 @@ bdema_Multipool::bdema_Multipool(int                         numPools,
 }
 
 bdema_Multipool::bdema_Multipool(
-                         int                               numPools,
-                         const bsls_BlockGrowth::Strategy *growthStrategyArray,
-                         int                               maxBlocksPerChunk,
-                         bslma_Allocator                  *basicAllocator)
+                        int                                numPools,
+                        const bsls::BlockGrowth::Strategy *growthStrategyArray,
+                        int                                maxBlocksPerChunk,
+                        bslma::Allocator                  *basicAllocator)
 : d_numPools(numPools)
 , d_blockList(basicAllocator)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     BSLS_ASSERT(1 <= numPools);
     BSLS_ASSERT(growthStrategyArray);
@@ -258,13 +259,13 @@ bdema_Multipool::bdema_Multipool(
 }
 
 bdema_Multipool::bdema_Multipool(
-                            int                         numPools,
-                            bsls_BlockGrowth::Strategy  growthStrategy,
-                            const int                  *maxBlocksPerChunkArray,
-                            bslma_Allocator            *basicAllocator)
+                           int                          numPools,
+                           bsls::BlockGrowth::Strategy  growthStrategy,
+                           const int                   *maxBlocksPerChunkArray,
+                           bslma::Allocator            *basicAllocator)
 : d_numPools(numPools)
 , d_blockList(basicAllocator)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     BSLS_ASSERT(1 <= numPools);
     BSLS_ASSERT(maxBlocksPerChunkArray);
@@ -273,13 +274,13 @@ bdema_Multipool::bdema_Multipool(
 }
 
 bdema_Multipool::bdema_Multipool(
-                      int                               numPools,
-                      const bsls_BlockGrowth::Strategy *growthStrategyArray,
-                      const int                        *maxBlocksPerChunkArray,
-                      bslma_Allocator                  *basicAllocator)
+                     int                                numPools,
+                     const bsls::BlockGrowth::Strategy *growthStrategyArray,
+                     const int                         *maxBlocksPerChunkArray,
+                     bslma::Allocator                  *basicAllocator)
 : d_numPools(numPools)
 , d_blockList(basicAllocator)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     BSLS_ASSERT(1 <= numPools);
     BSLS_ASSERT(growthStrategyArray);

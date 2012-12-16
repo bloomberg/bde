@@ -30,6 +30,8 @@
 
 #include <bslalg_typetraits.h>            // for testing only
 
+#include <bslma_allocator.h>
+
 #include <bsls_platform.h>                // for testing only
 #include <bsls_types.h>
 
@@ -47,7 +49,6 @@
 #include <bsl_string.h>
 
 #include <bsl_c_stdio.h>       // 'snprintf'
-#include <bslfwd_bslma_allocator.h>
 
 using namespace BloombergLP;
 
@@ -233,7 +234,7 @@ class CustomizedString {
         // the name of this class (i.e., "CustomizedString")
 
     // CREATORS
-    explicit CustomizedString(bslma_Allocator *basicAllocator = 0);
+    explicit CustomizedString(bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'CustomizedString' having the default
         // value.  Use the optionally specified 'basicAllocator' to supply
         // memory.  If 'basicAllocator' is 0, the currently installed default
@@ -241,14 +242,14 @@ class CustomizedString {
         // is used.
 
     CustomizedString(const CustomizedString&  original,
-                     bslma_Allocator         *basicAllocator = 0);
+                     bslma::Allocator        *basicAllocator = 0);
         // Create an object of type 'CustomizedString' having the value
         // of the specified 'original' object.  Use the optionally specified
         // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0,
         // the currently installed default allocator is used.
 
     explicit CustomizedString(const bsl::string&  value,
-                              bslma_Allocator    *basicAllocator = 0);
+                              bslma::Allocator   *basicAllocator = 0);
         // Create an object of type 'CustomizedString' having the specified
         // 'value'.  Use the optionally specified 'basicAllocator' to supply
         // memory.  If 'basicAllocator' is 0, the currently installed default
@@ -342,21 +343,21 @@ bsl::ostream& operator<<(bsl::ostream& stream, const CustomizedString& rhs);
 // CREATORS
 
 inline
-CustomizedString::CustomizedString(bslma_Allocator *basicAllocator)
+CustomizedString::CustomizedString(bslma::Allocator *basicAllocator)
 : d_value(basicAllocator)
 {
 }
 
 inline
 CustomizedString::CustomizedString(const CustomizedString&  original,
-                                   bslma_Allocator         *basicAllocator)
+                                   bslma::Allocator        *basicAllocator)
 : d_value(original.d_value, basicAllocator)
 {
 }
 
 inline
 CustomizedString::CustomizedString(const bsl::string&  value,
-                                   bslma_Allocator    *basicAllocator)
+                                   bslma::Allocator   *basicAllocator)
 : d_value(value, basicAllocator)
 {
 }
@@ -566,13 +567,13 @@ namespace test {
 class MyChoice {
   private:
     union {
-        bsls_ObjectBuffer< int > d_selection1;
+        bsls::ObjectBuffer< int > d_selection1;
             // todo: provide annotation
-        bsls_ObjectBuffer< bsl::string > d_selection2;
+        bsls::ObjectBuffer< bsl::string > d_selection2;
             // todo: provide annotation
     };
     int                 d_selectionId;
-    bslma_Allocator    *d_allocator_p;
+    bslma::Allocator   *d_allocator_p;
   public:
     // TYPES
     enum {
@@ -614,12 +615,12 @@ class MyChoice {
         // specified 'name' of the specified 'nameLength' if the selection
         // exists, and 0 otherwise.
     // CREATORS
-    explicit MyChoice(bslma_Allocator *basicAllocator = 0);
+    explicit MyChoice(bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'MyChoice' having the default value.
         // Use the optionally specified 'basicAllocator' to supply memory.
         // If 'basicAllocator' is 0, the currently installed default allocator
         // is used.
-    MyChoice(const MyChoice& original, bslma_Allocator *basicAllocator = 0);
+    MyChoice(const MyChoice& original, bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'MyChoice' having the value
         // of the specified 'original' object.  Use the optionally specified
         // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0,
@@ -815,17 +816,17 @@ void MyChoice::makeSelection2(const bsl::string& value)
 // ---------------------------------------------------------------------------
 // CREATORS
 inline
-MyChoice::MyChoice(bslma_Allocator *basicAllocator)
+MyChoice::MyChoice(bslma::Allocator *basicAllocator)
 : d_selectionId(SELECTION_ID_UNDEFINED)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
 inline
 MyChoice::MyChoice(
     const MyChoice& original,
-    bslma_Allocator *basicAllocator)
+    bslma::Allocator *basicAllocator)
 : d_selectionId(original.d_selectionId)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     switch (d_selectionId) {
       case SELECTION_ID_SELECTION1: {
@@ -1624,13 +1625,13 @@ class MySequence {
         // specified 'name' of the specified 'nameLength' if the attribute
         // exists, and 0 otherwise.
     // CREATORS
-    explicit MySequence(bslma_Allocator *basicAllocator = 0);
+    explicit MySequence(bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'MySequence' having the default value.
         // Use the optionally specified 'basicAllocator' to supply memory.
         // If 'basicAllocator' is 0, the currently installed default allocator
         // is used.
     MySequence(const MySequence&  original,
-               bslma_Allocator   *basicAllocator = 0);
+               bslma::Allocator  *basicAllocator = 0);
         // Create an object of type 'MySequence' having the value
         // of the specified 'original' object.  Use the optionally specified
         // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0,
@@ -1770,17 +1771,18 @@ int MySequence::maxSupportedBdexVersion()
 // ---------------------------------------------------------------------------
 // CREATORS
 inline
-MySequence::MySequence(bslma_Allocator *basicAllocator)
+MySequence::MySequence(bslma::Allocator *basicAllocator)
 : d_attribute1()
-, d_attribute2(bslma_Default::allocator(basicAllocator))
+, d_attribute2(bslma::Default::allocator(basicAllocator))
 {
 }
 inline
 MySequence::MySequence(
     const MySequence& original,
-    bslma_Allocator *basicAllocator)
+    bslma::Allocator *basicAllocator)
 : d_attribute1(original.d_attribute1)
-, d_attribute2(original.d_attribute2, bslma_Default::allocator(basicAllocator))
+, d_attribute2(original.d_attribute2,
+               bslma::Default::allocator(basicAllocator))
 {
 }
 inline
@@ -2247,14 +2249,14 @@ class MySequenceWithNullables {
         // specified 'name' of the specified 'nameLength' if the attribute
         // exists, and 0 otherwise.
     // CREATORS
-    explicit MySequenceWithNullables(bslma_Allocator *basicAllocator = 0);
+    explicit MySequenceWithNullables(bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'MySequenceWithNullables' having the
         // default value.  Use the optionally specified 'basicAllocator' to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
         // default allocator is used.
     MySequenceWithNullables(
                     const MySequenceWithNullables&  original,
-                    bslma_Allocator                *basicAllocator = 0);
+                    bslma::Allocator               *basicAllocator = 0);
         // Create an object of type 'MySequenceWithNullables' having the value
         // of the specified 'original' object.  Use the optionally specified
         // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
@@ -2417,22 +2419,25 @@ int MySequenceWithNullables::maxSupportedBdexVersion()
 // CREATORS
 inline
 MySequenceWithNullables::MySequenceWithNullables(
-                                               bslma_Allocator *basicAllocator)
+                                              bslma::Allocator *basicAllocator)
 : d_attribute1()
-, d_attribute2(bslma_Default::allocator(basicAllocator))
-, d_attribute3(bslma_Default::allocator(basicAllocator))
-, d_attribute4(bslma_Default::allocator(basicAllocator))
+, d_attribute2(bslma::Default::allocator(basicAllocator))
+, d_attribute3(bslma::Default::allocator(basicAllocator))
+, d_attribute4(bslma::Default::allocator(basicAllocator))
 , d_attribute5()
 {
 }
 inline
 MySequenceWithNullables::MySequenceWithNullables(
         const MySequenceWithNullables& original,
-        bslma_Allocator *basicAllocator)
+        bslma::Allocator *basicAllocator)
 : d_attribute1(original.d_attribute1)
-, d_attribute2(original.d_attribute2, bslma_Default::allocator(basicAllocator))
-, d_attribute3(original.d_attribute3, bslma_Default::allocator(basicAllocator))
-, d_attribute4(original.d_attribute4, bslma_Default::allocator(basicAllocator))
+, d_attribute2(original.d_attribute2,
+               bslma::Default::allocator(basicAllocator))
+, d_attribute3(original.d_attribute3,
+               bslma::Default::allocator(basicAllocator))
+, d_attribute4(original.d_attribute4,
+               bslma::Default::allocator(basicAllocator))
 , d_attribute5(original.d_attribute5)
 {
 }
@@ -3029,14 +3034,14 @@ class MySequenceWithNullablesContainer {
         // exists, and 0 otherwise.
     // CREATORS
     explicit MySequenceWithNullablesContainer(
-                                          bslma_Allocator *basicAllocator = 0);
+                                         bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'MySequenceWithNullablesContainer' having
         // the default value.  Use the optionally specified 'basicAllocator'
         // to supply memory.  If 'basicAllocator' is 0, the currently
         // installed default allocator is used.
     MySequenceWithNullablesContainer(
                   const MySequenceWithNullablesContainer&  original,
-                  bslma_Allocator                         *basicAllocator = 0);
+                  bslma::Allocator                        *basicAllocator = 0);
         // Create an object of type 'MySequenceWithNullablesContainer' having
         // the value of the specified 'original' object.  Use the optionally
         // specified 'basicAllocator' to supply memory.  If 'basicAllocator'
@@ -3175,15 +3180,15 @@ int MySequenceWithNullablesContainer::maxSupportedBdexVersion()
 // CREATORS
 inline
 MySequenceWithNullablesContainer::MySequenceWithNullablesContainer(
-                                               bslma_Allocator *basicAllocator)
-: d_contained(bslma_Default::allocator(basicAllocator))
+                                              bslma::Allocator *basicAllocator)
+: d_contained(bslma::Default::allocator(basicAllocator))
 {
 }
 inline
 MySequenceWithNullablesContainer::MySequenceWithNullablesContainer(
     const MySequenceWithNullablesContainer& original,
-    bslma_Allocator *basicAllocator)
-: d_contained(original.d_contained, bslma_Default::allocator(basicAllocator))
+    bslma::Allocator *basicAllocator)
+: d_contained(original.d_contained, bslma::Default::allocator(basicAllocator))
 {
 }
 inline
@@ -6961,12 +6966,12 @@ class Address {
         // specified 'name' of the specified 'nameLength' if the attribute
         // exists, and 0 otherwise.
     // CREATORS
-    explicit Address(bslma_Allocator *basicAllocator = 0);
+    explicit Address(bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'Address' having the default value.
         // Use the optionally specified 'basicAllocator' to supply memory.
         // If 'basicAllocator' is 0, the currently installed default allocator
         // is used.
-    Address(const Address& original, bslma_Allocator *basicAllocator = 0);
+    Address(const Address& original, bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'Address' having the value
         // of the specified 'original' object.  Use the optionally specified
         // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0,
@@ -7112,19 +7117,19 @@ int Address::maxSupportedBdexVersion()
 // ---------------------------------------------------------------------------
 // CREATORS
 inline
-Address::Address(bslma_Allocator *basicAllocator)
-: d_street(bslma_Default::allocator(basicAllocator))
-, d_city(bslma_Default::allocator(basicAllocator))
-, d_state(bslma_Default::allocator(basicAllocator))
+Address::Address(bslma::Allocator *basicAllocator)
+: d_street(bslma::Default::allocator(basicAllocator))
+, d_city(bslma::Default::allocator(basicAllocator))
+, d_state(bslma::Default::allocator(basicAllocator))
 {
 }
 inline
 Address::Address(
     const Address& original,
-    bslma_Allocator *basicAllocator)
-: d_street(original.d_street, bslma_Default::allocator(basicAllocator))
-, d_city(original.d_city, bslma_Default::allocator(basicAllocator))
-, d_state(original.d_state, bslma_Default::allocator(basicAllocator))
+    bslma::Allocator *basicAllocator)
+: d_street(original.d_street, bslma::Default::allocator(basicAllocator))
+, d_city(original.d_city, bslma::Default::allocator(basicAllocator))
+, d_state(original.d_state, bslma::Default::allocator(basicAllocator))
 {
 }
 inline
@@ -7619,12 +7624,12 @@ class Employee {
         // specified 'name' of the specified 'nameLength' if the attribute
         // exists, and 0 otherwise.
     // CREATORS
-    explicit Employee(bslma_Allocator *basicAllocator = 0);
+    explicit Employee(bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'Employee' having the default value.
         // Use the optionally specified 'basicAllocator' to supply memory.
         // If 'basicAllocator' is 0, the currently installed default allocator
         // is used.
-    Employee(const Employee& original, bslma_Allocator *basicAllocator = 0);
+    Employee(const Employee& original, bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'Employee' having the value
         // of the specified 'original' object.  Use the optionally specified
         // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0,
@@ -7773,9 +7778,9 @@ int Employee::maxSupportedBdexVersion()
 // ---------------------------------------------------------------------------
 // CREATORS
 inline
-Employee::Employee(bslma_Allocator *basicAllocator)
-: d_name(bslma_Default::allocator(basicAllocator))
-, d_homeAddress(bslma_Default::allocator(basicAllocator))
+Employee::Employee(bslma::Allocator *basicAllocator)
+: d_name(bslma::Default::allocator(basicAllocator))
+, d_homeAddress(bslma::Default::allocator(basicAllocator))
 , d_age()
 , d_dateJoined()
 {
@@ -7783,10 +7788,10 @@ Employee::Employee(bslma_Allocator *basicAllocator)
 inline
 Employee::Employee(
     const Employee& original,
-    bslma_Allocator *basicAllocator)
-: d_name(original.d_name, bslma_Default::allocator(basicAllocator))
+    bslma::Allocator *basicAllocator)
+: d_name(original.d_name, bslma::Default::allocator(basicAllocator))
 , d_homeAddress(original.d_homeAddress,
-                bslma_Default::allocator(basicAllocator))
+                bslma::Default::allocator(basicAllocator))
 , d_age(original.d_age)
 , d_dateJoined(original.d_dateJoined)
 {
@@ -8813,12 +8818,12 @@ namespace TestValueFunctions {
         // indicated by the specified 'index'.  Return 0 on success, and a
         // non-zero value otherwise with no effect on 'object'.  The behavior
         // is undefined unless index >= 0.
-    int loadTestValue(bsls_Types::Int64 *object, int index);
+    int loadTestValue(bsls::Types::Int64 *object, int index);
         // Load into the specified 'object' a test value of 'long long' type
         // indicated by the specified 'index'.  Return 0 on success, and a
         // non-zero value otherwise with no effect on 'object'.  The behavior
         // is undefined unless index >= 0.
-    int loadTestValue(bsls_Types::Uint64 *object, int index);
+    int loadTestValue(bsls::Types::Uint64 *object, int index);
         // Load into the specified 'object' a test value of
         // 'unsigned long long' type indicated by the specified 'index'.
         // Return 0 on success, and a non-zero value otherwise with no effect
@@ -9049,17 +9054,17 @@ int TestValueFunctions::loadTestValue(unsigned int *object, int index)
     return SUCCESS;
 }
 inline
-int TestValueFunctions::loadTestValue(bsls_Types::Int64 *object, int index)
+int TestValueFunctions::loadTestValue(bsls::Types::Int64 *object, int index)
 {
     BSLS_ASSERT_SAFE(index >= 0);
     *object = index;
     return SUCCESS;
 }
 inline
-int TestValueFunctions::loadTestValue(bsls_Types::Uint64 *object, int index)
+int TestValueFunctions::loadTestValue(bsls::Types::Uint64 *object, int index)
 {
     BSLS_ASSERT_SAFE(index >= 0);
-    *object = static_cast<bsls_Types::Uint64>(index);
+    *object = static_cast<bsls::Types::Uint64>(index);
     return SUCCESS;
 }
 inline
@@ -10492,10 +10497,10 @@ int main(int argc, char *argv[])
         if (veryVerbose) bsl::cout << "\tTesting 'bsl::vector<Uint64>'"
                                    << bsl::endl;
         {
-            typedef bsl::vector<bsls_Types::Uint64> Type;
-            typedef             bsls_Types::Uint64  EType;
-            typedef bsl::vector<bsls_Types::Int64>  Proxy;
-            typedef             bsls_Types::Int64   ProxyE;
+            typedef bsl::vector<bsls::Types::Uint64> Type;
+            typedef             bsls::Types::Uint64  EType;
+            typedef bsl::vector<bsls::Types::Int64>  Proxy;
+            typedef             bsls::Types::Int64   ProxyE;
             const int SIZES[]  = { 0, 1, 2, 3, 5 };
             const int NUM_DATA = sizeof SIZES / sizeof *SIZES;
             int tvi = 0;  // test value index
@@ -10758,8 +10763,8 @@ int main(int argc, char *argv[])
         }
         if (veryVerbose) bsl::cout << "\tTesting 'Uint64'" << bsl::endl;
         {
-            typedef bsls_Types::Uint64 Type;
-            typedef bsls_Types::Int64  Proxy;
+            typedef bsls::Types::Uint64 Type;
+            typedef bsls::Types::Int64  Proxy;
             static const struct {
                 int  d_lineNum;  // source line number
                 Type d_value;    // value to decode
@@ -10941,9 +10946,9 @@ int main(int argc, char *argv[])
         }
         if (veryVerbose) bsl::cout << "\tTesting INT64_ARRAY" << bsl::endl;
         {
-            typedef bsl::vector<bsls_Types::Int64> Type;
+            typedef bsl::vector<bsls::Types::Int64> Type;
                                            // 'bdem' element type 'INT64_ARRAY'
-            typedef             bsls_Types::Int64  EType;
+            typedef             bsls::Types::Int64  EType;
             const int SIZES[]  = { 0, 1, 2, 3, 5 };
             const int NUM_DATA = sizeof SIZES / sizeof *SIZES;
             int tvi = 0;  // test value index
@@ -11284,7 +11289,7 @@ int main(int argc, char *argv[])
         }
         if (veryVerbose) bsl::cout << "\tTesting INT64" << bsl::endl;
         {
-            typedef bsls_Types::Int64 Type;  // 'bdem' element type 'INT64'
+            typedef bsls::Types::Int64 Type;  // 'bdem' element type 'INT64'
             static const struct {
                 int  d_lineNum;  // source line number
                 Type d_value;    // value to encode

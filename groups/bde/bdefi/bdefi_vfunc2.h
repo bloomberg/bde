@@ -120,7 +120,7 @@ BDES_IDENT("$Id: $")
 //   typedef bdefi_Vfunc2F4<MyFunctionPtr,
 //                        int, double, const char *, int> MyFunctorRep;
 //
-//   bslma_Allocator *ba = bslma_Default::allocator(0);
+//   bslma::Allocator *ba = bslma::Default::allocator(0);
 //
 //   bdefr_Vfunc2<int, double> *rep =
 //                           new(ba) MyFunctorRep(myFunction, "3", 4, ba);
@@ -189,7 +189,7 @@ class bdefi_Vfunc2Null : public bdefr_Vfunc2<A1, A2> {
 
   public:
     // CREATORS
-    bdefi_Vfunc2Null(bslma_Allocator *basicAllocator);
+    bdefi_Vfunc2Null(bslma::Allocator *basicAllocator);
         // Create a representation for a function object (functor) taking two
         // arguments, returning 'void', and performing no operation.
 };
@@ -206,7 +206,7 @@ class bdefi_Vfunc2F2 : public bdefr_Vfunc2<A1, A2> {
     // static member function, or functor) taking no additional arguments.
 
     // DATA
-    bslalg_ConstructorProxy<F> d_f;  // function pointer (or functor)
+    bslalg::ConstructorProxy<F> d_f;  // function pointer (or functor)
 
     // NOT IMPLEMENTED
     bdefi_Vfunc2F2(const bdefi_Vfunc2F2<F, A1, A2>&);
@@ -226,7 +226,7 @@ class bdefi_Vfunc2F2 : public bdefr_Vfunc2<A1, A2> {
 
   public:
     // CREATORS
-    bdefi_Vfunc2F2(F procedure, bslma_Allocator *basicAllocator);
+    bdefi_Vfunc2F2(F procedure, bslma::Allocator *basicAllocator);
         // Create a representation for a function object (functor) taking two
         // arguments and returning 'void', using the specified 'procedure'
         // (i.e., free function, static member function, or functor) taking no
@@ -248,8 +248,8 @@ class bdefi_Vfunc2F3 : public bdefr_Vfunc2<A1, A2> {
     // argument, and that argument's corresponding value.
 
     // DATA
-    bslalg_ConstructorProxy<F>  d_f;   // function pointer (or functor)
-    bslalg_ConstructorProxy<D1> d_d1;  // first embedded argument
+    bslalg::ConstructorProxy<F>  d_f;   // function pointer (or functor)
+    bslalg::ConstructorProxy<D1> d_d1;  // first embedded argument
 
     // NOT IMPLEMENTED
     bdefi_Vfunc2F3(const bdefi_Vfunc2F3<F, A1, A2, D1>&);
@@ -273,7 +273,7 @@ class bdefi_Vfunc2F3 : public bdefr_Vfunc2<A1, A2> {
     // CREATORS
     bdefi_Vfunc2F3(F                procedure,
                    const D1&        embeddedArg1,
-                   bslma_Allocator *basicAllocator);
+                   bslma::Allocator *basicAllocator);
         // Create a representation for a function object (functor) taking two
         // arguments and returning 'void', using the specified 'procedure'
         // (i.e., free function, static member function, or functor) taking
@@ -296,9 +296,9 @@ class bdefi_Vfunc2F4 : public bdefr_Vfunc2<A1, A2> {
     // arguments, and those arguments' corresponding values.
 
     // DATA
-    bslalg_ConstructorProxy<F>  d_f;   // function pointer (or functor)
-    bslalg_ConstructorProxy<D1> d_d1;  // first embedded argument
-    bslalg_ConstructorProxy<D2> d_d2;  // second embedded argument
+    bslalg::ConstructorProxy<F>  d_f;   // function pointer (or functor)
+    bslalg::ConstructorProxy<D1> d_d1;  // first embedded argument
+    bslalg::ConstructorProxy<D2> d_d2;  // second embedded argument
 
     // NOT IMPLEMENTED
     bdefi_Vfunc2F4(const bdefi_Vfunc2F4<F, A1, A2, D1, D2>&);
@@ -323,7 +323,7 @@ class bdefi_Vfunc2F4 : public bdefr_Vfunc2<A1, A2> {
     bdefi_Vfunc2F4(F                procedure,
                    const D1&        embeddedArg1,
                    const D2&        embeddedArg2,
-                   bslma_Allocator *basicAllocator);
+                   bslma::Allocator *basicAllocator);
         // Create a representation for a function object (functor) taking two
         // arguments and returning 'void', using the specified 'procedure'
         // (i.e., free function, static member function, or functor) taking
@@ -346,10 +346,10 @@ class bdefi_Vfunc2F5 : public bdefr_Vfunc2<A1, A2> {
     // arguments, and those arguments' corresponding values.
 
     // DATA
-    bslalg_ConstructorProxy<F>  d_f;   // function pointer (or functor)
-    bslalg_ConstructorProxy<D1> d_d1;  // first embedded argument
-    bslalg_ConstructorProxy<D2> d_d2;  // second embedded argument
-    bslalg_ConstructorProxy<D3> d_d3;  // third embedded argument
+    bslalg::ConstructorProxy<F>  d_f;   // function pointer (or functor)
+    bslalg::ConstructorProxy<D1> d_d1;  // first embedded argument
+    bslalg::ConstructorProxy<D2> d_d2;  // second embedded argument
+    bslalg::ConstructorProxy<D3> d_d3;  // third embedded argument
 
     // NOT IMPLEMENTED
     bdefi_Vfunc2F5(const bdefi_Vfunc2F5<F, A1, A2, D1, D2, D3>&);
@@ -375,7 +375,7 @@ class bdefi_Vfunc2F5 : public bdefr_Vfunc2<A1, A2> {
                    const D1&        embeddedArg1,
                    const D2&        embeddedArg2,
                    const D3&        embeddedArg3,
-                   bslma_Allocator *basicAllocator);
+                   bslma::Allocator *basicAllocator);
         // Create a representation for a function object (functor) taking two
         // arguments and returning 'void', using the specified 'procedure'
         // (i.e., free function, static member function, or functor) taking
@@ -399,11 +399,11 @@ class bdefi_Vfunc2F6 : public bdefr_Vfunc2<A1, A2> {
     // arguments, and those arguments' corresponding values.
 
     // DATA
-    bslalg_ConstructorProxy<F>  d_f;   // function pointer (or functor)
-    bslalg_ConstructorProxy<D1> d_d1;  // first embedded argument
-    bslalg_ConstructorProxy<D2> d_d2;  // second embedded argument
-    bslalg_ConstructorProxy<D3> d_d3;  // third embedded argument
-    bslalg_ConstructorProxy<D4> d_d4;  // fourth embedded argument
+    bslalg::ConstructorProxy<F>  d_f;   // function pointer (or functor)
+    bslalg::ConstructorProxy<D1> d_d1;  // first embedded argument
+    bslalg::ConstructorProxy<D2> d_d2;  // second embedded argument
+    bslalg::ConstructorProxy<D3> d_d3;  // third embedded argument
+    bslalg::ConstructorProxy<D4> d_d4;  // fourth embedded argument
 
     // NOT IMPLEMENTED
     bdefi_Vfunc2F6(const bdefi_Vfunc2F6<F, A1, A2, D1, D2, D3, D4>&);
@@ -430,7 +430,7 @@ class bdefi_Vfunc2F6 : public bdefr_Vfunc2<A1, A2> {
                    const D2&        embeddedArg2,
                    const D3&        embeddedArg3,
                    const D4&        embeddedArg4,
-                   bslma_Allocator *basicAllocator);
+                   bslma::Allocator *basicAllocator);
         // Create a representation for a function object (functor) taking two
         // arguments and returning 'void', using the specified 'procedure'
         // (i.e., free function, static member function, or functor) taking
@@ -455,12 +455,12 @@ class bdefi_Vfunc2F7 : public bdefr_Vfunc2<A1, A2> {
     // arguments, and those arguments' corresponding values.
 
     // DATA
-    bslalg_ConstructorProxy<F>  d_f;   // function pointer (or functor)
-    bslalg_ConstructorProxy<D1> d_d1;  // first embedded argument
-    bslalg_ConstructorProxy<D2> d_d2;  // second embedded argument
-    bslalg_ConstructorProxy<D3> d_d3;  // third embedded argument
-    bslalg_ConstructorProxy<D4> d_d4;  // fourth embedded argument
-    bslalg_ConstructorProxy<D5> d_d5;  // fifth embedded argument
+    bslalg::ConstructorProxy<F>  d_f;   // function pointer (or functor)
+    bslalg::ConstructorProxy<D1> d_d1;  // first embedded argument
+    bslalg::ConstructorProxy<D2> d_d2;  // second embedded argument
+    bslalg::ConstructorProxy<D3> d_d3;  // third embedded argument
+    bslalg::ConstructorProxy<D4> d_d4;  // fourth embedded argument
+    bslalg::ConstructorProxy<D5> d_d5;  // fifth embedded argument
 
     // NOT IMPLEMENTED
     bdefi_Vfunc2F7(const bdefi_Vfunc2F7<F, A1, A2, D1, D2, D3, D4, D5>&);
@@ -488,7 +488,7 @@ class bdefi_Vfunc2F7 : public bdefr_Vfunc2<A1, A2> {
                    const D3&        embeddedArg3,
                    const D4&        embeddedArg4,
                    const D5&        embeddedArg5,
-                   bslma_Allocator *basicAllocator);
+                   bslma::Allocator *basicAllocator);
         // Create a representation for a function object (functor) taking two
         // arguments and returning 'void', using the specified 'procedure'
         // (i.e., free function, static member function, or functor) taking
@@ -513,13 +513,13 @@ class bdefi_Vfunc2F8 : public bdefr_Vfunc2<A1, A2> {
     // arguments, and those arguments' corresponding values.
 
     // DATA
-    bslalg_ConstructorProxy<F>  d_f;   // function pointer (or functor)
-    bslalg_ConstructorProxy<D1> d_d1;  // first embedded argument
-    bslalg_ConstructorProxy<D2> d_d2;  // second embedded argument
-    bslalg_ConstructorProxy<D3> d_d3;  // third embedded argument
-    bslalg_ConstructorProxy<D4> d_d4;  // fourth embedded argument
-    bslalg_ConstructorProxy<D5> d_d5;  // fifth embedded argument
-    bslalg_ConstructorProxy<D6> d_d6;  // sixth embedded argument
+    bslalg::ConstructorProxy<F>  d_f;   // function pointer (or functor)
+    bslalg::ConstructorProxy<D1> d_d1;  // first embedded argument
+    bslalg::ConstructorProxy<D2> d_d2;  // second embedded argument
+    bslalg::ConstructorProxy<D3> d_d3;  // third embedded argument
+    bslalg::ConstructorProxy<D4> d_d4;  // fourth embedded argument
+    bslalg::ConstructorProxy<D5> d_d5;  // fifth embedded argument
+    bslalg::ConstructorProxy<D6> d_d6;  // sixth embedded argument
 
     // NOT IMPLEMENTED
     bdefi_Vfunc2F8(const bdefi_Vfunc2F8<F, A1, A2, D1, D2, D3, D4, D5, D6>&);
@@ -548,7 +548,7 @@ class bdefi_Vfunc2F8 : public bdefr_Vfunc2<A1, A2> {
                    const D4&        embeddedArg4,
                    const D5&        embeddedArg5,
                    const D6&        embeddedArg6,
-                   bslma_Allocator *basicAllocator);
+                   bslma::Allocator *basicAllocator);
         // Create a representation for a function object (functor) taking two
         // arguments and returning 'void', using the specified 'procedure'
         // (i.e., free function, static member function, or functor) taking
@@ -573,14 +573,14 @@ class bdefi_Vfunc2F9 : public bdefr_Vfunc2<A1, A2> {
     // arguments, and those arguments' corresponding values.
 
     // DATA
-    bslalg_ConstructorProxy<F>  d_f;   // function pointer (or functor)
-    bslalg_ConstructorProxy<D1> d_d1;  // first embedded argument
-    bslalg_ConstructorProxy<D2> d_d2;  // second embedded argument
-    bslalg_ConstructorProxy<D3> d_d3;  // third embedded argument
-    bslalg_ConstructorProxy<D4> d_d4;  // fourth embedded argument
-    bslalg_ConstructorProxy<D5> d_d5;  // fifth embedded argument
-    bslalg_ConstructorProxy<D6> d_d6;  // sixth embedded argument
-    bslalg_ConstructorProxy<D7> d_d7;  // seventh embedded argument
+    bslalg::ConstructorProxy<F>  d_f;   // function pointer (or functor)
+    bslalg::ConstructorProxy<D1> d_d1;  // first embedded argument
+    bslalg::ConstructorProxy<D2> d_d2;  // second embedded argument
+    bslalg::ConstructorProxy<D3> d_d3;  // third embedded argument
+    bslalg::ConstructorProxy<D4> d_d4;  // fourth embedded argument
+    bslalg::ConstructorProxy<D5> d_d5;  // fifth embedded argument
+    bslalg::ConstructorProxy<D6> d_d6;  // sixth embedded argument
+    bslalg::ConstructorProxy<D7> d_d7;  // seventh embedded argument
 
     // NOT IMPLEMENTED
     bdefi_Vfunc2F9(const bdefi_Vfunc2F9<F, A1, A2, D1, D2, D3, D4, D5, D6,
@@ -612,7 +612,7 @@ class bdefi_Vfunc2F9 : public bdefr_Vfunc2<A1, A2> {
                    const D5&        embeddedArg5,
                    const D6&        embeddedArg6,
                    const D7&        embeddedArg7,
-                   bslma_Allocator *basicAllocator);
+                   bslma::Allocator *basicAllocator);
         // Create a representation for a function object (functor) taking two
         // arguments and returning 'void', using the specified 'procedure'
         // (i.e., free function, static member function, or functor) taking
@@ -635,7 +635,7 @@ class bdefi_Vfunc2C2 : public bdefr_Vfunc2<A1, A2> {
     // member functions taking no additional arguments.
 
     // DATA
-    bslalg_ConstructorProxy<OBJ> d_obj;  // object
+    bslalg::ConstructorProxy<OBJ> d_obj;  // object
     C                            d_m;    // const member function pointer
 
     // NOT IMPLEMENTED
@@ -659,7 +659,7 @@ class bdefi_Vfunc2C2 : public bdefr_Vfunc2<A1, A2> {
     // CREATORS
     bdefi_Vfunc2C2(const OBJ&       object,
                    C                method,
-                   bslma_Allocator *basicAllocator);
+                   bslma::Allocator *basicAllocator);
         // Create a representation for a function object (functor) taking two
         // arguments and returning 'void', using the specified 'object' and
         // the specified 'const' 'method' of 'object' taking no additional
@@ -680,9 +680,9 @@ class bdefi_Vfunc2C3 : public bdefr_Vfunc2<A1, A2> {
     // argument's corresponding value.
 
     // DATA
-    bslalg_ConstructorProxy<OBJ> d_obj;  // object
+    bslalg::ConstructorProxy<OBJ> d_obj;  // object
     C                            d_m;    // const member function pointer
-    bslalg_ConstructorProxy<D1>  d_d1;   // first embedded argument
+    bslalg::ConstructorProxy<D1>  d_d1;   // first embedded argument
 
     // NOT IMPLEMENTED
     bdefi_Vfunc2C3(const bdefi_Vfunc2C3<OBJ, C, A1, A2, D1>&);
@@ -706,7 +706,7 @@ class bdefi_Vfunc2C3 : public bdefr_Vfunc2<A1, A2> {
     bdefi_Vfunc2C3(const OBJ&       object,
                    C                method,
                    const D1&        embeddedArg1,
-                   bslma_Allocator *basicAllocator);
+                   bslma::Allocator *basicAllocator);
         // Create a representation for a function object (functor) taking two
         // arguments and returning 'void', using the specified 'object' and
         // the specified 'const' 'method' of 'object' taking one additional
@@ -728,10 +728,10 @@ class bdefi_Vfunc2C4 : public bdefr_Vfunc2<A1, A2> {
     // arguments' corresponding values.
 
     // DATA
-    bslalg_ConstructorProxy<OBJ> d_obj;  // object
+    bslalg::ConstructorProxy<OBJ> d_obj;  // object
     C                            d_m;    // const member function pointer
-    bslalg_ConstructorProxy<D1>  d_d1;   // first embedded argument
-    bslalg_ConstructorProxy<D2>  d_d2;   // second embedded argument
+    bslalg::ConstructorProxy<D1>  d_d1;   // first embedded argument
+    bslalg::ConstructorProxy<D2>  d_d2;   // second embedded argument
 
     // NOT IMPLEMENTED
     bdefi_Vfunc2C4(const bdefi_Vfunc2C4<OBJ, C, A1, A2, D1, D2>&);
@@ -756,7 +756,7 @@ class bdefi_Vfunc2C4 : public bdefr_Vfunc2<A1, A2> {
                    C                method,
                    const D1&        embeddedArg1,
                    const D2&        embeddedArg2,
-                   bslma_Allocator *basicAllocator);
+                   bslma::Allocator *basicAllocator);
         // Create a representation for a function object (functor) taking two
         // arguments and returning 'void', using the specified 'object' and
         // the specified 'const' 'method' of 'object' taking two additional
@@ -779,11 +779,11 @@ class bdefi_Vfunc2C5 : public bdefr_Vfunc2<A1, A2> {
     // arguments' corresponding values.
 
     // DATA
-    bslalg_ConstructorProxy<OBJ> d_obj;  // object
+    bslalg::ConstructorProxy<OBJ> d_obj;  // object
     C                            d_m;    // const member function pointer
-    bslalg_ConstructorProxy<D1>  d_d1;   // first embedded argument
-    bslalg_ConstructorProxy<D2>  d_d2;   // second embedded argument
-    bslalg_ConstructorProxy<D3>  d_d3;   // third embedded argument
+    bslalg::ConstructorProxy<D1>  d_d1;   // first embedded argument
+    bslalg::ConstructorProxy<D2>  d_d2;   // second embedded argument
+    bslalg::ConstructorProxy<D3>  d_d3;   // third embedded argument
 
     // NOT IMPLEMENTED
     bdefi_Vfunc2C5(const bdefi_Vfunc2C5<OBJ, C, A1, A2, D1, D2, D3>&);
@@ -810,7 +810,7 @@ class bdefi_Vfunc2C5 : public bdefr_Vfunc2<A1, A2> {
                    const D1&        embeddedArg1,
                    const D2&        embeddedArg2,
                    const D3&        embeddedArg3,
-                   bslma_Allocator *basicAllocator);
+                   bslma::Allocator *basicAllocator);
         // Create a representation for a function object (functor) taking two
         // arguments and returning 'void', using the specified 'object' and
         // the specified 'const' 'method' of 'object' taking three additional
@@ -834,12 +834,12 @@ class bdefi_Vfunc2C6 : public bdefr_Vfunc2<A1, A2> {
     // arguments' corresponding values.
 
     // DATA
-    bslalg_ConstructorProxy<OBJ> d_obj;  // object
+    bslalg::ConstructorProxy<OBJ> d_obj;  // object
     C                            d_m;    // const member function pointer
-    bslalg_ConstructorProxy<D1>  d_d1;   // first embedded argument
-    bslalg_ConstructorProxy<D2>  d_d2;   // second embedded argument
-    bslalg_ConstructorProxy<D3>  d_d3;   // third embedded argument
-    bslalg_ConstructorProxy<D4>  d_d4;   // fourth embedded argument
+    bslalg::ConstructorProxy<D1>  d_d1;   // first embedded argument
+    bslalg::ConstructorProxy<D2>  d_d2;   // second embedded argument
+    bslalg::ConstructorProxy<D3>  d_d3;   // third embedded argument
+    bslalg::ConstructorProxy<D4>  d_d4;   // fourth embedded argument
 
     // NOT IMPLEMENTED
     bdefi_Vfunc2C6(const bdefi_Vfunc2C6<OBJ, C, A1, A2, D1, D2, D3, D4>&);
@@ -866,7 +866,7 @@ class bdefi_Vfunc2C6 : public bdefr_Vfunc2<A1, A2> {
                    const D2&        embeddedArg2,
                    const D3&        embeddedArg3,
                    const D4&        embeddedArg4,
-                   bslma_Allocator *basicAllocator);
+                   bslma::Allocator *basicAllocator);
         // Create a representation for a function object (functor) taking two
         // arguments and returning 'void', using the specified 'object' and
         // the specified 'const' 'method' of 'object' taking four additional
@@ -890,13 +890,13 @@ class bdefi_Vfunc2C7 : public bdefr_Vfunc2<A1, A2> {
     // arguments' corresponding values.
 
     // DATA
-    bslalg_ConstructorProxy<OBJ> d_obj;  // object
+    bslalg::ConstructorProxy<OBJ> d_obj;  // object
     C                            d_m;    // const member function pointer
-    bslalg_ConstructorProxy<D1>  d_d1;   // first embedded argument
-    bslalg_ConstructorProxy<D2>  d_d2;   // second embedded argument
-    bslalg_ConstructorProxy<D3>  d_d3;   // third embedded argument
-    bslalg_ConstructorProxy<D4>  d_d4;   // fourth embedded argument
-    bslalg_ConstructorProxy<D5>  d_d5;   // fifth embedded argument
+    bslalg::ConstructorProxy<D1>  d_d1;   // first embedded argument
+    bslalg::ConstructorProxy<D2>  d_d2;   // second embedded argument
+    bslalg::ConstructorProxy<D3>  d_d3;   // third embedded argument
+    bslalg::ConstructorProxy<D4>  d_d4;   // fourth embedded argument
+    bslalg::ConstructorProxy<D5>  d_d5;   // fifth embedded argument
 
     // NOT IMPLEMENTED
     bdefi_Vfunc2C7(const bdefi_Vfunc2C7<OBJ, C, A1, A2, D1, D2, D3, D4, D5>&);
@@ -924,7 +924,7 @@ class bdefi_Vfunc2C7 : public bdefr_Vfunc2<A1, A2> {
                    const D3&        embeddedArg3,
                    const D4&        embeddedArg4,
                    const D5&        embeddedArg5,
-                   bslma_Allocator *basicAllocator);
+                   bslma::Allocator *basicAllocator);
         // Create a representation for a function object (functor) taking two
         // arguments and returning 'void', using the specified 'object' and
         // the specified 'const' 'method' of 'object' taking five additional
@@ -949,14 +949,14 @@ class bdefi_Vfunc2C8 : public bdefr_Vfunc2<A1, A2> {
     // arguments' corresponding values.
 
     // DATA
-    bslalg_ConstructorProxy<OBJ> d_obj;  // object
+    bslalg::ConstructorProxy<OBJ> d_obj;  // object
     C                            d_m;    // const member function pointer
-    bslalg_ConstructorProxy<D1>  d_d1;   // first embedded argument
-    bslalg_ConstructorProxy<D2>  d_d2;   // second embedded argument
-    bslalg_ConstructorProxy<D3>  d_d3;   // third embedded argument
-    bslalg_ConstructorProxy<D4>  d_d4;   // fourth embedded argument
-    bslalg_ConstructorProxy<D5>  d_d5;   // fifth embedded argument
-    bslalg_ConstructorProxy<D6>  d_d6;   // sixth embedded argument
+    bslalg::ConstructorProxy<D1>  d_d1;   // first embedded argument
+    bslalg::ConstructorProxy<D2>  d_d2;   // second embedded argument
+    bslalg::ConstructorProxy<D3>  d_d3;   // third embedded argument
+    bslalg::ConstructorProxy<D4>  d_d4;   // fourth embedded argument
+    bslalg::ConstructorProxy<D5>  d_d5;   // fifth embedded argument
+    bslalg::ConstructorProxy<D6>  d_d6;   // sixth embedded argument
 
     // NOT IMPLEMENTED
     bdefi_Vfunc2C8(const bdefi_Vfunc2C8<OBJ, C, A1, A2, D1, D2, D3, D4, D5,
@@ -987,7 +987,7 @@ class bdefi_Vfunc2C8 : public bdefr_Vfunc2<A1, A2> {
                    const D4&        embeddedArg4,
                    const D5&        embeddedArg5,
                    const D6&        embeddedArg6,
-                   bslma_Allocator *basicAllocator);
+                   bslma::Allocator *basicAllocator);
         // Create a representation for a function object (functor) taking two
         // arguments and returning 'void', using the specified 'object' and
         // the specified 'const' 'method' of 'object' taking six additional
@@ -1012,15 +1012,15 @@ class bdefi_Vfunc2C9 : public bdefr_Vfunc2<A1, A2> {
     // arguments' corresponding values.
 
     // DATA
-    bslalg_ConstructorProxy<OBJ> d_obj;  // object
+    bslalg::ConstructorProxy<OBJ> d_obj;  // object
     C                            d_m;    // const member function pointer
-    bslalg_ConstructorProxy<D1>  d_d1;   // first embedded argument
-    bslalg_ConstructorProxy<D2>  d_d2;   // second embedded argument
-    bslalg_ConstructorProxy<D3>  d_d3;   // third embedded argument
-    bslalg_ConstructorProxy<D4>  d_d4;   // fourth embedded argument
-    bslalg_ConstructorProxy<D5>  d_d5;   // fifth embedded argument
-    bslalg_ConstructorProxy<D6>  d_d6;   // sixth embedded argument
-    bslalg_ConstructorProxy<D7>  d_d7;   // seventh embedded argument
+    bslalg::ConstructorProxy<D1>  d_d1;   // first embedded argument
+    bslalg::ConstructorProxy<D2>  d_d2;   // second embedded argument
+    bslalg::ConstructorProxy<D3>  d_d3;   // third embedded argument
+    bslalg::ConstructorProxy<D4>  d_d4;   // fourth embedded argument
+    bslalg::ConstructorProxy<D5>  d_d5;   // fifth embedded argument
+    bslalg::ConstructorProxy<D6>  d_d6;   // sixth embedded argument
+    bslalg::ConstructorProxy<D7>  d_d7;   // seventh embedded argument
 
     // NOT IMPLEMENTED
     bdefi_Vfunc2C9(const bdefi_Vfunc2C9<OBJ, C, A1, A2, D1, D2, D3, D4, D5,
@@ -1053,7 +1053,7 @@ class bdefi_Vfunc2C9 : public bdefr_Vfunc2<A1, A2> {
                    const D5&        embeddedArg5,
                    const D6&        embeddedArg6,
                    const D7&        embeddedArg7,
-                   bslma_Allocator *basicAllocator);
+                   bslma::Allocator *basicAllocator);
         // Create a representation for a function object (functor) taking two
         // arguments and returning 'void', using the specified 'object' and
         // the specified 'const' 'method' of 'object' taking seven additional
@@ -1101,7 +1101,7 @@ class bdefi_Vfunc2M2 : public bdefr_Vfunc2<A1, A2> {
     // CREATORS
     bdefi_Vfunc2M2(OBJ             *object,
                    M                method,
-                   bslma_Allocator *basicAllocator);
+                   bslma::Allocator *basicAllocator);
         // Create a representation for a function object (functor) taking two
         // arguments and returning 'void', using the specified 'object'
         // address and the specified ('const' or non-'const') 'method' of
@@ -1125,7 +1125,7 @@ class bdefi_Vfunc2M3 : public bdefr_Vfunc2<A1, A2> {
     // DATA
     OBJ                         *d_obj_p;  // object
     M                            d_m;      // member function pointer
-    bslalg_ConstructorProxy<D1>  d_d1;     // first embedded argument
+    bslalg::ConstructorProxy<D1>  d_d1;     // first embedded argument
 
     // NOT IMPLEMENTED
     bdefi_Vfunc2M3(const bdefi_Vfunc2M3<OBJ, M, A1, A2, D1>&);
@@ -1149,7 +1149,7 @@ class bdefi_Vfunc2M3 : public bdefr_Vfunc2<A1, A2> {
     bdefi_Vfunc2M3(OBJ             *object,
                    M                method,
                    const D1&        embeddedArg1,
-                   bslma_Allocator *basicAllocator);
+                   bslma::Allocator *basicAllocator);
         // Create a representation for a function object (functor) taking two
         // arguments and returning 'void', using the specified 'object'
         // address and the specified ('const' or non-'const') 'method' of
@@ -1175,8 +1175,8 @@ class bdefi_Vfunc2M4 : public bdefr_Vfunc2<A1, A2> {
     // DATA
     OBJ                         *d_obj_p;  // object
     M                            d_m;      // member function pointer
-    bslalg_ConstructorProxy<D1>  d_d1;     // first embedded argument
-    bslalg_ConstructorProxy<D2>  d_d2;     // second embedded argument
+    bslalg::ConstructorProxy<D1>  d_d1;     // first embedded argument
+    bslalg::ConstructorProxy<D2>  d_d2;     // second embedded argument
 
     // NOT IMPLEMENTED
     bdefi_Vfunc2M4(const bdefi_Vfunc2M4<OBJ, M, A1, A2, D1, D2>&);
@@ -1201,7 +1201,7 @@ class bdefi_Vfunc2M4 : public bdefr_Vfunc2<A1, A2> {
                    M                method,
                    const D1&        embeddedArg1,
                    const D2&        embeddedArg2,
-                   bslma_Allocator *basicAllocator);
+                   bslma::Allocator *basicAllocator);
         // Create a representation for a function object (functor) taking two
         // arguments and returning 'void', using the specified 'object'
         // address and the specified ('const' or non-'const') 'method' of
@@ -1227,9 +1227,9 @@ class bdefi_Vfunc2M5 : public bdefr_Vfunc2<A1, A2> {
     // DATA
     OBJ                         *d_obj_p;  // object
     M                            d_m;      // member function pointer
-    bslalg_ConstructorProxy<D1>  d_d1;     // first embedded argument
-    bslalg_ConstructorProxy<D2>  d_d2;     // second embedded argument
-    bslalg_ConstructorProxy<D3>  d_d3;     // third embedded argument
+    bslalg::ConstructorProxy<D1>  d_d1;     // first embedded argument
+    bslalg::ConstructorProxy<D2>  d_d2;     // second embedded argument
+    bslalg::ConstructorProxy<D3>  d_d3;     // third embedded argument
 
     // NOT IMPLEMENTED
     bdefi_Vfunc2M5(const bdefi_Vfunc2M5<OBJ, M, A1, A2, D1, D2, D3>&);
@@ -1255,7 +1255,7 @@ class bdefi_Vfunc2M5 : public bdefr_Vfunc2<A1, A2> {
                    const D1&        embeddedArg1,
                    const D2&        embeddedArg2,
                    const D3&        embeddedArg3,
-                   bslma_Allocator *basicAllocator);
+                   bslma::Allocator *basicAllocator);
         // Create a representation for a function object (functor) taking two
         // arguments and returning void, using the specified object address
         // and the specified ('const' or non-'const') 'method' of 'object'
@@ -1283,10 +1283,10 @@ class bdefi_Vfunc2M6 : public bdefr_Vfunc2<A1, A2> {
     // DATA
     OBJ                         *d_obj_p;  // object
     M                            d_m;      // member function pointer
-    bslalg_ConstructorProxy<D1>  d_d1;     // first embedded argument
-    bslalg_ConstructorProxy<D2>  d_d2;     // second embedded argument
-    bslalg_ConstructorProxy<D3>  d_d3;     // third embedded argument
-    bslalg_ConstructorProxy<D4>  d_d4;     // fourth embedded argument
+    bslalg::ConstructorProxy<D1>  d_d1;     // first embedded argument
+    bslalg::ConstructorProxy<D2>  d_d2;     // second embedded argument
+    bslalg::ConstructorProxy<D3>  d_d3;     // third embedded argument
+    bslalg::ConstructorProxy<D4>  d_d4;     // fourth embedded argument
 
     // NOT IMPLEMENTED
     bdefi_Vfunc2M6(const bdefi_Vfunc2M6<OBJ, M, A1, A2, D1, D2, D3, D4>&);
@@ -1313,7 +1313,7 @@ class bdefi_Vfunc2M6 : public bdefr_Vfunc2<A1, A2> {
                    const D2&        embeddedArg2,
                    const D3&        embeddedArg3,
                    const D4&        embeddedArg4,
-                   bslma_Allocator *basicAllocator);
+                   bslma::Allocator *basicAllocator);
         // Create a representation for a function object (functor) taking two
         // arguments and returning 'void', using the specified 'object'
         // address and the specified ('const' or non-'const') 'method' of
@@ -1341,11 +1341,11 @@ class bdefi_Vfunc2M7 : public bdefr_Vfunc2<A1, A2> {
     // DATA
     OBJ                         *d_obj_p;  // object
     M                            d_m;      // member function pointer
-    bslalg_ConstructorProxy<D1>  d_d1;     // first embedded argument
-    bslalg_ConstructorProxy<D2>  d_d2;     // second embedded argument
-    bslalg_ConstructorProxy<D3>  d_d3;     // third embedded argument
-    bslalg_ConstructorProxy<D4>  d_d4;     // fourth embedded argument
-    bslalg_ConstructorProxy<D5>  d_d5;     // fifth embedded argument
+    bslalg::ConstructorProxy<D1>  d_d1;     // first embedded argument
+    bslalg::ConstructorProxy<D2>  d_d2;     // second embedded argument
+    bslalg::ConstructorProxy<D3>  d_d3;     // third embedded argument
+    bslalg::ConstructorProxy<D4>  d_d4;     // fourth embedded argument
+    bslalg::ConstructorProxy<D5>  d_d5;     // fifth embedded argument
 
     // NOT IMPLEMENTED
     bdefi_Vfunc2M7(const bdefi_Vfunc2M7<OBJ, M, A1, A2, D1, D2, D3, D4, D5>&);
@@ -1373,7 +1373,7 @@ class bdefi_Vfunc2M7 : public bdefr_Vfunc2<A1, A2> {
                    const D3&        embeddedArg3,
                    const D4&        embeddedArg4,
                    const D5&        embeddedArg5,
-                   bslma_Allocator *basicAllocator);
+                   bslma::Allocator *basicAllocator);
         // Create a representation for a function object (functor) taking two
         // arguments and returning 'void', using the specified 'object'
         // address and the specified ('const' or non-'const') 'method' of
@@ -1401,12 +1401,12 @@ class bdefi_Vfunc2M8 : public bdefr_Vfunc2<A1, A2> {
     // DATA
     OBJ                         *d_obj_p;  // object
     M                            d_m;      // member function pointer
-    bslalg_ConstructorProxy<D1>  d_d1;     // first embedded argument
-    bslalg_ConstructorProxy<D2>  d_d2;     // second embedded argument
-    bslalg_ConstructorProxy<D3>  d_d3;     // third embedded argument
-    bslalg_ConstructorProxy<D4>  d_d4;     // fourth embedded argument
-    bslalg_ConstructorProxy<D5>  d_d5;     // fifth embedded argument
-    bslalg_ConstructorProxy<D6>  d_d6;     // sixth embedded argument
+    bslalg::ConstructorProxy<D1>  d_d1;     // first embedded argument
+    bslalg::ConstructorProxy<D2>  d_d2;     // second embedded argument
+    bslalg::ConstructorProxy<D3>  d_d3;     // third embedded argument
+    bslalg::ConstructorProxy<D4>  d_d4;     // fourth embedded argument
+    bslalg::ConstructorProxy<D5>  d_d5;     // fifth embedded argument
+    bslalg::ConstructorProxy<D6>  d_d6;     // sixth embedded argument
 
     // NOT IMPLEMENTED
     bdefi_Vfunc2M8(const bdefi_Vfunc2M8<OBJ, M, A1, A2, D1, D2, D3, D4, D5,
@@ -1437,7 +1437,7 @@ class bdefi_Vfunc2M8 : public bdefr_Vfunc2<A1, A2> {
                    const D4&        embeddedArg4,
                    const D5&        embeddedArg5,
                    const D6&        embeddedArg6,
-                   bslma_Allocator *basicAllocator);
+                   bslma::Allocator *basicAllocator);
         // Create a representation for a function object (functor) taking two
         // arguments and returning 'void', using the specified 'object'
         // address and the specified ('const' or non-'const') 'method' of
@@ -1465,13 +1465,13 @@ class bdefi_Vfunc2M9 : public bdefr_Vfunc2<A1, A2> {
     // DATA
     OBJ                        *d_obj_p;  // object
     M                            d_m;     // member function pointer
-    bslalg_ConstructorProxy<D1>  d_d1;    // first embedded argument
-    bslalg_ConstructorProxy<D2>  d_d2;    // second embedded argument
-    bslalg_ConstructorProxy<D3>  d_d3;    // third embedded argument
-    bslalg_ConstructorProxy<D4>  d_d4;    // fourth embedded argument
-    bslalg_ConstructorProxy<D5>  d_d5;    // fifth embedded argument
-    bslalg_ConstructorProxy<D6>  d_d6;    // sixth embedded argument
-    bslalg_ConstructorProxy<D7>  d_d7;    // seventh embedded argument
+    bslalg::ConstructorProxy<D1>  d_d1;    // first embedded argument
+    bslalg::ConstructorProxy<D2>  d_d2;    // second embedded argument
+    bslalg::ConstructorProxy<D3>  d_d3;    // third embedded argument
+    bslalg::ConstructorProxy<D4>  d_d4;    // fourth embedded argument
+    bslalg::ConstructorProxy<D5>  d_d5;    // fifth embedded argument
+    bslalg::ConstructorProxy<D6>  d_d6;    // sixth embedded argument
+    bslalg::ConstructorProxy<D7>  d_d7;    // seventh embedded argument
 
     // NOT IMPLEMENTED
     bdefi_Vfunc2M9(const bdefi_Vfunc2M9<OBJ, M, A1, A2, D1, D2, D3, D4, D5,
@@ -1504,7 +1504,7 @@ class bdefi_Vfunc2M9 : public bdefr_Vfunc2<A1, A2> {
                    const D5&        embeddedArg5,
                    const D6&        embeddedArg6,
                    const D7&        embeddedArg7,
-                   bslma_Allocator *basicAllocator);
+                   bslma::Allocator *basicAllocator);
         // Create a representation for a function object (functor) taking two
         // arguments and returning 'void', using the specified 'object'
         // address and the specified ('const' or non-'const') 'method' of
@@ -1526,7 +1526,7 @@ class bdefi_Vfunc2M9 : public bdefr_Vfunc2<A1, A2> {
 
 template <class A1, class A2>
 inline
-bdefi_Vfunc2Null<A1, A2>::bdefi_Vfunc2Null(bslma_Allocator *basicAllocator)
+bdefi_Vfunc2Null<A1, A2>::bdefi_Vfunc2Null(bslma::Allocator *basicAllocator)
 : bdefr_Vfunc2<A1, A2>(basicAllocator)
 {
 }
@@ -1550,7 +1550,7 @@ void bdefi_Vfunc2Null<A1, A2>::execute(const A1&, const A2&) const
 template <class F, class A1, class A2>
 inline
 bdefi_Vfunc2F2<F, A1, A2>::bdefi_Vfunc2F2(F                procedure,
-                                          bslma_Allocator *basicAllocator)
+                                          bslma::Allocator *basicAllocator)
 : bdefr_Vfunc2<A1, A2>(basicAllocator)
 , d_f(procedure, basicAllocator)
 {
@@ -1579,7 +1579,7 @@ template <class F, class A1, class A2, class D1>
 inline
 bdefi_Vfunc2F3<F, A1, A2, D1>::bdefi_Vfunc2F3(F                procedure,
                                               const D1&        embeddedArg1,
-                                              bslma_Allocator *basicAllocator)
+                                              bslma::Allocator *basicAllocator)
 : bdefr_Vfunc2<A1, A2>(basicAllocator)
 , d_f(procedure, basicAllocator)
 , d_d1(embeddedArg1, basicAllocator)
@@ -1611,7 +1611,7 @@ bdefi_Vfunc2F4<F, A1, A2, D1, D2>::bdefi_Vfunc2F4(
                                              F                procedure,
                                              const D1&        embeddedArg1,
                                              const D2&        embeddedArg2,
-                                             bslma_Allocator *basicAllocator)
+                                             bslma::Allocator *basicAllocator)
 : bdefr_Vfunc2<A1, A2>(basicAllocator)
 , d_f(procedure, basicAllocator)
 , d_d1(embeddedArg1, basicAllocator)
@@ -1645,7 +1645,7 @@ bdefi_Vfunc2F5<F, A1, A2, D1, D2, D3>::bdefi_Vfunc2F5(
                                              const D1&        embeddedArg1,
                                              const D2&        embeddedArg2,
                                              const D3&        embeddedArg3,
-                                             bslma_Allocator *basicAllocator)
+                                             bslma::Allocator *basicAllocator)
 : bdefr_Vfunc2<A1, A2>(basicAllocator)
 , d_f(procedure, basicAllocator)
 , d_d1(embeddedArg1, basicAllocator)
@@ -1681,7 +1681,7 @@ bdefi_Vfunc2F6<F, A1, A2, D1, D2, D3, D4>::bdefi_Vfunc2F6(
                                              const D2&        embeddedArg2,
                                              const D3&        embeddedArg3,
                                              const D4&        embeddedArg4,
-                                             bslma_Allocator *basicAllocator)
+                                             bslma::Allocator *basicAllocator)
 : bdefr_Vfunc2<A1, A2>(basicAllocator)
 , d_f(procedure, basicAllocator)
 , d_d1(embeddedArg1, basicAllocator)
@@ -1722,7 +1722,7 @@ bdefi_Vfunc2F7<F, A1, A2, D1, D2, D3, D4, D5>::bdefi_Vfunc2F7(
                                              const D3&        embeddedArg3,
                                              const D4&        embeddedArg4,
                                              const D5&        embeddedArg5,
-                                             bslma_Allocator *basicAllocator)
+                                             bslma::Allocator *basicAllocator)
 : bdefr_Vfunc2<A1, A2>(basicAllocator)
 , d_f(procedure, basicAllocator)
 , d_d1(embeddedArg1, basicAllocator)
@@ -1767,7 +1767,7 @@ bdefi_Vfunc2F8<F, A1, A2, D1, D2, D3, D4, D5, D6>::bdefi_Vfunc2F8(
                                              const D4&        embeddedArg4,
                                              const D5&        embeddedArg5,
                                              const D6&        embeddedArg6,
-                                             bslma_Allocator *basicAllocator)
+                                             bslma::Allocator *basicAllocator)
 : bdefr_Vfunc2<A1, A2>(basicAllocator)
 , d_f(procedure, basicAllocator)
 , d_d1(embeddedArg1, basicAllocator)
@@ -1814,7 +1814,7 @@ bdefi_Vfunc2F9<F, A1, A2, D1, D2, D3, D4, D5, D6, D7>::bdefi_Vfunc2F9(
                                              const D5&        embeddedArg5,
                                              const D6&        embeddedArg6,
                                              const D7&        embeddedArg7,
-                                             bslma_Allocator *basicAllocator)
+                                             bslma::Allocator *basicAllocator)
 : bdefr_Vfunc2<A1, A2>(basicAllocator)
 , d_f(procedure, basicAllocator)
 , d_d1(embeddedArg1, basicAllocator)
@@ -1855,7 +1855,7 @@ inline
 bdefi_Vfunc2C2<OBJ, C, A1, A2>::bdefi_Vfunc2C2(
                                              const OBJ&       object,
                                              C                method,
-                                             bslma_Allocator *basicAllocator)
+                                             bslma::Allocator *basicAllocator)
 : bdefr_Vfunc2<A1, A2>(basicAllocator)
 , d_obj(object, basicAllocator)
 , d_m(method)
@@ -1887,7 +1887,7 @@ bdefi_Vfunc2C3<OBJ, C, A1, A2, D1>::bdefi_Vfunc2C3(
                                              const OBJ&       object,
                                              C                method,
                                              const D1&        embeddedArg1,
-                                             bslma_Allocator *basicAllocator)
+                                             bslma::Allocator *basicAllocator)
 : bdefr_Vfunc2<A1, A2>(basicAllocator)
 , d_obj(object, basicAllocator)
 , d_m(method)
@@ -1921,7 +1921,7 @@ bdefi_Vfunc2C4<OBJ, C, A1, A2, D1, D2>::bdefi_Vfunc2C4(
                                              C                method,
                                              const D1&        embeddedArg1,
                                              const D2&        embeddedArg2,
-                                             bslma_Allocator *basicAllocator)
+                                             bslma::Allocator *basicAllocator)
 : bdefr_Vfunc2<A1, A2>(basicAllocator)
 , d_obj(object, basicAllocator)
 , d_m(method)
@@ -1957,7 +1957,7 @@ bdefi_Vfunc2C5<OBJ, C, A1, A2, D1, D2, D3>::bdefi_Vfunc2C5(
                                              const D1&        embeddedArg1,
                                              const D2&        embeddedArg2,
                                              const D3&        embeddedArg3,
-                                             bslma_Allocator *basicAllocator)
+                                             bslma::Allocator *basicAllocator)
 : bdefr_Vfunc2<A1, A2>(basicAllocator)
 , d_obj(object, basicAllocator)
 , d_m(method)
@@ -1998,7 +1998,7 @@ bdefi_Vfunc2C6<OBJ, C, A1, A2, D1, D2, D3, D4>::bdefi_Vfunc2C6(
                                              const D2&        embeddedArg2,
                                              const D3&        embeddedArg3,
                                              const D4&        embeddedArg4,
-                                             bslma_Allocator *basicAllocator)
+                                             bslma::Allocator *basicAllocator)
 : bdefr_Vfunc2<A1, A2>(basicAllocator)
 , d_obj(object, basicAllocator)
 , d_m(method)
@@ -2043,7 +2043,7 @@ bdefi_Vfunc2C7<OBJ, C, A1, A2, D1, D2, D3, D4, D5>::bdefi_Vfunc2C7(
                                              const D3&        embeddedArg3,
                                              const D4&        embeddedArg4,
                                              const D5&        embeddedArg5,
-                                             bslma_Allocator *basicAllocator)
+                                             bslma::Allocator *basicAllocator)
 : bdefr_Vfunc2<A1, A2>(basicAllocator)
 , d_obj(object, basicAllocator)
 , d_m(method)
@@ -2090,7 +2090,7 @@ bdefi_Vfunc2C8<OBJ, C, A1, A2, D1, D2, D3, D4, D5, D6>::bdefi_Vfunc2C8(
                                              const D4&        embeddedArg4,
                                              const D5&        embeddedArg5,
                                              const D6&        embeddedArg6,
-                                             bslma_Allocator *basicAllocator)
+                                             bslma::Allocator *basicAllocator)
 : bdefr_Vfunc2<A1, A2>(basicAllocator)
 , d_obj(object, basicAllocator)
 , d_m(method)
@@ -2139,7 +2139,7 @@ bdefi_Vfunc2C9<OBJ, C, A1, A2, D1, D2, D3, D4, D5, D6, D7>::bdefi_Vfunc2C9(
                                              const D5&        embeddedArg5,
                                              const D6&        embeddedArg6,
                                              const D7&        embeddedArg7,
-                                             bslma_Allocator *basicAllocator)
+                                             bslma::Allocator *basicAllocator)
 : bdefr_Vfunc2<A1, A2>(basicAllocator)
 , d_obj(object, basicAllocator)
 , d_m(method)
@@ -2179,9 +2179,10 @@ void bdefi_Vfunc2C9<OBJ, C, A1, A2, D1, D2, D3, D4, D5, D6, D7>::execute(
 
 template <class OBJ, class M, class A1, class A2>
 inline
-bdefi_Vfunc2M2<OBJ, M, A1, A2>::bdefi_Vfunc2M2(OBJ             *object,
-                                               M                method,
-                                               bslma_Allocator *basicAllocator)
+bdefi_Vfunc2M2<OBJ, M, A1, A2>::bdefi_Vfunc2M2(
+                                              OBJ              *object,
+                                              M                 method,
+                                              bslma::Allocator *basicAllocator)
 : bdefr_Vfunc2<A1, A2>(basicAllocator)
 , d_obj_p(object)
 , d_m(method)
@@ -2212,7 +2213,7 @@ bdefi_Vfunc2M3<OBJ, M, A1, A2, D1>::bdefi_Vfunc2M3(
                                              OBJ             *object,
                                              M                method,
                                              const D1&        embeddedArg1,
-                                             bslma_Allocator *basicAllocator)
+                                             bslma::Allocator *basicAllocator)
 : bdefr_Vfunc2<A1, A2>(basicAllocator)
 , d_obj_p(object)
 , d_m(method)
@@ -2245,7 +2246,7 @@ bdefi_Vfunc2M4<OBJ, M, A1, A2, D1, D2>::bdefi_Vfunc2M4(
                                              M                method,
                                              const D1&        embeddedArg1,
                                              const D2&        embeddedArg2,
-                                             bslma_Allocator *basicAllocator)
+                                             bslma::Allocator *basicAllocator)
 : bdefr_Vfunc2<A1, A2>(basicAllocator)
 , d_obj_p(object)
 , d_m(method)
@@ -2281,7 +2282,7 @@ bdefi_Vfunc2M5<OBJ, M, A1, A2, D1, D2, D3>::bdefi_Vfunc2M5(
                                              const D1&        embeddedArg1,
                                              const D2&        embeddedArg2,
                                              const D3&        embeddedArg3,
-                                             bslma_Allocator *basicAllocator)
+                                             bslma::Allocator *basicAllocator)
 : bdefr_Vfunc2<A1, A2>(basicAllocator)
 , d_obj_p(object)
 , d_m(method)
@@ -2321,7 +2322,7 @@ bdefi_Vfunc2M6<OBJ, M, A1, A2, D1, D2, D3, D4>::bdefi_Vfunc2M6(
                                              const D2&        embeddedArg2,
                                              const D3&        embeddedArg3,
                                              const D4&        embeddedArg4,
-                                             bslma_Allocator *basicAllocator)
+                                             bslma::Allocator *basicAllocator)
 : bdefr_Vfunc2<A1, A2>(basicAllocator)
 , d_obj_p(object)
 , d_m(method)
@@ -2365,7 +2366,7 @@ bdefi_Vfunc2M7<OBJ, M, A1, A2, D1, D2, D3, D4, D5>::bdefi_Vfunc2M7(
                                              const D3&        embeddedArg3,
                                              const D4&        embeddedArg4,
                                              const D5&        embeddedArg5,
-                                             bslma_Allocator *basicAllocator)
+                                             bslma::Allocator *basicAllocator)
 : bdefr_Vfunc2<A1, A2>(basicAllocator)
 , d_obj_p(object)
 , d_m(method)
@@ -2411,7 +2412,7 @@ bdefi_Vfunc2M8<OBJ, M, A1, A2, D1, D2, D3, D4, D5, D6>::bdefi_Vfunc2M8(
                                              const D4&        embeddedArg4,
                                              const D5&        embeddedArg5,
                                              const D6&        embeddedArg6,
-                                             bslma_Allocator *basicAllocator)
+                                             bslma::Allocator *basicAllocator)
 : bdefr_Vfunc2<A1, A2>(basicAllocator)
 , d_obj_p(object)
 , d_m(method)
@@ -2459,7 +2460,7 @@ bdefi_Vfunc2M9<OBJ, M, A1, A2, D1, D2, D3, D4, D5, D6, D7>::bdefi_Vfunc2M9(
                                              const D5&        embeddedArg5,
                                              const D6&        embeddedArg6,
                                              const D7&        embeddedArg7,
-                                             bslma_Allocator *basicAllocator)
+                                             bslma::Allocator *basicAllocator)
 : bdefr_Vfunc2<A1, A2>(basicAllocator)
 , d_obj_p(object)
 , d_m(method)

@@ -2,12 +2,12 @@
 
 #include <bdec_queue.h>
 
-#include <bslma_bufferallocator.h>              // for testing only
+#include <bdema_bufferedsequentialallocator.h>
+
 #include <bslma_testallocator.h>                // for testing only
 #include <bslma_testallocatorexception.h>       // for testing only
 
 #include <bsls_platform.h>                      // for testing only
-#include <bsls_platformutil.h>                  // for testing only
 
 #include <bdex_testinstream.h>                  // for testing only
 #include <bdex_testinstreamexception.h>         // for testing only
@@ -46,7 +46,7 @@ using namespace bsl;  // automatically added by script
 // Note that places where test drivers in this family are likely to require
 // adjustment are indicated by the tag: "ADJ".
 //-----------------------------------------------------------------------------
-// [ 2] bdec_Queue(bslma_Allocator *ba = 0);
+// [ 2] bdec_Queue(bslma::Allocator *ba = 0);
 // [11] bdec_Queue(unsigned int iLen, *ba = 0);
 // [11] bdec_Queue(int iLen, double iVal, *ba = 0);
 // [17] bdec_Queue(const InitialCapacity& ne, *ba = 0);
@@ -404,7 +404,7 @@ T& gg(T *object, const char *spec)
 Obj g(const char *spec)
     // Return, by value, a new object corresponding to the specified 'spec'.
 {
-    Obj object((bslma_Allocator *)0);
+    Obj object((bslma::Allocator *)0);
     return gg(&object, spec);
 }
 
@@ -606,7 +606,7 @@ DEFINE_TEST_CASE(18) { // TBD doc here and above
         //   void remove(int index, int ne);
         // --------------------------------------------------------------------
 
-        bslma_TestAllocator testAllocator(veryVeryVerbose);
+        bslma::TestAllocator testAllocator(veryVeryVerbose);
 
         if (verbose) cout << endl
                 << "Testing 'append', 'push*', 'insert', 'remove', and 'pop*'"
@@ -2070,13 +2070,13 @@ DEFINE_TEST_CASE(17) {
         //   objects with increasing initial capacity.  Verify that each object
         //   has the same value as a control default object.  Then, append as
         //   many values as the requested initial capacity, and use
-        //   'bslma_TestAllocator' to verify that no additional allocations
+        //   'bslma::TestAllocator' to verify that no additional allocations
         //   have occurred.  Perform each test in the standard 'bdema'
         //   exception-testing macro block.
         //
         //   Repeat the constructor test initially specifying no allocator and
         //   again, specifying a static buffer allocator.  These tests (without
-        //   specifying a 'bslma_TestAllocator') cannot confirm correct
+        //   specifying a 'bslma::TestAllocator') cannot confirm correct
         //   capacity-reserving behavior, but can test for rudimentary correct
         //   object behavior via the destructor and Purify, and, in
         //   'veryVerbose' mode, via the print statements.
@@ -2087,7 +2087,7 @@ DEFINE_TEST_CASE(17) {
         //   of elements, and confirm that the test object has the same value
         //   as a separately constructed control object.  Then, append as many
         //   values as required to bring the test object's length to the
-        //   specified number of elements, and use 'bslma_TestAllocator' to
+        //   specified number of elements, and use 'bslma::TestAllocator' to
         //   verify that no additional allocations have occurred.  Perform each
         //   test in the standard 'bdema' exception-testing macro block.
         //
@@ -2097,7 +2097,7 @@ DEFINE_TEST_CASE(17) {
         //   void reserveCapacityRaw(int ne);
         // --------------------------------------------------------------------
 
-        bslma_TestAllocator testAllocator(veryVeryVerbose);
+        bslma::TestAllocator testAllocator(veryVeryVerbose);
 
         if (verbose) cout << endl
             << "Testing Capacity Reserving Constructor and Methods" << endl
@@ -2105,7 +2105,7 @@ DEFINE_TEST_CASE(17) {
 
         if (verbose) cout <<
             "\nTesting 'bdec_Queue(capacity, ba)' Constructor" << endl;
-        if (verbose) cout << "\twith a 'bslma_TestAllocator':" << endl;
+        if (verbose) cout << "\twith a 'bslma::TestAllocator':" << endl;
         {
             const Obj W(&testAllocator);  // control value
             const int MAX_NUM_ELEMS = 9;
@@ -2149,7 +2149,7 @@ DEFINE_TEST_CASE(17) {
             cout << "\twith a buffer allocator (exercise only):" << endl;
         {
             char memory[1024];
-            bslma_BufferAllocator a(memory, sizeof memory);
+            bdema_BufferedSequentialAllocator a(memory, sizeof memory);
             const Obj W(&testAllocator);  // control value
             const int MAX_NUM_ELEMS = 9;
             for (int ne = 0; ne <= MAX_NUM_ELEMS; ++ne) {
@@ -2339,7 +2339,7 @@ DEFINE_TEST_CASE(16) {
         //   void swap(int index1, int index2);
         // --------------------------------------------------------------------
 
-        bslma_TestAllocator testAllocator(veryVeryVerbose);
+        bslma::TestAllocator testAllocator(veryVeryVerbose);
 
         if (verbose) cout << endl
                           << "Testing 'swap' Method" << endl
@@ -2454,7 +2454,7 @@ DEFINE_TEST_CASE(15) {
         //   ostream& print(ostream& stream, int level, int spacesPerLevel);
         // --------------------------------------------------------------------
 
-        bslma_TestAllocator testAllocator(veryVeryVerbose);
+        bslma::TestAllocator testAllocator(veryVeryVerbose);
 
         if (verbose) cout << endl
                           << "Testing 'print' method" << endl
@@ -2612,7 +2612,7 @@ DEFINE_TEST_CASE(14) {
         //   double& back();
         // --------------------------------------------------------------------
 
-        bslma_TestAllocator testAllocator(veryVeryVerbose);
+        bslma::TestAllocator testAllocator(veryVeryVerbose);
 
         if (verbose) cout << endl
                 << "Testing 'replace' and 'operator[]'" << endl
@@ -3575,7 +3575,7 @@ DEFINE_TEST_CASE(13) {
         //   void remove(int index, int ne);
         // --------------------------------------------------------------------
 
-        bslma_TestAllocator testAllocator(veryVeryVerbose);
+        bslma::TestAllocator testAllocator(veryVeryVerbose);
 
         if (verbose) cout << endl
                 << "Testing 'append', 'push*', 'insert', 'remove', and 'pop*'"
@@ -5032,7 +5032,7 @@ DEFINE_TEST_CASE(12) {
         //   void setLength(int newLength, double iVal);
         // --------------------------------------------------------------------
 
-        bslma_TestAllocator testAllocator(veryVeryVerbose);
+        bslma::TestAllocator testAllocator(veryVeryVerbose);
 
         if (verbose) cout << endl
                           << "Testing Set-Length Functions" << endl
@@ -5163,9 +5163,11 @@ DEFINE_TEST_CASE(11) {
         //   For each constructor we will create objects
         //    - With and without passing in an allocator.
         //    - In the presence of exceptions during memory allocations using
-        //        a 'bslma_TestAllocator' and varying its *allocation* *limit*.
+        //        a 'bslma::TestAllocator' and varying its *allocation*
+        //        *limit*.
         //    - Where the object is constructed entirely in static memory
-        //        (using a 'bslma_BufferAllocator') and never destroyed.
+        //        (using a 'bdema_BufferedSequentialAllocator') and never
+        //         destroyed.
         //   and use basic accessors to verify
         //      - length
         //      - element value at each index position { 0 .. length - 1 }.
@@ -5176,7 +5178,7 @@ DEFINE_TEST_CASE(11) {
         //   bdec_Queue(const double *sa, int ne, *ba = 0);
         // --------------------------------------------------------------------
 
-        bslma_TestAllocator testAllocator(veryVeryVerbose);
+        bslma::TestAllocator testAllocator(veryVeryVerbose);
 
         if (verbose) cout << endl
                           << "Testing Initial-Length Constructor" << endl
@@ -5240,7 +5242,7 @@ DEFINE_TEST_CASE(11) {
         if (verbose) cout << "\tIn place using a buffer allocator." << endl;
         {
             char memory[4096];
-            bslma_BufferAllocator a(memory, sizeof memory);
+            bdema_BufferedSequentialAllocator a(memory, sizeof memory);
             const Element DEFAULT_VALUE = 0.0;  // ADJUST
             const int MAX_LENGTH = 10;
             for (int length = 0; length <= MAX_LENGTH; ++length) {
@@ -5317,7 +5319,7 @@ DEFINE_TEST_CASE(11) {
         if (verbose) cout << "\tIn place using a buffer allocator." << endl;
         {
             char memory[4096];
-            bslma_BufferAllocator a(memory, sizeof memory);
+            bdema_BufferedSequentialAllocator a(memory, sizeof memory);
             const Element VALUE = 4.4;  // ADJUST
             const int MAX_LENGTH = 10;
             for (int length = 0; length <= MAX_LENGTH; ++length) {
@@ -5391,7 +5393,7 @@ DEFINE_TEST_CASE(11) {
             if (verbose) cout << "\tIn place using a buffer allocator." <<endl;
             {
                 char memory[4096];
-                bslma_BufferAllocator a(memory, sizeof memory);
+                bdema_BufferedSequentialAllocator a(memory, sizeof memory);
                 for (int ne = 0; ne <= NUM_ELEMENTS; ++ne) {
                     if (verbose) P(ne);
                     Obj *doNotDelete =
@@ -5478,7 +5480,7 @@ DEFINE_TEST_CASE(10) {
         //   bdex_OutStream& streamOut(bdex_OutStream& stream) const;
         // --------------------------------------------------------------------
 
-        bslma_TestAllocator testAllocator(veryVeryVerbose);
+        bslma::TestAllocator testAllocator(veryVeryVerbose);
 
         if (verbose) cout << endl
                           << "Testing Streaming Functionality" << endl
@@ -5889,7 +5891,7 @@ DEFINE_TEST_CASE(9) {
         //   bdec_Queue& operator=(const bdec_Queue& rhs);
         // --------------------------------------------------------------------
 
-        bslma_TestAllocator testAllocator(veryVeryVerbose);
+        bslma::TestAllocator testAllocator(veryVeryVerbose);
 
         if (verbose) cout << endl
                           << "Testing Assignment Operator" << endl
@@ -6064,7 +6066,7 @@ DEFINE_TEST_CASE(8) {
         //   bdec_Queue g(const char *spec);
         // --------------------------------------------------------------------
 
-        bslma_TestAllocator testAllocator(veryVeryVerbose);
+        bslma::TestAllocator testAllocator(veryVeryVerbose);
 
         if (verbose) cout << endl
                           << "Testing Generator Function 'g'" << endl
@@ -6140,14 +6142,15 @@ DEFINE_TEST_CASE(7) {
         //
         //   To address concern 5, we will perform each of the above tests in
         //   the presence of exceptions during memory allocations using a
-        //   'bslma_TestAllocator' and varying its *allocation* *limit*.
+        //   'bslma::TestAllocator' and varying its *allocation* *limit*.
         //
         //   To address concern 6, we will repeat the above tests:
         //     - When passing in no allocator.
-        //     - When passing in a null pointer: (bslma_Allocator *)0.
+        //     - When passing in a null pointer: (bslma::Allocator *)0.
         //     - When passing in a test allocator (see concern 5).
         //     - Where the object is constructed entirely in static memory
-        //       (using a 'bslma_BufferAllocator') and never destroyed.
+        //       (using a 'bdema_BufferedSequentialAllocator') and never
+        //         destroyed.
         //     - After the (dynamically allocated) source object is
         //       deleted and its footprint erased (see concern 4).
         //
@@ -6155,7 +6158,7 @@ DEFINE_TEST_CASE(7) {
         //   bdec_Queue(const bdec_Queue& original, *ba = 0);
         // --------------------------------------------------------------------
 
-        bslma_TestAllocator testAllocator(veryVeryVerbose);
+        bslma::TestAllocator testAllocator(veryVeryVerbose);
 
         if (verbose) cout << endl
                           << "Testing Copy Constructor" << endl
@@ -6210,7 +6213,7 @@ DEFINE_TEST_CASE(7) {
                         }
 
                         {                         // Null allocator.
-                            const Obj Y1(X, (bslma_Allocator *) 0);
+                            const Obj Y1(X, (bslma::Allocator *) 0);
                             if (veryVerbose) { cout << "\t\t\t"; P(Y1); }
                             LOOP_ASSERT(SPEC, W == Y1);
                             LOOP_ASSERT(SPEC, W == X);
@@ -6227,7 +6230,8 @@ DEFINE_TEST_CASE(7) {
 
                         {                         // Buffer Allocator.
                             char memory[1024];
-                            bslma_BufferAllocator a(memory, sizeof memory);
+                            bdema_BufferedSequentialAllocator a(memory,
+                                                                sizeof memory);
                             Obj *Y = new(a.allocate(sizeof(Obj))) Obj(X, &a);
                             if (veryVerbose) { cout << "\t\t\t"; P(*Y); }
                             LOOP_ASSERT(SPEC, W == *Y);
@@ -6281,7 +6285,7 @@ DEFINE_TEST_CASE(6) {
         //   operator!=(const bdec_Queue&, const bdec_Queue&);
         // --------------------------------------------------------------------
 
-        bslma_TestAllocator testAllocator(veryVeryVerbose);
+        bslma::TestAllocator testAllocator(veryVeryVerbose);
 
         if (verbose) cout << endl
                           << "Testing Equality Operators" << endl
@@ -6375,7 +6379,7 @@ DEFINE_TEST_CASE(5) {
         //   operator<<(ostream&, const bdec_Queue&);
         // --------------------------------------------------------------------
 
-        bslma_TestAllocator testAllocator(veryVeryVerbose);
+        bslma::TestAllocator testAllocator(veryVeryVerbose);
 
         if (verbose) cout << endl
                           << "Testing Output (<<) Operator" << endl
@@ -6483,7 +6487,7 @@ DEFINE_TEST_CASE(4) {
         //   const double& back() const;
         // --------------------------------------------------------------------
 
-        bslma_TestAllocator testAllocator(veryVeryVerbose);
+        bslma::TestAllocator testAllocator(veryVeryVerbose);
 
         if (verbose) cout << endl
                           << "Testing Basic Accessors" << endl
@@ -6631,7 +6635,7 @@ DEFINE_TEST_CASE(3) {
         //   CONCERN: Is the internal memory organization behaving as intended?
         // --------------------------------------------------------------------
 
-        bslma_TestAllocator testAllocator(veryVeryVerbose);
+        bslma::TestAllocator testAllocator(veryVeryVerbose);
 
         if (verbose)
             cout << endl
@@ -7117,9 +7121,11 @@ DEFINE_TEST_CASE(2) {
         //   constructor:
         //    - With and without passing in an allocator.
         //    - In the presence of exceptions during memory allocations using
-        //        a 'bslma_TestAllocator' and varying its *allocation* *limit*.
+        //        a 'bslma::TestAllocator' and varying its *allocation*
+        //        *limit*.
         //    - Where the object is constructed entirely in static memory
-        //        (using a 'bslma_BufferAllocator') and never destroyed.
+        //        (using a 'bdema_BufferedSequentialAllocator') and never
+        //         destroyed.
         //
         //   To address concerns 3a - 3c, construct a series of independent
         //   objects, ordered by increasing length.  In each test, allow the
@@ -7127,7 +7133,7 @@ DEFINE_TEST_CASE(2) {
         //   destructor asserts internal object invariants appropriately.
         //   After the final append operation in each test, use the (untested)
         //   basic accessors to cross-check the value of the object
-        //   and the 'bslma_TestAllocator' to confirm whether a resize has
+        //   and the 'bslma::TestAllocator' to confirm whether a resize has
         //   occurred.
         //
         //   To address concerns 4a - 4c, construct a similar test, replacing
@@ -7151,7 +7157,7 @@ DEFINE_TEST_CASE(2) {
         //
         //   The first test acts as a "control" in that 'removeAll' is not
         //   called; if only the second test produces an error, we know that
-        //   'removeAll' is to blame.  We will rely on 'bslma_TestAllocator'
+        //   'removeAll' is to blame.  We will rely on 'bslma::TestAllocator'
         //   and purify to address concern 2, and on the object invariant
         //   assertions in the destructor to address concerns 3d and 4d.
         //
@@ -7170,7 +7176,7 @@ DEFINE_TEST_CASE(2) {
         //   allocation was performed.
         //
         // Testing:
-        //   bdec_Queue(bslma_Allocator *ba);
+        //   bdec_Queue(bslma::Allocator *ba);
         //   ~bdec_Queue();
         //   void removeAll();
         //   BOOTSTRAP: void popFront();
@@ -7178,7 +7184,7 @@ DEFINE_TEST_CASE(2) {
         //   BOOTSTRAP: void reserveCapacity(int ne);
         // --------------------------------------------------------------------
 
-        bslma_TestAllocator testAllocator(veryVeryVerbose);
+        bslma::TestAllocator testAllocator(veryVeryVerbose);
 
         if (verbose) cout << endl
                           << "Testing Primary Manipulators" << endl
@@ -7188,7 +7194,7 @@ DEFINE_TEST_CASE(2) {
 
         if (verbose) cout << "\tWithout passing in an allocator." << endl;
         {
-            const Obj X((bslma_Allocator *)0);
+            const Obj X((bslma::Allocator *)0);
             if (veryVerbose) { cout << "\t\t"; P(X); }
             ASSERT(0 == X.length());
         }
@@ -7215,7 +7221,7 @@ DEFINE_TEST_CASE(2) {
         if (verbose) cout << "\tIn place using a buffer allocator." << endl;
         {
             char memory[1024];
-            bslma_BufferAllocator a(memory, sizeof memory);
+            bdema_BufferedSequentialAllocator a(memory, sizeof memory);
             void *doNotDelete = new(a.allocate(sizeof(Obj))) Obj(&a);
             ASSERT(doNotDelete);
 
@@ -7804,7 +7810,7 @@ DEFINE_TEST_CASE(1) {
 
         // --------------------------------------------------------------------
 
-        bslma_TestAllocator testAllocator(veryVeryVerbose);
+        bslma::TestAllocator testAllocator(veryVeryVerbose);
 
         if (verbose) cout << endl
                           << "BREATHING TEST" << endl
@@ -8014,7 +8020,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
     switch (test) { case 0:  // Zero is always the leading case.
-#define CASE(NUMBER)                                                           \
+#define CASE(NUMBER)                                                          \
   case NUMBER: testCase##NUMBER(verbose, veryVerbose, veryVeryVerbose); break
         CASE(19);
         CASE(18);

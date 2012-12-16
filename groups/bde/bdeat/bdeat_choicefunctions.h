@@ -504,7 +504,7 @@ namespace bdeat_ChoiceFunctions {
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
     template <typename TYPE>
-    bslmf_MetaInt<0> isChoiceMetaFunction(const TYPE&);
+    bslmf::MetaInt<0> isChoiceMetaFunction(const TYPE&);
         // This function can be overloaded to support partial specialization
         // (Sun5.2 compiler is unable to partially specialize the 'struct'
         // below).  Note that this function is has no definition and should not
@@ -520,10 +520,10 @@ namespace bdeat_ChoiceFunctions {
         // for further information.
 
         enum {
-            VALUE = bslalg_HasTrait<TYPE, bdeat_TypeTraitBasicChoice>::VALUE
+            VALUE = bslalg::HasTrait<TYPE, bdeat_TypeTraitBasicChoice>::VALUE
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
                  || BSLMF_METAINT_TO_BOOL(isChoiceMetaFunction(
-                                                   bslmf_TypeRep<TYPE>::rep()))
+                                                  bslmf::TypeRep<TYPE>::rep()))
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
         };
     };
@@ -739,7 +739,7 @@ inline
 int bdeat_ChoiceFunctions::bdeat_choiceMakeSelection(TYPE *object,
                                                      int   selectionId)
 {
-    BSLMF_ASSERT((bslalg_HasTrait<TYPE, bdeat_TypeTraitBasicChoice>::VALUE));
+    BSLMF_ASSERT((bslalg::HasTrait<TYPE, bdeat_TypeTraitBasicChoice>::VALUE));
 
     return object->makeSelection(selectionId);
 }
@@ -751,7 +751,7 @@ int bdeat_ChoiceFunctions::bdeat_choiceMakeSelection(
                                                const char *selectionName,
                                                int         selectionNameLength)
 {
-    BSLMF_ASSERT((bslalg_HasTrait<TYPE, bdeat_TypeTraitBasicChoice>::VALUE));
+    BSLMF_ASSERT((bslalg::HasTrait<TYPE, bdeat_TypeTraitBasicChoice>::VALUE));
 
     return object->makeSelection(selectionName, selectionNameLength);
 }
@@ -762,7 +762,7 @@ int bdeat_ChoiceFunctions::bdeat_choiceManipulateSelection(
                                                      TYPE         *object,
                                                      MANIPULATOR&  manipulator)
 {
-    BSLMF_ASSERT((bslalg_HasTrait<TYPE, bdeat_TypeTraitBasicChoice>::VALUE));
+    BSLMF_ASSERT((bslalg::HasTrait<TYPE, bdeat_TypeTraitBasicChoice>::VALUE));
 
     return object->manipulateSelection(manipulator);
 }
@@ -774,7 +774,7 @@ inline
 int bdeat_ChoiceFunctions::bdeat_choiceAccessSelection(const TYPE& object,
                                                        ACCESSOR&   accessor)
 {
-    BSLMF_ASSERT((bslalg_HasTrait<TYPE, bdeat_TypeTraitBasicChoice>::VALUE));
+    BSLMF_ASSERT((bslalg::HasTrait<TYPE, bdeat_TypeTraitBasicChoice>::VALUE));
 
     return object.accessSelection(accessor);
 }
@@ -792,7 +792,7 @@ bool bdeat_ChoiceFunctions::bdeat_choiceHasSelection(
                                               const char  *selectionName,
                                               int          selectionNameLength)
 {
-    BSLMF_ASSERT((bslalg_HasTrait<TYPE, bdeat_TypeTraitBasicChoice>::VALUE));
+    BSLMF_ASSERT((bslalg::HasTrait<TYPE, bdeat_TypeTraitBasicChoice>::VALUE));
 
     return 0 != object.lookupSelectionInfo(selectionName, selectionNameLength);
 }
@@ -802,7 +802,7 @@ inline
 bool bdeat_ChoiceFunctions::bdeat_choiceHasSelection(const TYPE& object,
                                                      int         selectionId)
 {
-    BSLMF_ASSERT((bslalg_HasTrait<TYPE, bdeat_TypeTraitBasicChoice>::VALUE));
+    BSLMF_ASSERT((bslalg::HasTrait<TYPE, bdeat_TypeTraitBasicChoice>::VALUE));
 
     return 0 != object.lookupSelectionInfo(selectionId);
 }
@@ -815,7 +815,7 @@ template <typename TYPE>
 inline
 int bdeat_ChoiceFunctions::bdeat_choiceSelectionId(const TYPE& object)
 {
-    BSLMF_ASSERT((bslalg_HasTrait<TYPE, bdeat_TypeTraitBasicChoice>::VALUE));
+    BSLMF_ASSERT((bslalg::HasTrait<TYPE, bdeat_TypeTraitBasicChoice>::VALUE));
 
     return object.selectionId();
 }

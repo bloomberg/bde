@@ -1,4 +1,4 @@
-// bdema_managedallocator.h            -*-C++-*-
+// bdema_managedallocator.h                                           -*-C++-*-
 #ifndef INCLUDED_BDEMA_MANAGEDALLOCATOR
 #define INCLUDED_BDEMA_MANAGEDALLOCATOR
 
@@ -12,11 +12,11 @@ BDES_IDENT("$Id: $")
 //@CLASSES:
 //   bdema_ManagedAllocator: protocol for allocators with 'release' capability
 //
-//@SEE_ALSO: 'bdema_strallocator'
+//@SEE_ALSO: bdema_bufferedsequentialallocator
 //
 //@AUTHOR: Shao-wei Hung (shung)
 //
-//@DESCRIPTION: This component extends the 'bdema_Allocator' protocol to
+//@DESCRIPTION: This component extends the 'bslma::Allocator' protocol to
 // allocators that support the ability to 'release' all memory currently
 // allocated through the protocol back to the memory supplier of the derived
 // concrete allocator object.
@@ -25,7 +25,7 @@ BDES_IDENT("$Id: $")
 //                                 |           release
 //                                 |
 //                                 v
-//                        ( bdema_Allocator )
+//                        ( bslma::Allocator )
 //                                          allocate
 //                                          deallocate
 //..
@@ -41,20 +41,28 @@ BDES_IDENT("$Id: $")
 #include <bdescm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLMA_MANAGEDALLOCATOR
-#include <bslma_managedallocator.h>
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
 #endif
 
 namespace BloombergLP {
 
-typedef bslma_ManagedAllocator bdema_ManagedAllocator;
+                        // ============================
+                        // class bdema_ManagedAllocator
+                        // ============================
+
+class bdema_ManagedAllocator : public bslma::Allocator {
     // Provide a protocol for allocators with the ability to 'release' all
     // memory currently allocated through the protocol back to the memory
     // supplier of the derived concrete allocator object.
 
+  public:
+    // MANIPULATORS
+    virtual void release() = 0;
+        // Release all memory currently allocated through this allocator.
+};
+
 }  // close namespace BloombergLP
-
-
 
 #endif
 

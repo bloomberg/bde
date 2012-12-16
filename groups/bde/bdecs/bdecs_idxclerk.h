@@ -135,6 +135,10 @@ BDES_IDENT("$Id: $")
 #include <bslalg_typetraits.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 #endif
@@ -149,10 +153,6 @@ BDES_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
-#endif
-
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
 #endif
 
 namespace BloombergLP {
@@ -178,7 +178,7 @@ class bdecs_IdxClerkIter {
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(bdecs_IdxClerkIter,
-                                 bslalg_TypeTraitBitwiseCopyable);
+                                 bslalg::TypeTraitBitwiseCopyable);
     // CREATORS
     bdecs_IdxClerkIter();
         // Create an unbound iterator.
@@ -266,7 +266,7 @@ class bdecs_IdxClerk {
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(bdecs_IdxClerk,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
     // CLASS METHODS
     static int maxSupportedBdexVersion();
         // Return the most current 'bdex' streaming version number supported by
@@ -274,7 +274,7 @@ class bdecs_IdxClerk {
         // information on 'bdex' streaming of container types.)
 
     // CREATORS
-    explicit bdecs_IdxClerk(bslma_Allocator *basicAllocator = 0);
+    explicit bdecs_IdxClerk(bslma::Allocator *basicAllocator = 0);
         // Create a new index clerk that dispenses consecutive non-negative
         // integers beginning with { 0, 1, 2, ... }; however, indices returned
         // via 'putIndex' will be reissued before any new ones are created.
@@ -283,7 +283,7 @@ class bdecs_IdxClerk {
         // used.
 
     bdecs_IdxClerk(const bdecs_IdxClerk&  original,
-                   bslma_Allocator       *basicAllocator = 0);
+                   bslma::Allocator      *basicAllocator = 0);
         // Create a new index clerk having the value of the specified
         // 'original' index clerk.  Optionally specify a 'basicAllocator' used
         // to supply memory.  If 'basicAllocator' is 0, the currently installed
@@ -485,7 +485,7 @@ bool operator!=(const bdecs_IdxClerkIter& lhs, const bdecs_IdxClerkIter& rhs)
 
 // CREATORS
 inline
-bdecs_IdxClerk::bdecs_IdxClerk(bslma_Allocator *basicAllocator)
+bdecs_IdxClerk::bdecs_IdxClerk(bslma::Allocator *basicAllocator)
 : d_unusedStack(basicAllocator)
 , d_nextNewIndex(0)
 {
@@ -493,7 +493,7 @@ bdecs_IdxClerk::bdecs_IdxClerk(bslma_Allocator *basicAllocator)
 
 inline
 bdecs_IdxClerk::bdecs_IdxClerk(const bdecs_IdxClerk&  original,
-                               bslma_Allocator       *basicAllocator)
+                               bslma::Allocator      *basicAllocator)
 : d_unusedStack(original.d_unusedStack, basicAllocator)
 , d_nextNewIndex(original.d_nextNewIndex)
 {

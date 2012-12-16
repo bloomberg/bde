@@ -5,7 +5,6 @@
 
 #include <bsls_alignmentutil.h>
 #include <bsls_platform.h>      // BDES_PLATFORM__ defines
-#include <bsls_platformutil.h>  // BDES_PLATFORMUTIL__ defines
 #include <bsls_objectbuffer.h>
 
 #include <bsl_cstdio.h>               // printf()
@@ -20,6 +19,20 @@
 #if defined(BSLS_PLATFORM_OS_SOLARIS)
 #include <sys/resource.h>       // for setrlimit, etc
 #endif
+
+// When 'BDE_OMIT_TRANSITIONAL' is defined, which is effectively the case for
+// 'bsl' when building against opensource 'Bloomberg/bsl', the misnamed methods
+// 'lastAllocateAddress', etc. are not available.  Defining the following
+// macros (thus not testing the methods) is preferred over reviving the entire
+// implementation of 'bdema_TestAllocator' (which would arguably be to the
+// benefit of this test driver alone).
+
+#define lastAllocateAddress    lastAllocatedAddress
+#define lastAllocateNumBytes   lastAllocatedNumBytes
+#define lastDeallocateAddress  lastDeallocatedAddress
+#define lastDeallocateNumBytes lastDeallocatedNumBytes
+#define numAllocation          numAllocations
+#define numDeallocation        numDeallocations
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
@@ -138,7 +151,7 @@ static void aSsErT(int c, const char *s, int i)
 const unsigned char SCRIBBLED_MEMORY = 0xA5;   // byte used to scribble
                                                // deallocated memory
 
-enum { PADDING_SIZE = sizeof(bsls_AlignmentUtil::MaxAlignedType) };
+enum { PADDING_SIZE = sizeof(bsls::AlignmentUtil::MaxAlignedType) };
                                                     // size of the padding
                                                     // before and after the
                                                     // user segment
@@ -152,14 +165,14 @@ class my_ShortArray {
     short *d_array_p; // dynamically-allocated array of short integers
     int d_size;       // physical size of the 'd_array_p' array (elements)
     int d_length;     // logical length of the 'd_array_p' array (elements)
-    bslma_Allocator *d_allocator_p; // holds (but doesn't own) allocator
+    bslma::Allocator *d_allocator_p; // holds (but doesn't own) allocator
 
   private:
     void increaseSize(); // Increase the capacity by at least one element.
 
   public:
     // CREATORS
-    my_ShortArray(bslma_Allocator *basicAllocator = 0);
+    my_ShortArray(bslma::Allocator *basicAllocator = 0);
         // Create an empty array.  Optionally specify a 'basicAllocator'
         // used to supply memory.  If 'basicAllocator' is 0, global
         // operators 'new' and 'delete' are used.
@@ -177,7 +190,7 @@ enum { INITIAL_SIZE = 1, GROW_FACTOR = 2 };
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // my_shortarray.cpp
 
-my_ShortArray::my_ShortArray(bslma_Allocator *basicAllocator)
+my_ShortArray::my_ShortArray(bslma::Allocator *basicAllocator)
 : d_size(INITIAL_SIZE)
 , d_length(0)
 , d_allocator_p(basicAllocator)
@@ -216,7 +229,7 @@ inline void my_ShortArray::append(int value)
 
 inline static
 void reallocate(short **array, int newSize, int length,
-                bslma_Allocator *basicAllocator)
+                bslma::Allocator *basicAllocator)
     // Reallocate memory in the specified 'array' to the specified 'newSize'
     // using the specified 'basicAllocator', or, if 'basicAllocator' is 0,
     // global operators 'new' and 'delete'.  The specified 'length' number of
@@ -288,7 +301,7 @@ ostream& operator<<(ostream& stream, const my_ShortArray& array)
         try {
 
 #define END_BDEMA_EXCEPTION_TEST                                          \
-        } catch (bslma_TestAllocatorException& e) {                       \
+        } catch (bslma::TestAllocatorException& e) {                      \
             if (veryVerbose && bdemaExceptionLimit || veryVeryVerbose) {  \
                 --bdemaExceptionLimit;                                    \
                 cout << "(*** " << bdemaExceptionCounter << ')';          \
@@ -626,7 +639,7 @@ int main(int argc, char *argv[])
            "\nExpose bug in 'bdema_TestAllocator'" << endl;
        {
            bdema_TestAllocator testAllocator(veryVeryVerbose);
-           bslma_Allocator *ta = &testAllocator;
+           bslma::Allocator *ta = &testAllocator;
 
            ASSERT(0 == testAllocator.numBlocksTotal());
            ASSERT(0 == testAllocator.numBlocksInUse());
@@ -1068,7 +1081,7 @@ int main(int argc, char *argv[])
                     void *p = mX.allocate(SIZE);
                     mX.deallocate(p);
                 }
-                catch (bslma_TestAllocatorException& e) {
+                catch (bslma::TestAllocatorException& e) {
                     int numBytes = e.numBytes();
                     if (veryVerbose) { cout << "Caught: "; P(numBytes); }
                     LOOP2_ASSERT(ti, ai, LIMIT[ti] == ai);
@@ -1270,7 +1283,7 @@ int main(int argc, char *argv[])
             if (verbose) cout << "\t[deallocate pointer + sizeof(size_type)]"
                               << endl;
             if (veryVerbose) cout << LINE << endl;
-            a.deallocate((bslma_Allocator::size_type *)p + 1);
+            a.deallocate((bslma::Allocator::size_type *)p + 1);
             if (veryVerbose) cout << LINE << endl;
                                 ASSERT(1 == a.numBlocksInUse());
                                 ASSERT(3 == a.numBytesInUse());
@@ -1280,7 +1293,7 @@ int main(int argc, char *argv[])
             if (verbose) cout << "\t[deallocate pointer - sizeof(size_type)]"
                               << endl;
             if (veryVerbose) cout << LINE << endl;
-            a.deallocate((bslma_Allocator::size_type *)p - 1);
+            a.deallocate((bslma::Allocator::size_type *)p - 1);
             if (veryVerbose) cout << LINE << endl;
                                 ASSERT(1 == a.numBlocksInUse());
                                 ASSERT(3 == a.numBytesInUse());
@@ -1467,7 +1480,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nCreate an allocator in a buffer" << endl;
 
-        bsls_ObjectBuffer<bdema_TestAllocator> arena;
+        bsls::ObjectBuffer<bdema_TestAllocator> arena;
 
         memset(&arena, 0xA5, sizeof arena);
         bdema_TestAllocator *p = new(&arena) bdema_TestAllocator;

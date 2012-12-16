@@ -39,8 +39,8 @@ int computeRowSize(const bdem_RowLayout *layout)
 
     rowSize += (layout->length() + BDEM_BITS_PER_INT - 1)
                                              / BDEM_BITS_PER_INT * sizeof(int);
-    return (rowSize + bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT - 1)
-                               & ~(bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT - 1);
+    return (rowSize + bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT - 1)
+                              & ~(bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT - 1);
 }
 
 static
@@ -69,7 +69,7 @@ struct bdem_TableImp_AttrFuncs {
     void defaultConstruct(
                   void                                     *obj,
                   bdem_AggregateOption::AllocationStrategy  allocationStrategy,
-                  bslma_Allocator                          *alloc);
+                  bslma::Allocator                         *alloc);
         // Construct a table object into raw memory.  The prototype for this
         // function must match the defaultConstruct function pointer in
         // bdem_Descriptor.
@@ -79,7 +79,7 @@ struct bdem_TableImp_AttrFuncs {
                   void                                     *obj,
                   const void                               *rhs,
                   bdem_AggregateOption::AllocationStrategy  allocationStrategy,
-                  bslma_Allocator                          *alloc);
+                  bslma::Allocator                         *alloc);
         // Copy construct a table object into raw memory.  The prototype for
         // this function must match the copyConstruct function pointer in
         // bdem_Descriptor.
@@ -105,7 +105,7 @@ struct bdem_TableImp_AttrFuncs {
 void bdem_TableImp_AttrFuncs::defaultConstruct(
                   void                                     *obj,
                   bdem_AggregateOption::AllocationStrategy  allocationStrategy,
-                  bslma_Allocator                          *alloc)
+                  bslma::Allocator                         *alloc)
 {
     BSLS_ASSERT(obj);
 
@@ -116,7 +116,7 @@ void bdem_TableImp_AttrFuncs::copyConstruct(
                   void                                     *obj,
                   const void                               *rhs,
                   bdem_AggregateOption::AllocationStrategy  allocationStrategy,
-                  bslma_Allocator                          *alloc)
+                  bslma::Allocator                         *alloc)
 {
     BSLS_ASSERT(obj);
     BSLS_ASSERT(rhs);
@@ -155,7 +155,7 @@ const bdem_Descriptor bdem_TableImp::d_tableAttr =
 {
     bdem_ElemType::BDEM_TABLE,
     sizeof(bdem_TableImp),
-    bsls_AlignmentFromType<bdem_TableImp>::VALUE,
+    bsls::AlignmentFromType<bdem_TableImp>::VALUE,
     &bdem_TableImp_AttrFuncs::defaultConstruct,
     &bdem_TableImp_AttrFuncs::copyConstruct,
     &bdem_FunctionTemplates::destroy<bdem_TableImp>,
@@ -170,7 +170,7 @@ const bdem_Descriptor bdem_TableImp::d_tableAttr =
 // CREATORS
 bdem_TableImp::bdem_TableImp(
                   bdem_AggregateOption::AllocationStrategy  allocationStrategy,
-                  bslma_Allocator                          *basicAllocator)
+                  bslma::Allocator                         *basicAllocator)
 : d_allocatorManager(allocationStrategy, basicAllocator)
 , d_rowLayout_p(new (*d_allocatorManager.internalAllocator())
                         bdem_RowLayout(d_allocatorManager.internalAllocator()))
@@ -179,7 +179,7 @@ bdem_TableImp::bdem_TableImp(
 , d_rows(d_allocatorManager.internalAllocator())
 , d_nullBits(d_allocatorManager.internalAllocator())
 {
-    bslma_AutoRawDeleter<bdem_RowLayout, bslma_Allocator>
+    bslma::AutoRawDeleter<bdem_RowLayout, bslma::Allocator>
                                 proctor(&d_rowLayout_p,
                                         d_allocatorManager.internalAllocator(),
                                         1);
@@ -190,7 +190,7 @@ bdem_TableImp::bdem_TableImp(
 bdem_TableImp::bdem_TableImp(
                   bdem_AggregateOption::AllocationStrategy  allocationStrategy,
                   int                                       initialMemorySize,
-                  bslma_Allocator                          *basicAllocator)
+                  bslma::Allocator                         *basicAllocator)
 : d_allocatorManager(allocationStrategy, initialMemorySize, basicAllocator)
 , d_rowLayout_p(new (*d_allocatorManager.internalAllocator())
                         bdem_RowLayout(d_allocatorManager.internalAllocator()))
@@ -201,7 +201,7 @@ bdem_TableImp::bdem_TableImp(
 {
     BSLS_ASSERT(0 <= initialMemorySize);
 
-    bslma_AutoRawDeleter<bdem_RowLayout, bslma_Allocator>
+    bslma::AutoRawDeleter<bdem_RowLayout, bslma::Allocator>
                                 proctor(&d_rowLayout_p,
                                         d_allocatorManager.internalAllocator(),
                                         1);
@@ -214,7 +214,7 @@ bdem_TableImp::bdem_TableImp(
                int                                       numColumns,
                const bdem_Descriptor                    *const *attrLookupTbl,
                bdem_AggregateOption::AllocationStrategy  allocationStrategy,
-               bslma_Allocator                          *basicAllocator)
+               bslma::Allocator                         *basicAllocator)
 : d_allocatorManager(allocationStrategy, basicAllocator)
 , d_rowLayout_p(new (*d_allocatorManager.internalAllocator())
                         bdem_RowLayout(columnTypes,
@@ -228,7 +228,7 @@ bdem_TableImp::bdem_TableImp(
 {
     BSLS_ASSERT(0 <= numColumns);
 
-    bslma_AutoRawDeleter<bdem_RowLayout, bslma_Allocator>
+    bslma::AutoRawDeleter<bdem_RowLayout, bslma::Allocator>
                                 proctor(&d_rowLayout_p,
                                         d_allocatorManager.internalAllocator(),
                                         1);
@@ -242,7 +242,7 @@ bdem_TableImp::bdem_TableImp(
                const bdem_Descriptor                    *const *attrLookupTbl,
                bdem_AggregateOption::AllocationStrategy  allocationStrategy,
                int                                       initialMemorySize,
-               bslma_Allocator                          *basicAllocator)
+               bslma::Allocator                         *basicAllocator)
 : d_allocatorManager(allocationStrategy, initialMemorySize, basicAllocator)
 , d_rowLayout_p(new (*d_allocatorManager.internalAllocator())
                         bdem_RowLayout(columnTypes,
@@ -257,7 +257,7 @@ bdem_TableImp::bdem_TableImp(
     BSLS_ASSERT(0 <= numColumns);
     BSLS_ASSERT(0 <= initialMemorySize);
 
-    bslma_AutoRawDeleter<bdem_RowLayout, bslma_Allocator>
+    bslma::AutoRawDeleter<bdem_RowLayout, bslma::Allocator>
                                 proctor(&d_rowLayout_p,
                                         d_allocatorManager.internalAllocator(),
                                         1);
@@ -268,7 +268,7 @@ bdem_TableImp::bdem_TableImp(
 bdem_TableImp::bdem_TableImp(
                   const bdem_RowLayout&                     rowLayout,
                   bdem_AggregateOption::AllocationStrategy  allocationStrategy,
-                  bslma_Allocator                          *basicAllocator)
+                  bslma::Allocator                         *basicAllocator)
 : d_allocatorManager(allocationStrategy, basicAllocator)
 , d_rowLayout_p(new (*d_allocatorManager.internalAllocator())
                         bdem_RowLayout(rowLayout,
@@ -278,7 +278,7 @@ bdem_TableImp::bdem_TableImp(
 , d_rows(d_allocatorManager.internalAllocator())
 , d_nullBits(d_allocatorManager.internalAllocator())
 {
-    bslma_AutoRawDeleter<bdem_RowLayout, bslma_Allocator>
+    bslma::AutoRawDeleter<bdem_RowLayout, bslma::Allocator>
                                 proctor(&d_rowLayout_p,
                                         d_allocatorManager.internalAllocator(),
                                         1);
@@ -290,7 +290,7 @@ bdem_TableImp::bdem_TableImp(
                   const bdem_RowLayout&                     rowLayout,
                   bdem_AggregateOption::AllocationStrategy  allocationStrategy,
                   int                                       initialMemorySize,
-                  bslma_Allocator                          *basicAllocator)
+                  bslma::Allocator                         *basicAllocator)
 : d_allocatorManager(allocationStrategy, initialMemorySize, basicAllocator)
 , d_rowLayout_p(new (*d_allocatorManager.internalAllocator())
                         bdem_RowLayout(rowLayout,
@@ -302,7 +302,7 @@ bdem_TableImp::bdem_TableImp(
 {
     BSLS_ASSERT(0 <= initialMemorySize);
 
-    bslma_AutoRawDeleter<bdem_RowLayout, bslma_Allocator>
+    bslma::AutoRawDeleter<bdem_RowLayout, bslma::Allocator>
                                 proctor(&d_rowLayout_p,
                                         d_allocatorManager.internalAllocator(),
                                         1);
@@ -313,7 +313,7 @@ bdem_TableImp::bdem_TableImp(
 bdem_TableImp::bdem_TableImp(
                   const bdem_TableImp&                      original,
                   bdem_AggregateOption::AllocationStrategy  allocationStrategy,
-                  bslma_Allocator                          *basicAllocator)
+                  bslma::Allocator                         *basicAllocator)
 : d_allocatorManager(allocationStrategy, basicAllocator)
 , d_rowLayout_p(new (*d_allocatorManager.internalAllocator())
                         bdem_RowLayout(*original.d_rowLayout_p,
@@ -323,7 +323,7 @@ bdem_TableImp::bdem_TableImp(
 , d_rows(d_allocatorManager.internalAllocator())
 , d_nullBits(d_allocatorManager.internalAllocator())
 {
-    bslma_AutoRawDeleter<bdem_RowLayout, bslma_Allocator>
+    bslma::AutoRawDeleter<bdem_RowLayout, bslma::Allocator>
                                 proctor(&d_rowLayout_p,
                                         d_allocatorManager.internalAllocator(),
                                         1);
@@ -335,7 +335,7 @@ bdem_TableImp::bdem_TableImp(
     d_rowPool.reserveCapacity(numRows);
 
     if (numRows > 0) {
-        bslma_AutoRawDeleter<bdem_RowData, bdema_Pool>
+        bslma::AutoRawDeleter<bdem_RowData, bdema_Pool>
                                         rowsAutoDel(&d_rows[0], &d_rowPool, 0);
 
         for (int i = 0; i < numRows; ++i) {
@@ -357,7 +357,7 @@ bdem_TableImp::bdem_TableImp(
                   const bdem_TableImp&                      original,
                   bdem_AggregateOption::AllocationStrategy  allocationStrategy,
                   int                                       initialMemorySize,
-                  bslma_Allocator                          *basicAllocator)
+                  bslma::Allocator                         *basicAllocator)
 : d_allocatorManager(allocationStrategy, initialMemorySize, basicAllocator)
 , d_rowLayout_p(new (*d_allocatorManager.internalAllocator())
                         bdem_RowLayout(*original.d_rowLayout_p,
@@ -369,7 +369,7 @@ bdem_TableImp::bdem_TableImp(
 {
     BSLS_ASSERT(0 <= initialMemorySize);
 
-    bslma_AutoRawDeleter<bdem_RowLayout, bslma_Allocator>
+    bslma::AutoRawDeleter<bdem_RowLayout, bslma::Allocator>
                                 proctor(&d_rowLayout_p,
                                         d_allocatorManager.internalAllocator(),
                                         1);
@@ -381,7 +381,7 @@ bdem_TableImp::bdem_TableImp(
     d_rowPool.reserveCapacity(numRows);
 
     if (numRows > 0) {
-        bslma_AutoRawDeleter<bdem_RowData, bdema_Pool>
+        bslma::AutoRawDeleter<bdem_RowData, bdema_Pool>
                                         rowsAutoDel(&d_rows[0], &d_rowPool, 0);
 
         for (int i = 0; i < numRows; ++i) {
@@ -402,7 +402,7 @@ bdem_TableImp::bdem_TableImp(
 bdem_TableImp::bdem_TableImp(
                   const bdem_RowData&                       rowData,
                   bdem_AggregateOption::AllocationStrategy  allocationStrategy,
-                  bslma_Allocator                          *basicAllocator)
+                  bslma::Allocator                         *basicAllocator)
 : d_allocatorManager(allocationStrategy, basicAllocator)
 , d_rowLayout_p(new (*d_allocatorManager.internalAllocator())
                         bdem_RowLayout(*rowData.rowLayout(),
@@ -412,7 +412,7 @@ bdem_TableImp::bdem_TableImp(
 , d_rows(d_allocatorManager.internalAllocator())
 , d_nullBits(d_allocatorManager.internalAllocator())
 {
-    bslma_AutoRawDeleter<bdem_RowLayout, bslma_Allocator>
+    bslma::AutoRawDeleter<bdem_RowLayout, bslma::Allocator>
                                 proctor(&d_rowLayout_p,
                                         d_allocatorManager.internalAllocator(),
                                         1);
@@ -424,7 +424,7 @@ bdem_TableImp::bdem_TableImp(
                   const bdem_RowData&                       rowData,
                   bdem_AggregateOption::AllocationStrategy  allocationStrategy,
                   int                                       initialMemorySize,
-                  bslma_Allocator                          *basicAllocator)
+                  bslma::Allocator                         *basicAllocator)
 : d_allocatorManager(allocationStrategy, initialMemorySize, basicAllocator)
 , d_rowLayout_p(new (*d_allocatorManager.internalAllocator())
                         bdem_RowLayout(*rowData.rowLayout(),
@@ -436,7 +436,7 @@ bdem_TableImp::bdem_TableImp(
 {
     BSLS_ASSERT(0 <= initialMemorySize);
 
-    bslma_AutoRawDeleter<bdem_RowLayout, bslma_Allocator>
+    bslma::AutoRawDeleter<bdem_RowLayout, bslma::Allocator>
                                 proctor(&d_rowLayout_p,
                                         d_allocatorManager.internalAllocator(),
                                         1);
@@ -533,9 +533,10 @@ void bdem_TableImp::reserveRaw(bsl::size_t numRows)
     // Also note that in case of 'BDEM_PASS_THROUGH' the
     // 'd_allocatorManager.reserveMemory' call will have no effect.
 
-    d_allocatorManager.reserveMemory(2 * bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT
-                                       * (numRows - capacityRaw())
-                                       +  sizeof(int) * newSize);
+    d_allocatorManager.reserveMemory(
+                                    2 * bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT
+                                      * (numRows - capacityRaw())
+                                      +  sizeof(int) * newSize);
     d_rowPool.reserveCapacity(numRows - capacityRaw());
     d_rows.reserve(numRows);
     d_nullBits.reserve(newSize);
@@ -634,7 +635,7 @@ void bdem_TableImp::insertRows(int                  dstRowIndex,
     bsl::vector<bdem_RowData *> tempRows;
     tempRows.resize(numRows);
 
-    bslma_AutoRawDeleter<bdem_RowData, bdema_Pool>
+    bslma::AutoRawDeleter<bdem_RowData, bdema_Pool>
                                       rowsAutoDel(&tempRows[0], &d_rowPool, 0);
 
     for (int i = 0; i < numRows; ++i) {

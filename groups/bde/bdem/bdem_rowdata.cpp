@@ -38,10 +38,10 @@ int calculateDataFootprintSize(int dataSize)
 {
     BSLS_ASSERT(0 <= dataSize);
 
-    dataSize = (dataSize + bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT - 1)
-                               & ~(bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT - 1);
+    dataSize = (dataSize + bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT - 1)
+                              & ~(bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT - 1);
 
-    return dataSize ? dataSize : bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT;
+    return dataSize ? dataSize : bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
 }
 
 static
@@ -56,10 +56,10 @@ int calculateNullnessBitsArraySize(int numElements)
     int minNumBytes = (numElements + BDEM_BITS_PER_INT - 1)
                                              / BDEM_BITS_PER_INT * sizeof(int);
 
-    minNumBytes = (minNumBytes + bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT - 1)
-                               & ~(bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT - 1);
+    minNumBytes = (minNumBytes + bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT - 1)
+                              & ~(bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT - 1);
 
-    return minNumBytes ? minNumBytes : bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT;
+    return minNumBytes ? minNumBytes : bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
 }
 
                         // ------------------------
@@ -218,7 +218,7 @@ const bdem_Descriptor bdem_RowData::d_rowAttr =
 {
     bdem_ElemType::BDEM_ROW,                           // element enumeration
     sizeof(bdem_RowData),                              // [minimum] size
-    bsls_AlignmentFromType<bdem_RowData>::VALUE,       // alignment
+    bsls::AlignmentFromType<bdem_RowData>::VALUE,      // alignment
     0,                                                 // unsetConstruct,
     0,                                                 // copyConstruct
     0,                                                 // destroy
@@ -296,13 +296,14 @@ void bdem_RowData::init(const bdem_RowLayout *rowLayout)
 
     void *newData     = d_allocator_p->allocate(newDataSize);
 
-    bslma_DeallocatorProctor<bslma_Allocator> dataProctor(newData,
-                                                          d_allocator_p);
+    bslma::DeallocatorProctor<bslma::Allocator> dataProctor(newData,
+                                                            d_allocator_p);
 
     void *newBitsArray = d_allocator_p->allocate(newBitsSize);
 
-    bslma_DeallocatorProctor<bslma_Allocator> bitsArrayProctor(newBitsArray,
-                                                               d_allocator_p);
+    bslma::DeallocatorProctor<bslma::Allocator> bitsArrayProctor(
+                                                                newBitsArray,
+                                                                d_allocator_p);
 
     BSLS_ASSERT(newData);
     BSLS_ASSERT(newBitsArray);
@@ -349,13 +350,14 @@ void bdem_RowData::init(const bdem_RowLayout *rowLayout,
 
     void *newData = d_allocator_p->allocate(newDataSize);
 
-    bslma_DeallocatorProctor<bslma_Allocator> dataProctor(newData,
-                                                          d_allocator_p);
+    bslma::DeallocatorProctor<bslma::Allocator> dataProctor(newData,
+                                                            d_allocator_p);
 
     void *newBitsArray = d_allocator_p->allocate(newBitsSize);
 
-    bslma_DeallocatorProctor<bslma_Allocator> bitsArrayProctor(newBitsArray,
-                                                               d_allocator_p);
+    bslma::DeallocatorProctor<bslma::Allocator> bitsArrayProctor(
+                                                                newBitsArray,
+                                                                d_allocator_p);
 
     BSLS_ASSERT(newData);
     BSLS_ASSERT(newBitsArray);
@@ -471,28 +473,28 @@ bool bdem_RowData::isDataEqual(const bdem_RowData& rhs) const
 // CREATORS
 bdem_RowData::bdem_RowData(
                   bdem_AggregateOption::AllocationStrategy  allocationStrategy,
-                  bslma_Allocator                          *basicAllocator)
+                  bslma::Allocator                         *basicAllocator)
 : d_rowLayout_p(0)
 , d_rowData_p(0)
 , d_nullnessBitsArray_p(0)
 , d_dataSize(0)
 , d_nullnessBitsArraySize(0)
 , d_allocationStrategy(allocationStrategy)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
 
 bdem_RowData::bdem_RowData(
                   const bdem_RowLayout                     *rowLayout,
                   bdem_AggregateOption::AllocationStrategy  allocationStrategy,
-                  bslma_Allocator                          *basicAllocator)
+                  bslma::Allocator                         *basicAllocator)
 : d_rowLayout_p(0)
 , d_rowData_p(0)
 , d_nullnessBitsArray_p(0)
 , d_dataSize(0)
 , d_nullnessBitsArraySize(0)
 , d_allocationStrategy(allocationStrategy)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     BSLS_ASSERT(rowLayout);
 
@@ -503,14 +505,14 @@ bdem_RowData::bdem_RowData(
                   const bdem_RowLayout                     *rowLayout,
                   const bdem_RowData&                       other,
                   bdem_AggregateOption::AllocationStrategy  allocationStrategy,
-                  bslma_Allocator                          *basicAllocator)
+                  bslma::Allocator                         *basicAllocator)
 : d_rowLayout_p(0)
 , d_rowData_p(0)
 , d_nullnessBitsArray_p(0)
 , d_dataSize(0)
 , d_nullnessBitsArraySize(0)
 , d_allocationStrategy(allocationStrategy)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     BSLS_ASSERT(rowLayout);
     BSLS_ASSERT(other.rowLayout());
@@ -525,14 +527,14 @@ bdem_RowData::bdem_RowData(
                   int                                       startIndex,
                   int                                       numElements,
                   bdem_AggregateOption::AllocationStrategy  allocationStrategy,
-                  bslma_Allocator                          *basicAllocator)
+                  bslma::Allocator                         *basicAllocator)
 : d_rowLayout_p(0)
 , d_rowData_p(0)
 , d_nullnessBitsArray_p(0)
 , d_dataSize(0)
 , d_nullnessBitsArraySize(0)
 , d_allocationStrategy(allocationStrategy)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     BSLS_ASSERT(rowLayout);
     BSLS_ASSERT(0 <= startIndex);

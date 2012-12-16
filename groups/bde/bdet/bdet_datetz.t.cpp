@@ -474,7 +474,7 @@ if (veryVerbose)
                           << "==========================================="
                           << endl;
 
-        bsls_Assert::setFailureHandler(&assertHandler);
+        bsls::Assert::setFailureHandler(&assertHandler);
 
         enum { MAX_TIMEZONE = 24 * 60 - 1,
                MTZ = MAX_TIMEZONE };

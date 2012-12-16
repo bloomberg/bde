@@ -86,7 +86,7 @@ BDES_IDENT("$Id: $")
 //..
 // Next we create a couple field definition objects:
 //..
-//  bslma_Allocator           *allocator = bslma_Default::allocator();
+//  bslma::Allocator          *allocator = bslma::Default::allocator();
 //  bdema_SequentialAllocator  seqAllocator(allocator);
 //
 //  bdem_FieldDefAttributes  intAttr(bdem_ElemType::BDEM_INT,  allocator);
@@ -231,7 +231,7 @@ class bdem_FieldDef {
     bdem_FieldDef(const char                     *name,
                   int                             id,
                   const bdem_FieldDefAttributes&  attributes,
-                  bslma_Allocator                *basicAllocator);
+                  bslma::Allocator               *basicAllocator);
         // Create a field definition having the specified 'name', id', and
         // 'attributes', using the specified 'basicAllocator' to supply memory.
         // If 'name' is 0, the field definition is unnamed.  Note that
@@ -346,7 +346,7 @@ inline
 bdem_FieldDef::bdem_FieldDef(const char                     *name,
                              int                             id,
                              const bdem_FieldDefAttributes&  attributes,
-                             bslma_Allocator                *basicAllocator)
+                             bslma::Allocator               *basicAllocator)
 : d_attributes(attributes, basicAllocator)
 , d_name_p(name)
 , d_id(id)

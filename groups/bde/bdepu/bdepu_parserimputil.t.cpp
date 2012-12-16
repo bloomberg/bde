@@ -33,10 +33,10 @@ using namespace bsl;  // automatically added by script
 // We use the following abbreviations: (for documentation purposes only)
 //  'cchar'      for 'const char'
 //  'b_ca'       for 'vector<char>'
-//  'Int64'      for 'bsls_PlatformUtil::Int64'
-//  'cInt64'     for 'const bsls_PlatformUtil::Int64'
-//  'Uint64'     for 'bsls_PlatformUtil::Uint64'
-//  'cUint64'    for 'const bsls_PlatformUtil::Uint64'
+//  'Int64'      for 'bsls::Types::Int64'
+//  'cInt64'     for 'const bsls::Types::Int64'
+//  'Uint64'     for 'bsls::Types::Uint64'
+//  'cUint64'    for 'const bsls::Types::Uint64'
 //
 //-----------------------------------------------------------------------------
 // [ 1] characterToDigit(char character, int base);
@@ -94,8 +94,8 @@ static void aSsErT(int c, const char *s, int i) {
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-typedef bsls_PlatformUtil::Int64 Int64;
-typedef bsls_PlatformUtil::Uint64 Uint64;
+typedef bsls::Types::Int64  Int64;
+typedef bsls::Types::Uint64 Uint64;
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -107,7 +107,7 @@ int main(int argc, char *argv[])
     int verbose = argc > 2;
     // int veryVerbose = argc > 3;
     int veryVeryVerbose = argc > 4;
-    bslma_TestAllocator testAllocator(veryVeryVerbose);
+    bslma::TestAllocator testAllocator(veryVeryVerbose);
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 

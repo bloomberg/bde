@@ -77,7 +77,7 @@ BDES_IDENT("$Id: $")
 // 'bdef_Bind' objects" below details the whole mechanism and offers some
 // examples.
 //
-// The 'bdef_Bind' functors support 'bdema_allocator*' arguments and, when
+// The 'bdef_Bind' functors support 'bslma::Allocator *' arguments and, when
 // constructed with an allocator via the 'bdef_BindUtil::bindA' factory
 // methods, allocate all the memory for holding copies of the bound functor and
 // arguments through that allocator.  See the section "Binding with allocators"
@@ -404,24 +404,24 @@ BDES_IDENT("$Id: $")
 //..
 //  class MyString {
 //      // PRIVATE INSTANCE DATA
-//      bslma_Allocator *d_allocator_p;
-//      char            *d_string_p;
+//      bslma::Allocator *d_allocator_p;
+//      char             *d_string_p;
 //
 //    public:
 //      // TRAITS
 //      BSLALG_DECLARE_NESTED_TRAITS(MyString,
-//                                         bslalg_TypeTraitUsesBslmaAllocator);
+//                                   bslalg::TypeTraitUsesBslmaAllocator);
 //
 //      //CREATORS
-//      MyString(const char *str, bslma_Allocator *allocator = 0)
-//      : d_allocator_p(bslma_Default::allocator(allocator))
+//      MyString(const char *str, bslma::Allocator *allocator = 0)
+//      : d_allocator_p(bslma::Default::allocator(allocator))
 //      , d_string_p((char*)d_allocator_p->allocate(1 + strlen(str)))
 //      {
 //          strcpy(d_string_p, str);
 //      }
 //
-//      MyString(MyString const& rhs, bslma_Allocator *allocator = 0)
-//      : d_allocator_p(bslma_Default::allocator(allocator))
+//      MyString(MyString const& rhs, bslma::Allocator *allocator = 0)
+//      : d_allocator_p(bslma::Default::allocator(allocator))
 //      , d_string_p((char*)d_allocator_p->allocate(1 + strlen(rhs)))
 //      {
 //          strcpy(d_string_p, rhs);
@@ -435,21 +435,21 @@ BDES_IDENT("$Id: $")
 //      operator const char*() const { return d_string_p; }
 //  };
 //..
-// We will also use a 'bslma_TestAllocator' to keep track of the memory
+// We will also use a 'bslma::TestAllocator' to keep track of the memory
 // allocated:
 //..
 //  void bindTest6() {
-//      bslma_TestAllocator allocator;
+//      bslma::TestAllocator allocator;
 //      MyString myString((const char*)"p3", &allocator);
-//      const int NUM_ALLOCS = allocator.numAllocation();
+//      const int NUM_ALLOCS = allocator.numAllocations();
 //..
 // To expose that the default allocator is not used, we will use a default
 // allocator guard, which will re-route any default allocation to the
 // 'defaultAllocator':
 //..
-//      bslma_TestAllocator defaultAllocator;
-//      bslma_DefaultAllocatorGuard defaultAllocatorGuard(&defaultAllocator);
-//      assert(0 == defaultAllocator.numAllocation());
+//      bslma::TestAllocator defaultAllocator;
+//      bslma::DefaultAllocatorGuard defaultAllocatorGuard(&defaultAllocator);
+//      assert(0 == defaultAllocator.numAllocations());
 //..
 // We now create a binder object with allocator using 'bindA'.  'allocator'
 // *will* be used to make the copy of 'myString' held by the binder:
@@ -460,8 +460,8 @@ BDES_IDENT("$Id: $")
 // We now check that memory was allocated from the test allocator, and none
 // from the default allocator:
 //..
-//      assert(NUM_ALLOCS < allocator.numAllocation());
-//      assert(0 == defaultAllocator.numAllocation());
+//      assert(NUM_ALLOCS < allocator.numAllocations());
+//      assert(0 == defaultAllocator.numAllocations());
 //  }
 //..
 //
@@ -759,6 +759,10 @@ BDES_IDENT("$Id: $")
 #include <bslalg_typetraithaspointersemantics.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_MATCHANYTYPE
 #include <bslmf_matchanytype.h>
 #endif
@@ -789,10 +793,6 @@ BDES_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLMF_TYPELIST
 #include <bslmf_typelist.h>
-#endif
-
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
 #endif
 
 namespace BloombergLP {
@@ -900,19 +900,19 @@ class bdef_Bind_BoundTupleValue {
     // suitable for storing an argument value in one of the 'bdef_Bind_Tuple*'
     // local classes.  This general template definition ensures that the
     // allocator passed to the creators is passed through to the value if it
-    // uses an allocator, using the 'bslalg_ConstructorProxy' mechanism.
+    // uses an allocator, using the 'bslalg::ConstructorProxy' mechanism.
 
     // PRIVATE TYPES
-    typedef typename bslmf_ArrayToConstPointer<TYPE>::Type STORAGE_TYPE;
+    typedef typename bslmf::ArrayToConstPointer<TYPE>::Type STORAGE_TYPE;
 
     // PRIVATE INSTANCE DATA
-    bslalg_ConstructorProxy<STORAGE_TYPE> d_value;
+    bslalg::ConstructorProxy<STORAGE_TYPE> d_value;
 
   public:
     // CREATORS
     bdef_Bind_BoundTupleValue(
                         const bdef_Bind_BoundTupleValue<TYPE>&  original,
-                        bslma_Allocator                        *basicAllocator)
+                        bslma::Allocator                       *basicAllocator)
         // Create a 'bdef_Bind_BoundTupleValue' object holding a copy of the
         // specified 'original' value, using 'basicAllocator' to supply any
         // memory.
@@ -920,8 +920,8 @@ class bdef_Bind_BoundTupleValue {
     {
     }
 
-    bdef_Bind_BoundTupleValue(const TYPE&      value,
-                              bslma_Allocator *basicAllocator)
+    bdef_Bind_BoundTupleValue(const TYPE&       value,
+                              bslma::Allocator *basicAllocator)
         // Create a 'bdef_Bind_BoundTupleValue' object holding a copy of the
         // specified 'value', using 'basicAllocator' to supply any memory.
     : d_value(value, basicAllocator)
@@ -930,7 +930,7 @@ class bdef_Bind_BoundTupleValue {
 
     template <class BDE_OTHER_TYPE>
     bdef_Bind_BoundTupleValue(const BDE_OTHER_TYPE&  value,
-                              bslma_Allocator       *basicAllocator)
+                              bslma::Allocator      *basicAllocator)
         // Create a 'bdef_Bind_BoundTupleValue' object holding a copy of the
         // specified 'value', using 'basicAllocator' to supply any memory.
     : d_value(value, basicAllocator)
@@ -950,7 +950,7 @@ class bdef_Bind_BoundTupleValue {
                            // class bdef_Bind_BoundTuple*
                            // ===========================
 
-struct bdef_Bind_BoundTuple0 : public bslmf_TypeList0 {
+struct bdef_Bind_BoundTuple0 : public bslmf::TypeList0 {
     // This 'struct' provides the creators for a list of zero arguments.
 
     // CREATORS
@@ -959,7 +959,7 @@ struct bdef_Bind_BoundTuple0 : public bslmf_TypeList0 {
     }
 
     bdef_Bind_BoundTuple0(const bdef_Bind_BoundTuple0&  original,
-                          bslma_Allocator              *allocator = 0)
+                          bslma::Allocator             *allocator = 0)
     {
         (void) original;
         (void) allocator;
@@ -967,7 +967,7 @@ struct bdef_Bind_BoundTuple0 : public bslmf_TypeList0 {
 };
 
 template <class A1>
-struct bdef_Bind_BoundTuple1 : public bslmf_TypeList1<A1>
+struct bdef_Bind_BoundTuple1 : public bslmf::TypeList1<A1>
 {
     // This 'struct' stores a list of one argument.  It does *not* use the
     // const-forwarding type of its argument, unlike 'bdef_Bind_Tuple1'
@@ -977,13 +977,13 @@ struct bdef_Bind_BoundTuple1 : public bslmf_TypeList1<A1>
     bdef_Bind_BoundTupleValue<A1> d_a1;
 
     // CREATORS
-    bdef_Bind_BoundTuple1(const bdef_Bind_BoundTuple1<A1>& orig,
-                          bslma_Allocator                *allocator = 0)
+    bdef_Bind_BoundTuple1(const bdef_Bind_BoundTuple1<A1>&  orig,
+                          bslma::Allocator                 *allocator = 0)
     : d_a1(orig.d_a1, allocator)
     {
     }
 
-    bdef_Bind_BoundTuple1(A1 const& a1, bslma_Allocator *allocator = 0)
+    bdef_Bind_BoundTuple1(A1 const& a1, bslma::Allocator *allocator = 0)
     : d_a1(a1, allocator)
     {
     }
@@ -1007,19 +1007,19 @@ class bdef_Bind : public bdef_Bind_ImplSelector<RET,
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(bdef_Bind,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
-    bdef_Bind(typename bslmf_ForwardingType<FUNC>::Type  func,
-              LIST const&                                list,
-              bslma_Allocator                           *allocator = 0)
+    bdef_Bind(typename bslmf::ForwardingType<FUNC>::Type  func,
+              LIST  const&                                list,
+              bslma::Allocator                           *allocator = 0)
         // Create a 'bdef_Bind' object that is bound to the specified 'func'
         // invocable object, optionally using the 'allocator' to supply memory.
     : Base(func, list, allocator)
     {
     }
 
-    bdef_Bind(const bdef_Bind& other, bslma_Allocator *allocator = 0)
+    bdef_Bind(const bdef_Bind& other, bslma::Allocator *allocator = 0)
         // Create a 'bdef_Bind' object that is bound to the same invocable
         // object with the same bound parameters as 'other', optionally using
         // the 'allocator' to supply memory.
@@ -1046,8 +1046,8 @@ struct bdef_BindUtil {
     // copying the bound functor and bound arguments is supplied by the user
     // specified allocator if 'bindA' is used, or the currently installed
     // default allocator.  The return type is inferred by using
-    // 'bslmf_FunctionPointerTraits' for free functions references and
-    // pointers, 'bslmf_MemberFunctionPointerTraits' for member function
+    // 'bslmf::FunctionPointerTraits' for free functions references and
+    // pointers, 'bslmf::MemberFunctionPointerTraits' for member function
     // pointers, and 'FUNC::ResultType' for a functor of type 'FUNC'.
     //
     // The 'bindA' variations are used when a specified allocator must be used
@@ -1058,108 +1058,109 @@ struct bdef_BindUtil {
     // CLASS METHODS
     template <class FUNC>
     static
-    bdef_Bind<bslmf_Nil, FUNC, bdef_Bind_BoundTuple0>
+    bdef_Bind<bslmf::Nil, FUNC, bdef_Bind_BoundTuple0>
     bind(FUNC func)
         // Return a 'bdef_Bind' object that is bound to the specified
         // 'func' invocable object, which can be invoked with no parameters.
     {
-        return bdef_Bind<bslmf_Nil, FUNC, bdef_Bind_BoundTuple0>
+        return bdef_Bind<bslmf::Nil, FUNC, bdef_Bind_BoundTuple0>
                    (func, bdef_Bind_BoundTuple0());
     }
 
     template <class FUNC, class P1>
     static
-    bdef_Bind<bslmf_Nil, FUNC, bdef_Bind_BoundTuple1<P1> >
+    bdef_Bind<bslmf::Nil, FUNC, bdef_Bind_BoundTuple1<P1> >
     bind(FUNC func, P1 const&p1)
         // Return a 'bdef_Bind' object that is bound to the specified
         // invocable object 'func', which can be invoked with one parameter.
     {
-        return bdef_Bind<bslmf_Nil, FUNC, bdef_Bind_BoundTuple1<P1> >
+        return bdef_Bind<bslmf::Nil, FUNC, bdef_Bind_BoundTuple1<P1> >
                    (func, bdef_Bind_BoundTuple1<P1>(p1));
     }
 
     template <class FUNC, class P1, class P2>
     static
-    bdef_Bind<bslmf_Nil, FUNC, bdef_Bind_BoundTuple2<P1, P2> >
+    bdef_Bind<bslmf::Nil, FUNC, bdef_Bind_BoundTuple2<P1, P2> >
     bind(FUNC func, P1 const&p1, P2 const&p2)
         // Return a 'bdef_Bind' object that is bound to the specified
         // invocable object 'func', which can be invoked with two parameters.
     {
         typedef bdef_Bind_BoundTuple2<P1, P2> ListType;
-        return bdef_Bind<bslmf_Nil, FUNC, ListType>
+        return bdef_Bind<bslmf::Nil, FUNC, ListType>
                    (func, ListType(p1, p2));
     }
 
     template <class FUNC, class P1, class P2, class P3>
     static
-    bdef_Bind<bslmf_Nil, FUNC, bdef_Bind_BoundTuple3<P1,P2,P3> >
+    bdef_Bind<bslmf::Nil, FUNC, bdef_Bind_BoundTuple3<P1,P2,P3> >
     bind(FUNC func, P1 const&p1, P2 const&p2, P3 const&p3)
         // Return a 'bdef_Bind' object that is bound to the specified
         // invocable object 'func', which can be invoked with three
         // parameters.
     {
         typedef bdef_Bind_BoundTuple3<P1,P2,P3> ListType;
-        return bdef_Bind<bslmf_Nil, FUNC, ListType>
+        return bdef_Bind<bslmf::Nil, FUNC, ListType>
                    (func, ListType(p1,p2,p3));
     }
 
     template <class FUNC, class P1, class P2, class P3, class P4>
     static
-    bdef_Bind<bslmf_Nil, FUNC, bdef_Bind_BoundTuple4<P1,P2,P3,P4> >
+    bdef_Bind<bslmf::Nil, FUNC, bdef_Bind_BoundTuple4<P1,P2,P3,P4> >
     bind(FUNC func, P1 const&p1, P2 const&p2, P3 const&p3, P4 const&p4)
         // Return a 'bdef_Bind' object that is bound to the specified
         // invocable object 'func', which can be invoked with four parameters.
     {
         typedef bdef_Bind_BoundTuple4<P1,P2,P3,P4> ListType;
-        return bdef_Bind<bslmf_Nil, FUNC, ListType>
+        return bdef_Bind<bslmf::Nil, FUNC, ListType>
                    (func, ListType(p1,p2,p3,p4));
     }
 
     template <class FUNC, class P1, class P2, class P3, class P4, class P5>
     static
-    bdef_Bind<bslmf_Nil, FUNC, bdef_Bind_BoundTuple5<P1,P2,P3,P4,P5> >
+    bdef_Bind<bslmf::Nil, FUNC, bdef_Bind_BoundTuple5<P1,P2,P3,P4,P5> >
     bind(FUNC func, P1 const&p1, P2 const&p2, P3 const&p3, P4 const&p4,
          P5 const&p5)
         // Return a 'bdef_Bind' object that is bound to the specified
         // invocable object 'func', which can be invoked with five parameters.
     {
         typedef bdef_Bind_BoundTuple5<P1,P2,P3,P4,P5> ListType;
-        return bdef_Bind<bslmf_Nil, FUNC, ListType>
+        return bdef_Bind<bslmf::Nil, FUNC, ListType>
                    (func, ListType(p1,p2,p3,p4,p5));
     }
 
     template <class FUNC, class P1, class P2, class P3, class P4, class P5,
               class P6>
     static
-    bdef_Bind<bslmf_Nil, FUNC, bdef_Bind_BoundTuple6<P1,P2,P3,P4,P5,P6> >
+    bdef_Bind<bslmf::Nil, FUNC, bdef_Bind_BoundTuple6<P1,P2,P3,P4,P5,P6> >
     bind(FUNC func, P1 const&p1, P2 const&p2, P3 const&p3, P4 const&p4,
          P5 const&p5, P6 const&p6)
         // Return a 'bdef_Bind' object that is bound to the specified
         // invocable object 'func', which can be invoked with six parameters.
     {
         typedef bdef_Bind_BoundTuple6<P1,P2,P3,P4,P5,P6> ListType;
-        return bdef_Bind<bslmf_Nil, FUNC, ListType>
+        return bdef_Bind<bslmf::Nil, FUNC, ListType>
                    (func, ListType(p1,p2,p3,p4,p5,p6));
     }
 
     template <class FUNC, class P1, class P2, class P3, class P4, class P5,
               class P6, class P7>
     static
-    bdef_Bind<bslmf_Nil, FUNC, bdef_Bind_BoundTuple7<P1,P2,P3,P4,P5,P6,P7> >
+    bdef_Bind<bslmf::Nil, FUNC, bdef_Bind_BoundTuple7<P1,P2,P3,P4,P5,P6,P7> >
     bind(FUNC func, P1 const&p1, P2 const&p2, P3 const&p3, P4 const&p4,
          P5 const&p5, P6 const&p6, P7 const&p7)
         // Return a 'bdef_Bind' object that is bound to the specified
         // invocable object 'func', which can be invoked with seven parameters.
     {
         typedef bdef_Bind_BoundTuple7<P1,P2,P3,P4,P5,P6,P7> ListType;
-        return bdef_Bind<bslmf_Nil, FUNC, ListType>
+        return bdef_Bind<bslmf::Nil, FUNC, ListType>
                    (func, ListType(p1,p2,p3,p4,p5,p6,p7));
     }
 
     template <class FUNC, class P1, class P2, class P3, class P4, class P5,
               class P6, class P7, class P8>
     static
-    bdef_Bind<bslmf_Nil, FUNC, bdef_Bind_BoundTuple8<P1,P2,P3,P4,P5,P6,P7,P8> >
+    bdef_Bind<bslmf::Nil, FUNC,
+              bdef_Bind_BoundTuple8<P1,P2,P3,P4,P5,P6,P7,P8> >
     bind(FUNC func, P1 const&p1, P2 const&p2, P3 const&p3, P4 const&p4,
          P5 const&p5, P6 const&p6, P7 const&p7, P8 const&p8)
         // Return a 'bdef_Bind' object that is bound to the specified
@@ -1167,14 +1168,14 @@ struct bdef_BindUtil {
         // parameters.
     {
         typedef bdef_Bind_BoundTuple8<P1,P2,P3,P4,P5,P6,P7,P8> ListType;
-        return bdef_Bind<bslmf_Nil, FUNC, ListType>
+        return bdef_Bind<bslmf::Nil, FUNC, ListType>
             (func, ListType(p1,p2,p3,p4,p5,p6,p7,p8));
     }
 
     template <class FUNC, class P1, class P2, class P3, class P4, class P5,
               class P6, class P7, class P8, class P9>
     static
-    bdef_Bind<bslmf_Nil, FUNC,
+    bdef_Bind<bslmf::Nil, FUNC,
               bdef_Bind_BoundTuple9<P1,P2,P3,P4,P5,P6,P7,P8,P9> >
     bind(FUNC func, P1 const&p1, P2 const&p2, P3 const&p3, P4 const&p4,
          P5 const&p5, P6 const&p6, P7 const&p7, P8 const&p8, P9 const&p9)
@@ -1182,14 +1183,14 @@ struct bdef_BindUtil {
         // invocable object 'func', which can be invoked with nine parameters.
     {
         typedef bdef_Bind_BoundTuple9<P1,P2,P3,P4,P5,P6,P7,P8,P9> ListType;
-        return bdef_Bind<bslmf_Nil, FUNC, ListType>
+        return bdef_Bind<bslmf::Nil, FUNC, ListType>
             (func, ListType(p1,p2,p3,p4,p5,p6,p7,p8,p9));
     }
 
     template <class FUNC, class P1, class P2, class P3, class P4, class P5,
               class P6, class P7, class P8, class P9, class P10>
     static
-    bdef_Bind<bslmf_Nil, FUNC, bdef_Bind_BoundTuple10<
+    bdef_Bind<bslmf::Nil, FUNC, bdef_Bind_BoundTuple10<
                                               P1,P2,P3,P4,P5,P6,P7,P8,P9,P10> >
     bind(FUNC func, P1 const&p1, P2 const&p2, P3 const&p3, P4 const&p4,
          P5 const&p5, P6 const&p6, P7 const&p7, P8 const&p8, P9 const&p9,
@@ -1199,14 +1200,14 @@ struct bdef_BindUtil {
     {
         typedef bdef_Bind_BoundTuple10<P1,P2,P3,P4,P5,P6,P7,P8,P9,P10>
             ListType;
-        return bdef_Bind<bslmf_Nil, FUNC, ListType>
+        return bdef_Bind<bslmf::Nil, FUNC, ListType>
             (func, ListType(p1,p2,p3,p4,p5,p6,p7,p8,p9,p10));
     }
 
     template <class FUNC, class P1, class P2, class P3, class P4, class P5,
               class P6, class P7, class P8, class P9, class P10, class P11>
     static
-    bdef_Bind<bslmf_Nil, FUNC, bdef_Bind_BoundTuple11<
+    bdef_Bind<bslmf::Nil, FUNC, bdef_Bind_BoundTuple11<
                                           P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,P11> >
     bind(FUNC func, P1 const&p1, P2 const&p2, P3 const&p3, P4 const&p4,
          P5 const&p5, P6 const&p6, P7 const&p7, P8 const&p8, P9 const&p9,
@@ -1217,7 +1218,7 @@ struct bdef_BindUtil {
     {
         typedef bdef_Bind_BoundTuple11<P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,P11>
             ListType;
-        return bdef_Bind<bslmf_Nil, FUNC, ListType>
+        return bdef_Bind<bslmf::Nil, FUNC, ListType>
             (func, ListType(p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11));
     }
 
@@ -1225,7 +1226,7 @@ struct bdef_BindUtil {
               class P6, class P7, class P8, class P9, class P10, class P11,
               class P12>
     static
-    bdef_Bind<bslmf_Nil, FUNC, bdef_Bind_BoundTuple12<
+    bdef_Bind<bslmf::Nil, FUNC, bdef_Bind_BoundTuple12<
                                       P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,P11,P12> >
     bind(FUNC func, P1 const&p1, P2 const&p2, P3 const&p3, P4 const&p4,
          P5 const&p5, P6 const&p6, P7 const&p7, P8 const&p8, P9 const&p9,
@@ -1236,7 +1237,7 @@ struct bdef_BindUtil {
     {
         typedef bdef_Bind_BoundTuple12<P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,P11,P12>
             ListType;
-        return bdef_Bind<bslmf_Nil, FUNC, ListType>
+        return bdef_Bind<bslmf::Nil, FUNC, ListType>
             (func, ListType(p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12));
     }
 
@@ -1244,7 +1245,7 @@ struct bdef_BindUtil {
               class P6, class P7, class P8, class P9, class P10, class P11,
               class P12, class P13>
     static
-    bdef_Bind<bslmf_Nil, FUNC, bdef_Bind_BoundTuple13<
+    bdef_Bind<bslmf::Nil, FUNC, bdef_Bind_BoundTuple13<
                                   P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,P11,P12,P13> >
     bind(FUNC func, P1 const&p1, P2 const&p2, P3 const&p3, P4 const&p4,
          P5 const&p5, P6 const&p6, P7 const&p7, P8 const&p8, P9 const&p9,
@@ -1255,7 +1256,7 @@ struct bdef_BindUtil {
     {
         typedef bdef_Bind_BoundTuple13<P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,P11,P12,
                                        P13> ListType;
-        return bdef_Bind<bslmf_Nil, FUNC, ListType>
+        return bdef_Bind<bslmf::Nil, FUNC, ListType>
             (func, ListType(p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13));
     }
 
@@ -1263,7 +1264,7 @@ struct bdef_BindUtil {
               class P6, class P7, class P8, class P9, class P10, class P11,
               class P12, class P13, class P14>
     static
-    bdef_Bind<bslmf_Nil, FUNC, bdef_Bind_BoundTuple14<P1,P2,P3,P4,P5,P6,P7,
+    bdef_Bind<bslmf::Nil, FUNC, bdef_Bind_BoundTuple14<P1,P2,P3,P4,P5,P6,P7,
                                               P8,P9,P10,P11,P12,P13,P14> >
     bind(FUNC func, P1 const&p1, P2 const&p2, P3 const&p3, P4 const&p4,
          P5 const&p5, P6 const&p6, P7 const&p7, P8 const&p8, P9 const&p9,
@@ -1275,104 +1276,104 @@ struct bdef_BindUtil {
     {
         typedef bdef_Bind_BoundTuple14<P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,P11,P12,
                                        P13,P14> ListType;
-        return bdef_Bind<bslmf_Nil, FUNC, ListType>
+        return bdef_Bind<bslmf::Nil, FUNC, ListType>
             (func, ListType(p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14));
     }
 
     template <class FUNC>
     static
-    bdef_Bind<bslmf_Nil, FUNC, bdef_Bind_BoundTuple0>
-    bindA(bslma_Allocator *allocator, FUNC func)
+    bdef_Bind<bslmf::Nil, FUNC, bdef_Bind_BoundTuple0>
+    bindA(bslma::Allocator *allocator, FUNC func)
         // Return a 'bdef_Bind' object that is bound to the specified
         // 'func' invocable object, which can be invoked with no parameters.
     {
-        return bdef_Bind<bslmf_Nil, FUNC, bdef_Bind_BoundTuple0>
+        return bdef_Bind<bslmf::Nil, FUNC, bdef_Bind_BoundTuple0>
                    (func, bdef_Bind_BoundTuple0(), allocator);
     }
 
     template <class FUNC, class P1>
     static
-    bdef_Bind<bslmf_Nil, FUNC, bdef_Bind_BoundTuple1<P1> >
-    bindA(bslma_Allocator *allocator, FUNC func, P1 const&p1)
+    bdef_Bind<bslmf::Nil, FUNC, bdef_Bind_BoundTuple1<P1> >
+    bindA(bslma::Allocator *allocator, FUNC func, P1 const&p1)
         // Return a 'bdef_Bind' object that is bound to the specified
         // invocable object 'func', which can be invoked with one parameter.
     {
-        return bdef_Bind<bslmf_Nil, FUNC, bdef_Bind_BoundTuple1<P1> >
+        return bdef_Bind<bslmf::Nil, FUNC, bdef_Bind_BoundTuple1<P1> >
             (func, bdef_Bind_BoundTuple1<P1>(p1, allocator), allocator);
     }
 
     template <class FUNC, class P1, class P2>
     static
-    bdef_Bind<bslmf_Nil, FUNC, bdef_Bind_BoundTuple2<P1, P2> >
-    bindA(bslma_Allocator *allocator, FUNC func, P1 const&p1,
+    bdef_Bind<bslmf::Nil, FUNC, bdef_Bind_BoundTuple2<P1, P2> >
+    bindA(bslma::Allocator *allocator, FUNC func, P1 const&p1,
           P2 const&p2)
         // Return a 'bdef_Bind' object that is bound to the specified
         // invocable object 'func', which can be invoked with two parameters.
     {
         typedef bdef_Bind_BoundTuple2<P1,P2> ListType;
-        return bdef_Bind<bslmf_Nil, FUNC, ListType>
+        return bdef_Bind<bslmf::Nil, FUNC, ListType>
                    (func, ListType(p1, p2, allocator), allocator);
     }
 
     template <class FUNC, class P1, class P2, class P3>
     static
-    bdef_Bind<bslmf_Nil, FUNC, bdef_Bind_BoundTuple3<P1,P2,P3> >
-    bindA(bslma_Allocator *allocator, FUNC func, P1 const&p1,
+    bdef_Bind<bslmf::Nil, FUNC, bdef_Bind_BoundTuple3<P1,P2,P3> >
+    bindA(bslma::Allocator *allocator, FUNC func, P1 const&p1,
           P2 const&p2, P3 const&p3)
         // Return a 'bdef_Bind' object that is bound to the specified
         // invocable object 'func', which can be invoked with three
         // parameters.
     {
         typedef bdef_Bind_BoundTuple3<P1,P2,P3> ListType;
-        return bdef_Bind<bslmf_Nil, FUNC, ListType>
+        return bdef_Bind<bslmf::Nil, FUNC, ListType>
                     (func, ListType(p1,p2,p3, allocator), allocator);
     }
 
     template <class FUNC, class P1, class P2, class P3, class P4>
     static
-    bdef_Bind<bslmf_Nil, FUNC, bdef_Bind_BoundTuple4<P1,P2,P3,P4> >
-    bindA(bslma_Allocator *allocator, FUNC func, P1 const&p1,
+    bdef_Bind<bslmf::Nil, FUNC, bdef_Bind_BoundTuple4<P1,P2,P3,P4> >
+    bindA(bslma::Allocator *allocator, FUNC func, P1 const&p1,
           P2 const&p2, P3 const&p3, P4 const&p4)
         // Return a 'bdef_Bind' object that is bound to the specified
         // invocable object 'func', which can be invoked with four parameters.
     {
         typedef bdef_Bind_BoundTuple4<P1,P2,P3,P4> ListType;
-        return bdef_Bind<bslmf_Nil, FUNC, ListType>
+        return bdef_Bind<bslmf::Nil, FUNC, ListType>
             (func, ListType(p1,p2,p3,p4, allocator), allocator);
     }
 
     template <class FUNC, class P1, class P2, class P3, class P4, class P5>
     static
-    bdef_Bind<bslmf_Nil, FUNC, bdef_Bind_BoundTuple5<P1,P2,P3,P4,P5> >
-    bindA(bslma_Allocator *allocator, FUNC func, P1 const&p1,
+    bdef_Bind<bslmf::Nil, FUNC, bdef_Bind_BoundTuple5<P1,P2,P3,P4,P5> >
+    bindA(bslma::Allocator *allocator, FUNC func, P1 const&p1,
           P2 const&p2, P3 const&p3, P4 const&p4, P5 const&p5)
         // Return a 'bdef_Bind' object that is bound to the specified
         // invocable object 'func', which can be invoked with five parameters.
     {
         typedef bdef_Bind_BoundTuple5<P1,P2,P3,P4,P5> ListType;
-        return bdef_Bind<bslmf_Nil, FUNC, ListType>
+        return bdef_Bind<bslmf::Nil, FUNC, ListType>
                    (func, ListType(p1,p2,p3,p4,p5, allocator), allocator);
     }
 
     template <class FUNC, class P1, class P2, class P3, class P4, class P5,
               class P6>
     static
-    bdef_Bind<bslmf_Nil, FUNC, bdef_Bind_BoundTuple6<P1,P2,P3,P4,P5,P6> >
-    bindA(bslma_Allocator *allocator, FUNC func, P1 const&p1,
+    bdef_Bind<bslmf::Nil, FUNC, bdef_Bind_BoundTuple6<P1,P2,P3,P4,P5,P6> >
+    bindA(bslma::Allocator *allocator, FUNC func, P1 const&p1,
           P2 const&p2, P3 const&p3, P4 const&p4, P5 const&p5, P6 const&p6)
         // Return a 'bdef_Bind' object that is bound to the specified
         // invocable object 'func', which can be invoked with six parameters.
     {
         typedef bdef_Bind_BoundTuple6<P1,P2,P3,P4,P5,P6> ListType;
-        return bdef_Bind<bslmf_Nil, FUNC, ListType>
+        return bdef_Bind<bslmf::Nil, FUNC, ListType>
                    (func, ListType(p1,p2,p3,p4,p5,p6, allocator), allocator);
     }
 
     template <class FUNC, class P1, class P2, class P3, class P4, class P5,
               class P6, class P7>
     static
-    bdef_Bind<bslmf_Nil, FUNC, bdef_Bind_BoundTuple7<P1,P2,P3,P4,P5,P6,P7> >
-    bindA(bslma_Allocator *allocator, FUNC func, P1 const&p1,
+    bdef_Bind<bslmf::Nil, FUNC, bdef_Bind_BoundTuple7<P1,P2,P3,P4,P5,P6,P7> >
+    bindA(bslma::Allocator *allocator, FUNC func, P1 const&p1,
           P2 const&p2, P3 const&p3, P4 const&p4, P5 const&p5, P6 const&p6,
           P7 const&p7)
         // Return a 'bdef_Bind' object that is bound to the specified
@@ -1380,15 +1381,16 @@ struct bdef_BindUtil {
         // parameters.
     {
         typedef bdef_Bind_BoundTuple7<P1,P2,P3,P4,P5,P6,P7> ListType;
-        return bdef_Bind<bslmf_Nil, FUNC, ListType>
+        return bdef_Bind<bslmf::Nil, FUNC, ListType>
                   (func, ListType(p1,p2,p3,p4,p5,p6,p7, allocator), allocator);
     }
 
     template <class FUNC, class P1, class P2, class P3, class P4, class P5,
               class P6, class P7, class P8>
     static
-    bdef_Bind<bslmf_Nil, FUNC, bdef_Bind_BoundTuple8<P1,P2,P3,P4,P5,P6,P7,P8> >
-    bindA(bslma_Allocator *allocator, FUNC func, P1 const&p1,
+    bdef_Bind<bslmf::Nil, FUNC,
+              bdef_Bind_BoundTuple8<P1,P2,P3,P4,P5,P6,P7,P8> >
+    bindA(bslma::Allocator *allocator, FUNC func, P1 const&p1,
           P2 const&p2, P3 const&p3, P4 const&p4, P5 const&p5, P6 const&p6,
           P7 const&p7, P8 const&p8)
         // Return a 'bdef_Bind' object that is bound to the specified
@@ -1396,32 +1398,32 @@ struct bdef_BindUtil {
         // parameters.
     {
         typedef bdef_Bind_BoundTuple8<P1,P2,P3,P4,P5,P6,P7,P8> ListType;
-        return bdef_Bind<bslmf_Nil, FUNC, ListType>
+        return bdef_Bind<bslmf::Nil, FUNC, ListType>
             (func, ListType(p1,p2,p3,p4,p5,p6,p7,p8,allocator),allocator);
     }
 
     template <class FUNC, class P1, class P2, class P3, class P4, class P5,
               class P6, class P7, class P8, class P9>
     static
-    bdef_Bind<bslmf_Nil, FUNC,
+    bdef_Bind<bslmf::Nil, FUNC,
               bdef_Bind_BoundTuple9<P1,P2,P3,P4,P5,P6,P7,P8,P9> >
-    bindA(bslma_Allocator *allocator, FUNC func, P1 const&p1,
+    bindA(bslma::Allocator *allocator, FUNC func, P1 const&p1,
          P2 const&p2, P3 const&p3, P4 const&p4, P5 const&p5, P6 const&p6,
          P7 const&p7, P8 const&p8, P9 const&p9)
         // Return a 'bdef_Bind' object that is bound to the specified
         // invocable object 'func', which can be invoked with nine parameters.
     {
         typedef bdef_Bind_BoundTuple9<P1,P2,P3,P4,P5,P6,P7,P8,P9> ListType;
-        return bdef_Bind<bslmf_Nil, FUNC, ListType>
+        return bdef_Bind<bslmf::Nil, FUNC, ListType>
             (func, ListType(p1,p2,p3,p4,p5,p6,p7,p8,p9,allocator),allocator);
     }
 
     template <class FUNC, class P1, class P2, class P3, class P4, class P5,
               class P6, class P7, class P8, class P9, class P10>
     static
-    bdef_Bind<bslmf_Nil, FUNC, bdef_Bind_BoundTuple10<
+    bdef_Bind<bslmf::Nil, FUNC, bdef_Bind_BoundTuple10<
                                               P1,P2,P3,P4,P5,P6,P7,P8,P9,P10> >
-    bindA(bslma_Allocator *allocator, FUNC func, P1 const&p1,
+    bindA(bslma::Allocator *allocator, FUNC func, P1 const&p1,
           P2 const&p2, P3 const&p3, P4 const&p4, P5 const&p5, P6 const&p6,
           P7 const&p7, P8 const&p8, P9 const&p9, P10 const&p10)
         // Return a 'bdef_Bind' object that is bound to the specified
@@ -1429,7 +1431,7 @@ struct bdef_BindUtil {
     {
         typedef bdef_Bind_BoundTuple10<P1,P2,P3,P4,P5,P6,P7,P8,P9,P10>
             ListType;
-        return bdef_Bind<bslmf_Nil, FUNC, ListType>
+        return bdef_Bind<bslmf::Nil, FUNC, ListType>
             (func, ListType(p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,allocator),
              allocator);
     }
@@ -1437,9 +1439,9 @@ struct bdef_BindUtil {
     template <class FUNC, class P1, class P2, class P3, class P4, class P5,
               class P6, class P7, class P8, class P9, class P10, class P11>
     static
-    bdef_Bind<bslmf_Nil, FUNC, bdef_Bind_BoundTuple11<
+    bdef_Bind<bslmf::Nil, FUNC, bdef_Bind_BoundTuple11<
                                           P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,P11> >
-    bindA(bslma_Allocator *allocator, FUNC func, P1 const&p1,
+    bindA(bslma::Allocator *allocator, FUNC func, P1 const&p1,
           P2 const&p2, P3 const&p3, P4 const&p4, P5 const&p5, P6 const&p6,
           P7 const&p7, P8 const&p8, P9 const&p9, P10 const&p10, P11 const&p11)
         // Return a 'bdef_Bind' object that is bound to the specified
@@ -1448,7 +1450,7 @@ struct bdef_BindUtil {
     {
         typedef bdef_Bind_BoundTuple11<P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,P11>
             ListType;
-        return bdef_Bind<bslmf_Nil, FUNC, ListType>
+        return bdef_Bind<bslmf::Nil, FUNC, ListType>
             (func, ListType(p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,allocator),
              allocator);
     }
@@ -1457,9 +1459,9 @@ struct bdef_BindUtil {
               class P6, class P7, class P8, class P9, class P10, class P11,
               class P12>
     static
-    bdef_Bind<bslmf_Nil, FUNC, bdef_Bind_BoundTuple12<
+    bdef_Bind<bslmf::Nil, FUNC, bdef_Bind_BoundTuple12<
                                       P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,P11,P12> >
-    bindA(bslma_Allocator *allocator, FUNC func, P1 const&p1,
+    bindA(bslma::Allocator *allocator, FUNC func, P1 const&p1,
           P2 const&p2, P3 const&p3, P4 const&p4, P5 const&p5, P6 const&p6,
           P7 const&p7, P8 const&p8, P9 const&p9, P10 const&p10, P11 const&p11,
           P12 const&p12)
@@ -1469,7 +1471,7 @@ struct bdef_BindUtil {
     {
         typedef bdef_Bind_BoundTuple12<P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,P11,P12>
             ListType;
-        return bdef_Bind<bslmf_Nil, FUNC, ListType>
+        return bdef_Bind<bslmf::Nil, FUNC, ListType>
             (func, ListType(p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,allocator),
              allocator);
     }
@@ -1478,9 +1480,9 @@ struct bdef_BindUtil {
               class P6, class P7, class P8, class P9, class P10, class P11,
               class P12, class P13>
     static
-    bdef_Bind<bslmf_Nil, FUNC, bdef_Bind_BoundTuple13<
+    bdef_Bind<bslmf::Nil, FUNC, bdef_Bind_BoundTuple13<
                                   P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,P11,P12,P13> >
-    bindA(bslma_Allocator *allocator,FUNC func, P1 const&p1, P2 const&p2,
+    bindA(bslma::Allocator *allocator,FUNC func, P1 const&p1, P2 const&p2,
           P3 const&p3, P4 const&p4, P5 const&p5, P6 const&p6, P7 const&p7,
           P8 const&p8, P9 const&p9, P10 const&p10, P11 const&p11,
           P12 const&p12, P13 const&p13)
@@ -1490,7 +1492,7 @@ struct bdef_BindUtil {
     {
         typedef bdef_Bind_BoundTuple13<P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,P11,P12,
                                        P13> ListType;
-        return bdef_Bind<bslmf_Nil, FUNC, ListType>
+        return bdef_Bind<bslmf::Nil, FUNC, ListType>
             (func, ListType(p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,
                             allocator),allocator);
     }
@@ -1499,9 +1501,9 @@ struct bdef_BindUtil {
               class P6, class P7, class P8, class P9, class P10, class P11,
               class P12, class P13, class P14>
     static
-    bdef_Bind<bslmf_Nil, FUNC, bdef_Bind_BoundTuple14<
+    bdef_Bind<bslmf::Nil, FUNC, bdef_Bind_BoundTuple14<
                               P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,P11,P12,P13,P14> >
-    bindA(bslma_Allocator *allocator, FUNC func, P1 const&p1,
+    bindA(bslma::Allocator *allocator, FUNC func, P1 const&p1,
           P2 const&p2, P3 const&p3, P4 const&p4, P5 const&p5, P6 const&p6,
           P7 const&p7, P8 const&p8, P9 const&p9, P10 const&p10, P11 const&p11,
           P12 const&p12, P13 const&p13, P14 const&p14)
@@ -1511,7 +1513,7 @@ struct bdef_BindUtil {
     {
         typedef bdef_Bind_BoundTuple14<P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,P11,P12,
                                        P13,P14> ListType;
-        return bdef_Bind<bslmf_Nil, FUNC, ListType>
+        return bdef_Bind<bslmf::Nil, FUNC, ListType>
             (func, ListType(p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,
                             allocator),allocator);
     }
@@ -1757,11 +1759,12 @@ class bdef_Bind_TupleValue {
     // This local class provides storage for a value of the specified 'TYPE'
     // suitable for storing an argument value in one of the
     // 'bdef_Bind_Tuple[0-14]' local classes.  'TYPE' must already be a
-    // 'bslmf_ForwardingType', meaning no extra copies will be made (unless the
-    // type is a fundamental type, which is meant to be copied for efficiency).
+    // 'bslmf::ForwardingType', meaning no extra copies will be made (unless
+    // the type is a fundamental type, which is meant to be copied for
+    // efficiency).
 
     // PRIVATE TYPES
-    typedef typename bslmf_ArrayToConstPointer<TYPE>::Type STORAGE_TYPE;
+    typedef typename bslmf::ArrayToConstPointer<TYPE>::Type STORAGE_TYPE;
 
     // PRIVATE INSTANCE DATA
     STORAGE_TYPE d_value;
@@ -1865,7 +1868,7 @@ class bdef_Bind_TupleValue<TYPE const&> {
                            // class bdef_Bind_Tuple*
                            // ======================
 
-struct bdef_Bind_Tuple0 : public bslmf_TypeList0
+struct bdef_Bind_Tuple0 : public bslmf::TypeList0
 {
     // This 'struct' provides the creators for a list of zero arguments.
 
@@ -1879,12 +1882,12 @@ struct bdef_Bind_Tuple0 : public bslmf_TypeList0
 };
 
 template <class A1>
-struct bdef_Bind_Tuple1 : public bslmf_TypeList1<A1>
+struct bdef_Bind_Tuple1 : public bslmf::TypeList1<A1>
 {
     // This 'struct' stores a list of one argument.
 
     // TYPES
-    typedef typename bslmf_ConstForwardingType<A1>::Type FA1;
+    typedef typename bslmf::ConstForwardingType<A1>::Type FA1;
 
     // INSTANCE DATA
     bdef_Bind_TupleValue<FA1> d_a1;
@@ -1902,13 +1905,13 @@ struct bdef_Bind_Tuple1 : public bslmf_TypeList1<A1>
 };
 
 template <class A1, class A2>
-struct bdef_Bind_Tuple2 : public bslmf_TypeList2<A1,A2>
+struct bdef_Bind_Tuple2 : public bslmf::TypeList2<A1,A2>
 {
     // This 'struct' stores a list of two arguments.
 
     // TYPES
-    typedef typename bslmf_ConstForwardingType<A1>::Type FA1;
-    typedef typename bslmf_ConstForwardingType<A2>::Type FA2;
+    typedef typename bslmf::ConstForwardingType<A1>::Type FA1;
+    typedef typename bslmf::ConstForwardingType<A2>::Type FA2;
 
     // INSTANCE DATA
     bdef_Bind_TupleValue<FA1> d_a1;
@@ -1929,14 +1932,14 @@ struct bdef_Bind_Tuple2 : public bslmf_TypeList2<A1,A2>
 };
 
 template <class A1, class A2, class A3>
-struct bdef_Bind_Tuple3 : public bslmf_TypeList3<A1,A2,A3>
+struct bdef_Bind_Tuple3 : public bslmf::TypeList3<A1,A2,A3>
 {
     // This 'struct' stores a list of three arguments.
 
     // TYPES
-    typedef typename bslmf_ConstForwardingType<A1>::Type FA1;
-    typedef typename bslmf_ConstForwardingType<A2>::Type FA2;
-    typedef typename bslmf_ConstForwardingType<A3>::Type FA3;
+    typedef typename bslmf::ConstForwardingType<A1>::Type FA1;
+    typedef typename bslmf::ConstForwardingType<A2>::Type FA2;
+    typedef typename bslmf::ConstForwardingType<A3>::Type FA3;
 
     // INSTANCE DATA
     bdef_Bind_TupleValue<FA1> d_a1;
@@ -1960,15 +1963,15 @@ struct bdef_Bind_Tuple3 : public bslmf_TypeList3<A1,A2,A3>
 };
 
 template <class A1, class A2, class A3, class A4>
-struct bdef_Bind_Tuple4 : public bslmf_TypeList4<A1,A2,A3,A4>
+struct bdef_Bind_Tuple4 : public bslmf::TypeList4<A1,A2,A3,A4>
 {
     // This 'struct' stores a list of four arguments.
 
     // TYPES
-    typedef typename bslmf_ConstForwardingType<A1>::Type FA1;
-    typedef typename bslmf_ConstForwardingType<A2>::Type FA2;
-    typedef typename bslmf_ConstForwardingType<A3>::Type FA3;
-    typedef typename bslmf_ConstForwardingType<A4>::Type FA4;
+    typedef typename bslmf::ConstForwardingType<A1>::Type FA1;
+    typedef typename bslmf::ConstForwardingType<A2>::Type FA2;
+    typedef typename bslmf::ConstForwardingType<A3>::Type FA3;
+    typedef typename bslmf::ConstForwardingType<A4>::Type FA4;
 
     // INSTANCE DATA
     bdef_Bind_TupleValue<FA1> d_a1;
@@ -1995,16 +1998,16 @@ struct bdef_Bind_Tuple4 : public bslmf_TypeList4<A1,A2,A3,A4>
 };
 
 template <class A1, class A2, class A3, class A4, class A5>
-struct bdef_Bind_Tuple5 : public bslmf_TypeList5<A1,A2,A3,A4,A5>
+struct bdef_Bind_Tuple5 : public bslmf::TypeList5<A1,A2,A3,A4,A5>
 {
     // This 'struct' stores a list of five arguments.
 
     // TYPES
-    typedef typename bslmf_ConstForwardingType<A1>::Type FA1;
-    typedef typename bslmf_ConstForwardingType<A2>::Type FA2;
-    typedef typename bslmf_ConstForwardingType<A3>::Type FA3;
-    typedef typename bslmf_ConstForwardingType<A4>::Type FA4;
-    typedef typename bslmf_ConstForwardingType<A5>::Type FA5;
+    typedef typename bslmf::ConstForwardingType<A1>::Type FA1;
+    typedef typename bslmf::ConstForwardingType<A2>::Type FA2;
+    typedef typename bslmf::ConstForwardingType<A3>::Type FA3;
+    typedef typename bslmf::ConstForwardingType<A4>::Type FA4;
+    typedef typename bslmf::ConstForwardingType<A5>::Type FA5;
 
     // INSTANCE DATA
     bdef_Bind_TupleValue<FA1> d_a1;
@@ -2034,17 +2037,17 @@ struct bdef_Bind_Tuple5 : public bslmf_TypeList5<A1,A2,A3,A4,A5>
 };
 
 template <class A1, class A2, class A3, class A4, class A5, class A6>
-struct bdef_Bind_Tuple6 : public bslmf_TypeList6<A1,A2,A3,A4,A5,A6>
+struct bdef_Bind_Tuple6 : public bslmf::TypeList6<A1,A2,A3,A4,A5,A6>
 {
     // This 'struct' stores a list of six arguments.
 
     // TYPES
-    typedef typename bslmf_ConstForwardingType<A1>::Type FA1;
-    typedef typename bslmf_ConstForwardingType<A2>::Type FA2;
-    typedef typename bslmf_ConstForwardingType<A3>::Type FA3;
-    typedef typename bslmf_ConstForwardingType<A4>::Type FA4;
-    typedef typename bslmf_ConstForwardingType<A5>::Type FA5;
-    typedef typename bslmf_ConstForwardingType<A6>::Type FA6;
+    typedef typename bslmf::ConstForwardingType<A1>::Type FA1;
+    typedef typename bslmf::ConstForwardingType<A2>::Type FA2;
+    typedef typename bslmf::ConstForwardingType<A3>::Type FA3;
+    typedef typename bslmf::ConstForwardingType<A4>::Type FA4;
+    typedef typename bslmf::ConstForwardingType<A5>::Type FA5;
+    typedef typename bslmf::ConstForwardingType<A6>::Type FA6;
 
     // INSTANCE DATA
     bdef_Bind_TupleValue<FA1> d_a1;
@@ -2077,18 +2080,18 @@ struct bdef_Bind_Tuple6 : public bslmf_TypeList6<A1,A2,A3,A4,A5,A6>
 };
 
 template <class A1, class A2, class A3, class A4, class A5, class A6, class A7>
-struct bdef_Bind_Tuple7 : public bslmf_TypeList7<A1,A2,A3,A4,A5,A6,A7>
+struct bdef_Bind_Tuple7 : public bslmf::TypeList7<A1,A2,A3,A4,A5,A6,A7>
 {
     // This 'struct' stores a list of seven arguments.
 
     // TYPES
-    typedef typename bslmf_ConstForwardingType<A1>::Type FA1;
-    typedef typename bslmf_ConstForwardingType<A2>::Type FA2;
-    typedef typename bslmf_ConstForwardingType<A3>::Type FA3;
-    typedef typename bslmf_ConstForwardingType<A4>::Type FA4;
-    typedef typename bslmf_ConstForwardingType<A5>::Type FA5;
-    typedef typename bslmf_ConstForwardingType<A6>::Type FA6;
-    typedef typename bslmf_ConstForwardingType<A7>::Type FA7;
+    typedef typename bslmf::ConstForwardingType<A1>::Type FA1;
+    typedef typename bslmf::ConstForwardingType<A2>::Type FA2;
+    typedef typename bslmf::ConstForwardingType<A3>::Type FA3;
+    typedef typename bslmf::ConstForwardingType<A4>::Type FA4;
+    typedef typename bslmf::ConstForwardingType<A5>::Type FA5;
+    typedef typename bslmf::ConstForwardingType<A6>::Type FA6;
+    typedef typename bslmf::ConstForwardingType<A7>::Type FA7;
 
     // INSTANCE DATA
     bdef_Bind_TupleValue<FA1> d_a1;
@@ -2127,19 +2130,19 @@ struct bdef_Bind_Tuple7 : public bslmf_TypeList7<A1,A2,A3,A4,A5,A6,A7>
 
 template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
           class A8>
-struct bdef_Bind_Tuple8 : public bslmf_TypeList8<A1,A2,A3,A4,A5,A6,A7,A8>
+struct bdef_Bind_Tuple8 : public bslmf::TypeList8<A1,A2,A3,A4,A5,A6,A7,A8>
 {
     // This 'struct' stores a list of eight arguments.
 
     // TYPES
-    typedef typename bslmf_ConstForwardingType<A1>::Type FA1;
-    typedef typename bslmf_ConstForwardingType<A2>::Type FA2;
-    typedef typename bslmf_ConstForwardingType<A3>::Type FA3;
-    typedef typename bslmf_ConstForwardingType<A4>::Type FA4;
-    typedef typename bslmf_ConstForwardingType<A5>::Type FA5;
-    typedef typename bslmf_ConstForwardingType<A6>::Type FA6;
-    typedef typename bslmf_ConstForwardingType<A7>::Type FA7;
-    typedef typename bslmf_ConstForwardingType<A8>::Type FA8;
+    typedef typename bslmf::ConstForwardingType<A1>::Type FA1;
+    typedef typename bslmf::ConstForwardingType<A2>::Type FA2;
+    typedef typename bslmf::ConstForwardingType<A3>::Type FA3;
+    typedef typename bslmf::ConstForwardingType<A4>::Type FA4;
+    typedef typename bslmf::ConstForwardingType<A5>::Type FA5;
+    typedef typename bslmf::ConstForwardingType<A6>::Type FA6;
+    typedef typename bslmf::ConstForwardingType<A7>::Type FA7;
+    typedef typename bslmf::ConstForwardingType<A8>::Type FA8;
 
     // INSTANCE DATA
     bdef_Bind_TupleValue<FA1> d_a1;
@@ -2181,20 +2184,20 @@ struct bdef_Bind_Tuple8 : public bslmf_TypeList8<A1,A2,A3,A4,A5,A6,A7,A8>
 
 template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
           class A8, class A9>
-struct bdef_Bind_Tuple9 : public bslmf_TypeList9<A1,A2,A3,A4,A5,A6,A7,A8,A9>
+struct bdef_Bind_Tuple9 : public bslmf::TypeList9<A1,A2,A3,A4,A5,A6,A7,A8,A9>
 {
     // This 'struct' stores a list of nine arguments.
 
     // TYPES
-    typedef typename bslmf_ConstForwardingType<A1>::Type FA1;
-    typedef typename bslmf_ConstForwardingType<A2>::Type FA2;
-    typedef typename bslmf_ConstForwardingType<A3>::Type FA3;
-    typedef typename bslmf_ConstForwardingType<A4>::Type FA4;
-    typedef typename bslmf_ConstForwardingType<A5>::Type FA5;
-    typedef typename bslmf_ConstForwardingType<A6>::Type FA6;
-    typedef typename bslmf_ConstForwardingType<A7>::Type FA7;
-    typedef typename bslmf_ConstForwardingType<A8>::Type FA8;
-    typedef typename bslmf_ConstForwardingType<A9>::Type FA9;
+    typedef typename bslmf::ConstForwardingType<A1>::Type FA1;
+    typedef typename bslmf::ConstForwardingType<A2>::Type FA2;
+    typedef typename bslmf::ConstForwardingType<A3>::Type FA3;
+    typedef typename bslmf::ConstForwardingType<A4>::Type FA4;
+    typedef typename bslmf::ConstForwardingType<A5>::Type FA5;
+    typedef typename bslmf::ConstForwardingType<A6>::Type FA6;
+    typedef typename bslmf::ConstForwardingType<A7>::Type FA7;
+    typedef typename bslmf::ConstForwardingType<A8>::Type FA8;
+    typedef typename bslmf::ConstForwardingType<A9>::Type FA9;
 
     // INSTANCE DATA
     bdef_Bind_TupleValue<FA1> d_a1;
@@ -2239,22 +2242,22 @@ struct bdef_Bind_Tuple9 : public bslmf_TypeList9<A1,A2,A3,A4,A5,A6,A7,A8,A9>
 
 template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
           class A8, class A9, class A10>
-struct bdef_Bind_Tuple10 : public bslmf_TypeList10<A1,A2,A3,A4,A5,A6,A7,A8,A9,
+struct bdef_Bind_Tuple10 : public bslmf::TypeList10<A1,A2,A3,A4,A5,A6,A7,A8,A9,
                                                    A10>
 {
     // This 'struct' stores a list of ten arguments.
 
     // TYPES
-    typedef typename bslmf_ConstForwardingType<A1>::Type  FA1;
-    typedef typename bslmf_ConstForwardingType<A2>::Type  FA2;
-    typedef typename bslmf_ConstForwardingType<A3>::Type  FA3;
-    typedef typename bslmf_ConstForwardingType<A4>::Type  FA4;
-    typedef typename bslmf_ConstForwardingType<A5>::Type  FA5;
-    typedef typename bslmf_ConstForwardingType<A6>::Type  FA6;
-    typedef typename bslmf_ConstForwardingType<A7>::Type  FA7;
-    typedef typename bslmf_ConstForwardingType<A8>::Type  FA8;
-    typedef typename bslmf_ConstForwardingType<A9>::Type  FA9;
-    typedef typename bslmf_ConstForwardingType<A10>::Type FA10;
+    typedef typename bslmf::ConstForwardingType<A1>::Type  FA1;
+    typedef typename bslmf::ConstForwardingType<A2>::Type  FA2;
+    typedef typename bslmf::ConstForwardingType<A3>::Type  FA3;
+    typedef typename bslmf::ConstForwardingType<A4>::Type  FA4;
+    typedef typename bslmf::ConstForwardingType<A5>::Type  FA5;
+    typedef typename bslmf::ConstForwardingType<A6>::Type  FA6;
+    typedef typename bslmf::ConstForwardingType<A7>::Type  FA7;
+    typedef typename bslmf::ConstForwardingType<A8>::Type  FA8;
+    typedef typename bslmf::ConstForwardingType<A9>::Type  FA9;
+    typedef typename bslmf::ConstForwardingType<A10>::Type FA10;
 
     // INSTANCE DATA
     bdef_Bind_TupleValue<FA1>  d_a1;
@@ -2302,23 +2305,23 @@ struct bdef_Bind_Tuple10 : public bslmf_TypeList10<A1,A2,A3,A4,A5,A6,A7,A8,A9,
 
 template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
           class A8, class A9, class A10, class A11>
-struct bdef_Bind_Tuple11 : public bslmf_TypeList11<A1,A2,A3,A4,A5,A6,A7,A8,A9,
+struct bdef_Bind_Tuple11 : public bslmf::TypeList11<A1,A2,A3,A4,A5,A6,A7,A8,A9,
                                                    A10,A11>
 {
     // This 'struct' stores a list of eleven arguments.
 
     // TYPES
-    typedef typename bslmf_ConstForwardingType<A1>::Type  FA1;
-    typedef typename bslmf_ConstForwardingType<A2>::Type  FA2;
-    typedef typename bslmf_ConstForwardingType<A3>::Type  FA3;
-    typedef typename bslmf_ConstForwardingType<A4>::Type  FA4;
-    typedef typename bslmf_ConstForwardingType<A5>::Type  FA5;
-    typedef typename bslmf_ConstForwardingType<A6>::Type  FA6;
-    typedef typename bslmf_ConstForwardingType<A7>::Type  FA7;
-    typedef typename bslmf_ConstForwardingType<A8>::Type  FA8;
-    typedef typename bslmf_ConstForwardingType<A9>::Type  FA9;
-    typedef typename bslmf_ConstForwardingType<A10>::Type FA10;
-    typedef typename bslmf_ConstForwardingType<A11>::Type FA11;
+    typedef typename bslmf::ConstForwardingType<A1>::Type  FA1;
+    typedef typename bslmf::ConstForwardingType<A2>::Type  FA2;
+    typedef typename bslmf::ConstForwardingType<A3>::Type  FA3;
+    typedef typename bslmf::ConstForwardingType<A4>::Type  FA4;
+    typedef typename bslmf::ConstForwardingType<A5>::Type  FA5;
+    typedef typename bslmf::ConstForwardingType<A6>::Type  FA6;
+    typedef typename bslmf::ConstForwardingType<A7>::Type  FA7;
+    typedef typename bslmf::ConstForwardingType<A8>::Type  FA8;
+    typedef typename bslmf::ConstForwardingType<A9>::Type  FA9;
+    typedef typename bslmf::ConstForwardingType<A10>::Type FA10;
+    typedef typename bslmf::ConstForwardingType<A11>::Type FA11;
 
     // INSTANCE DATA
     bdef_Bind_TupleValue<FA1>  d_a1;
@@ -2369,24 +2372,24 @@ struct bdef_Bind_Tuple11 : public bslmf_TypeList11<A1,A2,A3,A4,A5,A6,A7,A8,A9,
 
 template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
           class A8, class A9, class A10, class A11, class A12>
-struct bdef_Bind_Tuple12 : public bslmf_TypeList12<A1,A2,A3,A4,A5,A6,A7,A8,A9,
+struct bdef_Bind_Tuple12 : public bslmf::TypeList12<A1,A2,A3,A4,A5,A6,A7,A8,A9,
                                                    A10,A11,A12>
 {
     // This 'struct' stores a list of twelve arguments.
 
     // TYPES
-    typedef typename bslmf_ConstForwardingType<A1>::Type  FA1;
-    typedef typename bslmf_ConstForwardingType<A2>::Type  FA2;
-    typedef typename bslmf_ConstForwardingType<A3>::Type  FA3;
-    typedef typename bslmf_ConstForwardingType<A4>::Type  FA4;
-    typedef typename bslmf_ConstForwardingType<A5>::Type  FA5;
-    typedef typename bslmf_ConstForwardingType<A6>::Type  FA6;
-    typedef typename bslmf_ConstForwardingType<A7>::Type  FA7;
-    typedef typename bslmf_ConstForwardingType<A8>::Type  FA8;
-    typedef typename bslmf_ConstForwardingType<A9>::Type  FA9;
-    typedef typename bslmf_ConstForwardingType<A10>::Type FA10;
-    typedef typename bslmf_ConstForwardingType<A11>::Type FA11;
-    typedef typename bslmf_ConstForwardingType<A12>::Type FA12;
+    typedef typename bslmf::ConstForwardingType<A1>::Type  FA1;
+    typedef typename bslmf::ConstForwardingType<A2>::Type  FA2;
+    typedef typename bslmf::ConstForwardingType<A3>::Type  FA3;
+    typedef typename bslmf::ConstForwardingType<A4>::Type  FA4;
+    typedef typename bslmf::ConstForwardingType<A5>::Type  FA5;
+    typedef typename bslmf::ConstForwardingType<A6>::Type  FA6;
+    typedef typename bslmf::ConstForwardingType<A7>::Type  FA7;
+    typedef typename bslmf::ConstForwardingType<A8>::Type  FA8;
+    typedef typename bslmf::ConstForwardingType<A9>::Type  FA9;
+    typedef typename bslmf::ConstForwardingType<A10>::Type FA10;
+    typedef typename bslmf::ConstForwardingType<A11>::Type FA11;
+    typedef typename bslmf::ConstForwardingType<A12>::Type FA12;
 
     // INSTANCE DATA
     bdef_Bind_TupleValue<FA1>  d_a1;
@@ -2441,25 +2444,25 @@ struct bdef_Bind_Tuple12 : public bslmf_TypeList12<A1,A2,A3,A4,A5,A6,A7,A8,A9,
 
 template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
           class A8, class A9, class A10, class A11, class A12, class A13>
-struct bdef_Bind_Tuple13 : public bslmf_TypeList13<A1,A2,A3,A4,A5,A6,A7,A8,A9,
+struct bdef_Bind_Tuple13 : public bslmf::TypeList13<A1,A2,A3,A4,A5,A6,A7,A8,A9,
                                                    A10,A11,A12,A13>
 {
     // This 'struct' stores a list of thirteen arguments.
 
     // TYPES
-    typedef typename bslmf_ConstForwardingType<A1>::Type  FA1;
-    typedef typename bslmf_ConstForwardingType<A2>::Type  FA2;
-    typedef typename bslmf_ConstForwardingType<A3>::Type  FA3;
-    typedef typename bslmf_ConstForwardingType<A4>::Type  FA4;
-    typedef typename bslmf_ConstForwardingType<A5>::Type  FA5;
-    typedef typename bslmf_ConstForwardingType<A6>::Type  FA6;
-    typedef typename bslmf_ConstForwardingType<A7>::Type  FA7;
-    typedef typename bslmf_ConstForwardingType<A8>::Type  FA8;
-    typedef typename bslmf_ConstForwardingType<A9>::Type  FA9;
-    typedef typename bslmf_ConstForwardingType<A10>::Type FA10;
-    typedef typename bslmf_ConstForwardingType<A11>::Type FA11;
-    typedef typename bslmf_ConstForwardingType<A12>::Type FA12;
-    typedef typename bslmf_ConstForwardingType<A13>::Type FA13;
+    typedef typename bslmf::ConstForwardingType<A1>::Type  FA1;
+    typedef typename bslmf::ConstForwardingType<A2>::Type  FA2;
+    typedef typename bslmf::ConstForwardingType<A3>::Type  FA3;
+    typedef typename bslmf::ConstForwardingType<A4>::Type  FA4;
+    typedef typename bslmf::ConstForwardingType<A5>::Type  FA5;
+    typedef typename bslmf::ConstForwardingType<A6>::Type  FA6;
+    typedef typename bslmf::ConstForwardingType<A7>::Type  FA7;
+    typedef typename bslmf::ConstForwardingType<A8>::Type  FA8;
+    typedef typename bslmf::ConstForwardingType<A9>::Type  FA9;
+    typedef typename bslmf::ConstForwardingType<A10>::Type FA10;
+    typedef typename bslmf::ConstForwardingType<A11>::Type FA11;
+    typedef typename bslmf::ConstForwardingType<A12>::Type FA12;
+    typedef typename bslmf::ConstForwardingType<A13>::Type FA13;
 
     // INSTANCE DATA
     bdef_Bind_TupleValue<FA1>  d_a1;
@@ -2518,26 +2521,26 @@ struct bdef_Bind_Tuple13 : public bslmf_TypeList13<A1,A2,A3,A4,A5,A6,A7,A8,A9,
 template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
           class A8, class A9, class A10, class A11, class A12, class A13,
           class A14>
-struct bdef_Bind_Tuple14 : public bslmf_TypeList14<A1,A2,A3,A4,A5,A6,A7,A8,A9,
+struct bdef_Bind_Tuple14 : public bslmf::TypeList14<A1,A2,A3,A4,A5,A6,A7,A8,A9,
                                                    A10,A11,A12,A13,A14>
 {
     // This 'struct' stores a list of fourteen arguments.
 
     // TYPES
-    typedef typename bslmf_ConstForwardingType<A1>::Type  FA1;
-    typedef typename bslmf_ConstForwardingType<A2>::Type  FA2;
-    typedef typename bslmf_ConstForwardingType<A3>::Type  FA3;
-    typedef typename bslmf_ConstForwardingType<A4>::Type  FA4;
-    typedef typename bslmf_ConstForwardingType<A5>::Type  FA5;
-    typedef typename bslmf_ConstForwardingType<A6>::Type  FA6;
-    typedef typename bslmf_ConstForwardingType<A7>::Type  FA7;
-    typedef typename bslmf_ConstForwardingType<A8>::Type  FA8;
-    typedef typename bslmf_ConstForwardingType<A9>::Type  FA9;
-    typedef typename bslmf_ConstForwardingType<A10>::Type FA10;
-    typedef typename bslmf_ConstForwardingType<A11>::Type FA11;
-    typedef typename bslmf_ConstForwardingType<A12>::Type FA12;
-    typedef typename bslmf_ConstForwardingType<A13>::Type FA13;
-    typedef typename bslmf_ConstForwardingType<A14>::Type FA14;
+    typedef typename bslmf::ConstForwardingType<A1>::Type  FA1;
+    typedef typename bslmf::ConstForwardingType<A2>::Type  FA2;
+    typedef typename bslmf::ConstForwardingType<A3>::Type  FA3;
+    typedef typename bslmf::ConstForwardingType<A4>::Type  FA4;
+    typedef typename bslmf::ConstForwardingType<A5>::Type  FA5;
+    typedef typename bslmf::ConstForwardingType<A6>::Type  FA6;
+    typedef typename bslmf::ConstForwardingType<A7>::Type  FA7;
+    typedef typename bslmf::ConstForwardingType<A8>::Type  FA8;
+    typedef typename bslmf::ConstForwardingType<A9>::Type  FA9;
+    typedef typename bslmf::ConstForwardingType<A10>::Type FA10;
+    typedef typename bslmf::ConstForwardingType<A11>::Type FA11;
+    typedef typename bslmf::ConstForwardingType<A12>::Type FA12;
+    typedef typename bslmf::ConstForwardingType<A13>::Type FA13;
+    typedef typename bslmf::ConstForwardingType<A14>::Type FA14;
 
     // INSTANCE DATA
     bdef_Bind_TupleValue<FA1>  d_a1;
@@ -2613,19 +2616,19 @@ class bdef_Bind_Impl {
 
     // PRIVATE TYPES
     typedef bdef_Bind_FuncTraits<RET,FUNC>                 Traits;
-    typedef bslmf_Tag<Traits::HAS_POINTER_SEMANTICS>       HasPointerSemantics;
+    typedef bslmf::Tag<Traits::HAS_POINTER_SEMANTICS>      HasPointerSemantics;
     typedef bdef_Bind_Invoker<typename Traits::ResultType,
                               LIST::LENGTH>                Invoker;
     typedef typename Traits::Type                          FuncType;
 
     // PRIVATE INSTANCE DATA
-    bslalg_ConstructorProxy<typename Traits::WrapperType>  d_func;
+    bslalg::ConstructorProxy<typename Traits::WrapperType> d_func;
     LIST                                                   d_list;
 
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(bdef_Bind_Impl,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     // PUBLIC TYPES
     typedef typename Traits::ResultType                    ResultType;
@@ -2634,11 +2637,11 @@ class bdef_Bind_Impl {
   private:
     // PRIVATE ACCESSORS
     template <class ARGS>
-    inline ResultType invokeImpl(ARGS& arguments, bslmf_Tag<0>) const
+    inline ResultType invokeImpl(ARGS& arguments, bslmf::Tag<0>) const
         // Invoke the bound functor using the invocation parameters provided at
         // construction of this 'bdef_Bind' object.  Substituting place-holders
         // for their respective values in the specified 'arguments'.  The
-        // 'bslmf_Tag' is only used for overloading resolution - indicating
+        // 'bslmf::Tag' is only used for overloading resolution - indicating
         // whether 'd_func' has pointer semantics or not.
     {
         Invoker invoker;
@@ -2646,11 +2649,11 @@ class bdef_Bind_Impl {
     }
 
     template <class ARGS>
-    inline ResultType invokeImpl(ARGS& arguments, bslmf_Tag<1>) const
+    inline ResultType invokeImpl(ARGS& arguments, bslmf::Tag<1>) const
         // Invoke the bound functor using the invocation parameters provided at
         // construction of this 'bdef_Bind' object.  Substituting place-holders
         // for their respective values in the specified 'arguments'.  The
-        // 'bslmf_Tag' is only used for overloading resolution - indicating
+        // 'bslmf::Tag' is only used for overloading resolution - indicating
         // whether 'd_func' has pointer semantics or not.
     {
         Invoker invoker;
@@ -2659,9 +2662,10 @@ class bdef_Bind_Impl {
 
   public:
     // CREATORS
-    bdef_Bind_Impl(typename bslmf_ForwardingType<FUNC>::Type  func,
-                   LIST const&                                list,
-                   bslma_Allocator                           *basicAllocator=0)
+    bdef_Bind_Impl(
+                typename bslmf::ForwardingType<FUNC>::Type  func,
+                LIST const&                                 list,
+                bslma::Allocator                           *basicAllocator = 0)
         // Construct a 'bdef_Bind_Impl' object bound to the specified
         // invocable object 'func' using the invocation parameters specified
         // in 'list'.  Optionally specify a 'basicAllocator' used to supply
@@ -2673,7 +2677,7 @@ class bdef_Bind_Impl {
     }
 
     bdef_Bind_Impl(const bdef_Bind_Impl&  other,
-                   bslma_Allocator       *basicAllocator = 0)
+                   bslma::Allocator      *basicAllocator = 0)
         // Construct a 'bdef_Bind_Impl' object bound to the same invocable
         // object 'func' and using the same invocation parameters as the
         // specified 'other' object.  Optionally specify a 'basicAllocator'
@@ -3167,7 +3171,7 @@ class bdef_Bind_ImplExplicit {
     typedef typename Traits::Type                          FuncType;
     typedef bdef_Bind_Invoker<typename Traits::ResultType,
                               LIST::LENGTH>                Invoker;
-    typedef bslmf_Tag<Traits::HAS_POINTER_SEMANTICS>       HasPointerSemantics;
+    typedef bslmf::Tag<Traits::HAS_POINTER_SEMANTICS>      HasPointerSemantics;
     typedef typename Traits::ArgumentList                  Args;
     typedef bdef_Bind_CalcParameterMask<LIST>              ParamMask;
 
@@ -3205,13 +3209,13 @@ class bdef_Bind_ImplExplicit {
               (int)ParamMask::PARAMINDEX14, OFFSET>::Type  P14;
 
     // PRIVATE INSTANCE DATA
-    bslalg_ConstructorProxy<typename Traits::WrapperType>  d_func;
+    bslalg::ConstructorProxy<typename Traits::WrapperType> d_func;
     LIST                                                   d_list;
 
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(bdef_Bind_ImplExplicit,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     // PUBLIC TYPES
     typedef typename Traits::ResultType                    ResultType;
@@ -3220,11 +3224,11 @@ class bdef_Bind_ImplExplicit {
   private:
     // PRIVATE ACCESSORS
     template <class ARGS>
-    ResultType invokeImpl(ARGS& arguments, bslmf_Tag<0>) const
+    ResultType invokeImpl(ARGS& arguments, bslmf::Tag<0>) const
         // Invoke the bound functor using the invocation parameters provided at
         // construction of this 'bdef_Bind' object.  Substituting place-holders
         // for their respective values in the specified 'arguments'.  The
-        // 'bslmf_Tag' is only used for overloading resolution - indicating
+        // 'bslmf::Tag' is only used for overloading resolution - indicating
         // whether 'd_func' has pointer semantics or not.
     {
         Invoker invoker;
@@ -3232,11 +3236,11 @@ class bdef_Bind_ImplExplicit {
     }
 
     template <class ARGS>
-    inline ResultType invokeImpl(ARGS& arguments, bslmf_Tag<1>) const
+    inline ResultType invokeImpl(ARGS& arguments, bslmf::Tag<1>) const
         // Invoke the bound functor using the invocation parameters provided at
         // construction of this 'bdef_Bind' object.  Substituting place-holders
         // for their respective values in the specified 'arguments'.  The
-        // 'bslmf_Tag' is only used for overloading resolution - indicating
+        // 'bslmf::Tag' is only used for overloading resolution - indicating
         // whether 'd_func' has pointer semantics or not.
     {
         Invoker invoker;
@@ -3245,9 +3249,10 @@ class bdef_Bind_ImplExplicit {
 
   public:
     // CREATORS
-    bdef_Bind_ImplExplicit(typename bslmf_ForwardingType<FUNC>::Type func,
-                           LIST const&                               list,
-                           bslma_Allocator                          *allocator)
+    bdef_Bind_ImplExplicit(
+                         typename bslmf::ForwardingType<FUNC>::Type  func,
+                         LIST const&                                 list,
+                         bslma::Allocator                           *allocator)
         // Construct a 'bdef_Bind_Impl' object bound to the specified
         // invocable object 'func' using the invocation parameters specified
         // in 'list'.
@@ -3257,7 +3262,7 @@ class bdef_Bind_ImplExplicit {
     }
 
     bdef_Bind_ImplExplicit(const bdef_Bind_ImplExplicit&  other,
-                           bslma_Allocator               *allocator)
+                           bslma::Allocator              *allocator)
     : d_func(other.d_func, allocator)
     , d_list(other.d_list, allocator)
     {
@@ -3477,7 +3482,7 @@ struct bdef_Bind_ImplSelector {
     };
 
     typedef typename
-        bslmf_If<IS_EXPLICIT,
+        bslmf::If<IS_EXPLICIT,
                  bdef_Bind_ImplExplicit<RET,FUNC,LIST>,
                  bdef_Bind_Impl<RET,FUNC,LIST> >::Type Type;
 };
@@ -3641,7 +3646,7 @@ template <class RET, class FUNC,
 struct bdef_Bind_FuncTraitsImp;
     // This 'struct' provides a mechanism for inferring various traits of the
     // function object type 'FUNC'.  The return type is given by 'RET' unless
-    // it is 'bslmf_Nil' in which case it is inferred from 'FUNC'.  The last
+    // it is 'bslmf::Nil' in which case it is inferred from 'FUNC'.  The last
     // three parameters 'IS_FUNCTION', 'IS_FUNCTION_POINTER' and
     // 'IS_MEMBER_FUNCTION_POINTER' specify whether 'FUNC' is a free function
     // type (either a reference-to-function or plain function type), a pointer
@@ -3668,7 +3673,7 @@ struct bdef_Bind_FuncTraitsImp<RET,FUNC,1,0,0> {
     typedef FUNC*                                             Type;
     typedef FUNC*                                             WrapperType;
     typedef RET                                               ResultType;
-    typedef typename bslmf_FunctionPointerTraits<FUNC*>::ArgumentList
+    typedef typename bslmf::FunctionPointerTraits<FUNC*>::ArgumentList
                                                               ArgumentList;
 };
 
@@ -3688,7 +3693,7 @@ struct bdef_Bind_FuncTraitsImp<RET,FUNC,0,1,0> {
     typedef FUNC              Type;
     typedef FUNC              WrapperType;
     typedef RET               ResultType;
-    typedef typename bslmf_FunctionPointerTraits<FUNC>::ArgumentList
+    typedef typename bslmf::FunctionPointerTraits<FUNC>::ArgumentList
                               ArgumentList;
 };
 
@@ -3708,7 +3713,7 @@ struct bdef_Bind_FuncTraitsImp<RET,FUNC,0,0,1> {
     typedef FUNC             Type;
     typedef bdef_MemFn<FUNC> WrapperType;
     typedef RET              ResultType;
-    typedef typename bslmf_MemberFunctionPointerTraits<FUNC>::ArgumentList
+    typedef typename bslmf::MemberFunctionPointerTraits<FUNC>::ArgumentList
                              ArgumentList;
 };
 
@@ -3720,8 +3725,8 @@ struct bdef_Bind_FuncTraitsImp<RET,FUNC,0,0,0> {
     // ENUMERATIONS
     enum {
         IS_EXPLICIT           = 0
-      , HAS_POINTER_SEMANTICS = bslalg_HasTrait<FUNC,
-                                    bslalg_TypeTraitHasPointerSemantics>::VALUE
+      , HAS_POINTER_SEMANTICS = bslalg::HasTrait<FUNC,
+                                   bslalg::TypeTraitHasPointerSemantics>::VALUE
     };
 
     // PUBLIC TYPES
@@ -3747,7 +3752,7 @@ struct bdef_Bind_FuncTraitsImp<RET,FUNC*,0,0,0> {
 };
 
 template <class FUNC>
-struct bdef_Bind_FuncTraitsImp<bslmf_Nil,FUNC,1,0,0> {
+struct bdef_Bind_FuncTraitsImp<bslmf::Nil,FUNC,1,0,0> {
     // Function traits for non-member function types (references or not, but
     // not pointers to function).  The result type is determined from the
     // function pointer traits.
@@ -3762,14 +3767,14 @@ struct bdef_Bind_FuncTraitsImp<bslmf_Nil,FUNC,1,0,0> {
     // PUBLIC TYPES
     typedef FUNC                                              Type;
     typedef FUNC*                                             WrapperType;
-    typedef typename bslmf_FunctionPointerTraits<FUNC*>::ResultType
+    typedef typename bslmf::FunctionPointerTraits<FUNC*>::ResultType
                                                               ResultType;
-    typedef typename bslmf_FunctionPointerTraits<FUNC*>::ArgumentList
+    typedef typename bslmf::FunctionPointerTraits<FUNC*>::ArgumentList
                                                               ArgumentList;
 };
 
 template <class FUNC>
-struct bdef_Bind_FuncTraitsImp<bslmf_Nil,FUNC,0,1,0> {
+struct bdef_Bind_FuncTraitsImp<bslmf::Nil,FUNC,0,1,0> {
     // Function traits for non-member function pointers.  The result type is
     // determined from the function pointer traits.
 
@@ -3783,14 +3788,14 @@ struct bdef_Bind_FuncTraitsImp<bslmf_Nil,FUNC,0,1,0> {
     // PUBLIC TYPES
     typedef FUNC Type;
     typedef FUNC WrapperType;
-    typedef typename bslmf_FunctionPointerTraits<FUNC>::ResultType
+    typedef typename bslmf::FunctionPointerTraits<FUNC>::ResultType
                  ResultType;
-    typedef typename bslmf_FunctionPointerTraits<FUNC>::ArgumentList
+    typedef typename bslmf::FunctionPointerTraits<FUNC>::ArgumentList
                  ArgumentList;
 };
 
 template <class FUNC>
-struct bdef_Bind_FuncTraitsImp<bslmf_Nil,FUNC,0,0,1> {
+struct bdef_Bind_FuncTraitsImp<bslmf::Nil,FUNC,0,0,1> {
     // Function traits for member function pointers.  The result type is
     // determined from the function pointer traits.
 
@@ -3804,14 +3809,14 @@ struct bdef_Bind_FuncTraitsImp<bslmf_Nil,FUNC,0,0,1> {
     // PUBLIC TYPES
     typedef FUNC             Type;
     typedef bdef_MemFn<FUNC> WrapperType;
-    typedef typename bslmf_MemberFunctionPointerTraits<FUNC>::ResultType
+    typedef typename bslmf::MemberFunctionPointerTraits<FUNC>::ResultType
                              ResultType;
-    typedef typename bslmf_MemberFunctionPointerTraits<FUNC>::ArgumentList
+    typedef typename bslmf::MemberFunctionPointerTraits<FUNC>::ArgumentList
                              ArgumentList;
 };
 
 template <class FUNC>
-struct bdef_Bind_FuncTraitsImp<bslmf_Nil,FUNC,0,0,0> {
+struct bdef_Bind_FuncTraitsImp<bslmf::Nil,FUNC,0,0,0> {
     // Function traits for function objects that are passed by value without
     // explicit result type specification.  The result type is determined
     // to the 'FUNC::ResultType'.
@@ -3819,8 +3824,8 @@ struct bdef_Bind_FuncTraitsImp<bslmf_Nil,FUNC,0,0,0> {
     // ENUMERATIONS
     enum {
         IS_EXPLICIT           = 0
-      , HAS_POINTER_SEMANTICS = bslalg_HasTrait<FUNC,
-                                    bslalg_TypeTraitHasPointerSemantics>::VALUE
+      , HAS_POINTER_SEMANTICS = bslalg::HasTrait<FUNC,
+                                   bslalg::TypeTraitHasPointerSemantics>::VALUE
     };
 
     // PUBLIC TYPES
@@ -3830,7 +3835,7 @@ struct bdef_Bind_FuncTraitsImp<bslmf_Nil,FUNC,0,0,0> {
 };
 
 template <class FUNC>
-struct bdef_Bind_FuncTraitsImp<bslmf_Nil,FUNC*,0,0,0> {
+struct bdef_Bind_FuncTraitsImp<bslmf::Nil,FUNC*,0,0,0> {
     // Function traits for objects passed by pointer with no explicit
     // return type.  The object is assumed to have a 'ResultType' type
     // definition.
@@ -3854,14 +3859,14 @@ struct bdef_Bind_FuncTraitsImp<bslmf_Nil,FUNC*,0,0,0> {
 template <class RET, class FUNC>
 struct bdef_Bind_FuncTraits
 : public bdef_Bind_FuncTraitsImp<RET,FUNC,
-                             (int)bslmf_IsFunctionPointer<FUNC*>::VALUE,
-                             (int)bslmf_IsFunctionPointer<FUNC>::VALUE,
-                             (int)bslmf_IsMemberFunctionPointer<FUNC>::VALUE>
+                             (int)bslmf::IsFunctionPointer<FUNC*>::VALUE,
+                             (int)bslmf::IsFunctionPointer<FUNC>::VALUE,
+                             (int)bslmf::IsMemberFunctionPointer<FUNC>::VALUE>
 {
     // This 'struct' provides various traits of the functor type 'FUNC'
-    // documented below.  If 'RET' is 'bslmf_Nil', then the return type is
-    // inferred by using either 'bslmf_FunctionPointerTraits',
-    // 'bslmf_MemberFunctionPointerTraits', or 'FUNC::ResultType' as
+    // documented below.  If 'RET' is 'bslmf::Nil', then the return type is
+    // inferred by using either 'bslmf::FunctionPointerTraits',
+    // 'bslmf::MemberFunctionPointerTraits', or 'FUNC::ResultType' as
     // appropriate.
     //..
     // // ENUMERATIONS
@@ -3888,7 +3893,7 @@ struct bdef_Bind_FuncTraits
     // of 'bdef_Bind_FuncTraitsImp', where 'X' represents a class type and 'T'
     // represents the return type (given explicitly by 'RET', or deduced by the
     // nested 'ResultType' of 'X' or of the appropriate traits when 'RET' is
-    // specified as 'bslmf_Nil').
+    // specified as 'bslmf::Nil').
     //
     // RET        FUNC     IS _FN IS_FNP IS_MEM IS_EXPLICIT OFFSET PTR_SEM
     // ---------  -------  ------ ------ ------ ----------- ------ -------
@@ -3897,16 +3902,16 @@ struct bdef_Bind_FuncTraits
     // T          T(X::*)(...)  0      0      1          1       1       0
     // T          X             0      0      0          0       A       B
     // T          X*            0      0      0          0       A       1
-    // bslmf_Nil  T(...)        1      0      0          1^      0       0
-    // bslmf_Nil  T(*)(..)      0      1      0          1^      0       0
-    // bslmf_Nil  T(X::*)(...)  0      0      1          1       1       0
-    // bslmf_Nil  X             0      0      0          0       A       B
-    // bslmf_Nil  X*            0      0      0          0       A       1
+    // bslmf::Nil  T(...)       1      0      0          1^      0       0
+    // bslmf::Nil  T(*)(..)     0      1      0          1^      0       0
+    // bslmf::Nil  T(X::*)(...) 0      0      1          1       1       0
+    // bslmf::Nil  X            0      0      0          0       A       B
+    // bslmf::Nil  X*           0      0      0          0       A       1
     //
     // A: undefined, since unused by 'bdef_Bin_Impl', which is used for
     //    non-explicit binders.
     // B: as determined by the value of
-    //    'bslalg_TypeTraits<X, bslalg_TypeTraitHasPointerSemantics>'.
+    //    'bslalg_TypeTraits<X, bslalg::TypeTraitHasPointerSemantics>'.
     // ^: in the (rare) case where the 'FUNC' type has an ellipsis argument,
     //    the IS_EXPLICIT will be set to 0.  Note that we *only* support the
     //    ellipsis in non-member functions.
@@ -4005,8 +4010,8 @@ class bdef_Bind_MemFnObjectWrapper {
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS2(bdef_Bind_MemFnObjectWrapper,
-                                  bslalg_TypeTraitHasPointerSemantics,
-                                  bslalg_TypeTraitBitwiseMoveable);
+                                  bslalg::TypeTraitHasPointerSemantics,
+                                  bslalg::TypeTraitBitwiseMoveable);
 
     // CREATORS
     bdef_Bind_MemFnObjectWrapper(TYPE  *object) : d_object(object) {}
@@ -4029,14 +4034,14 @@ template <class FUNC, class ARGS, int INDEX, int OFFSET>
 struct bdef_Bind_MapParameter {
     // This meta-function is used to select the type at 'OFFSET' positions of
     // the 'INDEX' position in an argument list type 'ARGS', which is of type
-    // 'bslmf_TypeList'.  Note that this class is used by
+    // 'bslmf::TypeList'.  Note that this class is used by
     // 'bdef_Bind_ImplExplicit'.
 
     // PUBLIC TYPES
     typedef typename
-        bslmf_ForwardingType<
-            typename bslmf_TypeListTypeOf<INDEX - OFFSET,
-                        ARGS, const bslmf_AnyType&>::TypeOrDefault>::Type Type;
+        bslmf::ForwardingType<
+            typename bslmf::TypeListTypeOf<INDEX - OFFSET,
+                  ARGS, const bslmf::MatchAnyType&>::TypeOrDefault>::Type Type;
 };
 
 template <class FUNC, class ARGS>
@@ -4047,10 +4052,10 @@ struct bdef_Bind_MapParameter<FUNC, ARGS, 1, 1> {
     // either can be used to invoke the member function.
 
     // PUBLIC TYPES
-    typedef bslmf_MemberFunctionPointerTraits<FUNC> Traits;
+    typedef bslmf::MemberFunctionPointerTraits<FUNC> Traits;
     typedef typename Traits::ClassType              ObjectType;
     typedef typename
-        bslmf_ForwardingType<const bdef_Bind_MemFnObjectWrapper<ObjectType>& >
+        bslmf::ForwardingType<const bdef_Bind_MemFnObjectWrapper<ObjectType>& >
                                                                    ::Type Type;
 };
 
@@ -4061,7 +4066,7 @@ struct bdef_Bind_MapParameter<FUNC, ARGS, 0, OFFSET> {
     // ignored.
 
     // PUBLIC TYPES
-    typedef const bslmf_AnyType& Type;
+    typedef const bslmf::MatchAnyType& Type;
 };
 
                            // =================================
@@ -4222,7 +4227,7 @@ struct bdef_Bind_CalcParameterMask {
                            // ===========================
 
 template <class A1, class A2>
-struct bdef_Bind_BoundTuple2 : public bslmf_TypeList2<A1,A2>
+struct bdef_Bind_BoundTuple2 : public bslmf::TypeList2<A1,A2>
 {
     // This 'struct' stores a list of two arguments.  It does *not* use the
     // const-forwarding type of its argument, unlike 'bdef_Bind_Tuple2'
@@ -4233,15 +4238,15 @@ struct bdef_Bind_BoundTuple2 : public bslmf_TypeList2<A1,A2>
     bdef_Bind_BoundTupleValue<A2> d_a2;
 
     // CREATORS
-    bdef_Bind_BoundTuple2(const bdef_Bind_BoundTuple2<A1,A2>& orig,
-                          bslma_Allocator *allocator = 0)
+    bdef_Bind_BoundTuple2(const bdef_Bind_BoundTuple2<A1,A2>&  orig,
+                          bslma::Allocator                    *allocator = 0)
     : d_a1(orig.d_a1,allocator)
     , d_a2(orig.d_a2,allocator)
     {
     }
 
     bdef_Bind_BoundTuple2(A1 const& a1, A2 const& a2,
-                          bslma_Allocator *allocator = 0)
+                          bslma::Allocator *allocator = 0)
     : d_a1(a1,allocator)
     , d_a2(a2,allocator)
     {
@@ -4249,7 +4254,7 @@ struct bdef_Bind_BoundTuple2 : public bslmf_TypeList2<A1,A2>
 };
 
 template <class A1, class A2, class A3>
-struct bdef_Bind_BoundTuple3 : public bslmf_TypeList3<A1,A2,A3>
+struct bdef_Bind_BoundTuple3 : public bslmf::TypeList3<A1,A2,A3>
 {
     // This 'struct' stores a list of three arguments.  It does *not* use the
     // const-forwarding type of its arguments, unlike 'bdef_Bind_Tuple3'
@@ -4262,7 +4267,7 @@ struct bdef_Bind_BoundTuple3 : public bslmf_TypeList3<A1,A2,A3>
 
     // CREATORS
     bdef_Bind_BoundTuple3(const bdef_Bind_BoundTuple3<A1,A2,A3>& orig,
-                          bslma_Allocator *allocator = 0)
+                          bslma::Allocator *allocator = 0)
     : d_a1(orig.d_a1,allocator)
     , d_a2(orig.d_a2,allocator)
     , d_a3(orig.d_a3,allocator)
@@ -4270,7 +4275,7 @@ struct bdef_Bind_BoundTuple3 : public bslmf_TypeList3<A1,A2,A3>
     }
 
     bdef_Bind_BoundTuple3(A1 const& a1, A2 const& a2, A3 const& a3,
-                          bslma_Allocator *allocator = 0)
+                          bslma::Allocator *allocator = 0)
     : d_a1(a1,allocator)
     , d_a2(a2,allocator)
     , d_a3(a3,allocator)
@@ -4279,7 +4284,7 @@ struct bdef_Bind_BoundTuple3 : public bslmf_TypeList3<A1,A2,A3>
 };
 
 template <class A1, class A2, class A3, class A4>
-struct bdef_Bind_BoundTuple4 : public bslmf_TypeList4<A1,A2,A3,A4>
+struct bdef_Bind_BoundTuple4 : public bslmf::TypeList4<A1,A2,A3,A4>
 {
     // This 'struct' stores a list of four arguments.  It does *not* use the
     // const-forwarding type of its arguments, unlike 'bdef_Bind_Tuple4'
@@ -4293,7 +4298,7 @@ struct bdef_Bind_BoundTuple4 : public bslmf_TypeList4<A1,A2,A3,A4>
 
     // CREATORS
     bdef_Bind_BoundTuple4(const bdef_Bind_BoundTuple4<A1,A2,A3,A4>& orig,
-                          bslma_Allocator *allocator = 0)
+                          bslma::Allocator *allocator = 0)
     : d_a1(orig.d_a1,allocator)
     , d_a2(orig.d_a2,allocator)
     , d_a3(orig.d_a3,allocator)
@@ -4302,7 +4307,7 @@ struct bdef_Bind_BoundTuple4 : public bslmf_TypeList4<A1,A2,A3,A4>
     }
 
     bdef_Bind_BoundTuple4(A1 const& a1, A2 const& a2, A3 const& a3,
-                          A4 const& a4, bslma_Allocator *allocator = 0)
+                          A4 const& a4, bslma::Allocator *allocator = 0)
     : d_a1(a1,allocator)
     , d_a2(a2,allocator)
     , d_a3(a3,allocator)
@@ -4312,7 +4317,7 @@ struct bdef_Bind_BoundTuple4 : public bslmf_TypeList4<A1,A2,A3,A4>
 };
 
 template <class A1, class A2, class A3, class A4, class A5>
-struct bdef_Bind_BoundTuple5 : public bslmf_TypeList5<A1,A2,A3,A4,A5>
+struct bdef_Bind_BoundTuple5 : public bslmf::TypeList5<A1,A2,A3,A4,A5>
 {
     // This 'struct' stores a list of five arguments.  It does *not* use the
     // const-forwarding type of its arguments, unlike 'bdef_Bind_Tuple5'
@@ -4327,7 +4332,7 @@ struct bdef_Bind_BoundTuple5 : public bslmf_TypeList5<A1,A2,A3,A4,A5>
 
     // CREATORS
     bdef_Bind_BoundTuple5(const bdef_Bind_BoundTuple5<A1,A2,A3,A4,A5>& orig,
-                          bslma_Allocator *allocator = 0)
+                          bslma::Allocator *allocator = 0)
     : d_a1(orig.d_a1,allocator)
     , d_a2(orig.d_a2,allocator)
     , d_a3(orig.d_a3,allocator)
@@ -4338,7 +4343,7 @@ struct bdef_Bind_BoundTuple5 : public bslmf_TypeList5<A1,A2,A3,A4,A5>
 
     bdef_Bind_BoundTuple5(A1 const& a1, A2 const& a2, A3 const& a3,
                           A4 const& a4, A5 const& a5,
-                          bslma_Allocator *allocator = 0)
+                          bslma::Allocator *allocator = 0)
     : d_a1(a1,allocator)
     , d_a2(a2,allocator)
     , d_a3(a3,allocator)
@@ -4349,7 +4354,7 @@ struct bdef_Bind_BoundTuple5 : public bslmf_TypeList5<A1,A2,A3,A4,A5>
 };
 
 template <class A1, class A2, class A3, class A4, class A5, class A6>
-struct bdef_Bind_BoundTuple6 : public bslmf_TypeList6<A1,A2,A3,A4,A5,A6>
+struct bdef_Bind_BoundTuple6 : public bslmf::TypeList6<A1,A2,A3,A4,A5,A6>
 {
     // This 'struct' stores a list of six arguments.  It does *not* use the
     // const-forwarding type of its arguments, unlike 'bdef_Bind_Tuple6'
@@ -4366,7 +4371,7 @@ struct bdef_Bind_BoundTuple6 : public bslmf_TypeList6<A1,A2,A3,A4,A5,A6>
     // CREATORS
     bdef_Bind_BoundTuple6(const bdef_Bind_BoundTuple6<A1,A2,A3,A4,A5,A6>&
                                            orig,
-                          bslma_Allocator *allocator = 0)
+                          bslma::Allocator *allocator = 0)
     : d_a1(orig.d_a1,allocator)
     , d_a2(orig.d_a2,allocator)
     , d_a3(orig.d_a3,allocator)
@@ -4378,7 +4383,7 @@ struct bdef_Bind_BoundTuple6 : public bslmf_TypeList6<A1,A2,A3,A4,A5,A6>
 
     bdef_Bind_BoundTuple6(A1 const& a1, A2 const& a2, A3 const& a3,
                           A4 const& a4, A5 const& a5, A6 const& a6,
-                          bslma_Allocator *allocator = 0)
+                          bslma::Allocator *allocator = 0)
     : d_a1(a1,allocator)
     , d_a2(a2,allocator)
     , d_a3(a3,allocator)
@@ -4390,7 +4395,7 @@ struct bdef_Bind_BoundTuple6 : public bslmf_TypeList6<A1,A2,A3,A4,A5,A6>
 };
 
 template <class A1, class A2, class A3, class A4, class A5, class A6, class A7>
-struct bdef_Bind_BoundTuple7 : public bslmf_TypeList7<A1,A2,A3,A4,A5,A6,A7>
+struct bdef_Bind_BoundTuple7 : public bslmf::TypeList7<A1,A2,A3,A4,A5,A6,A7>
 {
     // This 'struct' stores a list of seven arguments.  It does *not* use the
     // const-forwarding type of its arguments, unlike 'bdef_Bind_Tuple7'
@@ -4408,7 +4413,7 @@ struct bdef_Bind_BoundTuple7 : public bslmf_TypeList7<A1,A2,A3,A4,A5,A6,A7>
     // CREATORS
     bdef_Bind_BoundTuple7(const bdef_Bind_BoundTuple7<A1,A2,A3,A4,A5,A6,A7>&
                                            orig,
-                          bslma_Allocator *allocator = 0)
+                          bslma::Allocator *allocator = 0)
     : d_a1(orig.d_a1,allocator)
     , d_a2(orig.d_a2,allocator)
     , d_a3(orig.d_a3,allocator)
@@ -4421,7 +4426,7 @@ struct bdef_Bind_BoundTuple7 : public bslmf_TypeList7<A1,A2,A3,A4,A5,A6,A7>
 
     bdef_Bind_BoundTuple7(A1 const& a1, A2 const& a2, A3 const& a3,
                           A4 const& a4, A5 const& a5, A6 const& a6,
-                          A7 const& a7, bslma_Allocator *allocator = 0)
+                          A7 const& a7, bslma::Allocator *allocator = 0)
     : d_a1(a1,allocator)
     , d_a2(a2,allocator)
     , d_a3(a3,allocator)
@@ -4435,7 +4440,7 @@ struct bdef_Bind_BoundTuple7 : public bslmf_TypeList7<A1,A2,A3,A4,A5,A6,A7>
 
 template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
           class A8>
-struct bdef_Bind_BoundTuple8 : public bslmf_TypeList8<A1,A2,A3,A4,A5,A6,A7,A8>
+struct bdef_Bind_BoundTuple8 : public bslmf::TypeList8<A1,A2,A3,A4,A5,A6,A7,A8>
 {
     // This 'struct' stores a list of eight arguments.  It does *not* use the
     // const-forwarding type of its arguments, unlike 'bdef_Bind_Tuple8'
@@ -4454,7 +4459,7 @@ struct bdef_Bind_BoundTuple8 : public bslmf_TypeList8<A1,A2,A3,A4,A5,A6,A7,A8>
     // CREATORS
     bdef_Bind_BoundTuple8(const bdef_Bind_BoundTuple8<A1,A2,A3,A4,A5,A6,A7,A8>&
                                            orig,
-                          bslma_Allocator *allocator = 0)
+                          bslma::Allocator *allocator = 0)
     : d_a1(orig.d_a1,allocator)
     , d_a2(orig.d_a2,allocator)
     , d_a3(orig.d_a3,allocator)
@@ -4469,7 +4474,7 @@ struct bdef_Bind_BoundTuple8 : public bslmf_TypeList8<A1,A2,A3,A4,A5,A6,A7,A8>
     bdef_Bind_BoundTuple8(A1 const& a1, A2 const& a2, A3 const& a3,
                           A4 const& a4, A5 const& a5, A6 const& a6,
                           A7 const& a7, A8 const& a8,
-                          bslma_Allocator *allocator = 0)
+                          bslma::Allocator *allocator = 0)
     : d_a1(a1,allocator)
     , d_a2(a2,allocator)
     , d_a3(a3,allocator)
@@ -4484,7 +4489,7 @@ struct bdef_Bind_BoundTuple8 : public bslmf_TypeList8<A1,A2,A3,A4,A5,A6,A7,A8>
 
 template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
           class A8, class A9>
-struct bdef_Bind_BoundTuple9 : public bslmf_TypeList9<A1,A2,A3,A4,A5,A6,A7,
+struct bdef_Bind_BoundTuple9 : public bslmf::TypeList9<A1,A2,A3,A4,A5,A6,A7,
                                                       A8,A9>
 {
     // This 'struct' stores a list of nine arguments.  It does *not* use the
@@ -4505,7 +4510,7 @@ struct bdef_Bind_BoundTuple9 : public bslmf_TypeList9<A1,A2,A3,A4,A5,A6,A7,
     // CREATORS
     bdef_Bind_BoundTuple9(const bdef_Bind_BoundTuple9<A1,A2,A3,A4,A5,A6,A7,
                                                       A8,A9>& orig,
-                          bslma_Allocator *allocator = 0)
+                          bslma::Allocator *allocator = 0)
     : d_a1(orig.d_a1,allocator)
     , d_a2(orig.d_a2,allocator)
     , d_a3(orig.d_a3,allocator)
@@ -4521,7 +4526,7 @@ struct bdef_Bind_BoundTuple9 : public bslmf_TypeList9<A1,A2,A3,A4,A5,A6,A7,
     bdef_Bind_BoundTuple9(A1 const& a1, A2 const& a2, A3 const& a3,
                           A4 const& a4, A5 const& a5, A6 const& a6,
                           A7 const& a7, A8 const& a8, A9 const& a9,
-                          bslma_Allocator *allocator = 0)
+                          bslma::Allocator *allocator = 0)
     : d_a1(a1,allocator)
     , d_a2(a2,allocator)
     , d_a3(a3,allocator)
@@ -4537,7 +4542,7 @@ struct bdef_Bind_BoundTuple9 : public bslmf_TypeList9<A1,A2,A3,A4,A5,A6,A7,
 
 template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
           class A8, class A9, class A10>
-struct bdef_Bind_BoundTuple10 : public bslmf_TypeList10<A1,A2,A3,A4,A5,A6,A7,
+struct bdef_Bind_BoundTuple10 : public bslmf::TypeList10<A1,A2,A3,A4,A5,A6,A7,
                                                         A8,A9,A10>
 {
     // This 'struct' stores a list of ten arguments.  It does *not* use the
@@ -4559,7 +4564,7 @@ struct bdef_Bind_BoundTuple10 : public bslmf_TypeList10<A1,A2,A3,A4,A5,A6,A7,
     // CREATORS
     bdef_Bind_BoundTuple10(const bdef_Bind_BoundTuple10<A1,A2,A3,A4,A5,A6,A7,
                                                         A8,A9,A10>& orig,
-                           bslma_Allocator *allocator = 0)
+                           bslma::Allocator *allocator = 0)
     : d_a1(orig.d_a1,allocator)
     , d_a2(orig.d_a2,allocator)
     , d_a3(orig.d_a3,allocator)
@@ -4577,7 +4582,7 @@ struct bdef_Bind_BoundTuple10 : public bslmf_TypeList10<A1,A2,A3,A4,A5,A6,A7,
                            A4 const& a4, A5 const& a5, A6 const& a6,
                            A7 const& a7, A8 const& a8, A9 const& a9,
                            A10 const& a10,
-                           bslma_Allocator *allocator = 0)
+                           bslma::Allocator *allocator = 0)
     : d_a1(a1,allocator)
     , d_a2(a2,allocator)
     , d_a3(a3,allocator)
@@ -4594,7 +4599,7 @@ struct bdef_Bind_BoundTuple10 : public bslmf_TypeList10<A1,A2,A3,A4,A5,A6,A7,
 
 template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
           class A8, class A9, class A10, class A11>
-struct bdef_Bind_BoundTuple11 : public bslmf_TypeList11<A1,A2,A3,A4,A5,A6,A7,
+struct bdef_Bind_BoundTuple11 : public bslmf::TypeList11<A1,A2,A3,A4,A5,A6,A7,
                                                         A8,A9,A10,A11>
 {
     // This 'struct' stores a list of eleven arguments.  It does *not* use the
@@ -4617,7 +4622,7 @@ struct bdef_Bind_BoundTuple11 : public bslmf_TypeList11<A1,A2,A3,A4,A5,A6,A7,
     // CREATORS
     bdef_Bind_BoundTuple11(const bdef_Bind_BoundTuple11<A1,A2,A3,A4,A5,A6,A7,
                                                         A8,A9,A10,A11>& orig,
-                           bslma_Allocator *allocator = 0)
+                           bslma::Allocator *allocator = 0)
     : d_a1(orig.d_a1,allocator)
     , d_a2(orig.d_a2,allocator)
     , d_a3(orig.d_a3,allocator)
@@ -4636,7 +4641,7 @@ struct bdef_Bind_BoundTuple11 : public bslmf_TypeList11<A1,A2,A3,A4,A5,A6,A7,
                            A4 const& a4, A5 const& a5, A6 const& a6,
                            A7 const& a7, A8 const& a8, A9 const& a9,
                            A10 const& a10, A11 const& a11,
-                           bslma_Allocator *allocator = 0)
+                           bslma::Allocator *allocator = 0)
     : d_a1(a1,allocator)
     , d_a2(a2,allocator)
     , d_a3(a3,allocator)
@@ -4654,7 +4659,7 @@ struct bdef_Bind_BoundTuple11 : public bslmf_TypeList11<A1,A2,A3,A4,A5,A6,A7,
 
 template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
           class A8, class A9, class A10, class A11, class A12>
-struct bdef_Bind_BoundTuple12 : public bslmf_TypeList12<A1,A2,A3,A4,A5,A6,A7,
+struct bdef_Bind_BoundTuple12 : public bslmf::TypeList12<A1,A2,A3,A4,A5,A6,A7,
                                                         A8,A9,A10,A11,A12>
 {
     // This 'struct' stores a list of twelve arguments.  It does *not* use the
@@ -4678,7 +4683,7 @@ struct bdef_Bind_BoundTuple12 : public bslmf_TypeList12<A1,A2,A3,A4,A5,A6,A7,
     // CREATORS
     bdef_Bind_BoundTuple12(const bdef_Bind_BoundTuple12<A1,A2,A3,A4,A5,A6,A7,
                                                       A8,A9,A10,A11,A12>& orig,
-                           bslma_Allocator *allocator = 0)
+                           bslma::Allocator *allocator = 0)
     : d_a1(orig.d_a1,allocator)
     , d_a2(orig.d_a2,allocator)
     , d_a3(orig.d_a3,allocator)
@@ -4698,7 +4703,7 @@ struct bdef_Bind_BoundTuple12 : public bslmf_TypeList12<A1,A2,A3,A4,A5,A6,A7,
                            A4 const& a4, A5 const& a5, A6 const& a6,
                            A7 const& a7, A8 const& a8, A9 const& a9,
                            A10 const& a10, A11 const& a11,
-                           A12 const& a12, bslma_Allocator *allocator = 0)
+                           A12 const& a12, bslma::Allocator *allocator = 0)
     : d_a1(a1,allocator)
     , d_a2(a2,allocator)
     , d_a3(a3,allocator)
@@ -4718,7 +4723,7 @@ struct bdef_Bind_BoundTuple12 : public bslmf_TypeList12<A1,A2,A3,A4,A5,A6,A7,
 template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
           class A8, class A9, class A10, class A11, class A12, class A13>
 struct bdef_Bind_BoundTuple13
-: public bslmf_TypeList13<A1,A2,A3,A4,A5,A6,A7,A8,A9,A10,A11,A12,A13>
+: public bslmf::TypeList13<A1,A2,A3,A4,A5,A6,A7,A8,A9,A10,A11,A12,A13>
 {
     // This 'struct' stores a list of thirteen arguments.  It does *not* use
     // the const-forwarding type of its arguments, unlike 'bdef_Bind_Tuple13'
@@ -4742,7 +4747,7 @@ struct bdef_Bind_BoundTuple13
     // CREATORS
     bdef_Bind_BoundTuple13(const bdef_Bind_BoundTuple13<A1,A2,A3,A4,A5,A6,A7,
                                                   A8,A9,A10,A11,A12,A13>& orig,
-                           bslma_Allocator *allocator = 0)
+                           bslma::Allocator *allocator = 0)
     : d_a1(orig.d_a1,allocator)
     , d_a2(orig.d_a2,allocator)
     , d_a3(orig.d_a3,allocator)
@@ -4764,7 +4769,7 @@ struct bdef_Bind_BoundTuple13
                            A7 const& a7, A8 const& a8, A9 const& a9,
                            A10 const& a10, A11 const& a11,
                            A12 const& a12, A13 const& a13,
-                           bslma_Allocator *allocator = 0)
+                           bslma::Allocator *allocator = 0)
     : d_a1(a1,allocator)
     , d_a2(a2,allocator)
     , d_a3(a3,allocator)
@@ -4785,7 +4790,7 @@ struct bdef_Bind_BoundTuple13
 template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
           class A8, class A9, class A10, class A11, class A12, class A13,
           class A14>
-struct bdef_Bind_BoundTuple14 : public bslmf_TypeList14<A1,A2,A3,A4,A5,A6,A7,
+struct bdef_Bind_BoundTuple14 : public bslmf::TypeList14<A1,A2,A3,A4,A5,A6,A7,
                                                      A8,A9,A10,A11,A12,A13,A14>
 {
     // This 'struct' stores a list of fourteen arguments.  It does *not* use
@@ -4811,7 +4816,7 @@ struct bdef_Bind_BoundTuple14 : public bslmf_TypeList14<A1,A2,A3,A4,A5,A6,A7,
     // CREATORS
     bdef_Bind_BoundTuple14(const bdef_Bind_BoundTuple14<A1,A2,A3,A4,A5,A6,A7,
                                               A8,A9,A10,A11,A12,A13,A14>& orig,
-                           bslma_Allocator *allocator = 0)
+                           bslma::Allocator *allocator = 0)
     : d_a1(orig.d_a1,allocator)
     , d_a2(orig.d_a2,allocator)
     , d_a3(orig.d_a3,allocator)
@@ -4834,7 +4839,7 @@ struct bdef_Bind_BoundTuple14 : public bslmf_TypeList14<A1,A2,A3,A4,A5,A6,A7,
                            A7 const& a7, A8 const& a8, A9 const& a9,
                            A10 const& a10, A11 const& a11,
                            A12 const& a12, A13 const& a13, A14 const& a14,
-                           bslma_Allocator *allocator = 0)
+                           bslma::Allocator *allocator = 0)
     : d_a1(a1,allocator)
     , d_a2(a2,allocator)
     , d_a3(a3,allocator)
@@ -4858,7 +4863,7 @@ struct bdef_Bind_BoundTuple14 : public bslmf_TypeList14<A1,A2,A3,A4,A5,A6,A7,
                           // =======================
 
 #define BDEF_BIND_EVAL(N) \
-    bdef_Bind_Evaluator<typename bslmf_TypeListTypeOf<N,LIST>::Type, ARGS>\
+    bdef_Bind_Evaluator<typename bslmf::TypeListTypeOf<N,LIST>::Type, ARGS>\
            ::eval(args, (list->d_a##N).value())
 
 template <class RET>
@@ -5238,8 +5243,8 @@ struct bdef_Bind_Evaluator {
     // This utility provides a default argument evaluator that simply
     // returns whatever value is passed.
 
-    typedef typename  bslmf_ForwardingType<
-        typename bslmf_ArrayToConstPointer<ARG>::Type>::Type ArgType;
+    typedef typename  bslmf::ForwardingType<
+        typename bslmf::ArrayToConstPointer<ARG>::Type>::Type ArgType;
 
     static
     ArgType eval(LIST&, ArgType value)
@@ -5257,8 +5262,8 @@ struct bdef_Bind_Evaluator<bdef_PlaceHolder<INDEX>, LIST> {
 
     // PUBLIC TYPES
     typedef typename
-       bslmf_ForwardingType<typename bslmf_ArrayToConstPointer<
-               typename bslmf_TypeListTypeOf<INDEX,LIST>::TypeOrDefault>::Type
+       bslmf::ForwardingType<typename bslmf::ArrayToConstPointer<
+               typename bslmf::TypeListTypeOf<INDEX,LIST>::TypeOrDefault>::Type
        >::Type  ReturnType;
 
     // CLASS METHODS

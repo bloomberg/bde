@@ -452,11 +452,11 @@ int bdeat_ValueTypeFunctions_Imp::assign(LHS_TYPE                    *lhs,
                                          bdeat_TypeCategory::Simple)
 {
     enum {
-        IS_CONVERTIBLE = bslmf_IsConvertible<RHS_TYPE, LHS_TYPE>::VALUE
+        IS_CONVERTIBLE = bslmf::IsConvertible<RHS_TYPE, LHS_TYPE>::VALUE
     };
 
     typedef typename
-    bslmf_If<IS_CONVERTIBLE, IsConvertible, IsNotConvertible>::Type Selector;
+    bslmf::If<IS_CONVERTIBLE, IsConvertible, IsNotConvertible>::Type Selector;
 
     return assignSimpleTypes(lhs, rhs, Selector());
 }
@@ -506,14 +506,14 @@ inline
 void bdeat_ValueTypeFunctions_Imp::reset(TYPE *object)
 {
     enum {
-        HAS_TRAIT = bslalg_HasTrait<TYPE, bdeat_TypeTraitBasicChoice>::VALUE
-                 || bslalg_HasTrait<TYPE, bdeat_TypeTraitBasicSequence>::VALUE
-                 || bslalg_HasTrait<TYPE,
+        HAS_TRAIT = bslalg::HasTrait<TYPE, bdeat_TypeTraitBasicChoice>::VALUE
+                 || bslalg::HasTrait<TYPE, bdeat_TypeTraitBasicSequence>::VALUE
+                 || bslalg::HasTrait<TYPE,
                                     bdeat_TypeTraitBasicCustomizedType>::VALUE
     };
 
     typedef typename
-    bslmf_If<HAS_TRAIT,
+    bslmf::If<HAS_TRAIT,
              bdeat_ValueTypeFunctions_Imp::UseResetMethod,
              bdeat_ValueTypeFunctions_Imp::UseDefaultCtor>::Type Selector;
 

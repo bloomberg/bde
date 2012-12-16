@@ -130,12 +130,12 @@ int main(int argc, char *argv[])
         if (verbose) bsl::cout << "\nTesting Usage Examples"
                                << "\n======================" << bsl::endl;
 
-///Usage 
+///Usage
 ///-----
 // The following usage examples demonstrate how to construct, manipulate, and
 // access a field definition in isolation.  In general, clients should *not*
 // create a 'bdem_FieldDef' directly, but obtain one from a record definition
-// (see 'bdem_recorddef'). 
+// (see 'bdem_recorddef').
 //
 ///Directly Creating a 'bdem_FieldDef' (*Not Recommended*)
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -146,13 +146,13 @@ int main(int argc, char *argv[])
 // not create a 'bdem_FieldDef' directly, but obtain one from a
 // 'bdem_RecordDef'.  For the purpose of this usage example, we define dummy
 // stand-in types for, 'bdem_RecordDef, and 'bdem_EnumerationDef'.  These
-// types are used in name-only, so their definition is not important: 
+// types are used in name-only, so their definition is not important:
 //..
 
 //..
 // Now we create a couple field definition objects:
 //..
-    bslma_Allocator           *allocator = bslma_Default::allocator();
+    bslma::Allocator          *allocator = bslma::Default::allocator();
     bdema_SequentialAllocator  seqAllocator;
 //
     bdem_FieldDefAttributes  intAttr(bdem_ElemType::BDEM_INT,  allocator);
@@ -192,7 +192,7 @@ int main(int argc, char *argv[])
     ASSERT(&enumerationDef == intField.enumerationConstraint());
     ASSERT(0               == listField.enumerationConstraint());
 //..
-// A record definition constraint be provided for fields of an aggregate type 
+// A record definition constraint be provided for fields of an aggregate type
 // ('BDEM_LIST', 'BDEM_CHOICE', 'BDEM_TABLE', 'BDEM_CHOICE_ARRAY'):
 //..
     ASSERT(0          == intField.recordConstraint());

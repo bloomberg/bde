@@ -186,16 +186,16 @@ BDES_IDENT("$Id: $")
 #include <bslalg_typetraits.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
 #ifndef INCLUDED_BDEC_VOIDPTRQUEUE
 #include <bdec_voidptrqueue.h>
 #endif
 
 #ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
-#endif
-
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
 #endif
 
 
@@ -232,7 +232,7 @@ class bdec_PtrQueue {
 public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(bdec_PtrQueue,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     // TYPES
     struct InitialCapacity {
@@ -254,13 +254,13 @@ public:
 
     // CREATORS
     explicit
-    bdec_PtrQueue(bslma_Allocator *basicAllocator = 0);
+    bdec_PtrQueue(bslma::Allocator *basicAllocator = 0);
     explicit
-    bdec_PtrQueue(unsigned int     initialLength,
-                  bslma_Allocator *basicAllocator = 0);
-    bdec_PtrQueue(unsigned int     initialLength,
-                  T               *initialValue,
-                  bslma_Allocator *basicAllocator = 0);
+    bdec_PtrQueue(unsigned int      initialLength,
+                  bslma::Allocator *basicAllocator = 0);
+    bdec_PtrQueue(unsigned int      initialLength,
+                  T                *initialValue,
+                  bslma::Allocator *basicAllocator = 0);
         // Create an in-place queue.  By default, the queue is empty.
         // Optionally specify the 'initialLength' of the queue.  Queue elements
         // are initialized with the specified 'initialValue', or to 0.0 if
@@ -271,7 +271,7 @@ public:
 
     explicit
     bdec_PtrQueue(const InitialCapacity&  numElements,
-                  bslma_Allocator        *basicAllocator = 0);
+                  bslma::Allocator       *basicAllocator = 0);
         // Create an in-place queue with sufficient initial capacity to
         // accommodate up to the specified 'numElements' values without
         // subsequent reallocation.  A valid reference returned by the
@@ -282,9 +282,9 @@ public:
         // default allocator is used.  The behavior is undefined unless
         // '0 <= numElements'.
 
-    bdec_PtrQueue(T * const       *srcArray,
-                  int              numElements,
-                  bslma_Allocator *basicAllocator = 0);
+    bdec_PtrQueue(T * const        *srcArray,
+                  int               numElements,
+                  bslma::Allocator *basicAllocator = 0);
         // Create an in-place queue initialized with the specified
         // 'numElements' leading values from the specified 'srcArray'.
         // Optionally specify the 'basicAllocator' used to supply memory.  If
@@ -294,7 +294,7 @@ public:
         // 'numElements' values.
 
     bdec_PtrQueue(const bdec_PtrQueue<T>&  original,
-                      bslma_Allocator          *basicAllocator = 0);
+                  bslma::Allocator        *basicAllocator = 0);
         // Create an in-place queue initialized to the value of the specified
         // 'original' queue.  Optionally specify the 'basicAllocator' used to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
@@ -599,24 +599,24 @@ bsl::ostream& operator<<(bsl::ostream& stream, const bdec_PtrQueue<T>& queue);
 
 template <class T>
 inline
-bdec_PtrQueue<T>::bdec_PtrQueue(bslma_Allocator *basicAllocator)
+bdec_PtrQueue<T>::bdec_PtrQueue(bslma::Allocator *basicAllocator)
 : d_queue(basicAllocator)
 {
 }
 
 template <class T>
 inline
-bdec_PtrQueue<T>::bdec_PtrQueue(unsigned int     initialLength,
-                                bslma_Allocator *basicAllocator)
+bdec_PtrQueue<T>::bdec_PtrQueue(unsigned int      initialLength,
+                                bslma::Allocator *basicAllocator)
 : d_queue(initialLength, basicAllocator)
 {
 }
 
 template <class T>
 inline
-bdec_PtrQueue<T>::bdec_PtrQueue(unsigned int     initialLength,
-                                T               *initialValue,
-                                bslma_Allocator *basicAllocator)
+bdec_PtrQueue<T>::bdec_PtrQueue(unsigned int      initialLength,
+                                T                *initialValue,
+                                bslma::Allocator *basicAllocator)
 : d_queue(initialLength, initialValue, basicAllocator)
 {
 }
@@ -624,16 +624,16 @@ bdec_PtrQueue<T>::bdec_PtrQueue(unsigned int     initialLength,
 template <class T>
 inline
 bdec_PtrQueue<T>::bdec_PtrQueue(const InitialCapacity&  numElements,
-                                bslma_Allocator        *basicAllocator)
+                                bslma::Allocator       *basicAllocator)
 : d_queue(bdec_VoidPtrQueue::InitialCapacity(numElements.d_i), basicAllocator)
 {
 }
 
 template <class T>
 inline
-bdec_PtrQueue<T>::bdec_PtrQueue(T * const       *srcArray,
-                                int              numElements,
-                                bslma_Allocator *basicAllocator)
+bdec_PtrQueue<T>::bdec_PtrQueue(T * const        *srcArray,
+                                int               numElements,
+                                bslma::Allocator *basicAllocator)
 : d_queue(srcArray, numElements, basicAllocator)
 {
 }
@@ -641,7 +641,7 @@ bdec_PtrQueue<T>::bdec_PtrQueue(T * const       *srcArray,
 template <class T>
 inline
 bdec_PtrQueue<T>::bdec_PtrQueue(const bdec_PtrQueue<T>&  original,
-                                bslma_Allocator         *basicAllocator)
+                                bslma::Allocator        *basicAllocator)
 : d_queue(original.d_queue, basicAllocator)
 {
 }

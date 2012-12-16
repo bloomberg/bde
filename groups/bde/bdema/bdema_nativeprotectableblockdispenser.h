@@ -1,4 +1,4 @@
-// bdema_nativeprotectableblockdispenser.h      -*-C++-*-
+// bdema_nativeprotectableblockdispenser.h                            -*-C++-*-
 #ifndef INCLUDED_BDEMA_NATIVEPROTECTABLEBLOCKDISPENSER
 #define INCLUDED_BDEMA_NATIVEPROTECTABLEBLOCKDISPENSER
 
@@ -118,7 +118,7 @@ class bdema_NativeProtectableBlockDispenser :
   private:
     // PRIVATE CLASS METHODS
     static void *initSingleton(
-              bsls_ObjectBuffer<bdema_NativeProtectableBlockDispenser> *arena);
+             bsls::ObjectBuffer<bdema_NativeProtectableBlockDispenser> *arena);
         // Construct a 'bdema_NativeProtectableBlockDispenser' in the
         // specified 'arena' in a thread-safe way and return 'arena'.  Note
         // that 'arena' must be suitably aligned.
