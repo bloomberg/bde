@@ -152,12 +152,84 @@ bool bdes_PlatformUtil::isLittleEndian()
 #endif
 }
 
+struct bdes_PlatformUtil {
+    // Provide a namespace for a suite of 'typedef's and pure procedures that
+    // encapsulate, platform-dependent types and APIs.
+
+    // TYPES
+    typedef bsls::Types::size_type size_type;
+        // The alias 'size_type' refers to the preferred type for denoting a
+        // number of elements in either 'bslma' allocators or container types.
+        // Note that this type is signed, as negative values may make sense in
+        // certain contexts.  Also note that the standard-compliant allocators
+        // (e.g., 'bslstl_allocator' and 'std::allocator') use an *unsigned*
+        // size type, but that is fine because they also have a mechanism
+        // ('max_size') to determine overflows resulting from converting from
+        // one size type to the other.
+        //
+        // DEPRECATED: Use 'bsls::Types::size_type' instead.
+
+    typedef bsls::Types::UintPtr UintPtr;
+    typedef bsls::Types::IntPtr  IntPtr;
+        // The aliases 'UintPtr' and 'IntPtr' are guaranteed to have the same
+        // size as pointers.
+        //
+        // DEPRECATED: Use 'bsls::Types::UintPtr' and 'bsls::Types::IntPtr'
+        // instead.
+
+    typedef bsls::Types::Int64  Int64;
+    typedef bsls::Types::Uint64 Uint64;
+        // The aliases 'Int64' and 'Uint64' stand for whatever type 'Types'
+        // implements for the appropriate supported platforms.
+        //
+        // DEPRECATED: Use 'bsls::Types::Int64' and 'bsls::Types::Uint64'
+        // instead.
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+    typedef bsls::AlignmentUtil::MaxAlignedType MaxAlign;
+        // The alias 'MaxAlign' refers to a type that is maximally-aligned on
+        // the current platform.
+        //
+        // DEPRECATED: Use 'bsls::AlignmentUtil::MaxAlignedType' instead.
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
+
+    // CLASS METHODS
+    static bool isLittleEndian();
+        // Return 'true' if this platform is "little-endian", and 'false'
+        // otherwise.  Note that "little-endian" (i.e., the least significant
+        // byte of data at the lowest byte address) is inconsistent with
+        // network byte order.
+        //
+        // DEPRECATED: Use preprocessor macro
+        // 'BSLS_PLATFORM_IS_BIG_ENDIAN' defined in 'bsls_platform' instead.
+};
+
+// ============================================================================
+//                        INLINE FUNCTION DEFINITIONS
+// ============================================================================
+
+                          // ------------------------
+                          // struct bdes_PlatformUtil
+                          // ------------------------
+
+// CLASS METHODS
+inline
+bool bdes_PlatformUtil::isLittleEndian()
+{
+#if defined(BSLS_PLATFORM_IS_LITTLE_ENDIAN)
+    return BSLS_PLATFORM_IS_LITTLE_ENDIAN;
+#else
+    return false;
+#endif
+}
+
 }  // close namespace BloombergLP
 
 // ============================================================================
 //                 COMPILE-TIME CONSTANT PRE-PROCESSOR MACROS
 // ============================================================================
 
+>>>>>>> code changes to build bde against opensource bsl
 #ifdef BSLS_PLATFORM_IS_LITTLE_ENDIAN
 #ifndef BDES_PLATFORMUTIL_IS_LITTLE_ENDIAN
 #define BDES_PLATFORMUTIL_IS_LITTLE_ENDIAN   BSLS_PLATFORM_IS_LITTLE_ENDIAN

@@ -197,6 +197,10 @@ BDES_IDENT("$Id: $")
 // because 'bdema_BufferAllocator::allocate' internally performs alignment for
 // each requested memory block based on the allocator's alignment strategy.
 
+#ifdef BDE_OMIT_TRANSITIONAL // DEPRECATED
+#error "bdema_bufferallocator is deprecated"
+#endif
+
 #ifndef INCLUDED_BDESCM_VERSION
 #include <bdescm_version.h>
 #endif
