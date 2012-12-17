@@ -17,7 +17,7 @@ using namespace std;
 //                                --------
 // The component under test defines two meta-functions, 'bsl::is_fundamental'
 // and 'bslmf::IsFundamental', that determine whether a template parameter type
-// is a fundamental type.  Thus, we need to ensure that the value returned by
+// is a fundamental type.  Thus, we need to ensure that the values returned by
 // these meta-functions are correct for each possible category of types.  Since
 // the two meta-functions are functionally equivalent, we will use the same set
 // of types for both.
@@ -180,8 +180,8 @@ int main(int argc, char *argv[])
 //..
     ASSERT(true  == bsl::is_fundamental<int>::value);
     ASSERT(false == bsl::is_fundamental<int&>::value);
-    ASSERT(true  == bsl::is_fundamental<long long>::value);
-    ASSERT(false == bsl::is_fundamental<long long*>::value);
+    ASSERT(true  == bsl::is_fundamental<long long  >::value);
+    ASSERT(false == bsl::is_fundamental<long long *>::value);
 //..
       } break;
       case 2: {

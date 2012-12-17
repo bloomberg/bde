@@ -18,8 +18,8 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR: Shawn Edwards (sedwards)
 //
 //@DESCRIPTION: This component defines two meta-functions,
-// 'bsl::is_fundamental' and 'BloombergLP::bslmf::IsFundamental', both of which
-// may be used to query whether a type is a fundamental type.
+// 'bsl::is_fundamental' and 'BloombergLP::bslmf::IsFundamental', that may be
+// used to query whether a type is a fundamental type.
 //
 // 'bsl::is_fundamental' meets the requirements of the 'is_fundamental'
 // template defined in the C++11 standard [meta.unary.comp], while
@@ -73,8 +73,8 @@ BSLS_IDENT("$Id: $")
 //..
 //  assert(true  == bsl::is_fundamental<int>::value);
 //  assert(false == bsl::is_fundamental<int&>::value);
-//  assert(true  == bsl::is_fundamental<long long>::value);
-//  assert(false == bsl::is_fundamental<long long*>::value);
+//  assert(true  == bsl::is_fundamental<long long  >::value);
+//  assert(false == bsl::is_fundamental<long long *>::value);
 //..
 
 #ifndef INCLUDED_BSLSCM_VERSION
@@ -257,9 +257,9 @@ struct is_fundamental
 }  // close namespace bsl
 
 #ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 //                           BACKWARD COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 
 #ifdef bslmf_IsFundamental
 #undef bslmf_IsFundamental
