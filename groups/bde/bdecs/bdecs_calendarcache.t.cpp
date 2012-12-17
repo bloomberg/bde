@@ -1024,7 +1024,7 @@ int main(int argc, char *argv[])
                 // *** REVERSE ITERATOR TESTS ***
                 // The following tests are very simple because
                 // 'HolidayReverseIterator' is implemented using a TESTED
-                // bsl::reserse_iterator<Iterator>-like template.
+                // bsl::reverse_iterator<Iterator>-like template.
 
                 if (veryVerbose) cout << "\treverse iterator tests" << endl;
 
@@ -1100,13 +1100,14 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //: 1 Create an object that has a timeout of greater than 60 seconds,
-        //:   and use the 'calendar' method to load a calendar using the object.
+        //:   and use the 'calendar' method to load a calendar using the
+        //:   object.
         //:
         //: 2 Wait a period less than the timeout and use the 'calendar' method
         //:   to retrieve the calendar loaded in P-1.  Verify that the the
         //:   calendar was not reloaded.  (C-1)
         //:
-        //: 3 Wait a period so that the cummulative waiting period for P-2 to
+        //: 3 Wait a period so that the cumulative waiting period for P-2 to
         //:   P-3 is greater than the timeout.  Use the 'calendar' method to
         //:   retrieve the calendar loaded in P-1.  Verify that the the
         //:   calendar was reloaded.  (C-1)
