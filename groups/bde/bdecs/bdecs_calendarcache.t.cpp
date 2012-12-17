@@ -1104,13 +1104,13 @@ int main(int argc, char *argv[])
         //:   object.
         //:
         //: 2 Wait a period less than the timeout and use the 'calendar' method
-        //:   to retrieve the calendar loaded in P-1.  Verify that the the
-        //:   calendar was not reloaded.  (C-1)
+        //:   to retrieve the calendar loaded in P-1.  Verify that the calendar
+        //:   was not reloaded.  (C-1)
         //:
         //: 3 Wait a period so that the cumulative waiting period for P-2 to
         //:   P-3 is greater than the timeout.  Use the 'calendar' method to
-        //:   retrieve the calendar loaded in P-1.  Verify that the the
-        //:   calendar was reloaded.  (C-1)
+        //:   retrieve the calendar loaded in P-1.  Verify that the calendar
+        //:   was reloaded.  (C-1)
         //
         //  Testing:
         //      const bdecs_Calendar *calendar(const char *calendarName);
