@@ -27,13 +27,14 @@ BSLS_IDENT("$Id: $")
 //
 // Overview of the operation of 'AutoArrayMoveDestructor':
 // ------------------------------------------------------
-// Supposee we want to double the length of an array by inserting copies of a
-// specified 'value' at the beginning.  We are to assume there is ample
-// uninitialized memory after the end of the initial array.
+// Supposee we want to double the length of an array by prepending copies a
+// 'value' at the start of the array.  Note that we assume there is ample
+// uninitialized memory after the end of the initial array for these new
+// values to be instered.
 //
 // Legend:
 //..
-//    'ABCDE'   -- (uppercase) initial array elements.
+//    'ABCDE'   -- initial array elements.
 //    'v'       -- copy of specified 'value' being inserted.
 //    '.'       -- (period) uninitialized memory.
 //    '^(,)'    -- area guarded by 'AutoArrayMoveDestructor', where:
@@ -41,12 +42,15 @@ BSLS_IDENT("$Id: $")
 //                 '(' -- position of 'guard.begin()'
 //                 ',' -- (comma) position of 'guard.middle()'
 //                 ')' -- position of 'guard.end()'
-//
+//..
 // The copy constructor for the type being inserted may throw, so we need to
-// have a guard object which can allow us to make some guarantee about the
-// state of things after the guard is destroyed.  What we want to guarantee is
+// have a guard object which allows us to make some guarantee about the state
+// of the array after the guard is destroyed.  What we want to guarantee is 
 // that there are as many valid objects at the start of the array as before
 // with no other valid objects in existence.
+//
+// The following steps show a succssful operation prepending copies of the
+// value 'v':
 //..
 //  1: 'ABCDE.....'      -- initial memory.
 //  2: '.....ABCDE'      -- memory after first 'std::memcpy'.
@@ -61,18 +65,18 @@ BSLS_IDENT("$Id: $")
 //..
 // Now suppose we threw after step 4, destroying 'guard'.
 //..
-//  4: 'vv^...(AB,CDE)' -- same as step '4' above, before destructor starts
-//  5: 'vv^CDE(AB,...)' -- memory after 'guard's destructor moves 'CDE' back to
-//                          their position before we began
-//  6: 'vv^CDE(..,...)' -- memory after 'guard's destructor destroys 'A' and
-//                           'B'
-//  7: 'vvCDE.....'     -- memory after 'guard's destructor completes
+//  4:  'vv^...(AB,CDE)' -- same as step '4' above, before destructor starts
+//  5b: 'vv^CDE(AB,...)' -- memory after 'guard's destructor moves 'CDE' back
+//                          to their position before we began
+//  6b: 'vv^CDE(..,...)' -- memory after 'guard's destructor destroys 'A' and
+//                          'B'
+//  7b: 'vvCDE.....'     -- memory after 'guard's destructor completes
 //..
 // We now have 5 valid elements in the beginning of the range, as it was when
-// we started, making the situation predictable for our next d'tor.
+// we started, making the situation predictable for our next destructor.
 //
 // This was a very simple case, but using this guard in conjunction with
-// 'bslalg::AutoArrayDestructor', we can implment the more general cases of
+// 'bslalg::AutoArrayDestructor', we can implment the more general case of
 // inserting arbitrary numbers of elements at the beginning of an array.
 //
 ///Usage
@@ -84,9 +88,9 @@ BSLS_IDENT("$Id: $")
 // First, we create the class 'TestType', which is bitwise-movable and
 // allocates memory upon construction:
 //..
-//                                 // ==============
-//                                 // class TestType
-//                                 // ==============
+//                             // ==============
+//                             // class TestType
+//                             // ==============
 //
 //  class TestType {
 //      // This test type contains a 'char' in some allocated storage.  It
@@ -99,17 +103,11 @@ BSLS_IDENT("$Id: $")
 //      bslma::Allocator *d_allocator_p;
 //
 //    public:
-//      // TRAITS
-//      BSLALG_DECLARE_NESTED_TRAITS2(TestType,
-//                                    bslalg::TypeTraitUsesBslmaAllocator,
-//                                    bslalg::TypeTraitBitwiseMoveable);
-//
 //      // CREATORS
 //      explicit TestType(bslma::Allocator *basicAllocator = 0)
 //      : d_data_p(0)
 //      , d_allocator_p(bslma::Default::allocator(basicAllocator))
 //      {
-//          ++numDefaultCtorCalls;
 //          d_data_p  = (char *)d_allocator_p->allocate(sizeof(char));
 //          *d_data_p = '?';
 //      }
@@ -118,7 +116,6 @@ BSLS_IDENT("$Id: $")
 //      : d_data_p(0)
 //      , d_allocator_p(bslma::Default::allocator(basicAllocator))
 //      {
-//          ++numCharCtorCalls;
 //          d_data_p  = (char *)d_allocator_p->allocate(sizeof(char));
 //          *d_data_p = c;
 //      }
@@ -128,7 +125,6 @@ BSLS_IDENT("$Id: $")
 //      : d_data_p(0)
 //      , d_allocator_p(bslma::Default::allocator(basicAllocator))
 //      {
-//          ++numCopyCtorCalls;
 //          if (&original != this) {
 //              d_data_p  = (char *)d_allocator_p->allocate(sizeof(char));
 //              *d_data_p = *original.d_data_p;
@@ -137,7 +133,6 @@ BSLS_IDENT("$Id: $")
 //
 //      ~TestType()
 //      {
-//          ++numDestructorCalls;
 //          *d_data_p = '_';
 //          d_allocator_p->deallocate(d_data_p);
 //          d_data_p = 0;
@@ -146,7 +141,6 @@ BSLS_IDENT("$Id: $")
 //      // MANIPULATORS
 //      TestType& operator=(const TestType& rhs)
 //      {
-//          ++numAssignmentCalls;
 //          if (&rhs != this) {
 //              char *newData = (char *)d_allocator_p->allocate(sizeof(char));
 //              *d_data_p = '_';
@@ -163,13 +157,24 @@ BSLS_IDENT("$Id: $")
 //      char datum() const { return *d_data_p; }
 //  };
 //
+//  // FREE OPERATORS
 //  bool operator==(const TestType& lhs, const TestType& rhs)
 //  {
-//      assert(isalpha(lhs.datum()));
-//      assert(isalpha(rhs.datum()));
-//
 //      return lhs.datum() == rhs.datum();
 //  }
+//
+//  // TRAITS
+//  namespace BloombergLP {
+//
+//  namespace bslma {
+//  template <> struct UsesBslmaAllocator<TestType> : bsl::true_type {};
+//  }  // close package namespace
+//
+//  namespace bslma {
+//  template <> struct IsBitwiseMoveable<TestType> : bsl::true_type {};
+//  }  // close package namespace
+//
+//  }  // close enterprise namespace
 //..
 // Then, we define the function 'insertItems' which uses
 // 'AutoArrayMoveDestructor' to ensure that if an exception is thrown (e.g.,
@@ -191,10 +196,8 @@ BSLS_IDENT("$Id: $")
 //  {
 //      TestType *finish = divider + (divider - start);
 //
-//      assert((bslalg::HasTrait<TestType,
-//                               bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
-//      assert((bslalg::HasTrait<TestType,
-//                               bslalg::TypeTraitBitwiseMoveable   >::VALUE));
+//      BSLMF_ASSERT(bslmf::IsBitwiseMoveable< TestType>::value);
+//      BSLMF_ASSERT(bslma::UsesBslmaAllocator<TestType>::value);
 //
 //      // The range '[ start, divider )' contains valid elements.  The range
 //      // '[ divider, finish )' is of equal length and contains uninitialized
@@ -225,15 +228,6 @@ BSLS_IDENT("$Id: $")
 //                                                      finish);
 //
 //      while (guard.middle() < guard.end()) {
-//          // Test some invariants:
-//
-//          assert(guard.destination() >= start);
-//          assert(guard.destination() <  divider);
-//          assert(guard.begin()       == divider);
-//          assert(guard.middle()      >= divider);
-//          assert(guard.middle()      <  finish);
-//          assert(guard.end()         == finish);
-//
 //          // Call the copy c'tor, which may throw.
 //
 //          new (guard.destination()) TestType(value, allocator);
@@ -243,12 +237,6 @@ BSLS_IDENT("$Id: $")
 //
 //          guard.advance();
 //      }
-//
-//      // 'guard.middle() == guard.end()' -- which means that, when 'guard' is
-//      // destroyed, its destructor will do nothing.
-//
-//      assert(guard.middle()      == guard.end());
-//      assert(guard.destination() == guard.begin());
 //  }
 //..
 
