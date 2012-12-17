@@ -335,7 +335,9 @@ class AutoArrayMoveDestructor {
         // 'destination' and destroys the '[ middle, end )' range.  The
         // behavior is undefined unless 'begin <= middle <= end', either
         // 'destination < begin' or 'end <= destination', and each element in
-        // the range '[ begin, end )' has been initialized.
+        // the range '[ begin, end )' has been initialized.  Note that the
+        // range '[ destination, destination + (end - middle) )' may not
+        // overlap the range '[ begin, end )'.
 
     ~AutoArrayMoveDestructor();
         // Bit-wise move the range '[ middle(), end() )' to the 'destination()'
@@ -389,11 +391,6 @@ AutoArrayMoveDestructor<OBJECT_TYPE>::AutoArrayMoveDestructor(
     BSLS_ASSERT_SAFE(destination || begin == middle);
     BSLS_ASSERT_SAFE(begin  <= middle);
     BSLS_ASSERT_SAFE(middle <= end);
-
-    typedef const char CChar;
-    std::size_t numBytes = (CChar *) d_end_p - (CChar *) d_middle_p;
-    BSLS_ASSERT_SAFE((CChar *) destination + numBytes <= (CChar *) begin ||
-                                       (CChar *) end <= (CChar *) destination);
 }
 
 template <class OBJECT_TYPE>
