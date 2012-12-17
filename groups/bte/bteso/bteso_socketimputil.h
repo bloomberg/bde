@@ -23,7 +23,7 @@ BDES_IDENT("$Id: $")
 // specific behavior is documented for sockets in blocking and non-blocking
 // mode.
 //
-///SYNOPSIS
+///Synopsis
 ///--------
 // The table below lists the functions of this component, and summarizes their
 // behavior.  Where the behavior for sockets in blocking and non-blocking mode
@@ -173,8 +173,8 @@ BDES_IDENT("$Id: $")
 // of times.  However, the 'cleanup' function must invoked the same number
 // of times.
 //
-///USAGE
-//------
+///Usage
+///-----
 // This component supports inter-process communication functionality, and so
 // possible usage within a single process would consist of half of a dialog,
 // either the "client" or the "server".  Note that the 'shutDown' operation
@@ -233,6 +233,7 @@ BDES_IDENT("$Id: $")
 //  sockets      | cleanup() |                   | cleanup() | sockets
 //  environment  +-----------+                   +-----------+ environment
 //..
+//
 ///Typical Server Usage
 ///- - - - - - - - - -
 // The following snippets of code illustrate a simple single user echo server
@@ -285,6 +286,7 @@ BDES_IDENT("$Id: $")
 //                                      &errCode);        assert(0 == rc);
 //      rc = bteso_SocketImpUtil::cleanup(&errCode);      assert(0 == rc);
 //..
+//
 ///Typical Client Usage
 ///- - - - - - - - - -
 // The following snippets of code illustrate a simple client implemented using

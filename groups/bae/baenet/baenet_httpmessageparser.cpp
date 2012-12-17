@@ -546,7 +546,7 @@ int baenet_HttpMessageParser::addData(bsl::ostream&   errorStream,
 
         int numAvailable = source->in_avail();
 
-        if (numAvailable == 0) {
+        if (numAvailable <= 0) {
             break;
         }
 

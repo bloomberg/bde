@@ -43,7 +43,7 @@ BSLS_IDENT("$Id: $")
 //  assert(false ==
 //       (bsl::is_same<bsl::add_rvalue_reference<int>::type,   int  >::value));
 //  assert(true  ==
-//       (bsl::is_same<bsl::add_rvalue_reference<int&>::type,  int&&>::value));
+//       (bsl::is_same<bsl::add_rvalue_reference<int&>::type,  int& >::value));
 //  assert(true  ==
 //       (bsl::is_same<bsl::add_rvalue_reference<int&&>::type, int&&>::value));
 //#endif

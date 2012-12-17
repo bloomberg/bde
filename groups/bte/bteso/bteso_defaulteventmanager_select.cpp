@@ -37,6 +37,8 @@ BDES_IDENT_RCSID(bteso_defaulteventmanager_select_cpp,"$Id$ $CSID$")
 #define EINTR WSAEINTR
 #endif
 
+using bsl::memset;          // 'FD_ZERO' macro calls 'memset' with no namespace
+
 namespace BloombergLP {
 
 static bool compareFdSets(const fd_set& lhs, const fd_set& rhs)

@@ -2406,7 +2406,7 @@ void ArrayPrimitives_Imp::insert(
         AutoArrayDestructor<TARGET_TYPE> endGuard2(destBegin, destEnd);
 
         //..
-        //  Transformation: tuvwx__[ABCDE] => tuvwx[yzABCDE].
+        //  Transformation: tuvwx[]__[ABCDE] => tuvwx[yz][ABCDE].
         //..
 
         for (; toEnd != destBegin; ++fromBegin) {
@@ -2708,9 +2708,6 @@ void ArrayPrimitives_Imp::rotate(TARGET_TYPE                *begin,
         numCycles = remainder;
         remainder = t;
     }
-
-    // This algorithm is directly taken from stlport's implementation for
-    // RandomAccessIterator.
 
     // Key to the transformation diagrams:
     //..

@@ -22,78 +22,150 @@ BSLS_IDENT("$Id: $")
 // automatically destroyed by the proctor's destructor, using the
 // 'bslalg_arraydestructionprimitives'.
 //
+// In most instances, 'bslma::AutoDestructor' can also be used, but this
+// component is more useful in cases where it is simpler to think in terms of
+// two pointers at the ends of the array being managed, rather than an origin
+// and offset.
+//
 ///Usage
 ///-----
-// The usage example is nearly identical to that of 'bslma_autodestructor', so
-// we will only quote and adapt a small portion of that usage example.  Namely,
-// we will focus on an array that supports arbitrary user-defined types, and
-// suppose that we want to implement insertion of an arbitrary number of
-// elements at some (intermediate) position in the array, taking care that if
-// an element copy constructor or assignment operator throws, the whole array
-// is left in a valid (but unspecified) state.
+// In this section we show intended use of this component.
 //
-// Consider the implementation of the 'insert' method for a templatized array
-// below.  The proctor's *origin* is set (at construction) to refer to the
-// 'numItems' position past 'array[length]'.  Initially, the proctor manages no
-// objects (i.e., its end is the same as its beginning).
-//..
-//     0     1     2     3     4     5     6     7
-//   _____ _____ _____ _____ _____ _____ _____ _____
-//  | "A" | "B" | "C" | "D" | "E" |xxxxx|xxxxx|xxxxx|
-//  `=====^=====^=====^=====^=====^=====^=====^====='
-//  my_Array                                  ^----- AutoArrayDestructor
-//  (length = 5)
+///Example 1: Managing an Array Under Construction
+///- - - - - - - - - - - - - - - - - - - - - - - -
+// In most instances, the use of a 'bslalg::AutoArrayDestructor' could be
+// handled by a 'bslma::AutoDeallocator', but sometimes it is conceptually
+// clearer to frame the problem in terms of a pair of pointers rather than a
+// pointer and an offset.
 //
-//              Figure: Use of proctor for my_Array::insert
-//..
-// As each of the elements at index positions beyond the insertion position is
-// shifted up by two index positions, the proctor's begin address is
-// *decremented*.  At the same time, the array's length is *decremented* to
-// ensure that each array element is always being managed (during an allocation
-// attempt) either by the proctor or the array itself, but not both.
-//..
-//     0     1     2     3     4     5     6     7
-//   _____ _____ _____ _____ _____ _____ _____ _____
-//  | "A" | "B" | "C" | "D" |xxxxx|xxxxx| "E" |xxxxx|
-//  `=====^=====^=====^=====^=====^=====^=====^====='
-//  my_Array                            ^     ^ AutoArrayDestructor::end
-//  (length = 4)                        `---- AutoArrayDestructor::begin
+// Suppose we have a class, 'UsageType' that allocates a block of memory upon
+// construction, and whose constructor takes a 'char'.  Suppose we want to
+// create an array of elements of such objects in an exception-safe manner.
 //
-//              Figure: Configuration after shifting up one element
+// First, we create the type 'UsageType':
 //..
-// After the required number of elements have been shifted, the hole is filled
-// (backwards) by copies of the element to be inserted.  The code for the
-// templatized 'insert' method is as follows:
+//                               // ===============
+//                               // class UsageType
+//                               // ===============
 //..
-//  // Assume no aliasing.
-//  template <class TYPE> inline
-//  void my_Array<TYPE>::insert(int dstIndex, const TYPE& item, int numItems)
-//  {
-//      if (d_length >= d_size) {
-//          this->increaseSize(numItems);
+//  class UsageType {
+//      // This test type contains a 'char' in some allocated storage.  It has
+//      // no traits other than using a 'bslma' allocator.
+//
+//      char             *d_data_p;         // managed single char
+//      bslma::Allocator *d_allocator_p;    // allocator (held, not owned)
+//
+//    public:
+//      // CREATORS
+//      explicit UsageType(char c, bslma::Allocator *basicAllocator = 0)
+//      : d_data_p(0)
+//      , d_allocator_p(bslma::Default::allocator(basicAllocator))
+//      {
+//          d_data_p  = (char *)d_allocator_p->allocate(sizeof(char));
+//          *d_data_p = c;
 //      }
 //
-//      int   origLen = d_length;
-//      TYPE *src     = &d_array_p[d_length];
-//      TYPE *src     = &d_array_p[d_length + numItems];
-//      bslalg::AutoArrayDestructor<TYPE> autoDtor(dest, dest);
+//      ~UsageType()
+//      {
+//          *d_data_p = '_';
+//          d_allocator_p->deallocate(d_data_p);
+//          d_data_p = 0;
+//      }
 //
-//      for (int i = d_length; i > dstIndex; --i, --d_length) {
-//          dest = autoDtor.moveBegin(-1);  // decrement destination
-//          new(dest) TYPE(--src);          // copy to new index
-//          src->~TYPE();                   // destroy original
+//      // ACCESSORS
+//      char datum() const
+//      {
+//          return *d_data_p;
 //      }
-//      for (int i = numItems; i > 0; --i) {
-//          dest = autoDtor.moveBegin(-1);  // decrement destination
-//          new(dest) TYPE(item);           // copy new value into hole
-//      }
-//      autoDtor.release();
-//      d_length = origLen + numItems;
+//  };
+//
+//  namespace BloombergLP {
+//  namespace bslma {
+//
+//  template <>
+//  struct UsesBslmaAllocator<UsageType> : bsl::true_type {};
+//
+//  }  // close package namespace
+//  }  // close enterprise namespace
+//..
+// Then, in 'main', we create a 'TestAllocator' to supply memory (and to verify
+// that no memory is leaked):
+//..
+//  bslma::TestAllocator ta;
+//..
+// Next, we create the pointer for our array:
+//..
+//  UsageType *array;
+//..
+// Then, we declare a string of characterss we will use to initialize the
+// 'UsageType' objects in our array.
+//..
+//  const char *DATA = "Hello";
+//  const int   DATA_LEN = std::strlen(DATA);
+//..
+// Next, we verify that even right after exceptions have been thrown and
+// caught, no memory is outstanding:
+//..
+//  assert(0 == ta.numBlocksInUse());
+//..
+// Then, we allocate our array and create a guard to free it if a subsequent
+// allocation throws an exception:
+//..
+//  array = (UsageType *) ta.allocate(DATA_LEN * sizeof(UsageType));
+//  bslma::DeallocatorProctor<bslma::Allocator> arrayProctor(array, &ta);
+//..
+// Next, we establish an 'AutoArrayDestructor' on 'array' to destroy any valid
+// elements in 'array' if an exception is thrown:
+//..
+//  bslalg::AutoArrayDestructor<UsageType> arrayElementProctor(array, array);
+//..
+// Notice that we pass 'arrayElementProctor' pointers to the beginning and end
+// of the range to be guarded (we start with an empty range since no elements
+// have been constructed yet).
+//
+// Then, we iterate through the valid chars in 'DATA' and use them to construct
+// the elements of the array:
+//..
+//  UsageType *resultElement = array;
+//  for (const char *nextChar = DATA; *nextChar; ++nextChar) {
+//..
+// Next, construct the next element of 'array':
+//..
+//      new (resultElement++) UsageType(*nextChar, &ta);
+//..
+// Now, move the end of 'arrayElementProctor' to cover the most recently
+// constructed element:
+//..
+//      arrayElementProctor.moveEnd(1);
 //  }
 //..
-// Note that in the 'insert' example above, we illustrate exception neutrality,
-// but not alias safety (i.e., in the case when 'item' is a reference into the
-// portion of the array at 'dstIndex' or beyond).
+// At this point, we have successfully created our array.
+//
+// Then, release the guards so they won't destroy our work when they go out of
+// scope:
+//..
+//  arrayProctor.release();
+//  arrayElementProctor.release();
+//..
+// Next, exit the exception testing block:
+//
+// Then, verify that the array we have created is as expected:
+//..
+//  assert('H' == array[0].datum());
+//  assert('e' == array[1].datum());
+//  assert('l' == array[2].datum());
+//  assert('l' == array[3].datum());
+//  assert('o' == array[4].datum());
+//..
+// Finally, destroy & free our work and verify that no memory is leaked:
+//..
+//  for (int i = 0; i < DATA_LEN; ++i) {
+//      array[i].~UsageType();
+//  }
+//  ta.deallocate(array);
+//
+//  assert(0 == ta.numBlocksInUse());
+//..
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>

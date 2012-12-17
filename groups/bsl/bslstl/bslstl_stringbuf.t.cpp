@@ -628,56 +628,59 @@ std::streampos bufPubseekoffEnd(bsl::stringbuf & buf)
 //-----------------------------------------------------------------------------
 
 namespace {
+
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Basic operations
+///Example 1: Basic Operations
 ///- - - - - - - - - - - - - -
 // The following example demonstrates the use of 'bsl::stringbuf' to read and
 // write character data from and to a 'bsl::string' object.
 //
 // Suppose we want to implement a simplified converter from 'unsigned int' to
-// 'bsl::string' and back.  First, we define the prototypes of conversion
+// 'bsl::string' and back.  First, we define the prototypes of two conversion
 // functions:
 //..
-bsl::string toString(unsigned int from);
-unsigned int fromString(const bsl::string& from);
+//  bsl::string  toString(unsigned int from);
+//  unsigned int fromString(const bsl::string& from);
 //..
-// Then, we use 'bsl::stringbuf' to implement the 'toString' function.  We write
-// all digits into 'bsl::stringbuf' individually using 'sputc' methods and then
-// return the resulting 'bsl::string' object as follows:
+// Then, we use 'bsl::stringbuf' to implement the 'toString' function.  We
+// write all digits into 'bsl::stringbuf' individually using 'sputc' methods
+// and then return the resulting 'bsl::string' object:
 //..
 //  #include <algorithm>
-
-bsl::string toString(unsigned int from)
-{
-    bsl::stringbuf out;
-
-    for (; from != 0; from /= 10) {
-        out.sputc('0' + from % 10);
+//
+    bsl::string toString(unsigned int from)
+    {
+        bsl::stringbuf out;
+  
+        for (; from != 0; from /= 10) {
+            out.sputc('0' + from % 10);
+        }
+  
+        bsl::string result(out.str());
+        std::reverse(result.begin(), result.end());
+        return result;
     }
-
-    bsl::string result(out.str());
-    std::reverse(result.begin(), result.end());
-    return result;
-}
 //..
 // Now, we implement the 'fromString' function that converts from
-// 'bsl::string' to 'unsigned int' by using 'bsl::stringbuf' to read digit
-// from the string object:
+// 'bsl::string' to 'unsigned int' by using 'bsl::stringbuf' to read individual
+// digits from the string object:
 //..
-unsigned int fromString(const bsl::string& from)
-{
-    unsigned int result = 0;
-    for (bsl::stringbuf in(from); in.in_avail(); ) {
-        result = result * 10 + (in.sbumpc() - '0');
+    unsigned int fromString(const bsl::string& from)
+    {
+        unsigned int result = 0;
+  
+        for (bsl::stringbuf in(from); in.in_avail(); ) {
+            result = result * 10 + (in.sbumpc() - '0');
+        }
+  
+        return result;
     }
-
-    return result;
-}
 //..
-}
+
+}  // close unnamed namespace
 
 //=============================================================================
 //                                MAIN PROGRAM
@@ -745,10 +748,12 @@ int main(int argc, char *argv[])
 // Finally, we verify that the result of the round-trip conversion is identical
 // to the original value:
 //..
-        unsigned int orig = 92872498;
-        unsigned int result = fromString(toString(orig));
-        ASSERT(orig == result);
+    unsigned int orig   = 92872498;
+    unsigned int result = fromString(toString(orig));
+//
+    ASSERT(orig == result);
 //..
+
       } break;
       case 12: {
         // --------------------------------------------------------------------
@@ -1099,11 +1104,13 @@ int main(int argc, char *argv[])
         {
             bsl::stringbuf buf;
             buf.sputc('1');
+            ASSERT(buf.str() == "1");
+
             buf.str("another");
 
             int res = buf.sputc('s');
             ASSERT(res == 's');
-            ASSERT(buf.str() == "anothers");
+            ASSERT(buf.str() == "snother");
         }
 
         if (veryVerbose)
@@ -1386,7 +1393,8 @@ int main(int argc, char *argv[])
 
         {
             bsl::stringbuf buf1(std::ios_base::in, bsl::allocator<char>());
-            bsl::stringbuf buf2(std::ios_base::in, bslma::Default::allocator());
+            bsl::stringbuf buf2(std::ios_base::in,
+                                bslma::Default::allocator());
             bsl::stringbuf buf3(bsl::string("something"),
                                 std::ios_base::in,
                                 bslma::Default::allocator());

@@ -7,8 +7,6 @@
 #endif
 BDES_IDENT("$Id: $")
 
-
-
 //@PURPOSE: Provide platform-independent data structures for scatter/gather IO.
 //
 //@AUTHOR: Andrei Basov (abasov)
@@ -33,8 +31,8 @@ BDES_IDENT("$Id: $")
 // 'btes_Iovec' or 'btes_Ovec' may be used.  This includes
 // scatter/gather write or send operations.
 //
-//USAGE
-//-----
+///Usage
+///-----
 // The following snippets of code illustrate how to use 'btes_Iovec' with
 // platform dependent scatter/gather operations.  Typically, an array of
 // structures is created with each element containing a pointer to a buffer.
@@ -95,7 +93,6 @@ BDES_IDENT("$Id: $")
     #define INCLUDED_SYS_UIO
     #endif
 #endif
-
 
                         // ================
                         // class btes_Iovec
@@ -226,7 +223,6 @@ class btes_Ovec {
         // Return the length of the non writable buffer.
 };
 
-
 // ===========================================================================
 //                      INLINE FUNCTION DEFINITIONS
 // ===========================================================================
@@ -311,9 +307,7 @@ inline int btes_Iovec::length() const
                         // class btes_Ovec
                         // ---------------
 
-
 // CREATORS
-
 inline btes_Ovec::btes_Ovec() { }
 
 inline btes_Ovec::~btes_Ovec() { }
@@ -343,7 +337,6 @@ inline btes_Ovec::btes_Ovec(const void *buffer, int length)
 }
 
 // MANIPULATORS
-
 inline btes_Ovec& btes_Ovec::operator=(const btes_Ovec& rhs)
 {
     if (this != &rhs) {
@@ -367,7 +360,6 @@ inline void btes_Ovec::setBuffer(const void *buffer, int length)
 }
 
 // ACCESSORS
-
 inline const void *btes_Ovec::buffer() const
 {
 #ifdef BSLS_PLATFORM_CMP_MSVC

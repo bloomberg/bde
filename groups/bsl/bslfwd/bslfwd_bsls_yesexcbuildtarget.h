@@ -24,17 +24,21 @@
 
 namespace BloombergLP {
     namespace bsls {
-        class YesExcBuildTarget;
+        class BuildTargetYesExc;
     }
 
-    typedef bsls::YesExcBuildTarget bsls_YesExcBuildTarget;
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
+    typedef bsls::BuildTargetYesExc bsls_YesExcBuildTarget;
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 }
 
 #else
 
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 namespace BloombergLP {
     class bsls_YesExcBuildTarget;
 }
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 #endif
 

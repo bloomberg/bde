@@ -4,18 +4,18 @@
 
 #include <bcema_sharedptr.h>
 
-#include <bsl_map.h>
-#include <bsl_hash_map.h>
-#include <bsl_list.h>
-#include <bsl_iostream.h>
-
-#include <bsl_string.h>
-#include <bsl_cstdlib.h>     // atoi()
+#include <bdet_date.h>
 
 #include <bslma_default.h>
 #include <bslma_testallocator.h>
 
-#include <bdet_date.h>
+#include <bsl_iostream.h>
+#include <bsl_list.h>
+#include <bsl_map.h>
+#include <bsl_string.h>
+#include <bsl_vector.h>
+
+#include <bsl_cstdlib.h>     // atoi()
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script

@@ -6,6 +6,8 @@
 #include <vector>
 #include <valarray>
 #include <utility>
+#include <unordered_set>
+#include <unordered_map>
 #include <typeinfo>
 #include <strstream>
 #include <string>

@@ -885,6 +885,7 @@ int main(int argc, char *argv[])
             struct Local {
                 static int sink(Obj obj)
                 {
+                    (void) obj;
                     return 4321;
                 }
                 static int sink(...)

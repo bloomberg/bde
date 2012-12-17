@@ -201,29 +201,6 @@ struct my_Class4
     my_Class4(void*);
 };
 
-struct my_Class5
-{
-    // Class with no special traits but has conversion from anything.  Used
-    // the check against false positives for nested traits and
-    // 'bslma::Allocator*' traits.
-    template <class T> my_Class5(const T& t);
-    template <class T> my_Class5(const volatile T& t);
-
-#if defined(BSLS_PLATFORM_CMP_IBM) || defined(BSLS_PLATFORM_OS_LINUX)
-    // Workaround for AIX xlC 6.0 and and Linux gcc compilers.  Without this
-    // declaration, the compiler tries to instantiate the templated
-    // constructors when probing for 'bslma::Allocator*' conversions.  This
-    // declaration short-circuits the traits-sniffing logic so that it will
-    // not probe for conversion from 'bslma::Allocator*'.
-    BSLALG_DECLARE_NESTED_TRAITS(my_Class5, bslalg::TypeTraitNil);
-#endif
-};
-
-// Implementations of my_Class5 constructors.  If these constructors are
-// actually instantiated, they will fail to compile.
-template <class T> my_Class5::my_Class5(const T& t) { t->foo(); }
-template <class T> my_Class5::my_Class5(const volatile T& t) { t->foo(); }
-
 enum my_Enum
 {
     // Enumeration type (is automatically bitwise copyable)
@@ -264,7 +241,6 @@ int main(int argc, char *argv[])
         // Nil traits
         TRAIT_TEST(my_Class0, TRAIT_NIL);
         TRAIT_TEST(my_Class4, TRAIT_NIL);
-        TRAIT_TEST(my_Class5, TRAIT_NIL);
 
         // Reference traits.  (Cannot use TRAIT_TEST for references.)
         ASSERT(traitBits<int&>() == TRAIT_NIL);

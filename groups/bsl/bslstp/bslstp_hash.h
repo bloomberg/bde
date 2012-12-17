@@ -10,11 +10,13 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a namespace for hash functions
 //
 //@CLASSES:
-//  bsl::hash: hash function for primitive types
+//          bslstp::Hash: hash function for primitive types
+//   bslstp::HashCString: hash function pointers to null-terminated strings
+//  bslstp::HashSelector: metafunction to select a preferred hash functor type
 //
 //@SEE_ALSO: bsl+stdhdrs
 //
-//@AUTHOR: Arthur Chiu (achiu21)
+//@AUTHOR: Arthur Chiu (achiu21) Alisdair Meredith (ameredit)
 //
 //@DESCRIPTION: This component provides a namespace for hash functions used by
 // 'hash_map', 'hash_set' and 'hashtable'.
@@ -86,9 +88,6 @@ template <class HASH_KEY> struct Hash;
     // will generate error messages that are more clear when someone tries to
     // use a key that does not have a corresponding hash function.
 
-template <> struct Hash<void *>;
-template <> struct Hash<const void *>;
-template <> struct Hash<const char *>;
 template <> struct Hash<char>;
 template <> struct Hash<signed char>;
 template <> struct Hash<unsigned char>;
@@ -100,6 +99,8 @@ template <> struct Hash<long>;
 template <> struct Hash<unsigned long>;
 template <> struct Hash<long long>;
 template <> struct Hash<unsigned long long>;
+
+struct HashCString;
 
                        // ==========================
                        // class bslstp::HashSelector
@@ -115,19 +116,20 @@ struct HashSelector {
     typedef ::bsl::hash<HASH_KEY> Type;
 };
 
-template <>
-struct HashSelector<void *> {
-    typedef Hash<void *> Type;
-};
+template <class HASH_KEY>
+struct HashSelector<const HASH_KEY> {
+    // Partial specialization to treat 'const' qualified types in exactly the
+    // same way as the non-'const' qualified type.  Users should rarely, if
+    // ever, need this specialization but would be surprised by their results
+    // if used accidentally, and it were not supplied..
 
-template <>
-struct HashSelector<const void *> {
-    typedef Hash<const void *> Type;
+    // TYPES
+    typedef typename HashSelector<HASH_KEY>::Type Type;
 };
 
 template <>
 struct HashSelector<const char *> {
-    typedef Hash<const char *> Type;
+    typedef HashCString Type;
 };
 
 template <>
@@ -185,51 +187,17 @@ struct HashSelector<unsigned long long> {
     typedef Hash<unsigned long long> Type;
 };
 
-                 // ============================================
-                 // explcit class bslstp::Hash<> specializations
-                 // ============================================
+                           // ==================
+                           // struct HashCString
+                           // ==================
 
-template <>
-struct Hash<void *> {
-    // Specialization of 'hash' for 'void' pointers.
-
-    // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(
-                                Hash,
-                                BloombergLP::bslalg::TypeTraitBitwiseCopyable);
-
-    // ACCESSORS
-    std::size_t operator()(const void *x) const
-        // Return a hash value computed using the specified 'x'.
-    {
-        return (std::size_t)x;
-    }
-};
-
-template <>
-struct Hash<const void *> {
-    // Specialization of 'hash' for 'const' 'void' pointers.
+struct HashCString {
+    // Hash functor to generate a hash for a pointer to a null-terminated
+    // string.
 
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(
-                                Hash,
-                                BloombergLP::bslalg::TypeTraitBitwiseCopyable);
-
-    // ACCESSORS
-    std::size_t operator()(const void *x) const
-        // Return a hash value computed using the specified 'x'.
-    {
-        return (std::size_t)x;
-    }
-};
-
-template <>
-struct Hash<const char *> {
-    // Specialization of 'hash' for 'const' 'char' pointers.
-
-    // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(
-                                Hash,
+                                HashCString,
                                 BloombergLP::bslalg::TypeTraitBitwiseCopyable);
 
     // ACCESSORS
@@ -245,6 +213,10 @@ struct Hash<const char *> {
         return std::size_t(result);
     }
 };
+
+                 // ============================================
+                 // explcit class bslstp::Hash<> specializations
+                 // ============================================
 
 template <>
 struct Hash<char> {

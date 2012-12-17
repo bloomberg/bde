@@ -16,10 +16,10 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Alisdair Meredith (ameredith1), Stefano Pacifico (spacifico1)
 //
-//@DESCRIPTION: This component defines a single class template
+//@DESCRIPTION: This component defines a single class template,
 // 'unordered_multimap', implementing the standard container holding a
 // collection of (possibly repeated) keys, each mapped to an associated value
-// (with no guarantees on ordering).
+// (with minimal guarantees on ordering).
 //
 // An instantiation of 'unordered_multimap' is an allocator-aware,
 // value-semantic type whose salient attributes are its size (number of keys)
@@ -518,13 +518,17 @@ class unordered_multimap
         // bucket having the specified 'index's , in the array of buckets
         // maintained by this multi-map.
 
-    iterator insert(const value_type& value);
+    template <class SOURCE_TYPE>
+    iterator insert(const SOURCE_TYPE& value);
         // Insert the specified 'value' into this multi-map, and return an
         // iterator to the newly inserted element.  This method requires that
         // the (template parameter) types 'KEY' and 'VALUE' types both be
         // "copy-constructible" (see {Requirements on 'KEY' and 'VALUE'}).
+        // Note that this one template stands in for two 'insert' functions in
+        // the C++11 standard.
 
-    iterator insert(const_iterator hint, const value_type& value);
+    template <class SOURCE_TYPE>
+    iterator insert(const_iterator hint, const SOURCE_TYPE& value);
         // Insert the specified 'value' into this multi-map (in
         // constant time if the specified 'hint' is a valid element in the
         // bucket to which 'value' belongs).  Return an iterator referring to
@@ -536,7 +540,8 @@ class unordered_multimap
         // undefined unless 'hint' is a valid iterator into this unordered
         // multi map.  This method requires that the (template parameter) types
         // 'KEY' and 'VALUE' both be "copy-constructible" (see {Requirements on
-        // 'KEY' and 'VALUE'}).
+        // 'KEY' and 'VALUE'}).  Note that this one template stands in for two
+        // 'insert' functions in the C++11 standard.
 
     template <class INPUT_ITERATOR>
     void insert(INPUT_ITERATOR first, INPUT_ITERATOR last);
@@ -630,45 +635,26 @@ class unordered_multimap
         // multi-map.
 
     const_iterator begin() const;
+    const_iterator cbegin() const;
         // Return an iterator providing non-modifiable access to the first
         // 'value_type' object (in the sequence of 'value_type' objects)
         // maintained by this multi-map, or the 'end' iterator if
         // this multi-map is empty.
 
     const_iterator end() const;
+    const_iterator cend() const;
         // Return an iterator providing non-modifiable access to the
         // past-the-end element (in the sequence of 'value_type' objects)
         // maintained by this multi-map.
 
-    const_iterator cbegin() const;
-        // Return an iterator providing non-modifiable access to the first
-        // 'value_type' object (in the sequence of 'value_type' objects)
-        // maintained by this multi-map, or the 'end' iterator if
-        // this container is empty.
-
-    const_iterator cend() const;
-        // Return an iterator providing non-modifiable access to the
-        // past-the-end element (in the sequence of 'value_type' objects)
-        // maintained by this container.
-
     const_local_iterator begin(size_type index) const;
-        // Return a local iterator providing non-modifiable access to the first
-        // 'value_type' object (in the sequence of 'value_type' objects) of the
-        // bucket having the specified 'index' in the array of buckets
-        // maintained by this container, or the 'end(index)' otherwise.
-
-    const_local_iterator end(size_type index) const;
-        // Return a local iterator providing non-modifiable access to the
-        // past-the-end element (in the sequence of 'value_type' objects) of
-        // the bucket having the specified 'index' in the array of buckets
-        // maintained by this container.
-
     const_local_iterator cbegin(size_type index) const;
         // Return a local iterator providing non-modifiable access to the first
         // 'value_type' object (in the sequence of 'value_type' objects) of the
         // bucket having the specified 'index' in the array of buckets
         // maintained by this container, or the 'end(index)' otherwise.
 
+    const_local_iterator end(size_type index) const;
     const_local_iterator cend(size_type index) const;
         // Return a local iterator providing non-modifiable access to the
         // past-the-end element (in the sequence of 'value_type' objects) of
@@ -853,7 +839,7 @@ unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::unordered_multimap(
                                        const hasher&         hash,
                                        const key_equal&      keyEqual,
                                        const allocator_type& allocator)
-: d_impl(hash, keyEqual, initialNumBuckets, allocator)
+: d_impl(hash, keyEqual, initialNumBuckets, 1.0f, allocator)
 {
 }
 
@@ -866,7 +852,7 @@ unordered_multimap(INPUT_ITERATOR        first,
                    const hasher&         hash,
                    const key_equal&      keyEqual,
                    const allocator_type& allocator)
-: d_impl(hash, keyEqual, initialNumBuckets, allocator)
+: d_impl(hash, keyEqual, initialNumBuckets, 1.0f, allocator)
 {
     this->insert(first, last);
 }
@@ -884,7 +870,7 @@ unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::unordered_multimap(
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::unordered_multimap(
                                                const allocator_type& allocator)
-: d_impl(HASH(), EQUAL(), 0, allocator)
+: d_impl(HASH(), EQUAL(), 0, 1.0f, allocator)
 {
 }
 
@@ -991,7 +977,7 @@ unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::erase(
                                                          const_iterator first,
                                                          const_iterator last)
 {
-#if defined BDE_BUILD_TARGET_SAFE2
+#if defined BDE_BUILD_TARGET_SAFE_2
     if (first != last) {
         iterator it        = this->begin();
         const iterator end = this->end();
@@ -1013,19 +999,21 @@ unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::erase(
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class SOURCE_TYPE>
 inline
 typename unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator
 unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::insert(
-                                                       const value_type& value)
+                                                       const SOURCE_TYPE& value)
 {
     return iterator(d_impl.insert(value));
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class SOURCE_TYPE>
 typename unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator
 unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::insert(
                                                        const_iterator    hint,
-                                                       const value_type& value)
+                                                       const SOURCE_TYPE& value)
 {
     return iterator(d_impl.insert(value, hint.node()));
 }
@@ -1033,19 +1021,16 @@ unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::insert(
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 template <class INPUT_ITERATOR>
 void unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::insert(
-                                                         INPUT_ITERATOR first,
-                                                         INPUT_ITERATOR last)
+                                                          INPUT_ITERATOR first,
+                                                          INPUT_ITERATOR last)
 {
     if (size_t maxInsertions =
             ::BloombergLP::bslstl::IteratorUtil::insertDistance(first, last)) {
         this->reserve(this->size() + maxInsertions);
     }
 
-    // Typically will create an un-necessary temporary dereferencing each
-    // iterator and casting to a reference of 'const value_type&'.
-
     while (first != last) {
-        this->insert(*first++);
+        d_impl.insert(*first++);
     }
 }
 
@@ -1054,7 +1039,7 @@ inline
 void unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::max_load_factor(
                                                            float newLoadFactor)
 {
-    d_impl.maxLoadFactor(newLoadFactor);
+    d_impl.setMaxLoadFactor(newLoadFactor);
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
@@ -1062,7 +1047,7 @@ inline
 void unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::rehash(
                                                           size_type numBuckets)
 {
-    return d_impl.rehash(numBuckets);
+    d_impl.rehashForNumBuckets(numBuckets);
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
@@ -1070,7 +1055,7 @@ inline
 void unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::reserve(
                                                          size_type numElements)
 {
-    return d_impl.rehashForNumElements(numElements);
+    d_impl.rehashForNumElements(numElements);
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>

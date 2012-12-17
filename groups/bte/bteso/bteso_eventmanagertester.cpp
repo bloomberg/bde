@@ -39,7 +39,7 @@ BDES_IDENT_RCSID(bteso_eventmanagertester_cpp,"$Id$ $CSID$")
 # include <sys/types.h>
 # include <sys/socket.h>                             // ::socketpair
 
-# if defined(BSLS_PLATFORM_OS_LINUX)
+# if defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_CYGWIN)
 #   include <sys/resource.h>
 # endif
 

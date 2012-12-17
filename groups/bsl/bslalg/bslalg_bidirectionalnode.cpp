@@ -10,6 +10,7 @@ namespace bslalg {
 
 }  // close namespace bslalg
 }  // close enterprise namespace
+
 // ---------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2012

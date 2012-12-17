@@ -176,7 +176,6 @@ class basic_istringstream
     explicit
     basic_istringstream(const StringType&     initialString,
                         const allocator_type& allocator = allocator_type());
-    explicit
     basic_istringstream(const StringType&     initialString,
                         ios_base::openmode    modeBitMask,
                         const allocator_type& allocator = allocator_type());
@@ -252,7 +251,7 @@ inline
 basic_istringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
 basic_istringstream(const allocator_type& allocator)
 : BaseType(ios_base::in, allocator)
-, BaseStream(this->rdbuf())
+, BaseStream(BaseType::rdbuf())
 {
 }
 
@@ -262,7 +261,7 @@ basic_istringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
 basic_istringstream(ios_base::openmode    modeBitMask,
                     const allocator_type& allocator)
 : BaseType(modeBitMask | ios_base::in, allocator)
-, BaseStream(this->rdbuf())
+, BaseStream(BaseType::rdbuf())
 {
 }
 
@@ -272,7 +271,7 @@ basic_istringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
 basic_istringstream(const StringType&     initialString,
                     const allocator_type& allocator)
 : BaseType(initialString, ios_base::in, allocator)
-, BaseStream(this->rdbuf())
+, BaseStream(BaseType::rdbuf())
 {
 }
 
@@ -283,7 +282,7 @@ basic_istringstream(const StringType&     initialString,
                     ios_base::openmode    modeBitMask,
                     const allocator_type& allocator)
 : BaseType(initialString, modeBitMask | ios_base::in, allocator)
-, BaseStream(this->rdbuf())
+, BaseStream(BaseType::rdbuf())
 {
 }
 
@@ -318,11 +317,11 @@ basic_istringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::rdbuf() const
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2012
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

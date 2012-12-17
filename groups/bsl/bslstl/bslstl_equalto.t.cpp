@@ -2,6 +2,8 @@
 
 #include <bslstl_equalto.h>
 
+#include <bslalg_scalarprimitives.h>
+
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
@@ -94,6 +96,165 @@ void aSsErT(bool b, const char *s, int i)
 //                             USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
+///Usage
+///-----
+// This section illustrates intended usage of this component.
+//
+///Example 1: Creating and Using a List Set
+/// - - - - - - - - - - - - - - - - - - - -
+// Suppose we want to keep a set of a small number of elements, and the only
+// comparison operation we have on the type of the elements is an equality
+// operator.  We can keep a singly-linked list of the elements, and
+// exhausitively use the comparison operator to see if a given value exists in
+// the list, forming a primitive set.
+//
+// First, we define our 'ListSet' template class:
+
+template <typename TYPE, typename EQUALS = bsl::equal_to<TYPE> >
+class ListSet {
+    // This class implements a crude implementation of a set, that will keep
+    // a set of values and be able to determine if an element is a member of
+    // the set.  Unlike a 'bsl::set' or 'bsl::unordered_set', no hash function
+    // or transitive 'operator<' is required -- only a transitive 'EQUALS'
+    // operator.
+    //
+    // The 'TYPE' template parameter must have a public copy constructor and
+    // destructor available.
+    //
+    // The 'EQUALS' template parameter must a function with a function whose
+    // signature is
+    //..
+    //  bool operator()(const TYPE& lhs, const TYPE& rhs) const;
+    //..
+    // and which returns 'true' if 'lhs' and 'rhs' are equivalent and 'false'
+    // otherwise.  This equivalence relation must be transitive and symmetric.
+    // The comparator must have a default constructor and destructor which are
+    // public.
+
+    // PRIVATE TYPES
+    struct Node {
+        TYPE  d_value;
+        Node *d_next;
+    };
+
+    // DATA
+    EQUALS            d_comparator;
+    Node             *d_nodeList;
+    bslma::Allocator *d_allocator_p;
+
+  private:
+    // NOT IMPLEMENTED
+    ListSet(const ListSet&);
+    ListSet& operator=(const ListSet&);
+
+  public:
+    // CREATORS
+    explicit
+    ListSet(bslma::Allocator *allocator = 0)
+    : d_comparator()
+    , d_nodeList(0)
+    , d_allocator_p(bslma::Default::allocator(allocator))
+        // Create an empty "ListSet' using the specified 'allocator', or the
+        // default allocator if none is specified.
+    {}
+
+    ~ListSet()
+        // Release all memory used by this 'ListSet'
+    {
+        for (Node *node = d_nodeList; node; ) {
+            Node *toDelete = node;
+            node = node->d_next;
+
+            d_allocator_p->deleteObject(toDelete);
+        }
+    }
+
+    // MANIPULATOR
+    bool insert(const TYPE& value)
+        // If 'value' isn't contained in this 'ListSet', add it and return
+        // 'true', otherwise, return 'false' with no change to the 'ListSet'.
+    {
+        if (count(value)) {
+            return false;                                             // RETURN
+        }
+
+        Node *node = (Node *) d_allocator_p->allocate(sizeof(Node));
+        bslalg::ScalarPrimitives::copyConstruct(&node->d_value,
+                                                value,
+                                                d_allocator_p);
+        node->d_next = d_nodeList;
+        d_nodeList = node;
+
+        return true;
+    }
+
+    int count(const TYPE& value) const
+        // Return the number of nodes whose 'd_value' field is equivalent to
+        // the specified 'value', which will always be 0 or 1.
+    {
+        for (Node *node = d_nodeList; node; node = node->d_next) {
+            if (d_comparator(node->d_value, value)) {
+                return 1;                                             // RETURN
+            }
+        }
+
+        return 0;
+    }
+};
+
+///Example 2: Using Our List Set For a Custom Type
+///- - - - - - - - - - - - - - - - - - - - - - - -
+// Suppose we want to have a list set containing objects of a custom type.  We
+// can specialize the 'equal_to' comparator to also work on our custom type
+// as well.  We will re-use the 'ListSet' template class from example 1, and
+// create a new custom type.
+//
+// First, we define a type 'StringThing', which will contain a 'const char *'
+// pointer, it will be a very simple type, that is implicitly castable to or
+// from a 'const char *'.  It has no 'operator==' defined, so 'equal_to' will
+// need to be explicitly specialized for it:
+
+class StringThing {
+    // This class holds a pointer to zero-terminated string.  It is implicitly
+    // convertible to and from a 'const char *'.  The difference between this
+    // type and a 'const char *' is that 'operator==' will properly compare two
+    // objects of this type for equality of strings rather than equality of
+    // pointers.
+
+    // DATA
+    const char *d_string;    // held, not owned
+
+  public:
+    // CREATOR
+    StringThing(const char *string)                                 // IMPLICIT
+    : d_string(string)
+        // Create a 'StringThing' object out of the specified 'string'.
+    {}
+
+    // ACCESSOR
+    operator const char *() const
+        // Implicitly cast this 'StringThing' object to a 'const char *' that
+        // refers to the same buffer.
+    {
+        return d_string;
+    }
+};
+
+// Then, we specialize 'equal_to' to be able to compare two 'StringThing's.
+
+namespace bsl {
+
+template <>
+struct equal_to<StringThing> {
+    bool operator()(const StringThing& lhs,
+                    const StringThing& rhs) const
+    {
+        return !strcmp(lhs, rhs);
+    }
+};
+
+}  // close namespace bsl
+
 // ============================================================================
 //                            MAIN PROGRAM
 // ----------------------------------------------------------------------------
@@ -102,8 +263,8 @@ int main(int argc, char *argv[])
 {
     int                 test = argc > 1 ? atoi(argv[1]) : 0;
     bool             verbose = argc > 2;
-    bool         veryVerbose = argc > 3;
-    bool     veryVeryVerbose = argc > 4;
+//  bool         veryVerbose = argc > 3;
+//  bool     veryVeryVerbose = argc > 4;
     bool veryVeryVeryVerbose = argc > 5;
 
     printf("TEST " __FILE__ " CASE %d\n", test);
@@ -114,9 +275,9 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:
-      case 7: {
+      case 8: {
         // --------------------------------------------------------------------
-        // USAGE EXAMPLE
+        // USAGE EXAMPLE 2
         //   Extracted from component header file.
         //
         // Concerns:
@@ -129,12 +290,93 @@ int main(int argc, char *argv[])
         //:   (C-1)
         //
         // Testing:
-        //   USAGE EXAMPLE
+        //   USAGE EXAMPLE 2
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nUSAGE EXAMPLE"
-                            "\n=============\n");
+        if (verbose) printf("USAGE EXAMPLE 2\n"
+                            "===============\n");
 
+// Next, in 'main', we declare a 'ListSet' containing 'StringThing's:
+
+        ListSet<StringThing> lsst;
+
+// Then, we insert a number of values, and observe that redundant inserts
+// return 'false' with no effect:
+
+        ASSERT(true  == lsst.insert("woof"));
+        ASSERT(true  == lsst.insert("meow"));
+        ASSERT(true  == lsst.insert("arf"));
+        ASSERT(false == lsst.insert("woof"));
+        ASSERT(true  == lsst.insert("bark"));
+        ASSERT(false == lsst.insert("meow"));
+        ASSERT(false == lsst.insert("woof"));
+
+// Now, we observe that our 'count' method successfully distinguishes between
+// values that have been stored in 'lsst' and those that haven't:
+
+        ASSERT(1 == lsst.count("meow"));
+        ASSERT(0 == lsst.count("woo"));
+        ASSERT(1 == lsst.count("woof"));
+        ASSERT(1 == lsst.count("arf"));
+        ASSERT(0 == lsst.count("chomp"));
+
+// Finally, we copy values into a buffer and observe that this makes no
+// difference to 'count's results:
+
+        char buffer[10];
+        strcpy(buffer, "meow");
+        ASSERT(1 == lsst.count(buffer));
+        strcpy(buffer, "bite");
+        ASSERT(0 == lsst.count(buffer));
+      } break;
+      case 7: {
+        // --------------------------------------------------------------------
+        // USAGE EXAMPLE 1
+        //   Extracted from component header file.
+        //
+        // Concerns:
+        //: 1 The usage example provided in the component header file compiles,
+        //:   links, and runs as shown.
+        //
+        // Plan:
+        //: 1 Incorporate usage example from header into test driver, remove
+        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //:   (C-1)
+        //
+        // Testing:
+        //   USAGE EXAMPLE 1
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("USAGE EXAMPLE 1\n"
+                            "===============\n");
+
+// Then, in 'main', we declare an instance of 'ListSet' storing 'int's.  The
+// default definition of 'bsl::equal_to' will work nicely:
+
+        ListSet<int> lsi;
+
+// Now, we insert several values into our 'ListSet'.  Note that successful
+// insertions return 'true' while redundant ones return 'false' with no effect:
+
+        ASSERT(true  == lsi.insert( 5));
+        ASSERT(false == lsi.insert( 5));
+        ASSERT(false == lsi.insert( 5));
+        ASSERT(true  == lsi.insert(11));
+        ASSERT(true  == lsi.insert(17));
+        ASSERT(true  == lsi.insert(81));
+        ASSERT(true  == lsi.insert(32));
+        ASSERT(false == lsi.insert(17));
+
+// Finally, we observe that our 'count' method successfully distinguishes
+// between values that have been stored in our 'ListSet' and those that
+// haven't:
+
+        ASSERT(0 == lsi.count( 7));
+        ASSERT(1 == lsi.count( 5));
+        ASSERT(0 == lsi.count(13));
+        ASSERT(1 == lsi.count(11));
+        ASSERT(0 == lsi.count(33));
+        ASSERT(1 == lsi.count(32));
       } break;
       case 6: {
         // --------------------------------------------------------------------
@@ -330,7 +572,7 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // IMPLICITLY DEFINED CONSTRUCTORS, DESTRUCTOR AND ASSIGNMENT OPERATOR
+        // C'TORS, D'TOR AND ASSIGNMENT OPERATOR (IMPLICITLY DEFINED)
         //   Ensure that the four implicitly declared and defined special
         //   member functions are publicly callable and have no unexpected side
         //   effects such as allocating memory.  As there is no observable

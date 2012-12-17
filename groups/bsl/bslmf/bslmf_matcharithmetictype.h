@@ -417,7 +417,7 @@ class MatchArithmeticType {
     MatchArithmeticType(int);                                       // IMPLICIT
         // Conversion constructor.  Does nothing.
 
-    //! MatchArithmeticType(const MatchArithmeticType&) = default
+    //! MatchArithmeticType(const MatchArithmeticType&) = default;
         // Create a 'MatchArithmeticType' object.  Note that as
         // 'MatchArithmeticType' is an empty (stateless) type, this operation
         // has no observable effect.

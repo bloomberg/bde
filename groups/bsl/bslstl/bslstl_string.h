@@ -684,6 +684,7 @@ BSL_OVERRIDES_STD mode"
 #define INCLUDED_CSTRING
 #endif
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 #ifndef INCLUDED_EXCEPTION
@@ -695,10 +696,6 @@ BSL_OVERRIDES_STD mode"
 #include <stdexcept>
 #define INCLUDED_STDEXCEPT
 #endif
-
-#endif
-
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
 // For transitive includes.  This is not placed in 'bsl+stdhdrs' because it
 // causes a cycle within the native standard headers.
@@ -727,6 +724,7 @@ BSL_OVERRIDES_STD mode"
 
 #endif
 
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 namespace bsl {
@@ -2819,7 +2817,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateInsertRaw(
 {
     BSLS_ASSERT_SAFE(outPosition <= length());
     BSLS_ASSERT_SAFE(numChars <= max_size() - length());
-    BSLS_ASSERT_SAFE(characterString);
+    BSLS_ASSERT_SAFE(characterString || 0 == numChars);
 
     size_type  newLength  = this->d_length + numChars;
     size_type  newStorage = this->d_capacity;
@@ -2880,7 +2878,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateReplaceRaw(
     BSLS_ASSERT_SAFE(outNumChars <= length());
     BSLS_ASSERT_SAFE(outPosition <= length() - outNumChars);
     BSLS_ASSERT_SAFE(length() - outNumChars <= max_size() - numChars);
-    BSLS_ASSERT_SAFE(characterString);
+    BSLS_ASSERT_SAFE(characterString || 0 == numChars);
 
     const difference_type displacement =
                           static_cast<difference_type>(numChars - outNumChars);
@@ -3325,7 +3323,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
 : Imp()
 , BloombergLP::bslalg::ContainerBase<allocator_type>(allocator)
 {
-    BSLS_ASSERT_SAFE(characterString);
+    BSLS_ASSERT_SAFE(characterString || 0 == numChars);
 
     assign(characterString, numChars);
 }
@@ -3616,7 +3614,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::append(
                                               const CHAR_TYPE *characterString,
                                               size_type        numChars)
 {
-    BSLS_ASSERT_SAFE(characterString);
+    BSLS_ASSERT_SAFE(characterString || 0 == numChars);
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
                                            numChars > max_size() - length())) {
@@ -3726,7 +3724,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::assign(
                                               const CHAR_TYPE *characterString,
                                               size_type        numChars)
 {
-    BSLS_ASSERT_SAFE(characterString);
+    BSLS_ASSERT_SAFE(characterString || 0 == numChars);
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(numChars > max_size())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -3804,7 +3802,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::insert(
                                               const CHAR_TYPE *characterString,
                                               size_type        numChars)
 {
-    BSLS_ASSERT_SAFE(characterString);
+    BSLS_ASSERT_SAFE(characterString || 0 == numChars);
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(position > length())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -4061,7 +4059,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::replace(
                                               const CHAR_TYPE *characterString,
                                               size_type        numChars)
 {
-    BSLS_ASSERT_SAFE(characterString);
+    BSLS_ASSERT_SAFE(characterString || 0 == numChars);
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(outPosition > length())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -4166,7 +4164,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::replace(
     BSLS_ASSERT_SAFE(first <= cend());
     BSLS_ASSERT_SAFE(first <= last);
     BSLS_ASSERT_SAFE(last <= cend());
-    BSLS_ASSERT_SAFE(characterString);
+    BSLS_ASSERT_SAFE(characterString || 0 == numChars);
 
     size_type outPosition = first - cbegin();
     size_type outNumChars = last - first;
@@ -4554,7 +4552,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::rfind(
                                               size_type        position,
                                               size_type        numChars) const
 {
-    BSLS_ASSERT_SAFE(characterString);
+    BSLS_ASSERT_SAFE(characterString || 0 == numChars);
 
     if (0 == numChars) {
         return position > length() ? length() : position;             // RETURN
@@ -4612,7 +4610,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find_first_of(
                                               size_type        position,
                                               size_type        numChars) const
 {
-    BSLS_ASSERT_SAFE(characterString);
+    BSLS_ASSERT_SAFE(characterString || 0 == numChars);
 
     if (0 < numChars && position < length()) {
         for (const CHAR_TYPE *current = this->dataPtr() + position;
@@ -4666,7 +4664,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find_last_of(
                                               size_type        position,
                                               size_type        numChars) const
 {
-    BSLS_ASSERT_SAFE(characterString);
+    BSLS_ASSERT_SAFE(characterString || 0 == numChars);
 
     if (0 < numChars && 0 < length()) {
         size_type remChars = position < length() ? position : length() - 1;
@@ -4724,7 +4722,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find_first_not_of(
                                               size_type        position,
                                               size_type        numChars) const
 {
-    BSLS_ASSERT_SAFE(characterString);
+    BSLS_ASSERT_SAFE(characterString || 0 == numChars);
 
     if (position < length()) {
         const CHAR_TYPE *last = this->dataPtr() + length();
@@ -4779,7 +4777,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find_last_not_of (
                                               size_type        position,
                                               size_type        numChars) const
 {
-    BSLS_ASSERT_SAFE(characterString);
+    BSLS_ASSERT_SAFE(characterString || 0 == numChars);
 
     if (0 < length()) {
         size_type remChars = position < length() ? position : length() - 1;

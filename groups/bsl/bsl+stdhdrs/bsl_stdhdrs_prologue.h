@@ -41,16 +41,16 @@
 #define INCLUDED_BSL_STDHDRS_PROLOGUE
 
 #ifndef INCLUDED_BSLS_IDENT
-# include <bsls_ident.h>
+#include <bsls_ident.h>
 #endif
 BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLS_NATIVESTD
-# include <bsls_nativestd.h>
+#include <bsls_nativestd.h>
 #endif
 
 #ifndef INCLUDED_BSLS_PLATFORM
-# include <bsls_platform.h>
+#include <bsls_platform.h>
 #endif
 
 // When a standard C header file (e.g., 'stddef.h') is included within an
@@ -59,17 +59,15 @@ BSLS_IDENT("$Id: $")
 // header is wrapped around an 'extern "C++"' block.
 extern "C++" {
 
-namespace std
-{
+namespace std {
     namespace rel_ops { }
-}
+}  // close namespace std
 
-namespace bsl
-{
-    // Only 'rel_ops' is alised and imported into the 'bsl' namespace here.
+namespace bsl {
+    // Only 'rel_ops' is aliased and imported into the 'bsl' namespace here.
     // Other 'std' symbols are imported by files in the 'bsl+bslhdrs' package.
     namespace rel_ops = std::rel_ops;
-}
+}  // close namespace bsl
 
 }  // extern "C++"
 
@@ -88,11 +86,11 @@ namespace bsl
 
 #endif // INCLUDED_BSL_STDHDRS_PROLOGUE
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2009
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

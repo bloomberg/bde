@@ -72,7 +72,7 @@ BDES_IDENT("$Id: $")
 // named 'Type' provide the results of type-returning meta-functions.
 //
 ///Usage
-//------
+///-----
 // The following snippets of code illustrate basic use of the 'bdemf_If'
 // meta-function.  The examples make use of the following declarations to
 // identify the type that is selected by a given constant integral expression:
@@ -101,7 +101,9 @@ BDES_IDENT("$Id: $")
 //   typedef bdemf_If<(sizeof(T2) > 1), int>::Type Type2;
 //   assert(T_NIL == whatType(Type2()));
 //..
-//@DEPRECATED
+//
+///DEPRECATED
+///----------
 // 'bdemf_if' (lowercase "i") has been replaced with 'bdemf_If' (uppercase "I")
 // for consistency with other meta-functions in 'bdemf'.
 

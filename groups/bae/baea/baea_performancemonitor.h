@@ -55,18 +55,18 @@
 //                                        process.
 //..
 //
-// Iterator Invalidation
-// ---------------------
+///Iterator Invalidation
+///---------------------
 // Registration of new pids does not invalidate existing iterators.
 // Unregistration of pid only invalidates iterators pointing to the statistics
 // for the pid being unregistered, all other iterators remain valid.
 //
-// Thread Safety
-// -------------
+///Thread Safety
+///-------------
 // This class is completely thread safe.
 //
-// Usage
-// -----
+///Usage
+///-----
 // The following example shows how to monitor the currently executing process
 // and produce a formatted report of the collected measures after a certain
 // interval.
@@ -188,7 +188,7 @@ class baea_PerformanceMonitor {
     // bdes_platform component.  This type alias is used to specifically select
     // a particular template specialization of the 'Collector' template.
 
-#if defined(BSLS_PLATFORM_OS_LINUX)
+#if defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_CYGWIN)
     typedef bsls_Platform::OsLinux   OsType;
 #elif defined(BDES_PLATFORM_OS_FREEBSD)
     typedef bsls_Platform::OsFreeBsd OsType;

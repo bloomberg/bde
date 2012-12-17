@@ -675,6 +675,7 @@ BDES_IDENT("$Id: $")
 #endif
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 // Transitive inclusions depended on by some Robo code.
 
@@ -682,6 +683,7 @@ BDES_IDENT("$Id: $")
 #include <bdetu_systemtime.h>
 #endif
 
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 #ifndef bcemt_Attribute

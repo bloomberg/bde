@@ -13,17 +13,14 @@ namespace bslalg {
 
 native_std::size_t HashTableBucket::countElements() const
 {
-    if (BidirectionalLink *cursor = d_first_p) {
-        native_std::size_t result = 1;
-        while (cursor != d_last_p) {
-            cursor = cursor->nextLink();
-            ++result;
-        }
-        return result;                                                // RETURN
+    native_std::size_t result = 0;
+    for (BidirectionalLink *cursor     = d_first_p,
+                           * endBucket = end();
+                            endBucket != cursor; cursor = cursor->nextLink()) {
+        ++result;
     }
-    else {
-        return 0;                                                     // RETURN
-    }
+
+    return result;
 }
 
 }  // close namespace bslalg
