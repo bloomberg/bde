@@ -11,11 +11,10 @@
 #include <bdef_bind.h>
 #include <bdef_placeholder.h>
 
-#include <bsls_platformutil.h>
-
 #include <bcemt_thread.h>
 
 #include <bsls_assert.h>
+#include <bsls_types.h>
 
 #include <bsl_cstdio.h>
 #include <bsl_cstdlib.h>
@@ -97,7 +96,7 @@ static void aSsErT(int c, const char *s, int i)
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
-typedef bsls_PlatformUtil::Int64 Int64;
+typedef bsls::Types::Int64 Int64;
 static void dispatcherEventCb(const btemt_QueryDispatcherEvent& event)
 {
     Q(dispatcherEventCb());

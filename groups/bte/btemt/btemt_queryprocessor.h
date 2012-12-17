@@ -108,10 +108,6 @@ BDES_IDENT("$Id: $")
 #include <bteso_ipv4address.h>
 #endif
 
-#ifndef INCLUDED_BSLS_PLATFORMUTIL
-#include <bsls_platformutil.h>
-#endif
-
 #ifndef INCLUDED_BCEMA_SHAREDPTR
 #include <bcema_sharedptr.h>
 #endif
@@ -132,12 +128,16 @@ BDES_IDENT("$Id: $")
 #include <bces_atomictypes.h>
 #endif
 
-#ifndef INCLUDED_BSL_MAP
-#include <bsl_map.h>
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
 #endif
 
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
+#endif
+
+#ifndef INCLUDED_BSL_MAP
+#include <bsl_map.h>
 #endif
 
 namespace BloombergLP {
@@ -241,7 +241,7 @@ class btemt_QueryProcessor {
     bsl::map<int, bteso_IPv4Address>
                            d_channelAllocators;
     bcemt_Mutex            d_channelAllocatorsLock;
-    bslma_Allocator       *d_allocator_p;
+    bslma::Allocator      *d_allocator_p;
 
     void poolCb(int, int, int); // just print out
        // Invoke 'processorEventFunctor' as appropriate:
@@ -277,7 +277,7 @@ class btemt_QueryProcessor {
 
     void writeQueryResultCb(btemt_QueryResult *result,
                             int channelId,
-                            const bsls_PlatformUtil::Int64& queryId);
+                            const bsls::Types::Int64& queryId);
         // Write the 'result' appended with 'queryId' and a
         // btemt_QueryResponse::BTEMT_SUCCESS status to the channel associated
         // with 'channelId'.  This is invoked from within the cached processing
@@ -297,7 +297,7 @@ class btemt_QueryProcessor {
                     btemt_QueryRequest*,
                     bdef_Function<void (*)(btemt_QueryResult*)>)>&
                 serverFunctor,
-            bslma_Allocator *basicAllocator = 0);
+            bslma::Allocator *basicAllocator = 0);
         // Create a query processor with the specified 'configuration' and
         // invoke the specified 'eventFunctor' whenever an "interesting" event
         // occurs and invoke the specified 'serverFunctor' to process queries.
@@ -315,7 +315,7 @@ class btemt_QueryProcessor {
                 btemt_QueryRequest*,
                 bdef_Function<void (*)(btemt_QueryResult*)>)>&
                 serverFunctor,
-            bslma_Allocator *basicAllocator = 0);
+            bslma::Allocator *basicAllocator = 0);
         // Create a query processor with the specified 'configuration' that
         // uses the specified 'procPool' thread pool for processing queries and
         // invokes the specified 'eventFunctor' whenever an "interesting" event

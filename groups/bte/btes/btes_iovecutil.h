@@ -55,8 +55,8 @@ BDES_IDENT("$Id: $")
 #include <btes_iovec.h>
 #endif
 
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
 #endif
 
                             // ====================
@@ -104,11 +104,11 @@ struct btes_IovecUtil {
                             int                      numBuffers,
                             int                      offset,
                             bcema_BlobBufferFactory *factory,
-                            bslma_Allocator         *allocator);
+                            bslma::Allocator        *allocator);
     static bcema_Blob *blob(const btes_Iovec        *buffers,
                             int                      numBuffers,
                             bcema_BlobBufferFactory *factory,
-                            bslma_Allocator         *allocator);
+                            bslma::Allocator        *allocator);
         // Create a 'bcema_Blob' object allocated using the specified 'factory'
         // and containing data from the specified sequence of 'buffers' of the
         // specified 'numBuffers' length.  Optionally specify an 'offset' (in

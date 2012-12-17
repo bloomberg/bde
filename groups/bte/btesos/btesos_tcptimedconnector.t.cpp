@@ -199,7 +199,7 @@ struct TestCommand {
     int                d_expNumChannels;
 };
 
-bslma_TestAllocator testAllocator;
+bslma::TestAllocator testAllocator;
 
 //=============================================================================
 //                      HELPER FUNCTIONS/CLASSES FOR TESTING
@@ -246,7 +246,7 @@ void* threadAsServer(void *arg)
     }
     ASSERT(0 == info.d_serverSocket_p->listen(info.d_equeueSize));
 
-    bslma_TestAllocator ThreadTestAllocator;
+    bslma::TestAllocator ThreadTestAllocator;
 
     bsl::vector<bteso_StreamSocket<bteso_IPv4Address> *>
                                                clients(&ThreadTestAllocator);
@@ -640,12 +640,12 @@ int main(int argc, char *argv[]) {
 
           {
               struct {
-                  int                  d_lineNum;
-                  bslma_TestAllocator *d_allocator_p;// memory allocator
-                  int                  d_capacity;   // initial capacity: not
-                                                     // specified if 0
-                  int                  d_queueSize;  // a server socket's
-                                                     // back-log value
+                  int                   d_lineNum;
+                  bslma::TestAllocator *d_allocator_p;  // memory allocator
+                  int                   d_capacity;     // initial capacity:
+                                                        // not specified if 0
+                  int                   d_queueSize;    // a server socket's
+                                                        // back-log value
               } VALUES[] =
                 //line        allocator    capacity   queueSize
                 //----        ---------    --------   ---------
@@ -911,12 +911,12 @@ int main(int argc, char *argv[]) {
 
           {
               struct {
-                  int                  d_lineNum;
-                  bslma_TestAllocator *d_allocator_p;// memory allocator
-                  int                  d_capacity;   // initial capacity: not
-                                                     // specified if 0
-                  int                  d_queueSize;  // a server socket's
-                                                     // back-log value
+                  int                   d_lineNum;
+                  bslma::TestAllocator *d_allocator_p;  // memory allocator
+                  int                   d_capacity;     // initial capacity:
+                                                        // not specified if 0
+                  int                   d_queueSize;    // a server socket's
+                                                        // back-log value
               } VALUES[] =
                 //line         allocator   capacity   queueSize
                 //----         ---------   --------   ---------
@@ -1335,12 +1335,12 @@ int main(int argc, char *argv[]) {
           }
           {
               struct {
-                  int                  d_lineNum;
-                  bslma_TestAllocator *d_allocator_p;// memory allocator
-                  int                  d_capacity;   // initial capacity: not
-                                                     // specified if 0
-                  int                  d_queueSize;  // a server socket's
-                                                     // back-log value
+                  int                   d_lineNum;
+                  bslma::TestAllocator *d_allocator_p;  // memory allocator
+                  int                   d_capacity;     // initial capacity:
+                                                        // not specified if 0
+                  int                   d_queueSize;    // a server socket's
+                                                        // back-log value
               } VALUES[] =
                 //line         allocator   capacity   queueSize
                 //----         ---------   --------   ---------
@@ -1764,12 +1764,12 @@ int main(int argc, char *argv[]) {
           }
           {
               struct {
-                  int                  d_lineNum;
-                  bslma_TestAllocator *d_allocator_p;// memory allocator
-                  int                  d_capacity;   // initial capacity: not
-                                                     // specified if 0
-                  int                  d_queueSize;  // a server socket's
-                                                     // back-log value
+                  int                   d_lineNum;
+                  bslma::TestAllocator *d_allocator_p;  // memory allocator
+                  int                   d_capacity;     // initial capacity:
+                                                        // not specified if 0
+                  int                   d_queueSize;    // a server socket's
+                                                        // back-log value
               } VALUES[] =
                 //line         allocator   capacity   queueSize
                 //----         ---------   --------   ---------
@@ -2194,12 +2194,12 @@ int main(int argc, char *argv[]) {
           }
           {
               struct {
-                  int                  d_lineNum;
-                  bslma_TestAllocator *d_allocator_p;// memory allocator
-                  int                  d_capacity;   // initial capacity: not
-                                                     // specified if 0
-                  int                  d_queueSize;  // a server socket's
-                                                     // back-log value
+                  int                   d_lineNum;
+                  bslma::TestAllocator *d_allocator_p;  // memory allocator
+                  int                   d_capacity;     // initial capacity:
+                                                        // not specified if 0
+                  int                   d_queueSize;    // a server socket's
+                                                        // back-log value
               } VALUES[] =
                 //line         allocator   capacity   queueSize
                 //----         ---------   --------   ---------
@@ -2553,12 +2553,12 @@ int main(int argc, char *argv[]) {
           }
           {
               struct {
-                  int                  d_lineNum;
-                  bslma_TestAllocator *d_allocator_p;// memory allocator
-                  int                  d_capacity;   // initial capacity: not
-                                                     // specified if 0
-                  int                  d_queueSize;  // a server socket's
-                                                     // back-log value
+                  int                   d_lineNum;
+                  bslma::TestAllocator *d_allocator_p;  // memory allocator
+                  int                   d_capacity;     // initial capacity:
+                                                        // not specified if 0
+                  int                   d_queueSize;    // a server socket's
+                                                        // back-log value
               } VALUES[] =
                 //line         allocator   capacity   queueSize
                 //----         ---------   --------   ---------
@@ -2670,12 +2670,12 @@ int main(int argc, char *argv[]) {
           }
           {
               struct {
-                  int                  d_lineNum;
-                  bslma_TestAllocator *d_allocator_p;// memory allocator
-                  int                  d_capacity;   // initial capacity: not
-                                                     // specified if 0
-                  int                  d_queueSize;  // a server socket's
-                                                     // back-log value
+                  int                   d_lineNum;
+                  bslma::TestAllocator *d_allocator_p;  // memory allocator
+                  int                   d_capacity;     // initial capacity:
+                                                        // not specified if 0
+                  int                   d_queueSize;    // a server socket's
+                                                        // back-log value
               } VALUES[] =
                 //line         allocator   capacity   queueSize
                 //----         ---------   --------   ---------

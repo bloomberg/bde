@@ -2,14 +2,15 @@
 
 #include <btemt_query.h>
 
-#include <bslma_testallocator.h>
 #include <bdem_list.h>
 #include <bdex_instreamfunctions.h>             // for testing only
 #include <bdex_outstreamfunctions.h>            // for testing only
 #include <bdex_testoutstream.h>
 #include <bdex_testinstream.h>
 #include <bdema_managedptr.h>
-#include <bsls_platformutil.h>
+
+#include <bslma_testallocator.h>
+#include <bsls_types.h>
 
 #include <bsl_cstdio.h>
 #include <bsl_cstdlib.h>
@@ -105,7 +106,7 @@ namespace {
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
-typedef bsls_PlatformUtil::Int64 Int64;
+typedef bsls::Types::Int64 Int64;
 //=============================================================================
 //                  CLASSES FOR TESTING USAGE EXAMPLES
 //-----------------------------------------------------------------------------
@@ -125,7 +126,7 @@ int main(int argc, char *argv[])
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
 
-    bslma_TestAllocator testAllocator(veryVeryVerbose);
+    bslma::TestAllocator testAllocator(veryVeryVerbose);
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 1: {

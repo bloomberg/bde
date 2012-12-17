@@ -98,7 +98,7 @@ int main(int argc, char *argv[]) {
         if (verbose) cout << endl << "BREATHING TEST" << endl
                                   << "==============" << endl;
 
-        bslma_TestAllocator testAllocator(veryVeryVerbose);
+        bslma::TestAllocator testAllocator(veryVeryVerbose);
 
         if (veryVerbose) cout << "\tCreating another dflt instance." << endl;
         {

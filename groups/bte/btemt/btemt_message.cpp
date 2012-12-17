@@ -17,7 +17,7 @@ namespace BloombergLP {
 // CREATORS
 btemt_BlobMsg::btemt_BlobMsg(bcema_Blob                *blob,
                              int                        channelId,
-                             bslma_Allocator           *basicAllocator)
+                             bslma::Allocator          *basicAllocator)
 {
     new (d_impl.d_data.d_arena) Handle(blob, basicAllocator);
     d_impl.d_channelId = channelId;
@@ -160,7 +160,7 @@ btemt_UserMsg& btemt_UserMsg::operator=(const btemt_UserMsg& rhs)
 void btemt_UserMsg::
          setManagedData(bcema_PooledBufferChain                *chain,
                         bcema_Deleter<bcema_PooledBufferChain> *deleter,
-                        bslma_Allocator                        *basicAllocator)
+                        bslma::Allocator                       *basicAllocator)
 {
     if (BTEMT_MANAGED == d_impl.d_dataLength) {
         Handle *h = (Handle *)(void *)d_impl.d_data.d_arena;
@@ -429,11 +429,11 @@ void  btemt_MessageUtil::assignData(bcema_Blob           *blob,
     }
 }
 
-void  btemt_MessageUtil::assignData(btemt_DataMsg     *dataMsg,
-                                    const bcema_Blob&  blob,
-                                    int                numBytes,
-                                    bcema_PooledBufferChainFactory *factory,
-                                    bslma_Allocator    *spAllocator)
+void btemt_MessageUtil::assignData(btemt_DataMsg                  *dataMsg,
+                                   const bcema_Blob&               blob,
+                                   int                             numBytes,
+                                   bcema_PooledBufferChainFactory *factory,
+                                   bslma::Allocator               *spAllocator)
 {
     if (0 == numBytes) {
         return;                                                       // RETURN

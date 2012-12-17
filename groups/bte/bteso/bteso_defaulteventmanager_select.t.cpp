@@ -207,7 +207,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
     ASSERT(0 == bteso_SocketImpUtil::startup());
-    bslma_TestAllocator testAllocator(veryVeryVerbose);
+    bslma::TestAllocator testAllocator(veryVeryVerbose);
     bteso_TimeMetrics timeMetric(bteso_TimeMetrics::BTESO_MIN_NUM_CATEGORIES,
                                  bteso_TimeMetrics::BTESO_CPU_BOUND);
 
@@ -357,8 +357,8 @@ int main(int argc, char *argv[])
 
             if (verbose) cout << "Negative Testing." << endl;
             {
-                bsls_AssertFailureHandlerGuard hG(
-                                              bsls_AssertTest::failTestDriver);
+                bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
 
                 if (veryVerbose) { P(handle) }
 
@@ -1291,9 +1291,9 @@ int main(int argc, char *argv[])
             char buffer[BUF_SIZE];
             int errCode = 0;
             int numWritten =
-                bteso_SocketImpUtil::write(testPairs[i].controlFd(), 
+                bteso_SocketImpUtil::write(testPairs[i].controlFd(),
                                            buffer,
-                                           BUF_SIZE,   
+                                           BUF_SIZE,
                                            &errCode);
 
             ASSERT(BUF_SIZE == numWritten);
@@ -1325,9 +1325,9 @@ int main(int argc, char *argv[])
 
             // Fix test failure (DRQS 16736357). Ensure the data written above
             // is ready to be read, by calling select and not providing a write
-            // set. 
-            int selectReturnValue = ::select(maxFd, 
-                                             &readSet, 
+            // set.
+            int selectReturnValue = ::select(maxFd,
+                                             &readSet,
                                              NULL,
                                              NULL,
                                              &tv);
@@ -1341,9 +1341,9 @@ int main(int argc, char *argv[])
 
             // Test a socket that is ready for both read and write operations
             // (concern #1).
-            selectReturnValue = ::select(maxFd, 
-                                         &readSet, 
-                                         &writeSet, 
+            selectReturnValue = ::select(maxFd,
+                                         &readSet,
+                                         &writeSet,
                                          NULL,
                                          &tv);
             if (veryVerbose) {
@@ -1646,7 +1646,7 @@ int main(int argc, char *argv[])
 
         while (true) {
             Obj mX(&timeMetric, &testAllocator);
-        
+
             char script[1000];
             cout << "Script: " << bsl::flush;
             cin.getline(script, sizeof(script));
@@ -1660,12 +1660,12 @@ int main(int argc, char *argv[])
 
             enum { NUM_PAIR = 10 };
             bteso_EventManagerTestPair socketPairs[NUM_PAIR];
-        
+
             for (int j = 0; j < NUM_PAIR; j++) {
                 socketPairs[j].setObservedBufferOptions(BUF_LEN, 1);
                 socketPairs[j].setControlBufferOptions(BUF_LEN, 1);
             }
-        
+
             int fails = bteso_EventManagerTester::gg(&mX, socketPairs,
                                                      script,
                                                      controlFlag);

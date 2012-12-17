@@ -49,7 +49,7 @@ using namespace bsl;  // automatically added by script
 //
 // Class bteso_InetStreamSocket
 // ============================
-// [ 2] bteso_InetStreamSocket(handle, bslma_Allocator *allocator);
+// [ 2] bteso_InetStreamSocket(handle, bslma::Allocator *allocator);
 // [ 2] ~bteso_InetStreamSocket<ADDRESS>();
 // [  ] int accept(result);
 // [ 4] int accept(socket, ADDRESS *peerAddress);
@@ -290,7 +290,7 @@ int main(int argc, char *argv[]) {
             if (verbose) cout << "\nTesting Usage Example"
                               << "\n=====================" << endl;
 
-            bslma_TestAllocator ta;
+            bslma::TestAllocator ta;
 {
 ///Usage
 ///-----
@@ -1724,7 +1724,7 @@ int main(int argc, char *argv[]) {
            }
 
            LOOP3_ASSERT(ti, resp, DATA[ti].d_lineNum,
-                                                   resp == DATA[ti].d_expected);
+                        resp == DATA[ti].d_expected);
 
 #ifndef BSLS_PLATFORM_OS_CYGWIN
            testFactory.deallocate(streamSocketA);
