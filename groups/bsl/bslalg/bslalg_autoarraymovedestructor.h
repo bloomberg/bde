@@ -321,11 +321,12 @@ class AutoArrayMoveDestructor {
         // 'OBJECT_TYPE' in the specified range '[ begin, end )' which, upon
         // destruction, moves the range '[ begin, middle )' to the specified
         // 'destination' and destroys the '[ middle, end )' range.  The
-        // behavior is undefined unless 'begin <= middle <= end', either
-        // 'destination < begin' or 'end <= destination', and each element in
-        // the range '[ begin, end )' has been initialized.  Note that the
-        // range '[ destination, destination + (end - middle) )' may not
-        // overlap the range '[ begin, end )'.
+        // behavior is undefined unless 'begin', 'middle', and 'end' refer to
+        // a contiguous sequence of initialized 'OBJECT_TYPE' objects, where 
+        // 'begin <= middle <= end', and 'destination' refers to a contiguous
+        // sequence of (uninitialized) memory of sufficent size to hold 
+        // 'end - begin' 'OBJECT_TYPE' objects (which must not overlap
+        // '[begin, end)').
 
     ~AutoArrayMoveDestructor();
         // Bit-wise move the range '[ middle(), end() )' to the 'destination()'
@@ -379,6 +380,7 @@ AutoArrayMoveDestructor<OBJECT_TYPE>::AutoArrayMoveDestructor(
     BSLS_ASSERT_SAFE(destination || begin == middle);
     BSLS_ASSERT_SAFE(begin  <= middle);
     BSLS_ASSERT_SAFE(middle <= end);
+
 }
 
 template <class OBJECT_TYPE>
@@ -410,8 +412,7 @@ void AutoArrayMoveDestructor<OBJECT_TYPE>::advance()
     ++d_middle_p;
     ++d_dst_p;
 
-    BSLS_ASSERT_SAFE(d_dst_p > d_end_p || d_dst_p < d_begin_p ||
-                              (d_middle_p == d_end_p && d_dst_p == d_begin_p));
+    BSLS_ASSERT_SAFE(d_dst_p != d_begin_p || d_middle_p == d_end_p);
 }
 
 // ACCESSORS
