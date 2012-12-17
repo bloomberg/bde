@@ -150,14 +150,14 @@ namespace bslmf {
 
 // Use type traits intrinsics, where available, to give the correct answer for
 // the tricky cases where existing ABIs prevent programatic detection.
-template <typename TYPE>
+template <class TYPE>
 struct IsPolymorphic_Imp {
     enum { Value = __is_polymorphic(TYPE) };
 };
 
 #else
 
-template <typename TYPE, bool IS_CLASS = bsl::is_class<TYPE>::value>
+template <class TYPE, bool IS_CLASS = bsl::is_class<TYPE>::value>
 struct IsPolymorphic_Imp {
     // This 'struct' template provides a meta-function to determine whether the
     // (template parameter) 'TYPE' is a (non-cv-qualified) polymorphic type.
@@ -168,7 +168,7 @@ struct IsPolymorphic_Imp {
     enum { Value = false };
 };
 
-template <typename TYPE>
+template <class TYPE>
 struct IsPolymorphic_Imp<TYPE, true> {
      // This partial specialization of 'IsPolymorphic_Imp',for when the
      // (template parameter) 'TYPE' is a (non-cv-qualified) polymorphic type,
@@ -197,7 +197,7 @@ struct IsPolymorphic_Imp<TYPE, true> {
 
 namespace bsl {
 
-template <typename TYPE>
+template <class TYPE>
 struct is_polymorphic
     : integral_constant<bool,
                         BloombergLP::bslmf::IsPolymorphic_Imp<
@@ -220,7 +220,7 @@ namespace bslmf {
                          // struct IsPolymorphic
                          // ====================
 
-template <typename TYPE>
+template <class TYPE>
 struct IsPolymorphic : bsl::is_polymorphic<TYPE>::type {
     // This 'struct' template implements a meta-function to determine if the
     // (template parameter) 'TYPE' is a (possiblly cv-qualified) polymorphic
@@ -250,11 +250,11 @@ struct IsPolymorphic : bsl::is_polymorphic<TYPE>::type {
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2005
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------
