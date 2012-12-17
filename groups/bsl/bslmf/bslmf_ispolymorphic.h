@@ -149,7 +149,7 @@ namespace bslmf {
 #if defined(BSLMF_ISPOLYMORPHIC_HAS_INTRINSIC)
 
 // Use type traits intrinsics, where available, to give the correct answer for
-// the tricky cases where existing ABIs prevent programatic detection.
+// the tricky cases where existing ABIs prevent programmatic detection.
 template <class TYPE>
 struct IsPolymorphic_Imp {
     enum { Value = __is_polymorphic(TYPE) };
@@ -223,7 +223,7 @@ namespace bslmf {
 template <class TYPE>
 struct IsPolymorphic : bsl::is_polymorphic<TYPE>::type {
     // This 'struct' template implements a meta-function to determine if the
-    // (template parameter) 'TYPE' is a (possiblly cv-qualified) polymorphic
+    // (template parameter) 'TYPE' is a (possibly cv-qualified) polymorphic
     // type.  This 'struct' derives from 'bsl::true_type' if the 'TYPE' is a
     // polymorphic type, and 'bsl::false_type' otherwise.
     //
