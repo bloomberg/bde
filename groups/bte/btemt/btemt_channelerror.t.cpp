@@ -250,8 +250,8 @@ int main(int argc, char *argv[])
                 -3 == ChannelErrorWrite::BTEMT_CHANNEL_DOWN);
         ASSERTV(ChannelErrorWrite::BTEMT_ENQUEUE_WAT,
                 -4 == ChannelErrorWrite::BTEMT_ENQUEUE_WAT);
-        ASSERTV(ChannelErrorWrite::BTEMT_UNKNOWN,
-                -5 == ChannelErrorWrite::BTEMT_UNKNOWN);
+        ASSERTV(ChannelErrorWrite::BTEMT_UNKNOWN_ID,
+                -5 == ChannelErrorWrite::BTEMT_UNKNOWN_ID);
 
       } break;
       case 1: {
