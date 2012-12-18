@@ -140,10 +140,10 @@ static int initPthreadAttribute(pthread_attr_t                *dest,
 namespace {
 
 class PthreadMutexGuard {
-    // A guard for unlocking a 'pthread_mutex_t'
+    // A guard that unlocks a 'pthread_mutex_t' on its destruction.
 
     // DATA
-    pthread_mutex_t *d_lock_p;
+    pthread_mutex_t *d_lock_p;  // guarded pthread mutex
 
   private:
     // NOT IMPLEMENTED
@@ -162,10 +162,11 @@ class PthreadMutexGuard {
 };
 
 class MachClockGuard {
-   // A guard for releasing a Mach port.
+   // A guard that deallocates a Darwin (mach kernel) 'clock_serv_t' on its
+   // destruction.
 
    // DATA
-   clock_serv_t d_clock;
+   clock_serv_t d_clock;  // guarded clock identifier
 
   private:
     // NOT IMPLEMENTED
