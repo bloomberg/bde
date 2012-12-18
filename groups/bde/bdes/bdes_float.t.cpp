@@ -151,7 +151,9 @@ const bool hasFSNan = true;
 const bool hasDSNan = true;
 #endif
 
-#if defined(BSLS_PLATFORM_CPU_X86_64) && defined(BDE_BUILD_TARGET_OPT)
+#if defined(BSLS_PLATFORM_CPU_X86)   && \
+    defined(BSLS_PLATFORM_CMP_CLANG) && \
+    defined(BDE_BUILD_TARGET_OPT)
 // Both x86 and AMD processors convert SNaNs to QNaNs when certain operations
 // are performed on SNaNs.  Therefore 'hasFSNan' & 'hasDSNan', above, are
 // 'false'.  But, the Clang optimizer, in certain contexts, avoids using
@@ -726,7 +728,6 @@ int main(int argc, char *argv[])
         ASSERT(! Obj::isSignalingNan(dnan));
 
 #if defined(OMIT_SNAN_TESTS)
-        LOOP_ASSERT(hasFSNan, hasFSNan == Obj::isSignalingNan(fsnan));
         LOOP_ASSERT(hasFSNan, hasFSNan == Obj::isSignalingNan(fsnan));
         LOOP_ASSERT(hasDSNan, hasDSNan == Obj::isSignalingNan(dsnan));
 #endif
