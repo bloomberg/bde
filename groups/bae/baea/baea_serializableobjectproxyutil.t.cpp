@@ -17,13 +17,17 @@
 
 #include <bdem_berencoder.h>
 #include <bdem_berdecoder.h>
+
+#include <bdema_bufferedsequentialallocator.h>
+
 #include <bdesb_fixedmeminstreambuf.h>
 #include <bdesb_memoutstreambuf.h>
 
 #include <bsls_stopwatch.h>
+
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
-#include <bslma_sequentialallocator.h>
+
 #include <cstdlib>
 
 using namespace BloombergLP;
@@ -5404,7 +5408,7 @@ int main(int argc, char *argv[])
         executeSimpleCategoryTest<unsigned char>("uchar");
         executeSimpleCategoryTest<short>("short");
         executeSimpleCategoryTest<int>("int");
-        executeSimpleCategoryTest<bsls_Types::Uint64>("uint64");
+        executeSimpleCategoryTest<bsls::Types::Uint64>("uint64");
         executeSimpleCategoryTest<float>("float");
         executeSimpleCategoryTest<double>("double");
         executeSimpleCategoryTest<bsl::string>("string");
@@ -5508,7 +5512,7 @@ int main(int argc, char *argv[])
             BUFFER_SIZE = 256 * 1024
         };
         char BUFFER[BUFFER_SIZE];
-        bslma_SequentialAllocator alloc(BUFFER, BUFFER_SIZE);
+        bdema_BufferedSequentialAllocator alloc(BUFFER, BUFFER_SIZE);
 
         unsigned numBytesEncoded = 0;
 
@@ -5517,7 +5521,7 @@ int main(int argc, char *argv[])
         baea_SerializableObjectProxyUtil::makeDecodeProxy(&requestDec,
                                                           &request);
 
-        bsls_Stopwatch timer;
+        bsls::Stopwatch timer;
         timer.start(true);
         for (int i = 0; i < numIter; ++i) {
             for (std::vector<baea::FeatureTestMessage>::iterator jt =
@@ -5616,13 +5620,13 @@ int main(int argc, char *argv[])
             BUFFER_SIZE = 256 * 1024
         };
         char BUFFER[BUFFER_SIZE];
-        bslma_SequentialAllocator alloc(BUFFER, BUFFER_SIZE);
+        bdema_BufferedSequentialAllocator alloc(BUFFER, BUFFER_SIZE);
 
         unsigned numBytesEncoded = 0;
 
         baea::FeatureTestMessage request;
 
-        bsls_Stopwatch timer;
+        bsls::Stopwatch timer;
         timer.start(true);
         for (int i = 0; i < numIter; ++i) {
             for (std::vector<baea::FeatureTestMessage>::iterator jt =

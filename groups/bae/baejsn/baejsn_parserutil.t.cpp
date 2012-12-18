@@ -1,20 +1,23 @@
 // baejsn_parserutil.t.cpp                                            -*-C++-*-
 #include <baejsn_parserutil.h>
 
-#include <bsl_sstream.h>
-#include <bsl_cfloat.h>
-#include <bsl_climits.h>
-#include <bsl_limits.h>
-#include <bsl_iostream.h>
 #include <bdepu_typesparser.h>
+
+#include <bdesb_memoutstreambuf.h>            // for testing only
+#include <bdesb_fixedmemoutstreambuf.h>       // for testing only
+#include <bdesb_fixedmeminstreambuf.h>        // for testing only
 
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 
-#include <bdesb_memoutstreambuf.h>            // for testing only
-#include <bdesb_fixedmemoutstreambuf.h>       // for testing only
-#include <bdesb_fixedmeminstreambuf.h>        // for testing only
+#include <bsls_types.h>
+
+#include <bsl_sstream.h>
+#include <bsl_cfloat.h>
+#include <bsl_climits.h>
+#include <bsl_limits.h>
+#include <bsl_iostream.h>
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -130,8 +133,8 @@ bool areBuffersEqual(const char *lhs, const char *rhs)
 //                            MAIN PROGRAM
 // ----------------------------------------------------------------------------
 
-typedef bsls_PlatformUtil::Int64  Int64;
-typedef bsls_PlatformUtil::Uint64 Uint64;
+typedef bsls::Types::Int64  Int64;
+typedef bsls::Types::Uint64 Uint64;
 
 int main(int argc, char *argv[])
 {
@@ -143,8 +146,8 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    bslma_TestAllocator          globalAllocator("global", veryVeryVerbose);
-    bslma_Default::setGlobalAllocator(&globalAllocator);
+    bslma::TestAllocator          globalAllocator("global", veryVeryVerbose);
+    bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 20: {

@@ -123,7 +123,7 @@ class baejsn_Decoder {
 
   public:
     // CREATORS
-    explicit baejsn_Decoder(bslma_Allocator *basicAllocator = 0);
+    explicit baejsn_Decoder(bslma::Allocator *basicAllocator = 0);
         // Construct a decoder object using the optionally specified
         // 'basicAllocator'.  If 'basicAllocator' is 0, the default allocator
         // is used.
@@ -187,7 +187,7 @@ struct baejsn_Decoder_DecodeImpProxy {
 
     // MANIPULATORS
     template <typename TYPE>
-    int operator()(TYPE *, bslmf_Nil);
+    int operator()(TYPE *, bslmf::Nil);
 
     template <typename TYPE, typename ANY_CATEGORY>
     int operator()(TYPE *object, ANY_CATEGORY category);
@@ -465,7 +465,7 @@ int baejsn_Decoder::decodeImp(TYPE *, ANY_CATEGORY)
 
 // CREATORS
 inline
-baejsn_Decoder::baejsn_Decoder(bslma_Allocator *basicAllocator)
+baejsn_Decoder::baejsn_Decoder(bslma::Allocator *basicAllocator)
 : d_logStream(basicAllocator)
 , d_streamBuf(0)
 {
@@ -557,7 +557,7 @@ int baejsn_Decoder_ElementVisitor::operator()(TYPE *value, const INFO&)
 // MANIPULATORS
 template <typename TYPE>
 inline
-int baejsn_Decoder_DecodeImpProxy::operator()(TYPE *, bslmf_Nil)
+int baejsn_Decoder_DecodeImpProxy::operator()(TYPE *, bslmf::Nil)
 {
     BSLS_ASSERT_OPT(!"Unreachable");
 

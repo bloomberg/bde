@@ -6,6 +6,8 @@ BDES_IDENT_RCSID(bael_attribute_cpp,"$Id$ $CSID$")
 
 #include <bdeu_hashutil.h>
 
+#include <bsls_types.h>
+
 #include <bsl_cstring.h>
 #include <bsl_functional.h>
 #include <bsl_ostream.h>
@@ -22,9 +24,9 @@ int bael_Attribute::hash(const bael_Attribute& attribute, int size)
 
         if (attribute.d_value.is<int>()) {
             hash += bdeu_HashUtil::hash1(attribute.d_value.the<int>());
-        } else if (attribute.d_value.is<bsls_PlatformUtil::Int64>()) {
+        } else if (attribute.d_value.is<bsls::Types::Int64>()) {
             hash += bdeu_HashUtil::hash1(
-                           attribute.d_value.the<bsls_PlatformUtil::Int64>());
+                                  attribute.d_value.the<bsls::Types::Int64>());
         }
         else {
             hash += bdeu_HashUtil::hash1(

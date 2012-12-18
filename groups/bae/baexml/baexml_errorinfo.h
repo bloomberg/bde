@@ -353,7 +353,7 @@ class baexml_ErrorInfo
 
   public:
     // CREATORS
-    baexml_ErrorInfo(bslma_Allocator *basicAllocator = 0);
+    baexml_ErrorInfo(bslma::Allocator *basicAllocator = 0);
         // Construct an error info object using the (optionally) specified
         // 'basicAllocator', or the default allocator of none is specified.
         // After construction, 'severity()' will return 'BAEXML_NO_ERROR',
@@ -361,7 +361,7 @@ class baexml_ErrorInfo
         // 'source()' and 'message()' will each return an empty string.
 
     baexml_ErrorInfo(const baexml_ErrorInfo&  other,
-                     bslma_Allocator         *basicAllocator = 0);
+                     bslma::Allocator        *basicAllocator = 0);
         // Construct a copy of the specified 'other' object using the
         // (optionally) specified 'basicAllocator', or the default allocator
         // of none is specified.

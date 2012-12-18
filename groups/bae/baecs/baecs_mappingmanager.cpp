@@ -42,7 +42,7 @@ baecs_MappingManager_PageList::baecs_MappingManager_PageList(
 
 baecs_MappingManager::baecs_MappingManager(size_t mappingLimit,
                                            int    numPriorityLevels,
-                                           bslma_Allocator *allocator)
+                                           bslma::Allocator *allocator)
 : d_totalMapped(0)
 , d_mappingLimit(mappingLimit)
 , d_usedPages(PageList::BAECS_PAGE_LIST_CLEAN)

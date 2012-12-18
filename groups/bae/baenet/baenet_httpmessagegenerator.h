@@ -222,12 +222,12 @@ BDES_IDENT("$Id: $")
 #include <bdef_function.h>
 #endif
 
-#ifndef INCLUDED_BSLS_ASSERT
-#include <bsls_assert.h>
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
 #endif
 
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
+#ifndef INCLUDED_BSLS_ASSERT
+#include <bsls_assert.h>
 #endif
 
 namespace BloombergLP {
@@ -261,7 +261,7 @@ class baenet_HttpMessageGenerator {
     // CREATORS
     explicit baenet_HttpMessageGenerator(
                                   bcema_BlobBufferFactory *blobBufferFactory,
-                                  bslma_Allocator         *basicAllocator = 0);
+                                  bslma::Allocator        *basicAllocator = 0);
         // Create an HTTP message generator and use the specified
         // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
         // currently installed default allocator will be used.

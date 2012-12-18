@@ -47,7 +47,7 @@ baetzo_ZoneinfoCache *initSystemDefaultCache()
     // previously created (singleton) instance with no other effect.  This
     // methods is *not* thread safe.
 {
-    bslma_Allocator *allocator = bslma_Default::globalAllocator();
+    bslma::Allocator *allocator = bslma::Default::globalAllocator();
 
     static baetzo_DataFileLoader loader(allocator);
     loader.configureRootPath(

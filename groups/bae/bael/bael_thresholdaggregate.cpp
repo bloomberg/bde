@@ -7,7 +7,7 @@ BDES_IDENT_RCSID(bael_thresholdaggregate_cpp,"$Id$ $CSID$")
 #include <bdeu_hashutil.h>
 #include <bdeu_print.h>
 
-#include <bsls_platformutil.h>
+#include <bsls_platform.h>
 
 #include <bsl_algorithm.h>
 #include <bsl_ostream.h>
@@ -27,7 +27,7 @@ namespace BloombergLP {
 int bael_ThresholdAggregate::hash(const bael_ThresholdAggregate& aggregate,
                                   int                            size)
 {
-#ifdef BSLS_PLATFORMUTIL_IS_BIG_ENDIAN
+#ifdef BSLS_PLATFORM_IS_BIG_ENDIAN
     int value = (aggregate.recordLevel()  << 24)
               + (aggregate.passLevel()    << 16)
               + (aggregate.triggerLevel() <<  8)

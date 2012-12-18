@@ -197,7 +197,7 @@ class TestPublisher : public baem_Publisher {
   public:
 
     // CREATORS
-    TestPublisher(bslma_Allocator *allocator);
+    TestPublisher(bslma::Allocator *allocator);
         // Create a test publisher with 0 'invocations()' and the default
         // constructed 'lastSample()' using the specified 'allocator' to
         // supply memory.
@@ -267,7 +267,7 @@ class TestPublisher : public baem_Publisher {
 
 // CREATORS
 inline
-TestPublisher::TestPublisher(bslma_Allocator *allocator)
+TestPublisher::TestPublisher(bslma::Allocator *allocator)
 : d_numInvocations(0)
 , d_recordBuffer(allocator)
 , d_sortedRecords(allocator)
@@ -432,9 +432,9 @@ int main(int argc, char *argv[])
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
 
-    bslma_TestAllocator testAlloc; bslma_TestAllocator *Z = &testAlloc;
-    bslma_TestAllocator defaultAllocator;
-    bslma_DefaultAllocatorGuard guard(&defaultAllocator);
+    bslma::TestAllocator testAlloc; bslma::TestAllocator *Z = &testAlloc;
+    bslma::TestAllocator defaultAllocator;
+    bslma::DefaultAllocatorGuard guard(&defaultAllocator);
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 9:{
@@ -532,7 +532,7 @@ int main(int argc, char *argv[])
         MetricsManager  manager(Z);
         Repository&     repository = manager.collectorRepository();
         baem_Collector *collector = repository.getDefaultCollector("A", "1");
-        bsls_Stopwatch  stopwatch;
+        bsls::Stopwatch stopwatch;
 
         enum { COUNT = 10 };
 
@@ -632,7 +632,7 @@ int main(int argc, char *argv[])
             baem_Metric mC_Us("C", "Us");
             baem_Metric mC_Ns("C", "Ns");
 
-            bsls_Stopwatch sw;
+            bsls::Stopwatch sw;
             sw.start();
             {
                 baem_StopwatchScopedGuard gA_D(a_D);

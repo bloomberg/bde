@@ -296,7 +296,7 @@ void baea_SerializableObjectProxy::loadSimple(int* value)
     new (d_objectInfoArena.buffer()) ObjectInfo(pointer);
 }
 
-void baea_SerializableObjectProxy::loadSimple(bsls_Types::Int64* value)
+void baea_SerializableObjectProxy::loadSimple(bsls::Types::Int64* value)
 {
     d_object_p = value;
     d_category = bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY;
@@ -320,7 +320,7 @@ void baea_SerializableObjectProxy::loadSimple(unsigned int* value)
     new (d_objectInfoArena.buffer()) ObjectInfo(pointer);
 }
 
-void baea_SerializableObjectProxy::loadSimple(bsls_Types::Uint64* value)
+void baea_SerializableObjectProxy::loadSimple(bsls::Types::Uint64* value)
 {
     d_object_p = value;
     d_category = bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY;

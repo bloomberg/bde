@@ -13,7 +13,6 @@
 
 #include <bslma_testallocator.h>                // for testing only
 
-#include <bsls_platformutil.h>                  // for testing only
 #include <bsls_protocoltest.h>                  // for testing only
 
 #include <bsl_cstdlib.h>     // atoi()
@@ -82,7 +81,7 @@ void aSsErT(int c, const char *s, int i)
 //                       CONCRETE DERIVED TYPES
 //-----------------------------------------------------------------------------
 
-struct ObserverTest : bsls_ProtocolTestImp<bael_Observer> {
+struct ObserverTest : bsls::ProtocolTestImp<bael_Observer> {
     void publish(const bael_Record&, const bael_Context&)  { markDone(); }
     void releaseRecords() { markDone(); }
 };
@@ -152,7 +151,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
-    bslma_TestAllocator testAllocator(veryVeryVerbose);
+    bslma::TestAllocator testAllocator(veryVeryVerbose);
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 2: {
@@ -260,7 +259,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "PROTOCOL TEST" << endl
                                   << "=============" << endl;
 
-        bsls_ProtocolTest<ObserverTest> t(veryVerbose);
+        bsls::ProtocolTest<ObserverTest> t(veryVerbose);
 
         ASSERT(t.testNoDataMembers());
         ASSERT(t.testVirtualDestructor());

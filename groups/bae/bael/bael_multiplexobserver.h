@@ -142,16 +142,16 @@ BDES_IDENT("$Id: $")
 #include <bcemt_writelockguard.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
 #ifndef INCLUDED_BSL_SET
 #include <bsl_set.h>
 #endif
 
 #ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
-#endif
-
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
 #endif
 
 namespace BloombergLP {
@@ -183,7 +183,7 @@ class bael_MultiplexObserver : public bael_Observer {
 
   public:
     // CREATORS
-    explicit bael_MultiplexObserver(bslma_Allocator *basicAllocator = 0);
+    explicit bael_MultiplexObserver(bslma::Allocator *basicAllocator = 0);
         // Create a multiplexing observer having no registered observers.
         // Optionally specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
@@ -252,7 +252,8 @@ class bael_MultiplexObserver : public bael_Observer {
 
 // CREATORS
 inline
-bael_MultiplexObserver::bael_MultiplexObserver(bslma_Allocator *basicAllocator)
+bael_MultiplexObserver::bael_MultiplexObserver(
+                                              bslma::Allocator *basicAllocator)
 : d_observerSet(basicAllocator)
 {
 }

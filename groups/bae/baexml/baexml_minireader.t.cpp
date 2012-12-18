@@ -725,7 +725,7 @@ int main(int argc, char *argv[])
     veryVerbose = argc > 3;
     veryVeryVerbose = argc > 4;
 
-    bslma_TestAllocator testAllocator(veryVeryVerbose);
+    bslma::TestAllocator testAllocator(veryVeryVerbose);
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
 
@@ -2095,12 +2095,12 @@ int main(int argc, char *argv[])
         // Plan:
         //   Create a test object using the constructors: 1) without
         //   exceptions and 2) in the presence of exceptions during memory
-        //   allocations using a 'bslma_TestAllocator' and varying its
+        //   allocations using a 'bslma::TestAllocator' and varying its
         //   *allocation* *limit*.
         //
         // Testing:
-        //   baexml_MiniReader(bslma_Allocator *bA);
-        //   baexml_MiniReader(int bufSize, bslma_Allocator *bA);
+        //   baexml_MiniReader(bslma::Allocator *bA);
+        //   baexml_MiniReader(int bufSize, bslma::Allocator *bA);
         //   ~baexml_MiniReader();
         //--------------------------------------------------------------------
 

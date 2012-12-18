@@ -45,6 +45,10 @@ BDES_IDENT_PRAGMA_ONCE
 #include <bdex_outstreamfunctions.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
 #ifndef INCLUDED_BSLMA_DEFAULT
 #include <bslma_default.h>
 #endif
@@ -75,10 +79,6 @@ BDES_IDENT_PRAGMA_ONCE
 
 #ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
-#endif
-
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
 #endif
 
 namespace BloombergLP {
@@ -187,7 +187,7 @@ class baenet_HttpRequestHeaderFields {
 
     // CREATORS
     explicit baenet_HttpRequestHeaderFields(
-                                          bslma_Allocator *basicAllocator = 0);
+                                         bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'baenet_HttpRequestHeaderFields' having the
         // default value.  Use the optionally specified 'basicAllocator' to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
@@ -195,7 +195,7 @@ class baenet_HttpRequestHeaderFields {
 
     baenet_HttpRequestHeaderFields(
                    const baenet_HttpRequestHeaderFields&  original,
-                   bslma_Allocator                       *basicAllocator = 0);
+                   bslma::Allocator                      *basicAllocator = 0);
         // Create an object of type 'baenet_HttpRequestHeaderFields' having the
         // value of the specified 'original' object.  Use the optionally
         // specified 'basicAllocator' to supply memory.  If 'basicAllocator' is
@@ -484,7 +484,8 @@ bsl::ostream& operator<<(bsl::ostream&                          stream,
 
 // TRAITS
 
-BDEAT_DECL_SEQUENCE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(baenet_HttpRequestHeaderFields)
+BDEAT_DECL_SEQUENCE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(
+                                                baenet_HttpRequestHeaderFields)
 
 // ============================================================================
 //                         INLINE FUNCTION DEFINITIONS

@@ -2,8 +2,6 @@
 
 #include <bael_transmission.h>
 
-#include <bsls_platformutil.h>           // for testing only
-
 #include <bdex_instreamfunctions.h>      // for testing only
 #include <bdex_outstreamfunctions.h>     // for testing only
 #include <bdex_testinstream.h>           // for testing only

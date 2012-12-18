@@ -222,7 +222,7 @@
 //     MetricReporter& operator=(const MetricReporter&);
 //
 //     // CREATORS
-//     explicit MetricReporter(bslma_Allocator *basicAllocator = 0);
+//     explicit MetricReporter(bslma::Allocator *basicAllocator = 0);
 //         // Create a new 'MetricReporter'.  Optionally specify a
 //         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
 //         // 0, the currently installed default allocator is used.
@@ -258,8 +258,8 @@
 // };
 //
 // MetricReporter::MetricReporter(
-//         bsl::ostream    *stream,
-//         bslma_Allocator *basicAllocator)
+//         bsl::ostream     *stream,
+//         bslma::Allocator *basicAllocator)
 // : d_stream(stream)
 // , d_registry(bsl::less<bsl::string>(), basicAllocator)
 // , d_scheduler(basicAllocator)
@@ -323,10 +323,6 @@
 #include <baescm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
 #ifndef INCLUDED_BDEF_FUNCTION
 #include <bdef_function.h>
 #endif
@@ -339,16 +335,20 @@
 #include <bdeu_printmethods.h>
 #endif
 
+#ifndef INCLUDED_BSLALG_TYPETRAITS
+#include <bslalg_typetraits.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
 #ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
 #endif
 
 #ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
-#endif
-
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
 #endif
 
 namespace BloombergLP {
@@ -394,18 +394,18 @@ class baea_Metric {
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS2(baea_Metric,
                                   bdeu_TypeTraitHasPrintMethod,
-                                  bslalg_TypeTraitUsesBslmaAllocator);
+                                  bslalg::TypeTraitUsesBslmaAllocator);
 
   public:
     // CREATORS
     explicit
-    baea_Metric(bslma_Allocator *basicAllocator = 0);
+    baea_Metric(bslma::Allocator *basicAllocator = 0);
         // Create a new metric information object.  Optionally specify
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
         // the currently installed default allocator is used.
 
     baea_Metric(const baea_Metric&  original,
-                bslma_Allocator    *basicAllocator = 0);
+                bslma::Allocator   *basicAllocator = 0);
         // Create a new metric information object having the same value as the
         // specified 'original'.  Optionally specify 'basicAllocator' used to
         // supply memory.  If 'basicAllocator' is 0, the currently installed

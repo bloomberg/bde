@@ -119,7 +119,7 @@ const char LOG_CATEGORY[] = "BAEA.PERFORMANCEMONITOR.TEST";
     bael_LoggerManager::initSingleton(\
             &observer, \
             configuration, \
-            &bslma_NewDeleteAllocator::singleton());\
+            &bslma::NewDeleteAllocator::singleton());\
 \
     bael_Severity::Level passthrough = bael_Severity::BAEL_OFF;\
 \
@@ -140,17 +140,17 @@ const char LOG_CATEGORY[] = "BAEA.PERFORMANCEMONITOR.TEST";
 #ifndef BSLS_PLATFORM_OS_WINDOWS
 namespace test {
 
-class MmapAllocator : public bslma_Allocator {
+class MmapAllocator : public bslma::Allocator {
 
     typedef bsl::map<void*, std::size_t> MapType;
 
-    MapType          d_map;
-    bslma_Allocator *d_allocator_p;
+    MapType           d_map;
+    bslma::Allocator *d_allocator_p;
 
   public:
-    MmapAllocator(bslma_Allocator *basicAllocator = 0)
+    MmapAllocator(bslma::Allocator *basicAllocator = 0)
     : d_map(basicAllocator)
-    , d_allocator_p(bslma_Default::allocator(basicAllocator))
+    , d_allocator_p(bslma::Default::allocator(basicAllocator))
     {
     }
 
@@ -230,11 +230,11 @@ class MmapAllocator : public bslma_Allocator {
 
 }  // close namespace test
 
-void report(int               bufferSize,
-            bsls_Types::Int64 currentBytesInUse,
-            bsls_Types::Int64 peakBytesInUse,
-            double            virtualSize,
-            double            residentSize)
+void report(int                bufferSize,
+            bsls::Types::Int64 currentBytesInUse,
+            bsls::Types::Int64 peakBytesInUse,
+            double             virtualSize,
+            double             residentSize)
 {
     std::cout << "BufferSize        = "
               << std::setprecision(8)
@@ -333,7 +333,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "PROCESS START TIME SANITY\n"
                              "=========================\n";
 
-        bslma_TestAllocator ta(veryVeryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVeryVerbose);
 
         baea_PerformanceMonitor perfmon(&ta);
 
@@ -516,10 +516,10 @@ int main(int argc, char *argv[])
         //   numRegisteredPids()
         // --------------------------------------------------------------------
 
-        bslma_NewDeleteAllocator newDeleteAllocator;
-        test::MmapAllocator      mmapAllocator;
+        bslma::NewDeleteAllocator newDeleteAllocator;
+        test::MmapAllocator       mmapAllocator;
 
-        bslma_Allocator *allocator;
+        bslma::Allocator *allocator;
         switch (test) {
         case -1: allocator = &newDeleteAllocator; break;
         case -2: allocator = &mmapAllocator;      break;
@@ -527,8 +527,8 @@ int main(int argc, char *argv[])
 
         bcema_TestAllocator ta(veryVeryVeryVerbose, allocator);
 
-        bslma_Default::setDefaultAllocator(&ta);
-        bslma_Default::setGlobalAllocator(&ta);
+        bslma::Default::setDefaultAllocator(&ta);
+        bslma::Default::setGlobalAllocator(&ta);
 
         {
             INITIALIZE_LOGGER();
@@ -540,8 +540,8 @@ int main(int argc, char *argv[])
             double                  virtualSize       = 0;
             double                  residentSize      = 0;
 
-            bsls_Types::Int64       currentBytesInUse = 0;
-            bsls_Types::Int64       peakBytesInUse    = 0;
+            bsls::Types::Int64      currentBytesInUse = 0;
+            bsls::Types::Int64      peakBytesInUse    = 0;
 
             baea_PerformanceMonitor::Measure virtualSizeMeasure =
                                   baea_PerformanceMonitor::BAEA_VIRTUAL_SIZE;
@@ -632,7 +632,7 @@ int main(int argc, char *argv[])
                    virtualSize,
                    residentSize);
         }
-        ASSERT(0  < ta.numAllocation());
+        ASSERT(0  < ta.numAllocations());
         ASSERT(0 == ta.numBytesInUse());
       }  break;
 #endif

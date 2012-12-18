@@ -198,14 +198,13 @@ BDES_IDENT("$Id: $")
 #include <bdem_schema.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
 #ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
 #endif
-
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
-#endif
-
 
 namespace BloombergLP {
 
@@ -224,7 +223,7 @@ struct baexml_DataUtil {
                 baexml_ValidatingReader *reader,
                 baexml_ErrorInfo        *errorInfo = 0,
                 bsl::ostream            *diagnosticStream = 0,
-                bslma_Allocator         *basicAllocator = 0);
+                bslma::Allocator        *basicAllocator = 0);
     static int createAggregateFromDocument(
                 bcem_Aggregate          *result,
                 bsl::streambuf          *xmlData,
@@ -233,7 +232,7 @@ struct baexml_DataUtil {
                 baexml_DecoderOptions   *decoderOptions,
                 baexml_ErrorInfo        *errorInfo = 0,
                 bsl::ostream            *diagnosticStream = 0,
-                bslma_Allocator         *basicAllocator = 0);
+                bslma::Allocator        *basicAllocator = 0);
     static int createAggregateFromDocument(
                 bcem_Aggregate          *result,
                 bsl::streambuf          *xmlData,
@@ -241,7 +240,7 @@ struct baexml_DataUtil {
                 baexml_Reader           *reader,
                 baexml_ErrorInfo        *errorInfo = 0,
                 bsl::ostream            *diagnosticStream = 0,
-                bslma_Allocator         *basicAllocator = 0);
+                bslma::Allocator        *basicAllocator = 0);
     static int createAggregateFromDocument(
                 bcem_Aggregate          *result,
                 bsl::streambuf          *xmlData,
@@ -250,7 +249,7 @@ struct baexml_DataUtil {
                 baexml_DecoderOptions   *decoderOptions,
                 baexml_ErrorInfo        *errorInfo = 0,
                 bsl::ostream            *diagnosticStream = 0,
-                bslma_Allocator         *basicAllocator = 0);
+                bslma::Allocator        *basicAllocator = 0);
         // Set the specified 'result' aggregate to the structure obtained by
         // parsing the specified 'xsdSchema' XSD document and the data
         // obtained by parsing the specified 'xmlData' XML document, using the
@@ -275,7 +274,7 @@ struct baexml_DataUtil {
                baexml_Reader                             *reader,
                baexml_ErrorInfo                          *errorInfo = 0,
                bsl::ostream                              *diagnosticStream = 0,
-               bslma_Allocator                           *basicAllocator = 0);
+               bslma::Allocator                          *basicAllocator = 0);
     static int createAggregateFromDocument(
                bcem_Aggregate                            *result,
                bsl::streambuf                            *xmlData,
@@ -284,7 +283,7 @@ struct baexml_DataUtil {
                baexml_DecoderOptions                     *decoderOptions,
                baexml_ErrorInfo                          *errorInfo = 0,
                bsl::ostream                              *diagnosticStream = 0,
-               bslma_Allocator                           *basicAllocator = 0);
+               bslma::Allocator                          *basicAllocator = 0);
         // Set the specified 'result' aggregate to the structure described by
         // the specified 'schema' and the data
         // obtained by parsing the specified 'xmlData' XML document, using the

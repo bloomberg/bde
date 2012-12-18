@@ -147,7 +147,7 @@ int main(int argc, char *argv[])
 // collecting the metrics we set the elapsed time of the sample to an
 // arbitrary 5s interval.
 //..
-    bslma_Allocator *allocator = bslma_Default::allocator(0);
+    bslma::Allocator *allocator = bslma::Default::allocator(0);
     bsl::vector<baem_MetricRecord> records(allocator);
 //
     records.push_back(baem_MetricRecord(metricA, 5, 25.0, 6.0, 25.0));
@@ -224,8 +224,8 @@ int main(int argc, char *argv[])
                           << "BREATHING TEST" << endl
                           << "==============" << endl;
 
-        bslma_TestAllocator ta, da;
-        bslma_DefaultAllocatorGuard guard(&da);
+        bslma::TestAllocator ta, da;
+        bslma::DefaultAllocatorGuard guard(&da);
 
         Obj mX(bsl::cout);
         baem_Category myCategory("MyCategory");

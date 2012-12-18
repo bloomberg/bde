@@ -73,7 +73,7 @@ namespace {
 
 typedef baetzo_Loader ProtocolClass;
 
-struct ProtocolClassTestImp : bsls_ProtocolTestImp<ProtocolClass> {
+struct ProtocolClassTestImp : bsls::ProtocolTestImp<ProtocolClass> {
     int loadTimeZone(baetzo_Zoneinfo *, const char *) { return markDone(); }
 };
 
@@ -317,7 +317,7 @@ int main(int argc, char *argv[])
         //: 1 Define a concrete derived implementation, 'ProtocolClassTestImp',
         //:   of the protocol.
         //:
-        //: 2 Create an object of the 'bsls_ProtocolTest' class template
+        //: 2 Create an object of the 'bsls::ProtocolTest' class template
         //:   parameterized by 'ProtocolClassTestImp', and use it to verify
         //:   that:
         //:
@@ -344,7 +344,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nCreate a test object.\n";
 
-        bsls_ProtocolTest<ProtocolClassTestImp> testObj(veryVerbose);
+        bsls::ProtocolTest<ProtocolClassTestImp> testObj(veryVerbose);
 
         if (verbose) cout << "\nVerify that the protocol is abstract.\n";
 

@@ -17,9 +17,9 @@
 #include <bdet_time.h>                       // for testing only
 #include <bdet_timetz.h>                     // for testing only
 
-#include <bslma_testallocator.h>             // for testing only
+#include <bslma_testallocator.h>
 
-#include <bsls_platformutil.h>               // for testing only
+#include <bsls_Types.h>
 
 #include <bsl_cctype.h>
 #include <bsl_climits.h>
@@ -120,7 +120,7 @@ namespace {
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-typedef baexml_SchemaGenerator Obj;
+typedef baexml_SchemaGenerator   Obj;
 
 typedef bdem_ElemRef             ERef;
 typedef bdem_ElemType            EType;
@@ -128,7 +128,7 @@ typedef bdem_FieldSpec           FldSpec;
 typedef bdem_FieldDefAttributes  FldAttr;
 typedef bdem_RecordDef           RecDef;
 typedef RecDef::RecordType       RecType;
-typedef bsls_PlatformUtil::Int64 Int64;
+typedef bsls::Types::Int64       Int64;
 
 const char TESTNAMESPACE[] = "http://bloomberg.com/schemas/test";
 
@@ -149,8 +149,7 @@ const int             N02 = bdetu_Unset<int>::unsetValue();
 
 const Int64           A03 = -100;
 const Int64           B03 = -200;
-const Int64           N03 =
-                           bdetu_Unset<bsls_PlatformUtil::Int64>::unsetValue();
+const Int64           N03 = bdetu_Unset<bsls::Types::Int64>::unsetValue();
 
 const float           A04 = -1.5;
 const float           B04 = -2.5;
@@ -1153,7 +1152,7 @@ int main(int argc, char *argv[])
         const char *d_xsdScript;
     };
 
-    bslma_TestAllocator testAllocator(veryVeryVerbose);
+    bslma::TestAllocator testAllocator(veryVeryVerbose);
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 10: {

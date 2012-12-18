@@ -48,7 +48,7 @@ using namespace bsl;  // automatically added by script
 // CREATORS
 // [ 1] explicit
 //      baea_PipeControlChannel(const ControlCallback&  callback,
-//                              bslma_Allocator        *basicAllocator = 0);
+//                              bslma::Allocator       *basicAllocator = 0);
 //
 // [ 4] ~baea_PipeControlChannel();
 //
@@ -158,7 +158,7 @@ class ControlServer {
 
   public:
     // CREATORS
-    explicit ControlServer(bslma_Allocator *basicAllocator = 0)
+    explicit ControlServer(bslma::Allocator *basicAllocator = 0)
         : d_channel(bdef_BindUtil::bind(&ControlServer::onMessage,
                                         this,
                                         bdef_PlaceHolders::_1),
@@ -670,7 +670,7 @@ int main(int argc, char *argv[])
                  << "=============" << endl;
         }
 
-        bslma_TestAllocator ta(veryVeryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVeryVerbose);
         {
             bsl::string pipeName;
 
@@ -732,7 +732,7 @@ int main(int argc, char *argv[])
                  << "==================================" << endl;
         }
 
-        bslma_TestAllocator ta(veryVeryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVeryVerbose);
         {
             bsl::string pipeName;
 
@@ -815,7 +815,7 @@ int main(int argc, char *argv[])
                  << "=============================================" << endl;
         }
 
-        bslma_TestAllocator ta(veryVeryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVeryVerbose);
         {
             bsl::string pipeName;
 
@@ -871,7 +871,7 @@ int main(int argc, char *argv[])
                  << "=============================================" << endl;
         }
 
-        bslma_TestAllocator ta(veryVeryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVeryVerbose);
         {
             bsl::string pipeName;
 
@@ -912,7 +912,7 @@ int main(int argc, char *argv[])
                  << "=========================================" << endl;
         }
 
-        bslma_TestAllocator ta(veryVeryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVeryVerbose);
         {
 #ifdef BSLS_PLATFORM_OS_WINDOWS
             const char PIPE_NAME[] = "\\\\.\\pipe\\ctrl.baea.pcctest3";
@@ -959,7 +959,7 @@ int main(int argc, char *argv[])
                  << "===============================================" << endl;
         }
 
-        bslma_TestAllocator ta(veryVeryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVeryVerbose);
         {
             int rc;
 
@@ -1023,7 +1023,7 @@ int main(int argc, char *argv[])
                  << "==============" << endl;
         }
 
-        bslma_TestAllocator ta(veryVeryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVeryVerbose);
         {
 #ifdef BSLS_PLATFORM_OS_WINDOWS
             const char PIPE_NAME[] = "\\\\.\\pipe\\ctrl.baea.pcctest1";

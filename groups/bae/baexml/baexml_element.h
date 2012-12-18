@@ -205,6 +205,10 @@ BDES_IDENT("$Id: $")
 #include <bcema_sharedptr.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
 #ifndef INCLUDED_BSLMA_DEFAULT
 #include <bslma_default.h>
 #endif
@@ -215,10 +219,6 @@ BDES_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
-#endif
-
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
 #endif
 
 namespace BloombergLP {
@@ -243,8 +243,8 @@ class baexml_Element_Imp;
 // </Root>
 //
 // baexml_Element_Imp
-//   - bcema_Blob       d_data;
-//   - bslma_Allocator *d_allocator_p;
+//   - bcema_Blob        d_data;
+//   - bslma::Allocator *d_allocator_p;
 //
 // baexml_Element_Node
 //   - baexml_Element_Imp    *d_imp_p;
@@ -298,13 +298,13 @@ class baexml_Element_Imp {
 
   public:
     // DATA MEMBERS
-    bcema_Blob       d_data;
-    bslma_Allocator *d_allocator_p;
+    bcema_Blob        d_data;
+    bslma::Allocator *d_allocator_p;
 
     // CREATORS
-    explicit baexml_Element_Imp(bslma_Allocator *basicAllocator = 0)
+    explicit baexml_Element_Imp(bslma::Allocator *basicAllocator = 0)
     : d_data(basicAllocator)
-    , d_allocator_p(bslma_Default::allocator(basicAllocator))
+    , d_allocator_p(bslma::Default::allocator(basicAllocator))
     {
     }
 
@@ -339,7 +339,7 @@ class baexml_Element_Node {
     SubNodes      d_subNodes;
 
     // CREATORS
-    explicit baexml_Element_Node(bslma_Allocator *basicAllocator = 0)
+    explicit baexml_Element_Node(bslma::Allocator *basicAllocator = 0)
     : d_imp_p(0)
     , d_parent_p(0)
     , d_openTagBegin(0)
@@ -543,10 +543,10 @@ class baexml_Element {
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(baexml_Element,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
-    explicit baexml_Element(bslma_Allocator *basicAllocator = 0);
+    explicit baexml_Element(bslma::Allocator *basicAllocator = 0);
         // Construct an empty element and use the specified 'basicAllocator' to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
         // default allocator will be used.  Note that this 'Element' object
@@ -554,15 +554,15 @@ class baexml_Element {
         // 'load(const bcema_Blob&)'.
 
     baexml_Element(const baexml_Element&  original,
-                   bslma_Allocator       *basicAllocator = 0);
+                   bslma::Allocator      *basicAllocator = 0);
         // Construct an copy of the specified 'original' element and use the
         // specified 'basicAllocator' to supply memory.  If 'basicAllocator' is
         // 0, the currently installed default allocator will be used.
 
     baexml_Element(const baexml_ElementRef&       original,
-                   bslma_Allocator               *basicAllocator = 0);
+                   bslma::Allocator              *basicAllocator = 0);
     baexml_Element(const baexml_ElementConstRef&  original,
-                   bslma_Allocator               *basicAllocator = 0);
+                   bslma::Allocator              *basicAllocator = 0);
         // Construct a copy of the element referred to by the specified
         // 'original' and use the specified 'basicAllocator' to supply memory.
         // If 'basicAllocator' is 0, the currently installed default allocator

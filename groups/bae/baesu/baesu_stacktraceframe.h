@@ -234,11 +234,11 @@ class baesu_StackTraceFrame {
 
   public:
     BSLALG_DECLARE_NESTED_TRAITS(baesu_StackTraceFrame,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
     explicit
-    baesu_StackTraceFrame(bslma_Allocator *basicAllocator = 0);
+    baesu_StackTraceFrame(bslma::Allocator *basicAllocator = 0);
         // Create a 'baesu_StackTraceFrame' object having the (default)
         // attribute values:
         //..
@@ -261,7 +261,7 @@ class baesu_StackTraceFrame {
                           bsl::size_t             offsetFromSymbol,
                           const bdeut_StringRef&  sourceFileName,
                           const bdeut_StringRef&  symbolName,
-                          bslma_Allocator        *basicAllocator = 0);
+                          bslma::Allocator       *basicAllocator = 0);
         // Create a local time descriptor object having the specified
         // 'address', 'libraryFileName', 'lineNumber', 'mangledSymbolName',
         // 'offsetFromSymbol', 'sourceFileName', and 'symbolName' attribute
@@ -271,7 +271,7 @@ class baesu_StackTraceFrame {
         // '-1 <= lineNumber'.
 
     baesu_StackTraceFrame(const baesu_StackTraceFrame&  original,
-                          bslma_Allocator              *basicAllocator = 0);
+                          bslma::Allocator             *basicAllocator = 0);
         // Create a 'baesu_StackTraceFrame' object having the same value as the
         // specified 'original' object.  Optionally specify a 'basicAllocator'
         // used to supply memory.  If 'basicAllocator' is 0, the currently
@@ -399,7 +399,7 @@ class baesu_StackTraceFrame {
 
                         // Aspects
 
-    bslma_Allocator *allocator() const;
+    bslma::Allocator *allocator() const;
         // Return the allocator used by this object to supply memory.  Note
         // that if no allocator was supplied at construction the currently
         // installed default allocator is used.
@@ -466,7 +466,7 @@ void swap(baesu_StackTraceFrame& a, baesu_StackTraceFrame& b);
 
 // CREATORS
 inline
-baesu_StackTraceFrame::baesu_StackTraceFrame(bslma_Allocator *basicAllocator)
+baesu_StackTraceFrame::baesu_StackTraceFrame(bslma::Allocator *basicAllocator)
 : d_address(0)
 , d_libraryFileName(basicAllocator)
 , d_lineNumber(-1)
@@ -486,7 +486,7 @@ baesu_StackTraceFrame::baesu_StackTraceFrame(
                                    bsl::size_t             offsetFromSymbol,
                                    const bdeut_StringRef&  sourceFileName,
                                    const bdeut_StringRef&  symbolName,
-                                   bslma_Allocator        *basicAllocator)
+                                   bslma::Allocator       *basicAllocator)
 : d_address(address)
 , d_libraryFileName(libraryFileName.begin(),
                     libraryFileName.end(),
@@ -512,7 +512,7 @@ baesu_StackTraceFrame::baesu_StackTraceFrame(
 inline
 baesu_StackTraceFrame::baesu_StackTraceFrame(
                                   const baesu_StackTraceFrame&  original,
-                                  bslma_Allocator              *basicAllocator)
+                                  bslma::Allocator             *basicAllocator)
 : d_address(original.d_address)
 , d_libraryFileName(original.d_libraryFileName, basicAllocator)
 , d_lineNumber(original.d_lineNumber)
@@ -540,7 +540,7 @@ baesu_StackTraceFrame& baesu_StackTraceFrame::operator=(
         return *this;                                                 // RETURN
     }
 
-    bslma_Allocator *allocator_p = d_symbolName.get_allocator().mechanism();
+    bslma::Allocator *allocator_p = d_symbolName.get_allocator().mechanism();
     baesu_StackTraceFrame(rhs, allocator_p).swap(*this);
     return *this;
 }
@@ -704,7 +704,7 @@ bool baesu_StackTraceFrame::isSymbolNameKnown() const
                         // Aspects
 
 inline
-bslma_Allocator *baesu_StackTraceFrame::allocator() const
+bslma::Allocator *baesu_StackTraceFrame::allocator() const
 {
     return d_symbolName.get_allocator().mechanism();
 }

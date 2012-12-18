@@ -158,7 +158,8 @@ const bdeat_AttributeInfo *baenet_HttpRequestLine::lookupAttributeInfo(int id)
 
 // CREATORS
 
-baenet_HttpRequestLine::baenet_HttpRequestLine(bslma_Allocator *basicAllocator)
+baenet_HttpRequestLine::baenet_HttpRequestLine(
+                                              bslma::Allocator *basicAllocator)
 : d_requestUri(basicAllocator)
 , d_majorVersion(DEFAULT_INITIALIZER_MAJOR_VERSION)
 , d_minorVersion(DEFAULT_INITIALIZER_MINOR_VERSION)
@@ -166,8 +167,9 @@ baenet_HttpRequestLine::baenet_HttpRequestLine(bslma_Allocator *basicAllocator)
 {
 }
 
-baenet_HttpRequestLine::baenet_HttpRequestLine(const baenet_HttpRequestLine& original,
-                                                       bslma_Allocator *basicAllocator)
+baenet_HttpRequestLine::baenet_HttpRequestLine(
+                                 const baenet_HttpRequestLine&  original,
+                                 bslma::Allocator              *basicAllocator)
 : d_requestUri(original.d_requestUri, basicAllocator)
 , d_majorVersion(original.d_majorVersion)
 , d_minorVersion(original.d_minorVersion)

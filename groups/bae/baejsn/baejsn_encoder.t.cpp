@@ -2060,14 +2060,14 @@ class Address {
         // exists, and 0 otherwise.
 
     // CREATORS
-    explicit Address(bslma_Allocator *basicAllocator = 0);
+    explicit Address(bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'Address' having the default value.  Use
         // the optionally specified 'basicAllocator' to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
-    Address(const Address& original,
-            bslma_Allocator *basicAllocator = 0);
+    Address(const Address&    original,
+            bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'Address' having the value of the specified
         // 'original' object.  Use the optionally specified 'basicAllocator' to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
@@ -2392,7 +2392,7 @@ int Address::maxSupportedBdexVersion()
 
 // CREATORS
 inline
-Address::Address(bslma_Allocator *basicAllocator)
+Address::Address(bslma::Allocator *basicAllocator)
 : d_street(basicAllocator)
 , d_city(basicAllocator)
 , d_state(basicAllocator)
@@ -2401,8 +2401,8 @@ Address::Address(bslma_Allocator *basicAllocator)
 
 inline
 Address::Address(
-        const Address& original,
-        bslma_Allocator *basicAllocator)
+        const Address&    original,
+        bslma::Allocator *basicAllocator)
 : d_street(original.d_street, basicAllocator)
 , d_city(original.d_city, basicAllocator)
 , d_state(original.d_state, basicAllocator)
@@ -2712,14 +2712,14 @@ class Employee {
         // exists, and 0 otherwise.
 
     // CREATORS
-    explicit Employee(bslma_Allocator *basicAllocator = 0);
+    explicit Employee(bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'Employee' having the default value.  Use
         // the optionally specified 'basicAllocator' to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
-    Employee(const Employee& original,
-             bslma_Allocator *basicAllocator = 0);
+    Employee(const Employee&   original,
+             bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'Employee' having the value of the
         // specified 'original' object.  Use the optionally specified
         // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
@@ -3046,7 +3046,7 @@ int Employee::maxSupportedBdexVersion()
 
 // CREATORS
 inline
-Employee::Employee(bslma_Allocator *basicAllocator)
+Employee::Employee(bslma::Allocator *basicAllocator)
 : d_name(basicAllocator)
 , d_homeAddress(basicAllocator)
 , d_age()
@@ -3055,8 +3055,8 @@ Employee::Employee(bslma_Allocator *basicAllocator)
 
 inline
 Employee::Employee(
-        const Employee& original,
-        bslma_Allocator *basicAllocator)
+        const Employee&   original,
+        bslma::Allocator *basicAllocator)
 : d_name(original.d_name, basicAllocator)
 , d_homeAddress(original.d_homeAddress, basicAllocator)
 , d_age(original.d_age)
@@ -3303,7 +3303,7 @@ const int& Employee::age() const
 namespace {
 
 #if 0
-void constructTestAggregate(bsl::vector<bcem_Aggregate>* objects)
+void constructTestAggregate(bsl::vector<bcem_Aggregate> *objects)
 {
     baexml_MiniReader reader;
     baexml_DecoderOptions options;
@@ -3332,7 +3332,8 @@ void constructTestAggregate(bsl::vector<bcem_Aggregate>* objects)
 }
 #endif
 
-void constructFeatureTestMessage(bsl::vector<baea::FeatureTestMessage>* objects)
+void
+constructFeatureTestMessage(bsl::vector<baea::FeatureTestMessage> *objects)
 {
     baexml_MiniReader reader;
     baexml_DecoderOptions options;
@@ -3546,7 +3547,8 @@ int main(int argc, char *argv[])
 
         bdem_RecordDef *employee = schema->createRecord("Employee");
         employee->appendField(bdem_ElemType::BDEM_STRING, "name");
-        employee->appendField(bdem_ElemType::BDEM_LIST, address, "homeAddress");
+        employee->appendField(bdem_ElemType::BDEM_LIST, address,
+                              "homeAddress");
         employee->appendField(bdem_ElemType::BDEM_INT, "age");
 
         bcem_Aggregate bob(schema, "Employee");
@@ -3758,8 +3760,8 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //: 1 Encoding a Choice object results in a JSON object with one
-        //:   name-value pair, where the name is the selection name and value is
-        //:   the selected value.
+        //:   name-value pair, where the name is the selection name and value
+        //:   is the selected value.
         //:
         //: 2 Unselected Choice returns an error.
         //:
@@ -4049,8 +4051,8 @@ int main(int argc, char *argv[])
         //: 1 Date/time are encoded in ISO 8601 format.
         //:
         //: 2 Output contains only information contained in the type being
-        //:   encoded.  (i.e., encoding 'bdet_Date' will not print out a time or
-        //:   offset.)
+        //:   encoded.  (i.e., encoding 'bdet_Date' will not print out a time
+        //:   or offset.)
         //
         // Plan:
         //: 1 Use the table-driven technique:
@@ -4330,7 +4332,8 @@ int main(int argc, char *argv[])
                                     -bsl::numeric_limits<double>::infinity()));
 
             oss.clear();
-            ASSERTV(0 != impl.encode(bsl::numeric_limits<double>::quiet_NaN()));
+            ASSERTV(0 != impl.encode(
+                                    bsl::numeric_limits<double>::quiet_NaN()));
 
             oss.clear();
             ASSERTV(0 != impl.encode(

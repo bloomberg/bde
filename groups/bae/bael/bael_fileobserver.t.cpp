@@ -62,7 +62,7 @@ using bsl::flush;
 //                                   TEST PLAN
 //-----------------------------------------------------------------------------
 // CREATORS
-// [ 1] bael_FileObserver(bael_Severity::Level, bslma_Allocator)
+// [ 1] bael_FileObserver(bael_Severity::Level, bslma::Allocator)
 // [ 1] ~bael_FileObserver()
 //
 // MANIPULATORS
@@ -331,7 +331,7 @@ class LogRotationCallbackTester {
         int         d_status;
         bsl::string d_rotatedFileName;
 
-        explicit Rep(bslma_Allocator *allocator)
+        explicit Rep(bslma::Allocator *allocator)
         : d_invocations(0)
         , d_status(0)
         , d_rotatedFileName(allocator)
@@ -354,7 +354,7 @@ class LogRotationCallbackTester {
         UNINITIALIZED = INT_MIN
     };
 
-    explicit LogRotationCallbackTester(bslma_Allocator *allocator)
+    explicit LogRotationCallbackTester(bslma::Allocator *allocator)
         // Create a callback tester that will use the specified 'status' and
         // 'logFileName' to record the arguments to the function call
         // operator.  Set '*status' to 'UNINITIALIZED' and set '*logFileName'
@@ -426,9 +426,9 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl << flush;
 
-    bslma_TestAllocator allocator; bslma_TestAllocator *Z = &allocator;
-    bslma_TestAllocator defaultAllocator;
-    bslma_DefaultAllocatorGuard guard(&defaultAllocator);
+    bslma::TestAllocator allocator; bslma::TestAllocator *Z = &allocator;
+    bslma::TestAllocator defaultAllocator;
+    bslma::DefaultAllocatorGuard guard(&defaultAllocator);
 
     switch (test) { case 0:
       case 6: {
@@ -1173,7 +1173,7 @@ int main(int argc, char *argv[])
         //   compare it with the expected output.
         //
         // Testing:
-        //   bael_FileObserver(bael_Severity::Level, bslma_Allocator)
+        //   bael_FileObserver(bael_Severity::Level, bslma::Allocator)
         //   ~bael_FileObserver()
         //   publish(const bael_Record& record, const bael_Context& context)
         //   void disableFileLogging()

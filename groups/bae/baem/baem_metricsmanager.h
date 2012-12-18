@@ -77,7 +77,7 @@ BDES_IDENT("$Id: $")
 //
 //      // ...
 //
-//      bslma_Allocator    *allocator = bslma_Default::allocator(0);
+//      bslma::Allocator   *allocator = bslma::Default::allocator(0);
 //      baem_MetricsManager manager(allocator);
 //
 //      bcema_SharedPtr<baem_Publisher> publisher(
@@ -202,7 +202,7 @@ BDES_IDENT("$Id: $")
 //    public:
 //      // CREATORS
 //      EventHandlerWithCallback(baem_MetricsManager *manager,
-//                               bslma_Allocator     *basicAllocator = 0);
+//                               bslma::Allocator    *basicAllocator = 0);
 //          // Initialize this object to use the specified 'manager' to record
 //          // and publish metrics.  Optionally specify a 'basicAllocator'
 //          // used to supply memory.  If 'basicAllocator' is 0, the currently
@@ -262,7 +262,7 @@ BDES_IDENT("$Id: $")
 //  // CREATORS
 //  EventHandlerWithCallback::EventHandlerWithCallback(
 //                                         baem_MetricsManager *manager,
-//                                         bslma_Allocator     *basicAllocator)
+//                                         bslma::Allocator    *basicAllocator)
 //  : d_numEvents(0)
 //  , d_periodStart(bdetu_SystemTime::now())
 //  , d_eventsPerSecId()
@@ -405,6 +405,10 @@ BDES_IDENT("$Id: $")
 #include <bslalg_typetraits.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
 #ifndef INCLUDED_BSL_MAP
 #include <bsl_map.h>
 #endif
@@ -417,17 +421,6 @@ BDES_IDENT("$Id: $")
 #include <bsl_vector.h>
 #endif
 
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
-#endif
-
-#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-
-#ifndef INCLUDED_BSL_HASH_MAP
-#include <bsl_hash_map.h>
-#endif
-
-#endif
 namespace BloombergLP {
 
 class baem_Category;
@@ -506,7 +499,7 @@ class baem_MetricsManager {
 
     mutable bcemt_RWMutex     d_rwLock;          // lock for the data maps
 
-    bslma_Allocator          *d_allocator_p;     // allocator (held not owned)
+    bslma::Allocator         *d_allocator_p;     // allocator (held not owned)
 
     // FRIENDS
     friend struct baem_MetricsManager_PublicationHelper;
@@ -523,10 +516,10 @@ class baem_MetricsManager {
 
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(baem_MetricsManager,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
-    baem_MetricsManager(bslma_Allocator *basicAllocator = 0);
+    baem_MetricsManager(bslma::Allocator *basicAllocator = 0);
         // Create a 'baem_MetricsManager'.  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
         // the currently installed default allocator is used.

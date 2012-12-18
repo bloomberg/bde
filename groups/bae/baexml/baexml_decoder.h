@@ -461,7 +461,7 @@ class baexml_Decoder {
 
       public:
         // CREATORS
-        MemOutStream(bslma_Allocator *basicAllocator = 0);
+        MemOutStream(bslma::Allocator *basicAllocator = 0);
             // Create a new stream using the specified 'basicAllocator'.
 
         virtual ~MemOutStream();
@@ -487,9 +487,9 @@ class baexml_Decoder {
     baexml_Reader                   *d_reader;         // held, not owned
     baexml_ErrorInfo                *d_errorInfo;      // held, not owned
 
-    bslma_Allocator                 *d_allocator;      // held, not owned
+    bslma::Allocator                *d_allocator;      // held, not owned
 
-    bsls_ObjectBuffer<MemOutStream>  d_logArea;
+    bsls::ObjectBuffer<MemOutStream> d_logArea;
         // placeholder for MemOutStream
 
     MemOutStream                    *d_logStream;
@@ -542,14 +542,14 @@ class baexml_Decoder {
     baexml_Decoder(const baexml_DecoderOptions *options,
                    baexml_Reader               *reader,
                    baexml_ErrorInfo            *errInfo,
-                   bslma_Allocator             *basicAllocator);
+                   bslma::Allocator            *basicAllocator);
 
     baexml_Decoder(const baexml_DecoderOptions *options,
                    baexml_Reader               *reader,
                    baexml_ErrorInfo            *errInfo = 0,
                    bsl::ostream                *errorStream = 0,
                    bsl::ostream                *warningStream = 0,
-                   bslma_Allocator             *basicAllocator = 0);
+                   bslma::Allocator            *basicAllocator = 0);
         // Construct a decoder object using the specified 'options' and the
         // specified 'reader' to perform the XML-level parsing.  If the
         // (optionally) specified 'errorInfo' is non-null, it is used to store
@@ -1361,9 +1361,9 @@ class baexml_Decoder_StdStringContext : public baexml_Decoder_ElementContext {
   private:
     // DATA
     union {
-        bsls_ObjectBuffer<Base64Context> d_base64Context;
-        bsls_ObjectBuffer<HexContext>    d_hexContext;
-        bsls_ObjectBuffer<UTF8Context>   d_utf8Context;
+        bsls::ObjectBuffer<Base64Context> d_base64Context;
+        bsls::ObjectBuffer<HexContext>    d_hexContext;
+        bsls::ObjectBuffer<UTF8Context>   d_utf8Context;
     };
 
     baexml_Decoder_ElementContext *d_context_p;
@@ -1430,10 +1430,10 @@ class baexml_Decoder_StdVectorCharContext :
   private:
     // DATA
     union {
-        bsls_ObjectBuffer<Base64Context> d_base64Context;
-        bsls_ObjectBuffer<HexContext>    d_hexContext;
-        bsls_ObjectBuffer<ListContext>   d_listContext;
-        bsls_ObjectBuffer<UTF8Context>   d_utf8Context;
+        bsls::ObjectBuffer<Base64Context> d_base64Context;
+        bsls::ObjectBuffer<HexContext>    d_hexContext;
+        bsls::ObjectBuffer<ListContext>   d_listContext;
+        bsls::ObjectBuffer<UTF8Context>   d_utf8Context;
     };
 
     baexml_Decoder_ElementContext *d_context_p;
@@ -1787,7 +1787,7 @@ struct baexml_Decoder_decodeImpProxy {
     // FUNCTIONS
     template <typename TYPE>
     inline
-    int operator()(TYPE *, bslmf_Nil)
+    int operator()(TYPE *, bslmf::Nil)
     {
         BSLS_ASSERT_SAFE(0);
         return -1;
@@ -1843,7 +1843,7 @@ struct baexml_Decoder_ParseAttribute_executeImpProxy {
     // FUNCTIONS
     template <typename TYPE>
     inline
-    int operator()(TYPE *, bslmf_Nil)
+    int operator()(TYPE *, bslmf::Nil)
     {
         BSLS_ASSERT_SAFE(0);
         return -1;
@@ -1899,7 +1899,7 @@ struct baexml_Decoder_ParseObject_executeImpProxy {
     // FUNCTIONS
     template <typename TYPE>
     inline
-    int operator()(TYPE *, bslmf_Nil)
+    int operator()(TYPE *, bslmf::Nil)
     {
         BSLS_ASSERT_SAFE(0);
         return -1;
@@ -1930,7 +1930,7 @@ struct baexml_Decoder_ParseNillableObject_executeImpProxy {
     // FUNCTIONS
     template <typename TYPE>
     inline
-    int operator()(TYPE *, bslmf_Nil)
+    int operator()(TYPE *, bslmf::Nil)
     {
         BSLS_ASSERT_SAFE(0);
         return -1;
@@ -1953,9 +1953,9 @@ struct baexml_Decoder_ParseNillableObject_executeImpProxy {
                          // ----------------------------------
 
 inline
-baexml_Decoder::MemOutStream::MemOutStream(bslma_Allocator *basicAllocator)
+baexml_Decoder::MemOutStream::MemOutStream(bslma::Allocator *basicAllocator)
 : bsl::ostream(0)
-, d_sb(bslma_Default::allocator(basicAllocator))
+, d_sb(bslma::Default::allocator(basicAllocator))
 {
     rdbuf(&d_sb);
 }
@@ -3056,8 +3056,8 @@ int baexml_Decoder_ParseObject::executeImp(
     };
 
     typedef typename
-    bslmf_If<CAN_BE_REPETITION_ONLY, CanBeRepetitionOnly,
-                                     CanBeListOrRepetition>::Type Toggle;
+    bslmf::If<CAN_BE_REPETITION_ONLY, CanBeRepetitionOnly,
+                                      CanBeListOrRepetition>::Type Toggle;
 
     return executeArrayImp(object, formattingMode, Toggle());
 }

@@ -49,7 +49,7 @@ const PredefinedPrefix& lookupPredefinedPrefix(const bdeut_StringRef& prefix)
 
 baexml_PrefixStack::baexml_PrefixStack(
     baexml_NamespaceRegistry *namespaceRegistry,
-    bslma_Allocator          *alloc)
+    bslma::Allocator         *alloc)
 : d_namespaceRegistry(namespaceRegistry)
 , d_prefixes(alloc)
 , d_numPrefixes(0)

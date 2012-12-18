@@ -40,6 +40,10 @@ BDES_IDENT_PRAGMA_ONCE
 #include <bdex_outstreamfunctions.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
 #ifndef INCLUDED_BSLMA_DEFAULT
 #include <bslma_default.h>
 #endif
@@ -54,11 +58,6 @@ BDES_IDENT_PRAGMA_ONCE
 
 #ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
-
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
-#endif
-#define INCLUDED_BSL_IOSFWD
 #endif
 
 namespace BloombergLP {
@@ -127,14 +126,14 @@ class baenet_HttpStatusLine {
         // exists, and 0 otherwise.
 
     // CREATORS
-    explicit baenet_HttpStatusLine(bslma_Allocator *basicAllocator = 0);
+    explicit baenet_HttpStatusLine(bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'baenet_HttpStatusLine' having the default
         // value.  Use the optionally specified 'basicAllocator' to supply
         // memory.  If 'basicAllocator' is 0, the currently installed default
         // allocator is used.
 
     baenet_HttpStatusLine(const baenet_HttpStatusLine&  original,
-                          bslma_Allocator              *basicAllocator = 0);
+                          bslma::Allocator             *basicAllocator = 0);
         // Create an object of type 'baenet_HttpStatusLine' having the value of
         // the specified 'original' object.  Use the optionally specified
         // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the

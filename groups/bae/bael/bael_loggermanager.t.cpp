@@ -31,8 +31,8 @@
 #include <bslma_testallocator.h>                // for testing only
 #include <bslma_testallocatorexception.h>       // for testing only
 
-#include <bsls_platform.h>                      // for testing only
-#include <bsls_platformutil.h>                  // for testing only
+#include <bsls_platform.h>
+#include <bsls_types.h>
 
 #include <bslstl_stringref.h>
 
@@ -504,7 +504,7 @@ bcemt_Barrier barrier(NUM_THREADS);
 extern "C" {
     void *workerThread26(void *arg)
     {
-        int remainder = (int)(bsls_PlatformUtil::IntPtr)arg % 2;
+        int remainder = (int)(bsls::Types::IntPtr)arg % 2;
         if (remainder == 1) {  // odd numbered threads
             bael_Logger *logger = manager->allocateLogger(&buf);
             barrier.wait();
@@ -1298,7 +1298,7 @@ int main(int argc, char *argv[])
                       << bsl::endl;
         }
 
-        bslma_TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         bael_TestObserver   testObserver(bsl::cout, &ta);
         bael_LoggerManagerConfiguration lmc;
         bael_LoggerManager::initSingleton(&testObserver, lmc, &ta);
@@ -1393,16 +1393,16 @@ int main(int argc, char *argv[])
             cout << endl << "Testing 'bael_LoggerManager' constructor" << endl
                          << "========================================" << endl;
 
-        bslma_TestAllocator defaultTestAllocator(veryVeryVerbose);
-        bslma_TestAllocator globalTestAllocator(veryVeryVerbose);
-        bslma_TestAllocator objectTestAllocator(veryVeryVerbose);
+        bslma::TestAllocator defaultTestAllocator(veryVeryVerbose);
+        bslma::TestAllocator globalTestAllocator(veryVeryVerbose);
+        bslma::TestAllocator objectTestAllocator(veryVeryVerbose);
 
-        bslma_TestAllocator *DA = &defaultTestAllocator;
-        bslma_TestAllocator *GA = &globalTestAllocator;
-        bslma_TestAllocator *OA = &objectTestAllocator;
+        bslma::TestAllocator *DA = &defaultTestAllocator;
+        bslma::TestAllocator *GA = &globalTestAllocator;
+        bslma::TestAllocator *OA = &objectTestAllocator;
 
-        bslma_DefaultAllocatorGuard taGuard(DA);
-        bslma_Default::setGlobalAllocator(GA);
+        bslma::DefaultAllocatorGuard taGuard(DA);
+        bslma::Default::setGlobalAllocator(GA);
 
         bael_LoggerManagerConfiguration mLMC;
 
@@ -1496,16 +1496,16 @@ int main(int argc, char *argv[])
             cout << endl << "Testing 'bael_LoggerManagerScopedGuard'" << endl
                          << "=======================================" << endl;
 
-        bslma_TestAllocator defaultTestAllocator(veryVeryVerbose);
-        bslma_TestAllocator globalTestAllocator(veryVeryVerbose);
-        bslma_TestAllocator objectTestAllocator(veryVeryVerbose);
+        bslma::TestAllocator defaultTestAllocator(veryVeryVerbose);
+        bslma::TestAllocator globalTestAllocator(veryVeryVerbose);
+        bslma::TestAllocator objectTestAllocator(veryVeryVerbose);
 
-        bslma_TestAllocator *DA = &defaultTestAllocator;
-        bslma_TestAllocator *GA = &globalTestAllocator;
-        bslma_TestAllocator *OA = &objectTestAllocator;
+        bslma::TestAllocator *DA = &defaultTestAllocator;
+        bslma::TestAllocator *GA = &globalTestAllocator;
+        bslma::TestAllocator *OA = &objectTestAllocator;
 
-        bslma_DefaultAllocatorGuard taGuard(DA);
-        bslma_Default::setGlobalAllocator(GA);
+        bslma::DefaultAllocatorGuard taGuard(DA);
+        bslma::Default::setGlobalAllocator(GA);
 
         class InitializationVerifier {
 
@@ -1615,8 +1615,8 @@ int main(int argc, char *argv[])
                           << "Test static 'getRecord' and 'logMessage'\n"
                           << "========================================\n";
 
-         bslma_TestAllocator testAllocator(veryVeryVerbose);
-         bslma_DefaultAllocatorGuard guard(&testAllocator);
+         bslma::TestAllocator testAllocator(veryVeryVerbose);
+         bslma::DefaultAllocatorGuard guard(&testAllocator);
 
          bael_Record* record1 = Obj::getRecord(F_, L_);
          bael_Record* record2 = Obj::getRecord(F_, L_);
@@ -2134,9 +2134,9 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "Testing allocation and setting" << endl
                                   << "==============================" << endl;
 
-        bslma_TestAllocator  testAllocator(veryVeryVerbose);
-        bslma_DefaultAllocatorGuard guard(&testAllocator);
-        bslma_Allocator     *Z = &testAllocator;
+        bslma::TestAllocator  testAllocator(veryVeryVerbose);
+        bslma::DefaultAllocatorGuard guard(&testAllocator);
+        bslma::Allocator    *Z = &testAllocator;
         bael_TestObserver    testObserver(cout);
 
         bael_LoggerManagerConfiguration mLMC;
@@ -2326,7 +2326,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        bslma_TestAllocator testAllocator(veryVeryVerbose);
+        bslma::TestAllocator testAllocator(veryVeryVerbose);
 
         for (int i = 0; i < NUM_LOGORDERS; ++i) {
             for (int j = 0; j < NUM_TRIGGERMARKERS; ++j) {
@@ -2498,7 +2498,7 @@ int main(int argc, char *argv[])
                 cout << testNames[a] << endl;
             }
 
-            bslma_TestAllocator testAllocator(veryVeryVerbose);
+            bslma::TestAllocator testAllocator(veryVeryVerbose);
             bael_TestObserver testObserver(cout);
 
             Cnf nameFilter(&toLower);
@@ -3431,16 +3431,16 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "Testing 'initSingleton'" << endl
                                   << "=======================" << endl;
 
-        bslma_TestAllocator defaultTestAllocator(veryVeryVerbose);
-        bslma_TestAllocator globalTestAllocator(veryVeryVerbose);
-        bslma_TestAllocator objectTestAllocator(veryVeryVerbose);
+        bslma::TestAllocator defaultTestAllocator(veryVeryVerbose);
+        bslma::TestAllocator globalTestAllocator(veryVeryVerbose);
+        bslma::TestAllocator objectTestAllocator(veryVeryVerbose);
 
-        bslma_TestAllocator *DA = &defaultTestAllocator;
-        bslma_TestAllocator *GA = &globalTestAllocator;
-        bslma_TestAllocator *OA = &objectTestAllocator;
+        bslma::TestAllocator *DA = &defaultTestAllocator;
+        bslma::TestAllocator *GA = &globalTestAllocator;
+        bslma::TestAllocator *OA = &objectTestAllocator;
 
-        bslma_DefaultAllocatorGuard taGuard(DA);
-        bslma_Default::setGlobalAllocator(GA);
+        bslma::DefaultAllocatorGuard taGuard(DA);
+        bslma::Default::setGlobalAllocator(GA);
 
         const int NUM_BLOCKS_DFLT_ALLOC = DA->numBlocksInUse();
         const int NUM_BLOCKS_GLOB_ALLOC = GA->numBlocksInUse();

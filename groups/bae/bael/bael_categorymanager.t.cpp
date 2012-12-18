@@ -17,10 +17,14 @@
 #include <bslma_testallocatorexception.h>
 
 #include <bsls_platform.h>
-#include <bsls_platformutil.h>
+#include <bsls_types.h>
 
 #include <bsl_algorithm.h>
+// TBD reinstate all code referencing "bitset" when bslstl_bitset is
+//     released to opensource bsl (see 'case 9')
+#if 0
 #include <bsl_bitset.h>
+#endif
 #include <bsl_climits.h>
 #include <bsl_cstdio.h>
 #include <bsl_cstdlib.h>
@@ -72,7 +76,7 @@ using namespace bsl;  // automatically added by script
 // [ 3] int triggerAllLevel() const;
 //
 // 'bael_CategoryManager' public interface:
-// [ 2] bael_CategoryManager(bslma_Allocator *ba = 0);
+// [ 2] bael_CategoryManager(bslma::Allocator *ba = 0);
 // [ 2] ~bael_CategoryManager();
 // [ 8] bael_Category& operator[](int index)
 // [ 5] bael_Category *addCategory(const char *name, int, int, int, int);
@@ -225,16 +229,16 @@ void mTaSsErT(int c, const char *s, int i)
 //              GLOBAL TYPES, CONSTANTS, AND VARIABLES FOR TESTING
 //-----------------------------------------------------------------------------
 
-typedef bael_CategoryManager        Obj;
+typedef bael_CategoryManager         Obj;
 
-typedef bael_Category               Entry;
-typedef bael_CategoryHolder         Holder;
-typedef bael_CategoryManagerIter    Iter;
-typedef bael_CategoryManagerManip   Manip;
-typedef bael_ThresholdAggregate     Thresholds;
-typedef const char*                 Name;
-typedef bslma_TestAllocator         TestAllocator;
-typedef bslma_DefaultAllocatorGuard DefaultAllocGuard;
+typedef bael_Category                Entry;
+typedef bael_CategoryHolder          Holder;
+typedef bael_CategoryManagerIter     Iter;
+typedef bael_CategoryManagerManip    Manip;
+typedef bael_ThresholdAggregate      Thresholds;
+typedef const char*                  Name;
+typedef bslma::TestAllocator         TestAllocator;
+typedef bslma::DefaultAllocatorGuard DefaultAllocGuard;
 
 
 Name NAMES[] = {
@@ -341,6 +345,9 @@ int calculateThreshold(int record, int pass, int trigger, int triggerAll)
     return value;
 }
 
+// TBD reinstate all code referencing "bitset" when bslstl_bitset is
+//     released to opensource bsl (see 'case 9')
+#if 0
 template <bsl::size_t BITS>
 bsl::string bitset2string(const bsl::bitset<BITS>& bs)
 {
@@ -348,6 +355,7 @@ using namespace bsl;  // automatically added by script
 
     return bs.template to_string<char, char_traits<char>, allocator<char> >();
 }
+#endif
 
 extern "C"
 void *case9ThreadW(void *arg)
@@ -485,8 +493,8 @@ extern "C" void *ruleThreadTest(void *args)
         rule2.addPredicate(bael_Predicate("shared", 1));
         bael_Rule rule3(NAMES[i], 255, 255, 255, 255);
         rule3.addPredicate(bael_Predicate(
-                  "thread",
-                  (bsls_PlatformUtil::Int64) bcemt_ThreadUtil::selfIdAsInt()));
+                        "thread",
+                        (bsls::Types::Int64) bcemt_ThreadUtil::selfIdAsInt()));
         bael_Rule rule4(US, 255, 255, 255, 255);
 
         mX.addRule(rule1);
@@ -579,7 +587,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
-    bslma_TestAllocator testAllocator(veryVeryVerbose);
+    bslma::TestAllocator testAllocator(veryVeryVerbose);
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 16: {
@@ -739,7 +747,7 @@ int main(int argc, char *argv[])
                           << "Testing rules and category holders" << endl
                           << "==================================" << endl;
 
-        bslma_TestAllocator ta;
+        bslma::TestAllocator ta;
         int VALUES[] = { 1,
                          31,  // BAEL_FATAL - 1
                          32,  // BAEL_FATAL
@@ -1198,7 +1206,7 @@ int main(int argc, char *argv[])
                                                         TRIGGER,
                                                         TRIGGER_ALL);
 
-            bslma_DefaultAllocatorGuard guard(&testAllocator);
+            bslma::DefaultAllocatorGuard guard(&testAllocator);
             const int NUM_BYTES = testAllocator.numBytesInUse();
 
             Holder mX = { Holder::BAEL_DYNAMIC_CATEGORY, CATEGORY, NEXT };
@@ -1262,7 +1270,7 @@ int main(int argc, char *argv[])
                           << "Test 'addRules', 'removeRules'" << endl
                           << "==============================" << endl;
 
-        bslma_TestAllocator ta;
+        bslma::TestAllocator ta;
         Obj mX(&ta); const Obj& MX = mX;
 
         for (int i = 0; i < NUM_NAMES; ++i) {
@@ -1394,7 +1402,7 @@ int main(int argc, char *argv[])
                           << "Test 'addRule', 'removeRule'  " << endl
                           << "==============================" << endl;
 
-        bslma_TestAllocator ta;
+        bslma::TestAllocator ta;
         Obj mX(&ta); const Obj& MX = mX;
 
         for (int i = 0; i < NUM_NAMES; ++i) {
@@ -1500,6 +1508,9 @@ int main(int argc, char *argv[])
                           << "Test MT-Safety: Add and Lookup" << endl
                           << "==============================" << endl;
 
+// TBD reinstate all code referencing "bitset" when bslstl_bitset is
+//     released to opensource bsl (this test case and 2 snippets above)
+#if 0
         enum {
             NUM_CATEGORIES = 100,    // number of categories to add
             NUM_W_THREADS  = 4,      // number of "write" threads
@@ -1592,6 +1603,7 @@ int main(int argc, char *argv[])
 
         ASSERT(0 < ta.numAllocations());
         ASSERT(0 < ta.numBytesInUse());
+#endif
       }  break;
       case 8: {
         // --------------------------------------------------------------------
@@ -1622,7 +1634,7 @@ int main(int argc, char *argv[])
                           << "Test Indexed Access" << endl
                           << "===================" << endl;
 
-        bslma_TestAllocator ta;
+        bslma::TestAllocator ta;
         Obj                 mX(&ta);
         const Obj&          X = mX;
 
@@ -1834,7 +1846,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "Test Manipulators" << endl
                                   << "=================" << endl;
 
-        bslma_DefaultAllocatorGuard guard(&testAllocator);
+        bslma::DefaultAllocatorGuard guard(&testAllocator);
 
         static const struct {
             int d_line;            // line number
@@ -2325,7 +2337,7 @@ int main(int argc, char *argv[])
         //   To address concerns 1a - 1b, create an object using the default
         //   constructor:
         //    - With and without passing in an allocator.
-        //    - Verify that in the presence of 'bslma_TestAllocator', the
+        //    - Verify that in the presence of 'bslma::TestAllocator', the
         //      memory allocation occurs using the test allocator.
         //
         //   To address concern 3, construct an object, add a series of
@@ -2339,7 +2351,7 @@ int main(int argc, char *argv[])
         // Testing:
         //  ^bael_Category(const char *name, int, int, int, int, *ba = 0);
         //  ^~bael_Category();
-        //   bael_CategoryManager(bslma_Allocator *ba = 0);
+        //   bael_CategoryManager(bslma::Allocator *ba = 0);
         //   ~bael_CategoryManager();
         //   BOOTSTRAP: bael_Category *addCategory(*name, int, int, int, int);
         //
@@ -2353,8 +2365,8 @@ int main(int argc, char *argv[])
                           << " allocator hookup." << endl;
 
         {
-            bslma_TestAllocator ta;
-            bslma_DefaultAllocatorGuard g(&ta);
+            bslma::TestAllocator ta;
+            bslma::DefaultAllocatorGuard g(&ta);
 
             Obj mX;  const Obj& X = mX;
             ASSERT(0 == X.length());
@@ -2374,7 +2386,7 @@ int main(int argc, char *argv[])
 
         }
 
-        bslma_TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         {
             ASSERT(0 == ta.numAllocations());
             ASSERT(0 == ta.numBytesInUse());

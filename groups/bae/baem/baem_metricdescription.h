@@ -154,7 +154,7 @@ class baem_MetricDescription {
     // CREATORS
     baem_MetricDescription(const baem_Category *category,
                            const char          *name,
-                           bslma_Allocator     *basicAllocator = 0);
+                           bslma::Allocator    *basicAllocator = 0);
         // Create a metric description for the specified 'category' and the
         // specified 'name'.  Optionally specify a 'basicAllocator' used to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
@@ -265,7 +265,7 @@ inline
 baem_MetricDescription::baem_MetricDescription(
                                            const baem_Category *category,
                                            const char          *name,
-                                           bslma_Allocator     *basicAllocator)
+                                           bslma::Allocator    *basicAllocator)
 : d_category_p(category)
 , d_name_p(name)
 , d_preferredPublicationType(baem_PublicationType::BAEM_UNSPECIFIED)
