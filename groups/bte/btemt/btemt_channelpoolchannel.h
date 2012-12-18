@@ -290,8 +290,9 @@ class btemt_ChannelPoolChannel: public btemt_AsyncChannel {
         // read operation was already initiated.  When at least the specified
         // 'numBytes' of data are available after all previous requests have
         // been processed, if any, the specified 'readCallback' will be invoked
-        // (with 'SUCCESS').  Return 0 on success, and a non-zero value (in
-        // 'btemt::ChannelErrorRead::Enum') otherwise.
+        // (with 'SUCCESS').  Return 0 on success, and a non-zero value, ,
+        // which may equal to one of the enumerators in
+        // 'btemt::ChannelErrorRead::Enum', otherwise.
 
     virtual int read(int                           numBytes,
                      const BlobBasedReadCallback&  readCallback);
@@ -300,8 +301,9 @@ class btemt_ChannelPoolChannel: public btemt_AsyncChannel {
         // read operation was already initiated.  When at least the specified
         // 'numBytes' of data are available after all previous requests have
         // been processed, if any, the specified 'readCallback' will be invoked
-        // (with 'SUCCESS').  Return 0 on success, and a non-zero value (in
-        // 'btemt::ChannelErrorRead::Enum') otherwise.
+        // (with 'SUCCESS').  Return 0 on success, and a non-zero value, which
+        // may equal to one of the enumerators in
+        // 'btemt::ChannelErrorRead::Enum', otherwise.
 
     virtual int timedRead(int                      numBytes,
                           const bdet_TimeInterval& timeOut,
@@ -314,7 +316,8 @@ class btemt_ChannelPoolChannel: public btemt_AsyncChannel {
         // requests have been processed, if any, or when the 'timeOut' is
         // reached, the specified 'readCallback' will be invoked (with either
         // 'SUCCESS' or 'TIMEOUT', respectively).  Return 0 on success, and a
-        // non-zero value (in 'btemt::ChannelErrorRead::Enum') otherwise.
+        // non-zero value, which may equal to one of the enumerators in
+        // 'btemt::ChannelErrorRead::Enum', otherwise.
 
     virtual int timedRead(int                          numBytes,
                           const bdet_TimeInterval&     timeOut,
@@ -327,7 +330,8 @@ class btemt_ChannelPoolChannel: public btemt_AsyncChannel {
         // requests have been processed, if any, or when the 'timeOut' is
         // reached, the specified 'readCallback' will be invoked (with either
         // 'SUCCESS' or 'TIMEOUT', respectively).  Return 0 on success, and a
-        // non-zero value (in 'btemt::ChannelErrorRead::Enum') otherwise.
+        // non-zero value, which may equal to one of the enumerators in
+        // 'btemt::ChannelErrorRead::Enum', otherwise.
 
     virtual int write(const bcema_Blob&    blob,
                       int                  highWaterMark = INT_MAX);
@@ -336,8 +340,9 @@ class btemt_ChannelPoolChannel: public btemt_AsyncChannel {
         // Enqueue the specified 'blob' message to be written to this channel.
         // Optionally provide 'highWaterMark' to specify the maximum data size
         // that can be enqueued.  If 'highWaterMark' is not specified then
-        // 'INT_MAX' is used.  Return 0 on success, and a non-zero value (in
-        // 'btemt::ChannelErrorWrite::Enum') otherwise.  Note that success does
+        // 'INT_MAX' is used.  Return 0 on success, and a non-zero value, which
+        // may equal to one of the enumerators in
+        // 'btemt::ChannelErrorWrite::Enum', otherwise.  Note that success does
         // not imply that the data has been written or will be successfully
         // written to the underlying stream used by this channel.  Also note
         // that in addition to 'highWatermark' the enqueued portion must also
@@ -352,8 +357,9 @@ class btemt_ChannelPoolChannel: public btemt_AsyncChannel {
         // Enqueue the specified 'data' message to be written to this channel.
         // Optionally provide 'highWaterMark' to specify the maximum data size
         // that can be enqueued.  If 'highWaterMark' is not specified then
-        // 'INT_MAX' is used.  Return 0 on success, and a non-zero value (in
-        // 'btemt::ChannelErrorWrite::Enum') otherwise.  Note that success does
+        // 'INT_MAX' is used.  Return 0 on success, and a non-zero value, which
+        // may equal to one of the enumerators in
+        // 'btemt::ChannelErrorWrite::Enum', otherwise.  Note that success does
         // not imply that the data has been written or will be successfully
         // written to the underlying stream used by this channel.  Also note
         // that in addition to 'highWatermark' the enqueued portion must also
