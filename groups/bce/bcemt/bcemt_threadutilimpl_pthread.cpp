@@ -153,6 +153,7 @@ class PthreadMutexGuard {
 
     // CREATORS
     explicit PthreadMutexGuard(pthread_mutex_t *lock) : d_lock_p(lock) {}
+
     ~PthreadMutexGuard()
     {
         if (0 != pthread_mutex_unlock(d_lock_p)) {
@@ -176,6 +177,7 @@ class MachClockGuard {
 
     // CREATORS
     explicit MachClockGuard(clock_serv_t clock) : d_clock(clock) {}
+
     ~MachClockGuard()  
     { 
         mach_port_deallocate(mach_task_self(), d_clock); 
