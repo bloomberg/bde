@@ -479,7 +479,6 @@ struct bcemt_ThreadUtil {
         // time suspended depends on many factors including system scheduling
         // and system timer resolution.
 
-
     static void yield();
         // Move the current thread to the end of the scheduler's queue and
         // schedule another thread to run.  Note that this allows cooperating

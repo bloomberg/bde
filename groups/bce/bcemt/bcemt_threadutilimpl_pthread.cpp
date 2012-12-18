@@ -168,7 +168,6 @@ class MachClockGuard {
    clock_serv_t d_clock;
 
   private:
-
     // NOT IMPLEMENTED
     MachClockGuard(const MachClockGuard&);
     MachClockGuard operator=(const MachClockGuard&);
@@ -176,7 +175,10 @@ class MachClockGuard {
 
     // CREATORS
     explicit MachClockGuard(clock_serv_t clock) : d_clock(clock) {}
-    ~MachClockGuard()  { mach_port_deallocate(mach_task_self(), d_clock); }
+    ~MachClockGuard()  
+    { 
+        mach_port_deallocate(mach_task_self(), d_clock); 
+    }
 };
 
 }  // close unnamed namespace
@@ -197,7 +199,6 @@ static bdet_TimeInterval getDarwinSystemBootTime()
     static bsls::AtomicOperations::AtomicTypes::Int   bootNanoSecs = { 0 };
 
     if (!bsls::AtomicOperations::getInt64Acquire(&bootSecs)) {
-
         static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
         if (0 != pthread_mutex_lock(&mutex)) {

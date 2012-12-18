@@ -714,10 +714,11 @@ int main(int argc, char *argv[])
         //   void sleepUntil(const bdet_TimeInterval& );        
         // --------------------------------------------------------------------
 
-        if (verbose)
+        if (verbose) {
             cout << endl 
                  << "CLASS METHOD 'sleepUntil'" << endl
                  << "=========================" << endl;
+        }
 
         if (veryVerbose) {
             cout << "sleepUntil for times in the future" << endl;
@@ -1579,10 +1580,11 @@ int main(int argc, char *argv[])
         //   void sleepUntil(const bdet_TimeInterval& );        
         // --------------------------------------------------------------------
 
-        if (verbose)
+        if (verbose) {
             cout << endl 
                  << "CLASS METHOD 'sleepUntil'" << endl
                  << "=========================" << endl;
+        }
 
         if (veryVerbose) {
             cout << "sleepUntil for times in the future" << endl;
@@ -1605,7 +1607,6 @@ int main(int argc, char *argv[])
             LOOP_ASSERT((actualTime - expectedTime).totalMilliseconds(),
                         (actualTime - expectedTime).totalMilliseconds() < 50);
         }
-
         
     }  break;
       default: {
