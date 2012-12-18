@@ -8,6 +8,7 @@ bsltf_nondefaultconstructibletesttype
 bsltf_nonequalcomparabletesttype
 bsltf_nontypicaloverloadstesttype
 bsltf_simpletesttype
+bsltf_stdstatefulallocator
 bsltf_stdtestallocator
 bsltf_templatetestfacility
 bsltf_testvaluesarray
