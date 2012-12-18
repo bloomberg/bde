@@ -142,7 +142,7 @@ const bool hasFSNan = false;
 const bool hasDSNan = true;
 #elif defined(BSLS_PLATFORM_CPU_X86)
 // Some documentation of SNaN to QNaN conversions on x86 can be found in
-// section 4.8.3.5, Intel 64 Software Developers Manual, Volume 1, 
+// section 4.8.3.5, Intel 64 Software Developers Manual, Volume 1,
 // http://download.intel.com/products/processor/manual/253665.pdf
 const bool hasFSNan = false;
 const bool hasDSNan = false;
@@ -158,7 +158,7 @@ const bool hasDSNan = true;
 // are performed on SNaNs.  Therefore 'hasFSNan' & 'hasDSNan', above, are
 // 'false'.  But, the Clang optimizer, in certain contexts, avoids using
 // floating point registers and instructions, making the tests for SNaN's
-// non-deterministic.  See internal-ticket D37511035.  
+// non-deterministic.  See internal-ticket D37511035.
 
 #define OMIT_SNAN_TESTS
 #endif
