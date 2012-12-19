@@ -1093,7 +1093,7 @@ struct bdeut_VariantImp_Traits {
          && bslmf::IsBitwiseMoveable<Type17>::value
          && bslmf::IsBitwiseMoveable<Type18>::value
          && bslmf::IsBitwiseMoveable<Type19>::value
-         && bslmf::IsBitwiseMoveable<Type20>::value),
+         && bslmf::IsBitwiseMoveable<Type20>::value)
     };
 
     typedef typename bslmf_If<
