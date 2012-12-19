@@ -56,6 +56,9 @@ using namespace BloombergLP::bsltf;
 // [11] const_reference;
 // [11] value_type;
 // [11] rebind<U>::other;
+// [  ] propagate_on_container_copy_assignment
+// [  ] propagate_on_container_move_assignment
+// [  ] propagate_on_container_swap
 //
 // CREATORS
 // [ 2] StdStatefulAllocator(bslma::allocator *);
@@ -74,10 +77,12 @@ using namespace BloombergLP::bsltf;
 // [14] pointer address(reference object) const;
 // [14] const_pointer address(const_reference object) const;
 // [15] size_type max_size() const;
+// [  ] bslma::TestAllocator *testAllocator() const;
+// [  ] StdStatefulAllocator select_on_container_copy_construction() const;
 //
 // FREE OPERATORS
-// [ 6] bool operator==(const StdStatefulAllocator<TYPE>& lhs, rhs);
-// [ 6] bool operator!=(const StdStatefulAllocator<TYPE>& lhs, rhs);
+// [ 6] bool operator==(const StdStatefulAllocator<TYPE,B,B,B,B>& lhs, rhs);
+// [ 6] bool operator!=(const StdStatefulAllocator<TYPE,B,B,B,B>& lhs, rhs);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [  ] USAGE EXAMPLE

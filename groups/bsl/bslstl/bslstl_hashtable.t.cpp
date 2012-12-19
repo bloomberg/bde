@@ -15,6 +15,7 @@
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
 
+#include <bsltf_stdstatefulallocator.h>
 #include <bsltf_stdtestallocator.h>
 #include <bsltf_templatetestfacility.h>
 #include <bsltf_testvaluesarray.h>
@@ -1261,6 +1262,21 @@ struct MakeAllocator<bsltf::StdTestAllocator<TYPE> > {
     }
 };
 
+template <class TYPE, bool A, bool B, bool C, bool D>
+struct MakeAllocator<bsltf::StdStatefulAllocator<TYPE, A, B, C, D> > {
+    // TBD This utiliy class template specialization...
+
+    typedef bsltf::StdStatefulAllocator<TYPE, A, B, C, D> AllocatorType;
+
+    static AllocatorType make(bslma::Allocator *basicAllocator)
+    {
+        bslma::TestAllocator *alloc = dynamic_cast<bslma::TestAllocator *>(
+                                                               basicAllocator);
+        ASSERT(alloc);
+        return AllocatorType(alloc);
+    }
+};
+
                        // =================
                        // class ObjectMaker
                        // =================
@@ -1340,6 +1356,52 @@ struct ObjectMaker<KEY_CONFIG,
     //  'c'      use the specified 'objectAllocator'
     //..
 };
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR,
+          bool A, bool B, bool C, bool D>
+struct ObjectMaker<
+                KEY_CONFIG,
+                HASHER,
+                COMPARATOR,
+                bsltf::StdStatefulAllocator<typename KEY_CONFIG::ValueType,
+                                             A, B, C, D> > {
+    // TBD This utiliy class template specialization...
+
+    typedef typename KEY_CONFIG::KeyType   KeyType;
+    typedef typename KEY_CONFIG::ValueType ValueType;
+
+    typedef bsltf::StdStatefulAllocator<ValueType, A, B, C, D>   AllocatorType;
+    typedef typename bsl::allocator_traits<AllocatorType>::size_type  SizeType;
+
+    typedef bslstl::HashTable<KEY_CONFIG, HASHER, COMPARATOR, AllocatorType>
+                                                                           Obj;
+    
+    static
+    AllocatorType makeObject(Obj                  **obj,
+                             char                   config,
+                             bslma::Allocator      *fa, //"footprint" allocator
+                             bslma::TestAllocator  *objectAllocator,
+                             const HASHER           hash,
+                             const COMPARATOR&      compare,
+                             SizeType               initialBuckets,
+                             float                  initialMaxLoadFactor);
+    // construct a 'HashTable' object at the specified 'obj' address using the
+    // allocator determined by the specified 'config', and passing the
+    // specified 'hash', 'compare', 'initialBuckets' and 'initialMaxLoadFactor'
+    // to the constructor.  Return an allocator object that will compare equal
+    // to the allocator that is expected to be used to construct the
+    // 'HashTable' object.  The specified 'objectAllocator' may, or may not, be
+    // used to construct the 'HashTable' object according to the specified
+    // 'config':
+    //..
+    //  config   allocator
+    //  'a'      use the default supplied by the constructor
+    //  'b'      explicitly pass a null pointer of type 'bslma::Allocator *'
+    //  'c'      use the specified 'objectAllocator'
+    //..
+};
+
+
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 ALLOCATOR
@@ -1434,11 +1496,60 @@ makeObject(Obj                  **objPtr,
     abort();
 }
 
+template <class KEY_CONFIG, class HASHER, class COMPARATOR,
+          bool A, bool B, bool C, bool D>
+typename
+ObjectMaker<KEY_CONFIG,
+            HASHER,
+            COMPARATOR,
+            bsltf::StdStatefulAllocator<typename KEY_CONFIG::ValueType,
+                                                   A, B, C, D> >::AllocatorType
+ObjectMaker<KEY_CONFIG,
+            HASHER,
+            COMPARATOR,
+            bsltf::StdStatefulAllocator<typename KEY_CONFIG::ValueType,
+                                                                A, B, C, D> >::
+makeObject(Obj                  **objPtr,
+           char                   config,
+           bslma::Allocator      *fa,  // "footprint" allocator
+           bslma::TestAllocator  *objectAllocator,
+           const HASHER           hash,
+           const COMPARATOR&      compare,
+           SizeType               initialBuckets,
+           float                  initialMaxLoadFactor)
+{
+    // bsltf::StdStatefulAllocator objects are not DefaultConstructible.
+    // We know that the default allocator installed for this test driver will
+    // be a test allocator, so we can safely expect a 'dynamic_cast' to not
+    // return a null pointer.  Likewise, the 'objectAllocator' should not be a
+    // null pointer either, so we can simply construct the desired allocator
+    // object using the test allocator specified by the 'config' parameter, and
+    // use that to explicitly construct the desired 'HashTable' object into
+    // '*objPtr'.  Note that there is no distinction between config 'a' or 'b'
+    // for this allocator, it would be useful if we could find some way to skip
+    // config 'a' when running the various test cases.
+
+    bslma::TestAllocator *alloc = 'c' == config
+                                ? objectAllocator
+                                : dynamic_cast<bslma::TestAllocator *>(
+                                           bslma::Default::defaultAllocator());
+    ASSERT(alloc);
+    
+    AllocatorType result = MakeAllocator<AllocatorType>::make(alloc);
+    *objPtr = new (*fa) Obj(hash,
+                            compare,
+                            initialBuckets,
+                            initialMaxLoadFactor,
+                            result);
+    return result;
+}
+
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 //                         test support functions
 
 template <class ALLOCATOR>
+inline
 bslma::TestAllocator *
 extractTestAllocator(ALLOCATOR&)
 {
@@ -1449,6 +1560,7 @@ extractTestAllocator(ALLOCATOR&)
 }
 
 template <class TYPE>
+inline
 bslma::TestAllocator *
 extractTestAllocator(bsl::allocator<TYPE>& alloc)
 {
@@ -1459,6 +1571,7 @@ extractTestAllocator(bsl::allocator<TYPE>& alloc)
 }
 
 template <class TYPE>
+inline
 bslma::TestAllocator *
 extractTestAllocator(bsltf::StdTestAllocator<TYPE>&)
 {
@@ -1468,6 +1581,14 @@ extractTestAllocator(bsltf::StdTestAllocator<TYPE>&)
 
     return dynamic_cast<bslma::TestAllocator *>(
                     bsltf::StdTestAllocatorConfiguration::delegateAllocator());
+}
+
+template <class TYPE, bool A, bool B, bool C, bool D>
+inline
+bslma::TestAllocator *
+extractTestAllocator(bsltf::StdStatefulAllocator<TYPE, A, B, C, D>& alloc)
+{
+    return alloc.testAllocator();
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -2003,6 +2124,42 @@ struct TestDriver_StdAllocatorConfiguation
                      , bsltf::StdTestAllocator<ELEMENT>
                      >
        > {
+};
+
+template <class ELEMENT>
+struct TestDriver_StatefulAllocatorConfiguation1
+     : TestDriver_ForwardTestCasesByConfiguation<
+           TestDriver< BasicKeyConfig<ELEMENT>
+                     , DegenerateClass<TestFacilityHasher<ELEMENT> >
+                     , DegenerateClass<TestEqualityComparator<ELEMENT> >
+                     , bsltf::StdStatefulAllocator<ELEMENT>
+                     >
+       > {
+    // Propagate all allocator operations.
+};
+
+template <class ELEMENT>
+struct TestDriver_StatefulAllocatorConfiguation2
+     : TestDriver_ForwardTestCasesByConfiguation<
+           TestDriver< BasicKeyConfig<ELEMENT>
+                     , DegenerateClass<TestFacilityHasher<ELEMENT> >
+                     , DegenerateClass<TestEqualityComparator<ELEMENT> >
+                     , bsltf::StdStatefulAllocator<ELEMENT, false>
+                     >
+       > {
+    // Propagate all allocator operations but copy.
+};
+
+template <class ELEMENT>
+struct TestDriver_StatefulAllocatorConfiguation3
+     : TestDriver_ForwardTestCasesByConfiguation<
+           TestDriver< BasicKeyConfig<ELEMENT>
+                     , DegenerateClass<TestFacilityHasher<ELEMENT> >
+                     , DegenerateClass<TestEqualityComparator<ELEMENT> >
+                     , bsltf::StdStatefulAllocator<ELEMENT, true, false>
+                     >
+       > {
+    // Propagate all allocator operations but swap.
 };
 
 struct TestDriver_AwkwardMaplike
@@ -4845,15 +5002,16 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
 
     if (verbose) { P(VALUE_TYPE_USES_ALLOCATOR); }
 
-    const TestValues VALUES;  // contains 52 distinct increasing values
-
+    const TestValues VALUES;     // Contains 52 distinct increasing values.
+    const size_t MAX_LENGTH = 9; // This should be sufficient to bootstrap.
 
     // Probably want to pick these up as values from some injected policy, so
-    // that we can test with stateful variants
+    // that we can test with stateful variants.  Alternatively, pass some seed
+    // to the 'make' function to support stateful functors actually having
+    // different states.  Note that we need the 'make' function to supply a
+    // default state for functors that are not default constructible.
     const HASHER     HASH    = MakeDefaultFunctor<HASHER>::make();
     const COMPARATOR COMPARE = MakeDefaultFunctor<COMPARATOR>::make();
-
-    const size_t MAX_LENGTH = 9;
 
     for (int lfi = 0; lfi < DEFAULT_MAX_LOAD_FACTOR_SIZE; ++lfi) {
     for (size_t ti = 0; ti < MAX_LENGTH; ++ti) {
@@ -4889,21 +5047,18 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
                 printf("\n\tTesting bootstrap constructor.\n");
             }
 
-            Obj                  *objPtr;
-
             const size_t NUM_BUCKETS = ceil(3 * LENGTH/MAX_LF);
 
-//            ALLOCATOR objAlloc = MakeAllocator<ALLOCATOR>::make(objAllocator);
-            ALLOCATOR expAlloc = ObjMaker::makeObject( &objPtr
-                                                     , CONFIG
-                                                     , &fa
-                                                     , &sa 
-                                                     , HASH
-                                                     , COMPARE
-                                                     , NUM_BUCKETS
-                                                     , MAX_LF);
-
-            Obj&                 mX = *objPtr;  const Obj& X = mX;
+            Obj       *objPtr;
+            ALLOCATOR  expAlloc = ObjMaker::makeObject(&objPtr,
+                                                       CONFIG,
+                                                       &fa,
+                                                       &sa,
+                                                       HASH,
+                                                       COMPARE,
+                                                       NUM_BUCKETS,
+                                                       MAX_LF);
+            Obj& mX = *objPtr;  const Obj& X = mX;
 
             // Verify any attribute allocators are installed properly.
 
@@ -5193,66 +5348,6 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
 
             // ----------------------------------------------------------------
 
-#if defined BDE_BUILD_TARGET_EXC
-            {
-#if 0
-                // This test shows up a non-conformance in 'bsl::allocator'
-                // which has undefined behavior when asked for this many
-                // buckets, rather than simply throwing a 'std::bad_alloc'.
-
-                try {
-                    Obj mX(HASH,
-                           COMPARE,
-                           native_std::numeric_limits<int>::max(),
-                           1e-30);
-                    ASSERT(false);
-                }
-                catch(const native_std::bad_allocr&) {
-                    // This is the expected code path
-                }
-                catch(...) {
-                    ASSERT(!!"The wrong exception type was thrown.");
-                }
-#endif
-
-                try {
-                    Obj mBad(HASH,
-                             COMPARE,
-                             native_std::numeric_limits<SizeType>::max(),
-                             1e-30);
-                    ASSERT(false);
-                }
-                catch(const native_std::length_error&) {
-                    // This is the expected code path
-                }
-                catch(...) {
-                    ASSERT(!!"The wrong exception type was thrown.");
-                }
-
-                Obj mR(HASH,
-                       COMPARE,
-                       3,
-                       1e-30);
-                try {
-                    mR.insert(VALUES[0]);
-
-                    P(mR.numBuckets())
-                    P(mR.size());
-
-                    ASSERT(false);
-                }
-                catch(const native_std::length_error& e) {
-                    // This is the expected code path
-                }
-                catch(...) {
-                    ASSERT(!!"The wrong exception type was thrown.");
-                }
-            
-            }
-#endif
-
-            // ----------------------------------------------------------------
-
             // Reclaim dynamically allocated object under test.
 
             fa.deleteObject(objPtr);
@@ -5269,13 +5364,86 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
     }
     }
 
+    // ------------------------------------------------------------------------
+
+    // Create some fresh allocators to use validating final corners of the
+    // constructor behavior.  These are special case tests, and will not need
+    // to loop many times, or test the contents of the container, so one set of
+    // allocators will suffice to the end of the test case.
+
+    bslma::TestAllocator da("default", veryVeryVeryVerbose);
+    ALLOCATOR objAlloc = MakeAllocator<ALLOCATOR>::make(&da);
+
+#if defined BDE_BUILD_TARGET_EXC
+    if (verbose) printf(
+                  "\nTesting correct exceptions are thrown by constructor.\n");
+    {
+#if 0
+        // This test shows up a non-conformance in 'bsl::allocator'
+        // which has undefined behavior when asked for this many
+        // buckets, rather than simply throwing a 'std::bad_alloc'.
+
+        try {
+            Obj mX(HASH,
+                   COMPARE,
+                   native_std::numeric_limits<int>::max(),
+                   1e-30,
+                   objAlloc);
+            ASSERT(false);
+        }
+        catch(const native_std::bad_allocr&) {
+            // This is the expected code path
+        }
+        catch(...) {
+            ASSERT(!!"The wrong exception type was thrown.");
+        }
+#endif
+
+        try {
+            Obj mBad(HASH,
+                     COMPARE,
+                     native_std::numeric_limits<SizeType>::max(),
+                     1e-30,
+                     objAlloc);
+            ASSERT(false);
+        }
+        catch(const native_std::length_error&) {
+            // This is the expected code path
+        }
+        catch(...) {
+            ASSERT(!!"The wrong exception type was thrown.");
+        }
+
+        Obj mR(HASH,
+               COMPARE,
+               3,
+               1e-30,
+               objAlloc);
+        try {
+            mR.insert(VALUES[0]);
+
+            P(mR.numBuckets())
+            P(mR.size());
+
+            ASSERT(false);
+        }
+        catch(const native_std::length_error& e) {
+            // This is the expected code path
+        }
+        catch(...) {
+            ASSERT(!!"The wrong exception type was thrown.");
+        }
+    
+    }
+#endif
+
     if (verbose) printf("\nNegative Testing.\n");
     {
         bsls::AssertTestHandlerGuard hG;
 
-        ASSERT_SAFE_PASS_RAW(Obj(HASH, COMPARE, 0, 1.0f ))
-        ASSERT_SAFE_FAIL_RAW(Obj(HASH, COMPARE, 0, 0.0f ))
-        ASSERT_SAFE_FAIL_RAW(Obj(HASH, COMPARE, 0, -1.0f))
+        ASSERT_SAFE_PASS_RAW(Obj(HASH, COMPARE, 0, 1.0f,  objAlloc))
+        ASSERT_SAFE_FAIL_RAW(Obj(HASH, COMPARE, 0, 0.0f,  objAlloc))
+        ASSERT_SAFE_FAIL_RAW(Obj(HASH, COMPARE, 0, -1.0f, objAlloc))
     }
 }
 
@@ -6170,6 +6338,20 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTesting stateless STL allocators"
                             "\n--------------------------------\n");
         RUN_EACH_TYPE(TestDriver_StdAllocatorConfiguation,
+                      testCase2,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
+
+        if (verbose) printf("\nTesting stateful STL allocators"
+                            "\n-------------------------------\n");
+        RUN_EACH_TYPE(TestDriver_StatefulAllocatorConfiguation1,
+                      testCase2,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
+
+        RUN_EACH_TYPE(TestDriver_StatefulAllocatorConfiguation2,
+                      testCase2,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
+
+        RUN_EACH_TYPE(TestDriver_StatefulAllocatorConfiguation3,
                       testCase2,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
 

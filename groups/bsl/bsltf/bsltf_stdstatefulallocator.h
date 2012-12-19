@@ -215,7 +215,12 @@ class StdStatefulAllocator {
         // is convertible to and from 'other' for any 'OTHER_TYPE' including
         // 'void'.
 
-        typedef StdStatefulAllocator<OTHER_TYPE> other;
+        typedef StdStatefulAllocator<
+                                  OTHER_TYPE,
+                                  PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION,
+                                  PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT,
+                                  PROPAGATE_ON_CONTAINER_SWAP,
+                                  PROPAGATE_ON_CONTAINER_MOVE_ASSIGNENT> other;
     };
 
     // CREATORS
