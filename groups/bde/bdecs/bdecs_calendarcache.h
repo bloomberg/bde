@@ -313,7 +313,7 @@ class bdecs_CalendarCache {
         // expired), then this method first loads 'calendarName' using the
         // loader of this cache.  If the loader fails and no previous calendar
         // entry exists, then return 0.  If the loader fails and an invalid
-        // calendar entry exists, return that invalid calendar.
+        // calendar entry exists, then return that invalid calendar.
 
     void invalidate(const char *calendarName);
         // Mark the cache entry for the specified 'calendarName' as invalid if
