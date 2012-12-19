@@ -12,38 +12,8 @@ BDES_IDENT_RCSID(baejsn_parser_cpp,"$Id$ $CSID$")
 // IMPLEMENTATION NOTES
 // --------------------
 
-// This section will provide a little background on how this component is
-// implemented.  This component presents a parser that has the following
-// states:
-//..
-//                                   +---------+
-//         +-------------------------| 'BEGIN' |
-//         |                         +---------+
-//         V
-//      +-----+ <--------------------------------------------------- +-----+
-//      | '{' |--------------------------+                           | '[' |
-//      +-----+                          |                           +-----+
-//       ^ | ^                           |                            ^ ^ |
-//       | | |                           V                            | | |
-//       | | |                   +---------+                          | | |
-//       | | +-----------------> | 'NAME'  |-----------+------------+ | |
-//       | |                     +---------+           |              | |
-//       | |                             ^             |              | |
-//       | |                 +-----+     |             |              | |
-//       | |                 |     V     V             |              | |
-//       | |                 |   +---------+           +--+           | |
-//       | |                 |   | 'VALUE' |<-------------+-----------+ |
-//       | |                 |   +---------+           +--+             |
-//       | |                 |     | | |               |                |
-//   +-+ | |                 +-----+ | |               |                |
-//   | V V +-------------------------+ |               |                V
-//   |  +-----+                       / \              +-----------> +-----+
-//   |  | '}' | <--------------------+   +-------------------------> | ']' |
-//   |  +-----+ <--------------------------------------------------> +-----+
-//   |   |
-//   +---+
-//..
-// For clarity only the trailing words of tokens is used below.
+// The following table provides the various transitions that need to be
+// handled with the parser.
 //
 //   Current Token             Curr Char    Next Char         Following Token
 //   -------------             ---------    ---------         ---------------
@@ -133,7 +103,7 @@ int baejsn_Parser::extractStringValue()
             ++iter;
         }
 
-        if (iter == d_stringBuffer.length()) {
+        if (iter >= d_stringBuffer.length()) {
             // TBD: Refactor
             if (!firstTime) {
                 d_stringBuffer.resize(d_stringBuffer.length()
@@ -181,7 +151,7 @@ int baejsn_Parser::skipNonWhitespaceOrTillToken()
             ++iter;
         }
 
-        if (iter == d_stringBuffer.length()) {
+        if (iter >= d_stringBuffer.length()) {
             if (!firstTime) {
                 d_stringBuffer.resize(d_stringBuffer.length()
                                                      + BAEJSN_MAX_STRING_SIZE);

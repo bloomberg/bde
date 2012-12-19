@@ -1479,7 +1479,7 @@ L_,
 "e,\"element4\":\"arbitrary string value\",\"element5\":{\"element1\":{\"elem"
 "ent1\":[\"LONDON\",\"LONDON\"],\"element2\":[\"arbitrary string value\",\"ar"
 "bitrary string value\"],\"element3\":true,\"element4\":\"arbitrary string va"
-"lue\",\"element5\":{\"element1\":{\"element1\":[\"LONDON\",\"LONDON\"],\"ele"
+"lue\",\"element5\":{\"element1\":{\"element1\":[\"LONDON\",\"LONDON\"],\"ele" // <-- this
 "ment2\":[\"arbitrary string value\",\"arbitrary string value\"],\"element3\""
 ":true,\"element4\":\"arbitrary string value\",\"element6\":[\"LONDON\",\"LON"
 "DON\"]},\"element2\":[true,true],\"element3\":[1.500000000000000e+00,1.50000"
@@ -3955,8 +3955,8 @@ int main(int argc, char *argv[])
 
             baejsn_Decoder decoder;
             bdesb_FixedMemInStreamBuf isb(jsonText.data(), jsonText.length());
-            const int rc = decoder.decode(&isb, &value);
 
+            const int rc = decoder.decode(&isb, &value);
             if (IS_VALID) {
                 ASSERTV(LINE, decoder.loggedMessages(), rc, 0 == rc);
                 ASSERTV(LINE, isb.length(), 0 == isb.length());
@@ -4009,18 +4009,9 @@ int main(int argc, char *argv[])
 
         ASSERTV(0 == decoder.decode(iss, &bob));
 
-        //rapidjson::GenericReader<char, char> reader;
-        //BaseReaderHandler handler;
-        //TestReaderHandler<test::Employee> handler(&bob);
-        //reader.Parse<rapidjson::kParseInsituFlag>(iss, handler);
-
-        P(bob);
-
-        //ASSERTV(bob.name(), "Bob"         == bob.name());
-        //ASSERT("Some Street" == bob.homeAddress().street());
-        //ASSERT("Some City"   == bob.homeAddress().city());
-        //ASSERT("Some State"  == bob.homeAddress().state());
-        //ASSERT(21            == bob.age());
+        if (veryVerbose) {
+            P(bob);
+        }
       } break;
       case 1: {
         // --------------------------------------------------------------------
