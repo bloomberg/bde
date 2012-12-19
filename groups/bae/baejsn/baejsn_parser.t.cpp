@@ -22,6 +22,34 @@ using bsl::cout;
 using bsl::cerr;
 using bsl::endl;
 
+// ============================================================================
+//                             TEST PLAN
+// ----------------------------------------------------------------------------
+//                             Overview
+//                             --------
+// The component under test implements a parser for traversing a stream filled
+// with JSON data and allows populating an in-memory structure with almost no
+// memory allocations.  The implementation works as a finite state machine
+// moving from one token to another when the 'advanceToNextToken' function is
+// called.  The majority of this test driver tests that function by starting
+// at a particular token, calling that function, and ensuring that after the
+// advance the next token and the data value is as expected.
+// ----------------------------------------------------------------------------
+// CREATORS
+// [ 2] baejsn_Parser(bslma_Allocator *bA = 0);
+// [ 2] ~baejsn_Parser();
+//
+// MANIPULATORS
+// [ 9] void reset(bsl::streambuf &streamBuf);
+// [ 3] int advanceToNextToken();
+//
+// ACCESSORS
+// [ 3] TokenType tokenType() const;
+// [ 3] int value(bslstl::StringRef *data) const;
+// ----------------------------------------------------------------------------
+// [ 1] BREATHING TEST
+// [ 9] USAGE EXAMPLE
+
 //=============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
@@ -115,13 +143,14 @@ bsl::ostream& operator<<(bsl::ostream& stream, Obj::TokenType value)
 #define CASE(X) case(Obj::X): stream << #X; break;
 
     switch (value) {
-      CASE(BAEJSN_ERROR)
+      CASE(BAEJSN_BEGIN)
       CASE(BAEJSN_ELEMENT_NAME)
       CASE(BAEJSN_START_OBJECT)
       CASE(BAEJSN_END_OBJECT)
       CASE(BAEJSN_START_ARRAY)
       CASE(BAEJSN_END_ARRAY)
       CASE(BAEJSN_ELEMENT_VALUE)
+      CASE(BAEJSN_ERROR)
       default: stream << "(* UNKNOWN *)"; break;
     }
 
@@ -149,6 +178,44 @@ int main(int argc, char *argv[])
     bslma_Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 10: {
+        // --------------------------------------------------------------------
+        // USAGE EXAMPLE
+        //   Extracted from component header file.
+        //
+        // Concerns:
+        //: 1 The usage example provided in the component header file compiles,
+        //:   links, and runs as shown.
+        //
+        // Plan:
+        //: 1 Incorporate usage example from header into test driver, remove
+        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //:   (C-1)
+        //
+        // Testing:
+        //   USAGE EXAMPLE
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "USAGE EXAMPLE" << endl
+                          << "=============" << endl;
+      } break;
+      case 9: {
+        // --------------------------------------------------------------------
+        // TESTING 'reset'
+        //
+        // Concerns:
+        //
+        // Plan:
+        //
+        // Testing:
+        //   void reset();
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "TESTING 'reset'" << endl
+                          << "===============" << endl;
+      } break;
       case 8: {
         // --------------------------------------------------------------------
         // TESTING 'advanceToNextToken' TO BAEJSN_END_ARRAY
@@ -157,7 +224,17 @@ int main(int argc, char *argv[])
         //: 1 START_ARRAY    -> END_ARRAY                            '[' -> ']'
         //: 2 VALUE (number) -> END_ARRAY                          VALUE -> ']'
         //: 3 VALUE (string) -> END_ARRAY                            '"' -> ']'
-        //: 4 VALUE (object) -> END_ARRAY                            '}' -> ']'
+        //: 4 END_OBJECT     -> END_ARRAY                            '}' -> ']'
+        //: 5 END_ARRAY      -> END_ARRAY                            ']' -> ']'
+        //
+        // Errors:
+        //: 1 NAME (no ':')         -> END_ARRAY                     '"' -> ']'
+        //: 2 NAME (with ':')       -> END_ARRAY                     ':' -> ']'
+        //: 3 NAME (with ',')       -> END_ARRAY             NAME -> ',' -> ']'
+        //: 4 VALUE (with ',')      -> END_ARRAY            VALUE -> ',' -> ']'
+        //: 5 START_OBJECT          -> END_ARRAY                     '{' -> ']'
+        //: 6 END_OBJECT (with ',') -> END_ARRAY              '}' -> ',' -> ']'
+        //: 7 END_ARRAY (with ',')  -> END_ARRAY              ']' -> ',' -> ']'
         //
         // Plan:
         //
@@ -465,7 +542,7 @@ int main(int argc, char *argv[])
                 WS   "\"name\""
                 WS            ":"
                 WS               "["
-                WS                 "\"John,\""
+                WS                 "\"John\","
                 WS                 "\"Smith\""
                 WS                           "]",
                 5,
@@ -480,8 +557,8 @@ int main(int argc, char *argv[])
                 WS   "\"name\""
                 WS            ":"
                 WS               "["
-                WS                 "\"John,\""
-                WS                 "\"Smith,\""
+                WS                 "\"John\","
+                WS                 "\"Smith\","
                 WS                 "\"Ryan\""
                 WS                           "]",
                 6,
@@ -584,7 +661,7 @@ int main(int argc, char *argv[])
                 ""
             },
 
-            // value (object) -> ']', i.e. '}' -> ']'
+            // '}' -> ']'
             {
                 L_,
                 "{"
@@ -622,7 +699,9 @@ int main(int argc, char *argv[])
                             ":"
                               "["
                                 "{"
-                                  "\"bid_price\":1.500012"
+                                  "\"bid_price\""
+                                                ":"
+                                                  "1.500012"
                                 "}"
                               "]",
                 7,
@@ -656,11 +735,17 @@ int main(int argc, char *argv[])
                             ":"
                               "["
                                 "{"
-                                  "\"name\":\"CompanyName\","
-                                  "\"bid_price\":1.500012"
-                                 "}"
+                                  "\"name\""
+                                           ":"
+                                             "\"CompanyName\""
+                                "},"
+                                "{"
+                                  "\"bid_price\""
+                                                ":"
+                                                  "1.500012"
+                                "}"
                                "]",
-                9,
+                11,
                 true,
                 Obj::BAEJSN_END_ARRAY,
                 false,
@@ -712,6 +797,356 @@ int main(int argc, char *argv[])
                 false,
                 ""
             },
+
+            // ']' -> ']'
+            {
+                L_,
+                "{"
+                  "\"price\""
+                            ":"
+                              "["
+                                "["
+                                "]"
+                              "]",
+                5,
+                true,
+                Obj::BAEJSN_END_ARRAY,
+                false,
+                ""
+            },
+            {
+                L_,
+                WS "{"
+                WS   "\"price\""
+                WS             ":"
+                WS               "["
+                WS                 "["
+                WS                 "]"
+                WS               "]",
+                5,
+                true,
+                Obj::BAEJSN_END_ARRAY,
+                false,
+                ""
+            },
+            {
+                L_,
+                "{"
+                  "\"price\""
+                            ":"
+                              "["
+                                "["
+                                  "\"bid_price\""
+                                "]"
+                              "]",
+                5,
+                true,
+                Obj::BAEJSN_END_ARRAY,
+                false,
+                ""
+            },
+            {
+                L_,
+                WS "{"
+                WS   "\"price\""
+                WS             ":"
+                WS               "["
+                WS                 "["
+                WS                   "\"bid_price\""
+                WS                 "]"
+                WS               "]",
+                5,
+                true,
+                Obj::BAEJSN_END_ARRAY,
+                false,
+                ""
+            },
+            {
+                L_,
+                "{"
+                  "\"price\""
+                            ":"
+                              "["
+                                "["
+                                "],"
+                                "["
+                                "]"
+                              "]",
+                6,
+                true,
+                Obj::BAEJSN_END_ARRAY,
+                false,
+                ""
+            },
+            {
+                L_,
+                WS "{"
+                WS   "\"price\""
+                WS             ":"
+                WS               "["
+                WS                 "["
+                WS                 "],"
+                WS                 "["
+                WS                 "]"
+                WS               "]",
+                6,
+                true,
+                Obj::BAEJSN_END_ARRAY,
+                false,
+                ""
+            },
+            {
+                L_,
+                "{"
+                  "\"price\""
+                            ":"
+                              "["
+                                "["
+                                  "123"
+                                "],"
+                                "["
+                                  "456"
+                                "]"
+                              "]",
+                8,
+                true,
+                Obj::BAEJSN_END_ARRAY,
+                false,
+                ""
+            },
+            {
+                L_,
+                WS "{"
+                WS   "\"price\""
+                WS             ":"
+                WS               "["
+                WS                 "["
+                WS                   "123"
+                WS                 "],"
+                WS                 "["
+                WS                   "456"
+                WS                 "]"
+                WS               "]",
+                8,
+                true,
+                Obj::BAEJSN_END_ARRAY,
+                false,
+                ""
+            },
+
+            // Error
+            {
+                L_,
+                "{"
+                  "\"name\""
+                           "]",
+                2,
+                false,
+                Obj::BAEJSN_ERROR,
+                false,
+                ""
+            },
+            {
+                L_,
+                WS "{"
+                WS   "\"name\""
+                WS            "]",
+                2,
+                false,
+                Obj::BAEJSN_ERROR,
+                false,
+                ""
+            },
+            {
+                L_,
+                "{"
+                  "\"name\""
+                           ":"
+                             "]",
+                2,
+                false,
+                Obj::BAEJSN_ERROR,
+                false,
+                ""
+            },
+            {
+                L_,
+                WS "{"
+                WS   "\"name\""
+                WS            ":"
+                WS              "]",
+                2,
+                false,
+                Obj::BAEJSN_ERROR,
+                false,
+                ""
+            },
+            {
+                L_,
+                "{"
+                  "\"name\""
+                           ","
+                             "]",
+                2,
+                false,
+                Obj::BAEJSN_ERROR,
+                false,
+                ""
+            },
+            {
+                L_,
+                WS "{"
+                WS   "\"name\""
+                WS            ","
+                WS              "]",
+                2,
+                false,
+                Obj::BAEJSN_ERROR,
+                false,
+                ""
+            },
+            {
+                L_,
+                "{"
+                  "\"name\""
+                           ":"
+                             "\"John\""
+                                      ","
+                                        "]",
+                3,
+                false,
+                Obj::BAEJSN_ERROR,
+                false,
+                ""
+            },
+            {
+                L_,
+                WS "{"
+                WS   "\"name\""
+                WS            ":"
+                WS              "\"John\""
+                WS                       ","
+                WS                         "]",
+                3,
+                false,
+                Obj::BAEJSN_ERROR,
+                false,
+                ""
+            },
+            {
+                L_,
+                "{"
+                  "\"name\""
+                           ":"
+                             "{"
+                               "]",
+                3,
+                false,
+                Obj::BAEJSN_ERROR,
+                false,
+                ""
+            },
+            {
+                L_,
+                WS "{"
+                WS   "\"name\""
+                WS            ":"
+                WS              "{"
+                WS                "]",
+                3,
+                false,
+                Obj::BAEJSN_ERROR,
+                false,
+                ""
+            },
+            {
+                L_,
+                "{"
+                  "\"name\""
+                           ":"
+                             "["
+                               "1,"
+                             "]",
+                4,
+                false,
+                Obj::BAEJSN_ERROR,
+                false,
+                ""
+            },
+            {
+                L_,
+                WS "{"
+                WS   "\"name\""
+                WS            ":"
+                WS              "["
+                WS                "1,"
+                WS              "]",
+                4,
+                false,
+                Obj::BAEJSN_ERROR,
+                false,
+                ""
+            },
+            {
+                L_,
+                "{"
+                  "\"name\""
+                           ":"
+                             "["
+                               "{"
+                               "},"
+                             "]",
+                5,
+                false,
+                Obj::BAEJSN_ERROR,
+                false,
+                ""
+            },
+            {
+                L_,
+                WS "{"
+                WS   "\"name\""
+                WS            ":"
+                WS              "["
+                WS                "{"
+                WS                "},"
+                WS              "]",
+                5,
+                false,
+                Obj::BAEJSN_ERROR,
+                false,
+                ""
+            },
+            {
+                L_,
+                "{"
+                  "\"name\""
+                           ":"
+                             "["
+                               "["
+                               "],"
+                             "]",
+                5,
+                false,
+                Obj::BAEJSN_ERROR,
+                false,
+                ""
+            },
+            {
+                L_,
+                WS "{"
+                WS   "\"name\""
+                WS            ":"
+                WS              "["
+                WS                "["
+                WS                "],"
+                WS              "]",
+                5,
+                false,
+                Obj::BAEJSN_ERROR,
+                false,
+                ""
+            },
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -732,13 +1167,14 @@ int main(int argc, char *argv[])
             }
 
             Obj mX;  const Obj& X = mX;
-            ASSERTV(X.tokenType(), Obj::BAEJSN_ERROR == X.tokenType());
+            ASSERTV(X.tokenType(), Obj::BAEJSN_BEGIN == X.tokenType());
 
             mX.reset(iss.rdbuf());
 
             for (int i = 0; i < PRE_MOVES; ++i) {
-                ASSERTV(i, 0 == mX.advanceToNextToken());
-                ASSERTV(X.tokenType(), Obj::BAEJSN_ERROR != X.tokenType());
+                ASSERTV(LINE, i, 0 == mX.advanceToNextToken());
+                ASSERTV(LINE, X.tokenType(),
+                        Obj::BAEJSN_ERROR != X.tokenType());
             }
 
             if (IS_VALID) {
@@ -762,8 +1198,15 @@ int main(int argc, char *argv[])
         // TESTING 'advanceToNextToken' TO BAEJSN_START_ARRAY
         //
         // Concerns:
-        //: 1 NAME        -> START_ARRAY                             ':' -> '['
-        //: 2 START_ARRAY -> START_ARRAY                             '[' -> '['
+        //: 1 NAME             -> START_ARRAY                        ':' -> '['
+        //: 2 START_ARRAY      -> START_ARRAY                        '[' -> '['
+        //: 3 END_ARRAY        -> START_ARRAY                 ']' -> ',' -> '['
+        //
+        // Errors:
+        //: 1 NAME (no ':')    -> START_ARRAY                        '"' -> '['
+        //: 2 VALUE (with ',') -> START_ARRAY               VALUE -> ',' -> '['
+        //: 3 START_OBJECT     -> START_ARRAY                        '{' -> '['
+        //: 4 END_OBJECT       -> START_ARRAY                        '}' -> '['
         //
         // Plan:
         //
@@ -875,6 +1318,142 @@ int main(int argc, char *argv[])
                 false,
                 ""
             },
+
+            // '[' -> '[' (array of arrays)
+            {
+                L_,
+                "{"
+                  "\"price\""
+                            ":"
+                              "["
+                                "["
+                                "],"
+                                "[",
+                5,
+                true,
+                Obj::BAEJSN_START_ARRAY,
+                false,
+                ""
+            },
+            {
+                L_,
+                WS "{"
+                WS   "\"price\""
+                WS             ":"
+                WS               "["
+                WS                 "["
+                WS                 "],"
+                WS                 "[",
+                5,
+                true,
+                Obj::BAEJSN_START_ARRAY,
+                false,
+                ""
+            },
+
+            // Error
+            {
+                L_,
+                "{"
+                  "\"price\""
+                            "[",
+                2,
+                false,
+                Obj::BAEJSN_ERROR,
+                false,
+                ""
+            },
+            {
+                L_,
+                WS "{"
+                WS   "\"price\""
+                WS             "[",
+                2,
+                false,
+                Obj::BAEJSN_ERROR,
+                false,
+                ""
+            },
+            {
+                L_,
+                "{"
+                  "\"price\""
+                            ":"
+                              "1.500012,"
+                                        "[",
+                3,
+                false,
+                Obj::BAEJSN_ERROR,
+                false,
+                ""
+            },
+            {
+                L_,
+                WS "{"
+                WS   "\"price\""
+                WS             ":"
+                WS               "1.500012,"
+                WS                         "[",
+                3,
+                false,
+                Obj::BAEJSN_ERROR,
+                false,
+                ""
+            },
+            {
+                L_,
+                "{"
+                  "\"price\""
+                            ":"
+                              "{"
+                                "[",
+                3,
+                false,
+                Obj::BAEJSN_ERROR,
+                false,
+                ""
+            },
+            {
+                L_,
+                WS "{"
+                WS   "\"price\""
+                WS             ":"
+                WS               "{"
+                WS                 "[",
+                3,
+                false,
+                Obj::BAEJSN_ERROR,
+                false,
+                ""
+            },
+            {
+                L_,
+                "{"
+                  "\"price\""
+                            ":"
+                              "{"
+                              "},"
+                              "[",
+                4,
+                false,
+                Obj::BAEJSN_ERROR,
+                false,
+                ""
+            },
+            {
+                L_,
+                WS "{"
+                WS   "\"price\""
+                WS             ":"
+                WS               "{"
+                WS               "},"
+                WS               "[",
+                4,
+                false,
+                Obj::BAEJSN_ERROR,
+                false,
+                ""
+            },
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -895,7 +1474,7 @@ int main(int argc, char *argv[])
             }
 
             Obj mX;  const Obj& X = mX;
-            ASSERTV(X.tokenType(), Obj::BAEJSN_ERROR == X.tokenType());
+            ASSERTV(X.tokenType(), Obj::BAEJSN_BEGIN == X.tokenType());
 
             mX.reset(iss.rdbuf());
 
@@ -925,14 +1504,20 @@ int main(int argc, char *argv[])
         // TESTING 'advanceToNextToken' TO BAEJSN_END_OBJECT
         //
         // Concerns:
-        //: 1 START_OBJECT   -> END_OBJECT                           '{' -> '}'
-        //: 2 VALUE (number) -> END_OBJECT                         VALUE -> '}'
-        //: 3 VALUE (string) -> END_OBJECT                           '"' -> '}'
-        //: 4 START_OBJECT   -> END_OBJECT                    '[' -> '{' -> '}'
-        //: 5 START_OBJECT   -> END_OBJECT                    '{' -> '{' -> '}'
-        //: 6 END_OBJECT     -> END_OBJECT             '{' -> '{' -> '}' -> '}'
-        //: 7 END_OBJECT     -> END_OBJECT      '{' -> '{' -> '{' -> '}' -> '}'
-        //: 8 END_OBJECT     -> END_OBJECT      '[' -> '{' -> '}' -> '{' -> '}'
+        //: 1 START_OBJECT     -> END_OBJECT                         '{' -> '}'
+        //: 2 VALUE (number)   -> END_OBJECT                       VALUE -> '}'
+        //: 3 VALUE (string)   -> END_OBJECT                         '"' -> '}'
+        //: 4 START_OBJECT     -> END_OBJECT                  '[' -> '{' -> '}'
+        //: 5 START_OBJECT     -> END_OBJECT                  '{' -> '{' -> '}'
+        //: 6 END_OBJECT       -> END_OBJECT           '{' -> '{' -> '}' -> '}'
+        //: 7 END_OBJECT       -> END_OBJECT    '{' -> '{' -> '{' -> '}' -> '}'
+        //: 8 END_ARRAY        -> END_OBJECT                  '[' -> ']' -> '}'
+        //
+        // Errors:
+        //: 1 NAME             -> END_OBJECT                      '"'  -> '}'
+        //: 2 NAME (with ':')  -> END_OBJECT                      ':'  -> '}'
+        //: 3 VALUE (with ',') -> END_OBJECT                    VALUE  -> '}'
+        //: 4 START_ARRAY      -> END_OBJECT                    '['    -> VALUE
         //
         // Plan:
         //
@@ -1165,7 +1750,6 @@ int main(int argc, char *argv[])
                 false,
                 ""
             },
-
 
             // '{' -> '{' -> '}'
             {
@@ -1486,6 +2070,185 @@ int main(int argc, char *argv[])
                 false,
                 ""
             },
+
+            // '[' -> ']' -> '}'
+            {
+                L_,
+                "{"
+                  "\"price\""
+                            ":"
+                              "{"
+                                "\"full name\""
+                                              ":"
+                                                "["
+                                                "]"
+                              "}",
+                6,
+                true,
+                Obj::BAEJSN_END_OBJECT,
+                false,
+                ""
+            },
+            {
+                L_,
+                WS "{"
+                WS   "\"price\""
+                WS             ":"
+                WS               "{"
+                WS                 "\"full name\""
+                WS                               ":"
+                WS                                 "["
+                WS                                 "]"
+                WS               "}",
+                6,
+                true,
+                Obj::BAEJSN_END_OBJECT,
+                false,
+                ""
+            },
+            {
+                L_,
+                WS "{"
+                WS   "\"price\""
+                WS             ":"
+                WS               "{"
+                WS                 "\"full name\""
+                WS                               ":"
+                WS                                 "["
+                WS                                 "]" WS
+                WS               "}",
+                6,
+                true,
+                Obj::BAEJSN_END_OBJECT,
+                false,
+                ""
+            },
+
+            // Error
+            {
+                L_,
+                "{"
+                  "\"name\""
+                           "}",
+                2,
+                false,
+                Obj::BAEJSN_ERROR,
+                false,
+                ""
+            },
+            {
+                L_,
+                WS "{"
+                WS   "\"name\""
+                WS            "}",
+                2,
+                false,
+                Obj::BAEJSN_ERROR,
+                false,
+                ""
+            },
+            {
+                L_,
+                "{"
+                  "\"name\""
+                           ":"
+                             "}",
+                2,
+                false,
+                Obj::BAEJSN_ERROR,
+                false,
+                ""
+            },
+            {
+                L_,
+                WS "{"
+                WS   "\"name\""
+                WS            ":"
+                WS              "}",
+                2,
+                false,
+                Obj::BAEJSN_ERROR,
+                false,
+                ""
+            },
+            {
+                L_,
+                "{"
+                  "\"name\""
+                           ","
+                             "}",
+                2,
+                false,
+                Obj::BAEJSN_ERROR,
+                false,
+                ""
+            },
+            {
+                L_,
+                WS "{"
+                WS   "\"name\""
+                WS            ","
+                WS              "}",
+                2,
+                false,
+                Obj::BAEJSN_ERROR,
+                false,
+                ""
+            },
+            {
+                L_,
+                "{"
+                  "\"name\""
+                           ":"
+                             "\"John\""
+                                      ","
+                                        "}",
+                3,
+                false,
+                Obj::BAEJSN_ERROR,
+                false,
+                ""
+            },
+            {
+                L_,
+                WS "{"
+                WS   "\"name\""
+                WS            ":"
+                WS              "\"John\""
+                WS                       ","
+                WS                         "}",
+                3,
+                false,
+                Obj::BAEJSN_ERROR,
+                false,
+                ""
+            },
+            {
+                L_,
+                "{"
+                  "\"name\""
+                           ":"
+                             "["
+                               "}",
+                3,
+                false,
+                Obj::BAEJSN_ERROR,
+                false,
+                ""
+            },
+            {
+                L_,
+                WS "{"
+                WS   "\"name\""
+                WS            ":"
+                WS              "["
+                WS                "}",
+                3,
+                false,
+                Obj::BAEJSN_ERROR,
+                false,
+                ""
+            }
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -1506,7 +2269,7 @@ int main(int argc, char *argv[])
             }
 
             Obj mX;  const Obj& X = mX;
-            ASSERTV(X.tokenType(), Obj::BAEJSN_ERROR == X.tokenType());
+            ASSERTV(X.tokenType(), Obj::BAEJSN_BEGIN == X.tokenType());
 
             mX.reset(iss.rdbuf());
 
@@ -1544,6 +2307,11 @@ int main(int argc, char *argv[])
         //: 6 VALUE (string) -> VALUE (string)                   VALUE -> VALUE
         //: 7 VALUE (number) -> VALUE (string)                   VALUE -> VALUE
         //: 8 VALUE (string) -> VALUE (number)                   VALUE -> VALUE
+        //
+        // Errors:
+        //: 1 VALUE (no ,)   -> VALUE                           VALUE  -> VALUE
+        //: 2 END_OBJECT     -> VALUE                             '}'  -> VALUE
+        //: 3 END_ARRAY      -> VALUE                             ']'  -> VALUE
         //
         // Plan:
         //
@@ -1893,7 +2661,7 @@ int main(int argc, char *argv[])
                 WS   "\"name\""
                 WS            ":"
                 WS               "["
-                WS                 "\"John,\""
+                WS                 "\"John\","
                 WS                 "\"Smith\""
                 WS                           "]",
                 4,
@@ -1908,8 +2676,8 @@ int main(int argc, char *argv[])
                 WS   "\"name\""
                 WS            ":"
                 WS               "["
-                WS                 "\"John,\""
-                WS                 "\"Smith,\""
+                WS                 "\"John\","
+                WS                 "\"Smith\","
                 WS                 "\"Ryan\""
                 WS                           "]",
                 5,
@@ -2097,7 +2865,7 @@ int main(int argc, char *argv[])
                 WS   "\"name\""
                 WS            ":"
                 WS               "["
-                WS                 "\"John,\""
+                WS                 "\"John\","
                 WS                 "12345,"
                 WS                 "\"Ryan\""
                 WS                           "]",
@@ -2138,6 +2906,182 @@ int main(int argc, char *argv[])
                 true,
                 "12345"
             },
+
+            // Error
+            {
+                L_,
+                "{"
+                  "\"name\""
+                           ":"
+                             "\"John\""
+                             " "
+                             "12345",
+                3,
+                false,
+                Obj::BAEJSN_ERROR,
+                false,
+                ""
+            },
+            {
+                L_,
+                WS "{"
+                WS   "\"name\""
+                WS            ":"
+                WS              "\"John\""
+                WS              " "
+                WS              "12345",
+                3,
+                false,
+                Obj::BAEJSN_ERROR,
+                false,
+                ""
+            },
+            {
+                L_,
+                "{"
+                  "\"name\""
+                           ":"
+                             "12345"
+                             " "
+                             "\"John\"",
+                3,
+                false,
+                Obj::BAEJSN_ERROR,
+                false,
+                ""
+            },
+            {
+                L_,
+                WS "{"
+                WS   "\"name\""
+                WS            ":"
+                WS              "12345"
+                WS              " "
+                WS              "\"John\"",
+                3,
+                false,
+                Obj::BAEJSN_ERROR,
+                false,
+                ""
+            },
+            {
+                L_,
+                "{"
+                  "\"name\""
+                           ":"
+                             "["
+                               "\"John\""
+                               " "
+                               "12345",
+                4,
+                false,
+                Obj::BAEJSN_ERROR,
+                false,
+                ""
+            },
+            {
+                L_,
+                WS "{"
+                WS   "\"name\""
+                WS            ":"
+                WS              "["
+                WS                "\"John\""
+                WS                " "
+                WS                "12345",
+                4,
+                false,
+                Obj::BAEJSN_ERROR,
+                false,
+                ""
+            },
+            {
+                L_,
+                "{"
+                  "\"bid_price\""
+                                ":"
+                                  "{"
+                                  "}"
+                                    "12345",
+                4,
+                false,
+                Obj::BAEJSN_ERROR,
+                false,
+                ""
+            },
+            {
+                L_,
+                WS "{"
+                WS   "\"bid_price\""
+                WS                 ":"
+                WS                   "{"
+                WS                   "}"
+                WS                     "12345",
+                4,
+                false,
+                Obj::BAEJSN_ERROR,
+                false,
+                ""
+            },
+            {
+                L_,
+                "{"
+                  "\"bid_price\""
+                                ":"
+                                  "["
+                                  "]"
+                                    "12345",
+                4,
+                false,
+                Obj::BAEJSN_ERROR,
+                false,
+                ""
+            },
+            {
+                L_,
+                WS "{"
+                WS   "\"bid_price\""
+                WS                 ":"
+                WS                   "["
+                WS                   "]"
+                WS                     "12345",
+                4,
+                false,
+                Obj::BAEJSN_ERROR,
+                false,
+                ""
+            },
+            {
+                L_,
+                "{"
+                  "\"bid_price\""
+                                ":"
+                                  "["
+                                    "1"
+                                    " "
+                                    "2"
+                                  "]",
+                4,
+                false,
+                Obj::BAEJSN_ERROR,
+                false,
+                ""
+            },
+            {
+                L_,
+                WS "{"
+                WS   "\"bid_price\""
+                WS                 ":"
+                WS                   "["
+                WS                     "1"
+                WS                     " "
+                WS                     "2"
+                WS                   "]",
+                4,
+                false,
+                Obj::BAEJSN_ERROR,
+                false,
+                ""
+            },
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -2158,13 +3102,14 @@ int main(int argc, char *argv[])
             }
 
             Obj mX;  const Obj& X = mX;
-            ASSERTV(X.tokenType(), Obj::BAEJSN_ERROR == X.tokenType());
+            ASSERTV(X.tokenType(), Obj::BAEJSN_BEGIN == X.tokenType());
 
             mX.reset(iss.rdbuf());
 
             for (int i = 0; i < PRE_MOVES; ++i) {
-                ASSERTV(i, 0 == mX.advanceToNextToken());
-                ASSERTV(X.tokenType(), Obj::BAEJSN_ERROR != X.tokenType());
+                ASSERTV(i, LINE, 0 == mX.advanceToNextToken());
+                ASSERTV(LINE, X.tokenType(),
+                        Obj::BAEJSN_ERROR != X.tokenType());
             }
 
             if (IS_VALID) {
@@ -2188,7 +3133,16 @@ int main(int argc, char *argv[])
         // TESTING 'advanceToNextToken' TO BAEJSN_NAME
         //
         // Concerns:
-        //: 1 START_OBJECT -> NAME                                  '{' -> NAME
+        //: 1 START_OBJECT   -> NAME                                 '{' -> '"'
+        //: 2 END_OBJECT     -> NAME            ':' -> '{' -> '}' -> ',' -> '"'
+        //: 3 END_ARRAY      -> NAME            ':' -> '[' -> ']' -> ',' -> '"'
+        //: 4 VALUE (number) -> NAME                 ':' -> VALUE -> ',' -> '"'
+        //: 5 VALUE (string) -> NAME                 ':' -> VALUE -> ',' -> '"'
+        //
+        // Errors:
+        //: 1 END_OBJECT (no ',') -> NAME                           '}'  -> '"'
+        //: 2 END_ARRAY (no ',')  -> NAME                           ']'  -> '"'
+        //: 3 NAME                -> NAME                           '"'  -> '"'
         //
         // Plan:
         //
@@ -2309,6 +3263,332 @@ int main(int argc, char *argv[])
                 true,
                 "element " WS " name"
             },
+
+            // value (number) -> '"'
+            {
+                L_,
+                "{"
+                  "\"bid_price\""
+                                ":"
+                                  "1.500012,"
+                  "\"name\"",
+                3,
+                true,
+                Obj::BAEJSN_ELEMENT_NAME,
+                true,
+                "name"
+            },
+            {
+                L_,
+                WS "{"
+                WS   "\"bid_price\""
+                WS                 ":"
+                WS                   "1.500012,"
+                WS   "\"name\"",
+                3,
+                true,
+                Obj::BAEJSN_ELEMENT_NAME,
+                true,
+                "name"
+            },
+            {
+                L_,
+                "{"
+                  "\"name\""
+                           ":"
+                             "\"John\","
+                  "\"bid_price\"",
+                3,
+                true,
+                Obj::BAEJSN_ELEMENT_NAME,
+                true,
+                "bid_price"
+            },
+            {
+                L_,
+                WS "{"
+                WS   "\"name\""
+                WS            ":"
+                WS              "\"John\","
+                WS   "\"bid_price\"",
+                3,
+                true,
+                Obj::BAEJSN_ELEMENT_NAME,
+                true,
+                "bid_price"
+            },
+
+            // '}' -> '"'
+            {
+                L_,
+                "{"
+                  "\"price\""
+                            ":"
+                              "{"
+                                "\"bid_price\":1.500012"
+                              "},"
+                  "\"date\"",
+                6,
+                true,
+                Obj::BAEJSN_ELEMENT_NAME,
+                true,
+                "date"
+            },
+            {
+                L_,
+                WS "{"
+                WS   "\"price\""
+                WS             ":"
+                WS               "{"
+                WS                 "\"bid_price\":1.500012"
+                WS               "},"
+                WS   "\"date\"",
+                6,
+                true,
+                Obj::BAEJSN_ELEMENT_NAME,
+                true,
+                "date"
+            },
+            {
+                L_,
+                "{"
+                  "\"price\""
+                            ":"
+                              "{"
+                                "\"name\":\"CompanyName\","
+                                "\"bid_price\":1.500012"
+                              "},"
+                  "\"date\"",
+                8,
+                true,
+                Obj::BAEJSN_ELEMENT_NAME,
+                true,
+                "date"
+            },
+            {
+                L_,
+                WS "{"
+                WS   "\"price\""
+                WS             ":"
+                WS               "{"
+                WS                 "\"name\":\"CompanyName\","
+                WS                 "\"bid_price\":1.500012"
+                WS               "},"
+                WS   "\"date\"",
+                8,
+                true,
+                Obj::BAEJSN_ELEMENT_NAME,
+                true,
+                "date"
+            },
+
+            // ']' -> '"'
+            {
+                L_,
+                "{"
+                  "\"price\""
+                            ":"
+                              "["
+                                "1.500012"
+                              "],"
+                  "\"date\"",
+                5,
+                true,
+                Obj::BAEJSN_ELEMENT_NAME,
+                true,
+                "date"
+            },
+            {
+                L_,
+                WS "{"
+                WS   "\"price\""
+                WS             ":"
+                WS               "["
+                WS                 "1.500012"
+                WS               "],"
+                WS   "\"date\"",
+                5,
+                true,
+                Obj::BAEJSN_ELEMENT_NAME,
+                true,
+                "date"
+            },
+            {
+                L_,
+                "{"
+                  "\"price\""
+                            ":"
+                              "["
+                                "1.500012,"
+                                "-2.12345"
+                              "],"
+                  "\"date\"",
+                6,
+                true,
+                Obj::BAEJSN_ELEMENT_NAME,
+                true,
+                "date"
+            },
+            {
+                L_,
+                WS "{"
+                WS   "\"price\""
+                WS             ":"
+                WS               "["
+                WS                 "1.500012,"
+                WS                 "-2.12345"
+                WS               "],"
+                WS   "\"date\"",
+                6,
+                true,
+                Obj::BAEJSN_ELEMENT_NAME,
+                true,
+                "date"
+            },
+            {
+                L_,
+                "{"
+                  "\"name\""
+                           ":"
+                              "["
+                                "\"John\""
+                              "],"
+                  "\"date\"",
+                5,
+                true,
+                Obj::BAEJSN_ELEMENT_NAME,
+                true,
+                "date"
+            },
+            {
+                L_,
+                WS "{"
+                WS   "\"name\""
+                WS            ":"
+                WS               "["
+                WS                 "\"John\""
+                WS               "],"
+                WS   "\"date\"",
+                5,
+                true,
+                Obj::BAEJSN_ELEMENT_NAME,
+                true,
+                "date"
+            },
+            {
+                L_,
+                "{"
+                  "\"name\""
+                           ":"
+                              "["
+                                "\"John\","
+                                "\"Smith\""
+                              "],"
+                  "\"date\"",
+                6,
+                true,
+                Obj::BAEJSN_ELEMENT_NAME,
+                true,
+                "date"
+            },
+            {
+                L_,
+                WS "{"
+                WS   "\"name\""
+                WS            ":"
+                WS               "["
+                WS                 "\"John\","
+                WS                 "\"Smith\""
+                WS               "],"
+                WS   "\"date\"",
+                6,
+                true,
+                Obj::BAEJSN_ELEMENT_NAME,
+                true,
+                "date"
+            },
+
+            // Error
+            {
+                L_,
+                "{"
+                  "\"bid_price\""
+                                " "
+                                  "\"value\"",
+                2,
+                false,
+                Obj::BAEJSN_ERROR,
+                false,
+                ""
+            },
+            {
+                L_,
+                WS "{"
+                WS   "\"bid_price\""
+                WS                 " "
+                WS                   "\"value\"",
+                2,
+                false,
+                Obj::BAEJSN_ERROR,
+                false,
+                ""
+            },
+            {
+                L_,
+                "{"
+                  "\"bid_price\""
+                                ":"
+                                  "{"
+                                  "}"
+                                    "\"value\"",
+                4,
+                false,
+                Obj::BAEJSN_ERROR,
+                false,
+                ""
+            },
+            {
+                L_,
+                WS "{"
+                WS   "\"bid_price\""
+                WS                 ":"
+                WS                   "{"
+                WS                   "}"
+                WS                     "\"value\"",
+                4,
+                false,
+                Obj::BAEJSN_ERROR,
+                false,
+                ""
+            },
+            {
+                L_,
+                "{"
+                  "\"bid_price\""
+                                ":"
+                                  "["
+                                  "]"
+                                    "\"value\"",
+                4,
+                false,
+                Obj::BAEJSN_ERROR,
+                false,
+                ""
+            },
+            {
+                L_,
+                WS "{"
+                WS   "\"bid_price\""
+                WS                 ":"
+                WS                   "["
+                WS                   "]"
+                WS                     "\"value\"",
+                4,
+                false,
+                Obj::BAEJSN_ERROR,
+                false,
+                ""
+            },
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -2329,13 +3609,14 @@ int main(int argc, char *argv[])
             }
 
             Obj mX;  const Obj& X = mX;
-            ASSERTV(X.tokenType(), Obj::BAEJSN_ERROR == X.tokenType());
+            ASSERTV(X.tokenType(), Obj::BAEJSN_BEGIN == X.tokenType());
 
             mX.reset(iss.rdbuf());
 
             for (int i = 0; i < PRE_MOVES; ++i) {
-                ASSERTV(i, 0 == mX.advanceToNextToken());
-                ASSERTV(X.tokenType(), Obj::BAEJSN_ERROR != X.tokenType());
+                ASSERTV(i, LINE, 0 == mX.advanceToNextToken());
+                ASSERTV(LINE, X.tokenType(),
+                        Obj::BAEJSN_ERROR != X.tokenType());
             }
 
             if (IS_VALID) {
@@ -2359,11 +3640,16 @@ int main(int argc, char *argv[])
         // TESTING 'advanceToNextToken' TO BAEJSN_START_OBJECT
         //
         // Concerns:
-        //: 1 BEGIN          -> START_OBJECT                       ERROR -> '{'
+        //: 1 BEGIN          -> START_OBJECT                       BEGIN -> '{'
         //: 2 NAME           -> START_OBJECT                         ':' -> '{'
         //: 3 START_ARRAY    -> START_OBJECT                         '[' -> '{'
-        //: 4 VALUE (number) -> START_OBJECT         ':' -> VALUE -> ',' -> '{'
-        //: 5 END_OBJECT     -> START_OBJECT    '[' -> '{' -> '}' -> ',' -> '{'
+        //: 4 END_OBJECT     -> START_OBJECT    '[' -> '{' -> '}' -> ',' -> '{'
+        //
+        // Errors:
+        //: 1 NAME (no ':')  -> START_OBJECT                        '"'  -> '{'
+        //: 2 START_OBJECT   -> START_OBJECT                        '{'  -> '{'
+        //: 3 END_ARRAY      -> START_OBJECT                        ']'  -> '{'
+        //: 4 VALUE          -> START_OBJECT                       VALUE -> '{'
         //
         // Plan:
         //
@@ -2594,130 +3880,6 @@ int main(int argc, char *argv[])
                 ""
             },
 
-            // '}' -> '{'
-            {
-                L_,
-                "{"
-                  "\"price\""
-                            ":"
-                              "{"
-                                 "\"bid_price\":1.500012"
-                                  "},"
-                              "{",
-                6,
-                true,
-                Obj::BAEJSN_START_OBJECT,
-                false,
-                ""
-            },
-            {
-                L_,
-                WS "{"
-                WS   "\"price\""
-                WS             ":"
-                WS               "{"
-                WS                 "\"bid_price\":1.500012"
-                WS               "},"
-                WS               "{",
-                6,
-                true,
-                Obj::BAEJSN_START_OBJECT,
-                false,
-                ""
-            },
-            {
-                L_,
-                WS "{"
-                WS   "\"price\""
-                WS             ":"
-                WS               "{"
-                WS                 "\"bid_price\""
-                WS                               ":"
-                WS                                 "1.500012"
-                WS               "},"
-                WS               "{",
-                6,
-                true,
-                Obj::BAEJSN_START_OBJECT,
-                false,
-                ""
-            },
-            {
-                L_,
-                WS "{"
-                WS   "\"price\""
-                WS             ":"
-                WS               "{"
-                WS                 "\"bid_price\""
-                WS                               ":"
-                WS                                 "1.500012"
-                WS               "}"
-                WS                 ","
-                WS               "{" WS,
-                6,
-                true,
-                Obj::BAEJSN_START_OBJECT,
-                false,
-                ""
-            },
-            {
-                L_,
-                "{"
-                  "\"price\""
-                            ":"
-                              "{"
-                                "\"name\":\"CompanyName\","
-                                "\"bid_price\":1.500012"
-                              "},"
-                              "{",
-                8,
-                true,
-                Obj::BAEJSN_START_OBJECT,
-                false,
-                ""
-            },
-            {
-                L_,
-                WS "{"
-                WS   "\"price\""
-                WS             ":"
-                WS               "{"
-                WS                 "\"name\""
-                WS                          ":"
-                WS                            "\"CompanyName\""
-                WS                 "\"bid_price\""
-                WS                               ":"
-                WS                                 "1.500012"
-                WS               "},"
-                WS               "{",
-                8,
-                true,
-                Obj::BAEJSN_START_OBJECT,
-                false,
-                ""
-            },
-            {
-                L_,
-                WS "{"
-                WS   "\"price\""
-                WS             ":"
-                WS               "{"
-                WS                 "\"name\""
-                WS                          ":"
-                WS                            "\"CompanyName\""
-                WS                 "\"bid_price\""
-                WS                               ":"
-                WS                                 "1.500012"
-                WS               "}"
-                WS                 ","
-                WS               "{" WS,
-                8,
-                true,
-                Obj::BAEJSN_START_OBJECT,
-                false,
-                ""
-            },
-
             // '}' -> '{' (array of objects)
             {
                 L_,
@@ -2844,7 +4006,7 @@ int main(int argc, char *argv[])
                 WS                 "{"
                 WS                   "\"name\""
                 WS                            ":"
-                WS                              "\"CompanyName\""
+                WS                              "\"CompanyName\","
                 WS                   "\"bid_price\""
                 WS                                 ":"
                 WS                                   "1.500012"
@@ -2865,7 +4027,7 @@ int main(int argc, char *argv[])
                 WS                 "{"
                 WS                   "\"name\""
                 WS                            ":"
-                WS                              "\"CompanyName\""
+                WS                              "\"CompanyName\","
                 WS                   "\"bid_price\""
                 WS                                 ":"
                 WS                                   "1.500012"
@@ -2880,7 +4042,180 @@ int main(int argc, char *argv[])
             },
 
             // Error
-
+            {
+                L_,
+                "{"
+                  "\"price\""
+                            "{",
+                2,
+                false,
+                Obj::BAEJSN_ERROR,
+                false,
+                ""
+            },
+            {
+                L_,
+                WS "{"
+                WS   "\"price\""
+                WS             "{" WS,
+                2,
+                false,
+                Obj::BAEJSN_ERROR,
+                false,
+                ""
+            },
+            {
+                L_,
+                "{"
+                  "\"price\""
+                            ":"
+                              "{"
+                                "{",
+                3,
+                false,
+                Obj::BAEJSN_ERROR,
+                false,
+                ""
+            },
+            {
+                L_,
+                WS "{"
+                WS   "\"price\""
+                WS             ":"
+                WS               "{"
+                WS                 "{" WS,
+                3,
+                false,
+                Obj::BAEJSN_ERROR,
+                false,
+                ""
+            },
+            {
+                L_,
+                "{"
+                  "\"name\""
+                           ":"
+                             "\"John\""
+                                      "{",
+                3,
+                false,
+                Obj::BAEJSN_ERROR,
+                false,
+                ""
+            },
+            {
+                L_,
+                WS "{"
+                WS  "\"name\""
+                WS          ":"
+                WS           "\"John\""
+                WS                    "{",
+                3,
+                false,
+                Obj::BAEJSN_ERROR,
+                false,
+                ""
+            },
+            {
+                L_,
+                "{"
+                 "\"name\""
+                         ":"
+                          "\"John\","
+                                    "{",
+                3,
+                false,
+                Obj::BAEJSN_ERROR,
+                false,
+                ""
+            },
+            {
+                L_,
+                WS "{"
+                WS  "\"name\""
+                WS          ":"
+                WS           "\"John\","
+                WS                     "{",
+                3,
+                false,
+                Obj::BAEJSN_ERROR,
+                false,
+                ""
+            },
+            {
+                L_,
+                "{"
+                  "\"name\""
+                           ":"
+                             "12345"
+                                   "{",
+                3,
+                false,
+                Obj::BAEJSN_ERROR,
+                false,
+                ""
+            },
+            {
+                L_,
+                WS "{"
+                WS   "\"name\""
+                WS            ":"
+                WS              "12345"
+                WS                    "{",
+                3,
+                false,
+                Obj::BAEJSN_ERROR,
+                false,
+                ""
+            },
+            {
+                L_,
+                "{"
+                  "\"price\""
+                            "}"
+                              "{",
+                2,
+                false,
+                Obj::BAEJSN_ERROR,
+                false,
+                ""
+            },
+            {
+                L_,
+                WS "{"
+                WS   "\"price\""
+                WS             "}"
+                WS               "{" WS,
+                2,
+                false,
+                Obj::BAEJSN_ERROR,
+                false,
+                ""
+            },
+            {
+                L_,
+                "{"
+                  "\"price\""
+                            "]"
+                              "{",
+                2,
+                false,
+                Obj::BAEJSN_ERROR,
+                false,
+                ""
+            },
+            {
+                L_,
+                WS "{"
+                WS   "\"price\""
+                WS             "]"
+                WS               "{" WS,
+                2,
+                false,
+                Obj::BAEJSN_ERROR,
+                false,
+                ""
+            },
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -2901,13 +4236,14 @@ int main(int argc, char *argv[])
             }
 
             Obj mX;  const Obj& X = mX;
-            ASSERTV(X.tokenType(), Obj::BAEJSN_ERROR == X.tokenType());
+            ASSERTV(X.tokenType(), Obj::BAEJSN_BEGIN == X.tokenType());
 
             mX.reset(iss.rdbuf());
 
             for (int i = 0; i < PRE_MOVES; ++i) {
-                ASSERTV(i, 0 == mX.advanceToNextToken());
-                ASSERTV(X.tokenType(), Obj::BAEJSN_ERROR != X.tokenType());
+                ASSERTV(i, LINE, 0 == mX.advanceToNextToken());
+                ASSERTV(LINE, X.tokenType(),
+                        Obj::BAEJSN_ERROR != X.tokenType());
             }
 
             if (IS_VALID) {
@@ -2931,6 +4267,17 @@ int main(int argc, char *argv[])
         // TESTING 'advanceToNextToken' FIRST CHARACTER
         //
         // Concerns:
+        //: 1 The first character is always '{'
+        //
+        // Errors:
+        //: 1 WHITESPACE ONLY                                    " \t\n\v\f\r"
+        //: 2 BEGIN -> START_ARRAY                               BEGIN -> '['
+        //: 3 BEGIN -> END_ARRAY                                 BEGIN -> ']'
+        //: 4 BEGIN -> END_OBJECT                                BEGIN -> '}'
+        //: 5 BEGIN -> '"'                                       BEGIN -> '"'
+        //: 6 BEGIN -> ','                                       BEGIN -> ','
+        //: 7 BEGIN -> ':'                                       BEGIN -> ':'
+        //: 8 BEGIN -> VALUE                                     BEGIN -> VALUE
         //
         // Plan:
         //
@@ -3220,7 +4567,7 @@ int main(int argc, char *argv[])
             }
 
             Obj mX;  const Obj& X = mX;
-            ASSERTV(X.tokenType(), Obj::BAEJSN_ERROR == X.tokenType());
+            ASSERTV(X.tokenType(), Obj::BAEJSN_BEGIN == X.tokenType());
 
             mX.reset(iss.rdbuf());
 
@@ -3265,7 +4612,7 @@ int main(int argc, char *argv[])
                           << "==============" << endl;
 
         Obj mX;  const Obj& X = mX;
-        ASSERTV(X.tokenType(), Obj::BAEJSN_ERROR == X.tokenType());
+        ASSERTV(X.tokenType(), Obj::BAEJSN_BEGIN == X.tokenType());
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

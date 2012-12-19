@@ -17,7 +17,7 @@ BDES_IDENT_RCSID(baejsn_parser_cpp,"$Id$ $CSID$")
 // states:
 //..
 //                                   +---------+
-//         +-------------------------| 'ERROR' |
+//         +-------------------------| 'BEGIN' |
 //         |                         +---------+
 //         V
 //      +-----+ <--------------------------------------------------- +-----+
@@ -25,19 +25,19 @@ BDES_IDENT_RCSID(baejsn_parser_cpp,"$Id$ $CSID$")
 //      +-----+                          |                           +-----+
 //       ^ | ^                           |                            ^ ^ |
 //       | | |                           V                            | | |
-//       | | |                   +--------+                         | | |
-//       | | +------------------ | 'NAME' |-------------------------+ | |
-//       | |                     +--------+                           | |
-//       | |                             |                            | |
-//       | |                 +-----+     |                            | |
-//       | |                 |     V     V                            | |
-//       | |                 |   +---------+                          | |
-//       | |                 |   | 'VALUE' |<-------------------------+ |
-//       | |                 |   +---------+                            |
-//       | |                 |     | | |                                |
-//   +-+ | |                 +-----+ | |                                |
-//   | V V +-------------------------+ |                                V
-//   |  +-----+                       / \                            +-----+
+//       | | |                   +---------+                          | | |
+//       | | +-----------------> | 'NAME'  |-----------+------------+ | |
+//       | |                     +---------+           |              | |
+//       | |                             ^             |              | |
+//       | |                 +-----+     |             |              | |
+//       | |                 |     V     V             |              | |
+//       | |                 |   +---------+           +--+           | |
+//       | |                 |   | 'VALUE' |<-------------+-----------+ |
+//       | |                 |   +---------+           +--+             |
+//       | |                 |     | | |               |                |
+//   +-+ | |                 +-----+ | |               |                |
+//   | V V +-------------------------+ |               |                V
+//   |  +-----+                       / \              +-----------> +-----+
 //   |  | '}' | <--------------------+   +-------------------------> | ']' |
 //   |  +-----+ <--------------------------------------------------> +-----+
 //   |   |
@@ -45,26 +45,40 @@ BDES_IDENT_RCSID(baejsn_parser_cpp,"$Id$ $CSID$")
 //..
 // For clarity only the trailing words of tokens is used below.
 //
-//   Current Token             Next Character             Following Token
-//   -------------             --------------             ---------------
-//   ERROR, START_ARRAY             '{'                   START_OBJECT
-//   NAME, END_OBJECT
+//   Current Token             Curr Char    Next Char         Following Token
+//   -------------             ---------    ---------         ---------------
+//   BEGIN                       BEGIN        '{'              START_OBJECT
+//   NAME                         ':'         '{'              START_OBJECT
+//   START_ARRAY                  '['         '{'              START_OBJECT
+//   END_OBJECT                   ','         '{'              START_OBJECT
 //
-//   VALUE, START_OBJECT            '}'                   END_OBJECT
-//   END_ARRAY, END_OBJECT
+//   START_OBJECT                 '{'         '"'              NAME
+//   VALUE                        ','         '"'              NAME
+//   END_OBJECT                   ','         '"'              NAME
+//   END_ARRAY                    ','         '"'              NAME
 //
-//   NAME, VALUE                    '['                   START_ARRAY
+//   NAME                         ':'         '"'              VALUE (string)
+//   NAME                         ':'        Number            VALUE (number)
+//   START_ARRAY                  '['         '"'              VALUE (string)
+//   START_ARRAY                  '['        Number            VALUE (number)
+//   VALUE                        ','         '"'              VALUE (string)
+//   VALUE                        ','        Number            VALUE (number)
 //
-//   VALUE, START_ARRAY             ']'                   END_ARRAY
+//   START_OBJECT                 '{'         '}'              END_OBJECT
+//   VALUE (number)              Number       '}'              END_OBJECT
+//   VALUE (string)               '"'         '}'              END_OBJECT
+//   END_OBJECT                   '}'         '}'              END_OBJECT
+//   END_ARRAY                    ']'         '}'              END_OBJECT
 //
-//   NAME                           ':'                   VALUE, START_OBJECT
-//                                                        START_ARRAY
+//   NAME                         ':'         '['              START_ARRAY
+//   START_ARRAY                  '['         '['              START_ARRAY
+//   END_ARRAY                    ','         '['              START_ARRAY
 //
-//   START_OBJECT                   '"'                   NAME
-//
-//   VALUE, START_ARRAY             '"'                   END_ARRAY
-//
-//   START_ARRAY, NAME, VAlUE       Non '"' character     VALUE
+//   START_ARRAY                  '['         ']'              END_ARRAY
+//   VALUE (number)              Number       ']'              END_ARRAY
+//   VALUE (string)               '"'         ']'              END_ARRAY
+//   END_OBJECT                   '}'         ']'              END_ARRAY
+//   END_ARRAY                    ']'         ']'              END_ARRAY
 //..
 
 namespace BloombergLP {
@@ -204,9 +218,14 @@ int baejsn_Parser::skipNonWhitespaceOrTillToken()
 // MANIPULATORS
 int baejsn_Parser::advanceToNextToken()
 {
+    if (BAEJSN_ERROR == d_tokenType) {
+        return -1;                                                    // RETURN
+    }
+
     if (d_cursor >= d_stringBuffer.size()) {
         const int numRead = reloadStringBuffer();
         if (0 == numRead) {
+            d_tokenType = BAEJSN_ERROR;
             return -1;                                                // RETURN
         }
     }
@@ -218,6 +237,7 @@ int baejsn_Parser::advanceToNextToken()
 
         const int rc = skipWhitespace();
         if (rc) {
+            d_tokenType = BAEJSN_ERROR;
             return -1;                                                // RETURN
         }
 
@@ -225,10 +245,10 @@ int baejsn_Parser::advanceToNextToken()
 
         switch (d_stringBuffer[d_cursor]) {
           case '{': {
-            if (BAEJSN_ELEMENT_NAME == d_tokenType
-             || BAEJSN_START_ARRAY  == d_tokenType
-             || (BAEJSN_END_OBJECT  == d_tokenType && ',' == previousChar)
-             || BAEJSN_ERROR        == d_tokenType) {
+            if ((BAEJSN_ELEMENT_NAME == d_tokenType && ':' == previousChar)
+             || BAEJSN_START_ARRAY   == d_tokenType
+             || (BAEJSN_END_OBJECT   == d_tokenType && ',' == previousChar)
+             || BAEJSN_BEGIN         == d_tokenType) {
 
                 d_tokenType  = BAEJSN_START_OBJECT;
                 d_context    = BAEJSN_OBJECT_CONTEXT;
@@ -237,15 +257,16 @@ int baejsn_Parser::advanceToNextToken()
                 ++d_cursor;
             }
             else {
+                d_tokenType = BAEJSN_ERROR;
                 return -1;                                            // RETURN
             }
           } break;
 
           case '}': {
-            if (BAEJSN_ELEMENT_VALUE == d_tokenType
-             || BAEJSN_START_OBJECT  == d_tokenType
-             || BAEJSN_END_OBJECT    == d_tokenType
-             || BAEJSN_END_ARRAY     == d_tokenType) {
+            if ((BAEJSN_ELEMENT_VALUE == d_tokenType && ',' != previousChar)
+             || BAEJSN_START_OBJECT   == d_tokenType
+             || BAEJSN_END_OBJECT     == d_tokenType
+             || BAEJSN_END_ARRAY      == d_tokenType) {
 
                 d_tokenType  = BAEJSN_END_OBJECT;
                 d_context    = BAEJSN_OBJECT_CONTEXT;
@@ -254,14 +275,15 @@ int baejsn_Parser::advanceToNextToken()
                 ++d_cursor;
             }
             else {
+                d_tokenType = BAEJSN_ERROR;
                 return -1;                                            // RETURN
             }
           } break;
 
           case '[': {
-            if (BAEJSN_ELEMENT_NAME   == d_tokenType
-             || BAEJSN_START_ARRAY    == d_tokenType
-             || (BAEJSN_ELEMENT_VALUE == d_tokenType && ',' == previousChar)) {
+            if ((BAEJSN_ELEMENT_NAME == d_tokenType && ':' == previousChar)
+             || BAEJSN_START_ARRAY   == d_tokenType
+             || (BAEJSN_END_ARRAY    == d_tokenType && ',' == previousChar)) {
 
                 d_tokenType  = BAEJSN_START_ARRAY;
                 d_context    = BAEJSN_ARRAY_CONTEXT;
@@ -270,14 +292,16 @@ int baejsn_Parser::advanceToNextToken()
                 ++d_cursor;
             }
             else {
+                d_tokenType = BAEJSN_ERROR;
                 return -1;                                            // RETURN
             }
           } break;
 
           case ']': {
-            if (BAEJSN_ELEMENT_VALUE == d_tokenType
-             || BAEJSN_START_ARRAY   == d_tokenType
-             || BAEJSN_END_OBJECT    == d_tokenType) {
+            if ((BAEJSN_ELEMENT_VALUE == d_tokenType && ',' != previousChar)
+             || BAEJSN_START_ARRAY    == d_tokenType
+             || (BAEJSN_END_ARRAY     == d_tokenType && ',' != previousChar)
+             || (BAEJSN_END_OBJECT    == d_tokenType && ',' != previousChar)) {
 
                 d_tokenType = BAEJSN_END_ARRAY;
                 d_context   = BAEJSN_OBJECT_CONTEXT;
@@ -286,6 +310,7 @@ int baejsn_Parser::advanceToNextToken()
                 ++d_cursor;
             }
             else {
+                d_tokenType = BAEJSN_ERROR;
                 return -1;                                            // RETURN
             }
           } break;
@@ -301,6 +326,7 @@ int baejsn_Parser::advanceToNextToken()
                 ++d_cursor;
             }
             else {
+                d_tokenType = BAEJSN_ERROR;
                 return -1;                                            // RETURN
             }
           } break;
@@ -314,6 +340,7 @@ int baejsn_Parser::advanceToNextToken()
                 ++d_cursor;
             }
             else {
+                d_tokenType = BAEJSN_ERROR;
                 return -1;                                            // RETURN
             }
           } break;
@@ -322,8 +349,8 @@ int baejsn_Parser::advanceToNextToken()
 
             // Here are the scenarios for a '"':
             //
-            // PREVIOUS TOKEN          CONTEXT           RESULT TOKEN
-            // --------------          -------           ------------
+            // CURRENT TOKEN           CONTEXT           NEXT TOKEN
+            // -------------           -------           ----------
             // START_OBJECT  ('{')                       ELEMENT_NAME
             // END_OBJECT    ('}')                       ELEMENT_NAME
             // START_ARRAY   ('[')                       ELEMENT_VALUE
@@ -333,20 +360,24 @@ int baejsn_Parser::advanceToNextToken()
             // ELEMENT_VALUE (   )     ARRAY_CONTEXT     ELEMENT_VALUE
 
             if (BAEJSN_START_OBJECT   == d_tokenType
-             || BAEJSN_END_OBJECT     == d_tokenType
-             || BAEJSN_END_ARRAY      == d_tokenType
-             || (BAEJSN_ELEMENT_VALUE == d_tokenType
-                                      && BAEJSN_OBJECT_CONTEXT == d_context)) {
+             || (BAEJSN_END_OBJECT    == d_tokenType && ',' == previousChar)
+             || (BAEJSN_END_ARRAY     == d_tokenType && ',' == previousChar)
+             || (BAEJSN_ELEMENT_VALUE   == d_tokenType
+               && ','                   == previousChar
+               && BAEJSN_OBJECT_CONTEXT == d_context)) {
                 d_tokenType = BAEJSN_ELEMENT_NAME;
                 ++d_cursor;
             }
             else if (BAEJSN_START_ARRAY    == d_tokenType
-                  || BAEJSN_ELEMENT_NAME   == d_tokenType
+                  || (BAEJSN_ELEMENT_NAME  == d_tokenType
+                                                        && ':' == previousChar)
                   || (BAEJSN_ELEMENT_VALUE == d_tokenType
-                                       && BAEJSN_ARRAY_CONTEXT == d_context)) {
+                   && ','                  == previousChar
+                   && BAEJSN_ARRAY_CONTEXT == d_context)) {
                 d_tokenType = BAEJSN_ELEMENT_VALUE;
             }
             else {
+                d_tokenType = BAEJSN_ERROR;
                 return -1;                                            // RETURN
             }
 
@@ -354,6 +385,7 @@ int baejsn_Parser::advanceToNextToken()
             d_valueEnd   = 0;
             int rc = extractStringValue();
             if (rc) {
+                d_tokenType = BAEJSN_ERROR;
                 return -1;                                            // RETURN
             }
 
@@ -371,9 +403,11 @@ int baejsn_Parser::advanceToNextToken()
           } break;
 
           default: {
-            if (BAEJSN_START_ARRAY   == d_tokenType 
-             || BAEJSN_ELEMENT_NAME  == d_tokenType 
-             || BAEJSN_ELEMENT_VALUE == d_tokenType) {
+            if (BAEJSN_START_ARRAY    == d_tokenType 
+             || (BAEJSN_ELEMENT_NAME  == d_tokenType && ':' == previousChar)
+             || (BAEJSN_ELEMENT_VALUE == d_tokenType
+              && ','                  == previousChar
+              && BAEJSN_ARRAY_CONTEXT == d_context)) {
 
                 d_tokenType = BAEJSN_ELEMENT_VALUE;
 
@@ -381,12 +415,14 @@ int baejsn_Parser::advanceToNextToken()
                 d_valueEnd   = 0;
                 const int rc = skipNonWhitespaceOrTillToken();
                 if (rc) {
+                    d_tokenType = BAEJSN_ERROR;
                     return -1;                                        // RETURN
                 }
                 d_cursor     = d_valueEnd;
                 previousChar = 0;
             }
             else {
+                d_tokenType = BAEJSN_ERROR;
                 return -1;                                            // RETURN
             }
           } break;
