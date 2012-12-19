@@ -144,7 +144,9 @@ class baejsn_Decoder {
 
     baejsn_Decoder(const baejsn_DecoderOptions *options,
                    bslma_Allocator             *basicAllocator = 0);
-        // TBD
+        // Construct a decoder object using the specified 'options'.
+        // Optionally specify 'basicAllocator' for allocating memory.  If
+        // 'basicAllocator' is 0, the default allocator is used.
 
     // MANIPULATORS
     template <typename TYPE>
@@ -259,17 +261,6 @@ int baejsn_Decoder::decodeImp(TYPE *value, bdeat_TypeCategory::Sequence)
             return -1;                                                // RETURN
         }
 
-        if (d_decoderOptions_p
-         && d_decoderOptions_p->skipUnknownElements()
-         && false == bdeat_SequenceFunctions::hasAttribute(
-                                     *value,
-                                     elementName.data(),
-                                     static_cast<int>(elementName.length()))) {
-            // TBD: Not complete. Also not the most efficient would like to be
-            // able to just lookupAttribute
-            return 0;
-        }
-
         d_elementName = elementName;
 
         rc = d_parser.advanceToNextToken();
@@ -337,18 +328,6 @@ int baejsn_Decoder::decodeImp(TYPE *value, bdeat_TypeCategory::Choice)
         if (rc) {
             d_logStream << "Error reading selection name after '{'\n";
             return -1;                                                // RETURN
-        }
-
-        if (d_decoderOptions_p
-         && d_decoderOptions_p->skipUnknownElements()
-         && false == bdeat_ChoiceFunctions::hasSelection(
-                                   *value,
-                                   selectionName.data(),
-                                   static_cast<int>(selectionName.length()))) {
-            // TBD: Not complete. Also not the most efficient would like to be
-            // able to just lookupAttribute
-
-            return 0;
         }
 
         if (0 != bdeat_ChoiceFunctions::makeSelection(

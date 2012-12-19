@@ -60,9 +60,7 @@ class baejsn_DecoderOptions {
   private:
 
     // DATA
-    int  d_maxDepth;             // maximum recursion depth
-    bool d_skipUnknownElements;  // flag specifying if unknown elements
-                                 // should be skipped
+    int d_maxDepth;             // maximum recursion depth
 
   public:
     // TRAITS -- TBD ?
@@ -92,10 +90,6 @@ class baejsn_DecoderOptions {
         // Set the "MaxDepth" attribute of this object to the specified
         // 'value'.
 
-    void setSkipUnknownElements(bool value);
-        // Set the "SkipUnknownElements" attribute of this object to the
-        // specified 'value'.
-
     // ACCESSORS
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
@@ -115,10 +109,6 @@ class baejsn_DecoderOptions {
     int maxDepth() const;
         // Return a reference to the non-modifiable "MaxDepth" attribute of
         // this object.
-
-    bool skipUnknownElements() const;
-        // Return a reference to the non-modifiable "SkipUnknownElements"
-        // attribute of this object.
 };
 
 // FREE OPERATORS
@@ -162,14 +152,6 @@ void baejsn_DecoderOptions::setMaxDepth(int value)
     d_maxDepth = value;
 }
 
-inline
-void baejsn_DecoderOptions::setSkipUnknownElements(bool value)
-{
-    BSLS_ASSERT_SAFE(0 <= value);
-
-    d_skipUnknownElements = value;
-}
-
 // ACCESSORS
 inline
 int baejsn_DecoderOptions::maxDepth() const
@@ -177,27 +159,19 @@ int baejsn_DecoderOptions::maxDepth() const
     return d_maxDepth;
 }
 
-inline
-bool baejsn_DecoderOptions::skipUnknownElements() const
-{
-    return d_skipUnknownElements;
-}
-
 // FREE FUNCTIONS
 inline
 bool operator==(const baejsn_DecoderOptions& lhs,
                 const baejsn_DecoderOptions& rhs)
 {
-    return  lhs.maxDepth()            == rhs.maxDepth()
-         && lhs.skipUnknownElements() == rhs.skipUnknownElements();
+    return  lhs.maxDepth() == rhs.maxDepth();
 }
 
 inline
 bool operator!=(const baejsn_DecoderOptions& lhs,
                 const baejsn_DecoderOptions& rhs)
 {
-    return  lhs.maxDepth()            != rhs.maxDepth()
-         || lhs.skipUnknownElements() != rhs.skipUnknownElements();
+    return  lhs.maxDepth() != rhs.maxDepth();
 }
 
 inline

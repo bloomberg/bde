@@ -2494,8 +2494,7 @@ false,
 static const int NUM_JSON_TEST_MESSAGES =
                     (sizeof(JSON_TEST_MESSAGES) / sizeof(*JSON_TEST_MESSAGES));
 
-// TBD: Uncomment
-// BSLMF_ASSERT(NUM_JSON_TEST_MESSAGES == NUM_XML_TEST_MESSAGES);
+BSLMF_ASSERT(NUM_JSON_TEST_MESSAGES == NUM_XML_TEST_MESSAGES);
 
 
 namespace BloombergLP {

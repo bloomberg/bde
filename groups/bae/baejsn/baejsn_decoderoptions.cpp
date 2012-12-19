@@ -19,14 +19,12 @@ namespace BloombergLP {
 // CREATORS
 baejsn_DecoderOptions::baejsn_DecoderOptions()
 : d_maxDepth(MAX_DEPTH)
-, d_skipUnknownElements(false)
 {
 }
 
 baejsn_DecoderOptions::baejsn_DecoderOptions(
                                          const baejsn_DecoderOptions& original)
 : d_maxDepth(original.d_maxDepth)
-, d_skipUnknownElements(original.d_skipUnknownElements)
 {
 }
 
@@ -38,15 +36,13 @@ baejsn_DecoderOptions::~baejsn_DecoderOptions()
 baejsn_DecoderOptions&
 baejsn_DecoderOptions::operator=(const baejsn_DecoderOptions& rhs)
 {
-    d_maxDepth            = rhs.d_maxDepth;
-    d_skipUnknownElements = rhs.d_skipUnknownElements;
+    d_maxDepth = rhs.d_maxDepth;
     return *this;
 }
 
 void baejsn_DecoderOptions::reset()
 {
-    d_maxDepth            = MAX_DEPTH;
-    d_skipUnknownElements = false;
+    d_maxDepth = MAX_DEPTH;
 }
 
 // ACCESSORS

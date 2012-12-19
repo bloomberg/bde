@@ -48,7 +48,7 @@ using bsl::endl;
 // [ 3] int value(bslstl::StringRef *data) const;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 9] USAGE EXAMPLE
+// [10] USAGE EXAMPLE
 
 //=============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
