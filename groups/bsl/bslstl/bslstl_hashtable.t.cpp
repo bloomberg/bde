@@ -14,6 +14,7 @@
 
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
+#include <bsls_platform.h>
 
 #include <bsltf_stdstatefulallocator.h>
 #include <bsltf_stdtestallocator.h>
@@ -1446,6 +1447,13 @@ makeObject(Obj                  **objPtr,
 
     ASSERTV(config, !"Bad allocator config.");
     abort();
+#if defined (BSLS_PLATFORM_CMP_MSVC)
+    // Microsoft 'abort' is not decorated with a no-return annotation, so
+    // static analysis still reports that the function has control paths that
+    // do not return a value.  This 'exit' should never be called, but will
+    // resolve warnings that are often configured to act as hard errors.
+    exit(-99);
+#endif
 }
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR>
@@ -1495,6 +1503,13 @@ makeObject(Obj                  **objPtr,
 
     ASSERTV(config, !"Bad allocator config.");
     abort();
+#if defined (BSLS_PLATFORM_CMP_MSVC)
+    // Microsoft 'abort' is not decorated with a no-return annotation, so
+    // static analysis still reports that the function has control paths that
+    // do not return a value.  This 'exit' should never be called, but will
+    // resolve warnings that are often configured to act as hard errors.
+    exit(-99);
+#endif
 }
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR,
