@@ -233,10 +233,10 @@ static bdet_TimeInterval getDarwinSystemBootTime()
                 bdet_TimeInterval(nowCalendar.tv_sec, nowCalendar.tv_nsec) -
                 bdet_TimeInterval(nowRealtime.tv_sec, nowRealtime.tv_nsec);
 
-            bsls::AtomicOperations::setInt64Release(&bootSecs,
-                                                    adjustment.seconds());
             bsls::AtomicOperations::setIntRelease(&bootNanoSecs,
                                                   adjustment.nanoseconds());
+            bsls::AtomicOperations::setInt64Release(&bootSecs,
+                                                    adjustment.seconds());
         }
     }
 
