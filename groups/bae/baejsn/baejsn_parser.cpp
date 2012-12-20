@@ -6,12 +6,8 @@ BDES_IDENT_RCSID(baejsn_parser_cpp,"$Id$ $CSID$")
 
 #include <bsl_streambuf.h>
 
-// TBD: Remove
-#include <bsl_iostream.h>
-
 // IMPLEMENTATION NOTES
 // --------------------
-
 // The following table provides the various transitions that need to be
 // handled with the parser.
 //
@@ -152,6 +148,7 @@ int baejsn_Parser::skipNonWhitespaceOrTillToken()
         }
 
         if (iter >= d_stringBuffer.length()) {
+            // TBD: Refactor
             if (!firstTime) {
                 d_stringBuffer.resize(d_stringBuffer.length()
                                                      + BAEJSN_MAX_STRING_SIZE);
@@ -210,8 +207,6 @@ int baejsn_Parser::advanceToNextToken()
             d_tokenType = BAEJSN_ERROR;
             return -1;                                                // RETURN
         }
-
-//         bsl::cout << d_stringBuffer[d_cursor] << bsl::endl;
 
         switch (d_stringBuffer[d_cursor]) {
           case '{': {
@@ -410,7 +405,6 @@ int baejsn_Parser::value(bslstl::StringRef *data) const
      && d_valueBegin != d_valueEnd) {
         data->assign(&d_stringBuffer[d_valueBegin],
                      &d_stringBuffer[d_valueEnd]);
-//         bsl::cout << *data  << bsl::endl;
         return 0;                                                     // RETURN
     }
     return -1;

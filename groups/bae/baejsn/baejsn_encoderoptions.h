@@ -60,8 +60,7 @@ class baejsn_EncoderOptions {
     EncodingStyle d_encodingStyle;       // encoding style
 
   public:
-    // TRAITS -- TBD ?
-    // BDEX   -- TBD ?
+    // TRAITS -- TBD
 
     // CREATORS
     baejsn_EncoderOptions();
@@ -216,13 +215,6 @@ bool operator!=(const baejsn_EncoderOptions& lhs,
     return  lhs.initialIndentLevel() != rhs.initialIndentLevel()
          || lhs.spacesPerLevel()     != rhs.spacesPerLevel()
          || lhs.encodingStyle()      != rhs.encodingStyle();
-}
-
-inline
-bsl::ostream& operator<<(bsl::ostream&                stream,
-                         const baejsn_EncoderOptions& rhs)
-{
-    return rhs.print(stream, 0, -1);
 }
 
 }  // close namespace BloombergLP

@@ -50,21 +50,15 @@ class baejsn_DecoderOptions {
         MAX_DEPTH = 32
     };
 
-  public:
-    // TYPES
-    enum EncodingStyle {
-        BAEJSN_COMPACT,
-        BAEJSN_PRETTY
-    };
-
   private:
 
     // DATA
-    int d_maxDepth;             // maximum recursion depth
+    int  d_maxDepth;             // maximum recursion depth
+    bool d_skipUnknownElements;  // flag specifying if unknown elements
+                                 // should be skipped
 
   public:
     // TRAITS -- TBD ?
-    // BDEX   -- TBD ?
 
     // CREATORS
     baejsn_DecoderOptions();
@@ -90,6 +84,10 @@ class baejsn_DecoderOptions {
         // Set the "MaxDepth" attribute of this object to the specified
         // 'value'.
 
+    void setSkipUnknownElements(bool value);
+        // Set the "SkipUnknownElements" attribute of this object to the
+        // specified 'value'.
+
     // ACCESSORS
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
@@ -109,6 +107,10 @@ class baejsn_DecoderOptions {
     int maxDepth() const;
         // Return a reference to the non-modifiable "MaxDepth" attribute of
         // this object.
+
+    bool skipUnknownElements() const;
+        // Return a reference to the non-modifiable "SkipUnknownElements"
+        // attribute of this object.
 };
 
 // FREE OPERATORS
@@ -152,6 +154,14 @@ void baejsn_DecoderOptions::setMaxDepth(int value)
     d_maxDepth = value;
 }
 
+inline
+void baejsn_DecoderOptions::setSkipUnknownElements(bool value)
+{
+    BSLS_ASSERT_SAFE(0 <= value);
+
+    d_skipUnknownElements = value;
+}
+
 // ACCESSORS
 inline
 int baejsn_DecoderOptions::maxDepth() const
@@ -159,26 +169,27 @@ int baejsn_DecoderOptions::maxDepth() const
     return d_maxDepth;
 }
 
+inline
+bool baejsn_DecoderOptions::skipUnknownElements() const
+{
+    return d_skipUnknownElements;
+}
+
 // FREE FUNCTIONS
 inline
 bool operator==(const baejsn_DecoderOptions& lhs,
                 const baejsn_DecoderOptions& rhs)
 {
-    return  lhs.maxDepth() == rhs.maxDepth();
+    return  lhs.maxDepth()            == rhs.maxDepth()
+         && lhs.skipUnknownElements() == rhs.skipUnknownElements();
 }
 
 inline
 bool operator!=(const baejsn_DecoderOptions& lhs,
                 const baejsn_DecoderOptions& rhs)
 {
-    return  lhs.maxDepth() != rhs.maxDepth();
-}
-
-inline
-bsl::ostream& operator<<(bsl::ostream&                stream,
-                         const baejsn_DecoderOptions& rhs)
-{
-    return rhs.print(stream, 0, -1);
+    return  lhs.maxDepth()            != rhs.maxDepth()
+         || lhs.skipUnknownElements() != rhs.skipUnknownElements();
 }
 
 }  // close namespace BloombergLP

@@ -5,10 +5,10 @@ BDES_IDENT_RCSID(baejsn_decoderoptions_cpp,"$Id$ $CSID$")
 
 #include <baejsn_decoderoptions.h>
 
-#include <bdeu_print.h>
-#include <bdeu_printmethods.h>
+#include <bslim_printer.h>
 
-#include <bsls_assert.h>
+#include <bsl_ios.h>
+#include <bsl_ostream.h>
 
 namespace BloombergLP {
 
@@ -19,12 +19,14 @@ namespace BloombergLP {
 // CREATORS
 baejsn_DecoderOptions::baejsn_DecoderOptions()
 : d_maxDepth(MAX_DEPTH)
+, d_skipUnknownElements(true)
 {
 }
 
 baejsn_DecoderOptions::baejsn_DecoderOptions(
                                          const baejsn_DecoderOptions& original)
 : d_maxDepth(original.d_maxDepth)
+, d_skipUnknownElements(original.d_skipUnknownElements)
 {
 }
 
@@ -36,13 +38,15 @@ baejsn_DecoderOptions::~baejsn_DecoderOptions()
 baejsn_DecoderOptions&
 baejsn_DecoderOptions::operator=(const baejsn_DecoderOptions& rhs)
 {
-    d_maxDepth = rhs.d_maxDepth;
+    d_maxDepth            = rhs.d_maxDepth;
+    d_skipUnknownElements = rhs.d_skipUnknownElements;
     return *this;
 }
 
 void baejsn_DecoderOptions::reset()
 {
-    d_maxDepth = MAX_DEPTH;
+    d_maxDepth            = MAX_DEPTH;
+    d_skipUnknownElements = true;
 }
 
 // ACCESSORS
@@ -50,9 +54,26 @@ bsl::ostream& baejsn_DecoderOptions::print(bsl::ostream& stream,
                                            int           level,
                                            int           spacesPerLevel) const
 {
-    // TBD:
+    bslim::Printer printer(&stream, level, spacesPerLevel);
+    printer.start();
+    printer.printAttribute("maxDepth",            d_maxDepth);
+    printer.printAttribute("skipUnknownElements", d_skipUnknownElements);
+    printer.end();
 
-    return stream << bsl::flush;
+    return stream;
+}
+
+// FREE OPERATORS
+bsl::ostream& operator<<(bsl::ostream&                stream,
+                         const baejsn_DecoderOptions& object)
+{
+    bslim::Printer printer(&stream, 0, -1);
+    printer.start();
+    printer.printValue(object.maxDepth());
+    printer.printValue(object.skipUnknownElements());
+    printer.end();
+
+    return stream;
 }
 
 }  // close namespace BloombergLP

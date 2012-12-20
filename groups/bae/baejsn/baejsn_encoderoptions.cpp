@@ -5,11 +5,10 @@ BDES_IDENT_RCSID(baejsn_encoderoptions_cpp,"$Id$ $CSID$")
 
 #include <baejsn_encoderoptions.h>
 
-#include <bdeu_print.h>
-#include <bdeu_printmethods.h>
-#include <bdeu_string.h>
+#include <bslim_printer.h>
 
-#include <bsls_assert.h>
+#include <bsl_ios.h>
+#include <bsl_ostream.h>
 
 namespace BloombergLP {
 
@@ -59,9 +58,28 @@ bsl::ostream& baejsn_EncoderOptions::print(bsl::ostream& stream,
                                            int           level,
                                            int           spacesPerLevel) const
 {
-    // TBD:
+    bslim::Printer printer(&stream, level, spacesPerLevel);
+    printer.start();
+    printer.printAttribute("encodingStyle",      d_encodingStyle);
+    printer.printAttribute("initialIndentLevel", d_initialIndentLevel);
+    printer.printAttribute("spacesPerLevel",     d_spacesPerLevel);
+    printer.end();
 
-    return stream << bsl::flush;
+    return stream;
+}
+
+// FREE OPERATORS
+bsl::ostream& operator<<(bsl::ostream&                stream,
+                         const baejsn_EncoderOptions& object)
+{
+    bslim::Printer printer(&stream, 0, -1);
+    printer.start();
+    printer.printValue(object.encodingStyle());
+    printer.printValue(object.initialIndentLevel());
+    printer.printValue(object.spacesPerLevel());
+    printer.end();
+
+    return stream;
 }
 
 }  // close namespace BloombergLP

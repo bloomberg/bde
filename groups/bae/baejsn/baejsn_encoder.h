@@ -178,7 +178,7 @@ namespace BloombergLP {
 
 class baejsn_Encoder {
     // This class provides a parameterized 'encode' method that encode 'bdeat'
-    // types in XML format.
+    // types in JSON format.
 
     // FRIENDS
     friend class baejsn_Encoder_EncodeImpl;
