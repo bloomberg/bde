@@ -1479,7 +1479,7 @@ L_,
 "e,\"element4\":\"arbitrary string value\",\"element5\":{\"element1\":{\"elem"
 "ent1\":[\"LONDON\",\"LONDON\"],\"element2\":[\"arbitrary string value\",\"ar"
 "bitrary string value\"],\"element3\":true,\"element4\":\"arbitrary string va"
-"lue\",\"element5\":{\"element1\":{\"element1\":[\"LONDON\",\"LONDON\"],\"ele" // <-- this
+"lue\",\"element5\":{\"element1\":{\"element1\":[\"LONDON\",\"LONDON\"],\"ele"
 "ment2\":[\"arbitrary string value\",\"arbitrary string value\"],\"element3\""
 ":true,\"element4\":\"arbitrary string value\",\"element6\":[\"LONDON\",\"LON"
 "DON\"]},\"element2\":[true,true],\"element3\":[1.500000000000000e+00,1.50000"
@@ -2052,7 +2052,7 @@ true,
 },
 {
 
-L_, "{\"selection2\":\"/wAB\"}}", true, true,
+L_, "{\"selection2\":\"\\/wAB\"}}", true, true,
 
 },
 {
@@ -3825,7 +3825,6 @@ void constructFeatureTestMessage(
         baea_SerializableObjectProxyUtil::makeDecodeProxy(&sop, &object);
 
         int rc = decoder.decode(ss.rdbuf(), &sop);
-//         P(i) P(object);
         if (0 != rc) {
             bsl::cout << "Failed to decode from initialization data (i="
                       << i << "): "
@@ -3911,6 +3910,7 @@ int main(int argc, char *argv[])
                                               jsonText.length());
                 const int rc = jsonDecoder.decode(&isb, &value);
 
+                ASSERT(!rc);
                 if (rc) {
                     if (veryVerbose) {
                         P(LINE) P(jsonDecoder.loggedMessages());
