@@ -204,7 +204,9 @@ class baejsn_Encoder {
 
     baejsn_Encoder(const baejsn_EncoderOptions *options,
                    bslma_Allocator             *basicAllocator = 0);
-        // TBD
+        // Construct an encoder object using the specified 'options'.
+        // Optionally specify 'basicAllocator' for allocating memory.  If
+        // 'basicAllocator' is 0, the default allocator is used.
 
     //! ~baejsn_Encoder() = default;
         // Destroy this object.
