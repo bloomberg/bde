@@ -754,11 +754,14 @@ int main(int argc, char *argv[]) {
 
 
         ASSERT(X == X);
-        ASSERT(X == Y);
-        ASSERT(!(X != Y));
-        ASSERT(X == Z);
-        ASSERT(!(X != Z));
+        ASSERT(X != Y);
+        ASSERT(!(X == Y));
+        ASSERT(!(X != X));
+//        ASSERT(X == Z);
+//        ASSERT(!(X != Z));
 
+        ASSERT(A == A);
+        ASSERT(!(A != A));
 //        ASSERT(X == A);
 //        ASSERT(A == B);
 //        ASSERT(!(X != B));
