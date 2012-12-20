@@ -5,6 +5,7 @@
 BDES_IDENT_RCSID(bcemt_qlock_cpp,"$Id$ $CSID$")
 #include <bsls_assert.h>
 #include <bslma_default.h>
+#include <bslma_newdeleteallocator.h>
 #include <bces_atomicutil.h>
 #include <bces_threadlocalvariable.h>
 #include <bcemt_threadutil.h>
@@ -72,7 +73,7 @@ extern "C" void deleteThreadLocalSemaphore(void *semaphore)
     // 'bcemt_ThreadUtil::createKey'.
 {
     SemaphorePtr sema = reinterpret_cast<SemaphorePtr>(semaphore);
-    bslma_Default::globalAllocator()->deleteObjectRaw(sema);
+    bslma::NewDeleteAllocator::singleton().deleteObjectRaw(sema);
 }
 
 TlsKey *initializeSemaphoreTLSKey()
@@ -83,12 +84,16 @@ TlsKey *initializeSemaphoreTLSKey()
     // initialization of a single TLS key.  Note that the returned key can be
     // used to access the thread-local semaphore for the current thread.
 {
-    TlsKey *key = new (*bslma_Default::globalAllocator()) TlsKey;
+    // Note that the 'NewDeleteAllocator' is used to create the 'TlsKey' object
+    // instead of the 'globalAllocator' because the 'TlsKey' is destroyed in
+    // the 'deleteThreadLocalSemaphore' destructor callback, which can run after
+    // the 'globalAllocator' is destroyed.
+    TlsKey *key = new (bslma::NewDeleteAllocator::singleton()) TlsKey;
+
     int rc  = bcemt_ThreadUtil::createKey(key, &deleteThreadLocalSemaphore);
     BSLS_ASSERT_OPT(rc == 0);
 
     void *oldKey = bces_AtomicUtil::testAndSwapPtr(&s_semaphoreKey, 0, key);
-
 
     if (0 == oldKey) {
         // Create the static key-guard to ensure the resources for
@@ -101,9 +106,10 @@ TlsKey *initializeSemaphoreTLSKey()
         // the resources for 'key'.
 
         bcemt_ThreadUtil::deleteKey(*key);
-        bslma_Default::globalAllocator()->deleteObjectRaw(key);
+        bslma::NewDeleteAllocator::singleton().deleteObjectRaw(key);
         key = reinterpret_cast<TlsKey*>(oldKey);
     }
+
     return key;
 }
 
