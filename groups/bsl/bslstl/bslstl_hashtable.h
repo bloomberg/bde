@@ -196,11 +196,6 @@ BSLS_IDENT("$Id: $")
 #define INCLUDED_ALGORITHM
 #endif
 
-#ifndef INCLUDED_CMATH
-#include <cmath> // for 'ceil'
-#define INCLUDED_CMATH
-#endif
-
 #ifndef INCLUDED_CSTDDEF
 #include <cstddef> // for 'size_t'
 #define INCLUDED_CSTDDEF
@@ -1204,10 +1199,9 @@ inline
 HashTable_ArrayProctor<FACTORY>::~HashTable_ArrayProctor()
 {
     if (d_anchor) {
-        HashTable_Util::destroyBucketArray(
-                                                d_anchor->bucketArrayAddress(),
-                                                d_anchor->bucketArraySize(),
-                                                d_factory->allocator());
+        HashTable_Util::destroyBucketArray(d_anchor->bucketArrayAddress(),
+                                           d_anchor->bucketArraySize(),
+                                           d_factory->allocator());
 
         bslalg::BidirectionalLink *root = d_anchor->listRootAddress();
         while (root) {
@@ -2042,10 +2036,10 @@ void HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::setMaxLoadFactor(
     if (d_capacity > 0) {
         size_t capacity;
         SizeType numBuckets =
-               HashTable_ImpDetails::growBucketsForLoadFactor(&capacity,
-                                                              d_size,
-                                                              this->numBuckets(),
-                                                              maxLoadFactor);
+             HashTable_ImpDetails::growBucketsForLoadFactor(&capacity,
+                                                            d_size,
+                                                            this->numBuckets(),
+                                                            maxLoadFactor);
 
         this->rehashIntoExactlyNumBuckets(numBuckets, capacity);
     }

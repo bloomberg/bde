@@ -20,8 +20,9 @@
 #include <bsltf_templatetestfacility.h>
 #include <bsltf_testvaluesarray.h>
 
-#include <stdexcept>
+#include <stdexcept>  // to verify correct exceptions are thrown
 
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 
