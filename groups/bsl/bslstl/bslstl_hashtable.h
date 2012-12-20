@@ -3237,7 +3237,8 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::insertIfMissing(
             this->rehashForNumBuckets(numBuckets() * 2);
         }
 
-        ImpUtil::insertAtFrontOfBucket(&d_anchor, position, hashCode);
+      //ImpUtil::insertAtFrontOfBucket(&d_anchor, position, hashCode);
+        ImpUtil::insertAtFrontOfBucket(&d_anchor, newNode, hashCode);
         nodeProctor.release();
 
         ++d_size;

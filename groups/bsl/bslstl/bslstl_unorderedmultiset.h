@@ -66,6 +66,35 @@ BSLS_IDENT("$Id: $")
 //:     that defines an equivalence relationship and is both reflexive and
 //:     transitive.
 //
+///Requirements on 'HASH' and 'EQUAL'
+///----------------------------------
+// The (template parameter) types 'HASH' and 'EQUAL' must be
+// default-constructable, copy-constructible function-objects.
+//
+// 'HASH' shall support a function call operator compatible with the following
+// statements:
+//..
+//  HASH        hash;
+//  KEY         key;
+//  std::size_t result = hash(key);
+//..
+// where the definition of the called function meets the requirements of a
+// hash function, as specified in {'bslstl_hash|Standard Hash Function'}.
+//
+// 'EQUAL' shall support the a function call operator compatible with the
+//  following statements:
+//..
+//  EQUAL equal;
+//  KEY   key1, key2;
+//  bool  result = equal(key1, key2);
+//..
+// where the definition of the called function defines an equivalence
+// relationship on keys that is both reflexive and transitive.
+//
+// 'HASH' and 'EQUAL' function-objects are further constrained, such for any
+// two objects whose keys compare equal by the comparator, shall produce the
+// same value from the hasher.
+//
 ///Memory Allocation
 ///-----------------
 // The type supplied as a set's 'ALLOCATOR' template parameter determines how
@@ -217,8 +246,298 @@ BSLS_IDENT("$Id: $")
 //  +----------------------------------------------------+--------------------+
 //..
 //
+///Unordered Multi-Set Configuration
+///---------------------------------
+// The unordered multi-set has interfaces that can provide insight into and
+// control of its inner workings.  The syntax and semantics of these interfaces
+// for 'bslstl_unoroderedmultiset' are identical to those of
+// 'bslstl_unorderedmap'.  See the discussion in
+// {'bslstl_unorderedmap'|Unordered Map Configuration} and the illustrative
+// material in {'bslstl_unorderedmap'|Example 2}.
+//
+///Practical Requirements on 'HASH'
+///--------------------------------
+// An important factor in the performance an unordered multi-set (and any of
+// the other unordered containers) is the choice of hash function.  Please see
+// the discussion in {'bslstl_unorderedmap'|Practical Requirements on 'HASH'}.
+//
 ///Usage
 ///-----
+// In this section we show intended use of this component.
+//
+///Example 1: Categorizing Data
+/// - - - - - - - - - - - - - -
+// Unordered sets are useful in situations when there is no meaningful way to
+// order key values, when the order of the values is irrelevant to the problem
+// domain, and (even if there is a meaningful ordering) the value of ordering
+// the results is outweighed by the higher performance provided by unordered
+// sets (compared to ordered sets).
+//
+// One uses a multi-set (ordered or unordered) when there may be more than one
+// instance of an element of a set and when that multiplicity must be
+// preserved.
+//
+// Note that the data type described below is an augmentation of that used in
+// {'bslstl_unorderedset|Example 1}.  The data itself (randomly generated) is
+// different.
+//
+// Suppose one is analyzing data on a set of customers, and each customer is
+// categorized by several attributes: customer type, geographic area, and
+// (internal) project code; and that each attribute takes on one of a limited
+// set of values.  Additionally, there is some financial data associated with
+// each customer: past sales and pending sales.
+//
+// The several customer attributes are modeled by several enumerations:
+//..
+//  typedef enum {
+//      REPEAT
+//    , DISCOUNT
+//    , IMPULSE
+//    , NEED_BASED
+//    , BUSINESS
+//    , NON_PROFIT
+//    , INSTITUTE
+//      // ...
+//  } CustomerCode;
+//
+//  typedef enum {
+//      USA_EAST
+//    , USA_WEST
+//    , CANADA
+//    , MEXICO
+//    , ENGLAND
+//    , SCOTLAND
+//    , FRANCE
+//    , GERMANY
+//    , RUSSIA
+//      // ...
+//  } LocationCode;
+//
+//  typedef enum {
+//      TOAST
+//    , GREEN
+//    , FAST
+//    , TIDY
+//    , PEARL
+//    , SMITH
+//      // ...
+//  } ProjectCode;
+//..
+// For printing these values in a human-readable form, we define these helper
+// functions:
+//..
+//  static const char *toAscii(CustomerCode value)
+//  {
+//      switch (value) {
+//        case REPEAT:     return "REPEAT";
+//        case DISCOUNT:   return "DISCOUNT";
+//        case IMPULSE:    return "IMPULSE";
+//        case NEED_BASED: return "NEED_BASED";
+//        case BUSINESS:   return "BUSINESS";
+//        case NON_PROFIT: return "NON_PROFIT";
+//        case INSTITUTE:  return "INSTITUTE";
+//        // ...
+//        default: return "(* UNKNOWN *)";
+//      }
+//  }
+//
+//  static const char *toAscii(LocationCode value)
+//  {
+//      ...
+//  }
+//
+//  static const char *toAscii(ProjectCode  value)
+//  {
+//      ...
+//  }
+//..
+// The data set (randomly generated for this example) is provided in a
+// statically initialized array:
+//..
+//  static const struct CustomerDatum {
+//      CustomerCode d_customer;
+//      LocationCode d_location;
+//      ProjectCode  d_project;
+//      double       d_past;
+//      double       d_pending;
+//  } customerData[] = {
+//     { REPEAT    , RUSSIA  , SMITH,   75674.00,     455.00 },
+//     { REPEAT    , ENGLAND , TOAST,   35033.00,    8377.00 },
+//     { BUSINESS  , USA_EAST, SMITH,   53942.00,    2782.00 },
+//     ...
+//     { DISCOUNT  , MEXICO  , GREEN,   99737.00,    3872.00 },
+//  };
+//
+//  const int numCustomerData = sizeof customerData / sizeof *customerData;
+//..
+// Suppose, as a step in analysis, we wish to determine the average of the past
+// sales and the average of the pending sales for each customer for each unique
+// combination of customer attributes (i.e., for each customer profile in the
+// data set).  To do so, we must aggregate our data items by customer profile
+// but also retain the unique financial data for each item.  The
+// 'bslstl_unorderedmultiset' provides those semantics.
+//
+// First, as there are no standard methods for hashing or comparing our user
+// defined types, we define 'CustomerDatumHash' and 'CustomerDatumEqual'
+// classes, each a stateless functor.  Note that there is no meaningful
+// ordering of the attribute values, they are merely arbitrary code numbers;
+// nothing is lost by using an unordered set instead of an ordered set:
+//..
+//  class CustomerDatumHash
+//  {
+//    public:
+//      // CREATORS
+//      //! CustomerDatumHash() = default;
+//          // Create a 'CustomerDatumHash' object.
+//
+//      //! hash(const CustomerDatumHash& original) = default;
+//          // Create a 'CustomerDatumHash' object.  Note that as
+//          // 'CustomerDatumHash' is an empty (stateless) type, this operation
+//          // will have no observable effect.
+//
+//      //! ~CustomerDatumHash() = default;
+//          // Destroy this object.
+//
+//      // ACCESSORS
+//      std::size_t operator()(CustomerDatum x) const;
+//          // Return a hash value computed using the specified 'x'.
+//  };
+//
+//  // ACCESSORS
+//  std::size_t CustomerDatumHash::operator()(CustomerDatum x) const
+//  {
+//      return bsl::hash<int>()(x.d_location * 100 * 100
+//                            + x.d_customer * 100
+//                            + x.d_project);
+//  }
+//
+//  class CustomerDatumEqual
+//  {
+//    public:
+//      // CREATORS
+//      //! CustomerDatumEqual() = default;
+//          // Create a 'CustomerDatumEqual' object.
+//
+//      //! CustomerDatumEqual(const CustomerDatumEqual& original) = default;
+//          // Create a 'CustomerDatumEqual' object.  Note that as
+//          // 'CustomerDatumEqual' is an empty (stateless) type, this
+//          // operation will have no observable effect.
+//
+//      //! ~CustomerDatumEqual() = default;
+//          // Destroy this object.
+//
+//      // ACCESSORS
+//      bool operator()(const CustomerDatum& lhs,
+//                      const CustomerDatum& rhs) const;
+//  };
+//
+//  // ACCESSORS
+//  bool CustomerDatumEqual::operator()(const CustomerDatum& lhs,
+//                                      const CustomerDatum& rhs) const
+//  {
+//      return lhs.d_location == rhs.d_location
+//          && lhs.d_customer == rhs.d_customer
+//          && lhs.d_project  == rhs.d_project;
+//  }
+//..
+// Notice that many of the required methods of the hash and comparitor types
+// are compiler generated.  (The declaration of those methods are commented out
+// and suffixed by an '= default' comment.)
+//
+// Also notice that the boolean operation provided by 'CustomerDatumEqual' is
+// more properly thought of as "equivalence", not "equality".  There may be
+// more than one data item with the same customer profile (i.e., the same for
+// our purpose here), but they have distinct financial data so the two items
+// are not equal (unless the financial data also happens to match).
+//
+// Next, we define the type of the unordered set and a convenience aliases:
+//..
+//  typedef bsl::unordered_multiset<CustomerDatum,
+//                                  CustomerDatumHash,
+//                                  CustomerDatumEqual> DataByProfile;
+//  typedef DataByProfile::const_iterator               DataByProfileConstItr;
+//..
+// Now, create a helper function to calculate the average financials for a
+// category of customer profiles within the unordered map.
+//..
+//  void processCategory(DataByProfileConstItr  start,
+//                       DataByProfileConstItr  end,
+//                       FILE                  *out)
+//      // Print to the specified 'out' in some human-readable format the
+//      // averages of the 'past' and 'pending' attributes of every
+//      // 'CustomerInfoData' object from the specified 'start' up to (but not
+//      // including) the specified 'end'.  The behavior is undefined unless
+//      // 'end != start'.
+//  {
+//      assert(end != start);
+//      assert(out);
+//  
+//      double sumPast    = 0.0;
+//      double sumPending = 0.0;
+//      int    count      = 0;
+//  
+//      for (DataByProfileConstItr itr = start; end != itr; ++itr) {
+//          sumPast    += itr->d_past;
+//          sumPending += itr->d_pending;
+//          ++count;
+//      }
+//      printf("%-10s %-8s %-5s %10.2f %10.2f\n",
+//             toAscii(start->d_customer),
+//             toAscii(start->d_location),
+//             toAscii(start->d_project),
+//             sumPast/count,
+//             sumPending/count);
+//  }
+//..
+// Then, we create an unordered set and insert each item of 'data'.
+//..
+//  DataByProfile dataByProfile;
+//
+//  for (int idx = 0; idx < numCustomerData; ++idx) {
+//     dataByProfile.insert(customerData[idx]);
+//  }
+//  assert(numCustomerData == dataByProfile.size());
+//..
+// Finally, to calculate the statistics we need, we must detect the transition
+// between categories as we iterate through 'customerInfoData'.
+//..
+//  CustomerDatumEqual    areEquivalent;
+//  DataByProfileConstItr end             = dataByProfile.end();
+//  DataByProfileConstItr startOfCategory = end;
+//
+//  for (DataByProfileConstItr itr  = dataByProfile.begin();
+//                             end != itr; ++itr) {
+//      if (end == startOfCategory) {
+//          startOfCategory = itr;
+//          continue;
+//      }
+//
+//      if (!areEquivalent(*startOfCategory, *itr)) {
+//          processCategory(startOfCategory, itr, stdout);
+//          startOfCategory = itr;
+//      }
+//  }
+//  if (end != startOfCategory) {
+//      processCategory(startOfCategory, end, stdout);
+//  }
+//..
+// We find on standard output:
+//..
+//  BUSINESS   GERMANY  TIDY    84553.00    3379.00
+//  DISCOUNT   ENGLAND  TIDY    74110.00    2706.00
+//  NEED_BASED CANADA   FAST    97479.00     681.00
+//  ...
+//  NEED_BASED SCOTLAND TOAST   27306.00    5084.50
+//  INSTITUTE  CANADA   TIDY    83528.00    4722.33
+//  NEED_BASED FRANCE   FAST    83741.50    5396.50
+//  REPEAT     MEXICO   TOAST    7469.00    5958.00
+//  BUSINESS   SCOTLAND FAST    24443.00    4247.00
+//  INSTITUTE  FRANCE   FAST    19349.00    3982.00
+//  NEED_BASED RUSSIA   TIDY    50712.00    8647.00
+//  INSTITUTE  SCOTLAND TIDY    78240.00    6635.00
+//  BUSINESS   RUSSIA   PEARL   29386.00    3623.00
+//  INSTITUTE  FRANCE   PEARL   47747.00    3533.00
+//..
 
 // Prevent 'bslstl' headers from being included directly in 'BSL_OVERRIDES_STD'
 // mode.  Doing so is unsupported, and is likely to cause compilation errors.

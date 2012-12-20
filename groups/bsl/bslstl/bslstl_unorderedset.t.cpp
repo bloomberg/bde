@@ -188,8 +188,8 @@ using namespace BloombergLP;
 //
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-//*[ 2] default construction (only)
-//*[29] USAGE EXAMPLE
+// [ 2] default construction (only)
+// [29] USAGE EXAMPLE
 //
 // TEST APPARATUS: GENERATOR FUNCTIONS
 //*[ 3] int ggg(unordered_set<K,H,E,A> *object, const char *spec, int verbose);
@@ -5225,6 +5225,313 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase2()
     }
 }
 
+// ============================================================================
+//                              USAGE EXAMPLES
+// ----------------------------------------------------------------------------
+
+///Usage
+///-----
+// In this section we show intended use of this component.
+//
+///Example 1: Categorizing Data
+/// - - - - - - - - - - - - - -
+// Unordered set are useful in situations when there is no meaningful way to
+// order key values, when the order of the values is irrelevant to the problem
+// domain, and (even if there is a meaningful ordering) the value of ordering
+// the results is outweighed by the higher performance provided by unordered
+// sets (compared to ordered sets).
+//
+// Suppose one is analyzing data on a set of customers, and each customer is
+// categorized by several attributes: customer type, geographic area, and
+// (internal) project code; and that each attribute takes on one of a limited
+// set of values.  This data can be handled by creating an enumeration for each
+// of the attributes:
+//..
+    typedef enum {
+        REPEAT
+      , DISCOUNT
+      , IMPULSE
+      , NEED_BASED
+      , BUSINESS
+      , NON_PROFIT
+      , INSTITUTE
+        // ...
+    } CustomerCode;
+
+    typedef enum {
+        USA_EAST
+      , USA_WEST
+      , CANADA
+      , MEXICO
+      , ENGLAND
+      , SCOTLAND
+      , FRANCE
+      , GERMANY
+      , RUSSIA
+        // ...
+    } LocationCode;
+
+    typedef enum {
+        TOAST
+      , GREEN
+      , FAST
+      , TIDY
+      , PEARL
+      , SMITH
+        // ...
+    } ProjectCode;
+//..
+// For printing these values in a human-readable form, we define these helper
+// functions:
+//..
+    static const char *toAscii(CustomerCode value)
+    {
+        switch (value) {
+          case REPEAT:     return "REPEAT";
+          case DISCOUNT:   return "DISCOUNT";
+          case IMPULSE:    return "IMPULSE";
+          case NEED_BASED: return "NEED_BASED";
+          case BUSINESS:   return "BUSINESS";
+          case NON_PROFIT: return "NON_PROFIT";
+          case INSTITUTE:  return "INSTITUTE";
+          // ...
+          default: return "(* UNKNOWN *)";
+        }
+    }
+
+    static const char *toAscii(LocationCode value)
+    {
+        switch (value) {
+          case USA_EAST: return "USA_EAST";
+          case USA_WEST: return "USA_WEST";
+          case CANADA:   return "CANADA";
+          case MEXICO:   return "MEXICO";
+          case ENGLAND:  return "ENGLAND";
+          case SCOTLAND: return "SCOTLAND";
+          case FRANCE:   return "FRANCE";
+          case GERMANY:  return "GERMANY";
+          case RUSSIA:   return "RUSSIA";
+          // ...
+          default: return "(* UNKNOWN *)";
+        }
+    }
+
+    static const char *toAscii(ProjectCode  value)
+    {
+        switch (value) {
+          case TOAST: return "TOAST";
+          case GREEN: return "GREEN";
+          case FAST:  return "FAST";
+          case TIDY:  return "TIDY";
+          case PEARL: return "PEARL";
+          case SMITH: return "SMITH";
+          // ...
+          default: return "(* UNKNOWN *)";
+        }
+    }
+//..
+// The data set (randomly generated for this example) is provided in a
+// statically initialized array:
+//..
+    static const struct CustomerProfile {
+        CustomerCode d_customer;
+        LocationCode d_location;
+        ProjectCode  d_project;
+    } customerProfiles[] = {
+        { IMPULSE   , CANADA  , SMITH },
+        { NON_PROFIT, USA_EAST, GREEN },
+        { INSTITUTE , USA_EAST, TOAST },
+        { NON_PROFIT, CANADA  , PEARL },
+        { NEED_BASED, CANADA  , FAST  },
+        { BUSINESS  , ENGLAND , PEARL },
+        { REPEAT    , SCOTLAND, TIDY  },
+        { INSTITUTE , MEXICO  , PEARL },
+        { DISCOUNT  , USA_EAST, GREEN },
+        { BUSINESS  , USA_EAST, GREEN },
+        { IMPULSE   , MEXICO  , TOAST },
+        { DISCOUNT  , GERMANY , FAST  },
+        { INSTITUTE , FRANCE  , FAST  },
+        { NON_PROFIT, ENGLAND , PEARL },
+        { BUSINESS  , ENGLAND , TIDY  },
+        { BUSINESS  , CANADA  , GREEN },
+        { INSTITUTE , FRANCE  , FAST  },
+        { IMPULSE   , RUSSIA  , TOAST },
+        { REPEAT    , USA_WEST, TOAST },
+        { IMPULSE   , CANADA  , TIDY  },
+        { NON_PROFIT, GERMANY , GREEN },
+        { INSTITUTE , USA_EAST, TOAST },
+        { INSTITUTE , FRANCE  , FAST  },
+        { IMPULSE   , SCOTLAND, SMITH },
+        { INSTITUTE , USA_EAST, PEARL },
+        { INSTITUTE , USA_EAST, TOAST },
+        { NON_PROFIT, ENGLAND , PEARL },
+        { IMPULSE   , GERMANY , FAST  },
+        { REPEAT    , GERMANY , FAST  },
+        { REPEAT    , MEXICO  , PEARL },
+        { IMPULSE   , GERMANY , TIDY  },
+        { IMPULSE   , MEXICO  , TOAST },
+        { NON_PROFIT, SCOTLAND, SMITH },
+        { NEED_BASED, MEXICO  , TOAST },
+        { NON_PROFIT, FRANCE  , SMITH },
+        { INSTITUTE , MEXICO  , TIDY  },
+        { NON_PROFIT, FRANCE  , TIDY  },
+        { IMPULSE   , FRANCE  , FAST  },
+        { DISCOUNT  , RUSSIA  , TIDY  },
+        { IMPULSE   , USA_EAST, TIDY  },
+        { IMPULSE   , USA_WEST, FAST  },
+        { NON_PROFIT, FRANCE  , TIDY  },
+        { BUSINESS  , ENGLAND , GREEN },
+        { REPEAT    , FRANCE  , TOAST },
+        { REPEAT    , RUSSIA  , SMITH },
+        { REPEAT    , RUSSIA  , GREEN },
+        { IMPULSE   , CANADA  , FAST  },
+        { NON_PROFIT, USA_EAST, FAST  },
+        { NEED_BASED, USA_WEST, TOAST },
+        { NON_PROFIT, GERMANY , TIDY  },
+        { NON_PROFIT, ENGLAND , GREEN },
+        { REPEAT    , GERMANY , PEARL },
+        { NEED_BASED, USA_EAST, PEARL },
+        { NON_PROFIT, RUSSIA  , PEARL },
+        { NEED_BASED, ENGLAND , SMITH },
+        { INSTITUTE , CANADA  , SMITH },
+        { NEED_BASED, ENGLAND , TOAST },
+        { NON_PROFIT, MEXICO  , TIDY  },
+        { BUSINESS  , GERMANY , FAST  },
+        { NEED_BASED, SCOTLAND, PEARL },
+        { NON_PROFIT, USA_WEST, TIDY  },
+        { NON_PROFIT, USA_WEST, TOAST },
+        { IMPULSE   , FRANCE  , PEARL },
+        { IMPULSE   , ENGLAND , FAST  },
+        { IMPULSE   , USA_WEST, GREEN },
+        { DISCOUNT  , MEXICO  , SMITH },
+        { INSTITUTE , GERMANY , TOAST },
+        { NEED_BASED, CANADA  , PEARL },
+        { NON_PROFIT, USA_WEST, FAST  },
+        { DISCOUNT  , RUSSIA  , SMITH },
+        { INSTITUTE , USA_WEST, GREEN },
+        { INSTITUTE , RUSSIA  , TOAST },
+        { INSTITUTE , FRANCE  , SMITH },
+        { INSTITUTE , SCOTLAND, SMITH },
+        { NON_PROFIT, ENGLAND , PEARL },
+        { NON_PROFIT, CANADA  , SMITH },
+        { NON_PROFIT, USA_EAST, TOAST },
+        { REPEAT    , FRANCE  , TOAST },
+        { NEED_BASED, FRANCE  , FAST  },
+        { DISCOUNT  , MEXICO  , TOAST },
+        { DISCOUNT  , FRANCE  , GREEN },
+        { IMPULSE   , USA_EAST, FAST  },
+        { REPEAT    , USA_EAST, GREEN },
+        { NON_PROFIT, GERMANY , GREEN },
+        { INSTITUTE , CANADA  , SMITH },
+        { NEED_BASED, SCOTLAND, TOAST },
+        { NEED_BASED, GERMANY , FAST  },
+        { NON_PROFIT, RUSSIA  , TOAST },
+        { BUSINESS  , ENGLAND , PEARL },
+        { NEED_BASED, USA_EAST, TOAST },
+        { INSTITUTE , USA_EAST, SMITH },
+        { DISCOUNT  , USA_EAST, PEARL },
+        { REPEAT    , SCOTLAND, FAST  },
+        { IMPULSE   , GERMANY , TIDY  },
+        { DISCOUNT  , CANADA  , TIDY  },
+        { IMPULSE   , USA_EAST, TIDY  },
+        { IMPULSE   , GERMANY , TIDY  },
+        { NON_PROFIT, ENGLAND , FAST  },
+        { NON_PROFIT, USA_WEST, TIDY  },
+        { REPEAT    , MEXICO  , TOAST },
+    };
+    const int numCustomerProfiles = sizeof  customerProfiles
+                                  / sizeof *customerProfiles;
+//..
+// Suppose, as the first step in analysis, we wish to determine the number of
+// unique combinations of customer attributes that exist in our data set.  We
+// can do that by inserting each data item into an (unordered) set: the first
+// insert of a combination will succeed, the others will fail, but at the end
+// of the process, the set will contain one entry for every unique combination
+// in our data.
+//
+// First, as there are no standard methods for hashing or comparing our user
+// defined types, we define 'CustomerProfileHash' and 'CustomerProfileEqual'
+// classes, each a stateless functor.  Note that there is no meaningful
+// ordering of the attribute values, they are merely arbitrary code numbers;
+// nothing is lost by using an unordered set instead of an ordered set:
+//..
+    class CustomerProfileHash
+    {
+      public:
+        // CREATORS
+        //! CustomerProfileHash() = default;
+            // Create a 'CustomerProfileHash' object.
+
+        //! CustomerProfileHash(const CustomerProfileHash& original) = default;
+            // Create a 'CustomerProfileHash' object.  Note that as
+            // 'CustomerProfileHash' is an empty (stateless) type, this
+            // operation will have no observable effect.
+
+        //! ~CustomerProfileHash() = default;
+            // Destroy this object.
+
+        // ACCESSORS
+        std::size_t operator()(CustomerProfile x) const;
+            // Return a hash value computed using the specified 'x'.
+    };
+//..
+// The hash function combines the several enumerated values from the class
+// (each a small 'int' value) into a single, unique 'int' value, and then
+// applying the default hash function for 'int'.  See {Practical Requirements
+// on 'HASH'}.
+//..
+    // ACCESSORS
+    std::size_t CustomerProfileHash::operator()(CustomerProfile x) const
+    {
+        return bsl::hash<int>()(x.d_location * 100 * 100
+                              + x.d_customer * 100
+                              + x.d_project);
+    }
+
+    class CustomerProfileEqual
+    {
+      public:
+        // CREATORS
+        //! CustomerProfileEqual() = default;
+            // Create a 'CustomerProfileEqual' object.
+
+        //! CustomerProfileEqual(const CustomerProfileEqual& original)
+        //!                                                          = default;
+            // Create a 'CustomerProfileEqual' object.  Note that as
+            // 'CustomerProfileEqual' is an empty (stateless) type, this
+            // operation will have no observable effect.
+
+        //! ~CustomerProfileEqual() = default;
+            // Destroy this object.
+
+        // ACCESSORS
+        bool operator()(const CustomerProfile& lhs,
+                        const CustomerProfile& rhs) const;
+            // Return 'true' if the specified 'lhs' have the same value as the
+            // specified 'rhs', and 'false' otherwise.
+    };
+
+    // ACCESSORS
+    bool CustomerProfileEqual::operator()(const CustomerProfile& lhs,
+                                          const CustomerProfile& rhs) const
+    {
+        return lhs.d_location == rhs.d_location
+            && lhs.d_customer == rhs.d_customer
+            && lhs.d_project  == rhs.d_project;
+    }
+//..
+// Notice that many of the required methods of the hash and comparitor types
+// are compiler generated.  (The declaration of those methods are commented out
+// and suffixed by an '= default' comment.)
+//
+// Next, we define the type of the unordered set and a convenience aliases:
+//..
+    typedef bsl::unordered_set<CustomerProfile,
+                               CustomerProfileHash,
+                               CustomerProfileEqual> ProfileCategories;
+    typedef ProfileCategories::const_iterator        ProfileCategoriesConstItr;
+//..
+
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -5244,7 +5551,6 @@ int main(int argc, char *argv[])
     bslma::Default::setDefaultAllocator(&testAlloc);
 
     switch (test) { case 0:
-#if 0
       case 25: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
@@ -5264,39 +5570,142 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\nUSAGE EXAMPLE"
                             "\n=============\n");
+//..
+// Then, we create an unordered set and insert each item of 'data'.
+//..
+    ProfileCategories profileCategories;
 
-        {
-            using namespace UsageExample;
+    for (int idx = 0; idx < numCustomerProfiles; ++idx) {
+       profileCategories.insert(customerProfiles[idx]);
+    }
 
-            bslma::TestAllocator defaultAllocator("defaultAllocator");
-            bslma::DefaultAllocatorGuard defaultGuard(&defaultAllocator);
-
-            bslma::TestAllocator objectAllocator("objectAllocator");
-
-            HolidayCalendar cal(&objectAllocator);
-
-            ASSERT(false == cal.isHolidayDate(MyDate(2012, 7, 4)));
-
-            cal.addHolidayDate(MyDate(2012, 7, 4));
-
-            ASSERT(true == cal.isHolidayDate(MyDate(2012, 7, 4)));
-
-            cal.addHolidayDate(MyDate(2012, 1, 1));
-
-            ASSERT(true == cal.isHolidayDate(MyDate(2012, 1, 1)));
-
-            cal.removeHolidayDate(MyDate(2012, 1, 1));
-
-            ASSERT(false == cal.isHolidayDate(MyDate(2012, 1, 1)));
-
-            cal.addHolidayDate(MyDate(2012, 12, 25));
-
-            ASSERT(0 == defaultAllocator.numBytesInUse());
-            ASSERT(0 < objectAllocator.numBytesInUse());
-        }
+    ASSERT(numCustomerProfiles >= profileCategories.size());
+//..
+// Notice that we ignore the status returned by the 'insert' method.  We fully
+// expect some operations to fail.
+//
+// Now, the size of 'profileCategories' matches the number of unique customer
+// profiles in this data set.
+//..
+if (verbose) {
+    printf("%d %d\n", numCustomerProfiles, profileCategories.size());
+}
+//..
+// Standard output shows:
+//..
+//  100 84
+//..
+// Finally, we can examine the unique set by iterating through the unordered
+// set and printing each element.  Note the use of the several 'toAscii'
+// functions defined earlier to make the output comprehensible:
+//..
+    for (ProfileCategoriesConstItr itr  = profileCategories.begin(),
+                                   end  = profileCategories.end();
+                                   end != itr; ++itr) {
+if (verbose) {
+        printf("%-10s %-8s %-5s\n",
+               toAscii(itr->d_customer),
+               toAscii(itr->d_location),
+               toAscii(itr->d_project));
+}
+    }
+//..
+// We find on standard output:
+//..
+//  NON_PROFIT ENGLAND  FAST
+//  DISCOUNT   CANADA   TIDY
+//  NEED_BASED USA_EAST TOAST
+//  NON_PROFIT RUSSIA   TOAST
+//  NEED_BASED SCOTLAND TOAST
+//  REPEAT     USA_EAST GREEN
+//  DISCOUNT   FRANCE   GREEN
+//  INSTITUTE  FRANCE   SMITH
+//  NON_PROFIT CANADA   SMITH
+//  INSTITUTE  RUSSIA   TOAST
+//  INSTITUTE  USA_WEST GREEN
+//  DISCOUNT   RUSSIA   SMITH
+//  NON_PROFIT USA_WEST FAST
+//  NEED_BASED MEXICO   TOAST
+//  IMPULSE    GERMANY  TIDY
+//  INSTITUTE  USA_EAST SMITH
+//  REPEAT     MEXICO   PEARL
+//  INSTITUTE  FRANCE   FAST
+//  IMPULSE    FRANCE   FAST
+//  REPEAT     RUSSIA   SMITH
+//  IMPULSE    SCOTLAND SMITH
+//  NON_PROFIT GERMANY  GREEN
+//  NON_PROFIT FRANCE   SMITH
+//  IMPULSE    GERMANY  FAST
+//  INSTITUTE  USA_EAST PEARL
+//  IMPULSE    RUSSIA   TOAST
+//  NEED_BASED CANADA   FAST
+//  IMPULSE    CANADA   SMITH
+//  INSTITUTE  SCOTLAND SMITH
+//  IMPULSE    USA_EAST TIDY
+//  REPEAT     GERMANY  FAST
+//  DISCOUNT   RUSSIA   TIDY
+//  REPEAT     GERMANY  PEARL
+//  BUSINESS   CANADA   GREEN
+//  REPEAT     SCOTLAND FAST
+//  NEED_BASED USA_EAST PEARL
+//  INSTITUTE  GERMANY  TOAST
+//  BUSINESS   ENGLAND  TIDY
+//  DISCOUNT   USA_EAST PEARL
+//  NON_PROFIT ENGLAND  PEARL
+//  INSTITUTE  MEXICO   PEARL
+//  IMPULSE    MEXICO   TOAST
+//  NEED_BASED GERMANY  FAST
+//  INSTITUTE  MEXICO   TIDY
+//  INSTITUTE  USA_EAST TOAST
+//  BUSINESS   ENGLAND  PEARL
+//  NON_PROFIT SCOTLAND SMITH
+//  NON_PROFIT USA_WEST TIDY
+//  BUSINESS   GERMANY  FAST
+//  REPEAT     USA_WEST TOAST
+//  REPEAT     SCOTLAND TIDY
+//  NON_PROFIT CANADA   PEARL
+//  NON_PROFIT USA_WEST TOAST
+//  DISCOUNT   MEXICO   TOAST
+//  NEED_BASED FRANCE   FAST
+//  DISCOUNT   GERMANY  FAST
+//  NON_PROFIT FRANCE   TIDY
+//  IMPULSE    USA_WEST FAST
+//  REPEAT     FRANCE   TOAST
+//  REPEAT     RUSSIA   GREEN
+//  BUSINESS   USA_EAST GREEN
+//  NON_PROFIT RUSSIA   PEARL
+//  IMPULSE    CANADA   TIDY
+//  IMPULSE    CANADA   FAST
+//  IMPULSE    USA_EAST FAST
+//  NON_PROFIT GERMANY  TIDY
+//  NON_PROFIT ENGLAND  GREEN
+//  NON_PROFIT USA_EAST TOAST
+//  NON_PROFIT USA_EAST FAST
+//  IMPULSE    ENGLAND  FAST
+//  NEED_BASED ENGLAND  SMITH
+//  NEED_BASED CANADA   PEARL
+//  INSTITUTE  CANADA   SMITH
+//  NON_PROFIT MEXICO   TIDY
+//  NEED_BASED ENGLAND  TOAST
+//  BUSINESS   ENGLAND  GREEN
+//  NEED_BASED SCOTLAND PEARL
+//  NON_PROFIT USA_EAST GREEN
+//  IMPULSE    FRANCE   PEARL
+//  REPEAT     MEXICO   TOAST
+//  NEED_BASED USA_WEST TOAST
+//  IMPULSE    USA_WEST GREEN
+//  DISCOUNT   USA_EAST GREEN
+//  DISCOUNT   MEXICO   SMITH
+//..
+//
+///Example 2: Examining and Setting Unordered Set Configuration
+///------------------------------------------------------------
+// The unordered set interfaces provide some insight into and control of
+// its inner workings.  The syntax and semantics of these interfaces for
+// 'bslstl_unoroderedset' are identical to those of 'bslstl_unorderedmap'.
+// See the material in {'bslstl_unorderedmap'|Example 2}.
 
       } break;
-#endif
       case 24: {
         // --------------------------------------------------------------------
         // TESTING STANDARD INTERFACE COVERAGE
