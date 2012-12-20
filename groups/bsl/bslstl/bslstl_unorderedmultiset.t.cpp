@@ -2536,7 +2536,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase2()
             sumPending += itr->d_pending;
             ++count;
         }
-if (g_verbose) {
+if (verbose) {
         printf("%-10s %-8s %-5s %10.2f %10.2f\n",
                toAscii(start->d_customer),
                toAscii(start->d_location),
