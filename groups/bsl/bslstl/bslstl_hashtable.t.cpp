@@ -1604,6 +1604,20 @@ bool expectPoolToAllocate(int n)
     return (((n - 1) & n) == 0);  // Allocate when 'n' is a power of 2
 }
 
+size_t predictNumBuckets(size_t length, float maxLoadFactor)
+    // Return the minimum number of buckets necessary to support the specified
+    // 'length' array of elements in a 'HashTable' having the specified
+    // 'maxLoadFactor' without rehashing.  Note that typically the result will
+    // be passed to a 'HashTable' constructor or reserve call, which may in
+    // turn choose to create even more buckets to preserve its growth strategy.
+    // This function does not attempt to predict that growth strategy, but
+    // merely predict the minimum number of buckets that strategy must
+    // accomodate.
+{
+    return static_cast<size_t>(ceil(static_cast<double>(length) /
+                                                        maxLoadFactor));
+}
+
 template<class KEY_CONFIG, class COMPARATOR, class VALUES>
 int verifyListContents(Link              *containerList,
                        const COMPARATOR&  compareKeys,
@@ -1652,10 +1666,14 @@ int verifyListContents(Link              *containerList,
         return -2;                                                    // RETURN
     }
 
-    size_t missing = 0;
+    int missing = 0;
     for (size_t j = 0; j != expectedSize; ++j) {
         if (!foundValues[j]) {
-            ++missing;
+            // Check to avoid spurious overflow warnings - we will never have
+            // so many elements we need to worry about this.
+            if (++missing == INT_MAX) {
+                return missing;                                       // RETURN
+            }
         }
     }
 
@@ -1705,8 +1723,12 @@ Link* insertElement(
 {
     BSLS_ASSERT(hashTable);
 
+    // static_casts are necessary to avoid warnings with gcc.  We have
+    // determined that within the scope of this test driver, these casts are
+    // not discarding important information, even on 64-bit platforms.
     if (static_cast<double>(hashTable->size() + 1) >
-        hashTable->maxLoadFactor() * hashTable->numBuckets() ) {
+                             static_cast<double>(hashTable->maxLoadFactor()) *
+                             static_cast<double>(hashTable->numBuckets()) ) {
         return 0;                                                     // RETURN
     }
     return hashTable->insert(value);
@@ -2398,7 +2420,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase13()
 
             Obj                  *objPtr;
 
-            const size_t NUM_BUCKETS = ceil(3 * LENGTH/MAX_LF);
+            const size_t NUM_BUCKETS = predictNumBuckets(3*LENGTH, MAX_LF);
 
             ALLOCATOR objAlloc  = MakeAllocator<ALLOCATOR>::make(&sa);
 
@@ -2952,11 +2974,11 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase13()
     for (int ti = 0; ti < NUM_DATA; ++ti) {
         const int         LINE   = DATA[ti].d_line;
         const char *const SPEC   = DATA[ti].d_spec;
-        const size_t      LENGTH = (int) strlen(SPEC);
+        const size_t      LENGTH = strlen(SPEC);
 
         for (int tj = 0; tj < DEFAULT_MAX_LOAD_FACTOR_SIZE; ++tj) {
             const float  MAX_LF      = DEFAULT_MAX_LOAD_FACTOR[tj];
-            const size_t NUM_BUCKETS = ceil(LENGTH / MAX_LF);
+            const size_t NUM_BUCKETS = predictNumBuckets(LENGTH, MAX_LF);
 
             bslma::TestAllocator      oa("object",  veryVeryVeryVerbose);
             bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
@@ -2971,7 +2993,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase13()
 
                 const size_t OLD_NUM_BUCKETS = X.numBuckets();
                 const size_t NEW_NUM_BUCKETS =
-                                         ceil(REHASH_SIZE[tj ]/ MAX_LF);
+                                    predictNumBuckets(REHASH_SIZE[tj], MAX_LF);
 
                 bslma::TestAllocatorMonitor oam(&oa);
 
@@ -3356,7 +3378,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase9()
             const char *const SPEC1   = DATA[ti].d_spec;
 
             const size_t      LENGTH1 = strlen(SPEC1);
-            const size_t NUM_BUCKETS1 = ceil(LENGTH1 / MAX_LF1);
+            const size_t NUM_BUCKETS1 = predictNumBuckets(LENGTH1, MAX_LF1);
 
             bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
@@ -3378,7 +3400,8 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase9()
                 const char *const SPEC2   = DATA[tj].d_spec;
 
                 const size_t      LENGTH2 = strlen(SPEC2);
-                const size_t NUM_BUCKETS2 = ceil(LENGTH2 / MAX_LF2);
+                const size_t NUM_BUCKETS2 = predictNumBuckets(LENGTH2,
+                                                              MAX_LF2);
 
                 bslma::TestAllocator oa("object", veryVeryVeryVerbose);
 
@@ -3694,7 +3717,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase8()
         const char *const SPEC1   = DATA[ti].d_spec;
 
         const size_t      LENGTH1      = strlen(SPEC1);
-        const size_t      NUM_BUCKETS1 = ceil(LENGTH1 / MAX_LF1);
+        const size_t      NUM_BUCKETS1 = predictNumBuckets(LENGTH1, MAX_LF1);
 
         bslma::TestAllocator      oa("object",  veryVeryVeryVerbose);
         bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
@@ -3735,7 +3758,8 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase8()
             const char *const SPEC2   = DATA[tj].d_spec;
 
             const size_t      LENGTH2      = strlen(SPEC2);
-            const size_t      NUM_BUCKETS2 = ceil(LENGTH2 / MAX_LF2);
+            const size_t      NUM_BUCKETS2 = predictNumBuckets(LENGTH2,
+                                                               MAX_LF2);
 
 
             Obj mX(XX, &oa);  const Obj& X = mX;
@@ -3864,10 +3888,10 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase8()
         bslma::TestAllocator      oa("object",  veryVeryVeryVerbose);
         bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
-        Obj mX(HASH, COMPARE, 0, 1.0, &oa);  const Obj& X = mX;
+        Obj mX(HASH, COMPARE, 0, 1.0f, &oa);  const Obj& X = mX;
         const Obj XX(X, &scratch);
 
-        Obj mY(HASH, COMPARE, 40, 0.1, &oa);
+        Obj mY(HASH, COMPARE, 40, 0.1f, &oa);
         const Obj& Y = gg(&mY, "ABC");
         const Obj YY(Y, &scratch);
 
@@ -4004,7 +4028,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase7()
             const char *const SPEC        = SPECS[ti];
 
             const size_t      LENGTH      = strlen(SPEC);
-            const size_t      NUM_BUCKETS = ceil(LENGTH / MAX_LF);
+            const size_t      NUM_BUCKETS = predictNumBuckets(LENGTH, MAX_LF);
 
             if (verbose) {
                 printf("\nFor an object of length " ZU ":\n", LENGTH);
@@ -4345,7 +4369,8 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase6()
             const char *const SPEC1    = DATA[ti].d_spec;
 
             const size_t      LENGTH1     = strlen(SPEC1);
-            const size_t      NUM_BUCKETS = ceil(LENGTH1/MAX_LF1);
+            const size_t      NUM_BUCKETS = predictNumBuckets(LENGTH1,
+                                                              MAX_LF1);
 
            if (veryVerbose) { T_ P_(LINE1) P_(INDEX1) P_(LENGTH1) P(SPEC1) }
 
@@ -4369,7 +4394,8 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase6()
                 const char *const SPEC2   = DATA[tj].d_spec;
 
                 const size_t      LENGTH2      = strlen(SPEC2);
-                const size_t      NUM_BUCKETS2 = ceil(LENGTH2/MAX_LF2);
+                const size_t      NUM_BUCKETS2 = predictNumBuckets(LENGTH2,
+                                                                   MAX_LF2);
 
                 if (veryVerbose) {
                               T_ T_ P_(LINE2) P_(INDEX2) P_(LENGTH2) P(SPEC2) }
@@ -4527,12 +4553,12 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase4()
     } DATA[] = {
         //line  spec                 result
         //----  --------             ------
-        { L_,   "",       1.0,   1,  ""       },
-        { L_,   "A",      0.9,   2,  "A"      },
-        { L_,   "AB",     0.8,   3,  "AB"     },
-        { L_,   "ABC",    0.7,   5,  "ABC"    },
-        { L_,   "ABCD",   0.6,   8,  "ABCD"   },
-        { L_,   "ABCDE",  0.5,  13,  "ABCDE"  }
+        { L_,   "",       1.0f,   1,  ""       },
+        { L_,   "A",      0.9f,   2,  "A"      },
+        { L_,   "AB",     0.8f,   3,  "AB"     },
+        { L_,   "ABC",    0.7f,   5,  "ABC"    },
+        { L_,   "ABCD",   0.6f,   8,  "ABCD"   },
+        { L_,   "ABCDE",  0.5f,  13,  "ABCDE"  }
     };
     const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -4545,7 +4571,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase4()
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int         LINE         = DATA[ti].d_line;
             const char *const SPEC         = DATA[ti].d_spec;
-            const int         LENGTH       = strlen(DATA[ti].d_results);
+            const size_t      LENGTH       = strlen(DATA[ti].d_results);
             const float       MAX_LF       = DATA[ti].d_maxLoadFactor;
             const size_t      NUM_BUCKETS  = DATA[ti].d_numBuckets;
             const TestValues  EXP(DATA[ti].d_results);
@@ -4628,7 +4654,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase4()
                 ASSERTV(LINE, SPEC, CONFIG, NUM_BUCKETS <= X.numBuckets());
                 ASSERTV(LINE, SPEC, CONFIG,
                         MAX_LF == X.maxLoadFactor());
-                ASSERTV(LINE, SPEC, CONFIG, LENGTH == (int)X.size());
+                ASSERTV(LINE, SPEC, CONFIG, LENGTH == X.size());
 
                 ASSERT(0 == verifyListContents<KEY_CONFIG>(X.elementListRoot(),
                                                            EQUAL,
@@ -4670,13 +4696,14 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase4()
     {
         bsls::AssertFailureHandlerGuard hG(bsls::AssertTest::failTestDriver);
 
-
         if (veryVerbose) printf("\t'bucketAtIndex'\n");
         {
-            Obj mX(HASH, EQUAL, 1, 1.0);  const Obj& X = mX;
-            int numBuckets = X.numBuckets();
-            ASSERT_SAFE_PASS(X.bucketAtIndex(numBuckets - 1));
-            ASSERT_SAFE_FAIL(X.bucketAtIndex(numBuckets));
+            Obj mX(HASH, EQUAL, 1, 1.0f);  const Obj& X = mX;
+            size_t numBuckets = X.numBuckets();
+            if (0 < numBuckets) { // always true, but needed for warnings
+                ASSERT_SAFE_PASS(X.bucketAtIndex(numBuckets - 1));
+                ASSERT_SAFE_FAIL(X.bucketAtIndex(numBuckets));
+            }
         }
     }
 }
@@ -4823,18 +4850,21 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase3()
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        int oldLen = -1;
-        for (int ti = 0; ti < NUM_DATA ; ++ti) {
+        size_t oldLen = 99;  // flag value longer than the longest 'SPEC'
+        for (int ti = 0; ti != NUM_DATA ; ++ti) {
             const int         LINE   = DATA[ti].d_line;
             const char *const SPEC   = DATA[ti].d_spec;
             const int         INDEX  = DATA[ti].d_index;
-            const size_t      LENGTH = (int)strlen(SPEC);
+            const size_t      LENGTH = strlen(SPEC);
 
             Obj mX(HASH, EQUAL, LENGTH, 1.5f, &oa);
 
-            if ((int)LENGTH != oldLen) {
+            if (LENGTH != oldLen) {
                 if (verbose) printf("\tof length " ZU ":\n", LENGTH);
-                 ASSERTV(LINE, oldLen <= (int)LENGTH);  // non-decreasing
+                if (99 != oldLen) {  // i.e. not first pass
+                    ASSERTV(LINE, oldLen,  LENGTH,
+                                  oldLen < LENGTH);  // non-decreasing
+                }
                 oldLen = LENGTH;
             }
 
@@ -5047,7 +5077,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
                 printf("\n\tTesting bootstrap constructor.\n");
             }
 
-            const size_t NUM_BUCKETS = ceil(3 * LENGTH/MAX_LF);
+            const size_t NUM_BUCKETS = predictNumBuckets(3*LENGTH, MAX_LF);
 
             Obj       *objPtr;
             ALLOCATOR  expAlloc = ObjMaker::makeObject(&objPtr,
@@ -5387,7 +5417,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
             Obj mX(HASH,
                    COMPARE,
                    native_std::numeric_limits<int>::max(),
-                   1e-30,
+                   1e-30f,
                    objAlloc);
             ASSERT(false);
         }
@@ -5403,7 +5433,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
             Obj mBad(HASH,
                      COMPARE,
                      native_std::numeric_limits<SizeType>::max(),
-                     1e-30,
+                     1e-30f,
                      objAlloc);
             ASSERT(false);
         }
@@ -5417,7 +5447,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
         Obj mR(HASH,
                COMPARE,
                3,
-               1e-30,
+               1e-30f,
                objAlloc);
         try {
             mR.insert(VALUES[0]);

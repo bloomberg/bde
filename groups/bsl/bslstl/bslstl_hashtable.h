@@ -2230,7 +2230,8 @@ template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 inline
 float HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::loadFactor() const
 {
-    return static_cast<float>((double)size() / this->numBuckets());
+    return static_cast<float>(static_cast<double>(size())
+                                    / static_cast<double>(this->numBuckets()));
 }
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
