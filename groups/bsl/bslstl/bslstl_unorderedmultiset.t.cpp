@@ -17,6 +17,7 @@
 
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
+#include <bsls_types.h>
 
 #include <bsltf_stdtestallocator.h>
 #include <bsltf_templatetestfacility.h>
@@ -212,8 +213,10 @@ void aSsErT(bool b, const char *s, int i)
 #define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
 // ============================================================================
-//                       GLOBAL TEST VALUES
+//                       GLOBAL TYPEDEFS AND VARIABLES
 // ----------------------------------------------------------------------------
+
+typedef bsls_Types::UintPtr UintPtr;
 
 static bool             verbose;
 static bool         veryVerbose;
@@ -223,12 +226,6 @@ static bool veryVeryVeryVerbose;
 //=============================================================================
 //                              TEST SUPPORT
 //-----------------------------------------------------------------------------
-
-bool g_verbose;
-bool g_veryVerbose;
-bool g_veryVeryVerbose;
-bool g_veryVeryVeryVerbose;
-bool g_veryVeryVeryVeryVerbose;
 
 template<class CONTAINER>
 const typename CONTAINER::key_type
@@ -318,7 +315,7 @@ void testEmptyContainer(CONTAINER& x)
 }
 
 template <class CONTAINER>
-void testContainerHasData(const CONTAINER&                      x,
+void testContainerHasData(const CONTAINER&                      X,
                           typename CONTAINER::size_type         nCopies,
                           const typename CONTAINER::value_type *data,
                           typename CONTAINER::size_type         size)
@@ -328,19 +325,20 @@ void testContainerHasData(const CONTAINER&                      x,
     typedef typename CONTAINER::const_iterator TestIterator;
 
     ASSERT(nCopies);
-    ASSERT(x.size() == nCopies * size);
+    ASSERT(X.size() == nCopies * size);
 
     for (SizeType i = 0; i != size; ++i) {
         const typename CONTAINER::value_type& testValue = data[i];
-        TestIterator it = x.find(keyForValue<CONTAINER>(testValue));
-        ASSERT(x.end() !=  it);
+        TestIterator it = X.find(keyForValue<CONTAINER>(testValue));
+        ASSERT(X.end() !=  it);
         ASSERT(data[i] == *it);
-        const SizeType countValues = x.count(keyForValue<CONTAINER>(testValue));
+        const SizeType countValues =
+                                    X.count(keyForValue<CONTAINER>(testValue));
         LOOP3_ASSERT(i, countValues, nCopies,
                      countValues == nCopies);
 
         bsl::pair<TestIterator, TestIterator> range =
-                              x.equal_range(keyForValue<CONTAINER>(testValue));
+                              X.equal_range(keyForValue<CONTAINER>(testValue));
 
         const SizeType rangeDist = bsl::distance(range.first, range.second);
         LOOP2_ASSERT(countValues,   rangeDist,
@@ -350,8 +348,10 @@ void testContainerHasData(const CONTAINER&                      x,
         for(SizeType iterations = nCopies; --iterations; ++it) {
             ASSERT(testValue == *it);
         }
+
         // Need one extra increment to reach past-the-range iterator.
-        if (++it != x.end()) {
+
+        if (++it != X.end()) {
             ASSERT(testValue != *it);
         }
         ASSERT(range.second == it);
@@ -681,7 +681,6 @@ bool expectToAllocate(int n)
         bool& operator[](size_t index) { return d_data[index]; }
         bool *d_data;
     };
-
 
 
 template<class CONTAINER, class VALUES>
@@ -1028,6 +1027,11 @@ class TestDriver {
         // Return, by value, a new object corresponding to the specified
         // 'spec'.
 
+    static int verifySpec(const Obj& object, const char *spec);
+        // Return -1 if the specified 'object' exactly matches the specified
+        // 'spec', and the index in the spec of the first element whose count
+        // in 'object' doesn't match the number of occurrances in SPEC.
+
   public:
     // TEST CASES
 #if 0
@@ -1100,13 +1104,13 @@ class TestDriver {
         // Reserved for (<<) operator.
 
     static void testCase4();
-        // Test basic accessors ('size', 'cbegin', 'cend' and 'get_allocator').
+        // Test basic accessors, call all accessors
 
     static void testCase3();
         // Test generator functions 'ggg', and 'gg'.
 
     static void testCase2();
-        // Test primary manipulators ('insert' and 'clear').
+        // Test primary manipulators, call all manipulators
 
 #if 0
     static void testCase1(const COMP&  comparator,
@@ -1168,13 +1172,48 @@ TestDriver<KEY,HASH, EQUAL, ALLOC>::g(const char *spec)
 }
 
 template <class KEY, class HASH, class EQUAL, class ALLOC>
+int TestDriver<KEY,HASH, EQUAL, ALLOC>::verifySpec(const Obj&  object,
+                                                   const char *spec)
+{
+    bslma::DefaultAllocatorGuard guard(
+                                      &bslma::NewDeleteAllocator::singleton());
+
+    const TestValues VALUES;
+
+    for (const char *pc = spec; *pc; ++pc) {
+        const char C = *pc;
+
+        size_t count = 0;
+        for (const char *pcB = spec; *pcB; ++pcB) {
+            count += C == *pcB;
+        }
+
+        // We can't rely on 'count' yet, so we have to do it by hand.
+
+        const KEY K = VALUES[C - 'A'];
+        for (CIter it = object.begin(); object.end() != it; ++it) {
+            if (K == *it) {
+                --count;
+            }
+        }
+
+        if (0 != count) {
+            return pc - spec;                                         // RETURN
+        }
+    }
+
+    return -1;    // success
+}
+
+template <class KEY, class HASH, class EQUAL, class ALLOC>
 void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase4()
 {
     // ------------------------------------------------------------------------
     // BASIC ACCESSORS
     //   Ensure each basic accessor:
-    //     - cbegin
-    //     - cend
+    //     - begin, cbegin, begin(i), cbegin(i)
+    //     - end, cend, end(i), cend(i)
+    //     - bucket
     //     - size
     //     - get_allocator
     //   properly interprets object state.
@@ -1275,7 +1314,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase4()
                   } break;
                   default: {
                       ASSERTV(CONFIG, !"Bad allocator config.");
-                      return;
+                      return;                                         // RETURN
                   } break;
                 }
 
@@ -1369,52 +1408,42 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase3()
         static const struct {
             int         d_line;                 // source line number
             const char *d_spec;                 // specification string
-            const char *d_results;  // expected element values
         } DATA[] = {
-            //line  spec      results
-            //----  --------  -------
-            { L_,   "",       ""      },
-            { L_,   "A",      "A"     },
-            { L_,   "B",      "B"     },
-            { L_,   "AB",     "AB"    },
-            { L_,   "CD",     "CD"    },
-            { L_,   "ABC",    "ABC"   },
-            { L_,   "ABCD",   "ABCD"  },
-            { L_,   "ABCDE",  "ABCDE" },
+            //line  spec
+            //----  --------
+            { L_,   ""      },
+            { L_,   "A"     },
+            { L_,   "AA"    },
+            { L_,   "B"     },
+            { L_,   "AB"    },
+            { L_,   "AABB"  },
+            { L_,   "CD"    },
+            { L_,   "ABCBA" },
+            { L_,   "ABCD"  },
+            { L_,   "ABCDE" },
+            { L_,   "ABEEE" },
+            { L_,   "HIJKL" },
+            { L_,   "AAAFF" },
+            { L_,   "CCCCC" },
 
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        int oldLen = -1;
         for (int ti = 0; ti < NUM_DATA ; ++ti) {
             const int         LINE   = DATA[ti].d_line;
             const char *const SPEC   = DATA[ti].d_spec;
-            const size_t      LENGTH = strlen(DATA[ti].d_results);
-            const TestValues  EXP(DATA[ti].d_results);
-            const int         curLen = (int)strlen(SPEC);
+            const size_t      LENGTH = strlen(SPEC);
 
             Obj mX(&oa);
             const Obj& X = gg(&mX, SPEC);   // original spec
 
-            Obj mY(&oa);
-            const Obj& Y = gg(&mY, SPEC);    // extended spec
-
-            if (curLen != oldLen) {
-                if (verbose) printf("\tof length %d:\n", curLen);
-                ASSERTV(LINE, oldLen <= curLen);  // non-decreasing
-                oldLen = curLen;
-            }
-
             if (veryVerbose) {
                 printf("\t\tSpec = \"%s\"\n", SPEC);
                 T_ T_ T_ P(X);
-                T_ T_ T_ P(Y);
             }
 
             ASSERTV(LINE, LENGTH == X.size());
-            ASSERTV(LINE, LENGTH == Y.size());
-            ASSERT(0 == verifyContainer(X, EXP, LENGTH));
-            ASSERT(0 == verifyContainer(Y, EXP, LENGTH));
+            ASSERT(-1 == verifySpec(X, SPEC));
         }
     }
 
@@ -1487,10 +1516,10 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase2()
 {
     // ------------------------------------------------------------------------
     // TESTING PRIMARY MANIPULATORS (BOOTSTRAP):
-    //   The basic concern is that the default constructor, the destructor,
-    //   and, under normal conditions (i.e., no aliasing), the primary
-    //   manipulators
+    // The basic concern is the default constructor, the destructor, and, under
+    // normal conditions (i.e., no aliasing), the primary manipulators
     //      - insert
+    //      - erase
     //      - clear
     //
     // Concerns:
@@ -1531,72 +1560,13 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase2()
     //:14 Any argument can be 'const'.
     //:
     //:15 Any memory allocation is exception neutral.
-    //
-    // Plan:
-    //: 1 For each value of increasing length, 'L':
-    //:
-    //:   2 Using a loop-based approach, default-construct three distinct
-    //:     objects, in turn, but configured differently: (a) without passing
-    //:     an allocator, (b) passing a null allocator address explicitly,
-    //:     and (c) passing the address of a test allocator distinct from the
-    //:     default.  For each of these three iterations:  (C-1..14)
-    //:
-    //:     1 Create three 'bslma::TestAllocator' objects, and install one as
-    //:       the current default allocator (note that a ubiquitous test
-    //:       allocator is already installed as the global allocator).
-    //:
-    //:     2 Use the default constructor to dynamically create an object
-    //:       'X', with its object allocator configured appropriately (see
-    //:       P-2); use a distinct test allocator for the object's footprint.
-    //:
-    //:     3 Use the (as yet unproven) 'get_allocator' to ensure that its
-    //:       object allocator is properly installed.  (C-2..4)
-    //:
-    //:     4 Use the appropriate test allocators to verify that no memory is
-    //:       allocated by the default constructor.  (C-9)
-    //:
-    //:     5 Use the individual (as yet unproven) salient attribute accessors
-    //:       to verify the default-constructed value.  (C-1)
-    //:
-    //:     6 Insert 'L - 1' elements in order of increasing value into the
-    //:       container.
-    //:
-    //:     7 Insert the 'L'th value in the presense of exception and use the
-    //:       (as yet unproven) basic accessors to verify the container has the
-    //:       expected values.  Verify the number of allocation is as expected.
-    //:       (C-5..6, 14..15)
-    //:
-    //:     8 Verify that no temporary memory is allocated from the object
-    //:       allocator.  (C-7)
-    //:
-    //:     9 Invoke 'clear' and verify that the container is empty.  Verify
-    //:       that no memory is allocated.  (C-12..13)
-    //:
-    //:    10 Verify that all object memory is released when the object is
-    //:       destroyed.  (C-8)
-    //:
-    //:    11 Insert 'L' distinct elements and record the iterators returned.
-    //:
-    //:    12 Insert the same 'L' elements again and verify that incrementing
-    //:       the iterators returned gives the iterator to the next smallest
-    //:       value.
-    //:
-    //:    13 Perform P-1.2.12 again.  (C-11)
-    //
-    //
-    // Testing:
-    //   default construction (only)
-    //   unordered_multiset(const allocator_type&);  // bslma::Allocator* only
-    //   ~unordered_multiset();
-    //   iterator insert(const value_type& value);
-    //   void clear();
     // ------------------------------------------------------------------------
 
     const bool VALUE_TYPE_USES_ALLOC = bslma::UsesBslmaAllocator<KEY>::value;
 
     if (verbose) { P(VALUE_TYPE_USES_ALLOC); }
 
-    const TestValues VALUES;  // contains 52 distinct increasing values
+    TestValues values;  // contains 52 distinct increasing values
 
     const size_t MAX_LENGTH = 9;
 
@@ -1626,20 +1596,20 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase2()
 
             switch (CONFIG) {
               case 'a': {
-                  objPtr = new (fa) Obj();
-                  objAllocatorPtr = &da;
+                objPtr = new (fa) Obj();
+                objAllocatorPtr = &da;
               } break;
               case 'b': {
-                  objPtr = new (fa) Obj((bslma::Allocator *)0);
-                  objAllocatorPtr = &da;
+                objPtr = new (fa) Obj((bslma::Allocator *)0);
+                objAllocatorPtr = &da;
               } break;
               case 'c': {
-                  objPtr = new (fa) Obj(&sa);
-                  objAllocatorPtr = &sa;
+                objPtr = new (fa) Obj(&sa);
+                objAllocatorPtr = &sa;
               } break;
               default: {
-                  ASSERTV(CONFIG, !"Bad allocator config.");
-                  return;
+                ASSERTV(CONFIG, !"Bad allocator config.");
+                return;                                               // RETURN
               } break;
             }
 
@@ -1673,8 +1643,8 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase2()
                        "\t\tOn an object of initial length " ZU ".\n", LENGTH);
 
                 for (size_t tj = 0; tj < LENGTH - 1; ++tj) {
-                    Iter RESULT = mX.insert(VALUES[tj]);
-                    ASSERTV(LENGTH, tj, CONFIG, VALUES[tj] == *RESULT);
+                    Iter RESULT = mX.insert(values[tj]);
+                    ASSERTV(LENGTH, tj, CONFIG, values[tj] == *RESULT);
                 }
 
                 ASSERTV(LENGTH, CONFIG, LENGTH - 1 == X.size());
@@ -1689,7 +1659,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase2()
                     ExceptionGuard<Obj> guard(&X, L_, &scratch);
 
                     bslma::TestAllocatorMonitor tam(&oa);
-                    Iter RESULT = mX.insert(VALUES[LENGTH - 1]);
+                    Iter RESULT = mX.insert(values[LENGTH - 1]);
 
 #if defined(AJM_NEEDS_TO_UNDERSTAND_THESE_FAILURES_BETTER)
                     if (VALUE_TYPE_USES_ALLOC || expectToAllocate(LENGTH)) {
@@ -1714,7 +1684,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase2()
                             oa.numBlocksTotal() == oa.numBlocksInUse());
 #endif
 
-                    ASSERTV(LENGTH, CONFIG, VALUES[LENGTH - 1] == *RESULT);
+                    ASSERTV(LENGTH, CONFIG, values[LENGTH - 1] == *RESULT);
 
                     guard.release();
                 } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
@@ -1732,16 +1702,15 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase2()
 
                     size_t i = 0;
                     for (CIter it = X.cbegin(); it != X.cend(); ++it, ++i) {
-                        size_t j = 0;
-                        do {
-                            if (VALUES[j] == *it) {
-                                ASSERTV(LENGTH, CONFIG, VALUES[j],
+                        for (size_t j = 0; j < X.size(); ++j) {
+                            if (values[j] == *it) {
+                                ASSERTV(LENGTH, CONFIG, values[j],
                                         !foundValues[j]);
                                 ++foundValues[j];
                             }
                         }
-                        while (++j != X.size());
                     }
+                    ASSERT(LENGTH == i);
                     size_t missing = 0;
                     for (size_t j = 0; j != X.size(); ++j) {
                         if (!foundValues[j]) { ++missing; }
@@ -1781,36 +1750,31 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase2()
 
             // ----------------------------------------------------------------
 
-            if (veryVerbose) { printf(
-                                "\n\tTesting 'insert' duplicated values.\n"); }
+            if (veryVerbose) printf(
+                      "\n\tTesting 'insert' duplicated values and 'count'.\n");
             {
-                CIter ITER[MAX_LENGTH + 1];
+                for (size_t i = 0; i < 3; ++i) {
+                    for (size_t tj = 0; tj < LENGTH; ++tj) {
+                        const KEY& K = values[tj];
 
-                for (size_t tj = 0; tj < LENGTH; ++tj) {
-                    ITER[tj] = mX.insert(VALUES[tj]);
-                    ASSERTV(LENGTH, tj, CONFIG, VALUES[tj] == *ITER[tj]);
+                        for (size_t tk = 0; tk < values.size(); ++tk) {
+                            const KEY& KK = values[tk];
+                            const size_t EXPECTED = tk >= LENGTH
+                                                  ? 0
+                                                  : tk <  tj ? i + 1 : i;
+                            ASSERTV(LENGTH, i, EXPECTED == X.count(KK));
+                        }
+                        Iter RESULT = mX.insert(K);
+                        ASSERTV(LENGTH, tj, CONFIG, K == *RESULT);
+                        for (size_t tk = 0; tk < values.size(); ++tk) {
+                            const KEY& KK = values[tk];
+                            const size_t EXPECTED = tk >= LENGTH
+                                                  ? 0
+                                                  : tk <= tj ? i + 1 : i;
+                            ASSERTV(LENGTH, i, EXPECTED == X.count(KK));
+                        }
+                    }
                 }
-                ITER[LENGTH] = X.end();
-
-                ASSERTV(LENGTH, CONFIG, LENGTH == X.size());
-
-                for (size_t tj = 0; tj < LENGTH; ++tj) {
-                    Iter RESULT = mX.insert(VALUES[tj]);
-                    ASSERTV(LENGTH, tj, CONFIG, VALUES[tj] == *RESULT);
-                    ++RESULT;
-//                    ASSERTV(LENGTH, tj, CONFIG, ITER[tj + 1] == RESULT);
-                }
-
-                ASSERTV(LENGTH, CONFIG, 2 * LENGTH == X.size());
-
-                for (size_t tj = 0; tj < LENGTH; ++tj) {
-                    Iter RESULT = mX.insert(VALUES[tj]);
-                    ASSERTV(LENGTH, tj, CONFIG, VALUES[tj] == *RESULT);
-                    ++RESULT;
-//                    ASSERTV(LENGTH, tj, CONFIG, ITER[tj + 1] == RESULT);
-                }
-
-                ASSERTV(LENGTH, CONFIG, 3 * LENGTH == X.size());
             }
 
             // ----------------------------------------------------------------
@@ -1828,6 +1792,408 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase2()
             ASSERTV(LENGTH, CONFIG, sa.numBlocksInUse(),
                     0 == sa.numBlocksInUse());
         }
+    }
+
+    // mX.insert(KEY&&) -- not tested / C++11
+
+    if (verbose) printf("Test insert with hint\n");
+    {
+        bslma::TestAllocator sa("supplied",  veryVeryVeryVerbose);
+        bslma::TestAllocator da("default",   veryVeryVeryVerbose);
+        bslma::DefaultAllocatorGuard dag(&da);
+
+        {
+            Obj mX(&sa);    const Obj& X = mX;
+
+            Iter it;
+            bool firstTime = true;
+            for (size_t ti = 0; ti < MAX_LENGTH; ++ti) {
+                const KEY& K = values[ti];
+
+                for (size_t tj = 0; tj < 3; ++tj) {
+                    ASSERTV(ti, tj, tj == X.count(K));
+                    it = firstTime ? mX.insert(K) : mX.insert(it, K);
+                    firstTime = false;
+                    ASSERTV(ti, tj, K == *it);
+                }
+                ASSERTV(ti, 3 == X.count(K));
+            }
+
+            for (size_t tj = 0; tj < values.size(); ++tj) {
+                ASSERTV(MAX_LENGTH, tj, (tj < MAX_LENGTH ? 3 : 0) ==
+                                                          X.count(values[tj]));
+            }
+        }
+
+        // Verify all memory is released on object destruction.
+
+        ASSERTV(sa.numBlocksInUse(), 0 == sa.numBlocksInUse());
+        ASSERTV(da.numBlocksInUse(), 0 == da.numBlocksInUse());
+    }
+
+    // mX.insert(hint, KEY&&) -- not tested / C++11
+
+    if (verbose) printf("Testing range insert\n");
+    {
+        bslma::TestAllocator sa("supplied",  veryVeryVeryVerbose);
+        bslma::TestAllocator da("default",   veryVeryVeryVerbose);
+        bslma::DefaultAllocatorGuard dag(&da);
+
+        {
+            Obj mX(&sa);    const Obj& X = mX;
+
+            mX.insert(values.begin(), values.index(MAX_LENGTH));
+
+            for (size_t ti = 0; ti < values.size(); ++ti) {
+                ASSERTV((ti < MAX_LENGTH ? 1 : 0) == X.count(values[ti]));
+            }
+
+            values.resetIterators();
+        }
+
+        // Verify all memory is released on object destruction.
+
+        ASSERTV(sa.numBlocksInUse(), 0 == sa.numBlocksInUse());
+        ASSERTV(da.numBlocksInUse(), 0 == da.numBlocksInUse());
+    }
+
+    // void insert(initializer_list<value_type>) -- not tested / C++11
+
+    if (verbose) printf("Verify const & non-const find are different\n");
+    {
+        typedef CIter (Obj::*ConstFindMemPtr)(   const KEY&) const;
+        typedef Iter  (Obj::*NonConstFindMemPtr)(const KEY&);
+
+        union U {
+            ConstFindMemPtr    d_cfmp;
+            NonConstFindMemPtr d_ncfmp;
+            UintPtr            d_uip;
+        };
+
+        U uc, un;
+        uc.d_cfmp  = &Obj::find;
+        un.d_ncfmp = &Obj::find;
+        ASSERT(uc.d_uip != un.d_uip);
+    }
+
+    if (verbose) {
+        printf("Verify const & non-const begin & end are different\n");
+    }
+    {
+        typedef CIter (Obj::*ConstBeginMemPtr)() const;
+        typedef Iter  (Obj::*NonConstBeginMemPtr)();
+
+        union U {
+            ConstBeginMemPtr    d_cbmp;
+            NonConstBeginMemPtr d_ncbmp;
+            UintPtr             d_uip;
+        };
+
+        U uc, un;
+        uc.d_cbmp  = &Obj::begin;
+        un.d_ncbmp = &Obj::begin;
+        ASSERT(uc.d_uip != un.d_uip);
+        uc.d_cbmp  = &Obj::end;
+        un.d_ncbmp = &Obj::end;
+        ASSERT(uc.d_uip != un.d_uip);
+    }
+
+    if (verbose) {
+        printf("Verify const & non-const equal_range are different\n");
+    }
+    {
+        typedef bsl::pair<CIter, CIter> CPr;
+        typedef bsl::pair<Iter,  Iter>  Pr;
+
+        typedef CPr (Obj::*ConstERMemPtr)(const KEY&) const;
+        typedef Pr  (Obj::*NonConstERMemPtr)(const KEY&);
+
+        union U {
+            ConstERMemPtr    d_cermp;
+            NonConstERMemPtr d_ncermp;
+            UintPtr          d_uip;
+        };
+
+        U uc, un;
+        uc.d_cermp  = &Obj::equal_range;
+        un.d_ncermp = &Obj::equal_range;
+        ASSERT(uc.d_uip != un.d_uip);
+    }
+
+    if (verbose) {
+        printf("Verify const & non-const begin(i) & end(i) are different\n");
+    }
+    {
+        typedef typename Obj::local_iterator       LIter;
+        typedef typename Obj::const_local_iterator CLIter;
+
+        typedef CLIter (Obj::*ConstBeginMemPtr)(   size_t) const;
+        typedef LIter  (Obj::*NonConstBeginMemPtr)(size_t);
+
+        union U {
+            ConstBeginMemPtr    d_cbmp;
+            NonConstBeginMemPtr d_ncbmp;
+            UintPtr             d_uip;
+        };
+
+        U uc, un;
+        uc.d_cbmp  = &Obj::begin;
+        un.d_ncbmp = &Obj::begin;
+        ASSERT(uc.d_uip != un.d_uip);
+        uc.d_cbmp  = &Obj::end;
+        un.d_ncbmp = &Obj::end;
+        ASSERT(uc.d_uip != un.d_uip);
+    }
+
+    if (verbose) printf("Test non-const find and erase(it)\n");
+    {
+        bslma::TestAllocator sa("supplied",  veryVeryVeryVerbose);
+        bslma::TestAllocator da("default",   veryVeryVeryVerbose);
+        bslma::DefaultAllocatorGuard dag(&da);
+
+        for (size_t ti = 0; ti <= MAX_LENGTH; ++ti) {
+            Obj mX(&sa);    const Obj& X = mX;
+            mX.insert(values.begin(), values.index(MAX_LENGTH));
+            values.resetIterators();
+
+            KEY itKey = values[ti];
+            Iter it = mX.find(itKey);
+            if (MAX_LENGTH == ti) {
+                ASSERTV(mX.end() == it);
+                continue;
+            }
+            else {
+                ASSERTV(mX.end() != it);
+            }
+
+            Iter eraseIt = mX.erase(it);
+            ASSERT(MAX_LENGTH - 1 == X.size());
+
+            // Verify that 'eraseIt' is a valid iterator, though it may be
+            // 'X.end()'.
+
+            if (X.end() != eraseIt) {
+                const KEY& eraseItKey = *eraseIt;
+
+                bool found = false;
+                for (it = mX.begin(); mX.end() != it; ++it) {
+                    ASSERTV(itKey != *it);
+                    if (eraseItKey == *it) {
+                        ASSERT(!found);
+                        found = true;
+                    }
+                }
+                ASSERTV(found);
+            }
+
+            for (size_t tj = 0; tj < values.size(); ++tj) {
+                const KEY& K = values[tj];
+
+                const size_t EXPECTED = tj < MAX_LENGTH && K != itKey;
+                ASSERTV(EXPECTED == X.count(K));
+            }
+        }
+
+        // Verify all memory is released on object destruction.
+
+        ASSERTV(sa.numBlocksInUse(), 0 == sa.numBlocksInUse());
+        ASSERTV(da.numBlocksInUse(), 0 == da.numBlocksInUse());
+    }
+
+    if (verbose) printf("Test non-const equal_range and erase(it1, it2)\n");
+    {
+        bslma::TestAllocator sa("supplied",  veryVeryVeryVerbose);
+        bslma::TestAllocator da("default",   veryVeryVeryVerbose);
+        bslma::DefaultAllocatorGuard dag(&da);
+
+        for (size_t ti = 0; ti <= MAX_LENGTH; ++ti) {
+            Obj mX(&sa);    const Obj& X = mX;
+            mX.insert(values.begin(), values.index(MAX_LENGTH));
+            values.resetIterators();
+            mX.insert(values.begin(), values.index(MAX_LENGTH));
+            values.resetIterators();
+
+            ASSERTV(2 * MAX_LENGTH == X.size());
+
+            const KEY itKey = values[ti];
+            bsl::pair<Iter, Iter> pr = mX.equal_range(itKey);
+            if (MAX_LENGTH == ti) {
+                ASSERTV(pr.first == pr.second);
+                ASSERTV(mX.end() == pr.first);
+            }
+            Iter after = mX.erase(pr.first, pr.second);
+            ASSERTV(pr.second == after);
+            ASSERTV(2 * MAX_LENGTH - (MAX_LENGTH == ti ? 0 : 2) == X.size());
+            ASSERTV(0 == X.count(itKey));
+
+            for (size_t tj = 0; tj < values.size(); ++tj) {
+                const KEY& K = values[tj];
+
+                const size_t EXPECTED = 2 * (tj < MAX_LENGTH && K != itKey);
+                ASSERTV(EXPECTED == X.count(K));
+            }
+        }
+
+        // Verify all memory is released on object destruction.
+
+        ASSERTV(sa.numBlocksInUse(), 0 == sa.numBlocksInUse());
+        ASSERTV(da.numBlocksInUse(), 0 == da.numBlocksInUse());
+    }
+
+    if (verbose) printf("Test non-const begin(i) & end(i)\n");
+    {
+        bslma::TestAllocator sa("supplied",  veryVeryVeryVerbose);
+        bslma::TestAllocator da("default",   veryVeryVeryVerbose);
+        bslma::DefaultAllocatorGuard dag(&da);
+
+        {
+            Obj mX(&sa);    const Obj& X = mX;
+            mX.insert(values.begin(), values.index(MAX_LENGTH));
+            values.resetIterators();
+            mX.insert(values.begin(), values.index(MAX_LENGTH));
+            values.resetIterators();
+
+            typedef typename Obj::local_iterator LIter;
+
+            size_t count = 0;
+            for (size_t tb = 0; tb < X.bucket_count(); ++tb) {
+                const LIter END = mX.end(tb);
+                for (LIter li = mX.begin(tb); END != li; ++li) {
+                    ++count;
+                }
+                ASSERTV(0 == (count & 1));    // always even # in each bucket
+            }
+
+            ASSERTV(X.size() == count);
+        }
+
+        // Verify all memory is released on object destruction.
+
+        ASSERTV(sa.numBlocksInUse(), 0 == sa.numBlocksInUse());
+        ASSERTV(da.numBlocksInUse(), 0 == da.numBlocksInUse());
+    }
+
+    if (verbose) printf("Test erase(key)\n");
+    {
+        bslma::TestAllocator sa("supplied",  veryVeryVeryVerbose);
+        bslma::TestAllocator da("default",   veryVeryVeryVerbose);
+        bslma::DefaultAllocatorGuard dag(&da);
+
+        for (size_t ti = 0; ti <= MAX_LENGTH; ++ti) {
+            Obj mX(&sa);    const Obj& X = mX;
+            mX.insert(values.begin(), values.index(MAX_LENGTH));
+            values.resetIterators();
+            mX.insert(values.begin(), values.index(MAX_LENGTH));
+            values.resetIterators();
+
+            KEY itKey = values[ti];
+            const size_t COUNT = mX.erase(itKey);
+            if (MAX_LENGTH == ti) {
+                ASSERT(0 == COUNT);
+                ASSERT(2 * MAX_LENGTH     == X.size());
+            }
+            else {
+                ASSERT(2 == COUNT);
+                ASSERT(2 * MAX_LENGTH - 2 == X.size());
+            }
+
+            // Verify that 'eraseIt' is a valid iterator, though it may be
+            // 'X.end()'.
+
+            for (size_t tj = 0; tj < values.size(); ++tj) {
+                const KEY& K = values[tj];
+
+                const size_t EXPECTED = 2 * (tj < MAX_LENGTH && K != itKey);
+                ASSERTV(EXPECTED == X.count(K));
+            }
+        }
+
+        // Verify all memory is released on object destruction.
+
+        ASSERTV(sa.numBlocksInUse(), 0 == sa.numBlocksInUse());
+        ASSERTV(da.numBlocksInUse(), 0 == da.numBlocksInUse());
+    }
+
+    // Note 'rehash' will not shrink the # of buckets.
+
+    if (verbose) printf("Test 'reserve' and 'rehash'\n");
+    {
+        bslma::TestAllocator sa("supplied",  veryVeryVeryVerbose);
+        bslma::TestAllocator da("default",   veryVeryVeryVerbose);
+        bslma::DefaultAllocatorGuard dag(&da);
+
+        enum { MIN_LENGTH = MAX_LENGTH - 2 };
+
+        {
+            Obj mX(&sa);    const Obj& X = mX;
+            mX.insert(values.begin(), values.index(MAX_LENGTH));
+            values.resetIterators();
+            mX.insert(values.begin(), values.index(MAX_LENGTH));
+            values.resetIterators();
+
+            const size_t ORIG_BUCKETS  = X.bucket_count();
+            float maxLoadFactor = X.max_load_factor();
+
+            if (veryVerbose) P(ORIG_BUCKETS);
+            if (veryVerbose) P(maxLoadFactor);
+
+            ASSERTV(ORIG_BUCKETS * maxLoadFactor >= X.size());
+
+            maxLoadFactor /= 10;
+
+            mX.max_load_factor(maxLoadFactor);
+
+            // Do something to make sure the hash table still works.
+
+            for (size_t ti = 0; ti < values.size(); ++ti) {
+                ASSERTV((ti < MAX_LENGTH ? 2 : 0) == X.count(values[ti]));
+            }
+
+            const size_t MORE_BUCKETS = X.bucket_count();
+
+            if (veryVerbose) { P(MORE_BUCKETS); P(X.max_load_factor()); }
+
+            ASSERTV(maxLoadFactor == X.max_load_factor());
+            ASSERTV(MORE_BUCKETS > ORIG_BUCKETS);
+            ASSERTV(MORE_BUCKETS * maxLoadFactor >= X.size());
+
+            mX.reserve(10 * X.size());
+
+            // Do something to make sure the hash table still works.
+
+            for (size_t ti = 0; ti < values.size(); ++ti) {
+                ASSERTV((ti < MAX_LENGTH ? 2 : 0) == X.count(values[ti]));
+            }
+
+            const size_t EVEN_MORE_BUCKETS = X.bucket_count();
+
+            if (veryVerbose) { P(MORE_BUCKETS); P(X.max_load_factor()); }
+
+            ASSERTV(maxLoadFactor == X.max_load_factor());
+            ASSERTV(EVEN_MORE_BUCKETS > MORE_BUCKETS);
+            ASSERTV(EVEN_MORE_BUCKETS * maxLoadFactor >= 10 * X.size());
+
+            mX.rehash(EVEN_MORE_BUCKETS * 2);
+
+            // Do something to make sure the hash table still works.
+
+            for (size_t ti = 0; ti < values.size(); ++ti) {
+                ASSERTV((ti < MAX_LENGTH ? 2 : 0) == X.count(values[ti]));
+            }
+
+            const size_t MAX_BUCKETS = X.bucket_count();
+
+            ASSERTV(maxLoadFactor == X.max_load_factor());
+            ASSERTV(MAX_BUCKETS, MAX_BUCKETS > EVEN_MORE_BUCKETS);
+            ASSERTV(MAX_BUCKETS * maxLoadFactor >= 20 * X.size());
+
+            if (veryVerbose) { P(MAX_BUCKETS); P(X.max_load_factor()); }
+        }
+
+        // Verify all memory is released on object destruction.
+
+        ASSERTV(sa.numBlocksInUse(), 0 == sa.numBlocksInUse());
+        ASSERTV(da.numBlocksInUse(), 0 == da.numBlocksInUse());
     }
 }
 // ============================================================================
@@ -2188,15 +2554,10 @@ if (g_verbose) {
 int main(int argc, char *argv[])
 {
     int test = argc > 1 ? atoi(argv[1]) : 0;
-    bool             verbose = argc > 2;
-    bool         veryVerbose = argc > 3;
-    bool     veryVeryVerbose = argc > 4;
-    bool veryVeryVeryVerbose = argc > 5;
-
-                g_verbose =             verbose;
-            g_veryVerbose =         veryVerbose;
-        g_veryVeryVerbose =     veryVeryVerbose;
-    g_veryVeryVeryVerbose = veryVeryVeryVerbose;
+    verbose             = argc > 2;
+    veryVerbose         = argc > 3;
+    veryVeryVerbose     = argc > 4;
+    veryVeryVeryVerbose = argc > 5;
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
@@ -2420,18 +2781,18 @@ int main(int argc, char *argv[])
             printf("Default construct an unordered_mutliset, 'x'\n");
 
         TestType mX;
-        const TestType &x = mX;
+        const TestType& X = mX;
 
         if (veryVerbose) printf("Validate default behavior of 'x'\n");
 
-        ASSERT(1.0f == x.max_load_factor());
+        ASSERT(1.0f == X.max_load_factor());
 
-        testConstEmptyContainer(x);
+        testConstEmptyContainer(X);
         testEmptyContainer(mX);
 
         swap(mX, mX);
 
-        testConstEmptyContainer(x);
+        testConstEmptyContainer(X);
         testEmptyContainer(mX);
 
         validateIteration(mX);
@@ -2449,27 +2810,27 @@ int main(int argc, char *argv[])
           "Range-construct an unordered_multiset, 'y', from the test array\n");
 
         TestType mY(dataSamples, dataSamples + MAX_SAMPLE);
-        const TestType &y = mY;
+        const TestType& Y = mY;
 
         if (veryVerbose)
             printf("Validate behavior of freshly constructed 'y'\n");
 
-        ASSERT(1.0f == y.max_load_factor());
+        ASSERT(1.0f == Y.max_load_factor());
 
-        testContainerHasData(y, 1, dataSamples, MAX_SAMPLE);
+        testContainerHasData(Y, 1, dataSamples, MAX_SAMPLE);
         validateIteration(mY);
 
         if (veryVerbose)
             printf("Assert equality relationships, noting 'x != y'\n");
 
-        ASSERT(x == x);
-        ASSERT(!(x != x));
-        ASSERT(y != x);
-        ASSERT(!(y == x));
-        ASSERT(x != y);
-        ASSERT(!(x == y));
-        ASSERT(y == y);
-        ASSERT(!(y != y));
+        ASSERT(X == X);
+        ASSERT(!(X != X));
+        ASSERT(Y != X);
+        ASSERT(!(Y == X));
+        ASSERT(X != Y);
+        ASSERT(!(X == Y));
+        ASSERT(Y == Y);
+        ASSERT(!(Y != Y));
 
         if (veryVerbose) printf("Swap 'x' and 'y'\n");
 
@@ -2477,37 +2838,37 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) printf("Validate swapped values\n");
 
-        testConstEmptyContainer(y);
+        testConstEmptyContainer(Y);
         testEmptyContainer(mY);
 
         validateIteration(mY);
 
-        testContainerHasData(x, 1, dataSamples, MAX_SAMPLE);
+        testContainerHasData(X, 1, dataSamples, MAX_SAMPLE);
 
         validateIteration(mX);
 
         if (veryVerbose)
             printf("Assert swapped equality relationships, noting 'x != y'\n");
 
-        ASSERT(x == x);
-        ASSERT(!(x != x));
-        ASSERT(y != x);
-        ASSERT(!(y == x));
-        ASSERT(x != y);
-        ASSERT(!(x == y));
-        ASSERT(y == y);
-        ASSERT(!(y != y));
+        ASSERT(X == X);
+        ASSERT(!(X != X));
+        ASSERT(Y != X);
+        ASSERT(!(Y == X));
+        ASSERT(X != Y);
+        ASSERT(!(X == Y));
+        ASSERT(Y == Y);
+        ASSERT(!(Y != Y));
 
         testBuckets(mX);
 
         if (veryVerbose) printf("Try to fill 'x' with duplicate values\n");
 
         for (int i = 0; i != MAX_SAMPLE; ++i) {
-            LOOP_ASSERT(i, 1 == x.count(dataSamples[i]));
+            LOOP_ASSERT(i, 1 == X.count(dataSamples[i]));
             TestType::iterator it = mX.insert(dataSamples[i]);
-            ASSERT(x.end() != it);
+            ASSERT(X.end() != it);
             ASSERT(*it == dataSamples[i]);
-            LOOP_ASSERT(i, 2 == x.count(dataSamples[i]));
+            LOOP_ASSERT(i, 2 == X.count(dataSamples[i]));
         }
 
         testBuckets(mX);
@@ -2516,45 +2877,45 @@ int main(int argc, char *argv[])
         if (veryVerbose) printf(
           "Confirm the value of 'x' with the successfully inserted values.\n");
 
-        testContainerHasData(x, 2, dataSamples, MAX_SAMPLE);
+        testContainerHasData(X, 2, dataSamples, MAX_SAMPLE);
 
         if (veryVerbose) printf(
                 "Create an unordered_multiset, 'z', that is a copy of 'x'.\n");
 
-        TestType mZ = x;
-        const TestType &z = mZ;
+        TestType mZ = X;
+        const TestType& Z = mZ;
 
         if (veryVerbose)
             printf("Validate behavior of freshly constructed 'z'.\n");
 
-        ASSERT(1.0f == z.max_load_factor());
-        ASSERT(x == z);
-        ASSERT(!(x != z));
-        ASSERT(z == x);
-        ASSERT(!(z != x));
+        ASSERT(1.0f == Z.max_load_factor());
+        ASSERT(X == Z);
+        ASSERT(!(X != Z));
+        ASSERT(Z == X);
+        ASSERT(!(Z != X));
 
         validateIteration(mZ);
-        testContainerHasData(z, 2, dataSamples, MAX_SAMPLE);
+        testContainerHasData(Z, 2, dataSamples, MAX_SAMPLE);
 
         if (veryVerbose) printf(
                              "Expand 'z' with additional duplicate values.\n");
 
         for (int i = 3; i != 6; ++i) {
             fillContainerWithData(mZ, dataSamples, MAX_SAMPLE);
-            testContainerHasData(z, i, dataSamples, MAX_SAMPLE);
+            testContainerHasData(Z, i, dataSamples, MAX_SAMPLE);
             validateIteration(mZ);
         }
-        ASSERT(x != z);
-        ASSERT(!(x == z));
-        ASSERT(z != x);
-        ASSERT(!(z == x));
+        ASSERT(X != Z);
+        ASSERT(!(X == Z));
+        ASSERT(Z != X);
+        ASSERT(!(Z == X));
 
         if (veryVerbose)
             printf("Confirm that 'x' is unchanged by making the copy.\n");
 
         testBuckets(mX);
         validateIteration(mX);
-        testContainerHasData(x, 2, dataSamples, MAX_SAMPLE);
+        testContainerHasData(X, 2, dataSamples, MAX_SAMPLE);
 
         if (veryVerbose)
             printf("Clear 'x' and confirm that it is empty.\n");
@@ -2566,11 +2927,11 @@ int main(int argc, char *argv[])
         if (veryVerbose)
             printf("Assign the value of 'y' to 'x'.\n");
 
-        mX = y;
+        mX = Y;
 
         if (veryVerbose) printf("Confirm 'x' has the expected value.\n");
 
-        ASSERT(x == y);
+        ASSERT(X == Y);
 
         validateIteration(mX);
         testBuckets(mX);
@@ -2582,24 +2943,27 @@ int main(int argc, char *argv[])
 
         mX.insert(1);
 
-        const bsl::allocator<int> alloc   = x.get_allocator();
-        const bsl::hash<int>      hasher  = x.hash_function();
-        const bsl::equal_to<int>  compare = x.key_eq();
-        
-        const size_t maxSize    = x.max_size();
-        const size_t buckets    = x.bucket_count();
-        const float  loadFactor = x.load_factor();
-        const float  maxLF      = x.max_load_factor();
+        const bsl::allocator<int> alloc   = X.get_allocator();
+        (void) alloc;
+        const bsl::hash<int>      hasher  = X.hash_function();
+        (void) hasher;
+        const bsl::equal_to<int>  compare = X.key_eq();
+        (void) compare;
+
+        const size_t maxSize    = X.max_size();    (void) maxSize;
+        const size_t buckets    = X.bucket_count();
+        const float  loadFactor = X.load_factor();
+        const float  maxLF      = X.max_load_factor();
 
         ASSERT(loadFactor < maxLF);
 
         mX.rehash(2 * buckets);
-        ASSERTV(x.bucket_count(), 2 * buckets, x.bucket_count() > 2 * buckets);
-        ASSERTV(x.load_factor(), loadFactor, x.load_factor() < loadFactor);
+        ASSERTV(X.bucket_count(), 2 * buckets, X.bucket_count() > 2 * buckets);
+        ASSERTV(X.load_factor(), loadFactor, X.load_factor() < loadFactor);
 
         mX.reserve(0);
-        ASSERTV(x.bucket_count(), 2 * buckets, x.bucket_count() > 2 * buckets);
-        ASSERTV(x.load_factor(), loadFactor, x.load_factor() < loadFactor);
+        ASSERTV(X.bucket_count(), 2 * buckets, X.bucket_count() > 2 * buckets);
+        ASSERTV(X.load_factor(), loadFactor, X.load_factor() < loadFactor);
 
         if (veryVerbose)
             printf("Final message to confim the end of the breathing test.\n");

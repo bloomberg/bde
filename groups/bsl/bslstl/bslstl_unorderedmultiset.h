@@ -905,7 +905,8 @@ class unordered_multiset
         // complexity, where 'N' is the size of multi-set.  The behavior is
         // undefined unless 'hint' is a valid iterator into this unordered
         // multi set.  This method requires that the (template parameter) type
-        // 'KEY' be "copy-constructible" (see {Requirements on 'KEY'}).
+        // 'KEY' be "copy-constructible" (see {Requirements on 'KEY'}), and
+        // that '*hint' is an element contained in this container.
 
     template <class INPUT_ITERATOR>
     void insert(INPUT_ITERATOR first, INPUT_ITERATOR last);
@@ -1211,6 +1212,7 @@ unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::operator=(
                                                const unordered_multiset& rhs)
 {
     // Actually, need to check propagate_on_copy_assign trait
+
     unordered_multiset(rhs, get_allocator()).swap(*this);
     return *this;
 
@@ -1392,7 +1394,8 @@ unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::insert(INPUT_ITERATOR first,
     }
 
     while (first != last) {
-        d_impl.insert(*first++);
+        d_impl.insert(*first);
+        ++first;
     }
 }
 

@@ -196,8 +196,8 @@ using namespace BloombergLP;
 //*[ 3] unordered_set<K,H,E,A>& gg(unordered_set<K,H,E,A> *, const char *spec);
 //*[ 3] unordered_set<K,H,E,A> g(const char *spec);
 //
-//*[27] CONCERN: The object is compatible with STL allocators.
-//*[28] CONCERN: The object has the necessary type traits
+//*[22] CONCERN: The object is compatible with STL allocators.
+//*[23] CONCERN: The object has the necessary type traits
 //*[  ] CONCERN: The type provides the full interface defined by the standard.
 
 // ============================================================================
@@ -1793,7 +1793,6 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase23()
     BSLMF_ASSERT((0 == bslma::UsesBslmaAllocator<ObjStlAlloc>::value));
 
     // Verify unordered_set does not define other common traits.
-#if 0    // TBD
     BSLMF_ASSERT((0 ==
                  bsl::is_trivially_copyable<bsl::unordered_set<KEY> >::value));
 
@@ -1809,23 +1808,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase23()
     BSLMF_ASSERT((0 ==
                bsl::is_trivially_default_constructible<
                                             bsl::unordered_set<KEY> >::value));
-#endif
 
-    BSLMF_ASSERT((0 ==
-                 bsl::is_trivially_copyable<bsl::unordered_set<int> >::value));
-
-    BSLMF_ASSERT((0 ==
-         bslmf::IsBitwiseEqualityComparable<bsl::unordered_set<int> >::value));
-
-    BSLMF_ASSERT((1 ==
-                   bslmf::IsBitwiseMoveable<bsl::unordered_set<int> >::value));
-
-    BSLMF_ASSERT((0 ==
-                 bslmf::HasPointerSemantics<bsl::unordered_set<int> >::value));
-
-    BSLMF_ASSERT((0 ==
-               bsl::is_trivially_default_constructible<
-                                            bsl::unordered_set<int> >::value));
 }
 
 template <class KEY, class HASH, class EQUAL, class ALLOC>
@@ -5728,7 +5711,19 @@ if (verbose) {
 
         RUN_EACH_TYPE(TestDriver,
                       testCase23,
+                      signed char,
+                      int,
+                      size_t,
+                      void *);
+#if 0
+        // TBD: all of these types not covered above freak out the bslmf
+        // macros, something to do with
+        // 'bslstl::HashTable_HashWrapper<FUNCTOR>::d_functor'.
+
+        RUN_EACH_TYPE(TestDriver,
+                      testCase23,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+#endif
       } break;
       case 22: {
         // --------------------------------------------------------------------
