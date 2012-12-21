@@ -7071,7 +7071,7 @@ if (verbose) {
             MyPair<MySalesRecordContainer::ConstItrById,
                    MySalesRecordContainer::ConstItrById> result =
                                              msrc.findByCustomerId(customerId);
-            int count = std::distance(result.first, result.second);
+            int count = bsl::distance(result.first, result.second);
 if (verbose) {
             printf("customerId %d, count %d\n", customerId, count);
 }
@@ -7112,7 +7112,7 @@ if (verbose) {
             MyPair<MySalesRecordContainer::ConstItrById,
                    MySalesRecordContainer::ConstItrById> result =
                                                  msrc.findByVendorId(vendorId);
-            int count = std::distance(result.first, result.second);
+            int count = bsl::distance(result.first, result.second);
 if (verbose) {
             printf("vendorId %d, count %d\n", vendorId, count);
 }
