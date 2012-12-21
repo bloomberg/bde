@@ -4,6 +4,8 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
+#include <bslma_newdeleteallocator.h>
+
 #include <bsls_assert.h>
 
 namespace BloombergLP {
@@ -15,14 +17,24 @@ namespace bsltf {
                         // -----------------------------------
 
 // STATIC DATA
-bslma::Allocator *StdTestAllocatorConfiguration::s_allocator_p = 0;
+// This global static data is declared and defined entirely hidden inside
+// the .cpp file, as the IBM compiler may create multiple copies if accessed
+// through inline functions defined in the header.
+static bslma::Allocator *StdTestAllocatorConfiguration_s_allocator_p = 0;
 
 
 // CLASS METHODS
+bslma::Allocator* StdTestAllocatorConfiguration::delegateAllocator()
+{
+    return StdTestAllocatorConfiguration_s_allocator_p
+         ? StdTestAllocatorConfiguration_s_allocator_p
+         : &bslma::NewDeleteAllocator::singleton();
+}
+
 void StdTestAllocatorConfiguration::setDelegateAllocatorRaw(
                                               bslma::Allocator *basicAllocator)
 {
-    s_allocator_p = basicAllocator;
+    StdTestAllocatorConfiguration_s_allocator_p = basicAllocator;
 }
 
                         // ----------------------

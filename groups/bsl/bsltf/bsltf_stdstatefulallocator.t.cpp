@@ -14,6 +14,8 @@
 #include <bslmf_issame.h>
 
 #include <limits>
+#include <new>
+
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -25,17 +27,22 @@ using namespace BloombergLP::bsltf;
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
+// TBD This text needs a total rewrite
+//
 // The component under test implements a value-semantic type,
 // 'StdStatefulAllocator', a utility, 'StdStatefulAllocatorConfiguration', and a
-// mechanism, 'StdStatefulAllocatorConfigurationGuard'.  'StdStatefulAllocator' holds
-// no internal state and delegate its operations to a static 'bslma_Allocator'
-// object referred by 'StdStatefulAllocatorConfiguration', which provides static
+// mechanism, 'StdStatefulAllocatorConfigurationGuard'.  'StdStatefulAllocator'
+// holds no internal state and delegate its operations to a static
+// 'bslma_Allocator'
+// object referred by 'StdStatefulAllocatorConfiguration', which provides
+// static
 // methods to access and manipulate the static pointer to that delegate
 // allocator.  'StdStatefulAllocatorConfigurationGuard' provides a scoped guard
 // that temporarily replace the delegate allocator with a user specified
 // allocator.
 //
-// The fact that 'StdStatefulAllocator' doesn't hold an internal state means that
+// The fact that 'StdStatefulAllocator' doesn't hold an internal state means
+// that
 // we will differ from our usual method to test value-semantic types.
 // Specifically, instead of testing the primary manipulators and basic
 // accessors of 'StdStatefulAllocator', we will instead test the class methods
@@ -48,17 +55,15 @@ using namespace BloombergLP::bsltf;
 // class StdStatefulAllocator
 //
 // PUBLIC TYPES
-// [11] size_type;
-// [11] difference_type;
-// [11] pointer;
-// [11] const_pointer;
-// [11] reference;
-// [11] const_reference;
-// [11] value_type;
-// [11] rebind<U>::other;
-// [  ] propagate_on_container_copy_assignment
-// [  ] propagate_on_container_move_assignment
-// [  ] propagate_on_container_swap
+// [13] size_type;
+// [15] difference_type;
+// [15] pointer;
+// [15] const_pointer;
+// [15] value_type;
+// [15] rebind<U>::other;
+//*[14] propagate_on_container_copy_assignment
+//*[14] propagate_on_container_move_assignment
+//*[14] propagate_on_container_swap
 //
 // CREATORS
 // [ 2] StdStatefulAllocator(bslma::allocator *);
@@ -68,24 +73,19 @@ using namespace BloombergLP::bsltf;
 //
 // MANIPULATORS
 // [ 9] StdStatefulAllocator& operator=(const StdStatefulAllocator& rhs);
-// [12] pointer allocate(size_type numElements, const void *hint = 0);
-// [12] void deallocate(pointer address, size_type numElements = 1);
-// [13] void construct(pointer address, const TYPE& value);
-// [13] void destroy(pointer address);
+// [11] pointer allocate(size_type numElements, const void *hint = 0);
+// [11] void deallocate(pointer address, size_type numElements);
 //
 // ACCESSORS
-// [14] pointer address(reference object) const;
-// [14] const_pointer address(const_reference object) const;
-// [15] size_type max_size() const;
-// [  ] bslma::TestAllocator *testAllocator() const;
-// [  ] StdStatefulAllocator select_on_container_copy_construction() const;
+// [ 4] bslma::TestAllocator *testAllocator() const;
+//*[12] StdStatefulAllocator select_on_container_copy_construction() const;
 //
 // FREE OPERATORS
 // [ 6] bool operator==(const StdStatefulAllocator<TYPE,B,B,B,B>& lhs, rhs);
 // [ 6] bool operator!=(const StdStatefulAllocator<TYPE,B,B,B,B>& lhs, rhs);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [  ] USAGE EXAMPLE
+// [16] USAGE EXAMPLE
 // [11] TYPEDEFS
 //=============================================================================
 //                  STANDARD BDE ASSERT TEST MACRO
@@ -141,6 +141,40 @@ static void aSsErT(bool b, const char *s, int i) {
 typedef StdStatefulAllocator<int>              Obj;
 typedef StdStatefulAllocator<float>            ObjF;
 
+typedef StdStatefulAllocator<int, false, false, false, false>   ObjI0;
+typedef StdStatefulAllocator<int, false, false, false, true>    ObjI1;
+typedef StdStatefulAllocator<int, false, false, true,  false>   ObjI2;
+typedef StdStatefulAllocator<int, false, false, true,  true>    ObjI3;
+typedef StdStatefulAllocator<int, false, true,  false, false>   ObjI4;
+typedef StdStatefulAllocator<int, false, true,  false, true>    ObjI5;
+typedef StdStatefulAllocator<int, false, true,  true,  false>   ObjI6;
+typedef StdStatefulAllocator<int, false, true,  true,  true>    ObjI7;
+typedef StdStatefulAllocator<int, true,  false, false, false>   ObjI8;
+typedef StdStatefulAllocator<int, true,  false, false, true>    ObjI9;
+typedef StdStatefulAllocator<int, true,  false, true,  false>   ObjI10;
+typedef StdStatefulAllocator<int, true,  false, true,  true>    ObjI11;
+typedef StdStatefulAllocator<int, true,  true,  false, false>   ObjI12;
+typedef StdStatefulAllocator<int, true,  true,  false, true>    ObjI13;
+typedef StdStatefulAllocator<int, true,  true,  true,  false>   ObjI14;
+typedef StdStatefulAllocator<int, true,  true,  true,  true>    ObjI15;
+
+typedef StdStatefulAllocator<float, false, false, false, false> ObjF0;
+typedef StdStatefulAllocator<float, false, false, false, true>  ObjF1;
+typedef StdStatefulAllocator<float, false, false, true,  false> ObjF2;
+typedef StdStatefulAllocator<float, false, false, true,  true>  ObjF3;
+typedef StdStatefulAllocator<float, false, true,  false, false> ObjF4;
+typedef StdStatefulAllocator<float, false, true,  false, true>  ObjF5;
+typedef StdStatefulAllocator<float, false, true,  true,  false> ObjF6;
+typedef StdStatefulAllocator<float, false, true,  true,  true>  ObjF7;
+typedef StdStatefulAllocator<float, true,  false, false, false> ObjF8;
+typedef StdStatefulAllocator<float, true,  false, false, true>  ObjF9;
+typedef StdStatefulAllocator<float, true,  false, true,  false> ObjF10;
+typedef StdStatefulAllocator<float, true,  false, true,  true>  ObjF11;
+typedef StdStatefulAllocator<float, true,  true,  false, false> ObjF12;
+typedef StdStatefulAllocator<float, true,  true,  false, true>  ObjF13;
+typedef StdStatefulAllocator<float, true,  true,  true,  false> ObjF14;
+typedef StdStatefulAllocator<float, true,  true,  true,  true>  ObjF15;
+
 //=============================================================================
 //                                USAGE EXAMPLE
 //-----------------------------------------------------------------------------
@@ -153,7 +187,7 @@ typedef StdStatefulAllocator<float>            ObjF;
 // In this example we will verify that a type supports the use of a
 // STL-compliant allocator.
 //
-// First we define a simple container type intended to be used with a C++03
+// First we define a simple container type intended to be used with a C++11
 // standard compliant allocator:
 //..
 template <class TYPE, class ALLOCATOR>
@@ -197,14 +231,14 @@ MyContainer<TYPE, ALLOCATOR>::MyContainer(const TYPE& object,
 : d_allocator(allocator)
 {
     d_object_p = d_allocator.allocate(1);
-    d_allocator.construct(d_object_p, object);
+    new((void *)d_object_p) TYPE(object);
 }
 
 template <class TYPE, class ALLOCATOR>
 MyContainer<TYPE, ALLOCATOR>::~MyContainer()
 {
-    d_allocator.destroy(d_object_p);
-    d_allocator.deallocate(d_object_p);
+    d_object_p->~TYPE();
+    d_allocator.deallocate(d_object_p, 1);
 }
 
 // MANIPULATORS
@@ -273,9 +307,9 @@ int main(int argc, char *argv[]) {
                               "\n=============\n");
 
 //..
-// Now, we use 'StdStatefulAllocator' to implement a simple test for 'MyContainer'
-// to verify it correctly uses a parameterized allocator using only the C++03
-// standard methods:
+// Now, we use 'StdStatefulAllocator' to implement a simple test for
+// 'MyContainer' to verify it correctly uses a parameterized allocator using
+// only the C++03 standard methods:
 //..
           bslma::TestAllocator oa("object", veryVeryVeryVerbose);
           {
@@ -295,200 +329,17 @@ int main(int argc, char *argv[]) {
       } break;
       case 15: {
         // --------------------------------------------------------------------
-        // 'max_size'
-        //
-        // Concerns:
-        //: 1 The result of the 'max_size' method fits and represents the
-        //:   maximum possible number of bytes in a
-        //:   'bslma_Allocator::size_type'.
-        //
-        // Plan:
-        //: 1 Use 'std::numeric_limits' to verify that the value return by
-        //:   'max_size' is the largest possible value for 'size_type'.
-        //
-        // Testing:
-        //   size_type max_size() const;
-        // --------------------------------------------------------------------
-
-        if (verbose) printf("\'max_size'"
-                            "\n=========\n");
-
-        // This part has been copied from bslstl_allocator's test driver and
-        // had been originally written by Pablo.
-
-        typedef bslma::Allocator::size_type bsize;
-
-        enum {
-            BSLMA_SIZE_IS_SIGNED = ~bslma::Allocator::size_type(0) < 0,
-            MAX_NUM_BYTES = ~std::size_t(0) /
-            (BSLMA_SIZE_IS_SIGNED ? 2 : 1),
-            MAX_ELEMENTS1 = MAX_NUM_BYTES / sizeof(char),
-            MAX_ELEMENTS2 = (std::size_t)MAX_NUM_BYTES / sizeof(char)
-        };
-
-        if (verbose) {
-            printf("Illustrating the reason for the cast in the"
-                   " enumeration (on AIX 64-bit mode):\n");
-            printf("\tBSLMA_SIZE_IS_SIGNED = %d\n", BSLMA_SIZE_IS_SIGNED);
-            printf("\tMAX_NUM_BYTES = %ld\n", (bsize)MAX_NUM_BYTES);
-            printf("\tMAX_ELEMENTS1 = %ld\n", (bsize)MAX_ELEMENTS1);
-            printf("\tMAX_ELEMENTS2 = %ld\n", (bsize)MAX_ELEMENTS2);
-
-            printf("Printing the same values as unsigned:\n");
-            printf("\tBSLMA_SIZE_IS_SIGNED = %d\n", BSLMA_SIZE_IS_SIGNED);
-            printf("\tMAX_NUM_BYTES = %lu\n", (bsize)MAX_NUM_BYTES);
-            printf("\tMAX_ELEMENTS1 = %lu\n", (bsize)MAX_ELEMENTS1);
-            printf("\tMAX_ELEMENTS2 = %lu\n", (bsize)MAX_ELEMENTS2);
-        }
-
-        bslma::TestAllocator oa("object", veryVeryVeryVerbose);
-
-        StdStatefulAllocator<char> X(&oa);
-        bsize cas = X.max_size();
-
-        ASSERTV(cas, cas > 0);
-        ASSERTV(cas, std::numeric_limits<bsize>::max(),
-                cas == std::numeric_limits<bsize>::max());
-
-      } break;
-      case 14: {
-        // --------------------------------------------------------------------
-        // 'address'
-        //
-        // Concerns:
-        //: 1 The 'address' method with a return type 'const_pointer' returns a
-        //:   const pointer of the passed-in modifiable reference of the
-        //:   parameterized type.
-        //:
-        //: 2 The 'address' method with a return type 'pointer' returns a const
-        //:   pointer of the passed-in non-modifiable reference of the
-        //:   parameterized type.
-        //
-        // Plan:
-        //
-        // Testing:
-        //   pointer address(reference object) const;
-        //   const_pointer address(const_reference object) const;
-        // --------------------------------------------------------------------
-
-        if (verbose) printf("\nADDRESS"
-                            "\n=======\n");
-
-        bslma::TestAllocator oa("object", veryVeryVeryVerbose);
-
-        Obj sta(&oa);
-
-        int a(1);
-        int& mA = a;
-        const int& A = a;
-
-        int* mAPtr = sta.address(mA);
-        const int* APtr = sta.address(A);
-
-        ASSERT(mAPtr == &a);
-        ASSERT(APtr == &a);
-
-      } break;
-      case 13: {
-        // --------------------------------------------------------------------
-        // 'construct' AND 'destroy'
-        //
-        // Concerns:
-        //: 1 The 'construct' method copy-construct the object of the
-        //:   parameterized type at a specified memory 'address'.
-        //:
-        //: 2 The 'destroy' method calls the destructor for the object of the
-        //:   parameterized type at a specified memory 'address'.
-        //
-        // Plan:
-        //: 1 Create a 'StdStatefulAllocator' object parameterized on a test type.
-        //:   Use the object to allocate memory required for one object of the
-        //:   test type.
-        //:
-        //: 2 Construct a test type object with a unique value.  Use the
-        //:   'construct' method to copy-construct the just created test object
-        //:   to the address of the memory block allocated in P-1.  Verify that
-        //:   the copy-constructed test object has the same value as the
-        //:   original object.  (C-1)
-        //:
-        //: 3 Use the 'destroy' method to destroy the copy-constructed object
-        //:   in P-2.  Verify that the destructor of the object has been called
-        //:   by checking a global flag set in the destructor.  (C-2)
-        //
-        // Testing:
-        //   void construct(pointer address, const TYPE& value);
-        //   void destroy(pointer address);
-        // --------------------------------------------------------------------
-
-        if (verbose) printf("\n'construct' AND 'destroy'"
-                            "\n=========================\n");
-
-        bslma::TestAllocator oa;
-
-        StdStatefulAllocator<TestType> sta(&oa);
-
-        TestType *testTypePtr = sta.allocate(1);
-
-        TestType X(123);
-
-        sta.construct(testTypePtr, X);
-        ASSERTV(testTypePtr->data(), 123 == testTypePtr->data());
-
-        s_destroyedFlag = false;
-        sta.destroy(testTypePtr);
-        ASSERTV(s_destroyedFlag, true == s_destroyedFlag);
-
-        sta.deallocate(testTypePtr);
-
-      } break;
-      case 12: {
-        // --------------------------------------------------------------------
-        // 'allocate' AND 'deallocate'
-        //
-        // Concerns:
-        //: 1 The 'allocate' method forwards allocation requests to the
-        //:   approporiate delegate allocator.
-        //:
-        //: 2 The 'deallocate' method forwards the deallocation requests to the
-        //:   approporiate delegate allocator.
-        //
-        // Plan:
-        //: 1 Create a 'bslma_Allocator' object and install it as the delegate
-        //:   allocator for 'StdStatefulAllocator'.
-        //:
-        //: 2 Create a new 'StdStatefulAllocator' object and invoke the 'allocate'
-        //:   method.  Verify that the correct amount of memory has been
-        //:   allocated from the delegate allocator.  (C-1)
-        //:
-        //: 3 Invoke the 'deallocate' method and verify that the correct amount
-        //:   of memory has been deallocated from the delegate allocator.
-        //:   (C-2)
-        //
-        // Testing:
-        //   pointer allocate(size_type numElements, const void *hint = 0);
-        //   void deallocate(pointer address, size_type numElements = 1);
-        // --------------------------------------------------------------------
-
-        if (verbose) printf("\n'allocate' AND 'deallocate'"
-                            "\n===========================\n");
-
-        bslma::TestAllocator oa;
-
-        Obj sta(&oa);
-        int *ptr = sta.allocate(1);
-
-        ASSERTV(oa.numBytesInUse(), sizeof(int) == oa.numBytesInUse());
-        ASSERTV(oa.numBytesTotal(), sizeof(int) == oa.numBytesTotal());
-
-        sta.deallocate(ptr);
-
-        ASSERTV(oa.numBytesInUse(), 0 == oa.numBytesInUse());
-        ASSERTV(oa.numBytesTotal(), sizeof(int) == oa.numBytesTotal());
-
-      } break;
-      case 11: {
-        // --------------------------------------------------------------------
-        // NESTED TYPES
+        // SPURIOUS NESTED TYPES
+        //   There are a number of frequently encountered type aliases that are
+        //   often defined by an allocator type.  For a minimal C++11 allocator
+        //   these will be supplied automatically by the 'allocator_traits'
+        //   template and so should *not* be defined for our minimal allocator.
+        //   However, the current 'bsl' implementation of 'allocator_traits'
+        //   does not perform the necessary template metaprogramming to deduce
+        //   these aliases if missing, so our initial implementation must also
+        //   provide these names.  Once we have a more complete implementation
+        //   of 'allocator_traits', this test will instead confirm that these
+        //   popular type aliases do *not* exist for our template.
         //
         // Concerns:
         //: 1 The 'typedef' aliases defined in this component are as specified
@@ -524,14 +375,11 @@ int main(int argc, char *argv[]) {
         //   difference_type
         //   pointer;
         //   const_pointer;
-        //   reference;
-        //   const_reference;
-        //   value_type;
         //   rebind<U>::other
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nNESTED TYPES"
-                            "\n============\n");
+        if (verbose) printf("\nSPURIOUS NESTED TYPES"
+                            "\n=====================\n");
 
         typedef StdStatefulAllocator<int>   AI;
         typedef StdStatefulAllocator<float> AF;
@@ -562,24 +410,6 @@ int main(int argc, char *argv[]) {
             ASSERT((bsl::is_same<AF::const_pointer, const float*>::value));
         }
 
-        if (verbose) printf("\tTesting 'reference'.\n");
-        {
-            ASSERT((bsl::is_same<AI::reference, int&>::value));
-            ASSERT((bsl::is_same<AF::reference, float&>::value));
-        }
-
-        if (verbose) printf("\tTesting 'const_reference'.\n");
-        {
-            ASSERT((bsl::is_same<AI::const_reference, const int&>::value));
-            ASSERT((bsl::is_same<AF::const_reference, const float&>::value));
-        }
-
-        if (verbose) printf("\tTesting 'value_type'.\n");
-        {
-            ASSERT((bsl::is_same<AI::value_type, int>::value));
-            ASSERT((bsl::is_same<AF::value_type, float>::value));
-        }
-
         if (verbose) printf("\tTesting 'rebind'.\n");
         {
             ASSERT((bsl::is_same<AI::rebind<int  >::other, AI>::value));
@@ -587,6 +417,327 @@ int main(int argc, char *argv[]) {
             ASSERT((bsl::is_same<AF::rebind<int  >::other, AI>::value));
             ASSERT((bsl::is_same<AF::rebind<float>::other, AF>::value));
         }
+      } break;
+      case 14: {
+        // --------------------------------------------------------------------
+        // PROPAGATION TRAITS
+        //   The copy, move and swap behavior of the allocators of C++11
+        //   containers is determined by three "propagation traits" that may
+        //   be defined by the allocator, but are otherwise assumed to be
+        //   'false' i.e. do not propagate.  This component provides the abilty
+        //   to configure these traits for any given instantiation of this
+        //   template.  These traits have no effect on the behavior of the
+        //   allocator type itself, but exist solely to be queried by higher
+        //   level components, such as containers.  If defined, they must be
+        //   an alias to 'bsl::true_type', 'bsl::false_type', or a type
+        //   publicly and unambiguously derived from one of these two classes.
+        //
+        // Concerns:
+        //: 1 TBD ...
+        //:
+        // Plan:
+        //: 1 TBD ... (C-1)
+        //
+        // Testing:
+        //   propagate_on_container_copy_assignment
+        //   propagate_on_container_move_assignment
+        //   propagate_on_container_swap
+
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nPROPAGATION TRAITS"
+                            "\n==================\n");
+
+        ASSERT(!ObjI0::propagate_on_container_copy_assignment::value);
+        ASSERT(!ObjI1::propagate_on_container_copy_assignment::value);
+        ASSERT(!ObjI2::propagate_on_container_copy_assignment::value);
+        ASSERT(!ObjI3::propagate_on_container_copy_assignment::value);
+        ASSERT( ObjI4::propagate_on_container_copy_assignment::value);
+        ASSERT( ObjI5::propagate_on_container_copy_assignment::value);
+        ASSERT( ObjI6::propagate_on_container_copy_assignment::value);
+        ASSERT( ObjI7::propagate_on_container_copy_assignment::value);
+        ASSERT(!ObjI8::propagate_on_container_copy_assignment::value);
+        ASSERT(!ObjI9::propagate_on_container_copy_assignment::value);
+        ASSERT(!ObjI10::propagate_on_container_copy_assignment::value);
+        ASSERT(!ObjI11::propagate_on_container_copy_assignment::value);
+        ASSERT( ObjI12::propagate_on_container_copy_assignment::value);
+        ASSERT( ObjI13::propagate_on_container_copy_assignment::value);
+        ASSERT( ObjI14::propagate_on_container_copy_assignment::value);
+        ASSERT( ObjI15::propagate_on_container_copy_assignment::value);
+
+        ASSERT(!ObjI0::propagate_on_container_move_assignment::value);
+        ASSERT( ObjI1::propagate_on_container_move_assignment::value);
+        ASSERT(!ObjI2::propagate_on_container_move_assignment::value);
+        ASSERT( ObjI3::propagate_on_container_move_assignment::value);
+        ASSERT(!ObjI4::propagate_on_container_move_assignment::value);
+        ASSERT( ObjI5::propagate_on_container_move_assignment::value);
+        ASSERT(!ObjI6::propagate_on_container_move_assignment::value);
+        ASSERT( ObjI7::propagate_on_container_move_assignment::value);
+        ASSERT(!ObjI8::propagate_on_container_move_assignment::value);
+        ASSERT( ObjI9::propagate_on_container_move_assignment::value);
+        ASSERT(!ObjI10::propagate_on_container_move_assignment::value);
+        ASSERT( ObjI11::propagate_on_container_move_assignment::value);
+        ASSERT(!ObjI12::propagate_on_container_move_assignment::value);
+        ASSERT( ObjI13::propagate_on_container_move_assignment::value);
+        ASSERT(!ObjI14::propagate_on_container_move_assignment::value);
+        ASSERT( ObjI15::propagate_on_container_move_assignment::value);
+
+        ASSERT(!ObjI0::propagate_on_container_swap::value);
+        ASSERT(!ObjI1::propagate_on_container_swap::value);
+        ASSERT( ObjI2::propagate_on_container_swap::value);
+        ASSERT( ObjI3::propagate_on_container_swap::value);
+        ASSERT(!ObjI4::propagate_on_container_swap::value);
+        ASSERT(!ObjI5::propagate_on_container_swap::value);
+        ASSERT( ObjI6::propagate_on_container_swap::value);
+        ASSERT( ObjI7::propagate_on_container_swap::value);
+        ASSERT(!ObjI8::propagate_on_container_swap::value);
+        ASSERT(!ObjI9::propagate_on_container_swap::value);
+        ASSERT( ObjI10::propagate_on_container_swap::value);
+        ASSERT( ObjI11::propagate_on_container_swap::value);
+        ASSERT(!ObjI12::propagate_on_container_swap::value);
+        ASSERT(!ObjI13::propagate_on_container_swap::value);
+        ASSERT( ObjI14::propagate_on_container_swap::value);
+        ASSERT( ObjI15::propagate_on_container_swap::value);
+
+        ASSERT(!ObjF0::propagate_on_container_copy_assignment::value);
+        ASSERT(!ObjF1::propagate_on_container_copy_assignment::value);
+        ASSERT(!ObjF2::propagate_on_container_copy_assignment::value);
+        ASSERT(!ObjF3::propagate_on_container_copy_assignment::value);
+        ASSERT( ObjF4::propagate_on_container_copy_assignment::value);
+        ASSERT( ObjF5::propagate_on_container_copy_assignment::value);
+        ASSERT( ObjF6::propagate_on_container_copy_assignment::value);
+        ASSERT( ObjF7::propagate_on_container_copy_assignment::value);
+        ASSERT(!ObjF8::propagate_on_container_copy_assignment::value);
+        ASSERT(!ObjF9::propagate_on_container_copy_assignment::value);
+        ASSERT(!ObjF10::propagate_on_container_copy_assignment::value);
+        ASSERT(!ObjF11::propagate_on_container_copy_assignment::value);
+        ASSERT( ObjF12::propagate_on_container_copy_assignment::value);
+        ASSERT( ObjF13::propagate_on_container_copy_assignment::value);
+        ASSERT( ObjF14::propagate_on_container_copy_assignment::value);
+        ASSERT( ObjF15::propagate_on_container_copy_assignment::value);
+
+        ASSERT(!ObjF0::propagate_on_container_move_assignment::value);
+        ASSERT( ObjF1::propagate_on_container_move_assignment::value);
+        ASSERT(!ObjF2::propagate_on_container_move_assignment::value);
+        ASSERT( ObjF3::propagate_on_container_move_assignment::value);
+        ASSERT(!ObjF4::propagate_on_container_move_assignment::value);
+        ASSERT( ObjF5::propagate_on_container_move_assignment::value);
+        ASSERT(!ObjF6::propagate_on_container_move_assignment::value);
+        ASSERT( ObjF7::propagate_on_container_move_assignment::value);
+        ASSERT(!ObjF8::propagate_on_container_move_assignment::value);
+        ASSERT( ObjF9::propagate_on_container_move_assignment::value);
+        ASSERT(!ObjF10::propagate_on_container_move_assignment::value);
+        ASSERT( ObjF11::propagate_on_container_move_assignment::value);
+        ASSERT(!ObjF12::propagate_on_container_move_assignment::value);
+        ASSERT( ObjF13::propagate_on_container_move_assignment::value);
+        ASSERT(!ObjF14::propagate_on_container_move_assignment::value);
+        ASSERT( ObjF15::propagate_on_container_move_assignment::value);
+
+        ASSERT(!ObjF0::propagate_on_container_swap::value);
+        ASSERT(!ObjF1::propagate_on_container_swap::value);
+        ASSERT( ObjF2::propagate_on_container_swap::value);
+        ASSERT( ObjF3::propagate_on_container_swap::value);
+        ASSERT(!ObjF4::propagate_on_container_swap::value);
+        ASSERT(!ObjF5::propagate_on_container_swap::value);
+        ASSERT( ObjF6::propagate_on_container_swap::value);
+        ASSERT( ObjF7::propagate_on_container_swap::value);
+        ASSERT(!ObjF8::propagate_on_container_swap::value);
+        ASSERT(!ObjF9::propagate_on_container_swap::value);
+        ASSERT( ObjF10::propagate_on_container_swap::value);
+        ASSERT( ObjF11::propagate_on_container_swap::value);
+        ASSERT(!ObjF12::propagate_on_container_swap::value);
+        ASSERT(!ObjF13::propagate_on_container_swap::value);
+        ASSERT( ObjF14::propagate_on_container_swap::value);
+        ASSERT( ObjF15::propagate_on_container_swap::value);
+      } break;
+      case 13: {
+        // --------------------------------------------------------------------
+        // NESTED TYPES
+        //
+        // Concerns:
+        //: 1 The 'typedef' aliases defined in this component are the minimal
+        //:   set specified by the C++11 standard for types satisfying the
+        //:   'Allocator' requirements.
+        //:
+        // Plan:
+        //: 1 Define three aliases for 'StdStatefulAllocator' parameterized on
+        //:   'int', 'float', and 'void' types.
+        //:
+        //: 2 For each alias defines in P-1:
+        //:
+        //:   1 Use the 'sizeof' operator to verify that 'size_type' and
+        //:     'difference_type' are the right size and verify they are
+        //:     unsigned values.  (C-1..2)
+        //:
+        //:   2 For all other type aliases, use 'bsl::is_same' to verify that
+        //:     they are the expected types, except for 'reference' and
+        //:     'const_reference' for the instance parameterized on the 'void'
+        //:     type.  (C-1)
+        //:
+        //:   3 Verify using 'bsl::is_same' that 'rebind<U>::other', where 'U'
+        //:     is the other two aliases defined by P-1, defines the correct
+        //:     type.  (C-3)
+        //
+        // Testing:
+        //   value_type;
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nNESTED TYPES"
+                            "\n============\n");
+
+        typedef StdStatefulAllocator<int>   AI;
+        typedef StdStatefulAllocator<float> AF;
+
+        if (verbose) printf("\tTesting 'value_type'.\n");
+        {
+            ASSERT((bsl::is_same<AI::value_type, int>::value));
+            ASSERT((bsl::is_same<AF::value_type, float>::value));
+        }
+      } break;
+      case 12: {
+        // --------------------------------------------------------------------
+        // 'select_on_container_copy_construction' AND 'deallocate'
+        //
+        // Concerns:
+        //: 1 TBD ...
+        //
+        // Plan:
+        //: 1 TBD ... (C-1)
+        //
+        // Testing:
+        //   StdStatefulAllocator select_on_container_copy_construction() const
+        // --------------------------------------------------------------------
+
+        if (verbose) printf(
+                        "\nTesting 'select_on_container_copy_construction'"
+                        "\n===============================================\n");
+
+        {
+            bslma::TestAllocator da("default allocator");
+            
+            bslma::TestAllocator ta[16];
+
+            bslma::DefaultAllocatorGuard dag(&da);
+
+            {
+                const ObjI0 source(&ta[0]);
+                ObjI0 copy = source.select_on_container_copy_construction();
+
+                ASSERT(source != copy);
+                ASSERT(copy.testAllocator() == &da);
+            }
+
+            {
+                ObjF0 source(&ta[0]);
+                ObjF0 copy = source.select_on_container_copy_construction();
+
+                ASSERT(source != copy);
+                ASSERT(copy.testAllocator() == &da);
+            }
+
+            {
+                ObjI1 source(&ta[1]);
+                ObjI1 copy = source.select_on_container_copy_construction();
+
+                ASSERT(source != copy);
+                ASSERT(copy.testAllocator() == &da);
+            }
+
+            {
+                const ObjF1 source(&ta[1]);
+                ObjF1 copy = source.select_on_container_copy_construction();
+
+                ASSERT(source != copy);
+                ASSERT(copy.testAllocator() == &da);
+            }
+
+            {
+                ObjI8 source(&ta[8]);
+                ObjI8 copy = source.select_on_container_copy_construction();
+
+                ASSERT(source == copy);
+                ASSERT(copy.testAllocator() != &da);
+            }
+
+            {
+                const ObjF8 source(&ta[8]);
+                ObjF8 copy = source.select_on_container_copy_construction();
+
+                ASSERT(source == copy);
+                ASSERT(copy.testAllocator() != &da);
+            }
+
+            {
+                const ObjI15 source(&ta[15]);
+                ObjI15 copy = source.select_on_container_copy_construction();
+
+                ASSERT(source == copy);
+                ASSERT(copy.testAllocator() != &da);
+            }
+
+            {
+                ObjF15 source(&ta[15]);
+                ObjF15 copy = source.select_on_container_copy_construction();
+
+                ASSERT(source == copy);
+                ASSERT(copy.testAllocator() != &da);
+            }
+        }
+
+      } break;
+      case 11: {
+        // --------------------------------------------------------------------
+        // 'allocate' AND 'deallocate'
+        //
+        // Concerns:
+        //: 1 The 'allocate' method forwards allocation requests to the
+        //:   approporiate delegate allocator.
+        //:
+        //: 2 The 'deallocate' method forwards the deallocation requests to the
+        //:   approporiate delegate allocator.
+        //
+        // Plan:
+        //: 1 Create a 'bslma_Allocator' object and install it as the delegate
+        //:   allocator for 'StdStatefulAllocator'.
+        //:
+        //: 2 Create a new 'StdStatefulAllocator' object and invoke the
+        //:   'allocate' method.  Verify that the correct amount of memory has
+        //:    been allocated from the delegate allocator.  (C-1)
+        //:
+        //: 3 Invoke the 'deallocate' method and verify that the correct amount
+        //:   of memory has been deallocated from the delegate allocator. (C-2)
+        //
+        // Testing:
+        //   pointer allocate(size_type numElements, const void *hint = 0);
+        //   void deallocate(pointer address, size_type numElements = 1);
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\n'allocate' AND 'deallocate'"
+                            "\n===========================\n");
+
+        bslma::TestAllocator oa;
+
+        Obj sta(&oa);
+        int *ptr = sta.allocate(1);
+
+        ASSERTV(oa.numBytesInUse(), sizeof(int) == oa.numBytesInUse());
+        ASSERTV(oa.numBytesTotal(), sizeof(int) == oa.numBytesTotal());
+
+        sta.deallocate(ptr, 1);
+
+        ASSERTV(oa.numBytesInUse(), 0 == oa.numBytesInUse());
+        ASSERTV(oa.numBytesTotal(), sizeof(int) == oa.numBytesTotal());
+
+        ptr = sta.allocate(4);
+
+        ASSERTV(oa.numBytesInUse(), 4 * sizeof(int) == oa.numBytesInUse());
+        ASSERTV(oa.numBytesTotal(), 5 * sizeof(int) == oa.numBytesTotal());
+
+        sta.deallocate(ptr, 4);
+
+        ASSERTV(oa.numBytesInUse(), 0 == oa.numBytesInUse());
+        ASSERTV(oa.numBytesTotal(), 5 * sizeof(int) == oa.numBytesTotal());
+
       } break;
       case 10: {
         // --------------------------------------------------------------------
@@ -597,8 +748,8 @@ int main(int argc, char *argv[]) {
       case 9: {
         // --------------------------------------------------------------------
         // COPY-ASSIGNMENT OPERATOR
-        //   Since 'StdStatefulAllocator' doesn't hold any state and provides the
-        //   compiler supplied assignment operator, there are no concerns
+        //   Since 'StdStatefulAllocator' doesn't hold any state and provides
+        //   the compiler supplied assignment operator, there are no concerns
         //   beyond the signatures are correctly defined.
         //
         // Concerns:
@@ -612,9 +763,9 @@ int main(int argc, char *argv[]) {
         //:   pointer having the appropriate signature and return type for the
         //:   copy-assignment operator defined in this component.  (C-1)
         //:
-        //: 2 Create two sets of 'StdStatefulAllocator' objects (parameterized on
-        //:   void and int) and assign a non-modifiable refernce of one to the
-        //:   other.  (C-2)
+        //: 2 Create two sets of 'StdStatefulAllocator' objects (parameterized
+        //:   on 'void' and 'int') and assign a non-modifiable refernce of one
+        //:   to the other.  (C-2)
         //
         // Testing:
         //   StdStatefulAllocator& operator=(const StdStatefulAllocator& rhs);
@@ -656,25 +807,26 @@ int main(int argc, char *argv[]) {
       case 7: {
         // --------------------------------------------------------------------
         // COPY CONSTRUCTORS
-        //   Since 'StdStatefulAllocator' doesn't hold any state and provides the
-        //   compiler supplied copy constructor, there are no concerns beyond
-        //   the signatures are correctly defined.
+        //   Since 'StdStatefulAllocator' doesn't hold any state and provides
+        //   the compiler supplied copy constructor, there are no concerns
+        //   beyond the signatures are correctly defined.
         //
         // Concerns:
-        //: 1 A 'StdStatefulAllocator' object can be copy constructed from a const
-        //:   reference of another object of the same type.
+        //: 1 A 'StdStatefulAllocator' object can be copy constructed from a
+        //:   const reference of another object of the same type.
         //:
-        //: 2 A 'StdStatefulAllocator' object can be copy constructed from a const
-        //:   reference of another object of the 'StdStatefulAllocator' template
-        //:   instance parameterized on a different type.
+        //: 2 A 'StdStatefulAllocator' object can be copy constructed from a
+        //:   const reference of another object of the 'StdStatefulAllocator'
+        //:   template instance parameterized on a different type.
         //
         // Plan:
-        //: 1 Create a 'StdStatefulAllocator' object.  Use a const reference of the
-        //:   object to copy construct another object of the same type.  (C-1)
+        //: 1 Create a 'StdStatefulAllocator' object.  Use a const reference of
+        //:   the object to copy construct another object of the same type.
+        //:   (C-1)
         //:
         //: 2 Use the object created in P-1 to copy construct an object of the
-        //:   'StdStatefulAllocator' template instant parameterized on a different
-        //:   type.  (C-2)
+        //:   'StdStatefulAllocator' template instant parameterized on a
+        //:   different type.  (C-2)
         //
         // Testing:
         //   StdStatefulAllocator(const StdStatefulAllocator& original);
@@ -742,29 +894,33 @@ int main(int argc, char *argv[]) {
 
         bslma::TestAllocator allocX("X");
         bslma::TestAllocator allocY("Y");
-        bslma::TestAllocator allocZ("Z");
 
         const Obj X(&allocX);
         const Obj Y(&allocY);
-        const Obj Z(&allocZ);
-
-        bslma::TestAllocator allocA("A");
-
-        const ObjF A(&allocA);
-
 
         ASSERT(X == X);
         ASSERT(X != Y);
         ASSERT(!(X == Y));
         ASSERT(!(X != X));
-//        ASSERT(X == Z);
-//        ASSERT(!(X != Z));
+
+        ASSERT(Y == Y);
+        ASSERT(Y != X);
+        ASSERT(!(Y == X));
+        ASSERT(!(Y != Y));
+
+        const ObjF A(&allocX);
+        const ObjF B(&allocY);
 
         ASSERT(A == A);
+        ASSERT(A != B);
+        ASSERT(!(A == B));
         ASSERT(!(A != A));
-//        ASSERT(X == A);
-//        ASSERT(A == B);
-//        ASSERT(!(X != B));
+
+        ASSERT(B == B);
+        ASSERT(B != A);
+        ASSERT(!(B == A));
+        ASSERT(!(B != B));
+
 
       } break;
       case 5: {
@@ -776,8 +932,38 @@ int main(int argc, char *argv[]) {
       case 4: {
         // --------------------------------------------------------------------
         // BASIC ACCESSORS
-        //   N/A
+        //   Ensure each basic accessor properly interprets object state.
+        //
+        // Concerns:
+        //: 1 Each accessor returns the value of the corresponding attribute
+        //:    of the object.
+        //:
+        //: 2 Each accessor method is declared 'const'.
+        //
+        // Plan:
+        //: 1 Use the value constructor, create an object having the expected
+        //:   attribute values.  Verify that the accessor for the
+        //:   'testAllocator' attribute invoked on a reference providing
+        //:   non-modifiable access to the object return the expected value.
+        //:   (C-1, 2)
+        //:
+        // Testing:
+        //   bslma::TestAllocator *testAllocator() const;
         // --------------------------------------------------------------------
+
+        if (verbose)
+            printf("\nBASIC ACCESSORS"
+                   "\n===============\n");
+
+        bslma::TestAllocator allocX("X");
+        bslma::TestAllocator allocY("Y");
+
+        const Obj X(&allocX);
+        const Obj Y(&allocY);
+
+        ASSERTV(&allocX, X.testAllocator(), &allocX == X.testAllocator());
+        ASSERTV(&allocY, Y.testAllocator(), &allocY == Y.testAllocator());
+
       } break;
       case 3: {
         // --------------------------------------------------------------------
@@ -794,7 +980,7 @@ int main(int argc, char *argv[]) {
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTesting the test machinery"
-                            "\n==========================");
+                            "\n==========================\n");
       } break;
       case 2: {
         // --------------------------------------------------------------------
@@ -817,9 +1003,9 @@ int main(int argc, char *argv[]) {
         //:   created allocator.  Verify that 'delegateAllocator' returns the
         //:   pointer passed in the previous call.  (C-1)
         //:
-        //: 3 Create a 'StdStatefulAllocator' object and use the (as yet unproven)
-        //:   'allocate' method allocates from the just test allocator created
-        //:   by P-3.  (C-1)
+        //: 3 Create a 'StdStatefulAllocator' object and use the (as yet
+        //:   unproven) 'allocate' method allocates from the just test
+        //:   allocator created by P-3.  (C-1)
         //
         // Testing:
         //   StdStatefulAllocator(bslma::TestAllocator *);
@@ -836,7 +1022,7 @@ int main(int argc, char *argv[]) {
         int* ptr = mX.allocate(2);
         ASSERT(sizeof(int)*2 == oa.numBytesInUse());
 
-        mX.deallocate(ptr);
+        mX.deallocate(ptr, 2);
         ASSERT(0 == oa.numBytesInUse());
 
       } break;
@@ -864,7 +1050,7 @@ int main(int argc, char *argv[]) {
             StdStatefulAllocator<int> sa(&oa);
             int *ptr = sa.allocate(2);
             ASSERT(oa.numBytesInUse() == 2*sizeof(int));
-            sa.deallocate(ptr);
+            sa.deallocate(ptr, 2);
             ASSERT(oa.numBytesInUse() == 0);
         }
 

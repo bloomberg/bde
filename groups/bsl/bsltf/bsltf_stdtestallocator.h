@@ -22,7 +22,7 @@ BSLS_IDENT("$Id: $")
 // to verify that constructs designed to support a standard-compliant allocator
 // access the allocator only through the standard-defined interface.
 //
-// 'StdTestAllocator' delegates its operations to a static 'bslma_Allocator'
+// 'StdTestAllocator' delegates its operations to a static 'bslma::Allocator'
 // (delegate allocator) that can be configured by the utilities provided in the
 // namespace 'StdTestAllocatorConfiguration'.
 // 'StdTestAllocatorConfigurationGuard' provides a scoped guard to enable
@@ -128,10 +128,6 @@ BSLS_IDENT("$Id: $")
 #include <bslma_allocator.h>
 #endif
 
-#ifndef INCLUDED_BSLMA_NEWDELETEALLOCATOR
-#include <bslma_newdeleteallocator.h>
-#endif
-
 #ifndef INCLUDED_BSLS_UTIL
 #include <bsls_util.h>
 #endif
@@ -155,10 +151,6 @@ struct StdTestAllocatorConfiguration {
     // their operations.  The provided operations are *not* thread-safe.  Note
     // that this allocator is configured globally as C++03 standard compliant
     // allocators cannot have individually identifiable state.
-
-  private:
-    // CLASS DATA
-    static bslma::Allocator *s_allocator_p; // the delegate allocator
 
   public:
     // CLASS METHODS
@@ -373,17 +365,6 @@ bool operator!=(const StdTestAllocator<TYPE1>& lhs,
 //                  INLINE AND TEMPLATE FUNCTION IMPLEMENTATIONS
 // ===========================================================================
 
-                        // -----------------------------------
-                        // class StdTestAllocatorConfiguration
-                        // -----------------------------------
-
-// CLASS METHODS
-inline
-bslma::Allocator* StdTestAllocatorConfiguration::delegateAllocator()
-{
-    return s_allocator_p ?
-                        s_allocator_p : &bslma::NewDeleteAllocator::singleton();
-}
                         // ----------------------------------------
                         // class StdTestAllocatorConfigurationGuard
                         // ----------------------------------------
