@@ -14,7 +14,7 @@ BDES_IDENT("$Id: $")
 //
 //@AUTHOR: Alisdair Meredith (ameredit)
 //
-//@SEE_ALSO: bslstp_hashmap, bslstp_hashset
+//@SEE_ALSO:
 //
 //@DESCRIPTION: This component provides a functor to compare two
 // null-terminated strings using a case-sensitive string comparison, rather
@@ -56,8 +56,8 @@ namespace BloombergLP {
 struct bdeu_CStringEqualTo {
     // This 'struct' defines a comparison functor on null-terminated character
     // strings, enabling them for use as keys in the standard unordered
-    // associative containers such as 'bsl::hash_map' and 'bsl::hash_set'.
-    // Note that this class is an empty POD type.
+    // associative containers such as 'bsl::unordered_map' and
+    // 'bsl::unordered_set'.  Note that this class is an empty POD type.
 
     // STANDARD TYPEDEFS
     typedef const char *first_argument_type;

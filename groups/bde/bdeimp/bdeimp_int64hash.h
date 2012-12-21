@@ -30,8 +30,8 @@ BDES_IDENT("$Id: $")
 //  bdeci_Hashtable<bsls::Types::Int64, bdeimp_Int64Hash> hashTable;
 //..
 // See the component-level documentation of 'bdeci_hashtable' for further
-// information.  However, note that 'bsl::hash_map' generally should be used
-// instead of 'bdeci_Hashtable'.
+// information.  However, note that 'bsl::unordered_map' generally should be
+// used instead of 'bdeci_Hashtable'.
 
 #ifndef INCLUDED_BDESCM_VERSION
 #include <bdescm_version.h>

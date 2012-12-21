@@ -9,7 +9,7 @@ BDES_IDENT("$Id: $")
 
 //@PURPOSE: Provide a container of unique 'T' values.
 //
-//@DEPRECATED: Use 'bsl::hash_map' instead.
+//@DEPRECATED: Use 'bsl::unordered_map' instead.
 //
 //@CLASSES:
 //          bdeci_Hashtable: hashtable of 'T' values
