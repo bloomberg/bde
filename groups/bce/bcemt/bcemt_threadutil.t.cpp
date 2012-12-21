@@ -645,6 +645,19 @@ extern "C" void *secondClearanceTest(void *vStackSize)
     return 0;
 }
 
+extern "C" void *testMainThreadFromAnotherThread(void *data)
+{
+    bcemt_ThreadUtil::Handle *mainThreadHandle
+        = reinterpret_cast<bcemt_ThreadUtil::Handle *>(data);
+
+    ASSERT(bcemt_ThreadUtil::areEqual(bcemt_ThreadUtil::mainThread(),
+                                      *mainThreadHandle));
+    ASSERT(!bcemt_ThreadUtil::areEqual(bcemt_ThreadUtil::mainThread(),
+                                       bcemt_ThreadUtil::self()));
+
+    return 0;
+}
+
 //=============================================================================
 //                                  MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -658,9 +671,41 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
+    case 12: {
+        // --------------------------------------------------------------------
+        // TEST MAINTHREAD FUNCTION
+        //
+        // Concerns:
+        // 1. 'mainThread' function returns a handle identifying the main
+        //    thread.
+        //
+        // Plan:
+        // 1. Compare 'self' handle in the main thread with the 'mainThread'
+        //    handle and verify that they are the same for the main thread.
+        // 2. In another thread, compare 'self' handle with the 'mainThread'
+        //    handle and verify that they are different.
+        // --------------------------------------------------------------------
+
+        if (verbose) {
+            cout << "Testing 'mainThread' function\n"
+                 << "=============================\n";
+        }
+
+        bcemt_ThreadUtil::Handle currentThread = bcemt_ThreadUtil::self();
+        ASSERT(bcemt_ThreadUtil::mainThread() == currentThread);
+
+        bcemt_ThreadUtil::Handle another;
+        int rc = bcemt_ThreadUtil::create(&another,
+                                          testMainThreadFromAnotherThread,
+                                          &currentThread);
+        ASSERT(rc == 0);
+
+        rc = bcemt_ThreadUtil::join(another);
+        ASSERT(rc == 0);
+    } break;
       case 11: {
         // --------------------------------------------------------------------
-        // Usgae Example 3: MULTIPLE PRIORITY THREADS
+        // Usage Example 3: MULTIPLE PRIORITY THREADS
         //
         // Concern:
         //   Need to demonstrate setting priorities for threads.  Note that we
