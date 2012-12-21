@@ -20,11 +20,7 @@
 #include <bsls_types.h>
 
 #include <bsl_algorithm.h>
-// TBD reinstate all code referencing "bitset" when bslstl_bitset is
-//     released to opensource bsl (see 'case 9')
-#if 0
 #include <bsl_bitset.h>
-#endif
 #include <bsl_climits.h>
 #include <bsl_cstdio.h>
 #include <bsl_cstdlib.h>
@@ -345,9 +341,6 @@ int calculateThreshold(int record, int pass, int trigger, int triggerAll)
     return value;
 }
 
-// TBD reinstate all code referencing "bitset" when bslstl_bitset is
-//     released to opensource bsl (see 'case 9')
-#if 0
 template <bsl::size_t BITS>
 bsl::string bitset2string(const bsl::bitset<BITS>& bs)
 {
@@ -355,7 +348,6 @@ using namespace bsl;  // automatically added by script
 
     return bs.template to_string<char, char_traits<char>, allocator<char> >();
 }
-#endif
 
 extern "C"
 void *case9ThreadW(void *arg)
@@ -1508,9 +1500,6 @@ int main(int argc, char *argv[])
                           << "Test MT-Safety: Add and Lookup" << endl
                           << "==============================" << endl;
 
-// TBD reinstate all code referencing "bitset" when bslstl_bitset is
-//     released to opensource bsl (this test case and 2 snippets above)
-#if 0
         enum {
             NUM_CATEGORIES = 100,    // number of categories to add
             NUM_W_THREADS  = 4,      // number of "write" threads
@@ -1603,7 +1592,6 @@ int main(int argc, char *argv[])
 
         ASSERT(0 < ta.numAllocations());
         ASSERT(0 < ta.numBytesInUse());
-#endif
       }  break;
       case 8: {
         // --------------------------------------------------------------------
