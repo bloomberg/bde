@@ -27,7 +27,7 @@ bslalg::HashTableBucket *HashTable_ImpDetails::defaultBucketAddress()
     static bslalg::HashTableBucket s_bucket = {0 , 0};
                                                   // Aggregative initialization
                                                   // of a POD should be thread-
-                                                  // safe static initializationi
+                                                  // safe static initialization
     // These two tests should not be necessary, but will catch corruption in
     // components that try to write to the shared bucket.
     BSLS_ASSERT_SAFE(!s_bucket.first());
@@ -74,7 +74,7 @@ size_t HashTable_ImpDetails::growBucketsForLoadFactor(size_t *capacity,
     // Return the suggested number of buckets to index a linked list that
     // can hold as many as the specified 'minElements' without exceeding
     // the specified 'maxLoadFactor', and supporting at lead the specified
-    // number of 'requestedBuckets'.  Set the specified '*capactity' to the
+    // number of 'requestedBuckets'.  Set the specified '*capacity' to the
     // maximum length of linked list that the returned number of buckets
     // could index without exceeding the maxLoadFactor.  The behavior is
     // undefined unless '0 < maxLoadFactor', '0 < minElements' and
@@ -94,7 +94,7 @@ size_t HashTable_ImpDetails::growBucketsForLoadFactor(size_t *capacity,
                  ? static_cast<size_t>(d)
                  : MAX_SIZE_T;
         }
-        
+
         static size_t throwIfOverMax(double d) {
             if (d > MAX_AS_DBL) {
                 StdExceptUtil::throwLengthError(
@@ -118,7 +118,7 @@ size_t HashTable_ImpDetails::growBucketsForLoadFactor(size_t *capacity,
         result  = nextPrime(2 * result);  // throws if too large
         newCapacity = static_cast<double>(result) * maxLoadFactor;
     }
-    
+
     *capacity = Impl::roundToMax(newCapacity);
     return result;
 }

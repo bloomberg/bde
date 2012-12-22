@@ -253,7 +253,7 @@ void aSsErT(bool b, const char *s, int i)
 
 #define RUN_EACH_TYPE BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE
 
-#define BSL_TF_EQ      BSLTF_TEMPLATETESTFACILITY_COMPARE_EQUAL 
+#define BSL_TF_EQ      BSLTF_TEMPLATETESTFACILITY_COMPARE_EQUAL
 #define BSL_TF_NOT_EQ  BSLTF_TEMPLATETESTFACILITY_COMPARE_NOT_EQUAL
 
 // ============================================================================
@@ -358,7 +358,7 @@ class AwkwardMaplikeElement {
     // the class itself *is* equality-comparable (as required of a value
     // semantic type) so that a HashTable of these objects should have a well-
     // defined 'operator=='.  Note that this class is a specific example for a
-    // specific problem, rather than a template providing the general test typee
+    // specific problem, rather than a template providing the general test type
     // for keys distinct from values, as the template test facility requires an
     // explicit specialization of a function template,
     // 'TemplateTestFacility::getIdentifier<T>', which would require a partial
@@ -482,7 +482,7 @@ void debugprint(
 }  // close namespace BloombergLP::bslstl
 
 namespace bsltf {
-    
+
 template <>
 inline
 int TemplateTestFacility::getIdentifier<TestTypes::AwkwardMaplikeElement>(
@@ -962,7 +962,7 @@ class DegenerateClass : public FUNCTOR {
 
 
     DegenerateClass& operator=(const DegenerateClass&);
-    // TBD. Do we require functors be CopyAssigable, Swappable, or customize
+    // TBD. Do we require functors be CopyAssignable, Swappable, or customize
     // availability for test scenario?
 
   public:
@@ -984,7 +984,7 @@ class DegenerateClass : public FUNCTOR {
 template <class FUNCTOR, bool ENABLE_SWAP>
 inline
 DegenerateClass<FUNCTOR, ENABLE_SWAP>::DegenerateClass(const FUNCTOR& base)
-: FUNCTOR(base) 
+: FUNCTOR(base)
 {
 }
 
@@ -1022,12 +1022,12 @@ void swap(DegenerateClass<FUNCTOR, true>& lhs,
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-                       // ============================
-                       // class FuntionPointerPolicies
-                       // ============================
+                       // =============================
+                       // class FunctionPointerPolicies
+                       // =============================
 
 template <class KEY>
-struct FuntionPointerPolicies {
+struct FunctionPointerPolicies {
     typedef size_t HashFunction(const KEY&);
     typedef bool   ComparisonFunction(const KEY&, const KEY&);
 
@@ -1061,7 +1061,7 @@ template <class KEY>
 struct MakeDefaultFunctor<size_t (*)(const KEY&)> {
     typedef size_t FunctionType(const KEY&);
     static FunctionType *make() {
-        return &FuntionPointerPolicies<KEY>::hash;
+        return &FunctionPointerPolicies<KEY>::hash;
     }
 };
 
@@ -1069,7 +1069,7 @@ template <class KEY>
 struct MakeDefaultFunctor<bool (*)(const KEY&, const KEY&)> {
     typedef bool FunctionType(const KEY&, const KEY&);
     static FunctionType *make() {
-        return &FuntionPointerPolicies<KEY>::compare;
+        return &FunctionPointerPolicies<KEY>::compare;
     }
 };
 
@@ -1185,7 +1185,7 @@ bool isEqualComparator(const TestEqualityComparator<KEY>& lhs,
 
 class BoolArray {
     // This class holds a set of boolean flags, the number of which is
-    // speicifed when such an object is constructed.  This class is a
+    // specified when such an object is constructed.  This class is a
     // lightweight alternative to 'vector<bool>' as there is no need to
     // introduce such a component dependency for a simple test facility.
 
@@ -1222,7 +1222,7 @@ class BoolArray {
 
 template <class ALLOCATOR>
 struct MakeAllocator {
-    // TBD This utiliy class template ...
+    // TBD This utility class template ...
 
     typedef ALLOCATOR AllocatorType;
 
@@ -1234,7 +1234,7 @@ struct MakeAllocator {
 
 template <class TYPE>
 struct MakeAllocator<bsl::allocator<TYPE> > {
-    // TBD This utiliy class template specialization...
+    // TBD This utility class template specialization...
 
     typedef bsl::allocator<TYPE> AllocatorType;
 
@@ -1246,7 +1246,7 @@ struct MakeAllocator<bsl::allocator<TYPE> > {
 
 template <class TYPE>
 struct MakeAllocator<bsltf::StdTestAllocator<TYPE> > {
-    // TBD This utiliy class template specialization...
+    // TBD This utility class template specialization...
 
     typedef bsltf::StdTestAllocator<TYPE> AllocatorType;
 
@@ -1271,7 +1271,7 @@ struct MakeAllocator<bsltf::StdTestAllocator<TYPE> > {
 
 template <class TYPE, bool A, bool B, bool C, bool D>
 struct MakeAllocator<bsltf::StdStatefulAllocator<TYPE, A, B, C, D> > {
-    // TBD This utiliy class template specialization...
+    // TBD This utility class template specialization...
 
     typedef bsltf::StdStatefulAllocator<TYPE, A, B, C, D> AllocatorType;
 
@@ -1290,7 +1290,7 @@ struct MakeAllocator<bsltf::StdStatefulAllocator<TYPE, A, B, C, D> > {
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 struct ObjectMaker {
-    // TBD This utiliy class template ...
+    // TBD This utility class template ...
 
     typedef          ALLOCATOR             AllocatorType;
     typedef typename KEY_CONFIG::KeyType   KeyType;
@@ -1298,9 +1298,9 @@ struct ObjectMaker {
     typedef typename bsl::allocator_traits<ALLOCATOR>::size_type SizeType;
 
     typedef bslstl::HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>   Obj;
-    
+
     static
-    ALLOCATOR makeObject(Obj                  **obj,
+    ALLOCATOR makeObject(Obj                  **objPtr,
                          char                   config,
                          bslma::Allocator      *fa,  // "footprint" allocator
                          bslma::TestAllocator  *objectAllocator,
@@ -1329,7 +1329,7 @@ struct ObjectMaker<KEY_CONFIG,
                    HASHER,
                    COMPARATOR,
                    bsl::allocator<typename KEY_CONFIG::ValueType> > {
-    // TBD This utiliy class template specialization...
+    // TBD This utility class template specialization...
 
     typedef bsl::allocator<typename KEY_CONFIG::ValueType> AllocatorType;
     typedef typename KEY_CONFIG::KeyType   KeyType;
@@ -1338,9 +1338,9 @@ struct ObjectMaker<KEY_CONFIG,
 
     typedef bslstl::HashTable<KEY_CONFIG, HASHER, COMPARATOR, AllocatorType>
                                                                            Obj;
-    
+
     static
-    AllocatorType makeObject(Obj                  **obj,
+    AllocatorType makeObject(Obj                  **objPtr,
                              char                   config,
                              bslma::Allocator      *fa, //"footprint" allocator
                              bslma::TestAllocator  *objectAllocator,
@@ -1372,7 +1372,7 @@ struct ObjectMaker<
                 COMPARATOR,
                 bsltf::StdStatefulAllocator<typename KEY_CONFIG::ValueType,
                                              A, B, C, D> > {
-    // TBD This utiliy class template specialization...
+    // TBD This utility class template specialization...
 
     typedef typename KEY_CONFIG::KeyType   KeyType;
     typedef typename KEY_CONFIG::ValueType ValueType;
@@ -1382,9 +1382,9 @@ struct ObjectMaker<
 
     typedef bslstl::HashTable<KEY_CONFIG, HASHER, COMPARATOR, AllocatorType>
                                                                            Obj;
-    
+
     static
-    AllocatorType makeObject(Obj                  **obj,
+    AllocatorType makeObject(Obj                  **objPtr,
                              char                   config,
                              bslma::Allocator      *fa, //"footprint" allocator
                              bslma::TestAllocator  *objectAllocator,
@@ -1555,7 +1555,7 @@ makeObject(Obj                  **objPtr,
                                 : dynamic_cast<bslma::TestAllocator *>(
                                            bslma::Default::defaultAllocator());
     ASSERT(alloc);
-    
+
     AllocatorType result = MakeAllocator<AllocatorType>::make(alloc);
     *objPtr = new (*fa) Obj(hash,
                             compare,
@@ -1633,7 +1633,7 @@ size_t predictNumBuckets(size_t length, float maxLoadFactor)
     // turn choose to create even more buckets to preserve its growth strategy.
     // This function does not attempt to predict that growth strategy, but
     // merely predict the minimum number of buckets that strategy must
-    // accomodate.
+    // accommodate.
 {
     return static_cast<size_t>(ceil(static_cast<double>(length) /
                                                         maxLoadFactor));
@@ -1781,9 +1781,9 @@ void testCase3_ValidateEvilBooleanType()
 {
     // Part of testing-the-test machinery.
     // This test function splits out the concerns for validating the
-    // 'EvilBooleanType'.  Ideally, this would split out into a separate
-    // test facilility component and be properly tested there as a value-
-    // semantic type.
+    // 'EvilBooleanType'.  Ideally, this would split out into a separate test
+    // facility component and be properly tested there as a value-semantic
+    // type.
 
     const EvilBooleanType falseValue1(false);
     const EvilBooleanType falseValue2(false);
@@ -1893,7 +1893,7 @@ struct BsltfConfig {
         // usage patterns of this test driver, we can ensure that no two hash
         // computations happen while the first result is still held as a
         // reference.  Unfortunately, we have no such guarantee on simultaneous
-        // evalutations in the HashTable facility itself, so we cycle through a
+        // evaluations in the HashTable facility itself, so we cycle through a
         // cache of 16 results, as no reference should be so long lived that we
         // see 16 live references.
         static int results_cache[16] = {};
@@ -2088,7 +2088,7 @@ struct TestDriver_ForwardTestCasesByConfiguation {
 // - - - - - - - - - - Pre-packaged test harness adapters - - - - - - - - - - -
 // The template test facility, bsltf, requires class templates taking a single
 // argument, that is the element type to vary in the test.  We desire a variety
-// of configurations pushing the various policy paramters of the 'HashTable'
+// of configurations pushing the various policy parameters of the 'HashTable'
 // class template, such as the type of functors, the key extraction policy,
 // etc. so we write some simple adapters that will generate the appropriate
 // instantiation of the test harness, from a template parameterized on only the
@@ -2101,7 +2101,7 @@ struct TestDriver_BasicConfiguation
                      , TestFacilityHasher<ELEMENT>
                      , ::bsl::equal_to<ELEMENT>
                      , ::bsl::allocator<ELEMENT>
-                     > 
+                     >
        > {
 };
 
@@ -2145,12 +2145,12 @@ struct TestDriver_BsltfConfiguation
                      , ::bsl::hash<int>
                      , ::bsl::equal_to<int>
                      , ::bsl::allocator<ELEMENT>
-                     > 
+                     >
        > {
     // Basic configuration to test a key-type different to the value-type.
     // This is a simple attempt to deliver something approximating a map with
     // 'int' as key, where the 'int' is computed for each element.  This is
-    // the simplest way to generate a condiguration compatible with the 'bsltf'
+    // the simplest way to generate a configuration compatible with the 'bsltf'
     // template testing framework used above, without rewriting each test case
     // to additional support for separate test tables of pairs to initialize a
     // more traditional-style map, with different math for computed values and
@@ -2287,7 +2287,7 @@ struct TestCase_GroupedSharedKeys
 template <class ELEMENT>
 struct TestCase6_DegenerateConfiguration
      : TestDriver_ForwardTestCasesByConfiguation<
-           TestDriver< 
+           TestDriver<
                    BasicKeyConfig<ELEMENT>,
                    DegenerateClass<GroupedHasher<ELEMENT, bsl::hash<int>, 5> >,
                    DegenerateClass<GroupedEqualityComparator<ELEMENT, 5> >,
@@ -2298,7 +2298,7 @@ struct TestCase6_DegenerateConfiguration
 template <class ELEMENT>
 struct TestCase6_DegenerateConfigurationNoSwap
      : TestDriver_ForwardTestCasesByConfiguation<
-           TestDriver< 
+           TestDriver<
             BasicKeyConfig<ELEMENT>,
             DegenerateClass<GroupedHasher<ELEMENT, bsl::hash<int>, 5>, false >,
             DegenerateClass<GroupedEqualityComparator<ELEMENT, 5>, false >,
@@ -2463,7 +2463,8 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase13()
             ASSERTV(MAX_LF, LENGTH, CONFIG, expAllocator == X.allocator());
 
 
-            const bslma::TestAllocator  *oa = extractTestAllocator(expAllocator);
+            const bslma::TestAllocator  *oa =
+                                            extractTestAllocator(expAllocator);
             const bslma::TestAllocator *noa = &sa == oa ? &da : &sa;
 
             // It is important that these allocators are found, or else the
@@ -2669,7 +2670,8 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase13()
                 ASSERTV(MAX_LF, LENGTH, CONFIG, 0 == X.elementListRoot());
                 ASSERTV(MAX_LF, LENGTH, CONFIG, MAX_LF == X.maxLoadFactor());
                 ASSERTV(MAX_LF, LENGTH, CONFIG, 0.0f == X.loadFactor());
-                ASSERTV(MAX_LF, LENGTH, CONFIG, 0 == X.countElementsInBucket(0));
+                ASSERTV(MAX_LF, LENGTH, CONFIG,
+                        0 == X.countElementsInBucket(0));
 
                 const bsls::Types::Int64 AA = oa->numBlocksTotal();
 
@@ -2715,7 +2717,8 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase13()
 
                     // The number of buckets should not have changed, so no
                     // reason to allocate a fresh bucket array
-                    ASSERTV(MAX_LF, LENGTH, CONFIG, bucketCount, X.numBuckets(),
+                    ASSERTV(MAX_LF, LENGTH, CONFIG,
+                            bucketCount,   X.numBuckets(),
                             bucketCount == X.numBuckets());
 
                     // These tests assume that the object allocator is used
@@ -2808,7 +2811,8 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase13()
                 }
                 ITER[LENGTH] = 0;
 
-                ASSERTV(MAX_LF, LENGTH, CONFIG, X.size(), 2 * LENGTH == X.size());
+                ASSERTV(MAX_LF, LENGTH, CONFIG, X.size(),
+                        2 * LENGTH == X.size());
 
                 // The second loop adds another duplicate in front of each
                 // the items from the previous loop, and not in the middle of
@@ -2828,7 +2832,8 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase13()
                             ITER[tj] == RESULT->nextLink());
                 }
 
-                ASSERTV(MAX_LF, LENGTH, CONFIG, X.size(), 3 * LENGTH == X.size());
+                ASSERTV(MAX_LF, LENGTH, CONFIG, X.size(),
+                        3 * LENGTH == X.size());
             }
 
             // ----------------------------------------------------------------
@@ -2887,7 +2892,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase13()
                 catch(...) {
                     ASSERT(!!"The wrong exception type was thrown.");
                 }
-            
+
             }
 #endif
 
@@ -2934,7 +2939,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase13()
     //:   is less than the current 'numBuckets' in the object.
     //:
     //: 6 'rehashForNumElements' is a no-op if the requested number of elements
-    //:   can already be accomodated without exceeding the 'maxLoadFactor' of
+    //:   can already be accommodated without exceeding the 'maxLoadFactor' of
     //:   the object.
     //:
     //: 7 Any memory allocation is from the object allocator.
@@ -4882,7 +4887,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase3()
 
             if (LENGTH != oldLen) {
                 if (verbose) printf("\tof length " ZU ":\n", LENGTH);
-                if (99 != oldLen) {  // i.e. not first pass
+                if (99 != oldLen) {  // i.e., not first pass
                     ASSERTV(LINE, oldLen,  LENGTH,
                                   oldLen < LENGTH);  // non-decreasing
                 }
@@ -5484,7 +5489,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
         catch(...) {
             ASSERT(!!"The wrong exception type was thrown.");
         }
-    
+
     }
 #endif
 
@@ -5752,7 +5757,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase1(
             ASSERTV(initialRoot != x.elementListRoot());
             ASSERTV(x.elementListRoot() == resIt1);
             ASSERTV(x.find(key) == resIt1);
-            
+
             ASSERTV(X.size(), (2 * numValues - (2 * (i + 1) - 1)) == X.size());
             Link *resIt2 = x.remove(x.elementListRoot());
             ASSERTV(x.elementListRoot() == resIt2);
@@ -6016,10 +6021,10 @@ namespace UsageExamples {
             // past-the-end element (in the sequence of 'KEY' objects)
             // maintained by this set.
 
-        const_iterator find(const KEY& value) const;
+        const_iterator find(const KEY& key) const;
             // Return an iterator providing non-modifiable access to the 'KEY'
-            // object in this set having the specified 'value', if such an
-            // entry exists, and the iterator returned by the 'cend' method
+            // object in this set having the specified 'key', if such an entry
+            // exists, and the iterator returned by the 'cend' method
             // otherwise.
 
         size_type size() const;
@@ -6301,7 +6306,7 @@ if (verbose) {
     {
     }
 //..
-// As with 'MyHashedSet', the 'insertIfMissing' method of 'bslst::HashTable'
+// As with 'MyHashedSet', the 'insertIfMissing' method of 'bslstl::HashTable'
 // provides the semantics we need: an element is inserted only if no such
 // element (no element with the same key) in the container, and a reference to
 // that element ('node') is returned.  Here, we use 'node' to obtain and return
@@ -6780,7 +6785,7 @@ if (verbose) {
 // dereferencing the iterator would provide a 'MySalesRecord' pointer, which
 // would then have to be dereferences.  Instead, we use 'ItrPtrById' to define
 // 'ItrById' in which accessors have been overriden to provide that extra
-// derefernce implicitly.
+// dereference implicitly.
 //..
         class ItrById : public ItrPtrById
         {
@@ -7689,8 +7694,8 @@ int main(int argc, char *argv[])
         //   where the runtime concerns and test plan are documented.  The test
         //   harness will be instantiated and run with a variety of types to
         //   address the template parameter concerns below.  We note that the
-        //   bootstrap case has the widest variety of paraterizing concerns to
-        //   test, as latest test cases may be able to place additional
+        //   bootstrap case has the widest variety of parameterizing concerns
+        //   to test, as latest test cases may be able to place additional
         //   requirements on the types that they operate with, but the primary
         //   bootstrap has to validate bringing any valid container into any
         //   valid state for any of the later cases.
@@ -7699,7 +7704,7 @@ int main(int argc, char *argv[])
         //: 1 The class bootstraps with the default template arguments for the
         //:   unordered containers as policy parameters
         //:
-        //: 2 The class supports a wide variery of troublesome element types,
+        //: 2 The class supports a wide variety of troublesome element types,
         //:   as covered extensively in the template test facility, 'bsltf'.
         //:
         //:*3 STL allocators that are not (BDE) polymorphic, and that never

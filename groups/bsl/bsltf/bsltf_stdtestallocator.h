@@ -124,6 +124,10 @@ BSLS_IDENT("$Id: $")
 //  assert(0 == oa.numBytesInUse());
 //..
 
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
+#endif
+
 #ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
 #endif
@@ -188,6 +192,7 @@ class StdTestAllocatorConfigurationGuard {
 
   public:
     // CREATORS
+    explicit
     StdTestAllocatorConfigurationGuard(bslma::Allocator *temporaryAllocator);
         // Create a scoped guard that installs the specified
         // 'temporaryAllocator' as the delegate allocator.
@@ -415,7 +420,7 @@ StdTestAllocator<TYPE>::allocate(
 {
     return static_cast<pointer>(
         StdTestAllocatorConfiguration::delegateAllocator()->allocate(
-         BloombergLP::bslma::Allocator::size_type(numElements * sizeof(TYPE))));
+                     bslma::Allocator::size_type(numElements * sizeof(TYPE))));
 }
 
 template <class TYPE>

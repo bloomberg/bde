@@ -3,21 +3,21 @@
 
 #include <bsltf_simpletesttype.h>
 
-#include <bslma_testallocator.h>
-#include <bslma_defaultallocatorguard.h>
 #include <bslma_default.h>
-
-#include <bsls_assert.h>
-#include <bsls_bsltestutil.h>
+#include <bslma_defaultallocatorguard.h>
+#include <bslma_testallocator.h>
 
 #include <bslmf_assert.h>
 #include <bslmf_issame.h>
 
+#include <bsls_assert.h>
+#include <bsls_bsltestutil.h>
+
 #include <limits>
 #include <new>
 
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 using namespace BloombergLP;
 using namespace BloombergLP::bsltf;
@@ -30,12 +30,11 @@ using namespace BloombergLP::bsltf;
 // TBD This text needs a total rewrite
 //
 // The component under test implements a value-semantic type,
-// 'StdStatefulAllocator', a utility, 'StdStatefulAllocatorConfiguration', and a
-// mechanism, 'StdStatefulAllocatorConfigurationGuard'.  'StdStatefulAllocator'
-// holds no internal state and delegate its operations to a static
-// 'bslma_Allocator'
-// object referred by 'StdStatefulAllocatorConfiguration', which provides
-// static
+// 'StdStatefulAllocator', a utility, 'StdStatefulAllocatorConfiguration', and
+// a mechanism, 'StdStatefulAllocatorConfigurationGuard'.
+// 'StdStatefulAllocator' holds no internal state and delegate its operations
+// to a static 'bslma_Allocator' object referred by
+// 'StdStatefulAllocatorConfiguration', which provides static
 // methods to access and manipulate the static pointer to that delegate
 // allocator.  'StdStatefulAllocatorConfigurationGuard' provides a scoped guard
 // that temporarily replace the delegate allocator with a user specified
@@ -94,10 +93,11 @@ using namespace BloombergLP::bsltf;
 // FUNCTIONS, INCLUDING IOSTREAMS.
 static int testStatus = 0;
 
-static void aSsErT(bool b, const char *s, int i) {
+static void aSsErT(bool b, const char *s, int i)
+{
     if (b) {
         printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+        if (testStatus >= 0 && testStatus <= 100) { ++testStatus; }
     }
 }
 
@@ -203,7 +203,7 @@ class MyContainer {
     TYPE      *d_object_p;   // pointer to the contained object
 
   public:
-    // CONSTRUCTORS
+    // CREATORS
     MyContainer(const TYPE& object, const ALLOCATOR& allocator);
         // Create an container containing the specified 'object', using the
         // parameterized 'ALLOCATOR' to allocate memory.
@@ -269,7 +269,7 @@ class TestType {
 
   public:
     // CREATORS
-    TestType(int data)
+    explicit TestType(int data)
     : d_data(data)
     {
     }
@@ -292,7 +292,8 @@ class TestType {
 //                                 MAIN PROGRAM
 //-----------------------------------------------------------------------------
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
     int test                = argc > 1 ? atoi(argv[1]) : 0;
     int verbose             = argc > 2;
     int veryVerbose         = argc > 3;
@@ -424,9 +425,9 @@ int main(int argc, char *argv[]) {
         //   The copy, move and swap behavior of the allocators of C++11
         //   containers is determined by three "propagation traits" that may
         //   be defined by the allocator, but are otherwise assumed to be
-        //   'false' i.e. do not propagate.  This component provides the abilty
-        //   to configure these traits for any given instantiation of this
-        //   template.  These traits have no effect on the behavior of the
+        //   'false' i.e., do not propagate.  This component provides the
+        //   ability to configure these traits for any given instantiation of
+        //   this template.  These traits have no effect on the behavior of the
         //   allocator type itself, but exist solely to be queried by higher
         //   level components, such as containers.  If defined, they must be
         //   an alias to 'bsl::true_type', 'bsl::false_type', or a type
@@ -614,7 +615,7 @@ int main(int argc, char *argv[]) {
 
         {
             bslma::TestAllocator da("default allocator");
-            
+
             bslma::TestAllocator ta[16];
 
             bslma::DefaultAllocatorGuard dag(&da);
@@ -691,10 +692,10 @@ int main(int argc, char *argv[]) {
         //
         // Concerns:
         //: 1 The 'allocate' method forwards allocation requests to the
-        //:   approporiate delegate allocator.
+        //:   appropriate delegate allocator.
         //:
         //: 2 The 'deallocate' method forwards the deallocation requests to the
-        //:   approporiate delegate allocator.
+        //:   appropriate delegate allocator.
         //
         // Plan:
         //: 1 Create a 'bslma_Allocator' object and install it as the delegate
@@ -764,7 +765,7 @@ int main(int argc, char *argv[]) {
         //:   copy-assignment operator defined in this component.  (C-1)
         //:
         //: 2 Create two sets of 'StdStatefulAllocator' objects (parameterized
-        //:   on 'void' and 'int') and assign a non-modifiable refernce of one
+        //:   on 'void' and 'int') and assign a non-modifiable reference of one
         //:   to the other.  (C-2)
         //
         // Testing:
@@ -853,7 +854,7 @@ int main(int argc, char *argv[]) {
         //: 1 'operator==' always return true, even for objects of different
         //:   template instances.
         //:
-        //: 2 'operator!=' always return false, enve for objects of different
+        //: 2 'operator!=' always return false, even for objects of different
         //:   template instances.
         //
         //: 3 The equality operator's signature and return type are standard.
@@ -984,7 +985,7 @@ int main(int argc, char *argv[]) {
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // Value constuctor and basic manipulators (if any)
+        // Value constructor and basic manipulators (if any)
         //
         // Concerns:
         //: 1 The 'StdStatefulAllocatorConfiguration::setDelegateAllocatorRaw'
@@ -1013,8 +1014,8 @@ int main(int argc, char *argv[]) {
         // --------------------------------------------------------------------
 
         if (verbose)
-            printf("\nValue constuctor and basic manipulators (if any)"
-                   "\n================================================\n");
+            printf("\nValue constructor and basic manipulators (if any)"
+                   "\n=================================================\n");
 
         bslma::TestAllocator oa("object", veryVeryVeryVerbose);
 

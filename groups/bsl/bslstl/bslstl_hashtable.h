@@ -634,7 +634,7 @@ BSLS_IDENT("$Id: $")
 //  {
 //  }
 //..
-// As with 'MyHashedSet', the 'insertIfMissing' method of 'bslst::HashTable'
+// As with 'MyHashedSet', the 'insertIfMissing' method of 'bslstl::HashTable'
 // provides the semantics we need: an element is inserted only if no such
 // element (no element with the same key) in the container, and a reference to
 // that element ('node') is returned.  Here, we use 'node' to obtain and return
@@ -1100,7 +1100,7 @@ BSLS_IDENT("$Id: $")
 // dereferencing the iterator would provide a 'MySalesRecord' pointer, which
 // would then have to be dereferences.  Instead, we use 'ItrPtrById' to define
 // 'ItrById' in which accessors have been overriden to provide that extra
-// derefernce implicitly.
+// dereference implicitly.
 //..
 //      class ItrById : public ItrPtrById
 //      {
@@ -1543,8 +1543,8 @@ class HashTable_HashWrapper {
     //
     // TBD Provide an optimization for the case of an empty base functor, where
     //     we can safely const_cast want calling the base class operator.
-    //     
-    // Note that we would only one class, not two, with C++11 variaidic
+    //
+    // Note that we would only one class, not two, with C++11 variadic
     // templates and perfect forwarding, and we could also easily detect
     // whether ot not 'FUNCTOR' provided a const-qualified 'operator()'.
   private:
@@ -1688,7 +1688,7 @@ class HashTable {
     typedef typename
                   bslalg::FunctorAdapter<HashTable_HashWrapper<HASHER> >::Type
                                                                     BaseHasher;
-    typedef typename 
+    typedef typename
          bslalg::FunctorAdapter<HashTable_ComparatorWrapper<COMPARATOR> >::Type
                                                                 BaseComparator;
 
@@ -2341,7 +2341,7 @@ struct HashTable_ImpDetails {
         // Return the suggested number of buckets to index a linked list that
         // can hold as many as the specified 'minElements' without exceeding
         // the specified 'maxLoadFactor', and supporting at lead the specified
-        // number of 'requestedBuckets'.  Set the specified '*capactity' to the
+        // number of 'requestedBuckets'.  Set the specified '*capacity' to the
         // maximum length of linked list that the returned number of buckets
         // could index without exceeding the maxLoadFactor.  The behavior is
         // undefined unless '0 < maxLoadFactor', '0 < minElements' and
@@ -2410,7 +2410,7 @@ template <class FUNCTOR>
 inline
 const FUNCTOR& HashTable_HashWrapper<FUNCTOR>::functor() const
 {
-    return d_functor; 
+    return d_functor;
 }
 
 template <class FUNCTOR>
@@ -2694,7 +2694,7 @@ void HashTable_Util::initAnchor(bslalg::HashTableAnchor *anchor,
                          rebind_traits<bslalg::HashTableBucket>::allocator_type
                                                                 ArrayAllocator;
     typedef ::bsl::allocator_traits<ArrayAllocator> ArrayAllocatorTraits;
-    
+
     ArrayAllocator reboundAllocator(allocator);
 
     bslalg::HashTableBucket *data =
@@ -2911,9 +2911,9 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::
 rehashIntoExactlyNumBuckets(SizeType newNumBuckets, SizeType capacity)
 {
     class Proctor {
-        // An object of this proctor class guarnatees that, if an exception
+        // An object of this proctor class guarantees that, if an exception
         // is thrown by a user-supplied hash functor, the container remains in
-        // a valid, useable (but unspecified) state.  In fact, that state will
+        // a valid, usable (but unspecified) state.  In fact, that state will
         // be an empty, as there is no reliable way to re-index a bucket array
         // if the hash functor is throwing, and the array is potentially
         // corrupted following a failed ImpUtil::rehash call.
@@ -3093,7 +3093,7 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::insert(
 
     // Create a node having the new 'value' we want to insert into the table.
     // We can extract the 'key' from this value without accidentally creating
-    // a temporary (using the default allocator for any dynanmic memory).
+    // a temporary (using the default allocator for any dynamic memory).
     bslalg::BidirectionalLink *newNode =
                                   d_parameters.nodeFactory().createNode(value);
 
@@ -3237,7 +3237,6 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::insertIfMissing(
             this->rehashForNumBuckets(numBuckets() * 2);
         }
 
-      //ImpUtil::insertAtFrontOfBucket(&d_anchor, position, hashCode);
         ImpUtil::insertAtFrontOfBucket(&d_anchor, newNode, hashCode);
         nodeProctor.release();
 
@@ -3351,9 +3350,9 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::removeAll()
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 inline
 void HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::setMaxLoadFactor(
-                                                           float maxLoadFactor)
+                                                        float newMaxLoadFactor)
 {
-    BSLS_ASSERT_SAFE(0.0f < maxLoadFactor);
+    BSLS_ASSERT_SAFE(0.0f < newMaxLoadFactor);
 
     if (d_capacity > 0) {
         size_t capacity;
@@ -3361,12 +3360,12 @@ void HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::setMaxLoadFactor(
              HashTable_ImpDetails::growBucketsForLoadFactor(&capacity,
                                                             d_size,
                                                             this->numBuckets(),
-                                                            maxLoadFactor);
+                                                            newMaxLoadFactor);
 
         this->rehashIntoExactlyNumBuckets(numBuckets, capacity);
     }
 
-    d_maxLoadFactor = maxLoadFactor;
+    d_maxLoadFactor = newMaxLoadFactor;
 }
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
@@ -3776,7 +3775,7 @@ struct IsBitwiseMoveable<bslstl::HashTable<KEY_CONFIG,
                              && bslmf::IsBitwiseMoveable<ALLOCATOR>::value>
 {};
 
-}
+}  // close namespace bslmf
 
 }  // close enterprise namespace
 

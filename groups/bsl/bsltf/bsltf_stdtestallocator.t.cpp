@@ -102,10 +102,11 @@ using namespace BloombergLP::bsltf;
 // FUNCTIONS, INCLUDING IOSTREAMS.
 static int testStatus = 0;
 
-static void aSsErT(bool b, const char *s, int i) {
+static void aSsErT(bool b, const char *s, int i)
+{
     if (b) {
         printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+        if (testStatus >= 0 && testStatus <= 100) { ++testStatus; }
     }
 }
 
@@ -180,8 +181,8 @@ class MyContainer {
     TYPE      *d_object_p;   // pointer to the contained object
 
   public:
-    // CONSTRUCTORS
-    MyContainer(const TYPE& object);
+    // CREATORS
+    explicit MyContainer(const TYPE& object);
         // Create an container containing the specified 'object', using the
         // parameterized 'ALLOCATOR' to allocate memory.
 
@@ -244,7 +245,7 @@ class TestType {
 
   public:
     // CREATORS
-    TestType(int data)
+    explicit TestType(int data)
     : d_data(data)
     {
     }
@@ -267,7 +268,8 @@ class TestType {
 //                                 MAIN PROGRAM
 //-----------------------------------------------------------------------------
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
     int test                = argc > 1 ? atoi(argv[1]) : 0;
     int verbose             = argc > 2;
     int veryVerbose         = argc > 3;
@@ -454,10 +456,10 @@ int main(int argc, char *argv[]) {
         //
         // Concerns:
         //: 1 The 'allocate' method forwards allocation requests to the
-        //:   approporiate delegate allocator.
+        //:   appropriate delegate allocator.
         //:
         //: 2 The 'deallocate' method forwards the deallocation requests to the
-        //:   approporiate delegate allocator.
+        //:   appropriate delegate allocator.
         //
         // Plan:
         //: 1 Create a 'bslma_Allocator' object and install it as the delegate
@@ -634,7 +636,7 @@ int main(int argc, char *argv[]) {
         //:   copy-assignment operator defined in this component.  (C-1)
         //:
         //: 2 Create two sets of 'StdTestAllocator' objects (parameterized on
-        //:   void and int) and assign a non-modifiable refernce of one to the
+        //:   void and int) and assign a non-modifiable reference of one to the
         //:   other.  (C-2)
         //
         // Testing:
@@ -716,7 +718,7 @@ int main(int argc, char *argv[]) {
         //: 1 'operator==' always return true, even for objects of different
         //:   template instances.
         //:
-        //: 2 'operator!=' always return false, enve for objects of different
+        //: 2 'operator!=' always return false, even for objects of different
         //:   template instances.
         //
         //: 3 The equality operator's signature and return type are standard.
@@ -878,7 +880,7 @@ int main(int argc, char *argv[]) {
           ASSERT(0 == oa.numBytesInUse());
 
           StdTestAllocatorConfiguration::setDelegateAllocatorRaw(
-                                       &bslma::NewDeleteAllocator::singleton());
+                                      &bslma::NewDeleteAllocator::singleton());
 
       } break;
       case 1: {

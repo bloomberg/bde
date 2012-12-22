@@ -199,12 +199,13 @@ class StdStatefulAllocator {
     // PUBLIC TYPES
     typedef TYPE value_type;
 
-    // For a minimal alloctor, these should all be deducable for a C++11
+    // For a minimal allocator, these should all be deducible for a C++11
     // container implementation.  Unfortunately, the C++03 implementation of
     // 'allocator_traits' supported by BDE does not try the leaps of template
     // metaprogramming necessary to deduce these types.  That is left for a
     // future C++11 implementation, where language makes such metaprograms
     // much simpler to write.
+
     typedef std::size_t     size_type;
     typedef std::ptrdiff_t  difference_type;
     typedef TYPE           *pointer;
@@ -291,7 +292,7 @@ class StdStatefulAllocator {
         // Return a copy of this object if the 'bool' template parameter
         // 'PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION' is true, and a copy
         // of a 'StdStatefulAllocator' object wrapping the default allocator
-        // otherwise.  The behavior is undefined unless the  template parameter
+        // otherwise.  The behavior is undefined unless the template parameter
         // 'PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION' is true, or unless a
         // 'bslma::TestAllocator' object has been installed as the default
         // allocator.
@@ -460,12 +461,12 @@ StdStatefulAllocator<TYPE,
 select_on_container_copy_construction() const
 {
     if (PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION) {
-        return *this;
+        return *this;                                                 // RETURN
     }
-    else {
-        return StdStatefulAllocator(dynamic_cast<bslma::TestAllocator *>(
+
+    // else
+    return StdStatefulAllocator(dynamic_cast<bslma::TestAllocator *>(
                                           bslma::Default::defaultAllocator()));
-    }
 }
 
 }  // close package namespace
