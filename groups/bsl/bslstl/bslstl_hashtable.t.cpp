@@ -1227,10 +1227,7 @@ struct MakeAllocator {
 
     typedef ALLOCATOR AllocatorType;
 
-    static AllocatorType make(bslma::Allocator *)
-    {
-        return AllocatorType();
-    }
+    static AllocatorType make(bslma::Allocator *);
 };
 
 template <class TYPE>
@@ -1239,10 +1236,7 @@ struct MakeAllocator<bsl::allocator<TYPE> > {
 
     typedef bsl::allocator<TYPE> AllocatorType;
 
-    static AllocatorType make(bslma::Allocator *basicAllocator)
-    {
-        return AllocatorType(basicAllocator);
-    }
+    static AllocatorType make(bslma::Allocator *basicAllocator);
 };
 
 template <class TYPE>
@@ -1251,23 +1245,7 @@ struct MakeAllocator<bsltf::StdTestAllocator<TYPE> > {
 
     typedef bsltf::StdTestAllocator<TYPE> AllocatorType;
 
-    static AllocatorType make(bslma::Allocator *basicAllocator)
-    {
-        typedef bsltf::StdTestAllocatorConfiguration BsltfAllocConfig;
-
-        bslma::Allocator *installedAlloc =
-                                         BsltfAllocConfig::delegateAllocator();
-
-        if (installedAlloc != g_bsltfAllocator_p) {
-            ASSERTV(installedAlloc,   basicAllocator,
-                    installedAlloc == basicAllocator);
-        }
-        else {
-            BsltfAllocConfig::setDelegateAllocatorRaw(basicAllocator);
-        }
-
-        return AllocatorType();
-    }
+    static AllocatorType make(bslma::Allocator *basicAllocator);
 };
 
 template <class TYPE, bool A, bool B, bool C, bool D>
@@ -1276,14 +1254,68 @@ struct MakeAllocator<bsltf::StdStatefulAllocator<TYPE, A, B, C, D> > {
 
     typedef bsltf::StdStatefulAllocator<TYPE, A, B, C, D> AllocatorType;
 
-    static AllocatorType make(bslma::Allocator *basicAllocator)
-    {
-        bslma::TestAllocator *alloc = dynamic_cast<bslma::TestAllocator *>(
-                                                               basicAllocator);
-        ASSERT(alloc);
-        return AllocatorType(alloc);
-    }
+    static AllocatorType make(bslma::Allocator *basicAllocator);
 };
+
+
+
+template <class ALLOCATOR>
+typename MakeAllocator<ALLOCATOR>::AllocatorType
+MakeAllocator<ALLOCATOR>::make(bslma::Allocator *)
+{
+    return AllocatorType();
+}
+
+template <class TYPE>
+typename MakeAllocator<bsl::allocator<TYPE> >::AllocatorType
+MakeAllocator<bsl::allocator<TYPE> >::make(bslma::Allocator *basicAllocator)
+{
+    return AllocatorType(basicAllocator);
+}
+
+template <class TYPE>
+typename MakeAllocator<bsltf::StdTestAllocator<TYPE> >::AllocatorType
+MakeAllocator<bsltf::StdTestAllocator<TYPE> >::
+make(bslma::Allocator *basicAllocator)
+{
+    // This method is a little bit of overkill (heavy on the assertions) as
+    // a left-over from when we were trying hard to nail down a tricky bug
+    // that manifest only on the IBM AIX compiler.  It should probably be
+    // cleaned up for final release.
+
+    typedef bsltf::StdTestAllocatorConfiguration BsltfAllocConfig;
+
+    bslma::Allocator *installedAlloc = BsltfAllocConfig::delegateAllocator();
+
+    bslma::TestAllocator *currentAllocator
+                        = dynamic_cast<bslma::TestAllocator *>(installedAlloc);
+
+    bslma::TestAllocator *newAllocator
+                        = dynamic_cast<bslma::TestAllocator *>(basicAllocator);
+
+    ASSERTV(g_bsltfAllocator_p, installedAlloc, currentAllocator, newAllocator,
+            g_bsltfAllocator_p && installedAlloc &&
+            currentAllocator   && newAllocator);
+                    
+    ASSERTV(currentAllocator,   newAllocator,
+            currentAllocator->name(), newAllocator->name(),
+            currentAllocator == newAllocator);
+
+    return AllocatorType();
+}
+
+template <class TYPE, bool A, bool B, bool C, bool D>
+typename
+MakeAllocator<bsltf::StdStatefulAllocator<TYPE, A, B, C, D> >::AllocatorType
+MakeAllocator<bsltf::StdStatefulAllocator<TYPE, A, B, C, D> >::
+make(bslma::Allocator *basicAllocator)
+{
+    bslma::TestAllocator *alloc = dynamic_cast<bslma::TestAllocator *>(
+                                                               basicAllocator);
+    ASSERT(alloc);
+    return AllocatorType(alloc);
+}
+
 
                        // =================
                        // class ObjectMaker
@@ -5062,6 +5094,16 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
     const TestValues VALUES;     // Contains 52 distinct increasing values.
     const size_t MAX_LENGTH = 9; // This should be sufficient to bootstrap.
 
+    {
+        // Reassert a global invariant, that should not be necessary to state,
+        // but did indeed turn up a real bug.
+
+        bslma::Allocator *installedAlloc =
+                     bsltf::StdTestAllocatorConfiguration::delegateAllocator();
+        ASSERTV(installedAlloc,   g_bsltfAllocator_p,
+                installedAlloc == g_bsltfAllocator_p);
+    }
+
     // Probably want to pick these up as values from some injected policy, so
     // that we can test with stateful variants.  Alternatively, pass some seed
     // to the 'make' function to support stateful functors actually having
@@ -5428,7 +5470,16 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
     // to loop many times, or test the contents of the container, so one set of
     // allocators will suffice to the end of the test case.
 
-    bslma::TestAllocator da("default", veryVeryVeryVerbose);
+    bslma::TestAllocator da("corner-testing", veryVeryVeryVerbose);
+
+    // There is no easy way to create this guard for the specific
+    // test case of the stateless 'bsltf::StdTestAllocator', nor
+    // without second guessing the allocator to use based upon the
+    // 'cfg' code.  By the time we return from 'makeAllocator' the test
+    // allocator will already have been installed, with no easy way to
+    // restore at the end of the test case.
+
+    bsltf::StdTestAllocatorConfigurationGuard bsltfAG(&da);
     ALLOCATOR objAlloc = MakeAllocator<ALLOCATOR>::make(&da);
 
 #if defined BDE_BUILD_TARGET_EXC
@@ -7175,9 +7226,12 @@ int main(int argc, char *argv[])
     // alloctor references on AIX.  This allocator should always be swapped
     // out by an allocator guard during any specific test case.
     bslma::TestAllocator bsltfAllocator("bsltf-default", veryVeryVeryVerbose);
-    bsltf::StdTestAllocatorConfiguration::setDelegateAllocatorRaw(
-                                                              &bsltfAllocator);
     g_bsltfAllocator_p = &bsltfAllocator;
+    bsltf::StdTestAllocatorConfiguration::setDelegateAllocatorRaw(
+                                                           g_bsltfAllocator_p);
+
+    ASSERT(bsltf::StdTestAllocatorConfiguration::delegateAllocator() ==
+                                                           g_bsltfAllocator_p);
 
     switch (test) { case 0:
       case 14: {
