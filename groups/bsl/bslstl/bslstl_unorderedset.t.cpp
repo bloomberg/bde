@@ -99,21 +99,21 @@ using namespace BloombergLP;
 //
 // ----------------------------------------------------------------------------
 // standard typedefs:
-//*[26] typedef ... key_type;
-//*[26] typedef ... value_type;
-//*[26] typedef ... hasher;
-//*[26] typedef ... key_equal;
-//*[26] typedef ... allocator_type;
-//*[26] typedef ... reference;
-//*[26] typedef ... const_reference;
-//*[26] typedef ... size_type;
-//*[26] typedef ... difference_type;
-//*[26] typedef ... pointer;
-//*[26] typedef ... const_pointer;
-//*[26] typedef ... iterator
-//*[26] typedef ... const_iterator
-//*[26] typedef ... local_iterator
-//*[26] typedef ... const_local_iterator
+//*[24] typedef ... key_type;
+//*[24] typedef ... value_type;
+//*[24] typedef ... hasher;
+//*[24] typedef ... key_equal;
+//*[24] typedef ... allocator_type;
+//*[24] typedef ... reference;
+//*[24] typedef ... const_reference;
+//*[24] typedef ... size_type;
+//*[24] typedef ... difference_type;
+//*[24] typedef ... pointer;
+//*[24] typedef ... const_pointer;
+//*[24] typedef ... iterator
+//*[24] typedef ... const_iterator
+//*[24] typedef ... local_iterator
+//*[24] typedef ... const_local_iterator
 //
 // [unord.set] construct/copy/destroy:
 //*[ 2] unordered_set(size_type, hasher, key_equal, allocator);
@@ -125,26 +125,26 @@ using namespace BloombergLP;
 //*[ 9] unordered_set& operator=(const unordered_set& rhs);
 //
 // iterators:
-//*[13] iterator begin();
-//*[13] const_iterator begin() const;
-//*[13] iterator end();
-//*[13] const_iterator end() const;
-//*[ 4] const_iterator cbegin() const;
-//*[ 4] const_iterator cend() const;
+//*[14] iterator begin();
+//*[14] const_iterator begin() const;
+//*[14] iterator end();
+//*[14] const_iterator end() const;
+//*[14] const_iterator cbegin() const;
+//*[14] const_iterator cend() const;
 //
 // capacity:
-//*[19] bool empty() const;
+//*[20] bool empty() const;
 //*[ 4] size_type size() const;
-//*[25] size_type max_size() const;
+//*[20] size_type max_size() const;
 //
 // modifiers:
-//*[ 2] bsl::pair<iterator, bool> insert(const value_type& value);
-//*[17] iterator insert(const_iterator position, const value_type& value);
-//*[18] void insert(INPUT_ITERATOR first, INPUT_ITERATOR last);
+//*[15] bsl::pair<iterator, bool> insert(const value_type& value);
+//*[15] iterator insert(const_iterator position, const value_type& value);
+//*[17] void insert(INPUT_ITERATOR first, INPUT_ITERATOR last);
 //
-//*[14] iterator erase(const_iterator position);
-//*[15] size_type erase(const key_type& key);
-//*[16] iterator erase(const_iterator first, const_iterator last);
+//*[18] iterator erase(const_iterator position);
+//*[18] size_type erase(const key_type& key);
+//*[18] iterator erase(const_iterator first, const_iterator last);
 //*[ 8] void swap(unordered_set& other);
 //*[ 2] void clear();
 //
@@ -154,32 +154,32 @@ using namespace BloombergLP;
 //*[ 4] allocator_type get_allocator() const;
 //
 // set operations:
-//*[20] iterator find(const key_type& key);
-//*[20] const_iterator find(const key_type& key) const;
-//*[21] size_type count(const key_type& key) const;
-//*[21] bsl::pair<iterator, iterator> equal_range(const key_type& key);
-//*[21] bsl::pair<const_iter, const_iter> equal_range(const key_type&) const;
+//*[13] iterator find(const key_type& key);
+//*[13] const_iterator find(const key_type& key) const;
+//*[13] size_type count(const key_type& key) const;
+//*[13] bsl::pair<iterator, iterator> equal_range(const key_type& key);
+//*[13] bsl::pair<const_iter, const_iter> equal_range(const key_type&) const;
 //
 // bucket interface:
-//*[22] size_type bucket_count() const;
-//*[25] size_type max_bucket_count() const;
-//*[22] size_type bucket_size(size_type n) const;
-//*[22] size_type bucket(const key_type& k) const;
+//*[26] size_type bucket_count() const;
+//*[26] size_type max_bucket_count() const;    <<NOT WORKING>>
+//*[26] size_type bucket_size(size_type n) const;
+//*[26] size_type bucket(const key_type& k) const;
 //
 // bucket iterators:
-//*[23] local_iterator begin(size_type n);
-//*[23] const_local_iterator begin(size_type n) const;
-//*[23] local_iterator end(size_type n);
-//*[23] const_local_iterator end(size_type n) const;
-//*[23] const_local_iterator cbegin(size_type n) const;
-//*[23] const_local_iterator cend(size_type n) const;
+//*[26] local_iterator begin(size_type n);
+//*[26] const_local_iterator begin(size_type n) const;
+//*[26] local_iterator end(size_type n);
+//*[26] const_local_iterator end(size_type n) const;
+//*[26] const_local_iterator cbegin(size_type n) const;
+//*[26] const_local_iterator cend(size_type n) const;
 //
 // hash policy:
-//*[19] float load_factor() const;
-//*[ 4] float max_load_factor() const;
-//*[ 2] void max_load_factor(float z);
-//*[24] void rehash(size_type n);
-//*[24] void reserve(size_type n);
+//*[25] float load_factor() const;
+//*[25] float max_load_factor() const;
+//*[25] void max_load_factor(float z);
+//*[25] void rehash(size_type n);
+//*[25] void reserve(size_type n);
 //
 // specialized algorithms:
 //*[ 6] bool operator==(unordered_set<K, H, E, A>, unordered_set<K, H, E, A>);
@@ -194,10 +194,11 @@ using namespace BloombergLP;
 // TEST APPARATUS: GENERATOR FUNCTIONS
 //*[ 3] int ggg(unordered_set<K,H,E,A> *object, const char *spec, int verbose);
 //*[ 3] unordered_set<K,H,E,A>& gg(unordered_set<K,H,E,A> *, const char *spec);
-//*[ 3] unordered_set<K,H,E,A> g(const char *spec);
+//*[11] unordered_set<K,H,E,A> g(const char *spec);
 //
 //*[22] CONCERN: The object is compatible with STL allocators.
 //*[23] CONCERN: The object has the necessary type traits
+//*[23] TBD: Not yet working for all types.
 //*[  ] CONCERN: The type provides the full interface defined by the standard.
 
 // ============================================================================
@@ -333,6 +334,12 @@ const typename CONTAINER::key_type
 keyForValue(const typename CONTAINER::value_type v)
 {
     return v;        // for 'set' containers
+}
+
+template <typename TYPE>
+const TYPE& my_max(const TYPE& x, const TYPE& y)
+{
+    return x > y ? x : y;
 }
 
 template <class CONTAINER>
@@ -1196,6 +1203,15 @@ class TestDriver {
   public:
     // TEST CASES
 
+    static void testCase99();
+        // Test spread of nodes into different buckets
+
+    static void testCase26();
+        // reserve, rehash, max_load_factor and bucket iterators
+
+    static void testCase25();
+        // reserve, rehash, max_load_factor
+
     static void testCase24();
         // Test standard interface coverage.
 
@@ -1211,9 +1227,11 @@ class TestDriver {
     static void testCase20();
         // Test 'max_size' and 'empty'.
 
+#if 0
     static void testCase19();
         // Test comparison free operators.  'operator <' must be defined for
         // the parameterized 'KEY'.  N/A
+#endif
 
     static void testCase18();
         // Test 'erase'.
@@ -1221,8 +1239,10 @@ class TestDriver {
     static void testCase17();
         // Test range 'insert'.
 
+#if 0
     static void testCase16();
-        // Test spread of nodes into different buckets
+        // N/A
+#endif
 
     static void testCase15();
         // Test 'insert'.
@@ -1382,6 +1402,466 @@ TestDriver<KEY, HASH, EQUAL, ALLOC>::getIterForIndex(const Obj& obj,
 }
 
 template <class KEY, class HASH, class EQUAL, class ALLOC>
+void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase99()
+{
+    // ------------------------------------------------------------------------
+    // TESTING SPREAD
+    //
+    // Concerns:
+    //   That the hash table isn't unintentionally funneling all nodes into
+    //   a few buckets.
+    // ------------------------------------------------------------------------
+
+    if (verbose) printf("Testing Spread\n"
+                        "==============\n");
+
+    TestValues VALUES;
+
+    if (verbose) printf("Test spread\n");
+    {
+        Obj mX;  const Obj& X = mX;
+        mX.max_load_factor(0.5);
+        gg(&mX, "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+
+        ASSERT(26 == X.size());
+        ASSERT(X.bucket_count() >= 52);
+
+        size_t total = 0;
+        for (size_t ti = 0; ti < X.bucket_count(); ++ti) {
+            size_t bs = X.bucket_size(ti);
+            ASSERTV(ti, bs, bs < 5);
+            total += bs;
+
+            ASSERT((bs != 0) == (X. begin(ti) != X. end(ti)));
+            ASSERT((bs != 0) == (X.cbegin(ti) != X.cend(ti)));
+        }
+
+        ASSERTV(X.size() == total);
+    }
+
+    if (verbose) printf("Test non-spread with delinquent hash function\n");
+    {
+        Obj mX(0, HASH(0, true), EQUAL());  const Obj& X = mX;
+        mX.max_load_factor(0.5);
+        gg(&mX, "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+
+        ASSERT(26 == X.size());
+        ASSERT(X.bucket_count() >= 52);
+
+        size_t total = 0;
+        for (size_t ti = 0; ti < X.bucket_count(); ++ti) {
+            size_t bs = X.bucket_size(ti);
+            if (0 == ti) {
+                ASSERTV(ti, bs, X.size(), bs == X.size());
+                ASSERT(X. begin(ti) != X. end(ti));
+                ASSERT(X.cbegin(ti) != X.cend(ti));
+            }
+            else {
+                ASSERTV(ti, bs, 0 == bs);
+                ASSERT(X. begin(ti) == X. end(ti));
+                ASSERT(X.cbegin(ti) == X.cend(ti));
+            }
+            total += bs;
+        }
+
+        ASSERTV(X.size() == total);
+    }
+}
+
+template <class KEY, class HASH, class EQUAL, class ALLOC>
+void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase26()
+{
+    // ------------------------------------------------------------------------
+    // BUCKET INTERFACE AND BUCKET ITERATORS
+    //
+    // Concerns:
+    //   Testing
+    //     - max_load_factor (forcing rehash)
+    //     - reserve
+    //     - rehash
+    //     - bucket_count
+    //     - bucket_size(size_t)
+    //     - begin(size_t) const
+    //     - begin(size_t)
+    //     - end(size_t) const
+    //     - end(size_t)
+    //     - cbegin(size_t) const
+    //     - cend(size_t) const
+    // ------------------------------------------------------------------------
+
+    typedef typename Obj::local_iterator       LIter;
+    typedef typename Obj::const_local_iterator CLIter;
+
+    BSLMF_ASSERT((bslmf::IsSame<LIter, CLIter>::value));
+
+    bslma::TestAllocator da("default",   veryVeryVeryVerbose);
+    bslma::DefaultAllocatorGuard dag(&da);
+
+    TestValues VALUES;
+
+    const KEY kA(VALUES[0]);
+
+    Obj mX;     const Obj& X = mX;
+
+    ASSERTV(X.begin(0)  == X.end(0));
+    ASSERTV(X.begin(0) == mX.begin(0));
+    ASSERTV(X.begin(0) == mX.end(0));
+    ASSERTV(X.begin(0) ==  X.cbegin(0));
+    ASSERTV(X.begin(0) ==  X.cend(0));
+
+    mX.max_load_factor(10.0);
+
+    size_t maxSizeT = 0;
+    --maxSizeT;
+    // ASSERTV(X.max_bucket_count() < maxSizeT); TBD: get working
+
+    const char *SPEC = "ABCDEFGH";
+
+    gg(&mX, SPEC);
+
+    ASSERTV(X.bucket_count(), 2 == X.bucket_count());   // 2 is the min #
+                                                        // of buckets for a
+                                                        // non-empty container
+
+    {
+        {
+            size_t b = X.bucket(kA);
+            const LIter end = X.end(b);
+            for (LIter it = X.begin(b); true; ++it) {
+                if (end == it) {
+                    ASSERTV(0 && "kA not found");
+                    break;
+                }
+                if (kA == *it) {
+                    break;
+                }
+            }
+        }
+
+        size_t count = 0;
+        for (size_t ti = 0; ti < X.bucket_count(); ++ti) {
+            {
+                const LIter begin = X.begin(ti);
+                ASSERTV(begin == mX.begin(ti));
+                ASSERTV(begin == mX.cbegin(ti));
+                ASSERTV(begin == X.begin(ti));
+                ASSERTV(begin == X.cbegin(ti));
+
+                const LIter end = X.end(ti);
+                ASSERTV(end == mX.end(ti));
+                ASSERTV(end == mX.cend(ti));
+                ASSERTV(end == X.end(ti));
+                ASSERTV(end == X.cend(ti));
+
+                if (0 == X.bucket_size(ti)) {
+                    ASSERTV(begin == end);
+                }
+            }
+
+            size_t bCount = 0;
+            LIter end = X.end(ti);
+            for (LIter it = X.begin(ti); end != it; ++it) {
+                ++bCount;
+            }
+            ASSERTV(X.bucket_size(ti) == bCount);
+
+            count += X.bucket_size(ti);
+        }
+        ASSERTV(count == X.size());
+    }
+
+    Obj mX10;    const Obj& X10 = mX10;
+    mX10.max_load_factor(10.0);
+    gg(&mX10, SPEC);
+
+    ASSERTV(X   == X);
+    ASSERTV(X10 == X);
+    ASSERTV(X10.bucket_count() == X.bucket_count());
+
+    {
+        const size_t bucketCount = X.bucket_count();
+        mX.max_load_factor(1.0);
+        ASSERTV(X.bucket_count() > bucketCount);
+    }
+
+    ASSERTV(X   == X);
+    ASSERTV(X10 == X);
+
+    ASSERTV(X.bucket_count() > X.size());    // X.size() == 8, not prime
+
+    {
+        {
+            size_t b = X.bucket(kA);
+            const LIter end = X.end(b);
+            for (LIter it = X.begin(b); true; ++it) {
+                if (end == it) {
+                    ASSERTV(0 && "kA not found");
+                    break;
+                }
+                if (kA == *it) {
+                    break;
+                }
+            }
+        }
+
+        size_t count = 0, emptyCount = 0;
+        for (size_t ti = 0; ti < X.bucket_count(); ++ti) {
+            {
+                const LIter begin = X.begin(ti);
+                ASSERTV(begin == mX.begin(ti));
+                ASSERTV(begin == mX.cbegin(ti));
+                ASSERTV(begin == X.begin(ti));
+                ASSERTV(begin == X.cbegin(ti));
+
+                const LIter end = X.end(ti);
+                ASSERTV(end == mX.end(ti));
+                ASSERTV(end == mX.cend(ti));
+                ASSERTV(end == X.end(ti));
+                ASSERTV(end == X.cend(ti));
+
+                if (0 == X.bucket_size(ti)) {
+                    ++emptyCount;
+                    ASSERTV(begin == end);
+                }
+            }
+
+            size_t bCount = 0;
+            LIter end = X.end(ti);
+            for (LIter it = X.begin(ti); end != it; ++it) {
+                ++bCount;
+            }
+            ASSERTV(X.bucket_size(ti) == bCount);
+
+            count += X.bucket_size(ti);
+        }
+        ASSERTV(count == X.size());
+        ASSERTV(emptyCount > 0);
+    }
+
+    Obj mX1;    const Obj& X1 = mX1;
+    mX1.max_load_factor(10.0);
+    gg(&mX1, SPEC);
+    mX1.max_load_factor(1.0);
+
+    ASSERTV(X   == X);
+    ASSERTV(X10 == X);
+    ASSERTV(X1  == X);
+    ASSERTV(X1. bucket_count() == X.bucket_count());
+    ASSERTV(X10.bucket_count() <  X.bucket_count());
+
+    {
+        const size_t bucketCount = X.bucket_count();
+        mX.reserve(X.size() * 3);
+        ASSERTV(X.bucket_count() > bucketCount);
+    }
+
+    {
+        {
+            size_t b = X.bucket(kA);
+            const LIter end = X.end(b);
+            for (LIter it = X.begin(b); true; ++it) {
+                if (end == it) {
+                    ASSERTV(0 && "kA not found");
+                    break;
+                }
+                if (kA == *it) {
+                    break;
+                }
+            }
+        }
+
+        size_t count = 0, emptyCount = 0;
+        for (size_t ti = 0; ti < X.bucket_count(); ++ti) {
+            {
+                const LIter begin = X.begin(ti);
+                ASSERTV(begin == mX.begin(ti));
+                ASSERTV(begin == mX.cbegin(ti));
+                ASSERTV(begin == X.begin(ti));
+                ASSERTV(begin == X.cbegin(ti));
+
+                const LIter end = X.end(ti);
+                ASSERTV(end == mX.end(ti));
+                ASSERTV(end == mX.cend(ti));
+                ASSERTV(end == X.end(ti));
+                ASSERTV(end == X.cend(ti));
+
+                if (0 == X.bucket_size(ti)) {
+                    ++emptyCount;
+                    ASSERTV(begin == end);
+                }
+            }
+
+            size_t bCount = 0;
+            LIter end = X.end(ti);
+            for (LIter it = X.begin(ti); end != it; ++it) {
+                ++bCount;
+            }
+            ASSERTV(X.bucket_size(ti) == bCount);
+
+            count += X.bucket_size(ti);
+        }
+        ASSERTV(count == X.size());
+        ASSERTV(emptyCount > 0);
+    }
+
+    ASSERTV(X   == X);
+    ASSERTV(X10 == X);
+    ASSERTV(X1  == X);
+    ASSERTV(X10.bucket_count() < X1.bucket_count());
+    ASSERTV(X1. bucket_count() < X. bucket_count());
+
+    Obj mX3;    const Obj& X3 = mX3;
+    mX3.max_load_factor(10.0);
+    gg(&mX3, SPEC);
+    mX3.max_load_factor(1.0);
+    mX3.reserve(X3.size() * 3);
+
+    ASSERTV(X3 == X);
+    ASSERTV(X3.bucket_count() == X.bucket_count());
+
+    {    
+        const size_t bucketCount = X.bucket_count();
+        mX.rehash(bucketCount * 2);
+        ASSERTV(X.bucket_count() > bucketCount * 2);    // must be prime,
+                                                        // won't be even
+    }
+
+    {
+        {
+            size_t b = X.bucket(kA);
+            const LIter end = X.end(b);
+            for (LIter it = X.begin(b); true; ++it) {
+                if (end == it) {
+                    ASSERTV(0 && "kA not found");
+                    break;
+                }
+                if (kA == *it) {
+                    break;
+                }
+            }
+        }
+
+        size_t count = 0, emptyCount = 0;
+        for (size_t ti = 0; ti < X.bucket_count(); ++ti) {
+            {
+                const LIter begin = X.begin(ti);
+                ASSERTV(begin == mX.begin(ti));
+                ASSERTV(begin == mX.cbegin(ti));
+                ASSERTV(begin == X.begin(ti));
+                ASSERTV(begin == X.cbegin(ti));
+
+                const LIter end = X.end(ti);
+                ASSERTV(end == mX.end(ti));
+                ASSERTV(end == mX.cend(ti));
+                ASSERTV(end == X.end(ti));
+                ASSERTV(end == X.cend(ti));
+
+                if (0 == X.bucket_size(ti)) {
+                    ++emptyCount;
+                    ASSERTV(begin == end);
+                }
+            }
+
+            size_t bCount = 0;
+            LIter end = X.end(ti);
+            for (LIter it = X.begin(ti); end != it; ++it) {
+                ++bCount;
+            }
+            ASSERTV(X.bucket_size(ti) == bCount);
+
+            count += X.bucket_size(ti);
+        }
+        ASSERTV(count == X.size());
+        ASSERTV(emptyCount > 0);
+    }
+
+    ASSERTV(X   == X);
+    ASSERTV(X10 == X);
+    ASSERTV(X1  == X);
+    ASSERTV(X3  == X);
+    ASSERTV(X10.bucket_count() < X1.bucket_count());
+    ASSERTV(X1. bucket_count() < X3.bucket_count());
+    ASSERTV(X3. bucket_count() < X. bucket_count());
+}
+
+template <class KEY, class HASH, class EQUAL, class ALLOC>
+void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase25()
+{
+    // ------------------------------------------------------------------------
+    // RESERVE, REHASH, MAX_LOAD_FACTOR
+    //
+    // Concern:
+    //   That 'reserve', 'rehash', and 'max_load_factor' all grow the bucket
+    //   array as expected, and have no effect on the salient attributes of
+    //   the container.
+    // ------------------------------------------------------------------------
+
+    const size_t NUM_DATA                  = DEFAULT_NUM_DATA;
+    const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
+
+    bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
+
+    for (size_t ti = 0; ti < NUM_DATA; ++ti) {
+        const char *const SPEC   = DATA[ti].d_results;
+
+        TestValues values(SPEC, &scratch);
+    
+        {
+            Obj mX(values.begin(), values.end());  const Obj& X = mX;
+            values.resetIterators();
+            Obj mY(X);                             const Obj& Y = mY;
+
+            const size_t COUNT = X.bucket_count();
+
+            mX.reserve(my_max<size_t>(X.size(), 1) * 3);
+
+            ASSERTV(X == Y);
+
+            ASSERTV(X.size(), X.bucket_count() > COUNT);
+        }
+
+        {
+            Obj mX(values.begin(), values.end());  const Obj& X = mX;
+            values.resetIterators();
+            Obj mY(X);                             const Obj& Y = mY;
+
+            const size_t COUNT = X.bucket_count();
+
+            mX.rehash(X.bucket_count() + 1);
+
+            ASSERTV(X == Y);
+
+            ASSERTV(X.size(), X.bucket_count() > COUNT);
+        }
+
+        if (values.size() > 0) {
+            Obj mX(values.begin(), values.end());  const Obj& X = mX;
+            values.resetIterators();
+            Obj mY(X);                             const Obj& Y = mY;
+
+            const size_t COUNT = X.bucket_count();
+            const float  LOAD  = X.load_factor();
+
+            ASSERTV(LOAD, X.size() / (float) X.bucket_count(),
+                        LOAD == (float) (X.size() / (float) X.bucket_count()));
+            ASSERTV(1.0f == X.max_load_factor());
+
+            mX.max_load_factor(1.0 / 4);
+            ASSERTV(1.0 / 4 == X.max_load_factor());
+            ASSERTV(LOAD > X.load_factor());
+
+            const float LOAD2 = X.load_factor();
+            ASSERTV(LOAD2, X.size() / (float) X.bucket_count(),
+                       LOAD2 == (float) (X.size() / (float) X.bucket_count()));
+
+            ASSERTV(X == Y);
+
+            ASSERTV(X.size(), X.bucket_count() > COUNT);
+        }
+    }
+}
+
+template <class KEY, class HASH, class EQUAL, class ALLOC>
 void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase24()
 {
     // ------------------------------------------------------------------------
@@ -1417,6 +1897,19 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase24()
         typedef typename Obj::const_iterator CIt;
         typedef typename Obj::local_iterator Lit;
         typedef typename Obj::const_local_iterator CLit;
+
+        BSLMF_ASSERT((bslmf::IsSame<KEY, Kt  >::value));
+        BSLMF_ASSERT((bslmf::IsSame<It,  CIt >::value));
+        BSLMF_ASSERT((bslmf::IsSame<Lit, CLit>::value));
+        BSLMF_ASSERT((bslmf::IsSame<Kt,  Vt  >::value));
+        BSLMF_ASSERT((bslmf::IsSame<Kt *, Pt >::value));
+        BSLMF_ASSERT((bslmf::IsSame<const Kt *, Cpt>::value));
+        BSLMF_ASSERT((bslmf::IsSame<size_t,St>::value));
+        BSLMF_ASSERT((bslmf::IsSame<HASH,  Ht>::value));
+        BSLMF_ASSERT((bslmf::IsSame<EQUAL, Eq>::value));
+        BSLMF_ASSERT((bslmf::IsSame<Ref, Kt &>::value));
+        BSLMF_ASSERT((bslmf::IsSame<Cref, const Kt &>::value));
+        BSLMF_ASSERT((bslmf::IsSame<ALLOC, Al>::value));
     }
 
     if (verbose) printf("Establish c'tors exist\n");
@@ -2360,10 +2853,15 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase18()
 
                 const KEY k(*pos);
 
+                const size_t COUNT = X.count(k);
+
                 bslma::TestAllocatorMonitor oam(&oa);
                 bslma::TestAllocatorMonitor dam(&oa);
 
-                mX.erase(pos);
+                {
+                    const Iter RESULT = mX.erase(pos);
+                    ASSERTV(RESULT == after);
+                }
 
                 ASSERTV(oam.isTotalSame());
                 ASSERTV(dam.isTotalSame());
@@ -2371,11 +2869,13 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase18()
                     ASSERTV(LINE, tj, oam.isInUseDown());
                 }
 
-                ASSERTV(!X.count(k));
+                ASSERTV(COUNT - 1 == X.count(k));
                 ASSERTV(X.size() == LENGTH - 1);
 
                 for (CIter it = Y.begin(); Y.end() != it; ++it) {
-                    ASSERT((k != *it) == X.count(*it));
+                    if (k != *it) {
+                        ASSERTV(X.count(*it) > 0);
+                    }
                 }
 
                 if (0 == tj) {
@@ -2407,14 +2907,21 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase18()
                 Iter pos    = getIterForIndex(X, tj);
                 Iter before = 0 == tj ? mX.end()
                                       : getIterForIndex(X, tj - 1);
-                Iter after = pos;    ++after;
-
+                Iter after = pos;
                 const KEY k(*pos);
+
+                while (mX.end() != after && k == *after) {
+                    ++after;
+                }
+
+                const size_t COUNT = X.count(k);
 
                 bslma::TestAllocatorMonitor oam(&oa);
                 bslma::TestAllocatorMonitor dam(&oa);
 
-                mX.erase(k);
+                const size_t RESULT = mX.erase(k);
+
+                ASSERTV(COUNT == RESULT);
 
                 ASSERTV(oam.isTotalSame());
                 ASSERTV(dam.isTotalSame());
@@ -2423,10 +2930,10 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase18()
                 }
 
                 ASSERTV(!X.count(k));
-                ASSERTV(X.size() == LENGTH - 1);
+                ASSERTV(X.size() == LENGTH - COUNT);
 
                 for (CIter it = Y.begin(); Y.end() != it; ++it) {
-                    ASSERT((k != *it) == X.count(*it));
+                    ASSERT((k != *it) == !!X.count(*it));
                 }
 
                 if (0 == tj) {
@@ -2474,7 +2981,9 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase18()
                     bslma::TestAllocatorMonitor oam(&oa);
                     bslma::TestAllocatorMonitor dam(&oa);
 
-                    mX.erase(start, finish);
+                    const CIter RESULT = mX.erase(start, finish);
+
+                    ASSERTV(RESULT == finish);
 
                     ASSERTV(oam.isTotalSame());
                     ASSERTV(dam.isTotalSame());
@@ -2611,73 +3120,6 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase17()
 
             ASSERTV(LINE, tj, da.numBlocksTotal(), 0 == da.numBlocksTotal());
         }
-    }
-}
-
-template <class KEY, class HASH, class EQUAL, class ALLOC>
-void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase16()
-{
-    // ------------------------------------------------------------------------
-    // TESTING SPREAD
-    //
-    // Concerns:
-    //   That the hash table isn't unintentionally funneling all nodes into
-    //   a few buckets.
-    // ------------------------------------------------------------------------
-
-    if (verbose) printf("Testing Spread\n"
-                        "==============\n");
-
-    TestValues VALUES;
-
-    if (verbose) printf("Test spread\n");
-    {
-        Obj mX;  const Obj& X = mX;
-        mX.max_load_factor(0.5);
-        gg(&mX, "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
-
-        ASSERT(26 == X.size());
-        ASSERT(X.bucket_count() >= 52);
-
-        size_t total = 0;
-        for (size_t ti = 0; ti < X.bucket_count(); ++ti) {
-            size_t bs = X.bucket_size(ti);
-            ASSERTV(ti, bs, bs < 5);
-            total += bs;
-
-            ASSERT((bs != 0) == (X. begin(ti) != X. end(ti)));
-            ASSERT((bs != 0) == (X.cbegin(ti) != X.cend(ti)));
-        }
-
-        ASSERTV(X.size() == total);
-    }
-
-    if (verbose) printf("Test non-spread with delinquent hash function\n");
-    {
-        Obj mX(0, HASH(0, true), EQUAL());  const Obj& X = mX;
-        mX.max_load_factor(0.5);
-        gg(&mX, "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
-
-        ASSERT(26 == X.size());
-        ASSERT(X.bucket_count() >= 52);
-
-        size_t total = 0;
-        for (size_t ti = 0; ti < X.bucket_count(); ++ti) {
-            size_t bs = X.bucket_size(ti);
-            if (0 == ti) {
-                ASSERTV(ti, bs, X.size(), bs == X.size());
-                ASSERT(X. begin(ti) != X. end(ti));
-                ASSERT(X.cbegin(ti) != X.cend(ti));
-            }
-            else {
-                ASSERTV(ti, bs, 0 == bs);
-                ASSERT(X. begin(ti) == X. end(ti));
-                ASSERT(X.cbegin(ti) == X.cend(ti));
-            }
-            total += bs;
-        }
-
-        ASSERTV(X.size() == total);
     }
 }
 
@@ -4435,7 +4877,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase6()
             const char *const SPEC1   = DATA[ti].d_spec;
             const size_t      LENGTH1 = strlen(DATA[ti].d_results);
 
-           if (veryVerbose) { T_ P_(LINE1) P_(INDEX1) P_(LENGTH1) P(SPEC1) }
+            if (veryVerbose) { T_ P_(LINE1) P_(INDEX1) P_(LENGTH1) P(SPEC1) }
 
             // Ensure an object compares correctly with itself (alias test).
             {
@@ -4493,7 +4935,10 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase6()
                     ASSERTV(LINE1, LINE2, CONFIG, !EXP == (X != Y));
                     ASSERTV(LINE1, LINE2, CONFIG, !EXP == (Y != X));
 
-                    mY.reserve(Y.size() * 5);
+                    const size_t NUM_BUCKETS = Y.bucket_count();
+                    mY.reserve((Y.size() + 1) * 5);
+                    ASSERTV(NUM_BUCKETS < Y.bucket_count());
+                    ASSERTV(!EXP || X.bucket_count() != Y.bucket_count());
 
                     ASSERTV(LINE1, LINE2, CONFIG,  EXP == (X == Y));
                     ASSERTV(LINE1, LINE2, CONFIG,  EXP == (Y == X));
@@ -5206,6 +5651,65 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase2()
                     0 == sa.numBlocksInUse());
         }
     }
+
+    {
+        const size_t initialNumBuckets[] = { 0, 1, 2, 3, 5, 7, 11, 13, 17, 19,
+                                    23, 29, 31, 37, 41, 43, 47, 51, 100, 200 };
+        enum { NUM_INITIAL_NUM_BUCKETS = sizeof initialNumBuckets /
+                                                   sizeof *initialNumBuckets };
+
+        for (int ti = 0; ti < NUM_INITIAL_NUM_BUCKETS; ++ti) {
+            {
+                bslma::TestAllocator da("default",   veryVeryVeryVerbose);
+                bslma::DefaultAllocatorGuard dag(&da);
+
+                {
+                    Obj mX(initialNumBuckets[ti]);    const Obj& X = mX;
+                    ASSERTV(X.bucket_count() >= initialNumBuckets[ti]);
+                }
+                {
+                    Obj mX(initialNumBuckets[ti],
+                           defaultHasher);
+                    const Obj& X = mX;
+                    ASSERTV(X.bucket_count() >= initialNumBuckets[ti]);
+                }
+                {
+                    Obj mX(initialNumBuckets[ti],
+                           defaultHasher,
+                           defaultComparator);
+                    const Obj& X = mX;
+                    ASSERTV(X.bucket_count() >= initialNumBuckets[ti]);
+                }
+                {
+                    Obj mX(initialNumBuckets[ti],
+                           defaultHasher,
+                           defaultComparator,
+                           (bslma::Allocator *) 0);
+                    const Obj& X = mX;
+                    ASSERTV(X.bucket_count() >= initialNumBuckets[ti]);
+                }
+
+                ASSERTV(ti, da.numBlocksTotal(),
+                                       (ti > 0) || (0 == da.numBlocksTotal()));
+            }
+            {
+                bslma::TestAllocator sa("supplied",  veryVeryVeryVerbose);
+                bslma::TestAllocator da("default",   veryVeryVeryVerbose);
+                bslma::DefaultAllocatorGuard dag(&da);
+
+                Obj mX(initialNumBuckets[ti],
+                       defaultHasher,
+                       defaultComparator,
+                       &sa);
+                const Obj& X = mX;
+                ASSERTV(X.bucket_count() >= initialNumBuckets[ti]);
+
+                ASSERTV(0 == da.numBlocksTotal());
+                ASSERTV(ti, sa.numBlocksTotal(),
+                                       (ti > 0) || (0 == sa.numBlocksTotal()));
+            }
+        }
+    }
 }
 
 // ============================================================================
@@ -5534,7 +6038,7 @@ int main(int argc, char *argv[])
     bslma::Default::setDefaultAllocator(&testAlloc);
 
     switch (test) { case 0:
-      case 25: {
+      case 28: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -5689,6 +6193,42 @@ if (verbose) {
 // See the material in {'bslstl_unorderedmap'|Example 2}.
 
       } break;
+      case 27: {
+        // --------------------------------------------------------------------
+        // TESTING SPREAD
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("Testing SPREAD\n"
+                            "==============\n");
+
+        RUN_EACH_TYPE(TestDriver,
+                      testCase99,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+      } break;
+      case 26: {
+        // --------------------------------------------------------------------
+        // RESERVE, REHASH, MAX_LOAD_FACTOR
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("TESTING RESERVE, REHASH, AND MAX_LOAD_FACTOR\n"
+                            "============================================\n");
+
+        RUN_EACH_TYPE(TestDriver,
+                      testCase26,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+      } break;
+      case 25: {
+        // --------------------------------------------------------------------
+        // RESERVE, REHASH, MAX_LOAD_FACTOR
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("TESTING RESERVE, REHASH, AND MAX_LOAD_FACTOR\n"
+                            "============================================\n");
+
+        RUN_EACH_TYPE(TestDriver,
+                      testCase25,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+      } break;
       case 24: {
         // --------------------------------------------------------------------
         // TESTING STANDARD INTERFACE COVERAGE
@@ -5798,15 +6338,10 @@ if (verbose) {
       } break;
       case 16: {
         // --------------------------------------------------------------------
-        // TESTING SPREAD
+        // N/A
         // --------------------------------------------------------------------
 
-        if (verbose) printf("Testing SPREAD\n"
-                            "==============\n");
-
-        RUN_EACH_TYPE(TestDriver,
-                      testCase16,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+        // N/A
       } break;
       case 15: {
         // --------------------------------------------------------------------
