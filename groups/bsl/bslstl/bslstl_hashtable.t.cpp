@@ -282,6 +282,7 @@ bool veryVeryVeryVerbose;
 // ============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
+bslma::TestAllocator *g_bsltfAllocator_p = 0;
 
 struct DefaultDataRow {
     int         d_line;     // source line number
@@ -794,7 +795,7 @@ class TestHashFunctor {
                        // ==================
 
 template <class KEY>
-class StatefulHash : bsl::hash<KEY> {
+class StatefulHash : private bsl::hash<KEY> {
     // This value-semantic class adapts a class meeting the C++11 'Hash'
     // requirements (C++11 [hash.requirements], 17.6.3.4) with an additional
     // 'mixer' attribute, that constitutes the value of this class, and is
@@ -1257,7 +1258,7 @@ struct MakeAllocator<bsltf::StdTestAllocator<TYPE> > {
         bslma::Allocator *installedAlloc =
                                          BsltfAllocConfig::delegateAllocator();
 
-        if (installedAlloc != &bslma::NewDeleteAllocator::singleton()) {
+        if (installedAlloc != g_bsltfAllocator_p) {
             ASSERTV(installedAlloc,   basicAllocator,
                     installedAlloc == basicAllocator);
         }
@@ -7164,6 +7165,20 @@ int main(int argc, char *argv[])
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
+    bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
+    bslma::Default::setGlobalAllocator(&globalAllocator);
+
+    bslma::TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
+    bslma::Default::setDefaultAllocator(&defaultAllocator);
+
+    // Set this test allocator globally, up front, to avoid mutliple static
+    // alloctor references on AIX.  This allocator should always be swapped
+    // out by an allocator guard during any specific test case.
+    bslma::TestAllocator bsltfAllocator("bsltf-default", veryVeryVeryVerbose);
+    bsltf::StdTestAllocatorConfiguration::setDelegateAllocatorRaw(
+                                                              &bsltfAllocator);
+    g_bsltfAllocator_p = &bsltfAllocator;
+
     switch (test) { case 0:
       case 14: {
         // This case number will rise as remaining tests are implemented.
@@ -7707,10 +7722,10 @@ int main(int argc, char *argv[])
         //: 2 The class supports a wide variety of troublesome element types,
         //:   as covered extensively in the template test facility, 'bsltf'.
         //:
-        //:*3 STL allocators that are not (BDE) polymorphic, and that never
+        //: 3 STL allocators that are not (BDE) polymorphic, and that never
         //:   propagate on any operations, just like BDE
         //:
-        //:*4 STL allocators that are not (BDE) polymorphic, and propagate on
+        //: 4 STL allocators that are not (BDE) polymorphic, and propagate on
         //:   all possible operations.
         //:
         //: 5 functors that do not const-qualify 'operator()'
@@ -7742,7 +7757,14 @@ int main(int argc, char *argv[])
         //:
         //:17 support for comparison functors returning an evil boolean-like
         //:    type
-        //
+        //:
+        // Additional concerns (deferred for full allocator_traits support)
+        //:18 support for STL allocators returning smart pointers
+        //:
+        //:19 that the STL allocator functions are called if the STL allocator
+        //:   supplies them (rather than always using a default incantation in
+        //:   allocator_traits, for example).
+        //:
         // Plan:
         //: 1 Run the test harness in a variety of configurations that each, in
         //:   turn, address the concerns and verify that the behavior is as
@@ -7888,6 +7910,14 @@ int main(int argc, char *argv[])
         testStatus = -1;
       }
     }
+
+    // There should be no allocations for the "default STL-test allocator"
+    ASSERTV(bsltfAllocator.numBlocksTotal(),
+            0 == bsltfAllocator.numBlocksTotal());
+
+    // CONCERN: In no case does memory come from the global allocator.
+    ASSERTV(globalAllocator.numBlocksTotal(),
+            0 == globalAllocator.numBlocksTotal());
 
     if (testStatus > 0) {
         fprintf(stderr, "Error, non-zero test status = %d.\n", testStatus);
