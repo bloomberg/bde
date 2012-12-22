@@ -4813,7 +4813,17 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase3()
     //*  bool isValidHashTable(Link *, const HashTableBucket&, int numBuckets);
     // ------------------------------------------------------------------------
 
-    bslma::TestAllocator oa(veryVeryVerbose);
+    bslma::TestAllocator oa("generator allocator", veryVeryVerbose);
+
+    // There is no easy way to create this guard for the specific
+    // test case of the stateless 'bsltf::StdTestAllocator', nor
+    // without second guessing the allocator to use based upon the
+    // 'cfg' code.  By the time we return from 'makeAllocator' the test
+    // allocator will already have been installed, with no easy way to
+    // restore at the end of the test case.
+
+    bsltf::StdTestAllocatorConfigurationGuard bsltfAG(&oa);
+    ALLOCATOR objAlloc = MakeAllocator<ALLOCATOR>::make(&oa);
 
     const HASHER     HASH  = MakeDefaultFunctor<HASHER>::make();
     const COMPARATOR EQUAL = MakeDefaultFunctor<COMPARATOR>::make();
@@ -4847,7 +4857,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase3()
             const TestValues  EXP(DATA[ti].d_results);
             const int         curLen = (int)strlen(SPEC);
 
-            Obj mX(HASH, EQUAL, LENGTH, 1.0f, &oa);
+            Obj mX(HASH, EQUAL, LENGTH, 1.0f, objAlloc);
             const Obj& X = gg(&mX, SPEC);   // original spec
 
             if (curLen != oldLen) {
@@ -4916,7 +4926,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase3()
             const int         INDEX  = DATA[ti].d_index;
             const size_t      LENGTH = strlen(SPEC);
 
-            Obj mX(HASH, EQUAL, LENGTH, 1.5f, &oa);
+            Obj mX(HASH, EQUAL, LENGTH, 1.5f, objAlloc);
 
             if (LENGTH != oldLen) {
                 if (verbose) printf("\tof length " ZU ":\n", LENGTH);
@@ -7713,27 +7723,76 @@ int main(int argc, char *argv[])
 
         testCase3_ValidateEvilBooleanType();
 
-        if (verbose) printf("\nTesting 'gg'"
-                            "\n============\n");
+        if (verbose) printf("\nTesting generators and test machinery"
+                            "\n=====================================\n");
 
+        if (verbose) printf("\nTesting basic configurations"
+                            "\n----------------------------\n");
         RUN_EACH_TYPE(TestDriver_BasicConfiguation,
                       testCase3,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
 
+        if (verbose) printf("\nTesting stateful functors"
+                            "\n-------------------------\n");
         RUN_EACH_TYPE(TestDriver_StatefulConfiguation,
                       testCase3,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
 
+        if (verbose) printf("\nTesting degenerate functors"
+                            "\n---------------------------\n");
         RUN_EACH_TYPE(TestDriver_DegenerateConfiguation,
                       testCase3,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
 
+        if (verbose) printf("\nTesting degenerate functors without swap"
+                            "\n----------------------------------------\n");
         RUN_EACH_TYPE(TestDriver_DegenerateConfiguationWithNoSwap,
                       testCase3,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
 
+        if (verbose) printf("\nTesting 'bsltf' configuration"
+                            "\n-----------------------------\n");
+        RUN_EACH_TYPE(TestDriver_BsltfConfiguation,
+                      testCase3,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
+
+        if (verbose) printf("\nTesting pointers for functors"
+                            "\n-----------------------------\n");
+        RUN_EACH_TYPE(TestDriver_FunctionPointers,
+                      testCase3,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
+
+        if (verbose) printf("\nTesting functors taking generic arguments"
+                            "\n-----------------------------------------\n");
+        RUN_EACH_TYPE(TestDriver_GenericFunctors,
+                      testCase3,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
+
+        if (verbose) printf("\nTesting stateless STL allocators"
+                            "\n--------------------------------\n");
+        RUN_EACH_TYPE(TestDriver_StdAllocatorConfiguation,
+                      testCase3,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
+
+        if (verbose) printf("\nTesting stateful STL allocators"
+                            "\n-------------------------------\n");
+        RUN_EACH_TYPE(TestDriver_StatefulAllocatorConfiguation1,
+                      testCase3,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
+
+        RUN_EACH_TYPE(TestDriver_StatefulAllocatorConfiguation2,
+                      testCase3,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
+
+        RUN_EACH_TYPE(TestDriver_StatefulAllocatorConfiguation3,
+                      testCase3,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
+
+
         // Be sure to bootstrap the special 'grouped' configurations used in
         // test case 6.
+        if (verbose) printf("\nTesting grouped hash with unique key values"
+                            "\n-------------------------------------------\n");
         RUN_EACH_TYPE(TestCase_GroupedUniqueKeys,
                       testCase3,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
@@ -7751,6 +7810,8 @@ int main(int argc, char *argv[])
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
 
         // Remaining special cases
+        if (verbose) printf("\nTesting degenerate map-like"
+                            "\n---------------------------\n");
         TestDriver_AwkwardMaplike::testCase3();
 
         // Further, need to validate the basic test facilities:
