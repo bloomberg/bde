@@ -5534,7 +5534,7 @@ int main(int argc, char *argv[])
     bslma::Default::setDefaultAllocator(&testAlloc);
 
     switch (test) { case 0:
-      case 25: {
+      case 30: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
