@@ -6,7 +6,6 @@
 
 #include <bslstl_hashtableiterator.h>
 #include <bslstl_pair.h>
-//#include <bslstl_unorderedsetkeyconfiguration.h>
 
 #include <bslalg_bidirectionallink.h>
 
@@ -421,7 +420,7 @@ void debugprint(const AwkwardMaplikeElement& value)
 namespace bsl {
 
                     // ============================================
-                    // class template bdl::equal_to specializations
+                    // class template bsl::equal_to specializations
                     // ============================================
 
 template <>
@@ -441,7 +440,7 @@ struct equal_to< ::BloombergLP::bsltf::NonEqualComparableTestType> {
 };
 
                     // ========================================
-                    // class template bdl::hash specializations
+                    // class template bsl::hash specializations
                     // ========================================
 
 template <>
@@ -961,6 +960,16 @@ class DegenerateClass : public FUNCTOR {
     void operator,(T&); // = delete;
         // not implemented
 
+    template<class T>
+    void swap(T&); // = delete;
+        // Not implemented.  This method hides a frequently supplied member
+        // function that may be sniffed out by clever template code when it
+        // is declared in the base class.  When 'ENABLE_SWAP' is 'false', we
+        // want to be sure that this class does not accidentally allow
+        // swapping through an unexpected back door.  When 'ENABLE_SWAP' is
+        // 'true', we provide a differently named hook, to minimize the chance
+        // that a clever template library can sniff it out.
+
 
     DegenerateClass& operator=(const DegenerateClass&);
     // TBD. Do we require functors be CopyAssignable, Swappable, or customize
@@ -973,13 +982,15 @@ class DegenerateClass : public FUNCTOR {
         // Create a 'DegenerateClass' having the same value the specified
         // 'original'.
 
-    void swap(DegenerateClass& other);
+    void exchangeValues(DegenerateClass& other);
         // Swap the wrapped 'FUNCTOR' object, using ADL with 'std::swap' in
-        // the lookup set.  Note that this method hides any 'swap' method in
-        // the wrapped 'FUNCTOR' class.  Also note that this overload is needed
-        // only so that the free-function 'swap' can be defined, as the native
-        // std library 'swap' function does will not accept this class on AIX
-        // or Visual C++ prior to VC2010.
+        // the lookup set.  Note that this function is deliberately *not* named
+        // 'swap' as some "clever" template libraries may try to call a member-
+        // swap function when they can find it, and ADL-swap is not available.
+        // Also note that this overload is needed only so that the ADL-enabling
+        // free-function 'swap' can be defined, as the native std library
+        // 'swap' function does will not accept this class on AIX or Visual C++
+        // prior to VC2010.
 };
 
 template <class FUNCTOR, bool ENABLE_SWAP>
@@ -1007,7 +1018,8 @@ DegenerateClass<FUNCTOR, ENABLE_SWAP>::cloneBaseObject(const FUNCTOR& base)
 
 template <class FUNCTOR, bool ENABLE_SWAP>
 inline
-void DegenerateClass<FUNCTOR, ENABLE_SWAP>::swap(DegenerateClass& other)
+void
+DegenerateClass<FUNCTOR, ENABLE_SWAP>::exchangeValues(DegenerateClass& other)
 {
     using std::swap;
     swap(static_cast<FUNCTOR&>(*this), static_cast<FUNCTOR&>(other));
@@ -1018,7 +1030,7 @@ inline
 void swap(DegenerateClass<FUNCTOR, true>& lhs,
           DegenerateClass<FUNCTOR, true>& rhs)
 {
-    lhs.swap(rhs);
+    lhs.exchangeValues(rhs);
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
