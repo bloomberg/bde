@@ -685,15 +685,15 @@ void testImplicitInsert(CONTAINER& mX)
 #if defined(BSLS_PLATFORM_CMP_SUN) // Work around per internal ticket D36282765
 static int my_count_if_equal(bsl::vector<int>::const_iterator begin,
                              bsl::vector<int>::const_iterator end,
-							 const int                        value)
+                                                         const int                        value)
 {
     int count = 0;
-	for (bsl::vector<int>::const_iterator cur = begin; end != cur; ++cur) {
-	    if (value == *cur) {
-		    ++count;
-		}
-	}
-	return count;
+        for (bsl::vector<int>::const_iterator cur = begin; end != cur; ++cur) {
+            if (value == *cur) {
+                    ++count;
+                }
+        }
+        return count;
 }
 #endif
 
