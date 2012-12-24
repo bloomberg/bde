@@ -1538,7 +1538,7 @@ inline
 typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::size_type
 unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::max_bucket_count() const
 {
-    return d_impl.maxNumOfBuckets();
+    return d_impl.maxNumBuckets();
 }
 
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>

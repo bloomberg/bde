@@ -1513,7 +1513,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase26()
 
     size_t maxSizeT = 0;
     --maxSizeT;
-    // ASSERTV(X.max_bucket_count() < maxSizeT); TBD: get working
+    // ASSERTV(X.max_bucket_count() < maxSizeT);    // TBD
 
     const char *SPEC = "ABCDEFGH";
 
