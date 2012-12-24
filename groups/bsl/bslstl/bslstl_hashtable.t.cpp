@@ -4215,8 +4215,6 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase7()
     //   HashTable(const HashTable& original, const A& allocator);
     // ------------------------------------------------------------------------
 
-    bslma::TestAllocator oa(veryVeryVerbose);
-
     typedef typename KEY_CONFIG::KeyType KEY;
     typedef typename KEY_CONFIG::ValueType VALUE;
 
@@ -4256,19 +4254,52 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase7()
             const size_t      LENGTH      = strlen(SPEC);
             const size_t      NUM_BUCKETS = predictNumBuckets(LENGTH, MAX_LF);
 
-            if (verbose) {
+            if (veryVerbose) {
                 printf("\nFor an object of length " ZU ":\n", LENGTH);
                 P(SPEC);
             }
 
+            bslma::TestAllocator da("default", veryVeryVeryVerbose);
+            bslma::TestAllocator oa("object",  veryVeryVeryVerbose);
+
+            bslma::DefaultAllocatorGuard dag(&da);
+
+#if 0
+            // It is not yet clear how to handle the "stateless" std-test
+            // allocator in this one general function, as we now construct
+            // two allocator objects with different test allocators, which
+            // violates the contract that we install only the current default
+            // allocator when creating a 'stateless' object via the 'make'
+            // call.
+            //
+            // There is no easy way to create this guard for the specific
+            // test case of the stateless 'bsltf::StdTestAllocator', nor
+            // without second guessing the allocator to use based upon the
+            // 'cfg' code.  By the time we return from 'makeAllocator' the
+            // test allocator will already have been installed, with no
+            // easy way to restore at the end of the test case.
+
+            bsltf::StdTestAllocatorConfigurationGuard bsltfAG(&oa);
+#endif
+
+            HASHER     hash = HASH;
+            COMPARATOR comp = COMPARE;
+#if defined(AJM_HAS_IMPLMENTED_GENERIC_STATEFUL_FUNCTOR_CHECKS)
+            setHasherState(bsls::Util::addressOf(hash), ti);
+            setComparatorState(bsls::Util::addressOf(comp), ti);
+#endif
+
+            const ALLOCATOR dfltAlloc = MakeAllocator<ALLOCATOR>::make(&da);
+            const ALLOCATOR objAlloc  = MakeAllocator<ALLOCATOR>::make(&oa);
+
             // Create control object w, with space for an extra element.
-            Obj mW(HASH, COMPARE, NUM_BUCKETS + 1, MAX_LF);
+            Obj mW(hash, comp, NUM_BUCKETS + 1, MAX_LF, dfltAlloc);
             const Obj& W = gg(&mW, SPEC);
 
             ASSERTV(ti, LENGTH == W.size()); // same lengths
             if (veryVerbose) { printf("\tControl Obj: "); P(W); }
 
-            Obj mX(HASH, COMPARE, NUM_BUCKETS, MAX_LF, &oa);
+            Obj mX(hash, comp, NUM_BUCKETS, MAX_LF, objAlloc);
             const Obj& X = gg(&mX, SPEC);
 
             // Sanity check only, previous test cases established this.
@@ -4278,9 +4309,10 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase7()
 
             {   // Testing concern 1..4 and 8
 
-                if (veryVerbose) { printf("\t\t\tRegular Case :"); }
+                if (veryVeryVerbose) { printf("\t\t\tRegular Case :"); }
 
-                Obj *pX = new Obj(HASH, COMPARE, NUM_BUCKETS, MAX_LF, &oa);
+                Obj *pX =
+                         new Obj(HASH, COMPARE, NUM_BUCKETS, MAX_LF, objAlloc);
                 gg(pX, SPEC);
 
                 ASSERTV(MAX_LF, SPEC, *pX, X, *pX == X);
@@ -4293,8 +4325,11 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase7()
                 ASSERTV(MAX_LF, SPEC,   W, Y0,   W == Y0);
                 ASSERTV(MAX_LF, SPEC,   W,  X,   W ==  X);
 
-                ASSERTV(MAX_LF, SPEC, Y0.allocator() ==
-                                           bslma::Default::defaultAllocator());
+                const ALLOCATOR expectedAlloc =
+                    bsl::allocator_traits<ALLOCATOR>::
+                        select_on_container_copy_construction(pX->allocator());
+                ASSERTV(MAX_LF, SPEC,
+                        BSL_TF_EQ(Y0.allocator(), expectedAlloc));
                 ASSERTV(MAX_LF, SPEC, pX->maxLoadFactor(), Y0.maxLoadFactor(),
                          pX->maxLoadFactor() == Y0.maxLoadFactor());
                 ASSERTV(MAX_LF, SPEC, Y0.loadFactor(), Y0.maxLoadFactor(),
@@ -4304,12 +4339,12 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase7()
             }
             {   // Testing concern 5.
 
-                if (veryVerbose) printf("\t\t\tInsert into created obj, "
-                                        "without test allocator:\n");
+                if (veryVeryVerbose) printf("\t\t\tInsert into created obj, "
+                                            "without test allocator:\n");
 
                 Obj Y1(W);
 
-                if (veryVerbose) {
+                if (veryVeryVerbose) {
                     printf("\t\t\t\tBefore Insert: "); P(Y1);
                 }
 
@@ -4318,7 +4353,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase7()
                     Y1.removeAll();
                 }
 
-                if (veryVerbose) {
+                if (veryVeryVerbose) {
                     printf("\t\t\t\tAfter Insert : "); P(Y1);
                 }
 
@@ -4355,7 +4390,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase7()
 
                 bslma::TestAllocatorMonitor oam(&oa);
 
-                Obj Y11(X, &oa);
+                Obj Y11(X, objAlloc);
 
                 if (LENGTH == 0) {
                     ASSERTV(MAX_LF, SPEC, oam.isTotalSame());
@@ -4397,7 +4432,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase7()
                 bslma::TestAllocatorMonitor oam(&oa);
 
                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
-                    Obj Y2(X, &oa);
+                    Obj Y2(X, objAlloc);
                     if (veryVerbose) {
                         printf("\t\t\tException Case  :\n");
                         printf("\t\t\t\tObj : "); P(Y2);
@@ -7797,25 +7832,92 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTesting Copy Constructors"
                             "\n=========================\n");
 
+        if (verbose) printf("\nTesting basic configurations"
+                            "\n----------------------------\n");
         RUN_EACH_TYPE(TestDriver_BasicConfiguation,
                       testCase7,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
                       bsltf::NonAssignableTestType,
                       bsltf::NonDefaultConstructibleTestType);
 
+        if (verbose) printf("\nTesting stateful functors"
+                            "\n-------------------------\n");
         RUN_EACH_TYPE(TestDriver_StatefulConfiguation,
                       testCase7,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
                       bsltf::NonAssignableTestType,
                       bsltf::NonDefaultConstructibleTestType);
 
+        if (verbose) printf("\nTesting degenerate functors"
+                            "\n---------------------------\n");
         RUN_EACH_TYPE(TestDriver_DegenerateConfiguation,
                       testCase7,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
                       bsltf::NonAssignableTestType,
                       bsltf::NonDefaultConstructibleTestType);
 
+        if (verbose) printf("\nTesting degenerate functors without swap"
+                            "\n----------------------------------------\n");
         RUN_EACH_TYPE(TestDriver_DegenerateConfiguationWithNoSwap,
+                      testCase7,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      bsltf::NonAssignableTestType,
+                      bsltf::NonDefaultConstructibleTestType);
+
+        if (verbose) printf("\nTesting 'bsltf' configuration"
+                            "\n-----------------------------\n");
+        RUN_EACH_TYPE(TestDriver_BsltfConfiguation,
+                      testCase7,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      bsltf::NonAssignableTestType,
+                      bsltf::NonDefaultConstructibleTestType);
+
+        if (verbose) printf("\nTesting pointers for functors"
+                            "\n-----------------------------\n");
+        RUN_EACH_TYPE(TestDriver_FunctionPointers,
+                      testCase7,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      bsltf::NonAssignableTestType,
+                      bsltf::NonDefaultConstructibleTestType);
+
+        if (verbose) printf("\nTesting functors taking generic arguments"
+                            "\n-----------------------------------------\n");
+        RUN_EACH_TYPE(TestDriver_GenericFunctors,
+                      testCase7,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      bsltf::NonAssignableTestType,
+                      bsltf::NonDefaultConstructibleTestType);
+
+#if 0
+        // Revisit these tests once validated the rest.
+        // Initial problem are testing the stateless allocator while trying
+        // to separately configure a default and an object allocator.
+        // Obvious problems with allocator-propagating tests, given the driver
+        // currently expects to never propagate.
+        if (verbose) printf("\nTesting stateless STL allocators"
+                            "\n--------------------------------\n");
+        RUN_EACH_TYPE(TestDriver_StdAllocatorConfiguation,
+                      testCase7,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      bsltf::NonAssignableTestType,
+                      bsltf::NonDefaultConstructibleTestType);
+#endif
+
+        if (verbose) printf("\nTesting stateful STL allocators"
+                            "\n-------------------------------\n");
+        RUN_EACH_TYPE(TestDriver_StatefulAllocatorConfiguation1,
+                      testCase7,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      bsltf::NonAssignableTestType,
+                      bsltf::NonDefaultConstructibleTestType);
+
+        RUN_EACH_TYPE(TestDriver_StatefulAllocatorConfiguation2,
+                      testCase7,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      bsltf::NonAssignableTestType,
+                      bsltf::NonDefaultConstructibleTestType);
+
+        RUN_EACH_TYPE(TestDriver_StatefulAllocatorConfiguation3,
                       testCase7,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
                       bsltf::NonAssignableTestType,
@@ -7823,15 +7925,36 @@ int main(int argc, char *argv[])
 
         // Be sure to bootstrap the special 'grouped' configurations used in
         // test case 6.
+        if (verbose) printf("\nTesting grouped hash with unique key values"
+                            "\n-------------------------------------------\n");
         RUN_EACH_TYPE(TestCase_GroupedUniqueKeys,
                       testCase7,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
                       bsltf::NonAssignableTestType,
                       bsltf::NonDefaultConstructibleTestType);
 
-        // Remaining special cases
-        TestDriver_AwkwardMaplike::testCase7();
+        RUN_EACH_TYPE(TestCase_GroupedUniqueKeys,
+                      testCase7,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      bsltf::NonAssignableTestType,
+                      bsltf::NonDefaultConstructibleTestType);
 
+        RUN_EACH_TYPE(TestCase6_DegenerateConfiguration,
+                      testCase7,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      bsltf::NonAssignableTestType,
+                      bsltf::NonDefaultConstructibleTestType);
+
+        RUN_EACH_TYPE(TestCase6_DegenerateConfigurationNoSwap,
+                      testCase7,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      bsltf::NonAssignableTestType,
+                      bsltf::NonDefaultConstructibleTestType);
+
+        // Remaining special cases
+        if (verbose) printf("\nTesting degenerate map-like"
+                            "\n---------------------------\n");
+        TestDriver_AwkwardMaplike::testCase7();
       } break;
       case 6: {
         // --------------------------------------------------------------------
