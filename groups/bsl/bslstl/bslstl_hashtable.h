@@ -1522,11 +1522,6 @@ BSLS_IDENT("$Id: $")
 #define INCLUDED_CSTDDEF
 #endif
 
-#ifndef INCLUDED_LIMITS
-#include <limits>  // for 'numeric_limits<size_t>'
-#define INCLUDED_LIMITS
-#endif
-
 namespace BloombergLP {
 
 namespace bslstl {
@@ -3433,7 +3428,7 @@ inline
 typename HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::SizeType
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::maxSize() const
 {
-    return native_std::numeric_limits<SizeType>::max();
+    return AllocatorTraits::max_size(this->allocator()) / sizeof(NodeType);
 }
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
@@ -3504,7 +3499,8 @@ inline
 typename HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::SizeType
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::maxNumBuckets() const
 {
-    return this->maxSize();
+    return AllocatorTraits::max_size(this->allocator())
+                                             / sizeof(bslalg::HashTableBucket);
 }
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>

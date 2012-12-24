@@ -7,11 +7,12 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bslstl_equalto.h>            // for testing only
 #include <bslstl_hash.h>               // for testing only
 #include <bslstl_hashtableiterator.h>  // for testing only
-#include <bslstl_pair.h>               // for testing only
+#include <bslstl_iterator.h>           // for testing only
 
 #include <bsls_nativestd.h>
 
 #include <algorithm>         // 'lower_bound'
+#include <limits>
 
 namespace BloombergLP
 {

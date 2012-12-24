@@ -3,9 +3,8 @@
 
 #include <bslstl_equalto.h>
 #include <bslstl_hash.h>
-
 #include <bslstl_hashtableiterator.h>
-#include <bslstl_pair.h>
+#include <bslstl_iterator.h>  // 'distance'
 
 #include <bslalg_bidirectionallink.h>
 
@@ -24,6 +23,7 @@
 #include <bsltf_templatetestfacility.h>
 #include <bsltf_testvaluesarray.h>
 
+#include <limits>
 #include <stdexcept>  // to verify correct exceptions are thrown
 
 #include <math.h>
@@ -613,17 +613,10 @@ class GroupedEqualityComparator {
 
   public:
     // ACCESSORS
-    bool operator() (const TYPE& lhs, const TYPE& rhs) const
+    bool operator() (const TYPE& lhs, const TYPE& rhs) const;
         // Return 'true' if the integer representation of the specified 'lhs'
         // divided by 'GROUP_SIZE' (rounded down) is equal to than integer
         // representation of the specified 'rhs' divided by 'GROUP_SIZE'.
-    {
-        int leftValue = bsltf::TemplateTestFacility::getIdentifier<TYPE>(lhs)
-                    / GROUP_SIZE;
-        int rightValue = bsltf::TemplateTestFacility::getIdentifier<TYPE>(rhs)
-                        / GROUP_SIZE;
-        return leftValue == rightValue;
-    }
 };
 
                             // ===================
@@ -645,17 +638,11 @@ class GroupedHasher : private HASHER {
 
   public:
     // ACCESSORS
-    size_t operator() (const TYPE& value)
+    size_t operator() (const TYPE& value);
         // Return the hash value of the integer representation of the specified
         // 'value' divided by 'GROUP_SIZE' (rounded down) is equal to than
         // integer representation of the specified 'rhs' divided by
         // 'GROUP_SIZE'.
-    {
-        int groupNum = bsltf::TemplateTestFacility::getIdentifier<TYPE>(value)
-                     / GROUP_SIZE;
-
-        return HASHER::operator()(groupNum);
-    }
 };
 
 
@@ -683,49 +670,27 @@ class TestEqualityComparator {
     //                                                                 default;
         // Create a copy of the specified 'original'.
 
-    explicit TestEqualityComparator(int id = 0)
+    explicit TestEqualityComparator(int id = 0);
         // Create a 'TestComparator'.  Optionally, specify 'id' that can be
         // used to identify the object.
-    : d_id(id)
-    , d_count(0)
-    {
-    }
 
     // MANIPULATORS
-    void setId(int value)
-    {
-        d_id = value;
-    }
+    void setId(int value);
 
     // ACCESSORS
-    bool operator() (const TYPE& lhs, const TYPE& rhs) const
+    bool operator() (const TYPE& lhs, const TYPE& rhs) const;
         // Increment a counter that records the number of times this method is
         // called.   Return 'true' if the integer representation of the
         // specified 'lhs' is less than integer representation of the specified
         // 'rhs'.
-    {
-        ++d_count;
 
-        return bsltf::TemplateTestFacility::getIdentifier<TYPE>(lhs)
-            == bsltf::TemplateTestFacility::getIdentifier<TYPE>(rhs);
-    }
+    bool operator== (const TestEqualityComparator& rhs) const;
 
-    bool operator== (const TestEqualityComparator& rhs) const
-    {
-        return (id() == rhs.id());// && d_compareLess == rhs.d_compareLess);
-    }
-
-    int id() const
+    int id() const;
         // Return the 'id' of this object.
-    {
-        return d_id;
-    }
 
-    size_t count() const
+    size_t count() const;
         // Return the number of times 'operator()' is called.
-    {
-        return d_count;
-    }
 };
 
                        // =====================
@@ -751,42 +716,24 @@ class TestHashFunctor {
     //! TestHashFunctor(const TestHashFunctor& original) = default;
         // Create a copy of the specified 'original'.
 
-    explicit TestHashFunctor(int id = 0)
+    explicit TestHashFunctor(int id = 0);
         // Create a 'TestComparator'.  Optionally, specify 'id' that can be
         // used to identify the object.
-    : d_id(id)
-    , d_count(0)
-    {
-    }
 
     // ACCESSORS
-    native_std::size_t operator() (const TYPE& obj) const
+    native_std::size_t operator() (const TYPE& obj) const;
         // Increment a counter that records the number of times this method is
         // called.   Return 'true' if the integer representation of the
         // specified 'lhs' is less than integer representation of the specified
         // 'rhs'.
-    {
-        ++d_count;
 
-        return bsltf::TemplateTestFacility::getIdentifier<TYPE>(obj);
-    }
+    bool operator== (const TestHashFunctor& rhs) const;
 
-    bool operator== (const TestHashFunctor& rhs) const
-    {
-        return (id() == rhs.id());// && d_compareLess == rhs.d_compareLess);
-    }
-
-    int id() const
+    int id() const;
         // Return the 'id' of this object.
-    {
-        return d_id;
-    }
 
-    size_t count() const
+    size_t count() const;
         // Return the number of times 'operator()' is called.
-    {
-        return d_count;
-    }
 };
 
                        // ==================
@@ -812,33 +759,25 @@ class StatefulHash : private bsl::hash<KEY> {
     native_std::size_t d_mixer;
 
   public:
-    explicit StatefulHash(native_std::size_t mixer = 0xffff)
-    : d_mixer(mixer)
-    {
-    }
+    explicit StatefulHash(native_std::size_t mixer = 0xffff);
 
-    void setMixer(int value)
-    {
-        d_mixer = value;
-    }
+    void setMixer(int value);
 
-    native_std::size_t operator()(const KEY& k) const
-    {
-        return Base::operator()(k) ^ d_mixer;
-    }
+    native_std::size_t operator()(const KEY& k) const;
 };
 
 template <class KEY>
-bool operator==(const StatefulHash<KEY>& lhs, const StatefulHash<KEY>& rhs)
-{
-    return lhs.d_mixer == rhs.d_mixer;
-}
+bool operator==(const StatefulHash<KEY>& lhs, const StatefulHash<KEY>& rhs);
+    // Return 'true' if the specificed 'lhs' and 'rhs' have the same value,
+    // and 'false' otherwise.  Two 'StatefulHash' functors have the same value
+    // if they have the same 'd_mixer' value.
 
 template <class KEY>
-bool operator!=(const StatefulHash<KEY>& lhs, const StatefulHash<KEY>& rhs)
-{
-    return lhs.d_mixer != rhs.d_mixer;
-}
+bool operator!=(const StatefulHash<KEY>& lhs, const StatefulHash<KEY>& rhs);
+    // Return 'true' if the specificed 'lhs' and 'rhs' do not have the same
+    // value, and 'false' otherwise.  Two 'StatefulHash' functors do not have
+    // the same value if they do not have the same 'd_mixer' value.
+
 
                        // ========================
                        // class TestFacilityHasher
@@ -853,19 +792,200 @@ class TestFacilityHasher : public HASHER { // exploit empty base
     // class method 'TemplateTestFacility::getIdentifier'.
 
   public:
-    TestFacilityHasher(const HASHER& hash = HASHER())               // IMPLICIT
-    : HASHER(hash)
-    {
-    }
+    TestFacilityHasher(const HASHER& hash = HASHER());              // IMPLICIT
 
     // ACCESSORS
-    native_std::size_t operator() (const KEY& k) const
+    native_std::size_t operator() (const KEY& k) const;
         // Return a hash code for the specified 'k' using the wrapped 'HASHER'.
-    {
-        return HASHER::operator()(
-                           bsltf::TemplateTestFacility::getIdentifier<KEY>(k));
-    }
 };
+
+                            // ===============================
+                            // class GroupedEqualityComparator
+                            // ===============================
+
+template <class TYPE, int GROUP_SIZE>
+bool GroupedEqualityComparator<TYPE, GROUP_SIZE>::
+operator() (const TYPE& lhs, const TYPE& rhs) const
+{
+    int leftValue = bsltf::TemplateTestFacility::getIdentifier<TYPE>(lhs)
+                  / GROUP_SIZE;
+    int rightValue = bsltf::TemplateTestFacility::getIdentifier<TYPE>(rhs)
+                   / GROUP_SIZE;
+
+    return leftValue == rightValue;
+}
+
+                            // ===================
+                            // class GroupedHasher
+                            // ===================
+
+template <class TYPE, class HASHER, int GROUP_SIZE>
+inline
+size_t GroupedHasher<TYPE, HASHER, GROUP_SIZE>::operator() (const TYPE& value)
+{
+    int groupNum = bsltf::TemplateTestFacility::getIdentifier<TYPE>(value)
+                     / GROUP_SIZE;
+
+    return HASHER::operator()(groupNum);
+}
+
+
+                       // ====================
+                       // class TestComparator
+                       // ====================
+
+template <class TYPE>
+inline
+TestEqualityComparator<TYPE>::TestEqualityComparator(int id)
+: d_id(id)
+, d_count(0)
+{
+}
+
+    // MANIPULATORS
+template <class TYPE>
+inline
+void TestEqualityComparator<TYPE>::setId(int value)
+{
+    d_id = value;
+}
+
+    // ACCESSORS
+template <class TYPE>
+inline
+bool TestEqualityComparator<TYPE>::operator() (const TYPE& lhs,
+                                               const TYPE& rhs) const
+{
+    ++d_count;
+
+    return bsltf::TemplateTestFacility::getIdentifier<TYPE>(lhs)
+        == bsltf::TemplateTestFacility::getIdentifier<TYPE>(rhs);
+}
+
+template <class TYPE>
+inline
+bool TestEqualityComparator<TYPE>::operator==(
+                                       const TestEqualityComparator& rhs) const
+{
+    return (id() == rhs.id());// && d_compareLess == rhs.d_compareLess);
+}
+
+template <class TYPE>
+inline
+int TestEqualityComparator<TYPE>::id() const
+{
+    return d_id;
+}
+
+template <class TYPE>
+inline
+size_t TestEqualityComparator<TYPE>::count() const
+{
+    return d_count;
+}
+
+                       // =====================
+                       // class TestHashFunctor
+                       // =====================
+
+template <class TYPE>
+inline
+TestHashFunctor<TYPE>::TestHashFunctor(int id)
+: d_id(id)
+, d_count(0)
+{
+}
+
+    // ACCESSORS
+template <class TYPE>
+inline
+native_std::size_t TestHashFunctor<TYPE>::operator() (const TYPE& obj) const
+{
+    ++d_count;
+
+    return bsltf::TemplateTestFacility::getIdentifier<TYPE>(obj);
+}
+
+template <class TYPE>
+inline
+bool TestHashFunctor<TYPE>::operator== (const TestHashFunctor& rhs) const
+{
+    return (id() == rhs.id());// && d_compareLess == rhs.d_compareLess);
+}
+
+template <class TYPE>
+inline
+int TestHashFunctor<TYPE>::id() const
+{
+    return d_id;
+}
+
+template <class TYPE>
+inline
+size_t TestHashFunctor<TYPE>::count() const
+{
+    return d_count;
+}
+
+                       // ==================
+                       // class StatefulHash
+                       // ==================
+
+template <class KEY>
+inline
+StatefulHash<KEY>::StatefulHash(native_std::size_t mixer)
+: d_mixer(mixer)
+{
+}
+
+template <class KEY>
+inline
+void StatefulHash<KEY>::setMixer(int value)
+{
+    d_mixer = value;
+}
+
+template <class KEY>
+inline
+native_std::size_t StatefulHash<KEY>::operator()(const KEY& k) const
+{
+    return Base::operator()(k) ^ d_mixer;
+}
+
+template <class KEY>
+inline
+bool operator==(const StatefulHash<KEY>& lhs, const StatefulHash<KEY>& rhs)
+{
+    return lhs.d_mixer == rhs.d_mixer;
+}
+
+template <class KEY>
+inline
+bool operator!=(const StatefulHash<KEY>& lhs, const StatefulHash<KEY>& rhs)
+{
+    return lhs.d_mixer != rhs.d_mixer;
+}
+
+                       // ========================
+                       // class TestFacilityHasher
+                       // ========================
+
+template <class KEY, class HASHER>
+inline
+TestFacilityHasher<KEY, HASHER>::TestFacilityHasher(const HASHER& hash)
+: HASHER(hash)
+{
+}
+
+    // ACCESSORS
+template <class KEY, class HASHER>
+inline
+native_std::size_t
+TestFacilityHasher<KEY, HASHER>::operator() (const KEY& k) const
+{
+    return HASHER::operator()(
+                           bsltf::TemplateTestFacility::getIdentifier<KEY>(k));
+}
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -5915,6 +6035,29 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase1(
         printf("Test 'equal' and 'hasher'\n");
     }
 
+    {
+        const Obj x(HASHER(), COMPARATOR(), 0, 1.0f, &objectAllocator);
+        const Obj& X = x;
+
+        HASHER h = X.hasher();
+        COMPARATOR c = X.comparator();
+
+        (void)h;
+        (void)c;
+    }
+
+    if (veryVerbose) {
+        printf("Call remaining functions, for basic compile-check'.\n");
+    }
+
+    {
+        Obj x(HASHER(), COMPARATOR(), 0, 1.0f, &objectAllocator);
+        const Obj& X = x;
+        (void)X.maxSize();
+        (void)X.maxNumBuckets();
+        (void)X.maxLoadFactor();
+        (void)X.loadFactor();
+    }
 }
 
 // ============================================================================
