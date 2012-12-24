@@ -1,4 +1,4 @@
-// bsltf_stdtestallocator.cpp                                 -*-C++-*-
+// bsltf_stdtestallocator.cpp                                         -*-C++-*-
 #include <bsltf_stdtestallocator.h>
 
 #include <bsls_ident.h>
@@ -8,6 +8,16 @@ BSLS_IDENT("$Id$ $CSID$")
 
 #include <bsls_assert.h>
 
+namespace
+{
+// STATIC DATA
+// This global static data is declared and defined entirely hidden inside
+// the .cpp file, as the IBM compiler may create multiple copies if accessed
+// through inline functions defined in the header.
+    static ::BloombergLP::bslma::Allocator
+                              *s_StdTestAllocatorConfiguration_allocator_p = 0;
+}  // close anonymous namespace
+
 namespace BloombergLP {
 namespace bsltf {
 
@@ -16,25 +26,20 @@ namespace bsltf {
                         // class StdTestAllocatorConfiguration
                         // -----------------------------------
 
-// STATIC DATA
-// This global static data is declared and defined entirely hidden inside
-// the .cpp file, as the IBM compiler may create multiple copies if accessed
-// through inline functions defined in the header.
-static bslma::Allocator *StdTestAllocatorConfiguration_s_allocator_p = 0;
-
-
 // CLASS METHODS
 bslma::Allocator* StdTestAllocatorConfiguration::delegateAllocator()
 {
-    return StdTestAllocatorConfiguration_s_allocator_p
-         ? StdTestAllocatorConfiguration_s_allocator_p
+    return s_StdTestAllocatorConfiguration_allocator_p
+         ? s_StdTestAllocatorConfiguration_allocator_p
          : &bslma::NewDeleteAllocator::singleton();
 }
 
 void StdTestAllocatorConfiguration::setDelegateAllocatorRaw(
                                               bslma::Allocator *basicAllocator)
 {
-    StdTestAllocatorConfiguration_s_allocator_p = basicAllocator;
+    BSLS_ASSERT_OPT(basicAllocator);
+
+    s_StdTestAllocatorConfiguration_allocator_p = basicAllocator;
 }
 
                         // ----------------------
