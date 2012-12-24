@@ -1719,7 +1719,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase26()
     ASSERTV(X3 == X);
     ASSERTV(X3.bucket_count() == X.bucket_count());
 
-    {    
+    {
         const size_t bucketCount = X.bucket_count();
         mX.rehash(bucketCount * 2);
         ASSERTV(X.bucket_count() > bucketCount * 2);    // must be prime,
@@ -1805,7 +1805,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase25()
         const char *const SPEC   = DATA[ti].d_results;
 
         TestValues values(SPEC, &scratch);
-    
+
         {
             Obj mX(values.begin(), values.end());  const Obj& X = mX;
             values.resetIterators();
@@ -5734,200 +5734,200 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase2()
 // set of values.  This data can be handled by creating an enumeration for each
 // of the attributes:
 //..
-    typedef enum {
-        REPEAT
-      , DISCOUNT
-      , IMPULSE
-      , NEED_BASED
-      , BUSINESS
-      , NON_PROFIT
-      , INSTITUTE
-        // ...
-    } CustomerCode;
+typedef enum {
+    REPEAT
+  , DISCOUNT
+  , IMPULSE
+  , NEED_BASED
+  , BUSINESS
+  , NON_PROFIT
+  , INSTITUTE
+    // ...
+} CustomerCode;
 
-    typedef enum {
-        USA_EAST
-      , USA_WEST
-      , CANADA
-      , MEXICO
-      , ENGLAND
-      , SCOTLAND
-      , FRANCE
-      , GERMANY
-      , RUSSIA
-        // ...
-    } LocationCode;
+typedef enum {
+    USA_EAST
+  , USA_WEST
+  , CANADA
+  , MEXICO
+  , ENGLAND
+  , SCOTLAND
+  , FRANCE
+  , GERMANY
+  , RUSSIA
+    // ...
+} LocationCode;
 
-    typedef enum {
-        TOAST
-      , GREEN
-      , FAST
-      , TIDY
-      , PEARL
-      , SMITH
-        // ...
-    } ProjectCode;
+typedef enum {
+    TOAST
+  , GREEN
+  , FAST
+  , TIDY
+  , PEARL
+  , SMITH
+    // ...
+} ProjectCode;
 //..
 // For printing these values in a human-readable form, we define these helper
 // functions:
 //..
-    static const char *toAscii(CustomerCode value)
-    {
-        switch (value) {
-          case REPEAT:     return "REPEAT";
-          case DISCOUNT:   return "DISCOUNT";
-          case IMPULSE:    return "IMPULSE";
-          case NEED_BASED: return "NEED_BASED";
-          case BUSINESS:   return "BUSINESS";
-          case NON_PROFIT: return "NON_PROFIT";
-          case INSTITUTE:  return "INSTITUTE";
-          // ...
-          default: return "(* UNKNOWN *)";
-        }
+static const char *toAscii(CustomerCode value)
+{
+    switch (value) {
+      case REPEAT:     return "REPEAT";
+      case DISCOUNT:   return "DISCOUNT";
+      case IMPULSE:    return "IMPULSE";
+      case NEED_BASED: return "NEED_BASED";
+      case BUSINESS:   return "BUSINESS";
+      case NON_PROFIT: return "NON_PROFIT";
+      case INSTITUTE:  return "INSTITUTE";
+      // ...
+      default: return "(* UNKNOWN *)";
     }
+}
 
-    static const char *toAscii(LocationCode value)
-    {
-        switch (value) {
-          case USA_EAST: return "USA_EAST";
-          case USA_WEST: return "USA_WEST";
-          case CANADA:   return "CANADA";
-          case MEXICO:   return "MEXICO";
-          case ENGLAND:  return "ENGLAND";
-          case SCOTLAND: return "SCOTLAND";
-          case FRANCE:   return "FRANCE";
-          case GERMANY:  return "GERMANY";
-          case RUSSIA:   return "RUSSIA";
-          // ...
-          default: return "(* UNKNOWN *)";
-        }
+static const char *toAscii(LocationCode value)
+{
+    switch (value) {
+      case USA_EAST: return "USA_EAST";
+      case USA_WEST: return "USA_WEST";
+      case CANADA:   return "CANADA";
+      case MEXICO:   return "MEXICO";
+      case ENGLAND:  return "ENGLAND";
+      case SCOTLAND: return "SCOTLAND";
+      case FRANCE:   return "FRANCE";
+      case GERMANY:  return "GERMANY";
+      case RUSSIA:   return "RUSSIA";
+      // ...
+      default: return "(* UNKNOWN *)";
     }
+}
 
-    static const char *toAscii(ProjectCode  value)
-    {
-        switch (value) {
-          case TOAST: return "TOAST";
-          case GREEN: return "GREEN";
-          case FAST:  return "FAST";
-          case TIDY:  return "TIDY";
-          case PEARL: return "PEARL";
-          case SMITH: return "SMITH";
-          // ...
-          default: return "(* UNKNOWN *)";
-        }
+static const char *toAscii(ProjectCode  value)
+{
+    switch (value) {
+      case TOAST: return "TOAST";
+      case GREEN: return "GREEN";
+      case FAST:  return "FAST";
+      case TIDY:  return "TIDY";
+      case PEARL: return "PEARL";
+      case SMITH: return "SMITH";
+      // ...
+      default: return "(* UNKNOWN *)";
     }
+}
 //..
 // The data set (randomly generated for this example) is provided in a
 // statically initialized array:
 //..
-    static const struct CustomerProfile {
-        CustomerCode d_customer;
-        LocationCode d_location;
-        ProjectCode  d_project;
-    } customerProfiles[] = {
-        { IMPULSE   , CANADA  , SMITH },
-        { NON_PROFIT, USA_EAST, GREEN },
-        { INSTITUTE , USA_EAST, TOAST },
-        { NON_PROFIT, CANADA  , PEARL },
-        { NEED_BASED, CANADA  , FAST  },
-        { BUSINESS  , ENGLAND , PEARL },
-        { REPEAT    , SCOTLAND, TIDY  },
-        { INSTITUTE , MEXICO  , PEARL },
-        { DISCOUNT  , USA_EAST, GREEN },
-        { BUSINESS  , USA_EAST, GREEN },
-        { IMPULSE   , MEXICO  , TOAST },
-        { DISCOUNT  , GERMANY , FAST  },
-        { INSTITUTE , FRANCE  , FAST  },
-        { NON_PROFIT, ENGLAND , PEARL },
-        { BUSINESS  , ENGLAND , TIDY  },
-        { BUSINESS  , CANADA  , GREEN },
-        { INSTITUTE , FRANCE  , FAST  },
-        { IMPULSE   , RUSSIA  , TOAST },
-        { REPEAT    , USA_WEST, TOAST },
-        { IMPULSE   , CANADA  , TIDY  },
-        { NON_PROFIT, GERMANY , GREEN },
-        { INSTITUTE , USA_EAST, TOAST },
-        { INSTITUTE , FRANCE  , FAST  },
-        { IMPULSE   , SCOTLAND, SMITH },
-        { INSTITUTE , USA_EAST, PEARL },
-        { INSTITUTE , USA_EAST, TOAST },
-        { NON_PROFIT, ENGLAND , PEARL },
-        { IMPULSE   , GERMANY , FAST  },
-        { REPEAT    , GERMANY , FAST  },
-        { REPEAT    , MEXICO  , PEARL },
-        { IMPULSE   , GERMANY , TIDY  },
-        { IMPULSE   , MEXICO  , TOAST },
-        { NON_PROFIT, SCOTLAND, SMITH },
-        { NEED_BASED, MEXICO  , TOAST },
-        { NON_PROFIT, FRANCE  , SMITH },
-        { INSTITUTE , MEXICO  , TIDY  },
-        { NON_PROFIT, FRANCE  , TIDY  },
-        { IMPULSE   , FRANCE  , FAST  },
-        { DISCOUNT  , RUSSIA  , TIDY  },
-        { IMPULSE   , USA_EAST, TIDY  },
-        { IMPULSE   , USA_WEST, FAST  },
-        { NON_PROFIT, FRANCE  , TIDY  },
-        { BUSINESS  , ENGLAND , GREEN },
-        { REPEAT    , FRANCE  , TOAST },
-        { REPEAT    , RUSSIA  , SMITH },
-        { REPEAT    , RUSSIA  , GREEN },
-        { IMPULSE   , CANADA  , FAST  },
-        { NON_PROFIT, USA_EAST, FAST  },
-        { NEED_BASED, USA_WEST, TOAST },
-        { NON_PROFIT, GERMANY , TIDY  },
-        { NON_PROFIT, ENGLAND , GREEN },
-        { REPEAT    , GERMANY , PEARL },
-        { NEED_BASED, USA_EAST, PEARL },
-        { NON_PROFIT, RUSSIA  , PEARL },
-        { NEED_BASED, ENGLAND , SMITH },
-        { INSTITUTE , CANADA  , SMITH },
-        { NEED_BASED, ENGLAND , TOAST },
-        { NON_PROFIT, MEXICO  , TIDY  },
-        { BUSINESS  , GERMANY , FAST  },
-        { NEED_BASED, SCOTLAND, PEARL },
-        { NON_PROFIT, USA_WEST, TIDY  },
-        { NON_PROFIT, USA_WEST, TOAST },
-        { IMPULSE   , FRANCE  , PEARL },
-        { IMPULSE   , ENGLAND , FAST  },
-        { IMPULSE   , USA_WEST, GREEN },
-        { DISCOUNT  , MEXICO  , SMITH },
-        { INSTITUTE , GERMANY , TOAST },
-        { NEED_BASED, CANADA  , PEARL },
-        { NON_PROFIT, USA_WEST, FAST  },
-        { DISCOUNT  , RUSSIA  , SMITH },
-        { INSTITUTE , USA_WEST, GREEN },
-        { INSTITUTE , RUSSIA  , TOAST },
-        { INSTITUTE , FRANCE  , SMITH },
-        { INSTITUTE , SCOTLAND, SMITH },
-        { NON_PROFIT, ENGLAND , PEARL },
-        { NON_PROFIT, CANADA  , SMITH },
-        { NON_PROFIT, USA_EAST, TOAST },
-        { REPEAT    , FRANCE  , TOAST },
-        { NEED_BASED, FRANCE  , FAST  },
-        { DISCOUNT  , MEXICO  , TOAST },
-        { DISCOUNT  , FRANCE  , GREEN },
-        { IMPULSE   , USA_EAST, FAST  },
-        { REPEAT    , USA_EAST, GREEN },
-        { NON_PROFIT, GERMANY , GREEN },
-        { INSTITUTE , CANADA  , SMITH },
-        { NEED_BASED, SCOTLAND, TOAST },
-        { NEED_BASED, GERMANY , FAST  },
-        { NON_PROFIT, RUSSIA  , TOAST },
-        { BUSINESS  , ENGLAND , PEARL },
-        { NEED_BASED, USA_EAST, TOAST },
-        { INSTITUTE , USA_EAST, SMITH },
-        { DISCOUNT  , USA_EAST, PEARL },
-        { REPEAT    , SCOTLAND, FAST  },
-        { IMPULSE   , GERMANY , TIDY  },
-        { DISCOUNT  , CANADA  , TIDY  },
-        { IMPULSE   , USA_EAST, TIDY  },
-        { IMPULSE   , GERMANY , TIDY  },
-        { NON_PROFIT, ENGLAND , FAST  },
-        { NON_PROFIT, USA_WEST, TIDY  },
-        { REPEAT    , MEXICO  , TOAST },
-    };
-    const int numCustomerProfiles = sizeof  customerProfiles
-                                  / sizeof *customerProfiles;
+static const struct CustomerProfile {
+    CustomerCode d_customer;
+    LocationCode d_location;
+    ProjectCode  d_project;
+} customerProfiles[] = {
+    { IMPULSE   , CANADA  , SMITH },
+    { NON_PROFIT, USA_EAST, GREEN },
+    { INSTITUTE , USA_EAST, TOAST },
+    { NON_PROFIT, CANADA  , PEARL },
+    { NEED_BASED, CANADA  , FAST  },
+    { BUSINESS  , ENGLAND , PEARL },
+    { REPEAT    , SCOTLAND, TIDY  },
+    { INSTITUTE , MEXICO  , PEARL },
+    { DISCOUNT  , USA_EAST, GREEN },
+    { BUSINESS  , USA_EAST, GREEN },
+    { IMPULSE   , MEXICO  , TOAST },
+    { DISCOUNT  , GERMANY , FAST  },
+    { INSTITUTE , FRANCE  , FAST  },
+    { NON_PROFIT, ENGLAND , PEARL },
+    { BUSINESS  , ENGLAND , TIDY  },
+    { BUSINESS  , CANADA  , GREEN },
+    { INSTITUTE , FRANCE  , FAST  },
+    { IMPULSE   , RUSSIA  , TOAST },
+    { REPEAT    , USA_WEST, TOAST },
+    { IMPULSE   , CANADA  , TIDY  },
+    { NON_PROFIT, GERMANY , GREEN },
+    { INSTITUTE , USA_EAST, TOAST },
+    { INSTITUTE , FRANCE  , FAST  },
+    { IMPULSE   , SCOTLAND, SMITH },
+    { INSTITUTE , USA_EAST, PEARL },
+    { INSTITUTE , USA_EAST, TOAST },
+    { NON_PROFIT, ENGLAND , PEARL },
+    { IMPULSE   , GERMANY , FAST  },
+    { REPEAT    , GERMANY , FAST  },
+    { REPEAT    , MEXICO  , PEARL },
+    { IMPULSE   , GERMANY , TIDY  },
+    { IMPULSE   , MEXICO  , TOAST },
+    { NON_PROFIT, SCOTLAND, SMITH },
+    { NEED_BASED, MEXICO  , TOAST },
+    { NON_PROFIT, FRANCE  , SMITH },
+    { INSTITUTE , MEXICO  , TIDY  },
+    { NON_PROFIT, FRANCE  , TIDY  },
+    { IMPULSE   , FRANCE  , FAST  },
+    { DISCOUNT  , RUSSIA  , TIDY  },
+    { IMPULSE   , USA_EAST, TIDY  },
+    { IMPULSE   , USA_WEST, FAST  },
+    { NON_PROFIT, FRANCE  , TIDY  },
+    { BUSINESS  , ENGLAND , GREEN },
+    { REPEAT    , FRANCE  , TOAST },
+    { REPEAT    , RUSSIA  , SMITH },
+    { REPEAT    , RUSSIA  , GREEN },
+    { IMPULSE   , CANADA  , FAST  },
+    { NON_PROFIT, USA_EAST, FAST  },
+    { NEED_BASED, USA_WEST, TOAST },
+    { NON_PROFIT, GERMANY , TIDY  },
+    { NON_PROFIT, ENGLAND , GREEN },
+    { REPEAT    , GERMANY , PEARL },
+    { NEED_BASED, USA_EAST, PEARL },
+    { NON_PROFIT, RUSSIA  , PEARL },
+    { NEED_BASED, ENGLAND , SMITH },
+    { INSTITUTE , CANADA  , SMITH },
+    { NEED_BASED, ENGLAND , TOAST },
+    { NON_PROFIT, MEXICO  , TIDY  },
+    { BUSINESS  , GERMANY , FAST  },
+    { NEED_BASED, SCOTLAND, PEARL },
+    { NON_PROFIT, USA_WEST, TIDY  },
+    { NON_PROFIT, USA_WEST, TOAST },
+    { IMPULSE   , FRANCE  , PEARL },
+    { IMPULSE   , ENGLAND , FAST  },
+    { IMPULSE   , USA_WEST, GREEN },
+    { DISCOUNT  , MEXICO  , SMITH },
+    { INSTITUTE , GERMANY , TOAST },
+    { NEED_BASED, CANADA  , PEARL },
+    { NON_PROFIT, USA_WEST, FAST  },
+    { DISCOUNT  , RUSSIA  , SMITH },
+    { INSTITUTE , USA_WEST, GREEN },
+    { INSTITUTE , RUSSIA  , TOAST },
+    { INSTITUTE , FRANCE  , SMITH },
+    { INSTITUTE , SCOTLAND, SMITH },
+    { NON_PROFIT, ENGLAND , PEARL },
+    { NON_PROFIT, CANADA  , SMITH },
+    { NON_PROFIT, USA_EAST, TOAST },
+    { REPEAT    , FRANCE  , TOAST },
+    { NEED_BASED, FRANCE  , FAST  },
+    { DISCOUNT  , MEXICO  , TOAST },
+    { DISCOUNT  , FRANCE  , GREEN },
+    { IMPULSE   , USA_EAST, FAST  },
+    { REPEAT    , USA_EAST, GREEN },
+    { NON_PROFIT, GERMANY , GREEN },
+    { INSTITUTE , CANADA  , SMITH },
+    { NEED_BASED, SCOTLAND, TOAST },
+    { NEED_BASED, GERMANY , FAST  },
+    { NON_PROFIT, RUSSIA  , TOAST },
+    { BUSINESS  , ENGLAND , PEARL },
+    { NEED_BASED, USA_EAST, TOAST },
+    { INSTITUTE , USA_EAST, SMITH },
+    { DISCOUNT  , USA_EAST, PEARL },
+    { REPEAT    , SCOTLAND, FAST  },
+    { IMPULSE   , GERMANY , TIDY  },
+    { DISCOUNT  , CANADA  , TIDY  },
+    { IMPULSE   , USA_EAST, TIDY  },
+    { IMPULSE   , GERMANY , TIDY  },
+    { NON_PROFIT, ENGLAND , FAST  },
+    { NON_PROFIT, USA_WEST, TIDY  },
+    { REPEAT    , MEXICO  , TOAST },
+};
+const size_t numCustomerProfiles = sizeof  customerProfiles
+                                 / sizeof *customerProfiles;
 //..
 // Suppose, as the first step in analysis, we wish to determine the number of
 // unique combinations of customer attributes that exist in our data set.  We
@@ -5942,70 +5942,70 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase2()
 // ordering of the attribute values, they are merely arbitrary code numbers;
 // nothing is lost by using an unordered set instead of an ordered set:
 //..
-    class CustomerProfileHash
-    {
-      public:
-        // CREATORS
-        //! CustomerProfileHash() = default;
-            // Create a 'CustomerProfileHash' object.
+class CustomerProfileHash
+{
+  public:
+    // CREATORS
+    //! CustomerProfileHash() = default;
+        // Create a 'CustomerProfileHash' object.
 
-        //! CustomerProfileHash(const CustomerProfileHash& original) = default;
-            // Create a 'CustomerProfileHash' object.  Note that as
-            // 'CustomerProfileHash' is an empty (stateless) type, this
-            // operation will have no observable effect.
+    //! CustomerProfileHash(const CustomerProfileHash& original) = default;
+        // Create a 'CustomerProfileHash' object.  Note that as
+        // 'CustomerProfileHash' is an empty (stateless) type, this
+        // operation will have no observable effect.
 
-        //! ~CustomerProfileHash() = default;
-            // Destroy this object.
+    //! ~CustomerProfileHash() = default;
+        // Destroy this object.
 
-        // ACCESSORS
-        std::size_t operator()(CustomerProfile x) const;
-            // Return a hash value computed using the specified 'x'.
-    };
+    // ACCESSORS
+    std::size_t operator()(CustomerProfile x) const;
+        // Return a hash value computed using the specified 'x'.
+};
 //..
 // The hash function combines the several enumerated values from the class
 // (each a small 'int' value) into a single, unique 'int' value, and then
 // applying the default hash function for 'int'.  See {Practical Requirements
 // on 'HASH'}.
 //..
-    // ACCESSORS
-    std::size_t CustomerProfileHash::operator()(CustomerProfile x) const
-    {
-        return bsl::hash<int>()(x.d_location * 100 * 100
-                              + x.d_customer * 100
-                              + x.d_project);
-    }
+// ACCESSORS
+std::size_t CustomerProfileHash::operator()(CustomerProfile x) const
+{
+    return bsl::hash<int>()(x.d_location * 100 * 100
+                          + x.d_customer * 100
+                          + x.d_project);
+}
 
-    class CustomerProfileEqual
-    {
-      public:
-        // CREATORS
-        //! CustomerProfileEqual() = default;
-            // Create a 'CustomerProfileEqual' object.
+class CustomerProfileEqual
+{
+  public:
+    // CREATORS
+    //! CustomerProfileEqual() = default;
+        // Create a 'CustomerProfileEqual' object.
 
-        //! CustomerProfileEqual(const CustomerProfileEqual& original)
-        //!                                                          = default;
-            // Create a 'CustomerProfileEqual' object.  Note that as
-            // 'CustomerProfileEqual' is an empty (stateless) type, this
-            // operation will have no observable effect.
+    //! CustomerProfileEqual(const CustomerProfileEqual& original)
+    //!                                                          = default;
+        // Create a 'CustomerProfileEqual' object.  Note that as
+        // 'CustomerProfileEqual' is an empty (stateless) type, this
+        // operation will have no observable effect.
 
-        //! ~CustomerProfileEqual() = default;
-            // Destroy this object.
-
-        // ACCESSORS
-        bool operator()(const CustomerProfile& lhs,
-                        const CustomerProfile& rhs) const;
-            // Return 'true' if the specified 'lhs' have the same value as the
-            // specified 'rhs', and 'false' otherwise.
-    };
+    //! ~CustomerProfileEqual() = default;
+        // Destroy this object.
 
     // ACCESSORS
-    bool CustomerProfileEqual::operator()(const CustomerProfile& lhs,
-                                          const CustomerProfile& rhs) const
-    {
-        return lhs.d_location == rhs.d_location
-            && lhs.d_customer == rhs.d_customer
-            && lhs.d_project  == rhs.d_project;
-    }
+    bool operator()(const CustomerProfile& lhs,
+                    const CustomerProfile& rhs) const;
+        // Return 'true' if the specified 'lhs' have the same value as the
+        // specified 'rhs', and 'false' otherwise.
+};
+
+// ACCESSORS
+bool CustomerProfileEqual::operator()(const CustomerProfile& lhs,
+                                      const CustomerProfile& rhs) const
+{
+    return lhs.d_location == rhs.d_location
+        && lhs.d_customer == rhs.d_customer
+        && lhs.d_project  == rhs.d_project;
+}
 //..
 // Notice that many of the required methods of the hash and comparitor types
 // are compiler generated.  (The declaration of those methods are commented out
@@ -6013,10 +6013,10 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase2()
 //
 // Next, we define the type of the unordered set and a convenience aliases:
 //..
-    typedef bsl::unordered_set<CustomerProfile,
-                               CustomerProfileHash,
-                               CustomerProfileEqual> ProfileCategories;
-    typedef ProfileCategories::const_iterator        ProfileCategoriesConstItr;
+typedef bsl::unordered_set<CustomerProfile,
+                           CustomerProfileHash,
+                           CustomerProfileEqual> ProfileCategories;
+typedef ProfileCategories::const_iterator        ProfileCategoriesConstItr;
 //..
 
 //=============================================================================
@@ -6038,7 +6038,7 @@ int main(int argc, char *argv[])
     bslma::Default::setDefaultAllocator(&testAlloc);
 
     switch (test) { case 0:
-      case 30: {
+      case 28: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -6062,7 +6062,7 @@ int main(int argc, char *argv[])
 //..
     ProfileCategories profileCategories;
 
-    for (int idx = 0; idx < numCustomerProfiles; ++idx) {
+    for (size_t idx = 0; idx < numCustomerProfiles; ++idx) {
        profileCategories.insert(customerProfiles[idx]);
     }
 
@@ -6075,7 +6075,7 @@ int main(int argc, char *argv[])
 // profiles in this data set.
 //..
 if (verbose) {
-    printf("%d %d\n", numCustomerProfiles, profileCategories.size());
+    printf(ZU " %d\n", numCustomerProfiles, profileCategories.size());
 }
 //..
 // Standard output shows:
