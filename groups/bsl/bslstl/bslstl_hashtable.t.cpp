@@ -5824,6 +5824,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase1(
 
 
     typedef bslstl::HashTable<KEY_CONFIG, HASHER, COMPARATOR> Obj;
+    typedef typename Obj::KeyType    Key;
     typedef typename Obj::ValueType  Value;
 
     bslma::TestAllocator defaultAllocator("defaultAllocator");
@@ -5844,12 +5845,46 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase1(
     {
         // Note that 'HashTable' does not have a default constructor, so we
         // must explicitly supply a default for each attribute.
-        Obj x(HASHER(), COMPARATOR(), 0, 1.0f, &objectAllocator);
-        const Obj& X = x;
+        Obj mX(HASHER(), COMPARATOR(), 0, 1.0f, &objectAllocator);
+        const Obj& X = mX;
         ASSERTV(0    == X.size());
         ASSERTV(0    <  X.maxSize());
         ASSERTV(0    == defaultAllocator.numBytesInUse());
         ASSERTV(0    == objectAllocator.numBytesInUse());
+
+        // As a simple compile-check of the template, call every 'const'
+        // function member, unless they require a non-empty container.
+        HASHER h = X.hasher();          (void)h;
+        COMPARATOR c = X.comparator();  (void)c;
+        bsl::allocator<ValueType> a = X.allocator();
+
+        ASSERTV(0 == X.loadFactor());
+        ASSERTV(1.0f == X.maxLoadFactor());
+
+        const Key k = Key();
+        (void)X.bucketIndexForKey(k);
+
+        bslalg::BidirectionalLink *first, *last;
+        X.findRange(&first, &last, k);
+        ASSERTV(0 == first);
+        ASSERTV(0 == last);
+
+        first = X.elementListRoot();
+        last  = X.find(k);
+        ASSERTV(0 == first);
+        ASSERTV(0 == last);
+
+        ASSERTV(X.numBuckets() < X.maxNumBuckets());
+
+        bslalg::HashTableBucket bkt = X.bucketAtIndex(0); (void)bkt;
+        ASSERTV(0 == X.countElementsInBucket(0));
+
+        ASSERTV(X == X);
+        ASSERTV(!(X != X));
+
+        swap(mX, mX);
+        ASSERTV(mX == X);
+        ASSERTV(!(X != mX));
     }
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -6049,49 +6084,21 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase1(
         }
 
         for (size_t i = 0; i < numValues; ++i) {
-            Link *const initialRoot = x.elementListRoot();
+            Link *const initialRoot = X.elementListRoot();
             KeyType key = ImpUtil::extractKey<KEY_CONFIG>(initialRoot);
-            Link *resIt1 = x.remove(x.elementListRoot());
+            Link *resIt1 = x.remove(X.elementListRoot());
             ASSERTV(initialRoot != resIt1);
-            ASSERTV(initialRoot != x.elementListRoot());
-            ASSERTV(x.elementListRoot() == resIt1);
-            ASSERTV(x.find(key) == resIt1);
+            ASSERTV(initialRoot != X.elementListRoot());
+            ASSERTV(X.elementListRoot() == resIt1);
+            ASSERTV(X.find(key) == resIt1);
 
             ASSERTV(X.size(), (2 * numValues - (2 * (i + 1) - 1)) == X.size());
             Link *resIt2 = x.remove(x.elementListRoot());
             ASSERTV(x.elementListRoot() == resIt2);
             ASSERTV(resIt2 != resIt1);
-            ASSERTV(x.find(key) == 0);
+            ASSERTV(X.find(key) == 0);
             ASSERTV(X.size(), (2 * numValues - 2 * (i + 1)) == X.size());
         }
-    }
-
-    if (veryVerbose) {
-        printf("Test 'equal' and 'hasher'\n");
-    }
-
-    {
-        const Obj x(HASHER(), COMPARATOR(), 0, 1.0f, &objectAllocator);
-        const Obj& X = x;
-
-        HASHER h = X.hasher();
-        COMPARATOR c = X.comparator();
-
-        (void)h;
-        (void)c;
-    }
-
-    if (veryVerbose) {
-        printf("Call remaining functions, for basic compile-check'.\n");
-    }
-
-    {
-        Obj x(HASHER(), COMPARATOR(), 0, 1.0f, &objectAllocator);
-        const Obj& X = x;
-        (void)X.maxSize();
-        (void)X.maxNumBuckets();
-        (void)X.maxLoadFactor();
-        (void)X.loadFactor();
     }
 }
 
