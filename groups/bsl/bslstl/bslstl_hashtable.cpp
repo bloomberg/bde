@@ -72,15 +72,6 @@ size_t HashTable_ImpDetails::growBucketsForLoadFactor(size_t *capacity,
                                                       size_t  requestedBuckets,
                                                       double  maxLoadFactor)
 {
-    // Return the suggested number of buckets to index a linked list that
-    // can hold as many as the specified 'minElements' without exceeding
-    // the specified 'maxLoadFactor', and supporting at lead the specified
-    // number of 'requestedBuckets'.  Set the specified '*capacity' to the
-    // maximum length of linked list that the returned number of buckets
-    // could index without exceeding the maxLoadFactor.  The behavior is
-    // undefined unless '0 < maxLoadFactor', '0 < minElements' and
-    // '0 < requestedBuckets'.
-
     BSLS_ASSERT_SAFE(  0 != capacity);
     BSLS_ASSERT_SAFE(  0  < minElements);
     BSLS_ASSERT_SAFE(  0  < requestedBuckets);
@@ -107,6 +98,12 @@ size_t HashTable_ImpDetails::growBucketsForLoadFactor(size_t *capacity,
     };
 
 
+    // This check is why 'minElements' must be at least one - so that we do not
+    // allocate a number of buckets that cannot hold at least one element, and
+    // then throw the unexpected 'logic_error' on the first 'insert'.  We make
+    // it a pre-condition of the function, as some callers have contextual
+    // knowledge that the argument must be non-zero, and so avoid a redundant
+    // 'min' call.
     size_t result = native_std::max(
                             requestedBuckets,
                             Impl::throwIfOverMax(minElements / maxLoadFactor));

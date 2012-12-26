@@ -2780,7 +2780,7 @@ HashTable(const HashTable& original)
 , d_capacity(0)
 , d_maxLoadFactor(original.d_maxLoadFactor)
 {
-    if (d_size > 0) {
+    if (0 < d_size) {
         this->copyDataStructure(original.d_anchor.listRootAddress());
     }
 }
@@ -2826,7 +2826,7 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::copyDataStructure(
                                        const bslalg::BidirectionalLink *cursor)
 {
     BSLS_ASSERT(0 != cursor);
-    BSLS_ASSERT(d_size);
+    BSLS_ASSERT(0 < d_size);
 
     // This function will completely replace 'this->d_anchor's state.  It is
     // the caller's responsibility to ensure this will not leak resources owned
@@ -3352,10 +3352,11 @@ void HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::setMaxLoadFactor(
     if (d_capacity > 0) {
         size_t capacity;
         SizeType numBuckets =
-             HashTable_ImpDetails::growBucketsForLoadFactor(&capacity,
-                                                            d_size,
-                                                            this->numBuckets(),
-                                                            newMaxLoadFactor);
+             HashTable_ImpDetails::growBucketsForLoadFactor(
+                                         &capacity,
+                                         native_std::max<SizeType>(d_size, 1u),
+                                         this->numBuckets(),
+                                         newMaxLoadFactor);
 
         this->rehashIntoExactlyNumBuckets(numBuckets, capacity);
     }

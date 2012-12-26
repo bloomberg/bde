@@ -5839,38 +5839,40 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase1(
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-    if (veryVerbose) {
-        printf("Construct an empty HashTable.\n");
-    }
+    if (veryVerbose) printf("Construct an empty HashTable.\n");
     {
+        bslma::TestAllocator dummyAllocator("dummyAllocator");
+
         // Note that 'HashTable' does not have a default constructor, so we
         // must explicitly supply a default for each attribute.
-        Obj mX(HASHER(), COMPARATOR(), 0, 1.0f, &objectAllocator);
+        Obj mX(HASHER(), COMPARATOR(), 0, 1.0f, &dummyAllocator);
         const Obj& X = mX;
         ASSERTV(0    == X.size());
         ASSERTV(0    <  X.maxSize());
         ASSERTV(0    == defaultAllocator.numBytesInUse());
-        ASSERTV(0    == objectAllocator.numBytesInUse());
+        ASSERTV(0    == dummyAllocator.numBytesInUse());
 
+        if (veryVeryVerbose) printf("Call *all* 'const' functions.\n");
         // As a simple compile-check of the template, call every 'const'
         // function member, unless they require a non-empty container.
         HASHER h = X.hasher();          (void)h;
         COMPARATOR c = X.comparator();  (void)c;
         bsl::allocator<ValueType> a = X.allocator();
+        ASSERTV(&dummyAllocator == a.mechanism());
 
         ASSERTV(0 == X.loadFactor());
         ASSERTV(1.0f == X.maxLoadFactor());
 
-        const Key k = Key();
-        (void)X.bucketIndexForKey(k);
+        const Key K = Key();
+        (void)X.bucketIndexForKey(K);
 
         bslalg::BidirectionalLink *first, *last;
-        X.findRange(&first, &last, k);
+        X.findRange(&first, &last, K);
         ASSERTV(0 == first);
         ASSERTV(0 == last);
 
         first = X.elementListRoot();
-        last  = X.find(k);
+        last  = X.find(K);
         ASSERTV(0 == first);
         ASSERTV(0 == last);
 
@@ -5882,16 +5884,46 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase1(
         ASSERTV(X == X);
         ASSERTV(!(X != X));
 
+        if (veryVeryVerbose) printf("Call *all* modifier functions.\n");
+        // As a simple compile-check of the template, call every remaining
+        // function member.
         swap(mX, mX);
         ASSERTV(mX == X);
         ASSERTV(!(X != mX));
+
+        bslalg::BidirectionalLink *newLink = mX.insert(testValues[0]);
+        newLink = X.findEndOfRange(newLink);  // last 'const' method to check
+        newLink = mX.insert(testValues[0], X.elementListRoot());
+        mX = X;
+        mX.swap(mX);
+        ASSERTV(mX == X);
+        ASSERTV(!(X != mX));
+
+        bool missing;
+        newLink = mX.insertIfMissing(&missing, testValues[0]);
+        ASSERTV(!missing);
+        ASSERTV(X.elementListRoot() == newLink);
+
+        const ConvertibleValueWrapper<Value> val(testValues[0]);
+        newLink = mX.insertIfMissing(&missing, val);
+        ASSERTV(!missing);
+        ASSERTV(X.elementListRoot() == newLink);
+
+       // This makes sense only if 'Value' is a 'pair'.
+ //        (void)mX.insertIfMissing(K);
+ 
+        newLink = mX.remove(newLink);
+        mX.removeAll();
+
+        mX.rehashForNumBuckets(0);
+        mX.rehashForNumElements(0);
+
+        mX.setMaxLoadFactor(9e-9);
     }
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-    if (veryVerbose) {
-        printf("Test use of allocators.\n");
-    }
+    if (veryVerbose) printf("Test use of allocators.\n");
     {
         bslma::TestAllocator objectAllocator1("objectAllocator1");
         bslma::TestAllocator objectAllocator2("objectAllocator2");
@@ -6060,9 +6092,10 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase1(
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-    native_std::random_shuffle(testValues,  testValues + numValues);
     if (veryVerbose) printf("Test 'remove(bslalg::BidirectionalLink *)'.\n");
     {
+        native_std::random_shuffle(testValues,  testValues + numValues);
+
         Obj x(HASHER(), COMPARATOR(), 0, 1.0f, &objectAllocator);
         const Obj& X = x;
         for (size_t i = 0; i < numValues; ++i) {
