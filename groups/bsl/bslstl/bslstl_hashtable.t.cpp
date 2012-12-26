@@ -3610,8 +3610,9 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase9()
 
             Obj mZ(HASH, COMPARE, NUM_BUCKETS1, MAX_LF1, &scratch);
             const Obj& Z  = gg(&mZ,  SPEC1);
-            Obj mZZ(HASH, COMPARE, NUM_BUCKETS1, MAX_LF1, &scratch);
-            const Obj& ZZ = gg(&mZZ, SPEC1);
+//            Obj mZZ(HASH, COMPARE, NUM_BUCKETS1, MAX_LF1, &scratch);
+//            const Obj& ZZ = gg(&mZZ, SPEC1);
+            const Obj ZZ(Z, &scratch);
 
 
             if (veryVerbose) { T_ P_(LINE1) P_(Z) P(ZZ) }
@@ -3976,8 +3977,11 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase8()
             ASSERTV(LINE1, oam.isTotalSame());
         }
 
-        for (int lfj = 0; lfj != lfi; ++lfj) {
-        for (int tj = 0; tj < NUM_DATA; ++tj) {
+        // There is a symmetry to testing, so test only the "lower triangle"
+        // of indices.  Note that we want to support the limitting case where
+        // the indices match.
+        for (int lfj = 0; lfj <= lfi; ++lfj) {
+        for (int  tj = 0;  tj <=  ti; ++ tj) {
             const float       MAX_LF2 = DEFAULT_MAX_LOAD_FACTOR[lfj];
 
             const int         LINE2   = DATA[tj].d_line;
@@ -3986,7 +3990,6 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase8()
             const size_t      LENGTH2      = strlen(SPEC2);
             const size_t      NUM_BUCKETS2 = predictNumBuckets(LENGTH2,
                                                                MAX_LF2);
-
 
             Obj mX(XX, &oa);  const Obj& X = mX;
 
@@ -4022,85 +4025,8 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase8()
                 ASSERTV(LINE1, LINE2, oam.isTotalSame());
             }
 
-            bslma::TestAllocator oaz("z_object", veryVeryVeryVerbose);
-
-            Obj mZ(HASH, COMPARE, NUM_BUCKETS2, MAX_LF2, &oaz);
-            const Obj& Z = gg(&mZ, SPEC2);
-            const Obj ZZ(Z, &scratch);
-
-            if (veryVerbose) { T_ P_(LINE2) P_(X) P_(Y) P(YY) }
-
-            // member 'swap'
-            {
-                bslma::TestAllocatorMonitor oam(&oa);
-                bslma::TestAllocatorMonitor oazm(&oaz);
-
-                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
-                    ExceptionGuard<Obj> guardX(&X, L_, &scratch);
-                    ExceptionGuard<Obj> guardZ(&Z, L_, &scratch);
-
-                    mX.swap(mZ);
-
-                    guardX.release();
-                    guardZ.release();
-                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
-
-
-                ASSERTV(LINE1, LINE2, ZZ, X, ZZ == X);
-                ASSERTV(LINE1, LINE2, XX, Z, XX == Z);
-                ASSERTV(LINE1, LINE2, &oa == X.allocator());
-                ASSERTV(LINE1, LINE2, &oaz == Z.allocator());
-
-                if (0 == X.size()) {
-                    ASSERTV(LINE1, LINE2, oam.isTotalSame());
-                }
-                else {
-                    ASSERTV(LINE1, LINE2, oam.isTotalUp());
-                }
-
-                if (0 == Z.size()) {
-                    ASSERTV(LINE1, LINE2, oazm.isTotalSame());
-                }
-                else {
-                    ASSERTV(LINE1, LINE2, oazm.isTotalUp());
-                }
-            }
-
-            // free function 'swap'
-            {
-                bslma::TestAllocatorMonitor oam(&oa);
-                bslma::TestAllocatorMonitor oazm(&oaz);
-
-                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
-                    ExceptionGuard<Obj> guardX(&X, L_, &scratch);
-                    ExceptionGuard<Obj> guardZ(&Z, L_, &scratch);
-
-                    swap(mX, mZ);
-
-                    guardX.release();
-                    guardZ.release();
-                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
-
-                ASSERTV(LINE1, LINE2, XX, X, XX == X);
-                ASSERTV(LINE1, LINE2, ZZ, Z, ZZ == Z);
-                ASSERTV(LINE1, LINE2, &oa == X.allocator());
-                ASSERTV(LINE1, LINE2, &oaz == Z.allocator());
-
-                if (0 == X.size()) {
-                    ASSERTV(LINE1, LINE2, oam.isTotalSame());
-                }
-                else {
-                    ASSERTV(LINE1, LINE2, oam.isTotalUp());
-                }
-
-                if (0 == Z.size()) {
-                    ASSERTV(LINE1, LINE2, oazm.isTotalSame());
-                }
-                else {
-                    ASSERTV(LINE1, LINE2, oazm.isTotalUp());
-                }
-            }
-
+            // We may consider restoring a test of unequal allocators if the
+            // allocator propagate_on_container_swap trait is true.
         }
         }
     }
@@ -4134,6 +4060,87 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase8()
         ASSERT(oam.isTotalSame());
 
         if (veryVerbose) { T_ P_(X) P(Y) }
+    }
+
+    if (verbose) printf("Check our implementation of undefined behavior.\n");
+    {
+        // Ideally we would negatively test for an ASSERT in SAFE mode, and
+        // test the strongly exception-safe 'swap' only in other build modes.
+        // We will test only one 'swap' of two large containers of different
+        // sizes, and having different load factors, as well as different
+        // allocators to represent a fair test of our expected implementation
+        // of the undefine behaviour.
+
+        const float       MAX_LF1 = 0.125f;
+        const float       MAX_LF2 = 2.5f;
+        
+        const char *const SPEC1   = DATA[NUM_DATA-1].d_spec;
+        const char *const SPEC2   = DATA[NUM_DATA-2].d_spec;
+
+        const size_t      LENGTH1      = strlen(SPEC1);
+        const size_t      NUM_BUCKETS1 = predictNumBuckets(LENGTH1, MAX_LF1);
+
+        const size_t      LENGTH2      = strlen(SPEC2);
+        const size_t      NUM_BUCKETS2 = predictNumBuckets(LENGTH2, MAX_LF2);
+
+        bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
+        bslma::TestAllocator oax("x_object", veryVeryVeryVerbose);
+        bslma::TestAllocator oaz("z_object", veryVeryVeryVerbose);
+
+        Obj mX(HASH, COMPARE, NUM_BUCKETS1, MAX_LF1, &oax);
+        const Obj& X = gg(&mX, SPEC1);
+        const Obj XX(X, &scratch);
+
+        Obj mZ(HASH, COMPARE, NUM_BUCKETS2, MAX_LF2, &oaz);
+        const Obj& Z = gg(&mZ, SPEC2);
+        const Obj ZZ(Z, &scratch);
+
+        // member 'swap'
+        {
+            bslma::TestAllocatorMonitor oaxm(&oax);
+            bslma::TestAllocatorMonitor oazm(&oaz);
+
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oax) {
+                ExceptionGuard<Obj> guardX(&X, L_, &scratch);
+                ExceptionGuard<Obj> guardZ(&Z, L_, &scratch);
+
+                mX.swap(mZ);
+
+                guardX.release();
+                guardZ.release();
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+
+
+            ASSERTV(ZZ, X, ZZ == X);
+            ASSERTV(XX, Z, XX == Z);
+            ASSERTV(&oax == X.allocator());
+            ASSERTV(&oaz == Z.allocator());
+
+            // Concerns about allocated memory?
+        }
+
+        // free function 'swap'
+        {
+            bslma::TestAllocatorMonitor oaxm(&oax);
+            bslma::TestAllocatorMonitor oazm(&oaz);
+
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oax) {
+                ExceptionGuard<Obj> guardX(&X, L_, &scratch);
+                ExceptionGuard<Obj> guardZ(&Z, L_, &scratch);
+
+                swap(mX, mZ);
+
+                guardX.release();
+                guardZ.release();
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+
+            ASSERTV(XX, X, XX == X);
+            ASSERTV(ZZ, Z, ZZ == Z);
+            ASSERTV(&oax == X.allocator());
+            ASSERTV(&oaz == Z.allocator());
+
+            // Concerns about allocated memory?
+        }
     }
 }
 
