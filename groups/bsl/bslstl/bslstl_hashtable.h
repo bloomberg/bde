@@ -2412,8 +2412,9 @@ template <class FUNCTOR>
 inline
 void HashTable_HashWrapper<FUNCTOR>::swap(HashTable_HashWrapper &other)
 {
-    using std::swap;
-    swap(d_functor, other.d_functor);
+    bslalg::SwapUtil::swap(
+                static_cast<FUNCTOR*>(bsls::Util::addressOf(d_functor)),
+                static_cast<FUNCTOR*>(bsls::Util::addressOf(other.d_functor)));
 }
 
                    // ---------------------------------
@@ -2456,8 +2457,9 @@ inline
 void
 HashTable_ComparatorWrapper<FUNCTOR>::swap(HashTable_ComparatorWrapper &other)
 {
-    using std::swap;
-    swap(d_functor, other.d_functor);
+    bslalg::SwapUtil::swap(
+                static_cast<FUNCTOR*>(bsls::Util::addressOf(d_functor)),
+                static_cast<FUNCTOR*>(bsls::Util::addressOf(other.d_functor)));
 }
 
                     // ---------------------------
@@ -2581,8 +2583,6 @@ void
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::ImplParameters::
 quickSwapRetainAllocators(ImplParameters& other)
 {
-    using native_std::swap;  // otherwise it is hidden by this very definition!
-
     bslalg::SwapUtil::swap(
                    static_cast<HasherBaseType*>(this),
                    static_cast<HasherBaseType*>(bsls::Util::addressOf(other)));
@@ -2600,8 +2600,6 @@ void
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::ImplParameters::
 quickSwapExchangeAllocators(ImplParameters& other)
 {
-    using native_std::swap;  // otherwise it is hidden by this very definition!
-
     bslalg::SwapUtil::swap(
                    static_cast<HasherBaseType*>(this),
                    static_cast<HasherBaseType*>(bsls::Util::addressOf(other)));

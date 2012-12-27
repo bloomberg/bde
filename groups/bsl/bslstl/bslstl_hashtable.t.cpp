@@ -529,6 +529,18 @@ struct ExceptionGuard {
         // to supply memory.
     {}
 
+    template <class ALLOCATOR>
+    ExceptionGuard(const OBJECT     *object,
+                   int               line,
+                   const ALLOCATOR&  basicAllocator)
+    : d_line(line)
+    , d_copy(*object, basicAllocator)
+    , d_object_p(object)
+        // Create the exception guard for the specified 'object' at the
+        // specified 'line' number.  Optionally, specify 'basicAllocator' used
+        // to supply memory.
+    {}
+
     ~ExceptionGuard()
         // Destroy the exception guard.  If the guard was not released, verify
         // that the state of the object supplied at construction has not
@@ -3906,6 +3918,8 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase8()
     if (verbose) printf("\nSWAP MEMBER AND FREE FUNCTIONS"
                         "\n==============================\n");
 
+    typedef MakeAllocator<ALLOCATOR> AllocMaker;
+
     if (verbose) printf(
                      "\nAssign the address of each function to a variable.\n");
     {
@@ -3949,9 +3963,12 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase8()
         bslma::TestAllocator      oa("object",  veryVeryVeryVerbose);
         bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
-        Obj mW(HASH, COMPARE, NUM_BUCKETS1, MAX_LF1, &oa);
+        const ALLOCATOR scratchAlloc = AllocMaker::make(&scratch);
+        const ALLOCATOR objAlloc     = AllocMaker::make(&oa);
+
+        Obj mW(HASH, COMPARE, NUM_BUCKETS1, MAX_LF1, objAlloc);
         const Obj& W = gg(&mW,  SPEC1);
-        const Obj XX(W, &scratch);
+        const Obj XX(W, scratchAlloc);
 
         if (veryVerbose) { T_ P_(LINE1) P_(W) P(XX) }
 
@@ -3962,7 +3979,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase8()
             mW.swap(mW);
 
             ASSERTV(LINE1, XX, W, XX == W);
-            ASSERTV(LINE1, &oa == W.allocator());
+            ASSERTV(LINE1, objAlloc == W.allocator());
             ASSERTV(LINE1, oam.isTotalSame());
         }
 
@@ -3973,7 +3990,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase8()
             swap(mW, mW);
 
             ASSERTV(LINE1, XX, W, XX == W);
-            ASSERTV(LINE1, &oa == W.allocator());
+            ASSERTV(LINE1, objAlloc == W.allocator());
             ASSERTV(LINE1, oam.isTotalSame());
         }
 
@@ -3991,11 +4008,11 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase8()
             const size_t      NUM_BUCKETS2 = predictNumBuckets(LENGTH2,
                                                                MAX_LF2);
 
-            Obj mX(XX, &oa);  const Obj& X = mX;
+            Obj mX(XX, objAlloc);  const Obj& X = mX;
 
-            Obj mY(HASH, COMPARE, NUM_BUCKETS2, MAX_LF2, &oa);
+            Obj mY(HASH, COMPARE, NUM_BUCKETS2, MAX_LF2, objAlloc);
             const Obj& Y = gg(&mY, SPEC2);
-            const Obj YY(Y, &scratch);
+            const Obj YY(Y, scratchAlloc);
 
             if (veryVerbose) { T_ P_(LINE2) P_(X) P_(Y) P(YY) }
 
@@ -4007,8 +4024,8 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase8()
 
                 ASSERTV(LINE1, LINE2, YY, X, YY == X);
                 ASSERTV(LINE1, LINE2, XX, Y, XX == Y);
-                ASSERTV(LINE1, LINE2, &oa == X.allocator());
-                ASSERTV(LINE1, LINE2, &oa == Y.allocator());
+                ASSERTV(LINE1, LINE2, objAlloc == X.allocator());
+                ASSERTV(LINE1, LINE2, objAlloc == Y.allocator());
                 ASSERTV(LINE1, LINE2, oam.isTotalSame());
             }
 
@@ -4020,8 +4037,8 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase8()
 
                 ASSERTV(LINE1, LINE2, XX, X, XX == X);
                 ASSERTV(LINE1, LINE2, YY, Y, YY == Y);
-                ASSERTV(LINE1, LINE2, &oa == X.allocator());
-                ASSERTV(LINE1, LINE2, &oa == Y.allocator());
+                ASSERTV(LINE1, LINE2, objAlloc == X.allocator());
+                ASSERTV(LINE1, LINE2, objAlloc == Y.allocator());
                 ASSERTV(LINE1, LINE2, oam.isTotalSame());
             }
 
@@ -4040,12 +4057,15 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase8()
         bslma::TestAllocator      oa("object",  veryVeryVeryVerbose);
         bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
-        Obj mX(HASH, COMPARE, 0, 1.0f, &oa);  const Obj& X = mX;
-        const Obj XX(X, &scratch);
+        const ALLOCATOR scratchAlloc = AllocMaker::make(&scratch);
+        const ALLOCATOR objAlloc     = AllocMaker::make(&oa);
 
-        Obj mY(HASH, COMPARE, 40, 0.1f, &oa);
+        Obj mX(HASH, COMPARE, 0, 1.0f, objAlloc);  const Obj& X = mX;
+        const Obj XX(X, scratchAlloc);
+
+        Obj mY(HASH, COMPARE, 40, 0.1f, objAlloc);
         const Obj& Y = gg(&mY, "ABC");
-        const Obj YY(Y, &scratch);
+        const Obj YY(Y, scratchAlloc);
 
         if (veryVerbose) { T_ P_(X) P(Y) }
 
@@ -4087,13 +4107,17 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase8()
         bslma::TestAllocator oax("x_object", veryVeryVeryVerbose);
         bslma::TestAllocator oaz("z_object", veryVeryVeryVerbose);
 
-        Obj mX(HASH, COMPARE, NUM_BUCKETS1, MAX_LF1, &oax);
-        const Obj& X = gg(&mX, SPEC1);
-        const Obj XX(X, &scratch);
+        const ALLOCATOR scratchAlloc = AllocMaker::make(&scratch);
+        const ALLOCATOR oaxAlloc     = AllocMaker::make(&oax);
+        const ALLOCATOR oazAlloc     = AllocMaker::make(&oaz);
 
-        Obj mZ(HASH, COMPARE, NUM_BUCKETS2, MAX_LF2, &oaz);
+        Obj mX(HASH, COMPARE, NUM_BUCKETS1, MAX_LF1, oaxAlloc);
+        const Obj& X = gg(&mX, SPEC1);
+        const Obj XX(X, scratchAlloc);
+
+        Obj mZ(HASH, COMPARE, NUM_BUCKETS2, MAX_LF2, oazAlloc);
         const Obj& Z = gg(&mZ, SPEC2);
-        const Obj ZZ(Z, &scratch);
+        const Obj ZZ(Z, scratchAlloc);
 
         // member 'swap'
         {
@@ -4101,8 +4125,8 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase8()
             bslma::TestAllocatorMonitor oazm(&oaz);
 
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oax) {
-                ExceptionGuard<Obj> guardX(&X, L_, &scratch);
-                ExceptionGuard<Obj> guardZ(&Z, L_, &scratch);
+                ExceptionGuard<Obj> guardX(&X, L_, scratchAlloc);
+                ExceptionGuard<Obj> guardZ(&Z, L_, scratchAlloc);
 
                 mX.swap(mZ);
 
@@ -4113,8 +4137,8 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase8()
 
             ASSERTV(ZZ, X, ZZ == X);
             ASSERTV(XX, Z, XX == Z);
-            ASSERTV(&oax == X.allocator());
-            ASSERTV(&oaz == Z.allocator());
+            ASSERTV(oaxAlloc == X.allocator());
+            ASSERTV(oazAlloc == Z.allocator());
 
             // Concerns about allocated memory?
         }
@@ -4125,8 +4149,8 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase8()
             bslma::TestAllocatorMonitor oazm(&oaz);
 
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oax) {
-                ExceptionGuard<Obj> guardX(&X, L_, &scratch);
-                ExceptionGuard<Obj> guardZ(&Z, L_, &scratch);
+                ExceptionGuard<Obj> guardX(&X, L_, scratchAlloc);
+                ExceptionGuard<Obj> guardZ(&Z, L_, scratchAlloc);
 
                 swap(mX, mZ);
 
@@ -4136,8 +4160,8 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase8()
 
             ASSERTV(XX, X, XX == X);
             ASSERTV(ZZ, Z, ZZ == Z);
-            ASSERTV(&oax == X.allocator());
-            ASSERTV(&oaz == Z.allocator());
+            ASSERTV(oaxAlloc == X.allocator());
+            ASSERTV(oazAlloc == Z.allocator());
 
             // Concerns about allocated memory?
         }
@@ -7851,25 +7875,115 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nMANIPULATOR AND FREE FUNCTION 'swap'"
                             "\n====================================\n");
 
+        if (verbose) printf("\nTesting basic configurations"
+                            "\n----------------------------\n");
         RUN_EACH_TYPE(TestDriver_BasicConfiguation,
                       testCase8,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
                       bsltf::NonAssignableTestType,
                       bsltf::NonDefaultConstructibleTestType);
 
+        if (verbose) printf("\nTesting stateful functors"
+                            "\n-------------------------\n");
         RUN_EACH_TYPE(TestDriver_StatefulConfiguation,
                       testCase8,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
                       bsltf::NonAssignableTestType,
                       bsltf::NonDefaultConstructibleTestType);
 
+        if (verbose) printf("\nTesting degenerate functors"
+                            "\n---------------------------\n");
         RUN_EACH_TYPE(TestDriver_DegenerateConfiguation,
                       testCase8,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      bsltf::NonAssignableTestType,
+                      bsltf::NonDefaultConstructibleTestType);
+
+        if (verbose) printf("\nTesting 'bsltf' configuration"
+                            "\n-----------------------------\n");
+        RUN_EACH_TYPE(TestDriver_BsltfConfiguation,
+                      testCase8,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      bsltf::NonAssignableTestType,
+                      bsltf::NonDefaultConstructibleTestType);
+
+        if (verbose) printf("\nTesting pointers for functors"
+                            "\n-----------------------------\n");
+        RUN_EACH_TYPE(TestDriver_FunctionPointers,
+                      testCase8,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      bsltf::NonAssignableTestType,
+                      bsltf::NonDefaultConstructibleTestType);
+
+        if (verbose) printf("\nTesting functors taking generic arguments"
+                            "\n-----------------------------------------\n");
+        RUN_EACH_TYPE(TestDriver_GenericFunctors,
+                      testCase8,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      bsltf::NonAssignableTestType,
+                      bsltf::NonDefaultConstructibleTestType);
+
+#if 0
+        // Revisit these tests once validated the rest.
+        // Initial problem are testing the stateless allocator while trying
+        // to separately configure a default and an object allocator.
+        // Obvious problems with allocator-propagating tests, given the driver
+        // currently expects to never propagate.
+        if (verbose) printf("\nTesting stateless STL allocators"
+                            "\n--------------------------------\n");
+        RUN_EACH_TYPE(TestDriver_StdAllocatorConfiguation,
+                      testCase8,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      bsltf::NonAssignableTestType,
+                      bsltf::NonDefaultConstructibleTestType);
+#endif
+
+        if (verbose) printf("\nTesting stateful STL allocators"
+                            "\n-------------------------------\n");
+        RUN_EACH_TYPE(TestDriver_StatefulAllocatorConfiguation1,
+                      testCase8,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      bsltf::NonAssignableTestType,
+                      bsltf::NonDefaultConstructibleTestType);
+
+        RUN_EACH_TYPE(TestDriver_StatefulAllocatorConfiguation2,
+                      testCase8,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      bsltf::NonAssignableTestType,
+                      bsltf::NonDefaultConstructibleTestType);
+
+        RUN_EACH_TYPE(TestDriver_StatefulAllocatorConfiguation3,
+                      testCase8,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      bsltf::NonAssignableTestType,
+                      bsltf::NonDefaultConstructibleTestType);
+
+        // Be sure to bootstrap the special 'grouped' configurations used in
+        // test case 6.
+        if (verbose) printf("\nTesting grouped hash with unique key values"
+                            "\n-------------------------------------------\n");
+        RUN_EACH_TYPE(TestCase_GroupedUniqueKeys,
+                      testCase8,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      bsltf::NonAssignableTestType,
+                      bsltf::NonDefaultConstructibleTestType);
+
+        RUN_EACH_TYPE(TestCase_GroupedUniqueKeys,
+                      testCase8,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      bsltf::NonAssignableTestType,
+                      bsltf::NonDefaultConstructibleTestType);
+
+        RUN_EACH_TYPE(TestCase6_DegenerateConfiguration,
+                      testCase8,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
                       bsltf::NonAssignableTestType,
                       bsltf::NonDefaultConstructibleTestType);
 
         // Remaining special cases
+        if (verbose) printf("\nTesting degenerate map-like"
+                            "\n---------------------------\n");
         TestDriver_AwkwardMaplike::testCase8();
-
      } break;
       case 7: {
         // --------------------------------------------------------------------
