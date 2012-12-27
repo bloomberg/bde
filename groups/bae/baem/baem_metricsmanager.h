@@ -36,7 +36,24 @@ BDES_IDENT("$Id: $")
 ///-------------
 // 'baem_MetricsManager' is fully *thread-safe*, meaning that all non-creator
 // operations on a given instance can be safely invoked simultaneously from
-// multiple threads.
+// multiple threads.  
+//
+// The concrete implementations of the virtual 'publish' method of the 
+// 'baem_Publisher' objects registered with 'baem_MetricsManager' may not 
+// invoke 'publish' on that same object; but there are no other special 
+// threading considerations when implementing these methods.  That is, other
+// than the requirement that 'baem_Publisher::publish' implementations may not
+// (directly or indirectly) invoke 'baem_MetricsManager::publish', these 
+// functions may perform any other synchronization operations.  
+
+// However, the implementations of 
+// 'baem_MetricsManager::RecordsCollectionCallback' registered with a 
+// 'baem_MetricsManager' will be invoked by a function holding mutex locks in
+// that 'baem_MetricsManager'.  If these functions themselves lock any other 
+// mutexes, and those mutexes can be locked by functions that invoke any 
+// methods of 'baem_MetricsManager', there can be a deadlock.  So 
+// implementations of 'RecordsCollectionCallback' should avoid any blocking
+// synchronization operations.  
 //
 ///Usage
 ///-----
