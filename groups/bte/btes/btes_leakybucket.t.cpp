@@ -535,25 +535,25 @@ int main(int argc, char *argv[])
         //   rate when used in real application.
         //
         // Concerns:
-        //   1 'btes_LeakyBucket' keeps specified load rate and allows
-        //     deviation from the specified rate no bigger than the
-        //     'capacity' divided by total amount of sent data.
+        //: 1 'btes_LeakyBucket' keeps specified load rate and allows
+        //:   deviation from the specified rate no bigger than the
+        //:   'capacity' divided by total amount of sent data.
         //
         // Plan:
-        //  1 Using table-driven technique:
-        //
-        //    1 Define the set of values, containing values of 'rate' and
-        //      'capacity' attributes, size of chunks, data is divided on,
-        //      test duration and the values of maximum deviation of actual
-        //      time it took to send data from the specified test
-        //      duration.
-        //
-        //  2 Use the 'testLB' function to simulate operations with LB
-        //    in actual application with different parameters
-        //    ('rate' and 'capacity').
-        //
-        //  3 Verify that that the difference between the specified and
-        //    measured rate does not exceed allowed limits.
+        //: 1 Using table-driven technique:
+        //:
+        //:   1 Define the set of values, containing values of 'rate' and
+        //:     'capacity' attributes, size of chunks, data is divided on,
+        //:     test duration and the values of maximum deviation of actual
+        //:     time it took to send data from the specified test
+        //:     duration.
+        //:
+        //: 2 Use the 'testLB' function to simulate operations with LB
+        //:   in actual application with different parameters
+        //:   ('rate' and 'capacity').
+        //:
+        //: 3 Verify that that the difference between the specified and
+        //:   measured rate does not exceed allowed limits.
         //
         // Testing:
         //   void submit(unsigned int numOfUnits);
@@ -1131,43 +1131,43 @@ int main(int argc, char *argv[])
         //   state.
         //
         // Concerns:
-        //   1 The values of 'rate' and 'capacity attributes' is not affected
-        //     by the 'reset' method.
-        //
-        //   2 'reset' method resets the object to its default-constructed
-        //     state and sets 'lastUpdateTime' correctly.
-        //
-        //   3 'reset' method updates the value of
-        //     'statisticsCollectionStartTime' attribute and resets the
-        //     statistics counter.
+        //: 1 The values of 'rate' and 'capacity attributes' is not affected
+        //:   by the 'reset' method.
+        //:
+        //: 2 'reset' method resets the object to its default-constructed
+        //:   state and sets 'lastUpdateTime' correctly.
+        //:
+        //: 3 'reset' method updates the value of
+        //:   'statisticsCollectionStartTime' attribute and resets the
+        //:   statistics counter.
         //
         // Plan:
-        //   1 Define the values of object parameters ('rate' and 'capacity'
-        //     attributes) that will be used throughout the test.
-        //
-        //   2 Using table-driven technique:
-        //
-        //     1 Define the set of values, containing the time of object
-        //       creation, number of units to be submitted and the time
-        //       of resetting object state, including the boundary values
-        //       corresponding to every range of values that each
-        //       individual attribute can independently attain.
-        //
-        //   3 For each row of the table described in P-2
-        //
-        //     1 Create an object with the specified parameters using the value
-        //       constructor.
-        //
-        //     2 Submit and reserve units, using the 'submit' and 'reserve'
-        //       manipulator.
-        //
-        //     3 Invoke the 'reset' manipulator.
-        //
-        //     4 Verify the object attributes that must not be affected by the
-        //       'reset' manipulator.  (C-1)
-        //
-        //     5 Verify the object attributes that are to be reset by the
-        //       'reset' manipulator.  (C-2..3)
+        //: 1 Define the values of object parameters ('rate' and 'capacity'
+        //:   attributes) that will be used throughout the test.
+        //:
+        //: 2 Using table-driven technique:
+        //:
+        //:   1 Define the set of values, containing the time of object
+        //:     creation, number of units to be submitted and the time
+        //:     of resetting object state, including the boundary values
+        //:     corresponding to every range of values that each
+        //:     individual attribute can independently attain.
+        //:
+        //: 3 For each row of the table described in P-2
+        //:
+        //:   1 Create an object with the specified parameters using the value
+        //:     constructor.
+        //:
+        //:   2 Submit and reserve units, using the 'submit' and 'reserve'
+        //:     manipulator.
+        //:
+        //:   3 Invoke the 'reset' manipulator.
+        //:
+        //:   4 Verify the object attributes that must not be affected by the
+        //:     'reset' manipulator.  (C-1)
+        //:
+        //:   5 Verify the object attributes that are to be reset by the
+        //:     'reset' manipulator.  (C-2..3)
         //
         // Testing:
         //   void reset(const bdet_TimeInterval& currentTime);
@@ -1249,33 +1249,33 @@ int main(int argc, char *argv[])
         //   statistics to its default-constructed state.
         //
         // Concerns:
-        //   1 'resetStatistics' resets unit statistics counter to 0.
-        //
-        //   2 'resetStatistics' updates 'statisticsCollectionStartTime' time
-        //      correctly.
-        //
-        //   3 'resetStatistics' does not alter object state except for
-        //     submitted units counter and 'statisticsCollectionStartTime'
-        //     time.
+        //: 1 'resetStatistics' resets unit statistics counter to 0.
+        //:
+        //: 2 'resetStatistics' updates 'statisticsCollectionStartTime' time
+        //:    correctly.
+        //:
+        //: 3 'resetStatistics' does not alter object state except for
+        //:   submitted units counter and 'statisticsCollectionStartTime'
+        //:   time.
         //
         // Plan:
-        //   1 Define the object parameters.
-        //
-        //   2 Create an object using the value constructor.
-        //
-        //   3 Submit some units and verify values returned by the
-        //     'getStatistics' accessor.
-        //
-        //   4 Invoke the 'resetStatistics' manipulator.
-        //
-        //   5 Invoke the 'getStatistics' accessor.  Verify returned values.
-        //     (C-1)
-        //
-        //   6 Verify value of the 'statisticsCollectionStartTime' attribute.
-        //     (C-2)
-        //
-        //   7 Verify the values of other object attributes ensure, that they
-        //     were not affected by the 'resetStatistics' manipulator.  (C-3)
+        //: 1 Define the object parameters.
+        //:
+        //: 2 Create an object using the value constructor.
+        //:
+        //: 3 Submit some units and verify values returned by the
+        //:   'getStatistics' accessor.
+        //:
+        //: 4 Invoke the 'resetStatistics' manipulator.
+        //:
+        //: 5 Invoke the 'getStatistics' accessor.  Verify returned values.
+        //:   (C-1)
+        //:
+        //: 6 Verify value of the 'statisticsCollectionStartTime' attribute.
+        //:   (C-2)
+        //:
+        //: 7 Verify the values of other object attributes ensure, that they
+        //:   were not affected by the 'resetStatistics' manipulator.  (C-3)
         //
         // Testing:
         //   void resetStatistics();
@@ -1330,62 +1330,62 @@ int main(int argc, char *argv[])
         //   numbers of used and unused units.
         //
         // Concerns:
-        //   1 'getStatistics' returns 0 for a new object, created by default
-        //     CTOR.
-        //
-        //   2 'getStatistics' returns 0 for a new object, created by value
-        //     CTOR.
-        //
-        //   3 'getStatistics' returns correct numbers of used and unused units
-        //     after a sequence of 'submit' and 'updateState' calls.
-        //
-        //   4 Specifying invalid parameters for 'getStatistics' causes certain
-        //     behavior in special build configuration.
-        //
-        //   5 Statistics is calculated for interval between
-        //     'statisticsCollectionStartTime' and 'lastUpdateTime'.
-        //
-        //   6 Statistics is calculated correctly, if time specified to
-        //     'updateState' precedes 'statisticsCollectionStartTime'.
+        //: 1 'getStatistics' returns 0 for a new object, created by default
+        //:   CTOR.
+        //:
+        //: 2 'getStatistics' returns 0 for a new object, created by value
+        //:   CTOR.
+        //:
+        //: 3 'getStatistics' returns correct numbers of used and unused units
+        //:   after a sequence of 'submit' and 'updateState' calls.
+        //:
+        //: 4 Specifying invalid parameters for 'getStatistics' causes certain
+        //:   behavior in special build configuration.
+        //:
+        //: 5 Statistics is calculated for interval between
+        //:   'statisticsCollectionStartTime' and 'lastUpdateTime'.
+        //:
+        //: 6 Statistics is calculated correctly, if time specified to
+        //:   'updateState' precedes 'statisticsCollectionStartTime'.
         //
         // Plan:
-        //   1 Construct the object using the default constructor and verify
-        //     the values returned by the 'getStatistics' method.
-        //
-        //   2 Construct the object using the value constructor and verify the
-        //     values returned by the 'getStatistics' method.
-        //
-        //   4 Using table-driven technique:
-        //
-        //     1 Define the set of values, containing the 'rate' parameter,
-        //       number of units to submit at each iteration, interval between
-        //       'updateState' invocations, number of 'submit' and
-        //       'updateState' invocations and expected numbers of used and
-        //       unused units after the foregoing operations.
-        //
-        //   5 For each row of the table described in P-3
-        //
-        //     1 Create an object with the specified parameters.
-        //
-        //     2 Execute the inner loop, invoking 'submit' and 'updateState'
-        //       methods the specified number of times.
-        //
-        //     3 Invoke the 'getStatistics' method and verify the returned
-        //       numbers of used and unused units.
-        //
-        //   6 Create an object, submit some units, invoke the 'updateState'
-        //     manipulator several times and verify the values returned by the
-        //     'getStatistics' method between the 'updateState' invocations.
-        //
-        //   7 Create an object specifying lastUpdateTime 'T1', submit some
-        //     units, invoke the 'updateState' manipulator specifying
-        //     lastUpdateTime 'T2', that is before 'T1' and verify the values
-        //     returned by 'getStatistics'.  Invoke 'updateState' again,
-        //     specifying lastUpdateTime 'T3', that is after 'T2', verify the
-        //     values, returned by 'getStatistics'.
-        //
-        //   8 Verify that, in appropriate build modes, defensive checks
-        //     are triggered for invalid parameters.
+        //: 1 Construct the object using the default constructor and verify
+        //:   the values returned by the 'getStatistics' method.
+        //:
+        //: 2 Construct the object using the value constructor and verify the
+        //:   values returned by the 'getStatistics' method.
+        //:
+        //: 4 Using table-driven technique:
+        //:
+        //:   1 Define the set of values, containing the 'rate' parameter,
+        //:     number of units to submit at each iteration, interval between
+        //:     'updateState' invocations, number of 'submit' and
+        //:     'updateState' invocations and expected numbers of used and
+        //:     unused units after the foregoing operations.
+        //:
+        //: 5 For each row of the table described in P-3
+        //:
+        //:   1 Create an object with the specified parameters.
+        //:
+        //:   2 Execute the inner loop, invoking 'submit' and 'updateState'
+        //:     methods the specified number of times.
+        //:
+        //:   3 Invoke the 'getStatistics' method and verify the returned
+        //:     numbers of used and unused units.
+        //:
+        //: 6 Create an object, submit some units, invoke the 'updateState'
+        //:   manipulator several times and verify the values returned by the
+        //:   'getStatistics' method between the 'updateState' invocations.
+        //:
+        //: 7 Create an object specifying lastUpdateTime 'T1', submit some
+        //:   units, invoke the 'updateState' manipulator specifying
+        //:   lastUpdateTime 'T2', that is before 'T1' and verify the values
+        //:   returned by 'getStatistics'.  Invoke 'updateState' again,
+        //:   specifying lastUpdateTime 'T3', that is after 'T2', verify the
+        //:   values, returned by 'getStatistics'.
+        //:
+        //: 8 Verify that, in appropriate build modes, defensive checks
+        //:   are triggered for invalid parameters.
         //
         // Testing:
         //   void btes_LeakyBucket::getStatistics(smtUnits, unusedUnits) const;
@@ -1571,46 +1571,46 @@ int main(int argc, char *argv[])
         //   correctly update 'unitsReserved' and 'unitsInBucket' attributes.
         //
         // Concerns:
-        //   1 'cancelReserved' decrements 'unitsReserved', without
-        //      affecting any other attributes.
-        //
-        //   2 'submitReserved' decrements 'unitsReserved' and increments
-        //     'unitsInBucket'
-        //
-        //   3 'submitReserved' submits units disregarding state of object.
-        //
-        //   4 QoI: Asserted precondition violations in the
-        //     'submitReserved' manipulator are detected when enabled.
+        //: 1 'cancelReserved' decrements 'unitsReserved', without
+        //:    affecting any other attributes.
+        //:
+        //: 2 'submitReserved' decrements 'unitsReserved' and increments
+        //:   'unitsInBucket'
+        //:
+        //: 3 'submitReserved' submits units disregarding state of object.
+        //:
+        //: 4 QoI: Asserted precondition violations in the
+        //:   'submitReserved' manipulator are detected when enabled.
         //
         // Plan:
-        //   1 Define the object parameters, that will be used throughout
-        //     the test.  The 'rate' and 'capacity' parameters do not affect
-        //     the behavior of 'submitReserved' and 'cancelReserved'
-        //     manipulators, so they are used for the whole test set.
-        //
-        //   2 Using the table-driven technique:
-        //
-        //     1 Define the set of values, containing number of units to be
-        //       reserved and the numbers of units to be submitted and
-        //       canceled from the reservation.
-        //
-        //   3 For each row in the table, defined in P-2:
-        //
-        //     1 Create an object having the specified parameters.
-        //
-        //     2 Reserve the specified number of units,
-        //
-        //     3 Invoke the 'submitReserved' and 'cancelReserved'
-        //       manipulators with the specified numbers of units to be
-        //       submitted and canceled.
-        //
-        //     4 Verify values of the 'unitsReserved' and 'unitsSubmitted'
-        //       attributes.  (C-1..3)
-        //
-        //   4 Verify that, in appropriate build modes, defensive checks
-        //     are triggered for invalid attribute values, but not
-        //     triggered for adjacent valid ones (using the
-        //     'BSLS_ASSERTTEST_*' macros).  (C-4)
+        //: 1 Define the object parameters, that will be used throughout
+        //:   the test.  The 'rate' and 'capacity' parameters do not affect
+        //:   the behavior of 'submitReserved' and 'cancelReserved'
+        //:   manipulators, so they are used for the whole test set.
+        //:
+        //: 2 Using the table-driven technique:
+        //:
+        //:   1 Define the set of values, containing number of units to be
+        //:     reserved and the numbers of units to be submitted and
+        //:     canceled from the reservation.
+        //:
+        //: 3 For each row in the table, defined in P-2:
+        //:
+        //:   1 Create an object having the specified parameters.
+        //:
+        //:   2 Reserve the specified number of units,
+        //:
+        //:   3 Invoke the 'submitReserved' and 'cancelReserved'
+        //:     manipulators with the specified numbers of units to be
+        //:     submitted and canceled.
+        //:
+        //:   4 Verify values of the 'unitsReserved' and 'unitsSubmitted'
+        //:     attributes.  (C-1..3)
+        //:
+        //: 4 Verify that, in appropriate build modes, defensive checks
+        //:   are triggered for invalid attribute values, but not
+        //:   triggered for adjacent valid ones (using the
+        //:   'BSLS_ASSERTTEST_*' macros).  (C-4)
         //
         // Testing:
         //    void submitReserved(bsls_Types::Unit64 numOfUnits);
@@ -1707,36 +1707,36 @@ int main(int argc, char *argv[])
         //   operate correctly, once invoked sequentially.
         //
         // Concerns:
-        //   1 'wouldOverflow', 'submit', 'reserve' methods operate
-        //      correctly, once invoked sequentially.
+        //: 1 'wouldOverflow', 'submit', 'reserve' methods operate
+        //:    correctly, once invoked sequentially.
         //
         // Plan:
-        //   1 Using the table-driven technique:
-        //
-        //     1 Define the set of values, the row per each test case,
-        //       containing the values for 'rate', 'capacity' and
-        //       'lastUpdateTime' attributes, numbers of units to submit and
-        //       reserve, the time interval between checking, whether
-        //       submitting more units is allowed at current time, the expected
-        //       number of allowed 'submit' operations and the expected number
-        //       of units, after performing the foregoing number of 'submit'
-        //       invocations.
-        //
-        //   2 For each row in the table, defined in P-1:
-        //
-        //     1 Create an object having specified parameters using the value
-        //       constructor.
-        //
-        //     2 Invoke the 'reserve' manipulator to reserve the specified
-        //       number of units.
-        //
-        //     3 Execute in a loop until 'wouldOverflow' manipulator will
-        //       return 'true', and invoke the 'submit' manipulator.  Increment
-        //       the time that is passed to 'wouldOverflow' on each iteration
-        //       to simulate time flow.  (C-1)
-        //
-        //     4 Verify the value of 'unitsInBucket' attributes and the actual
-        //       number of loop iterations.
+        //: 1 Using the table-driven technique:
+        //:
+        //:   1 Define the set of values, the row per each test case,
+        //:     containing the values for 'rate', 'capacity' and
+        //:     'lastUpdateTime' attributes, numbers of units to submit and
+        //:     reserve, the time interval between checking, whether
+        //:     submitting more units is allowed at current time, the expected
+        //:     number of allowed 'submit' operations and the expected number
+        //:     of units, after performing the foregoing number of 'submit'
+        //:     invocations.
+        //:
+        //: 2 For each row in the table, defined in P-1:
+        //:
+        //:   1 Create an object having specified parameters using the value
+        //:     constructor.
+        //:
+        //:   2 Invoke the 'reserve' manipulator to reserve the specified
+        //:     number of units.
+        //:
+        //:   3 Execute in a loop until 'wouldOverflow' manipulator will
+        //:     return 'true', and invoke the 'submit' manipulator.  Increment
+        //:     the time that is passed to 'wouldOverflow' on each iteration
+        //:     to simulate time flow.  (C-1)
+        //:
+        //:   4 Verify the value of 'unitsInBucket' attributes and the actual
+        //:     number of loop iterations.
         //
         // Testing:
         //    bool wouldOverflow(numOfUnits, currentTime);
@@ -1812,56 +1812,56 @@ int main(int argc, char *argv[])
         //   updates the state of object in the contractually specified cases.
         //
         // Concerns:
-        //   1 The method returns true, if there is room for the specified
-        //     number of units and false otherwise.
-        //
-        //   2 The method invokes 'updateState', if needed.
-        //
-        //   4 The method does not change the state of object, if the time has
-        //     not changed.
-        //
-        //   5 If specified time is before last update time, 'wouldOverflow'
-        //     updates 'lastUpdateTime' time and does not recalculate number of
-        //     units.
-        //
-        //   6 The method takes reserved units into account.
-        //
-        //   7 The method correctly handles the case when 'numOfUnits +
-        //     d_unitsInBucket + d_unitsReserved' can not be represented by 64
-        //     bit integral type.
-        //
-        //   8 QoI: Asserted precondition violations in the 'wouldOverflow'
-        //      manipulator are detected when enabled.
+        //: 1 The method returns true, if there is room for the specified
+        //:   number of units and false otherwise.
+        //:
+        //: 2 The method invokes 'updateState', if needed.
+        //:
+        //: 4 The method does not change the state of object, if the time has
+        //:   not changed.
+        //:
+        //: 5 If specified time is before last update time, 'wouldOverflow'
+        //:   updates 'lastUpdateTime' time and does not recalculate number of
+        //:   units.
+        //:
+        //: 6 The method takes reserved units into account.
+        //:
+        //: 7 The method correctly handles the case when 'numOfUnits +
+        //:   d_unitsInBucket + d_unitsReserved' can not be represented by 64
+        //:   bit integral type.
+        //:
+        //: 8 QoI: Asserted precondition violations in the 'wouldOverflow'
+        //:    manipulator are detected when enabled.
         //
         // Plan:
-        //   1 Using the table-driven technique:
-        //
-        //     1 Define the set of values, one row per each test case,
-        //       containing the values for 'rate', 'capacity', initial value
-        //       for the 'lastUpdateTime' attribute, and numbers of units to
-        //       submit and reserve, the time interval between updating object
-        //       state, number of units to be submitted and to be reserved, the
-        //       time of check, result of check and the expected values of
-        //       'unitsInBucket' and 'lastUpdateTime' attributes after
-        //       checking.
-        //
-        //   2 For each row in the table, defined in P-1:
-        //
-        //     1 Create an object, having the specified parameters using the
-        //       value constructor.
-        //
-        //     2 Invoke the 'submit' and 'reserve' manipulators.
-        //
-        //     3 Invoke the 'wouldOverflow' manipulator and verify the returned
-        //       value.  (C-1, C-6)
-        //
-        //     4 Verify the values of 'unitsInBucket', 'unitsReserved' and
-        //       'lastUpdateTime' attributes.  (C-2..5, C-7)
-        //
-        //   3 Verify that, in appropriate build modes, defensive checks are
-        //     triggered for invalid attribute values, but not triggered for
-        //     adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
-        //     (C-8)
+        //: 1 Using the table-driven technique:
+        //:
+        //:   1 Define the set of values, one row per each test case,
+        //:     containing the values for 'rate', 'capacity', initial value
+        //:     for the 'lastUpdateTime' attribute, and numbers of units to
+        //:     submit and reserve, the time interval between updating object
+        //:     state, number of units to be submitted and to be reserved, the
+        //:     time of check, result of check and the expected values of
+        //:     'unitsInBucket' and 'lastUpdateTime' attributes after
+        //:     checking.
+        //:
+        //: 2 For each row in the table, defined in P-1:
+        //:
+        //:   1 Create an object, having the specified parameters using the
+        //:     value constructor.
+        //:
+        //:   2 Invoke the 'submit' and 'reserve' manipulators.
+        //:
+        //:   3 Invoke the 'wouldOverflow' manipulator and verify the returned
+        //:     value.  (C-1, C-6)
+        //:
+        //:   4 Verify the values of 'unitsInBucket', 'unitsReserved' and
+        //:     'lastUpdateTime' attributes.  (C-2..5, C-7)
+        //:
+        //: 3 Verify that, in appropriate build modes, defensive checks are
+        //:   triggered for invalid attribute values, but not triggered for
+        //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
+        //:   (C-8)
         //
         // Testing:
         //    bool wouldOverflow(numOfUnits, currentTime);
@@ -1993,68 +1993,68 @@ int main(int argc, char *argv[])
         //   based on the specified time, and current state of object.
         //
         // Concerns:
-        //   1 The 'updateState' manipulator sets 'lastUpdateTime' attribute to
-        //     the specified value.
-        //
-        //   2 The 'updateState' manipulator calculates the number of units to
-        //     be drained from the leaky bucket according to the contractually
-        //     specified behavior.
-        //
-        //   3 The manipulator correctly handles case, when number of units to
-        //     drain is fractional and carries the fractional part to next
-        //     'updateState' call.
-        //
-        //   4 If the specified time is before the last update time,
-        //     'updateState' updates the last update time and does not
-        //     recalculate number of units.
-        //
-        //   5 The manipulator does not affect value of the 'unitsReserved'
-        //     attribute.
-        //
-        //   6 The manipulator updates value of the
-        //     'statisticsCollectionStartTime' attribute if the specified time
-        //     is before its current value and does not affect it otherwise.
+        //: 1 The 'updateState' manipulator sets 'lastUpdateTime' attribute to
+        //:   the specified value.
+        //:
+        //: 2 The 'updateState' manipulator calculates the number of units to
+        //:   be drained from the leaky bucket according to the contractually
+        //:   specified behavior.
+        //:
+        //: 3 The manipulator correctly handles case, when number of units to
+        //:   drain is fractional and carries the fractional part to next
+        //:   'updateState' call.
+        //:
+        //: 4 If the specified time is before the last update time,
+        //:   'updateState' updates the last update time and does not
+        //:   recalculate number of units.
+        //:
+        //: 5 The manipulator does not affect value of the 'unitsReserved'
+        //:   attribute.
+        //:
+        //: 6 The manipulator updates value of the
+        //:   'statisticsCollectionStartTime' attribute if the specified time
+        //:   is before its current value and does not affect it otherwise.
         //
         // Plan:
-        //   1 Define the 'capacity' attribute value, that will be used
-        //     throughout the test.  It is constant, because it does not affect
-        //     the behavior of 'updateState' manipulator.
-        //
-        //   2 Using the table-driven technique:
-        //
-        //     1 Define the set of values, the row per each test case,
-        //       containing the values for 'rate' and 'lastUpdateTime'
-        //       attributes and numbers of units to submit and reserve, the
-        //       time interval between updating object state, number of
-        //       'updateState' invocations and the value of 'unitsInBucket'
-        //       attribute, expected after a sequence of 'updateState'
-        //       invocations.  (C-2, C-3)
-        //
-        //   3 For each row in the table, defined in P-2:
-        //
-        //     1 Create an object having the specified parameters using the
-        //       value ctor.
-        //
-        //     2 Invoke 'submit' and 'reserve' methods to alter the state of
-        //       object.
-        //
-        //     3 Execute the inner loop, invoking the 'updateState' manipulator
-        //       specified number of times with the specified time intervals
-        //       and verify that the value of 'lastUpdateTime' attribute is
-        //       updated correctly.
-        //
-        //     4 Compare the value, returned by the 'unitsInBucket' with the
-        //       expected value.
-        //
-        //     5 Verify, that the value of 'unitsReserved' attribute was not
-        //       altered during the 'updateState' manipulator invocation.
-        //       (C-5)
-        //
-        //   4 Invoke 'updateState', specifying time that is before the value
-        //     of 'lastUpdateTime' attribute.  (C-4)
-        //
-        //   5 Invoke 'updateState', specifying time that is before the value
-        //     of 'statisticsCollectionStartTime' attribute.  (C-6)
+        //: 1 Define the 'capacity' attribute value, that will be used
+        //:   throughout the test.  It is constant, because it does not affect
+        //:   the behavior of 'updateState' manipulator.
+        //:
+        //: 2 Using the table-driven technique:
+        //:
+        //:   1 Define the set of values, the row per each test case,
+        //:     containing the values for 'rate' and 'lastUpdateTime'
+        //:     attributes and numbers of units to submit and reserve, the
+        //:     time interval between updating object state, number of
+        //:     'updateState' invocations and the value of 'unitsInBucket'
+        //:     attribute, expected after a sequence of 'updateState'
+        //:     invocations.  (C-2, C-3)
+        //:
+        //: 3 For each row in the table, defined in P-2:
+        //:
+        //:   1 Create an object having the specified parameters using the
+        //:     value ctor.
+        //:
+        //:   2 Invoke 'submit' and 'reserve' methods to alter the state of
+        //:     object.
+        //:
+        //:   3 Execute the inner loop, invoking the 'updateState' manipulator
+        //:     specified number of times with the specified time intervals
+        //:     and verify that the value of 'lastUpdateTime' attribute is
+        //:     updated correctly.
+        //:
+        //:   4 Compare the value, returned by the 'unitsInBucket' with the
+        //:     expected value.
+        //:
+        //:   5 Verify, that the value of 'unitsReserved' attribute was not
+        //:     altered during the 'updateState' manipulator invocation.
+        //:     (C-5)
+        //:
+        //: 4 Invoke 'updateState', specifying time that is before the value
+        //:   of 'lastUpdateTime' attribute.  (C-4)
+        //:
+        //: 5 Invoke 'updateState', specifying time that is before the value
+        //:   of 'statisticsCollectionStartTime' attribute.  (C-6)
         //
         // Testing:
         //   void updateState(const bdet_TimeInterval& currentTime);
@@ -2198,46 +2198,46 @@ int main(int argc, char *argv[])
         //   altering object state.
         //
         // Concerns:
-        //   1 'setRateAndCapacity' manipulator can set the relevant attributes
-        //     to any values that does not violate the documented
-        //     preconditions.
-        //
-        //   2 Invoking the 'setRateAndCapacity' manipulator does not alter the
-        //     values of 'unitsReserved' and 'unitsSubmitted' attributes.
-        //
-        //   3 QoI: Asserted precondition violations in the 'submit'
-        //     manipulator are detected when enabled.
+        //: 1 'setRateAndCapacity' manipulator can set the relevant attributes
+        //:   to any values that does not violate the documented
+        //:   preconditions.
+        //:
+        //: 2 Invoking the 'setRateAndCapacity' manipulator does not alter the
+        //:   values of 'unitsReserved' and 'unitsSubmitted' attributes.
+        //:
+        //: 3 QoI: Asserted precondition violations in the 'submit'
+        //:   manipulator are detected when enabled.
         //
         // Plan:
-        //   1 Using the table-driven technique:
-        //
-        //     1 Define the set of object attributes, including boundary
-        //       values, corresponding to every range of values that each
-        //       individual attribute can independently attain.  (C-1)
-        //
-        //   2 For each row in the table, defined in P-1:
-        //
-        //     1 Create an object using the value ctor, having the parameters
-        //       specified in 'RATE1' and 'CAPACITY1' columns.
-        //
-        //     2 Invoke 'submit' and 'reserve' methods to alter the state of
-        //       object.
-        //
-        //     3 Invoke the 'setRateAndCapacity' manipulator with the arguments
-        //       specified in 'RATE2' and 'CAPACITY2' columns.
-        //
-        //     4 Compare the values, returned by the 'rate' and 'capacity'
-        //       accessors with the values, specified at 'setRateAndCapacity'
-        //       invocation.
-        //
-        //     5 Verify, that the values of 'unitsInBucket' and 'unitsReserved'
-        //       attributes were not altered during the 'setRateAndCapacity'
-        //       invocation.  (C-2)
-        //
-        //   3 Verify that, in appropriate build modes, defensive checks are
-        //     triggered for invalid attribute values, but not triggered for
-        //     adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
-        //     (C-3)
+        //: 1 Using the table-driven technique:
+        //:
+        //:   1 Define the set of object attributes, including boundary
+        //:     values, corresponding to every range of values that each
+        //:     individual attribute can independently attain.  (C-1)
+        //:
+        //: 2 For each row in the table, defined in P-1:
+        //:
+        //:   1 Create an object using the value ctor, having the parameters
+        //:     specified in 'RATE1' and 'CAPACITY1' columns.
+        //:
+        //:   2 Invoke 'submit' and 'reserve' methods to alter the state of
+        //:     object.
+        //:
+        //:   3 Invoke the 'setRateAndCapacity' manipulator with the arguments
+        //:     specified in 'RATE2' and 'CAPACITY2' columns.
+        //:
+        //:   4 Compare the values, returned by the 'rate' and 'capacity'
+        //:     accessors with the values, specified at 'setRateAndCapacity'
+        //:     invocation.
+        //:
+        //:   5 Verify, that the values of 'unitsInBucket' and 'unitsReserved'
+        //:     attributes were not altered during the 'setRateAndCapacity'
+        //:     invocation.  (C-2)
+        //:
+        //: 3 Verify that, in appropriate build modes, defensive checks are
+        //:   triggered for invalid attribute values, but not triggered for
+        //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
+        //:   (C-3)
         //
         // Testing:
         //    void setRateAndCapacity(newRate, newCapacity);
@@ -2325,65 +2325,65 @@ int main(int argc, char *argv[])
         //   altered and accessed correctly.
         //
         // Concerns:
-        //   1 'submit' adds the specified number of units to the value of
-        //     'unitsInBucket' attribute.
-        //
-        //   2 'unitsInBucket' accessor returns the attribute value.
-        //
-        //   3 'submit' submits units disregarding current state of object
-        //      (number of units already submitted).
-        //
-        //   4 'submit' can submit number of units, exceeding the capacity.
-        //
-        //   5 QoI: Asserted precondition violations in the 'submit'
-        //     manipulator are detected when enabled.
-        //
-        //   6 'reserve' add units to the object`s internal reservation
-        //      counter.
-        //
-        //   7 'unitsReserved' accessor returns the attribute value
-        //
-        //   8 'reserve' adds the specified number of units to the value of
-        //      'unitsInBucket' attribute.
-        //
-        //   9 'reserve' can reserve the number of units, exceeding the
-        //      capacity.
-        //
-        //   10 QoI: Asserted precondition violations in the 'reserve'
-        //      manipulator are detected when enabled.
+        //: 1 'submit' adds the specified number of units to the value of
+        //:   'unitsInBucket' attribute.
+        //:
+        //: 2 'unitsInBucket' accessor returns the attribute value.
+        //:
+        //: 3 'submit' submits units disregarding current state of object
+        //:    (number of units already submitted).
+        //:
+        //: 4 'submit' can submit number of units, exceeding the capacity.
+        //:
+        //: 5 QoI: Asserted precondition violations in the 'submit'
+        //:   manipulator are detected when enabled.
+        //:
+        //: 6 'reserve' add units to the object`s internal reservation
+        //:    counter.
+        //:
+        //: 7 'unitsReserved' accessor returns the attribute value
+        //:
+        //: 8 'reserve' adds the specified number of units to the value of
+        //:    'unitsInBucket' attribute.
+        //:
+        //: 9 'reserve' can reserve the number of units, exceeding the
+        //:    capacity.
+        //:
+        //: 10 QoI: Asserted precondition violations in the 'reserve'
+        //:    manipulator are detected when enabled.
         //
         // Plan:
-        //   1 Define the constant object parameters ('capacity' and 'rate').
-        //     These parameters will be used throughout the whole test, because
-        //     they do not affect the behavior of tested methods.
-        //
-        //   2 Using the table-driven technique:
-        //
-        //     1 Define the set of values, one row per set, containing number
-        //       of units to submit or reserve, number of 'submit' or 'reserve'
-        //       invocations and the expected number of units submitted and
-        //       reserved after the specified number of invocations of the
-        //       foregoing methods.  Include rows with boundary values in the
-        //       test set.
-        //
-        //   3 For each row in the table, defined in P-2:
-        //
-        //     1 Create the object using the defined parameters.
-        //
-        //     2 Execute the inner loop, invoking 'submit' method the
-        //       specified number of times with the specified number of
-        //       units
-        //
-        //     3 Compare the value, returned by 'unitsInBucket' accessor
-        //       with the expected value from the table.  (C-1..4)
-        //
-        //   4 Repeat the steps defined in P-3 for 'reserve' and
-        //     'unitsReserved' functions.  (C-6..9)
-        //
-        //   5 Verify that, in appropriate build modes, defensive checks
-        //     are triggered for invalid parameter values, but not
-        //     triggered for adjacent valid ones (using the
-        //     'BSLS_ASSERTTEST_*' macros).  (C-5, C-10)
+        //: 1 Define the constant object parameters ('capacity' and 'rate').
+        //:   These parameters will be used throughout the whole test, because
+        //:   they do not affect the behavior of tested methods.
+        //:
+        //: 2 Using the table-driven technique:
+        //:
+        //:   1 Define the set of values, one row per set, containing number
+        //:     of units to submit or reserve, number of 'submit' or 'reserve'
+        //:     invocations and the expected number of units submitted and
+        //:     reserved after the specified number of invocations of the
+        //:     foregoing methods.  Include rows with boundary values in the
+        //:     test set.
+        //:
+        //: 3 For each row in the table, defined in P-2:
+        //:
+        //:   1 Create the object using the defined parameters.
+        //:
+        //:   2 Execute the inner loop, invoking 'submit' method the
+        //:     specified number of times with the specified number of
+        //:     units
+        //:
+        //:   3 Compare the value, returned by 'unitsInBucket' accessor
+        //:     with the expected value from the table.  (C-1..4)
+        //:
+        //: 4 Repeat the steps defined in P-3 for 'reserve' and
+        //:   'unitsReserved' functions.  (C-6..9)
+        //:
+        //: 5 Verify that, in appropriate build modes, defensive checks
+        //:   are triggered for invalid parameter values, but not
+        //:   triggered for adjacent valid ones (using the
+        //:   'BSLS_ASSERTTEST_*' macros).  (C-5, C-10)
         //
         // Testing:
         //   void submit(bsls_Types::Uint64 numOfUnits);
@@ -2527,35 +2527,34 @@ int main(int argc, char *argv[])
         //   Ensure that each basic accessor properly interprets object state.
         //
         // Concerns:
-        //  1 Each accessor returns the value of the corresponding
-        //    attribute of the object.
-        //
-        //  2 Each accessor method is declared 'const'
+        //: 1 Each accessor returns the value of the corresponding
+        //:   attribute of the object.
+        //:
+        //: 2 Each accessor method is declared 'const'
         //
         // Plan:
-        //
-        //   1 Create a 'btes_LeakyBucket' object, using default
-        //     constructor.
-        //
-        //   2 Call the accessors using 'const' reference.  Compare the
-        //     values of the object attributes, returned by accessors with
-        //     the values specified to the constructor.  (C-1..2)
-        //
-        //   3 Using the loop-based approach:
-        //
-        //     1 Create the set of object attribute values.
-        //
-        //   4 For each row in the table, defined in P-3
-        //
-        //     1 Construct the object using the value constructor.
-        //
-        //     2 Compare the values of 'rate' and 'capacity 'attributes,
-        //       returned by accessors with the values specified to the
-        //       constructor.  (C-1)
-        //
-        //     3 Call the accessors for the other attributes and compare
-        //       the returned values with the contractually specified
-        //       default values  (C-1)
+        //: 1 Create a 'btes_LeakyBucket' object, using default
+        //:   constructor.
+        //:
+        //: 2 Call the accessors using 'const' reference.  Compare the
+        //:   values of the object attributes, returned by accessors with
+        //:   the values specified to the constructor.  (C-1..2)
+        //:
+        //: 3 Using the loop-based approach:
+        //:
+        //:   1 Create the set of object attribute values.
+        //:
+        //: 4 For each row in the table, defined in P-3
+        //:
+        //:   1 Construct the object using the value constructor.
+        //:
+        //:   2 Compare the values of 'rate' and 'capacity 'attributes,
+        //:     returned by accessors with the values specified to the
+        //:     constructor.  (C-1)
+        //:
+        //:   3 Call the accessors for the other attributes and compare
+        //:     the returned values with the contractually specified
+        //:     default values  (C-1)
         //
         // Testing:
         //   bsls_Types::Uint64 drainRate() const;
@@ -2634,35 +2633,35 @@ int main(int argc, char *argv[])
         //   for thorough testing.
         //
         // Concerns:
-        //   1 The value constructor can create an object having any value that
-        //     does not violate the constructor's documented preconditions.
-        //
-        //   2 The newly created object is in appropriate state.
-        //
-        //   3 Any argument can be 'const'.
-        //
-        //   4 QoI: Asserted precondition violations are detected when enabled.
+        //: 1 The value constructor can create an object having any value that
+        //:   does not violate the constructor's documented preconditions.
+        //:
+        //: 2 The newly created object is in appropriate state.
+        //:
+        //: 3 Any argument can be 'const'.
+        //:
+        //: 4 QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //   1 Using the loop-based approach:
-        //
-        //     1 Create the set of object attribute values.
-        //
-        //   2 For each row in the table, defined in P-1
-        //
-        //     1 Construct the object using the value constructor.
-        //
-        //     2 Compare the values of 'rate' and 'capacity' attributes,
-        //       returned by accessors with the values specified to the
-        //       constructor.  (C-1..2)
-        //
-        //     3 Compare the values of other attributes with the contractually
-        //       specified default values (C-3)
-        //
-        //   3 Verify that, in appropriate build modes, defensive checks are
-        //     triggered for invalid attribute values, but not triggered for
-        //     adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
-        //     (C-4)
+        //: 1 Using the loop-based approach:
+        //:
+        //:   1 Create the set of object attribute values.
+        //:
+        //: 2 For each row in the table, defined in P-1
+        //:
+        //:   1 Construct the object using the value constructor.
+        //:
+        //:   2 Compare the values of 'rate' and 'capacity' attributes,
+        //:     returned by accessors with the values specified to the
+        //:     constructor.  (C-1..2)
+        //:
+        //:   3 Compare the values of other attributes with the contractually
+        //:     specified default values (C-3)
+        //:
+        //: 3 Verify that, in appropriate build modes, defensive checks are
+        //:   triggered for invalid attribute values, but not triggered for
+        //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
+        //:   (C-4)
         //
         // Testing:
         //   btes_LeakyBucket(drainRate, window, currentTime);
@@ -2733,40 +2732,40 @@ int main(int argc, char *argv[])
         // DEFAULT CTOR, PRIMARY MANIPULATORS
         //
         // Concerns:
-        //   1 An object created with the default constructor has the
-        //     contractually specified default value.
-        //
-        //   2 Each attribute can be set to represent any value that does not
-        //     violate that attribute's documented constraints.
-        //
-        //   3 Any argument of 'setRateAndCapacity' may be 'const'.
-        //
-        //   4 QoI: Asserted precondition violations are detected when enabled.
+        //: 1 An object created with the default constructor has the
+        //:   contractually specified default value.
+        //:
+        //: 2 Each attribute can be set to represent any value that does not
+        //:   violate that attribute's documented constraints.
+        //:
+        //: 3 Any argument of 'setRateAndCapacity' may be 'const'.
+        //:
+        //: 4 QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //   1 Construct the object using the default constructor and compare
-        //     the values returned by accessors with the contractually
-        //     specified values.  (C-1)
-        //
-        //   2 Using the loop-based approach:
-        //
-        //     1 Create the set of object attribute values.
-        //
-        //   3 For each row in the table, defined in P-2
-        //
-        //     1 Change the object attributes by invoking the
-        //       'setRateAndCapacity' manipulator.  (C-2)
-        //
-        //     2 Call the 'rate' and 'capacity' accessors using 'const'
-        //       reference to the object and passing 'const' arguments.  (C-3)
-        //
-        //     3 Compare the values, returned by accessors with the values,
-        //       specified at 'setRateAndCapacity' invocation.
-        //
-        //   4 Verify that, in appropriate build modes, defensive checks are
-        //     triggered for invalid attribute values, but not triggered for
-        //     adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
-        //     (C-4)
+        //: 1 Construct the object using the default constructor and compare
+        //:   the values returned by accessors with the contractually
+        //:   specified values.  (C-1)
+        //:
+        //: 2 Using the loop-based approach:
+        //:
+        //:   1 Create the set of object attribute values.
+        //:
+        //: 3 For each row in the table, defined in P-2
+        //:
+        //:   1 Change the object attributes by invoking the
+        //:     'setRateAndCapacity' manipulator.  (C-2)
+        //:
+        //:   2 Call the 'rate' and 'capacity' accessors using 'const'
+        //:     reference to the object and passing 'const' arguments.  (C-3)
+        //:
+        //:   3 Compare the values, returned by accessors with the values,
+        //:     specified at 'setRateAndCapacity' invocation.
+        //:
+        //: 4 Verify that, in appropriate build modes, defensive checks are
+        //:   triggered for invalid attribute values, but not triggered for
+        //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
+        //:   (C-4)
         //
         // Testing:
         //   btes_LeakyBucket();
@@ -2846,89 +2845,89 @@ int main(int argc, char *argv[])
         //   function operate correctly.
         //
         // Concerns:
-        //  1 Default ctor constructs a 'mock_LB' object having the
-        //    contractually specified attributes.
-        //
-        //  2 Value ctor constructs a 'mock_LB' object having the
-        //    contractually specified attributes.
-        //
-        //  3 The newly created object is in the correct state.
-        //
-        //  4 Accessors of 'mock_LB' class return values of corresponding
-        //    attributes.
-        //
-        //  5 'setRateAndCapacity' manipulator sets the 'rate' and
-        //    'capacity' attributes to the specified values.
-        //
-        //  6 'wouldOverflow' manipulator updates the 'lastUpdateTime'
-        //    attribute value, if needed.
-        //
-        //  7 'wouldOverflow' return 'true' if difference between
-        //    'lastUpdateTime' and 'currentTime' is less than
-        //    'submitInterval' and returns 'false' otherwise.
-        //
-        //  8 'calculateTimeToSubmit' calculates the time interval, that
-        //    should pass until submitting more units is allowed correctly.
-        //
-        //  9 'submit' manipulator updates the value of 'unitsInBucket'
-        //    attribute.
-        //
-        //  10 'testLB' function invokes 'setRateAndCapacity' on the
-        //    specified object with the specified parameters.
-        //
-        //  11 'testLB' function submits units by chunks and keeps
-        //     intervals between the 'submit' operations according
-        //     to the value returned by 'calculateTimeToSubmit'.
-        //
-        //  12 'testLB' calculates test duration correctly.
+        //: 1 Default ctor constructs a 'mock_LB' object having the
+        //:   contractually specified attributes.
+        //:
+        //: 2 Value ctor constructs a 'mock_LB' object having the
+        //:   contractually specified attributes.
+        //:
+        //: 3 The newly created object is in the correct state.
+        //:
+        //: 4 Accessors of 'mock_LB' class return values of corresponding
+        //:   attributes.
+        //:
+        //: 5 'setRateAndCapacity' manipulator sets the 'rate' and
+        //:   'capacity' attributes to the specified values.
+        //:
+        //: 6 'wouldOverflow' manipulator updates the 'lastUpdateTime'
+        //:   attribute value, if needed.
+        //:
+        //: 7 'wouldOverflow' return 'true' if difference between
+        //:   'lastUpdateTime' and 'currentTime' is less than
+        //:   'submitInterval' and returns 'false' otherwise.
+        //:
+        //: 8 'calculateTimeToSubmit' calculates the time interval, that
+        //:   should pass until submitting more units is allowed correctly.
+        //:
+        //: 9 'submit' manipulator updates the value of 'unitsInBucket'
+        //:   attribute.
+        //:
+        //: 10 'testLB' function invokes 'setRateAndCapacity' on the
+        //:   specified object with the specified parameters.
+        //:
+        //: 11 'testLB' function submits units by chunks and keeps
+        //:    intervals between the 'submit' operations according
+        //:    to the value returned by 'calculateTimeToSubmit'.
+        //:
+        //: 12 'testLB' calculates test duration correctly.
         //
         // Plan:
-        //  1 Create a 'mock_LB' object using the default ctor.
-        //    (C-1, C-3..4)
-        //
-        //  2 Verify the 'mock_LB' attributes.
-        //    (C-2, C-3..4)
-        //
-        //  3 Invoke the 'wouldOverflow' manipulator and verify the
-        //    returned value.
-        //
-        //  4 Invoke the 'calculateTimeToSubmit' manipulator and
-        //    verify the returned value.
-        //
-        //  5 Create a 'mock_LB' object using the value ctor and
-        //    perform steps, described in P-2..4.
-        //
-        //  6 Verify the returned value of 'wouldOverflow' manipulator, invoked
-        //    with a time interval, shorter than the 'submitInterval',
-        //    specified during construction.  (C-7)
-        //
-        //  7 Verify the returned value of 'calculateTimeToSubmit' manipulator,
-        //    invoked with a time interval, longer or equal to the
-        //    'submitInterval', specified during construction.  (C-8)
-        //
-        //  8 Invoke the 'submit' manipulator and verify the value of the
-        //    'unitsInBucket' attribute.  (C-9)
-        //
-        //  9 Invoke the 'setRateAndCapacity' manipulator and verify the values
-        //    of 'rate' and 'capacity' attributes after the invocation.  (C-5)
-        //
-        //  10 Using the table-driven technique:
-        //
-        //    1 Define the set of values containing the 'mock_LB' object
-        //      parameters, data chunk size and total data size used for
-        //      simulating load generation, and minimum time interval between
-        //      submissions.
-        //
-        //  11 For each row in the table, described in P-10:
-        //
-        //     1 Create a 'mock_LB' object, having the specified
-        //       parameters.
-        //
-        //     2 Invoke the 'testLB' function with the specified arguments.
-        //
-        //     3 Verify the test duration, returned by the 'testLB' function
-        //       and the 'mock_LB' object attributes after the invocation of
-        //       function.  (C-10..12)
+        //: 1 Create a 'mock_LB' object using the default ctor.
+        //:   (C-1, C-3..4)
+        //:
+        //: 2 Verify the 'mock_LB' attributes.
+        //:   (C-2, C-3..4)
+        //:
+        //: 3 Invoke the 'wouldOverflow' manipulator and verify the
+        //:   returned value.
+        //:
+        //: 4 Invoke the 'calculateTimeToSubmit' manipulator and
+        //:   verify the returned value.
+        //:
+        //: 5 Create a 'mock_LB' object using the value ctor and
+        //:   perform steps, described in P-2..4.
+        //:
+        //: 6 Verify the returned value of 'wouldOverflow' manipulator, invoked
+        //:   with a time interval, shorter than the 'submitInterval',
+        //:   specified during construction.  (C-7)
+        //:
+        //: 7 Verify the returned value of 'calculateTimeToSubmit' manipulator,
+        //:   invoked with a time interval, longer or equal to the
+        //:   'submitInterval', specified during construction.  (C-8)
+        //:
+        //: 8 Invoke the 'submit' manipulator and verify the value of the
+        //:   'unitsInBucket' attribute.  (C-9)
+        //:
+        //: 9 Invoke the 'setRateAndCapacity' manipulator and verify the values
+        //:   of 'rate' and 'capacity' attributes after the invocation.  (C-5)
+        //:
+        //: 10 Using the table-driven technique:
+        //:
+        //:   1 Define the set of values containing the 'mock_LB' object
+        //:     parameters, data chunk size and total data size used for
+        //:     simulating load generation, and minimum time interval between
+        //:     submissions.
+        //:
+        //: 11 For each row in the table, described in P-10:
+        //:
+        //:    1 Create a 'mock_LB' object, having the specified
+        //:      parameters.
+        //:
+        //:    2 Invoke the 'testLB' function with the specified arguments.
+        //:
+        //:    3 Verify the test duration, returned by the 'testLB' function
+        //:      and the 'mock_LB' object attributes after the invocation of
+        //:      function.  (C-10..12)
         //
         // Testing:
         //   TEST APPARATUS
@@ -3042,26 +3041,26 @@ int main(int argc, char *argv[])
         //   Developers' Sandbox.
         //
         // Concerns:
-        //  1 The class is sufficiently functional to enable comprehensive
-        //    testing in subsequent cases
+        //: 1 The class is sufficiently functional to enable comprehensive
+        //:   testing in subsequent cases
         //
         // Plan:
-        //  1 Create an object, using the default ctor.
-        //
-        //  2 Invoke the 'setRateAndCapacity' manipulator.
-        //
-        //  3 Invoke the 'rate' and 'capacity' accessors and check the
-        //    returned values.
-        //
-        //  4 Invoke the 'submit' and 'reserve' manipulators.
-        //
-        //  5 Invoke the 'unitsInBucket' and 'unitsReserved' accessors
-        //    and check the returned value.
-        //
-        //  6 Invoke the 'wouldOverflow' and 'calculateTimeToSubmit'
-        //    manipulators.
-        //
-        //  7 Invoke the 'updateState' manipulator.
+        //: 1 Create an object, using the default ctor.
+        //:
+        //: 2 Invoke the 'setRateAndCapacity' manipulator.
+        //:
+        //: 3 Invoke the 'rate' and 'capacity' accessors and check the
+        //:   returned values.
+        //:
+        //: 4 Invoke the 'submit' and 'reserve' manipulators.
+        //:
+        //: 5 Invoke the 'unitsInBucket' and 'unitsReserved' accessors
+        //:   and check the returned value.
+        //:
+        //: 6 Invoke the 'wouldOverflow' and 'calculateTimeToSubmit'
+        //:   manipulators.
+        //:
+        //: 7 Invoke the 'updateState' manipulator.
         //
         // Testing:
         //   BREATHING TEST
