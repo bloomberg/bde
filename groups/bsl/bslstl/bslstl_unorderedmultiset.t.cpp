@@ -137,7 +137,7 @@ using namespace BloombergLP;
 // hash policy:
 // [ 4] float load_factor() const;
 // [ 4] float max_load_factor() const;
-// [ 4] void max_load_factor(float z);
+// [  ] void max_load_factor(float z);
 // [  ] void rehash(size_type n);
 // [  ] void reserve(size_type n);
 //
@@ -290,13 +290,13 @@ size_t numCharInstances(const char *SPEC, const char c)
 }
 
 template <typename TYPE>
-const TYPE& my_Max(const TYPE& x, const TYPE& y)
+const TYPE& my_max(const TYPE& x, const TYPE& y)
 {
     return x > y ? x : y;
 }
 
 template <typename TYPE>
-TYPE my_Abs(const TYPE& x)
+TYPE my_abs(const TYPE& x)
 {
     return x < 0 ? -x : x;
 }
@@ -304,8 +304,8 @@ TYPE my_Abs(const TYPE& x)
 template <typename TYPE>
 bool nearlyEqual(const TYPE& x, const TYPE& y)
 {
-    TYPE tolerance = my_Max(my_Abs(x), my_Abs(y)) * 0.0001;
-    return my_Abs(x - y) <= tolerance;
+    TYPE tolerance = my_max(my_abs(x), my_abs(y)) * 0.0001;
+    return my_abs(x - y) <= tolerance;
 }
 
 template <class CONTAINER>
@@ -1087,7 +1087,7 @@ class TestDriver {
 
   public:
     // TEST CASES
-#if 0
+
     static void testCase24();
         // Test standard interface coverage.
 
@@ -1123,18 +1123,17 @@ class TestDriver {
         // Test iterators.
 
     static void testCase13();
-        // Test find, upper_bound, lower_bound.
+        // Test max_load_factor(float)
 
     static void testCase12();
         // Test user-supplied constructors.
 
     static void testCase11();
-        // Test generator functions 'g'.  Already done in 3.
+        // Test generator functions 'g'.
 
     static void testCase10();
         // Reserved for BSLX.
 
-#endif
     static void testCase9_1();
         // Test assignment operator ('operator=') for allocator propagation;
 
@@ -1272,6 +1271,92 @@ int TestDriver<KEY,HASH, EQUAL, ALLOC>::verifySpec(const Obj&  object,
     return -1;    // it's a match
 }
 
+template <class KEY, class HASH, class EQUAL, class ALLOC>
+void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase11()
+{
+    // ------------------------------------------------------------------------
+    // TESTING GENERATOR FUNCTION, g:
+    //
+    // Concern:
+    //: 1 Since 'g' is implemented almost entirely using 'gg', we need to
+    //:   verify only that the arguments are properly forwarded.
+    //:
+    //: 2 'g' does not affect the test allocator, and that 'g' returns an
+    //:   object by value.
+    //
+    // Plan:
+    //: 1 For each SPEC in a short list of specifications:
+    //:
+    //:   1 Compare the object returned (by value) from the generator function,
+    //:     'g(SPEC)' with the value of a newly constructed OBJECT configured
+    //:     using 'gg(&OBJECT,  SPEC)'.
+    //:
+    //:   2 Compare the results of calling the allocator's 'numBlocksTotal' and
+    //:     'numBytesInUse' methods before and after calling 'g' in order to
+    //:     demonstrate that 'g' has no effect on the test allocator.
+    //:
+    //:   3 Use 'sizeof' to confirm that the (temporary) returned by 'g'
+    //:     differs in size from that returned by 'gg'.
+    //
+    // Testing:
+    //   set g(const char *spec);
+    // ------------------------------------------------------------------------
+
+    bslma::TestAllocator oa(veryVeryVerbose);
+
+    static const char *SPECS[] = {
+        "", "A", "B", "C", "D", "E", "ABCDE",
+        0  // null string required as last element
+    };
+
+    if (verbose)
+        printf("\nCompare values produced by 'g' and 'gg' "
+               "for various inputs.\n");
+
+    for (int ti = 0; SPECS[ti]; ++ti) {
+        const char *SPEC = SPECS[ti];
+        if (veryVerbose) { P_(ti);  P(SPEC); }
+
+        Obj mX(&oa);
+        gg(&mX, SPEC);  const Obj& X = mX;
+
+        if (veryVerbose) {
+            printf("\t g = ");
+            bsls::BslTestUtil::callDebugprint(g(SPEC));
+            printf("\n");
+
+            printf("\tgg = ");
+            bsls::BslTestUtil::callDebugprint(X);
+            printf("\n");
+        }
+        const bsls::Types::Int64 TOTAL_BLOCKS_BEFORE = oa.numBlocksTotal();
+        const bsls::Types::Int64 IN_USE_BYTES_BEFORE = oa.numBytesInUse();
+        ASSERTV(ti, X == g(SPEC));
+        const bsls::Types::Int64 TOTAL_BLOCKS_AFTER = oa.numBlocksTotal();
+        const bsls::Types::Int64 IN_USE_BYTES_AFTER = oa.numBytesInUse();
+        ASSERTV(ti, TOTAL_BLOCKS_BEFORE == TOTAL_BLOCKS_AFTER);
+        ASSERTV(ti, IN_USE_BYTES_BEFORE == IN_USE_BYTES_AFTER);
+    }
+
+    if (verbose) printf("\nConfirm return-by-value.\n");
+    {
+        const char *SPEC = "ABCDE";
+
+        // compile-time fact
+        ASSERT(sizeof(Obj) == sizeof g(SPEC));
+
+        Obj x(&oa);                      // runtime tests
+        Obj& r1 = gg(&x, SPEC);
+        const Obj& r3 = g(SPEC);
+        const Obj& r4 = g(SPEC);
+        ASSERT(&x  == &r1);
+        ASSERT(&r4 != &r3);
+        ASSERT(&x  != &r3);
+
+        ASSERT(r3 == x);
+        ASSERT(r4 == x);
+    }
+}
 
 template <class KEY, class HASH, class EQUAL, class ALLOC>
 void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase9()
@@ -1430,6 +1515,12 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase9()
     // Testing:
     //   set& operator=(const set& rhs);
     // ------------------------------------------------------------------------
+
+    {
+        typedef Obj& (Obj::*MP)(const Obj&);
+        MP mp = &Obj::operator=;
+        (void) mp;
+    }
 
     const int NUM_DATA                     = DEFAULT_NUM_DATA;
     const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
@@ -1710,31 +1801,33 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase8()
     //   void swap(set<K, C, A>& a, set<K, C, A>& b);
     // ------------------------------------------------------------------------
 
-    if (verbose) printf("\nSWAP MEMBER AND FREE FUNCTIONS"
-                        "\n==============================\n");
+    static bool firstVerbose = true;
 
-    if (verbose) printf(
+    if (firstVerbose) printf("SWAP MEMBER AND FREE FUNCTIONS\n"
+                             "==============================\n");
+
+    if (firstVerbose) printf(
                      "\nAssign the address of each function to a variable.\n");
     {
-        typedef void (Obj::*funcPtr)(Obj&);
-        typedef void (*freeFuncPtr)(Obj&, Obj&);
+        typedef void (Obj::*FuncPtr)(Obj&);
+        typedef void (*FreeFuncPtr)(Obj&, Obj&);
 
         // Verify that the signatures and return types are standard.
 
-        funcPtr     memberSwap = &Obj::swap;
-        freeFuncPtr freeSwap   = bsl::swap;
+        FuncPtr     memberSwap = &Obj::swap;
+        FreeFuncPtr freeSwap   = bsl::swap;
 
         (void)memberSwap;  // quash potential compiler warnings
         (void)freeSwap;
     }
 
-    if (verbose) printf(
+    if (firstVerbose) printf(
                  "\nCreate a test allocator and install it as the default.\n");
 
     bslma::TestAllocator         da("default", veryVeryVeryVerbose);
     bslma::DefaultAllocatorGuard dag(&da);
 
-    if (verbose) printf(
+    if (firstVerbose) printf(
        "\nUse a table of distinct object values and expected memory usage.\n");
 
     const int NUM_DATA                     = DEFAULT_NUM_DATA;
@@ -1916,7 +2009,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase8()
         }
     }
 
-    if (verbose) printf(
+    if (firstVerbose) printf(
             "\nInvoke free 'swap' function in a context where ADL is used.\n");
     {
         // 'A' values: Should cause memory allocation if possible.
@@ -1948,6 +2041,8 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase8()
 
         if (veryVerbose) { T_ P_(X) P(Y) }
     }
+
+    firstVerbose = false;
 }
 
 template <class KEY, class HASH, class EQUAL, class ALLOC>
@@ -2146,6 +2241,13 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase6()
     // TESTING 'OPERATOR=='
     // ------------------------------------------------------------------------
 
+    {
+        typedef bool (*FP)(const Obj&, const Obj&);
+        FP fp = &bsl::operator==;
+        fp    = &bsl::operator!=;
+        (void) fp;
+    }
+
     static const struct {
         int         d_line;                 // source line number
         const char *d_spec;                 // specification string
@@ -2287,8 +2389,96 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase4()
     //   allocator_type get_allocator() const;
     // ------------------------------------------------------------------------
 
+    static bool firstVerbose = verbose;
+
     typedef typename Obj::local_iterator LIter;
     typedef bsl::pair<Iter, Iter>        Range;
+
+    if (firstVerbose) printf("Testing Signatures\n");
+
+    {
+        typedef bool (Obj::*MP)() const;
+        MP mp = &Obj::empty;
+        (void) mp;
+    }
+    {
+        typedef size_t (Obj::*MP)() const;
+        MP mp = &Obj::size;
+        mp    = &Obj::max_size;
+        mp    = &Obj::bucket_count;
+        mp    = &Obj::max_bucket_count;
+        (void) mp;
+    }
+    {
+        typedef Iter (Obj::*MP)();
+        MP mp = &Obj::begin;
+        mp    = &Obj::end;
+        (void) mp;
+    }
+    {
+        typedef Iter (Obj::*MP)() const;
+        MP mp = &Obj::begin;
+        mp    = &Obj::end;
+        mp    = &Obj::cbegin;
+        mp    = &Obj::cend;
+        (void) mp;
+    }
+    {
+        typedef Iter (Obj::*MP)(const KEY&);
+        MP mp = &Obj::find;
+        (void) mp;
+    }
+    {
+        typedef Iter (Obj::*MP)(const KEY&) const;
+        MP mp = &Obj::find;
+        (void) mp;
+    }
+    {
+        typedef size_t (Obj::*MP)(const KEY&) const;
+        MP mp = &Obj::count;
+        mp    = &Obj::bucket;
+        (void) mp;
+    }
+    {
+        typedef Range (Obj::*MP)(const KEY&);
+        MP mp = &Obj::equal_range;
+        (void) mp;
+    }
+    {
+        typedef Range (Obj::*MP)(const KEY&) const;
+        MP mp = &Obj::equal_range;
+        (void) mp;
+    }
+    {
+        typedef size_t (Obj::*MP)(size_t) const;
+        MP mp = &Obj::bucket_size;
+        (void) mp;
+    }
+    {
+        typedef LIter (Obj::*MP)(size_t);
+        MP mp = &Obj::begin;
+        mp    = &Obj::end;
+        (void) mp;
+    }
+    {
+        typedef LIter (Obj::*MP)(size_t) const;
+        MP mp = &Obj::begin;
+        mp    = &Obj::end;
+        mp    = &Obj::cbegin;
+        mp    = &Obj::cend;
+        (void) mp;
+    }
+    {
+        typedef float (Obj::*MP)() const;
+        MP mp = &Obj::load_factor;
+        mp    = &Obj::max_load_factor;
+        (void) mp;
+    }
+    {
+        typedef void (Obj::*MP)(float);
+        MP mp = &Obj::max_load_factor;
+        (void) mp;
+    }
 
     static const struct {
         int         d_line;                 // source line number
@@ -2337,7 +2527,6 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase4()
     bslma::TestAllocator sa("supplied",  veryVeryVeryVerbose);
     bslma::DefaultAllocatorGuard dag(&da);
 
-    static bool firstVerbose = verbose;
     for (int ti = 0; ti < NUM_DATA; ++ti) {
         const int         LINE   = DATA[ti].d_line;
         const char *const SPEC   = DATA[ti].d_spec;
@@ -2446,11 +2635,11 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase4()
             }
             for (const char *pc = ALPHABET; *pc; ++pc) {
                 const char C = *pc;
-                const bool inSet = strchr(SPEC, C);
 
                 const KEY K = VALUES[C - 'A'];
                 const size_t KB = X.bucket(K);
                 const size_t NUM_K = X.count(K);
+                const bool inSet = NUM_K;
 
                 ASSERTV(NUM_K == numCharInstances(SPEC, C));
 
@@ -2506,6 +2695,15 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase4()
                     numFoundBuckets += 0 != matchCount;
                 }
                 ASSERTV(inSet == numFoundBuckets);
+
+                const Iter it = mX.find(K);
+                ASSERTV(  it ==  X.find(K));
+                if (inSet) {
+                    ASSERTV(*it == K);
+                }
+                else {
+                    ASSERTV(X.end() == it);
+                }
             }
         }
     }
@@ -2722,6 +2920,46 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase2()
     //:
     //:15 Any memory allocation is exception neutral.
     // ------------------------------------------------------------------------
+
+    // Function signatures check
+
+    typedef bsltf::TestValuesArrayIterator<KEY> TVAIter;
+
+    {
+        typedef Iter (Obj::*MP)(const KEY&);
+        MP mp = &Obj::insert;
+        (void) mp;
+    }
+    {
+        typedef Iter (Obj::*MP)(Iter, const KEY&);
+        MP mp = &Obj::insert;
+        (void) mp;
+    }
+    {
+        typedef void (Obj::*MP)(TVAIter, TVAIter);
+        MP mp = &Obj::insert;
+        (void) mp;
+    }
+    {
+        typedef Iter (Obj::*MP)(Iter);
+        MP mp = &Obj::erase;
+        (void) mp;
+    }
+    {
+        typedef size_t (Obj::*MP)(const KEY&);
+        MP mp = &Obj::erase;
+        (void) mp;
+    }
+    {
+        typedef Iter (Obj::*MP)(Iter, Iter);
+        MP mp = &Obj::erase;
+        (void) mp;
+    }
+    {
+        typedef void (Obj::*MP)();
+        MP mp = &Obj::clear;
+        (void) mp;
+    }
 
     const bool VALUE_TYPE_USES_ALLOC = bslma::UsesBslmaAllocator<KEY>::value;
 
@@ -3032,6 +3270,19 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase2()
             }
 
             values.resetIterators();
+
+            mX.insert(values.begin(), values.index('Z' + 1 - 'A'));
+
+            for (size_t ti = 0; ti < values.size(); ++ti) {
+                const size_t EXP = ti < MAX_LENGTH
+                                 ? 2
+                                 : ti <= 'Z' - 'A'
+                                 ? 1
+                                 : 0;
+                ASSERTV(EXP == X.count(values[ti]));
+            }
+
+            values.resetIterators();
         }
 
         // Verify all memory is released on object destruction.
@@ -3061,6 +3312,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase2()
             }
             else {
                 ASSERTV(mX.end() != it);
+                ASSERTV(itKey == *it);
             }
 
             Iter eraseIt = mX.erase(it);
@@ -3662,7 +3914,7 @@ int main(int argc, char *argv[])
     bslma::Default::setDefaultAllocator(&testAlloc);
 
     switch (test) { case 0:
-      case 10: {
+      case 12: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -3814,6 +4066,26 @@ int main(int argc, char *argv[])
 // 'bslstl_unoroderedmultiset' are identical to those of 'bslstl_unorderedmap'.
 // See the material in {'bslstl_unorderedmap'|Example 2}.
 
+      } break;
+      case 11: {
+        // --------------------------------------------------------------------
+        // 'G' FUNCTION
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("Testing 'g' function\n"
+                            "====================\n");
+
+        RUN_EACH_TYPE(TestDriver,
+                      testCase11,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+      } break;
+      case 10: {
+        // --------------------------------------------------------------------
+        // BSLX -- N/A
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("BSLX: N/A\n"
+                            "=========\n");
       } break;
       case 9: {
         // --------------------------------------------------------------------
@@ -4120,107 +4392,6 @@ int main(int argc, char *argv[])
 
         if (veryVerbose)
             printf("Final message to confim the end of the breathing test.\n");
-      } break;
-      case -1: {
-        // --------------------------------------------------------------------
-        // TEST FUNCTION SIGNATURES
-        //
-        // These tests will later be moved to a test with a high index, for the
-        // most part they just verify compilation without errors, so they can
-        // be in a negative test for the time being.
-        // --------------------------------------------------------------------
-
-        typedef bsl::unordered_multiset<int> Obj;
-        typedef Obj::iterator Iter;
-        typedef Obj::const_iterator CIter;
-        typedef int KEY;
-
-        if (verbose) printf("Verify const & non-const find are different\n");
-        {
-            typedef CIter (Obj::*ConstFindMemPtr)(   const KEY&) const;
-            typedef Iter  (Obj::*NonConstFindMemPtr)(const KEY&);
-
-            union U {
-                ConstFindMemPtr    d_cfmp;
-                NonConstFindMemPtr d_ncfmp;
-                UintPtr            d_uip;
-            };
-
-            U u;
-            u.d_cfmp  = &Obj::find;
-            u.d_ncfmp = &Obj::find;
-            (void) u.d_uip;
-        }
-
-        if (verbose) {
-            printf("Verify const & non-const begin & end are different\n");
-        }
-        {
-            typedef CIter (Obj::*ConstBeginMemPtr)() const;
-            typedef Iter  (Obj::*NonConstBeginMemPtr)();
-
-            union U {
-                ConstBeginMemPtr    d_cbmp;
-                NonConstBeginMemPtr d_ncbmp;
-                UintPtr             d_uip;
-            };
-
-            U u;
-            u.d_cbmp  = &Obj::begin;
-            u.d_cbmp  = &Obj::cbegin;
-            u.d_ncbmp = &Obj::begin;
-            u.d_cbmp  = &Obj::end;
-            u.d_cbmp  = &Obj::cend;
-            u.d_ncbmp = &Obj::end;
-            (void) u.d_uip;
-        }
-
-        if (verbose) {
-            printf("Verify const & non-const equal_range are different\n");
-        }
-        {
-            typedef bsl::pair<CIter, CIter> CPr;
-            typedef bsl::pair<Iter,  Iter>  Pr;
-
-            typedef CPr (Obj::*ConstERMemPtr)(const KEY&) const;
-            typedef Pr  (Obj::*NonConstERMemPtr)(const KEY&);
-
-            union U {
-                ConstERMemPtr    d_cermp;
-                NonConstERMemPtr d_ncermp;
-                UintPtr          d_uip;
-            };
-
-            U u;
-            u.d_cermp  = &Obj::equal_range;
-            u.d_ncermp = &Obj::equal_range;
-            (void) u.d_uip;
-        }
-
-        if (verbose) {
-            printf(
-                 "Verify const & non-const begin(i) & end(i) are different\n");
-        }
-        {
-            typedef typename Obj::local_iterator       LIter;
-            typedef typename Obj::const_local_iterator CLIter;
-
-            typedef CLIter (Obj::*ConstBeginMemPtr)(   size_t) const;
-            typedef LIter  (Obj::*NonConstBeginMemPtr)(size_t);
-
-            union U {
-                ConstBeginMemPtr    d_cbmp;
-                NonConstBeginMemPtr d_ncbmp;
-                UintPtr             d_uip;
-            };
-
-            U u;
-            u.d_cbmp  = &Obj::begin;
-            u.d_ncbmp = &Obj::begin;
-            u.d_cbmp  = &Obj::end;
-            u.d_ncbmp = &Obj::end;
-            (void) u.d_uip;
-        }
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
