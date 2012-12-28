@@ -471,11 +471,11 @@ BSLS_IDENT("$Id: $")
 //  {
 //      assert(end != start);
 //      assert(out);
-//  
+//
 //      double sumPast    = 0.0;
 //      double sumPending = 0.0;
 //      int    count      = 0;
-//  
+//
 //      for (DataByProfileConstItr itr = start; end != itr; ++itr) {
 //          sumPast    += itr->d_past;
 //          sumPending += itr->d_pending;
@@ -1595,7 +1595,7 @@ inline
 typename unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::size_type
 unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::max_bucket_count() const
 {
-    return d_impl.maxNumOfBuckets();
+    return d_impl.maxNumBuckets();
 }
 
 
