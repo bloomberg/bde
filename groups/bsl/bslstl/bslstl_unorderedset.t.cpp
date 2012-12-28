@@ -1513,7 +1513,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase26()
 
     size_t maxSizeT = 0;
     --maxSizeT;
-    // ASSERTV(X.max_bucket_count() < maxSizeT);    // TBD
+    ASSERTV(X.max_bucket_count() <= maxSizeT);    // TBD -- should be '<'
 
     const char *SPEC = "ABCDEFGH";
 
@@ -4927,7 +4927,14 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase6()
 //                  bslma::TestAllocatorMonitor oaxm(&xa);
 //                  bslma::TestAllocatorMonitor oaym(&ya);
 
-//                  TestEqualityComparator<KEY>::disableFunctor();
+                    // EQUAL::disableFunctor();
+                            // TBD -- fails this test EQUAL is used to
+                            // determine the equality groups, then
+                            // bsl::permutation is used to determine if they're
+                            // isomorphic, and bsl::permutation uses
+                            // 'operator=='.  It will take a lot of work to
+                            // verify that this is the case, putting it off for
+                            // later.
 
                     ASSERTV(LINE1, LINE2, CONFIG,  EXP == (X == Y));
                     ASSERTV(LINE1, LINE2, CONFIG,  EXP == (Y == X));
@@ -4946,7 +4953,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase6()
                     ASSERTV(LINE1, LINE2, CONFIG, !EXP == (X != Y));
                     ASSERTV(LINE1, LINE2, CONFIG, !EXP == (Y != X));
 
-//                  TestEqualityComparator<KEY>::enableFunctor();
+//                  EQUAL::enableFunctor();
 
 //                  ASSERTV(LINE1, LINE2, CONFIG, oaxm.isTotalSame());
 //                  ASSERTV(LINE1, LINE2, CONFIG, oaym.isTotalSame());
