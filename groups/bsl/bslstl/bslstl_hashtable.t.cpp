@@ -2808,7 +2808,7 @@ TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::gg(Obj        *object,
 
 #if defined(THE_BEST_IS_YET_TO_COME)
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
-void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase13()
+void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase14()
 {
     // ------------------------------------------------------------------------
     // TESTING 'insert' METHODS
@@ -3352,7 +3352,7 @@ template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase13()
 {
     // ------------------------------------------------------------------------
-    // TESTING remove METHOD
+    // TESTING setMaxLoadFactor METHOD
     //
     // Concerns:
     //: 1 ...
@@ -3363,10 +3363,76 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase13()
     //:
     //
     // Testing:
+    //*  setMaxLoadFactor
     // ------------------------------------------------------------------------
 
     if (verbose) {
-        printf("\nTesting is not yet implemented.\n");
+        printf("\nTesting 'setMaxLoadFactor'.\n");
+    }
+
+    bslma::TestAllocator         da("default", veryVeryVeryVerbose);
+    bslma::DefaultAllocatorGuard dag(&da);
+
+    bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
+    ALLOCATOR scratchAlloc = MakeAllocator<ALLOCATOR>::make(&scratch);
+
+    const HASHER     HASH    = MakeDefaultFunctor<HASHER>::make();
+    const COMPARATOR COMPARE = MakeDefaultFunctor<COMPARATOR>::make();
+
+    if (verbose) printf("Testing exteme values.\n");
+    {
+
+        Obj mX(HASH, COMPARE, 1, 1.0f, scratchAlloc);  const Obj& X = mX;
+
+        mX.setMaxLoadFactor(std::numeric_limits<float>::max());
+        ASSERT(std::numeric_limits<float>::max() == X.maxLoadFactor());
+
+        mX.setMaxLoadFactor(std::numeric_limits<float>::infinity());
+        ASSERT(std::numeric_limits<float>::infinity() == X.maxLoadFactor());
+    }
+
+#if defined(BDE_BUILD_TARGET_EXC)
+    if (verbose) printf("Testing exceptional trigger values.\n");
+    {
+        Obj mX(HASH, COMPARE, 1, 1.0f, scratchAlloc);
+        try {
+            mX.setMaxLoadFactor(std::numeric_limits<float>::min());
+            ASSERT(!"setMaxLoadFactor(min) should throw a 'logic_error'");
+        }
+        catch (const std::logic_error &) {
+            // This is the expected code path
+        }
+        catch (...) {
+            ASSERT(!"rehash(max size_t) threw the wrong exception type");
+        }
+
+        try {
+            mX.setMaxLoadFactor(std::numeric_limits<float>::denorm_min());
+            ASSERT(!"setMaxLoadFactor(denorm) should throw a 'logic_error'");
+        }
+        catch (const std::logic_error &) {
+            // This is the expected code path
+        }
+        catch (...) {
+            ASSERT(!"rehash(max size_t) threw the wrong exception type");
+        }
+    }
+#endif
+
+    if (verbose) printf("Negative testing.\n");
+    {
+        bsls::AssertTestHandlerGuard hG;
+
+        Obj mX(HASH, COMPARE, 1, 1.0f, scratchAlloc);
+        ASSERT_SAFE_PASS(mX.setMaxLoadFactor(1.0f));
+        ASSERT_SAFE_FAIL(mX.setMaxLoadFactor(0.0f));
+        ASSERT_SAFE_FAIL(mX.setMaxLoadFactor(-1.0f));
+        ASSERT_SAFE_FAIL(mX.setMaxLoadFactor(
+                                     std::numeric_limits<float>::quiet_NaN()));
+        ASSERT_SAFE_FAIL(mX.setMaxLoadFactor(
+                                     -std::numeric_limits<float>::infinity()));
+        ASSERT_SAFE_PASS(mX.setMaxLoadFactor(
+                                      std::numeric_limits<float>::infinity()));
     }
 
 }
@@ -4069,6 +4135,43 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase11()
                 }
             }
         }
+#if defined BDE_BUILD_TARGET_EXC
+        // The following set of tests are expected, at least in some test
+        // configurations, to fail by throwing exceptions.
+        if (verbose) printf("Testing behavior at extremities.\n");
+        {
+            bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
+            ALLOCATOR scratchAlloc = MakeAllocator<ALLOCATOR>::make(&scratch);
+
+            Obj mX(HASH, COMPARE, 1, 1.0f, scratchAlloc);
+            try {
+                mX.rehashForNumBuckets(std::numeric_limits<size_t>::max());
+                ASSERT(!"rehash(max size_t) should throw a 'logic_error'");
+            }
+            catch (const std::logic_error &) {
+                // This is the expected code path
+            }
+            catch (...) {
+                ASSERT(!"rehash(max size_t) threw the wrong exception type");
+            }
+        }
+//        {
+//            Obj mZ(HASH, COMPARE, NUM_BUCKETS, 1e30f, scratchAlloc);
+//            const Obj& Z = gg(&mZ,  SPEC);
+//        }
+//        {
+//            Obj mZ(HASH, COMPARE, NUM_BUCKETS, 1e-6f, scratchAlloc);
+//            const Obj& Z = gg(&mZ,  SPEC);
+//        }
+//        {
+//            Obj mZ(HASH, COMPARE, NUM_BUCKETS, 1.0f, scratchAlloc);
+//            const Obj& Z = gg(&mZ,  SPEC);
+//        }
+//        {
+//            Obj mZ(HASH, COMPARE, NUM_BUCKETS, 1.0f, scratchAlloc);
+//            const Obj& Z = gg(&mZ,  SPEC);
+//        }
+#endif
     }
 }
 
@@ -5660,7 +5763,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase4()
 
     if (verbose) printf("\nNegative Testing.\n");
     {
-        bsls::AssertFailureHandlerGuard hG(bsls::AssertTest::failTestDriver);
+        bsls::AssertTestHandlerGuard hG;
 
         if (veryVerbose) printf("\t'bucketAtIndex'\n");
         {
@@ -6465,9 +6568,17 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
     {
         bsls::AssertTestHandlerGuard hG;
 
-        ASSERT_SAFE_PASS_RAW(Obj(HASH, COMPARE, 0, 1.0f,  objAlloc))
-        ASSERT_SAFE_FAIL_RAW(Obj(HASH, COMPARE, 0, 0.0f,  objAlloc))
-        ASSERT_SAFE_FAIL_RAW(Obj(HASH, COMPARE, 0, -1.0f, objAlloc))
+        const float FLT_NAN = std::numeric_limits<float>::quiet_NaN();
+        const float FLT_INF = std::numeric_limits<float>::infinity();
+        const float NEG_INF = -std::numeric_limits<float>::infinity();
+        
+        ASSERT_SAFE_PASS_RAW(Obj(HASH, COMPARE, 0, 1.0f,  objAlloc));
+        ASSERT_SAFE_FAIL_RAW(Obj(HASH, COMPARE, 0, 0.0f,  objAlloc));
+        ASSERT_SAFE_FAIL_RAW(Obj(HASH, COMPARE, 0, -0.0f, objAlloc));
+        ASSERT_SAFE_FAIL_RAW(Obj(HASH, COMPARE, 0, -1.0f, objAlloc));
+        ASSERT_SAFE_FAIL_RAW(Obj(HASH, COMPARE, 0, NEG_INF, objAlloc));
+        ASSERT_SAFE_FAIL_RAW(Obj(HASH, COMPARE, 0, FLT_NAN, objAlloc));
+        ASSERT_SAFE_PASS_RAW(Obj(HASH, COMPARE, 0, FLT_INF, objAlloc));
     }
 }
 

@@ -3346,18 +3346,17 @@ void HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::setMaxLoadFactor(
 {
     BSLS_ASSERT_SAFE(0.0f < newMaxLoadFactor);
 
-    if (d_capacity > 0) {
-        size_t capacity;
-        SizeType numBuckets =
+    size_t capacity;
+    SizeType numBuckets =
              HashTable_ImpDetails::growBucketsForLoadFactor(
                                          &capacity,
                                          native_std::max<SizeType>(d_size, 1u),
                                          this->numBuckets(),
                                          newMaxLoadFactor);
 
-        this->rehashIntoExactlyNumBuckets(numBuckets, capacity);
-    }
+    this->rehashIntoExactlyNumBuckets(numBuckets, capacity);
 
+    // Always set this last, as there is potential to throw exceptions above.
     d_maxLoadFactor = newMaxLoadFactor;
 }
 
