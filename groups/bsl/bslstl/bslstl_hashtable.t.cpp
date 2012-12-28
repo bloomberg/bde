@@ -330,9 +330,9 @@ static const int DEFAULT_NUM_DATA = sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA;
 static
 const float DEFAULT_MAX_LOAD_FACTOR[] = {
      0.125f,
-     0.66f,
+//     0.66f,
      1.0f,
-     1.5f,
+//     1.5f,
      8.0f,
 };
 static const int DEFAULT_MAX_LOAD_FACTOR_SIZE =
