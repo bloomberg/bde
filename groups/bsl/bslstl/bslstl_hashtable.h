@@ -3274,11 +3274,10 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::rehashForNumBuckets(
 
         size_t capacity;
         SizeType numBuckets =
-               HashTable_ImpDetails::growBucketsForLoadFactor(
-                                         &capacity,
-                                         native_std::max<SizeType>(d_size, 1u),
-                                         newNumBuckets,
-                                         d_maxLoadFactor);
+               HashTable_ImpDetails::growBucketsForLoadFactor(&capacity,
+                                                              d_size + 1u,
+                                                              newNumBuckets,
+                                                              d_maxLoadFactor);
 
         this->rehashIntoExactlyNumBuckets(numBuckets, capacity);
     }
