@@ -330,9 +330,9 @@ static const int DEFAULT_NUM_DATA = sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA;
 static
 const float DEFAULT_MAX_LOAD_FACTOR[] = {
      0.125f,
-//     0.66f,
+//     0.618f,
      1.0f,
-//     1.5f,
+//     1.618f,
      8.0f,
 };
 static const int DEFAULT_MAX_LOAD_FACTOR_SIZE =
@@ -4004,23 +4004,23 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase11()
             const float  MAX_LF      = DEFAULT_MAX_LOAD_FACTOR[tj];
             const size_t NUM_BUCKETS = predictNumBuckets(LENGTH, MAX_LF);
 
-            bslma::TestAllocator      oa("object",  veryVeryVeryVerbose);
             bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
-
             ALLOCATOR scratchAlloc = MakeAllocator<ALLOCATOR>::make(&scratch);
-            ALLOCATOR objAlloc = MakeAllocator<ALLOCATOR>::make(&oa);
 
             Obj mZ(HASH, COMPARE, NUM_BUCKETS, MAX_LF, scratchAlloc);
             const Obj& Z = gg(&mZ,  SPEC);
 
-            for (int tj = 0; tj < NUM_REHASH_SIZE; ++tj) {
+            for (int tk = 0; tk < NUM_REHASH_SIZE; ++tk) {
+                bslma::TestAllocator  oa("object",  veryVeryVeryVerbose);
+                ALLOCATOR objAlloc = MakeAllocator<ALLOCATOR>::make(&oa);
+
                 Obj mX(Z, objAlloc); const Obj& X = mX;
 
                 if (veryVerbose) { T_ P_(LINE) P_(Z) P(X) }
 
                 const size_t OLD_NUM_BUCKETS = X.numBuckets();
                 const size_t NEW_NUM_BUCKETS = std::max(
-                                      REHASH_SIZE[tj],
+                                      REHASH_SIZE[tk],
                                       predictNumBuckets(X.size() + 1, MAX_LF));
 
                 const size_t EXP_NUM_BUCKETS =
@@ -4028,40 +4028,43 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase11()
   
                 bslma::TestAllocatorMonitor oam(&oa);
 
-                mX.rehashForNumBuckets(REHASH_SIZE[tj]);
+                mX.rehashForNumBuckets(REHASH_SIZE[tk]);
 
-                ASSERTV(LINE, tj, X == Z);
+                ASSERTV(LINE, tk, MAX_LF, X == Z);
+                ASSERTV(LINE, tk, MAX_LF, REHASH_SIZE[tk], X.numBuckets(),
+                        REHASH_SIZE[tk] <= X.numBuckets());
 
-                if (REHASH_SIZE[tj] <= OLD_NUM_BUCKETS) {
-                    ASSERTV(LINE, tj, OLD_NUM_BUCKETS == X.numBuckets());
-                    ASSERTV(LINE, tj, oam.isTotalSame());
-                    ASSERTV(LINE, tj, oam.isInUseSame());
+                // If request is smaller than current number of buckets, there
+                // should be no effect, no change in buckets, and no chance to
+                // allocate memory.
+                if (REHASH_SIZE[tk] <= OLD_NUM_BUCKETS) {
+                    ASSERTV(LINE, tk, MAX_LF,
+                            OLD_NUM_BUCKETS == X.numBuckets());
+                    ASSERTV(LINE, tk, MAX_LF, oam.isTotalSame());
+                    ASSERTV(LINE, tk, MAX_LF, oam.isInUseSame());
                 }
+                // Otherwise, we have computed the new expected number of
+                // buckets, and there should be exactly one allocation for the
+                // new bucket array.
                 else {
-                    ASSERTV(LINE, tj, MAX_LF,
-                            NEW_NUM_BUCKETS,   X.numBuckets(),
-                            NEW_NUM_BUCKETS <= X.numBuckets());
-                    ASSERTV(//LINE,
-                            tj, MAX_LF, NEW_NUM_BUCKETS,
+                    ASSERTV(LINE, tk, MAX_LF,
                             EXP_NUM_BUCKETS,   X.numBuckets(),
                             EXP_NUM_BUCKETS == X.numBuckets());
                 
-                    if (EXP_NUM_BUCKETS <= OLD_NUM_BUCKETS) {
-                        ASSERTV(LINE, tj, OLD_NUM_BUCKETS == X.numBuckets());
-                        ASSERTV(LINE, tj, oam.isTotalSame());
-                        ASSERTV(LINE, tj, oam.isInUseSame());
+                    ASSERTV(LINE, tk, oam.numBlocksTotalChange(),
+                            1 == oam.numBlocksTotalChange());
+ 
+                    // We release the old array allocation to make use of the
+                    // new, so there should be no change in the number of
+                    // allocated blocks in use.  However, in the case of
+                    // the first allocation on an empty container, we will
+                    // actually be creating the first array block.
+                    if (0 < LENGTH ) {
+                        ASSERTV(LINE, tk, oam.isInUseSame());
                     }
                     else {
-                        ASSERTV(LINE, tj, oam.numBlocksTotalChange(),
-                                1 == oam.numBlocksTotalChange());
- 
-                        if (0 < LENGTH ) {
-                            ASSERTV(LINE, tj, oam.isInUseSame());
-                        }
-                        else {
-                            ASSERTV(LINE, tj, oam.numBlocksInUseChange(),
-                                    1 == oam.numBlocksInUseChange());
-                        }
+                        ASSERTV(LINE, tk, oam.numBlocksInUseChange(),
+                                1 == oam.numBlocksInUseChange());
                     }
                 }
             }
@@ -6584,7 +6587,18 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase1(
         mX.rehashForNumBuckets(0);
         mX.rehashForNumElements(0);
 
-        mX.setMaxLoadFactor(9e-9);
+#if defined(BDE_BUILD_TARGET_EXC)
+        // The call to 'setMaxLoadFactor' may try to allocate a lot of memory
+        // and is known to throw 'bad_alloc' exceptions on AIX test runners.
+        try {
+            mX.setMaxLoadFactor(9e-9);
+        }
+        catch(const std::exception& e) {
+            if (veryVeryVerbose) {
+                printf("exception: '%s'\n", e.what());
+            }
+        }
+#endif
     }
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
