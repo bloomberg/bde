@@ -1472,7 +1472,7 @@ make(bslma::Allocator *basicAllocator)
     ASSERTV(g_bsltfAllocator_p, installedAlloc, currentAllocator, newAllocator,
             g_bsltfAllocator_p && installedAlloc &&
             currentAllocator   && newAllocator);
-                    
+
     ASSERTV(currentAllocator,   newAllocator,
             currentAllocator->name(), newAllocator->name(),
             currentAllocator == newAllocator);
@@ -1540,7 +1540,7 @@ struct ObjectMaker {
     //  'a'      use the specified 'objectAllocator'
     //  'b'      use the default supplied by the constructor
     //  'c'      explicitly pass a null pointer of type 'bslma::Allocator *'
-    //  'd'      explicitly pass the default allocator 
+    //  'd'      explicitly pass the default allocator
     //..
 
     static
@@ -1565,7 +1565,7 @@ struct ObjectMaker {
     //  'a'      use the specified 'objectAllocator'
     //  'b'      use the default supplied by the constructor
     //  'c'      explicitly pass a null pointer of type 'bslma::Allocator *'
-    //  'd'      explicitly pass the default allocator 
+    //  'd'      explicitly pass the default allocator
     //..
 };
 
@@ -1602,7 +1602,7 @@ struct ObjectMaker<KEY_CONFIG,
     //  'a'      use the specified 'objectAllocator'
     //  'b'      use the default supplied by the constructor
     //  'c'      explicitly pass a null pointer of type 'bslma::Allocator *'
-    //  'd'      explicitly pass the default allocator 
+    //  'd'      explicitly pass the default allocator
     //..
 
     static
@@ -1627,7 +1627,7 @@ struct ObjectMaker<KEY_CONFIG,
     //  'a'      use the specified 'objectAllocator'
     //  'b'      use the default supplied by the constructor
     //  'c'      explicitly pass a null pointer of type 'bslma::Allocator *'
-    //  'd'      explicitly pass the default allocator 
+    //  'd'      explicitly pass the default allocator
     //..
 };
 
@@ -1668,7 +1668,7 @@ struct ObjectMaker<
     //  'a'      use the specified 'objectAllocator'
     //  'b'      use the default supplied by the constructor
     //  'c'      explicitly pass a null pointer of type 'bslma::Allocator *'
-    //  'd'      explicitly pass the default allocator 
+    //  'd'      explicitly pass the default allocator
     //..
 
     static
@@ -1693,7 +1693,7 @@ struct ObjectMaker<
     //  'a'      use the specified 'objectAllocator'
     //  'b'      use the default supplied by the constructor
     //  'c'      explicitly pass a null pointer of type 'bslma::Allocator *'
-    //  'd'      explicitly pass the default allocator 
+    //  'd'      explicitly pass the default allocator
     //..
 };
 
@@ -1819,8 +1819,8 @@ makeObject(Obj                  **objPtr,
 {
     switch (config) {
       case 'a': {
-          *objPtr = new (*fa) Obj(objectAllocator);                   // RETURN
-          return objectAllocator;
+          *objPtr = new (*fa) Obj(objectAllocator);
+          return objectAllocator;                                     // RETURN
       } break;
       case 'b': {
           *objPtr = new (*fa) Obj();
@@ -1872,8 +1872,8 @@ makeObject(Obj                  **objPtr,
                                   compare,
                                   initialBuckets,
                                   initialMaxLoadFactor,
-                                  objectAllocator);                   // RETURN
-          return objectAllocator;
+                                  objectAllocator);
+          return objectAllocator;                                     // RETURN
       } break;
       case 'b': {
           *objPtr = new (*fa) Obj(hash,
@@ -3554,7 +3554,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase12()
           } break;
           default: {
               ASSERTV(CONFIG, !"Bad allocator config.");
-              return;
+              return;                                                 // RETURN
           } break;
         }
 
@@ -4091,7 +4091,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase11()
 
                 const size_t EXP_NUM_BUCKETS =
                       bslstl::HashTable_ImpDetails::nextPrime(NEW_NUM_BUCKETS);
-  
+
                 bslma::TestAllocatorMonitor oam(&oa);
 
                 mX.rehashForNumBuckets(REHASH_SIZE[tk]);
@@ -4116,10 +4116,10 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase11()
                     ASSERTV(LINE, tk, MAX_LF,
                             EXP_NUM_BUCKETS,   X.numBuckets(),
                             EXP_NUM_BUCKETS == X.numBuckets());
-                
+
                     ASSERTV(LINE, tk, oam.numBlocksTotalChange(),
                             1 == oam.numBlocksTotalChange());
- 
+
                     // We release the old array allocation to make use of the
                     // new, so there should be no change in the number of
                     // allocated blocks in use.  However, in the case of
@@ -4830,7 +4830,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase8()
 
         const float       MAX_LF1 = 0.125f;
         const float       MAX_LF2 = 2.5f;
-        
+
         const char *const SPEC1   = DATA[NUM_DATA-1].d_spec;
         const char *const SPEC2   = DATA[NUM_DATA-2].d_spec;
 
@@ -6571,7 +6571,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
         const float FLT_NAN = std::numeric_limits<float>::quiet_NaN();
         const float FLT_INF = std::numeric_limits<float>::infinity();
         const float NEG_INF = -std::numeric_limits<float>::infinity();
-        
+
         ASSERT_SAFE_PASS_RAW(Obj(HASH, COMPARE, 0, 1.0f,  objAlloc));
         ASSERT_SAFE_FAIL_RAW(Obj(HASH, COMPARE, 0, 0.0f,  objAlloc));
         ASSERT_SAFE_FAIL_RAW(Obj(HASH, COMPARE, 0, -0.0f, objAlloc));
@@ -6691,7 +6691,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase1(
 
        // This makes sense only if 'Value' is a 'pair'.
  //        (void)mX.insertIfMissing(K);
- 
+
         newLink = mX.remove(newLink);
         mX.removeAll();
 
@@ -8511,8 +8511,8 @@ int main(int argc, char *argv[])
         //  TESTING 'remove'
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTesting 'remove'"
-                            "\n================\n");
+        if (verbose) printf("\nTesting 'setMaxLoadFactor'"
+                            "\n==========================\n");
 
         RUN_EACH_TYPE(TestDriver_BasicConfiguation,
                       testCase13,
