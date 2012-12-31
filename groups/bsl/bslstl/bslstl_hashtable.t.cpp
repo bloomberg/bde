@@ -3,8 +3,8 @@
 
 #include <bslstl_equalto.h>
 #include <bslstl_hash.h>
-#include <bslstl_hashtableiterator.h>
-#include <bslstl_iterator.h>  // 'distance'
+#include <bslstl_hashtableiterator.h>  // usage example
+#include <bslstl_iterator.h>           // 'distance', in usage example
 
 #include <bslalg_bidirectionallink.h>
 
@@ -2456,8 +2456,8 @@ class TestDriver {
 
     static void testCase2();
 
-    static void testCase1(typename KEY_CONFIG::ValueType *testValues,
-                          size_t                          numValues);
+    //        Test case 1 is handled separately
+
 };
 
 // - - - - - Wrapper to forward test-class adapters to the main harness - - - -
@@ -2516,7 +2516,7 @@ struct TestDriver_ForwardTestCasesByConfiguation {
 
     static void testCase2() { CONFIGURED_DRIVER::testCase2(); }
 
-    // We do not forward a generic breathing test, testCase1();
+    // there is no testCase1();
 };
 
 // - - - - - - - - - - Pre-packaged test harness adapters - - - - - - - - - - -
@@ -4366,6 +4366,8 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase9()
 
             if (veryVerbose) { T_ P_(LINE1) P_(Z) P(ZZ) }
 
+            // should perform a self-assignment test here
+
             // Create second object
             for (int lfj = 0; lfj < DEFAULT_MAX_LOAD_FACTOR_SIZE; ++lfj) {
             for (int tj = 0; tj < NUM_DATA; ++tj) {
@@ -4401,6 +4403,9 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase9()
                         ASSERTV(LINE1, LINE2,
                                 Z.maxLoadFactor(),   X.maxLoadFactor(),
                                 Z.maxLoadFactor() == X.maxLoadFactor());
+
+                        // If we can compare the two functor objects, we should
+                        // do so, to verify stateful allocators are copied too.
                     } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
                     ASSERTV(LINE1, LINE2, ZZ, Z, ZZ == Z);
@@ -4425,45 +4430,6 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase9()
                         0 == oa.numBlocksInUse());
             }
             }
-
-#if 0  // THIS IS A DUBIOUS TEST COPIED OVER FROM ASSOCIATIVE CONTAINERS
-            // self-assignment
-
-            bslma::TestAllocator oa("object", veryVeryVeryVerbose);
-
-            {
-                bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
-
-                Obj mX(HASH, COMPARE, NUM_BUCKETS1, MAX_LF1, &oa);
-                const Obj& X  = gg(&mX,  SPEC1);
-                Obj mZZ(HASH, COMPARE, NUM_BUCKETS1, MAX_LF1, &scratch);
-                const Obj& ZZ  = gg(&mZZ,  SPEC1);
-
-                const Obj& Z = mX;
-
-                ASSERTV(LINE1, ZZ, Z, ZZ == Z);
-
-                bslma::TestAllocatorMonitor oam(&oa), sam(&scratch);
-
-                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
-                    if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
-
-                    Obj *mR = &(mX = Z);
-                    ASSERTV(LINE1, ZZ,   Z, ZZ == Z);
-                    ASSERTV(LINE1, mR,  &X, mR == &X);
-                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
-
-                ASSERTV(LINE1, &oa == Z.allocator());
-
-                ASSERTV(LINE1, sam.isTotalSame());
-                ASSERTV(LINE1, oam.isTotalSame());
-
-                ASSERTV(LINE1, 0 == da.numBlocksTotal());
-            }
-            // Verify all object memory is released on destruction.
-
-            ASSERTV(LINE1, oa.numBlocksInUse(), 0 == oa.numBlocksInUse());
-#endif
         }
         }
     }
@@ -6582,350 +6548,6 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
     }
 }
 
-template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
-void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase1(
-                                    typename KEY_CONFIG::ValueType *testValues,
-                                    size_t                          numValues)
-{
-    // ------------------------------------------------------------------------
-    // BREATHING TEST
-    //   This case exercises (but does not fully test) basic functionality.
-    //
-    // Concerns:
-    //: 1 The class is sufficiently functional to enable comprehensive
-    //:   testing in subsequent test cases.
-    //
-    // Plan:
-    //: 1 Execute each methods to verify functionality for simple case.
-    //
-    // Testing:
-    //   BREATHING TEST
-    // ------------------------------------------------------------------------
-
-
-    typedef bslstl::HashTable<KEY_CONFIG, HASHER, COMPARATOR> Obj;
-    typedef typename Obj::KeyType    Key;
-    typedef typename Obj::ValueType  Value;
-
-    bslma::TestAllocator defaultAllocator("defaultAllocator");
-    bslma::DefaultAllocatorGuard defaultGuard(&defaultAllocator);
-
-    bslma::TestAllocator objectAllocator("objectAllocator");
-
-    // Sanity check.
-
-    ASSERTV(0 < numValues);
-    ASSERTV(8 > numValues);
-
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-    if (veryVerbose) printf("Construct an empty HashTable.\n");
-    {
-        bslma::TestAllocator dummyAllocator("dummyAllocator");
-
-        // Note that 'HashTable' does not have a default constructor, so we
-        // must explicitly supply a default for each attribute.
-        Obj mX(HASHER(), COMPARATOR(), 0, 1.0f, &dummyAllocator);
-        const Obj& X = mX;
-        ASSERTV(0    == X.size());
-        ASSERTV(0    <  X.maxSize());
-        ASSERTV(0    == defaultAllocator.numBytesInUse());
-        ASSERTV(0    == dummyAllocator.numBytesInUse());
-
-        if (veryVeryVerbose) printf("Call *all* 'const' functions.\n");
-        // As a simple compile-check of the template, call every 'const'
-        // function member, unless they require a non-empty container.
-        HASHER h = X.hasher();          (void)h;
-        COMPARATOR c = X.comparator();  (void)c;
-        bsl::allocator<ValueType> a = X.allocator();
-        ASSERTV(&dummyAllocator == a.mechanism());
-
-        ASSERTV(0 == X.loadFactor());
-        ASSERTV(1.0f == X.maxLoadFactor());
-
-        const Key K = Key();
-        (void)X.bucketIndexForKey(K);
-
-        bslalg::BidirectionalLink *first, *last;
-        X.findRange(&first, &last, K);
-        ASSERTV(0 == first);
-        ASSERTV(0 == last);
-
-        first = X.elementListRoot();
-        last  = X.find(K);
-        ASSERTV(0 == first);
-        ASSERTV(0 == last);
-
-        ASSERTV(X.numBuckets() < X.maxNumBuckets());
-
-        bslalg::HashTableBucket bkt = X.bucketAtIndex(0); (void)bkt;
-        ASSERTV(0 == X.countElementsInBucket(0));
-
-        ASSERTV(X == X);
-        ASSERTV(!(X != X));
-
-        if (veryVeryVerbose) printf("Call *all* modifier functions.\n");
-        // As a simple compile-check of the template, call every remaining
-        // function member.
-        swap(mX, mX);
-        ASSERTV(mX == X);
-        ASSERTV(!(X != mX));
-
-        bslalg::BidirectionalLink *newLink = mX.insert(testValues[0]);
-        newLink = X.findEndOfRange(newLink);  // last 'const' method to check
-        newLink = mX.insert(testValues[0], X.elementListRoot());
-        mX = X;
-        mX.swap(mX);
-        ASSERTV(mX == X);
-        ASSERTV(!(X != mX));
-
-        bool missing;
-        newLink = mX.insertIfMissing(&missing, testValues[0]);
-        ASSERTV(!missing);
-        ASSERTV(X.elementListRoot() == newLink);
-
-        const ConvertibleValueWrapper<Value> val(testValues[0]);
-        newLink = mX.insertIfMissing(&missing, val);
-        ASSERTV(!missing);
-        ASSERTV(X.elementListRoot() == newLink);
-
-       // This makes sense only if 'Value' is a 'pair'.
- //        (void)mX.insertIfMissing(K);
-
-        newLink = mX.remove(newLink);
-        mX.removeAll();
-
-        mX.rehashForNumBuckets(0);
-        mX.rehashForNumElements(0);
-
-#if defined(BDE_BUILD_TARGET_EXC)
-        // The call to 'setMaxLoadFactor' may try to allocate a lot of memory
-        // and is known to throw 'bad_alloc' exceptions on AIX test runners.
-        try {
-            mX.setMaxLoadFactor(9e-9);
-        }
-        catch(const std::exception& e) {
-            if (veryVeryVerbose) {
-                printf("exception: '%s'\n", e.what());
-            }
-        }
-#endif
-    }
-
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-    if (veryVerbose) printf("Test use of allocators.\n");
-    {
-        bslma::TestAllocator objectAllocator1("objectAllocator1");
-        bslma::TestAllocator objectAllocator2("objectAllocator2");
-
-        Obj o1(HASHER(), COMPARATOR(), 0, 1.0f, &objectAllocator1);
-        const Obj& O1 = o1;
-        ASSERTV(&objectAllocator1 == O1.allocator().mechanism());
-
-        for (size_t i = 0; i < numValues; ++i) {
-            o1.insert(testValues[i]);
-        }
-        ASSERTV(numValues == O1.size());
-        ASSERTV(0 <  objectAllocator1.numBytesInUse());
-        ASSERTV(0 == objectAllocator2.numBytesInUse());
-    }
-    {
-        bslma::TestAllocator objectAllocator1("objectAllocator1");
-        bslma::TestAllocator objectAllocator2("objectAllocator2");
-
-        Obj o1(HASHER(), COMPARATOR(), 0, 1.0f, &objectAllocator1);
-        const Obj& O1 = o1;
-        ASSERTV(&objectAllocator1 == O1.allocator().mechanism());
-
-        for (size_t i = 0; i < numValues; ++i) {
-            bool isInsertedFlag = false;
-            o1.insertIfMissing(&isInsertedFlag, testValues[i]);
-            ASSERTV(isInsertedFlag, true == isInsertedFlag);
-        }
-        ASSERTV(numValues == O1.size());
-        ASSERTV(0 <  objectAllocator1.numBytesInUse());
-        ASSERTV(0 == objectAllocator2.numBytesInUse());
-
-
-        // Copied code from below, under evaluation
-        if (veryVerbose) printf("Use a different allocator\n");
-        {
-            bslma::TestAllocatorMonitor monitor(&objectAllocator1);
-            Obj o2(O1, &objectAllocator2); const Obj& O2 = o2;
-            ASSERTV(&objectAllocator2 == O2.allocator().mechanism());
-            ASSERTV(monitor.isInUseSame());
-            ASSERTV(monitor.isTotalSame());
-            ASSERTV(0 <  objectAllocator1.numBytesInUse());
-            ASSERTV(0 <  objectAllocator2.numBytesInUse());
-        }
-        ASSERTV(0 ==  objectAllocator2.numBytesInUse());
-
-
-        if (veryVerbose) printf("Copy construct O2(O1)\n");
-
-        Obj o2(O1, &objectAllocator1); const Obj& O2 = o2;
-
-        ASSERTV(&objectAllocator1 == O2.allocator().mechanism());
-
-        ASSERTV(numValues == O1.size());
-        ASSERTV(numValues == O2.size());
-        ASSERTV(0 <  objectAllocator1.numBytesInUse());
-
-        if (veryVerbose) printf("Default construct O3 and swap with O1\n");
-        Obj o3(HASHER(), COMPARATOR(), 0, 1.0f, &objectAllocator1);
-        const Obj& O3 = o3;
-        ASSERTV(&objectAllocator1 == O3.allocator().mechanism());
-
-        ASSERTV(numValues == O1.size());
-        ASSERTV(numValues == O2.size());
-        ASSERTV(0         == O3.size());
-        ASSERTV(0 <  objectAllocator1.numBytesInUse());
-
-        bslma::TestAllocatorMonitor monitor1(&objectAllocator1);
-        o1.swap(o3);
-        ASSERTV(0         == O1.size());
-        ASSERTV(numValues == O2.size());
-        ASSERTV(numValues == O3.size());
-        ASSERTV(monitor1.isInUseSame());
-        ASSERTV(monitor1.isTotalSame());
-        ASSERTV(0 <  objectAllocator1.numBytesInUse());
-
-        if (veryVerbose) printf("swap O3 with O2\n");
-        o3.swap(o2);
-        ASSERTV(0         == O1.size());
-        ASSERTV(numValues == O2.size());
-        ASSERTV(numValues == O3.size());
-        ASSERTV(!monitor1.isInUseUp());  // Memory usage may go down depending
-                                        // on implementation
-        ASSERTV(!monitor1.isTotalUp());
-        ASSERTV(0 <  objectAllocator1.numBytesInUse());
-
-        ASSERTV(&objectAllocator1 == O1.allocator().mechanism());
-        ASSERTV(&objectAllocator1 == O2.allocator().mechanism());
-        ASSERTV(&objectAllocator1 == O3.allocator().mechanism());
-    }
-
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-    if (veryVerbose) {
-        printf("Test primary manipulators/accessors on every permutation.\n");
-    }
-
-    native_std::sort(testValues, testValues + numValues);
-    do {
-        // For each possible permutation of values, insert values, iterate over
-        // the resulting container, find values, and then erase values.
-
-        Obj x(HASHER(), COMPARATOR(), 0, 1.0f, &objectAllocator);
-        const Obj& X = x;
-        for (size_t i = 0; i < numValues; ++i) {
-            Obj y(X, &objectAllocator); const Obj& Y = y;
-            ASSERTV(X == Y);
-            ASSERTV(!(X != Y));
-
-            ASSERTV(i, 0 == X.find(KEY_CONFIG::extractKey(testValues[i])));
-
-            // Test 'insert'.
-            Value value(testValues[i]);
-            bool isInsertedFlag = false;
-            Link *link = x.insertIfMissing(&isInsertedFlag, value);
-            ASSERTV(0             != link);
-            ASSERTV(true          == isInsertedFlag);
-            ASSERTV(KEY_CONFIG::extractKey(testValues[i] ==
-                                       ImpUtil::extractKey<KEY_CONFIG>(link)));
-            ASSERTV(testValues[i] == ImpUtil::extractValue<KEY_CONFIG>(link));
-
-            // Test size, empty.
-            ASSERTV(i + 1 == X.size());
-            ASSERTV(0 != X.size());
-
-            // Test insert duplicate key
-            ASSERTV(link    == x.insertIfMissing(&isInsertedFlag, value));
-            ASSERTV(false   == isInsertedFlag);
-            ASSERTV(i + 1   == X.size());
-
-            // Test find
-            Link *it     = X.find(KEY_CONFIG::extractKey(testValues[i]));
-            ASSERTV(ImpUtil::extractKey<KEY_CONFIG>(link) ==
-                    ImpUtil::extractKey<KEY_CONFIG>(it));
-
-            ASSERTV(X != Y);
-            ASSERTV(!(X == Y));
-
-            y = x;
-            ASSERTV(X == Y);
-            ASSERTV(!(X != Y));
-        }
-
-        ASSERTV(0 != objectAllocator.numBytesInUse());
-        ASSERTV(0 == defaultAllocator.numBytesInUse());
-
-        // Use remove(link) on all the elements.
-        for (size_t i = 0; i < numValues; ++i) {
-            Link *it     = x.find(KEY_CONFIG::extractKey(testValues[i]));
-            Link *nextIt = it->nextLink();
-
-            ASSERTV(0       != it);
-            ASSERTV(KEY_CONFIG::extractKey(testValues[i] ==
-                                         ImpUtil::extractKey<KEY_CONFIG>(it)));
-            ASSERTV(testValues[i] == ImpUtil::extractValue<KEY_CONFIG>(it));
-            Link *resIt = x.remove(it);
-            ASSERTV(resIt == nextIt);
-
-            Link *resFind = x.find(KEY_CONFIG::extractKey(testValues[i]));
-            ASSERTV(0 == resFind);
-
-            ASSERTV(numValues - i - 1 == X.size());
-        }
-    } while (native_std::next_permutation(testValues,
-                                          testValues + numValues));
-
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-    if (veryVerbose) printf("Test 'remove(bslalg::BidirectionalLink *)'.\n");
-    {
-        native_std::random_shuffle(testValues,  testValues + numValues);
-
-        Obj x(HASHER(), COMPARATOR(), 0, 1.0f, &objectAllocator);
-        const Obj& X = x;
-        for (size_t i = 0; i < numValues; ++i) {
-            Value value(testValues[i]);
-            Link *result1 = x.insert(value);
-            ASSERTV(0 != result1);
-            Link *result2 = x.insert(value);
-            ASSERTV(0 != result2);
-            ASSERTV(result1 != result2);
-            ASSERTV(2 * (i + 1) == X.size());
-
-            Link *start;
-            Link *end;
-            const KeyType& key = KEY_CONFIG::extractKey(testValues[i]);
-            x.findRange(&start, &end, key);
-            ASSERTV(ImpUtil::extractKey<KEY_CONFIG>(start) == key);
-            ASSERTV(ImpUtil::extractKey<KEY_CONFIG>(start->nextLink()) == key);
-            ASSERTV(start->nextLink()->nextLink() == end);
-        }
-
-        for (size_t i = 0; i < numValues; ++i) {
-            Link *const initialRoot = X.elementListRoot();
-            KeyType key = ImpUtil::extractKey<KEY_CONFIG>(initialRoot);
-            Link *resIt1 = x.remove(X.elementListRoot());
-            ASSERTV(initialRoot != resIt1);
-            ASSERTV(initialRoot != X.elementListRoot());
-            ASSERTV(X.elementListRoot() == resIt1);
-            ASSERTV(X.find(key) == resIt1);
-
-            ASSERTV(X.size(), (2 * numValues - (2 * (i + 1) - 1)) == X.size());
-            Link *resIt2 = x.remove(x.elementListRoot());
-            ASSERTV(x.elementListRoot() == resIt2);
-            ASSERTV(resIt2 != resIt1);
-            ASSERTV(X.find(key) == 0);
-            ASSERTV(X.size(), (2 * numValues - 2 * (i + 1)) == X.size());
-        }
-    }
-}
-
 // ============================================================================
 //                              USAGE EXAMPLES
 // ============================================================================
@@ -8303,39 +7925,16 @@ if (verbose) {
     }
 }  // close namespace UsageExamples
 
+
 //=============================================================================
-//                              MAIN PROGRAM
+//                              TEST CASE FUNCTIONS
 //-----------------------------------------------------------------------------
-
-int main(int argc, char *argv[])
+// In order to reduce the complexity of the 'switch' statement in 'main' that
+// was getting to large for some compilers to handle, we have migrated the
+// invokation of each test case into its own function.
+//-----------------------------------------------------------------------------
+void mainTestCaseUsageExample()
 {
-    int  test                = argc > 1 ? atoi(argv[1]) : 0;
-    verbose             = argc > 2;
-    veryVerbose         = argc > 3;
-    veryVeryVerbose     = argc > 4;
-    veryVeryVeryVerbose = argc > 5;
-
-    printf("TEST " __FILE__ " CASE %d\n", test);
-
-    bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
-    bslma::Default::setGlobalAllocator(&globalAllocator);
-
-    bslma::TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
-    bslma::Default::setDefaultAllocator(&defaultAllocator);
-
-    // Set this test allocator globally, up front, to avoid mutliple static
-    // alloctor references on AIX.  This allocator should always be swapped
-    // out by an allocator guard during any specific test case.
-    bslma::TestAllocator bsltfAllocator("bsltf-default", veryVeryVeryVerbose);
-    g_bsltfAllocator_p = &bsltfAllocator;
-    bsltf::StdTestAllocatorConfiguration::setDelegateAllocatorRaw(
-                                                           g_bsltfAllocator_p);
-
-    ASSERT(bsltf::StdTestAllocatorConfiguration::delegateAllocator() ==
-                                                           g_bsltfAllocator_p);
-
-    switch (test) { case 0:
-      case 14: {
         // This case number will rise as remaining tests are implemented.
 
         // --------------------------------------------------------------------
@@ -8363,9 +7962,10 @@ int main(int argc, char *argv[])
         UsageExamples::main3();
         UsageExamples::main4();
 
-      } break;
+}
 #if 0  // Planned test cases, not yet implemented
-      case 23: {
+void mainTestCase23()
+{
         // --------------------------------------------------------------------
         // TESTING PUBLIC TYPEDEFS
         // --------------------------------------------------------------------
@@ -8378,8 +7978,10 @@ int main(int argc, char *argv[])
                       testCase23,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
 
-      } break;
-      case 22: {
+}
+
+void mainTestCase22()
+{
         // --------------------------------------------------------------------
         // TESTING "max" FUNCTIONS
         // --------------------------------------------------------------------
@@ -8392,8 +7994,10 @@ int main(int argc, char *argv[])
                       testCase22,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
 
-      } break;
-      case 21: {
+}
+
+void mainTestCase21()
+{
         // --------------------------------------------------------------------
         // TESTING 'countElementsInBucket'
         // --------------------------------------------------------------------
@@ -8406,8 +8010,9 @@ int main(int argc, char *argv[])
                       testCase21,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
 
-      } break;
-      case 20: {
+}
+void mainTestCase20()
+{
         // --------------------------------------------------------------------
         // TESTING 'findRange'
         // --------------------------------------------------------------------
@@ -8420,8 +8025,9 @@ int main(int argc, char *argv[])
                       testCase20,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
 
-      } break;
-      case 19: {
+}
+void mainTestCase19()
+{
         // --------------------------------------------------------------------
         // TESTING 'find'
         // --------------------------------------------------------------------
@@ -8434,8 +8040,10 @@ int main(int argc, char *argv[])
                       testCase19,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
 
-      } break;
-      case 18: {
+}
+
+void mainTestCase18()
+{
         // --------------------------------------------------------------------
         // TESTING 'insertIfMissing(const KeyType& key);
         // --------------------------------------------------------------------
@@ -8448,8 +8056,10 @@ int main(int argc, char *argv[])
                       testCase18,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
 
-      } break;
-      case 17: {
+}
+
+void mainTestCase17()
+{
         // --------------------------------------------------------------------
         // TESTING 'insertIfMissing(bool *, VALUE)'
         // --------------------------------------------------------------------
@@ -8462,8 +8072,10 @@ int main(int argc, char *argv[])
                       testCase17,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
 
-      } break;
-      case 16: {
+}
+
+void mainTestCase16()
+{
         // --------------------------------------------------------------------
         // TESTING 'insert'
         // --------------------------------------------------------------------
@@ -8476,8 +8088,10 @@ int main(int argc, char *argv[])
                       testCase16,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
 
-      } break;
-      case 15: {
+}
+
+void mainTestCase15()
+{
         // --------------------------------------------------------------------
         // TESTING 'setMaxLoadFactor'
         // --------------------------------------------------------------------
@@ -8490,8 +8104,10 @@ int main(int argc, char *argv[])
                       testCase15,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
 
-      } break;
-      case 14: {
+}
+
+void mainTestCase14()
+{
         // --------------------------------------------------------------------
         // TESTING 'find'
         // --------------------------------------------------------------------
@@ -8504,9 +8120,10 @@ int main(int argc, char *argv[])
                       testCase14,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
 
-      } break;
+}
 #endif
-      case 13: {
+void mainTestCase13()
+{
         // --------------------------------------------------------------------
         //  TESTING 'remove'
         // --------------------------------------------------------------------
@@ -8532,9 +8149,10 @@ int main(int argc, char *argv[])
 
         // Remaining special cases
         TestDriver_AwkwardMaplike::testCase13();
+}
 
-      } break;
-      case 12: {
+void mainTestCase12()
+{
         // --------------------------------------------------------------------
         // DEFAULT CONSTRUCTOR
         // --------------------------------------------------------------------
@@ -8671,8 +8289,10 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTesting degenerate map-like"
                             "\n---------------------------\n");
         TestDriver_AwkwardMaplike::testCase12();
-      } break;
-      case 11: {
+}
+
+void mainTestCase11()
+{
         // --------------------------------------------------------------------
         // TESTING 'rehashFor...' FUNCTIONS
         // --------------------------------------------------------------------
@@ -8820,8 +8440,10 @@ int main(int argc, char *argv[])
                             "\n---------------------------\n");
         TestDriver_AwkwardMaplike::testCase12();
 #endif
-      } break;
-      case 10: {
+}
+
+void mainTestCase10()
+{
         // --------------------------------------------------------------------
         // STREAMING FUNCTIONALITY
         // --------------------------------------------------------------------
@@ -8830,9 +8452,10 @@ int main(int argc, char *argv[])
                             "\n===============================\n");
 
         if (verbose) printf("There is no streaming for this component.\n");
+}
 
-      } break;
-      case 9: {
+void mainTestCase9()
+{
         // --------------------------------------------------------------------
         // ASSIGNMENT OPERATOR
         // --------------------------------------------------------------------
@@ -8857,9 +8480,10 @@ int main(int argc, char *argv[])
 
         // Remaining special cases
         TestDriver_AwkwardMaplike::testCase9();
+}
 
-      } break;
-      case 8: {
+void mainTestCase8()
+{
         // --------------------------------------------------------------------
         // MANIPULATOR AND FREE FUNCTION 'swap'
         // --------------------------------------------------------------------
@@ -8976,8 +8600,10 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTesting degenerate map-like"
                             "\n---------------------------\n");
         TestDriver_AwkwardMaplike::testCase8();
-     } break;
-      case 7: {
+}
+
+void mainTestCase7()
+{
         // --------------------------------------------------------------------
         // COPY CONSTRUCTOR
         // --------------------------------------------------------------------
@@ -9108,8 +8734,10 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTesting degenerate map-like"
                             "\n---------------------------\n");
         TestDriver_AwkwardMaplike::testCase7();
-      } break;
-      case 6: {
+}
+
+void mainTestCase6()
+{
         // --------------------------------------------------------------------
         // EQUALITY OPERATORS
         // --------------------------------------------------------------------
@@ -9169,9 +8797,10 @@ int main(int argc, char *argv[])
 
         // Remaining special cases
         TestDriverForCase6_AwkwardMaplike::testCase6();
+}
 
-      } break;
-      case 5: {
+void mainTestCase5()
+{
         // --------------------------------------------------------------------
         // TESTING OUTPUT (<<) OPERATOR
         // --------------------------------------------------------------------
@@ -9181,8 +8810,10 @@ int main(int argc, char *argv[])
 
         if (verbose)
                    printf("There is no output operator for this component.\n");
-      } break;
-      case 4: {
+}
+
+void mainTestCase4()
+{
         // --------------------------------------------------------------------
         // BASIC ACCESSORS
         // --------------------------------------------------------------------
@@ -9278,8 +8909,10 @@ int main(int argc, char *argv[])
                             "\n---------------------------\n");
         TestDriver_AwkwardMaplike::testCase4();
 
-      } break;
-      case 3: {
+}
+
+void mainTestCase3()
+{
         // --------------------------------------------------------------------
         // GENERATOR FUNCTIONS 'gg' and 'ggg'
         // --------------------------------------------------------------------
@@ -9381,8 +9014,10 @@ int main(int argc, char *argv[])
 
         // Further, need to validate the basic test facilities:
         //   verifyListContents
-      } break;
-      case 2: {
+}
+
+void mainTestCase2()
+{
         // --------------------------------------------------------------------
         // BOOTSTRAP CONSTRUCTOR AND PRIMARY MANIPULATORS
         //   This case is implemented as a method of a template test harness,
@@ -9549,42 +9184,414 @@ int main(int argc, char *argv[])
                             "\n---------------------------\n");
         TestDriver_AwkwardMaplike::testCase2();
 
-      } break;
-      case 1: {
-        // --------------------------------------------------------------------
-        // BREATHING TEST
-        //   This case exercises (but does not fully test) basic functionality.
-        //
-        // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
-        //
-        // Plan:
-        //: 1 Run each method with arbitrary inputs and verify the behavior is
-        //:   as expected.
-        //
-        // Testing:
-        //   BREATHING TEST
-        // --------------------------------------------------------------------
+}
 
-        if (verbose) printf("\nBREATHING TEST"
-                            "\n==============\n");
-        {
-            int INT_VALUES[]   = { INT_MIN, -2, -1, 0, 1, 2, INT_MAX };
-            int NUM_INT_VALUES = sizeof(INT_VALUES) / sizeof(*INT_VALUES);
+void mainTestCase1()
+{
+    // ------------------------------------------------------------------------
+    // BREATHING TEST
+    //   This case exercises (but does not fully test) basic functionality.
+    //
+    // Concerns:
+    //: 1 The class is sufficiently functional to enable comprehensive testing
+    //:   in subsequent test cases.
+    //
+    // Plan:
+    //: 1 Execute each method to verify functionality for simple case.
+    //
+    // Testing:
+    //   BREATHING TEST
+    // ------------------------------------------------------------------------
 
-            typedef BasicKeyConfig<int>          BasicSetOfIntPolicy;
-            typedef bsltf::StdTestAllocator<int> StlTestIntAllocator;
-            typedef ::bsl::hash<int>             TestIntHash;
-            typedef ::bsl::equal_to<int>         TestIntEqual;
 
-            TestDriver<BasicSetOfIntPolicy,
-                       TestIntHash,
-                       TestIntEqual,
-                       StlTestIntAllocator >::testCase1(INT_VALUES,
-                                                        NUM_INT_VALUES);
+    if (verbose) printf("\nBREATHING TEST"
+                        "\n==============\n");
+
+    int INT_VALUES[]   = { INT_MIN, -2, -1, 0, 1, 2, INT_MAX };
+    int NUM_INT_VALUES = sizeof(INT_VALUES) / sizeof(*INT_VALUES);
+
+    typedef BasicKeyConfig<int>          KEY_CONFIG;
+    typedef ::bsl::hash<int>             HASHER;
+    typedef ::bsl::equal_to<int>         COMPARATOR;
+
+    typedef bslstl::HashTable<KEY_CONFIG, HASHER, COMPARATOR> Obj;
+    typedef Obj::KeyType    Key;
+    typedef Obj::KeyType    KeyType;
+    typedef Obj::ValueType  Value;
+    typedef Obj::ValueType  ValueType;
+
+    KEY_CONFIG::ValueType  *testValues = INT_VALUES;
+    size_t                  numValues  = NUM_INT_VALUES;
+
+    bslma::TestAllocator defaultAllocator("defaultAllocator");
+    bslma::DefaultAllocatorGuard defaultGuard(&defaultAllocator);
+
+    bslma::TestAllocator objectAllocator("objectAllocator");
+
+    // Sanity check.
+
+    ASSERTV(0 < numValues);
+    ASSERTV(8 > numValues);
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+    if (veryVerbose) printf("Construct an empty HashTable.\n");
+    {
+        bslma::TestAllocator dummyAllocator("dummyAllocator");
+
+        // Note that 'HashTable' does not have a default constructor, so we
+        // must explicitly supply a default for each attribute.
+        Obj mX(HASHER(), COMPARATOR(), 0, 1.0f, &dummyAllocator);
+        const Obj& X = mX;
+        ASSERTV(0    == X.size());
+        ASSERTV(0    <  X.maxSize());
+        ASSERTV(0    == defaultAllocator.numBytesInUse());
+        ASSERTV(0    == dummyAllocator.numBytesInUse());
+
+        if (veryVeryVerbose) printf("Call *all* 'const' functions.\n");
+        // As a simple compile-check of the template, call every 'const'
+        // function member, unless they require a non-empty container.
+        HASHER h = X.hasher();          (void)h;
+        COMPARATOR c = X.comparator();  (void)c;
+        bsl::allocator<ValueType> a = X.allocator();
+        ASSERTV(&dummyAllocator == a.mechanism());
+
+        ASSERTV(0 == X.loadFactor());
+        ASSERTV(1.0f == X.maxLoadFactor());
+
+        const Key K = Key();
+        (void)X.bucketIndexForKey(K);
+
+        bslalg::BidirectionalLink *first, *last;
+        X.findRange(&first, &last, K);
+        ASSERTV(0 == first);
+        ASSERTV(0 == last);
+
+        first = X.elementListRoot();
+        last  = X.find(K);
+        ASSERTV(0 == first);
+        ASSERTV(0 == last);
+
+        ASSERTV(X.numBuckets() < X.maxNumBuckets());
+
+        bslalg::HashTableBucket bkt = X.bucketAtIndex(0); (void)bkt;
+        ASSERTV(0 == X.countElementsInBucket(0));
+
+        ASSERTV(X == X);
+        ASSERTV(!(X != X));
+
+        if (veryVeryVerbose) printf("Call *all* modifier functions.\n");
+        // As a simple compile-check of the template, call every remaining
+        // function member.
+        swap(mX, mX);
+        ASSERTV(mX == X);
+        ASSERTV(!(X != mX));
+
+        bslalg::BidirectionalLink *newLink = mX.insert(testValues[0]);
+        newLink = X.findEndOfRange(newLink);  // last 'const' method to check
+        newLink = mX.insert(testValues[0], X.elementListRoot());
+        mX = X;
+        mX.swap(mX);
+        ASSERTV(mX == X);
+        ASSERTV(!(X != mX));
+
+        bool missing;
+        newLink = mX.insertIfMissing(&missing, testValues[0]);
+        ASSERTV(!missing);
+        ASSERTV(X.elementListRoot() == newLink);
+
+        const ConvertibleValueWrapper<Value> val(testValues[0]);
+        newLink = mX.insertIfMissing(&missing, val);
+        ASSERTV(!missing);
+        ASSERTV(X.elementListRoot() == newLink);
+
+       // This makes sense only if 'Value' is a 'pair'.
+ //        (void)mX.insertIfMissing(K);
+
+        newLink = mX.remove(newLink);
+        mX.removeAll();
+
+        mX.rehashForNumBuckets(0);
+        mX.rehashForNumElements(0);
+
+#if defined(BDE_BUILD_TARGET_EXC)
+        // The call to 'setMaxLoadFactor' may try to allocate a lot of memory
+        // and is known to throw 'bad_alloc' exceptions on AIX test runners.
+        try {
+            mX.setMaxLoadFactor(9e-9);
         }
-      } break;
+        catch(const std::exception& e) {
+            if (veryVeryVerbose) {
+                printf("exception: '%s'\n", e.what());
+            }
+        }
+#endif
+    }
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+    if (veryVerbose) printf("Test use of allocators.\n");
+    {
+        bslma::TestAllocator objectAllocator1("objectAllocator1");
+        bslma::TestAllocator objectAllocator2("objectAllocator2");
+
+        Obj o1(HASHER(), COMPARATOR(), 0, 1.0f, &objectAllocator1);
+        const Obj& O1 = o1;
+        ASSERTV(&objectAllocator1 == O1.allocator().mechanism());
+
+        for (size_t i = 0; i < numValues; ++i) {
+            o1.insert(testValues[i]);
+        }
+        ASSERTV(numValues == O1.size());
+        ASSERTV(0 <  objectAllocator1.numBytesInUse());
+        ASSERTV(0 == objectAllocator2.numBytesInUse());
+    }
+    {
+        bslma::TestAllocator objectAllocator1("objectAllocator1");
+        bslma::TestAllocator objectAllocator2("objectAllocator2");
+
+        Obj o1(HASHER(), COMPARATOR(), 0, 1.0f, &objectAllocator1);
+        const Obj& O1 = o1;
+        ASSERTV(&objectAllocator1 == O1.allocator().mechanism());
+
+        for (size_t i = 0; i < numValues; ++i) {
+            bool isInsertedFlag = false;
+            o1.insertIfMissing(&isInsertedFlag, testValues[i]);
+            ASSERTV(isInsertedFlag, true == isInsertedFlag);
+        }
+        ASSERTV(numValues == O1.size());
+        ASSERTV(0 <  objectAllocator1.numBytesInUse());
+        ASSERTV(0 == objectAllocator2.numBytesInUse());
+
+
+        // Copied code from below, under evaluation
+        if (veryVerbose) printf("Use a different allocator\n");
+        {
+            bslma::TestAllocatorMonitor monitor(&objectAllocator1);
+            Obj o2(O1, &objectAllocator2); const Obj& O2 = o2;
+            ASSERTV(&objectAllocator2 == O2.allocator().mechanism());
+            ASSERTV(monitor.isInUseSame());
+            ASSERTV(monitor.isTotalSame());
+            ASSERTV(0 <  objectAllocator1.numBytesInUse());
+            ASSERTV(0 <  objectAllocator2.numBytesInUse());
+        }
+        ASSERTV(0 ==  objectAllocator2.numBytesInUse());
+
+
+        if (veryVerbose) printf("Copy construct O2(O1)\n");
+
+        Obj o2(O1, &objectAllocator1); const Obj& O2 = o2;
+
+        ASSERTV(&objectAllocator1 == O2.allocator().mechanism());
+
+        ASSERTV(numValues == O1.size());
+        ASSERTV(numValues == O2.size());
+        ASSERTV(0 <  objectAllocator1.numBytesInUse());
+
+        if (veryVerbose) printf("Default construct O3 and swap with O1\n");
+        Obj o3(HASHER(), COMPARATOR(), 0, 1.0f, &objectAllocator1);
+        const Obj& O3 = o3;
+        ASSERTV(&objectAllocator1 == O3.allocator().mechanism());
+
+        ASSERTV(numValues == O1.size());
+        ASSERTV(numValues == O2.size());
+        ASSERTV(0         == O3.size());
+        ASSERTV(0 <  objectAllocator1.numBytesInUse());
+
+        bslma::TestAllocatorMonitor monitor1(&objectAllocator1);
+        o1.swap(o3);
+        ASSERTV(0         == O1.size());
+        ASSERTV(numValues == O2.size());
+        ASSERTV(numValues == O3.size());
+        ASSERTV(monitor1.isInUseSame());
+        ASSERTV(monitor1.isTotalSame());
+        ASSERTV(0 <  objectAllocator1.numBytesInUse());
+
+        if (veryVerbose) printf("swap O3 with O2\n");
+        o3.swap(o2);
+        ASSERTV(0         == O1.size());
+        ASSERTV(numValues == O2.size());
+        ASSERTV(numValues == O3.size());
+        ASSERTV(!monitor1.isInUseUp());  // Memory usage may go down depending
+                                        // on implementation
+        ASSERTV(!monitor1.isTotalUp());
+        ASSERTV(0 <  objectAllocator1.numBytesInUse());
+
+        ASSERTV(&objectAllocator1 == O1.allocator().mechanism());
+        ASSERTV(&objectAllocator1 == O2.allocator().mechanism());
+        ASSERTV(&objectAllocator1 == O3.allocator().mechanism());
+    }
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+    if (veryVerbose) {
+        printf("Test primary manipulators/accessors on every permutation.\n");
+    }
+
+    native_std::sort(testValues, testValues + numValues);
+    do {
+        // For each possible permutation of values, insert values, iterate over
+        // the resulting container, find values, and then erase values.
+
+        Obj x(HASHER(), COMPARATOR(), 0, 1.0f, &objectAllocator);
+        const Obj& X = x;
+        for (size_t i = 0; i < numValues; ++i) {
+            Obj y(X, &objectAllocator); const Obj& Y = y;
+            ASSERTV(X == Y);
+            ASSERTV(!(X != Y));
+
+            ASSERTV(i, 0 == X.find(KEY_CONFIG::extractKey(testValues[i])));
+
+            // Test 'insert'.
+            Value value(testValues[i]);
+            bool isInsertedFlag = false;
+            Link *link = x.insertIfMissing(&isInsertedFlag, value);
+            ASSERTV(0             != link);
+            ASSERTV(true          == isInsertedFlag);
+            ASSERTV(KEY_CONFIG::extractKey(testValues[i] ==
+                                       ImpUtil::extractKey<KEY_CONFIG>(link)));
+            ASSERTV(testValues[i] == ImpUtil::extractValue<KEY_CONFIG>(link));
+
+            // Test size, empty.
+            ASSERTV(i + 1 == X.size());
+            ASSERTV(0 != X.size());
+
+            // Test insert duplicate key
+            ASSERTV(link    == x.insertIfMissing(&isInsertedFlag, value));
+            ASSERTV(false   == isInsertedFlag);
+            ASSERTV(i + 1   == X.size());
+
+            // Test find
+            Link *it     = X.find(KEY_CONFIG::extractKey(testValues[i]));
+            ASSERTV(ImpUtil::extractKey<KEY_CONFIG>(link) ==
+                    ImpUtil::extractKey<KEY_CONFIG>(it));
+
+            ASSERTV(X != Y);
+            ASSERTV(!(X == Y));
+
+            y = x;
+            ASSERTV(X == Y);
+            ASSERTV(!(X != Y));
+        }
+
+        ASSERTV(0 != objectAllocator.numBytesInUse());
+        ASSERTV(0 == defaultAllocator.numBytesInUse());
+
+        // Use remove(link) on all the elements.
+        for (size_t i = 0; i < numValues; ++i) {
+            Link *it     = x.find(KEY_CONFIG::extractKey(testValues[i]));
+            Link *nextIt = it->nextLink();
+
+            ASSERTV(0       != it);
+            ASSERTV(KEY_CONFIG::extractKey(testValues[i] ==
+                                         ImpUtil::extractKey<KEY_CONFIG>(it)));
+            ASSERTV(testValues[i] == ImpUtil::extractValue<KEY_CONFIG>(it));
+            Link *resIt = x.remove(it);
+            ASSERTV(resIt == nextIt);
+
+            Link *resFind = x.find(KEY_CONFIG::extractKey(testValues[i]));
+            ASSERTV(0 == resFind);
+
+            ASSERTV(numValues - i - 1 == X.size());
+        }
+    } while (native_std::next_permutation(testValues,
+                                          testValues + numValues));
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+    if (veryVerbose) printf("Test 'remove(bslalg::BidirectionalLink *)'.\n");
+    {
+        native_std::random_shuffle(testValues,  testValues + numValues);
+
+        Obj x(HASHER(), COMPARATOR(), 0, 1.0f, &objectAllocator);
+        const Obj& X = x;
+        for (size_t i = 0; i < numValues; ++i) {
+            Value value(testValues[i]);
+            Link *result1 = x.insert(value);
+            ASSERTV(0 != result1);
+            Link *result2 = x.insert(value);
+            ASSERTV(0 != result2);
+            ASSERTV(result1 != result2);
+            ASSERTV(2 * (i + 1) == X.size());
+
+            Link *start;
+            Link *end;
+            const KeyType& key = KEY_CONFIG::extractKey(testValues[i]);
+            x.findRange(&start, &end, key);
+            ASSERTV(ImpUtil::extractKey<KEY_CONFIG>(start) == key);
+            ASSERTV(ImpUtil::extractKey<KEY_CONFIG>(start->nextLink()) == key);
+            ASSERTV(start->nextLink()->nextLink() == end);
+        }
+
+        for (size_t i = 0; i < numValues; ++i) {
+            Link *const initialRoot = X.elementListRoot();
+            KeyType key = ImpUtil::extractKey<KEY_CONFIG>(initialRoot);
+            Link *resIt1 = x.remove(X.elementListRoot());
+            ASSERTV(initialRoot != resIt1);
+            ASSERTV(initialRoot != X.elementListRoot());
+            ASSERTV(X.elementListRoot() == resIt1);
+            ASSERTV(X.find(key) == resIt1);
+
+            ASSERTV(X.size(), (2 * numValues - (2 * (i + 1) - 1)) == X.size());
+            Link *resIt2 = x.remove(x.elementListRoot());
+            ASSERTV(x.elementListRoot() == resIt2);
+            ASSERTV(resIt2 != resIt1);
+            ASSERTV(X.find(key) == 0);
+            ASSERTV(X.size(), (2 * numValues - 2 * (i + 1)) == X.size());
+        }
+    }
+}
+
+//=============================================================================
+//                              MAIN PROGRAM
+//-----------------------------------------------------------------------------
+
+int main(int argc, char *argv[])
+{
+    int test            = argc > 1 ? atoi(argv[1]) : 0;
+    verbose             = argc > 2;
+    veryVerbose         = argc > 3;
+    veryVeryVerbose     = argc > 4;
+    veryVeryVeryVerbose = argc > 5;
+
+    printf("TEST " __FILE__ " CASE %d\n", test);
+
+    bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
+    bslma::Default::setGlobalAllocator(&globalAllocator);
+
+    bslma::TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
+    bslma::Default::setDefaultAllocator(&defaultAllocator);
+
+    // Set this test allocator globally, up front, to avoid mutliple static
+    // alloctor references on AIX.  This allocator should always be swapped
+    // out by an allocator guard during any specific test case.
+    bslma::TestAllocator bsltfAllocator("bsltf-default", veryVeryVeryVerbose);
+    g_bsltfAllocator_p = &bsltfAllocator;
+    bsltf::StdTestAllocatorConfiguration::setDelegateAllocatorRaw(
+                                                           g_bsltfAllocator_p);
+
+    ASSERT(bsltf::StdTestAllocatorConfiguration::delegateAllocator() ==
+                                                           g_bsltfAllocator_p);
+
+    switch (test) { case 0:
+      case 14: mainTestCaseUsageExample(); break;
+//      case 17: mainTestCase17(); break;
+//      case 16: mainTestCase16(); break;
+//      case 15: mainTestCase15(); break;
+//      case 14: mainTestCase14(); break;
+      case 13: mainTestCase13(); break;
+      case 12: mainTestCase12(); break;
+      case 11: mainTestCase11(); break;
+      case 10: mainTestCase10(); break;
+      case  9: mainTestCase9 (); break;
+      case  8: mainTestCase8 (); break;
+      case  7: mainTestCase7 (); break;
+      case  6: mainTestCase6 (); break;
+      case  5: mainTestCase5 (); break;
+      case  4: mainTestCase4 (); break;
+      case  3: mainTestCase3 (); break;
+      case  2: mainTestCase2 (); break;
+      case  1: mainTestCase1 (); break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
         testStatus = -1;
