@@ -8298,30 +8298,7 @@ void mainTestCase11()
 
         if (verbose) printf("\nTesting 'rehashFor...' functions"
                             "\n================================\n");
-#if 0
-        RUN_EACH_TYPE(TestDriver_BasicConfiguation,
-                      testCase11,
-                      bsltf::NonAssignableTestType,
-                      bsltf::NonDefaultConstructibleTestType);
 
-        RUN_EACH_TYPE(TestDriver_StatefulConfiguation,
-                      testCase11,
-                      bsltf::NonAssignableTestType,
-                      bsltf::NonDefaultConstructibleTestType);
-
-        RUN_EACH_TYPE(TestDriver_DegenerateConfiguation,
-                      testCase11,
-                      bsltf::NonAssignableTestType,
-                      bsltf::NonDefaultConstructibleTestType);
-
-        RUN_EACH_TYPE(TestDriver_DegenerateConfiguationWithNoSwap,
-                      testCase11,
-                      bsltf::NonAssignableTestType,
-                      bsltf::NonDefaultConstructibleTestType);
-
-        // Remaining special cases
-        TestDriver_AwkwardMaplike::testCase11();
-#else
         if (verbose) printf("\nTesting basic configurations"
                             "\n----------------------------\n");
         RUN_EACH_TYPE(TestDriver_BasicConfiguation,
@@ -8438,7 +8415,6 @@ void mainTestCase11()
         if (verbose) printf("\nTesting degenerate map-like"
                             "\n---------------------------\n");
         TestDriver_AwkwardMaplike::testCase12();
-#endif
 }
 
 void mainTestCase10()
