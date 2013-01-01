@@ -144,7 +144,7 @@ using namespace BloombergLP;
 // specialized algorithms:
 // [ 5] bool operator==(u_multiset<K, H, E, A>& a, u_multiset<K, H, E, A>& b);
 // [ 5] bool operator!=(u_multiset<K, H, E, A>& a, u_multiset<K, H, E, A>& b);
-// [  ] void swap(u_multiset<K, H, E, A>& a, u_multiset<K, H, E, A>& b);
+// [ 8] void swap(u_multiset<K, H, E, A>& a, u_multiset<K, H, E, A>& b);
 //
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
@@ -247,6 +247,7 @@ const DefaultDataRow DEFAULT_DATA[] = {
     { L_,  "ABCA" },
     { L_,  "ABCB" },
     { L_,  "ABCC" },
+    { L_,  "LLLLQQQQ" },
     { L_,  "AABBCC" },
     { L_,  "ABCD" },
     { L_,  "BEADDDDD" },
@@ -306,6 +307,55 @@ bool nearlyEqual(const TYPE& x, const TYPE& y)
 {
     TYPE tolerance = my_max(my_abs(x), my_abs(y)) * 0.0001;
     return my_abs(x - y) <= tolerance;
+}
+
+template <class CONTAINER>
+static
+int verifySpec(const CONTAINER& object, const char *spec)
+{
+    typedef typename CONTAINER::key_type       Key;
+    typedef typename CONTAINER::const_iterator CIter;
+    typedef bsltf::TestValuesArray<Key>        TestValues;
+
+    bslma::DefaultAllocatorGuard guard(
+                                      &bslma::NewDeleteAllocator::singleton());
+
+    const TestValues VALUES;
+    const char *ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+    // For the purposes of this test driver, test values must not be outside
+    // the upper case alphabet.
+
+    for (const char *pc = spec; *pc; ++pc) {
+        if (*pc < 'A' || *pc > 'Z') {
+            return pc - spec;                                         // RETURN
+        }
+    }
+
+    for (const char *pc = ALPHABET; *pc; ++pc) {
+        const char C = *pc;
+
+        size_t count = 0;
+        for (const char *pcB = spec; *pcB; ++pcB) {
+            count += C == *pcB;
+        }
+
+        // We can't rely on the 'count' member function yet, so we have to do
+        // it by hand.
+
+        const Key K = VALUES[C - 'A'];
+        for (CIter it = object.begin(); object.end() != it; ++it) {
+            if (K == *it) {
+                --count;
+            }
+        }
+
+        if (0 != count) {
+            return pc - spec;                                         // RETURN
+        }
+    }
+
+    return -1;    // it's a match
 }
 
 template <class CONTAINER>
@@ -735,79 +785,25 @@ bool expectToAllocate(int n)
     return (((n - 1) & n) == 0);  // Allocate when 'n' is a power of 2
 }
 
-    struct BoolArray {
-        // This class holds a set of boolean flags...
+struct BoolArray {
+    // This class holds a set of boolean flags...
 
-        explicit BoolArray(size_t n)
-        : d_data(new bool[n])
-        {
-            for (size_t i = 0; i != n; ++i) {
-                d_data[i] = false;
-            }
-        }
-
-        ~BoolArray()
-        {
-            delete[] d_data;
-        }
-
-        bool& operator[](size_t index) { return d_data[index]; }
-        bool *d_data;
-    };
-
-
-template<class CONTAINER, class VALUES>
-int verifyContainer(const CONTAINER& container,
-                    const VALUES&    expectedValues,
-                    size_t           expectedSize)
-    // Verify the specified 'container' has the specified 'expectedSize' and
-    // contains the same values as the array in the specified 'expectedValues'.
-    // Return 0 if 'container' has the expected values, and a non-zero value
-    // otherwise.
-{
-    ASSERTV(expectedSize, container.size(), expectedSize == container.size());
-
-    if(expectedSize != container.size()) {
-        return -1;                                                    // RETURN
-    }
-
-    // Check to avoid creating an array of length zero.
-    if (0 == expectedSize) {
-        ASSERTV(container.empty());
-        return 0;                                                     // RETURN
-    }
-
-    typedef typename CONTAINER::const_iterator CIter;
-
-    BoolArray foundValues(container.size());
-    size_t i = 0;
-    for (CIter it = container.cbegin(); it != container.cend(); ++it, ++i) {
-        const int nextId = bsltf::TemplateTestFacility::getIdentifier(*it);
-        size_t j = 0;
-        do {
-            if (bsltf::TemplateTestFacility::getIdentifier(expectedValues[j])
-                                                                   == nextId) {
-                ASSERTV(j, expectedValues[j], *it, !foundValues[j]);
-                foundValues[j] = true;
-                break;
-            }
-        }
-        while (++j != container.size());
-    }
-    ASSERTV(expectedSize, i, expectedSize == i);
-    if (expectedSize != i) {
-        return -2;                                                    // RETURN
-    }
-
-    size_t missing = 0;
-    for (size_t j = 0; j != expectedSize; ++j) {
-        if (!foundValues[j]) {
-            ++missing;
+    explicit BoolArray(size_t n)
+    : d_data(new bool[n])
+    {
+        for (size_t i = 0; i != n; ++i) {
+            d_data[i] = false;
         }
     }
 
-    return missing;  // 0 indicates a successful test!
-}
+    ~BoolArray()
+    {
+        delete[] d_data;
+    }
+
+    bool& operator[](size_t index) { return d_data[index]; }
+    bool *d_data;
+};
 
                             // ====================
                             // class ExceptionGuard
@@ -1081,52 +1077,23 @@ class TestDriver {
         // Return, by value, a new object corresponding to the specified
         // 'spec'.
 
-    static int verifySpec(const Obj& object, const char *spec);
-        // Return -1 if the specified 'object' exactly matches the specified
-        // 'spec', and a non-negative value otherwise.
-
   public:
     // TEST CASES
 
-    static void testCase24();
-        // Test standard interface coverage.
-
-    static void testCase23();
+    static void testCase16();
         // Test type traits.
 
-    static void testCase22();
-        // Test STL allocator.
-
-    static void testCase21();
-        // Test comparators.
-
-    static void testCase20();
-        // Test 'max_size' and 'empty'.
-
-    static void testCase19();
-        // Test comparison free operators.  'operator <' must be defined for
-        // the parameterized 'KEY'.
-
-    static void testCase18();
-        // Test 'erase'.
-
-    static void testCase17();
-        // Test range 'insert'.
-
-    static void testCase16();
-        // Test 'insert' with hint.
-
     static void testCase15();
-        // Test 'insert'.
+        // Test 'hash_function' and 'key_eq'.
 
     static void testCase14();
-        // Test iterators.
+        // Test STL allocator.
 
     static void testCase13();
         // Test max_load_factor(float)
 
     static void testCase12();
-        // Test user-supplied constructors.
+        // Test range constructors.
 
     static void testCase11();
         // Test generator functions 'g'.
@@ -1158,7 +1125,7 @@ class TestDriver {
 #endif
 
     static void testCase4();
-        // Test basic accessors, call all accessors
+        // Test all accessors
 
     static void testCase3();
         // Test generator functions 'ggg', and 'gg'.
@@ -1227,48 +1194,430 @@ TestDriver<KEY,HASH, EQUAL, ALLOC>::g(const char *spec)
 }
 
 template <class KEY, class HASH, class EQUAL, class ALLOC>
-int TestDriver<KEY,HASH, EQUAL, ALLOC>::verifySpec(const Obj&  object,
-                                                   const char *spec)
+void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase16()
 {
-    bslma::DefaultAllocatorGuard guard(
-                                      &bslma::NewDeleteAllocator::singleton());
+    // ------------------------------------------------------------------------
+    // TESTING TYPE TRAITS
+    //
+    // Concern:
+    //: 1 The object has the necessary type traits.
+    //
+    // Plan:
+    //: 1 Use 'BSLMF_ASSERT' to verify all the type traits exists.  (C-1)
+    //
+    // Testing:
+    //   CONCERN: The object has the necessary type traits
+    // ------------------------------------------------------------------------
 
-    const TestValues VALUES;
-    const char *ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    // Verify set defines the expected traits.
 
-    // For the purposes of this test driver, test values must not be outside
-    // the upper case alphabet.
+    BSLMF_ASSERT((1 ==
+               bslalg::HasStlIterators<bsl::unordered_multiset<KEY> >::value));
+    BSLMF_ASSERT((1 ==
+             bslma::UsesBslmaAllocator<bsl::unordered_multiset<KEY> >::value));
 
-    for (const char *pc = spec; *pc; ++pc) {
-        if (*pc < 'A' || *pc > 'Z') {
-            return pc - spec;                                         // RETURN
-        }
+    // Verify the bslma-allocator trait is not defined for non
+    // bslma-allocators.
+
+    typedef bsl::unordered_multiset<KEY, HASH, EQUAL,StlAlloc> ObjStlAlloc;
+    BSLMF_ASSERT((0 == bslma::UsesBslmaAllocator<ObjStlAlloc>::value));
+
+    // Verify unordered_multiset does not define other common traits.
+
+    BSLMF_ASSERT((0 ==
+            bsl::is_trivially_copyable<bsl::unordered_multiset<KEY> >::value));
+
+    BSLMF_ASSERT((0 == bslmf::IsBitwiseEqualityComparable<
+                                       bsl::unordered_multiset<KEY> >::value));
+
+    BSLMF_ASSERT((1 ==
+              bslmf::IsBitwiseMoveable<bsl::unordered_multiset<KEY> >::value));
+
+    BSLMF_ASSERT((0 ==
+            bslmf::HasPointerSemantics<bsl::unordered_multiset<KEY> >::value));
+
+    BSLMF_ASSERT((0 ==
+               bsl::is_trivially_default_constructible<
+                                       bsl::unordered_multiset<KEY> >::value));
+
+    // --------------------------------
+    // Repeat the above tests for 'Obj'
+
+    // Verify set defines the expected traits.
+
+    BSLMF_ASSERT((1 == bslalg::HasStlIterators<Obj>::value));
+    BSLMF_ASSERT((1 == bslma::UsesBslmaAllocator<Obj>::value));
+
+    // Verify unordered_multiset does not define other common traits.
+
+    BSLMF_ASSERT((0 == bsl::is_trivially_copyable<Obj>::value));
+
+    BSLMF_ASSERT((0 == bslmf::IsBitwiseEqualityComparable<Obj>::value));
+
+    BSLMF_ASSERT((1 == bslmf::IsBitwiseMoveable<Obj>::value));
+
+    BSLMF_ASSERT((0 == bslmf::HasPointerSemantics<Obj>::value));
+
+    BSLMF_ASSERT((0 == bsl::is_trivially_default_constructible<Obj>::value));
+}
+
+template <class KEY, class HASH, class EQUAL, class ALLOC>
+void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase15()
+{
+    // ------------------------------------------------------------------------
+    // TESTING HASH_FUNCTION AND KEY_EQ
+    //
+    // Concern:
+    //   That the value of hash function and equality comparator objects passed
+    //   at construction are properly preserved.
+    //
+    // Plan:
+    //   Pass function objects at construction and then access copies of them
+    //   through the 'hash_function' and 'key_eq' accessors, and verify that
+    //   the values are as expected.
+    // ------------------------------------------------------------------------
+
+    {
+        typedef HASH (Obj::*MP)() const;
+        MP mp = &Obj::hash_function;
+        (void) mp;
     }
 
-    for (const char *pc = ALPHABET; *pc; ++pc) {
-        const char C = *pc;
+    {
+        typedef EQUAL (Obj::*MP)() const;
+        MP mp = &Obj::key_eq;
+        (void) mp;
+    }
 
-        size_t count = 0;
-        for (const char *pcB = spec; *pcB; ++pcB) {
-            count += C == *pcB;
+    HASH  hsh5(5), hsh12(12);
+    EQUAL  eq7(7), eq17( 17);
+
+    TestValues VALUES;
+
+    {
+        Obj mX(10, hsh5, eq7);      const Obj& X = mX;
+
+        ASSERTV( 5 == X.hash_function().id());
+        ASSERTV( 7 == X.key_eq().id());
+    }
+
+    {
+        Obj mX(VALUES.begin(), VALUES.end(), 10, hsh12, eq17);
+        const Obj& X = mX;
+
+        ASSERTV(12 == X.hash_function().id());
+        ASSERTV(17 == X.key_eq().id());
+    }
+}
+
+template <class KEY, class HASH, class EQUAL, class ALLOC>
+void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase14()
+{
+    // ------------------------------------------------------------------------
+    // TESTING STL ALLOCATOR
+    //
+    // Concern:
+    //: 1 A standard compliant allocator can be used instead of
+    //:   'bsl::allocator'.
+    //:
+    //: 2 Methods that uses the allocator (e.g., variations of constructor,
+    //:   'insert' and 'swap') can successfully populate the object.
+    //:
+    //: 3 'KEY' types that allocate memory uses the default allocator instead
+    //:   of the object allocator.
+    //:
+    //: 4 Every object releases any allocated memory at destruction.
+    //
+    // Plan:
+    //: 1 Using a loop base approach, create a list of specs and their
+    //:   expected value.  For each spec:
+    //:
+    //:   1 Create an object using a standard allocator through multiple ways,
+    //:     including: range-based constructor, copy constructor, range-based
+    //:     insert, multiple inserts, and swap.
+    //:
+    //:   2 Verify the value of each objects is as expected.
+    //:
+    //:   3 For types that allocate memory, verify memory for the elements
+    //:     comes from the default allocator.
+    //
+    // Testing:
+    //  CONCERN: 'set' is compatible with a standard allocator.
+    // ------------------------------------------------------------------------
+
+    const int TYPE_ALLOC = bslma::UsesBslmaAllocator<KEY>::value;
+
+    const size_t NUM_DATA                  = DEFAULT_NUM_DATA;
+    const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
+
+    typedef bsl::unordered_multiset<KEY, HASH, EQUAL, StlAlloc> ObjStlAlloc;
+
+    bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
+
+    for (size_t ti = 0; ti < NUM_DATA; ++ti) {
+        const int         LINE   = DATA[ti].d_line;
+        const char *const SPEC   = DATA[ti].d_spec;
+        const size_t      LENGTH = strlen(SPEC);
+        const TestValues  EXP(SPEC, &scratch);
+
+        TestValues CONT(SPEC, &scratch);
+
+        typename TestValues::iterator BEGIN = CONT.begin();
+        typename TestValues::iterator END   = CONT.end();
+
+        bslma::TestAllocator da("default",   veryVeryVeryVerbose);
+
+        bslma::DefaultAllocatorGuard dag(&da);
+
+        {
+            ObjStlAlloc mX(BEGIN, END);  const ObjStlAlloc& X = mX;
+
+            const int v = verifySpec(X, SPEC);
+            ASSERTV(LINE, v, SPEC, X.size(), -1 == v);
+            ASSERTV(LINE, da.numBlocksInUse(),
+                    TYPE_ALLOC * LENGTH <= da.numBlocksInUse());
+
+            ObjStlAlloc mY(X);  const ObjStlAlloc& Y = mY;
+
+            ASSERTV(LINE, -1 == verifySpec(Y, SPEC));
+            ASSERTV(LINE, da.numBlocksInUse(),
+                    2 * TYPE_ALLOC * LENGTH == da.numBlocksInUse());
+
+            ObjStlAlloc mZ;  const ObjStlAlloc& Z = mZ;
+
+            mZ.swap(mX);
+
+            ASSERTV(LINE, -1 == verifySpec(Z, SPEC));
+            ASSERTV(LINE, da.numBlocksInUse(),
+                    2 * TYPE_ALLOC * LENGTH <= da.numBlocksInUse());
         }
 
-        // We can't rely on the 'count' member function yet, so we have to do
-        // it by hand.
+        CONT.resetIterators();
 
-        const KEY K = VALUES[C - 'A'];
-        for (CIter it = object.begin(); object.end() != it; ++it) {
-            if (K == *it) {
-                --count;
+        {
+            ObjStlAlloc mX;  const ObjStlAlloc& X = mX;
+            mX.insert(BEGIN, END);
+            ASSERTV(LINE, -1 == verifySpec(X, SPEC));
+            ASSERTV(LINE, da.numBlocksInUse(),
+                    TYPE_ALLOC * LENGTH == da.numBlocksInUse());
+        }
+
+        CONT.resetIterators();
+
+        {
+            ObjStlAlloc mX;  const ObjStlAlloc& X = mX;
+            for (size_t tj = 0; tj < CONT.size(); ++tj) {
+                Iter RESULT = mX.insert(CONT[tj]);
+
+                ASSERTV(LINE, tj, LENGTH, CONT[tj] == *RESULT);
+            }
+            ASSERTV(LINE, -1 == verifySpec(X, SPEC));
+            ASSERTV(LINE, da.numBlocksInUse(),
+                    TYPE_ALLOC * LENGTH <= da.numBlocksInUse());
+        }
+
+        ASSERTV(LINE, da.numBlocksInUse(), 0 == da.numBlocksInUse());
+    }
+
+    // IBM empty class swap bug test
+
+    {
+        typedef bsl::unordered_multiset<int,
+                                        TestHashFunctor<int>,
+                                        TestEqualityComparator<int>,
+                                        StlAlloc> TestObjIntStlAlloc;
+
+        TestObjIntStlAlloc mX;
+        mX.insert(1);
+        TestObjIntStlAlloc mY;
+        mY = mX;
+
+        ASSERTV(mY.count(1));
+    }
+}
+
+template <class KEY, class HASH, class EQUAL, class ALLOC>
+void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase13()
+{
+    // ------------------------------------------------------------------------
+    // RESERVE, REHASH, MAX_LOAD_FACTOR
+    //
+    // Concern:
+    //   That 'reserve', 'rehash', and 'max_load_factor' all grow the bucket
+    //   array as expected, and have no effect on the salient attributes of
+    //   the container.
+    // ------------------------------------------------------------------------
+
+    const size_t NUM_DATA                  = DEFAULT_NUM_DATA;
+    const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
+
+    bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
+
+    for (size_t ti = 0; ti < NUM_DATA; ++ti) {
+        const char *const SPEC   = DATA[ti].d_spec;
+
+        TestValues values(SPEC, &scratch);
+
+        {
+            Obj mX(values.begin(), values.end());  const Obj& X = mX;
+            values.resetIterators();
+            Obj mY(X);                             const Obj& Y = mY;
+
+            const size_t COUNT = X.bucket_count();
+
+            mX.reserve(my_max<size_t>(X.size(), 1) * 3);
+
+            ASSERTV(X == Y);
+
+            ASSERTV(X.size(), X.bucket_count() > COUNT);
+        }
+
+        {
+            Obj mX(values.begin(), values.end());  const Obj& X = mX;
+            values.resetIterators();
+            Obj mY(X);                             const Obj& Y = mY;
+
+            const size_t COUNT = X.bucket_count();
+
+            mX.rehash(X.bucket_count() + 1);
+
+            ASSERTV(X == Y);
+
+            ASSERTV(X.size(), X.bucket_count() > COUNT);
+        }
+
+        if (values.size() > 0) {
+            Obj mX(values.begin(), values.end());  const Obj& X = mX;
+            values.resetIterators();
+            Obj mY(X);                             const Obj& Y = mY;
+
+            const size_t COUNT = X.bucket_count();
+            const float  LOAD  = X.load_factor();
+
+            ASSERTV(LOAD, X.size() / (float) X.bucket_count(),
+                        LOAD == (float) (X.size() / (float) X.bucket_count()));
+            ASSERTV(1.0f == X.max_load_factor());
+
+            mX.max_load_factor(1.0 / 4);
+            ASSERTV(1.0 / 4 == X.max_load_factor());
+            ASSERTV(LOAD > X.load_factor());
+
+            const float LOAD2 = X.load_factor();
+            ASSERTV(LOAD2, X.size() / (float) X.bucket_count(),
+                       LOAD2 == (float) (X.size() / (float) X.bucket_count()));
+
+            ASSERTV(X == Y);
+
+            ASSERTV(X.size(), X.bucket_count() > COUNT);
+        }
+    }
+}
+
+template <class KEY, class HASH, class EQUAL, class ALLOC>
+void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase12()
+{
+    // ------------------------------------------------------------------------
+    // TESTING RANGE C'TORS
+    //
+    // Concern:
+    //   That all c'tors taking a range of objects of type 'KEY' function
+    //   correctly.
+    // ------------------------------------------------------------------------
+
+    TestValues VALUES;
+
+    if (verbose) Q(First test 'count()');
+    {
+        for (int i = 0; i < DEFAULT_NUM_DATA; ++i) {
+            const int LINE   = DEFAULT_DATA[i].d_line;
+            const char *SPEC = DEFAULT_DATA[i].d_spec;
+
+            Obj mX;    const Obj& X = mX;
+            gg(&mX, SPEC);
+
+            for (char c = 'A'; c <= 'Z'; ++c) {
+                KEY k = VALUES[c - 'A'];
+
+                size_t EXP = numCharInstances(SPEC, c);
+
+                ASSERTV(LINE, SPEC, c, EXP, EXP == X.count(k));
             }
         }
-
-        if (0 != count) {
-            return pc - spec;                                         // RETURN
-        }
     }
 
-    return -1;    // it's a match
+    if (verbose) Q(Now test range creation);
+    {
+        bslma::TestAllocator oa(veryVeryVerbose);
+        bslma::TestAllocator fa(veryVeryVerbose);
+        bslma::TestAllocator sa(veryVeryVerbose);
+
+        for (int i = 0; i < DEFAULT_NUM_DATA; ++i) {
+            const int LINE   = DEFAULT_DATA[i].d_line;
+            const char *SPEC = DEFAULT_DATA[i].d_spec;
+
+            if (veryVerbose) P(SPEC);
+
+            bool done = false;
+            for (char cfg = 'a'; cfg <= 'e' ; ++cfg) {
+                const char CONFIG = cfg;
+
+                bsltf::TestValuesArray<KEY> tv(SPEC, &sa);
+
+                Obj *pmX;
+                switch (CONFIG) {
+                  case 'a': {
+                    pmX = new (fa) Obj(tv.begin(), tv.end());
+                  } break;
+                  case 'b': {
+                    pmX = new (fa) Obj(tv.begin(), tv.end(), 100);
+                  } break;
+                  case 'c': {
+                    pmX = new (fa) Obj(tv.begin(), tv.end(), 100, HASH());
+                  } break;
+                  case 'd': {
+                    pmX = new (fa) Obj(tv.begin(),
+                                       tv.end(),
+                                       100,
+                                       HASH(),
+                                       EQUAL());
+                  } break;
+                  case 'e': {
+                    pmX = new (fa) Obj(tv.begin(),
+                                       tv.end(),
+                                       100,
+                                       HASH(),
+                                       EQUAL(),
+                                       &oa);
+                    done = true;
+                  } break;
+                  default: {
+                    ASSERTV(0);
+                    return;                                           // RETURN
+                  } break;
+                }
+
+                Obj& mX = *pmX;    const Obj& X = mX;
+
+                if (CONFIG >= 'b' && tv.size() > 0) {
+                    ASSERTV(CONFIG, SPEC, X.bucket_count(),
+                                                      100 <= X.bucket_count());
+                }
+
+                for (char c = 'A'; c <= 'Z'; ++c) {
+                    int idx = c - 'A';
+                    KEY k = KEY(VALUES[idx]);
+
+                    size_t EXP = numCharInstances(SPEC, c);
+
+                    ASSERTV(LINE, SPEC, c, EXP, EXP == X.count(k));
+                }
+
+                fa.deleteObject(pmX);
+            }
+
+            ASSERTV(done);
+        }
+    }
 }
 
 template <class KEY, class HASH, class EQUAL, class ALLOC>
@@ -3914,7 +4263,7 @@ int main(int argc, char *argv[])
     bslma::Default::setDefaultAllocator(&testAlloc);
 
     switch (test) { case 0:
-      case 12: {
+      case 16: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -4066,6 +4415,54 @@ int main(int argc, char *argv[])
 // 'bslstl_unoroderedmultiset' are identical to those of 'bslstl_unorderedmap'.
 // See the material in {'bslstl_unorderedmap'|Example 2}.
 
+      } break;
+      case 15: {
+        // --------------------------------------------------------------------
+        // TESTING HASH_FUNCTION AND KEY_EQ
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("TESTING HASH_FUNCTION AND KEY_EQ\n"
+                            "================================\n");
+
+        RUN_EACH_TYPE(TestDriver,
+                      testCase15,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+      } break;
+      case 14: {
+        // --------------------------------------------------------------------
+        // TESTING STL ALLOCATOR
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("TESTING STL ALLOCATOR\n"
+                            "=====================\n");
+
+        RUN_EACH_TYPE(TestDriver,
+                      testCase14,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+      } break;
+      case 13: {
+        // --------------------------------------------------------------------
+        // TESTING REHASH, RESERVE, and SET MAX_LOAD_FACTOR
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("Testing Rehash, Reserve, and max_load_factor\n"
+                            "============================================\n");
+
+        RUN_EACH_TYPE(TestDriver,
+                      testCase13,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+      } break;
+      case 12: {
+        // --------------------------------------------------------------------
+        // TESTING RANGE C'TORS
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("Testing Range C'tors\n"
+                            "====================\n");
+
+        RUN_EACH_TYPE(TestDriver,
+                      testCase12,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
       } break;
       case 11: {
         // --------------------------------------------------------------------
