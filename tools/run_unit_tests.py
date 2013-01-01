@@ -13,6 +13,7 @@ import platform
 import re
 import threading
 
+from datetime import datetime
 from optparse import OptionParser
 
 import xml.etree.ElementTree as ET
@@ -113,17 +114,24 @@ class TextOutputGenerator:
 class JUnitOutputGenerator:
     def __init__(self, fileName):
         self.fileName = fileName
-        self.root = ET.Element('testsuite')
-        ET.SubElement(self.root, 'properties')
-        self.tree = ET.ElementTree(self.root)
+        self.suite = ET.Element('testsuite')
+        ET.SubElement(self.suite, 'properties')
+        self.tree = ET.ElementTree(self.suite)
 
         self.output = None
         self.currentCase = None
+
+        self.testCount = 0
+        self.failureCount = 0
+        self.errorCount = 0
+        self.skipCount = 0
+        self.timestamp = datetime.utcnow()
+        self.suite.set('timestamp', self.timestamp.isoformat())
         return
 
     def startTestSuite(self, name, verbosity, timeout):
-        self.root.set('name', name)
-        properties = self.root.find('properties')
+        self.suite.set('name', name)
+        properties = self.suite.find('properties')
         verbosityProperty = ET.SubElement(properties, 'property')
         verbosityProperty.set('name', 'verbosity')
         verbosityProperty.set('value', '%d' % verbosity)
@@ -135,31 +143,51 @@ class JUnitOutputGenerator:
     def endTestSuite(self):
         if not self.currentCase.get('status'):
             # Last case never closed: missing test case
-            self.root.remove(self.currentCase)
+            self.suite.remove(self.currentCase)
+
+        self.suite.set('tests', '%d' % (self.testCount))
+        self.suite.set('failures', '%d' % (self.failureCount))
+        self.suite.set('errors', '%d' % (self.errorCount))
+        self.suite.set('skipped', '%d' % (self.skipCount))
+
+        endTimestamp = datetime.utcnow()
+        delta = endTimestamp - self.timestamp
+        self.suite.set('time', '%d.%0.6d' % (delta.days * 3600 * 24 + delta.seconds, delta.microseconds))
+
         self.tree.write(self.fileName)
         return
 
     def reportTestSuiteError(self, variable, value):
         print >>sys.stderr, "Invalid value for environment variable '%s': %s" % (variable, value)
-        properties = self.root.find('properties')
+        properties = self.suite.find('properties')
         verbosityProperty = ET.SubElement(properties, 'property')
         verbosityProperty.set('name', 'error')
         verbosityProperty.set('value', "Invalid value for environment variable '%s': %s" % (variable, value))
+        self.errorCount += 1
         return
 
     def startTestCase(self, testNumber):
-        testcase = ET.SubElement(self.root, 'testcase')
+        testcase = ET.SubElement(self.suite, 'testcase')
         testcase.set('name', '%d' % testNumber)
         self.currentCase = testcase
+        self.testCount += 1
+        self.currentCaseStartTime = datetime.utcnow()
         return
 
     def endTestCase(self):
         if not self.currentCase.get('status'):
             self.currentCase.set('status', 'passed')
+
+        endTimestamp = datetime.utcnow()
+        delta = endTimestamp - self.currentCaseStartTime
+        self.currentCase.set('time', '%d.%0.6d' % (delta.days * 3600 * 24 + delta.seconds, delta.microseconds))
+        self.currentCaseStartTime = None
+
         return
 
     def skipTestCase(self, command):
-        skip = ET.SubElement(self.currentCase, 'skipped')
+        ET.SubElement(self.currentCase, 'skipped')
+        self.skipCount += 1
         return
                     
     def runTestCase(self, command):
@@ -185,6 +213,7 @@ class JUnitOutputGenerator:
         error.set('message', "%s %s %d: %s" \
             % (prefix, command, testNumber, error))
         self.currentCase.set('status', 'error')
+        self.errorCount += 1
         return
 
     def reportTestCaseFailure(self, returncode):
@@ -192,6 +221,7 @@ class JUnitOutputGenerator:
         failure.set('type', 'test failure')
         failure.set('message', "Abnormal test failure: %d" % (returncode))
         self.currentCase.set('status', 'failed')
+        self.failureCount += 1
         return
                         
     def reportExcpectedTestCaseFailure(self, test, testNumber, returncode):
@@ -201,6 +231,7 @@ class JUnitOutputGenerator:
     def reportTestCaseTimeout(self):
         failure = ET.SubElement(self.currentCase, 'failure')
         failure.set('type', 'timeout')
+        self.failureCount += 1
         return
     
 def selectOutputType(options):
@@ -317,8 +348,6 @@ class TimeoutControl:
 
     def killProcess(self, process):
         with self.timeoutStatusLock:
-            # REPORT: testcase failure
-            out.reportTestCaseTimeout()
             self.isTimedOut = True
         process.kill()
 
@@ -386,7 +415,7 @@ class TestRunner:
                     timer.cancel()
 
                     if timer.timedOut():
-                        return 126
+                        returncode = 126
                     
                 except OSError, e:
                     # Couldn't start process, probably missing file
@@ -407,7 +436,9 @@ class TestRunner:
                     # Missing test.  We're done.
                     return failures
                 
-                if returncode != 0:
+                if returncode == 126:
+                    out.reportTestCaseTimeout()
+                elif returncode != 0:
                     if policy == Policy.ignore:
                         out.reportExcpectedTestCaseFailure(test, testNumber, returncode)
                     else:
@@ -426,7 +457,6 @@ if 'V' in os.environ:
     try:
         verbosityLevel = int(os.environ['V'])
     except ValueError:
-        # REPORT: testsuite error
         out.reportTestSuiteError("V", os.environ['V'])
 
 # Timeout is specified in seconds
@@ -435,15 +465,12 @@ if 'TIMEOUT' in os.environ:
     try:
         timeout = int(os.environ['TIMEOUT'])
     except ValueError:
-        # REPORT: testsuite error
         out.reportTestSuiteError("TIMEOUT", os.environ['TIMEOUT'])
 
-# REPORT: testsuite start
 out.startTestSuite(sys.argv[1], verbosityLevel, timeout)
 
 returncode = TestRunner.runTest(sys.argv[1], verbosityLevel, timeout)
 
-# REPORT: testsuite end
 out.endTestSuite()
 
 
