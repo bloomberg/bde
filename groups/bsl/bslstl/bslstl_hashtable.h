@@ -1563,7 +1563,6 @@ class HashTable_HashWrapper {
         // Return a reference providing non-modifiable access to the
         // hash functor wrapped by this object.
 
-
     void swap(HashTable_HashWrapper &other);
         // Exchange the value of this object with the specified 'other' object.
 };
