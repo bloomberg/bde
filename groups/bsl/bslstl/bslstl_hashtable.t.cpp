@@ -3115,6 +3115,8 @@ makeObject(Obj                  **objPtr,
     // do not return a value.  This 'exit' should never be called, but will
     // resolve warnings that are often configured to act as hard errors.
     exit(-99);
+#elif defined(BSLS_PLATFORM_CMP_IBM)
+    throw 0; // This will never be reached, but satisfied compiler warnings.
 #endif
 }
 
@@ -3176,6 +3178,8 @@ makeObject(Obj                  **objPtr,
     // do not return a value.  This 'exit' should never be called, but will
     // resolve warnings that are often configured to act as hard errors.
     exit(-99);
+#elif defined(BSLS_PLATFORM_CMP_IBM)
+    throw 0; // This will never be reached, but satisfied compiler warnings.
 #endif
 }
 
@@ -3221,6 +3225,8 @@ makeObject(Obj                  **objPtr,
     // do not return a value.  This 'exit' should never be called, but will
     // resolve warnings that are often configured to act as hard errors.
     exit(-99);
+#elif defined(BSLS_PLATFORM_CMP_IBM)
+    throw 0; // This will never be reached, but satisfied compiler warnings.
 #endif
 }
 
@@ -3285,6 +3291,8 @@ makeObject(Obj                  **objPtr,
     // do not return a value.  This 'exit' should never be called, but will
     // resolve warnings that are often configured to act as hard errors.
     exit(-99);
+#elif defined(BSLS_PLATFORM_CMP_IBM)
+    throw 0; // This will never be reached, but satisfied compiler warnings.
 #endif
 }
 
@@ -8121,6 +8129,7 @@ void mainTestCase14()
 
 }
 #endif
+
 void mainTestCase13()
 {
         // --------------------------------------------------------------------
@@ -8134,6 +8143,10 @@ void mainTestCase13()
                       testCase13,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
 
+#if !defined(BSLS_PLATFORM_CMP_IBM)
+        // We need to limit the test coverage on IBM as the compiler cannot
+        // cope with so many template instantiations.
+
         RUN_EACH_TYPE(TestDriver_StatefulConfiguation,
                       testCase13,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
@@ -8145,6 +8158,8 @@ void mainTestCase13()
         RUN_EACH_TYPE(TestDriver_DegenerateConfiguationWithNoSwap,
                       testCase13,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+
+#endif
 
         // Remaining special cases
         TestDriver_AwkwardMaplike::testCase13();
@@ -8166,6 +8181,10 @@ void mainTestCase12()
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
                       bsltf::NonAssignableTestType,
                       bsltf::NonDefaultConstructibleTestType);
+
+#if !defined(BSLS_PLATFORM_CMP_IBM)
+        // We need to limit the test coverage on IBM as the compiler cannot
+        // cope with so many template instantiations.
 
         if (verbose) printf("\nTesting stateful functors"
                             "\n-------------------------\n");
@@ -8282,6 +8301,8 @@ void mainTestCase12()
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
                       bsltf::NonAssignableTestType,
                       bsltf::NonDefaultConstructibleTestType);
+#endif
+
 #endif
 
         // Remaining special cases
@@ -8307,6 +8328,10 @@ void mainTestCase11()
                       bsltf::NonAssignableTestType,
                       bsltf::NonDefaultConstructibleTestType);
 
+#if !defined(BSLS_PLATFORM_CMP_IBM)
+        // We need to limit the test coverage on IBM as the compiler cannot
+        // cope with so many template instantiations.
+
         if (verbose) printf("\nTesting stateful functors"
                             "\n-------------------------\n");
         RUN_EACH_TYPE(TestDriver_StatefulConfiguation,
@@ -8410,6 +8435,7 @@ void mainTestCase11()
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
                       bsltf::NonAssignableTestType,
                       bsltf::NonDefaultConstructibleTestType);
+#endif
 
         // Remaining special cases
         if (verbose) printf("\nTesting degenerate map-like"
@@ -8474,6 +8500,10 @@ void mainTestCase8()
                       bsltf::NonAssignableTestType,
                       bsltf::NonDefaultConstructibleTestType);
 
+#if !defined(BSLS_PLATFORM_CMP_IBM)
+        // We need to limit the test coverage on IBM as the compiler cannot
+        // cope with so many template instantiations.
+
         if (verbose) printf("\nTesting stateful functors"
                             "\n-------------------------\n");
         RUN_EACH_TYPE(TestDriver_StatefulConfiguation,
@@ -8570,6 +8600,7 @@ void mainTestCase8()
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
                       bsltf::NonAssignableTestType,
                       bsltf::NonDefaultConstructibleTestType);
+#endif
 
         // Remaining special cases
         if (verbose) printf("\nTesting degenerate map-like"
@@ -8593,6 +8624,10 @@ void mainTestCase7()
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
                       bsltf::NonAssignableTestType,
                       bsltf::NonDefaultConstructibleTestType);
+
+#if !defined(BSLS_PLATFORM_CMP_IBM)
+        // We need to limit the test coverage on IBM as the compiler cannot
+        // cope with so many template instantiations.
 
         if (verbose) printf("\nTesting stateful functors"
                             "\n-------------------------\n");
@@ -8704,6 +8739,7 @@ void mainTestCase7()
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
                       bsltf::NonAssignableTestType,
                       bsltf::NonDefaultConstructibleTestType);
+#endif
 
         // Remaining special cases
         if (verbose) printf("\nTesting degenerate map-like"
@@ -8726,6 +8762,10 @@ void mainTestCase6()
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
                       bsltf::NonAssignableTestType,
                       bsltf::NonDefaultConstructibleTestType);
+
+#if !defined(BSLS_PLATFORM_CMP_IBM)
+        // We need to limit the test coverage on IBM as the compiler cannot
+        // cope with so many template instantiations.
 
         RUN_EACH_TYPE(TestDriver_StatefulConfiguation,
                       testCase6,
@@ -8769,6 +8809,7 @@ void mainTestCase6()
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
                       bsltf::NonAssignableTestType,
                       bsltf::NonDefaultConstructibleTestType);
+#endif
 
         // Remaining special cases
         TestDriverForCase6_AwkwardMaplike::testCase6();
