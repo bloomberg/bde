@@ -231,6 +231,7 @@ class JUnitOutputGenerator:
     def reportTestCaseTimeout(self):
         failure = ET.SubElement(self.currentCase, 'failure')
         failure.set('type', 'timeout')
+        self.currentCase.set('status', 'failed')
         self.failureCount += 1
         return
     
@@ -349,7 +350,14 @@ class TimeoutControl:
     def killProcess(self, process):
         with self.timeoutStatusLock:
             self.isTimedOut = True
-        process.kill()
+        try:
+            process.kill()
+        except OSError, e:
+            if e.errno == 3:
+                # No such process: the process died just before we tried to kill it
+                pass
+            else:
+                out.reportTestCaseError("Failed to kill process on timeout", process.pid, -1, e)
 
     def __init__ (self, process, interval):
         self.isTimedOut = False
@@ -438,6 +446,7 @@ class TestRunner:
                 
                 if returncode == 126:
                     out.reportTestCaseTimeout()
+                    failures += 1
                 elif returncode != 0:
                     if policy == Policy.ignore:
                         out.reportExcpectedTestCaseFailure(test, testNumber, returncode)
