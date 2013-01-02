@@ -4027,7 +4027,15 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase9()
 
                     ASSERTV(LINE1, LINE2, sam.isInUseSame());
 
+#if !defined(BDE_BUILD_TARGET_SAFE_2)
+                    // When mX and Z use different allocators, the assignment
+                    // is done through the copy-swap idiom.  This means the
+                    // copy is destroyed within the assignment, and in SAFE2
+                    // mode the destructor calls 'isWellFormed', which
+                    // allocates from the default allocator.
+
                     ASSERTV(LINE1, LINE2, 0 == da.numBlocksTotal());
+#endif
                 }
 
                 // Verify all memory is released on object destruction.
@@ -5118,14 +5126,16 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase4()
 
                 // --------------------------------------------------------
 
-                // Reclaim dynamically allocated object under test.
-
-                fa.deleteObject(objPtr);
-
-                // Verify no allocation from the non-object allocator.
+                // Verify no allocation from the non-object allocator (before
+                // deletion -- in SAFE2 mode, the d'tor calls 'isWellFormed',
+                // which uses the default allocator.
 
                 ASSERTV(LINE, CONFIG, noa.numBlocksTotal(),
                         0 == noa.numBlocksTotal());
+
+                // Reclaim dynamically allocated object under test.
+
+                fa.deleteObject(objPtr);
 
                 // Verify all memory is released on object destruction.
 
@@ -5524,45 +5534,50 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase2()
                 }
                 bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
-                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
-                    ExceptionGuard<Obj> guard(&X, L_, &scratch);
+                if (&oa == &da) {
+                    mX.insert(VALUES[LENGTH - 1]);
+                }
+                else {
+                    BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
+                        ExceptionGuard<Obj> guard(&X, L_, &scratch);
 
-                    if (veryVeryVeryVerbose) {
-                       printf("\t\t\t\t Inserting: ");
-                       P(VALUES[LENGTH - 1]);
-                    }
-                    bslma::TestAllocatorMonitor tam(&oa);
-                    bsl::pair<Iter, bool> RESULT =
+                        if (veryVeryVeryVerbose) {
+                           printf("\t\t\t\t Inserting: ");
+                           P(VALUES[LENGTH - 1]);
+                        }
+                        bslma::TestAllocatorMonitor tam(&oa);
+                        bsl::pair<Iter, bool> RESULT =
                                                  mX.insert(VALUES[LENGTH - 1]);
 
 #if defined(AJM_NEEDS_TO_UNDERSTAND_THESE_FAILURES_BETTER)
-                    if (VALUE_TYPE_USES_ALLOC || expectToAllocate(LENGTH)) {
-                        ASSERTV(CONFIG, tam.isTotalUp());
-                        ASSERTV(CONFIG, tam.isInUseUp());
-                    }
-                    else {
-                        ASSERTV(CONFIG, tam.isTotalSame());
-                        ASSERTV(CONFIG, tam.isInUseSame());
-                    }
+                        if (VALUE_TYPE_USES_ALLOC || expectToAllocate(LENGTH)){
+                            ASSERTV(CONFIG, tam.isTotalUp());
+                            ASSERTV(CONFIG, tam.isInUseUp());
+                        }
+                        else {
+                            ASSERTV(CONFIG, tam.isTotalSame());
+                            ASSERTV(CONFIG, tam.isInUseSame());
+                        }
 #endif
 
 #if 0
-                    // Verify no temporary memory is allocated from the object
-                    // allocator.
-                    // BROKEN TEST CONDITION
-                    // We need to think carefully about how we allow for the
-                    // allocation of the bucket-array
+                        // Verify no temporary memory is allocated from the
+                        // object allocator.
+                        // BROKEN TEST CONDITION
+                        // We need to think carefully about how we allow for
+                        // the allocation of the bucket-array
 
-                    ASSERTV(LENGTH, CONFIG, oa.numBlocksTotal(),
+                        ASSERTV(LENGTH, CONFIG, oa.numBlocksTotal(),
                                                            oa.numBlocksInUse(),
                             oa.numBlocksTotal() == oa.numBlocksInUse());
 #endif
-                    ASSERTV(LENGTH, CONFIG, true == RESULT.second);
-                    ASSERTV(LENGTH, CONFIG,
-                            VALUES[LENGTH - 1] == *(RESULT.first));
+                        ASSERTV(LENGTH, CONFIG, true == RESULT.second);
+                        ASSERTV(LENGTH, CONFIG,
+                                VALUES[LENGTH - 1] == *(RESULT.first));
 
-                    guard.release();
-                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+                        guard.release();
+                    } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+                }
 
                 ASSERTV(LENGTH, CONFIG, LENGTH, X.size(), LENGTH == X.size());
 

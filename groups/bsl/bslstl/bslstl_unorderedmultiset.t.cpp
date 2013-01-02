@@ -1942,7 +1942,15 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase9()
 
                     ASSERTV(LINE1, LINE2, sam.isInUseSame());
 
+#if !defined(BDE_BUILD_TARGET_SAFE_2)
+                    // When mX and Z use different allocators, the assignment
+                    // is done through the copy-swap idiom.  This means the
+                    // copy is destroyed within the assignment, and in SAFE2
+                    // mode the destructor calls 'isWellFormed', which
+                    // allocates from the default allocator.
+
                     ASSERTV(LINE1, LINE2, 0 == da.numBlocksTotal());
+#endif
                 }
 
                 // Verify all memory is released on object destruction.
@@ -3318,6 +3326,8 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase2()
 
     const size_t MAX_LENGTH = 9;
 
+    static int typeCounter = 0;
+    ++typeCounter;
     for (size_t ti = 0; ti < MAX_LENGTH; ++ti) {
         const size_t LENGTH = ti;
 
@@ -3426,44 +3436,59 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase2()
 
                 bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
-                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
-                    ExceptionGuard<Obj> guard(&X, L_, &scratch);
+                const KEY& K = values[LENGTH - 1];
 
-                    const KEY& K = values[LENGTH - 1];
+                int exceptionBlockPass = 0;
+                if (&oa == &da) {
+                    mX.insert(K);
+                }
+                else {
+                    BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
+                        ASSERTV(LENGTH, CONFIG, X.size(), exceptionBlockPass,
+                                                 0 == scratch.numBytesInUse());
 
-                    bslma::TestAllocatorMonitor tam(&oa);
-                    Iter RESULT = mX.insert(K);
+                        ExceptionGuard<Obj> guard(&X, L_, &scratch);
+
+                        bslma::TestAllocatorMonitor tam(&oa);
+                        Iter RESULT = mX.insert(K);
 
 #if defined(AJM_NEEDS_TO_UNDERSTAND_THESE_FAILURES_BETTER)
-                    if (VALUE_TYPE_USES_ALLOC || expectToAllocate(LENGTH)) {
-                        ASSERTV(CONFIG, tam.isTotalUp());
-                        ASSERTV(CONFIG, tam.isInUseUp());
-                    }
-                    else {
-                        ASSERTV(CONFIG, tam.isTotalSame());
-                        ASSERTV(CONFIG, tam.isInUseSame());
-                    }
+                        if (VALUE_TYPE_USES_ALLOC || expectToAllocate(LENGTH)){
+                            ASSERTV(CONFIG, tam.isTotalUp());
+                            ASSERTV(CONFIG, tam.isInUseUp());
+                        }
+                        else {
+                            ASSERTV(CONFIG, tam.isTotalSame());
+                            ASSERTV(CONFIG, tam.isInUseSame());
+                        }
 #endif
 
 #if 0
-                    // Verify no temporary memory is allocated from the object
-                    // allocator.
-                    // BROKEN TEST CONDITION
-                    // We need to think carefully about how we allow for the
-                    // allocation of the bucket-array
+                        // Verify no temporary memory is allocated from the
+                        // object allocator.
+                        // BROKEN TEST CONDITION
+                        // We need to think carefully about how we allow for
+                        // the allocation of the bucket-array
 
-                    ASSERTV(LENGTH, CONFIG, oa.numBlocksTotal(),
+                        ASSERTV(LENGTH, CONFIG, oa.numBlocksTotal(),
                                                            oa.numBlocksInUse(),
-                            oa.numBlocksTotal() == oa.numBlocksInUse());
+                                   oa.numBlocksTotal() == oa.numBlocksInUse());
 #endif
+                        ASSERTV(LENGTH, CONFIG, K == *RESULT);
 
-                    ASSERTV(LENGTH, CONFIG, values[LENGTH - 1] == *RESULT);
+                        ASSERTV(exceptionBlockPass, X.size(), LENGTH,
+                                                   2 * LENGTH - 1 == X.size());
 
-                    guard.release();
-                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+                        guard.release();
+                        ++exceptionBlockPass;
+                    } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+                }
                 mX.insert(values[LENGTH - 1]);
 
-                ASSERTV(LENGTH, CONFIG, 2 * LENGTH == X.size());
+                ASSERTV(LENGTH, CONFIG, X.size(), exceptionBlockPass,
+                                                 0 == scratch.numBytesInUse());
+
+                ASSERTV(LENGTH, CONFIG, X.size(), 2 * LENGTH == X.size());
 
                 // check elements with equivalent keys are contiguous
                 // check expected elements are present in container, with
@@ -3482,7 +3507,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase2()
                             }
                         }
                     }
-                    ASSERT(2 * LENGTH == i);
+                    ASSERTV(LENGTH, i, 2 * LENGTH == i);
                     size_t missing = 0;
                     for (size_t j = 0; j != values.size(); ++j) {
                         if (foundValues[j] != (j < LENGTH ? 2 : 0)) {
