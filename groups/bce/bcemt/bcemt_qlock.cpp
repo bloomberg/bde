@@ -40,6 +40,20 @@ bslma::Allocator& semaphoreAllocator()
     return bslma::NewDeleteAllocator::singleton();
 }
 
+inline
+void releaseSemaphoreObject(void *semaphore)
+{
+    SemaphorePtr sema = reinterpret_cast<SemaphorePtr>(semaphore);
+    semaphoreAllocator().deleteObjectRaw(sema);
+}
+
+inline
+void releaseTlsKey(TlsKey *key)
+{
+    bcemt_ThreadUtil::deleteKey(*key);
+    semaphoreAllocator().deleteObjectRaw(key);
+}
+
 struct SemaphoreKeyGuard
 {
     // A guard class that ensures, on destruction, that the global TLS key
@@ -47,41 +61,32 @@ struct SemaphoreKeyGuard
     // instance of this class may be created to ensure the global TLS
     // key is released at program termination.
 
-    ~SemaphoreKeyGuard();
-        // Release the resources for the global TLS key 's_semaphoreKey', or do
-        // nothing if that key has not been initialized or has previously been
-        // released.
-};
+    // DATA
+    TlsKey *d_key_p;
 
-inline
-SemaphoreKeyGuard::~SemaphoreKeyGuard()
-{
-    TlsKey *key = reinterpret_cast<TlsKey*>(
-                               bces_AtomicUtil::swapPtr(&s_semaphoreKey, 0));
-    if (key) {
-        bcemt_ThreadUtil::deleteKey(*key);
-        semaphoreAllocator().deleteObjectRaw(key);
+    SemaphoreKeyGuard(TlsKey *key)
+        : d_key_p(key)
+    {
+        BSLS_ASSERT(d_key_p);
     }
-}
 
-inline
-SemaphoreKeyGuard *initializeSemaphoreKeyGuard()
-    // Create a static instance of 'SemaphoreKeyGuard' to ensure the global
-    // TLS key 's_semaphoreKey' is released on program termination, and return
-    // the address of that static key guard.
-{
-    static SemaphoreKeyGuard guard;
-    return &guard;
-}
+    ~SemaphoreKeyGuard()
+    {
+        releaseSemaphoreObject(bcemt_ThreadUtil::getSpecific(*d_key_p));
+        releaseTlsKey(d_key_p);
+    }
+};
 
 extern "C" void deleteThreadLocalSemaphore(void *semaphore)
     // Free the memory for the specified 'semaphore'.  The behavior is
     // undefined unless 'semaphore' is either the address of a valid
     // 'bcemt_Semaphore' pointer, or 0.  Note that this function is intended to
     // serve as a "destructor" callback for 'bcemt_ThreadUtil::createKey'.
+    // Note that 'deleteThreadLocalSemaphore' doesn't run on the main thread.
+    // The main thread deletes the semaphore object in the 'SemaphoreKeyGuard'
+    // destructor.
 {
-    SemaphorePtr sema = reinterpret_cast<SemaphorePtr>(semaphore);
-    semaphoreAllocator().deleteObjectRaw(sema);
+    releaseSemaphoreObject(semaphore);
 }
 
 TlsKey *initializeSemaphoreTLSKey()
@@ -102,19 +107,18 @@ TlsKey *initializeSemaphoreTLSKey()
     if (0 == oldKey) {
         // Create the static key-guard to ensure the resources for
         // 's_semaphoreKey' are released when this program terminates.
+        // 'testAndSwapPtr' above ensures that this done only once.
 
-        initializeSemaphoreKeyGuard();
+        static SemaphoreKeyGuard guard(key);
+        return key;                                                   // RETURN
     }
     else {
         // Another thread has already initialized 's_semaphoreKey', so release
-        // the resources for 'key'.
+        // the 'key' now and return the original semaphore key value.
 
-        bcemt_ThreadUtil::deleteKey(*key);
-        semaphoreAllocator().deleteObjectRaw(key);
-        key = reinterpret_cast<TlsKey*>(oldKey);
+        releaseTlsKey(key);
+        return reinterpret_cast<TlsKey *>(oldKey);                    // RETURN
     }
-
-    return key;
 }
 
 inline
@@ -149,27 +153,16 @@ SemaphorePtr getSemaphoreForCurrentThread()
 #else
     // Manually manipulate the thread local storage.
 
-    if (bcemt_ThreadUtil::areEqual(bcemt_ThreadUtil::self(),
-                                   bcemt_ThreadUtil::mainThread()))
-    {
-        // We're running in the main thread for which the semaphore deleter
-        // function 'deleteThreadLocalSemaphore' does not run.  Therefore use
-        // a static storage for the semaphore object.
-        static bcemt_Semaphore s_mainThreadSema;
-        return &s_mainThreadSema;
-    }
-    else {
-        TlsKey *key = getSemaphoreTLSKey();
-        SemaphorePtr sema = reinterpret_cast<SemaphorePtr>(
-            bcemt_ThreadUtil::getSpecific(*key));
+    TlsKey *key = getSemaphoreTLSKey();
+    SemaphorePtr sema = reinterpret_cast<SemaphorePtr>(
+        bcemt_ThreadUtil::getSpecific(*key));
 
-        if (!sema) {
-            sema = new (semaphoreAllocator()) bcemt_Semaphore();
-            bcemt_ThreadUtil::setSpecific(*key, sema);
-        }
-
-        return sema;
+    if (!sema) {
+        sema = new (semaphoreAllocator()) bcemt_Semaphore();
+        bcemt_ThreadUtil::setSpecific(*key, sema);
     }
+
+    return sema;
 #endif
 }
 
