@@ -546,10 +546,6 @@ struct bcemt_ThreadUtil {
         // note that this value is valid only until the thread terminates, and
         // may be reused thereafter.
 
-    static Handle mainThread();
-        // Return an identifier that can be used to refer to the main thread in
-        // calls to other 'bcemt_ThreadUtil' methods.
-
                 // *** Thread-Specific (Local) Storage (TSS or TLS) ***
 
     static int createKey(Key *key, Destructor threadKeyCleanupFunction);

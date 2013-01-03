@@ -31,39 +31,11 @@ void *bcemt_ThreadUtil_threadFunc(void *arg)
 
 }  // extern "C"
 
-namespace {
-
-struct MainThreadHolder
-    // The purpose of this class is to obtain and store a handle to the main
-    // thread, which is done in the constructor of the global object of this
-    // class.
-{
-    MainThreadHolder()
-        : s_mainThread(bcemt_ThreadUtil::self())
-    {}
-
-    bcemt_ThreadUtil::Handle getHandle() const
-    {
-        return s_mainThread;
-    }
-
-    bcemt_ThreadUtil::Handle s_mainThread;
-};
-
-MainThreadHolder g_mainThread;
-
-}
-
                             // -----------------------
                             // struct bcemt_ThreadUtil
                             // -----------------------
 
 // CLASS METHODS
-bcemt_ThreadUtil::Handle bcemt_ThreadUtil::mainThread()
-{
-    return g_mainThread.getHandle();
-}
-
 int bcemt_ThreadUtil::convertToSchedulingPriority(
          bcemt_ThreadAttributes::SchedulingPolicy policy,
          double                                   normalizedSchedulingPriority)
