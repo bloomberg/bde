@@ -159,10 +159,10 @@ SemaphorePtr getSemaphoreForCurrentThread()
         return &s_mainThreadSema;
     }
     else {
-        SemaphorePtr sema;
-
         TlsKey *key = getSemaphoreTLSKey();
-        sema = reinterpret_cast<SemaphorePtr>(bcemt_ThreadUtil::getSpecific(*key));
+        SemaphorePtr sema = reinterpret_cast<SemaphorePtr>(
+            bcemt_ThreadUtil::getSpecific(*key));
+
         if (!sema) {
             sema = new (semaphoreAllocator()) bcemt_Semaphore();
             bcemt_ThreadUtil::setSpecific(*key, sema);
