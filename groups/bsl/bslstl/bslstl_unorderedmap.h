@@ -798,7 +798,7 @@ BSLS_IDENT("$Id: $")
 //..
 // Notice that the assertion confirms that "unalienable" is found in our
 // inverse location at the location we obtained from the concordance.
-// 
+//
 // Finally, we find on standard output:
 //..
 //  0   93: evident

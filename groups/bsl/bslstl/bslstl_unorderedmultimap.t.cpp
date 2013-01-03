@@ -2078,7 +2078,7 @@ if (verbose) {
         const bsl::allocator<int> alloc   = x.get_allocator();
         const bsl::hash<int>      hasher  = x.hash_function();
         const bsl::equal_to<int>  compare = x.key_eq();
-        
+
         const size_t maxSize    = x.max_size();
         const size_t buckets    = x.bucket_count();
         const float  loadFactor = x.load_factor();
