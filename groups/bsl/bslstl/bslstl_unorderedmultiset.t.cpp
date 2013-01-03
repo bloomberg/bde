@@ -310,7 +310,6 @@ bool nearlyEqual(const TYPE& x, const TYPE& y)
 }
 
 template <class CONTAINER>
-static
 int verifySpec(const CONTAINER& object, const char *spec)
 {
     typedef typename CONTAINER::key_type       Key;
@@ -1499,12 +1498,13 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase13()
             ASSERTV(1.0f == X.max_load_factor());
 
             mX.max_load_factor(1.0 / 4);
-            ASSERTV(1.0 / 4 == X.max_load_factor());
+            ASSERTV(nearlyEqual<float>(1.0 / 4, X.max_load_factor()));
             ASSERTV(LOAD > X.load_factor());
 
             const float LOAD2 = X.load_factor();
             ASSERTV(LOAD2, X.size() / (float) X.bucket_count(),
-                       LOAD2 == (float) (X.size() / (float) X.bucket_count()));
+                   nearlyEqual<float>(LOAD2,
+                               (float) (X.size() / (float) X.bucket_count())));
 
             ASSERTV(X == Y);
 
@@ -1933,7 +1933,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase9()
                         ASSERTV(LINE1, LINE2, mR, &mX, mR == &mX);
                     } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
-                    ASSERTV(2.0 == X.max_load_factor());
+                    ASSERTV(nearlyEqual<float>(2.0, X.max_load_factor()));
 
                     ASSERTV(LINE1, LINE2, ZZ, Z, ZZ == Z);
 
@@ -2243,8 +2243,8 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase8()
             mX.max_load_factor(2.0f);
             mY.max_load_factor(3.0f);
 
-            ASSERT(2.0f == X.max_load_factor());
-            ASSERT(3.0f == Y.max_load_factor());
+            ASSERT(nearlyEqual<float>(2.0f, X.max_load_factor()));
+            ASSERT(nearlyEqual<float>(3.0f, Y.max_load_factor()));
 
             if (veryVerbose) { T_ P_(LINE2) P_(X) P_(Y) P(YY) }
 
@@ -2254,8 +2254,8 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase8()
 
                 mX.swap(mY);
 
-                ASSERT(3.0f == X.max_load_factor());
-                ASSERT(2.0f == Y.max_load_factor());
+                ASSERT(nearlyEqual<float>(3.0f, X.max_load_factor()));
+                ASSERT(nearlyEqual<float>(2.0f, Y.max_load_factor()));
 
                 ASSERTV(LINE1, LINE2, YY, X, YY == X);
                 ASSERTV(LINE1, LINE2, XX, Y, XX == Y);
@@ -2270,8 +2270,8 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase8()
 
                 swap(mX, mY);
 
-                ASSERT(2.0f == X.max_load_factor());
-                ASSERT(3.0f == Y.max_load_factor());
+                ASSERT(nearlyEqual<float>(2.0f, X.max_load_factor()));
+                ASSERT(nearlyEqual<float>(3.0f, Y.max_load_factor()));
 
                 ASSERTV(LINE1, LINE2, XX, X, XX == X);
                 ASSERTV(LINE1, LINE2, YY, Y, YY == Y);
@@ -2393,8 +2393,8 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase8()
         ASSERTV(XX, Y, XX == Y);
         ASSERT(oam.isTotalSame());
 
-        ASSERT(3.0 == X.max_load_factor());
-        ASSERT(2.0 == Y.max_load_factor());
+        ASSERT(nearlyEqual<float>(3.0, X.max_load_factor()));
+        ASSERT(nearlyEqual<float>(2.0, Y.max_load_factor()));
 
         if (veryVerbose) { T_ P_(X) P(Y) }
     }
@@ -2676,7 +2676,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase6()
             load /= 2;
 
             mY.max_load_factor(load);
-            ASSERTV(Y.load_factor() <= load);
+            ASSERTV(Y.load_factor() <= load * 1.00001);
             ASSERTV(Y.bucket_count() > NB);
 
             ASSERTV(-1 == verifySpec(Y, JSPEC));
@@ -3892,7 +3892,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase2()
 
             if (veryVerbose) { P(MORE_BUCKETS); P(X.max_load_factor()); }
 
-            ASSERTV(maxLoadFactor == X.max_load_factor());
+            ASSERTV(nearlyEqual<float>(maxLoadFactor, X.max_load_factor()));
             ASSERTV(EVEN_MORE_BUCKETS > MORE_BUCKETS);
             ASSERTV(EVEN_MORE_BUCKETS * maxLoadFactor >= 10 * X.size());
 
@@ -4632,7 +4632,7 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) printf("Validate default behavior of 'x'\n");
 
-        ASSERT(1.0f == X.max_load_factor());
+        ASSERT(nearlyEqual<float>(1.0f, X.max_load_factor()));
 
         testConstEmptyContainer(X);
         testEmptyContainer(mX);
@@ -4662,7 +4662,7 @@ int main(int argc, char *argv[])
         if (veryVerbose)
             printf("Validate behavior of freshly constructed 'y'\n");
 
-        ASSERT(1.0f == Y.max_load_factor());
+        ASSERT(nearlyEqual<float>(1.0f, Y.max_load_factor()));
 
         testContainerHasData(Y, 1, dataSamples, MAX_SAMPLE);
         validateIteration(mY);
@@ -4735,7 +4735,7 @@ int main(int argc, char *argv[])
         if (veryVerbose)
             printf("Validate behavior of freshly constructed 'z'.\n");
 
-        ASSERT(1.0f == Z.max_load_factor());
+        ASSERT(nearlyEqual<float>(1.0f, Z.max_load_factor()));
         ASSERT(X == Z);
         ASSERT(!(X != Z));
         ASSERT(Z == X);
