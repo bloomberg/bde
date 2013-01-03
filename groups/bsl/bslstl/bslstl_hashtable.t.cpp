@@ -1719,10 +1719,46 @@ typedef bslalg::HashTableImpUtil     ImpUtil;
 typedef bslalg::BidirectionalLink    Link;
 
 //=============================================================================
-//                  GLOBAL HELPER FUNCTIONS FOR TESTING
+//                  HELPER CLASSES FOR TESTING
 //-----------------------------------------------------------------------------
 
-namespace TestTypes {
+namespace bsl
+{
+
+                    // ============================================
+                    // class template bsl::equal_to specializations
+                    // ============================================
+
+template <>
+struct equal_to< ::BloombergLP::bsltf::NonEqualComparableTestType> {
+    typedef ::BloombergLP::bsltf::NonEqualComparableTestType
+                                                          first_argument_type;
+    typedef ::BloombergLP::bsltf::NonEqualComparableTestType
+                                                          second_argument_type;
+    typedef bool                                          result_type;
+
+    bool operator()(const ::BloombergLP::bsltf::NonEqualComparableTestType& a,
+                    const ::BloombergLP::bsltf::NonEqualComparableTestType& b)
+                                                                         const;
+};
+
+                    // ========================================
+                    // class template bsl::hash specializations
+                    // ========================================
+
+template <>
+struct hash< ::BloombergLP::bsltf::NonEqualComparableTestType> {
+    typedef ::BloombergLP::bsltf::NonEqualComparableTestType argument_type;
+    typedef size_t                                           result_type;
+
+    size_t operator()(const ::BloombergLP::bsltf::NonEqualComparableTestType&
+                                                                  value) const;
+};
+
+}  // close namespace bsl
+
+namespace TestTypes
+{
 
                             // ===========================
                             // class AwkwardMaplikeElement
@@ -1746,133 +1782,59 @@ class AwkwardMaplikeElement {
     bsltf::NonEqualComparableTestType d_data;
 
   public:
-    AwkwardMaplikeElement()
-    : d_data()
-    {
-    }
+    // CREATORS
+
+    AwkwardMaplikeElement();
 
     explicit
-    AwkwardMaplikeElement(int value)
-    : d_data(value)
-    {
-    }
+    AwkwardMaplikeElement(int value);
 
     explicit
-    AwkwardMaplikeElement(const bsltf::NonEqualComparableTestType& value)
-    : d_data(value)
-    {
-    }
+    AwkwardMaplikeElement(const bsltf::NonEqualComparableTestType& value);
 
-    void setData(int value) { d_data.setData(value); }
+    // MANIPULATORS
+
+    void setData(int value);
         // Set the 'data' attribute of this object to the specified 'value'.
 
     // ACCESSORS
-    int data() const { return d_data.data(); }
+
+    int data() const;
         // Return the value of the 'data' attribute of this object.
 
-    const bsltf::NonEqualComparableTestType& key() const { return d_data; }
+    const bsltf::NonEqualComparableTestType& key() const;
 };
 
-inline
 bool operator==(const AwkwardMaplikeElement& lhs,
-                const AwkwardMaplikeElement& rhs) {
-    return BSL_TF_EQ(lhs.data(), rhs.data());
-}
+                const AwkwardMaplikeElement& rhs);
 
-inline
 bool operator!=(const AwkwardMaplikeElement& lhs,
-                const AwkwardMaplikeElement& rhs) {
-    return !(lhs == rhs);
-}
+                const AwkwardMaplikeElement& rhs);
 
-inline
-void debugprint(const AwkwardMaplikeElement& value)
-{
-    bsls::debugprint(value.data());
-}
+void debugprint(const AwkwardMaplikeElement& value);
 
-} // close namespace TestTypes
-
-
-namespace bsl {
-
-                    // ============================================
-                    // class template bsl::equal_to specializations
-                    // ============================================
-
-template <>
-struct equal_to< ::BloombergLP::bsltf::NonEqualComparableTestType> {
-    typedef ::BloombergLP::bsltf::NonEqualComparableTestType
-                                                          first_argument_type;
-    typedef ::BloombergLP::bsltf::NonEqualComparableTestType
-                                                          second_argument_type;
-    typedef bool                                          result_type;
-
-    bool operator()(const ::BloombergLP::bsltf::NonEqualComparableTestType& a,
-                    const ::BloombergLP::bsltf::NonEqualComparableTestType& b)
-                                                                          const
-    {
-        return BSL_TF_EQ(a, b);
-    }
-};
-
-                    // ========================================
-                    // class template bsl::hash specializations
-                    // ========================================
-
-template <>
-struct hash< ::BloombergLP::bsltf::NonEqualComparableTestType> {
-    typedef ::BloombergLP::bsltf::NonEqualComparableTestType argument_type;
-    typedef size_t                                           result_type;
-
-    size_t operator()(const ::BloombergLP::bsltf::NonEqualComparableTestType&
-                                                                   value) const
-    {
-        static const bsl::hash<int> EVALUATE_HASH = bsl::hash<int>();
-        return EVALUATE_HASH(value.data());
-    }
-};
-
-} // close namespace bsl
+}  // close namespace TestTypes
 
 namespace BloombergLP {
 namespace bslstl {
 // HashTable-specific print function.
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 void debugprint(
-         const bslstl::HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>& t)
-{
-    if (0 == t.size()) {
-        printf("<empty>");
-    }
-    else {
-        for (Link *it = t.elementListRoot(); it; it = it->nextLink()) {
-            const typename KEY_CONFIG::KeyType& key =
-                                           ImpUtil::extractKey<KEY_CONFIG>(it);
-            bsls::BslTestUtil::callDebugprint(static_cast<char>(
-                             bsltf::TemplateTestFacility::getIdentifier(key)));
-        }
-    }
-    fflush(stdout);
-}
-
+        const bslstl::HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>& t);
 }  // close namespace BloombergLP::bslstl
 
 namespace bsltf {
 
 template <>
-inline
 int TemplateTestFacility::getIdentifier<TestTypes::AwkwardMaplikeElement>(
-                               const TestTypes::AwkwardMaplikeElement& object)
-{
-    return object.data();
-}
+                               const TestTypes::AwkwardMaplikeElement& object);
 
 }  // close namespace BloombergLP::bsltf
 }  // close namespace BloombergLP
 
 
-namespace {
+namespace
+{
 
                             // ====================
                             // class ExceptionGuard
@@ -2136,6 +2098,7 @@ class StatefulHash : private bsl::hash<KEY> {
     // 'mixer' attribute, that constitutes the value of this class, and is
     // used to mutate the value returned from the adapted hasher when calling
     // 'operator()'.
+
     typedef bsl::hash<KEY> Base;
 
     template <class OTHER_KEY>
@@ -2188,196 +2151,6 @@ class TestFacilityHasher : public HASHER { // exploit empty base
         // Return a hash code for the specified 'k' using the wrapped 'HASHER'.
 };
 
-                            // ===============================
-                            // class GroupedEqualityComparator
-                            // ===============================
-
-template <class TYPE, int GROUP_SIZE>
-bool GroupedEqualityComparator<TYPE, GROUP_SIZE>::
-operator() (const TYPE& lhs, const TYPE& rhs) const
-{
-    int leftValue = bsltf::TemplateTestFacility::getIdentifier<TYPE>(lhs)
-                  / GROUP_SIZE;
-    int rightValue = bsltf::TemplateTestFacility::getIdentifier<TYPE>(rhs)
-                   / GROUP_SIZE;
-
-    return leftValue == rightValue;
-}
-
-                            // ===================
-                            // class GroupedHasher
-                            // ===================
-
-template <class TYPE, class HASHER, int GROUP_SIZE>
-inline
-size_t GroupedHasher<TYPE, HASHER, GROUP_SIZE>::operator() (const TYPE& value)
-{
-    int groupNum = bsltf::TemplateTestFacility::getIdentifier<TYPE>(value)
-                     / GROUP_SIZE;
-
-    return HASHER::operator()(groupNum);
-}
-
-
-                       // ====================
-                       // class TestComparator
-                       // ====================
-
-template <class TYPE>
-inline
-TestEqualityComparator<TYPE>::TestEqualityComparator(int id)
-: d_id(id)
-, d_count(0)
-{
-}
-
-    // MANIPULATORS
-template <class TYPE>
-inline
-void TestEqualityComparator<TYPE>::setId(int value)
-{
-    d_id = value;
-}
-
-    // ACCESSORS
-template <class TYPE>
-inline
-bool TestEqualityComparator<TYPE>::operator() (const TYPE& lhs,
-                                               const TYPE& rhs) const
-{
-    ++d_count;
-
-    return bsltf::TemplateTestFacility::getIdentifier<TYPE>(lhs)
-        == bsltf::TemplateTestFacility::getIdentifier<TYPE>(rhs);
-}
-
-template <class TYPE>
-inline
-bool TestEqualityComparator<TYPE>::operator==(
-                                       const TestEqualityComparator& rhs) const
-{
-    return (id() == rhs.id());// && d_compareLess == rhs.d_compareLess);
-}
-
-template <class TYPE>
-inline
-int TestEqualityComparator<TYPE>::id() const
-{
-    return d_id;
-}
-
-template <class TYPE>
-inline
-size_t TestEqualityComparator<TYPE>::count() const
-{
-    return d_count;
-}
-
-                       // =====================
-                       // class TestHashFunctor
-                       // =====================
-
-template <class TYPE>
-inline
-TestHashFunctor<TYPE>::TestHashFunctor(int id)
-: d_id(id)
-, d_count(0)
-{
-}
-
-    // ACCESSORS
-template <class TYPE>
-inline
-native_std::size_t TestHashFunctor<TYPE>::operator() (const TYPE& obj) const
-{
-    ++d_count;
-
-    return bsltf::TemplateTestFacility::getIdentifier<TYPE>(obj);
-}
-
-template <class TYPE>
-inline
-bool TestHashFunctor<TYPE>::operator== (const TestHashFunctor& rhs) const
-{
-    return (id() == rhs.id());// && d_compareLess == rhs.d_compareLess);
-}
-
-template <class TYPE>
-inline
-int TestHashFunctor<TYPE>::id() const
-{
-    return d_id;
-}
-
-template <class TYPE>
-inline
-size_t TestHashFunctor<TYPE>::count() const
-{
-    return d_count;
-}
-
-                       // ==================
-                       // class StatefulHash
-                       // ==================
-
-template <class KEY>
-inline
-StatefulHash<KEY>::StatefulHash(native_std::size_t mixer)
-: d_mixer(mixer)
-{
-}
-
-template <class KEY>
-inline
-void StatefulHash<KEY>::setMixer(int value)
-{
-    d_mixer = value;
-}
-
-template <class KEY>
-inline
-native_std::size_t StatefulHash<KEY>::operator()(const KEY& k) const
-{
-    return Base::operator()(k) ^ d_mixer;
-}
-
-template <class KEY>
-inline
-bool operator==(const StatefulHash<KEY>& lhs, const StatefulHash<KEY>& rhs)
-{
-    return lhs.d_mixer == rhs.d_mixer;
-}
-
-template <class KEY>
-inline
-bool operator!=(const StatefulHash<KEY>& lhs, const StatefulHash<KEY>& rhs)
-{
-    return lhs.d_mixer != rhs.d_mixer;
-}
-
-                       // ========================
-                       // class TestFacilityHasher
-                       // ========================
-
-template <class KEY, class HASHER>
-inline
-TestFacilityHasher<KEY, HASHER>::TestFacilityHasher(const HASHER& hash)
-: HASHER(hash)
-{
-}
-
-    // ACCESSORS
-template <class KEY, class HASHER>
-inline
-native_std::size_t
-TestFacilityHasher<KEY, HASHER>::operator() (const KEY& k) const
-{
-    return HASHER::operator()(
-                           bsltf::TemplateTestFacility::getIdentifier<KEY>(k));
-}
-
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
                        // =============================
                        // class ConvertibleValueWrapper
                        // =============================
@@ -2400,7 +2173,8 @@ struct ConvertibleValueWrapper {
 
 template <class KEY, class HASHER = ::bsl::hash<int> >
 class TestConvertibleValueHasher : private TestFacilityHasher<KEY, HASHER> {
-    // This test class provides...
+    // TBD This test class provides...
+
     typedef TestFacilityHasher<KEY, HASHER> Base;
 
   public:
@@ -2434,8 +2208,6 @@ class TestConvertibleValueComparator {
         return BSL_TF_EQ(a, b);
     }
 };
-
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
                        // =====================
                        // class DegenerateClass
@@ -2502,48 +2274,6 @@ class DegenerateClass : public FUNCTOR {
         // prior to VC2010.
 };
 
-template <class FUNCTOR, bool ENABLE_SWAP>
-inline
-DegenerateClass<FUNCTOR, ENABLE_SWAP>::DegenerateClass(const FUNCTOR& base)
-: FUNCTOR(base)
-{
-}
-
-template <class FUNCTOR, bool ENABLE_SWAP>
-inline
-DegenerateClass<FUNCTOR, ENABLE_SWAP>::DegenerateClass(
-                                               const DegenerateClass& original)
-: FUNCTOR(original)
-{
-}
-
-template <class FUNCTOR, bool ENABLE_SWAP>
-inline
-DegenerateClass<FUNCTOR, ENABLE_SWAP>
-DegenerateClass<FUNCTOR, ENABLE_SWAP>::cloneBaseObject(const FUNCTOR& base)
-{
-    return DegenerateClass(base);
-}
-
-template <class FUNCTOR, bool ENABLE_SWAP>
-inline
-void
-DegenerateClass<FUNCTOR, ENABLE_SWAP>::exchangeValues(DegenerateClass& other)
-{
-    using std::swap;
-    swap(static_cast<FUNCTOR&>(*this), static_cast<FUNCTOR&>(other));
-}
-
-template <class FUNCTOR>
-inline
-void swap(DegenerateClass<FUNCTOR, true>& lhs,
-          DegenerateClass<FUNCTOR, true>& rhs)
-{
-    lhs.exchangeValues(rhs);
-}
-
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
                        // =============================
                        // class FunctionPointerPolicies
                        // =============================
@@ -2553,46 +2283,39 @@ struct FunctionPointerPolicies {
     typedef size_t HashFunction(const KEY&);
     typedef bool   ComparisonFunction(const KEY&, const KEY&);
 
-    static size_t hash(const KEY& k) {
-        static
-        const TestFacilityHasher<KEY> s_hasher = TestFacilityHasher<KEY>();
-        return s_hasher(k);
-    }
+    static size_t hash(const KEY& k);
 
-    static bool compare(const KEY& lhs, const KEY& rhs) {
-        return BSL_TF_EQ(lhs, rhs);
-    }
+    static bool compare(const KEY& lhs, const KEY& rhs);
 };
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+                       // ========================
+                       // class MakeDefaultFunctor
+                       // ========================
+
 template <class FUNCTOR>
 struct MakeDefaultFunctor {
-    static FUNCTOR make() { return FUNCTOR(); }
+    static FUNCTOR make();
 };
 
 template <class FUNCTOR, bool ENABLE_SWAP>
 struct MakeDefaultFunctor<DegenerateClass<FUNCTOR, ENABLE_SWAP> > {
-    static DegenerateClass<FUNCTOR, ENABLE_SWAP> make() {
-        return DegenerateClass<FUNCTOR, ENABLE_SWAP>::cloneBaseObject(
-                                                                    FUNCTOR());
-    }
+    static DegenerateClass<FUNCTOR, ENABLE_SWAP> make();
 };
 
 template <class KEY>
 struct MakeDefaultFunctor<size_t (*)(const KEY&)> {
     typedef size_t FunctionType(const KEY&);
-    static FunctionType *make() {
-        return &FunctionPointerPolicies<KEY>::hash;
-    }
+
+    static FunctionType *make();
 };
 
 template <class KEY>
 struct MakeDefaultFunctor<bool (*)(const KEY&, const KEY&)> {
     typedef bool FunctionType(const KEY&, const KEY&);
-    static FunctionType *make() {
-        return &FunctionPointerPolicies<KEY>::compare;
-    }
+
+    static FunctionType *make();
 };
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -2606,13 +2329,10 @@ class GenericComparator {
     // ACCESSORS
     template <class ARG1_TYPE, class ARG2_TYPE>
     EvilBooleanType operator() (const ARG1_TYPE& arg1,
-                                const ARG2_TYPE& arg2) const
+                                const ARG2_TYPE& arg2) const;
         // Return 'true' if 'arg1' has the same value as 'arg2', for some
         // unspecified definition that defaults to 'operator==', but may use
         // some other functionality.
-    {
-        return BSL_TF_EQ(arg1, arg2);
-    }
 };
 
                        // ===================
@@ -2627,111 +2347,12 @@ class GenericHasher {
     // class method 'TemplateTestFacility::getIdentifier'.
 
   public:
-
     // ACCESSORS
     template <class KEY>
-    native_std::size_t operator() (const KEY& k) const
+    native_std::size_t operator() (const KEY& k) const;
         // Return a hash code for the specified 'k' using the wrapped 'HASHER'.
-    {
-        static const TestFacilityHasher<KEY> HASHER;
-        return HASHER(k);
-    }
 };
 
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-//       test support functions dealing with hash and comparator functors
-
-void setHasherState(bsl::hash<int> *hasher, int id);
-void setHasherState(StatefulHash<int> *hasher, int id);
-
-bool isEqualHasher(const bsl::hash<int>&, const bsl::hash<int>&);
-    // Provide an overloaded function to compare hash functors.  Return 'true'
-    // because 'bsl::hash' is stateless.
-
-bool isEqualHasher(const StatefulHash<int>& lhs,
-                   const StatefulHash<int>& rhs);
-    // Provide an overloaded function to compare hash functors.  Return
-    // 'lhs == rhs'.
-
-template <class KEY>
-void setComparatorState(bsl::equal_to<KEY> *comparator, int id);
-
-template <class KEY>
-void setComparatorState(TestEqualityComparator<KEY> *comparator, int id);
-
-
-template <class KEY>
-bool isEqualComparator(const bsl::equal_to<KEY>&, const bsl::equal_to<KEY>&);
-    // Provide an overloaded function to compare comparators.  Return 'true'
-    // because 'bsl::equal_to' is stateless.
-
-template <class KEY>
-bool isEqualComparator(const TestEqualityComparator<KEY>& lhs,
-                       const TestEqualityComparator<KEY>& rhs);
-    // Provide an overloaded function to compare comparators.  Return
-    // 'lhs == rhs'.
-
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-inline
-void setHasherState(bsl::hash<int> *hasher, int id)
-{
-    (void) hasher;
-    (void) id;
-}
-
-inline
-void setHasherState(StatefulHash<int> *hasher, int id)
-{
-    hasher->setMixer(id);
-}
-
-inline
-bool isEqualHasher(const bsl::hash<int>&, const bsl::hash<int>&)
-{
-    return true;
-}
-
-inline
-bool isEqualHasher(const StatefulHash<int>& lhs,
-                   const StatefulHash<int>& rhs)
-{
-    return lhs == rhs;
-}
-
-template <class KEY>
-inline
-void setComparatorState(bsl::equal_to<KEY> *comparator, int id)
-{
-    (void) comparator;
-    (void) id;
-}
-
-template <class KEY>
-inline
-void setComparatorState(TestEqualityComparator<KEY> *comparator, int id)
-{
-    comparator->setId(id);
-}
-
-
-template <class KEY>
-inline
-bool isEqualComparator(const bsl::equal_to<KEY>&, const bsl::equal_to<KEY>&)
-{
-    return true;
-}
-
-template <class KEY>
-inline
-bool isEqualComparator(const TestEqualityComparator<KEY>& lhs,
-                       const TestEqualityComparator<KEY>& rhs)
-{
-    return lhs == rhs;
-}
-
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
                        // ===============
                        // class BoolArray
@@ -2810,66 +2431,6 @@ struct MakeAllocator<bsltf::StdStatefulAllocator<TYPE, A, B, C, D> > {
     static AllocatorType make(bslma::Allocator *basicAllocator);
 };
 
-
-
-template <class ALLOCATOR>
-typename MakeAllocator<ALLOCATOR>::AllocatorType
-MakeAllocator<ALLOCATOR>::make(bslma::Allocator *)
-{
-    return AllocatorType();
-}
-
-template <class TYPE>
-typename MakeAllocator<bsl::allocator<TYPE> >::AllocatorType
-MakeAllocator<bsl::allocator<TYPE> >::make(bslma::Allocator *basicAllocator)
-{
-    return AllocatorType(basicAllocator);
-}
-
-template <class TYPE>
-typename MakeAllocator<bsltf::StdTestAllocator<TYPE> >::AllocatorType
-MakeAllocator<bsltf::StdTestAllocator<TYPE> >::
-make(bslma::Allocator *basicAllocator)
-{
-    // This method is a little bit of overkill (heavy on the assertions) as
-    // a left-over from when we were trying hard to nail down a tricky bug
-    // that manifest only on the IBM AIX compiler.  It should probably be
-    // cleaned up for final release.
-
-    typedef bsltf::StdTestAllocatorConfiguration BsltfAllocConfig;
-
-    bslma::Allocator *installedAlloc = BsltfAllocConfig::delegateAllocator();
-
-    bslma::TestAllocator *currentAllocator
-                        = dynamic_cast<bslma::TestAllocator *>(installedAlloc);
-
-    bslma::TestAllocator *newAllocator
-                        = dynamic_cast<bslma::TestAllocator *>(basicAllocator);
-
-    ASSERTV(g_bsltfAllocator_p, installedAlloc, currentAllocator, newAllocator,
-            g_bsltfAllocator_p && installedAlloc &&
-            currentAllocator   && newAllocator);
-
-    ASSERTV(currentAllocator,   newAllocator,
-            currentAllocator->name(), newAllocator->name(),
-            currentAllocator == newAllocator);
-
-    return AllocatorType();
-}
-
-template <class TYPE, bool A, bool B, bool C, bool D>
-typename
-MakeAllocator<bsltf::StdStatefulAllocator<TYPE, A, B, C, D> >::AllocatorType
-MakeAllocator<bsltf::StdStatefulAllocator<TYPE, A, B, C, D> >::
-make(bslma::Allocator *basicAllocator)
-{
-    bslma::TestAllocator *alloc = dynamic_cast<bslma::TestAllocator *>(
-                                                               basicAllocator);
-    ASSERT(alloc);
-    return AllocatorType(alloc);
-}
-
-
                        // =================
                        // class ObjectMaker
                        // =================
@@ -2883,7 +2444,7 @@ make(bslma::Allocator *basicAllocator)
 // more thorough in testing, additional configurations will present themself,
 // and specific tests will want different subsets of the available range of
 // configurations.  It is likely we will have functions that return a string
-// literal describing the reommended range of configurations to test, for a
+// literal describing the recommended range of configurations to test, for a
 // given (named) plan, for a given specialization - as not all allocators will
 // support all configurations.  Rather than mindlessly testing each option for
 // each set of types for each test, it would make sense to offer a simplified
@@ -3074,7 +2635,596 @@ struct ObjectMaker<
     //..
 };
 
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+//                         test support functions
+
+template <class ALLOCATOR>
+bslma::TestAllocator *extractTestAllocator(ALLOCATOR&);
+    // In general, there is no way to extract a test allocator from an unknown
+    // allocator type.
+
+template <class TYPE>
+bslma::TestAllocator *extractTestAllocator(bsl::allocator<TYPE>& alloc);
+    // If a BDE 'bsl::allocator' is wrapping a test allocator, it can be found
+    // by 'dynamic_cast'ing the underlying 'mechanism'.
+
+template <class TYPE>
+bslma::TestAllocator *extractTestAllocator(bsltf::StdTestAllocator<TYPE>&);
+    // All 'bsltf::StdTestAllocator's share the same allocator, which is set by
+    // the 'bsltf::StdTestAllocatorConfiguration' utility.  We can determine if
+    // this is wrapping a test allocator using 'dynamic_cast'.
+
+template <class TYPE, bool A, bool B, bool C, bool D>
+bslma::TestAllocator *
+extractTestAllocator(bsltf::StdStatefulAllocator<TYPE, A, B, C, D>& alloc);
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+//       test support functions dealing with hash and comparator functors
+
+void setHasherState(bsl::hash<int> *hasher, int id);
+void setHasherState(StatefulHash<int> *hasher, int id);
+
+bool isEqualHasher(const bsl::hash<int>&, const bsl::hash<int>&);
+    // Provide an overloaded function to compare hash functors.  Return 'true'
+    // because 'bsl::hash' is stateless.
+
+bool isEqualHasher(const StatefulHash<int>& lhs,
+                   const StatefulHash<int>& rhs);
+    // Provide an overloaded function to compare hash functors.  Return
+    // 'lhs == rhs'.
+
+template <class KEY>
+void setComparatorState(bsl::equal_to<KEY> *comparator, int id);
+
+template <class KEY>
+void setComparatorState(TestEqualityComparator<KEY> *comparator, int id);
+
+
+template <class KEY>
+bool isEqualComparator(const bsl::equal_to<KEY>&, const bsl::equal_to<KEY>&);
+    // Provide an overloaded function to compare comparators.  Return 'true'
+    // because 'bsl::equal_to' is stateless.
+
+template <class KEY>
+bool isEqualComparator(const TestEqualityComparator<KEY>& lhs,
+                       const TestEqualityComparator<KEY>& rhs);
+    // Provide an overloaded function to compare comparators.  Return
+    // 'lhs == rhs'.
+
+}  // close unnamed namespace
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+namespace bsl
+{
+                    // --------------------------------------------
+                    // class template bsl::equal_to specializations
+                    // --------------------------------------------
+
+inline
+bool equal_to< ::BloombergLP::bsltf::NonEqualComparableTestType>::operator()
+                    (const ::BloombergLP::bsltf::NonEqualComparableTestType& a,
+                     const ::BloombergLP::bsltf::NonEqualComparableTestType& b)
+                                                                          const
+{
+    return BSL_TF_EQ(a, b);
+}
+
+                    // ----------------------------------------
+                    // class template bsl::hash specializations
+                    // ----------------------------------------
+
+// not inlining initially due to static local data
+size_t hash< ::BloombergLP::bsltf::NonEqualComparableTestType>::operator()
+          (const ::BloombergLP::bsltf::NonEqualComparableTestType& value) const
+{
+    static const bsl::hash<int> EVALUATE_HASH = bsl::hash<int>();
+    return EVALUATE_HASH(value.data());
+}
+
+}  // close namespace bsl
+
+namespace TestTypes
+{
+                            // ---------------------------
+                            // class AwkwardMaplikeElement
+                            // ---------------------------
+
+// CREATORS
+
+inline
+AwkwardMaplikeElement::AwkwardMaplikeElement()
+: d_data()
+{
+}
+
+inline
+AwkwardMaplikeElement::AwkwardMaplikeElement(int value)
+: d_data(value)
+{
+}
+
+inline
+AwkwardMaplikeElement::AwkwardMaplikeElement(
+                                const bsltf::NonEqualComparableTestType& value)
+: d_data(value)
+{
+}
+
+// MANIPULATORS
+
+inline
+void AwkwardMaplikeElement::setData(int value)
+{
+    d_data.setData(value);
+}
+
+// ACCESSORS
+
+inline
+int AwkwardMaplikeElement::data() const
+{
+    return d_data.data();
+}
+
+inline
+const bsltf::NonEqualComparableTestType& AwkwardMaplikeElement::key() const
+{
+    return d_data;
+}
+
+}  // close namespace TestTypes
+
+inline
+bool TestTypes::operator==(const AwkwardMaplikeElement& lhs,
+                const AwkwardMaplikeElement& rhs)
+{
+    return BSL_TF_EQ(lhs.data(), rhs.data());
+}
+
+inline
+bool TestTypes::operator!=(const AwkwardMaplikeElement& lhs,
+                const AwkwardMaplikeElement& rhs)
+{
+    return !(lhs == rhs);
+}
+
+inline
+void TestTypes::debugprint(const AwkwardMaplikeElement& value)
+{
+    bsls::debugprint(value.data());
+}
+
+
+namespace BloombergLP {
+// HashTable-specific print function.
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+void bslstl::debugprint(
+         const bslstl::HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>& t)
+{
+    if (0 == t.size()) {
+        printf("<empty>");
+    }
+    else {
+        for (Link *it = t.elementListRoot(); it; it = it->nextLink()) {
+            const typename KEY_CONFIG::KeyType& key =
+                                           ImpUtil::extractKey<KEY_CONFIG>(it);
+            bsls::BslTestUtil::callDebugprint(static_cast<char>(
+                             bsltf::TemplateTestFacility::getIdentifier(key)));
+        }
+    }
+    fflush(stdout);
+}
+
+namespace bsltf {
+
+template <>
+inline
+int TemplateTestFacility::getIdentifier<TestTypes::AwkwardMaplikeElement>(
+                               const TestTypes::AwkwardMaplikeElement& object)
+{
+    return object.data();
+}
+
+}  // close namespace BloombergLP::bsltf
+}  // close namespace BloombergLP
+
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+namespace
+{
+                       // -------------------------------
+                       // class GroupedEqualityComparator
+                       // -------------------------------
+
+template <class TYPE, int GROUP_SIZE>
+bool GroupedEqualityComparator<TYPE, GROUP_SIZE>::
+operator() (const TYPE& lhs, const TYPE& rhs) const
+{
+    int leftValue = bsltf::TemplateTestFacility::getIdentifier<TYPE>(lhs)
+                  / GROUP_SIZE;
+    int rightValue = bsltf::TemplateTestFacility::getIdentifier<TYPE>(rhs)
+                   / GROUP_SIZE;
+
+    return leftValue == rightValue;
+}
+
+                       // -------------------
+                       // class GroupedHasher
+                       // -------------------
+
+template <class TYPE, class HASHER, int GROUP_SIZE>
+inline
+size_t GroupedHasher<TYPE, HASHER, GROUP_SIZE>::operator() (const TYPE& value)
+{
+    int groupNum = bsltf::TemplateTestFacility::getIdentifier<TYPE>(value)
+                     / GROUP_SIZE;
+
+    return HASHER::operator()(groupNum);
+}
+
+
+                       // --------------------
+                       // class TestComparator
+                       // --------------------
+
+template <class TYPE>
+inline
+TestEqualityComparator<TYPE>::TestEqualityComparator(int id)
+: d_id(id)
+, d_count(0)
+{
+}
+
+    // MANIPULATORS
+template <class TYPE>
+inline
+void TestEqualityComparator<TYPE>::setId(int value)
+{
+    d_id = value;
+}
+
+    // ACCESSORS
+template <class TYPE>
+inline
+bool TestEqualityComparator<TYPE>::operator() (const TYPE& lhs,
+                                               const TYPE& rhs) const
+{
+    ++d_count;
+
+    return bsltf::TemplateTestFacility::getIdentifier<TYPE>(lhs)
+        == bsltf::TemplateTestFacility::getIdentifier<TYPE>(rhs);
+}
+
+template <class TYPE>
+inline
+bool TestEqualityComparator<TYPE>::operator==(
+                                       const TestEqualityComparator& rhs) const
+{
+    return (id() == rhs.id());// && d_compareLess == rhs.d_compareLess);
+}
+
+template <class TYPE>
+inline
+int TestEqualityComparator<TYPE>::id() const
+{
+    return d_id;
+}
+
+template <class TYPE>
+inline
+size_t TestEqualityComparator<TYPE>::count() const
+{
+    return d_count;
+}
+
+                       // ---------------------
+                       // class TestHashFunctor
+                       // ---------------------
+
+template <class TYPE>
+inline
+TestHashFunctor<TYPE>::TestHashFunctor(int id)
+: d_id(id)
+, d_count(0)
+{
+}
+
+    // ACCESSORS
+template <class TYPE>
+inline
+native_std::size_t TestHashFunctor<TYPE>::operator() (const TYPE& obj) const
+{
+    ++d_count;
+
+    return bsltf::TemplateTestFacility::getIdentifier<TYPE>(obj);
+}
+
+template <class TYPE>
+inline
+bool TestHashFunctor<TYPE>::operator== (const TestHashFunctor& rhs) const
+{
+    return (id() == rhs.id());// && d_compareLess == rhs.d_compareLess);
+}
+
+template <class TYPE>
+inline
+int TestHashFunctor<TYPE>::id() const
+{
+    return d_id;
+}
+
+template <class TYPE>
+inline
+size_t TestHashFunctor<TYPE>::count() const
+{
+    return d_count;
+}
+
+                       // ------------------
+                       // class StatefulHash
+                       // ------------------
+
+template <class KEY>
+inline
+StatefulHash<KEY>::StatefulHash(native_std::size_t mixer)
+: d_mixer(mixer)
+{
+}
+
+template <class KEY>
+inline
+void StatefulHash<KEY>::setMixer(int value)
+{
+    d_mixer = value;
+}
+
+template <class KEY>
+inline
+native_std::size_t StatefulHash<KEY>::operator()(const KEY& k) const
+{
+    return Base::operator()(k) ^ d_mixer;
+}
+
+template <class KEY>
+inline
+bool operator==(const StatefulHash<KEY>& lhs, const StatefulHash<KEY>& rhs)
+{
+    return lhs.d_mixer == rhs.d_mixer;
+}
+
+template <class KEY>
+inline
+bool operator!=(const StatefulHash<KEY>& lhs, const StatefulHash<KEY>& rhs)
+{
+    return lhs.d_mixer != rhs.d_mixer;
+}
+
+                       // ------------------------
+                       // class TestFacilityHasher
+                       // ------------------------
+
+template <class KEY, class HASHER>
+inline
+TestFacilityHasher<KEY, HASHER>::TestFacilityHasher(const HASHER& hash)
+: HASHER(hash)
+{
+}
+
+    // ACCESSORS
+template <class KEY, class HASHER>
+inline
+native_std::size_t
+TestFacilityHasher<KEY, HASHER>::operator() (const KEY& k) const
+{
+    return HASHER::operator()(
+                           bsltf::TemplateTestFacility::getIdentifier<KEY>(k));
+}
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+                       // ---------------------
+                       // class DegenerateClass
+                       // ---------------------
+
+template <class FUNCTOR, bool ENABLE_SWAP>
+inline
+DegenerateClass<FUNCTOR, ENABLE_SWAP>::DegenerateClass(const FUNCTOR& base)
+: FUNCTOR(base)
+{
+}
+
+template <class FUNCTOR, bool ENABLE_SWAP>
+inline
+DegenerateClass<FUNCTOR, ENABLE_SWAP>::DegenerateClass(
+                                               const DegenerateClass& original)
+: FUNCTOR(original)
+{
+}
+
+template <class FUNCTOR, bool ENABLE_SWAP>
+inline
+DegenerateClass<FUNCTOR, ENABLE_SWAP>
+DegenerateClass<FUNCTOR, ENABLE_SWAP>::cloneBaseObject(const FUNCTOR& base)
+{
+    return DegenerateClass(base);
+}
+
+template <class FUNCTOR, bool ENABLE_SWAP>
+inline
+void
+DegenerateClass<FUNCTOR, ENABLE_SWAP>::exchangeValues(DegenerateClass& other)
+{
+    using std::swap;
+    swap(static_cast<FUNCTOR&>(*this), static_cast<FUNCTOR&>(other));
+}
+
+template <class FUNCTOR>
+inline
+void swap(DegenerateClass<FUNCTOR, true>& lhs,
+          DegenerateClass<FUNCTOR, true>& rhs)
+{
+    lhs.exchangeValues(rhs);
+}
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+                       // -----------------------------
+                       // class FunctionPointerPolicies
+                       // -----------------------------
+
+// do not inline initially due to static local data
+template <class KEY>
+size_t FunctionPointerPolicies<KEY>::hash(const KEY& k)
+{
+    static const TestFacilityHasher<KEY> s_hasher = TestFacilityHasher<KEY>();
+    return s_hasher(k);
+}
+
+template <class KEY>
+inline
+bool FunctionPointerPolicies<KEY>::compare(const KEY& lhs, const KEY& rhs)
+{
+    return BSL_TF_EQ(lhs, rhs);
+}
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+                       // ------------------------
+                       // class MakeDefaultFunctor
+                       // ------------------------
+
+template <class FUNCTOR>
+inline
+FUNCTOR MakeDefaultFunctor<FUNCTOR>::make()
+{
+    return FUNCTOR();
+}
+
+template <class FUNCTOR, bool ENABLE_SWAP>
+inline
+DegenerateClass<FUNCTOR, ENABLE_SWAP>
+MakeDefaultFunctor<DegenerateClass<FUNCTOR, ENABLE_SWAP> >::make()
+{
+    return DegenerateClass<FUNCTOR, ENABLE_SWAP>::cloneBaseObject(FUNCTOR());
+}
+
+template <class KEY>
+inline
+typename MakeDefaultFunctor<size_t (*)(const KEY&)>::FunctionType *
+MakeDefaultFunctor<size_t (*)(const KEY&)>::make()
+{
+    return &FunctionPointerPolicies<KEY>::hash;
+}
+
+template <class KEY>
+inline
+typename MakeDefaultFunctor<bool (*)(const KEY&, const KEY&)>::FunctionType *
+MakeDefaultFunctor<bool (*)(const KEY&, const KEY&)>::make()
+{
+    return &FunctionPointerPolicies<KEY>::compare;
+}
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+                       // -----------------------
+                       // class GenericComparator
+                       // -----------------------
+
+// ACCESSORS
+
+template <class ARG1_TYPE, class ARG2_TYPE>
+inline
+EvilBooleanType GenericComparator::operator() (const ARG1_TYPE& arg1,
+                                               const ARG2_TYPE& arg2) const
+{
+    return BSL_TF_EQ(arg1, arg2);
+}
+
+                       // -------------------
+                       // class GenericHasher
+                       // -------------------
+
+// ACCESSORS
+
+template <class KEY>
+native_std::size_t GenericHasher::operator() (const KEY& k) const
+{
+    // do not inline initially due to static local data
+
+    static const TestFacilityHasher<KEY> HASHER;
+    return HASHER(k);
+}
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+                       // -------------------
+                       // class MakeAllocator
+                       // -------------------
+
+template <class ALLOCATOR>
+typename MakeAllocator<ALLOCATOR>::AllocatorType
+MakeAllocator<ALLOCATOR>::make(bslma::Allocator *)
+{
+    return AllocatorType();
+}
+
+template <class TYPE>
+typename MakeAllocator<bsl::allocator<TYPE> >::AllocatorType
+MakeAllocator<bsl::allocator<TYPE> >::make(bslma::Allocator *basicAllocator)
+{
+    return AllocatorType(basicAllocator);
+}
+
+template <class TYPE>
+typename MakeAllocator<bsltf::StdTestAllocator<TYPE> >::AllocatorType
+MakeAllocator<bsltf::StdTestAllocator<TYPE> >::
+make(bslma::Allocator *basicAllocator)
+{
+    // This method is a little bit of overkill (heavy on the assertions) as
+    // a left-over from when we were trying hard to nail down a tricky bug
+    // that manifest only on the IBM AIX compiler.  It should probably be
+    // cleaned up for final release.
+
+    typedef bsltf::StdTestAllocatorConfiguration BsltfAllocConfig;
+
+    bslma::Allocator *installedAlloc = BsltfAllocConfig::delegateAllocator();
+
+    bslma::TestAllocator *currentAllocator
+                        = dynamic_cast<bslma::TestAllocator *>(installedAlloc);
+
+    bslma::TestAllocator *newAllocator
+                        = dynamic_cast<bslma::TestAllocator *>(basicAllocator);
+
+    ASSERTV(g_bsltfAllocator_p, installedAlloc, currentAllocator, newAllocator,
+            g_bsltfAllocator_p && installedAlloc &&
+            currentAllocator   && newAllocator);
+
+    ASSERTV(currentAllocator,   newAllocator,
+            currentAllocator->name(), newAllocator->name(),
+            currentAllocator == newAllocator);
+
+    return AllocatorType();
+}
+
+template <class TYPE, bool A, bool B, bool C, bool D>
+typename
+MakeAllocator<bsltf::StdStatefulAllocator<TYPE, A, B, C, D> >::AllocatorType
+MakeAllocator<bsltf::StdStatefulAllocator<TYPE, A, B, C, D> >::
+make(bslma::Allocator *basicAllocator)
+{
+    bslma::TestAllocator *alloc = dynamic_cast<bslma::TestAllocator *>(
+                                                               basicAllocator);
+    ASSERT(alloc);
+    return AllocatorType(alloc);
+}
+
+                       // -----------------
+                       // class ObjectMaker
+                       // -----------------
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 ALLOCATOR
@@ -3433,6 +3583,72 @@ extractTestAllocator(bsltf::StdStatefulAllocator<TYPE, A, B, C, D>& alloc)
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+inline
+void setHasherState(bsl::hash<int> *hasher, int id)
+{
+    (void) hasher;
+    (void) id;
+}
+
+inline
+void setHasherState(StatefulHash<int> *hasher, int id)
+{
+    hasher->setMixer(id);
+}
+
+inline
+bool isEqualHasher(const bsl::hash<int>&, const bsl::hash<int>&)
+{
+    return true;
+}
+
+inline
+bool isEqualHasher(const StatefulHash<int>& lhs,
+                   const StatefulHash<int>& rhs)
+{
+    return lhs == rhs;
+}
+
+template <class KEY>
+inline
+void setComparatorState(bsl::equal_to<KEY> *comparator, int id)
+{
+    (void) comparator;
+    (void) id;
+}
+
+template <class KEY>
+inline
+void setComparatorState(TestEqualityComparator<KEY> *comparator, int id)
+{
+    comparator->setId(id);
+}
+
+
+template <class KEY>
+inline
+bool isEqualComparator(const bsl::equal_to<KEY>&, const bsl::equal_to<KEY>&)
+{
+    return true;
+}
+
+template <class KEY>
+inline
+bool isEqualComparator(const TestEqualityComparator<KEY>& lhs,
+                       const TestEqualityComparator<KEY>& rhs)
+{
+    return lhs == rhs;
+}
+
+}  // close unnamed namespace
+
+//=============================================================================
+//                  GLOBAL HELPER FUNCTIONS FOR TESTING
+//-----------------------------------------------------------------------------
+
+namespace
+{
+
 bool expectPoolToAllocate(int n)
     // Return 'true' if the memory pool used by the container under test is
     // expected to allocate memory on the inserting the specified 'n'th
@@ -3596,88 +3812,6 @@ bool isValidHashTable(bslalg::BidirectionalLink      *listRoot,
 //                         TEST DRIVER HARNESS
 // ----------------------------------------------------------------------------
 
-void testCase3_ValidateEvilBooleanType()
-{
-    // Part of testing-the-test machinery.
-    // This test function splits out the concerns for validating the
-    // 'EvilBooleanType'.  Ideally, this would split out into a separate test
-    // facility component and be properly tested there as a value-semantic
-    // type.
-
-    const EvilBooleanType falseValue1(false);
-    const EvilBooleanType falseValue2(false);
-    const EvilBooleanType falseValue3 = falseValue2;
-    const EvilBooleanType trueValue1(true);
-    const EvilBooleanType trueValue2(true);
-    const EvilBooleanType trueValue3 = trueValue2;
-
-    ASSERT(!(bool)falseValue1);
-    ASSERT(!(bool)falseValue2);
-    ASSERT(!(bool)falseValue3);
-    ASSERT((bool)trueValue1);
-    ASSERT((bool)trueValue2);
-    ASSERT((bool)trueValue3);
-
-    ASSERT(!falseValue1);
-    ASSERT(!falseValue2);
-    ASSERT(!falseValue3);
-    ASSERT(trueValue1);
-    ASSERT(trueValue2);
-    ASSERT(trueValue3);
-
-    ASSERT(falseValue1 == falseValue1);
-    ASSERT(falseValue1 == falseValue2);
-    ASSERT(falseValue1 == falseValue3);
-
-    ASSERT(falseValue2 == falseValue1);
-    ASSERT(falseValue2 == falseValue2);
-    ASSERT(falseValue2 == falseValue3);
-
-    ASSERT(falseValue3 == falseValue1);
-    ASSERT(falseValue3 == falseValue2);
-    ASSERT(falseValue3 == falseValue3);
-
-    ASSERT(trueValue1 == trueValue1);
-    ASSERT(trueValue1 == trueValue2);
-    ASSERT(trueValue1 == trueValue3);
-
-    ASSERT(trueValue2 == trueValue1);
-    ASSERT(trueValue2 == trueValue2);
-    ASSERT(trueValue2 == trueValue3);
-
-    ASSERT(trueValue3 == trueValue1);
-    ASSERT(trueValue3 == trueValue2);
-    ASSERT(trueValue3 == trueValue3);
-
-    ASSERT(falseValue1 != trueValue1);
-    ASSERT(falseValue1 != trueValue2);
-    ASSERT(falseValue1 != trueValue3);
-
-    ASSERT(falseValue2 != trueValue1);
-    ASSERT(falseValue2 != trueValue2);
-    ASSERT(falseValue2 != trueValue3);
-
-    ASSERT(falseValue3 != trueValue1);
-    ASSERT(falseValue3 != trueValue2);
-    ASSERT(falseValue3 != trueValue3);
-
-    ASSERT(trueValue1 != falseValue1);
-    ASSERT(trueValue1 != falseValue2);
-    ASSERT(trueValue1 != falseValue3);
-
-    ASSERT(trueValue2 != falseValue1);
-    ASSERT(trueValue2 != falseValue2);
-    ASSERT(trueValue2 != falseValue3);
-
-    ASSERT(trueValue3 != falseValue1);
-    ASSERT(trueValue3 != falseValue2);
-    ASSERT(trueValue3 != falseValue3);
-
-    ASSERT(falseValue3 || trueValue3);
-    ASSERT(trueValue3  || falseValue3);
-    ASSERT(trueValue3  && trueValue3);
-}
-
 // - - - - - - Configuration policies to instantiate HashTable with - - - - - -
 
 template <class ELEMENT>
@@ -3770,9 +3904,6 @@ class TestDriver {
 
     typedef bsltf::TestValuesArray<ValueType> TestValues;
 
-//  public:
-//    typedef bsltf::StdTestAllocator<ValueType> StlAlloc;
-
   private:
     // TEST APPARATUS
     //-------------------------------------------------------------------------
@@ -3817,6 +3948,7 @@ class TestDriver {
 
   public:
     // TEST CASES
+
     static void testCase13();
 
     static void testCase12();
@@ -3851,6 +3983,7 @@ template <class CONFIGURED_DRIVER>
 struct TestDriver_ForwardTestCasesByConfiguation {
 
     // TEST CASES
+
     static void testCase26() { CONFIGURED_DRIVER::testCase26(); }
 
     static void testCase25() { CONFIGURED_DRIVER::testCase25(); }
@@ -4009,58 +4142,6 @@ struct TestDriver_GenericFunctors
        > {
 };
 
-#if 0
-    // Mixing degenerate functors with allocator propagation results in less
-    // coverage for the allocator propagation tests.  There may be some grounds
-    // for coverage this space, but it is not the general case.
-
-template <class ELEMENT>
-struct TestDriver_StdAllocatorConfiguation
-     : TestDriver_ForwardTestCasesByConfiguation<
-           TestDriver< BasicKeyConfig<ELEMENT>
-                     , DegenerateClass<TestFacilityHasher<ELEMENT> >
-                     , DegenerateClass<TestEqualityComparator<ELEMENT> >
-                     , bsltf::StdTestAllocator<ELEMENT>
-                     >
-       > {
-};
-
-template <class ELEMENT>
-struct TestDriver_StatefulAllocatorConfiguation1
-     : TestDriver_ForwardTestCasesByConfiguation<
-           TestDriver< BasicKeyConfig<ELEMENT>
-                     , DegenerateClass<TestFacilityHasher<ELEMENT> >
-                     , DegenerateClass<TestEqualityComparator<ELEMENT> >
-                     , bsltf::StdStatefulAllocator<ELEMENT>
-                     >
-       > {
-    // Propagate all allocator operations.
-};
-
-template <class ELEMENT>
-struct TestDriver_StatefulAllocatorConfiguation2
-     : TestDriver_ForwardTestCasesByConfiguation<
-           TestDriver< BasicKeyConfig<ELEMENT>
-                     , DegenerateClass<TestFacilityHasher<ELEMENT> >
-                     , DegenerateClass<TestEqualityComparator<ELEMENT> >
-                     , bsltf::StdStatefulAllocator<ELEMENT, false>
-                     >
-       > {
-    // Propagate all allocator operations but copy.
-};
-
-template <class ELEMENT>
-struct TestDriver_StatefulAllocatorConfiguation3
-     : TestDriver_ForwardTestCasesByConfiguation<
-           TestDriver< BasicKeyConfig<ELEMENT>
-                     , DegenerateClass<TestFacilityHasher<ELEMENT> >
-                     , DegenerateClass<TestEqualityComparator<ELEMENT> >
-                     , bsltf::StdStatefulAllocator<ELEMENT, true, false>
-                     >
-       > {
-    // Propagate all allocator operations but swap.
-};
-#else
 template <class ELEMENT>
 struct TestDriver_StdAllocatorConfiguation
      : TestDriver_ForwardTestCasesByConfiguation<
@@ -4093,7 +4174,7 @@ struct TestDriver_StatefulAllocatorConfiguation2
                      , bsltf::StdStatefulAllocator<ELEMENT, false>
                      >
        > {
-    // Propagate all allocator operations but copy.
+    // Propagate all allocator operations but copy construction.
 };
 
 template <class ELEMENT>
@@ -4107,7 +4188,6 @@ struct TestDriver_StatefulAllocatorConfiguation3
        > {
     // Propagate all allocator operations but swap.
 };
-#endif
 
 struct TestDriver_AwkwardMaplike
      : TestDriver_ForwardTestCasesByConfiguation<
@@ -4186,6 +4266,7 @@ struct TestDriverForCase6_AwkwardMaplike
        > {
 };
 
+//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
                                // --------------
                                // TEST APPARATUS
@@ -4881,7 +4962,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase12()
     //   In addition to the default constructor, we want to be able to insert
     //   elements without worrying about breaking the max load factor and
     //   forcing a rehash, otherwise we can test only creating empty containers
-    //   but not their behavior under subsequent operations.  Therfore, this
+    //   but not their behavior under subsequent operations.  Therefore, this
     //   test case will also verify the basic 'insert' function, which will be
     //   certified for use as our preferred primary manipulator in following
     //   test cases.
@@ -5004,7 +5085,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase12()
 //        ASSERTV(CONFIG, isEqualComparator(COMPARATOR(), X.comparator()));
 //        ASSERTV(CONFIG, isEqualHasher(HASHER(), X.hasher()));
 
-        // Add any addtional fine-grained tests that might be interesting.
+        // Add any additional fine-grained tests that might be interesting.
 
         ASSERTV(CONFIG, 0 == X.size());
         ASSERTV(CONFIG, 1 == X.numBuckets());
@@ -6128,7 +6209,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase8()
         }
 
         // There is a symmetry to testing, so test only the "lower triangle"
-        // of indices.  Note that we want to support the limitting case where
+        // of indices.  Note that we want to support the limiting case where
         // the indices match.
         for (int lfj = 0; lfj <= lfi; ++lfj) {
         for (int  tj = 0;  tj <=  ti; ++ tj) {
@@ -6222,7 +6303,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase8()
         // We will test only one 'swap' of two large containers of different
         // sizes, and having different load factors, as well as different
         // allocators to represent a fair test of our expected implementation
-        // of the undefine behaviour.
+        // of the undefine behavior.
 
         const float       MAX_LF1 = 0.125f;
         const float       MAX_LF2 = 2.5f;
@@ -7352,6 +7433,88 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase3()
     }
 }
 
+void testCase3_ValidateEvilBooleanType()
+{
+    // Part of testing-the-test machinery.
+    // This test function splits out the concerns for validating the
+    // 'EvilBooleanType'.  Ideally, this would split out into a separate test
+    // facility component and be properly tested there as a value-semantic
+    // type.
+
+    const EvilBooleanType falseValue1(false);
+    const EvilBooleanType falseValue2(false);
+    const EvilBooleanType falseValue3 = falseValue2;
+    const EvilBooleanType trueValue1(true);
+    const EvilBooleanType trueValue2(true);
+    const EvilBooleanType trueValue3 = trueValue2;
+
+    ASSERT(!(bool)falseValue1);
+    ASSERT(!(bool)falseValue2);
+    ASSERT(!(bool)falseValue3);
+    ASSERT((bool)trueValue1);
+    ASSERT((bool)trueValue2);
+    ASSERT((bool)trueValue3);
+
+    ASSERT(!falseValue1);
+    ASSERT(!falseValue2);
+    ASSERT(!falseValue3);
+    ASSERT(trueValue1);
+    ASSERT(trueValue2);
+    ASSERT(trueValue3);
+
+    ASSERT(falseValue1 == falseValue1);
+    ASSERT(falseValue1 == falseValue2);
+    ASSERT(falseValue1 == falseValue3);
+
+    ASSERT(falseValue2 == falseValue1);
+    ASSERT(falseValue2 == falseValue2);
+    ASSERT(falseValue2 == falseValue3);
+
+    ASSERT(falseValue3 == falseValue1);
+    ASSERT(falseValue3 == falseValue2);
+    ASSERT(falseValue3 == falseValue3);
+
+    ASSERT(trueValue1 == trueValue1);
+    ASSERT(trueValue1 == trueValue2);
+    ASSERT(trueValue1 == trueValue3);
+
+    ASSERT(trueValue2 == trueValue1);
+    ASSERT(trueValue2 == trueValue2);
+    ASSERT(trueValue2 == trueValue3);
+
+    ASSERT(trueValue3 == trueValue1);
+    ASSERT(trueValue3 == trueValue2);
+    ASSERT(trueValue3 == trueValue3);
+
+    ASSERT(falseValue1 != trueValue1);
+    ASSERT(falseValue1 != trueValue2);
+    ASSERT(falseValue1 != trueValue3);
+
+    ASSERT(falseValue2 != trueValue1);
+    ASSERT(falseValue2 != trueValue2);
+    ASSERT(falseValue2 != trueValue3);
+
+    ASSERT(falseValue3 != trueValue1);
+    ASSERT(falseValue3 != trueValue2);
+    ASSERT(falseValue3 != trueValue3);
+
+    ASSERT(trueValue1 != falseValue1);
+    ASSERT(trueValue1 != falseValue2);
+    ASSERT(trueValue1 != falseValue3);
+
+    ASSERT(trueValue2 != falseValue1);
+    ASSERT(trueValue2 != falseValue2);
+    ASSERT(trueValue2 != falseValue3);
+
+    ASSERT(trueValue3 != falseValue1);
+    ASSERT(trueValue3 != falseValue2);
+    ASSERT(trueValue3 != falseValue3);
+
+    ASSERT(falseValue3 || trueValue3);
+    ASSERT(trueValue3  || falseValue3);
+    ASSERT(trueValue3  && trueValue3);
+}
+
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
 {
@@ -8240,7 +8403,7 @@ void mainTestCase12()
                       bsltf::NonDefaultConstructibleTestType);
 
 #if 0
-        // These confugrations not available, as functors are not default
+        // These configurations not available, as functors are not default
         // constructible.
 
         if (verbose) printf("\nTesting degenerate functors"
@@ -8505,7 +8668,7 @@ void mainTestCase9()
 
         if (verbose) printf("\nTesting Assignment Operator"
                             "\n===========================\n");
-        
+
         if (verbose) printf("\nTesting basic configurations"
                             "\n----------------------------\n");
         RUN_EACH_TYPE(TestDriver_BasicConfiguation,
@@ -9759,9 +9922,10 @@ int main(int argc, char *argv[])
     bslma::TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
     bslma::Default::setDefaultAllocator(&defaultAllocator);
 
-    // Set this test allocator globally, up front, to avoid mutliple static
-    // alloctor references on AIX.  This allocator should always be swapped
+    // Set this test allocator globally, up front, to avoid multiple static
+    // allocator references on AIX.  This allocator should always be swapped
     // out by an allocator guard during any specific test case.
+
     bslma::TestAllocator bsltfAllocator("bsltf-default", veryVeryVeryVerbose);
     g_bsltfAllocator_p = &bsltfAllocator;
     bsltf::StdTestAllocatorConfiguration::setDelegateAllocatorRaw(
