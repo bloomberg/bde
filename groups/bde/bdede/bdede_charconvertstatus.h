@@ -25,10 +25,10 @@ BDES_IDENT("$Id: $")
 ///-----------
 //..
 //  Name                      Description
-//  ----------------------    ----------------------------------------
-//  BDEDE_INVALID_CHARS_MASK  Invalid characters or sequences of characters
+//  -----------------------   ----------------------------------------
+//  BDEDE_INVALID_CHARS_BIT   Invalid characters or sequences of characters
 //                            were encountered in the input.
-//  BDEDE_OUT_OF_SPACE_MASK   The space provided for the output was
+//  BDEDE_OUT_OF_SPACE_BIT    The space provided for the output was
 //                            insufficient for the translation.
 //..
 //
@@ -53,7 +53,7 @@ namespace BloombergLP {
 struct bdede_CharConvertStatus {
     // This 'struct' provides a namespace for enumerating the set of mask
     // codes that can be used to interpret 'int' return values from translation
-    // functions in BDEDE.
+    // functions in 'bdede'.
     //
     // This class:
     //: o supports a complete set of *enumeration* operations
