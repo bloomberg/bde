@@ -393,8 +393,8 @@
       # (different compilers require mods in gyp/pylib/gyp/generator/make.py)
       # (see gyp/pylib/gyp/generator/* for tokens affecting gyp make output)
 
-      # GNU gcc
-      [ 'compiler_tag == "gcc"', {
+      # GNU gcc on non-OSX systems
+      [ '(compiler_tag == "gcc") and (OS != "mac")', {
         'make_global_settings': [
           ['CC', '$(empty)gcc'],
           ['CXX', '$(empty)g++'],
@@ -403,7 +403,19 @@
           ['CXX.host', '$(CXX)'],
           ['LINK.host', '$(LINK)'],
         ],
-      }], # compiler_tag == "gcc"
+      }], # (compiler_tag == "gcc") and (OS != "mac")
+
+      # Clang masquerading as GNU gcc on OSX systems
+      [ '(compiler_tag == "gcc") and (OS == "mac")', {
+        'make_global_settings': [
+          ['CC', '$(empty)clang'],
+          ['CXX', '$(empty)clang++'],
+          ['LINK', '$(CXX)'],
+          ['CC.host', '$(CC)'],
+          ['CXX.host', '$(CXX)'],
+          ['LINK.host', '$(LINK)'],
+        ],
+      }], # (compiler_tag == "gcc") and (OS == "mac")
 
       # IBM Visual Age xlC
       [ 'compiler_tag == "xlC"', {
