@@ -4774,8 +4774,6 @@ DEFINE_TEST_CASE(13) {
         }
 
         {
-            int passCount = 0, firstAllocCount;
-
             bdem_List mL; const bdem_List& L = mL; ASSERT(0 == L.length());
             mL.appendString("woof                                    woof");
             ASSERT(1 == L.length());
@@ -4793,84 +4791,42 @@ DEFINE_TEST_CASE(13) {
             mTOrig.theModifiableRow(2)[0].theModifiableString()
                              = "gruff                                   gruff";
 
-            for (int ti = 0; ti <= 10; ++ti) {
-                bslma_TestAllocator testAllocator, *Z = &testAllocator;
-                bdem_Table mT(typeVec, Z); const bdem_Table& T = mT;
+            for (int gi = 0; gi <   2; ++gi) {
+                (gi ? bdem_TableImp_enableGeometricMemoryGrowth()
+                    : bdem_TableImp_disableGeometricMemoryGrowth());
 
-                BEGIN_BSLMA_EXCEPTION_TEST
-                    ++passCount;
+                // This is looking for memory leaks.  The values of 'ti' and
+                // 'passCount' when 'testAllocator' reports a memory leak will
+                // help tell us which operation leaked.
 
-                    mT.insertNullRows(T.numRows(), 10);
+                bool done = false;
+                for (int ti = 0; !done; ++ti) {
+                    bslma_TestAllocator testAllocator, *Z = &testAllocator;
+                    bdem_Table mT(typeVec, Z); const bdem_Table& T = mT;
 
-                    if (ti > 0) mT.appendRow(L);
-                    if (ti > 1) mT.appendRow(L);
-                    if (ti > 2) mT.appendRow(TOrig, 0);
-                    if (ti > 3) mT.appendRows(TOrig);
-                    if (ti > 4) mT.appendRows(TOrig, 1, 2);
-                    if (ti > 5) mT.insertRow(2, L);
-                    if (ti > 6) mT.insertRow(2, L);
-                    if (ti > 7) mT.insertRow(2, TOrig, 0);
-                    if (ti > 8) mT.insertRows(2, TOrig);
-                    if (ti > 9) mT.insertRows(2, TOrig, 1, 2);
-                END_BSLMA_EXCEPTION_TEST
+                    int passCount = 0;
 
-                if (verbose) {
-                    P_(ti); P_(passCount); P_(firstAllocCount); P(T.numRows());
-                }
-            }
-        }
+                    BEGIN_BSLMA_EXCEPTION_TEST
+                        ++passCount;
 
-        {
-            bslma_TestAllocator testAllocator, *Z = &testAllocator;
-            int passCount = 0, firstAllocCount;
+                        mT.insertNullRows(T.numRows(), 10);
 
-            bdem_List mL; const bdem_List& L = mL; ASSERT(0 == L.length());
-            mL.appendString("woof                                    woof");
-            ASSERT(1 == L.length());
+                        if (ti > 0) mT.appendRow(L);
+                        if (ti > 1) mT.appendRow(L);
+                        if (ti > 2) mT.appendRow(TOrig, 0);
+                        if (ti > 3) mT.appendRows(TOrig);
+                        if (ti > 4) mT.appendRows(TOrig, 1, 2);
+                        if (ti > 5) mT.insertRow(2, L);
+                        if (ti > 6) mT.insertRow(2, L);
+                        if (ti > 7) mT.insertRow(2, TOrig, 0);
+                        if (ti > 8) mT.insertRows(2, TOrig);
+                        if (ti > 9) (mT.insertRows(2, TOrig, 1, 2), done = 1);
+                    END_BSLMA_EXCEPTION_TEST
 
-            vector<bdem_ElemType::Type> typeVec;
-            typeVec.push_back(bdem_ElemType::BDEM_STRING);
-            bdem_Table mTOrig(typeVec); const bdem_Table& TOrig = mTOrig;
-            mTOrig.appendRow(L);
-            mTOrig.appendRow(L);
-            mTOrig.appendRow(L);
-            mTOrig.theModifiableRow(0)[0].theModifiableString()
-                             = "meow                                     meow";
-            mTOrig.theModifiableRow(1)[0].theModifiableString()
-                             = "arf                                       arf";
-            mTOrig.theModifiableRow(2)[0].theModifiableString()
-                             = "gruff                                   gruff";
-
-            bdem_Table mT(typeVec, Z); const bdem_Table& T = mT;
-
-            BEGIN_BSLMA_EXCEPTION_TEST
-                ++passCount;
-
-                mT.appendRow(L);
-                // just out of curiosity, find out how many allocations it
-                // took to add one list with one string in it.
-                {
-                    static bool firstTime = true;
-                    if (firstTime) {
-                        firstTime = false;
-                        firstAllocCount = passCount - 1;
+                    if (verbose) {
+                        P_(ti); P_(passCount); P(T.numRows());
                     }
                 }
-
-                mT.appendRow(L);
-                mT.appendRow(TOrig, 0);
-                mT.appendRows(TOrig);
-                mT.appendRows(TOrig, 1, 2);
-
-                mT.insertRow(2, L);
-                mT.insertRow(2, L);
-                mT.insertRow(2, TOrig, 0);
-                mT.insertRows(2, TOrig);
-                mT.insertRows(2, TOrig, 1, 2);
-            END_BSLMA_EXCEPTION_TEST
-
-            if (verbose) {
-                P_(passCount); P_(firstAllocCount); P(T.numRows());
             }
         }
       }
