@@ -593,6 +593,26 @@ int main(int argc, char *argv[])
             const int NUM_ROWS = 1024;
 
             for (int i = 0; i < STRATEGY_LEN; ++i) {
+
+                bslma_TestAllocator ta("TestAllocator", veryVeryVeryVerbose);
+                Obj mX(STRATEGY_DATA[i], &ta); const Obj& X = mX;
+
+                for (int j = 0; j < DATA_LEN; j++) {
+                    const int POSITION     = DATA[j].d_position;
+                    const int EXP_CAPACITY = DATA[j].d_expectedCapacity;
+                    mX.insertNullRows(POSITION, 1);
+                    LOOP4_ASSERT(i,
+                                 j,
+                                 EXP_CAPACITY,
+                                 X.capacityRaw(),
+                                 EXP_CAPACITY == X.capacityRaw());
+                }
+            }
+
+#if 0
+            // The old default was linear, not geometric, growth
+
+            for (int i = 0; i < STRATEGY_LEN; ++i) {
                 bslma_TestAllocator ta("TestAllocator", veryVeryVeryVerbose);
                 Obj mX(STRATEGY_DATA[i], &ta); const Obj& X = mX;
 
@@ -603,6 +623,7 @@ int main(int argc, char *argv[])
                                  j + 1 == X.capacityRaw());
                 }
             }
+#endif
         }
 
         if (verbose) cout << "\nDisabling geometric memory growth" << endl;
@@ -730,6 +751,8 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) cout << "\tTesting all allocation strategies\n"
                               << endl;
+
+        bdem_TableImp_disableGeometricMemoryGrowth();
 
         for (int i = 0; i < STRATEGY_LEN; ++i) {
 
