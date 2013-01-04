@@ -499,59 +499,68 @@ void case_8_recurse(int *depth)
 // The goal here is to create an identifier > 32,000 bytes
 // and < '((1 << 15) - 64)' bytes long.
 
-// SYM07_50 followed by '::' should expand to about 50 chars of identifier
-#define SYM07_50(A, B, C)                                                     \
-    n23456789012345678901234567890123456789012345##A##B##C
+// I think (but am not positive) that the C++ std guarantees support for
+// individual id's up to 1K long, and namespaces nested up to 255 deep.  Here
+// we take it's 158 long, nested in namespace 200 deep.
 
-#define NS07_50(A, B, C)                                                      \
-    namespace SYM07_50(A, B, C) {
+#define SYM07_40   fortycharsybolabcdefghijklmnopqrstuvwxyz
+#define SYM07_36   thirtysevencharsymbolabcdefghijklm__
 
-#define SYM07_1000(D, E)                                                      \
-    SYM07_50(D,E,a):: SYM07_50(D,E,f):: SYM07_50(D,E,k):: SYM07_50(D,E,p)::   \
-    SYM07_50(D,E,b):: SYM07_50(D,E,g):: SYM07_50(D,E,l):: SYM07_50(D,E,q)::   \
-    SYM07_50(D,E,c):: SYM07_50(D,E,h):: SYM07_50(D,E,m):: SYM07_50(D,E,r)::   \
-    SYM07_50(D,E,d):: SYM07_50(D,E,i):: SYM07_50(D,E,n):: SYM07_50(D,E,s)::   \
-    SYM07_50(D,E,e):: SYM07_50(D,E,j):: SYM07_50(D,E,o):: SYM07_50(D,E,t)
+#define SYM07_158(A, B)                                                       \
+        SYM07_CAT6(SYM07_40, SYM07_40, SYM07_40, SYM07_36, A, B)
 
-#define NS07_1000(D, E)                                                       \
-    NS07_50(D, E, a)  NS07_50(D, E, f)  NS07_50(D, E, k)  NS07_50(D, E, p)    \
-    NS07_50(D, E, b)  NS07_50(D, E, g)  NS07_50(D, E, l)  NS07_50(D, E, q)    \
-    NS07_50(D, E, c)  NS07_50(D, E, h)  NS07_50(D, E, m)  NS07_50(D, E, r)    \
-    NS07_50(D, E, d)  NS07_50(D, E, i)  NS07_50(D, E, n)  NS07_50(D, E, s)    \
-    NS07_50(D, E, e)  NS07_50(D, E, j)  NS07_50(D, E, o)  NS07_50(D, E, t)
+#define SYM07_CAT6(     A, B, C, D, E, F)     SYM07_CAT6_IMPL(A, B, C, D, E, F)
+#define SYM07_CAT6_IMPL(A, B, C, D, E, F)                                     \
+        A ## B ## C ## D ## E ## F
 
-#define ENDNS07_1000   } } } } }   } } } } }   } } } } }   } } } } }
+#define NS07_158(A, B)                                                        \
+        namespace SYM07_158(A, B) {
 
-#define SYM07_10000(X)                                                        \
-    SYM07_1000(X, a)::SYM07_1000(X, d)::SYM07_1000(X, g)::SYM07_1000(X, j)::  \
-    SYM07_1000(X, b)::SYM07_1000(X, e)::SYM07_1000(X, h)::SYM07_1000(X, k)::  \
-    SYM07_1000(X, c)::SYM07_1000(X, f)
+#define SYM07_1598(A)                                                         \
+        SYM07_158(A, a)  ::  SYM07_158(A, b)  ::  SYM07_158(A, c)  ::         \
+        SYM07_158(A, d)  ::  SYM07_158(A, e)  ::  SYM07_158(A, f)  ::         \
+        SYM07_158(A, g)  ::  SYM07_158(A, h)  ::  SYM07_158(A, i)  ::         \
+        SYM07_158(A, j)
 
-#define NS07_10000(X)                                                         \
-    NS07_1000(X, a)   NS07_1000(X, d)   NS07_1000(X, g)   NS07_1000(X, j)     \
-    NS07_1000(X, b)   NS07_1000(X, e)   NS07_1000(X, h)   NS07_1000(X, k)     \
-    NS07_1000(X, c)   NS07_1000(X, f)
+#define NS07_1598(A)                                                          \
+        NS07_158(A, a)       NS07_158(A, b)       NS07_158(A, c)              \
+        NS07_158(A, d)       NS07_158(A, e)       NS07_158(A, f)              \
+        NS07_158(A, g)       NS07_158(A, h)       NS07_158(A, i)              \
+        NS07_158(A, j)
 
-#define ENDNS07_10000                                                         \
-    ENDNS07_1000      ENDNS07_1000      ENDNS07_1000      ENDNS07_1000        \
-    ENDNS07_1000      ENDNS07_1000      ENDNS07_1000      ENDNS07_1000        \
-    ENDNS07_1000      ENDNS07_1000
+#define ENDNS07_1598                                                          \
+        }}}}  }}}  }}}
 
-#define SYM07_32000                                                           \
-    SYM07_10000(a) :: SYM07_10000(b) :: SYM07_10000(c) ::                     \
-    SYM07_1000(d,a):: SYM07_1000(d,b)
+#define SYM07_31998                                                           \
+        SYM07_1598(a)   ::   SYM07_1598(b)   ::   SYM07_1598(c)   ::          \
+        SYM07_1598(d)   ::   SYM07_1598(e)   ::   SYM07_1598(f)   ::          \
+        SYM07_1598(e)   ::   SYM07_1598(h)   ::   SYM07_1598(i)   ::          \
+        SYM07_1598(j)   ::   SYM07_1598(k)   ::   SYM07_1598(l)   ::          \
+        SYM07_1598(m)   ::   SYM07_1598(n)   ::   SYM07_1598(o)   ::          \
+        SYM07_1598(p)   ::   SYM07_1598(q)   ::   SYM07_1598(r)   ::          \
+        SYM07_1598(s)   ::   SYM07_1598(t)
 
-#define NS07_32000                                                            \
-    NS07_10000(a)     NS07_10000(b)     NS07_10000(c)                         \
-    NS07_1000(d,a)    NS07_1000(d,b)
+#define NS07_31998                                                            \
+        NS07_1598(a)         NS07_1598(b)         NS07_1598(c)                \
+        NS07_1598(d)         NS07_1598(e)         NS07_1598(f)                \
+        NS07_1598(e)         NS07_1598(h)         NS07_1598(i)                \
+        NS07_1598(j)         NS07_1598(k)         NS07_1598(l)                \
+        NS07_1598(m)         NS07_1598(n)         NS07_1598(o)                \
+        NS07_1598(p)         NS07_1598(q)         NS07_1598(r)                \
+        NS07_1598(s)         NS07_1598(t)
 
-#define ENDNS07_32000                                                         \
-    ENDNS07_1000     ENDNS07_1000                                             \
-    ENDNS07_10000    ENDNS07_10000    ENDNS07_10000
+#define ENDNS07_31998                                                         \
+        ENDNS07_1598         ENDNS07_1598         ENDNS07_1598                \
+        ENDNS07_1598         ENDNS07_1598         ENDNS07_1598                \
+        ENDNS07_1598         ENDNS07_1598         ENDNS07_1598                \
+        ENDNS07_1598         ENDNS07_1598         ENDNS07_1598                \
+        ENDNS07_1598         ENDNS07_1598         ENDNS07_1598                \
+        ENDNS07_1598         ENDNS07_1598         ENDNS07_1598                \
+        ENDNS07_1598         ENDNS07_1598
 
-# define SYM07    SYM07_32000
-# define NS07     NS07_32000
-# define ENDNS07  ENDNS07_32000
+# define SYM07    SYM07_31998
+# define NS07     NS07_31998
+# define ENDNS07  ENDNS07_31998
 static const size_t case07MinLen = 32000;
 
 #else
