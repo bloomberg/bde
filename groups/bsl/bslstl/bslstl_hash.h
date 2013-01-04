@@ -79,7 +79,7 @@ BSLS_IDENT("$Id: $")
 // defaults to 'bsl::hash<TYPE>'.  For common types of 'TYPE' such as 'int',
 // a specialization of 'bsl::hash' is already defined:
 //..
-//  template <typename TYPE, typename HASHER = bsl::hash<TYPE> >
+//  template <class TYPE, class HASHER = bsl::hash<TYPE> >
 //  class HashCrossReference {
 //      // This table leverages a hash table to provide a fast lookup of an
 //      // external, non-owned, array of values of configurable type.
@@ -419,28 +419,6 @@ struct hash;
     // will generate error messages that are more clear when someone tries to
     // use a key that does not have a corresponding hash function.
 
-// ============================================================================
-//                                TYPE TRAITS
-// ============================================================================
-
-// Type traits for STL 'hash'
-//: o 'bsl::hash<TYPE>' is trivially default constructible.
-//: o 'bsl::hash<TYPE>' is trivially copyable.
-//: o 'bsl::hash<TYPE>' is bitwise movable.
-
-template <class TYPE>
-struct is_trivially_default_constructible<hash<TYPE> >
-: bsl::true_type
-{};
-
-template <class TYPE>
-struct is_trivially_copyable<hash<TYPE> >
-: bsl::true_type
-{};
-
-}  // close namespace bsl
-
-namespace bsl {
 
 // ============================================================================
 //                  SPECIALIZATIONS FOR FUNDAMENTAL TYPES
@@ -1024,6 +1002,43 @@ struct hash<long double> {
         // Return a hash value computed using the specified 'x'.
 };
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // DEPRECATED
+template <>
+struct hash<const char *> {
+    // Specialization of 'hash' for 'const char *' strings.  This explicit
+    // template specialization is non-standard, assuming that any
+    // 'const char *' pointer points to a null-terminated string, and
+    // providing a hash for the (assumed) string value, rather than the
+    // pointer value.
+
+    // STANDARD TYPEDEFS
+    typedef const char * argument_type;
+    typedef std::size_t result_type;
+
+    //! hash() = default;
+        // Create a 'hash' object.
+
+    //! hash(const hash& original) = default;
+        // Create a 'hash' object.  Note that as 'hash' is an empty (stateless)
+        // type, this operation will have no observable effect.
+
+    //! ~hash() = default;
+        // Destroy this object.
+
+    // MANIPULATORS
+    //! hash& operator=(const hash& rhs) = default;
+        // Assign to this object the value of the specified 'rhs' object, and
+        // return a reference providing modifiable access to this object.  Note
+        // that as 'hash' is an empty (stateless) type, this operation will
+        // have no observable effect.
+
+    // ACCESSORS
+    std::size_t operator()(const char *x) const;
+        // Return a hash value computed for the specified null-terminated
+        // string 'x'.
+};
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+
 // ===========================================================================
 //                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
 // ===========================================================================
@@ -1077,7 +1092,7 @@ std::size_t hash<char>::operator()(char32_t x) const
 {
     return ::BloombergLP::bslalg::HashUtil::computeHash(x);
 }
-#endif
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES
 
 inline
 std::size_t hash<short>::operator()(short x) const
@@ -1144,6 +1159,25 @@ std::size_t hash<long double>::operator()(long double x) const
 {
     return ::BloombergLP::bslalg::HashUtil::computeHash((double)x);
 }
+
+// ============================================================================
+//                                TYPE TRAITS
+// ============================================================================
+
+// Type traits for STL 'hash'
+//: o 'bsl::hash<TYPE>' is trivially default constructible.
+//: o 'bsl::hash<TYPE>' is trivially copyable.
+//: o 'bsl::hash<TYPE>' is bitwise movable.
+
+template <class TYPE>
+struct is_trivially_default_constructible<hash<TYPE> >
+: bsl::true_type
+{};
+
+template <class TYPE>
+struct is_trivially_copyable<hash<TYPE> >
+: bsl::true_type
+{};
 
 }  // close namespace bsl
 

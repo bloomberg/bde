@@ -38,7 +38,7 @@ BSLS_IDENT("$Id: $")
 //                              // MyList_Iterator
 //                              // ===============
 //
-//  template <typename PAYLOAD>
+//  template <class PAYLOAD>
 //  class MyList_Iterator {
 //      // 'Iterator' type for class 'MyList'.  This class will be typedef'ed
 //      // to be a nested class within 'MyList'.
@@ -50,7 +50,7 @@ BSLS_IDENT("$Id: $")
 //      Node *d_node;
 //
 //      // FRIENDS
-//      template <typename PL>
+//      template <class PL>
 //      friend bool operator==(MyList_Iterator<PL>,
 //                             MyList_Iterator<PL>);
 //
@@ -81,7 +81,7 @@ BSLS_IDENT("$Id: $")
 //                                  // MyList
 //                                  // ======
 //
-//  template <typename PAYLOAD>
+//  template <class PAYLOAD>
 //  class MyList : public bslalg::HashTableBucket {
 //      // This class stores a doubly-linked list containing objects of type
 //      // 'PAYLOAD'.
@@ -121,14 +121,14 @@ BSLS_IDENT("$Id: $")
 //                              // ---------------
 //
 //  // MANIPULATORS
-//  template <typename PAYLOAD>
+//  template <class PAYLOAD>
 //  MyList_Iterator<PAYLOAD> MyList_Iterator<PAYLOAD>::operator++()
 //  {
 //      d_node = (Node *) d_node->nextLink();
 //      return *this;
 //  }
 //
-//  template <typename PAYLOAD>
+//  template <class PAYLOAD>
 //  inline
 //  bool operator==(MyList_Iterator<PAYLOAD> lhs,
 //                  MyList_Iterator<PAYLOAD> rhs)
@@ -136,7 +136,7 @@ BSLS_IDENT("$Id: $")
 //      return lhs.d_node == rhs.d_node;
 //  }
 //
-//  template <typename PAYLOAD>
+//  template <class PAYLOAD>
 //  inline
 //  bool operator!=(MyList_Iterator<PAYLOAD> lhs,
 //                  MyList_Iterator<PAYLOAD> rhs)
@@ -151,7 +151,7 @@ BSLS_IDENT("$Id: $")
 //                                  // ------
 //
 //  // CREATORS
-//  template <typename PAYLOAD>
+//  template <class PAYLOAD>
 //  MyList<PAYLOAD>::~MyList()
 //  {
 //      typedef bslalg::BidirectionalLink BDL;
@@ -168,7 +168,7 @@ BSLS_IDENT("$Id: $")
 //  }
 //
 //  // MANIPULATORS
-//  template <typename PAYLOAD>
+//  template <class PAYLOAD>
 //  void MyList<PAYLOAD>::pushBack(const PAYLOAD& value)
 //  {
 //      Node *node = (Node *) d_allocator_p->allocate(sizeof(Node));
@@ -189,7 +189,7 @@ BSLS_IDENT("$Id: $")
 //      }
 //  }
 //
-//  template <typename PAYLOAD>
+//  template <class PAYLOAD>
 //  void MyList<PAYLOAD>::popBack()
 //  {
 //      BSLS_ASSERT_SAFE(first() && last());

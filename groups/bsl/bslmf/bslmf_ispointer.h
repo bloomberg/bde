@@ -50,7 +50,7 @@ BSLS_IDENT("$Id: $")
 // 'typedef's and assert the 'value' static data member of each instantiation:
 //..
 //  assert(false == bsl::is_pointer<MyType>::value);
-//  assert(true == bsl::is_pointer<MyPtrType>::value);
+//  assert(true  == bsl::is_pointer<MyPtrType>::value);
 //..
 
 #ifndef INCLUDED_BSLSCM_VERSION
@@ -100,6 +100,7 @@ struct IsPointer_Imp<TYPE *> : bsl::true_type {
 }  // close enterprise namespace
 
 namespace bsl {
+
                          // =================
                          // struct is_pointer
                          // =================

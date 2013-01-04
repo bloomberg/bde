@@ -78,6 +78,14 @@ BSLS_IDENT("$Id: $")
 // the 'bsls::TimeUtil' high-resolution functions from the nanosecond range to
 // the microsecond range (or worse).
 //
+///Precision on Windows
+/// - - - - - - - - - -
+// Providing that the underlying timer is capable of reporting the
+// 'QueryPerformanceCounter' interface, the nanosecond values reported by
+// 'getTimer' or 'convertRawTime' will be in the range (t - 2, t], where t is
+// the real (infinitely precise floating point) number of nanoseconds expressed
+// by the current raw timer count.
+//
 ///Usage
 ///-----
 // The following snippets of code illustrate how to use 'bsls::TimeUtil'

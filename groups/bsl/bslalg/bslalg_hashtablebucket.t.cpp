@@ -2,8 +2,8 @@
 #include <bslalg_hashtablebucket.h>
 
 #include <bslalg_bidirectionallink.h>
-#include <bslalg_bidirectionalnode.h>
 #include <bslalg_bidirectionallinklistutil.h>
+#include <bslalg_bidirectionalnode.h>
 #include <bslalg_scalarprimitives.h>
 
 #include <bslma_default.h>
@@ -105,7 +105,7 @@ typedef bslalg::BidirectionalLink Link;
                             // MyList_Iterator
                             // ===============
 
-template <typename PAYLOAD>
+template <class PAYLOAD>
 class MyList_Iterator {
     // 'Iterator' type for class 'MyList'.  This class will be typedef'ed to be
     // a nested class within 'MyList'.
@@ -117,7 +117,7 @@ class MyList_Iterator {
     Node *d_node;
 
     // FRIENDS
-    template <typename PL>
+    template <class PL>
     friend bool operator==(MyList_Iterator<PL>,
                            MyList_Iterator<PL>);
 
@@ -148,7 +148,7 @@ class MyList_Iterator {
                                 // MyList
                                 // ======
 
-template <typename PAYLOAD>
+template <class PAYLOAD>
 class MyList : public bslalg::HashTableBucket {
     // This class stores a doubly-linked list containing objects of type
     // 'PAYLOAD'.
@@ -188,14 +188,14 @@ class MyList : public bslalg::HashTableBucket {
                             // ---------------
 
 // MANIPULATORS
-template <typename PAYLOAD>
+template <class PAYLOAD>
 MyList_Iterator<PAYLOAD> MyList_Iterator<PAYLOAD>::operator++()
 {
     d_node = (Node *) d_node->nextLink();
     return *this;
 }
 
-template <typename PAYLOAD>
+template <class PAYLOAD>
 inline
 bool operator==(MyList_Iterator<PAYLOAD> lhs,
                 MyList_Iterator<PAYLOAD> rhs)
@@ -203,7 +203,7 @@ bool operator==(MyList_Iterator<PAYLOAD> lhs,
     return lhs.d_node == rhs.d_node;
 }
 
-template <typename PAYLOAD>
+template <class PAYLOAD>
 inline
 bool operator!=(MyList_Iterator<PAYLOAD> lhs,
                 MyList_Iterator<PAYLOAD> rhs)
@@ -218,7 +218,7 @@ bool operator!=(MyList_Iterator<PAYLOAD> lhs,
                                 // ------
 
 // CREATORS
-template <typename PAYLOAD>
+template <class PAYLOAD>
 MyList<PAYLOAD>::~MyList()
 {
     typedef bslalg::BidirectionalLink BDL;
@@ -235,7 +235,7 @@ MyList<PAYLOAD>::~MyList()
 }
 
 // MANIPULATORS
-template <typename PAYLOAD>
+template <class PAYLOAD>
 void MyList<PAYLOAD>::pushBack(const PAYLOAD& value)
 {
     Node *node = (Node *) d_allocator_p->allocate(sizeof(Node));
@@ -256,7 +256,7 @@ void MyList<PAYLOAD>::pushBack(const PAYLOAD& value)
     }
 }
 
-template <typename PAYLOAD>
+template <class PAYLOAD>
 void MyList<PAYLOAD>::popBack()
 {
     BSLS_ASSERT_SAFE(first() && last());
@@ -317,7 +317,7 @@ int main(int argc, char *argv[])
 //..
 // Now, we iterate, pushing ints to the list:
 //..
-        for (const int *pInt = intArray; pInt < intArray + NUM_INTS; ++pInt) {
+        for (const int *pInt = intArray; pInt != intArray + NUM_INTS; ++pInt) {
             intList.pushBack(*pInt);
         }
 //..

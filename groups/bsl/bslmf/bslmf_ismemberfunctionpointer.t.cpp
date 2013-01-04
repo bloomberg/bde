@@ -3,8 +3,8 @@
 
 #include <bsls_bsltestutil.h>
 
-#include <cstdio>
-#include <cstdlib>
+#include <cstdio>   // 'printf'
+#include <cstdlib>  // 'atoi'
 
 using namespace BloombergLP;
 using namespace std;
@@ -16,9 +16,9 @@ using namespace std;
 //                                --------
 // The component under test defines a meta-function,
 // 'bsl::is_member_function_pointer', which determines whether a template
-// parameter type is a function pointer type to (non-static) member function.
-// Thus, we need to ensure that the value returned by this meta-function is
-// correct for each possible category of types.
+// parameter type is a pointer to (non-static) member function type.  Thus, we
+// need to ensure that the value returned by this meta-function is correct for
+// each possible category of types.
 //
 // ----------------------------------------------------------------------------
 // PUBLIC CLASS DATA
@@ -89,8 +89,63 @@ class DerivedClassTestType : public BaseClassTestType {
     // as the template parameter 'TYPE' of 'bsl::is_member_function_pointer'.
 };
 
-typedef int (StructTestType::*MethodPtrTestType) ();
-    // This pointer type to non-static function member is intended to be used
+typedef int (StructTestType::*MethodPtrTestType0) ();
+    // This pointer to non-static member function type is intended to be used
+    // for testing as the template parameter 'TYPE' of
+    // 'bsl::is_member_function_pointer'.
+
+typedef int (StructTestType::*MethodPtrTestType1) (int);
+    // This pointer to non-static member function type is intended to be used
+    // for testing as the template parameter 'TYPE' of
+    // 'bsl::is_member_function_pointer'.
+
+typedef int (StructTestType::*MethodPtrTestType2) (int, int);
+    // This pointer to non-static member function type is intended to be used
+    // for testing as the template parameter 'TYPE' of
+    // 'bsl::is_member_function_pointer'.
+
+typedef int (StructTestType::*MethodPtrTestType3) (int, int, int);
+    // This pointer to non-static member function type is intended to be used
+    // for testing as the template parameter 'TYPE' of
+    // 'bsl::is_member_function_pointer'.
+
+typedef int (StructTestType::*MethodPtrTestType4) (int, int, int, int);
+    // This pointer to non-static member function type is intended to be used
+    // for testing as the template parameter 'TYPE' of
+    // 'bsl::is_member_function_pointer'.
+
+typedef int (StructTestType::*MethodPtrTestType5) (int, int, int, int, int);
+    // This pointer to non-static member function type is intended to be used
+    // for testing as the template parameter 'TYPE' of
+    // 'bsl::is_member_function_pointer'.
+
+typedef int (StructTestType::*MethodPtrTestType6) (int, int, int,
+                                                   int, int, int);
+    // This pointer to non-static member function type is intended to be used
+    // for testing as the template parameter 'TYPE' of
+    // 'bsl::is_member_function_pointer'.
+
+typedef int (StructTestType::*MethodPtrTestType7) (int, int, int, int,
+                                                   int, int, int);
+    // This pointer to non-static member function type is intended to be used
+    // for testing as the template parameter 'TYPE' of
+    // 'bsl::is_member_function_pointer'.
+
+typedef int (StructTestType::*MethodPtrTestType8) (int, int, int, int,
+                                                   int, int, int, int);
+    // This pointer to non-static member function type is intended to be used
+    // for testing as the template parameter 'TYPE' of
+    // 'bsl::is_member_function_pointer'.
+
+typedef int (StructTestType::*MethodPtrTestType9) (int, int, int, int, int,
+                                                   int, int, int, int);
+    // This pointer to non-static member function type is intended to be used
+    // for testing as the template parameter 'TYPE' of
+    // 'bsl::is_member_function_pointer'.
+
+typedef int (StructTestType::*MethodPtrTestType10) (int, int, int, int, int,
+                                                    int, int, int, int, int);
+    // This pointer to non-static member function type is intended to be used
     // for testing as the template parameter 'TYPE' of
     // 'bsl::is_member_function_pointer'.
 
@@ -99,7 +154,7 @@ typedef void (*FunctionPtrTestType) ();
     // template parameter 'TYPE' of 'bsl::is_member_function_pointer'.
 
 typedef int StructTestType::* PMD;
-    // This pointer type to data member is intended to be used for testing as
+    // This pointer to member object type is intended to be used for testing as
     // the template parameter 'TYPE' of 'bsl::is_member_function_pointer'.
 
 struct Incomplete;
@@ -142,7 +197,8 @@ struct Incomplete;
 //
 ///Example 1: Verify Member Function Pointer Types
 ///- - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose that we want to assert whether a particular type is a class type.
+// Suppose that we want to assert whether a set of types are pointer to
+// non-static member function types.
 //
 // First, we create a user-defined type 'MyStruct':
 //..
@@ -213,12 +269,12 @@ int main(int argc, char *argv[])
         //:   (possibly cv-qualified) user-defined type.
         //:
         //: 3 'is_member_function_pointer::value' is 'false' when 'TYPE' is a
-        //:   (possibly cv-qualified) pointer type other than a pointer type to
+        //:   (possibly cv-qualified) pointer type other than pointer to
         //:   non-static member function pointer.
         //:
         //: 4 'is_member_function_pointer::value' is 'true' when 'TYPE' is a
-        //:   (possibly cv-qualified) pointer type to non-static member
-        //:   function.
+        //:   (possibly cv-qualified) pointer to non-static member function
+        //:   type.
         //:
         //: 5 'is_member_function_pointer::value' is 'false' when 'TYPE' is a
         //:   (possibly cv-qualified) function type.
@@ -232,8 +288,8 @@ int main(int argc, char *argv[])
         //   bsl::is_member_function_pointer::value
         // --------------------------------------------------------------------
 
-        if (verbose) printf("bsl::is_member_function_pointer\n"
-                            "===============================\n");
+        if (verbose) printf("'bsl::is_member_function_pointer::value'\n"
+                            "========================================\n");
 
         // C-1
         TYPE_ASSERT_CVQ_SUFFIX(bsl::is_member_function_pointer, void, false);
@@ -311,11 +367,51 @@ int main(int argc, char *argv[])
         TYPE_ASSERT_CVQ_REF(
            bsl::is_member_function_pointer, FunctionPtrTestType,        false);
         TYPE_ASSERT_CVQ_REF(
-           bsl::is_member_function_pointer, MethodPtrTestType,          false);
+           bsl::is_member_function_pointer, MethodPtrTestType0,         false);
+        TYPE_ASSERT_CVQ_REF(
+           bsl::is_member_function_pointer, MethodPtrTestType1,         false);
+        TYPE_ASSERT_CVQ_REF(
+           bsl::is_member_function_pointer, MethodPtrTestType2,         false);
+        TYPE_ASSERT_CVQ_REF(
+           bsl::is_member_function_pointer, MethodPtrTestType3,         false);
+        TYPE_ASSERT_CVQ_REF(
+           bsl::is_member_function_pointer, MethodPtrTestType4,         false);
+        TYPE_ASSERT_CVQ_REF(
+           bsl::is_member_function_pointer, MethodPtrTestType5,         false);
+        TYPE_ASSERT_CVQ_REF(
+           bsl::is_member_function_pointer, MethodPtrTestType6,         false);
+        TYPE_ASSERT_CVQ_REF(
+           bsl::is_member_function_pointer, MethodPtrTestType7,         false);
+        TYPE_ASSERT_CVQ_REF(
+           bsl::is_member_function_pointer, MethodPtrTestType8,         false);
+        TYPE_ASSERT_CVQ_REF(
+           bsl::is_member_function_pointer, MethodPtrTestType9,         false);
+        TYPE_ASSERT_CVQ_REF(
+           bsl::is_member_function_pointer, MethodPtrTestType10,        false);
 
         // C-4
         TYPE_ASSERT_CVQ_SUFFIX(
-                   bsl::is_member_function_pointer, MethodPtrTestType,   true);
+                   bsl::is_member_function_pointer, MethodPtrTestType0,  true);
+        TYPE_ASSERT_CVQ_SUFFIX(
+                   bsl::is_member_function_pointer, MethodPtrTestType1,  true);
+        TYPE_ASSERT_CVQ_SUFFIX(
+                   bsl::is_member_function_pointer, MethodPtrTestType2,  true);
+        TYPE_ASSERT_CVQ_SUFFIX(
+                   bsl::is_member_function_pointer, MethodPtrTestType3,  true);
+        TYPE_ASSERT_CVQ_SUFFIX(
+                   bsl::is_member_function_pointer, MethodPtrTestType4,  true);
+        TYPE_ASSERT_CVQ_SUFFIX(
+                   bsl::is_member_function_pointer, MethodPtrTestType5,  true);
+        TYPE_ASSERT_CVQ_SUFFIX(
+                   bsl::is_member_function_pointer, MethodPtrTestType6,  true);
+        TYPE_ASSERT_CVQ_SUFFIX(
+                   bsl::is_member_function_pointer, MethodPtrTestType7,  true);
+        TYPE_ASSERT_CVQ_SUFFIX(
+                   bsl::is_member_function_pointer, MethodPtrTestType8,  true);
+        TYPE_ASSERT_CVQ_SUFFIX(
+                   bsl::is_member_function_pointer, MethodPtrTestType9,  true);
+        TYPE_ASSERT_CVQ_SUFFIX(
+                   bsl::is_member_function_pointer, MethodPtrTestType10, true);
 
         // C-5
         TYPE_ASSERT_CVQ_PREFIX(
@@ -341,11 +437,11 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2012
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------
