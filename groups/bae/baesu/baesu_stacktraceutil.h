@@ -207,6 +207,8 @@ struct baesu_StackTraceUtil {
     // This 'struct' serves as a namespace for a collection of functions that
     // are useful for initializing and printing a stack-trace object.
 
+    // CLASS METHODS
+
     static
     int loadStackTraceFromAddressArray(
                            baesu_StackTrace   *result,
