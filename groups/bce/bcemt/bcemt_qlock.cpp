@@ -147,6 +147,10 @@ SemaphorePtr getSemaphoreForCurrentThread()
 
     if (!s_semaphore) {
         s_semaphore = new (semaphoreAllocator()) bcemt_Semaphore();
+
+        // Still need to store the object in the thread specific key to release
+        // it properly on thread exit.
+        bcemt_ThreadUtil::setSpecific(*getSemaphoreTLSKey(), s_semaphore);
     }
 
     return s_semaphore;
