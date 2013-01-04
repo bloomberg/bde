@@ -289,8 +289,13 @@ static void aSsErT(int c, const char *s, int i) {
 #define T_ cout << "\t" << flush;             // Print a tab (w/o newline)
 
 //=============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+//                GLOBAL TYPEDEFS/CONSTANTS/VARIABLES FOR TESTING
 //-----------------------------------------------------------------------------
+
+bool verbose;
+bool veryVerbose;
+bool veryVeryVerbose;
+bool veryVeryVeryVerbose;
 
 typedef bdem_Table    Obj;
 typedef bdem_TableImp ObjImp;
@@ -1559,10 +1564,7 @@ class BdexHelper {
 #endif
 
 #define DEFINE_TEST_CASE(NUMBER)                                              \
-  void testCase##NUMBER(bool verbose,\
-                        bool veryVerbose,\
-                        bool veryVeryVerbose,\
-                        bool veryVeryVeryVerbose)
+  void testCase##NUMBER()
 
 DEFINE_TEST_CASE(23) {
         // --------------------------------------------------------------------
@@ -4764,10 +4766,57 @@ DEFINE_TEST_CASE(13) {
                 string s3(s1, &testAllocator);
             END_BSLMA_EXCEPTION_TEST
 
-            LOOP_ASSERT(passCount, -1 == passCount || 3 == passCount);
+            LOOP_ASSERT(passCount, 1 == passCount || 3 == passCount);
 
             if (verbose) {
                 P(passCount);
+            }
+        }
+
+        {
+            int passCount = 0, firstAllocCount;
+
+            bdem_List mL; const bdem_List& L = mL; ASSERT(0 == L.length());
+            mL.appendString("woof                                    woof");
+            ASSERT(1 == L.length());
+
+            vector<bdem_ElemType::Type> typeVec;
+            typeVec.push_back(bdem_ElemType::BDEM_STRING);
+            bdem_Table mTOrig(typeVec); const bdem_Table& TOrig = mTOrig;
+            mTOrig.appendRow(L);
+            mTOrig.appendRow(L);
+            mTOrig.appendRow(L);
+            mTOrig.theModifiableRow(0)[0].theModifiableString()
+                             = "meow                                     meow";
+            mTOrig.theModifiableRow(1)[0].theModifiableString()
+                             = "arf                                       arf";
+            mTOrig.theModifiableRow(2)[0].theModifiableString()
+                             = "gruff                                   gruff";
+
+            for (int ti = 0; ti <= 10; ++ti) {
+                bslma_TestAllocator testAllocator, *Z = &testAllocator;
+                bdem_Table mT(typeVec, Z); const bdem_Table& T = mT;
+
+                BEGIN_BSLMA_EXCEPTION_TEST
+                    ++passCount;
+
+                    mT.insertNullRows(T.numRows(), 10);
+
+                    if (ti > 0) mT.appendRow(L);
+                    if (ti > 1) mT.appendRow(L);
+                    if (ti > 2) mT.appendRow(TOrig, 0);
+                    if (ti > 3) mT.appendRows(TOrig);
+                    if (ti > 4) mT.appendRows(TOrig, 1, 2);
+                    if (ti > 5) mT.insertRow(2, L);
+                    if (ti > 6) mT.insertRow(2, L);
+                    if (ti > 7) mT.insertRow(2, TOrig, 0);
+                    if (ti > 8) mT.insertRows(2, TOrig);
+                    if (ti > 9) mT.insertRows(2, TOrig, 1, 2);
+                END_BSLMA_EXCEPTION_TEST
+
+                if (verbose) {
+                    P_(ti); P_(passCount); P_(firstAllocCount); P(T.numRows());
+                }
             }
         }
 
@@ -11031,10 +11080,10 @@ DEFINE_TEST_CASE(1) {
 int main(int argc, char *argv[])
 {
     int  test = argc > 1 ? atoi(argv[1]) : 0;
-    bool verbose = argc > 2;
-    bool veryVerbose = argc > 3;
-    bool veryVeryVerbose = argc > 4;
-    bool veryVeryVeryVerbose = argc > 4;
+    verbose = argc > 2;
+    veryVerbose = argc > 3;
+    veryVeryVerbose = argc > 4;
+    veryVeryVeryVerbose = argc > 4;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
@@ -11045,10 +11094,7 @@ int main(int argc, char *argv[])
     switch (test) { case 0:  // Zero is always the leading case.
     // This macro would be conventional if it were not for the Windows platform
 #define CASE(NUMBER)                                                     \
-  case NUMBER: testCase##NUMBER(verbose,\
-                                veryVerbose,\
-                                veryVeryVerbose,\
-                                veryVeryVeryVerbose ); break
+  case NUMBER: testCase##NUMBER(); break
         CASE(22);
         CASE(21);
         CASE(20);
