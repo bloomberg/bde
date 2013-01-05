@@ -1719,27 +1719,39 @@ typedef bslalg::HashTableImpUtil     ImpUtil;
 typedef bslalg::BidirectionalLink    Link;
 
 //=============================================================================
-//                  HELPER CLASSES FOR TESTING
+//                           HELPER CLASSES FOR TESTING
 //-----------------------------------------------------------------------------
 
 namespace bsl
 {
-
                     // ============================================
                     // class template bsl::equal_to specializations
                     // ============================================
 
 template <>
 struct equal_to< ::BloombergLP::bsltf::NonEqualComparableTestType> {
+    // This class template specialization provides a functor to determine when
+    // two '::BloombergLP::bsltf::NonEqualComparableTestType' objects have the
+    // same value.  Usually, the primary template calls 'operator==' to
+    // determine the result, but that cannot work for the test type that is
+    // specifically designed to not have an 'operator=='.  In such cases, we
+    // must provide an explicit specialization of this template if we expect
+    // the test type to work in our test cases along side other types.
+
+    // TYPES
     typedef ::BloombergLP::bsltf::NonEqualComparableTestType
                                                           first_argument_type;
     typedef ::BloombergLP::bsltf::NonEqualComparableTestType
                                                           second_argument_type;
     typedef bool                                          result_type;
 
+    // ACCESSORS
     bool operator()(const ::BloombergLP::bsltf::NonEqualComparableTestType& a,
                     const ::BloombergLP::bsltf::NonEqualComparableTestType& b)
                                                                          const;
+        // Return 'true' if the specified 'a' and 'b' objects have the same
+        // value, and 'false' otherwise.  Two 'NonEqualComparableTestType'
+        // objects have the same value if ... (TBD)
 };
 
                     // ========================================
@@ -1748,9 +1760,15 @@ struct equal_to< ::BloombergLP::bsltf::NonEqualComparableTestType> {
 
 template <>
 struct hash< ::BloombergLP::bsltf::NonEqualComparableTestType> {
+    // This class template specialization provides a functor to determine a
+    // hash value for '::BloombergLP::bsltf::NonEqualComparableTestType'
+    // objects.
+
+    // TYPES
     typedef ::BloombergLP::bsltf::NonEqualComparableTestType argument_type;
     typedef size_t                                           result_type;
 
+    // ACCESSORS
     size_t operator()(const ::BloombergLP::bsltf::NonEqualComparableTestType&
                                                                   value) const;
 };
@@ -1783,7 +1801,6 @@ class AwkwardMaplikeElement {
 
   public:
     // CREATORS
-
     AwkwardMaplikeElement();
 
     explicit
@@ -1793,23 +1810,28 @@ class AwkwardMaplikeElement {
     AwkwardMaplikeElement(const bsltf::NonEqualComparableTestType& value);
 
     // MANIPULATORS
-
     void setData(int value);
         // Set the 'data' attribute of this object to the specified 'value'.
 
     // ACCESSORS
-
     int data() const;
         // Return the value of the 'data' attribute of this object.
 
     const bsltf::NonEqualComparableTestType& key() const;
+        // Return a non-modifiable reference to the 'key' of this object.
 };
 
 bool operator==(const AwkwardMaplikeElement& lhs,
                 const AwkwardMaplikeElement& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
+    // value, and 'false' otherwise.  Two 'AwkwardMaplikeElement' objects have
+    // the same value if ... (TBD)
 
 bool operator!=(const AwkwardMaplikeElement& lhs,
                 const AwkwardMaplikeElement& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
+    // same value, and 'false' otherwise.  Two 'AwkwardMaplikeElement' objects
+    // do not have the same value if ... (TBD)
 
 void debugprint(const AwkwardMaplikeElement& value);
 
@@ -1836,6 +1858,55 @@ int TemplateTestFacility::getIdentifier<TestTypes::AwkwardMaplikeElement>(
 namespace
 {
 
+                       // ===============
+                       // class BoolArray
+                       // ===============
+
+class BoolArray {
+    // This class holds a set of boolean flags, the number of which is
+    // specified when such an object is constructed.  The number of flags is
+    // fixed at the time of construction, and the object is neither copy-
+    // constructible nor copy-assignable.  The flags can be set and tested
+    // using 'operator[]'.  This class is a lightweight alternative to
+    // 'vector<bool>' as there is no need to introduce such a component
+    // dependency for a simple test facility (in the same package).
+    // TBD The constructor should support a 'bslma::Allocator *' argument to
+    // supply memory for the dynamically allocated array.
+
+  private:
+    // DATA
+    bool   *d_data;
+    size_t  d_size;
+
+  private:
+    BoolArray(const BoolArray&); // = delete;
+        // not implemented
+
+    BoolArray& operator=(const BoolArray&);  // = deletee
+        // not implemented
+
+  public:
+    // CREATORS
+    explicit BoolArray(size_t n);
+        // Create a 'BoolArray' object holding 'n' boolean flags.
+
+    ~BoolArray();
+        // Destroy this object, reclaiming any allocated memory.
+
+    // MANIPULATORS
+    bool& operator[](size_t index);
+        // Return a modifiable reference to the boolean flag at the specified
+        // 'index'.  The behavior is undefined unless 'index < size()'.
+
+    // ACCESSORS
+    bool operator[](size_t index) const;
+        // Return the value of the boolean flag at the specified 'index'.  The
+        // behavior is undefined unless 'index < size()'.
+
+    size_t size() const;
+        // Return the number of boolean flags held by this object.
+};
+
                             // ====================
                             // class ExceptionGuard
                             // ====================
@@ -1859,44 +1930,27 @@ struct ExceptionGuard {
     // CREATORS
     ExceptionGuard(const OBJECT    *object,
                    int              line,
-                   bslma::Allocator *basicAllocator = 0)
-    : d_line(line)
-    , d_copy(*object, basicAllocator)
-    , d_object_p(object)
+                   bslma::Allocator *basicAllocator = 0);
         // Create the exception guard for the specified 'object' at the
         // specified 'line' number.  Optionally, specify 'basicAllocator' used
         // to supply memory.
-    {}
 
     template <class ALLOCATOR>
     ExceptionGuard(const OBJECT     *object,
                    int               line,
-                   const ALLOCATOR&  basicAllocator)
-    : d_line(line)
-    , d_copy(*object, basicAllocator)
-    , d_object_p(object)
+                   const ALLOCATOR&  basicAllocator);
         // Create the exception guard for the specified 'object' at the
         // specified 'line' number.  Optionally, specify 'basicAllocator' used
         // to supply memory.
-    {}
 
-    ~ExceptionGuard()
+    ~ExceptionGuard();
         // Destroy the exception guard.  If the guard was not released, verify
         // that the state of the object supplied at construction has not
         // change.
-    {
-        if (d_object_p) {
-            const int LINE = d_line;
-            ASSERTV(LINE, d_copy == *d_object_p);
-        }
-    }
 
     // MANIPULATORS
-    void release()
+    void release();
         // Release the guard from verifying the state of the object.
-    {
-        d_object_p = 0;
-    }
 };
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1917,10 +1971,12 @@ struct EvilBooleanType {
     // defined operations fill out the API as needed.
 
   private:
+    // PRIVATE TYPES
     struct ImpDetail { int d_member; };
 
     typedef int ImpDetail::* BoolResult;
 
+    // DATA
     BoolResult d_value;
 
   private:
@@ -1937,14 +1993,105 @@ struct EvilBooleanType {
 
 
   public:
-    EvilBooleanType(bool value)                                     // IMPLICIT
-    : d_value(!value ? 0 : &ImpDetail::d_member)
-    {
-    }
+    // CREATORS
+    EvilBooleanType(bool value);                                    // IMPLICIT
 
-    operator BoolResult() const { return d_value; }
+    // ACCESSORS
+    operator BoolResult() const;
 
-    EvilBooleanType operator!() const { return !d_value; }
+    EvilBooleanType operator!() const;
+};
+
+EvilBooleanType operator==(const EvilBooleanType& lhs,
+                           const EvilBooleanType& rhs);
+
+EvilBooleanType operator!=(const EvilBooleanType& lhs,
+                           const EvilBooleanType& rhs);
+
+                       // =============================
+                       // class ConvertibleValueWrapper
+                       // =============================
+
+template <class TYPE>
+struct ConvertibleValueWrapper {
+  private:
+    // DATA
+    TYPE d_value;
+
+  public:
+    // CREATORS
+    ConvertibleValueWrapper(const TYPE& value);                     // IMPLICIT
+
+    // MANIPULATORS
+    operator       TYPE&();
+
+    // ACCESSORS
+    operator const TYPE&() const;
+};
+
+                       // =====================
+                       // class DegenerateClass
+                       // =====================
+
+template <class FUNCTOR, bool ENABLE_SWAP = true>
+class DegenerateClass : public FUNCTOR {
+    // This test class template adapts a DefaultConstructible class to offer
+    // a minimal or outright obstructive interface for testing generic code.
+    // We expect to use this to supply Hasher and Comparator classes to test
+    // 'HashTable', which must be CopyConstructible, Swappable, and nothrow
+    // Destructible, and offer the (inherited) function call operator as their
+    // public interface.  No other operation should be usable.  We take
+    // advantage of the fact that defining a copy constructor inhibits the
+    // generation of a default constructor, and that constructors are not
+    // inherited by a derived class.
+
+  private:
+    explicit DegenerateClass(const FUNCTOR& base);
+        // Create a 'DegenerateClass' wrapping a copy of the specified
+        // 'base'.
+
+    void operator&();  // = delete;
+        // not implemented
+
+    template<class T>
+    void operator,(const T&); // = delete;
+        // not implemented
+
+    template<class T>
+    void operator,(T&); // = delete;
+        // not implemented
+
+    template<class T>
+    void swap(T&); // = delete;
+        // Not implemented.  This method hides a frequently supplied member
+        // function that may be sniffed out by clever template code when it
+        // is declared in the base class.  When 'ENABLE_SWAP' is 'false', we
+        // want to be sure that this class does not accidentally allow
+        // swapping through an unexpected back door.  When 'ENABLE_SWAP' is
+        // 'true', we provide a differently named hook, to minimize the chance
+        // that a clever template library can sniff it out.
+
+
+    DegenerateClass& operator=(const DegenerateClass&);
+    // TBD. Do we require functors be CopyAssignable, Swappable, or customize
+    // availability for test scenario?
+
+  public:
+    static DegenerateClass cloneBaseObject(const FUNCTOR& base);
+
+    DegenerateClass(const DegenerateClass& original);
+        // Create a 'DegenerateClass' having the same value the specified
+        // 'original'.
+
+    void exchangeValues(DegenerateClass& other);
+        // Swap the wrapped 'FUNCTOR' object, using ADL with 'std::swap' in
+        // the lookup set.  Note that this function is deliberately *not* named
+        // 'swap' as some "clever" template libraries may try to call a member-
+        // swap function when they can find it, and ADL-swap is not available.
+        // Also note that this overload is needed only so that the ADL-enabling
+        // free-function 'swap' can be defined, as the native std library
+        // 'swap' function does will not accept this class on AIX or Visual C++
+        // prior to VC2010.
 };
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -2097,7 +2244,8 @@ class StatefulHash : private bsl::hash<KEY> {
     // requirements (C++11 [hash.requirements], 17.6.3.4) with an additional
     // 'mixer' attribute, that constitutes the value of this class, and is
     // used to mutate the value returned from the adapted hasher when calling
-    // 'operator()'.
+    // 'operator()'.  Note that this class privately inherits from the empty
+    // base class 'bsl::hash' in order to exploit a compiler optimization.
 
     typedef bsl::hash<KEY> Base;
 
@@ -2136,12 +2284,14 @@ bool operator!=(const StatefulHash<KEY>& lhs, const StatefulHash<KEY>& rhs);
                        // ========================
 
 template <class KEY, class HASHER = ::bsl::hash<int> >
-class TestFacilityHasher : public HASHER { // exploit empty base
+class TestFacilityHasher : private HASHER { // exploit empty base
     // This test class provides a mechanism that defines a function-call
     // operator that provides a hash code for objects of the parameterized
     // 'KEY'.  The function-call operator is implemented by calling the wrapper
     // functor, 'HASHER', with integers converted from objects of 'KEY' by the
-    // class method 'TemplateTestFacility::getIdentifier'.
+    // class method 'TemplateTestFacility::getIdentifier'.    Note that this
+    // class privately inherits from the specified 'HASHER' class in order to
+    // exploit any compiler optimizations for empty base classes.
 
   public:
     TestFacilityHasher(const HASHER& hash = HASHER());              // IMPLICIT
@@ -2149,22 +2299,6 @@ class TestFacilityHasher : public HASHER { // exploit empty base
     // ACCESSORS
     native_std::size_t operator() (const KEY& k) const;
         // Return a hash code for the specified 'k' using the wrapped 'HASHER'.
-};
-
-                       // =============================
-                       // class ConvertibleValueWrapper
-                       // =============================
-
-template <class TYPE>
-struct ConvertibleValueWrapper {
-  private:
-    TYPE d_value;
-
-  public:
-    ConvertibleValueWrapper(const TYPE& value) : d_value(value) {}  // IMPLICIT
-
-    operator       TYPE&()       { return d_value; }
-    operator const TYPE&() const { return d_value; }
 };
 
                        // ================================
@@ -2178,17 +2312,11 @@ class TestConvertibleValueHasher : private TestFacilityHasher<KEY, HASHER> {
     typedef TestFacilityHasher<KEY, HASHER> Base;
 
   public:
-    TestConvertibleValueHasher(const HASHER& hash = HASHER())       // IMPLICIT
-    : HASHER(hash)
-    {
-    }
+    TestConvertibleValueHasher(const HASHER& hash = HASHER());      // IMPLICIT
 
     // ACCESSORS
-    native_std::size_t operator() (const ConvertibleValueWrapper<KEY>& k) const
+    native_std::size_t operator()(const ConvertibleValueWrapper<KEY>& k) const;
         // Return a hash code for the specified 'k' using the wrapped 'HASHER'.
-    {
-        return Base::operator()(k);
-    }
 };
 
                        // ====================================
@@ -2202,120 +2330,8 @@ class TestConvertibleValueComparator {
   public:
     // ACCESSORS
     EvilBooleanType operator() (const ConvertibleValueWrapper<KEY>& a,
-                                const ConvertibleValueWrapper<KEY>& b) const
+                                const ConvertibleValueWrapper<KEY>& b) const;
         // Return a hash code for the specified 'k' using the wrapped 'HASHER'.
-    {
-        return BSL_TF_EQ(a, b);
-    }
-};
-
-                       // =====================
-                       // class DegenerateClass
-                       // =====================
-
-template <class FUNCTOR, bool ENABLE_SWAP = true>
-class DegenerateClass : public FUNCTOR {
-    // This test class template adapts a DefaultConstructible class to offer
-    // a minimal or outright obstructive interface for testing generic code.
-    // We expect to use this to supply Hasher and Comparator classes to test
-    // 'HashTable', which must be CopyConstructible, Swappable, and nothrow
-    // Destructible, and offer the (inherited) function call operator as their
-    // public interface.  No other operation should be usable.  We take
-    // advantage of the fact that defining a copy constructor inhibits the
-    // generation of a default constructor, and that constructors are not
-    // inherited by a derived class.
-
-  private:
-    explicit DegenerateClass(const FUNCTOR& base);
-        // Create a 'DegenerateClass' wrapping a copy of the specified
-        // 'base'.
-
-    void operator&();  // = delete;
-        // not implemented
-
-    template<class T>
-    void operator,(const T&); // = delete;
-        // not implemented
-
-    template<class T>
-    void operator,(T&); // = delete;
-        // not implemented
-
-    template<class T>
-    void swap(T&); // = delete;
-        // Not implemented.  This method hides a frequently supplied member
-        // function that may be sniffed out by clever template code when it
-        // is declared in the base class.  When 'ENABLE_SWAP' is 'false', we
-        // want to be sure that this class does not accidentally allow
-        // swapping through an unexpected back door.  When 'ENABLE_SWAP' is
-        // 'true', we provide a differently named hook, to minimize the chance
-        // that a clever template library can sniff it out.
-
-
-    DegenerateClass& operator=(const DegenerateClass&);
-    // TBD. Do we require functors be CopyAssignable, Swappable, or customize
-    // availability for test scenario?
-
-  public:
-    static DegenerateClass cloneBaseObject(const FUNCTOR& base);
-
-    DegenerateClass(const DegenerateClass& original);
-        // Create a 'DegenerateClass' having the same value the specified
-        // 'original'.
-
-    void exchangeValues(DegenerateClass& other);
-        // Swap the wrapped 'FUNCTOR' object, using ADL with 'std::swap' in
-        // the lookup set.  Note that this function is deliberately *not* named
-        // 'swap' as some "clever" template libraries may try to call a member-
-        // swap function when they can find it, and ADL-swap is not available.
-        // Also note that this overload is needed only so that the ADL-enabling
-        // free-function 'swap' can be defined, as the native std library
-        // 'swap' function does will not accept this class on AIX or Visual C++
-        // prior to VC2010.
-};
-
-                       // =============================
-                       // class FunctionPointerPolicies
-                       // =============================
-
-template <class KEY>
-struct FunctionPointerPolicies {
-    typedef size_t HashFunction(const KEY&);
-    typedef bool   ComparisonFunction(const KEY&, const KEY&);
-
-    static size_t hash(const KEY& k);
-
-    static bool compare(const KEY& lhs, const KEY& rhs);
-};
-
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-                       // ========================
-                       // class MakeDefaultFunctor
-                       // ========================
-
-template <class FUNCTOR>
-struct MakeDefaultFunctor {
-    static FUNCTOR make();
-};
-
-template <class FUNCTOR, bool ENABLE_SWAP>
-struct MakeDefaultFunctor<DegenerateClass<FUNCTOR, ENABLE_SWAP> > {
-    static DegenerateClass<FUNCTOR, ENABLE_SWAP> make();
-};
-
-template <class KEY>
-struct MakeDefaultFunctor<size_t (*)(const KEY&)> {
-    typedef size_t FunctionType(const KEY&);
-
-    static FunctionType *make();
-};
-
-template <class KEY>
-struct MakeDefaultFunctor<bool (*)(const KEY&, const KEY&)> {
-    typedef bool FunctionType(const KEY&, const KEY&);
-
-    static FunctionType *make();
 };
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -2354,39 +2370,48 @@ class GenericHasher {
 };
 
 
-                       // ===============
-                       // class BoolArray
-                       // ===============
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-class BoolArray {
-    // This class holds a set of boolean flags, the number of which is
-    // specified when such an object is constructed.  This class is a
-    // lightweight alternative to 'vector<bool>' as there is no need to
-    // introduce such a component dependency for a simple test facility.
+                       // =============================
+                       // class FunctionPointerPolicies
+                       // =============================
 
-  private:
-    bool *d_data;
+template <class KEY>
+struct FunctionPointerPolicies {
+    typedef size_t HashFunction(const KEY&);
+    typedef bool   ComparisonFunction(const KEY&, const KEY&);
 
-    BoolArray(const BoolArray&); // = delete;
-    BoolArray& operator=(const BoolArray&);  // = delete;
+    static size_t hash(const KEY& k);
 
-  public:
-    explicit BoolArray(size_t n)
-    : d_data(new bool[n])
-    {
-        for (size_t i = 0; i != n; ++i) {
-            d_data[i] = false;
-        }
-    }
+    static bool compare(const KEY& lhs, const KEY& rhs);
+};
 
-    ~BoolArray()
-    {
-        delete[] d_data;
-    }
+                       // ========================
+                       // class MakeDefaultFunctor
+                       // ========================
 
-    bool& operator[](size_t index) { return d_data[index]; }
+template <class FUNCTOR>
+struct MakeDefaultFunctor {
+    static FUNCTOR make();
+};
 
-    bool operator[](size_t index) const { return d_data[index]; }
+template <class FUNCTOR, bool ENABLE_SWAP>
+struct MakeDefaultFunctor<DegenerateClass<FUNCTOR, ENABLE_SWAP> > {
+    static DegenerateClass<FUNCTOR, ENABLE_SWAP> make();
+};
+
+template <class KEY>
+struct MakeDefaultFunctor<size_t (*)(const KEY&)> {
+    typedef size_t FunctionType(const KEY&);
+
+    static FunctionType *make();
+};
+
+template <class KEY>
+struct MakeDefaultFunctor<bool (*)(const KEY&, const KEY&)> {
+    typedef bool FunctionType(const KEY&, const KEY&);
+
+    static FunctionType *make();
 };
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -2399,8 +2424,10 @@ template <class ALLOCATOR>
 struct MakeAllocator {
     // TBD This utility class template ...
 
+    // PUBLIC TYPES
     typedef ALLOCATOR AllocatorType;
 
+    // CLASS METHODS
     static AllocatorType make(bslma::Allocator *);
 };
 
@@ -2408,8 +2435,10 @@ template <class TYPE>
 struct MakeAllocator<bsl::allocator<TYPE> > {
     // TBD This utility class template specialization...
 
+    // PUBLIC TYPES
     typedef bsl::allocator<TYPE> AllocatorType;
 
+    // CLASS METHODS
     static AllocatorType make(bslma::Allocator *basicAllocator);
 };
 
@@ -2417,8 +2446,10 @@ template <class TYPE>
 struct MakeAllocator<bsltf::StdTestAllocator<TYPE> > {
     // TBD This utility class template specialization...
 
+    // PUBLIC TYPES
     typedef bsltf::StdTestAllocator<TYPE> AllocatorType;
 
+    // CLASS METHODS
     static AllocatorType make(bslma::Allocator *basicAllocator);
 };
 
@@ -2426,8 +2457,10 @@ template <class TYPE, bool A, bool B, bool C, bool D>
 struct MakeAllocator<bsltf::StdStatefulAllocator<TYPE, A, B, C, D> > {
     // TBD This utility class template specialization...
 
+    // PUBLIC TYPES
     typedef bsltf::StdStatefulAllocator<TYPE, A, B, C, D> AllocatorType;
 
+    // CLASS METHODS
     static AllocatorType make(bslma::Allocator *basicAllocator);
 };
 
@@ -2461,10 +2494,10 @@ struct ObjectMaker {
     typedef bslstl::HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>   Obj;
 
     static
-    ALLOCATOR makeObject(Obj                  **objPtr,
-                         char                   config,
-                         bslma::Allocator      *fa,  // "footprint" allocator
-                         bslma::TestAllocator  *objectAllocator);
+    AllocatorType makeObject(Obj                  **objPtr,
+                             char                   config,
+                             bslma::Allocator      *fa, //"footprint" allocator
+                             bslma::TestAllocator  *objectAllocator);
     // construct a 'HashTable' object at the specified 'obj' address using the
     // allocator determined by the specified 'config', and passing the
     // specified 'hash', 'compare', 'initialBuckets' and 'initialMaxLoadFactor'
@@ -2482,14 +2515,14 @@ struct ObjectMaker {
     //..
 
     static
-    ALLOCATOR makeObject(Obj                  **objPtr,
-                         char                   config,
-                         bslma::Allocator      *fa,  // "footprint" allocator
-                         bslma::TestAllocator  *objectAllocator,
-                         const HASHER           hash,
-                         const COMPARATOR&      compare,
-                         SizeType               initialBuckets,
-                         float                  initialMaxLoadFactor);
+    AllocatorType makeObject(Obj                  **objPtr,
+                             char                   config,
+                             bslma::Allocator      *fa, //"footprint" allocator
+                             bslma::TestAllocator  *objectAllocator,
+                             const HASHER           hash,
+                             const COMPARATOR&      compare,
+                             SizeType               initialBuckets,
+                             float                  initialMaxLoadFactor);
     // construct a 'HashTable' object at the specified 'obj' address using the
     // allocator determined by the specified 'config', and passing the
     // specified 'hash', 'compare', 'initialBuckets' and 'initialMaxLoadFactor'
@@ -2641,23 +2674,30 @@ struct ObjectMaker<
 
 template <class ALLOCATOR>
 bslma::TestAllocator *extractTestAllocator(ALLOCATOR&);
-    // In general, there is no way to extract a test allocator from an unknown
-    // allocator type.
+    // Return a null pointer value, as there is no way to extract a test
+    // allocator from an unknown allocator type.  This function should be
+    // overloaded for allocator types for which it is possible to extract a
+    // test allocator.
 
 template <class TYPE>
 bslma::TestAllocator *extractTestAllocator(bsl::allocator<TYPE>& alloc);
-    // If a BDE 'bsl::allocator' is wrapping a test allocator, it can be found
-    // by 'dynamic_cast'ing the underlying 'mechanism'.
+    // Return the address of the allocator 'mechanism' wrapped by the specified
+    // 'alloc' if it is a test allocator (which can be found by 'dynamic_cast')
+    // and a null pointer value otherwise.
 
 template <class TYPE>
 bslma::TestAllocator *extractTestAllocator(bsltf::StdTestAllocator<TYPE>&);
-    // All 'bsltf::StdTestAllocator's share the same allocator, which is set by
+    // Return the address of the installed StdTestAllocator if it is a test
+    // allocator, and a null pointer value otherwise.  Note that all
+    // 'bsltf::StdTestAllocator's share the same allocator, which is set by
     // the 'bsltf::StdTestAllocatorConfiguration' utility.  We can determine if
     // this is wrapping a test allocator using 'dynamic_cast'.
 
 template <class TYPE, bool A, bool B, bool C, bool D>
 bslma::TestAllocator *
 extractTestAllocator(bsltf::StdStatefulAllocator<TYPE, A, B, C, D>& alloc);
+    // Return the address of the test allocator wrapped by the specified
+    // 'alloc'.
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -2754,7 +2794,6 @@ AwkwardMaplikeElement::AwkwardMaplikeElement(
 }
 
 // MANIPULATORS
-
 inline
 void AwkwardMaplikeElement::setData(int value)
 {
@@ -2762,7 +2801,6 @@ void AwkwardMaplikeElement::setData(int value)
 }
 
 // ACCESSORS
-
 inline
 int AwkwardMaplikeElement::data() const
 {
@@ -2779,14 +2817,14 @@ const bsltf::NonEqualComparableTestType& AwkwardMaplikeElement::key() const
 
 inline
 bool TestTypes::operator==(const AwkwardMaplikeElement& lhs,
-                const AwkwardMaplikeElement& rhs)
+                           const AwkwardMaplikeElement& rhs)
 {
     return BSL_TF_EQ(lhs.data(), rhs.data());
 }
 
 inline
 bool TestTypes::operator!=(const AwkwardMaplikeElement& lhs,
-                const AwkwardMaplikeElement& rhs)
+                           const AwkwardMaplikeElement& rhs)
 {
     return !(lhs == rhs);
 }
@@ -2798,8 +2836,9 @@ void TestTypes::debugprint(const AwkwardMaplikeElement& value)
 }
 
 
-namespace BloombergLP {
-// HashTable-specific print function.
+namespace BloombergLP
+{
+
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 void bslstl::debugprint(
          const bslstl::HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>& t)
@@ -2836,10 +2875,122 @@ int TemplateTestFacility::getIdentifier<TestTypes::AwkwardMaplikeElement>(
 
 namespace
 {
+
+                       // --------------------
+                       // class ExceptionGuard
+                       // --------------------
+
+// CREATORS
+template <class OBJECT>
+inline
+ExceptionGuard<OBJECT>::ExceptionGuard(const OBJECT    *object,
+                                       int              line,
+                                       bslma::Allocator *basicAllocator)
+: d_line(line)
+, d_copy(*object, basicAllocator)
+, d_object_p(object)
+{
+}
+
+template <class OBJECT>
+template <class ALLOCATOR>
+inline
+ExceptionGuard<OBJECT>::ExceptionGuard(const OBJECT     *object,
+                                       int               line,
+                                       const ALLOCATOR&  basicAllocator)
+: d_line(line)
+, d_copy(*object, basicAllocator)
+, d_object_p(object)
+{
+}
+
+template <class OBJECT>
+ExceptionGuard<OBJECT>::~ExceptionGuard()
+{
+    if (d_object_p) {
+        const int LINE = d_line;
+        ASSERTV(LINE, d_copy == *d_object_p);
+    }
+}
+
+// MANIPULATORS
+template <class OBJECT>
+inline
+void ExceptionGuard<OBJECT>::release()
+{
+    d_object_p = 0;
+}
+
+                       // ---------------------
+                       // class EvilBooleanType
+                       // ---------------------
+
+// CREATORS
+inline
+EvilBooleanType::EvilBooleanType(bool value)
+: d_value(!value ? 0 : &ImpDetail::d_member)
+{
+}
+
+// ACCESSORS
+inline
+EvilBooleanType::operator BoolResult() const
+{
+    return d_value;
+}
+
+inline
+EvilBooleanType EvilBooleanType::operator!() const
+{
+    return !d_value;
+}
+
+inline
+EvilBooleanType operator==(const EvilBooleanType& lhs,
+                           const EvilBooleanType& rhs)
+{
+    return static_cast<bool>(lhs) == static_cast<bool>(rhs);
+}
+
+inline
+EvilBooleanType operator!=(const EvilBooleanType& lhs,
+                           const EvilBooleanType& rhs)
+{
+    return static_cast<bool>(lhs) != static_cast<bool>(rhs);
+}
+
+                       // -----------------------------
+                       // class ConvertibleValueWrapper
+                       // -----------------------------
+
+// CREATORS
+template <class TYPE>
+inline
+ConvertibleValueWrapper<TYPE>::ConvertibleValueWrapper(const TYPE& value)
+: d_value(value)
+{
+}
+
+template <class TYPE>
+inline
+ConvertibleValueWrapper<TYPE>::operator TYPE&()
+{
+    return d_value;
+}
+
+// ACCESSORS
+template <class TYPE>
+inline
+ConvertibleValueWrapper<TYPE>::operator const TYPE&() const
+{
+    return d_value;
+}
+
                        // -------------------------------
                        // class GroupedEqualityComparator
                        // -------------------------------
 
+// ACCESSORS
 template <class TYPE, int GROUP_SIZE>
 bool GroupedEqualityComparator<TYPE, GROUP_SIZE>::
 operator() (const TYPE& lhs, const TYPE& rhs) const
@@ -2856,12 +3007,13 @@ operator() (const TYPE& lhs, const TYPE& rhs) const
                        // class GroupedHasher
                        // -------------------
 
+// ACCESSORS
 template <class TYPE, class HASHER, int GROUP_SIZE>
 inline
 size_t GroupedHasher<TYPE, HASHER, GROUP_SIZE>::operator() (const TYPE& value)
 {
     int groupNum = bsltf::TemplateTestFacility::getIdentifier<TYPE>(value)
-                     / GROUP_SIZE;
+                 / GROUP_SIZE;
 
     return HASHER::operator()(groupNum);
 }
@@ -2871,6 +3023,7 @@ size_t GroupedHasher<TYPE, HASHER, GROUP_SIZE>::operator() (const TYPE& value)
                        // class TestComparator
                        // --------------------
 
+// CREATORS
 template <class TYPE>
 inline
 TestEqualityComparator<TYPE>::TestEqualityComparator(int id)
@@ -2879,7 +3032,7 @@ TestEqualityComparator<TYPE>::TestEqualityComparator(int id)
 {
 }
 
-    // MANIPULATORS
+// MANIPULATORS
 template <class TYPE>
 inline
 void TestEqualityComparator<TYPE>::setId(int value)
@@ -2887,7 +3040,7 @@ void TestEqualityComparator<TYPE>::setId(int value)
     d_id = value;
 }
 
-    // ACCESSORS
+// ACCESSORS
 template <class TYPE>
 inline
 bool TestEqualityComparator<TYPE>::operator() (const TYPE& lhs,
@@ -2907,6 +3060,7 @@ bool TestEqualityComparator<TYPE>::operator==(
     return (id() == rhs.id());// && d_compareLess == rhs.d_compareLess);
 }
 
+// ACCESSORS
 template <class TYPE>
 inline
 int TestEqualityComparator<TYPE>::id() const
@@ -2925,6 +3079,7 @@ size_t TestEqualityComparator<TYPE>::count() const
                        // class TestHashFunctor
                        // ---------------------
 
+// CREATORS
 template <class TYPE>
 inline
 TestHashFunctor<TYPE>::TestHashFunctor(int id)
@@ -2933,7 +3088,7 @@ TestHashFunctor<TYPE>::TestHashFunctor(int id)
 {
 }
 
-    // ACCESSORS
+// ACCESSORS
 template <class TYPE>
 inline
 native_std::size_t TestHashFunctor<TYPE>::operator() (const TYPE& obj) const
@@ -2950,6 +3105,7 @@ bool TestHashFunctor<TYPE>::operator== (const TestHashFunctor& rhs) const
     return (id() == rhs.id());// && d_compareLess == rhs.d_compareLess);
 }
 
+// ACCESSORS
 template <class TYPE>
 inline
 int TestHashFunctor<TYPE>::id() const
@@ -2968,6 +3124,7 @@ size_t TestHashFunctor<TYPE>::count() const
                        // class StatefulHash
                        // ------------------
 
+// CREATORS
 template <class KEY>
 inline
 StatefulHash<KEY>::StatefulHash(native_std::size_t mixer)
@@ -2982,6 +3139,7 @@ void StatefulHash<KEY>::setMixer(int value)
     d_mixer = value;
 }
 
+// ACCESSORS
 template <class KEY>
 inline
 native_std::size_t StatefulHash<KEY>::operator()(const KEY& k) const
@@ -3007,6 +3165,7 @@ bool operator!=(const StatefulHash<KEY>& lhs, const StatefulHash<KEY>& rhs)
                        // class TestFacilityHasher
                        // ------------------------
 
+// CREATORS
 template <class KEY, class HASHER>
 inline
 TestFacilityHasher<KEY, HASHER>::TestFacilityHasher(const HASHER& hash)
@@ -3024,12 +3183,49 @@ TestFacilityHasher<KEY, HASHER>::operator() (const KEY& k) const
                            bsltf::TemplateTestFacility::getIdentifier<KEY>(k));
 }
 
+                       // --------------------------------
+                       // class TestConvertibleValueHasher
+                       // --------------------------------
+
+template <class KEY, class HASHER>
+inline
+TestConvertibleValueHasher<KEY, HASHER>::TestConvertibleValueHasher(
+                                                            const HASHER& hash)
+: HASHER(hash)
+{
+}
+
+// ACCESSORS
+template <class KEY, class HASHER>
+inline
+native_std::size_t
+TestConvertibleValueHasher<KEY, HASHER>::operator()
+                                  (const ConvertibleValueWrapper<KEY>& k) const
+{
+    return Base::operator()(k);
+}
+
+                       // ------------------------------------
+                       // class TestConvertibleValueComparator
+                       // ------------------------------------
+
+// ACCESSORS
+template <class KEY>
+inline
+EvilBooleanType TestConvertibleValueComparator<KEY>::operator() (
+                                   const ConvertibleValueWrapper<KEY>& a,
+                                   const ConvertibleValueWrapper<KEY>& b) const
+{
+    return BSL_TF_EQ(a, b);
+}
+
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
                        // ---------------------
                        // class DegenerateClass
                        // ---------------------
 
+// CREATORS
 template <class FUNCTOR, bool ENABLE_SWAP>
 inline
 DegenerateClass<FUNCTOR, ENABLE_SWAP>::DegenerateClass(const FUNCTOR& base)
@@ -3068,6 +3264,35 @@ void swap(DegenerateClass<FUNCTOR, true>& lhs,
           DegenerateClass<FUNCTOR, true>& rhs)
 {
     lhs.exchangeValues(rhs);
+}
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+                       // -----------------------
+                       // class GenericComparator
+                       // -----------------------
+
+// ACCESSORS
+template <class ARG1_TYPE, class ARG2_TYPE>
+inline
+EvilBooleanType GenericComparator::operator() (const ARG1_TYPE& arg1,
+                                               const ARG2_TYPE& arg2) const
+{
+    return BSL_TF_EQ(arg1, arg2);
+}
+
+                       // -------------------
+                       // class GenericHasher
+                       // -------------------
+
+// ACCESSORS
+template <class KEY>
+native_std::size_t GenericHasher::operator() (const KEY& k) const
+{
+    // do not inline initially due to static local data
+
+    static const TestFacilityHasher<KEY> HASHER;
+    return HASHER(k);
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -3126,37 +3351,6 @@ typename MakeDefaultFunctor<bool (*)(const KEY&, const KEY&)>::FunctionType *
 MakeDefaultFunctor<bool (*)(const KEY&, const KEY&)>::make()
 {
     return &FunctionPointerPolicies<KEY>::compare;
-}
-
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-                       // -----------------------
-                       // class GenericComparator
-                       // -----------------------
-
-// ACCESSORS
-
-template <class ARG1_TYPE, class ARG2_TYPE>
-inline
-EvilBooleanType GenericComparator::operator() (const ARG1_TYPE& arg1,
-                                               const ARG2_TYPE& arg2) const
-{
-    return BSL_TF_EQ(arg1, arg2);
-}
-
-                       // -------------------
-                       // class GenericHasher
-                       // -------------------
-
-// ACCESSORS
-
-template <class KEY>
-native_std::size_t GenericHasher::operator() (const KEY& k) const
-{
-    // do not inline initially due to static local data
-
-    static const TestFacilityHasher<KEY> HASHER;
-    return HASHER(k);
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -3532,6 +3726,50 @@ makeObject(Obj                  **objPtr,
                             initialMaxLoadFactor,
                             result);
     return result;
+}
+
+
+                       // ---------------
+                       // class BoolArray
+                       // ---------------
+
+// CREATORS
+inline
+BoolArray::BoolArray(size_t n)
+: d_data(new bool[n])
+, d_size(n)
+{
+    for (size_t i = 0; i != n; ++i) {
+        d_data[i] = false;
+    }
+}
+
+inline
+BoolArray::~BoolArray()
+{
+    delete[] d_data;
+}
+
+inline
+bool& BoolArray::operator[](size_t index)
+{
+    BSLS_ASSERT_SAFE(index < d_size);
+
+    return d_data[index];
+}
+
+inline
+bool BoolArray::operator[](size_t index) const
+{
+    BSLS_ASSERT_SAFE(index < d_size);
+
+    return d_data[index];
+}
+
+inline
+size_t BoolArray::size() const
+{
+    return d_size;
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -4044,7 +4282,9 @@ struct TestDriver_ForwardTestCasesByConfiguation {
 // class template, such as the type of functors, the key extraction policy,
 // etc. so we write some simple adapters that will generate the appropriate
 // instantiation of the test harness, from a template parameterized on only the
-// element type (to be tested).
+// element type (to be tested).  Note that in C++11 we would use the alias-
+// template facility to define these templates, rather than using public
+// inheritance through a dispatcher-shim.
 
 template <class ELEMENT>
 struct TestDriver_BasicConfiguation
