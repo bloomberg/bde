@@ -1,10 +1,6 @@
 // btes_ratelimiter.cpp                                               -*-C++-*-
 #include <btes_ratelimiter.h>
 
-#include <bdes_bitutil.h>
-
-#include <bsl_algorithm.h>
-
 namespace BloombergLP {
 
                         //-----------------------
@@ -12,12 +8,18 @@ namespace BloombergLP {
                         //-----------------------
 
 // CREATORS
+btes_RateLimiter::btes_RateLimiter()
+{
+    setRateLimits(1, bdet_TimeInterval(10), 10, bdet_TimeInterval(1));
+    reset(bdet_TimeInterval(0));
+}
 
-btes_RateLimiter::btes_RateLimiter(bsls_Types::Uint64    sustainedRateLimit,
-                                const bdet_TimeInterval& sustainedRateWindow,
-                                bsls_Types::Uint64       peakRateLimit,
-                                const bdet_TimeInterval& peakRateWindow,
-                                const bdet_TimeInterval& currentTime)
+btes_RateLimiter::btes_RateLimiter(
+                                  bsls_Types::Uint64       sustainedRateLimit,
+                                  const bdet_TimeInterval& sustainedRateWindow,
+                                  bsls_Types::Uint64       peakRateLimit,
+                                  const bdet_TimeInterval& peakRateWindow,
+                                  const bdet_TimeInterval& currentTime)
 {
     BSLS_ASSERT_SAFE(sustainedRateLimit > 0);
     BSLS_ASSERT_SAFE(peakRateLimit      > 0);
@@ -25,12 +27,12 @@ btes_RateLimiter::btes_RateLimiter(bsls_Types::Uint64    sustainedRateLimit,
     BSLS_ASSERT_SAFE(sustainedRateWindow > bdet_TimeInterval(0));
     BSLS_ASSERT_SAFE(peakRateWindow      > bdet_TimeInterval(0));
 
-    BSLS_ASSERT_SAFE( peakRateLimit  == 1 || 
+    BSLS_ASSERT_SAFE( peakRateLimit  == 1 ||
           peakRateWindow <= btes_LeakyBucket::calculateDrainTime(ULLONG_MAX,
                                                                  peakRateLimit,
                                                                  true));
 
-    BSLS_ASSERT_SAFE( sustainedRateLimit == 1 || 
+    BSLS_ASSERT_SAFE( sustainedRateLimit == 1 ||
      peakRateWindow <= btes_LeakyBucket::calculateDrainTime(ULLONG_MAX,
                                                             sustainedRateLimit,
                                                             true));
@@ -55,9 +57,9 @@ btes_RateLimiter::~btes_RateLimiter()
 
     BSLS_ASSERT_SAFE(peakRateLimit()  == 1 ||
         peakRateWindow() <= btes_LeakyBucket::calculateDrainTime(
-                                                          ULLONG_MAX,
-                                                          peakRateLimit(),
-                                                          true));
+                                                               ULLONG_MAX,
+                                                               peakRateLimit(),
+                                                               true));
 
     BSLS_ASSERT_SAFE(sustainedRateLimit()  == 1 ||
         sustainedRateWindow() <= btes_LeakyBucket::calculateDrainTime(
@@ -121,7 +123,7 @@ bdet_TimeInterval btes_RateLimiter::calculateTimeToSubmit(
     return bsl::max(timeToSubmitPeak,timeToSubmitSustained);
 }
 
-}// closed enterprise namespace
+}  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
 // NOTICE:

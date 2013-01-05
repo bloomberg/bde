@@ -61,7 +61,6 @@ bdet_TimeInterval btes_LeakyBucket::calculateDrainTime(
                                                   bsls_Types::Uint64 drainRate,
                                                   bool               ceilFlag)
 {
-    BSLS_ASSERT_SAFE(drainRate > 0);
     BSLS_ASSERT_SAFE(drainRate > 1 || numUnits <= LLONG_MAX);
 
     const bsls_Types::Uint64 NANOUNITS_PER_UNIT  = 1000000000;
@@ -87,8 +86,6 @@ bdet_TimeInterval btes_LeakyBucket::calculateTimeWindow(
                                                   bsls_Types::Uint64 drainRate,
                                                   bsls_Types::Uint64 capacity)
 {
-    BSLS_ASSERT_SAFE(drainRate > 0);
-    BSLS_ASSERT_SAFE(capacity  > 0);
     BSLS_ASSERT_SAFE(drainRate > 1 || capacity <= LLONG_MAX);
 
     bdet_TimeInterval window = btes_LeakyBucket::calculateDrainTime(capacity,
@@ -106,9 +103,6 @@ bsls_Types::Uint64 btes_LeakyBucket::calculateCapacity(
                                            bsls_Types::Uint64       drainRate,
                                            const bdet_TimeInterval& timeWindow)
 {
-    BSLS_ASSERT_SAFE(drainRate  >  0);
-    BSLS_ASSERT_SAFE(timeWindow >  0);
-
     BSLS_ASSERT_SAFE (1 == drainRate ||
                       timeWindow <= btes_LeakyBucket::calculateDrainTime(
                                                                    ULLONG_MAX,
@@ -155,8 +149,8 @@ btes_LeakyBucket::btes_LeakyBucket(bsls_Types::Uint64       drainRate,
 , d_statSubmittedUnitsAtLastUpdate(0)
 , d_statisticsCollectionStartTime(currentTime)
 {
-    BSLS_ASSERT_SAFE(drainRate > 0);
-    BSLS_ASSERT_SAFE(capacity  > 0);
+    BSLS_ASSERT_SAFE(0 < d_drainRate);
+    BSLS_ASSERT_SAFE(0 < d_capacity);
 
     // Calculate the maximum interval between updates that would not cause the
     // number of units drained to overflow an unsigned 64-bit integral type.
@@ -176,8 +170,8 @@ btes_LeakyBucket::btes_LeakyBucket(bsls_Types::Uint64       drainRate,
 void btes_LeakyBucket::setRateAndCapacity(bsls_Types::Uint64 newRate,
                                           bsls_Types::Uint64 newCapacity)
 {
-    BSLS_ASSERT_SAFE(newRate     > 0);
-    BSLS_ASSERT_SAFE(newCapacity > 0);
+    BSLS_ASSERT_SAFE(0 < d_drainRate);
+    BSLS_ASSERT_SAFE(0 < d_capacity);
 
     d_drainRate  = newRate;
     d_capacity   = newCapacity;
@@ -243,9 +237,6 @@ void btes_LeakyBucket::updateState(const bdet_TimeInterval& currentTime)
 bool btes_LeakyBucket::wouldOverflow(bsls_Types::Uint64       numUnits,
                                      const bdet_TimeInterval& currentTime)
 {
-
-    BSLS_ASSERT_SAFE(numUnits > 0);
-
     updateState(currentTime);
 
     if (numUnits > ULLONG_MAX - d_unitsInBucket - d_unitsReserved ||

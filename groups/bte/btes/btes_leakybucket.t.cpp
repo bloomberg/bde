@@ -4,19 +4,12 @@
 
 #include <bcemt_threadutil.h>
 
-#include <bdema_managedptr.h>
-
-#include <bdet_timeinterval.h>
 #include <bdetu_systemtime.h>
-
-#include <bslma_defaultallocatorguard.h>
-#include <bslma_testallocator.h>
 
 #include <bsls_asserttest.h>
 
 #include <bsl_c_math.h>
 #include <bsl_iostream.h>
-#include <bsl_sstream.h>
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -404,6 +397,10 @@ static Ti testLB(
 //                                USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
+///Usage
+///-----
+// This section illustrates the intended use of this component.
+//
 ///Example 1: Controlling Network Traffic Generation
 ///-------------------------------------------------
 // In some systems, data is processed faster than they are consumed by I/O
@@ -414,10 +411,11 @@ static Ti testLB(
 //
 // Suppose we have a network interface capable of transferring at a rate of
 // 1024 byte/s and an application wants to transmit 5 KiB (5120 bytes) of data
-// over that network in 20 different 256-bytes data chunks.  We want to ensure
-// that the transfer uses on average less than 50% of the available bandwidth,
-// or 512 byte/s.  In this way, other clients can still reasonably transmit and
-// receive data using the same network interface.
+// over that network in 20 different 256-bytes data chunks.  We want to send
+// data over this interface and want to ensure the transmission uses on average
+// less than 50% of the available bandwidth, or 512 byte/s.  In this way, other
+// clients can still reasonably send and receive data using the same network
+// interface.
 //
 // Further suppose that we have a function, 'sendData', that transmits a
 // specified data buffer over that network interface:
@@ -472,7 +470,7 @@ int main(int argc, char *argv[])
 // First, we create a leaky bucket having a drain rate of 512 bytes/s, a
 // capacity of 2560 bytes, and a time origin set to the current time (as an
 // interval from unix epoch).  Note that 'unit', the unit of measurement for
-// leaky bucket, corresponds to 'byte' in this example.
+// leaky bucket, corresponds to 'byte' in this example:
 //..
   bsls_Types::Uint64 rate     = 512;  // bytes/second
   bsls_Types::Uint64 capacity = 2560; // bytes
@@ -480,7 +478,7 @@ int main(int argc, char *argv[])
   btes_LeakyBucket   bucket(rate, capacity, now);
 //..
 // Then, we define a data buffer to be sent, the size of each data chunk, and
-// the total size of the data to transmit.:
+// the total size of the data to transmit:
 //..
   char               buffer[5120];
   unsigned int       chunkSize  = 256;             // in bytes
@@ -511,8 +509,8 @@ int main(int argc, char *argv[])
       }
 //..
 // Finally, if submitting another byte will cause the leaky bucket to overflow,
-// then we wait until the submission will not overflow the leaky bucket by
-// waiting for an amount time returned by the 'calculateTimeToSubmit' method.
+// then we wait until the submission will be allowed by waiting for an amount
+// time returned by the 'calculateTimeToSubmit' method:
 //..
       else {
           bdet_TimeInterval timeToSubmit = bucket.calculateTimeToSubmit(now);
@@ -557,10 +555,8 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   void submit(unsigned int numOfUnits);
-        //   bool wouldOverflow(unsigned int             numOfUnits,
-        //                      const bdet_TimeInterval& currentTime);
-        //   bdet_TimeInterval calculateTimeToSubmit(
-        //                           const bdet_TimeInterval& currentTime);
+        //   bool wouldOverflow(numOfUnits, currentTime);
+        //   bdet_TimeInterval calculateTimeToSubmit(currentTime);
         // ----------------------------------------------------------------
 
         if (verbose) cout << endl
