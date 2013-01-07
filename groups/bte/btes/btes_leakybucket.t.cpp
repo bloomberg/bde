@@ -1762,8 +1762,8 @@ int main(int argc, char *argv[])
 
        //  LINE RATE1 CAPACITY   SUBMIT RSRV TCREATE  CHECK_INT  NSUBMT   EXP_U
        //  ---- ----- --------   ------ ---- -------  ---------- ------  ------
-          {L_, 1000,    500,      100,  50, Ti(0),   Ti(   0),     4,     400},
-          {L_, 1000,   1000,      300, 150, Ti(0),   Ti( 0.1),     3,     600},
+          {L_, 1000,    500,      100,  50, Ti(0),   Ti(   0),     5,     500},
+          {L_, 1000,   1000,      300, 150, Ti(0),   Ti( 0.1),     5,    1000},
           {L_,   10,     10,        1,   0, Ti(10),  Ti(0.01),     11,     10}
             };
             const int NUM_DATA = sizeof(DATA)/sizeof(*DATA);
@@ -1788,15 +1788,17 @@ int main(int argc, char *argv[])
                 unsigned int i = 0;
                 x.reserve(UNITS_TO_RESERVE);
 
-                while(!x.wouldOverflow(UNITS,currentCheck)) {
+                while(!x.wouldOverflow(1, currentCheck)) {
 
                     x.submit(UNITS);
                     currentCheck += CHECK_INTERVAL;
                     i++;
                 }
 
-                LOOP_ASSERT(LINE, EXPECTED_NUM_OF_SUBMITS == i);
-                LOOP_ASSERT(LINE, EXPECTED_FINAL_UNITS == x.unitsInBucket());
+                LOOP3_ASSERT(LINE, EXPECTED_NUM_OF_SUBMITS, i,
+                             EXPECTED_NUM_OF_SUBMITS == i);
+                LOOP3_ASSERT(LINE, EXPECTED_FINAL_UNITS, x.unitsInBucket(),
+                             EXPECTED_FINAL_UNITS == x.unitsInBucket());
             }
         }
       } break;

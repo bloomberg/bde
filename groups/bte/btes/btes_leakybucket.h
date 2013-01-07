@@ -24,7 +24,10 @@ BDES_IDENT("$Id: $")
 // bucket with a hole.  The maximum rate at which water will drain out the
 // bucket depends size of the hole, and not from the rate at which water is
 // poured into the bucket.  If more water is being poured into the bucket than
-// being drained, the bucket will eventually overflow.
+// being drained, the bucket will eventually overflow.  If a rate of resource
+// consumption is analgous to the rate of water being poured in to a bucket,
+// and water stop being poured whenever the bucket is about to overflow, the
+// average rate of resource consumption can be limited to the water drain rate.
 //
 // The behavior of a leaky bucket is determined by two properties: the capacity
 // and the drain rate.  The drain rate, measured in 'units/s', is the rate at
@@ -74,11 +77,10 @@ BDES_IDENT("$Id: $")
 // from the leaky bucket, making it empty.
 //
 // Unlike a real-life water bucket, units submitted to a leaky bucket doesn't
-// spillover after it has overflown, they are still held by the leaky bucket.
-// Being overflown is simply a state that the leaky bucket gets into when the
-// number units being held exceeds the capacity.  At any point, the leaky
-// bucket can be queried whether submitting a specified number of units would
-// cause it to overflow via the 'wouldOverflow' method.
+// spillover after it has overflown, these units are still contained in the
+// leaky bucket.  The leaky bucket can be queried whether submitting a
+// specified number of units would cause it to overflow via the 'wouldOverflow'
+// method.
 //
 // Figure 2 illustrates what happens if, in Figure 1, we had submitted 6 units
 // instead of 2 units at 't0 + 4s', which would have caused the leaky bucket to
@@ -112,7 +114,11 @@ BDES_IDENT("$Id: $")
 // using the 'submitReserved' method.  Unlike submitted units, reserved units
 // does *not* drain from the leaky bucket; like submitted units, reserved units
 // count toward the total number of units for the purposes of determining
-// whether a leaky bucket has overflown.
+// whether a leaky bucket has overflown.  Reserving units effectively decreases
+// the capacity of a leaky bucket.  Therefore, the time interval between
+// reserving units and submitting or canceling them should be kept as short as
+// possible.  For a practical example of using reserved units, please see
+// 'btes_reservationguard'.
 //
 // Figure 3 illustrate an example of how reserving units works in a leaky
 // bucket.
@@ -170,18 +176,18 @@ BDES_IDENT("$Id: $")
 //:   fixed drain rate, but the resource is actually consumed at different
 //:   rates over time.  This approximation still guarantees that the actual
 //:   consumption rate does not exceed the specified drain rate when amortized
-//:   over some configured period of time (determined by the capacity of the
-//:   bucket), but does not prevent the consumption rate from spiking above the
-//:   drain rate for short periods of time.
+//:   over some configured period of time (determined by the capacity and the
+//:   drain rate of the bucket), but does not prevent the consumption rate from
+//:   spiking above the drain rate for shorter periods of time (see section
+//:   Sliding Time-Window).
 //
 ///Sliding Time-Window
 ///-------------------
-// Leaky bucket's capacity and fixed drain rate allows for the approximate of
-// an sliding time-window.  As units are drained from the leaky bucket, this
-// sliding time-window slides forward in time to include newly submitted units
-// and exclude previously submitted ones.  The size of the window can be
-// derived from the leaky bucket's capacity and drain rate.  The
-// 'calculateTimeWindow' class method conveniently performs this calculation.
+// A sliding time-window can be approximated for a leaky bucket.  The sliding
+// time-window is the time period in which the average consumption rate is
+// guaranteed to be less than the drain rate.  This time period can be
+// calculated using the leaky bucket's capacity and drain rate, which can be
+// conveniently performed using the 'calculateTimeWindow' class method.
 //
 ///Time Synchronization
 ///--------------------

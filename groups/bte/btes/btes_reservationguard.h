@@ -1,3 +1,4 @@
+// btes_reservationguard.h                                            -*-C++-*-
 #ifndef BTES_RESERVATIONGUARD
 #define BTES_RESERVATIONGUARD
 
@@ -25,92 +26,91 @@ BDES_IDENT("$Id: $")
 //  void submitReserved(bsls_Types::Uint64 numOfUnits);
 //  void cancelReserved(bsls_Types::Uint64 numOfUnits);
 //..
-// Note that 'btes_ReservationGuard' does not assume ownership of the external
-// rate controlling object.  Also note that objects of this guard type can not
-// be constructed with a null pointer to the guarded object.
+// Use 'btes_ReservationGuard' to ensure that reserved units will be correctly
+// returned to a rate controlling object in a programming scope.
 //
-///Thread Safety
-///-------------
-// 'btes_reservationguard' is *const* *thread-safe*.
+// Note that 'btes_ReservationGuard' does not assume ownership of the rate
+// controlling object.
 //
 ///Usage
 ///-----
 // This section illustrates the intended use of this component.
 //
-// Use this component to ensure that in the event of an exception or exit from
-// any point in a given scope the reserved units, that are remaining unused
-// will be correctly returned to the object, controlling the consumption of a
-// resource.
-//
 ///Example 1: Guarding units reservation in operations with btes_LeakyBucket
 ///-------------------------------------------------------------------------
-// Imagine the case in which we are trying to limit network bandwidth usage
-// and control traffic generation, using a 'btes_LeakyBucket' object.
-// Suppose that we have a function 'sendData', that transmits data contained
-// in a buffer over said network interface. In certain case this function may
-// be able to send only a part of required data block. It may also generate
-// exceptions:
+// Suppose that we are limiting the rate of network traffic generation using a
+// 'btes_LeakyBucket' object.  We send data buffer over a network interface
+// using the 'mySendData' function:
 //..
 //  bsls_Types::Uint64 mySendData(size_t dataSize);
-//      // Try to send a specified 'dataSize' amount of data over the network
-//      // return the amount of data, that was actually sent.
-//      // Note that this function throws an exception, if a network failure
-//      // is detected.
+//      // Send a specified 'dataSize' amount of data over the network.  Return
+//      // the amount of data actually sent.  Throw an exception if a network
+//      // failure is detected.
 //..
-// First we define the size of each data chunk, and the total size of the data
-// to transmit:
+// Notice that the 'mySendData' function may throw an exception; therefore, we
+// should wait until 'mySendData' returns before indicating the amount of data
+// sent to the leaky bucket.
+//
+// Further suppose that multiple threads are sending network data and sharing
+// the same leaky bucket.  If every thread simply checks for overflowing of the
+// leaky bucket, send data, and then submit to the leaky bucket, then the rate
+// of data usage may exceed the limits imposed by the leaky bucket due to race
+// conditions.  We can avoid the this issue by reserving the amount of data
+// immediately after checking whether the leaky bucket has overflown and submit
+// the reserved amount after the data has been sent.  However, this process
+// could lead to the loss of the reserved units (effectively decreasing the
+// leaky bucket's capacity) if 'mySendData' throws an exception.
+// 'btes_ReservationGuard' is designed to resolve this issue.
+//
+// First, we define the size of each data chunk and the total size of the data
+// to send:
 //..
 //  const bsls_Types::Uint64 CHUNK_SIZE = 256;
 //  bsls_Types::Uint64 bytesSent        = 0;
-//  bsls_Types::Uint64 sizeOfData       = 10 * 1024; // in bytes
+//  bsls_Types::Uint64 totalSize        = 10 * 1024; // in bytes
 //..
-// Next, we create a 'btes_LeakyBucket' object having the required parameters:
+// Then, we create a 'btes_LeakyBucket' object to limit the rate of data
+// transmission:
 //..
 //  bsls_Types::Uint64 rate     = 512;
 //  bsls_Types::Uint64 capacity = 1536;
+//  bdet_TimeInterval  now       = bdetu_SystemTime::now();
+//  btes_LeakyBucket   bucket(rate, capacity, now);
 //..
+// Next, we send the chunks of data using a loop.  For each iteration, we check
+// whether submitting another byte would cause the leaky bucket to overflow:
 //..
-//  bdet_TimeInterval now = bdetu_SystemTime::now();
-//  btes_LeakyBucket  bucket(rate, capacity, now);
-//..
-//  Then we define a loop in which we test:
-//..
-//  while (bytesSent < sizeOfData) {
+//  while (bytesSent < totalSize) {
 //
 //      now = bdetu_SystemTime::now();
-//..
-// Now, for each iteration we check whether submitting another chunk into the
-// bucket would cause overflow:
-//..
 //      if (!bucket.wouldOverflow(CHUNK_SIZE,now)) {
 //..
-// If sending data is allowed, we reserve units in the leaky bucket for one
-// data chunk.  We create a 'btes_ReservationGuard' object, specifying the
-// 'btes_LeakyBucket' object, in which we want to reserve units and the
-// number of units, we want to reserve:
+// Now, if the leaky bucket would not overflow, we create a
+// 'btes_ReservationGuard' object to reserve the amount of data to be sent:
 //..
 //          btes_ReservationGuard<btes_LeakyBucket> guard(&bucket,
 //                                                        CHUNK_SIZE);
 //..
-// Next, we are trying to send data chunk over the network and submit the
-// number of units corresponding to the amount of data that was actually sent:
+// Then, we use the 'mySendData' function to send the data chunk over the
+// network.  After the data had been sent, we submit the amount of reserved
+// data that was actually sent:
 //..
 //          bsls_Types::Uint64 result;
 //          result = mySendData(CHUNK_SIZE);
 //          bytesSent += result;
 //          guard.submitReserved(result);
 //..
-// We do not care about the units that possibly remained unused, because they
-// will be cancelled automatically, when 'guard' goes out of scope and is
-// destroyed. Note that if 'mySendData' throws an exception, all units will be
-// also returned to the 'leakyBucket' object.
+// Note that we do not have manually cancel any remaining units reserved by the
+// 'btes_ReservationGuard' object either because 'mySendData' threw an
+// exception, or the data was only partially sent, because when the guard
+// object goes out of scope, all remaining reserved units will be automatically
+// cancelled.
 //..
 //      }
 //..
-// In case submitting the data chunk would cause overflow, we invoke
-// the 'calculateTimeToSubmit' method to determine how much time we need to
-// wait before submitting the data chunk without overflowing the bucket.
-// We round up the number of microseconds in time interval:
+// Finally, if submitting another byte will cause the leaky bucket to overflow,
+// then we wait until the submission will be allowed by waiting for an amount
+// time returned by the 'calculateTimeToSubmit' method:
 //..
 //      else {
 //
@@ -120,13 +120,14 @@ BDES_IDENT("$Id: $")
 //          bcemt_ThreadUtil::microSleep(uS);
 //      }
 //  }
+//..
 
-#ifndef INCLUDED_BDET_TIMEINTERVAL
-#include <bdet_timeinterval.h>
+#ifndef INCLUDED_BTESCM_VERSION
+#include <btescm_version.h>
 #endif
 
-#ifndef INCLUDED_BTES_LEAKYBUCKET
-#include <btes_leakybucket.h>
+#ifndef INCLUDED_BSLS_ASSERTTEST
+#include <bsls_asserttest.h>
 #endif
 
 #ifndef INCLUDED_BSLS_TYPES
@@ -142,8 +143,7 @@ namespace BloombergLP {
 template<class TYPE>
 class btes_ReservationGuard {
     // This class template implements a proctor for reserving and cancelling
-    // units, representing resource consumption in the rate controlling
-    // objects.
+    // units in a rate controlling object.
     //
     // This class:
     //: o is *exception* *neutral* (agnostic)
@@ -151,51 +151,50 @@ class btes_ReservationGuard {
     // For terminology see 'bsldoc_glossary'.
 
     // DATA
-    TYPE                  *d_reserve_p;    // Pointer to the object, units are
-                                        // reserved in.
+    TYPE                  *d_rateController_p;  // Pointer to the rate
+                                                // controlling object in which
+                                                // the units are reserved.
 
-    bsls_Types::Uint64 d_unitsReserved; // Number of units reserved by this
-                                        // 'btes_ReservationGuard' instance.
+    bsls_Types::Uint64     d_unitsReserved;     // Number of units reserved by
+                                                // this object.
 
+  private:
     // NOT IMPLEMENTED
     btes_ReservationGuard();
     btes_ReservationGuard& operator =(const btes_ReservationGuard<TYPE>&);
     btes_ReservationGuard(const btes_ReservationGuard<TYPE>&);
 
-    public:
-
+  public:
     // CREATORS
-    btes_ReservationGuard(TYPE* rateLimiter, bsls_Types::Uint64 numOfUnits);
-        // Create a 'btes_ReservationGuard' object, guarding the specified
-        // 'rateLimiter' and reserving the specified 'numOfUnits'.
+    btes_ReservationGuard(TYPE* rateController, bsls_Types::Uint64 numUnits);
+        // Create a 'btes_ReservationGuard' object guarding the specified
+        // 'rateController' and reserving the specified 'numUnits'.
 
     ~btes_ReservationGuard();
-        // Destroy this object. Invoke the 'cancelReserved' method for the
-        // remaining 'unitsReserved' on the object under management by this
-        // proctor.
+        // Destroy this object.  Invoke the 'cancelReserved' method for the
+        // remaining remaining units reserved by this proctor.
 
     // MANIPULATORS
-    void submitReserved(bsls_Types::Uint64 numOfUnits);
-        // Submit the specified 'numOfUnits' from the reserve of the guarded
-        // object.  Subtract the 'numOfUnits' from the number of
-        // 'unitsReserved' and invoke the 'submitReserved' method on the
-        // guarded object for 'numOfUnits'.  The behavior is undefined unless
-        // 'numOfUnits <= unitsReserved()'.
+    void submitReserved(bsls_Types::Uint64 numUnits);
+        // Submit the specified 'numUnits' from the reserve units guarded by
+        // this object.  After this operation, the number of reserved units
+        // guarded by this object will be reduced by 'numUnits'.  The behavior
+        // is undefined unless 'numUnits <= unitsReserved()'.
 
-    void cancelReserved(bsls_Types::Uint64 numOfUnits);
-        // Cancel the specified 'numOfUnits' from the reserve of the guarded
-        // object.  Subtract the 'numOfUnits' from 'unitsReserved' and invoke
-        // the 'cancelReserved' method on the guarded object for
-        // 'numOfUnits'.  The behavior is undefined unless
-        // 'numOfUnits <= unitsReserved()'.
+    void cancelReserved(bsls_Types::Uint64 numUnits);
+        // Cancel the specified 'numUnits' from the reserve units guarded by
+        // this object.  Subtract the 'numUnits' from 'unitsReserved' and
+        // invoke the 'cancelReserved' method on the guarded object for
+        // 'numUnits'.  After this operation, the number of reserved units
+        // guarded by this object will be reduced by 'numUnits'.  The behavior
+        // is undefined unless 'numUnits <= unitsReserved()'.
 
     // ACCESSORS
     bsls_Types::Uint64 unitsReserved() const;
-        // Return the number of units that are currently reserved by this
-        // 'btes_ReservationGuard' instance.
+        // Return the number of units reserved by this object.
 
     TYPE *ptr() const;
-        // Return pointer to the guarded object
+        // Return a pointer to the rate controlling object used by this object.
 };
 
 // ============================================================================
@@ -209,22 +208,23 @@ class btes_ReservationGuard {
 // CREATORS
 template <class TYPE>
 inline
-btes_ReservationGuard<TYPE>::btes_ReservationGuard(TYPE*                 reserve,
-                                                bsls_Types::Uint64 numOfUnits)
+btes_ReservationGuard<TYPE>::btes_ReservationGuard(
+                                             TYPE*              rateController,
+                                             bsls_Types::Uint64 numUnits)
 {
-    BSLS_ASSERT_SAFE(0 != reserve);
+    BSLS_ASSERT_SAFE(0 != rateController);
 
-    d_reserve_p     = reserve;
-    d_unitsReserved = numOfUnits;
+    d_rateController_p = rateController;
+    d_unitsReserved    = numUnits;
 
-    d_reserve_p->reserve(numOfUnits);
+    d_rateController_p->reserve(numUnits);
 }
 
 template <class TYPE>
 inline
 btes_ReservationGuard<TYPE>::~btes_ReservationGuard()
 {
-    d_reserve_p->cancelReserved(d_unitsReserved);
+    d_rateController_p->cancelReserved(d_unitsReserved);
 }
 
 // ACCESSORS
@@ -239,39 +239,39 @@ template <class TYPE>
 inline
 TYPE *btes_ReservationGuard<TYPE>::ptr() const
 {
-    return d_reserve_p;
+    return d_rateController_p;
 }
 
 // MANIPULATORS
 template <class TYPE>
 inline
-void btes_ReservationGuard<TYPE>::cancelReserved(bsls_Types::Uint64 numOfUnits)
+void btes_ReservationGuard<TYPE>::cancelReserved(bsls_Types::Uint64 numUnits)
 {
-    BSLS_ASSERT_SAFE(numOfUnits <= d_unitsReserved);
+    BSLS_ASSERT_SAFE(numUnits <= d_unitsReserved);
 
-    d_reserve_p->cancelReserved(numOfUnits);
-    d_unitsReserved -= numOfUnits;
+    d_rateController_p->cancelReserved(numUnits);
+    d_unitsReserved -= numUnits;
 }
 
 template <class TYPE>
 inline
-void btes_ReservationGuard<TYPE>::submitReserved(bsls_Types::Uint64 numOfUnits)
+void btes_ReservationGuard<TYPE>::submitReserved(bsls_Types::Uint64 numUnits)
 {
-    BSLS_ASSERT_SAFE(numOfUnits <= d_unitsReserved);
+    BSLS_ASSERT_SAFE(numUnits <= d_unitsReserved);
 
-    d_reserve_p->submitReserved(numOfUnits);
-    d_unitsReserved -= numOfUnits;
+    d_rateController_p->submitReserved(numUnits);
+    d_unitsReserved -= numUnits;
 }
 
-}  // closed enterprise namespace
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2012
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

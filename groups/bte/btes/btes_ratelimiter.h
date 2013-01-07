@@ -130,11 +130,18 @@ BDES_IDENT("$Id: $")
 ///-------------------------
 // Units can either be submitted or reserved.  Submitting units (using the
 // 'submit' method) indicates the consumption of those units and are added to
-// the moving-totals.  Units may be reserved using the 'reserve' method.
-// Reserved units permanently reside in the two moving-total of consumed units,
-// resulting the reduction in the effective capacities of the moving-totals.
-// Therefore, reserving units effectively shortens the time-window during which
-// the average sustained and peak rate are enforced.
+// the moving-totals.
+//
+// Units may be reserved using the 'reserve' method.  Reserved units may be
+// later submitted using the 'submitReserved' method or canceled using the
+// 'cancelReserved' method.  Reserved units permanently reside in the two
+// moving-total of consumed units, resulting the reduction in the effective
+// capacities of the moving-totals, until the reserved units are canceled or
+// submitted.  Reserving units effectively shortens the time-window during
+// which the average sustained and peak rate are enforced.  Therefore, the time
+// interval between reserving units and submitting or canceling them should be
+// kept as short as possible.  For a practical example of using reserved units,
+// please see 'btes_reservationguard'.
 //
 // Whether submitting more units would exceed the configured limits can be
 // determined using the 'wouldExceedBandwidth' method.  The estimated amount of
