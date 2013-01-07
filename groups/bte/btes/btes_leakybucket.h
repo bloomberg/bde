@@ -31,13 +31,13 @@ BDES_IDENT("$Id: $")
 //
 // The behavior of a leaky bucket is determined by two properties: the capacity
 // and the drain rate.  The drain rate, measured in 'units/s', is the rate at
-// which the associated resource is consumed (drained).  The capacity, measured
-// in 'units', is the maximum amount of the associated resource that the leaky
-// bucket can hold before it overflows.  'unit' is a generic unit of
-// measurement (e.g., bytes, number of messages, packets, liters, clock cycles,
-// etc.).  Note that the drain rate determines average rate of resource
-// consumption, while the capacity restricts the burst rate of resource
-// consumption.
+// which the resource is consumed (drained).  The capacity, measured in
+// 'units', is the maximum amount of the resource that the leaky bucket can
+// hold before it overflows.  'unit' is a generic unit of measurement (e.g.,
+// bytes, number of messages, packets, liters, clock cycles, etc.).  Note that
+// the drain rate determines average rate of resource consumption, while the
+// capacity restricts the time period over which the average actual rate of
+// resource assumption approaches the drain rate.
 //
 ///Adding Units
 ///------------
@@ -78,9 +78,7 @@ BDES_IDENT("$Id: $")
 //
 // Unlike a real-life water bucket, units submitted to a leaky bucket doesn't
 // spillover after it has overflown, these units are still contained in the
-// leaky bucket.  The leaky bucket can be queried whether submitting a
-// specified number of units would cause it to overflow via the 'wouldOverflow'
-// method.
+// leaky bucket.
 //
 // Figure 2 illustrates what happens if, in Figure 1, we had submitted 6 units
 // instead of 2 units at 't0 + 4s', which would have caused the leaky bucket to
@@ -148,19 +146,38 @@ BDES_IDENT("$Id: $")
 // have been drained from the bucket.  Finally, at 't0 + 10s', we cancel the
 // remaining reserved unit.
 //
+///Monitoring Resource Usage
+///-------------------------
+// The recommended usage of a leaky bucket is to first check whether 1 unit can
+// be added without causing the leaky bucket to overflow, and if so, consume
+// the desired amount of the resource.  Afterwards, submit the amount of
+// consumed resource to the leaky bucket.
+//
+///Checking for Overflow
+///- - - - - - - - - - -
+// A leaky bucket can be queried whether submitting a 1 more unit would cause
+// it to overflow via the 'wouldOverflow' method.  This method facilitates the
+// recommended usage of a leak bucket: check whether 1 more unit can be added
+// without causing a leaky bucket to overflow, and if so, consume the desired
+// amount of the resource (can be more than 1).  Compared to the alternative --
+// checking whether the desired amount of the resource can be added without
+// causing a leaky bucket to overflow before consuming that same amount of
+// resource -- the recommended usage may cause a spike in the rate of actual
+// consumption at the very beginning (which is often desirable) and is able to
+// sustain a long term average consumption rate that is closer to the drain
+// rate.
+//
 ///Modeling a Network Connection
 ///-----------------------------
 // One of the intended use cases of leaky bucket is limiting the rate at which
 // data is written on a network.  In this use case, the drain rate of the
-// bucket corresponds to the *ideal* maximum transfer rate that the client
+// bucket corresponds to the *ideal* maximum transmission rate that the client
 // wishes to *enforce* on their outgoing connection.  Clients may choose to
 // provide a value related to the physical limitations of their network or any
-// other arbitrary limit.  On the other hand, the capacity of a leaky bucket
-// does not map directly to the capacity of a water bucket with a hole, because
-// the leaky bucket doesn't actually manage the resource being modeled.
-// Instead, the capacity restricts the time period over which the actual rate
-// may exceed the configured drain rate of the leaky bucket (See
-// 'Approximations' section below).
+// other arbitrary limit.  The function of a leaky bucket's capacity is to
+// limit the time period in which the average actual transimission rate may
+// exceed the configured drain rate of the leaky bucket (see 'Approximations'
+// section and 'Sliding Time-Window' section).
 //
 ///Approximations
 ///--------------
@@ -178,8 +195,8 @@ BDES_IDENT("$Id: $")
 //:   consumption rate does not exceed the specified drain rate when amortized
 //:   over some configured period of time (determined by the capacity and the
 //:   drain rate of the bucket), but does not prevent the consumption rate from
-//:   spiking above the drain rate for shorter periods of time (see section
-//:   Sliding Time-Window).
+//:   spiking above the drain rate for shorter periods of time (see 'Sliding
+//:   Time-Window' section).
 //
 ///Sliding Time-Window
 ///-------------------
@@ -488,14 +505,13 @@ class btes_LeakyBucket {
         // Submit the specified 'numUnits' that were previously reserved.  The
         // behavior is undefined unless 'numUnits <= unitsReserved()'.
 
-    bool wouldOverflow(bsls_Types::Uint64       numUnits,
-                       const bdet_TimeInterval& currentTime);
+    bool wouldOverflow(const bdet_TimeInterval& currentTime);
         // Update the state of this this leaky bucket to the specified
-        // 'currentTime'.  Return 'true' if adding the specified 'numUnits' to
-        // this leaky bucket would cause the total number of units held by this
-        // leaky bucket to exceed its capacity, and 'false' otherwise.  Note
-        // that this method counts both submitted units and reserved units
-        // toward to the total number of units held by this leaky bucket .
+        // 'currentTime'.  Return 'true' if adding 1 more unit to this leaky
+        // bucket would cause the total number of units held by this leaky
+        // bucket to exceed its capacity, and 'false' otherwise.  Note that
+        // this method counts both submitted units and reserved units toward to
+        // the total number of units held by this leaky bucket .
 
     bdet_TimeInterval calculateTimeToSubmit(
                                          const bdet_TimeInterval& currentTime);

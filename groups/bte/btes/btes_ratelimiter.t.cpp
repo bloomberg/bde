@@ -298,24 +298,6 @@ int main(int argc, char *argv[])
 // using busy-waiting to better optimize for multi-threaded applications.
 //..
       } break;
-      case 13: {
-        // --------------------------------------------------------------------
-        // FUNCTIONALITY
-        //
-        // Concerns:
-        //   1 'btes_LeakyBucket' keeps specified load rate and allows
-        //     deviation from the specified rate spikes not bigger than
-        //     specified window size divided by test duration time.
-        //
-        // Plan:
-        //
-        // Testing:
-        //   void submit(unsigned int numOfUnits);
-        //   bool wouldExceedBandwidth(currentTime);
-        //   bdet_TimeInterval calculateTimeToSubmit(currentTime);
-        // --------------------------------------------------------------------
-      } break;
-
       case 12: {
         // --------------------------------------------------------------------
         // CLASS METHOD 'cancelReserved'
@@ -1622,3 +1604,12 @@ int main(int argc, char *argv[])
     }
     return testStatus;
 }
+
+// ----------------------------------------------------------------------------
+// NOTICE:
+//      Copyright (C) Bloomberg L.P., 2012
+//      All Rights Reserved.
+//      Property of Bloomberg L.P.  (BLP)
+//      This software is made available solely pursuant to the
+//      terms of a BLP license agreement which governs its use.
+// ----------------------------- END-OF-FILE ----------------------------------

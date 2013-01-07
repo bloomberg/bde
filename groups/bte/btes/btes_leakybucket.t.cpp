@@ -56,7 +56,7 @@ using namespace bsl;
 // [ 6] void submit(bsls_Types::Uint64 numOfUnits);
 // [ 6] void reserve(bsls_Types::Uint64 numOfUnits);
 // [ 8] void updateState(const bdet_TimeInterval& currentTime);
-// [ 9] bool wouldOverflow(numOfUnits, currentTime);
+// [ 9] bool wouldOverflow(currentTime);
 // [11] void submitReserved(bsls_Types::Unit64 numOfUnits);
 // [11] void cancelReserved(bsls_Types::Unit64 numOfUnits);
 // [13] void resetStatistics();
@@ -124,14 +124,12 @@ class mock_LB {
     void submit(bsls_Types::Uint64 numOfUnits);
         // Add the specified 'numOfUnits' to the 'unitsInBucket' counter.
 
-    bool wouldOverflow(bsls_Types::Uint64 numOfUnits,
-                       bdet_TimeInterval currentTime);
-        // Check whether submitting the specified 'numOfUnits' at the specified
-        // 'currentTime' would cause overflow.  Return 'false' if submitting
-        // units is allowed and 'true' otherwise.  Note that actually,
-        // 'mock_LB' does not care about the capacity and simply allows
-        // submitting if the time passed since last check exceeds the specified
-        // 'submitInterval' and forbids submitting otherwise.
+    bool wouldOverflow(bdet_TimeInterval currentTime);
+        // Return whether submitting 1 more unit at the specified 'currentTime'
+        // would cause this object overflow.  Note that actually, 'mock_LB'
+        // does not care about the capacity and simply allows submitting if the
+        // time passed since last check exceeds the specified 'submitInterval'
+        // and forbids submitting otherwise.
 
     bdet_TimeInterval calculateTimeToSubmit(bdet_TimeInterval currentTime);
         // Return the time interval that should pass until it will be possible
@@ -205,11 +203,8 @@ void mock_LB::submit(bsls_Types::Uint64 numOfUnits)
 }
 
 inline
-bool mock_LB::wouldOverflow(bsls_Types::Uint64 numOfUnits,
-                           bdet_TimeInterval currentTime)
+bool mock_LB::wouldOverflow(bdet_TimeInterval currentTime)
 {
-    (void)(numOfUnits);
-
     bdet_TimeInterval delta = currentTime - d_lastUpdateTime;
 
     if (delta < d_submitInterval) {
@@ -365,7 +360,7 @@ static Ti testLB(
     while (dataSent < dataSize) {
         ++loops;
 
-        if (object.wouldOverflow(1, now)) {
+        if (object.wouldOverflow(now)) {
 
             // Query the rate controlling object, how long it should pass until
             // submitting more units is allowed.
@@ -500,7 +495,7 @@ int main(int argc, char *argv[])
   char *data = buffer;
   while (dataSent < totalSize) {
       now = bdetu_SystemTime::now();
-      if (!bucket.wouldOverflow(1, now)) {
+      if (!bucket.wouldOverflow(now)) {
           if (true == sendData(data, chunkSize)) {
               data += chunkSize;
               bucket.submit(chunkSize);
@@ -555,7 +550,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   void submit(unsigned int numOfUnits);
-        //   bool wouldOverflow(numOfUnits, currentTime);
+        //   bool wouldOverflow(currentTime);
         //   bdet_TimeInterval calculateTimeToSubmit(currentTime);
         // ----------------------------------------------------------------
 
@@ -952,7 +947,7 @@ int main(int argc, char *argv[])
             if (UNITS_TO_RESERVE < CAPACITY) {
                 LOOP_ASSERT(LINE,
                             false ==
-                                  x.wouldOverflow(1,CHECK_TIME+EXPECTED_WAIT));
+                                  x.wouldOverflow(CHECK_TIME + EXPECTED_WAIT));
             }
         }
       } break;
@@ -1117,7 +1112,7 @@ int main(int argc, char *argv[])
 
             LOOP_ASSERT(LINE, EXP_T == dT);
             LOOP_ASSERT(LINE, EXP_T == t);
-            LOOP_ASSERT(LINE, false == x.wouldOverflow(1, t));
+            LOOP_ASSERT(LINE, false == x.wouldOverflow(t));
         }
       } break;
       case 14: {
@@ -1735,7 +1730,7 @@ int main(int argc, char *argv[])
         //:     number of loop iterations.
         //
         // Testing:
-        //    bool wouldOverflow(numOfUnits, currentTime);
+        //    bool wouldOverflow(currentTime);
         //    void submit(bsls_Types::Unit64 numOfUnits);
         //    void reserve(bsls_Types::Unit64 numOfUnits);
         // --------------------------------------------------------------------
@@ -1788,7 +1783,7 @@ int main(int argc, char *argv[])
                 unsigned int i = 0;
                 x.reserve(UNITS_TO_RESERVE);
 
-                while(!x.wouldOverflow(1, currentCheck)) {
+                while(!x.wouldOverflow(currentCheck)) {
 
                     x.submit(UNITS);
                     currentCheck += CHECK_INTERVAL;
@@ -1951,37 +1946,11 @@ int main(int argc, char *argv[])
                 x.reserve(UNITS_TO_RESERVE);
 
                 LOOP_ASSERT(LINE,
-                            RESULT ==
-                                     x.wouldOverflow(CHECK_UNITS, CHECK_TIME));
+                            RESULT == x.wouldOverflow(CHECK_TIME));
                 LOOP_ASSERT(LINE, EXPECTED_UNITS    == x.unitsInBucket());
                 LOOP_ASSERT(LINE, EXPECTED_UPDATE   == x.lastUpdateTime());
                 LOOP_ASSERT(LINE, UNITS_TO_RESERVE  == x.unitsReserved());
             }
-        }
-
-        // C-6
-        if (verbose) cout << endl << "Negative Testing" <<endl;
-        {
-            bsls_AssertFailureHandlerGuard hG(bsls_AssertTest::failTestDriver);
-
-            Obj x(1000, 1000, Ti(0));
-            x.submit(1500);
-            Obj y(1000, 1000, Ti(0));
-            y.submit(500);
-
-            ASSERT_SAFE_FAIL(x.wouldOverflow(0,Ti(1)));
-            ASSERT_SAFE_FAIL(y.wouldOverflow(0,Ti(1)));
-            ASSERT_SAFE_FAIL(x.wouldOverflow(0,Ti(0)));
-            ASSERT_SAFE_FAIL(y.wouldOverflow(0,Ti(0)));
-            ASSERT_SAFE_FAIL(x.wouldOverflow(0,Ti(10)));
-            ASSERT_SAFE_FAIL(y.wouldOverflow(0,Ti(10)));
-
-            ASSERT_SAFE_PASS(x.wouldOverflow(1,Ti(1)));
-            ASSERT_SAFE_PASS(y.wouldOverflow(1,Ti(1)));
-            ASSERT_SAFE_PASS(x.wouldOverflow(1,Ti(0)));
-            ASSERT_SAFE_PASS(y.wouldOverflow(1,Ti(0)));
-            ASSERT_SAFE_PASS(x.wouldOverflow(1,Ti(10)));
-            ASSERT_SAFE_PASS(y.wouldOverflow(1,Ti(10)));
         }
       } break;
       case 8: {
@@ -2895,9 +2864,9 @@ int main(int argc, char *argv[])
         //: 5 Create a 'mock_LB' object using the value ctor and
         //:   perform steps, described in P-2..4.
         //:
-        //: 6 Verify the returned value of 'wouldOverflow' manipulator, invoked
-        //:   with a time interval, shorter than the 'submitInterval',
-        //:   specified during construction.  (C-7)
+        //: 6 Verify the returned value of 'wouldOverflow' manipulator invoked
+        //:   with a time interval shorter than the 'submitInterval' specified
+        //:   during construction.  (C-7)
         //:
         //: 7 Verify the returned value of 'calculateTimeToSubmit' manipulator,
         //:   invoked with a time interval, longer or equal to the
@@ -2949,7 +2918,7 @@ int main(int argc, char *argv[])
             ASSERT(1 == x.rate());
             ASSERT(1 == x.capacity());
 
-            ASSERT(false == x.wouldOverflow(1000, Ti(0)));
+            ASSERT(false == x.wouldOverflow(Ti(0)));
             ASSERT(Ti(0) == x.calculateTimeToSubmit(Ti(0)));
 
             // C-2
@@ -2964,11 +2933,11 @@ int main(int argc, char *argv[])
             ASSERT(1 == y.rate());
             ASSERT(1 == y.capacity());
 
-            ASSERT(        true == y.wouldOverflow(1000, Ti(0)));
+            ASSERT(        true == y.wouldOverflow(Ti(0)));
             ASSERT(Ti(0, 10000) == y.calculateTimeToSubmit(Ti(0)));
 
             ASSERT(Ti(0, 3000)  == y.calculateTimeToSubmit(Ti(0,7000)));
-            ASSERT(       false == y.wouldOverflow(1000, Ti(0, 10000)));
+            ASSERT(       false == y.wouldOverflow(Ti(0, 10000)));
 
             x.submit(1500);
             ASSERT(1500 == x.unitsInBucket());
@@ -3082,7 +3051,7 @@ int main(int argc, char *argv[])
         ASSERT(500 == x.unitsInBucket());
         ASSERT(250 == x.unitsReserved());
 
-        ASSERT(false == x.wouldOverflow(150,currentTime));
+        ASSERT(false == x.wouldOverflow(currentTime));
         ASSERT(Ti(0) == x.calculateTimeToSubmit(currentTime));
         x.submitReserved(250);
         x.submit(750);
@@ -3093,7 +3062,7 @@ int main(int argc, char *argv[])
         ASSERT(Ti(0, 501000000) == x.calculateTimeToSubmit(currentTime));
 
         currentTime.addMilliseconds(500);
-        ASSERT(true == x.wouldOverflow(1,currentTime));
+        ASSERT(true == x.wouldOverflow(currentTime));
 
         currentTime.addMilliseconds(100);
         x.updateState(currentTime);
@@ -3101,8 +3070,7 @@ int main(int argc, char *argv[])
 
         x.submit(100);
         ASSERT(1000 == x.unitsInBucket());
-      }
-        break;
+      } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
         testStatus = -1;
@@ -3114,3 +3082,13 @@ int main(int argc, char *argv[])
     }
     return testStatus;
 }
+
+// ----------------------------------------------------------------------------
+// NOTICE:
+//      Copyright (C) Bloomberg L.P., 2012
+//      All Rights Reserved.
+//      Property of Bloomberg L.P.  (BLP)
+//      This software is made available solely pursuant to the
+//      terms of a BLP license agreement which governs its use.
+// ----------------------------- END-OF-FILE ----------------------------------
+

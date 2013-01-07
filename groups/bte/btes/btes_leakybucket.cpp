@@ -234,13 +234,12 @@ void btes_LeakyBucket::updateState(const bdet_TimeInterval& currentTime)
     d_lastUpdateTime = currentTime;
 }
 
-bool btes_LeakyBucket::wouldOverflow(bsls_Types::Uint64       numUnits,
-                                     const bdet_TimeInterval& currentTime)
+bool btes_LeakyBucket::wouldOverflow(const bdet_TimeInterval& currentTime)
 {
     updateState(currentTime);
 
-    if (numUnits > ULLONG_MAX - d_unitsInBucket - d_unitsReserved ||
-        d_unitsInBucket + d_unitsReserved + numUnits > d_capacity) {
+    if (1 > ULLONG_MAX - d_unitsInBucket - d_unitsReserved ||
+        d_unitsInBucket + d_unitsReserved + 1 > d_capacity) {
 
         return true;                                                  // RETURN
     }
