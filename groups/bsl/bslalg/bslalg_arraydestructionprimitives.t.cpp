@@ -740,7 +740,7 @@ int main(int argc, char *argv[])
         //:    they are destroyed as expected.  (C-1)
         //
         // Testing:
-        //   void destroy(T *b, T *e, *a);
+        //   void destroy(T *dstB, T *dstE);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTesting 'destroy'\n");
