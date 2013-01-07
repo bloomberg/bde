@@ -1599,25 +1599,30 @@ int main(int argc, char *argv[])
         bslma_DefaultAllocatorGuard dag(&defaultAllocator);
 
         bcema_TestAllocator testAllocator;
-        baem_MetricsManager manager(&testAllocator);;
         {
-            ConcurrencyTest tester(10, &manager, &defaultAllocator);
-            tester.runTest();
+            baem_MetricsManager manager(&testAllocator);
+            {
+                ConcurrencyTest tester(10, &manager, &defaultAllocator);
+                tester.runTest();
+            }
         }
 
-        bcemt_Mutex lock;
-        bcema_SharedPtr<baem_Publisher> publisher
-            (new (testAllocator) LockingPublisher(&lock), 
-             &testAllocator);
-        manager.addGeneralPublisher(publisher);
-
-        LockAndModifyWorker worker(&lock, &manager);
-        worker.start();
         {
-            ConcurrencyTest tester(2, &manager, &defaultAllocator);
-            tester.runTest();
+            bcemt_Mutex lock;
+            bcema_SharedPtr<baem_Publisher> publisher
+                (new (testAllocator) LockingPublisher(&lock), 
+                 &testAllocator);
+            baem_MetricsManager manager(&testAllocator);
+            manager.addGeneralPublisher(publisher);
+            
+            LockAndModifyWorker worker(&lock, &manager);
+            worker.start();
+            {
+                ConcurrencyTest tester(2, &manager, &defaultAllocator);
+                tester.runTest();
+            }
+            worker.stop();
         }
-        worker.stop();
       } break;
       case 24: {
         // --------------------------------------------------------------------
