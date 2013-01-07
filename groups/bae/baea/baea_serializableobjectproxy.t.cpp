@@ -1125,7 +1125,7 @@ struct SequenceManipulator2 {
     }
 
     int operator() (baea_SerializableObjectProxy_NullableAdapter *object,
-                    const bdeat_AttributeInfo& info)
+                    const bdeat_AttributeInfo&                    info)
     {
         d_proxy = object->d_proxy_p;
         d_category = object->d_proxy_p->category();

@@ -272,11 +272,11 @@ class baea_SerializableObjectProxyUtil {
     static void toggleValueFn(void *object);
         // Toggle the null state of the specified 'object' (assumed to be of 
         // the parameterized 'NULLABLE' type), so that if it is currently 
-        // null, it is made non-null; and it is made null otherwise.  The 
-        // behavior is undefined unless 'NULLABLE' is an instantiation of 
-        // 'bdeut_NullableValue' or 'bdeut_NullableAllocatedValue', and 
-        // 'object' refers to a 'NULLABLE' object. Note that this method is 
-        // an implementation of
+        // null, it is made non-null; and it is made null otherwise.  
+        // 'NULLABLE' shall be an instantiation of 'bdeut_NullableValue' or
+        // 'bdeut_NullableAllocatedValue'.  The behavior is undefined unless
+        // 'object' is the address of a valid 'NULLABLE' object.  Note that
+        // this method is an implementation of
         // 'baea_SerializableObjectProxyFunctions::NullToggler'.
 
     template<typename NULLABLE>
@@ -331,13 +331,16 @@ class baea_SerializableObjectProxyUtil {
                             baea_SerializableObjectProxy    *proxy,
                             void                            *object,
                             const bdeat_SelectionInfo      **selectionInfoPtr);
-        // Configure the specified 'proxy' with the specified 'object' 
-        // (assumed to be of the parameterized 'CHOICE' type) and load the
-        // current selection to the specified 'selectInfoPtr'.  Return 0 on
-        // success, and a non-zero value otherwise.  This operation will not
-        // succeed if 'object' is an unselected Choice.  In the case of an
-        // error, 'proxy' and 'selectInfoPtr' are left in a valid but
-        // unspecified state.  Note that this is an implementation of 
+        // Configure the specified 'proxy' to represent the current selection
+        // of the specified Choice 'object' (assumed to be of the parameterized
+        // 'CHOICE'), and load, into the specified 'selectionInfoPtr', the
+        // address of the 'bdeat_SelectionInfo' for that selection.  
+        // Return 0 on success, and a non-zero value otherwise.  This operation
+        // will not succeed if 'object' is an unselected Choice.  In the case
+        // of an error, 'proxy' and 'selectInfoPtr' are left in a valid but
+        // unspecified state.  'CHOICE' shall be a 'bdeat' Choice type.  The 
+        // behavior is undefined unless 'object' is the address of a valid
+        // 'CHOICE' object.  Note that this is an implementation of 
         // 'baea_SerializableObjectProxyFunctions::SelectionLoader'.
 
     template<typename CHOICE>

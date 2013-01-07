@@ -251,7 +251,6 @@ void baea_SerializableObjectProxy::makeNull()
     if (0 != info.d_fetcher(d_object_p)) {
         info.d_nullToggler(d_object_p);
     }
-    // Otherwise, the value is already null; do nothing.
 }
 
 void baea_SerializableObjectProxy::makeValue()
@@ -261,8 +260,6 @@ void baea_SerializableObjectProxy::makeValue()
     if (0 == info.d_fetcher(d_object_p)) {
         info.d_nullToggler(d_object_p);
     }
-    // Otherwise, the value is already non-null, and this function doesn't
-    // need to do anything.
 }
 
 // 'load' implementations

@@ -453,9 +453,11 @@ struct baea_SerializableObjectProxyFunctions {
         // having the specified 'length'.
 
     typedef void (*NullToggler)(void *object);
-        // This 'typedef' is an alias for a function "toggles" the null state
-        // of the specified Nullable 'object': it will make the value 
-        // non-null if currently null, and null otherwise.  
+        // This 'typedef' is an alias for a function that toggles the null
+        // state of the specified Nullable 'object'.  If 'object' is a null
+        // value, the function sets 'object' to the (default) non-null value,
+        // and sets it to the null value otherwise.  it will make the value 
+        // non-null if currently null, and null otherwise.
 };
 
               // ====================================================
@@ -1355,7 +1357,7 @@ class baea_SerializableObjectProxy {
         // will be used to configure another 'baea_SerializableObjectProxy' to
         // represent the *contained* object within the nullable value;
         // the specified 'nullToggler' function will be used to toggle the 
-        // null state of the valuue; and the specified 'valueFetcher' function 
+        // null state of the value; and the specified 'valueFetcher' function 
         // will be used to return the address of the contained object (and 
         // return 0 if the value is null).  The behavior is undefined unless
         // 'object' is the address of an object of a type that is an 
