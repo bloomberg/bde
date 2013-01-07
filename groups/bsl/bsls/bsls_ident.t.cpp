@@ -16,7 +16,7 @@
 // This component does not have any easy way to do runtime checks.
 //
 //-----------------------------------------------------------------------------
-// [ 1] Breathing Test (nothing)
+// [ 1] BREATHING TEST
 //-----------------------------------------------------------------------------
 
 //==========================================================================
@@ -146,11 +146,13 @@ int main(int argc, char *argv[])
       case 1: {
         // --------------------------------------------------------------------
         // BREATHING TEST
-        //
-        // Concerns: That there is no real runtime test for this component.
+        //   Concerns: That there is no real runtime test for this component.
         //
         // Plan:
         //   Do nothing.
+	//
+	// Testing:
+	//   BREATHING TEST
         // --------------------------------------------------------------------
 
         if (verbose) std::cout << "\nBREATHING TEST"
