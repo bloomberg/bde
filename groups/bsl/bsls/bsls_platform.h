@@ -471,14 +471,9 @@ struct bsls_Platform_Assert;
         #if defined(__clang__)
             // Clang is GCC compatible, but sometimes we need to know about it
             #define BSLS_PLATFORM_CMP_CLANG 1
-
-            #if defined(__CLANG_GNUC_PATCHLEVEL__)
-                #define BSLS_PLATFORM_CMP_VERSION (__CLANG_GNUC__ * 10000 \
-                      + __CLANG_GNUC_MINOR__ * 100 + __CLANG_GNUC_PATCHLEVEL__)
-            #else
-                #define BSLS_PLATFORM_CMP_VERSION (__CLANG_GNUC__ * 10000 \
-                            + __CLANG_GNUC_MINOR__ * 100)
-            #endif
+            // We treat Clang as if it was GCC 4.4.0
+            #define BSLS_PLATFORM_CMP_VERSION (4 * 10000 \
+                            + 4 * 100)
         #else
             #if defined(__GNUC_PATCHLEVEL__)
                 #define BSLS_PLATFORM_CMP_VERSION (__GNUC__ * 10000 \

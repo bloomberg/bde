@@ -197,9 +197,6 @@
           [ 'OS == "mac"', {
             'defines_base': [
               '__unix',              # xcodebuild/clang does not define __unix
-              '__CLANG_GNUC__=4',
-              '__CLANG_GNUC_MINOR__=2',
-              '__CLANG_GNUC_PATCHLEVEL__=1',
             ],
             'cflags_abi_32=': [ 'i386' ],
             'cflags_abi_64=': [ 'x86_64' ],
