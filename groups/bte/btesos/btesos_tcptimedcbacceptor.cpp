@@ -704,7 +704,7 @@ int btesos_TcpTimedCbAcceptor::open(const bteso_IPv4Address& endpoint,
         d_serverSocket_p = NULL;
         return LISTEN_FAILED;
     }
-#ifndef BTESO_PLATFORM__WIN_SOCKETS
+#ifndef BTESO_PLATFORM_WIN_SOCKETS
     // Windows has a bug -- setting listening socket to non-blocking
     // mode will force subsequent 'accept' calls to return
     // WSAEWOULDBLOCK *even when connection is present*.

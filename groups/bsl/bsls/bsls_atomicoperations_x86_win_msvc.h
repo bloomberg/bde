@@ -2,33 +2,36 @@
 #ifndef INCLUDED_BSLS_ATOMICOPERATIONS_X86_WIN_MSVC
 #define INCLUDED_BSLS_ATOMICOPERATIONS_X86_WIN_MSVC
 
-//@PURPOSE: Provide implentations of atomic operations for X86/Windows.
+#ifndef INCLUDED_BSLS_IDENT
+#include <bsls_ident.h>
+#endif
+BSLS_IDENT("$Id: $")
+
+//@PURPOSE: Provide implementations of atomic operations for X86/MSVC/Windows.
 //
 //@CLASSES:
-//  bsls::AtomicOperations_X86_WIN_MSVC: implementation of atomics for
-//                                       X86/Windows
+//  bsls::AtomicOperations_X86_WIN_MSVC: atomics for X86/MSVC/Windows
 //
 //@AUTHOR: Alexei Zakharov (azakhar1)
 //
 //@DESCRIPTION: This component provides classes necessary to implement atomics
 // on the Windows X86 platform with MSVC compiler.  The classes are for private
 // use only.  See 'bsls_atomicoperations' and 'bsls_atomic' for the public
-// inteface to atomics.
-
-#ifndef INCLUDED_BSLS_IDENT
-#include <bsls_ident.h>
-#endif
-BSLS_IDENT("$Id: $")
-
-#ifndef INCLUDED_BSLS_TYPES
-#include <bsls_types.h>
-#endif
+// interface to atomics.
 
 #ifndef INCLUDED_BSLS_ATOMICOPERATIONS_DEFAULT
 #include <bsls_atomicoperations_default.h>
 #endif
 
-#if defined(BSLS_PLATFORM__CPU_X86) && defined(BSLS_PLATFORM__OS_WINDOWS)
+#ifndef INCLUDED_BSLS_PLATFORM
+#include <bsls_platform.h>
+#endif
+
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
+#endif
+
+#if defined(BSLS_PLATFORM_CPU_X86) && defined(BSLS_PLATFORM_CMP_MSVC)
 
 #include <intrin.h>
 
@@ -268,7 +271,7 @@ Types::Int64 AtomicOperations_X86_WIN_MSVC::
 
 }  // close enterprise namespace
 
-#endif  // X86 && WINDOWS
+#endif  // X86 && MSVC
 
 #endif
 

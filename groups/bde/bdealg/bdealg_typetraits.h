@@ -20,10 +20,6 @@ BDES_IDENT("$Id: $")
 //  bdealg_TypeTraitHasTrivialDefaultConstructor: has trivial default ctor
 //                          bdealg_TypeTraitPair: for 'bsl::pair'-like classes
 //            bdealg_TypeTraitUsesBdemaAllocator: uses 'bdema' allocators
-//                     bdealg_TypeTraitsGroupPod: POD trait
-//             bdealg_TypeTraitsGroupStlSequence: for STL sequence containers
-//              bdealg_TypeTraitsGroupStlOrdered: for STL ordered containers
-//            bdealg_TypeTraitsGroupStlUnordered: for STL unordered containers
 //
 //                             bdealg_TypeTraits: default trait computation
 //
@@ -55,15 +51,6 @@ BDES_IDENT("$Id: $")
 //..
 //  Entity                                    Description
 //  ------                                    -----------
-//  bdealg_TypeTraitNil                       The nil trait.  Types with no
-//                                            other traits have the nil trait.
-//
-//  bdealg_TypeTraits<T>                      Traits for type 'T'.  The general
-//                                            definition computes the nested
-//                                            and implied traits.  A user can
-//                                            specialize it to a combination of
-//                                            one or more of the following:
-//
 //  bdealg_TypeTraitBitwiseMoveable          (See the corresponding class-level
 //  bdealg_TypeTraitBitwiseCopyable                             documentation.)
 //  bdealg_TypeTraitBitwiseEqualityComparable
@@ -82,12 +69,6 @@ BDES_IDENT("$Id: $")
 //                                            whether the parameterized 'TYPE'
 //                                            possesses the parameterized
 //                                            'TRAIT'.
-//
-//  bdealg_PassthroughTrait<TYPE, TRAIT>      This macro selects the
-//                                            parameterized 'TRAIT' if the
-//                                            parameterized 'TYPE' possesses
-//                                            it, and a distinct and otherwise
-//                                            unused trait otherwise.
 //
 //  bdealg_SelectTrait<T, TRAIT1, ...>        This meta-function selects the
 //                                            first trait possessed by the
@@ -373,10 +354,6 @@ BDES_IDENT("$Id: $")
 #include <bslalg_hastrait.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_PASSTHROUGHTRAIT
-#include <bslalg_passthroughtrait.h>
-#endif
-
 #ifndef INCLUDED_BSLALG_SELECTTRAIT
 #include <bslalg_selecttrait.h>
 #endif
@@ -385,45 +362,13 @@ BDES_IDENT("$Id: $")
 #include <bslalg_typetraits.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITSGROUPPOD
-#include <bslalg_typetraitsgrouppod.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITSGROUPSTLSEQUENCE
-#include <bslalg_typetraitsgroupstlsequence.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITSGROUPSTLORDERED
-#include <bslalg_typetraitsgroupstlordered.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITSGROUPSTLUNORDERED
-#include <bslalg_typetraitsgroupstlunordered.h>
-#endif
-
 // The following were formerly guarded by 'BDE_DONT_ALLOW_TRANSITIVE_INCLUDES'.
 // However, it was deemed that one of the purposes of this header file is to
 // include these, and although 'bdealg' is DEPRECATED, unconditionally
 // providing these inclusions is the correct thing to do.
 
-#ifndef INCLUDED_BDEALG_TYPETRAITBITWISECOPYABLE
-#include <bdealg_typetraitbitwisecopyable.h>
-#endif
-
-#ifndef INCLUDED_BDEALG_TYPETRAITBITWISEEQUALITYCOMPARABLE
-#include <bdealg_typetraitbitwiseequalitycomparable.h>
-#endif
-
-#ifndef INCLUDED_BDEALG_TYPETRAITBITWISEMOVEABLE
-#include <bdealg_typetraitbitwisemoveable.h>
-#endif
-
 #ifndef INCLUDED_BDEALG_TYPETRAITHASPOINTERSEMANTICS
 #include <bdealg_typetraithaspointersemantics.h>
-#endif
-
-#ifndef INCLUDED_BDEALG_TYPETRAITHASSTLITERATORS
-#include <bdealg_typetraithasstliterators.h>
 #endif
 
 #ifndef INCLUDED_BDEALG_TYPETRAITHASTRIVIALDEFAULTCONSTRUCTOR
@@ -432,10 +377,6 @@ BDES_IDENT("$Id: $")
 
 #ifndef INCLUDED_BDEALG_TYPETRAITNIL
 #include <bdealg_typetraitnil.h>
-#endif
-
-#ifndef INCLUDED_BDEALG_TYPETRAITPAIR
-#include <bdealg_typetraitpair.h>
 #endif
 
 #ifndef INCLUDED_BDEALG_TYPETRAITUSESBDEMAALLOCATOR

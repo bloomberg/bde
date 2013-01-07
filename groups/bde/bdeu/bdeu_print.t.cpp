@@ -1148,7 +1148,7 @@ int main(int argc, char *argv[])
             ostrstream out(buf, sizeof buf);
 
             // test if 64-bit pointers or if value has only 32 bits
-            #if defined(BSLS_PLATFORM__CPU_64_BIT)
+            #if defined(BSLS_PLATFORM_CPU_64_BIT)
             {
                 void *p = (void *) ((((bsls_PlatformUtil::Int64)
                                         DATA[t].addr1) << 32) + DATA[t].addr2);
@@ -1163,7 +1163,7 @@ int main(int argc, char *argv[])
 
                 ASSERT(strcmp(buf, DATA[t].str) == 0);
             }
-            #else  // BSLS_PLATFORM__CPU_32_BIT
+            #else  // BSLS_PLATFORM_CPU_32_BIT
             if (0 == DATA[t].addr1) {
                 bdeu_Print::printPtr(out, (void *) DATA[t].addr2);
                 out << ends;

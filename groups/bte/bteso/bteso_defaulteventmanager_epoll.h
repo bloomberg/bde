@@ -291,20 +291,18 @@ BDES_IDENT("$Id: $")
 #include <bslfwd_bslma_allocator.h>
 #endif
 
-#if defined(BSLS_PLATFORM__OS_LINUX)
+#if defined(BSLS_PLATFORM_OS_LINUX)
 
 #ifndef INCLUDED_SYS_EPOLL
 #include <sys/epoll.h>
 #define INCLUDED_SYS_EPOLL
 #endif
 
-namespace BloombergLP {
+namespace bsl {
+template <> struct is_trivially_copyable<epoll_event> : true_type {};
+}
 
-template <>
-struct bslalg_TypeTraits<struct ::epoll_event> :
-                                        public bslalg_TypeTraitBitwiseCopyable
-{
-};
+namespace BloombergLP {
 
 class bdet_TimeInterval;
 class bteso_TimeMetrics;
@@ -495,7 +493,7 @@ bool bteso_DefaultEventManager<bteso_Platform::EPOLL>::
 
 }  // close namespace BloombergLP
 
-#endif // BSLS_PLATFORM__OS_LINUX
+#endif // BSLS_PLATFORM_OS_LINUX
 
 #endif
 

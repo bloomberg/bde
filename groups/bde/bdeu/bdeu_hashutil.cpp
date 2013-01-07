@@ -53,7 +53,7 @@ void mix1(unsigned int& a, unsigned int& b, unsigned int& c)
     c -= a;  c -= b;  c ^= (b >> 15);
 }
 
-#ifdef BSLS_PLATFORM__IS_LITTLE_ENDIAN
+#ifdef BSLS_PLATFORM_IS_LITTLE_ENDIAN
 static
 unsigned int reverse_hash1(const char *data, int length)
 {
@@ -218,7 +218,7 @@ unsigned int bdeu_HashUtil::hash2(const char *data, int length)
     return hash;
 }
 
-#ifdef BSLS_PLATFORM__IS_BIG_ENDIAN
+#ifdef BSLS_PLATFORM_IS_BIG_ENDIAN
   #define HASH1(KEY)  hash1((const char *)&KEY, sizeof KEY)
   #define HASH2(KEY)  hash2((const char *)&KEY, sizeof KEY)
 #else

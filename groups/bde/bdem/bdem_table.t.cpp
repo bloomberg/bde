@@ -575,7 +575,7 @@ static bdem_List                            fE20() {
 // Note: on Windows, the function pointers in bdem_Properties::d_intAttr
 // are 0x00000000 before entering main().  Consequently, the calls in
 // fA20() and fB20() to t.appendInt() cause a runtime exception.
-#ifndef BSLS_PLATFORM__CMP_MSVC
+#ifndef BSLS_PLATFORM_CMP_MSVC
 const  bdem_List                      A20 = fA20();
 const  bdem_List                      B20 = fB20();
 const  bdem_List                      C20 = fC20();
@@ -765,7 +765,7 @@ static bdem_Choice                              fE30() {
 // are 0x00000000 before entering main().  Consequently, the calls in
 // fAxx() and fBxx() cause a runtime exception.  Our workaround is to
 // initialize these constants at the start of main.
-#ifndef BSLS_PLATFORM__CMP_MSVC
+#ifndef BSLS_PLATFORM_CMP_MSVC
 const  bdem_Choice                               A30 = fA30();
 const  bdem_Choice                               B30 = fB30();
 const  bdem_Choice                               C30 = fC30();
@@ -859,7 +859,7 @@ static bdem_ChoiceArray                         fE31() {
 // are 0x00000000 before entering main().  Consequently, the calls in
 // fAxx() and fBxx() cause a runtime exception.  Our workaround is to
 // initialize these constants at the start of main.
-#ifndef BSLS_PLATFORM__CMP_MSVC
+#ifndef BSLS_PLATFORM_CMP_MSVC
 const  bdem_ChoiceArray                          A31 = fA31();
 const  bdem_ChoiceArray                          B31 = fB31();
 const  bdem_ChoiceArray                          C31 = fC31();
@@ -937,7 +937,7 @@ void loadReferenceA(bdem_List *result)
     mL.appendDateArray(A18);                    ASSERT(LEN + 19 == L.length());
     mL.appendTimeArray(A19);                    ASSERT(LEN + 20 == L.length());
 
-    #ifndef BSLS_PLATFORM__CMP_MSVC
+    #ifndef BSLS_PLATFORM_CMP_MSVC
     mL.appendList(A20);                         ASSERT(LEN + 21 == L.length());
     #else
     mL.appendList(fA20());                      ASSERT(LEN + 21 == L.length());
@@ -952,7 +952,7 @@ void loadReferenceA(bdem_List *result)
     mL.appendDatetimeTzArray(A27);              ASSERT(LEN + 28 == L.length());
     mL.appendDateTzArray(A28);                  ASSERT(LEN + 29 == L.length());
     mL.appendTimeTzArray(A29);                  ASSERT(LEN + 30 == L.length());
-    #ifndef BSLS_PLATFORM__CMP_MSVC
+    #ifndef BSLS_PLATFORM_CMP_MSVC
     mL.appendChoice(A30);                       ASSERT(LEN + 31 == L.length());
     mL.appendChoiceArray(A31);                  ASSERT(LEN + 32 == L.length());
     #else
@@ -994,7 +994,7 @@ void loadReferenceB(bdem_List *result)
     mL.appendDateArray(B18);                    ASSERT(LEN + 19 == L.length());
     mL.appendTimeArray(B19);                    ASSERT(LEN + 20 == L.length());
 
-    #ifndef BSLS_PLATFORM__CMP_MSVC
+    #ifndef BSLS_PLATFORM_CMP_MSVC
     mL.appendList(B20);                         ASSERT(LEN + 21 == L.length());
     #else
     mL.appendList(fB20());                      ASSERT(LEN + 21 == L.length());
@@ -1009,7 +1009,7 @@ void loadReferenceB(bdem_List *result)
     mL.appendDatetimeTzArray(B27);              ASSERT(LEN + 28 == L.length());
     mL.appendDateTzArray(B28);                  ASSERT(LEN + 29 == L.length());
     mL.appendTimeTzArray(B29);                  ASSERT(LEN + 30 == L.length());
-    #ifndef BSLS_PLATFORM__CMP_MSVC
+    #ifndef BSLS_PLATFORM_CMP_MSVC
     mL.appendChoice(B30);                       ASSERT(LEN + 31 == L.length());
     mL.appendChoiceArray(B31);                  ASSERT(LEN + 32 == L.length());
     #else
@@ -1051,7 +1051,7 @@ void loadReferenceC(bdem_List *result)
     mL.appendDateArray(C18);                    ASSERT(LEN + 19 == L.length());
     mL.appendTimeArray(C19);                    ASSERT(LEN + 20 == L.length());
 
-    #ifndef BSLS_PLATFORM__CMP_MSVC
+    #ifndef BSLS_PLATFORM_CMP_MSVC
     mL.appendList(C20);                         ASSERT(LEN + 21 == L.length());
     #else
     mL.appendList(fC20());                      ASSERT(LEN + 21 == L.length());
@@ -1066,7 +1066,7 @@ void loadReferenceC(bdem_List *result)
     mL.appendDatetimeTzArray(C27);              ASSERT(LEN + 28 == L.length());
     mL.appendDateTzArray(C28);                  ASSERT(LEN + 29 == L.length());
     mL.appendTimeTzArray(C29);                  ASSERT(LEN + 30 == L.length());
-    #ifndef BSLS_PLATFORM__CMP_MSVC
+    #ifndef BSLS_PLATFORM_CMP_MSVC
     mL.appendChoice(C30);                       ASSERT(LEN + 31 == L.length());
     mL.appendChoiceArray(C31);                  ASSERT(LEN + 32 == L.length());
     #else
@@ -1108,7 +1108,7 @@ void loadReferenceD(bdem_List *result)
     mL.appendDateArray(D18);                    ASSERT(LEN + 19 == L.length());
     mL.appendTimeArray(D19);                    ASSERT(LEN + 20 == L.length());
 
-    #ifndef BSLS_PLATFORM__CMP_MSVC
+    #ifndef BSLS_PLATFORM_CMP_MSVC
     mL.appendList(D20);                         ASSERT(LEN + 21 == L.length());
     #else
     mL.appendList(fD20());                      ASSERT(LEN + 21 == L.length());
@@ -1123,7 +1123,7 @@ void loadReferenceD(bdem_List *result)
     mL.appendDatetimeTzArray(D27);              ASSERT(LEN + 28 == L.length());
     mL.appendDateTzArray(D28);                  ASSERT(LEN + 29 == L.length());
     mL.appendTimeTzArray(D29);                  ASSERT(LEN + 30 == L.length());
-    #ifndef BSLS_PLATFORM__CMP_MSVC
+    #ifndef BSLS_PLATFORM_CMP_MSVC
     mL.appendChoice(D30);                       ASSERT(LEN + 31 == L.length());
     mL.appendChoiceArray(D31);                  ASSERT(LEN + 32 == L.length());
     #else
@@ -1165,7 +1165,7 @@ void loadReferenceE(bdem_List *result)
     mL.appendDateArray(E18);                    ASSERT(LEN + 19 == L.length());
     mL.appendTimeArray(E19);                    ASSERT(LEN + 20 == L.length());
 
-    #ifndef BSLS_PLATFORM__CMP_MSVC
+    #ifndef BSLS_PLATFORM_CMP_MSVC
     mL.appendList(E20);                         ASSERT(LEN + 21 == L.length());
     #else
     mL.appendList(fE20());                      ASSERT(LEN + 21 == L.length());
@@ -1180,7 +1180,7 @@ void loadReferenceE(bdem_List *result)
     mL.appendDatetimeTzArray(E27);              ASSERT(LEN + 28 == L.length());
     mL.appendDateTzArray(E28);                  ASSERT(LEN + 29 == L.length());
     mL.appendTimeTzArray(E29);                  ASSERT(LEN + 30 == L.length());
-    #ifndef BSLS_PLATFORM__CMP_MSVC
+    #ifndef BSLS_PLATFORM_CMP_MSVC
     mL.appendChoice(E30);                       ASSERT(LEN + 31 == L.length());
     mL.appendChoiceArray(E31);                  ASSERT(LEN + 32 == L.length());
     #else
@@ -1537,7 +1537,7 @@ class BdexHelper {
 //                              TEST CASES
 //-----------------------------------------------------------------------------
 
-#ifdef BSLS_PLATFORM__CMP_MSVC
+#ifdef BSLS_PLATFORM_CMP_MSVC
 #define DECLARE_MAIN_VARIABLES                                                \
     const bdem_List        A20 = fA20();                                      \
     const bdem_List        B20 = fB20();                                      \

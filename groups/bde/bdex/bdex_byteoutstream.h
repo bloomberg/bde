@@ -254,7 +254,7 @@ class bdex_ByteOutStream {
         //
         // Write the least significant byte of 'version'.
 
-// TBD #if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+// TBD #ifndef BDE_OMIT_DEPRECATED
 
     template <typename TYPE>
     bdex_ByteOutStream& put(const TYPE& variable);
@@ -265,7 +265,7 @@ class bdex_ByteOutStream {
         // If not, the 'bdex_OutStreamFunctions::streamOutVersionAndObject'
         // is called.
 
-// TBD #endif
+// TBD #endif  // BDE_OMIT_DEPRECATED
 
                         // *** scalar integer values ***
 
@@ -622,7 +622,7 @@ bsl::ostream& operator<<(bsl::ostream&             stream,
     // Write the specified 'object' to the specified output 'stream' in some
     // reasonable (multi-line) format, and return a reference to 'stream'.
 
-// TBD #if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+// TBD #ifndef BDE_OMIT_DEPRECATED
 
 template <typename OBJECT>
 inline
@@ -638,7 +638,7 @@ bdex_ByteOutStream& operator<<(bdex_ByteOutStream& stream,
     // which case this operator calls the appropriate 'put' method from this
     // component.
 
-// TBD #endif
+// TBD #endif  // BDE_OMIT_DEPRECATED
 
 // ===========================================================================
 //                      INLINE FUNCTION DEFINITIONS
@@ -1089,7 +1089,7 @@ bdex_ByteOutStream::putArrayFloat32(const float *array, int count)
     return *this;
 }
 
-// TBD #if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+// TBD #ifndef BDE_OMIT_DEPRECATED
 
 template <typename TYPE>
 inline
@@ -1099,7 +1099,7 @@ bdex_ByteOutStream& bdex_ByteOutStream::put(const TYPE& variable)
                                                                 variable);
 }
 
-// TBD #endif
+// TBD #endif  // BDE_OMIT_DEPRECATED
 
 // ACCESSORS
 inline
@@ -1122,7 +1122,7 @@ int bdex_ByteOutStream::length() const
 
 // FREE OPERATORS
 
-// TBD #if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+// TBD #ifndef BDE_OMIT_DEPRECATED
 
 template <typename OBJECT>
 inline
@@ -1132,7 +1132,7 @@ bdex_ByteOutStream& operator<<(bdex_ByteOutStream& stream,
     return stream.put(object);
 }
 
-// TBD #endif
+// TBD #endif  // BDE_OMIT_DEPRECATED
 
 }  // close namespace BloombergLP
 

@@ -6,6 +6,7 @@
 #include <bsl_iostream.h>
 
 #include <bsl_limits.h>
+#include <bsl_climits.h>
 #include <bsl_cstdio.h>      // printf()
 #include <bsl_cstdlib.h>     // atoi()
 #include <bsl_cstring.h>

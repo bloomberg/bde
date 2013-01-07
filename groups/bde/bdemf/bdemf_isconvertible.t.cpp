@@ -13,11 +13,11 @@
 
 // These 4 compilers cannot handle conversions to/from cv-qualified types
 // in all cases.
-#if defined(BSLS_PLATFORM__CMP_SUN)  \
- || defined(BSLS_PLATFORM__CMP_MSVC) \
- || defined(BSLS_PLATFORM__CMP_HP)   \
- || defined(BSLS_PLATFORM__CMP_HP)   \
- || defined(BSLS_PLATFORM__CMP_CLANG)
+#if defined(BSLS_PLATFORM_CMP_SUN)  \
+ || defined(BSLS_PLATFORM_CMP_MSVC) \
+ || defined(BSLS_PLATFORM_CMP_HP)   \
+ || defined(BSLS_PLATFORM_CMP_HP)   \
+ || defined(BSLS_PLATFORM_CMP_CLANG)
     #define BSLMF_ODD_COMPILER_CONST_OR_VOLATILE_CONVERSION_RULES
 #endif
 
@@ -471,7 +471,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == (bdemf_IsConvertible<const volatile float,
                                          volatile int&>::VALUE));
 
-// #ifndef BSLS_PLATFORM__CMP_SUN
+// #ifndef BSLS_PLATFORM_CMP_SUN
         // Sun 5.2 and 5.5 both get this wrong
         ASSERT(1 == (bdemf_IsConvertible<volatile float,
                                          const int&>::VALUE));
@@ -563,7 +563,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == (bdemf_IsConvertible<const volatile int,
                                          volatile int&>::VALUE));
 
-#if !defined(BSLS_PLATFORM__CMP_SUN)
+#if !defined(BSLS_PLATFORM_CMP_SUN)
         // Sun 5.2 and 5.5 both get this wrong when the cv-unqualified types
         // are the same.
         ASSERT(0 == (bdemf_IsConvertible<volatile int,

@@ -34,7 +34,7 @@
 #include <bsls_platform.h>                // for testing only
 #include <bsls_types.h>
 
-#ifdef BSLS_PLATFORM__OS_LINUX
+#ifdef BSLS_PLATFORM_OS_LINUX
 #define __STDC_LIMIT_MACROS 1
 #endif
 
@@ -8441,7 +8441,7 @@ int TestValueFunctions_Imp::loadTestValue(TYPE *object,
 {
     BSLMF_ASSERT((bdeat_EnumFunctions::IsEnumeration<TYPE>::VALUE));
     BSLS_ASSERT_SAFE(index >= 0);
-    typedef typename bslalg_TypeTraits<TYPE>::Wrapper Wrapper;
+    typedef typename bdeat_BasicEnumerationWrapper<TYPE>::Wrapper Wrapper;
     index = index % Wrapper::NUM_ENUMERATORS;
     bdeat_EnumeratorInfo info = Wrapper::ENUMERATOR_INFO_ARRAY[index];
     *object = static_cast<TYPE>(info.value());
@@ -8592,7 +8592,7 @@ int TestValueFunctions::loadTestValue(double *object, int index)
     *object = index;
     return SUCCESS;
 }
-#if defined(BSLS_PLATFORM__CMP_MSVC)
+#if defined(BSLS_PLATFORM_CMP_MSVC)
 #define snprintf _snprintf
 #endif
 inline
@@ -8608,7 +8608,7 @@ int TestValueFunctions::loadTestValue(bsl::string *object, int index)
     *object = buffer;
     return SUCCESS;
 }
-#if defined(BSLS_PLATFORM__CMP_MSVC)
+#if defined(BSLS_PLATFORM_CMP_MSVC)
 #undef snprintf
 #endif
 inline

@@ -14,7 +14,7 @@
 #include <bsl_new.h>                  // placement syntax
 #include <bsl_strstream.h>            // ostrstream
 
-#if defined(BSLS_PLATFORM__OS_SOLARIS)
+#if defined(BSLS_PLATFORM_OS_SOLARIS)
 #include <sys/resource.h>       // for setrlimit, etc
 #endif
 
@@ -545,7 +545,7 @@ int main(int argc, char *argv[]) {
 // It does *not* appear to be an issue with EH support, but an issue with the
 // test case proper.  In the debugger, it appeared that the runtime had
 // insufficient resources to handle the exception, so 'abort()' was invoked.
-#if defined(BSLS_PLATFORM__OS_SOLARIS) && !defined(BSLS_PLATFORM__CMP_GNU)
+#if defined(BSLS_PLATFORM_OS_SOLARIS) && !defined(BSLS_PLATFORM_CMP_GNU)
         if (verbose) cout << "\nTest throwing bsl::bad_alloc\n";
 
         rlimit rl = { 1 << 20, 1 << 20 };

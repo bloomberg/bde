@@ -48,7 +48,7 @@ BDES_IDENT("$Id: $")
 // We start with strings representing an absolute native path and a relative
 // native path, respectively:
 //..
-//  #ifdef BSLS_PLATFORM__OS_WINDOWS
+//  #ifdef BSLS_PLATFORM_OS_WINDOWS
 //      bsl::string tempPath  = "c:\\windows\\temp";
 //      bsl::string otherPath = "22jan08\\log.txt";
 //  #else
@@ -75,7 +75,7 @@ BDES_IDENT("$Id: $")
 //  bdesu_PathUtil::popLeaf(tempPath);
 //  bdesu_PathUtil::appendRaw(&tempPath, "log2.txt");
 //
-//  #ifdef BSLS_PLATFORM__OS_WINDOWS
+//  #ifdef BSLS_PLATFORM_OS_WINDOWS
 //      assert("c:\\windows\\temp\\myApp\\logs\\22jan08\\log2.txt" ==
 //                                                                   tempPath);
 //  #else

@@ -9,7 +9,7 @@
 using namespace BloombergLP;
 using namespace bsl;
 
-#ifdef BCES_PLATFORM__POSIX_THREADS
+#ifdef BCES_PLATFORM_POSIX_THREADS
 
 //-----------------------------------------------------------------------------
 //                  STANDARD BDE ASSERT TEST MACRO

@@ -2,7 +2,12 @@
 #ifndef INCLUDED_BSLS_ATOMICOPERATIONS_POWERPC32_AIX_XLC
 #define INCLUDED_BSLS_ATOMICOPERATIONS_POWERPC32_AIX_XLC
 
-//@PURPOSE: Provide implentations of atomic operations for PowerPC/AIX (32bit).
+#ifndef INCLUDED_BSLS_IDENT
+#include <bsls_ident.h>
+#endif
+BSLS_IDENT("$Id: $")
+
+//@PURPOSE: Provide implementations of atomic operations for PowerPC/AIX-32bit.
 //
 //@CLASSES:
 //  bsls::AtomicOperations_POWERPC32_AIX_XLC: atomics for PPC32/AIX.
@@ -12,23 +17,22 @@
 //@DESCRIPTION: This component provides classes necessary to implement atomics
 // on the AIX PowerPC platform in 32bit mode with the xlC compiler.  The
 // classes are for private use only.  See 'bsls_atomicoperations' and
-// 'bsls_atomic' for the public inteface to atomics.
-
-#ifndef INCLUDED_BSLS_IDENT
-#include <bsls_ident.h>
-#endif
-BSLS_IDENT("$Id: $")
-
-#ifndef INCLUDED_BSLS_TYPES
-#include <bsls_types.h>
-#endif
+// 'bsls_atomic' for the public interface to atomics.
 
 #ifndef INCLUDED_BSLS_ATOMICOPERATIONS_POWERPC_AIX_XLC_DEFAULT
 #include <bsls_atomicoperations_powerpc_aix_xlc_default.h>
 #endif
 
-#if defined(BSLS_PLATFORM__CPU_POWERPC) && defined(BSLS_PLATFORM__CMP_IBM) \
-    && defined(BSLS_PLATFORM__CPU_32_BIT)
+#ifndef INCLUDED_BSLS_PLATFORM
+#include <bsls_platform.h>
+#endif
+
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
+#endif
+
+#if defined(BSLS_PLATFORM_CPU_POWERPC) && defined(BSLS_PLATFORM_CMP_IBM) \
+    && defined(BSLS_PLATFORM_CPU_32_BIT)
 
 namespace BloombergLP {
 

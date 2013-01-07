@@ -9,7 +9,7 @@
 #include <bslma_testallocatorexception.h>       // for testing only
 #include <bsls_platform.h>
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
 #include <bsl_cstdlib.h>     // atoi()
 #include <bsl_cstring.h>     // strcmp()
 #include <bsl_c_sys_time.h>
@@ -37,7 +37,7 @@
 #include <bsl_string.h>
 #include <bsl_vector.h>
 
-#if defined(BDES_PLATFORMUTIL__NO_LONG_HEADER_NAMES)
+#if defined(BDES_PLATFORMUTIL_NO_LONG_HEADER_NAMES)
 #include <strstrea.h>
 #else
 #include <bsl_strstream.h>
@@ -356,7 +356,7 @@ int main(int argc, char *argv[])
                 //  line   hostName      errCode   expAddr           expRet
                 //  ----   --------      -------   ---------------   --------
                 {
-                #if defined(BSLS_PLATFORM__OS_UNIX)
+                #if defined(BSLS_PLATFORM_OS_UNIX)
                     { L_,  "jlu1",       &errCode, 0,                FAIL    },
                     { L_,  "jlu1",              0, 0,                FAIL    },
                     { L_,  "sdv1",       &errCode, "172.17.1.20",    SUCCESS },
@@ -366,7 +366,7 @@ int main(int argc, char *argv[])
                     { L_,  "jlu_wrong",  &errCode, 0,                FAIL    },
                     { L_,  "jlu_wrong",         0, 0,                FAIL    },
                     { L_,  "n299",       &errCode, "10.126.19.149",  SUCCESS },
-                #elif defined(BSLS_PLATFORM__OS_WINDOWS)
+                #elif defined(BSLS_PLATFORM_OS_WINDOWS)
                     { L_,  "bny14",      &errCode, 0,                FAIL    },
                     { L_,  "bny14",             0, 0,                FAIL    },
                     { L_,  "330west",    &errCode, 0,                FAIL    },
@@ -493,10 +493,10 @@ int main(int argc, char *argv[])
 
                 int errCode = UNUSED_VALUE;
 
-            #ifdef BSLS_PLATFORM__OS_UNIX
+            #ifdef BSLS_PLATFORM_OS_UNIX
                 const char *applix[]  = { "86.0.0.32",
-                                      #if !defined(BSLS_PLATFORM__OS_LINUX) \
-                                       && !defined(BDES_PLATFORM__OS_FREEBSD)
+                                      #if !defined(BSLS_PLATFORM_OS_LINUX) \
+                                       && !defined(BDES_PLATFORM_OS_FREEBSD)
                                           "86.0.0.43",
                                           "87.0.0.36",
                                           "87.0.0.131",
@@ -504,31 +504,31 @@ int main(int argc, char *argv[])
                                           0
                                         };
                 const char *soros[] = { "202.217.132.211",
-                                    #if !defined(BSLS_PLATFORM__OS_LINUX) \
-                                     && !defined(BDES_PLATFORM__OS_FREEBSD)
+                                    #if !defined(BSLS_PLATFORM_OS_LINUX) \
+                                     && !defined(BDES_PLATFORM_OS_FREEBSD)
                                         "202.217.132.212",
                                         "202.217.132.213",
                                     #endif
                                         0
                                       };
                 const char *fft[]   = { "192.168.218.1",
-                                    #if defined(BSLS_PLATFORM__OS_AIX)        \
-                                     || (defined(BSLS_PLATFORM__OS_SOLARIS) &&\
-                                         (BSLS_PLATFORM__OS_VER_MAJOR >= 10 ||\
-                                          defined(BSLS_PLATFORM__CMP_GNU)))
+                                    #if defined(BSLS_PLATFORM_OS_AIX)        \
+                                     || (defined(BSLS_PLATFORM_OS_SOLARIS) &&\
+                                         (BSLS_PLATFORM_OS_VER_MAJOR >= 10 ||\
+                                          defined(BSLS_PLATFORM_CMP_GNU)))
                                         "192.168.219.1",
                                     #endif
                                         0
                                       };
                 const char *yusen[] = { "192.168.79.34",
-                                    #if defined(BSLS_PLATFORM__OS_AIX)        \
-                                     || defined(BSLS_PLATFORM__OS_SOLARIS)   \
-                                     || defined(BSLS_PLATFORM__OS_HPUX)
+                                    #if defined(BSLS_PLATFORM_OS_AIX)        \
+                                     || defined(BSLS_PLATFORM_OS_SOLARIS)   \
+                                     || defined(BSLS_PLATFORM_OS_HPUX)
                                         "192.168.79.65",
                                     #endif
                                         0
                                       };
-            #else // defined BSLS_PLATFORM__OS_WINDOWS
+            #else // defined BSLS_PLATFORM_OS_WINDOWS
                 // Cannot come up with any multi-homed hosts
                 // resolvable on BLP CORP PCs! TBD FIXME
 
@@ -548,7 +548,7 @@ int main(int argc, char *argv[])
                 //  line  hostname              errorCode  expAddr   expRet
                 //  ----  --------              ---------  -------   ------
                 {
-            #ifdef BSLS_PLATFORM__OS_UNIX
+            #ifdef BSLS_PLATFORM_OS_UNIX
                     { L_, "jlu1",               &errCode,       0,     FAIL },
                     { L_, "jlu1",                      0,       0,     FAIL },
                     { L_, "applix",             &errCode,  applix,  SUCCESS },
@@ -559,7 +559,7 @@ int main(int argc, char *argv[])
                     { L_, "jlu_wrong",                 0,       0,     FAIL },
                     { L_, "fft-corp-rtr1",      &errCode,     fft,  SUCCESS },
                     { L_, "yusen-rtr2",         &errCode,   yusen,  SUCCESS },
-            #elif defined BSLS_PLATFORM__OS_WINDOWS
+            #elif defined BSLS_PLATFORM_OS_WINDOWS
                     { L_, "sundev0",            &errCode,        0,       FAIL
                                                                             },
                     { L_, "sundev1",            &errCode,  sundev1,    SUCCESS
@@ -832,7 +832,7 @@ int main(int argc, char *argv[])
 
             if (verbose) cout << "\tTest valid IP addresses." << endl;
 
-        #ifdef BSLS_PLATFORM__OS_UNIX
+        #ifdef BSLS_PLATFORM_OS_UNIX
             const char *applix[]  = { "86.0.0.43",
                                       "87.0.0.36",
                                       "87.0.0.131",
@@ -851,7 +851,7 @@ int main(int argc, char *argv[])
                                     "192.168.79.65",
                                     0
                                   };
-        #else // defined BSLS_PLATFORM__OS_WINDOWS
+        #else // defined BSLS_PLATFORM_OS_WINDOWS
             // Cannot come up with any multi-homed hosts
             // resolvable on BLP CORP PCs! TBD: FIXME!
 
@@ -870,14 +870,14 @@ int main(int argc, char *argv[])
             //  line  hostname              errorCode   d_expAddr
             //  ----  --------              ---------   ---------
             {
-        #ifdef BSLS_PLATFORM__OS_UNIX
+        #ifdef BSLS_PLATFORM_OS_UNIX
                 { L_, "applix",             &errCode,      applix },
                 { L_, "applix",                    0,      applix },
                 { L_, "soros.wk1",          &errCode,       soros },
                 { L_, "soros.wk1",                 0,       soros },
                 { L_, "fft-corp-rtr1",      &errCode,         fft },
                 { L_, "yusen-rtr2",         &errCode,       yusen },
-        #elif defined BSLS_PLATFORM__OS_WINDOWS
+        #elif defined BSLS_PLATFORM_OS_WINDOWS
 // It is hard to rely on Reverse DNS configuration on Windows
 //                { L_, "sundev31",           &errCode,    sundev31 },
 //                { L_, "sundev31",                  0,    sundev31 },
@@ -1007,12 +1007,12 @@ int main(int argc, char *argv[])
             //  line   serviceName   protocol   errorCode  expPort   expRet
             //  ----   -----------   --------   ---------  -------   ------
             {
-            #ifdef BSLS_PLATFORM__OS_UNIX
+            #ifdef BSLS_PLATFORM_OS_UNIX
                 { L_,  "jlu123",     "tcp",     &errCode,       0,     FAIL },
                 { L_,  "jlu123",     "tcp",            0,       0,     FAIL },
                 { L_,  "echo",       "tcp",     &errCode,       7,  SUCCESS },
                 { L_,  "echo",       "udp",            0,       7,  SUCCESS },
-              #if defined(BDES_PLATFORM__OS_FREEBSD)
+              #if defined(BDES_PLATFORM_OS_FREEBSD)
                 { L_,  "echo",           0,            0,       4,  SUCCESS },
               #else
                 { L_,  "echo",           0,            0,       7,  SUCCESS },
@@ -1028,15 +1028,15 @@ int main(int argc, char *argv[])
                 { L_,  "syslog",     "tcp",     &errCode,       0,     FAIL },
                 { L_,  "syslog",     "udp",     &errCode,     514,  SUCCESS },
                 { L_,  "ingreslock", "tcp",     &errCode,    1524,  SUCCESS },
-              #if !defined(BSLS_PLATFORM__OS_LINUX) \
-               && !defined(BDES_PLATFORM__OS_FREEBSD)
+              #if !defined(BSLS_PLATFORM_OS_LINUX) \
+               && !defined(BDES_PLATFORM_OS_FREEBSD)
                 // These ports are not in the FreeBSD/Linux default
                 // /etc/services.
                 { L_,  "whois",      "tcp",     &errCode,      43,  SUCCESS },
                 { L_,  "sapdp99",    "tcp",     &errCode,    3299,  SUCCESS },
                 { L_,  "blp-ctrb",   "tcp",     &errCode,    3649,  SUCCESS },
               #endif
-            #elif defined BSLS_PLATFORM__OS_WINDOWS
+            #elif defined BSLS_PLATFORM_OS_WINDOWS
                 { L_,  "jlu123",     "tcp",     &errCode,       0,     FAIL },
                 { L_,  "jlu123",     "tcp",            0,       0,     FAIL },
                 { L_,  "echo",       "tcp",     &errCode,    1792,  SUCCESS },
@@ -1078,7 +1078,7 @@ int main(int argc, char *argv[])
                 LOOP2_ASSERT(LINE, retCode, EXP_RET == retCode);
                 if (FAIL == EXP_RET) {
                     // For entries w/ invalid name.
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
                     if (errorPtr) {
                         LOOP2_ASSERT(LINE, *errorPtr, *errorPtr);
                     }
@@ -1128,13 +1128,13 @@ int main(int argc, char *argv[])
 
             int errCode = UNUSED_VALUE;
 
-        #ifdef BSLS_PLATFORM__OS_UNIX
+        #ifdef BSLS_PLATFORM_OS_UNIX
             // Cannot come up with any multi-homed hosts
             // resolvable on BLP CORP LINUX machines! TBD FIXME
 
             const char *applix[]  = { "86.0.0.32",
-                                  #if !defined(BSLS_PLATFORM__OS_LINUX) \
-                                   && !defined(BDES_PLATFORM__OS_FREEBSD)
+                                  #if !defined(BSLS_PLATFORM_OS_LINUX) \
+                                   && !defined(BDES_PLATFORM_OS_FREEBSD)
                                       "86.0.0.43",
                                       "87.0.0.36",
                                       "87.0.0.131",
@@ -1142,31 +1142,31 @@ int main(int argc, char *argv[])
                                       0
                                     };
             const char *soros[] = { "202.217.132.211",
-                                #if !defined(BSLS_PLATFORM__OS_LINUX) \
-                                 && !defined(BDES_PLATFORM__OS_FREEBSD)
+                                #if !defined(BSLS_PLATFORM_OS_LINUX) \
+                                 && !defined(BDES_PLATFORM_OS_FREEBSD)
                                     "202.217.132.212",
                                     "202.217.132.213",
                                 #endif
                                     0
                                   };
             const char *fft[]   = { "192.168.218.1",
-                                #if defined(BSLS_PLATFORM__OS_AIX)            \
-                                 || (defined(BSLS_PLATFORM__OS_SOLARIS) &&    \
-                                       (BSLS_PLATFORM__OS_VER_MAJOR >= 10 ||  \
-                                        BSLS_PLATFORM__CMP_GNU))
+                                #if defined(BSLS_PLATFORM_OS_AIX)            \
+                                 || (defined(BSLS_PLATFORM_OS_SOLARIS) &&    \
+                                       (BSLS_PLATFORM_OS_VER_MAJOR >= 10 ||  \
+                                        BSLS_PLATFORM_CMP_GNU))
                                     "192.168.219.1",
                                 #endif
                                     0
                                   };
             const char *yusen[] = { "192.168.79.34",
-                                #if defined(BSLS_PLATFORM__OS_AIX)        \
-                                 || defined(BSLS_PLATFORM__OS_SOLARIS)    \
-                                 || defined(BSLS_PLATFORM__OS_HPUX)
+                                #if defined(BSLS_PLATFORM_OS_AIX)        \
+                                 || defined(BSLS_PLATFORM_OS_SOLARIS)    \
+                                 || defined(BSLS_PLATFORM_OS_HPUX)
                                     "192.168.79.65",
                                 #endif
                                     0
                                   };
-        #else // defined BSLS_PLATFORM__OS_WINDOWS
+        #else // defined BSLS_PLATFORM_OS_WINDOWS
             // Cannot come up with any multi-homed hosts
             // resolvable on BLP CORP PCs! TBD FIXME
 
@@ -1186,7 +1186,7 @@ int main(int argc, char *argv[])
             //  line  hostname              errorCode   expAddr     expRet
             //  ----  --------              ---------   -------     ------
             {
-        #ifdef BSLS_PLATFORM__OS_UNIX
+        #ifdef BSLS_PLATFORM_OS_UNIX
                 { L_, "jlu1",               &errCode,        0,       FAIL },
                 { L_, "jlu1",                      0,        0,       FAIL },
                 { L_, "applix",             &errCode,   applix,    SUCCESS },
@@ -1197,7 +1197,7 @@ int main(int argc, char *argv[])
                 { L_, "jlu_wrong",                 0,        0,       FAIL },
                 { L_, "fft-corp-rtr1",      &errCode,      fft,    SUCCESS },
                 { L_, "yusen-rtr2",         &errCode,    yusen,    SUCCESS },
-        #elif defined BSLS_PLATFORM__OS_WINDOWS
+        #elif defined BSLS_PLATFORM_OS_WINDOWS
                 { L_, "sundev0",            &errCode,        0,       FAIL },
                 { L_, "sundev1",            &errCode,  sundev1,    SUCCESS },
                 { L_, "sundev1",                   0,  sundev1,    SUCCESS },
@@ -1349,7 +1349,7 @@ int main(int argc, char *argv[])
             //  line   hostName      errorCode  expAddr           expRet
             //  ----   --------      ---------  --------------    ------
             {
-            #if defined(BSLS_PLATFORM__OS_UNIX)
+            #if defined(BSLS_PLATFORM_OS_UNIX)
                 { L_,  "jlu1",       &errCode,  0,                FAIL    },
                 { L_,  "jlu1",              0,  0,                FAIL    },
                 { L_,  "sdv1",       &errCode,  "172.17.1.20",    SUCCESS },
@@ -1360,7 +1360,7 @@ int main(int argc, char *argv[])
                 { L_,  "jlu_wrong",         0,  0,                FAIL    },
                 { L_,  "n270",       &errCode,  "10.126.17.150",  SUCCESS },
                 { L_,  "n299",       &errCode,  "10.126.19.149",  SUCCESS },
-            #elif defined(BSLS_PLATFORM__OS_WINDOWS)
+            #elif defined(BSLS_PLATFORM_OS_WINDOWS)
                 { L_,  "bny14",      &errCode,  0,                FAIL    },
                 { L_,  "bny14",             0,  0,                FAIL    },
                 { L_,  "330west",    &errCode,  0,                FAIL    },

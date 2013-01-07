@@ -284,8 +284,8 @@ BDES_IDENT("$Id: $")
 #include <bsls_assert.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_ANYTYPE
-#include <bslmf_anytype.h>
+#ifndef INCLUDED_BSLMF_MATCHANYTYPE
+#include <bslmf_matchanytype.h>
 #endif
 
 #ifndef INCLUDED_BSL_STRING
@@ -304,7 +304,7 @@ namespace bdeat_EnumFunctions {
     // information.
 
     // META-FUNCTIONS
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
     template <typename TYPE>
     bslmf_MetaInt<0> isEnumerationMetaFunction(const TYPE&);
@@ -316,7 +316,7 @@ namespace bdeat_EnumFunctions {
         // This function is *DEPRECATED*.  User's should specialize the
         // 'IsEnumeration' meta-function.
 
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     template <typename TYPE>
     struct IsEnumeration {
         // This 'struct' should be specialized for third-party types that need
@@ -326,10 +326,10 @@ namespace bdeat_EnumFunctions {
         enum {
             VALUE = bslalg_HasTrait<TYPE,
                                     bdeat_TypeTraitBasicEnumeration>::VALUE
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
                  || BSLMF_METAINT_TO_BOOL(isEnumerationMetaFunction(
                                                    bslmf_TypeRep<TYPE>::rep()))
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
         };
     };
 
@@ -358,7 +358,7 @@ namespace bdeat_EnumFunctions {
         // Return the string representation exactly matching the enumerator
         // name corresponding to the specified enumeration 'value'.
 
-#if ! defined(BSLS_PLATFORM__CMP_IBM)
+#if ! defined(BSLS_PLATFORM_CMP_IBM)
     // OVERLOADABLE FUNCTIONS
     // The following functions should be overloaded for other types (in their
     // respective namespaces).  The following functions are the default
@@ -428,7 +428,7 @@ void bdeat_EnumFunctions::toString(bsl::string *result, const TYPE& value)
            // namespace bdeat_EnumFunctions (OVERLOADABLE FUNCTIONS)
            // ------------------------------------------------------
 
-#if defined(BSLS_PLATFORM__CMP_IBM)
+#if defined(BSLS_PLATFORM_CMP_IBM)
 namespace bdeat_EnumFunctions {
     // xlC 6 will not do Koenig (argument-dependent) lookup if the function
     // being called has already been declared in some scope at the point of
@@ -465,11 +465,10 @@ template <typename TYPE>
 inline
 int bdeat_EnumFunctions::bdeat_enumFromInt(TYPE *result, int number)
 {
-    BSLMF_ASSERT(
-              (bslalg_HasTrait<TYPE, bdeat_TypeTraitBasicEnumeration>::VALUE));
+    BSLMF_ASSERT(bdeat_IsBasicEnumeration<TYPE>::value);
 
-    typedef typename bslalg_TypeTraits<TYPE>::Wrapper Type;
-    return Type::fromInt(result, number);
+    typedef typename bdeat_BasicEnumerationWrapper<TYPE>::Wrapper Wrapper;
+    return Wrapper::fromInt(result, number);
 }
 
 template <typename TYPE>
@@ -481,8 +480,8 @@ int bdeat_EnumFunctions::bdeat_enumFromString(TYPE       *result,
     BSLMF_ASSERT(
               (bslalg_HasTrait<TYPE, bdeat_TypeTraitBasicEnumeration>::VALUE));
 
-    typedef typename bslalg_TypeTraits<TYPE>::Wrapper Type;
-    return Type::fromString(result, string, stringLength);
+    typedef typename bdeat_BasicEnumerationWrapper<TYPE>::Wrapper Wrapper;
+    return Wrapper::fromString(result, string, stringLength);
 }
 
 // ACCESSORS
@@ -505,7 +504,7 @@ void bdeat_EnumFunctions::bdeat_enumToString(bsl::string *result,
     BSLMF_ASSERT(
               (bslalg_HasTrait<TYPE, bdeat_TypeTraitBasicEnumeration>::VALUE));
 
-    typedef typename bslalg_TypeTraits<TYPE>::Wrapper Wrapper;
+    typedef typename bdeat_BasicEnumerationWrapper<TYPE>::Wrapper Wrapper;
     *result = Wrapper::toString(value);
 }
 

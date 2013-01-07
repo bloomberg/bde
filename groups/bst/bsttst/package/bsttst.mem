@@ -7,6 +7,7 @@ bsttst_bsl_locale
 bsttst_bsl_map
 bsttst_bsl_set
 bsttst_bsl_slist
+bsttst_bsl_stack
 bsttst_bsl_string
 bsttst_bsl_stringstream
 bsttst_bsl_vector

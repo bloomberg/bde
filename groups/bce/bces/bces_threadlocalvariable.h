@@ -59,8 +59,8 @@ BDES_IDENT("$Id: $")
 // |----------+----------------------------------------------------------------
 // |  AIX     |  o A bug in the AIX compiler prevents compiling translation
 // |          |    units with more than 10 thread-local variables with debug
-// |          |    symbols.  This has been fixed in xlC8 (DRQS 13819416), but
-// |          |    has not yet been fixed for xlC10.
+// |          |    symbols.  This has been fixed in xlC8 (internal ticket
+// |          |    DRQS 13819416), but has not yet been fixed for xlC10.
 // |          |
 // |          |  o xlC8 does not support class scoped thread-local variables.
 // |----------+----------------------------------------------------------------
@@ -81,10 +81,10 @@ BDES_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// This section illustrates intended use of this component. 
+// This section illustrates intended use of this component.
 //
 ///Example 1: A Service Request Processor with Thread Local Context
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // In the following example we create a 'RequestProcessor' that places context
 // information for the current request in a thread-local variable.
 //
@@ -213,8 +213,8 @@ BDES_IDENT("$Id: $")
                           // Macro Definitions
                           // =================
 
-#if defined(BSLS_PLATFORM__CMP_SUN)  ||                                       \
-    (defined(BSLS_PLATFORM__CMP_GNU) && !(defined(BSLS_PLATFORM__CPU_SPARC)))
+#if defined(BSLS_PLATFORM_CMP_SUN)  ||                                       \
+    (defined(BSLS_PLATFORM_CMP_GNU) && !(defined(BSLS_PLATFORM_CPU_SPARC)))
 #define BCES_THREAD_LOCAL_VARIABLE(BASIC_TYPE, VARIABLE_NAME,  INITIAL_VALUE) \
 static BCES_THREAD_LOCAL_KEYWORD BASIC_TYPE VARIABLE_NAME = INITIAL_VALUE;
     // This macro should *not* be used by clients outside of the 'bce'
@@ -238,8 +238,8 @@ static BCES_THREAD_LOCAL_KEYWORD BASIC_TYPE VARIABLE_NAME = INITIAL_VALUE;
     // 'INITIAL_VALUE' is a *compile* *time* constant value.
 #endif
 
-#if defined(BSLS_PLATFORM__CMP_SUN)  ||                                       \
-    (defined(BSLS_PLATFORM__CMP_GNU) && !(defined(BSLS_PLATFORM__CPU_SPARC)))
+#if defined(BSLS_PLATFORM_CMP_SUN)  ||                                       \
+    (defined(BSLS_PLATFORM_CMP_GNU) && !(defined(BSLS_PLATFORM_CPU_SPARC)))
 #define BCES_THREAD_LOCAL_KEYWORD __thread
 #endif
 

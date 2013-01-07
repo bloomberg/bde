@@ -7,45 +7,104 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a meta-function for removing reference-ness from types.
+//@PURPOSE: Provide a meta-function for stripping reference-ness from types.
 //
 //@CLASSES:
+//  bsl::remove_reference: standard meta-function for stripping reference-ness
 //  bslmf::RemoveReference: meta-function for stripping reference-ness
 //
 //@AUTHOR: Oleg Grunin (ogrunin)
 //
-//@SEE_ALSO:
+//@DESCRIPTION: This component defines two meta-functions,
+// 'bsl::remove_reference' and 'BloombergLP::bslmf::RemoveReference', both of
+// which may be used to strip reference-ness (including both lvalue and rvalue
+// reference-ness, if the latter is supported by compiler) from a type.
 //
-//@DESCRIPTION: This component defines a simple template structure used to
-// strip reference-ness from its single template type parameter.  Types that
-// are not reference types are unmodified.  The "de-referenced" type can be
-// accessed via the 'Type' member defined in 'bslmf::RemoveReference'.
+// 'bsl::remove_reference' meets the requirements of the 'remove_reference'
+// template defined in the C++11 standard [meta.trans.ref], while
+// 'bslmf::RemoveReference' was devised before 'remove_reference' was
+// standardized.
+//
+// The two meta-functions are functionally equivalent.  The major difference
+// between them is that the result for 'bsl::remove_reference' is indicated by
+// the class member 'type', while the result for 'bslmf::RemoveReference' is
+// indicated by the class member 'Type'.
+//
+// Note that 'bsl::remove_reference' should be preferred over
+// 'bslmf::RemoveReference', and in general, should be used by new components.
 //
 ///Usage
 ///-----
-// For example:
-//..
-//  struct MyType {};
-//  typedef MyType& MyTypeRef;
+// In this section we show intended use of this component.
 //
-//  bslmf::RemoveReference<int          >::Type x1;  // int
-//  bslmf::RemoveReference<int&         >::Type x2;  // int
-//  bslmf::RemoveReference<int volatile >::Type x3;  // volatile int
-//  bslmf::RemoveReference<int volatile&>::Type x4;  // volatile int
+///Example 1: Remove Types' Reference-ness
+///- - - - - - - - - - - - - - - - - - - -
+// Suppose that we want to remove reference-ness on a set of types.
 //
-//  bslmf::RemoveReference<MyType       >::Type x5;  // MyType
-//  bslmf::RemoveReference<MyType&      >::Type x6;  // MyType
-//  bslmf::RemoveReference<MyTypeRef    >::Type x7;  // MyType
-//  bslmf::RemoveReference<MyType const >::Type x8;  // const MyType
-//  bslmf::RemoveReference<MyType const&>::Type x9;  // const MyType
+// Now, we instantiate the 'bsl::remove_reference' template for each of these
+// types, and use the 'bsl::is_same' meta-function to assert the 'type' static
+// data member of each instantiation:
 //..
+//  assert(true  ==
+//            (bsl::is_same<bsl::remove_reference<int& >::type, int >::value));
+//  assert(false ==
+//            (bsl::is_same<bsl::remove_reference<int& >::type, int&>::value));
+//  assert(true  ==
+//            (bsl::is_same<bsl::remove_reference<int  >::type, int >::value));
+//#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+//  assert(true ==
+//            (bsl::is_same<bsl::remove_reference<int&&>::type, int >::value));
+//#endif
+//..
+// Note that rvalue reference is a feature introduced in the C++11 standard and
+// may not be supported by all compilers.
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
 #endif
 
-namespace BloombergLP {
+#ifndef INCLUDED_BSLS_COMPILERFEATURES
+#include <bsls_compilerfeatures.h>
+#endif
 
+                         // ======================
+                         // struct RemoveReference
+                         // ======================
+
+namespace bsl {
+
+template <typename TYPE>
+struct remove_reference {
+    // This 'struct' template implements a meta-function to remove the
+    // reference-ness of the (template parameter) 'TYPE'.  This generic default
+    // template defines a return type when 'TYPE' is not a reference type.
+
+    typedef TYPE type;
+        // This 'typedef' defines the return type of this meta-function.
+};
+
+template <typename TYPE>
+struct remove_reference<TYPE &> {
+    // This partial specialization of 'remove_reference' defines a return
+    // type when it is instantiated with a reference type.
+
+    typedef TYPE type;
+        // This 'typedef' defines the return type of this meta-function.
+};
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+
+template <typename TYPE>
+struct remove_reference<TYPE &&>
+{
+    typedef TYPE type;
+};
+
+#endif
+
+}  // close namespace bsl
+
+namespace BloombergLP {
 namespace bslmf {
 
                          // ======================
@@ -54,16 +113,21 @@ namespace bslmf {
 
 template <typename TYPE>
 struct RemoveReference {
-    typedef TYPE Type;
-};
+    // This 'struct' template implements a meta-function to remove the
+    // reference-ness from the (template parameter) 'TYPE'.  Note that although
+    // this 'struct' is functionally equivalent to 'bsl::remove_reference', the
+    // use of 'bsl::remove_reference' should be preferred.
 
-template <typename TYPE>
-struct RemoveReference<TYPE&> {
-    typedef TYPE Type;
+    typedef typename bsl::remove_reference<TYPE>::type Type;
+        // This 'typedef' defines the return type of this meta function.  If
+        // the 'TYPE' is a reference to another type 'TYPE1', then this 'Type'
+        // returns 'TYPE1'; otherwise it returns 'TYPE'.
 };
 
 }  // close package namespace
+}  // close enterprise namespace
 
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
@@ -73,8 +137,7 @@ struct RemoveReference<TYPE&> {
 #endif
 #define bslmf_RemoveReference bslmf::RemoveReference
     // This alias is defined for backward compatibility.
-
-}  // close enterprise namespace
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 #endif
 

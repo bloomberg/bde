@@ -14,9 +14,9 @@
 #include <bsl_cstddef.h>
 #include <bsl_c_limits.h>
 
-#if defined(BCES_PLATFORM__POSIX_THREADS)
+#if defined(BCES_PLATFORM_POSIX_THREADS)
 # include <pthread.h>
-#elif defined(BCES_PLATFORM__WIN32_THREADS)
+#elif defined(BCES_PLATFORM_WIN32_THREADS)
 # include <windows.h>
 #else
 # error unrecognized threading platform
@@ -25,9 +25,9 @@
 #include <bdes_ident.h>
 BDES_IDENT_RCSID(bcemt_configuration_cpp,"$Id$ $CSID$")
 
-#if defined(BCES_PLATFORM__POSIX_THREADS)
+#if defined(BCES_PLATFORM_POSIX_THREADS)
 
-# ifdef BSLS_PLATFORM__OS_SOLARIS
+# ifdef BSLS_PLATFORM_OS_SOLARIS
 static int nativeDefaultThreadStackSizeImp()
     // Return the native thread stack size for Solaris.
 {
@@ -61,7 +61,7 @@ static int nativeDefaultThreadStackSizeImp()
     BSLS_ASSERT(threadStackSize >= PTHREAD_STACK_MIN);
 #  endif
 
-#  ifdef BSLS_PLATFORM__OS_HPUX
+#  ifdef BSLS_PLATFORM_OS_HPUX
     // On HPUX (Itanium) there is an additional stack for register storage,
     // effectively halving the amount of memory available to clients, so we
     // adjust the returned value to reflect the amount of memory that will be
@@ -130,7 +130,7 @@ int bcemt_Configuration::nativeDefaultThreadStackSize()
 
 int bcemt_Configuration::nativeDefaultThreadGuardSize()
 {
-#if defined(BCES_PLATFORM__POSIX_THREADS)
+#if defined(BCES_PLATFORM_POSIX_THREADS)
     static bces_AtomicUtil::Int ret = { -1 };
 
     if (bces_AtomicUtil::getIntRelaxed(ret) < 0) {
@@ -177,7 +177,7 @@ int bcemt_Configuration::recommendedDefaultThreadStackSize()
 
 void bcemt_Configuration::setDefaultThreadStackSize(int numBytes)
 {
-#if defined(BCES_PLATFORM__POSIX_THREADS) && defined(PTHREAD_STACK_MIN)
+#if defined(BCES_PLATFORM_POSIX_THREADS) && defined(PTHREAD_STACK_MIN)
     BSLS_ASSERT_OPT(numBytes >= static_cast<int>(PTHREAD_STACK_MIN));
 #else
     BSLS_ASSERT_OPT(numBytes > 0);

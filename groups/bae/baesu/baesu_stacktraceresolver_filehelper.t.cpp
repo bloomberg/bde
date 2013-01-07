@@ -17,7 +17,7 @@
 // The following is added so that this component does not need a dependency
 // on bdesu_processutil, since 'getProcessId' is only used to create unique
 // file names.
-#ifndef BSLS_PLATFORM__OS_WINDOWS
+#ifndef BSLS_PLATFORM_OS_WINDOWS
 #include <unistd.h>
 #endif
 

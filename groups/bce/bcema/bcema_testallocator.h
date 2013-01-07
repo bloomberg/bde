@@ -434,7 +434,7 @@ class bcema_TestAllocator : public bslma_Allocator {
         // Write the accumulated state information held in this allocator to
         // 'stdout' in some reasonable (multi-line) format.
 
-// TBD #if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+// TBD #ifndef BDE_OMIT_DEPRECATED
 
     void *lastAllocateAddress() const;
         // Return the allocated memory address of the most recent memory
@@ -478,7 +478,7 @@ class bcema_TestAllocator : public bslma_Allocator {
         //
         // DEPRECATED: use 'numDeallocations' instead.
 
-// TBD #endif
+// TBD #endif  // BDE_OMIT_DEPRECATED
 };
 
 bsl::ostream& operator<<(bsl::ostream& stream, const bcema_TestAllocator& rhs);
@@ -693,7 +693,7 @@ inline void bcema_TestAllocator::print() const
     d_imp.print();
 }
 
-// TBD #if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+// TBD #ifndef BDE_OMIT_DEPRECATED
 inline
 void *bcema_TestAllocator::lastAllocateAddress() const
 {
@@ -732,7 +732,7 @@ bsls_Types::Int64 bcema_TestAllocator::numDeallocation() const
     return numDeallocations();
 }
 
-// TBD #endif
+// TBD #endif  // BDE_OMIT_DEPRECATED
 
 }  // close namespace BloombergLP
 

@@ -12,9 +12,9 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslma::DestructorGuard: guard to unconditionally manage an object
 //
-//@AUTHOR: Bill Chapman (bchapman2)
-//
 //@SEE_ALSO: bslma_destructorproctor, bslma_autodestructor
+//
+//@AUTHOR: Bill Chapman (bchapman2)
 //
 //@DESCRIPTION: This component provides a guard class template to
 // unconditionally manage an (otherwise-unmanaged) object of parameterized
@@ -147,6 +147,7 @@ DestructorGuard<TYPE>::~DestructorGuard()
 
 }  // close package namespace
 
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
@@ -156,6 +157,7 @@ DestructorGuard<TYPE>::~DestructorGuard()
 #endif
 #define bslma_DestructorGuard bslma::DestructorGuard
     // This alias is defined for backward compatibility.
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

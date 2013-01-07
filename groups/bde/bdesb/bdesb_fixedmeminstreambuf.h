@@ -211,7 +211,7 @@ BDES_IDENT("$Id: $")
 #include <bsl_cstring.h>
 #endif
 
-#if defined(BSLS_PLATFORM__CMP_MSVC) && defined(min)
+#if defined(BSLS_PLATFORM_CMP_MSVC) && defined(min)
     // Note: on Windows -> WinDef.h:#define min(a,b) ...
 #undef min
 #endif

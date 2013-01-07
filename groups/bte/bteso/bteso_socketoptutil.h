@@ -93,7 +93,7 @@ BDES_IDENT("$Id: $")
 ///- - - -
 // The following snippets of code illustrate the pass-through ability.
 //..
-//  #ifdef BSLS_PLATFORM__OS_WINDOWS
+//  #ifdef BSLS_PLATFORM_OS_WINDOWS
 //
 //      WSAPROTOCOL_INFO protoInfo;
 //      memset(&ProtoInfo,0,sizeof(ProtoInfo));
@@ -127,9 +127,9 @@ BDES_IDENT("$Id: $")
 #include <bsls_platform.h>
 #endif
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
 
-    #ifdef BSLS_PLATFORM__OS_AIX
+    #ifdef BSLS_PLATFORM_OS_AIX
         #ifndef INCLUDED_SYS_MACHINE
         #include <sys/machine.h>       // Defines "endianness" of the platform.
         #define INCLUDED_SYS_MACHINE
@@ -162,7 +162,7 @@ BDES_IDENT("$Id: $")
 
 #endif
 
-#ifdef BTESO_PLATFORM__WIN_SOCKETS
+#ifdef BTESO_PLATFORM_WIN_SOCKETS
     #ifndef INCLUDED_WINSOCK2
     #include <winsock2.h>
     #define INCLUDED_WINSOCK2
@@ -185,7 +185,7 @@ struct bteso_SocketOptUtil {
     // operation.  All functions return O on success and a negative value on
     // error.
 
-#if defined(BSLS_PLATFORM__OS_UNIX) && !defined(BSLS_PLATFORM__OS_CYGWIN)
+#if defined(BSLS_PLATFORM_OS_UNIX) && !defined(BSLS_PLATFORM_OS_CYGWIN)
     struct LingerData {
         // The linger structure maintains information about a specific socket
         // that specifies how that socket should behave when data is queued to
@@ -200,7 +200,7 @@ struct bteso_SocketOptUtil {
     };
 #endif
 
-#if defined(BSLS_PLATFORM__OS_WINDOWS) || defined(BSLS_PLATFORM__OS_CYGWIN)
+#if defined(BSLS_PLATFORM_OS_WINDOWS) || defined(BSLS_PLATFORM_OS_CYGWIN)
     struct LingerData {
         // The linger structure maintains information about a specific socket
         // that specifies how that socket should behave when data is queued to
@@ -221,10 +221,10 @@ struct bteso_SocketOptUtil {
         // and the name of the option must be specified.
         BTESO_SOCKETLEVEL    = SOL_SOCKET,    // System socket level
         BTESO_TCPLEVEL       = IPPROTO_TCP    // Protocol level (TCP)
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , SOCKETLEVEL = BTESO_SOCKETLEVEL
       , TCPLEVEL    = BTESO_TCPLEVEL
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     // For level = BTESO_SOCKETLEVEL
@@ -260,7 +260,7 @@ struct bteso_SocketOptUtil {
             // get the type of the socket (get only)
         BTESO_SOCKETERROR    = SO_ERROR
             // get and clear error on the socket (get only)
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , DEBUGINFO      = BTESO_DEBUGINFO
       , REUSEADDRESS   = BTESO_REUSEADDRESS
       , KEEPALIVE      = BTESO_KEEPALIVE
@@ -276,7 +276,7 @@ struct bteso_SocketOptUtil {
       , RECEIVETIMEOUT = BTESO_RECEIVETIMEOUT
       , TYPE           = BTESO_TYPE
       , SOCKETERROR    = BTESO_SOCKETERROR
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     // For level = BTESO_TCPLEVEL
@@ -287,9 +287,9 @@ struct bteso_SocketOptUtil {
         // the Nagle algorithm.  To disable this behavior, applications
         // can enable TCP_NODELAY to force TCP to always send data
         // immediately.
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , TCPNODELAY = BTESO_TCPNODELAY
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     template <class T>
@@ -358,7 +358,7 @@ bteso_SocketOptUtil::setOption(bteso_SocketHandle::Handle  handle,
                                const T&                    value,
                                int                        *errorCode)
 {
-    #ifdef BSLS_PLATFORM__OS_WINDOWS
+    #ifdef BSLS_PLATFORM_OS_WINDOWS
     if (0 == setsockopt(handle, level, option,
                         (char*)&value, sizeof value )) {
         return 0;
@@ -390,14 +390,14 @@ bteso_SocketOptUtil::getOption(T                          *result,
                                int                        *errorCode)
 
 {
-    #if defined (BSLS_PLATFORM__OS_AIX) || defined (BSLS_PLATFORM__CMP_GNU)
+    #if defined (BSLS_PLATFORM_OS_AIX) || defined (BSLS_PLATFORM_CMP_GNU)
         socklen_t optsize;
     #else
         int optsize;
     #endif
     optsize = sizeof *result;
 
-    #ifdef BSLS_PLATFORM__OS_WINDOWS
+    #ifdef BSLS_PLATFORM_OS_WINDOWS
         if (0 == getsockopt(handle, level, option,
                             (char*)result, &optsize)) {
             return 0;
@@ -427,7 +427,7 @@ bteso_SocketOptUtil::setOption(bteso_SocketHandle::Handle handle,
                                int                        option,
                                const T&                   value)
 {
-    #ifdef BSLS_PLATFORM__OS_WINDOWS
+    #ifdef BSLS_PLATFORM_OS_WINDOWS
         return setsockopt(handle, level, option,
                           (const char*)&value, sizeof value );
     #else
@@ -443,19 +443,19 @@ bteso_SocketOptUtil::getOption(T                          *result,
                                int                         level,
                                int                         option)
 {
-     #if defined (BSLS_PLATFORM__OS_AIX) ||     \
-         defined (BSLS_PLATFORM__OS_LINUX) ||   \
-         defined (BDES_PLATFORM__OS_FREEBSD) || \
-         defined (BSLS_PLATFORM__OS_CYGWIN) ||  \
-         defined (BSLS_PLATFORM__OS_DARWIN) ||  \
-         defined (BSLS_PLATFORM__OS_SOLARIS)
+     #if defined (BSLS_PLATFORM_OS_AIX) ||     \
+         defined (BSLS_PLATFORM_OS_LINUX) ||   \
+         defined (BDES_PLATFORM_OS_FREEBSD) || \
+         defined (BSLS_PLATFORM_OS_CYGWIN) ||  \
+         defined (BSLS_PLATFORM_OS_DARWIN) ||  \
+         defined (BSLS_PLATFORM_OS_SOLARIS)
           socklen_t optsize;
       #else
           int optsize;
       #endif
       optsize = sizeof *result;
 
-      #ifdef BSLS_PLATFORM__OS_WINDOWS
+      #ifdef BSLS_PLATFORM_OS_WINDOWS
           return getsockopt(handle, level, option,
                             (char*)result, &optsize);
       #else

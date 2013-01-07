@@ -868,7 +868,7 @@ int main(int argc, char *argv[])
                      // pool: if you ask for a different size, it will allocate
                      // again.
 
-#ifdef BSLS_PLATFORM__CPU_64_BIT
+#ifdef BSLS_PLATFORM_CPU_64_BIT
                      if(BDEM_WRITE_MANY == STRATEGY) {
                          continue;
                      }
@@ -940,7 +940,7 @@ int main(int argc, char *argv[])
                      // pool: if you ask for a different size, it will allocate
                      // again.
 
-#ifdef BSLS_PLATFORM__CPU_64_BIT
+#ifdef BSLS_PLATFORM_CPU_64_BIT
                      if(BDEM_WRITE_MANY == STRATEGY) {
                          continue;
                      }

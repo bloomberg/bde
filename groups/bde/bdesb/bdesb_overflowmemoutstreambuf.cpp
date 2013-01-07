@@ -12,11 +12,11 @@
 namespace BloombergLP {
 
                     // -----------------------------------
-                    // class bdesb_OverflowMemOutStreambuf
+                    // class bdesb_OverflowMemOutStreamBuf
                     // -----------------------------------
 
 // PRIVATE MANIPULATORS
-void bdesb_OverflowMemOutStreambuf::grow(int n)
+void bdesb_OverflowMemOutStreamBuf::grow(int n)
 {
     BSLS_ASSERT(0 <= n);
 
@@ -38,7 +38,7 @@ void bdesb_OverflowMemOutStreambuf::grow(int n)
     d_overflowBufferSize = newSize;
 }
 
-void bdesb_OverflowMemOutStreambuf::privateSync()
+void bdesb_OverflowMemOutStreamBuf::privateSync()
 {
     if (d_inOverflowBufferFlag) {
         d_dataLength = pptr() - pbase() + d_initialBufferSize;
@@ -49,9 +49,9 @@ void bdesb_OverflowMemOutStreambuf::privateSync()
 }
 
 // PROTECTED MANIPULATORS
-bdesb_OverflowMemOutStreambuf::int_type
-bdesb_OverflowMemOutStreambuf::overflow(
-                                     bdesb_OverflowMemOutStreambuf::int_type c)
+bdesb_OverflowMemOutStreamBuf::int_type
+bdesb_OverflowMemOutStreamBuf::overflow(
+                                     bdesb_OverflowMemOutStreamBuf::int_type c)
 {
     if (EOF == c) {
         return traits_type::not_eof(c);
@@ -76,15 +76,15 @@ bdesb_OverflowMemOutStreambuf::overflow(
     return c;
 }
 
-bdesb_OverflowMemOutStreambuf::int_type
-bdesb_OverflowMemOutStreambuf::pbackfail(
-                                       bdesb_OverflowMemOutStreambuf::int_type)
+bdesb_OverflowMemOutStreamBuf::int_type
+bdesb_OverflowMemOutStreamBuf::pbackfail(
+                                       bdesb_OverflowMemOutStreamBuf::int_type)
 {
     return traits_type::eof();
 }
 
-bdesb_OverflowMemOutStreambuf::pos_type
-bdesb_OverflowMemOutStreambuf::seekoff(off_type                offset,
+bdesb_OverflowMemOutStreamBuf::pos_type
+bdesb_OverflowMemOutStreamBuf::seekoff(off_type                offset,
                                        bsl::ios_base::seekdir  fixedPosition,
                                        bsl::ios_base::openmode which)
 {
@@ -167,32 +167,32 @@ bdesb_OverflowMemOutStreambuf::seekoff(off_type                offset,
     return newoff;
 }
 
-bsl::streambuf *bdesb_OverflowMemOutStreambuf::setbuf(char *, bsl::streamsize)
+bsl::streambuf *bdesb_OverflowMemOutStreamBuf::setbuf(char *, bsl::streamsize)
 {
-    // This function is not supported.
+    // this function is not supported
 
     return 0;
 }
 
-bsl::streamsize bdesb_OverflowMemOutStreambuf::showmanyc()
+bsl::streamsize bdesb_OverflowMemOutStreamBuf::showmanyc()
 {
     return 0;
 }
 
-bdesb_OverflowMemOutStreambuf::int_type
-bdesb_OverflowMemOutStreambuf::underflow()
+bdesb_OverflowMemOutStreamBuf::int_type
+bdesb_OverflowMemOutStreamBuf::underflow()
 {
     return traits_type::eof();
 }
 
 bsl::streamsize
-bdesb_OverflowMemOutStreambuf::xsgetn(char_type *, bsl::streamsize)
+bdesb_OverflowMemOutStreamBuf::xsgetn(char_type *, bsl::streamsize)
 {
     return traits_type::eof();
 }
 
 bsl::streamsize
-bdesb_OverflowMemOutStreambuf::xsputn(const char_type *source,
+bdesb_OverflowMemOutStreamBuf::xsputn(const char_type *source,
                                       bsl::streamsize  numChars)
 {
     BSLS_ASSERT(source);
@@ -237,7 +237,7 @@ bdesb_OverflowMemOutStreambuf::xsputn(const char_type *source,
 }
 
 // CREATORS
-bdesb_OverflowMemOutStreambuf::bdesb_OverflowMemOutStreambuf(
+bdesb_OverflowMemOutStreamBuf::bdesb_OverflowMemOutStreamBuf(
                                                char            *buffer,
                                                int              size,
                                                bslma_Allocator *basicAllocator)

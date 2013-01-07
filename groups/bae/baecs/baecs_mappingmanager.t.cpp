@@ -3,7 +3,7 @@
 // The _CRT_RAND_S macro MUST be defined on Windows *PRIOR* to inclusion of
 // stdlib.h in order to defined 'rand_s'.
 #include <bsls_platform.h>
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
 // Remembering to define _CRT_RAND_S prior to inclusion statement
 #define _CRT_RAND_S
 #endif
@@ -26,11 +26,11 @@
 #include <bsl_cstdio.h>
 #include <bsl_c_stdio.h>
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
 #include <windows.h>
 #endif
 
-#if defined(BSLS_PLATFORM__OS_AIX) || defined(BSLS_PLATFORM__OS_HPUX)
+#if defined(BSLS_PLATFORM_OS_AIX) || defined(BSLS_PLATFORM_OS_HPUX)
 #define tmpnam_r tmpnam
 #endif
 
@@ -40,7 +40,7 @@ using namespace bsl;  // automatically added by script
 inline
 bsl::string tempFileName()
 {
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
     char tmpPathBuf[MAX_PATH], tmpNameBuf[MAX_PATH];
     GetTempPath(MAX_PATH, tmpPathBuf);
     GetTempFileName(tmpPathBuf, "bde", 0, tmpNameBuf);
@@ -50,7 +50,7 @@ bsl::string tempFileName()
 #endif
 }
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
 #define rand_r   rand_s
 #define tmpnam_r tmpnam_s
 #endif

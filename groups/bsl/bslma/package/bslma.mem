@@ -21,3 +21,4 @@ bslma_sequentialpool
 bslma_testallocator
 bslma_testallocatorexception
 bslma_testallocatormonitor
+bslma_usesbslmaallocator

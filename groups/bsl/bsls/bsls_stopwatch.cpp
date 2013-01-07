@@ -20,12 +20,12 @@ void Stopwatch::updateTimes()
 {
     Types::Int64 systemTime;
     Types::Int64 userTime;
-    Types::Int64 wallTime;
+    TimeUtil::OpaqueNativeTime wallTime;
     accumulatedTimesRaw(&systemTime, &userTime, &wallTime);
 
     d_accumulatedSystemTime += systemTime - d_startSystemTime;
     d_accumulatedUserTime   += userTime   - d_startUserTime;
-    d_accumulatedWallTime   += wallTime   - d_startWallTime;
+    d_accumulatedWallTime   += elapsedWallTime(wallTime);
 }
 
 // ACCESSORS
@@ -36,17 +36,17 @@ void Stopwatch::accumulatedTimes(double *systemTime,
     if (d_isRunning) {
         Types::Int64 rawSystemTime;
         Types::Int64 rawUserTime;
-        Types::Int64 rawWallTime;
+        TimeUtil::OpaqueNativeTime rawWallTime;
         accumulatedTimesRaw(&rawSystemTime, &rawUserTime, &rawWallTime);
 
         *systemTime = static_cast<double>(
                    d_accumulatedSystemTime + rawSystemTime - d_startSystemTime)
                                                       / s_nanosecondsPerSecond;
         *userTime   = static_cast<double>(
-                     d_accumulatedUserTime   + rawUserTime   - d_startUserTime)
+                     d_accumulatedUserTime + rawUserTime   - d_startUserTime)
                                                       / s_nanosecondsPerSecond;
         *wallTime   = static_cast<double>(
-                     d_accumulatedWallTime   + rawWallTime   - d_startWallTime)
+                     d_accumulatedWallTime + elapsedWallTime(rawWallTime))
                                                       / s_nanosecondsPerSecond;
     }
     else {

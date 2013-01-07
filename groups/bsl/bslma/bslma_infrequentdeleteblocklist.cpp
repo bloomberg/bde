@@ -1,4 +1,6 @@
 // bslma_infrequentdeleteblocklist.cpp                                -*-C++-*-
+#ifndef BDE_OMIT_TRANSITIONAL // DEPRECATED
+
 #include <bslma_infrequentdeleteblocklist.h>
 
 #include <bsls_ident.h>
@@ -53,6 +55,8 @@ void InfrequentDeleteBlockList::release()
 }  // close package namespace
 
 }  // close enterprise namespace
+
+#endif // BDE_OMIT_TRANSITIONAL -- DEPRECATED
 
 // ---------------------------------------------------------------------------
 // NOTICE:

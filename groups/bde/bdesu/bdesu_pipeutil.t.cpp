@@ -69,7 +69,7 @@ int main(int argc, char *argv[]) {
            cout << "makeCanonicalName test" << endl;
         }
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
         bsl::string compare("\\\\.\\pipe\\foo.bar");
 #else
         bsl::string compare;

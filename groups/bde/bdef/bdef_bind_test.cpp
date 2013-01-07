@@ -18,7 +18,7 @@ bool bdef_Bind_TestSlotsAlloc::verifySlots(
         bool                          verboseFlag)
 {
     bool equalFlag = true;
-#if !defined(BSLS_PLATFORM__CMP_MSVC)
+#if !defined(BSLS_PLATFORM_CMP_MSVC)
     // Note: the calls to 'verifyAllocSlots' are disabled on Windows.
     // Their success depends on the "Return Value Optimization" (RVO)
     // which Windows does not seem to be applying.
@@ -29,7 +29,7 @@ bool bdef_Bind_TestSlotsAlloc::verifySlots(
             break;
         }
     }
-#endif // !defined(BSLS_PLATFORM__CMP_MSVC)
+#endif // !defined(BSLS_PLATFORM_CMP_MSVC)
 
     if (verboseFlag || !equalFlag) {
         bsl::printf("\tAllocSlots:");

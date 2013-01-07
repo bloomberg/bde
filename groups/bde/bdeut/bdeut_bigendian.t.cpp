@@ -19,7 +19,7 @@
 #include <bsl_cctype.h>      // isdigit() isupper() islower()
 #include <bsl_cstdlib.h>     // atoi()
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
 #include <arpa/inet.h> // not a component
 #else
 #include <winsock2.h> // not a component
@@ -169,7 +169,7 @@ bool isInCoreValueCorrect(unsigned int value, const bdeut_BigEndianUint32& obj)
 
 #ifndef __bswap_64
 bsls_PlatformUtil::Uint64 swap64(bsls_PlatformUtil::Uint64 value) {
-#ifdef BSLS_PLATFORMUTIL__IS_LITTLE_ENDIAN
+#ifdef BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN
     return ((value & 0xff00000000000000ull) >> 56)
         |  ((value & 0x00ff000000000000ull) >> 40)
         |  ((value & 0x0000ff0000000000ull) >> 24)
@@ -184,7 +184,7 @@ bsls_PlatformUtil::Uint64 swap64(bsls_PlatformUtil::Uint64 value) {
 }
 #else
 bsls_PlatformUtil::Uint64 swap64(bsls_PlatformUtil::Uint64 value) {
-#ifdef BSLS_PLATFORMUTIL__IS_LITTLE_ENDIAN
+#ifdef BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN
     return __bswap_64(value);
 #else
     return value;

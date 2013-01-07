@@ -12,9 +12,9 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslma::AutoDestructor: range proctor to manage an array of objects
 //
-//@AUTHOR: Shao-wei Hung (shung1), Arthur Chiu (achiu21)
-//
 //@SEE_ALSO: bslma_destructorguard, bslma_destructorproctor
+//
+//@AUTHOR: Shao-wei Hung (shung1), Arthur Chiu (achiu21)
 //
 //@DESCRIPTION: This component provides a range proctor class template to
 // manage an array of (otherwise-unmanaged) objects of parameterized 'TYPE'
@@ -459,6 +459,7 @@ int AutoDestructor<TYPE>::length() const
 
 }  // close package namespace
 
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
@@ -468,6 +469,7 @@ int AutoDestructor<TYPE>::length() const
 #endif
 #define bslma_AutoDestructor bslma::AutoDestructor
     // This alias is defined for backward compatibility.
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

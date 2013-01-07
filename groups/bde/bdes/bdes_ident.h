@@ -11,8 +11,8 @@
  *@DESCRIPTION: The purpose of this component is to provide macros for
  * inserting SCM Ids into source files.
  *
- * Usage
- * -----
+ **Usage
+ **-----
  * Include 'bdes_ident.h' and use the 'BDES_IDENT' macro or the
  * 'BDES_IDENT_RCSID' macro.  For header files, this should be done directly
  * after the include guards, e.g., in 'bdes_somefile.h':

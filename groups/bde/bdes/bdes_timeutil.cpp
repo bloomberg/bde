@@ -5,7 +5,7 @@
 BDES_IDENT_RCSID(bdes_timeutil_cpp,"$Id$ $CSID$")
 
 
-#include <bdes_platform.h>     // BSLS_PLATFORM__OS_UNIX, etc.
+#include <bdes_platform.h>     // BSLS_PLATFORM_OS_UNIX, etc.
 
 namespace BloombergLP {
 

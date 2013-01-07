@@ -67,7 +67,7 @@ static void aSsErT(int c, const char *s, int i)
 
 int globalVerbose = 0;
 
-#ifdef BSLS_PLATFORM__CMP_MSVC
+#ifdef BSLS_PLATFORM_CMP_MSVC
 static int TestWSASend(
   SOCKET s,
   LPWSABUF lpBuffers,
@@ -294,7 +294,7 @@ int main(int argc, char *argv[]) {
         vector[1].setBuffer(buf2, 4);
         vector[2].setBuffer(buf3, 7);
 
-#ifndef BSLS_PLATFORM__CMP_MSVC
+#ifndef BSLS_PLATFORM_CMP_MSVC
         // Verify values for UNIX like systems
         int socket = 0;
         ::writev(socket, (struct iovec *) vector, 3);

@@ -138,12 +138,12 @@ class EarlyEpochCopier {
 
 #define INITATTR
 
-#if defined(BSLS_PLATFORM__CMP_MSVC)
+#if defined(BSLS_PLATFORM_CMP_MSVC)
 #pragma init_seg(compiler)
-#elif defined(BSLS_PLATFORM__CMP_GNU) && defined(BSLS_PLATFORM__OS_LINUX)
+#elif defined(BSLS_PLATFORM_CMP_GNU) && defined(BSLS_PLATFORM_OS_LINUX)
 #undef INITATTR
 #define INITATTR __attribute__((init_priority(101)))
-#elif defined(BSLS_PLATFORM__CMP_IBM)
+#elif defined(BSLS_PLATFORM_CMP_IBM)
 #pragma priority(-2147482623)
 #endif
 

@@ -449,7 +449,7 @@ int main(int argc, char *argv[])
 
         const bdet_TimeInterval SLEEP_SECONDS(0.3);
         const double OVERSHOOT_MIN = -1e-5;
-#if defined(BSLS_PLATFORM__OS_SOLARIS)
+#if defined(BSLS_PLATFORM_OS_SOLARIS)
         const double OVERSHOOT_MAX = 0.10;
 #else
         const double OVERSHOOT_MAX = 0.05;
@@ -504,7 +504,7 @@ int main(int argc, char *argv[])
         enum { SLEEP_MICROSECONDS = 300 * 1000 };
         const double SLEEP_SECONDS = SLEEP_MICROSECONDS * 1e-6;
         const double OVERSHOOT_MIN = -1e-5;
-#if defined(BSLS_PLATFORM__OS_SOLARIS) || defined(BSLS_PLATFORM__OS_LINUX)
+#if defined(BSLS_PLATFORM_OS_SOLARIS) || defined(BSLS_PLATFORM_OS_LINUX)
             const double TOLERANCE = 2;   // microSleep is obscenely
                                           // imprecise on Sun and to a
                                           // lesser extent Linux

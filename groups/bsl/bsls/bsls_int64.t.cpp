@@ -1,5 +1,7 @@
 // bsls_int64.t.cpp                                                   -*-C++-*-
 
+#ifndef BDE_OMIT_TRANSITIONAL // DEPRECATED
+
 #include <bsls_int64.h>
 
 #include <bsls_platform.h>  // for testing only
@@ -11,11 +13,7 @@
 #include <stdio.h>     // sprintf(), snprintf() [NOT <cstdio>, which does not
                        // include 'snprintf']
 
-#if defined(BSLS_PLATFORM__CMP_IBM) && !defined(BSLS_PLATFORM__CPU_64_BIT)
-    #define BSLS_INT64_TEST__NO_64_BIT_CONSTANTS 1
-#endif
-
-#if defined(BSLS_PLATFORM__CMP_MSVC)
+#if defined(BSLS_PLATFORM_CMP_MSVC)
 #define snprintf _snprintf
 #endif
 
@@ -69,11 +67,7 @@ static void aSsErT(int c, const char *s, int i)
 //                    GLOBAL HELPER FUNCTIONS FOR TESTING
 //--------------------------------------------------------------------------
 
-#if defined(BSLS_PLATFORM__CMP_GNU)
-    #define BSLS_INT64_TEST__NO_64_BIT_CONSTANTS 1
-#endif
-
-#if defined(BSLS_PLATFORM__CMP_MSVC)
+#if defined(BSLS_PLATFORM_CMP_MSVC)
 #define INT64_FMT_STR  "0x%I64X"
 #else
 #define INT64_FMT_STR  "0x%llX"
@@ -227,7 +221,7 @@ int main(int argc, char *argv[]) {
             { L_,   0x7FFFFFFF,         "2147483647"           },
             { L_,   0x80000000,         "2147483648"           },
             { L_,   0xFFFFFFFF,         "4294967295"           },
-#if !defined(BSLS_INT64_TEST__NO_64_BIT_CONSTANTS)
+#if !defined(BSLS_PLATFORM_NO_64_BIT_LITERALS)
             { L_,   0x100000000,        "4294967296"           },
             { L_,   0x7FFFFFFFFFFFFFFF, "9223372036854775807"  },
             { L_,   0x8000000000000000, "9223372036854775808"  },
@@ -263,7 +257,7 @@ int main(int argc, char *argv[]) {
                 if (veryVerbose)
                     cout << "\tEXPECTED FORMAT     : " << FMT << endl;
 
-                #if defined(BSLS_PLATFORM__CMP_MSVC)
+                #if defined(BSLS_PLATFORM_CMP_MSVC)
                 snprintf(buf1, SIZE, "%I64u", SPEC);
                 snprintf(buf2, SIZE, "%I64u", SPEC);
                 #else
@@ -326,7 +320,7 @@ int main(int argc, char *argv[]) {
                 if (veryVerbose)
                     cout << "\tEXPECTED FORMAT     : " << FMT << endl;
 
-                #if defined(BSLS_PLATFORM__CMP_MSVC)
+                #if defined(BSLS_PLATFORM_CMP_MSVC)
                 snprintf(buf1, SIZE, "%I64u", SPEC);
                 snprintf(buf2, SIZE, "%I64u", SPEC);
                 #else
@@ -400,7 +394,7 @@ int main(int argc, char *argv[]) {
             { L_,   0x7FFFFFFF,         "2147483647"           },
             { L_,   0x80000000,         "2147483648"           },
             { L_,   0xFFFFFFFF,         "4294967295"           },
-#if !defined(BSLS_INT64_TEST__NO_64_BIT_CONSTANTS)
+#if !defined(BSLS_PLATFORM_NO_64_BIT_LITERALS)
             { L_,   0x100000000,        "4294967296"           },
             { L_,   0x7FFFFFFFFFFFFFFF, "9223372036854775807"  },
             { L_,   0x8000000000000000, "-9223372036854775808" },
@@ -436,7 +430,7 @@ int main(int argc, char *argv[]) {
             if (veryVerbose)
                 cout << "EXPECTED FORMAT:" << endl << FMT << endl;
 
-            #if defined(BSLS_PLATFORM__CMP_MSVC)
+            #if defined(BSLS_PLATFORM_CMP_MSVC)
             snprintf(buf1, SIZE, "%I64d", SPEC);
             snprintf(buf2, SIZE, "%I64d", SPEC);
             #else
@@ -494,7 +488,7 @@ int main(int argc, char *argv[]) {
                 cout << "\tSpec = \t\t      " << SPEC << endl
                      << "\tEXPECTED FORMAT     : " << FMT << endl;
 
-            #if defined(BSLS_PLATFORM__CMP_MSVC)
+            #if defined(BSLS_PLATFORM_CMP_MSVC)
             snprintf(buf1, SIZE, "%I64d", SPEC);
             snprintf(buf2, SIZE, "%I64d", SPEC);
             #else
@@ -588,6 +582,16 @@ int main(int argc, char *argv[]) {
     }
     return testStatus;
 }
+
+#else
+
+int main(int argc, char *argv[])
+{
+    return -1;
+}
+
+#endif  // BDE_OMIT_TRANSITIONAL -- DEPRECATED
+
 
 // ---------------------------------------------------------------------------
 // NOTICE:

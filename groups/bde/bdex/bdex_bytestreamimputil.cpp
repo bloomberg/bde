@@ -221,7 +221,7 @@ void bdex_ByteStreamImpUtil::putArrayInt16(char        *buffer,
 
         const T *value = (const T *)array;
 
-#if BSLS_PLATFORMUTIL__IS_LITTLE_ENDIAN
+#if BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN
         buffer[0] = value->d_bytes[1];
         buffer[1] = value->d_bytes[0];
 #else

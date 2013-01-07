@@ -180,7 +180,7 @@ BDES_IDENT("$Id: $")
 #include <bsls_platform.h>
 #endif
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
 
 #ifndef INCLUDED_BSL_OSTREAM
 #include <bsl_ostream.h>
@@ -196,6 +196,10 @@ BDES_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
+#endif
+
+#ifndef INCLUDED_BSLSTL_STRINGREF
+#include <bslstl_stringref.h>
 #endif
 
 #ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
@@ -366,6 +370,12 @@ class bael_RecordAttributes {
 
     const char *message() const;
         // Return the message attribute of this record attributes object.
+
+    bslstl_StringRef messageRef() const;
+        // Return a string reference providing non-modifiable access to the
+        // message attribute of this record attributes object.  Note that the
+        // returned string reference is not null-terminated, and may contain
+        // null ('\0') characters.
 
     int processID() const;
         // Return the processID attribute of this record attributes object.

@@ -1,8 +1,12 @@
 // bsls_platformutil.cpp                                              -*-C++-*-
+#ifndef BDE_OMIT_TRANSITIONAL // DEPRECATED
+
 #include <bsls_platformutil.h>
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
+
+#endif  // BDE_OMIT_TRANSITIONAL -- DEPRECATED
 
 // ---------------------------------------------------------------------------
 // NOTICE:

@@ -59,7 +59,7 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
 //=============================================================================
 //                  CLASSES FOR TESTING USAGE EXAMPLES
 //-----------------------------------------------------------------------------
-
+#if defined(BDE_BUILD_TARGET_EXC)
 ///Usage
 ///-----
 // First we declare a function template that wants to throw a standard
@@ -103,6 +103,7 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
     }
   }
 //..
+#endif // defined BDE_BUILD_TARGET_EXC
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
 
@@ -131,8 +132,16 @@ int main(int argc, char *argv[])
         // Testing:
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
+        if (verbose) printf("\nUSAGE EXAMPLE"
+                            "\n=============");
+
+#if !defined(BDE_BUILD_TARGET_EXC)
+        if (verbose) printf(
+                "\nThis case is not run as it relies on exception support.\n");
+#else
         callTestFunction();
-       } break;
+#endif // defined BDE_BUILD_TARGET_EXC
+     } break;
      case 1: {
         // --------------------------------------------------------------------
         // BREATHING/USAGE TEST
@@ -148,7 +157,11 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nBREATHING TEST"
                             "\n==============");
 
-        try {
+#if !defined(BDE_BUILD_TARGET_EXC)
+        if (verbose) printf(
+                "\nThis case is not run as it relies on exception support.\n");
+#else
+    try {
             if(verbose) printf("\nThrowing a runtime_error exception");
             bslstl::StdExceptUtil::throwRuntimeError("one");
             ASSERT( false ); // execution should jump to catch block
@@ -220,6 +233,7 @@ int main(int argc, char *argv[])
         catch(const underflow_error& ex) {
             ASSERT(0 == strcmp(ex.what(), "nine"));
         }
+#endif // defined BDE_BUILD_TARGET_EXC
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);

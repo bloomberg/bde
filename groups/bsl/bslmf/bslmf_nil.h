@@ -15,8 +15,6 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Oleg Grunin (ogrunin)
 //
-//@SEE_ALSO:
-//
 //@DESCRIPTION: 'bslmf::Nil' is mainly used for template meta-programming.  It
 // is useful for providing defaults for template parameters and terminating
 // template recursions.  'bslmf::Nil' can also be used to represent an unset
@@ -59,7 +57,7 @@ BSLS_IDENT("$Id: $")
 //  template <class TYPE>
 //  void print(const TYPE& value)
 //  {
-//      my_If<my_IsPrintable<TYPE>::VALUE, int>::Type Type;  // default false
+//      my_If<my_IsPrintable<TYPE>::value, int>::Type Type;  // default false
 //                                                           // type is
 //                                                           // 'bslmf::Nil'.
 //      print(value, Type());
@@ -78,17 +76,17 @@ BSLS_IDENT("$Id: $")
 // Finally, the 'bslmf::IsNil' meta-function returns true if the type passed to
 // it is 'bslmf::Nil', and false otherwise:
 //..
-//  assert(1 == bslmf::IsNil<bslmf::Nil>::VALUE)
-//  assert(0 == bslmf::IsNil<int>::VALUE)
-//  assert(0 == bslmf::IsNil<char>::VALUE)
+//  assert(1 == bslmf::IsNil<bslmf::Nil>::value)
+//  assert(0 == bslmf::IsNil<int>::value)
+//  assert(0 == bslmf::IsNil<char>::value)
 //..
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_METAINT
-#include <bslmf_metaint.h>
+#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
+#include <bslmf_integralconstant.h>
 #endif
 
 namespace BloombergLP {
@@ -108,24 +106,16 @@ struct Nil {
                       // ============
 
 template <class T>
-struct IsNil {
-    // This meta function sets 'VALUE' to 0 if the type being tested is not
-    // 'Nil'.
-
-    enum { VALUE = 0 };
-    typedef MetaInt<0> Type;
+struct IsNil : bsl::false_type {
 };
 
 template <>
-struct IsNil<Nil> {
-    // This meta function sets 'VALUE' to 1 if the type being tested is 'Nil'.
-
-    enum { VALUE = 1 };
-    typedef MetaInt<1> Type;
+struct IsNil<Nil> : bsl::true_type {
 };
 
 }  // close package namespace
 
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
@@ -138,6 +128,7 @@ struct IsNil<Nil> {
 
 typedef bslmf::Nil bslmf_Nil;
     // This alias is defined for backward compatibility.
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

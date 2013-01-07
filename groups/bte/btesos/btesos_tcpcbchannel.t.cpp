@@ -138,14 +138,14 @@ static void aSsErT(int c, const char *s, int i)
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 typedef btesos_TcpCbChannel Obj;
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
 const int MAX_BUF     = 99000;     // the biggest length of a buffer for write
 
-    #if defined BSLS_PLATFORM__OS_AIX
+    #if defined BSLS_PLATFORM_OS_AIX
     const int BUF_WRITE   = 1000;  // the last buffer length for ioVec/oVec
     const int BUF_WRITE2  = 500;   // the last second buffer length for vector
     const int BUF_LIMIT   = 1024;  // to set the snd/rcv buffer size
-    #elif defined BSLS_PLATFORM__OS_LINUX
+    #elif defined BSLS_PLATFORM_OS_LINUX
     const int BUF_WRITE   = 15343;  // the last buffer length for ioVec/oVec
     const int BUF_WRITE2  = 1000;   // the last second buffer length for vector
     const int BUF_LIMIT   = 4096;  // to set the snd/rcv buffer size
@@ -197,7 +197,7 @@ btes_Iovec ioVec[MAX_VEC]; // global object to be used in the gg() for vector
 btes_Ovec oVec[MAX_VEC];   // global object to be used in the gg() for vector
                            // read or write
 char str[BUF_WRITE+1], str2[BUF_WRITE2+1];  // to be written to a channel
-#ifdef BSLS_PLATFORM__OS_LINUX
+#ifdef BSLS_PLATFORM_OS_LINUX
 char str3[4096];
 #endif
 
@@ -212,7 +212,7 @@ gg(btesos_TcpCbChannel *channel, Buffer *buffer,
    bteso_TcpTimerEventManager *wManager,
    const char                 *script);
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
 
 extern "C"
 {
@@ -335,7 +335,7 @@ static void helpBuildVector()
     oVec[5].setBuffer(str2, strlen(str2));
     ioVec[6].setBuffer(str, strlen(str));
     oVec[6].setBuffer(str, strlen(str));
-#ifdef BSLS_PLATFORM__OS_LINUX
+#ifdef BSLS_PLATFORM_OS_LINUX
     memset(str3,'8', sizeof(str3));
     str3[sizeof(str3) - 1] = '\0';
     ioVec[7].setBuffer(str3, strlen(str3));
@@ -1366,11 +1366,11 @@ int main(int argc, char *argv[])
     int errCode = 0;
 
     // TBD: these tests frequently timeout on Windows, disabling until fixed
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
     testStatus = -1;
 #else
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
     mySignal(SIGPIPE, sigPipeHandler);    // register a handler for SIGPIPE.
     // A write() on the closed socket will generate SIGPIPE.
 #endif
@@ -1546,7 +1546,7 @@ int main(int argc, char *argv[])
       } break;
       case 16: {
 // TBD FIX ME
-#ifndef BSLS_PLATFORM__OS_SOLARIS
+#ifndef BSLS_PLATFORM_OS_SOLARIS
         // --------------------------------------------------------------------
         // TESTING 'bufferedWritev(const btes_Iovec::Ovec *buffers)' &
         //         'bufferedWritev(const btes_Iovec::Iovec *buffers)' FUNCTION:
@@ -1619,7 +1619,7 @@ int main(int argc, char *argv[])
  {
    // line       cmd       PendingR  ReadE  PendingW  WriteE  Type  d_expData
    // ----       ----      --------  -----  --------  ------  ----  ---------
-   #if defined(BSLS_PLATFORM__OS_WINDOWS)      // windows test data
+   #if defined(BSLS_PLATFORM_OS_WINDOWS)      // windows test data
    { // Invalidate a channel.
      {L_,  "iw",              0,       0,      0,       0,  NON_VEC,   ""  },
      {L_,  "wbvi2,1,15,0",    0,       0,      0,       0,  NON_VEC,   ""  },
@@ -1777,7 +1777,7 @@ int main(int argc, char *argv[])
      {L_,  0,                 0,      0,       0,      0,  NON_VEC,   ""   }
    },
    */
-   #elif defined(BSLS_PLATFORM__OS_AIX)        // ibm test data
+   #elif defined(BSLS_PLATFORM_OS_AIX)        // ibm test data
 
    { // Invalidate a channel.
      {L_,  "iw",              0,       0,      0,       0,  NON_VEC,   ""  },
@@ -1969,7 +1969,7 @@ int main(int argc, char *argv[])
      {L_,  "dw1",             0,      0,       0,      0,  NON_VEC,   ""   },
      {L_,  0,                 0,      0,       0,      0,  NON_VEC,   ""   }
    },
-   #elif BSLS_PLATFORM__OS_LINUX
+   #elif BSLS_PLATFORM_OS_LINUX
 
    { // Invalidate a channel.
      {L_,  "iw",              0,       0,      0,       0,  NON_VEC,   ""  },
@@ -2495,7 +2495,7 @@ int main(int argc, char *argv[])
       } break;
       case 15: {
 // TBD FIX ME
-#if !defined(BSLS_PLATFORM__OS_SOLARIS) && !defined(BSLS_PLATFORM__OS_LINUX)
+#if !defined(BSLS_PLATFORM_OS_SOLARIS) && !defined(BSLS_PLATFORM_OS_LINUX)
         // --------------------------------------------------------------------
         // TESTING 'bufferedWrite()' FUNCTION:
         //   The main concerns about this function are (1) if a write
@@ -2566,7 +2566,7 @@ int main(int argc, char *argv[])
  {
    // line       cmd       PendingR  ReadE  PendingW  WriteE  Type  d_expData
    // ----       ----      --------  -----  --------  ------  ----  ---------
-   #if defined(BSLS_PLATFORM__OS_WINDOWS)      // windows test data
+   #if defined(BSLS_PLATFORM_OS_WINDOWS)      // windows test data
    { // Invalidate a channel.
      {L_,  "iw",               0,       0,      0,       0,  NON_VEC,   ""  },
      {L_,  "wb15,1,15,0",      0,       0,      0,       0,  NON_VEC,   ""  },
@@ -2645,7 +2645,7 @@ int main(int argc, char *argv[])
      {L_,  0,                  0,       0,      0,       0,   NON_VEC,   ""  }
    },
 
-   #elif defined(BSLS_PLATFORM__OS_AIX)        // ibm test data
+   #elif defined(BSLS_PLATFORM_OS_AIX)        // ibm test data
 
    { // Invalidate a channel.
      {L_,  "iw",               0,       0,      0,       0,  NON_VEC,   ""  },
@@ -2742,7 +2742,7 @@ int main(int argc, char *argv[])
      {L_,  0,                  0,       0,      0,       0,  NON_VEC,   ""  }
    },
 
-   #elif BSLS_PLATFORM__OS_LINUX
+   #elif BSLS_PLATFORM_OS_LINUX
 
    { // Invalidate a channel.
      {L_,  "iw",               0,       0,      0,       0,  NON_VEC,   ""  },
@@ -3075,7 +3075,7 @@ int main(int argc, char *argv[])
       } break;
       case 14: {
 // TBD FIX ME
-#ifndef BSLS_PLATFORM__OS_SOLARIS
+#ifndef BSLS_PLATFORM_OS_SOLARIS
         // --------------------------------------------------------------------
         // TESTING 'writevRaw(btes_Ovec)' FUNCTION:
         //   Initiate a non-blocking operation to *atomically* write *up *to*
@@ -3153,7 +3153,7 @@ int main(int argc, char *argv[])
    // interfere with each other.
    // line cmd             PendingR  ReadE  PendingW  WriteE  Type  d_expData
    //----- ---             --------  -----  --------  ------  ----  ---------
-   #if defined(BSLS_PLATFORM__OS_WINDOWS)      // windows test data
+   #if defined(BSLS_PLATFORM_OS_WINDOWS)      // windows test data
     { // Issue 1 request, which should be finished without being enqueued.
      { L_, "wvor5,1,40,0",    0,       0,      0,       0,  OVECTOR,   ""  },
      { L_, "dw0",             0,       0,      0,       0,  OVECTOR,   ""  },
@@ -3299,7 +3299,7 @@ int main(int argc, char *argv[])
      { L_,  0,                0,       0,      0,       0,  NON_VEC,   ""  }
    },
 
-   #elif defined(BSLS_PLATFORM__OS_AIX)        // ibm test data
+   #elif defined(BSLS_PLATFORM_OS_AIX)        // ibm test data
 
    { // Issue 1 request, which should be finished without being enqueued.
      { L_, "wvor5,1,40,0",    0,       0,      0,       0,  OVECTOR,   ""  },
@@ -3460,7 +3460,7 @@ int main(int argc, char *argv[])
      { L_,  0,                0,       0,      0,       0,  NON_VEC,   ""  }
    },
 
-   #elif BSLS_PLATFORM__OS_LINUX
+   #elif BSLS_PLATFORM_OS_LINUX
 
    { // Issue 1 request, which should be finished without being enqueued.
      { L_, "wvor5,1,40,0",    0,       0,      0,       0,  OVECTOR,   ""  },
@@ -3814,7 +3814,7 @@ int main(int argc, char *argv[])
                       bteso_SocketOptUtil::BTESO_SOCKETLEVEL,
                       bteso_SocketOptUtil::BTESO_SENDBUFFER, BUF_LIMIT);
             LOOP_ASSERT(i, 0 == ret);
-#ifdef BSLS_PLATFORM__OS_LINUX
+#ifdef BSLS_PLATFORM_OS_LINUX
             ret = bteso_SocketOptUtil::setOption(handles[1],
                       bteso_SocketOptUtil::BTESO_SOCKETLEVEL,
                       bteso_SocketOptUtil::BTESO_RECEIVEBUFFER, BUF_LIMIT);
@@ -3929,7 +3929,7 @@ int main(int argc, char *argv[])
       } break;
       case 13: {
 // TBD FIX ME
-#ifndef BSLS_PLATFORM__OS_SOLARIS
+#ifndef BSLS_PLATFORM_OS_SOLARIS
         // --------------------------------------------------------------------
         // TESTING 'writevRaw(btes_Iovec)' FUNCTION:
         //   Initiate a non-blocking operation to *atomically* write *up *to*
@@ -4004,7 +4004,7 @@ int main(int argc, char *argv[])
    // interfere with each other.
    // line cmd             PendingR  ReadE  PendingW  WriteE  Type  d_expData
    //----------------------------------------------------------------------
-   #if defined(BSLS_PLATFORM__OS_WINDOWS)      // windows test data
+   #if defined(BSLS_PLATFORM_OS_WINDOWS)      // windows test data
     { // Issue 1 request, which should be finished without being enqueued.
      { L_, "wvir5,1,40,0",    0,       0,      0,       0,  IOVECTOR,   ""  },
      { L_, "dw0",             0,       0,      0,       0,  IOVECTOR,   ""  },
@@ -4149,7 +4149,7 @@ int main(int argc, char *argv[])
      { L_, "dw1",             0,       0,      0,       0,  NON_VEC,   ""   },
      { L_,  0,                0,       0,      0,       0,  NON_VEC,   ""   }
    }, */
-   #elif defined(BSLS_PLATFORM__OS_AIX)        // ibm test data
+   #elif defined(BSLS_PLATFORM_OS_AIX)        // ibm test data
 
    { // Issue 1 request, which should be finished without being enqueued.
      { L_, "wvir5,1,40,0",    0,       0,      0,       0,  IOVECTOR,   ""  },
@@ -4309,7 +4309,7 @@ int main(int argc, char *argv[])
      { L_, "dw1",             0,       0,      0,       0,  NON_VEC,   ""   },
      { L_,  0,                0,       0,      0,       0,  NON_VEC,   ""   }
    },
-   #elif BSLS_PLATFORM__OS_LINUX
+   #elif BSLS_PLATFORM_OS_LINUX
 
    { // Issue 1 request, which should be finished without being enqueued.
      { L_, "wvir5,1,40,0",    0,       0,      0,       0,  IOVECTOR,   ""  },
@@ -4666,7 +4666,7 @@ int main(int argc, char *argv[])
                       bteso_SocketOptUtil::BTESO_SENDBUFFER, BUF_LIMIT);
             LOOP_ASSERT(i, 0 == ret);
 
-#ifdef BSLS_PLATFORM__OS_LINUX
+#ifdef BSLS_PLATFORM_OS_LINUX
             ret = bteso_SocketOptUtil::setOption(handles[1],
                       bteso_SocketOptUtil::BTESO_SOCKETLEVEL,
                       bteso_SocketOptUtil::BTESO_RECEIVEBUFFER, BUF_LIMIT);
@@ -6200,7 +6200,7 @@ int main(int argc, char *argv[])
       } break;
       case 8: {
 // TBD FIX ME
-#if !defined(BSLS_PLATFORM__OS_SOLARIS) && !defined(BSLS_PLATFORM__OS_LINUX)
+#if !defined(BSLS_PLATFORM_OS_SOLARIS) && !defined(BSLS_PLATFORM_OS_LINUX)
         // --------------------------------------------------------------------
         // TESTING 'write()' FUNCTION:
         //   The main concerns about this function are (1) if a write
@@ -6274,7 +6274,7 @@ int main(int argc, char *argv[])
    // interfere with each other.
    // line cmd             PendingR  ReadE  PendingW  WriteE  Type  d_expData
    //----------------------------------------------------------------------
-   #if defined(BSLS_PLATFORM__OS_WINDOWS)        // windows test data
+   #if defined(BSLS_PLATFORM_OS_WINDOWS)        // windows test data
 
    { // Issue 1 request, which should be finished without being enqueued.
      { L_, "w40,1,40,0",        0,       0,      0,       0,  NON_VEC,  ""   },
@@ -6365,7 +6365,7 @@ int main(int argc, char *argv[])
      { L_,  0,                  0,       0,      0,       0,  NON_VEC,   ""  }
    },
 
-   #elif defined(BSLS_PLATFORM__OS_AIX)          // ibm test data
+   #elif defined(BSLS_PLATFORM_OS_AIX)          // ibm test data
 
    { // Issue 1 request, which should be finished without being enqueued.
      { L_, "w40,1,40,0",        0,       0,      0,       0,  NON_VEC,  ""  },
@@ -6460,7 +6460,7 @@ int main(int argc, char *argv[])
      { L_,  0,                  0,       0,      0,       0,  NON_VEC,   ""  }
    },
 
-   #elif BSLS_PLATFORM__OS_LINUX
+   #elif BSLS_PLATFORM_OS_LINUX
 
    { // Issue 1 request, which should be finished without being enqueued.
      { L_, "w40,1,40,0",        0,       0,      0,       0,  NON_VEC,  ""   },
@@ -6780,7 +6780,7 @@ int main(int argc, char *argv[])
       } break;
       case 7: {
 // TBD FIX ME
-#if !defined(BSLS_PLATFORM__OS_SOLARIS) && !defined(BSLS_PLATFORM__CPU_X86_64)
+#if !defined(BSLS_PLATFORM_OS_SOLARIS) && !defined(BSLS_PLATFORM_CPU_X86_64)
         // --------------------------------------------------------------------
         // TESTING 'writeRaw()' FUNCTION:
         //   The main concerns about this function are (1) if a write
@@ -6852,7 +6852,7 @@ int main(int argc, char *argv[])
    // interfere with each other.
    // line cmd             PendingR  ReadE  PendingW  WriteE  Type  d_expData
    //----------------------------------------------------------------------
-   #if defined(BSLS_PLATFORM__OS_WINDOWS)        // windows test data
+   #if defined(BSLS_PLATFORM_OS_WINDOWS)        // windows test data
    { // Issue 1 request, which should be finished without being enqueued.
      { L_, "wr40,1,40,0",       0,       0,      0,       0,  NON_VEC,   ""  },
      { L_, "dw0",               0,       0,      0,       0,  NON_VEC,   ""  },
@@ -6925,7 +6925,7 @@ int main(int argc, char *argv[])
      { L_,  0,                  0,       0,      0,       0,  NON_VEC,   ""  }
    },
 
-   #elif defined(BSLS_PLATFORM__OS_AIX)          // ibm test data
+   #elif defined(BSLS_PLATFORM_OS_AIX)          // ibm test data
 
    { // Issue 1 request, which should be finished without being enqueued.
      { L_, "wr40,1,40,0",       0,       0,      0,       0,  NON_VEC,  ""   },
@@ -7005,7 +7005,7 @@ int main(int argc, char *argv[])
      { L_, "dw1",               0,       0,      0,       0,  NON_VEC,   ""  },
      { L_,  0,                  0,       0,      0,       0,  NON_VEC,   ""  }
    },
-   #elif BSLS_PLATFORM__OS_LINUX
+   #elif BSLS_PLATFORM_OS_LINUX
    { // Issue 1 request, which should be finished without being enqueued.
      { L_, "wr40,1,40,0",       0,       0,      0,       0,  NON_VEC,   ""  },
      { L_, "dw0",               0,       0,      0,       0,  NON_VEC,   ""  },
@@ -7571,7 +7571,7 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
 // TBD FIX ME
-#if !defined(BSLS_PLATFORM__OS_SOLARIS) && !defined(BSLS_PLATFORM__CPU_X86_64)
+#if !defined(BSLS_PLATFORM_OS_SOLARIS) && !defined(BSLS_PLATFORM_CPU_X86_64)
         // --------------------------------------------------------------------
         // TESTING MANIPULATORS:
         //   The main concern for the test is that: 1.  if a new event
@@ -7656,7 +7656,7 @@ int main(int argc, char *argv[])
      // then test cancelALL(); next test invalidate().
      // Note that it's important to make sure read and write event will not
      // interfere with each other.
-   #if defined(BSLS_PLATFORM__OS_WINDOWS)     // windows test data
+   #if defined(BSLS_PLATFORM_OS_WINDOWS)     // windows test data
    {
      { L_, "rb1,0,0,-1",       1,     1,      0,        0,  NON_VEC,   ""    },
      { L_, "rb4,1,0,-1",       2,     1,      0,        0,  NON_VEC,   ""    },
@@ -7675,7 +7675,7 @@ int main(int argc, char *argv[])
      { L_, "w9,1,0,-1",        1,     1,      1,        1,  NON_VEC,   ""    },
      { L_,  0,                 0,     0,      0,        0,  NON_VEC,   ""    }
    };
-   #elif defined(BSLS_PLATFORM__OS_AIX)       // ibm test data
+   #elif defined(BSLS_PLATFORM_OS_AIX)       // ibm test data
    {
      { L_, "rb1,0,0,-1",       1,     1,      0,        0,  NON_VEC,   ""    },
      { L_, "rb4,1,0,-1",       2,     1,      0,        0,  NON_VEC,   ""    },
@@ -7694,7 +7694,7 @@ int main(int argc, char *argv[])
      { L_, "w9,1,0,-1",        1,     1,      1,        1,  NON_VEC,   ""    },
      { L_,  0,                 0,     0,      0,        0,  NON_VEC,   ""    }
    };
-   #elif BSLS_PLATFORM__OS_LINUX
+   #elif BSLS_PLATFORM_OS_LINUX
    {
      { L_, "rb1,0,0,-1",       1,     1,      0,        0,  NON_VEC,   ""    },
      { L_, "rb4,1,0,-1",       2,     1,      0,        0,  NON_VEC,   ""    },
@@ -7915,7 +7915,7 @@ int main(int argc, char *argv[])
      // interfere with each other.
     // line cmd             PendingR  ReadE  PendingW  WriteE  Type  d_expData
     // ---- ---             --------  -----  --------  ------  ----  ---------
-    #if defined(BSLS_PLATFORM__OS_WINDOWS)     // windows test data
+    #if defined(BSLS_PLATFORM_OS_WINDOWS)     // windows test data
     {
      { L_, "rb1,0,0,-1",       1,     1,      0,        1,  NON_VEC,   ""    },
      { L_, "rb4,1,0,-1",       2,     1,      0,        1,  NON_VEC,   ""    },
@@ -7997,7 +7997,7 @@ int main(int argc, char *argv[])
      { L_,  0,                 0,     0,      0,        0,  NON_VEC,   ""    }
    },
 
-   #elif defined(BSLS_PLATFORM__OS_AIX)       // ibm test data
+   #elif defined(BSLS_PLATFORM_OS_AIX)       // ibm test data
 
    {
      { L_, "rb1,0,0,-1",       1,     1,      0,        1,  NON_VEC,   ""    },
@@ -8073,7 +8073,7 @@ int main(int argc, char *argv[])
      { L_, "dr0",              0,     0,      0,        0,  NON_VEC,   ""    },
      { L_,  0,                 0,     0,      0,        0,  NON_VEC,   ""    }
    },
-   #elif BSLS_PLATFORM__OS_LINUX
+   #elif BSLS_PLATFORM_OS_LINUX
    {
      { L_, "rb1,0,0,-1",       1,     1,      0,        1,  NON_VEC,   ""    },
      { L_, "rb4,1,0,-1",       2,     1,      0,        1,  NON_VEC,   ""    },
@@ -8393,7 +8393,7 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
 // TBD FIX ME
-#if !defined(BSLS_PLATFORM__OS_SOLARIS) && !defined(BSLS_PLATFORM__CPU_X86_64)
+#if !defined(BSLS_PLATFORM_OS_SOLARIS) && !defined(BSLS_PLATFORM_CPU_X86_64)
         // --------------------------------------------------------------------
         // TESTING DIRECT ACCESSORS:
         //   Each accessor directly returns the internal representations of
@@ -8459,7 +8459,7 @@ int main(int argc, char *argv[])
  {
    // line cmd             PendingR  ReadE  PendingW  WriteE invalidR invalidW
    //----------------------------------------------------------------------
-   #if defined(BSLS_PLATFORM__OS_WINDOWS)     // windows test data
+   #if defined(BSLS_PLATFORM_OS_WINDOWS)     // windows test data
    {
      { L_, "rb1,0,0,-1",       1,     1,      0,        1,      0,       0  },
      { L_, "rb4,1,0,-1",       2,     1,      0,        1,      0,       0  },
@@ -8512,7 +8512,7 @@ int main(int argc, char *argv[])
      { L_, "w9,1,0,-1",        1,     1,      2,        1,      1,       1  },
      { L_,  0,                 0,     0,      0,        0,      0,       0  }
    },
-   #elif defined(BSLS_PLATFORM__OS_AIX)       // ibm test data
+   #elif defined(BSLS_PLATFORM_OS_AIX)       // ibm test data
    {
      { L_, "rb1,0,0,-1",       1,     1,      0,        1,      0,       0  },
      { L_, "rb4,1,0,-1",       2,     1,      0,        1,      0,       0  },
@@ -8562,7 +8562,7 @@ int main(int argc, char *argv[])
      { L_,  0,                 0,     0,      0,        0,      0,       0  }
    },
 
-   #elif BSLS_PLATFORM__OS_LINUX
+   #elif BSLS_PLATFORM_OS_LINUX
    {
      { L_, "rb1,0,0,-1",       1,     1,      0,        1,      0,       0  },
      { L_, "rb4,1,0,-1",       2,     1,      0,        1,      0,       0  },
@@ -8835,7 +8835,7 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
 // TBD FIX ME
-#ifndef BSLS_PLATFORM__OS_SOLARIS
+#ifndef BSLS_PLATFORM_OS_SOLARIS
         // --------------------------------------------------------------------
         // TESTING PRIMARY MANIPULATORS (BOOTSTRAP):
         //   The main concern is to make sure: 1.  Every constructor can
@@ -8919,7 +8919,7 @@ int main(int argc, char *argv[])
         // write request.
    // line      cmd       PendingR  ReadE  PendingW  WriteE  Type  d_expData
    //-----      ---       --------  -----  --------  ------  ----  ---------
-   #if defined(BSLS_PLATFORM__OS_WINDOWS)   // windows test data
+   #if defined(BSLS_PLATFORM_OS_WINDOWS)   // windows test data
    {
      { L_, "rb1,0,0,-1",       1,     1,      0,        1,  NON_VEC,   ""    },
      { L_, "rb4,1,0,-1",       2,     1,      0,        1,  NON_VEC,   ""    },
@@ -8947,7 +8947,7 @@ int main(int argc, char *argv[])
      { L_,  0,                 0,     0,      0,        0,  NON_VEC,   ""    }
    };
 
-   #elif defined(BSLS_PLATFORM__OS_AIX)     // ibm test data
+   #elif defined(BSLS_PLATFORM_OS_AIX)     // ibm test data
 
    {
      { L_, "rb1,0,0,-1",       1,     1,      0,        1,  NON_VEC,   ""    },
@@ -8973,7 +8973,7 @@ int main(int argc, char *argv[])
      { L_, "w9,1,0,-1",        1,     2,      2,        2,  NON_VEC,   ""    },
      { L_,  0,                 0,     0,      0,        0,  NON_VEC,   ""    }
    };
-   #elif BSLS_PLATFORM__OS_LINUX
+   #elif BSLS_PLATFORM_OS_LINUX
    {
      { L_, "rb1,0,0,-1",       1,     1,      0,        1,  NON_VEC,   ""    },
      { L_, "rb4,1,0,-1",       2,     1,      0,        1,  NON_VEC,   ""    },
@@ -9260,7 +9260,7 @@ int main(int argc, char *argv[])
      { L_, "dr1",             4,    1,     0,      0,  NON_VEC,   "5678123" },
      { L_, "dr1",             3,    1,     0,      0,  IOVECTOR,  "456"     },
 
-#if !defined(BSLS_PLATFORM__OS_SOLARIS) || BSLS_PLATFORM__OS_VER_MAJOR < 10
+#if !defined(BSLS_PLATFORM_OS_SOLARIS) || BSLS_PLATFORM_OS_VER_MAJOR < 10
      { L_, "W20",             3,    1,     0,      0,  NON_VEC,   ""        },
      { L_, "dr1",             1,    1,     0,      0,  NON_VEC,   "71234567"},
 #endif
@@ -9440,7 +9440,7 @@ int main(int argc, char *argv[])
     bteso_SocketImpUtil::cleanup(&errCode);
     ASSERT(0 == errCode);
 
-#endif // !BSLS_PLATFORM__OS_WINDOWS
+#endif // !BSLS_PLATFORM_OS_WINDOWS
 
     return testStatus;
 }

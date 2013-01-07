@@ -12,9 +12,9 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslma::DestructorProctor: proctor to conditionally manage an object
 //
-//@AUTHOR: Arthur Chiu (achiu21)
-//
 //@SEE_ALSO: bslma_destructorguard, bslma_autodestructor
+//
+//@AUTHOR: Arthur Chiu (achiu21)
 //
 //@DESCRIPTION: This component provides a proctor class template to
 // conditionally manage an (otherwise-unmanaged) object of parameterized 'TYPE'
@@ -109,7 +109,7 @@ BSLS_IDENT("$Id: $")
 //      static void copyConstruct(TYPE             *address,
 //                                const TYPE&       original,
 //                                bslma::Allocator *basicAllocator,
-//                                bslmf::MetaInt<PAIR_TRAIT> *);
+//                                bsl::integral_constant<bool, PAIR_TRAIT> *);
 //          // Copy construct the specified 'original' into the specified
 //          // 'address' using the specified 'basicAllocator' (if the
 //          // copy constructor of 'TYPE' takes an allocator).  Note that
@@ -119,7 +119,7 @@ BSLS_IDENT("$Id: $")
 //      static void copyConstruct(TYPE             *address,
 //                                const TYPE&       original,
 //                                bslma::Allocator *basicAllocator,
-//                                bslmf::MetaInt<NIL_TRAIT> *);
+//                                bsl::integral_constant<bool, NIL_TRAIT> *);
 //          // Copy construct the specified 'original' into the specified
 //          // 'address' using the specified 'basicAllocator' (if the
 //          // copy constructor of 'TYPE' takes an allocator).  Note that
@@ -135,7 +135,7 @@ BSLS_IDENT("$Id: $")
 //      copyConstruct(address,
 //                    original,
 //                    basicAllocator,
-//                    (bslmf::MetaInt<my_HasPairTrait<TYPE>::VALUE> *)0);
+//                    (typename my_HasPairTrait<TYPE>::type *)0);
 //  }
 //..
 // The implementation of 'copyConstruct' constructs the pair object in two
@@ -149,7 +149,7 @@ BSLS_IDENT("$Id: $")
 //  void my_Primitives::copyConstruct(TYPE             *address,
 //                                    const TYPE&       original,
 //                                    bslma::Allocator *basicAllocator,
-//                                    bslmf::MetaInt<PAIR_TRAIT> *)
+//                                    bsl::integral_constant<int, PAIR_TRAIT> *)
 //  {
 //      copyConstruct(&address->first, original.first, basicAllocator);
 //
@@ -174,7 +174,7 @@ BSLS_IDENT("$Id: $")
 //  void my_Primitives::copyConstruct(TYPE             *address,
 //                                    const TYPE&       original,
 //                                    bslma::Allocator *basicAllocator,
-//                                    bslmf::MetaInt<NIL_TRAIT> *)
+//                                    bsl::integral_constant<int, NIL_TRAIT> *)
 //  {
 //      new(address)TYPE(original, basicAllocator);
 //  }
@@ -301,6 +301,7 @@ void DestructorProctor<TYPE>::reset(TYPE *object)
 
 }  // close package namespace
 
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
@@ -310,6 +311,7 @@ void DestructorProctor<TYPE>::reset(TYPE *object)
 #endif
 #define bslma_DestructorProctor bslma::DestructorProctor
     // This alias is defined for backward compatibility.
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

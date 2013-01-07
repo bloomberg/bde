@@ -10,7 +10,7 @@
 #include <stdio.h>      // printf()
 #include <iostream>
 
-#ifdef BSLS_PLATFORM__OS_UNIX   // htons(), htonl(), ntohs(), ntohl()
+#ifdef BSLS_PLATFORM_OS_UNIX   // htons(), htonl(), ntohs(), ntohl()
 #include <arpa/inet.h>
 #else
 #include <winsock2.h>
@@ -246,7 +246,7 @@ int main(int argc, char *argv[])
         const int   INPUT32 = 0xabcdef12;
         const Int64 INPUT64 = 0xabcdef1234567890LL;
 
-#if BSLS_PLATFORM__IS_BIG_ENDIAN
+#if BSLS_PLATFORM_IS_BIG_ENDIAN
         // Big Endian to host expected results
         const short BEEXP16 = 0xabcd;
         const int   BEEXP32 = 0xabcdef12;
@@ -565,7 +565,7 @@ int main(int argc, char *argv[])
 
                     if (veryVeryVerbose) { T_ T_ PH_(LEToHost) PH_(hostToLE) }
 
-#if BSLS_PLATFORM__IS_BIG_ENDIAN
+#if BSLS_PLATFORM_IS_BIG_ENDIAN
                     const unsigned short EXP = EXPECTED;
 #else
                     const unsigned short EXP = INPUT;
@@ -586,7 +586,7 @@ int main(int argc, char *argv[])
 
                     if (veryVeryVerbose) { T_ T_ PH_(BEToHost) PH_(hostToBE) }
 
-#if BSLS_PLATFORM__IS_LITTLE_ENDIAN
+#if BSLS_PLATFORM_IS_LITTLE_ENDIAN
                     const unsigned short EXP = EXPECTED;
 #else
                     const unsigned short EXP = INPUT;
@@ -640,7 +640,7 @@ int main(int argc, char *argv[])
 
                     if (veryVeryVerbose) { T_ T_ PH_(LEToHost) PH_(hostToLE) }
 
-#if BSLS_PLATFORM__IS_BIG_ENDIAN
+#if BSLS_PLATFORM_IS_BIG_ENDIAN
                     const unsigned int EXP = EXPECTED;
 #else
                     const unsigned int EXP = INPUT;
@@ -660,7 +660,7 @@ int main(int argc, char *argv[])
 
                     if (veryVeryVerbose) { T_ T_ PH_(BEToHost) PH_(hostToBE) }
 
-#if BSLS_PLATFORM__IS_LITTLE_ENDIAN
+#if BSLS_PLATFORM_IS_LITTLE_ENDIAN
                     const unsigned int EXP = EXPECTED;
 #else
                     const unsigned int EXP = INPUT;
@@ -712,7 +712,7 @@ int main(int argc, char *argv[])
 
                     if (veryVeryVerbose) { T_ T_ PH_(LEToHost) PH_(hostToLE) }
 
-#if BSLS_PLATFORM__IS_BIG_ENDIAN
+#if BSLS_PLATFORM_IS_BIG_ENDIAN
                     const Uint64 EXP = EXPECTED;
 #else
                     const Uint64 EXP = INPUT;
@@ -729,7 +729,7 @@ int main(int argc, char *argv[])
 
                     if (veryVeryVerbose) { T_ T_ PH_(BEToHost) PH_(hostToBE) }
 
-#if BSLS_PLATFORM__IS_LITTLE_ENDIAN
+#if BSLS_PLATFORM_IS_LITTLE_ENDIAN
                     const Uint64 EXP = EXPECTED;
 #else
                     const Uint64 EXP = INPUT;
@@ -944,7 +944,7 @@ int main(int argc, char *argv[])
 
                 if (veryVerbose) { T_ P_(LINE) P_(VALUE) P(EXPECTED) }
 
-#if defined (BSLS_PLATFORM__IS_BIG_ENDIAN)
+#if defined (BSLS_PLATFORM_IS_BIG_ENDIAN)
                 {
                     const Uint64 NEWVALUE  = BSLS_BYTEORDER_HTONLL(VALUE);
                     const Uint64 NEWVALUE2 =

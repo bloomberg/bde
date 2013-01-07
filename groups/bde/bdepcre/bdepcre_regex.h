@@ -388,11 +388,11 @@ class bdepcre_RegEx {
 
         BDEPCRE_FLAG_UTF8             = 0x0800   // UTF-8 support
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , FLAG_CASELESS  = BDEPCRE_FLAG_CASELESS
       , FLAG_MULTILINE = BDEPCRE_FLAG_MULTILINE
       , FLAG_UTF8      = BDEPCRE_FLAG_UTF8
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
         // This enumeration defines the flags that may be supplied to the
         // 'prepare' method to effect specific pattern matching behavior.

@@ -9,6 +9,8 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide functionality of the corresponding C++ Standard header.
 //
+//@INTERNAL_DEPRECATED: Do not use.
+//
 //@SEE_ALSO: package bsl+stdhdrs
 //
 //@AUTHOR: Arthur Chiu (achiu21)
@@ -18,6 +20,10 @@ BSLS_IDENT("$Id: $")
 // compiler-provided standard header, and also directly include Bloomberg's
 // implementation of the C++ standard type (if one exists).  Finally, place the
 // included symbols from the 'std' namespace (if any) into the 'bsl' namespace.
+
+#ifdef BDE_OMIT_TRANSITIONAL // DEPRECATED
+#error "bsl_slist is deprecated"
+#endif
 
 #ifndef INCLUDED_BSLS_NATIVESTD
 #include <bsls_nativestd.h>

@@ -168,7 +168,7 @@ const void *addFixedOffset(bsls_Types::UintPtr funcAddress)
     // Given a function pointer stored in a 'UintPtr', add an offset to the
     // pointer and return it as a 'const void *'.
 {
-#ifdef BSLS_PLATFORM__OS_AIX
+#ifdef BSLS_PLATFORM_OS_AIX
     // when you take '&' of a function on AIX, you get a pointer to a record
     // describing the function, which has a pointer in it to the actual code.
 

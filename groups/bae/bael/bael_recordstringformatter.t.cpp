@@ -24,7 +24,7 @@
 
 #include <bsl_cstring.h>                       // for 'strcmp'
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
 #include <unistd.h>                      // for 'getpid'
 #endif
 
@@ -259,7 +259,7 @@ int main(int argc, char *argv[])
         const char *filename  = "subdir/process.cpp";
         const bsls_PlatformUtil::Uint64
                                 threadID  = bcemt_ThreadUtil::selfIdAsUint64();
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
         const pid_t processID = getpid();
 #else
         const int   processID = 0;
@@ -438,7 +438,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\n  Testing \"%F\"." << endl;
         {
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
 #define SLASH "\\"
 #else
 #define SLASH "/"

@@ -279,8 +279,8 @@ BDES_IDENT("$Id: $")
 #include <bdeut_nullableallocatedvalue.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_ANYTYPE
-#include <bslmf_anytype.h>
+#ifndef INCLUDED_BSLMF_MATCHANYTYPE
+#include <bslmf_matchanytype.h>
 #endif
 
 
@@ -296,7 +296,7 @@ namespace bdeat_NullableValueFunctions {
     // information.
 
     // META-FUNCTIONS
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
     template <typename TYPE>
     bslmf_MetaInt<0> isNullableValueMetaFunction(const TYPE&);
@@ -308,7 +308,7 @@ namespace bdeat_NullableValueFunctions {
         // This function is *DEPRECATED*.  User's should specialize the
         // 'IsNullableValue' meta-function.
 
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     template <typename TYPE>
     struct IsNullableValue {
         // This 'struct' should be specialized for third-party types that need
@@ -317,10 +317,10 @@ namespace bdeat_NullableValueFunctions {
 
         enum {
             VALUE = 0
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
                  || BSLMF_METAINT_TO_BOOL(isNullableValueMetaFunction(
                                                    bslmf_TypeRep<TYPE>::rep()))
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
         };
     };
 

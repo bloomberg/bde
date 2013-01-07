@@ -69,12 +69,12 @@ int main(int argc, char *argv[]) {
 
         if (verbose) cout << endl << "Verify typedefs are set" << endl;
 
-        #ifdef BSLS_PLATFORM__OS_UNIX
+        #ifdef BSLS_PLATFORM_OS_UNIX
         bces_Platform::ThreadPolicy policy;
         ASSERT(1 == typeTest(policy));
         #endif
 
-        #ifdef BSLS_PLATFORM__OS_WINDOWS
+        #ifdef BSLS_PLATFORM_OS_WINDOWS
         bces_Platform::ThreadPolicy policy;
         ASSERT(2 == typeTest(policy));
         #endif
@@ -82,16 +82,16 @@ int main(int argc, char *argv[]) {
         if (verbose) {
             cout << endl << "Print sefined symbols" << endl;
 
-            #if defined(BCES_PLATFORM__POSIX_THREADS)
-                ASSERT(0 <= BCES_PLATFORM__POSIX_THREADS);
-                cout  << "\tBCES_PLATFORM__POSIX_THREADS = "
-                      <<    BCES_PLATFORM__POSIX_THREADS << endl;
+            #if defined(BCES_PLATFORM_POSIX_THREADS)
+                ASSERT(0 <= BCES_PLATFORM_POSIX_THREADS);
+                cout  << "\tBCES_PLATFORM_POSIX_THREADS = "
+                      <<    BCES_PLATFORM_POSIX_THREADS << endl;
             #endif
 
-            #if defined(BCES_PLATFORM__WIN32_THREADS)
-                ASSERT(0 <= BCES_PLATFORM__WIN32_THREADS);
-                cout  << "\tBCES_PLATFORM__WIN32_THREADS = "
-                      <<    BCES_PLATFORM__WIN32_THREADS << endl;
+            #if defined(BCES_PLATFORM_WIN32_THREADS)
+                ASSERT(0 <= BCES_PLATFORM_WIN32_THREADS);
+                cout  << "\tBCES_PLATFORM_WIN32_THREADS = "
+                      <<    BCES_PLATFORM_WIN32_THREADS << endl;
             #endif
 
         }

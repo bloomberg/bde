@@ -1,5 +1,5 @@
 #include <bsls_platform.h>
-#if 1 == BSLS_PLATFORM__CMP_SUN && !defined(BSLS_PLATFORM__OS_WINDOWS)
+#if 1 == BSLS_PLATFORM_CMP_SUN && !defined(BSLS_PLATFORM_OS_WINDOWS)
 int main() { return 0; }
 #else
 /***************************************************************************

@@ -871,6 +871,10 @@ BDES_IDENT("$Id: $")
 #include <bdescm_version.h>
 #endif
 
+#ifndef INCLUDED_BDEM_ELEMTYPE
+#include <bdem_elemtype.h>
+#endif
+
 namespace BloombergLP {
 
 class bdem_EnumerationDef;

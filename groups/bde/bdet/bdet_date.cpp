@@ -67,7 +67,7 @@ bsl::ostream& bdet_Date::print(bsl::ostream& stream,
                                 !bdeimp_DateUtil::isValidSerialDate(d_date))) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
-#if defined(BSLS_PLATFORM__CMP_MSVC)
+#if defined(BSLS_PLATFORM_CMP_MSVC)
 #define snprintf _snprintf
 #endif
 

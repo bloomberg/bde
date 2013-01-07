@@ -1345,7 +1345,7 @@ if (verbose)
             ASSERT(0 == isAnySet(R2));
             ASSERT(1 == R2.isAnyNull());
 
-#if !defined(BSLS_PLATFORM__CMP_MSVC)
+#if !defined(BSLS_PLATFORM_CMP_MSVC)
             mR2.theModifiableList(J);      // clear nullness bit
 #else
             &mR2[J].theModifiableList();   // clear nullness bit

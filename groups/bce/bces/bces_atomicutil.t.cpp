@@ -7,8 +7,8 @@
 #include <bsl_c_limits.h>
 #include <bsl_c_stdlib.h> // atoi
 
-#if defined(BSLS_PLATFORM__OS_AIX) ||                                         \
-    (defined(BSLS_PLATFORM__CMP_GNU) && BSLS_PLATFORM__CMP_VER_MAJOR <= 29500)
+#if defined(BSLS_PLATFORM_OS_AIX) ||                                         \
+    (defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VER_MAJOR <= 29500)
 
 #include <bsl_iostream.h>
 
@@ -20,7 +20,7 @@ using bsl::endl;
 using bsl::flush;
 #endif
 
-#if defined(BSLS_PLATFORM__OS_SOLARIS)
+#if defined(BSLS_PLATFORM_OS_SOLARIS)
 #include <thread.h>  // For thr_setconcurrency
 #endif
 
@@ -142,7 +142,7 @@ const bsls_PlatformUtil::Int64 OFFSET_64 = 0xA00000000LL;
 //-----------------------------------------------------------------------------
 
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
 #include <windows.h>
 typedef HANDLE my_thread_t;
 #else
@@ -155,7 +155,7 @@ typedef pthread_t my_thread_t;
 class my_Mutex {
     // This class implements a cross-platform mutual exclusion primitive
     // similar to posix mutexes.
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
     HANDLE d_mutex;
 #else
     pthread_mutex_t d_mutex;
@@ -179,7 +179,7 @@ class my_Conditional {
     // testing.  It has two states, signaled and non-signaled.  Once
     // signaled('signal'), the state will persist until explicitly 'reset'.
     // Calls to wait when the state is signaled, will succeed immediately.
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
     HANDLE d_cond;
 #else
     pthread_mutex_t d_mutex;
@@ -296,7 +296,7 @@ struct SpinLockTestThreadArgs {
 inline
 my_Mutex::my_Mutex()
 {
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
     d_mutex = CreateMutex(0,FALSE,0);
 #else
     pthread_mutex_init(&d_mutex,0);
@@ -306,7 +306,7 @@ my_Mutex::my_Mutex()
 inline
 my_Mutex::~my_Mutex()
 {
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
     CloseHandle(d_mutex);
 #else
     pthread_mutex_destroy(&d_mutex);
@@ -316,7 +316,7 @@ my_Mutex::~my_Mutex()
 inline
 void my_Mutex::lock()
 {
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
     WaitForSingleObject(d_mutex, INFINITE);
 #else
     pthread_mutex_lock(&d_mutex);
@@ -326,7 +326,7 @@ void my_Mutex::lock()
 inline
 void my_Mutex::unlock()
 {
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
     ReleaseMutex(d_mutex);
 #else
     pthread_mutex_unlock(&d_mutex);
@@ -336,7 +336,7 @@ void my_Mutex::unlock()
 
 my_Conditional::my_Conditional()
 {
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
     d_cond = CreateEvent(0,TRUE,FALSE,0);
 #else
     pthread_mutex_init(&d_mutex,0);
@@ -347,7 +347,7 @@ my_Conditional::my_Conditional()
 
 my_Conditional::~my_Conditional()
 {
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
     CloseHandle(d_cond);
 #else
     pthread_cond_destroy(&d_cond);
@@ -357,7 +357,7 @@ my_Conditional::~my_Conditional()
 
 void my_Conditional::reset()
 {
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
     ResetEvent(d_cond);
 #else
     pthread_mutex_lock(&d_mutex);
@@ -368,7 +368,7 @@ void my_Conditional::reset()
 
 void my_Conditional::signal()
 {
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
     SetEvent(d_cond);
 #else
     pthread_mutex_lock(&d_mutex);
@@ -381,7 +381,7 @@ void my_Conditional::signal()
 
 void my_Conditional::wait()
 {
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
     WaitForSingleObject(d_cond,INFINITE);
 #else
     pthread_mutex_lock(&d_mutex);
@@ -392,7 +392,7 @@ void my_Conditional::wait()
 
 int my_Conditional::timedWait(int timeout)
 {
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
     DWORD res = WaitForSingleObject(d_cond,timeout);
     return res == WAIT_OBJECT_0 ? 0 : -1;
 #else
@@ -416,7 +416,7 @@ int my_Conditional::timedWait(int timeout)
 static int myCreateThread( my_thread_t *aHandle, THREAD_ENTRY aEntry,
                            void *arg )
 {
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
     *aHandle = CreateThread( 0, 0, (LPTHREAD_START_ROUTINE)aEntry,arg,0,0);
     return *aHandle ? 0 : -1;
 #else
@@ -426,7 +426,7 @@ static int myCreateThread( my_thread_t *aHandle, THREAD_ENTRY aEntry,
 
 static void  myJoinThread(my_thread_t aHandle)
 {
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
     WaitForSingleObject(aHandle,INFINITE);
     CloseHandle(aHandle);
 #else
@@ -1122,9 +1122,9 @@ int main(int argc, char *argv[]) {
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-#if defined(BSLS_PLATFORM__OS_AIX)
+#if defined(BSLS_PLATFORM_OS_AIX)
     pthread_setconcurrency(20);
-#elif defined(BSLS_PLATFORM__OS_SOLARIS)
+#elif defined(BSLS_PLATFORM_OS_SOLARIS)
     pthread_setconcurrency(20);
     thr_setconcurrency(20);
 #endif

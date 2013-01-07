@@ -11,13 +11,13 @@
 #include <bsl_strstream.h>
 #include <bsl_new.h>             // placement syntax
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
 #include <sys/times.h>  // times()
 #include <bsl_climits.h>      // times()
 #include <bsl_ctime.h>        // CLK_TCK
 #endif
 
-#ifdef BSLS_PLATFORM__OS_LINUX
+#ifdef BSLS_PLATFORM_OS_LINUX
     #ifndef CLK_TCK
         #define CLK_TCK CLOCKS_PER_SEC
     #endif
@@ -117,7 +117,7 @@ int avoidopt (int *i, void *ptr, void *ptr2) {
 template <class T, int iter>
 inline void performtest(const char *name, char *testsource, char *testdest)
 {
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
         struct tms startTime;
         struct tms endmemcpyTime;
         struct tms endTime;
@@ -454,7 +454,7 @@ int main(int argc, char *argv[]) {
         // Testing:
         //   PERFORMANCE
         // --------------------------------------------------------------------
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
         union Align {
           char                               d_bytes[100000];
           bsls_AlignmentUtil::MaxAlignedType d_align;   // only used for

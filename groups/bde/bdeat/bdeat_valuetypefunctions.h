@@ -151,7 +151,7 @@ namespace bdeat_ValueTypeFunctions {
     // implementations (for 'bas_codegen.pl'-generated types).  Do *not* call
     // these functions directly.  Use the functions above instead.
 
-#if ! defined(BSLS_PLATFORM__CMP_IBM)
+#if ! defined(BSLS_PLATFORM_CMP_IBM)
     template <typename LHS_TYPE, typename RHS_TYPE>
     int bdeat_valueTypeAssign(LHS_TYPE *lhs, const RHS_TYPE& rhs);
 
@@ -293,7 +293,7 @@ void bdeat_ValueTypeFunctions::reset(TYPE *object)
         // namespace bdeat_ValueTypeFunctions (OVERLOADABLE FUNCTIONS)
         // -----------------------------------------------------------
 
-#if defined(BSLS_PLATFORM__CMP_IBM)
+#if defined(BSLS_PLATFORM_CMP_IBM)
 namespace bdeat_ValueTypeFunctions {
     // xlC 6 will not do Koenig (argument-dependent) lookup if the function
     // being called has already been declared in some scope at the point of

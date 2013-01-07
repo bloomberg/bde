@@ -3,11 +3,17 @@
 #include <bslma_mallocfreeallocator.h>
 
 #include <bslma_allocator.h>       // for testing only
-#include <iostream>
-#include <cstdio>       // std::printf
+
+#include <bsls_bsltestutil.h>
+
+#include <stdio.h>
+#include <stdlib.h>
+
+#ifdef BDE_BUILD_TARGET_EXC
+#include <new>
+#endif
 
 using namespace BloombergLP;
-using namespace std;
 
 //=============================================================================
 //                             TEST PLAN
@@ -31,62 +37,52 @@ using namespace std;
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 4] USAGE EXAMPLE
-//=============================================================================
-//                    STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
 
+//=============================================================================
+//                  STANDARD BDE ASSERT TEST MACRO
+//-----------------------------------------------------------------------------
+// NOTE: THIS IS A LOW-LEVEL COMPONENT AND MAY NOT USE ANY C++ LIBRARY
+// FUNCTIONS, INCLUDING IOSTREAMS.
 static int testStatus = 0;
 
-static void aSsErT(int c, const char *s, int i) {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
-             << "    (failed)" << endl;
+static void aSsErT(bool b, const char *s, int i) {
+    if (b) {
+        printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
         if (testStatus >= 0 && testStatus <= 100) ++testStatus;
     }
 }
-# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
 //=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
+//                       STANDARD BDE TEST DRIVER MACROS
 //-----------------------------------------------------------------------------
 
-#define LOOP_ASSERT(I,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__);}}
+#define ASSERT       BSLS_BSLTESTUTIL_ASSERT
+#define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLS_BSLTESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLS_BSLTESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLS_BSLTESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLS_BSLTESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
+#define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
 
-#define LOOP2_ASSERT(I,J,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
+#define Q   BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
+#define P   BSLS_BSLTESTUTIL_P   // Print identifier and value.
+#define P_  BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
+#define T_  BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
+#define L_  BSLS_BSLTESTUTIL_L_  // current Line number
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-              << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
+// ============================================================================
+//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP5_ASSERT(I,J,K,L,M,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP6_ASSERT(I,J,K,L,M,N,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\t" << #N << ": " << N << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", " << flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_ cout << "\t" << flush;             // Print tab w/o newline
+#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
+#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
+#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
+#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
+#define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
+#define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)e
 
 //=============================================================================
 //                          GLOBALS FOR TESTING
@@ -253,7 +249,7 @@ int main(int argc, char *argv[])
     static int veryVerbose = argc > 3;
     static int veryVeryVerbose = globalVeryVeryVerbose = argc > 4;
 
-    cout << "TEST " << __FILE__ << " CASE " << test << endl;
+    printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:
       case 4: {
@@ -274,14 +270,14 @@ int main(int argc, char *argv[])
         //   Usage example
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "USAGE EXAMPLE" << endl
-                                  << "=============" << endl;
+        if (verbose) printf("\nUSAGE EXAMPLE"
+                            "\n=============\n");
 
-        if (verbose) cout << "\nCreating my_Allocator" << endl;
+        if (verbose) printf("\nCreating my_Allocator\n");
 
         my_Allocator alloc;
 
-        if (verbose) cout << "\nTesting allocate" << endl;
+        if (verbose) printf("\nTesting allocate\n");
 
         ASSERT(0 == globalNewCalledCount);
         ASSERT(0 == globalNewCalledLastArg);
@@ -305,7 +301,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == globalDeleteCalledCount);
         ASSERT(0 == globalNewCalledLastArg);
 
-        if (verbose) cout << "\nTesting deallocate" << endl;
+        if (verbose) printf("\nTesting deallocate\n");
 
         ASSERT(0 == globalDeleteCalledCount);
         ASSERT(0 == globalDeleteCalledLastArg);
@@ -347,10 +343,10 @@ int main(int argc, char *argv[])
         //   static bslma::MallocFreeAllocator& singleton()
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "SINGLETON TEST" << endl
-                                  << "==============" << endl;
+        if (verbose) printf("\nSINGLETON TEST"
+                            "\n==============\n");
 
-        if (verbose) cout << "\nTesting 'singleton'" << endl;
+        if (verbose) printf("\nTesting 'singleton'\n");
 
         bslma::MallocFreeAllocator *alloc =
                                       &bslma::MallocFreeAllocator::singleton();
@@ -359,7 +355,7 @@ int main(int argc, char *argv[])
 
         ASSERT(alloc == alloc2);
 
-        if (veryVerbose) cout << "\tTesting allocate" << endl;
+        if (veryVerbose) printf("\tTesting allocate\n");
 
         ASSERT(0 == globalNewCalledCount);
         ASSERT(0 == globalNewCalledLastArg);
@@ -383,7 +379,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == globalDeleteCalledCount);
         ASSERT(0 == globalNewCalledLastArg);
 
-        if (veryVerbose) cout << "\tTesting deallocate" << endl;
+        if (veryVerbose) printf("\tTesting deallocate\n");
 
         ASSERT(0 == globalDeleteCalledCount);
         ASSERT(0 == globalDeleteCalledLastArg);
@@ -419,19 +415,19 @@ int main(int argc, char *argv[])
         //   void deallocate((void *address)  // deallocate 0
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "ALLOCATE / DEALLCOATE NULL TEST" << endl
-                                  << "===============================" << endl;
+        if (verbose) printf("\nALLOCATE / DEALLCOATE NULL TEST"
+                            "\n===============================\n");
 
-        if (verbose) cout << "\nCreating allocator" << endl;
+        if (verbose) printf("\nCreating allocator\n");
 
         bslma::MallocFreeAllocator alloc;
 
-        if (verbose) cout << "\nTesting allocate 0" << endl;
+        if (verbose) printf("\nTesting allocate 0\n");
 
         void *address = alloc.allocate(0);
         ASSERT(0 == address);
 
-        if (verbose) cout << "\nTesting deallocate 0" << endl;
+        if (verbose) printf("\nTesting deallocate 0\n");
 
         alloc.deallocate(address);
         ASSERT(0 == address);
@@ -457,14 +453,14 @@ int main(int argc, char *argv[])
         //    void deallocate(void *address);
         // -----------------------------------------------------------------
 
-        if (verbose) cout << endl << "BREATHING TEST" << endl
-                                  << "==============" << endl;
+        if (verbose) printf("\nBREATHING TEST"
+                            "\n==============\n");
 
-        if (verbose) cout << "\nCreating allocator" << endl;
+        if (verbose) printf("\nCreating allocator\n");
 
         bslma::MallocFreeAllocator alloc;
 
-        if (verbose) cout << "\nTesting allocate" << endl;
+        if (verbose) printf("\nTesting allocate\n");
 
         ASSERT(0 == globalNewCalledCount);
         ASSERT(0 == globalNewCalledLastArg);
@@ -488,7 +484,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == globalDeleteCalledCount);
         ASSERT(0 == globalNewCalledLastArg);
 
-        if (verbose) cout << "\nTesting deallocate" << endl;
+        if (verbose) printf("\nTesting deallocate\n");
 
         ASSERT(0 == globalDeleteCalledCount);
         ASSERT(0 == globalDeleteCalledLastArg);
@@ -509,14 +505,15 @@ int main(int argc, char *argv[])
 
       } break;
       default: {
-        cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
+        fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
         testStatus = -1;
       }
     }
 
     if (testStatus > 0) {
-        cerr << "Error, non-zero test status = " << testStatus << "." << endl;
+        fprintf(stderr, "Error, non-zero test status = %d.\n", testStatus);
     }
+
     return testStatus;
 }
 

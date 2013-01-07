@@ -9,7 +9,7 @@
 
 #include <bsls_platform.h>
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
 #include <pthread.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -36,7 +36,7 @@
 #include <bsl_c_stdio.h>
 #endif
 
-#if defined(BDES_PLATFORMUTIL__NO_LONG_HEADER_NAMES)
+#if defined(BDES_PLATFORMUTIL_NO_LONG_HEADER_NAMES)
 #include <strstrea.h>
 #else
 #include <bsl_strstream.h>
@@ -46,7 +46,7 @@
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
 
-#if defined(BSLS_PLATFORM__CMP_MSVC)
+#if defined(BSLS_PLATFORM_CMP_MSVC)
 #if defined(ASYNCH)
 #pragma push_macro("ASYNCH")
 #undef ASYNCH
@@ -168,7 +168,7 @@ bcemt_Mutex  d_mutex;   // for i/o synchronization in all threads
 //-----------------------------------------------------------------------------
 typedef bteso_SocketHandle::Handle SocketHandle;
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
 typedef void*  THREAD_PARAM;
 #else
 typedef LPVOID THREAD_PARAM;
@@ -186,7 +186,7 @@ static int verbose;
 //=============================================================================
 //                      HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
-// #ifdef BSLS_PLATFORM__OS_UNIX
+// #ifdef BSLS_PLATFORM_OS_UNIX
 #if  0
 static void sigio_handler(int sig)
 {
@@ -259,7 +259,7 @@ static int create_child_process2(char* arg0, int testcase, int subcase,
 }
 #endif
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
 extern "C" {
 void* thread_as_udp_client(THREAD_PARAM arg)
     // a thread as a UDP client.
@@ -303,7 +303,7 @@ void* thread_as_udp_client(THREAD_PARAM arg)
     ret = bteso_IoUtil::getAsync(&result,
                                  sendSocket,
                                  &errCode);
-#ifndef BSLS_PLATFORM__OS_CYGWIN
+#ifndef BSLS_PLATFORM_OS_CYGWIN
     ASSERT(0 == errCode);
     ASSERT(0 == ret);
 #else
@@ -351,7 +351,7 @@ void* thread_as_tcp_client(THREAD_PARAM arg)
                                  SYNCH,
                                  &errCode);
     ret = bteso_IoUtil::getAsync(&result, sendSocket, &errCode);
-#ifndef BSLS_PLATFORM__OS_CYGWIN
+#ifndef BSLS_PLATFORM_OS_CYGWIN
     ASSERT(0 == errCode);
     ASSERT(0 == ret);
 #else
@@ -411,7 +411,7 @@ unsigned __stdcall thread_win_udp_client(THREAD_PARAM arg)
     if (verbose) {
         QT("udp thread client finished");
     }
-    #ifdef BSLS_PLATFORM__OS_WINDOWS
+    #ifdef BSLS_PLATFORM_OS_WINDOWS
         _endthreadex(0);
     #endif
     return 0;
@@ -475,7 +475,7 @@ int main(int argc, char *argv[])
     // int subcase = argc > 5 ? atoi(argv[5]) : 0; // to access helper cases.
     int errCode = 0;
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
-    #if defined(BSLS_PLATFORM__OS_UNIX) && defined(SIGPOLL)
+    #if defined(BSLS_PLATFORM_OS_UNIX) && defined(SIGPOLL)
     signal(SIGPOLL, SIG_IGN);  // ignore SIGIO/SIGPOLL generated during test.
     #endif
     bteso_SocketImpUtil::startup(&errCode);
@@ -518,8 +518,8 @@ int main(int argc, char *argv[])
                                               &nativeErrNo);
             ASSERT(0 == s);   ASSERT(0 == nativeErrNo);
 
-            #if   defined(BSLS_PLATFORM__OS_UNIX) \
-               && !defined(BSLS_PLATFORM__OS_CYGWIN)
+            #if   defined(BSLS_PLATFORM_OS_UNIX) \
+               && !defined(BSLS_PLATFORM_OS_CYGWIN)
             {
                 s = bteso_IoUtil::getBlockingMode(&result,
                                                   socketHandle,
@@ -536,8 +536,8 @@ int main(int argc, char *argv[])
                                               &nativeErrNo);
             ASSERT(0 == s);   ASSERT(0 == nativeErrNo);
 
-            #if   defined(BSLS_PLATFORM__OS_UNIX) \
-               && !defined(BSLS_PLATFORM__OS_CYGWIN)
+            #if   defined(BSLS_PLATFORM_OS_UNIX) \
+               && !defined(BSLS_PLATFORM_OS_CYGWIN)
             {
                 s = bteso_IoUtil::getBlockingMode(&result,
                                                   socketHandle,
@@ -613,14 +613,14 @@ int main(int argc, char *argv[])
                 ret = bteso_IoUtil::setAsync(serverSocket[i],
                                              VALUES[i].d_option,
                                              &errCode);
-                #ifdef BSLS_PLATFORM__OS_UNIX
+                #ifdef BSLS_PLATFORM_OS_UNIX
                 {
                     LOOP_ASSERT(i, 0 == errCode);
                     LOOP_ASSERT(i, 0 == ret);
                     ret = bteso_IoUtil::getAsync(&result,
                                                  serverSocket[i],
                                                  &errCode);
-                    #ifndef BSLS_PLATFORM__OS_CYGWIN
+                    #ifndef BSLS_PLATFORM_OS_CYGWIN
                     LOOP_ASSERT(i, 0 == errCode);
                     LOOP_ASSERT(i, 0 == ret);
                     LOOP_ASSERT(i, VALUES[i].d_expMode == result);
@@ -633,7 +633,7 @@ int main(int argc, char *argv[])
                     LOOP_ASSERT(i, 0 == ret);
                     ret = bteso_IoUtil::getAsync(&result,
                                                  serverSocket[i]);
-                    #ifndef BSLS_PLATFORM__OS_CYGWIN
+                    #ifndef BSLS_PLATFORM_OS_CYGWIN
                     LOOP_ASSERT(i, 0 == ret);
                     LOOP_ASSERT(i, VALUES[i].d_expMode == result);
                     #else
@@ -715,7 +715,7 @@ int main(int argc, char *argv[])
                 ret = bteso_IoUtil::setCloseOnExec(serverSocket[i],
                                                    VALUES[i].d_option,
                                                    &errCode);
-                #ifdef BSLS_PLATFORM__OS_UNIX
+                #ifdef BSLS_PLATFORM_OS_UNIX
                 {
                     LOOP_ASSERT(i, 0 == errCode);
                     LOOP_ASSERT(i, 0 == ret);
@@ -812,8 +812,8 @@ int main(int argc, char *argv[])
                 ret = bteso_IoUtil::getBlockingMode(&result,
                                                     serverSocket[i],
                                                     &errCode);
-                #if    defined(BSLS_PLATFORM__OS_UNIX) \
-                   && !defined(BSLS_PLATFORM__OS_CYGWIN)
+                #if    defined(BSLS_PLATFORM_OS_UNIX) \
+                   && !defined(BSLS_PLATFORM_OS_CYGWIN)
                 {
 
                     LOOP_ASSERT(i, 0 == errCode);
@@ -933,8 +933,8 @@ int main(int argc, char *argv[])
                                              VALUES[i].d_option,
                                              &errCode);
 
-                #if   defined(BSLS_PLATFORM__OS_UNIX) \
-                   && !defined(BSLS_PLATFORM__OS_CYGWIN)
+                #if   defined(BSLS_PLATFORM_OS_UNIX) \
+                   && !defined(BSLS_PLATFORM_OS_CYGWIN)
                 {
                     LOOP_ASSERT(i, 0 == errCode);
                     ASSERT( 0 == ret);
@@ -1012,8 +1012,8 @@ int main(int argc, char *argv[])
                                                  VALUES[i].d_option,
                                                  &errCode);
 
-                    #if   defined(BSLS_PLATFORM__OS_UNIX) \
-                       && !defined(BSLS_PLATFORM__OS_CYGWIN)
+                    #if   defined(BSLS_PLATFORM_OS_UNIX) \
+                       && !defined(BSLS_PLATFORM_OS_CYGWIN)
                     LOOP_ASSERT(i, 0 == errCode);  LOOP_ASSERT(i, 0 == ret);
                     ret = bteso_IoUtil::getAsync(&result,
                                                  serverSocket[i],
@@ -1151,8 +1151,8 @@ int main(int argc, char *argv[])
 
                 // Asynchronous mode does not work for UDP sockets on Cygwin.
 
-                #if   defined(BSLS_PLATFORM__OS_UNIX) \
-                   && !defined(BSLS_PLATFORM__OS_CYGWIN)
+                #if   defined(BSLS_PLATFORM_OS_UNIX) \
+                   && !defined(BSLS_PLATFORM_OS_CYGWIN)
                 {
                     LOOP_ASSERT(i, 0 == errCode);
                     LOOP_ASSERT(i, 0 == ret);
@@ -1268,7 +1268,7 @@ int main(int argc, char *argv[])
                                              VALUES[i].d_option,
                                              &errCode);
 
-                #ifdef BSLS_PLATFORM__OS_UNIX
+                #ifdef BSLS_PLATFORM_OS_UNIX
                 {
                     LOOP_ASSERT(i, 0 == errCode);
                     LOOP_ASSERT(i, 0 == ret);
@@ -1276,7 +1276,7 @@ int main(int argc, char *argv[])
                     ret = bteso_IoUtil::getAsync(&result,
                                                  serverSocket[i],
                                                  &errCode);
-                    #ifndef BSLS_PLATFORM__OS_CYGWIN
+                    #ifndef BSLS_PLATFORM_OS_CYGWIN
                     LOOP_ASSERT(i, 0 == errCode);
                     LOOP_ASSERT(i, 0 == ret);
                     LOOP_ASSERT(i, ASYNCH == result);
@@ -1385,11 +1385,11 @@ int main(int argc, char *argv[])
                 ret = bteso_IoUtil::setAsync(serverSocket[i],
                                              VALUES[i].d_option,
                                              &errCode);
-                #ifdef BSLS_PLATFORM__OS_UNIX
+                #ifdef BSLS_PLATFORM_OS_UNIX
                 {
                     LOOP_ASSERT(i, 0 == errCode);
                     LOOP_ASSERT(i, 0 == ret);
-                    #ifndef BSLS_PLATFORM__OS_CYGWIN
+                    #ifndef BSLS_PLATFORM_OS_CYGWIN
                     ret = bteso_IoUtil::getAsync(&result,
                                                  serverSocket[i],
                                                  &errCode);
@@ -1501,7 +1501,7 @@ int main(int argc, char *argv[])
                 ret = bteso_IoUtil::setCloseOnExec(serverSocket[i],
                                                    VALUES[i].d_option,
                                                    &errCode);
-                #ifdef BSLS_PLATFORM__OS_UNIX
+                #ifdef BSLS_PLATFORM_OS_UNIX
                 {
                     LOOP_ASSERT(i, 0 == errCode);
                     LOOP_ASSERT(i, 0 == ret);
@@ -1622,7 +1622,7 @@ int main(int argc, char *argv[])
                 ret = bteso_IoUtil::setCloseOnExec(serverSocket[i],
                                                    VALUES[i].d_option,
                                                    &errCode);
-                #ifdef BSLS_PLATFORM__OS_UNIX
+                #ifdef BSLS_PLATFORM_OS_UNIX
                 {
                     LOOP_ASSERT(i, 0 == errCode);
                     LOOP_ASSERT(i, 0 == ret);
@@ -1694,7 +1694,7 @@ int main(int argc, char *argv[])
                     ret = bteso_IoUtil::setCloseOnExec(serverSocket[i],
                                                        VALUES[i].d_option,
                                                        &errCode);
-                    #ifdef BSLS_PLATFORM__OS_UNIX
+                    #ifdef BSLS_PLATFORM_OS_UNIX
                     {
                         LOOP_ASSERT(i, 0 == errCode);
                         LOOP_ASSERT(i, 0 == ret);
@@ -1927,7 +1927,7 @@ int main(int argc, char *argv[])
                                                          serverSocket[i]));
                 int portNum = localAddr.portNumber();
 
-                #ifdef BSLS_PLATFORM__OS_UNIX
+                #ifdef BSLS_PLATFORM_OS_UNIX
                 {
                     int status = 0;
                     pthread_t id;
@@ -1997,7 +1997,7 @@ int main(int argc, char *argv[])
                 for (int i = 0; i < NUM_VALUES; i++) {
                     errCode = 0;
 
-                    #ifdef BSLS_PLATFORM__OS_UNIX
+                    #ifdef BSLS_PLATFORM_OS_UNIX
                     bteso_SocketImpUtil::open<bteso_IPv4Address>(
                                      &serverSocket[i],
                                      VALUES[i].d_type,
@@ -2012,7 +2012,7 @@ int main(int argc, char *argv[])
                                                         serverSocket[i],
                                                         &errCode);
 
-#ifndef BSLS_PLATFORM__OS_CYGWIN
+#ifndef BSLS_PLATFORM_OS_CYGWIN
                     LOOP_ASSERT(i, 0 == ret);  LOOP_ASSERT(i, 1 == result);
 #else
                     LOOP_ASSERT(i, -1 == ret);
@@ -2027,7 +2027,7 @@ int main(int argc, char *argv[])
                     ret = bteso_IoUtil::getBlockingMode(&result,
                                                         serverSocket[i],
                                                         &errCode);
-#ifndef BSLS_PLATFORM__OS_CYGWIN
+#ifndef BSLS_PLATFORM_OS_CYGWIN
                     LOOP_ASSERT(i, 0 == ret);   LOOP_ASSERT(i, 0 == result);
                     LOOP_ASSERT(i, 0 == errCode);
 #else
@@ -2041,7 +2041,7 @@ int main(int argc, char *argv[])
                     ret = bteso_IoUtil::getBlockingMode(&result,
                                                         serverSocket[i],
                                                         &errCode);
-#ifndef BSLS_PLATFORM__OS_CYGWIN
+#ifndef BSLS_PLATFORM_OS_CYGWIN
                     LOOP_ASSERT(i, 0 == ret);  LOOP_ASSERT(i, 1 == result);
 #else
                     LOOP_ASSERT(i, -1 == ret);
@@ -2056,7 +2056,7 @@ int main(int argc, char *argv[])
                     ret = bteso_IoUtil::getBlockingMode(&result,
                                                         serverSocket[i],
                                                         &errCode);
-#ifndef BSLS_PLATFORM__OS_CYGWIN
+#ifndef BSLS_PLATFORM_OS_CYGWIN
                     LOOP_ASSERT(i, 0 == ret);   LOOP_ASSERT(i, 0 == result);
                     LOOP_ASSERT(i, 0 == errCode);
 #else
@@ -2071,7 +2071,7 @@ int main(int argc, char *argv[])
                     ret = bteso_IoUtil::getBlockingMode(&result,
                                                         serverSocket[i],
                                                         &errCode);
-#ifndef BSLS_PLATFORM__OS_CYGWIN
+#ifndef BSLS_PLATFORM_OS_CYGWIN
                     LOOP_ASSERT(i, 0 == ret);  LOOP_ASSERT(i, 1 == result);
 #else
                     LOOP_ASSERT(i, -1 == ret);
@@ -2085,7 +2085,7 @@ int main(int argc, char *argv[])
                     ret = bteso_IoUtil::getBlockingMode(&result,
                                                         serverSocket[i],
                                                         &errCode);
-#ifndef BSLS_PLATFORM__OS_CYGWIN
+#ifndef BSLS_PLATFORM_OS_CYGWIN
                     LOOP_ASSERT(i, 0 == ret);  LOOP_ASSERT(i, 1 == result);
 #else
                     LOOP_ASSERT(i, -1 == ret);
@@ -2269,9 +2269,9 @@ int main(int argc, char *argv[])
                                                          serverSocket[i]);
                     int portNum = localAddr.portNumber();
 
-                    #ifdef BSLS_PLATFORM__OS_UNIX
+                    #ifdef BSLS_PLATFORM_OS_UNIX
                     {
-                        #ifndef BSLS_PLATFORM__OS_CYGWIN
+                        #ifndef BSLS_PLATFORM_OS_CYGWIN
                         ret = bteso_IoUtil::getBlockingMode(&result,
                                                             serverSocket[i],
                                                             &errCode);
@@ -2343,8 +2343,8 @@ int main(int argc, char *argv[])
                 for (int i = 0; i < NUM_VALUES; i++) {
                     errCode = 0;
 
-                    #if   defined(BSLS_PLATFORM__OS_UNIX) \
-                       && !defined(BSLS_PLATFORM__OS_CYGWIN)
+                    #if   defined(BSLS_PLATFORM_OS_UNIX) \
+                       && !defined(BSLS_PLATFORM_OS_CYGWIN)
                     bteso_SocketImpUtil::open<bteso_IPv4Address>(
                                          &serverSocket[i],
                                          VALUES[i].d_type,
@@ -2456,8 +2456,8 @@ int main(int argc, char *argv[])
                                                     &errCode);
             ASSERT(0 == retCode);   ASSERT(0 == errCode);
 
-            #if   defined(BSLS_PLATFORM__OS_UNIX) \
-               && !defined(BSLS_PLATFORM__OS_CYGWIN)
+            #if   defined(BSLS_PLATFORM_OS_UNIX) \
+               && !defined(BSLS_PLATFORM_OS_CYGWIN)
 
             retCode = bteso_IoUtil::getBlockingMode(&result,
                                                     socketHandle,
@@ -2505,7 +2505,7 @@ int main(int argc, char *argv[])
                 ASSERT(0 == errCode);
             }
 
-            #ifndef BSLS_PLATFORM__OS_CYGWIN
+            #ifndef BSLS_PLATFORM_OS_CYGWIN
             if (verbose)
                 cout << "Verifying the asynchronous mode." << endl;
             {

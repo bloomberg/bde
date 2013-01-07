@@ -68,7 +68,7 @@ bcemt_OnceGuard::~bcemt_OnceGuard()
     if (BCEMT_IN_PROGRESS != d_state) {
         return;
     }
-#if ! defined(BSLS_PLATFORM__CMP_MSVC)
+#if ! defined(BSLS_PLATFORM_CMP_MSVC)
     else if (bsl::uncaught_exception()) {
         d_once->cancel(&d_onceLock);
     }

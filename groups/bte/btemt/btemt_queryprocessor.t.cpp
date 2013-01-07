@@ -16,7 +16,7 @@
 #include <bsl_cstdlib.h>     // atoi()
 #include <bsls_assert.h>
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h> // fork()
@@ -175,7 +175,7 @@ int main(int argc, char *argv[])
     bslma_TestAllocator testAllocator;
 
     switch (test) { case 0:  // Zero is always the leading case.
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
       case -2: {
         // --------------------------------------------------------------------
         // This test case launches an array of processors, each of which

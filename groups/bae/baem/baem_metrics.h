@@ -541,8 +541,8 @@ BDES_IDENT("$Id: $")
                         // ================================
 
 #define BAEM_METRICS_IF_CATEGORY_ENABLED(CATEGORY)                            \
-    BAEM_METRICS__IF_CATEGORY_ENABLED_IMP(                                    \
-                        CATEGORY, BAEM_METRICS__UNIQUE_NAME(categoryHolder))
+    BAEM_METRICS_IF_CATEGORY_ENABLED_IMP(                                    \
+                        CATEGORY, BAEM_METRICS_UNIQUE_NAME(categoryHolder))
 
                         // ===================
                         // BAEM_METRICS_UPDATE
@@ -1024,17 +1024,17 @@ do {                                                                          \
                         // =======================
 
 #define BAEM_METRICS_TIME_BLOCK(CATEGORY, METRIC, TIME_UNITS)                 \
-  BAEM_METRICS__TIME_BLOCK_IMP((CATEGORY),                                    \
+  BAEM_METRICS_TIME_BLOCK_IMP((CATEGORY),                                    \
                                (METRIC),                                      \
                                TIME_UNITS,                                    \
-                               BAEM_METRICS__UNIQUE_NAME(_bAeM_CoLlEcToR))
+                               BAEM_METRICS_UNIQUE_NAME(_bAeM_CoLlEcToR))
 
 #define BAEM_METRICS_DYNAMIC_TIME_BLOCK(CATEGORY, METRIC, TIME_UNITS)         \
-  BAEM_METRICS__DYNAMIC_TIME_BLOCK_IMP(                                       \
+  BAEM_METRICS_DYNAMIC_TIME_BLOCK_IMP(                                       \
                                   (CATEGORY),                                 \
                                   (METRIC),                                   \
                                   TIME_UNITS,                                 \
-                                  BAEM_METRICS__UNIQUE_NAME(_bAeM_CoLlEcToR))
+                                  BAEM_METRICS_UNIQUE_NAME(_bAeM_CoLlEcToR))
 
 #define BAEM_METRICS_TIME_BLOCK_SECONDS(CATEGORY, METRIC)                     \
   BAEM_METRICS_TIME_BLOCK((CATEGORY),                                         \
@@ -1082,7 +1082,7 @@ do {                                                                          \
                         // Macro Implementations
                         // =====================
 
-#define BAEM_METRICS__IF_CATEGORY_ENABLED_IMP(CATEGORY, HOLDER_NAME)          \
+#define BAEM_METRICS_IF_CATEGORY_ENABLED_IMP(CATEGORY, HOLDER_NAME)          \
     static BloombergLP::baem_CategoryHolder HOLDER_NAME = { false, 0, 0 };    \
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!HOLDER_NAME.category())        \
      && BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(                                \
@@ -1099,7 +1099,7 @@ do {                                                                          \
 // 'CATEGORY' and 'METRIC'.  Finally, declare a 'baem_StopwatchScopedGuard'
 // object with a unique variable name and supply its constructor the collector
 // address held in 'VARIABLE_NAME' and the specified 'TIME_UNITS'.
-#define BAEM_METRICS__TIME_BLOCK_IMP(CATEGORY,                                \
+#define BAEM_METRICS_TIME_BLOCK_IMP(CATEGORY,                                \
                                      METRIC,                                  \
                                      TIME_UNITS,                              \
                                      VARIABLE_NAME)                           \
@@ -1117,7 +1117,7 @@ do {                                                                          \
        VARIABLE_NAME = 0;                                                     \
     }                                                                         \
     BloombergLP::baem_StopwatchScopedGuard                                    \
-         BAEM_METRICS__UNIQUE_NAME(__bAeM_gUaRd)(VARIABLE_NAME, TIME_UNITS);
+         BAEM_METRICS_UNIQUE_NAME(__bAeM_gUaRd)(VARIABLE_NAME, TIME_UNITS);
 
 // Declare a pointer to a 'baem_Collector' with the specified 'VARIABLE_NAME'.
 // If the default metrics manager is available, assign to the declared pointer
@@ -1126,7 +1126,7 @@ do {                                                                          \
 // 'baem_StopwatchScopedGuard' object with a unique variable name and supply
 // its constructor the collector address held in 'VARIABLE_NAME' and the
 // specified 'TIME_UNITS'.
-#define BAEM_METRICS__DYNAMIC_TIME_BLOCK_IMP(CATEGORY,                        \
+#define BAEM_METRICS_DYNAMIC_TIME_BLOCK_IMP(CATEGORY,                        \
                                              METRIC,                          \
                                              TIME_UNITS,                      \
                                              VARIABLE_NAME)                   \
@@ -1139,18 +1139,18 @@ do {                                                                          \
                                                        (METRIC));             \
     }                                                                         \
     BloombergLP::baem_StopwatchScopedGuard                                    \
-         BAEM_METRICS__UNIQUE_NAME(__bAeM_gUaRd)(VARIABLE_NAME, TIME_UNITS);
+         BAEM_METRICS_UNIQUE_NAME(__bAeM_gUaRd)(VARIABLE_NAME, TIME_UNITS);
 
                         // ------------------------
                         // Unique line number macro
                         // ------------------------
 
-#if defined(BSLS_PLATFORM__CMP_MSVC)
+#if defined(BSLS_PLATFORM_CMP_MSVC)
 // MSVC: __LINE__ macro breaks when /ZI is used (see Q199057 or KB199057)
 // Fortunately the __COUNTER__ extension provided by MSVC is even better.
-#   define BAEM_METRICS__UNIQNUM __COUNTER__
+#   define BAEM_METRICS_UNIQNUM __COUNTER__
 #else
-#   define BAEM_METRICS__UNIQNUM __LINE__
+#   define BAEM_METRICS_UNIQNUM __LINE__
 #endif
 
                         // ----------------------------------
@@ -1159,8 +1159,8 @@ do {                                                                          \
 
 // Second layer needed to ensure that arguments are expanded before
 // concatenation.
-#define BAEM_METRICS__CAT(X, Y) BAEM_METRICS__CAT_IMP(X, Y)
-#define BAEM_METRICS__CAT_IMP(X, Y) X##Y
+#define BAEM_METRICS_CAT(X, Y) BAEM_METRICS_CAT_IMP(X, Y)
+#define BAEM_METRICS_CAT_IMP(X, Y) X##Y
 
                         // ----------------------------------
                         // Unique variable name support macro
@@ -1168,8 +1168,8 @@ do {                                                                          \
 
 // Create a unique variable name by concatenating the specified 'X' string
 // with a unique integer value.
-#define BAEM_METRICS__UNIQUE_NAME(X)                                          \
-           BAEM_METRICS__CAT(X, BAEM_METRICS__UNIQNUM)
+#define BAEM_METRICS_UNIQUE_NAME(X)                                          \
+           BAEM_METRICS_CAT(X, BAEM_METRICS_UNIQNUM)
 
 namespace BloombergLP {
 
@@ -1281,6 +1281,10 @@ void baem_Metrics_Helper::setPublicationType(const baem_MetricId&        id,
 }
 
 }  // close namespace BloombergLP
+
+#if !defined(BSL_DOUBLE_UNDERSCORE_XLAT) || 1 == BSL_DOUBLE_UNDERSCORE_XLAT
+#define BAEM_METRICS__UNIQUE_NAME(X) BAEM_METRICS_UNIQUE_NAME(X)
+#endif
 
 #endif
 

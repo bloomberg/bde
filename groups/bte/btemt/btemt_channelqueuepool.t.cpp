@@ -336,7 +336,7 @@ using namespace bsl;  // automatically added by script
                     btemt_DataMsg& dt = msg.dataMsg();
                     dt.setData(newChain, &factory, &ta);
                     dt.setUserDataField1(0);
-                    dt.setUserDataField1(length);
+                    dt.setUserDataField2(length);
 
                     outgoing.pushBack(msg);
                   } break;

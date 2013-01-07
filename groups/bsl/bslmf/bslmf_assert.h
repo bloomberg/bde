@@ -10,11 +10,11 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a compile-time assertion facility.
 //
 //@CLASSES:
+//
+//@MACROS:
 //  BSLMF_ASSERT: compile-time assert macro
 //
 //@AUTHOR: Shawn Edwards (sedwards)
-//
-//@SEE_ALSO:
 //
 //@DESCRIPTION: This component defines a macro that will generate a
 // compile-time error if its constant integral expression argument evaluates to
@@ -112,15 +112,15 @@ namespace BloombergLP {
                              // Support macros
                              // ==============
 
-#define BSLMF_ASSERT__CAT(X, Y) BSLMF_ASSERT__CAT_IMP1(X, Y)
-#define BSLMF_ASSERT__CAT_IMP1(X, Y) BSLMF_ASSERT__CAT_IMP2(X, Y)
-#define BSLMF_ASSERT__CAT_IMP2(X, Y) X##Y
+#define BSLMF_ASSERT_CAT(X, Y) BSLMF_ASSERT_CAT_IMP1(X, Y)
+#define BSLMF_ASSERT_CAT_IMP1(X, Y) BSLMF_ASSERT_CAT_IMP2(X, Y)
+#define BSLMF_ASSERT_CAT_IMP2(X, Y) X##Y
 
                              // =============
                              // Support types
                              // =============
 
-#if defined(BSLS_PLATFORM__CMP_SUN)
+#if defined(BSLS_PLATFORM_CMP_SUN)
 
 // Using a different implementation on Sun; see BSLMF_ASSERT for details.
 
@@ -175,7 +175,7 @@ struct AssertTest {
                              // macro BSLMF_ASSERT
                              // ==================
 
-#if defined(BSLS_PLATFORM__CMP_SUN)
+#if defined(BSLS_PLATFORM_CMP_SUN)
 
 // The usual definition of the 'BSLMF_ASSERT' macro doesn't work with SunCC
 // (version 10 and below) inside template classes.  Note that Sun CC has a
@@ -186,16 +186,16 @@ struct AssertTest {
 // with SunCC.  So don't use it with other compilers.
 
 #define BSLMF_ASSERT(expr)                                         \
-    struct BSLMF_ASSERT__CAT(bslmf_Assert_, __LINE__)              \
+    struct BSLMF_ASSERT_CAT(bslmf_Assert_, __LINE__)              \
         : ::BloombergLP::bslmf::Assert_If<!!(int)(expr)>           \
     {                                                              \
         BSLMF_COMPILE_TIME_ASSERTION_FAILURE * dummy;              \
     };                                                             \
                                                                    \
-    enum { BSLMF_ASSERT__CAT(bslmf_Assert_Check_, __LINE__)        \
-           = sizeof(BSLMF_ASSERT__CAT(bslmf_Assert_, __LINE__)) }  \
+    enum { BSLMF_ASSERT_CAT(bslmf_Assert_Check_, __LINE__)        \
+           = sizeof(BSLMF_ASSERT_CAT(bslmf_Assert_, __LINE__)) }  \
 
-#elif defined(BSLS_PLATFORM__CMP_MSVC)
+#elif defined(BSLS_PLATFORM_CMP_MSVC)
 // MSVC: __LINE__ macro breaks when /ZI is used (see Q199057 or KB199057)
 
 #define BSLMF_ASSERT(expr) \
@@ -208,10 +208,11 @@ typedef BloombergLP::bslmf::AssertTest< \
 #define BSLMF_ASSERT(expr) \
 typedef BloombergLP::bslmf::AssertTest< \
     sizeof(BloombergLP::BSLMF_COMPILE_TIME_ASSERTION_FAILURE<!!(int)(expr)>)> \
-                BSLMF_ASSERT__CAT(bslmf_Assert_, __LINE__)
+                BSLMF_ASSERT_CAT(bslmf_Assert_, __LINE__)
 
 #endif
 
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
@@ -221,6 +222,7 @@ typedef BloombergLP::bslmf::AssertTest< \
 #endif
 #define bslmf_AssertTest bslmf::AssertTest
     // This alias is defined for backward compatibility.
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

@@ -8,11 +8,12 @@ BDES_IDENT_RCSID(bcesb_blobstreambuf_cpp,"$Id$ $CSID$")
 
 #include <bsls_assert.h>
 
+#include <bsl_cstdio.h>  // EOF
 #include <bsl_cstring.h>
 #include <bsl_string.h>
 
 // Note: on Windows -> WinDef.h:#define min(a,b) ...
-#if defined(BSLS_PLATFORM__CMP_MSVC) && defined(min)
+#if defined(BSLS_PLATFORM_CMP_MSVC) && defined(min)
 #undef min
 #endif
 

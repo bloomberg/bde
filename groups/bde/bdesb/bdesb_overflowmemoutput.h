@@ -96,7 +96,7 @@ class bdesb_OverflowMemOutput {
     // functionality of the 'bsl::basic_streambuf' interface, using a
     // client-supplied buffer and client-supplied allocator if additional
     // memory is needed.  It has an interface similar to
-    // 'bdesb_OverflowMemOutStreambuf' but does *not* inherit from
+    // 'bdesb_OverflowMemOutStreamBuf' but does *not* inherit from
     // 'bsl::streambuf'.  Thus, it is suitable for use as template parameter to
     // 'bdex_GenericByteOutStream' (but not to 'bdex_ByteOutStream' or
     // 'bdex_ByteOutStreamFormatter').  Note that this class is not designed to

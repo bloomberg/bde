@@ -58,7 +58,7 @@ BDEMF_ASSERT(sizeof(int) >= sizeof(char));
 // un-named namespace
 namespace {
     BDEMF_ASSERT(1);
-#if defined(BSLS_PLATFORM__CMP_SUN)
+#if defined(BSLS_PLATFORM_CMP_SUN)
     BDEMF_ASSERT(1);
 #else
     BDEMF_ASSERT(1); BDEMF_ASSERT(1); // not class scope
@@ -71,7 +71,7 @@ namespace {
 
 namespace Bar {
     BDEMF_ASSERT(1);
-#if defined(BSLS_PLATFORM__CMP_SUN)
+#if defined(BSLS_PLATFORM_CMP_SUN)
     BDEMF_ASSERT(1);
 #else
     BDEMF_ASSERT(1); BDEMF_ASSERT(1); // not class scope
@@ -141,7 +141,7 @@ int main(int argc, char *argv[])
         BDEMF_ASSERT(1 > 0 && 1);
 
 // MSVC: __LINE__ macro breaks when /ZI is used (see Q199057 or KB199057)
-#if !defined(BSLS_PLATFORM__CMP_MSVC) &&                \
+#if !defined(BSLS_PLATFORM_CMP_MSVC) &&                \
     !defined(BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT)
         bslmf_Assert_139 t1; // test typedef name creation; matches above line
         bslmf_Assert_140 t2; // test typedef name creation; matches above line
@@ -151,7 +151,7 @@ int main(int argc, char *argv[])
         BDEMF_ASSERT(2);
         BDEMF_ASSERT(-1);
 
-#if defined(BSLS_PLATFORM__CMP_SUN)
+#if defined(BSLS_PLATFORM_CMP_SUN)
         BSLMF_ASSERT(1);
 #else
         BDEMF_ASSERT(1); BDEMF_ASSERT(1); // not class scope

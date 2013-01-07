@@ -107,7 +107,7 @@ RESULT *timedAllocate(int                    *status, int flags,
 
     int rc = socket->blockingMode(&result);
 
-    #ifdef BSLS_PLATFORM__OS_WINDOWS
+    #ifdef BSLS_PLATFORM_OS_WINDOWS
     BSLS_ASSERT(0 != rc);
     #else
     BSLS_ASSERT(0 == rc);

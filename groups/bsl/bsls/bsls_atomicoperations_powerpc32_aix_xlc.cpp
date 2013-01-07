@@ -1,12 +1,24 @@
 // bsls_atomicoperations_powerpc32_aix_xlc.cpp                        -*-C++-*-
 
+//#include <bsls_atomicoperations_powerpc32_aix_xlc.h>
+// This component deliberately does not include its header, as it relies on a
+// quirk of the PowerPC architecture making header and cpp incompatible at
+// compile-time, but perfect partners at link-time.  The issue is that the
+// "extern "C" functions required by the atomics protocols for 64-bit integer
+// values must be interpreted by the function implementation as being passed
+// two 32bit integer values.  Following the "C" protocols, having bound the
+// name and calling the function with the right convention as found by the
+// header file, the linker will pick up the function with a slightly
+// different signature from the .cpp file, and the inline ASM will decode
+// the passed arguments correctly.
+
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
 #include <bsls_types.h>
 
-#if defined(BSLS_PLATFORM__CPU_POWERPC) && defined(BSLS_PLATFORM__CMP_IBM) \
-    && defined(BSLS_PLATFORM__CPU_32_BIT)
+#if defined(BSLS_PLATFORM_CPU_POWERPC) && defined(BSLS_PLATFORM_CMP_IBM) \
+    && defined(BSLS_PLATFORM_CPU_32_BIT)
 
 namespace BloombergLP {
 

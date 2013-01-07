@@ -104,7 +104,7 @@ int baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Windows>::resolve(
     char *libNameBuf = (char *) hbpAlloc.allocate(MAX_PATH);
 
     enum { MAX_SYMBOL_BUF_NAME_LENGTH = 2000 };
-#ifdef BSLS_PLATFORM__CPU_32_BIT
+#ifdef BSLS_PLATFORM_CPU_32_BIT
     enum { SIZEOF_SEGMENT = sizeof(SYMBOL_INFO) +
                                   MAX_SYMBOL_BUF_NAME_LENGTH * sizeof(TCHAR) };
     SYMBOL_INFO *sym = (SYMBOL_INFO*) hbpAlloc.allocate(SIZEOF_SEGMENT);
@@ -139,7 +139,7 @@ int baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Windows>::resolve(
         DWORD64 offsetFromSymbol = 0;
         ZeroMemory(sym, SIZEOF_SEGMENT);
         sym->SizeOfStruct = sizeof(*sym);
-#ifdef BSLS_PLATFORM__CPU_32_BIT
+#ifdef BSLS_PLATFORM_CPU_32_BIT
         sym->MaxNameLen = MAX_SYMBOL_BUF_NAME_LENGTH;
         rc = baesu_DbghelpDllImpl_Windows::symFromAddr(address,
                                                        &offsetFromSymbol,
@@ -161,7 +161,7 @@ int baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Windows>::resolve(
             frame->setOffsetFromSymbol((bsl::size_t) offsetFromSymbol);
         }
         else {
-#ifdef BSLS_PLATFORM__CPU_32_BIT
+#ifdef BSLS_PLATFORM_CPU_32_BIT
             reportError("stack trace resovler error: SymFromAddr"
                         " error code: ");
 #else

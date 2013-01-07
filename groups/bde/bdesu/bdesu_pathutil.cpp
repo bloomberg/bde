@@ -14,7 +14,7 @@ namespace BloombergLP {
 
 // LOCAL CONSTANTS
 const char SEPARATOR =
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
     '\\'
 #else
     '/'
@@ -33,7 +33,7 @@ void parse(size_t *rootEnd, const char *path, int length = -1)
     }
     *rootEnd = 0;
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
     // Windows paths come in three flavors: local (LFS), UNC, and Long
     // UNC (LUNC).
     // LFS: root consists of a drive letter followed by a colon (the name part)

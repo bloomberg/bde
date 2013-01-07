@@ -782,7 +782,7 @@ int main(int argc, char *argv[])
 // addresses:
 //..
     int rc = cache.resolveAddress(&ipAddresses, "www.bloomberg.com", 1);
-#ifndef BSLS_PLATFORM__OS_WINDOWS
+#ifndef BSLS_PLATFORM_OS_WINDOWS
     // The Windows test machine is not configured resolve external domain name
     // properly.  Disable the ASSERT test to prevent test failure.
 
@@ -795,7 +795,7 @@ int main(int argc, char *argv[])
 //  indicate "www.bloomberg.com" is stored in the cache, but not
 //  "www.businessweek.com":
 //..
-#ifndef BSLS_PLATFORM__OS_WINDOWS
+#ifndef BSLS_PLATFORM_OS_WINDOWS
     ASSERT(0 == cache.lookupAddressRaw(&ipAddresses, "www.bloomberg.com", 1));
     ASSERT(0 != cache.lookupAddressRaw(&ipAddresses,
                                        "www.businessweek.com",
@@ -818,7 +818,7 @@ int main(int argc, char *argv[])
 //..
 // Now, we write the address to stdout:
 //..
-#ifndef BSLS_PLATFORM__OS_WINDOWS
+#ifndef BSLS_PLATFORM_OS_WINDOWS
     if (verbose) bsl::cout << "IP Address: " << ipAddress << std::endl;
 #endif
 //..
@@ -941,7 +941,7 @@ int main(int argc, char *argv[])
         bcema_TestAllocator testAllocator;
 
         enum {
-#ifdef BSLS_PLATFORM__OS_LINUX
+#ifdef BSLS_PLATFORM_OS_LINUX
             NUM_THREADS = 8    // linux can't do a lot of threads
 #else
             NUM_THREADS = 50
@@ -1274,14 +1274,11 @@ int main(int argc, char *argv[])
             ASSERT(oam.isInUseSame());  ASSERT(dam.isInUseSame());
         }
 
-        // Double check that some object memory was allocated.
+        // Verify no allocation from the object/non-object allocators.
 
-        ASSERT(1 <= oa.numBlocksTotal());
+        LOOP_ASSERT(oa.numBlocksTotal(), 0 ==  oa.numBlocksTotal());
+        LOOP_ASSERT(da.numBlocksTotal(), 0 ==  da.numBlocksTotal());
 
-        // Note that memory should be independently allocated for each
-        // attribute capable of allocating memory.
-
-        LOOP_ASSERT(da.numBlocksTotal(), 0 == da.numBlocksTotal());
       } break;
       case 6: {
         // --------------------------------------------------------------------
@@ -1522,15 +1519,13 @@ int main(int argc, char *argv[])
             // Verify all memory is released on object destruction.
 
             LOOP_ASSERT(fa.numBlocksInUse(),  0 ==  fa.numBlocksInUse());
-            LOOP_ASSERT(oa.numBlocksInUse(),  0 ==  oa.numBlocksInUse());
-            LOOP_ASSERT(noa.numBlocksTotal(), 0 == noa.numBlocksTotal());
 
-            // Double check that some object memory was allocated.
+            // Verify no allocation from the object/non-object allocators.
 
-            LOOP_ASSERT(CONFIG, 1 <= oa.numBlocksTotal());
-
-            // Note that memory should be independently allocated for each
-            // attribute capable of allocating memory.
+            LOOP2_ASSERT(CONFIG,  oa.numBlocksTotal(),
+                         0 ==  oa.numBlocksTotal());
+            LOOP2_ASSERT(CONFIG, noa.numBlocksTotal(),
+                         0 == noa.numBlocksTotal());
         }
 
         if (verbose) cout << "\nNegative Testing." << endl;
@@ -2036,7 +2031,7 @@ int main(int argc, char *argv[])
             double totalUserTime   = 0;
             double totalWallTime   = 0;
 
-#ifdef BSLS_PLATFORM__OS_AIX
+#ifdef BSLS_PLATFORM_OS_AIX
             setenv("NSORDER", "bind,local", 1);
 #endif
 

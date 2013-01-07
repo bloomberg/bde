@@ -27,6 +27,10 @@
 #ifndef INCLUDED_BSLSTP_SLISTBASE
 #define INCLUDED_BSLSTP_SLISTBASE
 
+#ifdef BDE_OMIT_TRANSITIONAL // STP
+#error "bslstp_slistbase is not for publication"
+#endif
+
 #ifndef INCLUDED_CSTDDEF
 #include <cstddef>  // for std::size_t
 #define INCLUDED_CSTDDEF

@@ -1,4 +1,6 @@
 // bdem_berutil.cpp                                                   -*-C++-*-
+#include <bdem_berutil.h>
+
 #include <bdes_ident.h>
 BDES_IDENT_RCSID(bdem_berutil_cpp,"$Id$ $CSID$")
 
@@ -98,9 +100,6 @@ BDES_IDENT_RCSID(bdem_berutil_cpp,"$Id$ $CSID$")
 //    is added to the exponent and the mantissa shifted by the opposite amount.
 // 5. The bias value is added to the exponent to get its final value.
 // 6. Assemble the double value from the mantissa, exponent, and sign values.
-
-#include <bdem_berutil.h>
-
 #include <bdeimp_prolepticdateutil.h>
 
 #include <bdepu_iso8601.h>
@@ -119,7 +118,8 @@ BDES_IDENT_RCSID(bdem_berutil_cpp,"$Id$ $CSID$")
 #include <bslmf_assert.h>
 
 #include <bsls_assert.h>
-#include <bsls_platformutil.h>
+#include <bsls_platform.h>
+#include <bsls_types.h>
 
 #include <cstring>
 
@@ -130,11 +130,11 @@ namespace {
 BSLMF_ASSERT(sizeof(int)       == sizeof(float));
 BSLMF_ASSERT(sizeof(long long) == sizeof(double));
 
-const bsls_PlatformUtil::Uint64 DOUBLE_EXPONENT_MASK = 0x7ff0000000000000ULL;
-const bsls_PlatformUtil::Uint64 DOUBLE_MANTISSA_MASK = 0x000fffffffffffffULL;
-const bsls_PlatformUtil::Uint64
-                   DOUBLE_MANTISSA_IMPLICIT_ONE_MASK = 0x0010000000000000ULL;
-const bsls_PlatformUtil::Uint64 DOUBLE_SIGN_MASK     = 0x8000000000000000ULL;
+const bsls::Types::Uint64 DOUBLE_EXPONENT_MASK = 0x7ff0000000000000ULL;
+const bsls::Types::Uint64 DOUBLE_MANTISSA_MASK = 0x000fffffffffffffULL;
+const bsls::Types::Uint64
+                     DOUBLE_MANTISSA_IMPLICIT_ONE_MASK = 0x0010000000000000ULL;
+const bsls::Types::Uint64 DOUBLE_SIGN_MASK     = 0x8000000000000000ULL;
 
 enum {
     // These constants are used by the implementation of this component.
@@ -214,19 +214,7 @@ enum {
 
     TIMEZONE_LENGTH                    = 2,
     MIN_OFFSET                         = -1439,
-    MAX_OFFSET                         = 1439,
-
-    MAX_BINARY_DATE_LENGTH             = 3,
-    MAX_BINARY_TIME_LENGTH             = 4,
-    MAX_BINARY_DATETIME_LENGTH         = 6,
-
-    MIN_BINARY_DATETZ_LENGTH           = MAX_BINARY_DATE_LENGTH + 1,
-    MIN_BINARY_TIMETZ_LENGTH           = MAX_BINARY_TIME_LENGTH + 1,
-    MIN_BINARY_DATETIMETZ_LENGTH       = MAX_BINARY_DATETIME_LENGTH + 1,
-
-    MAX_BINARY_DATETZ_LENGTH           = 5,
-    MAX_BINARY_TIMETZ_LENGTH           = 6,
-    MAX_BINARY_DATETIMETZ_LENGTH       = 9
+    MAX_OFFSET                         = 1439
 };
 
 // HELPER FUNCTIONS
@@ -370,10 +358,11 @@ void putChars(bsl::streambuf *streamBuf, char value, int numChars)
 //     BSLS_ASSERT(0 == padChar || ((char) -1) == padChar);
     BSLS_ASSERT(0 <= numChars);
 
+    const int MIN_BINARY_DATETIMETZ_LENGTH = 7;
     char buffer[MIN_BINARY_DATETIMETZ_LENGTH];
     bsl::memset(buffer, value, numChars);
 
-#if BSLS_PLATFORMUTIL__IS_BIG_ENDIAN
+#if BSLS_PLATFORM_IS_BIG_ENDIAN
     streamBuf->sputn(buffer, numChars);
 #else
     for (int i = 0; i < numChars; ++i) {
@@ -419,7 +408,7 @@ bsls_Types::Int64 getSerialDatetimeValue(const bdet_Datetime& value)
     return serialDatetime;
 }
 
-}  // close anonymous namespace
+}  // close unnamed namespace
 
                             // -------------------
                             // struct bdem_BerUtil
@@ -1019,7 +1008,7 @@ int bdem_BerUtil_Imp::getIntegerValue(bsl::streambuf *streamBuf,
     }
 
     // Combine low and high word into a long word.
-#ifdef BSLS_PLATFORMUTIL__IS_BIG_ENDIAN
+#ifdef BSLS_PLATFORM_IS_BIG_ENDIAN
     reinterpret_cast<unsigned int*>(value)[1] = valueLo;
     reinterpret_cast<unsigned int*>(value)[0] = valueHi;
 #else

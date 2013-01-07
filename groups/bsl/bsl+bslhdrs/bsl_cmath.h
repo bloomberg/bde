@@ -25,15 +25,16 @@ BSLS_IDENT("$Id: $")
 
 #include <cmath>
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 #if !defined(BDE_DONT_ALLOW_TRANSITIVE_INCLUDES) && \
-     defined(BDE_BUILD_TARGET_STLPORT)           && \
-     (!defined(BSL_LEGACY) || BSL_LEGACY == 1)
+     defined(BDE_BUILD_TARGET_STLPORT)
 
 // Code in Robo depends on <math.h> included transitively with <cmath> and it
 // fails to build otherwise in the stlport4 mode on Sun.
 #include <math.h>
 
 #endif
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
 namespace bsl
 {
@@ -63,7 +64,7 @@ namespace bsl
     using native_std::tanh;
 
 // C99 math functions are available in namespace std
-#if defined(BSLS_PLATFORM__CMP_GNU) \
+#if defined(BSLS_PLATFORM_CMP_GNU) \
     && defined(_GLIBCXX_USE_C99_MATH) \
     && !defined(_GLIBCXX_USE_C99_FP_MACROS_DYNAMIC)
 

@@ -1209,7 +1209,7 @@ int main(int argc, char *argv[])
         ASSERT(1503624784U ==
                          bdeu_HashUtil::hash1((double)3.14159265358979323844));
 
-#ifdef BSLS_PLATFORM__CPU_64_BIT
+#ifdef BSLS_PLATFORM_CPU_64_BIT
         ASSERT(2283516099U ==
                             bdeu_HashUtil::hash1((void*)0xffab13f1324e5473LL));
 #else
@@ -1232,7 +1232,7 @@ int main(int argc, char *argv[])
         ASSERT(2343743579U == bdeu_HashUtil::hash2((float)3.1415926536));
         ASSERT(3721749206U ==
                          bdeu_HashUtil::hash2((double)3.14159265358979323844));
-#ifdef BSLS_PLATFORM__CPU_64_BIT
+#ifdef BSLS_PLATFORM_CPU_64_BIT
         ASSERT(2631003531U ==
                             bdeu_HashUtil::hash2((void*)0xffab13f1324e5473LL));
 #else
@@ -1392,7 +1392,7 @@ int main(int argc, char *argv[])
         time_hash1((unsigned short)12355, "unsigned short");
         time_hash1( (int)0x12345678, "int");
         time_hash1( (unsigned int)0x12345678, "unsigned int");
-#ifdef BSLS_PLATFORM__CPU_64_BIT
+#ifdef BSLS_PLATFORM_CPU_64_BIT
         time_hash1((long)0x12345678, "long");
         time_hash1((unsigned long)0x12345678, "unsigned long");
 #else
@@ -1408,7 +1408,7 @@ int main(int argc, char *argv[])
         time_hash1((float)3.1415926536, "float");
         time_hash1((double)3.14159265358979323844, "double");
 
-#ifdef BSLS_PLATFORM__CPU_64_BIT
+#ifdef BSLS_PLATFORM_CPU_64_BIT
         time_hash1((void*)0xffab13f1324e5473LL, "void*");
 #else
         time_hash1((void*)0xffab13f1, "void*");
@@ -1432,7 +1432,7 @@ int main(int argc, char *argv[])
                     "bsls_PlatformUtil::Uint64");
         time_hash2((float)3.1415926536, "float");
         time_hash2((double)3.14159265358979323844, "double");
-#ifdef BSLS_PLATFORM__CPU_64_BIT
+#ifdef BSLS_PLATFORM_CPU_64_BIT
         time_hash2((void*)0xffab13f1324e5473LL, "void*");
 #else
         time_hash2((void*)0xffab13f1, "void*");

@@ -21,7 +21,7 @@
 #include <bsl_iostream.h>
 #include <bsl_fstream.h>
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
 #include <bsl_c_signal.h>
 #include <bsl_c_stdio.h>
 #include <fcntl.h>
@@ -272,7 +272,7 @@ int main(int argc, char *argv[])
     veryVeryVerbose = (argc > 4);
     veryVeryVeryVerbose = (argc > 5);
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
     ofstream devnull;
     if (9 == test) {
         devnull.open("/dev/null");
@@ -304,7 +304,7 @@ int main(int argc, char *argv[])
         cout << "TEST " << __FILE__ << " CASE " << test << endl;
     }
 
-#ifndef BSLS_PLATFORM__OS_WINDOWS
+#ifndef BSLS_PLATFORM_OS_WINDOWS
     sigset(SIGPIPE, onSigPipe);
 #endif
 
@@ -313,7 +313,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // Child process for case 10
         // --------------------------------------------------------------------
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
         cout << "Skipping case -10 on windows..." << endl;
 #else
         if (argc != 5 ||
@@ -372,7 +372,7 @@ int main(int argc, char *argv[])
 #endif
       } break;
       case 10: {
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
         cout << "Skipping case 10 on windows..." << endl;
 #else
         if (verbose) {
@@ -444,7 +444,7 @@ int main(int argc, char *argv[])
             cerr << "Case 9 client process starting" << endl;
         }
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
         unlink(argv[3]);
 #endif
 
@@ -508,7 +508,7 @@ int main(int argc, char *argv[])
         // cannot open the same pipe or interfere with its operation.
         //
         //---------------------------------------------------------------------
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
         cout << "Skipping case 9 on windows..." << endl;
 #else
         if (verbose) {
@@ -570,7 +570,7 @@ int main(int argc, char *argv[])
             cerr << "Case 8 client process starting" << endl;
         }
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
         unlink(argv[3]);
 #endif
 
@@ -595,7 +595,7 @@ int main(int argc, char *argv[])
         // subsequently crashes, another process can then open the
         // same named pipe.
         //---------------------------------------------------------------------
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
         cout << "Skipping case 8 on windows..." << endl;
 #else
         if (verbose) {
@@ -678,7 +678,7 @@ int main(int argc, char *argv[])
 
             ASSERT(0 == bdesu_PipeUtil::makeCanonicalName
                    (&pipeName, "ctrl.baea.pcctest7"));
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
             unlink(pipeName.c_str());
 #endif
 
@@ -724,7 +724,7 @@ int main(int argc, char *argv[])
         // Testing:
         //   Concurrent writes
         // --------------------------------------------------------------------
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
         cout << "Skipping case 6 on windows..." << endl;
 #else
         if (verbose) {
@@ -738,7 +738,7 @@ int main(int argc, char *argv[])
 
             ASSERT(0 == bdesu_PipeUtil::makeCanonicalName
                    (&pipeName, "ctrl.baea.pcctest6"));
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
             unlink(pipeName.c_str());
 #endif
             enum { NUM_CLIENTS = 10, NUM_ITERATIONS = 100 };
@@ -807,7 +807,7 @@ int main(int argc, char *argv[])
         // Testing:
         //   Reading data from the named pipe
         // --------------------------------------------------------------------
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
         cout << "Skipping case 5 on windows..." << endl;
 #else
         if (verbose) {
@@ -821,7 +821,7 @@ int main(int argc, char *argv[])
 
             ASSERT(0 == bdesu_PipeUtil::makeCanonicalName
                    (&pipeName, "ctrl.baea.pcctest5"));
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
             unlink(pipeName.c_str());
 #endif
 
@@ -877,7 +877,7 @@ int main(int argc, char *argv[])
 
             ASSERT(0 == bdesu_PipeUtil::makeCanonicalName
                    (&pipeName, "ctrl.baea.pcctest4"));
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
             unlink(pipeName.c_str());
 #endif
 
@@ -914,7 +914,7 @@ int main(int argc, char *argv[])
 
         bslma_TestAllocator ta(veryVeryVeryVerbose);
         {
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
             const char PIPE_NAME[] = "\\\\.\\pipe\\ctrl.baea.pcctest3";
 #else
             const char PIPE_NAME[] = "/tmp/ctrl.baea.pcctest3";
@@ -963,7 +963,7 @@ int main(int argc, char *argv[])
         {
             int rc;
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
             const char PIPE_NAME1[] = "\\\\.\\pipe\\ctrl.pcctest2-1";
             const char PIPE_NAME2[] = "\\\\.\\pipe\\ctrl.pcctest2-2";
 #else
@@ -1025,7 +1025,7 @@ int main(int argc, char *argv[])
 
         bslma_TestAllocator ta(veryVeryVeryVerbose);
         {
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
             const char PIPE_NAME[] = "\\\\.\\pipe\\ctrl.baea.pcctest1";
 #else
             const char PIPE_NAME[] = "/tmp/ctrl.baea.pcctest1";

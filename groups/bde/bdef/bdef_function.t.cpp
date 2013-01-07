@@ -21,7 +21,7 @@
 
 #include <bsl_c_stdlib.h>     // atoi()
 
-#if defined(BSLS_PLATFORM__CMP_MSVC)
+#if defined(BSLS_PLATFORM_CMP_MSVC)
 #pragma warning(disable: 4355) // we often use 'this' in member-initializers
 #endif
 
@@ -685,22 +685,16 @@ bool operator==(const FunctorM& lhs, const FunctorM& rhs)
 template <class FUNC>
 class PointerSemanticWrapper {
 
-    // PRIVATE TYPES
-    enum {
-        BITWISE = bslalg_HasTrait<FUNC, bslalg_TypeTraitBitwiseCopyable>::VALUE
-    };
-    typedef typename bslmf_If<BITWISE,
-                              bslalg_TypeTraitBitwiseCopyable,
-                              bslalg_TypeTraitNil>::Type    PassThroughBitwise;
-
     // DATA
     FUNC d_object;
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS2(PointerSemanticWrapper,
-                                  bslalg_TypeTraitHasPointerSemantics,
-                                  PassThroughBitwise);
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(PointerSemanticWrapper,
+                                      bsl::is_trivially_copyable,
+                                      bsl::is_trivially_copyable<FUNC>::value);
+    BSLMF_NESTED_TRAIT_DECLARATION(PointerSemanticWrapper,
+                                   bslmf::HasPointerSemantics);
 
     // CREATORS
     PointerSemanticWrapper() : d_object() {}
@@ -1540,7 +1534,7 @@ struct Aggregate {
 };
 
 extern "C"
-int oldsvc_Entry__createService(
+int oldsvc_Entry_createService(
                 SharedPtr               *requestRouter,
                 bassvc::ServiceManifest *manifest,
                 const Aggregate&         configuration,
@@ -1996,7 +1990,7 @@ void testCase19(int argc)
         Aggregate                configuration;
         configuration.d_value = 123;
 
-        int result = oldsvc_Entry__createService(requestRouter,
+        int result = oldsvc_Entry_createService(requestRouter,
                                                  manifest,
                                                  configuration,
                                                  &ta);
@@ -2029,10 +2023,10 @@ void testCase19(int argc)
         int         serviceId = 12345;
         InProcessServiceManager mX;
 
-#ifndef BSLS_PLATFORM__CMP_IBM
+#ifndef BSLS_PLATFORM_CMP_IBM
         result = mX.registerBlobRouter(name,
                                        serviceId,
-                                       &oldsvc_Entry__createService);
+                                       &oldsvc_Entry_createService);
         ASSERT(0 == result);
 #endif
     }

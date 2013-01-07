@@ -8,7 +8,7 @@ using namespace BloombergLP;
 // It's unclear at this point what the driver for an undefined type
 // should do.
 
-int main(int argc, char *argv[])
+int main()
 {
     return -1;
 }

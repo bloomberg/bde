@@ -12,11 +12,11 @@
 #include <stdio.h>     // sprintf(), snprintf() [NOT <cstdio>, which does not
                        // include 'snprintf']
 
-#if defined(BSLS_PLATFORM__CMP_MSVC)
+#if defined(BSLS_PLATFORM_CMP_MSVC)
 #define snprintf _snprintf
 #endif
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
 #include <arpa/inet.h>
 #else
 #include <winsock2.h>
@@ -78,7 +78,7 @@ static void aSsErT(int c, const char *s, int i)
 //                    GLOBAL HELPER FUNCTIONS FOR TESTING
 //--------------------------------------------------------------------------
 
-#if defined(BSLS_PLATFORM__CMP_MSVC)
+#if defined(BSLS_PLATFORM_CMP_MSVC)
 #define INT64_FMT_STR  "0x%I64X"
 #else
 #define INT64_FMT_STR  "0x%llX"
@@ -93,7 +93,7 @@ char *hex64(char *buffer, bsls::Types::Uint64 value)
 
 #undef INT64_FMT_STR
 
-#if defined(BSLS_PLATFORM__CPU_X86) && defined(BSLS_PLATFORM__CMP_GNU)
+#if defined(BSLS_PLATFORM_CPU_X86) && defined(BSLS_PLATFORM_CMP_GNU)
 // On Linux x86, no natural type is aligned on a 64-bit boundary, but we need
 // such a type to implement low-level constructs (e.g 64-bit atomic types).
 
@@ -237,7 +237,7 @@ int main(int argc, char *argv[])
             { L_,   0x7FFFFFFF,         "2147483647"           },
             { L_,   0x80000000,         "2147483648"           },
             { L_,   0xFFFFFFFF,         "4294967295"           },
-#if !defined(BSLS_PLATFORM__NO_64_BIT_CONSTANTS)
+#if !defined(BSLS_PLATFORM_NO_64_BIT_LITERALS)
             { L_,   0x100000000,        "4294967296"           },
             { L_,   0x7FFFFFFFFFFFFFFF, "9223372036854775807"  },
             { L_,   0x8000000000000000, "9223372036854775808"  },
@@ -273,7 +273,7 @@ int main(int argc, char *argv[])
                 if (veryVerbose)
                     cout << "\tEXPECTED FORMAT     : " << FMT << endl;
 
-                #if defined(BSLS_PLATFORM__CMP_MSVC)
+                #if defined(BSLS_PLATFORM_CMP_MSVC)
                 snprintf(buf1, SIZE, "%I64u", SPEC);
                 snprintf(buf2, SIZE, "%I64u", SPEC);
                 #else
@@ -336,7 +336,7 @@ int main(int argc, char *argv[])
                 if (veryVerbose)
                     cout << "\tEXPECTED FORMAT     : " << FMT << endl;
 
-                #if defined(BSLS_PLATFORM__CMP_MSVC)
+                #if defined(BSLS_PLATFORM_CMP_MSVC)
                 snprintf(buf1, SIZE, "%I64u", SPEC);
                 snprintf(buf2, SIZE, "%I64u", SPEC);
                 #else
@@ -408,7 +408,7 @@ int main(int argc, char *argv[])
             { L_,   0x7FFFFFFF,         "2147483647"           },
             { L_,   0x80000000,         "2147483648"           },
             { L_,   0xFFFFFFFF,         "4294967295"           },
-#if !defined(BSLS_PLATFORM__NO_64_BIT_CONSTANTS)
+#if !defined(BSLS_PLATFORM_NO_64_BIT_LITERALS)
             { L_,   0x100000000,        "4294967296"           },
             { L_,   0x7FFFFFFFFFFFFFFF, "9223372036854775807"  },
             { L_,   0x8000000000000000, "-9223372036854775808" },
@@ -444,7 +444,7 @@ int main(int argc, char *argv[])
             if (veryVerbose)
                 cout << "EXPECTED FORMAT:" << endl << FMT << endl;
 
-            #if defined(BSLS_PLATFORM__CMP_MSVC)
+            #if defined(BSLS_PLATFORM_CMP_MSVC)
             snprintf(buf1, SIZE, "%I64d", SPEC);
             snprintf(buf2, SIZE, "%I64d", SPEC);
             #else
@@ -502,7 +502,7 @@ int main(int argc, char *argv[])
                 cout << "\tSpec = \t\t      " << SPEC << endl
                      << "\tEXPECTED FORMAT     : " << FMT << endl;
 
-            #if defined(BSLS_PLATFORM__CMP_MSVC)
+            #if defined(BSLS_PLATFORM_CMP_MSVC)
             snprintf(buf1, SIZE, "%I64d", SPEC);
             snprintf(buf2, SIZE, "%I64d", SPEC);
             #else
@@ -554,7 +554,7 @@ int main(int argc, char *argv[])
         // Must be at least as wide as a 'long int' on 64 bit architectures,
         // as an 'int' otherwise.
 
-#ifdef BSLS_PLATFORM__CPU_64_BIT
+#ifdef BSLS_PLATFORM_CPU_64_BIT
         ASSERT(sizeof(Types::size_type) >= sizeof(long int));
 #else
         ASSERT(sizeof(Types::size_type) >= sizeof(int));

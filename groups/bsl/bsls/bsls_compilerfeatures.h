@@ -7,9 +7,19 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide macros to identify compiler support for C++0x features.
+//@PURPOSE: Provide macros to identify compiler support for C++11 features.
 //
 //@CLASSES:
+//
+//@MACROS
+//  BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES: flag for alias templates
+//  BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE: flag for 'decltype'
+//  BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE: flag for 'extern template'
+//  BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT: flag for 'include_next'
+//  BSLS_COMPILERFEATURES_SUPPORT_NULLPTR: flag for 'nullptr'
+//  BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES: flag for rvalue references
+//  BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT: flag for 'static_assert'
+//  BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES: flag for variadic params.
 //
 //@SEE_ALSO: bsls_platform
 //
@@ -18,7 +28,7 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION: This component provides a suite of preprocessor macros to
 // identify compiler-specific support of language features that may not be
 // available on all compilers in use across an organization.  For example, as
-// new C++0x language facilities become more broadly available, such as
+// new C++11 language facilities become more broadly available, such as
 // 'extern template', macros will be defined here to indicate whether the
 // current platform/compiler combination supports the corresponding language
 // features.  Note that in some cases, support for a given feature may need to
@@ -28,15 +38,39 @@ BSLS_IDENT("$Id: $")
 ///-------------
 // The following are the macros provided by this component.  Note that they are
 // not defined for all platform/compiler combinations.
-//..
-//  BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE
-//      This macro is defined if 'extern template' is supported by the current
-//      compiler settings for this platform.
 //
-//  BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
-//      This macro is defined if 'static_assert' is supported by the current
-//      compiler settings for this platform.
-//..
+//: 'BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES'
+//:    This macro is defined if alias templates are supported by the current
+//:    compiler settings for this platform.
+//:
+//: 'BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE'
+//:    This macro is defined if 'decltype' is supported by the current compiler
+//:    settings for this platform.
+//:
+//: 'BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE'
+//:     This macro is defined if 'extern template' is supported by the current
+//:     compiler settings for this platform.
+//:
+//: 'BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT'
+//:    This macro is defined if 'include_next' is supported by the current
+//:    compiler settings for this platform.
+//:
+//: 'BSLS_COMPILERFEATURES_SUPPORT_NULLPTR'
+//:    This macro is defined if 'nullptr' is supported by the current compiler
+//:    settings for this platform.
+//:
+//: 'BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES'
+//:    This macro is defined if rvalue references are supported by the current
+//:    compiler settings for this platform.
+//:
+//: 'BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT'
+//:    This macro is defined if 'static_assert' is supported by the current
+//:    compiler settings for this platform.
+//:
+//: 'BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES'
+//:    This macro is defined if variadic template parameters are supported by
+//:    the current compiler settings for this platform.
+//
 ///Usage
 ///-----
 // The following code snippets illustrate use of this component.
@@ -70,7 +104,7 @@ BSLS_IDENT("$Id: $")
              // BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
 
 // GCC 4.7 has support with '-std=c++0x'.
-#if defined(BSLS_PLATFORM__CMP_GNU) && BSLS_PLATFORM__CMP_VER_MAJOR >= 40700\
+#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VER_MAJOR >= 40700\
  && defined(__GXX_EXPERIMENTAL_CXX0X__)
 #define BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
 #endif
@@ -78,64 +112,77 @@ BSLS_IDENT("$Id: $")
              // BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
 
 // Microsoft VC2010 always supports the feature (it cannot be disabled).
-#if defined(BSLS_PLATFORM__CMP_MSVC) && BSLS_PLATFORM__CMP_VER_MAJOR >= 1600
+#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VER_MAJOR >= 1600
 #define BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
 
 // GCC 4.3 has support with '-std=c++0x'.
-#elif defined(BSLS_PLATFORM__CMP_GNU) && BSLS_PLATFORM__CMP_VER_MAJOR >= 40300\
+#elif defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VER_MAJOR >= 40300\
    && defined(__GXX_EXPERIMENTAL_CXX0X__)
 #define BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
 #endif
 
              // BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE
 
-#if defined(BSLS_PLATFORM__CMP_IBM)
+// IBM xlC compiler has support
+#if defined(BSLS_PLATFORM_CMP_IBM)
+#define BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE
+
+// GCC 4.7 has support with '-std=c++0x'.
+#elif defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VER_MAJOR >= 40700\
+   && defined(__GXX_EXPERIMENTAL_CXX0X__)
 #define BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE
 #endif
 
-             // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+             // BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT
 
-// Microsoft VC2010 always supports the feature (it cannot be disabled).
-#if defined(BSLS_PLATFORM__CMP_MSVC) && BSLS_PLATFORM__CMP_VER_MAJOR >= 1600
-#   define BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-
-// GCC 4.5 has support with '-std=c++0x' (earlier versions are broken)
-#elif defined(BSLS_PLATFORM__CMP_GNU) && BSLS_PLATFORM__CMP_VER_MAJOR >= 40500\
-   && defined(__GXX_EXPERIMENTAL_CXX0X__)
-#define BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+// GCC and CLANG compilers have support
+#if defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
+#define BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT
 #endif
 
              // BSLS_COMPILERFEATURES_SUPPORT_NULLPTR
 
 // Microsoft VC2010 always supports the feature (it cannot be disabled).
-#if defined(BSLS_PLATFORM__CMP_MSVC) && BSLS_PLATFORM__CMP_VER_MAJOR >= 1600
+#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VER_MAJOR >= 1600
 #define BSLS_COMPILERFEATURES_SUPPORT_NULLPTR
 
 // GCC 4.6 has support with '-std=c++0x'.
-#elif defined(BSLS_PLATFORM__CMP_GNU) && BSLS_PLATFORM__CMP_VER_MAJOR >= 40600\
+#elif defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VER_MAJOR >= 40600\
    && defined(__GXX_EXPERIMENTAL_CXX0X__)
 #define BSLS_COMPILERFEATURES_SUPPORT_NULLPTR
+#endif
+
+             // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+
+// Microsoft VC2010 always supports the feature (it cannot be disabled).
+#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VER_MAJOR >= 1600
+#   define BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+
+// GCC 4.5 has support with '-std=c++0x' (earlier versions are broken)
+#elif defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VER_MAJOR >= 40500\
+   && defined(__GXX_EXPERIMENTAL_CXX0X__)
+#define BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 #endif
 
              // BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
 
 // Microsoft VC2010 always supports the feature (it cannot be disabled).
-#if defined(BSLS_PLATFORM__CMP_MSVC) && BSLS_PLATFORM__CMP_VER_MAJOR >= 1600
+#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VER_MAJOR >= 1600
 #define BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
 
 // IBM XL C++ 11 has support in '0x' mode, or if explicitly activated.  Note
 // that '__IBMCPP_STATIC_ASSERT' was not available until xlC 11, so no version
 // check is needed.
-#elif defined(BSLS_PLATFORM__CMP_IBM) && defined(__IBMCPP_STATIC_ASSERT)
+#elif defined(BSLS_PLATFORM_CMP_IBM) && defined(__IBMCPP_STATIC_ASSERT)
 #define BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
 
 // HP-UX aCC 6.25 has support with '-Ax'.
-#elif defined(BSLS_PLATFORM__CMP_HP) && BSLS_PLATFORM__CMP_VER_MAJOR >= 62500 \
+#elif defined(BSLS_PLATFORM_CMP_HP) && BSLS_PLATFORM_CMP_VER_MAJOR >= 62500 \
    && defined(_HP_CXX0x_SOURCE)
 #define BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
 
 // GCC 4.3 has support with '-std=c++0x'.
-#elif defined(BSLS_PLATFORM__CMP_GNU) && BSLS_PLATFORM__CMP_VER_MAJOR >= 40300\
+#elif defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VER_MAJOR >= 40300\
    && defined(__GXX_EXPERIMENTAL_CXX0X__)
 #define BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
 #endif
@@ -145,22 +192,22 @@ BSLS_IDENT("$Id: $")
 // IBM XL C++ 11 has support in '0x' mode, or if explicitly activated.  Note
 // that '__IBMCPP_VARIADIC_TEMPLATES' was not available until xlC 11, so no
 // version check is needed.
-#if defined(BSLS_PLATFORM__CMP_IBM) && defined(__IBMCPP_VARIADIC_TEMPLATES)
+#if defined(BSLS_PLATFORM_CMP_IBM) && defined(__IBMCPP_VARIADIC_TEMPLATES)
 #define BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
 
 // GCC 4.3 has support with '-std=c++0x'.
-#elif defined(BSLS_PLATFORM__CMP_GNU) && BSLS_PLATFORM__CMP_VER_MAJOR >= 40300\
+#elif defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VER_MAJOR >= 40300\
    && defined(__GXX_EXPERIMENTAL_CXX0X__)
 #define BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
 #endif
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2010
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

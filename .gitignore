@@ -9,6 +9,8 @@
 *.tsk
 *.exe
 *.exp
+*.tmp
+*.orig
 # ignore vim swapfiles
 .*.sw?
 *~
@@ -24,3 +26,4 @@ include/
 !groups/bsl/bsl+apache/test/include/
 lib/
 build/
+TAGS

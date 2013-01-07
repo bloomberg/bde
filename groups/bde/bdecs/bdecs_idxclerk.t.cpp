@@ -770,7 +770,7 @@ int main(int argc, char *argv[])
         }
         ASSERT(0 == objectAllocator.numBlocksInUse());
         ASSERT(0 == defaultAllocator.numBlocksInUse());
-#if defined(BSLS_PLATFORM__CMP_IBM)
+#if defined(BSLS_PLATFORM_CMP_IBM)
         // For some odd reason IBM is the only compiler that uses the default
         // allocator with the generator function here.  Other compilers seem to
         // have elided this.

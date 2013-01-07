@@ -22,7 +22,7 @@
 #include <bsls_assert.h>
 
 using namespace BloombergLP;
-#if defined(BSLS_PLATFORM__OS_SOLARIS) || defined(BSLS_PLATFORM__OS_HPUX)
+#if defined(BSLS_PLATFORM_OS_SOLARIS) || defined(BSLS_PLATFORM_OS_HPUX)
     #define BTESO_EVENTMANAGER_ENABLETEST
     typedef bteso_DefaultEventManager<bteso_Platform::DEVPOLL> Obj;
 #endif
@@ -137,7 +137,7 @@ enum {
     BUF_LEN    = 8192
 };
 
-#if defined(BSLS_PLATFORM__OS_WINDOWS)
+#if defined(BSLS_PLATFORM_OS_WINDOWS)
     enum {
         READ_SIZE = 8192,
         WRITE_SIZE = 30000
@@ -447,7 +447,7 @@ int main(int argc, char *argv[]) {
         enum { NUM_PAIRS = 10 };
         bteso_EventManagerTestPair testPairs[NUM_PAIRS];
 
-#ifdef BSLS_PLATFORM__OS_HPUX
+#ifdef BSLS_PLATFORM_OS_HPUX
         // There seems to be a ~20ms latency between creation of a socket and
         // when it really starts working properly on HPUX.
 
@@ -497,7 +497,7 @@ int main(int argc, char *argv[]) {
                 LOOP_ASSERT(i, 1 == rc);
                 LOOP_ASSERT(i, testPairs[i].observedFd() == registration.fd)
                 LOOP_ASSERT(i, POLLIN == registration.revents);
-#ifndef BSLS_PLATFORM__OS_HPUX
+#ifndef BSLS_PLATFORM_OS_HPUX
                 // The Solaris doc guarantees that .events == 0, the HPUX doc
                 // doesn't say.
 
@@ -538,7 +538,7 @@ int main(int argc, char *argv[]) {
                 LOOP_ASSERT(i, 1 == rc);
                 LOOP_ASSERT(i, testPairs[i].observedFd() == registration.fd)
                 LOOP_ASSERT(i, POLLIN == registration.revents);
-#ifndef BSLS_PLATFORM__OS_HPUX
+#ifndef BSLS_PLATFORM_OS_HPUX
                 // The Solaris doc guarantees that .events == 0, the HPUX doc
                 // doesn't say.
 
@@ -856,7 +856,7 @@ int main(int argc, char *argv[]) {
                 enum { NUM_PAIRS = 4 };
                 bteso_EventManagerTestPair socketPairs[NUM_PAIRS];
 
-#ifdef BSLS_PLATFORM__OS_HPUX
+#ifdef BSLS_PLATFORM_OS_HPUX
                 // Sockets take ~ 20 ms to fully 'wake up' on HPUX.  Note that
                 // case 12 in bteso_eventmanagertester.t.cpp verifies that data
                 // is still correct during this time.
@@ -914,7 +914,7 @@ int main(int argc, char *argv[]) {
             cout << "\tStandard test for 'dispatch'" << endl;
         {
 // TBD FIX ME
-#ifndef BSLS_PLATFORM__OS_SOLARIS
+#ifndef BSLS_PLATFORM_OS_SOLARIS
             Obj mX(&timeMetric, &testAllocator);
             int notFailed = !bteso_EventManagerTester::testDispatch(&mX,
                                                                   controlFlag);
@@ -954,7 +954,7 @@ int main(int argc, char *argv[]) {
 
                 bteso_EventManagerTestPair socketPairs[4];
 
-#ifdef BSLS_PLATFORM__OS_HPUX
+#ifdef BSLS_PLATFORM_OS_HPUX
                 // Sockets take ~ 20 ms to fully 'wake up' on HPUX.  Note that
                 // case 12 in bteso_eventmanagertester.t.cpp verifies that data
                 // is still correct during this time.
@@ -1551,7 +1551,7 @@ int main(int argc, char *argv[]) {
             const int NUM_PAIR = 4;
             bteso_EventManagerTestPair socketPairs[NUM_PAIR];
 
-#ifdef BSLS_PLATFORM__OS_HPUX
+#ifdef BSLS_PLATFORM_OS_HPUX
             // There seems to be a ~20ms latency between creation of a socket
             // and when it really starts working properly on HPUX.
 

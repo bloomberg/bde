@@ -13,7 +13,7 @@
 #include <bsl_cstdio.h>      // sprintf()
 #include <bsl_cstring.h>     // strcmp(), memset()
 
-#if defined(BSLS_PLATFORM__CMP_MSVC)
+#if defined(BSLS_PLATFORM_CMP_MSVC)
 #include <bsl_c_string.h>    // _stricmp(), _strnicmp()
 #define strcasecmp _stricmp
 #define strncasecmp _strnicmp

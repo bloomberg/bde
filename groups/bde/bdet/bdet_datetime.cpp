@@ -69,7 +69,7 @@ int bdet_Datetime::printToBuffer(char *result, int numBytes) const
     int hour, min, sec, mSec;
     time().getTime(&hour, &min, &sec, &mSec);
 
-#if defined(BSLS_PLATFORM__CMP_MSVC)
+#if defined(BSLS_PLATFORM_CMP_MSVC)
     // Windows uses a different variant of snprintf that does not necessarily
     // null-terminate and returns -1 on overflow.
 

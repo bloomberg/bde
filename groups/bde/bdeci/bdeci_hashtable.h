@@ -1149,7 +1149,7 @@ void bdeci_Hashtable<T, HASH>::removeAll()
                                        initializeRaw(d_table_p, 0, d_numSlots);
 }
 
-#if defined(BSLS_PLATFORM__CMP_MSVC)
+#if defined(BSLS_PLATFORM_CMP_MSVC)
 #pragma warning(push)
 // Protect the next two functions against warning C4706, "assignment within a
 // conditional expression".  This is the while-loop condition, which tests that
@@ -1204,7 +1204,7 @@ int bdeci_Hashtable<T, HASH>::removeFirst(const T& value)
     return 0;
 }
 
-#if defined(BSLS_PLATFORM__CMP_MSVC)
+#if defined(BSLS_PLATFORM_CMP_MSVC)
 #pragma warning(push)
 // Restore the state of the warning flag.  It is most important that we do not
 // accidentally disable the warning for later headers.

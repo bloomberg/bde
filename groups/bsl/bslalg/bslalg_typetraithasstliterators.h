@@ -46,9 +46,22 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_DETECTNESTEDTRAIT
+#include <bslmf_detectnestedtrait.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
+#include <bslmf_integralconstant.h>
+#endif
+
 namespace BloombergLP {
 
 namespace bslalg {
+
+template <typename TYPE>
+struct HasStlIterators : bslmf::DetectNestedTrait<TYPE, HasStlIterators>
+{
+};
 
                         //================================
                         // struct TypeTraitHasStlIterators
@@ -58,16 +71,29 @@ struct TypeTraitHasStlIterators {
     // A type with this trait defines (at minimum) the nested types 'iterator'
     // and 'const_iterator' and the functions 'begin()' and 'end()' having the
     // standard STL semantics.
+
+    template <class TYPE>
+    struct NestedTraitDeclaration :
+        bslmf::NestedTraitDeclaration<TYPE, HasStlIterators>
+    {
+        // This class template ties the 'bslalg::TypeTraitHasStlIterators'
+        // trait tag to the 'bslmf::HasStlIterators' trait metafunction.
+    };
+
+    template <class TYPE>
+    struct Metafunction : HasStlIterators<TYPE>::type { };
 };
 
 }  // close package namespace
 
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
 
 typedef bslalg::TypeTraitHasStlIterators bslalg_TypeTraitHasStlIterators;
     // This alias is defined for backward compatibility.
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

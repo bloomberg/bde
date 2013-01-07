@@ -2,7 +2,12 @@
 #ifndef INCLUDED_BSLS_ATOMICOPERATIONS_X86_ALL_GCC
 #define INCLUDED_BSLS_ATOMICOPERATIONS_X86_ALL_GCC
 
-//@PURPOSE: Provide implentations of atomic operations for X86/GCC.
+#ifndef INCLUDED_BSLS_IDENT
+#include <bsls_ident.h>
+#endif
+BSLS_IDENT("$Id: $")
+
+//@PURPOSE: Provide implementations of atomic operations for X86/GCC.
 //
 //@CLASSES:
 //  bsls::AtomicOperations_X86_ALL_GCC: implementation of atomics for X86/GCC.
@@ -11,23 +16,22 @@
 //
 //@DESCRIPTION: This component provides classes necessary to implement atomics
 // on the Linux X86 platform with GCC.  The classes are for private use only.
-// See 'bsls_atomicoperations' and 'bsls_atomic' for the public inteface to
+// See 'bsls_atomicoperations' and 'bsls_atomic' for the public interface to
 // atomics.
-
-#ifndef INCLUDED_BSLS_IDENT
-#include <bsls_ident.h>
-#endif
-BSLS_IDENT("$Id: $")
-
-#ifndef INCLUDED_BSLS_TYPES
-#include <bsls_types.h>
-#endif
 
 #ifndef INCLUDED_BSLS_ATOMICOPERATIONS_DEFAULT
 #include <bsls_atomicoperations_default.h>
 #endif
 
-#if defined(BSLS_PLATFORM__CPU_X86) && defined(BSLS_PLATFORM__CMP_GNU)
+#ifndef INCLUDED_BSLS_PLATFORM
+#include <bsls_platform.h>
+#endif
+
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
+#endif
+
+#if defined(BSLS_PLATFORM_CPU_X86) && defined(BSLS_PLATFORM_CMP_GNU)
 
 namespace BloombergLP {
 
@@ -227,7 +231,7 @@ inline
 int AtomicOperations_X86_ALL_GCC::
     addIntNv(AtomicTypes::Int *atomicInt, int value)
 {
-#if BSLS_PLATFORM__CMP_VER_MAJOR >= 40100 // gcc >= 4.1
+#if BSLS_PLATFORM_CMP_VER_MAJOR >= 40100 // gcc >= 4.1
     return __sync_add_and_fetch(&atomicInt->d_value, value);
 #else
     const int orig = value;
@@ -277,6 +281,12 @@ Types::Int64 AtomicOperations_X86_ALL_GCC::
 #ifndef __PIC__
                   "ebx",
 #endif
+
+#if defined(BSLS_PLATFORM_CMP_CLANG) && defined(__PIC__)
+                  "ebx",    // Clang wants to reuse 'ebx' even in PIC mode
+                            // and generates invalid code.
+                            // Mark 'ebx' as clobbered to prevent that.
+#endif
                   "ecx", "cc", "memory");
     return result;
 }
@@ -316,7 +326,13 @@ Types::Int64 AtomicOperations_X86_ALL_GCC::
 #endif
                   "c" ((int) (swapValue >> 32)),
                   "A" (*atomicInt)
-                : "memory", "cc");
+                :
+#if defined(BSLS_PLATFORM_CMP_CLANG) && defined(__PIC__)
+                  "ebx",    // Clang wants to reuse 'ebx' even in PIC mode
+                            // and generates invalid code.
+                            // Mark 'ebx' as clobbered to prevent that.
+#endif
+                  "memory", "cc");
 
     return result;
 }
@@ -346,7 +362,13 @@ Types::Int64 AtomicOperations_X86_ALL_GCC::
 #endif
                   "c" ((int) (swapValue >> 32)),
                   "0" (compareValue)
-                : "memory", "cc");
+                :
+#if defined(BSLS_PLATFORM_CMP_CLANG) && defined(__PIC__)
+                  "ebx",    // Clang wants to reuse 'ebx' even in PIC mode
+                            // and generates invalid code.
+                            // Mark 'ebx' as clobbered to prevent that.
+#endif
+                  "memory", "cc");
 
     return compareValue;
 }
@@ -356,7 +378,7 @@ Types::Int64 AtomicOperations_X86_ALL_GCC::
     addInt64Nv(AtomicTypes::Int64 *atomicInt,
                Types::Int64 value)
 {
-#if BSLS_PLATFORM__CMP_VER_MAJOR >= 40100 // gcc >= 4.1
+#if BSLS_PLATFORM_CMP_VER_MAJOR >= 40100 // gcc >= 4.1
     return __sync_add_and_fetch(&atomicInt->d_value, value);
 #else
     Types::Int64 result;
@@ -385,6 +407,12 @@ Types::Int64 AtomicOperations_X86_ALL_GCC::
 #   ifndef __PIC__
                   "ebx",
 #   endif
+
+#if defined(BSLS_PLATFORM_CMP_CLANG) && defined(__PIC__)
+                  "ebx",    // Clang wants to reuse 'ebx' even in PIC mode
+                            // and generates invalid code.
+                            // Mark 'ebx' as clobbered to prevent that.
+#endif
                   "ecx","cc","memory");
 
    return result;
@@ -395,7 +423,7 @@ Types::Int64 AtomicOperations_X86_ALL_GCC::
 
 }  // close enterprise namespace
 
-#endif  // defined(BSLS_PLATFORM__CPU_X86) && defined(BSLS_PLATFORM__CMP_GNU)
+#endif  // defined(BSLS_PLATFORM_CPU_X86) && defined(BSLS_PLATFORM_CMP_GNU)
 
 #endif
 

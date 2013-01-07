@@ -4,7 +4,7 @@
 #include <bdes_ident.h>
 BDES_IDENT_RCSID(bcemt_timedsemaphoreimpl_win32_cpp,"$Id$ $CSID$")
 
-#ifdef BCES_PLATFORM__WIN32_THREADS
+#ifdef BCES_PLATFORM_WIN32_THREADS
 
 #include <bcemt_lockguard.h>     // for testing only
 #include <bcemt_mutex.h>         // for testing only
@@ -34,7 +34,7 @@ bcemt_TimedSemaphoreImpl<bces_Platform::Win32TimedSemaphore>::timedWait(
 
 }  // close namespace BloombergLP
 
-#endif  // BCES_PLATFORM__WIN32_THREADS
+#endif  // BCES_PLATFORM_WIN32_THREADS
 
 // ---------------------------------------------------------------------------
 // NOTICE:

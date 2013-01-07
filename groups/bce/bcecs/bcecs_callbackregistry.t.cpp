@@ -119,7 +119,7 @@ static void aSsErT(int c, const char *s, int i)
 
 // The following macros facilitate thread-safe streaming to standard output.
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
 #define MTCOUT  coutMutex.lock(); { bsl::cout
 #else
 #define MTCOUT  coutMutex.lock(); { bsl::cout << bcemt_ThreadUtil::self() \

@@ -9,14 +9,14 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide fast variable-size memory pool with allocation methods.
 //
-//@DEPRECATED: Use 'bdema_sequentialpool' instead.
+//@INTERNAL_DEPRECATED: Use 'bdema_sequentialpool' instead.
 //
 //@CLASSES:
 //  bslma::SequentialPool: fast variable-size memory pool
 //
-//@AUTHOR: Shao-wei Hung (shung1)
-//
 //@SEE_ALSO: bdema_sequentialpool
+//
+//@AUTHOR: Shao-wei Hung (shung1)
 //
 //@DESCRIPTION: This component implements a memory pool that dispenses memory
 // blocks of any requested size from an internal buffer or an optional
@@ -34,25 +34,24 @@ BSLS_IDENT("$Id: $")
 // The 'bslma::SequentialPool' allocates memory using one of the two alignment
 // strategies (defined in 'bslma_bufferallocator') optionally specified at
 // construction: 1) MAXIMUM ALIGNMENT or 2) NATURAL ALIGNMENT.
-//..
-//  MAXIMUM ALIGNMENT: This strategy always allocates memory aligned with
-//  the most restrictive alignment on the host platform.  The value is
-//  defined by 'bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT'.
 //
-//  NATURAL ALIGNMENT: This strategy allocates memory whose alignment
-//  depends on the requested number of bytes.  An instance of a fundamental
-//  type ('int', etc.) is *naturally* *aligned* when it's size evenly
-//  divides its address.  An instance of an aggregate type has natural
-//  alignment if the alignment of the most-restrictively aligned sub-object
-//  evenly divides the address of the aggregate.  Natural alignment is
-//  always at least as restrictive as the compiler's required alignment.
-//  When only the size of an aggregate is known, and not its composition,
-//  we compute the alignment by finding the largest integral power of 2 (up
-//  to and including 'bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT') that divides
-//  the requested (non-zero) number of bytes.  This computed alignment is
-//  guaranteed to be at least as restrictive as any sub-object within the
-//  aggregate.
-//..
+//: 1 MAXIMUM ALIGNMENT: This strategy always allocates memory aligned with the
+//:   most restrictive alignment on the host platform.  The value is defined by
+//:   'bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT'.
+//:
+//: 2 NATURAL ALIGNMENT: This strategy allocates memory whose alignment depends
+//:   on the requested number of bytes.  An instance of a fundamental type
+//:   ('int', etc.) is *naturally* *aligned* when it's size evenly divides its
+//:   address.  An instance of an aggregate type has natural alignment if the
+//:   alignment of the most-restrictively aligned sub-object evenly divides the
+//:   address of the aggregate.  Natural alignment is always at least as
+//:   restrictive as the compiler's required alignment.  When only the size of
+//:   an aggregate is known, and not its composition, we compute the alignment
+//:   by finding the largest integral power of 2 (up to and including
+//:   'bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT') that divides the requested
+//:   (non-zero) number of bytes.  This computed alignment is guaranteed to be
+//:   at least as restrictive as any sub-object within the aggregate.
+//
 // The default strategy is NATURAL ALIGNMENT.
 //
 ///Optional 'buffer' Parameter
@@ -80,13 +79,13 @@ BSLS_IDENT("$Id: $")
 // A 'bslma::SequentialPool' replenishes its internal buffer if the current
 // buffer cannot satisfy an allocation request.  It does so by one of two
 // growth strategies:
-//..
-//  * Constant Growth: The new buffer is always of the same size as the
-//    current buffer (possibly supplied at construction).
 //
-//  * Geometric Growth: The new buffer will be geometrically larger than the
-//    current buffer up to an optionally-specified maximum limit.
-//..
+//: Constant Growth: The new buffer is always of the same size as the current
+//:   buffer (possibly supplied at construction).
+//:
+//: Geometric Growth: The new buffer will be geometrically larger than the
+//:   current buffer up to an optionally-specified maximum limit.
+//
 // If a 'bufferSize' (and corresponding 'buffer') or 'initialSize' is supplied
 // at construction, the sign of its value implicitly specifies which growth
 // strategy to use.  A positive value indicates Constant Growth, whereas a a
@@ -365,6 +364,10 @@ BSLS_IDENT("$Id: $")
 //      d_list_p[d_length++] = item;
 //  }
 //..
+
+#ifdef BDE_OMIT_TRANSITIONAL // DEPRECATED
+#error "bslma_sequentialpool is deprecated"
+#endif
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
@@ -656,7 +659,7 @@ inline
 void SequentialPool::deleteObjectRaw(const TYPE *object)
 {
     if (0 != object) {
-#ifndef BSLS_PLATFORM__CMP_SUN
+#ifndef BSLS_PLATFORM_CMP_SUN
         object->~TYPE();
 #else
         const_cast<TYPE *>(object)->~TYPE();
@@ -673,12 +676,14 @@ void SequentialPool::deleteObject(const TYPE *object)
 
 }  // close package namespace
 
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
 
 typedef bslma::SequentialPool bslma_SequentialPool;
     // This alias is defined for backward compatibility.
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 
@@ -758,7 +763,6 @@ void operator delete(void *, BloombergLP::bslma::SequentialPool&)
 {
     // NOTE: there is no deallocation from this allocation mechanism.
 }
-
 
 #endif
 

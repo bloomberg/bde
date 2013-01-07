@@ -1,4 +1,6 @@
 // bslma_sequentialallocator.cpp                                      -*-C++-*-
+#ifndef BDE_OMIT_TRANSITIONAL // DEPRECATED
+
 #include <bslma_sequentialallocator.h>
 
 #include <bsls_ident.h>
@@ -23,6 +25,8 @@ SequentialAllocator::~SequentialAllocator()
 }  // close package namespace
 
 }  // close enterprise namespace
+
+#endif // BDE_OMIT_TRANSITIONAL -- DEPRECATED
 
 // ---------------------------------------------------------------------------
 // NOTICE:

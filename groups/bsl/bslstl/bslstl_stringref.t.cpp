@@ -179,7 +179,7 @@ static const char *NON_EMPTY_STRING = "Tangled Up in Blue - Bob Dylan";
         // Return the number of blank (' ') characters in the string referenced
         // by the specified 'stringRef'.
     {
-#ifdef BSLS_PLATFORM__CMP_SUN
+#ifdef BSLS_PLATFORM_CMP_SUN
         std::size_t n = 0;
         std::count(stringRef.begin(), stringRef.end(), ' ', n);
         return n;
@@ -2575,7 +2575,7 @@ int main(int argc, char *argv[])
 // returned in the constructor of StringRef.  data() returns a pointer to
 // a function local static char variable and the compiler generates multiple
 // copies of that static variable.
-#if !defined(BSLS_PLATFORM__CMP_IBM) || !defined(BDE_BUILD_TARGET_OPT)
+#if !defined(BSLS_PLATFORM_CMP_IBM) || !defined(BDE_BUILD_TARGET_OPT)
           ASSERT(emptyString.data() + emptyString.length() == X1.end());
 #endif
 

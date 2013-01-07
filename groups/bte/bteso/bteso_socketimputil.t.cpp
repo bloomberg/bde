@@ -15,7 +15,7 @@
 #include <bsl_cstring.h>             // memset()
 #include <bsl_iostream.h>
 
-#if !defined(BSLS_PLATFORM__CMP_MSVC)
+#if !defined(BSLS_PLATFORM_CMP_MSVC)
 // for getsockname
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -51,9 +51,9 @@ static void aSsErT(int c, const char *s, int i) {
 typedef bteso_SocketHandle::Handle SockType;
 
 // ADDRLEN_T is the type for the length of a sockaddr address.
-#if defined(BSLS_PLATFORM__CMP_MSVC)
+#if defined(BSLS_PLATFORM_CMP_MSVC)
 typedef int ADDRLEN_T;
-#elif defined(BSLS_PLATFORM__OS_HPUX)
+#elif defined(BSLS_PLATFORM_OS_HPUX)
 typedef int ADDRLEN_T;
 #else
 typedef socklen_t ADDRLEN_T;
@@ -178,7 +178,7 @@ int countSockets(int base, int max)
     // with the specified 'base' up the to specified 'max'.  If the platform
     // does not allow the number of sockets to be counted return -1.
 {
-#if defined(BTESO_PLATFORM__WIN_SOCKETS)
+#if defined(BTESO_PLATFORM_WIN_SOCKETS)
     return -1;
 #else
     int socketNumber;

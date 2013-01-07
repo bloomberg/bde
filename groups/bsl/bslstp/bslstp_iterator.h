@@ -30,6 +30,10 @@
 #ifndef INCLUDED_BSLSTP_ITERATOR
 #define INCLUDED_BSLSTP_ITERATOR
 
+#ifdef BDE_OMIT_TRANSITIONAL // STP
+#error "bslstp_iterator is not for publication"
+#endif
+
 #ifndef INCLUDED_CSTDDEF
 #include <cstddef>
 #define INCLUDED_CSTDDEF
@@ -57,7 +61,6 @@ struct _Nonconst_traits {
 };
 
 }  // close namespace bsl
-
 
 #endif /* INCLUDED_BSLSTP_ITERATOR */
 

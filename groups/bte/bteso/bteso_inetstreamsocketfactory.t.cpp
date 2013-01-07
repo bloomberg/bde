@@ -14,7 +14,7 @@
 #include <bsl_cstring.h>     // memcpy()
 #include <bsl_iostream.h>
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
 #include <bsl_c_signal.h>     // for signal()
 #endif
 
@@ -120,8 +120,8 @@ int verbose;
 int veryVerbose;
 int veryVeryVerbose;
 
-#if defined(BTESO_PLATFORM__WIN_SOCKETS) \
-    || defined(BSLS_PLATFORM__OS_HPUX)
+#if defined(BTESO_PLATFORM_WIN_SOCKETS) \
+    || defined(BSLS_PLATFORM_OS_HPUX)
     typedef int ADDRLEN_T;
 #else
     typedef socklen_t ADDRLEN_T;
@@ -149,7 +149,7 @@ int countSockets(int base, int max)
     // with the specified 'base' up the to specified 'max'.  If the platform
     // does not allow the number of sockets to be counted return -1.
 {
-#if defined(BTESO_PLATFORM__WIN_SOCKETS) || defined(BSLS_PLATFORM__OS_CYGWIN)
+#if defined(BTESO_PLATFORM_WIN_SOCKETS) || defined(BSLS_PLATFORM_OS_CYGWIN)
 
     // Cygwin does not work around the Windows limitation.  See the source
     // OR http://sources.redhat.com/ml/cygwin/2000-12/msg00422.html.
@@ -181,10 +181,10 @@ int verifyHandle(bteso_SocketHandle::Handle handle)
     int ret = ::getsockname((bteso_SocketHandle::Handle) handle,
                             (sockaddr *) &address[0], &len);
 
-#if defined(BTESO_PLATFORM__WIN_SOCKETS)
+#if defined(BTESO_PLATFORM_WIN_SOCKETS)
     if (ret != 0 && WSAGetLastError() == WSAEINVAL) ret = 0;
 #endif
-#if defined(BSLS_PLATFORM__OS_CYGWIN)
+#if defined(BSLS_PLATFORM_OS_CYGWIN)
     if (ret != 0 && errno == EINVAL) ret = 0;
 #endif
 
@@ -247,7 +247,7 @@ int createConnectedStreamSockets(
     return (*streamSocketA) != 0;
 }
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
 volatile sig_atomic_t globalAlarmCount = 0;
 
 extern "C" void sigalarm(int)
@@ -555,7 +555,7 @@ int main(int argc, char *argv[]) {
                ASSERT(resp == 0
                    || resp == bteso_SocketHandle::BTESO_ERROR_TIMEDOUT);
 
-#if defined(BSLS_PLATFORM__OS_LINUX) || defined(BSLS_PLATFORM__OS_SOLARIS)
+#if defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_SOLARIS)
                enum { WAITS = 200 };
 #else
                enum { WAITS = 100 };
@@ -1041,7 +1041,7 @@ int main(int argc, char *argv[]) {
              testFactory.deallocate(streamSocketA);
              testFactory.deallocate(streamSocketB);
          }
-#if defined(BSLS_PLATFORM__OS_UNIX) && !defined(BSLS_PLATFORM__OS_CYGWIN)
+#if defined(BSLS_PLATFORM_OS_UNIX) && !defined(BSLS_PLATFORM_OS_CYGWIN)
          {
          if (veryVerbose) cout
           << "\n   test write response ERROR_INTERRUPTED (UNIX only)"
@@ -1187,7 +1187,7 @@ int main(int argc, char *argv[]) {
 #endif
 
          {
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
                // Under UNIX a write to a closed blocking socket causes the
                // signal SIGPIPE which by default will terminate the process.
                // Set the signal to be ignored.  This behavior does not
@@ -1478,7 +1478,7 @@ int main(int argc, char *argv[]) {
            if (veryVerbose) P(resp);
            ASSERT(resp > 0 && resp <= (packetSize + 2));
 
-#ifndef BSLS_PLATFORM__OS_CYGWIN
+#ifndef BSLS_PLATFORM_OS_CYGWIN
            testFactory.deallocate(streamSocketA);
            testFactory.deallocate(streamSocketB);
 #else
@@ -1519,7 +1519,7 @@ int main(int argc, char *argv[]) {
 
         {
 // TBD FIX ME
-#ifndef BSLS_PLATFORM__OS_AIX
+#ifndef BSLS_PLATFORM_OS_AIX
            const bteso_Flag::IOWaitType RD = bteso_Flag::BTESO_IO_READ;
            const bteso_Flag::IOWaitType WR = bteso_Flag::BTESO_IO_WRITE;
            const bteso_Flag::IOWaitType RW = bteso_Flag::BTESO_IO_RW;
@@ -1685,9 +1685,9 @@ int main(int argc, char *argv[]) {
            }
 
            // some platforms require latency between writes and reads
-#if   defined(BSLS_PLATFORM__OS_HPUX)
+#if   defined(BSLS_PLATFORM_OS_HPUX)
            const int sleepTime = 20 * 1000;
-#elif defined(BSLS_PLATFORM__OS_WINDOWS)
+#elif defined(BSLS_PLATFORM_OS_WINDOWS)
            const int sleepTime = 1000;
 #else
            const int sleepTime = 0;
@@ -1726,7 +1726,7 @@ int main(int argc, char *argv[]) {
            LOOP3_ASSERT(ti, resp, DATA[ti].d_lineNum,
                                                    resp == DATA[ti].d_expected);
 
-#ifndef BSLS_PLATFORM__OS_CYGWIN
+#ifndef BSLS_PLATFORM_OS_CYGWIN
            testFactory.deallocate(streamSocketA);
            testFactory.deallocate(streamSocketB);
 #else
@@ -1813,7 +1813,7 @@ int main(int argc, char *argv[]) {
 
         // Test bind() with bad port number < 1024 (we are not root)
         // On windows, this is allowed.
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
         if (verbose)
             cout << "\tBinding to a bad port number." << endl;
         {
@@ -1839,7 +1839,7 @@ int main(int argc, char *argv[]) {
 #endif
 
         {
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
             // Under UNIX, a write to a closed blocking socket causes the
             // signal SIGPIPE which by default will terminate the process.
             // Set the signal to be ignored.
@@ -2064,8 +2064,8 @@ int main(int argc, char *argv[]) {
             resp = serviceSocket->write(buf1, sizeof(buf1));
             ASSERT(resp == sizeof(buf1));
 
-#if defined(BSLS_PLATFORM__OS_HPUX) || \
-    defined(BSLS_PLATFORM__OS_WINDOWS) // TBD
+#if defined(BSLS_PLATFORM_OS_HPUX) || \
+    defined(BSLS_PLATFORM_OS_WINDOWS) // TBD
 // Some TCP driver implementations require some delay between write and
 // read (on the loopback service) in order to recognize I/O events correctly.
             bcemt_ThreadUtil::microSleep(20 * 1000);
@@ -2103,8 +2103,8 @@ int main(int argc, char *argv[]) {
             resp = serviceSocket->write(buf1, sizeof(buf1));
             ASSERT(resp < 0);
 
-#if defined(BSLS_PLATFORM__OS_HPUX) || \
-    defined(BSLS_PLATFORM__OS_WINDOWS) // TBD
+#if defined(BSLS_PLATFORM_OS_HPUX) || \
+    defined(BSLS_PLATFORM_OS_WINDOWS) // TBD
 // Some TCP driver implementations require some delay between write and
 // read (on the loopback service) in order to recognize I/O events correctly.
             bcemt_ThreadUtil::microSleep(20 * 1000);
@@ -2177,14 +2177,14 @@ int main(int argc, char *argv[]) {
                    // Wait for 2 seconds
                    bcemt_ThreadUtil::microSleep(2000 * 1000);
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
                    ::signal(SIGALRM, sigalarm);
                    ::alarm(5);
 #endif
 
                    resp = serverSocket->accept(&streamSocketB, &clientAddress);
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
                    // Cancel the alarm
                    ::signal(SIGALRM, SIG_IGN);
                    ::alarm(0);
@@ -2202,7 +2202,7 @@ int main(int argc, char *argv[]) {
                    typedef bteso_SocketHandle SH;
 
                    if (resp != 0) {
-#if defined(BSLS_PLATFORM__OS_HPUX)
+#if defined(BSLS_PLATFORM_OS_HPUX)
                        LOOP_ASSERT(resp,SH::BTESO_ERROR_UNCLASSIFIED == resp ||
                                         SH::BTESO_ERROR_CONNDEAD     == resp ||
                                         SH::BTESO_ERROR_INTERRUPTED  == resp);

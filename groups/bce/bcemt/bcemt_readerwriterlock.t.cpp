@@ -9,10 +9,11 @@
 
 #include <bsl_map.h>           // for usage example
 
+#include <bsl_cstdio.h>
 #include <bsl_cstdlib.h>
 #include <bsl_iostream.h>
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
 #include <unistd.h>
 #include <bsl_c_signal.h>
 #endif

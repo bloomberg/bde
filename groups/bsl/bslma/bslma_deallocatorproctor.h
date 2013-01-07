@@ -12,9 +12,9 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslma::DeallocatorProctor: proctor to conditionally manage a memory
 //
-//@AUTHOR: Shao-wei Hung (shung1), Arthur Chiu (achiu21)
-//
 //@SEE_ALSO: bslma_deallocatorguard, bslma_autodeallocator
+//
+//@AUTHOR: Shao-wei Hung (shung1), Arthur Chiu (achiu21)
 //
 //@DESCRIPTION: This component provides a proctor class template to
 // conditionally manage a block of (otherwise-unmanaged) memory.  If not
@@ -365,6 +365,7 @@ void DeallocatorProctor<ALLOCATOR>::reset(void *memory)
 
 }  // close package namespace
 
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
@@ -374,6 +375,7 @@ void DeallocatorProctor<ALLOCATOR>::reset(void *memory)
 #endif
 #define bslma_DeallocatorProctor bslma::DeallocatorProctor
     // This alias is defined for backward compatibility.
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

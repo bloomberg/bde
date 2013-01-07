@@ -255,7 +255,7 @@ class baexml_Reader {
         BAEXML_NODE_TYPE_END_ELEMENT            = 14,
         BAEXML_NODE_TYPE_END_ENTITY             = 15,
         BAEXML_NODE_TYPE_XML_DECLARATION        = 16
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , NODE_TYPE_NONE                   = BAEXML_NODE_TYPE_NONE
       , NODE_TYPE_ELEMENT                = BAEXML_NODE_TYPE_ELEMENT
       , NODE_TYPE_TEXT                   = BAEXML_NODE_TYPE_TEXT
@@ -275,7 +275,7 @@ class baexml_Reader {
       , NODE_TYPE_END_ELEMENT            = BAEXML_NODE_TYPE_END_ELEMENT
       , NODE_TYPE_END_ENTITY             = BAEXML_NODE_TYPE_END_ENTITY
       , NODE_TYPE_XML_DECLARATION        = BAEXML_NODE_TYPE_XML_DECLARATION
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     typedef bdema_ManagedPtr<bsl::streambuf> StreamBufPtr;

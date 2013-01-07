@@ -16,13 +16,13 @@
 #include <setjmp.h>
 #include <signal.h>
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
     // Unix includes for mprotect() and sysconf()
     #include <sys/mman.h>
     #include <unistd.h>
 #endif
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
     // Windows include for GetSystemInfo, VirtualAlloc, VirtualFree
     #include <windows.h>
 #endif
@@ -100,7 +100,7 @@ typedef bdema_ProtectableBlockDispenser       BlkDisp;
 //                      HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
 typedef jmp_buf JumpBuffer;
 #else
 typedef sigjmp_buf JumpBuffer;
@@ -118,7 +118,7 @@ void segfaultHandler(int x)
 // the allocator under test.
 {
     if (g_inTest) {
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
         longjmp(g_jumpBuffer, 1);
 #else
         siglongjmp(g_jumpBuffer, 1);
@@ -137,7 +137,7 @@ bool causesFault(void *data, char val)
 
     // set the signal handler to the test handler.
     signal(SIGSEGV, segfaultHandler);
-#ifndef BSLS_PLATFORM__OS_WINDOWS
+#ifndef BSLS_PLATFORM_OS_WINDOWS
     signal(SIGBUS, segfaultHandler);
 #endif
 
@@ -147,7 +147,7 @@ bool causesFault(void *data, char val)
     // set the jump position.  Returns 0 on a true set, returns 1 if it's long
     // jumped to by the signal handler.
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
     rc = setjmp(g_jumpBuffer);
 #else
     rc = sigsetjmp(g_jumpBuffer, 1);
@@ -169,7 +169,7 @@ bool causesFault(void *data, char val)
 
     // Replace the signal handler with the default handler.
     signal(SIGSEGV, SIG_DFL);
-#ifndef BSLS_PLATFORM__OS_WINDOWS
+#ifndef BSLS_PLATFORM_OS_WINDOWS
     signal(SIGBUS, SIG_DFL);
 #endif
 
@@ -196,10 +196,10 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
     const int PG_SIZE = sysconf(_SC_PAGESIZE);
 #endif
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
     SYSTEM_INFO info;
     GetSystemInfo(&info);
     const int PG_SIZE = info.dwPageSize;
@@ -290,7 +290,7 @@ int main(int argc, char *argv[])
                           << endl;
         Obj *dispenser = &Obj::singleton();
 
-#ifndef BDES_PLATFORM__OS_FREEBSD
+#ifndef BDES_PLATFORM_OS_FREEBSD
             // FreeBSD allows misaligned address in mprotect.
         {
             if (veryVerbose) cout << "\tVerify system error codes" << endl;

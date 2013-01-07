@@ -284,7 +284,7 @@ BDES_IDENT("$Id: $")
 #include <bslfwd_bslma_allocator.h>
 #endif
 
-#if defined(BSLS_PLATFORM__OS_AIX)
+#if defined(BSLS_PLATFORM_OS_AIX)
 
 #ifndef INCLUDED_SYS_POLL
 #include <sys/poll.h>
@@ -475,7 +475,7 @@ class bteso_DefaultEventManager<bteso_Platform::POLLSET>
 
 }  // close namespace BloombergLP
 
-#endif // BSLS_PLATFORM__OS_AIX
+#endif // BSLS_PLATFORM_OS_AIX
 
 #endif
 

@@ -150,10 +150,6 @@ BDES_IDENT("$Id: $")
 #include <bdet_time.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_PASSTHROUGHTRAIT
-#include <bslalg_passthroughtrait.h>
-#endif
-
 #ifndef INCLUDED_BSLALG_TYPETRAITBITWISECOPYABLE
 #include <bslalg_typetraitbitwisecopyable.h>
 #endif
@@ -234,15 +230,9 @@ class bdet_Datetime {
         BDET_HOURS_PER_DAY           = 24
     };
 
-    typedef bslalg_PassthroughTrait<bdet_Date,
-                                    bslalg_TypeTraitBitwiseCopyable> DateTrait;
-    typedef bslalg_PassthroughTrait<bdet_Time,
-                                    bslalg_TypeTraitBitwiseCopyable> TimeTrait;
-
-    typedef bslmf_If<bslmf_IsSame<DateTrait, TimeTrait>::VALUE,
-                    DateTrait,
-                    bslalg_TypeTraits_NotTrait<bslalg_TypeTraitBitwiseCopyable>
-                   >::Type                                       DateTimeTrait;
+    enum { IS_BITWISE_COPYABLE_DATETIME =
+           bsl::is_trivially_copyable<bdet_Date>::value &&
+           bsl::is_trivially_copyable<bdet_Time>::value };
 
     // DATA
     bdet_Date d_date;  // "date" part of "date+time" value
@@ -254,7 +244,9 @@ class bdet_Datetime {
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(bdet_Datetime, DateTimeTrait);
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(bdet_Datetime,
+                                      bsl::is_trivially_copyable,
+                                      IS_BITWISE_COPYABLE_DATETIME);
 
     // CLASS METHODS
     static bool isValid(int year,
@@ -566,7 +558,7 @@ class bdet_Datetime {
         // 'bdex' package-level documentation for more information on 'bdex'
         // streaming of value-semantic types and containers.)
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
     static int maxSupportedVersion();
         // Return the most current 'bdex' streaming version number supported by
@@ -603,7 +595,7 @@ class bdet_Datetime {
         //
         // DEPRECATED: Use 'print' instead.
 
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 };
 
@@ -1040,7 +1032,7 @@ STREAM& bdet_Datetime::bdexStreamOut(STREAM& stream, int version) const
     return stream;
 }
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
 inline
 int bdet_Datetime::maxSupportedVersion()
@@ -1078,7 +1070,7 @@ bsl::ostream& bdet_Datetime::streamOut(bsl::ostream& stream) const
     return stream << *this;
 }
 
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 // FREE OPERATORS
 inline

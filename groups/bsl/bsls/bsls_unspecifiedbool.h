@@ -192,6 +192,7 @@ UnspecifiedBool<BSLS_HOST_TYPE>::makeValue(bool predicate)
 
 }  // close package namespace
 
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
@@ -201,6 +202,7 @@ UnspecifiedBool<BSLS_HOST_TYPE>::makeValue(bool predicate)
 #endif
 #define bsls_UnspecifiedBool bsls::UnspecifiedBool
     // This alias is defined for backward compatibility.
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

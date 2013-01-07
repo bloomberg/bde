@@ -29,7 +29,7 @@
 
 #include <bsl_c_stdio.h>  // tempname()
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
 #include <glob.h>
 #include <bsl_c_signal.h>
 #include <bsl_c_stdlib.h> //unsetenv
@@ -38,12 +38,12 @@
 #include <unistd.h>
 #endif
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
 #include <windows.h>
 #endif
 
 // Note: on Windows -> WinGDI.h:#define ERROR 0
-#if defined(BSLS_PLATFORM__CMP_MSVC) && defined(ERROR)
+#if defined(BSLS_PLATFORM_CMP_MSVC) && defined(ERROR)
 #undef ERROR
 #endif
 
@@ -185,7 +185,7 @@ bdet_Datetime getCurrentLocalTime()
 {
     time_t currentTime = time(0);
     struct tm localtm;
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
     localtm = *localtime(&currentTime);
 #else
     localtime_r(&currentTime, &localtm);
@@ -247,12 +247,12 @@ void logRecord2(bsl::ostream& stream, const bael_Record& record)
 bsl::string tempFileName(bool verboseFlag)
 {
     bsl::string result;
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
     char tmpPathBuf[MAX_PATH], tmpNameBuf[MAX_PATH];
     GetTempPath(MAX_PATH, tmpPathBuf);
     GetTempFileName(tmpPathBuf, "bael", 0, tmpNameBuf);
     result = tmpNameBuf;
-#elif defined(BSLS_PLATFORM__OS_HPUX)
+#elif defined(BSLS_PLATFORM_OS_HPUX)
     char tmpPathBuf[L_tmpnam];
     result = tempnam(tmpPathBuf, "bael");
 #else
@@ -271,7 +271,7 @@ bsl::string tempFileName(bool verboseFlag)
 
 void removeFilesByPrefix(const char *prefix)
 {
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
     glob_t globbuf;
     bsl::string filename = prefix;
     filename += "*";
@@ -285,7 +285,7 @@ void removeFilesByPrefix(const char *prefix)
 int readFileIntoString(int lineNum, const bsl::string& filename,
                        bsl::string& fileContent)
 {
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
     glob_t globbuf;
     LOOP_ASSERT(lineNum, 0 == glob((filename+"*").c_str(), 0, 0, &globbuf));
     LOOP_ASSERT(lineNum, 1 == globbuf.gl_pathc);
@@ -1353,7 +1353,7 @@ int main(int argc, char *argv[])
                     bsl::string fn;
                     ASSERT(1 == mX.isFileLoggingEnabled(&fn));
                     mX.disableFileLogging();
-                    ASSERT(0 == bsl::remove(fn.c_str()));
+                    ASSERT(0 == bdesu_FileUtil::remove(fn.c_str()));
                 }
 
             } while (!X.isFileLoggingEnabled());
@@ -1460,7 +1460,7 @@ int main(int argc, char *argv[])
         //   has been written.
         // --------------------------------------------------------------------
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
         bcema_TestAllocator ta(veryVeryVeryVerbose);
 
         bael_LoggerManagerConfiguration configuration;
@@ -1528,7 +1528,7 @@ int main(int argc, char *argv[])
 
             bsl::string line;
             ASSERT2(getline(stderrFs, line));  // caught an error message
-#ifndef BSLS_PLATFORM__CMP_IBM
+#ifndef BSLS_PLATFORM_CMP_IBM
             // On native IBM, after the error, even when the stream fails,
             // logging will be attempted over and over again, which results in
             // more than one error messages.
@@ -1599,7 +1599,7 @@ int main(int argc, char *argv[])
 
             bsl::string filename = tempFileName(veryVerbose);
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
             ASSERT(0 == mX.enableFileLogging(filename.c_str(), true));
             ASSERT(X.isFileLoggingEnabled());
 
@@ -1644,7 +1644,7 @@ int main(int argc, char *argv[])
 
             bsl::string filename = tempFileName(veryVerbose);
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
             ASSERT(0 == mX.enableFileLogging(filename.c_str(), false));
             ASSERT(X.isFileLoggingEnabled());
 
@@ -1689,7 +1689,7 @@ int main(int argc, char *argv[])
 
             bsl::string filename = tempFileName(veryVerbose);
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
             BAEL_LOG_SET_CATEGORY("bael_FileObserverTest");
             ASSERT(0 == mX.enableFileLogging((filename + "%s").c_str(),
                                              false));
@@ -1766,7 +1766,7 @@ int main(int argc, char *argv[])
             bael_LoggerManager::initSingleton(&multiplexObserver,
                                               configuration);
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
         bcema_TestAllocator ta(veryVeryVeryVerbose);
         if (verbose) cout << "Test-case infrastructure setup." << endl;
         {
@@ -2069,9 +2069,9 @@ int main(int argc, char *argv[])
 
         bcema_TestAllocator ta(veryVeryVeryVerbose);
 // TBD fix this for Windows !!!
-#ifndef BSLS_PLATFORM__OS_WINDOWS
-#if (!defined(BSLS_PLATFORM__OS_SOLARIS) || BSLS_PLATFORM__OS_VER_MAJOR >= 10)\
-  && !defined(BSLS_PLATFORM__OS_AIX)
+#ifndef BSLS_PLATFORM_OS_WINDOWS
+#if (!defined(BSLS_PLATFORM_OS_SOLARIS) || BSLS_PLATFORM_OS_VER_MAJOR >= 10)\
+  && !defined(BSLS_PLATFORM_OS_AIX)
         // For the localtime to be picked to avoid the all.pl env to pollute
         // us.
         unsetenv("TZ");
@@ -2100,7 +2100,7 @@ int main(int argc, char *argv[])
 
                 time_t currentTime = time(0);
                 struct tm localtm, gmtm;
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
                 localtm = *localtime(&currentTime);
                 gmtm = *gmtime(&currentTime);
 #else
@@ -2210,13 +2210,13 @@ int main(int argc, char *argv[])
                 } else {
                     ASSERT(0 && "can't substr(11,2), string too short");
                 }
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
                 tzset();
                 time_t currentTime;
                 struct tm *ts;
                 ::time(&currentTime);
                 ts = ::localtime(&currentTime);
-#ifdef BDES_PLATFORM__OS_FREEBSD
+#ifdef BDES_PLATFORM_OS_FREEBSD
                 // This is the BSD way.  I am not sure of this accounts for DST
                 // or not.  The following if might need to be moved into the
                 // #else
@@ -2315,7 +2315,7 @@ int main(int argc, char *argv[])
 
             }
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
             if (verbose) cout << "Testing file logging with timestamp."
                               << endl;
             {
@@ -2426,7 +2426,7 @@ int main(int argc, char *argv[])
                             bsl::string fn;
                             ASSERT(1 == mX.isFileLoggingEnabled(&fn));
                             mX.disableFileLogging();
-                            ASSERT(0 == bsl::remove(fn.c_str()));
+                            ASSERT(0 == bdesu_FileUtil::remove(fn.c_str()));
                         }
 
                     } while (!X.isFileLoggingEnabled());

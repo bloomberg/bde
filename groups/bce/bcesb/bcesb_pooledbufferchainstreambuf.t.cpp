@@ -18,7 +18,7 @@ using bsl::ends;
 using bsl::flush;
 
 // Note: on Windows -> WinDef.h:#define max(a,b) ...
-#if defined(BSLS_PLATFORM__CMP_MSVC) && defined(max)
+#if defined(BSLS_PLATFORM_CMP_MSVC) && defined(max)
 #undef max
 #endif
 

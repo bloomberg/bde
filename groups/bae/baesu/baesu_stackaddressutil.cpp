@@ -10,7 +10,7 @@ BDES_IDENT_RCSID(baesu_stackaddressutil_cpp,"$Id$ $CSID$")
 
 #include <bsl_algorithm.h>
 
-#if defined(BSLS_PLATFORM__OS_UNIX)
+#if defined(BSLS_PLATFORM_OS_UNIX)
 
 #include <unistd.h>
 #include <sys/mman.h>
@@ -20,11 +20,11 @@ BDES_IDENT_RCSID(baesu_stackaddressutil_cpp,"$Id$ $CSID$")
 
 #endif
 
-#if defined(BSLS_PLATFORM__OS_AIX)
+#if defined(BSLS_PLATFORM_OS_AIX)
 
 # include <ucontext.h>
 
-#elif defined(BSLS_PLATFORM__OS_HPUX)
+#elif defined(BSLS_PLATFORM_OS_HPUX)
 
 # include <bdema_heapbypassallocator.h>
 # include <bsls_platformutil.h>
@@ -33,19 +33,19 @@ BDES_IDENT_RCSID(baesu_stackaddressutil_cpp,"$Id$ $CSID$")
 # include <uwx_self.h>
 # include <unwind.h>
 
-#elif defined(BSLS_PLATFORM__OS_LINUX)
+#elif defined(BSLS_PLATFORM_OS_LINUX)
 
 #include <execinfo.h>
 #include <link.h>
 
-#elif defined(BSLS_PLATFORM__OS_SOLARIS)
+#elif defined(BSLS_PLATFORM_OS_SOLARIS)
 
 # include <sys/frame.h>
 # include <sys/stack.h>
 # include <link.h>
 # include <thread.h>
 
-#elif defined(BSLS_PLATFORM__OS_WINDOWS)
+#elif defined(BSLS_PLATFORM_OS_WINDOWS)
 
 #include <baesu_dbghelpdllimpl_windows.h>
 
@@ -85,7 +85,7 @@ namespace BloombergLP {
 
 
 // CLASS METHODS
-#if defined(BSLS_PLATFORM__OS_AIX)
+#if defined(BSLS_PLATFORM_OS_AIX)
 
 int baesu_StackAddressUtil::getStackAddresses(void **buffer,
                                               int    maxFrames)
@@ -126,7 +126,7 @@ int baesu_StackAddressUtil::getStackAddresses(void **buffer,
 
 // AIX
 #endif
-#if defined(BSLS_PLATFORM__OS_HPUX)
+#if defined(BSLS_PLATFORM_OS_HPUX)
 
                             // -----------------------
                             // HP allocation callbacks
@@ -218,7 +218,7 @@ int baesu_StackAddressUtil::getStackAddresses(void **buffer,
 
 // HPUX
 #endif
-#ifdef BSLS_PLATFORM__OS_LINUX
+#ifdef BSLS_PLATFORM_OS_LINUX
 
 int baesu_StackAddressUtil::getStackAddresses(void    **buffer,
                                               int       maxFrames)
@@ -243,7 +243,7 @@ int baesu_StackAddressUtil::getStackAddresses(void    **buffer,
 
 // LINUX
 #endif
-#if defined(BSLS_PLATFORM__OS_SOLARIS)
+#if defined(BSLS_PLATFORM_OS_SOLARIS)
 
 extern "C" {
 extern void *thr_probe_getfunc_addr;
@@ -344,7 +344,7 @@ int baesu_StackAddressUtil::getStackAddresses(void    **buffer,
 
 // SOLARIS
 #endif
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
 
 int baesu_StackAddressUtil::getStackAddresses(void    **buffer,
                                               int       maxFrames)
@@ -362,13 +362,13 @@ int baesu_StackAddressUtil::getStackAddresses(void    **buffer,
     // See 'http://msdn.microsoft.com/en-us/library/ms680313(VS.85).aspx' for
     // details.
 
-#if !defined(BSLS_PLATFORM__CPU_X86) && !defined(BSLS_PLATFORM__CPU_X86_64)
+#if !defined(BSLS_PLATFORM_CPU_X86) && !defined(BSLS_PLATFORM_CPU_X86_64)
 #   error unrecognized architecture
-#elif defined(BSLS_PLATFORM__CPU_64_BIT)
+#elif defined(BSLS_PLATFORM_CPU_64_BIT)
     // x86 compatible cpu, 64 bit executable
 
     enum { MACHINE = IMAGE_FILE_MACHINE_AMD64 };
-#elif defined(BSLS_PLATFORM__CPU_32_BIT)
+#elif defined(BSLS_PLATFORM_CPU_32_BIT)
     // x86 compatible cpu, 32 bit executable
 
     enum { MACHINE = IMAGE_FILE_MACHINE_I386 };
@@ -378,14 +378,14 @@ int baesu_StackAddressUtil::getStackAddresses(void    **buffer,
 
     CONTEXT winContext;
 
-#if   defined(BSLS_PLATFORM__OS_WINXP)
+#if   defined(BSLS_PLATFORM_OS_WINXP)
     // RtlCaptureContext is not implemented before XP or Server 2003
 
     RtlCaptureContext(&winContext);
 
-#elif defined(BSLS_PLATFORM__OS_WIN2K) || \
-      defined(BSLS_PLATFORM__OS_WINNT) || \
-      defined(BSLS_PLATFORM__OS_WIN9X)
+#elif defined(BSLS_PLATFORM_OS_WIN2K) || \
+      defined(BSLS_PLATFORM_OS_WINNT) || \
+      defined(BSLS_PLATFORM_OS_WIN9X)
 
     winContext.ContextFlags = CONTEXT_CONTROL;
     __asm {
@@ -415,7 +415,7 @@ int baesu_StackAddressUtil::getStackAddresses(void    **buffer,
     // 'ip' is instruction pointer, 'bp' is base pointer (== frame pointer),
     // 'sp' is pointer to stack top
 
-#ifdef BSLS_PLATFORM__CPU_64_BIT
+#ifdef BSLS_PLATFORM_CPU_64_BIT
     stackFrame.AddrPC.Offset    = (DWORD64) winContext.Rip;
     stackFrame.AddrFrame.Offset = (DWORD64) winContext.Rbp;
     stackFrame.AddrStack.Offset = (DWORD64) winContext.Rsp;

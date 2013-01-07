@@ -22,7 +22,7 @@
 #include <bsl_set.h>
 
 using namespace BloombergLP;
-#if defined(BSLS_PLATFORM__OS_LINUX)
+#if defined(BSLS_PLATFORM_OS_LINUX)
     #define BTESO_EVENTMANAGER_ENABLETEST
     typedef bteso_DefaultEventManager<bteso_Platform::EPOLL> Obj;
 #endif
@@ -134,7 +134,7 @@ enum {
     BUF_LEN    = 8192
 };
 
-#if defined(BSLS_PLATFORM__OS_WINDOWS)
+#if defined(BSLS_PLATFORM_OS_WINDOWS)
     enum {
         READ_SIZE = 8192,
         WRITE_SIZE = 30000
@@ -201,12 +201,64 @@ void assertCb()
     BSLS_ASSERT_OPT(0);
 }
 
+static void emptyCb()
+{
+}
+
+static void multiRegisterDeregisterCb(Obj *mX)
+{
+    bteso_SocketHandle::Handle socket[2];
+    int rc = bteso_SocketImpUtil::socketPair<bteso_IPv4Address>(
+                             socket, bteso_SocketImpUtil::BTESO_SOCKET_STREAM);
+    ASSERT(0 == rc);
+
+    bdef_Function<void (*)()> emptyCallBack(&emptyCb);
+
+    // Register and deregister the socket handle six times.  All registrations
+    // are done by invoking 'registerSocketEvent'.  The deregistrations are
+    // done by invoking 'deregisterSocketEvent' twice, 'deregisterSocket'
+    // twice, and 'deregisterAll' twice.
+
+    ASSERT(0 == mX->registerSocketEvent(socket[0],
+                                       bteso_EventType::BTESO_READ,
+                                       emptyCallBack));
+    mX->deregisterSocketEvent(socket[0], bteso_EventType::BTESO_READ);
+
+    ASSERT(0 == mX->registerSocketEvent(socket[0],
+                                       bteso_EventType::BTESO_READ,
+                                       emptyCallBack));
+    mX->deregisterSocket(socket[0]);
+
+    ASSERT(0 == mX->registerSocketEvent(socket[0],
+                                       bteso_EventType::BTESO_READ,
+                                       emptyCallBack));
+    mX->deregisterAll();
+
+    ASSERT(0 == mX->registerSocketEvent(socket[0],
+                                       bteso_EventType::BTESO_READ,
+                                       emptyCallBack));
+    mX->deregisterSocketEvent(socket[0], bteso_EventType::BTESO_READ);
+
+
+    ASSERT(0 == mX->registerSocketEvent(socket[0],
+                                       bteso_EventType::BTESO_READ,
+                                       emptyCallBack));
+    mX->deregisterSocket(socket[0]);
+
+    ASSERT(0 == mX->registerSocketEvent(socket[0],
+                                       bteso_EventType::BTESO_READ,
+                                       emptyCallBack));
+    mX->deregisterAll();
+}
+
+
 #endif // BTESO_EVENTMANAGER_ENABLETEST
 
 //==========================================================================
 //                      MAIN PROGRAM
 //--------------------------------------------------------------------------
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[]) 
+{
 #ifdef BTESO_EVENTMANAGER_ENABLETEST
     int test = argc > 1 ? atoi(argv[1]) : 0;
     int verbose = argc > 2;                 globalVerbose = verbose;
@@ -402,13 +454,29 @@ int main(int argc, char *argv[]) {
 
       case 11: {
         // --------------------------------------------------------------------
-        // DEREGISTERING IN A CALLBACK
+        // MULTIPLE REGISTERING AND DEREGISTERING IN CALLBACK
+        //
         // Concerns:
+        //   Registering and deregistering functions can be called in pairs
+        //   multiple times in a callback function without problem.
+        //
+        // Methodology:
+        //   We register a socket handle to a event manager with a special
+        //   callback function that does extra multiple registering and
+        //   deregistering to the same event manager by invoking the methods
+        //   inteded for testing.  Verify there is no printed error or crash
+        //   ater the callback is executed.
+        //
+        // Testing:
+        //   'registerSocketEvent'   in a callback function
+        //   'deregisterSocketEvent' in a callback function
+        //   'deregisterSocket'      in a callback function
+        //   'deregisterAll'         in a callback function
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-              << "VERIFYING 'deregisterAll' IN 'dispatch' CALLBACK" << endl
-              << "================================================" << endl;
+               << "MULTIPLE REGISTERING AND DEREGISTERING IN CALLBACK" << endl
+               << "==================================================" << endl;
 
         enum { NUM_BYTES = 16 };
 
@@ -420,21 +488,21 @@ int main(int argc, char *argv[]) {
                              socket, bteso_SocketImpUtil::BTESO_SOCKET_STREAM);
         ASSERT(0 == rc);
 
-        bdef_Function<void (*)()> deregisterCallback(
-                bdef_MemFnUtil::memFn(&Obj::deregisterAll, &mX));
+        bteso_EventManager::Callback multiRegisterDeregisterCallback(
+                     bdef_BindUtil::bind(&multiRegisterDeregisterCb, &mX));
 
         ASSERT(0 == mX.registerSocketEvent(socket[0],
                                            bteso_EventType::BTESO_READ,
-                                           deregisterCallback));
+                                           multiRegisterDeregisterCallback));
         ASSERT(0 == mX.registerSocketEvent(socket[0],
                                            bteso_EventType::BTESO_WRITE,
-                                           deregisterCallback));
+                                           multiRegisterDeregisterCallback));
         ASSERT(0 == mX.registerSocketEvent(socket[1],
                                            bteso_EventType::BTESO_READ,
-                                           deregisterCallback));
+                                           multiRegisterDeregisterCallback));
         ASSERT(0 == mX.registerSocketEvent(socket[1],
                                            bteso_EventType::BTESO_WRITE,
-                                           deregisterCallback));
+                                           multiRegisterDeregisterCallback));
 
         char wBuffer[NUM_BYTES];
         memset(wBuffer,'4', NUM_BYTES);

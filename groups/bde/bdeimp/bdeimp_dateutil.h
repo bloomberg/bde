@@ -663,7 +663,7 @@ struct bdeimp_DateUtil {
         // specified 'year', 'month', and 'day'.  The behavior is undefined
         // unless 'true == isValidCalendarDate(year, month, day)'.
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
     static bool isValidDate(int year, int month, int day);
         // Return 'true' if the "year/month/day" representation for the
@@ -767,7 +767,7 @@ struct bdeimp_DateUtil {
         //
         // DEPRECATED: Use 'yd2weekday' instead.
 
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 };
 
@@ -910,7 +910,7 @@ int bdeimp_DateUtil::ymd2weekday(int year, int month, int day)
     return serial2weekday(ymd2serial(year, month, day));
 }
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
 inline
 bool bdeimp_DateUtil::isValidDate(int year, int month, int day)
@@ -984,7 +984,7 @@ int bdeimp_DateUtil::yj2weekday(int year, int julianDay)
     return yd2weekday(year, julianDay);
 }
 
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 }  // close namespace BloombergLP
 

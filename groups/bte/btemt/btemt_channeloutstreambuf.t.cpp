@@ -15,7 +15,7 @@
 #include <bslma_allocator.h>
 #include <bslma_rawdeleterproctor.h>
 #include <bslma_default.h>
-#ifdef BSLS_PLATFORM__CMP_MSVC
+#ifdef BSLS_PLATFORM_CMP_MSVC
 // some crazy thing defines ERROR to 0 !!!
 #undef ERROR
 #endif
@@ -59,7 +59,7 @@ using bsl::endl;
 using bsl::ends;
 using bsl::flush;
 
-#ifdef BSLS_PLATFORM__CMP_MSVC
+#ifdef BSLS_PLATFORM_CMP_MSVC
 #undef IN
 #undef OUT
 #undef min

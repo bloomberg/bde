@@ -2535,7 +2535,7 @@ int main(int argc, char *argv[])
 // Somehow, the address returned by 'c_str()' is different between the test
 // driver and the constructor of the string ref.  Might have to check the
 // assembly code to verify what is happening.
-#if !defined(BSLS_PLATFORM__CMP_IBM) || !defined(BDE_BUILD_TARGET_OPT)
+#if !defined(BSLS_PLATFORM_CMP_IBM) || !defined(BDE_BUILD_TARGET_OPT)
           ASSERT(emptyString.c_str() == X1.end());
 #endif
 

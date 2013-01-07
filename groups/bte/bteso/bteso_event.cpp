@@ -4,7 +4,7 @@
 #include <bdes_ident.h>
 BDES_IDENT_RCSID(bteso_event_cpp,"$Id$ $CSID$")
 
-#include <bsl_hash_map.h>
+#include <bsl_functional.h>
 
 namespace BloombergLP {
 

@@ -204,7 +204,7 @@ BDES_IDENT("$Id: $")
 //
 //      stackSize += 8192;
 //
-//  #ifdef BSLS_PLATFORM__OS_HPUX
+//  #ifdef BSLS_PLATFORM_OS_HPUX
 //      // The Itanium divides the stack into two sections: a variable stack
 //      // and a control stack.  To make 'stackSize' have the same meaning
 //      // across platforms, we must double it on this platform.
@@ -280,10 +280,10 @@ class bcemt_ThreadAttributes {
         BCEMT_CREATE_JOINABLE = 0,  // create a joinable thread
         BCEMT_CREATE_DETACHED = 1   // create a non-joinable thread
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , CREATE_JOINABLE = BCEMT_CREATE_JOINABLE
       , CREATE_DETACHED = BCEMT_CREATE_DETACHED
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     enum SchedulingPolicy {

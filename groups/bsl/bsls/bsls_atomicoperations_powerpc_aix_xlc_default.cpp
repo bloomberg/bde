@@ -1,11 +1,13 @@
 // bsls_atomicoperations_powerpc_aix_xlc_default.cpp                  -*-C++-*-
 
+#include <bsls_atomicoperations_powerpc_aix_xlc_default.h>
+
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
 #include <bsls_types.h>
 
-#if defined(BSLS_PLATFORM__CPU_POWERPC) && defined(BSLS_PLATFORM__CMP_IBM)
+#if defined(BSLS_PLATFORM_CPU_POWERPC) && defined(BSLS_PLATFORM_CMP_IBM)
 
 namespace BloombergLP {
 
@@ -220,7 +222,7 @@ int AtomicOperations_Powerpc_AddIntAcqRel(volatile int *atomicInt,
 
 }  // close package namespace
 
-}
+}  // close enterprise namespace
 
 #endif
 

@@ -8,13 +8,13 @@
 
 #include <bsl_c_limits.h>
 
-#if defined(BCES_PLATFORM__POSIX_THREADS)
+#if defined(BCES_PLATFORM_POSIX_THREADS)
 # include <pthread.h>
-# if defined(BSLS_PLATFORM__OS_AIX)
+# if defined(BSLS_PLATFORM_OS_AIX)
 #   include <sys/types.h>
 #   include <unistd.h>
 # endif
-#elif !defined(BCES_PLATFORM__WIN32_THREADS)
+#elif !defined(BCES_PLATFORM_WIN32_THREADS)
 # error unrecognized threading platform
 #endif
 
@@ -27,7 +27,7 @@ namespace BloombergLP {
 int bcemt_ThreadAttributes::getMaxSchedPriority(
                                bcemt_ThreadAttributes::SchedulingPolicy policy)
 {
-#if defined(BCES_PLATFORM__POSIX_THREADS)
+#if defined(BCES_PLATFORM_POSIX_THREADS)
     int pPolicy;
 
     switch (policy) {
@@ -41,7 +41,7 @@ int bcemt_ThreadAttributes::getMaxSchedPriority(
         pPolicy = SCHED_OTHER;
       }  break;
       case BCEMT_SCHED_DEFAULT: {
-#if defined(BSLS_PLATFORM__OS_HPUX)
+#if defined(BSLS_PLATFORM_OS_HPUX)
         pPolicy = SCHED_HPUX;
 #else
         pPolicy = SCHED_OTHER;
@@ -54,7 +54,7 @@ int bcemt_ThreadAttributes::getMaxSchedPriority(
 
     int priority = sched_get_priority_max(pPolicy);
 
-# if defined(BSLS_PLATFORM__OS_AIX)
+# if defined(BSLS_PLATFORM_OS_AIX)
     // Note max priority returned above is 127 regardless of policy on AIX,
     // yet for non-superusers, thread creation fails if 'priority > 60'.  See
     // AIX doc "http://publib.boulder.ibm.com/infocenter/aix/v6r1/index.jsp?
@@ -92,7 +92,7 @@ int bcemt_ThreadAttributes::getMaxSchedPriority(
 int bcemt_ThreadAttributes::getMinSchedPriority(
                                bcemt_ThreadAttributes::SchedulingPolicy policy)
 {
-#if defined(BCES_PLATFORM__POSIX_THREADS)
+#if defined(BCES_PLATFORM_POSIX_THREADS)
     int pPolicy;
 
     switch (policy) {
@@ -106,7 +106,7 @@ int bcemt_ThreadAttributes::getMinSchedPriority(
         pPolicy = SCHED_OTHER;
       }  break;
       case BCEMT_SCHED_DEFAULT: {
-#if defined(BSLS_PLATFORM__OS_HPUX)
+#if defined(BSLS_PLATFORM_OS_HPUX)
         pPolicy = SCHED_HPUX;
 #else
         pPolicy = SCHED_OTHER;
@@ -119,7 +119,7 @@ int bcemt_ThreadAttributes::getMinSchedPriority(
 
     int priority = sched_get_priority_min(pPolicy);
 
-# if defined(BSLS_PLATFORM__OS_AIX)
+# if defined(BSLS_PLATFORM_OS_AIX)
     // Note on AIX all priorities below 40 are equivalent to a priority of 40.
     // See AIX doc "http://publib.boulder.ibm.com/infocenter/aix/v6r1/
     // index.jsp?topic=%2Fcom.ibm.aix.basetechref%2Fdoc%2Fbasetrf1%2F

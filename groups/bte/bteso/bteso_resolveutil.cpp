@@ -27,7 +27,7 @@ BDES_IDENT_RCSID(bteso_resolveutil_cpp,"$Id$ $CSID$")
 
 #include <bsls_assert.h>
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
 
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -52,9 +52,9 @@ namespace BloombergLP {
 
 namespace {
 
-#if defined(BSLS_PLATFORM__OS_HPUX)         \
-    || defined(BSLS_PLATFORM__OS_CYGWIN)    \
-    || defined(BSLS_PLATFORM__OS_DARWIN)
+#if defined(BSLS_PLATFORM_OS_HPUX)         \
+    || defined(BSLS_PLATFORM_OS_CYGWIN)    \
+    || defined(BSLS_PLATFORM_OS_DARWIN)
     // The re-entrant functions 'gethostbyname_r' and 'getservbyname_r',
     // are not available on these platforms, so we create local
     // versions here.
@@ -228,10 +228,10 @@ int defaultResolveByNameImp(bsl::vector<bteso_IPv4Address> *hostAddresses,
 
     hostAddresses->clear();
 
-#if defined(BSLS_PLATFORM__OS_UNIX)
+#if defined(BSLS_PLATFORM_OS_UNIX)
     struct hostent hostEntry;
 
-#if defined(BSLS_PLATFORM__OS_AIX)
+#if defined(BSLS_PLATFORM_OS_AIX)
     // On AIX, we have a fixed buffer length for 'gethostbyname_r',
     // equal to 'sizeof(hostent_data)'.  It either suffices or fails.
 
@@ -243,8 +243,8 @@ int defaultResolveByNameImp(bsl::vector<bteso_IPv4Address> *hostAddresses,
         }
         return -1;
     }
-#else // BSLS_PLATFORM__OS_SOLARIS || BSLS_PLATFORM__OS_LINUX ||
-      // BSLS_PLATFORM__OS_CYGWIN || BSLS_PLATFORM__OS_HPUX
+#else // BSLS_PLATFORM_OS_SOLARIS || BSLS_PLATFORM_OS_LINUX ||
+      // BSLS_PLATFORM_OS_CYGWIN || BSLS_PLATFORM_OS_HPUX
 
     // On Solaris and Linux, we have a choice of buffer length.  We start with
     // default length, and increase it as necessary.  On Cygwin, we call
@@ -260,8 +260,8 @@ int defaultResolveByNameImp(bsl::vector<bteso_IPv4Address> *hostAddresses,
 
     int errCode = 0;
     while (1) {
-        #if defined(BSLS_PLATFORM__OS_LINUX) \
-         || defined(BDES_PLATFORM__OS_FREEBSD)
+        #if defined(BSLS_PLATFORM_OS_LINUX) \
+         || defined(BDES_PLATFORM_OS_FREEBSD)
         struct hostent *result;
         if (gethostbyname_r(hostName,
                             &hostEntry,
@@ -269,9 +269,9 @@ int defaultResolveByNameImp(bsl::vector<bteso_IPv4Address> *hostAddresses,
                             bufferLength,
                             &result,
                             &errCode) || !result) {
-        #elif defined(BSLS_PLATFORM__OS_HPUX)   \
-           || defined(BSLS_PLATFORM__OS_CYGWIN) \
-           || defined(BSLS_PLATFORM__OS_DARWIN)
+        #elif defined(BSLS_PLATFORM_OS_HPUX)   \
+           || defined(BSLS_PLATFORM_OS_CYGWIN) \
+           || defined(BSLS_PLATFORM_OS_DARWIN)
         if (0 == gethostbyname_r(hostName,
                                  &hostEntry,
                                  &buffer,  // private improvement
@@ -328,7 +328,7 @@ int defaultResolveByNameImp(bsl::vector<bteso_IPv4Address> *hostAddresses,
         }
     }
 
-#elif defined(BSLS_PLATFORM__OS_WINDOWS)
+#elif defined(BSLS_PLATFORM_OS_WINDOWS)
     // On Windows, we resort to 'getaddrinfo' because...
     // [Why??? Is gethostbyname cheaper on Unix but not on Windows???]
 
@@ -447,7 +447,7 @@ int bteso_ResolveUtil::getServicePort(bteso_IPv4Address *result,
         BUF_LEN = 64
     };
 
-#if defined(BSLS_PLATFORM__OS_AIX)
+#if defined(BSLS_PLATFORM_OS_AIX)
     servent serverEntry;
     servent_data buffer;
 
@@ -466,9 +466,9 @@ int bteso_ResolveUtil::getServicePort(bteso_IPv4Address *result,
 
     result->setPortNumber(serverEntry.s_port);
 
-#elif defined(BSLS_PLATFORM__OS_UNIX)
-   // BSLS_PLATFORM__OS_SOLARIS || BSLS_PLATFORM__OS_LINUX ||
-   // BSLS_PLATFORM__OS_CYGWIN || BSLS_PLATFORM__OS_HPUX
+#elif defined(BSLS_PLATFORM_OS_UNIX)
+   // BSLS_PLATFORM_OS_SOLARIS || BSLS_PLATFORM_OS_LINUX ||
+   // BSLS_PLATFORM_OS_CYGWIN || BSLS_PLATFORM_OS_HPUX
 
     servent serverEntry;
 
@@ -481,15 +481,15 @@ int bteso_ResolveUtil::getServicePort(bteso_IPv4Address *result,
     bsl::vector<char> buffer(bufferLength, '\0', &allocator);
 
     while (1) {
-        #if defined(BSLS_PLATFORM__OS_LINUX) \
-         || defined(BDES_PLATFORM__OS_FREEBSD)
+        #if defined(BSLS_PLATFORM_OS_LINUX) \
+         || defined(BDES_PLATFORM_OS_FREEBSD)
         struct servent *glibcResult;
 
-        #if defined(BDES_PLATFORM__OS_FREEBSD)
+        #if defined(BDES_PLATFORM_OS_FREEBSD)
         int getServRet;
         #endif
         if ((
-        #if defined(BDES_PLATFORM__OS_FREEBSD)
+        #if defined(BDES_PLATFORM_OS_FREEBSD)
           getServRet =
         #endif
             getservbyname_r(serviceName,
@@ -498,9 +498,9 @@ int bteso_ResolveUtil::getServicePort(bteso_IPv4Address *result,
                             &buffer.front(),
                             bufferLength,
                             &glibcResult)) || !glibcResult)
-        #elif defined(BSLS_PLATFORM__OS_HPUX)   \
-           || defined(BSLS_PLATFORM__OS_CYGWIN) \
-           || defined(BSLS_PLATFORM__OS_DARWIN)
+        #elif defined(BSLS_PLATFORM_OS_HPUX)   \
+           || defined(BSLS_PLATFORM_OS_CYGWIN) \
+           || defined(BSLS_PLATFORM_OS_DARWIN)
         if (0 == getservbyname_r(serviceName,
                                  protocol,
                                  &serverEntry,
@@ -513,7 +513,7 @@ int bteso_ResolveUtil::getServicePort(bteso_IPv4Address *result,
                                  bufferLength))
         #endif
         {
-            #if defined(BDES_PLATFORM__OS_FREEBSD)
+            #if defined(BDES_PLATFORM_OS_FREEBSD)
               errno = getServRet;
             #endif
             if (errno == ERANGE) {
@@ -541,7 +541,7 @@ int bteso_ResolveUtil::getServicePort(bteso_IPv4Address *result,
         }
     }
 
-#elif defined(BSLS_PLATFORM__OS_WINDOWS)
+#elif defined(BSLS_PLATFORM_OS_WINDOWS)
         servent *sp = getservbyname(serviceName, protocol);
         if (0 == sp) {
             if (errorCode) {
@@ -570,7 +570,7 @@ int bteso_ResolveUtil::getHostnameByAddress(
     struct hostent *hp = NULL;
 
     unsigned int addr   = address.ipAddress();   // in network order
-#if defined(BSLS_PLATFORM__OS_AIX)
+#if defined(BSLS_PLATFORM_OS_AIX)
     struct hostent hent;
     struct hostent_data hdt;
 
@@ -587,7 +587,7 @@ int bteso_ResolveUtil::getHostnameByAddress(
 
     *canonicalHostname = hent.h_name;
 
-#elif defined(BSLS_PLATFORM__OS_SUNOS) || defined(BSLS_PLATFORM__OS_SOLARIS)
+#elif defined(BSLS_PLATFORM_OS_SUNOS) || defined(BSLS_PLATFORM_OS_SOLARIS)
     struct hostent hent;
     char hdt[2048];
     int err;
@@ -609,8 +609,8 @@ int bteso_ResolveUtil::getHostnameByAddress(
 
     *canonicalHostname = hp->h_name;
 
-#elif defined(BSLS_PLATFORM__OS_LINUX) \
-   || defined(BDES_PLATFORM__OS_FREEBSD)
+#elif defined(BSLS_PLATFORM_OS_LINUX) \
+   || defined(BDES_PLATFORM_OS_FREEBSD)
     struct hostent hent;
     char hdt[2048];
     int err;
@@ -631,7 +631,7 @@ int bteso_ResolveUtil::getHostnameByAddress(
 
     *canonicalHostname = hp->h_name;
 
-#elif defined(BSLS_PLATFORM__OS_UNIX)
+#elif defined(BSLS_PLATFORM_OS_UNIX)
     // Standard call cannot be assumed to be re-entrant (it often is not).
     {
         static bcemt_Mutex mutex;
@@ -643,7 +643,7 @@ int bteso_ResolveUtil::getHostnameByAddress(
 
         if (0 == hp) {
             if (errorCode) {
-#ifdef BSLS_PLATFORM__OS_HPUX
+#ifdef BSLS_PLATFORM_OS_HPUX
                 *errorCode = h_errno;
 #else
                 *errorCode = errno;
@@ -655,7 +655,7 @@ int bteso_ResolveUtil::getHostnameByAddress(
         *canonicalHostname = hp->h_name;
     }
 
-#elif defined(BSLS_PLATFORM__OS_WINDOWS)
+#elif defined(BSLS_PLATFORM_OS_WINDOWS)
     unsigned short port = address.portNumber();  // in host order
 
     struct sockaddr_in saGNI;

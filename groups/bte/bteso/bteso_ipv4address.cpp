@@ -7,7 +7,7 @@ BDES_IDENT_RCSID(bteso_ipv4address_cpp,"$Id$ $CSID$")
 #include <bsl_ostream.h>
 #include <bsl_cstdio.h>
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
 #include <Winsock2.h>
 #else
 #include <arpa/inet.h>

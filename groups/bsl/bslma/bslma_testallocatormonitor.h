@@ -12,9 +12,9 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslma::TestAllocatorMonitor: 'bslma::TestAllocator' summary mechanism
 //
-//@AUTHOR: Rohan Bhindwale (rbhindwale), Steven Breitstein (sbreitstein)
-//
 //@SEE_ALSO: bslma_testallocator
+//
+//@AUTHOR: Rohan Bhindwale (rbhindwale), Steven Breitstein (sbreitstein)
 //
 //@DESCRIPTION: This component provides a single mechanism class,
 // 'bslma::TestAllocatorMonitor', which is used, in concert with
@@ -54,7 +54,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Standard Usage
 ///- - - - - - - - - - - - -
-// Classes taking 'bslma_allocator' objects have many requirements (and thus,
+// Classes taking 'bslma::allocator' objects have many requirements (and thus,
 // many testing concerns) that other classes do not.  Here we illustrate how
 // 'bslma::TestAllocatorMonitor' objects (in conjunction with
 // 'bslma::TestAllocator' objects) can be used in a test driver to succinctly
@@ -414,6 +414,10 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
+#endif
+
 #ifndef INCLUDED_BSLMA_TESTALLOCATOR
 #include <bslma_testallocator.h>
 #endif
@@ -433,11 +437,12 @@ class TestAllocatorMonitor {
     // the Statistics section of @DESCRIPTION for the statics tracked.
 
     // DATA
-    const bsls::Types::Int64          d_initialInUse;    // 'numBlocksInUse'
-    const bsls::Types::Int64          d_initialMax;      // 'numBlocksMax'
-    const bsls::Types::Int64          d_initialTotal;    // 'numBlocksTotal'
-    const TestAllocator *const d_testAllocator_p; // held, not owned
+    bsls::Types::Int64   d_initialInUse;    // 'numBlocksInUse'
+    bsls::Types::Int64   d_initialMax;      // 'numBlocksMax'
+    bsls::Types::Int64   d_initialTotal;    // 'numBlocksTotal'
+    const TestAllocator *d_testAllocator_p; // held, not owned
 
+    // PRIVATE CLASS METHODS
     static const TestAllocator *validateArgument(
                                                const TestAllocator *allocator);
         // Return the specified 'allocator', and, if compiled in "SAFE" mode,
@@ -459,6 +464,15 @@ class TestAllocatorMonitor {
     ~TestAllocatorMonitor();
         // Destroy this object.
 #endif
+
+    // MANIPULATOR
+    void reset(const bslma::TestAllocator *testAllocator = 0);
+        // Change the allocator monitored by this object to the specified
+        // 'testAllocator' and initialize the allocator properties monitored by
+        // this object to the current state of 'testAllocator'.  If no
+        // 'testAllocator' is passed, do not modify the allocator held by this
+        // object and re-initialize the allocator properties monitored by this
+        // object to the current state of that allocator.
 
     // ACCESSORS
     bool isInUseDown() const;
@@ -495,6 +509,18 @@ class TestAllocatorMonitor {
         // Return 'true' if the 'numBlocksTotal' statistic of the tracked test
         // allocator has increased since construction of this monitor, and
         // 'false' otherwise.
+
+    bsls::Types::Int64 numBlocksInUseChange() const;
+        // Return the change in the 'numBlocksInUse' statistic of the tracked
+        // test allocator since construction of this monitor.
+
+    bsls::Types::Int64 numBlocksMaxChange() const;
+        // Return the change in the 'numBlocksMax' statistic of the tracked
+        // test allocator since construction of this monitor.
+
+    bsls::Types::Int64 numBlocksTotalChange() const;
+        // Return the change in the 'numBlocksTotal' statistic of the tracked
+        // test allocator since construction of this monitor.
 };
 
 // ============================================================================
@@ -515,14 +541,32 @@ TestAllocatorMonitor::validateArgument(const TestAllocator *allocator)
     return allocator;
 }
 
+// MANIPULATOR
+inline
+void TestAllocatorMonitor::reset(const TestAllocator *testAllocator)
+{
+    // This method is alled inline by c'tor, hence it should precede it.
+
+    if (testAllocator) {
+        d_testAllocator_p = testAllocator;
+    }
+
+    d_initialInUse = d_testAllocator_p->numBlocksInUse();
+    d_initialMax   = d_testAllocator_p->numBlocksMax();
+    d_initialTotal = d_testAllocator_p->numBlocksTotal();
+
+    BSLS_ASSERT_SAFE(0 <= d_initialMax);
+    BSLS_ASSERT_SAFE(0 <= d_initialTotal);
+}
+
 // CREATORS
 inline
 TestAllocatorMonitor::TestAllocatorMonitor(const TestAllocator *testAllocator)
-: d_initialInUse((validateArgument(testAllocator))->numBlocksInUse())
-, d_initialMax(testAllocator->numBlocksMax())
-, d_initialTotal(testAllocator->numBlocksTotal())
-, d_testAllocator_p(testAllocator)
+: d_testAllocator_p(testAllocator)
 {
+    BSLS_ASSERT_SAFE(d_testAllocator_p);
+
+    reset();
 }
 
 }  // close package namespace
@@ -588,14 +632,34 @@ bool TestAllocatorMonitor::isTotalUp() const
     return d_testAllocator_p->numBlocksTotal() != d_initialTotal;
 }
 
+inline
+bsls::Types::Int64 TestAllocatorMonitor::numBlocksInUseChange() const
+{
+    return d_testAllocator_p->numBlocksInUse() - d_initialInUse;
+}
+
+inline
+bsls::Types::Int64 TestAllocatorMonitor::numBlocksMaxChange() const
+{
+    return d_testAllocator_p->numBlocksMax() - d_initialMax;
+}
+
+inline
+bsls::Types::Int64 TestAllocatorMonitor::numBlocksTotalChange() const
+{
+    return d_testAllocator_p->numBlocksTotal() - d_initialTotal;
+}
+
 }  // close package namespace
 
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
 
 typedef bslma::TestAllocatorMonitor bslma_TestAllocatorMonitor;
     // This alias is defined for backward compatibility.
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

@@ -3,8 +3,6 @@ bdemf_functionpointertraits
 bdemf_if
 bdemf_isconvertible
 bdemf_isenum
-bdemf_isfundamental
 bdemf_issame
 bdemf_nil
 bdemf_removereference
-bdemf_typelist

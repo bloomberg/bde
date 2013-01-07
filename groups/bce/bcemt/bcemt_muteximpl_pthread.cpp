@@ -7,7 +7,7 @@ BDES_IDENT_RCSID(bcemt_muteximpl_pthread_cpp,"$Id$ $CSID$")
 #include <bslmf_assert.h>
 #include <bsls_assert.h>
 
-#ifdef BCES_PLATFORM__POSIX_THREADS
+#ifdef BCES_PLATFORM_POSIX_THREADS
 
 namespace BloombergLP {
 

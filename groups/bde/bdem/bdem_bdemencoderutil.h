@@ -1302,7 +1302,7 @@ int bdem_BdemEncoderUtil_Encoder<STREAM>::encodeImp(const TYPE& value,
 
     enum { BDEX_VERSION = 1 };
 
-#if defined(BSLS_PLATFORM__CMP_SUN) && (BSLS_PLATFORM__CMP_VER_MAJOR == 0x520)
+#if defined(BSLS_PLATFORM_CMP_SUN) && (BSLS_PLATFORM_CMP_VER_MAJOR == 0x520)
     const TYPE otherValue = value;
     if (!bdex_OutStreamFunctions::streamOut(*d_stream_p,
                                             static_cast<BdemType>(otherValue),

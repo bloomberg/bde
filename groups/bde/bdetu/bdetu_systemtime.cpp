@@ -7,7 +7,7 @@ BDES_IDENT_RCSID(bdetu_systemtime_cpp,"$Id$ $CSID$")
 #include <bsls_performancehint.h>
 #include <bsls_platform.h>
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
 #include <windows.h>
 #else
 // Before we include the unix-specific header, '<sys/time.h>', we include the
@@ -15,7 +15,7 @@ BDES_IDENT_RCSID(bdetu_systemtime_cpp,"$Id$ $CSID$")
 // both the 'std' namespace and the global namespace. (Critical for Sunpro.)
 #include <bsl_c_time.h>
 #include <bsl_c_sys_time.h>
-#ifdef BSLS_PLATFORM__OS_AIX
+#ifdef BSLS_PLATFORM_OS_AIX
 #include <sys/systemcfg.h>
 #endif
 #endif
@@ -39,7 +39,7 @@ bdet_DatetimeInterval bdetu_SystemTime::localTimeOffset()
 {
     time_t currentTime = time(0);
     struct tm localtm, gmtm;
-#if defined(BSLS_PLATFORM__OS_WINDOWS) || ! defined(BDE_BUILD_TARGET_MT)
+#if defined(BSLS_PLATFORM_OS_WINDOWS) || ! defined(BDE_BUILD_TARGET_MT)
     localtm = *localtime(&currentTime);
     gmtm    = *gmtime(&currentTime);
 #else
@@ -56,12 +56,12 @@ void bdetu_SystemTime::loadSystemTimeDefault(bdet_TimeInterval *result)
 {
     BSLS_ASSERT(result);
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
     bsls_PlatformUtil::Uint64 t;
     GetSystemTimeAsFileTime((FILETIME*)&t);
     t -= 116444736000000000ll; // windows epoch -> unix epoch
     result->setInterval(t / 10000000, (t % 10000000) * 100);
-#elif BSLS_PLATFORM__OS_LINUX
+#elif BSLS_PLATFORM_OS_LINUX
     struct timespec tp;
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
                                          clock_gettime(CLOCK_REALTIME, &tp))) {
@@ -69,7 +69,7 @@ void bdetu_SystemTime::loadSystemTimeDefault(bdet_TimeInterval *result)
           return;
     }
     result->setInterval(tp.tv_sec, tp.tv_nsec);
-#elif BSLS_PLATFORM__OS_AIX
+#elif BSLS_PLATFORM_OS_AIX
     timebasestruct_t tb;
     read_real_time(&tb, TIMEBASE_SZ);
     time_base_to_time(&tb, TIMEBASE_SZ);

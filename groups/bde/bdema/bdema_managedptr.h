@@ -16,6 +16,8 @@ BDES_IDENT("$Id: $")
 //@AUTHOR: Ilougino Rocha (irocha), Pablo Halpern (phalpern),
 //         Alisdair Meredith (ameredith1@bloomberg.net)
 //
+//@SEE_ALSO: bslmf_ispolymporphic
+//
 //@DESCRIPTION: This component provides a proctor, similar to 'bsl::auto_ptr',
 // that supports user-specified deleters.  The proctor is responsible for the
 // automatic destruction of the object referenced by the managed pointer.  As
@@ -25,7 +27,10 @@ BDES_IDENT("$Id: $")
 // has unusual "copy-semantics" that transfer ownership of the managed object,
 // rather than making a copy.  It should be noted that this signature does not
 // satisfy the requirements for an element-type stored in any of the standard
-// library containers.
+// library containers.  Note that this component will fail to compile when
+// instantiated for a class that gives a false-positive for the type trait
+// 'bslmf::IsPolymorphic'.  See the 'bslmf_ispolymporphic' component for more
+// details.
 //
 ///Deleters
 ///--------
@@ -523,7 +528,7 @@ BDES_IDENT("$Id: $")
 ///Implicit Conversion
 /// -  -  -  -  -  - -
 // As with native pointers, a pointer of the type 'B' that is publicly derived
-// from the type 'A', can be directly assigned a 'bcema_SharedPtr' of 'A'.
+// from the type 'A', can be directly assigned a 'bdema_ManagedPtr' of 'A'.
 //
 // First, consider the following code snippets:
 //..
@@ -1160,7 +1165,7 @@ class bdema_ManagedPtr {
         // pointer as empty.  Note that the specified 'factory' will be
         // ignored, as empty managed pointers do not invoke a deleter.
 
-#if !defined(BSLS_PLATFORM__CMP_GNU) || BSLS_PLATFORM__CMP_VER_MAJOR >= 40000
+#if !defined(BSLS_PLATFORM_CMP_GNU) || BSLS_PLATFORM_CMP_VER_MAJOR >= 40000
     template <class MANAGED_TYPE>
     void load(MANAGED_TYPE *ptr, void *cookie, DeleterFunc deleter);
         // Destroy the currently managed object, if any.  Then, set the target
@@ -1594,7 +1599,7 @@ void bdema_ManagedPtr<TARGET_TYPE>::load(TARGET_TYPE *ptr,
     d_members.set(stripBasePointerType(ptr), cookie, deleter);
 }
 
-#if !defined(BSLS_PLATFORM__CMP_GNU) || BSLS_PLATFORM__CMP_VER_MAJOR >= 40000
+#if !defined(BSLS_PLATFORM_CMP_GNU) || BSLS_PLATFORM_CMP_VER_MAJOR >= 40000
 template <class TARGET_TYPE>
 template <class MANAGED_TYPE>
 inline
@@ -1683,7 +1688,7 @@ void bdema_ManagedPtr<TARGET_TYPE>::load(MANAGED_TYPE *ptr,
                                         void (*deleter)(MANAGED_BASE *, void*))
 {
     BSLMF_ASSERT((bslmf::IsConvertible<MANAGED_TYPE *, TARGET_TYPE *>::VALUE));
-#if !defined(BSLS_PLATFORM__CMP_GNU) || BSLS_PLATFORM__CMP_VER_MAJOR >= 40000
+#if !defined(BSLS_PLATFORM_CMP_GNU) || BSLS_PLATFORM_CMP_VER_MAJOR >= 40000
     BSLMF_ASSERT((!bslmf::IsVoid<MANAGED_BASE>::VALUE));
     BSLMF_ASSERT((bslmf::IsConvertible<MANAGED_TYPE *,
                                        MANAGED_BASE *>::VALUE));
@@ -1808,7 +1813,7 @@ bdema_ManagedPtr<TARGET_TYPE>::operator bdema_ManagedPtr_Ref<REFERENCED_TYPE>()
 // ACCESSORS
 template <class TARGET_TYPE>
 inline
-#if defined(BSLS_PLATFORM__CMP_IBM)
+#if defined(BSLS_PLATFORM_CMP_IBM)
 bdema_ManagedPtr<TARGET_TYPE>::operator
                                     typename bdema_ManagedPtr::BoolType() const
 #else

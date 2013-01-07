@@ -1,4 +1,6 @@
 // bslma_sequentialpool.cpp                                           -*-C++-*-
+#ifndef BDE_OMIT_TRANSITIONAL // DEPRECATED
+
 #include <bslma_sequentialpool.h>
 
 #include <bsls_ident.h>
@@ -364,6 +366,8 @@ int SequentialPool::truncate(void *address,
 }  // close package namespace
 
 }  // close enterprise namespace
+
+#endif // BDE_OMIT_TRANSITIONAL -- DEPRECATED
 
 // ---------------------------------------------------------------------------
 // NOTICE:

@@ -40,9 +40,9 @@ bsl::ostream& operator<<(bsl::ostream&                     stream,
 {
     bslim::Printer printer(&stream, 0, -1);
     printer.start();
-    printer.print(object.utcOffsetInSeconds(),  0);
-    printer.print(object.dstInEffectFlag(),     0);
-    printer.print(object.description().c_str(), 0);
+    printer.printValue(object.utcOffsetInSeconds());
+    printer.printValue(object.dstInEffectFlag());
+    printer.printValue(object.description().c_str());
     printer.end();
 
     return stream;

@@ -1434,7 +1434,7 @@ int main(int argc, char *argv[])
         using namespace BCEF_BIND_TEST_CASE_5;
         using namespace bdef_PlaceHolders;
 
-#if !defined(BSLS_PLATFORM__CMP_IBM)
+#if !defined(BSLS_PLATFORM_CMP_IBM)
         // xlC compiler on AIX does not distinguish between the manglings of
         // extern "C" and C++ linkages.
 
@@ -1530,7 +1530,7 @@ int main(int argc, char *argv[])
             ASSERT(&X2 != mX4); // Will pass 'X2' by value since the 'const&'
                                 // will be removed by the forwarding type.
 
-#if !defined(BSLS_PLATFORM__CMP_IBM)
+#if !defined(BSLS_PLATFORM_CMP_IBM)
             // 'bdef_Bind_FuncTraitsHasNoEllipsis' will return 0 even for
             // functions that does not have an ellipsis in its function
             // signature.  When this happens, implicit version of 'bdef_Bind'

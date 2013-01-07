@@ -1,17 +1,19 @@
 // bslma_autodestructor.t.cpp                                         -*-C++-*-
 
 #include <bslma_autodestructor.h>
+
 #include <bslma_default.h>
 #include <bslma_testallocator.h>
 
 #include <bsls_assert.h>
+#include <bsls_bsltestutil.h>
 
-#include <cstdlib>     // atoi()
-#include <cstring>     // memcpy(), memmove()
-#include <iostream>
+#include <stdio.h>
+#include <stdlib.h>
+
+#include <new>
 
 using namespace BloombergLP;
-using namespace std;
 
 //=============================================================================
 //                             TEST PLAN
@@ -82,68 +84,59 @@ using namespace std;
 // [3] HELPER FUNCTION: 'printArray(const int *a1, int ne)'
 // [3] HELPER FUNCTION: 'load(my_Struct *b, int *c, int ne)'
 // [9] USAGE EXAMPLE
+
 //=============================================================================
-//                      STANDARD BDE ASSERT TEST MACRO
+//                  STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
+// NOTE: THIS IS A LOW-LEVEL COMPONENT AND MAY NOT USE ANY C++ LIBRARY
+// FUNCTIONS, INCLUDING IOSTREAMS.
 static int testStatus = 0;
 
-static void aSsErT(int c, const char *s, int i)
-{
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
-             << "    (failed)" << endl;
-        if (0 <= testStatus && testStatus <= 100) ++testStatus;
+static void aSsErT(bool b, const char *s, int i) {
+    if (b) {
+        printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
+        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
     }
 }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-
 //=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
+//                       STANDARD BDE TEST DRIVER MACROS
 //-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
 
-#define LOOP2_ASSERT(I,J,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
+#define ASSERT       BSLS_BSLTESTUTIL_ASSERT
+#define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLS_BSLTESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLS_BSLTESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLS_BSLTESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLS_BSLTESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
+#define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-              << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
+#define Q   BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
+#define P   BSLS_BSLTESTUTIL_P   // Print identifier and value.
+#define P_  BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
+#define T_  BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
+#define L_  BSLS_BSLTESTUTIL_L_  // current Line number
 
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
+// ============================================================================
+//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
-#define LOOP5_ASSERT(I,J,K,L,M,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP6_ASSERT(I,J,K,L,M,N,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\t" << #N << ": " << N << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
-#define T_ cout << "\t" << flush;             // Print tab w/o newline
-#define L_ __LINE__                           // current Line number
+#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
+#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
+#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
+#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
+#define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
+#define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
 //=============================================================================
 //                      CUSTOM TEST OUTPUT MACROS
 //-----------------------------------------------------------------------------
-#define PA(X, L) cout << #X " = "; printArray(X, L); cout << endl;
+#define PA(X, L) printf( #X " = "); printArray(X, L); printf("\n");
                                               // Print array 'X' of length 'L'
-#define PA_(X, L) cout << #X " = "; printArray(X, L); cout << ", " << flush;
+#define PA_(X, L) printf( #X " = "); printArray(X, L); printf(", ");
                                               // PA(X, L) without '\n'
 
 //=============================================================================
@@ -177,7 +170,7 @@ class my_Class : public my_Struct {
     {
         d_counter_p = counter;
         if (globalVeryVeryVerbose) {
-            cout << "my_Class: "; P_(d_counter_p) P(*d_counter_p);
+            printf("my_Class: "); P_(d_counter_p) P(*d_counter_p);
         }
     }
 
@@ -186,7 +179,7 @@ class my_Class : public my_Struct {
     {
         ++*d_counter_p;
         if (globalVeryVeryVerbose) {
-            cout << "~my_Class: "; P_(d_counter_p) P(*d_counter_p);
+            printf("~my_Class: "); P_(d_counter_p) P(*d_counter_p);
         }
     }
 };
@@ -246,11 +239,11 @@ static void printArray(const int *array, int numElements)
     ASSERT(array);
     ASSERT(0 <= numElements);
 
-    cout << "[ ";
+    printf("[ ");
     for (int i = 0; i < numElements; ++i) {
-        cout << array[i] << ' ';
+        printf("%d ", array[i]);
     }
-    cout << ']';
+    printf("]");
 }
 
 //=============================================================================
@@ -521,7 +514,7 @@ int main(int argc, char *argv[])
 
     globalVeryVeryVerbose = veryVeryVerbose;
 
-    cout << "TEST " << __FILE__ << " CASE " << test << endl;
+    printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:
       case 9: {
@@ -542,8 +535,8 @@ int main(int argc, char *argv[])
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "USAGE EXAMPLE TEST" << endl
-                                  << "==================" << endl;
+        if (verbose) printf("\nUSAGE EXAMPLE"
+                            "\n=============\n");
 
         bslma::TestAllocator ta(veryVeryVeryVerbose);
         const bslma::TestAllocator& TA = ta;
@@ -551,8 +544,7 @@ int main(int argc, char *argv[])
         enum { NUM_INIT = 5, INIT_SIZE = 8 };
         int counter = 0;
 
-        if (verbose) cout << "\nTesting usage example without exception."
-                          << endl;
+        if (verbose) printf("\nTesting usage example without exception.\n");
         {
             my_Array<my_AllocatingClass> array(INIT_SIZE, &ta);
             const int INITBYTES = TA.numBytesInUse();
@@ -590,8 +582,7 @@ int main(int argc, char *argv[])
         counter = 0;  // reset counter
 
 #ifdef BDE_BUILD_TARGET_EXC
-        if (verbose) cout << "\nTesting usage example with exception."
-                          << endl;
+        if (verbose) printf("\nTesting usage example with exception.\n");
         {
             my_Array<my_AllocatingClass> array(INIT_SIZE, &ta);
             const int INITBYTES = TA.numBytesInUse();
@@ -666,19 +657,18 @@ int main(int argc, char *argv[])
         //   void operator--();
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "'operator++' AND 'operator--' TEST" << endl
-                          << "==================================" << endl;
+        if (verbose) printf("\n'operator++' AND 'operator--' TEST"
+                            "\n==================================\n");
 
         enum { NUM_BLOCKS = 10 };
         int array[NUM_BLOCKS];  // dummy pointer passed to the proctor
         int expLen = 0;
 
-        if (verbose) cout << "\nStart at length 0." << endl;
+        if (verbose) printf("\nStart at length 0.\n");
 
         bslma::AutoDestructor<int> proctor(array, 0);
 
-        if (verbose) cout << "\nIncrementing the length by 2." << endl;
+        if (verbose) printf("\nIncrementing the length by 2.\n");
 
         ++proctor;
         ++expLen;
@@ -690,7 +680,7 @@ int main(int argc, char *argv[])
         if (veryVerbose) { T_ P_(expLen); P(proctor.length()); }
         LOOP2_ASSERT(expLen, proctor.length(), expLen == proctor.length());
 
-        if (verbose) cout << "\nDecrementing the length by 4." << endl;
+        if (verbose) printf("\nDecrementing the length by 4.\n");
 
         --proctor;
         --expLen;
@@ -712,7 +702,7 @@ int main(int argc, char *argv[])
         if (veryVerbose) { T_ P_(expLen); P(proctor.length()); }
         LOOP2_ASSERT(expLen, proctor.length(), expLen == proctor.length());
 
-        if (verbose) cout << "\nIncrementing the length by 2." << endl;
+        if (verbose) printf("\nIncrementing the length by 2.\n");
 
         ++proctor;
         ++expLen;
@@ -759,11 +749,11 @@ int main(int argc, char *argv[])
         //   int length() const;
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "'length' AND 'setLength' TEST" << endl
-                                  << "=============================" << endl;
+        if (verbose) printf("\n'length' AND 'setLength' TEST"
+                            "\n=============================\n");
 
-        if (verbose) cout << "\nTesting the 'length' and 'setLength' method."
-                          << endl;
+        if (verbose) printf(
+                           "\nTesting the 'length' and 'setLength' method.\n");
 
         enum { NUM_ELEM = 5 };
 
@@ -820,7 +810,7 @@ int main(int argc, char *argv[])
                 T_ P_(LINE) P_(OFFSET) P_(LENGTH) PA(EXPECTED, NUM_ELEM)
             }
 
-            if (veryVeryVerbose) { T_ T_ cout << "'length':" << endl; }
+            if (veryVeryVerbose) { T_ T_ printf("'length':\n"); }
             {
                 int counters[NUM_ELEM] = { 0 };  // initialize to 0
 
@@ -836,7 +826,7 @@ int main(int argc, char *argv[])
                 }
             }
 
-            if (veryVeryVerbose) { T_ T_ cout << "'setLength':" << endl; }
+            if (veryVeryVerbose) { T_ T_ printf("'setLength':\n"); }
             {
                 int counters[NUM_ELEM] = { 0 };  // initialize to 0
 
@@ -892,12 +882,12 @@ int main(int argc, char *argv[])
         //   void reset(TYPE *origin);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "'reset' TEST" << endl
-                                  << "============" << endl;
+        if (verbose) printf("\n'reset' TEST"
+                            "\n============\n");
 
-        if (verbose) cout << "\nTesting 'reset' method." << endl;
+        if (verbose) printf("\nTesting 'reset' method.\n");
 
-        if (veryVerbose) cout << "\t'reset' on initialized proctor." << endl;
+        if (veryVerbose) printf("\t'reset' on initialized proctor.\n");
 
         enum { NUM_ELEM = 5 };
         static const int EMPTY[NUM_ELEM] = { 0, 0, 0, 0, 0 };
@@ -948,7 +938,7 @@ int main(int argc, char *argv[])
         ASSERT(areEqual(cB, EMPTY, NUM_ELEM));
         ASSERT(areEqual(cC, FULL,  NUM_ELEM));
 
-        if (veryVerbose) cout << "\t'reset' on uninitialized proctor." << endl;
+        if (veryVerbose) printf("\t'reset' on uninitialized proctor.\n");
 
         int        c[NUM_ELEM] = { 0, 0, 0, 0, 0 };
         my_Struct  buffer[NUM_ELEM];
@@ -993,10 +983,10 @@ int main(int argc, char *argv[])
         //   void release();
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "'release' TEST" << endl
-                                  << "==============" << endl;
+        if (verbose) printf("\n'release' TEST"
+                            "\n==============\n");
 
-        if (verbose) cout << "\nTesting the 'release' method." << endl;
+        if (verbose) printf("\nTesting the 'release' method.\n");
 
         enum { NUM_ELEM = 5 };
 
@@ -1078,10 +1068,10 @@ int main(int argc, char *argv[])
         //   ~bslma::AutoDestructor<TYPE>();
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "CTOR / DOTR TEST" << endl
-                                  << "================" << endl;
+        if (verbose) printf("\nCTOR / DOTR TEST"
+                            "\n================\n");
 
-        if (verbose) cout << "\nTesting CTOR and DTOR." << endl;
+        if (verbose) printf("\nTesting CTOR and DTOR.\n");
 
         enum { NUM_ELEM = 5 };
 
@@ -1158,14 +1148,13 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(LINE, areEqual(EXPECTED, counters, NUM_ELEM));
         }
 
-        if (verbose) cout << "\nTesting Construction with null pointer."
-                          << endl;
+        if (verbose) printf("\nTesting Construction with null pointer.\n");
         {
             bslma::AutoDestructor<my_Class> destructor(0, 0);
         }
 
-        if (verbose) cout << "\nTesting length defaults to 0 at construction."
-                          << endl;
+        if (verbose) printf(
+                          "\nTesting length defaults to 0 at construction.\n");
 
         int counters[NUM_ELEM] = { 0 };
 
@@ -1220,12 +1209,12 @@ int main(int argc, char *argv[])
         //   HELPER FUNCTION: 'load(my_Struct *b, int *c, int ne)'
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "HELPER FUNCTIONS TEST" << endl
-                                  << "=====================" << endl;
+        if (verbose) printf("\nHELPER FUNCTIONS TEST"
+                            "\n=====================\n");
 
         enum { NUM_TEST = 5 };
 
-        if (verbose) cout << "\nTesting 'areEqual'." << endl;
+        if (verbose) printf("\nTesting 'areEqual'.\n");
         {
             enum { SZ = 5 };
             const static struct {
@@ -1290,17 +1279,17 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'printArray'." << endl;
+        if (verbose) printf("\nTesting 'printArray'.\n");
         {
             int counters[NUM_TEST] = { 0, 1, 2, 3, 4 };
             if (veryVerbose) {
-                cout << "\tShould be printing: [ 0 1 2 3 4 ]" << endl;
-                cout << "\tIs printing       : "; PA(counters, NUM_TEST)
+                printf("\tShould be printing: [ 0 1 2 3 4 ]\n");
+                printf("\tIs printing       : "); PA(counters, NUM_TEST)
             }
         }
 
 
-        if (verbose) cout << "\nTesting 'load'." << endl;
+        if (verbose) printf("\nTesting 'load'.\n");
 
         {
             int counters[NUM_TEST] = { 0 };
@@ -1342,10 +1331,10 @@ int main(int argc, char *argv[])
         //   HELPER CLASS: 'my_Class'
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "HELPER CLASS TEST" << endl
-                                  << "=================" << endl;
+        if (verbose) printf("\nHELPER CLASS TEST"
+                            "\n=================\n");
 
-        if (verbose) cout << "\nTesting 'my_Class' ctor and dtor." << endl;
+        if (verbose) printf("\nTesting 'my_Class' ctor and dtor.\n");
 
         {
             enum { NUM_TEST = 5 };
@@ -1385,10 +1374,10 @@ int main(int argc, char *argv[])
         //   BREATHING TEST
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "BREATHING TEST" << endl
-                                  << "==============" << endl;
+        if (verbose) printf("\nBREATHING TEST"
+                            "\n==============\n");
 
-        if (verbose) cout << "\nProctor 3 'my_Class' objects." << endl;
+        if (verbose) printf("\nProctor 3 'my_Class' objects.\n");
 
         enum { NUM_TEST = 3 };
         static const int EMPTY[NUM_TEST]    = { 0, 0, 0 };
@@ -1411,14 +1400,15 @@ int main(int argc, char *argv[])
 
       } break;
       default: {
-        cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
+        fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
         testStatus = -1;
       }
     }
 
     if (testStatus > 0) {
-        cerr << "Error, non-zero test status = " << testStatus << "." << endl;
+        fprintf(stderr, "Error, non-zero test status = %d.\n", testStatus);
     }
+
     return testStatus;
 }
 

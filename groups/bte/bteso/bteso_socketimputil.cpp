@@ -13,7 +13,7 @@ BDES_IDENT_RCSID(bteso_socketimputil_cpp,"$Id$ $CSID$")
 #include <bsl_c_stdio.h>
 
 namespace BloombergLP {
-#if defined(BTESO_PLATFORM__WIN_SOCKETS)
+#if defined(BTESO_PLATFORM_WIN_SOCKETS)
 
 // ========================= WINDOWS SPECIFIC CODE ============================
 
@@ -92,7 +92,7 @@ int bteso_SocketImpUtil::startup(int *errorCode)
 
 // the location of the address in the sockaddr structure differs by platform
 // create a macro to access that field here
-//#if defined(BSLS_PLATFORM__OS_AIX) || defined(BSLS_PLATFORM__OS_LINUX)
+//#if defined(BSLS_PLATFORM_OS_AIX) || defined(BSLS_PLATFORM_OS_LINUX)
 #define SI_SADDR(x)   (x).sin_addr.s_addr
 //#else
 //#define SI_SADDR(x)   (x).sin_addr.S_un.S_addr
@@ -131,7 +131,7 @@ int bteso_SocketImpUtil_Util::mapErrorCode(int errorNumber)
 // TODO - mappings are not complete!!!! (e.g., most map to unclassified)
 //------------
 
-#if defined(BTESO_PLATFORM__WIN_SOCKETS)
+#if defined(BTESO_PLATFORM_WIN_SOCKETS)
     switch (errorNumber) {
         // Windows (WINSOCK) specific socket error codes
         // WSAEWOULDBLOCK is the most likely error for common use.
@@ -559,7 +559,7 @@ int bteso_SocketImpUtil::close(const bteso_SocketHandle::Handle& theSocket,
                                int                              *errorCode)
 {
     int rc;
-#if defined(BTESO_PLATFORM__WIN_SOCKETS)
+#if defined(BTESO_PLATFORM_WIN_SOCKETS)
     rc = closesocket(theSocket);
 #else
     rc = ::close(theSocket);
@@ -614,7 +614,7 @@ int bteso_SocketImpUtil::readv(const btes_Iovec          *iovecPtr,
     BSLS_ASSERT(iovecPtr);
     BSLS_ASSERT(size > 0);
 
-#if defined(BTESO_PLATFORM__WIN_SOCKETS)
+#if defined(BTESO_PLATFORM_WIN_SOCKETS)
     DWORD bytesReceived;
     DWORD lpFlags = 0;
     rc = ::WSARecv(socket, (WSABUF *) iovecPtr, size,
@@ -672,7 +672,7 @@ int bteso_SocketImpUtil::writev(const bteso_SocketHandle::Handle& socket,
     BSLS_ASSERT(ovec);
     BSLS_ASSERT(size > 0);
 
-#if defined(BTESO_PLATFORM__WIN_SOCKETS)
+#if defined(BTESO_PLATFORM_WIN_SOCKETS)
     DWORD bytesSent;
     rc = ::WSASend(socket, (WSABUF *) ovec, size, &bytesSent, 0, 0, 0);
     if (rc == 0) rc = bytesSent;

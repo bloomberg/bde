@@ -10,11 +10,11 @@ BDES_IDENT_RCSID(bdema_heapbypassallocator_cpp,"$Id$ $CSID$")
 
 #include <bsl_algorithm.h>
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
 
 #include <windows.h>
 
-#elif defined(BSLS_PLATFORM__OS_UNIX)
+#elif defined(BSLS_PLATFORM_OS_UNIX)
 
 #include <unistd.h>
 #include <sys/mman.h>
@@ -46,7 +46,7 @@ struct bdema_HeapBypassAllocator::BufferHeader {
                           // -------------------------
 
 // PRIVATE CLASS METHODS
-#if defined(BSLS_PLATFORM__OS_UNIX)
+#if defined(BSLS_PLATFORM_OS_UNIX)
 char *bdema_HeapBypassAllocator::map(size_type size)
 {
     // Note that passing 'MAP_ANONYMOUS' and a null file descriptor tells
@@ -56,7 +56,7 @@ char *bdema_HeapBypassAllocator::map(size_type size)
                                         // to map the memory
                                  size,
                                  PROT_READ | PROT_WRITE,
-#ifdef BSLS_PLATFORM__OS_DARWIN
+#ifdef BSLS_PLATFORM_OS_DARWIN
                                  MAP_ANON | MAP_PRIVATE,
 #else
                                  MAP_ANONYMOUS | MAP_PRIVATE,
@@ -71,7 +71,7 @@ void bdema_HeapBypassAllocator::unmap(void *address, size_type size) {
 
     munmap((char *)address, size);
 }
-#elif defined(BSLS_PLATFORM__OS_WINDOWS)
+#elif defined(BSLS_PLATFORM_OS_WINDOWS)
 char *bdema_HeapBypassAllocator::map(size_type size)
 {
     char *address =
@@ -135,14 +135,14 @@ bdema_HeapBypassAllocator::bdema_HeapBypassAllocator()
 , d_endOfBuffer_p(0)
 , d_alignment(bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT)
 {
-#if defined(BSLS_PLATFORM__OS_UNIX)
+#if defined(BSLS_PLATFORM_OS_UNIX)
     d_pageSize = ::sysconf(_SC_PAGESIZE);
 #else // Windows
     SYSTEM_INFO si;
     GetSystemInfo(&si);
     d_pageSize = si.dwAllocationGranularity;
 #endif
-#ifdef BSLS_PLATFORM__OS_HPUX
+#ifdef BSLS_PLATFORM_OS_HPUX
     // 128-bit alignment is required on HP-UX for bdesu_stacktrace,
     // 'BSLS_MAX_ALIGNMENT' at the time of this writing is only 64 bits on
     // HP-UX, which causes bus traps on alignment errors.

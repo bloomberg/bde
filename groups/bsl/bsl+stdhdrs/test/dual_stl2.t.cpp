@@ -13,11 +13,13 @@
 
 #undef BSL_OVERRIDES_STD
 
-// Include all standard headers in reverse alphabetical order in dual STL mode
+// Include all standard headers in reverse alphabetical order in dual STL mode.
 
 #include <vector>
 #include <valarray>
 #include <utility>
+#include <unordered_set>
+#include <unordered_map>
 #include <typeinfo>
 #include <strstream>
 #include <string>
@@ -80,3 +82,11 @@ int main()
     return 0;
 }
 
+// ----------------------------------------------------------------------------
+// NOTICE:
+//      Copyright (C) Bloomberg L.P., 2012
+//      All Rights Reserved.
+//      Property of Bloomberg L.P.  (BLP)
+//      This software is made available solely pursuant to the
+//      terms of a BLP license agreement which governs its use.
+// ----------------------------- END-OF-FILE ----------------------------------

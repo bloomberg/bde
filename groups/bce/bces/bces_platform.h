@@ -55,17 +55,17 @@ struct bces_Platform {
     struct PosixThreads {};
     struct Win32Threads {};
 
-    #ifdef BSLS_PLATFORM__OS_UNIX
+    #ifdef BSLS_PLATFORM_OS_UNIX
 
     typedef PosixThreads ThreadPolicy;
-    #define BCES_PLATFORM__POSIX_THREADS 1
+    #define BCES_PLATFORM_POSIX_THREADS 1
 
     #endif
 
-    #ifdef BSLS_PLATFORM__OS_WINDOWS
+    #ifdef BSLS_PLATFORM_OS_WINDOWS
 
     typedef Win32Threads ThreadPolicy;
-    #define BCES_PLATFORM__WIN32_THREADS 1
+    #define BCES_PLATFORM_WIN32_THREADS 1
 
     #endif
 
@@ -75,9 +75,9 @@ struct bces_Platform {
     struct PosixSemaphore {};
     struct Win32Semaphore {};
 
-    #ifdef BSLS_PLATFORM__OS_UNIX
+    #ifdef BSLS_PLATFORM_OS_UNIX
 
-    #ifdef BSLS_PLATFORM__OS_AIX
+    #ifdef BSLS_PLATFORM_OS_AIX
 
     // The POSIX semaphore on IBM has a maximum count of 32k.  Other POSIX
     // implementations support counts up to 'INT_MAX', and, historically,
@@ -95,7 +95,7 @@ struct bces_Platform {
 
     #endif
 
-    #ifdef BSLS_PLATFORM__OS_WINDOWS
+    #ifdef BSLS_PLATFORM_OS_WINDOWS
 
     typedef Win32Semaphore SemaphorePolicy;
 
@@ -107,14 +107,14 @@ struct bces_Platform {
     struct PthreadTimedSemaphore {};
     struct Win32TimedSemaphore {};
 
-    #ifdef BSLS_PLATFORM__OS_UNIX
+    #ifdef BSLS_PLATFORM_OS_UNIX
 
-    #if defined(BSLS_PLATFORM__OS_SUNOS)   || \
-        defined(BSLS_PLATFORM__OS_SOLARIS) || \
-        defined(BSLS_PLATFORM__OS_LINUX)      \
+    #if defined(BSLS_PLATFORM_OS_SUNOS)   || \
+        defined(BSLS_PLATFORM_OS_SOLARIS) || \
+        defined(BSLS_PLATFORM_OS_LINUX)      \
 
     typedef PosixAdvTimedSemaphore TimedSemaphorePolicy;
-    #define BCES_PLATFORM__POSIXADV_TIMEDSEMAPHORE 1
+    #define BCES_PLATFORM_POSIXADV_TIMEDSEMAPHORE 1
 
     #else  // 'sem_timedwait' not available; use custom pthread-based semaphore
 
@@ -124,7 +124,7 @@ struct bces_Platform {
 
     #endif
 
-    #ifdef BSLS_PLATFORM__OS_WINDOWS
+    #ifdef BSLS_PLATFORM_OS_WINDOWS
 
     typedef Win32TimedSemaphore TimedSemaphorePolicy;
 

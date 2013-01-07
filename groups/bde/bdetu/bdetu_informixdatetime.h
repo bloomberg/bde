@@ -119,7 +119,7 @@ bdetu_InformixDatetime::convertToInformixTime(char                 *result,
 {
     BSLS_ASSERT_SAFE(result);
 
-    #if defined(BSLS_PLATFORM__CMP_MSVC)
+    #if defined(BSLS_PLATFORM_CMP_MSVC)
     sprintf_s
     #else
     snprintf
@@ -160,7 +160,7 @@ int bdetu_InformixDatetime::convertFromInformixTime(bdet_Datetime *result,
     int year, month,  day;
     int hour, minute, second, hundredth;
 
-    #if defined(BSLS_PLATFORM__CMP_MSVC)
+    #if defined(BSLS_PLATFORM_CMP_MSVC)
         // sscanf_s and sscanf are equivalent for this purpose, and sscanf_s
         // is not deprecated on MSVC
         #define bdetu_idt_sscanf sscanf_s

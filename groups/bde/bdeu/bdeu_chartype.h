@@ -344,7 +344,7 @@ struct bdeu_CharType {
         BDEU_ALL,            // [\0-\377]
         BDEU_NONE            // []
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , UPPER  = BDEU_UPPER
       , LOWER  = BDEU_LOWER
       , ALPHA  = BDEU_ALPHA
@@ -361,7 +361,7 @@ struct bdeu_CharType {
       , ALUND  = BDEU_ALUND
       , ALL    = BDEU_ALL
       , NONE   = BDEU_NONE
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     enum { BDEU_NUM_CATEGORIES = BDEU_NONE + 1 };

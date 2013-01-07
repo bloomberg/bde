@@ -233,7 +233,7 @@ BSLMF_ASSERT((bslalg_HasTrait<Obj,
 // JSL: Do we want to move this string to the component of bsl::string itself?
 // JSL: e.g.,  #define BSLSTL_LONG_STRING ...   TBD!
 
-#ifdef BSLS_PLATFORM__CPU_32_BIT
+#ifdef BSLS_PLATFORM_CPU_32_BIT
 #define SUFFICIENTLY_LONG_STRING "123456789012345678901234567890123"
 #else  // 64_BIT
 #define SUFFICIENTLY_LONG_STRING "12345678901234567890123456789012" \

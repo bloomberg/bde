@@ -7,7 +7,7 @@ BDES_IDENT_RCSID(bcemt_timedsemaphoreimpl_posixadv_cpp,"$Id$ $CSID$")
 #include <bcemt_muteximpl_pthread.h>   // for testing only
 #include <bcemt_threadutil.h>          // for testing only
 
-#ifdef BCES_PLATFORM__POSIXADV_TIMEDSEMAPHORE
+#ifdef BCES_PLATFORM_POSIXADV_TIMEDSEMAPHORE
 
 #include <bdet_timeinterval.h>
 
@@ -56,7 +56,7 @@ bcemt_TimedSemaphoreImpl<bces_Platform::PosixAdvTimedSemaphore>::wait()
 
 }  // close namespace BloombergLP
 
-#endif  // BCES_PLATFORM__POSIXADV_TIMEDSEMAPHORE
+#endif  // BCES_PLATFORM_POSIXADV_TIMEDSEMAPHORE
 
 // ---------------------------------------------------------------------------
 // NOTICE:

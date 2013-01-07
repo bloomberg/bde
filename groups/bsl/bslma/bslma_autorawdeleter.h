@@ -12,9 +12,9 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslma::AutoRawDeleter: range proctor to manage a sequence of objects
 //
-//@AUTHOR: Arthur Chiu (achiu21)
-//
 //@SEE_ALSO: bslma_rawdeleterproctor, bslma_rawdeleterguard
+//
+//@AUTHOR: Arthur Chiu (achiu21)
 //
 //@DESCRIPTION: This component provides a range proctor class template to
 // manage a sequence of (otherwise-unmanaged) objects of parameterized 'TYPE'
@@ -575,6 +575,7 @@ int AutoRawDeleter<TYPE, ALLOCATOR>::length() const
 
 }  // close package namespace
 
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
@@ -584,6 +585,7 @@ int AutoRawDeleter<TYPE, ALLOCATOR>::length() const
 #endif
 #define bslma_AutoRawDeleter bslma::AutoRawDeleter
     // This alias is defined for backward compatibility.
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

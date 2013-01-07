@@ -15,7 +15,7 @@ BSLS_IDENT("$Id$ $CSID$")
 // checked against those those passed in by the build tool.
 
 // Ensure compiler flags are set when they have to be.
-#if defined(BSLS_PLATFORM__CMP_MSVC)
+#if defined(BSLS_PLATFORM_CMP_MSVC)
     #if defined(BDE_BUILD_TARGET_EXC) && !defined(_CPPUNWIND)
         #error "Exception build without exception handling enabled (/GX)."
     #endif

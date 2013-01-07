@@ -147,7 +147,7 @@ BSLS_IDENT("$Id: $")
 // allocation request; 0 is returned if the request cannot be satisfied:
 //..
 //  if (*cursor + offset + size > bufferSize) {
-//      return 0;                                                 // RETURN
+//      return 0;                                                     // RETURN
 //  }
 //
 //  void *result = &buffer[*cursor + offset];
@@ -164,7 +164,9 @@ BSLS_IDENT("$Id: $")
 // internally-managed buffers.  For an example, see the 'bslma_bufferimputil'
 // component.
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 #ifndef INCLUDED_BSLS_ALIGNMENTFROMTYPE
 #include <bsls_alignmentfromtype.h>
@@ -178,10 +180,6 @@ BSLS_IDENT("$Id: $")
 #include <bsls_alignmenttotype.h>
 #endif
 
-#ifndef INCLUDED_BSLS_ALIGNMENTUTIL
-#include <bsls_alignmentutil.h>
-#endif
-
 #ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
 #endif
@@ -191,6 +189,8 @@ BSLS_IDENT("$Id: $")
 #define INCLUDED_CSTDDEF
 #endif
 
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
 // Temporarily define the legacy 'bsls_AlignmentOf' to refer to its
 // replacement, 'bsls::AlignmentFromType'.
 
@@ -198,7 +198,12 @@ BSLS_IDENT("$Id: $")
 #define bsls_AlignmentOf bsls::AlignmentFromType
 #endif
 
+// required for some code below wrapped in ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#ifndef INCLUDED_BSLS_ALIGNMENTUTIL
+#include <bsls_alignmentutil.h>
 #endif
+
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 namespace BloombergLP {
 
@@ -225,7 +230,7 @@ struct Alignment {
             // two that evenly divides the size (in bytes) of the block.
     };
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
     enum {
         // Define the minimum alignment that satisfies all types.
         //
@@ -247,7 +252,7 @@ struct Alignment {
 
         MaxAlignedType d_align;
     };
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
     // CLASS METHODS
     static const char *toAscii(Alignment::Strategy value);
@@ -263,7 +268,7 @@ struct Alignment {
         //  NATURAL
         //..
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
     static int calculateAlignmentFromSize(int size);
         // Calculate a usable alignment for an object of specified 'size' bytes
         // in the absence of compile-time knowledge of the object's alignment
@@ -312,12 +317,12 @@ struct Alignment {
         // and 'false' otherwise.
         //
         // DEPRECATED: Replaced by 'AlignmentUtil::is8ByteAligned'.
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 };
 
 }  // close package namespace
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
 namespace bsls {
 
@@ -363,14 +368,16 @@ bool Alignment::is8ByteAligned(const void *address)
 
 }  // close package namespace
 
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
 
 typedef bsls::Alignment bsls_Alignment;
     // This alias is defined for backward compatibility.
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

@@ -198,7 +198,7 @@ class bdesb_FixedMemOutput {
         // Return the current default locale.  Note that locales are not
         // supported by this component.
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
     bsl::streamsize bufSize() const;
         // Return the number of characters in the buffer held by this stream
@@ -207,7 +207,7 @@ class bdesb_FixedMemOutput {
         //
         // DEPRECATED:  Use the 'capacity' method instead.
 
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 };
 
@@ -328,7 +328,7 @@ bsl::streamsize bdesb_FixedMemOutput::length() const
     return bsl::streamsize(d_pos);
 }
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
 inline
 bsl::streamsize bdesb_FixedMemOutput::bufSize() const
@@ -336,7 +336,7 @@ bsl::streamsize bdesb_FixedMemOutput::bufSize() const
     return d_capacity;
 }
 
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 }  // closing namespace BloombergLP
 

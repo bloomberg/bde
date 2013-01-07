@@ -1553,7 +1553,7 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(i, TOT_SECS  == X.totalSeconds());
                 LOOP_ASSERT(i, TOT_MSECS == X.totalMilliseconds());
 
-#if defined(BSLS_PLATFORM__CPU_X86) && defined(BSLS_PLATFORM__CMP_GNU)
+#if defined(BSLS_PLATFORM_CPU_X86) && defined(BSLS_PLATFORM_CMP_GNU)
     // This is necessary because on linux, for some inexplainable reason,
     // even 'X.totalSecondsAsDouble() == X.totalSecondsAsDouble()' returns
     // false.  Under gcc 4.3.5, it's even necessary to declare 'SECONDS' as

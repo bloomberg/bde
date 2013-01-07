@@ -9,11 +9,9 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Define the namespace 'native_std' as an alias for '::std'.
 //
-//@NAMESPACES: native_std
+//@CLASSES:
 //
-//@MACROS: BSL_DEFINED_NATIVE_STD
-//
-//@SEE_ALSO: 'bsl_stdhdrs_prologue.h'
+//@SEE_ALSO: bsl_stdhdrs_prologue
 //
 //@AUTHOR: Pablo Halpern (phalpern), Arthur Chiu (achiu21)
 //

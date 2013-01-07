@@ -389,12 +389,12 @@ void bdeu_Print::printPtr(bsl::ostream& stream, const void *voidPointer)
     char buf[BDEU_PRINT_BUF_SIZE];
     char *bufp = buf;
 
-    #if defined(BSLS_PLATFORM__CPU_32_BIT)
+    #if defined(BSLS_PLATFORM_CPU_32_BIT)
         // 32 bit pointer
         bsl::sprintf(buf, "%x", (unsigned int)voidPointer);
     #else
         // 64 bit pointer
-    #if defined(BSLS_PLATFORM__CMP_MSVC)
+    #if defined(BSLS_PLATFORM_CMP_MSVC)
         bsl::sprintf(buf, "%I64x", voidPointer);
     #else
         bsl::sprintf(buf, "%llx", (unsigned long long) voidPointer);

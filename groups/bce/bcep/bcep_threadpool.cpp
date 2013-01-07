@@ -19,7 +19,7 @@ BDES_IDENT_RCSID(bcep_threadpool_cpp,"$Id$ $CSID$")
 #include <bcemt_lockguard.h>  // for testing only
 #include <bcemt_thread.h>     // for testing only
 
-#if defined(BSLS_PLATFORM__OS_UNIX)
+#if defined(BSLS_PLATFORM_OS_UNIX)
 #include <bsl_c_signal.h>              // sigfillset
 #endif
 
@@ -92,7 +92,7 @@ void bcep_ThreadPool::doEnqueueJob(const Job& job)
     }
 }
 
-#if defined(BSLS_PLATFORM__OS_UNIX)
+#if defined(BSLS_PLATFORM_OS_UNIX)
 void bcep_ThreadPool::initBlockSet()
 {
     sigfillset(&d_blockSet);
@@ -105,7 +105,7 @@ void bcep_ThreadPool::initBlockSet()
         SIGSYS,
         SIGABRT,
         SIGTRAP,
-    #if !defined(BSLS_PLATFORM__OS_CYGWIN) || defined(SIGIOT)
+    #if !defined(BSLS_PLATFORM_OS_CYGWIN) || defined(SIGIOT)
         SIGIOT
     #endif
     };
@@ -122,7 +122,7 @@ int bcep_ThreadPool::startNewThread()
 {
     bcemt_ThreadUtil::Handle handle;
 
-#if defined(BSLS_PLATFORM__OS_UNIX)
+#if defined(BSLS_PLATFORM_OS_UNIX)
     // block all synchronous signals
     sigset_t oldset;
 
@@ -132,7 +132,7 @@ int bcep_ThreadPool::startNewThread()
     int rc = bcemt_ThreadUtil::create(&handle,d_threadAttributes,
                                       bcep_ThreadPoolEntry, this);
 
-#if defined(BSLS_PLATFORM__OS_UNIX)
+#if defined(BSLS_PLATFORM_OS_UNIX)
     // Restore the mask
     pthread_sigmask(SIG_SETMASK, &oldset, &d_blockSet);
 #endif
@@ -297,7 +297,7 @@ bcep_ThreadPool::bcep_ThreadPool(const bcemt_Attribute& threadAttributes,
     d_threadAttributes.setDetachedState(
                                        bcemt_Attribute::BCEMT_CREATE_DETACHED);
 
-#if defined(BSLS_PLATFORM__OS_UNIX)
+#if defined(BSLS_PLATFORM_OS_UNIX)
     initBlockSet();
 #endif
 }

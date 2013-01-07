@@ -9,14 +9,14 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Support efficient memory allocations from a user-supplied buffer.
 //
-//@DEPRECATED: Use 'bdema_bufferedsequentialallocator' instead.
+//@INTERNAL_DEPRECATED: Use 'bdema_bufferedsequentialallocator' instead.
 //
 //@CLASSES:
 //  bslma::BufferAllocator: memory allocator from user-supplied buffer
 //
-//@AUTHOR: John Lakos (jlakos)
-//
 //@SEE_ALSO: bdema_bufferedsequentialallocator, bdema_bufferimputil
+//
+//@AUTHOR: John Lakos (jlakos)
 //
 //@DESCRIPTION: This component provides an allocator, 'bslma::BufferAllocator',
 // that implements the 'bslma::Allocator' protocol and sequentially allocates
@@ -43,25 +43,24 @@ BSLS_IDENT("$Id: $")
 ///------------------
 // The 'bslma::BufferAllocator' allocates memory using one of the two alignment
 // strategies: 1) MAXIMUM ALIGNMENT or 2) NATURAL ALIGNMENT.
-//..
-//  MAXIMUM ALIGNMENT: This strategy always allocates memory aligned with
-//  the most restrictive alignment on the host platform.  The value is
-//  defined in 'bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT'.
 //
-//  NATURAL ALIGNMENT: This strategy allocates memory whose alignment
-//  depends on the requested number of bytes.  An object of a fundamental
-//  type ('int', etc.) is *naturally* *aligned* when it's size evenly
-//  divides its address.  An object of an aggregate type has natural
-//  alignment if the alignment of the most-restrictively aligned sub-object
-//  evenly divides the address of the aggregate.  Natural alignment is
-//  always at least as restrictive as the compiler's required alignment.
-//  When only the size of an aggregate is known, and not its composition,
-//  we compute the alignment by finding the largest integral power of 2 (up
-//  to and including 'bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT') that divides
-//  the requested (non-zero) number of bytes.  This computed alignment is
-//  guaranteed to be at least as restrictive as any sub-object within the
-//  aggregate.
-//..
+//: 1 MAXIMUM ALIGNMENT: This strategy always allocates memory aligned with the
+//:   most restrictive alignment on the host platform.  The value is defined in
+//:   'bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT'.
+//:
+//: 2 NATURAL ALIGNMENT: This strategy allocates memory whose alignment depends
+//:   on the requested number of bytes.  An object of a fundamental type
+//:   ('int', etc.) is *naturally* *aligned* when it's size evenly divides its
+//:   address.  An object of an aggregate type has natural alignment if the
+//:   alignment of the most-restrictively aligned sub-object evenly divides the
+//:   address of the aggregate.  Natural alignment is always at least as
+//:   restrictive as the compiler's required alignment.  When only the size of
+//:   an aggregate is known, and not its composition, we compute the alignment
+//:   by finding the largest integral power of 2 (up to and including
+//:   'bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT') that divides the requested
+//:   (non-zero) number of bytes.  This computed alignment is guaranteed to be
+//:   at least as restrictive as any sub-object within the aggregate.
+//
 ///Usage
 ///-----
 // The 'bslma::BufferAllocator' class defined in this component is commonly
@@ -201,6 +200,10 @@ BSLS_IDENT("$Id: $")
 // Note that in the 'main' function above, 'memory' does not need to be aligned
 // because 'bslma::BufferAllocator::allocate' internally performs alignment for
 // each requested memory block based on the allocator's alignment strategy.
+
+#ifdef BDE_OMIT_TRANSITIONAL // DEPRECATED
+#error "bslma_bufferallocator is deprecated"
+#endif
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
@@ -370,12 +373,14 @@ void BufferAllocator::deallocate(void *)
 
 }  // close package namespace
 
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
 
 typedef bslma::BufferAllocator bslma_BufferAllocator;
     // This alias is defined for backward compatibility.
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

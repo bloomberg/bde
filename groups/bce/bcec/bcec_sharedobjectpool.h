@@ -527,7 +527,7 @@ void bcec_SharedObjectPool<TYPE, CREATOR, RESETTER>::constructRepObject(
 }
 
 // CREATORS
-#if defined(BSLS_PLATFORM__CMP_MSVC)
+#if defined(BSLS_PLATFORM_CMP_MSVC)
 // Visual C++ complains about any use of the 'this' pointer in a member
 // initializer of a constructor.  The use cases below seem perfectly safe and
 // correct, but there is no way to eliminate this warning from a prominent
@@ -595,7 +595,7 @@ bcec_SharedObjectPool<TYPE, CREATOR, RESETTER>::bcec_SharedObjectPool(
 {
 }
 
-#if defined(BSLS_PLATFORM__CMP_MSVC)
+#if defined(BSLS_PLATFORM_CMP_MSVC)
 // Restore warnings so as not to affect their state in other files.
 #pragma warning(pop)
 #endif

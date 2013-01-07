@@ -3690,7 +3690,7 @@ int main(int argc, char *argv[])
                 AggOption::AllocationStrategy mode =
                                              (AggOption::AllocationStrategy) i;
 
-#if !defined(BSLS_PLATFORM__CMP_MSVC)
+#if !defined(BSLS_PLATFORM_CMP_MSVC)
                 BEGIN_BSLMA_EXCEPTION_TEST {
 #endif
                 for (int j = 0; j < NUM_CTYPES; ++j) {
@@ -3787,7 +3787,7 @@ int main(int argc, char *argv[])
                                    type));
                     ASSERT(!isNull(Y, 0));
                 }
-#if !defined(BSLS_PLATFORM__CMP_MSVC)
+#if !defined(BSLS_PLATFORM_CMP_MSVC)
                 } END_BSLMA_EXCEPTION_TEST
 #endif
             }
@@ -4601,7 +4601,7 @@ int main(int argc, char *argv[])
                     : (i == 2) ? AggOption::BDEM_WRITE_ONCE
                     :            AggOption::BDEM_SUBORDINATE;
 
-#if !defined(BSLS_PLATFORM__CMP_MSVC) || !defined(BDE_BUILD_TARGET_OPT)
+#if !defined(BSLS_PLATFORM_CMP_MSVC) || !defined(BDE_BUILD_TARGET_OPT)
                 BEGIN_BSLMA_EXCEPTION_TEST {
 #endif
                   // set up our test allocator based on the alloc strategy
@@ -4627,7 +4627,7 @@ int main(int argc, char *argv[])
                   LOOP_ASSERT(i,0 == array1.numSelections());
                   LOOP_ASSERT(i,0 == array2.numSelections());
                   LOOP_ASSERT(i,0 == array3.numSelections());
-#if !defined(BSLS_PLATFORM__CMP_MSVC) || !defined(BDE_BUILD_TARGET_OPT)
+#if !defined(BSLS_PLATFORM_CMP_MSVC) || !defined(BDE_BUILD_TARGET_OPT)
                 } END_BSLMA_EXCEPTION_TEST
 #endif
             }
@@ -4656,7 +4656,7 @@ int main(int argc, char *argv[])
                     Catalog cat;
                     populateCatalog(&cat,SPEC);
 
-#if !defined(BSLS_PLATFORM__CMP_MSVC) || !defined(BDE_BUILD_TARGET_OPT)
+#if !defined(BSLS_PLATFORM_CMP_MSVC) || !defined(BDE_BUILD_TARGET_OPT)
                     BEGIN_BSLMA_EXCEPTION_TEST {
 #endif
                       // set up our test allocator based on the alloc
@@ -4698,7 +4698,7 @@ int main(int argc, char *argv[])
                           LOOP3_ASSERT(i, j, k, DESC ==
                                        CH.selectionDescriptor(k));
                       }
-#if !defined(BSLS_PLATFORM__CMP_MSVC) || !defined(BDE_BUILD_TARGET_OPT)
+#if !defined(BSLS_PLATFORM_CMP_MSVC) || !defined(BDE_BUILD_TARGET_OPT)
                     } END_BSLMA_EXCEPTION_TEST
 #endif
                 }

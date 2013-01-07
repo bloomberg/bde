@@ -23,9 +23,9 @@ using namespace bsl;  // automatically added by script
 // component.  Forwarding is implemented using 'typedef' for classes, and by
 // '#define' for macros.
 //
-// When 'BSL_LEGACY' is defined as 0, then 'BDE_ASSERT_H' and 'BDE_ASSERT_CPP',
-// the macros defined in this component, are not defined.  Consequently, there
-// is nothing to test.
+// When 'BDE_OMIT_INTERNAL_DEPRECATED' is defined, then 'BDE_ASSERT_H' and
+// 'BDE_ASSERT_CPP', the macros defined in this component, are not defined.
+// Consequently, there is nothing to test.
 //
 // ----------------------------------------------------------------------------
 // [ 2] bdes_Assert
@@ -99,7 +99,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
     switch (test) { case 0:  // Zero is always the leading case.
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       case 2: {
         // --------------------------------------------------------------------
         // CORRECTNESS OF TYPEDEFS
@@ -304,12 +304,12 @@ int main(int argc, char *argv[])
                           << "--------------" << endl;
 
         if (veryVerbose) cout
-           << "\t'BSL_LEGACY' is defined as " << BSL_LEGACY << "."     << endl
+           << "\t'BDE_OMIT_INTERNAL_DEPRECATED' is defined." << endl
            << "\t'BDE_ASSERT_H' and 'BDE_ASSERT_CPP' are not defined." << endl
            << "\t Nothing to test."                                    << endl;
 
       } break;
-#endif // !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

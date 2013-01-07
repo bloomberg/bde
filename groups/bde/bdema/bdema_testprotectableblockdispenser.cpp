@@ -172,7 +172,7 @@ void printBadBlock(const Align                        *align,
         }
         if (numBytes != block.size()) {
 
-#ifdef BSLS_PLATFORM__CPU_64_BIT
+#ifdef BSLS_PLATFORM_CPU_64_BIT
             std::printf(
   "*** byte count %d doesn't match descriptor count %lld at address %p *** \n",
                         numBytes, (long long) block.size(), (void *)align);
@@ -295,7 +295,7 @@ bdema_TestProtectableBlockDispenser::allocate(size_type numBytes)
         ++d_numErrors;
         if (!d_quietFlag) {
 
-#ifdef BSLS_PLATFORM__CPU_64_BIT
+#ifdef BSLS_PLATFORM_CPU_64_BIT
             std::printf("*** Invalid (negative) allocation size %lld ***\n",
                         (long long) numBytes);
 #else

@@ -152,7 +152,7 @@ static void formatInvalidMemoryBlock(Align                *address,
         }
     }
     else if (numBytes <= 0) {
-#ifdef BSLS_PLATFORM__CPU_64_BIT
+#ifdef BSLS_PLATFORM_CPU_64_BIT
         std::printf("*** Invalid (non-positive) byte count %lld at address"
                     " %p. *** \n",
                     static_cast<bsls::Types::Int64>(numBytes),
@@ -169,7 +169,7 @@ static void formatInvalidMemoryBlock(Align                *address,
                     static_cast<void *>(payload));
     }
     else if (underrunBy) {
-#ifdef BSLS_PLATFORM__CPU_64_BIT
+#ifdef BSLS_PLATFORM_CPU_64_BIT
         std::printf("*** Memory corrupted at %d bytes before %lld byte"
                     " segment at %p. ***\n",
                     underrunBy,
@@ -187,7 +187,7 @@ static void formatInvalidMemoryBlock(Align                *address,
         formatBlock(payload - PADDING_SIZE, PADDING_SIZE);
     }
     else if (overrunBy) {
-#ifdef BSLS_PLATFORM__CPU_64_BIT
+#ifdef BSLS_PLATFORM_CPU_64_BIT
         std::printf("*** Memory corrupted at %d bytes after %lld byte"
                     " segment at %p. ***\n",
                     overrunBy,
@@ -508,7 +508,7 @@ void *TestAllocator::allocate(size_type size)
     if (size < 0) {
         ++d_numMismatches;
         if (!d_quietFlag) {
-#ifdef BSLS_PLATFORM__CPU_64_BIT
+#ifdef BSLS_PLATFORM_CPU_64_BIT
             std::printf("*** Invalid (negative) allocation size %lld ***\n",
                         static_cast<bsls::Types::Int64>(size));
 #else
@@ -584,7 +584,7 @@ void *TestAllocator::allocate(size_type size)
             std::printf(" %s", d_name_p);
         }
 
-#ifdef BSLS_PLATFORM__CPU_64_BIT
+#ifdef BSLS_PLATFORM_CPU_64_BIT
         std::printf(" [%lld]: Allocated %lld byte%sat %p.\n",
                     allocationIndex,
                     static_cast<bsls::Types::Int64>(size),
@@ -739,7 +739,7 @@ void TestAllocator::deallocate(void *address)
             std::printf(" %s", d_name_p);
         }
 
-#ifdef BSLS_PLATFORM__CPU_64_BIT
+#ifdef BSLS_PLATFORM_CPU_64_BIT
         std::printf(" [%lld]: Deallocated %lld byte%sat %p.\n",
                     allocationIndex,
                     static_cast<bsls::Types::Int64>(size),

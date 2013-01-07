@@ -40,7 +40,7 @@ BDES_IDENT_RCSID(baesu_stacktraceresolverimpl_xcoff_cpp,"$Id$ $CSID$")
 #undef __XCOFF64__
 #undef __XCOFF32__
 
-#ifdef BSLS_PLATFORM__CPU_64_BIT
+#ifdef BSLS_PLATFORM_CPU_64_BIT
 # define __XCOFF64__
 #else
 # define __XCOFF32__

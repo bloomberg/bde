@@ -19,7 +19,7 @@ BSLS_IDENT("$Id: $")
 // below), 'bslstl::StringRefData', that represents a reference to character
 // string data.  Note that 'bslstl::StringRefData' is intended for use as a
 // base class for 'bslstl::StringRef' and as parameter of 'bsl::string'
-// constructor, enabling a convertion from 'bslstl::StringRef' to 'bsl::string'
+// constructor, enabling a conversion from 'bslstl::StringRef' to 'bsl::string'
 // without having a cyclic dependency among these three classes.
 //
 // The dependencies between these components are shown on the following
@@ -271,6 +271,7 @@ const CHAR_TYPE *StringRefData<CHAR_TYPE>::end() const
 
 }  // close package namespace
 
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
@@ -280,6 +281,7 @@ const CHAR_TYPE *StringRefData<CHAR_TYPE>::end() const
 #endif
 #define bslstl_StringRefData bslstl::StringRefData
     // This alias is defined for backward compatibility.
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

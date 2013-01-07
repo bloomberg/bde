@@ -78,7 +78,7 @@ struct bdet_MonthOfYear {
         BDET_NOV,     BDET_NOVEMBER       = BDET_NOV,
         BDET_DEC,     BDET_DECEMBER       = BDET_DEC
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , JAN = BDET_JAN
       , FEB = BDET_FEB
       , MAR = BDET_MAR
@@ -103,15 +103,15 @@ struct bdet_MonthOfYear {
       , OCTOBER   = BDET_OCTOBER
       , NOVEMBER  = BDET_NOVEMBER
       , DECEMBER  = BDET_DECEMBER
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     enum {
          BDET_LENGTH = BDET_DEC
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
        , LENGTH      = BDET_LENGTH
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
         // Define 'LENGTH' to be the number of consecutively valued enumerators
         // in the range '[ BDET_JAN .. BDET_DEC ]'.

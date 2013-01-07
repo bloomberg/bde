@@ -67,7 +67,7 @@ BSLS_IDENT("$Id: $")
 //
 // The 'bsl::hash' template class is specialized for 'bslstl::StringRef' to
 // enable the use of 'bslstl::StringRef' with STL hash containers (e.g.,
-// 'bsl::hash_set' and 'bsl::hash_map').
+// 'bsl::unordered_set' and 'bsl::unordered_map').
 //
 ///Efficiency and Usage Considerations
 ///-----------------------------------
@@ -320,11 +320,11 @@ class StringRefImp : public StringRefData<CHAR_TYPE> {
         // Write the value of this string reference to the specified output
         // 'stream' in the unformatted way.
 
-    template <typename C>
+    template <typename OTHER_CHAR_TYPE>
     friend
-    std::basic_ostream<C>& operator<<(
-                                     std::basic_ostream<C>&         stream,
-                                     const bslstl::StringRefImp<C>& stringRef);
+    std::basic_ostream<OTHER_CHAR_TYPE>& operator<<(
+                       std::basic_ostream<OTHER_CHAR_TYPE>&         stream,
+                       const bslstl::StringRefImp<OTHER_CHAR_TYPE>& stringRef);
 
   public:
     // PUBLIC TYPES
@@ -1336,6 +1336,7 @@ bslstl::operator<<(std::basic_ostream<CHAR_TYPE>& stream,
     return stream;
 }
 
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
@@ -1357,6 +1358,7 @@ bslstl::operator<<(std::basic_ostream<CHAR_TYPE>& stream,
 #endif
 #define bslstl_StringRef bslstl::StringRef
     // This alias is defined for backward compatibility.
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 
@@ -1370,8 +1372,8 @@ template <typename CHAR_TYPE>
 struct hash<BloombergLP::bslstl::StringRefImp<CHAR_TYPE> > {
     // This template specialization enables use of 'bslstl::StringRefImp'
     // within STL hash containers, for example,
-    // 'bsl::hash_set<bslstl::StringRefImp>' and
-    // 'bsl::hash_map<bslstl::StringRefImp, Type>' for some type 'Type'.
+    // 'bsl::unordered_set<bslstl::StringRefImp>' and
+    // 'bsl::unordered_map<bslstl::StringRefImp, Type>' for some type 'Type'.
 
     // ACCESSORS
     std::size_t

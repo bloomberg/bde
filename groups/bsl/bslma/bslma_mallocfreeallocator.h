@@ -12,9 +12,9 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslma::MallocFreeAllocator: support malloc/free style allocate/deallocate
 //
-//@AUTHOR: Arthur Chiu (achiu21)
-//
 //@SEE_ALSO: bslma_newdeleteallocator, bslma_allocator
+//
+//@AUTHOR: Arthur Chiu (achiu21)
 //
 //@DESCRIPTION: This component provides an allocator,
 // 'bslma::MallocFreeAllocator', that implements the 'bslma::Allocator'
@@ -235,12 +235,14 @@ void MallocFreeAllocator::deallocate(void *address)
 
 }  // close package namespace
 
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
 
 typedef bslma::MallocFreeAllocator bslma_MallocFreeAllocator;
     // This alias is defined for backward compatibility.
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

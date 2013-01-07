@@ -19,7 +19,7 @@ BSLS_IDENT("$Id$ $CSID$")
 // access to conforming C++0x compilers.
 //# define BSLSTL_STDEXCEPTUTIL_NORETURN [[noreturn]]
 
-#if defined(BSLS_PLATFORM__CMP_MSVC)
+#if defined(BSLS_PLATFORM_CMP_MSVC)
 #   define BSLSTL_STDEXCEPTUTIL_NORETURN __declspec(noreturn)
 #else
 #   define BSLSTL_STDEXCEPTUTIL_NORETURN

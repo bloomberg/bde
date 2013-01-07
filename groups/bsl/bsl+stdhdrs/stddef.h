@@ -8,7 +8,7 @@
 BSLS_IDENT("$Id: $")
 
 /*
-//@PURPOSE: Provide functionality of the corresponding C++ Standard header
+//@PURPOSE: Provide functionality of the corresponding C++ Standard header.
 //
 //@SEE_ALSO: package bsl+stdhdrs
 //
@@ -24,11 +24,15 @@ BSLS_IDENT("$Id: $")
 */
 
 /*
-// Note that 'stddef.h' is meant for multiple inclusion on linux - therefore
-// only the ident is protected by the guard.
+// Note that 'stddef.h' is meant for multiple inclusion on Linux, so only the
+// ident is protected by the include guard.
 */
 
 #endif  /* INCLUDED_NATIVE_C_STDDEF */
+
+#ifndef INCLUDED_BSLS_COMPILERFEATURES
+#include <bsls_compilerfeatures.h>
+#endif
 
 #if !defined(BSL_OVERRIDES_STD) || !defined(__cplusplus)
 
@@ -36,8 +40,7 @@ BSLS_IDENT("$Id: $")
 #   include <bsl_stdhdrs_incpaths.h>
 #   endif
 
-#   if defined(BSLS_PLATFORM__CMP_GNU) && \
-                                        (BSLS_PLATFORM__CMP_VER_MAJOR >= 40300)
+#   if defined(BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT)
 #     include_next <stddef.h>
 #   else
 #     include BSL_NATIVE_C_LIB_HEADER(stddef.h)
@@ -58,8 +61,7 @@ BSLS_IDENT("$Id: $")
 #   include <bsl_stdhdrs_incpaths.h>
 #   endif
 
-#   if defined(BSLS_PLATFORM__CMP_GNU) && \
-                                        (BSLS_PLATFORM__CMP_VER_MAJOR >= 40300)
+#   if defined(BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT)
 #     include_next <stddef.h>
 #   else
 #     include BSL_NATIVE_C_LIB_HEADER(stddef.h)
@@ -67,7 +69,7 @@ BSLS_IDENT("$Id: $")
 
 // On SUN, 'stddef.h' (a C header) defines 'size_t'.  This odd implementation
 // forces the following 'using' directive.
-#   ifdef BSLS_PLATFORM__CMP_SUN
+#   ifdef BSLS_PLATFORM_CMP_SUN
 
 // This C header file might be included within an 'extern "C"' block.  To avoid
 // defining C++ symbols in an 'extern "C"' block, wrap the C++ code with an
@@ -82,7 +84,7 @@ extern "C++" {
 
 }  // extern "C++"
 
-#   endif  // BSLS_PLATFORM__CMP_SUN
+#   endif  // BSLS_PLATFORM_CMP_SUN
 
 #   ifdef BSL_STDHDRS_EPILOGUE_RUN_BY_c_stddef
 #   undef BSL_STDHDRS_EPILOGUE_RUN_BY_c_stddef
@@ -92,12 +94,12 @@ extern "C++" {
 #endif  /* BSL_OVERRIDES_STD */
 
 /*
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2009
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------
 */

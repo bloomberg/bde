@@ -181,6 +181,10 @@ BDES_IDENT("$Id: $")
 #include <bdeut_stringref.h>
 #endif
 
+#ifndef INCLUDED_BDEUT_VARIANT
+#include <bdeut_variant.h>
+#endif
+
 #ifndef INCLUDED_BDESB_MEMOUTSTREAMBUF
 #include <bdesb_memoutstreambuf.h>
 #endif
@@ -223,7 +227,7 @@ class bdem_BerDecoder {
     // PRIVATE TYPES
     class MemOutStream : public bsl::ostream {
         // This class provides stream for logging using 'bdesb_MemOutStreamBuf'
-        // as a streambuf.  The logging stream is created on demand, i.e.
+        // as a streambuf.  The logging stream is created on demand, i.e.,
         // during the first attempt to log message.
         bdesb_MemOutStreamBuf d_sb;
 

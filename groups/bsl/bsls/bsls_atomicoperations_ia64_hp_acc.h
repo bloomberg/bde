@@ -2,7 +2,12 @@
 #ifndef INCLUDED_BSLS_ATOMICOPERATIONS_IA64_HP_ACC
 #define INCLUDED_BSLS_ATOMICOPERATIONS_IA64_HP_ACC
 
-//@PURPOSE: Provide implentations of atomic operations for HPUX/IA64.
+#ifndef INCLUDED_BSLS_IDENT
+#include <bsls_ident.h>
+#endif
+BSLS_IDENT("$Id: $")
+
+//@PURPOSE: Provide implementations of atomic operations for HPUX/IA64.
 //
 //@CLASSES:
 //  bsls::AtomicOperations_IA64_HP_ACC: atomics implementation for HPUX/IA64.
@@ -12,22 +17,21 @@
 //@DESCRIPTION: This component provides classes necessary to implement atomics
 // on the HPUX/IA64 platform in 32 and 64bit modes.  The classes are for
 // private use only.  See 'bsls_atomicoperations' and 'bsls_atomic' for the
-// public inteface to atomics.
-
-#ifndef INCLUDED_BSLS_IDENT
-#include <bsls_ident.h>
-#endif
-BSLS_IDENT("$Id: $")
-
-#ifndef INCLUDED_BSLS_TYPES
-#include <bsls_types.h>
-#endif
+// public interface to atomics.
 
 #ifndef INCLUDED_BSLS_ATOMICOPERATIONS_DEFAULT
 #include <bsls_atomicoperations_default.h>
 #endif
 
-#if defined(BSLS_PLATFORM__CPU_IA64) && defined(BSLS_PLATFORM__OS_HPUX)
+#ifndef INCLUDED_BSLS_PLATFORM
+#include <bsls_platform.h>
+#endif
+
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
+#endif
+
+#if defined(BSLS_PLATFORM_CPU_IA64) && defined(BSLS_PLATFORM_OS_HPUX)
 
 #include <machine/sys/inline.h>
 
@@ -75,7 +79,7 @@ struct Atomic_TypeTraits<AtomicOperations_IA64_HP_ACC>
     };
 };
 
-#if defined(BSLS_PLATFORM__CPU_64_BIT)
+#if defined(BSLS_PLATFORM_CPU_64_BIT)
 
 template <typename IMP>
 struct AtomicOperations_IA64_HP_ACC_Default
@@ -98,7 +102,7 @@ struct AtomicOperations_IA64_HP_ACC_Default
 struct AtomicOperations_IA64_HP_ACC
     : AtomicOperations_IA64_HP_ACC_Default<AtomicOperations_IA64_HP_ACC>
 {
-private:
+  private:
     // release semantics
     static const _Asm_fence d_upfence   = _Asm_fence( _UP_MEM_FENCE
                                                     | _UP_ALU_FENCE
@@ -113,12 +117,14 @@ private:
 
     static const _Asm_fence d_fullfence = _Asm_fence(d_upfence | d_downfence);
 
-public:
+  public:
     typedef Atomic_TypeTraits<AtomicOperations_IA64_HP_ACC> AtomicTypes;
 
         // *** atomic functions for int ***
 
     static int getInt(const AtomicTypes::Int *atomicInt);
+
+    static int getIntAcquire(const AtomicTypes::Int *atomicInt);
 
     static void setInt(AtomicTypes::Int *atomicInt, int value);
 
@@ -141,6 +147,8 @@ public:
         // *** atomic functions for Int64 ***
 
     static Types::Int64 getInt64(const AtomicTypes::Int64 *atomicInt);
+
+    static Types::Int64 getInt64Acquire(const AtomicTypes::Int64 *atomicInt);
 
     static void setInt64(AtomicTypes::Int64 *atomicInt, Types::Int64 value);
 
@@ -172,34 +180,6 @@ public:
                      // -----------------------------------
                      // struct AtomicOperations_IA64_HP_ACC
                      // -----------------------------------
-
-inline
-int AtomicOperations_IA64_HP_ACC::
-    getInt(const AtomicTypes::Int *atomicInt)
-{
-    return int(_Asm_ld_volatile(_SZ_W, _LDHINT_NONE, &atomicInt->d_value));
-}
-
-inline
-void AtomicOperations_IA64_HP_ACC::
-    setInt(AtomicTypes::Int *atomicInt, int value)
-{
-    _Asm_st_volatile(_SZ_W,
-                     _STHINT_NONE,
-                     &atomicInt->d_value,
-                     (unsigned) value);
-    _Asm_mf();
-}
-
-inline
-void AtomicOperations_IA64_HP_ACC::
-    setIntRelease(AtomicTypes::Int *atomicInt, int value)
-{
-    _Asm_st_volatile(_SZ_W,
-                     _STHINT_NONE,
-                     &atomicInt->d_value,
-                     (unsigned) value);
-}
 
 inline
 int AtomicOperations_IA64_HP_ACC::
@@ -276,35 +256,6 @@ int AtomicOperations_IA64_HP_ACC::
     } while (actual != expected);
 
     return expected + value;
-}
-
-inline
-Types::Int64 AtomicOperations_IA64_HP_ACC::
-    getInt64(const AtomicTypes::Int64 *atomicInt)
-{
-    return _Asm_ld_volatile(_SZ_D, _LDHINT_NONE, &atomicInt->d_value);
-}
-
-inline
-void AtomicOperations_IA64_HP_ACC::
-    setInt64(AtomicTypes::Int64 *atomicInt, Types::Int64 value)
-{
-    _Asm_st_volatile(_SZ_D,
-                     _STHINT_NONE,
-                     &atomicInt->d_value,
-                     value);
-    _Asm_mf();
-}
-
-inline
-void AtomicOperations_IA64_HP_ACC::
-    setInt64Release(AtomicTypes::Int64 *atomicInt,
-                    Types::Int64 value)
-{
-    _Asm_st_volatile(_SZ_D,
-                     _STHINT_NONE,
-                     &atomicInt->d_value,
-                     value);
 }
 
 inline

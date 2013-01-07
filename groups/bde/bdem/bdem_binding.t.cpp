@@ -874,7 +874,7 @@ int strCmp(const char* lhs, const char* rhs)
 
 // TBD: Windows: compiler limit : too many exception
 //               handler states in function 'main'.  simplify function
-#if defined(BDE_BUILD_TARGET_EXC) && !defined(BSLS_PLATFORM__CMP_MSVC)
+#if defined(BDE_BUILD_TARGET_EXC) && !defined(BSLS_PLATFORM_CMP_MSVC)
 static int globalTestErrorHandlerFlag;
 
 static void testErrorHandler(void)

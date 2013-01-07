@@ -1519,7 +1519,7 @@ bool bdecs_HashTable2DefaultTraits::isRemoved(const bsl::string& bucket)
 inline
 bool bdecs_HashTable2DefaultTraits::isRemoved(const ConstCharPtr& bucket)
 {
-#if defined(BSLS_PLATFORM__CPU_32_BIT)
+#if defined(BSLS_PLATFORM_CPU_32_BIT)
     const char *removed = reinterpret_cast<const char *>(0xFFFFFFFF);
 #else
     const char *removed = reinterpret_cast<const char *>(0xFFFFFFFFFFFFFFFF);
@@ -1569,7 +1569,7 @@ void bdecs_HashTable2DefaultTraits::setToRemoved(ConstCharPtr *bucket)
 {
     BSLS_ASSERT_SAFE(bucket);
 
-#if defined(BSLS_PLATFORM__CPU_32_BIT)
+#if defined(BSLS_PLATFORM_CPU_32_BIT)
     const char *removed = reinterpret_cast<const char *>(0xFFFFFFFF);
 #else
     const char *removed = reinterpret_cast<const char *>(0xFFFFFFFFFFFFFFFF);

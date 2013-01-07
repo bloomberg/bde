@@ -1,14 +1,18 @@
 // bslma_autorawdeleter.t.cpp                                         -*-C++-*-
 
 #include <bslma_autorawdeleter.h>
+
 #include <bslma_allocator.h>   // for testing only
 
-#include <cstdlib>     // atoi()
-#include <cstring>     // memcpy()
-#include <iostream>
+#include <bsls_bsltestutil.h>
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include <new>
 
 using namespace BloombergLP;
-using namespace std;
 
 //=============================================================================
 //                             TEST PLAN
@@ -51,53 +55,60 @@ using namespace std;
 // [1] Ensure helper classes 'my_Class' and 'TestAllocator' work
 // [2] Ensure helper functions 'areEqual' and 'countNonZero' work
 // [5] USAGE EXAMPLE
-//=============================================================================
-//                    STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
 
+//=============================================================================
+//                  STANDARD BDE ASSERT TEST MACRO
+//-----------------------------------------------------------------------------
+// NOTE: THIS IS A LOW-LEVEL COMPONENT AND MAY NOT USE ANY C++ LIBRARY
+// FUNCTIONS, INCLUDING IOSTREAMS.
 static int testStatus = 0;
 
-static void aSsErT(int c, const char *s, int i) {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
-             << "    (failed)" << endl;
+static void aSsErT(bool b, const char *s, int i) {
+    if (b) {
+        printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
         if (testStatus >= 0 && testStatus <= 100) ++testStatus;
     }
 }
-# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
 //=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
+//                       STANDARD BDE TEST DRIVER MACROS
 //-----------------------------------------------------------------------------
 
-#define LOOP_ASSERT(I,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__);}}
+#define ASSERT       BSLS_BSLTESTUTIL_ASSERT
+#define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLS_BSLTESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLS_BSLTESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLS_BSLTESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLS_BSLTESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
+#define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
 
-#define LOOP2_ASSERT(I,J,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
-
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-              << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
-
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
+#define Q   BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
+#define P   BSLS_BSLTESTUTIL_P   // Print identifier and value.
+#define P_  BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
+#define T_  BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
+#define L_  BSLS_BSLTESTUTIL_L_  // current Line number
 
 //=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
+//                      CUSTOM TEST OUTPUT MACROS
 //-----------------------------------------------------------------------------
-
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", " << flush; // P(X) without '\n'
-#define PA(X, L) cout << #X " = "; printArray(X, L); cout << endl;
+#define PA(X, L) printf( #X " = "); printArray(X, L); printf("\n");
                                               // Print array 'X' of length 'L'
-#define PA_(X, L) cout << #X " = "; printArray(X, L); cout << ", " << flush;
+#define PA_(X, L) printf( #X " = "); printArray(X, L); printf(", ");
                                               // PA(X, L) without '\n'
-#define L_ __LINE__                           // current Line number
+
+// ============================================================================
+//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
+#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
+#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
+#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
+#define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
+#define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
 //=============================================================================
 //                    FILE-STATIC FUNCTIONS FOR TESTING
@@ -131,11 +142,11 @@ static void printArray(const int *array, int numElements)
 {
     ASSERT(array);
     ASSERT(0 <= numElements);
-    cout << "[ ";
+    printf("[ ");
     for (int i = 0; i < numElements; ++i) {
-        cout << array[i] << ' ';
+        printf("%d ", array[i]);
     }
-    cout << ']';
+    printf("]");
 }
 
 static int countNonZero(const int *array, int numElements)
@@ -311,9 +322,9 @@ class my_Array2 {
     const TYPE& operator[](int index) const { return *d_array_p[index];}
 };
 
-// FREE OPERATORS
+// DEBUG SUPPORT
 template <class TYPE> inline
-ostream& operator<<(ostream& stream, const my_Array2<TYPE>& array);
+void debugprint(const my_Array2<TYPE>& array);
 
 template <class TYPE> inline
 int my_Array2<TYPE>::nextSize(int size)
@@ -465,15 +476,14 @@ void my_Array2<TYPE>::insert(int dstIndex, const my_Array2<TYPE>& srcArray)
 }
 
 template <class TYPE> inline
-ostream& operator<<(ostream& stream, const my_Array2<TYPE>& array)
+void debugprint(const my_Array2<TYPE>& array)
 {
-    stream << "[ ";
+    printf("[ ");
     for (int i = 0; i < array.length(); ++i) {
-        stream << array[i] << " ";
+        debugprint(array[i]); printf(" ");
     }
-    return stream << ']' << flush;
+    printf("]");
 }
-
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 //           Additional Functionality Needed to Complete Usage Test Case
 
@@ -519,6 +529,11 @@ class my_String {
 inline bool operator==(const my_String& lhs, const char *rhs)
 { return strcmp(lhs, rhs) == 0; }
 
+// DEBUG SUPPORT
+void debugprint(const my_String& val) {
+    bsls::debugprint(static_cast<const char *>(val));
+}
+
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // my_string.cpp
 
@@ -560,7 +575,7 @@ int main(int argc, char *argv[])
     int verbose = argc > 2;
     int veryVerbose = argc > 3;
 
-    cout << "TEST " << __FILE__ << " CASE " << test << endl;
+    printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:
       case 5: {
@@ -587,10 +602,10 @@ int main(int argc, char *argv[])
         //   Compile and run the usage test.
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "USAGE TEST" << endl
-                                  << "==========" << endl;
+        if (verbose) printf("\nUSAGE EXAMPLE"
+                            "\n=============\n");
 
-        if (verbose) cout << "\nTesting 'my_Array2::append'." << endl;
+        if (verbose) printf("\nTesting 'my_Array2::append'.\n");
 
         const char *DATA[] = { "A", "B", "C", "D", "E" };
         const int NUM_ELEM = sizeof DATA / sizeof *DATA;
@@ -602,7 +617,7 @@ int main(int argc, char *argv[])
             my_String s(DATA[i], &a);
             mX.append(s);
         }
-        if (veryVerbose) { cout << '\t'; P(X); }
+        if (veryVerbose) { T_ P(X); }
 
         ASSERT(NUM_ELEM == X.length());
         for (i = 0; i < NUM_ELEM; ++i) {
@@ -611,7 +626,7 @@ int main(int argc, char *argv[])
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (verbose) cout << "\nTesting 'my_Array2::insert'." << endl;
+        if (verbose) printf("\nTesting 'my_Array2::insert'.\n");
 
         const char *EXP[] = { "A", "B", "A", "B", "C",
                               "D", "E", "C", "D", "E" };
@@ -627,11 +642,11 @@ int main(int argc, char *argv[])
         for (i = 0; i < NUM_EXP; ++i) {
             LOOP_ASSERT(i, Y[i] == EXP[i]);
         }
-        if (veryVerbose) { cout << '\t'; P(Y); }
+        if (veryVerbose) { T_ P(Y); }
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (verbose) cout << "\nTesting 'my_Array2::insert' self." << endl;
+        if (verbose) printf("\nTesting 'my_Array2::insert' self.\n");
         my_Array2<my_String> mZ(&a);       const my_Array2<my_String>& Z = mZ;
         for (i = 0; i < NUM_ELEM; ++i) {
             my_String s(DATA[i], &a);
@@ -642,7 +657,7 @@ int main(int argc, char *argv[])
         for (i = 0; i < NUM_EXP; ++i) {
             LOOP_ASSERT(i, Z[i] == EXP[i]);
         }
-        if (veryVerbose) { cout << '\t'; P(Z); }
+        if (veryVerbose) { T_ P(Z); }
       } break;
       case 4: {
         // --------------------------------------------------------------------
@@ -671,8 +686,8 @@ int main(int argc, char *argv[])
         //   behavior when one or more proctored elements are null
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "NULL-ELEMENT TEST" << endl
-                                  << "=================" << endl;
+        if (verbose) printf("\nNULL-ELEMENT TEST"
+                            "\n=================\n");
 
         const int NUM_ELEM = 5;
 
@@ -737,7 +752,7 @@ int main(int argc, char *argv[])
 
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        if (verbose) cout << "\nTesting behavior with null elements" << endl;
+        if (verbose) printf("\nTesting behavior with null elements\n");
 
         int nullMask[][NUM_ELEM] = {
             // In each array, the value 0 indicates that the corresponding
@@ -794,7 +809,7 @@ int main(int argc, char *argv[])
                 }
 
                 if (veryVerbose) {
-                    cout << '\t'; P_(nm); P_(i); PA(counters, NUM_ELEM);
+                    T_ P_(nm); P_(i); PA(counters, NUM_ELEM);
                 }
                 LOOP3_ASSERT(LINE, nm, i, areEqual(nmEXP, counters,NUM_ELEM));
 
@@ -861,8 +876,8 @@ int main(int argc, char *argv[])
         //   int length();
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "CTOR/OPERATORS TEST" << endl
-                                  << "===================" << endl;
+        if (verbose) printf("\nCTOR/OPERATORS TEST"
+                            "\n===================\n");
 
         const int NUM_ELEM = 5;
 
@@ -928,7 +943,7 @@ int main(int argc, char *argv[])
         const int SIZE = sizeof DATA / sizeof *DATA;
 
         if (verbose)
-            cout << "\nTesting ctor, 'operator++' and 'operator--'." << endl;
+            printf("\nTesting ctor, 'operator++' and 'operator--'.\n");
 
         for (int i = 0; i < SIZE; ++i) {
             const int   LINE   = DATA[i].d_line;
@@ -956,7 +971,7 @@ int main(int argc, char *argv[])
             }
 
             if (veryVerbose) {
-                cout << '\t'; P_(i); PA(counters, NUM_ELEM);
+                T_ P_(i); PA(counters, NUM_ELEM);
             }
             LOOP2_ASSERT(LINE, i, areEqual(EXP, counters, NUM_ELEM));
 
@@ -977,7 +992,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'reset', 'setLength', and 'length'\n";
+        if (verbose) printf("\nTesting 'reset', 'setLength', and 'length'\n");
 
         for (int i = 0; i < SIZE; ++i) {
             const int   LINE   = DATA[i].d_line;
@@ -1003,7 +1018,7 @@ int main(int argc, char *argv[])
             }
 
             if (veryVerbose) {
-                cout << '\t'; P_(i); PA(counters, NUM_ELEM);
+                T_ P_(i); PA(counters, NUM_ELEM);
             }
             LOOP2_ASSERT(LINE, i, areEqual(EXP, counters, NUM_ELEM));
 
@@ -1024,7 +1039,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'release'." << endl;
+        if (verbose) printf("\nTesting 'release'.\n");
 
         for (int i = 0; i < SIZE; ++i) {
             const int   LINE   = DATA[i].d_line;
@@ -1053,7 +1068,7 @@ int main(int argc, char *argv[])
             }
 
             if (veryVerbose) {
-                cout << '\t'; P_(i); PA(counters, NUM_ELEM);
+                T_ P_(i); PA(counters, NUM_ELEM);
             }
             LOOP2_ASSERT(LINE, i, areEqual(EXP, counters, NUM_ELEM));
             LOOP2_ASSERT(LINE, i, 0 == a.numDeallocated());
@@ -1063,7 +1078,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nC'tor with 'length' defaulting to 0\n";
+        if (verbose) printf("\nC'tor with 'length' defaulting to 0\n");
 
         for (int i = 0; i < SIZE; ++i) {
             const int   LINE   = DATA[i].d_line;
@@ -1086,7 +1101,7 @@ int main(int argc, char *argv[])
             }
 
             if (veryVerbose) {
-                cout << '\t'; P_(i); PA(counters, NUM_ELEM);
+                T_ P_(i); PA(counters, NUM_ELEM);
             }
             LOOP2_ASSERT(LINE, i, areEqual(EXP, counters, NUM_ELEM));
             LOOP2_ASSERT(LINE, i, 0 == a.numDeallocated());
@@ -1113,10 +1128,10 @@ int main(int argc, char *argv[])
         //   int countNonZero(array, len);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "FILE-STATIC FUNCTIONS TEST" << endl
-                                  << "==========================" << endl;
+        if (verbose) printf("\nFILE-STATIC FUNCTIONS TEST"
+                            "\n==========================\n");
 
-        if (verbose) cout << "\nTesting 'areEqual'." << endl;
+        if (verbose) printf("\nTesting 'areEqual'.\n");
         {
             const int SZ = 5;
             struct {
@@ -1146,13 +1161,13 @@ int main(int argc, char *argv[])
                 const int  LEN  = DATA[i].d_length;
                 const int  EXP  = DATA[i].d_exp;
                 if (veryVerbose) {
-                    cout << '\t'; P_(i); P_(LEN); PA_(A1, SZ); PA(A2, SZ);
+                    T_ P_(i); P_(LEN); PA_(A1, SZ); PA(A2, SZ);
                 }
                 LOOP2_ASSERT(LINE, i, EXP == areEqual(A1, A2, LEN));
             }
         }
 
-        if (verbose) cout << "\nTesting 'countNonZero'." << endl;
+        if (verbose) printf("\nTesting 'countNonZero'.\n");
         {
             const int SZ = 100;   // maximum number of elements in an array
             struct {
@@ -1180,7 +1195,7 @@ int main(int argc, char *argv[])
                 const int  LEN  = DATA[i].d_length;
                 const int  EXP  = DATA[i].d_exp;
                 if (veryVerbose) {
-                    cout << '\t'; P_(i); P_(LEN); PA(A, LEN);
+                    T_ P_(i); P_(LEN); PA(A, LEN);
                 }
                 LOOP2_ASSERT(LINE, i, EXP == countNonZero(A, LEN));
             }
@@ -1214,12 +1229,12 @@ int main(int argc, char *argv[])
         //   int TestAllocator::isMemoryDeallocated(memory) const;
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "HELPER CLASSES TEST" << endl
-                                  << "===================" << endl;
+        if (verbose) printf("\nHELPER CLASSES TEST"
+                            "\n===================\n");
 
-        if (verbose) cout << "\nTesting 'my_Class'." << endl;
+        if (verbose) printf("\nTesting 'my_Class'.\n");
 
-        if (verbose) cout << "\tTesting default ctor and dtor." << endl;
+        if (verbose) printf("\tTesting default ctor and dtor.\n");
         {
             int counter = 0;
             const int NUM_TEST = 5;
@@ -1230,7 +1245,7 @@ int main(int argc, char *argv[])
             ASSERT(NUM_TEST == counter);
         }
 
-        if (verbose) cout << "\nTesting 'TestAllocator'." << endl;
+        if (verbose) printf("\nTesting 'TestAllocator'.\n");
 
         const int DATA[] = { 1, 10, 100, -1, -100 };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -1242,7 +1257,7 @@ int main(int argc, char *argv[])
             void *mem = (void *) DATA[di];
             mX.deallocate(mem);
 
-            if (veryVerbose) { cout << '\t'; P(mem); }
+            if (veryVerbose) { T_ P(mem); }
             LOOP_ASSERT(di, NUM_DEALLOCATED == X.numDeallocated());
             for (int j = 0; j < NUM_DEALLOCATED; ++j) {
                 const void *MEM = (void *) DATA[j];
@@ -1255,14 +1270,15 @@ int main(int argc, char *argv[])
         }
       } break;
       default: {
-        cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
+        fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
         testStatus = -1;
       }
     }
 
     if (testStatus > 0) {
-        cerr << "Error, non-zero test status = " << testStatus << "." << endl;
+        fprintf(stderr, "Error, non-zero test status = %d.\n", testStatus);
     }
+
     return testStatus;
 }
 

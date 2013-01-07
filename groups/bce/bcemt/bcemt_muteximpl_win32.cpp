@@ -11,11 +11,11 @@ BDES_IDENT_RCSID(bcemt_muteximpl_win32_cpp,"$Id$ $CSID$")
 // functions and types do not conflict with 'windows.h'.  Also, verify that
 // the size of the buffer allocated for the critical section is sufficient.
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
 #include <windows.h>
 #endif
 
-#ifdef BCES_PLATFORM__WIN32_THREADS
+#ifdef BCES_PLATFORM_WIN32_THREADS
 
 namespace BloombergLP {
 

@@ -521,7 +521,7 @@ struct bdetu_Unset {
         //  *object = bdetu_Unset<TYPE>::unsetValue();
         //..
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
     static void setUnset(TYPE *object);
         // Set the specified 'object' to have the unset value for the
@@ -532,7 +532,7 @@ struct bdetu_Unset {
         //..
         // DEPRECATED: use 'makeUnset' instead.
 
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 };
 
@@ -777,7 +777,7 @@ void bdetu_Unset<bsl::string>::makeUnset(bsl::string *object)
     object->erase();
 }
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
 template <class TYPE>
 inline
@@ -786,7 +786,7 @@ void bdetu_Unset<TYPE>::setUnset(TYPE *value)
     makeUnset(value);
 }
 
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 }  // close namespace BloombergLP
 

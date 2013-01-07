@@ -1,4 +1,6 @@
 // bslma_bufferallocator.cpp                                          -*-C++-*-
+#ifndef BDE_OMIT_TRANSITIONAL // DEPRECATED
+
 #include <bslma_bufferallocator.h>
 
 #include <bsls_ident.h>
@@ -201,6 +203,8 @@ void BufferAllocator::print() const
 }  // close package namespace
 
 }  // close enterprise namespace
+
+#endif // BDE_OMIT_TRANSITIONAL -- DEPRECATED
 
 // ---------------------------------------------------------------------------
 // NOTICE:

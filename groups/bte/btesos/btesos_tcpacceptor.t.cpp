@@ -23,7 +23,7 @@
 #include <bcema_testallocator.h>            // thread-safe allocator
 #include <bsl_typeinfo.h>
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
 #include <bsl_c_signal.h>
 #endif
 
@@ -199,7 +199,7 @@ bslma_TestAllocator testAllocator;
 //-----------------------------------------------------------------------------
 
 // signal stuff
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
 volatile sig_atomic_t syncWithSigHandler = 0;
 static void signalHandler(int sig)
     // The signal handler does nothing.
@@ -247,8 +247,8 @@ static void registerSignal(int signo, void (*handler)(int) )
 // You may need to adjust the sleep times in threadAsClient
 // even if it is *very* unlikely
 int helperAfterAccept;
-#if !defined(BSLS_PLATFORM__CMP_SUN) \
-    || BSLS_PLATFORM__CMP_VER_MAJOR >= 1360
+#if !defined(BSLS_PLATFORM_CMP_SUN) \
+    || BSLS_PLATFORM_CMP_VER_MAJOR >= 1360
 extern "C"
     // This is a thread function and, thus, it must have extern "C" linkage.
     // Sun Workshop compilers, however, have a bug in that an extern "C"
@@ -284,7 +284,7 @@ void* threadAsClient(void *arg)
         bcemt_ThreadUtil::microSleep(SLEEP_TIME);
 
         if (info.d_commands[i].d_signal) {
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
             pthread_kill(info.d_tid, SIGSYS);
             if (globalVerbose) {
                 P_T(bcemt_ThreadUtil::self());
@@ -350,7 +350,7 @@ void* threadAsClient(void *arg)
     return 0;
 }
 
-#ifdef BSLS_PLATFORM__OS_SOLARIS
+#ifdef BSLS_PLATFORM_OS_SOLARIS
 static void* threadToCloseServer(void *arg)
 {
     StreamSocket *serverSocket = (StreamSocket*) arg;
@@ -574,7 +574,7 @@ int main(int argc, char *argv[]) {
     testAllocator.setVerbose(veryVeryVerbose);
     bteso_InetStreamSocketFactory<bteso_IPv4Address> factory(&testAllocator);
 
-    #ifdef BSLS_PLATFORM__OS_UNIX
+    #ifdef BSLS_PLATFORM_OS_UNIX
     registerSignal(SIGSYS, signalHandler);
     #endif
 
@@ -1049,7 +1049,7 @@ int main(int argc, char *argv[]) {
                           PT(channels.size());
                       }
                   }
-                  #ifdef BSLS_PLATFORM__OS_UNIX
+                  #ifdef BSLS_PLATFORM_OS_UNIX
                   else {
                       // The 'reuseAddressFlag' is off, it'll fail to
                       // 're-establish' the server with the same socket.
@@ -1229,7 +1229,7 @@ int main(int argc, char *argv[]) {
 
                       TestCommand DATA[] =
 // ===================>
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
 {
 //line cmd channelType  interruptFlag  timeout expStat validChannel expNumConn
 //---- --- -----------  -------------  ------- ------- ------------ ----------
@@ -1406,7 +1406,7 @@ int main(int argc, char *argv[]) {
                       QT("==========================================");
                   }
 
-#ifdef BSLS_PLATFORM__OS_SOLARIS
+#ifdef BSLS_PLATFORM_OS_SOLARIS
                   {
                       const bteso_StreamSocket<bteso_IPv4Address>
                                    *serverSocket = acceptor.socket();
@@ -1646,7 +1646,7 @@ int main(int argc, char *argv[]) {
 
                       TestCommand DATA[] =
 // ===================>
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
 {
 //line cmd channelType  interruptFlag  timeout  expStat validChannel expNumConn
 //---- --- -----------  -------------  -------  ------- ------------ ----------
@@ -1823,7 +1823,7 @@ int main(int argc, char *argv[]) {
                       QT("=====================================");
                   }
 
-#ifdef BSLS_PLATFORM__OS_SOLARIS
+#ifdef BSLS_PLATFORM_OS_SOLARIS
                   {
                       const StreamSocket *serverSocket = acceptor.socket();
                       StreamSocket *server =

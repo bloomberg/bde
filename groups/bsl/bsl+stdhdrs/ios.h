@@ -13,10 +13,12 @@
 
 #include <bsl_ios.h>
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
     // Permit reliance on transitive includes within robo.
 #include <iomanip.h>
 #endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 using std::ios;
 using std::streamsize;

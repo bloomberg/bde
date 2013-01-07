@@ -313,10 +313,10 @@ class bael_LoggerManagerConfiguration {
         BAEL_FIFO,  // oldest logged messages are published first
         BAEL_LIFO   // newest logged messages are published first
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , FIFO = BAEL_FIFO
       , LIFO = BAEL_LIFO
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     enum TriggerMarkers {
@@ -333,10 +333,10 @@ class bael_LoggerManagerConfiguration {
         BAEL_BEGIN_END_MARKERS  // print "BEGIN RECORD DUMP" and
                                 // "END RECORD DUMP" markers (default)
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , NO_MARKERS        = BAEL_NO_MARKERS
       , BEGIN_END_MARKERS = BAEL_BEGIN_END_MARKERS
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
   private:

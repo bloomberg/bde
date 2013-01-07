@@ -86,10 +86,10 @@ struct bdem_AggregateOption {
             // for an aggregate object are suppressed (e.g., because a
             // sequential allocator is used).
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , OWN_ALLOCATOR_FLAG = BDEM_OWN_ALLOCATOR_FLAG
       , NODESTRUCT_FLAG    = BDEM_NODESTRUCT_FLAG
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     enum AllocationStrategy {
@@ -125,12 +125,12 @@ struct bdem_AggregateOption {
             // reclaimed when the highest-level parent aggregate's allocator is
             // destroyed.
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , PASS_THROUGH = BDEM_PASS_THROUGH
       , WRITE_MANY   = BDEM_WRITE_MANY
       , WRITE_ONCE   = BDEM_WRITE_ONCE
       , SUBORDINATE  = BDEM_SUBORDINATE
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 };
 

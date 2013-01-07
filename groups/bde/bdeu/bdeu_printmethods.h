@@ -11,7 +11,8 @@ BDES_IDENT("$Id: $")
 //
 //@CLASSES:
 //  bdeu_PrintMethods: templates for uniform printing of value-semantic types
-//  bdeu_TypeTraitHasPrintMethod: trait indicating existence of 'print' method
+//  bdeu_HasPrintMethod: trait indicating existence of 'print' method
+//  bdeu_TypeTraitHasPrintMethod: Old-style version of 'bdeu_HasPrintMethod'
 //
 //@AUTHOR: Shezan Baig (sbaig)
 //
@@ -223,12 +224,16 @@ BDES_IDENT("$Id: $")
 #include <bdeu_print.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
+#ifndef INCLUDED_BSLMF_SELECTTRAIT
+#include <bslmf_selecttrait.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_ISSAME
-#include <bslmf_issame.h>
+#ifndef INCLUDED_BSLALG_TYPETRAITHASSTLITERATORS
+#include <bslalg_typetraithasstliterators.h>
+#endif
+
+#ifndef INCLUDED_BSLALG_TYPETRAITPAIR
+#include <bslalg_typetraitpair.h>
 #endif
 
 #ifndef INCLUDED_BSL_IOMANIP
@@ -260,6 +265,22 @@ class basic_string;
 
 namespace BloombergLP {
 
+                    // ==========================
+                    // struct bdeu_HasPrintMethod
+                    // ==========================
+
+template <class TYPE>
+struct bdeu_HasPrintMethod :
+        bslmf::DetectNestedTrait<TYPE, bdeu_HasPrintMethod>::type {
+    // A class, 'TYPE', should specialize this trait to derive from
+    // 'true_type' if it has a 'print' method with the following signature:
+    //..
+    //  bsl::ostream& print(bsl::ostream& stream,
+    //                      int           level          = 0,
+    //                      int           spacesPerLevel = 4) const;
+    //..
+};
+
                     // ===================================
                     // struct bdeu_TypeTraitHasPrintMethod
                     // ===================================
@@ -272,6 +293,17 @@ struct bdeu_TypeTraitHasPrintMethod {
     //                      int           level          = 0,
     //                      int           spacesPerLevel = 4) const;
     //..
+
+    template <class TYPE>
+    struct NestedTraitDeclaration :
+        bslmf::NestedTraitDeclaration<TYPE, bdeu_HasPrintMethod>
+    {
+        // This class template ties the 'bslalg::TypeTaitBitwiseMoveable'
+        // trait tag to the 'bslmf::IsBitwiseMoveable' trait metafunction.
+    };
+
+    template <class TYPE>
+    struct Metafunction : bdeu_HasPrintMethod<TYPE>::type { };
 };
 
                         // ===========================
@@ -329,135 +361,15 @@ namespace bdeu_PrintMethods {
 
 // ---- Anything below this line is implementation specific.  Do not use.  ----
 
-                      // ---------------------------------
-                      // struct bdeu_PrintMethods_Selector
-                      // ---------------------------------
-
-struct bdeu_PrintMethods_Selector {
-    // Component-private 'struct'.  Do not use outside of this component.  This
-    // 'struct' provides a namespace for print method selector constants.
-    // These constants are used to select among the print implementations
-    // below.
-
-    // PUBLIC TYPES
-    enum {
-        BDEU_PRINT_METHOD    = 3,  // use the 'print' method
-        BDEU_STL_ITERATORS   = 2,  // use STL iterators to print each element
-        BDEU_PAIR            = 1,  // print each element of a pair
-        BDEU_STREAM_OPERATOR = 0   // use the '<<' ostream operator
-    };
-};
-
-                // --------------------------------------------
-                // struct bdeu_PrintMethods_DetectTraitIndexImp
-                // --------------------------------------------
-
-template <typename TYPE>
-struct bdeu_PrintMethods_DetectTraitIndexImp {
-    // Component-private 'struct'.  Do not use outside of this component.  This
-    // 'struct' selects a 'VALUE' determined by the traits declared for the
-    // 'TYPE' parameter.
-
-    // PUBLIC TYPES
-    enum { VALUE = bslalg_HasTrait<TYPE, bdeu_TypeTraitHasPrintMethod>::VALUE
-               ? bdeu_PrintMethods_Selector::BDEU_PRINT_METHOD
-
-               : bslalg_HasTrait<TYPE, bslalg_TypeTraitHasStlIterators>::VALUE
-               ? bdeu_PrintMethods_Selector::BDEU_STL_ITERATORS
-
-               : bslalg_HasTrait<TYPE, bslalg_TypeTraitPair>::VALUE
-               ? bdeu_PrintMethods_Selector::BDEU_PAIR
-
-               : bdeu_PrintMethods_Selector::BDEU_STREAM_OPERATOR
-    };
-};
-
-                  // -----------------------------------------
-                  // struct bdeu_PrintMethods_DetectTraitIndex
-                  // -----------------------------------------
-
-template <typename TYPE>
-struct bdeu_PrintMethods_DetectTraitIndex
-          : bslmf_MetaInt<bdeu_PrintMethods_DetectTraitIndexImp<TYPE>::VALUE> {
-    // Component-private 'struct'.  Do not use outside of this component.  This
-    // 'struct' is a meta-type for detecting the traits declared for the 'TYPE'
-    // parameter and, based on the detected traits, selecting one of the
-    // 'bdeu_PrintMethods_Selector' enumerators.  Note that this 'struct' will
-    // evaluate to 'bslmf_MetaInt<0>' if none of the traits recognized by this
-    // component are detected.
-};
-
                 // --------------------------------------------
                 // struct bdeu_PrintMethods_Imp<TYPE, SELECTOR>
                 // --------------------------------------------
 
-template <typename TYPE, int SELECTOR>
+template <typename TYPE, typename SELECTOR>
 struct bdeu_PrintMethods_Imp;
-    // Component-private 'struct'.  Do not use outside of this component.
-    // Specializations on specific 'SELECTOR' values are defined below.
-
-              // -----------------------------------------------------
-              // struct bdeu_PrintMethods_Imp<TYPE, BDEU_PRINT_METHOD>
-              // -----------------------------------------------------
 
 template <typename TYPE>
-struct bdeu_PrintMethods_Imp<TYPE,
-                             bdeu_PrintMethods_Selector::BDEU_PRINT_METHOD> {
-    // Component-private 'struct'.  Do not use outside of this component.  This
-    // 'struct' provides a 'print' function that prints objects of the
-    // parameterized 'TYPE' that declare the 'bdeu_TypeTraitHasPrintMethod'
-    // trait.
-
-    // CLASS METHODS
-    static bsl::ostream& print(bsl::ostream& stream,
-                               const TYPE&   object,
-                               int           level,
-                               int           spacesPerLevel);
-};
-
-             // ------------------------------------------------------
-             // struct bdeu_PrintMethods_Imp<TYPE, BDEU_STL_ITERATORS>
-             // ------------------------------------------------------
-
-template <typename TYPE>
-struct bdeu_PrintMethods_Imp<TYPE,
-                             bdeu_PrintMethods_Selector::BDEU_STL_ITERATORS> {
-    // Component-private 'struct'.  Do not use outside of this component.  This
-    // 'struct' provides a 'print' function that prints objects of the
-    // parameterized 'TYPE' that have the 'bslalg_TypeTraitHasStlIterators'
-    // trait declared.
-
-    // CLASS METHODS
-    static bsl::ostream& print(bsl::ostream& stream,
-                               const TYPE&   object,
-                               int           level,
-                               int           spacesPerLevel);
-};
-
-                  // ---------------------------------------------
-                  // struct bdeu_PrintMethods_Imp<TYPE, BDEU_PAIR>
-                  // ---------------------------------------------
-
-template <typename TYPE>
-struct bdeu_PrintMethods_Imp<TYPE, bdeu_PrintMethods_Selector::BDEU_PAIR> {
-    // Component-private 'struct'.  Do not use outside of this component.  This
-    // 'struct' provides a 'print' function that prints objects of
-    // parameterized 'TYPE' that declare the 'bslalg_TypeTraitPair' trait.
-
-    // CLASS METHODS
-    static bsl::ostream& print(bsl::ostream& stream,
-                               const TYPE&   object,
-                               int           level,
-                               int           spacesPerLevel);
-};
-
-            // --------------------------------------------------------
-            // struct bdeu_PrintMethods_Imp<TYPE, BDEU_STREAM_OPERATOR>
-            // --------------------------------------------------------
-
-template <typename TYPE>
-struct bdeu_PrintMethods_Imp<TYPE,
-                            bdeu_PrintMethods_Selector::BDEU_STREAM_OPERATOR> {
+struct bdeu_PrintMethods_Imp<TYPE, bslmf::SelectTraitCase<> > {
     // Component-private 'struct'.  Do not use outside of this component.  This
     // 'struct' provides a 'print' function that prints objects of
     // parameterized 'TYPE' that do not declare any of the traits recognized
@@ -473,19 +385,105 @@ struct bdeu_PrintMethods_Imp<TYPE,
         // if the specified 'TYPE' does not have a '<<' output stream operator.
 };
 
+              // --------------------------------------------------------------
+              // struct bdeu_PrintMethods_Imp<TYPE, bdeu_HasPrintMethod<TYPE> >
+              // --------------------------------------------------------------
+
+template <typename TYPE>
+struct bdeu_PrintMethods_Imp<TYPE,
+                             bslmf::SelectTraitCase<bdeu_HasPrintMethod> > {
+    // Component-private 'struct'.  Do not use outside of this component.  This
+    // 'struct' provides a 'print' function that prints objects of the
+    // parameterized 'TYPE' that are associated with the 'bdeu_HasPrintMethod'
+    // trait.
+
+    // CLASS METHODS
+    static bsl::ostream& print(bsl::ostream& stream,
+                               const TYPE&   object,
+                               int           level,
+                               int           spacesPerLevel);
+};
+
+         // ------------------------------------------------------------------
+         // struct bdeu_PrintMethods_Imp<TYPE, bslalg::HasStlIterators<TYPE> >
+         // ------------------------------------------------------------------
+
+template <typename TYPE>
+struct bdeu_PrintMethods_Imp<TYPE,
+                             bslmf::SelectTraitCase<bslalg::HasStlIterators> > {
+    // Component-private 'struct'.  Do not use outside of this component.  This
+    // 'struct' provides a 'print' function that prints objects of the
+    // parameterized 'TYPE' that have the 'bslalg::StlIterators'
+    // trait declared.
+
+    // CLASS METHODS
+    static bsl::ostream& print(bsl::ostream& stream,
+                               const TYPE&   object,
+                               int           level,
+                               int           spacesPerLevel);
+};
+
+                  // ---------------------------------------------------------
+                  // struct bdeu_PrintMethods_Imp<TYPE, bslmf::IsPair<TYPE> >
+                  // ---------------------------------------------------------
+
+template <typename TYPE>
+struct bdeu_PrintMethods_Imp<TYPE, bslmf::SelectTraitCase<bslmf::IsPair> > {
+    // Component-private 'struct'.  Do not use outside of this component.  This
+    // 'struct' provides a 'print' function that prints objects of
+    // parameterized 'TYPE' that declare the 'bslmf::IsPair' trait.
+
+    // CLASS METHODS
+    static bsl::ostream& print(bsl::ostream& stream,
+                               const TYPE&   object,
+                               int           level,
+                               int           spacesPerLevel);
+};
+
 // ============================================================================
 //                   TEMPLATE AND INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-              // -----------------------------------------------------
-              // struct bdeu_PrintMethods_Imp<TYPE, BDEU_PRINT_METHOD>
-              // -----------------------------------------------------
+                // --------------------------------------------
+                // struct bdeu_PrintMethods_Imp<TYPE, SELECTOR>
+                // --------------------------------------------
+
+// CLASS METHODS
+template <typename TYPE>
+bsl::ostream&
+bdeu_PrintMethods_Imp<TYPE, bslmf::SelectTraitCase<> >::
+print(bsl::ostream& stream,
+      const TYPE&   object,
+      int           level,
+      int           spacesPerLevel)
+{
+    if (stream.bad()) {
+        return stream;
+    }
+
+    bdeu_Print::indent(stream, level, spacesPerLevel);
+
+    // A compilation error indicating the next line of code implies the
+    // 'TYPE' parameter does not have the '<<' output stream operator.
+
+    stream << object;
+
+    if (0 <= spacesPerLevel) {
+        stream << '\n';
+    }
+
+    return stream;
+}
+
+          // ---------------------------------------------------------------
+          // struct bdeu_PrintMethods_Imp<TYPE, bdeu_HasPrintMethod<TYPE> >
+          // ---------------------------------------------------------------
 
 // CLASS METHODS
 template <typename TYPE>
 inline
 bsl::ostream&
-bdeu_PrintMethods_Imp<TYPE, bdeu_PrintMethods_Selector::BDEU_PRINT_METHOD>::
+bdeu_PrintMethods_Imp<TYPE, bslmf::SelectTraitCase<bdeu_HasPrintMethod> >::
 print(bsl::ostream& stream,
       const TYPE&   object,
       int           level,
@@ -498,14 +496,14 @@ print(bsl::ostream& stream,
     return object.print(stream, level, spacesPerLevel);
 }
 
-             // ------------------------------------------------------
-             // struct bdeu_PrintMethods_Imp<TYPE, BDEU_STL_ITERATORS>
-             // ------------------------------------------------------
+         // ------------------------------------------------------------------
+         // struct bdeu_PrintMethods_Imp<TYPE, bslalg::HasStlIterators<TYPE> >
+         // ------------------------------------------------------------------
 
 // CLASS METHODS
 template <typename TYPE>
 bsl::ostream&
-bdeu_PrintMethods_Imp<TYPE, bdeu_PrintMethods_Selector::BDEU_STL_ITERATORS>::
+bdeu_PrintMethods_Imp<TYPE, bslmf::SelectTraitCase<bslalg::HasStlIterators> >::
 print(bsl::ostream& stream,
       const TYPE&   object,
       int           level,
@@ -561,14 +559,14 @@ print(bsl::ostream& stream,
     return stream << bsl::flush;
 }
 
-                  // ---------------------------------------------
-                  // struct bdeu_PrintMethods_Imp<TYPE, BDEU_PAIR>
-                  // ---------------------------------------------
+                  // ---------------------------------------------------------
+                  // struct bdeu_PrintMethods_Imp<TYPE, bslmf::IsPair<TYPE> >
+                  // ---------------------------------------------------------
 
 // CLASS METHODS
 template <typename TYPE>
 bsl::ostream&
-bdeu_PrintMethods_Imp<TYPE, bdeu_PrintMethods_Selector::BDEU_PAIR>::
+bdeu_PrintMethods_Imp<TYPE, bslmf::SelectTraitCase<bslmf::IsPair> >::
 print(bsl::ostream& stream,
       const TYPE&   object,
       int           level,
@@ -625,37 +623,6 @@ print(bsl::ostream& stream,
     return stream << bsl::flush;
 }
 
-            // --------------------------------------------------------
-            // struct bdeu_PrintMethods_Imp<TYPE, BDEU_STREAM_OPERATOR>
-            // --------------------------------------------------------
-
-// CLASS METHODS
-template <typename TYPE>
-bsl::ostream&
-bdeu_PrintMethods_Imp<TYPE, bdeu_PrintMethods_Selector::BDEU_STREAM_OPERATOR>::
-print(bsl::ostream& stream,
-      const TYPE&   object,
-      int           level,
-      int           spacesPerLevel)
-{
-    if (stream.bad()) {
-        return stream;
-    }
-
-    bdeu_Print::indent(stream, level, spacesPerLevel);
-
-    // A compilation error indicating the next line of code implies the
-    // 'TYPE' parameter does not have the '<<' output stream operator.
-
-    stream << object;
-
-    if (0 <= spacesPerLevel) {
-        stream << '\n';
-    }
-
-    return stream;
-}
-
                         // ---------------------------
                         // namespace bdeu_PrintMethods
                         // ---------------------------
@@ -668,12 +635,17 @@ bdeu_PrintMethods::print(bsl::ostream& stream,
                          int           level,
                          int           spacesPerLevel)
 {
-    enum { BDEU_SELECTOR = bdeu_PrintMethods_DetectTraitIndex<TYPE>::VALUE };
+    typedef typename bslmf::SelectTrait<
+                TYPE,
+                bdeu_HasPrintMethod,
+                bslalg::HasStlIterators,
+                bslmf::IsPair
+            >::Type BdeuSelector;
 
-    return bdeu_PrintMethods_Imp<TYPE, BDEU_SELECTOR>::print(stream,
-                                                             object,
-                                                             level,
-                                                             spacesPerLevel);
+    return bdeu_PrintMethods_Imp<TYPE, BdeuSelector>::print(stream,
+                                                            object,
+                                                            level,
+                                                            spacesPerLevel);
 }
 
 template <typename CHAR_T, typename CHAR_TRAITS_T, typename ALLOC>
@@ -685,12 +657,11 @@ bdeu_PrintMethods::print(
          int                                                    spacesPerLevel)
 {
     return bdeu_PrintMethods_Imp<
-                      bsl::basic_string<CHAR_T, CHAR_TRAITS_T, ALLOC>,
-                      bdeu_PrintMethods_Selector::BDEU_STREAM_OPERATOR>::print(
-                                                               stream,
-                                                               object,
-                                                               level,
-                                                               spacesPerLevel);
+                          bsl::basic_string<CHAR_T, CHAR_TRAITS_T, ALLOC>,
+                          bslmf::SelectTraitCase<> >::print(stream,
+                                                            object,
+                                                            level,
+                                                            spacesPerLevel);
 }
 
 template <typename ALLOC>

@@ -33,7 +33,7 @@
 #include <bsl_iostream.h>
 #include <bsl_vector.h>
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
 #include <sys/resource.h>   // getrlimit()
 #endif
 
@@ -161,10 +161,10 @@ static int maxOpenFiles()
     // Return the maximum number of file descriptors allowed to be opened
     // by this process on success and a negative value on failure.
 {
-#if defined(BSLS_PLATFORM__OS_WINDOWS)
+#if defined(BSLS_PLATFORM_OS_WINDOWS)
     return (1 << sizeof(int)) * 16 - 1;
 #endif
-#if defined(BSLS_PLATFORM__OS_UNIX)
+#if defined(BSLS_PLATFORM_OS_UNIX)
     struct ::rlimit result;
     int s = ::getrlimit(RLIMIT_NOFILE, &result);
     return s ? s : result.rlim_cur;
@@ -730,7 +730,7 @@ int main(int argc, char *argv[])
                           << "TESTING 'hasLimitedSocketCapacity" << endl
                           << "=================================" << endl;
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
         const bool HLSC = true;
 #else
         const bool HLSC = false;
@@ -1771,7 +1771,7 @@ int main(int argc, char *argv[])
             P(X.numTimers());
             P(X.numEvents());
         }
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
         ASSERT((bcemt_ThreadUtil::Handle) -1 == X.dispatcherThreadHandle());
 #endif
 
@@ -1780,7 +1780,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == X.numEvents());
         ASSERT(0 == mX.enable());
         ASSERT(1 == mX.isEnabled());
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
         ASSERT((bcemt_ThreadUtil::Handle) -1 != X.dispatcherThreadHandle());
 #endif
         ASSERT(0 == mX.disable());

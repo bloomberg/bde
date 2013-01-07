@@ -967,7 +967,7 @@ class bcef_BindWrapper {
         // for arguments 1 - 12 with the values of the arguments 'p1' - 'p12'
         // respectively.  Return the result.
     {
-        return (*d_impl)(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p12);
+        return (*d_impl)(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12);
     }
 
     template <class P1, class P2, class P3, class P4, class P5, class P6,

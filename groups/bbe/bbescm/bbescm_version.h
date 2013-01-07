@@ -60,7 +60,7 @@ const char *bbescm_Version::version()
 
 // Force linker to pull in this component's object file.
 
-#if defined(BSLS_PLATFORM__CMP_IBM)
+#if defined(BSLS_PLATFORM_CMP_IBM)
 static const char **bbescm_version_assertion = &bbescm_Version::d_version;
 #else
 namespace {

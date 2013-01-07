@@ -6,7 +6,7 @@ BDES_IDENT_RCSID(btemt_querydispatcher_cpp,"$Id$ $CSID$")
 
 // TBD: Determine whether or not this is a deliberately non-standard include
 // order?  This was introduced in "btemt_querydispatcher.cpp@@/main/bb/dev/14"
-#ifdef BSLS_PLATFORM__OS_LINUX
+#ifdef BSLS_PLATFORM_OS_LINUX
 #define __STDC_LIMIT_MACROS 1
 #endif
 
@@ -42,7 +42,7 @@ BDES_IDENT_RCSID(btemt_querydispatcher_cpp,"$Id$ $CSID$")
 #include <bsl_climits.h>
 #include <bsl_cstdio.h>
 
-#ifdef BSLS_PLATFORM__OS_HPUX
+#ifdef BSLS_PLATFORM_OS_HPUX
 #include <stdint.h>  // INT64_MIN
 #endif
 
@@ -591,8 +591,8 @@ void btemt_QueryDispatcher::cancel(void *category)
     d_mapLock.lock();
     bsl::set<bsl::pair<void*, Int64> >::iterator itr =
         d_queryMap.lower_bound(bsl::pair<void*, Int64>(category,
-#if !defined(BSLS_PLATFORM__CMP_MSVC) \
- && !defined(BDES_PLATFORM__OS_FREEBSD)
+#if !defined(BSLS_PLATFORM_CMP_MSVC) \
+ && !defined(BDES_PLATFORM_OS_FREEBSD)
                                                             INT64_MIN));
 #else
                                                             LLONG_MIN));

@@ -4,7 +4,7 @@
 #include <bdes_ident.h>
 BDES_IDENT_RCSID(bteso_defaulteventmanager_pollset_cpp,"$Id$ $CSID$")
 
-#if defined(BSLS_PLATFORM__OS_AIX)
+#if defined(BSLS_PLATFORM_OS_AIX)
 
 #ifdef BTE_FOR_TESTING_ONLY
 // These dependencies need to be here for the the bde_build.pl script to

@@ -15,7 +15,8 @@
 #include <bsl_cstdlib.h>              // atoi()
 #include <bsl_cstring.h>              // memset(), memcpy(), strlen()
 #include <bsl_c_stdio.h>              // snprintf()
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
+#include <errno.h>
 #include <unistd.h>             // pipe(), close() and dup().
 #endif
 
@@ -366,7 +367,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
 // The following code uses pipe() and fork(), so only works on Unix.
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
 
         if (verbose) cout << endl << "PRINT TEST" << endl
                                   << "==========" << endl;
@@ -415,18 +416,31 @@ int main(int argc, char *argv[])
             // to a strstream.  The print() member function always prints to
             // 'stdout'.  The code below forks a process and captures stdout
             // to a memory buffer.
-            int pipes[2];
-            int sz;
+            int pipes[2], pid;
+            ssize_t sz = 0, r = 0;
             pipe(pipes);
-            if (fork()) {
+            if ((pid = fork()) != 0) {
                 // Parent process.  Read pipe[0] into memory
-                sz = read(pipes[0], buf, BUF_SZ);
-                if (sz >= 0) { buf[sz] = '\0'; }
+                ASSERT(pid > 0);
+                close(pipes[1]);
+                // (read() returns -1 for error, 0 for EOF or BUF_SZ-r == 0)
+                do {
+                    r = read(pipes[0], buf+sz, BUF_SZ-sz);
+                } while (r != 0 && (r > 0 ? (sz+=r) : errno == EINTR));
+                close(pipes[0]);
+                if (sz < BUF_SZ) {
+                    buf[sz] = '\0';
+                }
+                // leaks child process; waitpid() not done; test exits soon
             }
             else {
                 // Child process, print to pipes[1].
-                close(1);
-                dup(pipes[1]);
+                if (pipes[0] != STDOUT_FILENO)
+                    close(pipes[0]);
+                if (pipes[1] != STDOUT_FILENO) {
+                    dup2(pipes[1], STDOUT_FILENO);
+                    close(pipes[1]);
+                }
 
                 // This call print() function sends its output to the pipe,
                 // which is in turn read into 'buf' by the parent process.
@@ -447,7 +461,7 @@ int main(int argc, char *argv[])
             ASSERT(XX == buf[BUF_SZ - 1]);     // Check for overrun.
             ASSERT(0 == memcmp(buf, EXP, BUF_SZ));
         }
-#endif // defined BSLS_PLATFORM__OS_UNIX
+#endif // defined BSLS_PLATFORM_OS_UNIX
       } break;
       case 3: {
         // --------------------------------------------------------------------

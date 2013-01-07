@@ -160,6 +160,7 @@
 # and '/' on Windows
 *                       _       SWITCHCHAR = -
 !! windows              _       SWITCHCHAR = /
+
 #==============================================================================
 # Retry false-negative wrapper. Use -X in bde_build.pl to override this,
 # or override RETRY_ON_EXIT and RETRY_ON_SIGNAL in the environment.
@@ -230,13 +231,9 @@ unix-                   _       RETRY_ALLTEST   = $(RETRY) -t 0 -a 3 -s!ILL,TRAP
 # Basic commands and nomenclature
 
 # file(s)-to-unspecified copy
-# DRQS 12110915 - cp -p broken on AIX and Linux when output isn't in
-# clearcase
 !! unix-           _       RSYNC           = rsync -a
-!! unix-           _       CP              = $(RETRY_ON_EXIT) $(RSYNC)
+!! unix-           _       CP              = cp -p
 windows-           _       CP              = perl -MFile::Copy -MFile::Basename -e "$$d=pop(@ARGV); die unless -d($$d) or -d($$d=dirname($$d)); while ($$f=shift @ARGV) { copy $$_,$$d foreach glob($$f) }; print \"\tcopied to $$d\n\"" --
-# Experiment to use Win32::CopyFile if available to preserve timestamps on Windows
-#windows-           _       CP              = perl -MFile::Basename -e "use File::Copy; $copySub=sub { my $$d=shift; my $$f=shift; foreach (glob($$f){copy $$_,$$d; print qq{Copied $$_ to $$d using File::Copy::copy\n};} }; eval { use Win32; $tmp=\&Win32::CopyFile; $copySub= sub { my $$d=shift; my $$f=shift; foreach(glob($$f)){ my $$basename=basename $$_; Win32::CopyFile($$_,qq{$$d/$$basename},1);  print qq{Copied $$_ to $$d/$$basename using Win32::CopyFile\n}  }} }; $$d=pop(@ARGV); die unless -d($$d) or -d($$d=dirname($$d)); while ($$f=shift @ARGV) {$copySub->($$d,$$f)}; print qq{\tcopied to $$d\n}" --
 
 # file(s)-to-dir copy
 unix-                   _       F2DCP           = $(CP)
@@ -400,8 +397,8 @@ unix-SunOS-*-*-*         shr SHR_SONAME_ARGS = -h $(SONAME)
 
 unix-Linux-*-*-*         shr SHR_NO_UNDEFINED_SYMBOLS = -Wl,--no-undefined
 unix-SunOS-*-*-*         shr SHR_NO_UNDEFINED_SYMBOLS = -zdefs
-unix-AIX-*-*-*           shr SHR_NO_UNDEFINED_SYMBOLS = 
-unix-HP_UX-*-*-*         shr SHR_NO_UNDEFINED_SYMBOLS = 
+unix-AIX-*-*-*           shr SHR_NO_UNDEFINED_SYMBOLS =
+unix-HP_UX-*-*-*         shr SHR_NO_UNDEFINED_SYMBOLS =
 
 !! unix-AIX-*-*-xlc         64  AR      = $(RETRY_ON_EXIT) ar -X64 -ruv
 #done
@@ -425,6 +422,7 @@ unix-AIX-*-*-*-*           _   XLC_SPECIAL_BBINDER_FLAGS   = -bweaklocal -bbigto
 !! unix-*-*-*-gcc-4.5.2     _   GCC_VER = 4.5.2
 !! unix-*-*-*-gcc-4.6.1     _   GCC_VER = 4.6.1
 !! unix-*-*-*-gcc-4.7.0     _   GCC_VER = 4.7.0
+!! unix-*-*-*-gcc-4.7.2     _   GCC_VER = 4.7.2
 
 !! unix-SunOS-*-*-gcc       shr AR      = $(RETRY_ON_EXIT) /bbs/opt/bin/gcc -shared $(SHR_NO_UNDEFINED_SYMBOLS) $(SHR_SONAME_SET) $(SHR_SHLIB_DEPS) -o
 !! unix-SunOS-*-*-gcc-4.*   shr AR      = $(RETRY_ON_EXIT) /opt/swt/install/gcc-$(GCC_VER)/bin/g++ -shared $(SHR_NO_UNDEFINED_SYMBOLS) $(SHR_SONAME_SET) $(SHR_SHLIB_DEPS)  -o
@@ -607,8 +605,8 @@ unix-Linux-*-*-gcc-4.2        _  RPATH_FLAGS = -Wl,-rpath -Wl,/opt/swt/install/g
 unix-Linux-*-*-*        _   DEF_ENDLDFLAGS = $(RPATH_FLAGS)
 
 # tell Clang where GCC libraries are located
-!! unix-Linux-*-*-gcc-clang     _  CLANG_GCC_VER = 4.4.6
-!! unix-Linux-*-*-gcc-clang     _  CLANG_GCC_VER_CPP = -D__CLANG_GNUC__=4 -D__CLANG_GNUC_MINOR__=4 -D__CLANG_GNUC_PATCHLEVEL__=6
+!! unix-Linux-*-*-gcc-clang     _  CLANG_GCC_VER = 4.7.0
+!! unix-Linux-*-*-gcc-clang     _  CLANG_GCC_VER_CPP = -D__CLANG_GNUC__=4 -D__CLANG_GNUC_MINOR__=7 -D__CLANG_GNUC_PATCHLEVEL__=0
 !! unix-Darwin-*-*-*            _  CLANG_GCC_VER_CPP = -D__CLANG_GNUC__=4 -D__CLANG_GNUC_MINOR__=2 -D__CLANG_GNUC_PATCHLEVEL__=1
 
 !! unix-Linux-*-*-gcc-clang     _  DEF_LDFLAGS = -B/opt/swt/install/gcc-$(CLANG_GCC_VER)/lib -L/opt/swt/install/gcc-$(CLANG_GCC_VER)/lib -B/opt/swt/install/gcc-$(CLANG_GCC_VER)/lib/gcc/x86_64-unknown-linux-gnu/$(CLANG_GCC_VER)/32 -L/opt/swt/install/gcc-$(CLANG_GCC_VER)/lib/gcc/x86_64-unknown-linux-gnu/$(CLANG_GCC_VER)/32 -Wl,-rpath -Wl,/opt/swt/install/gcc-$(CLANG_GCC_VER)/lib
@@ -1024,18 +1022,18 @@ unix-                   _   CC      = $(RETRY_ON_SIGNAL) cc -DUSE_REAL_MALLOC $(
 !! unix-HP_UX-*-*-gcc _   CC      = $(RETRY_ON_SIGNAL) /opt/swt/install/gcc-$(GCC_VER)/bin/gcc -DUSE_REAL_MALLOC $(GCCEXTRAWFLAGS) $(CC64FLAGS) -std=gnu99
 !! unix-Linux-*-*-gcc   _   CC      = $(RETRY_ON_SIGNAL) $(COMPILERPATH)/gcc -DUSE_REAL_MALLOC $(GCCEXTRAWFLAGS) $(CC64FLAGS) -std=gnu99
 !! unix-FreeBSD-*-*-gcc   _   CC      = $(RETRY_ON_SIGNAL) /usr/bin/gcc $(GCCEXTRAWFLAGS) $(CC64FLAGS) -std=gnu99
-windows-        _   CC      = $(RETRY_ON_SIGNAL) cl /TC /nologo /W3 /D"WIN32" /D"_WINDOWS" /D"_MBCS" /D"NOMINMAX" /DNOGDI $(CC64FLAGS)
+windows-        _   CC      = $(RETRY_ON_SIGNAL) cl /TC /nologo /W4 /D"WIN32" /D"_WINDOWS" /D"_MBCS" /D"NOMINMAX" /DNOGDI $(CC64FLAGS)
 # For VS2008, all options have been moved to DEF_CFLAGS, where they belong,
 # and redundant options have been dropped.
-!! windows-*-*-*-cl-15.00        _   CC      = $(RETRY_ON_SIGNAL) cl /TC $(CC64FLAGS)
-!! windows-*-*-*-cl-16.00        _   CC      = $(RETRY_ON_SIGNAL) cl /TC $(CC64FLAGS)
+!! windows-*-*-*-cl-15.00        _   CC      = $(RETRY_ON_SIGNAL) cl /TC /W4 $(CC64FLAGS)
+!! windows-*-*-*-cl-16.00        _   CC      = $(RETRY_ON_SIGNAL) cl /TC /W4 $(CC64FLAGS)
 
 unix-                      _   CXX        = $(RETRY_ON_SIGNAL) CC $(CXX64FLAGS)
 !! unix-SunOS-*-*-cc-5.2   _   CXX        = $(SET_TMPDIR) $(RETRY_ON_SIGNAL) /opt/SUNWspro61/bin/CC $(CXX64FLAGS)
 !! unix-SunOS-*-*-cc-5.5   _   CXX        = $(SET_TMPDIR) $(RETRY_ON_SIGNAL) /bb/util/common/studio8-v10/SUNWspro/bin/CC $(CXX64FLAGS)
 
 !! unix-SunOS-*-*-cc-5.9   _   STUDIO_LOC = /bb/util/common/studio12-v4
-!! unix-SunOS-*-*-cc-5.10  _   STUDIO_LOC = /bb/util/common/SS12U1-20101214
+!! unix-SunOS-*-*-cc-5.10  _   STUDIO_LOC = /bb/util/common/SS12U1-20120621
 
 !! unix-SunOS-*-*-cc-5.9   _    CC        = $(SET_TMPDIR) $(RETRY_ON_SIGNAL) $(STUDIO_LOC)/SUNWspro/bin/cc $(CC64FLAGS)
 !! unix-SunOS-*-*-cc-5.9   _   CXX        = $(SET_TMPDIR) $(RETRY_ON_SIGNAL) $(STUDIO_LOC)/SUNWspro/bin/CC $(CXX64FLAGS)
@@ -1058,9 +1056,11 @@ unix-                      _   CXX        = $(RETRY_ON_SIGNAL) CC $(CXX64FLAGS)
 !! unix-Linux-*-*-gcc-def              _  CC           = gcc -DUSE_REAL_MALLOC $(GCCEXTRAWFLAGS) $(CC64FLAGS)
 
 # for development only; use Clang instead of gcc
-!! unix-Linux-*-*-gcc-clang            _  COMPILERPATH = /opt/swt/install/llvm-2.9-64/bin
-!! unix-Linux-*-*-gcc-clang            _  CXX          = $(COMPILERPATH)/clang++ $(GCCEXTRAWFLAGS) $(CXX64FLAGS) $(CLANG_GCC_VER_CPP) -isystem /opt/swt/install/gcc-$(CLANG_GCC_VER)/include/c++/$(CLANG_GCC_VER) -isystem /opt/swt/install/gcc-$(CLANG_GCC_VER)/include/c++/$(CLANG_GCC_VER)/x86_64-unknown-linux-gnu/32 -isystem /opt/swt/install/gcc-$(CLANG_GCC_VER)/include/c++/$(CLANG_GCC_VER)/backward
-!! unix-Linux-*-*-gcc-clang           64  CXX          = $(COMPILERPATH)/clang++ $(GCCEXTRAWFLAGS) $(CXX64FLAGS) $(CLANG_GCC_VER_CPP) -isystem /opt/swt/install/gcc-$(CLANG_GCC_VER)/include/c++/$(CLANG_GCC_VER) -isystem /opt/swt/install/gcc-$(CLANG_GCC_VER)/include/c++/$(CLANG_GCC_VER)/x86_64-unknown-linux-gnu -isystem /opt/swt/install/gcc-$(CLANG_GCC_VER)/include/c++/$(CLANG_GCC_VER)/backward
+!! unix-Linux-*-*-gcc-clang            _  COMPILERPATH = /opt/swt/install/llvm-3.1-64/bin
+!! unix-Linux-*-*-gcc-clang            _  CC           = $(COMPILERPATH)/clang -DUSE_REAL_MALLOC $(GCCEXTRAWFLAGS) $(CC64FLAGS)  $(CLANG_GCC_VER_CPP) -isystem/opt/swt/install/gcc-$(CLANG_GCC_VER)/include/c++/$(CLANG_GCC_VER) -isystem/opt/swt/install/gcc-$(CLANG_GCC_VER)/include/c++/$(CLANG_GCC_VER)/x86_64-unknown-linux-gnu/32 -isystem/opt/swt/install/gcc-$(CLANG_GCC_VER)/include/c++/$(CLANG_GCC_VER)/backward
+!! unix-Linux-*-*-gcc-clang           64  CC           = $(COMPILERPATH)/clang -DUSE_REAL_MALLOC $(GCCEXTRAWFLAGS) $(CC64FLAGS)  $(CLANG_GCC_VER_CPP) -isystem/opt/swt/install/gcc-$(CLANG_GCC_VER)/include/c++/$(CLANG_GCC_VER) -isystem/opt/swt/install/gcc-$(CLANG_GCC_VER)/include/c++/$(CLANG_GCC_VER)/x86_64-unknown-linux-gnu    -isystem/opt/swt/install/gcc-$(CLANG_GCC_VER)/include/c++/$(CLANG_GCC_VER)/backward
+!! unix-Linux-*-*-gcc-clang            _  CXX          = $(COMPILERPATH)/clang++                 $(GCCEXTRAWFLAGS) $(CXX64FLAGS) $(CLANG_GCC_VER_CPP) -isystem/opt/swt/install/gcc-$(CLANG_GCC_VER)/include/c++/$(CLANG_GCC_VER) -isystem/opt/swt/install/gcc-$(CLANG_GCC_VER)/include/c++/$(CLANG_GCC_VER)/x86_64-unknown-linux-gnu/32 -isystem/opt/swt/install/gcc-$(CLANG_GCC_VER)/include/c++/$(CLANG_GCC_VER)/backward
+!! unix-Linux-*-*-gcc-clang           64  CXX          = $(COMPILERPATH)/clang++                 $(GCCEXTRAWFLAGS) $(CXX64FLAGS) $(CLANG_GCC_VER_CPP) -isystem/opt/swt/install/gcc-$(CLANG_GCC_VER)/include/c++/$(CLANG_GCC_VER) -isystem/opt/swt/install/gcc-$(CLANG_GCC_VER)/include/c++/$(CLANG_GCC_VER)/x86_64-unknown-linux-gnu    -isystem/opt/swt/install/gcc-$(CLANG_GCC_VER)/include/c++/$(CLANG_GCC_VER)/backward
 
 !! unix-Cygwin-*-*-def                 _  CXX          = $(RETRY_ON_SIGNAL) g++ -D__cygwin -D__linux $(CXX64FLAGS)
 
@@ -1093,11 +1093,11 @@ unix-SunOS-*-*-gcc  _   CXX     = -ftemplate-depth-150
 unix-AIX-*-*-gcc    _   CXX     = -ftemplate-depth-150
 
 # /RTC1 /Wp64
-windows-        _   CXX     = $(RETRY_ON_SIGNAL) cl /TP /nologo /W3 /D"WIN32" /D"_WINDOWS" /D"_MBCS" /D"NOMINMAX" /DNOGDI /Zc:wchar_t /Zc:forScope /Zm2000 /Zi /wd4099 /wd4800 $(CXX64FLAGS)
+windows-        _   CXX     = $(RETRY_ON_SIGNAL) cl /TP /nologo /W4 /D"WIN32" /D"_WINDOWS" /D"_MBCS" /D"NOMINMAX" /DNOGDI /Zc:wchar_t /Zc:forScope /Zm2000 /Zi /wd4099 /wd4800 $(CXX64FLAGS)
 # For VS2008, all options have been moved to DEF_CXXFLAGS, where they belong,
 # and redundant options have been dropped.
-!! windows-*-*-*-cl-15.00        _   CXX     = $(RETRY_ON_SIGNAL) cl /TP $(CXX64FLAGS)
-!! windows-*-*-*-cl-16.00        _   CXX     = $(RETRY_ON_SIGNAL) cl /TP $(CXX64FLAGS)
+!! windows-*-*-*-cl-15.00        _   CXX     = $(RETRY_ON_SIGNAL) cl /TP /W4 $(CXX64FLAGS)
+!! windows-*-*-*-cl-16.00        _   CXX     = $(RETRY_ON_SIGNAL) cl /TP /W4 $(CXX64FLAGS)
 
 unix-               _   CXXLINK     = $(CXX)
 unix-               _   CLINK   = $(CXXLINK)

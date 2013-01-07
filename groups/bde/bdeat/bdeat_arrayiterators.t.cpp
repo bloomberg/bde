@@ -146,7 +146,7 @@ class FixedArray
     // interface and can only be manipulated and accessed through that
     // interface.
 
-#ifndef BSLS_PLATFORM__CMP_MSVC // MSVC has problems with friend templates.
+#ifndef BSLS_PLATFORM_CMP_MSVC // MSVC has problems with friend templates.
 
     // FRIEND MANIPULATORS (only way to change an object of this class)
     template <int SIZE2, typename TYPE2, typename MANIPULATOR>
@@ -218,7 +218,7 @@ class FixedArrayElement {
     // underlying array items.  This class meets the requirements of
     // 'bdeat_valuefunction'.
 
-#ifndef BSLS_PLATFORM__CMP_MSVC // MSVC has problems with friend templates.
+#ifndef BSLS_PLATFORM_CMP_MSVC // MSVC has problems with friend templates.
 
     template <int SIZE, typename TYPE2>
     friend class FixedArray;

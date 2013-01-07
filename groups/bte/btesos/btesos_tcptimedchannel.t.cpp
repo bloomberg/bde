@@ -19,7 +19,7 @@
 
 #include <bsl_iostream.h>
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
 #include <bsl_c_signal.h>
 #endif
 
@@ -139,10 +139,10 @@ enum { // error code returned from I/O operation
     DEFAULT_AUGSTATUS = -9
 };
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
 const int MAX_BUF     = 99000;     // the biggest length of a buffer for write
 
-    #if defined BSLS_PLATFORM__OS_AIX
+    #if defined BSLS_PLATFORM_OS_AIX
 
         const int BUF_WRITE   = 8192;  // the last buffer length for ioVec/oVec
         const int BUF_WRITE2  = 500;   // the last second buffer vector length
@@ -150,7 +150,7 @@ const int MAX_BUF     = 99000;     // the biggest length of a buffer for write
         const int HELPER_READ = 75000;
         const int SYS_DEPENDENT_LEN = 65000;
 
-    #elif defined(BSLS_PLATFORM__OS_LINUX)
+    #elif defined(BSLS_PLATFORM_OS_LINUX)
         const int BUF_WRITE   = 20000; // the last buffer length for ioVec/oVec
         const int BUF_WRITE2  = 1000;  // the last second vector buffer length
         const int BUF_LIMIT   = 4096;  // to set the snd/rcv buffer size
@@ -339,7 +339,7 @@ bslma_TestAllocator testAllocator;
 //                    HELPER FUNCTIONS/CLASSES FOR TESTING
 //-----------------------------------------------------------------------------
 extern "C" {
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
 static void signalHandler(int sig)
     // The signal handler does nothing.
 {
@@ -436,7 +436,7 @@ static void* threadSignalGenerator(void *arg)
             int len = bteso_SocketImpUtil::read(globalBuffer,
                                             threadInfo->d_socketHandle,
                                             HELPER_READ);
-#ifdef BSLS_PLATFORM__OS_LINUX
+#ifdef BSLS_PLATFORM_OS_LINUX
                 // kludge for Linux since the buffer is 16K and Window 32K
             if (len < HELPER_READ && len == 16383) {
                 len = bteso_SocketImpUtil::read(globalBuffer,
@@ -998,7 +998,7 @@ static int testExecutionHelper(
         rCode = 0;
     } break;
 
-    #ifdef BSLS_PLATFORM__OS_UNIX
+    #ifdef BSLS_PLATFORM_OS_UNIX
     case SIGNAL: {
         // Create a thread to generate signals.
         bcemt_ThreadUtil::Handle tid = bcemt_ThreadUtil::self();
@@ -1083,7 +1083,7 @@ static int testExecutionHelper(
         }
         // This is necessary to "wait" for the child thread to extract the
         // passed data.
-#ifdef BSLS_PLATFORM__OS_LINUX
+#ifdef BSLS_PLATFORM_OS_LINUX
         bcemt_ThreadUtil::microSleep(5 * SLEEP_TIME);
 #else
         bcemt_ThreadUtil::microSleep(SLEEP_TIME);
@@ -1196,7 +1196,7 @@ int main(int argc, char *argv[]) {
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
     registerSignal(SIGPIPE, signalHandler); // register a handler for SIGPIPE.
     registerSignal(SIGSYS, signalHandler); // register a handler for SIGSYS.
     // A write() on the closed socket will generate SIGPIPE.
@@ -1386,8 +1386,8 @@ int main(int argc, char *argv[]) {
         }
       } break;
       case 21: {
-#if !defined(BSLS_PLATFORM__OS_LINUX) && !(defined(BSLS_PLATFORM__OS_SOLARIS) \
-                                           || BSLS_PLATFORM__OS_VER_MAJOR < 10)
+#if !defined(BSLS_PLATFORM_OS_LINUX) && !(defined(BSLS_PLATFORM_OS_SOLARIS) \
+                                           || BSLS_PLATFORM_OS_VER_MAJOR < 10)
         // -------------------------------------------------------------------
         // TESTING 'timedWritevRaw' METHOD:
         // Concerns:
@@ -1573,8 +1573,8 @@ int main(int argc, char *argv[]) {
       {L_,    -1,           0,        0,           0,        0,   &longTime },
     },
 
-    #if defined (BSLS_PLATFORM__OS_SOLARIS) || \
-        defined (BSLS_PLATFORM__OS_WINDOWS)
+    #if defined (BSLS_PLATFORM_OS_SOLARIS) || \
+        defined (BSLS_PLATFORM_OS_WINDOWS)
     // Command set 5: Close the channel at the channel side to
     // test the behavior of the 'read' method w/o the 'augStatus'
     // parameter.
@@ -1648,7 +1648,7 @@ int main(int argc, char *argv[]) {
       {L_,    -1,           0,        0,           0,        0,   &longTime },
     },
     #endif
-    #if defined(BSLS_PLATFORM__OS_WINDOWS)      // windows test data
+    #if defined(BSLS_PLATFORM_OS_WINDOWS)      // windows test data
     {
       {L_,    TW,    BUF_WRITE,       0,      BUF_WRITE,      0,   &longTime },
       {L_,  TWVROA,        1,         0,           1,         0,   &timeout1 },
@@ -1676,7 +1676,7 @@ int main(int argc, char *argv[]) {
 
     #else                                       // unix test data
 
-    #ifdef BSLS_PLATFORM__OS_SOLARIS
+    #ifdef BSLS_PLATFORM_OS_SOLARIS
     // commands set 9: to resolve concern 4 - 6.
     {
       // Each request read expected number of bytes from the channel.
@@ -1787,7 +1787,7 @@ int main(int argc, char *argv[]) {
                                                        // control endpoint.
                 char buf0[WVECBUF_LEN1], buf1[VECBUF_LEN3] = "\0",
                      buf2[WVECBUF_LEN20] = "\0", buf3[WVECBUF_LEN60] = "\0",
-                     #ifdef BSLS_PLATFORM__OS_SOLARIS
+                     #ifdef BSLS_PLATFORM_OS_SOLARIS
                          buf4[WVECBUF_LEN80] = "\0",
                          buf5[WVECBUF_LEN8K] = "\0",
                      #else
@@ -1829,12 +1829,12 @@ int main(int argc, char *argv[]) {
 
                     Obj channel(sSocket, &testAllocator);
 
-                    #ifdef BSLS_PLATFORM__OS_UNIX
+                    #ifdef BSLS_PLATFORM_OS_UNIX
                     registerSignal(SIGSYS, signalHandler);
                     #endif
 
                     int ioType = 0;
-                    #ifdef BSLS_PLATFORM__OS_AIX
+                    #ifdef BSLS_PLATFORM_OS_AIX
                          ioType = IBM_WRITE;
                     #else
                          ioType = 0;
@@ -1863,7 +1863,7 @@ int main(int argc, char *argv[]) {
       case 20: {
 // TBD FIX ME
 #if 0
-// #if !defined(BSLS_PLATFORM__OS_AIX) && !defined(BSLS_PLATFORM__OS_SOLARIS)
+// #if !defined(BSLS_PLATFORM_OS_AIX) && !defined(BSLS_PLATFORM_OS_SOLARIS)
         // -------------------------------------------------------------------
         // TESTING 'timedWritev' METHOD:
         // Concerns:
@@ -2045,8 +2045,8 @@ int main(int argc, char *argv[]) {
       {L_,    -1,           0,        0,           0,        0,   &longTime },
     },
 
-    #if defined (BSLS_PLATFORM__OS_SOLARIS) || \
-        defined (BSLS_PLATFORM__OS_WINDOWS)
+    #if defined (BSLS_PLATFORM_OS_SOLARIS) || \
+        defined (BSLS_PLATFORM_OS_WINDOWS)
     // Command set 5: Close the channel at the channel side to
     // test the behavior of the 'read' method w/o the 'augStatus'
     // parameter.
@@ -2121,7 +2121,7 @@ int main(int argc, char *argv[]) {
     },
     #endif
 
-    #if defined(BSLS_PLATFORM__OS_WINDOWS)      // windows test data
+    #if defined(BSLS_PLATFORM_OS_WINDOWS)      // windows test data
     {
       {L_,    TW,    BUF_WRITE,      0,      BUF_WRITE,     0,   &longTime },
       {L_,  TWVOA,        1,          0,           1,         0,   &timeout1 },
@@ -2149,7 +2149,7 @@ int main(int argc, char *argv[]) {
 
     #else                                       // unix test data
 
-    #ifdef BSLS_PLATFORM__OS_SOLARIS
+    #ifdef BSLS_PLATFORM_OS_SOLARIS
 
     // commands set 9: to resolve concern 4 - 6.
     {
@@ -2231,7 +2231,7 @@ int main(int argc, char *argv[]) {
       {L_,  TWVIA,         7,        0,      24740,         0,   &longTime },
     },
 
-    #elif BSLS_PLATFORM__OS_LINUX
+    #elif BSLS_PLATFORM_OS_LINUX
 
     // commands set 5: to resolve concern 4 - 6.
     {
@@ -2430,7 +2430,7 @@ int main(int argc, char *argv[]) {
                                                        // control endpoint.
                 char buf0[WVECBUF_LEN1], buf1[VECBUF_LEN3] = "\0",
                      buf2[WVECBUF_LEN20] = "\0", buf3[WVECBUF_LEN60] = "\0",
-                     #ifdef BSLS_PLATFORM__OS_SOLARIS
+                     #ifdef BSLS_PLATFORM_OS_SOLARIS
                          buf4[WVECBUF_LEN80] = "\0",
                          buf5[WVECBUF_LEN8K] = "\0",
                      #else
@@ -2472,12 +2472,12 @@ int main(int argc, char *argv[]) {
 
                     Obj channel(sSocket, &testAllocator);
 
-                    #ifdef BSLS_PLATFORM__OS_UNIX
+                    #ifdef BSLS_PLATFORM_OS_UNIX
                     registerSignal(SIGSYS, signalHandler);
                     #endif
 
                     int ioType = 0;
-                    #ifdef BSLS_PLATFORM__OS_AIX
+                    #ifdef BSLS_PLATFORM_OS_AIX
                          ioType = IBM_WRITE;
                     #else
                          ioType = 0;
@@ -2504,8 +2504,8 @@ int main(int argc, char *argv[]) {
 #endif
       } break;
       case 19: {
-#if !defined(BSLS_PLATFORM__OS_LINUX) && !(defined(BSLS_PLATFORM__OS_SOLARIS) \
-                                           || BSLS_PLATFORM__OS_VER_MAJOR < 10)
+#if !defined(BSLS_PLATFORM_OS_LINUX) && !(defined(BSLS_PLATFORM_OS_SOLARIS) \
+                                           || BSLS_PLATFORM_OS_VER_MAJOR < 10)
         // -------------------------------------------------------------------
         // TESTING 'timedWriteRaw' METHOD:
         // Concerns:
@@ -2644,8 +2644,8 @@ int main(int argc, char *argv[]) {
       {L_,    -1,          0,        0,           0,        0,   &longTime },
     },
 
-    #if defined (BSLS_PLATFORM__OS_SOLARIS) || \
-        defined (BSLS_PLATFORM__OS_WINDOWS)
+    #if defined (BSLS_PLATFORM_OS_SOLARIS) || \
+        defined (BSLS_PLATFORM_OS_WINDOWS)
     // Command set 3: Close the channel at the channel side to
     // test the behavior of the 'read' method with the 'augStatus'
     // parameter.
@@ -2684,7 +2684,7 @@ int main(int argc, char *argv[]) {
       {L_,    -1,          0,        0,           0,        0,   &longTime },
     },
     #endif
-    #if defined(BSLS_PLATFORM__OS_WINDOWS)      // windows test data
+    #if defined(BSLS_PLATFORM_OS_WINDOWS)      // windows test data
     {
       {L_,  TWRA,        1,          0,           1,         0,   &longTime },
       {L_,  TWRA,    BUF_WRITE,      0,      BUF_WRITE,      0,   &longTime },
@@ -2699,7 +2699,7 @@ int main(int argc, char *argv[]) {
     },
 
     #else                                       // unix test data
-    #ifdef BSLS_PLATFORM__OS_SOLARIS
+    #ifdef BSLS_PLATFORM_OS_SOLARIS
     // Command set 3: Close the channel at the channel side to
     // test the behavior of the 'read' method with the 'augStatus'
     // parameter.
@@ -2831,12 +2831,12 @@ int main(int argc, char *argv[]) {
 
                     Obj channel(sSocket, &testAllocator);
 
-                    #ifdef BSLS_PLATFORM__OS_UNIX
+                    #ifdef BSLS_PLATFORM_OS_UNIX
                     registerSignal(SIGSYS, signalHandler);
                     #endif
 
                     int ioType = 0;
-                    #ifdef BSLS_PLATFORM__OS_AIX
+                    #ifdef BSLS_PLATFORM_OS_AIX
                          ioType = IBM_WRITE;
                     #else
                          ioType = 0;
@@ -2860,8 +2860,8 @@ int main(int argc, char *argv[]) {
 #endif
       } break;
       case 18: {
-#if !defined(BSLS_PLATFORM__OS_LINUX) && !(defined(BSLS_PLATFORM__OS_SOLARIS) \
-                                           || BSLS_PLATFORM__OS_VER_MAJOR < 10)
+#if !defined(BSLS_PLATFORM_OS_LINUX) && !(defined(BSLS_PLATFORM_OS_SOLARIS) \
+                                           || BSLS_PLATFORM_OS_VER_MAJOR < 10)
         // -------------------------------------------------------------------
         // TESTING 'timedWrite' METHOD:
         // Concerns:
@@ -2999,8 +2999,8 @@ int main(int argc, char *argv[]) {
       {L_,    -1,          0,        0,           0,        0,   &longTime },
     },
 
-    #if defined (BSLS_PLATFORM__OS_SOLARIS) || \
-        defined (BSLS_PLATFORM__OS_WINDOWS)
+    #if defined (BSLS_PLATFORM_OS_SOLARIS) || \
+        defined (BSLS_PLATFORM_OS_WINDOWS)
     // Command set 3: Close the channel at the channel side to
     // test the behavior of the 'read' method with the 'augStatus'
     // parameter.
@@ -3040,7 +3040,7 @@ int main(int argc, char *argv[]) {
     },
     #endif
 
-    #if defined(BSLS_PLATFORM__OS_WINDOWS)      // windows test data
+    #if defined(BSLS_PLATFORM_OS_WINDOWS)      // windows test data
     {
       {L_,   TWA,        1,          0,           1,         0,   &longTime },
       {L_,   TWA,    BUF_WRITE,      0,      BUF_WRITE,      0,   &longTime },
@@ -3056,7 +3056,7 @@ int main(int argc, char *argv[]) {
 
     #else
 
-    #if defined(BSLS_PLATFORM__OS_SOLARIS)      // SUN test data
+    #if defined(BSLS_PLATFORM_OS_SOLARIS)      // SUN test data
 
     // commands set 5: to resolve concern 4 - 6.
     {
@@ -3207,12 +3207,12 @@ int main(int argc, char *argv[]) {
 
                     Obj channel(sSocket, &testAllocator);
 
-                    #ifdef BSLS_PLATFORM__OS_UNIX
+                    #ifdef BSLS_PLATFORM_OS_UNIX
                     registerSignal(SIGSYS, signalHandler);
                     #endif
 
                     int ioType = 0;
-                    #ifdef BSLS_PLATFORM__OS_AIX
+                    #ifdef BSLS_PLATFORM_OS_AIX
                          ioType = IBM_WRITE;
                     #else
                          ioType = 0;
@@ -3375,8 +3375,8 @@ int main(int argc, char *argv[]) {
       {L_,    -1,           0,         0,           0,         0,  &longTime },
     },
 
-    #if defined (BSLS_PLATFORM__OS_SOLARIS) || \
-        defined (BSLS_PLATFORM__OS_WINDOWS)
+    #if defined (BSLS_PLATFORM_OS_SOLARIS) || \
+        defined (BSLS_PLATFORM_OS_WINDOWS)
     // Command set 3: Close the channel at the channel side to
     // Command set 3: Close the channel at the channel side to
     // test the behavior of the 'read' method with the 'augStatus'
@@ -3413,7 +3413,7 @@ int main(int argc, char *argv[]) {
     },
     #endif
 
-    #ifdef BSLS_PLATFORM__OS_WINDOWS
+    #ifdef BSLS_PLATFORM_OS_WINDOWS
     {
       // Establish a channel and verify that it works fine.
       {L_, HELP_WRITE,     50,       0,         50,            0,       0   },
@@ -3583,7 +3583,7 @@ int main(int argc, char *argv[]) {
 
                     Obj channel(sSocket, &testAllocator);
 
-                    #ifdef BSLS_PLATFORM__OS_UNIX
+                    #ifdef BSLS_PLATFORM_OS_UNIX
                     registerSignal(SIGSYS, signalHandler);
                     #endif
 
@@ -3746,8 +3746,8 @@ int main(int argc, char *argv[]) {
       {L_,    -1,           0,         0,           0,         0,  &longTime },
     },
 
-    #if defined (BSLS_PLATFORM__OS_SOLARIS) || \
-        defined (BSLS_PLATFORM__OS_WINDOWS)
+    #if defined (BSLS_PLATFORM_OS_SOLARIS) || \
+        defined (BSLS_PLATFORM_OS_WINDOWS)
     // Command set 3: Close the channel at the channel side to
     // test the behavior of the 'read' method with the 'augStatus'
     // parameter.
@@ -3783,7 +3783,7 @@ int main(int argc, char *argv[]) {
     },
     #endif
 
-    #ifdef BSLS_PLATFORM__OS_WINDOWS
+    #ifdef BSLS_PLATFORM_OS_WINDOWS
     {
       // Establish a channel and verify that it works fine.
       {L_, HELP_WRITE,     50,       0,         50,            0,       0   },
@@ -3960,7 +3960,7 @@ int main(int argc, char *argv[]) {
 
                     Obj channel(sSocket, &testAllocator);
 
-                    #ifdef BSLS_PLATFORM__OS_UNIX
+                    #ifdef BSLS_PLATFORM_OS_UNIX
                     registerSignal(SIGSYS, signalHandler);
                     #endif
 
@@ -4122,8 +4122,8 @@ int main(int argc, char *argv[]) {
       {L_,    -1,           0,         0,           0,         0,  &longTime },
     },
 
-    #if defined (BSLS_PLATFORM__OS_SOLARIS) || \
-        defined (BSLS_PLATFORM__OS_WINDOWS)
+    #if defined (BSLS_PLATFORM_OS_SOLARIS) || \
+        defined (BSLS_PLATFORM_OS_WINDOWS)
     // Command set 3: Close the channel at the channel side to
     // test the behavior of the 'read' method with the 'augStatus'
     // parameter.
@@ -4159,7 +4159,7 @@ int main(int argc, char *argv[]) {
     },
     #endif
 
-    #ifdef BSLS_PLATFORM__OS_WINDOWS
+    #ifdef BSLS_PLATFORM_OS_WINDOWS
     {
       // Establish a channel and verify that it works fine.
       {L_, HELP_WRITE,     50,       0,         50,        -9,       0   },
@@ -4337,7 +4337,7 @@ int main(int argc, char *argv[]) {
 
                     Obj channel(sSocket, &testAllocator);
 
-                    #ifdef BSLS_PLATFORM__OS_UNIX
+                    #ifdef BSLS_PLATFORM_OS_UNIX
                     registerSignal(SIGSYS, signalHandler);
                     #endif
 
@@ -4360,7 +4360,7 @@ int main(int argc, char *argv[]) {
         }
       } break;
       case 14: {
-#if !defined(BSLS_PLATFORM__CMP_GNU) || (BSLS_PLATFORM__CMP_VER_MAJOR < 40000)
+#if !defined(BSLS_PLATFORM_CMP_GNU) || (BSLS_PLATFORM_CMP_VER_MAJOR < 40000)
         // -------------------------------------------------------------------
         // TESTING 'timedReadv' METHOD:
         // Concerns:
@@ -4500,8 +4500,8 @@ int main(int argc, char *argv[]) {
       {L_,    -1,           0,       0,           0,         0,  &longTime },
     },
 
-    #if defined (BSLS_PLATFORM__OS_SOLARIS) || \
-        defined (BSLS_PLATFORM__OS_WINDOWS)
+    #if defined (BSLS_PLATFORM_OS_SOLARIS) || \
+        defined (BSLS_PLATFORM_OS_WINDOWS)
     // Command set 3: Close the channel at the channel side to
     // test the behavior of the 'read' method with the 'augStatus'
     // parameter.
@@ -4537,7 +4537,7 @@ int main(int argc, char *argv[]) {
     },
     #endif
 
-    #ifdef BSLS_PLATFORM__OS_WINDOWS
+    #ifdef BSLS_PLATFORM_OS_WINDOWS
     {
       // Establish a channel and verify that it works fine.
       {L_, HELP_WRITE,     50,       0,         50,         0,       0   },
@@ -4733,7 +4733,7 @@ int main(int argc, char *argv[]) {
 
                     Obj channel(sSocket, &testAllocator);
 
-                    #ifdef BSLS_PLATFORM__OS_UNIX
+                    #ifdef BSLS_PLATFORM_OS_UNIX
                     registerSignal(SIGSYS, signalHandler);
                     #endif
 
@@ -4896,8 +4896,8 @@ int main(int argc, char *argv[]) {
       {L_,    -1,           0,         0,           0,         0,  &longTime },
     },
 
-    #if defined (BSLS_PLATFORM__OS_SOLARIS) || \
-        defined (BSLS_PLATFORM__OS_WINDOWS)
+    #if defined (BSLS_PLATFORM_OS_SOLARIS) || \
+        defined (BSLS_PLATFORM_OS_WINDOWS)
     // Command set 3: Close the channel at the channel side to
     // test the behavior of the 'read' method with the 'augStatus'
     // parameter.
@@ -4933,7 +4933,7 @@ int main(int argc, char *argv[]) {
     },
     #endif
 
-    #ifdef BSLS_PLATFORM__OS_WINDOWS
+    #ifdef BSLS_PLATFORM_OS_WINDOWS
     {
       // Establish a channel and verify that it works fine.
       {L_, HELP_WRITE,     50,         0,          50,         0,  &longTime },
@@ -5096,7 +5096,7 @@ int main(int argc, char *argv[]) {
 
                     Obj channel(sSocket, &testAllocator);
 
-                    #ifdef BSLS_PLATFORM__OS_UNIX
+                    #ifdef BSLS_PLATFORM_OS_UNIX
                     registerSignal(SIGSYS, signalHandler);
                     #endif
 
@@ -5258,8 +5258,8 @@ int main(int argc, char *argv[]) {
       {L_,    -1,           0,         0,           0,         0,  &longTime },
     },
 
-    #if defined (BSLS_PLATFORM__OS_SOLARIS) || \
-        defined (BSLS_PLATFORM__OS_WINDOWS)
+    #if defined (BSLS_PLATFORM_OS_SOLARIS) || \
+        defined (BSLS_PLATFORM_OS_WINDOWS)
 
     // Command set 3: Close the channel at the channel side to
     // test the behavior of the 'read' method with the 'augStatus'
@@ -5297,7 +5297,7 @@ int main(int argc, char *argv[]) {
 
     #endif
 
-    #ifdef BSLS_PLATFORM__OS_WINDOWS
+    #ifdef BSLS_PLATFORM_OS_WINDOWS
     {
       // Establish a channel and verify that it works fine.
       {L_, HELP_WRITE,     50,         0,          50,         0,  &longTime },
@@ -5469,7 +5469,7 @@ int main(int argc, char *argv[]) {
 
                     Obj channel(sSocket, &testAllocator);
 
-                    #ifdef BSLS_PLATFORM__OS_UNIX
+                    #ifdef BSLS_PLATFORM_OS_UNIX
                     registerSignal(SIGSYS, signalHandler);
                     #endif
 
@@ -5494,7 +5494,7 @@ int main(int argc, char *argv[]) {
 
       case 11: {
 // TBD FIX ME
-#if !defined(BSLS_PLATFORM__OS_SOLARIS) && !defined(BSLS_PLATFORM__OS_LINUX)
+#if !defined(BSLS_PLATFORM_OS_SOLARIS) && !defined(BSLS_PLATFORM_OS_LINUX)
         // -------------------------------------------------------------------
         // TESTING 'writevRaw' METHOD:
         // Concerns:
@@ -5648,7 +5648,7 @@ int main(int argc, char *argv[]) {
               {L_,    -1,           0,         0,           0,         0   },
             },
 
-            #if defined(BSLS_PLATFORM__OS_WINDOWS)      // windows test data
+            #if defined(BSLS_PLATFORM_OS_WINDOWS)      // windows test data
             {
                 // Establish a channel and verify that it works fine.
               {L_,  WVRO,           1,         0,           1,         0   },
@@ -5675,7 +5675,7 @@ int main(int argc, char *argv[]) {
             },
 
             #else                                       // unix test data
-            #ifdef BSLS_PLATFORM__OS_SOLARIS
+            #ifdef BSLS_PLATFORM_OS_SOLARIS
             // Command set 5: Close the channel at the channel side to
             // test the behavior of the 'read' method w/o the 'augStatus'
             // parameter.
@@ -5819,7 +5819,7 @@ int main(int argc, char *argv[]) {
               {L_,  SIGNAL,        2,       READ_OP,        0,          0   },
               {L_,  WVIA,          7,           0,      24740,          0   },
             },
-            #elif BSLS_PLATFORM__OS_LINUX
+            #elif BSLS_PLATFORM_OS_LINUX
             // Command set 5: Close the channel at the channel side to
             // test the behavior of the 'read' method w/o the 'augStatus'
             // parameter.
@@ -6048,7 +6048,7 @@ int main(int argc, char *argv[]) {
                 char buf0[WVECBUF_LEN1], buf1[VECBUF_LEN3] = "\0",
                      buf2[WVECBUF_LEN20] = "\0", buf3[WVECBUF_LEN60] = "\0",
 
-                     #ifdef BSLS_PLATFORM__OS_SOLARIS
+                     #ifdef BSLS_PLATFORM_OS_SOLARIS
                      buf4[WVECBUF_LEN80] = "\0",
                      buf5[WVECBUF_LEN8K] = "\0",
                      #else
@@ -6089,7 +6089,7 @@ int main(int argc, char *argv[]) {
 
                     Obj channel(sSocket, &testAllocator);
 
-                    #ifdef BSLS_PLATFORM__OS_UNIX
+                    #ifdef BSLS_PLATFORM_OS_UNIX
                     registerSignal(SIGSYS, signalHandler);
                     #endif
 
@@ -6114,7 +6114,7 @@ int main(int argc, char *argv[]) {
       } break;
       case 10: {
 // TBD FIX ME
-#if !defined(BSLS_PLATFORM__OS_AIX) && !defined(BSLS_PLATFORM__OS_SOLARIS)
+#if !defined(BSLS_PLATFORM_OS_AIX) && !defined(BSLS_PLATFORM_OS_SOLARIS)
         // -------------------------------------------------------------------
         // TESTING 'writev' METHOD:
         // Concerns:
@@ -6264,8 +6264,8 @@ int main(int argc, char *argv[]) {
               {L_,  WVOA,           6,         0,        INVALID,      0   },
               {L_,    -1,           0,         0,           0,         0   },
             },
-            #if defined (BSLS_PLATFORM__OS_SOLARIS) || \
-                defined (BSLS_PLATFORM__OS_WINDOWS)
+            #if defined (BSLS_PLATFORM_OS_SOLARIS) || \
+                defined (BSLS_PLATFORM_OS_WINDOWS)
             // Command set 5: Close the channel at the channel side to
             // test the behavior of the 'read' method w/o the 'augStatus'
             // parameter.
@@ -6343,7 +6343,7 @@ int main(int argc, char *argv[]) {
             },
             #endif
 
-            #if defined(BSLS_PLATFORM__OS_WINDOWS)      // windows test data
+            #if defined(BSLS_PLATFORM_OS_WINDOWS)      // windows test data
             {
                 // Establish a channel and verify that it works fine.
               {L_,   WVO,           1,         0,           1,         0   },
@@ -6371,7 +6371,7 @@ int main(int argc, char *argv[]) {
 
             #else                                       // unix test data
 
-            #ifdef BSLS_PLATFORM__OS_SOLARIS
+            #ifdef BSLS_PLATFORM_OS_SOLARIS
             // commands set 9: to resolve concern 4 - 6.
             {
                 // Each request read expected number of bytes from the channel.
@@ -6447,7 +6447,7 @@ int main(int argc, char *argv[]) {
               {L_,  SIGNAL,        2,       READ_OP,        0,          0   },
               {L_,  WVIA,          7,           0,      24740,          0   },
             },
-            #elif BSLS_PLATFORM__OS_LINUX
+            #elif BSLS_PLATFORM_OS_LINUX
 
             // commands set 5: to resolve concern 4 - 6.
             {
@@ -6612,7 +6612,7 @@ int main(int argc, char *argv[]) {
                                                        // control endpoint.
                 char buf0[WVECBUF_LEN1], buf1[VECBUF_LEN3] = "\0",
                      buf2[WVECBUF_LEN20] = "\0", buf3[WVECBUF_LEN60] = "\0",
-                     #ifdef BSLS_PLATFORM__OS_SOLARIS
+                     #ifdef BSLS_PLATFORM_OS_SOLARIS
                          buf4[WVECBUF_LEN80] = "\0",
                          buf5[WVECBUF_LEN8K] = "\0",
                      #else
@@ -6653,12 +6653,12 @@ int main(int argc, char *argv[]) {
 
                     Obj channel(sSocket, &testAllocator);
 
-                    #ifdef BSLS_PLATFORM__OS_UNIX
+                    #ifdef BSLS_PLATFORM_OS_UNIX
                     registerSignal(SIGSYS, signalHandler);
                     #endif
 
                     int ioType;
-                    #ifdef BSLS_PLATFORM__OS_AIX
+                    #ifdef BSLS_PLATFORM_OS_AIX
                          ioType = IBM_WRITE;
                     #else
                          ioType = 0;
@@ -6683,7 +6683,7 @@ int main(int argc, char *argv[]) {
 #endif
       } break;
       case 9: {
-#if !defined(BSLS_PLATFORM__OS_SOLARIS) || BSLS_PLATFORM__OS_VER_MAJOR < 10
+#if !defined(BSLS_PLATFORM_OS_SOLARIS) || BSLS_PLATFORM_OS_VER_MAJOR < 10
         // -------------------------------------------------------------------
         // TESTING 'writeRaw' METHOD:
         // Concerns:
@@ -6793,8 +6793,8 @@ int main(int argc, char *argv[]) {
               {L_,    WR,          60,         0,        INVALID,      0   },
               {L_,    -1,           0,         0,           0,         0   },
             },
-            #if defined (BSLS_PLATFORM__OS_SOLARIS) || \
-                defined (BSLS_PLATFORM__OS_WINDOWS)
+            #if defined (BSLS_PLATFORM_OS_SOLARIS) || \
+                defined (BSLS_PLATFORM_OS_WINDOWS)
             // Command set 3: Close the channel at the channel side to
             // test the behavior of the 'read' method with the 'augStatus'
             // parameter.
@@ -6835,7 +6835,7 @@ int main(int argc, char *argv[]) {
             },
             #endif
 
-            #if defined(BSLS_PLATFORM__OS_WINDOWS)  // windows test data
+            #if defined(BSLS_PLATFORM_OS_WINDOWS)  // windows test data
             {
               {L_,   WRA,           1,         0,               1,      0   },
               {L_,   WRA,         100,         0,             100,      0   },
@@ -6850,7 +6850,7 @@ int main(int argc, char *argv[]) {
             },
 
             #else                                  // unix test data
-            #ifdef BSLS_PLATFORM__OS_SOLARIS
+            #ifdef BSLS_PLATFORM_OS_SOLARIS
             // Command set 3: Close the channel at the channel side to
             // test the behavior of the 'read' method with the 'augStatus'
             // parameter.
@@ -6981,7 +6981,7 @@ int main(int argc, char *argv[]) {
 
                     Obj channel(sSocket, &testAllocator);
 
-                    #ifdef BSLS_PLATFORM__OS_UNIX
+                    #ifdef BSLS_PLATFORM_OS_UNIX
                     registerSignal(SIGSYS, signalHandler);
                     #endif
 
@@ -7008,7 +7008,7 @@ int main(int argc, char *argv[]) {
       } break;
       case 8: {
 // TBD FIX ME
-#if !defined(BSLS_PLATFORM__OS_AIX) && !defined(BSLS_PLATFORM__OS_SOLARIS)
+#if !defined(BSLS_PLATFORM_OS_AIX) && !defined(BSLS_PLATFORM_OS_SOLARIS)
         // -------------------------------------------------------------------
         // TESTING 'write' METHOD:
         // Concerns:
@@ -7115,8 +7115,8 @@ int main(int argc, char *argv[]) {
               {L_,     W,          60,         0,        INVALID,      0   },
               {L_,    -1,           0,         0,           0,         0   },
             },
-            #if defined (BSLS_PLATFORM__OS_SOLARIS) || \
-                defined (BSLS_PLATFORM__OS_WINDOWS)
+            #if defined (BSLS_PLATFORM_OS_SOLARIS) || \
+                defined (BSLS_PLATFORM_OS_WINDOWS)
              // Command set 3: Close the channel at the channel side to
             // test the behavior of the write method with the 'augStatus'
             // parameter.
@@ -7156,7 +7156,7 @@ int main(int argc, char *argv[]) {
             },
             #endif
 
-            #if defined(BSLS_PLATFORM__OS_WINDOWS)      // windows test data
+            #if defined(BSLS_PLATFORM_OS_WINDOWS)      // windows test data
             {
               {L_,    WA,           1,         0,               1,      0   },
               {L_,    WA,         100,         0,             100,      0   },
@@ -7172,7 +7172,7 @@ int main(int argc, char *argv[]) {
 
             #else                                      // unix test data
 
-            #ifdef BSLS_PLATFORM__OS_SOLARIS
+            #ifdef BSLS_PLATFORM_OS_SOLARIS
             // commands set 5: to resolve concern 4 - 6.
             {
                 // Each request write expected number of bytes to the channel.
@@ -7230,7 +7230,7 @@ int main(int argc, char *argv[]) {
               {L_,    WA,        10000,         0,      10000,          0   },
             },
 
-            #elif defined(BSLS_PLATFORM__OS_LINUX)
+            #elif defined(BSLS_PLATFORM_OS_LINUX)
             // commands set 3: to resolve concern 4 - 6.
             {
                 // Each request write expected number of bytes to the channel.
@@ -7349,12 +7349,12 @@ int main(int argc, char *argv[]) {
 
                     Obj channel(sSocket, &testAllocator);
 
-                    #ifdef BSLS_PLATFORM__OS_UNIX
+                    #ifdef BSLS_PLATFORM_OS_UNIX
                     registerSignal(SIGSYS, signalHandler);
                     #endif
 
                     int ioType;
-                    #ifdef BSLS_PLATFORM__OS_AIX
+                    #ifdef BSLS_PLATFORM_OS_AIX
                          ioType = IBM_WRITE;
                     #else
                          ioType = 0;
@@ -7381,7 +7381,7 @@ int main(int argc, char *argv[]) {
 
       case 7: {
 // TBD FIX ME
-// #ifndef BSLS_PLATFORM__OS_AIX
+// #ifndef BSLS_PLATFORM_OS_AIX
         // -------------------------------------------------------------------
         // TESTING 'bufferedReadRaw' METHOD:
         // Concerns:
@@ -7503,8 +7503,8 @@ int main(int argc, char *argv[]) {
               {L_,    -1,            0,         0,           0,         0   },
             },
 
-            #if defined (BSLS_PLATFORM__OS_SOLARIS) || \
-                defined (BSLS_PLATFORM__OS_WINDOWS)
+            #if defined (BSLS_PLATFORM_OS_SOLARIS) || \
+                defined (BSLS_PLATFORM_OS_WINDOWS)
             // Command set 3: Close the channel at the channel side to
             // test the behavior of the method with the 'augStatus'
             // parameter.
@@ -7540,7 +7540,7 @@ int main(int argc, char *argv[]) {
             },
             #endif
 
-            #ifdef BSLS_PLATFORM__OS_WINDOWS
+            #ifdef BSLS_PLATFORM_OS_WINDOWS
             {
                 // Establish a channel and verify that it works fine.
               {L_, HELP_WRITE,     50,         0,          50,         0   },
@@ -7666,7 +7666,7 @@ int main(int argc, char *argv[]) {
 
                     Obj channel(sSocket, &testAllocator);
 
-                    #ifdef BSLS_PLATFORM__OS_UNIX
+                    #ifdef BSLS_PLATFORM_OS_UNIX
                     registerSignal(SIGSYS, signalHandler);
                     #endif
 
@@ -7810,8 +7810,8 @@ int main(int argc, char *argv[]) {
               {L_,    -1,           0,         0,           0,         0   },
             },
 
-            #if defined (BSLS_PLATFORM__OS_SOLARIS) || \
-                defined (BSLS_PLATFORM__OS_WINDOWS)
+            #if defined (BSLS_PLATFORM_OS_SOLARIS) || \
+                defined (BSLS_PLATFORM_OS_WINDOWS)
             // Command set 3: Close the channel at the channel side to
             // test the behavior of the 'read' method with the 'augStatus'
             // parameter.
@@ -7849,7 +7849,7 @@ int main(int argc, char *argv[]) {
             },
             #endif
 
-            #ifdef BSLS_PLATFORM__OS_WINDOWS
+            #ifdef BSLS_PLATFORM_OS_WINDOWS
             {
                 // Establish a channel and verify that it works fine.
               {L_, HELP_WRITE,     50,         0,          50,         0   },
@@ -7986,7 +7986,7 @@ int main(int argc, char *argv[]) {
 
                     Obj channel(sSocket, &testAllocator);
 
-                    #ifdef BSLS_PLATFORM__OS_UNIX
+                    #ifdef BSLS_PLATFORM_OS_UNIX
                     registerSignal(SIGSYS, signalHandler);
                     #endif
 
@@ -8127,8 +8127,8 @@ int main(int argc, char *argv[]) {
               {L_,    -1,           0,         0,           0,         0   },
             },
 
-            #if defined (BSLS_PLATFORM__OS_SOLARIS) || \
-                defined (BSLS_PLATFORM__OS_WINDOWS)
+            #if defined (BSLS_PLATFORM_OS_SOLARIS) || \
+                defined (BSLS_PLATFORM_OS_WINDOWS)
             // Command set 3: Close the channel at the channel side to
             // test the behavior of the 'read' method with the 'augStatus'
             // parameter.
@@ -8164,7 +8164,7 @@ int main(int argc, char *argv[]) {
             },
             #endif
 
-            #ifdef BSLS_PLATFORM__OS_WINDOWS
+            #ifdef BSLS_PLATFORM_OS_WINDOWS
             {
                 // Establish a channel and verify that it works fine.
               {L_, HELP_WRITE,     50,         0,          50,         0   },
@@ -8310,7 +8310,7 @@ int main(int argc, char *argv[]) {
 
                     Obj channel(sSocket, &testAllocator);
 
-                    #ifdef BSLS_PLATFORM__OS_UNIX
+                    #ifdef BSLS_PLATFORM_OS_UNIX
                     registerSignal(SIGSYS, signalHandler);
                     #endif
 
@@ -8331,9 +8331,9 @@ int main(int argc, char *argv[]) {
         }
       } break;
       case 4: {
-#if !defined(BSLS_PLATFORM__OS_SOLARIS) || \
-    !defined(BSLS_PLATFORM__CMP_GNU) || \
-    (BSLS_PLATFORM__CMP_VER_MAJOR < 40000)
+#if !defined(BSLS_PLATFORM_OS_SOLARIS) || \
+    !defined(BSLS_PLATFORM_CMP_GNU) || \
+    (BSLS_PLATFORM_CMP_VER_MAJOR < 40000)
 
         // -------------------------------------------------------------------
         // TESTING 'readv' METHOD:
@@ -8458,8 +8458,8 @@ int main(int argc, char *argv[]) {
               {L_,    -1,           0,         0,           0,         0   },
             },
 
-            #if defined (BSLS_PLATFORM__OS_SOLARIS) || \
-                defined (BSLS_PLATFORM__OS_WINDOWS)
+            #if defined (BSLS_PLATFORM_OS_SOLARIS) || \
+                defined (BSLS_PLATFORM_OS_WINDOWS)
             // Command set 3: Close the channel at the channel side to
             // test the behavior of the 'read' method with the 'augStatus'
             // parameter.
@@ -8495,7 +8495,7 @@ int main(int argc, char *argv[]) {
             },
             #endif
 
-            #ifdef BSLS_PLATFORM__OS_WINDOWS
+            #ifdef BSLS_PLATFORM_OS_WINDOWS
             {
                 // Establish a channel and verify that it works fine.
               {L_, HELP_WRITE,     50,         0,          50,         0   },
@@ -8664,7 +8664,7 @@ int main(int argc, char *argv[]) {
 
                     Obj channel(sSocket, &testAllocator);
 
-                    #ifdef BSLS_PLATFORM__OS_UNIX
+                    #ifdef BSLS_PLATFORM_OS_UNIX
                     registerSignal(SIGSYS, signalHandler);
                     #endif
 
@@ -8808,8 +8808,8 @@ int main(int argc, char *argv[]) {
               {L_,    -1,           0,         0,           0,         0   },
             },
 
-            #if defined (BSLS_PLATFORM__OS_SOLARIS) || \
-                defined (BSLS_PLATFORM__OS_WINDOWS)
+            #if defined (BSLS_PLATFORM_OS_SOLARIS) || \
+                defined (BSLS_PLATFORM_OS_WINDOWS)
             // Command set 3: Close the channel at the channel side to
             // test the behavior of the 'read' method w/o the 'augStatus'
             // parameter.
@@ -8845,7 +8845,7 @@ int main(int argc, char *argv[]) {
             },
             #endif
 
-            #ifdef BSLS_PLATFORM__OS_WINDOWS
+            #ifdef BSLS_PLATFORM_OS_WINDOWS
             {
               {L_, HELP_WRITE,     50,         0,          50,         0   },
               {L_,   RRA,           1,         0,           1,         0   },
@@ -8962,7 +8962,7 @@ int main(int argc, char *argv[]) {
 
                     Obj channel(sSocket, &testAllocator);
 
-                    #ifdef BSLS_PLATFORM__OS_UNIX
+                    #ifdef BSLS_PLATFORM_OS_UNIX
                     registerSignal(SIGSYS, signalHandler);
                     #endif
 
@@ -9105,8 +9105,8 @@ int main(int argc, char *argv[]) {
               {L_,    -1,           0,         0,           0,         0   },
             },
 
-            #if defined (BSLS_PLATFORM__OS_SOLARIS) || \
-                defined (BSLS_PLATFORM__OS_WINDOWS)
+            #if defined (BSLS_PLATFORM_OS_SOLARIS) || \
+                defined (BSLS_PLATFORM_OS_WINDOWS)
 
             // Command set 3: Close the channel at the channel side to
             // test the behavior of the 'read' method with the 'augStatus'
@@ -9145,7 +9145,7 @@ int main(int argc, char *argv[]) {
             },
             #endif
 
-            #ifdef BSLS_PLATFORM__OS_WINDOWS
+            #ifdef BSLS_PLATFORM_OS_WINDOWS
             {
               {L_, HELP_WRITE,     50,         0,          50,         0   },
               {L_,    RA,           1,         0,           1,         0   },
@@ -9273,7 +9273,7 @@ int main(int argc, char *argv[]) {
 
                     Obj channel(sSocket, &testAllocator);
 
-                    #ifdef BSLS_PLATFORM__OS_UNIX
+                    #ifdef BSLS_PLATFORM_OS_UNIX
                     registerSignal(SIGSYS, signalHandler);
                     #endif
 

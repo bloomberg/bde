@@ -17,7 +17,7 @@
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
 #include <bsl_c_signal.h>
 #endif
 
@@ -329,7 +329,7 @@ void timerCallback(bdet_TimeInterval *regTime, int *isInvoked)
 
 bcemt_ThreadUtil::Handle mainThread;
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
 extern "C" void *interruptThread(void* arg) {
     const int SLEEP_INTERVAL = 500000; // in microseconds
     bcemt_ThreadUtil::microSleep(SLEEP_INTERVAL, 0);
@@ -453,7 +453,7 @@ int main(int argc, char *argv[])
             << "TESTING 'dispatch' with asynchornous interrupts." << endl
             << "================================================" << endl;
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
         mainThread = bcemt_ThreadUtil::self();
         struct {
             double d_offset;
@@ -627,7 +627,7 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
 // TBD FIX ME
-#if !defined(BSLS_PLATFORM__OS_AIX) && !defined(BSLS_PLATFORM__OS_SOLARIS)
+#if !defined(BSLS_PLATFORM_OS_AIX) && !defined(BSLS_PLATFORM_OS_SOLARIS)
         // --------------------------------------------------------------------
         // TESTING 'dispatch' and 'registerTimer'
         // Concerns:
@@ -709,8 +709,8 @@ int main(int argc, char *argv[])
         };
 
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
-        #if   defined(BSLS_PLATFORM__OS_UNIX) \
-           && !defined(BSLS_PLATFORM__OS_CYGWIN)
+        #if   defined(BSLS_PLATFORM_OS_UNIX) \
+           && !defined(BSLS_PLATFORM_OS_CYGWIN)
         const bdet_TimeInterval tolerance(0.03);
         #else
         const bdet_TimeInterval tolerance(0.1);

@@ -9,7 +9,7 @@ BDES_IDENT_RCSID(bcemt_threadutilimpl_pthread_cpp,"$Id$ $CSID$")
 
 #include <bces_platform.h>
 
-#ifdef BCES_PLATFORM__POSIX_THREADS
+#ifdef BCES_PLATFORM_POSIX_THREADS
 
 #include <bdet_timeinterval.h>
 
@@ -21,9 +21,13 @@ BDES_IDENT_RCSID(bcemt_threadutilimpl_pthread_cpp,"$Id$ $CSID$")
 
 #include <pthread.h>
 
-#if defined(BSLS_PLATFORM__OS_AIX)
+#if defined(BSLS_PLATFORM_OS_AIX)
 # include <sys/types.h>    // geteuid
 # include <unistd.h>       // geteuid
+#endif
+
+#if defined(BSLS_PLATFORM_OS_DARWIN)
+# include <unistd.h>            // sysconf
 #endif
 
 namespace BloombergLP {
@@ -40,7 +44,7 @@ int localPthreadsPolicy(int policy)
       case Attr::BCEMT_SCHED_OTHER:   return SCHED_OTHER;             // RETURN
       case Attr::BCEMT_SCHED_FIFO:    return SCHED_FIFO;              // RETURN
       case Attr::BCEMT_SCHED_RR:      return SCHED_RR;                // RETURN
-#if defined(BSLS_PLATFORM__OS_HPUX)
+#if defined(BSLS_PLATFORM_OS_HPUX)
       case Attr::BCEMT_SCHED_DEFAULT:
       default:                        return SCHED_HPUX;              // RETURN
 #else
@@ -101,19 +105,21 @@ static int initPthreadAttribute(pthread_attr_t                *dest,
     if (Attr::BCEMT_UNSET_STACK_SIZE == stackSize) {
         stackSize = bcemt_Configuration::defaultThreadStackSize();
     }
+
     if (Attr::BCEMT_UNSET_STACK_SIZE != stackSize) {
         // Note that if 'stackSize' is still unset, we just leave the '*dest'
         // to its default, initialized state.
 
         BSLS_ASSERT_OPT(stackSize > 0);
 
-#if defined(BSLS_PLATFORM__OS_HPUX)
+#if defined(BSLS_PLATFORM_OS_HPUX)
         // The Itanium divides the stack into two sections: a variable stack
         // and a control stack.  To make 'stackSize' have the same meaning
         // across platforms, we must double it on this platform.
 
         stackSize *= 2;
 #endif
+
 #if defined(PTHREAD_STACK_MIN)
         // Note sometimes PTHREAD_STACK_MIN is a function so cache the call to
         // a variable.
@@ -123,6 +129,17 @@ static int initPthreadAttribute(pthread_attr_t                *dest,
             stackSize = pthreadStackMin;
         }
 #endif
+
+#if defined(BSLS_PLATFORM_OS_DARWIN)
+        // Stack size needs to be a multiple of the system page size.
+        long pageSize = sysconf(_SC_PAGESIZE);
+
+        // Page size is always a power of 2.
+        BSLS_ASSERT_SAFE(pageSize & (pageSize - 1) == 0);
+
+        stackSize = (stackSize & ~(pageSize - 1)) + pageSize;
+#endif
+
         rc |= pthread_attr_setstacksize(dest, stackSize);
     }
 
@@ -187,7 +204,7 @@ int bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::
         pPolicy = SCHED_OTHER;
       }  break;
       case Attr::BCEMT_SCHED_DEFAULT: {
-#if defined(BSLS_PLATFORM__OS_HPUX)
+#if defined(BSLS_PLATFORM_OS_HPUX)
         pPolicy = SCHED_HPUX;
 #else
         pPolicy = SCHED_OTHER;
@@ -200,7 +217,7 @@ int bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::
 
     int priority = sched_get_priority_min(pPolicy);
 
-# if defined(BSLS_PLATFORM__OS_AIX)
+# if defined(BSLS_PLATFORM_OS_AIX)
     // Note that on AIX all priorities below 40 are equivalent to a priority of
     // 40.  See AIX doc "http://publib.boulder.ibm.com/infocenter/aix/v6r1/
     // index.jsp?topic=%2Fcom.ibm.aix.basetechref%2Fdoc%2Fbasetrf1%2F
@@ -236,7 +253,7 @@ int bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::
         pPolicy = SCHED_OTHER;
       }  break;
       case Attr::BCEMT_SCHED_DEFAULT: {
-#if defined(BSLS_PLATFORM__OS_HPUX)
+#if defined(BSLS_PLATFORM_OS_HPUX)
         pPolicy = SCHED_HPUX;
 #else
         pPolicy = SCHED_OTHER;
@@ -249,7 +266,7 @@ int bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::
 
     int priority = sched_get_priority_max(pPolicy);
 
-# if defined(BSLS_PLATFORM__OS_AIX)
+# if defined(BSLS_PLATFORM_OS_AIX)
     // Note that the max prirority returned above is 127 regardless of policy
     // on AIX, yet for non-superusers, thread creation fails if
     // 'priority > 60'.  See AIX doc "http://publib.boulder.ibm.com/

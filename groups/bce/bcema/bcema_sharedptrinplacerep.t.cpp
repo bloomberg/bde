@@ -10,7 +10,7 @@ using bsl::cout;
 using bsl::endl;
 using bsl::cerr;
 
-#ifdef BSLS_PLATFORM__CMP_MSVC  // Microsoft Compiler
+#ifdef BSLS_PLATFORM_CMP_MSVC  // Microsoft Compiler
 #ifdef _MSC_EXTENSIONS          // Microsoft Extensions Enabled
 #include <bsl_new.h>            // if so, need to include new as well
 #endif

@@ -609,8 +609,8 @@ static void connectCb(btesc_CbChannel            *channel,
         connector->cancelAll();
     }
 }
-#if !defined(BSLS_PLATFORM__CMP_SUN) \
-    || BSLS_PLATFORM__CMP_VER_MAJOR >= 1360
+#if !defined(BSLS_PLATFORM_CMP_SUN) \
+    || BSLS_PLATFORM_CMP_VER_MAJOR >= 1360
 extern "C"
     // This is a thread function and, thus, it must have extern "C" linkage.
     // Sun Workshop compilers, however, have a bug in that an extern "C"
@@ -771,7 +771,7 @@ static int createServerThread(bcemt_ThreadUtil::Handle           *threadHandle,
 
     ASSERT(0 == serverSocket->localAddress(localAddress));
 
-    #ifndef BTESO_PLATFORM__WIN_SOCKETS
+    #ifndef BTESO_PLATFORM_WIN_SOCKETS
     // Windows has a bug -- setting listening socket to non-
     // blockingmode will force subsequent 'accept' calls to return
     // WSAEWOULDBLOCK *even when connection is present*.
@@ -852,7 +852,7 @@ my_Tick::my_Tick(const char *ticker)
 : d_bestBid(0)
 , d_bestOffer(0)
 {
-    #ifdef BSLS_PLATFORM__OS_UNIX
+    #ifdef BSLS_PLATFORM_OS_UNIX
     snprintf(d_name, sizeof d_name, "%s",ticker);
     #else
     if (_snprintf(d_name, sizeof d_name, "%s",ticker) < 0) {
@@ -865,7 +865,7 @@ my_Tick::my_Tick(const char *ticker, double bestBid, double bestOffer)
 : d_bestBid(bestBid)
 , d_bestOffer(bestOffer)
 {
-    #ifdef BSLS_PLATFORM__OS_UNIX
+    #ifdef BSLS_PLATFORM_OS_UNIX
     snprintf(d_name, sizeof d_name, "%s",ticker);
     #else
     if (_snprintf(d_name, sizeof d_name, "%s",ticker) < 0) {
@@ -1714,7 +1714,7 @@ int main(int argc, char *argv[])
         } break;
         case 8: {
 // TBD FIX ME
-#ifndef BSLS_PLATFORM__OS_AIX
+#ifndef BSLS_PLATFORM_OS_AIX
             // ----------------------------------------------------------------
             // TESTING 'invalidate' method:
             //
@@ -1747,7 +1747,7 @@ int main(int argc, char *argv[])
                 //   F      d_validChannel           L       d_returnValue
 
                 TestCommand commands[][MAX_COMMANDS] =
-                #ifdef BSLS_PLATFORM__OS_SOLARIS
+                #ifdef BSLS_PLATFORM_OS_SOLARIS
                   // On Solaris, non-blocking connects to the loopback
                   // succeed right away so we do not need a dispatch
                   // call.  This is absolutely not guaranteed by POSIX
@@ -1900,7 +1900,7 @@ int main(int argc, char *argv[])
         } break;
         case 7: {
 // TBD FIX ME
-#ifndef BSLS_PLATFORM__OS_AIX
+#ifndef BSLS_PLATFORM_OS_AIX
             // ----------------------------------------------------------------
             // TESTING 'cancelAll' method:
             //
@@ -1929,7 +1929,7 @@ int main(int argc, char *argv[])
                 //   F      d_validChannel           L       d_returnValue
 
                 TestCommand commands[] =
-                #ifdef BSLS_PLATFORM__OS_SOLARIS
+                #ifdef BSLS_PLATFORM_OS_SOLARIS
                   // On Solaris, non-blocking connects to the loopback
                   // succeed right away so we do not need a dispatch
                   // call.  This is absolutely not guaranteed by POSIX
@@ -2060,8 +2060,8 @@ int main(int argc, char *argv[])
         } break;
         case 6: {
 // TBD FIX ME
-#if !defined(BSLS_PLATFORM__OS_AIX) && !(defined(BSLS_PLATFORM__OS_SOLARIS) \
-                                         || BSLS_PLATFORM__OS_VER_MAJOR < 10)
+#if !defined(BSLS_PLATFORM_OS_AIX) && !(defined(BSLS_PLATFORM_OS_SOLARIS) \
+                                         || BSLS_PLATFORM_OS_VER_MAJOR < 10)
             // ----------------------------------------------------------------
             // TESTING 'timedAllocateTimed' method:
             //
@@ -2090,7 +2090,7 @@ int main(int argc, char *argv[])
                 //   F      d_validChannel           L       d_returnValue
 
                 TestCommand commands[] =
-                #ifdef BSLS_PLATFORM__OS_SOLARIS
+                #ifdef BSLS_PLATFORM_OS_SOLARIS
                   // On Solaris, non-blocking connects to the loopback
                   // succeed right away so we do not need a dispatch
                   // call.  This is absolutely not guaranteed by POSIX
@@ -2222,7 +2222,7 @@ int main(int argc, char *argv[])
         } break;
         case 5: {
 // TBD FIX ME
-#ifndef BSLS_PLATFORM__OS_AIX
+#ifndef BSLS_PLATFORM_OS_AIX
             // ----------------------------------------------------------------
             // TESTING 'timedAllocate' methods:
             //
@@ -2251,7 +2251,7 @@ int main(int argc, char *argv[])
                 //   F      d_validChannel           L       d_returnValue
 
                 TestCommand commands[] =
-                #ifdef BSLS_PLATFORM__OS_SOLARIS
+                #ifdef BSLS_PLATFORM_OS_SOLARIS
                   // A    B    C   D   E   F   G   H   I   J   K    L
                   // -    -    -   -   -   -   -   -   -   -   -    -
                 {
@@ -2381,8 +2381,8 @@ int main(int argc, char *argv[])
         } break;
         case 4: {
 // TBD FIX ME
-#if !defined(BSLS_PLATFORM__OS_AIX) && (!defined(BSLS_PLATFORM__OS_SOLARIS) \
-                                        || BSLS_PLATFORM__OS_VER_MAJOR < 10)
+#if !defined(BSLS_PLATFORM_OS_AIX) && (!defined(BSLS_PLATFORM_OS_SOLARIS) \
+                                        || BSLS_PLATFORM_OS_VER_MAJOR < 10)
             // ----------------------------------------------------------------
             // TESTING 'allocateTimed' methods:
             //
@@ -2411,7 +2411,7 @@ int main(int argc, char *argv[])
                 //   F      d_validChannel           L       d_returnValue
 
                 TestCommand commands[] =
-                #ifdef BSLS_PLATFORM__OS_SOLARIS
+                #ifdef BSLS_PLATFORM_OS_SOLARIS
                   // On Solaris, non-blocking connects to the loopback
                   // succeed right away so we do not need a dispatch
                   // call.  This is absolutely not guaranteed by POSIX
@@ -2544,7 +2544,7 @@ int main(int argc, char *argv[])
         } break;
         case 3: {
 // TBD FIX ME
-#ifndef BSLS_PLATFORM__OS_AIX
+#ifndef BSLS_PLATFORM_OS_AIX
             // ----------------------------------------------------------------
             // TESTING 'allocate' methods:
             //
@@ -2573,7 +2573,7 @@ int main(int argc, char *argv[])
                 //   F      d_validChannel
 
                 TestCommand commands[] =
-                #ifdef BSLS_PLATFORM__OS_SOLARIS
+                #ifdef BSLS_PLATFORM_OS_SOLARIS
                   // On Solaris, non-blocking connects to the loopback
                   // succeed right away so we do not need a dispatch
                   // call.  This is absolutely not guaranteed by POSIX
@@ -2707,7 +2707,7 @@ int main(int argc, char *argv[])
         } break;
         case 2: {
 // TBD FIX ME
-#ifndef BSLS_PLATFORM__OS_AIX
+#ifndef BSLS_PLATFORM_OS_AIX
             // ----------------------------------------------------------------
             // TESTING 'ACCESSOR' methods:
             //
@@ -2738,7 +2738,7 @@ int main(int argc, char *argv[])
                 //   F      d_validChannel           L       d_returnValue
 
                 TestCommand commands[] =
-                #ifdef BSLS_PLATFORM__OS_SOLARIS
+                #ifdef BSLS_PLATFORM_OS_SOLARIS
                   // On Solaris, non-blocking connects to the loopback
                   // succeed right away so we do not need a dispatch
                   // call.  This is absolutely not guaranteed by POSIX

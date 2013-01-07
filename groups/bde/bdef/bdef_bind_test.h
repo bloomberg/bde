@@ -738,7 +738,7 @@ class bdef_Bind_TestArgAlloc {
 
     // CREATORS
 
-#if defined(BSLS_PLATFORM__CMP_IBM) && BSLS_PLATFORM__CMP_VER_MAJOR >= 0x0900
+#if defined(BSLS_PLATFORM_CMP_IBM) && BSLS_PLATFORM_CMP_VER_MAJOR >= 0x0900
     // TBD: This is probably an IBM xlC compiler bug.  Reproduce in a small
     // test case later.
     bdef_Bind_TestArgAlloc(int value);
@@ -750,7 +750,7 @@ class bdef_Bind_TestArgAlloc {
         // 'allocator' to supply memory.  If 'allocator' is 0, use the
         // currently installed default allocator.
 
-#if defined(BSLS_PLATFORM__CMP_IBM) && BSLS_PLATFORM__CMP_VER_MAJOR >= 0x0900
+#if defined(BSLS_PLATFORM_CMP_IBM) && BSLS_PLATFORM_CMP_VER_MAJOR >= 0x0900
     bdef_Bind_TestArgAlloc(const bdef_Bind_TestArgAlloc&  original);
     bdef_Bind_TestArgAlloc(const bdef_Bind_TestArgAlloc&  original,
                            bslma_Allocator               *allocator);
@@ -1112,7 +1112,7 @@ void bdef_Bind_TestSlotsBase<VALUE>::setSlot(VALUE value, int index)
     d_slots[index] = value;
 }
 
-#ifdef BSLS_PLATFORM__CMP_MSVC
+#ifdef BSLS_PLATFORM_CMP_MSVC
 #pragma warning( push )
 #pragma warning( disable : 4100 ) // Verify we still need separate test paths
                                   // for MSVC
@@ -1122,7 +1122,7 @@ bool bdef_Bind_TestSlotsBase<VALUE>::verifySlots(const VALUE *EXPECTED,
                                                  bool         verboseFlag)
 {
     bool equalFlag = true;
-#if !defined(BSLS_PLATFORM__CMP_MSVC)
+#if !defined(BSLS_PLATFORM_CMP_MSVC)
     // Note: the calls to 'verifyAllocSlots' are disabled on Windows.
     // Their success depends on the "Return Value Optimization" (RVO)
     // which Windows does not seem to be applying.
@@ -1133,7 +1133,7 @@ bool bdef_Bind_TestSlotsBase<VALUE>::verifySlots(const VALUE *EXPECTED,
             break;
         }
     }
-#endif // !defined(BSLS_PLATFORM__CMP_MSVC)
+#endif // !defined(BSLS_PLATFORM_CMP_MSVC)
 
     if (verboseFlag || !equalFlag) {
         bsl::printf("\tSlots:");
@@ -1145,7 +1145,7 @@ bool bdef_Bind_TestSlotsBase<VALUE>::verifySlots(const VALUE *EXPECTED,
 
     return equalFlag;
 }
-#ifdef BSLS_PLATFORM__CMP_MSVC
+#ifdef BSLS_PLATFORM_CMP_MSVC
 #pragma warning( pop )
 #endif
                       // ------------------------------
@@ -1854,7 +1854,7 @@ AllocPtr bdef_Bind_TestSlotsAllocBase<AllocPtr>::getZ2()
                       // ----------------------------
 
 // CREATORS
-#if defined(BSLS_PLATFORM__CMP_IBM) && BSLS_PLATFORM__CMP_VER_MAJOR >= 0x0900
+#if defined(BSLS_PLATFORM_CMP_IBM) && BSLS_PLATFORM_CMP_VER_MAJOR >= 0x0900
 template <int ID>
 bdef_Bind_TestArgAlloc<ID>::bdef_Bind_TestArgAlloc(
         int              value)
@@ -1873,7 +1873,7 @@ bdef_Bind_TestArgAlloc<ID>::bdef_Bind_TestArgAlloc(
 {
 }
 
-#if defined(BSLS_PLATFORM__CMP_IBM) && BSLS_PLATFORM__CMP_VER_MAJOR >= 0x0900
+#if defined(BSLS_PLATFORM_CMP_IBM) && BSLS_PLATFORM_CMP_VER_MAJOR >= 0x0900
 template <int ID>
 bdef_Bind_TestArgAlloc<ID>::bdef_Bind_TestArgAlloc(
         const bdef_Bind_TestArgAlloc&  original)

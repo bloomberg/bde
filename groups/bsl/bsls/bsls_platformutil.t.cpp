@@ -1,5 +1,7 @@
 // bsls_platformutil.t.cpp                                            -*-C++-*-
 
+#ifndef BDE_OMIT_TRANSITIONAL // DEPRECATED
+
 #include <bsls_platformutil.h>
 
 #include <bsls_alignmentutil.h> // for testing only
@@ -12,11 +14,11 @@
 #include <stdio.h>     // sprintf(), snprintf() [NOT <cstdio>, which does not
                        // include 'snprintf']
 
-#if defined(BSLS_PLATFORM__CMP_MSVC)
+#if defined(BSLS_PLATFORM_CMP_MSVC)
 #define snprintf _snprintf
 #endif
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM_OS_UNIX
 #include <arpa/inet.h>
 #else
 #include <winsock2.h>
@@ -43,13 +45,12 @@ using namespace std;
 // [ 1] static bool isBigEndian() const;
 // [ 1] static bool isLittleEndian() const;
 // [ 4] static int roundUpToMaximalAlignment(int size);
-// [ 1] BSLS_PLATFORMUTIL__IS_LITTLE_ENDIAN
-// [ 1] BSLS_PLATFORMUTIL__IS_BIG_ENDIAN
-// [ 5] BSLS_PLATFORMUTIL__NO_64_BIT_CONSTANTS
+// [ 1] BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN
+// [ 1] BSLS_PLATFORMUTIL_IS_BIG_ENDIAN
 //-----------------------------------------------------------------------------
-// [ 6] operator<<(ostream&, const bsls::PlatformUtil::Int64&);
-// [ 7] operator<<(ostream&, const bsls::PlatformUtil::Uint64&);
-// [ 8] USAGE EXAMPLE
+// [ 5] operator<<(ostream&, const bsls::PlatformUtil::Int64&);
+// [ 6] operator<<(ostream&, const bsls::PlatformUtil::Uint64&);
+// [ 7] USAGE EXAMPLE
 //=============================================================================
 //                       STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
@@ -85,7 +86,7 @@ static void aSsErT(int c, const char *s, int i)
 //                    GLOBAL HELPER FUNCTIONS FOR TESTING
 //--------------------------------------------------------------------------
 
-#if defined(BSLS_PLATFORM__CMP_MSVC)
+#if defined(BSLS_PLATFORM_CMP_MSVC)
 #define INT64_FMT_STR  "0x%I64X"
 #else
 #define INT64_FMT_STR  "0x%llX"
@@ -118,7 +119,7 @@ void printBits(bsls::PlatformUtil::Uint64 value)
 
 #undef INT64_FMT_STR
 
-#if defined(BSLS_PLATFORM__CPU_X86) && defined(BSLS_PLATFORM__CMP_GNU)
+#if defined(BSLS_PLATFORM_CPU_X86) && defined(BSLS_PLATFORM_CMP_GNU)
 // On Linux x86, no natural type is aligned on a 64-bit boundary, but we need
 // such a type to implement low-level constructs (e.g 64-bit atomic types).
 
@@ -213,8 +214,8 @@ static bool isLittleEndian()
 // compile-time constants are also provided as preprocessor macros to
 // facilitate conditional compilation:
 //..
-//  BSLS_PLATFORMUTIL__IS_BIG_ENDIAN
-//  BSLS_PLATFORMUTIL__IS_LITTLE_ENDIAN
+//  BSLS_PLATFORMUTIL_IS_BIG_ENDIAN
+//  BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN
 //..
 // These functions and macros are useful for writing platform-independent code,
 // such as a function that converts the bytes in a 'short' to network byte
@@ -223,7 +224,7 @@ static bool isLittleEndian()
     short convertToNetworkByteOrder(short input)
         // Return the specified 'input' in network byte order.
     {
-    #ifdef BSLS_PLATFORMUTIL__IS_BIG_ENDIAN
+    #ifdef BSLS_PLATFORMUTIL_IS_BIG_ENDIAN
         return input;
     #else
         return ((input >> 8) & 0xFF) | ((input & 0xFF) << 8);
@@ -246,7 +247,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 8: {
+      case 7: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE TEST
         //
@@ -303,7 +304,7 @@ if (verbose)
         }
 
       } break;
-      case 7: {
+      case 6: {
         // --------------------------------------------------------------------
         // TESTING OUTPUT (<<) OPERATOR FOR UNSIGNED INT64 TYPE:
         //
@@ -350,7 +351,7 @@ if (verbose)
             { L_,   0x7FFFFFFF,         "2147483647"           },
             { L_,   0x80000000,         "2147483648"           },
             { L_,   0xFFFFFFFF,         "4294967295"           },
-#if !defined(BSLS_PLATFORMUTIL__NO_64_BIT_CONSTANTS)
+#if !defined(BSLS_PLATFORM_NO_64_BIT_LITERALS)
             { L_,   0x100000000,        "4294967296"           },
             { L_,   0x7FFFFFFFFFFFFFFF, "9223372036854775807"  },
             { L_,   0x8000000000000000, "9223372036854775808"  },
@@ -386,7 +387,7 @@ if (verbose)
                 if (veryVerbose)
                     cout << "\tEXPECTED FORMAT     : " << FMT << endl;
 
-                #if defined(BSLS_PLATFORM__CMP_MSVC)
+                #if defined(BSLS_PLATFORM_CMP_MSVC)
                 snprintf(buf1, SIZE, "%I64u", SPEC);
                 snprintf(buf2, SIZE, "%I64u", SPEC);
                 #else
@@ -447,7 +448,7 @@ if (verbose)
                 if (veryVerbose)
                     cout << "\tEXPECTED FORMAT     : " << FMT << endl;
 
-                #if defined(BSLS_PLATFORM__CMP_MSVC)
+                #if defined(BSLS_PLATFORM_CMP_MSVC)
                 snprintf(buf1, SIZE, "%I64u", SPEC);
                 snprintf(buf2, SIZE, "%I64u", SPEC);
                 #else
@@ -471,7 +472,7 @@ if (verbose)
             }
         }
       } break;
-      case 6: {
+      case 5: {
         // --------------------------------------------------------------------
         // TESTING OUTPUT (<<) OPERATOR FOR SIGNED INT64 TYPE:
         //
@@ -517,7 +518,7 @@ if (verbose)
             { L_,   0x7FFFFFFF,         "2147483647"           },
             { L_,   0x80000000,         "2147483648"           },
             { L_,   0xFFFFFFFF,         "4294967295"           },
-#if !defined(BSLS_PLATFORMUTIL__NO_64_BIT_CONSTANTS)
+#if !defined(BSLS_PLATFORM_NO_64_BIT_LITERALS)
             { L_,   0x100000000,        "4294967296"           },
             { L_,   0x7FFFFFFFFFFFFFFF, "9223372036854775807"  },
             { L_,   0x8000000000000000, "-9223372036854775808" },
@@ -553,7 +554,7 @@ if (verbose)
             if (veryVerbose)
                 cout << "EXPECTED FORMAT:" << endl << FMT << endl;
 
-            #if defined(BSLS_PLATFORM__CMP_MSVC)
+            #if defined(BSLS_PLATFORM_CMP_MSVC)
             snprintf(buf1, SIZE, "%I64d", SPEC);
             snprintf(buf2, SIZE, "%I64d", SPEC);
             #else
@@ -611,7 +612,7 @@ if (verbose)
                 cout << "\tSpec = \t\t      " << SPEC << endl
                      << "\tEXPECTED FORMAT     : " << FMT << endl;
 
-            #if defined(BSLS_PLATFORM__CMP_MSVC)
+            #if defined(BSLS_PLATFORM_CMP_MSVC)
             snprintf(buf1, SIZE, "%I64d", SPEC);
             snprintf(buf2, SIZE, "%I64d", SPEC);
             #else
@@ -633,67 +634,6 @@ if (verbose)
             LOOP_ASSERT(LINE, 0 == memcmp(buf2, FMT, SZ));
             LOOP_ASSERT(LINE, 0 == memcmp(buf1 + SZ, CTRL_BUF1 + SZ, REST));
         }
-      } break;
-      case 5: {
-        // --------------------------------------------------------------------
-        // TESTING 64-BIT CONSTANTS:
-        //   Concerns:
-        //     Since the actual flag indicates the lack of support for
-        //     64-bit integer constants, the only way to test the flag is
-        //     for the compiler to fail.  Therefore the test will check for
-        //     the absence of the flag and attempt to assign 64-bit constants
-        //     to a variable, ensuring the compile-time macro for support of
-        //     64-bit integer constants agrees with the capability of the
-        //     compiler.
-        // Plan:
-        //   - Assign both signed and unsigned 64-bit integer constants
-        //     to variables of each type.
-        //   - Verify that the compiler does not truncate the assignment or
-        //     the constant by splitting the constant into 2 32-bit constants
-        //     and combining them using logical operations into another
-        //     64-bit value.
-        //   - Verify the constructed value is equal to the 64-bit value
-        //     directly assigned.
-        //   - Verify no truncation is occurring by logically masking
-        //     and shifting the 64-bit value with the 32-bit lo and hi words.
-        // Testing:
-        //   BSLS_PLATFORMUTIL__NO_64_BIT_CONSTANT
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << endl
-            << "Testing 64-bit integer constant support." << endl
-            << "========================================" << endl;
-
-#if defined(BSLS_PLATFORMUTIL__NO_64_BIT_CONSTANTS)
-        if (veryVerbose) cout << "No 64-bit integer constants." << endl;
-#else
-        if (veryVerbose) cout << "64-bit integer constants supported." << endl;
-        typedef bsls::PlatformUtil::Int64 T;
-        typedef bsls::PlatformUtil::Uint64 U;
-
-        T  i, iHi, iLo, iTest;
-        U u, uHi, uLo, uTest;
-
-        // the following lines should compile
-        i = 9223372036854775807;        // 0x7FFFFFFFFFFFFFFF
-        u = 9223372036854775809;        // 0x8000000000000001
-
-        ASSERT(i == 0x7FFFFFFFFFFFFFFF);
-        ASSERT(u == 0x8000000000000001);
-
-        // generate test values in 32-bit parts
-        iHi = 0x7FFFFFFF; iLo = 0xFFFFFFFF;
-        iTest = iHi << 32 | iLo;
-        ASSERT(i == iTest);
-        ASSERT((i & 0xFFFFFFFF) == iLo);
-        ASSERT(i >> 32 == iHi);
-
-        uHi = 0x80000000; uLo = 0x00000001;
-        uTest = uHi << 32 | uLo;
-        ASSERT(u == uTest);
-        ASSERT((u & 0x0FFFFFFFF) == uLo);
-        ASSERT(u >> 32 == uHi);
-#endif
       } break;
       case 4: {
         // --------------------------------------------------------------------
@@ -738,7 +678,7 @@ if (verbose)
         struct DoubleAlign      { char c; double d_double;          };
         struct LongDoubleAlign  { char c; long double d_longDouble; };
         struct VoidPtrAlign     { char c; void  *d_voidPtr;         };
-#if defined(BSLS_PLATFORM__CPU_X86) && defined(BSLS_PLATFORM__CMP_GNU)
+#if defined(BSLS_PLATFORM_CPU_X86) && defined(BSLS_PLATFORM_CMP_GNU)
         struct Test8bytesAlign  { char c; Test8BytesAlignedType
                                                d_8BytesAlignedType; };
 #endif
@@ -755,7 +695,7 @@ if (verbose)
                 | (offsetof(DoubleAlign, d_double)         - 1)
                 | (offsetof(LongDoubleAlign, d_longDouble) - 1)
                 | (offsetof(VoidPtrAlign, d_voidPtr)       - 1)
-#if defined(BSLS_PLATFORM__CPU_X86) && defined(BSLS_PLATFORM__CMP_GNU)
+#if defined(BSLS_PLATFORM_CPU_X86) && defined(BSLS_PLATFORM_CMP_GNU)
                 | (offsetof(Test8bytesAlign,
                             d_8BytesAlignedType)           - 1)
 #endif
@@ -807,7 +747,7 @@ if (verbose)
         typedef bsls::PlatformUtil Util;
 
         // Must be at least as wide as an int.
-#ifdef BSLS_PLATFORM__CPU_64_BIT
+#ifdef BSLS_PLATFORM_CPU_64_BIT
         ASSERT(sizeof(Util::size_type) >= sizeof(long int));
 #else
         ASSERT(sizeof(Util::size_type) >= sizeof(int));
@@ -873,10 +813,10 @@ if (verbose)
         // --------------------------------------------------------------------
         // TESTING BIG ENDIAN and LITTLE ENDIAN:
         //   Concerns:
-        //     1. The macros BSLS_PLATFORMUTIL__IS_BIG_ENDIAN and
-        //        BSLS_PLATFORM__IS_LITTLE_ENDIAN must have boolean values.
-        //     2. The macros BSLS_PLATFORMUTIL__IS_BIG_ENDIAN and
-        //        BSLS_PLATFORM__IS_LITTLE_ENDIAN are assigned at compile
+        //     1. The macros BSLS_PLATFORMUTIL_IS_BIG_ENDIAN and
+        //        BSLS_PLATFORM_IS_LITTLE_ENDIAN must have boolean values.
+        //     2. The macros BSLS_PLATFORMUTIL_IS_BIG_ENDIAN and
+        //        BSLS_PLATFORM_IS_LITTLE_ENDIAN are assigned at compile
         //        time based on the platform (see overview above).  If any
         //        one of the flags or inferences is wrong, the "endian-ness"
         //        of a given platform could be wrong.  Similarly, the
@@ -896,8 +836,8 @@ if (verbose)
         // Testing:
         //   static bool isBigEndian();
         //   static bool isLittleEndian();
-        //   BSLS_PLATFORMUTIL__IS_LITTLE_ENDIAN
-        //   BSLS_PLATFORMUTIL__IS_BIG_ENDIAN
+        //   BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN
+        //   BSLS_PLATFORMUTIL_IS_BIG_ENDIAN
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -921,10 +861,10 @@ if (verbose)
         ASSERT(::isLittleEndian() != Util::isBigEndian());
 
         // Must be same as preprocessor MACROS.
-#if defined(BSLS_PLATFORMUTIL__IS_BIG_ENDIAN)
-        ASSERT(BSLS_PLATFORMUTIL__IS_BIG_ENDIAN == Util::isBigEndian());
+#if defined(BSLS_PLATFORMUTIL_IS_BIG_ENDIAN)
+        ASSERT(BSLS_PLATFORMUTIL_IS_BIG_ENDIAN == Util::isBigEndian());
 #else
-        ASSERT(BSLS_PLATFORMUTIL__IS_LITTLE_ENDIAN == Util::isLittleEndian());
+        ASSERT(BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN == Util::isLittleEndian());
 #endif
       } break;
       default: {
@@ -938,6 +878,16 @@ if (verbose)
     }
     return testStatus;
 }
+
+#else
+
+int main(int argc, char *argv[])
+{
+    return -1;
+}
+
+#endif  // BDE_OMIT_TRANSITIONAL -- DEPRECATED
+
 
 // ---------------------------------------------------------------------------
 // NOTICE:

@@ -42,7 +42,7 @@ BDES_IDENT("$Id: $")
 #include <bsls_platform.h>
 #endif
 
-#ifdef BCES_PLATFORM__WIN32_THREADS
+#ifdef BCES_PLATFORM_WIN32_THREADS
 
 // Platform-specific implementation starts here.
 
@@ -96,7 +96,7 @@ class bcemt_MutexImpl<bces_Platform::Win32Threads> {
         // pointer-sized elements.  We have to make it public so we could
         // access it in a .cpp file to verify the size.
 
-#ifdef BSLS_PLATFORM__CPU_64_BIT
+#ifdef BSLS_PLATFORM_CPU_64_BIT
         // 5*8 = 40 bytes
         CRITICAL_SECTION_BUFFER_SIZE = 5
 #else
@@ -213,7 +213,7 @@ void bcemt_MutexImpl<bces_Platform::Win32Threads>::unlock()
 
 }  // close namespace BloombergLP
 
-#endif // BCES_PLATFORM__WIN32_THREADS
+#endif // BCES_PLATFORM_WIN32_THREADS
 
 #endif
 

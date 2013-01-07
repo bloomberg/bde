@@ -317,7 +317,7 @@ class Rand {
     int get()
     {
         int next;
-#if defined BSLS_PLATFORM__OS_WINDOWS
+#if defined BSLS_PLATFORM_OS_WINDOWS
         next = rand();
 #else
         next = rand_r(&d_seed);

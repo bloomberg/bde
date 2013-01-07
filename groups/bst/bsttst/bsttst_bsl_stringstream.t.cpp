@@ -230,7 +230,7 @@ int main(int argc, char *argv[])
                 ss << vals[j] << " ";
             }
 
-#ifdef BSLS_PLATFORM__CMP_MSVC
+#ifdef BSLS_PLATFORM_CMP_MSVC
             const char *EXPECTED = "0 0 1 2 3.21 4.5 -7.3 4.3e+028 -2.4e-092 ";
 #else
             const char *EXPECTED = "0 0 1 2 3.21 4.5 -7.3 4.3e+28 -2.4e-92 ";
@@ -254,7 +254,7 @@ int main(int argc, char *argv[])
             for (j = 0; j < NUM_VALS; ++j) {
                 ss << vals[j] << " ";
             }
-#ifdef BSLS_PLATFORM__CMP_MSVC
+#ifdef BSLS_PLATFORM_CMP_MSVC
             const char *EXPECTED ="0 0 1 2 3.21 4.5 -7.3 4.3e+028 -2.4e-028 ";
 #else
             const char *EXPECTED ="0 0 1 2 3.21 4.5 -7.3 4.3e+28 -2.4e-28 ";
@@ -421,7 +421,7 @@ int main(int argc, char *argv[])
                 bss << vals[j] << " ";
             }
 
-#ifdef BSLS_PLATFORM__CMP_MSVC
+#ifdef BSLS_PLATFORM_CMP_MSVC
             const wchar_t *EXPECTED =
                                   L"0 0 1 2 3.21 4.5 -7.3 4.3e+028 -2.4e-092 ";
 #else
@@ -450,7 +450,7 @@ int main(int argc, char *argv[])
                 bss << vals[j] << " ";
             }
 
-#ifdef BSLS_PLATFORM__CMP_MSVC
+#ifdef BSLS_PLATFORM_CMP_MSVC
             const wchar_t *EXPECTED =
                                   L"0 0 1 2 3.21 4.5 -7.3 4.3e+028 -2.4e-028 ";
 #else
@@ -466,8 +466,8 @@ int main(int argc, char *argv[])
             ASSERT(NUM_VALS == j);
         }
 
-#if (!defined(BSLS_PLATFORM__OS_SOLARIS) && !defined(BSLS_PLATFORM__OS_SUNOS))\
-   || defined(BSLS_PLATFORM__CMP_GNU)
+#if (!defined(BSLS_PLATFORM_OS_SOLARIS) && !defined(BSLS_PLATFORM_OS_SUNOS))\
+   || defined(BSLS_PLATFORM_CMP_GNU)
         {
             typedef native_std::basic_stringstream<wchar_t,
                                      native_std::char_traits<wchar_t>,
@@ -642,7 +642,7 @@ int main(int argc, char *argv[])
                 ss << vals[j] << " ";
             }
 
-#ifdef BSLS_PLATFORM__CMP_MSVC
+#ifdef BSLS_PLATFORM_CMP_MSVC
             const char *EXPECTED = "0 0 1 2 3.21 4.5 -7.3 4.3e+028 -2.4e-092 ";
 #else
             const char *EXPECTED = "0 0 1 2 3.21 4.5 -7.3 4.3e+28 -2.4e-92 ";
@@ -666,7 +666,7 @@ int main(int argc, char *argv[])
             for (j = 0; j < NUM_VALS; ++j) {
                 ss << vals[j] << " ";
             }
-#ifdef BSLS_PLATFORM__CMP_MSVC
+#ifdef BSLS_PLATFORM_CMP_MSVC
             const char *EXPECTED ="0 0 1 2 3.21 4.5 -7.3 4.3e+028 -2.4e-028 ";
 #else
             const char *EXPECTED ="0 0 1 2 3.21 4.5 -7.3 4.3e+28 -2.4e-28 ";
@@ -819,7 +819,7 @@ int main(int argc, char *argv[])
                 bss << vals[j] << " ";
             }
 
-#ifdef BSLS_PLATFORM__CMP_MSVC
+#ifdef BSLS_PLATFORM_CMP_MSVC
             const wchar_t *EXPECTED =
                                   L"0 0 1 2 3.21 4.5 -7.3 4.3e+028 -2.4e-092 ";
 #else
@@ -848,7 +848,7 @@ int main(int argc, char *argv[])
                 bss << vals[j] << " ";
             }
 
-#ifdef BSLS_PLATFORM__CMP_MSVC
+#ifdef BSLS_PLATFORM_CMP_MSVC
             const wchar_t *EXPECTED =
                                   L"0 0 1 2 3.21 4.5 -7.3 4.3e+028 -2.4e-028 ";
 #else
@@ -864,8 +864,8 @@ int main(int argc, char *argv[])
             ASSERT(NUM_VALS == j);
         }
 
-#if (!defined(BSLS_PLATFORM__OS_SOLARIS) && !defined(BSLS_PLATFORM__OS_SUNOS))\
-   || defined(BSLS_PLATFORM__CMP_GNU)
+#if (!defined(BSLS_PLATFORM_OS_SOLARIS) && !defined(BSLS_PLATFORM_OS_SUNOS))\
+   || defined(BSLS_PLATFORM_CMP_GNU)
         {
             typedef native_std::basic_stringstream<wchar_t,
                                      native_std::char_traits<wchar_t>,
@@ -1047,7 +1047,7 @@ int main(int argc, char *argv[])
             for (j = 0; j < NUM_VALS; ++j) {
                 os << vals[j] << " ";
             }
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
             LOOP_ASSERT(os.str(),
                       os.str() == "0 0 1 2 3.21 4.5 -7.3 4.3e+028 -2.4e-092 ");
 #else
@@ -1066,7 +1066,7 @@ int main(int argc, char *argv[])
             for (j = 0; j < NUM_VALS; ++j) {
                 os << vals[j] << " ";
             }
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
             LOOP_ASSERT(os.str(),
                       os.str() == "0 0 1 2 3.21 4.5 -7.3 4.3e+028 -2.4e-028 ");
 #else
@@ -1164,7 +1164,7 @@ int main(int argc, char *argv[])
             for (j = 0; j < NUM_VALS; ++j) {
                 os << vals[j] << " ";
             }
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
             ASSERT(os.str() == L"0 0 1 2 3.21 4.5 -7.3 4.3e+028 -2.4e-092 ");
 #else
             ASSERT(os.str() == L"0 0 1 2 3.21 4.5 -7.3 4.3e+28 -2.4e-92 ");
@@ -1183,7 +1183,7 @@ int main(int argc, char *argv[])
             for (j = 0; j < NUM_VALS; ++j) {
                 os << vals[j] << " ";
             }
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
             ASSERT(os.str() == L"0 0 1 2 3.21 4.5 -7.3 4.3e+028 -2.4e-028 ");
 #else
             if (os.str() !=    L"0 0 1 2 3.21 4.5 -7.3 4.3e+28 -2.4e-28 ") {
@@ -1298,7 +1298,7 @@ int main(int argc, char *argv[])
             for (j = 0; j < NUM_VALS; ++j) {
                 os << vals[j] << " ";
             }
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
             LOOP_ASSERT(os.str(),
                       os.str() == "0 0 1 2 3.21 4.5 -7.3 4.3e+028 -2.4e-092 ");
 #else
@@ -1317,7 +1317,7 @@ int main(int argc, char *argv[])
             for (j = 0; j < NUM_VALS; ++j) {
                 os << vals[j] << " ";
             }
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
             LOOP_ASSERT(os.str(),
                       os.str() == "0 0 1 2 3.21 4.5 -7.3 4.3e+028 -2.4e-028 ");
 #else
@@ -1415,7 +1415,7 @@ int main(int argc, char *argv[])
             for (j = 0; j < NUM_VALS; ++j) {
                 os << vals[j] << " ";
             }
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
             ASSERT(os.str() == L"0 0 1 2 3.21 4.5 -7.3 4.3e+028 -2.4e-092 ");
 #else
             ASSERT(os.str() == L"0 0 1 2 3.21 4.5 -7.3 4.3e+28 -2.4e-92 ");
@@ -1434,7 +1434,7 @@ int main(int argc, char *argv[])
             for (j = 0; j < NUM_VALS; ++j) {
                 os << vals[j] << " ";
             }
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
             ASSERT(os.str() == L"0 0 1 2 3.21 4.5 -7.3 4.3e+028 -2.4e-028 ");
 #else
             if (os.str() !=    L"0 0 1 2 3.21 4.5 -7.3 4.3e+28 -2.4e-28 ") {

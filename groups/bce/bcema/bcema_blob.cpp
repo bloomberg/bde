@@ -14,7 +14,7 @@ BDES_IDENT_RCSID(bcema_blob_cpp,"$Id$ $CSID$")
 #include <bsl_ostream.h>
 
 // Note: on Windows -> WinDef.h:#define min(a,b) ...
-#if defined(BSLS_PLATFORM__CMP_MSVC) && defined(min)
+#if defined(BSLS_PLATFORM_CMP_MSVC) && defined(min)
 #undef min
 #endif
 

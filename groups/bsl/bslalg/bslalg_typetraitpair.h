@@ -14,7 +14,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslalg::TypeTraitPair: for 'std::pair'-like classes
 //
-//@SEE_ALSO: bslmf_typetraits
+//@SEE_ALSO: bslalg_typetraits
 //
 //@AUTHOR: Herve Bronnimann (hbronnim)
 //
@@ -35,8 +35,24 @@ BSLS_IDENT("$Id: $")
 //..
 // Note that 'first' and 'second' are *not* member functions, but data members.
 
+//TDB #ifdef BDE_OMIT_DEPRECATED // DEPRECATED
+//TBD #error "bslalg_typetraitpair is deprecated"
+//TBD #endif
+
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_DETECTNESTEDTRAIT
+#include <bslmf_detectnestedtrait.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
+#include <bslmf_integralconstant.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISPAIR
+#include <bslmf_ispair.h>
 #endif
 
 namespace BloombergLP {
@@ -55,16 +71,29 @@ struct TypeTraitPair {
     // if both 'first_type' and 'second_type' have the
     // 'TypeTraitBitwiseMoveable' trait.  User-defined types will rarely need
     // this trait.
+
+    template <class TYPE>
+    struct NestedTraitDeclaration :
+        bslmf::NestedTraitDeclaration<TYPE, bslmf::IsPair>
+    {
+        // This class template ties the 'bslalg::TypeTraitPair' trait tag to
+        // the 'bslmf::IsPair' trait metafunction.
+    };
+
+    template <class TYPE>
+    struct Metafunction : bslmf::IsPair<TYPE>::type { };
 };
 
 }  // close package namespace
 
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
 
 typedef bslalg::TypeTraitPair bslalg_TypeTraitPair;
     // This alias is defined for backward compatibility.
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

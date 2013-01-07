@@ -54,10 +54,10 @@ struct bteso_Flag {
         BTESO_NFLAGS = 1               // The number of Flag enumerators.  This
                                        // must be maintained "by hand" since
                                        // flags are not consecutive.
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , ASYNC_INTERRUPT = BTESO_ASYNC_INTERRUPT
       , NFLAGS          = BTESO_NFLAGS
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     enum BlockingMode {
@@ -65,10 +65,10 @@ struct bteso_Flag {
         // 'bteso_StreamSocket' object.
         BTESO_BLOCKING_MODE,     // Indicates blocking mode
         BTESO_NONBLOCKING_MODE   // Indicates non-blocking mode
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , BLOCKING_MODE    = BTESO_BLOCKING_MODE
       , NONBLOCKING_MODE = BTESO_NONBLOCKING_MODE
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     enum ShutdownType {
@@ -82,11 +82,11 @@ struct bteso_Flag {
         BTESO_SHUTDOWN_BOTH      // Shut down the input and output streams of
                                  // the full-duplex connection associated a
                                  // 'bteso_StreamSocket' object.
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , SHUTDOWN_RECEIVE = BTESO_SHUTDOWN_RECEIVE
       , SHUTDOWN_SEND    = BTESO_SHUTDOWN_SEND
       , SHUTDOWN_BOTH    = BTESO_SHUTDOWN_BOTH
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     enum IOWaitType {
@@ -96,11 +96,11 @@ struct bteso_Flag {
                          // socket.
         BTESO_IO_RW      // Wait for data to arrive or space to become
                          // available on a socket.
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , IO_READ  = BTESO_IO_READ
       , IO_WRITE = BTESO_IO_WRITE
       , IO_RW    = BTESO_IO_RW
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     // CLASS METHODS

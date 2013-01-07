@@ -655,7 +655,7 @@ static bdem_List                            fB20() {
 // are 0x00000000 before entering main().  Consequently, the calls in
 // fAxx() and fBxx() cause a runtime exception.  Our workaround is to
 // initialize these constants at the start of main.
-#ifdef BSLS_PLATFORM__CMP_MSVC
+#ifdef BSLS_PLATFORM_CMP_MSVC
 bdem_List                                    mA20; // Initialized in main
 bdem_List                                    mB20; // Initialized in main
 const  bdem_List&                            A20 = mA20;
@@ -704,7 +704,7 @@ static bdem_Table                            fB21() {
 // are 0x00000000 before entering main().  Consequently, the calls in
 // fAxx() and fBxx() cause a runtime exception.  Our workaround is to
 // initialize these constants at the start of main.
-#ifdef BSLS_PLATFORM__CMP_MSVC
+#ifdef BSLS_PLATFORM_CMP_MSVC
 bdem_Table                                    mA21;
 bdem_Table                                    mB21;
 const  bdem_Table&                            A21 = mA21;
@@ -747,7 +747,7 @@ static bdem_Choice                            fB30() {
 // are 0x00000000 before entering main().  Consequently, the calls in
 // fAxx() and fBxx() cause a runtime exception.  Our workaround is to
 // initialize these constants at the start of main.
-#ifdef BSLS_PLATFORM__CMP_MSVC
+#ifdef BSLS_PLATFORM_CMP_MSVC
 bdem_Choice                                    mA30;
 bdem_Choice                                    mB30;
 const  bdem_Choice&                            A30 = mA30;
@@ -796,7 +796,7 @@ static bdem_ChoiceArray                            fB31() {
 // are 0x00000000 before entering main().  Consequently, the calls in
 // fAxx() and fBxx() cause a runtime exception.  Our workaround is to
 // initialize these constants at the start of main.
-#ifdef BSLS_PLATFORM__CMP_MSVC
+#ifdef BSLS_PLATFORM_CMP_MSVC
 bdem_ChoiceArray                                    mA31;
 bdem_ChoiceArray                                    mB31;
 const  bdem_ChoiceArray&                            A31 = mA31;
@@ -1242,7 +1242,7 @@ int main(int argc, char *argv[])
 // are 0x00000000 before entering main().  Consequently, the calls in
 // fAxx() and fBxx() cause a runtime exception.  Our workaround is to
 // initialize these constants at the start of main.
-#ifdef BSLS_PLATFORM__CMP_MSVC
+#ifdef BSLS_PLATFORM_CMP_MSVC
     mA20 = fA20();
     mB20 = fB20();
     mA21 = fA21();
@@ -3098,7 +3098,7 @@ int main(int argc, char *argv[])
                 bslma_TestAllocator testAllocator(veryVeryVerbose);
                 // Set a default alloc guard
                 const bslma_DefaultAllocatorGuard dag1(&testAllocator);
-#if !defined(BSLS_PLATFORM__CMP_MSVC)
+#if !defined(BSLS_PLATFORM_CMP_MSVC)
                 BEGIN_BSLMA_EXCEPTION_TEST {
 #endif
                     Catalog cat = ggCatalog(SPEC);
@@ -3171,7 +3171,7 @@ int main(int argc, char *argv[])
                         ASSERT(ORIG != B1);
                         ASSERT(ORIG != B2);
                     }
-#if !defined(BSLS_PLATFORM__CMP_MSVC)
+#if !defined(BSLS_PLATFORM_CMP_MSVC)
                 } END_BSLMA_EXCEPTION_TEST
 #endif
             }

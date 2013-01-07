@@ -6,7 +6,7 @@ BDES_IDENT_RCSID(bcemt_conditionimpl_win32_cpp,"$Id$ $CSID$")
 
 #include <bcemt_mutex.h>
 
-#ifdef BCES_PLATFORM__WIN32_THREADS
+#ifdef BCES_PLATFORM_WIN32_THREADS
 
 // #define BCEMT_WIN64_DEBUG
 
@@ -41,7 +41,7 @@ int bcemt_ConditionImpl<bces_Platform::Win32Threads>::wait(bcemt_Mutex *mutex)
 
 }  // close namespace BloombergLP
 
-#endif  // BCES_PLATFORM__WIN32_THREADS
+#endif  // BCES_PLATFORM_WIN32_THREADS
 
 // ---------------------------------------------------------------------------
 // NOTICE:

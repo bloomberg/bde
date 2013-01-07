@@ -9,7 +9,7 @@
 #include <bsl_iostream.h>
 #include <bsl_ostream.h>
 
-#ifdef BSLS_PLATFORM__CMP_MSVC
+#ifdef BSLS_PLATFORM_CMP_MSVC
 // disable lots of warnings asking to confirm we know the rules for operator
 // precedence.  These warnings are noise, and fixing them in code will render
 // the tests as significantly less readable.
@@ -2748,7 +2748,7 @@ int main(int argc, char *argv[]) {
             //--  --------      -------------------
             // test zero pattern and sign bit.
             { L_,   0.0,        "0 0..0"                                },
-#if !defined(BSLS_PLATFORM__CMP_MSVC) || BSLS_PLATFORM__CMP_VER_MAJOR >= 1400
+#if !defined(BSLS_PLATFORM_CMP_MSVC) || BSLS_PLATFORM_CMP_VER_MAJOR >= 1400
     // Microsoft 2003 compiler does not support -0.0
             { L_,  -0.0,        "1 0..0"                                },
 #else
@@ -2968,7 +2968,7 @@ int main(int argc, char *argv[]) {
             //--  --------      -------------------
             // test zero pattern and sign bit.
             { L_,   0.0,        "0 0..0"                                },
-#if !defined(BSLS_PLATFORM__CMP_MSVC) || BSLS_PLATFORM__CMP_VER_MAJOR >= 1400
+#if !defined(BSLS_PLATFORM_CMP_MSVC) || BSLS_PLATFORM_CMP_VER_MAJOR >= 1400
     // Microsoft 2003 compiler does not support -0.0
             { L_,  -0.0,        "1 0..0"                                },
 #else
@@ -4101,7 +4101,7 @@ int main(int argc, char *argv[]) {
             //--  --------      -------------------
             // test zero pattern and sign bit.
             { L_,  0.0,        "0 0..0"                                },
-#if !defined(BSLS_PLATFORM__CMP_MSVC) || BSLS_PLATFORM__CMP_VER_MAJOR >= 1400
+#if !defined(BSLS_PLATFORM_CMP_MSVC) || BSLS_PLATFORM_CMP_VER_MAJOR >= 1400
     // Microsoft 2003 compiler does not support -0.0
             { L_, -0.0,        "1 0..0"                                },
 #else
@@ -4240,7 +4240,7 @@ int main(int argc, char *argv[]) {
             //--  --------      -------------------
             // test zero pattern and sign bit.
             { L_,   0.0,        "0 0..0"                                },
-#if !defined(BSLS_PLATFORM__CMP_MSVC) || BSLS_PLATFORM__CMP_VER_MAJOR >= 1400
+#if !defined(BSLS_PLATFORM_CMP_MSVC) || BSLS_PLATFORM_CMP_VER_MAJOR >= 1400
     // Microsoft 2003 compiler does not support -0.0
             { L_,  -0.0,        "1 0..0"                                },
 #else

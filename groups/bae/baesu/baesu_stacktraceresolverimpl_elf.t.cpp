@@ -164,13 +164,13 @@ const void *addFixedOffset(bsls_Types::UintPtr funcAddress)
     // Given a function pointer stored in a 'UintPtr', add an offset to the
     // pointer and return it as a 'const void *'.
 {
-#ifdef BSLS_PLATFORM__OS_HPUX
+#ifdef BSLS_PLATFORM_OS_HPUX
     // On HPUX, '&functionName' is a ptr to a ptr to a record consisting of 2
     // words, one of which is a pointer to the actual code.
 
     const char **ptr = (const char **) funcAddress;
 
-#if defined(BSLS_PLATFORM__CPU_32_BIT)
+#if defined(BSLS_PLATFORM_CPU_32_BIT)
     return ptr[1] + 4;
 #else
     return ptr[0] + 4;
@@ -447,7 +447,7 @@ int main(int argc, char *argv[])
             // frame[1] was pointing to a static, the ELF resolver should have
             // found this source file name.
 
-#ifndef BSLS_PLATFORM__OS_LINUX
+#ifndef BSLS_PLATFORM_OS_LINUX
             for (int i = 0; i < stackTrace.length(); ++i) {
                 if (0 == i || 2 == i || 4 == i) {
                     ASSERT(!stackTrace[i].isSourceFileNameKnown());
@@ -513,7 +513,7 @@ int main(int argc, char *argv[])
                 break;
             }
 
-#if defined(BSLS_PLATFORM__OS_SOLARIS) && !defined(BSLS_PLATFORM__CMP_GNU)
+#if defined(BSLS_PLATFORM_OS_SOLARIS) && !defined(BSLS_PLATFORM_CMP_GNU)
             // Sun CC, won't demangle
             break;
 #endif

@@ -20,10 +20,10 @@
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
 
-#if defined (BSLS_PLATFORM__OS_UNIX) && \
-    !(defined(BSLS_PLATFORM__OS_SUNOS)   ||     \
-      defined(BSLS_PLATFORM__OS_SOLARIS) ||     \
-      defined(BSLS_PLATFORM__OS_LINUX))
+#if defined (BSLS_PLATFORM_OS_UNIX) && \
+    !(defined(BSLS_PLATFORM_OS_SUNOS)   ||     \
+      defined(BSLS_PLATFORM_OS_SOLARIS) ||     \
+      defined(BSLS_PLATFORM_OS_LINUX))
 
 //=============================================================================
 //                             TEST PLAN

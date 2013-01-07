@@ -43,7 +43,7 @@
 #include <bsls_platform.h>
 
 
-#if !defined(BSLS_PLATFORM__CMP_IBM) && !defined(BSLS_PLATFORM__CMP_MSVC)
+#if !defined(BSLS_PLATFORM_CMP_IBM) && !defined(BSLS_PLATFORM_CMP_MSVC)
     // On IBM, ctype_base inherits from 'facet', which causes an ambiguous
     // base class error in 'xlocale', when the code refers to 'UserCtype::id'.
 

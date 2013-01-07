@@ -2,7 +2,7 @@
 
 //@PURPOSE: Provide initial declarations for each C++ standard header file.
 //
-//@SEE_ALSO: bsl_stdhdrs_epilogue.h
+//@SEE_ALSO: bsl_stdhdrs_epilogue
 //
 //@AUTHOR: Pablo Halpern (phalpern), Arthur Chiu (achiu21)
 //
@@ -41,16 +41,16 @@
 #define INCLUDED_BSL_STDHDRS_PROLOGUE
 
 #ifndef INCLUDED_BSLS_IDENT
-# include <bsls_ident.h>
+#include <bsls_ident.h>
 #endif
 BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLS_NATIVESTD
-# include <bsls_nativestd.h>
+#include <bsls_nativestd.h>
 #endif
 
 #ifndef INCLUDED_BSLS_PLATFORM
-# include <bsls_platform.h>
+#include <bsls_platform.h>
 #endif
 
 // When a standard C header file (e.g., 'stddef.h') is included within an
@@ -59,27 +59,25 @@ BSLS_IDENT("$Id: $")
 // header is wrapped around an 'extern "C++"' block.
 extern "C++" {
 
-namespace std
-{
+namespace std {
     namespace rel_ops { }
-}
+}  // close namespace std
 
-namespace bsl
-{
-    // Only 'rel_ops' is alised and imported into the 'bsl' namespace here.
+namespace bsl {
+    // Only 'rel_ops' is aliased and imported into the 'bsl' namespace here.
     // Other 'std' symbols are imported by files in the 'bsl+bslhdrs' package.
     namespace rel_ops = std::rel_ops;
-}
+}  // close namespace bsl
 
 }  // extern "C++"
 
-#if !defined(BSL_LEGACY) || BSL_LEGACY == 1
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
     // We define 'BloombergLP_std' for backwards compatibility (a lot of code
     // still uses this according to OpenGrok).
 #define BloombergLP_std bsl
-#endif
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
-#if defined(BSLS_PLATFORM__CMP_SUN)
+#if defined(BSLS_PLATFORM_CMP_SUN)
   // Force the SUN compiler to find *.cc files when including native headers.
   // Without this macro, .cc files are included lazily, which is usually AFTER
   // 'std' has been defined as a macro, breaking their compilation.
@@ -88,11 +86,11 @@ namespace bsl
 
 #endif // INCLUDED_BSL_STDHDRS_PROLOGUE
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2009
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

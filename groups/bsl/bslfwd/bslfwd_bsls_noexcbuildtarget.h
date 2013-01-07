@@ -8,7 +8,7 @@
 
 //@PURPOSE: Provide a forward-declaration for the corresponding BDE type.
 //
-//@SEE_ALSO: bslfwd_buildtarget.h
+//@SEE_ALSO: bslfwd_buildtarget
 //
 //@AUTHOR: Alexei Zakharov (azakharov7)
 //
@@ -24,17 +24,21 @@
 
 namespace BloombergLP {
     namespace bsls {
-        class NoExcBuildTarget;
+        class BuildTargetNoExc;
     }
 
-    typedef bsls::NoExcBuildTarget bsls_NoExcBuildTarget;
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
+    typedef bsls::BuildTargetNoExc bsls_NoExcBuildTarget;
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 }
 
 #else
 
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 namespace BloombergLP {
     class bsls_NoExcBuildTarget;
 }
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 #endif
 

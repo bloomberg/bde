@@ -23,7 +23,7 @@ BDES_IDENT_RCSID(bteso_defaulteventmanager_devpoll_cpp,"$Id$ $CSID$")
 #include <bdetu_systemtime.h>
 #include <bsls_assert.h>
 
-#if defined(BSLS_PLATFORM__OS_SOLARIS) || defined(BSLS_PLATFORM__OS_HPUX)
+#if defined(BSLS_PLATFORM_OS_SOLARIS) || defined(BSLS_PLATFORM_OS_HPUX)
 #include <sys/devpoll.h>
 #include <unistd.h>
 #include <fcntl.h>

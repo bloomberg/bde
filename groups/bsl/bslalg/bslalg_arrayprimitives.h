@@ -88,24 +88,16 @@ BSLS_IDENT("$Id$ $CSID$")
 //..
 //  Trait                                         English description
 //  --------------------------------------------  -----------------------------
-//  bslalg::TypeTraitPair                         "TYPE has the pair trait", or
-//                                                "TYPE is a pair type"
-//
-//  bslalg::TypeTraitUsesBslmaAllocator           "the 'TYPE' constructor takes
-//                                                an allocator argument", or
-//                                                "'TYPE' supports 'bslma'
-//                                                allocators"
-//
-//  bslalg::TypeTraitHasTrivialDefaultConstructor "TYPE has the trivial default
+//  bsl::is_trivially_default_constructible       "TYPE has the trivial default
 //                                                constructor trait", or
 //                                                "TYPE has a trivial default
 //                                                constructor"
 //
-//  bslalg::TypeTraitBitwiseCopyable              "TYPE has the bit-wise
+//  bsl::is_trivially_copyable                    "TYPE has the bit-wise
 //                                                copyable trait", or
 //                                                "TYPE is bit-wise copyable"
 //
-//  bslalg::TypeTraitBitwiseMoveable              "TYPE has the bit-wise
+//  bslmf::IsBitwiseMoveable                      "TYPE has the bit-wise
 //                                                moveable trait", or
 //                                                "TYPE is bit-wise moveable"
 //..
@@ -122,8 +114,148 @@ BSLS_IDENT("$Id$ $CSID$")
 //
 ///Usage
 ///-----
-// This component is for use by the 'bslstl' package.  Other clients should use
-// the STL algorithms (found in header '<algorithm>' and '<memory>').
+// In this section we show intended use of this component.
+//
+///Example 1: Defining a Vector-Like Type
+/// - - - - - - - - - - - - - - - - - - -
+// Suppose we want to define a STL-vector-like type.  One requirement is that
+// an object of this vector should forward its allocator to its contained
+// elements when appropriate.  Another requirement is that the vector should
+// take advantage of the optimizations available for certain traits of the
+// contained element type.  For example, if the contained element type has the
+// 'bslalg::TypeTraitBitwiseMoveable' trait, moving an element in a vector can
+// be done using 'memcpy' instead of copy construction.
+//
+// We can utilize the class methods provided by 'bslalg::ArrayPrimitives' to
+// satisfy the above requirements.  Unlike 'bslalg::ScalarPrimitives', which
+// operates on a single element, 'bslalg::ArrayPrimitives' operates on arrays,
+// which will further help simplify our implementation.
+//
+// First, we create an elided definition of the class template 'MyVector':
+//..
+//  template <class TYPE>
+//  class MyVector {
+//      // This class implements a vector of elements of the (template
+//      // parameter) 'TYPE', which must be copy constructible.  Note that for
+//      // the brevity of the usage example, this class does not provide any
+//      // Exception-Safety guarantee.
+//
+//      // DATA
+//      TYPE             *d_array_p;      // pointer to the allocated array
+//
+//      int               d_capacity;     // capacity of the allocated array
+//
+//      int               d_size;         // number of objects
+//
+//      bslma::Allocator *d_allocator_p;  // allocation pointer (held, not
+//                                        // owned)
+//
+//    public:
+//      // ...
+//
+//      MyVector(const MyVector&   original,
+//               bslma::Allocator *basicAllocator = 0);
+//          // Create a 'MyVector' object having the same value as the
+//          // specified 'original' object.  Optionally specify a
+//          // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
+//          // 0, the currently installed default allocator is used.
+//
+//      // ...
+//
+//      // MANIPULATORS
+//      void reserve(int capacity);
+//          // Change the capacity of this vector to the specified 'capacity'
+//          // if it is greater than the vector's current capacity.
+//
+//      void insert(int dstIndex, int numElements, const TYPE& value);
+//          // Insert, into this vector, the specified 'numElements' of the
+//          // specified 'value' at the specified 'dstIndex'.  The behavior is
+//          // undefined unless '0 <= dstIndex <= size()'.
+//  };
+//..
+// Then, we implement the copy constructor of 'MyVector':
+//..
+//  template <class TYPE>
+//  MyVector<TYPE>::MyVector(const MyVector<TYPE>&  original,
+//                           bslma::Allocator      *basicAllocator)
+//  : d_array_p(0)
+//  , d_capacity(0)
+//  , d_size(0)
+//  , d_allocator_p(bslma::Default::allocator(basicAllocator))
+//  {
+//      reserve(d_size);
+//..
+// Here, we call the 'bslalg::ArrayPrimitives::copyConstruct' class method to
+// copy each element from 'original.d_array_p' to 'd_array_p' (When
+// appropriate, this class method passes this vector's allocator to the copy
+// constructor of 'TYPE' or uses bit-wise copy.):
+//..
+//      bslalg::ArrayPrimitives::copyConstruct(
+//                                        d_array_p,
+//                                        original.d_array_p,
+//                                        original.d_array_p + original.d_size,
+//                                        d_allocator_p);
+//      d_size = original.d_size;
+//  }
+//..
+// Now, we implement the 'reserve' method of 'MyVector':
+//..
+//  template <class TYPE>
+//  void MyVector<TYPE>::reserve(int capacity)
+//  {
+//      if (d_capacity >= capacity) return;
+//
+//      TYPE *newArrayPtr = static_cast<TYPE*>(d_allocator_p->allocate(
+//         BloombergLP::bslma::Allocator::size_type(capacity * sizeof(TYPE))));
+//
+//      if (d_array_p) {
+//..
+// Here, we call the 'bslalg::ArrayPrimitives::destructiveMove' class method to
+// copy each original element from 'd_array_p' to 'newArrayPtr' and then
+// destroy all the original elements (When appropriate, this class method
+// passes this vector's allocator to the copy constructor of 'TYPE' or uses
+// bit-wise copy.):
+//..
+//          bslalg::ArrayPrimitives::destructiveMove(newArrayPtr,
+//                                                   d_array_p,
+//                                                   d_array_p + d_size,
+//                                                   d_allocator_p);
+//          d_allocator_p->deallocate(d_array_p);
+//      }
+//
+//      d_array_p = newArrayPtr;
+//      d_capacity = capacity;
+//  }
+//..
+// Finally, we implement the 'insert' method of 'MyVector':
+//..
+//  template <class TYPE>
+//  void MyVector<TYPE>::insert(int         dstIndex,
+//                              int         numElements,
+//                              const TYPE& value)
+//  {
+//      int newSize = d_size + numElements;
+//
+//      if (newSize > d_capacity) {
+//          int newCapacity = d_capacity == 0 ? 2 : d_capacity * 2;
+//          reserve(newCapacity);
+//      }
+//..
+// Here, we call the 'bslalg::ArrayPrimitives::insert' class method to first
+// move each element after 'dstIndex' by 'numElements' and then copy construct
+// 'numElements' of 'value' at 'dstIndex'.  (When appropriate, this class
+// method passes this vector's allocator to the copy constructor of 'TYPE' or
+// uses bit-wise copy.):
+//..
+//      bslalg::ArrayPrimitives::insert(d_array_p + dstIndex,
+//                                      d_array_p + d_size,
+//                                      value,
+//                                      numElements,
+//                                      d_allocator_p);
+//
+//      d_size = newSize;
+//  }
+//..
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
@@ -145,20 +277,12 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bslalg_constructorproxy.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_HASTRAIT
-#include <bslalg_hastrait.h>
-#endif
-
 #ifndef INCLUDED_BSLALG_SCALARDESTRUCTIONPRIMITIVES
 #include <bslalg_scalardestructionprimitives.h>
 #endif
 
 #ifndef INCLUDED_BSLALG_SCALARPRIMITIVES
 #include <bslalg_scalarprimitives.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
 #endif
 
 #ifndef INCLUDED_BSLMA_ALLOCATOR
@@ -169,16 +293,16 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bslma_default.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_ANYTYPE
-#include <bslmf_anytype.h>
-#endif
-
 #ifndef INCLUDED_BSLMF_ASSERT
 #include <bslmf_assert.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_FUNCTIONPOINTERTRAITS
 #include <bslmf_functionpointertraits.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
+#include <bslmf_isbitwisemoveable.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_ISCONVERTIBLE
@@ -193,8 +317,32 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bslmf_ispointer.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_ISSAME
+#include <bslmf_issame.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
+#include <bslmf_istriviallycopyable.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISTRIVIALLYDEFAULTCONSTRUCTIBLE
+#include <bslmf_istriviallydefaultconstructible.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_MATCHANYTYPE
+#include <bslmf_matchanytype.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_METAINT
+#include <bslmf_metaint.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_REMOVECVQ
 #include <bslmf_removecvq.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_REMOVEPOINTER
+#include <bslmf_removepointer.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ALIGNMENTUTIL
@@ -946,46 +1094,6 @@ struct ArrayPrimitives_Imp {
         // *prove* that the passed range is invalid.
 };
 
-                        // ================================
-                        // bslalg_ArrayPrimitives_RemovePtr
-                        // ================================
-
-template <typename NON_PTR_TYPE>
-struct ArrayPrimitives_RemovePtr {
-    // Given a template parameter 'T*', yield 'Type == T'.  Given a template
-    // paramter 'T' that is not a pointer, yield 'T'.
-    //
-    // DEPRECATED: In a future release, the class will be phased out and
-    // replaced by a new component in bslmf.
-
-    typedef NON_PTR_TYPE Type;
-};
-
-template <typename TARGET_TYPE>
-struct ArrayPrimitives_RemovePtr<TARGET_TYPE *> {
-
-    typedef TARGET_TYPE Type;
-};
-
-template <typename TARGET_TYPE>
-struct ArrayPrimitives_RemovePtr<const TARGET_TYPE *> {
-
-    typedef TARGET_TYPE Type;
-};
-
-template <typename TARGET_TYPE>
-struct ArrayPrimitives_RemovePtr<volatile TARGET_TYPE *> {
-
-    typedef TARGET_TYPE Type;
-};
-
-template <typename TARGET_TYPE>
-struct ArrayPrimitives_RemovePtr<const volatile TARGET_TYPE *> {
-
-    typedef TARGET_TYPE Type;
-};
-
-
 // ===========================================================================
 //                      INLINE FUNCTION DEFINITIONS
 // ===========================================================================
@@ -1004,16 +1112,14 @@ void ArrayPrimitives::defaultConstruct(TARGET_TYPE *begin,
                                        ALLOCATOR   *allocator)
 {
     BSLS_ASSERT_SAFE(begin || 0 == numElements);
-    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
+    BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
     enum {
-        VALUE = HasTrait<TARGET_TYPE,
-                                TypeTraitHasTrivialDefaultConstructor
-                               >::VALUE ? Imp::HAS_TRIVIAL_DEFAULT_CTOR_TRAITS
-              : HasTrait<TARGET_TYPE,
-                                TypeTraitBitwiseCopyable
-                               >::VALUE ? Imp::BITWISE_COPYABLE_TRAITS
-              : Imp::NIL_TRAITS
+        VALUE = bsl::is_trivially_default_constructible<TARGET_TYPE>::value
+              ? Imp::HAS_TRIVIAL_DEFAULT_CTOR_TRAITS
+              : bsl::is_trivially_copyable<TARGET_TYPE>::value
+                  ? Imp::BITWISE_COPYABLE_TRAITS
+                  : Imp::NIL_TRAITS
     };
     ArrayPrimitives_Imp::defaultConstruct(begin,
                                           numElements,
@@ -1029,7 +1135,7 @@ void ArrayPrimitives::uninitializedFillN(TARGET_TYPE        *begin,
                                          ALLOCATOR          *allocator)
 {
     BSLS_ASSERT_SAFE(begin || 0 == numElements);
-    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
+    BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
     enum {
          // We provide specialized overloads of 'uninitializedFillN' for
@@ -1038,15 +1144,14 @@ void ArrayPrimitives::uninitializedFillN(TARGET_TYPE        *begin,
          // pointer template function overload in 'Imp', so we resort to the
          // general case for those.
 
-         IS_FUNCTION_POINTER = bslmf::IsFunctionPointer<TARGET_TYPE>::VALUE,
-         IS_FUNDAMENTAL      = bslmf::IsFundamental<TARGET_TYPE>::VALUE,
-         IS_POINTER          = bslmf::IsPointer<TARGET_TYPE>::VALUE,
+         IS_FUNCTION_POINTER = bslmf::IsFunctionPointer<TARGET_TYPE>::value,
+         IS_FUNDAMENTAL      = bslmf::IsFundamental<TARGET_TYPE>::value,
+         IS_POINTER          = bslmf::IsPointer<TARGET_TYPE>::value,
 
          IS_FUNDAMENTAL_OR_POINTER = IS_FUNDAMENTAL ||
                                      (IS_POINTER && !IS_FUNCTION_POINTER),
 
-         IS_BITWISECOPYABLE  = HasTrait<TARGET_TYPE,
-                                       TypeTraitBitwiseCopyable>::VALUE,
+         IS_BITWISECOPYABLE  = bsl::is_trivially_copyable<TARGET_TYPE>::value,
 
          VALUE = IS_FUNDAMENTAL_OR_POINTER ? Imp::IS_FUNDAMENTAL_OR_POINTER
                : IS_BITWISECOPYABLE ?  Imp::BITWISE_COPYABLE_TRAITS
@@ -1068,15 +1173,14 @@ void ArrayPrimitives::copyConstruct(TARGET_TYPE *toBegin,
 {
     BSLS_ASSERT_SAFE(toBegin || fromBegin == fromEnd);
 
-    typedef typename ArrayPrimitives_RemovePtr<FWD_ITER>::Type FwdTarget;
+    typedef typename bsl::remove_pointer<FWD_ITER>::type FwdTarget;
     enum {
-        ARE_PTRS_TO_PTRS = bslmf::IsPointer<TARGET_TYPE>::VALUE &&
-                           bslmf::IsPointer<FWD_ITER   >::VALUE &&
-                           bslmf::IsPointer<FwdTarget  >::VALUE,
-        IS_BITWISECOPYABLE = HasTrait<TARGET_TYPE,
-                                       TypeTraitBitwiseCopyable>::VALUE &&
+        ARE_PTRS_TO_PTRS = bslmf::IsPointer<TARGET_TYPE>::value &&
+                           bslmf::IsPointer<FWD_ITER   >::value &&
+                           bslmf::IsPointer<FwdTarget  >::value,
+        IS_BITWISECOPYABLE = bsl::is_trivially_copyable<TARGET_TYPE>::value &&
                              bslmf::IsConvertible<FWD_ITER,
-                                                   const TARGET_TYPE *>::VALUE,
+                                                   const TARGET_TYPE *>::value,
         VALUE = ARE_PTRS_TO_PTRS   ? Imp::IS_POINTER_TO_POINTER
               : IS_BITWISECOPYABLE ? Imp::BITWISE_COPYABLE_TRAITS
               : Imp::NIL_TRAITS
@@ -1101,8 +1205,7 @@ void ArrayPrimitives::destructiveMove(TARGET_TYPE *toBegin,
                                                           fromEnd));
 
     enum {
-        VALUE = HasTrait<TARGET_TYPE,
-                                TypeTraitBitwiseMoveable>::VALUE
+        VALUE = bslmf::IsBitwiseMoveable<TARGET_TYPE>::value
               ? Imp::BITWISE_MOVEABLE_TRAITS
               : Imp::NIL_TRAITS
     };
@@ -1319,22 +1422,19 @@ void ArrayPrimitives::insert(TARGET_TYPE        *toBegin,
                              size_type           numElements,
                              ALLOCATOR          *allocator)
 {
-    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
-                                                          toEnd));
-    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
+    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin, toEnd));
+    BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
     if (0 == numElements) {
         return;                                                       // RETURN
     }
 
     enum {
-        VALUE = HasTrait<TARGET_TYPE,
-                                TypeTraitBitwiseCopyable
-                               >::VALUE ? Imp::BITWISE_COPYABLE_TRAITS
-              : HasTrait<TARGET_TYPE,
-                                TypeTraitBitwiseMoveable
-                               >::VALUE ? Imp::BITWISE_MOVEABLE_TRAITS
-              : Imp::NIL_TRAITS
+        VALUE = bsl::is_trivially_copyable<TARGET_TYPE>::value
+              ? Imp::BITWISE_COPYABLE_TRAITS
+              : bslmf::IsBitwiseMoveable<TARGET_TYPE>::value
+                  ? Imp::BITWISE_MOVEABLE_TRAITS
+                  : Imp::NIL_TRAITS
     };
     ArrayPrimitives_Imp::insert(toBegin,
                                 toEnd,
@@ -1357,17 +1457,15 @@ void ArrayPrimitives::insert(TARGET_TYPE *toBegin,
         return;                                                       // RETURN
     }
 
-    typedef typename ArrayPrimitives_RemovePtr<FWD_ITER>::Type FwdTarget;
+    typedef typename bsl::remove_pointer<FWD_ITER>::type FwdTarget;
     enum {
-        ARE_PTRS_TO_PTRS = bslmf::IsPointer<TARGET_TYPE>::VALUE &&
-                           bslmf::IsPointer<FWD_ITER   >::VALUE &&
-                           bslmf::IsPointer<FwdTarget  >::VALUE,
-        IS_BITWISEMOVEABLE  = HasTrait<TARGET_TYPE,
-                                       TypeTraitBitwiseMoveable>::VALUE,
+        ARE_PTRS_TO_PTRS = bslmf::IsPointer<TARGET_TYPE>::value &&
+                           bslmf::IsPointer<FWD_ITER   >::value &&
+                           bslmf::IsPointer<FwdTarget  >::value,
+        IS_BITWISEMOVEABLE  = bslmf::IsBitwiseMoveable<TARGET_TYPE>::value,
         IS_BITWISECOPYABLE  = bslmf::IsConvertible<FWD_ITER,
-                                                 const TARGET_TYPE *>::VALUE &&
-                              HasTrait<TARGET_TYPE,
-                                              TypeTraitBitwiseCopyable>::VALUE,
+                                                   const TARGET_TYPE *>::value
+                            && bsl::is_trivially_copyable<TARGET_TYPE>::value,
         VALUE = ARE_PTRS_TO_PTRS   ? Imp::IS_POINTER_TO_POINTER
               : IS_BITWISECOPYABLE ? Imp::BITWISE_COPYABLE_TRAITS
               : IS_BITWISEMOVEABLE ? Imp::BITWISE_MOVEABLE_TRAITS
@@ -1393,8 +1491,7 @@ void ArrayPrimitives::moveInsert(TARGET_TYPE  *toBegin,
                                  ALLOCATOR    *allocator)
 {
     enum {
-        VALUE = HasTrait<TARGET_TYPE,
-                                TypeTraitBitwiseMoveable>::VALUE
+        VALUE = bslmf::IsBitwiseMoveable<TARGET_TYPE>::value
               ? Imp::BITWISE_MOVEABLE_TRAITS
               : Imp::NIL_TRAITS
     };
@@ -1422,12 +1519,11 @@ void ArrayPrimitives::erase(TARGET_TYPE *first,
 
     if (first == middle) { // erasing empty range O(1) versus O(N): Do not
                            // remove!
-        return;
+        return;                                                       // RETURN
     }
 
     enum {
-        VALUE = HasTrait<TARGET_TYPE,
-                                TypeTraitBitwiseMoveable>::VALUE
+        VALUE = bslmf::IsBitwiseMoveable<TARGET_TYPE>::value
               ? Imp::BITWISE_MOVEABLE_TRAITS
               : Imp::NIL_TRAITS
     };
@@ -1450,8 +1546,7 @@ void ArrayPrimitives::rotate(TARGET_TYPE *first,
                                                           last));
 
     enum {
-        VALUE = HasTrait<TARGET_TYPE,
-                                TypeTraitBitwiseMoveable>::VALUE
+        VALUE = bslmf::IsBitwiseMoveable<TARGET_TYPE>::value
               ? Imp::BITWISE_MOVEABLE_TRAITS
               : Imp::NIL_TRAITS
     };
@@ -1478,7 +1573,7 @@ void ArrayPrimitives_Imp::defaultConstruct(
                   bslmf::MetaInt<HAS_TRIVIAL_DEFAULT_CTOR_TRAITS> *)
 {
     BSLS_ASSERT_SAFE(begin || 0 == numElements);
-    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
+    BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
     std::memset((void *)begin, 0, sizeof(TARGET_TYPE) * numElements);
 }
@@ -1492,7 +1587,7 @@ void ArrayPrimitives_Imp::defaultConstruct(
                           bslmf::MetaInt<BITWISE_COPYABLE_TRAITS> *)
 {
     BSLS_ASSERT_SAFE(begin || 0 == numElements);
-    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
+    BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
     ScalarPrimitives::defaultConstruct(begin, allocator);
     bitwiseFillN((char *)begin,
@@ -1508,7 +1603,7 @@ void ArrayPrimitives_Imp::defaultConstruct(
                                        bslmf::MetaInt<NIL_TRAITS> *)
 {
     BSLS_ASSERT_SAFE(begin || 0 == numElements);
-    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
+    BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
     AutoArrayDestructor<TARGET_TYPE> guard(begin, begin);
 
@@ -1531,7 +1626,7 @@ void ArrayPrimitives_Imp::uninitializedFillN(
                         bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER> *)
 {
     BSLS_ASSERT_SAFE(begin || 0 == numElements);
-    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
+    BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
     std::memset((char *)begin, (char)value, numElements);
 }
@@ -1545,7 +1640,7 @@ void ArrayPrimitives_Imp::uninitializedFillN(
                         bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER> *)
 {
     BSLS_ASSERT_SAFE(begin || 0 == numElements);
-    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
+    BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
     std::memset(begin, value, numElements);
 }
@@ -1559,7 +1654,7 @@ void ArrayPrimitives_Imp::uninitializedFillN(
                         bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER> *)
 {
     BSLS_ASSERT_SAFE(begin || 0 == numElements);
-    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
+    BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
     std::memset(begin, value, numElements);
 }
@@ -1573,7 +1668,7 @@ void ArrayPrimitives_Imp::uninitializedFillN(
                         bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER> *)
 {
     BSLS_ASSERT_SAFE(begin || 0 == numElements);
-    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
+    BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
     std::memset(begin, value, numElements);
 }
@@ -1587,7 +1682,7 @@ void ArrayPrimitives_Imp::uninitializedFillN(
                         bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER> *)
 {
     BSLS_ASSERT_SAFE(begin || 0 == numElements);
-    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
+    BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
     std::wmemset(begin, value, numElements);
 }
@@ -1601,7 +1696,7 @@ void ArrayPrimitives_Imp::uninitializedFillN(
                         bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER> *)
 {
     BSLS_ASSERT_SAFE(begin || 0 == numElements);
-    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
+    BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
     uninitializedFillN(
                       (short *)begin, (short)value, numElements,
@@ -1617,7 +1712,7 @@ void ArrayPrimitives_Imp::uninitializedFillN(
                         bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER> *)
 {
     BSLS_ASSERT_SAFE(begin || 0 == numElements);
-    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
+    BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
     uninitializedFillN(
                       (int *)begin, (int)value, numElements,
@@ -1633,9 +1728,9 @@ void ArrayPrimitives_Imp::uninitializedFillN(
                         bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER> *)
 {
     BSLS_ASSERT_SAFE(begin || 0 == numElements);
-    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
+    BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
-#if defined(BSLS_PLATFORM__CPU_64_BIT) && !defined(BSLS_PLATFORM__OS_WINDOWS)
+#if defined(BSLS_PLATFORM_CPU_64_BIT) && !defined(BSLS_PLATFORM_OS_WINDOWS)
     uninitializedFillN((bsls::Types::Int64 *)begin,
                        (bsls::Types::Int64)value,
                        numElements);
@@ -1657,9 +1752,9 @@ void ArrayPrimitives_Imp::uninitializedFillN(
                         bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER> *)
 {
     BSLS_ASSERT_SAFE(begin || 0 == numElements);
-    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
+    BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
-#if defined(BSLS_PLATFORM__CPU_64_BIT) && !defined(BSLS_PLATFORM__OS_WINDOWS)
+#if defined(BSLS_PLATFORM_CPU_64_BIT) && !defined(BSLS_PLATFORM_OS_WINDOWS)
     uninitializedFillN(
                       (bsls::Types::Int64 *)begin,
                       (bsls::Types::Int64)value,
@@ -1681,7 +1776,7 @@ void ArrayPrimitives_Imp::uninitializedFillN(
                         bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER> *)
 {
     BSLS_ASSERT_SAFE(begin || 0 == numElements);
-    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
+    BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
     uninitializedFillN((bsls::Types::Int64 *)begin,
                        (bsls::Types::Uint64)value,
@@ -1700,7 +1795,7 @@ void ArrayPrimitives_Imp::uninitializedFillN(
                        bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER>  *)
 {
     BSLS_ASSERT_SAFE(begin || 0 == numElements);
-    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
+    BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
     // Note: 'const'-correctness is respected because the next overload picks
     // up the 'const TARGET_TYPE' and will be a better match.  Note that we
@@ -1726,7 +1821,7 @@ void ArrayPrimitives_Imp::uninitializedFillN(
                        bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER>  *)
 {
     BSLS_ASSERT_SAFE(begin || 0 == numElements);
-    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
+    BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
     // While it seems that this overload is subsumed by the previous template,
     // SunPro does not detect it.
@@ -1747,10 +1842,10 @@ void ArrayPrimitives_Imp::uninitializedFillN(
                           bslmf::MetaInt<BITWISE_COPYABLE_TRAITS> *)
 {
     BSLS_ASSERT_SAFE(begin || 0 == numElements);
-    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
+    BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
     if (0 == numElements) {
-        return;
+        return;                                                       // RETURN
     }
 
     // Important sub-case: When value is identically (bit-wise) 0, such as
@@ -1785,7 +1880,7 @@ void ArrayPrimitives_Imp::uninitializedFillN(
                                        bslmf::MetaInt<NIL_TRAITS> *)
 {
     BSLS_ASSERT_SAFE(begin || 0 == numElements);
-    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
+    BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
     if (0 == numElements) {
         return;                                                       // RETURN
@@ -1816,16 +1911,10 @@ void ArrayPrimitives_Imp::copyConstruct(
 
     BSLMF_ASSERT(sizeof(void *) == sizeof(void (*)()));
 
-    typedef typename bslmf::RemovePtrCvq<TARGET_TYPE>::Type NoConstTargetType;
-    typedef typename bslmf::RemovePtrCvq<FWD_ITER>::ValueType
-                                                           NoConstFwdIterValue;
-    typedef typename bslmf::RemovePtrCvq<NoConstFwdIterValue>::ValueType
-                                                      NoConstFwdIterValueValue;
-
     copyConstruct(
-           (void *       *) const_cast<NoConstTargetType *>(toBegin),
-           (void * const *) const_cast<NoConstFwdIterValueValue **>(fromBegin),
-           (void * const *) const_cast<NoConstFwdIterValueValue **>(fromEnd),
+           (void *       *) toBegin,
+           (void * const *) fromBegin,
+           (void * const *) fromEnd,
            allocator,
            (bslmf::MetaInt<BITWISE_COPYABLE_TRAITS> *) 0);
 }
@@ -1925,7 +2014,7 @@ void ArrayPrimitives_Imp::insert(
 {
     BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
                                                           toEnd));
-    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
+    BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
     // Key to the transformation diagrams:
     //..
@@ -1984,7 +2073,7 @@ void ArrayPrimitives_Imp::insert(
 {
     BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
                                                           toEnd));
-    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
+    BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
     // Key to the transformation diagrams:
     //..
@@ -2065,7 +2154,7 @@ void ArrayPrimitives_Imp::insert(TARGET_TYPE                *toBegin,
 {
     BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
                                                           toEnd));
-    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
+    BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
     // Key to the transformation diagrams:
     //..
@@ -2187,16 +2276,10 @@ void ArrayPrimitives_Imp::insert(
 
     BSLMF_ASSERT(sizeof(void *) == sizeof(void (*)()));
 
-    typedef typename bslmf::RemovePtrCvq<TARGET_TYPE>::Type NoConstTargetType;
-    typedef typename bslmf::RemovePtrCvq<FWD_ITER>::ValueType
-                                                           NoConstFwdIterValue;
-    typedef typename bslmf::RemovePtrCvq<NoConstFwdIterValue>::ValueType
-                                                      NoConstFwdIterValueValue;
-
-    insert((void *       *) const_cast<NoConstTargetType *>(toBegin),
-           (void *       *) const_cast<NoConstTargetType *>(toEnd),
-           (void * const *) const_cast<NoConstFwdIterValueValue **>(fromBegin),
-           (void * const *) const_cast<NoConstFwdIterValueValue **>(fromEnd),
+    insert((void *       *) toBegin,
+           (void *       *) toEnd,
+           (void * const *) fromBegin,
+           (void * const *) fromEnd,
            numElements,
            allocator,
            (bslmf::MetaInt<BITWISE_COPYABLE_TRAITS> *) 0);
@@ -2220,7 +2303,7 @@ void ArrayPrimitives_Imp::insert(
     BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(fromBegin,
                                                           fromEnd));
     BSLS_ASSERT_SAFE(fromBegin || 0 == numElements);
-    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
+    BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
     BSLS_ASSERT_SAFE(fromBegin + numElements == fromEnd);
     BSLS_ASSERT_SAFE(fromEnd <= toBegin || toEnd + numElements <= fromBegin);
@@ -2258,9 +2341,8 @@ void ArrayPrimitives_Imp::insert(
                           bslmf::MetaInt<BITWISE_MOVEABLE_TRAITS> *)
 {
     // 'TARGET_TYPE' is bit-wise moveable.
-    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
-                                                          toEnd));
-    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
+    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin, toEnd));
+    BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
     if (0 == numElements) {
         return;                                                       // RETURN
@@ -2324,7 +2406,7 @@ void ArrayPrimitives_Imp::insert(
         AutoArrayDestructor<TARGET_TYPE> endGuard2(destBegin, destEnd);
 
         //..
-        //  Transformation: tuvwx__[ABCDE] => tuvwx[yzABCDE].
+        //  Transformation: tuvwx[]__[ABCDE] => tuvwx[yz][ABCDE].
         //..
 
         for (; toEnd != destBegin; ++fromBegin) {
@@ -2349,7 +2431,7 @@ void ArrayPrimitives_Imp::insert(TARGET_TYPE                *toBegin,
 {
     BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
                                                           toEnd));
-    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
+    BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
     if (0 == numElements) {
         return;                                                       // RETURN
@@ -2459,7 +2541,7 @@ void ArrayPrimitives_Imp::moveInsert(
                                                           toEnd));
     BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(first, last));
     BSLS_ASSERT_SAFE(first || 0 == numElements);
-    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
+    BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
     BSLS_ASSERT_SAFE(lastPtr);
 
     // Functionally indistinguishable from this:
@@ -2485,7 +2567,7 @@ void ArrayPrimitives_Imp::moveInsert(TARGET_TYPE                 *toBegin,
                                                           toEnd));
     BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(first, last));
     BSLS_ASSERT_SAFE(first || 0 == numElements);
-    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
+    BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
     BSLS_ASSERT_SAFE(lastPtr);
 
     // There isn't any advantage at destroying [first,last) one by one as we're
@@ -2627,9 +2709,6 @@ void ArrayPrimitives_Imp::rotate(TARGET_TYPE                *begin,
         remainder = t;
     }
 
-    // This algorithm is directly taken from stlport's implementation for
-    // RandomAccessIterator.
-
     // Key to the transformation diagrams:
     //..
     //  A...D   Contents of the current cycle
@@ -2745,12 +2824,14 @@ bool ArrayPrimitives_Imp::isInvalidRange(TARGET_TYPE *begin,
 
 }  // close package namespace
 
+#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
 
 typedef bslalg::ArrayPrimitives bslalg_ArrayPrimitives;
     // This alias is defined for backward compatibility.
+#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

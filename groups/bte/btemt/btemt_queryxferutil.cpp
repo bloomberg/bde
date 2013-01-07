@@ -24,7 +24,7 @@ BDES_IDENT_RCSID(btemt_queryxferutil_cpp,"$Id$ $CSID$")
 #include <bsls_platform.h>
 #include <bsls_platformutil.h>
 
-#if defined(BSLS_PLATFORM__OS_UNIX)
+#if defined(BSLS_PLATFORM_OS_UNIX)
 # include <netinet/in.h>  // ntohl()
 #else
 # include <winsock2.h>    // ntohl()

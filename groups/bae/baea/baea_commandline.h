@@ -814,13 +814,13 @@ BDES_IDENT("$Id: $")
 #include <bslfwd_bslma_allocator.h>
 #endif
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#ifdef BSLS_PLATFORM_OS_WINDOWS
 #ifdef OPTIONAL
 #undef OPTIONAL
 #endif
 #endif
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 namespace BloombergLP {
 
@@ -865,11 +865,11 @@ class baea_CommandLineOccurrenceInfo {
         BAEA_OPTIONAL = 1,  // option is optional
         BAEA_HIDDEN   = 2   // option is optional and hidden
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , REQUIRED = BAEA_REQUIRED
       , OPTIONAL = BAEA_OPTIONAL
       , HIDDEN   = BAEA_HIDDEN
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     // TRAITS
@@ -1718,11 +1718,11 @@ struct baea_CommandLineOptionInfo {
         BAEA_FLAG       = 0,
         BAEA_OPTION     = 1,
         BAEA_NON_OPTION = 2
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , FLAG       = BAEA_FLAG
       , OPTION     = BAEA_OPTION
       , NON_OPTION = BAEA_NON_OPTION
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     // PUBLIC DATA

@@ -1194,9 +1194,9 @@ int main(int argc, char *argv[])
             bdetu_SystemTime::loadSystemTimeDefault(&i1);
             ASSERT( 0 != i1);
 
-#if defined(BSLS_PLATFORM__OS_UNIX)  \
- && !defined(BSLS_PLATFORM__OS_AIX) \
- && !defined(BSLS_PLATFORM__OS_LINUX)
+#if defined(BSLS_PLATFORM_OS_UNIX)  \
+ && !defined(BSLS_PLATFORM_OS_AIX) \
+ && !defined(BSLS_PLATFORM_OS_LINUX)
             ASSERT(0 == i1.nanoseconds() % 1000);
 #endif
             bdet_TimeInterval i2;
@@ -1204,9 +1204,9 @@ int main(int argc, char *argv[])
             bdetu_SystemTime::loadSystemTimeDefault(&i2);
             ASSERT( 0 != i2);
             ASSERT( i2 >= i1 );
-#if defined(BSLS_PLATFORM__OS_UNIX)  \
- && !defined(BSLS_PLATFORM__OS_AIX) \
- && !defined(BSLS_PLATFORM__OS_LINUX)
+#if defined(BSLS_PLATFORM_OS_UNIX)  \
+ && !defined(BSLS_PLATFORM_OS_AIX) \
+ && !defined(BSLS_PLATFORM_OS_LINUX)
             ASSERT(0 == i2.nanoseconds() % 1000);
 #endif
             bdet_TimeInterval i3;
@@ -1214,9 +1214,9 @@ int main(int argc, char *argv[])
             bdetu_SystemTime::loadSystemTimeDefault(&i3);
             ASSERT( 0 != i3);
             ASSERT( i3 >= i2 );
-#if defined(BSLS_PLATFORM__OS_UNIX)  \
- && !defined(BSLS_PLATFORM__OS_AIX) \
- && !defined(BSLS_PLATFORM__OS_LINUX)
+#if defined(BSLS_PLATFORM_OS_UNIX)  \
+ && !defined(BSLS_PLATFORM_OS_AIX) \
+ && !defined(BSLS_PLATFORM_OS_LINUX)
             ASSERT(0 == i3.nanoseconds() % 1000);
 #endif
             bdet_TimeInterval i4;
@@ -1224,9 +1224,9 @@ int main(int argc, char *argv[])
             bdetu_SystemTime::loadSystemTimeDefault(&i4);
             ASSERT( 0 != i4);
             ASSERT( i4 >= i3 );
-#if defined(BSLS_PLATFORM__OS_UNIX)  \
- && !defined(BSLS_PLATFORM__OS_AIX) \
- && !defined(BSLS_PLATFORM__OS_LINUX)
+#if defined(BSLS_PLATFORM_OS_UNIX)  \
+ && !defined(BSLS_PLATFORM_OS_AIX) \
+ && !defined(BSLS_PLATFORM_OS_LINUX)
             ASSERT(0 == i4.nanoseconds() % 1000);
 #endif
             bdet_TimeInterval i5;
@@ -1234,9 +1234,9 @@ int main(int argc, char *argv[])
             bdetu_SystemTime::loadSystemTimeDefault(&i5);
             ASSERT( 0 != i5);
             ASSERT( i5 >= i4 );
-#if defined(BSLS_PLATFORM__OS_UNIX)  \
- && !defined(BSLS_PLATFORM__OS_AIX) \
- && !defined(BSLS_PLATFORM__OS_LINUX)
+#if defined(BSLS_PLATFORM_OS_UNIX)  \
+ && !defined(BSLS_PLATFORM_OS_AIX) \
+ && !defined(BSLS_PLATFORM_OS_LINUX)
             ASSERT(0 == i5.nanoseconds() % 1000);
 #endif
             if (veryVerbose) {

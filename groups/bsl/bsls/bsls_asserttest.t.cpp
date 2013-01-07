@@ -1035,6 +1035,7 @@ int main(int argc, char *argv[])
             }
 
             // Validate test description.
+#if defined BDE_BUILD_TARGET_EXC
             try {
                 bsls::AssertTest::failTestDriver(
                                                EXPRESSION, FILENAME, TESTLINE);
@@ -1047,6 +1048,12 @@ int main(int argc, char *argv[])
                 LOOP3_ASSERT(LINE, TESTLINE, ex.lineNumber(),
                              TESTLINE == ex.lineNumber());
             }
+#else
+            // This should result in a regular assert/abort, which is probably
+            // a run-time rather than a compile-time fail in our nightly test
+            // framework.
+            bsls::AssertTest::failTestDriver(EXPRESSION, FILENAME, TESTLINE);
+#endif
         }
       } break;
       case 4: {

@@ -20,7 +20,7 @@ using namespace BloombergLP;
 
 enum { BITS_PER_INT = bdes_BitUtil::BDES_BITS_PER_INT };
 
-#if defined(BSLS_PLATFORM__CMP_GNU) && __GNUC__ == 4 && __GNUC_MINOR__ == 2
+#if defined(BSLS_PLATFORM_CMP_GNU) && __GNUC__ == 4 && __GNUC_MINOR__ == 2
 
 // gcc 4.2 has a bug in that it refuses to instantiate a template based on a
 // member function with no external linkage ('Bitwise::setEq' in this case).
@@ -93,7 +93,7 @@ void Bitwise::xorEq(int *dst, int src)
     *dst ^= src;
 }
 
-#if defined(BSLS_PLATFORM__CMP_GNU) && __GNUC__ == 4 && __GNUC_MINOR__ == 2
+#if defined(BSLS_PLATFORM_CMP_GNU) && __GNUC__ == 4 && __GNUC_MINOR__ == 2
 namespace {
 #endif
                           // -----------

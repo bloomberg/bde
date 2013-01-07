@@ -386,10 +386,6 @@ BDES_IDENT("$Id: $")
 #include <bslalg_typetraits.h>
 #endif
 
-#ifndef INCLUDED_BSL_HASH_MAP
-#include <bsl_hash_map.h>
-#endif
-
 #ifndef INCLUDED_BSL_MAP
 #include <bsl_map.h>
 #endif
@@ -406,6 +402,13 @@ BDES_IDENT("$Id: $")
 #include <bslfwd_bslma_allocator.h>
 #endif
 
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
+#ifndef INCLUDED_BSL_HASH_MAP
+#include <bsl_hash_map.h>
+#endif
+
+#endif
 namespace BloombergLP {
 
 class baem_Category;

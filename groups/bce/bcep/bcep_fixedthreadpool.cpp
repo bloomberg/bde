@@ -16,13 +16,13 @@ BDES_IDENT_RCSID(bcep_fixedthreadpool_cpp,"$Id$ $CSID$")
 #include <bsls_platform.h>
 #include <bsls_timeutil.h>
 
-#if defined(BSLS_PLATFORM__OS_UNIX)
+#if defined(BSLS_PLATFORM_OS_UNIX)
 #include <bsl_c_signal.h>              // sigfillset
 #endif
 
 namespace {
 
-#if defined(BSLS_PLATFORM__OS_UNIX)
+#if defined(BSLS_PLATFORM_OS_UNIX)
 void initBlockSet(sigset_t *blockSet)
 {
     sigfillset(blockSet);
@@ -35,7 +35,7 @@ void initBlockSet(sigset_t *blockSet)
       SIGSYS,
       SIGABRT,
       SIGTRAP,
-     #if !defined(BSLS_PLATFORM__OS_CYGWIN) || defined(SIGIOT)
+     #if !defined(BSLS_PLATFORM_OS_CYGWIN) || defined(SIGIOT)
       SIGIOT
      #endif
     };
@@ -166,7 +166,7 @@ void bcep_FixedThreadPool::workerThread()
 
 int bcep_FixedThreadPool::startNewThread()
 {
-#if defined(BSLS_PLATFORM__OS_UNIX)
+#if defined(BSLS_PLATFORM_OS_UNIX)
     // Block all asynchronous signals.
 
     sigset_t oldset;
@@ -178,7 +178,7 @@ int bcep_FixedThreadPool::startNewThread()
 
     int rc = d_threadGroup.addThread(workerThreadFunc, d_threadAttributes);
 
-#if defined(BSLS_PLATFORM__OS_UNIX)
+#if defined(BSLS_PLATFORM_OS_UNIX)
     // Restore the mask.
 
     pthread_sigmask(SIG_SETMASK, &oldset, &d_blockSet);
@@ -206,7 +206,7 @@ bcep_FixedThreadPool::bcep_FixedThreadPool(
 
     disable();
 
-#if defined(BSLS_PLATFORM__OS_UNIX)
+#if defined(BSLS_PLATFORM_OS_UNIX)
     initBlockSet(&d_blockSet);
 #endif
 }
@@ -225,7 +225,7 @@ bcep_FixedThreadPool::bcep_FixedThreadPool(int              numThreads,
 
     disable();
 
-#if defined(BSLS_PLATFORM__OS_UNIX)
+#if defined(BSLS_PLATFORM_OS_UNIX)
     initBlockSet(&d_blockSet);
 #endif
 }

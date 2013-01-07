@@ -18,7 +18,7 @@
 
 #include <bsl_cstdlib.h>
 
-#ifdef BCES_PLATFORM__WIN32_THREADS
+#ifdef BCES_PLATFORM_WIN32_THREADS
 
 #include <windows.h>
 
@@ -893,7 +893,7 @@ int main(int argc, char *argv[]) {
             cout << endl
                  << "Breathing Test" << endl
                  << "==============" << endl;
-#if defined(BSLS_PLATFORM__OS_AIX) || defined(BSLS_PLATFORM__OS_LINUX)
+#if defined(BSLS_PLATFORM_OS_AIX) || defined(BSLS_PLATFORM_OS_LINUX)
             cout << "INFO: SEM_VALUE_MAX=" << SEM_VALUE_MAX
                  << endl;
 #endif

@@ -19,7 +19,7 @@ BDES_IDENT("$Id: $")
 //@DESCRIPTION: This component provides a platform-independent interface to
 // filesystem utility methods.
 //
-///Platform Specific File Locking Caveats
+///Platform-Specific File Locking Caveats
 ///--------------------------------------
 // Locking has the following caveats for the following operating systems:
 //:
@@ -32,9 +32,12 @@ BDES_IDENT("$Id: $")
 //: o On at least some flavors of Unix, you can't lock a file for writing using
 //:   file descriptor opened in read-only mode.
 //
-// Documents
-//: 1 POSIX:http://pubs.opengroup.org/onlinepubs/009695399/functions/fcntl.html
-//: 2 BSD: http://www.manpagez.com/man/2/fcntl
+///Platform-Specific Atomicity Caveats
+///-----------------------------------
+// The 'bdesu_FileUtil::read' and 'bdesu_FileUtil::write' methods add no
+// atomicity guarantees for reading and writing to those provided (if any) by
+// the underlying platform's methods for reading and writing (see
+// 'http://lwn.net/Articles/180387/').
 //
 ///Usage
 ///-----
@@ -43,7 +46,7 @@ BDES_IDENT("$Id: $")
 // In this example, we start with a (relative) native path to a directory
 // containing log files:
 //..
-//  #ifdef BSLS_PLATFORM__OS_WINDOWS
+//  #ifdef BSLS_PLATFORM_OS_WINDOWS
 //    bsl::string logPath = "temp\\logs";
 //  #else
 //    bsl::string logPath = "tmp/logs";
@@ -168,7 +171,7 @@ BDES_IDENT("$Id: $")
 #include <bsl_cstddef.h>
 #endif
 
-#ifndef BSLS_PLATFORM__OS_WINDOWS
+#ifndef BSLS_PLATFORM_OS_WINDOWS
 #ifndef INCLUDED_SYS_TYPES
 #include <sys/types.h>
 #define INCLUDED_SYS_TYPES
@@ -188,7 +191,7 @@ struct bdesu_FileUtil {
     // mechanisms for file system access.
 
     // TYPES
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
     typedef void *HANDLE;
     typedef HANDLE FileDescriptor;
     typedef __int64 Offset;
@@ -196,16 +199,17 @@ struct bdesu_FileUtil {
     static const Offset OFFSET_MIN = _I64_MIN;
 #else
     typedef int     FileDescriptor;
-#if defined(BSLS_PLATFORM__OS_FREEBSD) \
- || defined(BSLS_PLATFORM__OS_DARWIN)
-    // 'off_t' is 64-bit on Darwin/FreeBSD (even when running 32-bit) so they
-    // do not have a 'off64_t' type.
+#if defined(BSLS_PLATFORM_OS_FREEBSD) \
+ || defined(BSLS_PLATFORM_OS_DARWIN)  \
+ || defined(BSLS_PLATFORM_OS_CYGWIN)
+    // 'off_t' is 64-bit on Darwin/FreeBSD/cygwin (even when running 32-bit),
+    // so they do not have an 'off64_t' type.
 
     typedef off_t Offset;
 #else
     typedef off64_t Offset;
 #endif
-#ifdef BSLS_PLATFORM__CPU_64_BIT
+#ifdef BSLS_PLATFORM_CPU_64_BIT
     static const Offset OFFSET_MAX =  (9223372036854775807L);
     static const Offset OFFSET_MIN = (-9223372036854775807L-1);
 #else
@@ -219,18 +223,18 @@ struct bdesu_FileUtil {
         BDESU_SEEK_FROM_CURRENT   = 1,
         BDESU_SEEK_FROM_END       = 2
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , SEEK_FROM_BEGINNING = BDESU_SEEK_FROM_BEGINNING
       , SEEK_FROM_CURRENT   = BDESU_SEEK_FROM_CURRENT
       , SEEK_FROM_END       = BDESU_SEEK_FROM_END
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     enum {
         BDESU_DEFAULT_GROW_BUFFER_SIZE = 65536
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , DEFAULT_GROW_BUFFER_SIZE       = BDESU_DEFAULT_GROW_BUFFER_SIZE
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     enum {
@@ -427,19 +431,21 @@ struct bdesu_FileUtil {
                    Offset           offset,
                    int              size,
                    int              mode);
-        // Map the region of 'size' bytes, starting 'offset' bytes into the
-        // file with the specified 'fd' descriptor to memory, and load into
-        // the specified 'addr' the address of the mapped area.  Return 0 on
-        // success, and a non-zero value otherwise.  The access permissions
-        // for mapping memory are defined by 'mode', which may be a combination
-        // of 'bdesu_MemoryUtil::ACCESS_READ', 'bdesu_MemoryUtil::ACCESS_WRITE'
-        // and 'bdesu_MemoryUtil::ACCESS_EXECUTE'.  Note that on failure, the
+        // Map the region of the specified 'size' bytes, starting at the
+        // specified 'offset' bytes into the file with the specified 'fd'
+        // descriptor to memory, and load into the specified 'addr' the address
+        // of the mapped area.  Return 0 on success, and a non-zero value
+        // otherwise.  The access permissions for mapping memory are defined by
+        // the specified 'mode', which may be a combination of
+        // 'bdesu_MemoryUtil::BDESU_ACCESS_READ',
+        // 'bdesu_MemoryUtil::BDESU_ACCESS_WRITE' and
+        // 'bdesu_MemoryUtil::BDESU_ACCESS_EXECUTE'.  Note that on failure, the
         // value of 'addr' is undefined.  Also note that mapping will succeed
         // even if there are fewer than 'offset + size' bytes in the specified
-        // file, and an attempt to access the mapped memory beyond the end
-        // of the file will result in undefined behavior (i.e., this
-        // function does not grow the file to guarantee it can accommodate
-        // the mapped region).
+        // file, and an attempt to access the mapped memory beyond the end of
+        // the file will result in undefined behavior (i.e., this function does
+        // not grow the file to guarantee it can accommodate the mapped
+        // region).
 
     static int unmap(void *addr, int size);
         // Unmap the memory mapping with the specified base address 'addr' and

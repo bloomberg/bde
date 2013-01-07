@@ -6,7 +6,7 @@ BDES_IDENT_RCSID(bdemf_functionpointertraits_cpp,"$Id$ $CSID$")
 #include <bdemf_issame.h>     // for testing only
 #include <bsls_platform.h>
 
-#if defined(BSLS_PLATFORM__CMP_GNU)
+#if defined(BSLS_PLATFORM_CMP_GNU)
 // For g++ 4.3.2 builds on Sun, a completely empty archive causes
 //      ld: elf error: file ./libbdemf.dbg_exc_mt.a: elf_getarsym
 // errors.  The presence of any "real" symbol in the archive suffices to avoid

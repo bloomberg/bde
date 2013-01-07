@@ -670,8 +670,8 @@ static void acceptCb(btesc_CbChannel           *channel,
     }
 }
 
-#if !defined(BSLS_PLATFORM__CMP_SUN) \
-    || BSLS_PLATFORM__CMP_VER_MAJOR >= 1360
+#if !defined(BSLS_PLATFORM_CMP_SUN) \
+    || BSLS_PLATFORM_CMP_VER_MAJOR >= 1360
 extern "C"
     // This is a thread function and, thus, it must have extern "C" linkage.
     // Sun Workshop compilers, however, have a bug in that an extern "C"
