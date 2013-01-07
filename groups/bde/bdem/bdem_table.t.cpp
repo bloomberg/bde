@@ -697,7 +697,8 @@ const  bsl::vector<bdet_TimeTz>                    D29 = fD29();
 const  bsl::vector<bdet_TimeTz>                    E29 = fE29();
 const  bsl::vector<bdet_TimeTz>                    U29;
 
-static bdem_Choice                                 fA30() {
+static bdem_Choice                                 fA30()
+{
        const bdem_ElemType::Type types[] =
        {
            bdem_ElemType::BDEM_INT,
@@ -711,7 +712,8 @@ static bdem_Choice                                 fA30() {
                                   return t;
 }
 
-static bdem_Choice                              fB30() {
+static bdem_Choice                              fB30()
+{
        const bdem_ElemType::Type types[] =
        {
            bdem_ElemType::BDEM_INT,
@@ -725,7 +727,8 @@ static bdem_Choice                              fB30() {
                               return t;
 }
 
-static bdem_Choice                              fC30() {
+static bdem_Choice                              fC30()
+{
        const bdem_ElemType::Type types[] =
        {
            bdem_ElemType::BDEM_INT,
@@ -739,7 +742,8 @@ static bdem_Choice                              fC30() {
                               return t;
 }
 
-static bdem_Choice                              fD30() {
+static bdem_Choice                              fD30()
+{
        const bdem_ElemType::Type types[] =
        {
            bdem_ElemType::BDEM_INT,
@@ -753,7 +757,8 @@ static bdem_Choice                              fD30() {
                           return t;
 }
 
-static bdem_Choice                              fE30() {
+static bdem_Choice                              fE30()
+{
        const bdem_ElemType::Type types[] =
        {
            bdem_ElemType::BDEM_INT,
@@ -779,7 +784,8 @@ const  bdem_Choice                               E30 = fE30();
 #endif
 const  bdem_Choice                               U30;
 
-static bdem_ChoiceArray                         fA31() {
+static bdem_ChoiceArray                         fA31()
+{
        const bdem_ElemType::Type types[] =
        {
            bdem_ElemType::BDEM_INT,
@@ -796,7 +802,8 @@ static bdem_ChoiceArray                         fA31() {
                       return t;
 }
 
-static bdem_ChoiceArray                         fB31() {
+static bdem_ChoiceArray                         fB31()
+{
        const bdem_ElemType::Type types[] =
        {
            bdem_ElemType::BDEM_INT,
@@ -813,7 +820,8 @@ static bdem_ChoiceArray                         fB31() {
                       return t;
 }
 
-static bdem_ChoiceArray                         fC31() {
+static bdem_ChoiceArray                         fC31()
+{
        const bdem_ElemType::Type types[] =
        {
            bdem_ElemType::BDEM_INT,
@@ -830,7 +838,8 @@ static bdem_ChoiceArray                         fC31() {
                       return t;
 }
 
-static bdem_ChoiceArray                         fD31() {
+static bdem_ChoiceArray                         fD31()
+{
        const bdem_ElemType::Type types[] =
        {
            bdem_ElemType::BDEM_INT,
@@ -847,7 +856,8 @@ static bdem_ChoiceArray                         fD31() {
                       return t;
 }
 
-static bdem_ChoiceArray                         fE31() {
+static bdem_ChoiceArray                         fE31()
+{
        const bdem_ElemType::Type types[] =
        {
            bdem_ElemType::BDEM_INT,
@@ -907,7 +917,7 @@ bsl::ostream& operator<<(bsl::ostream& stream,
     };
     return stream;
 }
-} // End namespace BloombergLP
+}  // close namespace BloombergLP
 
                         // ==============
                         // loadReferenceA
@@ -1242,7 +1252,7 @@ void loadReferenceU(bdem_List *result)
     mL.appendChoiceArray(U31);                  ASSERT(LEN + 32 == L.length());
 }
 
-const int NUM_ELEMS = 32;
+enum { NUM_ELEMS = 32 };
 
                         // ==============
                         // loadReferenceN
@@ -1253,7 +1263,7 @@ void loadReferenceN(bdem_List *result)
     // corresponding to the 'N' category Element values defined above.
 {
     ASSERT(result);
-    bdem_List& mL = *result; const bdem_List& L = mL; const int LEN=L.length();
+    bdem_List& mL = *result;
 
     loadReferenceU(result);
     mL.makeAllNull();
@@ -1386,10 +1396,10 @@ bdem_Table g(const char *spec)
         }
     }
     if (types.size()) {
-        return bdem_Table(&types.front(), types.size());
+        return bdem_Table(&types.front(), types.size());              // RETURN
     }
     else {
-        return bdem_Table();
+        return bdem_Table();                                          // RETURN
     }
 }
 
@@ -1467,7 +1477,7 @@ bool isSameColumnValue(const bdem_Table& table,
     int numRows = table.numRows();
     for (int i = 0; i < numRows; ++i) {
         if (value != table[i][columnIndex]) {
-            return false;
+            return false;                                             // RETURN
         }
     }
     return true;
@@ -1493,7 +1503,7 @@ bool isSameExceptColumn(const bdem_Table& table,
         }
         for (int r = 0; r < table.numRows(); ++r) {
             if (values[c] != table[r][c]) {
-                return false;
+                return false;                                         // RETURN
             }
         }
     }
@@ -1513,6 +1523,7 @@ class BdexHelper {
     int d_version;
 
   public:
+    explicit
     BdexHelper(int version)
     : d_version(version)
     {
@@ -1566,7 +1577,8 @@ class BdexHelper {
 #define DEFINE_TEST_CASE(NUMBER)                                              \
   void testCase##NUMBER()
 
-DEFINE_TEST_CASE(23) {
+DEFINE_TEST_CASE(23)
+{
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Simple example illustrating how one might use a table.
@@ -2137,7 +2149,8 @@ DEFINE_TEST_CASE(23) {
 
       }
 
-DEFINE_TEST_CASE(22) {
+DEFINE_TEST_CASE(22)
+{
         // --------------------------------------------------------------------
         // TESTING BSLMA ALLOCATOR MODEL AND ALLOCATOR TRAITS
         //
@@ -2168,7 +2181,8 @@ DEFINE_TEST_CASE(22) {
              bslalg_HasTrait<Obj, bslalg_TypeTraitUsesBslmaAllocator>::VALUE));
       }
 
-DEFINE_TEST_CASE(21) {
+DEFINE_TEST_CASE(21)
+{
     // --------------------------------------------------------------------
     // 'reserveRaw' and 'capacityRaw' METHODS
     //
@@ -2235,7 +2249,8 @@ DEFINE_TEST_CASE(21) {
     }
 }
 
-DEFINE_TEST_CASE(20) {
+DEFINE_TEST_CASE(20)
+{
         // --------------------------------------------------------------------
         // TESTING 'reserveMemory'
         //
@@ -2284,7 +2299,8 @@ DEFINE_TEST_CASE(20) {
         if (verbose) cout << "\nEnd of 'reserveMemory' Test." << endl;
       }
 
-DEFINE_TEST_CASE(19) {
+DEFINE_TEST_CASE(19)
+{
         // --------------------------------------------------------------------
         // TESTING CTORS WITH INITIAL MEMORY
         //
@@ -2433,7 +2449,8 @@ DEFINE_TEST_CASE(19) {
         if (verbose) cout << "\nEnd of 'InitialMemory' Test." << endl;
       }
 
-DEFINE_TEST_CASE(18) {
+DEFINE_TEST_CASE(18)
+{
         // --------------------------------------------------------------------
         // SWAP ROWS
         //   Ability to swap two rows efficiently.
@@ -2976,7 +2993,8 @@ DEFINE_TEST_CASE(18) {
         }
       }
 
-DEFINE_TEST_CASE(17) {
+DEFINE_TEST_CASE(17)
+{
         // --------------------------------------------------------------------
         // REMOVING All ROWS/REMOVING ALL
         //   Ability to revert back to an empty/unset state.
@@ -3105,7 +3123,8 @@ DEFINE_TEST_CASE(17) {
 
       }
 
-DEFINE_TEST_CASE(16) {
+DEFINE_TEST_CASE(16)
+{
         // --------------------------------------------------------------------
         // APPEND/INSERT NULL ELEMENTS
         //   Ability to append/insert rows with null element values.
@@ -3181,7 +3200,7 @@ DEFINE_TEST_CASE(16) {
             const char *const COLUMN_SPEC = COLUMN_SPECS[ci];
             if (verbose) { T_ P_(ci) P(COLUMN_SPEC) }
 
-            const bool PRINT = veryVerbose && ci == 0 || veryVeryVerbose;
+            const bool PRINT = (veryVerbose && ci == 0) || veryVeryVerbose;
 
             bdem_Table mTTT = g(COLUMN_SPEC); const bdem_Table& TTT = mTTT;
             const bdem_Table EMPTY_CONTROL = TTT; // Used to build exptd value.
@@ -3259,7 +3278,7 @@ DEFINE_TEST_CASE(16) {
             const char *const COLUMN_SPEC = COLUMN_SPECS[ci];
             if (verbose) { T_ P_(ci) P(COLUMN_SPEC) }
 
-            const bool PRINT = veryVerbose && ci == 0 || veryVeryVerbose;
+            const bool PRINT = (veryVerbose && ci == 0) || veryVeryVerbose;
 
             bdem_Table mTTT = g(COLUMN_SPEC); const bdem_Table& TTT = mTTT;
             const bdem_Table EMPTY_CONTROL = TTT; // Used to build exptd value.
@@ -3340,7 +3359,8 @@ DEFINE_TEST_CASE(16) {
 
       }
 
-DEFINE_TEST_CASE(15) {
+DEFINE_TEST_CASE(15)
+{
         // --------------------------------------------------------------------
         // IS UNSET/MAKE NULL/IS NULL
         //   Ability to make and verify that elements are null.
@@ -4067,7 +4087,8 @@ DEFINE_TEST_CASE(15) {
 
       }
 
-DEFINE_TEST_CASE(14) {
+DEFINE_TEST_CASE(14)
+{
         // --------------------------------------------------------------------
         // SET COLUMN VALUES
         //   Ability to set entire column to a given value efficiently.
@@ -4733,7 +4754,8 @@ DEFINE_TEST_CASE(14) {
         // --------------------------------------------------
       }
 
-DEFINE_TEST_CASE(13) {
+DEFINE_TEST_CASE(13)
+{
         // --------------------------------------------------------------------
         // EXCEPTION SAFETY OF APPENDING/INSERTING ROWS
         //
@@ -4828,10 +4850,76 @@ DEFINE_TEST_CASE(13) {
                     }
                 }
             }
+
+            for (int gi = 0; gi <   2; ++gi) {
+                (gi ? bdem_TableImp_enableGeometricMemoryGrowth()
+                    : bdem_TableImp_disableGeometricMemoryGrowth());
+
+                // More thorough testing for memory leaks.  Do all permutations
+                // of 3 of the cases in the switch statement.
+
+                bsl::vector<bsl::vector<int> > choiceSets;
+
+                enum { NUM_TESTS = 10 };
+
+                for (int ti = 0; ti < NUM_TESTS; ++ti) {
+                    for (int tj = ti + 1; tj < NUM_TESTS; ++tj) {
+                        for (int tk = tj + 1; tk < NUM_TESTS; ++tk) {
+                            bslma_TestAllocator testAllocator;
+                            bdem_Table mT(typeVec, &testAllocator);
+                            const bdem_Table& T = mT;
+
+                            int passCount = 0;
+                            BEGIN_BSLMA_EXCEPTION_TEST
+                                ++passCount;
+                                for (size_t tm = 0; tm < 3; ++tm) {
+                                    int dstRow = bsl::min(T.numRows(), 2);
+
+                                    switch (0 == tm ? ti
+                                                    : 1 == tm ? tj : tk) {
+                                      case 0: {
+                                        mT.insertNullRows(dstRow, 1);
+                                      } break;
+                                      case 1: {
+                                        mT.insertNullRows(dstRow, 10);
+                                      } break;
+                                      case 2: {
+                                        mT.appendRow(L);
+                                      } break;
+                                      case 3: {
+                                        mT.appendRow(TOrig, 0);
+                                      } break;
+                                      case 4: {
+                                        mT.appendRows(TOrig);
+                                      } break;
+                                      case 5: {
+                                        mT.appendRows(TOrig, 1, 2);
+                                      } break;
+                                      case 6: {
+                                        mT.insertRow(dstRow, L);
+                                      } break;
+                                      case 7: {
+                                        mT.insertRow( dstRow, TOrig, 0);
+                                      } break;
+                                      case 8: {
+                                        mT.insertRows(dstRow, TOrig);
+                                      } break;
+                                      case 9: {
+                                        mT.insertRows(dstRow, TOrig, 1, 2);
+                                      }
+                                    }
+                                }
+                            END_BSLMA_EXCEPTION_TEST
+                            ASSERT(passCount >= 3);
+                        }
+                    }
+                }
+            }
         }
       }
 
-DEFINE_TEST_CASE(12) {
+DEFINE_TEST_CASE(12)
+{
         // --------------------------------------------------------------------
         // APPENDING/INSERTING/REMOVING LISTS/ROWS
         //   Ability to append/insert/remove 0 or more elements from list/row.
@@ -5287,7 +5375,7 @@ DEFINE_TEST_CASE(12) {
                                      (int)strlen(E_SPEC) == EE.numRows());
                     }
 
-                    if (veryVerbose && !ci || veryVeryVerbose) {
+                    if ((veryVerbose && !ci) || veryVeryVerbose) {
                         cout << "\t  =================================="
                                     "=================================="
                         << endl;
@@ -5302,7 +5390,7 @@ DEFINE_TEST_CASE(12) {
 
                     for (int ai = 0; ai < NUM_MODES; ++ai) { // ALLOCATION MODE
 
-                        const bool PRINT = veryVerbose && !ci && !ai
+                        const bool PRINT = (veryVerbose && !ci && !ai)
                                         || veryVeryVerbose;
 
                         const bdem_AggregateOption::AllocationStrategy
@@ -5888,7 +5976,7 @@ DEFINE_TEST_CASE(12) {
                                      (int)strlen(E_SPEC) == EE.numRows());
                     }
 
-                    if (veryVerbose && !ci || veryVeryVerbose) {
+                    if ((veryVerbose && !ci) || veryVeryVerbose) {
                         cout << "\t  =================================="
                                     "=================================="
                         << endl;
@@ -5902,7 +5990,7 @@ DEFINE_TEST_CASE(12) {
 
                     for (int ai = 0; ai < NUM_MODES; ++ai) { // ALLOCATION MODE
 
-                        const bool PRINT = veryVerbose && !ci && !ai
+                        const bool PRINT = (veryVerbose && !ci && !ai)
                                         || veryVeryVerbose;
 
                         const bdem_AggregateOption::AllocationStrategy
@@ -6016,7 +6104,8 @@ DEFINE_TEST_CASE(12) {
         } // end block scope
       }
 
-DEFINE_TEST_CASE(11) {
+DEFINE_TEST_CASE(11)
+{
         // --------------------------------------------------------------------
         // NON-PRIMARY CONSTRUCTORS AND DESTRUCTOR.
         //
@@ -6884,7 +6973,8 @@ DEFINE_TEST_CASE(11) {
 
       }
 
-DEFINE_TEST_CASE(10) {
+DEFINE_TEST_CASE(10)
+{
         // --------------------------------------------------------------------
         // BDEX STREAMING
         //   Ensure that a 'bdem_Table' can convert itself to/from byte stream.
@@ -7035,7 +7125,8 @@ DEFINE_TEST_CASE(10) {
         }
       }
 
-DEFINE_TEST_CASE(9) {
+DEFINE_TEST_CASE(9)
+{
         // --------------------------------------------------------------------
         // ASSIGNMENT OPERATOR (op=)
         //   Ensure that assignment is "wired-up" properly.
@@ -7319,7 +7410,7 @@ DEFINE_TEST_CASE(9) {
             }
 
             for (int j = 0; j < NUM_SPECS; ++j) {
-                bool PRINT = veryVerbose && (i <= 1 || i >= NUM_SPECS - 2)
+                bool PRINT = (veryVerbose && (i <= 1 || i >= NUM_SPECS - 2))
                           || veryVeryVerbose;
 
                 if (PRINT) { T_ P(j) };
@@ -7406,7 +7497,8 @@ DEFINE_TEST_CASE(9) {
 
       }
 
-DEFINE_TEST_CASE(8) {
+DEFINE_TEST_CASE(8)
+{
         // --------------------------------------------------------------------
         // TEST GENERATOR FUNCTIONS
         //   Verify the gg function and various g functions for table.
@@ -7621,7 +7713,8 @@ DEFINE_TEST_CASE(8) {
 
       }
 
-DEFINE_TEST_CASE(7) {
+DEFINE_TEST_CASE(7)
+{
         // --------------------------------------------------------------------
         // COPY CONSTRUCTION
         //   Ensure that this constructor is "wired-up" and defaults properly.
@@ -8029,7 +8122,8 @@ DEFINE_TEST_CASE(7) {
         } //  da is un-installed as default allocator and then leaves scope.
       }
 
-DEFINE_TEST_CASE(6) {
+DEFINE_TEST_CASE(6)
+{
         // --------------------------------------------------------------------
         // EQUALITY OPERATORS: '==' and '!='
         //   Ensure that these operators correctly interpret value.
@@ -8104,7 +8198,7 @@ DEFINE_TEST_CASE(6) {
                 vector<bdem_ElemType::Type> types;
                 if (veryVerbose) { T_ P(type) }
 
-                bool PRINT = veryVerbose && (index == 0 || index == 21)
+                bool PRINT = (veryVerbose && (index == 0 || index == 21))
                           || veryVeryVerbose;
 
                 for (int columns = 0; columns < NC; ++columns) {
@@ -8332,7 +8426,8 @@ DEFINE_TEST_CASE(6) {
 
       }
 
-DEFINE_TEST_CASE(5) {
+DEFINE_TEST_CASE(5)
+{
         // --------------------------------------------------------------------
         // OUTPUT: bsl::ostream& 'operator<<' and 'print'
         //
@@ -8933,8 +9028,6 @@ DEFINE_TEST_CASE(5) {
         if (verbose) cout <<
            "\nEnsure default allocator not used inappropriately." << endl;
         {
-            const int SIZE = 10000; // arbitrarily large size
-
             bslma_TestAllocator sa;
             stringstream ss(&sa);
 
@@ -9172,7 +9265,8 @@ DEFINE_TEST_CASE(5) {
 
       }
 
-DEFINE_TEST_CASE(4) {
+DEFINE_TEST_CASE(4)
+{
         // --------------------------------------------------------------------
         // PRIMARY MANIPULATORS/BASIC ACCESSORS
         //   Verify the most basic functionality of a 'bdem_Table'
@@ -10311,7 +10405,8 @@ DEFINE_TEST_CASE(4) {
         }
       }
 
-DEFINE_TEST_CASE(3) {
+DEFINE_TEST_CASE(3)
+{
         // --------------------------------------------------------------------
         // PRIMARY CONSTRUCTOR
         //   Ensure that this constructor is "wired-up" and defaults properly.
@@ -10630,7 +10725,8 @@ DEFINE_TEST_CASE(3) {
 
       }
 
-DEFINE_TEST_CASE(2) {
+DEFINE_TEST_CASE(2)
+{
         // --------------------------------------------------------------------
         // TEST APPARATUS
         //   Verify the equipment we have set up to test itself works properly.
@@ -10895,7 +10991,8 @@ DEFINE_TEST_CASE(2) {
 
       }
 
-DEFINE_TEST_CASE(1) {
+DEFINE_TEST_CASE(1)
+{
         // --------------------------------------------------------------------
         // BREATHING/USAGE TEST
         //   Note: This test exercises basic functionality, but tests nothing!

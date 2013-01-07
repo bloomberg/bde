@@ -766,11 +766,14 @@ class bdem_Table {
 
       public:
         // CREATORS
-        explicit InitialMemory(int i) : d_i(i) { }
-        ~InitialMemory() { }
+        explicit InitialMemory(int i) : d_i(i) {}
+        ~InitialMemory() {}
 
         // ACCESSORS
-        operator int() const { return d_i; }
+        operator int() const
+        {
+            return d_i;
+        }
     };
 
     // CLASS METHODS
@@ -833,6 +836,7 @@ class bdem_Table {
         // 'columnTypes' contains at least 'numColumns' and,
         // '0 <= initialMemorySize', if 'initialMemorySize' is specified.
 
+    explicit
     bdem_Table(const bsl::vector<bdem_ElemType::Type>&   columnTypes,
                bslma_Allocator                          *basicAllocator = 0);
     bdem_Table(const bsl::vector<bdem_ElemType::Type>&   columnTypes,
@@ -1282,7 +1286,7 @@ class bdem_Table {
         // not valid on entry, this operation has no effect.
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-
+    // CLASS METHOD
     static int maxSupportedVersion();
         // Return the most current 'bdex' streaming version number supported by
         // this class.  (See the package-group-level documentation for more
@@ -1290,6 +1294,7 @@ class bdem_Table {
         //
         // DEPRECATED: Use 'maxSupportedBdexVersion' instead.
 
+    // MANIPULATOR
     void insertRow(int dstIndex, const bdem_Row& srcRow);
         // Insert the specified 'srcRow' into this table at the specified
         // 'dstIndex'.  The new row element at each column position is set
@@ -1712,7 +1717,8 @@ inline void bdem_Table::setColumnBool(int columnIndex, bool value)
     d_tableImp.setColumnValueRaw(columnIndex, &value);
 }
 
-inline void bdem_Table::setColumnChar(int columnIndex, char value)
+inline
+void bdem_Table::setColumnChar(int columnIndex, char value)
 {
     BSLS_ASSERT_SAFE(0 <= columnIndex);
     BSLS_ASSERT_SAFE(     columnIndex < numColumns());
@@ -1720,7 +1726,8 @@ inline void bdem_Table::setColumnChar(int columnIndex, char value)
     d_tableImp.setColumnValueRaw(columnIndex, &value);
 }
 
-inline void bdem_Table::setColumnShort(int columnIndex, short value)
+inline
+void bdem_Table::setColumnShort(int columnIndex, short value)
 {
     BSLS_ASSERT_SAFE(0 <= columnIndex);
     BSLS_ASSERT_SAFE(     columnIndex < numColumns());
@@ -1728,7 +1735,8 @@ inline void bdem_Table::setColumnShort(int columnIndex, short value)
     d_tableImp.setColumnValueRaw(columnIndex, &value);
 }
 
-inline void bdem_Table::setColumnInt(int columnIndex, int value)
+inline
+void bdem_Table::setColumnInt(int columnIndex, int value)
 {
     BSLS_ASSERT_SAFE(0 <= columnIndex);
     BSLS_ASSERT_SAFE(     columnIndex < numColumns());
@@ -1745,7 +1753,8 @@ void bdem_Table::setColumnInt64(int columnIndex, bsls_Types::Int64 value)
     d_tableImp.setColumnValueRaw(columnIndex, &value);
 }
 
-inline void bdem_Table::setColumnFloat(int columnIndex, float value)
+inline
+void bdem_Table::setColumnFloat(int columnIndex, float value)
 {
     BSLS_ASSERT_SAFE(0 <= columnIndex);
     BSLS_ASSERT_SAFE(     columnIndex < numColumns());
@@ -1753,7 +1762,8 @@ inline void bdem_Table::setColumnFloat(int columnIndex, float value)
     d_tableImp.setColumnValueRaw(columnIndex, &value);
 }
 
-inline void bdem_Table::setColumnDouble(int columnIndex, double value)
+inline
+void bdem_Table::setColumnDouble(int columnIndex, double value)
 {
     BSLS_ASSERT_SAFE(0 <= columnIndex);
     BSLS_ASSERT_SAFE(     columnIndex < numColumns());
@@ -1761,7 +1771,8 @@ inline void bdem_Table::setColumnDouble(int columnIndex, double value)
     d_tableImp.setColumnValueRaw(columnIndex, &value);
 }
 
-inline void bdem_Table::setColumnString(int columnIndex, const char *value)
+inline
+void bdem_Table::setColumnString(int columnIndex, const char *value)
 {
     BSLS_ASSERT_SAFE(0 <= columnIndex);
     BSLS_ASSERT_SAFE(     columnIndex < numColumns());
@@ -1770,8 +1781,9 @@ inline void bdem_Table::setColumnString(int columnIndex, const char *value)
     d_tableImp.setColumnValue(columnIndex, &s);
 }
 
-inline void bdem_Table::setColumnString(int                columnIndex,
-                                        const bsl::string& value)
+inline
+void bdem_Table::setColumnString(int                columnIndex,
+                                 const bsl::string& value)
 {
     BSLS_ASSERT_SAFE(0 <= columnIndex);
     BSLS_ASSERT_SAFE(     columnIndex < numColumns());
@@ -1798,7 +1810,8 @@ void bdem_Table::setColumnDatetimeTz(int                    columnIndex,
     d_tableImp.setColumnValueRaw(columnIndex, &value);
 }
 
-inline void bdem_Table::setColumnDate(int columnIndex, const bdet_Date& value)
+inline
+void bdem_Table::setColumnDate(int columnIndex, const bdet_Date& value)
 {
     BSLS_ASSERT_SAFE(0 <= columnIndex);
     BSLS_ASSERT_SAFE(     columnIndex < numColumns());
@@ -1806,8 +1819,9 @@ inline void bdem_Table::setColumnDate(int columnIndex, const bdet_Date& value)
     d_tableImp.setColumnValueRaw(columnIndex, &value);
 }
 
-inline void bdem_Table::setColumnDateTz(int                columnIndex,
-                                        const bdet_DateTz& value)
+inline
+void bdem_Table::setColumnDateTz(int                columnIndex,
+                                 const bdet_DateTz& value)
 {
     BSLS_ASSERT_SAFE(0 <= columnIndex);
     BSLS_ASSERT_SAFE(     columnIndex < numColumns());
@@ -1815,7 +1829,8 @@ inline void bdem_Table::setColumnDateTz(int                columnIndex,
     d_tableImp.setColumnValueRaw(columnIndex, &value);
 }
 
-inline void bdem_Table::setColumnTime(int columnIndex, const bdet_Time& value)
+inline
+void bdem_Table::setColumnTime(int columnIndex, const bdet_Time& value)
 {
     BSLS_ASSERT_SAFE(0 <= columnIndex);
     BSLS_ASSERT_SAFE(     columnIndex < numColumns());
@@ -1823,8 +1838,9 @@ inline void bdem_Table::setColumnTime(int columnIndex, const bdet_Time& value)
     d_tableImp.setColumnValueRaw(columnIndex, &value);
 }
 
-inline void bdem_Table::setColumnTimeTz(int                columnIndex,
-                                        const bdet_TimeTz& value)
+inline
+void bdem_Table::setColumnTimeTz(int                columnIndex,
+                                 const bdet_TimeTz& value)
 {
     BSLS_ASSERT_SAFE(0 <= columnIndex);
     BSLS_ASSERT_SAFE(     columnIndex < numColumns());
