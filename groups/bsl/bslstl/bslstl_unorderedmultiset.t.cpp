@@ -2158,12 +2158,10 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase8()
     //   void swap(set<K, C, A>& a, set<K, C, A>& b);
     // ------------------------------------------------------------------------
 
-    static bool firstVerbose = true;
-
-    if (firstVerbose) printf("SWAP MEMBER AND FREE FUNCTIONS\n"
+    if (veryVerbose) printf("SWAP MEMBER AND FREE FUNCTIONS\n"
                              "==============================\n");
 
-    if (firstVerbose) printf(
+    if (veryVerbose) printf(
                      "\nAssign the address of each function to a variable.\n");
     {
         typedef void (Obj::*FuncPtr)(Obj&);
@@ -2178,13 +2176,13 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase8()
         (void)freeSwap;
     }
 
-    if (firstVerbose) printf(
+    if (veryVerbose) printf(
                  "\nCreate a test allocator and install it as the default.\n");
 
     bslma::TestAllocator         da("default", veryVeryVeryVerbose);
     bslma::DefaultAllocatorGuard dag(&da);
 
-    if (firstVerbose) printf(
+    if (veryVerbose) printf(
        "\nUse a table of distinct object values and expected memory usage.\n");
 
     const int NUM_DATA                     = DEFAULT_NUM_DATA;
@@ -2366,7 +2364,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase8()
         }
     }
 
-    if (firstVerbose) printf(
+    if (veryVerbose) printf(
             "\nInvoke free 'swap' function in a context where ADL is used.\n");
     {
         // 'A' values: Should cause memory allocation if possible.
@@ -2398,8 +2396,6 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase8()
 
         if (veryVerbose) { T_ P_(X) P(Y) }
     }
-
-    firstVerbose = false;
 }
 
 template <class KEY, class HASH, class EQUAL, class ALLOC>
@@ -2466,7 +2462,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase7()
 
     const bool TYPE_ALLOC = bslma::UsesBslmaAllocator<KEY>::value;
 
-    if (verbose)
+    if (veryVerbose)
         printf("\nTesting parameters: TYPE_ALLOC = %d.\n", TYPE_ALLOC);
     {
         static const char *SPECS[] = {
@@ -2492,7 +2488,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase7()
             const char *const SPEC        = SPECS[ti];
             const size_t      LENGTH      = (int) strlen(SPEC);
 
-            if (verbose) {
+            if (veryVerbose) {
                 printf("\nFor an object of length " ZU ":\n", LENGTH);
                 P(SPEC);
             }
@@ -2746,12 +2742,10 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase4()
     //   allocator_type get_allocator() const;
     // ------------------------------------------------------------------------
 
-    static bool firstVerbose = verbose;
-
     typedef typename Obj::local_iterator LIter;
     typedef bsl::pair<Iter, Iter>        Range;
 
-    if (firstVerbose) printf("Testing Signatures\n");
+    if (veryVerbose) printf("Testing Signatures\n");
 
     {
         typedef bool (Obj::*MP)() const;
@@ -2892,7 +2886,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase4()
         static const float LOADS[] = { 1.0f, 2.5f, 6.0f, 15.0f };
         enum { NUM_LOADS = sizeof LOADS / sizeof *LOADS };
 
-        for (int fi = 0; fi < NUM_LOADS; ++fi, firstVerbose = false) {
+        for (int fi = 0; fi < NUM_LOADS; ++fi) {
             Obj mX(&sa);    const Obj& X = mX;
 
             ASSERTV(X.get_allocator().mechanism() == &sa);
@@ -2916,8 +2910,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase4()
 
             ASSERTV(-1 == ggg(&mX, SPEC));
 
-            if (firstVerbose) printf(
-                                    ".size(), .empty() (again), max_size()\n");
+            if (veryVerbose) printf(".size(), .empty() (again), max_size()\n");
 
             ASSERTV(LENGTH == X.size());
             ASSERTV(!LENGTH == X.empty());
@@ -2928,7 +2921,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase4()
                 ASSERTV(X.bucket_count() > 1);
             }
 
-            if (firstVerbose) {
+            if (veryVerbose) {
                 printf("max_load_factor, load_factor, bucket_count\n");
             }
 
@@ -2938,7 +2931,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase4()
                          X.load_factor(), (double) LENGTH / X.bucket_count()));
             ASSERTV(X.load_factor() <= X.max_load_factor());
 
-            if (firstVerbose) {
+            if (veryVerbose) {
                 printf("mX.begin, mX.end, X.begin, X.end, X.cbegin, X.cend\n");
                 printf("X.count, mX.find, X.find, mX.equal_range,"
                        " X.equal_range, X.size (again)\n");
@@ -2983,7 +2976,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase4()
                 ASSERTV(X.size() == count);
             }
 
-            if (firstVerbose) {
+            if (veryVerbose) {
                 printf("X.bucket_count() (again)\n");
                 printf("X.bucket(KEY), X.begin(i), X.end(i), mX.begin(i)\n");
                 printf("mX.end(i), X.cbegin(i), X.cend(i)\n");
