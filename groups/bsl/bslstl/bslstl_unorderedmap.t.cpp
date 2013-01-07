@@ -5607,7 +5607,7 @@ class TestDriver {
         // 'spec'.
 
     static void matchFirstValues(const int         LINE,
-				 const Obj&        object,
+                                 const Obj&        object,
                                  const TestValues& values,
                                  const size_t      count);
         // Match that exactly the first specified 'count' values of the
@@ -5629,19 +5629,22 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::matchFirstValues(
         return;                                                       // RETURN
     }
 
-    ASSERTV(LINE, object.size() == count);
+    ASSERTV(LINE, object.size(), count, object.size() == count);
 
     bool *foundValues = new bool[count];
     memset(foundValues, 0, count);
 
     size_t i = 0;
     for (CIter it = object.cbegin(); it != object.cend(); ++it, ++i) {
+        bool found = false;
         for (size_t j = 0; j < count; ++j) {
             if (VALUES[j] == *it) {
+                found = true;
                 ASSERTV(LINE, VALUES[j], !foundValues[j]);
                 foundValues[j] = true;
             }
         }
+        ASSERTV(found);
     }
     ASSERTV(LINE, count == i);
 
@@ -5762,7 +5765,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase2()
     {
         typedef bsl::pair<Iter, bool> (Obj::*MP)(const Pair&);
         MP mp = &Obj::insert;
-	(void) mp;
+        (void) mp;
     }
 
     // template <class P> pair<Iter, bool> insert(P&&);    // N/A C++11
@@ -5770,16 +5773,16 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase2()
     {
         typedef bsl::pair<Iter, bool> (Obj::*MP)(CIter, const Pair&);
         MP mp = &Obj::insert;
-	(void) mp;
+        (void) mp;
     }
 
     // template <class P> Iter insert(CIter, P&&);    // N/A C++11
 
     {
-	typedef TestValues::iterator TVIter;
+        typedef TestValues::iterator TVIter;
         void (Obj::*MP)(TVIter, TVIter);
         MP mp = &Obj::insert;
-	(void) mp;
+        (void) mp;
     }
 
     const bool VALUE_TYPE_USES_ALLOC = bslma::UsesBslmaAllocator<Pair>::value;
@@ -5971,9 +5974,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase2()
                     } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
 
-                ASSERTV(LENGTH, CONFIG, LENGTH, X.size(), LENGTH == X.size());
-
-		matchFirstValues(L_, X, VALUES, LENGTH);
+                matchFirstValues(L_, X, VALUES, LENGTH);
 
                 // Verify behavior when element already exist in the object
 
@@ -6019,20 +6020,20 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase2()
                     ASSERTV(LENGTH, tj, CONFIG, VALUES[tj] == *(RESULT.first));
                 }
 
-                ASSERTV(LENGTH, CONFIG, LENGTH == X.size());
+                matchFirstValues(L_, X, VALUES, LENGTH);
             }
 
             // ----------------------------------------------------------------
 
-            if (veryVerbose) printf("\n\tTesting 'erase'.\n");
+            if (veryVerbose) printf("\n\tTesting 'erase(it)'.\n");
             {
                 Iter it = mX.begin();
-		size_t sz = X.size();
+                size_t sz = X.size();
                 while (mX.end() != it) {
-		    const Pair& p = VALUES[tj];
+                    const Pair& p = VALUES[tj];
                     it = mX.erase(p);
-		    ASSERTV(X.size() == --sz);
-		    for (CIter cit = X.cbegin(); X.cend() != cit; ++cit) {
+                    ASSERTV(X.size(), sz, X.size() == --sz);
+                    for (CIter cit = X.cbegin(); X.cend() != cit; ++cit) {
                         ASSERTV(p != *cit);
                     }
                 }
@@ -6048,6 +6049,36 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase2()
                 ASSERT(LENGTH == X.size());
 
                 matchFirstValues(L_, X, VALUES, LENGTH);
+            }
+
+            if (veryVerbose) printf("\n\tTesting range 'erase'.\n");
+            {
+                Iter it = mX.erase(mX.begin(), mX.end());
+
+                ASSERTV(X.size(), 0 == X.size());
+                ASSERTV(X.end() == it);
+            }
+
+            mX.insert(VALUES.begin(), VALUES.index(LENGTH));
+            VALUES.resetIterators();
+
+            matchFirstValues(L_, X, VALUES, LENGTH);
+            
+            if (veryVerbose) printf("\n\tTesting 'erase(Key)'.\n");
+            {
+                ASSERTV(0 != VALUES.size() % 17);
+
+                size_t sum = 0;
+                for (size_t tj = 0; tj < VALUES.size(); ++tj) {
+                    size_t tvi = (tj * 17) % VALUES.size();
+
+                    size_t result = mX.erase(VALUES[tvi]);
+                    ASSERTV(result == (tvi < LENGTH));
+                    sum += result;
+                }
+
+                ASSERTV(X.size(), 0 == X.size());
+                ASSERTV(LENGTH == sum);
             }
 
             // Reclaim dynamically allocated object under test.
