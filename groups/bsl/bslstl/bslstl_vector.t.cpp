@@ -104,9 +104,7 @@ using namespace bsl;
 // [ 2] void clear();
 // [15] T& front();
 // [15] T& back();
-// [  ] VALUE_TYPE *data();
-// [20] template <class Args...>
-//        iterator emplace(const_iterator pos, Args...);
+// [15] VALUE_TYPE *data();
 // [ 2] void push_back(const T&);
 // [17] void push_back(T&&);
 // [18] void pop_back();
@@ -118,11 +116,11 @@ using namespace bsl;
 // [19] void swap(vector<T,A>&);
 //
 // ACCESSORS:
-// [ 4] const_reference operator[](size_type pos) const;
-// [ 4] const_reference at(size_type pos) const;
+// [15] const T& operator[](size_type pos) const;
+// [15] const T& at(size_type pos) const;
 // [15] const T& front() const;
 // [15] const T& back() const;
-// [  ] const VALUE_TYPE *data() const;
+// [15] const VALUE_TYPE *data() const;
 // [ 4] size_type size() const;
 // [14] size_type max_size() const;
 // [14] size_type capacity() const;
@@ -2453,7 +2451,7 @@ void TestDriver<TYPE,ALLOC>::testCase19()
     //   Verify that memory was returned to allocator.
     //
     // Testing:
-    //   swap(vector<T,A>& lhs, vector<T,A>& rhs);
+    //   void swap(vector<T,A>&, vector<T,A>&);
     // ------------------------------------------------------------------------
 
     if (verbose) printf("\nSWAP TEST"
@@ -2995,7 +2993,7 @@ void TestDriver<TYPE,ALLOC>::testCase18Negative()
     //
     // Testing:
     //   void pop_back();
-    //   iterator erase(const_iterator p);
+    //   iterator erase(const_iterator pos);
     //   iterator erase(const_iterator first, iterator last);
     // -----------------------------------------------------------------------
 
@@ -3120,10 +3118,10 @@ void TestDriver<TYPE,ALLOC>::testCase17()
     //   identical to t it would be if the value had not been aliased.
     //
     // Testing:
-    //   iterator insert(const_iterator pos, const T& value);
-    //   void insert(const_iterator pos, size_type n, const T& value);
-    //   void push_back(T&& value);
-    //   void insert(const_iterator pos, size_type n, T&& value);
+    //   void push_back(T&&);
+    //   iterator insert(const_iterator pos, const T& val);
+    //   iterator insert(const_iterator pos, size_type n, const T& val);
+    //   template <class IIter> void insert(constIter,IIter,IIter);
     // -----------------------------------------------------------------------
 
     bslma::TestAllocator testAllocator(veryVeryVerbose);
@@ -3884,10 +3882,10 @@ void TestDriver<TYPE,ALLOC>::testCase17Negative()
     //   with invalid iterators and verify that it asserts.
     //
     // Testing:
+    //   void push_back(T&&);
     //   iterator insert(const_iterator pos, const T& val);
     //   iterator insert(const_iterator pos, size_type n, const T& val);
-    //   template <class InputIter>
-    //       void insert(const_iterator pos, InputIter first, InputIter last);
+    //   template <class IIter> void insert(constIter,IIter,IIter);
     // -----------------------------------------------------------------------
 
     const typename Obj::const_iterator badIterator =
@@ -4010,10 +4008,10 @@ void TestDriver<TYPE,ALLOC>::testCase16()
     //   iterator end();
     //   reverse_iterator rbegin();
     //   reverse_iterator rend();
-    //   const_iterator begin();
-    //   const_iterator end();
-    //   const_reverse_iterator rbegin();
-    //   const_reverse_iterator rend();
+    //   const_iterator begin() const;
+    //   const_iterator end() const;
+    //   const_reverse_iterator rbegin() const;
+    //   const_reverse_iterator rend() const;
     // --------------------------------------------------------------------
 
     bslma::TestAllocator testAllocator(veryVeryVerbose);
@@ -4146,16 +4144,16 @@ void TestDriver<TYPE,ALLOC>::testCase15()
     //   specified index to the pointer returned by 'data()'.
     //
     // Testing:
-    //   T& operator[](size_type position);
-    //   T& at(size_type n);
+    //   T& operator[](size_type pos);
+    //   T& at(size_type pos);
     //   T& front();
     //   T& back();
-    //   T *data();
-    //   const T& operator[](size_type position) const;
-    //   const T& at(size_type n) const;
+    //   VALUE_TYPE *data();
+    //   const T& operator[](size_type pos) const;
+    //   const T& at(size_type pos) const;
     //   const T& front() const;
     //   const T& back() const;
-    //   const T *data() const;
+    //   const VALUE_TYPE *data() const;
     // --------------------------------------------------------------------
 
     bslma::TestAllocator testAllocator(veryVeryVerbose);
@@ -4278,10 +4276,10 @@ void TestDriver<TYPE,ALLOC>::testCase15Negative()
     //   index is out of range.
     //
     // Testing:
-    //   T& operator[](size_type position);
-    //   const T& operator[](size_type position) const;
+    //   T& operator[](size_type pos);
     //   T& front();
     //   T& back();
+    //   const T& operator[](size_type pos) const;
     //   const T& front() const;
     //   const T& back() const;
     // --------------------------------------------------------------------
@@ -4387,8 +4385,8 @@ void TestDriver<TYPE,ALLOC>::testCase14()
     //   each test in the standard 'bslma' exception-testing macro block.
     //
     // Testing:
-    //   void Vector_Imp<T>::reserve(size_type n);
-    //   void resize(size_type n, T val = T());
+    //   void resize(size_type n, const T& val);
+    //   void reserve(size_type n);
     //   size_type max_size() const;
     //   size_type capacity() const;
     //   bool empty() const;
@@ -4669,7 +4667,7 @@ void TestDriver<TYPE,ALLOC>::testCase13()
     //   completely in test case 17.
     //
     // Testing:
-    //   assign(size_type n, const T& value);
+    //   void assign(size_type numElements, const T& val);
     // --------------------------------------------------------------------
 
     bslma::TestAllocator  testAllocator(veryVeryVerbose);
@@ -4845,8 +4843,7 @@ void TestDriver<TYPE,ALLOC>::testCase13Range(const CONTAINER&)
     //   completely in test case 17.
     //
     // Testing:
-    //   template <class InputIter>
-    //     assign(InputIter first, InputIter last);
+    //   template <class IIter> void assign(IIter,IIter);
     // --------------------------------------------------------------------
 
     bslma::TestAllocator  testAllocator(veryVeryVerbose);
@@ -5034,8 +5031,7 @@ void TestDriver<TYPE,ALLOC>::testCase13Negative(const CONTAINER&)
     //   where the specified iterators are in the reversed order.
     //
     // Testing:
-    //   template <class InputIter>
-    //     assign(InputIter first, InputIter last);
+    //   template <class IIter> void assign(IIter,IIter);
     // --------------------------------------------------------------------
 
     bsls::AssertFailureHandlerGuard guard(&bsls::AssertTest::failTestDriver);
@@ -5107,9 +5103,9 @@ void TestDriver<TYPE,ALLOC>::testCase12()
     //   expected, and that no allocation was performed.
     //
     // Testing:
-    //   Vector_Imp(size_type n, const A& a = A());
-    //   Vector_Imp(size_type n, const T& value, const A& a = A());
-    //   Vector_Imp(vector<T,A>&& original);
+    //   vector<T,A>(size_type n, const A& a = A());
+    //   vector<T,A>(size_type n, const T& val, const A& a = A());
+    //   vector(vector<T,A>&& original);
     // --------------------------------------------------------------------
 
     bslma::TestAllocator  testAllocator(veryVeryVerbose);
@@ -5526,8 +5522,7 @@ void TestDriver<TYPE,ALLOC>::testCase12Range(const CONTAINER&)
     //   reverse-ordered ranges.
     //
     // Testing:
-    //   template <class InputIter>
-    //     Vector_Imp(InputIter first, InputIter last, const A& a = A());
+    //   template<class IIter> vector<T,A>(IIter,IIter,const A& a = A());
     // --------------------------------------------------------------------
 
     bslma::TestAllocator testAllocator(veryVeryVerbose);
@@ -5810,15 +5805,16 @@ void TestDriver<TYPE,ALLOC>::testCase11()
     //   We first verify that the 'Vector_Imp' class has the traits, and
     //   that allocator
     //
-    // Testing:
-    //   TRAITS
-    //
     // TBD When a new vector object Y is created from an old vector object
     //      X, then the standard states that Y should get its allocator by
     //      copying X's allocator (23.1, Point 8).  Our vector implementation
     //      does not follow this rule for 'bslma::Allocator'-based allocators.
     //      To verify this behavior for non-'bslma::Allocator', should test
     //      copy constructor using one and verify standard is followed.
+    //
+    // Testing:
+    //   TRAITS
+    //   ALLOCATOR-RELATED CONCERNS
     // --------------------------------------------------------------------
 
     if (verbose) printf("\nALLOCATOR TEST"
@@ -5914,7 +5910,7 @@ void TestDriver<TYPE,ALLOC>::testCase9()
     //          With allocator, not moveable
     //
     // Testing:
-    //   vector<T,A>& operator=(const vector<T,A>& rhs);
+    //   operator=(vector<T,A>&);
     // --------------------------------------------------------------------
 
     bslma::TestAllocator testAllocator(veryVeryVerbose);
@@ -6212,7 +6208,7 @@ void TestDriver<TYPE,ALLOC>::testCase8()
     //   returned by 'g' differs in size from that returned by 'gg'.
     //
     // Testing:
-    //   Vector_Imp g(const char *spec);
+    //   vector<T,A> g(const char *spec);
     // --------------------------------------------------------------------
 
     bslma::TestAllocator testAllocator(veryVeryVerbose);
@@ -6319,7 +6315,7 @@ void TestDriver<TYPE,ALLOC>::testCase7()
     //   'bslma::TestAllocator' and varying its *allocation* *limit*.
     //
     // Testing:
-    //   vector<T,A>(const vector<T,A>& original);
+    //   vector<T,A>(const vector<T,A>& orig, const A& = A());
     // --------------------------------------------------------------------
 
     bslma::TestAllocator testAllocator(veryVeryVerbose);
@@ -6651,8 +6647,8 @@ void TestDriver<TYPE,ALLOC>::testCase6()
     //   trait or not.
     //
     // Testing:
-    //   operator==(const vector<T,A>&, const vector<T,A>&);
-    //   operator!=(const vector<T,A>&, const vector<T,A>&);
+    //   bool operator==(const vector<T,A>&, const vector<T,A>&);
+    //   bool operator!=(const vector<T,A>&, const vector<T,A>&);
     // --------------------------------------------------------------------
 
     bslma::TestAllocator testAllocator1(veryVeryVerbose);
@@ -6836,10 +6832,10 @@ void TestDriver<TYPE,ALLOC>::testCase4()
     //   Note - Using untested resize(int).
     //
     // Testing:
-    //   reference operator[](size_type pos);
-    //   const_reference operator[](size_type pos) const;
-    //   reference at(size_type pos);
-    //   const_reference at(size_type pos) const;
+    //   T& operator[](size_type pos);
+    //   const T& operator[](size_type pos) const;
+    //   T& at(size_type pos);
+    //   const T& at(size_type pos) const;
     // --------------------------------------------------------------------
 
     bslma::TestAllocator testAllocator(veryVeryVerbose);
@@ -7163,8 +7159,8 @@ void TestDriver<TYPE,ALLOC>::testCase3()
     //   parser only; the primary manipulators are already assumed to work.
     //
     // Testing:
-    //   vector<T,A>& gg(vector<T,A> *object, const char *spec);
     //   int ggg(vector<T,A> *object, const char *spec, int vF = 1);
+    //   vector<T,A>& gg(vector<T,A> *object, const char *spec);
     // --------------------------------------------------------------------
 
     bslma::TestAllocator testAllocator(veryVeryVerbose);
@@ -7815,7 +7811,7 @@ void TestDriver<TYPE,ALLOC>::testCase1()
     // 11) Assign x4 = x4 (aliasing).               { x1: x2: x3:AB x4:AB }
     //
     // Testing:
-    //   This "test" *exercises* basic functionality.
+    //   BREATHING TEST
     // --------------------------------------------------------------------
 
     bslma::TestAllocator testAllocator(veryVeryVerbose);
@@ -9095,8 +9091,8 @@ int main(int argc, char *argv[])
         //   for a list of concerns and a test plan.
         //
         // Testing:
-        //   const_reference operator[](size_type pos) const;
-        //   const_reference at(size_type pos) const;
+        //   const T& operator[](size_type pos) const;
+        //   const T& at(size_type pos) const;
         //   size_type size() const;
         // --------------------------------------------------------------------
 
