@@ -23,15 +23,15 @@ const char SEPARATOR =
 
 // STATIC HELPER FUNCTIONS
 static
-void findFirstNonSeparatorChar(size_t     *resultOffset, 
-                               const char *path, 
+void findFirstNonSeparatorChar(size_t     *resultOffset,
+                               const char *path,
                                int         length = -1)
     // Load into the specified 'result' the offset of the first *non*
     // path-separator character in the specified 'path' (e.g., the first
     // character not equal to '/' on unix platforms).  Optionally specify
     // 'length' indicating the length of 'path'.  If 'length' is not supplied,
     // call 'strlen' on 'path' to determine its length.
-    
+
 {
     BSLS_ASSERT(resultOffset);
     BSLS_ASSERT(path);
@@ -133,7 +133,7 @@ void findFirstNonSeparatorChar(size_t     *resultOffset,
 }
 
 static
-void findFirstNonSeparatorChar(int *rootEnd, const char *path, int length = -1)
+void findFirstNonSeparatorChar(int *result, const char *path, int length = -1)
     // Load into the specified 'result' the offset of the first *non*
     // path-separator character in the specified 'path' (e.g., the first
     // character not equal to '/' on unix platforms).  Optionally specify
@@ -143,13 +143,13 @@ void findFirstNonSeparatorChar(int *rootEnd, const char *path, int length = -1)
     // 'findFirstNonSeparatorChar' routine, except this one takes an 'int *'
     // instead of a 'size_t *'.
 {
-    BSLS_ASSERT(rootEnd);
+    BSLS_ASSERT(result);
     BSLS_ASSERT(path);
 
-    size_t rootEndOffset;
-    findFirstNonSeparatorChar(&rootEndOffset, path, length);
-    BSLS_ASSERT(INT_MAX > rootEndOffset);
-    *rootEnd = rootEndOffset;
+    size_t resultOffset;
+    findFirstNonSeparatorChar(&resultOffset, path, length);
+    BSLS_ASSERT(INT_MAX > resultOffset);
+    *result = resultOffset;
 }
 
 static
@@ -192,30 +192,36 @@ int bdesu_PathUtil::appendIfValid(bsl::string            *path,
 {
     BSLS_ASSERT(path);
 
-    // Handle potentially aliased 'filename'.
+    // If 'filename' refers to characters in 'path', create a copy of
+    // 'filename' and call 'appendIfValid' so 'path' may be safely resized.
+
     const char *pathEnd = path->c_str() + path->length();
     if (filename.data() >= path->c_str() && filename.data() < pathEnd) {
         bsl::string nonAliasedFilename(filename.data(), filename.length());
         return appendIfValid(path, nonAliasedFilename);               // RETURN
     }
 
+    // If 'filename' is an absolute path, return an error status.
+
     size_t nonSeparatorOffset;
-    findFirstNonSeparatorChar(&nonSeparatorOffset, 
-                              filename.data(), 
+    findFirstNonSeparatorChar(&nonSeparatorOffset,
+                              filename.data(),
                               filename.length());
     if (0 != nonSeparatorOffset) { // absolute path
         return -1;                                                    // RETURN
     }
 
     // Suppress trailing separators in 'filename'
+
     bsl::size_t adjustedFilenameLength = filename.length();
     for (; adjustedFilenameLength > 0; --adjustedFilenameLength) {
         if (SEPARATOR != filename[adjustedFilenameLength - 1]) {
             break;
         }
-    }         
-    
-    // Suppress trailing seperators in 'path'.
+    }
+
+    // Suppress trailing separators in 'path'.
+
     if (!path->empty()) {
         bsl::size_t lastChar = path->find_last_not_of(SEPARATOR);
         lastChar = (lastChar == bsl::string::npos) ? 1 : lastChar;
@@ -223,6 +229,9 @@ int bdesu_PathUtil::appendIfValid(bsl::string            *path,
             path->erase(path->begin() + lastChar + 1, path->end());
         }
     }
+
+    // Append 'filename' (sans trailing separators) to 'path' (sans trailing
+    // separators).
 
     appendRaw(path, filename.data(), adjustedFilenameLength);
     return 0;
@@ -387,8 +396,6 @@ bool bdesu_PathUtil::hasLeaf(const bdeut_StringRef& path, int rootEnd)
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2008
 //      All Rights Reserved.
-
-
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
