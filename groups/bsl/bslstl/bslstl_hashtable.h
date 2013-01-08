@@ -1522,11 +1522,6 @@ BSLS_IDENT("$Id: $")
 #define INCLUDED_CSTDDEF
 #endif
 
-#ifndef INCLUDED_LIMITS
-#include <limits>  // for 'numeric_limits<size_t>'
-#define INCLUDED_LIMITS
-#endif
-
 namespace BloombergLP {
 
 namespace bslstl {
@@ -1567,7 +1562,6 @@ class HashTable_HashWrapper {
     const FUNCTOR& functor() const;
         // Return a reference providing non-modifiable access to the
         // hash functor wrapped by this object.
-
 
     void swap(HashTable_HashWrapper &other);
         // Exchange the value of this object with the specified 'other' object.
@@ -2417,8 +2411,9 @@ template <class FUNCTOR>
 inline
 void HashTable_HashWrapper<FUNCTOR>::swap(HashTable_HashWrapper &other)
 {
-    using std::swap;
-    swap(d_functor, other.d_functor);
+    bslalg::SwapUtil::swap(
+                static_cast<FUNCTOR*>(bsls::Util::addressOf(d_functor)),
+                static_cast<FUNCTOR*>(bsls::Util::addressOf(other.d_functor)));
 }
 
                    // ---------------------------------
@@ -2461,8 +2456,9 @@ inline
 void
 HashTable_ComparatorWrapper<FUNCTOR>::swap(HashTable_ComparatorWrapper &other)
 {
-    using std::swap;
-    swap(d_functor, other.d_functor);
+    bslalg::SwapUtil::swap(
+                static_cast<FUNCTOR*>(bsls::Util::addressOf(d_functor)),
+                static_cast<FUNCTOR*>(bsls::Util::addressOf(other.d_functor)));
 }
 
                     // ---------------------------
@@ -2586,8 +2582,6 @@ void
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::ImplParameters::
 quickSwapRetainAllocators(ImplParameters& other)
 {
-    using native_std::swap;  // otherwise it is hidden by this very definition!
-
     bslalg::SwapUtil::swap(
                    static_cast<HasherBaseType*>(this),
                    static_cast<HasherBaseType*>(bsls::Util::addressOf(other)));
@@ -2605,8 +2599,6 @@ void
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::ImplParameters::
 quickSwapExchangeAllocators(ImplParameters& other)
 {
-    using native_std::swap;  // otherwise it is hidden by this very definition!
-
     bslalg::SwapUtil::swap(
                    static_cast<HasherBaseType*>(this),
                    static_cast<HasherBaseType*>(bsls::Util::addressOf(other)));
@@ -2785,7 +2777,7 @@ HashTable(const HashTable& original)
 , d_capacity(0)
 , d_maxLoadFactor(original.d_maxLoadFactor)
 {
-    if (d_size > 0) {
+    if (0 < d_size) {
         this->copyDataStructure(original.d_anchor.listRootAddress());
     }
 }
@@ -2831,7 +2823,7 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::copyDataStructure(
                                        const bslalg::BidirectionalLink *cursor)
 {
     BSLS_ASSERT(0 != cursor);
-    BSLS_ASSERT(d_size);
+    BSLS_ASSERT(0 < d_size);
 
     // This function will completely replace 'this->d_anchor's state.  It is
     // the caller's responsibility to ensure this will not leak resources owned
@@ -3281,11 +3273,10 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::rehashForNumBuckets(
 
         size_t capacity;
         SizeType numBuckets =
-               HashTable_ImpDetails::growBucketsForLoadFactor(
-                                         &capacity,
-                                         native_std::max<SizeType>(d_size, 1u),
-                                         newNumBuckets,
-                                         d_maxLoadFactor);
+               HashTable_ImpDetails::growBucketsForLoadFactor(&capacity,
+                                                              d_size + 1u,
+                                                              newNumBuckets,
+                                                              d_maxLoadFactor);
 
         this->rehashIntoExactlyNumBuckets(numBuckets, capacity);
     }
@@ -3354,17 +3345,17 @@ void HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::setMaxLoadFactor(
 {
     BSLS_ASSERT_SAFE(0.0f < newMaxLoadFactor);
 
-    if (d_capacity > 0) {
-        size_t capacity;
-        SizeType numBuckets =
-             HashTable_ImpDetails::growBucketsForLoadFactor(&capacity,
-                                                            d_size,
-                                                            this->numBuckets(),
-                                                            newMaxLoadFactor);
+    size_t capacity;
+    SizeType numBuckets =
+             HashTable_ImpDetails::growBucketsForLoadFactor(
+                                         &capacity,
+                                         native_std::max<SizeType>(d_size, 1u),
+                                         this->numBuckets(),
+                                         newMaxLoadFactor);
 
-        this->rehashIntoExactlyNumBuckets(numBuckets, capacity);
-    }
+    this->rehashIntoExactlyNumBuckets(numBuckets, capacity);
 
+    // Always set this last, as there is potential to throw exceptions above.
     d_maxLoadFactor = newMaxLoadFactor;
 }
 
@@ -3433,7 +3424,7 @@ inline
 typename HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::SizeType
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::maxSize() const
 {
-    return native_std::numeric_limits<SizeType>::max();
+    return AllocatorTraits::max_size(this->allocator()) / sizeof(NodeType);
 }
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
@@ -3504,7 +3495,8 @@ inline
 typename HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::SizeType
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::maxNumBuckets() const
 {
-    return this->maxSize();
+    return AllocatorTraits::max_size(this->allocator())
+                                             / sizeof(bslalg::HashTableBucket);
 }
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
