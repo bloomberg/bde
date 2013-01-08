@@ -1761,7 +1761,8 @@ void unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::insert(
 
     bool isInsertedFlag;  // not used
     while (first != last) {
-        d_impl.insertIfMissing(&isInsertedFlag, *first++);
+        d_impl.insertIfMissing(&isInsertedFlag, *first);
+        ++first;
     }
 }
 
