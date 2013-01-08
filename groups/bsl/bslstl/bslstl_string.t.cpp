@@ -222,6 +222,8 @@ using namespace std;
 // [ 6] bool operator!=(const string&, const string&);
 // [ 6] bool operator!=(const C *, const string&);
 // [ 6] bool operator!=(const string&, const C *);
+// [17] operator+(const string& lhs, const CHAR_TYPE *rhs);
+// [17] operator+(const CHAR_TYPE *lhs, const string& rhs);
 // [24] bool operator<(const string&, const string&);
 // [24] bool operator<(const C *, const string&);
 // [24] bool operator<(const string&, const C *);
@@ -5819,11 +5821,9 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18()
     //      - element value at each index position { 0 .. length - 1 }.
     //
     // Testing:
-    //   string& insert(size_type pos, size_type n, C c);
     //   iterator insert(const_iterator p, size_type n, C c);
+    //   string& insert(size_type pos, size_type n, C c);
     //   iterator insert(const_iterator p, C c);
-    //   // string& insert(size_type pos, const C *s, n2);
-    //   // string& insert(size_type pos, const C *s);
     // -----------------------------------------------------------------------
 
     bslma::TestAllocator testAllocator(veryVeryVerbose);
@@ -6910,12 +6910,11 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18Negative()
     //   with invalid iterators and verify that it asserts.
     //
     // Testing:
-    //   string& insert(size_type pos, const C *s);
     //   string& insert(size_type pos, const C *s, n2);
+    //   string& insert(size_type pos, const C *s);
     //   iterator insert(const_iterator p, C c);
     //   iterator insert(const_iterator p, size_type n, C c);
-    //   template <class InputIter>
-    //     iterator insert(const_iterator p, InputIter first, InputIter last);
+    //   template <class IIter> iterator insert(citer,IIter,IIter);
     // -----------------------------------------------------------------------
 
     bsls::AssertFailureHandlerGuard guard(&bsls::AssertTest::failTestDriver);
@@ -7022,7 +7021,6 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17()
     //
     // Testing:
     //   string& append(size_type n, C c);
-    //   // operator+=(c);
     // --------------------------------------------------------------------
 
     bslma::TestAllocator  testAllocator(veryVeryVerbose);
@@ -7243,14 +7241,11 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
     //      - element value at each index position { 0 .. length - 1 }.
     //
     // Testing:
-    //   string& append(const string<C,CT,A>& str);
-    //   string& append(const string<C,CT,A>& str, pos, n);
+    //   string& append(const string& str);
+    //   string& append(const string& str, pos, n);
     //   string& append(const C *s, size_type n);
     //   string& append(const C *s);
-    //   template <class InputIter>
-    //     append(InputIter first, InputIter last);
-    //   // operator+=(const string& rhs);
-    //   // operator+=(const C *s);
+    //   template <class IIter> string& append(IIter,IIter);
     // --------------------------------------------------------------------
 
     bslma::TestAllocator  testAllocator(veryVeryVerbose);
@@ -7869,7 +7864,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Negative()
     // Testing:
     //   string& append(const C *s, size_type n);
     //   string& append(const C *s);
-    //   template <class InputIter> append(InputIter first, InputIter last);
+    //   template <class IIter> string& append(IIter,IIter);
     //   operator+=(const string& rhs);
     //   operator+(const string& lhs, const CHAR_TYPE *rhs);
     //   operator+(const CHAR_TYPE *lhs, const string& rhs);
@@ -8094,8 +8089,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase15()
     //   'std::out_of_range' when accessing the past-the-end element.
     //
     // Testing:
-    //   T& operator[](size_type position);
-    //   T& at(size_type n);
+    //   T& operator[](size_type pos);
+    //   T& at(size_type pos);
     //   T& front();
     //   T& back();
     //   const T& front() const;
@@ -8216,8 +8211,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase15Negative()
     //   index is out of range.
     //
     // Testing:
-    //   T& operator[](size_type position);
-    //   const T& operator[](size_type position) const;
+    //   T& operator[](size_type pos);
+    //   const T& operator[](size_type pos) const;
     //   T& front();
     //   T& back();
     //   const T& front() const;
@@ -8330,7 +8325,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase14()
     //   each test in the standard 'bslma' exception-testing macro block.
     //
     // Testing:
-    //   void string<C,CT,CA>::reserve(size_type n);
+    //   void reserve(size_type n);
     //   void resize(size_type n);
     //   void resize(size_type n, C c);
     //   size_type max_size() const;
@@ -8995,8 +8990,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase13Negative()
     // Testing:
     //   void assign(const C *s, size_type n);
     //   void assign(const C *s);
-    //   template <class InputIter>
-    //     assign(InputIter first, InputIter last, const A& a = A());
+    //   template <class IIter> void assign(IIter,IIter);
     // --------------------------------------------------------------------
 
     bsls::AssertFailureHandlerGuard guard(&bsls::AssertTest::failTestDriver);
@@ -9065,11 +9059,10 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase12()
     //   expected, and that no allocation was performed.
     //
     // Testing:
-    //   string<C,CT,A>(const string<C,CT,A>& str, pos, n = npos, a = A());
-    //   string<C,CT,A>(const C *s, n, a = A());
-    //   string<C,CT,A>(const C *s, a = A());
-    //   string<C,CT,A>(n, C c, a = A());
-    //   string<C,CT,A>(const string<C,CT,A>& original, a = A());
+    //   string(const string& str, pos, n = npos, a = A());
+    //   string(const C *s, n, a = A());
+    //   string(const C *s, a = A());
+    //   string(n, C c, a = A());
     // --------------------------------------------------------------------
 
     bslma::TestAllocator  testAllocator(veryVeryVerbose);
@@ -9651,8 +9644,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase12Range(const CONTAINER&)
     //      - element value at each index position { 0 .. length - 1 }.
     //
     // Testing:
-    //   template<class InputIter>
-    //     string(InputIter first, InputIter last, a = A());
+    //   template<class InputIter> string(InputIter,InputIter,a = A());
     // --------------------------------------------------------------------
 
     bslma::TestAllocator testAllocator(veryVeryVerbose);
@@ -9851,10 +9843,9 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase12Negative()
     //   iterator range ('first > last') and verify that it asserts.
     //
     // Testing:
-    //   string<C,CT,A>(const C *s, n, a = A());
-    //   string<C,CT,A>(const C *s, a = A());
-    //   template<class InputIter>
-    //     string(InputIter first, InputIter last, a = A());
+    //   string(const C *s, n, a = A());
+    //   string(const C *s, a = A());
+    //   template<class InputIter> string(InputIter,InputIter,a = A());
     // --------------------------------------------------------------------
 
     bsls::AssertFailureHandlerGuard guard(&bsls::AssertTest::failTestDriver);
@@ -9889,9 +9880,6 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase11()
     //   We verify that the 'string' class has the traits, and
     //   that allocator is not used for creating empty strings.
     //
-    // Testing:
-    //   TRAITS
-    //
     // TBD When a new string object Y is created from an old string object
     //      X, then the standard states that Y should get its allocator by
     //      copying X's allocator (23.1, Point 8).  The STLport string
@@ -9899,6 +9887,9 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase11()
     //      based allocators.  To verify this behavior for non
     //      bslma::Allocator, should test, copy constructor using one
     //      and verify standard is followed.
+    //
+    // Testing:
+    //   TRAITS
     // --------------------------------------------------------------------
 
     bslma::TestAllocator testAllocator(veryVeryVerbose);
@@ -9974,9 +9965,9 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase9()
     //          With allocator, not moveable
     //
     // Testing:
-    //   string<C,CT,A>& operator=(const string<C,CT,A>& rhs);
-    //   string<C,CT,A>& operator=(const C *s);
-    //   string<C,CT,A>& operator=(c);
+    //   operator=(const string& rhs);
+    //   operator=(const C *s);
+    //   operator=(c);
     // --------------------------------------------------------------------
 
     bslma::TestAllocator testAllocator(veryVeryVerbose);
@@ -10291,7 +10282,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase9Negative()
     //   that it succeeds.
     //
     // Testing:
-    //   string& operator=(const CHAR_TYPE *);
+    //   operator=(const C *s);
     // --------------------------------------------------------------------
 
     bsls::AssertFailureHandlerGuard guard(&bsls::AssertTest::failTestDriver);
@@ -10463,7 +10454,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase7()
     //   'bslma::TestAllocator' and varying its *allocation* *limit*.
     //
     // Testing:
-    //   string(const string<C,CT,A>& original, a = A());
+    //   string(const string& orig, a = A());
     // --------------------------------------------------------------------
 
     bslma::TestAllocator testAllocator(veryVeryVerbose);
@@ -10780,12 +10771,12 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase6()
     //   trait or not.
     //
     // Testing:
-    //   operator==(const string<C,CT,A>&, const string<C,CT,A>&);
-    //   operator==(const C *, const string<C,CT,A>&);
-    //   operator==(const string<C,CT,A>&, const C *);
-    //   operator!=(const string<C,CT,A>&, const string<C,CT,A>&);
-    //   operator!=(const C *, const string<C,CT,A>&);
-    //   operator!=(const string<C,CT,A>&, const C *);
+    //   bool operator==(const string&, const string&);
+    //   bool operator==(const C *, const string&);
+    //   bool operator==(const string&, const C *);
+    //   bool operator!=(const string&, const string&);
+    //   bool operator!=(const C *, const string&);
+    //   bool operator!=(const string&, const C *);
     // --------------------------------------------------------------------
 
     bslma::TestAllocator testAllocator1(veryVeryVerbose);
@@ -10965,10 +10956,10 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase6Negative()
     //   C-string pointer parameters.
     //
     // Testing:
-    //   operator==(const C *s, const string<C,CT,A>& str);
-    //   operator==(const string<C,CT,A>& str, const C *s);
-    //   operator!=(const C *s, const string<C,CT,A>& str);
-    //   operator!=(const string<C,CT,A>& str, const C *s);
+    //   bool operator==(const C *, const string&);
+    //   bool operator==(const string&, const C *);
+    //   bool operator!=(const C *, const string&);
+    //   bool operator!=(const string&, const C *);
     // -----------------------------------------------------------------------
 
     bsls::AssertFailureHandlerGuard guard(&bsls::AssertTest::failTestDriver);
@@ -11051,10 +11042,9 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase4()
     //   Note - Using untested resize(int).
     //
     // Testing:
-    //   reference operator[](size_type pos);
     //   const_reference operator[](size_type pos) const;
-    //   reference at(size_type pos);
     //   const_reference at(size_type pos) const;
+    //   size_type size() const;
     // --------------------------------------------------------------------
 
     bslma::TestAllocator testAllocator(veryVeryVerbose);
@@ -11385,8 +11375,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase3()
     //   parser only; the primary manipulators are already assumed to work.
     //
     // Testing:
-    //   string<C,CT,A>& gg(string<C,CT,A> *object, const char *spec);
-    //   int ggg(string<C,CT,A> *object, const char *spec, int vF = 1);
+    //   int ggg(string *object, const char *spec, int vF = 1);
+    //   string& gg(string *object, const char *spec);
     // --------------------------------------------------------------------
 
     bslma::TestAllocator testAllocator(veryVeryVerbose);
@@ -11627,9 +11617,9 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase2()
     //   constants.
     //
     // Testing:
-    //   string<C,CT,A>(const A& a = A());
-    //   ~string<C,CT,A>();
-    //   void push_back(const T&);
+    //   string(a = A());
+    //   ~string();
+    //   void push_back(C c);
     //   void clear();
     // --------------------------------------------------------------------
 
@@ -12012,7 +12002,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase1()
     // 11) Assign x4 = x4 (aliasing).               { x1: x2: x3:AB x4:AB }
     //
     // Testing:
-    //   This "test" *exercises* basic functionality.
+    //   BREATHING TEST
     // --------------------------------------------------------------------
 
     bslma::TestAllocator testAllocator(veryVeryVerbose);
@@ -12276,11 +12266,9 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCaseM1(const int NITER,
     //
     //   Also note, that this is spaghetti code but we make no attempt at
     //   shortening it with helper functions or macros, since we feel that
-    //
-    // Testing:
     //   This "test" measures performance of basic operations, for performance
     //   regression.
-    //
+    // 
     //
     // RESULTS: Native SunProSTL on sundev13 as of Tue Jun 24 16:48:36 EDT 2008
     // ------------------------------------------------------------------------
@@ -12455,8 +12443,9 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCaseM1(const int NITER,
     //      M2  Substring:      2.23025s        6.25982s        8.490068s
     //
     // RESULTS: bslstl 1.11 on ibm1 as of Mon Jun 30 14:24:46 EDT 2008
-    // --------------------------------------------------------------------
-    //
+    // 
+    // Testing:
+    //   PERFORMANCE TEST  
     // --------------------------------------------------------------------
 
     bsls::Stopwatch t;
@@ -13861,9 +13850,9 @@ int main(int argc, char *argv[])
         //  - It should work with the NULL-terminator different from '\0' to
         //    make sure that the implementation always uses char_type() default
         //    constructor to terminate the string rather than a null literal.
-	//
-	// Testing:
-	//   SHORT STRING OPTIMIZATION
+        //
+        // Testing:
+        //   SHORT STRING OPTIMIZATION
         // --------------------------------------------------------------------
         if (verbose) printf("\nTesting the short string optimization"
                             "\n=====================================\n");
@@ -13890,7 +13879,7 @@ int main(int argc, char *argv[])
         // REPRODUCING KNOWN BUG CAUSING SEGFAULT IN FIND
         //   This is a problem with the native library, being pursued in DRQS
         //   16870796.  This test will do nothing unless run in verbose mode.
-	//
+        //
         // Concerns:
         //   That a known bug in string::find on Sun cc is reproduced in this
         //   test suite.
@@ -13930,11 +13919,11 @@ int main(int argc, char *argv[])
         //    CHAR_TRAITS.
         //  - A bsl::basic_string and a native_std::basic_string with the
         //    same template parameters will have the same npos value.
-	// 
+        // 
         // Testing:
-	//   npos
-	//   operator native_stl::string<C,CT,A>() const;
-	//   string(const native_stl::basic_string<C,CT,A>&);
+        //   npos
+        //   operator native_stl::string<C,CT,A>() const;
+        //   string(const native_stl::basic_string<C,CT,A>&);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTesting conversions to/from native string"
@@ -14091,7 +14080,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   void swap(string&);
-	//   void swap(string&, string&);
+        //   void swap(string&, string&);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTesting 'swap'"
@@ -14166,10 +14155,10 @@ int main(int argc, char *argv[])
         // TESTING ERASE
         //
         // Testing:
-	//   void pop_back();
-	//   iterator erase(size_type pos = 0, size_type n = npos);
-	//   iterator erase(const_iterator p);
-	//   iterator erase(const_iterator first, iterator last);
+        //   void pop_back();
+        //   iterator erase(size_type pos = 0, size_type n = npos);
+        //   iterator erase(const_iterator p);
+        //   iterator erase(const_iterator first, iterator last);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTesting 'erase' and 'pop_back'"
@@ -14198,14 +14187,14 @@ int main(int argc, char *argv[])
         // TESTING INSERTION
         //
         // Testing:
-	//   string& insert(size_type pos1, const string& str);
-	//   string& insert(size_type pos1, const string& str, pos2, n);
-	//   string& insert(size_type pos, const C *s, n2);
-	//   string& insert(size_type pos, const C *s);
-	//   string& insert(size_type pos, size_type n, C c);
-	//   iterator insert(const_iterator p, C c);
-	//   iterator insert(const_iterator p, size_type n, C c);
-	//   template <class IIter> iterator insert(citer,IIter,IIter);
+        //   string& insert(size_type pos1, const string& str);
+        //   string& insert(size_type pos1, const string& str, pos2, n);
+        //   string& insert(size_type pos, const C *s, n2);
+        //   string& insert(size_type pos, const C *s);
+        //   string& insert(size_type pos, size_type n, C c);
+        //   iterator insert(const_iterator p, C c);
+        //   iterator insert(const_iterator p, size_type n, C c);
+        //   template <class IIter> iterator insert(citer,IIter,IIter);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTesting Value Insertion"
@@ -14253,11 +14242,11 @@ int main(int argc, char *argv[])
         // TESTING APPEND
         //
         // Testing:
-	//   string& append(const string& str);
-	//   string& append(const string& str, pos, n);
-	//   string& append(const C *s, size_type n);
-	//   string& append(const C *s);
-	//   string& append(size_type n, C c);
+        //   string& append(const string& str);
+        //   string& append(const string& str, pos, n);
+        //   string& append(const C *s, size_type n);
+        //   string& append(const C *s);
+        //   string& append(size_type n, C c);
         //   template <class IIter> string& append(IIter,IIter);
         // --------------------------------------------------------------------
 
@@ -14367,7 +14356,7 @@ int main(int argc, char *argv[])
         // Testing:
         //   void resize(size_type n);
         //   void resize(size_type n, C c);
-	//   void reserve(size_type n);
+        //   void reserve(size_type n);
         //   size_type max_size() const;
         //   size_type capacity() const;
         //   bool empty() const;
@@ -14388,12 +14377,12 @@ int main(int argc, char *argv[])
         // TESTING ASSIGNMENT
         //
         // Testing:
-	//   void assign(const string& str);
-	//   void assign(const string& str, pos, n);
-	//   void assign(const C *s, size_type n);
-	//   void assign(const C *s);
-	//   void assign(size_type n, C c);
-	//   template <class IIter> void assign(IIter,IIter);
+        //   void assign(const string& str);
+        //   void assign(const string& str, pos, n);
+        //   void assign(const C *s, size_type n);
+        //   void assign(const C *s);
+        //   void assign(size_type n, C c);
+        //   template <class IIter> void assign(IIter,IIter);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTesting Initial-Length Assignment"
@@ -14441,11 +14430,11 @@ int main(int argc, char *argv[])
         // TESTING CONSTRUCTORS
         //
         // Testing:
-	//   string(const string& str, pos, n = npos, a = A());
-	//   string(const C *s, n, a = A());
-	//   string(const C *s, a = A());
-	//   string(n, C c, a = A());
-	//   template<class InputIter> string(InputIter,InputIter,a = A());
+        //   string(const string& str, pos, n = npos, a = A());
+        //   string(const C *s, n, a = A());
+        //   string(const C *s, a = A());
+        //   string(n, C c, a = A());
+        //   template<class InputIter> string(InputIter,InputIter,a = A());
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTesting Initial-Length Constructor"
@@ -14528,9 +14517,9 @@ int main(int argc, char *argv[])
         //   See that function for a list of concerns and a test plan.
         //
         // Testing:
-	//   operator=(const string& rhs);
-	//   operator=(const C *s);
-	//   operator=(c);
+        //   operator=(const string& rhs);
+        //   operator=(const C *s);
+        //   operator=(c);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTesting Assignment Operator"
@@ -14567,8 +14556,8 @@ int main(int argc, char *argv[])
         //   that function for a list of concerns and a test plan.
         //
         // Testing:
-	//   string g(const char *spec);
-	//   string g(size_t len, TYPE seed);
+        //   string g(const char *spec);
+        //   string g(size_t len, TYPE seed);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTesting Generator Function g"
@@ -14621,11 +14610,11 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   bool operator==(const string&, const string&);
-	//   bool operator==(const C *, const string&);
-	//   bool operator==(const string&, const C *);
-	//   bool operator!=(const string&, const string&);
-	//   bool operator!=(const C *, const string&);
-	//   bool operator!=(const string&, const C *);
+        //   bool operator==(const C *, const string&);
+        //   bool operator==(const string&, const C *);
+        //   bool operator!=(const string&, const string&);
+        //   bool operator!=(const C *, const string&);
+        //   bool operator!=(const string&, const C *);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTesting Equality Operators"
@@ -14675,8 +14664,8 @@ int main(int argc, char *argv[])
         //   for a list of concerns and a test plan.
         //
         // Testing:
-	//   const_reference operator[](size_type pos) const;
-	//   const_reference at(size_type pos) const;
+        //   const_reference operator[](size_type pos) const;
+        //   const_reference at(size_type pos) const;
         //   size_type size() const;
         // --------------------------------------------------------------------
 
@@ -14698,8 +14687,8 @@ int main(int argc, char *argv[])
         //   function for a list of concerns and a test plan.
         //
         // Testing:
-	//   int ggg(string *object, const char *spec, int vF = 1);
-	//   string& gg(string *object, const char *spec);
+        //   int ggg(string *object, const char *spec, int vF = 1);
+        //   string& gg(string *object, const char *spec);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTesting Generator Functions"
@@ -14876,7 +14865,7 @@ int main(int argc, char *argv[])
         //   access patterns, function call frequencies, etc.
         //
         // Testing:
-	//   PERFORMANCE TEST
+        //   PERFORMANCE TEST
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTesting Performance"
