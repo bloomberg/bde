@@ -11,16 +11,30 @@
 using namespace BloombergLP;
 using namespace std;
 
-//=============================================================================
+// =============================================================================
 //                             TEST PLAN
-//-----------------------------------------------------------------------------
-//
-//
-//-----------------------------------------------------------------------------
-
-//==========================================================================
+// -----------------------------------------------------------------------------
+//                             Overview
+//                             --------
+// 'bslstl::StdExceptUtil' is a utility-type class. To test it, we follow the 
+// standard order of testing for utility classes. The approach for testing this
+// sort of class is to implement a breathing test to test basic functionality;
+// an exhaustive test for the entire possible range of inputs; an area test for
+// the meaningful, primary range of inputs; and a usage example to test the
+// functionality necessary for the programmer to use the component. The custom
+// test apparatuses used are 'testFunction()', a templated free function which
+// throws various exceptions, and 'callTestFunction()', which essentially tests
+// 'testFunction()'.
+// -----------------------------------------------------------------------------
+// 
+// -----------------------------------------------------------------------------
+// [ 1] BREATHING TEST
+// [ 2] Exhaustively test whole input range
+// [ 3] Area test meaningful input range
+// [ 4] USAGE EXAMPLE
+// ==========================================================================
 //                  STANDARD BDE ASSERT TEST MACRO
-//--------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 // NOTE: THIS IS A LOW-LEVEL COMPONENT AND MAY NOT USE ANY C++ LIBRARY
 // FUNCTIONS, INCLUDING IOSTREAMS.
 static int testStatus = 0;
