@@ -172,7 +172,7 @@ int main(int argc, char *argv[])
         // Plan:
         //
         // Testing:
-        //
+        //   BREATHING TEST
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nBREATHING TEST"
