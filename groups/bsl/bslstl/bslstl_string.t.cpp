@@ -14492,7 +14492,7 @@ int main(int argc, char *argv[])
         // TESTING ALLOCATOR-RELATED CONCERNS
         //
         // Testing:
-        //   Allocator TRAITS
+        //   ALLOCATOR-RELATED CONCERNS
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTesting Allocator concerns"
@@ -14527,7 +14527,9 @@ int main(int argc, char *argv[])
         //   See that function for a list of concerns and a test plan.
         //
         // Testing:
-        //   Obj& operator=(const Obj& rhs);
+	//   operator=(const string& rhs);
+	//   operator=(const C *s);
+	//   operator=(c);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTesting Assignment Operator"
@@ -14564,7 +14566,8 @@ int main(int argc, char *argv[])
         //   that function for a list of concerns and a test plan.
         //
         // Testing:
-        //   Obj g(const char *spec);
+	//   string g(const char *spec);
+	//   string g(size_t len, TYPE seed);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTesting Generator Function g"
@@ -14587,8 +14590,7 @@ int main(int argc, char *argv[])
         //   that function for a list of concerns and a test plan.
         //
         // Testing:
-        //   string(const string& original);
-        //   string(const string& original, alloc);
+        //   string(const string& orig, a = A());
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTesting Copy Constructors"
@@ -14617,7 +14619,12 @@ int main(int argc, char *argv[])
         //   plan.
         //
         // Testing:
-        //   operator==(const Obj&, const Obj&);
+        //   bool operator==(const string&, const string&);
+	//   bool operator==(const C *, const string&);
+	//   bool operator==(const string&, const C *);
+	//   bool operator!=(const string&, const string&);
+	//   bool operator!=(const C *, const string&);
+	//   bool operator!=(const string&, const C *);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTesting Equality Operators"
@@ -14667,8 +14674,9 @@ int main(int argc, char *argv[])
         //   for a list of concerns and a test plan.
         //
         // Testing:
-        //   int size() const;
-        //   const int& operator[](int index) const;
+	//   const_reference operator[](size_type pos) const;
+	//   const_reference at(size_type pos) const;
+        //   size_type size() const;
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTesting Basic Accessors"
