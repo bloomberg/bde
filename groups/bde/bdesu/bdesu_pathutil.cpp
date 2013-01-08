@@ -14,7 +14,7 @@ namespace BloombergLP {
 
 // LOCAL CONSTANTS
 const char SEPARATOR =
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
     '\\'
 #else
     '/'
@@ -23,17 +23,25 @@ const char SEPARATOR =
 
 // STATIC HELPER FUNCTIONS
 static
-void parse(size_t *rootEnd, const char *path, int length = -1)
+void findFirstNonSeparatorChar(size_t     *resultOffset, 
+                               const char *path, 
+                               int         length = -1)
+    // Load into the specified 'result' the offset of the first *non*
+    // path-separator character in the specified 'path' (e.g., the first
+    // character not equal to '/' on unix platforms).  Optionally specify
+    // 'length' indicating the length of 'path'.  If 'length' is not supplied,
+    // call 'strlen' on 'path' to determine its length.
+    
 {
-    BSLS_ASSERT(rootEnd);
+    BSLS_ASSERT(resultOffset);
     BSLS_ASSERT(path);
 
     if (0 > length) {
         length = bsl::strlen(path);
     }
-    *rootEnd = 0;
+    *resultOffset = 0;
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
     // Windows paths come in three flavors: local (LFS), UNC, and Long
     // UNC (LUNC).
     // LFS: root consists of a drive letter followed by a colon (the name part)
@@ -58,7 +66,7 @@ void parse(size_t *rootEnd, const char *path, int length = -1)
                                                            && ':' == path[1]) {
         // LFS.  Root name ends after the ':'.
 
-        *rootEnd = rootNameEnd = 2;
+        *resultOffset = rootNameEnd = 2;
     }
     else if (4 <= length && SEPARATOR == path[0]
           && SEPARATOR == path[1] && '?' != path[2]) {
@@ -77,13 +85,13 @@ void parse(size_t *rootEnd, const char *path, int length = -1)
         }
         rootNameEnd = (size_t)(rootNameEndPtr - path);
 
-        const char *rootEndPtr = bsl::find(path + rootNameEnd,
+        const char *resultOffsetPtr = bsl::find(path + rootNameEnd,
                                            path + length,
                                            SEPARATOR);
-        if (rootEndPtr != path + length) {
-            ++rootEndPtr;
+        if (resultOffsetPtr != path + length) {
+            ++resultOffsetPtr;
         }
-        *rootEnd = (size_t)(rootEndPtr - path);
+        *resultOffset = (size_t)(resultOffsetPtr - path);
     }
     else if (UNCW_PREFIXLEN < length
            && 0 == strncmp(path, UNCW_PREFIX, UNCW_PREFIXLEN)) {
@@ -94,7 +102,7 @@ void parse(size_t *rootEnd, const char *path, int length = -1)
            && ':' == path[UNCW_PREFIXLEN+1]) {
             //LFS.
 
-            *rootEnd = rootNameEnd = UNCW_PREFIXLEN+2;
+            *resultOffset = rootNameEnd = UNCW_PREFIXLEN+2;
         }
         else if (UNCW_UNCPREFIXLEN < length
                 && 0 == strncmp(path, UNCW_UNCPREFIX, UNCW_UNCPREFIXLEN)) {
@@ -108,32 +116,38 @@ void parse(size_t *rootEnd, const char *path, int length = -1)
             }
             rootNameEnd = (unsigned)(rootNameEndPtr - path);
 
-            const char *rootEndPtr = bsl::find(path + rootNameEnd,
+            const char *resultOffsetPtr = bsl::find(path + rootNameEnd,
                                                path + length,
                                                SEPARATOR);
-            if (rootEndPtr != path + length) {
-                ++rootEndPtr;
+            if (resultOffsetPtr != path + length) {
+                ++resultOffsetPtr;
             }
-            *rootEnd = (unsigned)(rootEndPtr - path);
+            *resultOffset = (unsigned)(resultOffsetPtr - path);
         }
     }
 #endif
 
-    while ((int) *rootEnd < length && SEPARATOR == path[*rootEnd]) {
-        ++*rootEnd;
+    while ((int) *resultOffset < length && SEPARATOR == path[*resultOffset]) {
+        ++*resultOffset;
     }
 }
 
 static
-void parse(int *rootEnd, const char *path, int length = -1)
-    // The behavior of this routine is identical to that of the above 'parse'
-    // routine, except this one takes an 'int *' instead of a 'size_t *'.
+void findFirstNonSeparatorChar(int *rootEnd, const char *path, int length = -1)
+    // Load into the specified 'result' the offset of the first *non*
+    // path-separator character in the specified 'path' (e.g., the first
+    // character not equal to '/' on unix platforms).  Optionally specify
+    // 'length' indicating the length of 'path'.  If 'length' is not supplied,
+    // call 'strlen' on 'path' to determine its length.  Note that the
+    // behavior of this routine is identical to that of the above
+    // 'findFirstNonSeparatorChar' routine, except this one takes an 'int *'
+    // instead of a 'size_t *'.
 {
     BSLS_ASSERT(rootEnd);
     BSLS_ASSERT(path);
 
     size_t rootEndOffset;
-    parse(&rootEndOffset, path, length);
+    findFirstNonSeparatorChar(&rootEndOffset, path, length);
     BSLS_ASSERT(INT_MAX > rootEndOffset);
     *rootEnd = rootEndOffset;
 }
@@ -174,44 +188,43 @@ const char *leafDelimiter(const bsl::string &path, int rootEnd)
 
 // CLASS METHODS
 int bdesu_PathUtil::appendIfValid(bsl::string            *path,
-                                  const bdeut_StringRef&  origFilename)
+                                  const bdeut_StringRef&  filename)
 {
     BSLS_ASSERT(path);
 
-    bdeut_StringRef filename = origFilename;
-    int filenameLength = filename.length();
+    // Handle potentially aliased 'filename'.
+    const char *pathEnd = path->c_str() + path->length();
+    if (filename.data() >= path->c_str() && filename.data() < pathEnd) {
+        bsl::string nonAliasedFilename(filename.data(), filename.length());
+        return appendIfValid(path, nonAliasedFilename);               // RETURN
+    }
 
-    size_t rootEnd;
-    parse(&rootEnd, filename.data(), filenameLength);
-    if (0 != rootEnd) { // absolute path
+    size_t nonSeparatorOffset;
+    findFirstNonSeparatorChar(&nonSeparatorOffset, 
+                              filename.data(), 
+                              filename.length());
+    if (0 != nonSeparatorOffset) { // absolute path
         return -1;                                                    // RETURN
     }
 
-    int aliasOffset = filename.data() - path->c_str();
-
-    if (0 <= aliasOffset && aliasOffset < (int) path->length()) {
-        // 'filename' is an alias of 'path'.  Resize and then
-        // point 'filename' back into 'path'
-
-        path->reserve(bsl::max(path->capacity(),
-                               path->length() + filenameLength + 1));
-        filename.assign(path->c_str() + aliasOffset, filenameLength);
+    // Suppress trailing separators in 'filename'
+    bsl::size_t adjustedFilenameLength = filename.length();
+    for (; adjustedFilenameLength > 0; --adjustedFilenameLength) {
+        if (SEPARATOR != filename[adjustedFilenameLength - 1]) {
+            break;
+        }
+    }         
+    
+    // Suppress trailing seperators in 'path'.
+    if (!path->empty()) {
+        bsl::size_t lastChar = path->find_last_not_of(SEPARATOR);
+        lastChar = (lastChar == bsl::string::npos) ? 1 : lastChar;
+        if (lastChar != path->length()) {
+            path->erase(path->begin() + lastChar + 1, path->end());
+        }
     }
 
-    // suppress trailing separators in filename and path
-
-    while (0 < filenameLength && SEPARATOR == filename[filenameLength-1]) {
-        filenameLength--;
-    }
-    int pathRootEnd;
-    parse(&pathRootEnd, path->c_str(), path->length());
-
-    while (!path->empty() && SEPARATOR == (*path)[path->length()-1]
-        && pathRootEnd < (int) path->length()) {
-        path->erase(path->length()-1);
-    }
-
-    appendRaw(path, filename.data(), filenameLength, pathRootEnd);
+    appendRaw(path, filename.data(), adjustedFilenameLength);
     return 0;
 }
 
@@ -229,7 +242,7 @@ void bdesu_PathUtil::appendRaw(bsl::string *path,
 
     if (0 < length) {
         if (0 > rootEnd) {
-            parse(&rootEnd, path->c_str(), path->length());
+            findFirstNonSeparatorChar(&rootEnd, path->c_str(), path->length());
         }
         if (hasLeaf(path->c_str(), rootEnd)
          || (rootEnd > 0 && (*path)[rootEnd-1] != SEPARATOR)) {
@@ -244,7 +257,7 @@ int bdesu_PathUtil::popLeaf(bsl::string *path, int rootEnd)
     BSLS_ASSERT(path);
 
     if (0 > rootEnd) {
-        parse(&rootEnd, path->c_str(), path->length());
+        findFirstNonSeparatorChar(&rootEnd, path->c_str(), path->length());
     }
 
     if (!hasLeaf(path->c_str(), rootEnd)) {
@@ -264,7 +277,7 @@ int bdesu_PathUtil::getLeaf(bsl::string            *filename,
     int length = path.length();
 
     if (0 > rootEnd) {
-        parse(&rootEnd, path.data(), length);
+        findFirstNonSeparatorChar(&rootEnd, path.data(), length);
     }
 
     if (!hasLeaf(path, rootEnd)) {
@@ -291,7 +304,7 @@ int bdesu_PathUtil::getDirname(bsl::string            *filename,
     BSLS_ASSERT(filename);
 
     if (0 > rootEnd) {
-        parse(&rootEnd, path.data(), path.length());
+        findFirstNonSeparatorChar(&rootEnd, path.data(), path.length());
     }
 
     if (!hasLeaf(path, rootEnd)) {
@@ -317,7 +330,7 @@ int bdesu_PathUtil::getRoot(bsl::string            *root,
     BSLS_ASSERT(root);
 
     if (0 > rootEnd) {
-        parse(&rootEnd, path.data(), path.length());
+        findFirstNonSeparatorChar(&rootEnd, path.data(), path.length());
     }
 
     if (isRelative(path, rootEnd)) {
@@ -332,7 +345,7 @@ int bdesu_PathUtil::getRoot(bsl::string            *root,
 bool bdesu_PathUtil::isAbsolute(const bdeut_StringRef& path, int rootEnd)
 {
     if (0 > rootEnd) {
-        parse(&rootEnd, path.data(), path.length());
+        findFirstNonSeparatorChar(&rootEnd, path.data(), path.length());
     }
 
     return rootEnd > 0;
@@ -341,7 +354,7 @@ bool bdesu_PathUtil::isAbsolute(const bdeut_StringRef& path, int rootEnd)
 bool bdesu_PathUtil::isRelative(const bdeut_StringRef& path, int rootEnd)
 {
     if (0 > rootEnd) {
-        parse(&rootEnd, path.data(), path.length());
+        findFirstNonSeparatorChar(&rootEnd, path.data(), path.length());
     }
 
     return 0 == rootEnd;
@@ -350,7 +363,7 @@ bool bdesu_PathUtil::isRelative(const bdeut_StringRef& path, int rootEnd)
 int bdesu_PathUtil::getRootEnd(const bdeut_StringRef& path)
 {
     int result;
-    parse(&result, path.data(), path.length());
+    findFirstNonSeparatorChar(&result, path.data(), path.length());
     return result;
 }
 
@@ -358,7 +371,7 @@ bool bdesu_PathUtil::hasLeaf(const bdeut_StringRef& path, int rootEnd)
 {
     int length = path.length();
     if (0 > rootEnd) {
-        parse(&rootEnd, path.data(), length);
+        findFirstNonSeparatorChar(&rootEnd, path.data(), length);
     }
 
     while (0 < length && SEPARATOR == path[length-1]) {

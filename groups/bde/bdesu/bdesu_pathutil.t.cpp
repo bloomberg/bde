@@ -275,7 +275,8 @@ int main(int argc, char *argv[])
         if (verbose) {
             cout << "Native Parsing Test" << endl;
         }
-        for (int i = 0; i < sizeof(parameters) / sizeof(Parameters); ++i) {
+        const int NUM_PARAMETERS = sizeof(parameters) / sizeof(Parameters);
+        for (int i = 0; i < NUM_PARAMETERS; ++i) {
             const Parameters& pi = parameters[i];
 
             string iTest(pi.d_path);
@@ -327,7 +328,7 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(root, root == pi.d_root);
             }
 
-            for (int j = 0; j < sizeof(parameters) / sizeof(Parameters); ++j) {
+            for (int j = 0; j < NUM_PARAMETERS; ++j) {
                 const Parameters& pj = parameters[j];
 
                 int referenceCount;
