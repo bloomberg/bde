@@ -1932,7 +1932,7 @@ inline
 typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::size_type
 unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::max_bucket_count() const
 {
-    return d_impl.maxNumOfBuckets();
+    return d_impl.maxNumBuckets();
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
