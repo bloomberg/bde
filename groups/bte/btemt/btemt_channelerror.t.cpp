@@ -161,10 +161,10 @@ class MyChannel {
   public:
     //...
     int write(const bcema_Blob& blob);
-        // Enqueue the specified 'blob' message to be written to this
-        // channel.  Return 0 on success, and non-zero value in the
-        // enumeration 'btemt::ChannelErrorWrite::Enum' otherwise.
-
+        // Enqueue the specified 'blob' message to be written to this channel.
+        // Return 0 on success, and a non-zero value otherwise.  On error, the
+        // return value *may* equal to one of the enumerators in
+        // 'btemt::ChannelErrorWrite::Enum'.
     //...
 };
 

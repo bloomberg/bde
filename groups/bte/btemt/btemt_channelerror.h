@@ -10,7 +10,7 @@ BDES_IDENT("$Id: $")
 //@PURPOSE: Provide a set of enumerations for the channel status codes.
 //
 //@CLASSES:
-//   btemt::ChannelErrorRead:   namespace for channel read status code 'enum'
+//   btemt::ChannelErrorRead:  namespace for channel read status code 'enum'
 //   btemt::ChannelErrorWrite:  namespace for channel write status code 'enum'
 //
 //@AUTHOR: Chen He (che2)
@@ -41,7 +41,7 @@ BDES_IDENT("$Id: $")
 //  Name                    Descriptions
 //  ---------------------   ---------------------------------------------------
 //  BTEMT_SUCCESS           The write request was successfully enqueued or
-//                          have been successfully written synchronously.
+//                          has been successfully written synchronously.
 //
 //  BTEMT_CACHE_HIWAT       The write request failed because the existing write
 //                          cache size (not including the size of the message
@@ -62,8 +62,7 @@ BDES_IDENT("$Id: $")
 //  BTEMT_ENQUEUE_WAT       The write request failed because the existing write
 //                          cache size (not including the size of the message
 //                          being written) is greater than the enqueued cache
-//                          high-watermark (specified as argument of the
-//                          function being called).
+//                          high-watermark provided as a function argument.
 //
 //  BTEMT_UNKNOWN_ID        The write request failed because the channel
 //                          identified by an specified id does not exist.
@@ -86,8 +85,9 @@ BDES_IDENT("$Id: $")
 //      //...
 //      int write(const bcema_Blob& blob);
 //          // Enqueue the specified 'blob' message to be written to this
-//          // channel.  Return 0 on success, and non-zero value in the
-//          // enumeration 'btemt::ChannelErrorWrite::Enum' otherwise.
+//          // channel.  Return 0 on success, and a non-zero value otherwise.
+//          // On error, the return value *may* equal to one of the enumerators
+//          // in 'btemt::ChannelErrorWrite::Enum'.
 //
 //      //...
 //  };
@@ -236,7 +236,7 @@ struct ChannelErrorWrite {
     // TYPES
     enum Enum {
         BTEMT_SUCCESS         =  0,  // The write request was successfully
-                                     // enqueued or have been successfully
+                                     // enqueued or has been successfully
                                      // written synchronously.
 
         BTEMT_CACHE_HIWAT     = -1,  // The write request failed because the
@@ -262,8 +262,8 @@ struct ChannelErrorWrite {
                                      // existing write cache size (not
                                      // including the size of the message being
                                      // written) is greater than the enqueued
-                                     // cache high-watermark (specified as
-                                     // argument of the function being called).
+                                     // cache high-watermark provided as a
+                                     // function argument.
 
         BTEMT_UNKNOWN_ID      = -5,  // The write request failed because the
                                      // channel identified by an specified id

@@ -1626,9 +1626,9 @@ class btemt_ChannelPool {
         // Enqueue a request to write the specified 'message' into the channel
         // having the specified 'channelId'.  Optionally specify an
         // 'enqueueWaterMark' to limit the size of the enqueued portion of the
-        // message.  Return 0 on success (i.e., the operation was successfully
-        // enqueued) and a non-zero value, which may equal to one of the
-        // enumerators in 'btemt::ChannelErrorWrite::Enum', otherwise.
+        // message.  Return 0 on success, and a non-zero value otherwise.  On
+        // error, the return value *may* equal to one of the enumerators in
+        // 'btemt::ChannelErrorWrite::Enum'.
 
     int write(int                   channelId,
               const btemt_DataMsg&  message);
@@ -1638,9 +1638,9 @@ class btemt_ChannelPool {
         // Enqueue a request to write the specified 'message' into the channel
         // having the specified 'channelId'.  Optionally specify an
         // 'enqueueWaterMark' to limit the size of the enqueued portion of the
-        // message.  Return 0 on success (i.e., the operation was successfully
-        // enqueued) and a non-zero value, which may equal to one of the
-        // enumerators in 'btemt::ChannelErrorWrite::Enum', otherwise.
+        // message.  Return 0 on success, and a non-zero value otherwise.  On
+        // error, the return value *may* equal to one of the enumerators in
+        // 'btemt::ChannelErrorWrite::Enum'.
 
     int write(int                   channelId,
               const btemt_DataMsg&  message,
@@ -1658,14 +1658,14 @@ class btemt_ChannelPool {
               const btes_Ovec   vecs[],
               int               numVecs);
         // Enqueue a request to write the specified 'vecs' into the channel
-        // having the specified 'channelId'.  Return 0 on success (i.e., the
-        // operation was successfully enqueued) and a non-zero value, which may
-        // equal to one of the enumerators in 'btemt::ChannelErrorWrite::Enum',
-        // otherwise.  Note that you should prefer this method over the other
-        // 'write()' method *only* *if* you expect that this object will be
-        // able to write most of the data contained in the specified 'vecs'
-        // atomically.  If the 'vecs' must be enqueued, an inefficient data
-        // copy will occur to allow to control the lifetime of the data.
+        // having the specified 'channelId'.  Return 0 on success, and a
+        // non-zero value otherwise.  On error, the return value *may* equal to
+        // one of the enumerators in 'btemt::ChannelErrorWrite::Enum'.  Note
+        // that you should prefer this method over the other 'write()' method
+        // *only* *if* you expect that this object will be able to write most
+        // of the data contained in the specified 'vecs' atomically.  If the
+        // 'vecs' must be enqueued, an inefficient data copy will occur to
+        // allow to control the lifetime of the data.
 
                                   // *** Clock management ***
 
