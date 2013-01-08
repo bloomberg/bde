@@ -5644,6 +5644,8 @@ class TestDriver {
 
     typedef typename Obj::iterator                Iter;
     typedef typename Obj::const_iterator          CIter;
+    typedef typename Obj::local_iterator          LIter;
+    typedef typename Obj::const_local_iterator    CLIter;
     typedef typename Obj::size_type               SizeType;
     typedef typename Obj::value_type              Pair;
         // Shorthands
@@ -5886,6 +5888,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase4()
     const char *LAST_SPEC = "woof";
     for (size_t ti = 0; ti < DEFAULT_NUM_DATA; ++ti, LAST_SPEC = SPEC) {
         const DataRow *pd   = DEFAULT_DATA + ti;
+        int          LINE   = pd->d_line;
                      SPEC   = pd->d_result;
         const size_t LENGTH = strlen(SPEC);
 
@@ -5916,12 +5919,19 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase4()
                                                 // sophisiticated value for
                                                 // max_size.
 
+
+        BSLMF_ASSERT((! bslmf::IsSame<Iter, CIter>::value));
+
         const Iter begin = mX.begin();
-        ASSERTV(begin ==    X.begin());
-        ASSERTV(begin ==    X.cbegin());
-        const Iter end   = mX.end();
-        ASSERTV(end   ==    X.end());
-        ASSERTV(end   ==    X.cend());
+        CIter cBegin = X.begin();
+        ASSERTV(begin == cBegin);
+        cBegin = X.cbegin();
+        ASSERTV(begin == cBegin);
+        const Iter end = mX.end();
+        CIter cend = X.end();
+        ASSERTV(end == cend);
+        cend = X.end();
+        ASSERTV(end == cend);
 
         ASSERTV(!LENGTH == (begin == end));
 
@@ -5970,12 +5980,6 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase4()
                 const VALUE& VZ = VALUES['Z' - 'A'].second;
                 VALUE v;
 
-                v = mX[K];
-                ASSERTV(LENGTH == X.size());
-                ASSERTV(V == v);
-
-                v = VZ;
-
                 try {
                     v = mX.at(K);
                     ASSERTV(LENGTH == X.size());
@@ -5990,8 +5994,80 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase4()
                 catch (...) {
                     ASSERTV(0 && "at threw unexpectedly");
                 }
+
+                v = VZ;
+
+                v = mX[K];
+                ASSERTV(LENGTH == X.size());
+                ASSERTV(V == v);
             }
         }
+
+        ASSERTV((size_t) -1 >= X.max_bucket_count());   // TBD: make more
+                                                        // sophisticated.
+        const size_t BC = X.bucket_count();
+
+        ASSERTV(BC >= 1);
+        ASSERTV(X.empty() == (1 == BC));
+
+        for (size_t tj = 0; tj < BC; ++tj) {
+            BSLMF_ASSERT((! bslmf::IsSame<LIter, CLIter>::value));
+
+            LIter bBegin   = mX.begin(tj);
+            CLIter cbBegin =  X.begin(tj);
+            ASSERTV(bBegin  == cbBegin);
+            cbBegin = X.cbegin(tj);
+            ASSERTV(bBegin  == cbBegin);
+            LIter bEnd     = mX.end(tj);
+            CLIter cbEnd   =  X.end(tj);
+            ASSERTV(bEnd == cbEnd);
+            cbEnd = X.cend(tj);
+            ASSERTV(bEnd == cbEnd);
+
+            {
+                size_t count = 0;
+                for (CLIter lit = cbBegin; cbEnd != lit; ++lit) {
+                    ASSERTV(X.bucket(lit->first) == tj);
+
+                    ++count;
+                }
+                ASSERTV(X.bucket_size(tj) == count);
+            }
+        }
+
+        // Make sure objects can be modified through 'Iter' and 'LIter'.
+
+        ASSERTV(verifySpec(X, SPEC, false));   // Looking at mapped values too
+
+        for (Iter it = begin; end != it; ++it) {
+            Pair  p = *it;
+            VALUE v = it->second;
+            ASSERTV(it->first != it->second);
+            it->second = it->first;
+            ASSERTV(it->first == it->second);
+            ASSERTV(it->second != v);
+            ASSERTV(*it != p);
+        }
+
+        ASSERTV( verifySpec(X, SPEC, true));          // Keys only
+        ASSERTV(!LENGTH || !verifySpec(X, SPEC, false));   // mapped values too
+
+        size_t count = 0;
+        for (size_t tj = 0; tj < BC; ++tj) {
+            LIter bEnd = mX.end(tj);
+            for (LIter it = mX.begin(tj); bEnd != it; ++it, ++count) {
+                ASSERTV(it->first == it->second);
+                size_t id = bsltf::TemplateTestFacility::getIdentifier(
+                                                                    it->first);
+                size_t idB = id - 'A' + '0';
+                it->second = bsltf::TemplateTestFacility::create<VALUE>(idB);
+                ASSERTV(VALUES[id - 'A'].second == it->second);
+            }
+        }
+        ASSERTV(LENGTH == count);
+
+        ASSERTV(verifySpec(X, SPEC, true));    // Keys only
+        ASSERTV(verifySpec(X, SPEC, false));   // Looking at mapped values too
     }
 }
 
