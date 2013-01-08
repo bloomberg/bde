@@ -791,7 +791,7 @@ int main(int argc, char *argv[])
         //     them.  Make sure all memory is deallocated.  (C-1)
         //
         // Testing:
-        //   This test exercises the component but tests nothing.
+        //   BREATHING TEST
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nBREATHING TEST"
