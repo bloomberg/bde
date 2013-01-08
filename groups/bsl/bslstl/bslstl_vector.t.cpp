@@ -83,19 +83,17 @@ using namespace bsl;
 // [ 2] vector<T,A>(const A& a = A());
 // [12] vector<T,A>(size_type n, const A& a = A());
 // [12] vector<T,A>(size_type n, const T& val, const A& a = A());
-// [12] template<class InputIter>
-//        vector<T,A>(InputIter first, InputIter last, const A& a = A());
+// [12] template<class IIter> vector<T,A>(IIter,IIter,const A& a = A());
 // [ 7] vector<T,A>(const vector<T,A>& orig, const A& = A());
 // [12] vector(vector<T,A>&& original);
 // [ 2] ~vector<T,A>();
 //
 /// MANIPULATORS:
-// [13] template <class InputIter>
-//        void assign(InputIter first, InputIter last);
+// [13] template <class IIter> void assign(IIter,IIter);
 // [13] void assign(size_type numElements, const T& val);
 // [ 9] operator=(vector<T,A>&);
-// [15] reference operator[](size_type pos);
-// [15] reference at(size_type pos);
+// [15] T& operator[](size_type pos);
+// [15] T& at(size_type pos);
 // [16] iterator begin();
 // [16] iterator end();
 // [16] reverse_iterator rbegin();
@@ -104,8 +102,8 @@ using namespace bsl;
 // [14] void resize(size_type n, const T& val);
 // [14] void reserve(size_type n);
 // [ 2] void clear();
-// [15] reference front();
-// [15] reference back();
+// [15] T& front();
+// [15] T& back();
 // [  ] VALUE_TYPE *data();
 // [20] template <class Args...>
 //        iterator emplace(const_iterator pos, Args...);
@@ -114,8 +112,7 @@ using namespace bsl;
 // [18] void pop_back();
 // [17] iterator insert(const_iterator pos, const T& val);
 // [17] iterator insert(const_iterator pos, size_type n, const T& val);
-// [17] template <class InputIter>
-//        void insert(const_iterator pos, InputIter first, InputIter last);
+// [17] template <class IIter> void insert(constIter,IIter,IIter);
 // [18] iterator erase(const_iterator pos);
 // [18] iterator erase(const_iterator first, const_iterator last);
 // [19] void swap(vector<T,A>&);
@@ -123,17 +120,17 @@ using namespace bsl;
 // ACCESSORS:
 // [ 4] const_reference operator[](size_type pos) const;
 // [ 4] const_reference at(size_type pos) const;
-// [15] const_reference front() const;
-// [15] const_reference back() const;
+// [15] const T& front() const;
+// [15] const T& back() const;
 // [  ] const VALUE_TYPE *data() const;
 // [ 4] size_type size() const;
 // [14] size_type max_size() const;
 // [14] size_type capacity() const;
 // [14] bool empty() const;
-// [16] const_iterator begin();
-// [16] const_iterator end();
-// [16] const_reverse_iterator rbegin();
-// [16] const_reverse_iterator rend();
+// [16] const_iterator begin() const;
+// [16] const_iterator end() const;
+// [16] const_reverse_iterator rbegin() const;
+// [16] const_reverse_iterator rend() const;
 //
 // FREE OPERATORS:
 // [ 6] bool operator==(const vector<T,A>&, const vector<T,A>&);
@@ -8479,7 +8476,7 @@ int main(int argc, char *argv[])
         // TESTING COMPARISON FREE OPERATORS
         //
         // Testing:
-        //   bool operator<(const vector<T,A>& lhs, const vector<T,A>& rhs);
+        //   bool operator<(const vector<T,A>&, const vector<T,A>&);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTesting comparison free operators"
@@ -8497,10 +8494,10 @@ int main(int argc, char *argv[])
         // TESTING SWAP
         //
         // Testing:
-        //   void swap(Vector_Imp&);
-        //   void swap(vector<T,A>&  lhs, vector<T,A>&  rhs);
-        //   void swap(vector<T,A>&& lhs, vector<T,A>&  rhs);
-        //   void swap(vector<T,A>&  lhs, vector<T,A>&& rhs);
+        //   void swap(vector<T,A>&);
+        //   void swap(vector<T,A>&, vector<T,A>&);
+        //   void swap(vector<T,A>&, vector<T,A>&&);
+        //   void swap(vector<T,A>&&, vector<T,A>&);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTesting 'swap'"
@@ -8514,7 +8511,7 @@ int main(int argc, char *argv[])
         // TESTING ERASE
         //
         // Testing:
-        //   iterator erase(const_iterator position);
+        //   iterator erase(const_iterator pos);
         //   iterator erase(const_iterator first, const_iterator last);
         //   void pop_back();
         // --------------------------------------------------------------------
@@ -8561,11 +8558,10 @@ int main(int argc, char *argv[])
         // TESTING INSERTION
         //
         // Testing:
-        //   void push_back(T&& value);
-        //   iterator insert(const_iterator position, const T& value);
-        //   void insert(const_iterator pos, size_type n, const T& val);
-        //   template <class InputIter>
-        //    void insert(const_iterator pos, InputIter first, InputIter last);
+        //   void push_back(T&&);
+        //   iterator insert(const_iterator pos, const T& val);
+        //   iterator insert(const_iterator pos, size_type n, const T& val);
+        //   template <class IIter> void insert(constIter,IIter,IIter);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTesting Value Insertion"
@@ -8666,8 +8662,8 @@ int main(int argc, char *argv[])
         // TESTING ELEMENT ACCESS
         //
         // Testing:
-        //   T& operator[](size_type position);
-        //   T& at(size_type n);
+        //   T& operator[](size_type pos);
+        //   T& at(size_type pos);
         //   T& front();
         //   T& back();
         //   const T& front() const;
@@ -8699,8 +8695,9 @@ int main(int argc, char *argv[])
         // TESTING CAPACITY
         //
         // Testing:
+        //   void resize(size_type n);
+        //   void resize(size_type n, const T& val);
         //   void reserve(size_type n);
-        //   void resize(size_type n, T val);
         //   size_type max_size() const;
         //   size_type capacity() const;
         //   bool empty() const;
@@ -8721,9 +8718,8 @@ int main(int argc, char *argv[])
         // TESTING ASSIGNMENT
         //
         // Testing:
-        //   void assign(size_t n, const T& val);
-        //   template<class InputIter>
-        //     void assign(InputIter first, InputIter last);
+        //   template <class IIter> void assign(IIter,IIter);
+        //   void assign(size_type numElements, const T& val);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTesting Initial-Length Assignment"
@@ -8848,10 +8844,10 @@ int main(int argc, char *argv[])
         //  correct overload was called should suffice.
         //
         // Testing:
-        //   vector<T,A>(size_type n, const T& val = T(), const A& a = A());
-        //   template<class InputIter>
-        //     vector<T,A>(InputIter first, InputIter last, const A& a = A());
-        //   vector(vector<T,A>&& original);
+        // [12] vector<T,A>(size_type n, const A& a = A());
+        // [12] vector<T,A>(size_type n, const T& val, const A& a = A());
+        // [12] template<class IIter> vector<T,A>(IIter,IIter,const A& a = A());
+        // [12] vector(vector<T,A>&& original);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTesting Initial-Length Constructor"
@@ -8924,6 +8920,8 @@ int main(int argc, char *argv[])
         // TESTING ALLOCATOR-RELATED CONCERNS
         //
         // Testing:
+        //   TRAITS
+        //   ALLOCATOR-RELATED CONCERNS
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTesting Allocator concerns"
@@ -8935,6 +8933,10 @@ int main(int argc, char *argv[])
       case 10: {
         // --------------------------------------------------------------------
         // TESTING STREAMING FUNCTIONALITY:
+        //
+        //
+        // Testing:
+        //
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTesting Streaming Functionality"
@@ -8954,7 +8956,7 @@ int main(int argc, char *argv[])
         //   See that function for a list of concerns and a test plan.
         //
         // Testing:
-        //   Obj& operator=(const Obj& rhs);
+        //   operator=(vector<T,A>&);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTesting Assignment Operator"
@@ -8980,7 +8982,7 @@ int main(int argc, char *argv[])
         //   that function for a list of concerns and a test plan.
         //
         // Testing:
-        //   Obj g(const char *spec);
+        //   vector<T,A> g(const char *spec);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTesting Generator Function g"
@@ -9012,8 +9014,7 @@ int main(int argc, char *argv[])
         //   that function for a list of concerns and a test plan.
         //
         // Testing:
-        //   Vector_Imp(const Vector_Imp& original);
-        //   Vector_Imp(const Vector_Imp& original, alloc);
+        //   vector<T,A>(const vector<T,A>& orig, const A& = A());
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTesting Copy Constructors"
@@ -9051,7 +9052,8 @@ int main(int argc, char *argv[])
         //   plan.
         //
         // Testing:
-        //   operator==(const Obj&, const Obj&);
+        //   bool operator==(const vector<T,A>&, const vector<T,A>&);
+        //   bool operator!=(const vector<T,A>&, const vector<T,A>&);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTesting Equality Operators"
@@ -9093,8 +9095,9 @@ int main(int argc, char *argv[])
         //   for a list of concerns and a test plan.
         //
         // Testing:
-        //   int size() const;
-        //   const int& operator[](int index) const;
+        //   const_reference operator[](size_type pos) const;
+        //   const_reference at(size_type pos) const;
+        //   size_type size() const;
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTesting Basic Accessors"
@@ -9124,8 +9127,8 @@ int main(int argc, char *argv[])
         //   function for a list of concerns and a test plan.
         //
         // Testing:
-        //   void ggg(Obj *object, const char *spec);
-        //   Obj& gg(Obj *object, const char *spec, );
+        //   int ggg(vector<T,A> *object, const char *spec, int vF = 1);
+        //   vector<T,A>& gg(vector<T,A> *object, const char *spec);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTesting Generator Functions"
@@ -9159,7 +9162,7 @@ int main(int argc, char *argv[])
         //   plan.
         //
         // Testing:
-        //   void push_back(T const& v);
+        //   void push_back(const T&);
         //   void clear();
         // --------------------------------------------------------------------
 
@@ -9195,7 +9198,7 @@ int main(int argc, char *argv[])
         //   work as expected in normal operation.
         //
         // Testing:
-        //   This "test" *exercises* basic functionality.
+        //   BREATHING TEST
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nBREATHING TEST"
