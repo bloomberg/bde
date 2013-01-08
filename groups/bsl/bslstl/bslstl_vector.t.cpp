@@ -150,6 +150,7 @@ using namespace bsl;
 // [11] ALLOCATOR-RELATED CONCERNS
 // [18] USAGE EXAMPLE
 // [21] CONCERN: 'std::length_error' is used properly
+// [22] CONCERN: Vector support types with overloaded new/delete
 //
 // TEST APPARATUS: GENERATOR FUNCTIONS
 // [ 3] int ggg(vector<T,A> *object, const char *spec, int vF = 1);
@@ -1850,7 +1851,7 @@ void TestDriver<TYPE,ALLOC>::testCase22()
     //: 4 Destroy any vecto5rs that was created.
     //
     // Testing:
-    //  CONCERN: Vector support types with overloaded new/delete
+    //   CONCERN: Vector support types with overloaded new/delete
     // --------------------------------------------------------------------
 
     bslma::TestAllocator testAllocator(veryVeryVerbose);
@@ -1916,7 +1917,7 @@ void TestDriver<TYPE,ALLOC>::testCase21()
     //   size that is guaranteed to result in a value exceeding 'max_size()'.
     //
     // Testing:
-    //   Proper use of 'std::length_error'
+    //   CONCERN: 'std::length_error' is used properly
     // ------------------------------------------------------------------------
 
     bslma::TestAllocator testAllocator(veryVeryVerbose);
