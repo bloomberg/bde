@@ -150,9 +150,9 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Do nothing.
-	//
-	// Testing:
-	//   BREATHING TEST
+        //
+        // Testing:
+        //   BREATHING TEST
         // --------------------------------------------------------------------
 
         if (verbose) std::cout << "\nBREATHING TEST"
