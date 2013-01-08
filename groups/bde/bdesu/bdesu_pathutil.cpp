@@ -14,7 +14,7 @@ namespace BloombergLP {
 
 // LOCAL CONSTANTS
 const char SEPARATOR =
-#ifdef BSLS_PLATFORM_OS_WINDOWS
+#ifdef BSLS_PLATFORM__OS_WINDOWS
     '\\'
 #else
     '/'
@@ -211,7 +211,8 @@ int bdesu_PathUtil::appendIfValid(bsl::string            *path,
         return -1;                                                    // RETURN
     }
 
-    // Suppress trailing separators in 'filename'
+    // Create an 'adjustedFilenameLength' that suppresses trailing separators
+    // in 'filename'.
 
     bsl::size_t adjustedFilenameLength = filename.length();
     for (; adjustedFilenameLength > 0; --adjustedFilenameLength) {
@@ -220,18 +221,19 @@ int bdesu_PathUtil::appendIfValid(bsl::string            *path,
         }
     }
 
-    // Suppress trailing separators in 'path'.
+    // Erase trailing separators from 'path'.
 
     if (!path->empty()) {
         bsl::size_t lastChar = path->find_last_not_of(SEPARATOR);
-        lastChar = (lastChar == bsl::string::npos) ? 1 : lastChar;
+
+        // If 'path' is *all* separator characters (i.e., no non-seperator was
+        // found), the resulting 'path' should be 1 separator character.
+
+        lastChar = (lastChar == bsl::string::npos) ? 0 : lastChar;
         if (lastChar != path->length()) {
             path->erase(path->begin() + lastChar + 1, path->end());
         }
     }
-
-    // Append 'filename' (sans trailing separators) to 'path' (sans trailing
-    // separators).
 
     appendRaw(path, filename.data(), adjustedFilenameLength);
     return 0;
