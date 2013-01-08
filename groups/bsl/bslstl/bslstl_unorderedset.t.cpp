@@ -329,17 +329,30 @@ static const int DEFAULT_NUM_DATA = sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA;
 //                              TEST SUPPORT
 //-----------------------------------------------------------------------------
 
+template <typename TYPE>
+const TYPE& my_max(const TYPE& x, const TYPE& y)
+{
+    return x > y ? x : y;
+}
+
+template <typename TYPE>
+TYPE my_abs(const TYPE& x)
+{
+    return x < 0 ? -x : x;
+}
+
+template <typename TYPE>
+bool nearlyEqual(const TYPE& x, const TYPE& y)
+{
+    TYPE tolerance = my_max(my_abs(x), my_abs(y)) * 0.0001;
+    return my_abs(x - y) <= tolerance;
+}
+
 template<class CONTAINER>
 const typename CONTAINER::key_type
 keyForValue(const typename CONTAINER::value_type v)
 {
     return v;        // for 'set' containers
-}
-
-template <typename TYPE>
-const TYPE& my_max(const TYPE& x, const TYPE& y)
-{
-    return x > y ? x : y;
 }
 
 template <class CONTAINER>
@@ -1843,7 +1856,8 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase25()
             const float  LOAD  = X.load_factor();
 
             ASSERTV(LOAD, X.size() / (float) X.bucket_count(),
-                        LOAD == (float) (X.size() / (float) X.bucket_count()));
+                    nearlyEqual<double>(LOAD,
+                                        X.size() / (double) X.bucket_count()));
             ASSERTV(1.0f == X.max_load_factor());
 
             mX.max_load_factor(1.0 / 4);
@@ -1852,7 +1866,8 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase25()
 
             const float LOAD2 = X.load_factor();
             ASSERTV(LOAD2, X.size() / (float) X.bucket_count(),
-                       LOAD2 == (float) (X.size() / (float) X.bucket_count()));
+                    nearlyEqual<double>(LOAD2,
+                                        X.size() / (double) X.bucket_count()));
 
             ASSERTV(X == Y);
 

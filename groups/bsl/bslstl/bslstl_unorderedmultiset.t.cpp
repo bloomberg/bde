@@ -1493,8 +1493,9 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase13()
             const size_t COUNT = X.bucket_count();
             const float  LOAD  = X.load_factor();
 
-            ASSERTV(LOAD, X.size() / (float) X.bucket_count(),
-                        LOAD == (float) (X.size() / (float) X.bucket_count()));
+            ASSERTV(LOAD, X.size() / (double) X.bucket_count(),
+                  nearlyEqual<double>(LOAD,
+                                      (X.size() / (double) X.bucket_count())));
             ASSERTV(1.0f == X.max_load_factor());
 
             mX.max_load_factor(1.0 / 4);
