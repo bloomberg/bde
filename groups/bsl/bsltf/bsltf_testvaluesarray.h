@@ -149,6 +149,11 @@ BSLS_IDENT("$Id: $")
 #define INCLUDED_ITERATOR
 #endif
 
+#ifndef INCLUDED_CSTDDEF
+#include <cstddef>
+#define INCLUDED_CSTDDEF
+#endif
+
 #ifndef INCLUDED_CSTRING
 #include <cstring>
 #define INCLUDED_CSTRING

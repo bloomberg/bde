@@ -53,8 +53,6 @@ BSLS_IDENT("$Id: $")
 // assert(Z == X);
 //..
 
-#include <string.h>
-
 namespace BloombergLP {
 namespace bsltf {
 
