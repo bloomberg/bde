@@ -49,7 +49,7 @@ using namespace std;
 // [ 3] bool equal(start1, end1, start2, end2);
 // [ 3] bool equal(start1, end1, length1, start2, end2, length2);
 // [ 4] bool lexicographical(start1, end1, start2, end2);
-// [ 4] bool lexicographical(start1, end1, length1, start2, end2, length2);
+// [ 4] bool lexicographical(s1, end1, length1, s2, end2, length2);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 2] TEST APPARATUS
@@ -2152,7 +2152,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //  bool lexicographical(start1, end1, start2, end2);
-        //  bool lexicographical(start1, end1, length1, start2, end2, length2);
+        //  bool lexicographical(s1, end1, length1, s2, end2, length2);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING 'lexicographical'"
