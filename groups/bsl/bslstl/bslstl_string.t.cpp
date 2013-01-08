@@ -14697,8 +14697,8 @@ int main(int argc, char *argv[])
         //   function for a list of concerns and a test plan.
         //
         // Testing:
-        //   void ggg(Obj *object, const char *spec);
-        //   Obj& gg(Obj *object, const char *spec, );
+	//   int ggg(string *object, const char *spec, int vF = 1);
+	//   string& gg(string *object, const char *spec);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTesting Generator Functions"
