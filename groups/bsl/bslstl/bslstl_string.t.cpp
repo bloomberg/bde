@@ -249,6 +249,7 @@ using namespace std;
 // [26] string(const native_stl::basic_string<C,CT,A>&);
 // [27] DRQS 16870796: SEGFAULT IN FIND
 // [28] SHORT STRING OPTIMIZATION
+// [-1] PERFORMANCE TEST
 //
 // TEST APPARATUS: GENERATOR FUNCTIONS
 // [ 3] int ggg(string *object, const char *spec, int vF = 1);
@@ -14723,7 +14724,7 @@ int main(int argc, char *argv[])
         //   plan.
         //
         // Testing:
-        //   void push_back(T const& v);
+        //   void push_back(C c);
         //   void clear();
         // --------------------------------------------------------------------
 
@@ -14750,7 +14751,7 @@ int main(int argc, char *argv[])
         //   work as expected in normal operation.
         //
         // Testing:
-        //   This "test" *exercises* basic functionality.
+        //   BREATHING TEST
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nBREATHING TEST"
@@ -14875,8 +14876,7 @@ int main(int argc, char *argv[])
         //   access patterns, function call frequencies, etc.
         //
         // Testing:
-        //   This "test" measures performance of basic operations, for
-        //   performance regression.
+	//   PERFORMANCE TEST
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTesting Performance"
