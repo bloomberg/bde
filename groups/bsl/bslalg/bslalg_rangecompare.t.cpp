@@ -2497,7 +2497,7 @@ int main(int argc, char *argv[])
         //   can be used.  Display the resulting times.
         //
         // Testing:
-	//   PERFORMANCE TEST
+        //   PERFORMANCE TEST
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nPERFORMANCE TEST"
