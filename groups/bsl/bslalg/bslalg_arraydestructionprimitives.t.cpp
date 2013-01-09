@@ -95,16 +95,6 @@ void aSsErT(int c, const char *s, int i)
 #define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
 //=============================================================================
-//                  SEMI-STANDARD NEGATIVE-TESTING MACROS
-//-----------------------------------------------------------------------------
-#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
-#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
-#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
-#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
-#define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
-#define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
-
-//=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS/TYPES FOR TESTING
 //-----------------------------------------------------------------------------
 

@@ -44,6 +44,25 @@ using namespace BloombergLP;
 // [ 1] BREATHING TEST
 
 //=============================================================================
+//                  STANDARD BDE ASSERT TEST MACRO
+//-----------------------------------------------------------------------------
+// NOTE: THIS IS A LOW-LEVEL COMPONENT AND MAY NOT USE ANY C++ LIBRARY
+// FUNCTIONS, INCLUDING IOSTREAMS.
+int testStatus = 0;
+
+namespace {
+void aSsErT(int c, const char *s, int i)
+{
+    if (c) {
+        printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
+        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+}
+}
+}  // close unnamed namespace
+
+# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+
+//=============================================================================
 //                       STANDARD BDE TEST DRIVER MACROS
 //-----------------------------------------------------------------------------
 
