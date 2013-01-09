@@ -4,15 +4,15 @@
 
 #include <bslalg_scalarprimitives.h>             // for testing only
 
+#include <bslmf_istriviallycopyable.h>           // for testing only
 #include <bslma_allocator.h>                     // for testing only
 #include <bslma_default.h>                       // for testing only
 #include <bslma_testallocator.h>                 // for testing only
-#include <bslmf_istriviallycopyable.h>           // for testing only
 #include <bsls_alignmentutil.h>                  // for testing only
-#include <bsls_assert.h>                         // for testing only
-#include <bsls_asserttest.h>                     // for testing only
 #include <bsls_bsltestutil.h>
 #include <bsls_objectbuffer.h>                   // for testing only
+#include <bsls_assert.h>                         // for testing only
+#include <bsls_asserttest.h>                     // for testing only
 #include <bsls_types.h>                          // for testing only
 
 #include <stdio.h>
@@ -44,22 +44,22 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 
-//=============================================================================
+//==========================================================================
 //                  STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
+//--------------------------------------------------------------------------
 // NOTE: THIS IS A LOW-LEVEL COMPONENT AND MAY NOT USE ANY C++ LIBRARY
 // FUNCTIONS, INCLUDING IOSTREAMS.
-int testStatus = 0;
+static int testStatus = 0;
 
 namespace {
 void aSsErT(int c, const char *s, int i)
 {
-    if (c)
-    {
+    if (c) {
         printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
         if (testStatus >= 0 && testStatus <= 100) ++testStatus;
     }
 }
+
 }  // close unnamed namespace
 
 //=============================================================================
@@ -732,7 +732,7 @@ int main(int argc, char *argv[])
         //:    they are destroyed as expected.  (C-1)
         //
         // Testing:
-        //   void destroy(T *dstB, T *dstE);
+        //   void destroy(T *b, T *e, *a);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTesting 'destroy'\n");
@@ -783,7 +783,7 @@ int main(int argc, char *argv[])
         //     them.  Make sure all memory is deallocated.  (C-1)
         //
         // Testing:
-        //   BREATHING TEST
+        //   This test exercises the component but tests nothing.
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nBREATHING TEST"
