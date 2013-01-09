@@ -1,7 +1,10 @@
 bsltf_allocbitwisemoveabletesttype
 bsltf_alloctesttype
 bsltf_bitwisemoveabletesttype
+bsltf_convertiblevaluewrapper
+bsltf_degeneratefunctor
 bsltf_enumeratedtesttype
+bsltf_evilbooleantype
 bsltf_nonassignabletesttype
 bsltf_noncopyconstructibletesttype
 bsltf_nondefaultconstructibletesttype

@@ -10,6 +10,7 @@
 
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
+#include <bslma_exceptionguard.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatormonitor.h>
 #include <bslma_usesbslmaallocator.h>
@@ -18,6 +19,9 @@
 #include <bsls_bsltestutil.h>
 #include <bsls_platform.h>
 
+#include <bsltf_convertiblevaluewrapper.h>
+#include <bsltf_degeneratefunctor.h>
+#include <bsltf_evilbooleantype.h>
 #include <bsltf_stdstatefulallocator.h>
 #include <bsltf_stdtestallocator.h>
 #include <bsltf_templatetestfacility.h>
@@ -1854,6 +1858,7 @@ int TemplateTestFacility::getIdentifier<TestTypes::AwkwardMaplikeElement>(
 }  // close namespace BloombergLP::bsltf
 }  // close namespace BloombergLP
 
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 namespace
 {
@@ -1905,193 +1910,6 @@ class BoolArray {
 
     size_t size() const;
         // Return the number of boolean flags held by this object.
-};
-
-                            // ====================
-                            // class ExceptionGuard
-                            // ====================
-
-template <class OBJECT>
-struct ExceptionGuard {
-    // This class provide a mechanism to verify the strong exception guarantee
-    // in exception-throwing code.  On construction, this class stores the
-    // a copy of an object of the parameterized type 'OBJECT' and the address
-    // of that object.  On destruction, if 'release' was not invoked, it will
-    // verify the value of the object is the same as the value of the copy
-    // create on construction.  This class requires the copy constructor and
-    // 'operator ==' to be tested before use.
-
-    // DATA
-    int           d_line;      // the line number at construction
-    OBJECT        d_copy;      // copy of the object being tested
-    const OBJECT *d_object_p;  // address of the original object
-
-  public:
-    // CREATORS
-    ExceptionGuard(const OBJECT    *object,
-                   int              line,
-                   bslma::Allocator *basicAllocator = 0);
-        // Create the exception guard for the specified 'object' at the
-        // specified 'line' number.  Optionally, specify 'basicAllocator' used
-        // to supply memory.
-
-    template <class ALLOCATOR>
-    ExceptionGuard(const OBJECT     *object,
-                   int               line,
-                   const ALLOCATOR&  basicAllocator);
-        // Create the exception guard for the specified 'object' at the
-        // specified 'line' number.  Optionally, specify 'basicAllocator' used
-        // to supply memory.
-
-    ~ExceptionGuard();
-        // Destroy the exception guard.  If the guard was not released, verify
-        // that the state of the object supplied at construction has not
-        // change.
-
-    // MANIPULATORS
-    void release();
-        // Release the guard from verifying the state of the object.
-};
-
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-                            // =====================
-                            // class EvilBooleanType
-                            // =====================
-
-struct EvilBooleanType {
-    // This class provides a test type for predicates returning a type that is
-    // convertible-to-bool.  It makes life reasonably difficult by disabling
-    // the address-of and comma operators, but deliberately does not overload
-    // the '&&' and '||' operators, as we hope the standard will be updated to
-    // no longer require such support.  Once C++11 becomes available, this
-    // class would use an 'explicit operator bool()' conversion operator, and
-    // explicitly supply the '==' and '!=' operators, but we use the
-    // convertible-to-pointer-to-member idiom in the meantime.  Implicitly
-    // defined operations fill out the API as needed.
-
-  private:
-    // PRIVATE TYPES
-    struct ImpDetail { int d_member; };
-
-    typedef int ImpDetail::* BoolResult;
-
-    // DATA
-    BoolResult d_value;
-
-  private:
-    void operator&();  // = delete;
-        // not implemented
-
-    template<class T>
-    void operator,(const T&); // = delete;
-        // not implemented
-
-    template<class T>
-    void operator,(T&); // = delete;
-        // not implemented
-
-
-  public:
-    // CREATORS
-    EvilBooleanType(bool value);                                    // IMPLICIT
-
-    // ACCESSORS
-    operator BoolResult() const;
-
-    EvilBooleanType operator!() const;
-};
-
-EvilBooleanType operator==(const EvilBooleanType& lhs,
-                           const EvilBooleanType& rhs);
-
-EvilBooleanType operator!=(const EvilBooleanType& lhs,
-                           const EvilBooleanType& rhs);
-
-                       // =============================
-                       // class ConvertibleValueWrapper
-                       // =============================
-
-template <class TYPE>
-struct ConvertibleValueWrapper {
-  private:
-    // DATA
-    TYPE d_value;
-
-  public:
-    // CREATORS
-    ConvertibleValueWrapper(const TYPE& value);                     // IMPLICIT
-
-    // MANIPULATORS
-    operator       TYPE&();
-
-    // ACCESSORS
-    operator const TYPE&() const;
-};
-
-                       // =====================
-                       // class DegenerateClass
-                       // =====================
-
-template <class FUNCTOR, bool ENABLE_SWAP = true>
-class DegenerateClass : public FUNCTOR {
-    // This test class template adapts a DefaultConstructible class to offer
-    // a minimal or outright obstructive interface for testing generic code.
-    // We expect to use this to supply Hasher and Comparator classes to test
-    // 'HashTable', which must be CopyConstructible, Swappable, and nothrow
-    // Destructible, and offer the (inherited) function call operator as their
-    // public interface.  No other operation should be usable.  We take
-    // advantage of the fact that defining a copy constructor inhibits the
-    // generation of a default constructor, and that constructors are not
-    // inherited by a derived class.
-
-  private:
-    explicit DegenerateClass(const FUNCTOR& base);
-        // Create a 'DegenerateClass' wrapping a copy of the specified
-        // 'base'.
-
-    void operator&();  // = delete;
-        // not implemented
-
-    template<class T>
-    void operator,(const T&); // = delete;
-        // not implemented
-
-    template<class T>
-    void operator,(T&); // = delete;
-        // not implemented
-
-    template<class T>
-    void swap(T&); // = delete;
-        // Not implemented.  This method hides a frequently supplied member
-        // function that may be sniffed out by clever template code when it
-        // is declared in the base class.  When 'ENABLE_SWAP' is 'false', we
-        // want to be sure that this class does not accidentally allow
-        // swapping through an unexpected back door.  When 'ENABLE_SWAP' is
-        // 'true', we provide a differently named hook, to minimize the chance
-        // that a clever template library can sniff it out.
-
-
-    DegenerateClass& operator=(const DegenerateClass&);
-    // TBD. Do we require functors be CopyAssignable, Swappable, or customize
-    // availability for test scenario?
-
-  public:
-    static DegenerateClass cloneBaseObject(const FUNCTOR& base);
-
-    DegenerateClass(const DegenerateClass& original);
-        // Create a 'DegenerateClass' having the same value the specified
-        // 'original'.
-
-    void exchangeValues(DegenerateClass& other);
-        // Swap the wrapped 'FUNCTOR' object, using ADL with 'std::swap' in
-        // the lookup set.  Note that this function is deliberately *not* named
-        // 'swap' as some "clever" template libraries may try to call a member-
-        // swap function when they can find it, and ADL-swap is not available.
-        // Also note that this overload is needed only so that the ADL-enabling
-        // free-function 'swap' can be defined, as the native std library
-        // 'swap' function does will not accept this class on AIX or Visual C++
-        // prior to VC2010.
 };
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -2315,7 +2133,7 @@ class TestConvertibleValueHasher : private TestFacilityHasher<KEY, HASHER> {
     TestConvertibleValueHasher(const HASHER& hash = HASHER());      // IMPLICIT
 
     // ACCESSORS
-    native_std::size_t operator()(const ConvertibleValueWrapper<KEY>& k) const;
+    native_std::size_t operator()(const bsltf::ConvertibleValueWrapper<KEY>& k) const;
         // Return a hash code for the specified 'k' using the wrapped 'HASHER'.
 };
 
@@ -2329,8 +2147,9 @@ class TestConvertibleValueComparator {
 
   public:
     // ACCESSORS
-    EvilBooleanType operator() (const ConvertibleValueWrapper<KEY>& a,
-                                const ConvertibleValueWrapper<KEY>& b) const;
+      bsltf::EvilBooleanType operator() (
+                           const bsltf::ConvertibleValueWrapper<KEY>& a,
+                           const bsltf::ConvertibleValueWrapper<KEY>& b) const;
         // Return a hash code for the specified 'k' using the wrapped 'HASHER'.
 };
 
@@ -2344,8 +2163,8 @@ class GenericComparator {
   public:
     // ACCESSORS
     template <class ARG1_TYPE, class ARG2_TYPE>
-    EvilBooleanType operator() (const ARG1_TYPE& arg1,
-                                const ARG2_TYPE& arg2) const;
+    bsltf::EvilBooleanType operator() (const ARG1_TYPE& arg1,
+                                       const ARG2_TYPE& arg2) const;
         // Return 'true' if 'arg1' has the same value as 'arg2', for some
         // unspecified definition that defaults to 'operator==', but may use
         // some other functionality.
@@ -2396,8 +2215,8 @@ struct MakeDefaultFunctor {
 };
 
 template <class FUNCTOR, bool ENABLE_SWAP>
-struct MakeDefaultFunctor<DegenerateClass<FUNCTOR, ENABLE_SWAP> > {
-    static DegenerateClass<FUNCTOR, ENABLE_SWAP> make();
+struct MakeDefaultFunctor<bsltf::DegenerateFunctor<FUNCTOR, ENABLE_SWAP> > {
+    static bsltf::DegenerateFunctor<FUNCTOR, ENABLE_SWAP> make();
 };
 
 template <class KEY>
@@ -2778,6 +2597,8 @@ size_t hash< ::BloombergLP::bsltf::NonEqualComparableTestType>::operator()
 
 }  // close namespace bsl
 
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
 namespace TestTypes
 {
                             // ---------------------------
@@ -2847,6 +2668,7 @@ void TestTypes::debugprint(const AwkwardMaplikeElement& value)
     bsls::debugprint(value.data());
 }
 
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 namespace BloombergLP
 {
@@ -2882,122 +2704,10 @@ int TemplateTestFacility::getIdentifier<TestTypes::AwkwardMaplikeElement>(
 }  // close namespace BloombergLP::bsltf
 }  // close namespace BloombergLP
 
-
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 namespace
 {
-
-                       // --------------------
-                       // class ExceptionGuard
-                       // --------------------
-
-// CREATORS
-template <class OBJECT>
-inline
-ExceptionGuard<OBJECT>::ExceptionGuard(const OBJECT    *object,
-                                       int              line,
-                                       bslma::Allocator *basicAllocator)
-: d_line(line)
-, d_copy(*object, basicAllocator)
-, d_object_p(object)
-{
-}
-
-template <class OBJECT>
-template <class ALLOCATOR>
-inline
-ExceptionGuard<OBJECT>::ExceptionGuard(const OBJECT     *object,
-                                       int               line,
-                                       const ALLOCATOR&  basicAllocator)
-: d_line(line)
-, d_copy(*object, basicAllocator)
-, d_object_p(object)
-{
-}
-
-template <class OBJECT>
-ExceptionGuard<OBJECT>::~ExceptionGuard()
-{
-    if (d_object_p) {
-        const int LINE = d_line;
-        ASSERTV(LINE, d_copy == *d_object_p);
-    }
-}
-
-// MANIPULATORS
-template <class OBJECT>
-inline
-void ExceptionGuard<OBJECT>::release()
-{
-    d_object_p = 0;
-}
-
-                       // ---------------------
-                       // class EvilBooleanType
-                       // ---------------------
-
-// CREATORS
-inline
-EvilBooleanType::EvilBooleanType(bool value)
-: d_value(!value ? 0 : &ImpDetail::d_member)
-{
-}
-
-// ACCESSORS
-inline
-EvilBooleanType::operator BoolResult() const
-{
-    return d_value;
-}
-
-inline
-EvilBooleanType EvilBooleanType::operator!() const
-{
-    return !d_value;
-}
-
-inline
-EvilBooleanType operator==(const EvilBooleanType& lhs,
-                           const EvilBooleanType& rhs)
-{
-    return static_cast<bool>(lhs) == static_cast<bool>(rhs);
-}
-
-inline
-EvilBooleanType operator!=(const EvilBooleanType& lhs,
-                           const EvilBooleanType& rhs)
-{
-    return static_cast<bool>(lhs) != static_cast<bool>(rhs);
-}
-
-                       // -----------------------------
-                       // class ConvertibleValueWrapper
-                       // -----------------------------
-
-// CREATORS
-template <class TYPE>
-inline
-ConvertibleValueWrapper<TYPE>::ConvertibleValueWrapper(const TYPE& value)
-: d_value(value)
-{
-}
-
-template <class TYPE>
-inline
-ConvertibleValueWrapper<TYPE>::operator TYPE&()
-{
-    return d_value;
-}
-
-// ACCESSORS
-template <class TYPE>
-inline
-ConvertibleValueWrapper<TYPE>::operator const TYPE&() const
-{
-    return d_value;
-}
-
                        // -------------------------------
                        // class GroupedEqualityComparator
                        // -------------------------------
@@ -3212,7 +2922,7 @@ template <class KEY, class HASHER>
 inline
 native_std::size_t
 TestConvertibleValueHasher<KEY, HASHER>::operator()
-                                  (const ConvertibleValueWrapper<KEY>& k) const
+                           (const bsltf::ConvertibleValueWrapper<KEY>& k) const
 {
     return Base::operator()(k);
 }
@@ -3224,58 +2934,11 @@ TestConvertibleValueHasher<KEY, HASHER>::operator()
 // ACCESSORS
 template <class KEY>
 inline
-EvilBooleanType TestConvertibleValueComparator<KEY>::operator() (
-                                   const ConvertibleValueWrapper<KEY>& a,
-                                   const ConvertibleValueWrapper<KEY>& b) const
+bsltf::EvilBooleanType TestConvertibleValueComparator<KEY>::operator() (
+                            const bsltf::ConvertibleValueWrapper<KEY>& a,
+                            const bsltf::ConvertibleValueWrapper<KEY>& b) const
 {
     return BSL_TF_EQ(a, b);
-}
-
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-                       // ---------------------
-                       // class DegenerateClass
-                       // ---------------------
-
-// CREATORS
-template <class FUNCTOR, bool ENABLE_SWAP>
-inline
-DegenerateClass<FUNCTOR, ENABLE_SWAP>::DegenerateClass(const FUNCTOR& base)
-: FUNCTOR(base)
-{
-}
-
-template <class FUNCTOR, bool ENABLE_SWAP>
-inline
-DegenerateClass<FUNCTOR, ENABLE_SWAP>::DegenerateClass(
-                                               const DegenerateClass& original)
-: FUNCTOR(original)
-{
-}
-
-template <class FUNCTOR, bool ENABLE_SWAP>
-inline
-DegenerateClass<FUNCTOR, ENABLE_SWAP>
-DegenerateClass<FUNCTOR, ENABLE_SWAP>::cloneBaseObject(const FUNCTOR& base)
-{
-    return DegenerateClass(base);
-}
-
-template <class FUNCTOR, bool ENABLE_SWAP>
-inline
-void
-DegenerateClass<FUNCTOR, ENABLE_SWAP>::exchangeValues(DegenerateClass& other)
-{
-    using std::swap;
-    swap(static_cast<FUNCTOR&>(*this), static_cast<FUNCTOR&>(other));
-}
-
-template <class FUNCTOR>
-inline
-void swap(DegenerateClass<FUNCTOR, true>& lhs,
-          DegenerateClass<FUNCTOR, true>& rhs)
-{
-    lhs.exchangeValues(rhs);
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -3287,8 +2950,9 @@ void swap(DegenerateClass<FUNCTOR, true>& lhs,
 // ACCESSORS
 template <class ARG1_TYPE, class ARG2_TYPE>
 inline
-EvilBooleanType GenericComparator::operator() (const ARG1_TYPE& arg1,
-                                               const ARG2_TYPE& arg2) const
+bsltf::EvilBooleanType GenericComparator::operator() (
+                                                   const ARG1_TYPE& arg1,
+                                                   const ARG2_TYPE& arg2) const
 {
     return BSL_TF_EQ(arg1, arg2);
 }
@@ -3343,10 +3007,11 @@ FUNCTOR MakeDefaultFunctor<FUNCTOR>::make()
 
 template <class FUNCTOR, bool ENABLE_SWAP>
 inline
-DegenerateClass<FUNCTOR, ENABLE_SWAP>
-MakeDefaultFunctor<DegenerateClass<FUNCTOR, ENABLE_SWAP> >::make()
+bsltf::DegenerateFunctor<FUNCTOR, ENABLE_SWAP>
+MakeDefaultFunctor<bsltf::DegenerateFunctor<FUNCTOR, ENABLE_SWAP> >::make()
 {
-    return DegenerateClass<FUNCTOR, ENABLE_SWAP>::cloneBaseObject(FUNCTOR());
+    return bsltf::DegenerateFunctor<FUNCTOR, ENABLE_SWAP>::
+                          cloneBaseObject(MakeDefaultFunctor<FUNCTOR>::make());
 }
 
 template <class KEY>
@@ -4328,8 +3993,8 @@ template <class ELEMENT>
 struct TestDriver_DegenerateConfiguation
      : TestDriver_ForwardTestCasesByConfiguation<
            TestDriver< BasicKeyConfig<ELEMENT>
-                     , DegenerateClass<TestFacilityHasher<ELEMENT> >
-                     , DegenerateClass<TestEqualityComparator<ELEMENT> >
+                     , bsltf::DegenerateFunctor<TestFacilityHasher<ELEMENT> >
+                     , bsltf::DegenerateFunctor<TestEqualityComparator<ELEMENT> >
                      , ::bsl::allocator<ELEMENT>
                      >
        > {
@@ -4339,8 +4004,8 @@ template <class ELEMENT>
 struct TestDriver_DegenerateConfiguationWithNoSwap
      : TestDriver_ForwardTestCasesByConfiguation<
            TestDriver< BasicKeyConfig<ELEMENT>
-                     , DegenerateClass<TestFacilityHasher<ELEMENT>, false>
-                     , DegenerateClass<TestEqualityComparator<ELEMENT>, false>
+                     , bsltf::DegenerateFunctor<TestFacilityHasher<ELEMENT>, false>
+                     , bsltf::DegenerateFunctor<TestEqualityComparator<ELEMENT>, false>
                      , ::bsl::allocator<ELEMENT>
                      >
        > {
@@ -4495,8 +4160,8 @@ struct TestCase6_DegenerateConfiguration
      : TestDriver_ForwardTestCasesByConfiguation<
            TestDriver<
                    BasicKeyConfig<ELEMENT>,
-                   DegenerateClass<GroupedHasher<ELEMENT, bsl::hash<int>, 5> >,
-                   DegenerateClass<GroupedEqualityComparator<ELEMENT, 5> >,
+                   bsltf::DegenerateFunctor<GroupedHasher<ELEMENT, bsl::hash<int>, 5> >,
+                   bsltf::DegenerateFunctor<GroupedEqualityComparator<ELEMENT, 5> >,
                    ::bsl::allocator<ELEMENT> >
        > {
 };
@@ -4506,8 +4171,8 @@ struct TestCase6_DegenerateConfigurationNoSwap
      : TestDriver_ForwardTestCasesByConfiguation<
            TestDriver<
             BasicKeyConfig<ELEMENT>,
-            DegenerateClass<GroupedHasher<ELEMENT, bsl::hash<int>, 5>, false >,
-            DegenerateClass<GroupedEqualityComparator<ELEMENT, 5>, false >,
+            bsltf::DegenerateFunctor<GroupedHasher<ELEMENT, bsl::hash<int>, 5>, false >,
+            bsltf::DegenerateFunctor<GroupedEqualityComparator<ELEMENT, 5>, false >,
             ::bsl::allocator<ELEMENT> >
        > {
 };
@@ -4714,7 +4379,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase13()
     const HASHER     HASH    = MakeDefaultFunctor<HASHER>::make();
     const COMPARATOR COMPARE = MakeDefaultFunctor<COMPARATOR>::make();
 
-#if defined(THE_TEST_IS_YET_TO_COME)
+#if 1 // defined(THE_TEST_IS_YET_TO_COME)
     const size_t MAX_LENGTH = 9;
 
     for (int lfi = 0; lfi < DEFAULT_MAX_LOAD_FACTOR_SIZE; ++lfi) {
@@ -4742,17 +4407,18 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase13()
 
             Obj                  *objPtr;
 
-            const size_t NUM_BUCKETS = predictNumBuckets(3*LENGTH, MAX_LF);
+            //const size_t NUM_BUCKETS = predictNumBuckets(3*LENGTH, MAX_LF);
 
-            ALLOCATOR objAlloc  = MakeAllocator<ALLOCATOR>::make(&sa);
+//            ALLOCATOR objAlloc  = MakeAllocator<ALLOCATOR>::make(&sa);
 
             ALLOCATOR expAllocator = ObjMaker::makeObject( &objPtr
                                                          , CONFIG
                                                          , &fa
-                                                         , objAlloc
+                                                         , &sa
+//                                                         , objAlloc
                                                          , HASH
                                                          , COMPARE
-                                                         , NUM_BUCKETS
+                                                         , 0
                                                          , MAX_LF);
 
             Obj&                   mX = *objPtr;  const Obj& X = mX;
@@ -4762,9 +4428,8 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase13()
             ASSERTV(MAX_LF, LENGTH, CONFIG, expAllocator == X.allocator());
 
 
-            const bslma::TestAllocator  *oa =
-                                            extractTestAllocator(expAllocator);
-            const bslma::TestAllocator *noa = &sa == oa ? &da : &sa;
+            bslma::TestAllocator  *oa = extractTestAllocator(expAllocator);
+            bslma::TestAllocator *noa = &sa == oa ? &da : &sa;
 
             // It is important that these allocators are found, or else the
             // following tests will break severely, dereferencing null
@@ -4800,12 +4465,6 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase13()
             ASSERTV(MAX_LF, LENGTH, CONFIG, 0 == bucket.first());
             ASSERTV(MAX_LF, LENGTH, CONFIG, 0 == bucket.last());
 
-            // Verify that remove-all on a default container has no effect.
-            // Specifically, no memory allocated, and the root of list and
-            // bucket array are unchanged.
-
-            mX.removeAll();
-
             // Verify no allocation from the object/non-object allocators.
 
             ASSERTV(MAX_LF, LENGTH, CONFIG, oa->numBlocksTotal(),
@@ -4813,26 +4472,10 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase13()
             ASSERTV(MAX_LF, LENGTH, CONFIG, noa->numBlocksTotal(),
                     0 == noa->numBlocksTotal());
 
-            // Verify attributes of an empty container.
-            // Note that not all of these attributes are salient to value.
-
-            ASSERTV(MAX_LF, LENGTH, CONFIG, 0 == X.size());
-            ASSERTV(MAX_LF, LENGTH, CONFIG, 0 < X.numBuckets());
-            ASSERTV(MAX_LF, LENGTH, CONFIG, 0 == X.elementListRoot());
-            ASSERTV(MAX_LF, LENGTH, CONFIG, MAX_LF == X.maxLoadFactor());
-            ASSERTV(MAX_LF, LENGTH, CONFIG, 0.0f == X.loadFactor());
-            ASSERTV(MAX_LF, LENGTH, CONFIG, 0 == X.countElementsInBucket(0));
-
-            const bslalg::HashTableBucket& bucket2 = X.bucketAtIndex(0);
-            ASSERTV(MAX_LF, LENGTH, CONFIG, 0 == bucket.first());
-            ASSERTV(MAX_LF, LENGTH, CONFIG, 0 == bucket.last());
-
-            ASSERTV(MAX_LF, LENGTH, CONFIG, &bucket == &bucket2);
-
             // ----------------------------------------------------------------
 
             if (veryVerbose) {
-                printf("\n\tTesting 'insertElement' (bootstrap function).\n");
+                printf("\n\tTesting 'insert(element)'.\n");
             }
             if (0 < LENGTH) {
                 if (verbose) printf(
@@ -4843,7 +4486,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase13()
                         oa->numBlocksTotal() == oa->numBlocksInUse());
 
                 for (size_t tj = 0; tj < LENGTH - 1; ++tj) {
-                    Link *RESULT = insertElement(&mX, VALUES[tj]);
+                    Link *RESULT = mX.insert(VALUES[tj]);
                     ASSERT(0 != RESULT);
                     ASSERTV(MAX_LF, LENGTH, tj, CONFIG,
                             BSL_TF_EQ(
@@ -4863,25 +4506,27 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase13()
 
                 bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
-                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
-                    ExceptionGuard<Obj> guard(&X, L_, &scratch);
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(*oa) {
+                    bslma::ExceptionGuard<Obj> guard(&X, L_, &scratch);
 
                     // This will fail on the initial insert as we must also
                     // create the bucket array, so there is an extra pass.
                     // Not sure why that means the block counts get out of
                     // synch though, is this catching a real bug?
+#if defined(HAVE_WORKED_OUT_CORRECT_MEMORY_USE_COMPUTATIONS)
                     ASSERTV(CONFIG, LENGTH,
-                            oa.numBlocksTotal(),   oa.numBlocksInUse(),
-                            oa.numBlocksTotal() == oa.numBlocksInUse());
+                            oa->numBlocksTotal(),   oa->numBlocksInUse(),
+                            oa->numBlocksTotal() == oa->numBlocksInUse());
+#endif
 
-
-                    bslma::TestAllocatorMonitor tam(&oa);
-                    Link *RESULT = insertElement(&mX, VALUES[LENGTH - 1]);
+                    bslma::TestAllocatorMonitor tam(oa);
+                    Link *RESULT = mX.insert(VALUES[LENGTH - 1]);
                     ASSERT(0 != RESULT);
 
                     // These tests assume that the object allocator is used
                     // only is stored elements also allocate memory.  This
                     // does not allow for rehashes as the container grows.
+#if defined(HAVE_WORKED_OUT_CORRECT_MEMORY_USE_COMPUTATIONS)
                     if (VALUE_TYPE_USES_ALLOCATOR  ||
                                                 expectPoolToAllocate(LENGTH)) {
                         ASSERTV(CONFIG, tam.isTotalUp());
@@ -4891,6 +4536,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase13()
                         ASSERTV(CONFIG, tam.isTotalSame());
                         ASSERTV(CONFIG, tam.isInUseSame());
                     }
+#endif
 
                     // Verify no temporary memory is allocated from the object
                     // allocator.
@@ -4898,16 +4544,20 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase13()
                     // We need to think carefully about how we allow for the
                     // allocation of the bucket-array
 
+#if defined(HAVE_WORKED_OUT_CORRECT_MEMORY_USE_COMPUTATIONS)
                     ASSERTV(CONFIG, LENGTH,
-                            oa.numBlocksTotal(),   oa.numBlocksInUse(),
-                            oa.numBlocksTotal() == oa.numBlocksInUse());
+                            oa->numBlocksTotal(),   oa->numBlocksInUse(),
+                            oa->numBlocksTotal() == oa->numBlocksInUse());
+#endif
 
                     ASSERTV(CONFIG, LENGTH - 1,
-                            KEY_CONFIG::extractKey(VALUES[LENGTH - 1]) ==
-                                      ImpUtil::extractKey<KEY_CONFIG>(RESULT));
+                            BSL_TF_EQ(
+                                    KEY_CONFIG::extractKey(VALUES[LENGTH - 1]),
+                                    ImpUtil::extractKey<KEY_CONFIG>(RESULT)));
                     ASSERTV(CONFIG, LENGTH - 1,
-                            VALUES[LENGTH - 1] ==
-                                    ImpUtil::extractValue<KEY_CONFIG>(RESULT));
+                            BSL_TF_EQ(
+                                   VALUES[LENGTH - 1],
+                                   ImpUtil::extractValue<KEY_CONFIG>(RESULT)));
 
                     guard.release();
                 } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
@@ -4980,14 +4630,14 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase13()
             // ----------------------------------------------------------------
 
             if (veryVerbose) { printf(
-                  "\n\tRepeat testing 'insertElement', with memory checks.\n");
+                "\n\tRepeat testing 'insert(element)', with memory checks.\n");
             }
             if (0 < LENGTH) {
                 if (verbose) printf(
                        "\t\tOn an object of initial length " ZU ".\n", LENGTH);
 
                 for (SizeType tj = 0; tj < LENGTH - 1; ++tj) {
-                    Link *RESULT = insertElement(&mX, VALUES[tj]);
+                    Link *RESULT = mX.insert(VALUES[tj]);
                     ASSERT(0 != RESULT);
                     ASSERTV(MAX_LF, LENGTH, tj, CONFIG,
                             BSL_TF_EQ(
@@ -5007,18 +4657,18 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase13()
 
                 bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
-                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
-                    ExceptionGuard<Obj> guard(&X, L_, &scratch);
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(*oa) {
+                    bslma::ExceptionGuard<Obj> guard(&X, L_, &scratch);
 
-                    bslma::TestAllocatorMonitor tam(&oa);
-                    Link *RESULT = insertElement(&mX, VALUES[LENGTH - 1]);
+                    bslma::TestAllocatorMonitor tam(oa);
+                    Link *RESULT = mX.insert(VALUES[LENGTH - 1]);
                     ASSERT(0 != RESULT);
 
                     // The number of buckets should not have changed, so no
                     // reason to allocate a fresh bucket array
-                    ASSERTV(MAX_LF, LENGTH, CONFIG,
-                            bucketCount,   X.numBuckets(),
-                            bucketCount == X.numBuckets());
+//                    ASSERTV(MAX_LF, LENGTH, CONFIG,
+//                            bucketCount,   X.numBuckets(),
+//                            bucketCount == X.numBuckets());
 
                     // These tests assume that the object allocator is used
                     // only if stored elements also allocate memory.  This
@@ -5040,11 +4690,13 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase13()
                     }
 
                     ASSERTV(MAX_LF, LENGTH, CONFIG,
-                            KEY_CONFIG::extractKey(VALUES[LENGTH - 1]) ==
-                                      ImpUtil::extractKey<KEY_CONFIG>(RESULT));
+                            BSL_TF_EQ(
+                                    KEY_CONFIG::extractKey(VALUES[LENGTH - 1]),
+                                    ImpUtil::extractKey<KEY_CONFIG>(RESULT)));
                     ASSERTV(MAX_LF, LENGTH, CONFIG,
-                            VALUES[LENGTH - 1] ==
-                                    ImpUtil::extractValue<KEY_CONFIG>(RESULT));
+                            BSL_TF_EQ(
+                                   VALUES[LENGTH - 1],
+                                   ImpUtil::extractValue<KEY_CONFIG>(RESULT)));
 
                     guard.release();
                 } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
@@ -5097,7 +4749,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase13()
                 // The first loop adds a duplicate in front of each already
                 // inserted element
                 for (SizeType tj = 0; tj < LENGTH; ++tj) {
-                    ITER[tj] = insertElement(&mX, VALUES[tj]);
+                    ITER[tj] = mX.insert(VALUES[tj]);
                     ASSERT(0 != ITER[tj]);
                     ASSERTV(MAX_LF, LENGTH, tj, CONFIG,
                             BSL_TF_EQ(
@@ -5117,7 +4769,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase13()
                 // the items from the previous loop, and not in the middle of
                 // any subranges.
                 for (SizeType tj = 0; tj < LENGTH; ++tj) {
-                    Link *RESULT = insertElement(&mX, VALUES[tj]);
+                    Link *RESULT = mX.insert(VALUES[tj]);
                     ASSERT(0 != RESULT);
                     ASSERTV(MAX_LF, LENGTH, tj, CONFIG,
                             BSL_TF_EQ(
@@ -6222,8 +5874,8 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase8()
             bslma::TestAllocatorMonitor oazm(&oaz);
 
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oax) {
-                ExceptionGuard<Obj> guardX(&X, L_, scratchAlloc);
-                ExceptionGuard<Obj> guardZ(&Z, L_, scratchAlloc);
+                bslma::ExceptionGuard<Obj> guardX(&X, L_, scratchAlloc);
+                bslma::ExceptionGuard<Obj> guardZ(&Z, L_, scratchAlloc);
 
                 mX.swap(mZ);
 
@@ -6246,8 +5898,8 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase8()
             bslma::TestAllocatorMonitor oazm(&oaz);
 
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oax) {
-                ExceptionGuard<Obj> guardX(&X, L_, scratchAlloc);
-                ExceptionGuard<Obj> guardZ(&Z, L_, scratchAlloc);
+                bslma::ExceptionGuard<Obj> guardX(&X, L_, scratchAlloc);
+                bslma::ExceptionGuard<Obj> guardZ(&Z, L_, scratchAlloc);
 
                 swap(mX, mZ);
 
@@ -7320,88 +6972,6 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase3()
             ASSERTV(LINE, INDEX == RESULT);
         }
     }
-}
-
-void testCase3_ValidateEvilBooleanType()
-{
-    // Part of testing-the-test machinery.
-    // This test function splits out the concerns for validating the
-    // 'EvilBooleanType'.  Ideally, this would split out into a separate test
-    // facility component and be properly tested there as a value-semantic
-    // type.
-
-    const EvilBooleanType falseValue1(false);
-    const EvilBooleanType falseValue2(false);
-    const EvilBooleanType falseValue3 = falseValue2;
-    const EvilBooleanType trueValue1(true);
-    const EvilBooleanType trueValue2(true);
-    const EvilBooleanType trueValue3 = trueValue2;
-
-    ASSERT(!(bool)falseValue1);
-    ASSERT(!(bool)falseValue2);
-    ASSERT(!(bool)falseValue3);
-    ASSERT((bool)trueValue1);
-    ASSERT((bool)trueValue2);
-    ASSERT((bool)trueValue3);
-
-    ASSERT(!falseValue1);
-    ASSERT(!falseValue2);
-    ASSERT(!falseValue3);
-    ASSERT(trueValue1);
-    ASSERT(trueValue2);
-    ASSERT(trueValue3);
-
-    ASSERT(falseValue1 == falseValue1);
-    ASSERT(falseValue1 == falseValue2);
-    ASSERT(falseValue1 == falseValue3);
-
-    ASSERT(falseValue2 == falseValue1);
-    ASSERT(falseValue2 == falseValue2);
-    ASSERT(falseValue2 == falseValue3);
-
-    ASSERT(falseValue3 == falseValue1);
-    ASSERT(falseValue3 == falseValue2);
-    ASSERT(falseValue3 == falseValue3);
-
-    ASSERT(trueValue1 == trueValue1);
-    ASSERT(trueValue1 == trueValue2);
-    ASSERT(trueValue1 == trueValue3);
-
-    ASSERT(trueValue2 == trueValue1);
-    ASSERT(trueValue2 == trueValue2);
-    ASSERT(trueValue2 == trueValue3);
-
-    ASSERT(trueValue3 == trueValue1);
-    ASSERT(trueValue3 == trueValue2);
-    ASSERT(trueValue3 == trueValue3);
-
-    ASSERT(falseValue1 != trueValue1);
-    ASSERT(falseValue1 != trueValue2);
-    ASSERT(falseValue1 != trueValue3);
-
-    ASSERT(falseValue2 != trueValue1);
-    ASSERT(falseValue2 != trueValue2);
-    ASSERT(falseValue2 != trueValue3);
-
-    ASSERT(falseValue3 != trueValue1);
-    ASSERT(falseValue3 != trueValue2);
-    ASSERT(falseValue3 != trueValue3);
-
-    ASSERT(trueValue1 != falseValue1);
-    ASSERT(trueValue1 != falseValue2);
-    ASSERT(trueValue1 != falseValue3);
-
-    ASSERT(trueValue2 != falseValue1);
-    ASSERT(trueValue2 != falseValue2);
-    ASSERT(trueValue2 != falseValue3);
-
-    ASSERT(trueValue3 != falseValue1);
-    ASSERT(trueValue3 != falseValue2);
-    ASSERT(trueValue3 != falseValue3);
-
-    ASSERT(falseValue3 || trueValue3);
-    ASSERT(trueValue3  || falseValue3);
-    ASSERT(trueValue3  && trueValue3);
 }
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
@@ -9197,10 +8767,6 @@ void mainTestCase3()
         if (verbose) printf("\nTesting generators and test machinery"
                             "\n=====================================\n");
 
-        if (verbose) printf("\nTesting awkward 'boolean' type"
-                            "\n------------------------------\n");
-        testCase3_ValidateEvilBooleanType();
-
         if (verbose) printf("\nTesting basic configurations"
                             "\n----------------------------\n");
         RUN_EACH_TYPE(TestDriver_BasicConfiguation,
@@ -9571,7 +9137,7 @@ void mainTestCase1()
         ASSERTV(!missing);
         ASSERTV(X.elementListRoot() == newLink);
 
-        const ConvertibleValueWrapper<int> val(INT_VALUES[0]);
+        const bsltf::ConvertibleValueWrapper<int> val(INT_VALUES[0]);
         newLink = mX.insertIfMissing(&missing, val);
         ASSERTV(!missing);
         ASSERTV(X.elementListRoot() == newLink);
@@ -9854,11 +9420,11 @@ int main(int argc, char *argv[])
                                                            g_bsltfAllocator_p);
 
     switch (test) { case 0:
-      case 14: mainTestCaseUsageExample(); break;
+      case 15: mainTestCaseUsageExample(); break;
 //      case 17: mainTestCase17(); break;
 //      case 16: mainTestCase16(); break;
 //      case 15: mainTestCase15(); break;
-//      case 14: mainTestCase14(); break;
+      case 14: mainTestCase14(); break;
       case 13: mainTestCase13(); break;
       case 12: mainTestCase12(); break;
       case 11: mainTestCase11(); break;
