@@ -15,7 +15,6 @@
 #include <bsls_objectbuffer.h>                   // for testing only
 #include <bsls_types.h>                          // for testing only
 
-
 #include <stdio.h>
 #include <stdlib.h>    // atoi()
 #include <string.h>    // strlen()
