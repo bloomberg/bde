@@ -6,6 +6,7 @@
 #include <bsls_bsltestutil.h>
 // #include <bsls_ident.h>      // included below in usage example.
 #include <cstdlib>              // 'atoi'
+#include <cstdio>
 #include <iostream>
 // using namespace BloombergLP;
 
