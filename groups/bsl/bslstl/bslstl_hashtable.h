@@ -1719,6 +1719,11 @@ class HashTable {
                                        // accessed through the public methods.
 
         // CREATORS
+        explicit ImplParameters(const ALLOCATOR& allocator);
+            // Create an 'ImplParameters' object having default constructed
+            // 'HASHER' and 'COMPARATOR' functors, and using the specified
+            // 'allocator' to provide a 'BidirectionalNodePool'.
+
         ImplParameters(const HASHER&     hash,
                        const COMPARATOR& compare,
                        const ALLOCATOR&  allocator);
@@ -1945,7 +1950,12 @@ class HashTable {
         // has the trait 'propagate_on_container_copy_assignment', and return a
         // reference providing modifiable access to this object.  This method
         // requires that the parameterized 'HASHER' and 'COMPARATOR' types be
-        // "copy-constructible" (see {Requirements on 'KEY_CONFIG'}).
+        // "copy-constructible", "copy-assignable" and "swappable" (see
+        // {Requirements on 'KEY_CONFIG'}).  Note that these requiremenents are
+        // modelled after the unordered container requirements table in the
+        // C++11 standard, which is imprecise on this operation.  These
+        // requierements might simplify in the future, if the standard is
+        // updated.
 
     template <class SOURCE_TYPE>
     bslalg::BidirectionalLink *insert(const SOURCE_TYPE& value);
@@ -2039,17 +2049,18 @@ class HashTable {
         // allocated in order to preserve the bucket allocation strategy of the
         // hash table (but never fewer).
 
-    void rehashForNumElements(SizeType numElements);
+    void reserveForNumElements(SizeType numElements);
         // Re-organize this hash-table to have a sufficient number of buckets
         // to accommodate at least the specified 'numElements' without
-        // exceeding the 'maxLoadFactor'.  If this function tries to
-        // allocate a number of buckets larger than can be represented by this
-        // hash table's 'SizeType', a 'std::length_error' exception will be
-        // thrown.  This operation provides the strong exception guarantee (see
-        // {'bsldoc_glossary'}) unless the 'hasher' throws, in which case this
-        // operation provides the basic exception guarantee, leaving the
-        // hash-table in a valid, but otherwise unspecified (and potentially
-        // empty), state.
+        // exceeding the 'maxLoadFactor', and ensure that that there are
+        // sufficient nodes pre-allocated in this object's node pool.  If this
+        // function tries to allocate a number of buckets larger than can be
+        // represented by this hash table's 'SizeType', a 'std::length_error'
+        // exception will be thrown.  This operation provides the strong
+        // exception guarantee (see {'bsldoc_glossary'}) unless the 'hasher'
+        // throws, in which case this operation provides the basic exception
+        // guarantee, leaving the hash-table in a valid, but otherwise
+        // unspecified (and potentially empty), state.
 
     void setMaxLoadFactor(float newMaxLoadFactor);
         // Set the maximum load factor permitted by this hash table to the
@@ -2548,8 +2559,20 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::ImplParameters::
 ImplParameters(const HASHER&        hash,
                const COMPARATOR&    compare,
                const AllocatorType& allocator)
-: HasherBaseType(hash)
+//: HasherBaseType(hash)
+: BaseHasher(hash)
 , ComparatorBaseType(compare)
+, d_nodeFactory(allocator)
+{
+}
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+inline
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::ImplParameters::
+ImplParameters(const AllocatorType& allocator)
+//: HasherBaseType(hash)
+: BaseHasher()
+, ComparatorBaseType()
 , d_nodeFactory(allocator)
 {
 }
@@ -2559,7 +2582,8 @@ inline
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::ImplParameters::
 ImplParameters(const ImplParameters& original,
                const AllocatorType&  allocator)
-: HasherBaseType(static_cast<const HasherBaseType&>(original))
+//: HasherBaseType(static_cast<const HasherBaseType&>(original))
+: BaseHasher(static_cast<const BaseHasher&>(original))
 , ComparatorBaseType(static_cast<const ComparatorBaseType&>(original))
 , d_nodeFactory(allocator)
 {
@@ -2733,7 +2757,7 @@ template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 inline
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::
 HashTable(const ALLOCATOR& basicAllocator)
-: d_parameters(HASHER(), COMPARATOR(), basicAllocator)
+: d_parameters(basicAllocator)
 , d_anchor(HashTable_ImpDetails::defaultBucketAddress(), 1, 0)
 , d_size()
 , d_capacity()
@@ -3285,9 +3309,15 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::rehashForNumBuckets(
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 inline
 void
-HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::rehashForNumElements(
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::reserveForNumElements(
                                                           SizeType numElements)
 {
+    if (numElements < 1) {
+        // Early return avoids undefined behavior in the node factory.
+        return;                                                       // RETURN
+    }
+
+    d_parameters.nodeFactory().reserveNodes(numElements);
     if (numElements > d_capacity) {
         // Compute a "good" number of buckets, e.g., pick a prime number
         // from a sorted array of exponentially increasing primes.

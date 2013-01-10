@@ -1109,7 +1109,7 @@ unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::unordered_multimap(
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::unordered_multimap(
                                                const allocator_type& allocator)
-: d_impl(HASH(), EQUAL(), 0, 1.0f, allocator)
+: d_impl(allocator)
 {
 }
 
@@ -1294,7 +1294,7 @@ inline
 void unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::reserve(
                                                          size_type numElements)
 {
-    d_impl.rehashForNumElements(numElements);
+    d_impl.reserveForNumElements(numElements);
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
