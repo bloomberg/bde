@@ -1,25 +1,47 @@
 // bslstl_stdexceptutil.t.cpp                                         -*-C++-*-
 #include <bslstl_stdexceptutil.h>
-
+#include <bsls_bsltestutil.h>
 #include <bsls_exceptionutil.h>
 
 #include <stdexcept>    //  yes, we want the native std here
-
-
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
 
+
 using namespace BloombergLP;
 using namespace std;
 
-//=============================================================================
-//                             TEST PLAN
-//-----------------------------------------------------------------------------
+// =============================================================================
+//                                   TEST PLAN
+// -----------------------------------------------------------------------------
+//                                   Overview
+//                                   --------
+// 'bslstl::StdExceptUtil' is a 'Type only' utility class. To test it, we follow
+// the standard order of testing for 'Type only' classes. The approach for 
+// testing this sort of class is to implement the following
 //
+//: o a BREATHING TEST where we demonstrate the basic functionality of the
+//    'bslstl::StdExceptUtil'
+//:
+//: o an EXHAUSTIVE INPUT TEST for the entire possible range of inputs.  In this
+//:   case, the entire range of inputs is also tested in the BREATHING TEST.
+//:
+//: o an AREA TEST for the meaningful, primary range of inputs. In this Test 
+//:   Driver, all meaningful ranges of inputs are covered by the BREATHING TEST
+//:   as well.
+//:
+//: o an USAGE EXAMPLE to demonstrate a working example of how a programmer
+//:   might use the component.
 //
-//-----------------------------------------------------------------------------
-
+// The custom test apparatuses used are 'testFunction()', a templated free 
+// function which throws various exceptions, and 'callTestFunction()', which 
+// executes 'testFunction()'.
+// -----------------------------------------------------------------------------
+// 
+// -----------------------------------------------------------------------------
+// [ 1] BREATHING TEST
+// [ 2] USAGE EXAMPLE
 //==========================================================================
 //                  STANDARD BDE ASSERT TEST MACRO
 //--------------------------------------------------------------------------
@@ -27,24 +49,37 @@ using namespace std;
 // FUNCTIONS, INCLUDING IOSTREAMS.
 static int testStatus = 0;
 
-static void aSsErT(int c, const char *s, int i) {
+namespace {
+void aSsErT(int c, const char *s, int i)
+{
     if (c) {
         printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
         if (testStatus >= 0 && testStatus <= 100) ++testStatus;
     }
 }
 
-# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//--------------------------------------------------------------------------
+}  // close unnamed namespace
 
 //=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
+//                       STANDARD BDE TEST DRIVER MACROS
 //-----------------------------------------------------------------------------
-// #define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) printf("<| " #X " |>\n");  // Quote identifier literally.
-//#define P_(X) cout << #X " = " << (X) << ", " << flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_ printf("\t");             // Print a tab (w/o newline)
+
+#define ASSERT       BSLS_BSLTESTUTIL_ASSERT
+#define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLS_BSLTESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLS_BSLTESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLS_BSLTESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLS_BSLTESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
+#define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
+
+#define Q   BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
+#define P   BSLS_BSLTESTUTIL_P   // Print identifier and value.
+#define P_  BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
+#define T_  BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
+#define L_  BSLS_BSLTESTUTIL_L_  // current Line number
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -151,7 +186,7 @@ int main(int argc, char *argv[])
         // Plan:
         //
         // Testing:
-        //
+        //   BREATHING TEST
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nBREATHING TEST"

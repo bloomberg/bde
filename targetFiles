@@ -1,0 +1,11 @@
+./groups/bsl/bslstl/bslstl_stringbuf.t.cpp
+./groups/bsl/bslstl/bslstl_deque.t.cpp
+./groups/bsl/bslstl/bslstl_stdexceptutil.t.cpp
+./groups/bsl/bslstl/bslstl_pair.t.cpp
+./groups/bsl/bslstl/bslstl_string.t.cpp
+./groups/bsl/bslstl/bslstl_vector.t.cpp
+./groups/bsl/bslalg/bslalg_rangecompare.t.cpp
+./groups/bsl/bslalg/bslalg_scalardestructionprimitives.t.cpp
+./groups/bsl/bslalg/bslalg_arraydestructionprimitives.t.cpp
+./groups/bsl/bsls/bsls_alignedbuffer.t.cpp
+./groups/bsl/bsls/bsls_ident.t.cpp

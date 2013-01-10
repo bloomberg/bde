@@ -2,15 +2,13 @@
 
 #include <bslalg_rangecompare.h>
 
-#include <bslmf_isbitwiseequalitycomparable.h>          // for testing only
-#include <bslma_usesbslmaallocator.h>                   // for testing only
-#include <bslmf_nestedtraitdeclaration.h>               // for testing only
-#include <bsls_bsltestutil.h>                           // for testing only
-
 #include <bslma_allocator.h>
 #include <bslma_default.h>
 #include <bslma_testallocator.h>
-
+#include <bslma_usesbslmaallocator.h>                   // for testing only
+#include <bslmf_isbitwiseequalitycomparable.h>          // for testing only
+#include <bslmf_nestedtraitdeclaration.h>               // for testing only
+#include <bsls_bsltestutil.h>                           // for testing only
 #include <bsls_stopwatch.h>
 #include <bsls_types.h>
 
@@ -47,8 +45,11 @@ using namespace std;
 // overloads, we wrap the range pointers into an iterator type that is *not*
 // convertible to the pointer.
 //-----------------------------------------------------------------------------
+// [ 3] bool equal(start1, end1, start2);
+// [ 3] bool equal(start1, end1, start2, end2);
 // [ 3] bool equal(start1, end1, length1, start2, end2, length2);
-// [ 4] bool lexicographical(start1, end1, length1, start2, end2, length2);
+// [ 4] bool lexicographical(start1, end1, start2, end2);
+// [ 4] bool lexicographical(s1, end1, length1, s2, end2, length2);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 2] TEST APPARATUS
@@ -73,37 +74,26 @@ void aSsErT(int c, const char *s, int i)
 
 }  // close unnamed namespace
 
-# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-
 //=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
+//                       STANDARD BDE TEST DRIVER MACROS
 //-----------------------------------------------------------------------------
-// NOTE: This implementation of LOOP_ASSERT macros must use printf since
-//       cout uses new and must not be called during exception testing.
 
-#define LOOP_ASSERT(I,X) { \
-    if (!(X)) { printf("%s", #I ": "); dbg_print(I); printf("\n"); \
-                fflush(stdout); aSsErT(1, #X, __LINE__); } }
+#define ASSERT       BSLS_BSLTESTUTIL_ASSERT
+#define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLS_BSLTESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLS_BSLTESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLS_BSLTESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLS_BSLTESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
+#define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
 
-#define LOOP2_ASSERT(I,J,X) { \
-    if (!(X)) { printf("%s", #I ": "); dbg_print(I); printf("\t"); \
-                printf("%s", #J ": "); dbg_print(J); printf("\n"); \
-                fflush(stdout); aSsErT(1, #X, __LINE__); } }
-
-#define LOOP3_ASSERT(I,J,K,X) {                    \
-    if (!(X)) { printf("%s", #I ": "); dbg_print(I); printf("\t"); \
-                printf("%s", #J ": "); dbg_print(J); printf("\t"); \
-                printf("%s", #K ": "); dbg_print(K); printf("\n"); \
-                fflush(stdout); aSsErT(1, #X, __LINE__); } }
-
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-#define Q(X) printf("<| " #X " |>\n");     // Quote identifier literally.
-#define P(X) dbg_print(#X " = ", X, "\n")  // Print identifier and value.
-#define P_(X) dbg_print(#X " = ", X, ", ") // P(X) without '\n'
-#define L_ __LINE__                        // current Line number
-#define T_ putchar('\t');                  // Print a tab (w/o newline).
+#define Q   BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
+#define P   BSLS_BSLTESTUTIL_P   // Print identifier and value.
+#define P_  BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
+#define T_  BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
+#define L_  BSLS_BSLTESTUTIL_L_  // current Line number
 
 //=============================================================================
 //                      GLOBAL HELPER FUNCTIONS FOR TESTING
@@ -2151,7 +2141,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //  bool lexicographical(start1, end1, start2, end2);
-        //  bool lexicographical(start1, end1, length1, start2, end2, length2);
+        //  bool lexicographical(s1, end1, length1, s2, end2, length2);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING 'lexicographical'"
@@ -2364,8 +2354,7 @@ int main(int argc, char *argv[])
         //   the first invalid value of the 'spec'.
         //
         // Testing:
-        //   int ggg(TYPE *array, const char *spec, int verboseFlag = 1);
-        //   TYPE& gg(TYPE *array, const char *spec);
+        //   TEST APPARATUS
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING PRIMITIVE GENERATOR FUNCTIONS"
@@ -2395,7 +2384,7 @@ int main(int argc, char *argv[])
         //   Exercise basic usage of this component.
         //
         // Testing:
-        //   This test exercises basic usage but *tests* nothing.
+        //   BREATHING TEST
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nBREATHING TEST"
@@ -2497,6 +2486,7 @@ int main(int argc, char *argv[])
         //   can be used.  Display the resulting times.
         //
         // Testing:
+        //   PERFORMANCE TEST
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nPERFORMANCE TEST"
