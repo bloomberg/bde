@@ -1,3 +1,9 @@
+bde-core (2.16.0.3) unstable; urgency=low
+
+  * Update uplids.
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Thu, 10 Jan 2013 14:52:41 -0500
+
 bde-core (2.16.0.1) unstable; urgency=low
 
   * Update bsl::hash<const char*> behaviour.

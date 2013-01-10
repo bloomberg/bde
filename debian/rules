@@ -11,7 +11,7 @@ UNAME:=$(shell uname)
 ifeq ($(UNAME),HP-UX)
  UPLID:=unix-HP_UX-ia64-B.11.31-acc-6.2
 else ifeq ($(UNAME),SunOS)
- UPLID:=unix-SunOS-sparc-5.10-cc-5.9
+ UPLID:=unix-SunOS-sparc-5.10-cc-5.10
 else ifeq ($(UNAME),AIX)
  UPLID:=unix-AIX-powerpc-6.1-xlc-10.1
 else ifeq ($(UNAME),Linux)
