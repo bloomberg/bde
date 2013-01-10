@@ -44,8 +44,8 @@
                              #'-std=c++11', # gcc 4.7
                               '-pthread', ],       # thread aware (not optional)
             'cflags_opt%': [ '-O2', '-fno-strict-aliasing', ],
-            'cflags_c_debug%':  [ '-g' ],
-            'cflags_cc_debug%': [ '-g' ],
+            'cflags_c_debug%':  [ '-g -fno-inline' ],
+            'cflags_cc_debug%': [ '-g -fno-inline' ],
             'cflags_cc_exc%': [ '-fexceptions', ],
             'cflags_c_extra%':  [ ],
             'cflags_cc_extra%': [ ],
