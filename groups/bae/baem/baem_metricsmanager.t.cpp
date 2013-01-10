@@ -468,8 +468,9 @@ LockAndModifyWorker::worker() {
         bcemt_LockGuard<bcemt_Mutex> guard(d_mutex_p);
         
         baem_MetricsManager::CallbackHandle handle = 
-            d_obj_p->registerCollectionCallback(d_myCategory_p,
-                                                &dummyCallback);
+            d_obj_p->registerCollectionCallback(
+                                          d_myCategory_p,
+                                          &LockAndModifyWorker::dummyCallback);
         d_obj_p->removeCollectionCallback(handle);
     }
 }
