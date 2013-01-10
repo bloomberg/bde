@@ -309,8 +309,8 @@ class TreeNodePool {
 
     void reserveNodes(std::size_t numNodes);
         // Reserve memory from this pool to satisfy memory requests for at
-        // least the specified 'numBlocks' before the pool replenishes.  The
-        // behavior is undefined unless '0 < numBlocks'.
+        // least the specified 'numNodes' before the pool replenishes.  The
+        // behavior is undefined unless '0 < numNodes'.
 
     void swap(TreeNodePool<VALUE, ALLOCATOR>& other);
         // Efficiently exchange the management of nodes of this object and
