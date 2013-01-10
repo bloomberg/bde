@@ -153,6 +153,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, Obj::TokenType value)
       CASE(BAEJSN_ERROR)
       default: stream << "(* UNKNOWN *)"; break;
     }
+    return stream;
 
 #undef CASE
 }

@@ -116,7 +116,6 @@ void testNumber()
         { L_,         -1, "-1" },
         { L_,          0, "0" },
         { L_,          1, "1" },
-        { L_,  UCHAR_MAX, "255" },
         { L_,   SHRT_MIN, "-32768" },
         { L_,   SHRT_MAX, "32767" },
         { L_,  USHRT_MAX, "65535" },
@@ -793,7 +792,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "Test signed integers" << endl;
         {
             Obj::printValue(oss, (char) -2);
-            ASSERTV("-2" == oss.str());
+            ASSERTV(oss.str(), "-2" == oss.str());
             oss.str("");
 
             Obj::printValue(oss, (short) -2);

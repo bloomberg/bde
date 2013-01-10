@@ -4,6 +4,8 @@
 #include <bdes_ident.h>
 BDES_IDENT_RCSID(baejsn_parser_cpp,"$Id$ $CSID$")
 
+#include <bdeu_chartype.h>
+
 #include <bsl_streambuf.h>
 
 // IMPLEMENTATION NOTES
@@ -142,7 +144,7 @@ int baejsn_Parser::skipNonWhitespaceOrTillToken()
 
     while (true) {
         while (iter < d_stringBuffer.length()
-            && !bsl::isspace(d_stringBuffer[iter])
+            && !bdeu_CharType::isSpace(d_stringBuffer[iter])
             && !bsl::strchr(TOKENS, d_stringBuffer[iter])) {
             ++iter;
         }

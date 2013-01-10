@@ -163,18 +163,19 @@ class baejsn_PrintUtil {
 
   public:
     static int printValue(bsl::ostream& stream, bool                    value);
-    static int printValue(bsl::ostream& stream, short                   value);
-    static int printValue(bsl::ostream& stream, int                     value);
-    static int printValue(bsl::ostream& stream, bsls::Types::Int64      value);
+    static int printValue(bsl::ostream& stream, char                    value);
+    static int printValue(bsl::ostream& stream, signed char             value);
     static int printValue(bsl::ostream& stream, unsigned char           value);
+    static int printValue(bsl::ostream& stream, short                   value);
     static int printValue(bsl::ostream& stream, unsigned short          value);
+    static int printValue(bsl::ostream& stream, int                     value);
     static int printValue(bsl::ostream& stream, unsigned int            value);
+    static int printValue(bsl::ostream& stream, bsls::Types::Int64      value);
     static int printValue(bsl::ostream& stream, bsls::Types::Uint64     value);
     static int printValue(bsl::ostream& stream, float                   value);
     static int printValue(bsl::ostream& stream, double                  value);
-    static int printValue(bsl::ostream& stream, const bsl::string&      value);
     static int printValue(bsl::ostream& stream, const char             *value);
-    static int printValue(bsl::ostream& stream, char                    value);
+    static int printValue(bsl::ostream& stream, const bsl::string&      value);
     static int printValue(bsl::ostream& stream, const bdet_Time&        value);
     static int printValue(bsl::ostream& stream, const bdet_Date&        value);
     static int printValue(bsl::ostream& stream, const bdet_Datetime&    value);
@@ -303,7 +304,9 @@ int baejsn_PrintUtil::printValue(bsl::ostream& stream, const char *value)
 inline
 int baejsn_PrintUtil::printValue(bsl::ostream& stream, char value)
 {
-    stream << static_cast<int>(value);
+    signed char tmp(value);  // Note that 'char' is unsigned on IBM.
+
+    stream << static_cast<int>(tmp);
     return 0;
 }
 

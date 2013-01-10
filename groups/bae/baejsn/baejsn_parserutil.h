@@ -279,7 +279,13 @@ int baejsn_ParserUtil::getValue(bool *value, bslstl::StringRef data)
 inline
 int baejsn_ParserUtil::getValue(char *value, bslstl::StringRef data)
 {
-    return getIntegralValue(value, data);
+    signed char tmp;  // Note that 'char' is unsigned on IBM.
+
+    const int rc = getIntegralValue(&tmp, data);
+    if (!rc) {
+        *value = tmp;
+    }
+    return rc;
 }
 
 inline
