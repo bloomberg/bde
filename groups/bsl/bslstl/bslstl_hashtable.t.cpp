@@ -1784,9 +1784,9 @@ struct hash< ::BloombergLP::bsltf::NonEqualComparableTestType> {
 namespace TestTypes
 {
 
-                            // ===========================
-                            // class AwkwardMaplikeElement
-                            // ===========================
+                       // ===========================
+                       // class AwkwardMaplikeElement
+                       // ===========================
 
 class AwkwardMaplikeElement {
     // This class provides an awkward value-semantic type, designed to be used
@@ -1918,9 +1918,9 @@ class BoolArray {
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-                            // ===============================
-                            // class GroupedEqualityComparator
-                            // ===============================
+                       // ===============================
+                       // class GroupedEqualityComparator
+                       // ===============================
 
 template <class TYPE, int GROUP_SIZE>
 class GroupedEqualityComparator {
@@ -1939,9 +1939,9 @@ class GroupedEqualityComparator {
         // representation of the specified 'rhs' divided by 'GROUP_SIZE'.
 };
 
-                            // ===================
-                            // class GroupedHasher
-                            // ===================
+                       // ===================
+                       // class GroupedHasher
+                       // ===================
 
 template <class TYPE, class HASHER, int GROUP_SIZE>
 class GroupedHasher : private HASHER {
@@ -1966,9 +1966,11 @@ class GroupedHasher : private HASHER {
 };
 
 
-                       // ====================
-                       // class TestComparator
-                       // ====================
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+                       // ============================
+                       // class TestEqualityComparator
+                       // ============================
 
 template <class TYPE>
 class TestEqualityComparator {
@@ -1991,8 +1993,8 @@ class TestEqualityComparator {
         // Create a copy of the specified 'original'.
 
     explicit TestEqualityComparator(int id = 0);
-        // Create a 'TestComparator'.  Optionally, specify 'id' that can be
-        // used to identify the object.
+        // Create a 'TestEqualityComparator'.  Optionally, specify 'id' that
+        // can be used to identify the object.
 
     // MANIPULATORS
     void setId(int value);
@@ -2004,8 +2006,6 @@ class TestEqualityComparator {
         // specified 'lhs' is less than integer representation of the specified
         // 'rhs'.
 
-    bool operator== (const TestEqualityComparator& rhs) const;
-
     int id() const;
         // Return the 'id' of this object.
 
@@ -2013,12 +2013,33 @@ class TestEqualityComparator {
         // Return the number of times 'operator()' is called.
 };
 
+template <class TYPE>
+bool operator==(const TestEqualityComparator<TYPE>& lhs,
+                const TestEqualityComparator<TYPE>& rhs);
+    // Return 'true' if the specificed 'lhs' and 'rhs' have the same value,
+    // and 'false' otherwise.  Two 'TestEqualityComparator' functors have the
+    // same value if they have the same 'id'.
+
+template <class TYPE>
+bool operator!=(const TestEqualityComparator<TYPE>& lhs,
+                const TestEqualityComparator<TYPE>& rhs);
+    // Return 'true' if the specificed 'lhs' and 'rhs' do not have the same
+    // value, and 'false' otherwise.  Two 'TestEqualityComparator' functors do
+    // not have the same value if they do not have the same 'id'.
+
                        // =====================
                        // class TestHashFunctor
                        // =====================
 
 template <class TYPE>
 class TestHashFunctor {
+    // This value-semantic class adapts a class meeting the C++11 'Hash'
+    // requirements (C++11 [hash.requirements], 17.6.3.4) with an additional
+    // 'mixer' attribute, that constitutes the value of this class, and is
+    // used to mutate the value returned from the adapted hasher when calling
+    // 'operator()'.  Note that this class privately inherits from the empty
+    // base class 'bsl::hash' in order to exploit a compiler optimization.
+
     // This test class provides a mechanism that defines a function-call
     // operator that compares two objects of the parameterized 'TYPE'.  The
     // function-call operator is implemented with integer comparison using
@@ -2037,8 +2058,15 @@ class TestHashFunctor {
         // Create a copy of the specified 'original'.
 
     explicit TestHashFunctor(int id = 0);
-        // Create a 'TestComparator'.  Optionally, specify 'id' that can be
+        // Create a 'TestHashFunctor'.  Optionally, specify 'id' that can be
         // used to identify the object.
+
+    // MANIPULATORS
+    void setId(int value);
+        // Set the 'id' of this object to the specified value.  Note that the
+        // 'id' contributes to the value produced by the 'operator()' method,
+        // so the 'id' of a 'TestHashFunctor' should not be changed for
+        // functors that are installed in 'HashTable' objects.
 
     // ACCESSORS
     native_std::size_t operator() (const TYPE& obj) const;
@@ -2047,8 +2075,6 @@ class TestHashFunctor {
         // specified 'lhs' is less than integer representation of the specified
         // 'rhs'.
 
-    bool operator== (const TestHashFunctor& rhs) const;
-
     int id() const;
         // Return the 'id' of this object.
 
@@ -2056,50 +2082,21 @@ class TestHashFunctor {
         // Return the number of times 'operator()' is called.
 };
 
-                       // ==================
-                       // class StatefulHash
-                       // ==================
-
-template <class KEY>
-class StatefulHash : private bsl::hash<KEY> {
-    // This value-semantic class adapts a class meeting the C++11 'Hash'
-    // requirements (C++11 [hash.requirements], 17.6.3.4) with an additional
-    // 'mixer' attribute, that constitutes the value of this class, and is
-    // used to mutate the value returned from the adapted hasher when calling
-    // 'operator()'.  Note that this class privately inherits from the empty
-    // base class 'bsl::hash' in order to exploit a compiler optimization.
-
-    typedef bsl::hash<KEY> Base;
-
-    template <class OTHER_KEY>
-    friend
-    bool operator==(const StatefulHash<OTHER_KEY>&,
-                    const StatefulHash<OTHER_KEY>&);
-
-  private:
-    // DATA
-    native_std::size_t d_mixer;
-
-  public:
-    explicit StatefulHash(native_std::size_t mixer = 0xffff);
-
-    void setMixer(int value);
-
-    native_std::size_t operator()(const KEY& k) const;
-};
-
-template <class KEY>
-bool operator==(const StatefulHash<KEY>& lhs, const StatefulHash<KEY>& rhs);
+template <class TYPE>
+bool operator==(const TestHashFunctor<TYPE>& lhs,
+                const TestHashFunctor<TYPE>& rhs);
     // Return 'true' if the specificed 'lhs' and 'rhs' have the same value,
-    // and 'false' otherwise.  Two 'StatefulHash' functors have the same value
-    // if they have the same 'd_mixer' value.
+    // and 'false' otherwise.  Two 'TestHashFunctor' functors have the same
+    // value if they have the same 'id'.
 
-template <class KEY>
-bool operator!=(const StatefulHash<KEY>& lhs, const StatefulHash<KEY>& rhs);
+template <class TYPE>
+bool operator!=(const TestHashFunctor<TYPE>& lhs,
+                const TestHashFunctor<TYPE>& rhs);
     // Return 'true' if the specificed 'lhs' and 'rhs' do not have the same
-    // value, and 'false' otherwise.  Two 'StatefulHash' functors do not have
-    // the same value if they do not have the same 'd_mixer' value.
+    // value, and 'false' otherwise.  Two 'TestHashFunctor' functors do not
+    // have the same value if they do not have the same 'id'.
 
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
                        // ========================
                        // class TestFacilityHasher
@@ -2122,6 +2119,8 @@ class TestFacilityHasher : private HASHER { // exploit empty base
     native_std::size_t operator() (const KEY& k) const;
         // Return a hash code for the specified 'k' using the wrapped 'HASHER'.
 };
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
                        // ================================
                        // class TestConvertibleValueHasher
@@ -2539,14 +2538,14 @@ extractTestAllocator(bsltf::StdStatefulAllocator<TYPE, A, B, C, D>& alloc);
 //       test support functions dealing with hash and comparator functors
 
 void setHasherState(bsl::hash<int> *hasher, int id);
-void setHasherState(StatefulHash<int> *hasher, int id);
+void setHasherState(TestHashFunctor<int> *hasher, int id);
 
 bool isEqualHasher(const bsl::hash<int>&, const bsl::hash<int>&);
     // Provide an overloaded function to compare hash functors.  Return 'true'
     // because 'bsl::hash' is stateless.
 
-bool isEqualHasher(const StatefulHash<int>& lhs,
-                   const StatefulHash<int>& rhs);
+bool isEqualHasher(const TestHashFunctor<int>& lhs,
+                   const TestHashFunctor<int>& rhs);
     // Provide an overloaded function to compare hash functors.  Return
     // 'lhs == rhs'.
 
@@ -2605,9 +2604,9 @@ size_t hash< ::BloombergLP::bsltf::NonEqualComparableTestType>::operator()
 
 namespace TestTypes
 {
-                            // ---------------------------
-                            // class AwkwardMaplikeElement
-                            // ---------------------------
+                       // ---------------------------
+                       // class AwkwardMaplikeElement
+                       // ---------------------------
 
 // CREATORS
 
@@ -2745,9 +2744,9 @@ size_t GroupedHasher<TYPE, HASHER, GROUP_SIZE>::operator() (const TYPE& value)
 }
 
 
-                       // --------------------
-                       // class TestComparator
-                       // --------------------
+                       // ----------------------------
+                       // class TestEqualityComparator
+                       // ----------------------------
 
 // CREATORS
 template <class TYPE>
@@ -2780,15 +2779,6 @@ bool TestEqualityComparator<TYPE>::operator() (const TYPE& lhs,
 
 template <class TYPE>
 inline
-bool TestEqualityComparator<TYPE>::operator==(
-                                       const TestEqualityComparator& rhs) const
-{
-    return (id() == rhs.id());// && d_compareLess == rhs.d_compareLess);
-}
-
-// ACCESSORS
-template <class TYPE>
-inline
 int TestEqualityComparator<TYPE>::id() const
 {
     return d_id;
@@ -2799,6 +2789,22 @@ inline
 size_t TestEqualityComparator<TYPE>::count() const
 {
     return d_count;
+}
+
+template <class TYPE>
+inline
+bool operator==(const TestEqualityComparator<TYPE>& lhs,
+                const TestEqualityComparator<TYPE>& rhs)
+{
+    return lhs.id() == rhs.id();
+}
+
+template <class TYPE>
+inline
+bool operator!=(const TestEqualityComparator<TYPE>& lhs,
+                const TestEqualityComparator<TYPE>& rhs)
+{
+    return lhs.id() != rhs.id();
 }
 
                        // ---------------------
@@ -2814,6 +2820,14 @@ TestHashFunctor<TYPE>::TestHashFunctor(int id)
 {
 }
 
+// MANIPULATORS
+template <class TYPE>
+inline
+void TestHashFunctor<TYPE>::setId(int value)
+{
+    d_id = value;
+}
+
 // ACCESSORS
 template <class TYPE>
 inline
@@ -2821,17 +2835,9 @@ native_std::size_t TestHashFunctor<TYPE>::operator() (const TYPE& obj) const
 {
     ++d_count;
 
-    return bsltf::TemplateTestFacility::getIdentifier<TYPE>(obj);
+    return bsltf::TemplateTestFacility::getIdentifier<TYPE>(obj) + d_id;
 }
 
-template <class TYPE>
-inline
-bool TestHashFunctor<TYPE>::operator== (const TestHashFunctor& rhs) const
-{
-    return (id() == rhs.id());// && d_compareLess == rhs.d_compareLess);
-}
-
-// ACCESSORS
 template <class TYPE>
 inline
 int TestHashFunctor<TYPE>::id() const
@@ -2846,45 +2852,20 @@ size_t TestHashFunctor<TYPE>::count() const
     return d_count;
 }
 
-                       // ------------------
-                       // class StatefulHash
-                       // ------------------
-
-// CREATORS
-template <class KEY>
+template <class TYPE>
 inline
-StatefulHash<KEY>::StatefulHash(native_std::size_t mixer)
-: d_mixer(mixer)
+bool operator==(const TestHashFunctor<TYPE>& lhs,
+                const TestHashFunctor<TYPE>& rhs)
 {
+    return lhs.id() != rhs.id();
 }
 
-template <class KEY>
+template <class TYPE>
 inline
-void StatefulHash<KEY>::setMixer(int value)
+bool operator!=(const TestHashFunctor<TYPE>& lhs,
+                const TestHashFunctor<TYPE>& rhs)
 {
-    d_mixer = value;
-}
-
-// ACCESSORS
-template <class KEY>
-inline
-native_std::size_t StatefulHash<KEY>::operator()(const KEY& k) const
-{
-    return Base::operator()(k) ^ d_mixer;
-}
-
-template <class KEY>
-inline
-bool operator==(const StatefulHash<KEY>& lhs, const StatefulHash<KEY>& rhs)
-{
-    return lhs.d_mixer == rhs.d_mixer;
-}
-
-template <class KEY>
-inline
-bool operator!=(const StatefulHash<KEY>& lhs, const StatefulHash<KEY>& rhs)
-{
-    return lhs.d_mixer != rhs.d_mixer;
+    return lhs.id() != rhs.id();
 }
 
                        // ------------------------
@@ -3510,20 +3491,20 @@ void setHasherState(bsl::hash<int> *hasher, int id)
 }
 
 inline
-void setHasherState(StatefulHash<int> *hasher, int id)
-{
-    hasher->setMixer(id);
-}
-
-inline
 bool isEqualHasher(const bsl::hash<int>&, const bsl::hash<int>&)
 {
     return true;
 }
 
 inline
-bool isEqualHasher(const StatefulHash<int>& lhs,
-                   const StatefulHash<int>& rhs)
+void setHasherState(TestHashFunctor<int> *hasher, int id)
+{
+    hasher->setId(id);
+}
+
+inline
+bool isEqualHasher(const TestHashFunctor<int>& lhs,
+                   const TestHashFunctor<int>& rhs)
 {
     return lhs == rhs;
 }
@@ -3986,7 +3967,7 @@ template <class ELEMENT>
 struct TestDriver_StatefulConfiguation
      : TestDriver_ForwardTestCasesByConfiguation<
            TestDriver< BasicKeyConfig<ELEMENT>
-                     , TestFacilityHasher<ELEMENT, StatefulHash<int> >
+                     , TestHashFunctor<ELEMENT>
                      , TestEqualityComparator<ELEMENT>
                      , ::bsl::allocator<ELEMENT>
                      >
