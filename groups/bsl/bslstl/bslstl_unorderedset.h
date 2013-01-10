@@ -1116,7 +1116,7 @@ template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 inline
 unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::unordered_set(
                                                const allocator_type& allocator)
-: d_impl(HASH(), EQUAL(), 0, 1.0f, allocator)
+: d_impl(allocator)
 {
 }
 

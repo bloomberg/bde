@@ -2194,6 +2194,72 @@ class GenericHasher {
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+                       // ===========================
+                       // class DefaultOnlyComparator
+                       // ===========================
+
+template <class TYPE>
+class DefaultOnlyComparator {
+    // This test class provides a mechanism that defines a function-call
+    // operator that compares two objects of the parameterized 'TYPE'.  Hoever
+    // it is a perverse type intended for testing templates against their
+    // minimum requirements, and as such is neither copyable nor swappable, and
+    // is only default constructible.  The function call operator will return
+    // a perverse type that is convertible-to-bool.
+
+  public:
+    // ACCESSORS
+    bsltf::EvilBooleanType operator() (const TYPE& lhs, const TYPE& rhs)
+        // Return 'true' if the specified 'lhs' and 'rhs' have the same value.
+    {
+        return BSL_TF_EQ(lhs, rhs);
+    }
+};
+
+                       // =======================
+                       // class DefaultOnlyHasher
+                       // =======================
+
+template <class TYPE>
+class DefaultOnlyHasher {
+    // This test class provides a mechanism that defines a function-call
+    // operator that returns the same hash for 'TYPE' values using the standard
+    // 'bsl::hash' functor.  However, this class is a perverse type intended
+    // for testing templates against their minimum requirements, and as such is
+    // neither copyable nor swappable, and is only default constructible.
+
+  private:
+    DefaultOnlyHasher(const DefaultOnlyHasher&); // = delete
+        // not implemented
+
+    void operator=(const DefaultOnlyHasher&); // = delete;
+        // not implemented
+
+    void operator&();  // = delete;
+        // not implemented
+
+    template<class T>
+    void operator,(const T&); // = delete;
+        // not implemented
+
+    template<class T>
+    void operator,(T&); // = delete;
+        // not implemented
+
+  public:
+    DefaultOnlyHasher() {}
+
+    // ACCESSORS
+    size_t operator() (const TYPE& value)
+        // Return the hash of the specified 'value'.
+    {
+        return bsl::hash<TYPE>().operator()(value);
+    }
+};
+
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
                        // =============================
                        // class FunctionPointerPolicies
                        // =============================
@@ -4105,6 +4171,29 @@ struct TestDriver_AwkwardMaplike
        > {
 };
 
+// - - - - - Special configurations for testing default constructor - - - - - -
+
+template <class ELEMENT>
+struct TestDriver_DefaultOnlyFunctors
+     : TestDriver_ForwardTestCasesByConfiguation<
+           TestDriver< BasicKeyConfig<ELEMENT>
+                     , DefaultOnlyHasher<ELEMENT>
+                     , DefaultOnlyComparator<ELEMENT>
+                     , ::bsl::allocator<ELEMENT>
+                     >
+       > {
+};
+
+struct TestDriver_AwkwardMaplikeForDefault
+     : TestDriver_ForwardTestCasesByConfiguation<
+           TestDriver< TrickyConfig
+                     , DefaultOnlyHasher<TrickyConfig::KeyType>
+                     , DefaultOnlyComparator<TrickyConfig::KeyType>
+                     , ::bsl::allocator<TrickyConfig::ValueType>
+                     >
+       > {
+};
+
 // - - - - - - - - - - - Special adapters for test case 6 - - - - - - - - - - -
 // As initially written, test case 6 requires special handling with distinct
 // functor classes to demonstrate and test the necessary key-equivalent groups.
@@ -4236,6 +4325,182 @@ template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase14()
 {
     // ------------------------------------------------------------------------
+    // TESTING DEFAULT CONSTRUCTOR:
+    //   The default constructor creates an empty container having one bucket.
+    //   However, any attempt to insert is going to allocate a new bucket
+    //   array, and any attempt to use the 'insertElement' function should fail
+    //   as it protects against such use.  The state of a default constructed
+    //   HashTable is that of a value-constructed HashTable requesting zero
+    //   initial buckets, a maximum load factor of '1.0', and default values
+    //   for the functors.  This state is extensively tested as a starting
+    //   point for most other test cases.  However, the default constructor
+    //   also allows for a different type of hasher/comparator functor that
+    //   is DefaultConstructible, but is not CopyConstructible.  Such functors
+    //   produce a HashTable that, in turn, is not CopyConstructible - but may
+    //   be Swappable if the functor, in turn, are swappable.  It is important
+    //   to test all the other methods of this class work with such a type,
+    //   although we are not really adding anything new other than constructing
+    //   into this state - therefore, the default constructor should be the
+    //   last method tested, so that it can check every other method beging
+    //   called for a type that is only default constructible, relying on their
+    //   otherwise validated behavior from known states.
+    //
+    // Concerns:
+    //: 1 An object created with the default constructor (with or without a
+    //:   supplied allocator) has the contractually specified default value.
+    //:
+    //: 2 If an allocator is NOT supplied to the default constructor, the
+    //:   default allocator in effect at the time of construction becomes the
+    //:   object allocator for the resulting object.
+    //:
+    //: 3 If an allocator IS supplied to the default constructor, that
+    //:   allocator becomes the object allocator for the resulting object.
+    //:
+    //: 4 Supplying a null allocator address has the same effect as not
+    //:   supplying an allocator.
+    //:
+    //: 5 Supplying an allocator to the default constructor has no effect on
+    //:   subsequent object values.
+    //:
+    //: 6 Any memory allocation is from the object allocator.
+    //:
+    //: 7 There is no temporary allocation from any allocator.
+    //:
+    //: 8 Every object releases any allocated memory at destruction.
+    //:
+    //: 9 QoI: The default constructor allocates no memory.
+    //:
+    // Plan:
+    //: 1 For each value of increasing length, 'L':
+    //:
+    //:   2 Using a loop-based approach, default-construct three distinct
+    //:     objects, in turn, but configured differently: (a) without passing
+    //:     an allocator, (b) passing a null allocator address explicitly,
+    //:     and (c) passing the address of a test allocator distinct from the
+    //:     default.  For each of these three iterations:  (C-1..14)
+    //:
+    //:     1 Create three 'bslma::TestAllocator' objects, and install one as
+    //:       the current default allocator (note that a ubiquitous test
+    //:       allocator is already installed as the global allocator).
+    //:
+    //:     2 Use the default constructor to dynamically create an object
+    //:       'X', with its object allocator configured appropriately (see
+    //:       P-2); use a distinct test allocator for the object's footprint.
+    //:
+    //:     3 Use the (as yet unproven) 'allocator' to ensure that its
+    //:       object allocator is properly installed.  (C-2..4)
+    //:
+    //:     4 Use the appropriate test allocators to verify that no memory is
+    //:       allocated by the default constructor.  (C-9)
+    //:
+    //:     5 Use the individual (as yet unproven) salient attribute accessors
+    //:       to verify the default-constructed value.  (C-1)
+    //:
+    //:     6 Verify that no temporary memory is allocated from the object
+    //:       allocator.  (C-7)
+    //:
+    //:     7 Verify that all object memory is released when the object is
+    //:       destroyed.  (C-8)
+    //
+    // Testing:
+    //   HashTable(const A& allocator);
+    // ------------------------------------------------------------------------
+
+    if (verbose) printf("\nTesting with various allocator configurations.\n");
+
+#if 0
+    // Create an object that all default constructed 'HashTable' objects should
+    // have the same value as.  Note that value does not depend on allocator or
+    // the ordering functors, so we take the simplest form that we have already
+    // tested back in test case 2.
+#else
+    // Change of plan, as we cannot assume that the two functor objects are
+    // copy-constructible.l
+#endif
+
+    bslma::TestAllocator da("default",   veryVeryVeryVerbose);
+    bslma::DefaultAllocatorGuard dag(&da);
+
+    const ALLOCATOR dfltAlloc = MakeAllocator<ALLOCATOR>::make(&da);
+//    const Obj DEFAULT(HASHER(), COMPARATOR(), 0, 1.0, dfltAlloc);
+
+    const char *ALLOC_SPEC = ObjMaker::specForDefaultTests();
+
+    for (const char *cfg = ALLOC_SPEC; *cfg; ++cfg) {
+        const char CONFIG = *cfg;  // how we specify the allocator
+
+        bslma::TestAllocator fa("footprint", veryVeryVeryVerbose);
+        bslma::TestAllocator sa("supplied",  veryVeryVeryVerbose);
+
+        // ----------------------------------------------------------------
+
+        if (veryVerbose) {
+            printf("\n\tTesting default constructor.\n");
+        }
+
+        Obj       *objPtr;
+        ALLOCATOR  expAlloc = ObjMaker::makeObject(&objPtr,
+                                                   CONFIG,
+                                                   &fa,
+                                                   &sa);
+        Obj& mX = *objPtr;  const Obj& X = mX;
+
+        // Verify any attribute allocators are installed properly.
+
+        ASSERTV(CONFIG, expAlloc == X.allocator());
+
+        const bslma::TestAllocator  *oa = extractTestAllocator(expAlloc);
+        const bslma::TestAllocator *noa = &sa == oa ? &da : &sa;
+
+        // It is important that these allocators are found, or else the
+        // following tests will break severely, dereferencing null
+        // pointer.
+
+        BSLS_ASSERT_OPT(oa);
+        BSLS_ASSERT_OPT(noa);
+
+        // Confirm the expected state.
+
+        ASSERTV(CONFIG, 0 == X.size());
+        ASSERTV(CONFIG, 1 == X.numBuckets());
+        ASSERTV(CONFIG, 0 == X.elementListRoot());
+        ASSERTV(CONFIG, 1.0f == X.maxLoadFactor());
+        ASSERTV(CONFIG, 0.0f == X.loadFactor());
+        ASSERTV(CONFIG, 0 == X.countElementsInBucket(0));
+
+        const bslalg::HashTableBucket& bucket = X.bucketAtIndex(0);
+        ASSERTV(CONFIG, 0 == bucket.first());
+        ASSERTV(CONFIG, 0 == bucket.last());
+
+//        ASSERTV(CONFIG, isEqualComparator(COMPARATOR(), X.comparator()));
+//        ASSERTV(CONFIG, isEqualHasher(HASHER(), X.hasher()));
+
+        // Add any additional fine-grained tests that might be interesting.
+
+
+        // Verify no allocation from the object/non-object allocators.
+
+        ASSERTV(CONFIG,  oa->numBlocksTotal(), 0 ==  oa->numBlocksTotal());
+        ASSERTV(CONFIG, noa->numBlocksTotal(), 0 == noa->numBlocksTotal());
+
+        // ----------------------------------------------------------------
+
+        // Reclaim dynamically allocated object under test.
+
+        fa.deleteObject(objPtr);
+
+        // Verify all memory is released on object destruction.
+
+        ASSERTV(CONFIG, da.numBlocksInUse(), 0 == da.numBlocksInUse());
+        ASSERTV(CONFIG, fa.numBlocksInUse(), 0 == fa.numBlocksInUse());
+        ASSERTV(CONFIG, sa.numBlocksInUse(), 0 == sa.numBlocksInUse());
+    }
+}
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase13()
+{
+    // ------------------------------------------------------------------------
     // TESTING setMaxLoadFactor METHOD
     //
     // Concerns:
@@ -4322,7 +4587,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase14()
 }
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
-void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase13()
+void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase12()
 {
     // ------------------------------------------------------------------------
     // TESTING 'insert' METHODS
@@ -4853,7 +5118,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase13()
 }
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
-void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase12()
+void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase11()
 {
     // ------------------------------------------------------------------------
     // TESTING REHASH METHODS
@@ -5044,160 +5309,6 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase12()
 //            const Obj& Z = gg(&mZ,  SPEC);
 //        }
 #endif
-    }
-}
-
-template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
-void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase11()
-{
-    // ------------------------------------------------------------------------
-    // TESTING DEFAULT CONSTRUCTOR:
-    //   In addition to the default constructor, we want to be able to insert
-    //   elements without worrying about breaking the max load factor and
-    //   forcing a rehash, otherwise we can test only creating empty containers
-    //   but not their behavior under subsequent operations.  Therefore, this
-    //   test case will also verify the basic 'insert' function, which will be
-    //   certified for use as our preferred primary manipulator in following
-    //   test cases.
-    //
-    // Concerns:
-    //: 1 An object created with the default constructor (with or without a
-    //:   supplied allocator) has the contractually specified default value.
-    //:
-    //: 2 If an allocator is NOT supplied to the default constructor, the
-    //:   default allocator in effect at the time of construction becomes the
-    //:   object allocator for the resulting object.
-    //:
-    //: 3 If an allocator IS supplied to the default constructor, that
-    //:   allocator becomes the object allocator for the resulting object.
-    //:
-    //: 4 Supplying a null allocator address has the same effect as not
-    //:   supplying an allocator.
-    //:
-    //: 5 Supplying an allocator to the default constructor has no effect on
-    //:   subsequent object values.
-    //:
-    //: 6 Any memory allocation is from the object allocator.
-    //:
-    //: 7 There is no temporary allocation from any allocator.
-    //:
-    //: 8 Every object releases any allocated memory at destruction.
-    //:
-    //: 9 QoI: The default constructor allocates no memory.
-    //:
-    // Plan:
-    //: 1 For each value of increasing length, 'L':
-    //:
-    //:   2 Using a loop-based approach, default-construct three distinct
-    //:     objects, in turn, but configured differently: (a) without passing
-    //:     an allocator, (b) passing a null allocator address explicitly,
-    //:     and (c) passing the address of a test allocator distinct from the
-    //:     default.  For each of these three iterations:  (C-1..14)
-    //:
-    //:     1 Create three 'bslma::TestAllocator' objects, and install one as
-    //:       the current default allocator (note that a ubiquitous test
-    //:       allocator is already installed as the global allocator).
-    //:
-    //:     2 Use the default constructor to dynamically create an object
-    //:       'X', with its object allocator configured appropriately (see
-    //:       P-2); use a distinct test allocator for the object's footprint.
-    //:
-    //:     3 Use the (as yet unproven) 'allocator' to ensure that its
-    //:       object allocator is properly installed.  (C-2..4)
-    //:
-    //:     4 Use the appropriate test allocators to verify that no memory is
-    //:       allocated by the default constructor.  (C-9)
-    //:
-    //:     5 Use the individual (as yet unproven) salient attribute accessors
-    //:       to verify the default-constructed value.  (C-1)
-    //:
-    //:     6 Verify that no temporary memory is allocated from the object
-    //:       allocator.  (C-7)
-    //:
-    //:     7 Verify that all object memory is released when the object is
-    //:       destroyed.  (C-8)
-    //
-    // Testing:
-    //   HashTable(const A& allocator);
-    // ------------------------------------------------------------------------
-
-    if (verbose) printf("\nTesting with various allocator configurations.\n");
-
-    // Create an object that all default constructed 'HashTable' objects should
-    // have the same value as.  Note that value does not depend on allocator or
-    // the ordering functors, so we take the simplest form that we have already
-    // tested back in test case 2.
-
-    bslma::TestAllocator da("default",   veryVeryVeryVerbose);
-    bslma::DefaultAllocatorGuard dag(&da);
-
-    const ALLOCATOR dfltAlloc = MakeAllocator<ALLOCATOR>::make(&da);
-    const Obj DEFAULT(HASHER(), COMPARATOR(), 0, 1.0, dfltAlloc);
-
-    const char *ALLOC_SPEC = ObjMaker::specForDefaultTests();
-
-    for (const char *cfg = ALLOC_SPEC; *cfg; ++cfg) {
-        const char CONFIG = *cfg;  // how we specify the allocator
-
-        bslma::TestAllocator fa("footprint", veryVeryVeryVerbose);
-        bslma::TestAllocator sa("supplied",  veryVeryVeryVerbose);
-
-        // ----------------------------------------------------------------
-
-        if (veryVerbose) {
-            printf("\n\tTesting default constructor.\n");
-        }
-
-        Obj       *objPtr;
-        ALLOCATOR  expAlloc = ObjMaker::makeObject(&objPtr,
-                                                   CONFIG,
-                                                   &fa,
-                                                   &sa);
-        Obj& mX = *objPtr;  const Obj& X = mX;
-
-        // Verify any attribute allocators are installed properly.
-
-        ASSERTV(CONFIG, expAlloc == X.allocator());
-
-        const bslma::TestAllocator  *oa = extractTestAllocator(expAlloc);
-        const bslma::TestAllocator *noa = &sa == oa ? &da : &sa;
-
-        // It is important that these allocators are found, or else the
-        // following tests will break severely, dereferencing null
-        // pointer.
-
-        BSLS_ASSERT_OPT(oa);
-        BSLS_ASSERT_OPT(noa);
-
-        // Confirm the expected state.
-
-        ASSERTV(CONFIG, DEFAULT == X);
-        ASSERTV(CONFIG, 1.0f == X.maxLoadFactor());
-//        ASSERTV(CONFIG, isEqualComparator(COMPARATOR(), X.comparator()));
-//        ASSERTV(CONFIG, isEqualHasher(HASHER(), X.hasher()));
-
-        // Add any additional fine-grained tests that might be interesting.
-
-        ASSERTV(CONFIG, 0 == X.size());
-        ASSERTV(CONFIG, 1 == X.numBuckets());
-        ASSERTV(CONFIG, 0 == X.elementListRoot());
-
-        // Verify no allocation from the object/non-object allocators.
-
-        ASSERTV(CONFIG,  oa->numBlocksTotal(), 0 ==  oa->numBlocksTotal());
-        ASSERTV(CONFIG, noa->numBlocksTotal(), 0 == noa->numBlocksTotal());
-
-        // ----------------------------------------------------------------
-
-        // Reclaim dynamically allocated object under test.
-
-        fa.deleteObject(objPtr);
-
-        // Verify all memory is released on object destruction.
-
-        ASSERTV(CONFIG, da.numBlocksInUse(), 0 == da.numBlocksInUse());
-        ASSERTV(CONFIG, fa.numBlocksInUse(), 0 == fa.numBlocksInUse());
-        ASSERTV(CONFIG, sa.numBlocksInUse(), 0 == sa.numBlocksInUse());
     }
 }
 
@@ -7783,6 +7894,162 @@ static
 void mainTestCase14()
 {
         // --------------------------------------------------------------------
+        // DEFAULT CONSTRUCTOR
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTesting default constructor"
+                            "\n===========================\n");
+
+        if (verbose) printf("\nTesting basic configurations"
+                            "\n----------------------------\n");
+        RUN_EACH_TYPE(TestDriver_BasicConfiguation,
+                      testCase14,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      bsltf::NonAssignableTestType,
+                      bsltf::NonDefaultConstructibleTestType);
+
+        if (verbose) printf("\nTesting non-copyable functors"
+                            "\n-----------------------------\n");
+        // This is the use case we are most concerned about.
+        // We probably want to test with a smattering of the following
+        // concerns as well, notably with the different allocator patterns.
+        RUN_EACH_TYPE(TestDriver_DefaultOnlyFunctors,
+                      testCase14,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      bsltf::NonAssignableTestType,
+                      bsltf::NonDefaultConstructibleTestType);
+
+#if !defined(BSLS_PLATFORM_CMP_IBM)
+        // We need to limit the test coverage on IBM as the compiler cannot
+        // cope with so many template instantiations.
+
+        if (verbose) printf("\nTesting stateful functors"
+                            "\n-------------------------\n");
+        RUN_EACH_TYPE(TestDriver_StatefulConfiguation,
+                      testCase14,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      bsltf::NonAssignableTestType,
+                      bsltf::NonDefaultConstructibleTestType);
+
+#if 0
+        // These configurations not available, as functors are not default
+        // constructible.
+
+        if (verbose) printf("\nTesting degenerate functors"
+                            "\n---------------------------\n");
+        RUN_EACH_TYPE(TestDriver_DegenerateConfiguation,
+                      testCase14,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      bsltf::NonAssignableTestType,
+                      bsltf::NonDefaultConstructibleTestType);
+
+        if (verbose) printf("\nTesting degenerate functors without swap"
+                            "\n----------------------------------------\n");
+        RUN_EACH_TYPE(TestDriver_DegenerateConfiguationWithNoSwap,
+                      testCase14,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      bsltf::NonAssignableTestType,
+                      bsltf::NonDefaultConstructibleTestType);
+#endif
+
+        if (verbose) printf("\nTesting 'bsltf' configuration"
+                            "\n-----------------------------\n");
+        RUN_EACH_TYPE(TestDriver_BsltfConfiguation,
+                      testCase14,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      bsltf::NonAssignableTestType,
+                      bsltf::NonDefaultConstructibleTestType);
+
+        if (verbose) printf("\nTesting pointers for functors"
+                            "\n-----------------------------\n");
+        RUN_EACH_TYPE(TestDriver_FunctionPointers,
+                      testCase14,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      bsltf::NonAssignableTestType,
+                      bsltf::NonDefaultConstructibleTestType);
+
+        if (verbose) printf("\nTesting functors taking generic arguments"
+                            "\n-----------------------------------------\n");
+        RUN_EACH_TYPE(TestDriver_GenericFunctors,
+                      testCase14,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      bsltf::NonAssignableTestType,
+                      bsltf::NonDefaultConstructibleTestType);
+
+#if 0
+        // The stateless allocator flags issues installing the chosen allocator
+        // when it is not the default.
+
+        if (verbose) printf("\nTesting stateless STL allocators"
+                            "\n--------------------------------\n");
+        RUN_EACH_TYPE(TestDriver_StdAllocatorConfiguation,
+                      testCase14,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      bsltf::NonAssignableTestType,
+                      bsltf::NonDefaultConstructibleTestType);
+#endif
+
+        if (verbose) printf("\nTesting stateful STL allocators"
+                            "\n-------------------------------\n");
+        RUN_EACH_TYPE(TestDriver_StatefulAllocatorConfiguation1,
+                      testCase14,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      bsltf::NonAssignableTestType,
+                      bsltf::NonDefaultConstructibleTestType);
+
+        RUN_EACH_TYPE(TestDriver_StatefulAllocatorConfiguation2,
+                      testCase14,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      bsltf::NonAssignableTestType,
+                      bsltf::NonDefaultConstructibleTestType);
+
+        RUN_EACH_TYPE(TestDriver_StatefulAllocatorConfiguation3,
+                      testCase14,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      bsltf::NonAssignableTestType,
+                      bsltf::NonDefaultConstructibleTestType);
+
+        // Be sure to bootstrap the special 'grouped' configurations used in
+        // test case 6.
+        if (verbose) printf("\nTesting grouped hash with unique key values"
+                            "\n-------------------------------------------\n");
+
+        // These 3 cases do not have unique keys, which fools the final part of
+        // the basic test case.  Will review test logic later, to re-enable
+        // these tests.
+        RUN_EACH_TYPE(TestCase_GroupedUniqueKeys,
+                      testCase14,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      bsltf::NonAssignableTestType,
+                      bsltf::NonDefaultConstructibleTestType);
+
+#if 0
+        RUN_EACH_TYPE(TestCase6_DegenerateConfiguration,
+                      testCase11,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      bsltf::NonAssignableTestType,
+                      bsltf::NonDefaultConstructibleTestType);
+
+        RUN_EACH_TYPE(TestCase6_DegenerateConfigurationNoSwap,
+                      testCase11,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      bsltf::NonAssignableTestType,
+                      bsltf::NonDefaultConstructibleTestType);
+#endif
+
+#endif
+
+    // Remaining special cases
+        if (verbose) printf("\nTesting degenerate map-like"
+                            "\n---------------------------\n");
+        TestDriver_AwkwardMaplike::testCase14();
+        TestDriver_AwkwardMaplikeForDefault::testCase14();
+}
+
+static
+void mainTestCase13()
+{
+        // --------------------------------------------------------------------
         //  TESTING 'setMaxLoadFactor'
         // --------------------------------------------------------------------
 
@@ -7816,7 +8083,7 @@ void mainTestCase14()
 }
 
 static
-void mainTestCase13()
+void mainTestCase12()
 {
         // --------------------------------------------------------------------
         // TESTING 'insert'
@@ -7826,17 +8093,17 @@ void mainTestCase13()
                             "\n==========================\n");
 
         RUN_EACH_TYPE(TestDriver_BasicConfiguation,
-                      testCase13,
+                      testCase12,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
 
         RUN_EACH_TYPE(TestDriver_StatefulConfiguation,
-                      testCase13,
+                      testCase12,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
 
 }
 
 static
-void mainTestCase12()
+void mainTestCase11()
 {
         // --------------------------------------------------------------------
         // TESTING 'rehashFor...' FUNCTIONS
@@ -7848,139 +8115,6 @@ void mainTestCase12()
         if (verbose) printf("\nTesting basic configurations"
                             "\n----------------------------\n");
         RUN_EACH_TYPE(TestDriver_BasicConfiguation,
-                      testCase12,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                      bsltf::NonAssignableTestType,
-                      bsltf::NonDefaultConstructibleTestType);
-
-#if !defined(BSLS_PLATFORM_CMP_IBM)
-        // We need to limit the test coverage on IBM as the compiler cannot
-        // cope with so many template instantiations.
-
-        if (verbose) printf("\nTesting stateful functors"
-                            "\n-------------------------\n");
-        RUN_EACH_TYPE(TestDriver_StatefulConfiguation,
-                      testCase12,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                      bsltf::NonAssignableTestType,
-                      bsltf::NonDefaultConstructibleTestType);
-
-        if (verbose) printf("\nTesting degenerate functors"
-                            "\n---------------------------\n");
-        RUN_EACH_TYPE(TestDriver_DegenerateConfiguation,
-                      testCase12,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                      bsltf::NonAssignableTestType,
-                      bsltf::NonDefaultConstructibleTestType);
-
-        if (verbose) printf("\nTesting degenerate functors without swap"
-                            "\n----------------------------------------\n");
-        RUN_EACH_TYPE(TestDriver_DegenerateConfiguationWithNoSwap,
-                      testCase12,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                      bsltf::NonAssignableTestType,
-                      bsltf::NonDefaultConstructibleTestType);
-
-        if (verbose) printf("\nTesting 'bsltf' configuration"
-                            "\n-----------------------------\n");
-        RUN_EACH_TYPE(TestDriver_BsltfConfiguation,
-                      testCase12,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                      bsltf::NonAssignableTestType,
-                      bsltf::NonDefaultConstructibleTestType);
-
-        if (verbose) printf("\nTesting pointers for functors"
-                            "\n-----------------------------\n");
-        RUN_EACH_TYPE(TestDriver_FunctionPointers,
-                      testCase12,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                      bsltf::NonAssignableTestType,
-                      bsltf::NonDefaultConstructibleTestType);
-
-        if (verbose) printf("\nTesting functors taking generic arguments"
-                            "\n-----------------------------------------\n");
-        RUN_EACH_TYPE(TestDriver_GenericFunctors,
-                      testCase12,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                      bsltf::NonAssignableTestType,
-                      bsltf::NonDefaultConstructibleTestType);
-
-#if 0
-        if (verbose) printf("\nTesting stateless STL allocators"
-                            "\n--------------------------------\n");
-        RUN_EACH_TYPE(TestDriver_StdAllocatorConfiguation,
-                      testCase12,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                      bsltf::NonAssignableTestType,
-                      bsltf::NonDefaultConstructibleTestType);
-#endif
-
-        if (verbose) printf("\nTesting stateful STL allocators"
-                            "\n-------------------------------\n");
-        RUN_EACH_TYPE(TestDriver_StatefulAllocatorConfiguation1,
-                      testCase12,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                      bsltf::NonAssignableTestType,
-                      bsltf::NonDefaultConstructibleTestType);
-
-        RUN_EACH_TYPE(TestDriver_StatefulAllocatorConfiguation2,
-                      testCase12,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                      bsltf::NonAssignableTestType,
-                      bsltf::NonDefaultConstructibleTestType);
-
-        RUN_EACH_TYPE(TestDriver_StatefulAllocatorConfiguation3,
-                      testCase12,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                      bsltf::NonAssignableTestType,
-                      bsltf::NonDefaultConstructibleTestType);
-
-        // Be sure to bootstrap the special 'grouped' configurations used in
-        // test case 6.
-        if (verbose) printf("\nTesting grouped hash with unique key values"
-                            "\n-------------------------------------------\n");
-
-        // These 3 cases do not have unique keys, which fools the final part of
-        // the basic test case.  Will review test logic later, to re-enable
-        // these tests.
-        RUN_EACH_TYPE(TestCase_GroupedUniqueKeys,
-                      testCase12,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                      bsltf::NonAssignableTestType,
-                      bsltf::NonDefaultConstructibleTestType);
-
-        RUN_EACH_TYPE(TestCase6_DegenerateConfiguration,
-                      testCase12,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                      bsltf::NonAssignableTestType,
-                      bsltf::NonDefaultConstructibleTestType);
-
-        RUN_EACH_TYPE(TestCase6_DegenerateConfigurationNoSwap,
-                      testCase12,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                      bsltf::NonAssignableTestType,
-                      bsltf::NonDefaultConstructibleTestType);
-#endif
-
-        // Remaining special cases
-        if (verbose) printf("\nTesting degenerate map-like"
-                            "\n---------------------------\n");
-        TestDriver_AwkwardMaplike::testCase12();
-}
-
-static
-void mainTestCase11()
-{
-        // --------------------------------------------------------------------
-        // DEFAULT CONSTRUCTOR
-        // --------------------------------------------------------------------
-
-        if (verbose) printf("\nTesting default constructor"
-                            "\n===========================\n");
-
-        if (verbose) printf("\nTesting basic configurations"
-                            "\n----------------------------\n");
-        RUN_EACH_TYPE(TestDriver_BasicConfiguation,
                       testCase11,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
                       bsltf::NonAssignableTestType,
@@ -7998,10 +8132,6 @@ void mainTestCase11()
                       bsltf::NonAssignableTestType,
                       bsltf::NonDefaultConstructibleTestType);
 
-#if 0
-        // These configurations not available, as functors are not default
-        // constructible.
-
         if (verbose) printf("\nTesting degenerate functors"
                             "\n---------------------------\n");
         RUN_EACH_TYPE(TestDriver_DegenerateConfiguation,
@@ -8017,7 +8147,6 @@ void mainTestCase11()
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
                       bsltf::NonAssignableTestType,
                       bsltf::NonDefaultConstructibleTestType);
-#endif
 
         if (verbose) printf("\nTesting 'bsltf' configuration"
                             "\n-----------------------------\n");
@@ -8044,9 +8173,6 @@ void mainTestCase11()
                       bsltf::NonDefaultConstructibleTestType);
 
 #if 0
-        // The stateless allocator flags issues installing the chosen allocator
-        // when it is not the default.
-
         if (verbose) printf("\nTesting stateless STL allocators"
                             "\n--------------------------------\n");
         RUN_EACH_TYPE(TestDriver_StdAllocatorConfiguation,
@@ -8090,7 +8216,6 @@ void mainTestCase11()
                       bsltf::NonAssignableTestType,
                       bsltf::NonDefaultConstructibleTestType);
 
-#if 0
         RUN_EACH_TYPE(TestCase6_DegenerateConfiguration,
                       testCase11,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
@@ -8102,8 +8227,6 @@ void mainTestCase11()
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
                       bsltf::NonAssignableTestType,
                       bsltf::NonDefaultConstructibleTestType);
-#endif
-
 #endif
 
         // Remaining special cases

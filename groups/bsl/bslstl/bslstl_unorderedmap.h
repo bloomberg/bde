@@ -1549,7 +1549,7 @@ template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 inline
 unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::unordered_map(
                                                const allocator_type& allocator)
-: d_impl(HASH(), EQUAL(), 0, 1.0f, allocator)
+: d_impl(allocator)
 {
 }
 

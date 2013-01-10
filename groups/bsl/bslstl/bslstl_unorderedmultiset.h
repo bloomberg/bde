@@ -1179,7 +1179,7 @@ unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::unordered_multiset(
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::unordered_multiset(
                                                const allocator_type& allocator)
-: d_impl(HASH(), EQUAL(), 0, 1.0f, allocator)
+: d_impl(allocator)
 {
 }
 
