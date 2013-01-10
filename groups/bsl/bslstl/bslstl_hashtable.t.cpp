@@ -158,7 +158,7 @@ using namespace BloombergLP;
 //*[  ] remove(bslalg::BidirectionalLink *node);
 //*[ 2] removeAll();
 //*[12] rehashForNumBuckets(SizeType newNumBuckets);
-//*[12] rehashForNumElements(SizeType numElements);
+//*[12] reserveForNumElements(SizeType numElements);
 //*[14] setMaxLoadFactor(float loadFactor);
 //*[ 8] swap(HashTable& other);
 //
@@ -1779,6 +1779,8 @@ struct hash< ::BloombergLP::bsltf::NonEqualComparableTestType> {
 
 }  // close namespace bsl
 
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
 namespace TestTypes
 {
 
@@ -1840,6 +1842,8 @@ bool operator!=(const AwkwardMaplikeElement& lhs,
 void debugprint(const AwkwardMaplikeElement& value);
 
 }  // close namespace TestTypes
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 namespace BloombergLP {
 namespace bslstl {
@@ -4877,7 +4881,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase12()
     //: 1 'rehashForNumBuckets' allocates at least the specified number of
     //:   buckets.
     //:
-    //: 2 'rehashForNumElements' allocates sufficient buckets so that, after
+    //: 2 'reserveForNumElements' allocates sufficient buckets so that, after
     //:   the rehash, 'numBuckets() / maxLoadFactor()' >= the specified number
     //:   of elements.
     //:
@@ -4889,7 +4893,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase12()
     //: 5 'rehashForNumBuckets' is a no-op if the requested number of buckets
     //:   is less than the current 'numBuckets' in the object.
     //:
-    //: 6 'rehashForNumElements' is a no-op if the requested number of elements
+    //: 6 'reserveForNumElements' is a no-op if the requested number of elements
     //:   can already be accommodated without exceeding the 'maxLoadFactor' of
     //:   the object.
     //:
@@ -4905,10 +4909,10 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase12()
     //:10 'rehashForNumBuckets' will reset the object to an empty container,
     //:   without leaking memory or objects, if a hasher throws.
     //:
-    //:11 'rehashForNumElements' provides the strong exception guarantee if the
+    //:11 'reserveForNumElements' provides the strong exception guarantee if the
     //:   hasher does not throw.
     //:
-    //:12 'rehashForNumElements' will reset the object to an empty container,
+    //:12 'reserveForNumElements' will reset the object to an empty container,
     //:   without leaking memory or objects, if a hasher throws.
     //:
     //
@@ -4917,7 +4921,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase12()
     //
     // Testing:
     //   rehashForNumBuckets(SizeType newNumBuckets);
-    //   rehashForNumElements(SizeType numElements);
+    //   reserveForNumElements(SizeType numElements);
     // ------------------------------------------------------------------------
 
     if (verbose) printf(
@@ -9149,7 +9153,7 @@ void mainTestCase1()
         mX.removeAll();
 
         mX.rehashForNumBuckets(0);
-        mX.rehashForNumElements(0);
+        mX.reserveForNumElements(0);
 
 #if defined(BDE_BUILD_TARGET_EXC)
         // The call to 'setMaxLoadFactor' may try to allocate a lot of memory

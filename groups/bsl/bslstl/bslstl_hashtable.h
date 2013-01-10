@@ -2039,17 +2039,18 @@ class HashTable {
         // allocated in order to preserve the bucket allocation strategy of the
         // hash table (but never fewer).
 
-    void rehashForNumElements(SizeType numElements);
+    void reserveForNumElements(SizeType numElements);
         // Re-organize this hash-table to have a sufficient number of buckets
         // to accommodate at least the specified 'numElements' without
-        // exceeding the 'maxLoadFactor'.  If this function tries to
-        // allocate a number of buckets larger than can be represented by this
-        // hash table's 'SizeType', a 'std::length_error' exception will be
-        // thrown.  This operation provides the strong exception guarantee (see
-        // {'bsldoc_glossary'}) unless the 'hasher' throws, in which case this
-        // operation provides the basic exception guarantee, leaving the
-        // hash-table in a valid, but otherwise unspecified (and potentially
-        // empty), state.
+        // exceeding the 'maxLoadFactor', and ensure that that there are
+        // sufficient nodes pre-allocated in this object's node pool.  If this
+        // function tries to allocate a number of buckets larger than can be
+        // represented by this hash table's 'SizeType', a 'std::length_error'
+        // exception will be thrown.  This operation provides the strong
+        // exception guarantee (see {'bsldoc_glossary'}) unless the 'hasher'
+        // throws, in which case this operation provides the basic exception
+        // guarantee, leaving the hash-table in a valid, but otherwise
+        // unspecified (and potentially empty), state.
 
     void setMaxLoadFactor(float newMaxLoadFactor);
         // Set the maximum load factor permitted by this hash table to the
@@ -3285,9 +3286,15 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::rehashForNumBuckets(
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 inline
 void
-HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::rehashForNumElements(
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::reserveForNumElements(
                                                           SizeType numElements)
 {
+    if (numElements < 1) {
+        // Early return avoids undefined behavior in the node factory.
+        return;                                                       // RETURN
+    }
+
+    d_parameters.nodeFactory().reserveNodes(numElements);
     if (numElements > d_capacity) {
         // Compute a "good" number of buckets, e.g., pick a prime number
         // from a sorted array of exponentially increasing primes.

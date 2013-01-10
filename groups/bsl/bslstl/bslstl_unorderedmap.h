@@ -1804,7 +1804,7 @@ void
 unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::reserve(
                                                          size_type numElements)
 {
-    d_impl.rehashForNumElements(numElements);
+    d_impl.reserveForNumElements(numElements);
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
