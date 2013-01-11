@@ -1,14 +1,13 @@
 // bslalg_scalardestructionprimitives.t.cpp                           -*-C++-*-
 
 #include <bslalg_scalardestructionprimitives.h>
-
 #include <bslalg_scalarprimitives.h>             // for testing only
-#include <bslma_usesbslmaallocator.h>            // for testing only
-#include <bslmf_istriviallycopyable.h>           // for testing only
 
 #include <bslma_allocator.h>                     // for testing only
 #include <bslma_default.h>                       // for testing only
 #include <bslma_testallocator.h>                 // for testing only
+#include <bslma_usesbslmaallocator.h>            // for testing only
+#include <bslmf_istriviallycopyable.h>           // for testing only
 #include <bsls_alignmentutil.h>                  // for testing only
 #include <bsls_assert.h>                         // for testing only
 #include <bsls_asserttest.h>                     // for testing only
