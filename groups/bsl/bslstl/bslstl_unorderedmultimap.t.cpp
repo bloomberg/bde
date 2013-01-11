@@ -104,8 +104,9 @@ void aSsErT(bool b, const char *s, int i)
 #define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
 //=============================================================================
-//                              TEST SUPPORT
+//                             BSL TEST SUPPORT
 //-----------------------------------------------------------------------------
+
 namespace bsl {
 
 // set-specific print function.
@@ -140,11 +141,20 @@ void debugPrint(
 
 }  // close namespace bsl
 
-bool g_verbose;
-bool g_veryVerbose;
-bool g_veryVeryVerbose;
-bool g_veryVeryVeryVerbose;
-bool g_veryVeryVeryVeryVerbose;
+//=============================================================================
+//                     GLOBAL VARIABLES / TYPES / FUNCTIOONS
+//-----------------------------------------------------------------------------
+
+bool             verbose;
+bool         veryVerbose;
+bool     veryVeryVerbose;
+bool veryVeryVeryVerbose;
+
+//=============================================================================
+//                              BREATHING TEST
+//-----------------------------------------------------------------------------
+
+namespace BREATHING_TEST {
 
 template<class CONTAINER>
 const typename CONTAINER::key_type
@@ -527,41 +537,19 @@ void testErase(CONTAINER& mX)
     testEmptyContainer(mX);
 }
 
+}  // close namespace BREATING_TEST
+
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
-namespace {
-    template <class TYPE>
-    struct MyHashFunctor {
-        std::size_t operator()(const TYPE& value) const
-        {
-            return static_cast<std::size_t>(value);
-        }
-
-    };
-
-    template <>
-    struct MyHashFunctor<int> {
-        std::size_t operator()(int value) const
-        {
-            return static_cast<std::size_t>(value);
-            // return static_cast<std::size_t>(bdeu_HashUtil::hash1(value));
-        }
-    };
-}  // close unnamed namespace
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-    bool             verbose = argc > 2;
-    bool         veryVerbose = argc > 3;
-    bool     veryVeryVerbose = argc > 4;
-    bool veryVeryVeryVerbose = argc > 5;
-
-                g_verbose =             verbose;
-            g_veryVerbose =         veryVerbose;
-        g_veryVeryVerbose =     veryVeryVerbose;
-    g_veryVeryVeryVerbose = veryVeryVeryVerbose;
+    int test            = argc > 1 ? atoi(argv[1]) : 0;
+    verbose             = argc > 2;
+    veryVerbose         = argc > 3;
+    veryVeryVerbose     = argc > 4;
+    veryVeryVeryVerbose = argc > 5;
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
@@ -570,6 +558,7 @@ int main(int argc, char *argv[])
 
     switch (test) { case 0:
       case 2: {
+#ifndef DONT_DO_USAGE
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -1891,6 +1880,7 @@ if (verbose) {
 // an inverse concordance, and how to use the inverse concordance to find the
 // context (surrouding words) of a word of interest.
         }
+#endif // !defined(DONT_DO_USAGE)
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -1912,6 +1902,8 @@ if (verbose) {
 
         if (verbose) printf("\nBREATHING TEST"
                             "\n==============\n");
+
+        using namespace BREATHING_TEST;
 
         typedef bsl::unordered_multimap<int, int > TestType;
 
