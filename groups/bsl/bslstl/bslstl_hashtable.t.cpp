@@ -88,8 +88,8 @@ using namespace BloombergLP;
 // unrelated to value.  As this is an operation we prefer to defer testing
 // until after the initial ten value semantic test cases, we create an
 // 'insertElement' function that checks if an insert would trigger a rehash
-// before proceeding.  This becomes our primary minipulator, coupled with a
-// strategy to always reserve enough space at construction to accomodate all
+// before proceeding.  This becomes our primary manipulator, coupled with a
+// strategy to always reserve enough space at construction to accommodate all
 // the values inserted for that test scenario.  This is then sufficient to
 // bring the object to any valid state.
 //
@@ -111,13 +111,13 @@ using namespace BloombergLP;
 //: o 'bucketIndexForKey'
 //
 // We note that of the basic accessors, only 'size' and 'elementListRoot'
-// contribute to valuee; while none of the others are salient to value, they
+// contribute to value; while none of the others are salient to value, they
 // are important for maintaining the efficient indexing of the container.
 //
 // One unusual aspect of this class is that the default constructor creates
 // an empty container with no space reserved for elements to insert.  As we
 // are avoiding rehash operations, this means we must use the value constructor
-// through the value semantic bootstrap tests, which does allow us to specifcy
+// through the value semantic bootstrap tests, which does allow us to specify
 // an initial capacity.  Further, the default constructor has a more minimal
 // set of requirements on the template arguments than other constructors, so we
 // will test this constructor as the very final test case, to confirm that all
@@ -1897,11 +1897,9 @@ class BoolArray {
     size_t  d_size;
 
   private:
+    // NOT IMPLEMENTED
     BoolArray(const BoolArray&); // = delete;
-        // not implemented
-
     BoolArray& operator=(const BoolArray&);  // = delete
-        // not implemented
 
   public:
     // CREATORS
@@ -2239,24 +2237,20 @@ class DefaultOnlyHasher {
     // neither copyable nor swappable, and is only default constructible.
 
   private:
+    // NOT IMPLEMENTED
     DefaultOnlyHasher(const DefaultOnlyHasher&); // = delete
-        // not implemented
-
     void operator=(const DefaultOnlyHasher&); // = delete;
-        // not implemented
 
     void operator&();  // = delete;
-        // not implemented
 
     template<class T>
     void operator,(const T&); // = delete;
-        // not implemented
 
     template<class T>
     void operator,(T&); // = delete;
-        // not implemented
 
   public:
+    // CREATORS
     DefaultOnlyHasher() {}
 
     // ACCESSORS
@@ -2373,7 +2367,7 @@ struct MakeAllocator<bsltf::StdStatefulAllocator<TYPE, A, B, C, D> > {
 // with each letter corresponding to a specific way of passing an allocator
 // to the test object's constructor.  In practice, we currently define only the
 // configurations 'a' -> 'd', and they are called sequentially.  As we become
-// more thorough in testing, additional configurations will present themself,
+// more thorough in testing, additional configurations will present themselves,
 // and specific tests will want different subsets of the available range of
 // configurations.  It is likely we will have functions that return a string
 // literal describing the recommended range of configurations to test, for a
