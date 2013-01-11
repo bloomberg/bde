@@ -5741,11 +5741,11 @@ template <class KEY,
           class EQUAL = TestEqualityComparator<KEY>,
           class ALLOC = bsl::allocator<bsl::pair<const KEY, VALUE> > >
 class TestDriver {
-    // This templatized struct provide a namespace for testing the 'unordered_map'
-    // container.  The parameterized 'KEY', 'VALUE', 'HASH', 'COMP' and 'ALLOC'
-    // specifies the key type, the mapped type, the hash functor, the equality
-    // comparator type and allocator type respectively.  Each "testCase*"
-    // method test a specific aspect of
+    // This templatized struct provide a namespace for testing the
+    // 'unordered_map' container.  The parameterized 'KEY', 'VALUE', 'HASH',
+    // 'COMP' and 'ALLOC' specifies the key type, the mapped type, the hash
+    // functor, the equality comparator type and allocator type respectively.
+    // Each "testCase*" method test a specific aspect of
     // 'unordered_map<KEY, VALUE, HASH, COMP, ALLOC>'.  Every test cases should
     // be invoked with various parameterized type to fully test the container.
 
@@ -5778,7 +5778,8 @@ class TestDriver {
     // The generating functions interpret the given 'spec' in order from left
     // to right to configure the object according to a custom language.
     // Uppercase letters [A..Z] correspond to arbitrary (but unique) char
-    // values to be appended to the 'unordered_map<KEY, VALUE, COMP, ALLOC>' object.
+    // values to be appended to the 'unordered_map<KEY, VALUE, COMP, ALLOC>'
+    // object.
     //
     // LANGUAGE SPECIFICATION:
     // -----------------------
@@ -5829,6 +5830,9 @@ class TestDriver {
 
   public:
     // TEST CASES
+
+    static void testCase16();
+        // Testing Typedefs
 
     static void testCase15();
         // Growing functions
@@ -5960,6 +5964,46 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::matchFirstValues(
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
+void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase16()
+{
+    // ------------------------------------------------------------------------
+    // TESTING TYPEDEFs
+    // ------------------------------------------------------------------------
+
+    typedef bsl::pair<const KEY, VALUE> VT;
+    typedef typename Obj::size_type SzT;
+    typedef typename Obj::difference_type Diff;
+    typedef typename Obj::iterator It;
+    typedef typename Obj::const_iterator CIt;
+    typedef typename Obj::local_iterator LIt;
+    typedef typename Obj::const_local_iterator CLIt;
+
+    BSLMF_ASSERT((bslmf::IsSame<KEY,        typename Obj::key_type>::value));
+    BSLMF_ASSERT((bslmf::IsSame<VT,         typename Obj::value_type>::value));
+    BSLMF_ASSERT((bslmf::IsSame<VALUE,      typename Obj::mapped_type>::
+                                                                       value));
+    BSLMF_ASSERT((bslmf::IsSame<HASH,       typename Obj::hasher>::value));
+    BSLMF_ASSERT((bslmf::IsSame<EQUAL,      typename Obj::key_equal>::value));
+    BSLMF_ASSERT((bslmf::IsSame<ALLOC,      typename Obj::allocator_type>::
+                                                                       value));
+    BSLMF_ASSERT((bslmf::IsSame<VT *,       typename Obj::pointer>::value));
+    BSLMF_ASSERT((bslmf::IsSame<const VT *, typename Obj::const_pointer>::
+                                                                       value));
+    BSLMF_ASSERT((bslmf::IsSame<VT &,       typename Obj::reference>::value));
+    BSLMF_ASSERT((bslmf::IsSame<const VT &, typename Obj::const_reference>::
+                                                                       value));
+
+    BSLMF_ASSERT((bslmf::IsSame<typename Obj::pointer,
+                                typename ALLOC::pointer>::value));
+    BSLMF_ASSERT((bslmf::IsSame<typename Obj::const_pointer,
+                                typename ALLOC::const_pointer>::value));
+    BSLMF_ASSERT((bslmf::IsSame<typename Obj::reference,
+                                typename ALLOC::reference>::value));
+    BSLMF_ASSERT((bslmf::IsSame<typename Obj::const_reference,
+                                typename ALLOC::const_reference>::value));
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
 void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase15()
 {
     // ------------------------------------------------------------------------
@@ -6088,7 +6132,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase15()
                 ASSERTV(0.9999 * LENGTH / X.bucket_count() <
                                                           X.max_load_factor());
 
-                if (!TYPE_ALLOC && 0) {    // TBD -- enable test later
+                if (!TYPE_ALLOC) {
                     numPasses = 0;
                     BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(sa) {
                         ++numPasses;
@@ -6099,12 +6143,14 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase15()
 
                     // verify insert didn't alloc
 
-                    ASSERTV(LINE, SPEC, LENGTH == X.size());
                     ASSERTV(LINE, SPEC, 1 == numPasses);
                 }
                 else {
                     mX.insert(values.index(len2), values.end());
                 }
+
+                ASSERTV(LINE, SPEC, LENGTH == X.size());
+                ASSERTV(verifySpec(X, SPEC));
 
                 ASSERTV(BC == X.bucket_count());
             }
@@ -9285,7 +9331,7 @@ int main(int argc, char *argv[])
     bslma::Default::setDefaultAllocator(&testAlloc);
 
     switch (test) { case 0:
-      case 16: {
+      case 17: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -9304,6 +9350,18 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nUSAGE EXAMPLE"
                             "\n=============\n");
         usage();
+      } break;
+      case 16: {
+        // --------------------------------------------------------------------
+        // GROWING FUNCTIONS
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("Testing Typedefs\n"
+                            "================\n");
+
+        RUN_EACH_TYPE(TestDriver,
+                      testCase16,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
       } break;
       case 15: {
         // --------------------------------------------------------------------
