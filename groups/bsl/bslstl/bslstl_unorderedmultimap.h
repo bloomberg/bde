@@ -851,9 +851,15 @@ class unordered_multimap
         // exceed its 'max_load_factor'.
 
     void reserve(size_type numElements);
-        // Increase the number of buckets of this multi-map to a
-        // quantity such that the ratio between the specified 'numElements' and
-        // this quantity does not exceed 'max_load_factor'.
+        // Increase the number of buckets of this set to a quantity such that
+        // the ratio between the specified 'numElements' and this quantity does
+        // not exceed 'max_load_factor', and allocate footprint memory
+        // sufficient to grow the table to contain 'numElements' elements.
+        // Note that this guarantees that, after the reserve, elements can be
+        // inserted to grow the container to 'size() == numElements' without
+        // any further allocation, unless the 'KEY' or 'VALUE' types themselves
+        // or the hash function allocate memory.  Also note that this operation
+        // has no effect if 'numElements <= size()'.
 
     void swap(unordered_multimap& other);
         // Exchange the value of this object as well as its hasher and
@@ -866,7 +872,6 @@ class unordered_multimap
         // guarantees O[1] complexity.  The behavior is undefined is unless
         // either this object was created with the same allocator as 'other' or
         // 'propagate_on_container_swap' is 'true'.
-
 
     // ACCESSORS
     allocator_type get_allocator() const;
@@ -1242,7 +1247,7 @@ template <class SOURCE_TYPE>
 inline
 typename unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator
 unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::insert(
-                                                       const SOURCE_TYPE& value)
+                                                      const SOURCE_TYPE& value)
 {
     return iterator(d_impl.insert(value));
 }
@@ -1251,8 +1256,8 @@ template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 template <class SOURCE_TYPE>
 typename unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator
 unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::insert(
-                                                       const_iterator    hint,
-                                                       const SOURCE_TYPE& value)
+                                                      const_iterator     hint,
+                                                      const SOURCE_TYPE& value)
 {
     return iterator(d_impl.insert(value, hint.node()));
 }

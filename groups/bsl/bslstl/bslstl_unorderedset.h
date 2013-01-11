@@ -881,7 +881,13 @@ class unordered_set
     void reserve(size_type numElements);
         // Increase the number of buckets of this set to a quantity such that
         // the ratio between the specified 'numElements' and this quantity does
-        // not exceed 'max_load_factor'.
+        // not exceed 'max_load_factor', and allocate footprint memory
+        // sufficient to grow the table to contain 'numElements' elements.
+        // Note that this guarantees that, after the reserve, elements can be
+        // inserted to grow the container to 'size() == numElements' without
+        // any further allocation, unless the 'KEY' type itself or the hash
+        // function allocate memory.  Also note that this operation has no
+        // effect if 'numElements <= size()'.
 
     void swap(unordered_set& other);
         // Exchange the value of this object as well as its hasher and

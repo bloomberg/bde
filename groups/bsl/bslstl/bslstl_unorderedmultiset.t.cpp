@@ -1447,16 +1447,22 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase13()
     //   the container.
     // ------------------------------------------------------------------------
 
+    const int TYPE_ALLOC = bslma::UsesBslmaAllocator<KEY>::value;
+
     const size_t NUM_DATA                  = DEFAULT_NUM_DATA;
     const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
 
     bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
-    for (size_t ti = 0; ti < NUM_DATA; ++ti) {
-        const char *const SPEC   = DATA[ti].d_spec;
+    const char *SPEC, *lastSpec = "+";
+    for (size_t ti = 0; ti < NUM_DATA; ++ti, lastSpec = SPEC) {
+        const size_t LINE   = DATA[ti].d_line;
+                     SPEC   = DATA[ti].d_spec;
+        const size_t LENGTH = strlen(SPEC);
 
         TestValues values(SPEC, &scratch);
 
+        if (veryVeryVerbose) Q(Test 'reserve');
         {
             Obj mX(values.begin(), values.end());  const Obj& X = mX;
             values.resetIterators();
@@ -1469,6 +1475,54 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase13()
             ASSERTV(X == Y);
 
             ASSERTV(X.size(), X.bucket_count() > COUNT);
+        }
+
+        if (veryVeryVerbose) Q(Test 'reserve' before insert);
+        {
+            bslma::TestAllocator sa("supplied", veryVeryVeryVerbose);
+
+            for (size_t len2 = 0; len2 <= LENGTH; ++len2) {
+                Obj mX(&sa);    const Obj& X = mX;
+
+                TestValues values(SPEC, &sa);
+
+                mX.insert(values.begin(), values.index(len2));
+
+                int numPasses = 0;
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(sa) {
+                    ++numPasses;
+
+                    mX.reserve(LENGTH);
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+                ASSERTV(len2 || 0 == LENGTH  || numPasses > 1);
+
+                const size_t BC = X.bucket_count();
+                ASSERTV(X.load_factor() <= X.max_load_factor());
+                ASSERTV(0.9999 * LENGTH / X.bucket_count() <
+                                                          X.max_load_factor());
+
+                if (!TYPE_ALLOC) {
+                    numPasses = 0;
+                    BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(sa) {
+                        ++numPasses;
+                        values.resetIterators();
+
+                        mX.insert(values.index(len2), values.end());
+                    } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+
+                    // verify insert didn't alloc
+
+                    ASSERTV(LINE, SPEC, 1 == numPasses);
+                }
+                else {
+                    mX.insert(values.index(len2), values.end());
+                }
+
+                ASSERTV(LINE, SPEC, LENGTH == X.size());
+                ASSERTV(-1 == verifySpec(X, SPEC));
+
+                ASSERTV(BC == X.bucket_count());
+            }
         }
 
         {
