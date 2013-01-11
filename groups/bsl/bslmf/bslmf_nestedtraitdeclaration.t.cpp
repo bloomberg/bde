@@ -1,6 +1,6 @@
 // bslmf_nestedtraitdeclaration.t.cpp                  -*-C++-*-
 
-#include "bslmf_nestedtraitdeclaration.h"
+#include <bslmf_nestedtraitdeclaration.h>
 
 #include <cstdio>
 #include <cstdlib>

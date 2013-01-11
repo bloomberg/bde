@@ -1,6 +1,6 @@
 // bslmf_selecttrait.t.cpp                                            -*-C++-*-
 
-#include "bslmf_selecttrait.h"
+#include <bslmf_selecttrait.h>
 
 #include <new>
 #include <cstdio>

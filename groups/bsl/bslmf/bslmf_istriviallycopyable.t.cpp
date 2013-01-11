@@ -1,6 +1,6 @@
 // bslmf_istriviallycopyable.t.cpp                                    -*-C++-*-
 
-#include "bslmf_istriviallycopyable.h"
+#include <bslmf_istriviallycopyable.h>
 
 #include <cstdio>
 #include <cstdlib>

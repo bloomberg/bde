@@ -1,6 +1,6 @@
 // bslmf_isbitwisemoveable.t.cpp                  -*-C++-*-
 
-#include "bslmf_isbitwisemoveable.h"
+#include <bslmf_isbitwisemoveable.h>
 
 #include <new>
 #include <cstdio>
@@ -455,7 +455,7 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
                MoveableTemplate3<NonMoveableClass> >::value);
         ASSERT(  IsBitwiseMoveable<
                MoveableTemplate3<MoveableClass1> >::value);
-    
+
         return 0;
     }
 //

@@ -70,14 +70,14 @@ BSLS_IDENT("$Id: $")
 //..
 // Then, since user-defined types cannot be automatically evaluated by
 // 'is_trivially_copyable', we define a template specialization to specify that
-// 'MyTriviallyCopyableType' is trivially copyable type:
+// 'MyTriviallyCopyableType' is trivially copyable:
 //..
 //  namespace bsl {
 //
 //  template <>
 //  struct is_trivially_copyable<MyTriviallyCopyableType> : bsl::true_type {
 //      // This template specialization for 'is_trivially_copyable' indicates
-//      // that 'MyTriviallyCopyableType' is a trivially copyable.
+//      // that 'MyTriviallyCopyableType' is a trivially copyable type.
 //  };
 //
 //  }  // close namespace bsl

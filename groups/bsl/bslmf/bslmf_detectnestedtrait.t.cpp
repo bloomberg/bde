@@ -1,6 +1,6 @@
 // bslmf_detectnestedtrait.t.cpp                  -*-C++-*-
 
-#include "bslmf_detectnestedtrait.h"
+#include <bslmf_detectnestedtrait.h>
 
 #include <cstdio>
 #include <cstdlib>
