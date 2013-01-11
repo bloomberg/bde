@@ -2846,7 +2846,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase18()
     bslma::TestAllocator         da("default",   veryVeryVeryVerbose);
     bslma::DefaultAllocatorGuard dag(&da);
 
-    if (verbose) printf("\nTesting 'erase(pos)' on non-empty set.\n");
+    if (verbose)printf("\nTesting 'erase(pos)' on non-empty unordered_set.\n");
     {
         for (size_t ti = 1; ti < NUM_DATA; ++ti) {
             const int         LINE   = DATA[ti].d_line;
@@ -2904,7 +2904,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase18()
         }
     }
 
-    if (verbose) printf("\nTesting 'erase(key)' on non-empty set.\n");
+    if (verbose)printf("\nTesting 'erase(key)' on non-empty unordered_set.\n");
     {
         for (size_t ti = 1; ti < NUM_DATA; ++ti) {
             const int         LINE   = DATA[ti].d_line;
@@ -3752,7 +3752,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase11()
     //:     differs in size from that returned by 'gg'.
     //
     // Testing:
-    //   set g(const char *spec);
+    //   unordeered_set g(const char *spec);
     // ------------------------------------------------------------------------
 
     bslma::TestAllocator oa(veryVeryVerbose);
@@ -3965,7 +3965,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase9()
     //:   allocated from the default allocator.  (C-3)
     //
     // Testing:
-    //   set& operator=(const set& rhs);
+    //   unordered_set& operator=(const unordered_set& rhs);
     // ------------------------------------------------------------------------
 
     const int NUM_DATA                     = DEFAULT_NUM_DATA;
@@ -4092,8 +4092,8 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase8_1()
     //: 2 Follow P-3, P-4.1, P-4.2, P-4.4.7..P-4.4.9 from 'testCase8'.
     //:
     // Testing:
-    //   void swap(set& other);
-    //   void swap(set<K, C, A>& a, set<K, C, A>& b);
+    //   void swap(unordered_set& other);
+    //   void swap(unordered_set<K, H, E, A>& a, unordered_set<K, H, E, A>& b);
     // ------------------------------------------------------------------------
 
     if (verbose) printf("\nSWAP MEMBER AND FREE FUNCTIONS"
@@ -4353,8 +4353,8 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase8()
     //:     2 There was no additional object memory allocation.  (C-4)
     //
     // Testing:
-    //   void swap(set& other);
-    //   void swap(set<K, C, A>& a, set<K, C, A>& b);
+    //   void swap(unordered_set& other);
+    //   void swap(unordered_set<K, H, E, A>& a, unordered_set<K, H, E, A>& b);
     // ------------------------------------------------------------------------
 
     if (verbose) printf("\nSWAP MEMBER AND FREE FUNCTIONS"
@@ -4653,8 +4653,8 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase7()
     //:   *allocation* *limit*.  (C-7)
     //
     // Testing:
-    //   set(const set& original);
-    //   set(const set& original, const A& allocator);
+    //   unordered_set(const unordered_set& original);
+    //   unordered_set(const unordered_set& original, const A& allocator);
     // ------------------------------------------------------------------------
 
     bslma::TestAllocator oa(veryVeryVerbose);
@@ -4867,8 +4867,10 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase6()
     //:   allocated from the default allocator.  (C-11)
     //
     // Testing:
-    //   bool operator==(const set<K, C, A>& lhs, const set<K, C, A>& rhs);
-    //   bool operator!=(const set<K, C, A>& lhs, const set<K, C, A>& rhs);
+    //   bool operator==(const unordered_set<K, H, E, A>& lhs,
+    //                   const unordered_set<K, H, E, A>& rhs);
+    //   bool operator!=(const unordered_set<K, H, E, A>& lhs,
+    //                   const unordered_set<K, H, E, A>& rhs);
     // ------------------------------------------------------------------------
 
     if (verbose) printf("\nEQUALITY-COMPARISON OPERATORS"
@@ -5201,8 +5203,8 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase3()
     //:     location of the first invalid value of the 'spec'.  (C-2)
     //
     // Testing:
-    //   set<K,A>& gg(set<K,A> *object, const char *spec);
-    //   int ggg(set<K,A> *object, const char *spec, int verbose = 1);
+    //   unordered_set& gg(unordered_set *object, const char *spec);
+    //   int ggg(unordered_set *object, const char *spec, int verbose = 1);
     // ------------------------------------------------------------------------
 
     bslma::TestAllocator oa(veryVeryVerbose);
