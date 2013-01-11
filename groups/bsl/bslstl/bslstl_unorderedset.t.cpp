@@ -755,37 +755,25 @@ void debugprint(const bsl::unordered_set<KEY, HASH, EQUAL, ALLOC>& s)
 
 namespace {
 
-bool expectToAllocate(int n)
-    // Return 'true' if the container is expected to allocate memory on the
-    // specified 'n'th element, and 'false' otherwise.
-{
-    if (n > 32) {
-        return (0 == n % 32);                                         // RETURN
+struct BoolArray {
+    // This class holds a set of boolean flags...
+
+    explicit BoolArray(size_t n)
+    : d_data(new bool[n])
+    {
+        for (size_t i = 0; i != n; ++i) {
+            d_data[i] = false;
+        }
     }
-    return (((n - 1) & n) == 0);  // Allocate when 'n' is a power of 2
-}
 
-    struct BoolArray {
-        // This class holds a set of boolean flags...
+    ~BoolArray()
+    {
+        delete[] d_data;
+    }
 
-        explicit BoolArray(size_t n)
-        : d_data(new bool[n])
-        {
-            for (size_t i = 0; i != n; ++i) {
-                d_data[i] = false;
-            }
-        }
-
-        ~BoolArray()
-        {
-            delete[] d_data;
-        }
-
-        bool& operator[](size_t index) { return d_data[index]; }
-        bool *d_data;
-    };
-
-
+    bool& operator[](size_t index) { return d_data[index]; }
+    bool *d_data;
+};
 
 template<class CONTAINER, class VALUES>
 int verifyContainer(const CONTAINER& container,
@@ -3710,13 +3698,17 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase12()
     {
         typedef bsltf::TestValuesArrayIterator<KEY> Iterator;
 
-        bslma::TestAllocator oa(veryVeryVerbose);
-        bslma::TestAllocator fa(veryVeryVerbose);
-        bslma::TestAllocator sa(veryVeryVerbose);
+        HASH  defaultHash(7);
+        EQUAL defaultEqual(9);
+
+        ASSERTV(!(HASH()  == defaultHash));
+        ASSERTV(!(EQUAL() == defaultEqual));
 
         for (int i = 0; i < DEFAULT_NUM_DATA; ++i) {
-            const int LINE   = DEFAULT_DATA[i].d_line;
-            const char *SPEC = DEFAULT_DATA[i].d_spec;
+            const int LINE      = DEFAULT_DATA[i].d_line;
+            const char *SPEC    = DEFAULT_DATA[i].d_spec;
+            const char *RESULTS = DEFAULT_DATA[i].d_results;
+            const size_t LENGTH = strlen(SPEC);
 
             if (veryVerbose) P(SPEC);
 
@@ -3724,42 +3716,75 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase12()
             for (char cfg = 'a'; cfg <= 'e' ; ++cfg) {
                 const char CONFIG = cfg;
 
-                bsltf::TestValuesArray<KEY> tv(SPEC, &sa);
+                bslma::TestAllocator fa("footprint", veryVeryVeryVerbose);
+                bslma::TestAllocator sa("supplied",  veryVeryVeryVerbose);
+                bslma::TestAllocator sc("scratch",   veryVeryVeryVerbose);
+                bslma::TestAllocator da("default",   veryVeryVeryVerbose);
+                bslma::DefaultAllocatorGuard dag(&da);
 
+                bsltf::TestValuesArray<KEY> tv(SPEC, &sc);
+
+                bslma::TestAllocator& oa  = 'e' == CONFIG ? sa : da;
+                bslma::TestAllocator& noa = 'e' != CONFIG ? sa : da;
+
+                int numPasses = 0;
                 Obj *pmX;
-                switch (CONFIG) {
-                  case 'a': {
-                    pmX = new (fa) Obj(tv.begin(), tv.end());
-                  } break;
-                  case 'b': {
-                    pmX = new (fa) Obj(tv.begin(), tv.end(), 100);
-                  } break;
-                  case 'c': {
-                    pmX = new (fa) Obj(tv.begin(), tv.end(), 100, HASH());
-                  } break;
-                  case 'd': {
-                    pmX = new (fa) Obj(tv.begin(),
-                                       tv.end(),
-                                       100,
-                                       HASH(),
-                                       EQUAL());
-                  } break;
-                  case 'e': {
-                    pmX = new (fa) Obj(tv.begin(),
-                                       tv.end(),
-                                       100,
-                                       HASH(),
-                                       EQUAL(),
-                                       &oa);
-                    done = true;
-                  } break;
-                  default: {
-                    ASSERTV(0);
-                    return;                                           // RETURN
-                  } break;
-                }
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
+                    ++numPasses;
+                    tv.resetIterators();
+
+                    switch (CONFIG) {
+                      case 'a': {
+                        pmX = new (fa) Obj(tv.begin(), tv.end());
+                      } break;
+                      case 'b': {
+                        pmX = new (fa) Obj(tv.begin(), tv.end(), 100);
+                      } break;
+                      case 'c': {
+                        pmX = new (fa) Obj(tv.begin(),
+                                           tv.end(),
+                                           100,
+                                           defaultHash);
+                      } break;
+                      case 'd': {
+                        pmX = new (fa) Obj(tv.begin(),
+                                           tv.end(),
+                                           100,
+                                           defaultHash,
+                                           defaultEqual);
+                      } break;
+                      case 'e': {
+                        pmX = new (fa) Obj(tv.begin(),
+                                           tv.end(),
+                                           100,
+                                           defaultHash,
+                                           defaultEqual,
+                                           &oa);
+                        done = true;
+                      } break;
+                      default: {
+                        ASSERTV(0);
+                        return;                                       // RETURN
+                      } break;
+                    }
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+                ASSERTV(CONFIG, LENGTH,
+                             (LENGTH > 0 || 'a' != CONFIG) == (numPasses > 1));
 
                 Obj& mX = *pmX;    const Obj& X = mX;
+
+                ASSERTV(CONFIG, LENGTH, noa.numBlocksTotal(), &oa == &da,
+                                                    0 == noa.numBlocksTotal());
+                ASSERTV(CONFIG, LENGTH, noa.numBlocksInUse(), &oa == &da,
+                                                    0 == noa.numBlocksInUse());
+
+                TestValues EXP(RESULTS, &sc);
+                ASSERT(0 == verifyContainer(X, EXP, strlen(RESULTS)));
+
+                ASSERTV((CONFIG >= 'c' ? defaultHash
+                                       : HASH())  == X.hash_function());
+                ASSERTV((CONFIG >= 'd' ? defaultEqual
+                                       : EQUAL()) == X.key_eq());
 
                 if (CONFIG >= 'b' && tv.size() > 0) {
                     ASSERTV(CONFIG, SPEC, X.bucket_count(),
@@ -3768,7 +3793,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase12()
 
                 for (char c = 'A'; c <= 'Z'; ++c) {
                     int idx = c - 'A';
-                    KEY k = KEY(VALUES[idx]);
+                    const KEY& k = VALUES[idx];
 
                     native_std::size_t EXP = !!native_std::strchr(SPEC, c);
 
@@ -5497,8 +5522,8 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase2()
 
     const size_t MAX_LENGTH = 9;
 
-    const HASH  defaultHasher     = HASH();
-    const EQUAL defaultComparator = EQUAL();
+    const HASH  defaultHasher     = HASH(7);
+    const EQUAL defaultComparator = EQUAL(9);
 
     for (size_t ti = 0; ti < MAX_LENGTH; ++ti) {
         const size_t LENGTH = ti;
@@ -5513,7 +5538,8 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase2()
         if (verbose) {
             printf("\nTesting with various allocator configurations.\n");
         }
-        for (char cfg = 'a'; cfg <= 'c'; ++cfg) {
+        bool done = false;
+        for (char cfg = 'a'; cfg <= 'l'; ++cfg) {
             const char CONFIG = cfg;  // how we specify the allocator
 
             bslma::TestAllocator da("default",   veryVeryVeryVerbose);
@@ -5528,58 +5554,110 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase2()
                 printf("\n\tTesting default constructor.\n");
             }
 
-            Obj                  *objPtr;
-            bslma::TestAllocator *objAllocatorPtr;
+            Obj                  *objPtr = 0;
+            bslma::TestAllocator&  oa = strchr("cgl", CONFIG) ? sa : da;
+            bslma::TestAllocator& noa = &sa == &oa ? da : sa;
 
-            switch (CONFIG) {
-              case 'a': {
-                  objPtr = new (fa) Obj(0,
-                                        defaultHasher,
-                                        defaultComparator);
-                  objAllocatorPtr = &da;
-              } break;
-              case 'b': {
-                  objPtr = new (fa) Obj(0,
-                                        defaultHasher,
-                                        defaultComparator,
-                                        (bslma::Allocator *)0);
-                  objAllocatorPtr = &da;
-              } break;
-              case 'c': {
-                  objPtr = new (fa) Obj(0,
-                                        defaultHasher,
-                                        defaultComparator,
-                                        &sa);
-                  objAllocatorPtr = &sa;
-              } break;
-              default: {
-                  ASSERTV(CONFIG, !"Bad allocator config.");
-                  return;                                             // RETURN
-              } break;
-            }
+            int numPasses = 0;
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
+                ++numPasses;
+
+                switch (CONFIG) {
+                  case 'a': {
+                      objPtr = new (fa) Obj;
+                  } break;
+                  case 'b': {
+                      // Ambiguous -- does '0' mean 'initialNumBuckets' or
+                      // 'allocator'? -- Result is same either way.
+
+                      objPtr = new (fa) Obj(0);
+                  } break;
+                  case 'c': {
+                      objPtr = new (fa) Obj(&sa);
+                  } break;
+                  case 'd': {
+                      objPtr = new (fa) Obj(0,
+                                            defaultHasher);
+                  } break;
+                  case 'e': {
+                      objPtr = new (fa) Obj(0,
+                                            defaultHasher,
+                                            defaultComparator);
+                  } break;
+                  case 'f': {
+                      objPtr = new (fa) Obj(0,
+                                            defaultHasher,
+                                            defaultComparator,
+                                            (bslma::Allocator *)0);
+                  } break;
+                  case 'g': {
+                      objPtr = new (fa) Obj(0,
+                                            defaultHasher,
+                                            defaultComparator,
+                                            &sa);
+                  } break;
+                  case 'h': {
+                      objPtr = new (fa) Obj(100);
+                  } break;
+                  case 'i': {
+                      objPtr = new (fa) Obj(100,
+                                            defaultHasher);
+                  } break;
+                  case 'j': {
+                      objPtr = new (fa) Obj(100,
+                                            defaultHasher,
+                                            defaultComparator);
+                  } break;
+                  case 'k': {
+                      objPtr = new (fa) Obj(100,
+                                            defaultHasher,
+                                            defaultComparator,
+                                            (bslma::Allocator *)0);
+                  } break;
+                  case 'l': {
+                      objPtr = new (fa) Obj(100,
+                                            defaultHasher,
+                                            defaultComparator,
+                                            &sa);
+                      done = true;
+                  } break;
+                  default: {
+                      ASSERTV(CONFIG, !"Bad allocator config.");
+                      return;                                         // RETURN
+                  } break;
+                }
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+            ASSERTV((CONFIG <= 'g') == (1 == numPasses));
 
             Obj&                   mX = *objPtr;  const Obj& X = mX;
-            bslma::TestAllocator&  oa = *objAllocatorPtr;
-            bslma::TestAllocator& noa = 'c' != CONFIG ? sa : da;
 
             // Verify any attribute allocators are installed properly.
 
             ASSERTV(LENGTH, CONFIG, &oa == X.get_allocator());
 
-            // Verify no allocation from the object/non-object allocators.
-            // NOTE THAT THIS QoI TEST IS STILL AN OPEN DESIGN ISSUE
+            if (CONFIG <= 'g') {
+                // Verify no allocation from the object/non-object allocators.
+                // NOTE THAT THIS QoI TEST IS STILL AN OPEN DESIGN ISSUE
 
-            ASSERTV(LENGTH, CONFIG, oa.numBlocksTotal(),
-                    0 ==  oa.numBlocksTotal());
-            ASSERTV(LENGTH, CONFIG, noa.numBlocksTotal(),
-                    0 == noa.numBlocksTotal());
+                ASSERTV(LENGTH, CONFIG, oa.numBlocksTotal(),
+                        0 ==  oa.numBlocksTotal());
+                ASSERTV(LENGTH, CONFIG, noa.numBlocksTotal(),
+                        0 == noa.numBlocksTotal());
+                ASSERTV(LENGTH, CONFIG, X.bucket_count(),
+                                                        1 == X.bucket_count());
+            }
+            else {
+                ASSERTV(LENGTH, CONFIG, X.bucket_count(),
+                                                      X.bucket_count() >= 100);
+            }
+
             ASSERTV(LENGTH, CONFIG, 0 == X.size());
             ASSERTV(LENGTH, CONFIG, X.cbegin() == X.cend());
 
-            // If default constructed, only the the static bucket is present.
-            // QOI test that exactly 1 bucket is present.
-
-            ASSERTV(LENGTH, CONFIG, X.bucket_count(), 1 == X.bucket_count());
+            ASSERTV((strchr("abch",   CONFIG) ? HASH()
+                                              : HASH(7)) == X.hash_function());
+            ASSERTV((strchr("abcdhi", CONFIG) ? EQUAL()
+                                              : EQUAL(9)) == X.key_eq());
 
             // ----------------------------------------------------------------
 
@@ -5748,6 +5826,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase2()
             ASSERTV(LENGTH, CONFIG, sa.numBlocksInUse(),
                     0 == sa.numBlocksInUse());
         }
+        ASSERTV(done);
     }
 
     {
