@@ -774,16 +774,6 @@ void debugprint(const bsl::unordered_multiset<KEY, HASH, EQUAL, ALLOC>& s)
 
 namespace {
 
-bool expectToAllocate(int n)
-    // Return 'true' if the container is expected to allocate memory on the
-    // specified 'n'th element, and 'false' otherwise.
-{
-    if (n > 32) {
-        return (0 == n % 32);                                         // RETURN
-    }
-    return (((n - 1) & n) == 0);  // Allocate when 'n' is a power of 2
-}
-
 struct BoolArray {
     // This class holds a set of boolean flags...
 
