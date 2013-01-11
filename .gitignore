@@ -6,5 +6,6 @@ lib/
 build/
 documentation/
 logs/
+coverage/
 *.xcodeproj/
 .DS_store
