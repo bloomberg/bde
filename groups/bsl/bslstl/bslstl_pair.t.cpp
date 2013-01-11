@@ -2,20 +2,18 @@
 
 #include <bslstl_pair.h>
 
-#include <bslmf_istriviallycopyable.h>
-#include <bslmf_isbitwisemoveable.h>
-#include <bslmf_isbitwiseequalitycomparable.h>
-#include <bslmf_istriviallydefaultconstructible.h>
-#include <bslma_usesbslmaallocator.h>
 #include <bslma_allocator.h>
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
-
+#include <bslma_usesbslmaallocator.h>
+#include <bslmf_isbitwiseequalitycomparable.h>
+#include <bslmf_isbitwisemoveable.h>
 #include <bslmf_issame.h>
+#include <bslmf_istriviallycopyable.h>
+#include <bslmf_istriviallydefaultconstructible.h>
 
 #include <algorithm>
-
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
