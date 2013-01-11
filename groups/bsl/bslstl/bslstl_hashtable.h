@@ -1492,6 +1492,10 @@ BSLS_IDENT("$Id: $")
 #include <bslma_usesbslmaallocator.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_ASSERT
+#include <bslmf_assert.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
 #include <bslmf_isbitwisemoveable.h>
 #endif
@@ -1701,17 +1705,30 @@ class HashTable {
       public:
         typedef HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>
                                                                  HashTableType;
-
-        typedef typename HashTableType::AllocatorTraits::template
-                         rebind_traits<NodeType>::allocator_type NodeAllocator;
-
-        // These aliases simplify naming the base classes in the constructor
-        typedef BaseHasher     HasherBaseType;
-        typedef BaseComparator ComparatorBaseType;
-
+        typedef typename HashTableType::AllocatorTraits::
+                                template rebind_traits<NodeType> ReboundTraits;
+        typedef typename ReboundTraits::allocator_type           NodeAllocator;
 
         typedef BidirectionalNodePool<typename HashTableType::ValueType,
                                       NodeAllocator>               NodeFactory;
+
+        // Assert consistency checks against Machiavelian users, specializing
+        // an allocator for a specific type to have different propagation
+        // traits to the primary template.
+
+        BSLMF_ASSERT(
+           ReboundTraits::propagate_on_container_copy_assignment::value ==
+           HashTableType::AllocatorTraits::
+                                propagate_on_container_copy_assignment::value);
+
+        BSLMF_ASSERT(
+           ReboundTraits::propagate_on_container_move_assignment::value ==
+           HashTableType::AllocatorTraits::
+                                propagate_on_container_move_assignment::value);
+
+        BSLMF_ASSERT(
+           ReboundTraits::propagate_on_container_swap::value ==
+           HashTableType::AllocatorTraits::propagate_on_container_swap::value);
 
         // PUBLIC DATA
         NodeFactory  d_nodeFactory;    // nested 'struct's have public data by
@@ -1951,10 +1968,10 @@ class HashTable {
         // reference providing modifiable access to this object.  This method
         // requires that the parameterized 'HASHER' and 'COMPARATOR' types be
         // "copy-constructible", "copy-assignable" and "swappable" (see
-        // {Requirements on 'KEY_CONFIG'}).  Note that these requiremenents are
-        // modelled after the unordered container requirements table in the
+        // {Requirements on 'KEY_CONFIG'}).  Note that these requirements are
+        // modeled after the unordered container requirements table in the
         // C++11 standard, which is imprecise on this operation.  These
-        // requierements might simplify in the future, if the standard is
+        // requirements might simplify in the future, if the standard is
         // updated.
 
     template <class SOURCE_TYPE>
@@ -2559,9 +2576,8 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::ImplParameters::
 ImplParameters(const HASHER&        hash,
                const COMPARATOR&    compare,
                const AllocatorType& allocator)
-//: HasherBaseType(hash)
 : BaseHasher(hash)
-, ComparatorBaseType(compare)
+, BaseComparator(compare)
 , d_nodeFactory(allocator)
 {
 }
@@ -2570,9 +2586,8 @@ template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 inline
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::ImplParameters::
 ImplParameters(const AllocatorType& allocator)
-//: HasherBaseType(hash)
 : BaseHasher()
-, ComparatorBaseType()
+, BaseComparator()
 , d_nodeFactory(allocator)
 {
 }
@@ -2582,9 +2597,8 @@ inline
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::ImplParameters::
 ImplParameters(const ImplParameters& original,
                const AllocatorType&  allocator)
-//: HasherBaseType(static_cast<const HasherBaseType&>(original))
 : BaseHasher(static_cast<const BaseHasher&>(original))
-, ComparatorBaseType(static_cast<const ComparatorBaseType&>(original))
+, BaseComparator(static_cast<const BaseComparator&>(original))
 , d_nodeFactory(allocator)
 {
 }
@@ -2607,12 +2621,12 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::ImplParameters::
 quickSwapRetainAllocators(ImplParameters& other)
 {
     bslalg::SwapUtil::swap(
-                   static_cast<HasherBaseType*>(this),
-                   static_cast<HasherBaseType*>(bsls::Util::addressOf(other)));
+                   static_cast<BaseHasher*>(this),
+                   static_cast<BaseHasher*>(bsls::Util::addressOf(other)));
 
     bslalg::SwapUtil::swap(
-               static_cast<ComparatorBaseType*>(this),
-               static_cast<ComparatorBaseType*>(bsls::Util::addressOf(other)));
+               static_cast<BaseComparator*>(this),
+               static_cast<BaseComparator*>(bsls::Util::addressOf(other)));
 
     nodeFactory().swapRetainAllocators(other.nodeFactory());
 }
@@ -2624,12 +2638,12 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::ImplParameters::
 quickSwapExchangeAllocators(ImplParameters& other)
 {
     bslalg::SwapUtil::swap(
-                   static_cast<HasherBaseType*>(this),
-                   static_cast<HasherBaseType*>(bsls::Util::addressOf(other)));
+                   static_cast<BaseHasher*>(this),
+                   static_cast<BaseHasher*>(bsls::Util::addressOf(other)));
 
     bslalg::SwapUtil::swap(
-               static_cast<ComparatorBaseType*>(this),
-               static_cast<ComparatorBaseType*>(bsls::Util::addressOf(other)));
+               static_cast<BaseComparator*>(this),
+               static_cast<BaseComparator*>(bsls::Util::addressOf(other)));
 
     nodeFactory().swapExchangeAllocators(other.nodeFactory());
 }
