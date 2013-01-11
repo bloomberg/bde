@@ -3716,13 +3716,13 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase12()
             for (char cfg = 'a'; cfg <= 'e' ; ++cfg) {
                 const char CONFIG = cfg;
 
+                bslma::TestAllocator sc("scratch",   veryVeryVeryVerbose);
+                bsltf::TestValuesArray<KEY> tv(SPEC, &sc);
+
                 bslma::TestAllocator fa("footprint", veryVeryVeryVerbose);
                 bslma::TestAllocator sa("supplied",  veryVeryVeryVerbose);
-                bslma::TestAllocator sc("scratch",   veryVeryVeryVerbose);
                 bslma::TestAllocator da("default",   veryVeryVeryVerbose);
                 bslma::DefaultAllocatorGuard dag(&da);
-
-                bsltf::TestValuesArray<KEY> tv(SPEC, &sc);
 
                 bslma::TestAllocator& oa  = 'e' == CONFIG ? sa : da;
                 bslma::TestAllocator& noa = 'e' != CONFIG ? sa : da;
