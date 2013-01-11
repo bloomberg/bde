@@ -1,18 +1,19 @@
 // bslstl_stringbuf.t.cpp                                             -*-C++-*-
+
 #include <bslstl_stringbuf.h>
-#include <bslstl_string.h>
 #include <bslstl_allocator.h>
+#include <bslstl_string.h>
+
 #include <bslma_allocator.h>
 #include <bslma_default.h>
-#include <bslma_testallocator.h>
 #include <bslma_defaultallocatorguard.h>
+#include <bslma_testallocator.h>
 
 #include <iostream>
 #include <istream>
 #include <ostream>
 #include <string>
 #include <algorithm>
-
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
