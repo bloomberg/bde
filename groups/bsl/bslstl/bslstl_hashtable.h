@@ -3586,8 +3586,17 @@ inline
 typename HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::SizeType
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::maxNumBuckets() const
 {
-    return AllocatorTraits::max_size(this->allocator())
-                                             / sizeof(bslalg::HashTableBucket);
+    // This estimate is still on the high side, we should actually pick the
+    // preceding entry from our table of primary numbers used for valid bucket
+    // array sizes.  There is no easy way to find that value at the moment
+    // though.
+
+    typedef typename AllocatorTraits::
+                                template rebind_traits<bslalg::HashTableBucket>
+                                                         BucketAllocatorTraits;
+    typedef typename BucketAllocatorTraits::allocator_type BucketAllocator;
+
+    return BucketAllocatorTraits::max_size(BucketAllocator(this->allocator()));
 }
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
