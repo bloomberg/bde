@@ -30,7 +30,6 @@
 #include <bsl_string.h>
 #include <bsl_vector.h>
 
-#include <malloc.h>
 #include <setjmp.h>
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
@@ -471,7 +470,7 @@ void *operator new(size_t size)
     // to avoid recursion.
 {
     ++numGlobalNewCalls;
-    return malloc(size);
+    return bsl::malloc(size);
 }
 
 #ifdef BDE_BUILD_TARGET_EXC
@@ -482,7 +481,7 @@ void operator delete(void *address)
     // Trace use of global operator delete.
 {
     ++numGlobalDeleteCalls;
-    free(address);
+    bsl::free(address);
 }
 
 #endif
@@ -1900,7 +1899,7 @@ int main(int argc, char *argv[])
 
                     ASSERT(oss.str().empty());
 
-                    ptr = malloc(100);
+                    ptr = bsl::malloc(100);
 
                     taBlocks = (unsigned) ta.numBlocksInUse();
                     my_failureHandlerFlag = false;
@@ -1924,7 +1923,7 @@ int main(int argc, char *argv[])
                                " attempted to be freed by allocator 'alpha'"));
 
                 oss.str("");
-                free(ptr);
+                bsl::free(ptr);
             }
 
             if (verbose) Q(Check freeing of array alloced with new[]);
