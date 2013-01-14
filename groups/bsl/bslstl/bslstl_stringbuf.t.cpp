@@ -808,9 +808,9 @@ int main(int argc, char *argv[])
         //: 9 Use 'sputbackc' to put a character back into 'stringbuf' in a
         //:   way that invokes 'pbackfail' and verify that the character gets
         //:   put back correctly.
-	//
-	// Testing:
-	//   INPUT FROM STRINGBUF VIA PUBLIC INTERFACE
+        //
+        // Testing:
+        //   INPUT FROM STRINGBUF VIA PUBLIC INTERFACE
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING INPUT FROM STRINGBUF"
@@ -1055,9 +1055,9 @@ int main(int argc, char *argv[])
         //: 8 Output characters into a readonly (std::ios_base::in)
         //:   'stringbuf' with 'sputn' and verify that the output fails and
         //:   the state of 'stringbuf' doesn't change.
-	//
-	// Testing:
-	//   OUTPUT TO STRINGBUF VIA PUBLIC INTERFACE
+        //
+        // Testing:
+        //   OUTPUT TO STRINGBUF VIA PUBLIC INTERFACE
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING OUTPUT TO STRINGBUF"
@@ -1159,9 +1159,9 @@ int main(int argc, char *argv[])
         //:   'stringbuf'.  Then use 'overflow' to write a character into the
         //:   'stringbuf' and verify that the final state of the 'stringbuf'
         //:   obtained using the 'str' method matches the expected result.
-	//
-	// Testing:
-	//   overflow(int)
+        //
+        // Testing:
+        //   overflow(int)
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING OVERFLOW FUNCTION"
@@ -1190,9 +1190,9 @@ int main(int argc, char *argv[])
         //:   'stringbuf'.  Then use 'xsputn' to write characters into the
         //:   'stringbuf' and verify that the final state of the 'stringbuf'
         //:   obtained using the 'str' method matches the expected result.
-	//
-	// Testing:
-	//   xsputn(const char *, streamsize)
+        //
+        // Testing:
+        //   xsputn(const char *, streamsize)
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING XSPUTN FUNCTION"
@@ -1225,9 +1225,9 @@ int main(int argc, char *argv[])
         //:   and verifying that 'pbackfail' undoes the effect of 'uflow', i.e.
         //:   it puts the character back into 'stringbuf' and sets the current
         //:   input position to point to that character.
-	//
-	// Testing:
-	//   pbackfail(int)
+        //
+        // Testing:
+        //   pbackfail(int)
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING PBACKFAIL FUNCTION"
@@ -1252,9 +1252,9 @@ int main(int argc, char *argv[])
         //:   'uflow' method.
         //: 3 Verify that the character read with 'uflow' is the same as
         //:   the one from the initial string at that position.
-	//
-	// Testing:
-	//   uflow()
+        //
+        // Testing:
+        //   uflow()
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING UFLOW FUNCTION"
@@ -1279,9 +1279,9 @@ int main(int argc, char *argv[])
         //:   'underflow' method.
         //: 3 Verify that the character read with 'underflow' is the same as
         //:   the one from the initial string at that position.
-	//
-	// Testing:
-	//   underflow()
+        //
+        // Testing:
+        //   underflow()
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING UNDERFLOW FUNCTION"
@@ -1303,9 +1303,9 @@ int main(int argc, char *argv[])
         //: 2 Read characters from the 'stringbuf' object of various length.
         //: 3 Verify the characters read with 'xsgetn' against the initial
         //:   'stringbuf' string object.
-	//
-	// Testing:
-	//   xsgetn(char *, streamsize)
+        //
+        // Testing:
+        //   xsgetn(char *, streamsize)
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING XSGETN FUNCTION"
@@ -1330,9 +1330,9 @@ int main(int argc, char *argv[])
         //:   the range of positions from 0 to the end of the 'stringbuf'.
         //: 3 Verify that the position was changed correctly using 'gptr'
         //:   and 'pptr' functions.
-	//
-	// Testing:
-	//   seekpos(streempos, ios_base::openmode)
+        //
+        // Testing:
+        //   seekpos(streempos, ios_base::openmode)
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING SEEKPOS FUNCTION"
@@ -1362,9 +1362,9 @@ int main(int argc, char *argv[])
         //:   the range of positions from 0 to the end of the 'stringbuf'.
         //: 3 Verify that the position was changed correctly using 'gptr'
         //:   and 'pptr' functions.
-	//
-	// Testing:
-	//   seekoff(streamoff, ios_base::seekdir, ios_base::openmode)
+        //
+        // Testing:
+        //   seekoff(streamoff, ios_base::seekdir, ios_base::openmode)
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING SEEKOFF FUNCTION"
@@ -1392,11 +1392,11 @@ int main(int argc, char *argv[])
         //: 3. create stringbuf object with constructor taking the initial
         //:    string
         //: 4. create stringbuf objects with constructors taking an allocator
-	//
-	// Testing:
-	//   stringbuf(ios_base::openmode, const ALLOCATOR&)
-	//   stringbuf(const string&, const ALLOCATOR&)
-	//   stringbuf(const string&, ios_base::openmode, const ALLOCATOR&)
+        //
+        // Testing:
+        //   stringbuf(ios_base::openmode, const ALLOCATOR&)
+        //   stringbuf(const string&, const ALLOCATOR&)
+        //   stringbuf(const string&, ios_base::openmode, const ALLOCATOR&)
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING CREATORS"
@@ -1448,9 +1448,9 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   This "test" *exercises* basic functionality.
-	//
-	// Testing:
-	//   BREATHING TEST
+        //
+        // Testing:
+        //   BREATHING TEST
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nBREATHING TEST"
