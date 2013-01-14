@@ -74,4 +74,4 @@ sloccount --wide --details groups > sloccount.sc
 #cppcheck -j${NUMCPUS} --xml-version=2 groups 2> cppcheck-result.xml
 
 # Perform code coverage analysis
-tools/bsl_coverage coverage -j${NUMCPUS}
+tools/bsl_coverage coverage -k -j${NUMCPUS}
