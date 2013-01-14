@@ -4,11 +4,17 @@
 #endif
 #include <bsttst_bsl_stack.h>
 
+#include <bslalg_hastrait.h>
+#include <bslalg_typetraits.h>
+#include <bslalg_typetraitusesbslmaallocator.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
+#include <bslma_usesbslmaallocator.h>
+#include <bslmf_assert.h>
 #include <bslmf_issame.h>
 
 #include <stack>
+#include <vector>
 
 #include <iostream>
 #include <stdexcept>
@@ -100,37 +106,6 @@ int veryVeryVerbose = 0;
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
-// sameType -- returns 'true' if objects 'lhs' and 'rhs' are of exactly the
-// same type and 'false' otherwise.  Note that C++ performs no implicit
-// conversions on parameters to template functions.
-
-template<typename LHSTYPE, typename RHSTYPE>
-bool sameType(const LHSTYPE& lhs, const RHSTYPE rhs)
-{
-    (void) lhs;    (void) rhs;
-
-    return false;
-}
-
-template<typename TYPE>
-bool sameType(const TYPE& lhs, const TYPE& rhs)
-{
-    (void) lhs;    (void) rhs;
-
-    return true;
-}
-
-// ----------------------------------------------------------------------------
-
-template<typename TYPE>
-bool usesBslmaAllocator(const TYPE& arg)
-    // returns 'true' if 'TYPE' uses bslma::Allocator and 'false' otherwise.
-{
-    (void) arg;
-
-    return bslalg::HasTrait<TYPE, bslalg::TypeTraitUsesBslmaAllocator>::VALUE;
-}
-
 //=============================================================================
 //                  GLOBAL HELPER CLASSES FOR TESTING
 //-----------------------------------------------------------------------------
@@ -146,26 +121,40 @@ struct Cargo {
     BSLALG_DECLARE_NESTED_TRAITS(Cargo, bslalg::TypeTraitUsesBslmaAllocator);
       // Declare nested type traits for this class.
 
+    // CREATORS
     explicit
-    Cargo(bslma::Allocator *a = 0) {
+    Cargo(bslma::Allocator *a = 0)
+    {
         QV_("Default:"); PV(a);
         d_alloc = bslma::Default::allocator(a);
         d_p = d_alloc->allocate(BALLAST_SIZE);
     }
-    Cargo(const Cargo& in, bslma::Allocator* a = 0) {
+    Cargo(const Cargo& original, bslma::Allocator* a = 0)
+    {
         QV_("Copy:"); PV(a);
         d_alloc = bslma::Default::allocator(a);
         d_p = d_alloc->allocate(BALLAST_SIZE);
-        std::memcpy(d_p, in.d_p, BALLAST_SIZE);
+        std::memcpy(d_p, original.d_p, BALLAST_SIZE);
     }
-    Cargo& operator=(const Cargo& in) {
+    Cargo& operator=(const Cargo& rhs)
+    {
         QV("Assign:");
-        std::memcpy(d_p, in.d_p, BALLAST_SIZE);
+        std::memcpy(d_p, rhs.d_p, BALLAST_SIZE);
         return *this;
     }
-    ~Cargo() {
+    ~Cargo()
+    {
         d_alloc->deallocate(d_p);
     }
+
+    // MANIPULATORS
+    void fill(char c)
+    {
+        std::memset(d_p, c, BALLAST_SIZE);
+    }
+
+    // ACCESSORS
+    char firstChar() const { return * (char *) d_p; }
 };
 
 bool operator<(const Cargo& lhs, const Cargo& rhs)
@@ -202,47 +191,71 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //   Primitive, bare bones test.
-        //
-        // Plan:
-        //   Use the templates 'sameType' and 'usesBslmaAllocator' (defined
-        //   in this file) to do the testing.
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nBREATHING TEST\n"
                                "==============\n";
 
-        ASSERT((bslmf::IsSame<bsl::stack<int>, std::stack<int> >::VALUE));
+        {
+            ASSERT((bslmf::IsSame<bsl::stack<int>, std::stack<int> >::VALUE));
 
-        bslma::TestAllocator ta;
+            bslma::TestAllocator ta;
 
-        ASSERT(0 == ta.numBlocksTotal());
+            ASSERT(0 == ta.numBlocksTotal());
 
-        bsl::stack<int> s(&ta);
+            bsl::stack<int> s(&ta);
 
-        ASSERT(s.empty());
+            ASSERT(s.empty());
 
-        s.push(4);
-        s.push(5);
-        s.push(6);
+            s.push(4);
+            s.push(5);
+            s.push(6);
 
-        ASSERT(! s.empty());
-        ASSERT(6 == s.top());
+            ASSERT(! s.empty());
+            ASSERT(6 == s.top());
 
-        s.pop();
+            s.pop();
 
-        ASSERT(! s.empty());
-        ASSERT(5 == s.top());
+            ASSERT(! s.empty());
+            ASSERT(5 == s.top());
 
-        s.pop();
+            s.pop();
 
-        ASSERT(! s.empty());
-        ASSERT(4 == s.top());
+            ASSERT(! s.empty());
+            ASSERT(4 == s.top());
 
-        s.pop();
+            s.pop();
 
-        ASSERT(s.empty());
+            ASSERT(s.empty());
 
-        ASSERT(ta.numBlocksTotal() > 0);
+            ASSERT(ta.numBlocksTotal() > 0);
+        }
+
+        {
+            ASSERT(0 == ta.numBytesInUse());
+
+            BSLMF_ASSERT(bslma::UsesBslmaAllocator<Cargo>::value);
+            BSLMF_ASSERT(bslma::UsesBslmaAllocator<std::stack<Cargo> >::value);
+
+            std::stack<Cargo, std::vector<Cargo> > s(&ta);
+
+            ASSERT(0 == ta.numBytesInUse());
+
+            Cargo cargo;
+
+            for (std::size_t ti = 1; ti <= 10; ++ti) {
+                cargo.fill('a' - 1 + ti);
+                s.push(cargo);
+                ASSERT(ta.numBytesInUse() > ti * Cargo::BALLAST_SIZE);
+            }
+
+            for (char c = 'a' + 9; c >= 'a'; --c) {
+                ASSERT(s.top().firstChar() == c);
+                s.pop();
+            }
+
+            ASSERT(0 == s.size());
+        }
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
