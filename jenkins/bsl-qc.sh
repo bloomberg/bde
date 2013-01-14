@@ -50,18 +50,18 @@ export TIMEOUT=60
 mkdir test-results
 
 # Construct a Makefile so unit tests can be run in parallel
-echo "test-list = " > unit-tests.mk
+echo "result-list = " > unit-tests.mk
 for bsltest in `ls build/Profile/*.t | sort`
 do
-    result=results/${bsltest##*/}-junit.xml
+    result=test-results/${bsltest##*/}-junit.xml
     echo "result-list += ${result}" >> unit-tests.mk
     echo "${result}: ${bsltest}" >> unit-tests.mk
-    echo "\tpython tools/run_unit_tests.py ${bsltest} /dev/null --abi=64 --lib=static_library --junit=${result}" >> unit-tests.mk
+    echo -e "\tpython tools/run_unit_tests.py ${bsltest} /dev/null --abi=64 --lib=static_library --junit=${result}" >> unit-tests.mk
 done
-echo "test: $(result-list)" >> unit-tests.mk
+echo "test: \$(result-list)" >> unit-tests.mk
 
 # Run unit tests
-make -j${NUMCPUS} unit-tests.mk
+make -j${NUMCPUS} -f unit-tests.mk test
 
 # Move logs from /tmp to workspace for analysis
 mv /tmp/gcc-4.7-*.log .
