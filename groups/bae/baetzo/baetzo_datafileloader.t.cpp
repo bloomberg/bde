@@ -646,6 +646,8 @@ int main(int argc, char *argv[])
         timeZone.print(bsl::cout, 1, 3);
     }
 
+    bdesu_FileUtil::remove("test", true); // TIME_ZONE_DIRECTORY/.. i.e. "test"
+
       } break;
       case 6: {
         // --------------------------------------------------------------------
@@ -1308,6 +1310,12 @@ int main(int argc, char *argv[])
     if (testStatus > 0) {
         cerr << "Error, non-zero test status = " << testStatus << "." << endl;
     }
+
+    // TBD: multiple test cases use the same path and so cleanup can not occur
+    //      after each test case ends, or else there is a race condition when
+    //      multiple test cases are run in parallel
+    //bdesu_FileUtil::remove(TEST_DIRECTORY, true);
+
     return testStatus;
 }
 

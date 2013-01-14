@@ -7,9 +7,7 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
-namespace BloombergLP
-{
-
+namespace BloombergLP {
 
 }  // close namespace BloombergLP
 // ---------------------------------------------------------------------------

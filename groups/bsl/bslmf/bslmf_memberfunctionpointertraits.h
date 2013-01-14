@@ -58,8 +58,8 @@ BSLS_IDENT("$Id: $")
 //          ResultType;
 //      typedef typename bslmf::MemberFunctionPointerTraits<TYPE>::ArgumentList
 //          ArgumentList;
-//      assert(1 == (bslmf::IsSame<ResultType, BSLMF_RETURN>::value));
-//      assert(1 == (bslmf::IsSame<ArgumentList, ARGS>::value));
+//      assert(1 == (bsl::is_same<ResultType, BSLMF_RETURN>::value));
+//      assert(1 == (bsl::is_same<ArgumentList, ARGS>::value));
 //  }
 //..
 // The following program should compile and run without errors:

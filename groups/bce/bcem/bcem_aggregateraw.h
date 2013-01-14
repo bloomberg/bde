@@ -99,6 +99,10 @@ BDES_IDENT("$Id: $")
 #include <bcem_errorattributes.h>
 #endif
 
+#ifndef INCLUDED_BCEM_ERRORCODE
+#include <bcem_errorcode.h>
+#endif
+
 #ifndef INCLUDED_BCEM_FIELDSELECTOR
 #include <bcem_fieldselector.h>
 #endif
@@ -503,12 +507,13 @@ class bcem_AggregateRaw {
     // MANIPULATORS
     bcem_AggregateRaw& operator=(const bcem_AggregateRaw& rhs);
         // Make this aggregate refer to the same data and schema as the
-        // specified 'rhs' aggregate and return a reference to this aggregate.
-        // This creates a new reference to existing data -- no data is copied.
-        // The behavior is undefined unless the schema and data referred to by
-        // 'other' remain valid for the lifetime of this object.  Note that if
-        // 'rhs' is an error aggregate, then this aggregate will be assigned
-        // the same error state as 'rhs'.
+        // specified 'rhs' aggregate and return a reference providing
+        // modifiable access to this aggregate.  This creates a new reference
+        // to existing data -- no data is copied.  The behavior is undefined
+        // unless the schema and data referred to by 'other' remain valid for
+        // the lifetime of this object.  Note that if 'rhs' is an error
+        // aggregate, then this aggregate will be assigned the same error state
+        // as 'rhs'.
 
     void clearParent();
         // Make this aggregate a top-level aggregate by resetting the
@@ -541,7 +546,7 @@ class bcem_AggregateRaw {
         // 'schema'.  The behavior is undefined unless 'schema' remains valid
         // for the lifetime of this object.
 
-    void setTopLevelAggregateNullnessPointer(int *nullnessFlag);
+    void setTopLevelAggregateNullness(int *nullnessFlag);
         // Set the address of the top-level nullness bit for this "raw"
         // aggregate to the specified 'nullnessFlag'.  See "Data
         // Representation" in the component-level documentation for a
@@ -623,8 +628,8 @@ class bcem_AggregateRaw {
         // values).  Return the appropriate "null" value if conversion fails.
 
     const bdem_ElemRef asElemRef() const;
-        // Return an element reference providing modifiable access to the value
-        // held by this aggregate.
+        // Return an element reference providing non-modifiable access to the
+        // value held by this aggregate.
 
     bsl::string asString() const;
         // Return a text representation of the value referenced by this
@@ -694,13 +699,13 @@ class bcem_AggregateRaw {
         // and return a nonzero value.
 
     const bdem_FieldDef *fieldDef() const;
-        // Return the address of the non-modifiable field definition for the
-        // object referenced by this aggregate, or null if this object does not
-        // have a field definition.  An aggregate constructed directly using a
-        // record definition will not have a field definition, whereas a
-        // sub-aggregate returned by a field-access function (e.g.,
-        // 'operator[]' or 'field') will.  Note that, if this aggregate is an
-        // item within an array, table, or choice array, then
+        // Return a pointer providing non-modifiable access to the field
+        // definition for the object referenced by this aggregate, or null if
+        // this object does not have a field definition.  An aggregate
+        // constructed directly using a record definition will not have a field
+        // definition, whereas a sub-aggregate returned by a field-access
+        // function (e.g., 'operator[]' or 'field') will.  Note that if this
+        // aggregate is an item within an array, table, or choice array, then
         // 'fieldDef()->elemType()' will return the *array* type, not the
         // *item* type (i.e., 'fieldDef()->elemType()' will not match
         // 'dataType()').
@@ -799,14 +804,14 @@ class bcem_AggregateRaw {
         // return an error code.
 
     const bdem_RecordDef *recordConstraint() const;
-        // Return the address of the non-modifiable record definition that
-        // describes the structure of the object referenced by this aggregate,
-        // or 0 if this aggregate references a scalar, array of scalars, or
-        // unconstrained 'bdem' aggregate.
+        // Return a pointer providing non-modifiable access to the record
+        // definition that describes the structure of the object referenced by
+        // this aggregate, or 0 if this aggregate references a scalar, array of
+        // scalars, or unconstrained 'bdem' aggregate.
 
     const bdem_Schema *schema() const;
-        // Return the address of the non-modifiable schema referenced by this
-        // aggregate.
+        // Return a pointer providing non-modifiable access to schema
+        // referenced by this aggregate.
 
     int selection(bcem_AggregateRaw    *field,
                   bcem_ErrorAttributes *errorDescription) const;
@@ -1502,7 +1507,6 @@ int bcem_AggregateRaw::assignToNillableScalarArrayImp(const TYPE& value) const
 }
 
 template <typename TYPE>
-inline
 int bcem_AggregateRaw::assignToNillableScalarArray(const TYPE&) const
 {
     BSLS_ASSERT_OPT("Invalid Type for Nillable Type" && 0);
@@ -1687,7 +1691,7 @@ void bcem_AggregateRaw::setSchema(const bdem_Schema *schema)
 }
 
 inline
-void bcem_AggregateRaw::setTopLevelAggregateNullnessPointer(int *nullnessFlag)
+void bcem_AggregateRaw::setTopLevelAggregateNullness(int *nullnessFlag)
 {
     BSLS_ASSERT_SAFE(nullnessFlag);
 
@@ -1772,7 +1776,6 @@ int bcem_AggregateRaw::getArrayItem(bcem_AggregateRaw    *item,
 }
 
 template <typename TOTYPE>
-inline
 TOTYPE bcem_AggregateRaw::convertScalar() const
 {
     TOTYPE result;
@@ -2674,7 +2677,6 @@ void bdeat_arrayResize(bcem_AggregateRaw *array, int newSize)
 {
     bcem_ErrorAttributes dummy;
     int rc = array->resize(&dummy, newSize);
-    BSLS_ASSERT_SAFE(0 == rc);
     (void) rc; // avoid compiler warning in non-safe mode
 }
 
@@ -2777,8 +2779,6 @@ void bdeat_enumToInt(int *result, const bcem_AggregateRaw& value)
 {
     const bdem_EnumerationDef *enumDef = value.enumerationConstraint();
     if (! enumDef) {
-        BSLS_ASSERT_OPT(!"Schema Error");
-        *result = bdetu_Unset<int>::unsetValue();
         return;                                                       // RETURN
     }
 

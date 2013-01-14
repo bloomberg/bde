@@ -79,6 +79,10 @@ BDES_IDENT("$Id: $")
 #include <bsl_cstdlib.h>
 #endif
 
+#ifndef INCLUDED_BSL_IOSFWD
+#include <bsl_iosfwd.h>
+#endif
+
 namespace BloombergLP {
 
                         // ========================
@@ -274,27 +278,9 @@ int bcem_FieldSelector::index() const
 
 // FREE OPERATORS
 inline
-bool operator==(const bcem_FieldSelector& lhs, const bcem_FieldSelector& rhs)
-{
-    if (lhs.isEmpty() && rhs.isEmpty()) {
-        return true;                                                  // RETURN
-    }
-
-    if (lhs.isName() && rhs.isName()) {
-        return !bsl::strcmp(lhs.name(), rhs.name());                  // RETURN
-    }
-
-    if (lhs.isIndex() && rhs.isIndex()) {
-        return lhs.index() == rhs.index();                            // RETURN
-    }
-
-    return false;
-}
-
-inline
 bool operator!=(const bcem_FieldSelector& lhs, const bcem_FieldSelector& rhs)
 {
-    return ! (lhs == rhs);
+    return !(lhs == rhs);
 }
 
 inline

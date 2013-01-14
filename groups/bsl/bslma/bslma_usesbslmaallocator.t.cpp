@@ -1,6 +1,8 @@
 // bslma_usesbslmaallocator.t.cpp                                     -*-C++-*-
 
-#include "bslma_usesbslmaallocator.h"
+#include <bslma_usesbslmaallocator.h>
+
+#include <bslma_allocator.h>
 
 #include <cstdio>
 #include <cstdlib>
@@ -111,7 +113,37 @@ inline void dbg_print(const char* s) { printf("\"%s\"", s); fflush(stdout); }
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
+namespace {
+
 enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
+
+struct SniffUsesBslmaAllocatorFromConstructor
+{
+    SniffUsesBslmaAllocatorFromConstructor(bslma::Allocator *);
+};
+
+struct ConstructFromAnyPointer
+{
+    template <typename TYPE>
+    ConstructFromAnyPointer(TYPE *);
+};
+
+struct ClassUsingBslmaAllocator
+{
+};
+
+struct DerivedAllocator : bslma::Allocator
+{
+};
+
+}
+
+namespace BloombergLP {
+namespace bslma {
+template <>
+struct UsesBslmaAllocator<ClassUsingBslmaAllocator> : bsl::true_type {};
+}
+}
 
 //=============================================================================
 //                  CLASSES FOR TESTING USAGE EXAMPLES
@@ -139,7 +171,7 @@ int main(int argc, char *argv[])
         // Concerns:
         //
         // Plan:
-	//
+        //
         // Testing:
         //
         // --------------------------------------------------------------------
@@ -147,6 +179,26 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nBREATHING TEST"
                             "\n==============\n");
 
+        ASSERT(bslma::UsesBslmaAllocator<
+                    SniffUsesBslmaAllocatorFromConstructor>::value);
+        ASSERT(bslma::UsesBslmaAllocator<
+                    SniffUsesBslmaAllocatorFromConstructor const>::value);
+        ASSERT(bslma::UsesBslmaAllocator<
+                    SniffUsesBslmaAllocatorFromConstructor volatile>::value);
+
+        ASSERT(bslma::UsesBslmaAllocator<
+                    ClassUsingBslmaAllocator>::value);
+        ASSERT(bslma::UsesBslmaAllocator<
+                    ClassUsingBslmaAllocator const>::value);
+        ASSERT(bslma::UsesBslmaAllocator<
+                    ClassUsingBslmaAllocator volatile>::value);
+
+        ASSERT(! bslma::UsesBslmaAllocator<ConstructFromAnyPointer>::value);
+        ASSERT(! bslma::UsesBslmaAllocator<bslma::Allocator *>::value);
+        ASSERT(! bslma::UsesBslmaAllocator<bslma::Allocator const *>::value);
+        ASSERT(! bslma::UsesBslmaAllocator<bslma::Allocator volatile *>::value);
+
+        ASSERT(! bslma::UsesBslmaAllocator<DerivedAllocator *>::value);
       } break;
 
       default: {

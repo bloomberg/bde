@@ -161,7 +161,7 @@ void Printer_Helper::printRaw(bsl::ostream&                  stream,
                               char                           data,
                               int                            ,
                               int                            spacesPerLevel,
-                              Printer_Selector::Fundamental *)
+                              bslmf::SelectTraitCase<bsl::is_fundamental>)
 {
 #define HANDLE_CONTROL_CHAR(value) case value: stream << #value; break;
     if (bsl::isprint(data)) {
@@ -196,7 +196,7 @@ void Printer_Helper::printRaw(bsl::ostream&                  stream,
                               bool                           data,
                               int                            ,
                               int                            spacesPerLevel,
-                              Printer_Selector::Fundamental *)
+                              bslmf::SelectTraitCase<bsl::is_fundamental>)
 {
     {
         FormatGuard guard(&stream);
@@ -213,7 +213,7 @@ void Printer_Helper::printRaw(bsl::ostream&              stream,
                               const char                *data,
                               int                        ,
                               int                        spacesPerLevel,
-                              Printer_Selector::Pointer *)
+                              bslmf::SelectTraitCase<bsl::is_pointer>)
 {
     if (0 == data) {
         stream << "NULL";
@@ -230,7 +230,7 @@ void Printer_Helper::printRaw(bsl::ostream&              stream,
                               const void                *data,
                               int                        ,
                               int                        spacesPerLevel,
-                              Printer_Selector::Pointer *)
+                              bslmf::SelectTraitCase<bsl::is_pointer>)
 {
     if (0 == data) {
         stream << "NULL";

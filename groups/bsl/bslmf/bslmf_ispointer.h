@@ -19,7 +19,7 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component defines two meta-functions, 'bsl::is_pointer'
 // and 'BloombergLP::bslmf::IsPointer', both of which may be used to query
-// whether a type is a pointer type.
+// whether or not a type is a pointer type.
 //
 // 'bsl::is_pointer' meets the requirements of the 'is_pointer' template
 // defined in the C++11 standard [meta.unary.cat], while 'bslmf::IsPointer' was
@@ -50,7 +50,7 @@ BSLS_IDENT("$Id: $")
 // 'typedef's and assert the 'value' static data member of each instantiation:
 //..
 //  assert(false == bsl::is_pointer<MyType>::value);
-//  assert(true == bsl::is_pointer<MyPtrType>::value);
+//  assert(true  == bsl::is_pointer<MyPtrType>::value);
 //..
 
 #ifndef INCLUDED_BSLSCM_VERSION
@@ -78,10 +78,11 @@ namespace bslmf {
 
 template <class TYPE>
 struct IsPointer_Imp : bsl::false_type {
-    // This 'struct' template provides a meta-function to determine whether the
-    // (template parameter) 'TYPE' is a (non-cv-qualified) pointer type.  This
-    // generic default template derives from 'bsl::false_type'.  A template
-    // specialization is provided (below) that derives from 'bsl::true_type'.
+    // This 'struct' template implements a meta-function to determine whether
+    // the (template parameter) 'TYPE' is a (non-cv-qualified) pointer type.
+    // This generic default template derives from 'bsl::false_type'.  A
+    // template specialization is provided (below) that derives from
+    // 'bsl::true_type'.
 };
 
                          // ============================
@@ -99,6 +100,7 @@ struct IsPointer_Imp<TYPE *> : bsl::true_type {
 }  // close enterprise namespace
 
 namespace bsl {
+
                          // =================
                          // struct is_pointer
                          // =================
@@ -109,8 +111,8 @@ struct is_pointer
     // This 'struct' template implements the 'is_pointer' meta-function defined
     // in the C++11 standard [meta.unary.cat] to determine if the (template
     // parameter) 'TYPE' is a pointer.  This 'struct' derives from
-    // 'bsl::true_type' if the 'TYPE' is a pointer type (but not a pointer to
-    // non-static member), and 'bsl::false_type' otherwise.
+    // 'bsl::true_type' if the 'TYPE' is a pointer type (but not a
+    // pointer-to-non-static-member type), and 'bsl::false_type' otherwise.
 
 };
 

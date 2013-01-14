@@ -75,6 +75,14 @@ class DetectNestedTrait_Imp {
         // type trait mechanism; otherwise 'false_type'.
 };
 
+template <template <class T> class TRAIT>
+struct DetectNestedTrait_Imp<void, TRAIT> {
+    // Implementation of 'DetectNestedTrait' for 'void' type.  Short-circuits
+    // to 'bsl::false_type' because 'void' can't have any nested traits.
+
+    typedef bsl::false_type Type;
+};
+
 template <class TYPE, template <class T> class TRAIT>
 struct DetectNestedTrait : DetectNestedTrait_Imp<TYPE, TRAIT>::Type {
     // Metafunction to detect whether the specified 'TRAIT' parameter is

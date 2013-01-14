@@ -344,7 +344,7 @@ public:
     // MODIFIED BY ARTHUR
     // typedef typename _Is_integer<_InputIterator>::_Integral _Integral;
 
-    enum { VALUE = BloombergLP::bslmf::IsFundamental<_InputIterator>::VALUE };
+    enum { VALUE = BloombergLP::bslmf::IsFundamental<_InputIterator>::value };
     _M_assign_dispatch(__first, __last, (BloombergLP::bslmf::MetaInt<VALUE> *)0);
 
   }
@@ -442,7 +442,7 @@ private:
                              _InIter __first, _InIter __last) {
     // MODIFIED BY ARTHUR
     // typedef typename _Is_integer<_InIter>::_Integral _Integral;
-    enum { VALUE = BloombergLP::bslmf::IsFundamental<_InIter>::VALUE };
+    enum { VALUE = BloombergLP::bslmf::IsFundamental<_InIter>::value };
     _M_insert_after_range(__pos, __first, __last, (BloombergLP::bslmf::MetaInt<VALUE> *) 0);
   }
 

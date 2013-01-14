@@ -26,7 +26,7 @@ BSLS_IDENT("$Id: $")
 // originally dispensed by 'ALLOCATOR'.  The non-"raw" 'deleteObject' has no
 // such restriction.  Note that this component will fail to compile when
 // instantiated for a class that gives a false-positive for the type trait
-// 'bslmf::IsPolymorphic'.  See the 'bslmf_ispolymporphic' component for more
+// 'bsl::is_polymorphic'.  See the 'bslmf_ispolymporphic' component for more
 // details.
 //
 ///Usage
@@ -173,7 +173,7 @@ void DeleterHelper::deleteObject(const TYPE *object,
 
     if (0 != object) {
         void *address = DeleterHelper_Helper<
-                            bslmf::IsPolymorphic<TYPE>::value>::caster(object);
+                            bsl::is_polymorphic<TYPE>::value>::caster(object);
         BSLS_ASSERT_OPT(address);
 
 #ifndef BSLS_PLATFORM_CMP_SUN

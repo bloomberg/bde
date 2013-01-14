@@ -101,39 +101,6 @@ namespace BloombergLP {
 
 namespace bslmf {
 
-template <typename TYPE>
-struct Remove_NonCvPointer
-{
-    typedef TYPE Type;
-};
-
-template <typename TYPE>
-struct Remove_NonCvPointer<TYPE *>
-{
-    typedef TYPE Type;
-};
-
-                              // ================
-                              // struct RemoveCvq
-                              // ================
-
-template <typename TYPE>
-struct RemovePtrCvq
-    // This class implements a meta-function for stripping 'const' and
-    // 'volatile' qualifiers from the type pointed to by it's parameter type.
-    // It also returns, in 'ValueType', the (non-cvq) type pointed to by its
-    // parameter.  This class has no body -- it is specialized below for
-    // pointers to const, volatile, and const volatile.  IMPLEMENTATION NOTE:
-    // The Sun Workshop 6 C++ 5.2 compiler works with these pointer
-    // specializations, but does not work with direct specialization on T, T
-    // const, and T volatile.  Thus, 'RemoveCvq', below, is implemented
-    // indirectly in terms of 'RemovePtrCvq'.
-{
-    typedef typename bsl::remove_cv<TYPE>::type                      Type;
-    typedef typename Remove_NonCvPointer<typename bsl::remove_cv<TYPE>::type>::Type
-                                                                     ValueType;
-};
-
                            // ================
                            // struct RemoveCvq
                            // ================
@@ -158,12 +125,6 @@ struct RemoveCvq
 #undef bslmf_RemoveCvq
 #endif
 #define bslmf_RemoveCvq bslmf::RemoveCvq
-    // This alias is defined for backward compatibility.
-
-#ifdef bslmf_RemovePtrCvq
-#undef bslmf_RemovePtrCvq
-#endif
-#define bslmf_RemovePtrCvq bslmf::RemovePtrCvq
     // This alias is defined for backward compatibility.
 #endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 

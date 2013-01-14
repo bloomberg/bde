@@ -1,3 +1,27 @@
+bde-core (2.16.0.3) unstable; urgency=low
+
+  * Update uplids.
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Thu, 10 Jan 2013 14:52:41 -0500
+
+bde-core (2.16.0.1) unstable; urgency=low
+
+  * Update bsl::hash<const char*> behaviour.
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Tue, 18 Dec 2012 13:32:56 -0500
+
+bde-core (2.16.0.0) unstable; urgency=low
+
+  * Update version info for 2.16.0 rs_suite build
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 07 Dec 2012 08:13:33 -0500
+
+bde-core (2.15.0.1) unstable; urgency=low
+
+  * Remove reference to 00deployed
+
+ -- Daniel Ruoso <druoso@bloomberg.net>  Tue, 06 Nov 2012 17:21:41 -0500
+
 bde-core (2.15.0.0) unstable; urgency=low
 
   * Preparing 2.15.0 release

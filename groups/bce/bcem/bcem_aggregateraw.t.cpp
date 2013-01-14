@@ -95,7 +95,7 @@ using namespace bsl;
 // [11] void setSchema(const bdem_Schema *schema);
 // [11] void setRecordDef(const bdem_RecordDef *recordDef);
 // [11] void setFieldDef(const bdem_FieldDef *fieldDef);
-// [11] void setTopLevelAggregateNullnessPointer(int *nullnessFlag);
+// [11] void setTopLevelAggregateNullness(int *nullnessFlag);
 // [  ] void clearParent();
 // [20] void reset();
 //
@@ -1869,7 +1869,7 @@ int ggAggData(Obj *agg, const RecDef& record, bslma_Allocator *basicAllocator)
     agg->setSchema(&record.schema());
     agg->setRecordDef(&record);
     agg->setData(data);
-    agg->setTopLevelAggregateNullnessPointer(&TOP_LEVEL_NULLNESS_FLAG);
+    agg->setTopLevelAggregateNullness(&TOP_LEVEL_NULLNESS_FLAG);
     return 0;
 }
 
@@ -3682,7 +3682,7 @@ void testCase28() {
                 Obj mX; const Obj& X = mX;
                 mX.setDataType(TYPE1);
                 mX.setData(data1);
-                mX.setTopLevelAggregateNullnessPointer(&nf1);
+                mX.setTopLevelAggregateNullness(&nf1);
 
                 for (int j = 0; j < ET::BDEM_NUM_TYPES; ++j) {
                     ET::Type    TYPE2 = (ET::Type) j;
@@ -3696,7 +3696,7 @@ void testCase28() {
                     Obj mY; const Obj& Y = mY;
                     mY.setDataType(TYPE2);
                     mY.setData(data2);
-                    mY.setTopLevelAggregateNullnessPointer(&nf2);
+                    mY.setTopLevelAggregateNullness(&nf2);
 
                     if (veryVerbose) { P(TYPE1) P(TYPE2) P(X) P(Y) }
 
@@ -3961,7 +3961,7 @@ void testCase27() {
                 Obj mX; const Obj& X = mX;
                 mX.setDataType(ET::BDEM_CHAR);
                 mX.setData(&AA);
-                mX.setTopLevelAggregateNullnessPointer(&nf);
+                mX.setTopLevelAggregateNullness(&nf);
 
                 ASSERT(!X.isError());
                 ASSERT(!X.isVoid());
@@ -4115,10 +4115,10 @@ void testCase25() {
                 Obj mX, mY;
                 mX.setDataType(bdem_ElemType::BDEM_TABLE);
                 mX.setData(&table1);
-                mX.setTopLevelAggregateNullnessPointer(&nf);
+                mX.setTopLevelAggregateNullness(&nf);
                 mY.setDataType(bdem_ElemType::BDEM_TABLE);
                 mY.setData(&table2);
-                mY.setTopLevelAggregateNullnessPointer(&nf);
+                mY.setTopLevelAggregateNullness(&nf);
 
                 LOOP_ASSERT(i, Obj::areEquivalent(mX, mY));
 
@@ -4155,10 +4155,10 @@ void testCase25() {
                 Obj mX, mY;
                 mX.setDataType(bdem_ElemType::BDEM_CHOICE_ARRAY);
                 mX.setData(&ca1);
-                mX.setTopLevelAggregateNullnessPointer(&nf);
+                mX.setTopLevelAggregateNullness(&nf);
                 mY.setDataType(bdem_ElemType::BDEM_CHOICE_ARRAY);
                 mY.setData(&ca2);
-                mY.setTopLevelAggregateNullnessPointer(&nf);
+                mY.setTopLevelAggregateNullness(&nf);
 
                 LOOP_ASSERT(i, Obj::areEquivalent(mX, mY));
 
@@ -4194,10 +4194,10 @@ void testCase25() {
                 Obj mX, mY;
                 mX.setDataType(bdem_ElemType::BDEM_INT_ARRAY);
                 mX.setData(&sa1);
-                mX.setTopLevelAggregateNullnessPointer(&nf);
+                mX.setTopLevelAggregateNullness(&nf);
                 mY.setDataType(bdem_ElemType::BDEM_INT_ARRAY);
                 mY.setData(&sa2);
-                mY.setTopLevelAggregateNullnessPointer(&nf);
+                mY.setTopLevelAggregateNullness(&nf);
 
                 LOOP_ASSERT(i, Obj::areEquivalent(mX, mY));
 
@@ -4232,10 +4232,10 @@ void testCase25() {
             Obj mX, mY;
             mX.setDataType(bdem_ElemType::BDEM_LIST);
             mX.setData(&list1);
-            mX.setTopLevelAggregateNullnessPointer(&nf);
+            mX.setTopLevelAggregateNullness(&nf);
             mY.setDataType(bdem_ElemType::BDEM_LIST);
             mY.setData(&list2);
-            mY.setTopLevelAggregateNullnessPointer(&nf);
+            mY.setTopLevelAggregateNullness(&nf);
 
             const size_t NUM_BYTES_LIST      = la.numBytesTotal();
             const size_t NUM_BYTES_AGGREGATE = aa.numBytesTotal();
@@ -6498,12 +6498,12 @@ void testCase20() {
                 Obj mX;  const Obj& X = mX;
                 int rc = ggAggData(&mX, *RECORD, &t);
                 ASSERT(!rc);
-                mX.setTopLevelAggregateNullnessPointer(&nf1);
+                mX.setTopLevelAggregateNullness(&nf1);
 
                 Obj mY;  const Obj& Y = mY;
                 rc = ggAggData(&mY, *RECORD, &t);
                 ASSERT(!rc);
-                mY.setTopLevelAggregateNullnessPointer(&nf2);
+                mY.setTopLevelAggregateNullness(&nf2);
 
                 if (veryVerbose) { T_ P_(SPEC) P(SCHEMA) P(X) };
 
@@ -8089,7 +8089,7 @@ void testCase14() {
 
                 destroyAggData(&mX, &testAllocator);
 
-// #ifndef BSLS_PLATFORM_CMP_MSVC
+// #ifndef BSLS_PLATFORM__CMP_MSVC
 //               } END_BSLMA_EXCEPTION_TEST
 // #endif
           }
@@ -8138,7 +8138,7 @@ void testCase14() {
 
                 bslma_TestAllocator testAllocator(veryVeryVerbose);
 
-#ifndef BSLS_PLATFORM_CMP_MSVC
+#ifndef BSLS_PLATFORM__CMP_MSVC
               BEGIN_BSLMA_EXCEPTION_TEST {
 #endif
                 Obj mX(CRP, &testAllocator); const Obj& X = mX;
@@ -8181,7 +8181,7 @@ void testCase14() {
 
                 mA.removeItems(0, 1);
                 ASSERT(LEN + 0 == A.length());
-#ifndef BSLS_PLATFORM_CMP_MSVC
+#ifndef BSLS_PLATFORM__CMP_MSVC
             } END_BSLMA_EXCEPTION_TEST
 #endif
           }
@@ -8768,7 +8768,7 @@ void testCase11() {
         //   void setSchema(const bdem_Schema *schema);
         //   void setRecordDef(const bdem_RecordDef *recordDef);
         //   void setFieldDef(const bdem_FieldDef *fieldDef);
-        //   void setTopLevelAggregateNullnessPointer(int *nullnessFlag);
+        //   void setTopLevelAggregateNullness(int *nullnessFlag);
         //   bdem_ElemType::Type dataType() const;
         //   const bdem_RecordDef& recordDef() const;
         //   const bdem_RecordDef *recordConstraint() const;
@@ -8989,7 +8989,7 @@ void testCase11() {
                 mX.setSchema(&s);
                 LOOP_ASSERT(LINE, &s   == X.schema());
 
-                mX.setTopLevelAggregateNullnessPointer(&n);
+                mX.setTopLevelAggregateNullness(&n);
 
                 mX.setRecordDef(&r);
                 LOOP_ASSERT(LINE, &r   == X.recordConstraint());
@@ -9352,12 +9352,12 @@ void testCase9() {
                 Obj mA; const Obj& A = mA;
                 mA.setDataType(TYPE);
                 mA.setData(data1);
-                mA.setTopLevelAggregateNullnessPointer(&nf1);
+                mA.setTopLevelAggregateNullness(&nf1);
 
                 Obj mB; const Obj& B = mB;
                 mB.setDataType(TYPE);
                 mB.setData(data2);
-                mB.setTopLevelAggregateNullnessPointer(&nf2);
+                mB.setTopLevelAggregateNullness(&nf2);
 
                 bsl::ostringstream exp1, exp2, exp3, exp4, exp5;
                 bsl::ostringstream exp6, exp7, exp8, exp9, exp10;
@@ -9579,14 +9579,14 @@ void testCase9() {
                     Obj mX; const Obj& X = mX;
                     mX.setDataType(ET::BDEM_LIST);
                     mX.setData(&list);
-                    mX.setTopLevelAggregateNullnessPointer(&nf1);
+                    mX.setTopLevelAggregateNullness(&nf1);
                     mX.setSchema(&s);
                     mX.setRecordDef(&r);
 
                     Obj mY; const Obj& Y = mY;
                     mY.setDataType(ET::BDEM_TABLE);
                     mY.setData(&table);
-                    mY.setTopLevelAggregateNullnessPointer(&nf2);
+                    mY.setTopLevelAggregateNullness(&nf2);
                     mY.setSchema(&s);
                     mY.setRecordDef(&r);
 
@@ -9654,14 +9654,14 @@ void testCase9() {
                     Obj mX; const Obj& X = mX;
                     mX.setDataType(ET::BDEM_CHOICE);
                     mX.setData(&choice);
-                    mX.setTopLevelAggregateNullnessPointer(&nf1);
+                    mX.setTopLevelAggregateNullness(&nf1);
                     mX.setSchema(&s);
                     mX.setRecordDef(&r);
 
                     Obj mY; const Obj& Y = mY;
                     mY.setDataType(ET::BDEM_CHOICE_ARRAY);
                     mY.setData(&choiceArray);
-                    mY.setTopLevelAggregateNullnessPointer(&nf2);
+                    mY.setTopLevelAggregateNullness(&nf2);
                     mY.setSchema(&s);
                     mY.setRecordDef(&r);
 
@@ -9877,14 +9877,14 @@ void testCase7() {
                     Obj mX; const Obj& X = mX;
                     mX.setDataType(TYPE1);
                     mX.setData(data1);
-                    mX.setTopLevelAggregateNullnessPointer(&nf1);
+                    mX.setTopLevelAggregateNullness(&nf1);
                     LOOP_ASSERT(TYPE1, !X.isNull());
                     LOOP_ASSERT(TYPE1, TYPE1 == X.dataType());
 
                     Obj mY; const Obj& Y = mY;
                     mY.setDataType(TYPE2);
                     mY.setData(data2);
-                    mY.setTopLevelAggregateNullnessPointer(&nf2);
+                    mY.setTopLevelAggregateNullness(&nf2);
                     LOOP_ASSERT(TYPE2, !Y.isNull());
                     LOOP_ASSERT(TYPE2, TYPE2 == Y.dataType());
 
@@ -10235,7 +10235,7 @@ void testCase6() {
                 Obj mX; const Obj& X = mX;
                 mX.setDataType(TYPE);
                 mX.setData(data);
-                mX.setTopLevelAggregateNullnessPointer(&nf);
+                mX.setTopLevelAggregateNullness(&nf);
                 LOOP_ASSERT(TYPE, !X.isNull());
                 LOOP_ASSERT(TYPE, TYPE == X.dataType());
 
@@ -10544,7 +10544,7 @@ void testCase5() {
                 mX.setDataType(type);
                 mX.setData(data);
                 int nf1 = 0;
-                mX.setTopLevelAggregateNullnessPointer(&nf1);
+                mX.setTopLevelAggregateNullness(&nf1);
 
                 ASSERT(VA.theBool() == X.asBool());
                 ASSERT(VA           == X.asElemRef());
@@ -10561,7 +10561,7 @@ void testCase5() {
                 mY.setDataType(type);
                 mY.setData(data);
                 int nf2 = 0;
-                mY.setTopLevelAggregateNullnessPointer(&nf2);
+                mY.setTopLevelAggregateNullness(&nf2);
 
                 ASSERT(VB.theBool() == Y.asBool());
                 ASSERT(VB           == Y.asElemRef());
@@ -10669,7 +10669,7 @@ void testCase5() {
                 mX.setDataType(type);
                 mX.setData(data);
                 int nf1 = 0;
-                mX.setTopLevelAggregateNullnessPointer(&nf1);
+                mX.setTopLevelAggregateNullness(&nf1);
 
                 ASSERT(VA.theChar() == X.asChar());
                 ASSERT(VA           == X.asElemRef());
@@ -10686,7 +10686,7 @@ void testCase5() {
                 mY.setDataType(type);
                 mY.setData(data);
                 int nf2 = 0;
-                mY.setTopLevelAggregateNullnessPointer(&nf2);
+                mY.setTopLevelAggregateNullness(&nf2);
 
                 ASSERT(VB.theChar() == Y.asChar());
                 ASSERT(VB           == Y.asElemRef());
@@ -10795,7 +10795,7 @@ void testCase5() {
                 mX.setDataType(type);
                 mX.setData(data);
                 int nf1 = 0;
-                mX.setTopLevelAggregateNullnessPointer(&nf1);
+                mX.setTopLevelAggregateNullness(&nf1);
 
                 ASSERT(VA.theShort() == X.asShort());
                 ASSERT(VA           == X.asElemRef());
@@ -10812,7 +10812,7 @@ void testCase5() {
                 mY.setDataType(type);
                 mY.setData(data);
                 int nf2 = 0;
-                mY.setTopLevelAggregateNullnessPointer(&nf2);
+                mY.setTopLevelAggregateNullness(&nf2);
 
                 ASSERT(VB.theShort() == Y.asShort());
                 ASSERT(VB           == Y.asElemRef());
@@ -10921,7 +10921,7 @@ void testCase5() {
                 mX.setDataType(type);
                 mX.setData(data);
                 int nf1 = 0;
-                mX.setTopLevelAggregateNullnessPointer(&nf1);
+                mX.setTopLevelAggregateNullness(&nf1);
 
                 ASSERT(VA.theInt() == X.asInt());
                 ASSERT(VA          == X.asElemRef());
@@ -10938,7 +10938,7 @@ void testCase5() {
                 mY.setDataType(type);
                 mY.setData(data);
                 int nf2 = 0;
-                mY.setTopLevelAggregateNullnessPointer(&nf2);
+                mY.setTopLevelAggregateNullness(&nf2);
 
                 ASSERT(VB.theInt() == Y.asInt());
                 ASSERT(VB          == Y.asElemRef());
@@ -11047,7 +11047,7 @@ void testCase5() {
                 mX.setDataType(type);
                 mX.setData(data);
                 int nf1 = 0;
-                mX.setTopLevelAggregateNullnessPointer(&nf1);
+                mX.setTopLevelAggregateNullness(&nf1);
 
                 ASSERT(VA.theInt64() == X.asInt64());
                 ASSERT(VA          == X.asElemRef());
@@ -11064,7 +11064,7 @@ void testCase5() {
                 mY.setDataType(type);
                 mY.setData(data);
                 int nf2 = 0;
-                mY.setTopLevelAggregateNullnessPointer(&nf2);
+                mY.setTopLevelAggregateNullness(&nf2);
 
                 ASSERT(VB.theInt64() == Y.asInt64());
                 ASSERT(VB          == Y.asElemRef());
@@ -11173,7 +11173,7 @@ void testCase5() {
                 mX.setDataType(type);
                 mX.setData(data);
                 int nf1 = 0;
-                mX.setTopLevelAggregateNullnessPointer(&nf1);
+                mX.setTopLevelAggregateNullness(&nf1);
 
                 ASSERT(VA.theFloat() == X.asFloat());
                 ASSERT(VA          == X.asElemRef());
@@ -11190,7 +11190,7 @@ void testCase5() {
                 mY.setDataType(type);
                 mY.setData(data);
                 int nf2 = 0;
-                mY.setTopLevelAggregateNullnessPointer(&nf2);
+                mY.setTopLevelAggregateNullness(&nf2);
 
                 ASSERT(VB.theFloat() == Y.asFloat());
                 ASSERT(VB          == Y.asElemRef());
@@ -11299,7 +11299,7 @@ void testCase5() {
                 mX.setDataType(type);
                 mX.setData(data);
                 int nf1 = 0;
-                mX.setTopLevelAggregateNullnessPointer(&nf1);
+                mX.setTopLevelAggregateNullness(&nf1);
 
                 ASSERT(VA.theDouble() == X.asDouble());
                 ASSERT(VA             == X.asElemRef());
@@ -11316,7 +11316,7 @@ void testCase5() {
                 mY.setDataType(type);
                 mY.setData(data);
                 int nf2 = 0;
-                mY.setTopLevelAggregateNullnessPointer(&nf2);
+                mY.setTopLevelAggregateNullness(&nf2);
 
                 ASSERT(VB.theDouble() == Y.asDouble());
                 ASSERT(VB             == Y.asElemRef());
@@ -11426,7 +11426,7 @@ void testCase5() {
                 mX.setDataType(type);
                 mX.setData(data);
                 int nf1 = 0;
-                mX.setTopLevelAggregateNullnessPointer(&nf1);
+                mX.setTopLevelAggregateNullness(&nf1);
 
                 ASSERT(VA.theDatetime() == X.asDatetime());
                 ASSERT(VA               == X.asElemRef());
@@ -11443,7 +11443,7 @@ void testCase5() {
                 mY.setDataType(type);
                 mY.setData(data);
                 int nf2 = 0;
-                mY.setTopLevelAggregateNullnessPointer(&nf2);
+                mY.setTopLevelAggregateNullness(&nf2);
 
                 ASSERT(VB.theDatetime() == Y.asDatetime());
                 ASSERT(VB               == Y.asElemRef());
@@ -11553,7 +11553,7 @@ void testCase5() {
                 mX.setDataType(type);
                 mX.setData(data);
                 int nf1 = 0;
-                mX.setTopLevelAggregateNullnessPointer(&nf1);
+                mX.setTopLevelAggregateNullness(&nf1);
 
                 ASSERT(VA.theDate() == X.asDate());
                 ASSERT(VA           == X.asElemRef());
@@ -11570,7 +11570,7 @@ void testCase5() {
                 mY.setDataType(type);
                 mY.setData(data);
                 int nf2 = 0;
-                mY.setTopLevelAggregateNullnessPointer(&nf2);
+                mY.setTopLevelAggregateNullness(&nf2);
 
                 ASSERT(VB.theDate() == Y.asDate());
                 ASSERT(VB           == Y.asElemRef());
@@ -11679,7 +11679,7 @@ void testCase5() {
                 mX.setDataType(type);
                 mX.setData(data);
                 int nf1 = 0;
-                mX.setTopLevelAggregateNullnessPointer(&nf1);
+                mX.setTopLevelAggregateNullness(&nf1);
 
                 ASSERT(VA.theTime() == X.asTime());
                 ASSERT(VA           == X.asElemRef());
@@ -11696,7 +11696,7 @@ void testCase5() {
                 mY.setDataType(type);
                 mY.setData(data);
                 int nf2 = 0;
-                mY.setTopLevelAggregateNullnessPointer(&nf2);
+                mY.setTopLevelAggregateNullness(&nf2);
 
                 ASSERT(VB.theTime() == Y.asTime());
                 ASSERT(VB           == Y.asElemRef());
@@ -11805,7 +11805,7 @@ void testCase5() {
                 mX.setDataType(type);
                 mX.setData(data);
                 int nf1 = 0;
-                mX.setTopLevelAggregateNullnessPointer(&nf1);
+                mX.setTopLevelAggregateNullness(&nf1);
 
                 ASSERT(VA.theDatetimeTz() == X.asDatetimeTz());
                 ASSERT(VA                 == X.asElemRef());
@@ -11822,7 +11822,7 @@ void testCase5() {
                 mY.setDataType(type);
                 mY.setData(data);
                 int nf2 = 0;
-                mY.setTopLevelAggregateNullnessPointer(&nf2);
+                mY.setTopLevelAggregateNullness(&nf2);
 
                 ASSERT(VB.theDatetimeTz() == Y.asDatetimeTz());
                 ASSERT(VB                 == Y.asElemRef());
@@ -11932,7 +11932,7 @@ void testCase5() {
                 mX.setDataType(type);
                 mX.setData(data);
                 int nf1 = 0;
-                mX.setTopLevelAggregateNullnessPointer(&nf1);
+                mX.setTopLevelAggregateNullness(&nf1);
 
                 ASSERT(VA.theDateTz() == X.asDateTz());
                 ASSERT(VA             == X.asElemRef());
@@ -11949,7 +11949,7 @@ void testCase5() {
                 mY.setDataType(type);
                 mY.setData(data);
                 int nf2 = 0;
-                mY.setTopLevelAggregateNullnessPointer(&nf2);
+                mY.setTopLevelAggregateNullness(&nf2);
 
                 ASSERT(VB.theDateTz() == Y.asDateTz());
                 ASSERT(VB           == Y.asElemRef());
@@ -12058,7 +12058,7 @@ void testCase5() {
                 mX.setDataType(type);
                 mX.setData(data);
                 int nf1 = 0;
-                mX.setTopLevelAggregateNullnessPointer(&nf1);
+                mX.setTopLevelAggregateNullness(&nf1);
 
                 ASSERT(VA.theTimeTz() == X.asTimeTz());
                 ASSERT(VA             == X.asElemRef());
@@ -12075,7 +12075,7 @@ void testCase5() {
                 mY.setDataType(type);
                 mY.setData(data);
                 int nf2 = 0;
-                mY.setTopLevelAggregateNullnessPointer(&nf2);
+                mY.setTopLevelAggregateNullness(&nf2);
 
                 ASSERT(VB.theTimeTz() == Y.asTimeTz());
                 ASSERT(VB             == Y.asElemRef());
@@ -13507,7 +13507,7 @@ void testCase3() {
                 Obj mN; const Obj& N = mN;
                 rc = ggAggData(&mN, r, &t);
                 ASSERT(!rc);
-                mN.setTopLevelAggregateNullnessPointer(&nullnessWord);
+                mN.setTopLevelAggregateNullness(&nullnessWord);
                 mN.makeNull();
 
                 if (veryVerbose) { T_ P_(LINE) P(X) P(N)
@@ -14553,7 +14553,7 @@ void testCase1() {
             bslma_TestAllocator ta(veryVeryVerbose);
 
             Obj agg1;
-            agg1.setTopLevelAggregateNullnessPointer(&nf2);
+            agg1.setTopLevelAggregateNullness(&nf2);
             ASSERT(agg1.dataType() == ET::BDEM_VOID);
             ASSERT(agg1.isNull());
             if (verbose) P(agg1);
@@ -14562,7 +14562,7 @@ void testCase1() {
             Obj agg2;
             agg2.setDataType(ET::BDEM_INT);
             agg2.setData(&intData);
-            agg2.setTopLevelAggregateNullnessPointer(&nf1);
+            agg2.setTopLevelAggregateNullness(&nf1);
             ASSERT(agg2.dataType() == ET::BDEM_INT);
             ASSERT(!agg2.isNull());
             ASSERT(agg2.asInt() == intData);
@@ -14573,7 +14573,7 @@ void testCase1() {
             Obj agg3;
             agg3.setDataType(ET::BDEM_STRING);
             agg3.setData(&stringData);
-            agg3.setTopLevelAggregateNullnessPointer(&nf1);
+            agg3.setTopLevelAggregateNullness(&nf1);
             ASSERT(agg3.dataType() == ET::BDEM_STRING);
             ASSERT(!agg3.isNull());
             ASSERT(agg3.asString() == stringData);
@@ -14651,7 +14651,7 @@ void testCase1() {
                 agg1.setRecordDef(schema->lookupRecord("Level1"));
                 agg1.setDataType(ET::BDEM_LIST);
                 agg1.setData(&list1);
-                agg1.setTopLevelAggregateNullnessPointer(&nf1);
+                agg1.setTopLevelAggregateNullness(&nf1);
                 ASSERT(!agg1.isNull());
 
                 Obj   agg2, agg3, agg4, agg5, agg6;
@@ -14692,7 +14692,7 @@ void testCase1() {
                 agg1.setRecordDef(schema->lookupRecord("Level1"));
                 agg1.setDataType(ET::BDEM_LIST);
                 agg1.setData(&list1);
-                agg1.setTopLevelAggregateNullnessPointer(&nf1);
+                agg1.setTopLevelAggregateNullness(&nf1);
 
                 Obj   agg2, agg3, agg4;
                 Error error;
@@ -14727,7 +14727,7 @@ void testCase1() {
                 agg1.setRecordDef(schema->lookupRecord("Level2"));
                 agg1.setDataType(ET::BDEM_LIST);
                 agg1.setData(&data2);
-                agg1.setTopLevelAggregateNullnessPointer(&nf1);
+                agg1.setTopLevelAggregateNullness(&nf1);
 
                 Obj   agg2, agg3, agg4;
                 Error error;
@@ -14750,7 +14750,7 @@ void testCase1() {
                 agg5.setRecordDef(schema->lookupRecord("Level1"));
                 agg5.setDataType(ET::BDEM_LIST);
                 agg5.setData(&data1);
-                agg5.setTopLevelAggregateNullnessPointer(&nf1);
+                agg5.setTopLevelAggregateNullness(&nf1);
 
                 Obj agg6, agg7, agg8;
                 rc = agg5.getField(&agg6,
@@ -14791,7 +14791,7 @@ void testCase1() {
             agg1.setRecordDef(schema->lookupRecord("Table1Row"));
             agg1.setDataType(ET::BDEM_TABLE);
             agg1.setData(&table);
-            agg1.setTopLevelAggregateNullnessPointer(&nf1);
+            agg1.setTopLevelAggregateNullness(&nf1);
             ASSERT(1 == agg1.length());
 
             Obj   agg2, agg3, agg4, agg5;
@@ -14818,7 +14818,7 @@ void testCase1() {
             tmpAgg.setRecordDef(schema->lookupRecord("Table1Row"));
             tmpAgg.setDataType(ET::BDEM_LIST);
             tmpAgg.setData(&list3);
-            tmpAgg.setTopLevelAggregateNullnessPointer(&nf1);
+            tmpAgg.setTopLevelAggregateNullness(&nf1);
 
             rc = agg1.insertItem(&agg5, &error, 0, tmpAgg);
             ASSERT(!rc);
@@ -14849,7 +14849,7 @@ void testCase1() {
             agg1.setRecordDef(schema->lookupRecord("Choice1"));
             agg1.setDataType(ET::BDEM_CHOICE);
             agg1.setData(&choice);
-            agg1.setTopLevelAggregateNullnessPointer(&nf1);
+            agg1.setTopLevelAggregateNullness(&nf1);
 
             Obj   agg2, agg3, agg4, agg5;
             Error error;
@@ -14881,7 +14881,7 @@ void testCase1() {
             agg1.setRecordDef(schema->lookupRecord(recName.c_str()));
             agg1.setDataType(ET::BDEM_LIST);
             agg1.setData(&list1);
-            agg1.setTopLevelAggregateNullnessPointer(&nf1);
+            agg1.setTopLevelAggregateNullness(&nf1);
 
             Obj   agg2, agg3, agg4, agg5;
             Error error;

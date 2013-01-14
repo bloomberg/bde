@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a compile-time check for class types.
+//@PURPOSE: Provide a compile-time check for determining class types.
 //
 //@CLASSES:
 //  bsl::is_class: standard meta-function for determining class types
@@ -18,7 +18,7 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION: This component defines two meta-functions, 'bsl::is_class' and
 // 'BloombergLP::bslmf::IsClass', both of which may be used to query whether a
 // type is a 'class', 'struct', or 'union', optionally qualified with 'const'
-// or volatile'.
+// or 'volatile'.
 //
 // 'bsl::is_class' meets the requirements of the 'is_class' template defined in
 // the C++11 standard [meta.unary.cat], while 'bslmf::IsClass' was devised
@@ -38,7 +38,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Verify Class Types
 ///- - - - - - - - - - - - - - -
-// Suppose that we want to assert whether a particular type is a class type.
+// Suppose that we want to assert whether a set of types are class types.
 //
 // First, we create a class type 'MyClass':
 //..
@@ -66,10 +66,6 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_removecv.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_REMOVEREFERENCE
-#include <bslmf_removereference.h>
-#endif
-
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 #ifndef INCLUDED_CSTDLIB
@@ -82,7 +78,11 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bslmf {
 
-template <typename TYPE>
+                             // ==================
+                             // struct IsClass_Imp
+                             // ==================
+
+template <class TYPE>
 struct IsClass_Imp {
     // This 'struct' template provides a meta-function to determine whether the
     // (template parameter) 'TYPE' is a class type.
@@ -90,11 +90,11 @@ struct IsClass_Imp {
     typedef struct { char a; }    YesType;
     typedef struct { char a[2]; } NoType;
 
-    template <typename TEST_TYPE>
+    template <class TEST_TYPE>
     static
     YesType test(int TEST_TYPE::*);
 
-    template <typename TEST_TYPE>
+    template <class TEST_TYPE>
     static
     NoType test(...);
 
@@ -106,12 +106,14 @@ struct IsClass_Imp {
 
 namespace bsl {
 
-template <typename TYPE>
+                             // ===============
+                             // struct is_class
+                             // ===============
+
+template <class TYPE>
 struct is_class : integral_constant<bool,
                                  BloombergLP::bslmf::IsClass_Imp<
-                                     typename remove_cv<
-                                         typename remove_reference<TYPE>::type>
-                                             ::type>::Value> {
+                                      typename remove_cv<TYPE>::type>::Value> {
     // This 'struct' template implements the 'is_class' meta-function defined
     // in the C++11 standard [meta.unary.cat] to determine if the (template
     // parameter) 'TYPE' is a class.
@@ -121,27 +123,27 @@ struct is_class : integral_constant<bool,
 
 namespace BloombergLP {
 namespace bslmf {
+                            // ==============
+                            // struct IsClass
+                            // ==============
 
-                         // ==============
-                         // struct IsClass
-                         // ==============
-
-template <typename TYPE>
+template <class TYPE>
 struct IsClass : bsl::is_class<TYPE>::type {
-    // This metafunction derives from 'bsl::true_type' if the specified 'TYPE'
-    // is a class type, or is a reference to a class type, and from
-    // 'bsl::false_type' otherwise.
+    // This meta-function derives from 'bsl::true_type' if the (template
+    // parameter) 'TYPE' is a class type, or a reference to a class type, and
+    // from 'bsl::false_type' otherwise.
     //
     // Note that although this 'struct' is functionally identical to
-    // 'bsl::is_class', and the use of 'bsl::is_class' should be preferred.
+    // 'bsl::is_class', the use of 'bsl::is_class' should be preferred.
 };
 
 }  // close package namespace
+}  // close enterprise namespace
 
 #ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 //                           BACKWARD COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 
 #ifdef bslmf_IsClass
 #undef bslmf_IsClass
@@ -150,15 +152,13 @@ struct IsClass : bsl::is_class<TYPE>::type {
     // This alias is defined for backward compatibility.
 #endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
-}  // close enterprise namespace
-
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2005
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

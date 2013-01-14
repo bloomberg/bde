@@ -12,12 +12,12 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bsl::is_lvalue_reference: standard meta-function for lvalue reference types
 //
-//@SEE_ALSO:
+//@SEE_ALSO: bslmf_integralconstant
 //
 //@AUTHOR:
 //
 //@DESCRIPTION: This component defines a meta-function,
-// 'bsl::is_lvalue_reference', which may be used to query whether a type is a
+// 'bsl::is_lvalue_reference', that may be used to query whether a type is an
 // lvalue reference type.
 //
 // 'bsl::is_lvalue_reference' meets the requirements of the
@@ -30,12 +30,12 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Verify Lvalue Reference Types
 /// - - - - - - - - - - - - - - - - - - - -
-// Suppose that we want to assert whether a particular type is a lvalue
-// reference type.
+// Suppose that we want to assert whether a set of types are lvalue reference
+// types.
 //
 // Now, we instantiate the 'bsl::is_lvalue_reference' template for both a
-// non-reference type and a reference type, and assert the 'value' static data
-// member of each instantiation:
+// non-reference type and an lvalue reference type, and assert the 'value'
+// static data member of each instantiation:
 //..
 //  assert(false == bsl::is_lvalue_reference<int>::value);
 //  assert(true  == bsl::is_lvalue_reference<int&>::value);
@@ -51,21 +51,23 @@ BSLS_IDENT("$Id: $")
 
 namespace bsl {
 
-template <typename TYPE>
-struct is_lvalue_reference : false_type
-{
+                          // ==========================
+                          // struct is_lvalue_reference
+                          // ==========================
+
+template <class TYPE>
+struct is_lvalue_reference : false_type {
     // This 'struct' template provides a meta-function to determine whether the
-    // (template parameter) 'TYPE' is a (cv-qualified) lvalue reference type.
-    // This generic default template derives from 'bsl::false_type'.  A
-    // template specialization is provided (below) that derives from
-    // 'bsl::true_type'.
+    // (template parameter) 'TYPE' is a (possibly cv-qualified) lvalue
+    // reference type.  This generic default template derives from
+    // 'bsl::false_type'.  A template specialization is provided (below) that
+    // derives from 'bsl::true_type'.
 };
 
-template <typename TYPE>
-struct is_lvalue_reference<TYPE &> : true_type
-{
+template <class TYPE>
+struct is_lvalue_reference<TYPE&> : true_type {
     // This partial specialization of 'is_lvalue_reference' derives from
-    // 'bsl::true_type' for when the (template parameter) 'TYPE' is a lvalue
+    // 'bsl::true_type' for when the (template parameter) 'TYPE' is an lvalue
     // reference type.
 };
 
@@ -73,11 +75,11 @@ struct is_lvalue_reference<TYPE &> : true_type
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2012
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

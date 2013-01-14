@@ -150,7 +150,7 @@ class MapProctor {
     // erases an element from a templatized container object.  The templatized
     // type 'CONTAINER' may be any type that supports an 'erase' operation
     // taking a 'CONTAINER::iterator' object, however it was explicitly
-    // intended to support 'bsl::map' and 'bsl::hash_map' objects.  On
+    // intended to support 'bsl::map' and 'bsl::unordered_map' objects.  On
     // construction, a 'MapProctor' is provided the address of a 'CONTAINER'
     // object and an iterator (i.e., 'CONTAINER::iterator') into that object.
     // On destruction, if 'release()' has not been called, a 'MapProctor'
@@ -198,7 +198,7 @@ class MapProctor {
         // 'false' or 'insertResult.first' is a valid iterator into 'map' and
         // remains valid for the lifetime of this object.  Note that the type
         // of 'insertResult' matches the return type of 'bsl::map::insert()'
-        // and 'bsl::hash_map::insert()'.
+        // and 'bsl::unordered_map::insert()'.
 
     ~MapProctor();
         // If 'active()' is 'true', erase the element indicated by the

@@ -51,7 +51,7 @@ BDES_IDENT("$Id: $")
 #define BDE_VERSION_MAJOR     2
     // Provide the major version number of the current (latest) BDE release.
 
-#define BDE_VERSION_MINOR     15
+#define BDE_VERSION_MINOR     16
     // Provide the minor version number of the current (latest) BDE release.
 
 #ifndef BDE_VERSION_RELEASETYPE

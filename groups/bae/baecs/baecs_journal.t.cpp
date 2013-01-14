@@ -102,9 +102,10 @@ static void aSsErT(int c, const char *s, int i)
 
 #define MAX_TMPFILENAME (L_tmpnam+64)
 
-#if defined(BSLS_PLATFORM_OS_AIX) ||   \
-    defined(BSLS_PLATFORM_OS_HPUX) ||  \
-    defined(BSLS_PLATFORM_OS_DARWIN)
+#if defined(BSLS_PLATFORM_OS_AIX)    || \
+    defined(BSLS_PLATFORM_OS_HPUX)   || \
+    defined(BSLS_PLATFORM_OS_DARWIN) || \
+    defined(BSLS_PLATFORM_OS_CYGWIN)
 #define tmpnam_r tmpnam
 #endif
 
@@ -189,7 +190,7 @@ void getTmpFileName(char* filename, int testCase) {
        const char* tmpdirName = getenv("TMPDIR");
 #endif
        if (0 == tmpdirName) {
-          tmpdirName = "/bb/data/tmp";
+          tmpdirName = "/bb/data/tmp";  // Bloomberg-specific
        }
 
        snprintf(filename, MAX_TMPFILENAME,

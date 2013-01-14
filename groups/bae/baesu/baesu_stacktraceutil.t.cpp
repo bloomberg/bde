@@ -36,6 +36,7 @@
 
 #include <ctype.h>
 
+#ifndef BSLS_PLATFORM_OS_CYGWIN
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 // for 'EnumWindows'
@@ -1778,6 +1779,15 @@ int main(int argc, char *argv[])
 
     return testStatus;
 }
+
+#else
+
+int main()
+{
+    return -1;
+}
+
+#endif
 
 // ---------------------------------------------------------------------------
 // NOTICE:

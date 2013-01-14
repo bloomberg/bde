@@ -1,13 +1,10 @@
 // bslmf_isenum.t.cpp                                                 -*-C++-*-
-
 #include <bslmf_isenum.h>
 
-#include <bsls_types.h>
 #include <bsls_bsltestutil.h>
 
-#include <cstdio>
-#include <cstdlib>
-#include <iostream>
+#include <cstdio>   // 'printf'
+#include <cstdlib>  // 'atoi'
 
 using namespace BloombergLP;
 using namespace std;
@@ -17,7 +14,7 @@ using namespace std;
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// The objects under test are two meta-functions, 'bsl::is_enum' and
+// The component under test defines two meta-functions, 'bsl::is_enum' and
 // 'bslmf::IsEnum', that determine whether a template parameter type is an
 // enumerated type.  Thus, we need to ensure that the value returned by these
 // meta-functions are correct for each possible category of types.  Since the
@@ -26,7 +23,7 @@ using namespace std;
 //
 //-----------------------------------------------------------------------------
 // PUBLIC CLASS DATA
-// [ 2] BloombergLP::bslmf::IsEnum::VALUE
+// [ 2] bslmf::IsEnum::VALUE
 // [ 1] bsl::is_enum::value
 //
 // ----------------------------------------------------------------------------
@@ -69,55 +66,66 @@ void aSsErT(bool b, const char *s, int i)
 
 namespace {
 
-enum   EnumTestType {
-    // This user-defined 'enum' type is intended to be used during testing as
-    // an argument for the template parameter 'TYPE' of 'bsl::is_enum' and
-    // 'bslmf::IsEnum'.
+enum EnumTestType {
+    // This user-defined 'enum' type is intended to be used for testing as the
+    // template parameter 'TYPE' of 'bsl::is_enum'.
+    ENUM_TEST_VALUE0 = 0,
+    ENUM_TEST_VALUE1,
 };
 
 struct StructTestType {
-    // This user-defined 'struct' type is intended to be used during testing as
-    // an argument for the template parameter 'TYPE' of 'bsl::is_enum' and
-    // 'bslmf::IsEnum'.
+    // This user-defined 'struct' type is intended to be used for testing as
+    // the template parameter 'TYPE' of 'bsl::is_enum'.
 };
 
-union  UnionTestType {
-    // This user-defined 'union' type is intended to be used during testing as
-    // an argument for the template parameter 'TYPE' of 'bsl::is_enum' and
-    // 'bslmf::IsEnum'.
+union UnionTestType {
+    // This user-defined 'union' type is intended to be used for testing as the
+    // template parameter 'TYPE' of 'bsl::is_enum'.
 };
 
-class  BaseClassTestType {
-    // This user-defined base class type is intended to be used during testing
-    // as an argument for the template parameter 'TYPE' of 'bsl::is_enum' and
-    // 'bslmf::IsEnum'.
+class BaseClassTestType {
+    // This user-defined base class type is intended to be used for testing as
+    // the template parameter 'TYPE' of 'bsl::is_enum'.
 };
 
-class  DerivedClassTestType : public BaseClassTestType {
-    // This user-defined derived class type is intended to be used during
-    // testing as an argument for the template parameter 'TYPE' of
-    // 'bsl::is_enum' and 'bslmf::IsEnum'.
+class DerivedClassTestType : public BaseClassTestType {
+    // This user-defined derived class type is intended to be used for testing
+    // as the template parameter 'TYPE' of 'bsl::is_enum'.
 };
 
 typedef int (StructTestType::*MethodPtrTestType) ();
-    // This non-static function member type is intended to be used during
-    // testing as an argument for the template parameter 'TYPE' of
-    // 'bsl::is_enum' and 'bslmf::IsEnum'.
+    // This pointer to non-static member function type is intended to be used
+    // for testing as the template parameter 'TYPE' of 'bsl::is_enum'.
 
 typedef void (*FunctionPtrTestType) ();
-    // This function pointer type is intended to be used during testing as an
-    // argument as an argument for the template parameter 'TYPE' of
-    // 'bsl::is_enum' and 'bslmf::IsEnum'.
+    // This function pointer type is intended to be used for testing as the
+    // template parameter 'TYPE' of 'bsl::is_enum'.
 
-typedef int StructTestType::* PMD;
-    // This class public data member pointer type is intended to be used during
-    // testing as an argument as an argument for the template parameter 'TYPE'
-    // of 'bsl::is_enum' and 'bslmf::IsEnum'.
+typedef int StructTestType::*PMD;
+    // This pointer to member object type is intended to be used for testing as
+    // the template parameter 'TYPE' of 'bsl::is_enum'.
 
 struct Incomplete;
-    // This incomplete 'struct' type is intended to be used during testing as
-    // an argument as an argument for the template parameter 'TYPE' of
-    // 'bsl::is_enum' and 'bslmf::IsEnum'.
+    // This incomplete 'struct' type is intended to be used for testing as the
+    // template parameter 'TYPE' of 'bsl::is_enum'.
+
+struct ConvertToIntTestType {
+    // This 'struct' type, having a conversion operator to 'int', is intended
+    // to be used for testing as the template parameter 'TYPE' of
+    // 'bsl::is_enum'.  This type should not be determined to be an enumerated
+    // type.
+
+    operator int() { return 0; }
+};
+
+struct ConvertToEnumTestType {
+    // This 'struct' type, having a conversion operator to 'EnumTestType', is
+    // intended to be used for testing as the template parameter 'TYPE' of
+    // 'bsl::is_enum'.  This type should not be determined to be an enumerated
+    // type.
+
+    operator EnumTestType() { return ENUM_TEST_VALUE0; }
+};
 
 }  // close unnamed namespace
 
@@ -155,10 +163,9 @@ struct Incomplete;
 //
 ///Example 1: Verify Enumerated Types
 /// - - - - - - - - - - - - - - - - -
-// Suppose that we want to assert whether a particular type is a class type.
+// Suppose that we want to assert whether a set of types are 'enum' types.
 //
-// First, we create an enumerated type, 'MyEnum', and a non-enumerated class
-// type, 'MyClass':
+// First, we create an enumerated type, 'MyEnum', and a class type, 'MyClass':
 //..
     enum MyEnum { MY_ENUMERATOR = 5 };
     class MyClass { explicit MyClass(MyEnum); };
@@ -173,9 +180,6 @@ int main(int argc, char *argv[])
     int test = argc > 1 ? atoi(argv[1]) : 0;
     int verbose = argc > 2;
     // int veryVerbose = argc > 3;
-    // int veryVeryVerbose = argc > 4;
-
-    setbuf(stdout, NULL);    // Use unbuffered output
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
@@ -201,7 +205,7 @@ int main(int argc, char *argv[])
                             "=============\n");
 
 // Now, we instantiate the 'bsl::is_enum' template for both types we defined
-// previously, asserting the 'value' static data member of each instantiation:
+// previously, and assert the 'value' static data member of each instantiation:
 //..
     ASSERT(true  == bsl::is_enum<MyEnum>::value);
     ASSERT(false == bsl::is_enum<MyClass>::value);
@@ -212,7 +216,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // 'bslmf::IsEnum::VALUE'
         //   Ensure that the static data member 'VALUE' of 'bslmf::IsEnum'
-        //   instantiations having various (template parameter) 'TYPES' has the
+        //   instantiations having various (template parameter) 'TYPE's has the
         //   correct value.
         //
         // Concerns:
@@ -220,24 +224,29 @@ int main(int argc, char *argv[])
         //:   primitive type.
         //:
         //: 2 'IsEnum::VALUE' is 1 when 'TYPE' is a (possibly cv-qualified)
-        //:   'enum' type.
+        //:   'enum' type, and is 0 when 'TYPE' is a (possibly cv-qualified)
+        //:   reference to an enumerated type.
         //:
         //: 3 'IsEnum::VALUE' is 0 when 'TYPE' is a (possibly cv-qualified)
         //:   'class', 'struct', or 'union' type.
         //:
         //: 4 'IsEnum::VALUE' is 0 when 'TYPE' is a (possibly cv-qualified)
-        //:   pointer type.
+        //:   pointer or pointer-to-member type.
+        //:
+        //: 5 'IsEnum::VALUE' is 0 when 'TYPE' is a (possibly cv-qualified)
+        //:   user-defined type having conversions to integral or enumerated
+        //:   type, or a reference to such a user-defined type.
         //
         // Plan:
-        //   Verify that 'bsl::IsEnum::VALUE' has the correct value for each
-        //   (template parameter) 'TYPE' in the concerns.
+        //   Verify that 'bslmf::IsEnum::VALUE' has the correct value for each
+        //   (template parameter) 'TYPE' in the concerns.  (C-1..5)
         //
         // Testing:
         //   bslmf::IsEnum::VALUE
         // --------------------------------------------------------------------
 
-        if (verbose) printf("bslmf::IsEnum\n"
-                            "=============\n");
+        if (verbose) printf("'bslmf::IsEnum::VALUE'\n"
+                            "======================\n");
 
         // C-1
         TYPE_ASSERT_CVQ_SUFFIX(bslmf::IsEnum, int,  0);
@@ -245,6 +254,7 @@ int main(int argc, char *argv[])
 
         // C-2
         TYPE_ASSERT_CVQ_SUFFIX(bslmf::IsEnum, EnumTestType, 1);
+        TYPE_ASSERT_CVQ_REF   (bslmf::IsEnum, EnumTestType, 0);
 
         // C-3
         TYPE_ASSERT_CVQ_SUFFIX(bslmf::IsEnum, StructTestType,       0);
@@ -284,12 +294,18 @@ int main(int argc, char *argv[])
         TYPE_ASSERT_CVQ_REF(bslmf::IsEnum, Incomplete*,                0);
         TYPE_ASSERT_CVQ_REF(bslmf::IsEnum, MethodPtrTestType,          0);
         TYPE_ASSERT_CVQ_REF(bslmf::IsEnum, FunctionPtrTestType,        0);
+
+        // C-5
+        TYPE_ASSERT_CVQ_SUFFIX(bslmf::IsEnum, ConvertToIntTestType,  0);
+        TYPE_ASSERT_CVQ_REF   (bslmf::IsEnum, ConvertToIntTestType,  0);
+        TYPE_ASSERT_CVQ_SUFFIX(bslmf::IsEnum, ConvertToEnumTestType, 0);
+        TYPE_ASSERT_CVQ_REF   (bslmf::IsEnum, ConvertToEnumTestType, 0);
       } break;
       case 1: {
         // --------------------------------------------------------------------
         // 'bsl::is_enum::value'
         //   Ensure that the static data member 'value' of 'bsl::is_enum'
-        //   instantiations having various (template parameter) 'TYPES' has the
+        //   instantiations having various (template parameter) 'TYPE's has the
         //   correct value.
         //
         // Concerns:
@@ -297,24 +313,29 @@ int main(int argc, char *argv[])
         //:   cv-qualified) primitive type.
         //:
         //: 2 'is_enum::value' is 'true' when 'TYPE' is a (possibly
-        //:   cv-qualified) 'enum' type.
+        //:   cv-qualified) 'enum' type, and is 'false' when 'TYPE' is a
+        //:   (possibly cv-qualified) reference to an enumerated type.
         //:
         //: 3 'is_enum::value' is 'false' when 'TYPE' is a (possibly
         //:   cv-qualified) 'class', 'struct', or 'union' type.
         //:
         //: 4 'is_enum::value' is 'false' when 'TYPE' is a (possibly
-        //:   cv-qualified) pointer type.
+        //:   cv-qualified) pointer or pointer-to-member type.
+        //:
+        //: 5 'is_enum::value' is 'false' when 'TYPE' is a (possibly
+        //:   cv-qualified) user-defined type having conversions to integral or
+        //:   enumerated type, or a reference to such a user-defined type.
         //
         // Plan:
         //   Verify that 'bsl::is_enum::value' has the correct value for
-        //   each (template parameter) 'TYPE' in the concerns.
+        //   each (template parameter) 'TYPE' in the concerns.  (C-1..5)
         //
         // Testing:
         //   bsl::is_enum::value
         // --------------------------------------------------------------------
 
-        if (verbose) printf("bsl::is_enum\n"
-                            "============\n");
+        if (verbose) printf("'bsl::is_enum::value'\n"
+                            "=====================\n");
 
         // C-1
         TYPE_ASSERT_CVQ_SUFFIX(bsl::is_enum, int,  false);
@@ -322,6 +343,7 @@ int main(int argc, char *argv[])
 
         // C-2
         TYPE_ASSERT_CVQ_SUFFIX(bsl::is_enum, EnumTestType, true);
+        TYPE_ASSERT_CVQ_REF   (bsl::is_enum, EnumTestType, false);
 
         // C-3
         TYPE_ASSERT_CVQ_SUFFIX(bsl::is_enum, StructTestType,       false);
@@ -361,6 +383,12 @@ int main(int argc, char *argv[])
         TYPE_ASSERT_CVQ_REF(bsl::is_enum, Incomplete*,                false);
         TYPE_ASSERT_CVQ_REF(bsl::is_enum, MethodPtrTestType,          false);
         TYPE_ASSERT_CVQ_REF(bsl::is_enum, FunctionPtrTestType,        false);
+
+        // C-5
+        TYPE_ASSERT_CVQ_SUFFIX(bsl::is_enum, ConvertToIntTestType,  false);
+        TYPE_ASSERT_CVQ_REF   (bsl::is_enum, ConvertToIntTestType,  false);
+        TYPE_ASSERT_CVQ_SUFFIX(bsl::is_enum, ConvertToEnumTestType, false);
+        TYPE_ASSERT_CVQ_REF   (bsl::is_enum, ConvertToEnumTestType, false);
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
@@ -375,11 +403,11 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2004
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

@@ -23,30 +23,30 @@ BSLS_IDENT("$Id: $")
 // declared 'virtual'.  Therefore, another definition of polymorphic is whether
 // a class has a virtual destructor.
 //
-// 'bsl::is_polymorphic' meets the requirements of the 'is_polymorphic'
-// template defined in the C++11 standard [meta.unary.prop] with some
-// exceptions (see the two 'note that' below), while 'bslmf::IsPolymorphic' was
-// devised before 'is_polymorphic' was standardized.
+// 'bsl::is_polymorphic' has the same syntax as the 'is_polymorphic' template
+// defined in the C++11 standard [meta.unary.prop], while
+// 'bslmf::IsPolymorphic' was devised before 'is_polymorphic' was standardized.
+// 'bsl::is_polymorphic' meets the requirements of the C++11 standard with two
+// exceptions:
+//
+//: 1 The compilation will fail if the meta-function is used to evaluate a
+//:   'union' type, unless the one of the following complier, which provides an
+//:   intrinsic operation to detect this specific trait, are used:
+//:     o gcc 4.3 or later
+//:     o Visual C++ 2008 or later
+//:
+//: 2 The meta-function will yield false positives, claiming non-polymorphic
+//:   types *are* polymorphic, for types using virtual inheritance.  This case
+//:   is known to be handled *correctly* for the following compilers only:
+//:     o Compilers with intrinsic support, listed above
+//:     o IBM XLC
 //
 // The two meta-functions are functionally equivalent.  The major difference
 // between them is that the result for 'bsl::is_polymorphic' is indicated by
 // the class member 'value', while the result for 'bslmf::IsPolymorphic' is
-// indicated by the class member 'VALUE'.  'bsl::is_pointer' should be
-// preferred over 'bslmf::IsPointer', and in general, should be used by new
+// indicated by the class member 'VALUE'.  'bsl::is_polymorphic' should be
+// preferred over 'bslmf::IsPolymorphic', and in general, should be used by new
 // components.
-//
-// Note that if either of the two meta-functions is applied to a 'union' type,
-// then the compilation will fail, unless the complier provides an intrinsic
-// operation to detect this specific trait.  The compilers known to support
-// this trait natively are:
-//: o gcc 4.3 or later
-//: o Visual C++ 2008 or later
-//
-// Further note that for some compilers this trait will yield a false positive,
-// claiming that a non-polymorphic type *is* polymorphic, if using virtual
-// inheritance.  This case is known to be handled *correctly* only for:
-//: o Compilers with intrinsic support, listed above
-//: o IBM XLC
 //
 ///Usage
 ///-----
@@ -88,15 +88,15 @@ BSLS_IDENT("$Id: $")
 //  assert(false == bsl::is_polymorphic<MyDerivedStruct&  >::value);
 //  assert(false == bsl::is_polymorphic<MyDerivedStruct  *>::value);
 //
-//  assert(true == bsl::is_polymorphic<      MyClass    >::value);
-//  assert(true == bsl::is_polymorphic<const MyClass&   >::value);
+//  assert(true  == bsl::is_polymorphic<      MyClass    >::value);
+//  assert(true  == bsl::is_polymorphic<const MyClass&   >::value);
 //  assert(false == bsl::is_polymorphic<      MyClass   *>::value);
-//  assert(true == bsl::is_polymorphic<MyDerivedClass&  >::value);
+//  assert(true  == bsl::is_polymorphic<MyDerivedClass&  >::value);
 //  assert(false == bsl::is_polymorphic<MyDerivedClass  *>::value);
 //..
 // Finally, note that the following class is detected as polymorphic by this
-// component, but should really have a virtual destructor.  'gcc' issues a
-// warning for such infractions.
+// component, but should really have a virtual destructor ('gcc' issues a
+// warning for such infractions):
 //..
 //  class MyIncorrectPolymorphicClass {
 //
@@ -117,10 +117,6 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_isclass.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_METAINT
-#include <bslmf_metaint.h>
-#endif
-
 #ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
 #include <bslmf_integralconstant.h>
 #endif
@@ -133,10 +129,8 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_removereference.h>
 #endif
 
-#ifdef BDE_BUILD_TARGET_EXC
-#define BSLMF_ISPOLYMORPHIC_NOTHROW throw()
-#else
-#define BSLMF_ISPOLYMORPHIC_NOTHROW
+#ifndef INCLUDED_BSLS_EXCEPTIONUTIL
+#include <bsls_exceptionutil.h>
 #endif
 
 #if (defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VER_MAJOR >= 40300)\
@@ -154,7 +148,7 @@ namespace bslmf {
 
 #if defined(BSLMF_ISPOLYMORPHIC_HAS_INTRINSIC)
 
-// Use type traits intrinsics, where avaialble, to give the correct answer for
+// Use type traits intrinsics, where available, to give the correct answer for
 // the tricky cases where existing ABIs prevent programatic detection.
 template <typename TYPE>
 struct IsPolymorphic_Imp {
@@ -167,29 +161,29 @@ template <typename TYPE, bool IS_CLASS = bsl::is_class<TYPE>::value>
 struct IsPolymorphic_Imp {
     // This 'struct' template provides a meta-function to determine whether the
     // (template parameter) 'TYPE' is a (non-cv-qualified) polymorphic type.
-    // This generic default template derives from 'bsl::false_type'.  A
-    // template specialization is provided (below) that derives from
-    // 'bsl::true_type'.
+    // This generic default template defines a static data member, 'Value',
+    // that is set to 'false'.  A template specialization is provided (below)
+    // that has 'Value' set to 'true'.
 
     enum { Value = false };
 };
 
 template <typename TYPE>
 struct IsPolymorphic_Imp<TYPE, true> {
-     // This partial specialization of 'IsPolymorphic_Imp' derives from
-     // 'bsl::true_type' for when the (template parameter) 'TYPE' is a
-     // polymorphic type.
+     // This partial specialization of 'IsPolymorphic_Imp',for when the
+     // (template parameter) 'TYPE' is a (non-cv-qualified) polymorphic type,
+     // provides a static data member, 'Value', that is set to 'true'.
 
     struct IsPoly : public TYPE {
         IsPoly();
-        virtual ~IsPoly() BSLMF_ISPOLYMORPHIC_NOTHROW;
+        virtual ~IsPoly() BSLS_NOTHROW_SPEC;
 
         char dummy[256];
     };
 
     struct MaybePoly : public TYPE {
         MaybePoly();
-        ~MaybePoly() BSLMF_ISPOLYMORPHIC_NOTHROW;
+        ~MaybePoly() BSLS_NOTHROW_SPEC;
         char dummy[256];
     };
 
@@ -207,8 +201,7 @@ template <typename TYPE>
 struct is_polymorphic
     : integral_constant<bool,
                         BloombergLP::bslmf::IsPolymorphic_Imp<
-                             typename remove_cv<
-                                 typename remove_reference<TYPE>::type>::type>
+                             typename remove_cv<TYPE>::type>
                         ::Value> {
     // This 'struct' template implements the 'is_polymorphic' meta-function
     // defined in the C++11 standard [meta.unary.prop] to determine if the
@@ -231,8 +224,8 @@ template <typename TYPE>
 struct IsPolymorphic : bsl::is_polymorphic<TYPE>::type {
     // This 'struct' template implements a meta-function to determine if the
     // (template parameter) 'TYPE' is a (possiblly cv-qualified) polymorphic
-    // type.  This 'struct' derives from 'bslmf::MetaInt<1>' if the 'TYPE' is a
-    // polymorphic type, and 'bslmf::MetaInt<0>' otherwise.
+    // type.  This 'struct' derives from 'bsl::true_type' if the 'TYPE' is a
+    // polymorphic type, and 'bsl::false_type' otherwise.
     //
     // Note that although this 'struct' is functionally equivalent to
     // 'bsl::is_polymorphic', the use of 'bsl::is_polymorphic' should be
@@ -254,8 +247,6 @@ struct IsPolymorphic : bsl::is_polymorphic<TYPE>::type {
 #endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
-
-#undef BSLMF_ISPOLYMORPHIC_NOTHROW
 
 #endif
 

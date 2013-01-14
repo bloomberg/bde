@@ -1,6 +1,8 @@
 // baea_serializableobjectproxy.cpp                                   -*-C++-*-
 #include <baea_serializableobjectproxy.h>
 
+#include <bdeat_formattingmode.h>
+
 #include <bdes_ident.h>
 BDES_IDENT_RCSID(baea_serializableobjectproxy_cpp,"$Id$ $CSID$")
 
@@ -82,6 +84,9 @@ void baea_SerializableObjectProxy::loadArrayElementDecodeProxy(
     BSLS_ASSERT(d_objectInfo.is<ArrayDecodeInfo>());
 
     const ArrayDecodeInfo& info = d_objectInfo.the<ArrayDecodeInfo>();
+
+    BSLS_ASSERT_SAFE(0 <= index && index <= info.d_length);
+
     void* address = (char*)info.d_begin + info.d_elementSize * index;
     info.d_loader(elementProxy, address);
 }
@@ -96,7 +101,7 @@ int baea_SerializableObjectProxy::loadSequenceElementProxy(
     const SequenceInfo& info = d_objectInfo.the<SequenceInfo>();
     for(int i = 0; i < info.d_numAttributes; ++i) {
         if (info.d_attributeInfo_p[i].id() == elementId) {
-            info.d_loader(proxy, *this, elementId);
+            info.d_elementLoader(proxy, *this, elementId);
             *attrInfo = info.d_attributeInfo_p + i;
             return 0;                                                 // RETURN
         }
@@ -114,6 +119,7 @@ int baea_SerializableObjectProxy::loadSequenceElementProxy(
 
     const SequenceInfo& info = d_objectInfo.the<SequenceInfo>();
 
+    const bdeat_AttributeInfo *untaggedAttrInfo = 0;
     for(int i = 0; i < info.d_numAttributes; ++i) {
         *attrInfo = info.d_attributeInfo_p + i;
 
@@ -121,11 +127,28 @@ int baea_SerializableObjectProxy::loadSequenceElementProxy(
                      elementNameLength,
                      (*attrInfo)->name(),
                      (*attrInfo)->nameLength())) {
-            info.d_loader(proxy, *this, (*attrInfo)->id());
+            info.d_elementLoader(proxy, *this, (*attrInfo)->id());
+            return 0;                                                 // RETURN
+        }
+        if ((*attrInfo)->formattingMode() 
+            & bdeat_FormattingMode::BDEAT_UNTAGGED) {
+            untaggedAttrInfo = *attrInfo;
+        }
+    }
+
+    if (untaggedAttrInfo) {
+        // maybe an anonymous choice having a selection with this name?
+        
+        info.d_elementLoader(proxy, *this, untaggedAttrInfo->id());
+        if (proxy->d_objectInfo.is<ChoiceDecodeInfo>() &&
+            proxy->choiceHasSelection(elementName, elementNameLength)) {
+            // We don't need to "make" the selection here
+            *attrInfo = untaggedAttrInfo;
             return 0;                                                 // RETURN
         }
     }
     return -1;
+
 }
 
 // MANIPULATORS
@@ -596,6 +619,7 @@ bool baea_SerializableObjectProxy::sequenceHasAttribute(
     BSLS_ASSERT(d_objectInfo.is<SequenceInfo>());
 
     const SequenceInfo& info = d_objectInfo.the<SequenceInfo>();
+    int untaggedAttributeId = -1;
     for(int i = 0; i < info.d_numAttributes; ++i) {
         if (areEqual(name, nameLength,
                      info.d_attributeInfo_p[i].name(),
@@ -603,6 +627,22 @@ bool baea_SerializableObjectProxy::sequenceHasAttribute(
         {
             return true;                                              // RETURN
         }
+        if (info.d_attributeInfo_p[i].formattingMode() 
+            & bdeat_FormattingMode::BDEAT_UNTAGGED) {
+            untaggedAttributeId = info.d_attributeInfo_p[i].id();
+        }
+    }
+
+    if (0 <= untaggedAttributeId) {
+        // maybe an anonymous choice having a selection with this name?
+        
+        baea_SerializableObjectProxy untaggedInfo;
+        info.d_elementLoader(&untaggedInfo, *this, untaggedAttributeId);
+        if (untaggedInfo.d_objectInfo.is<ChoiceDecodeInfo>()) {
+            return untaggedInfo.choiceHasSelection(name, nameLength); // RETURN
+        }
+        // otherwise -- it's UNTAGGED but not a Choice?  Don't know what
+        // that is but it's not what we're looking for
     }
     return false;
 }

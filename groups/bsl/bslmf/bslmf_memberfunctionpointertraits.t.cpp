@@ -71,7 +71,7 @@ void aSsErT(int c, const char *s, int i)
        #M << ": " << M << "\t" << #N << ": " << N << "\n"; \
        aSsErT(1, #X, __LINE__); } }
 
-#define ASSERT_SAME(T1,T2) ASSERT((1 == bslmf::IsSame<T1,T2>::value))
+#define ASSERT_SAME(T1,T2) ASSERT((1 == bsl::is_same<T1,T2>::value))
 
 //=============================================================================
 //                  STANDARD BDEX EXCEPTION TEST MACROS
@@ -238,19 +238,21 @@ typedef void (*TestVoidFunc14)(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11,
     template <class TYPE>
     void checkNotMemberFunctionPointer(TYPE object)
     {
+        (void) object;
         ASSERT(0 == bslmf::IsMemberFunctionPointer<TYPE>::value);
     }
 
     template <class RET, class ARGS, class TYPE>
     void checkMemberFunctionPointer(TYPE object)
     {
+        (void) object;
         ASSERT(1 == bslmf::IsMemberFunctionPointer<TYPE>::value);
         typedef typename bslmf::MemberFunctionPointerTraits<TYPE>::ResultType
             ResultType;
         typedef typename bslmf::MemberFunctionPointerTraits<TYPE>::ArgumentList
             ArgumentList;
-        ASSERT(1 == (bslmf::IsSame<ResultType, RET>::value));
-        ASSERT(1 == (bslmf::IsSame<ArgumentList, ARGS>::value));
+        ASSERT(1 == (bsl::is_same<ResultType, RET>::value));
+        ASSERT(1 == (bsl::is_same<ArgumentList, ARGS>::value));
     }
 //..
 // The following program should compile and run without errors:

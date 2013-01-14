@@ -57,7 +57,7 @@ static void aSsErT(bool b, const char *s, int i) {
 //                  SEMI-STANDARD TEST OUTPUT MACROS
 //-----------------------------------------------------------------------------
 
-#define ASSERT_SAME(X, Y) ASSERT((bslmf::IsSame<X, Y>::value))
+#define ASSERT_SAME(X, Y) ASSERT((bsl::is_same<X, Y>::value))
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
