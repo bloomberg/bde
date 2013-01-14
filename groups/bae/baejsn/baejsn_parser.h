@@ -16,7 +16,8 @@ BDES_IDENT("$Id: $")
 //
 //@AUTHOR: Rohan Bhindwale (rbhindwa)
 //
-//@DESCRIPTION:
+//@DESCRIPTION: This component provides a class, 'baejsn_parser', that
+// traverses data stored in a 'streambuf' and.
 
 #ifndef INCLUDED_BAESCM_VERSION
 #include <baescm_version.h>

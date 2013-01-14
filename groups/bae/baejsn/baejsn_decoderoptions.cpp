@@ -16,40 +16,10 @@ namespace BloombergLP {
                       // class baejsn_DecoderOptions
                       // ---------------------------
 
-// CREATORS
-baejsn_DecoderOptions::baejsn_DecoderOptions()
-: d_maxDepth(MAX_DEPTH)
-, d_skipUnknownElements(true)
-{
-}
-
-baejsn_DecoderOptions::baejsn_DecoderOptions(
-                                         const baejsn_DecoderOptions& original)
-: d_maxDepth(original.d_maxDepth)
-, d_skipUnknownElements(original.d_skipUnknownElements)
-{
-}
-
-baejsn_DecoderOptions::~baejsn_DecoderOptions()
-{
-}
-
-// MANIPULATORS
-baejsn_DecoderOptions&
-baejsn_DecoderOptions::operator=(const baejsn_DecoderOptions& rhs)
-{
-    d_maxDepth            = rhs.d_maxDepth;
-    d_skipUnknownElements = rhs.d_skipUnknownElements;
-    return *this;
-}
-
-void baejsn_DecoderOptions::reset()
-{
-    d_maxDepth            = MAX_DEPTH;
-    d_skipUnknownElements = true;
-}
-
 // ACCESSORS
+
+                                  // Aspects
+
 bsl::ostream& baejsn_DecoderOptions::print(bsl::ostream& stream,
                                            int           level,
                                            int           spacesPerLevel) const
@@ -76,7 +46,7 @@ bsl::ostream& operator<<(bsl::ostream&                stream,
     return stream;
 }
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
 // NOTICE:

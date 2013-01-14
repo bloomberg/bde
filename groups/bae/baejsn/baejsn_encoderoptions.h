@@ -7,16 +7,66 @@
 #endif
 BDES_IDENT("$Id: $")
 
-//@PURPOSE: Provide options for encoding objects in the JSON format
+//@PURPOSE: Provide an attribute class for specifying JSON encoding options
 //
 //@CLASSES:
-//  baejsn_EncoderOptions: JSON encoding options
+//  baejsn_EncoderOptions: options for encoding objects in the JSON format
 //
 //@SEE_ALSO: baejsn_encoder, baejsn_decoderoptions
 //
 //@AUTHOR: Rohan Bhindwale (rbhindwa)
 //
-//@DESCRIPTION:
+//@DESCRIPTION: This component provides a single, simply constrained
+// (value-semantic) attribute class, 'baejsn_EncoderOptions', that is used to
+// specify options for encoding objects in the JSON format.
+//
+///Attributes
+///----------
+//..
+//  Name                Type           Default         Simple Constraints
+//  ------------------  -----------    -------         ------------------
+//  encodingStyle       EncodingStyle  BAEJSN_COMPACT  none
+//  initialIndentLevel  int            0               >= 0
+//  spacesPerLevel      int            0               >= 0
+//..
+//: o 'encodingStyle': encoding style used to encode the JSON data.
+//:
+//: o 'initialIndentLevel': Initial indent level for the topmost element.
+//:
+//: o 'spacesPerLevel': spaces per additional indent level.
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Creating and populating an options object
+/// - - - - - - - - - - - - - - - - - - - - - - - - - -
+// This component is designed to be used at a higher level to set the options
+// for encoding objects in the JSON format.  This example shows how to create
+// and populate an options object.
+//
+// First, we default-construct a 'baejsn_EncoderOptions' object:
+//..
+//  const int INITIAL_INDENT_LEVEL = 1;
+//  const int SPACES_PER_LEVEL     = 4;
+//
+//  baejsn_EncoderOptions options;
+//  assert(0 == options.initialIndentLevel());
+//  assert(0 == options.spacesPerLevel());
+//  assert(baejsn_EncoderOptions::BAEJSN_COMPACT == options.encodingStyle());
+//..
+// Next, we populate that object to encode in a pretty format using a
+// pre-defined initial indent level and spaces per level:
+//..
+//  options.setEncodingStyle(baejsn_EncoderOptions::BAEJSN_PRETTY);
+//  assert(baejsn_EncoderOptions::BAEJSN_PRETTY == options.encodingStyle());
+//
+//  options.setInitialIndentLevel(INITIAL_INDENT_LEVEL);
+//  assert(INITIAL_INDENT_LEVEL == options.initialIndentLevel());
+//
+//  options.setSpacesPerLevel(SPACES_PER_LEVEL);
+//  assert(SPACES_PER_LEVEL == options.spacesPerLevel());
+//..
 
 #ifndef INCLUDED_BAESCM_VERSION
 #include <baescm_version.h>
@@ -43,20 +93,33 @@ namespace BloombergLP {
                       // ===========================
 
 class baejsn_EncoderOptions {
-    // Options for encoding objects in the JSON format.
+    // This simply constrained (value-semantic) attribute class describes
+    // options for encoding an object in the JSON format.  See the Attributes
+    // section under @DESCRIPTION in the component-level documentation.  Note
+    // that the class invariants are identically the constraints on the
+    // individual attributes.
+    //
+    // This class:
+    //: o supports a complete set of *value-semantic* operations
+    //:   o except for 'bdex' serialization
+    //: o is *exception-safe*
+    //: o is *alias-safe*
+    //: o is 'const' *thread-safe*
+    // For terminology see 'bsldoc_glossary'.
 
   public:
+    // TYPES
     enum EncodingStyle {
-        BAEJSN_COMPACT,
-        BAEJSN_PRETTY
+        // This 'enum' provides enumerators to specify the encoding styles.
+
+        BAEJSN_COMPACT = 0,  // compact encoding without any whitespace
+        BAEJSN_PRETTY        // pretty encoding with appropriate indentation
     };
 
   private:
-
     // DATA
     int           d_initialIndentLevel;  // initial indentation level
-    int           d_spacesPerLevel;      // spaces per level of
-                                         // indentation
+    int           d_spacesPerLevel;      // spaces per level per indent level
     EncodingStyle d_encodingStyle;       // encoding style
 
   public:
@@ -64,86 +127,100 @@ class baejsn_EncoderOptions {
 
     // CREATORS
     baejsn_EncoderOptions();
-        // Create an object of type 'baejsn_EncoderOptions' having the
-        // default value.
+        // Create a 'baejsn_EncoderOptions' object having the (default)
+        // attribute values:
+        //..
+        //  encodingStyle      == BAEJSN_COMPACT
+        //  initialIndentLevel == 0
+        //  spacesPerLevel     == 0
+        //..
 
-    baejsn_EncoderOptions(const baejsn_EncoderOptions& original);
-        // Create an object of type 'baejsn_EncoderOptions' having the
-        // value of the specified 'original' object.
+    //! baejsn_EncoderOptions(const baejsn_EncoderOptions& original) = default;
+        // Create a 'baejsn_EncoderOptions' object having the same value as the
+        // specified 'original' object.
+
+#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
+    // The following destructor is generated by the compiler, except in "SAFE"
+    // build modes (e.g., to enable the checking of class invariants).
 
     ~baejsn_EncoderOptions();
         // Destroy this object.
+#endif
 
     // MANIPULATORS
-    baejsn_EncoderOptions& operator=(const baejsn_EncoderOptions& rhs);
-        // Assign to this object the value of the specified 'rhs' object.
-
-    void reset();
-        // Reset this object to the default value (i.e., its value upon
-        // default construction).
+    //! baejsn_EncoderOptions& operator=(const baejsn_EncoderOptions& rhs) =
+    //!                                                                default;
+        // Assign to this object the value of the specified 'rhs' object, and
+        // return a reference providing modifiable access to this object.
 
     void setInitialIndentLevel(int value);
-        // Set the "InitialIndentLevel" attribute of this object to the
-        // specified 'value'.
+        // Set the 'initialIndentLevel' attribute of this object to the
+        // specified 'value'.  The behavior is undefined unless '0 <= value'.
 
     void setSpacesPerLevel(int value);
-        // Set the "SpacesPerLevel" attribute of this object to the specified
-        // 'value'.
+        // Set the 'spacesPerLevel' attribute of this object to the specified
+        // 'value'.  The behavior is undefined unless '0 <= value'.
 
     void setEncodingStyle(EncodingStyle value);
-        // Set the "EncodingStyle" attribute of this object to the specified
+        // Set the 'encodingStyle' attribute of this object to the specified
         // 'value'.
 
     // ACCESSORS
+    int initialIndentLevel() const;
+        // Return the value of the 'initialIndentLevel' attribute of this
+        // object.
+
+    int spacesPerLevel() const;
+        // Return the value of the 'spacesPerLevel' attribute of this object.
+
+    EncodingStyle encodingStyle() const;
+        // Return the value of the 'encodingStyle' attribute of this object.
+
+                                  // Aspects
+
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
                         int           spacesPerLevel = 4) const;
-        // Format this object to the specified output 'stream' at the
-        // optionally specified indentation 'level' and return a reference to
-        // the modifiable 'stream'.  If 'level' is specified, optionally
-        // specify 'spacesPerLevel', the number of spaces per indentation level
-        // for this and all of its nested objects.  Each line is indented by
-        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
-        // negative, suppress indentation of the first line.  If
-        // 'spacesPerLevel' is negative, suppress line breaks and format the
-        // entire output on one line.  If 'stream' is initially invalid, this
-        // operation has no effect.  Note that a trailing newline is provided
-        // in multiline mode only.
-
-    int initialIndentLevel() const;
-        // Return a reference to the non-modifiable "InitialIndentLevel"
-        // attribute of this object.
-
-    int spacesPerLevel() const;
-        // Return a reference to the non-modifiable "SpacesPerLevel" attribute
-        // of this object.
-
-    EncodingStyle encodingStyle() const;
-        // Return a reference to the non-modifiable "EncodingStyle" attribute
-        // of this object.
+        // Write the value of this object to the specified output 'stream' in a
+        // human-readable format, and return a reference to 'stream'.
+        // Optionally specify an initial indentation 'level', whose absolute
+        // value is incremented recursively for nested objects.  If 'level' is
+        // specified, optionally specify 'spacesPerLevel', whose absolute value
+        // indicates the number of spaces per indentation level for this and
+        // all of its nested objects.  If 'level' is negative, suppress
+        // indentation of the first line.  If 'spacesPerLevel' is negative,
+        // format the entire output on one line, suppressing all but the
+        // initial indentation (as governed by 'level').  If 'stream' is not
+        // valid on entry, this operation has no effect.  Note that the format
+        // is not fully specified, and can change without notice.
 };
 
 // FREE OPERATORS
-inline
 bool operator==(const baejsn_EncoderOptions& lhs,
                 const baejsn_EncoderOptions& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' attribute objects have
-    // the same value, and 'false' otherwise.  Two attribute objects have the
-    // same value if each respective attribute has the same value.
+    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
+    // value, and 'false' otherwise.  Two 'baejsn_EncoderOptions' objects have
+    // the same value if all of the corresponding values of their
+    // 'initialIndentLevel', 'spacesPerLevel', and 'encodingStyle' attributes
+    // are the same.
 
-inline
 bool operator!=(const baejsn_EncoderOptions& lhs,
                 const baejsn_EncoderOptions& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' attribute objects do not
-    // have the same value, and 'false' otherwise.  Two attribute objects do
-    // not have the same value if one or more respective attributes differ in
-    // values.
+    // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
+    // same value, and 'false' otherwise.  Two 'baejsn_EncoderOptions' objects
+    // do not have the same value if any of the corresponding values of their
+    // 'initialIndentLevel', 'spacesPerLevel', and 'encodingStyle' attributes
+    // are not the same.
 
-inline
 bsl::ostream& operator<<(bsl::ostream&                stream,
-                         const baejsn_EncoderOptions& rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and
-    // return a reference to the modifiable 'stream'.
+                         const baejsn_EncoderOptions& object);
+    // Write the value of the specified 'object' to the specified
+    // output 'stream' in a single-line format, and return a reference
+    // providing modifiable access to 'stream'.  If 'stream' is not valid on
+    // entry, this operation has no effect.  Note that this human-readable
+    // format is not fully specified and can change without notice.  Also note
+    // that this method has the same behavior as 'object.print(stream, 0, -1)',
+    // but with the attribute names elided.
 
 // TRAITS -- TBD
 
@@ -154,6 +231,24 @@ bsl::ostream& operator<<(bsl::ostream&                stream,
                       // ---------------------------
                       // class baejsn_EncoderOptions
                       // ---------------------------
+
+// CREATORS
+inline
+baejsn_EncoderOptions::baejsn_EncoderOptions()
+: d_initialIndentLevel(0)
+, d_spacesPerLevel(0)
+, d_encodingStyle(BAEJSN_COMPACT)
+{
+}
+
+#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
+inline
+baejsn_EncoderOptions::~baejsn_EncoderOptions()
+{
+    BSLS_ASSERT_SAFE(0 <= d_initialIndentLevel);
+    BSLS_ASSERT_SAFE(0 <= d_spacesPerLevel);
+}
+#endif
 
 // MANIPULATORS
 inline
@@ -217,7 +312,8 @@ bool operator!=(const baejsn_EncoderOptions& lhs,
          || lhs.encodingStyle()      != rhs.encodingStyle();
 }
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
+
 #endif
 
 // ----------------------------------------------------------------------------
