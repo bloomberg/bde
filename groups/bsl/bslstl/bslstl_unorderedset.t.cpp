@@ -40,6 +40,12 @@
 #  define ZU "%zu"
 #endif
 
+#if defined(BDE_BUILD_TARGET_EXC)
+enum { PLAT_EXC = 1 };
+#else
+enum { PLAT_EXC = 0 };
+#endif
+
 // ============================================================================
 //                          ADL SWAP TEST HELPER
 // ----------------------------------------------------------------------------
@@ -1845,7 +1851,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase25()
 
                 mX.reserve(my_max<size_t>(X.size(), 1) * 3);
             } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
-            ASSERTV(numPasses > 1);
+            ASSERTV(!PLAT_EXC || numPasses > 1);
 
             ASSERTV(X == Y);
 
@@ -1871,7 +1877,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase25()
 
                 mX.rehash(X.bucket_count() + 1);
             } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
-            ASSERTV(numPasses > 1);
+            ASSERTV(!PLAT_EXC || numPasses > 1);
 
             ASSERTV(X == Y);
 
@@ -1903,7 +1909,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase25()
 
                 mX.max_load_factor(1.0 / 4);
             } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
-            ASSERTV(numPasses > 1);
+            ASSERTV(!PLAT_EXC || numPasses > 1);
 
             ASSERTV(1.0 / 4 == X.max_load_factor());
             ASSERTV(LOAD > X.load_factor());
@@ -1935,7 +1941,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase25()
 
                     mX.reserve(LENGTH);
                 } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
-                ASSERTV(len2 || 0 == LENGTH  || numPasses > 1);
+                ASSERTV(!PLAT_EXC || len2 || 0 == LENGTH  || numPasses > 1);
 
                 const size_t BC = X.bucket_count();
                 ASSERTV(X.load_factor() <= X.max_load_factor());
@@ -3493,35 +3499,31 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase15()
 
                 bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
+                bsl::pair<Iter, bool> RESULT;
+                int numPasses = 0;
                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
+                    ++numPasses;
                     ExceptionGuard<Obj> guard(&X, L_, &scratch);
 
-                    bsl::pair<Iter, bool> RESULT;
-                    int numPasses = 0;
-                    BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
-                        ++numPasses;
-
-                        Iter hint;                  // Give it a garbage value.
-                        native_std::memset(&hint,
-                                           0xaf ^ (tj * 97),
-                                           sizeof(hint));
-                        if (tj & 1) {
-                            RESULT.first  = mX.insert(hint, VALUES[tj]);
-                            RESULT.second = IS_UNIQ;
-                        }
-                        else {
-                            RESULT = mX.insert(VALUES[tj]);
-                        }
-                    } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
-
-                    ASSERTV(LINE, tj, SIZE, IS_UNIQ == RESULT.second);
-                    ASSERTV(LINE, tj, SIZE,
-                            VALUES[tj] == *(RESULT.first));
-                    ASSERTV(LINE, tj, IS_UNIQ, numPasses,
-                                                    IS_UNIQ || 1 == numPasses);
-
-                    guard.release();
+                    Iter hint;                  // Give it a garbage value.
+                    native_std::memset(&hint,
+                                       0xaf ^ (tj * 97),
+                                       sizeof(hint));
+                    if (tj & 1) {
+                        RESULT.first  = mX.insert(hint, VALUES[tj]);
+                        RESULT.second = IS_UNIQ;
+                    }
+                    else {
+                        RESULT = mX.insert(VALUES[tj]);
+                    }
+                guard.release();
                 } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+
+                ASSERTV(LINE, tj, SIZE, IS_UNIQ == RESULT.second);
+                ASSERTV(LINE, tj, SIZE,
+                            VALUES[tj] == *(RESULT.first));
+                ASSERTV(LINE, tj, IS_UNIQ, numPasses,
+                                                    IS_UNIQ || 1 == numPasses);
 
                 if (IS_UNIQ) {
                     TestValues exp(EXPECTED);
@@ -3871,7 +3873,8 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase12()
                     }
                 } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 ASSERTV(CONFIG, LENGTH,
-                             (LENGTH > 0 || 'a' != CONFIG) == (numPasses > 1));
+                                  (!PLAT_EXC || LENGTH > 0 || 'a' != CONFIG) ==
+                                                              (numPasses > 1));
 
                 Obj& mX = *pmX;    const Obj& X = mX;
 
@@ -4997,9 +5000,8 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase7()
                     ASSERTV(SPEC, W == Y2);
                     ASSERTV(SPEC, W == X);
                     ASSERTV(SPEC, Y2.get_allocator() == X.get_allocator());
-
-                    ASSERTV(X.empty() == (1 == numPasses));
                 } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+                ASSERTV(X.empty() == (1 == numPasses));
             }
         }
     }
@@ -5764,7 +5766,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase2()
                   } break;
                 }
             } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
-            ASSERTV((CONFIG <= 'g') == (1 == numPasses));
+            ASSERTV((!PLAT_EXC || CONFIG <= 'g') == (1 == numPasses));
 
             Obj&                   mX = *objPtr;  const Obj& X = mX;
 
