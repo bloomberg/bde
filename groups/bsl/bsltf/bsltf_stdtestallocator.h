@@ -262,10 +262,9 @@ class StdTestAllocator {
         // Assign to this object the value of the specified 'rhs' object, and
         // return a reference providing modifiable access to this object.
 
-    pointer allocate(size_type numElements, const void *hint = 0);
+    pointer allocate(size_type numElements);
         // Allocate enough (properly aligned) space for the specified
-        // 'numElements' of type 'T'.  The 'hint' argument is ignored by this
-        // allocator type.  The behavior is undefined unless
+        // 'numElements' of type 'T'.  The behavior is undefined unless
         // 'numElements <= max_size()'.
 
     void deallocate(pointer address, size_type numElements = 1);
@@ -414,13 +413,12 @@ StdTestAllocator<TYPE>::StdTestAllocator(const StdTestAllocator<OTHER>&)
 template <class TYPE>
 inline
 typename StdTestAllocator<TYPE>::pointer
-StdTestAllocator<TYPE>::allocate(
-               typename StdTestAllocator<TYPE>::size_type  numElements,
-               const void *)
+StdTestAllocator<TYPE>::allocate(typename StdTestAllocator<TYPE>::size_type 
+                                                                   numElements)
 {
-    return static_cast<pointer>(
-        StdTestAllocatorConfiguration::delegateAllocator()->allocate(
-                     bslma::Allocator::size_type(numElements * sizeof(TYPE))));
+    return
+      static_cast<pointer>(StdTestAllocatorConfiguration::delegateAllocator()->
+            allocate(bslma::Allocator::size_type(numElements * sizeof(TYPE))));
 }
 
 template <class TYPE>

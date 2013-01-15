@@ -1546,10 +1546,12 @@ class HashTable_HashWrapper {
     // Note that we would only one class, not two, with C++11 variadic
     // templates and perfect forwarding, and we could also easily detect
     // whether ot not 'FUNCTOR' provided a const-qualified 'operator()'.
+
   private:
     mutable FUNCTOR d_functor;
 
   public:
+    // CREATORS
     HashTable_HashWrapper();
         // Create a 'HashTable_HashWrapper' object wrapping a 'FUNCTOR' that
         // has its default value.
@@ -1558,6 +1560,11 @@ class HashTable_HashWrapper {
         // Create a 'HashTable_HashWrapper' object wrapping a 'FUNCTOR' that is
         // a copy of the specified 'fn'.
 
+    // MANIPULATORS
+    void swap(HashTable_HashWrapper &other);
+        // Exchange the value of this object with the specified 'other' object.
+
+    // ACCESSORS
     template <class ARG_TYPE>
     native_std::size_t operator()(const ARG_TYPE& arg) const;
         // Call the wrapped 'functor' with the specified 'arg' and return the
@@ -1566,9 +1573,6 @@ class HashTable_HashWrapper {
     const FUNCTOR& functor() const;
         // Return a reference providing non-modifiable access to the
         // hash functor wrapped by this object.
-
-    void swap(HashTable_HashWrapper &other);
-        // Exchange the value of this object with the specified 'other' object.
 };
 
 template <class FUNCTOR>
@@ -1589,10 +1593,12 @@ class HashTable_ComparatorWrapper {
     //
     // TBD Provide an optimization for the case of an empty base functor, where
     //     we can safely const_cast want calling the base class operator.
+
   private:
     mutable FUNCTOR d_functor;
 
   public:
+    // CREATORS
     HashTable_ComparatorWrapper();
         // Create a 'HashTable_ComparatorWrapper' object wrapping a 'FUNCTOR'
         // that has its default value.
@@ -1601,6 +1607,11 @@ class HashTable_ComparatorWrapper {
         // Create a 'HashTable_ComparatorWrapper' object wrapping a 'FUNCTOR'
         // that is a copy of the specified 'fn'.
 
+    // MANIPULATORS
+    void swap(HashTable_ComparatorWrapper &other);
+        // Exchange the value of this object with the specified 'other' object.
+
+    // ACCESSORS
     template <class ARG1_TYPE, class ARG2_TYPE>
     bool operator()(const ARG1_TYPE& arg1, const ARG2_TYPE& arg2) const;
         // Call the wrapped 'functor' with the specified 'arg1' and 'arg2' (in
@@ -1609,9 +1620,6 @@ class HashTable_ComparatorWrapper {
     const FUNCTOR& functor() const;
         // Return a reference providing non-modifiable access to the
         // hash functor wrapped by this object.
-
-    void swap(HashTable_ComparatorWrapper &other);
-        // Exchange the value of this object with the specified 'other' object.
 };
 
 template <class FUNCTOR>
@@ -1697,6 +1705,7 @@ class HashTable {
         // efficiently exploiting the empty base optimization without adding
         // unforeseen namespace associations to the 'HashTable' class itself
         // due to the structural inheritance.
+
       private:
         // NOT IMPLEMENTED
         ImplParameters(const ImplParameters&); // = delete;
@@ -1712,7 +1721,7 @@ class HashTable {
         typedef BidirectionalNodePool<typename HashTableType::ValueType,
                                       NodeAllocator>               NodeFactory;
 
-        // Assert consistency checks against Machiavelian users, specializing
+        // Assert consistency checks against Machiavellian users, specializing
         // an allocator for a specific type to have different propagation
         // traits to the primary template.
 
@@ -2261,6 +2270,7 @@ bool operator!=(
 template <class FACTORY>
 class HashTable_ArrayProctor {
     // This class probably already exists in 'bslalg'
+
   private:
     // DATA
     FACTORY                 *d_factory;
@@ -2272,11 +2282,13 @@ class HashTable_ArrayProctor {
     HashTable_ArrayProctor& operator == (const HashTable_ArrayProctor&);
 
   public:
+    // CREATORS
     HashTable_ArrayProctor(FACTORY                 *factory,
                            bslalg::HashTableAnchor *anchor);
-
+        // TBD Describe how creating this proctor guards a resource.
 
     ~HashTable_ArrayProctor();
+        // TBD Describe what this proctor destroys.
 
     // MANIPULATORS
     void release();
@@ -2312,6 +2324,7 @@ class HashTable_NodeProctor {
     HashTable_NodeProctor& operator=(const HashTable_NodeProctor&);
 
   public:
+    // CREATORS
     HashTable_NodeProctor(FACTORY                   *factory,
                           bslalg::BidirectionalLink *node);
         // Create a new node-proctor that conditionally manages the specified
@@ -2340,6 +2353,7 @@ struct HashTable_ImpDetails {
     // This utility struct provides a namespace for functions that are useful
     // when implementing a hash table.
 
+    // CLASS METHODS
     static size_t nextPrime(size_t n);
         // Return the next prime number greater-than or equal to the specified
         // 'n' in the increasing sequence of primes chosen to disperse hash
@@ -2840,7 +2854,8 @@ inline
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::~HashTable()
 {
 #if defined(BDE_BUILD_TARGET_SAFE_2)
-    // ASSERT class invariant in SAFE_2 builds.
+    // ASSERT class invariant only in SAFE_2 builds.
+
     BSLS_ASSERT_SAFE(bslalg::HashTableImpUtil::isWellFormed<KEY_CONFIG>(
                                                  this->d_anchor,
                                                  this->d_parameters.hasher()));
@@ -2848,6 +2863,7 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::~HashTable()
     // TBD This forces a check for corruption that should be otherwise picked
     //     up by a test driver.  It should be removed before releasing the
     //     final code.
+
     BSLS_ASSERT_SAFE(HashTable_ImpDetails::defaultBucketAddress());
 #endif
 
@@ -2868,6 +2884,7 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::copyDataStructure(
     // only by the previous state, such as the linked list.
 
     // Allocate an appropriate number of buckets
+
     size_t capacity;
     SizeType numBuckets =
                HashTable_ImpDetails::growBucketsForLoadFactor(&capacity,
@@ -2879,6 +2896,7 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::copyDataStructure(
     HashTable_Util::initAnchor(&d_anchor, numBuckets, this->allocator());
 
     // create a proctor for d_anchor's allocated array, and the list to follow.
+
     HashTable_ArrayProctor<typename ImplParameters::NodeFactory>
                           arrayProctor(&d_parameters.nodeFactory(), &d_anchor);
 
@@ -2889,6 +2907,7 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::copyDataStructure(
         // Therefore, obtain the hash code from the node we are about to copy,
         // before any memory is allocated, so there is no risk of leaking an
         // object.  The hash code must be the same for both elements.
+
         native_std::size_t hashCode = this->hashCodeForNode(cursor);
         bslalg::BidirectionalLink *newNode =
                                  d_parameters.nodeFactory().cloneNode(*cursor);
@@ -2900,6 +2919,7 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::copyDataStructure(
     while ((cursor = cursor->nextLink()));
 
     // release the proctor
+
     arrayProctor.release();
 }
 
@@ -2953,12 +2973,17 @@ rehashIntoExactlyNumBuckets(SizeType newNumBuckets, SizeType capacity)
         bslalg::HashTableAnchor *d_originalAnchor;
         bslalg::HashTableAnchor *d_newAnchor;
 
-#if !defined(BSLS_PLATFORM_CMP_MSVC)           // Microsoft warns if these
-        Proctor(const Proctor&); // = delete;  // methods are declared private.
+#if !defined(BSLS_PLATFORM_CMP_MSVC)
+        // Microsoft warns if these methods are declared private.
+
+      private:
+        // NOT IMPLEMENTED
+        Proctor(const Proctor&); // = delete;
         Proctor& operator=(const Proctor&); // = delete;
 #endif
 
       public:
+        // CREATORS
         Proctor(HashTable               *table,
                 bslalg::HashTableAnchor *originalAnchor,
                 bslalg::HashTableAnchor *newAnchor)
@@ -2976,20 +3001,27 @@ rehashIntoExactlyNumBuckets(SizeType newNumBuckets, SizeType capacity)
             if (d_originalAnchor) {
                 // Not dismissed, and the newAnchor now holds the correct
                 // list-root.
+
                 d_originalAnchor->setListRootAddress(
                                                d_newAnchor->listRootAddress());
                 d_this->removeAll();
             }
+
             // Always destroy the spare anchor's bucket array at the end of
             // scope.  On a non-exceptional run, this will effectively be the
             // original bucket-array, as the anchors are swapped.
+
             HashTable_Util::destroyBucketArray(
                                              d_newAnchor->bucketArrayAddress(),
                                              d_newAnchor->bucketArraySize(),
                                              d_this->allocator());
         }
 
-        void dismiss() { d_originalAnchor = 0; }
+        // MANIPULATORS
+        void dismiss()
+        {
+            d_originalAnchor = 0;
+        }
     };
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -2998,6 +3030,7 @@ rehashIntoExactlyNumBuckets(SizeType newNumBuckets, SizeType capacity)
     // the anchor in the table.  Would it be better for 'initAnchor' to
     // be replaced with a 'createArrayOfEmptyBuckets' function, and we use
     // the result to construct the 'newAnchor'?
+
     bslalg::HashTableAnchor newAnchor(0, 0, 0);
     HashTable_Util::initAnchor(&newAnchor,
                                newNumBuckets,
@@ -3038,6 +3071,7 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::removeAllImp()
     // Doing too much book-keeping of hash table - look for a more efficient
     // dispose-as-we-walk, that simply resets table.Anchor.next = 0, and
     // assigns the buckets index all null pointers
+
     if (BidirectionalLink *root = d_anchor.listRootAddress()) {
         BidirectionalLink *next;
         do {
@@ -3117,6 +3151,7 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::insert(
 
     // Rehash (if appropriate) first as it will reduce load factor and so
     // potentially improve the 'find' time.
+
     if (d_size >= d_capacity) {
         this->rehashForNumBuckets(numBuckets() * 2);
     }
@@ -3124,16 +3159,19 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::insert(
     // Create a node having the new 'value' we want to insert into the table.
     // We can extract the 'key' from this value without accidentally creating
     // a temporary (using the default allocator for any dynamic memory).
+
     bslalg::BidirectionalLink *newNode =
                                   d_parameters.nodeFactory().createNode(value);
 
     // This node needs wrapping in a proctor, in case either of the user-
     // supplied functors throws an exception.
+
     HashTable_NodeProctor<typename ImplParameters::NodeFactory>
                              nodeProctor(&d_parameters.nodeFactory(), newNode);
 
     // Now we can search for the node in the table, being careful to compute
     // the hash value only once.
+
     const KeyType& key = ImpUtil::extractKey<KEY_CONFIG>(newNode);
     size_t hashCode = this->d_parameters.hashCodeForKey(key);
     bslalg::BidirectionalLink *position = this->find(key, hashCode);
@@ -3164,21 +3202,25 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::insert(
 
     // Rehash (if appropriate) first as it will reduce load factor and so
     // potentially improve the potential 'find' time later.
+
     if (d_size >= d_capacity) {
         this->rehashForNumBuckets(numBuckets() * 2);
     }
 
     // Next we must create the node, to avoid making a temporary of 'ValueType'
     // from the object of template parameter 'SOURCE_TYPE'.
+
     bslalg::BidirectionalLink *newNode =
                                   d_parameters.nodeFactory().createNode(value);
 
     // There is potential for the user-supplied hasher and comparator to throw,
     // so now we need to manage our 'newNode' with a proctor.
+
     HashTable_NodeProctor<typename ImplParameters::NodeFactory>
                              nodeProctor(&d_parameters.nodeFactory(), newNode);
 
     // Insert logic, first test the hint
+
     const KeyType& key = ImpUtil::extractKey<KEY_CONFIG>(newNode);
     size_t hashCode = this->d_parameters.hashCodeForKey(key);
     if (!d_parameters.comparator()(key,
@@ -3241,21 +3283,25 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::insertIfMissing(
 
     // Rehash (if appropriate) first as it will reduce load factor and so
     // potentially improve the potential 'find' time later.
+
     if (d_size >= d_capacity) {
         this->rehashForNumBuckets(numBuckets() * 2);
     }
 
     // Next we must create the node, to avoid making a temporary of 'ValueType'
     // from the object of template parameter 'SOURCE_TYPE'.
+
     bslalg::BidirectionalLink *newNode =
                                   d_parameters.nodeFactory().createNode(value);
 
     // There is potential for the user-supplied hasher and comparator to throw,
     // so now we need to manage our 'newNode' with a proctor.
+
     HashTable_NodeProctor<typename ImplParameters::NodeFactory>
                              nodeProctor(&d_parameters.nodeFactory(), newNode);
 
     // Insert logic, first test the hint
+
     const KeyType& key = ImpUtil::extractKey<KEY_CONFIG>(newNode);
     size_t hashCode = this->d_parameters.hashCodeForKey(key);
     bslalg::BidirectionalLink *position = this->find(key, hashCode);
@@ -3326,8 +3372,7 @@ void
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::reserveForNumElements(
                                                           SizeType numElements)
 {
-    if (numElements < 1) {
-        // Early return avoids undefined behavior in the node factory.
+    if (numElements < 1) { // Return avoids undefined behavior in node factory.
         return;                                                       // RETURN
     }
 
@@ -3400,6 +3445,7 @@ void HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::setMaxLoadFactor(
     this->rehashIntoExactlyNumBuckets(numBuckets, capacity);
 
     // Always set this last, as there is potential to throw exceptions above.
+
     d_maxLoadFactor = newMaxLoadFactor;
 }
 
@@ -3415,6 +3461,7 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::swap(HashTable& other)
         // BSLS_ASSERT(allocator() == other.allocator());
 
         // backward compatible behavior: swap with copies
+
         if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
                d_parameters.nodeFactory().allocator() ==
                other.d_parameters.nodeFactory().allocator())) {
@@ -3539,8 +3586,17 @@ inline
 typename HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::SizeType
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::maxNumBuckets() const
 {
-    return AllocatorTraits::max_size(this->allocator())
-                                             / sizeof(bslalg::HashTableBucket);
+    // This estimate is still on the high side, we should actually pick the
+    // preceding entry from our table of primary numbers used for valid bucket
+    // array sizes.  There is no easy way to find that value at the moment
+    // though.
+
+    typedef typename AllocatorTraits::
+                                template rebind_traits<bslalg::HashTableBucket>
+                                                         BucketAllocatorTraits;
+    typedef typename BucketAllocatorTraits::allocator_type BucketAllocator;
+
+    return BucketAllocatorTraits::max_size(BucketAllocator(this->allocator()));
 }
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
@@ -3622,6 +3678,7 @@ bool bslstl::operator==(
     // template parameters, but will depend on VALUE_TYPE deduced from the
     // KEY_CONFIG.  Otherwise, after the initial size comparison, the rest
     // depends only on the anchors.
+
     typedef typename KEY_CONFIG::KeyType   KeyType;
     typedef typename KEY_CONFIG::ValueType ValueType;
     typedef typename ::bsl::allocator_traits<ALLOCATOR>::size_type SizeType;
@@ -3629,12 +3686,12 @@ bool bslstl::operator==(
 
 
     // First test - are the containers the same size?
+
     if (lhs.size() != rhs.size()) {
         return false;                                                 // RETURN
     }
     bslalg::BidirectionalLink *cursor = lhs.elementListRoot();
-    if (!cursor) {
-        // containers are the same size, and empty.
+    if (!cursor) {  // containers are the same size, and empty.
         return true;                                                  // RETURN
     }
 
@@ -3649,6 +3706,7 @@ bool bslstl::operator==(
         bslalg::BidirectionalLink *rhsLast  = rhs.findEndOfRange(rhsFirst);
 
         // Check the key-groups have the same length - a quick-fail test.
+
         bslalg::BidirectionalLink *endWalker = cursor->nextLink();
         bslalg::BidirectionalLink *rhsWalker = rhsFirst->nextLink();
 
@@ -3670,6 +3728,7 @@ bool bslstl::operator==(
         // have the same elements in the same order.  Note that comparison of
         // values in nodes is tested using 'operator==' and not the
         // key-equality comparator stored in the hash table.
+
         while (cursor != endRange &&
                  (ImpUtil::extractValue<KEY_CONFIG>(cursor) ==
                   ImpUtil::extractValue<KEY_CONFIG>(rhsFirst)))
@@ -3695,6 +3754,7 @@ bool bslstl::operator==(
         // unique vs. multi-containers.  Note again that comparison of values
         // in nodes is tested using 'operator==' and not the key-equality
         // comparator stored in the hash tables.
+
         for (bslalg::BidirectionalLink *marker = cursor;
              marker != endRange;
              marker = marker->nextLink())
@@ -3710,8 +3770,7 @@ bool bslstl::operator==(
                  ImpUtil::extractValue<KEY_CONFIG>(scanner) != valueAtMarker) {
                     scanner = scanner->nextLink();
                 }
-                if (scanner != marker) {
-                    // We have seen 'lhs' one before.
+                if (scanner != marker) {  // We have seen 'lhs' one before.
                     continue;
                 }
             }
@@ -3730,6 +3789,7 @@ bool bslstl::operator==(
             }
 
             // Remember, *scanner is by definition a good match
+
             for (bslalg::BidirectionalLink *scanner = marker->nextLink();
                  scanner != endRange;
                  scanner = scanner->nextLink()) {

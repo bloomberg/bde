@@ -269,13 +269,9 @@ class StdStatefulAllocator {
         // Assign to this object the value of the specified 'rhs' object, and
         // return a reference providing modifiable access to this object.
 
-    TYPE *allocate(bslma::Allocator::size_type numElements,
-                   const void *hint = 0);
+    TYPE *allocate(bslma::Allocator::size_type numElements);
         // Allocate enough (properly aligned) space for the specified
-        // 'numElements' of type 'TYPE'.  Note that the 'hint' argument is
-        // deprecated, and will be removed for BDE 2.17 - it is required only
-        // to satisfy a buggy requirement in the current implementation of
-        // 'allocator_traits'.
+        // 'numElements' of type 'TYPE'.
 
     void deallocate(TYPE *address, bslma::Allocator::size_type numElements);
         // Return memory previously at the specified 'address' for
@@ -402,8 +398,7 @@ StdStatefulAllocator<TYPE,
                      PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT,
                      PROPAGATE_ON_CONTAINER_SWAP,
                      PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT>::allocate(
-                                       bslma::Allocator::size_type numElements,
-                                       const void *)
+                                       bslma::Allocator::size_type numElements)
 {
     return static_cast<TYPE *>(d_allocator_p->allocate(
                      bslma::Allocator::size_type(numElements * sizeof(TYPE))));

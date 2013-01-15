@@ -762,7 +762,7 @@ typename allocator_traits<ALLOCATOR_TYPE>::pointer
 allocator_traits<ALLOCATOR_TYPE>::allocate(ALLOCATOR_TYPE& allocator,
                                            size_type n)
 {
-    return allocator.allocate(n, 0);
+    return allocator.allocate(n);
 }
 
 template <class ALLOCATOR_TYPE>
