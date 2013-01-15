@@ -43,6 +43,12 @@
 #  define ZU "%zu"
 #endif
 
+#if defined(BDE_BUILD_TARGET_EXC)
+enum { PLAT_EXC = 1 };
+#else
+enum { PLAT_EXC = 0 };
+#endif
+
 using namespace BloombergLP;
 
 //=============================================================================
@@ -6100,7 +6106,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase15()
 
                         mX.max_load_factor(newLoadFactor);
                     } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
-                    ASSERTV(numPasses > 1);
+                    ASSERTV(!PLAT_EXC || numPasses > 1);
 
                     ASSERTV(newLoadFactor == X.max_load_factor());
 
@@ -6125,7 +6131,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase15()
 
                     mX.reserve(LENGTH);
                 } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
-                ASSERTV(len2 || 0 == LENGTH  || numPasses > 1);
+                ASSERTV(!PLAT_EXC || len2 || 0 == LENGTH || numPasses > 1);
 
                 const size_t BC = X.bucket_count();
                 ASSERTV(X.load_factor() <= X.max_load_factor());

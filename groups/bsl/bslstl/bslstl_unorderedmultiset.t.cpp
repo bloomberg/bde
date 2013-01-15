@@ -39,6 +39,18 @@
 #  define ZU "%zu"
 #endif
 
+#if defined(BDE_BUILD_TARGET_EXC)
+enum { PLAT_EXC = 1 };
+#else
+enum { PLAT_EXC = 0 };
+#endif
+
+#define EXCEPTION_TEST_BEGIN(CONTAINER)                                       \
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(                             \
+          (* (bslma::TestAllocator *) (CONTAINER).get_allocator().mechanism()))
+
+#define EXCEPTION_TEST_END  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+
 // ============================================================================
 //                          ADL SWAP TEST HELPER
 // ----------------------------------------------------------------------------
@@ -1442,7 +1454,9 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase13()
     const size_t NUM_DATA                  = DEFAULT_NUM_DATA;
     const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
 
+    bslma::TestAllocator da     ("default", veryVeryVeryVerbose);
     bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
+    bslma::DefaultAllocatorGuard dag(&da);
 
     const char *SPEC, *lastSpec = "+";
     for (size_t ti = 0; ti < NUM_DATA; ++ti, lastSpec = SPEC) {
@@ -1474,17 +1488,18 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase13()
             for (size_t len2 = 0; len2 <= LENGTH; ++len2) {
                 Obj mX(&sa);    const Obj& X = mX;
 
-                TestValues values(SPEC, &sa);
+                TestValues valuesB(SPEC, &sa);
 
-                mX.insert(values.begin(), values.index(len2));
+                mX.insert(valuesB.begin(), valuesB.index(len2));
 
                 int numPasses = 0;
-                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(sa) {
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(
+                 (* (bslma::TestAllocator *) mX.get_allocator().mechanism())) {
                     ++numPasses;
 
                     mX.reserve(LENGTH);
                 } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
-                ASSERTV(len2 || 0 == LENGTH  || numPasses > 1);
+                ASSERTV(!PLAT_EXC || len2 || 0 == LENGTH || numPasses > 1);
 
                 const size_t BC = X.bucket_count();
                 ASSERTV(X.load_factor() <= X.max_load_factor());
@@ -1493,19 +1508,19 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase13()
 
                 if (!TYPE_ALLOC) {
                     numPasses = 0;
-                    BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(sa) {
+                    EXCEPTION_TEST_BEGIN(mX) {
                         ++numPasses;
-                        values.resetIterators();
+                        valuesB.resetIterators();
 
-                        mX.insert(values.index(len2), values.end());
-                    } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+                        mX.insert(valuesB.index(len2), valuesB.end());
+                    } EXCEPTION_TEST_END
 
                     // verify insert didn't alloc
 
                     ASSERTV(LINE, SPEC, 1 == numPasses);
                 }
                 else {
-                    mX.insert(values.index(len2), values.end());
+                    mX.insert(valuesB.index(len2), valuesB.end());
                 }
 
                 ASSERTV(LINE, SPEC, LENGTH == X.size());
@@ -1522,7 +1537,13 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase13()
 
             const size_t COUNT = X.bucket_count();
 
-            mX.rehash(X.bucket_count() + 1);
+            int numPasses = 0;
+            EXCEPTION_TEST_BEGIN(mX) {
+                ++numPasses;
+
+                mX.rehash(X.bucket_count() + 1);
+            } EXCEPTION_TEST_END
+            ASSERTV(!PLAT_EXC || numPasses > 1);
 
             ASSERTV(X == Y);
 
@@ -1542,9 +1563,18 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase13()
                                       (X.size() / (double) X.bucket_count())));
             ASSERTV(1.0f == X.max_load_factor());
 
-            mX.max_load_factor(1.0 / 4);
-            ASSERTV(nearlyEqual<float>(1.0 / 4, X.max_load_factor()));
-            ASSERTV(LOAD > X.load_factor());
+            const float NEW_MAX = LOAD / 4;
+
+            int numPasses = 0;
+            EXCEPTION_TEST_BEGIN(mX) {
+                ++numPasses;
+
+                mX.max_load_factor(NEW_MAX);
+            } EXCEPTION_TEST_END
+            ASSERTV(!PLAT_EXC || numPasses > 1);
+
+            ASSERTV(nearlyEqual<float>(NEW_MAX, X.max_load_factor()));
+            ASSERTV(NEW_MAX >= X.load_factor());
 
             const float LOAD2 = X.load_factor();
             ASSERTV(LOAD2, X.size() / (float) X.bucket_count(),
@@ -1930,6 +1960,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase9()
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int         LINE1   = DATA[ti].d_line;
             const char *const SPEC1   = DATA[ti].d_spec;
+            const size_t      LENGTH1 = strlen(SPEC1);
 
             bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
@@ -1968,7 +1999,9 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase9()
 
                     bslma::TestAllocatorMonitor oam(&oa), sam(&scratch);
 
-                    BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
+                    int numPasses = 0;
+                    EXCEPTION_TEST_BEGIN(mX) {
+                        ++numPasses;
                         if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
 
                         ASSERT(XX == X);
@@ -1976,7 +2009,8 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase9()
                         Obj *mR = &(mX = Z);
                         ASSERTV(LINE1, LINE2,  Z,   X,  Z == X);
                         ASSERTV(LINE1, LINE2, mR, &mX, mR == &mX);
-                    } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+                    } EXCEPTION_TEST_END
+                    ASSERTV((!PLAT_EXC || 0 == LENGTH1) || numPasses > 1);
 
                     ASSERTV(nearlyEqual<float>(2.0, X.max_load_factor()));
 
@@ -2339,7 +2373,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase8()
                 bslma::TestAllocatorMonitor oam(&oa);
                 bslma::TestAllocatorMonitor oazm(&oaz);
 
-                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
+                EXCEPTION_TEST_BEGIN(mX) {
                     ExceptionGuard<Obj> guardX(&X, L_, &scratch);
                     ExceptionGuard<Obj> guardZ(&Z, L_, &scratch);
 
@@ -2347,7 +2381,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase8()
 
                     guardX.release();
                     guardZ.release();
-                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+                } EXCEPTION_TEST_END
 
 
                 ASSERTV(LINE1, LINE2, ZZ, X, ZZ == X);
@@ -2375,7 +2409,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase8()
                 bslma::TestAllocatorMonitor oam(&oa);
                 bslma::TestAllocatorMonitor oazm(&oaz);
 
-                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
+                EXCEPTION_TEST_BEGIN(mX) {
                     ExceptionGuard<Obj> guardX(&X, L_, &scratch);
                     ExceptionGuard<Obj> guardZ(&Z, L_, &scratch);
 
@@ -2383,7 +2417,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase8()
 
                     guardX.release();
                     guardZ.release();
-                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+                } EXCEPTION_TEST_END
 
                 ASSERTV(LINE1, LINE2, XX, X, XX == X);
                 ASSERTV(LINE1, LINE2, ZZ, Z, ZZ == Z);
@@ -2983,12 +3017,20 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase4()
                 printf("Like nodes are contiguous\n");
             }
             {
-                const Iter begin = mX.begin();
-                const Iter end   = mX.end();
-                ASSERTV(X.begin()  == begin);
-                ASSERTV(X.end()    == end);
-                ASSERTV(X.cbegin() == begin);
-                ASSERTV(X.cend()   == end);
+                int numPasses = 0;
+                Iter begin;
+                Iter end;
+                EXCEPTION_TEST_BEGIN(mX) {
+                    ++numPasses;
+
+                    begin = mX.begin();
+                    end   = mX.end();
+                    ASSERTV(X.begin()  == begin);
+                    ASSERTV(X.end()    == end);
+                    ASSERTV(X.cbegin() == begin);
+                    ASSERTV(X.cend()   == end);
+                } EXCEPTION_TEST_END
+                ASSERTV(1 == numPasses);
 
                 ASSERTV((0 == ti) == (begin == end));
 
@@ -3042,13 +3084,22 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase4()
                 const size_t BC = X.bucket_count();
                 ASSERTV(0 == ti || BC > 1);
                 for (size_t b = 0; b < BC; ++b) {
-                    const LIter bBegin = X.begin(b);
-                    const LIter bEnd   = X.end(b);
+                    LIter bBegin;
+                    LIter bEnd;
 
-                    ASSERTV(mX.begin(b) == bBegin);
-                    ASSERTV(X.cbegin(b) == bBegin);
-                    ASSERTV(mX.end(b)   == bEnd);
-                    ASSERTV(X.cend(b)   == bEnd);
+                    int numPasses = 0;
+                    EXCEPTION_TEST_BEGIN(mX) {
+                        ++numPasses;
+
+                        bBegin = X.begin(b);
+                        bEnd   = X.end(  b);
+
+                        ASSERTV(mX.begin(b) == bBegin);
+                        ASSERTV(X.cbegin(b) == bBegin);
+                        ASSERTV(mX.end(  b) == bEnd);
+                        ASSERTV(X.cend(  b) == bEnd);
+                    } EXCEPTION_TEST_END
+                    ASSERTV(1 == numPasses);
 
                     size_t matchCount = 0, nodeCount = 0;
                     enum Chain {
@@ -3364,6 +3415,12 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase2()
 
     const size_t MAX_LENGTH = 9;
 
+    const HASH  defaultHash(7);
+    const EQUAL defaultEqual(9);
+
+    ASSERTV(!(HASH()  == defaultHash));
+    ASSERTV(!(EQUAL() == defaultEqual));
+
     static int typeCounter = 0;
     ++typeCounter;
     for (size_t ti = 0; ti < MAX_LENGTH; ++ti) {
@@ -3372,7 +3429,8 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase2()
         if (verbose) {
             printf("\nTesting with various allocator configurations.\n");
         }
-        for (char cfg = 'a'; cfg <= 'c'; ++cfg) {
+        bool done = false;
+        for (char cfg = 'a'; cfg <= 'k'; ++cfg) {
             const char CONFIG = cfg;  // how we specify the allocator
 
             bslma::TestAllocator da("default",   veryVeryVeryVerbose);
@@ -3387,21 +3445,45 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase2()
                 printf("\n\tTesting default constructor.\n");
             }
 
+            bslma::TestAllocator&  oa = strchr("cgk", CONFIG) ? sa : da;
+            bslma::TestAllocator& noa = &oa == &da ? sa : da;
+
             Obj                  *objPtr;
-            bslma::TestAllocator *objAllocatorPtr;
 
             switch (CONFIG) {
               case 'a': {
-                objPtr = new (fa) Obj();
-                objAllocatorPtr = &da;
+                objPtr = new (fa) Obj;
               } break;
               case 'b': {
-                objPtr = new (fa) Obj((bslma::Allocator *)0);
-                objAllocatorPtr = &da;
+                objPtr = new (fa) Obj((bslma::Allocator *) 0);
               } break;
               case 'c': {
                 objPtr = new (fa) Obj(&sa);
-                objAllocatorPtr = &sa;
+              } break;
+              case 'd': {
+                objPtr = new (fa) Obj((size_t) 0);
+              } break;
+              case 'e': {
+                objPtr = new (fa) Obj(0, defaultHash);
+              } break;
+              case 'f': {
+                objPtr = new (fa) Obj(0, defaultHash, defaultEqual);
+              } break;
+              case 'g': {
+                objPtr = new (fa) Obj(0, defaultHash, defaultEqual, &sa);
+              } break;
+              case 'h': {
+                objPtr = new (fa) Obj(100);
+              } break;
+              case 'i': {
+                objPtr = new (fa) Obj(100, defaultHash);
+              } break;
+              case 'j': {
+                objPtr = new (fa) Obj(100, defaultHash, defaultEqual);
+              } break;
+              case 'k': {
+                objPtr = new (fa) Obj(100, defaultHash, defaultEqual, &sa);
+                done = true;
               } break;
               default: {
                 ASSERTV(CONFIG, !"Bad allocator config.");
@@ -3410,8 +3492,16 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase2()
             }
 
             Obj&                   mX = *objPtr;  const Obj& X = mX;
-            bslma::TestAllocator&  oa = *objAllocatorPtr;
-//            bslma::TestAllocator& noa = 'c' != CONFIG ? sa : da;
+
+            ASSERTV(0 == noa.numBlocksTotal());
+            ASSERTV(CONFIG, (CONFIG >= 'h') == (oa.numBlocksTotal() > 0));
+
+            ASSERTV(CONFIG,
+                     (strchr("efgijk", CONFIG) ? defaultHash
+                                               : HASH()) == X.hash_function());
+            ASSERTV(CONFIG,
+                     (strchr("fgjk",   CONFIG) ? defaultEqual
+                                               : EQUAL()) == X.key_eq());
 
             // Verify any attribute allocators are installed properly.
 
@@ -3481,7 +3571,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase2()
                     mX.insert(K);
                 }
                 else {
-                    BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
+                    EXCEPTION_TEST_BEGIN(mX) {
                         ASSERTV(LENGTH, CONFIG, X.size(), exceptionBlockPass,
                                                  0 == scratch.numBytesInUse());
 
@@ -3519,7 +3609,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase2()
 
                         guard.release();
                         ++exceptionBlockPass;
-                    } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+                    } EXCEPTION_TEST_END
                 }
                 mX.insert(values[LENGTH - 1]);
 
@@ -3568,7 +3658,13 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase2()
                 const bsls::Types::Int64 BB = oa.numBlocksTotal();
 //                const bsls::Types::Int64 B  = oa.numBlocksInUse();
 
-                mX.clear();
+                int numPasses = 0;
+                EXCEPTION_TEST_BEGIN(mX) {
+                    ++numPasses;
+
+                    mX.clear();
+                } EXCEPTION_TEST_END
+                ASSERTV(1 == numPasses);
 
                 ASSERTV(LENGTH, CONFIG, 0 == X.size());
                 ASSERTV(LENGTH, CONFIG, X.cbegin() == X.cend());
@@ -3625,6 +3721,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase2()
             ASSERTV(LENGTH, CONFIG, sa.numBlocksInUse(),
                     0 == sa.numBlocksInUse());
         }
+        ASSERTV(done);
     }
 
     // mX.insert(KEY&&) -- not tested / C++11
@@ -3716,43 +3813,50 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase2()
             mX.insert(values.begin(), values.index(MAX_LENGTH));
             values.resetIterators();
 
-            KEY itKey = values[ti];
-            Iter it = mX.find(itKey);
-            if (MAX_LENGTH == ti) {
-                ASSERTV(mX.end() == it);
-                continue;
-            }
-            else {
-                ASSERTV(mX.end() != it);
-                ASSERTV(itKey == *it);
-            }
+            // There should be no throwing for the rest of the loop body.
 
-            Iter eraseIt = mX.erase(it);
-            ASSERT(MAX_LENGTH - 1 == X.size());
+            int numPasses = 0;
+            EXCEPTION_TEST_BEGIN(mX) {
+                ++numPasses;
 
-            // Verify that 'eraseIt' is a valid iterator, though it may be
-            // 'X.end()'.
+                KEY itKey = values[ti];
+                Iter it = mX.find(itKey);
+                if (MAX_LENGTH == ti) {
+                    ASSERTV(mX.end() == it);
+                }
+                else {
+                    ASSERTV(mX.end() != it);
+                    ASSERTV(itKey == *it);
 
-            if (X.end() != eraseIt) {
-                const KEY& eraseItKey = *eraseIt;
+                    Iter eraseIt = mX.erase(it);
+                    ASSERT(MAX_LENGTH - 1 == X.size());
 
-                bool found = false;
-                for (it = mX.begin(); mX.end() != it; ++it) {
-                    ASSERTV(itKey != *it);
-                    if (eraseItKey == *it) {
-                        ASSERT(!found);
-                        found = true;
+                    // Verify that 'eraseIt' is a valid iterator, though it may
+                    // be 'X.end()'.
+
+                    if (X.end() != eraseIt) {
+                        const KEY& eraseItKey = *eraseIt;
+
+                        bool found = false;
+                        for (it = mX.begin(); mX.end() != it; ++it) {
+                            ASSERTV(itKey != *it);
+                            if (eraseItKey == *it) {
+                                ASSERT(!found);
+                                found = true;
+                            }
+                        }
+                        ASSERTV(found);
                     }
                 }
-                ASSERTV(found);
-            }
 
-            for (size_t tj = 0; tj < values.size(); ++tj) {
-                const KEY& K = values[tj];
+                for (size_t tj = 0; tj < values.size(); ++tj) {
+                    const KEY& K = values[tj];
 
-                const size_t EXPECTED = tj < MAX_LENGTH && K != itKey;
-                ASSERTV(EXPECTED == X.count(K));
-            }
+                    const size_t EXPECTED = tj < MAX_LENGTH && K != itKey;
+                    ASSERTV(EXPECTED == X.count(K));
+                }
+            } EXCEPTION_TEST_END
+            ASSERTV(1 == numPasses);
         }
 
         // Verify all memory is released on object destruction.
@@ -3774,25 +3878,37 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase2()
             mX.insert(values.begin(), values.index(MAX_LENGTH));
             values.resetIterators();
 
-            ASSERTV(2 * MAX_LENGTH == X.size());
+            // Nothing should throw for the rest of the loop body.
 
-            const KEY itKey = values[ti];
-            bsl::pair<Iter, Iter> pr = mX.equal_range(itKey);
-            if (MAX_LENGTH == ti) {
-                ASSERTV(pr.first == pr.second);
-                ASSERTV(mX.end() == pr.first);
-            }
-            Iter after = mX.erase(pr.first, pr.second);
-            ASSERTV(pr.second == after);
-            ASSERTV(2 * MAX_LENGTH - (MAX_LENGTH == ti ? 0 : 2) == X.size());
-            ASSERTV(0 == X.count(itKey));
+            int numPasses = 0;
+            EXCEPTION_TEST_BEGIN(mX) {
+                ASSERTV(2 * MAX_LENGTH == X.size());
 
-            for (size_t tj = 0; tj < values.size(); ++tj) {
-                const KEY& K = values[tj];
+                const KEY itKey = values[ti];
 
-                const size_t EXPECTED = 2 * (tj < MAX_LENGTH && K != itKey);
-                ASSERTV(EXPECTED == X.count(K));
-            }
+                ++numPasses;
+
+                bsl::pair<Iter, Iter> pr = mX.equal_range(itKey);
+
+                if (MAX_LENGTH == ti) {
+                    ASSERTV(pr.first == pr.second);
+                    ASSERTV(mX.end() == pr.first);
+                }
+                Iter after = mX.erase(pr.first, pr.second);
+
+                ASSERTV(pr.second == after);
+                ASSERTV(2 * MAX_LENGTH - (MAX_LENGTH == ti ? 0 : 2) ==
+                                                                     X.size());
+                ASSERTV(0 == X.count(itKey));
+
+                for (size_t tj = 0; tj < values.size(); ++tj) {
+                    const KEY& K = values[tj];
+
+                    const size_t EXPECTED = 2*(tj < MAX_LENGTH && K != itKey);
+                    ASSERTV(EXPECTED == X.count(K));
+                }
+            } EXCEPTION_TEST_END
+            ASSERTV(1 == numPasses);
         }
 
         // Verify all memory is released on object destruction.
@@ -3847,26 +3963,34 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase2()
             mX.insert(values.begin(), values.index(MAX_LENGTH));
             values.resetIterators();
 
-            KEY itKey = values[ti];
-            const size_t COUNT = mX.erase(itKey);
-            if (MAX_LENGTH == ti) {
-                ASSERT(0 == COUNT);
-                ASSERT(2 * MAX_LENGTH     == X.size());
-            }
-            else {
-                ASSERT(2 == COUNT);
-                ASSERT(2 * MAX_LENGTH - 2 == X.size());
-            }
+            // Should not throw for the rest of the loop body.
 
-            // Verify that 'eraseIt' is a valid iterator, though it may be
-            // 'X.end()'.
+            int numPasses = 0;
+            EXCEPTION_TEST_BEGIN(mX) {
+                ++numPasses;
 
-            for (size_t tj = 0; tj < values.size(); ++tj) {
-                const KEY& K = values[tj];
+                KEY itKey = values[ti];
+                const size_t COUNT = mX.erase(itKey);
+                if (MAX_LENGTH == ti) {
+                    ASSERT(0 == COUNT);
+                    ASSERT(2 * MAX_LENGTH     == X.size());
+                }
+                else {
+                    ASSERT(2 == COUNT);
+                    ASSERT(2 * MAX_LENGTH - 2 == X.size());
+                }
 
-                const size_t EXPECTED = 2 * (tj < MAX_LENGTH && K != itKey);
-                ASSERTV(EXPECTED == X.count(K));
-            }
+                // Verify that 'eraseIt' is a valid iterator, though it may be
+                // 'X.end()'.
+
+                for (size_t tj = 0; tj < values.size(); ++tj) {
+                    const KEY& K = values[tj];
+
+                    const size_t EXPECTED = 2*(tj < MAX_LENGTH && K != itKey);
+                    ASSERTV(EXPECTED == X.count(K));
+                }
+            } EXCEPTION_TEST_END
+            ASSERTV(1 == numPasses);
         }
 
         // Verify all memory is released on object destruction.

@@ -3873,7 +3873,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase12()
                     }
                 } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 ASSERTV(CONFIG, LENGTH,
-                                  (!PLAT_EXC || LENGTH > 0 || 'a' != CONFIG) ==
+                                 (PLAT_EXC && (LENGTH > 0 || 'a' != CONFIG)) ==
                                                               (numPasses > 1));
 
                 Obj& mX = *pmX;    const Obj& X = mX;
@@ -5001,7 +5001,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase7()
                     ASSERTV(SPEC, W == X);
                     ASSERTV(SPEC, Y2.get_allocator() == X.get_allocator());
                 } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
-                ASSERTV(X.empty() == (1 == numPasses));
+                ASSERTV((!PLAT_EXC || X.empty()) == (1 == numPasses));
             }
         }
     }
