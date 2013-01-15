@@ -418,6 +418,9 @@ push(@gcov_options, "-a") if ($gcov_caps->{'all-blocks'} &&
 			      $opt_gcov_all_blocks && $br_coverage);
 push(@gcov_options, "-p") if ($gcov_caps->{'preserve-paths'});
 
+# Ignore code outside the build tree (which will appear with absolute paths).
+push(@gcov_options, "-r");
+
 # Determine compatibility modes
 parse_compat_modes($opt_compat);
 
