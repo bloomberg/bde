@@ -1,8 +1,20 @@
+bde-core (2.16.0.4) unstable; urgency=low
+
+  * baem metrics improvements.
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 14 Jan 2013 15:23:12 -0500
+
 bde-core (2.16.0.3) unstable; urgency=low
 
   * Update uplids.
 
  -- Mike Giroux <mgiroux@bloomberg.net>  Thu, 10 Jan 2013 14:52:41 -0500
+
+bde-core (2.16.0.2) unstable; urgency=low
+
+  * Suppress bdeut_variant.h warning.
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Sun, 06 Jan 2013 13:48:50 -0500
 
 bde-core (2.16.0.1) unstable; urgency=low
 
