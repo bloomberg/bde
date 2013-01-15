@@ -866,7 +866,7 @@ class unordered_set
         // the (template parameter) type 'KEY' be "copy-constructible" (see
         // {Requirements on 'KEY'}).
 
-    void  max_load_factor(float newLoadFactor);
+    void max_load_factor(float newLoadFactor);
         // Set the maximum load factor of this container to the specified
         // 'newLoadFactor'.
 
