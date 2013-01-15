@@ -9,7 +9,7 @@
 Converts lcov line coverage output to Cobertura-compatible XML for CI
 """
 
-import re, sys, os, time
+import re, sys, os, time, subprocess
 from xml.dom import minidom
 from optparse import OptionParser
 
@@ -29,7 +29,7 @@ class LcovCobertura(object):
     >>> print cobertura_xml
     """
 
-    def __init__(self, lcov_data, base_dir='.', excludes=None):
+    def __init__(self, lcov_data, base_dir='.', excludes=None, demangle=False):
         """
         Create a new :class:`LcovCobertura` object using the given `lcov_data`
         and `options`.
@@ -47,6 +47,9 @@ class LcovCobertura(object):
         self.lcov_data = lcov_data
         self.base_dir = base_dir
         self.excludes = excludes
+        self.demangle = demangle
+        if demangle:
+            self.mangled_functions = {}
 
     def convert(self):
         """
@@ -54,6 +57,17 @@ class LcovCobertura(object):
         """
         coverage_data = self.parse()
         return self.generate_cobertura_xml(coverage_data)
+
+    def demangle_function_name(self, function_name):
+        if self.demangle:
+            if self.mangled_functions.has_key(function_name):
+                return self.mangled_functions[function_name]
+            else:
+                de_function_name = subprocess.Popen(["c++filt", function_name], stdout=subprocess.PIPE).communicate()[0]
+                self.mangled_functions[function_name] = de_function_name
+                return de_function_name
+        else:
+            return function_name
 
     def parse(self):
         """
@@ -160,10 +174,12 @@ class LcovCobertura(object):
             elif input_type == 'FN':
                 # FN:5,(anonymous_1)
                 function_name = line_parts[-1].strip().split(',')[1]
+                function_name = self.demangle_function_name(function_name)
                 file_methods[function_name] = '0'
             elif input_type == 'FNDA':
                 # FNDA:0,(anonymous_1)
                 (function_hits, function_name) = line_parts[-1].strip().split(',')
+                function_name = self.demangle_function_name(function_name)
                 file_methods[function_name] = function_hits
 
         # Exclude packages
@@ -337,6 +353,9 @@ if __name__ == '__main__':
         parser.add_option('-e', '--excludes',
                           help='Comma-separated list of regexes of packages to exclude',
                           action='append', dest='excludes', default=[])
+        parser.add_option('-d', '--demangle-cpp',
+                          help='Demangles C++ function names',
+                          action='store_true', dest='demangle', default=False)
         parser.add_option('-o', '--output',
                           help='Path to store cobertura xml file',
                           action='store', dest='output', default='coverage.xml')
@@ -349,7 +368,7 @@ if __name__ == '__main__':
         try:
             with open(args[1], 'r') as lcov_file:
                 lcov_data = lcov_file.read()
-                lcov_cobertura = LcovCobertura(lcov_data, options.base_dir, options.excludes)
+                lcov_cobertura = LcovCobertura(lcov_data, options.base_dir, options.excludes, options.demangle)
                 cobertura_xml = lcov_cobertura.convert()
             with open(options.output, mode='wt') as output_file:
                 output_file.write(cobertura_xml)

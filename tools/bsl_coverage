@@ -56,7 +56,7 @@ then
 
 	echo "coverage-info += coverage/${comp}-coverage.xml" >> coverage.mk
 	echo "coverage/${comp}-coverage.xml: coverage/${comp}-final.info" >> coverage.mk
-	echo -e "\tpython tools/lcov_cobertura/lcov_cobertura.py -o coverage/${comp}-coverage.xml --excludes \".*.usr.include.*\" --excludes \"build\" coverage/${comp}-final.info" >> coverage.mk
+	echo -e "\tpython tools/lcov_cobertura/lcov_cobertura.py -o coverage/${comp}-coverage.xml --excludes \".*.usr.include.*\" --excludes \"build\" --demangle-cpp coverage/${comp}-final.info" >> coverage.mk
 	echo -e "\tsed -i -e \"s/groups\\.bsl\\.//\" coverage/${comp}-coverage.xml" >> coverage.mk
 	echo >> coverage.mk
     done
