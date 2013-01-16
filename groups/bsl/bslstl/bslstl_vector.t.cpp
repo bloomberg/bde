@@ -13,6 +13,7 @@
 #include <bslma_testallocator.h>           // for testing only
 #include <bslma_testallocatorexception.h>  // for testing only
 #include <bslmf_issame.h>                  // for testing only
+#include <bsls_bsltestutil.h>
 #include <bsls_objectbuffer.h>
 #include <bsls_alignmentutil.h>
 #include <bsls_assert.h>
@@ -164,7 +165,6 @@ using namespace bsl;
 // FUNCTIONS, INCLUDING IOSTREAMS.
 
 namespace {
-
 int testStatus = 0;
 
 void aSsErT(int c, const char *s, int i) {
@@ -176,7 +176,27 @@ void aSsErT(int c, const char *s, int i) {
 
 }  // close unnamed namespace
 
-# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+//=============================================================================
+//                       STANDARD BDE TEST DRIVER MACROS
+//-----------------------------------------------------------------------------
+
+#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+
+#define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLS_BSLTESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLS_BSLTESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLS_BSLTESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLS_BSLTESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
+#define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
+
+#define Q   BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
+#define P   BSLS_BSLTESTUTIL_P   // Print identifier and value.
+#define P_  BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
+#define T_  BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
+#define L_  BSLS_BSLTESTUTIL_L_  // current Line number
 
 #define ASSERT_FAIL(expr) BSLS_ASSERTTEST_ASSERT_FAIL(expr)
 #define ASSERT_PASS(expr) BSLS_ASSERTTEST_ASSERT_PASS(expr)
@@ -189,49 +209,28 @@ void aSsErT(int c, const char *s, int i) {
 #define ASSERT_SAFE_PASS_RAW(expr) BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(expr)
 
 //=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
+//                      GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
-// NOTE: This implementation of LOOP_ASSERT macros must use printf since
-//       cout uses new and must not be called during exception testing.
 
-#define LOOP_ASSERT(I,X) { \
-    if (!(X)) { printf("%s", #I ": "); dbg_print(I); printf("\n"); \
-                fflush(stdout); aSsErT(1, #X, __LINE__); } }
+namespace bsl {
 
-#define LOOP2_ASSERT(I,J,X) { \
-    if (!(X)) { printf("%s", #I ": "); dbg_print(I); printf("\t"); \
-                printf("%s", #J ": "); dbg_print(J); printf("\n"); \
-                fflush(stdout); aSsErT(1, #X, __LINE__); } }
+// Vector-specific print function.
+template <typename TYPE, typename ALLOC>
+void debugprint(const bsl::Vector_Imp<TYPE,ALLOC>& v)
+  {
+    if (v.empty()) {
+      printf("<empty>");
+    }
+    else {
+      for (size_t i = 0; i < v.size(); ++i) {
+	P(v[i]);
+      }
+    }
+    fflush(stdout);
+  }
+} // close bsl namespace
 
-#define LOOP3_ASSERT(I,J,K,X) {                    \
-    if (!(X)) { printf("%s", #I ": "); dbg_print(I); printf("\t"); \
-                printf("%s", #J ": "); dbg_print(J); printf("\t"); \
-                printf("%s", #K ": "); dbg_print(K); printf("\n"); \
-                fflush(stdout); aSsErT(1, #X, __LINE__); } }
 
-#define LOOP4_ASSERT(I,J,K,L,X) {                  \
-    if (!(X)) { printf("%s", #I ": "); dbg_print(I); printf("\t"); \
-                printf("%s", #J ": "); dbg_print(J); printf("\t"); \
-                printf("%s", #K ": "); dbg_print(K); printf("\t"); \
-                printf("%s", #L ": "); dbg_print(L); printf("\n"); \
-                fflush(stdout); aSsErT(1, #X, __LINE__); } }
-
-#define LOOP5_ASSERT(I,J,K,L,M,X) {                \
-    if (!(X)) { printf("%s", #I ": "); dbg_print(I); printf("\t"); \
-                printf("%s", #J ": "); dbg_print(J); printf("\t"); \
-                printf("%s", #K ": "); dbg_print(K); printf("\t"); \
-                printf("%s", #L ": "); dbg_print(L); printf("\t"); \
-                printf("%s", #M ": "); dbg_print(M); printf("\n"); \
-                fflush(stdout); aSsErT(1, #X, __LINE__); } }
-
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-#define Q(X) printf("<| " #X " |>\n");      // Quote identifier literally.
-#define P(X) dbg_print(#X " = ", X, "\n");  // Print identifier and value.
-#define P_(X) dbg_print(#X " = ", X, ", "); // P(X) without '\n'
-#define L_ __LINE__                         // current Line number
-#define T_ putchar('\t');                   // Print a tab (w/o newline)
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -284,61 +283,11 @@ const int NUM_ALLOCS[] = {
        0,   1,  2,  3,  3,  4,  4,  4,  4,  5,  5,  5,  5,  5,  5,  5,  5,  6
 };
 
-//=============================================================================
-//                      GLOBAL HELPER FUNCTIONS FOR TESTING
-//-----------------------------------------------------------------------------
-
-// Fundamental-type-specific print functions.
-inline void dbg_print(bool b) { printf(b ? "true" : "false"); fflush(stdout); }
-inline void dbg_print(char c) { printf("%c", c); fflush(stdout); }
-inline void dbg_print(unsigned char c) { printf("%c", c); fflush(stdout); }
-inline void dbg_print(signed char c) { printf("%c", c); fflush(stdout); }
-inline void dbg_print(short val) { printf("%d", (int)val); fflush(stdout); }
-inline void dbg_print(unsigned short val) {
-    printf("%d", (int)val); fflush(stdout);
-}
-inline void dbg_print(int val) { printf("%d", val); fflush(stdout); }
-inline void dbg_print(unsigned int val) { printf("%u", val); fflush(stdout); }
-inline void dbg_print(long val) { printf("%ld", val); fflush(stdout); }
-inline void dbg_print(unsigned long val) {
-    printf("%lu", val); fflush(stdout);
-}
-inline void dbg_print(long long val) { printf("%lld", val); fflush(stdout); }
-inline void dbg_print(unsigned long long val) {
-    printf("%llu", val); fflush(stdout);
-}
-inline void dbg_print(float val) {
-    printf("'%f'", (double)val); fflush(stdout);
-}
-inline void dbg_print(double val) { printf("'%f'", val); fflush(stdout); }
-inline void dbg_print(long double val) {
-    printf("'%Lf'", val); fflush(stdout);
-}
-inline void dbg_print(const char* s) { printf("\"%s\"", s); fflush(stdout); }
-inline void dbg_print(char* s) { printf("\"%s\"", s); fflush(stdout); }
-inline void dbg_print(void* p) { printf("%p", p); fflush(stdout); }
-
-
-// Vector-specific print function.
-template <typename TYPE, typename ALLOC>
-void dbg_print(const Vector_Imp<TYPE,ALLOC>& v)
-{
-    if (v.empty()) {
-        printf("<empty>");
-    }
-    else {
-        for (size_t i = 0; i < v.size(); ++i) {
-            dbg_print(v[i]);
-        }
-    }
-    fflush(stdout);
-}
-
 // Generic debug print function (3-arguments).
 template <typename T>
-void dbg_print(const char* s, const T& val, const char* nl)
+void debugprint(const T& val, const char* s, const char* nl)
 {
-    printf("%s", s); dbg_print(val);
+    printf("%s", s); P(val);
     printf("%s", nl);
     fflush(stdout);
 }
@@ -521,7 +470,7 @@ bool operator<(const TestType& lhs, const TestType& rhs)
 }
 
 // TestType-specific print function.
-void dbg_print(const TestType& rhs) {
+void debugprint(const TestType& rhs) {
     printf("%c", rhs.value());
     fflush(stdout);
 }
@@ -602,7 +551,7 @@ bool operator==(const TestTypeNoAlloc& lhs,
 }
 
 // TestType-specific print function.
-void dbg_print(const TestTypeNoAlloc& rhs) {
+void debugprint(const TestTypeNoAlloc& rhs) {
     printf("%c", rhs.value());
     fflush(stdout);
 }
@@ -732,7 +681,7 @@ class BitwiseEqComparableTestType {
 };
 
 // TestType-specific print function.
-void dbg_print(const BitwiseEqComparableTestType& rhs) {
+void debugprint(const BitwiseEqComparableTestType& rhs) {
     printf("%c", rhs.value());
     fflush(stdout);
 }
@@ -897,6 +846,7 @@ class LimitAllocator : public ALLOC {
     size_type max_size() const { return d_limit; }
 };
 
+
 namespace BloombergLP {
 namespace bslmf {
 
@@ -908,6 +858,7 @@ struct IsBitwiseMoveable<LimitAllocator<ALLOCATOR> >
 }
 
 }  // namespace BloombergLP
+
 
 //=============================================================================
 //                            Test Case 22
@@ -6237,8 +6188,8 @@ void TestDriver<TYPE,ALLOC>::testCase8()
         gg(&mX, SPEC);  const Obj& X = mX;
 
         if (veryVerbose) {
-            printf("\t g = "); dbg_print(g(SPEC)); printf("\n");
-            printf("\tgg = "); dbg_print(X); printf("\n");
+            printf("\t g = "); P(g(SPEC)); printf("\n");
+            printf("\tgg = "); P(X); printf("\n");
         }
         const bsls::Types::Int64 TOTAL_BLOCKS_BEFORE =
                                                 testAllocator.numBlocksTotal();
