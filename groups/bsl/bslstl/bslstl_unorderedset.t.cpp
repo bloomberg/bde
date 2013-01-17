@@ -3814,8 +3814,8 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase12()
 
             if (veryVerbose) P(SPEC);
 
-            bool done = false;
-            for (char cfg = 'a'; cfg <= 'e' ; ++cfg) {
+            int done = 0;
+            for (char cfg = 'a'; cfg <= 'i' ; ++cfg) {
                 const char CONFIG = cfg;
 
                 bslma::TestAllocator sc("scratch",   veryVeryVeryVerbose);
@@ -3828,8 +3828,8 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase12()
                 bslma::TestAllocator da("default",   veryVeryVeryVerbose);
                 bslma::DefaultAllocatorGuard dag(&da);
 
-                bslma::TestAllocator& oa  = 'e' == CONFIG ? sa : da;
-                bslma::TestAllocator& noa = 'e' != CONFIG ? sa : da;
+                bslma::TestAllocator& oa  = strchr("ei", CONFIG) ? sa : da;
+                bslma::TestAllocator& noa = &oa == &da           ? sa : da;
 
                 int numPasses = 0;
                 Obj *pmX;
@@ -3842,29 +3842,35 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase12()
                         pmX = new (fa) Obj(tv.begin(), tv.end());
                       } break;
                       case 'b': {
-                        pmX = new (fa) Obj(tv.begin(), tv.end(), 100);
+                        pmX = new (fa) Obj(tv.begin(), tv.end(), 0);
                       } break;
                       case 'c': {
-                        pmX = new (fa) Obj(tv.begin(),
-                                           tv.end(),
-                                           100,
+                        pmX = new (fa) Obj(tv.begin(), tv.end(), 0,
                                            defaultHash);
                       } break;
                       case 'd': {
-                        pmX = new (fa) Obj(tv.begin(),
-                                           tv.end(),
-                                           100,
-                                           defaultHash,
-                                           defaultEqual);
+                        pmX = new (fa) Obj(tv.begin(), tv.end(), 0,
+                                           defaultHash, defaultEqual);
                       } break;
                       case 'e': {
-                        pmX = new (fa) Obj(tv.begin(),
-                                           tv.end(),
-                                           100,
-                                           defaultHash,
-                                           defaultEqual,
-                                           &oa);
-                        done = true;
+                        pmX = new (fa) Obj(tv.begin(), tv.end(), 0,
+                                           defaultHash, defaultEqual, &sa);
+                      } break;
+                      case 'f': {
+                        pmX = new (fa) Obj(tv.begin(), tv.end(), 100);
+                      } break;
+                      case 'g': {
+                        pmX = new (fa) Obj(tv.begin(), tv.end(), 100,
+                                           defaultHash);
+                      } break;
+                      case 'h': {
+                        pmX = new (fa) Obj(tv.begin(), tv.end(), 100,
+                                           defaultHash, defaultEqual);
+                      } break;
+                      case 'i': {
+                        pmX = new (fa) Obj(tv.begin(), tv.end(), 100,
+                                           defaultHash, defaultEqual, &sa);
+                        ++done;
                       } break;
                       default: {
                         ASSERTV(0);
@@ -3873,28 +3879,24 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase12()
                     }
                 } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 ASSERTV(CONFIG, LENGTH,
-                                 (PLAT_EXC && (LENGTH > 0 || 'a' != CONFIG)) ==
+                                 (PLAT_EXC && (LENGTH > 0 || CONFIG >= 'f')) ==
                                                               (numPasses > 1));
 
                 Obj& mX = *pmX;    const Obj& X = mX;
 
                 ASSERTV(CONFIG, LENGTH, noa.numBlocksTotal(), &oa == &da,
                                                     0 == noa.numBlocksTotal());
-                ASSERTV(CONFIG, LENGTH, noa.numBlocksInUse(), &oa == &da,
-                                                    0 == noa.numBlocksInUse());
 
                 TestValues EXP(RESULTS, &sc);
                 ASSERT(0 == verifyContainer(X, EXP, strlen(RESULTS)));
 
-                ASSERTV((CONFIG >= 'c' ? defaultHash
-                                       : HASH())  == X.hash_function());
-                ASSERTV((CONFIG >= 'd' ? defaultEqual
-                                       : EQUAL()) == X.key_eq());
+                ASSERTV((strchr("cdeghi", CONFIG) ?
+                                 defaultHash  : HASH())  == X.hash_function());
+                ASSERTV((strchr("dehi",   CONFIG) ?
+                                 defaultEqual : EQUAL()) == X.key_eq());
 
-                if (CONFIG >= 'b' && tv.size() > 0) {
-                    ASSERTV(CONFIG, SPEC, X.bucket_count(),
-                                                      100 <= X.bucket_count());
-                }
+                ASSERTV(CONFIG, SPEC, X.bucket_count(),
+                                      CONFIG < 'f' || 100 <= X.bucket_count());
 
                 for (char c = 'A'; c <= 'Z'; ++c) {
                     int idx = c - 'A';
@@ -3908,7 +3910,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase12()
                 fa.deleteObject(pmX);
             }
 
-            ASSERTV(done);
+            ASSERTV(1 == done);
         }
     }
 }
