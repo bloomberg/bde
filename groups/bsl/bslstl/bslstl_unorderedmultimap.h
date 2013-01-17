@@ -1274,7 +1274,8 @@ void unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::insert(
     }
 
     while (first != last) {
-        d_impl.insert(*first++);
+        d_impl.insert(*first);
+        ++first;
     }
 }
 
