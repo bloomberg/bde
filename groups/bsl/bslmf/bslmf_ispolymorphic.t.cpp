@@ -271,18 +271,18 @@ int main(int argc, char *argv[])
         //:   non-polymorphic types using virtual inheritance on AIX only; on
         //:   other platforms, the meta-function returns 'true' (incorrectly).
         //:
-        //: 2 'bsl::is_polymorphic' return 'false' for non-polymorphic types
+        //: 2 'bsl::is_polymorphic' returns 'false' for non-polymorphic types
         //:   using multiple inheritance.
         //:
-        //: 3 'bsl::is_polymorphic' return 'true' for polymorphic types using
+        //: 3 'bsl::is_polymorphic' returns 'true' for polymorphic types using
         //:   virtual inheritance.
         //:
-        //: 4 'bsl::is_polymorphic' return 'true' for polymorphic types that
-        //:   multiply inherits from (possibly a combination of base types)
+        //: 4 'bsl::is_polymorphic' returns 'true' for polymorphic types that
+        //:   multiply inherits from (possibly a combination of) base types
         //:   that use virtual inheritance and/or regular inheritance.
         //
         // Plan:
-        //   Verify that 'bslmf::IsPolymorphic' return the correct values
+        //   Verify that 'bslmf::IsPolymorphic' returns the correct values
         //   for each concern.
         //
         // Tactics:
@@ -552,7 +552,7 @@ int main(int argc, char *argv[])
         //:    cv-qualified.
         //
         // Test Plan:
-        //   Verify that 'bsl::is_polymorphic' return the correct values
+        //   Verify that 'bsl::is_polymorphic' returns the correct values
         //   for each concern.
         //
         // Testing:
@@ -863,18 +863,18 @@ int main(int argc, char *argv[])
         //:   non-polymorphic types using virtual inheritance on AIX only; on
         //:   other platforms, the meta-function returns 'true' (incorrectly).
         //:
-        //: 2 'bslmf::IsPolymorphic' return 'false' for non-polymorphic types
+        //: 2 'bslmf::IsPolymorphic' returns 'false' for non-polymorphic types
         //:   using multiple inheritance.
         //:
-        //: 3 'bslmf::IsPolymorphic' return 'true' for polymorphic types using
+        //: 3 'bslmf::IsPolymorphic' returns 'true' for polymorphic types using
         //:   virtual inheritance.
         //:
-        //: 4 'bslmf::IsPolymorphic' return 'true' for polymorphic types that
-        //:   multiply inherits from (possibly a combination of base types)
+        //: 4 'bslmf::IsPolymorphic' returns 'true' for polymorphic types that
+        //:   multiply inherits from (possibly a combination of) base types
         //:   that use virtual inheritance and/or regular inheritance.
         //
         // Plan:
-        //   Verify that 'bslmf::IsPolymorphic' return the correct values
+        //   Verify that 'bslmf::IsPolymorphic' returns the correct values
         //   for each concern.
         //
         // Tactics:
@@ -1145,7 +1145,7 @@ int main(int argc, char *argv[])
         //:    cv-qualified.
         //
         // Test Plan:
-        //   Verify that 'bslmf::IsPolymorphic' return the correct values
+        //   Verify that 'bslmf::IsPolymorphic' returns the correct values
         //   for each concern.
         //
         // Testing:

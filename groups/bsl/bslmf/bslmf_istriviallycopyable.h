@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a meta-function for determining trivially copyable types
+//@PURPOSE: Provide a meta-function for determining trivially copyable types.
 //
 //@CLASSES:
 //  bsl::is_trivially_copyable: type-traits meta-function

@@ -3,8 +3,8 @@
 
 #include <bslmf_issame.h>
 
-#include <cstdlib>
 #include <cstdio>
+#include <cstdlib>
 
 using namespace bsl;
 using namespace BloombergLP;
@@ -18,10 +18,10 @@ using std::fprintf;
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// The component under test defines a meta-functions, 'bsl::remove_volatile',
+// The component under test defines a meta-function, 'bsl::remove_volatile',
 // that removes any top-level 'volatile'-qualifier from a template parameter
 // type.  Thus, we need to ensure that the values returned by the meta-function
-// is correct for each possible category of types.
+// are correct for each possible category of types.
 //
 // ----------------------------------------------------------------------------
 // PUBLIC CLASS DATA
@@ -145,7 +145,8 @@ int main(int argc, char *argv[])
         //: 1 'bsl::remove_volatile' leaves types that are not
         //:   'volatile'-qualified at the top-level as-is.
         //:
-        //: 2 'bsl::remove_volatile' remove any top-level 'volatile'-qualifier.
+        //: 2 'bsl::remove_volatile' removes any top-level
+        //:   'volatile'-qualifier.
         //
         // Plan:
         //   Verify that 'bsl::remove_volatile::type' has the correct type for
@@ -192,11 +193,11 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2012
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

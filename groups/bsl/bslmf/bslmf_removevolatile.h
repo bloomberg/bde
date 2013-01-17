@@ -26,7 +26,7 @@ BSLS_IDENT("$Id: $")
 ///-----
 // In this section we show intended use of this component.
 //
-///Example 1: Removing the 'volatile'-qualifier of a Type
+///Example 1: Removing the 'volatile'-Qualifier of a Type
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose that we want to remove any 'volatile'-qualifier from a particular
 // type.
@@ -56,7 +56,7 @@ namespace bsl {
                          // struct remove_volatile
                          // ======================
 
-template <typename TYPE>
+template <class TYPE>
 struct remove_volatile {
     // This 'struct' template implements the 'remove_volatile' meta-function
     // defined in the C++11 standard [meta.trans.cv], providing an alias,
@@ -73,15 +73,15 @@ struct remove_volatile {
         // This 'typedef' is an alias to the (template parameter) 'TYPE'.
 };
 
-template <typename TYPE>
+template <class TYPE>
 struct remove_volatile<TYPE volatile> {
      // This partial specialization of 'bsl::remove_volatile', for when the
      // (template parameter) 'TYPE' is 'volatile'-qualified, provides a
-     // 'typedef' 'type' that has the 'volatile'-qualifier removed.
+     // 'typedef', 'type', that has the 'volatile'-qualifier removed.
 
     // PUBLIC TYPES
     typedef TYPE type;
-        // This 'typedef' to a type that is the same as the (template
+        // This 'typedef' is an alias to the same type as the (template
         // parameter) 'TYPE' except with the 'volatile'-qualifier removed.
 };
 
@@ -89,11 +89,11 @@ struct remove_volatile<TYPE volatile> {
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2012
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

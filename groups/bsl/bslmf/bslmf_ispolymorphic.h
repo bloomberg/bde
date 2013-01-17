@@ -150,7 +150,7 @@ struct IsPolymorphic_Imp {
     // (template parameter) 'TYPE' is a (non-cv-qualified) polymorphic type.
     // This generic default template defines a static data member, 'Value',
     // that is set to 'false'.  A template specialization is provided (below)
-    // to handle the case where 'TYPE' is class type that may be polymorphic.
+    // to handle the case where 'TYPE' is a class type that may be polymorphic.
 
     enum { Value = false };
 };

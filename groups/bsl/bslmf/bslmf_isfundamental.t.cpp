@@ -175,7 +175,7 @@ int main(int argc, char *argv[])
 ///- - - - - - - - - - - - - - - - - -
 // Suppose that we want to assert whether a set of types are fundamental types.
 //
-// Now, we instantiate the 'bsl::is_fundamental' template for a couple of
+// Now, we instantiate the 'bsl::is_fundamental' template for several
 // non-fundamental and fundamental types, and assert the 'value' static data
 // member of each instantiation:
 //..
@@ -194,8 +194,8 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //: 1 'IsFundamental::VALUE' is 1 when 'TYPE' is a (possibly
-        //:   cv-qualified) primitive type or (possibly cv-qualified) reference
-        //:   to primitive type.
+        //:   cv-qualified) primitive type or reference to (possibly
+        //:   cv-qualified) primitive type.
         //:
         //: 2 'IsFundamental::VALUE' is 0 when 'TYPE' is a (possibly
         //:   cv-qualified) user-defined type.
@@ -372,7 +372,7 @@ int main(int argc, char *argv[])
         // Concerns:
         //: 1 'is_fundamental::value' is 'true' when 'TYPE' is a (possibly
         //:   cv-qualified) primitive type, and 'false' when 'TYPE' is a
-        //:   (possibly cv-qualified) reference to primitive type.
+        //:   reference to (possibly cv-qualified) primitive type.
         //:
         //: 2 'is_fundamental::value' is 'false' when 'TYPE' is a (possibly
         //:   cv-qualified) user-defined type.

@@ -71,7 +71,7 @@ BSLS_IDENT("$Id: $")
 ///- - - - - - - - - - - - - - - - - -
 // Suppose that we want to assert whether a set of types are fundamental types.
 //
-// Now, we instantiate the 'bsl::is_fundamental' template for several of
+// Now, we instantiate the 'bsl::is_fundamental' template for several
 // non-fundamental and fundamental types, and assert the 'value' static data
 // member of each instantiation:
 //..
