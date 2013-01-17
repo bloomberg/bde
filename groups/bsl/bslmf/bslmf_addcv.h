@@ -28,7 +28,7 @@ BSLS_IDENT("$Id: $")
 ///-----
 // In this section we show intended use of this component.
 //
-///Example 1: Adding a 'const'-qualifier and 'volatile'-qualifier to a Type
+///Example 1: Adding a 'const'-Qualifier and 'volatile'-Qualifier to a Type
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose that we want to add a 'const'-qualifier and a 'volatile'-qualifier
 // to a particular type.
@@ -64,7 +64,7 @@ namespace bsl {
                          // struct add_cv
                          // =============
 
-template <typename TYPE>
+template <class TYPE>
 struct add_cv {
     // This 'struct' template implements the 'add_cv' meta-function defined in
     // the C++11 standard [meta.trans.cv], providing an alias, 'type', that

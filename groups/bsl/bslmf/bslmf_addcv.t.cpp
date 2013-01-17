@@ -3,8 +3,8 @@
 
 #include <bslmf_issame.h>
 
-#include <cstdlib>
 #include <cstdio>
+#include <cstdlib>
 
 using namespace bsl;
 using namespace BloombergLP;
@@ -116,7 +116,7 @@ int main(int argc, char *argv[])
 ///-----
 // In this section we show intended use of this component.
 //
-///Example 1: Adding a 'const'-qualifier and 'volatile'-qualifier to a Type
+///Example 1: Adding a 'const'-Qualifier and 'volatile'-Qualifier to a Type
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose that we want to add a 'const'-qualifier and a 'volatile'-qualifier
 // to a particular type.
