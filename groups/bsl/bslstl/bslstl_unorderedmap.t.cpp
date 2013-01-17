@@ -7185,7 +7185,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase8()
                 ASSERTV(LINE1, LINE2, oam.isTotalSame());
             }
 
-#if 0       // Unlike 'set', 'uordered set' does not support swapping with
+#if 0       // Unlike 'set', 'uordered map' does not support swapping with
             // unequal bslma allocators.
 
 
