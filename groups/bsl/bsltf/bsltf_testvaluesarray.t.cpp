@@ -42,7 +42,7 @@ void aSsErT(bool b, const char *s, int i) {
     }
 }
 
-}  // end anonymous namespace
+}  // close unnamed namespace
 
 //=============================================================================
 //                       STANDARD BDE TEST DRIVER MACROS
