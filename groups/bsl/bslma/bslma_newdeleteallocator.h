@@ -264,6 +264,7 @@ class NewDeleteAllocator : public Allocator {
     // should generally not be used directly by typical clients (see
     // 'bslma_default' for more information).
 
+  private:
     // NOT IMPLEMENTED
     NewDeleteAllocator(const NewDeleteAllocator&);
     NewDeleteAllocator& operator=(const NewDeleteAllocator&);
