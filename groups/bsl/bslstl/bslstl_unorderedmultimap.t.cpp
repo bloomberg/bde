@@ -210,7 +210,7 @@ const DefaultDataRow DEFAULT_DATA[] = {
 };
 static const int DEFAULT_NUM_DATA = sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA;
 
-}  // close unnamed names
+}  // close unnamed namespace
 
 //=============================================================================
 //                     GLOBAL VARIABLES / FUNCTIOONS / CLASSES
@@ -222,6 +222,113 @@ bool             verbose;
 bool         veryVerbose;
 bool     veryVeryVerbose;
 bool veryVeryVeryVerbose;
+
+
+size_t numCharInstances(const char *SPEC, const char c)
+{
+    size_t ret = 0;
+    for (const char *pc = SPEC; *pc; ++pc) {
+        ret += (c == *pc);
+    }
+    return ret;
+}
+
+template <typename TYPE>
+const TYPE& my_max(const TYPE& x, const TYPE& y)
+{
+    return x > y ? x : y;
+}
+
+template <typename TYPE>
+TYPE my_abs(const TYPE& x)
+{
+    return x < 0 ? -x : x;
+}
+
+template <typename TYPE>
+bool nearlyEqual(const TYPE& x, const TYPE& y)
+{
+    TYPE tolerance = my_max(my_abs(x), my_abs(y)) * 0.0001;
+    return my_abs(x - y) <= tolerance;
+}
+
+template <typename TYPE>
+const char *testTypeName()
+{
+    return "unrecognized type";
+};
+
+template <>
+const char *testTypeName<signed char>()
+{
+    return "signed char";
+};
+
+template <>
+const char *testTypeName<size_t>()
+{
+    return "size_t";
+};
+
+template <>
+const char *testTypeName<bsltf::TemplateTestFacility::ObjectPtr>()
+{
+    return "ObjectPtr";
+};
+
+template <>
+const char *testTypeName<bsltf::TemplateTestFacility::FunctionPtr>()
+{
+    return "FunctionPtr";
+};
+
+template <>
+const char *testTypeName<bsltf::TemplateTestFacility::MethodPtr>()
+{
+    return "MethodPtr";
+};
+
+template <>
+const char *testTypeName<bsltf::EnumeratedTestType::Enum>()
+{
+    return "Enum";
+};
+
+template <>
+const char *testTypeName<bsltf::UnionTestType>()
+{
+    return "UnionTestType";
+};
+
+template <>
+const char *testTypeName<bsltf::SimpleTestType>()
+{
+    return "SimpleTestType";
+};
+
+template <>
+const char *testTypeName<bsltf::AllocTestType>()
+{
+    return "AllocTestType";
+};
+
+template <>
+const char *testTypeName<bsltf::BitwiseMoveableTestType>()
+{
+    return "BitwiseMoveableTestType";
+};
+
+template <>
+const char *testTypeName<bsltf::AllocBitwiseMoveableTestType>()
+{
+    return "AllocBitwiseMoveableTestType";
+};
+
+template <>
+const char *testTypeName<bsltf::NonTypicalOverloadsTestType>()
+{
+    return "NonTypicalOverloadTestType";
+};
 
 template <class KEY, class VALUE>
 class CharToPairConverter {
@@ -843,6 +950,771 @@ bool TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::matchFirstValues(
     }
 
     return true;
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
+void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase6()
+{
+    // ------------------------------------------------------------------------
+    // TESTING EQUALITY OPERATORS:
+    // Concerns:
+    //: 1 Two objects, 'X' and 'Y', compare equal if and only if they contain
+    //:   the same values.
+    //:
+    //: 2 No non-salient attributes (i.e., 'allocator') participate.
+    //:
+    //: 3 'true  == (X == X)' (i.e., identity)
+    //:
+    //: 4 'false == (X != X)' (i.e., identity)
+    //:
+    //: 5 'X == Y' if and only if 'Y == X' (i.e., commutativity)
+    //:
+    //: 6 'X != Y' if and only if 'Y != X' (i.e., commutativity)
+    //:
+    //: 7 'X != Y' if and only if '!(X == Y)'
+    //:
+    //: 8 Comparison is symmetric with respect to user-defined conversion
+    //:   (i.e., both comparison operators are free functions).
+    //:
+    //: 9 Non-modifiable objects can be compared (i.e., objects or references
+    //:   providing only non-modifiable access).
+    //:
+    //:10 'operator==' is defined in terms of 'operator==(KEY)' instead of the
+    //:   supplied comparator function.
+    //:
+    //:11 No memory allocation occurs as a result of comparison (e.g., the
+    //:   arguments are not passed by value).
+    //:
+    //:12 The equality operator's signature and return type are standard.
+    //:
+    //:13 The inequality operator's signature and return type are standard.
+    //
+    // Plan:
+    //: 1 Use the respective addresses of 'operator==' and 'operator!=' to
+    //:   initialize function pointers having the appropriate signatures and
+    //:   return types for the two homogeneous, free equality- comparison
+    //:   operators defined in this component.  (C-8..9, 12..13)
+    //:
+    //: 2 Create a 'bslma::TestAllocator' object, and install it as the default
+    //:   allocator (note that a ubiquitous test allocator is already installed
+    //:   as the global allocator).
+    //:
+    //: 3 Using the table-driven technique, specify a set of distinct
+    //:   specifications for the 'gg' function.
+    //:
+    //: 4 For each row 'R1' in the table of P-3: (C-1..7)
+    //:
+    //:   1 Create a single object, using a comparator that can be disabled and
+    //:     a"scratch" allocator, and use it to verify the reflexive
+    //:     (anti-reflexive) property of equality (inequality) in the presence
+    //:     of aliasing.  (C-3..4)
+    //:
+    //:   2 For each row 'R2' in the table of P-3: (C-1..2, 5..7)
+    //:
+    //:     1 Record, in 'EXP', whether or not distinct objects created from
+    //:       'R1' and 'R2', respectively, are expected to have the same value.
+    //:
+    //:     2 For each of two configurations, 'a' and 'b': (C-1..2, 5..7)
+    //:
+    //:       1 Create two (object) allocators, 'oax' and 'oay'.
+    //:
+    //:       2 Create an object 'X', using 'oax', having the value 'R1'.
+    //:
+    //:       3 Create an object 'Y', using 'oax' in configuration 'a' and
+    //:         'oay' in configuration 'b', having the value 'R2'.
+    //:
+    //:       4 Disable the comparator so that it will cause an error if it's
+    //:         used.
+    //:
+    //:       5 Verify the commutativity property and expected return value for
+    //:         both '==' and '!=', while monitoring both 'oax' and 'oay' to
+    //:         ensure that no object memory is ever allocated by either
+    //:         operator.  (C-1..2, 5..7, 10)
+    //:
+    //:       6 Verify that modifying the 'second' fields of the pair affects
+    //:         the result -- when X == Y, go through the elements of X,
+    //:         perterbing the 'second' field of every element, and verify
+    //:         that even this small change causing an inequality result.
+    //:
+    //: 5 Use the test allocator from P-2 to verify that no memory is ever
+    //:   allocated from the default allocator.  (C-11)
+    //
+    // Testing:
+    //   bool operator==(const unordered_map<K, V, H, E, A>& lhs,
+    //                   const unordered_map<K, V, H, E, A>& rhs);
+    //   bool operator!=(const unordered_map<K, V, H, E, A>& lhs,
+    //                   const unordered_map<K, V, H, E, A>& rhs);
+    // ------------------------------------------------------------------------
+
+    if (veryVerbose) printf("EQUALITY-COMPARISON OPERATORS\n"
+                            "=============================\n");
+
+    if (veryVerbose)
+              printf("\nAssign the address of each operator to a variable.\n");
+    {
+        typedef bool (*OP)(const Obj&, const Obj&);
+
+        // Verify that the signatures and return types are standard.
+
+        OP op = bsl::operator==;
+        (void) op;
+        op    = bsl::operator!=;
+        (void) op;
+    }
+
+    const int NUM_DATA                     = DEFAULT_NUM_DATA;
+    const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
+
+    const TestValues VALUES;
+
+    if (verbose) printf("\nCompare every value with every value.\n");
+    {
+        // Create first object
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const int         LINE1   = DATA[ti].d_line;
+            const char *const SPEC1   = DATA[ti].d_spec;
+            const size_t      LENGTH1 = strlen(SPEC1);
+
+            if (veryVerbose) { T_ P_(LINE1) P_(LENGTH1) P(SPEC1) }
+
+            // Ensure an object compares correctly with itself (alias test).
+            {
+                bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
+
+                Obj mX(&scratch); const Obj& X = gg(&mX, SPEC1);
+
+                ASSERTV(LINE1, X,   X == X);
+                ASSERTV(LINE1, X, !(X != X));
+            }
+
+            for (int tj = 0; tj < NUM_DATA; ++tj) {
+                const int         LINE2   = DATA[tj].d_line;
+                const char *const SPEC2   = DATA[tj].d_spec;
+                const size_t      LENGTH2 = strlen(SPEC2);
+
+                if (veryVerbose) { T_ T_ P_(LINE2) P_(LENGTH2) P(SPEC2) }
+
+                const bool EXP = (ti == tj);  // expected result
+
+                for (char cfg = 'a'; cfg <= 'b'; ++cfg) {
+
+                    const char CONFIG = cfg;  // Determines 'Y's allocator.
+
+                    // Create two distinct test allocators, 'oax' and 'oay'.
+
+                    bslma::TestAllocator oax("objectx", veryVeryVeryVerbose);
+                    bslma::TestAllocator oay("objecty", veryVeryVeryVerbose);
+
+                    // Map allocators above to objects 'X' and 'Y' below.
+
+                    bslma::TestAllocator& xa = oax;
+                    bslma::TestAllocator& ya = 'a' == CONFIG ? oax : oay;
+
+                    Obj mX(&xa); const Obj& X = gg(&mX, SPEC1);
+                    Obj mY(&ya); const Obj& Y = gg(&mY, SPEC2);
+
+                    ASSERTV(LINE1, LINE2, CONFIG, LENGTH1 == X.size());
+                    ASSERTV(LINE1, LINE2, CONFIG, LENGTH2 == Y.size());
+
+                    if (veryVerbose) { T_ T_ P_(X) P(Y); }
+
+                    // Verify value, commutativity, and no memory allocation.
+
+                    size_t numX = xa.numBlocksTotal();
+                    size_t numY = ya.numBlocksTotal();
+
+                    // EQUAL::disableFunctor();
+                            // TBD -- fails this test EQUAL is used to
+                            // determine the equality groups, then
+                            // bsl::permutation is used to determine if they're
+                            // isomorphic, and bsl::permutation uses
+                            // 'operator=='.  It will take a lot of work to
+                            // verify that this is the case, putting it off for
+                            // later.
+
+                    ASSERTV(LINE1, LINE2, CONFIG,  EXP == (X == Y));
+                    ASSERTV(LINE1, LINE2, CONFIG,  EXP == (Y == X));
+
+                    ASSERTV(LINE1, LINE2, CONFIG, !EXP == (X != Y));
+                    ASSERTV(LINE1, LINE2, CONFIG, !EXP == (Y != X));
+
+                    ASSERTV(xa.numBlocksTotal() == numX);
+                    ASSERTV(ya.numBlocksTotal() == numY);
+
+                    if (EXP) {
+                        const Iter end = mX.end();
+                        for (Iter it = mX.begin(); end != it; ++it) {
+                            VALUE v = it->second;
+                            typedef bsltf::TemplateTestFacility TTF;
+                            size_t id = TTF::getIdentifier(it->second);
+                            ++id;
+                            it->second = TTF::create<VALUE>(id);
+
+                            numX = xa.numBlocksTotal();
+                            numY = ya.numBlocksTotal();
+
+                            ASSERTV(LINE1, LINE2, !(X == Y));
+                            ASSERTV(LINE1, LINE2, !(Y == X));
+                            ASSERTV(LINE1, LINE2,   X != Y);
+                            ASSERTV(LINE1, LINE2,   Y != X);
+
+                            ASSERTV(xa.numBlocksTotal() == numX);
+                            ASSERTV(ya.numBlocksTotal() == numY);
+
+                            it->second = v;
+
+                            numX = xa.numBlocksTotal();
+                            numY = ya.numBlocksTotal();
+
+                            ASSERTV(LINE1, LINE2,   X == Y);
+                            ASSERTV(LINE1, LINE2,   Y == X);
+                            ASSERTV(LINE1, LINE2, !(X != Y));
+                            ASSERTV(LINE1, LINE2, !(Y != X));
+
+                            ASSERTV(xa.numBlocksTotal() == numX);
+                            ASSERTV(ya.numBlocksTotal() == numY);
+                        }
+                    }
+
+                    const size_t NUM_BUCKETS = Y.bucket_count();
+                    mY.reserve((Y.size() + 1) * 5);
+                    ASSERTV(NUM_BUCKETS < Y.bucket_count());
+                    ASSERTV(!EXP || X.bucket_count() != Y.bucket_count());
+
+                    numX = xa.numBlocksTotal();
+                    numY = ya.numBlocksTotal();
+
+                    ASSERTV(LINE1, LINE2, CONFIG,  EXP == (X == Y));
+                    ASSERTV(LINE1, LINE2, CONFIG,  EXP == (Y == X));
+
+                    ASSERTV(LINE1, LINE2, CONFIG, !EXP == (X != Y));
+                    ASSERTV(LINE1, LINE2, CONFIG, !EXP == (Y != X));
+
+//                  EQUAL::enableFunctor();
+
+                    ASSERTV(xa.numBlocksTotal() == numX);
+                    ASSERTV(ya.numBlocksTotal() == numY);
+
+                    if (EXP) {
+                        const Iter end = mX.end();
+                        for (Iter it = mX.begin(); end != it; ++it) {
+                            VALUE v = it->second;
+                            typedef bsltf::TemplateTestFacility TTF;
+                            size_t id = TTF::getIdentifier(it->second);
+                            ++id;
+                            it->second = TTF::create<VALUE>(id);
+
+                            numX = xa.numBlocksTotal();
+                            numY = ya.numBlocksTotal();
+
+                            ASSERTV(LINE1, LINE2, !(X == Y));
+                            ASSERTV(LINE1, LINE2, !(Y == X));
+                            ASSERTV(LINE1, LINE2,   X != Y);
+                            ASSERTV(LINE1, LINE2,   Y != X);
+
+                            ASSERTV(xa.numBlocksTotal() == numX);
+                            ASSERTV(ya.numBlocksTotal() == numY);
+
+                            it->second = v;
+
+                            numX = xa.numBlocksTotal();
+                            numY = ya.numBlocksTotal();
+
+                            ASSERTV(LINE1, LINE2,   X == Y);
+                            ASSERTV(LINE1, LINE2,   Y == X);
+                            ASSERTV(LINE1, LINE2, !(X != Y));
+                            ASSERTV(LINE1, LINE2, !(Y != X));
+
+                            ASSERTV(xa.numBlocksTotal() == numX);
+                            ASSERTV(ya.numBlocksTotal() == numY);
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
+void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase4()
+{
+    // ------------------------------------------------------------------------
+    // BASIC ACCESSORS
+    // ------------------------------------------------------------------------
+
+    if (veryVerbose) P(testTypeName<KEY>());
+
+    BSLMF_ASSERT((! bslmf::IsSame<Iter, CIter>::value));
+
+    {
+        typedef bool (Obj::*MP)() const;
+        MP mp = &Obj::empty;
+        (void) mp;
+    }
+
+    {
+        typedef size_t (Obj::*MP)() const;
+        MP mp = &Obj::size;
+        (void) mp;
+        mp    = &Obj::max_size;
+        (void) mp;
+    }
+
+    {
+        typedef Iter (Obj::*MP)();
+        MP mp = &Obj::begin;
+        (void) mp;
+        mp    = &Obj::end;
+        (void) mp;
+    }
+
+    {
+        typedef CIter (Obj::*MP)() const;
+        MP mp = &Obj::begin;
+        (void) mp;
+        mp    = &Obj::end;
+        (void) mp;
+        mp    = &Obj::cbegin;
+        (void) mp;
+        mp    = &Obj::cend;
+        (void) mp;
+    }
+
+    {
+        typedef Iter (Obj::*MP)(const KEY&);
+        MP mp = &Obj::find;
+        (void) mp;
+    }
+
+    {
+        typedef CIter (Obj::*MP)(const KEY&) const;
+        MP mp = &Obj::find;
+        (void) mp;
+    }
+
+    {
+        typedef size_t (Obj::*MP)(const KEY&) const;
+        MP mp = &Obj::count;
+        (void) mp;
+    }
+
+    {
+        typedef bsl::pair<Iter, Iter> (Obj::*MP)(const KEY&);
+        MP mp = &Obj::equal_range;
+        (void) mp;
+    }
+
+    {
+        typedef bsl::pair<CIter, CIter> (Obj::*MP)(const KEY&) const;
+        MP mp = &Obj::equal_range;
+        (void) mp;
+    }
+
+    {
+        typedef size_t (Obj::*MP)() const;
+        MP mp = &Obj::bucket_count;
+        (void) mp;
+        mp    = &Obj::max_bucket_count;
+        (void) mp;
+    }
+
+    {
+        typedef size_t (Obj::*MP)(size_t) const;
+        MP mp = &Obj::bucket_size;
+        (void) mp;
+    }
+
+    {
+        typedef size_t (Obj::*MP)(const KEY&) const;
+        MP mp = &Obj::bucket;
+        (void) mp;
+    }
+
+    {
+        typedef LIter (Obj::*MP)(size_t);
+        MP mp = &Obj::begin;
+        (void) mp;
+        mp    = &Obj::end;
+        (void) mp;
+    }
+
+    {
+        typedef CLIter (Obj::*MP)(size_t) const;
+        MP mp = &Obj::begin;
+        (void) mp;
+        mp    = &Obj::end;
+        (void) mp;
+        mp    = &Obj::cbegin;
+        (void) mp;
+        mp    = &Obj::cend;
+        (void) mp;
+    }
+
+    TestValues values;    const TestValues& VALUES = values;
+
+    for (size_t ti = 0; ti < DEFAULT_NUM_DATA; ++ti) {
+        const DefaultDataRow *pd   = DEFAULT_DATA + ti;
+        const char *SPEC           = pd->d_spec;
+        const size_t LENGTH        = strlen(SPEC);
+
+        bslma::TestAllocator da("default",  veryVeryVeryVerbose);
+        bslma::TestAllocator sc("scratch",  veryVeryVeryVerbose);
+        bslma::TestAllocator sa("supplied", veryVeryVeryVerbose);
+
+        bslma::DefaultAllocatorGuard dag(&da);
+
+        Obj mX(&sa);    const Obj& X = mX;
+
+        gg(&mX, SPEC);
+
+        bslma::TestAllocatorMonitor dam(&da);
+        bslma::TestAllocatorMonitor sam(&sa);
+
+        ASSERTV(verifySpec(X, SPEC));
+
+        ASSERTV((0 == LENGTH) == X.empty());
+        ASSERTV(LENGTH == X.size());
+        ASSERTV((size_t) -1 >= X.max_size());   // TBD: have more
+                                                // sophisiticated value for
+                                                // max_size.
+
+        const Iter begin = mX.begin();
+        CIter cBegin = X.begin();
+        ASSERTV(begin == cBegin);
+        cBegin = X.cbegin();
+        ASSERTV(begin == cBegin);
+        const Iter end = mX.end();
+        CIter cend = X.end();
+        ASSERTV(end == cend);
+        cend = X.end();
+        ASSERTV(end == cend);
+
+        ASSERTV(!LENGTH == (begin == end));
+
+        {
+            size_t count = 0;
+            for (Iter it = begin; end != it; ++it) {
+                ++count;
+            }
+            ASSERTV(LENGTH == count);
+        }
+
+        ASSERTV(dam.isTotalSame());
+
+        for (char c = 'A'; c <= 'Z'; ++c) {
+            const char C = c;
+
+            const size_t EXP = numCharInstances(SPEC, C);
+
+            const Pair&  P = VALUES[C - 'A'];
+            const KEY&   K = P.first;
+
+            Iter it = mX.find(K);
+            ASSERTV(!!EXP == (mX.end() != it));
+            if (EXP) {
+                ASSERTV(*it == P);
+            }
+
+            CIter cit = X.find(K);
+            ASSERTV(!!EXP == (mX.end() != cit));
+            if (EXP) {
+                ASSERTV(*cit == P);
+            }
+
+            ASSERTV(EXP == X.count(K));
+
+            const bsl::pair<Iter, Iter>& EQR = mX.equal_range(K);
+            ASSERTV(EQR.first == it);
+            for (size_t tj = 0; tj < EXP; ++tj) {
+                ASSERTV(mX.end() != it);
+                ++it;
+            }
+            ASSERTV(EQR.second == it);
+
+            const bsl::pair<CIter, CIter>& CEQR = X.equal_range(K);
+            ASSERTV(CEQR.first == cit);
+            for (size_t tj = 0; tj < EXP; ++tj) {
+                ASSERTV(X.end() != cit);
+                ++cit;
+            }
+            ASSERTV(CEQR.second == cit);
+        }
+
+        ASSERTV((size_t) -1 >= X.max_bucket_count());   // TBD: make more
+                                                        // sophisticated.
+        const size_t BC = X.bucket_count();
+
+        ASSERTV(BC >= 1);
+        ASSERTV(!LENGTH == X.empty());
+        ASSERTV(X.empty() == (1 == BC));
+
+        for (size_t tj = 0; tj < BC; ++tj) {
+            BSLMF_ASSERT((! bslmf::IsSame<LIter, CLIter>::value));
+
+            LIter bBegin   = mX.begin(tj);
+            CLIter cbBegin =  X.begin(tj);
+            ASSERTV(bBegin  == cbBegin);
+            cbBegin = X.cbegin(tj);
+            ASSERTV(bBegin  == cbBegin);
+            LIter bEnd     = mX.end(tj);
+            CLIter cbEnd   =  X.end(tj);
+            ASSERTV(bEnd == cbEnd);
+            cbEnd = X.cend(tj);
+            ASSERTV(bEnd == cbEnd);
+
+            {
+                size_t count = 0;
+                for (CLIter lit = cbBegin; cbEnd != lit; ++lit) {
+                    ASSERTV(X.bucket(lit->first) == tj);
+
+                    ++count;
+                }
+                ASSERTV(X.bucket_size(tj) == count);
+            }
+        }
+
+        ASSERTV(sam.isTotalSame());
+
+        // Make sure objects can be modified through 'Iter' and 'LIter'.
+
+        ASSERTV(verifySpec(X, SPEC, false));   // Looking at mapped values too
+
+        for (Iter it = begin; end != it; ++it) {
+            Pair  p = *it;
+            VALUE v = it->second;
+            ASSERTV(it->first != it->second);
+            it->second = it->first;
+            ASSERTV(it->first == it->second);
+            ASSERTV(it->second != v);
+            ASSERTV(*it != p);
+        }
+
+        ASSERTV( verifySpec(X, SPEC, true));          // Keys only
+        ASSERTV(!LENGTH || !verifySpec(X, SPEC, false));   // mapped values too
+
+        size_t count = 0;
+        for (size_t tj = 0; tj < BC; ++tj) {
+            LIter bEnd = mX.end(tj);
+            for (LIter it = mX.begin(tj); bEnd != it; ++it, ++count) {
+                ASSERTV(it->first == it->second);
+                size_t id = bsltf::TemplateTestFacility::getIdentifier(
+                                                                    it->first);
+                size_t idB = id - 'A' + '0';
+                it->second = bsltf::TemplateTestFacility::create<VALUE>(idB);
+                ASSERTV(VALUES[id - 'A'].second == it->second);
+                ASSERTV(it->first != it->second);
+            }
+        }
+        ASSERTV(LENGTH == count);
+
+        ASSERTV(verifySpec(X, SPEC, true));    // Keys only
+        ASSERTV(verifySpec(X, SPEC, false));   // Looking at mapped values too
+    }
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
+void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase3()
+{
+    // ------------------------------------------------------------------------
+    // Range c'tor, 'ggg', 'gg', and 'verifySpec' functions.
+    // ------------------------------------------------------------------------
+
+    HASH  h( 7);
+    EQUAL eq(9);
+
+    for (size_t ti = 0; ti < DEFAULT_NUM_DATA; ++ti) {
+        const DefaultDataRow *pd     = DEFAULT_DATA + ti;
+        const char           *SPEC   = pd->d_spec;
+        const size_t          LENGTH = strlen(SPEC);
+
+        // Verify indexes work.
+
+        bslma::TestAllocator da("default",  veryVeryVeryVerbose);
+        bslma::TestAllocator sc("scratch",  veryVeryVeryVerbose);
+        bslma::TestAllocator sa("supplied", veryVeryVeryVerbose);
+
+        bslma::DefaultAllocatorGuard dag(&da);
+
+        TestValues src(SPEC, &sc);
+
+        {
+            Obj mX(src.begin(), src.end());    const Obj& X = mX;
+            src.resetIterators();
+
+            ASSERTV(LENGTH == X.size());
+
+            ASSERTV(!!LENGTH == !!da.numBlocksTotal());
+            ASSERTV(!!LENGTH == !!da.numBlocksInUse());
+
+            ASSERTV(verifySpec(X, SPEC));
+
+            for (size_t tj = 0; tj < DEFAULT_NUM_DATA; ++tj) {
+                const DefaultDataRow *pdj = DEFAULT_DATA + tj;
+                const bool MATCH = (ti == tj);
+
+                ASSERTV(MATCH, SPEC, pdj->d_spec, X.size(),
+                                          MATCH == verifySpec(X, pdj->d_spec));
+            }
+        }
+
+        {
+            Obj mX(src.begin(), src.end(), 0, h);    const Obj& X = mX;
+            src.resetIterators();
+
+            ASSERTV(LENGTH == X.size());
+
+            ASSERTV(!!LENGTH == !!da.numBlocksTotal());
+            ASSERTV(!!LENGTH == !!da.numBlocksInUse());
+
+            ASSERTV(verifySpec(X, SPEC));
+
+            for (size_t tj = 0; tj < DEFAULT_NUM_DATA; ++tj) {
+                const DefaultDataRow *pdj = DEFAULT_DATA + tj;
+                const bool MATCH = (ti == tj);
+
+                ASSERTV(MATCH, SPEC, pdj->d_spec, X.size(),
+                                          MATCH == verifySpec(X, pdj->d_spec));
+            }
+        }
+
+        {
+            Obj mX(src.begin(), src.end(), 0);    const Obj& X = mX;
+            src.resetIterators();
+
+            ASSERTV(LENGTH == X.size());
+
+            ASSERTV(!!LENGTH == !!da.numBlocksTotal());
+            ASSERTV(!!LENGTH == !!da.numBlocksInUse());
+
+            ASSERTV(verifySpec(X, SPEC));
+
+            for (size_t tj = 0; tj < DEFAULT_NUM_DATA; ++tj) {
+                const DefaultDataRow *pdj = DEFAULT_DATA + tj;
+                const bool MATCH = (ti == tj);
+
+                ASSERTV(MATCH, SPEC, pdj->d_spec, X.size(),
+                                          MATCH == verifySpec(X, pdj->d_spec));
+            }
+        }
+
+        {
+            Obj mX(src.begin(), src.end(), 0, h, eq);    const Obj& X = mX;
+            src.resetIterators();
+
+            ASSERTV(LENGTH == X.size());
+
+            ASSERTV(!!LENGTH == !!da.numBlocksTotal());
+            ASSERTV(!!LENGTH == !!da.numBlocksInUse());
+
+            ASSERTV(verifySpec(X, SPEC));
+
+            for (size_t tj = 0; tj < DEFAULT_NUM_DATA; ++tj) {
+                const DefaultDataRow *pdj = DEFAULT_DATA + tj;
+                const bool MATCH = (ti == tj);
+
+                ASSERTV(MATCH, SPEC, pdj->d_spec, X.size(),
+                                          MATCH == verifySpec(X, pdj->d_spec));
+            }
+        }
+
+        {
+            Obj mX(src.begin(), src.end(), 0, h, eq, 0);    const Obj& X = mX;
+            src.resetIterators();
+
+            ASSERTV(LENGTH == X.size());
+
+            ASSERTV(!!LENGTH == !!da.numBlocksTotal());
+            ASSERTV(!!LENGTH == !!da.numBlocksInUse());
+
+            ASSERTV(verifySpec(X, SPEC));
+
+            for (size_t tj = 0; tj < DEFAULT_NUM_DATA; ++tj) {
+                const DefaultDataRow *pdj = DEFAULT_DATA + tj;
+                const bool MATCH = (ti == tj);
+
+                ASSERTV(MATCH, SPEC, pdj->d_spec, X.size(),
+                                          MATCH == verifySpec(X, pdj->d_spec));
+            }
+        }
+
+        ASSERTV(0 == sa.numBlocksInUse());
+
+        {
+            Obj mX(&sa);    const Obj& X = mX;
+
+            ASSERTV(-1 == ggg(&mX, SPEC));
+
+            ASSERTV(0        ==   da.numBlocksInUse());
+            ASSERTV(!!LENGTH == !!sa.numBlocksInUse());
+
+            ASSERTV(LENGTH == X.size());
+
+            ASSERTV(verifySpec(X, SPEC));
+
+            for (size_t tj = 0; tj < DEFAULT_NUM_DATA; ++tj) {
+                const DefaultDataRow *pdj = DEFAULT_DATA + tj;
+                const bool MATCH = (ti == tj);
+
+                ASSERTV(MATCH, SPEC, pdj->d_spec, X.size(),
+                                          MATCH == verifySpec(X, pdj->d_spec));
+            }
+
+            mX.clear();
+
+            ASSERTV(0 == X.size());
+
+            const Obj& XX = gg(&mX, SPEC);
+
+            ASSERTV(&XX == &X);
+
+            ASSERTV(0        ==   da.numBlocksInUse());
+            ASSERTV(!!LENGTH == !!sa.numBlocksInUse());
+
+            ASSERTV(LENGTH == X.size());
+
+            ASSERTV(verifySpec(X, SPEC));
+        }
+    }
+
+    struct {
+        int d_line;
+        const char *d_spec;
+        const char *d_goodSpec;
+    } BAD_SPECS[] = {
+        { L_, " ",    "" },
+        { L_, "+",    "" },
+        { L_, "ABCa", "ABC" },
+        { L_, "ABC+", "ABC" },
+        { L_, "A+BC", "ABC" },
+        { L_, "A,+C", "AC" },
+        { L_, "A1BC", "ABC" },
+        { L_, "1234", "" } };
+    enum { NUM_BAD_SPECS = sizeof BAD_SPECS / sizeof *BAD_SPECS };
+
+    bslma::TestAllocator da("default",  veryVeryVeryVerbose);
+    bslma::TestAllocator sa("supplied", veryVeryVeryVerbose);
+
+    bslma::DefaultAllocatorGuard dag(&da);
+
+    for (size_t ti = 0; ti < NUM_BAD_SPECS; ++ti) {
+        const char *SPEC      = BAD_SPECS[ti].d_spec;
+        const char *GOOD_SPEC = BAD_SPECS[ti].d_goodSpec;
+
+        {
+            Obj mX(&sa);    const Obj& X = mX;
+
+            ASSERTV(-1 != ggg(&mX, SPEC, 0));
+            ASSERTV(!verifySpec(X, SPEC));
+        }
+
+        {
+            Obj mX(&sa);    const Obj& X = mX;
+            gg(&mX, GOOD_SPEC);
+
+            ASSERTV( verifySpec(X, GOOD_SPEC));
+            ASSERTV(!verifySpec(X, SPEC));
+        }
+    }
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
@@ -1879,7 +2751,7 @@ int main(int argc, char *argv[])
     bslma::Default::setDefaultAllocator(&testAlloc);
 
     switch (test) { case 0:
-      case 3: {
+      case 7: {
 #ifndef DONT_DO_USAGE
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
@@ -3203,6 +4075,51 @@ if (verbose) {
 // context (surrouding words) of a word of interest.
         }
 #endif // !defined(DONT_DO_USAGE)
+      } break;
+      case 6: {
+        // --------------------------------------------------------------------
+        // operator==
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("Testing operator==\n"
+                            "==================\n");
+
+        RUN_EACH_TYPE(TestDriver,
+                      testCase6,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+      } break;
+      case 5: {
+        // --------------------------------------------------------------------
+        // operator<< -- N/A
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("Testing operator<< -- N/A\n"
+                            "=========================\n");
+      } break;
+      case 4: {
+        // --------------------------------------------------------------------
+        // BASIC ACCESSORS
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("Testing Basic Accessors\n"
+                            "=======================\n");
+
+        RUN_EACH_TYPE(TestDriver,
+                      testCase4,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+      } break;
+      case 3: {
+        // --------------------------------------------------------------------
+        // Range c'tor, 'ggg', 'gg', and 'verifySpec' functions.
+        // --------------------------------------------------------------------
+
+        if (verbose) printf(
+                       "Testing Range c'tor, 'ggg', 'gg', and 'verifySpec'\n"
+                       "==================================================\n");
+
+        RUN_EACH_TYPE(TestDriver,
+                      testCase3,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
       } break;
       case 2: {
         // --------------------------------------------------------------------
