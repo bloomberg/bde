@@ -182,7 +182,7 @@ namespace bsltf
 {
 
 template <class VALUE>
-class TestValuesArray_DefaultConverter;
+struct TestValuesArray_DefaultConverter;
 
 template <class VALUE>
 class TestValuesArray_PostIncrementPtr;
@@ -583,10 +583,14 @@ void TestValuesArray_DefaultConverter<VALUE>::createInplace(
                                                    char              value,
                                                    bslma::Allocator *allocator)
 {
+#if 1
     bslalg::ScalarPrimitives::copyConstruct(
                              objPtr,
                              bsltf::TemplateTestFacility::create<VALUE>(value),
                              allocator);
+#else
+    bsltf::TemplateTestFacility::emplace<VALUE>(objPtr, value, allocator);
+#endif
 }
 
                        // --------------------
@@ -647,20 +651,12 @@ void TestValuesArray<VALUE, CONVERTER>::initialize(
     d_dereferenceable = reinterpret_cast<bool *>(d_data + d_size);
     d_validIterator = d_dereferenceable + d_size + 1;
 
-#if 0    
-    for (int i = 0; '\0' != spec[i]; ++i) {
-        bslalg::ScalarPrimitives::copyConstruct(d_data + i,
-                                                CONVERTER()(spec[i]),
-                                                d_allocator_p);
-    }
-#else
     for (int i = 0; '\0' != spec[i]; ++i) {
         CONVERTER::createInplace(d_data + i, spec[i], d_allocator_p);
     }
-#endif
 
     memset(d_dereferenceable, true, d_size * sizeof(bool));
-    d_dereferenceable[d_size] = false;  // 'end' is not dereferenceable
+    d_dereferenceable[d_size] = false;  // 'end' is never dereferenceable
     memset(d_validIterator, true, (d_size + 1) * sizeof(bool));
 }
 
