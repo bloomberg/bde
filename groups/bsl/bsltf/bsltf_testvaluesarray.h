@@ -61,6 +61,11 @@ BSLS_IDENT("$Id: $")
 // 'TestValuesArrayIterator' is comparable if the iterator is not a copy of
 // another iterator of which 'operator++' have been invoked.
 //
+///Thread-Safety
+///-------------
+// This component is *not* thread-safe, by any definition of the term, and
+// should not be used in test scenarios concerned with concurrent code.
+//
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
@@ -176,23 +181,11 @@ namespace BloombergLP
 namespace bsltf
 {
 
-                       // ======================================
-                       // class TestValuesArray_PostIncrementPtr
-                       // ======================================
+template <class VALUE>
+class TestValuesArray_DefaultConverter;
 
 template <class VALUE>
-class TestValuesArray_PostIncrementPtr {
-  private:
-    // DATA
-    const VALUE *d_data_p;
-
-  public:
-    // CREATORS
-    explicit TestValuesArray_PostIncrementPtr(const VALUE* ptr);
-
-    // ACCESSORS
-    const VALUE& operator*() const;
-};
+class TestValuesArray_PostIncrementPtr;
 
                        // =============================
                        // class TestValuesArrayIterator
@@ -214,6 +207,9 @@ class TestValuesArrayIterator {
     // An iterator is comparable if the iterator is not a copy of another
     // iterator of which 'operator++' have been invoked.
     //
+    // This class is *not* thread-safe: different iterator objects manipulate
+    // shared state without synchronization.  This is rarely a concern for the
+    // test scenarios supported by this component.
 
     // DATA
     const VALUE *d_data_p;              // pointer to array of values (held,
@@ -224,8 +220,8 @@ class TestValuesArrayIterator {
     bool        *d_dereferenceable_p;   // indicate if dereferenceable (held,
                                         // not owned)
 
-    bool        *d_comparable_p;        // indicate if comparable (held, not
-                                        // owned)
+    bool        *d_isValid_p;           // indicate not yet invalidated (held,
+                                        // not owned)
 
   private:
     // FRIENDS
@@ -251,24 +247,18 @@ class TestValuesArrayIterator {
     TestValuesArrayIterator(const VALUE *object,
                             const VALUE *end,
                             bool        *dereferenceable,
-                            bool        *comparable);
+                            bool        *isValid);
         // Create an iterator referring to the specified 'object' for a
         // container with the specified 'end', with two arrays of boolean
-        // referred to by the specified 'dereferenceable' and 'comparable
-        // to indicate whether this iterator and its subsequent values
-        // until 'end' is allowed to be dereferenced or compared
+        // referred to by the specified 'dereferenceable' and 'isValid' to
+        // indicate whether this iterator and its subsequent values until
+        // 'end' is allowed to be dereferenced and is not yet invalidated
         // respectively.
 
-    // MANIPULATORS
-    const VALUE& operator *();
-        // Return the value referred to by this object.  This object is no
-        // longer dereferenceable after a call to this function.  The
-        // behavior is undefined unless this iterator is dereferenceable.
+    TestValuesArrayIterator(const TestValuesArrayIterator& other);
 
-    const VALUE *operator->();
-        // Return the address of the value (of the parameterized 'VALUE_TYPE')
-        // of the element at which this iterator is positioned.  The behavior
-        // is undefined unless this iterator dereferenceable.
+    // MANIPULATORS
+    TestValuesArrayIterator& operator=(const TestValuesArrayIterator& other);
 
     TestValuesArrayIterator& operator++();
         // Move this iterator to the next element in the container.  Any copies
@@ -285,6 +275,18 @@ class TestValuesArrayIterator {
         // behavior is undefined unless this iterator refers to a valid value
         // in the container.
 #endif
+
+    // ACCESSORS
+    const VALUE& operator *() const;
+        // Return the value referred to by this object.  This object is no
+        // longer dereferenceable after a call to this function.  The
+        // behavior is undefined unless this iterator is dereferenceable.
+
+    const VALUE *operator->() const;
+        // Return the address of the value (of the parameterized 'VALUE_TYPE')
+        // of the element at which this iterator is positioned.  The behavior
+        // is undefined unless this iterator dereferenceable.
+
 };
 
 template <class VALUE>
@@ -301,25 +303,12 @@ bool operator!=(const TestValuesArrayIterator<VALUE>& lhs,
     // element, and 'false' otherwise.  The behavior is undefined unless 'lhs'
     // and 'rhs' are comparable.
 
-                       // ========================
-                       // class TestTypesConverter
-                       // ========================
-
-template <class VALUE>
-class TestTypesConverter {
-  public:
-    // ACCESSORS
-    VALUE operator()(char value) const
-    {
-        return bsltf::TemplateTestFacility::create<VALUE>(value);
-    }
-};
-
                        // ====================
                        // class TestValueArray
                        // ====================
 
-template <class VALUE, class CONVERTER = TestTypesConverter<VALUE> >
+template <class VALUE,
+          class CONVERTER = TestValuesArray_DefaultConverter<VALUE> >
 class TestValuesArray {
     // This class provide a container to store values of the parameterized
     // 'VALUE', and also provide the iterators to access the values.  The
@@ -338,7 +327,7 @@ class TestValuesArray {
                                           // which iterator is dereferenceable
                                           // (owned)
 
-    bool             *d_comparable;       // pointer to an array to indicate
+    bool             *d_validIterator;       // pointer to an array to indicate
                                           // which iterator is comparable
                                           // (owned)
 
@@ -399,6 +388,34 @@ class TestValuesArray {
         // Return number of elements in this object.
 };
 
+                       // ======================================
+                       // class TestValuesArray_DefaultConverter
+                       // ======================================
+
+template <class VALUE>
+struct TestValuesArray_DefaultConverter {
+    static
+    void createInplace(VALUE *objPtr, char value, bslma::Allocator *allocator);
+};
+
+                       // ======================================
+                       // class TestValuesArray_PostIncrementPtr
+                       // ======================================
+
+template <class VALUE>
+class TestValuesArray_PostIncrementPtr {
+  private:
+    // DATA
+    const VALUE *d_data_p;
+
+  public:
+    // CREATORS
+    explicit TestValuesArray_PostIncrementPtr(const VALUE* ptr);
+
+    // ACCESSORS
+    const VALUE& operator*() const;
+};
+
 // ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
 // ============================================================================
@@ -435,37 +452,43 @@ TestValuesArrayIterator<VALUE>::TestValuesArrayIterator(
                                                   const VALUE *object,
                                                   const VALUE *end,
                                                   bool        *dereferenceable,
-                                                  bool        *comparable)
+                                                  bool        *isValid)
 : d_data_p(object)
 , d_end_p(end)
 , d_dereferenceable_p(dereferenceable)
-, d_comparable_p(comparable)
+, d_isValid_p(isValid)
 {
     BSLS_ASSERT_SAFE(object);
     BSLS_ASSERT_SAFE(end);
     BSLS_ASSERT_SAFE(dereferenceable);
-    BSLS_ASSERT_SAFE(comparable);
+    BSLS_ASSERT_SAFE(isValid);
+}
+
+template <class VALUE>
+inline
+TestValuesArrayIterator<VALUE>::TestValuesArrayIterator(
+                                          const TestValuesArrayIterator& other)
+: d_data_p(other.d_data_p)
+, d_end_p(other.d_end_p)
+, d_dereferenceable_p(other.d_dereferenceable_p)
+, d_isValid_p(other.d_isValid_p)
+{
+    BSLS_ASSERT_OPT(*other.d_isValid_p);
 }
 
 // MANIPULATORS
 template <class VALUE>
-inline
-const VALUE& TestValuesArrayIterator<VALUE>::operator *()
+TestValuesArrayIterator<VALUE>&
+TestValuesArrayIterator<VALUE>::operator=(const TestValuesArrayIterator& other)
 {
-    BSLS_ASSERT_OPT(*d_dereferenceable_p);
+    BSLS_ASSERT_OPT(*other.d_isValid_p);
 
-    *d_dereferenceable_p = false;
-    return *d_data_p;
-}
+    d_data_p            = other.d_data_p;
+    d_end_p             = other.d_end_p;
+    d_dereferenceable_p = other.d_dereferenceable_p;
+    d_isValid_p         = other.d_isValid_p;
 
-template <class VALUE>
-inline
-const VALUE *TestValuesArrayIterator<VALUE>::operator->()
-{
-    BSLS_ASSERT_OPT(*d_dereferenceable_p);
-
-    *d_dereferenceable_p = false;
-    return d_data_p;
+    return *this;
 }
 
 template <class VALUE>
@@ -473,14 +496,14 @@ TestValuesArrayIterator<VALUE>&
 TestValuesArrayIterator<VALUE>::operator++()
 {
     BSLS_ASSERT_OPT(d_data_p != d_end_p);
-    BSLS_ASSERT_OPT(*d_comparable_p);
+    BSLS_ASSERT_OPT(*d_isValid_p);
 
     *d_dereferenceable_p = false;
-    *d_comparable_p = false;
+    *d_isValid_p = false;
 
     ++d_data_p;
     ++d_dereferenceable_p;
-    ++d_comparable_p;
+    ++d_isValid_p;
     return *this;
 }
 
@@ -489,14 +512,37 @@ template <class VALUE>
 TestValuesArray_PostIncrementPtr<VALUE>
 TestValuesArrayIterator<VALUE>::operator++(int)
 {
+    BSLS_ASSERT_OPT(*d_isValid_p);
     BSLS_ASSERT_OPT(d_data_p != d_end_p);
-    BSLS_ASSERT_OPT(*d_comparable_p);
 
     TestValuesArray_PostIncrementPtr<VALUE> result(d_data_p);
     this->operator++();
     return result;
 }
 #endif
+
+// ACCESSORS
+template <class VALUE>
+inline
+const VALUE& TestValuesArrayIterator<VALUE>::operator *() const
+{
+    BSLS_ASSERT_OPT(*d_isValid_p);
+    BSLS_ASSERT_OPT(*d_dereferenceable_p);
+
+    *d_dereferenceable_p = false;
+    return *d_data_p;
+}
+
+template <class VALUE>
+inline
+const VALUE *TestValuesArrayIterator<VALUE>::operator->() const
+{
+    BSLS_ASSERT_OPT(*d_isValid_p);
+    BSLS_ASSERT_OPT(*d_dereferenceable_p);
+
+    *d_dereferenceable_p = false;
+    return d_data_p;
+}
 
 }  // close package namespace
 
@@ -506,8 +552,8 @@ inline
 bool bsltf::operator==(const bsltf::TestValuesArrayIterator<VALUE>& lhs,
                        const bsltf::TestValuesArrayIterator<VALUE>& rhs)
 {
-    BSLS_ASSERT_OPT(*lhs.d_comparable_p);
-    BSLS_ASSERT_OPT(*rhs.d_comparable_p);
+    BSLS_ASSERT_OPT(*lhs.d_isValid_p);
+    BSLS_ASSERT_OPT(*rhs.d_isValid_p);
 
     return lhs.d_data_p == rhs.d_data_p;
 }
@@ -517,14 +563,31 @@ inline
 bool bsltf::operator!=(const bsltf::TestValuesArrayIterator<VALUE>& lhs,
                        const bsltf::TestValuesArrayIterator<VALUE>& rhs)
 {
-    BSLS_ASSERT_OPT(*lhs.d_comparable_p);
-    BSLS_ASSERT_OPT(*rhs.d_comparable_p);
+    BSLS_ASSERT_OPT(*lhs.d_isValid_p);
+    BSLS_ASSERT_OPT(*rhs.d_isValid_p);
 
     return !(lhs == rhs);
 }
 
 namespace bsltf
 {
+
+                       // --------------------------------------
+                       // class TestValuesArray_DefaultConverter
+                       // --------------------------------------
+
+template <class VALUE>
+inline
+void TestValuesArray_DefaultConverter<VALUE>::createInplace(
+                                                   VALUE            *objPtr,
+                                                   char              value,
+                                                   bslma::Allocator *allocator)
+{
+    bslalg::ScalarPrimitives::copyConstruct(
+                             objPtr,
+                             bsltf::TemplateTestFacility::create<VALUE>(value),
+                             allocator);
+}
 
                        // --------------------
                        // class TestValueArray
@@ -582,17 +645,23 @@ void TestValuesArray<VALUE, CONVERTER>::initialize(
                     d_size * sizeof(VALUE) + 2 * (d_size + 1) * sizeof(bool)));
 
     d_dereferenceable = reinterpret_cast<bool *>(d_data + d_size);
-    d_comparable = d_dereferenceable + d_size + 1;
+    d_validIterator = d_dereferenceable + d_size + 1;
 
+#if 0    
     for (int i = 0; '\0' != spec[i]; ++i) {
         bslalg::ScalarPrimitives::copyConstruct(d_data + i,
                                                 CONVERTER()(spec[i]),
                                                 d_allocator_p);
     }
+#else
+    for (int i = 0; '\0' != spec[i]; ++i) {
+        CONVERTER::createInplace(d_data + i, spec[i], d_allocator_p);
+    }
+#endif
 
     memset(d_dereferenceable, true, d_size * sizeof(bool));
     d_dereferenceable[d_size] = false;  // 'end' is not dereferenceable
-    memset(d_comparable, true, (d_size + 1) * sizeof(bool));
+    memset(d_validIterator, true, (d_size + 1) * sizeof(bool));
 }
 
 // MANIPULATORS
@@ -601,7 +670,10 @@ inline
 typename TestValuesArray<VALUE, CONVERTER>::iterator
 TestValuesArray<VALUE, CONVERTER>::begin()
 {
-    return iterator(data(), data() + d_size, d_dereferenceable, d_comparable);
+    return iterator(data(),
+                    data() + d_size,
+                    d_dereferenceable,
+                    d_validIterator);
 }
 
 template <class VALUE, class CONVERTER>
@@ -614,7 +686,7 @@ TestValuesArray<VALUE, CONVERTER>::index(size_t value)
     return iterator(data() + value,
                     data() + d_size,
                     d_dereferenceable + value,
-                    d_comparable + value);
+                    d_validIterator + value);
 }
 
 template <class VALUE, class CONVERTER>
@@ -625,7 +697,7 @@ TestValuesArray<VALUE, CONVERTER>::end()
     return iterator(data() + d_size,
                     data() + d_size,
                     d_dereferenceable + d_size,
-                    d_comparable + d_size);
+                    d_validIterator + d_size);
 }
 
 template <class VALUE, class CONVERTER>
@@ -633,7 +705,7 @@ void TestValuesArray<VALUE, CONVERTER>::resetIterators()
 {
     memset(d_dereferenceable, 1, d_size * sizeof(bool));
     d_dereferenceable[d_size] = false;
-    memset(d_comparable, 1, (d_size + 1) * sizeof(bool));
+    memset(d_validIterator, 1, (d_size + 1) * sizeof(bool));
 }
 
 // ACCESSORS

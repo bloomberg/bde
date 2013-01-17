@@ -753,18 +753,21 @@ class DummyAllocator {
                        // =========================
 
 template <class KEY, class VALUE>
-class CharToPairConverter {
+struct CharToPairConverter {
     // Convert a 'char' value to a 'bsl::pair' of the parameterized 'KEY' and
     // 'VALUE' type.
 
-  public:
-    bsl::pair<const KEY, VALUE> operator()(char value)
+    // CLASS METHODS
+    static void createInplace(bsl::pair<const KEY, VALUE> *objPtr,
+                              char                         value,
+                              bslma::Allocator            *allocator)
     {
-        // Use different values for 'KEY' and 'VALUE'
-
-        return bsl::pair<const KEY, VALUE> (
+        bslalg::ScalarPrimitives::copyConstruct(
+                             objPtr,
+                             bsl::pair<const KEY, VALUE> (
                 bsltf::TemplateTestFacility::create<KEY>(value),
-                bsltf::TemplateTestFacility::create<VALUE>(value - 'A' + '0'));
+                bsltf::TemplateTestFacility::create<VALUE>(value - 'A' + '0')),
+                             allocator);
     }
 };
 
