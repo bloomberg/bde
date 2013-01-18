@@ -496,6 +496,10 @@ BSLS_IDENT("$Id: $")
 #include <bsltf_uniontesttype.h>
 #endif
 
+#ifndef INCLUDED_BSLALG_SCALARPRIMITIVES
+#include <bslalg_scalarprimitives.h>
+#endif
+
 #ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
 #endif
@@ -584,6 +588,24 @@ struct TemplateTestFacility {
         // unique for the specified 'identifier'.  The behavior is undefined
         // unless '0 <= value < 128' and 'TYPE' is contained in the macro
         // 'BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL'.
+
+    template <class TYPE>
+    static void emplace(TYPE             *address,
+                        int               identifier,
+                        bslma::Allocator *allocator);
+        // Create an object of the parameterized 'TYPE' at the specified
+        // 'address' whose state is unique for the specified 'identifier'.  The
+        // behavior is undefined unless '0 <= value < 128' and 'TYPE' is
+        // contained in the macro 'BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL'.
+
+    template <class TYPE>
+    static void emplace(TYPE             **address,
+                        int                identifier,
+                        bslma::Allocator  *allocator);
+        // Create a pointer to the parameterized 'TYPE' at the specified
+        // 'address' whose value is unique for the specified 'identifier'.  The
+        // behavior is undefined unless '0 <= value < 128' and 'TYPE' is
+        // contained in the macro 'BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL'.
 
     template <class TYPE>
     static int getIdentifier(const TYPE& object);
@@ -928,12 +950,46 @@ TYPE TemplateTestFacility::create(int identifier)
     return TYPE(identifier);
 }
 
+template <class TYPE>
+inline
+void TemplateTestFacility::emplace(TYPE             *address,
+                                   int               identifier,
+                                   bslma::Allocator *allocator)
+{
+    bslalg::ScalarPrimitives::construct(address, identifier, allocator);
+}
+
+template <class TYPE>
+inline
+void TemplateTestFacility::emplace(TYPE             **address,
+                                   int                identifier,
+                                   bslma::Allocator  *allocator)
+{
+    bslalg::ScalarPrimitives::construct(
+                     address,
+                     reinterpret_cast<TYPE *>(bsls::Types::IntPtr(identifier)),
+                     allocator);
+}
+
 template <>
 inline
 EnumeratedTestType::Enum TemplateTestFacility::create<
                                       EnumeratedTestType::Enum>(int identifier)
 {
     return static_cast<EnumeratedTestType::Enum>(identifier);
+}
+
+template <>
+inline
+void TemplateTestFacility::emplace<EnumeratedTestType::Enum>(
+                                          EnumeratedTestType::Enum *address,
+                                          int                       identifier,
+                                          bslma::Allocator         *allocator)
+{
+    bslalg::ScalarPrimitives::construct(
+                             address,
+                             static_cast<EnumeratedTestType::Enum>(identifier),
+                             allocator);
 }
 
 template <>
@@ -1074,6 +1130,787 @@ TemplateTestFacility::MethodPtr TemplateTestFacility::create<
       case 127: return &TemplateTestFacility_StubClass::method<127>;
     }
     return 0;
+}
+
+template <>
+inline
+void TemplateTestFacility::emplace<TemplateTestFacility::MethodPtr>(
+                                   TemplateTestFacility::MethodPtr *address,
+                                   int                              identifier,
+                                   bslma::Allocator                *allocator)
+{
+    BSLS_ASSERT(0 <= identifier);  BSLS_ASSERT(identifier < 128);
+
+    switch (identifier) {
+      case 0: {
+        bslalg::ScalarPrimitives::construct(
+                                    address,
+                                    &TemplateTestFacility_StubClass::method<0>,
+                                    allocator);
+      } break;
+      case 1: {
+        bslalg::ScalarPrimitives::construct(
+                                    address,
+                                    &TemplateTestFacility_StubClass::method<1>,
+                                    allocator);
+      } break;
+      case 2: {
+        bslalg::ScalarPrimitives::construct(
+                                    address,
+                                    &TemplateTestFacility_StubClass::method<2>,
+                                    allocator);
+      } break;
+      case 3: {
+        bslalg::ScalarPrimitives::construct(
+                                    address,
+                                    &TemplateTestFacility_StubClass::method<3>,
+                                    allocator);
+      } break;
+      case 4: {
+        bslalg::ScalarPrimitives::construct(
+                                    address,
+                                    &TemplateTestFacility_StubClass::method<4>,
+                                    allocator);
+      } break;
+      case 5: {
+        bslalg::ScalarPrimitives::construct(
+                                    address,
+                                    &TemplateTestFacility_StubClass::method<5>,
+                                    allocator);
+      } break;
+      case 6: {
+        bslalg::ScalarPrimitives::construct(
+                                    address,
+                                    &TemplateTestFacility_StubClass::method<6>,
+                                    allocator);
+      } break;
+      case 7: {
+        bslalg::ScalarPrimitives::construct(
+                                    address,
+                                    &TemplateTestFacility_StubClass::method<7>,
+                                    allocator);
+      } break;
+      case 8: {
+        bslalg::ScalarPrimitives::construct(
+                                    address,
+                                    &TemplateTestFacility_StubClass::method<8>,
+                                    allocator);
+      } break;
+      case 9: {
+        bslalg::ScalarPrimitives::construct(
+                                    address,
+                                    &TemplateTestFacility_StubClass::method<9>,
+                                    allocator);
+      } break;
+      case 10: {
+        bslalg::ScalarPrimitives::construct(
+                                   address,
+                                   &TemplateTestFacility_StubClass::method<10>,
+                                   allocator);
+      } break;
+      case 11: {
+        bslalg::ScalarPrimitives::construct(
+                                   address,
+                                   &TemplateTestFacility_StubClass::method<11>,
+                                   allocator);
+      } break;
+      case 12: {
+        bslalg::ScalarPrimitives::construct(
+                                   address,
+                                   &TemplateTestFacility_StubClass::method<12>,
+                                   allocator);
+      } break;
+      case 13: {
+        bslalg::ScalarPrimitives::construct(
+                                   address,
+                                   &TemplateTestFacility_StubClass::method<13>,
+                                   allocator);
+      } break;
+      case 14: {
+        bslalg::ScalarPrimitives::construct(
+                                   address,
+                                   &TemplateTestFacility_StubClass::method<14>,
+                                   allocator);
+      } break;
+      case 15: {
+        bslalg::ScalarPrimitives::construct(
+                                   address,
+                                   &TemplateTestFacility_StubClass::method<15>,
+                                   allocator);
+      } break;
+      case 16: {
+        bslalg::ScalarPrimitives::construct(
+                                   address,
+                                   &TemplateTestFacility_StubClass::method<16>,
+                                   allocator);
+      } break;
+      case 17: {
+        bslalg::ScalarPrimitives::construct(
+                                   address,
+                                   &TemplateTestFacility_StubClass::method<17>,
+                                   allocator);
+      } break;
+      case 18: {
+        bslalg::ScalarPrimitives::construct(
+                                   address,
+                                   &TemplateTestFacility_StubClass::method<18>,
+                                   allocator);
+      } break;
+      case 19: {
+        bslalg::ScalarPrimitives::construct(
+                                   address,
+                                   &TemplateTestFacility_StubClass::method<19>,
+                                   allocator);
+      } break;
+      case 20: {
+        bslalg::ScalarPrimitives::construct(
+                                   address,
+                                   &TemplateTestFacility_StubClass::method<20>,
+                                   allocator);
+      } break;
+      case 21: {
+        bslalg::ScalarPrimitives::construct(
+                                   address,
+                                   &TemplateTestFacility_StubClass::method<21>,
+                                   allocator);
+      } break;
+      case 22: {
+        bslalg::ScalarPrimitives::construct(
+                                   address,
+                                   &TemplateTestFacility_StubClass::method<22>,
+                                   allocator);
+      } break;
+      case 23: {
+        bslalg::ScalarPrimitives::construct(
+                                   address,
+                                   &TemplateTestFacility_StubClass::method<23>,
+                                   allocator);
+      } break;
+      case 24: {
+        bslalg::ScalarPrimitives::construct(
+                                   address,
+                                   &TemplateTestFacility_StubClass::method<24>,
+                                   allocator);
+      } break;
+      case 25: {
+        bslalg::ScalarPrimitives::construct(
+                                   address,
+                                   &TemplateTestFacility_StubClass::method<25>,
+                                   allocator);
+      } break;
+      case 26: {
+        bslalg::ScalarPrimitives::construct(
+                                   address,
+                                   &TemplateTestFacility_StubClass::method<26>,
+                                   allocator);
+      } break;
+      case 27: {
+        bslalg::ScalarPrimitives::construct(
+                                   address,
+                                   &TemplateTestFacility_StubClass::method<27>,
+                                   allocator);
+      } break;
+      case 28: {
+        bslalg::ScalarPrimitives::construct(
+                                   address,
+                                   &TemplateTestFacility_StubClass::method<28>,
+                                   allocator);
+      } break;
+      case 29: {
+        bslalg::ScalarPrimitives::construct(
+                                   address,
+                                   &TemplateTestFacility_StubClass::method<29>,
+                                   allocator);
+      } break;
+      case 30: {
+        bslalg::ScalarPrimitives::construct(
+                                   address,
+                                   &TemplateTestFacility_StubClass::method<30>,
+                                   allocator);
+      } break;
+      case 31: {
+        bslalg::ScalarPrimitives::construct(
+                                   address,
+                                   &TemplateTestFacility_StubClass::method<31>,
+                                   allocator);
+      } break;
+      case 32: {
+        bslalg::ScalarPrimitives::construct(
+                                   address,
+                                   &TemplateTestFacility_StubClass::method<32>,
+                                   allocator);
+      } break;
+      case 33: {
+        bslalg::ScalarPrimitives::construct(
+                                   address,
+                                   &TemplateTestFacility_StubClass::method<33>,
+                                   allocator);
+      } break;
+      case 34: {
+        bslalg::ScalarPrimitives::construct(
+                                   address,
+                                   &TemplateTestFacility_StubClass::method<34>,
+                                   allocator);
+      } break;
+      case 35: {
+        bslalg::ScalarPrimitives::construct(
+                                   address,
+                                   &TemplateTestFacility_StubClass::method<35>,
+                                   allocator);
+      } break;
+      case 36: {
+        bslalg::ScalarPrimitives::construct(
+                                   address,
+                                   &TemplateTestFacility_StubClass::method<36>,
+                                   allocator);
+      } break;
+      case 37: {
+        bslalg::ScalarPrimitives::construct(
+                                   address,
+                                   &TemplateTestFacility_StubClass::method<37>,
+                                   allocator);
+      } break;
+      case 38: {
+        bslalg::ScalarPrimitives::construct(
+                                   address,
+                                   &TemplateTestFacility_StubClass::method<38>,
+                                   allocator);
+      } break;
+      case 39: {
+        bslalg::ScalarPrimitives::construct(
+                                   address,
+                                   &TemplateTestFacility_StubClass::method<39>,
+                                   allocator);
+      } break;
+      case 40: {
+        bslalg::ScalarPrimitives::construct(
+                                   address,
+                                   &TemplateTestFacility_StubClass::method<40>,
+                                   allocator);
+      } break;
+      case 41: {
+        bslalg::ScalarPrimitives::construct(
+                                   address,
+                                   &TemplateTestFacility_StubClass::method<41>,
+                                   allocator);
+      } break;
+      case 42: {
+        bslalg::ScalarPrimitives::construct(
+                                   address,
+                                   &TemplateTestFacility_StubClass::method<42>,
+                                   allocator);
+      } break;
+      case 43: {
+        bslalg::ScalarPrimitives::construct(
+                                   address,
+                                   &TemplateTestFacility_StubClass::method<43>,
+                                   allocator);
+      } break;
+      case 44: {
+        bslalg::ScalarPrimitives::construct(
+                                   address,
+                                   &TemplateTestFacility_StubClass::method<44>,
+                                   allocator);
+      } break;
+      case 45: {
+        bslalg::ScalarPrimitives::construct(
+                                   address,
+                                   &TemplateTestFacility_StubClass::method<45>,
+                                   allocator);
+      } break;
+      case 46: {
+        bslalg::ScalarPrimitives::construct(
+                                   address,
+                                   &TemplateTestFacility_StubClass::method<46>,
+                                   allocator);
+      } break;
+      case 47: {
+        bslalg::ScalarPrimitives::construct(
+                                   address,
+                                   &TemplateTestFacility_StubClass::method<47>,
+                                   allocator);
+      } break;
+      case 48: {
+        bslalg::ScalarPrimitives::construct(
+                                   address,
+                                   &TemplateTestFacility_StubClass::method<48>,
+                                   allocator);
+      } break;
+      case 49: {
+        bslalg::ScalarPrimitives::construct(
+                                   address,
+                                   &TemplateTestFacility_StubClass::method<49>,
+                                   allocator);
+      } break;
+      case 50: {
+        bslalg::ScalarPrimitives::construct(
+                                   address,
+                                   &TemplateTestFacility_StubClass::method<50>,
+                                   allocator);
+      } break;
+      case 51: {
+        bslalg::ScalarPrimitives::construct(
+                                   address,
+                                   &TemplateTestFacility_StubClass::method<51>,
+                                   allocator);
+      } break;
+      case 52: {
+        bslalg::ScalarPrimitives::construct(
+                                   address,
+                                   &TemplateTestFacility_StubClass::method<52>,
+                                   allocator);
+      } break;
+      case 53: {
+        bslalg::ScalarPrimitives::construct(
+                                   address,
+                                   &TemplateTestFacility_StubClass::method<53>,
+                                   allocator);
+      } break;
+      case 54: {
+        bslalg::ScalarPrimitives::construct(
+                                   address,
+                                   &TemplateTestFacility_StubClass::method<54>,
+                                   allocator);
+      } break;
+      case 55: {
+        bslalg::ScalarPrimitives::construct(
+                                   address,
+                                   &TemplateTestFacility_StubClass::method<55>,
+                                   allocator);
+      } break;
+      case 56: {
+        bslalg::ScalarPrimitives::construct(
+                                   address,
+                                   &TemplateTestFacility_StubClass::method<56>,
+                                   allocator);
+      } break;
+      case 57: {
+        bslalg::ScalarPrimitives::construct(
+                                   address,
+                                   &TemplateTestFacility_StubClass::method<57>,
+                                   allocator);
+      } break;
+      case 58: {
+        bslalg::ScalarPrimitives::construct(
+                                   address,
+                                   &TemplateTestFacility_StubClass::method<58>,
+                                   allocator);
+      } break;
+      case 59: {
+        bslalg::ScalarPrimitives::construct(
+                                   address,
+                                   &TemplateTestFacility_StubClass::method<59>,
+                                   allocator);
+      } break;
+      case 60: {
+        bslalg::ScalarPrimitives::construct(
+                                   address,
+                                   &TemplateTestFacility_StubClass::method<60>,
+                                   allocator);
+      } break;
+      case 61: {
+        bslalg::ScalarPrimitives::construct(
+                                   address,
+                                   &TemplateTestFacility_StubClass::method<61>,
+                                   allocator);
+      } break;
+      case 62: {
+        bslalg::ScalarPrimitives::construct(
+                                   address,
+                                   &TemplateTestFacility_StubClass::method<62>,
+                                   allocator);
+      } break;
+      case 63: {
+        bslalg::ScalarPrimitives::construct(
+                                   address,
+                                   &TemplateTestFacility_StubClass::method<63>,
+                                   allocator);
+      } break;
+      case 64: {
+        bslalg::ScalarPrimitives::construct(
+                                   address,
+                                   &TemplateTestFacility_StubClass::method<64>,
+                                   allocator);
+      } break;
+      case 65: {
+        bslalg::ScalarPrimitives::construct(
+                                   address,
+                                   &TemplateTestFacility_StubClass::method<65>,
+                                   allocator);
+      } break;
+      case 66: {
+        bslalg::ScalarPrimitives::construct(
+                                   address,
+                                   &TemplateTestFacility_StubClass::method<66>,
+                                   allocator);
+      } break;
+      case 67: {
+        bslalg::ScalarPrimitives::construct(
+                                   address,
+                                   &TemplateTestFacility_StubClass::method<67>,
+                                   allocator);
+      } break;
+      case 68: {
+        bslalg::ScalarPrimitives::construct(
+                                   address,
+                                   &TemplateTestFacility_StubClass::method<68>,
+                                   allocator);
+      } break;
+      case 69: {
+        bslalg::ScalarPrimitives::construct(
+                                   address,
+                                   &TemplateTestFacility_StubClass::method<69>,
+                                   allocator);
+      } break;
+      case 70: {
+        bslalg::ScalarPrimitives::construct(
+                                   address,
+                                   &TemplateTestFacility_StubClass::method<70>,
+                                   allocator);
+      } break;
+      case 71: {
+        bslalg::ScalarPrimitives::construct(
+                                   address,
+                                   &TemplateTestFacility_StubClass::method<71>,
+                                   allocator);
+      } break;
+      case 72: {
+        bslalg::ScalarPrimitives::construct(
+                                   address,
+                                   &TemplateTestFacility_StubClass::method<72>,
+                                   allocator);
+      } break;
+      case 73: {
+        bslalg::ScalarPrimitives::construct(
+                                   address,
+                                   &TemplateTestFacility_StubClass::method<73>,
+                                   allocator);
+      } break;
+      case 74: {
+        bslalg::ScalarPrimitives::construct(
+                                   address,
+                                   &TemplateTestFacility_StubClass::method<74>,
+                                   allocator);
+      } break;
+      case 75: {
+        bslalg::ScalarPrimitives::construct(
+                                   address,
+                                   &TemplateTestFacility_StubClass::method<75>,
+                                   allocator);
+      } break;
+      case 76: {
+        bslalg::ScalarPrimitives::construct(
+                                   address,
+                                   &TemplateTestFacility_StubClass::method<76>,
+                                   allocator);
+      } break;
+      case 77: {
+        bslalg::ScalarPrimitives::construct(
+                                   address,
+                                   &TemplateTestFacility_StubClass::method<77>,
+                                   allocator);
+      } break;
+      case 78: {
+        bslalg::ScalarPrimitives::construct(
+                                   address,
+                                   &TemplateTestFacility_StubClass::method<78>,
+                                   allocator);
+      } break;
+      case 79: {
+        bslalg::ScalarPrimitives::construct(
+                                   address,
+                                   &TemplateTestFacility_StubClass::method<79>,
+                                   allocator);
+      } break;
+      case 80: {
+        bslalg::ScalarPrimitives::construct(
+                                   address,
+                                   &TemplateTestFacility_StubClass::method<80>,
+                                   allocator);
+      } break;
+      case 81: {
+        bslalg::ScalarPrimitives::construct(
+                                   address,
+                                   &TemplateTestFacility_StubClass::method<81>,
+                                   allocator);
+      } break;
+      case 82: {
+        bslalg::ScalarPrimitives::construct(
+                                   address,
+                                   &TemplateTestFacility_StubClass::method<82>,
+                                   allocator);
+      } break;
+      case 83: {
+        bslalg::ScalarPrimitives::construct(
+                                   address,
+                                   &TemplateTestFacility_StubClass::method<83>,
+                                   allocator);
+      } break;
+      case 84: {
+        bslalg::ScalarPrimitives::construct(
+                                   address,
+                                   &TemplateTestFacility_StubClass::method<84>,
+                                   allocator);
+      } break;
+      case 85: {
+        bslalg::ScalarPrimitives::construct(
+                                   address,
+                                   &TemplateTestFacility_StubClass::method<85>,
+                                   allocator);
+      } break;
+      case 86: {
+        bslalg::ScalarPrimitives::construct(
+                                   address,
+                                   &TemplateTestFacility_StubClass::method<86>,
+                                   allocator);
+      } break;
+      case 87: {
+        bslalg::ScalarPrimitives::construct(
+                                   address,
+                                   &TemplateTestFacility_StubClass::method<87>,
+                                   allocator);
+      } break;
+      case 88: {
+        bslalg::ScalarPrimitives::construct(
+                                   address,
+                                   &TemplateTestFacility_StubClass::method<88>,
+                                   allocator);
+      } break;
+      case 89: {
+        bslalg::ScalarPrimitives::construct(
+                                   address,
+                                   &TemplateTestFacility_StubClass::method<89>,
+                                   allocator);
+      } break;
+      case 90: {
+        bslalg::ScalarPrimitives::construct(
+                                   address,
+                                   &TemplateTestFacility_StubClass::method<90>,
+                                   allocator);
+      } break;
+      case 91: {
+        bslalg::ScalarPrimitives::construct(
+                                   address,
+                                   &TemplateTestFacility_StubClass::method<91>,
+                                   allocator);
+      } break;
+      case 92: {
+        bslalg::ScalarPrimitives::construct(
+                                   address,
+                                   &TemplateTestFacility_StubClass::method<92>,
+                                   allocator);
+      } break;
+      case 93: {
+        bslalg::ScalarPrimitives::construct(
+                                   address,
+                                   &TemplateTestFacility_StubClass::method<93>,
+                                   allocator);
+      } break;
+      case 94: {
+        bslalg::ScalarPrimitives::construct(
+                                   address,
+                                   &TemplateTestFacility_StubClass::method<94>,
+                                   allocator);
+      } break;
+      case 95: {
+        bslalg::ScalarPrimitives::construct(
+                                   address,
+                                   &TemplateTestFacility_StubClass::method<95>,
+                                   allocator);
+      } break;
+      case 96: {
+        bslalg::ScalarPrimitives::construct(
+                                   address,
+                                   &TemplateTestFacility_StubClass::method<96>,
+                                   allocator);
+      } break;
+      case 97: {
+        bslalg::ScalarPrimitives::construct(
+                                   address,
+                                   &TemplateTestFacility_StubClass::method<97>,
+                                   allocator);
+      } break;
+      case 98: {
+        bslalg::ScalarPrimitives::construct(
+                                   address,
+                                   &TemplateTestFacility_StubClass::method<98>,
+                                   allocator);
+      } break;
+      case 99: {
+        bslalg::ScalarPrimitives::construct(
+                                   address,
+                                   &TemplateTestFacility_StubClass::method<99>,
+                                   allocator);
+      } break;
+      case 100: {
+        bslalg::ScalarPrimitives::construct(
+                                  address,
+                                  &TemplateTestFacility_StubClass::method<100>,
+                                  allocator);
+      } break;
+      case 101: {
+        bslalg::ScalarPrimitives::construct(
+                                  address,
+                                  &TemplateTestFacility_StubClass::method<101>,
+                                  allocator);
+      } break;
+      case 102: {
+        bslalg::ScalarPrimitives::construct(
+                                  address,
+                                  &TemplateTestFacility_StubClass::method<102>,
+                                  allocator);
+      } break;
+      case 103: {
+        bslalg::ScalarPrimitives::construct(
+                                  address,
+                                  &TemplateTestFacility_StubClass::method<103>,
+                                  allocator);
+      } break;
+      case 104: {
+        bslalg::ScalarPrimitives::construct(
+                                  address,
+                                  &TemplateTestFacility_StubClass::method<104>,
+                                  allocator);
+      } break;
+      case 105: {
+        bslalg::ScalarPrimitives::construct(
+                                  address,
+                                  &TemplateTestFacility_StubClass::method<105>,
+                                  allocator);
+      } break;
+      case 106: {
+        bslalg::ScalarPrimitives::construct(
+                                  address,
+                                  &TemplateTestFacility_StubClass::method<106>,
+                                  allocator);
+      } break;
+      case 107: {
+        bslalg::ScalarPrimitives::construct(
+                                  address,
+                                  &TemplateTestFacility_StubClass::method<107>,
+                                  allocator);
+      } break;
+      case 108: {
+        bslalg::ScalarPrimitives::construct(
+                                  address,
+                                  &TemplateTestFacility_StubClass::method<108>,
+                                  allocator);
+      } break;
+      case 109: {
+        bslalg::ScalarPrimitives::construct(
+                                  address,
+                                  &TemplateTestFacility_StubClass::method<109>,
+                                  allocator);
+      } break;
+      case 110: {
+        bslalg::ScalarPrimitives::construct(
+                                  address,
+                                  &TemplateTestFacility_StubClass::method<110>,
+                                  allocator);
+      } break;
+      case 111: {
+        bslalg::ScalarPrimitives::construct(
+                                  address,
+                                  &TemplateTestFacility_StubClass::method<111>,
+                                  allocator);
+      } break;
+      case 112: {
+        bslalg::ScalarPrimitives::construct(
+                                  address,
+                                  &TemplateTestFacility_StubClass::method<112>,
+                                  allocator);
+      } break;
+      case 113: {
+        bslalg::ScalarPrimitives::construct(
+                                  address,
+                                  &TemplateTestFacility_StubClass::method<113>,
+                                  allocator);
+      } break;
+      case 114: {
+        bslalg::ScalarPrimitives::construct(
+                                  address,
+                                  &TemplateTestFacility_StubClass::method<114>,
+                                  allocator);
+      } break;
+      case 115: {
+        bslalg::ScalarPrimitives::construct(
+                                  address,
+                                  &TemplateTestFacility_StubClass::method<115>,
+                                  allocator);
+      } break;
+      case 116: {
+        bslalg::ScalarPrimitives::construct(
+                                  address,
+                                  &TemplateTestFacility_StubClass::method<116>,
+                                  allocator);
+      } break;
+      case 117: {
+        bslalg::ScalarPrimitives::construct(
+                                  address,
+                                  &TemplateTestFacility_StubClass::method<117>,
+                                  allocator);
+      } break;
+      case 118: {
+        bslalg::ScalarPrimitives::construct(
+                                  address,
+                                  &TemplateTestFacility_StubClass::method<118>,
+                                  allocator);
+      } break;
+      case 119: {
+        bslalg::ScalarPrimitives::construct(
+                                  address,
+                                  &TemplateTestFacility_StubClass::method<119>,
+                                  allocator);
+      } break;
+      case 120: {
+        bslalg::ScalarPrimitives::construct(
+                                  address,
+                                  &TemplateTestFacility_StubClass::method<120>,
+                                  allocator);
+      } break;
+      case 121: {
+        bslalg::ScalarPrimitives::construct(
+                                  address,
+                                  &TemplateTestFacility_StubClass::method<121>,
+                                  allocator);
+      } break;
+      case 122: {
+        bslalg::ScalarPrimitives::construct(
+                                  address,
+                                  &TemplateTestFacility_StubClass::method<122>,
+                                  allocator);
+      } break;
+      case 123: {
+        bslalg::ScalarPrimitives::construct(
+                                  address,
+                                  &TemplateTestFacility_StubClass::method<123>,
+                                  allocator);
+      } break;
+      case 124: {
+        bslalg::ScalarPrimitives::construct(
+                                  address,
+                                  &TemplateTestFacility_StubClass::method<124>,
+                                  allocator);
+      } break;
+      case 125: {
+        bslalg::ScalarPrimitives::construct(
+                                  address,
+                                  &TemplateTestFacility_StubClass::method<125>,
+                                  allocator);
+      } break;
+      case 126: {
+        bslalg::ScalarPrimitives::construct(
+                                  address,
+                                  &TemplateTestFacility_StubClass::method<126>,
+                                  allocator);
+      } break;
+      case 127: {
+        bslalg::ScalarPrimitives::construct(
+                                  address,
+                                  &TemplateTestFacility_StubClass::method<127>,
+                                  allocator);
+      } break;
+    }
 }
 
 template <class TYPE>

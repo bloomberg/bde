@@ -62,14 +62,15 @@ static int testStatus = 0;
 
 namespace {
 
-void aSsErT(bool b, const char *s, int i) {
+void aSsErT(bool b, const char *s, int i)
+{
     if (b) {
         printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
         if (testStatus >= 0 && testStatus <= 100) ++testStatus;
     }
 }
 
-}
+}  // close unnamed namespace
 
 //=============================================================================
 //                       STANDARD BDE TEST DRIVER MACROS
@@ -216,10 +217,11 @@ class MyNullableValue {
         return d_nullFlag;
     }
 
-    const TYPE& value() const {
-        // Return a reference providing non-modifiable access to the
-        // underlying object of the parameterized 'TYPE'.  The behavior is
-        // undefined if the object is null.
+    const TYPE& value() const
+    // Return a reference providing non-modifiable access to the
+    // underlying object of the parameterized 'TYPE'.  The behavior is
+    // undefined if the object is null.
+    {
         return d_value;
     }
 };
@@ -299,8 +301,8 @@ void MyTestDriver<TYPE>::testCase2()
     //:
     //:   3 Use the 'makeValue' method to set the value of 'mL' to 'LV'.  Use
     //:     the (as yet unproven) salient attribute accessors and the
-    //:     'TemplateTestFacility::getIdentifier' class method template to verify
-    //:     'mL' has the expected value.  (C-2)
+    //:     'TemplateTestFacility::getIdentifier' class method template to
+    //:     verify 'mL' has the expected value.  (C-2)
     //:
     //:   4 Invoke the 'makeNull' method of 'mL'.  Use the attribute
     //:     accessors to verify the value of the object is now null.  (C-3)
@@ -618,7 +620,8 @@ void TestHelper<TYPE>::test6Helper()
         TYPE X = TemplateTestFacility::create<TYPE>(ti);
 
         if (verbose) {
-            using bsls::debugprint;  // otherwise the name is hidden by this component
+            using bsls::debugprint;  // otherwise the name is hidden by this
+                                     // component
 
             debugprint(X);
 
@@ -629,13 +632,14 @@ void TestHelper<TYPE>::test6Helper()
     }
 }
 
-} // close unnamed namespace
+}  // close unnamed namespace
 
 //=============================================================================
 //                                 MAIN PROGRAM
 //-----------------------------------------------------------------------------
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
     int test            = argc > 1 ? atoi(argv[1]) : 0;
     verbose             = argc > 2;
     veryVerbose         = argc > 3;

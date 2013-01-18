@@ -48,6 +48,8 @@
 #  define ZU "%zu"
 #endif
 
+//#define AJM_HAS_FIXED_TESTARRAY_TO_NOT_USE_DEFAULT_ALLOCATOR
+
 // ============================================================================
 //                          ADL SWAP TEST HELPER
 // ----------------------------------------------------------------------------
@@ -8302,6 +8304,7 @@ void mainTestCase9()
                       bsltf::NonAssignableTestType,
                       bsltf::NonDefaultConstructibleTestType);
 
+#if !defined(RUN_ALL_TESTS_IGNORE_THE_COST)
 #if !defined(BSLS_PLATFORM_CMP_IBM)
         // We need to limit the test coverage on IBM as the compiler cannot
         // cope with so many template instantiations.
@@ -8445,6 +8448,7 @@ void mainTestCase9()
 #endif
 
 #endif  // IBM simplification
+#endif  // RUN_ALL_TESTS_IGNORE_THE_COST
 
         // Remaining special cases
         if (verbose) printf("\nTesting degenerate map-like"
