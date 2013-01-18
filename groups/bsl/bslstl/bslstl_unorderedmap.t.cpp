@@ -9555,11 +9555,12 @@ int main(int argc, char *argv[])
                       int,
                       size_t,
                       void *);
-#if 0
+
         // TBD: all of these types not covered above freak out the bslmf
         // macros, something to do with
         // 'bslstl::HashTable_HashWrapper<FUNCTOR>::d_functor'.
 
+#if 0
         RUN_EACH_TYPE(TestDriver,
                       testCase14,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
