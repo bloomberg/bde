@@ -775,6 +775,8 @@ class TestDriver {
     BSLMF_ASSERT((!bslmf::IsSame< Iter,  CIter>::value));
     BSLMF_ASSERT((!bslmf::IsSame<LIter, CLIter>::value));
 
+    static const bool TYPE_ALLOC = bslma::UsesBslmaAllocator<KEY>::value;
+
     typedef bsltf::TestValuesArray<
                                   Pair,
                                   CharToPairConverter<KEY, VALUE> > TestValues;
@@ -965,6 +967,237 @@ bool TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::matchFirstValues(
     }
 
     return true;
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
+void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase16()
+{
+    // ------------------------------------------------------------------------
+    // TESTING TYPEDEFs
+    // ------------------------------------------------------------------------
+
+    typedef bsl::pair<const KEY, VALUE> VT;
+    typedef typename Obj::size_type SzT;
+    typedef typename Obj::difference_type Diff;
+    typedef typename Obj::iterator It;
+    typedef typename Obj::const_iterator CIt;
+    typedef typename Obj::local_iterator LIt;
+    typedef typename Obj::const_local_iterator CLIt;
+
+    BSLMF_ASSERT((bslmf::IsSame<KEY,        typename Obj::key_type>::value));
+    BSLMF_ASSERT((bslmf::IsSame<VT,         typename Obj::value_type>::value));
+    BSLMF_ASSERT((bslmf::IsSame<VALUE,      typename Obj::mapped_type>::
+                                                                       value));
+    BSLMF_ASSERT((bslmf::IsSame<HASH,       typename Obj::hasher>::value));
+    BSLMF_ASSERT((bslmf::IsSame<EQUAL,      typename Obj::key_equal>::value));
+    BSLMF_ASSERT((bslmf::IsSame<ALLOC,      typename Obj::allocator_type>::
+                                                                       value));
+    BSLMF_ASSERT((bslmf::IsSame<VT *,       typename Obj::pointer>::value));
+    BSLMF_ASSERT((bslmf::IsSame<const VT *, typename Obj::const_pointer>::
+                                                                       value));
+    BSLMF_ASSERT((bslmf::IsSame<VT &,       typename Obj::reference>::value));
+    BSLMF_ASSERT((bslmf::IsSame<const VT &, typename Obj::const_reference>::
+                                                                       value));
+
+    BSLMF_ASSERT((bslmf::IsSame<typename Obj::pointer,
+                                typename ALLOC::pointer>::value));
+    BSLMF_ASSERT((bslmf::IsSame<typename Obj::const_pointer,
+                                typename ALLOC::const_pointer>::value));
+    BSLMF_ASSERT((bslmf::IsSame<typename Obj::reference,
+                                typename ALLOC::reference>::value));
+    BSLMF_ASSERT((bslmf::IsSame<typename Obj::const_reference,
+                                typename ALLOC::const_reference>::value));
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
+void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase15()
+{
+    // ------------------------------------------------------------------------
+    // BUCKET GROWTH
+    // ------------------------------------------------------------------------
+
+    {
+        typedef float (Obj::*MP)() const;
+        MP mp = &Obj::load_factor;
+        (void) mp;
+        mp    = &Obj::max_load_factor;
+        (void) mp;
+    }
+    {
+        typedef void (Obj::*MP)(float);
+        MP mp = &Obj::max_load_factor;
+        (void) mp;
+    }
+    {
+        typedef void (Obj::*MP)(size_t);
+        MP mp = &Obj::reserve;
+        (void) mp;
+        mp    = &Obj::rehash;
+        (void) mp;
+    }
+
+    const size_t NUM_DATA                  = DEFAULT_NUM_DATA;
+    const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
+
+    bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
+
+    for (size_t ti = 0; ti < NUM_DATA; ++ti) {
+        const int         LINE   = DATA[ti].d_line;
+        const char       *SPEC   = DATA[ti].d_spec;
+        const size_t      LENGTH = strlen(SPEC);
+
+        bslma::TestAllocator sa("supplied", veryVeryVeryVerbose);
+
+        if (veryVeryVerbose) Q(Test 'rehash');
+        {
+            Obj mX(&sa);    const Obj& X = mX;
+            gg(&mX, SPEC);
+
+            const size_t BC = X.bucket_count();
+
+            ASSERTV((LENGTH > 0) == (BC > 1));
+
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(sa) {
+                ASSERTV(BC == X.bucket_count());
+
+                mX.rehash(2 * BC);
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+
+            ASSERTV((LENGTH > 0) == (X.bucket_count() > 2 * BC));
+        }
+
+        if (veryVeryVerbose) Q(Test 'load_factor' and 'max_load_factor');
+        {
+            const float loadFactors[] = { 1.0f, 2.0f, 1.0f / 2, 1.0f / 4 };
+            enum { NUM_LOAD_FACTORS =
+                                    sizeof loadFactors / sizeof *loadFactors };
+
+            for (size_t tj = 0; tj < NUM_LOAD_FACTORS; ++tj) {
+                const float MAX_LOAD_FACTOR = loadFactors[tj];
+
+                Obj mX(&sa);    const Obj& X = mX;
+                if (0 != tj) {
+                    mX.max_load_factor(MAX_LOAD_FACTOR);
+                }
+                ASSERTV(X.max_load_factor() == MAX_LOAD_FACTOR);
+                gg(&mX, SPEC);
+
+                const size_t BC = X.bucket_count();
+
+                ASSERTV(X.load_factor() <= X.max_load_factor());
+                ASSERTV(nearlyEqual<double>(X.load_factor(),
+                                                      (double) X.size() / BC));
+
+                if (LENGTH > 0) {
+                    const float newLoadFactor = X.load_factor() / 2;
+                    int numPasses = 0;
+                    BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(sa) {
+                        ++numPasses;
+
+                        ASSERTV(BC == X.bucket_count());
+
+                        mX.max_load_factor(newLoadFactor);
+                    } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+                    ASSERTV(!PLAT_EXC || numPasses > 1);
+
+                    ASSERTV(newLoadFactor == X.max_load_factor());
+
+                    ASSERTV(X.bucket_count() > 2 * BC);
+                    ASSERTV(X.load_factor() <= X.max_load_factor());
+                }
+            }
+        }
+
+        if (veryVeryVerbose) Q(Test 'reserve');
+        {
+            for (size_t len2 = 0; len2 <= LENGTH; ++len2) {
+                Obj mX(&sa);    const Obj& X = mX;
+
+                TestValues values(SPEC, &sa);
+
+                mX.insert(values.begin(), values.index(len2));
+
+                int numPasses = 0;
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(sa) {
+                    ++numPasses;
+
+                    mX.reserve(LENGTH);
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+                ASSERTV(!PLAT_EXC || len2 || 0 == LENGTH || numPasses > 1);
+
+                const size_t BC = X.bucket_count();
+                ASSERTV(X.load_factor() <= X.max_load_factor());
+                ASSERTV(0.9999 * LENGTH / X.bucket_count() <
+                                                          X.max_load_factor());
+
+                if (!TYPE_ALLOC) {
+                    numPasses = 0;
+                    BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(sa) {
+                        ++numPasses;
+                        values.resetIterators();
+
+                        mX.insert(values.index(len2), values.end());
+                    } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+
+                    // verify insert didn't alloc
+
+                    ASSERTV(LINE, SPEC, 1 == numPasses);
+                }
+                else {
+                    mX.insert(values.index(len2), values.end());
+                }
+
+                ASSERTV(LINE, SPEC, LENGTH == X.size());
+                ASSERTV(verifySpec(X, SPEC));
+
+                ASSERTV(BC == X.bucket_count());
+            }
+        }
+    }
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
+void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase14()
+{
+    // ------------------------------------------------------------------------
+    // TESTING TYPE TRAITS
+    //
+    // Concern:
+    //: 1 The object has the necessary type traits.
+    //
+    // Plan:
+    //: 1 Use 'BSLMF_ASSERT' to verify all the type traits exists.  (C-1)
+    //
+    // Testing:
+    //   CONCERN: The object has the necessary type traits
+    // ------------------------------------------------------------------------
+
+    // Verify set defines the expected traits.
+
+    typedef bsl::unordered_multimap<KEY, VALUE> UMMKV;
+
+    BSLMF_ASSERT((1 == bslalg::HasStlIterators<UMMKV>::value));
+
+    BSLMF_ASSERT((1 == bslma::UsesBslmaAllocator<UMMKV>::value));
+
+    BSLMF_ASSERT((1 == bslmf::IsBitwiseMoveable<UMMKV>::value));
+
+    // Verify the bslma-allocator trait is not defined for non
+    // bslma-allocators.
+
+    typedef bsl::unordered_multimap<KEY, VALUE, HASH, EQUAL, StlAlloc>
+                                                                   ObjStlAlloc;
+    BSLMF_ASSERT((0 == bslma::UsesBslmaAllocator<ObjStlAlloc>::value));
+
+    // Verify unordered_map does not define other common traits.
+
+    BSLMF_ASSERT((0 == bsl::is_trivially_copyable<UMMKV>::value));
+
+    BSLMF_ASSERT((0 == bslmf::IsBitwiseEqualityComparable<UMMKV>::value));
+
+    BSLMF_ASSERT((0 == bslmf::HasPointerSemantics<UMMKV>::value));
+
+    BSLMF_ASSERT((0 == bsl::is_trivially_default_constructible<UMMKV>::value));
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
@@ -5239,7 +5472,7 @@ int main(int argc, char *argv[])
     bslma::Default::setDefaultAllocator(&testAlloc);
 
     switch (test) { case 0:
-      case 14: {
+      case 17: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -5261,6 +5494,54 @@ int main(int argc, char *argv[])
         {
             usage();
         }
+      } break;
+      case 16: {
+        // --------------------------------------------------------------------
+        // GROWING FUNCTIONS
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("Testing Typedefs\n"
+                            "================\n");
+
+        RUN_EACH_TYPE(TestDriver,
+                      testCase16,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+      } break;
+      case 15: {
+        // --------------------------------------------------------------------
+        // GROWING FUNCTIONS
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("Testing Growing Functions\n"
+                            "=========================\n");
+
+        RUN_EACH_TYPE(TestDriver,
+                      testCase15,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+      } break;
+      case 14: {
+        // --------------------------------------------------------------------
+        // TYPE TRAITS
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("Testing Type Traits\n"
+                            "===================\n");
+
+        RUN_EACH_TYPE(TestDriver,
+                      testCase14,
+                      signed char,
+                      int,
+                      size_t,
+                      void *);
+
+        // TBD: all of these types not covered above freak out the bslmf
+        // macros, something to do with
+        // 'bslstl::HashTable_HashWrapper<FUNCTOR>::d_functor'.
+#if 0
+        RUN_EACH_TYPE(TestDriver,
+                      testCase14,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+#endif
       } break;
       case 13: {
         // --------------------------------------------------------------------
