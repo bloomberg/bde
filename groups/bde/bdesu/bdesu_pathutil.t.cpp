@@ -202,7 +202,9 @@ void convertToUnixSeparator(bsl::string *path)
    // Replace each occurance of '\\' with '\' in the specified 'path'.
 {
     bsl::string::size_type position = path->find('\\'); 
-    for ( ; position != bsl::string::npos; position = path->find('\\')) {
+    for ( ; 
+         position != bsl::string::npos; 
+         position = path->find('\\', position)) {
         (*path)[position] = '/';
     }
 }
@@ -307,6 +309,7 @@ int main(int argc, char *argv[])
 
 #ifdef BSLS_PLATFORM__OS_WINDOWS
                 // Test a path starting with a drive letter.
+                { L_,  "z:"    , "b" , true ,  "z:/b" },
                 { L_,  "z:/"   , "b" , true ,  "z:/b" },
                 { L_,  "z://"  , "b" , true ,  "z:/b" },
                 { L_,  "z://"  , "b/", true ,  "z:/b" },
@@ -314,6 +317,25 @@ int main(int argc, char *argv[])
                 { L_,  "z:/a/" , "b" , true ,  "z:/a/b" },
                 { L_,  "z:/a//", "b" , true ,  "z:/a/b" },
                 { L_,  "z:/"   , "/b", false,  "z:/b" },
+
+                // Test UNC paths
+                { L_,  "//UNC "   , "b" , true ,  "//UNC/b" },
+                { L_,  "//UNC/"   , "b" , true ,  "//UNC/b" },
+                { L_,  "//UNC//"  , "b" , true ,  "//UNC/b" },
+                { L_,  "//UNC//"  , "b/", true ,  "//UNC/b" },
+                { L_,  "//UNC/a"  , "b" , true ,  "//UNC/a/b" },
+                { L_,  "//UNC/a/" , "b" , true ,  "//UNC/a/b" },
+                { L_,  "//UNC/a//", "b" , true ,  "//UNC/a/b" },
+                { L_,  "//UNC/"   , "/b", false,  "//UNC/b" },
+
+                // Test device paths
+                { L_,  "//?/"   , "b" , true ,  "//?/b" },
+                { L_,  "//?//"  , "b" , true ,  "//?/b" },
+                { L_,  "//?//"  , "b/", true ,  "//?/b" },
+                { L_,  "//?/a"  , "b" , true ,  "//?/a/b" },
+                { L_,  "//?/a/" , "b" , true ,  "//?/a/b" },
+                { L_,  "//?/a//", "b" , true ,  "//?/a/b" },
+                { L_,  "//?/"   , "/b", false,  "//?/b" },                
 #endif
             
             };
