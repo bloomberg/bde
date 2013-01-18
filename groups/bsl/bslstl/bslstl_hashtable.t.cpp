@@ -48,8 +48,6 @@
 #  define ZU "%zu"
 #endif
 
-//#define AJM_HAS_FIXED_TESTARRAY_TO_NOT_USE_DEFAULT_ALLOCATOR
-
 // ============================================================================
 //                          ADL SWAP TEST HELPER
 // ----------------------------------------------------------------------------
@@ -4288,10 +4286,6 @@ int TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::ggg(
                                                            const char *spec,
                                                            int         verbose)
 {
-#if !defined(AJM_HAS_FIXED_TESTARRAY_TO_NOT_USE_DEFAULT_ALLOCATOR)
-    bslma::DefaultAllocatorGuard guard(
-                                      &bslma::NewDeleteAllocator::singleton());
-#endif
     bslma::TestAllocator tda("generated values", veryVeryVeryVerbose);
     const TestValues VALUES(&tda);
 
@@ -4693,13 +4687,10 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase12()
 
             //const size_t NUM_BUCKETS = predictNumBuckets(3*LENGTH, MAX_LF);
 
-//            ALLOCATOR objAlloc  = MakeAllocator<ALLOCATOR>::make(&sa);
-
             ALLOCATOR expAllocator = ObjMaker::makeObject( &objPtr
                                                          , CONFIG
                                                          , &fa
                                                          , &sa
-//                                                         , objAlloc
                                                          , HASH
                                                          , COMPARE
                                                          , 0
@@ -6724,6 +6715,14 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase4()
     const bool VALUE_TYPE_USES_ALLOCATOR =
                                      bslma::UsesBslmaAllocator<Element>::value;
 
+    // If we use this predicate in more than one test case, add a trait to this
+    // test driver that is has a partial specialization for 'bsl::allocator<T>'
+    // to return 'true', otherwise return 'false'.
+    const bool ALLOCATOR_IS_BSL_ALLOCATOR =
+        bsl::is_same<typename bsl::allocator_traits<ALLOCATOR>::
+                                   template rebind_traits<int>::allocator_type,
+                     bsl::allocator<int> >::value;
+
     if (verbose) { P(VALUE_TYPE_USES_ALLOCATOR); }
 
     static const struct {
@@ -6873,8 +6872,24 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase4()
 #if !defined(BDE_BUILD_TARGET_SAFE_2)
                 // The invariant check in the destructor uses the default
                 // allocator in SAFE_2 builds.
-                ASSERTV(LINE, CONFIG, noa->numBlocksTotal(),
-                        0 == noa->numBlocksTotal());
+
+                // In build configuration 'a', the 'noa' allocator is the
+                // default allocator, otherwsie 'oa' is the default allocator.
+                // If the allocator type is not 'bsl::allocator' and the
+                // elements being inserted allocate memory, the element stored
+                // in the container will be created using the default allocator
+                // but there should be only one such allocation per element.
+                // Otherwise, there should be no residual evidence of using the
+                // 'noa' allocator.
+
+                const long long EXP_NUM_BLOCKS =  VALUE_TYPE_USES_ALLOCATOR  &&
+                                                 !ALLOCATOR_IS_BSL_ALLOCATOR &&
+                                                  'a' == CONFIG
+                                               ? strlen(SPEC)
+                                               : 0;
+
+                ASSERTV(LINE, CONFIG, EXP_NUM_BLOCKS, noa->numBlocksTotal(),
+                        EXP_NUM_BLOCKS == noa->numBlocksTotal());
 #endif
 
                 // Verify all memory is released on object destruction.
