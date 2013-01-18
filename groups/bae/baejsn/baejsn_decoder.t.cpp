@@ -3862,6 +3862,756 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) {
+      case 5: {
+        // --------------------------------------------------------------------
+        // TEST SKIPPING UNKNOWN ELEMENTS
+        //
+        // Concerns:
+        //
+        // Plan:
+        //
+        // Testing:
+        // --------------------------------------------------------------------
+
+        static const struct {
+            int         d_lineNum;  // source line number
+            const char *d_text_p;   // json text
+        } DATA[] = {
+            {
+                L_,
+                "{\n"
+                "       \"name\" : \"Bob\",\n"
+                "       \"homeAddress\" : {\n"
+                "           \"street\" : \"Some Street\",\n"
+                "           \"city\" : \"Some City\",\n"
+                "           \"state\" : \"Some State\"\n"
+                "       },\n"
+                "       \"age\" : 21,\n"
+                "       \"id\"  : 21\n"     // <--- unknown element
+                "}"
+            },
+            {
+                L_,
+                "{\n"
+                "       \"name\" : \"Bob\",\n"
+                "       \"homeAddress\" : {\n"
+                "           \"street\" : \"Some Street\",\n"
+                "           \"city\" : \"Some City\",\n"
+                "           \"state\" : \"Some State\"\n"
+                "       },\n"
+                "       \"id\"  : 21,\n"     // <--- unknown element
+                "       \"age\" : 21\n"
+                "}"
+            },
+            {
+                L_,
+                "{\n"
+                "       \"name\" : \"Bob\",\n"
+                "       \"homeAddress\" : {\n"
+                "           \"street\" : \"Some Street\",\n"
+                "           \"city\" : \"Some City\",\n"
+                "           \"state\" : \"Some State\"\n"
+                "       },\n"
+                "       \"age\" : 21,\n"
+                "       \"nickname\" : \"Robert\"\n"   // <--- unknown element
+                "}"
+            },
+            {
+                L_,
+                "{\n"
+                "       \"name\" : \"Bob\",\n"
+                "       \"homeAddress\" : {\n"
+                "           \"street\" : \"Some Street\",\n"
+                "           \"city\" : \"Some City\",\n"
+                "           \"state\" : \"Some State\"\n"
+                "       },\n"
+                "       \"nickname\" : \"Robert\",\n"   // <--- unknown element
+                "       \"age\" : 21\n"
+                "}"
+            },
+            {
+                L_,
+                "{\n"
+                "       \"name\" : \"Bob\",\n"
+                "       \"homeAddress\" : {\n"
+                "           \"street\" : \"Some Street\",\n"
+                "           \"city\" : \"Some City\",\n"
+                "           \"state\" : \"Some State\"\n"
+                "       },\n"
+                "       \"age\" : 21,\n"
+                "       \"id\"  : 21,\n"               // <--- unknown element
+                "       \"nickname\" : \"Robert\"\n"   // <--- unknown element
+                "}"
+            },
+            {
+                L_,
+                "{\n"
+                "       \"name\" : \"Bob\",\n"
+                "       \"homeAddress\" : {\n"
+                "           \"street\" : \"Some Street\",\n"
+                "           \"city\" : \"Some City\",\n"
+                "           \"state\" : \"Some State\"\n"
+                "       },\n"
+                "       \"id\"  : 21,\n"               // <--- unknown element
+                "       \"nickname\" : \"Robert\",\n"  // <--- unknown element
+                "       \"age\" : 21\n"
+                "}"
+            },
+            {
+                L_,
+                "{\n"
+                "       \"name\" : \"Bob\",\n"
+                "       \"homeAddress\" : {\n"
+                "           \"street\" : \"Some Street\",\n"
+                "           \"city\" : \"Some City\",\n"
+                "           \"state\" : \"Some State\"\n"
+                "       },\n"
+                "       \"age\" : 21,\n"
+                "       \"ids\" : [ 1, 2 ]\n"      // <--- unknown element
+                "}"
+            },
+            {
+                L_,
+                "{\n"
+                "       \"name\" : \"Bob\",\n"
+                "       \"homeAddress\" : {\n"
+                "           \"street\" : \"Some Street\",\n"
+                "           \"city\" : \"Some City\",\n"
+                "           \"state\" : \"Some State\"\n"
+                "       },\n"
+                "       \"ids\" : [ 1, 2 ],\n"      // <--- unknown element
+                "       \"age\" : 21\n"
+                "}"
+            },
+            {
+                L_,
+                "{\n"
+                "       \"name\" : \"Bob\",\n"
+                "       \"homeAddress\" : {\n"
+                "           \"street\" : \"Some Street\",\n"
+                "           \"city\" : \"Some City\",\n"
+                "           \"state\" : \"Some State\"\n"
+                "       },\n"
+                "       \"age\" : 21,\n"
+                "       \"aliases\" : [ \"Foo\", \"Bar\" ]\n"  // <--- unknown
+                                                               //      element 
+                "}"
+            },
+            {
+                L_,
+                "{\n"
+                "       \"name\" : \"Bob\",\n"
+                "       \"homeAddress\" : {\n"
+                "           \"street\" : \"Some Street\",\n"
+                "           \"city\" : \"Some City\",\n"
+                "           \"state\" : \"Some State\"\n"
+                "       },\n"
+                "       \"aliases\" : [ \"Foo\", \"Bar\" ],\n" // <--- unknown
+                                                               //      element 
+                "       \"age\" : 21\n"
+                "}"
+            },
+            {
+                L_,
+                "{\n"
+                "       \"name\" : \"Bob\",\n"
+                "       \"homeAddress\" : {\n"
+                "           \"street\" : \"Some Street\",\n"
+                "           \"city\" : \"Some City\",\n"
+                "           \"state\" : \"Some State\"\n"
+                "       },\n"
+                "       \"age\" : 21,\n"
+                "       \"officeAddress\" : {\n"        // <--- unknown element
+                "           \"street\" : \"Some Street\",\n"
+                "           \"city\" : \"Some City\",\n"
+                "           \"state\" : \"Some State\"\n"
+                "       }\n"
+                "}"
+            },
+            {
+                L_,
+                "{\n"
+                "       \"name\" : \"Bob\",\n"
+                "       \"homeAddress\" : {\n"
+                "           \"street\" : \"Some Street\",\n"
+                "           \"city\" : \"Some City\",\n"
+                "           \"state\" : \"Some State\"\n"
+                "       },\n"
+                "       \"officeAddress\" : {\n"        // <--- unknown element
+                "           \"street\" : \"Some Street\",\n"
+                "           \"city\" : \"Some City\",\n"
+                "           \"state\" : \"Some State\"\n"
+                "       },\n"
+                "       \"age\" : 21\n"
+                "}"
+            },
+            {
+                L_,
+                "{\n"
+                "       \"name\" : \"Bob\",\n"
+                "       \"homeAddress\" : {\n"
+                "           \"street\" : \"Some Street\",\n"
+                "           \"city\" : \"Some City\",\n"
+                "           \"state\" : \"Some State\"\n"
+                "       },\n"
+                "       \"age\" : 21,\n"
+                "       \"officeAddress\" : {\n"        // <--- unknown element
+                "           \"street\" : \"Some Street\",\n"
+                "           \"city\" : \"Some City\",\n"
+                "           \"state\" : \"Some State\",\n"
+                "           \"ids\" : [ 1, 2, 3]\n"
+                "       }\n"
+                "}"
+            },
+            {
+                L_,
+                "{\n"
+                "       \"name\" : \"Bob\",\n"
+                "       \"homeAddress\" : {\n"
+                "           \"street\" : \"Some Street\",\n"
+                "           \"city\" : \"Some City\",\n"
+                "           \"state\" : \"Some State\"\n"
+                "       },\n"
+                "       \"officeAddress\" : {\n"        // <--- unknown element
+                "           \"street\" : \"Some Street\",\n"
+                "           \"city\" : \"Some City\",\n"
+                "           \"state\" : \"Some State\",\n"
+                "           \"ids\" : [ 1, 2, 3]\n"
+                "       },\n"
+                "       \"age\" : 21\n"
+                "}"
+            },
+            {
+                L_,
+                "{\n"
+                "       \"name\" : \"Bob\",\n"
+                "       \"homeAddress\" : {\n"
+                "           \"street\" : \"Some Street\",\n"
+                "           \"city\" : \"Some City\",\n"
+                "           \"state\" : \"Some State\"\n"
+                "       },\n"
+                "       \"officeAddress\" : {\n"        // <--- unknown element
+                "           \"street\" : \"Some Street\",\n"
+                "           \"city\" : \"Some City\",\n"
+                "           \"state\" : \"Some State\",\n"
+                "           \"misc\" : {\n"
+                "               \"country\" : \"USA\",\n"
+                "               \"timezone\" : \"EST\"\n"
+                "           }\n"
+                "       },\n"
+                "       \"age\" : 21\n"
+                "}"
+            },
+            {
+                L_,
+                "{\n"
+                "       \"name\" : \"Bob\",\n"
+                "       \"homeAddress\" : {\n"
+                "           \"street\" : \"Some Street\",\n"
+                "           \"city\" : \"Some City\",\n"
+                "           \"state\" : \"Some State\"\n"
+                "       },\n"
+                "       \"age\" : 21,\n"
+                "       \"officeAddress\" : {\n"        // <--- unknown element
+                "           \"street\" : \"Some Street\",\n"
+                "           \"city\" : \"Some City\",\n"
+                "           \"state\" : \"Some State\",\n"
+                "           \"misc\" : {\n"
+                "               \"country\" : \"USA\",\n"
+                "               \"timezone\" : \"EST\"\n"
+                "           }\n"
+                "       }\n"
+                "}"
+            },
+            {
+                L_,
+                "{\n"
+                "       \"name\" : \"Bob\",\n"
+                "       \"homeAddress\" : {\n"
+                "           \"street\" : \"Some Street\",\n"
+                "           \"city\" : \"Some City\",\n"
+                "           \"state\" : \"Some State\"\n"
+                "       },\n"
+                "       \"addrs\" : [\n"       // <--- unknown element
+                "           {\n"
+                "               \"officeAddress\" : {\n"
+                "                   \"street\" : \"Some Street\",\n"
+                "                   \"city\" : \"Some City\",\n"
+                "                   \"state\" : \"Some State\",\n"
+                "                   \"times\" : [ 1, 2, 3 ],\n"
+                "                   \"misc\" : {\n"
+                "                       \"country\" : \"USA\",\n"
+                "                       \"timezone\" : \"EST\"\n"
+                "                   }\n"
+                "               }\n"
+                "           }\n"
+                "       ],\n"
+                "       \"age\" : 21\n"
+                "}"
+            },
+            {
+                L_,
+                "{\n"
+                "       \"name\" : \"Bob\",\n"
+                "       \"homeAddress\" : {\n"
+                "           \"street\" : \"Some Street\",\n"
+                "           \"city\" : \"Some City\",\n"
+                "           \"state\" : \"Some State\"\n"
+                "       },\n"
+                "       \"age\" : 21,\n"
+                "       \"addrs\" : [\n"       // <--- unknown element
+                "           {\n"
+                "               \"officeAddress\" : {\n"
+                "                   \"street\" : \"Some Street\",\n"
+                "                   \"city\" : \"Some City\",\n"
+                "                   \"state\" : \"Some State\",\n"
+                "                   \"times\" : [ 1, 2, 3 ],\n"
+                "                   \"misc\" : {\n"
+                "                       \"country\" : \"USA\",\n"
+                "                       \"timezone\" : \"EST\"\n"
+                "                   }\n"
+                "               }\n"
+                "           }\n"
+                "       ]\n"
+                "}"
+            },
+            {
+                L_,
+                "{\n"
+                "       \"name\" : \"Bob\",\n"
+                "       \"homeAddress\" : {\n"
+                "           \"street\" : \"Some Street\",\n"
+                "           \"city\" : \"Some City\",\n"
+                "           \"state\" : \"Some State\"\n"
+                "       },\n"
+                "       \"addrs\" : [\n"       // <--- unknown element
+                "           {\n"
+                "               \"officeAddress\" : {\n"
+                "                   \"street\" : \"Some Street\",\n"
+                "                   \"city\" : \"Some City\",\n"
+                "                   \"state\" : \"Some State\",\n"
+                "                   \"times\" : [ 1, 2, 3 ],\n"
+                "                   \"misc\" : {\n"
+                "                       \"country\" : \"USA\",\n"
+                "                       \"timezone\" : \"EST\"\n"
+                "                   }\n"
+                "               }\n"
+                "           }\n"
+                "       ],\n"
+                "       \"age\" : 21\n"
+                "}"
+            },
+            {
+                L_,
+                "{\n"
+                "       \"name\" : \"Bob\",\n"
+                "       \"homeAddress\" : {\n"
+                "           \"street\" : \"Some Street\",\n"
+                "           \"city\" : \"Some City\",\n"
+                "           \"state\" : \"Some State\"\n"
+                "       },\n"
+                "       \"age\" : 21,\n"
+                "       \"addrs\" : [\n"       // <--- unknown element
+                "           {\n"
+                "               \"officeAddress\" : {\n"
+                "                   \"street\" : \"Some Street\",\n"
+                "                   \"city\" : \"Some City\",\n"
+                "                   \"state\" : \"Some State\",\n"
+                "                   \"times\" : [ 1, 2, 3 ],\n"
+                "                   \"misc\" : {\n"
+                "                       \"country\" : \"USA\",\n"
+                "                       \"timezone\" : \"EST\"\n"
+                "                   }\n"
+                "               }\n"
+                "           },\n"
+                "           {\n"
+                "               \"shippingAddress\" : {\n"
+                "                   \"street\" : \"Some Street\",\n"
+                "                   \"city\" : \"Some City\",\n"
+                "                   \"state\" : \"Some State\",\n"
+                "                   \"times\" : [ 1, 2, 3 ],\n"
+                "                   \"misc\" : {\n"
+                "                       \"country\" : \"USA\",\n"
+                "                       \"timezone\" : \"EST\"\n"
+                "                   }\n"
+                "               }\n"
+                "           }\n"
+                "       ]\n"
+                "}"
+            },
+            {
+                L_,
+                "{\n"
+                "       \"name\" : \"Bob\",\n"
+                "       \"homeAddress\" : {\n"
+                "           \"street\" : \"Some Street\",\n"
+                "           \"city\" : \"Some City\",\n"
+                "           \"state\" : \"Some State\"\n"
+                "       },\n"
+                "       \"addrs\" : [\n"       // <--- unknown element
+                "           {\n"
+                "               \"officeAddress\" : {\n"
+                "                   \"street\" : \"Some Street\",\n"
+                "                   \"city\" : \"Some City\",\n"
+                "                   \"state\" : \"Some State\",\n"
+                "                   \"times\" : [ 1, 2, 3 ],\n"
+                "                   \"misc\" : {\n"
+                "                       \"country\" : \"USA\",\n"
+                "                       \"timezone\" : \"EST\"\n"
+                "                   }\n"
+                "               }\n"
+                "           },\n"
+                "           {\n"
+                "               \"shippingAddress\" : {\n"
+                "                   \"street\" : \"Some Street\",\n"
+                "                   \"city\" : \"Some City\",\n"
+                "                   \"state\" : \"Some State\",\n"
+                "                   \"times\" : [ 1, 2, 3 ],\n"
+                "                   \"misc\" : {\n"
+                "                       \"country\" : \"USA\",\n"
+                "                       \"timezone\" : \"EST\"\n"
+                "                   }\n"
+                "               }\n"
+                "           }\n"
+                "       ],\n"
+                "       \"age\" : 21\n"
+                "}"
+            },
+            {
+                L_,
+                "{\n"
+                "       \"name\" : \"Bob\",\n"
+                "       \"homeAddress\" : {\n"
+                "           \"street\" : \"Some Street\",\n"
+                "           \"city\" : \"Some City\",\n"
+                "           \"state\" : \"Some State\"\n"
+                "       },\n"
+                "       \"age\" : 21,\n"
+                "       \"misc\" : {\n"       // <--- unknown element
+                "           \"name\" : \"Bob\",\n"
+                "           \"homeAddress\" : {\n"
+                "               \"street\" : \"Some Street\",\n"
+                "               \"city\" : \"Some City\",\n"
+                "               \"state\" : \"Some State\"\n"
+                "           },\n"
+                "           \"age\" : 21,\n"
+                "           \"addrs\" : [\n"
+                "               {\n"
+                "                   \"officeAddress\" : {\n"
+                "                       \"street\" : \"Some Street\",\n"
+                "                       \"city\" : \"Some City\",\n"
+                "                       \"state\" : \"Some State\",\n"
+                "                       \"times\" : [ 1, 2, 3 ],\n"
+                "                       \"misc\" : {\n"
+                "                           \"country\" : \"USA\",\n"
+                "                           \"timezone\" : \"EST\"\n"
+                "                       }\n"
+                "                   }\n"
+                "               },\n"
+                "               {\n"
+                "                   \"shippingAddress\" : {\n"
+                "                       \"street\" : \"Some Street\",\n"
+                "                       \"city\" : \"Some City\",\n"
+                "                       \"state\" : \"Some State\",\n"
+                "                       \"times\" : [ 1, 2, 3 ],\n"
+                "                       \"misc\" : {\n"
+                "                           \"country\" : \"USA\",\n"
+                "                           \"timezone\" : \"EST\"\n"
+                "                       }\n"
+                "                   }\n"
+                "               }\n"
+                "           ]\n"
+                "       }\n"
+                "}"
+            },
+            {
+                L_,
+                "{\n"
+                "       \"name\" : \"Bob\",\n"
+                "       \"homeAddress\" : {\n"
+                "           \"street\" : \"Some Street\",\n"
+                "           \"city\" : \"Some City\",\n"
+                "           \"state\" : \"Some State\"\n"
+                "       },\n"
+                "       \"misc\" : {\n"       // <--- unknown element
+                "           \"name\" : \"Bob\",\n"
+                "           \"homeAddress\" : {\n"
+                "               \"street\" : \"Some Street\",\n"
+                "               \"city\" : \"Some City\",\n"
+                "               \"state\" : \"Some State\"\n"
+                "           },\n"
+                "           \"age\" : 21,\n"
+                "           \"addrs\" : [\n"
+                "               {\n"
+                "                   \"officeAddress\" : {\n"
+                "                       \"street\" : \"Some Street\",\n"
+                "                       \"city\" : \"Some City\",\n"
+                "                       \"state\" : \"Some State\",\n"
+                "                       \"times\" : [ 1, 2, 3 ],\n"
+                "                       \"misc\" : {\n"
+                "                           \"country\" : \"USA\",\n"
+                "                           \"timezone\" : \"EST\"\n"
+                "                       }\n"
+                "                   }\n"
+                "               },\n"
+                "               {\n"
+                "                   \"shippingAddress\" : {\n"
+                "                       \"street\" : \"Some Street\",\n"
+                "                       \"city\" : \"Some City\",\n"
+                "                       \"state\" : \"Some State\",\n"
+                "                       \"times\" : [ 1, 2, 3 ],\n"
+                "                       \"misc\" : {\n"
+                "                           \"country\" : \"USA\",\n"
+                "                           \"timezone\" : \"EST\"\n"
+                "                       }\n"
+                "                   }\n"
+                "               }\n"
+                "           ]\n"
+                "       },\n"
+                "       \"age\" : 21\n"
+                "}"
+            },
+        };
+        const int NUM_DATA = sizeof DATA/ sizeof *DATA;
+
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const int          LINE     = DATA[ti].d_lineNum;
+            const bsl::string& jsonText = DATA[ti].d_text_p;
+
+            // Without skipping option
+            {
+                test::Employee bob;
+
+                bsl::istringstream iss(jsonText);
+
+                baejsn_Decoder decoder;
+                ASSERTV(LINE, 0 != decoder.decode(iss, &bob));
+            }
+
+            // With skipping option
+            {
+                test::Employee bob;
+
+                bsl::istringstream iss(jsonText);
+
+                baejsn_DecoderOptions options;
+                options.setSkipUnknownElements(true);
+                baejsn_Decoder decoder(&options);
+                ASSERTV(LINE, 0 == decoder.decode(iss, &bob));
+
+                ASSERTV(bob.name(), "Bob"         == bob.name());
+                ASSERT("Some Street" == bob.homeAddress().street());
+                ASSERT("Some City"   == bob.homeAddress().city());
+                ASSERT("Some State"  == bob.homeAddress().state());
+                ASSERTV(LINE, 21            == bob.age());
+            }
+        }
+
+        {
+            bcema_SharedPtr<bdem_Schema> schema(new bdem_Schema);
+
+            bdem_RecordDef *address = schema->createRecord(
+                                           "Address",
+                                           bdem_RecordDef::BDEM_CHOICE_RECORD);
+            address->appendField(bdem_ElemType::BDEM_STRING,       "street");
+            address->appendField(bdem_ElemType::BDEM_STRING,       "city");
+            address->appendField(bdem_ElemType::BDEM_STRING,       "state");
+
+            bdem_RecordDef *employee = schema->createRecord("Employee");
+            employee->appendField(bdem_ElemType::BDEM_STRING, "name");
+            employee->appendField(bdem_ElemType::BDEM_CHOICE,
+                                  address, "homeAddress");
+            employee->appendField(bdem_ElemType::BDEM_INT, "age");
+
+            bcem_Aggregate bob(schema, "Employee");
+
+            static const struct {
+                int         d_lineNum;  // source line number
+                const char *d_text_p;   // json text
+            } DATA[] = {
+                {
+                    L_,
+                    "{\n"
+                    "       \"name\" : \"Bob\",\n"
+                    "       \"homeAddress\" : {\n"
+                    "           \"id\"  : 21\n"     // <--- unknown element
+                    "       },\n"
+                    "       \"age\" : 21\n"
+                    "}"
+                },
+                {
+                    L_,
+                    "{\n"
+                    "       \"name\" : \"Bob\",\n"
+                    "       \"homeAddress\" : {\n"
+                    "           \"id\"  : \"FooBar\"\n" // <--- unknown element
+                    "       },\n"
+                    "       \"age\" : 21\n"
+                    "}"
+                },
+                {
+                    L_,
+                    "{\n"
+                    "       \"name\" : \"Bob\",\n"
+                    "       \"homeAddress\" : {\n"
+                    "           \"ids\" : [ 1, 2 ]\n"   // <--- unknown element
+                    "       },\n"
+                    "       \"age\" : 21\n"
+                    "}"
+                },
+                {
+                    L_,
+                    "{\n"
+                    "       \"name\" : \"Bob\",\n"
+                    "       \"homeAddress\" : {\n"
+                    "           \"aliases\" : [ \"Foo\", \"Bar\" ]\n"
+                                                        // <--- unknown element
+                    "       },\n"
+                    "       \"age\" : 21\n"
+                    "}"
+                },
+                {
+                    L_,
+                    "{\n"
+                    "       \"name\" : \"Bob\",\n"
+                    "       \"homeAddress\" : {\n"
+                    "           \"officeAddress\" : {\n"   // <--- unknown elem
+                    "               \"street\" : \"Some Street\",\n"
+                    "               \"city\" : \"Some City\",\n"
+                    "               \"state\" : \"Some State\"\n"
+                    "           }\n"
+                    "       },\n"
+                    "       \"age\" : 21\n"
+                    "}"
+                },
+                {
+                    L_,
+                    "{\n"
+                    "       \"name\" : \"Bob\",\n"
+                    "       \"homeAddress\" : {\n"
+                    "           \"officeAddress\" : {\n"   // <--- unknown elem
+                    "               \"street\" : \"Some Street\",\n"
+                    "               \"city\" : \"Some City\",\n"
+                    "               \"state\" : \"Some State\",\n"
+                    "               \"ids\" : [ 1, 2, 3]\n"
+                    "           }\n"
+                    "       },\n"
+                    "       \"age\" : 21\n"
+                    "}"
+                },
+                {
+                    L_,
+                    "{\n"
+                    "       \"name\" : \"Bob\",\n"
+                    "       \"homeAddress\" : {\n"
+                    "           \"officeAddress\" : {\n"   // <--- unknown elem
+                    "               \"street\" : \"Some Street\",\n"
+                    "               \"city\" : \"Some City\",\n"
+                    "               \"state\" : \"Some State\",\n"
+                    "               \"ids\" : [ 1, 2, 3],\n"
+                    "               \"misc\" : {\n"
+                    "                   \"country\" : \"USA\",\n"
+                    "                   \"timezone\" : \"EST\"\n"
+                    "               }\n"
+                    "           }\n"
+                    "       },\n"
+                    "       \"age\" : 21\n"
+                    "}"
+                },
+                {
+                    L_,
+                    "{\n"
+                    "       \"name\" : \"Bob\",\n"
+                    "       \"homeAddress\" : {\n"
+                    "           \"addrs\" : [\n"       // <--- unknown element
+                    "               {\n"
+                    "                   \"officeAddress\" : {\n"
+                    "                       \"street\" : \"Some Street\",\n"
+                    "                       \"city\" : \"Some City\",\n"
+                    "                       \"state\" : \"Some State\",\n"
+                    "                       \"times\" : [ 1, 2, 3 ],\n"
+                    "                       \"misc\" : {\n"
+                    "                           \"country\" : \"USA\",\n"
+                    "                           \"timezone\" : \"EST\"\n"
+                    "                       }\n"
+                    "                   }\n"
+                    "               }\n"
+                    "           ]\n"
+                    "       },\n"
+                    "       \"age\" : 21\n"
+                    "}"
+                },
+                {
+                    L_,
+                    "{\n"
+                    "       \"name\" : \"Bob\",\n"
+                    "       \"homeAddress\" : {\n"
+                    "           \"addrs\" : [\n"       // <--- unknown element
+                    "               {\n"
+                    "                   \"officeAddress\" : {\n"
+                    "                       \"street\" : \"Some Street\",\n"
+                    "                       \"city\" : \"Some City\",\n"
+                    "                       \"state\" : \"Some State\",\n"
+                    "                       \"times\" : [ 1, 2, 3 ],\n"
+                    "                       \"misc\" : {\n"
+                    "                           \"country\" : \"USA\",\n"
+                    "                           \"timezone\" : \"EST\"\n"
+                    "                       }\n"
+                    "                   }\n"
+                    "               },\n"
+                    "               {\n"
+                    "                   \"shippingAddress\" : {\n"
+                    "                       \"street\" : \"Some Street\",\n"
+                    "                       \"city\" : \"Some City\",\n"
+                    "                       \"state\" : \"Some State\",\n"
+                    "                       \"times\" : [ 1, 2, 3 ],\n"
+                    "                       \"misc\" : {\n"
+                    "                           \"country\" : \"USA\",\n"
+                    "                           \"timezone\" : \"EST\"\n"
+                    "                       }\n"
+                    "                   }\n"
+                    "               }\n"
+                    "           ]\n"
+                    "       },\n"
+                    "       \"age\" : 21\n"
+                    "}"
+                },
+            };
+            const int NUM_DATA = sizeof DATA/ sizeof *DATA;
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int          LINE     = DATA[ti].d_lineNum;
+                const bsl::string& jsonText = DATA[ti].d_text_p;
+
+                // Without skipping option
+                {
+                    bcem_Aggregate bob(schema, "Employee");
+
+                    bsl::istringstream iss(jsonText);
+
+                    baejsn_Decoder decoder;
+                    ASSERTV(LINE, 0 != decoder.decode(iss, &bob));
+                }
+
+                // With skipping option
+                {
+                    bcem_Aggregate bob(schema, "Employee");
+
+                    bsl::istringstream iss(jsonText);
+
+                    baejsn_DecoderOptions options;
+                    options.setSkipUnknownElements(true);
+                    baejsn_Decoder decoder(&options);
+                    ASSERTV(LINE, 0 == decoder.decode(iss, &bob));
+
+                    ASSERTV("Bob" == bob["name"].asString());
+                    ASSERT(0      == strcmp("",
+                                            bob["homeAddress"].selector()));
+                    ASSERTV(21    == bob["age"].asInt());
+                }
+            }
+        }
+      } break;
       case 4: {
         // --------------------------------------------------------------------
         // TESTING COMPLEX MESSAGES USING 'bcem_Aggregate'

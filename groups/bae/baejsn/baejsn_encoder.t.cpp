@@ -3433,7 +3433,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 14: {
+      case 15: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -3517,6 +3517,147 @@ int main(int argc, char *argv[])
 
         ASSERTV(oss.str() == jsonText);
       } break;
+      case 14: {
+        // --------------------------------------------------------------------
+        // TESTING PRETTY FORMATTING
+        //
+        // Concerns:
+        //
+        // Plan:
+        //
+        // Testing:
+        // --------------------------------------------------------------------
+        bcema_SharedPtr<bdem_Schema> schema(new bdem_Schema);
+
+        bdem_RecordDef *address = schema->createRecord("Address");
+        address->appendField(bdem_ElemType::BDEM_STRING, "street");
+        address->appendField(bdem_ElemType::BDEM_STRING, "city");
+        address->appendField(bdem_ElemType::BDEM_STRING, "state");
+        address->appendField(bdem_ElemType::BDEM_INT_ARRAY, "accounts");
+
+        bdem_RecordDef *employee = schema->createRecord("Employee");
+        employee->appendField(bdem_ElemType::BDEM_STRING, "name");
+        employee->appendField(bdem_ElemType::BDEM_LIST,
+                              address,
+                              "homeAddress");
+        employee->appendField(bdem_ElemType::BDEM_INT, "age");
+        employee->appendField(bdem_ElemType::BDEM_TABLE,
+                              address,
+                              "addrs");
+
+        bcem_Aggregate bob(schema, "Employee");
+
+        bob["name"].setValue("Bob");
+        bob["homeAddress"]["street"].setValue("Some Street");
+        bob["homeAddress"]["city"].setValue("Some City");
+        bob["homeAddress"]["state"].setValue("Some State");
+        bob["homeAddress"]["accounts"].resize(3);
+        bob["homeAddress"]["accounts"].setField(0, 1);
+        bob["homeAddress"]["accounts"].setField(1, 2);
+        bob["homeAddress"]["accounts"].setField(2, 3);
+        bob["age"].setValue(21);
+        bob["addrs"].resize(2);
+        bob["addrs"].setField(0, bob["homeAddress"]);
+        bob["addrs"].setField(1, bob["homeAddress"]);
+
+        schema->print(cout, 1, 4);
+        bob.print(cout, 1, 4);
+
+        static const struct {
+            int         d_lineNum;  // source line number
+            int         d_indent;
+            int         d_spl;
+            const char *d_text_p;   // json text
+        } DATA[] = {
+            {
+                L_,
+                1,
+                4,
+                "    {\n"
+                "        \"name\" : \"Bob\",\n"
+                "        \"homeAddress\" : {\n"
+                "            \"street\" : \"Some Street\",\n"
+                "            \"city\" : \"Some City\",\n"
+                "            \"state\" : \"Some State\",\n"
+                "            \"accounts\" : [\n"
+                "                1,\n"
+                "                2,\n"
+                "                3\n"
+                "            ]\n"
+                "        },\n"
+                "        \"age\" : 21,\n"
+                "        \"addrs\" : [\n"
+                "            {\n"
+                "                \"street\" : \"Some Street\",\n"
+                "                \"city\" : \"Some City\",\n"
+                "                \"state\" : \"Some State\",\n"
+                "                \"accounts\" : [\n"
+                "                    1,\n"
+                "                    2,\n"
+                "                    3\n"
+                "                ]\n"
+                "            },\n"
+                "            {\n"
+                "                \"street\" : \"Some Street\",\n"
+                "                \"city\" : \"Some City\",\n"
+                "                \"state\" : \"Some State\",\n"
+                "                \"accounts\" : [\n"
+                "                    1,\n"
+                "                    2,\n"
+                "                    3\n"
+                "                ]\n"
+                "            },\n"
+                "        ],\n"
+                "    }\n"
+            },
+//             {
+//                 L_,
+//                 1,
+//                 4,
+//                 "    {\n"
+//                 "        \"name\" : \"Bob\",\n"
+//                 "        \"homeAddress\" : {\n"
+//                 "            \"street\" : \"Some Street\",\n"
+//                 "            \"city\" : \"Some City\",\n"
+//                 "            \"state\" : \"Some State\"\n"
+//                 "        },\n"
+//                 "        \"age\" : 21,\n"
+//                 "        \"accounts\" : [\n"
+//                 "            1,\n"
+//                 "            2,\n"
+//                 "            3\n"
+//                 "        ]\n"
+//                 "    }\n"
+//             },
+        };
+        const int NUM_DATA = sizeof DATA/ sizeof *DATA;
+
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const int          LINE     = DATA[ti].d_lineNum;
+            const int          INDENT   = DATA[ti].d_indent;
+            const int          SPL      = DATA[ti].d_spl;
+            const bsl::string& jsonText = DATA[ti].d_text_p;
+
+            baejsn_EncoderOptions options;
+            options.setEncodingStyle(baejsn_EncoderOptions::BAEJSN_PRETTY);
+            options.setInitialIndentLevel(INDENT);
+            options.setSpacesPerLevel(SPL);
+
+            baejsn_Encoder encoder(&options);
+            bsl::ostringstream oss;
+
+            ASSERTV(0 == encoder.encode(oss, bob));
+            ASSERTV(oss.str(), jsonText, oss.str() == jsonText);
+//             const int len1 = oss.str().size();
+//             const int len2 = jsonText.size();
+//             P(len1) P(len2)
+//             for (int i = 0; i < len1; ++i) {
+//                 if (oss.str()[i] != jsonText[i]) {
+//                     P(i) P(oss.str()[i]) P(jsonText[i])
+//                 }
+//             }
+        }
+      } break;
       case 13: {
         // --------------------------------------------------------------------
         // TEST BCEM_AGGREGATE
@@ -3541,7 +3682,9 @@ int main(int argc, char *argv[])
 
         bdem_RecordDef *employee = schema->createRecord("Employee");
         employee->appendField(bdem_ElemType::BDEM_STRING, "name");
-        employee->appendField(bdem_ElemType::BDEM_LIST, address, "homeAddress");
+        employee->appendField(bdem_ElemType::BDEM_LIST,
+                              address,
+                              "homeAddress");
         employee->appendField(bdem_ElemType::BDEM_INT, "age");
 
         bcem_Aggregate bob(schema, "Employee");
@@ -4327,7 +4470,8 @@ int main(int argc, char *argv[])
                                     -bsl::numeric_limits<double>::infinity()));
 
             oss.clear();
-            ASSERTV(0 != impl.encode(bsl::numeric_limits<double>::quiet_NaN()));
+            ASSERTV(0 !=
+                    impl.encode(bsl::numeric_limits<double>::quiet_NaN()));
 
             oss.clear();
             ASSERTV(0 != impl.encode(
@@ -4554,7 +4698,7 @@ int main(int argc, char *argv[])
             "}";
 
         char jsonTextPretty[] =
-            " {\n"
+            "    {\n"
             "        \"name\" : \"Bob\",\n"
             "        \"homeAddress\" : {\n"
             "            \"street\" : \"Some Street\",\n"
