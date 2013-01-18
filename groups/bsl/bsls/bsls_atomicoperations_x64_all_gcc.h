@@ -39,7 +39,8 @@ BSLS_IDENT("$Id: $")
 #include <bsls_types.h>
 #endif
 
-#if defined(BSLS_PLATFORM_CPU_X86_64) && defined(BSLS_PLATFORM_CMP_GNU)
+#if defined(BSLS_PLATFORM_CPU_X86_64) \
+    && (defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG))
 
 namespace BloombergLP {
 
@@ -224,21 +225,7 @@ inline
 int AtomicOperations_X64_ALL_GCC::
     addIntNv(AtomicTypes::Int *atomicInt, int value)
 {
-#if BSLS_PLATFORM_CMP_VER_MAJOR >= 40100 // gcc >= 4.1
     return __sync_add_and_fetch(&atomicInt->d_value, value);
-#else
-    int orig = value;
-
-    asm volatile (
-        "       lock xaddl %[val], %[obj]   \n\t"
-
-                : [val] "=r" (value),
-                  [obj] "=m" (*atomicInt)
-                : "0" (value), "m" (*atomicInt)
-                : "memory", "cc");
-
-    return orig + value;
-#endif
 }
 
 inline
@@ -338,28 +325,14 @@ Types::Int64 AtomicOperations_X64_ALL_GCC::
     addInt64Nv(AtomicTypes::Int64 *atomicInt,
                Types::Int64 value)
 {
-#if BSLS_PLATFORM_CMP_VER_MAJOR >= 40100 // gcc >= 4.1
     return __sync_add_and_fetch(&atomicInt->d_value, value);
-#else
-    Types::Int64 operand = value;
-
-    asm volatile (
-        "       lock xaddq %[val], %[obj]   \n\t"
-
-                : [val] "+r" (value),
-                  [obj] "+m" (*atomicInt)
-                :
-                : "memory", "cc");
-
-    return operand + value;
-#endif
 }
 
 }  // close package namespace
 
 }  // close enterprise namespace
 
-#endif // defined(BSLS_PLATFORM_CPU_X86_64) && defined(BSLS_PLATFORM_CMP_GNU)
+#endif // defined(BSLS_PLATFORM_CPU_X86_64) && (CMP_GNU || CMP_CLANG)
 
 #endif
 
