@@ -1317,8 +1317,6 @@ int TestDriver<KEY, HASH, EQUAL, ALLOC>::ggg(Obj        *object,
                                              const char *spec,
                                              int         verbose)
 {
-    bslma::DefaultAllocatorGuard
-                                guard(&bslma::NewDeleteAllocator::singleton());
     const TestValues VALUES;
 
     enum { SUCCESS = -1 };

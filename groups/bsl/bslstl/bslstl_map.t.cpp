@@ -758,16 +758,58 @@ struct CharToPairConverter {
     // 'VALUE' type.
 
     // CLASS METHODS
-    static void createInplace(bsl::pair<const KEY, VALUE> *objPtr,
+    static void createInplace(bsl::pair<const KEY, VALUE> *address,
                               char                         value,
                               bslma::Allocator            *allocator)
     {
+#if !defined(ALISDAIR_HAS_RESOLVED_DEFAULT_ALLOCATIONS)
         bslalg::ScalarPrimitives::copyConstruct(
-                             objPtr,
+                             address,
                              bsl::pair<const KEY, VALUE> (
                 bsltf::TemplateTestFacility::create<KEY>(value),
                 bsltf::TemplateTestFacility::create<VALUE>(value - 'A' + '0')),
                              allocator);
+#else
+        BSLS_ASSERT_OPT(address);
+        BSLS_ASSERT_OPT(allocator);
+        BSLS_ASSERT_OPT(0 < value);
+        
+if (veryVerbose) printf("\t\templace\n");
+        bsls::ObjectBuffer<KEY> tempKey;
+        bsltf::TemplateTestFacility::emplace(tempKey.buffer(),
+                                             value,
+                                             allocator);
+
+        bsls::ObjectBuffer<VALUE> tempValue;
+        bsltf::TemplateTestFacility::emplace(tempValue.buffer(),
+                                             value - 'A' + '0',
+                                             allocator);
+
+if (veryVerbose) printf("\t\tconstruct\n");
+        bslalg::ScalarPrimitives::construct(address,
+                                            tempKey.object(),
+                                            tempValue.object(),
+                                            allocator);
+
+
+#if !defined(ALISDAIR_THINKS_HAS_HAS_SOLVED_THE_SEGFAULT)
+if (veryVerbose) printf("\t\tcompare\n");
+        bsls::ObjectBuffer<bsl::pair<const KEY, VALUE> > checkPair;
+
+        bsl::pair<const KEY, VALUE> *p =
+           reinterpret_cast<bsl::pair<const KEY, VALUE> *>(checkPair.buffer());
+        const KEY&   rK = tempKey.object();
+        const VALUE& rV = tempValue.object();
+        bslalg::ScalarPrimitives::construct(p,
+                                            rK,
+                                            rV,
+                                            allocator);
+
+        BSLS_ASSERT_OPT(checkPair.object() == *address);
+#endif
+
+if (veryVerbose) printf("\t\treturn\n");
+#endif
     }
 };
 
@@ -989,8 +1031,14 @@ int TestDriver<KEY, VALUE, COMP, ALLOC>::ggg(Obj        *object,
                                       const char *spec,
                                       int         verbose)
 {
+    // This allocator guard should not be necessary, but there are still a
+    // small number of default allocations occurring when populating some kinds
+    // of 'pair'.
+
+#if !defined(ALISDAIR_HAS_RESOLVED_DEFAULT_ALLOCATIONS)
     bslma::DefaultAllocatorGuard guard(
                                       &bslma::NewDeleteAllocator::singleton());
+#endif
     const TestValues VALUES;
 
     enum { SUCCESS = -1 };

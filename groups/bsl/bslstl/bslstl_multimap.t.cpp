@@ -980,6 +980,10 @@ int TestDriver<KEY, VALUE, COMP, ALLOC>::ggg(Obj        *object,
                                       const char *spec,
                                       int         verbose)
 {
+    // This allocator guard should not be necessary, but there are still a
+    // small number of default allocations occurring when populating some kinds
+    // of 'pair'.
+
     bslma::DefaultAllocatorGuard guard(
                                       &bslma::NewDeleteAllocator::singleton());
     const TestValues VALUES;

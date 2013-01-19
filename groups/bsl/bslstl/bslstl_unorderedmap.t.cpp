@@ -5980,6 +5980,10 @@ int TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::ggg(Obj        *object,
                                                     const char *spec,
                                                     int         verbose)
 {
+    // This allocator guard should not be necessary, but there are still a
+    // small number of default allocations occurring when populating some kinds
+    // of 'pair'.
+
     bslma::DefaultAllocatorGuard guard(
                                       &bslma::NewDeleteAllocator::singleton());
     const TestValues VALUES;
@@ -6496,6 +6500,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase12()
                   } break;
                   default: {
                     ASSERTV(0 && "unrecognized CONFIG");
+                    return;
                   }
                 }
             } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
