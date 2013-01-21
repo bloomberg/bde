@@ -623,7 +623,7 @@ int main(int argc, char *argv[])
         //   that the behavior is as expected
         //
         // Testing:
-        //     Usage Example
+        //   USAGE EXAMPLE
         // --------------------------------------------------------------------
         if (verbose) std::printf("\nPOINTER TO MEMBER TEST"
                                  "\n======================\n");
@@ -648,7 +648,7 @@ int main(int argc, char *argv[])
         // - Replace 'assert' with 'ASSERT'.
         //
         // Testing:
-        //     Usage Example
+        //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
         if (verbose) std::printf("\nUSAGE EXAMPLE"
@@ -681,13 +681,8 @@ int main(int argc, char *argv[])
         //   instantiations of 'pair' described above.
         //
         // Testing:
-        //     // free function
-        //     template <typename T1, typename T2>
-        //     void bsl::swap(pair<T1, T2>& lhs, pair<T1, T2>& rhs);
-        //
-        //     // member function
-        //     template <typename T1, typename T2>
-        //     void pair<T1, T2>::swap(pair& rhs);
+        //   void pair::swap(pair& rhs);
+        //   void swap(pair& lhs, pair& rhs);
         // --------------------------------------------------------------------
 
         if (verbose) std::printf("\nSWAP TEST"
@@ -721,12 +716,10 @@ int main(int argc, char *argv[])
         // - When an allocator is used, verify no memory leaks.
         //
         // Testing:
-        //     template <typename U1, typename U2>
+        //   template <typename U1, typename U2>
         //     pair(const pair<U1, U2>& rhs);
-        //
-        //     template <typename U1, typename U2>
-        //     pair(const pair<U1, U2>&  rhs,
-        //          bslma::Allocator    *alloc);
+        //   template <typename U1, typename U2>
+        //     pair(const pair<U1, U2>& rhs, bslma::Allocator *alloc);
         // --------------------------------------------------------------------
 
         if (verbose) std::printf("\nCONVERSION CONSTRUCTOR TEST"
@@ -819,7 +812,7 @@ int main(int argc, char *argv[])
         //   this trait.
         //
         // Testing:
-        //     Type Traits
+        //   Type Traits
         // --------------------------------------------------------------------
 
         if (verbose) std::printf("\nTRAITS TEST"
@@ -1042,24 +1035,24 @@ int main(int argc, char *argv[])
         //   * Test assignment among the new objects
         //
         // Testing:
-        //     typedef T1 first_type;
-        //     typedef T2 second_type;
-        //     T1 first;
-        //     T1 second;
-        //     pair();
-        //     pair(bslma::Allocator *alloc);
-        //     pair(const T1& a, const T2& b);
-        //     pair(const T1& a, const T2& b, bslma::Allocator *alloc);
-        //     pair(const pair& rhs);
-        //     pair(const pair& rhs, bslma::Allocator *alloc);
-        //     ~pair();
-        //     pair& operator=(const pair& rhs);
-        //     bool operator==(const pair& x, const pair& y);
-        //     bool operator!=(const pair& x, const pair& y);
-        //     bool operator<(const pair& x, const pair& y);
-        //     bool operator>(const pair& x, const pair& y);
-        //     bool operator<=(const pair& x, const pair& y);
-        //     bool operator>=(const pair& x, const pair& y);
+        //   typedef T1 first_type;
+        //   typedef T2 second_type;
+        //   T1 first;
+        //   T1 second;
+        //   pair();
+        //   pair(bslma::Allocator *alloc);
+        //   pair(const T1& a, const T2& b);
+        //   pair(const T1& a, const T2& b, bslma::Allocator *alloc);
+        //   pair(const pair& rhs);
+        //   pair(const pair& rhs, bslma::Allocator *alloc);
+        //   ~pair();
+        //   pair& operator=(const pair& rhs);
+        //   bool operator==(const pair& x, const pair& y);
+        //   bool operator!=(const pair& x, const pair& y);
+        //   bool operator<(const pair& x, const pair& y);
+        //   bool operator>(const pair& x, const pair& y);
+        //   bool operator<=(const pair& x, const pair& y);
+        //   bool operator>=(const pair& x, const pair& y);
         // --------------------------------------------------------------------
 
         if (verbose) std::printf("\nFUNCTIONALITY TEST"
@@ -1694,7 +1687,7 @@ int main(int argc, char *argv[])
         // - Verify that there are no memory leaks.
         //
         // Testing:
-        //   Breathing test only.  Exercises basic functionality.
+        //   BREATHING TEST
         // --------------------------------------------------------------------
         if (verbose) std::printf("\nBREATHING TEST"
                                  "\n==============\n");
