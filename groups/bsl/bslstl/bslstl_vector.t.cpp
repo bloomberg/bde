@@ -283,15 +283,6 @@ const int NUM_ALLOCS[] = {
        0,   1,  2,  3,  3,  4,  4,  4,  4,  5,  5,  5,  5,  5,  5,  5,  5,  6
 };
 
-// Generic debug print function (3-arguments).
-template <typename T>
-void debugprint(const T& val, const char* s, const char* nl)
-{
-    printf("%s", s); P(val);
-    printf("%s", nl);
-    fflush(stdout);
-}
-
 BSLMF_ASSERT(!Vector_IsRandomAccessIterator<int>::VALUE);
 BSLMF_ASSERT(Vector_IsRandomAccessIterator<bsl::vector<int>::iterator>::VALUE);
 
