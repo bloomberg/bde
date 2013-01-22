@@ -278,7 +278,7 @@ int main(int argc, char *argv[])
         //:   virtual inheritance.
         //:
         //: 4 'bsl::is_polymorphic' returns 'true' for polymorphic types that
-        //:   multiply inherits from (possibly a combination of) base types
+        //:   multiply inherit from (possibly a combination of) base types
         //:   that use virtual inheritance and/or regular inheritance.
         //
         // Plan:
@@ -870,7 +870,7 @@ int main(int argc, char *argv[])
         //:   virtual inheritance.
         //:
         //: 4 'bslmf::IsPolymorphic' returns 'true' for polymorphic types that
-        //:   multiply inherits from (possibly a combination of) base types
+        //:   multiply inherit from (possibly a combination of) base types
         //:   that use virtual inheritance and/or regular inheritance.
         //
         // Plan:

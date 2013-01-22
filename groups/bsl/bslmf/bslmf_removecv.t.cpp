@@ -1,7 +1,7 @@
 // bslmf_removecv.t.cpp                                               -*-C++-*-
 #include <bslmf_removecv.h>
 
-#include <bslmf_issame.h>
+#include <bslmf_issame.h>  // for testing only
 
 #include <cstdio>
 #include <cstdlib>
@@ -71,7 +71,7 @@ namespace {
 
 struct TestType {
    // This user-defined type is intended to be used during testing as an
-   // argument for the template parameter 'TYPE' of 'bsl::remove_volatile'.
+   // argument for the template parameter 'TYPE' of 'bsl::remove_cv'.
 };
 
 }  // close unnamed namespace

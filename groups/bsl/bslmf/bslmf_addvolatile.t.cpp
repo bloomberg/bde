@@ -1,7 +1,7 @@
 // bslmf_addvolatile.t.cpp                                            -*-C++-*-
 #include <bslmf_addvolatile.h>
 
-#include <bslmf_issame.h>
+#include <bslmf_issame.h>  // for testing only
 
 #include <cstdio>
 #include <cstdlib>
@@ -20,7 +20,7 @@ using std::atoi;
 //                                --------
 // The component under test defines a meta-function, 'bsl::add_volatile', that
 // adds a top-level 'volatile'-qualifier to a template parameter type.  Thus,
-// we need to ensure that the values returned by the meta-function is correct
+// we need to ensure that the values returned by the meta-function are correct
 // for each possible category of types.
 //
 // ----------------------------------------------------------------------------
@@ -157,7 +157,7 @@ int main(int argc, char *argv[])
         //   bsl::add_volatile::type
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\n'bsl::remove_volatile'\n"
+        if (verbose) printf("\n'bsl::add_volatile'\n"
                             "\n===================\n");
 
         // C-1

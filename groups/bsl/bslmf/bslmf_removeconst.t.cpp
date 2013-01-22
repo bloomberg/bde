@@ -1,7 +1,7 @@
 // bslmf_removeconst.t.cpp                                            -*-C++-*-
 #include <bslmf_removeconst.h>
 
-#include <bslmf_issame.h>
+#include <bslmf_issame.h>  // for testing only
 
 #include <cstdio>
 #include <cstdlib>
@@ -20,7 +20,7 @@ using std::fprintf;
 //                                --------
 // The component under test defines a meta-function, 'bsl::remove_const', that
 // removes any top-level 'const'-qualifier from a template parameter type.
-// Thus, we need to ensure that the values returned by the meta-function is
+// Thus, we need to ensure that the values returned by the meta-function are
 // correct for each possible category of types.
 //
 // ----------------------------------------------------------------------------

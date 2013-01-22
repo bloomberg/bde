@@ -11,14 +11,14 @@ BSLS_IDENT("$Id: $")
 //
 //@CLASSES:
 //  bsl::is_same: standard meta-function for testing if two types are same
-//  bslmf::IsSame: meta-function testing if two types are the same
+//  bslmf::IsSame: meta-function for testing if two types are the same
 //
 //@AUTHOR: Shawn Edwards (sedwards)
 //
-//@DESCRIPTION: This component defines two meta-functions, 'bsl::is_same'
-// and 'BloombergLP::bslmf::IsSame', both of which may be used to query whether
-// two types are same.  The types are same if they name the same type having
-// the same cv-qualifications.
+//@DESCRIPTION: This component defines two meta-functions, 'bsl::is_same' and
+// 'BloombergLP::bslmf::IsSame', both of which may be used to query whether two
+// types are the same.  Two types are the same if they name the same type
+// having the same cv-qualifications.
 //
 // 'bsl::is_same' meets the requirements of the 'is_same' template defined in
 // the C++11 standard [meta.rel], while 'bslmf::IsSame' was devised before
@@ -38,22 +38,22 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Determine Same Types
 ///- - - - - - - - - - - - - - - -
-// Suppose that we have a couple of pairs of types and want to assert whether
+// Suppose that we have several pairs of types and want to assert whether
 // the types in each pair are same.
 //
-// First, we create some 'typedef's to define some types:
+// First, we define several 'typedef's:
 //..
-//  typedef       int    INT;
+//  typedef       int    INT1;
 //  typedef       double DOUBLE;
 //  typedef       short  SHORT;
 //  typedef const short  CONST_SHORT;
-//  typedef       int    INT;
+//  typedef       int    INT2;
 //  typedef       int&   INT_REF;
 //..
-// Now, we instantiate the 'bsl::is_same' template for a certain pairs of the
+// Now, we instantiate the 'bsl::is_same' template for certain pairs of the
 // 'typedef's and assert the 'value' static data member of each instantiation:
 //..
-//  assert(true  == (bsl::is_same<INT, INT>::value));
+//  assert(true  == (bsl::is_same<INT1, INT2>::value));
 //  assert(false == (bsl::is_same<INT, DOUBLE>::value));
 //..
 // Note that a 'const'-qualified type is considered distinct from the
@@ -88,15 +88,15 @@ template <class TYPE1, class TYPE2>
 struct is_same : false_type {
     // This 'struct' template provides a meta-function to determine whether the
     // (template parameter) 'TYPE1' and the (template parameter) 'TYPE2' are
-    // same.  This generic default template derives from 'bsl::false_type'.  A
-    // template specialization is provided (below) that derives from
+    // the same.  This generic default template derives from 'bsl::false_type'.
+    // A template specialization is provided (below) that derives from
     // 'bsl::true_type'.
 };
 
 template <class TYPE>
 struct is_same<TYPE, TYPE> : true_type {
      // This partial specialization of 'is_same' derives from 'bsl::true_type'
-     // for when the (template parameter) types are same.
+     // for when the (template parameter) types are the same.
 };
 
 }  // close namespace bsl
@@ -113,14 +113,15 @@ template <class TYPE1, class TYPE2>
 struct IsSame : bsl::is_same<TYPE1, TYPE2>::type {
     // This 'struct' template implements a meta-function to determine if the
     // (template parameter) 'TYPE1' and the (template parameter) 'TYPE2' are
-    // same.  This 'struct' derives from 'bsl::true_type' if 'TYPE1' and
-    // 'TYPE2' are same, and 'bsl::false_type' otherwise.
+    // the same.  This 'struct' derives from 'bsl::true_type' if 'TYPE1' and
+    // 'TYPE2' are the same, and 'bsl::false_type' otherwise.
     //
     // Note that although this 'struct' is functionally equivalent to
     // 'bsl::is_same', the use of 'bsl::is_same' should be preferred.
 };
 
 }  // close package namespace
+}  // close enterprise namespace
 
 #ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ===========================================================================
@@ -133,8 +134,6 @@ struct IsSame : bsl::is_same<TYPE1, TYPE2>::type {
 #define bslmf_IsSame bslmf::IsSame
     // This alias is defined for backward compatibility.
 #endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
-
-}  // close enterprise namespace
 
 #endif
 

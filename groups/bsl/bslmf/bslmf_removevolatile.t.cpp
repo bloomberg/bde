@@ -1,7 +1,7 @@
 // bslmf_removevolatile.t.cpp                                         -*-C++-*-
 #include <bslmf_removevolatile.h>
 
-#include <bslmf_issame.h>
+#include <bslmf_issame.h>  // for testing only
 
 #include <cstdio>
 #include <cstdlib>

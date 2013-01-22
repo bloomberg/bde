@@ -10,16 +10,17 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a meta-function for adding top-level cv-qualifiers.
 //
 //@CLASSES:
-//  bsl::add_const: meta-function for adding top-level cv-qualifiers
+//  bsl::add_cv: meta-function for adding top-level cv-qualifiers
 //
-//@SEE_ALSO: bslmf_removeconst
+//@SEE_ALSO: bslmf_cv
 //
 //@AUTHOR:
 //
 //@DESCRIPTION: This component defines a meta-function, 'bsl::add_cv', that may
-// be used to add a top-level 'const'-qualifier and a 'volatile'-qualifier to a
-// type if it is not a reference type, nor a function type, nor already
-// 'const'-qualified and 'volatile'-qualified at the top-level.
+// be used to add a top-level 'const'-qualifier and a top-level
+// 'volatile'-qualifier to a type if it is not a reference type, nor a function
+// type, nor already 'const'-qualified and 'volatile'-qualified at the
+// top-level.
 //
 // 'bsl::add_cv' meets the requirements of the 'add_cv' template defined in the
 // C++11 standard [meta.trans.cv].
@@ -28,8 +29,8 @@ BSLS_IDENT("$Id: $")
 ///-----
 // In this section we show intended use of this component.
 //
-///Example 1: Adding a 'const'-Qualifier and 'volatile'-Qualifier to a Type
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+///Example 1: Adding a 'const'-Qualifier and a 'volatile'-Qualifier to a Type
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose that we want to add a 'const'-qualifier and a 'volatile'-qualifier
 // to a particular type.
 //
@@ -68,20 +69,19 @@ template <class TYPE>
 struct add_cv {
     // This 'struct' template implements the 'add_cv' meta-function defined in
     // the C++11 standard [meta.trans.cv], providing an alias, 'type', that
-    // returns the result.  If the the (template parameter) 'TYPE' is not a
+    // returns the result.  If the (template parameter) 'TYPE' is not a
     // reference type, nor a function type, nor already 'const'-qualified and
     // 'volatile'-qualified at the top-level, then 'type' is an alias to 'TYPE'
-    // with the top-level 'const'-qualifier and 'volatile'-qualifier added;
+    // with a top-level 'const'-qualifier and a 'volatile'-qualifier added;
     // otherwise, 'type' is an alias to 'TYPE'.
 
     // PUBLIC TYPES
     typedef typename add_const<typename add_volatile<TYPE>::type>::type type;
-        // This 'typedef' is an alias alias to the (template parameter) 'TYPE'
-        // with a top-level 'const'-qualifier and 'volatile'-qualifier added if
-        // 'TYPE' is not a reference type, nor a function type, nor already
+        // This 'typedef' is an alias to the (template parameter) 'TYPE' with a
+        // top-level 'const'-qualifier and 'volatile'-qualifier added if 'TYPE'
+        // is not a reference type, nor a function type, nor already
         // 'const'-qualified and 'volatile'-qualified at the top-level;
         // otherwise, 'type' is an alias to 'TYPE'.
-
 };
 
 }  // close namespace bsl

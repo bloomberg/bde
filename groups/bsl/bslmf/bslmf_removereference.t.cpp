@@ -1,7 +1,7 @@
 // bslmf_removereference.t.cpp                                        -*-C++-*-
 #include <bslmf_removereference.h>
 
-#include <bslmf_issame.h>          // for testing only
+#include <bslmf_issame.h>  // for testing only
 
 #include <bsls_bsltestutil.h>
 
