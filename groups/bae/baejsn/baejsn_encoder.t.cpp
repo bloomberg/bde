@@ -3332,7 +3332,8 @@ void constructTestAggregate(bsl::vector<bcem_Aggregate>* objects)
 }
 #endif
 
-void constructFeatureTestMessage(bsl::vector<baea::FeatureTestMessage>* objects)
+void constructFeatureTestMessage(
+                                bsl::vector<baea::FeatureTestMessage>* objects)
 {
     baexml_MiniReader reader;
     baexml_DecoderOptions options;
@@ -3455,67 +3456,152 @@ int main(int argc, char *argv[])
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Encoding a 'bcem_Aggregate' Object into JSON
-///-------------------------------------------------------
-// Suppose we want to encode a 'bcem_Aggregate' object into JSON.
+///Example 1: Encoding a 'bas_codegen.pl'-generated object into JSON
+///-----------------------------------------------------------------
+// Consider that we want to exchange an employee's information between two
+// processes.  To allow this information exchange we will define the XML schema
+// representation for that class, use 'bas_codegen.pl' to create the 'Employee'
+// 'class' for storing that information, populate an 'Employee' object, and
+// encode that object using the baejsn encoder.
 //
-// First, we create a schema that we will use to configure a 'bcem_Aggregate':
+// First, we will define the XML schema inside a file called 'employee.xsd':
 //..
+//  <?xml version='1.0' encoding='UTF-8'?>
+//  <xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'
+//             xmlns:test='http://bloomberg.com/schemas/test'
+//             targetNamespace='http://bloomberg.com/schemas/test'
+//             elementFormDefault='unqualified'>
+//
+//      <xs:complexType name='Address'>
+//          <xs:sequence>
+//              <xs:element name='street' type='xs:string'/>
+//              <xs:element name='city'   type='xs:string'/>
+//              <xs:element name='state'  type='xs:string'/>
+//          </xs:sequence>
+//      </xs:complexType>
+//
+//      <xs:complexType name='Employee'>
+//          <xs:sequence>
+//              <xs:element name='name'        type='xs:string'/>
+//              <xs:element name='homeAddress' type='test:Address'/>
+//              <xs:element name='age'         type='xs:int'/>
+//          </xs:sequence>
+//      </xs:complexType>
+//
+//      <xs:element name='Employee' type='test:Employee'/>
+//
+//  </xs:schema>
+//..
+// Then, we will use the 'bas_codegen.pl' tool, to generate the C++ classes for
+// this schema.  The following command will generate the header and
+// implementation files for the all the classes in the 'test_messages'
+// components in the current directory:
+//..
+//  $ bas_codegen.pl -m msg -p test xsdfile.xsd
+//..
+// Next, we will populate a 'test::Employee' object:
+//..
+    {
+    test::Employee employee;
+    employee.name()                 = "Bob";
+    employee.homeAddress().street() = "Lexington Ave";
+    employee.homeAddress().city()   = "New York City";
+    employee.homeAddress().state()  = "New York";
+    employee.age()                  = 21;
+//..
+// Then, we will create a 'baejsn_Encoder' object using a
+// 'baejsn_EncoderOptions' object that specifies that encoding in a pretty
+// style with an initial indent level and spaces per level:
+//..
+    baejsn_EncoderOptions options;
+    options.setEncodingStyle(baejsn_EncoderOptions::BAEJSN_PRETTY);
+    options.setInitialIndentLevel(1);
+    options.setSpacesPerLevel(4);
+//
+    baejsn_Encoder encoder(&options);
+//..
+// Now, we will encode this object in the JSON format using the encoder:
+//..
+    bsl::ostringstream os;
+//
+    const int rc = encoder.encode(os, employee);
+    ASSERT(!rc);
+    ASSERT(os);
+//..
+// Finally, we will verify that the output is as expected:
+//..
+    const char EXP_OUTPUT[] = "    {\n"
+                              "        \"name\" : \"Bob\",\n"
+                              "        \"homeAddress\" : {\n"
+                              "            \"street\" : \"Lexington Ave\",\n"
+                              "            \"city\" : \"New York City\",\n"
+                              "            \"state\" : \"New York\"\n"
+                              "        },\n"
+                              "        \"age\" : 21\n"
+                              "    }\n";
+//
+    ASSERT(EXP_OUTPUT == os.str());
+    }
+//..
+//
+///Example 2: Encoding a 'bcem_Aggregate' Object into JSON
+///-------------------------------------------------------
+// Consider that we want to exchange an employee's information between two
+// processes using a 'bcem_Aggregate'.  To allow this information exchange we
+// will define the 'bdem_Schema' to represent the meta-data, construct the
+// 'bcem_Aggregate' object with that schema, populate it, and encode that
+// object using the baejsn encoder.
+//
+// First, we create a 'bdem_Schema' object:
+//..
+    {
     bcema_SharedPtr<bdem_Schema> schema(new bdem_Schema);
 //
-    bdem_RecordDef *address = schema->createRecord("Address");
-    address->appendField(bdem_ElemType::BDEM_STRING, "street");
-    address->appendField(bdem_ElemType::BDEM_STRING, "city");
-    address->appendField(bdem_ElemType::BDEM_STRING, "state");
+    bdem_RecordDef *addressRecord = schema->createRecord("Address");
+    addressRecord->appendField(bdem_ElemType::BDEM_STRING, "street");
+    addressRecord->appendField(bdem_ElemType::BDEM_STRING, "city");
+    addressRecord->appendField(bdem_ElemType::BDEM_STRING, "state");
 //
-    bdem_RecordDef *employee = schema->createRecord("Employee");
-    employee->appendField(bdem_ElemType::BDEM_STRING, "name");
-    employee->appendField(bdem_ElemType::BDEM_LIST, address, "homeAddress");
-    employee->appendField(bdem_ElemType::BDEM_INT, "age");
+    bdem_RecordDef *employeeRecord = schema->createRecord("Employee");
+    employeeRecord->appendField(bdem_ElemType::BDEM_STRING, "name");
+    employeeRecord->appendField(bdem_ElemType::BDEM_LIST,
+                                addressRecord,
+                                "homeAddress");
+    employeeRecord->appendField(bdem_ElemType::BDEM_INT, "age");
 //..
 // Then, we create a 'bcem_Aggregate' object using the schema and populate it
 // with values:
 //..
-    bcem_Aggregate bob(schema, "Employee");
+    bcem_Aggregate employee(schema, "Employee");
 //
-    bob["name"].setValue("Bob");
-    bob["homeAddress"]["street"].setValue("Some Street");
-    bob["homeAddress"]["city"].setValue("Some City");
-    bob["homeAddress"]["state"].setValue("Some State");
-    bob["age"].setValue(21);
+    employee["name"].setValue("Bob");
+    employee["homeAddress"]["street"].setValue("Lexington Ave");
+    employee["homeAddress"]["city"].setValue("New York City");
+    employee["homeAddress"]["state"].setValue("New York");
+    employee["age"].setValue(21);
 //..
-// Next, we create a 'baejsn_Encoder':
+// Next, we create a 'baejsn_Encoder' using a default 'baejsn_EncoderOptions'
+// object which resulting in encoding in a compact style:
 //..
-    baejsn_Encoder encoder;
+    baejsn_EncoderOptions options;
+    baejsn_Encoder encoder(&options);
 //..
-// Now, we encode the object.
+// Now, we encode the object:
 //..
-    bsl::ostringstream oss;
-    encoder.encode(oss, bob);
+    bsl::ostringstream os;
+//
+    const int rc = encoder.encode(os, employee);
+    ASSERT(!rc);
+    ASSERT(os);
 //..
-// Finally, we print the encoded string:
+// Finally, we will verify that the output is as expected:
 //..
-    if (verbose) {
-        cout << oss.str();
+    const char EXP_OUTPUT[] = "{\"name\":\"Bob\",\"homeAddress\":{\"street\":"
+                              "\"Lexington Ave\",\"city\":\"New York City\","
+                              "\"state\":\"New York\"},\"age\":21}";
+    ASSERT(EXP_OUTPUT == os.str());
     }
 //..
-// The output should look like the following:
-//..
-//  {"name":"Bob","homeAddress":{"street":"Some Street","city":"Some City",
-//  "state":"Some State"},"age":21}
-//..
-        char jsonText[] =
-            "{"
-                "\"name\":\"Bob\","
-                "\"homeAddress\":{"
-                    "\"street\":\"Some Street\","
-                    "\"city\":\"Some City\","
-                    "\"state\":\"Some State\""
-                "},"
-                "\"age\":21"
-            "}";
-
-        ASSERTV(oss.str() == jsonText);
       } break;
       case 14: {
         // --------------------------------------------------------------------
@@ -3560,8 +3646,7 @@ int main(int argc, char *argv[])
         bob["addrs"].setField(0, bob["homeAddress"]);
         bob["addrs"].setField(1, bob["homeAddress"]);
 
-        schema->print(cout, 1, 4);
-        bob.print(cout, 1, 4);
+#define NL "\n"
 
         static const struct {
             int         d_lineNum;  // source line number
@@ -3569,6 +3654,90 @@ int main(int argc, char *argv[])
             int         d_spl;
             const char *d_text_p;   // json text
         } DATA[] = {
+            {
+                L_,
+                0,
+                0,
+                // TBD:
+                " {"                                                         NL
+                "\"name\" : \"Bob\","                                        NL
+                "\"homeAddress\" : {"                                        NL
+                "\"street\" : \"Some Street\","                              NL
+                "\"city\" : \"Some City\","                                  NL
+                "\"state\" : \"Some State\","                                NL
+                "\"accounts\" : ["                                           NL
+                "1,"                                                         NL
+                "2,"                                                         NL
+                "3"                                                          NL
+                "]"                                                          NL
+                "},"                                                         NL
+                "\"age\" : 21,"                                              NL
+                "\"addrs\" : ["                                              NL
+                "{"                                                          NL
+                "\"street\" : \"Some Street\","                              NL
+                "\"city\" : \"Some City\","                                  NL
+                "\"state\" : \"Some State\","                                NL
+                "\"accounts\" : ["                                           NL
+                "1,"                                                         NL
+                "2,"                                                         NL
+                "3"                                                          NL
+                "]"                                                          NL
+                "},"                                                         NL
+                "{"                                                          NL
+                "\"street\" : \"Some Street\","                              NL
+                "\"city\" : \"Some City\","                                  NL
+                "\"state\" : \"Some State\","                                NL
+                "\"accounts\" : ["                                           NL
+                "1,"                                                         NL
+                "2,"                                                         NL
+                "3"                                                          NL
+                "]"                                                          NL
+                "}"                                                          NL
+                "]"                                                          NL
+                "}"                                                          NL
+            },
+            {
+                L_,
+                0,
+                2,
+                // TBD:
+                " {\n"
+                "  \"name\" : \"Bob\",\n"
+                "  \"homeAddress\" : {\n"
+                "    \"street\" : \"Some Street\",\n"
+                "    \"city\" : \"Some City\",\n"
+                "    \"state\" : \"Some State\",\n"
+                "    \"accounts\" : [\n"
+                "      1,\n"
+                "      2,\n"
+                "      3\n"
+                "    ]\n"
+                "  },\n"
+                "  \"age\" : 21,\n"
+                "  \"addrs\" : [\n"
+                "    {\n"
+                "      \"street\" : \"Some Street\",\n"
+                "      \"city\" : \"Some City\",\n"
+                "      \"state\" : \"Some State\",\n"
+                "      \"accounts\" : [\n"
+                "        1,\n"
+                "        2,\n"
+                "        3\n"
+                "      ]\n"
+                "    },\n"
+                "    {\n"
+                "      \"street\" : \"Some Street\",\n"
+                "      \"city\" : \"Some City\",\n"
+                "      \"state\" : \"Some State\",\n"
+                "      \"accounts\" : [\n"
+                "        1,\n"
+                "        2,\n"
+                "        3\n"
+                "      ]\n"
+                "    }\n"
+                "  ]\n"
+                "}\n"
+            },
             {
                 L_,
                 1,
@@ -3606,30 +3775,54 @@ int main(int argc, char *argv[])
                 "                    2,\n"
                 "                    3\n"
                 "                ]\n"
-                "            },\n"
-                "        ],\n"
+                "            }\n"
+                "        ]\n"
                 "    }\n"
             },
-//             {
-//                 L_,
-//                 1,
-//                 4,
-//                 "    {\n"
-//                 "        \"name\" : \"Bob\",\n"
-//                 "        \"homeAddress\" : {\n"
-//                 "            \"street\" : \"Some Street\",\n"
-//                 "            \"city\" : \"Some City\",\n"
-//                 "            \"state\" : \"Some State\"\n"
-//                 "        },\n"
-//                 "        \"age\" : 21,\n"
-//                 "        \"accounts\" : [\n"
-//                 "            1,\n"
-//                 "            2,\n"
-//                 "            3\n"
-//                 "        ]\n"
-//                 "    }\n"
-//             },
+            {
+                L_,
+                2,
+                2,
+                "    {\n"
+                "      \"name\" : \"Bob\",\n"
+                "      \"homeAddress\" : {\n"
+                "        \"street\" : \"Some Street\",\n"
+                "        \"city\" : \"Some City\",\n"
+                "        \"state\" : \"Some State\",\n"
+                "        \"accounts\" : [\n"
+                "          1,\n"
+                "          2,\n"
+                "          3\n"
+                "        ]\n"
+                "      },\n"
+                "      \"age\" : 21,\n"
+                "      \"addrs\" : [\n"
+                "        {\n"
+                "          \"street\" : \"Some Street\",\n"
+                "          \"city\" : \"Some City\",\n"
+                "          \"state\" : \"Some State\",\n"
+                "          \"accounts\" : [\n"
+                "            1,\n"
+                "            2,\n"
+                "            3\n"
+                "          ]\n"
+                "        },\n"
+                "        {\n"
+                "          \"street\" : \"Some Street\",\n"
+                "          \"city\" : \"Some City\",\n"
+                "          \"state\" : \"Some State\",\n"
+                "          \"accounts\" : [\n"
+                "            1,\n"
+                "            2,\n"
+                "            3\n"
+                "          ]\n"
+                "        }\n"
+                "      ]\n"
+                "    }\n"
+            },
         };
+#undef NL
+
         const int NUM_DATA = sizeof DATA/ sizeof *DATA;
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
@@ -3647,7 +3840,7 @@ int main(int argc, char *argv[])
             bsl::ostringstream oss;
 
             ASSERTV(0 == encoder.encode(oss, bob));
-            ASSERTV(oss.str(), jsonText, oss.str() == jsonText);
+            ASSERTV(LINE, oss.str(), jsonText, oss.str() == jsonText);
 //             const int len1 = oss.str().size();
 //             const int len2 = jsonText.size();
 //             P(len1) P(len2)
@@ -4706,7 +4899,7 @@ int main(int argc, char *argv[])
             "            \"state\" : \"Some State\"\n"
             "        },\n"
             "        \"age\" : 21\n"
-            "    }";
+            "    }\n";
 
         bob.name()                 = "Bob";
         bob.homeAddress().street() = "Some Street";

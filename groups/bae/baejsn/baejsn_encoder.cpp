@@ -12,6 +12,34 @@ namespace BloombergLP {
                             // class baejsn_Encoder_EncodeImpl
                             // -------------------------------
 
+// PRIVATE MANIPULATORS
+void baejsn_Encoder_EncodeImpl::indentTopElement()
+{
+    if (d_encoder->d_encoderOptions_p
+     && baejsn_EncoderOptions::BAEJSN_PRETTY ==
+                              d_encoder->d_encoderOptions_p->encodingStyle()) {
+
+        int numSpaces = d_encoder->d_encoderOptions_p->initialIndentLevel()
+                             * d_encoder->d_encoderOptions_p->spacesPerLevel();
+
+        const char SPACES[]    = "                                    ";
+        const int  SPACES_SIZE = sizeof(SPACES) - 1;
+
+        if (0 < numSpaces) {
+            --numSpaces;
+        }
+
+        while (SPACES_SIZE < numSpaces) {
+            d_outputStream.write(SPACES, SPACES_SIZE);
+            numSpaces -= SPACES_SIZE;
+        }
+
+        if (0 < numSpaces) {
+            d_outputStream.write(SPACES, numSpaces);
+        }
+    }
+}
+
 int baejsn_Encoder_EncodeImpl::encodeImp(const bsl::vector<char>& value,
                                          bdeat_TypeCategory::Array)
 {

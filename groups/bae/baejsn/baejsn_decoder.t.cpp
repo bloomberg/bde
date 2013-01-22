@@ -3862,6 +3862,178 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) {
+      case 6: {
+        // --------------------------------------------------------------------
+        // USAGE EXAMPLE
+        //   Extracted from component header file.
+        //
+        // Concerns:
+        //: 1 The usage example provided in the component header file compiles,
+        //:   links, and runs as shown.
+        //
+        // Plan:
+        //: 1 Incorporate usage example from header into test driver, remove
+        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //:   (C-1)
+        //
+        // Testing:
+        //   USAGE EXAMPLE
+        // --------------------------------------------------------------------
+
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Decoding into a 'bas_codegen.pl'-generated from data in JSON
+///-----------------------------------------------------------------------
+// Consider that we want to exchange an employee's information between two
+// processes.  To allow this information exchange we will define the XML schema
+// representation for that class, use 'bas_codegen.pl' to create the 'Employee'
+// 'class' for storing that information, and decode into that object using the
+// baejsn decoder.
+//
+// First, we will define the XML schema inside a file called 'employee.xsd':
+//..
+//  <?xml version='1.0' encoding='UTF-8'?>
+//  <xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'
+//             xmlns:test='http://bloomberg.com/schemas/test'
+//             targetNamespace='http://bloomberg.com/schemas/test'
+//             elementFormDefault='unqualified'>
+//
+//      <xs:complexType name='Address'>
+//          <xs:sequence>
+//              <xs:element name='street' type='xs:string'/>
+//              <xs:element name='city'   type='xs:string'/>
+//              <xs:element name='state'  type='xs:string'/>
+//          </xs:sequence>
+//      </xs:complexType>
+//
+//      <xs:complexType name='Employee'>
+//          <xs:sequence>
+//              <xs:element name='name'        type='xs:string'/>
+//              <xs:element name='homeAddress' type='test:Address'/>
+//              <xs:element name='age'         type='xs:int'/>
+//          </xs:sequence>
+//      </xs:complexType>
+//
+//      <xs:element name='Employee' type='test:Employee'/>
+//
+//  </xs:schema>
+//..
+// Then, we will use the 'bas_codegen.pl' tool, to generate the C++ classes for
+// this schema.  The following command will generate the header and
+// implementation files for the all the classes in the 'test_messages'
+// components in the current directory:
+//..
+//  $ bas_codegen.pl -m msg -p test xsdfile.xsd
+//..
+// Next, we will create a 'test::Employee' object:
+//..
+    {
+    test::Employee employee;
+//..
+// Then, we will create a 'baejsn_Decoder' object using a
+// 'baejsn_DecoderOptions' object that specifies that unknown elements should
+// *not* be skipped.  Setting this option to 'false' will result in the
+// decoder returning an error on encountering an unknown element:
+//..
+    baejsn_DecoderOptions options;
+    options.setSkipUnknownElements(false);
+    baejsn_Decoder decoder(&options);
+//..
+// Next, we will specify the input data provided to the decoder:
+//..
+    const char INPUT[] = "{\"name\":\"Bob\",\"homeAddress\":{\"street\":"
+                         "\"Lexington Ave\",\"city\":\"New York City\","
+                         "\"state\":\"New York\"},\"age\":21}";
+//
+    bsl::istringstream is(INPUT);
+//..
+// Now, we will decode this object using the baejsn decoder:
+//..
+    const int rc = decoder.decode(is, &employee);
+    ASSERT(!rc);
+    ASSERT(is);
+//..
+// Finally, we will verify that the decoded object is as expected:
+//..
+    ASSERT("Bob"           == employee.name());
+    ASSERT("Lexington Ave" == employee.homeAddress().street());
+    ASSERT("New York City" == employee.homeAddress().city());
+    ASSERT("New York"      == employee.homeAddress().state());
+    ASSERT(21              == employee.age());
+    }
+//..
+//
+///Example 2: Decoding into a 'bcem_Aggregate' Object from JSON data
+///-----------------------------------------------------------------
+// Now consider that we want to exchange an employee's information between two
+// processes using a 'bcem_Aggregate'.  To allow this information exchange we
+// will define the 'bdem_Schema' to represent the meta-data, construct the
+// 'bcem_Aggregate' object with that schema, and decode that object using the
+// baejsn decoder.
+//
+// First, we create a 'bdem_Schema' object:
+//..
+    {
+    bcema_SharedPtr<bdem_Schema> schema(new bdem_Schema);
+//
+    bdem_RecordDef *addressRecord = schema->createRecord("Address");
+    addressRecord->appendField(bdem_ElemType::BDEM_STRING, "street");
+    addressRecord->appendField(bdem_ElemType::BDEM_STRING, "city");
+    addressRecord->appendField(bdem_ElemType::BDEM_STRING, "state");
+//
+    bdem_RecordDef *employeeRecord = schema->createRecord("Employee");
+    employeeRecord->appendField(bdem_ElemType::BDEM_STRING, "name");
+    employeeRecord->appendField(bdem_ElemType::BDEM_LIST,
+                                addressRecord,
+                                "homeAddress");
+    employeeRecord->appendField(bdem_ElemType::BDEM_INT, "age");
+//..
+// Then, we create a 'bcem_Aggregate' object using the schema::
+//..
+    bcem_Aggregate employee(schema, "Employee");
+//..
+// Next, we will create a 'baejsn_Decoder' object using a default
+// 'baejsn_DecoderOptions' object that specifies that unknown elements should
+// be skipped and should not result in a decoding error:
+//..
+    baejsn_DecoderOptions options;
+    baejsn_Decoder        decoder(&options);
+//..
+// Then, we will specify the input data provided to the decoder.  Notice that
+// the element named 'id' in the underlying JSON is an unknown element as it
+// is not specified in the schema but the decoder will skip that element:
+//..
+    const char INPUT[] = "    {\n"
+                         "        \"name\" : \"Bob\",\n"
+                         "        \"homeAddress\" : {\n"
+                         "            \"street\" : \"Lexington Ave\",\n"
+                         "            \"city\" : \"New York City\",\n"
+                         "            \"state\" : \"New York\"\n"
+                         "        },\n"
+                         "        \"age\" : 21,\n"
+                         "        \"id\" : 12345\n"
+                         "    }";
+//
+    bsl::istringstream is(INPUT);
+//..
+// Now, we will decode this object using the baejsn decoder:
+//..
+    const int rc = decoder.decode(is, &employee);
+    ASSERT(!rc);
+    ASSERT(is);
+//..
+// Finally, we will verify that the decoded object is as expected:
+//..
+    ASSERT("Bob"           == employee["name"].asString());
+    ASSERT("Lexington Ave" == employee["homeAddress"]["street"].asString());
+    ASSERT("New York City" == employee["homeAddress"]["city"].asString());
+    ASSERT("New York"      == employee["homeAddress"]["state"].asString());
+    ASSERT(21              == employee["age"].asInt());
+//..
+    }
+      } break;
       case 5: {
         // --------------------------------------------------------------------
         // TEST SKIPPING UNKNOWN ELEMENTS

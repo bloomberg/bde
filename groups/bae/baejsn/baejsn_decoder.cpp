@@ -21,8 +21,6 @@ int baejsn_Decoder::decodeBinaryArray(bsl::vector<char> *value)
         bslstl::StringRef dataValue;
         int rc = d_parser.value(&dataValue);
 
-        // TBD: See if we can get rid of temp string
-
         bsl::string base64String;
         rc = baejsn_ParserUtil::getValue(&base64String, dataValue);
 
