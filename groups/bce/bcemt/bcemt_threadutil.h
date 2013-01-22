@@ -61,7 +61,7 @@ BDES_IDENT("$Id: $")
 // 'schedulingPolicy' and 'schedulingPriority' are ignored unless
 // 'inheritSchedule' is 'false' (the default value is 'true').  Note that not
 // only is effective setting of thread priorities workable on only some
-// combinations of platforms and user priviledges, but setting the thread
+// combinations of platforms and user privileges, but setting the thread
 // policy and priority appropriately for one platform may cause thread creation
 // to fail on another platform.  Also note that an unset thread
 // priority may be interpreted as being outside the valid range defined by
@@ -71,16 +71,16 @@ BDES_IDENT("$Id: $")
 // --------  ------------------------------------------------------------------
 // Solaris   None.
 //
-// AIX       For non-priviledged clients, spawning of threads fails if
+// AIX       For non-privileged clients, spawning of threads fails if
 //           'schedulingPolicy' is 'BCEMT_SCHED_FIFO' or 'BCEMT_SCHED_RR'.
 //
-// Linux     Non-priviledged clients *can* *not* make effective use of thread
+// Linux     Non-privileged clients *can* *not* make effective use of thread
 //           priorities -- spawning of threads fails if 'schedulingPolicy' is
 //           'BCEMT_SCHED_FIFO' or 'BCEMT_SCHED_RR', and
 //           'getMinSchedulingPriority == getMaxSchedulingPriority' if the
 //           policy has any other value.
 //
-// HPUX      Non-priviledged clients *can* *not* make effective use of thread
+// HPUX      Non-privileged clients *can* *not* make effective use of thread
 //           priorities -- spawning of threads fails if 'inheritSchedule'
 //           is 'false'.
 //
@@ -263,6 +263,10 @@ BDES_IDENT("$Id: $")
 #include <bdef_function.h>
 #endif
 
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
+#endif
+
 namespace BloombergLP {
 
 class bdet_TimeInterval;
@@ -359,7 +363,7 @@ struct bcemt_ThreadUtil {
                       ThreadFunction  function,
                       void           *userData);
         // Create a new thread of program control having default attributes
-        // (e.g.  "stack size", "scheduling priority", etc) provided by either
+        // (e.g.,  "stack size", "scheduling priority", etc) provided by either
         // 'bcemt_Configuration' or platform-specific default attributes that
         // invokes the specified 'function' with a single argument specified by
         // 'userData', and load into the specified 'handle' an identifier that
@@ -396,7 +400,7 @@ struct bcemt_ThreadUtil {
 
     static int create(Handle *handle, const Invokable& function);
         // Create a new thread of program control having default attributes
-        // (e.g.  "stack size", "scheduling priority", etc) provided by either
+        // (e.g.,  "stack size", "scheduling priority", etc) provided by either
         // 'bcemt_Configuration' or platform-specific default attributes that
         // invokes the specified 'function' object, and load into the specified
         // 'handle' an identifier that may be used to refer to this thread in
@@ -430,7 +434,7 @@ struct bcemt_ThreadUtil {
                               bcemt_ThreadAttributes::SchedulingPolicy policy);
         // Return the minimum available priority for the 'policy', where
         // 'policy' is of type 'bcemt_ThreadAttributes::SchedulingPolicy'.
-        // Note that, for some platform / policy cominations,
+        // Note that, for some platform / policy combinations,
         // 'getMinSchedulingPriority(policy)' and
         // 'getMaxSchedulingPriority(policy)' return the same value.
 
@@ -438,7 +442,7 @@ struct bcemt_ThreadUtil {
                               bcemt_ThreadAttributes::SchedulingPolicy policy);
         // Return the maximum available priority for the 'policy', where
         // 'policy' is of type 'bcemt_ThreadAttributes::SchedulingPolicy'.
-        // Note that, for some platform / policy cominations,
+        // Note that, for some platform / policy combinations,
         // 'getMinSchedulingPriority(policy)' and
         // 'getMaxSchedulingPriority(policy)' return the same value.
 
@@ -456,13 +460,24 @@ struct bcemt_ThreadUtil {
         // specified 'microseconds' and the optionally specified 'seconds'
         // (relative time).  Note that the actual time suspended depends on
         // many factors including system scheduling and system timer
-        // resolution, and may be significantly longer than the time requested.
+        // resolution, and may be significantly longer than the time
+        // requested.
 
     static void sleep(const bdet_TimeInterval& time);
         // Suspend execution of the current thread for a period of at least the
         // specified 'time' (relative time).  Note that the actual time
         // suspended depends on many factors including system scheduling and
         // system timer resolution.
+
+    static void sleepUntil(const bdet_TimeInterval& absoluteTime);
+        // Suspend execution of the current thread until the specified
+        // 'absoluteTime' (expressed as the !ABSOLUTE! time from 00:00:00 UTC,
+        // January 1, 1970).  The behavior is undefined unless 'absoluteTime'
+        // represents a time after January 1, 1970 and before the end of
+        // December 31, 9999 (i.e., a time interval greater than or equal to
+        // 0, and less than 253,402,300,800 seconds).  Note that the actual
+        // time suspended depends on many factors including system scheduling
+        // and system timer resolution.
 
     static void yield();
         // Move the current thread to the end of the scheduler's queue and
@@ -530,7 +545,7 @@ struct bcemt_ThreadUtil {
         // is only valid until the thread terminates and may be reused
         // thereafter.
 
-    static bsls_PlatformUtil::Uint64 selfIdAsInt();
+    static bsls::Types::Uint64 selfIdAsInt();
         // Return an integral identifier that can be used to uniquely identify
         // the current thread within the current process.  Note that this
         // representation is particularly useful for logging purposes.  Also
@@ -539,7 +554,7 @@ struct bcemt_ThreadUtil {
         //
         // DEPRECATED: use 'selfIdAsUint64' instead.
 
-    static bsls_PlatformUtil::Uint64 selfIdAsUint64();
+    static bsls::Types::Uint64 selfIdAsUint64();
         // Return an integral identifier that can be used to uniquely identify
         // the current thread within the current process.  Note that this
         // representation is particularly useful for logging purposes.  Also
@@ -665,6 +680,15 @@ void bcemt_ThreadUtil::sleep(const bdet_TimeInterval& sleepTime)
 }
 
 inline
+void bcemt_ThreadUtil::sleepUntil(const bdet_TimeInterval& absoluteTime)
+{
+    int status = Imp::sleepUntil(absoluteTime);
+    (void) status;  // Suppress a unused variable error.
+    BSLS_ASSERT(0 == status);
+}
+
+
+inline
 void bcemt_ThreadUtil::yield()
 {
     Imp::yield();
@@ -745,13 +769,13 @@ bcemt_ThreadUtil::Id bcemt_ThreadUtil::selfId()
 }
 
 inline
-bsls_PlatformUtil::Uint64 bcemt_ThreadUtil::selfIdAsInt()
+bsls::Types::Uint64 bcemt_ThreadUtil::selfIdAsInt()
 {
     return Imp::selfIdAsInt();
 }
 
 inline
-bsls_PlatformUtil::Uint64 bcemt_ThreadUtil::selfIdAsUint64()
+bsls::Types::Uint64 bcemt_ThreadUtil::selfIdAsUint64()
 {
     return Imp::selfIdAsUint64();
 }
